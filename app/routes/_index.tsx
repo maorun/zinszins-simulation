@@ -1,36 +1,27 @@
 import type { MetaFunction } from "@vercel/remix";
-import { Close } from '@rsuite/icons';
-import 'rsuite/dist/rsuite.min.css';
 import { useState } from "react";
 import {
     Button,
-    ButtonToolbar,
-    Col,
-    DatePicker,
-    Form,
-    InputGroup,
-    InputNumber,
     Panel,
     Radio,
     RadioGroup,
-    RadioTile,
-    RadioTileGroup,
-    Row,
-    Slider,
-    Stack,
-    Table
+    Slider
 } from "rsuite";
+import 'rsuite/dist/rsuite.min.css';
+import { EntnahmeSimulationsAusgabe } from "~/components/EntnahmeSimulationsAusgabe";
+import { SparplanEingabe } from "~/components/SparplanEingabe";
+import { SparplanSimulationsAusgabe } from "~/components/SparplanSimulationsAusgabe";
+import { Zeitspanne } from "~/components/Zeitspanne";
 
-const { Column, HeaderCell, Cell } = Table;
 
-type Sparplan = {
+export type Sparplan = {
     id: number;
     start: Date;
     end?: Date | null;
     einzahlung: number;
 };
 
-type SparplanElement = {
+export type SparplanElement = {
     start: Date;
     type: "sparplan"
     einzahlung: number;
@@ -43,7 +34,7 @@ type SparplanElement = {
     simulation: SimulationResult;
 };
 
-const Berechnungen = {
+export const Berechnungen = {
  simulate: (
     startYear: number,
     endYear: number,
@@ -319,128 +310,14 @@ type SimulationResult = {
     [year: number]: SimulationResultElement;
 };
 
-function Zeitspanne({
-    startEnd,
-    dispatch,
-}: {
-    startEnd: [number, number];
-    dispatch: (val: [number, number]) => void;
-}) {
-    const min = 2023;
-    const max = 2100;
-    const [startOfIndependence, endOfLife] = startEnd;
-    return (
-        <label>
-            Zeitspanne
-            <Row>
-                <Col md={10}>
-                    <Slider
-                        min={min}
-                        max={max}
-                        progress
-                        style={{ marginTop: 16 }}
-                        value={startOfIndependence}
-                        onChange={(value) => {
-                            dispatch([value, endOfLife]);
-                        }}
-                    />
-                </Col>
-                <Col md={8}>
-                    <InputGroup>
-                        <InputNumber
-                            min={min}
-                            max={max}
-                            value={startEnd[0]}
-                            onChange={(nextValue) => {
-                                nextValue = Number(nextValue);
-                                const [_start, end] = startEnd;
-                                if (nextValue > end || nextValue < min || nextValue > max) {
-                                    return;
-                                }
-                                dispatch([nextValue, end]);
-                            }}
-                        />
-                    </InputGroup>
-                </Col>
-            </Row>
-        </label>
-    );
-}
-const thousands = (value: string) =>
-    Number(`${value}`).toLocaleString("de-DE", {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-    });
-
-const HeaderSummary = ({
-    title,
-    summary,
-}: {
-    title: string;
-    summary: string;
-}) => (
-    <div>
-        <label>{title}</label>
-        <div
-            style={{
-                fontSize: 18,
-                color: "#2eabdf",
-            }}
-        >
-            {thousands(summary)}
-        </div>
-    </div>
-);
-
-const NumberCell = ({
-    rowData,
-    dataKey,
-    ...props
-}: {
-    rowData?: any;
-    dataKey: string;
-}) => <Cell {...props}>{thousands(rowData[dataKey])}</Cell>;
-
-function ChangeDateCell ({
-    rowData,
-    dataKey,
-    onChange,
-    ...props
-}: {
-        rowData?: { id: any, [key: string]: Date | null }
-        dataKey: string;
-        onChange?: (id: any, val: Date | null) => void;
-    }) {
-    const [isFocused, setIsFocused] = useState(false)
-
-    return <Cell {...props} onClick={() => setIsFocused(true)}>
-        {isFocused ? 
-            <DatePicker
-                defaultOpen
-                format="yyyy-MM"
-                defaultValue={rowData?.[dataKey]}
-                onChange={(val) => {
-                    if (rowData) {
-                        rowData[dataKey] = val
-                    }
-                    onChange && onChange(rowData?.id, val)
-                }} 
-                onClose={() => setIsFocused(false)}
-            />
-        :
-        rowData?.[dataKey]?.toLocaleDateString()}
-    </Cell>;
-}
-
-
-type Summary = {
+export type Summary = {
     startkapital: number;
     zinsen: number;
     bezahlteSteuer: number;
     endkapital: number;
 };
 
-const initialSparplan: Sparplan = {
+export const initialSparplan: Sparplan = {
     id: 1,
     start: new Date("2023-01-01"),
     end: new Date("2040-10-01"),
@@ -455,332 +332,6 @@ const SimulationAnnual: {
 } as const
 
 type SimulationAnnualType = 'yearly' | 'monthly'
-
-export const meta: MetaFunction = () => {
-  return [
-    { title: "New Remix App" },
-    { name: "description", content: "Welcome to Remix!" },
-  ];
-};
-
-function SparplanEingabe({ dispatch }: { dispatch: (val: Sparplan[]) => void }) {
-    const [sparplans, setSparplans] = useState<Sparplan[]>([
-        initialSparplan
-    ]);
-
-    const [singleFormValue, setSingleFormValue] = useState<{ date: Date, einzahlung: string }>({
-        date: new Date(),
-        einzahlung: '',
-    });
-    const [sparplanFormValues, setSparplanFormValues] = useState<{ start: Date, end: Date | null, einzahlung: string }>({
-        start: new Date(),
-        end: null,
-        einzahlung: '',
-    });
-
-    return (
-        <Stack spacing={10} alignItems="flex-start">
-            <Panel
-                header="Sparpläne" bordered>
-                <Form fluid
-                    formValue={sparplanFormValues}
-                    onChange={changedFormValue => setSparplanFormValues({
-                        start: changedFormValue.start,
-                        end: changedFormValue.end,
-                        einzahlung: changedFormValue.einzahlung,
-
-                    })
-                    }
-                    onSubmit={() => {
-                        if (sparplanFormValues.start && sparplanFormValues.einzahlung && sparplanFormValues.einzahlung) {
-                            const changedSparplans: Sparplan[] = [
-                                ...sparplans,
-                                {
-                                    id: new Date().getTime(),
-                                    start: sparplanFormValues.start,
-                                    end: sparplanFormValues.end,
-                                    einzahlung: Number(sparplanFormValues.einzahlung),
-
-                                }
-                            ]
-                            setSparplans(changedSparplans)
-                            dispatch(changedSparplans)
-                            setSparplanFormValues({
-                                start: new Date(),
-                                end: null,
-                                einzahlung: '',
-                            })
-                        }
-                    }} >
-                    <Form.Group controlId="start">
-                        <Form.ControlLabel>Start</Form.ControlLabel>
-                        <Form.Control format="yyyy-MM" name="start" accepter={DatePicker} />
-                    </Form.Group>
-                    <Form.Group controlId="end">
-                        <Form.ControlLabel>Ende</Form.ControlLabel>
-                        <Form.Control format="yyyy-MM" name="end" accepter={DatePicker} />
-                    </Form.Group>
-                    <Form.Group controlId="einzahlung">
-                        <Form.ControlLabel>Einzahlungen je Jahr</Form.ControlLabel>
-                        <Form.Control name="einzahlung" accepter={InputNumber} />
-                    </Form.Group>
-                    <Form.Group>
-                        <ButtonToolbar>
-                            <Button
-                                appearance="primary"
-                                type="submit"
-                            >
-                                Hinzufügen
-                            </Button>
-                        </ButtonToolbar>
-                    </Form.Group>
-                </Form>
-            </Panel>
-            <Panel header="Einmalzahlungen" bordered>
-                <Form fluid
-                    formValue={singleFormValue}
-                    onChange={changedFormValue => setSingleFormValue({
-                        date: changedFormValue.date,
-                        einzahlung: changedFormValue.einzahlung,
-
-                    })
-                    }
-                    onSubmit={() => {
-                        if (singleFormValue.einzahlung) {
-                            const changedSparplans: Sparplan[] = [
-                                ...sparplans,
-                                {
-                                    id: new Date().getTime(),
-                                    start: singleFormValue.date,
-                                    end: singleFormValue.date,
-                                    einzahlung: Number(singleFormValue.einzahlung),
-
-                                }
-                            ]
-                            setSparplans(changedSparplans)
-                            dispatch(changedSparplans)
-                            setSingleFormValue({
-                                date: new Date(),
-                                einzahlung: '',
-                            })
-                        }
-                    }} >
-                    <Form.Group controlId="date">
-                        <Form.ControlLabel>Datum</Form.ControlLabel>
-                        <Form.Control format="yyyy-MM" name="date" accepter={DatePicker} />
-                    </Form.Group>
-                    <Form.Group controlId="einzahlung">
-                        <Form.ControlLabel>Einzahlung</Form.ControlLabel>
-                        <Form.Control name="einzahlung" accepter={InputNumber} />
-                    </Form.Group>
-                    <Form.Group>
-                        <ButtonToolbar>
-                            <Button
-                                appearance="primary"
-                                type="submit"
-                            >
-                                Hinzufügen
-                            </Button>
-                        </ButtonToolbar>
-                    </Form.Group>
-                </Form>
-            </Panel>
-            <Stack.Item grow={1}>
-                <Panel header="gespeichert" bordered bodyFill>
-                    <Table
-                        autoHeight
-                        data={sparplans}
-                        bordered
-                        rowHeight={60}
-                    >
-                        <Column width={130}>
-                            <HeaderCell>Start</HeaderCell>
-                            <ChangeDateCell onChange={(id, value) => {
-                                if (!value) {
-                                    return
-                                }
-                                const changedSparplans = sparplans.map((el) => el.id === id ? { ...el, start: value } : el)
-                                setSparplans(changedSparplans)
-                                dispatch(changedSparplans)
-                            }} dataKey="start" />
-                        </Column>
-                        <Column width={130} >
-                            <HeaderCell>End</HeaderCell>
-                            <ChangeDateCell onChange={(id, value) => {
-                                const changedSparplans = sparplans.map((el) => el.id === id ? { ...el, end: value } : el)
-                                console.log(changedSparplans)
-                                setSparplans(changedSparplans)
-                                dispatch(changedSparplans)
-                            }} dataKey="end" />
-                        </Column>
-                        <Column width={140}>
-                            <HeaderCell>Einzahlungen je Jahr</HeaderCell>
-                            <Cell dataKey="einzahlung" />
-                        </Column>
-                        <Column>
-                            <HeaderCell>Actions</HeaderCell>
-                            <Cell>
-                                {(action) => (
-                                    <Button
-                                        onClick={() => {
-                                            const changedSparplans = sparplans.filter((el) => el.id !== action.id)
-                                            setSparplans(changedSparplans)
-                                            dispatch(changedSparplans)
-                                        }}
-                                    >
-                                        <Close />
-                                    </Button>
-                                )}
-                            </Cell>
-                        </Column>
-                    </Table>
-                </Panel>
-            </Stack.Item>
-        </Stack>
-    );
-}
-
-function EntnahmeSimulationsAusgabe({
-    startEnd,
-    elemente,
-    dispatchEnd,
-}: {
-    startEnd: [number, number];
-    elemente: SparplanElement[];
-    dispatchEnd: (val: [number, number]) => void;
-}) {
-    const [startOfIndependence, endOfLife] = startEnd;
-
-    const [formValue, setFormValue] = useState({
-        endOfLife,
-        strategie: "4prozent",
-        rendite: 5,
-    });
-
-    return (
-        <Panel header="Entnahme" bordered collapsible>
-            <Panel header="Variablen" bordered>
-                <Form fluid formValue={formValue}
-                    onChange={changedFormValue => {
-                        dispatchEnd([startOfIndependence, changedFormValue.endOfLife])
-                        setFormValue({
-                            endOfLife: changedFormValue.endOfLife,
-                            strategie: changedFormValue.strategie,
-                            rendite: changedFormValue.rendite,
-                        })
-                    }}
-                >
-                    <Form.Group controlId="rendite">
-                        <Form.ControlLabel>erwartete Rendite</Form.ControlLabel>
-                        <Form.Control name="rendite" accepter={Slider} 
-                            min={0}
-                            max={10}
-                            step={0.5}
-                            handleTitle={(<div style={{marginTop: 15}}>{formValue.rendite} %</div>)}
-                            progress
-                            graduated
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="startRente">
-                        <Form.ControlLabel>End of Life</Form.ControlLabel>
-                        <Form.Control name="endOfLife" accepter={InputNumber} 
-                        />
-                    </Form.Group>
-
-                    <Form.Group controlId="endOfLife">
-                        <Form.ControlLabel>End of Life</Form.ControlLabel>
-                        <Form.Control name="endOfLife" accepter={InputNumber} 
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="strategie">
-                        <Form.ControlLabel>Strategie</Form.ControlLabel>
-                        <Form.Control name="strategie" accepter={RadioTileGroup}>
-                            <RadioTile value="4prozent" label="4% Regel">
-                                4% Entnahme
-                            </RadioTile>
-                            <RadioTile value="3prozent" label="3% Regel">
-                                3% Entnahme
-                            </RadioTile>
-                        </Form.Control>
-                    </Form.Group>
-                </Form>
-            </Panel>
-            <Panel header="Simulation" bordered>
-                asdf
-            </Panel>
-        </Panel>
-    )
-}
-
-function SparplanSimulationsAusgabe({
-    elemente,
-}: {
-    elemente: SparplanElement[];
-}) {
-    const summary: Summary = Berechnungen.fullSummary(elemente)
-    return (
-        <Panel header="Sparplan-Verlauf" bordered>
-            <Table
-                data={elemente.sort((a,b) => b.start.getTime() - a.start.getTime()
-                ).map((el) => ({
-                        ...el,
-                        zeitpunkt: el.start.toLocaleDateString(),
-                        zinsen: Berechnungen.getSparplanSummary(el.simulation).zinsen.toFixed(2),
-                        bezahlteSteuer: Berechnungen.getSparplanSummary(
-                            el.simulation
-                        ).bezahlteSteuer.toFixed(2),
-                        endkapital: Berechnungen.getSparplanSummary(el.simulation).endkapital?.toFixed(2),
-                    }))}
-                bordered
-                headerHeight={60}
-            >
-                <Column width={280}>
-                    <HeaderCell>Zeitpunkt</HeaderCell>
-                    <Cell dataKey="zeitpunkt" />
-                </Column>
-
-                <Column flexGrow={1}>
-                    <HeaderCell>
-                        <HeaderSummary
-                            title="Einzahlung"
-                            summary={summary.startkapital?.toFixed(2).toString() || ""}
-                        />
-                    </HeaderCell>
-                    <NumberCell dataKey="einzahlung" />
-                </Column>
-
-                <Column width={120}>
-                    <HeaderCell>
-                        <HeaderSummary
-                            title="bezahlte Steuer"
-                            summary={summary.bezahlteSteuer?.toFixed(2).toString() || ""}
-                        />
-                    </HeaderCell>
-                    <NumberCell dataKey="bezahlteSteuer" />
-                </Column>
-                <Column width={120}>
-                    <HeaderCell>
-                        <HeaderSummary
-                            title="Zinsen"
-                            summary={summary.zinsen?.toFixed(2).toString() || ""}
-                        />
-                    </HeaderCell>
-                    <NumberCell dataKey="zinsen" />
-                </Column>
-                <Column width={120}>
-                    <HeaderCell>
-                        <HeaderSummary
-                            title="Endkapital"
-                            summary={summary.endkapital?.toFixed(2).toString() || ""}
-                        />
-                    </HeaderCell>
-                    <NumberCell dataKey="endkapital" />
-                </Column>
-            </Table>
-        </Panel>
-    );
-}
-
 
 export default function Index() {
     const [rendite, setRendite] = useState(5);
@@ -806,7 +357,7 @@ export default function Index() {
     )
 
     return (
-        <div >
+        <div>
 
             <Button
                 onClick={() => setSparplanElemente(Berechnungen.convertSparplanToElements(sparplan, startEnd, simulationAnnual))}
@@ -895,6 +446,15 @@ export default function Index() {
                 </div>
             </Panel>
 
+            <footer>by Marco</footer>
         </div>
     );
 }
+
+export const meta: MetaFunction = () => {
+  return [
+    { title: "Zins-simulation" },
+    { name: "description", content: "simulation des Zinseszins mit monatlichen Sparplan einschließlich Berechnung der Vorabpauschale und weiteren Parametern" },
+  ];
+};
+
