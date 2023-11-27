@@ -1,8 +1,5 @@
 import {
-    Col,
-    InputGroup,
     InputNumber,
-    Row,
     Slider
 } from "rsuite";
 
@@ -19,37 +16,29 @@ export function Zeitspanne({
     return (
         <label>
             Zeitspanne
-            <Row>
-                <Col md={10}>
-                    <Slider
-                        min={min}
-                        max={max}
-                        progress
-                        style={{ marginTop: 16 }}
-                        value={startOfIndependence}
-                        onChange={(value) => {
-                            dispatch([value, endOfLife]);
-                        }}
-                    />
-                </Col>
-                <Col md={8}>
-                    <InputGroup>
-                        <InputNumber
-                            min={min}
-                            max={max}
-                            value={startEnd[0]}
-                            onChange={(nextValue) => {
-                                nextValue = Number(nextValue);
-                                const [_start, end] = startEnd;
-                                if (nextValue > end || nextValue < min || nextValue > max) {
-                                    return;
-                                }
-                                dispatch([nextValue, end]);
-                            }}
-                        />
-                    </InputGroup>
-                </Col>
-            </Row>
+            <Slider
+                min={min}
+                max={max}
+                progress
+                style={{ marginTop: 16, marginBottom: 16 }}
+                value={startOfIndependence}
+                onChange={(value) => {
+                    dispatch([value, endOfLife]);
+                }}
+            />
+            <InputNumber
+                min={min}
+                max={max}
+                value={startEnd[0]}
+                onChange={(nextValue) => {
+                    nextValue = Number(nextValue);
+                    const [_start, end] = startEnd;
+                    if (nextValue > end || nextValue < min || nextValue > max) {
+                        return;
+                    }
+                    dispatch([nextValue, end]);
+                }}
+            />
         </label>
     );
 }

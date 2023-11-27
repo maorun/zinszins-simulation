@@ -374,10 +374,10 @@ export default function Index() {
                     <Slider
                         name="rendite"
                         renderTooltip={(value) => value + "%"}
-                        handleTitle={(<div style={{marginTop: 15}}>{rendite} %</div>)}
+                        handleTitle={(<div style={{marginTop: '-17px'}}>{rendite}%</div>)}
                         progress
                         defaultValue={rendite}
-                        min={0}
+                        min={3}
                         max={10}
                         step={0.5}
                         graduated

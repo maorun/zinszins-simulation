@@ -1,5 +1,4 @@
 import { Close } from '@rsuite/icons';
-import {Sparplan, initialSparplan} from "~/routes/_index";
 import { useState } from "react";
 import {
     Button,
@@ -8,9 +7,10 @@ import {
     Form,
     InputNumber,
     Panel,
-    Stack,
     Table
 } from "rsuite";
+import { initialSparplan, type Sparplan } from "~/routes/_index";
+
 const { Column, HeaderCell, Cell } = Table;
 
 export function SparplanEingabe({ dispatch }: { dispatch: (val: Sparplan[]) => void }) {
@@ -29,9 +29,8 @@ export function SparplanEingabe({ dispatch }: { dispatch: (val: Sparplan[]) => v
     });
 
     return (
-        <Stack spacing={10} alignItems="flex-start">
-            <Panel
-                header="Sparpläne" bordered>
+        <>
+            <Panel header="Sparpläne erstellen" bordered collapsible>
                 <Form fluid
                     formValue={sparplanFormValues}
                     onChange={changedFormValue => setSparplanFormValues({
@@ -86,7 +85,7 @@ export function SparplanEingabe({ dispatch }: { dispatch: (val: Sparplan[]) => v
                     </Form.Group>
                 </Form>
             </Panel>
-            <Panel header="Einmalzahlungen" bordered>
+            <Panel header="Einmalzahlungen erstellen" bordered collapsible>
                 <Form fluid
                     formValue={singleFormValue}
                     onChange={changedFormValue => setSingleFormValue({
@@ -135,57 +134,55 @@ export function SparplanEingabe({ dispatch }: { dispatch: (val: Sparplan[]) => v
                     </Form.Group>
                 </Form>
             </Panel>
-            <Stack.Item grow={1}>
-                <Panel header="gespeichert" bordered bodyFill>
-                    <Table
-                        autoHeight
-                        data={sparplans}
-                        bordered
-                        rowHeight={60}
-                    >
-                        <Column width={130}>
-                            <HeaderCell>Start</HeaderCell>
-                            <ChangeDateCell onChange={(id, value) => {
-                                if (!value) {
-                                    return
-                                }
-                                const changedSparplans = sparplans.map((el) => el.id === id ? { ...el, start: value } : el)
-                                setSparplans(changedSparplans)
-                                dispatch(changedSparplans)
-                            }} dataKey="start" />
-                        </Column>
-                        <Column width={130} >
-                            <HeaderCell>End</HeaderCell>
-                            <ChangeDateCell onChange={(id, value) => {
-                                const changedSparplans = sparplans.map((el) => el.id === id ? { ...el, end: value } : el)
-                                setSparplans(changedSparplans)
-                                dispatch(changedSparplans)
-                            }} dataKey="end" />
-                        </Column>
-                        <Column width={140}>
-                            <HeaderCell>Einzahlungen je Jahr</HeaderCell>
-                            <Cell dataKey="einzahlung" />
-                        </Column>
-                        <Column>
-                            <HeaderCell>Actions</HeaderCell>
-                            <Cell>
-                                {(action) => (
-                                    <Button
-                                        onClick={() => {
-                                            const changedSparplans = sparplans.filter((el) => el.id !== action.id)
-                                            setSparplans(changedSparplans)
-                                            dispatch(changedSparplans)
-                                        }}
-                                    >
-                                        <Close />
-                                    </Button>
-                                )}
-                            </Cell>
-                        </Column>
-                    </Table>
-                </Panel>
-            </Stack.Item>
-        </Stack>
+            <Panel header="gespeicherte Sparpläne" bordered bodyFill collapsible expanded>
+                <Table
+                    autoHeight
+                    data={sparplans}
+                    bordered
+                    rowHeight={60}
+                >
+                    <Column width={130}>
+                        <HeaderCell>Start</HeaderCell>
+                        <ChangeDateCell onChange={(id, value) => {
+                            if (!value) {
+                                return
+                            }
+                            const changedSparplans = sparplans.map((el) => el.id === id ? { ...el, start: value } : el)
+                            setSparplans(changedSparplans)
+                            dispatch(changedSparplans)
+                        }} dataKey="start" />
+                    </Column>
+                    <Column width={130} >
+                        <HeaderCell>End</HeaderCell>
+                        <ChangeDateCell onChange={(id, value) => {
+                            const changedSparplans = sparplans.map((el) => el.id === id ? { ...el, end: value } : el)
+                            setSparplans(changedSparplans)
+                            dispatch(changedSparplans)
+                        }} dataKey="end" />
+                    </Column>
+                    <Column width={140}>
+                        <HeaderCell>Einzahlungen je Jahr</HeaderCell>
+                        <Cell dataKey="einzahlung" />
+                    </Column>
+                    <Column>
+                        <HeaderCell>Actions</HeaderCell>
+                        <Cell>
+                            {(action) => (
+                                <Button
+                                    onClick={() => {
+                                        const changedSparplans = sparplans.filter((el) => el.id !== action.id)
+                                        setSparplans(changedSparplans)
+                                        dispatch(changedSparplans)
+                                    }}
+                                >
+                                    <Close />
+                                </Button>
+                            )}
+                        </Cell>
+                    </Column>
+                </Table>
+            </Panel>
+        </>
     );
 
 }
