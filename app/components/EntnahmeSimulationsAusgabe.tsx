@@ -8,7 +8,7 @@ import {
     Slider
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
-import { SparplanElement } from "~/routes/_index";
+import type { SparplanElement } from "./SparplanEingabe";
 
 export function EntnahmeSimulationsAusgabe({
     startEnd,
