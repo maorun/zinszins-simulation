@@ -11,24 +11,26 @@ export type Summary = {
 
 
 const { Column, HeaderCell, Cell } = Table;
-    function getSparplanSummary (element: SimulationResult): Summary {
-        const first: SimulationResultElement | undefined = Object.values(element).shift()
-        const last: SimulationResultElement  | undefined= Object.values(element).pop()
 
-        return {
-            startkapital: first?.startkapital || 0,
-            zinsen: Number(last?.endkapital) - Number(first?.startkapital),
-            bezahlteSteuer: Object.values(element).reduce(
-                (previousValue, currentValue) =>
-                    previousValue + currentValue.bezahlteSteuer,
-                0
-            ),
-            endkapital: last?.endkapital || 0,
-        };
-    }
-export function fullSummary(elemente: SparplanElement[]): Summary {
-    return elemente
-        .map((element) => element.simulation)
+function getSparplanSummary(element?: SimulationResult): Summary {
+    const first: SimulationResultElement | undefined = element && Object.values(element).shift()
+    const last: SimulationResultElement | undefined = element && Object.values(element).pop()
+
+    return {
+        startkapital: first?.startkapital || 0,
+        zinsen: Number(last?.endkapital) - Number(first?.startkapital),
+        bezahlteSteuer: element ? Object.values(element).reduce(
+            (previousValue, currentValue) =>
+                previousValue + currentValue.bezahlteSteuer,
+            0
+        ) : 0,
+        endkapital: last?.endkapital || 0,
+    };
+}
+
+export function fullSummary(elemente?: SparplanElement[]): Summary {
+
+    return elemente ? elemente.map((element) => element.simulation)
         .map(getSparplanSummary)
         .reduce(
             (previousValue, currentValue) => ({
@@ -36,7 +38,7 @@ export function fullSummary(elemente: SparplanElement[]): Summary {
                 zinsen: previousValue.zinsen + currentValue.zinsen,
                 bezahlteSteuer: previousValue.bezahlteSteuer + currentValue.bezahlteSteuer,
                 endkapital:
-                Number(previousValue.endkapital) + Number(currentValue.endkapital),
+                    Number(previousValue.endkapital) + Number(currentValue.endkapital),
             }),
             {
                 startkapital: 0,
@@ -44,33 +46,48 @@ export function fullSummary(elemente: SparplanElement[]): Summary {
                 bezahlteSteuer: 0,
                 endkapital: 0,
             }
-        );
+        ) : {
+        startkapital: 0,
+        zinsen: 0,
+        bezahlteSteuer: 0,
+        endkapital: 0,
+    };
+}
 
+export function SparplanEnd({
+    elemente,
+}: {
+    elemente?: SparplanElement[]
+}) {
+    const summary: Summary = fullSummary(elemente)
+    return <Panel header="Endkapital" bordered>
+        {thousands(summary.endkapital.toFixed(2))} &euro;
+    </Panel>
 }
 
 export function SparplanSimulationsAusgabe({
     elemente,
 }: {
-        elemente: SparplanElement[];
-    }) {
+    elemente?: SparplanElement[]
+}) {
     const summary: Summary = fullSummary(elemente)
     return (
         <Panel header="Sparplan-Verlauf" bordered>
             <Table
-                data={elemente.sort((a,b) => b.start.getTime() - a.start.getTime()
+                data={elemente?.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime()
                 ).map((el) => ({
-                        ...el,
-                        zeitpunkt: el.start.toLocaleDateString(),
-                        zinsen: getSparplanSummary(el.simulation).zinsen.toFixed(2),
-                        bezahlteSteuer: getSparplanSummary(
-                            el.simulation
-                        ).bezahlteSteuer.toFixed(2),
-                        endkapital: getSparplanSummary(el.simulation).endkapital?.toFixed(2),
-                    }))}
+                    ...el,
+                    zeitpunkt: new Date(el.start).toLocaleDateString(),
+                    zinsen: getSparplanSummary(el.simulation).zinsen.toFixed(2),
+                    bezahlteSteuer: getSparplanSummary(
+                        el.simulation
+                    ).bezahlteSteuer.toFixed(2),
+                    endkapital: getSparplanSummary(el.simulation).endkapital?.toFixed(2),
+                }))}
                 bordered
                 headerHeight={60}
             >
-                <Column width={280}>
+                <Column>
                     <HeaderCell>Zeitpunkt</HeaderCell>
                     <Cell dataKey="zeitpunkt" />
                 </Column>
@@ -85,7 +102,7 @@ export function SparplanSimulationsAusgabe({
                     <NumberCell dataKey="einzahlung" />
                 </Column>
 
-                <Column width={120}>
+                <Column>
                     <HeaderCell>
                         <HeaderSummary
                             title="bezahlte Steuer"
@@ -94,7 +111,7 @@ export function SparplanSimulationsAusgabe({
                     </HeaderCell>
                     <NumberCell dataKey="bezahlteSteuer" />
                 </Column>
-                <Column width={120}>
+                <Column>
                     <HeaderCell>
                         <HeaderSummary
                             title="Zinsen"
@@ -103,7 +120,7 @@ export function SparplanSimulationsAusgabe({
                     </HeaderCell>
                     <NumberCell dataKey="zinsen" />
                 </Column>
-                <Column width={120}>
+                <Column flexGrow={1}>
                     <HeaderCell>
                         <HeaderSummary
                             title="Endkapital"

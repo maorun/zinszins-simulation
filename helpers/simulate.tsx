@@ -27,21 +27,21 @@ const freibetrag: {
 
 export const SimulationAnnual: {
     [key in SimulationAnnualType]: SimulationAnnualType
-}= {
+} = {
     yearly: 'yearly',
     monthly: 'monthly',
 } as const
 
 export type SimulationAnnualType = 'yearly' | 'monthly'
 
- export function simulate(
+export function simulate(
     startYear: number,
     endYear: number,
     elements: SparplanElement[],
     wachstumsrate: number,
     steuerlast: number,
     simulationAnnual: SimulationAnnualType
-): number[] {
+): SparplanElement[] {
     const years = [];
     for (let year = startYear; year <= endYear; year++) {
         for (const element of elements) {
@@ -54,20 +54,23 @@ export type SimulationAnnualType = 'yearly' | 'monthly'
         if (
             simulationAnnual === SimulationAnnual.monthly) {
 
-            const wachstumsrateMonth = Math.pow(1+wachstumsrate, 1/12) - 1
+            const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1
 
             for (const element of elements) {
-                if (element.start.getFullYear() <= year) {
-                    if (element.start.getFullYear() === year) {
+                if (new Date(element.start).getFullYear() <= year) {
+                    if (new Date(element.start).getFullYear() === year) {
 
                         //wertzuwachs unterjahr
                         for (let month = 1; month <= 12; month++) {
-                            if (element.start.getMonth() + 1  <= month) {
-                                if (!element.simulation[year]?.startkapital) {
+                            if (new Date(element.start).getMonth() + 1 <= month) {
+                                if (!element.simulation?.[year]?.startkapital) {
+                                    if (!element.simulation) {
+                                        element.simulation = {}
+                                    }
                                     element.simulation[year] = {
                                         startkapital: element.einzahlung,
                                         endkapital: element.einzahlung * (1 + wachstumsrateMonth),
-                                        zinsen:0,
+                                        zinsen: 0,
                                         bezahlteSteuer: 0,
                                         genutzterFreibetrag: 0,
                                     }
@@ -75,7 +78,7 @@ export type SimulationAnnualType = 'yearly' | 'monthly'
                                     element.simulation[year] = {
                                         startkapital: (element.simulation[year]?.startkapital || 0),
                                         endkapital: ((element.simulation[year]?.endkapital || 0)) * (1 + wachstumsrateMonth),
-                                        zinsen:0,
+                                        zinsen: 0,
                                         bezahlteSteuer: 0,
                                         genutzterFreibetrag: 0,
                                     };
@@ -85,8 +88,8 @@ export type SimulationAnnualType = 'yearly' | 'monthly'
                         }
                     } else {
                         let kapital =
-                            element.simulation[year - 1]?.endkapital ||
-                                element.einzahlung + (element.type === "einmalzahlung" ? element.gewinn : 0);
+                            element.simulation?.[year - 1]?.endkapital ||
+                            element.einzahlung + (element.type === "einmalzahlung" ? element.gewinn : 0);
 
                         const endKapital = zinszinsVorabpauschale(
                             kapital,
@@ -95,10 +98,14 @@ export type SimulationAnnualType = 'yearly' | 'monthly'
                             steuerlast
                         );
 
+                        if (!element.simulation) {
+                            element.simulation = {}
+                        }
+
                         element.simulation[year] = {
                             startkapital: kapital,
                             endkapital: kapital * (1 + wachstumsrate) - endKapital.steuer,
-                            zinsen: kapital * ( 1 + wachstumsrate),
+                            zinsen: kapital * (1 + wachstumsrate),
                             bezahlteSteuer: endKapital.steuer,
                             genutzterFreibetrag: 0,
 
@@ -108,9 +115,9 @@ export type SimulationAnnualType = 'yearly' | 'monthly'
                 }
             }
             for (const element of elements) {
-                if (element.start.getFullYear() <= year) {
-                    const month = element.start.getMonth() + 1
-                    const kapital = element.simulation[year]?.startkapital || element.einzahlung;
+                if (new Date(element.start).getFullYear() <= year) {
+                    const month = new Date(element.start).getMonth() + 1
+                    const kapital = element.simulation?.[year]?.startkapital || element.einzahlung;
 
                     const vorabPauschaleZinzen = zinszinsVorabpauschale(
                         kapital,
@@ -130,10 +137,10 @@ export type SimulationAnnualType = 'yearly' | 'monthly'
             }
         } else {
             for (const element of elements) {
-                if (element.start.getFullYear() <= year) {
+                if (new Date(element.start).getFullYear() <= year) {
                     let kapital =
                         element.simulation[year - 1]?.endkapital ||
-                            element.einzahlung + (element.type === "einmalzahlung" ? element.gewinn : 0);
+                        element.einzahlung + (element.type === "einmalzahlung" ? element.gewinn : 0);
 
                     const endKapital = zinszinsVorabpauschale(
                         kapital,
@@ -145,7 +152,7 @@ export type SimulationAnnualType = 'yearly' | 'monthly'
                     element.simulation[year] = {
                         startkapital: kapital,
                         endkapital: kapital * (1 + wachstumsrate) - endKapital.steuer,
-                        zinsen: kapital * ( 1 + wachstumsrate),
+                        zinsen: kapital * (1 + wachstumsrate),
                         bezahlteSteuer: endKapital.steuer,
                         genutzterFreibetrag: 0,
 
@@ -158,6 +165,6 @@ export type SimulationAnnualType = 'yearly' | 'monthly'
     }
 
 
-    return years;
+    return elements;
 }
 

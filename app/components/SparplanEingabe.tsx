@@ -16,18 +16,18 @@ const { Column, HeaderCell, Cell } = Table;
 
 export type Sparplan = {
     id: number;
-    start: Date;
-    end?: Date | null;
+    start: Date | string;
+    end?: Date | string | null;
     einzahlung: number;
 };
 
 export type SparplanElement = {
-    start: Date;
+    start: Date | string;
     type: "sparplan"
     einzahlung: number;
     simulation: SimulationResult;
 } | {
-    start: Date;
+    start: Date | string;
     type: "einmalzahlung"
     gewinn: number;
     einzahlung: number;
@@ -41,12 +41,12 @@ export const initialSparplan: Sparplan = {
     einzahlung: 24000,
 }
 
-export function convertSparplanToElements (val: Sparplan[], startEnd: [number, number], simulationAnnual: SimulationAnnualType): SparplanElement[] {
+export function convertSparplanToElements(val: Sparplan[], startEnd: [number, number], simulationAnnual: SimulationAnnualType): SparplanElement[] {
     const data: SparplanElement[] = val.flatMap((el) => {
         const sparplanElementsToSave: SparplanElement[] = []
         for (let i = new Date().getFullYear(); i <= startEnd[0]; i++) {
-            if (el.start.getFullYear() <= i 
-                && (!el.end || el.end.getFullYear() >= i)
+            if (new Date(el.start).getFullYear() <= i
+                && (!el.end || new Date(el.end).getFullYear() >= i)
             ) {
                 if (simulationAnnual === SimulationAnnual.yearly) {
                     sparplanElementsToSave.push({
@@ -56,10 +56,10 @@ export function convertSparplanToElements (val: Sparplan[], startEnd: [number, n
                         simulation: {},
                     })
                 } else {
-                    for(let month = 0; month < 12; month++) {
-                        if (el.start.getFullYear() === i && el.start.getMonth() > month) {
+                    for (let month = 0; month < 12; month++) {
+                        if (new Date(el.start).getFullYear() === i && new Date(el.start).getMonth() > month) {
                             continue;
-                        } else if (el.end && el.end.getFullYear() === i && el.end.getMonth() < month) {
+                        } else if (el.end && new Date(el.end).getFullYear() === i && new Date(el.end).getMonth() < month) {
                             continue;
                         } else {
                             sparplanElementsToSave.push({
@@ -253,20 +253,20 @@ export function SparplanEingabe({ dispatch }: { dispatch: (val: Sparplan[]) => v
 
 }
 
-function ChangeDateCell ({
+function ChangeDateCell({
     rowData,
     dataKey,
     onChange,
     ...props
 }: {
-        rowData?: { id: any, [key: string]: Date | null }
-        dataKey: string;
-        onChange?: (id: any, val: Date | null) => void;
-    }) {
+    rowData?: { id: any, [key: string]: Date | null }
+    dataKey: string;
+    onChange?: (id: any, val: Date | null) => void;
+}) {
     const [isFocused, setIsFocused] = useState(false)
 
     return <Cell {...props} onClick={() => setIsFocused(true)}>
-        {isFocused ? 
+        {isFocused ?
             <DatePicker
                 defaultOpen
                 format="yyyy-MM"
@@ -276,11 +276,11 @@ function ChangeDateCell ({
                         rowData[dataKey] = val
                     }
                     onChange && onChange(rowData?.id, val)
-                }} 
+                }}
                 onClose={() => setIsFocused(false)}
             />
-        :
-        rowData?.[dataKey]?.toLocaleDateString()}
+            :
+            rowData?.[dataKey]?.toLocaleDateString()}
     </Cell>;
 }
 
