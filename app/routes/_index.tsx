@@ -85,14 +85,6 @@ export default function Index() {
     return (
         <div>
 
-            <Button
-                onClick={() => {
-                    setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual))
-                    load({})
-                }}
-            >
-                Refresh</Button>
-
             <Panel header="Eingabe" bordered>
                 <Panel header="Variablen" bordered>
                     <Zeitspanne startEnd={startEnd} dispatch={(val) => {
