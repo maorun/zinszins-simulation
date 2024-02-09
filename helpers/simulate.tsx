@@ -50,16 +50,14 @@ export function simulate(
     }
     for (let year = startYear; year <= endYear; year++) {
         years.push(year);
-        let freibetragInYear = freibetrag[2023];
+        let freibetragInYear = freibetrag[year] || 0;
         if (
-            simulationAnnual === SimulationAnnual.monthly) {
-
-            const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1
-
+            simulationAnnual === SimulationAnnual.monthly
+        ) {
+            const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1;
             for (const element of elements) {
                 if (new Date(element.start).getFullYear() <= year) {
                     if (new Date(element.start).getFullYear() === year) {
-
                         //wertzuwachs unterjahr
                         for (let month = 1; month <= 12; month++) {
                             if (new Date(element.start).getMonth() + 1 <= month) {
@@ -82,7 +80,6 @@ export function simulate(
                                         bezahlteSteuer: 0,
                                         genutzterFreibetrag: 0,
                                     };
-
                                 }
                             }
                         }
@@ -90,25 +87,21 @@ export function simulate(
                         let kapital =
                             element.simulation?.[year - 1]?.endkapital ||
                             element.einzahlung + (element.type === "einmalzahlung" ? element.gewinn : 0);
-
                         const endKapital = zinszinsVorabpauschale(
                             kapital,
-                            basiszinsen[2023],
+                            basiszinsen[year] || 0,
                             freibetragInYear,
                             steuerlast
                         );
-
                         if (!element.simulation) {
                             element.simulation = {}
                         }
-
                         element.simulation[year] = {
                             startkapital: kapital,
                             endkapital: kapital * (1 + wachstumsrate) - endKapital.steuer,
                             zinsen: kapital * (1 + wachstumsrate),
                             bezahlteSteuer: endKapital.steuer,
                             genutzterFreibetrag: 0,
-
                         };
                         element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - endKapital.verbleibenderFreibetrag
                     }
@@ -116,22 +109,21 @@ export function simulate(
             }
             for (const element of elements) {
                 if (new Date(element.start).getFullYear() <= year) {
-                    const month = new Date(element.start).getMonth() + 1
+                    const month = new Date(element.start).getMonth() + 1;
                     const kapital = element.simulation?.[year]?.startkapital || element.einzahlung;
-
                     const vorabPauschaleZinzen = zinszinsVorabpauschale(
                         kapital,
-                        basiszinsen[2023],
+                        basiszinsen[year] || 0,
                         freibetragInYear,
                         steuerlast,
                         0.7,
                         0.3,
                         month
                     );
-                    element.simulation[year]['bezahlteSteuer'] = vorabPauschaleZinzen.steuer
-                    element.simulation[year]['endkapital'] -= vorabPauschaleZinzen.steuer
-                    element.simulation[year]['zinsen'] = element.simulation[year]['endkapital'] - element.simulation[year]['startkapital']
-                    element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - vorabPauschaleZinzen.verbleibenderFreibetrag
+                    element.simulation[year]['bezahlteSteuer'] = vorabPauschaleZinzen.steuer;
+                    element.simulation[year]['endkapital'] -= vorabPauschaleZinzen.steuer;
+                    element.simulation[year]['zinsen'] = element.simulation[year]['endkapital'] - element.simulation[year]['startkapital'];
+                    element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - vorabPauschaleZinzen.verbleibenderFreibetrag;
                     freibetragInYear = vorabPauschaleZinzen.verbleibenderFreibetrag;
                 }
             }
@@ -141,30 +133,24 @@ export function simulate(
                     let kapital =
                         element.simulation[year - 1]?.endkapital ||
                         element.einzahlung + (element.type === "einmalzahlung" ? element.gewinn : 0);
-
                     const endKapital = zinszinsVorabpauschale(
                         kapital,
-                        basiszinsen[2023],
+                        basiszinsen[year] || 0,
                         freibetragInYear,
                         steuerlast
                     );
-
                     element.simulation[year] = {
                         startkapital: kapital,
                         endkapital: kapital * (1 + wachstumsrate) - endKapital.steuer,
                         zinsen: kapital * (1 + wachstumsrate),
                         bezahlteSteuer: endKapital.steuer,
                         genutzterFreibetrag: 0,
-
                     };
-                    element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - endKapital.verbleibenderFreibetrag
+                    element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - endKapital.verbleibenderFreibetrag;
                     freibetragInYear = endKapital.verbleibenderFreibetrag;
                 }
             }
         }
     }
-
-
     return elements;
 }
-
