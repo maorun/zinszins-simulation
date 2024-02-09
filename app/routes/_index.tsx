@@ -3,7 +3,6 @@ import type { MetaFunction } from "@vercel/remix";
 import { SimulationAnnual, type SimulationAnnualType } from "helpers/simulate";
 import { useCallback, useEffect, useState } from "react";
 import {
-    Button,
     Panel,
     Radio,
     RadioGroup,
@@ -84,14 +83,6 @@ export default function Index() {
 
     return (
         <div>
-
-            <Button
-                onClick={() => {
-                    setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual))
-                    load({})
-                }}
-            >
-                Refresh</Button>
 
             <Panel header="Eingabe" bordered>
                 <Panel header="Variablen" bordered>
