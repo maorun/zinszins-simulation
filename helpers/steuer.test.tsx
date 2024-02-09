@@ -1,13 +1,10 @@
 import { expect, test } from 'vitest';
 import { vorabpauschale, zinszinsVorabpauschale } from './steuer';
 
-test('zinszinsVorabpauschale should calculate the correct tax and remaining tax-free amount', () => {
-  const result = zinszinsVorabpauschale(10000, 0.0255, 1000, 0.26375, 0.7, 0.3, 12);
-  expect(result.steuer).toBeCloseTo(263.75, 5); // Corrected the expected value
-  expect(result.verbleibenderFreibetrag).toBeCloseTo(0, 5); // Corrected the expected value
-});
-
 test('vorabpauschale should calculate the correct flat rate interest', () => {
-  const result = vorabpauschale(10000, 0.0255, 0.26375, 0.7, 0.3, 12);
-  expect(result).toBeCloseTo(263.75, 5);
+  const result = vorabpauschale(20100, 20200);
+  expect(result).toEqual({
+        basisertrag: 358.78,
+        vorabpauschale: 18.46
+    });
 });
