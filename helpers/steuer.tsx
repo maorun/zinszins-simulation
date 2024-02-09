@@ -46,3 +46,5 @@ export function zinszinsVorabpauschale(
         verbleibenderFreibetrag: verbleibenderFreibetrag > 0 ? verbleibenderFreibetrag : 0,
     };
 }
+
+export { vorabpauschale };
