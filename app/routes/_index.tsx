@@ -6,7 +6,8 @@ import {
     Panel,
     Radio,
     RadioGroup,
-    Slider
+    Slider,
+    Button // Added Button import
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
 import { EntnahmeSimulationsAusgabe } from "~/components/EntnahmeSimulationsAusgabe";
@@ -173,6 +174,8 @@ export default function Index() {
                 </div>
             </Panel>
 
+            <Button>Click me</Button> {/* Added Button component */}
+
             <footer>by Marco</footer>
         </div>
     );
@@ -184,4 +187,3 @@ export const meta: MetaFunction = () => {
         { name: "description", content: "simulation des Zinseszins mit monatlichen Sparplan einschließlich Berechnung der Vorabpauschale und weiteren Parametern" },
     ];
 };
-
