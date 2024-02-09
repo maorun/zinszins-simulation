@@ -84,7 +84,7 @@ export default function Index() {
 
     return (
         <div>
-            <Button>foo me</Button> {/* Moved Button component to top */}
+            <Button appearance="primary">foo me</Button> {/* Changed Button appearance to primary */}
             <Panel header="Eingabe" bordered>
                 <Panel header="Variablen" bordered>
                     <Zeitspanne startEnd={startEnd} dispatch={(val) => {
