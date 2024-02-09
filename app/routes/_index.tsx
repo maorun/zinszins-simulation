@@ -6,8 +6,7 @@ import {
     Panel,
     Radio,
     RadioGroup,
-    Slider,
-    Button // Added Button import
+    Slider
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
 import { EntnahmeSimulationsAusgabe } from "~/components/EntnahmeSimulationsAusgabe";
@@ -84,7 +83,6 @@ export default function Index() {
 
     return (
         <div>
-            <Button appearance="primary">foo me</Button> {/* Changed Button appearance to primary */}
             <Panel header="Eingabe" bordered>
                 <Panel header="Variablen" bordered>
                     <Zeitspanne startEnd={startEnd} dispatch={(val) => {
