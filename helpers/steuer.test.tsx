@@ -10,7 +10,7 @@ test('vorabpauschale should calculate the correct flat rate interest', () => {
 
   const result2 = vorabpauschale(201000, 202000);
   expect(result2).toEqual({
-        basisertrag: 3587.8,
-        vorabpauschale: 184.6
+        basisertrag: 3587.80,
+        vorabpauschale: 184.60
     });
 });
