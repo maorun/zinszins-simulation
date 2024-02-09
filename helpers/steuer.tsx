@@ -9,11 +9,11 @@ function vorabpauschale(
     // Berechnung der Vorabpauschale für das aktuelle Jahr
     let basisertrag = startwert * basiszins * vorabpauschale_prozentsatz;
 
-    basisertrag = anteilImJahr/12 * basisertrag
+    basisertrag = anteilImJahr / 12 * basisertrag;
 
     // hier muss noch der vorjahresgewinn berücksichtigen werden
     // vorabpauschale = vorjahresgewinn > vorabpauschale ? vorabpauschale : vorjahresgewinn;
-    const vorabpauschale = basisertrag
+    const vorabpauschale = basisertrag;
 
     return vorabpauschale * steuerlast * (1 - teilFreistellungsquote);
 }
@@ -34,7 +34,7 @@ export function zinszinsVorabpauschale(
         vorabpauschale_prozentsatz,
         freistellung,
         anteilImJahr,
-    )
+    );
 
     const verbleibenderFreibetrag = freibetrag - steuer;
     // Abzug der Steuer
@@ -43,8 +43,6 @@ export function zinszinsVorabpauschale(
     }
     return {
         steuer: verbleibenderFreibetrag <= 0 ? steuer : 0,
-        verbleibenderFreibetrag:
-        verbleibenderFreibetrag > 0 ? verbleibenderFreibetrag : 0,
+        verbleibenderFreibetrag: verbleibenderFreibetrag > 0 ? verbleibenderFreibetrag : 0,
     };
 }
-
