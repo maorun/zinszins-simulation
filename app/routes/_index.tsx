@@ -84,7 +84,7 @@ export default function Index() {
 
     return (
         <div>
-
+            <Button>Click me</Button> {/* Moved Button component to top */}
             <Panel header="Eingabe" bordered>
                 <Panel header="Variablen" bordered>
                     <Zeitspanne startEnd={startEnd} dispatch={(val) => {
@@ -163,7 +163,7 @@ export default function Index() {
                                                     </li>
                                                     <li>
                                                         Genutzter Freibetrag:
-                                                        {Number(value.genutzterFreibetrag).toFixed(2)}
+                                                        {Number(value.genutzterFreibrag).toFixed(2)}
                                                     </li>
                                                 </ul>
                                             );
@@ -173,8 +173,6 @@ export default function Index() {
                         })}
                 </div>
             </Panel>
-
-            <Button>Click me</Button> {/* Added Button component */}
 
             <footer>by Marco</footer>
         </div>
