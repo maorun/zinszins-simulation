@@ -1,38 +1,43 @@
-# Remix
 
-This directory is a brief example of a [Remix](https://remix.run/docs) site that can be deployed to Vercel with zero configuration.
+# Zinseszins-Rechner
 
-To get started, run the Remix cli with this template
+Ziel des Projektes is es ein Rechner zu entwickeln, indem man viele Einstellungen vornehmen kann und vieles berücksichtigt wird.
 
-```sh
-npx create-remix@latest --template vercel/vercel/examples/remix
-```
+Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
 
-## Deploy Your Own
-
-[![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/vercel/vercel/tree/main/examples/remix&template=remix)
-
-_Live Example: https://remix-run-template.vercel.app_
-
-You can also deploy using the [Vercel CLI](https://vercel.com/cli):
-
-```sh
-npm i -g vercel
-vercel
-```
-
-## Development
-
-To run your Remix app locally, make sure your project's local dependencies are installed:
-
-```sh
-npm install
-```
-
-Afterwards, start the Remix development server like so:
-
-```sh
-npm run dev
-```
-
-Open up [http://localhost:3000](http://localhost:3000) and you should be ready to go!
+---
+Folgendes ist umgesetzt:
+- Zeitspanne
+- Rendite
+    - monatlich
+    - jährlich
+- Sparplan
+    - jährlich
+- Einmalzahlungen
+- Einberechnung der Freibeträge bei der Steuer
+---
+Folgendes ist in Bearbeitung
+- Einberechnung der Vorabpauschale 
+---
+Folgendes ist noch gepant:
+- Steuern
+    - Freibetrag pro Jahr (bisher ein fester Steuerfreibetrag von 2000)
+- Rendite
+    - variabel pro Jahr
+    - zufall (im mittel X %)
+- Sparplan
+    - monatlich
+- Auszahlungsphase
+    - Berücksichtigung des Grundfreibetrages
+    - Berücksichtigung der Renditen
+        - fest
+        - variabel pro Jahr
+        - zufall (im mittel X %)
+    - Entnahme-Strategien
+        - X % Regel
+        - jährlich
+        - monatlich
+---
+Folgendes könnte noch gemacht werden, aber noch nicht notwending
+- Eingabe der Kapitalertragsteuer (momentan bei 26,375 %)
+- Eingabe der Teilfreistellungsquote (30% für Aktienfonds nach https://de.wikipedia.org/wiki/Investmentsteuergesetz_(Deutschland)#Besteuerung_deutscher_Anleger_in_Investmentfonds_mit_(partieller)_Kompensation_der_Steuervorbelastung )
