@@ -7,18 +7,21 @@ Zinseszins-Simulation is a German compound interest calculator built with Remix.
 ## Working Effectively
 
 ### Setup and Build Process
-- **Install dependencies**: `npm install` -- takes 5 minutes. NEVER CANCEL. Set timeout to 10+ minutes.
-  - Expect dependency warnings (rimraf, lodash.get, inflight, eslint deprecations) - these are normal and don't affect functionality
-  - Will show 24 vulnerabilities - this is expected and doesn't block development
-- **Build the application**: `npm run build` -- takes 6-7 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
+- **Install dependencies**: `npm install` -- takes 3-4 minutes. NEVER CANCEL. Set timeout to 10+ minutes.
+  - Expect peer dependency warnings about React version mismatches - these are normal due to React 19 upgrade
+  - Will show 11-13 vulnerabilities (reduced from previous 24) - this is expected and doesn't block development
+  - Legacy peer deps are used for some packages to resolve React 19 compatibility
+- **Build the application**: `npm run build` -- takes 3 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
   - Will show Remix warnings about future flags - these are normal
+  - Will show "CJS build of Vite's Node API is deprecated" warning - expected behavior
   - Will show TypeScript duplicate key warning in tsconfig.json - this is known and doesn't break builds
 - **Type checking**: `npm run typecheck` -- takes 30 seconds with errors. NEVER CANCEL. Set timeout to 2+ minutes.
-  - Expect 38+ TypeScript errors in dependencies - these don't prevent the application from working
+  - Expect TypeScript errors in dependencies - these don't prevent the application from working
   - Main application code may have some type issues but builds successfully
-- **Development server**: `npm run dev` -- starts in 5-10 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
+- **Development server**: `npm run dev` -- starts in 5-6 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
   - Runs on http://localhost:3000
   - Hot module reloading works correctly
+  - Will show same warnings as build process
 - **Production server**: `npm run start` -- starts immediately after build
   - Must run `npm run build` first
   - Runs on http://localhost:3000
@@ -27,9 +30,13 @@ Zinseszins-Simulation is a German compound interest calculator built with Remix.
 - **Critical Import Issue**: The import `import { Close } from '@rsuite/icons'` in `/app/components/SparplanEingabe.tsx` causes runtime errors
   - **Workaround**: Comment out the import and replace the `<Close />` component with plain text like "X"
   - This is a known ESM/CommonJS compatibility issue with RSuite icons
-- **ESLint Configuration**: Uses legacy .eslintrc.cjs format, ESLint v9 expects eslint.config.js
-  - Direct `npx eslint .` command will fail
-  - The application builds and runs fine despite this
+- **ESLint Configuration**: Now uses modern ESLint v9 with flat config (eslint.config.js)
+  - Basic configuration only supports JavaScript files for now
+  - TypeScript/TSX files require additional parser setup but application builds and runs fine
+  - @remix-run/eslint-config is not compatible with ESLint v9 yet
+- **React 19 Compatibility**: Updated to React 19 with some peer dependency warnings
+  - Most packages show warnings but functionality is preserved
+  - Uses --legacy-peer-deps for installation to resolve conflicts
 - **TypeScript Errors**: Many errors in node_modules dependencies, but application functions correctly
 
 ## Validation and Testing
@@ -61,7 +68,7 @@ After making changes, ALWAYS test the complete user workflow:
 - **Calculator accuracy**: Default scenario (24,000€ annual savings, 5% return, 2023-2040) should show ~596,169€ final capital
 - **Real-time updates**: Changing any input should immediately update all calculations and tables
 - **UI responsiveness**: All collapsible sections should expand/collapse smoothly
-- **No runtime errors**: Browser console should only show Vercel Analytics warnings (expected)
+- **No runtime errors**: Browser console should only show Vercel Analytics warnings and React DevTools suggestion (expected)
 
 ## Codebase Navigation
 
@@ -79,9 +86,12 @@ After making changes, ALWAYS test the complete user workflow:
 
 ### Configuration Files
 - **`package.json`** - Dependencies and scripts (no test scripts defined)
+  - Updated to React 19, ESLint 9, isbot 5, latest Remix 2.16.7, TypeScript 5.9.2
+  - Uses --legacy-peer-deps for React 19 compatibility
 - **`remix.config.js`** - Remix.js configuration (minimal setup)
 - **`tsconfig.json`** - TypeScript configuration (has duplicate moduleResolution warning)
-- **`.eslintrc.cjs`** - ESLint configuration (legacy format, needs updating for ESLint v9)
+- **`eslint.config.js`** - ESLint v9 flat configuration (basic JavaScript support only)
+- **`.eslintrc.cjs`** - REMOVED: Legacy ESLint configuration (replaced with flat config)
 
 ## Development Patterns
 
