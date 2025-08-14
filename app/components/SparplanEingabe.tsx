@@ -1,4 +1,5 @@
-import { Close } from '@rsuite/icons';
+// import * as RsuiteIcons from '@rsuite/icons';
+// const CloseIcon = RsuiteIcons.Close;
 import type { SimulationAnnualType, SimulationResult } from 'helpers/simulate';
 import { SimulationAnnual } from 'helpers/simulate';
 import { useState } from "react";
@@ -241,7 +242,7 @@ export function SparplanEingabe({ dispatch }: { dispatch: (val: Sparplan[]) => v
                                         dispatch(changedSparplans)
                                     }}
                                 >
-                                    <Close />
+                                    {/* <CloseIcon /> */}X
                                 </Button>
                             )}
                         </Cell>
