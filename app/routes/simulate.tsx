@@ -34,6 +34,7 @@ const schema = z.object({
     randomSeed: zfd.numeric(z.number().int()).optional(),
     
     steuerlast: zfd.numeric(z.number().min(0)),
+    teilfreistellungsquote: zfd.numeric(z.number().min(0)),
     simulationAnnual: z.enum(['yearly', 'monthly'])
 })
 
@@ -58,6 +59,7 @@ export async function action({request}: ActionFunctionArgs) {
         standardDeviation, 
         randomSeed,
         steuerlast, 
+        teilfreistellungsquote,
         simulationAnnual 
     } = formData
 
@@ -92,7 +94,8 @@ export async function action({request}: ActionFunctionArgs) {
         sparplanElements,
         returnConfig,
         steuerlast,
-        simulationAnnual
+        simulationAnnual,
+        teilfreistellungsquote
     )
     console.log(sparplanElements[0].simulation)
     console.log(simulation[0].simulation?.[2040])

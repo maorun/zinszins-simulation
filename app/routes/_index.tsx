@@ -36,7 +36,10 @@ export const unique = function <T extends undefined | number | string>(data: und
 
 export default function Index() {
     const [rendite, setRendite] = useState(5);
-    const steuerlast = 0.26375; // https://de.wikipedia.org/wiki/Kapitalertragsteuer_(Deutschland)#Bemessung_der_Kapitalertragsteuer
+    
+    // Tax configuration state
+    const [steuerlast, setSteuerlast] = useState(26.375); // Capital gains tax rate as percentage
+    const [teilfreistellungsquote, setTeilfreistellungsquote] = useState(30); // Partial exemption rate as percentage
 
     // Return configuration state
     const [returnMode, setReturnMode] = useState<ReturnMode>('fixed');
@@ -63,7 +66,8 @@ export default function Index() {
             year: yearToday,
             end: startEnd[0],
             sparplanElements: JSON.stringify(sparplanElemente),
-            steuerlast,
+            steuerlast: steuerlast / 100, // Convert percentage to decimal
+            teilfreistellungsquote: teilfreistellungsquote / 100, // Convert percentage to decimal
             simulationAnnual,
             ...overwrite
         };
@@ -85,13 +89,13 @@ export default function Index() {
             action: '/simulate',
             method: 'post',
         })
-    }, [d, rendite, returnMode, averageReturn, standardDeviation, randomSeed, simulationAnnual, sparplanElemente, startEnd, yearToday])
+    }, [d, rendite, returnMode, averageReturn, standardDeviation, randomSeed, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote])
 
     useEffect(() => {
         if (d.data === undefined && d.state === 'idle') {
             load({})
         }
-    }, [d, load, rendite, returnMode, averageReturn, standardDeviation, randomSeed, simulationAnnual, sparplanElemente, startEnd])
+    }, [d, load, rendite, returnMode, averageReturn, standardDeviation, randomSeed, simulationAnnual, sparplanElemente, startEnd, steuerlast, teilfreistellungsquote])
 
     // const data = simulate(
     //     new Date().getFullYear(),
@@ -214,6 +218,46 @@ export default function Index() {
                                 </Form.Group>
                             </>
                         )}
+                    </Panel>
+                    
+                    <Panel header="Steuer-Konfiguration" bordered>
+                        <Form.Group controlId="steuerlast">
+                            <Form.ControlLabel>Kapitalertragsteuer (%)</Form.ControlLabel>
+                            <Slider
+                                name="steuerlast"
+                                renderTooltip={(value) => value + "%"}
+                                handleTitle={(<div style={{ marginTop: '-17px' }}>{steuerlast}%</div>)}
+                                progress
+                                value={steuerlast}
+                                min={20}
+                                max={35}
+                                step={0.025}
+                                graduated
+                                onChange={(value) => {
+                                    setSteuerlast(value);
+                                    load();
+                                }}
+                            />
+                        </Form.Group>
+                        
+                        <Form.Group controlId="teilfreistellungsquote">
+                            <Form.ControlLabel>Teilfreistellungsquote (%)</Form.ControlLabel>
+                            <Slider
+                                name="teilfreistellungsquote"
+                                renderTooltip={(value) => value + "%"}
+                                handleTitle={(<div style={{ marginTop: '-17px' }}>{teilfreistellungsquote}%</div>)}
+                                progress
+                                value={teilfreistellungsquote}
+                                min={0}
+                                max={50}
+                                step={1}
+                                graduated
+                                onChange={(value) => {
+                                    setTeilfreistellungsquote(value);
+                                    load();
+                                }}
+                            />
+                        </Form.Group>
                     </Panel>
                     <RadioGroup name="simulationAnnual" inline value={simulationAnnual} onChange={(value) => {
                         const val = value.toString() === SimulationAnnual.yearly ? 'yearly' : 'monthly'

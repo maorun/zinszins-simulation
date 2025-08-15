@@ -18,6 +18,9 @@ Folgendes ist umgesetzt:
     - monatlich
 - Einmalzahlungen
 - Einberechnung der Freibeträge bei der Steuer
+- **Konfigurierbare Steuerparameter (NEU!)**
+    - Kapitalertragsteuer (standardmäßig 26,375%)
+    - Teilfreistellungsquote für Aktienfonds (standardmäßig 30%)
 - **Auszahlungsphase (NEU!)**
     - 4% Regel - jährliche Entnahme von 4% des Startkapitals
     - 3% Regel - jährliche Entnahme von 3% des Startkapitals
@@ -40,5 +43,5 @@ Folgendes ist noch gepant:
     - Monatliche Entnahme-Strategien
 ---
 Folgendes könnte noch gemacht werden, aber noch nicht notwending
-- Eingabe der Kapitalertragsteuer (momentan bei 26,375 %)
-- Eingabe der Teilfreistellungsquote (30% für Aktienfonds nach https://de.wikipedia.org/wiki/Investmentsteuergesetz_(Deutschland)#Besteuerung_deutscher_Anleger_in_Investmentfonds_mit_(partieller)_Kompensation_der_Steuervorbelastung )
+- ~~Eingabe der Kapitalertragsteuer (momentan bei 26,375 %)~~ ✓ Umgesetzt
+- ~~Eingabe der Teilfreistellungsquote (30% für Aktienfonds nach https://de.wikipedia.org/wiki/Investmentsteuergesetz_(Deutschland)#Besteuerung_deutscher_Anleger_in_Investmentfonds_mit_(partieller)_Kompensation_der_Steuervorbelastung )~~ ✓ Umgesetzt

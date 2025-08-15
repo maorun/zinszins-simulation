@@ -42,7 +42,8 @@ export function simulate(
     elements: SparplanElement[],
     wachstumsrate: number,
     steuerlast: number,
-    simulationAnnual: SimulationAnnualType
+    simulationAnnual: SimulationAnnualType,
+    teilfreistellungsquote?: number
 ): SparplanElement[];
 
 // New function signature with return configuration
@@ -52,7 +53,8 @@ export function simulate(
     elements: SparplanElement[],
     returnConfig: ReturnConfiguration,
     steuerlast: number,
-    simulationAnnual: SimulationAnnualType
+    simulationAnnual: SimulationAnnualType,
+    teilfreistellungsquote?: number
 ): SparplanElement[];
 
 // Implementation
@@ -62,7 +64,8 @@ export function simulate(
     elements: SparplanElement[],
     wachstumsrateOrConfig: number | ReturnConfiguration,
     steuerlast: number,
-    simulationAnnual: SimulationAnnualType
+    simulationAnnual: SimulationAnnualType,
+    teilfreistellungsquote: number = 0.3
 ): SparplanElement[] {
     // Determine if we're using legacy or new API
     const isLegacyAPI = typeof wachstumsrateOrConfig === 'number';
@@ -149,7 +152,10 @@ export function simulate(
                             kapital,
                             basiszinsen[2023],
                             freibetragInYear,
-                            steuerlast
+                            steuerlast,
+                            0.7,
+                            teilfreistellungsquote,
+                            12
                         );
 
                         if (!element.simulation) {
@@ -179,7 +185,7 @@ export function simulate(
                         freibetragInYear,
                         steuerlast,
                         0.7,
-                        0.3,
+                        teilfreistellungsquote,
                         month
                     );
                     element.simulation[year]['bezahlteSteuer'] = vorabPauschaleZinzen.steuer
@@ -200,7 +206,10 @@ export function simulate(
                         kapital,
                         basiszinsen[2023],
                         freibetragInYear,
-                        steuerlast
+                        steuerlast,
+                        0.7,
+                        teilfreistellungsquote,
+                        12
                     );
 
                     element.simulation[year] = {
