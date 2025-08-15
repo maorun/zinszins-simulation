@@ -51,12 +51,6 @@ export function EntnahmeSimulationsAusgabe({
                             graduated
                         />
                     </Form.Group>
-                    <Form.Group controlId="startRente">
-                        <Form.ControlLabel>End of Life</Form.ControlLabel>
-                        <Form.Control name="endOfLife" accepter={InputNumber} 
-                        />
-                    </Form.Group>
-
                     <Form.Group controlId="endOfLife">
                         <Form.ControlLabel>End of Life</Form.ControlLabel>
                         <Form.Control name="endOfLife" accepter={InputNumber} 
