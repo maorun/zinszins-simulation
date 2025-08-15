@@ -45,8 +45,11 @@ export default function HomePage() {
     // Return configuration state
     const [returnMode, setReturnMode] = useState<ReturnMode>('fixed');
     const [averageReturn, setAverageReturn] = useState(7); // Percentage for random returns
-    const [standardDeviation, setStandardDeviation] = useState(15); // Percentage for random returns
+    const [standardDeviation, setStandardDeviation] = useState(15); // Percentage
     const [randomSeed, setRandomSeed] = useState<number | undefined>(undefined);
+    
+    // Variable returns state: map of year to return rate (as percentage)
+    const [variableReturns, setVariableReturns] = useState<Record<number, number>>({});
 
     // Grundfreibetrag für Einkommensteuer bei Entnahme
     // const Grundfreibetrag = 9744; // erst bei Auszahlung
@@ -86,6 +89,15 @@ export default function HomePage() {
                             seed: randomSeed
                         }
                     };
+                } else if (returnMode === 'variable') {
+                    returnConfig = {
+                        mode: 'variable',
+                        variableConfig: {
+                            yearlyReturns: Object.fromEntries(
+                                Object.entries(variableReturns).map(([year, rate]) => [parseInt(year), rate / 100])
+                            )
+                        }
+                    };
                 } else {
                     returnConfig = {
                         mode: 'fixed',
@@ -106,12 +118,8 @@ export default function HomePage() {
             );
 
             setSimulationData({
-                sparplanElements: sparplanElemente.map(element => ({
-                    ...element,
-                    simulation: result.filter(r => r.year >= element.start.getFullYear()).reduce((acc, r) => {
-                        acc[r.year] = r;
-                        return acc;
-                    }, {} as any)
+                sparplanElements: result.map(element => ({
+                    ...element
                 }))
             });
         } catch (error) {
@@ -119,7 +127,7 @@ export default function HomePage() {
         } finally {
             setIsLoading(false);
         }
-    }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear]);
+    }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear]);
 
     useEffect(() => {
         performSimulation();
@@ -159,10 +167,11 @@ export default function HomePage() {
                             >
                                 <Radio value="fixed">Feste Rendite</Radio>
                                 <Radio value="random">Zufällige Rendite</Radio>
+                                <Radio value="variable">Variable Rendite</Radio>
                             </RadioGroup>
                         </Form.Group>
 
-                        {returnMode === 'fixed' ? (
+                        {returnMode === 'fixed' && (
                             <Form.Group controlId="fixedReturn">
                                 <Form.ControlLabel>Feste Rendite</Form.ControlLabel>
                                 <Slider
@@ -181,7 +190,9 @@ export default function HomePage() {
                                     }}
                                 />
                             </Form.Group>
-                        ) : (
+                        )}
+
+                        {returnMode === 'random' && (
                             <>
                                 <Form.Group controlId="averageReturn">
                                     <Form.ControlLabel>Durchschnittliche Rendite</Form.ControlLabel>
@@ -222,17 +233,54 @@ export default function HomePage() {
                                 </Form.Group>
                                 
                                 <Form.Group controlId="randomSeed">
-                                    <Form.ControlLabel>Zufallsseed (optional)</Form.ControlLabel>
+                                    <Form.ControlLabel>Zufallsseed (optional für reproduzierbare Ergebnisse)</Form.ControlLabel>
                                     <InputNumber
-                                        placeholder="Leer für zufälligen Seed"
+                                        placeholder="Leer lassen für echte Zufälligkeit"
                                         value={randomSeed}
                                         onChange={(value) => {
-                                            setRandomSeed(value || undefined);
+                                            setRandomSeed(typeof value === 'number' ? value : undefined);
                                             performSimulation();
                                         }}
+                                        min={1}
+                                        max={999999}
                                     />
                                 </Form.Group>
                             </>
+                        )}
+
+                        {returnMode === 'variable' && (
+                            <Form.Group controlId="variableReturns">
+                                <Form.ControlLabel>Variable Renditen pro Jahr</Form.ControlLabel>
+                                <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #e5e5ea', borderRadius: '6px', padding: '10px' }}>
+                                    {Array.from({ length: startEnd[0] - yearToday + 1 }, (_, i) => {
+                                        const year = yearToday + i;
+                                        return (
+                                            <div key={year} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', gap: '10px' }}>
+                                                <div style={{ minWidth: '60px', fontWeight: 'bold' }}>{year}:</div>
+                                                <div style={{ flex: 1 }}>
+                                                    <Slider
+                                                        value={variableReturns[year] || 5}
+                                                        min={-10}
+                                                        max={20}
+                                                        step={0.5}
+                                                        onChange={(value) => {
+                                                            const newReturns = { ...variableReturns, [year]: value };
+                                                            setVariableReturns(newReturns);
+                                                            performSimulation();
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ minWidth: '50px', textAlign: 'right' }}>
+                                                    {(variableReturns[year] || 5).toFixed(1)}%
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+                                    Tipp: Verwende negative Werte für wirtschaftliche Krisen und höhere Werte für Boom-Jahre.
+                                </div>
+                            </Form.Group>
                         )}
                     </Panel>
 
@@ -245,9 +293,9 @@ export default function HomePage() {
                                 handleTitle={(<div style={{ marginTop: '-17px' }}>{steuerlast}%</div>)}
                                 progress
                                 value={steuerlast}
-                                min={0}
-                                max={50}
-                                step={0.1}
+                                min={20}
+                                max={35}
+                                step={0.025}
                                 graduated
                                 onChange={(value) => {
                                     setSteuerlast(value);
@@ -265,7 +313,7 @@ export default function HomePage() {
                                 progress
                                 value={teilfreistellungsquote}
                                 min={0}
-                                max={100}
+                                max={50}
                                 step={1}
                                 graduated
                                 onChange={(value) => {
@@ -275,7 +323,7 @@ export default function HomePage() {
                             />
                         </Form.Group>
                         
-                        <Form.Group controlId="freibetragPerYear">
+                        <Form.Group controlId="freibetragConfiguration">
                             <Form.ControlLabel>Freibetrag pro Jahr (€)</Form.ControlLabel>
                             <div style={{ marginBottom: '10px' }}>
                                 <FlexboxGrid>
@@ -314,46 +362,57 @@ export default function HomePage() {
                                     </FlexboxGrid.Item>
                                 </FlexboxGrid>
                             </div>
-                            
-                            {Object.entries(freibetragPerYear).map(([year, betrag]) => (
-                                <div key={year} style={{ marginBottom: '10px' }}>
-                                    <FlexboxGrid>
-                                        <FlexboxGrid.Item colspan={4}>
-                                            <span>{year}:</span>
-                                        </FlexboxGrid.Item>
-                                        <FlexboxGrid.Item colspan={6}>
+                            <Table
+                                height={200}
+                                data={Object.entries(freibetragPerYear).map(([year, amount]) => ({ year: Number(year), amount }))}
+                            >
+                                <Table.Column width={100} align="center">
+                                    <Table.HeaderCell>Jahr</Table.HeaderCell>
+                                    <Table.Cell dataKey="year" />
+                                </Table.Column>
+                                <Table.Column width={120} align="center">
+                                    <Table.HeaderCell>Freibetrag (€)</Table.HeaderCell>
+                                    <Table.Cell>
+                                        {(rowData: any) => (
                                             <InputNumber
+                                                value={freibetragPerYear[rowData.year]}
                                                 min={0}
-                                                value={betrag}
+                                                max={10000}
+                                                step={50}
                                                 onChange={(value) => {
-                                                    setFreibetragPerYear(prev => ({
-                                                        ...prev,
-                                                        [year]: value || 0
-                                                    }));
-                                                    performSimulation();
+                                                    if (value !== null && value !== undefined) {
+                                                        setFreibetragPerYear(prev => ({
+                                                            ...prev,
+                                                            [rowData.year]: value
+                                                        }));
+                                                        performSimulation();
+                                                    }
                                                 }}
                                             />
-                                        </FlexboxGrid.Item>
-                                        <FlexboxGrid.Item colspan={2}>
-                                            <Button 
-                                                size="xs" 
-                                                color="red" 
+                                        )}
+                                    </Table.Cell>
+                                </Table.Column>
+                                <Table.Column width={80} align="center">
+                                    <Table.HeaderCell>Aktionen</Table.HeaderCell>
+                                    <Table.Cell>
+                                        {(rowData: any) => (
+                                            <IconButton
+                                                size="sm"
+                                                color="red"
                                                 appearance="ghost"
                                                 onClick={() => {
-                                                    setFreibetragPerYear(prev => {
-                                                        const newObj = { ...prev };
-                                                        delete newObj[parseInt(year)];
-                                                        return newObj;
-                                                    });
+                                                    const newFreibetrag = { ...freibetragPerYear };
+                                                    delete newFreibetrag[rowData.year];
+                                                    setFreibetragPerYear(newFreibetrag);
                                                     performSimulation();
                                                 }}
                                             >
-                                                Entfernen
-                                            </Button>
-                                        </FlexboxGrid.Item>
-                                    </FlexboxGrid>
-                                </div>
-                            ))}
+                                                Löschen
+                                            </IconButton>
+                                        )}
+                                    </Table.Cell>
+                                </Table.Column>
+                            </Table>
                         </Form.Group>
                     </Panel>
 
@@ -391,6 +450,8 @@ export default function HomePage() {
 
             {simulationData && (
                 <>
+                    <SparplanEnd elemente={simulationData.sparplanElements} />
+                    
                     <Panel header="Sparplan-Simulation" collapsible bordered>
                         <SparplanSimulationsAusgabe
                             startEnd={startEnd}
@@ -416,6 +477,49 @@ export default function HomePage() {
                                 seed: randomSeed
                             }}
                         />
+                    </Panel>
+
+                    <Panel header="Simulation" bordered collapsible defaultExpanded>
+                        <div>
+                            {data
+                                .sort((a, b) => b - a)
+                                .map((year, index) => {
+                                    return (
+                                        <div key={year + '' + index}>
+                                            Year: {year}
+                                            {simulationData?.sparplanElements
+                                                .map((value: any) => value.simulation?.[Number(year)])
+                                                .filter(Boolean)
+                                                .flat()
+                                                .map((value: any, index: number) => {
+                                                    if (!value) {
+                                                        return null;
+                                                    }
+                                                    return (
+                                                        <ul key={index}>
+                                                            <li>
+                                                                Startkapital:
+                                                                {Number(value.startkapital).toFixed(2)}
+                                                            </li>
+                                                            <li>Zinsen: {Number(value.zinsen).toFixed(2)}</li>
+                                                            <li>
+                                                                Endkapital: {Number(value.endkapital).toFixed(2)}
+                                                            </li>
+                                                            <li>
+                                                                Bezahlte Steuer:
+                                                                {Number(value.bezahlteSteuer).toFixed(2)}
+                                                            </li>
+                                                            <li>
+                                                                Genutzter Freibetrag:
+                                                                {Number(value.genutzterFreibetrag).toFixed(2)}
+                                                            </li>
+                                                        </ul>
+                                                    );
+                                                })}
+                                        </div>
+                                    );
+                                })}
+                        </div>
                     </Panel>
 
                     {returnMode === 'random' && (
@@ -476,6 +580,8 @@ export default function HomePage() {
             )}
 
             {isLoading && <div>Berechnung läuft...</div>}
+
+            <footer>by Marco</footer>
         </div>
     );
 }
