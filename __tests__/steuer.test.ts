@@ -1,7 +1,3 @@
-/**
- * @jest-environment node
- */
-
 import { zinszinsVorabpauschale } from '../helpers/steuer';
 
 describe('Steuer (Tax) Calculations', () => {

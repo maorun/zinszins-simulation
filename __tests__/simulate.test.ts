@@ -1,7 +1,3 @@
-/**
- * @jest-environment node
- */
-
 import { simulate, SimulationAnnual, type SimulationAnnualType } from '../helpers/simulate';
 import type { SparplanElement } from '../app/components/SparplanEingabe';
 
