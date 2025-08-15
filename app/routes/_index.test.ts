@@ -1,6 +1,6 @@
 // Import the unique function from the main route
 // Since this is exported from the _index.tsx, we need to import it
-import { unique } from '../app/routes/_index';
+import { unique } from './_index';
 
 describe('Utility Functions', () => {
   describe('unique function', () => {

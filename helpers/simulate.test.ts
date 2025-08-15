@@ -1,4 +1,4 @@
-import { simulate, SimulationAnnual, type SimulationAnnualType } from '../helpers/simulate';
+import { simulate, SimulationAnnual, type SimulationAnnualType } from './simulate';
 import type { SparplanElement } from '../app/components/SparplanEingabe';
 
 describe('Simulate (Compound Interest) Calculations', () => {

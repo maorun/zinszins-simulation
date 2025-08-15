@@ -1,4 +1,4 @@
-import { zinszinsVorabpauschale } from '../helpers/steuer';
+import { zinszinsVorabpauschale } from './steuer';
 
 describe('Steuer (Tax) Calculations', () => {
   describe('zinszinsVorabpauschale', () => {
