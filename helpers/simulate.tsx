@@ -1,5 +1,6 @@
 import type { SparplanElement } from "~/components/SparplanEingabe";
 import { zinszinsVorabpauschale } from "./steuer";
+import { type ReturnConfiguration, generateRandomReturns } from "./random-returns";
 
 export type SimulationResultElement = {
     startkapital: number;
@@ -34,6 +35,7 @@ export const SimulationAnnual: {
 
 export type SimulationAnnualType = 'yearly' | 'monthly'
 
+// Legacy function signature for backward compatibility
 export function simulate(
     startYear: number,
     endYear: number,
@@ -41,19 +43,71 @@ export function simulate(
     wachstumsrate: number,
     steuerlast: number,
     simulationAnnual: SimulationAnnualType
+): SparplanElement[];
+
+// New function signature with return configuration
+export function simulate(
+    startYear: number,
+    endYear: number,
+    elements: SparplanElement[],
+    returnConfig: ReturnConfiguration,
+    steuerlast: number,
+    simulationAnnual: SimulationAnnualType
+): SparplanElement[];
+
+// Implementation
+export function simulate(
+    startYear: number,
+    endYear: number,
+    elements: SparplanElement[],
+    wachstumsrateOrConfig: number | ReturnConfiguration,
+    steuerlast: number,
+    simulationAnnual: SimulationAnnualType
 ): SparplanElement[] {
+    // Determine if we're using legacy or new API
+    const isLegacyAPI = typeof wachstumsrateOrConfig === 'number';
+    
+    // Generate year-specific growth rates
     const years = [];
+    for (let year = startYear; year <= endYear; year++) {
+        years.push(year);
+    }
+    
+    const yearlyGrowthRates: Record<number, number> = {};
+    
+    if (isLegacyAPI) {
+        // Legacy API: use fixed rate for all years
+        const fixedRate = wachstumsrateOrConfig as number;
+        for (const year of years) {
+            yearlyGrowthRates[year] = fixedRate;
+        }
+    } else {
+        // New API: use return configuration
+        const returnConfig = wachstumsrateOrConfig as ReturnConfiguration;
+        
+        if (returnConfig.mode === 'fixed') {
+            const fixedRate = returnConfig.fixedRate || 0.05;
+            for (const year of years) {
+                yearlyGrowthRates[year] = fixedRate;
+            }
+        } else if (returnConfig.mode === 'random' && returnConfig.randomConfig) {
+            const randomReturns = generateRandomReturns(years, returnConfig.randomConfig);
+            Object.assign(yearlyGrowthRates, randomReturns);
+        }
+    }
+
+    // Clear previous simulations
     for (let year = startYear; year <= endYear; year++) {
         for (const element of elements) {
             element.simulation = {}
         }
     }
+    // Main simulation loop
     for (let year = startYear; year <= endYear; year++) {
-        years.push(year);
+        const wachstumsrate = yearlyGrowthRates[year];
         let freibetragInYear = freibetrag[2023];
-        if (
-            simulationAnnual === SimulationAnnual.monthly) {
-
+        
+        if (simulationAnnual === SimulationAnnual.monthly) {
             const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1
 
             for (const element of elements) {
@@ -163,7 +217,6 @@ export function simulate(
             }
         }
     }
-
 
     return elements;
 }
