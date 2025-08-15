@@ -11,8 +11,10 @@ Folgendes ist umgesetzt:
 - Rendite
     - monatlich
     - jährlich
+    - **Zufällige Rendite (NEU!)** - Monte Carlo Simulation mit konfigurierbarer durchschnittlicher Rendite und Volatilität
 - Sparplan
     - jährlich
+    - **monatlich (schon implementiert)**
     - monatlich
 - Einmalzahlungen
 - Einberechnung der Freibeträge bei der Steuer
@@ -32,11 +34,9 @@ Folgendes ist noch gepant:
     - Freibetrag pro Jahr (bisher ein fester Steuerfreibetrag von 2000)
 - Rendite
     - variabel pro Jahr
-    - zufall (im mittel X %)
 - Auszahlungsphase (Erweiterungen)
     - Berücksichtigung des Grundfreibetrages für Einkommensteuer
     - Variable Renditen pro Jahr
-    - Zufall (im mittel X %) 
     - Monatliche Entnahme-Strategien
 ---
 Folgendes könnte noch gemacht werden, aber noch nicht notwending

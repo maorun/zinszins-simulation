@@ -15,6 +15,7 @@ import {
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
 import { EntnahmeSimulationsAusgabe } from "~/components/EntnahmeSimulationsAusgabe";
+import { MonteCarloResults } from "~/components/MonteCarloResults";
 import type { Sparplan, SparplanElement } from "~/components/SparplanEingabe";
 import { SparplanEingabe, convertSparplanToElements, initialSparplan } from "~/components/SparplanEingabe";
 import { SparplanEnd, SparplanSimulationsAusgabe } from "~/components/SparplanSimulationsAusgabe";
@@ -223,13 +224,10 @@ export default function Index() {
                         <Radio value={SimulationAnnual.monthly}>monatlich</Radio>
                     </RadioGroup>
                 </Panel>
-                <SparplanEingabe 
-                    simulationAnnual={simulationAnnual}
-                    dispatch={(val) => {
-                        setSparplan(val)
-                        setSparplanElemente(convertSparplanToElements(val, startEnd, simulationAnnual))
-                    }} 
-                />
+                <SparplanEingabe dispatch={(val) => {
+                    setSparplan(val)
+                    setSparplanElemente(convertSparplanToElements(val, startEnd, simulationAnnual))
+                }} />
             </Panel>
             <SparplanEnd elemente={d.data?.sparplanElements} />
             <SparplanSimulationsAusgabe
@@ -283,6 +281,17 @@ export default function Index() {
                         })}
                 </div>
             </Panel>
+
+            {returnMode === 'random' && (
+                <MonteCarloResults
+                    years={Array.from({ length: startEnd[0] - yearToday + 1 }, (_, i) => yearToday + i)}
+                    randomConfig={{
+                        averageReturn: averageReturn / 100,
+                        standardDeviation: standardDeviation / 100,
+                        seed: randomSeed
+                    }}
+                />
+            )}
 
             <footer>by Marco</footer>
         </div>
