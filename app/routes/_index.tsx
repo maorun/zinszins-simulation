@@ -50,6 +50,9 @@ export default function Index() {
     const [averageReturn, setAverageReturn] = useState(7); // Percentage for random returns
     const [standardDeviation, setStandardDeviation] = useState(15); // Percentage
     const [randomSeed, setRandomSeed] = useState<number | undefined>(undefined);
+    
+    // Variable returns state: map of year to return rate (as percentage)
+    const [variableReturns, setVariableReturns] = useState<Record<number, number>>({});
 
     // const Grundfreibetrag = 9744; // erst bei Auszahlung
     const [startEnd, setStartEnd] = useState<[number, number]>([2040, 2080]);
@@ -81,26 +84,34 @@ export default function Index() {
         if (returnMode === 'fixed') {
             formData.returnMode = 'fixed';
             formData.fixedRate = (overwrite.rendite !== undefined ? overwrite.rendite : rendite) / 100;
-        } else {
+        } else if (returnMode === 'random') {
             formData.returnMode = 'random';
             formData.averageReturn = averageReturn / 100;
             formData.standardDeviation = standardDeviation / 100;
             if (randomSeed !== undefined) {
                 formData.randomSeed = randomSeed;
             }
+        } else if (returnMode === 'variable') {
+            formData.returnMode = 'variable';
+            // Convert percentage values to decimals for the server
+            const decimalReturns: Record<number, number> = {};
+            Object.entries(variableReturns).forEach(([year, rate]) => {
+                decimalReturns[parseInt(year)] = rate / 100;
+            });
+            formData.variableReturns = JSON.stringify(decimalReturns);
         }
 
         d.submit(formData, {
             action: '/simulate',
             method: 'post',
         })
-    }, [d, rendite, returnMode, averageReturn, standardDeviation, randomSeed, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear])
+    }, [d, rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear])
 
     useEffect(() => {
         if (d.data === undefined && d.state === 'idle') {
             load({})
         }
-    }, [d, load, rendite, returnMode, averageReturn, standardDeviation, randomSeed, simulationAnnual, sparplanElemente, startEnd, steuerlast, teilfreistellungsquote, freibetragPerYear])
+    }, [d, load, rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, steuerlast, teilfreistellungsquote, freibetragPerYear])
 
     // const data = simulate(
     //     new Date().getFullYear(),
@@ -146,10 +157,11 @@ export default function Index() {
                             >
                                 <Radio value="fixed">Feste Rendite</Radio>
                                 <Radio value="random">Zufällige Rendite</Radio>
+                                <Radio value="variable">Variable Rendite</Radio>
                             </RadioGroup>
                         </Form.Group>
 
-                        {returnMode === 'fixed' ? (
+                        {returnMode === 'fixed' && (
                             <Form.Group controlId="fixedReturn">
                                 <Form.ControlLabel>Feste Rendite</Form.ControlLabel>
                                 <Slider
@@ -168,7 +180,9 @@ export default function Index() {
                                     }}
                                 />
                             </Form.Group>
-                        ) : (
+                        )}
+
+                        {returnMode === 'random' && (
                             <>
                                 <Form.Group controlId="averageReturn">
                                     <Form.ControlLabel>Durchschnittliche Rendite</Form.ControlLabel>
@@ -214,7 +228,7 @@ export default function Index() {
                                         placeholder="Leer lassen für echte Zufälligkeit"
                                         value={randomSeed}
                                         onChange={(value) => {
-                                            setRandomSeed(value || undefined);
+                                            setRandomSeed(typeof value === 'number' ? value : undefined);
                                             load();
                                         }}
                                         min={1}
@@ -222,6 +236,41 @@ export default function Index() {
                                     />
                                 </Form.Group>
                             </>
+                        )}
+
+                        {returnMode === 'variable' && (
+                            <Form.Group controlId="variableReturns">
+                                <Form.ControlLabel>Variable Renditen pro Jahr</Form.ControlLabel>
+                                <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #e5e5ea', borderRadius: '6px', padding: '10px' }}>
+                                    {Array.from({ length: startEnd[0] - yearToday + 1 }, (_, i) => {
+                                        const year = yearToday + i;
+                                        return (
+                                            <div key={year} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', gap: '10px' }}>
+                                                <div style={{ minWidth: '60px', fontWeight: 'bold' }}>{year}:</div>
+                                                <div style={{ flex: 1 }}>
+                                                    <Slider
+                                                        value={variableReturns[year] || 5}
+                                                        min={-10}
+                                                        max={20}
+                                                        step={0.5}
+                                                        onChange={(value) => {
+                                                            const newReturns = { ...variableReturns, [year]: value };
+                                                            setVariableReturns(newReturns);
+                                                            load();
+                                                        }}
+                                                    />
+                                                </div>
+                                                <div style={{ minWidth: '50px', textAlign: 'right' }}>
+                                                    {(variableReturns[year] || 5).toFixed(1)}%
+                                                </div>
+                                            </div>
+                                        );
+                                    })}
+                                </div>
+                                <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+                                    Tipp: Verwende negative Werte für wirtschaftliche Krisen und höhere Werte für Boom-Jahre.
+                                </div>
+                            </Form.Group>
                         )}
                     </Panel>
                     
@@ -365,10 +414,13 @@ export default function Index() {
                         <Radio value={SimulationAnnual.monthly}>monatlich</Radio>
                     </RadioGroup>
                 </Panel>
-                <SparplanEingabe dispatch={(val) => {
-                    setSparplan(val)
-                    setSparplanElemente(convertSparplanToElements(val, startEnd, simulationAnnual))
-                }} />
+                <SparplanEingabe 
+                    dispatch={(val) => {
+                        setSparplan(val)
+                        setSparplanElemente(convertSparplanToElements(val, startEnd, simulationAnnual))
+                    }} 
+                    simulationAnnual={simulationAnnual}
+                />
             </Panel>
             <SparplanEnd elemente={d.data?.sparplanElements} />
             <SparplanSimulationsAusgabe
