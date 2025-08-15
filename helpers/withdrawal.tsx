@@ -42,6 +42,7 @@ const grundfreibetrag: {
  * @param strategy - Withdrawal strategy (4% or 3% rule)
  * @param returnRate - Expected annual return during withdrawal phase
  * @param taxRate - Capital gains tax rate (default: 26.375%)
+ * @param freibetragPerYear - Tax allowance per year (optional)
  * @returns Withdrawal projections year by year
  */
 export function calculateWithdrawal(
@@ -50,8 +51,18 @@ export function calculateWithdrawal(
     endYear: number,
     strategy: WithdrawalStrategy,
     returnRate: number,
-    taxRate: number = 0.26375
+    taxRate: number = 0.26375,
+    freibetragPerYear?: {[year: number]: number}
 ): WithdrawalResult {
+    // Helper function to get tax allowance for a specific year
+    const getFreibetragForYear = (year: number): number => {
+        if (freibetragPerYear && freibetragPerYear[year] !== undefined) {
+            return freibetragPerYear[year];
+        }
+        // Fallback to default value for backwards compatibility
+        return freibetrag[2023] || 2000;
+    };
+
     const result: WithdrawalResult = {};
     
     // Calculate initial withdrawal rate
@@ -61,9 +72,11 @@ export function calculateWithdrawal(
     const initialWithdrawal = startingCapital * withdrawalRate;
     
     let currentCapital = startingCapital;
-    let currentFreibetrag = freibetrag[2023];
     
     for (let year = startYear; year <= endYear; year++) {
+        // Get year-specific tax allowance
+        const yearlyFreibetrag = getFreibetragForYear(year);
+        
         // Start of year capital
         const startkapital = currentCapital;
         
@@ -81,22 +94,19 @@ export function calculateWithdrawal(
         const taxCalculation = zinszinsVorabpauschale(
             capitalAfterWithdrawal,
             basiszinsen[2023],
-            currentFreibetrag,
+            yearlyFreibetrag,
             taxRate
         );
         
         // Capital after growth and taxes
         const endkapital = Math.max(0, capitalAfterGrowth - taxCalculation.steuer);
         
-        // Update remaining tax allowance for next year
-        currentFreibetrag = taxCalculation.verbleibenderFreibetrag;
-        
         result[year] = {
             startkapital,
             entnahme,
             endkapital,
             bezahlteSteuer: taxCalculation.steuer,
-            genutzterFreibetrag: freibetrag[2023] - taxCalculation.verbleibenderFreibetrag,
+            genutzterFreibetrag: yearlyFreibetrag - taxCalculation.verbleibenderFreibetrag,
             zinsen
         };
         

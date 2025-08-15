@@ -22,6 +22,7 @@ Folgendes ist umgesetzt:
 - **Konfigurierbare Steuerparameter (NEU!)**
     - Kapitalertragsteuer (standardmäßig 26,375%)
     - Teilfreistellungsquote für Aktienfonds (standardmäßig 30%)
+    - **Freibetrag pro Jahr (NEU!)** - Individuelle Konfiguration der jährlichen Steuerfreibeträge
 - **Auszahlungsphase (NEU!)**
     - 4% Regel - jährliche Entnahme von 4% des Startkapitals
     - 3% Regel - jährliche Entnahme von 3% des Startkapitals
@@ -35,7 +36,9 @@ Folgendes ist in Bearbeitung
 ---
 Folgendes ist noch gepant:
 - Steuern
-    - Freibetrag pro Jahr (bisher ein fester Steuerfreibetrag von 2000)
+    - ~~Freibetrag pro Jahr (bisher ein fester Steuerfreibetrag von 2000)~~ ✓ Umgesetzt
+- Rendite
+    - ~~variabel pro Jahr~~ ✓ Umgesetzt
 - Auszahlungsphase (Erweiterungen)
     - Berücksichtigung des Grundfreibetrages für Einkommensteuer
     - Variable Renditen pro Jahr

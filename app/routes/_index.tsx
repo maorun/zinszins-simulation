@@ -11,7 +11,10 @@ import {
     Slider,
     InputNumber,
     Toggle,
-    Form
+    Form,
+    Table,
+    IconButton,
+    FlexboxGrid
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
 import { EntnahmeSimulationsAusgabe } from "~/components/EntnahmeSimulationsAusgabe";
@@ -40,6 +43,7 @@ export default function Index() {
     // Tax configuration state
     const [steuerlast, setSteuerlast] = useState(26.375); // Capital gains tax rate as percentage
     const [teilfreistellungsquote, setTeilfreistellungsquote] = useState(30); // Partial exemption rate as percentage
+    const [freibetragPerYear, setFreibetragPerYear] = useState<{[year: number]: number}>({2023: 2000}); // Tax allowance per year
 
     // Return configuration state
     const [returnMode, setReturnMode] = useState<ReturnMode>('fixed');
@@ -71,6 +75,7 @@ export default function Index() {
             sparplanElements: JSON.stringify(sparplanElemente),
             steuerlast: steuerlast / 100, // Convert percentage to decimal
             teilfreistellungsquote: teilfreistellungsquote / 100, // Convert percentage to decimal
+            freibetragPerYear: JSON.stringify(freibetragPerYear), // Tax allowance per year
             simulationAnnual,
             ...overwrite
         };
@@ -100,13 +105,13 @@ export default function Index() {
             action: '/simulate',
             method: 'post',
         })
-    }, [d, rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote])
+    }, [d, rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear])
 
     useEffect(() => {
         if (d.data === undefined && d.state === 'idle') {
             load({})
         }
-    }, [d, load, rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, steuerlast, teilfreistellungsquote])
+    }, [d, load, rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, steuerlast, teilfreistellungsquote, freibetragPerYear])
 
     // const data = simulate(
     //     new Date().getFullYear(),
@@ -306,6 +311,98 @@ export default function Index() {
                                     load();
                                 }}
                             />
+                        </Form.Group>
+                        
+                        <Form.Group controlId="freibetragConfiguration">
+                            <Form.ControlLabel>Freibetrag pro Jahr (€)</Form.ControlLabel>
+                            <div style={{ marginBottom: '10px' }}>
+                                <FlexboxGrid>
+                                    <FlexboxGrid.Item colspan={8}>
+                                        <InputNumber
+                                            placeholder="Jahr"
+                                            min={yearToday}
+                                            max={2100}
+                                            value={undefined}
+                                            onChange={(value) => {
+                                                if (value && !freibetragPerYear[value]) {
+                                                    setFreibetragPerYear(prev => ({
+                                                        ...prev,
+                                                        [value]: 2000 // Default value
+                                                    }));
+                                                    load();
+                                                }
+                                            }}
+                                        />
+                                    </FlexboxGrid.Item>
+                                    <FlexboxGrid.Item colspan={2}>
+                                        <Button
+                                            onClick={() => {
+                                                const year = yearToday;
+                                                if (!freibetragPerYear[year]) {
+                                                    setFreibetragPerYear(prev => ({
+                                                        ...prev,
+                                                        [year]: 2000
+                                                    }));
+                                                    load();
+                                                }
+                                            }}
+                                        >
+                                            Jahr hinzufügen
+                                        </Button>
+                                    </FlexboxGrid.Item>
+                                </FlexboxGrid>
+                            </div>
+                            <Table
+                                height={200}
+                                data={Object.entries(freibetragPerYear).map(([year, amount]) => ({ year: Number(year), amount }))}
+                            >
+                                <Table.Column width={100} align="center">
+                                    <Table.HeaderCell>Jahr</Table.HeaderCell>
+                                    <Table.Cell dataKey="year" />
+                                </Table.Column>
+                                <Table.Column width={120} align="center">
+                                    <Table.HeaderCell>Freibetrag (€)</Table.HeaderCell>
+                                    <Table.Cell>
+                                        {(rowData: any) => (
+                                            <InputNumber
+                                                value={freibetragPerYear[rowData.year]}
+                                                min={0}
+                                                max={10000}
+                                                step={50}
+                                                onChange={(value) => {
+                                                    if (value !== null && value !== undefined) {
+                                                        setFreibetragPerYear(prev => ({
+                                                            ...prev,
+                                                            [rowData.year]: value
+                                                        }));
+                                                        load();
+                                                    }
+                                                }}
+                                            />
+                                        )}
+                                    </Table.Cell>
+                                </Table.Column>
+                                <Table.Column width={80} align="center">
+                                    <Table.HeaderCell>Aktionen</Table.HeaderCell>
+                                    <Table.Cell>
+                                        {(rowData: any) => (
+                                            <IconButton
+                                                size="sm"
+                                                color="red"
+                                                appearance="ghost"
+                                                onClick={() => {
+                                                    const newFreibetrag = { ...freibetragPerYear };
+                                                    delete newFreibetrag[rowData.year];
+                                                    setFreibetragPerYear(newFreibetrag);
+                                                    load();
+                                                }}
+                                            >
+                                                Löschen
+                                            </IconButton>
+                                        )}
+                                    </Table.Cell>
+                                </Table.Column>
+                            </Table>
                         </Form.Group>
                     </Panel>
                     <RadioGroup name="simulationAnnual" inline value={simulationAnnual} onChange={(value) => {

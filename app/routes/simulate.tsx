@@ -37,6 +37,9 @@ const schema = z.object({
     
     steuerlast: zfd.numeric(z.number().min(0)),
     teilfreistellungsquote: zfd.numeric(z.number().min(0)),
+    freibetragPerYear: z.string().transform((val) => JSON.parse(val)).pipe(
+        z.record(z.string(), z.number().min(0).max(10000))
+    ).optional(),
     simulationAnnual: z.enum(['yearly', 'monthly'])
 })
 
@@ -64,6 +67,7 @@ export async function action({request}: ActionFunctionArgs) {
         variableReturns,
         steuerlast, 
         teilfreistellungsquote,
+        freibetragPerYear,
         simulationAnnual 
     } = formData
 
@@ -114,7 +118,8 @@ export async function action({request}: ActionFunctionArgs) {
         returnConfig,
         steuerlast,
         simulationAnnual,
-        teilfreistellungsquote
+        teilfreistellungsquote,
+        freibetragPerYear
     )
     console.log(sparplanElements[0].simulation)
     console.log(simulation[0].simulation?.[2040])
