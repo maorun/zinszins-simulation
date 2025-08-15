@@ -1,4 +1,4 @@
-import type { SimulationResult, SimulationResultElement } from "helpers/simulate";
+import type { SimulationResult, SimulationResultElement } from "../utils/simulate";
 import { Panel, Table } from "rsuite";
 import type { SparplanElement } from "./SparplanEingabe";
 

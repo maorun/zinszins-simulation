@@ -10,8 +10,8 @@ import {
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
 import type { SparplanElement } from "./SparplanEingabe";
-import { calculateWithdrawal, getTotalCapitalAtYear } from "helpers/withdrawal";
-import type { WithdrawalStrategy } from "helpers/withdrawal";
+import { calculateWithdrawal, getTotalCapitalAtYear } from "../utils/withdrawal";
+import type { WithdrawalStrategy } from "../utils/withdrawal";
 
 const { Column, HeaderCell, Cell } = Table;
 

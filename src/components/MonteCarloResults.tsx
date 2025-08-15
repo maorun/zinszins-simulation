@@ -1,6 +1,6 @@
 import React from 'react';
 import { Panel, Table } from 'rsuite';
-import type { RandomReturnConfig } from 'helpers/random-returns';
+import type { RandomReturnConfig } from '../utils/random-returns';
 
 const { Column, HeaderCell, Cell } = Table;
 
