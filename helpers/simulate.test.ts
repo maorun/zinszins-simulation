@@ -1,5 +1,6 @@
 import { simulate, SimulationAnnual, type SimulationAnnualType } from './simulate';
 import type { SparplanElement } from '../app/components/SparplanEingabe';
+import type { ReturnConfiguration } from './random-returns';
 
 describe('Simulate (Compound Interest) Calculations', () => {
   // Helper function to create test SparplanElement
@@ -175,6 +176,126 @@ describe('Simulate (Compound Interest) Calculations', () => {
     test('should have correct values', () => {
       expect(SimulationAnnual.yearly).toBe('yearly');
       expect(SimulationAnnual.monthly).toBe('monthly');
+    });
+  });
+
+  describe('New API with ReturnConfiguration', () => {
+    test('should work with fixed return configuration', () => {
+      const elements = [createSparplanElement('2023-01-01', 24000)];
+      const returnConfig: ReturnConfiguration = {
+        mode: 'fixed',
+        fixedRate: 0.05
+      };
+      
+      const result = simulate(2023, 2025, elements, returnConfig, 0.26375, 'yearly');
+      
+      expect(result).toHaveLength(1);
+      expect(result[0].simulation).toBeDefined();
+      expect(Object.keys(result[0].simulation)).toContain('2023');
+      expect(Object.keys(result[0].simulation)).toContain('2024');
+      expect(Object.keys(result[0].simulation)).toContain('2025');
+    });
+
+    test('should work with random return configuration', () => {
+      const elements = [createSparplanElement('2023-01-01', 24000)];
+      const returnConfig: ReturnConfiguration = {
+        mode: 'random',
+        randomConfig: {
+          averageReturn: 0.07,
+          standardDeviation: 0.15,
+          seed: 42
+        }
+      };
+      
+      const result = simulate(2023, 2025, elements, returnConfig, 0.26375, 'yearly');
+      
+      expect(result).toHaveLength(1);
+      expect(result[0].simulation).toBeDefined();
+      expect(Object.keys(result[0].simulation)).toContain('2023');
+      expect(Object.keys(result[0].simulation)).toContain('2024');
+      expect(Object.keys(result[0].simulation)).toContain('2025');
+      
+      // Results should be valid
+      const simulation2023 = result[0].simulation[2023];
+      expect(simulation2023.endkapital).toBeGreaterThan(0);
+      expect(simulation2023.startkapital).toBe(24000);
+    });
+
+    test('should produce deterministic results with same random seed', () => {
+      const elements1 = [createSparplanElement('2023-01-01', 24000)];
+      const elements2 = [createSparplanElement('2023-01-01', 24000)];
+      
+      const returnConfig: ReturnConfiguration = {
+        mode: 'random',
+        randomConfig: {
+          averageReturn: 0.07,
+          seed: 12345
+        }
+      };
+      
+      const result1 = simulate(2023, 2025, elements1, returnConfig, 0.26375, 'yearly');
+      const result2 = simulate(2023, 2025, elements2, returnConfig, 0.26375, 'yearly');
+      
+      // Results should be identical with same seed
+      expect(result1[0].simulation[2023].endkapital).toBe(result2[0].simulation[2023].endkapital);
+      expect(result1[0].simulation[2024].endkapital).toBe(result2[0].simulation[2024].endkapital);
+      expect(result1[0].simulation[2025].endkapital).toBe(result2[0].simulation[2025].endkapital);
+    });
+
+    test('should produce different results with different random seeds', () => {
+      const elements1 = [createSparplanElement('2023-01-01', 24000)];
+      const elements2 = [createSparplanElement('2023-01-01', 24000)];
+      
+      const returnConfig1: ReturnConfiguration = {
+        mode: 'random',
+        randomConfig: { averageReturn: 0.07, seed: 1 }
+      };
+      
+      const returnConfig2: ReturnConfiguration = {
+        mode: 'random',
+        randomConfig: { averageReturn: 0.07, seed: 2 }
+      };
+      
+      const result1 = simulate(2023, 2025, elements1, returnConfig1, 0.26375, 'yearly');
+      const result2 = simulate(2023, 2025, elements2, returnConfig2, 0.26375, 'yearly');
+      
+      // Results should be different with different seeds
+      expect(result1[0].simulation[2025].endkapital).not.toBe(result2[0].simulation[2025].endkapital);
+    });
+
+    test('should work with monthly simulation mode and random returns', () => {
+      const elements = [createSparplanElement('2023-01-01', 12000)];
+      const returnConfig: ReturnConfiguration = {
+        mode: 'random',
+        randomConfig: {
+          averageReturn: 0.06,
+          seed: 789
+        }
+      };
+      
+      const result = simulate(2023, 2024, elements, returnConfig, 0.26375, 'monthly');
+      
+      expect(result[0].simulation[2023]).toBeDefined();
+      expect(result[0].simulation[2024]).toBeDefined();
+      
+      // Should have valid numerical results
+      const simulation = result[0].simulation[2023];
+      expect(typeof simulation.endkapital).toBe('number');
+      expect(simulation.endkapital).toBeGreaterThan(0);
+    });
+
+    test('should handle default fixed rate when none provided', () => {
+      const elements = [createSparplanElement('2023-01-01', 10000)];
+      const returnConfig: ReturnConfiguration = {
+        mode: 'fixed'
+        // No fixedRate provided, should use default
+      };
+      
+      const result = simulate(2023, 2024, elements, returnConfig, 0.26375, 'yearly');
+      
+      const simulation = result[0].simulation[2023];
+      expect(simulation).toBeDefined();
+      expect(simulation.endkapital).toBeGreaterThan(0);
     });
   });
 });
