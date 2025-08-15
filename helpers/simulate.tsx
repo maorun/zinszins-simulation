@@ -43,7 +43,8 @@ export function simulate(
     wachstumsrate: number,
     steuerlast: number,
     simulationAnnual: SimulationAnnualType,
-    teilfreistellungsquote?: number
+    teilfreistellungsquote?: number,
+    freibetragPerYear?: {[year: number]: number}
 ): SparplanElement[];
 
 // New function signature with return configuration
@@ -54,7 +55,8 @@ export function simulate(
     returnConfig: ReturnConfiguration,
     steuerlast: number,
     simulationAnnual: SimulationAnnualType,
-    teilfreistellungsquote?: number
+    teilfreistellungsquote?: number,
+    freibetragPerYear?: {[year: number]: number}
 ): SparplanElement[];
 
 // Implementation
@@ -65,8 +67,18 @@ export function simulate(
     wachstumsrateOrConfig: number | ReturnConfiguration,
     steuerlast: number,
     simulationAnnual: SimulationAnnualType,
-    teilfreistellungsquote: number = 0.3
+    teilfreistellungsquote: number = 0.3,
+    freibetragPerYear?: {[year: number]: number}
 ): SparplanElement[] {
+    // Helper function to get tax allowance for a specific year
+    const getFreibetragForYear = (year: number): number => {
+        if (freibetragPerYear && freibetragPerYear[year] !== undefined) {
+            return freibetragPerYear[year];
+        }
+        // Fallback to default value for backwards compatibility
+        return freibetrag[2023] || 2000;
+    };
+
     // Determine if we're using legacy or new API
     const isLegacyAPI = typeof wachstumsrateOrConfig === 'number';
     
@@ -108,7 +120,7 @@ export function simulate(
     // Main simulation loop
     for (let year = startYear; year <= endYear; year++) {
         const wachstumsrate = yearlyGrowthRates[year];
-        let freibetragInYear = freibetrag[2023];
+        let freibetragInYear = getFreibetragForYear(year);
         
         if (simulationAnnual === SimulationAnnual.monthly) {
             const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1
