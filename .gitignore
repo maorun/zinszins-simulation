@@ -4,4 +4,7 @@ node_modules
 /build
 /public/build
 .env
+
+# Test coverage
+coverage/
 .vercel
