@@ -15,6 +15,13 @@ Folgendes ist umgesetzt:
     - jährlich
 - Einmalzahlungen
 - Einberechnung der Freibeträge bei der Steuer
+- **Auszahlungsphase (NEU!)**
+    - 4% Regel - jährliche Entnahme von 4% des Startkapitals
+    - 3% Regel - jährliche Entnahme von 3% des Startkapitals
+    - Berücksichtigung der Renditen während der Entnahme
+    - Berücksichtigung der deutschen Steuerberechnung (Vorabpauschale)
+    - Jahr-für-Jahr Entnahmeprojektion mit detaillierter Aufschlüsselung
+    - Interaktive Parametereinstellung (Rendite, Lebensende, Strategie)
 ---
 Folgendes ist in Bearbeitung
 - Einberechnung der Vorabpauschale 
@@ -27,16 +34,11 @@ Folgendes ist noch gepant:
     - zufall (im mittel X %)
 - Sparplan
     - monatlich
-- Auszahlungsphase
-    - Berücksichtigung des Grundfreibetrages
-    - Berücksichtigung der Renditen
-        - fest
-        - variabel pro Jahr
-        - zufall (im mittel X %)
-    - Entnahme-Strategien
-        - X % Regel
-        - jährlich
-        - monatlich
+- Auszahlungsphase (Erweiterungen)
+    - Berücksichtigung des Grundfreibetrages für Einkommensteuer
+    - Variable Renditen pro Jahr
+    - Zufall (im mittel X %) 
+    - Monatliche Entnahme-Strategien
 ---
 Folgendes könnte noch gemacht werden, aber noch nicht notwending
 - Eingabe der Kapitalertragsteuer (momentan bei 26,375 %)
