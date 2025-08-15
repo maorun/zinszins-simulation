@@ -65,7 +65,7 @@ jobs:
       run: npm install --legacy-peer-deps
       
     - name: Run tests
-      run: |
-        echo "No test script defined yet. Add tests here when available."
-        echo "To add tests, create a test script in package.json and replace this step."
-        # npm run test (uncomment when test script is added)
+      run: npm test
+
+    - name: Run tests with coverage
+      run: npm run test:coverage
