@@ -124,10 +124,13 @@ export default function Index() {
                         <Radio value={SimulationAnnual.monthly}>monatlich</Radio>
                     </RadioGroup>
                 </Panel>
-                <SparplanEingabe dispatch={(val) => {
-                    setSparplan(val)
-                    setSparplanElemente(convertSparplanToElements(val, startEnd, simulationAnnual))
-                }} />
+                <SparplanEingabe 
+                    simulationAnnual={simulationAnnual}
+                    dispatch={(val) => {
+                        setSparplan(val)
+                        setSparplanElemente(convertSparplanToElements(val, startEnd, simulationAnnual))
+                    }} 
+                />
             </Panel>
             <SparplanEnd elemente={d.data?.sparplanElements} />
             <SparplanSimulationsAusgabe
