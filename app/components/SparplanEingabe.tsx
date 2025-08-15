@@ -1,8 +1,23 @@
-// import * as RsuiteIcons from '@rsuite/icons';
-// const CloseIcon = RsuiteIcons.Close;
 import type { SimulationAnnualType, SimulationResult } from 'helpers/simulate';
 import { SimulationAnnual } from 'helpers/simulate';
 import { useState } from "react";
+
+// Simple Close icon component to avoid RSuite icons ESM/CommonJS issues
+const CloseIcon = () => (
+    <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+    >
+        <line x1="18" y1="6" x2="6" y2="18"></line>
+        <line x1="6" y1="6" x2="18" y2="18"></line>
+    </svg>
+);
 import {
     Button,
     ButtonToolbar,
@@ -242,7 +257,7 @@ export function SparplanEingabe({ dispatch }: { dispatch: (val: Sparplan[]) => v
                                         dispatch(changedSparplans)
                                     }}
                                 >
-                                    {/* <CloseIcon /> */}X
+                                    <CloseIcon />
                                 </Button>
                             )}
                         </Cell>
