@@ -8,12 +8,17 @@ export type RandomReturnConfig = {
     seed?: number; // Random seed for reproducible results
 };
 
-export type ReturnMode = 'fixed' | 'random';
+export type VariableReturnConfig = {
+    yearlyReturns: Record<number, number>; // Map of year to return rate (e.g., {2023: 0.05, 2024: 0.07})
+};
+
+export type ReturnMode = 'fixed' | 'random' | 'variable';
 
 export type ReturnConfiguration = {
     mode: ReturnMode;
     fixedRate?: number; // Used when mode is 'fixed'
     randomConfig?: RandomReturnConfig; // Used when mode is 'random'
+    variableConfig?: VariableReturnConfig; // Used when mode is 'variable'
 };
 
 /**

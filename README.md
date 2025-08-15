@@ -12,6 +12,7 @@ Folgendes ist umgesetzt:
     - monatlich
     - jährlich
     - **Zufällige Rendite (NEU!)** - Monte Carlo Simulation mit konfigurierbarer durchschnittlicher Rendite und Volatilität
+    - **Variable Rendite pro Jahr (NEU!)** - Jahr-für-Jahr konfigurierbare Renditen für realistische Szenarien
 - Sparplan
     - jährlich
     - **monatlich (schon implementiert)**
@@ -35,8 +36,6 @@ Folgendes ist in Bearbeitung
 Folgendes ist noch gepant:
 - Steuern
     - Freibetrag pro Jahr (bisher ein fester Steuerfreibetrag von 2000)
-- Rendite
-    - variabel pro Jahr
 - Auszahlungsphase (Erweiterungen)
     - Berücksichtigung des Grundfreibetrages für Einkommensteuer
     - Variable Renditen pro Jahr

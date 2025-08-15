@@ -27,11 +27,13 @@ const schema = z.object({
     // Legacy field for backward compatibility
     rendite: zfd.numeric(z.number().min(0)).optional(),
     // New return configuration fields
-    returnMode: z.enum(['fixed', 'random']).optional().default('fixed'),
+    returnMode: z.enum(['fixed', 'random', 'variable']).optional().default('fixed'),
     fixedRate: zfd.numeric(z.number().min(0)).optional(),
     averageReturn: zfd.numeric(z.number().min(0)).optional(),
     standardDeviation: zfd.numeric(z.number().min(0)).optional(),
     randomSeed: zfd.numeric(z.number().int()).optional(),
+    // Variable returns data (JSON string containing year-to-rate mapping)
+    variableReturns: z.string().optional(),
     
     steuerlast: zfd.numeric(z.number().min(0)),
     teilfreistellungsquote: zfd.numeric(z.number().min(0)),
@@ -43,9 +45,10 @@ export async function action({request}: ActionFunctionArgs) {
     const { data: formData, error } = await withZod(schema).validate(body)
     if (error) {
         console.error(error)
+        return json({ error: 'Validation failed' }, { status: 400 });
     }
     if (!formData) {
-        return null
+        return json({ error: 'No data provided' }, { status: 400 });
     }
 
     const { 
@@ -58,6 +61,7 @@ export async function action({request}: ActionFunctionArgs) {
         averageReturn, 
         standardDeviation, 
         randomSeed,
+        variableReturns,
         steuerlast, 
         teilfreistellungsquote,
         simulationAnnual 
@@ -78,6 +82,21 @@ export async function action({request}: ActionFunctionArgs) {
                     averageReturn: averageReturn || 0.07, // Default 7%
                     standardDeviation: standardDeviation || 0.15, // Default 15%
                     seed: randomSeed
+                }
+            };
+        } else if (returnMode === 'variable') {
+            let yearlyReturns: Record<number, number> = {};
+            try {
+                if (variableReturns) {
+                    yearlyReturns = JSON.parse(variableReturns);
+                }
+            } catch (e) {
+                console.error('Failed to parse variable returns:', e);
+            }
+            returnConfig = {
+                mode: 'variable',
+                variableConfig: {
+                    yearlyReturns
                 }
             };
         } else {
