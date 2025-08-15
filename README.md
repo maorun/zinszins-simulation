@@ -13,6 +13,7 @@ Folgendes ist umgesetzt:
     - jährlich
 - Sparplan
     - jährlich
+    - monatlich
 - Einmalzahlungen
 - Einberechnung der Freibeträge bei der Steuer
 - **Auszahlungsphase (NEU!)**
@@ -32,8 +33,6 @@ Folgendes ist noch gepant:
 - Rendite
     - variabel pro Jahr
     - zufall (im mittel X %)
-- Sparplan
-    - monatlich
 - Auszahlungsphase (Erweiterungen)
     - Berücksichtigung des Grundfreibetrages für Einkommensteuer
     - Variable Renditen pro Jahr

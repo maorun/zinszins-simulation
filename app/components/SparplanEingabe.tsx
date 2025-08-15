@@ -95,7 +95,7 @@ export function convertSparplanToElements(val: Sparplan[], startEnd: [number, nu
     return data
 }
 
-export function SparplanEingabe({ dispatch }: { dispatch: (val: Sparplan[]) => void }) {
+export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val: Sparplan[]) => void; simulationAnnual: SimulationAnnualType }) {
     const [sparplans, setSparplans] = useState<Sparplan[]>([
         initialSparplan
     ]);
@@ -124,13 +124,18 @@ export function SparplanEingabe({ dispatch }: { dispatch: (val: Sparplan[]) => v
                     }
                     onSubmit={() => {
                         if (sparplanFormValues.start && sparplanFormValues.einzahlung && sparplanFormValues.einzahlung) {
+                            // Convert monthly input to yearly for storage (backend always expects yearly amounts)
+                            const yearlyAmount = simulationAnnual === SimulationAnnual.monthly 
+                                ? Number(sparplanFormValues.einzahlung) * 12 
+                                : Number(sparplanFormValues.einzahlung);
+                            
                             const changedSparplans: Sparplan[] = [
                                 ...sparplans,
                                 {
                                     id: new Date().getTime(),
                                     start: sparplanFormValues.start,
                                     end: sparplanFormValues.end,
-                                    einzahlung: Number(sparplanFormValues.einzahlung),
+                                    einzahlung: yearlyAmount,
 
                                 }
                             ]
@@ -152,7 +157,9 @@ export function SparplanEingabe({ dispatch }: { dispatch: (val: Sparplan[]) => v
                         <Form.Control format="yyyy-MM" name="end" accepter={DatePicker} />
                     </Form.Group>
                     <Form.Group controlId="einzahlung">
-                        <Form.ControlLabel>Einzahlungen je Jahr</Form.ControlLabel>
+                        <Form.ControlLabel>
+                            {simulationAnnual === SimulationAnnual.yearly ? 'Einzahlungen je Jahr' : 'Einzahlungen je Monat'}
+                        </Form.ControlLabel>
                         <Form.Control name="einzahlung" accepter={InputNumber} />
                     </Form.Group>
                     <Form.Group>
@@ -243,8 +250,17 @@ export function SparplanEingabe({ dispatch }: { dispatch: (val: Sparplan[]) => v
                         }} dataKey="end" />
                     </Column>
                     <Column width={140}>
-                        <HeaderCell>Einzahlungen je Jahr</HeaderCell>
-                        <Cell dataKey="einzahlung" />
+                        <HeaderCell>
+                            {simulationAnnual === SimulationAnnual.yearly ? 'Einzahlungen je Jahr' : 'Einzahlungen je Monat'}
+                        </HeaderCell>
+                        <Cell>
+                            {(rowData: Sparplan) => {
+                                const displayValue = simulationAnnual === SimulationAnnual.monthly 
+                                    ? (rowData.einzahlung / 12).toFixed(2)
+                                    : rowData.einzahlung.toFixed(2);
+                                return displayValue;
+                            }}
+                        </Cell>
                     </Column>
                     <Column>
                         <HeaderCell>Actions</HeaderCell>
