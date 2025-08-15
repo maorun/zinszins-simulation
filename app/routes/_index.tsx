@@ -136,7 +136,7 @@ export default function Index() {
             <EntnahmeSimulationsAusgabe
                 dispatchEnd={setStartEnd}
                 startEnd={startEnd}
-                elemente={sparplanElemente}
+                elemente={d.data?.sparplanElements || []}
             />
 
             <Panel header="Simulation" bordered collapsible defaultExpanded>
