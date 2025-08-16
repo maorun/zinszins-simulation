@@ -16,22 +16,14 @@ import {
 import 'rsuite/dist/rsuite.min.css';
 import { EntnahmeSimulationsAusgabe } from "../components/EntnahmeSimulationsAusgabe";
 import { MonteCarloResults } from "../components/MonteCarloResults";
-import type { Sparplan, SparplanElement } from "../components/SparplanEingabe";
-import { SparplanEingabe, convertSparplanToElements, initialSparplan } from "../components/SparplanEingabe";
-import { SparplanEnd, SparplanSimulationsAusgabe, fullSummary } from "../components/SparplanSimulationsAusgabe";
+import { SparplanEingabe } from "../components/SparplanEingabe";
+import { SparplanSimulationsAusgabe } from "../components/SparplanSimulationsAusgabe";
+import type { Sparplan, SparplanElement } from "../utils/sparplan-utils";
+import { convertSparplanToElements, initialSparplan } from "../utils/sparplan-utils";
+import { fullSummary } from "../utils/summary-utils";
+import { unique } from "../utils/array-utils";
 import { Zeitspanne } from "../components/Zeitspanne";
 
-export const unique = function <T extends undefined | number | string>(data: undefined | null | T[]): T[] {
-    if (!data || !data.length) {
-        return []
-    }
-    return data.reduce((acc, curr) => {
-        if (!acc.includes(curr)) {
-            acc.push(curr)
-        }
-        return acc
-    }, [] as T[])
-}
 
 export default function HomePage() {
     const [rendite, setRendite] = useState(5);
