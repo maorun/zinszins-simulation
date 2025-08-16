@@ -1,4 +1,4 @@
-import { zinszinsVorabpauschale } from "./steuer";
+import { zinszinsVorabpauschale, getBasiszinsForYear } from "./steuer";
 
 export type WithdrawalStrategy = "4prozent" | "3prozent";
 
@@ -13,12 +13,6 @@ export type WithdrawalResultElement = {
 
 export type WithdrawalResult = {
     [year: number]: WithdrawalResultElement;
-};
-
-const basiszinsen: {
-    [year: number]: number;
-} = {
-    2023: 0.0255,
 };
 
 const freibetrag: {
@@ -93,7 +87,7 @@ export function calculateWithdrawal(
         // Calculate capital gains tax on growth using Vorabpauschale
         const taxCalculation = zinszinsVorabpauschale(
             capitalAfterWithdrawal,
-            basiszinsen[2023],
+            getBasiszinsForYear(year),
             yearlyFreibetrag,
             taxRate
         );
