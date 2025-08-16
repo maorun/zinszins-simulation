@@ -1,6 +1,6 @@
 import { zinszinsVorabpauschale, getBasiszinsForYear } from "./steuer";
 
-export type WithdrawalStrategy = "4prozent" | "3prozent";
+export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest";
 
 export type WithdrawalResultElement = {
     startkapital: number;
@@ -9,10 +9,21 @@ export type WithdrawalResultElement = {
     bezahlteSteuer: number;
     genutzterFreibetrag: number;
     zinsen: number;
+    // For monthly strategy
+    monatlicheEntnahme?: number;
+    inflationAnpassung?: number;
+    portfolioAnpassung?: number;
 }
 
 export type WithdrawalResult = {
     [year: number]: WithdrawalResultElement;
+};
+
+export type MonthlyWithdrawalConfig = {
+    monthlyAmount: number; // Fixed monthly withdrawal amount in €
+    inflationRate?: number; // Annual inflation rate for adjustment (default: 2%)
+    enableGuardrails?: boolean; // Enable dynamic adjustment based on portfolio performance
+    guardrailsThreshold?: number; // Threshold for portfolio performance adjustment (default: 10%)
 };
 
 const freibetrag: {
@@ -29,14 +40,15 @@ const grundfreibetrag: {
 };
 
 /**
- * Calculate withdrawal phase projections based on 4% or 3% rule
+ * Calculate withdrawal phase projections based on different strategies
  * @param startingCapital - Capital available at the start of withdrawal phase
  * @param startYear - First year of withdrawal 
  * @param endYear - Final year of withdrawal (end of life)
- * @param strategy - Withdrawal strategy (4% or 3% rule)
+ * @param strategy - Withdrawal strategy (4% rule, 3% rule, or monthly fixed)
  * @param returnRate - Expected annual return during withdrawal phase
  * @param taxRate - Capital gains tax rate (default: 26.375%)
  * @param freibetragPerYear - Tax allowance per year (optional)
+ * @param monthlyConfig - Configuration for monthly withdrawal strategy (optional)
  * @returns Withdrawal projections year by year
  */
 export function calculateWithdrawal(
@@ -46,7 +58,8 @@ export function calculateWithdrawal(
     strategy: WithdrawalStrategy,
     returnRate: number,
     taxRate: number = 0.26375,
-    freibetragPerYear?: {[year: number]: number}
+    freibetragPerYear?: {[year: number]: number},
+    monthlyConfig?: MonthlyWithdrawalConfig
 ): WithdrawalResult {
     // Helper function to get tax allowance for a specific year
     const getFreibetragForYear = (year: number): number => {
@@ -58,14 +71,21 @@ export function calculateWithdrawal(
     };
 
     const result: WithdrawalResult = {};
-    
-    // Calculate initial withdrawal rate
-    const withdrawalRate = strategy === "4prozent" ? 0.04 : 0.03;
-    
-    // Calculate initial annual withdrawal amount based on starting capital
-    const initialWithdrawal = startingCapital * withdrawalRate;
-    
     let currentCapital = startingCapital;
+    
+    // Initialize withdrawal amount based on strategy
+    let baseWithdrawalAmount: number;
+    
+    if (strategy === "monatlich_fest") {
+        if (!monthlyConfig) {
+            throw new Error("Monthly configuration is required for monatlich_fest strategy");
+        }
+        baseWithdrawalAmount = monthlyConfig.monthlyAmount * 12; // Convert monthly to annual
+    } else {
+        // Traditional percentage-based strategies
+        const withdrawalRate = strategy === "4prozent" ? 0.04 : 0.03;
+        baseWithdrawalAmount = startingCapital * withdrawalRate;
+    }
     
     for (let year = startYear; year <= endYear; year++) {
         // Get year-specific tax allowance
@@ -74,8 +94,50 @@ export function calculateWithdrawal(
         // Start of year capital
         const startkapital = currentCapital;
         
-        // Calculate withdrawal amount (fixed amount based on initial calculation)
-        const entnahme = Math.min(initialWithdrawal, currentCapital);
+        // Calculate withdrawal amount for this year
+        let annualWithdrawal = baseWithdrawalAmount;
+        let inflationAnpassung = 0;
+        let portfolioAnpassung = 0;
+        
+        if (strategy === "monatlich_fest" && monthlyConfig) {
+            const yearsPassed = year - startYear;
+            
+            // Apply inflation adjustment
+            const inflationRate = monthlyConfig.inflationRate || 0.02; // Default 2%
+            inflationAnpassung = baseWithdrawalAmount * Math.pow(1 + inflationRate, yearsPassed) - baseWithdrawalAmount;
+            annualWithdrawal += inflationAnpassung;
+            
+            // Apply guardrails if enabled
+            if (monthlyConfig.enableGuardrails && yearsPassed > 0) {
+                const threshold = monthlyConfig.guardrailsThreshold || 0.10; // Default 10%
+                
+                // Use a baseline return rate for comparison (assume 5% as expected long-term return)
+                const baselineReturnRate = 0.05;
+                
+                // Calculate what the capital should be at baseline return rate considering withdrawals
+                const avgAnnualWithdrawal = baseWithdrawalAmount; // Base amount before adjustments
+                let expectedCapitalWithWithdrawals = startingCapital;
+                for (let i = 0; i < yearsPassed; i++) {
+                    expectedCapitalWithWithdrawals = (expectedCapitalWithWithdrawals - avgAnnualWithdrawal) * (1 + baselineReturnRate);
+                }
+                
+                // Compare actual vs expected capital (both considering withdrawals)
+                const actualVsExpected = (currentCapital - expectedCapitalWithWithdrawals) / Math.abs(expectedCapitalWithWithdrawals);
+                
+                if (actualVsExpected > threshold) {
+                    // Portfolio performing better than expected, increase withdrawal by 5%
+                    portfolioAnpassung = annualWithdrawal * 0.05;
+                } else if (actualVsExpected < -threshold) {
+                    // Portfolio performing worse than expected, decrease withdrawal by 5%
+                    portfolioAnpassung = -annualWithdrawal * 0.05;
+                }
+                
+                annualWithdrawal += portfolioAnpassung;
+            }
+        }
+        
+        // Ensure withdrawal doesn't exceed available capital
+        const entnahme = Math.min(annualWithdrawal, currentCapital);
         
         // Apply withdrawal first, then investment returns to remaining capital
         const capitalAfterWithdrawal = Math.max(0, startkapital - entnahme);
@@ -101,7 +163,10 @@ export function calculateWithdrawal(
             endkapital,
             bezahlteSteuer: taxCalculation.steuer,
             genutzterFreibetrag: yearlyFreibetrag - taxCalculation.verbleibenderFreibetrag,
-            zinsen
+            zinsen,
+            monatlicheEntnahme: strategy === "monatlich_fest" ? entnahme / 12 : undefined,
+            inflationAnpassung: strategy === "monatlich_fest" ? inflationAnpassung : undefined,
+            portfolioAnpassung: strategy === "monatlich_fest" ? portfolioAnpassung : undefined
         };
         
         // Update capital for next year
