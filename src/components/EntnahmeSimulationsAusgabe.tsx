@@ -10,7 +10,7 @@ import {
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
 import type { SparplanElement } from "../utils/sparplan-utils";
-import { calculateWithdrawal, getTotalCapitalAtYear } from "../utils/withdrawal";
+import { calculateWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration } from "../utils/withdrawal";
 import type { WithdrawalStrategy } from "../utils/withdrawal";
 
 const { Column, HeaderCell, Cell } = Table;
@@ -62,10 +62,14 @@ export function EntnahmeSimulationsAusgabe({
             }))
             .sort((a, b) => b.year - a.year);
 
+        // Calculate withdrawal duration
+        const duration = calculateWithdrawalDuration(withdrawalResult, startOfIndependence + 1);
+
         return {
             startingCapital,
             withdrawalArray,
-            withdrawalResult
+            withdrawalResult,
+            duration
         };
     }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite]);
 
@@ -129,6 +133,11 @@ export function EntnahmeSimulationsAusgabe({
                             <p><strong>Startkapital bei Entnahme:</strong> {formatCurrency(withdrawalData.startingCapital)}</p>
                                                         <p><strong>Jährliche Entnahme ({formValue.strategie === "4prozent" ? "4 Prozent" : "3 Prozent"} Regel):</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.strategie === "4prozent" ? 0.04 : 0.03))}</p>
                             <p><strong>Erwartete Rendite:</strong> {formValue.rendite} Prozent p.a.</p>
+                            <p><strong>Vermögen reicht für:</strong> {
+                                withdrawalData.duration 
+                                    ? `${withdrawalData.duration} Jahr${withdrawalData.duration === 1 ? '' : 'e'}`
+                                    : 'unbegrenzt (Vermögen wächst weiter)'
+                            }</p>
                         </div>
                         
                         <Table
