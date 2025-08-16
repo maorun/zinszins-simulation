@@ -143,15 +143,6 @@ const HeaderSummary = ({
     </div>
 );
 
-const NumberCell = ({
-    rowData,
-    dataKey,
-    ...props
-}: {
-    rowData?: any;
-    dataKey: string;
-}) => <Cell {...props}>{thousands(rowData[dataKey])} €</Cell>;
-
 const EnhancedNumberCell = ({
     rowData,
     dataKey,
