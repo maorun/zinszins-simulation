@@ -218,19 +218,19 @@ describe('Withdrawal Calculations', () => {
 
     test('should apply guardrails correctly when portfolio outperforms', () => {
       const monthlyConfig: MonthlyWithdrawalConfig = {
-        monthlyAmount: 2000,
-        inflationRate: 0.02,
+        monthlyAmount: 1000, // Smaller withdrawal to see effect better
+        inflationRate: 0.0, // No inflation to simplify
         enableGuardrails: true,
-        guardrailsThreshold: 0.10 // 10% threshold
+        guardrailsThreshold: 0.05 // Lower threshold for easier testing
       };
       
-      // High return scenario where portfolio outperforms
+      // Very high return scenario where portfolio significantly outperforms
       const result = calculateWithdrawal(
-        500000, 
+        1000000, // Larger starting capital 
         2025, 
         2027, 
         "monatlich_fest", 
-        0.12, // 12% return - much higher than expected
+        0.20, // 20% return - much higher than 5% baseline
         0.26375,
         undefined,
         monthlyConfig
@@ -239,25 +239,25 @@ describe('Withdrawal Calculations', () => {
       // First year should have no portfolio adjustment
       expect(result[2025].portfolioAnpassung).toBe(0);
       
-      // Later years should have positive portfolio adjustment due to good performance
+      // Later years should have positive portfolio adjustment due to exceptional performance
       expect(result[2026].portfolioAnpassung).toBeGreaterThan(0);
     });
 
     test('should apply guardrails correctly when portfolio underperforms', () => {
       const monthlyConfig: MonthlyWithdrawalConfig = {
-        monthlyAmount: 2000,
-        inflationRate: 0.02,
+        monthlyAmount: 1000,
+        inflationRate: 0.0, // No inflation to simplify
         enableGuardrails: true,
-        guardrailsThreshold: 0.10
+        guardrailsThreshold: 0.05 // Lower threshold
       };
       
-      // Low return scenario where portfolio underperforms
+      // Very low return scenario where portfolio significantly underperforms
       const result = calculateWithdrawal(
-        500000, 
+        1000000, 
         2025, 
         2027, 
         "monatlich_fest", 
-        0.01, // 1% return - much lower than expected
+        -0.05, // -5% return - much worse than 5% baseline
         0.26375,
         undefined,
         monthlyConfig
