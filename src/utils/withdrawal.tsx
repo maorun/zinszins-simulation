@@ -133,6 +133,43 @@ export function calculateIncomeTax(
 }
 
 /**
+ * Calculate how long the capital will last during withdrawal phase
+ * @param withdrawalResult - Result from withdrawal calculation
+ * @param startYear - First year of withdrawal
+ * @returns Duration in years (null if capital never depletes within timeframe)
+ */
+export function calculateWithdrawalDuration(
+    withdrawalResult: WithdrawalResult,
+    startYear: number
+): number | null {
+    const years = Object.keys(withdrawalResult).map(Number).sort((a, b) => a - b);
+    
+    // Find the first year where capital is depleted (endkapital <= 0)
+    for (const year of years) {
+        if (withdrawalResult[year].endkapital <= 0) {
+            return year - startYear + 1;
+        }
+    }
+    
+    // If no depletion found, check if we're in a declining scenario
+    if (years.length >= 2) {
+        const lastYear = years[years.length - 1];
+        const firstYear = years[0];
+        const lastCapital = withdrawalResult[lastYear].endkapital;
+        const firstCapital = withdrawalResult[firstYear].startkapital;
+        
+        // If capital is declining significantly, estimate when it might run out
+        if (lastCapital < firstCapital * 0.5) {
+            // Capital is declining, but we don't have enough data to determine exact depletion
+            return null;
+        }
+    }
+    
+    // Capital doesn't deplete within the simulation timeframe
+    return null;
+}
+
+/**
  * Get total accumulated capital from all savings plan elements at a specific year
  * @param elements - Array of SparplanElement with simulation results
  * @param year - Year to get capital for
