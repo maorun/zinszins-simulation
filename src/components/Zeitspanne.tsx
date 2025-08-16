@@ -32,7 +32,7 @@ export function Zeitspanne({
                 value={startEnd[0]}
                 onChange={(nextValue) => {
                     nextValue = Number(nextValue);
-                    const [_start, end] = startEnd;
+                    const [, end] = startEnd;
                     if (nextValue > end || nextValue < min || nextValue > max) {
                         return;
                     }

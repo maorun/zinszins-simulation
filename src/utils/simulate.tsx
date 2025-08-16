@@ -109,7 +109,7 @@ export function simulate(
             const randomReturns = generateRandomReturns(years, returnConfig.randomConfig);
             Object.assign(yearlyGrowthRates, randomReturns);
         } else if (returnConfig.mode === 'variable' && returnConfig.variableConfig) {
-            // Use user-defined yearly returns, fall back to 5% default for missing years
+            // Use variable returns: get rate for each year from the configuration
             for (const year of years) {
                 yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] || 0.05;
             }

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Panel, Table } from 'rsuite';
-import type { RandomReturnConfig } from 'helpers/random-returns';
+import type { RandomReturnConfig } from '../utils/random-returns';
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -17,9 +17,9 @@ interface MonteCarloResult {
 }
 
 export function MonteCarloResults({
-    years,
+    years: _years,
     randomConfig,
-    runs = 500
+    runs: _runs = 500
 }: MonteCarloResultsProps) {
     const formatPercent = (value: number) => (value * 100).toFixed(1) + '%';
 

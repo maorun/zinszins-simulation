@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { simulate } from './simulate';
+import { simulate } from '../src/utils/simulate';
 import type { ReturnConfiguration } from './random-returns';
 
 function createSparplanElement(start: string, einzahlung: number) {

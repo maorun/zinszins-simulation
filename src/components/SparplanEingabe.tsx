@@ -1,5 +1,5 @@
-import type { SimulationAnnualType, SimulationResult } from 'helpers/simulate';
-import { SimulationAnnual } from 'helpers/simulate';
+import type { SimulationAnnualType, SimulationResult } from '../utils/simulate';
+import { SimulationAnnual } from '../utils/simulate';
 import { useState } from "react";
 
 // Simple Close icon component to avoid RSuite icons ESM/CommonJS issues

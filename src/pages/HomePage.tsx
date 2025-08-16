@@ -1,7 +1,5 @@
-import { useFetcher } from "@remix-run/react";
-import type { MetaFunction } from "@vercel/remix";
-import { SimulationAnnual, type SimulationAnnualType } from "helpers/simulate";
-import type { ReturnMode } from "helpers/random-returns";
+import { SimulationAnnual, type SimulationAnnualType, simulate } from "../utils/simulate";
+import type { ReturnMode, ReturnConfiguration } from "../utils/random-returns";
 import { useCallback, useEffect, useState } from "react";
 import {
     Button,
@@ -10,20 +8,18 @@ import {
     RadioGroup,
     Slider,
     InputNumber,
-    Toggle,
     Form,
     Table,
     IconButton,
     FlexboxGrid
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
-import { EntnahmeSimulationsAusgabe } from "~/components/EntnahmeSimulationsAusgabe";
-import { MonteCarloResults } from "~/components/MonteCarloResults";
-import type { Sparplan, SparplanElement } from "~/components/SparplanEingabe";
-import { SparplanEingabe, convertSparplanToElements, initialSparplan } from "~/components/SparplanEingabe";
-import { SparplanEnd, SparplanSimulationsAusgabe } from "~/components/SparplanSimulationsAusgabe";
-import { Zeitspanne } from "~/components/Zeitspanne";
-import type { action } from "./simulate";
+import { EntnahmeSimulationsAusgabe } from "../components/EntnahmeSimulationsAusgabe";
+import { MonteCarloResults } from "../components/MonteCarloResults";
+import type { Sparplan, SparplanElement } from "../components/SparplanEingabe";
+import { SparplanEingabe, convertSparplanToElements, initialSparplan } from "../components/SparplanEingabe";
+import { SparplanEnd, SparplanSimulationsAusgabe } from "../components/SparplanSimulationsAusgabe";
+import { Zeitspanne } from "../components/Zeitspanne";
 
 export const unique = function <T extends undefined | number | string>(data: undefined | null | T[]): T[] {
     if (!data || !data.length) {
@@ -37,7 +33,7 @@ export const unique = function <T extends undefined | number | string>(data: und
     }, [] as T[])
 }
 
-export default function Index() {
+export default function HomePage() {
     const [rendite, setRendite] = useState(5);
     
     // Tax configuration state
@@ -54,6 +50,7 @@ export default function Index() {
     // Variable returns state: map of year to return rate (as percentage)
     const [variableReturns, setVariableReturns] = useState<Record<number, number>>({});
 
+    // Grundfreibetrag für Einkommensteuer bei Entnahme
     // const Grundfreibetrag = 9744; // erst bei Auszahlung
     const [startEnd, setStartEnd] = useState<[number, number]>([2040, 2080]);
 
@@ -64,66 +61,78 @@ export default function Index() {
         convertSparplanToElements([initialSparplan], startEnd, simulationAnnual)
     );
 
-    const d = useFetcher<typeof action>()
+    // Replace useFetcher with local state
+    const [simulationData, setSimulationData] = useState<any>(null);
+    const [isLoading, setIsLoading] = useState(false);
 
     const yearToday = new Date().getFullYear()
 
-    const load = useCallback((overwrite: { rendite?: number } = {}) => {
-        const formData: any = {
-            year: yearToday,
-            end: startEnd[0],
-            sparplanElements: JSON.stringify(sparplanElemente),
-            steuerlast: steuerlast / 100, // Convert percentage to decimal
-            teilfreistellungsquote: teilfreistellungsquote / 100, // Convert percentage to decimal
-            freibetragPerYear: JSON.stringify(freibetragPerYear), // Tax allowance per year
-            simulationAnnual,
-            ...overwrite
-        };
-
-        // Add return configuration based on mode
-        if (returnMode === 'fixed') {
-            formData.returnMode = 'fixed';
-            formData.fixedRate = (overwrite.rendite !== undefined ? overwrite.rendite : rendite) / 100;
-        } else if (returnMode === 'random') {
-            formData.returnMode = 'random';
-            formData.averageReturn = averageReturn / 100;
-            formData.standardDeviation = standardDeviation / 100;
-            if (randomSeed !== undefined) {
-                formData.randomSeed = randomSeed;
+    const performSimulation = useCallback(async (overwrite: { rendite?: number } = {}) => {
+        setIsLoading(true);
+        
+        try {
+            // Build return configuration
+            let returnConfig: ReturnConfiguration | number;
+            
+            if (overwrite.rendite !== undefined) {
+                // Legacy API: use the old rendite parameter
+                returnConfig = overwrite.rendite / 100;
+            } else {
+                // New API: build return configuration
+                if (returnMode === 'random') {
+                    returnConfig = {
+                        mode: 'random',
+                        randomConfig: {
+                            averageReturn: averageReturn / 100 || 0.07, // Default 7%
+                            standardDeviation: standardDeviation / 100 || 0.15, // Default 15%
+                            seed: randomSeed
+                        }
+                    };
+                } else if (returnMode === 'variable') {
+                    returnConfig = {
+                        mode: 'variable',
+                        variableConfig: {
+                            yearlyReturns: Object.fromEntries(
+                                Object.entries(variableReturns).map(([year, rate]) => [parseInt(year), rate / 100])
+                            )
+                        }
+                    };
+                } else {
+                    returnConfig = {
+                        mode: 'fixed',
+                        fixedRate: rendite / 100 || 0.05 // Default 5%
+                    };
+                }
             }
-        } else if (returnMode === 'variable') {
-            formData.returnMode = 'variable';
-            // Convert percentage values to decimals for the server
-            const decimalReturns: Record<number, number> = {};
-            Object.entries(variableReturns).forEach(([year, rate]) => {
-                decimalReturns[parseInt(year)] = rate / 100;
-            });
-            formData.variableReturns = JSON.stringify(decimalReturns);
-        }
 
-        d.submit(formData, {
-            action: '/simulate',
-            method: 'post',
-        })
-    }, [d, rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear])
+            const result = simulate(
+                yearToday,
+                startEnd[0],
+                sparplanElemente,
+                returnConfig,
+                steuerlast / 100,
+                simulationAnnual,
+                teilfreistellungsquote / 100,
+                freibetragPerYear
+            );
+
+            setSimulationData({
+                sparplanElements: result.map(element => ({
+                    ...element
+                }))
+            });
+        } catch (error) {
+            console.error('Simulation error:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear]);
 
     useEffect(() => {
-        if (d.data === undefined && d.state === 'idle') {
-            load({})
-        }
-    }, [d, load, rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, steuerlast, teilfreistellungsquote, freibetragPerYear])
+        performSimulation();
+    }, [performSimulation]);
 
-    // const data = simulate(
-    //     new Date().getFullYear(),
-    //     startEnd[0],
-    //     sparplanElemente,
-    //     rendite / 100,
-    //     steuerlast,
-    //     simulationAnnual
-    // )
-
-
-    const data = unique(d.data && (d.data.sparplanElements.flatMap(v => v.simulation && Object.keys(v.simulation)).map(Number)))
+    const data = unique(simulationData && (simulationData.sparplanElements.flatMap((v: any) => v.simulation && Object.keys(v.simulation)).map(Number)))
 
     return (
         <div>
@@ -131,7 +140,7 @@ export default function Index() {
             <Button
                 onClick={() => {
                     setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual))
-                    load({})
+                    performSimulation()
                 }}
             >
                 Refresh</Button>
@@ -152,7 +161,7 @@ export default function Index() {
                                 onChange={(value) => {
                                     const mode = value as ReturnMode;
                                     setReturnMode(mode);
-                                    load();
+                                    performSimulation();
                                 }}
                             >
                                 <Radio value="fixed">Feste Rendite</Radio>
@@ -176,7 +185,7 @@ export default function Index() {
                                     graduated
                                     onChange={(r) => {
                                         setRendite(r)
-                                        load({ rendite: r })
+                                        performSimulation({ rendite: r })
                                     }}
                                 />
                             </Form.Group>
@@ -198,7 +207,7 @@ export default function Index() {
                                         graduated
                                         onChange={(value) => {
                                             setAverageReturn(value);
-                                            load();
+                                            performSimulation();
                                         }}
                                     />
                                 </Form.Group>
@@ -217,7 +226,7 @@ export default function Index() {
                                         graduated
                                         onChange={(value) => {
                                             setStandardDeviation(value);
-                                            load();
+                                            performSimulation();
                                         }}
                                     />
                                 </Form.Group>
@@ -229,7 +238,7 @@ export default function Index() {
                                         value={randomSeed}
                                         onChange={(value) => {
                                             setRandomSeed(typeof value === 'number' ? value : undefined);
-                                            load();
+                                            performSimulation();
                                         }}
                                         min={1}
                                         max={999999}
@@ -256,7 +265,7 @@ export default function Index() {
                                                         onChange={(value) => {
                                                             const newReturns = { ...variableReturns, [year]: value };
                                                             setVariableReturns(newReturns);
-                                                            load();
+                                                            performSimulation();
                                                         }}
                                                     />
                                                 </div>
@@ -273,7 +282,7 @@ export default function Index() {
                             </Form.Group>
                         )}
                     </Panel>
-                    
+
                     <Panel header="Steuer-Konfiguration" bordered>
                         <Form.Group controlId="steuerlast">
                             <Form.ControlLabel>Kapitalertragsteuer (%)</Form.ControlLabel>
@@ -289,7 +298,7 @@ export default function Index() {
                                 graduated
                                 onChange={(value) => {
                                     setSteuerlast(value);
-                                    load();
+                                    performSimulation();
                                 }}
                             />
                         </Form.Group>
@@ -308,7 +317,7 @@ export default function Index() {
                                 graduated
                                 onChange={(value) => {
                                     setTeilfreistellungsquote(value);
-                                    load();
+                                    performSimulation();
                                 }}
                             />
                         </Form.Group>
@@ -329,7 +338,7 @@ export default function Index() {
                                                         ...prev,
                                                         [value]: 2000 // Default value
                                                     }));
-                                                    load();
+                                                    performSimulation();
                                                 }
                                             }}
                                         />
@@ -343,7 +352,7 @@ export default function Index() {
                                                         ...prev,
                                                         [year]: 2000
                                                     }));
-                                                    load();
+                                                    performSimulation();
                                                 }
                                             }}
                                         >
@@ -375,7 +384,7 @@ export default function Index() {
                                                             ...prev,
                                                             [rowData.year]: value
                                                         }));
-                                                        load();
+                                                        performSimulation();
                                                     }
                                                 }}
                                             />
@@ -394,7 +403,7 @@ export default function Index() {
                                                     const newFreibetrag = { ...freibetragPerYear };
                                                     delete newFreibetrag[rowData.year];
                                                     setFreibetragPerYear(newFreibetrag);
-                                                    load();
+                                                    performSimulation();
                                                 }}
                                             >
                                                 Löschen
@@ -405,96 +414,173 @@ export default function Index() {
                             </Table>
                         </Form.Group>
                     </Panel>
-                    <RadioGroup name="simulationAnnual" inline value={simulationAnnual} onChange={(value) => {
-                        const val = value.toString() === SimulationAnnual.yearly ? 'yearly' : 'monthly'
-                        setSimulationAnnual(val)
-                        setSparplanElemente(convertSparplanToElements(sparplan, startEnd, val))
-                    }}>
-                        <Radio value={SimulationAnnual.yearly}>jährlich</Radio>
-                        <Radio value={SimulationAnnual.monthly}>monatlich</Radio>
-                    </RadioGroup>
+
+                    <Panel header="Simulation-Konfiguration" bordered>
+                        <Form.Group controlId="simulationAnnual">
+                            <Form.ControlLabel>Berechnungsmodus</Form.ControlLabel>
+                            <RadioGroup
+                                inline
+                                value={simulationAnnual}
+                                onChange={(value) => {
+                                    const annual = value as SimulationAnnualType;
+                                    setSimulationAnnual(annual);
+                                    setSparplanElemente(convertSparplanToElements(sparplan, startEnd, annual));
+                                }}
+                            >
+                                <Radio value={SimulationAnnual.yearly}>Jährlich</Radio>
+                                <Radio value={SimulationAnnual.monthly}>Monatlich</Radio>
+                            </RadioGroup>
+                        </Form.Group>
+                    </Panel>
                 </Panel>
-                <SparplanEingabe 
-                    dispatch={(val) => {
-                        setSparplan(val)
-                        setSparplanElemente(convertSparplanToElements(val, startEnd, simulationAnnual))
-                    }} 
-                    simulationAnnual={simulationAnnual}
-                />
-            </Panel>
-            <SparplanEnd elemente={d.data?.sparplanElements} />
-            <SparplanSimulationsAusgabe
-                elemente={d.data?.sparplanElements}
-            />
-            <EntnahmeSimulationsAusgabe
-                dispatchEnd={setStartEnd}
-                startEnd={startEnd}
-                elemente={d.data?.sparplanElements || []}
-            />
 
-            <Panel header="Simulation" bordered collapsible defaultExpanded>
-                <div>
-                    {data
-                        .sort((a, b) => b - a)
-                        .map((year, index) => {
-                            return (
-                                <div key={year + '' + index}>
-                                    Year: {year}
-                                    {d.data?.sparplanElements
-                                        .map((value) => value.simulation?.[Number(year)])
-                                        .filter(Boolean)
-                                        .flat()
-                                        .map((value, index) => {
-                                            if (!value) {
-                                                return null;
-                                            }
-                                            return (
-                                                <ul key={index}>
-                                                    <li>
-                                                        Startkapital:
-                                                        {Number(value.startkapital).toFixed(2)}
-                                                    </li>
-                                                    <li>Zinsen: {Number(value.zinsen).toFixed(2)}</li>
-                                                    <li>
-                                                        Endkapital: {Number(value.endkapital).toFixed(2)}
-                                                    </li>
-                                                    <li>
-                                                        Bezahlte Steuer:
-                                                        {Number(value.bezahlteSteuer).toFixed(2)}
-                                                    </li>
-                                                    <li>
-                                                        Genutzter Freibetrag:
-                                                        {Number(value.genutzterFreibetrag).toFixed(2)}
-                                                    </li>
-                                                </ul>
-                                            );
-                                        })}
-                                </div>
-                            );
-                        })}
-                </div>
+                <Panel header="Sparpläne erstellen" collapsible bordered>
+                    <SparplanEingabe 
+                        sparplan={sparplan} 
+                        setSparplan={setSparplan} 
+                        simulationAnnual={simulationAnnual}
+                        startEnd={startEnd}
+                        dispatch={(sparplan) => {
+                            setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual))
+                        }}
+                    />
+                </Panel>
             </Panel>
 
-            {returnMode === 'random' && (
-                <MonteCarloResults
-                    years={Array.from({ length: startEnd[0] - yearToday + 1 }, (_, i) => yearToday + i)}
-                    randomConfig={{
-                        averageReturn: averageReturn / 100,
-                        standardDeviation: standardDeviation / 100,
-                        seed: randomSeed
-                    }}
-                />
+            {simulationData && (
+                <>
+                    <SparplanEnd elemente={simulationData.sparplanElements} />
+                    
+                    <Panel header="Sparplan-Simulation" collapsible bordered>
+                        <SparplanSimulationsAusgabe
+                            startEnd={startEnd}
+                            elemente={simulationData.sparplanElements}
+                            simulationAnnual={simulationAnnual}
+                        />
+                    </Panel>
+
+                    <Panel header="Entnahme" collapsible bordered>
+                        <EntnahmeSimulationsAusgabe
+                            startEnd={startEnd}
+                            elemente={simulationData.sparplanElements}
+                            dispatchEnd={(val) => setStartEnd(val)}
+                        />
+                    </Panel>
+
+                    <Panel header="Monte Carlo Analyse" collapsible bordered>
+                        <MonteCarloResults
+                            years={data}
+                            randomConfig={{
+                                averageReturn: averageReturn / 100,
+                                standardDeviation: standardDeviation / 100,
+                                seed: randomSeed
+                            }}
+                        />
+                    </Panel>
+
+                    <Panel header="Simulation" bordered collapsible defaultExpanded>
+                        <div>
+                            {data
+                                .sort((a, b) => b - a)
+                                .map((year, index) => {
+                                    return (
+                                        <div key={year + '' + index}>
+                                            Year: {year}
+                                            {simulationData?.sparplanElements
+                                                .map((value: any) => value.simulation?.[Number(year)])
+                                                .filter(Boolean)
+                                                .flat()
+                                                .map((value: any, index: number) => {
+                                                    if (!value) {
+                                                        return null;
+                                                    }
+                                                    return (
+                                                        <ul key={index}>
+                                                            <li>
+                                                                Startkapital:
+                                                                {Number(value.startkapital).toFixed(2)}
+                                                            </li>
+                                                            <li>Zinsen: {Number(value.zinsen).toFixed(2)}</li>
+                                                            <li>
+                                                                Endkapital: {Number(value.endkapital).toFixed(2)}
+                                                            </li>
+                                                            <li>
+                                                                Bezahlte Steuer:
+                                                                {Number(value.bezahlteSteuer).toFixed(2)}
+                                                            </li>
+                                                            <li>
+                                                                Genutzter Freibetrag:
+                                                                {Number(value.genutzterFreibetrag).toFixed(2)}
+                                                            </li>
+                                                        </ul>
+                                                    );
+                                                })}
+                                        </div>
+                                    );
+                                })}
+                        </div>
+                    </Panel>
+
+                    {returnMode === 'random' && (
+                        <Panel header="Simulation" collapsible bordered>
+                            <Table data={data.map(year => {
+                                const yearData = simulationData.sparplanElements.flatMap((element: any) => 
+                                    element.simulation[year] ? [element.simulation[year]] : []
+                                )[0];
+                                
+                                return yearData ? {
+                                    year,
+                                    ...yearData
+                                } : null;
+                            }).filter(Boolean)} autoHeight>
+                                <Table.Column width={70} align="center" fixed>
+                                    <Table.HeaderCell>Jahr</Table.HeaderCell>
+                                    <Table.Cell dataKey="year" />
+                                </Table.Column>
+
+                                <Table.Column width={120} align="center">
+                                    <Table.HeaderCell>Einzahlung (€)</Table.HeaderCell>
+                                    <Table.Cell>
+                                        {(rowData: any) => rowData.einzahlung?.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0,00'}
+                                    </Table.Cell>
+                                </Table.Column>
+
+                                <Table.Column width={120} align="center">
+                                    <Table.HeaderCell>Zinsen (€)</Table.HeaderCell>
+                                    <Table.Cell>
+                                        {(rowData: any) => rowData.zinsen?.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0,00'}
+                                    </Table.Cell>
+                                </Table.Column>
+
+                                <Table.Column width={120} align="center">
+                                    <Table.HeaderCell>Kapital (€)</Table.HeaderCell>
+                                    <Table.Cell>
+                                        {(rowData: any) => rowData.kapital?.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0,00'}
+                                    </Table.Cell>
+                                </Table.Column>
+
+                                <Table.Column width={120} align="center">
+                                    <Table.HeaderCell>Steuern (€)</Table.HeaderCell>
+                                    <Table.Cell>
+                                        {(rowData: any) => rowData.steuern?.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0,00'}
+                                    </Table.Cell>
+                                </Table.Column>
+
+                                <Table.Column width={120} align="center">
+                                    <Table.HeaderCell>Rendite (%)</Table.HeaderCell>
+                                    <Table.Cell>
+                                        {(rowData: any) => rowData.rendite ? (rowData.rendite * 100).toFixed(2) + '%' : '0,00%'}
+                                    </Table.Cell>
+                                </Table.Column>
+                            </Table>
+                        </Panel>
+                    )}
+                </>
             )}
+
+            {isLoading && <div>Berechnung läuft...</div>}
 
             <footer>by Marco</footer>
         </div>
     );
 }
-
-export const meta: MetaFunction = () => {
-    return [
-        { title: "Zins-simulation" },
-        { name: "description", content: "simulation des Zinseszins mit monatlichen Sparplan einschließlich Berechnung der Vorabpauschale und weiteren Parametern" },
-    ];
-};
-
