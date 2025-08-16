@@ -12,7 +12,7 @@ import {
 import 'rsuite/dist/rsuite.min.css';
 import type { SparplanElement } from "../utils/sparplan-utils";
 import { calculateWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration } from "../utils/withdrawal";
-import type { WithdrawalStrategy, MonthlyWithdrawalConfig } from "../utils/withdrawal";
+import type { WithdrawalStrategy } from "../utils/withdrawal";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -86,7 +86,7 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.monatlicheBetrag, formValue.inflationsrate, formValue.guardrailsAktiv, formValue.guardrailsSchwelle]);
 
     // Format currency for display
     const formatCurrency = (amount: number) => {
