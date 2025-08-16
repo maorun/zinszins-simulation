@@ -1,43 +1,38 @@
 # Zinseszins-Simulation (Compound Interest Calculator)
 
-Zinseszins-Simulation is a German compound interest calculator built with Remix.js, TypeScript, and RSuite UI components. The application simulates investment growth over time, including German tax considerations (Vorabpauschale, Freibetrag), savings plans, and withdrawal strategies.
+Zinseszins-Simulation is a German compound interest calculator built with Vite, React 19, TypeScript, and RSuite UI components. The application simulates investment growth over time, including German tax considerations (Vorabpauschale, Freibetrag), savings plans, and withdrawal strategies.
 
 **Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.**
 
 ## Working Effectively
 
 ### Setup and Build Process
-- **Install dependencies**: `npm install` -- takes 3-4 minutes. NEVER CANCEL. Set timeout to 10+ minutes.
+- **Install dependencies**: `npm install` -- takes 1-2 minutes. NEVER CANCEL. Set timeout to 10+ minutes.
   - Expect peer dependency warnings about React version mismatches - these are normal due to React 19 upgrade
-  - Will show 11-13 vulnerabilities (reduced from previous 24) - this is expected and doesn't block development
-  - Legacy peer deps are used for some packages to resolve React 19 compatibility
-- **Build the application**: `npm run build` -- takes 3 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
-  - Will show Remix warnings about future flags - these are normal
-  - Will show "CJS build of Vite's Node API is deprecated" warning - expected behavior
-  - Will show TypeScript duplicate key warning in tsconfig.json - this is known and doesn't break builds
-- **Type checking**: `npm run typecheck` -- takes 30 seconds with errors. NEVER CANCEL. Set timeout to 2+ minutes.
-  - Expect TypeScript errors in dependencies - these don't prevent the application from working
-  - Main application code may have some type issues but builds successfully
+  - Will show 7 moderate severity vulnerabilities - this is expected and doesn't block development
+  - Uses standard npm package resolution
+- **Build the application**: `npm run build` -- takes 3-5 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
+  - Will show Vite build output - expected behavior
+  - Uses Vite for fast bundling and optimization
+- **Type checking**: `npm run typecheck` -- takes 10-15 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
+  - Expect minimal TypeScript errors - application functions correctly
+  - Main application code is well-typed
 - **Development server**: `npm run dev` -- starts in 5-6 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
-  - Runs on http://localhost:3000
+  - Runs on http://localhost:5173 (Vite default port)
   - Hot module reloading works correctly
-  - Will show same warnings as build process
-- **Production server**: `npm run start` -- starts immediately after build
-  - Must run `npm run build` first
-  - Runs on http://localhost:3000
+  - Will show Vite development server output
+- **Testing**: `npm run test` -- runs 106 tests across 11 files in ~1 second
+  - All tests should pass
+  - Uses Vitest for testing
 
 ### Known Issues and Workarounds
-- **Critical Import Issue**: The import `import { Close } from '@rsuite/icons'` in `/app/components/SparplanEingabe.tsx` causes runtime errors
-  - **Workaround**: Comment out the import and replace the `<Close />` component with plain text like "X"
-  - This is a known ESM/CommonJS compatibility issue with RSuite icons
-- **ESLint Configuration**: Now uses modern ESLint v9 with flat config (eslint.config.js)
-  - Basic configuration only supports JavaScript files for now
-  - TypeScript/TSX files require additional parser setup but application builds and runs fine
-  - @remix-run/eslint-config is not compatible with ESLint v9 yet
-- **React 19 Compatibility**: Updated to React 19 with some peer dependency warnings
-  - Most packages show warnings but functionality is preserved
-  - Uses --legacy-peer-deps for installation to resolve conflicts
-- **TypeScript Errors**: Many errors in node_modules dependencies, but application functions correctly
+- **ESLint Configuration**: Uses modern ESLint with flat config (eslint.config.js)
+  - Basic configuration supports JavaScript and TypeScript files
+  - Linting works correctly with max 10 warnings allowed
+- **React 19 Compatibility**: Updated to React 19 
+  - All functionality works correctly
+  - Uses standard npm package resolution
+- **TypeScript**: Well-typed application with minimal errors
 
 ## Validation and Testing
 
@@ -45,7 +40,7 @@ Zinseszins-Simulation is a German compound interest calculator built with Remix.
 After making changes, ALWAYS test the complete user workflow:
 
 1. **Start the application**: `npm run dev`
-2. **Navigate to http://localhost:3000** and verify the page loads
+2. **Navigate to http://localhost:5173** and verify the page loads
 3. **Test core functionality**:
    - Verify the main calculator loads with default values (24,000€/year, 5% return, 2023-2040 timespan)
    - Confirm end capital shows approximately 596,168.79 €
@@ -73,42 +68,40 @@ After making changes, ALWAYS test the complete user workflow:
 ## Codebase Navigation
 
 ### Key Application Files
-- **`app/routes/_index.tsx`** - Main application page with all UI components and state management
-- **`app/routes/simulate.tsx`** - Server-side simulation endpoint using Zod validation
-- **`helpers/simulate.tsx`** - Core compound interest calculation logic with German tax considerations
+- **`src/pages/HomePage.tsx`** - Main application page with all UI components and state management
+- **`src/utils/simulate.ts`** - Core compound interest calculation logic with German tax considerations
 - **`helpers/steuer.tsx`** - German tax calculation utilities (Vorabpauschale, Freibetrag)
 
 ### UI Components
-- **`app/components/SparplanEingabe.tsx`** - Savings plan input forms and management (contains the Close icon import issue)
-- **`app/components/SparplanSimulationsAusgabe.tsx`** - Results display tables and summaries
-- **`app/components/EntnahmeSimulationsAusgabe.tsx`** - Withdrawal phase planning interface
-- **`app/components/Zeitspanne.tsx`** - Time range selection component
+- **`src/components/SparplanEingabe.tsx`** - Savings plan input forms and management
+- **`src/components/SparplanSimulationsAusgabe.tsx`** - Results display tables and summaries
+- **`src/components/EntnahmeSimulationsAusgabe.tsx`** - Withdrawal phase planning interface
+- **`src/components/Zeitspanne.tsx`** - Time range selection component
 
 ### Configuration Files
-- **`package.json`** - Dependencies and scripts (no test scripts defined)
-  - Updated to React 19, ESLint 9, isbot 5, latest Remix 2.16.7, TypeScript 5.9.2
-  - Uses --legacy-peer-deps for React 19 compatibility
-- **`remix.config.js`** - Remix.js configuration (minimal setup)
-- **`tsconfig.json`** - TypeScript configuration (has duplicate moduleResolution warning)
-- **`eslint.config.js`** - ESLint v9 flat configuration (basic JavaScript support only)
-- **`.eslintrc.cjs`** - REMOVED: Legacy ESLint configuration (replaced with flat config)
+- **`package.json`** - Dependencies and scripts with test scripts defined
+  - Uses React 19, ESLint 8, Vite 5, TypeScript 5.9.2, Vitest 2
+  - Standard npm package resolution
+- **`vite.config.ts`** - Vite configuration for development and build
+- **`tsconfig.json`** - TypeScript configuration
+- **`eslint.config.js`** - ESLint flat configuration
 
 ## Development Patterns
 
 ### State Management
 - Uses React hooks (useState, useEffect, useCallback) for local state
-- Remix `useFetcher` for server communication
+- Client-side calculations with immediate updates
 - No external state management library
 
 ### Styling and UI
 - **RSuite components** for UI (Tables, Forms, Panels, Sliders)
 - **CSS**: Uses `rsuite/dist/rsuite.min.css` - imported in components
-- **Icons**: RSuite icons (with import compatibility issues)
+- **Icons**: RSuite icons work correctly
 
 ### API and Data Flow
-- Form data validated with Zod schemas in `simulate.tsx`
-- Calculations performed server-side for accuracy
-- Results returned as JSON and displayed in real-time
+- All calculations performed client-side for real-time responsiveness
+- Form data processed directly in React components
+- No server-side calculation endpoints
 
 ## German Financial Features
 
@@ -127,25 +120,25 @@ After making changes, ALWAYS test the complete user workflow:
 
 ### Adding New Features
 1. **Always run `npm run dev` first** to ensure baseline functionality
-2. **Test the Close icon workaround** if modifying SparplanEingabe.tsx
-3. **Update both calculation logic** (helpers/simulate.tsx) and UI components
+2. **Run tests with `npm run test`** to verify existing functionality
+3. **Update both calculation logic** (helpers/ or src/utils/) and UI components
 4. **Validate with complete user scenarios** - don't just test isolated changes
 
 ### Debugging Issues
 1. **Check browser console** for runtime errors (ignore Vercel Analytics warnings)
-2. **Verify server logs** for calculation errors
+2. **Run tests** to verify calculation logic
 3. **Test with different input values** to isolate calculation vs UI issues
-4. **Use TypeScript errors selectively** - focus on new code, ignore dependency errors
+4. **Use TypeScript errors** - most should be resolved in main application code
 
 ### Performance Considerations
-- Calculations run server-side to avoid client-side precision issues
-- Real-time updates on every input change - be mindful of calculation complexity
-- Large year ranges (like 2025-2050) may slow down rendering
+- Calculations run client-side for immediate responsiveness
+- Real-time updates on every input change - calculations are fast
+- Large year ranges render efficiently
 
 ## Deployment Information
 - **Production URL**: https://zinszins-simulation.vercel.app/
-- **Platform**: Vercel (configured with @vercel/remix adapter)
-- **Build**: Uses standard Remix build process
+- **Platform**: Vercel (configured for Vite/React deployment)
+- **Build**: Uses Vite build process (`npm run build`)
 - **Analytics**: Vercel Analytics integrated (causes expected console warnings)
 
 ## Project Context

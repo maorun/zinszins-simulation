@@ -18,7 +18,7 @@ import { EntnahmeSimulationsAusgabe } from "../components/EntnahmeSimulationsAus
 import { MonteCarloResults } from "../components/MonteCarloResults";
 import type { Sparplan, SparplanElement } from "../components/SparplanEingabe";
 import { SparplanEingabe, convertSparplanToElements, initialSparplan } from "../components/SparplanEingabe";
-import { SparplanEnd, SparplanSimulationsAusgabe } from "../components/SparplanSimulationsAusgabe";
+import { SparplanEnd, SparplanSimulationsAusgabe, fullSummary } from "../components/SparplanSimulationsAusgabe";
 import { Zeitspanne } from "../components/Zeitspanne";
 
 export const unique = function <T extends undefined | number | string>(data: undefined | null | T[]): T[] {
@@ -135,24 +135,46 @@ export default function HomePage() {
     const data = unique(simulationData && (simulationData.sparplanElements.flatMap((v: any) => v.simulation && Object.keys(v.simulation)).map(Number)))
 
     return (
-        <div>
+        <div className="app-container">
+            <header className="app-header">
+                <h1 className="app-title">Zinseszins-Simulation</h1>
+                <p className="app-subtitle">Berechne deine Kapitalentwicklung mit deutschen Steuerregeln</p>
+            </header>
 
             <Button
                 onClick={() => {
                     setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual))
                     performSimulation()
                 }}
+                style={{ marginBottom: '1rem', width: '100%' }}
+                appearance="primary"
             >
-                Refresh</Button>
+                🔄 Neu berechnen
+            </Button>
 
-            <Panel header="Eingabe" bordered>
-                <Panel header="Variablen" bordered>
-                    <Zeitspanne startEnd={startEnd} dispatch={(val) => {
-                        setStartEnd(val)
-                        setSparplanElemente(convertSparplanToElements(sparplan, val, simulationAnnual))
-                    }} />
+            {/* Quick Results - Mobile First */}
+            <div className="endkapital-highlight">
+                💰 Endkapital: {simulationData ? (
+                    fullSummary(simulationData.sparplanElements).endkapital.toLocaleString('de-DE', { 
+                        style: 'currency', 
+                        currency: 'EUR' 
+                    })
+                ) : '...'}
+            </div>
+
+            {/* Main Configuration */}
+            <Panel header="⚙️ Konfiguration" collapsible bordered>
+                <div className="form-grid">
+                    {/* Time Range */}
+                    <Panel header="📅 Zeitspanne" bordered>
+                        <Zeitspanne startEnd={startEnd} dispatch={(val) => {
+                            setStartEnd(val)
+                            setSparplanElemente(convertSparplanToElements(sparplan, val, simulationAnnual))
+                        }} />
+                    </Panel>
                     
-                    <Panel header="Rendite-Konfiguration" bordered>
+                    {/* Return Configuration */}
+                    <Panel header="📈 Rendite-Konfiguration" bordered>
                         <Form.Group controlId="returnMode">
                             <Form.ControlLabel>Rendite-Modus</Form.ControlLabel>
                             <RadioGroup 
@@ -282,8 +304,9 @@ export default function HomePage() {
                             </Form.Group>
                         )}
                     </Panel>
-
-                    <Panel header="Steuer-Konfiguration" bordered>
+                    
+                    {/* Tax Configuration */}
+                    <Panel header="💰 Steuer-Konfiguration" bordered>
                         <Form.Group controlId="steuerlast">
                             <Form.ControlLabel>Kapitalertragsteuer (%)</Form.ControlLabel>
                             <Slider
@@ -414,8 +437,9 @@ export default function HomePage() {
                             </Table>
                         </Form.Group>
                     </Panel>
-
-                    <Panel header="Simulation-Konfiguration" bordered>
+                    
+                    {/* Simulation Configuration */}
+                    <Panel header="⚙️ Simulation-Konfiguration" bordered>
                         <Form.Group controlId="simulationAnnual">
                             <Form.ControlLabel>Berechnungsmodus</Form.ControlLabel>
                             <RadioGroup
@@ -432,9 +456,11 @@ export default function HomePage() {
                             </RadioGroup>
                         </Form.Group>
                     </Panel>
-                </Panel>
+                </div>
+            </Panel>
 
-                <Panel header="Sparpläne erstellen" collapsible bordered>
+            {/* Savings Plans Configuration */}
+            <Panel header="💼 Sparpläne erstellen" collapsible bordered>
                     <SparplanEingabe 
                         sparplan={sparplan} 
                         setSparplan={setSparplan} 
@@ -444,14 +470,14 @@ export default function HomePage() {
                             setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual))
                         }}
                     />
-                </Panel>
             </Panel>
 
+            {/* Results Section */}
             {simulationData && (
                 <>
-                    <SparplanEnd elemente={simulationData.sparplanElements} />
+                    {/* Remove the old SparplanEnd since we have the highlight box */}
                     
-                    <Panel header="Sparplan-Simulation" collapsible bordered>
+                    <Panel header="📊 Sparplan-Simulation" collapsible bordered>
                         <SparplanSimulationsAusgabe
                             startEnd={startEnd}
                             elemente={simulationData.sparplanElements}
@@ -459,7 +485,7 @@ export default function HomePage() {
                         />
                     </Panel>
 
-                    <Panel header="Entnahme" collapsible bordered>
+                    <Panel header="💸 Entnahme" collapsible bordered>
                         <EntnahmeSimulationsAusgabe
                             startEnd={startEnd}
                             elemente={simulationData.sparplanElements}
@@ -467,7 +493,7 @@ export default function HomePage() {
                         />
                     </Panel>
 
-                    <Panel header="Monte Carlo Analyse" collapsible bordered>
+                    <Panel header="🎲 Monte Carlo Analyse" collapsible bordered>
                         <MonteCarloResults
                             years={data}
                             randomConfig={{
@@ -478,7 +504,7 @@ export default function HomePage() {
                         />
                     </Panel>
 
-                    <Panel header="Simulation" bordered collapsible defaultExpanded>
+                    <Panel header="📋 Detaillierte Simulation" bordered collapsible defaultExpanded>
                         <div>
                             {data
                                 .sort((a, b) => b - a)
@@ -578,9 +604,17 @@ export default function HomePage() {
                 </>
             )}
 
-            {isLoading && <div>Berechnung läuft...</div>}
+            {isLoading && (
+                <div className="loading-state">
+                    ⏳ Berechnung läuft...
+                </div>
+            )}
 
-            <footer>by Marco</footer>
+            <footer>
+                <div>💼 Zinseszins-Simulation</div>
+                <div>📧 by Marco</div>
+                <div>🚀 Erstellt mit React, TypeScript & RSuite</div>
+            </footer>
         </div>
     );
 }
