@@ -454,13 +454,11 @@ export default function HomePage() {
             {/* Savings Plans Configuration */}
             <Panel header="💼 Sparpläne erstellen" collapsible bordered>
                     <SparplanEingabe 
-                        sparplan={sparplan} 
-                        setSparplan={setSparplan} 
-                        simulationAnnual={simulationAnnual}
-                        startEnd={startEnd}
                         dispatch={(sparplan) => {
-                            setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual))
+                            setSparplan(sparplan);
+                            setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual));
                         }}
+                        simulationAnnual={simulationAnnual}
                     />
             </Panel>
 
