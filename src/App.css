@@ -1,7 +1,14 @@
-/* Basic CSS reset and app styles */
+/* Mobile-first responsive design for Zinseszins-Simulation */
+
+/* CSS Reset */
+* {
+  box-sizing: border-box;
+}
+
 html {
   line-height: 1.15;
   -webkit-text-size-adjust: 100%;
+  font-size: 16px; /* Base font size for rem calculations */
 }
 
 body {
@@ -11,12 +18,243 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color: #f8f9fa;
+  color: #333;
 }
 
 #root {
   min-height: 100vh;
 }
 
+/* Main App Container - Mobile First */
 .App {
   min-height: 100vh;
+  padding: 0.5rem;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Mobile: Up to 767px */
+.app-container {
+  padding: 0.75rem;
+  margin: 0 auto;
+  max-width: 100%;
+}
+
+.app-header {
+  margin-bottom: 1rem;
+  text-align: center;
+}
+
+.app-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #2c3e50;
+  margin-bottom: 0.5rem;
+}
+
+.app-subtitle {
+  font-size: 0.9rem;
+  color: #6c757d;
+  margin-bottom: 1rem;
+}
+
+/* Panel Improvements */
+.rs-panel {
+  margin-bottom: 1rem !important;
+  border-radius: 8px !important;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1) !important;
+}
+
+.rs-panel-header {
+  background-color: #f8f9fa !important;
+  border-bottom: 1px solid #e9ecef !important;
+  padding: 0.75rem 1rem !important;
+  font-weight: 600 !important;
+  font-size: 1rem !important;
+}
+
+.rs-panel-body {
+  padding: 1rem !important;
+}
+
+/* Form Groups */
+.rs-form-group {
+  margin-bottom: 1.25rem !important;
+}
+
+.rs-form-control-label {
+  font-weight: 500 !important;
+  color: #495057 !important;
+  margin-bottom: 0.5rem !important;
+  font-size: 0.9rem !important;
+}
+
+/* Mobile-friendly sliders */
+.rs-slider {
+  margin: 0.75rem 0 !important;
+}
+
+.rs-slider-handle {
+  width: 24px !important;
+  height: 24px !important;
+  border-width: 3px !important;
+}
+
+/* Radio buttons - touch friendly */
+.rs-radio-wrapper {
+  min-height: 44px !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 0.5rem 0 !important;
+}
+
+.rs-radio {
+  transform: scale(1.2) !important;
+  margin-right: 0.75rem !important;
+}
+
+/* Input numbers - larger touch targets */
+.rs-input-number {
+  min-height: 44px !important;
+}
+
+.rs-input-number input {
+  font-size: 1rem !important;
+  padding: 0.75rem !important;
+}
+
+/* Tables - responsive */
+.rs-table {
+  font-size: 0.85rem !important;
+  overflow-x: auto !important;
+}
+
+.rs-table-cell-content {
+  padding: 0.5rem !important;
+  word-break: break-word !important;
+}
+
+/* Results highlighting */
+.endkapital-highlight {
+  background: linear-gradient(135deg, #28a745, #20c997) !important;
+  color: white !important;
+  padding: 1rem !important;
+  border-radius: 8px !important;
+  text-align: center !important;
+  margin: 1rem 0 !important;
+  font-size: 1.25rem !important;
+  font-weight: 600 !important;
+  box-shadow: 0 4px 6px rgba(40, 167, 69, 0.25) !important;
+}
+
+/* Loading state */
+.loading-state {
+  text-align: center;
+  padding: 2rem;
+  font-size: 1.1rem;
+  color: #6c757d;
+}
+
+/* Footer */
+footer {
+  margin-top: 2rem;
+  padding: 1.5rem;
+  text-align: center;
+  background-color: #f8f9fa;
+  border-top: 1px solid #e9ecef;
+  color: #6c757d;
+  font-size: 0.9rem;
+}
+
+/* Tablet: 768px to 1023px */
+@media (min-width: 768px) {
+  .App {
+    padding: 1rem;
+  }
+  
+  .app-container {
+    padding: 1rem;
+    max-width: 800px;
+  }
+  
+  .app-title {
+    font-size: 2rem;
+  }
+  
+  .rs-panel-header {
+    padding: 1rem 1.5rem !important;
+    font-size: 1.1rem !important;
+  }
+  
+  .rs-panel-body {
+    padding: 1.5rem !important;
+  }
+  
+  .rs-table {
+    font-size: 0.9rem !important;
+  }
+  
+  .rs-table-cell-content {
+    padding: 0.75rem !important;
+  }
+}
+
+/* Desktop: 1024px and up */
+@media (min-width: 1024px) {
+  .App {
+    padding: 1.5rem;
+  }
+  
+  .app-container {
+    padding: 1.5rem;
+    max-width: 1200px;
+  }
+  
+  .app-title {
+    font-size: 2.25rem;
+  }
+  
+  .rs-panel {
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .rs-panel-header {
+    padding: 1.25rem 2rem !important;
+    font-size: 1.2rem !important;
+  }
+  
+  .rs-panel-body {
+    padding: 2rem !important;
+  }
+  
+  .rs-form-group {
+    margin-bottom: 1.5rem !important;
+  }
+  
+  .rs-table {
+    font-size: 1rem !important;
+  }
+  
+  .rs-table-cell-content {
+    padding: 1rem !important;
+  }
+  
+  /* Desktop grid layout for forms */
+  .form-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1.5rem;
+  }
+}
+
+/* Large Desktop: 1440px and up */
+@media (min-width: 1440px) {
+  .app-container {
+    max-width: 1400px;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr 1fr 1fr;
+  }
 }

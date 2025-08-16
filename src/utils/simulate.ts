@@ -1,4 +1,4 @@
-import type { SparplanElement } from "~/components/SparplanEingabe";
+import type { SparplanElement } from "../utils/sparplan-utils";
 import { zinszinsVorabpauschale, getBasiszinsForYear } from "./steuer";
 import { type ReturnConfiguration, generateRandomReturns } from "./random-returns";
 

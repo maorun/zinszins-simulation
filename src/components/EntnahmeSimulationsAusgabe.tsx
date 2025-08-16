@@ -9,7 +9,7 @@ import {
     Table
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
-import type { SparplanElement } from "./SparplanEingabe";
+import type { SparplanElement } from "../utils/sparplan-utils";
 import { calculateWithdrawal, getTotalCapitalAtYear } from "../utils/withdrawal";
 import type { WithdrawalStrategy } from "../utils/withdrawal";
 
