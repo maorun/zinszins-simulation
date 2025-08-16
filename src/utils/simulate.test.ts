@@ -1,4 +1,4 @@
-import { simulate, SimulationAnnual, type SimulationAnnualType } from './simulate';
+import { simulate, SimulationAnnual } from './simulate';
 import type { SparplanElement } from '../app/components/SparplanEingabe';
 import type { ReturnConfiguration } from './random-returns';
 

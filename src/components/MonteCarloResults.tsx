@@ -17,9 +17,9 @@ interface MonteCarloResult {
 }
 
 export function MonteCarloResults({
-    years,
+    years: _years,
     randomConfig,
-    runs = 500
+    runs: _runs = 500
 }: MonteCarloResultsProps) {
     const formatPercent = (value: number) => (value * 100).toFixed(1) + '%';
 

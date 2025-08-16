@@ -1,4 +1,4 @@
-import { simulate } from './simulate';
+import { simulate } from '../src/utils/simulate';
 
 describe('Variable Tax Allowance (Freibetrag) Tests', () => {
   const createTestElement = (year: string, amount: number) => ({

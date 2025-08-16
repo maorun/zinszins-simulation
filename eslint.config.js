@@ -9,6 +9,7 @@ export default [
   {
     ignores: ['dist/**', 'build/**', 'public/build/**', 'node_modules/**'],
   },
+  js.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -37,8 +38,8 @@ export default [
         { allowConstantExport: true },
       ],
       '@typescript-eslint/no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
-      'no-redeclare': 'off',
-      '@typescript-eslint/no-redeclare': ['error'],
+      'no-unused-vars': 'off', // Turn off base rule for TypeScript files
+      'no-redeclare': 'off', // Turn off for function overloads
     },
   },
   {
@@ -61,5 +62,4 @@ export default [
       'react-refresh/only-export-components': 'off',
     },
   },
-  js.configs.recommended,
 ]
