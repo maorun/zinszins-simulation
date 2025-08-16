@@ -38,6 +38,68 @@ describe('Withdrawal Calculations', () => {
       expect(result[2025].endkapital).toBeGreaterThan(0);
     });
 
+    test('should calculate variable percentage withdrawal correctly', () => {
+      const startingCapital = 100000;
+      const startYear = 2025;
+      const endYear = 2027;
+      const strategy: WithdrawalStrategy = "variabel_prozent";
+      const returnRate = 0.05; // 5%
+      const customPercentage = 0.055; // 5.5%
+      
+      const result = calculateWithdrawal(startingCapital, startYear, endYear, strategy, returnRate, 0.26375, undefined, undefined, customPercentage);
+      
+      // Initial withdrawal should be 5.5% of starting capital
+      const expectedWithdrawal = 5500;
+      
+      expect(result[2025].startkapital).toBe(100000);
+      expect(result[2025].entnahme).toBe(expectedWithdrawal);
+      expect(result[2025].endkapital).toBeGreaterThan(0);
+      expect(result[2025].zinsen).toBeGreaterThan(0);
+    });
+
+    test('should handle all valid variable percentage values', () => {
+      const startingCapital = 100000;
+      const startYear = 2025;
+      const endYear = 2025;
+      const strategy: WithdrawalStrategy = "variabel_prozent";
+      const returnRate = 0.05;
+      
+      // Test all valid percentages from 2% to 7% in 0.5% steps
+      const validPercentages = [0.02, 0.025, 0.03, 0.035, 0.04, 0.045, 0.05, 0.055, 0.06, 0.065, 0.07];
+      
+      validPercentages.forEach(percentage => {
+        const result = calculateWithdrawal(startingCapital, startYear, endYear, strategy, returnRate, 0.26375, undefined, undefined, percentage);
+        const expectedWithdrawal = startingCapital * percentage;
+        
+        expect(result[2025].entnahme).toBe(expectedWithdrawal);
+      });
+    });
+
+    test('should require custom percentage for variabel_prozent strategy', () => {
+      expect(() => {
+        calculateWithdrawal(100000, 2025, 2027, "variabel_prozent", 0.05);
+      }).toThrow("Custom percentage is required for variabel_prozent strategy");
+    });
+
+    test('should handle multiple years with variable percentage', () => {
+      const result = calculateWithdrawal(200000, 2025, 2027, "variabel_prozent", 0.02, 0.26375, undefined, undefined, 0.045); // 4.5% withdrawal with low return
+      
+      expect(Object.keys(result)).toHaveLength(3); // 2025, 2026, 2027
+      expect(result[2025]).toBeDefined();
+      expect(result[2026]).toBeDefined();
+      expect(result[2027]).toBeDefined();
+      
+      // With 4.5% withdrawal and only 2% return, capital should decrease over time
+      expect(result[2026].startkapital).toBeLessThan(result[2025].startkapital);
+      expect(result[2027].startkapital).toBeLessThan(result[2026].startkapital);
+      
+      // All years should have the same withdrawal amount (fixed percentage of initial capital)
+      const expectedWithdrawal = 9000; // 4.5% of 200,000
+      expect(result[2025].entnahme).toBe(expectedWithdrawal);
+      expect(result[2026].entnahme).toBe(expectedWithdrawal);
+      expect(result[2027].entnahme).toBe(expectedWithdrawal);
+    });
+
     test('should handle multiple years of withdrawal', () => {
       const result = calculateWithdrawal(200000, 2025, 2027, "4prozent", 0.02); // Lower return rate
       
