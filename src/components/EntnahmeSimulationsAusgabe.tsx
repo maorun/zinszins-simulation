@@ -103,7 +103,7 @@ export function EntnahmeSimulationsAusgabe({
     };
 
     return (
-        <Panel header="Entnahme" bordered collapsible>
+        <>
             <Panel header="Variablen" bordered>
                 <Form fluid formValue={formValue}
                     onChange={changedFormValue => {
@@ -121,12 +121,12 @@ export function EntnahmeSimulationsAusgabe({
                     }}
                 >
                     <Form.Group controlId="rendite">
-                        <Form.ControlLabel>erwartete Rendite</Form.ControlLabel>
+                        <Form.ControlLabel>Erwartete Rendite (%)</Form.ControlLabel>
                         <Form.Control name="rendite" accepter={Slider} 
                             min={0}
                             max={10}
                             step={0.5}
-                            handleTitle={(<div style={{marginTop: 15}}>{formValue.rendite} %</div>)}
+                            handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.rendite}%</div>)}
                             progress
                             graduated
                         />
@@ -162,7 +162,7 @@ export function EntnahmeSimulationsAusgabe({
                                 min={2}
                                 max={7}
                                 step={0.5}
-                                handleTitle={(<div style={{marginTop: 15}}>{formValue.variabelProzent} %</div>)}
+                                handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.variabelProzent}%</div>)}
                                 progress
                                 graduated
                             />
@@ -189,7 +189,7 @@ export function EntnahmeSimulationsAusgabe({
                                     min={0}
                                     max={5}
                                     step={0.1}
-                                    handleTitle={(<div style={{marginTop: 15}}>{formValue.inflationsrate} %</div>)}
+                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.inflationsrate}%</div>)}
                                     progress
                                     graduated
                                 />
@@ -208,7 +208,7 @@ export function EntnahmeSimulationsAusgabe({
                                         min={5}
                                         max={20}
                                         step={1}
-                                        handleTitle={(<div style={{marginTop: 15}}>{formValue.guardrailsSchwelle} %</div>)}
+                                        handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.guardrailsSchwelle}%</div>)}
                                         progress
                                         graduated
                                     />
@@ -321,7 +321,7 @@ export function EntnahmeSimulationsAusgabe({
                     </div>
                 )}
             </Panel>
-        </Panel>
+        </>
     )
 }
 
