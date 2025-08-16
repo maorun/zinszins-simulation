@@ -1,7 +1,7 @@
 ---
 name: copilot
 about: Feature für copilot
-title: Feature für copilot
+title: 
 labels: Copilot
 assignees: ''
 
