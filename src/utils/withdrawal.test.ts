@@ -1,4 +1,4 @@
-import { calculateWithdrawal, calculateIncomeTax, getTotalCapitalAtYear, type WithdrawalStrategy } from './withdrawal';
+import { calculateWithdrawal, calculateIncomeTax, getTotalCapitalAtYear, type WithdrawalStrategy, type MonthlyWithdrawalConfig } from './withdrawal';
 
 describe('Withdrawal Calculations', () => {
   describe('calculateWithdrawal function', () => {
@@ -152,6 +152,178 @@ describe('Withdrawal Calculations', () => {
     test('should handle empty elements array', () => {
       const total = getTotalCapitalAtYear([], 2025);
       expect(total).toBe(0);
+    });
+  });
+
+  describe('Monthly fixed withdrawal strategy', () => {
+    test('should calculate monthly fixed withdrawal correctly', () => {
+      const startingCapital = 600000; // 600k starting capital
+      const monthlyConfig: MonthlyWithdrawalConfig = {
+        monthlyAmount: 2000, // 2000€ per month
+        inflationRate: 0.02, // 2% inflation
+        enableGuardrails: false
+      };
+      
+      const result = calculateWithdrawal(
+        startingCapital, 
+        2025, 
+        2027, 
+        "monatlich_fest", 
+        0.05, // 5% return
+        0.26375,
+        undefined,
+        monthlyConfig
+      );
+      
+      // First year should withdraw exactly 24,000€ (2000 * 12)
+      expect(result[2025].entnahme).toBe(24000);
+      expect(result[2025].monatlicheEntnahme).toBe(2000);
+      expect(result[2025].inflationAnpassung).toBe(0); // No inflation adjustment in first year
+      
+      // Second year should have inflation adjustment
+      expect(result[2026].entnahme).toBeGreaterThan(24000);
+      expect(result[2026].inflationAnpassung).toBeGreaterThan(0);
+      expect(result[2026].monatlicheEntnahme).toBeCloseTo(result[2026].entnahme / 12, 2);
+    });
+
+    test('should apply inflation adjustment correctly', () => {
+      const monthlyConfig: MonthlyWithdrawalConfig = {
+        monthlyAmount: 2000,
+        inflationRate: 0.03, // 3% inflation
+        enableGuardrails: false
+      };
+      
+      const result = calculateWithdrawal(
+        500000, 
+        2025, 
+        2027, 
+        "monatlich_fest", 
+        0.06,
+        0.26375,
+        undefined,
+        monthlyConfig
+      );
+      
+      // Year 1: no inflation adjustment
+      expect(result[2025].inflationAnpassung).toBe(0);
+      
+      // Year 2: 3% increase
+      const expectedInflationYear2 = 24000 * 0.03; // 3% of base amount
+      expect(result[2026].inflationAnpassung).toBeCloseTo(expectedInflationYear2, 2);
+      
+      // Year 3: compound inflation (3% for 2 years)
+      const expectedInflationYear3 = 24000 * (Math.pow(1.03, 2) - 1);
+      expect(result[2027].inflationAnpassung).toBeCloseTo(expectedInflationYear3, 2);
+    });
+
+    test('should apply guardrails correctly when portfolio outperforms', () => {
+      const monthlyConfig: MonthlyWithdrawalConfig = {
+        monthlyAmount: 1000, // Smaller withdrawal to see effect better
+        inflationRate: 0.0, // No inflation to simplify
+        enableGuardrails: true,
+        guardrailsThreshold: 0.05 // Lower threshold for easier testing
+      };
+      
+      // Very high return scenario where portfolio significantly outperforms
+      const result = calculateWithdrawal(
+        1000000, // Larger starting capital 
+        2025, 
+        2027, 
+        "monatlich_fest", 
+        0.20, // 20% return - much higher than 5% baseline
+        0.26375,
+        undefined,
+        monthlyConfig
+      );
+      
+      // First year should have no portfolio adjustment
+      expect(result[2025].portfolioAnpassung).toBe(0);
+      
+      // Later years should have positive portfolio adjustment due to exceptional performance
+      expect(result[2026].portfolioAnpassung).toBeGreaterThan(0);
+    });
+
+    test('should apply guardrails correctly when portfolio underperforms', () => {
+      const monthlyConfig: MonthlyWithdrawalConfig = {
+        monthlyAmount: 1000,
+        inflationRate: 0.0, // No inflation to simplify
+        enableGuardrails: true,
+        guardrailsThreshold: 0.05 // Lower threshold
+      };
+      
+      // Very low return scenario where portfolio significantly underperforms
+      const result = calculateWithdrawal(
+        1000000, 
+        2025, 
+        2027, 
+        "monatlich_fest", 
+        -0.05, // -5% return - much worse than 5% baseline
+        0.26375,
+        undefined,
+        monthlyConfig
+      );
+      
+      // First year should have no portfolio adjustment
+      expect(result[2025].portfolioAnpassung).toBe(0);
+      
+      // Later years should have negative portfolio adjustment due to poor performance
+      expect(result[2026].portfolioAnpassung).toBeLessThan(0);
+    });
+
+    test('should require monthly config for monatlich_fest strategy', () => {
+      expect(() => {
+        calculateWithdrawal(500000, 2025, 2027, "monatlich_fest", 0.05);
+      }).toThrow("Monthly configuration is required for monatlich_fest strategy");
+    });
+
+    test('should handle capital depletion in monthly strategy', () => {
+      const monthlyConfig: MonthlyWithdrawalConfig = {
+        monthlyAmount: 5000, // Very high withdrawal relative to capital
+        inflationRate: 0.02,
+        enableGuardrails: false
+      };
+      
+      const result = calculateWithdrawal(
+        100000, // Small capital
+        2025, 
+        2035, 
+        "monatlich_fest", 
+        0.02, // Low return
+        0.26375,
+        undefined,
+        monthlyConfig
+      );
+      
+      // Should stop calculating when capital is depleted
+      const years = Object.keys(result).map(Number);
+      expect(years.length).toBeLessThan(11); // Should not last all 10 years
+      
+      // Last year should have very low or zero capital
+      const lastYear = Math.max(...years);
+      expect(result[lastYear].endkapital).toBeLessThanOrEqual(0);
+    });
+
+    test('should work with default inflation rate when not specified', () => {
+      const monthlyConfig: MonthlyWithdrawalConfig = {
+        monthlyAmount: 2000,
+        // inflationRate not specified, should default to 2%
+        enableGuardrails: false
+      };
+      
+      const result = calculateWithdrawal(
+        500000, 
+        2025, 
+        2026, 
+        "monatlich_fest", 
+        0.05,
+        0.26375,
+        undefined,
+        monthlyConfig
+      );
+      
+      // Should use default 2% inflation rate
+      const expectedInflation = 24000 * 0.02;
+      expect(result[2026].inflationAnpassung).toBeCloseTo(expectedInflation, 2);
     });
   });
 });
