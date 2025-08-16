@@ -1,6 +1,6 @@
 import { zinszinsVorabpauschale, getBasiszinsForYear } from "./steuer";
 
-export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest";
+export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent";
 
 export type WithdrawalResultElement = {
     startkapital: number;
@@ -44,11 +44,12 @@ const grundfreibetrag: {
  * @param startingCapital - Capital available at the start of withdrawal phase
  * @param startYear - First year of withdrawal 
  * @param endYear - Final year of withdrawal (end of life)
- * @param strategy - Withdrawal strategy (4% rule, 3% rule, or monthly fixed)
+ * @param strategy - Withdrawal strategy (4% rule, 3% rule, custom percentage, or monthly fixed)
  * @param returnRate - Expected annual return during withdrawal phase
  * @param taxRate - Capital gains tax rate (default: 26.375%)
  * @param freibetragPerYear - Tax allowance per year (optional)
  * @param monthlyConfig - Configuration for monthly withdrawal strategy (optional)
+ * @param customPercentage - Custom withdrawal percentage for "variabel_prozent" strategy (e.g., 0.05 for 5%)
  * @returns Withdrawal projections year by year
  */
 export function calculateWithdrawal(
@@ -59,7 +60,8 @@ export function calculateWithdrawal(
     returnRate: number,
     taxRate: number = 0.26375,
     freibetragPerYear?: {[year: number]: number},
-    monthlyConfig?: MonthlyWithdrawalConfig
+    monthlyConfig?: MonthlyWithdrawalConfig,
+    customPercentage?: number
 ): WithdrawalResult {
     // Helper function to get tax allowance for a specific year
     const getFreibetragForYear = (year: number): number => {
@@ -81,8 +83,13 @@ export function calculateWithdrawal(
             throw new Error("Monthly configuration is required for monatlich_fest strategy");
         }
         baseWithdrawalAmount = monthlyConfig.monthlyAmount * 12; // Convert monthly to annual
+    } else if (strategy === "variabel_prozent") {
+        if (customPercentage === undefined) {
+            throw new Error("Custom percentage is required for variabel_prozent strategy");
+        }
+        baseWithdrawalAmount = startingCapital * customPercentage;
     } else {
-        // Traditional percentage-based strategies
+        // Traditional percentage-based strategies (3% and 4%)
         const withdrawalRate = strategy === "4prozent" ? 0.04 : 0.03;
         baseWithdrawalAmount = startingCapital * withdrawalRate;
     }

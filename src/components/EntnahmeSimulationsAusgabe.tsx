@@ -36,6 +36,8 @@ export function EntnahmeSimulationsAusgabe({
         inflationsrate: 2,
         guardrailsAktiv: false,
         guardrailsSchwelle: 10,
+        // Custom percentage strategy specific settings
+        variabelProzent: 5, // Default to 5%
     });
 
     // Calculate withdrawal projections
@@ -66,7 +68,9 @@ export function EntnahmeSimulationsAusgabe({
                 inflationRate: formValue.inflationsrate / 100,
                 enableGuardrails: formValue.guardrailsAktiv,
                 guardrailsThreshold: formValue.guardrailsSchwelle / 100
-            } : undefined
+            } : undefined,
+            // Pass custom percentage for variable percentage strategy
+            formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined
         );
 
         // Convert to array for table display, sorted by year descending
@@ -86,7 +90,7 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.monatlicheBetrag, formValue.inflationsrate, formValue.guardrailsAktiv, formValue.guardrailsSchwelle]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.monatlicheBetrag, formValue.inflationsrate, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent]);
 
     // Format currency for display
     const formatCurrency = (amount: number) => {
@@ -112,6 +116,7 @@ export function EntnahmeSimulationsAusgabe({
                             inflationsrate: changedFormValue.inflationsrate,
                             guardrailsAktiv: changedFormValue.guardrailsAktiv,
                             guardrailsSchwelle: changedFormValue.guardrailsSchwelle,
+                            variabelProzent: changedFormValue.variabelProzent,
                         })
                     }}
                 >
@@ -140,11 +145,32 @@ export function EntnahmeSimulationsAusgabe({
                             <RadioTile value="3prozent" label="3% Regel">
                                 3% Entnahme
                             </RadioTile>
+                            <RadioTile value="variabel_prozent" label="Variable Prozent">
+                                Anpassbare Entnahme
+                            </RadioTile>
                             <RadioTile value="monatlich_fest" label="Monatlich fest">
                                 Fester monatlicher Betrag
                             </RadioTile>
                         </Form.Control>
                     </Form.Group>
+                    
+                    {/* Variable percentage strategy specific controls */}
+                    {formValue.strategie === "variabel_prozent" && (
+                        <Form.Group controlId="variabelProzent">
+                            <Form.ControlLabel>Entnahme-Prozentsatz (%)</Form.ControlLabel>
+                            <Form.Control name="variabelProzent" accepter={Slider} 
+                                min={2}
+                                max={7}
+                                step={0.5}
+                                handleTitle={(<div style={{marginTop: 15}}>{formValue.variabelProzent} %</div>)}
+                                progress
+                                graduated
+                            />
+                            <Form.HelpText>
+                                Wählen Sie einen Entnahme-Prozentsatz zwischen 2% und 7% in 0,5%-Schritten
+                            </Form.HelpText>
+                        </Form.Group>
+                    )}
                     
                     {/* Monthly strategy specific controls */}
                     {formValue.strategie === "monatlich_fest" && (
@@ -210,6 +236,8 @@ export function EntnahmeSimulationsAusgabe({
                                         <p><strong>Dynamische Anpassung:</strong> Aktiviert (Schwelle: {formValue.guardrailsSchwelle}%)</p>
                                     )}
                                 </>
+                            ) : formValue.strategie === "variabel_prozent" ? (
+                                <p><strong>Jährliche Entnahme ({formValue.variabelProzent} Prozent Regel):</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.variabelProzent / 100))}</p>
                             ) : (
                                 <p><strong>Jährliche Entnahme ({formValue.strategie === "4prozent" ? "4 Prozent" : "3 Prozent"} Regel):</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.strategie === "4prozent" ? 0.04 : 0.03))}</p>
                             )}
