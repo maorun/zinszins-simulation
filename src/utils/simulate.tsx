@@ -1,5 +1,5 @@
 import type { SparplanElement } from "~/components/SparplanEingabe";
-import { zinszinsVorabpauschale } from "./steuer";
+import { zinszinsVorabpauschale, getBasiszinsForYear } from "./steuer";
 import { type ReturnConfiguration, generateRandomReturns } from "./random-returns";
 
 export type SimulationResultElement = {
@@ -12,12 +12,6 @@ export type SimulationResultElement = {
 
 export type SimulationResult = {
     [year: number]: SimulationResultElement;
-};
-
-const basiszinsen: {
-    [year: number]: number;
-} = {
-    2023: 0.0255,
 };
 
 const freibetrag: {
@@ -167,7 +161,7 @@ export function simulate(
 
                         const endKapital = zinszinsVorabpauschale(
                             kapital,
-                            basiszinsen[2023],
+                            getBasiszinsForYear(year),
                             freibetragInYear,
                             steuerlast,
                             0.7,
@@ -198,7 +192,7 @@ export function simulate(
 
                     const vorabPauschaleZinzen = zinszinsVorabpauschale(
                         kapital,
-                        basiszinsen[2023],
+                        getBasiszinsForYear(year),
                         freibetragInYear,
                         steuerlast,
                         0.7,
@@ -221,7 +215,7 @@ export function simulate(
 
                     const endKapital = zinszinsVorabpauschale(
                         kapital,
-                        basiszinsen[2023],
+                        getBasiszinsForYear(year),
                         freibetragInYear,
                         steuerlast,
                         0.7,
