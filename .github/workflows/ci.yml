@@ -22,7 +22,7 @@ jobs:
         cache: 'npm'
         
     - name: Install dependencies
-      run: npm install --legacy-peer-deps
+      run: npm install
       
     - name: Build application
       run: npm run build
@@ -42,7 +42,7 @@ jobs:
         cache: 'npm'
         
     - name: Install dependencies
-      run: npm install --legacy-peer-deps
+      run: npm install
       
     - name: Run ESLint
       run: npm run lint
@@ -62,7 +62,7 @@ jobs:
         cache: 'npm'
         
     - name: Install dependencies
-      run: npm install --legacy-peer-deps
+      run: npm install
       
     - name: Run tests
       run: npm test
