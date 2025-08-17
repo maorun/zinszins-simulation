@@ -500,8 +500,15 @@ export default function HomePage() {
                                 .sort((a, b) => b - a)
                                 .map((year, index) => {
                                     return (
-                                        <div key={year + '' + index}>
-                                            Year: {year}
+                                        <div key={year + '' + index} style={{ marginBottom: '20px' }}>
+                                            <h3 style={{ 
+                                                color: '#1976d2', 
+                                                borderBottom: '2px solid #e3f2fd',
+                                                paddingBottom: '8px',
+                                                margin: '16px 0 12px 0'
+                                            }}>
+                                                📅 Jahr {year}
+                                            </h3>
                                             {simulationData?.sparplanElements
                                                 .map((value: any) => value.simulation?.[Number(year)])
                                                 .filter(Boolean)
@@ -511,24 +518,78 @@ export default function HomePage() {
                                                         return null;
                                                     }
                                                     return (
-                                                        <ul key={index}>
-                                                            <li>
-                                                                Startkapital:
-                                                                {Number(value.startkapital).toFixed(2)}
-                                                            </li>
-                                                            <li>Zinsen: {Number(value.zinsen).toFixed(2)}</li>
-                                                            <li>
-                                                                Endkapital: {Number(value.endkapital).toFixed(2)}
-                                                            </li>
-                                                            <li>
-                                                                Bezahlte Steuer:
-                                                                {Number(value.bezahlteSteuer).toFixed(2)}
-                                                            </li>
-                                                            <li>
-                                                                Genutzter Freibetrag:
-                                                                {Number(value.genutzterFreibetrag).toFixed(2)}
-                                                            </li>
-                                                        </ul>
+                                                        <div key={index} style={{ 
+                                                            border: '1px solid #e6e6e6', 
+                                                            padding: '12px', 
+                                                            margin: '8px 0', 
+                                                            borderRadius: '6px',
+                                                            backgroundColor: '#fafafa'
+                                                        }}>
+                                                            <div style={{ 
+                                                                fontWeight: 600, 
+                                                                marginBottom: '8px',
+                                                                color: '#333'
+                                                            }}>
+                                                                💰 Sparplan #{index + 1}
+                                                            </div>
+                                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
+                                                                <div>
+                                                                    <strong>Startkapital:</strong> {Number(value.startkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                </div>
+                                                                <div>
+                                                                    <strong>Zinsen:</strong> {Number(value.zinsen).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                </div>
+                                                                <div>
+                                                                    <strong>Endkapital:</strong> {Number(value.endkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                </div>
+                                                            </div>
+                                                            
+                                                            {/* Vorabpauschale Details */}
+                                                            {value.vorabpauschaleDetails && (
+                                                                <div style={{ 
+                                                                    marginTop: '12px', 
+                                                                    padding: '8px', 
+                                                                    backgroundColor: '#f0f8ff',
+                                                                    borderRadius: '4px',
+                                                                    fontSize: '0.9rem'
+                                                                }}>
+                                                                    <div style={{ fontWeight: 600, color: '#1976d2', marginBottom: '6px' }}>
+                                                                        📊 Vorabpauschale-Berechnung
+                                                                    </div>
+                                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '6px' }}>
+                                                                        <div>
+                                                                            <span style={{ fontWeight: 500 }}>Basiszins:</span> {(value.vorabpauschaleDetails.basiszins * 100).toFixed(2)}%
+                                                                        </div>
+                                                                        <div>
+                                                                            <span style={{ fontWeight: 500 }}>Basisertrag:</span> {Number(value.vorabpauschaleDetails.basisertrag).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                        </div>
+                                                                        <div>
+                                                                            <span style={{ fontWeight: 500 }}>Vorabpauschale:</span> {Number(value.vorabpauschaleDetails.vorabpauschaleAmount).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                        </div>
+                                                                        <div>
+                                                                            <span style={{ fontWeight: 500 }}>Steuer vor Freibetrag:</span> {Number(value.vorabpauschaleDetails.steuerVorFreibetrag).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            )}
+                                                            
+                                                            <div style={{ 
+                                                                marginTop: '8px', 
+                                                                display: 'flex', 
+                                                                justifyContent: 'space-between',
+                                                                fontSize: '0.9rem'
+                                                            }}>
+                                                                <div style={{ 
+                                                                    color: value.bezahlteSteuer > 0 ? '#d32f2f' : '#388e3c',
+                                                                    fontWeight: 500
+                                                                }}>
+                                                                    💸 Bezahlte Steuer: {Number(value.bezahlteSteuer).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                </div>
+                                                                <div style={{ color: '#666' }}>
+                                                                    🛡️ Genutzter Freibetrag: {Number(value.genutzterFreibetrag).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                </div>
+                                                            </div>
+                                                        </div>
                                                     );
                                                 })}
                                         </div>

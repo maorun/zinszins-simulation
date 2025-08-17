@@ -58,6 +58,12 @@ export function zinszinsVorabpauschale(
     freistellung = 0.3,
     anteilImJahr = 12,
 ) {
+    // Calculate the basic return amount
+    let basisertrag = startwert * basiszins * vorabpauschale_prozentsatz;
+    basisertrag = anteilImJahr/12 * basisertrag;
+    
+    const vorabpauschaleAmount = basisertrag;
+    
     let steuer = vorabpauschale(
         startwert,
         basiszins,
@@ -76,6 +82,12 @@ export function zinszinsVorabpauschale(
         steuer: verbleibenderFreibetrag <= 0 ? steuer : 0,
         verbleibenderFreibetrag:
         verbleibenderFreibetrag > 0 ? verbleibenderFreibetrag : 0,
+        details: {
+            basisertrag,
+            vorabpauschaleAmount,
+            steuerVorFreibetrag: steuer + Math.max(0, freibetrag - steuer),
+            basiszins
+        }
     };
 }
 
