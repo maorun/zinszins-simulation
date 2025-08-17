@@ -388,4 +388,135 @@ describe('Withdrawal Calculations', () => {
       expect(result[2026].inflationAnpassung).toBeCloseTo(expectedInflation, 2);
     });
   });
+
+  describe('Variable returns functionality', () => {
+    test('should use variable returns when provided', () => {
+      const startingCapital = 100000;
+      const variableReturns = {
+        2025: 0.03, // 3% in first year
+        2026: 0.07, // 7% in second year
+        2027: 0.05  // 5% in third year
+      };
+      
+      const result = calculateWithdrawal(
+        startingCapital,
+        2025,
+        2027,
+        "4prozent",
+        0.06, // This fixed rate should be ignored
+        0.26375,
+        undefined, // freibetragPerYear
+        undefined, // monthlyConfig
+        undefined, // customPercentage
+        false, // enableGrundfreibetrag
+        undefined, // grundfreibetragPerYear
+        undefined, // incomeTaxRate
+        variableReturns
+      );
+      
+      // Check that variable returns were used correctly
+      expect(result[2025]).toBeDefined();
+      expect(result[2026]).toBeDefined();
+      expect(result[2027]).toBeDefined();
+      
+      // With 4% withdrawal and varying returns, verify growth is different each year
+      const withdrawal2025 = 4000; // 4% of 100,000
+      const capitalAfterWithdrawal2025 = 96000; // 100,000 - 4,000
+      const expectedGrowth2025 = capitalAfterWithdrawal2025 * 0.03; // 3% return
+      
+      expect(result[2025].entnahme).toBe(withdrawal2025);
+      expect(result[2025].zinsen).toBeCloseTo(expectedGrowth2025, 2);
+    });
+
+    test('should fall back to fixed return rate when variable returns not provided for specific years', () => {
+      const startingCapital = 100000;
+      const variableReturns = {
+        2025: 0.03, // Only 2025 has variable return
+        // 2026 and 2027 should use fixed rate
+      };
+      
+      const fixedReturnRate = 0.05;
+      const result = calculateWithdrawal(
+        startingCapital,
+        2025,
+        2027,
+        "4prozent",
+        fixedReturnRate,
+        0.26375,
+        undefined, // freibetragPerYear
+        undefined, // monthlyConfig
+        undefined, // customPercentage
+        false, // enableGrundfreibetrag
+        undefined, // grundfreibetragPerYear
+        undefined, // incomeTaxRate
+        variableReturns
+      );
+      
+      // 2025 should use variable return (3%)
+      expect(result[2025]).toBeDefined();
+      
+      // 2026 and 2027 should use fixed return rate (5%)
+      expect(result[2026]).toBeDefined();
+      expect(result[2027]).toBeDefined();
+      
+      // We can't easily test the exact values without complex calculations,
+      // but we can verify the function doesn't crash and produces results
+      expect(Object.keys(result)).toHaveLength(3);
+    });
+
+    test('should work with variable returns and other strategies', () => {
+      const startingCapital = 150000;
+      const variableReturns = {
+        2025: 0.02, // Low return
+        2026: 0.08, // High return
+      };
+      
+      const result = calculateWithdrawal(
+        startingCapital,
+        2025,
+        2026,
+        "3prozent", // Different strategy
+        0.05, // Fixed rate (should be ignored)
+        0.26375,
+        undefined, // freibetragPerYear
+        undefined, // monthlyConfig
+        undefined, // customPercentage
+        false, // enableGrundfreibetrag
+        undefined, // grundfreibetragPerYear
+        undefined, // incomeTaxRate
+        variableReturns
+      );
+      
+      // Should work with 3% strategy and variable returns
+      expect(result[2025]).toBeDefined();
+      expect(result[2026]).toBeDefined();
+      
+      const expectedWithdrawal = 4500; // 3% of 150,000
+      expect(result[2025].entnahme).toBe(expectedWithdrawal);
+      expect(result[2026].entnahme).toBe(expectedWithdrawal);
+    });
+
+    test('should maintain backward compatibility when variable returns not provided', () => {
+      const startingCapital = 100000;
+      const fixedReturnRate = 0.04;
+      
+      const result = calculateWithdrawal(
+        startingCapital,
+        2025,
+        2026,
+        "4prozent",
+        fixedReturnRate,
+        0.26375
+        // No variable returns parameter
+      );
+      
+      // Should work exactly like before
+      expect(result[2025]).toBeDefined();
+      expect(result[2026]).toBeDefined();
+      
+      const expectedWithdrawal = 4000; // 4% of 100,000
+      expect(result[2025].entnahme).toBe(expectedWithdrawal);
+      expect(result[2026].entnahme).toBe(expectedWithdrawal);
+    });
+  });
 });

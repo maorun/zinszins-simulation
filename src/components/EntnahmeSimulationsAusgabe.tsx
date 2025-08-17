@@ -3,6 +3,8 @@ import {
     Form,
     InputNumber,
     Panel,
+    Radio,
+    RadioGroup,
     RadioTile,
     RadioTileGroup,
     Slider,
@@ -15,6 +17,8 @@ import { calculateWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration
 import type { WithdrawalStrategy } from "../utils/withdrawal";
 
 const { Column, HeaderCell, Cell } = Table;
+
+export type WithdrawalReturnMode = 'fixed' | 'variable';
 
 export function EntnahmeSimulationsAusgabe({
     startEnd,
@@ -43,6 +47,10 @@ export function EntnahmeSimulationsAusgabe({
         grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
         einkommensteuersatz: 25, // Default income tax rate 25%
     });
+
+    // Withdrawal return mode and variable returns state
+    const [withdrawalReturnMode, setWithdrawalReturnMode] = useState<WithdrawalReturnMode>('fixed');
+    const [withdrawalVariableReturns, setWithdrawalVariableReturns] = useState<Record<number, number>>({});
 
     // Calculate withdrawal projections
     const withdrawalData = useMemo(() => {
@@ -85,7 +93,17 @@ export function EntnahmeSimulationsAusgabe({
                 }
                 return grundfreibetragPerYear;
             })() : undefined,
-            formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined
+            formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined,
+            // Pass variable returns if withdrawal return mode is variable
+            withdrawalReturnMode === 'variable' ? (() => {
+                const variableReturnsInDecimal: {[year: number]: number} = {};
+                for (let year = startOfIndependence + 1; year <= formValue.endOfLife; year++) {
+                    if (withdrawalVariableReturns[year] !== undefined) {
+                        variableReturnsInDecimal[year] = withdrawalVariableReturns[year] / 100; // Convert percentage to decimal
+                    }
+                }
+                return Object.keys(variableReturnsInDecimal).length > 0 ? variableReturnsInDecimal : undefined;
+            })() : undefined
         );
 
         // Convert to array for table display, sorted by year descending
@@ -105,7 +123,7 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.monatlicheBetrag, formValue.inflationsrate, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.monatlicheBetrag, formValue.inflationsrate, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns]);
 
     // Format currency for display
     const formatCurrency = (amount: number) => {
@@ -138,17 +156,68 @@ export function EntnahmeSimulationsAusgabe({
                         })
                     }}
                 >
-                    <Form.Group controlId="rendite">
-                        <Form.ControlLabel>Erwartete Rendite (%)</Form.ControlLabel>
-                        <Form.Control name="rendite" accepter={Slider} 
-                            min={0}
-                            max={10}
-                            step={0.5}
-                            handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.rendite}%</div>)}
-                            progress
-                            graduated
-                        />
+                    {/* Withdrawal Return Configuration */}
+                    <Form.Group controlId="withdrawalReturnMode">
+                        <Form.ControlLabel>Entnahme-Rendite Modus</Form.ControlLabel>
+                        <RadioGroup
+                            inline
+                            value={withdrawalReturnMode}
+                            onChange={(value) => {
+                                setWithdrawalReturnMode(value as WithdrawalReturnMode);
+                            }}
+                        >
+                            <Radio value="fixed">Feste Rendite</Radio>
+                            <Radio value="variable">Variable Rendite</Radio>
+                        </RadioGroup>
                     </Form.Group>
+
+                    {withdrawalReturnMode === 'fixed' && (
+                        <Form.Group controlId="rendite">
+                            <Form.ControlLabel>Erwartete Rendite (%)</Form.ControlLabel>
+                            <Form.Control name="rendite" accepter={Slider} 
+                                min={0}
+                                max={10}
+                                step={0.5}
+                                handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.rendite}%</div>)}
+                                progress
+                                graduated
+                            />
+                        </Form.Group>
+                    )}
+
+                    {withdrawalReturnMode === 'variable' && (
+                        <Form.Group controlId="withdrawalVariableReturns">
+                            <Form.ControlLabel>Variable Renditen pro Jahr (Entnahme-Phase)</Form.ControlLabel>
+                            <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #e5e5ea', borderRadius: '6px', padding: '10px' }}>
+                                {Array.from({ length: formValue.endOfLife - startOfIndependence }, (_, i) => {
+                                    const year = startOfIndependence + 1 + i;
+                                    return (
+                                        <div key={year} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', gap: '10px' }}>
+                                            <div style={{ minWidth: '60px', fontWeight: 'bold' }}>{year}:</div>
+                                            <div style={{ flex: 1 }}>
+                                                <Slider
+                                                    value={withdrawalVariableReturns[year] || 5}
+                                                    min={-10}
+                                                    max={15}
+                                                    step={0.5}
+                                                    onChange={(value) => {
+                                                        const newReturns = { ...withdrawalVariableReturns, [year]: value };
+                                                        setWithdrawalVariableReturns(newReturns);
+                                                    }}
+                                                />
+                                            </div>
+                                            <div style={{ minWidth: '50px', textAlign: 'right' }}>
+                                                {(withdrawalVariableReturns[year] || 5).toFixed(1)}%
+                                            </div>
+                                        </div>
+                                    );
+                                })}
+                            </div>
+                            <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+                                Tipp: Verwende niedrigere Werte für konservative Portfolio-Allokation in der Rente und negative Werte für Krisen-Jahre.
+                            </div>
+                        </Form.Group>
+                    )}
                     <Form.Group controlId="endOfLife">
                         <Form.ControlLabel>End of Life</Form.ControlLabel>
                         <Form.Control name="endOfLife" accepter={InputNumber} 

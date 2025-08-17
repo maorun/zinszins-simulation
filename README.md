@@ -28,6 +28,7 @@ Folgendes ist umgesetzt:
     - 3% Regel - jährliche Entnahme von 3% des Startkapitals
     - **Monatliche Entnahme-Strategien (NEU!)** - Feste monatliche Entnahmen mit Inflationsanpassung und Portfolio-Guardrails
     - Berücksichtigung der Renditen während der Entnahme
+    - **Variable Renditen pro Jahr (NEU!)** - Jahr-für-Jahr konfigurierbare Renditen für die Entnahmephase
     - Berücksichtigung der deutschen Steuerberechnung (Vorabpauschale)
     - **Berücksichtigung des Grundfreibetrages (NEU!)** - Einkommensteuer-Grundfreibetrag für Rentner ohne weiteres Einkommen
     - Jahr-für-Jahr Entnahmeprojektion mit detaillierter Aufschlüsselung
@@ -38,8 +39,8 @@ Folgendes ist noch gepant:
     - ~~Freibetrag pro Jahr (bisher ein fester Steuerfreibetrag von 2000)~~ ✓ Umgesetzt
 - Rendite
     - ~~variabel pro Jahr~~ ✓ Umgesetzt
-- Auszahlungsphase (Erweiterungen)
-    - Variable Renditen pro Jahr
+- ~~Auszahlungsphase (Erweiterungen)~~ ✓ Umgesetzt
+    - ~~Variable Renditen pro Jahr~~ ✓ Umgesetzt
 ---
 Folgendes könnte noch gemacht werden, aber noch nicht notwending
 - ~~Eingabe der Kapitalertragsteuer (momentan bei 26,375 %)~~ ✓ Umgesetzt
