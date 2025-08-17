@@ -13,6 +13,9 @@ export type WithdrawalResultElement = {
     monatlicheEntnahme?: number;
     inflationAnpassung?: number;
     portfolioAnpassung?: number;
+    // For Grundfreibetrag (income tax)
+    einkommensteuer?: number;
+    genutzterGrundfreibetrag?: number;
 }
 
 export type WithdrawalResult = {
@@ -50,6 +53,9 @@ const grundfreibetrag: {
  * @param freibetragPerYear - Tax allowance per year (optional)
  * @param monthlyConfig - Configuration for monthly withdrawal strategy (optional)
  * @param customPercentage - Custom withdrawal percentage for "variabel_prozent" strategy (e.g., 0.05 for 5%)
+ * @param enableGrundfreibetrag - Whether to apply income tax with Grundfreibetrag (default: false)
+ * @param grundfreibetragPerYear - Basic tax allowance per year for income tax (optional)
+ * @param incomeTaxRate - Income tax rate for withdrawal amounts (default: 25%)
  * @returns Withdrawal projections year by year
  */
 export function calculateWithdrawal(
@@ -61,7 +67,10 @@ export function calculateWithdrawal(
     taxRate: number = 0.26375,
     freibetragPerYear?: {[year: number]: number},
     monthlyConfig?: MonthlyWithdrawalConfig,
-    customPercentage?: number
+    customPercentage?: number,
+    enableGrundfreibetrag?: boolean,
+    grundfreibetragPerYear?: {[year: number]: number},
+    incomeTaxRate?: number
 ): WithdrawalResult {
     // Helper function to get tax allowance for a specific year
     const getFreibetragForYear = (year: number): number => {
@@ -70,6 +79,15 @@ export function calculateWithdrawal(
         }
         // Fallback to default value for backwards compatibility
         return freibetrag[2023] || 2000;
+    };
+
+    // Helper function to get Grundfreibetrag for a specific year
+    const getGrundfreibetragForYear = (year: number): number => {
+        if (grundfreibetragPerYear && grundfreibetragPerYear[year] !== undefined) {
+            return grundfreibetragPerYear[year];
+        }
+        // Fallback to default value
+        return grundfreibetrag[2023] || 10908;
     };
 
     const result: WithdrawalResult = {};
@@ -161,19 +179,36 @@ export function calculateWithdrawal(
             taxRate
         );
         
+        // Calculate optional income tax on withdrawal amount using Grundfreibetrag
+        let einkommensteuer = 0;
+        let genutzterGrundfreibetrag = 0;
+        
+        if (enableGrundfreibetrag) {
+            const yearlyGrundfreibetrag = getGrundfreibetragForYear(year);
+            const effectiveIncomeTaxRate = incomeTaxRate || 0.25; // Default 25%
+            
+            einkommensteuer = calculateIncomeTax(entnahme, yearlyGrundfreibetrag, effectiveIncomeTaxRate);
+            genutzterGrundfreibetrag = Math.min(entnahme, yearlyGrundfreibetrag);
+        }
+        
+        // Total tax burden: capital gains tax + income tax
+        const totalTax = taxCalculation.steuer + einkommensteuer;
+        
         // Capital after growth and taxes
-        const endkapital = Math.max(0, capitalAfterGrowth - taxCalculation.steuer);
+        const endkapital = Math.max(0, capitalAfterGrowth - totalTax);
         
         result[year] = {
             startkapital,
             entnahme,
             endkapital,
-            bezahlteSteuer: taxCalculation.steuer,
+            bezahlteSteuer: totalTax,
             genutzterFreibetrag: yearlyFreibetrag - taxCalculation.verbleibenderFreibetrag,
             zinsen,
             monatlicheEntnahme: strategy === "monatlich_fest" ? entnahme / 12 : undefined,
             inflationAnpassung: strategy === "monatlich_fest" ? inflationAnpassung : undefined,
-            portfolioAnpassung: strategy === "monatlich_fest" ? portfolioAnpassung : undefined
+            portfolioAnpassung: strategy === "monatlich_fest" ? portfolioAnpassung : undefined,
+            einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
+            genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined
         };
         
         // Update capital for next year

@@ -29,6 +29,7 @@ Folgendes ist umgesetzt:
     - **Monatliche Entnahme-Strategien (NEU!)** - Feste monatliche Entnahmen mit Inflationsanpassung und Portfolio-Guardrails
     - Berücksichtigung der Renditen während der Entnahme
     - Berücksichtigung der deutschen Steuerberechnung (Vorabpauschale)
+    - **Berücksichtigung des Grundfreibetrages (NEU!)** - Einkommensteuer-Grundfreibetrag für Rentner ohne weiteres Einkommen
     - Jahr-für-Jahr Entnahmeprojektion mit detaillierter Aufschlüsselung
     - Interaktive Parametereinstellung (Rendite, Lebensende, Strategie)
 ---
@@ -38,7 +39,6 @@ Folgendes ist noch gepant:
 - Rendite
     - ~~variabel pro Jahr~~ ✓ Umgesetzt
 - Auszahlungsphase (Erweiterungen)
-    - Berücksichtigung des Grundfreibetrages für Einkommensteuer
     - Variable Renditen pro Jahr
 ---
 Folgendes könnte noch gemacht werden, aber noch nicht notwending
