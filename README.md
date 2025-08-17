@@ -26,6 +26,7 @@ Folgendes ist umgesetzt:
 - **Auszahlungsphase (NEU!)**
     - 4% Regel - jährliche Entnahme von 4% des Startkapitals
     - 3% Regel - jährliche Entnahme von 3% des Startkapitals
+    - **Monatliche Entnahme-Strategien (NEU!)** - Feste monatliche Entnahmen mit Inflationsanpassung und Portfolio-Guardrails
     - Berücksichtigung der Renditen während der Entnahme
     - Berücksichtigung der deutschen Steuerberechnung (Vorabpauschale)
     - Jahr-für-Jahr Entnahmeprojektion mit detaillierter Aufschlüsselung
@@ -39,7 +40,6 @@ Folgendes ist noch gepant:
 - Auszahlungsphase (Erweiterungen)
     - Berücksichtigung des Grundfreibetrages für Einkommensteuer
     - Variable Renditen pro Jahr
-    - Monatliche Entnahme-Strategien
 ---
 Folgendes könnte noch gemacht werden, aber noch nicht notwending
 - ~~Eingabe der Kapitalertragsteuer (momentan bei 26,375 %)~~ ✓ Umgesetzt
