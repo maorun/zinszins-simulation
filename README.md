@@ -31,9 +31,6 @@ Folgendes ist umgesetzt:
     - Jahr-für-Jahr Entnahmeprojektion mit detaillierter Aufschlüsselung
     - Interaktive Parametereinstellung (Rendite, Lebensende, Strategie)
 ---
-Folgendes ist in Bearbeitung
-- Einberechnung der Vorabpauschale 
----
 Folgendes ist noch gepant:
 - Steuern
     - ~~Freibetrag pro Jahr (bisher ein fester Steuerfreibetrag von 2000)~~ ✓ Umgesetzt
