@@ -17,7 +17,7 @@ Folgendes ist umgesetzt:
     - jährlich
     - **monatlich (schon implementiert)**
     - monatlich
-- Einmalzahlungen
+- **Einmalzahlungen (NEU!)** - Dedizierte UI für einmalige Zahlungen mit Datum und Betrag
 - Einberechnung der Freibeträge bei der Steuer
 - **Konfigurierbare Steuerparameter (NEU!)**
     - Kapitalertragsteuer (standardmäßig 26,375%)
