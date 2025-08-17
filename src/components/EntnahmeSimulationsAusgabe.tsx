@@ -38,6 +38,10 @@ export function EntnahmeSimulationsAusgabe({
         guardrailsSchwelle: 10,
         // Custom percentage strategy specific settings
         variabelProzent: 5, // Default to 5%
+        // Grundfreibetrag settings
+        grundfreibetragAktiv: false,
+        grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
+        einkommensteuersatz: 25, // Default income tax rate 25%
     });
 
     // Calculate withdrawal projections
@@ -70,7 +74,18 @@ export function EntnahmeSimulationsAusgabe({
                 guardrailsThreshold: formValue.guardrailsSchwelle / 100
             } : undefined,
             // Pass custom percentage for variable percentage strategy
-            formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined
+            formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined,
+            // Grundfreibetrag parameters
+            formValue.grundfreibetragAktiv,
+            formValue.grundfreibetragAktiv ? (() => {
+                // Create grundfreibetrag object for all withdrawal years
+                const grundfreibetragPerYear: {[year: number]: number} = {};
+                for (let year = startOfIndependence + 1; year <= formValue.endOfLife; year++) {
+                    grundfreibetragPerYear[year] = formValue.grundfreibetragBetrag;
+                }
+                return grundfreibetragPerYear;
+            })() : undefined,
+            formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined
         );
 
         // Convert to array for table display, sorted by year descending
@@ -90,7 +105,7 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.monatlicheBetrag, formValue.inflationsrate, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.monatlicheBetrag, formValue.inflationsrate, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz]);
 
     // Format currency for display
     const formatCurrency = (amount: number) => {
@@ -117,6 +132,9 @@ export function EntnahmeSimulationsAusgabe({
                             guardrailsAktiv: changedFormValue.guardrailsAktiv,
                             guardrailsSchwelle: changedFormValue.guardrailsSchwelle,
                             variabelProzent: changedFormValue.variabelProzent,
+                            grundfreibetragAktiv: changedFormValue.grundfreibetragAktiv,
+                            grundfreibetragBetrag: changedFormValue.grundfreibetragBetrag,
+                            einkommensteuersatz: changedFormValue.einkommensteuersatz,
                         })
                     }}
                 >
@@ -153,6 +171,45 @@ export function EntnahmeSimulationsAusgabe({
                             </RadioTile>
                         </Form.Control>
                     </Form.Group>
+                    
+                    {/* Grundfreibetrag settings */}
+                    <Form.Group controlId="grundfreibetragAktiv">
+                        <Form.ControlLabel>Grundfreibetrag berücksichtigen</Form.ControlLabel>
+                        <Form.Control name="grundfreibetragAktiv" accepter={Toggle} />
+                        <Form.HelpText>
+                            Berücksichtigt den Grundfreibetrag für die Einkommensteuer bei Entnahmen (relevant für Rentner ohne weiteres Einkommen)
+                        </Form.HelpText>
+                    </Form.Group>
+                    
+                    {formValue.grundfreibetragAktiv && (
+                        <>
+                            <Form.Group controlId="grundfreibetragBetrag">
+                                <Form.ControlLabel>Grundfreibetrag pro Jahr (€)</Form.ControlLabel>
+                                <Form.Control name="grundfreibetragBetrag" accepter={InputNumber} 
+                                    min={0}
+                                    max={30000}
+                                    step={100}
+                                />
+                                <Form.HelpText>
+                                    Grundfreibetrag für die Einkommensteuer (2023: 10.908 €)
+                                </Form.HelpText>
+                            </Form.Group>
+                            <Form.Group controlId="einkommensteuersatz">
+                                <Form.ControlLabel>Einkommensteuersatz (%)</Form.ControlLabel>
+                                <Form.Control name="einkommensteuersatz" accepter={Slider} 
+                                    min={14}
+                                    max={42}
+                                    step={1}
+                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.einkommensteuersatz}%</div>)}
+                                    progress
+                                    graduated
+                                />
+                                <Form.HelpText>
+                                    Vereinfachter Einkommensteuersatz (normalerweise zwischen 14% und 42%)
+                                </Form.HelpText>
+                            </Form.Group>
+                        </>
+                    )}
                     
                     {/* Variable percentage strategy specific controls */}
                     {formValue.strategie === "variabel_prozent" && (
@@ -242,6 +299,9 @@ export function EntnahmeSimulationsAusgabe({
                                 <p><strong>Jährliche Entnahme ({formValue.strategie === "4prozent" ? "4 Prozent" : "3 Prozent"} Regel):</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.strategie === "4prozent" ? 0.04 : 0.03))}</p>
                             )}
                             <p><strong>Erwartete Rendite:</strong> {formValue.rendite} Prozent p.a.</p>
+                            {formValue.grundfreibetragAktiv && (
+                                <p><strong>Grundfreibetrag:</strong> {formatCurrency(formValue.grundfreibetragBetrag)} pro Jahr (Einkommensteuersatz: {formValue.einkommensteuersatz}%)</p>
+                            )}
                             <p><strong>Vermögen reicht für:</strong> {
                                 withdrawalData.duration 
                                     ? `${withdrawalData.duration} Jahr${withdrawalData.duration === 1 ? '' : 'e'}`
@@ -307,6 +367,22 @@ export function EntnahmeSimulationsAusgabe({
                                     {rowData => formatCurrency(rowData.bezahlteSteuer)}
                                 </Cell>
                             </Column>
+                            {formValue.grundfreibetragAktiv && (
+                                <Column width={120}>
+                                    <HeaderCell>Einkommensteuer</HeaderCell>
+                                    <Cell>
+                                        {rowData => rowData.einkommensteuer !== undefined ? formatCurrency(rowData.einkommensteuer) : '-'}
+                                    </Cell>
+                                </Column>
+                            )}
+                            {formValue.grundfreibetragAktiv && (
+                                <Column width={140}>
+                                    <HeaderCell>Grundfreibetrag genutzt</HeaderCell>
+                                    <Cell>
+                                        {rowData => rowData.genutzterGrundfreibetrag !== undefined ? formatCurrency(rowData.genutzterGrundfreibetrag) : '-'}
+                                    </Cell>
+                                </Column>
+                            )}
                             <Column width={120}>
                                 <HeaderCell>Endkapital</HeaderCell>
                                 <Cell>
