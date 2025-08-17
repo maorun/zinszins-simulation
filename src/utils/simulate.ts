@@ -8,6 +8,12 @@ export type SimulationResultElement = {
     endkapital: number;
     bezahlteSteuer: number;
     genutzterFreibetrag: number;
+    vorabpauschaleDetails?: {
+        basisertrag: number;
+        vorabpauschaleAmount: number;
+        steuerVorFreibetrag: number;
+        basiszins: number;
+    };
 }
 
 export type SimulationResult = {
@@ -179,6 +185,7 @@ export function simulate(
                             zinsen: kapital * (1 + wachstumsrate),
                             bezahlteSteuer: endKapital.steuer,
                             genutzterFreibetrag: 0,
+                            vorabpauschaleDetails: endKapital.details
 
                         };
                         element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - endKapital.verbleibenderFreibetrag
@@ -203,6 +210,7 @@ export function simulate(
                     element.simulation[year]['endkapital'] -= vorabPauschaleZinzen.steuer
                     element.simulation[year]['zinsen'] = element.simulation[year]['endkapital'] - element.simulation[year]['startkapital']
                     element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - vorabPauschaleZinzen.verbleibenderFreibetrag
+                    element.simulation[year]['vorabpauschaleDetails'] = vorabPauschaleZinzen.details
                     freibetragInYear = vorabPauschaleZinzen.verbleibenderFreibetrag;
                 }
             }
@@ -229,6 +237,7 @@ export function simulate(
                         zinsen: kapital * (1 + wachstumsrate),
                         bezahlteSteuer: endKapital.steuer,
                         genutzterFreibetrag: 0,
+                        vorabpauschaleDetails: endKapital.details
 
                     };
                     element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - endKapital.verbleibenderFreibetrag
