@@ -135,6 +135,133 @@ body {
   word-break: break-word !important;
 }
 
+/* Mobile/Desktop visibility classes */
+.mobile-only {
+  display: block !important;
+}
+
+.desktop-only {
+  display: none !important;
+}
+
+/* Mobile Card Layout for Tables */
+.sparplan-cards {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.sparplan-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.sparplan-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.sparplan-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid #eee;
+}
+
+.sparplan-year {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.sparplan-endkapital {
+  font-weight: 700;
+  color: #2eabdf;
+  font-size: 1.1rem;
+}
+
+.sparplan-card-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.sparplan-detail {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.25rem 0;
+}
+
+.detail-label {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+}
+
+.detail-value {
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.sparplan-summary-card {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef);
+  border: 2px solid #2eabdf;
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-top: 0.5rem;
+}
+
+.summary-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #2eabdf;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.75rem;
+}
+
+.summary-item {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: 0.5rem;
+  background: #fff;
+  border-radius: 6px;
+  border: 1px solid #ddd;
+}
+
+.summary-item.highlight {
+  background: linear-gradient(135deg, #28a745, #20c997);
+  color: white;
+  border-color: #28a745;
+}
+
+.summary-label {
+  font-size: 0.8rem;
+  margin-bottom: 0.25rem;
+  opacity: 0.8;
+}
+
+.summary-item.highlight .summary-label {
+  opacity: 0.9;
+}
+
+.summary-value {
+  font-weight: 700;
+  font-size: 0.95rem;
+}
+
 /* Results highlighting */
 .endkapital-highlight {
   background: linear-gradient(135deg, #28a745, #20c997) !important;
@@ -197,6 +324,15 @@ footer {
   
   .rs-table-cell-content {
     padding: 0.75rem !important;
+  }
+  
+  /* Switch to desktop layout on tablet and up */
+  .mobile-only {
+    display: none !important;
+  }
+  
+  .desktop-only {
+    display: block !important;
   }
 }
 
