@@ -1,8 +1,12 @@
 # Zinseszins-Simulation (Compound Interest Calculator)
 
-Zinseszins-Simulation is a German compound interest calculator built with Vite, React 19, TypeScript, and RSuite UI components. The application simulates investment growth over time, including German tax considerations (Vorabpauschale, Freibetrag), savings plans, and withdrawal strategies.
+Zinseszins-Simulation is a German compound interest calculator built with Vite, React 19, TypeScript, and RSuite UI components. The application simulates investment growth over time, including German tax considerations (Vorabpauschale, Freibetrag), savings plans, withdrawal strategies, Monte Carlo analysis, and advanced return configurations.
 
 **Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.**
+
+## Documentation Requirements
+
+**When implementing new or changed features, always update the README.md to reflect these changes.** Document new functionality clearly in the appropriate sections without using "Neu" or similar markers - integrate them naturally into the existing documentation structure.
 
 ## Working Effectively
 
@@ -46,13 +50,18 @@ After making changes, ALWAYS test the complete user workflow:
    - Confirm end capital shows approximately 596,168.79 €
    - Expand "Sparpläne erstellen" section and verify form fields appear
    - Test the return rate slider (Rendite) - should update calculations in real-time
+   - Test different return modes (Fixed, Random, Variable)
    - Verify the year-by-year breakdown table shows investment progression
-   - Check that the simulation section displays detailed year-by-year data
+   - Check that the simulation section displays detailed year-by-year data with Vorabpauschale calculations
 
 4. **Test interactive features**:
    - Change the time span slider and verify calculations update
    - Switch between "jährlich" (yearly) and "monatlich" (monthly) calculation modes
-   - Expand/collapse different sections (Entnahme, Simulation)
+   - Expand/collapse different sections (Entnahme, Monte Carlo Analyse, Simulation)
+   - Test withdrawal strategies in the "Entnahme" section
+   - Verify Monte Carlo analysis functionality
+   - Test tax configuration changes (Kapitalertragsteuer, Teilfreistellungsquote)
+   - Test configurable tax allowances per year
 
 ### Essential Commands for Development
 - `npm run dev` - Start development server (never cancel, wait for startup)
@@ -106,15 +115,26 @@ After making changes, ALWAYS test the complete user workflow:
 ## German Financial Features
 
 ### Tax Calculations
-- **Vorabpauschale**: Advance lump-sum taxation on investment funds
-- **Freibetrag**: Annual tax allowance (currently 2,000€ per year in code)
-- **Kapitalertragsteuer**: Capital gains tax (26.375% in code)
-- **Teilfreistellungsquote**: Partial exemption for equity funds (30% for stock funds)
+- **Vorabpauschale**: Advance lump-sum taxation on investment funds with detailed base interest calculations
+- **Freibetrag**: Configurable annual tax allowances per year (default 2,000€)
+- **Kapitalertragsteuer**: Configurable capital gains tax (default 26.375%)
+- **Teilfreistellungsquote**: Configurable partial exemption for equity funds (default 30% for stock funds)
+- **Grundfreibetrag**: Income tax basic allowance for retirees without additional income
 
-### Investment Types
+### Investment Types and Return Configurations
 - **Sparplan**: Regular savings plans with monthly/yearly contributions
-- **Einmalzahlung**: One-time lump sum investments
-- **Entnahme**: Withdrawal strategies (4% rule, 3% rule)
+- **Einmalzahlung**: One-time lump sum investments with date and amount specification
+- **Return Modes**:
+  - **Fixed Return**: Simple fixed annual return rate
+  - **Random Return**: Monte Carlo simulation with configurable average return and volatility
+  - **Variable Return**: Year-by-year configurable returns for realistic scenarios
+
+### Withdrawal Strategies
+- **4% Rule**: Annual withdrawal of 4% of starting capital
+- **3% Rule**: Annual withdrawal of 3% of starting capital  
+- **Variable Percentage**: Custom withdrawal percentages
+- **Monthly Fixed Withdrawal**: Fixed monthly amounts with inflation adjustment and portfolio guardrails
+- **Variable Returns during Withdrawal**: Year-by-year configurable returns for withdrawal phase
 
 ## Common Development Tasks
 

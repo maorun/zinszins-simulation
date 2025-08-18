@@ -6,42 +6,47 @@ Ziel des Projektes is es ein Rechner zu entwickeln, indem man viele Einstellunge
 Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
 
 ---
-Folgendes ist umgesetzt:
-- Zeitspanne
-- Rendite
-    - monatlich
-    - jährlich
-    - **Zufällige Rendite (NEU!)** - Monte Carlo Simulation mit konfigurierbarer durchschnittlicher Rendite und Volatilität
-    - **Variable Rendite pro Jahr (NEU!)** - Jahr-für-Jahr konfigurierbare Renditen für realistische Szenarien
-- Sparplan
-    - jährlich
-    - **monatlich (schon implementiert)**
-    - monatlich
-- **Einmalzahlungen (NEU!)** - Dedizierte UI für einmalige Zahlungen mit Datum und Betrag
-- Einberechnung der Freibeträge bei der Steuer
-- **Konfigurierbare Steuerparameter (NEU!)**
-    - Kapitalertragsteuer (standardmäßig 26,375%)
-    - Teilfreistellungsquote für Aktienfonds (standardmäßig 30%)
-    - **Freibetrag pro Jahr (NEU!)** - Individuelle Konfiguration der jährlichen Steuerfreibeträge
-- **Auszahlungsphase (NEU!)**
-    - 4% Regel - jährliche Entnahme von 4% des Startkapitals
-    - 3% Regel - jährliche Entnahme von 3% des Startkapitals
-    - **Monatliche Entnahme-Strategien (NEU!)** - Feste monatliche Entnahmen mit Inflationsanpassung und Portfolio-Guardrails
-    - Berücksichtigung der Renditen während der Entnahme
-    - **Variable Renditen pro Jahr (NEU!)** - Jahr-für-Jahr konfigurierbare Renditen für die Entnahmephase
-    - Berücksichtigung der deutschen Steuerberechnung (Vorabpauschale)
-    - **Berücksichtigung des Grundfreibetrages (NEU!)** - Einkommensteuer-Grundfreibetrag für Rentner ohne weiteres Einkommen
-    - Jahr-für-Jahr Entnahmeprojektion mit detaillierter Aufschlüsselung
-    - Interaktive Parametereinstellung (Rendite, Lebensende, Strategie)
+## Implementierte Features
+
+### Zeitspanne und Berechnungsmodus
+- Flexibler Zeitraum (Standard: 2023-2040)
+- Monatliche und jährliche Berechnungsmodi
+
+### Rendite-Konfigurationen
+- **Feste Rendite** - Konstante jährliche Rendite
+- **Zufällige Rendite** - Monte Carlo Simulation mit konfigurierbarer durchschnittlicher Rendite und Volatilität
+- **Variable Rendite pro Jahr** - Jahr-für-Jahr konfigurierbare Renditen für realistische Szenarien
+
+### Sparplan und Einmalzahlungen
+- **Sparplan** - Regelmäßige jährliche oder monatliche Einzahlungen
+- **Einmalzahlungen** - Dedizierte UI für einmalige Zahlungen mit Datum und Betrag
+
+### Steuerberechnung
+- **Vorabpauschale** - Deutsche Steuerberechnung für Investmentfonds
+- **Konfigurierbare Steuerparameter**:
+  - Kapitalertragsteuer (standardmäßig 26,375%)
+  - Teilfreistellungsquote für Aktienfonds (standardmäßig 30%)
+  - Freibetrag pro Jahr - Individuelle Konfiguration der jährlichen Steuerfreibeträge
+
+### Auszahlungsphase
+- **4% Regel** - Jährliche Entnahme von 4% des Startkapitals
+- **3% Regel** - Jährliche Entnahme von 3% des Startkapitals
+- **Variable Entnahme-Strategien** - Benutzerdefinierte Entnahmeprozentsätze
+- **Monatliche Entnahme-Strategien** - Feste monatliche Entnahmen mit Inflationsanpassung und Portfolio-Guardrails
+- **Variable Renditen während Entnahme** - Jahr-für-Jahr konfigurierbare Renditen für die Entnahmephase
+- **Berücksichtigung des Grundfreibetrages** - Einkommensteuer-Grundfreibetrag für Rentner ohne weiteres Einkommen
+- Jahr-für-Jahr Entnahmeprojektion mit detaillierter Aufschlüsselung
+- Interaktive Parametereinstellung (Rendite, Lebensende, Strategie)
+
+### Analyse und Simulation
+- **Monte Carlo Analyse** - Statistische Auswertung verschiedener Rendite-Szenarien
+- **Detaillierte Simulation** - Jahr-für-Jahr Aufschlüsselung mit Vorabpauschale-Berechnungen
+- Echtzeit-Updates bei Parameteränderungen
+
 ---
-Folgendes ist noch gepant:
-- Steuern
-    - ~~Freibetrag pro Jahr (bisher ein fester Steuerfreibetrag von 2000)~~ ✓ Umgesetzt
-- Rendite
-    - ~~variabel pro Jahr~~ ✓ Umgesetzt
-- ~~Auszahlungsphase (Erweiterungen)~~ ✓ Umgesetzt
-    - ~~Variable Renditen pro Jahr~~ ✓ Umgesetzt
----
-Folgendes könnte noch gemacht werden, aber noch nicht notwending
-- ~~Eingabe der Kapitalertragsteuer (momentan bei 26,375 %)~~ ✓ Umgesetzt
-- ~~Eingabe der Teilfreistellungsquote (30% für Aktienfonds nach https://de.wikipedia.org/wiki/Investmentsteuergesetz_(Deutschland)#Besteuerung_deutscher_Anleger_in_Investmentfonds_mit_(partieller)_Kompensation_der_Steuervorbelastung )~~ ✓ Umgesetzt
+## Geplante Erweiterungen
+
+Aktuell sind alle geplanten Hauptfeatures implementiert. Zukünftige Erweiterungen könnten beinhalten:
+- Weitere Steueroptimierungsstrategien
+- Zusätzliche Entnahme-Modelle
+- Erweiterte Reporting-Funktionen
