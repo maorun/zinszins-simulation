@@ -24,6 +24,10 @@ export type WithdrawalResult = {
     [year: number]: WithdrawalResultElement;
 };
 
+export type InflationConfig = {
+    inflationRate?: number; // Annual inflation rate for adjustment (default: 2%)
+};
+
 export type MonthlyWithdrawalConfig = {
     monthlyAmount: number; // Fixed monthly withdrawal amount in €
     inflationRate?: number; // Annual inflation rate for adjustment (default: 2%)
@@ -59,6 +63,7 @@ const grundfreibetrag: {
  * @param grundfreibetragPerYear - Basic tax allowance per year for income tax (optional)
  * @param incomeTaxRate - Income tax rate for withdrawal amounts (default: 25%)
  * @param variableReturns - Legacy parameter: Variable return rates per year (optional, overrides returnConfig when provided)
+ * @param inflationConfig - Inflation configuration for all withdrawal strategies (optional)
  * @returns Withdrawal projections year by year
  */
 export function calculateWithdrawal(
@@ -74,7 +79,8 @@ export function calculateWithdrawal(
     enableGrundfreibetrag?: boolean,
     grundfreibetragPerYear?: {[year: number]: number},
     incomeTaxRate?: number,
-    variableReturns?: {[year: number]: number} // Legacy API support
+    variableReturns?: {[year: number]: number}, // Legacy API support
+    inflationConfig?: InflationConfig
 ): WithdrawalResult {
     // Helper function to get tax allowance for a specific year
     const getFreibetragForYear = (year: number): number => {
@@ -179,13 +185,29 @@ export function calculateWithdrawal(
         let inflationAnpassung = 0;
         let portfolioAnpassung = 0;
         
-        if (strategy === "monatlich_fest" && monthlyConfig) {
-            const yearsPassed = year - startYear;
-            
-            // Apply inflation adjustment
-            const inflationRate = monthlyConfig.inflationRate || 0.02; // Default 2%
+        const yearsPassed = year - startYear;
+        
+        // Apply inflation adjustment for all strategies if inflation config is provided
+        if (inflationConfig && inflationConfig.inflationRate !== undefined) {
+            const inflationRate = inflationConfig.inflationRate;
             inflationAnpassung = baseWithdrawalAmount * Math.pow(1 + inflationRate, yearsPassed) - baseWithdrawalAmount;
             annualWithdrawal += inflationAnpassung;
+        }
+        
+        // Apply monthly strategy specific adjustments
+        if (strategy === "monatlich_fest" && monthlyConfig) {
+            // If no global inflation config but monthly config has inflation rate, use that (for backward compatibility)
+            if (!inflationConfig && monthlyConfig.inflationRate !== undefined) {
+                const inflationRate = monthlyConfig.inflationRate;
+                inflationAnpassung = baseWithdrawalAmount * Math.pow(1 + inflationRate, yearsPassed) - baseWithdrawalAmount;
+                annualWithdrawal += inflationAnpassung;
+            }
+            // If no global inflation config and no explicit monthly inflation rate, use default 2% for backward compatibility
+            else if (!inflationConfig && monthlyConfig.inflationRate === undefined) {
+                const inflationRate = 0.02; // Default 2%
+                inflationAnpassung = baseWithdrawalAmount * Math.pow(1 + inflationRate, yearsPassed) - baseWithdrawalAmount;
+                annualWithdrawal += inflationAnpassung;
+            }
             
             // Apply guardrails if enabled
             if (monthlyConfig.enableGuardrails && yearsPassed > 0) {
@@ -261,7 +283,9 @@ export function calculateWithdrawal(
             genutzterFreibetrag: yearlyFreibetrag - taxCalculation.verbleibenderFreibetrag,
             zinsen,
             monatlicheEntnahme: strategy === "monatlich_fest" ? entnahme / 12 : undefined,
-            inflationAnpassung: strategy === "monatlich_fest" ? inflationAnpassung : undefined,
+            inflationAnpassung: (inflationConfig && inflationConfig.inflationRate !== undefined) || 
+                              (strategy === "monatlich_fest" && monthlyConfig) 
+                              ? inflationAnpassung : undefined,
             portfolioAnpassung: strategy === "monatlich_fest" ? portfolioAnpassung : undefined,
             einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
             genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined

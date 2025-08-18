@@ -389,6 +389,179 @@ describe('Withdrawal Calculations', () => {
     });
   });
 
+  describe('Global inflation functionality for all strategies', () => {
+    test('should apply inflation to 4% rule strategy', () => {
+      const startingCapital = 100000;
+      const inflationConfig = { inflationRate: 0.03 }; // 3% inflation
+      
+      const result = calculateWithdrawal(
+        startingCapital,
+        2025,
+        2027,
+        "4prozent",
+        0.05, // 5% return
+        0.26375,
+        undefined, // freibetragPerYear
+        undefined, // monthlyConfig
+        undefined, // customPercentage
+        false, // enableGrundfreibetrag
+        undefined, // grundfreibetragPerYear
+        undefined, // incomeTaxRate
+        undefined, // variableReturns
+        inflationConfig
+      );
+      
+      // Base withdrawal amount (4% of 100,000 = 4,000)
+      const baseWithdrawal = 4000;
+      
+      // Year 1: no inflation adjustment
+      expect(result[2025].inflationAnpassung).toBe(0);
+      expect(result[2025].entnahme).toBe(baseWithdrawal);
+      
+      // Year 2: 3% inflation adjustment
+      const expectedInflationYear2 = baseWithdrawal * 0.03;
+      expect(result[2026].inflationAnpassung).toBeCloseTo(expectedInflationYear2, 2);
+      expect(result[2026].entnahme).toBeCloseTo(baseWithdrawal + expectedInflationYear2, 2);
+      
+      // Year 3: compound inflation (3% for 2 years)
+      const expectedInflationYear3 = baseWithdrawal * (Math.pow(1.03, 2) - 1);
+      expect(result[2027].inflationAnpassung).toBeCloseTo(expectedInflationYear3, 2);
+      expect(result[2027].entnahme).toBeCloseTo(baseWithdrawal + expectedInflationYear3, 2);
+    });
+
+    test('should apply inflation to 3% rule strategy', () => {
+      const startingCapital = 100000;
+      const inflationConfig = { inflationRate: 0.025 }; // 2.5% inflation
+      
+      const result = calculateWithdrawal(
+        startingCapital,
+        2025,
+        2027,
+        "3prozent",
+        0.05, // 5% return
+        0.26375,
+        undefined, // freibetragPerYear
+        undefined, // monthlyConfig
+        undefined, // customPercentage
+        false, // enableGrundfreibetrag
+        undefined, // grundfreibetragPerYear
+        undefined, // incomeTaxRate
+        undefined, // variableReturns
+        inflationConfig
+      );
+      
+      // Base withdrawal amount (3% of 100,000 = 3,000)
+      const baseWithdrawal = 3000;
+      
+      // Year 1: no inflation adjustment
+      expect(result[2025].inflationAnpassung).toBe(0);
+      expect(result[2025].entnahme).toBe(baseWithdrawal);
+      
+      // Year 2: 2.5% inflation adjustment
+      const expectedInflationYear2 = baseWithdrawal * 0.025;
+      expect(result[2026].inflationAnpassung).toBeCloseTo(expectedInflationYear2, 2);
+      expect(result[2026].entnahme).toBeCloseTo(baseWithdrawal + expectedInflationYear2, 2);
+      
+      // Year 3: compound inflation (2.5% for 2 years)
+      const expectedInflationYear3 = baseWithdrawal * (Math.pow(1.025, 2) - 1);
+      expect(result[2027].inflationAnpassung).toBeCloseTo(expectedInflationYear3, 2);
+      expect(result[2027].entnahme).toBeCloseTo(baseWithdrawal + expectedInflationYear3, 2);
+    });
+
+    test('should apply inflation to variable percentage strategy', () => {
+      const startingCapital = 200000;
+      const customPercentage = 0.055; // 5.5%
+      const inflationConfig = { inflationRate: 0.02 }; // 2% inflation
+      
+      const result = calculateWithdrawal(
+        startingCapital,
+        2025,
+        2027,
+        "variabel_prozent",
+        0.06, // 6% return
+        0.26375,
+        undefined, // freibetragPerYear
+        undefined, // monthlyConfig
+        customPercentage,
+        false, // enableGrundfreibetrag
+        undefined, // grundfreibetragPerYear
+        undefined, // incomeTaxRate
+        undefined, // variableReturns
+        inflationConfig
+      );
+      
+      // Base withdrawal amount (5.5% of 200,000 = 11,000)
+      const baseWithdrawal = 11000;
+      
+      // Year 1: no inflation adjustment
+      expect(result[2025].inflationAnpassung).toBe(0);
+      expect(result[2025].entnahme).toBe(baseWithdrawal);
+      
+      // Year 2: 2% inflation adjustment
+      const expectedInflationYear2 = baseWithdrawal * 0.02;
+      expect(result[2026].inflationAnpassung).toBeCloseTo(expectedInflationYear2, 2);
+      expect(result[2026].entnahme).toBeCloseTo(baseWithdrawal + expectedInflationYear2, 2);
+      
+      // Year 3: compound inflation (2% for 2 years)
+      const expectedInflationYear3 = baseWithdrawal * (Math.pow(1.02, 2) - 1);
+      expect(result[2027].inflationAnpassung).toBeCloseTo(expectedInflationYear3, 2);
+      expect(result[2027].entnahme).toBeCloseTo(baseWithdrawal + expectedInflationYear3, 2);
+    });
+
+    test('should not apply inflation when inflationConfig is not provided', () => {
+      const result = calculateWithdrawal(
+        100000,
+        2025,
+        2027,
+        "4prozent",
+        0.05 // 5% return
+      );
+      
+      // No inflation adjustment should be applied
+      expect(result[2025].inflationAnpassung).toBeUndefined();
+      expect(result[2026].inflationAnpassung).toBeUndefined();
+      expect(result[2027].inflationAnpassung).toBeUndefined();
+      
+      // All withdrawals should be the same (4% of 100,000 = 4,000)
+      expect(result[2025].entnahme).toBe(4000);
+      expect(result[2026].entnahme).toBe(4000);
+      expect(result[2027].entnahme).toBe(4000);
+    });
+
+    test('should prioritize global inflation config over monthly config inflation', () => {
+      const startingCapital = 100000;
+      const monthlyConfig = {
+        monthlyAmount: 1000,
+        inflationRate: 0.01 // 1% inflation in monthly config
+      };
+      const inflationConfig = { inflationRate: 0.04 }; // 4% inflation in global config
+      
+      const result = calculateWithdrawal(
+        startingCapital,
+        2025,
+        2026,
+        "monatlich_fest",
+        0.05, // 5% return
+        0.26375,
+        undefined, // freibetragPerYear
+        monthlyConfig,
+        undefined, // customPercentage
+        false, // enableGrundfreibetrag
+        undefined, // grundfreibetragPerYear
+        undefined, // incomeTaxRate
+        undefined, // variableReturns
+        inflationConfig // This should take precedence
+      );
+      
+      // Base withdrawal amount (1000 * 12 = 12,000)
+      const baseWithdrawal = 12000;
+      
+      // Year 2: should use global inflation config (4%), not monthly config (1%)
+      const expectedInflation = baseWithdrawal * 0.04; // 4% inflation from global config
+      expect(result[2026].inflationAnpassung).toBeCloseTo(expectedInflation, 2);
+    });
+  });
+
   describe('Variable returns functionality', () => {
     test('should use variable returns when provided', () => {
       const startingCapital = 100000;

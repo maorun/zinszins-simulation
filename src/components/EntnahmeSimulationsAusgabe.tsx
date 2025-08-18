@@ -36,9 +36,11 @@ export function EntnahmeSimulationsAusgabe({
         endOfLife,
         strategie: "4prozent" as WithdrawalStrategy,
         rendite: 5,
+        // General inflation settings (for all strategies)
+        inflationAktiv: false,
+        inflationsrate: 2,
         // Monthly strategy specific settings
         monatlicheBetrag: 2000,
-        inflationsrate: 2,
         guardrailsAktiv: false,
         guardrailsSchwelle: 10,
         // Custom percentage strategy specific settings
@@ -111,7 +113,6 @@ export function EntnahmeSimulationsAusgabe({
             // Pass monthly config only for monthly strategy
             formValue.strategie === "monatlich_fest" ? {
                 monthlyAmount: formValue.monatlicheBetrag,
-                inflationRate: formValue.inflationsrate / 100,
                 enableGuardrails: formValue.guardrailsAktiv,
                 guardrailsThreshold: formValue.guardrailsSchwelle / 100
             } : undefined,
@@ -127,7 +128,12 @@ export function EntnahmeSimulationsAusgabe({
                 }
                 return grundfreibetragPerYear;
             })() : undefined,
-            formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined
+            formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined,
+            undefined, // variableReturns (legacy parameter)
+            // Inflation configuration for all strategies
+            formValue.inflationAktiv ? {
+                inflationRate: formValue.inflationsrate / 100
+            } : undefined
         );
 
         // Convert to array for table display, sorted by year descending
@@ -147,7 +153,7 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.monatlicheBetrag, formValue.inflationsrate, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed]);
 
     // Format currency for display
     const formatCurrency = (amount: number) => {
@@ -169,8 +175,9 @@ export function EntnahmeSimulationsAusgabe({
                             endOfLife: changedFormValue.endOfLife,
                             strategie: changedFormValue.strategie,
                             rendite: changedFormValue.rendite,
-                            monatlicheBetrag: changedFormValue.monatlicheBetrag,
+                            inflationAktiv: changedFormValue.inflationAktiv,
                             inflationsrate: changedFormValue.inflationsrate,
+                            monatlicheBetrag: changedFormValue.monatlicheBetrag,
                             guardrailsAktiv: changedFormValue.guardrailsAktiv,
                             guardrailsSchwelle: changedFormValue.guardrailsSchwelle,
                             variabelProzent: changedFormValue.variabelProzent,
@@ -324,6 +331,32 @@ export function EntnahmeSimulationsAusgabe({
                             Berücksichtigt den Grundfreibetrag für die Einkommensteuer bei Entnahmen (relevant für Rentner ohne weiteres Einkommen)
                         </Form.HelpText>
                     </Form.Group>
+
+                    {/* General inflation controls for all strategies */}
+                    <Form.Group controlId="inflationAktiv">
+                        <Form.ControlLabel>Inflation berücksichtigen</Form.ControlLabel>
+                        <Form.Control name="inflationAktiv" accepter={Toggle} />
+                        <Form.HelpText>
+                            Passt die Entnahmebeträge jährlich an die Inflation an (für alle Entnahme-Strategien)
+                        </Form.HelpText>
+                    </Form.Group>
+                    
+                    {formValue.inflationAktiv && (
+                        <Form.Group controlId="inflationsrate">
+                            <Form.ControlLabel>Inflationsrate (%)</Form.ControlLabel>
+                            <Form.Control name="inflationsrate" accepter={Slider} 
+                                min={0}
+                                max={5}
+                                step={0.1}
+                                handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.inflationsrate}%</div>)}
+                                progress
+                                graduated
+                            />
+                            <Form.HelpText>
+                                Jährliche Inflationsrate zur Anpassung der Entnahmebeträge
+                            </Form.HelpText>
+                        </Form.Group>
+                    )}
                     
                     {formValue.grundfreibetragAktiv && (
                         <>
@@ -384,17 +417,6 @@ export function EntnahmeSimulationsAusgabe({
                                     step={100}
                                 />
                             </Form.Group>
-                            <Form.Group controlId="inflationsrate">
-                                <Form.ControlLabel>Inflationsrate (%)</Form.ControlLabel>
-                                <Form.Control name="inflationsrate" accepter={Slider} 
-                                    min={0}
-                                    max={5}
-                                    step={0.1}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.inflationsrate}%</div>)}
-                                    progress
-                                    graduated
-                                />
-                            </Form.Group>
                             <Form.Group controlId="guardrailsAktiv">
                                 <Form.ControlLabel>Dynamische Anpassung (Guardrails)</Form.ControlLabel>
                                 <Form.Control name="guardrailsAktiv" accepter={Toggle} />
@@ -432,7 +454,6 @@ export function EntnahmeSimulationsAusgabe({
                                 <>
                                     <p><strong>Monatliche Entnahme (Basis):</strong> {formatCurrency(formValue.monatlicheBetrag)}</p>
                                     <p><strong>Jährliche Entnahme (Jahr 1):</strong> {formatCurrency(formValue.monatlicheBetrag * 12)}</p>
-                                    <p><strong>Inflationsrate:</strong> {formValue.inflationsrate} Prozent p.a.</p>
                                     {formValue.guardrailsAktiv && (
                                         <p><strong>Dynamische Anpassung:</strong> Aktiviert (Schwelle: {formValue.guardrailsSchwelle}%)</p>
                                     )}
@@ -441,6 +462,9 @@ export function EntnahmeSimulationsAusgabe({
                                 <p><strong>Jährliche Entnahme ({formValue.variabelProzent} Prozent Regel):</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.variabelProzent / 100))}</p>
                             ) : (
                                 <p><strong>Jährliche Entnahme ({formValue.strategie === "4prozent" ? "4 Prozent" : "3 Prozent"} Regel):</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.strategie === "4prozent" ? 0.04 : 0.03))}</p>
+                            )}
+                            {formValue.inflationAktiv && (
+                                <p><strong>Inflationsrate:</strong> {formValue.inflationsrate}% p.a. (Entnahmebeträge werden jährlich angepasst)</p>
                             )}
                             <p><strong>Erwartete Rendite:</strong> {formValue.rendite} Prozent p.a.</p>
                             {formValue.grundfreibetragAktiv && (
@@ -483,7 +507,7 @@ export function EntnahmeSimulationsAusgabe({
                                     </Cell>
                                 </Column>
                             )}
-                            {formValue.strategie === "monatlich_fest" && (
+                            {formValue.inflationAktiv && (
                                 <Column width={120}>
                                     <HeaderCell>Inflation</HeaderCell>
                                     <Cell>
