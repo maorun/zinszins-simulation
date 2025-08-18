@@ -82,26 +82,44 @@ export function MonteCarloResults({
                 )}
             </div>
 
-            <Table 
-                data={scenarios}
-                autoHeight
-                rowClassName={(rowData) => getRowClassName(rowData?.scenario || '')}
-            >
-                <Column width={200} flexGrow={1}>
-                    <HeaderCell>Szenario</HeaderCell>
-                    <Cell dataKey="scenario" />
-                </Column>
+            {/* Mobile Card Layout */}
+            <div className="mobile-only monte-carlo-mobile">
+                {scenarios.map((scenario, index) => (
+                    <div key={index} className={`monte-carlo-card ${getRowClassName(scenario.scenario)}`}>
+                        <div className="monte-carlo-header">
+                            <span className="scenario-name">{scenario.scenario}</span>
+                            <span className="probability">{scenario.probability}</span>
+                        </div>
+                        <div className="scenario-description">
+                            {scenario.description}
+                        </div>
+                    </div>
+                ))}
+            </div>
 
-                <Column width={400} flexGrow={2}>
-                    <HeaderCell>Beschreibung</HeaderCell>
-                    <Cell dataKey="description" />
-                </Column>
+            {/* Desktop Table Layout */}
+            <div className="desktop-only table-container">
+                <Table 
+                    data={scenarios}
+                    autoHeight
+                    rowClassName={(rowData) => getRowClassName(rowData?.scenario || '')}
+                >
+                    <Column width={200} flexGrow={1}>
+                        <HeaderCell>Szenario</HeaderCell>
+                        <Cell dataKey="scenario" />
+                    </Column>
 
-                <Column width={200} flexGrow={1}>
-                    <HeaderCell>Wahrscheinlichkeit</HeaderCell>
-                    <Cell dataKey="probability" />
-                </Column>
-            </Table>
+                    <Column width={400} flexGrow={2}>
+                        <HeaderCell>Beschreibung</HeaderCell>
+                        <Cell dataKey="description" />
+                    </Column>
+
+                    <Column width={200} flexGrow={1}>
+                        <HeaderCell>Wahrscheinlichkeit</HeaderCell>
+                        <Cell dataKey="probability" />
+                    </Column>
+                </Table>
+            </div>
         </div>
     );
 

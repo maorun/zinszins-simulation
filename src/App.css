@@ -135,6 +135,38 @@ body {
   word-break: break-word !important;
 }
 
+/* Horizontal scrolling table container */
+.table-container {
+  overflow-x: auto;
+  border: 1px solid #e5e5e5;
+  border-radius: 6px;
+  background: #fff;
+  max-width: 100%;
+}
+
+.table-container .rs-table {
+  min-width: 300px;
+  border: none !important;
+}
+
+/* Mobile table scroll hint */
+@media (max-width: 767px) {
+  .table-container::after {
+    content: "← Wischen für mehr →";
+    display: block;
+    text-align: center;
+    font-size: 0.75rem;
+    color: #666;
+    padding: 0.5rem;
+    background: #f8f9fa;
+    border-top: 1px solid #e5e5e5;
+  }
+  
+  .table-container .rs-table {
+    min-width: 400px; /* Ensure table is wider than screen on mobile */
+  }
+}
+
 /* Mobile/Desktop visibility classes */
 .mobile-only {
   display: block !important;
@@ -382,6 +414,172 @@ footer {
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
   }
+}
+
+/* Mobile Year Simulation Panels */
+.mobile-year-panel .rs-panel-header {
+  background: linear-gradient(135deg, #f8f9fa, #e9ecef) !important;
+  border-bottom: 2px solid #1976d2 !important;
+  font-weight: 600 !important;
+  color: #1976d2 !important;
+  padding: 0.75rem 1rem !important;
+}
+
+.mobile-year-summary {
+  padding: 0.5rem 0;
+}
+
+.year-summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.year-summary-item {
+  display: flex;
+  flex-direction: column;
+  text-align: center;
+  padding: 0.75rem 0.5rem;
+  background: #fff;
+  border-radius: 8px;
+  border: 1px solid #ddd;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.year-summary-item.highlight {
+  background: linear-gradient(135deg, #1976d2, #1565c0);
+  color: white;
+  border-color: #1976d2;
+}
+
+.year-summary-item .summary-label {
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
+  opacity: 0.8;
+  font-weight: 500;
+}
+
+.year-summary-item.highlight .summary-label {
+  opacity: 0.9;
+}
+
+.year-summary-item .summary-value {
+  font-weight: 600;
+  font-size: 0.9rem;
+}
+
+.sparplan-details-panel {
+  margin-top: 1rem;
+}
+
+.sparplan-details-panel .rs-panel-header {
+  background: #f0f8ff !important;
+  color: #1976d2 !important;
+  font-size: 0.9rem !important;
+  padding: 0.5rem 1rem !important;
+}
+
+.mobile-sparplan-item {
+  padding: 0.75rem;
+  margin: 0.5rem 0;
+  background: #fafafa;
+  border: 1px solid #e6e6e6;
+  border-radius: 6px;
+}
+
+.sparplan-title {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.sparplan-values {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.85rem;
+}
+
+.sparplan-values span {
+  display: flex;
+  justify-content: space-between;
+  padding: 0.25rem 0;
+}
+
+.vorab-details {
+  margin-top: 0.5rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #e0e0e0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.vorab-details span {
+  display: flex;
+  justify-content: space-between;
+}
+
+/* Monte Carlo Mobile Cards */
+.monte-carlo-mobile {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.monte-carlo-card {
+  border: 1px solid #e6e6e6;
+  border-radius: 8px;
+  padding: 1rem;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.monte-carlo-card.success-row {
+  border-left: 4px solid #28a745;
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+}
+
+.monte-carlo-card.danger-row {
+  border-left: 4px solid #dc3545;
+  background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+}
+
+.monte-carlo-card.info-row {
+  border-left: 4px solid #17a2b8;
+  background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+}
+
+.monte-carlo-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.scenario-name {
+  font-weight: 600;
+  font-size: 1rem;
+  color: #333;
+}
+
+.probability {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: #1976d2;
+  background: rgba(25, 118, 210, 0.1);
+  padding: 0.25rem 0.5rem;
+  border-radius: 12px;
+}
+
+.scenario-description {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.4;
 }
 
 /* Large Desktop: 1440px and up */

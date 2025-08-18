@@ -376,57 +376,59 @@ export default function HomePage() {
                                     </FlexboxGrid.Item>
                                 </FlexboxGrid>
                             </div>
-                            <Table
-                                height={200}
-                                data={Object.entries(freibetragPerYear).map(([year, amount]) => ({ year: Number(year), amount }))}
-                            >
-                                <Table.Column width={100} align="center">
-                                    <Table.HeaderCell>Jahr</Table.HeaderCell>
-                                    <Table.Cell dataKey="year" />
-                                </Table.Column>
-                                <Table.Column width={120} align="center">
-                                    <Table.HeaderCell>Freibetrag (€)</Table.HeaderCell>
-                                    <Table.Cell>
-                                        {(rowData: any) => (
-                                            <InputNumber
-                                                value={freibetragPerYear[rowData.year]}
-                                                min={0}
-                                                max={10000}
-                                                step={50}
-                                                onChange={(value) => {
-                                                    if (value !== null && value !== undefined) {
-                                                        setFreibetragPerYear(prev => ({
-                                                            ...prev,
-                                                            [rowData.year]: value
-                                                        }));
+                            <div className="table-container">
+                                <Table
+                                    height={200}
+                                    data={Object.entries(freibetragPerYear).map(([year, amount]) => ({ year: Number(year), amount }))}
+                                >
+                                    <Table.Column width={100} align="center">
+                                        <Table.HeaderCell>Jahr</Table.HeaderCell>
+                                        <Table.Cell dataKey="year" />
+                                    </Table.Column>
+                                    <Table.Column width={120} align="center">
+                                        <Table.HeaderCell>Freibetrag (€)</Table.HeaderCell>
+                                        <Table.Cell>
+                                            {(rowData: any) => (
+                                                <InputNumber
+                                                    value={freibetragPerYear[rowData.year]}
+                                                    min={0}
+                                                    max={10000}
+                                                    step={50}
+                                                    onChange={(value) => {
+                                                        if (value !== null && value !== undefined) {
+                                                            setFreibetragPerYear(prev => ({
+                                                                ...prev,
+                                                                [rowData.year]: value
+                                                            }));
+                                                            performSimulation();
+                                                        }
+                                                    }}
+                                                />
+                                            )}
+                                        </Table.Cell>
+                                    </Table.Column>
+                                    <Table.Column width={80} align="center">
+                                        <Table.HeaderCell>Aktionen</Table.HeaderCell>
+                                        <Table.Cell>
+                                            {(rowData: any) => (
+                                                <IconButton
+                                                    size="sm"
+                                                    color="red"
+                                                    appearance="ghost"
+                                                    onClick={() => {
+                                                        const newFreibetrag = { ...freibetragPerYear };
+                                                        delete newFreibetrag[rowData.year];
+                                                        setFreibetragPerYear(newFreibetrag);
                                                         performSimulation();
-                                                    }
-                                                }}
-                                            />
-                                        )}
-                                    </Table.Cell>
-                                </Table.Column>
-                                <Table.Column width={80} align="center">
-                                    <Table.HeaderCell>Aktionen</Table.HeaderCell>
-                                    <Table.Cell>
-                                        {(rowData: any) => (
-                                            <IconButton
-                                                size="sm"
-                                                color="red"
-                                                appearance="ghost"
-                                                onClick={() => {
-                                                    const newFreibetrag = { ...freibetragPerYear };
-                                                    delete newFreibetrag[rowData.year];
-                                                    setFreibetragPerYear(newFreibetrag);
-                                                    performSimulation();
-                                                }}
-                                            >
-                                                Löschen
-                                            </IconButton>
-                                        )}
-                                    </Table.Cell>
-                                </Table.Column>
-                            </Table>
+                                                    }}
+                                                >
+                                                    Löschen
+                                                </IconButton>
+                                            )}
+                                        </Table.Cell>
+                                    </Table.Column>
+                                </Table>
+                            </div>
                         </Form.Group>
                     </Panel>
                     
@@ -500,7 +502,87 @@ export default function HomePage() {
                     </Panel>
 
                     <Panel header="📋 Detaillierte Simulation" bordered collapsible defaultExpanded>
-                        <div>
+                        {/* Mobile Optimized View */}
+                        <div className="mobile-only">
+                            <div style={{ marginBottom: '1rem', fontSize: '0.9rem', color: '#666' }}>
+                                💡 Tipp: Tippen Sie auf ein Jahr für Details
+                            </div>
+                            {data
+                                .sort((a, b) => b - a)
+                                .map((year, yearIndex) => {
+                                    const yearData = simulationData?.sparplanElements
+                                        .map((value: any) => value.simulation?.[Number(year)])
+                                        .filter(Boolean)
+                                        .flat();
+                                    
+                                    if (!yearData || yearData.length === 0) return null;
+                                    
+                                    // Calculate year totals
+                                    const totalStartkapital = yearData.reduce((sum, item) => sum + Number(item?.startkapital || 0), 0);
+                                    const totalZinsen = yearData.reduce((sum, item) => sum + Number(item?.zinsen || 0), 0);
+                                    const totalEndkapital = yearData.reduce((sum, item) => sum + Number(item?.endkapital || 0), 0);
+                                    const totalSteuer = yearData.reduce((sum, item) => sum + Number(item?.bezahlteSteuer || 0), 0);
+                                    
+                                    return (
+                                        <Panel 
+                                            key={year + '' + yearIndex} 
+                                            header={`📅 Jahr ${year} - ${totalEndkapital.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €`}
+                                            bordered 
+                                            collapsible 
+                                            defaultExpanded={false}
+                                            className="mobile-year-panel"
+                                        >
+                                            <div className="mobile-year-summary">
+                                                <div className="year-summary-grid">
+                                                    <div className="year-summary-item">
+                                                        <span className="summary-label">💰 Startkapital</span>
+                                                        <span className="summary-value">{totalStartkapital.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                    </div>
+                                                    <div className="year-summary-item">
+                                                        <span className="summary-label">📈 Zinsen</span>
+                                                        <span className="summary-value">{totalZinsen.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                    </div>
+                                                    <div className="year-summary-item">
+                                                        <span className="summary-label">💸 Steuern</span>
+                                                        <span className="summary-value">{totalSteuer.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                    </div>
+                                                    <div className="year-summary-item highlight">
+                                                        <span className="summary-label">🎯 Endkapital</span>
+                                                        <span className="summary-value">{totalEndkapital.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                    </div>
+                                                </div>
+                                                
+                                                {yearData.length > 1 && (
+                                                    <Panel header={`📊 Details (${yearData.length} Sparpläne)`} bordered collapsible defaultExpanded={false} className="sparplan-details-panel">
+                                                        {yearData.map((value: any, index: number) => {
+                                                            if (!value) return null;
+                                                            return (
+                                                                <div key={index} className="mobile-sparplan-item">
+                                                                    <div className="sparplan-title">💰 Sparplan #{index + 1}</div>
+                                                                    <div className="sparplan-values">
+                                                                        <span>Start: {Number(value.startkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                                        <span>Zinsen: {Number(value.zinsen).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                                        <span>Ende: {Number(value.endkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                                    </div>
+                                                                    {value.vorabpauschaleDetails && (
+                                                                        <div className="vorab-details">
+                                                                            <span>Basiszins: {(value.vorabpauschaleDetails.basiszins * 100).toFixed(2)}%</span>
+                                                                            <span>Vorabpauschale: {Number(value.vorabpauschaleDetails.vorabpauschaleAmount).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                                        </div>
+                                                                    )}
+                                                                </div>
+                                                            );
+                                                        })}
+                                                    </Panel>
+                                                )}
+                                            </div>
+                                        </Panel>
+                                    );
+                                })}
+                        </div>
+
+                        {/* Desktop View - Original */}
+                        <div className="desktop-only">
                             {data
                                 .sort((a, b) => b - a)
                                 .map((year, index) => {

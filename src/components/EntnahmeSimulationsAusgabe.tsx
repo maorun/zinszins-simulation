@@ -477,87 +477,89 @@ export function EntnahmeSimulationsAusgabe({
                             }</p>
                         </div>
                         
-                        <Table
-                            autoHeight
-                            data={withdrawalData.withdrawalArray}
-                            bordered
-                            rowHeight={60}
-                        >
-                            <Column width={100}>
-                                <HeaderCell>Jahr</HeaderCell>
-                                <Cell dataKey="year" />
-                            </Column>
-                            <Column width={120}>
-                                <HeaderCell>Startkapital</HeaderCell>
-                                <Cell>
-                                    {rowData => formatCurrency(rowData.startkapital)}
-                                </Cell>
-                            </Column>
-                            <Column width={120}>
-                                <HeaderCell>Entnahme</HeaderCell>
-                                <Cell>
-                                    {rowData => formatCurrency(rowData.entnahme)}
-                                </Cell>
-                            </Column>
-                            {formValue.strategie === "monatlich_fest" && (
+                        <div className="table-container">
+                            <Table
+                                autoHeight
+                                data={withdrawalData.withdrawalArray}
+                                bordered
+                                rowHeight={60}
+                            >
+                                <Column width={100}>
+                                    <HeaderCell>Jahr</HeaderCell>
+                                    <Cell dataKey="year" />
+                                </Column>
                                 <Column width={120}>
-                                    <HeaderCell>Monatlich</HeaderCell>
+                                    <HeaderCell>Startkapital</HeaderCell>
                                     <Cell>
-                                        {rowData => rowData.monatlicheEntnahme ? formatCurrency(rowData.monatlicheEntnahme) : '-'}
+                                        {rowData => formatCurrency(rowData.startkapital)}
                                     </Cell>
                                 </Column>
-                            )}
-                            {formValue.inflationAktiv && (
                                 <Column width={120}>
-                                    <HeaderCell>Inflation</HeaderCell>
+                                    <HeaderCell>Entnahme</HeaderCell>
                                     <Cell>
-                                        {rowData => rowData.inflationAnpassung !== undefined ? formatCurrency(rowData.inflationAnpassung) : '-'}
+                                        {rowData => formatCurrency(rowData.entnahme)}
                                     </Cell>
                                 </Column>
-                            )}
-                            {formValue.strategie === "monatlich_fest" && formValue.guardrailsAktiv && (
+                                {formValue.strategie === "monatlich_fest" && (
+                                    <Column width={120}>
+                                        <HeaderCell>Monatlich</HeaderCell>
+                                        <Cell>
+                                            {rowData => rowData.monatlicheEntnahme ? formatCurrency(rowData.monatlicheEntnahme) : '-'}
+                                        </Cell>
+                                    </Column>
+                                )}
+                                {formValue.inflationAktiv && (
+                                    <Column width={120}>
+                                        <HeaderCell>Inflation</HeaderCell>
+                                        <Cell>
+                                            {rowData => rowData.inflationAnpassung !== undefined ? formatCurrency(rowData.inflationAnpassung) : '-'}
+                                        </Cell>
+                                    </Column>
+                                )}
+                                {formValue.strategie === "monatlich_fest" && formValue.guardrailsAktiv && (
+                                    <Column width={120}>
+                                        <HeaderCell>Guardrails</HeaderCell>
+                                        <Cell>
+                                            {rowData => rowData.portfolioAnpassung !== undefined ? formatCurrency(rowData.portfolioAnpassung) : '-'}
+                                        </Cell>
+                                    </Column>
+                                )}
+                                <Column width={100}>
+                                    <HeaderCell>Zinsen</HeaderCell>
+                                    <Cell>
+                                        {rowData => formatCurrency(rowData.zinsen)}
+                                    </Cell>
+                                </Column>
                                 <Column width={120}>
-                                    <HeaderCell>Guardrails</HeaderCell>
+                                    <HeaderCell>bezahlte Steuer</HeaderCell>
                                     <Cell>
-                                        {rowData => rowData.portfolioAnpassung !== undefined ? formatCurrency(rowData.portfolioAnpassung) : '-'}
+                                        {rowData => formatCurrency(rowData.bezahlteSteuer)}
                                     </Cell>
                                 </Column>
-                            )}
-                            <Column width={100}>
-                                <HeaderCell>Zinsen</HeaderCell>
-                                <Cell>
-                                    {rowData => formatCurrency(rowData.zinsen)}
-                                </Cell>
-                            </Column>
-                            <Column width={120}>
-                                <HeaderCell>bezahlte Steuer</HeaderCell>
-                                <Cell>
-                                    {rowData => formatCurrency(rowData.bezahlteSteuer)}
-                                </Cell>
-                            </Column>
-                            {formValue.grundfreibetragAktiv && (
+                                {formValue.grundfreibetragAktiv && (
+                                    <Column width={120}>
+                                        <HeaderCell>Einkommensteuer</HeaderCell>
+                                        <Cell>
+                                            {rowData => rowData.einkommensteuer !== undefined ? formatCurrency(rowData.einkommensteuer) : '-'}
+                                        </Cell>
+                                    </Column>
+                                )}
+                                {formValue.grundfreibetragAktiv && (
+                                    <Column width={140}>
+                                        <HeaderCell>Grundfreibetrag genutzt</HeaderCell>
+                                        <Cell>
+                                            {rowData => rowData.genutzterGrundfreibetrag !== undefined ? formatCurrency(rowData.genutzterGrundfreibetrag) : '-'}
+                                        </Cell>
+                                    </Column>
+                                )}
                                 <Column width={120}>
-                                    <HeaderCell>Einkommensteuer</HeaderCell>
+                                    <HeaderCell>Endkapital</HeaderCell>
                                     <Cell>
-                                        {rowData => rowData.einkommensteuer !== undefined ? formatCurrency(rowData.einkommensteuer) : '-'}
+                                        {rowData => formatCurrency(rowData.endkapital)}
                                     </Cell>
                                 </Column>
-                            )}
-                            {formValue.grundfreibetragAktiv && (
-                                <Column width={140}>
-                                    <HeaderCell>Grundfreibetrag genutzt</HeaderCell>
-                                    <Cell>
-                                        {rowData => rowData.genutzterGrundfreibetrag !== undefined ? formatCurrency(rowData.genutzterGrundfreibetrag) : '-'}
-                                    </Cell>
-                                </Column>
-                            )}
-                            <Column width={120}>
-                                <HeaderCell>Endkapital</HeaderCell>
-                                <Cell>
-                                    {rowData => formatCurrency(rowData.endkapital)}
-                                </Cell>
-                            </Column>
-                        </Table>
+                            </Table>
+                        </div>
                     </div>
                 ) : (
                     <div>
