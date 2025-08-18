@@ -603,16 +603,25 @@ export default function HomePage() {
                         </div>
                     </Panel>
 
-                    {returnMode === 'random' && (
-                        <Panel header="Simulation" collapsible bordered>
+                    <Panel header="📋 Detaillierte Simulation" collapsible bordered defaultExpanded>
                             <Table data={data.map(year => {
                                 const yearData = simulationData.sparplanElements.flatMap((element: any) => 
                                     element.simulation[year] ? [element.simulation[year]] : []
                                 )[0];
                                 
+                                // Calculate return rate from the data or use the configured rate
+                                let returnRate = 0;
+                                if (returnMode === 'fixed') {
+                                    returnRate = rendite; // Use the fixed return rate setting
+                                } else if (yearData && yearData.startkapital > 0 && yearData.endkapital > 0) {
+                                    // Calculate from actual growth
+                                    returnRate = ((yearData.endkapital / yearData.startkapital) - 1) * 100;
+                                }
+                                
                                 return yearData ? {
                                     year,
-                                    ...yearData
+                                    ...yearData,
+                                    rendite: returnRate / 100 // Convert to decimal for display
                                 } : null;
                             }).filter(Boolean)} autoHeight>
                                 <Table.Column width={70} align="center" fixed>
@@ -656,7 +665,6 @@ export default function HomePage() {
                                 </Table.Column>
                             </Table>
                         </Panel>
-                    )}
                 </>
             )}
 
