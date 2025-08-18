@@ -47,12 +47,11 @@ import {
     Form,
     InputNumber,
     Panel,
-    Table,
     Message,
     useToaster
 } from "rsuite";
 
-const { Column, HeaderCell, Cell } = Table;
+
 
 
 
@@ -350,34 +349,5 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
     );
 }
 
-function ChangeDateCell({
-    rowData,
-    dataKey,
-    onChange,
-    ...props
-}: {
-    rowData?: { id: any, [key: string]: Date | null }
-    dataKey: string;
-    onChange?: (id: any, val: Date | null) => void;
-}) {
-    const [isFocused, setIsFocused] = useState(false)
 
-    return <Cell {...props} onClick={() => setIsFocused(true)}>
-        {isFocused ?
-            <DatePicker
-                defaultOpen
-                format="yyyy-MM"
-                defaultValue={rowData?.[dataKey]}
-                onChange={(val) => {
-                    if (rowData) {
-                        rowData[dataKey] = val
-                    }
-                    onChange && onChange(rowData?.id, val)
-                }}
-                onClose={() => setIsFocused(false)}
-            />
-            :
-            rowData?.[dataKey]?.toLocaleDateString()}
-    </Cell>;
-}
 
