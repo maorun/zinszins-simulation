@@ -1,6 +1,6 @@
 import { zinszinsVorabpauschale, getBasiszinsForYear } from "./steuer";
 
-export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest";
+export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent";
 
 export type WithdrawalResultElement = {
     startkapital: number;
