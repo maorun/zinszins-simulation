@@ -41,73 +41,144 @@ export function SparplanSimulationsAusgabe({
     elemente?: SparplanElement[]
 }) {
     const summary: Summary = fullSummary(elemente)
+    const tableData = elemente?.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime()
+    ).map((el) => ({
+        ...el,
+        zeitpunkt: new Date(el.start).toLocaleDateString('de-DE'),
+        zinsen: getSparplanSummary(el.simulation).zinsen.toFixed(2),
+        bezahlteSteuer: getSparplanSummary(
+            el.simulation
+        ).bezahlteSteuer.toFixed(2),
+        endkapital: getSparplanSummary(el.simulation).endkapital?.toFixed(2),
+    }));
+
     return (
         <Panel header="📈 Sparplan-Verlauf" bordered>
             <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
                 Detaillierte Aufschlüsselung Ihrer Sparpläne nach Jahren
             </div>
-            <Table
-                data={elemente?.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime()
-                ).map((el) => ({
-                    ...el,
-                    zeitpunkt: new Date(el.start).toLocaleDateString('de-DE'),
-                    zinsen: getSparplanSummary(el.simulation).zinsen.toFixed(2),
-                    bezahlteSteuer: getSparplanSummary(
-                        el.simulation
-                    ).bezahlteSteuer.toFixed(2),
-                    endkapital: getSparplanSummary(el.simulation).endkapital?.toFixed(2),
-                }))}
-                bordered
-                headerHeight={70}
-                style={{ fontSize: '0.9rem' }}
-            >
-                <Column width={120}>
-                    <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa', textAlign: 'center' }}>
-                        📅 Jahr
-                    </HeaderCell>
-                    <Cell dataKey="zeitpunkt" style={{ textAlign: 'center', fontWeight: 500 }} />
-                </Column>
-
-                <Column flexGrow={1}>
-                    <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                        <HeaderSummary
-                            title="💰 Einzahlung"
-                            summary={summary.startkapital?.toFixed(2).toString() || ""}
-                        />
-                    </HeaderCell>
-                    <EnhancedNumberCell dataKey="einzahlung" color="#28a745" />
-                </Column>
-
-                <Column flexGrow={1}>
-                    <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                        <HeaderSummary
-                            title="💸 Bezahlte Steuer"
-                            summary={summary.bezahlteSteuer?.toFixed(2).toString() || ""}
-                        />
-                    </HeaderCell>
-                    <EnhancedNumberCell dataKey="bezahlteSteuer" color="#dc3545" />
-                </Column>
+            
+            {/* Card Layout for All Devices */}
+            <div className="sparplan-cards">
+                {tableData?.map((el, index) => (
+                    <div key={index} className="sparplan-card">
+                        <div className="sparplan-card-header">
+                            <span className="sparplan-year">📅 {el.zeitpunkt}</span>
+                            <span className="sparplan-endkapital">
+                                🎯 {thousands(el.endkapital)} €
+                            </span>
+                        </div>
+                        <div className="sparplan-card-details">
+                            <div className="sparplan-detail">
+                                <span className="detail-label">💰 Einzahlung:</span>
+                                <span className="detail-value" style={{ color: '#28a745' }}>
+                                    {thousands(el.einzahlung)} €
+                                </span>
+                            </div>
+                            <div className="sparplan-detail">
+                                <span className="detail-label">📈 Zinsen:</span>
+                                <span className="detail-value" style={{ color: '#17a2b8' }}>
+                                    {thousands(el.zinsen)} €
+                                </span>
+                            </div>
+                            <div className="sparplan-detail">
+                                <span className="detail-label">💸 Bezahlte Steuer:</span>
+                                <span className="detail-value" style={{ color: '#dc3545' }}>
+                                    {thousands(el.bezahlteSteuer)} €
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                ))}
                 
-                <Column flexGrow={1}>
-                    <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                        <HeaderSummary
-                            title="📈 Zinsen"
-                            summary={summary.zinsen?.toFixed(2).toString() || ""}
-                        />
-                    </HeaderCell>
-                    <EnhancedNumberCell dataKey="zinsen" color="#17a2b8" />
-                </Column>
-                
-                <Column flexGrow={1}>
-                    <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                        <HeaderSummary
-                            title="🎯 Endkapital"
-                            summary={summary.endkapital?.toFixed(2).toString() || ""}
-                        />
-                    </HeaderCell>
-                    <EnhancedNumberCell dataKey="endkapital" color="#2eabdf" bold />
-                </Column>
-            </Table>
+                {/* Summary Card */}
+                <div className="sparplan-summary-card">
+                    <div className="summary-title">📊 Gesamtübersicht</div>
+                    <div className="summary-grid">
+                        <div className="summary-item">
+                            <span className="summary-label">💰 Einzahlungen</span>
+                            <span className="summary-value">
+                                {thousands(summary.startkapital?.toFixed(2) || "0")} €
+                            </span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="summary-label">📈 Zinsen</span>
+                            <span className="summary-value">
+                                {thousands(summary.zinsen?.toFixed(2) || "0")} €
+                            </span>
+                        </div>
+                        <div className="summary-item">
+                            <span className="summary-label">💸 Steuern</span>
+                            <span className="summary-value">
+                                {thousands(summary.bezahlteSteuer?.toFixed(2) || "0")} €
+                            </span>
+                        </div>
+                        <div className="summary-item highlight">
+                            <span className="summary-label">🎯 Endkapital</span>
+                            <span className="summary-value">
+                                {thousands(summary.endkapital?.toFixed(2) || "0")} €
+                            </span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {/* Hidden Desktop Table Layout */}
+            <div style={{ display: 'none' }}>
+                <Table
+                    data={tableData}
+                    bordered
+                    headerHeight={70}
+                    style={{ fontSize: '0.9rem' }}
+                >
+                    <Column width={120}>
+                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa', textAlign: 'center' }}>
+                            📅 Jahr
+                        </HeaderCell>
+                        <Cell dataKey="zeitpunkt" style={{ textAlign: 'center', fontWeight: 500 }} />
+                    </Column>
+
+                    <Column flexGrow={1}>
+                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
+                            <HeaderSummary
+                                title="💰 Einzahlung"
+                                summary={summary.startkapital?.toFixed(2).toString() || ""}
+                            />
+                        </HeaderCell>
+                        <EnhancedNumberCell dataKey="einzahlung" color="#28a745" />
+                    </Column>
+
+                    <Column flexGrow={1}>
+                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
+                            <HeaderSummary
+                                title="💸 Bezahlte Steuer"
+                                summary={summary.bezahlteSteuer?.toFixed(2).toString() || ""}
+                            />
+                        </HeaderCell>
+                        <EnhancedNumberCell dataKey="bezahlteSteuer" color="#dc3545" />
+                    </Column>
+                    
+                    <Column flexGrow={1}>
+                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
+                            <HeaderSummary
+                                title="📈 Zinsen"
+                                summary={summary.zinsen?.toFixed(2).toString() || ""}
+                            />
+                        </HeaderCell>
+                        <EnhancedNumberCell dataKey="zinsen" color="#17a2b8" />
+                    </Column>
+                    
+                    <Column flexGrow={1}>
+                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
+                            <HeaderSummary
+                                title="🎯 Endkapital"
+                                summary={summary.endkapital?.toFixed(2).toString() || ""}
+                            />
+                        </HeaderCell>
+                        <EnhancedNumberCell dataKey="endkapital" color="#2eabdf" bold />
+                    </Column>
+                </Table>
+            </div>
         </Panel>
     );
 }

@@ -477,87 +477,174 @@ export function EntnahmeSimulationsAusgabe({
                             }</p>
                         </div>
                         
-                        <Table
-                            autoHeight
-                            data={withdrawalData.withdrawalArray}
-                            bordered
-                            rowHeight={60}
-                        >
-                            <Column width={100}>
-                                <HeaderCell>Jahr</HeaderCell>
-                                <Cell dataKey="year" />
-                            </Column>
-                            <Column width={120}>
-                                <HeaderCell>Startkapital</HeaderCell>
-                                <Cell>
-                                    {rowData => formatCurrency(rowData.startkapital)}
-                                </Cell>
-                            </Column>
-                            <Column width={120}>
-                                <HeaderCell>Entnahme</HeaderCell>
-                                <Cell>
-                                    {rowData => formatCurrency(rowData.entnahme)}
-                                </Cell>
-                            </Column>
-                            {formValue.strategie === "monatlich_fest" && (
-                                <Column width={120}>
-                                    <HeaderCell>Monatlich</HeaderCell>
-                                    <Cell>
-                                        {rowData => rowData.monatlicheEntnahme ? formatCurrency(rowData.monatlicheEntnahme) : '-'}
-                                    </Cell>
-                                </Column>
-                            )}
-                            {formValue.inflationAktiv && (
-                                <Column width={120}>
-                                    <HeaderCell>Inflation</HeaderCell>
-                                    <Cell>
-                                        {rowData => rowData.inflationAnpassung !== undefined ? formatCurrency(rowData.inflationAnpassung) : '-'}
-                                    </Cell>
-                                </Column>
-                            )}
-                            {formValue.strategie === "monatlich_fest" && formValue.guardrailsAktiv && (
-                                <Column width={120}>
-                                    <HeaderCell>Guardrails</HeaderCell>
-                                    <Cell>
-                                        {rowData => rowData.portfolioAnpassung !== undefined ? formatCurrency(rowData.portfolioAnpassung) : '-'}
-                                    </Cell>
-                                </Column>
-                            )}
-                            <Column width={100}>
-                                <HeaderCell>Zinsen</HeaderCell>
-                                <Cell>
-                                    {rowData => formatCurrency(rowData.zinsen)}
-                                </Cell>
-                            </Column>
-                            <Column width={120}>
-                                <HeaderCell>bezahlte Steuer</HeaderCell>
-                                <Cell>
-                                    {rowData => formatCurrency(rowData.bezahlteSteuer)}
-                                </Cell>
-                            </Column>
-                            {formValue.grundfreibetragAktiv && (
-                                <Column width={120}>
-                                    <HeaderCell>Einkommensteuer</HeaderCell>
-                                    <Cell>
-                                        {rowData => rowData.einkommensteuer !== undefined ? formatCurrency(rowData.einkommensteuer) : '-'}
-                                    </Cell>
-                                </Column>
-                            )}
-                            {formValue.grundfreibetragAktiv && (
-                                <Column width={140}>
-                                    <HeaderCell>Grundfreibetrag genutzt</HeaderCell>
-                                    <Cell>
-                                        {rowData => rowData.genutzterGrundfreibetrag !== undefined ? formatCurrency(rowData.genutzterGrundfreibetrag) : '-'}
-                                    </Cell>
-                                </Column>
-                            )}
-                            <Column width={120}>
-                                <HeaderCell>Endkapital</HeaderCell>
-                                <Cell>
-                                    {rowData => formatCurrency(rowData.endkapital)}
-                                </Cell>
-                            </Column>
-                        </Table>
+                        {/* Card Layout for All Devices */}
+                        <div>
+                            <div className="sparplan-cards">
+                                {withdrawalData.withdrawalArray.map((rowData, index) => (
+                                    <div key={index} className="sparplan-card">
+                                        <div className="sparplan-card-header">
+                                            <span className="sparplan-year">📅 {rowData.year}</span>
+                                            <span className="sparplan-endkapital">
+                                                🎯 {formatCurrency(rowData.endkapital)}
+                                            </span>
+                                        </div>
+                                        <div className="sparplan-card-details">
+                                            <div className="sparplan-detail">
+                                                <span className="detail-label">💰 Startkapital:</span>
+                                                <span className="detail-value" style={{ color: '#28a745' }}>
+                                                    {formatCurrency(rowData.startkapital)}
+                                                </span>
+                                            </div>
+                                            <div className="sparplan-detail">
+                                                <span className="detail-label">💸 Entnahme:</span>
+                                                <span className="detail-value" style={{ color: '#dc3545' }}>
+                                                    {formatCurrency(rowData.entnahme)}
+                                                </span>
+                                            </div>
+                                            {formValue.strategie === "monatlich_fest" && rowData.monatlicheEntnahme && (
+                                                <div className="sparplan-detail">
+                                                    <span className="detail-label">📅 Monatlich:</span>
+                                                    <span className="detail-value" style={{ color: '#6f42c1' }}>
+                                                        {formatCurrency(rowData.monatlicheEntnahme)}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {formValue.inflationAktiv && rowData.inflationAnpassung !== undefined && (
+                                                <div className="sparplan-detail">
+                                                    <span className="detail-label">📈 Inflation:</span>
+                                                    <span className="detail-value" style={{ color: '#fd7e14' }}>
+                                                        {formatCurrency(rowData.inflationAnpassung)}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {formValue.strategie === "monatlich_fest" && formValue.guardrailsAktiv && rowData.portfolioAnpassung !== undefined && (
+                                                <div className="sparplan-detail">
+                                                    <span className="detail-label">🛡️ Guardrails:</span>
+                                                    <span className="detail-value" style={{ color: '#20c997' }}>
+                                                        {formatCurrency(rowData.portfolioAnpassung)}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            <div className="sparplan-detail">
+                                                <span className="detail-label">📈 Zinsen:</span>
+                                                <span className="detail-value" style={{ color: '#17a2b8' }}>
+                                                    {formatCurrency(rowData.zinsen)}
+                                                </span>
+                                            </div>
+                                            <div className="sparplan-detail">
+                                                <span className="detail-label">💳 Bezahlte Steuer:</span>
+                                                <span className="detail-value" style={{ color: '#dc3545' }}>
+                                                    {formatCurrency(rowData.bezahlteSteuer)}
+                                                </span>
+                                            </div>
+                                            {formValue.grundfreibetragAktiv && rowData.einkommensteuer !== undefined && (
+                                                <div className="sparplan-detail">
+                                                    <span className="detail-label">🏛️ Einkommensteuer:</span>
+                                                    <span className="detail-value" style={{ color: '#e83e8c' }}>
+                                                        {formatCurrency(rowData.einkommensteuer)}
+                                                    </span>
+                                                </div>
+                                            )}
+                                            {formValue.grundfreibetragAktiv && rowData.genutzterGrundfreibetrag !== undefined && (
+                                                <div className="sparplan-detail">
+                                                    <span className="detail-label">🆓 Grundfreibetrag:</span>
+                                                    <span className="detail-value" style={{ color: '#28a745' }}>
+                                                        {formatCurrency(rowData.genutzterGrundfreibetrag)}
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Hidden Desktop Table Layout */}
+                        <div style={{ display: 'none' }}>
+                            <div className="table-container">
+                                <Table
+                                    autoHeight
+                                    data={withdrawalData.withdrawalArray}
+                                    bordered
+                                    rowHeight={60}
+                                >
+                                    <Column width={100}>
+                                        <HeaderCell>Jahr</HeaderCell>
+                                        <Cell dataKey="year" />
+                                    </Column>
+                                    <Column width={120}>
+                                        <HeaderCell>Startkapital</HeaderCell>
+                                        <Cell>
+                                            {rowData => formatCurrency(rowData.startkapital)}
+                                        </Cell>
+                                    </Column>
+                                    <Column width={120}>
+                                        <HeaderCell>Entnahme</HeaderCell>
+                                        <Cell>
+                                            {rowData => formatCurrency(rowData.entnahme)}
+                                        </Cell>
+                                    </Column>
+                                    {formValue.strategie === "monatlich_fest" && (
+                                        <Column width={120}>
+                                            <HeaderCell>Monatlich</HeaderCell>
+                                            <Cell>
+                                                {rowData => rowData.monatlicheEntnahme ? formatCurrency(rowData.monatlicheEntnahme) : '-'}
+                                            </Cell>
+                                        </Column>
+                                    )}
+                                    {formValue.inflationAktiv && (
+                                        <Column width={120}>
+                                            <HeaderCell>Inflation</HeaderCell>
+                                            <Cell>
+                                                {rowData => rowData.inflationAnpassung !== undefined ? formatCurrency(rowData.inflationAnpassung) : '-'}
+                                            </Cell>
+                                        </Column>
+                                    )}
+                                    {formValue.strategie === "monatlich_fest" && formValue.guardrailsAktiv && (
+                                        <Column width={120}>
+                                            <HeaderCell>Guardrails</HeaderCell>
+                                            <Cell>
+                                                {rowData => rowData.portfolioAnpassung !== undefined ? formatCurrency(rowData.portfolioAnpassung) : '-'}
+                                            </Cell>
+                                        </Column>
+                                    )}
+                                    <Column width={100}>
+                                        <HeaderCell>Zinsen</HeaderCell>
+                                        <Cell>
+                                            {rowData => formatCurrency(rowData.zinsen)}
+                                        </Cell>
+                                    </Column>
+                                    <Column width={120}>
+                                        <HeaderCell>bezahlte Steuer</HeaderCell>
+                                        <Cell>
+                                            {rowData => formatCurrency(rowData.bezahlteSteuer)}
+                                        </Cell>
+                                    </Column>
+                                    {formValue.grundfreibetragAktiv && (
+                                        <Column width={120}>
+                                            <HeaderCell>Einkommensteuer</HeaderCell>
+                                            <Cell>
+                                                {rowData => rowData.einkommensteuer !== undefined ? formatCurrency(rowData.einkommensteuer) : '-'}
+                                            </Cell>
+                                        </Column>
+                                    )}
+                                    {formValue.grundfreibetragAktiv && (
+                                        <Column width={140}>
+                                            <HeaderCell>Grundfreibetrag genutzt</HeaderCell>
+                                            <Cell>
+                                                {rowData => rowData.genutzterGrundfreibetrag !== undefined ? formatCurrency(rowData.genutzterGrundfreibetrag) : '-'}
+                                            </Cell>
+                                        </Column>
+                                    )}
+                                    <Column width={120}>
+                                        <HeaderCell>Endkapital</HeaderCell>
+                                        <Cell>
+                                            {rowData => formatCurrency(rowData.endkapital)}
+                                        </Cell>
+                                    </Column>
+                                </Table>
+                            </div>
+                        </div>
                     </div>
                 ) : (
                     <div>
