@@ -278,66 +278,132 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 <div style={{ padding: '1rem 1.5rem 0.5rem', color: '#666', fontSize: '0.9rem', borderBottom: '1px solid #f0f0f0' }}>
                     Ihre konfigurierten Sparpläne und Einmalzahlungen
                 </div>
-                <Table
-                    autoHeight
-                    data={sparplans}
-                    bordered
-                    rowHeight={60}
-                    style={{ fontSize: '0.9rem' }}
-                >
-                    <Column width={140}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>Start</HeaderCell>
-                        <ChangeDateCell onChange={(id, value) => {
-                            if (!value) {
-                                return
-                            }
-                            const changedSparplans = sparplans.map((el) => el.id === id ? { ...el, start: value } : el)
-                            setSparplans(changedSparplans)
-                            dispatch(changedSparplans)
-                        }} dataKey="start" />
-                    </Column>
-                    <Column width={140}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>Ende</HeaderCell>
-                        <ChangeDateCell onChange={(id, value) => {
-                            const changedSparplans = sparplans.map((el) => el.id === id ? { ...el, end: value } : el)
-                            setSparplans(changedSparplans)
-                            dispatch(changedSparplans)
-                        }} dataKey="end" />
-                    </Column>
-                    <Column width={180}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                            {simulationAnnual === SimulationAnnual.yearly ? 'Einzahlungen je Jahr' : 'Einzahlungen je Monat'}
-                        </HeaderCell>
-                        <Cell>
-                            {(rowData: Sparplan) => {
-                                const displayValue = simulationAnnual === SimulationAnnual.monthly 
-                                    ? (rowData.einzahlung / 12).toFixed(2)
-                                    : rowData.einzahlung.toFixed(2);
-                                return (
-                                    <span style={{ fontWeight: 500, color: '#2eabdf' }}>
-                                        {Number(displayValue).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                
+                {/* Mobile Card Layout */}
+                <div className="mobile-only" style={{ padding: '1rem' }}>
+                    <div className="sparplan-cards">
+                        {sparplans.map((sparplan) => (
+                            <div key={sparplan.id} className="sparplan-card">
+                                <div className="sparplan-card-header">
+                                    <span className="sparplan-year">
+                                        📅 {sparplan.start.toLocaleDateString('de-DE')}
                                     </span>
-                                );
-                            }}
-                        </Cell>
-                    </Column>
-                    <Column width={100}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>Aktionen</HeaderCell>
-                        <Cell>
-                            {(action: Sparplan) => (
-                                <Button
-                                    onClick={() => handleDeleteSparplan(action.id)}
-                                    color="red"
-                                    appearance="ghost"
-                                    size="sm"
-                                    title="Sparplan löschen"
-                                >
-                                    <CloseIcon />
-                                </Button>
-                            )}
-                        </Cell>
-                    </Column>
-                </Table>
+                                    <Button
+                                        onClick={() => handleDeleteSparplan(sparplan.id)}
+                                        color="red"
+                                        appearance="ghost"
+                                        size="sm"
+                                        title="Sparplan löschen"
+                                    >
+                                        <CloseIcon />
+                                    </Button>
+                                </div>
+                                <div className="sparplan-card-details">
+                                    <div className="sparplan-detail">
+                                        <span className="detail-label">📅 Start:</span>
+                                        <span className="detail-value" style={{ color: '#28a745' }}>
+                                            {sparplan.start.toLocaleDateString('de-DE')}
+                                        </span>
+                                    </div>
+                                    <div className="sparplan-detail">
+                                        <span className="detail-label">🏁 Ende:</span>
+                                        <span className="detail-value" style={{ color: '#17a2b8' }}>
+                                            {sparplan.end ? sparplan.end.toLocaleDateString('de-DE') : 'Unbegrenzt'}
+                                        </span>
+                                    </div>
+                                    <div className="sparplan-detail">
+                                        <span className="detail-label">
+                                            {simulationAnnual === SimulationAnnual.yearly ? '💰 Jährlich:' : '💰 Monatlich:'}
+                                        </span>
+                                        <span className="detail-value" style={{ color: '#2eabdf', fontWeight: 600 }}>
+                                            {(() => {
+                                                const displayValue = simulationAnnual === SimulationAnnual.monthly 
+                                                    ? (sparplan.einzahlung / 12).toFixed(2)
+                                                    : sparplan.einzahlung.toFixed(2);
+                                                return Number(displayValue).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+                                            })()}
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        ))}
+                        
+                        {sparplans.length === 0 && (
+                            <div style={{ 
+                                textAlign: 'center', 
+                                padding: '2rem', 
+                                color: '#666',
+                                fontStyle: 'italic'
+                            }}>
+                                Noch keine Sparpläne erstellt. Fügen Sie oben einen Sparplan hinzu.
+                            </div>
+                        )}
+                    </div>
+                </div>
+
+                {/* Desktop Table Layout */}
+                <div className="desktop-only">
+                    <Table
+                        autoHeight
+                        data={sparplans}
+                        bordered
+                        rowHeight={60}
+                        style={{ fontSize: '0.9rem' }}
+                    >
+                        <Column width={140}>
+                            <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>Start</HeaderCell>
+                            <ChangeDateCell onChange={(id, value) => {
+                                if (!value) {
+                                    return
+                                }
+                                const changedSparplans = sparplans.map((el) => el.id === id ? { ...el, start: value } : el)
+                                setSparplans(changedSparplans)
+                                dispatch(changedSparplans)
+                            }} dataKey="start" />
+                        </Column>
+                        <Column width={140}>
+                            <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>Ende</HeaderCell>
+                            <ChangeDateCell onChange={(id, value) => {
+                                const changedSparplans = sparplans.map((el) => el.id === id ? { ...el, end: value } : el)
+                                setSparplans(changedSparplans)
+                                dispatch(changedSparplans)
+                            }} dataKey="end" />
+                        </Column>
+                        <Column width={180}>
+                            <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
+                                {simulationAnnual === SimulationAnnual.yearly ? 'Einzahlungen je Jahr' : 'Einzahlungen je Monat'}
+                            </HeaderCell>
+                            <Cell>
+                                {(rowData: Sparplan) => {
+                                    const displayValue = simulationAnnual === SimulationAnnual.monthly 
+                                        ? (rowData.einzahlung / 12).toFixed(2)
+                                        : rowData.einzahlung.toFixed(2);
+                                    return (
+                                        <span style={{ fontWeight: 500, color: '#2eabdf' }}>
+                                            {Number(displayValue).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                        </span>
+                                    );
+                                }}
+                            </Cell>
+                        </Column>
+                        <Column width={100}>
+                            <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>Aktionen</HeaderCell>
+                            <Cell>
+                                {(action: Sparplan) => (
+                                    <Button
+                                        onClick={() => handleDeleteSparplan(action.id)}
+                                        color="red"
+                                        appearance="ghost"
+                                        size="sm"
+                                        title="Sparplan löschen"
+                                    >
+                                        <CloseIcon />
+                                    </Button>
+                                )}
+                            </Cell>
+                        </Column>
+                    </Table>
+                </div>
             </Panel>
         </div>
     );
