@@ -1,4 +1,3 @@
-import React from 'react';
 import { Panel, Table } from 'rsuite';
 import type { RandomReturnConfig } from '../utils/random-returns';
 
@@ -6,7 +5,8 @@ const { Column, HeaderCell, Cell } = Table;
 
 interface MonteCarloResultsProps {
     years: number[];
-    randomConfig: RandomReturnConfig;
+    accumulationConfig: RandomReturnConfig;
+    withdrawalConfig?: RandomReturnConfig;
     runs?: number;
 }
 
@@ -18,39 +18,43 @@ interface MonteCarloResult {
 
 export function MonteCarloResults({
     years: _years,
-    randomConfig,
+    accumulationConfig,
+    withdrawalConfig,
     runs: _runs = 500
 }: MonteCarloResultsProps) {
     const formatPercent = (value: number) => (value * 100).toFixed(1) + '%';
 
     // Create statistical scenarios based on normal distribution
-    const scenarios: MonteCarloResult[] = [
+    const createScenarios = (config: RandomReturnConfig): MonteCarloResult[] => [
         {
             scenario: 'Worst Case (5% Perzentil)',
-            description: `Bei sehr ungünstiger Marktentwicklung. Erwartete Rendite: ${formatPercent(randomConfig.averageReturn - 1.645 * (randomConfig.standardDeviation || 0.15))}`,
+            description: `Bei sehr ungünstiger Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn - 1.645 * (config.standardDeviation || 0.15))}`,
             probability: '5% Wahrscheinlichkeit, dass das Ergebnis schlechter ausfällt'
         },
         {
             scenario: 'Pessimistisches Szenario (25% Perzentil)',
-            description: `Bei unterdurchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(randomConfig.averageReturn - 0.674 * (randomConfig.standardDeviation || 0.15))}`,
+            description: `Bei unterdurchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn - 0.674 * (config.standardDeviation || 0.15))}`,
             probability: '25% Wahrscheinlichkeit, dass das Ergebnis schlechter ausfällt'
         },
         {
             scenario: 'Median-Szenario (50% Perzentil)',
-            description: `Bei durchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(randomConfig.averageReturn)}`,
+            description: `Bei durchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn)}`,
             probability: '50% Wahrscheinlichkeit für bessere/schlechtere Ergebnisse'
         },
         {
             scenario: 'Optimistisches Szenario (75% Perzentil)',
-            description: `Bei überdurchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(randomConfig.averageReturn + 0.674 * (randomConfig.standardDeviation || 0.15))}`,
+            description: `Bei überdurchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn + 0.674 * (config.standardDeviation || 0.15))}`,
             probability: '25% Wahrscheinlichkeit für bessere Ergebnisse'
         },
         {
             scenario: 'Best Case (95% Perzentil)',
-            description: `Bei sehr günstiger Marktentwicklung. Erwartete Rendite: ${formatPercent(randomConfig.averageReturn + 1.645 * (randomConfig.standardDeviation || 0.15))}`,
+            description: `Bei sehr günstiger Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn + 1.645 * (config.standardDeviation || 0.15))}`,
             probability: '5% Wahrscheinlichkeit für bessere Ergebnisse'
         }
     ];
+
+    const accumulationScenarios = createScenarios(accumulationConfig);
+    const withdrawalScenarios = withdrawalConfig ? createScenarios(withdrawalConfig) : null;
 
     const getRowClassName = (scenario: string) => {
         if (scenario.includes('Best Case')) return 'success-row';
@@ -59,20 +63,21 @@ export function MonteCarloResults({
         return '';
     };
 
-    return (
-        <Panel header={`Statistische Szenarien (Monte Carlo Simulation)`} bordered collapsible>
+    const renderAnalysisTable = (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => (
+        <div style={{ marginBottom: '30px' }}>
+            <h4 style={{ color: '#1976d2', marginBottom: '15px' }}>📊 {title}</h4>
             <div style={{ marginBottom: '20px' }}>
                 <p>
-                    <strong>Simulationsparameter:</strong> Durchschnittliche Rendite {formatPercent(randomConfig.averageReturn)}, 
-                    Volatilität {formatPercent(randomConfig.standardDeviation || 0.15)}
+                    <strong>Simulationsparameter:</strong> Durchschnittliche Rendite {formatPercent(config.averageReturn)}, 
+                    Volatilität {formatPercent(config.standardDeviation || 0.15)}
                 </p>
                 <p>
                     <strong>Annahme:</strong> Die jährlichen Renditen folgen einer Normalverteilung. 
                     Reale Märkte können von dieser Annahme abweichen.
                 </p>
-                {randomConfig.seed && (
+                {config.seed && (
                     <p>
-                        <strong>Zufallsseed:</strong> {randomConfig.seed} (deterministische Ergebnisse)
+                        <strong>Zufallsseed:</strong> {config.seed} (deterministische Ergebnisse)
                     </p>
                 )}
             </div>
@@ -97,6 +102,16 @@ export function MonteCarloResults({
                     <Cell dataKey="probability" />
                 </Column>
             </Table>
+        </div>
+    );
+
+    return (
+        <Panel header={`Statistische Szenarien (Monte Carlo Simulation)`} bordered collapsible>
+            {renderAnalysisTable(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
+            
+            {withdrawalScenarios && withdrawalConfig && (
+                renderAnalysisTable(withdrawalScenarios, withdrawalConfig, 'Entnahmephase (Entsparphase)')
+            )}
 
             <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', borderRadius: '4px' }}>
                 <h6>💡 Hinweis zu Monte Carlo Simulationen:</h6>
