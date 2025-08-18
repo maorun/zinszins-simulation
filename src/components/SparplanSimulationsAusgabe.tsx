@@ -58,8 +58,8 @@ export function SparplanSimulationsAusgabe({
                 Detaillierte Aufschlüsselung Ihrer Sparpläne nach Jahren
             </div>
             
-            {/* Mobile Card Layout */}
-            <div className="mobile-only sparplan-cards">
+            {/* Card Layout for All Devices */}
+            <div className="sparplan-cards">
                 {tableData?.map((el, index) => (
                     <div key={index} className="sparplan-card">
                         <div className="sparplan-card-header">
@@ -91,7 +91,7 @@ export function SparplanSimulationsAusgabe({
                     </div>
                 ))}
                 
-                {/* Summary Card for Mobile */}
+                {/* Summary Card */}
                 <div className="sparplan-summary-card">
                     <div className="summary-title">📊 Gesamtübersicht</div>
                     <div className="summary-grid">
@@ -123,8 +123,8 @@ export function SparplanSimulationsAusgabe({
                 </div>
             </div>
 
-            {/* Desktop Table Layout */}
-            <div className="desktop-only">
+            {/* Hidden Desktop Table Layout */}
+            <div style={{ display: 'none' }}>
                 <Table
                     data={tableData}
                     bordered

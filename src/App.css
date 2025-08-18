@@ -167,7 +167,7 @@ body {
   }
 }
 
-/* Mobile/Desktop visibility classes */
+/* Legacy Mobile/Desktop visibility classes - now unused */
 .mobile-only {
   display: block !important;
 }
@@ -176,7 +176,7 @@ body {
   display: none !important;
 }
 
-/* Mobile Card Layout for Tables */
+/* Mobile Card Layout for Tables - Now for All Devices */
 .sparplan-cards {
   display: flex;
   flex-direction: column;
@@ -358,13 +358,11 @@ footer {
     padding: 0.75rem !important;
   }
   
-  /* Switch to desktop layout on tablet and up */
-  .mobile-only {
-    display: none !important;
-  }
-  
-  .desktop-only {
-    display: block !important;
+  /* Card layout improvements for tablet */
+  .sparplan-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+    gap: 1.25rem;
   }
 }
 
@@ -413,6 +411,21 @@ footer {
     display: grid;
     grid-template-columns: 1fr 1fr;
     gap: 1.5rem;
+  }
+  
+  /* Desktop card layout improvements */
+  .sparplan-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+    gap: 1.5rem;
+  }
+  
+  .sparplan-card {
+    min-height: 200px; /* Ensure consistent card heights */
+  }
+  
+  .sparplan-summary-card {
+    grid-column: 1 / -1; /* Summary card spans full width */
   }
 }
 

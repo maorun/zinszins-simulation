@@ -477,8 +477,8 @@ export function EntnahmeSimulationsAusgabe({
                             }</p>
                         </div>
                         
-                        {/* Mobile Card Layout */}
-                        <div className="mobile-only">
+                        {/* Card Layout for All Devices */}
+                        <div>
                             <div className="sparplan-cards">
                                 {withdrawalData.withdrawalArray.map((rowData, index) => (
                                     <div key={index} className="sparplan-card">
@@ -559,8 +559,8 @@ export function EntnahmeSimulationsAusgabe({
                             </div>
                         </div>
 
-                        {/* Desktop Table Layout */}
-                        <div className="desktop-only">
+                        {/* Hidden Desktop Table Layout */}
+                        <div style={{ display: 'none' }}>
                             <div className="table-container">
                                 <Table
                                     autoHeight

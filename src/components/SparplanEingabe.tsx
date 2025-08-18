@@ -279,8 +279,8 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                     Ihre konfigurierten Sparpläne und Einmalzahlungen
                 </div>
                 
-                {/* Mobile Card Layout */}
-                <div className="mobile-only" style={{ padding: '1rem' }}>
+                {/* Card Layout for All Devices */}
+                <div style={{ padding: '1rem' }}>
                     <div className="sparplan-cards">
                         {sparplans.map((sparplan) => (
                             <div key={sparplan.id} className="sparplan-card">
@@ -341,68 +341,9 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                     </div>
                 </div>
 
-                {/* Desktop Table Layout */}
-                <div className="desktop-only">
-                    <Table
-                        autoHeight
-                        data={sparplans}
-                        bordered
-                        rowHeight={60}
-                        style={{ fontSize: '0.9rem' }}
-                    >
-                        <Column width={140}>
-                            <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>Start</HeaderCell>
-                            <ChangeDateCell onChange={(id, value) => {
-                                if (!value) {
-                                    return
-                                }
-                                const changedSparplans = sparplans.map((el) => el.id === id ? { ...el, start: value } : el)
-                                setSparplans(changedSparplans)
-                                dispatch(changedSparplans)
-                            }} dataKey="start" />
-                        </Column>
-                        <Column width={140}>
-                            <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>Ende</HeaderCell>
-                            <ChangeDateCell onChange={(id, value) => {
-                                const changedSparplans = sparplans.map((el) => el.id === id ? { ...el, end: value } : el)
-                                setSparplans(changedSparplans)
-                                dispatch(changedSparplans)
-                            }} dataKey="end" />
-                        </Column>
-                        <Column width={180}>
-                            <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                                {simulationAnnual === SimulationAnnual.yearly ? 'Einzahlungen je Jahr' : 'Einzahlungen je Monat'}
-                            </HeaderCell>
-                            <Cell>
-                                {(rowData: Sparplan) => {
-                                    const displayValue = simulationAnnual === SimulationAnnual.monthly 
-                                        ? (rowData.einzahlung / 12).toFixed(2)
-                                        : rowData.einzahlung.toFixed(2);
-                                    return (
-                                        <span style={{ fontWeight: 500, color: '#2eabdf' }}>
-                                            {Number(displayValue).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
-                                        </span>
-                                    );
-                                }}
-                            </Cell>
-                        </Column>
-                        <Column width={100}>
-                            <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>Aktionen</HeaderCell>
-                            <Cell>
-                                {(action: Sparplan) => (
-                                    <Button
-                                        onClick={() => handleDeleteSparplan(action.id)}
-                                        color="red"
-                                        appearance="ghost"
-                                        size="sm"
-                                        title="Sparplan löschen"
-                                    >
-                                        <CloseIcon />
-                                    </Button>
-                                )}
-                            </Cell>
-                        </Column>
-                    </Table>
+                {/* Hidden Desktop Table Layout */}
+                <div style={{ display: 'none' }}>
+                    {/* Table functionality has been replaced with card layout above */}
                 </div>
             </Panel>
         </div>
