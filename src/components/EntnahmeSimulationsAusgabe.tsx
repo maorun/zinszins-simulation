@@ -15,10 +15,11 @@ import 'rsuite/dist/rsuite.min.css';
 import type { SparplanElement } from "../utils/sparplan-utils";
 import { calculateWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration } from "../utils/withdrawal";
 import type { WithdrawalStrategy } from "../utils/withdrawal";
+import type { ReturnConfiguration } from "../../helpers/random-returns";
 
 const { Column, HeaderCell, Cell } = Table;
 
-export type WithdrawalReturnMode = 'fixed' | 'variable';
+export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable';
 
 export function EntnahmeSimulationsAusgabe({
     startEnd,
@@ -51,6 +52,11 @@ export function EntnahmeSimulationsAusgabe({
     // Withdrawal return mode and variable returns state
     const [withdrawalReturnMode, setWithdrawalReturnMode] = useState<WithdrawalReturnMode>('fixed');
     const [withdrawalVariableReturns, setWithdrawalVariableReturns] = useState<Record<number, number>>({});
+    
+    // Withdrawal random return configuration
+    const [withdrawalAverageReturn, setWithdrawalAverageReturn] = useState(5); // Default 5% (more conservative than accumulation)
+    const [withdrawalStandardDeviation, setWithdrawalStandardDeviation] = useState(12); // Default 12% (more conservative than accumulation)
+    const [withdrawalRandomSeed, setWithdrawalRandomSeed] = useState<number | undefined>(undefined);
 
     // Calculate withdrawal projections
     const withdrawalData = useMemo(() => {
@@ -65,13 +71,41 @@ export function EntnahmeSimulationsAusgabe({
             return null;
         }
 
+        // Build return configuration for withdrawal phase
+        let withdrawalReturnConfig: ReturnConfiguration;
+        
+        if (withdrawalReturnMode === 'random') {
+            withdrawalReturnConfig = {
+                mode: 'random',
+                randomConfig: {
+                    averageReturn: withdrawalAverageReturn / 100, // Convert percentage to decimal
+                    standardDeviation: withdrawalStandardDeviation / 100, // Convert percentage to decimal
+                    seed: withdrawalRandomSeed
+                }
+            };
+        } else if (withdrawalReturnMode === 'variable') {
+            withdrawalReturnConfig = {
+                mode: 'variable',
+                variableConfig: {
+                    yearlyReturns: Object.fromEntries(
+                        Object.entries(withdrawalVariableReturns).map(([year, rate]) => [parseInt(year), rate / 100])
+                    )
+                }
+            };
+        } else {
+            withdrawalReturnConfig = {
+                mode: 'fixed',
+                fixedRate: formValue.rendite / 100 // Convert percentage to decimal
+            };
+        }
+
         // Calculate withdrawal projections
         const withdrawalResult = calculateWithdrawal(
             startingCapital,
             startOfIndependence + 1, // Start withdrawals the year after accumulation ends
             formValue.endOfLife,
             formValue.strategie,
-            formValue.rendite / 100, // Convert percentage to decimal
+            withdrawalReturnConfig, // Use new return configuration API
             0.26375, // Default tax rate
             undefined, // Use default freibetrag
             // Pass monthly config only for monthly strategy
@@ -93,17 +127,7 @@ export function EntnahmeSimulationsAusgabe({
                 }
                 return grundfreibetragPerYear;
             })() : undefined,
-            formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined,
-            // Pass variable returns if withdrawal return mode is variable
-            withdrawalReturnMode === 'variable' ? (() => {
-                const variableReturnsInDecimal: {[year: number]: number} = {};
-                for (let year = startOfIndependence + 1; year <= formValue.endOfLife; year++) {
-                    if (withdrawalVariableReturns[year] !== undefined) {
-                        variableReturnsInDecimal[year] = withdrawalVariableReturns[year] / 100; // Convert percentage to decimal
-                    }
-                }
-                return Object.keys(variableReturnsInDecimal).length > 0 ? variableReturnsInDecimal : undefined;
-            })() : undefined
+            formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined
         );
 
         // Convert to array for table display, sorted by year descending
@@ -123,7 +147,7 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.monatlicheBetrag, formValue.inflationsrate, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.monatlicheBetrag, formValue.inflationsrate, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed]);
 
     // Format currency for display
     const formatCurrency = (amount: number) => {
@@ -167,6 +191,7 @@ export function EntnahmeSimulationsAusgabe({
                             }}
                         >
                             <Radio value="fixed">Feste Rendite</Radio>
+                            <Radio value="random">Zufällige Rendite</Radio>
                             <Radio value="variable">Variable Rendite</Radio>
                         </RadioGroup>
                     </Form.Group>
@@ -183,6 +208,56 @@ export function EntnahmeSimulationsAusgabe({
                                 graduated
                             />
                         </Form.Group>
+                    )}
+
+                    {withdrawalReturnMode === 'random' && (
+                        <>
+                            <Form.Group controlId="withdrawalAverageReturn">
+                                <Form.ControlLabel>Durchschnittliche Rendite (%)</Form.ControlLabel>
+                                <Slider
+                                    value={withdrawalAverageReturn}
+                                    min={0}
+                                    max={12}
+                                    step={0.5}
+                                    handleTitle={(<div style={{marginTop: '-17px'}}>{withdrawalAverageReturn}%</div>)}
+                                    progress
+                                    graduated
+                                    onChange={(value) => setWithdrawalAverageReturn(value)}
+                                />
+                                <Form.HelpText>
+                                    Erwartete durchschnittliche Rendite für die Entnahme-Phase (meist konservativer als Ansparphase)
+                                </Form.HelpText>
+                            </Form.Group>
+                            
+                            <Form.Group controlId="withdrawalStandardDeviation">
+                                <Form.ControlLabel>Standardabweichung (%)</Form.ControlLabel>
+                                <Slider
+                                    value={withdrawalStandardDeviation}
+                                    min={5}
+                                    max={25}
+                                    step={1}
+                                    handleTitle={(<div style={{marginTop: '-17px'}}>{withdrawalStandardDeviation}%</div>)}
+                                    progress
+                                    graduated
+                                    onChange={(value) => setWithdrawalStandardDeviation(value)}
+                                />
+                                <Form.HelpText>
+                                    Volatilität der Renditen (meist niedriger als Ansparphase wegen konservativerer Allokation)
+                                </Form.HelpText>
+                            </Form.Group>
+                            
+                            <Form.Group controlId="withdrawalRandomSeed">
+                                <Form.ControlLabel>Zufalls-Seed (optional)</Form.ControlLabel>
+                                <InputNumber
+                                    value={withdrawalRandomSeed}
+                                    onChange={(value) => setWithdrawalRandomSeed(value || undefined)}
+                                    placeholder="Für reproduzierbare Ergebnisse"
+                                />
+                                <Form.HelpText>
+                                    Optionaler Seed für reproduzierbare Zufallsrenditen. Leer lassen für echte Zufälligkeit.
+                                </Form.HelpText>
+                            </Form.Group>
+                        </>
                     )}
 
                     {withdrawalReturnMode === 'variable' && (
