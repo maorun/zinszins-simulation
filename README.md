@@ -5,12 +5,6 @@ Ziel des Projektes is es ein Rechner zu entwickeln, indem man viele Einstellunge
 
 Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
 
-# Zinseszins-Rechner
-
-Ziel des Projektes is es ein Rechner zu entwickeln, indem man viele Einstellungen vornehmen kann und vieles berücksichtigt wird.
-
-Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
-
 ---
 ## Implementierte Features
 
