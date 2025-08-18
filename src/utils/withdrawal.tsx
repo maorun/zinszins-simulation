@@ -50,7 +50,7 @@ const grundfreibetrag: {
  * @param startYear - First year of withdrawal 
  * @param endYear - Final year of withdrawal (end of life)
  * @param strategy - Withdrawal strategy (4% rule, 3% rule, custom percentage, or monthly fixed)
- * @param returnConfig - Return configuration (fixed, random, or variable returns)
+ * @param returnConfig - Return configuration (fixed, random, or variable returns) or legacy number for fixed rate
  * @param taxRate - Capital gains tax rate (default: 26.375%)
  * @param freibetragPerYear - Tax allowance per year (optional)
  * @param monthlyConfig - Configuration for monthly withdrawal strategy (optional)
@@ -58,6 +58,7 @@ const grundfreibetrag: {
  * @param enableGrundfreibetrag - Whether to apply income tax with Grundfreibetrag (default: false)
  * @param grundfreibetragPerYear - Basic tax allowance per year for income tax (optional)
  * @param incomeTaxRate - Income tax rate for withdrawal amounts (default: 25%)
+ * @param variableReturns - Legacy parameter: Variable return rates per year (optional, overrides returnConfig when provided)
  * @returns Withdrawal projections year by year
  */
 export function calculateWithdrawal(
@@ -72,7 +73,8 @@ export function calculateWithdrawal(
     customPercentage?: number,
     enableGrundfreibetrag?: boolean,
     grundfreibetragPerYear?: {[year: number]: number},
-    incomeTaxRate?: number
+    incomeTaxRate?: number,
+    variableReturns?: {[year: number]: number} // Legacy API support
 ): WithdrawalResult {
     // Helper function to get tax allowance for a specific year
     const getFreibetragForYear = (year: number): number => {
@@ -96,7 +98,19 @@ export function calculateWithdrawal(
     const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
     let yearlyReturns: {[year: number]: number} = {};
     
-    if (typeof returnConfig === 'number') {
+    // Check if legacy variableReturns parameter is provided (takes precedence for backward compatibility)
+    if (variableReturns) {
+        // Legacy API: use fixed rate as default and override with variable returns
+        const defaultRate = typeof returnConfig === 'number' ? returnConfig : 0.05;
+        yearlyReturns = Object.fromEntries(years.map(year => [year, defaultRate]));
+        // Override with user-specified variable returns
+        Object.entries(variableReturns).forEach(([year, rate]) => {
+            const yearNum = parseInt(year);
+            if (yearNum >= startYear && yearNum <= endYear) {
+                yearlyReturns[yearNum] = rate;
+            }
+        });
+    } else if (typeof returnConfig === 'number') {
         // Legacy API: use fixed rate for all years
         yearlyReturns = Object.fromEntries(years.map(year => [year, returnConfig]));
     } else {
@@ -128,7 +142,7 @@ export function calculateWithdrawal(
 
     // Helper function to get return rate for a specific year
     const getReturnRateForYear = (year: number): number => {
-        return yearlyReturns[year] || 0.05; // Default 5% if not found
+        return yearlyReturns[year] !== undefined ? yearlyReturns[year] : 0.05; // Default 5% if not found
     };
 
     const result: WithdrawalResult = {};

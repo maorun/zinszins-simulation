@@ -1,6 +1,4 @@
 import { zinszinsVorabpauschale, getBasiszinsForYear } from "./steuer";
-import type { ReturnConfiguration } from "./random-returns";
-import { generateRandomReturns } from "./random-returns";
 
 export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent";
 
