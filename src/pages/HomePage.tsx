@@ -603,68 +603,7 @@ export default function HomePage() {
                         </div>
                     </Panel>
 
-                    <Panel header="📋 Detaillierte Simulation" collapsible bordered defaultExpanded>
-                            <Table data={data.map(year => {
-                                const yearData = simulationData.sparplanElements.flatMap((element: any) => 
-                                    element.simulation[year] ? [element.simulation[year]] : []
-                                )[0];
-                                
-                                // Calculate return rate from the data or use the configured rate
-                                let returnRate = 0;
-                                if (returnMode === 'fixed') {
-                                    returnRate = rendite; // Use the fixed return rate setting
-                                } else if (yearData && yearData.startkapital > 0 && yearData.endkapital > 0) {
-                                    // Calculate from actual growth
-                                    returnRate = ((yearData.endkapital / yearData.startkapital) - 1) * 100;
-                                }
-                                
-                                return yearData ? {
-                                    year,
-                                    ...yearData,
-                                    rendite: returnRate / 100 // Convert to decimal for display
-                                } : null;
-                            }).filter(Boolean)} autoHeight>
-                                <Table.Column width={70} align="center" fixed>
-                                    <Table.HeaderCell>Jahr</Table.HeaderCell>
-                                    <Table.Cell dataKey="year" />
-                                </Table.Column>
 
-                                <Table.Column width={120} align="center">
-                                    <Table.HeaderCell>Einzahlung (€)</Table.HeaderCell>
-                                    <Table.Cell>
-                                        {(rowData: any) => rowData.einzahlung?.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0,00'}
-                                    </Table.Cell>
-                                </Table.Column>
-
-                                <Table.Column width={120} align="center">
-                                    <Table.HeaderCell>Zinsen (€)</Table.HeaderCell>
-                                    <Table.Cell>
-                                        {(rowData: any) => rowData.zinsen?.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0,00'}
-                                    </Table.Cell>
-                                </Table.Column>
-
-                                <Table.Column width={120} align="center">
-                                    <Table.HeaderCell>Kapital (€)</Table.HeaderCell>
-                                    <Table.Cell>
-                                        {(rowData: any) => rowData.kapital?.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0,00'}
-                                    </Table.Cell>
-                                </Table.Column>
-
-                                <Table.Column width={120} align="center">
-                                    <Table.HeaderCell>Steuern (€)</Table.HeaderCell>
-                                    <Table.Cell>
-                                        {(rowData: any) => rowData.steuern?.toLocaleString('de-DE', { minimumFractionDigits: 2 }) || '0,00'}
-                                    </Table.Cell>
-                                </Table.Column>
-
-                                <Table.Column width={120} align="center">
-                                    <Table.HeaderCell>Rendite (%)</Table.HeaderCell>
-                                    <Table.Cell>
-                                        {(rowData: any) => rowData.rendite ? (rowData.rendite * 100).toFixed(2) + '%' : '0,00%'}
-                                    </Table.Cell>
-                                </Table.Column>
-                            </Table>
-                        </Panel>
                 </>
             )}
 
