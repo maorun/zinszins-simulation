@@ -170,3 +170,91 @@ This is a personal finance tool focused on German tax law and investment plannin
 - Make informed financial planning decisions
 
 **Author**: Marco (see footer in application)
+
+## Development Workflow with Code Review
+
+When making changes to this codebase, follow this complete workflow to ensure high-quality, reliable code:
+
+### Development Workflow Steps
+
+1. **Development Phase**
+   - Implement your changes following the guidelines above
+   - Make minimal, focused changes that address the specific requirements
+   - Follow existing code patterns and architectural decisions
+   - Update documentation (README.md) when implementing new features
+
+2. **Testing and Linting Phase**
+   - Run all tests: `npm run test` (should pass all 138+ tests)
+   - Run linting: `npm run lint` (should pass with max 10 warnings)
+   - Run type checking: `npm run typecheck` (expect minimal errors)
+   - Run build: `npm run build` (should complete successfully)
+   - **If any errors are found**: Fix them and return to step 1
+
+3. **Code Review Phase**
+   - Review all changes thoroughly before finalizing
+   - Check for code quality, maintainability, and adherence to project standards
+   - Verify changes align with German financial requirements and tax calculations
+   - Ensure no unintended side effects or regressions
+   - **If issues are found**: Return to step 1 with feedback
+
+4. **Manual Validation Phase**
+   - Start the development server: `npm run dev`
+   - Test the complete user workflow as documented in "Manual Validation Requirements"
+   - Verify all interactive features work correctly
+   - Check browser console for new errors (ignore expected Vercel Analytics warnings)
+   - Take screenshots of any UI changes to document the impact
+
+### Code Review Guidelines
+
+When performing code review, examine the following aspects:
+
+#### Code Quality & Standards
+- **Minimal Changes**: Are changes surgical and focused? Avoid unnecessary modifications
+- **TypeScript**: Are types properly defined? No `any` types without justification
+- **React Patterns**: Proper use of hooks, state management, and component structure
+- **Performance**: No unnecessary re-renders or expensive calculations
+- **Error Handling**: Appropriate error handling for user inputs and edge cases
+
+#### German Financial Logic
+- **Tax Calculations**: Vorabpauschale, Freibetrag, and Kapitalertragsteuer correctly implemented
+- **Currency Formatting**: Proper Euro formatting and number handling
+- **Date Handling**: Correct German date formats and year-based calculations
+- **Investment Logic**: Accurate compound interest, withdrawal strategies, and return configurations
+
+#### User Experience
+- **UI Consistency**: RSuite components used appropriately and consistently
+- **Responsiveness**: Mobile and desktop layouts work correctly
+- **Real-time Updates**: Changes reflect immediately in calculations and displays
+- **German Language**: Proper German terminology and user-facing text
+
+#### Testing & Documentation
+- **Test Coverage**: New functionality has appropriate test coverage
+- **Documentation Updates**: README.md updated for new features
+- **Code Comments**: Complex German tax calculations are well documented
+- **Backwards Compatibility**: Changes don't break existing functionality
+
+### Code Review Checklist
+
+Before approving changes, verify:
+
+- [ ] All tests pass (`npm run test`)
+- [ ] Linting passes (`npm run lint`) 
+- [ ] Build succeeds (`npm run build`)
+- [ ] Manual testing confirms functionality works
+- [ ] Changes are minimal and focused
+- [ ] German financial calculations are accurate
+- [ ] UI/UX remains consistent and responsive
+- [ ] Documentation is updated appropriately
+- [ ] No unintended side effects or regressions
+- [ ] Code follows existing patterns and standards
+
+### When Issues Are Found
+
+If the code review identifies problems:
+
+1. Document the specific issues clearly
+2. Provide actionable feedback for improvement
+3. Return to Development Phase (step 1) to address the feedback
+4. Repeat the entire workflow until all issues are resolved
+
+This iterative approach ensures high-quality, maintainable code that serves users effectively while maintaining the application's reliability and accuracy.
