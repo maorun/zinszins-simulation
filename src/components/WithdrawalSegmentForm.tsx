@@ -212,7 +212,21 @@ export function WithdrawalSegmentForm({
                             <Form.ControlLabel>Entnahme-Strategie</Form.ControlLabel>
                             <RadioTileGroup 
                                 value={segment.strategy}
-                                onChange={(value) => updateSegment(segment.id, { strategy: value as WithdrawalStrategy })}
+                                onChange={(value) => {
+                                    const newStrategy = value as WithdrawalStrategy;
+                                    const updates: Partial<WithdrawalSegment> = { strategy: newStrategy };
+                                    
+                                    // Initialize monthlyConfig when switching to monatlich_fest strategy
+                                    if (newStrategy === "monatlich_fest" && !segment.monthlyConfig) {
+                                        updates.monthlyConfig = {
+                                            monthlyAmount: 2000,
+                                            enableGuardrails: false,
+                                            guardrailsThreshold: 0.10
+                                        };
+                                    }
+                                    
+                                    updateSegment(segment.id, updates);
+                                }}
                             >
                                 <RadioTile value="4prozent" label="4% Regel">
                                     4% Entnahme
