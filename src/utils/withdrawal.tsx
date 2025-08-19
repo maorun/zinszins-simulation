@@ -1,6 +1,7 @@
 import { zinszinsVorabpauschale, getBasiszinsForYear } from "./steuer";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import { generateRandomReturns } from "../../helpers/random-returns";
+import type { SegmentedWithdrawalConfig, WithdrawalSegment } from "./segmented-withdrawal";
 
 export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent";
 
@@ -354,6 +355,83 @@ export function calculateWithdrawalDuration(
     
     // Capital doesn't deplete within the simulation timeframe
     return null;
+}
+
+/**
+ * Calculate withdrawal phase projections using segmented strategies
+ * @param startingCapital - Capital available at the start of withdrawal phase
+ * @param segmentedConfig - Configuration with multiple withdrawal segments
+ * @returns Withdrawal projections year by year
+ */
+export function calculateSegmentedWithdrawal(
+    startingCapital: number,
+    segmentedConfig: SegmentedWithdrawalConfig
+): WithdrawalResult {
+    const result: WithdrawalResult = {};
+    let currentCapital = startingCapital;
+    
+    // Process each segment in chronological order
+    const sortedSegments = [...segmentedConfig.segments].sort((a, b) => a.startYear - b.startYear);
+    
+    for (const segment of sortedSegments) {
+        // Calculate withdrawal for this segment
+        const segmentResult = calculateWithdrawalForSegment(
+            currentCapital,
+            segment,
+            segmentedConfig.taxRate,
+            segmentedConfig.freibetragPerYear
+        );
+        
+        // Merge segment results into overall result
+        Object.assign(result, segmentResult);
+        
+        // Update current capital for next segment (if any)
+        const segmentYears = Object.keys(segmentResult).map(Number).sort((a, b) => b - a);
+        if (segmentYears.length > 0) {
+            const lastYear = segmentYears[0];
+            currentCapital = segmentResult[lastYear].endkapital;
+            
+            // If capital is depleted, break early
+            if (currentCapital <= 0) {
+                break;
+            }
+        }
+    }
+    
+    return result;
+}
+
+/**
+ * Calculate withdrawal projections for a single segment
+ * @param startingCapital - Capital at the start of this segment
+ * @param segment - Withdrawal segment configuration
+ * @param globalTaxRate - Global tax rate
+ * @param globalFreibetragPerYear - Global tax allowance per year
+ * @returns Withdrawal projections for this segment
+ */
+export function calculateWithdrawalForSegment(
+    startingCapital: number,
+    segment: WithdrawalSegment,
+    globalTaxRate: number,
+    globalFreibetragPerYear?: {[year: number]: number}
+): WithdrawalResult {
+    // Use the existing calculateWithdrawal function for this segment
+    return calculateWithdrawal(
+        startingCapital,
+        segment.startYear,
+        segment.endYear,
+        segment.strategy,
+        segment.returnConfig,
+        globalTaxRate,
+        globalFreibetragPerYear,
+        segment.monthlyConfig,
+        segment.customPercentage,
+        segment.enableGrundfreibetrag,
+        segment.grundfreibetragPerYear,
+        segment.incomeTaxRate,
+        undefined, // variableReturns (legacy)
+        segment.inflationConfig
+    );
 }
 
 /**
