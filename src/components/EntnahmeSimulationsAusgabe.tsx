@@ -17,7 +17,7 @@ import { calculateWithdrawal, calculateSegmentedWithdrawal, getTotalCapitalAtYea
 import type { WithdrawalStrategy, WithdrawalResult } from "../utils/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import type { WithdrawalSegment, SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
-import { createDefaultWithdrawalSegment, createSingleSegmentConfig, validateWithdrawalSegments } from "../utils/segmented-withdrawal";
+import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
 import { WithdrawalSegmentForm } from "./WithdrawalSegmentForm";
 
 const { Column, HeaderCell, Cell } = Table;
@@ -187,10 +187,10 @@ export function EntnahmeSimulationsAusgabe({
 
     // Notify parent component when withdrawal results change
     useEffect(() => {
-        if (onWithdrawalResultsChange) {
-            onWithdrawalResultsChange(calculations.withdrawalResult);
+        if (onWithdrawalResultsChange && withdrawalData) {
+            onWithdrawalResultsChange(withdrawalData.withdrawalResult);
         }
-    }, [calculations.withdrawalResult, onWithdrawalResultsChange]);
+    }, [withdrawalData, onWithdrawalResultsChange]);
 
     // Format currency for display
     const formatCurrency = (amount: number) => {

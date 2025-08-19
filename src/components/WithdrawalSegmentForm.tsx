@@ -19,8 +19,7 @@ import PlusIcon from '@rsuite/icons/Plus';
 import TrashIcon from '@rsuite/icons/Trash';
 import 'rsuite/dist/rsuite.min.css';
 import type { 
-    WithdrawalSegment, 
-    SegmentedWithdrawalConfig
+    WithdrawalSegment
 } from "../utils/segmented-withdrawal";
 import { validateWithdrawalSegments, createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
 import type { WithdrawalStrategy } from "../utils/withdrawal";
@@ -113,16 +112,6 @@ export function WithdrawalSegmentForm({
         return returnConfig.mode as WithdrawalReturnMode;
     };
 
-    // Format currency for display
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('de-DE', {
-            style: 'currency',
-            currency: 'EUR',
-            minimumFractionDigits: 0,
-            maximumFractionDigits: 0
-        }).format(amount);
-    };
-
     return (
         <Panel header="Entnahme-Phasen konfigurieren" bordered collapsible>
             <div style={{ marginBottom: '20px' }}>
@@ -147,7 +136,7 @@ export function WithdrawalSegmentForm({
                 </Button>
             </div>
 
-            {segments.map((segment, index) => (
+            {segments.map((segment, _index) => (
                 <Panel 
                     key={segment.id} 
                     header={

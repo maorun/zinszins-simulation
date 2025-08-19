@@ -1,7 +1,6 @@
 import { SimulationAnnual, type SimulationAnnualType, simulate } from "../utils/simulate";
 import type { ReturnMode, ReturnConfiguration } from "../utils/random-returns";
 import type { WithdrawalResult } from "../utils/withdrawal";
-import { extractWithdrawalMetrics } from "../utils/summary-utils";
 import { useCallback, useEffect, useState } from "react";
 import {
     Button,
