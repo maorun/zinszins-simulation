@@ -403,7 +403,13 @@ export function WithdrawalSegmentForm({
                                 <Form.Group>
                                     <Form.ControlLabel>Grundfreibetrag pro Jahr (€)</Form.ControlLabel>
                                     <InputNumber
-                                        value={10908} // Default German basic allowance
+                                        value={(() => {
+                                            // Get the first year's value or default to 10908
+                                            if (segment.grundfreibetragPerYear && segment.startYear in segment.grundfreibetragPerYear) {
+                                                return segment.grundfreibetragPerYear[segment.startYear];
+                                            }
+                                            return 10908; // Default German basic allowance for 2023
+                                        })()}
                                         onChange={(value) => {
                                             const grundfreibetragPerYear: {[year: number]: number} = {};
                                             for (let year = segment.startYear; year <= segment.endYear; year++) {
@@ -415,6 +421,9 @@ export function WithdrawalSegmentForm({
                                         max={30000}
                                         step={100}
                                     />
+                                    <Form.HelpText>
+                                        Grundfreibetrag für die Einkommensteuer (2023: 10.908 €)
+                                    </Form.HelpText>
                                 </Form.Group>
                                 
                                 <Form.Group>
