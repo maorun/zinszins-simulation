@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
     Form,
     InputNumber,
@@ -13,9 +13,12 @@ import {
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
 import type { SparplanElement } from "../utils/sparplan-utils";
-import { calculateWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration } from "../utils/withdrawal";
-import type { WithdrawalStrategy } from "../utils/withdrawal";
+import { calculateWithdrawal, calculateSegmentedWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration } from "../utils/withdrawal";
+import type { WithdrawalStrategy, WithdrawalResult } from "../utils/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
+import type { WithdrawalSegment, SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
+import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
+import { WithdrawalSegmentForm } from "./WithdrawalSegmentForm";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -25,10 +28,12 @@ export function EntnahmeSimulationsAusgabe({
     startEnd,
     elemente,
     dispatchEnd,
+    onWithdrawalResultsChange,
 }: {
         startEnd: [number, number];
         elemente: SparplanElement[];
         dispatchEnd: (val: [number, number]) => void;
+        onWithdrawalResultsChange?: (results: WithdrawalResult | null) => void;
     }) {
     const [startOfIndependence, endOfLife] = startEnd;
 
@@ -60,6 +65,17 @@ export function EntnahmeSimulationsAusgabe({
     const [withdrawalStandardDeviation, setWithdrawalStandardDeviation] = useState(12); // Default 12% (more conservative than accumulation)
     const [withdrawalRandomSeed, setWithdrawalRandomSeed] = useState<number | undefined>(undefined);
 
+    // Segmented withdrawal state
+    const [useSegmentedWithdrawal, setUseSegmentedWithdrawal] = useState(false);
+    const [withdrawalSegments, setWithdrawalSegments] = useState<WithdrawalSegment[]>(() => [
+        createDefaultWithdrawalSegment(
+            "main",
+            "Hauptphase",
+            startOfIndependence + 1,
+            endOfLife
+        )
+    ]);
+
     // Calculate withdrawal projections
     const withdrawalData = useMemo(() => {
         if (!elemente || elemente.length === 0) {
@@ -73,68 +89,82 @@ export function EntnahmeSimulationsAusgabe({
             return null;
         }
 
-        // Build return configuration for withdrawal phase
-        let withdrawalReturnConfig: ReturnConfiguration;
+        let withdrawalResult;
         
-        if (withdrawalReturnMode === 'random') {
-            withdrawalReturnConfig = {
-                mode: 'random',
-                randomConfig: {
-                    averageReturn: withdrawalAverageReturn / 100, // Convert percentage to decimal
-                    standardDeviation: withdrawalStandardDeviation / 100, // Convert percentage to decimal
-                    seed: withdrawalRandomSeed
-                }
+        if (useSegmentedWithdrawal) {
+            // Use segmented withdrawal calculation
+            const segmentedConfig: SegmentedWithdrawalConfig = {
+                segments: withdrawalSegments,
+                taxRate: 0.26375,
+                freibetragPerYear: undefined // Use default
             };
-        } else if (withdrawalReturnMode === 'variable') {
-            withdrawalReturnConfig = {
-                mode: 'variable',
-                variableConfig: {
-                    yearlyReturns: Object.fromEntries(
-                        Object.entries(withdrawalVariableReturns).map(([year, rate]) => [parseInt(year), rate / 100])
-                    )
-                }
-            };
+            
+            withdrawalResult = calculateSegmentedWithdrawal(startingCapital, segmentedConfig);
         } else {
-            withdrawalReturnConfig = {
-                mode: 'fixed',
-                fixedRate: formValue.rendite / 100 // Convert percentage to decimal
-            };
-        }
+            // Use single-strategy withdrawal calculation (backward compatibility)
+            // Build return configuration for withdrawal phase
+            let withdrawalReturnConfig: ReturnConfiguration;
+            
+            if (withdrawalReturnMode === 'random') {
+                withdrawalReturnConfig = {
+                    mode: 'random',
+                    randomConfig: {
+                        averageReturn: withdrawalAverageReturn / 100, // Convert percentage to decimal
+                        standardDeviation: withdrawalStandardDeviation / 100, // Convert percentage to decimal
+                        seed: withdrawalRandomSeed
+                    }
+                };
+            } else if (withdrawalReturnMode === 'variable') {
+                withdrawalReturnConfig = {
+                    mode: 'variable',
+                    variableConfig: {
+                        yearlyReturns: Object.fromEntries(
+                            Object.entries(withdrawalVariableReturns).map(([year, rate]) => [parseInt(year), rate / 100])
+                        )
+                    }
+                };
+            } else {
+                withdrawalReturnConfig = {
+                    mode: 'fixed',
+                    fixedRate: formValue.rendite / 100 // Convert percentage to decimal
+                };
+            }
 
-        // Calculate withdrawal projections
-        const withdrawalResult = calculateWithdrawal(
-            startingCapital,
-            startOfIndependence + 1, // Start withdrawals the year after accumulation ends
-            formValue.endOfLife,
-            formValue.strategie,
-            withdrawalReturnConfig, // Use new return configuration API
-            0.26375, // Default tax rate
-            undefined, // Use default freibetrag
-            // Pass monthly config only for monthly strategy
-            formValue.strategie === "monatlich_fest" ? {
-                monthlyAmount: formValue.monatlicheBetrag,
-                enableGuardrails: formValue.guardrailsAktiv,
-                guardrailsThreshold: formValue.guardrailsSchwelle / 100
-            } : undefined,
-            // Pass custom percentage for variable percentage strategy
-            formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined,
-            // Grundfreibetrag parameters
-            formValue.grundfreibetragAktiv,
-            formValue.grundfreibetragAktiv ? (() => {
-                // Create grundfreibetrag object for all withdrawal years
-                const grundfreibetragPerYear: {[year: number]: number} = {};
-                for (let year = startOfIndependence + 1; year <= formValue.endOfLife; year++) {
-                    grundfreibetragPerYear[year] = formValue.grundfreibetragBetrag;
-                }
-                return grundfreibetragPerYear;
-            })() : undefined,
-            formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined,
-            undefined, // variableReturns (legacy parameter)
-            // Inflation configuration for all strategies
-            formValue.inflationAktiv ? {
-                inflationRate: formValue.inflationsrate / 100
-            } : undefined
-        );
+            // Calculate withdrawal projections
+            withdrawalResult = calculateWithdrawal(
+                startingCapital,
+                startOfIndependence + 1, // Start withdrawals the year after accumulation ends
+                formValue.endOfLife,
+                formValue.strategie,
+                withdrawalReturnConfig, // Use new return configuration API
+                0.26375, // Default tax rate
+                undefined, // Use default freibetrag
+                // Pass monthly config only for monthly strategy
+                formValue.strategie === "monatlich_fest" ? {
+                    monthlyAmount: formValue.monatlicheBetrag,
+                    enableGuardrails: formValue.guardrailsAktiv,
+                    guardrailsThreshold: formValue.guardrailsSchwelle / 100
+                } : undefined,
+                // Pass custom percentage for variable percentage strategy
+                formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined,
+                // Grundfreibetrag parameters
+                formValue.grundfreibetragAktiv,
+                formValue.grundfreibetragAktiv ? (() => {
+                    // Create grundfreibetrag object for all withdrawal years
+                    const grundfreibetragPerYear: {[year: number]: number} = {};
+                    for (let year = startOfIndependence + 1; year <= formValue.endOfLife; year++) {
+                        grundfreibetragPerYear[year] = formValue.grundfreibetragBetrag;
+                    }
+                    return grundfreibetragPerYear;
+                })() : undefined,
+                formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined,
+                undefined, // variableReturns (legacy parameter)
+                // Inflation configuration for all strategies
+                formValue.inflationAktiv ? {
+                    inflationRate: formValue.inflationsrate / 100
+                } : undefined
+            );
+        }
 
         // Convert to array for table display, sorted by year descending
         const withdrawalArray = Object.entries(withdrawalResult)
@@ -153,7 +183,14 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments]);
+
+    // Notify parent component when withdrawal results change
+    useEffect(() => {
+        if (onWithdrawalResultsChange && withdrawalData) {
+            onWithdrawalResultsChange(withdrawalData.withdrawalResult);
+        }
+    }, [withdrawalData, onWithdrawalResultsChange]);
 
     // Format currency for display
     const formatCurrency = (amount: number) => {
@@ -168,25 +205,68 @@ export function EntnahmeSimulationsAusgabe({
     return (
         <>
             <Panel header="Variablen" bordered>
-                <Form fluid formValue={formValue}
-                    onChange={changedFormValue => {
-                        dispatchEnd([startOfIndependence, changedFormValue.endOfLife])
-                        setFormValue({
-                            endOfLife: changedFormValue.endOfLife,
-                            strategie: changedFormValue.strategie,
-                            rendite: changedFormValue.rendite,
-                            inflationAktiv: changedFormValue.inflationAktiv,
-                            inflationsrate: changedFormValue.inflationsrate,
-                            monatlicheBetrag: changedFormValue.monatlicheBetrag,
-                            guardrailsAktiv: changedFormValue.guardrailsAktiv,
-                            guardrailsSchwelle: changedFormValue.guardrailsSchwelle,
-                            variabelProzent: changedFormValue.variabelProzent,
-                            grundfreibetragAktiv: changedFormValue.grundfreibetragAktiv,
-                            grundfreibetragBetrag: changedFormValue.grundfreibetragBetrag,
-                            einkommensteuersatz: changedFormValue.einkommensteuersatz,
-                        })
-                    }}
-                >
+                {/* Toggle between single and segmented withdrawal */}
+                <Form.Group controlId="useSegmentedWithdrawal">
+                    <Form.ControlLabel>Entnahme-Modus</Form.ControlLabel>
+                    <RadioGroup
+                        inline
+                        value={useSegmentedWithdrawal ? "segmented" : "single"}
+                        onChange={(value) => {
+                            const useSegmented = value === "segmented";
+                            setUseSegmentedWithdrawal(useSegmented);
+                            
+                            // Initialize segments when switching to segmented mode
+                            if (useSegmented && withdrawalSegments.length === 0) {
+                                const defaultSegment = createDefaultWithdrawalSegment(
+                                    "main",
+                                    "Hauptphase",
+                                    startOfIndependence + 1,
+                                    formValue.endOfLife
+                                );
+                                setWithdrawalSegments([defaultSegment]);
+                            }
+                        }}
+                    >
+                        <Radio value="single">Einheitliche Strategie</Radio>
+                        <Radio value="segmented">Geteilte Phasen</Radio>
+                    </RadioGroup>
+                    <Form.HelpText>
+                        {useSegmentedWithdrawal 
+                            ? "Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf."
+                            : "Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase."
+                        }
+                    </Form.HelpText>
+                </Form.Group>
+
+                {useSegmentedWithdrawal ? (
+                    /* Segmented withdrawal configuration */
+                    <WithdrawalSegmentForm
+                        segments={withdrawalSegments}
+                        onSegmentsChange={setWithdrawalSegments}
+                        withdrawalStartYear={startOfIndependence + 1}
+                        withdrawalEndYear={formValue.endOfLife}
+                    />
+                ) : (
+                    /* Single strategy configuration (existing UI) */
+                    <Form fluid formValue={formValue}
+                        onChange={changedFormValue => {
+                            dispatchEnd([startOfIndependence, changedFormValue.endOfLife])
+                            setFormValue({
+                                endOfLife: changedFormValue.endOfLife,
+                                strategie: changedFormValue.strategie,
+                                rendite: changedFormValue.rendite,
+                                inflationAktiv: changedFormValue.inflationAktiv,
+                                inflationsrate: changedFormValue.inflationsrate,
+                                monatlicheBetrag: changedFormValue.monatlicheBetrag,
+                                guardrailsAktiv: changedFormValue.guardrailsAktiv,
+                                guardrailsSchwelle: changedFormValue.guardrailsSchwelle,
+                                variabelProzent: changedFormValue.variabelProzent,
+                                grundfreibetragAktiv: changedFormValue.grundfreibetragAktiv,
+                                grundfreibetragBetrag: changedFormValue.grundfreibetragBetrag,
+                                einkommensteuersatz: changedFormValue.einkommensteuersatz,
+                            })
+                        }}
+                    >
                     {/* Withdrawal Return Configuration */}
                     <Form.Group controlId="withdrawalReturnMode">
                         <Form.ControlLabel>Entnahme-Rendite Modus</Form.ControlLabel>
@@ -442,7 +522,8 @@ export function EntnahmeSimulationsAusgabe({
                             )}
                         </>
                     )}
-                </Form>
+                    </Form>
+                )}
             </Panel>
             <Panel header="Simulation" bordered>
                 {withdrawalData ? (
