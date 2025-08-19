@@ -39,6 +39,11 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
 - Interaktive Parametereinstellung (Rendite, Lebensende, Strategie)
 
 ### Analyse und Simulation
+- **Finanzübersicht - Schnelle Eckpunkte** - Kompakte Übersicht aller wichtigen Kennzahlen für Anspar- und Entsparphase
+  - Gesamte Einzahlungen, Endkapital und Zinsen der Ansparphase
+  - Berechnete Rendite der Ansparphase (annualisiert)
+  - Endkapital und monatliche Auszahlungen der Entsparphase
+  - Berechnete Rendite der Entsparphase unter Berücksichtigung von Entnahmen
 - **Monte Carlo Analyse** - Statistische Auswertung verschiedener Rendite-Szenarien
 - **Detaillierte Simulation** - Jahr-für-Jahr Aufschlüsselung mit Vorabpauschale-Berechnungen
 - Echtzeit-Updates bei Parameteränderungen
