@@ -20,7 +20,8 @@ import { SparplanEingabe } from "../components/SparplanEingabe";
 import { SparplanSimulationsAusgabe } from "../components/SparplanSimulationsAusgabe";
 import type { Sparplan, SparplanElement } from "../utils/sparplan-utils";
 import { convertSparplanToElements, initialSparplan } from "../utils/sparplan-utils";
-import { fullSummary } from "../utils/summary-utils";
+import { fullSummary, getEnhancedSummary } from "../utils/summary-utils";
+import { calculateWithdrawal } from "../utils/withdrawal";
 import { unique } from "../utils/array-utils";
 import { Zeitspanne } from "../components/Zeitspanne";
 
@@ -144,15 +145,120 @@ export default function HomePage() {
                 🔄 Neu berechnen
             </Button>
 
-            {/* Quick Results - Mobile First */}
-            <div className="endkapital-highlight">
-                💰 Endkapital: {simulationData ? (
-                    fullSummary(simulationData.sparplanElements).endkapital.toLocaleString('de-DE', { 
-                        style: 'currency', 
-                        currency: 'EUR' 
-                    })
-                ) : '...'}
-            </div>
+            {/* Quick Results - Enhanced Overview */}
+            {simulationData ? (
+                <div className="enhanced-endkapital-overview">
+                    {(() => {
+                        // Calculate the savings phase date range from sparplan elements
+                        const startDates = simulationData.sparplanElements.map(el => new Date(el.start).getFullYear());
+                        const savingsStartYear = Math.min(...startDates);
+                        const savingsEndYear = startEnd[0]; // Withdrawal starts when savings end
+                        
+                        // Calculate withdrawal metrics using default 4% rule for overview
+                        const baseSummary = fullSummary(simulationData.sparplanElements);
+                        const withdrawalResult = calculateWithdrawal(
+                            baseSummary.endkapital,
+                            startEnd[0], // Start of withdrawal 
+                            startEnd[1], // End of life
+                            "4prozent", // Default to 4% rule for overview
+                            rendite / 100, // Convert percentage to decimal
+                            26.375 / 100 // Default tax rate
+                        );
+                        
+                        const enhancedSummary = getEnhancedSummary(
+                            simulationData.sparplanElements,
+                            savingsStartYear,
+                            savingsEndYear,
+                            withdrawalResult
+                        );
+                        
+                        return (
+                            <div className="overview-panel">
+                                <h3 className="overview-title">🎯 Finanzübersicht - Schnelle Eckpunkte</h3>
+                                
+                                {/* Savings Phase */}
+                                <div className="overview-section">
+                                    <h4 className="section-title">📈 Ansparphase ({savingsStartYear} - {savingsEndYear})</h4>
+                                    <div className="metrics-grid">
+                                        <div className="metric-item highlight">
+                                            <span className="metric-label">💰 Gesamte Einzahlungen</span>
+                                            <span className="metric-value">
+                                                {enhancedSummary.startkapital.toLocaleString('de-DE', { 
+                                                    style: 'currency', 
+                                                    currency: 'EUR' 
+                                                })}
+                                            </span>
+                                        </div>
+                                        <div className="metric-item highlight">
+                                            <span className="metric-label">🎯 Endkapital Ansparphase</span>
+                                            <span className="metric-value primary">
+                                                {enhancedSummary.endkapital.toLocaleString('de-DE', { 
+                                                    style: 'currency', 
+                                                    currency: 'EUR' 
+                                                })}
+                                            </span>
+                                        </div>
+                                        <div className="metric-item">
+                                            <span className="metric-label">📊 Gesamtzinsen Ansparphase</span>
+                                            <span className="metric-value">
+                                                {enhancedSummary.zinsen.toLocaleString('de-DE', { 
+                                                    style: 'currency', 
+                                                    currency: 'EUR' 
+                                                })}
+                                            </span>
+                                        </div>
+                                        <div className="metric-item">
+                                            <span className="metric-label">📈 Rendite Ansparphase</span>
+                                            <span className="metric-value">
+                                                {enhancedSummary.renditeAnsparphase.toFixed(2)}% p.a.
+                                            </span>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                {/* Withdrawal Phase */}
+                                {enhancedSummary.endkapitalEntspharphase !== undefined && (
+                                    <div className="overview-section">
+                                        <h4 className="section-title">💸 Entsparphase ({startEnd[0]} - {startEnd[1]})</h4>
+                                        <div className="metrics-grid">
+                                            <div className="metric-item">
+                                                <span className="metric-label">🏁 Endkapital Entsparphase</span>
+                                                <span className="metric-value">
+                                                    {enhancedSummary.endkapitalEntspharphase.toLocaleString('de-DE', { 
+                                                        style: 'currency', 
+                                                        currency: 'EUR' 
+                                                    })}
+                                                </span>
+                                            </div>
+                                            <div className="metric-item highlight">
+                                                <span className="metric-label">💶 Monatliche Auszahlung</span>
+                                                <span className="metric-value secondary">
+                                                    {(enhancedSummary.monatlicheAuszahlung || 0).toLocaleString('de-DE', { 
+                                                        style: 'currency', 
+                                                        currency: 'EUR' 
+                                                    })}
+                                                </span>
+                                            </div>
+                                            {enhancedSummary.renditeEntspharphase !== undefined && (
+                                                <div className="metric-item">
+                                                    <span className="metric-label">📉 Rendite Entsparphase</span>
+                                                    <span className="metric-value">
+                                                        {enhancedSummary.renditeEntspharphase.toFixed(2)}% p.a.
+                                                    </span>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        );
+                    })()}
+                </div>
+            ) : (
+                <div className="endkapital-highlight">
+                    💰 Endkapital: ...
+                </div>
+            )}
 
             {/* Main Configuration */}
             <Panel header="⚙️ Konfiguration" collapsible bordered>
