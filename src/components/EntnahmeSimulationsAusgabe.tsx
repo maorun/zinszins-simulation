@@ -1,4 +1,4 @@
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
     Form,
     InputNumber,
@@ -14,7 +14,7 @@ import {
 import 'rsuite/dist/rsuite.min.css';
 import type { SparplanElement } from "../utils/sparplan-utils";
 import { calculateWithdrawal, calculateSegmentedWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration } from "../utils/withdrawal";
-import type { WithdrawalStrategy } from "../utils/withdrawal";
+import type { WithdrawalStrategy, WithdrawalResult } from "../utils/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import type { WithdrawalSegment, SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
 import { createDefaultWithdrawalSegment, createSingleSegmentConfig, validateWithdrawalSegments } from "../utils/segmented-withdrawal";
@@ -28,10 +28,12 @@ export function EntnahmeSimulationsAusgabe({
     startEnd,
     elemente,
     dispatchEnd,
+    onWithdrawalResultsChange,
 }: {
         startEnd: [number, number];
         elemente: SparplanElement[];
         dispatchEnd: (val: [number, number]) => void;
+        onWithdrawalResultsChange?: (results: WithdrawalResult | null) => void;
     }) {
     const [startOfIndependence, endOfLife] = startEnd;
 
@@ -182,6 +184,13 @@ export function EntnahmeSimulationsAusgabe({
             duration
         };
     }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments]);
+
+    // Notify parent component when withdrawal results change
+    useEffect(() => {
+        if (onWithdrawalResultsChange) {
+            onWithdrawalResultsChange(calculations.withdrawalResult);
+        }
+    }, [calculations.withdrawalResult, onWithdrawalResultsChange]);
 
     // Format currency for display
     const formatCurrency = (amount: number) => {

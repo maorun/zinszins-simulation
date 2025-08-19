@@ -1,5 +1,7 @@
 import { SimulationAnnual, type SimulationAnnualType, simulate } from "../utils/simulate";
 import type { ReturnMode, ReturnConfiguration } from "../utils/random-returns";
+import type { WithdrawalResult } from "../utils/withdrawal";
+import { extractWithdrawalMetrics } from "../utils/summary-utils";
 import { useCallback, useEffect, useState } from "react";
 import {
     Button,
@@ -57,6 +59,9 @@ export default function HomePage() {
     // Replace useFetcher with local state
     const [simulationData, setSimulationData] = useState<any>(null);
     const [isLoading, setIsLoading] = useState(false);
+    
+    // Track withdrawal results from EntnahmeSimulationsAusgabe for financial overview
+    const [withdrawalResults, setWithdrawalResults] = useState<WithdrawalResult | null>(null);
 
     const yearToday = new Date().getFullYear()
 
@@ -154,16 +159,24 @@ export default function HomePage() {
                         const savingsStartYear = Math.min(...startDates);
                         const savingsEndYear = startEnd[0]; // Withdrawal starts when savings end
                         
-                        // Calculate withdrawal metrics using default 4% rule for overview
+                        // Calculate withdrawal metrics - use actual withdrawal results if available, otherwise fall back to default 4% rule
                         const baseSummary = fullSummary(simulationData.sparplanElements);
-                        const withdrawalResult = calculateWithdrawal(
-                            baseSummary.endkapital,
-                            startEnd[0], // Start of withdrawal 
-                            startEnd[1], // End of life
-                            "4prozent", // Default to 4% rule for overview
-                            rendite / 100, // Convert percentage to decimal
-                            26.375 / 100 // Default tax rate
-                        );
+                        let withdrawalResult;
+                        
+                        if (withdrawalResults) {
+                            // Use the actual withdrawal results from EntnahmeSimulationsAusgabe
+                            withdrawalResult = withdrawalResults;
+                        } else {
+                            // Fall back to default 4% rule calculation for overview
+                            withdrawalResult = calculateWithdrawal(
+                                baseSummary.endkapital,
+                                startEnd[0], // Start of withdrawal 
+                                startEnd[1], // End of life
+                                "4prozent", // Default to 4% rule for overview
+                                rendite / 100, // Convert percentage to decimal
+                                26.375 / 100 // Default tax rate
+                            );
+                        }
                         
                         const enhancedSummary = getEnhancedSummary(
                             simulationData.sparplanElements,
@@ -588,6 +601,7 @@ export default function HomePage() {
                             startEnd={startEnd}
                             elemente={simulationData.sparplanElements}
                             dispatchEnd={(val) => setStartEnd(val)}
+                            onWithdrawalResultsChange={setWithdrawalResults}
                         />
                     </Panel>
 
