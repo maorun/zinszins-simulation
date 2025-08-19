@@ -11,7 +11,6 @@ import {
     RadioTileGroup,
     Slider,
     Toggle,
-    FlexboxGrid,
     IconButton,
     Divider
 } from "rsuite";
@@ -158,41 +157,35 @@ export function WithdrawalSegmentForm({
                     style={{ marginBottom: '15px' }}
                 >
                     <Form fluid>
-                        {/* Basic segment configuration */}
-                        <FlexboxGrid justify="space-between">
-                            <FlexboxGrid.Item colspan={5}>
-                                <Form.Group>
-                                    <Form.ControlLabel>Name der Phase</Form.ControlLabel>
-                                    <Input
-                                        value={segment.name}
-                                        onChange={(value) => updateSegment(segment.id, { name: value })}
-                                        placeholder="z.B. Frühe Rente"
-                                    />
-                                </Form.Group>
-                            </FlexboxGrid.Item>
-                            <FlexboxGrid.Item colspan={4}>
-                                <Form.Group>
-                                    <Form.ControlLabel>Startjahr</Form.ControlLabel>
-                                    <InputNumber
-                                        value={segment.startYear}
-                                        onChange={(value) => updateSegment(segment.id, { startYear: Number(value) || withdrawalStartYear })}
-                                        min={withdrawalStartYear}
-                                        max={withdrawalEndYear}
-                                    />
-                                </Form.Group>
-                            </FlexboxGrid.Item>
-                            <FlexboxGrid.Item colspan={4}>
-                                <Form.Group>
-                                    <Form.ControlLabel>Endjahr</Form.ControlLabel>
-                                    <InputNumber
-                                        value={segment.endYear}
-                                        onChange={(value) => updateSegment(segment.id, { endYear: Number(value) || withdrawalEndYear })}
-                                        min={withdrawalStartYear}
-                                        max={withdrawalEndYear}
-                                    />
-                                </Form.Group>
-                            </FlexboxGrid.Item>
-                        </FlexboxGrid>
+                        {/* Basic segment configuration - Mobile responsive layout */}
+                        <div className="form-grid">
+                            <Form.Group>
+                                <Form.ControlLabel>Name der Phase</Form.ControlLabel>
+                                <Input
+                                    value={segment.name}
+                                    onChange={(value) => updateSegment(segment.id, { name: value })}
+                                    placeholder="z.B. Frühe Rente"
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.ControlLabel>Startjahr</Form.ControlLabel>
+                                <InputNumber
+                                    value={segment.startYear}
+                                    onChange={(value) => updateSegment(segment.id, { startYear: Number(value) || withdrawalStartYear })}
+                                    min={withdrawalStartYear}
+                                    max={withdrawalEndYear}
+                                />
+                            </Form.Group>
+                            <Form.Group>
+                                <Form.ControlLabel>Endjahr</Form.ControlLabel>
+                                <InputNumber
+                                    value={segment.endYear}
+                                    onChange={(value) => updateSegment(segment.id, { endYear: Number(value) || withdrawalEndYear })}
+                                    min={withdrawalStartYear}
+                                    max={withdrawalEndYear}
+                                />
+                            </Form.Group>
+                        </div>
 
                         <Divider />
 
