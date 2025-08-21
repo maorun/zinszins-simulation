@@ -1,9 +1,20 @@
-import { Panel, Table } from "rsuite";
+import {
+    Card,
+    CardContent,
+    CardHeader,
+    CardTitle,
+} from "@/components/ui/card";
+import {
+    Table,
+    TableBody,
+    TableCell,
+    TableHead,
+    TableHeader,
+    TableRow,
+} from "@/components/ui/table";
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type { Summary } from "../utils/summary-utils";
 import { fullSummary, getSparplanSummary } from "../utils/summary-utils";
-
-const { Column, HeaderCell, Cell } = Table;
 
 
 
@@ -14,24 +25,29 @@ export function SparplanEnd({
 }) {
     const summary: Summary = fullSummary(elemente)
     return (
-        <Panel header="🎯 Endkapital" bordered>
-            <div style={{
-                textAlign: 'center',
-                padding: '1.5rem',
-                background: 'linear-gradient(135deg, #28a745, #20c997)',
-                color: 'white',
-                borderRadius: '12px',
-                margin: '1rem 0',
-                boxShadow: '0 4px 12px rgba(40, 167, 69, 0.3)'
-            }}>
-                <div style={{ fontSize: '1.2rem', marginBottom: '0.5rem', opacity: 0.9 }}>
-                    Ihr Gesamtkapital
+        <Card>
+            <CardHeader>
+                <CardTitle>🎯 Endkapital</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div style={{
+                    textAlign: 'center',
+                    padding: '1.5rem',
+                    background: 'linear-gradient(135deg, #28a745, #20c997)',
+                    color: 'white',
+                    borderRadius: '12px',
+                    margin: '1rem 0',
+                    boxShadow: '0 4px 12px rgba(40, 167, 69, 0.3)'
+                }}>
+                    <div style={{ fontSize: '1.2rem', marginBottom: '0.5rem', opacity: 0.9 }}>
+                        Ihr Gesamtkapital
+                    </div>
+                    <div style={{ fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-1px' }}>
+                        {thousands(summary.endkapital.toFixed(2))} €
+                    </div>
                 </div>
-                <div style={{ fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-1px' }}>
-                    {thousands(summary.endkapital.toFixed(2))} €
-                </div>
-            </div>
-        </Panel>
+            </CardContent>
+        </Card>
     )
 }
 
@@ -53,133 +69,143 @@ export function SparplanSimulationsAusgabe({
     }));
 
     return (
-        <Panel header="📈 Sparplan-Verlauf" bordered>
-            <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
-                Detaillierte Aufschlüsselung Ihrer Sparpläne nach Jahren
-            </div>
-            
-            {/* Card Layout for All Devices */}
-            <div className="sparplan-cards">
-                {tableData?.map((el, index) => (
-                    <div key={index} className="sparplan-card">
-                        <div className="sparplan-card-header">
-                            <span className="sparplan-year">📅 {el.zeitpunkt}</span>
-                            <span className="sparplan-endkapital">
-                                🎯 {thousands(el.endkapital)} €
-                            </span>
-                        </div>
-                        <div className="sparplan-card-details">
-                            <div className="sparplan-detail">
-                                <span className="detail-label">💰 Einzahlung:</span>
-                                <span className="detail-value" style={{ color: '#28a745' }}>
-                                    {thousands(el.einzahlung)} €
-                                </span>
-                            </div>
-                            <div className="sparplan-detail">
-                                <span className="detail-label">📈 Zinsen:</span>
-                                <span className="detail-value" style={{ color: '#17a2b8' }}>
-                                    {thousands(el.zinsen)} €
-                                </span>
-                            </div>
-                            <div className="sparplan-detail">
-                                <span className="detail-label">💸 Bezahlte Steuer:</span>
-                                <span className="detail-value" style={{ color: '#dc3545' }}>
-                                    {thousands(el.bezahlteSteuer)} €
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-                ))}
+        <Card>
+            <CardHeader>
+                <CardTitle>📈 Sparplan-Verlauf</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
+                    Detaillierte Aufschlüsselung Ihrer Sparpläne nach Jahren
+                </div>
                 
-                {/* Summary Card */}
-                <div className="sparplan-summary-card">
-                    <div className="summary-title">📊 Gesamtübersicht</div>
-                    <div className="summary-grid">
-                        <div className="summary-item">
-                            <span className="summary-label">💰 Einzahlungen</span>
-                            <span className="summary-value">
-                                {thousands(summary.startkapital?.toFixed(2) || "0")} €
-                            </span>
+                {/* Card Layout for All Devices */}
+                <div className="sparplan-cards">
+                    {tableData?.map((el, index) => (
+                        <div key={index} className="sparplan-card">
+                            <div className="sparplan-card-header">
+                                <span className="sparplan-year">📅 {el.zeitpunkt}</span>
+                                <span className="sparplan-endkapital">
+                                    🎯 {thousands(el.endkapital)} €
+                                </span>
+                            </div>
+                            <div className="sparplan-card-details">
+                                <div className="sparplan-detail">
+                                    <span className="detail-label">💰 Einzahlung:</span>
+                                    <span className="detail-value" style={{ color: '#28a745' }}>
+                                        {thousands(el.einzahlung)} €
+                                    </span>
+                                </div>
+                                <div className="sparplan-detail">
+                                    <span className="detail-label">📈 Zinsen:</span>
+                                    <span className="detail-value" style={{ color: '#17a2b8' }}>
+                                        {thousands(el.zinsen)} €
+                                    </span>
+                                </div>
+                                <div className="sparplan-detail">
+                                    <span className="detail-label">💸 Bezahlte Steuer:</span>
+                                    <span className="detail-value" style={{ color: '#dc3545' }}>
+                                        {thousands(el.bezahlteSteuer)} €
+                                    </span>
+                                </div>
+                            </div>
                         </div>
-                        <div className="summary-item">
-                            <span className="summary-label">📈 Zinsen</span>
-                            <span className="summary-value">
-                                {thousands(summary.zinsen?.toFixed(2) || "0")} €
-                            </span>
-                        </div>
-                        <div className="summary-item">
-                            <span className="summary-label">💸 Steuern</span>
-                            <span className="summary-value">
-                                {thousands(summary.bezahlteSteuer?.toFixed(2) || "0")} €
-                            </span>
-                        </div>
-                        <div className="summary-item highlight">
-                            <span className="summary-label">🎯 Endkapital</span>
-                            <span className="summary-value">
-                                {thousands(summary.endkapital?.toFixed(2) || "0")} €
-                            </span>
+                    ))}
+                    
+                    {/* Summary Card */}
+                    <div className="sparplan-summary-card">
+                        <div className="summary-title">📊 Gesamtübersicht</div>
+                        <div className="summary-grid">
+                            <div className="summary-item">
+                                <span className="summary-label">💰 Einzahlungen</span>
+                                <span className="summary-value">
+                                    {thousands(summary.startkapital?.toFixed(2) || "0")} €
+                                </span>
+                            </div>
+                            <div className="summary-item">
+                                <span className="summary-label">📈 Zinsen</span>
+                                <span className="summary-value">
+                                    {thousands(summary.zinsen?.toFixed(2) || "0")} €
+                                </span>
+                            </div>
+                            <div className="summary-item">
+                                <span className="summary-label">💸 Steuern</span>
+                                <span className="summary-value">
+                                    {thousands(summary.bezahlteSteuer?.toFixed(2) || "0")} €
+                                </span>
+                            </div>
+                            <div className="summary-item highlight">
+                                <span className="summary-label">🎯 Endkapital</span>
+                                <span className="summary-value">
+                                    {thousands(summary.endkapital?.toFixed(2) || "0")} €
+                                </span>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
-            {/* Hidden Desktop Table Layout */}
-            <div style={{ display: 'none' }}>
-                <Table
-                    data={tableData}
-                    bordered
-                    headerHeight={70}
-                    style={{ fontSize: '0.9rem' }}
-                >
-                    <Column width={120}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa', textAlign: 'center' }}>
-                            📅 Jahr
-                        </HeaderCell>
-                        <Cell dataKey="zeitpunkt" style={{ textAlign: 'center', fontWeight: 500 }} />
-                    </Column>
-
-                    <Column flexGrow={1}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                            <HeaderSummary
-                                title="💰 Einzahlung"
-                                summary={summary.startkapital?.toFixed(2).toString() || ""}
-                            />
-                        </HeaderCell>
-                        <EnhancedNumberCell dataKey="einzahlung" color="#28a745" />
-                    </Column>
-
-                    <Column flexGrow={1}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                            <HeaderSummary
-                                title="💸 Bezahlte Steuer"
-                                summary={summary.bezahlteSteuer?.toFixed(2).toString() || ""}
-                            />
-                        </HeaderCell>
-                        <EnhancedNumberCell dataKey="bezahlteSteuer" color="#dc3545" />
-                    </Column>
-                    
-                    <Column flexGrow={1}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                            <HeaderSummary
-                                title="📈 Zinsen"
-                                summary={summary.zinsen?.toFixed(2).toString() || ""}
-                            />
-                        </HeaderCell>
-                        <EnhancedNumberCell dataKey="zinsen" color="#17a2b8" />
-                    </Column>
-                    
-                    <Column flexGrow={1}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                            <HeaderSummary
-                                title="🎯 Endkapital"
-                                summary={summary.endkapital?.toFixed(2).toString() || ""}
-                            />
-                        </HeaderCell>
-                        <EnhancedNumberCell dataKey="endkapital" color="#2eabdf" bold />
-                    </Column>
-                </Table>
-            </div>
-        </Panel>
+                {/* Hidden Desktop Table Layout */}
+                <div style={{ display: 'none' }}>
+                    <Table>
+                        <TableHeader>
+                            <TableRow>
+                                <TableHead className="text-center font-semibold">📅 Jahr</TableHead>
+                                <TableHead className="font-semibold">
+                                    <HeaderSummary
+                                        title="💰 Einzahlung"
+                                        summary={summary.startkapital?.toFixed(2).toString() || ""}
+                                    />
+                                </TableHead>
+                                <TableHead className="font-semibold">
+                                    <HeaderSummary
+                                        title="💸 Bezahlte Steuer"
+                                        summary={summary.bezahlteSteuer?.toFixed(2).toString() || ""}
+                                    />
+                                </TableHead>
+                                <TableHead className="font-semibold">
+                                    <HeaderSummary
+                                        title="📈 Zinsen"
+                                        summary={summary.zinsen?.toFixed(2).toString() || ""}
+                                    />
+                                </TableHead>
+                                <TableHead className="font-semibold">
+                                    <HeaderSummary
+                                        title="🎯 Endkapital"
+                                        summary={summary.endkapital?.toFixed(2).toString() || ""}
+                                    />
+                                </TableHead>
+                            </TableRow>
+                        </TableHeader>
+                        <TableBody>
+                            {tableData?.map((el, index) => (
+                                <TableRow key={index}>
+                                    <TableCell className="text-center font-medium">{el.zeitpunkt}</TableCell>
+                                    <TableCell className="text-right">
+                                        <span style={{ color: '#28a745', fontWeight: 500 }}>
+                                            {thousands(el.einzahlung)} €
+                                        </span>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <span style={{ color: '#dc3545', fontWeight: 500 }}>
+                                            {thousands(el.bezahlteSteuer)} €
+                                        </span>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <span style={{ color: '#17a2b8', fontWeight: 500 }}>
+                                            {thousands(el.zinsen)} €
+                                        </span>
+                                    </TableCell>
+                                    <TableCell className="text-right">
+                                        <span style={{ color: '#2eabdf', fontWeight: 600, fontSize: '1rem' }}>
+                                            {thousands(el.endkapital)} €
+                                        </span>
+                                    </TableCell>
+                                </TableRow>
+                            ))}
+                        </TableBody>
+                    </Table>
+                </div>
+            </CardContent>
+        </Card>
     );
 }
 
@@ -212,28 +238,5 @@ const HeaderSummary = ({
             {thousands(summary)} €
         </div>
     </div>
-);
-
-const EnhancedNumberCell = ({
-    rowData,
-    dataKey,
-    color = "#333",
-    bold = false,
-    ...props
-}: {
-    rowData?: any;
-    dataKey: string;
-    color?: string;
-    bold?: boolean;
-}) => (
-    <Cell {...props} style={{ textAlign: 'right', paddingRight: '1rem' }}>
-        <span style={{ 
-            color, 
-            fontWeight: bold ? 600 : 500,
-            fontSize: bold ? '1rem' : '0.9rem'
-        }}>
-            {thousands(rowData[dataKey])} €
-        </span>
-    </Cell>
 );
 
