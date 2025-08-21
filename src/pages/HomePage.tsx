@@ -25,9 +25,11 @@ import { fullSummary, getEnhancedSummary } from "../utils/summary-utils";
 import { calculateWithdrawal } from "../utils/withdrawal";
 import { unique } from "../utils/array-utils";
 import { Zeitspanne } from "../components/Zeitspanne";
+import { useToast } from "@/components/ui/use-toast";
 
 
 export default function HomePage() {
+    const { toast } = useToast();
     const [rendite, setRendite] = useState(5);
     
     // Tax configuration state
@@ -119,7 +121,11 @@ export default function HomePage() {
                 }))
             });
         } catch (error) {
-            console.error('Simulation error:', error);
+            toast({
+                title: "Simulation Error",
+                description: `Ein Fehler ist aufgetreten: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`,
+                variant: "destructive",
+            });
         } finally {
             setIsLoading(false);
         }

@@ -9,6 +9,7 @@ export default defineConfig({
     alias: {
       "~": path.resolve(__dirname, "./src"),
       "helpers": path.resolve(__dirname, "./helpers"),
+      "@": path.resolve(__dirname, "./src"),
     },
   },
 })
