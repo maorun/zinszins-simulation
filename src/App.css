@@ -704,6 +704,89 @@ footer {
   line-height: 1.4;
 }
 
+/* Monte Carlo Scenarios Grid */
+.monte-carlo-scenarios-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.monte-carlo-card {
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 1rem;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  transition: box-shadow 0.2s ease;
+}
+
+.monte-carlo-card:hover {
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.monte-carlo-card.monte-carlo-best {
+  border-left: 4px solid #28a745;
+  background: linear-gradient(135deg, #d4edda, #c3e6cb);
+}
+
+.monte-carlo-card.monte-carlo-worst {
+  border-left: 4px solid #dc3545;
+  background: linear-gradient(135deg, #f8d7da, #f1b0b7);
+}
+
+.monte-carlo-card.monte-carlo-median {
+  border-left: 4px solid #17a2b8;
+  background: linear-gradient(135deg, #d1ecf1, #bee5eb);
+}
+
+.monte-carlo-card-header {
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid #eee;
+}
+
+.monte-carlo-scenario-title {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.monte-carlo-card-content {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.monte-carlo-description {
+  font-size: 0.9rem;
+  color: #555;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.monte-carlo-probability {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: #666;
+  margin: 0;
+}
+
+/* Responsive grid for Monte Carlo scenarios */
+@media (min-width: 768px) {
+  .monte-carlo-scenarios-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.25rem;
+  }
+}
+
+@media (min-width: 1024px) {
+  .monte-carlo-scenarios-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
 /* Large Desktop: 1440px and up */
 @media (min-width: 1440px) {
   .app-container {

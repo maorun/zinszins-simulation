@@ -1,16 +1,5 @@
-import {
-    Card,
-    CardContent,
-    CardHeader,
-    CardTitle,
-} from "@/components/ui/card";
-import {
-    Collapsible,
-    CollapsibleContent,
-    CollapsibleTrigger,
-} from "@/components/ui/collapsible";
-import { ChevronDown } from "lucide-react";
-import { useState } from "react";
+import { Panel } from "rsuite";
+import 'rsuite/dist/rsuite.min.css';
 import type { RandomReturnConfig } from '../utils/random-returns';
 
 interface MonteCarloResultsProps {
@@ -32,7 +21,6 @@ export function MonteCarloResults({
     withdrawalConfig,
     runs: _runs = 500
 }: MonteCarloResultsProps) {
-    const [isOpen, setIsOpen] = useState(false);
     const formatPercent = (value: number) => (value * 100).toFixed(1) + '%';
 
     // Create statistical scenarios based on normal distribution
@@ -68,82 +56,73 @@ export function MonteCarloResults({
     const withdrawalScenarios = withdrawalConfig ? createScenarios(withdrawalConfig) : null;
 
     const getCardClassName = (scenario: string) => {
-        if (scenario.includes('Best Case')) return 'border-green-500 bg-green-50';
-        if (scenario.includes('Worst Case')) return 'border-red-500 bg-red-50';
-        if (scenario.includes('Median')) return 'border-blue-500 bg-blue-50';
-        return 'border-gray-200';
+        if (scenario.includes('Best Case')) return 'monte-carlo-card monte-carlo-best';
+        if (scenario.includes('Worst Case')) return 'monte-carlo-card monte-carlo-worst';
+        if (scenario.includes('Median')) return 'monte-carlo-card monte-carlo-median';
+        return 'monte-carlo-card';
     };
 
     const renderAnalysisCards = (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => (
-        <div className="mb-8">
-            <h4 className="text-lg font-semibold text-blue-600 mb-4">📊 {title}</h4>
-            <div className="mb-5 text-sm text-muted-foreground">
-                <p className="mb-2">
+        <Panel header={`📊 ${title}`} bordered collapsible defaultExpanded>
+            <div style={{ marginBottom: '1rem', fontSize: '0.9rem', color: '#666' }}>
+                <p style={{ marginBottom: '0.5rem' }}>
                     <strong>Simulationsparameter:</strong> Durchschnittliche Rendite {formatPercent(config.averageReturn)}, 
                     Volatilität {formatPercent(config.standardDeviation || 0.15)}
                 </p>
-                <p className="mb-2">
+                <p style={{ marginBottom: '0.5rem' }}>
                     <strong>Annahme:</strong> Die jährlichen Renditen folgen einer Normalverteilung. 
                     Reale Märkte können von dieser Annahme abweichen.
                 </p>
                 {config.seed && (
-                    <p>
+                    <p style={{ marginBottom: '0.5rem' }}>
                         <strong>Zufallsseed:</strong> {config.seed} (deterministische Ergebnisse)
                     </p>
                 )}
             </div>
 
-            {/* Card Layout for all scenarios */}
-            <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3">
+            {/* Scenario Cards Grid */}
+            <div className="monte-carlo-scenarios-grid">
                 {scenarios.map((scenario, index) => (
-                    <Card key={index} className={`${getCardClassName(scenario.scenario)}`}>
-                        <CardHeader className="pb-2">
-                            <CardTitle className="text-sm font-medium">{scenario.scenario}</CardTitle>
-                        </CardHeader>
-                        <CardContent className="pt-0">
-                            <p className="text-sm text-muted-foreground mb-2">
+                    <div key={index} className={getCardClassName(scenario.scenario)}>
+                        <div className="monte-carlo-card-header">
+                            <div className="monte-carlo-scenario-title">{scenario.scenario}</div>
+                        </div>
+                        <div className="monte-carlo-card-content">
+                            <p className="monte-carlo-description">
                                 {scenario.description}
                             </p>
-                            <p className="text-xs font-medium text-muted-foreground">
+                            <p className="monte-carlo-probability">
                                 {scenario.probability}
                             </p>
-                        </CardContent>
-                    </Card>
+                        </div>
+                    </div>
                 ))}
             </div>
-        </div>
+        </Panel>
     );
 
     return (
-        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-            <Card>
-                <CollapsibleTrigger asChild>
-                    <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-                        <CardTitle className="flex items-center justify-between">
-                            Monte Carlo Analyse
-                            <ChevronDown className={`h-4 w-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} />
-                        </CardTitle>
-                    </CardHeader>
-                </CollapsibleTrigger>
-                <CollapsibleContent>
-                    <CardContent>
-                        {renderAnalysisCards(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
-                        
-                        {withdrawalScenarios && withdrawalConfig && (
-                            renderAnalysisCards(withdrawalScenarios, withdrawalConfig, 'Entnahmephase (Entsparphase)')
-                        )}
+        <Panel header="🎲 Monte Carlo Analyse" bordered collapsible defaultExpanded>
+            {renderAnalysisCards(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
+            
+            {withdrawalScenarios && withdrawalConfig && (
+                renderAnalysisCards(withdrawalScenarios, withdrawalConfig, 'Entnahmephase (Entsparphase)')
+            )}
 
-                        <div className="mt-4 p-3 bg-muted/50 border border-gray-200 rounded-md">
-                            <h6 className="font-semibold mb-2">💡 Hinweis zu Monte Carlo Simulationen:</h6>
-                            <p className="text-sm text-muted-foreground">
-                                Diese Simulation basiert auf statistischen Modellen und historischen Annahmen. 
-                                Tatsächliche Marktrenditen können stark abweichen. Die Simulation dient nur zur 
-                                groben Orientierung und ersetzt keine professionelle Finanzberatung.
-                            </p>
-                        </div>
-                    </CardContent>
-                </CollapsibleContent>
-            </Card>
-        </Collapsible>
+            <div style={{ 
+                marginTop: '1rem', 
+                padding: '1rem', 
+                backgroundColor: '#f5f5f5', 
+                border: '1px solid #e6e6e6', 
+                borderRadius: '6px' 
+            }}>
+                <h6 style={{ fontWeight: 600, marginBottom: '0.5rem' }}>💡 Hinweis zu Monte Carlo Simulationen:</h6>
+                <p style={{ fontSize: '0.9rem', color: '#666', margin: 0 }}>
+                    Diese Simulation basiert auf statistischen Modellen und historischen Annahmen. 
+                    Tatsächliche Marktrenditen können stark abweichen. Die Simulation dient nur zur 
+                    groben Orientierung und ersetzt keine professionelle Finanzberatung.
+                </p>
+            </div>
+        </Panel>
     );
 }
