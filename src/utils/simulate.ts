@@ -68,7 +68,9 @@ export function simulate(
     steuerlast: number,
     simulationAnnual: SimulationAnnualType,
     teilfreistellungsquote: number = 0.3,
-    freibetragPerYear?: {[year: number]: number}
+    freibetragPerYear?: {[year: number]: number},
+    ter: number = 0, // Total Expense Ratio
+    transactionCosts: number = 0 // Transaction costs per execution
 ): SparplanElement[] {
     // Helper function to get tax allowance for a specific year
     const getFreibetragForYear = (year: number): number => {
@@ -217,9 +219,18 @@ export function simulate(
         } else {
             for (const element of elements) {
                 if (new Date(element.start).getFullYear() <= year) {
-                    let kapital =
-                        element.simulation[year - 1]?.endkapital ||
-                        element.einzahlung + (element.type === "einmalzahlung" ? element.gewinn : 0);
+                    let kapital;
+                    const isFirstYear = !element.simulation[year - 1]?.endkapital;
+
+                    if (isFirstYear) {
+                        // First year of this element, apply transaction costs if it's a savings plan
+                        const initialInvestment = element.einzahlung + (element.type === "einmalzahlung" ? element.gewinn : 0);
+                        const cost = (element.type === "sparplan" ? transactionCosts : 0);
+                        kapital = initialInvestment - cost;
+                    } else {
+                        // Subsequent years
+                        kapital = element.simulation[year - 1].endkapital;
+                    }
 
                     const endKapital = zinszinsVorabpauschale(
                         kapital,
@@ -231,10 +242,15 @@ export function simulate(
                         12
                     );
 
+                    // Apply growth
+                    const kapitalNachWachstum = kapital * (1 + wachstumsrate);
+                    // Apply TER
+                    const kapitalNachKosten = kapitalNachWachstum * (1 - ter);
+
                     element.simulation[year] = {
                         startkapital: kapital,
-                        endkapital: kapital * (1 + wachstumsrate) - endKapital.steuer,
-                        zinsen: kapital * (1 + wachstumsrate),
+                        endkapital: kapitalNachKosten - endKapital.steuer,
+                        zinsen: kapital * wachstumsrate - (kapitalNachWachstum * ter), // Zinsen minus TER
                         bezahlteSteuer: endKapital.steuer,
                         genutzterFreibetrag: 0,
                         vorabpauschaleDetails: endKapital.details

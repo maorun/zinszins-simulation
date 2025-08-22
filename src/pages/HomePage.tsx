@@ -25,6 +25,7 @@ import { fullSummary, getEnhancedSummary } from "../utils/summary-utils";
 import { calculateWithdrawal } from "../utils/withdrawal";
 import { unique } from "../utils/array-utils";
 import { Zeitspanne } from "../components/Zeitspanne";
+import VorabpauschaleExplanation from "../components/VorabpauschaleExplanation";
 
 
 export default function HomePage() {
@@ -34,6 +35,10 @@ export default function HomePage() {
     const [steuerlast, setSteuerlast] = useState(26.375); // Capital gains tax rate as percentage
     const [teilfreistellungsquote, setTeilfreistellungsquote] = useState(30); // Partial exemption rate as percentage
     const [freibetragPerYear, setFreibetragPerYear] = useState<{[year: number]: number}>({2023: 2000}); // Tax allowance per year
+
+    // Cost configuration state
+    const [ter, setTer] = useState(0); // Total Expense Ratio as percentage
+    const [transactionCosts, setTransactionCosts] = useState(0); // Fixed transaction costs per execution
 
     // Return configuration state
     const [returnMode, setReturnMode] = useState<ReturnMode>('fixed');
@@ -110,7 +115,9 @@ export default function HomePage() {
                 steuerlast / 100,
                 simulationAnnual,
                 teilfreistellungsquote / 100,
-                freibetragPerYear
+                freibetragPerYear,
+                ter / 100, // Pass TER as a decimal
+                transactionCosts
             );
 
             setSimulationData({
@@ -123,7 +130,7 @@ export default function HomePage() {
         } finally {
             setIsLoading(false);
         }
-    }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear]);
+    }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, ter, transactionCosts]);
 
     useEffect(() => {
         performSimulation();
@@ -550,6 +557,42 @@ export default function HomePage() {
                         </Form.Group>
                     </Panel>
                     
+                    {/* Cost Configuration */}
+                    <Panel header="💸 Kostenfaktoren (optional)" bordered>
+                        <Form.Group controlId="ter">
+                            <Form.ControlLabel>Laufende Kosten (TER % p.a.)</Form.ControlLabel>
+                            <Slider
+                                name="ter"
+                                renderTooltip={(value) => value + "%"}
+                                handleTitle={(<div style={{ marginTop: '-17px' }}>{ter}%</div>)}
+                                progress
+                                value={ter}
+                                min={0}
+                                max={2}
+                                step={0.05}
+                                graduated
+                                onChange={(value) => {
+                                    setTer(value);
+                                    performSimulation();
+                                }}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="transactionCosts">
+                            <Form.ControlLabel>Transaktionskosten pro Sparplanausführung (€)</Form.ControlLabel>
+                            <InputNumber
+                                name="transactionCosts"
+                                value={transactionCosts}
+                                min={0}
+                                max={100}
+                                step={0.5}
+                                onChange={(value) => {
+                                    setTransactionCosts(Number(value));
+                                    performSimulation();
+                                }}
+                            />
+                        </Form.Group>
+                    </Panel>
+
                     {/* Simulation Configuration */}
                     <Panel header="⚙️ Simulation-Konfiguration" bordered>
                         <Form.Group controlId="simulationAnnual">
@@ -687,6 +730,12 @@ export default function HomePage() {
                                                                         <div className="vorab-details">
                                                                             <span>Basiszins: {(value.vorabpauschaleDetails.basiszins * 100).toFixed(2)}%</span>
                                                                             <span>Vorabpauschale: {Number(value.vorabpauschaleDetails.vorabpauschaleAmount).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                                            <VorabpauschaleExplanation
+                                                                                details={value.vorabpauschaleDetails}
+                                                                                startkapital={value.startkapital}
+                                                                                steuerlast={steuerlast}
+                                                                                teilfreistellungsquote={teilfreistellungsquote}
+                                                                            />
                                                                         </div>
                                                                     )}
                                                                 </div>
@@ -759,8 +808,14 @@ export default function HomePage() {
                                                                     borderRadius: '4px',
                                                                     fontSize: '0.9rem'
                                                                 }}>
-                                                                    <div style={{ fontWeight: 600, color: '#1976d2', marginBottom: '6px' }}>
+                                                                    <div style={{ fontWeight: 600, color: '#1976d2', marginBottom: '6px', display: 'flex', alignItems: 'center' }}>
                                                                         📊 Vorabpauschale-Berechnung
+                                                                        <VorabpauschaleExplanation
+                                                                            details={value.vorabpauschaleDetails}
+                                                                            startkapital={value.startkapital}
+                                                                            steuerlast={steuerlast}
+                                                                            teilfreistellungsquote={teilfreistellungsquote}
+                                                                        />
                                                                     </div>
                                                                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '6px' }}>
                                                                         <div>
