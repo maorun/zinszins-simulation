@@ -3,11 +3,12 @@ import { SimulationAnnual } from '../utils/simulate';
 import type { Sparplan } from '../utils/sparplan-utils';
 import { initialSparplan } from '../utils/sparplan-utils';
 import { useState } from "react";
+import React from 'react';
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { useToast } from "@/components/ui/use-toast";
+import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
@@ -16,7 +17,6 @@ import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
 export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val: Sparplan[]) => void; simulationAnnual: SimulationAnnualType }) {
-    const { toast } = useToast();
     const [sparplans, setSparplans] = useState<Sparplan[]>([
         initialSparplan
     ]);
@@ -56,9 +56,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 einzahlung: '',
             })
             
-            toast({
-                title: "Sparplan erfolgreich hinzugefügt!",
-            });
+            toast.success("Sparplan erfolgreich hinzugefügt!");
         }
     };
 
@@ -81,9 +79,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 einzahlung: '',
             })
             
-            toast({
-                title: "Einmalzahlung erfolgreich hinzugefügt!",
-            });
+            toast.success("Einmalzahlung erfolgreich hinzugefügt!");
         }
     };
 
@@ -92,9 +88,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
         setSparplans(changedSparplans)
         dispatch(changedSparplans)
         
-        toast({
-            title: "Sparplan entfernt",
-        });
+        toast.info("Sparplan entfernt");
     };
 
     return (
