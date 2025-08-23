@@ -2,6 +2,7 @@ import type { RandomReturnConfig } from '../utils/random-returns';
 import { Card, CardContent } from "@/components/ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
+import { ChevronDown } from 'lucide-react';
 
 interface MonteCarloResultsProps {
     years: number[];
@@ -64,13 +65,12 @@ export function MonteCarloResults({
     };
 
     const renderAnalysisCards = (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => (
-        <Collapsible defaultOpen>
-            <CollapsibleTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-lg font-semibold mb-4">
-                    <span className="mr-2">📊</span> {title}
-                </Button>
+        <Collapsible defaultOpen className="group">
+            <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+                <span><span className="mr-2">📊</span> {title}</span>
+                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-[data-state=open]:rotate-180" />
             </CollapsibleTrigger>
-            <CollapsibleContent>
+            <CollapsibleContent className="pt-4">
                 <Card>
                     <CardContent className="pt-6">
                         <div className="mb-4 text-sm text-muted-foreground">
@@ -114,13 +114,12 @@ export function MonteCarloResults({
     );
 
     return (
-        <Collapsible defaultOpen>
-            <CollapsibleTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-lg font-semibold mb-4">
-                    <span className="mr-2">🎲</span> Monte Carlo Analyse
-                </Button>
+        <Collapsible defaultOpen className="group">
+            <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+                <span><span className="mr-2">🎲</span> Monte Carlo Analyse</span>
+                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-[data-state=open]:rotate-180" />
             </CollapsibleTrigger>
-            <CollapsibleContent className="space-y-4">
+            <CollapsibleContent className="pt-4 space-y-4">
                 {renderAnalysisCards(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
 
                 {withdrawalScenarios && withdrawalConfig && (

@@ -12,7 +12,7 @@ import { toast } from "sonner";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Calendar } from "@/components/ui/calendar";
-import { CalendarIcon, Info, Trash2 } from 'lucide-react';
+import { CalendarIcon, Info, Trash2, ChevronDown } from 'lucide-react';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
 
@@ -93,11 +93,10 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
 
     return (
         <div className="space-y-4">
-            <Collapsible>
-                <CollapsibleTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-lg font-semibold">
-                        <span className="mr-2">💰</span> Sparpläne erstellen
-                    </Button>
+            <Collapsible className="group">
+                <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+                    <span><span className="mr-2">💰</span> Sparpläne erstellen</span>
+                    <ChevronDown className="h-4 w-4 transition-transform duration-200 group-[data-state=open]:rotate-180" />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4">
                     <Card>
@@ -184,11 +183,10 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 </CollapsibleContent>
             </Collapsible>
             
-            <Collapsible>
-                <CollapsibleTrigger asChild>
-                    <Button variant="outline" className="w-full justify-start text-lg font-semibold">
-                        <span className="mr-2">💵</span> Einmalzahlungen erstellen
-                    </Button>
+            <Collapsible className="group">
+                <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+                    <span><span className="mr-2">💵</span> Einmalzahlungen erstellen</span>
+                    <ChevronDown className="h-4 w-4 transition-transform duration-200 group-[data-state=open]:rotate-180" />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4">
                     <Card>
