@@ -73,7 +73,7 @@ export function SparplanSimulationsAusgabe({
             <CardHeader>
                 <CardTitle>📈 Sparplan-Verlauf</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="p-6">
                 <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
                     Detaillierte Aufschlüsselung Ihrer Sparpläne nach Jahren
                 </div>

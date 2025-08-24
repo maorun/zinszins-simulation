@@ -1,7 +1,7 @@
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import { Analytics } from "@vercel/analytics/react"
 import HomePage from './pages/HomePage'
-import { Toaster } from "@/components/ui/toaster"
+import { Toaster } from "@/components/ui/sonner"
 import './index.css'
 import './App.css'
 
