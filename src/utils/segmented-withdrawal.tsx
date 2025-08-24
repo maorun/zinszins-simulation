@@ -164,11 +164,11 @@ export function createSingleSegmentConfig(
     endYear: number,
     customPercentage?: number,
     monthlyConfig?: MonthlyWithdrawalConfig,
-    dynamicConfig?: import('./withdrawal').DynamicWithdrawalConfig,
     inflationConfig?: InflationConfig,
     enableGrundfreibetrag?: boolean,
     grundfreibetragPerYear?: {[year: number]: number},
-    incomeTaxRate?: number
+    incomeTaxRate?: number,
+    dynamicConfig?: import('./withdrawal').DynamicWithdrawalConfig
 ): SegmentedWithdrawalConfig {
     const segment: WithdrawalSegment = {
         id: "main",

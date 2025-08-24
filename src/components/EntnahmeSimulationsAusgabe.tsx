@@ -49,12 +49,7 @@ export function EntnahmeSimulationsAusgabe({
         guardrailsAktiv: false,
         guardrailsSchwelle: 10,
         // Custom percentage strategy specific settings
-        variabelProzent: 4, // Default to 4%
-        // Dynamic strategy specific settings
-        dynamicUpperThreshold: 8, // e.g., 8% return
-        dynamicUpperAdjustment: 10, // e.g., 10% withdrawal increase
-        dynamicLowerThreshold: -5, // e.g., -5% return
-        dynamicLowerAdjustment: -10, // e.g., -10% withdrawal decrease
+        variabelProzent: 5, // Default to 5%
         // Grundfreibetrag settings
         grundfreibetragAktiv: false,
         grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
@@ -150,15 +145,8 @@ export function EntnahmeSimulationsAusgabe({
                     enableGuardrails: formValue.guardrailsAktiv,
                     guardrailsThreshold: formValue.guardrailsSchwelle / 100
                 } : undefined,
-                // Pass dynamic config for dynamic strategy
-                formValue.strategie === "dynamisch_prozent" ? {
-                    upperThreshold: formValue.dynamicUpperThreshold / 100,
-                    upperAdjustment: formValue.dynamicUpperAdjustment / 100,
-                    lowerThreshold: formValue.dynamicLowerThreshold / 100,
-                    lowerAdjustment: formValue.dynamicLowerAdjustment / 100,
-                } : undefined,
                 // Pass custom percentage for variable percentage strategy
-                (formValue.strategie === "variabel_prozent" || formValue.strategie === "dynamisch_prozent") ? formValue.variabelProzent / 100 : undefined,
+                formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined,
                 // Grundfreibetrag parameters
                 formValue.grundfreibetragAktiv,
                 formValue.grundfreibetragAktiv ? (() => {
@@ -195,7 +183,7 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments]);
 
     // Notify parent component when withdrawal results change
     useEffect(() => {
@@ -273,10 +261,6 @@ export function EntnahmeSimulationsAusgabe({
                                 guardrailsAktiv: changedFormValue.guardrailsAktiv,
                                 guardrailsSchwelle: changedFormValue.guardrailsSchwelle,
                                 variabelProzent: changedFormValue.variabelProzent,
-                                dynamicUpperThreshold: changedFormValue.dynamicUpperThreshold,
-                                dynamicUpperAdjustment: changedFormValue.dynamicUpperAdjustment,
-                                dynamicLowerThreshold: changedFormValue.dynamicLowerThreshold,
-                                dynamicLowerAdjustment: changedFormValue.dynamicLowerAdjustment,
                                 grundfreibetragAktiv: changedFormValue.grundfreibetragAktiv,
                                 grundfreibetragBetrag: changedFormValue.grundfreibetragBetrag,
                                 einkommensteuersatz: changedFormValue.einkommensteuersatz,
@@ -416,9 +400,6 @@ export function EntnahmeSimulationsAusgabe({
                             <RadioTile value="monatlich_fest" label="Monatlich fest">
                                 Fester monatlicher Betrag
                             </RadioTile>
-                            <RadioTile value="dynamisch_prozent" label="Dynamische Entnahme">
-                                Performance-abhängig
-                            </RadioTile>
                         </Form.Control>
                     </Form.Group>
                     
@@ -488,9 +469,9 @@ export function EntnahmeSimulationsAusgabe({
                     )}
                     
                     {/* Variable percentage strategy specific controls */}
-                    {(formValue.strategie === "variabel_prozent" || formValue.strategie === "dynamisch_prozent") && (
+                    {formValue.strategie === "variabel_prozent" && (
                         <Form.Group controlId="variabelProzent">
-                            <Form.ControlLabel>Basis-Entnahmerate (%)</Form.ControlLabel>
+                            <Form.ControlLabel>Entnahme-Prozentsatz (%)</Form.ControlLabel>
                             <Form.Control name="variabelProzent" accepter={Slider} 
                                 min={2}
                                 max={7}
@@ -500,57 +481,9 @@ export function EntnahmeSimulationsAusgabe({
                                 graduated
                             />
                             <Form.HelpText>
-                                Die grundlegende Entnahmerate, die als Basis für die jährliche Entnahme dient.
+                                Wählen Sie einen Entnahme-Prozentsatz zwischen 2% und 7% in 0,5%-Schritten
                             </Form.HelpText>
                         </Form.Group>
-                    )}
-
-                    {/* Dynamic percentage strategy specific controls */}
-                    {formValue.strategie === "dynamisch_prozent" && (
-                        <Panel bordered style={{background: '#f8f9fa'}}>
-                            <p style={{marginBottom: '10px', fontWeight: 500}}>Regeln für dynamische Anpassung:</p>
-                            <Form.Group controlId="dynamicUpperThreshold">
-                                <Form.ControlLabel>Obere Schwelle Rendite (%)</Form.ControlLabel>
-                                <Form.Control name="dynamicUpperThreshold" accepter={Slider}
-                                    min={5}
-                                    max={20}
-                                    step={1}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.dynamicUpperThreshold}%</div>)}
-                                />
-                                <Form.HelpText>Wenn die Jahresrendite diesen Wert übersteigt...</Form.HelpText>
-                            </Form.Group>
-                            <Form.Group controlId="dynamicUpperAdjustment">
-                                <Form.ControlLabel>...passe Entnahme an um (%)</Form.ControlLabel>
-                                <Form.Control name="dynamicUpperAdjustment" accepter={Slider}
-                                    min={0}
-                                    max={25}
-                                    step={1}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.dynamicUpperAdjustment}%</div>)}
-                                />
-                                <Form.HelpText>...wird die Entnahme für dieses Jahr um diesen Prozentsatz erhöht.</Form.HelpText>
-                            </Form.Group>
-                            <hr style={{margin: '20px 0'}} />
-                            <Form.Group controlId="dynamicLowerThreshold">
-                                <Form.ControlLabel>Untere Schwelle Rendite (%)</Form.ControlLabel>
-                                <Form.Control name="dynamicLowerThreshold" accepter={Slider}
-                                    min={-15}
-                                    max={0}
-                                    step={1}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.dynamicLowerThreshold}%</div>)}
-                                />
-                                <Form.HelpText>Wenn die Jahresrendite unter diesen Wert fällt...</Form.HelpText>
-                            </Form.Group>
-                            <Form.Group controlId="dynamicLowerAdjustment">
-                                <Form.ControlLabel>...passe Entnahme an um (%)</Form.ControlLabel>
-                                <Form.Control name="dynamicLowerAdjustment" accepter={Slider}
-                                    min={-25}
-                                    max={0}
-                                    step={1}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.dynamicLowerAdjustment}%</div>)}
-                                />
-                                <Form.HelpText>...wird die Entnahme für dieses Jahr um diesen Prozentsatz reduziert.</Form.HelpText>
-                            </Form.Group>
-                        </Panel>
                     )}
                     
                     {/* Monthly strategy specific controls */}
