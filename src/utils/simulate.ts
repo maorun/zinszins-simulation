@@ -68,9 +68,7 @@ export function simulate(
     steuerlast: number,
     simulationAnnual: SimulationAnnualType,
     teilfreistellungsquote: number = 0.3,
-    freibetragPerYear?: {[year: number]: number},
-    ter: number = 0, // Total Expense Ratio
-    transactionCosts: number = 0 // Transaction costs per execution
+    freibetragPerYear?: {[year: number]: number}
 ): SparplanElement[] {
     // Helper function to get tax allowance for a specific year
     const getFreibetragForYear = (year: number): number => {
@@ -222,17 +220,21 @@ export function simulate(
                     let kapital;
                     const isFirstYear = !element.simulation[year - 1]?.endkapital;
 
+                    // Determine costs from the element, with fallback to 0
+                    const ter = element.ter ? element.ter / 100 : 0; // Convert percentage to decimal
+                    const transactionCosts = element.transactionCosts || 0;
+
                     if (isFirstYear) {
-                        // First year of this element, apply transaction costs if it's a savings plan
+                        // First year of this element, apply transaction costs
                         const initialInvestment = element.einzahlung + (element.type === "einmalzahlung" ? element.gewinn : 0);
-                        const cost = (element.type === "sparplan" ? transactionCosts : 0);
-                        kapital = initialInvestment - cost;
+                        // For Sparplan, cost is per execution. For Einmalzahlung, it's a one-time cost.
+                        kapital = initialInvestment - transactionCosts;
                     } else {
-                        // Subsequent years
+                        // Subsequent years, no transaction costs
                         kapital = element.simulation[year - 1].endkapital;
                     }
 
-                    const endKapital = zinszinsVorabpauschale(
+                    const taxDetails = zinszinsVorabpauschale(
                         kapital,
                         getBasiszinsForYear(year),
                         freibetragInYear,
@@ -249,15 +251,15 @@ export function simulate(
 
                     element.simulation[year] = {
                         startkapital: kapital,
-                        endkapital: kapitalNachKosten - endKapital.steuer,
-                        zinsen: kapital * wachstumsrate - (kapitalNachWachstum * ter), // Zinsen minus TER
-                        bezahlteSteuer: endKapital.steuer,
+                        endkapital: kapitalNachKosten - taxDetails.steuer,
+                        zinsen: (kapital * wachstumsrate) - (kapitalNachWachstum * ter), // Interest gain minus TER cost
+                        bezahlteSteuer: taxDetails.steuer,
                         genutzterFreibetrag: 0,
-                        vorabpauschaleDetails: endKapital.details
-
+                        vorabpauschaleDetails: taxDetails.details
                     };
-                    element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - endKapital.verbleibenderFreibetrag
-                    freibetragInYear = endKapital.verbleibenderFreibetrag;
+
+                    element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - taxDetails.verbleibenderFreibetrag;
+                    freibetragInYear = taxDetails.verbleibenderFreibetrag;
                 }
             }
         }

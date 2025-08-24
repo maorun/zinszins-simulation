@@ -6,6 +6,8 @@ export type Sparplan = {
     start: Date | string;
     end?: Date | string | null;
     einzahlung: number;
+    ter?: number; // Optional: Total Expense Ratio as a percentage (e.g., 0.25)
+    transactionCosts?: number; // Optional: Fixed transaction costs in Euro
 };
 
 export type SparplanElement = {
@@ -13,12 +15,16 @@ export type SparplanElement = {
     type: "sparplan"
     einzahlung: number;
     simulation: SimulationResult;
+    ter?: number;
+    transactionCosts?: number;
 } | {
     start: Date | string;
     type: "einmalzahlung"
     gewinn: number;
     einzahlung: number;
     simulation: SimulationResult;
+    ter?: number;
+    transactionCosts?: number; // Transaction costs can also apply to lump sums
 };
 
 export const initialSparplan: Sparplan = {
@@ -45,6 +51,8 @@ export function convertSparplanToElements(val: Sparplan[], startEnd: [number, nu
                     gewinn: 0, // Will be calculated during simulation
                     einzahlung: el.einzahlung,
                     simulation: {},
+                    ter: el.ter,
+                    transactionCosts: el.transactionCosts,
                 });
             }
         } else {
@@ -59,6 +67,8 @@ export function convertSparplanToElements(val: Sparplan[], startEnd: [number, nu
                             einzahlung: el.einzahlung,
                             type: "sparplan",
                             simulation: {},
+                            ter: el.ter,
+                            transactionCosts: el.transactionCosts,
                         })
                     } else {
                         for (let month = 0; month < 12; month++) {
@@ -72,6 +82,10 @@ export function convertSparplanToElements(val: Sparplan[], startEnd: [number, nu
                                     einzahlung: el.einzahlung / 12,
                                     type: "sparplan",
                                     simulation: {},
+                                    ter: el.ter,
+                                    // Monthly transaction costs would be complex, apply annually for now.
+                                    // Let's assume transactionCosts on the Sparplan object are annual.
+                                    transactionCosts: month === 0 ? el.transactionCosts : 0,
                                 })
                             }
                         }

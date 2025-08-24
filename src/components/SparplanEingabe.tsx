@@ -60,14 +60,18 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
         initialSparplan
     ]);
 
-    const [singleFormValue, setSingleFormValue] = useState<{ date: Date, einzahlung: string }>({
+    const [singleFormValue, setSingleFormValue] = useState<{ date: Date, einzahlung: string, ter: string, transactionCosts: string }>({
         date: new Date(),
         einzahlung: '',
+        ter: '0',
+        transactionCosts: '0',
     });
-    const [sparplanFormValues, setSparplanFormValues] = useState<{ start: Date, end: Date | null, einzahlung: string }>({
+    const [sparplanFormValues, setSparplanFormValues] = useState<{ start: Date, end: Date | null, einzahlung: string, ter: string, transactionCosts: string }>({
         start: new Date(),
         end: null,
         einzahlung: '',
+        ter: '0',
+        transactionCosts: '0',
     });
 
     const toaster = useToaster();
@@ -86,6 +90,8 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                     start: sparplanFormValues.start,
                     end: sparplanFormValues.end,
                     einzahlung: yearlyAmount,
+                    ter: Number(sparplanFormValues.ter) || 0,
+                    transactionCosts: Number(sparplanFormValues.transactionCosts) || 0,
                 }
             ]
             setSparplans(changedSparplans)
@@ -94,6 +100,8 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 start: new Date(),
                 end: null,
                 einzahlung: '',
+                ter: '0',
+                transactionCosts: '0',
             })
             
             toaster.push(
@@ -114,6 +122,8 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                     start: singleFormValue.date,
                     end: singleFormValue.date,
                     einzahlung: Number(singleFormValue.einzahlung),
+                    ter: Number(singleFormValue.ter) || 0,
+                    transactionCosts: Number(singleFormValue.transactionCosts) || 0,
                 }
             ]
             setSparplans(changedSparplans)
@@ -121,6 +131,8 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
             setSingleFormValue({
                 date: new Date(),
                 einzahlung: '',
+                ter: '0',
+                transactionCosts: '0',
             })
             
             toaster.push(
@@ -153,52 +165,63 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 </div>
                 <Form fluid
                     formValue={sparplanFormValues}
-                    onChange={changedFormValue => setSparplanFormValues({
-                        start: changedFormValue.start,
-                        end: changedFormValue.end,
-                        einzahlung: changedFormValue.einzahlung,
-                    })}
+                    onChange={changedFormValue => setSparplanFormValues(prev => ({ ...prev, ...changedFormValue }))}
                     onSubmit={handleSparplanSubmit}
                 >
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
                         <Form.Group controlId="start">
-                            <Form.ControlLabel>
-                                Start
-                                <InfoIcon />
-                            </Form.ControlLabel>
+                            <Form.ControlLabel>Start</Form.ControlLabel>
                             <Form.Control 
                                 format="yyyy-MM" 
                                 name="start" 
                                 accepter={DatePicker}
-                                placeholder="Startdatum wählen"
+                                placeholder="Startdatum"
                                 style={{ width: '100%' }}
                             />
                         </Form.Group>
                         <Form.Group controlId="end">
-                            <Form.ControlLabel>
-                                Ende (optional)
-                                <InfoIcon />
-                            </Form.ControlLabel>
+                            <Form.ControlLabel>Ende (optional)</Form.ControlLabel>
                             <Form.Control 
                                 format="yyyy-MM" 
                                 name="end" 
                                 accepter={DatePicker}
-                                placeholder="Enddatum wählen"
+                                placeholder="Enddatum"
                                 style={{ width: '100%' }}
                             />
                         </Form.Group>
                         <Form.Group controlId="einzahlung">
                             <Form.ControlLabel>
-                                {simulationAnnual === SimulationAnnual.yearly ? 'Einzahlungen je Jahr (€)' : 'Einzahlungen je Monat (€)'}
-                                <InfoIcon />
+                                {simulationAnnual === SimulationAnnual.yearly ? 'Einzahlung p.a. (€)' : 'Einzahlung p.m. (€)'}
                             </Form.ControlLabel>
                             <Form.Control 
                                 name="einzahlung" 
                                 accepter={InputNumber}
-                                placeholder="Betrag eingeben"
+                                placeholder="Betrag"
                                 style={{ width: '100%' }}
                                 min={0}
                                 step={simulationAnnual === SimulationAnnual.monthly ? 10 : 100}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="ter">
+                            <Form.ControlLabel>TER (% p.a.)</Form.ControlLabel>
+                            <Form.Control
+                                name="ter"
+                                accepter={InputNumber}
+                                placeholder="z.B. 0.25"
+                                style={{ width: '100%' }}
+                                min={0}
+                                step={0.05}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="transactionCosts">
+                            <Form.ControlLabel>Transaktionskosten (€)</Form.ControlLabel>
+                            <Form.Control
+                                name="transactionCosts"
+                                accepter={InputNumber}
+                                placeholder="z.B. 1.50"
+                                style={{ width: '100%' }}
+                                min={0}
+                                step={0.5}
                             />
                         </Form.Group>
                     </div>
@@ -223,38 +246,51 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 </div>
                 <Form fluid
                     formValue={singleFormValue}
-                    onChange={changedFormValue => setSingleFormValue({
-                        date: changedFormValue.date,
-                        einzahlung: changedFormValue.einzahlung,
-                    })}
+                    onChange={changedFormValue => setSingleFormValue(prev => ({ ...prev, ...changedFormValue }))}
                     onSubmit={handleSinglePaymentSubmit}
                 >
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
                         <Form.Group controlId="date">
-                            <Form.ControlLabel>
-                                Datum
-                                <InfoIcon />
-                            </Form.ControlLabel>
+                            <Form.ControlLabel>Datum</Form.ControlLabel>
                             <Form.Control 
                                 format="yyyy-MM" 
                                 name="date" 
                                 accepter={DatePicker}
-                                placeholder="Datum wählen"
+                                placeholder="Datum"
                                 style={{ width: '100%' }}
                             />
                         </Form.Group>
                         <Form.Group controlId="einzahlung">
-                            <Form.ControlLabel>
-                                Einzahlung (€)
-                                <InfoIcon />
-                            </Form.ControlLabel>
+                            <Form.ControlLabel>Einzahlung (€)</Form.ControlLabel>
                             <Form.Control 
                                 name="einzahlung" 
                                 accepter={InputNumber}
-                                placeholder="Betrag eingeben"
+                                placeholder="Betrag"
                                 style={{ width: '100%' }}
                                 min={0}
                                 step={100}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="ter_single">
+                            <Form.ControlLabel>TER (% p.a.)</Form.ControlLabel>
+                            <Form.Control
+                                name="ter"
+                                accepter={InputNumber}
+                                placeholder="z.B. 0.25"
+                                style={{ width: '100%' }}
+                                min={0}
+                                step={0.05}
+                            />
+                        </Form.Group>
+                        <Form.Group controlId="transactionCosts_single">
+                            <Form.ControlLabel>Transaktionskosten (€)</Form.ControlLabel>
+                            <Form.Control
+                                name="transactionCosts"
+                                accepter={InputNumber}
+                                placeholder="z.B. 5.00"
+                                style={{ width: '100%' }}
+                                min={0}
+                                step={0.5}
                             />
                         </Form.Group>
                     </div>
@@ -323,6 +359,18 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                             })()}
                                         </span>
                                     </div>
+                                    {(sparplan.ter !== undefined && sparplan.ter > 0) && (
+                                        <div className="sparplan-detail">
+                                            <span className="detail-label">TER:</span>
+                                            <span className="detail-value">{sparplan.ter.toFixed(2)}% p.a.</span>
+                                        </div>
+                                    )}
+                                    {(sparplan.transactionCosts !== undefined && sparplan.transactionCosts > 0) && (
+                                        <div className="sparplan-detail">
+                                            <span className="detail-label">Kosten:</span>
+                                            <span className="detail-value">{sparplan.transactionCosts.toLocaleString('de-DE')} €</span>
+                                        </div>
+                                    )}
                                 </div>
                             </div>
                         ))}
