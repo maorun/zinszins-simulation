@@ -41,76 +41,52 @@ export function EntnahmeSimulationsAusgabe({
         endOfLife,
         strategie: "4prozent" as WithdrawalStrategy,
         rendite: 5,
-        // General inflation settings (for all strategies)
         inflationAktiv: false,
         inflationsrate: 2,
-        // Monthly strategy specific settings
         monatlicheBetrag: 2000,
         guardrailsAktiv: false,
         guardrailsSchwelle: 10,
-        // Custom percentage strategy specific settings
-        variabelProzent: 5, // Default to 5%
-        // Grundfreibetrag settings
+        variabelProzent: 4,
+        dynamicUpperThreshold: 8,
+        dynamicUpperAdjustment: 10,
+        dynamicLowerThreshold: -5,
+        dynamicLowerAdjustment: -10,
         grundfreibetragAktiv: false,
-        grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
-        einkommensteuersatz: 25, // Default income tax rate 25%
+        grundfreibetragBetrag: 10908,
+        einkommensteuersatz: 25,
     });
 
-    // Withdrawal return mode and variable returns state
     const [withdrawalReturnMode, setWithdrawalReturnMode] = useState<WithdrawalReturnMode>('fixed');
     const [withdrawalVariableReturns, setWithdrawalVariableReturns] = useState<Record<number, number>>({});
-    
-    // Withdrawal random return configuration
-    const [withdrawalAverageReturn, setWithdrawalAverageReturn] = useState(5); // Default 5% (more conservative than accumulation)
-    const [withdrawalStandardDeviation, setWithdrawalStandardDeviation] = useState(12); // Default 12% (more conservative than accumulation)
+    const [withdrawalAverageReturn, setWithdrawalAverageReturn] = useState(5);
+    const [withdrawalStandardDeviation, setWithdrawalStandardDeviation] = useState(12);
     const [withdrawalRandomSeed, setWithdrawalRandomSeed] = useState<number | undefined>(undefined);
-
-    // Segmented withdrawal state
     const [useSegmentedWithdrawal, setUseSegmentedWithdrawal] = useState(false);
     const [withdrawalSegments, setWithdrawalSegments] = useState<WithdrawalSegment[]>(() => [
-        createDefaultWithdrawalSegment(
-            "main",
-            "Hauptphase",
-            startOfIndependence + 1,
-            endOfLife
-        )
+        createDefaultWithdrawalSegment("main", "Hauptphase", startOfIndependence + 1, endOfLife)
     ]);
 
-    // Calculate withdrawal projections
     const withdrawalData = useMemo(() => {
-        if (!elemente || elemente.length === 0) {
-            return null;
-        }
-
-        // Get total accumulated capital at the start of withdrawal phase
+        if (!elemente || elemente.length === 0) return null;
         const startingCapital = getTotalCapitalAtYear(elemente, startOfIndependence);
-        
-        if (startingCapital <= 0) {
-            return null;
-        }
+        if (startingCapital <= 0) return null;
 
         let withdrawalResult;
-        
         if (useSegmentedWithdrawal) {
-            // Use segmented withdrawal calculation
             const segmentedConfig: SegmentedWithdrawalConfig = {
                 segments: withdrawalSegments,
                 taxRate: 0.26375,
-                freibetragPerYear: undefined // Use default
+                freibetragPerYear: undefined
             };
-            
             withdrawalResult = calculateSegmentedWithdrawal(startingCapital, segmentedConfig);
         } else {
-            // Use single-strategy withdrawal calculation (backward compatibility)
-            // Build return configuration for withdrawal phase
             let withdrawalReturnConfig: ReturnConfiguration;
-            
             if (withdrawalReturnMode === 'random') {
                 withdrawalReturnConfig = {
                     mode: 'random',
                     randomConfig: {
-                        averageReturn: withdrawalAverageReturn / 100, // Convert percentage to decimal
-                        standardDeviation: withdrawalStandardDeviation / 100, // Convert percentage to decimal
+                        averageReturn: withdrawalAverageReturn / 100,
+                        standardDeviation: withdrawalStandardDeviation / 100,
                         seed: withdrawalRandomSeed
                     }
                 };
@@ -124,33 +100,25 @@ export function EntnahmeSimulationsAusgabe({
                     }
                 };
             } else {
-                withdrawalReturnConfig = {
-                    mode: 'fixed',
-                    fixedRate: formValue.rendite / 100 // Convert percentage to decimal
-                };
+                withdrawalReturnConfig = { mode: 'fixed', fixedRate: formValue.rendite / 100 };
             }
 
-            // Calculate withdrawal projections
             withdrawalResult = calculateWithdrawal(
                 startingCapital,
-                startOfIndependence + 1, // Start withdrawals the year after accumulation ends
+                startOfIndependence + 1,
                 formValue.endOfLife,
                 formValue.strategie,
-                withdrawalReturnConfig, // Use new return configuration API
-                0.26375, // Default tax rate
-                undefined, // Use default freibetrag
-                // Pass monthly config only for monthly strategy
+                withdrawalReturnConfig,
+                0.26375,
+                undefined,
                 formValue.strategie === "monatlich_fest" ? {
                     monthlyAmount: formValue.monatlicheBetrag,
                     enableGuardrails: formValue.guardrailsAktiv,
                     guardrailsThreshold: formValue.guardrailsSchwelle / 100
                 } : undefined,
-                // Pass custom percentage for variable percentage strategy
-                formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined,
-                // Grundfreibetrag parameters
+                (formValue.strategie === "variabel_prozent" || formValue.strategie === "dynamisch_prozent") ? formValue.variabelProzent / 100 : undefined,
                 formValue.grundfreibetragAktiv,
                 formValue.grundfreibetragAktiv ? (() => {
-                    // Create grundfreibetrag object for all withdrawal years
                     const grundfreibetragPerYear: {[year: number]: number} = {};
                     for (let year = startOfIndependence + 1; year <= formValue.endOfLife; year++) {
                         grundfreibetragPerYear[year] = formValue.grundfreibetragBetrag;
@@ -158,583 +126,107 @@ export function EntnahmeSimulationsAusgabe({
                     return grundfreibetragPerYear;
                 })() : undefined,
                 formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined,
-                undefined, // variableReturns (legacy parameter)
-                // Inflation configuration for all strategies
-                formValue.inflationAktiv ? {
-                    inflationRate: formValue.inflationsrate / 100
+                undefined,
+                formValue.inflationAktiv ? { inflationRate: formValue.inflationsrate / 100 } : undefined,
+                formValue.strategie === "dynamisch_prozent" ? {
+                    upperThreshold: formValue.dynamicUpperThreshold / 100,
+                    upperAdjustment: formValue.dynamicUpperAdjustment / 100,
+                    lowerThreshold: formValue.dynamicLowerThreshold / 100,
+                    lowerAdjustment: formValue.dynamicLowerAdjustment / 100,
                 } : undefined
             );
         }
 
-        // Convert to array for table display, sorted by year descending
-        const withdrawalArray = Object.entries(withdrawalResult)
-            .map(([year, data]) => ({
-                year: parseInt(year),
-                ...data
-            }))
-            .sort((a, b) => b.year - a.year);
-
-        // Calculate withdrawal duration
+        const withdrawalArray = Object.entries(withdrawalResult).map(([year, data]) => ({ year: parseInt(year), ...data })).sort((a, b) => b.year - a.year);
         const duration = calculateWithdrawalDuration(withdrawalResult, startOfIndependence + 1);
+        return { startingCapital, withdrawalArray, withdrawalResult, duration };
+    }, [elemente, startOfIndependence, formValue, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments]);
 
-        return {
-            startingCapital,
-            withdrawalArray,
-            withdrawalResult,
-            duration
-        };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments]);
-
-    // Notify parent component when withdrawal results change
     useEffect(() => {
         if (onWithdrawalResultsChange && withdrawalData) {
             onWithdrawalResultsChange(withdrawalData.withdrawalResult);
         }
     }, [withdrawalData, onWithdrawalResultsChange]);
 
-    // Format currency for display
-    const formatCurrency = (amount: number) => {
-        return new Intl.NumberFormat('de-DE', {
-            style: 'currency',
-            currency: 'EUR',
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        }).format(amount);
-    };
+    const formatCurrency = (amount: number) => new Intl.NumberFormat('de-DE', { style: 'currency', currency: 'EUR' }).format(amount);
 
     return (
         <>
             <Panel header="Variablen" bordered>
-                {/* Toggle between single and segmented withdrawal */}
                 <Form.Group controlId="useSegmentedWithdrawal">
                     <Form.ControlLabel>Entnahme-Modus</Form.ControlLabel>
-                    <RadioGroup
-                        inline
-                        value={useSegmentedWithdrawal ? "segmented" : "single"}
-                        onChange={(value) => {
-                            const useSegmented = value === "segmented";
-                            setUseSegmentedWithdrawal(useSegmented);
-                            
-                            // Initialize segments when switching to segmented mode
-                            if (useSegmented && withdrawalSegments.length === 0) {
-                                const defaultSegment = createDefaultWithdrawalSegment(
-                                    "main",
-                                    "Hauptphase",
-                                    startOfIndependence + 1,
-                                    formValue.endOfLife
-                                );
-                                setWithdrawalSegments([defaultSegment]);
-                            }
-                        }}
-                    >
+                    <RadioGroup inline value={useSegmentedWithdrawal ? "segmented" : "single"} onChange={(value) => setUseSegmentedWithdrawal(value === "segmented")}>
                         <Radio value="single">Einheitliche Strategie</Radio>
                         <Radio value="segmented">Geteilte Phasen</Radio>
                     </RadioGroup>
-                    <Form.HelpText>
-                        {useSegmentedWithdrawal 
-                            ? "Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf."
-                            : "Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase."
-                        }
-                    </Form.HelpText>
                 </Form.Group>
 
                 {useSegmentedWithdrawal ? (
-                    /* Segmented withdrawal configuration */
-                    <WithdrawalSegmentForm
-                        segments={withdrawalSegments}
-                        onSegmentsChange={setWithdrawalSegments}
-                        withdrawalStartYear={startOfIndependence + 1}
-                        withdrawalEndYear={formValue.endOfLife}
-                    />
+                    <WithdrawalSegmentForm segments={withdrawalSegments} onSegmentsChange={setWithdrawalSegments} withdrawalStartYear={startOfIndependence + 1} withdrawalEndYear={formValue.endOfLife} />
                 ) : (
-                    /* Single strategy configuration (existing UI) */
-                    <Form fluid formValue={formValue}
-                        onChange={changedFormValue => {
-                            dispatchEnd([startOfIndependence, changedFormValue.endOfLife])
-                            setFormValue({
-                                endOfLife: changedFormValue.endOfLife,
-                                strategie: changedFormValue.strategie,
-                                rendite: changedFormValue.rendite,
-                                inflationAktiv: changedFormValue.inflationAktiv,
-                                inflationsrate: changedFormValue.inflationsrate,
-                                monatlicheBetrag: changedFormValue.monatlicheBetrag,
-                                guardrailsAktiv: changedFormValue.guardrailsAktiv,
-                                guardrailsSchwelle: changedFormValue.guardrailsSchwelle,
-                                variabelProzent: changedFormValue.variabelProzent,
-                                grundfreibetragAktiv: changedFormValue.grundfreibetragAktiv,
-                                grundfreibetragBetrag: changedFormValue.grundfreibetragBetrag,
-                                einkommensteuersatz: changedFormValue.einkommensteuersatz,
-                            })
-                        }}
-                    >
-                    {/* Withdrawal Return Configuration */}
-                    <Form.Group controlId="withdrawalReturnMode">
-                        <Form.ControlLabel>Entnahme-Rendite Modus</Form.ControlLabel>
-                        <RadioGroup
-                            inline
-                            value={withdrawalReturnMode}
-                            onChange={(value) => {
-                                setWithdrawalReturnMode(value as WithdrawalReturnMode);
-                            }}
-                        >
-                            <Radio value="fixed">Feste Rendite</Radio>
-                            <Radio value="random">Zufällige Rendite</Radio>
-                            <Radio value="variable">Variable Rendite</Radio>
-                        </RadioGroup>
-                    </Form.Group>
-
-                    {withdrawalReturnMode === 'fixed' && (
-                        <Form.Group controlId="rendite">
-                            <Form.ControlLabel>Erwartete Rendite (%)</Form.ControlLabel>
-                            <Form.Control name="rendite" accepter={Slider} 
-                                min={0}
-                                max={10}
-                                step={0.5}
-                                handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.rendite}%</div>)}
-                                progress
-                                graduated
-                            />
+                    <Form fluid formValue={formValue} onChange={setFormValue}>
+                        <Form.Group controlId="withdrawalReturnMode">
+                            <Form.ControlLabel>Entnahme-Rendite Modus</Form.ControlLabel>
+                            <RadioGroup inline value={withdrawalReturnMode} onChange={(value) => setWithdrawalReturnMode(value as WithdrawalReturnMode)}>
+                                <Radio value="fixed">Feste Rendite</Radio>
+                                <Radio value="random">Zufällige Rendite</Radio>
+                                <Radio value="variable">Variable Rendite</Radio>
+                            </RadioGroup>
                         </Form.Group>
-                    )}
-
-                    {withdrawalReturnMode === 'random' && (
-                        <>
-                            <Form.Group controlId="withdrawalAverageReturn">
-                                <Form.ControlLabel>Durchschnittliche Rendite (%)</Form.ControlLabel>
-                                <Slider
-                                    value={withdrawalAverageReturn}
-                                    min={0}
-                                    max={12}
-                                    step={0.5}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{withdrawalAverageReturn}%</div>)}
-                                    progress
-                                    graduated
-                                    onChange={(value) => setWithdrawalAverageReturn(value)}
-                                />
-                                <Form.HelpText>
-                                    Erwartete durchschnittliche Rendite für die Entnahme-Phase (meist konservativer als Ansparphase)
-                                </Form.HelpText>
+                        {withdrawalReturnMode === 'fixed' && (
+                            <Form.Group controlId="rendite">
+                                <Form.ControlLabel>Erwartete Rendite (%)</Form.ControlLabel>
+                                <Form.Control name="rendite" accepter={Slider} min={0} max={10} step={0.5} progress graduated />
                             </Form.Group>
-                            
-                            <Form.Group controlId="withdrawalStandardDeviation">
-                                <Form.ControlLabel>Standardabweichung (%)</Form.ControlLabel>
-                                <Slider
-                                    value={withdrawalStandardDeviation}
-                                    min={5}
-                                    max={25}
-                                    step={1}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{withdrawalStandardDeviation}%</div>)}
-                                    progress
-                                    graduated
-                                    onChange={(value) => setWithdrawalStandardDeviation(value)}
-                                />
-                                <Form.HelpText>
-                                    Volatilität der Renditen (meist niedriger als Ansparphase wegen konservativerer Allokation)
-                                </Form.HelpText>
-                            </Form.Group>
-                            
-                            <Form.Group controlId="withdrawalRandomSeed">
-                                <Form.ControlLabel>Zufalls-Seed (optional)</Form.ControlLabel>
-                                <InputNumber
-                                    value={withdrawalRandomSeed}
-                                    onChange={(value) => setWithdrawalRandomSeed(value || undefined)}
-                                    placeholder="Für reproduzierbare Ergebnisse"
-                                />
-                                <Form.HelpText>
-                                    Optionaler Seed für reproduzierbare Zufallsrenditen. Leer lassen für echte Zufälligkeit.
-                                </Form.HelpText>
-                            </Form.Group>
-                        </>
-                    )}
-
-                    {withdrawalReturnMode === 'variable' && (
-                        <Form.Group controlId="withdrawalVariableReturns">
-                            <Form.ControlLabel>Variable Renditen pro Jahr (Entnahme-Phase)</Form.ControlLabel>
-                            <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #e5e5ea', borderRadius: '6px', padding: '10px' }}>
-                                {Array.from({ length: formValue.endOfLife - startOfIndependence }, (_, i) => {
-                                    const year = startOfIndependence + 1 + i;
-                                    return (
-                                        <div key={year} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', gap: '10px' }}>
-                                            <div style={{ minWidth: '60px', fontWeight: 'bold' }}>{year}:</div>
-                                            <div style={{ flex: 1 }}>
-                                                <Slider
-                                                    value={withdrawalVariableReturns[year] || 5}
-                                                    min={-10}
-                                                    max={15}
-                                                    step={0.5}
-                                                    onChange={(value) => {
-                                                        const newReturns = { ...withdrawalVariableReturns, [year]: value };
-                                                        setWithdrawalVariableReturns(newReturns);
-                                                    }}
-                                                />
-                                            </div>
-                                            <div style={{ minWidth: '50px', textAlign: 'right' }}>
-                                                {(withdrawalVariableReturns[year] || 5).toFixed(1)}%
-                                            </div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                            <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
-                                Tipp: Verwende niedrigere Werte für konservative Portfolio-Allokation in der Rente und negative Werte für Krisen-Jahre.
-                            </div>
+                        )}
+                        <Form.Group controlId="endOfLife">
+                            <Form.ControlLabel>End of Life</Form.ControlLabel>
+                            <Form.Control name="endOfLife" accepter={InputNumber} />
                         </Form.Group>
-                    )}
-                    <Form.Group controlId="endOfLife">
-                        <Form.ControlLabel>End of Life</Form.ControlLabel>
-                        <Form.Control name="endOfLife" accepter={InputNumber} 
-                        />
-                    </Form.Group>
-                    <Form.Group controlId="strategie">
-                        <Form.ControlLabel>Strategie</Form.ControlLabel>
-                        <Form.Control name="strategie" accepter={RadioTileGroup}>
-                            <RadioTile value="4prozent" label="4% Regel">
-                                4% Entnahme
-                            </RadioTile>
-                            <RadioTile value="3prozent" label="3% Regel">
-                                3% Entnahme
-                            </RadioTile>
-                            <RadioTile value="variabel_prozent" label="Variable Prozent">
-                                Anpassbare Entnahme
-                            </RadioTile>
-                            <RadioTile value="monatlich_fest" label="Monatlich fest">
-                                Fester monatlicher Betrag
-                            </RadioTile>
-                        </Form.Control>
-                    </Form.Group>
-                    
-                    {/* Grundfreibetrag settings */}
-                    <Form.Group controlId="grundfreibetragAktiv">
-                        <Form.ControlLabel>Grundfreibetrag berücksichtigen</Form.ControlLabel>
-                        <Form.Control name="grundfreibetragAktiv" accepter={Toggle} />
-                        <Form.HelpText>
-                            Berücksichtigt den Grundfreibetrag für die Einkommensteuer bei Entnahmen (relevant für Rentner ohne weiteres Einkommen)
-                        </Form.HelpText>
-                    </Form.Group>
-
-                    {/* General inflation controls for all strategies */}
-                    <Form.Group controlId="inflationAktiv">
-                        <Form.ControlLabel>Inflation berücksichtigen</Form.ControlLabel>
-                        <Form.Control name="inflationAktiv" accepter={Toggle} />
-                        <Form.HelpText>
-                            Passt die Entnahmebeträge jährlich an die Inflation an (für alle Entnahme-Strategien)
-                        </Form.HelpText>
-                    </Form.Group>
-                    
-                    {formValue.inflationAktiv && (
-                        <Form.Group controlId="inflationsrate">
-                            <Form.ControlLabel>Inflationsrate (%)</Form.ControlLabel>
-                            <Form.Control name="inflationsrate" accepter={Slider} 
-                                min={0}
-                                max={5}
-                                step={0.1}
-                                handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.inflationsrate}%</div>)}
-                                progress
-                                graduated
-                            />
-                            <Form.HelpText>
-                                Jährliche Inflationsrate zur Anpassung der Entnahmebeträge
-                            </Form.HelpText>
+                        <Form.Group controlId="strategie">
+                            <Form.ControlLabel>Strategie</Form.ControlLabel>
+                            <Form.Control name="strategie" accepter={RadioTileGroup}>
+                                <RadioTile value="4prozent" label="4% Regel" />
+                                <RadioTile value="3prozent" label="3% Regel" />
+                                <RadioTile value="variabel_prozent" label="Variable Prozent" />
+                                <RadioTile value="monatlich_fest" label="Monatlich fest" />
+                                <RadioTile value="dynamisch_prozent" label="Dynamische Entnahme" />
+                            </Form.Control>
                         </Form.Group>
-                    )}
-                    
-                    {formValue.grundfreibetragAktiv && (
-                        <>
-                            <Form.Group controlId="grundfreibetragBetrag">
-                                <Form.ControlLabel>Grundfreibetrag pro Jahr (€)</Form.ControlLabel>
-                                <Form.Control name="grundfreibetragBetrag" accepter={InputNumber} 
-                                    min={0}
-                                    max={30000}
-                                    step={100}
-                                />
-                                <Form.HelpText>
-                                    Grundfreibetrag für die Einkommensteuer (2023: 10.908 €)
-                                </Form.HelpText>
+                        {(formValue.strategie === "variabel_prozent" || formValue.strategie === "dynamisch_prozent") && (
+                            <Form.Group controlId="variabelProzent">
+                                <Form.ControlLabel>Basis-Entnahmerate (%)</Form.ControlLabel>
+                                <Form.Control name="variabelProzent" accepter={Slider} min={2} max={7} step={0.5} progress graduated />
                             </Form.Group>
-                            <Form.Group controlId="einkommensteuersatz">
-                                <Form.ControlLabel>Einkommensteuersatz (%)</Form.ControlLabel>
-                                <Form.Control name="einkommensteuersatz" accepter={Slider} 
-                                    min={14}
-                                    max={42}
-                                    step={1}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.einkommensteuersatz}%</div>)}
-                                    progress
-                                    graduated
-                                />
-                                <Form.HelpText>
-                                    Vereinfachter Einkommensteuersatz (normalerweise zwischen 14% und 42%)
-                                </Form.HelpText>
-                            </Form.Group>
-                        </>
-                    )}
-                    
-                    {/* Variable percentage strategy specific controls */}
-                    {formValue.strategie === "variabel_prozent" && (
-                        <Form.Group controlId="variabelProzent">
-                            <Form.ControlLabel>Entnahme-Prozentsatz (%)</Form.ControlLabel>
-                            <Form.Control name="variabelProzent" accepter={Slider} 
-                                min={2}
-                                max={7}
-                                step={0.5}
-                                handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.variabelProzent}%</div>)}
-                                progress
-                                graduated
-                            />
-                            <Form.HelpText>
-                                Wählen Sie einen Entnahme-Prozentsatz zwischen 2% und 7% in 0,5%-Schritten
-                            </Form.HelpText>
-                        </Form.Group>
-                    )}
-                    
-                    {/* Monthly strategy specific controls */}
-                    {formValue.strategie === "monatlich_fest" && (
-                        <>
-                            <Form.Group controlId="monatlicheBetrag">
-                                <Form.ControlLabel>Monatlicher Betrag (€)</Form.ControlLabel>
-                                <Form.Control name="monatlicheBetrag" accepter={InputNumber} 
-                                    min={100}
-                                    max={50000}
-                                    step={100}
-                                />
-                            </Form.Group>
-                            <Form.Group controlId="guardrailsAktiv">
-                                <Form.ControlLabel>Dynamische Anpassung (Guardrails)</Form.ControlLabel>
-                                <Form.Control name="guardrailsAktiv" accepter={Toggle} />
-                                <Form.HelpText>
-                                    Passt die Entnahme basierend auf der Portfolio-Performance an
-                                </Form.HelpText>
-                            </Form.Group>
-                            {formValue.guardrailsAktiv && (
-                                <Form.Group controlId="guardrailsSchwelle">
-                                    <Form.ControlLabel>Anpassungsschwelle (%)</Form.ControlLabel>
-                                    <Form.Control name="guardrailsSchwelle" accepter={Slider} 
-                                        min={5}
-                                        max={20}
-                                        step={1}
-                                        handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.guardrailsSchwelle}%</div>)}
-                                        progress
-                                        graduated
-                                    />
-                                    <Form.HelpText>
-                                        Bei Überschreitung dieser Schwelle wird die Entnahme angepasst
-                                    </Form.HelpText>
-                                </Form.Group>
-                            )}
-                        </>
-                    )}
+                        )}
+                        {formValue.strategie === "dynamisch_prozent" && (
+                            <Panel bordered style={{background: '#f8f9fa'}}>
+                                <p style={{marginBottom: '10px', fontWeight: 500}}>Regeln für dynamische Anpassung:</p>
+                                <Form.Group controlId="dynamicUpperThreshold"><Form.ControlLabel>Obere Schwelle Rendite (%)</Form.ControlLabel><Form.Control name="dynamicUpperThreshold" accepter={Slider} min={5} max={20} step={1} /></Form.Group>
+                                <Form.Group controlId="dynamicUpperAdjustment"><Form.ControlLabel>...passe Entnahme an um (%)</Form.ControlLabel><Form.Control name="dynamicUpperAdjustment" accepter={Slider} min={0} max={25} step={1} /></Form.Group>
+                                <hr style={{margin: '20px 0'}} />
+                                <Form.Group controlId="dynamicLowerThreshold"><Form.ControlLabel>Untere Schwelle Rendite (%)</Form.ControlLabel><Form.Control name="dynamicLowerThreshold" accepter={Slider} min={-15} max={0} step={1} /></Form.Group>
+                                <Form.Group controlId="dynamicLowerAdjustment"><Form.ControlLabel>...passe Entnahme an um (%)</Form.ControlLabel><Form.Control name="dynamicLowerAdjustment" accepter={Slider} min={-25} max={0} step={1} /></Form.Group>
+                            </Panel>
+                        )}
                     </Form>
                 )}
             </Panel>
             <Panel header="Simulation" bordered>
                 {withdrawalData ? (
                     <div>
-                        <div style={{ marginBottom: '20px' }}>
-                            <h4>Entnahme-Simulation</h4>
-                            <p><strong>Startkapital bei Entnahme:</strong> {formatCurrency(withdrawalData.startingCapital)}</p>
-                            {formValue.strategie === "monatlich_fest" ? (
-                                <>
-                                    <p><strong>Monatliche Entnahme (Basis):</strong> {formatCurrency(formValue.monatlicheBetrag)}</p>
-                                    <p><strong>Jährliche Entnahme (Jahr 1):</strong> {formatCurrency(formValue.monatlicheBetrag * 12)}</p>
-                                    {formValue.guardrailsAktiv && (
-                                        <p><strong>Dynamische Anpassung:</strong> Aktiviert (Schwelle: {formValue.guardrailsSchwelle}%)</p>
-                                    )}
-                                </>
-                            ) : formValue.strategie === "variabel_prozent" ? (
-                                <p><strong>Jährliche Entnahme ({formValue.variabelProzent} Prozent Regel):</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.variabelProzent / 100))}</p>
-                            ) : (
-                                <p><strong>Jährliche Entnahme ({formValue.strategie === "4prozent" ? "4 Prozent" : "3 Prozent"} Regel):</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.strategie === "4prozent" ? 0.04 : 0.03))}</p>
-                            )}
-                            {formValue.inflationAktiv && (
-                                <p><strong>Inflationsrate:</strong> {formValue.inflationsrate}% p.a. (Entnahmebeträge werden jährlich angepasst)</p>
-                            )}
-                            <p><strong>Erwartete Rendite:</strong> {formValue.rendite} Prozent p.a.</p>
-                            {formValue.grundfreibetragAktiv && (
-                                <p><strong>Grundfreibetrag:</strong> {formatCurrency(formValue.grundfreibetragBetrag)} pro Jahr (Einkommensteuersatz: {formValue.einkommensteuersatz}%)</p>
-                            )}
-                            <p><strong>Vermögen reicht für:</strong> {
-                                withdrawalData.duration 
-                                    ? `${withdrawalData.duration} Jahr${withdrawalData.duration === 1 ? '' : 'e'}`
-                                    : 'unbegrenzt (Vermögen wächst weiter)'
-                            }</p>
-                        </div>
-                        
-                        {/* Card Layout for All Devices */}
-                        <div>
-                            <div className="sparplan-cards">
-                                {withdrawalData.withdrawalArray.map((rowData, index) => (
-                                    <div key={index} className="sparplan-card">
-                                        <div className="sparplan-card-header">
-                                            <span className="sparplan-year">📅 {rowData.year}</span>
-                                            <span className="sparplan-endkapital">
-                                                🎯 {formatCurrency(rowData.endkapital)}
-                                            </span>
-                                        </div>
-                                        <div className="sparplan-card-details">
-                                            <div className="sparplan-detail">
-                                                <span className="detail-label">💰 Startkapital:</span>
-                                                <span className="detail-value" style={{ color: '#28a745' }}>
-                                                    {formatCurrency(rowData.startkapital)}
-                                                </span>
-                                            </div>
-                                            <div className="sparplan-detail">
-                                                <span className="detail-label">💸 Entnahme:</span>
-                                                <span className="detail-value" style={{ color: '#dc3545' }}>
-                                                    {formatCurrency(rowData.entnahme)}
-                                                </span>
-                                            </div>
-                                            {formValue.strategie === "monatlich_fest" && rowData.monatlicheEntnahme && (
-                                                <div className="sparplan-detail">
-                                                    <span className="detail-label">📅 Monatlich:</span>
-                                                    <span className="detail-value" style={{ color: '#6f42c1' }}>
-                                                        {formatCurrency(rowData.monatlicheEntnahme)}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {formValue.inflationAktiv && rowData.inflationAnpassung !== undefined && (
-                                                <div className="sparplan-detail">
-                                                    <span className="detail-label">📈 Inflation:</span>
-                                                    <span className="detail-value" style={{ color: '#fd7e14' }}>
-                                                        {formatCurrency(rowData.inflationAnpassung)}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {formValue.strategie === "monatlich_fest" && formValue.guardrailsAktiv && rowData.portfolioAnpassung !== undefined && (
-                                                <div className="sparplan-detail">
-                                                    <span className="detail-label">🛡️ Guardrails:</span>
-                                                    <span className="detail-value" style={{ color: '#20c997' }}>
-                                                        {formatCurrency(rowData.portfolioAnpassung)}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            <div className="sparplan-detail">
-                                                <span className="detail-label">📈 Zinsen:</span>
-                                                <span className="detail-value" style={{ color: '#17a2b8' }}>
-                                                    {formatCurrency(rowData.zinsen)}
-                                                </span>
-                                            </div>
-                                            <div className="sparplan-detail">
-                                                <span className="detail-label">💳 Bezahlte Steuer:</span>
-                                                <span className="detail-value" style={{ color: '#dc3545' }}>
-                                                    {formatCurrency(rowData.bezahlteSteuer)}
-                                                </span>
-                                            </div>
-                                            {formValue.grundfreibetragAktiv && rowData.einkommensteuer !== undefined && (
-                                                <div className="sparplan-detail">
-                                                    <span className="detail-label">🏛️ Einkommensteuer:</span>
-                                                    <span className="detail-value" style={{ color: '#e83e8c' }}>
-                                                        {formatCurrency(rowData.einkommensteuer)}
-                                                    </span>
-                                                </div>
-                                            )}
-                                            {formValue.grundfreibetragAktiv && rowData.genutzterGrundfreibetrag !== undefined && (
-                                                <div className="sparplan-detail">
-                                                    <span className="detail-label">🆓 Grundfreibetrag:</span>
-                                                    <span className="detail-value" style={{ color: '#28a745' }}>
-                                                        {formatCurrency(rowData.genutzterGrundfreibetrag)}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
-                                    </div>
-                                ))}
-                            </div>
-                        </div>
-
-                        {/* Hidden Desktop Table Layout */}
-                        <div style={{ display: 'none' }}>
-                            <div className="table-container">
-                                <Table
-                                    autoHeight
-                                    data={withdrawalData.withdrawalArray}
-                                    bordered
-                                    rowHeight={60}
-                                >
-                                    <Column width={100}>
-                                        <HeaderCell>Jahr</HeaderCell>
-                                        <Cell dataKey="year" />
-                                    </Column>
-                                    <Column width={120}>
-                                        <HeaderCell>Startkapital</HeaderCell>
-                                        <Cell>
-                                            {rowData => formatCurrency(rowData.startkapital)}
-                                        </Cell>
-                                    </Column>
-                                    <Column width={120}>
-                                        <HeaderCell>Entnahme</HeaderCell>
-                                        <Cell>
-                                            {rowData => formatCurrency(rowData.entnahme)}
-                                        </Cell>
-                                    </Column>
-                                    {formValue.strategie === "monatlich_fest" && (
-                                        <Column width={120}>
-                                            <HeaderCell>Monatlich</HeaderCell>
-                                            <Cell>
-                                                {rowData => rowData.monatlicheEntnahme ? formatCurrency(rowData.monatlicheEntnahme) : '-'}
-                                            </Cell>
-                                        </Column>
-                                    )}
-                                    {formValue.inflationAktiv && (
-                                        <Column width={120}>
-                                            <HeaderCell>Inflation</HeaderCell>
-                                            <Cell>
-                                                {rowData => rowData.inflationAnpassung !== undefined ? formatCurrency(rowData.inflationAnpassung) : '-'}
-                                            </Cell>
-                                        </Column>
-                                    )}
-                                    {formValue.strategie === "monatlich_fest" && formValue.guardrailsAktiv && (
-                                        <Column width={120}>
-                                            <HeaderCell>Guardrails</HeaderCell>
-                                            <Cell>
-                                                {rowData => rowData.portfolioAnpassung !== undefined ? formatCurrency(rowData.portfolioAnpassung) : '-'}
-                                            </Cell>
-                                        </Column>
-                                    )}
-                                    <Column width={100}>
-                                        <HeaderCell>Zinsen</HeaderCell>
-                                        <Cell>
-                                            {rowData => formatCurrency(rowData.zinsen)}
-                                        </Cell>
-                                    </Column>
-                                    <Column width={120}>
-                                        <HeaderCell>bezahlte Steuer</HeaderCell>
-                                        <Cell>
-                                            {rowData => formatCurrency(rowData.bezahlteSteuer)}
-                                        </Cell>
-                                    </Column>
-                                    {formValue.grundfreibetragAktiv && (
-                                        <Column width={120}>
-                                            <HeaderCell>Einkommensteuer</HeaderCell>
-                                            <Cell>
-                                                {rowData => rowData.einkommensteuer !== undefined ? formatCurrency(rowData.einkommensteuer) : '-'}
-                                            </Cell>
-                                        </Column>
-                                    )}
-                                    {formValue.grundfreibetragAktiv && (
-                                        <Column width={140}>
-                                            <HeaderCell>Grundfreibetrag genutzt</HeaderCell>
-                                            <Cell>
-                                                {rowData => rowData.genutzterGrundfreibetrag !== undefined ? formatCurrency(rowData.genutzterGrundfreibetrag) : '-'}
-                                            </Cell>
-                                        </Column>
-                                    )}
-                                    <Column width={120}>
-                                        <HeaderCell>Endkapital</HeaderCell>
-                                        <Cell>
-                                            {rowData => formatCurrency(rowData.endkapital)}
-                                        </Cell>
-                                    </Column>
-                                </Table>
-                            </div>
-                        </div>
+                        <p>Startkapital: {formatCurrency(withdrawalData.startingCapital)}</p>
+                        <Table autoHeight data={withdrawalData.withdrawalArray} bordered>
+                            <Column width={70} align="center"><HeaderCell>Jahr</HeaderCell><Cell dataKey="year" /></Column>
+                            <Column width={130}><HeaderCell>Startkapital</HeaderCell><Cell>{rowData => formatCurrency(rowData.startkapital)}</Cell></Column>
+                            <Column width={130}><HeaderCell>Entnahme</HeaderCell><Cell>{rowData => formatCurrency(rowData.entnahme)}</Cell></Column>
+                            <Column width={130}><HeaderCell>Zinsen</HeaderCell><Cell>{rowData => formatCurrency(rowData.zinsen)}</Cell></Column>
+                            <Column width={130}><HeaderCell>Bezahlte Steuer</HeaderCell><Cell>{rowData => formatCurrency(rowData.bezahlteSteuer)}</Cell></Column>
+                            <Column width={130}><HeaderCell>Endkapital</HeaderCell><Cell>{rowData => formatCurrency(rowData.endkapital)}</Cell></Column>
+                        </Table>
                     </div>
-                ) : (
-                    <div>
-                        <p>Keine Daten verfügbar. Bitte stelle sicher, dass Sparpläne definiert sind und eine Simulation durchgeführt wurde.</p>
-                    </div>
-                )}
+                ) : <p>Keine Daten verfügbar.</p>}
             </Panel>
         </>
     )
 }
-
-
