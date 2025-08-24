@@ -94,13 +94,13 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
     return (
         <div className="space-y-4">
             <Collapsible className="group">
-                <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+                <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
                     <span><span className="mr-2">💰</span> Sparpläne erstellen</span>
-                    <ChevronDown className="h-4 w-4 transition-transform duration-200 group-[data-state=open]:rotate-180" />
+                    <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4">
                     <Card>
-                        <CardContent className="pt-6">
+                        <CardContent className="p-6">
                             <p className="mb-4 text-sm text-muted-foreground">
                                 Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum
                             </p>
@@ -184,13 +184,13 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
             </Collapsible>
             
             <Collapsible className="group">
-                <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+                <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
                     <span><span className="mr-2">💵</span> Einmalzahlungen erstellen</span>
-                    <ChevronDown className="h-4 w-4 transition-transform duration-200 group-[data-state=open]:rotate-180" />
+                    <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4">
                     <Card>
-                        <CardContent className="pt-6">
+                        <CardContent className="p-6">
                             <p className="mb-4 text-sm text-muted-foreground">
                                 Fügen Sie einmalige Zahlungen zu einem bestimmten Zeitpunkt hinzu
                             </p>

@@ -66,13 +66,13 @@ export function MonteCarloResults({
 
     const renderAnalysisCards = (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => (
         <Collapsible defaultOpen className="group">
-            <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+            <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
                 <span><span className="mr-2">📊</span> {title}</span>
-                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-[data-state=open]:rotate-180" />
+                <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
             </CollapsibleTrigger>
             <CollapsibleContent className="pt-4">
                 <Card>
-                    <CardContent className="pt-6">
+                    <CardContent className="p-6">
                         <div className="mb-4 text-sm text-muted-foreground">
                             <p className="mb-2">
                                 <strong>Simulationsparameter:</strong> Durchschnittliche Rendite {formatPercent(config.averageReturn)},
@@ -115,11 +115,11 @@ export function MonteCarloResults({
 
     return (
         <Collapsible defaultOpen className="group">
-            <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+            <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
                 <span><span className="mr-2">🎲</span> Monte Carlo Analyse</span>
-                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-[data-state=open]:rotate-180" />
+                <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
             </CollapsibleTrigger>
-            <CollapsibleContent className="pt-4 space-y-4">
+            <CollapsibleContent className="p-6 space-y-4">
                 {renderAnalysisCards(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
 
                 {withdrawalScenarios && withdrawalConfig && (

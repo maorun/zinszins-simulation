@@ -204,7 +204,7 @@ export function EntnahmeSimulationsAusgabe({
         <div className="space-y-4">
             <Card>
                 <CardHeader><CardTitle>Variablen</CardTitle></CardHeader>
-                <CardContent className="space-y-4">
+                <CardContent className="p-6 space-y-4">
                     {/* Toggle between single and segmented withdrawal */}
                     <div className="space-y-2">
                         <Label>Entnahme-Modus</Label>
@@ -556,7 +556,7 @@ export function EntnahmeSimulationsAusgabe({
             </Card>
             <Card>
                 <CardHeader><CardTitle>Simulation</CardTitle></CardHeader>
-                <CardContent>
+                <CardContent className="p-6">
                     {withdrawalData ? (
                         <div>
                             <div className="mb-5">

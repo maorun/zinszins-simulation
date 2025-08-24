@@ -274,13 +274,13 @@ export default function HomePage() {
 
             {/* Main Configuration */}
             <Collapsible className="mb-4 group">
-                <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+                <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
                     <span><span className="mr-2">⚙️</span> Konfiguration</span>
-                    <ChevronDown className="h-4 w-4 transition-transform duration-200 group-[data-state=open]:rotate-180" />
+                    <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4">
                     <Card>
-                        <CardContent className="pt-6 form-grid">
+                        <CardContent className="p-6 form-grid">
                             {/* Time Range */}
                             <Card>
                                 <CardHeader>
@@ -603,9 +603,9 @@ export default function HomePage() {
 
             {/* Savings Plans Configuration */}
             <Collapsible className="mb-4 group">
-                <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+                <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
                     <span><span className="mr-2">💼</span> Sparpläne erstellen</span>
-                    <ChevronDown className="h-4 w-4 transition-transform duration-200 group-[data-state=open]:rotate-180" />
+                    <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
                 </CollapsibleTrigger>
                 <CollapsibleContent className="pt-4">
                     <SparplanEingabe 
@@ -624,9 +624,9 @@ export default function HomePage() {
                     {/* Remove the old SparplanEnd since we have the highlight box */}
                     
                     <Collapsible className="group">
-                        <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+                        <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
                             <span><span className="mr-2">📊</span> Sparplan-Simulation</span>
-                            <ChevronDown className="h-4 w-4 transition-transform duration-200 group-[data-state=open]:rotate-180" />
+                            <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
                         </CollapsibleTrigger>
                         <CollapsibleContent  className="pt-4">
                             <SparplanSimulationsAusgabe
@@ -638,9 +638,9 @@ export default function HomePage() {
                     </Collapsible>
 
                     <Collapsible className="group">
-                        <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+                        <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
                             <span><span className="mr-2">💸</span> Entnahme</span>
-                            <ChevronDown className="h-4 w-4 transition-transform duration-200 group-[data-state=open]:rotate-180" />
+                            <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
                         </CollapsibleTrigger>
                         <CollapsibleContent  className="pt-4">
                             <EntnahmeSimulationsAusgabe
@@ -694,13 +694,13 @@ export default function HomePage() {
                                     
                                     return (
                                         <Collapsible key={year + '' + yearIndex} className="mb-2 group">
-                                            <CollapsibleTrigger className="flex justify-between items-center w-full p-4 font-semibold text-lg border rounded-md">
+                                            <CollapsibleTrigger className="flex justify-between items-center w-full p-6 font-semibold text-xl border rounded-md">
                                                     <span>📅 Jahr {year}</span>
                                                     <span>{totalEndkapital.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
                                             </CollapsibleTrigger>
                                             <CollapsibleContent className="pt-2">
                                                 <Card>
-                                                    <CardContent className="pt-4 mobile-year-summary">
+                                                    <CardContent className="p-4 mobile-year-summary">
                                                         <div className="year-summary-grid">
                                                             <div className="year-summary-item">
                                                                 <span className="summary-label">💰 Startkapital</span>
