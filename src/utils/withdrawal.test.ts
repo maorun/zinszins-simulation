@@ -692,4 +692,75 @@ describe('Withdrawal Calculations', () => {
       expect(result[2026].entnahme).toBe(expectedWithdrawal);
     });
   });
+
+  describe('Dynamic percentage withdrawal strategy', () => {
+    const startingCapital = 100000;
+    const startYear = 2025;
+    const endYear = 2027;
+    const strategy: WithdrawalStrategy = "dynamisch_prozent";
+    const customPercentage = 0.04; // 4% base withdrawal
+    const dynamicConfig = {
+      upperThreshold: 0.08, // 8%
+      upperAdjustment: 0.10, // +10%
+      lowerThreshold: -0.05, // -5%
+      lowerAdjustment: -0.10, // -10%
+    };
+
+    test('should increase withdrawal on high performance', () => {
+      const highReturn = 0.10; // 10% > 8%
+      const result = calculateWithdrawal(
+        startingCapital, startYear, endYear, strategy, highReturn, 0.26375, undefined, undefined, dynamicConfig, customPercentage, false, undefined, undefined, undefined
+      );
+
+      const baseWithdrawal = startingCapital * customPercentage;
+
+      // No adjustment in the first year
+      expect(result[2025].entnahme).toBe(baseWithdrawal);
+      expect(result[2025].dynamicAnpassung).toBe(0);
+
+      // Adjustment in the second year
+      const expectedAdjustment = baseWithdrawal * dynamicConfig.upperAdjustment;
+      expect(result[2026].dynamicAnpassung).toBeCloseTo(expectedAdjustment);
+      expect(result[2026].entnahme).toBeCloseTo(baseWithdrawal + expectedAdjustment);
+    });
+
+    test('should decrease withdrawal on low performance', () => {
+      const lowReturn = -0.10; // -10% < -5%
+      const result = calculateWithdrawal(
+        startingCapital, startYear, endYear, strategy, lowReturn, 0.26375, undefined, undefined, dynamicConfig, customPercentage, false, undefined, undefined, undefined
+      );
+
+      const baseWithdrawal = startingCapital * customPercentage;
+
+      // No adjustment in the first year
+      expect(result[2025].entnahme).toBe(baseWithdrawal);
+      expect(result[2025].dynamicAnpassung).toBe(0);
+
+      // Adjustment in the second year
+      const expectedAdjustment = baseWithdrawal * dynamicConfig.lowerAdjustment;
+      expect(result[2026].dynamicAnpassung).toBeCloseTo(expectedAdjustment);
+      expect(result[2026].entnahme).toBeCloseTo(baseWithdrawal + expectedAdjustment);
+    });
+
+    test('should not adjust withdrawal when performance is between thresholds', () => {
+      const midReturn = 0.05; // -5% < 5% < 8%
+      const result = calculateWithdrawal(
+        startingCapital, startYear, endYear, strategy, midReturn, 0.26375, undefined, undefined, dynamicConfig, customPercentage, false, undefined, undefined, undefined
+      );
+
+      const baseWithdrawal = startingCapital * customPercentage;
+
+      // No adjustment in any year
+      expect(result[2025].entnahme).toBe(baseWithdrawal);
+      expect(result[2025].dynamicAnpassung).toBe(0);
+      expect(result[2026].dynamicAnpassung).toBe(0);
+      expect(result[2026].entnahme).toBe(baseWithdrawal);
+    });
+
+    test('should require custom percentage for dynamisch_prozent strategy', () => {
+        expect(() => {
+          calculateWithdrawal(100000, 2025, 2027, "dynamisch_prozent", 0.05, 0.26375, undefined, undefined, dynamicConfig, undefined);
+        }).toThrow("Custom percentage is required for variabel_prozent and dynamisch_prozent strategies");
+      });
+  });
 });

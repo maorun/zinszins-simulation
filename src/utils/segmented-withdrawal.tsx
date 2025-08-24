@@ -22,6 +22,8 @@ export type WithdrawalSegment = {
     customPercentage?: number;
     /** Monthly withdrawal configuration (for monatlich_fest strategy) */
     monthlyConfig?: MonthlyWithdrawalConfig;
+    /** Dynamic withdrawal configuration (for dynamisch_prozent strategy) */
+    dynamicConfig?: import('./withdrawal').DynamicWithdrawalConfig;
     /** Inflation configuration for this segment */
     inflationConfig?: InflationConfig;
     /** Whether to apply Grundfreibetrag for this segment */
@@ -162,6 +164,7 @@ export function createSingleSegmentConfig(
     endYear: number,
     customPercentage?: number,
     monthlyConfig?: MonthlyWithdrawalConfig,
+    dynamicConfig?: import('./withdrawal').DynamicWithdrawalConfig,
     inflationConfig?: InflationConfig,
     enableGrundfreibetrag?: boolean,
     grundfreibetragPerYear?: {[year: number]: number},
@@ -176,6 +179,7 @@ export function createSingleSegmentConfig(
         returnConfig,
         customPercentage,
         monthlyConfig,
+        dynamicConfig,
         inflationConfig,
         enableGrundfreibetrag,
         grundfreibetragPerYear,

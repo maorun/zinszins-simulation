@@ -83,6 +83,7 @@ export function calculateWithdrawal(
     variableReturns?: {[year: number]: number}, // Legacy API support
     inflationConfig?: InflationConfig
 ): WithdrawalResult {
+    console.log('calculateWithdrawal args', { dynamicConfig, customPercentage });
     // Helper function to get tax allowance for a specific year
     const getFreibetragForYear = (year: number): number => {
         if (freibetragPerYear && freibetragPerYear[year] !== undefined) {
@@ -238,6 +239,18 @@ export function calculateWithdrawal(
                 annualWithdrawal += portfolioAnpassung;
             }
         }
+
+        // Apply dynamic adjustments for the dynamic strategy
+        let dynamicAnpassung = 0;
+        if (strategy === "dynamisch_prozent" && dynamicConfig && yearsPassed > 0) {
+            const yearlyReturnRate = getReturnRateForYear(year);
+            if (yearlyReturnRate > dynamicConfig.upperThreshold) {
+                dynamicAnpassung = annualWithdrawal * dynamicConfig.upperAdjustment;
+            } else if (yearlyReturnRate < dynamicConfig.lowerThreshold) {
+                dynamicAnpassung = annualWithdrawal * dynamicConfig.lowerAdjustment;
+            }
+            annualWithdrawal += dynamicAnpassung;
+        }
         
         // Ensure withdrawal doesn't exceed available capital
         const entnahme = Math.min(annualWithdrawal, currentCapital);
@@ -288,6 +301,7 @@ export function calculateWithdrawal(
                               (strategy === "monatlich_fest" && monthlyConfig) 
                               ? inflationAnpassung : undefined,
             portfolioAnpassung: strategy === "monatlich_fest" ? portfolioAnpassung : undefined,
+            dynamicAnpassung: strategy === "dynamisch_prozent" ? dynamicAnpassung : undefined,
             einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
             genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined
         };
