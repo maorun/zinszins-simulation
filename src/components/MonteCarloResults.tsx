@@ -1,7 +1,7 @@
-import { Panel, Table } from 'rsuite';
 import type { RandomReturnConfig } from '../utils/random-returns';
-
-const { Column, HeaderCell, Cell } = Table;
+import { Card, CardContent } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { ChevronDown } from 'lucide-react';
 
 interface MonteCarloResultsProps {
     years: number[];
@@ -56,101 +56,84 @@ export function MonteCarloResults({
     const accumulationScenarios = createScenarios(accumulationConfig);
     const withdrawalScenarios = withdrawalConfig ? createScenarios(withdrawalConfig) : null;
 
-    const getRowClassName = (scenario: string) => {
-        if (scenario.includes('Best Case')) return 'success-row';
-        if (scenario.includes('Worst Case')) return 'danger-row';
-        if (scenario.includes('Median')) return 'info-row';
-        return '';
+    const getCardClassName = (scenario: string) => {
+        if (scenario.includes('Best Case')) return 'monte-carlo-card monte-carlo-best';
+        if (scenario.includes('Worst Case')) return 'monte-carlo-card monte-carlo-worst';
+        if (scenario.includes('Median')) return 'monte-carlo-card monte-carlo-median';
+        return 'monte-carlo-card';
     };
 
-    const renderAnalysisTable = (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => (
-        <div style={{ marginBottom: '30px' }}>
-            <h4 style={{ color: '#1976d2', marginBottom: '15px' }}>📊 {title}</h4>
-            <div style={{ marginBottom: '20px' }}>
-                <p>
-                    <strong>Simulationsparameter:</strong> Durchschnittliche Rendite {formatPercent(config.averageReturn)}, 
-                    Volatilität {formatPercent(config.standardDeviation || 0.15)}
-                </p>
-                <p>
-                    <strong>Annahme:</strong> Die jährlichen Renditen folgen einer Normalverteilung. 
-                    Reale Märkte können von dieser Annahme abweichen.
-                </p>
-                {config.seed && (
-                    <p>
-                        <strong>Zufallsseed:</strong> {config.seed} (deterministische Ergebnisse)
-                    </p>
-                )}
-            </div>
-
-            {/* Mobile Card Layout */}
-            <div className="mobile-only monte-carlo-mobile">
-                {scenarios.map((scenario, index) => (
-                    <div key={index} className={`monte-carlo-card ${getRowClassName(scenario.scenario)}`}>
-                        <div className="monte-carlo-header">
-                            <span className="scenario-name">{scenario.scenario}</span>
-                            <span className="probability">{scenario.probability}</span>
+    const renderAnalysisCards = (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => (
+        <Collapsible defaultOpen className="group">
+            <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
+                <span><span className="mr-2">📊</span> {title}</span>
+                <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="pt-4">
+                <Card>
+                    <CardContent className="p-6">
+                        <div className="mb-4 text-sm text-muted-foreground">
+                            <p className="mb-2">
+                                <strong>Simulationsparameter:</strong> Durchschnittliche Rendite {formatPercent(config.averageReturn)},
+                                Volatilität {formatPercent(config.standardDeviation || 0.15)}
+                            </p>
+                            <p className="mb-2">
+                                <strong>Annahme:</strong> Die jährlichen Renditen folgen einer Normalverteilung.
+                                Reale Märkte können von dieser Annahme abweichen.
+                            </p>
+                            {config.seed && (
+                                <p className="mb-2">
+                                    <strong>Zufallsseed:</strong> {config.seed} (deterministische Ergebnisse)
+                                </p>
+                            )}
                         </div>
-                        <div className="scenario-description">
-                            {scenario.description}
+
+                        {/* Scenario Cards Grid */}
+                        <div className="monte-carlo-scenarios-grid">
+                            {scenarios.map((scenario, index) => (
+                                <div key={index} className={getCardClassName(scenario.scenario)}>
+                                    <div className="monte-carlo-card-header">
+                                        <div className="monte-carlo-scenario-title">{scenario.scenario}</div>
+                                    </div>
+                                    <div className="monte-carlo-card-content">
+                                        <p className="monte-carlo-description">
+                                            {scenario.description}
+                                        </p>
+                                        <p className="monte-carlo-probability">
+                                            {scenario.probability}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
                         </div>
-                    </div>
-                ))}
-            </div>
-
-            {/* Desktop Table Layout */}
-            <div className="desktop-only table-container">
-                <Table 
-                    data={scenarios}
-                    autoHeight
-                    rowClassName={(rowData) => getRowClassName(rowData?.scenario || '')}
-                >
-                    <Column width={200} flexGrow={1}>
-                        <HeaderCell>Szenario</HeaderCell>
-                        <Cell dataKey="scenario" />
-                    </Column>
-
-                    <Column width={400} flexGrow={2}>
-                        <HeaderCell>Beschreibung</HeaderCell>
-                        <Cell dataKey="description" />
-                    </Column>
-
-                    <Column width={200} flexGrow={1}>
-                        <HeaderCell>Wahrscheinlichkeit</HeaderCell>
-                        <Cell dataKey="probability" />
-                    </Column>
-                </Table>
-            </div>
-        </div>
+                    </CardContent>
+                </Card>
+            </CollapsibleContent>
+        </Collapsible>
     );
 
     return (
-        <Panel header={`Statistische Szenarien (Monte Carlo Simulation)`} bordered collapsible>
-            {renderAnalysisTable(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
-            
-            {withdrawalScenarios && withdrawalConfig && (
-                renderAnalysisTable(withdrawalScenarios, withdrawalConfig, 'Entnahmephase (Entsparphase)')
-            )}
+        <Collapsible defaultOpen className="group">
+            <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
+                <span><span className="mr-2">🎲</span> Monte Carlo Analyse</span>
+                <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="p-6 space-y-4">
+                {renderAnalysisCards(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
 
-            <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', borderRadius: '4px' }}>
-                <h6>💡 Hinweis zu Monte Carlo Simulationen:</h6>
-                <p style={{ margin: 0, fontSize: '14px' }}>
-                    Diese Szenarien basieren auf statistischen Modellen und historischen Annahmen. 
-                    Tatsächliche Marktrenditen können stark abweichen. Die Simulation dient nur zur 
-                    groben Orientierung und ersetzt keine professionelle Finanzberatung.
-                </p>
-            </div>
+                {withdrawalScenarios && withdrawalConfig && (
+                    renderAnalysisCards(withdrawalScenarios, withdrawalConfig, 'Entnahmephase (Entsparphase)')
+                )}
 
-            <style>{`
-                .success-row {
-                    background-color: #d4edda !important;
-                }
-                .danger-row {
-                    background-color: #f8d7da !important;
-                }
-                .info-row {
-                    background-color: #d1ecf1 !important;
-                }
-            `}</style>
-        </Panel>
+                <div className="mt-4 p-4 bg-gray-100 rounded-md border">
+                    <h6 className="font-semibold mb-2">💡 Hinweis zu Monte Carlo Simulationen:</h6>
+                    <p className="text-sm text-muted-foreground">
+                        Diese Simulation basiert auf statistischen Modellen und historischen Annahmen.
+                        Tatsächliche Marktrenditen können stark abweichen. Die Simulation dient nur zur
+                        groben Orientierung und ersetzt keine professionelle Finanzberatung.
+                    </p>
+                </div>
+            </CollapsibleContent>
+        </Collapsible>
     );
 }

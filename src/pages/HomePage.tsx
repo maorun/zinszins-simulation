@@ -2,19 +2,15 @@ import { SimulationAnnual, type SimulationAnnualType, simulate } from "../utils/
 import type { ReturnMode, ReturnConfiguration } from "../utils/random-returns";
 import type { WithdrawalResult } from "../utils/withdrawal";
 import { useCallback, useEffect, useState } from "react";
-import {
-    Button,
-    Panel,
-    Radio,
-    RadioGroup,
-    Slider,
-    InputNumber,
-    Form,
-    Table,
-    IconButton,
-    FlexboxGrid
-} from "rsuite";
-import 'rsuite/dist/rsuite.min.css';
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Slider } from "@/components/ui/slider";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Trash2, ChevronDown } from "lucide-react";
 import { EntnahmeSimulationsAusgabe } from "../components/EntnahmeSimulationsAusgabe";
 import { MonteCarloResults } from "../components/MonteCarloResults";
 import { SparplanEingabe } from "../components/SparplanEingabe";
@@ -25,6 +21,7 @@ import { fullSummary, getEnhancedSummary } from "../utils/summary-utils";
 import { calculateWithdrawal } from "../utils/withdrawal";
 import { unique } from "../utils/array-utils";
 import { Zeitspanne } from "../components/Zeitspanne";
+import { toast } from "sonner";
 
 
 export default function HomePage() {
@@ -34,6 +31,8 @@ export default function HomePage() {
     const [steuerlast, setSteuerlast] = useState(26.375); // Capital gains tax rate as percentage
     const [teilfreistellungsquote, setTeilfreistellungsquote] = useState(30); // Partial exemption rate as percentage
     const [freibetragPerYear, setFreibetragPerYear] = useState<{[year: number]: number}>({2023: 2000}); // Tax allowance per year
+    const [newFreibetragYear, setNewFreibetragYear] = useState<number | undefined>();
+
 
     // Return configuration state
     const [returnMode, setReturnMode] = useState<ReturnMode>('fixed');
@@ -119,7 +118,9 @@ export default function HomePage() {
                 }))
             });
         } catch (error) {
-            console.error('Simulation error:', error);
+            toast.error("Simulation Error", {
+                description: `Ein Fehler ist aufgetreten: ${error instanceof Error ? error.message : 'Unbekannter Fehler'}`,
+            });
         } finally {
             setIsLoading(false);
         }
@@ -143,8 +144,7 @@ export default function HomePage() {
                     setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual))
                     performSimulation()
                 }}
-                style={{ marginBottom: '1rem', width: '100%' }}
-                appearance="primary"
+                className="mb-4 w-full"
             >
                 🔄 Neu berechnen
             </Button>
@@ -273,306 +273,341 @@ export default function HomePage() {
             )}
 
             {/* Main Configuration */}
-            <Panel header="⚙️ Konfiguration" collapsible bordered>
-                <div className="form-grid">
-                    {/* Time Range */}
-                    <Panel header="📅 Zeitspanne" bordered>
-                        <Zeitspanne startEnd={startEnd} dispatch={(val) => {
-                            setStartEnd(val)
-                            setSparplanElemente(convertSparplanToElements(sparplan, val, simulationAnnual))
-                        }} />
-                    </Panel>
-                    
-                    {/* Return Configuration */}
-                    <Panel header="📈 Rendite-Konfiguration" bordered>
-                        <Form.Group controlId="returnMode">
-                            <Form.ControlLabel>Rendite-Modus</Form.ControlLabel>
-                            <RadioGroup 
-                                inline 
-                                value={returnMode} 
-                                onChange={(value) => {
-                                    const mode = value as ReturnMode;
-                                    setReturnMode(mode);
-                                    performSimulation();
-                                }}
-                            >
-                                <Radio value="fixed">Feste Rendite</Radio>
-                                <Radio value="random">Zufällige Rendite</Radio>
-                                <Radio value="variable">Variable Rendite</Radio>
-                            </RadioGroup>
-                        </Form.Group>
+            <Collapsible className="mb-4 group">
+                <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
+                    <span><span className="mr-2">⚙️</span> Konfiguration</span>
+                    <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-4">
+                    <Card>
+                        <CardContent className="p-6 form-grid">
+                            {/* Time Range */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>📅 Zeitspanne</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                <Zeitspanne startEnd={startEnd} dispatch={(val) => {
+                                    setStartEnd(val)
+                                    setSparplanElemente(convertSparplanToElements(sparplan, val, simulationAnnual))
+                                }} />
+                                </CardContent>
+                            </Card>
 
-                        {returnMode === 'fixed' && (
-                            <Form.Group controlId="fixedReturn">
-                                <Form.ControlLabel>Feste Rendite</Form.ControlLabel>
-                                <Slider
-                                    name="rendite"
-                                    renderTooltip={(value) => value + "%"}
-                                    handleTitle={(<div style={{ marginTop: '-17px' }}>{rendite}%</div>)}
-                                    progress
-                                    value={rendite}
-                                    min={0}
-                                    max={15}
-                                    step={0.5}
-                                    graduated
-                                    onChange={(r) => {
-                                        setRendite(r)
-                                        performSimulation({ rendite: r })
-                                    }}
-                                />
-                            </Form.Group>
-                        )}
+                            {/* Return Configuration */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>📈 Rendite-Konfiguration</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-2 mb-4">
+                                        <Label>Rendite-Modus</Label>
+                                        <RadioGroup
+                                            value={returnMode}
+                                            onValueChange={(value) => {
+                                                const mode = value as ReturnMode;
+                                                setReturnMode(mode);
+                                                performSimulation();
+                                            }}
+                                            className="flex space-x-4"
+                                        >
+                                            <div className="flex items-center space-x-2">
+                                                <RadioGroupItem value="fixed" id="fixed" />
+                                                <Label htmlFor="fixed">Feste Rendite</Label>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <RadioGroupItem value="random" id="random" />
+                                                <Label htmlFor="random">Zufällige Rendite</Label>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <RadioGroupItem value="variable" id="variable" />
+                                                <Label htmlFor="variable">Variable Rendite</Label>
+                                            </div>
+                                        </RadioGroup>
+                                    </div>
 
-                        {returnMode === 'random' && (
-                            <>
-                                <Form.Group controlId="averageReturn">
-                                    <Form.ControlLabel>Durchschnittliche Rendite</Form.ControlLabel>
-                                    <Slider
-                                        name="averageReturn"
-                                        renderTooltip={(value) => value + "%"}
-                                        handleTitle={(<div style={{ marginTop: '-17px' }}>{averageReturn}%</div>)}
-                                        progress
-                                        value={averageReturn}
-                                        min={0}
-                                        max={15}
-                                        step={0.5}
-                                        graduated
-                                        onChange={(value) => {
-                                            setAverageReturn(value);
-                                            performSimulation();
-                                        }}
-                                    />
-                                </Form.Group>
-                                
-                                <Form.Group controlId="standardDeviation">
-                                    <Form.ControlLabel>Volatilität (Standardabweichung)</Form.ControlLabel>
-                                    <Slider
-                                        name="standardDeviation"
-                                        renderTooltip={(value) => value + "%"}
-                                        handleTitle={(<div style={{ marginTop: '-17px' }}>{standardDeviation}%</div>)}
-                                        progress
-                                        value={standardDeviation}
-                                        min={5}
-                                        max={30}
-                                        step={1}
-                                        graduated
-                                        onChange={(value) => {
-                                            setStandardDeviation(value);
-                                            performSimulation();
-                                        }}
-                                    />
-                                </Form.Group>
-                                
-                                <Form.Group controlId="randomSeed">
-                                    <Form.ControlLabel>Zufallsseed (optional für reproduzierbare Ergebnisse)</Form.ControlLabel>
-                                    <InputNumber
-                                        placeholder="Leer lassen für echte Zufälligkeit"
-                                        value={randomSeed}
-                                        onChange={(value) => {
-                                            setRandomSeed(typeof value === 'number' ? value : undefined);
-                                            performSimulation();
-                                        }}
-                                        min={1}
-                                        max={999999}
-                                    />
-                                </Form.Group>
-                            </>
-                        )}
+                                    {returnMode === 'fixed' && (
+                                        <div className="space-y-2">
+                                            <Label>Feste Rendite</Label>
+                                            <div className="flex items-center space-x-4">
+                                                <Slider
+                                                    value={[rendite]}
+                                                    min={0}
+                                                    max={15}
+                                                    step={0.5}
+                                                    onValueChange={(value) => {
+                                                        setRendite(value[0])
+                                                        performSimulation({ rendite: value[0] })
+                                                    }}
+                                                    className="w-[80%]"
+                                                />
+                                                <span className="w-[20%] text-right">{rendite}%</span>
+                                            </div>
+                                        </div>
+                                    )}
 
-                        {returnMode === 'variable' && (
-                            <Form.Group controlId="variableReturns">
-                                <Form.ControlLabel>Variable Renditen pro Jahr</Form.ControlLabel>
-                                <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #e5e5ea', borderRadius: '6px', padding: '10px' }}>
-                                    {Array.from({ length: startEnd[0] - yearToday + 1 }, (_, i) => {
-                                        const year = yearToday + i;
-                                        return (
-                                            <div key={year} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', gap: '10px' }}>
-                                                <div style={{ minWidth: '60px', fontWeight: 'bold' }}>{year}:</div>
-                                                <div style={{ flex: 1 }}>
+                                    {returnMode === 'random' && (
+                                        <div className="space-y-4">
+                                            <div className="space-y-2">
+                                                <Label>Durchschnittliche Rendite</Label>
+                                                <div className="flex items-center space-x-4">
                                                     <Slider
-                                                        value={variableReturns[year] || 5}
-                                                        min={-10}
-                                                        max={20}
+                                                        value={[averageReturn]}
+                                                        min={0}
+                                                        max={15}
                                                         step={0.5}
-                                                        onChange={(value) => {
-                                                            const newReturns = { ...variableReturns, [year]: value };
-                                                            setVariableReturns(newReturns);
+                                                        onValueChange={(value) => {
+                                                            setAverageReturn(value[0]);
                                                             performSimulation();
                                                         }}
+                                                        className="w-[80%]"
                                                     />
-                                                </div>
-                                                <div style={{ minWidth: '50px', textAlign: 'right' }}>
-                                                    {(variableReturns[year] || 5).toFixed(1)}%
+                                                    <span className="w-[20%] text-right">{averageReturn}%</span>
                                                 </div>
                                             </div>
-                                        );
-                                    })}
-                                </div>
-                                <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
-                                    Tipp: Verwende negative Werte für wirtschaftliche Krisen und höhere Werte für Boom-Jahre.
-                                </div>
-                            </Form.Group>
-                        )}
-                    </Panel>
-                    
-                    {/* Tax Configuration */}
-                    <Panel header="💰 Steuer-Konfiguration" bordered>
-                        <Form.Group controlId="steuerlast">
-                            <Form.ControlLabel>Kapitalertragsteuer (%)</Form.ControlLabel>
-                            <Slider
-                                name="steuerlast"
-                                renderTooltip={(value) => value + "%"}
-                                handleTitle={(<div style={{ marginTop: '-17px' }}>{steuerlast}%</div>)}
-                                progress
-                                value={steuerlast}
-                                min={20}
-                                max={35}
-                                step={0.025}
-                                graduated
-                                onChange={(value) => {
-                                    setSteuerlast(value);
-                                    performSimulation();
-                                }}
-                            />
-                        </Form.Group>
-                        
-                        <Form.Group controlId="teilfreistellungsquote">
-                            <Form.ControlLabel>Teilfreistellungsquote (%)</Form.ControlLabel>
-                            <Slider
-                                name="teilfreistellungsquote"
-                                renderTooltip={(value) => value + "%"}
-                                handleTitle={(<div style={{ marginTop: '-17px' }}>{teilfreistellungsquote}%</div>)}
-                                progress
-                                value={teilfreistellungsquote}
-                                min={0}
-                                max={50}
-                                step={1}
-                                graduated
-                                onChange={(value) => {
-                                    setTeilfreistellungsquote(value);
-                                    performSimulation();
-                                }}
-                            />
-                        </Form.Group>
-                        
-                        <Form.Group controlId="freibetragConfiguration">
-                            <Form.ControlLabel>Freibetrag pro Jahr (€)</Form.ControlLabel>
-                            <div style={{ marginBottom: '10px' }}>
-                                <FlexboxGrid>
-                                    <FlexboxGrid.Item colspan={8}>
-                                        <InputNumber
-                                            placeholder="Jahr"
-                                            min={yearToday}
-                                            max={2100}
-                                            value={undefined}
-                                            onChange={(value) => {
-                                                if (value && !freibetragPerYear[value]) {
-                                                    setFreibetragPerYear(prev => ({
-                                                        ...prev,
-                                                        [value]: 2000 // Default value
-                                                    }));
-                                                    performSimulation();
-                                                }
-                                            }}
-                                        />
-                                    </FlexboxGrid.Item>
-                                    <FlexboxGrid.Item colspan={2}>
-                                        <Button
-                                            onClick={() => {
-                                                const year = yearToday;
-                                                if (!freibetragPerYear[year]) {
-                                                    setFreibetragPerYear(prev => ({
-                                                        ...prev,
-                                                        [year]: 2000
-                                                    }));
-                                                    performSimulation();
-                                                }
-                                            }}
-                                        >
-                                            Jahr hinzufügen
-                                        </Button>
-                                    </FlexboxGrid.Item>
-                                </FlexboxGrid>
-                            </div>
-                            <div className="table-container">
-                                <Table
-                                    height={200}
-                                    data={Object.entries(freibetragPerYear).map(([year, amount]) => ({ year: Number(year), amount }))}
-                                >
-                                    <Table.Column width={100} align="center">
-                                        <Table.HeaderCell>Jahr</Table.HeaderCell>
-                                        <Table.Cell dataKey="year" />
-                                    </Table.Column>
-                                    <Table.Column width={120} align="center">
-                                        <Table.HeaderCell>Freibetrag (€)</Table.HeaderCell>
-                                        <Table.Cell>
-                                            {(rowData: any) => (
-                                                <InputNumber
-                                                    value={freibetragPerYear[rowData.year]}
-                                                    min={0}
-                                                    max={10000}
-                                                    step={50}
-                                                    onChange={(value) => {
-                                                        if (value !== null && value !== undefined) {
-                                                            setFreibetragPerYear(prev => ({
-                                                                ...prev,
-                                                                [rowData.year]: value
-                                                            }));
-                                                            performSimulation();
-                                                        }
-                                                    }}
-                                                />
-                                            )}
-                                        </Table.Cell>
-                                    </Table.Column>
-                                    <Table.Column width={80} align="center">
-                                        <Table.HeaderCell>Aktionen</Table.HeaderCell>
-                                        <Table.Cell>
-                                            {(rowData: any) => (
-                                                <IconButton
-                                                    size="sm"
-                                                    color="red"
-                                                    appearance="ghost"
-                                                    onClick={() => {
-                                                        const newFreibetrag = { ...freibetragPerYear };
-                                                        delete newFreibetrag[rowData.year];
-                                                        setFreibetragPerYear(newFreibetrag);
+
+                                            <div className="space-y-2">
+                                                <Label>Volatilität (Standardabweichung)</Label>
+                                                <div className="flex items-center space-x-4">
+                                                <Slider
+                                                    value={[standardDeviation]}
+                                                    min={5}
+                                                    max={30}
+                                                    step={1}
+                                                    onValueChange={(value) => {
+                                                        setStandardDeviation(value[0]);
                                                         performSimulation();
                                                     }}
-                                                >
-                                                    Löschen
-                                                </IconButton>
-                                            )}
-                                        </Table.Cell>
-                                    </Table.Column>
-                                </Table>
-                            </div>
-                        </Form.Group>
-                    </Panel>
-                    
-                    {/* Simulation Configuration */}
-                    <Panel header="⚙️ Simulation-Konfiguration" bordered>
-                        <Form.Group controlId="simulationAnnual">
-                            <Form.ControlLabel>Berechnungsmodus</Form.ControlLabel>
-                            <RadioGroup
-                                inline
-                                value={simulationAnnual}
-                                onChange={(value) => {
-                                    const annual = value as SimulationAnnualType;
-                                    setSimulationAnnual(annual);
-                                    setSparplanElemente(convertSparplanToElements(sparplan, startEnd, annual));
-                                }}
-                            >
-                                <Radio value={SimulationAnnual.yearly}>Jährlich</Radio>
-                                <Radio value={SimulationAnnual.monthly}>Monatlich</Radio>
-                            </RadioGroup>
-                        </Form.Group>
-                    </Panel>
-                </div>
-            </Panel>
+                                                    className="w-[80%]"
+                                                />
+                                                <span className="w-[20%] text-right">{standardDeviation}%</span>
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Label>Zufallsseed (optional für reproduzierbare Ergebnisse)</Label>
+                                                <Input
+                                                    type="number"
+                                                    placeholder="Leer lassen für echte Zufälligkeit"
+                                                    value={randomSeed ?? ''}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        setRandomSeed(value ? parseInt(value) : undefined);
+                                                        performSimulation();
+                                                    }}
+                                                    min={1}
+                                                    max={999999}
+                                                />
+                                            </div>
+                                        </div>
+                                    )}
+
+                                    {returnMode === 'variable' && (
+                                        <div className="space-y-2">
+                                            <Label>Variable Renditen pro Jahr</Label>
+                                            <div className="max-h-72 overflow-y-auto rounded-md border p-2">
+                                                {Array.from({ length: startEnd[0] - yearToday + 1 }, (_, i) => {
+                                                    const year = yearToday + i;
+                                                    return (
+                                                        <div key={year} className="flex items-center space-x-2 mb-2">
+                                                            <Label className="w-16 font-bold">{year}:</Label>
+                                                            <Slider
+                                                                value={[variableReturns[year] || 5]}
+                                                                min={-10}
+                                                                max={20}
+                                                                step={0.5}
+                                                                onValueChange={(value) => {
+                                                                    const newReturns = { ...variableReturns, [year]: value[0] };
+                                                                    setVariableReturns(newReturns);
+                                                                    performSimulation();
+                                                                }}
+                                                                className="flex-1"
+                                                            />
+                                                            <span className="w-20 text-right">
+                                                                {(variableReturns[year] || 5).toFixed(1)}%
+                                                            </span>
+                                                        </div>
+                                                    );
+                                                })}
+                                            </div>
+                                            <div className="text-sm text-muted-foreground">
+                                                Tipp: Verwende negative Werte für wirtschaftliche Krisen und höhere Werte für Boom-Jahre.
+                                            </div>
+                                        </div>
+                                    )}
+                                </CardContent>
+                            </Card>
+
+                            {/* Tax Configuration */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>💰 Steuer-Konfiguration</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-4">
+                                        <div className="space-y-2">
+                                            <Label>Kapitalertragsteuer (%)</Label>
+                                            <div className="flex items-center space-x-4">
+                                                <Slider
+                                                    value={[steuerlast]}
+                                                    min={20}
+                                                    max={35}
+                                                    step={0.025}
+                                                    onValueChange={(value) => {
+                                                        setSteuerlast(value[0]);
+                                                        performSimulation();
+                                                    }}
+                                                    className="w-[80%]"
+                                                />
+                                                <span className="w-[20%] text-right">{steuerlast.toFixed(3)}%</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Teilfreistellungsquote (%)</Label>
+                                            <div className="flex items-center space-x-4">
+                                                <Slider
+                                                    value={[teilfreistellungsquote]}
+                                                    min={0}
+                                                    max={50}
+                                                    step={1}
+                                                    onValueChange={(value) => {
+                                                        setTeilfreistellungsquote(value[0]);
+                                                        performSimulation();
+                                                    }}
+                                                    className="w-[80%]"
+                                                />
+                                                <span className="w-[20%] text-right">{teilfreistellungsquote}%</span>
+                                            </div>
+                                        </div>
+
+                                        <div className="space-y-2">
+                                            <Label>Freibetrag pro Jahr (€)</Label>
+                                            <div className="flex gap-2 mb-2">
+                                                <div className="w-2/3">
+                                                    <Input
+                                                        type="number"
+                                                        placeholder="Jahr"
+                                                        value={newFreibetragYear ?? ''}
+                                                        onChange={(e) => setNewFreibetragYear(Number(e.target.value))}
+                                                    />
+                                                </div>
+                                                <div className="w-1/3">
+                                                    <Button
+                                                        onClick={() => {
+                                                            if (newFreibetragYear && !freibetragPerYear[newFreibetragYear]) {
+                                                                setFreibetragPerYear(prev => ({
+                                                                    ...prev,
+                                                                    [newFreibetragYear]: 2000
+                                                                }));
+                                                                setNewFreibetragYear(undefined);
+                                                                performSimulation();
+                                                            }
+                                                        }}
+                                                        className="w-full"
+                                                    >
+                                                        Hinzufügen
+                                                    </Button>
+                                                </div>
+                                            </div>
+                                            <div className="rounded-md border h-48 overflow-auto">
+                                                <Table>
+                                                    <TableHeader>
+                                                        <TableRow>
+                                                            <TableHead className="text-center">Jahr</TableHead>
+                                                            <TableHead className="text-center">Freibetrag (€)</TableHead>
+                                                            <TableHead className="text-center">Aktionen</TableHead>
+                                                        </TableRow>
+                                                    </TableHeader>
+                                                    <TableBody>
+                                                        {Object.entries(freibetragPerYear).map(([year, amount]) => (
+                                                            <TableRow key={year}>
+                                                                <TableCell className="text-center">{year}</TableCell>
+                                                                <TableCell className="text-center">
+                                                                    <Input
+                                                                        type="number"
+                                                                        value={amount}
+                                                                        min={0}
+                                                                        max={10000}
+                                                                        step={50}
+                                                                        onChange={(e) => {
+                                                                            const value = Number(e.target.value);
+                                                                            if (value !== null && value !== undefined) {
+                                                                                setFreibetragPerYear(prev => ({
+                                                                                    ...prev,
+                                                                                    [year]: value
+                                                                                }));
+                                                                                performSimulation();
+                                                                            }
+                                                                        }}
+                                                                        className="w-24"
+                                                                    />
+                                                                </TableCell>
+                                                                <TableCell className="text-center">
+                                                                    <Button
+                                                                        variant="ghost"
+                                                                        size="icon"
+                                                                        onClick={() => {
+                                                                            const newFreibetrag = { ...freibetragPerYear };
+                                                                            delete newFreibetrag[Number(year)];
+                                                                            setFreibetragPerYear(newFreibetrag);
+                                                                            performSimulation();
+                                                                        }}
+                                                                    >
+                                                                        <Trash2 className="h-4 w-4 text-red-500" />
+                                                                    </Button>
+                                                                </TableCell>
+                                                            </TableRow>
+                                                        ))}
+                                                    </TableBody>
+                                                </Table>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </CardContent>
+                            </Card>
+
+                            {/* Simulation Configuration */}
+                            <Card>
+                                <CardHeader>
+                                    <CardTitle>⚙️ Simulation-Konfiguration</CardTitle>
+                                </CardHeader>
+                                <CardContent>
+                                    <div className="space-y-2">
+                                        <Label>Berechnungsmodus</Label>
+                                        <RadioGroup
+                                            value={simulationAnnual}
+                                            onValueChange={(value) => {
+                                                const annual = value as SimulationAnnualType;
+                                                setSimulationAnnual(annual);
+                                                setSparplanElemente(convertSparplanToElements(sparplan, startEnd, annual));
+                                            }}
+                                            className="flex space-x-4"
+                                        >
+                                            <div className="flex items-center space-x-2">
+                                                <RadioGroupItem value={SimulationAnnual.yearly} id="yearly"/>
+                                                <Label htmlFor="yearly">Jährlich</Label>
+                                            </div>
+                                            <div className="flex items-center space-x-2">
+                                                <RadioGroupItem value={SimulationAnnual.monthly} id="monthly"/>
+                                                <Label htmlFor="monthly">Monatlich</Label>
+                                            </div>
+                                        </RadioGroup>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        </CardContent>
+                    </Card>
+                </CollapsibleContent>
+            </Collapsible>
 
             {/* Savings Plans Configuration */}
-            <Panel header="💼 Sparpläne erstellen" collapsible bordered>
+            <Collapsible className="mb-4 group">
+                <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
+                    <span><span className="mr-2">💼</span> Sparpläne erstellen</span>
+                    <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="pt-4">
                     <SparplanEingabe 
                         dispatch={(sparplan) => {
                             setSparplan(sparplan);
@@ -580,50 +615,65 @@ export default function HomePage() {
                         }}
                         simulationAnnual={simulationAnnual}
                     />
-            </Panel>
+                </CollapsibleContent>
+            </Collapsible>
 
             {/* Results Section */}
             {simulationData && (
-                <>
+                <div className="space-y-4">
                     {/* Remove the old SparplanEnd since we have the highlight box */}
                     
-                    <Panel header="📊 Sparplan-Simulation" collapsible bordered>
-                        <SparplanSimulationsAusgabe
-                            startEnd={startEnd}
-                            elemente={simulationData.sparplanElements}
-                            simulationAnnual={simulationAnnual}
-                        />
-                    </Panel>
+                    <Collapsible className="group">
+                        <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
+                            <span><span className="mr-2">📊</span> Sparplan-Simulation</span>
+                            <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent  className="pt-4">
+                            <SparplanSimulationsAusgabe
+                                startEnd={startEnd}
+                                elemente={simulationData.sparplanElements}
+                                simulationAnnual={simulationAnnual}
+                            />
+                        </CollapsibleContent>
+                    </Collapsible>
 
-                    <Panel header="💸 Entnahme" collapsible bordered>
-                        <EntnahmeSimulationsAusgabe
-                            startEnd={startEnd}
-                            elemente={simulationData.sparplanElements}
-                            dispatchEnd={(val) => setStartEnd(val)}
-                            onWithdrawalResultsChange={setWithdrawalResults}
-                        />
-                    </Panel>
+                    <Collapsible className="group">
+                        <CollapsibleTrigger className="flex justify-start items-center w-full p-6 font-semibold text-xl border rounded-md gap-4">
+                            <span><span className="mr-2">💸</span> Entnahme</span>
+                            <ChevronDown className="h-6 w-6 transition-transform duration-200 group-[data-state=open]:rotate-180 ml-auto" />
+                        </CollapsibleTrigger>
+                        <CollapsibleContent  className="pt-4">
+                            <EntnahmeSimulationsAusgabe
+                                startEnd={startEnd}
+                                elemente={simulationData.sparplanElements}
+                                dispatchEnd={(val) => setStartEnd(val)}
+                                onWithdrawalResultsChange={setWithdrawalResults}
+                            />
+                        </CollapsibleContent>
+                    </Collapsible>
 
-                    <Panel header="🎲 Monte Carlo Analyse" collapsible bordered>
-                        <MonteCarloResults
-                            years={data}
-                            accumulationConfig={{
-                                averageReturn: averageReturn / 100,
-                                standardDeviation: standardDeviation / 100,
-                                seed: randomSeed
-                            }}
-                            withdrawalConfig={{
-                                averageReturn: 0.05, // Default 5% for withdrawal phase (more conservative)
-                                standardDeviation: 0.12, // Default 12% volatility (more conservative)
-                                seed: randomSeed
-                            }}
-                        />
-                    </Panel>
+                    <MonteCarloResults
+                        years={data}
+                        accumulationConfig={{
+                            averageReturn: averageReturn / 100,
+                            standardDeviation: standardDeviation / 100,
+                            seed: randomSeed
+                        }}
+                        withdrawalConfig={{
+                            averageReturn: 0.05, // Default 5% for withdrawal phase (more conservative)
+                            standardDeviation: 0.12, // Default 12% volatility (more conservative)
+                            seed: randomSeed
+                        }}
+                    />
 
-                    <Panel header="📋 Detaillierte Simulation" bordered collapsible defaultExpanded>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>📋 Detaillierte Simulation</CardTitle>
+                        </CardHeader>
+                        <CardContent>
                         {/* Mobile Optimized View */}
-                        <div className="mobile-only">
-                            <div style={{ marginBottom: '1rem', fontSize: '0.9rem', color: '#666' }}>
+                        <div className="md:hidden">
+                            <div className="mb-4 text-sm text-muted-foreground">
                                 💡 Tipp: Tippen Sie auf ein Jahr für Details
                             </div>
                             {data
@@ -643,76 +693,79 @@ export default function HomePage() {
                                     const totalSteuer = yearData.reduce((sum, item) => sum + Number(item?.bezahlteSteuer || 0), 0);
                                     
                                     return (
-                                        <Panel 
-                                            key={year + '' + yearIndex} 
-                                            header={`📅 Jahr ${year} - ${totalEndkapital.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €`}
-                                            bordered 
-                                            collapsible 
-                                            defaultExpanded={false}
-                                            className="mobile-year-panel"
-                                        >
-                                            <div className="mobile-year-summary">
-                                                <div className="year-summary-grid">
-                                                    <div className="year-summary-item">
-                                                        <span className="summary-label">💰 Startkapital</span>
-                                                        <span className="summary-value">{totalStartkapital.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
-                                                    </div>
-                                                    <div className="year-summary-item">
-                                                        <span className="summary-label">📈 Zinsen</span>
-                                                        <span className="summary-value">{totalZinsen.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
-                                                    </div>
-                                                    <div className="year-summary-item">
-                                                        <span className="summary-label">💸 Steuern</span>
-                                                        <span className="summary-value">{totalSteuer.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
-                                                    </div>
-                                                    <div className="year-summary-item highlight">
-                                                        <span className="summary-label">🎯 Endkapital</span>
-                                                        <span className="summary-value">{totalEndkapital.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
-                                                    </div>
-                                                </div>
-                                                
-                                                {yearData.length > 1 && (
-                                                    <Panel header={`📊 Details (${yearData.length} Sparpläne)`} bordered collapsible defaultExpanded={false} className="sparplan-details-panel">
-                                                        {yearData.map((value: any, index: number) => {
-                                                            if (!value) return null;
-                                                            return (
-                                                                <div key={index} className="mobile-sparplan-item">
-                                                                    <div className="sparplan-title">💰 Sparplan #{index + 1}</div>
-                                                                    <div className="sparplan-values">
-                                                                        <span>Start: {Number(value.startkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
-                                                                        <span>Zinsen: {Number(value.zinsen).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
-                                                                        <span>Ende: {Number(value.endkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
-                                                                    </div>
-                                                                    {value.vorabpauschaleDetails && (
-                                                                        <div className="vorab-details">
-                                                                            <span>Basiszins: {(value.vorabpauschaleDetails.basiszins * 100).toFixed(2)}%</span>
-                                                                            <span>Vorabpauschale: {Number(value.vorabpauschaleDetails.vorabpauschaleAmount).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
-                                                                        </div>
-                                                                    )}
-                                                                </div>
-                                                            );
-                                                        })}
-                                                    </Panel>
-                                                )}
-                                            </div>
-                                        </Panel>
+                                        <Collapsible key={year + '' + yearIndex} className="mb-2 group">
+                                            <CollapsibleTrigger className="flex justify-between items-center w-full p-6 font-semibold text-xl border rounded-md">
+                                                    <span>📅 Jahr {year}</span>
+                                                    <span>{totalEndkapital.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                            </CollapsibleTrigger>
+                                            <CollapsibleContent className="pt-2">
+                                                <Card>
+                                                    <CardContent className="p-4 mobile-year-summary">
+                                                        <div className="year-summary-grid">
+                                                            <div className="year-summary-item">
+                                                                <span className="summary-label">💰 Startkapital</span>
+                                                                <span className="summary-value">{totalStartkapital.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                            </div>
+                                                            <div className="year-summary-item">
+                                                                <span className="summary-label">📈 Zinsen</span>
+                                                                <span className="summary-value">{totalZinsen.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                            </div>
+                                                            <div className="year-summary-item">
+                                                                <span className="summary-label">💸 Steuern</span>
+                                                                <span className="summary-value">{totalSteuer.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                            </div>
+                                                            <div className="year-summary-item highlight">
+                                                                <span className="summary-label">🎯 Endkapital</span>
+                                                                <span className="summary-value">{totalEndkapital.toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                            </div>
+                                                        </div>
+
+                                                        {yearData.length > 1 && (
+                                                            <Collapsible className="mt-4">
+                                                                <CollapsibleTrigger asChild>
+                                                                    <Button variant="outline" size="sm" className="w-full">
+                                                                        📊 Details ({yearData.length} Sparpläne)
+                                                                    </Button>
+                                                                </CollapsibleTrigger>
+                                                                <CollapsibleContent className="pt-2">
+                                                                    {yearData.map((value: any, index: number) => {
+                                                                        if (!value) return null;
+                                                                        return (
+                                                                            <div key={index} className="mobile-sparplan-item">
+                                                                                <div className="sparplan-title">💰 Sparplan #{index + 1}</div>
+                                                                                <div className="sparplan-values">
+                                                                                    <span>Start: {Number(value.startkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                                                    <span>Zinsen: {Number(value.zinsen).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                                                    <span>Ende: {Number(value.endkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                                                </div>
+                                                                                {value.vorabpauschaleDetails && (
+                                                                                    <div className="vorab-details">
+                                                                                        <span>Basiszins: {(value.vorabpauschaleDetails.basiszins * 100).toFixed(2)}%</span>
+                                                                                        <span>Vorabpauschale: {Number(value.vorabpauschaleDetails.vorabpauschaleAmount).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                                                    </div>
+                                                                                )}
+                                                                            </div>
+                                                                        );
+                                                                    })}
+                                                                </CollapsibleContent>
+                                                            </Collapsible>
+                                                        )}
+                                                    </CardContent>
+                                                </Card>
+                                            </CollapsibleContent>
+                                        </Collapsible>
                                     );
                                 })}
                         </div>
 
                         {/* Desktop View - Original */}
-                        <div className="desktop-only">
+                        <div className="hidden md:block">
                             {data
                                 .sort((a, b) => b - a)
                                 .map((year, index) => {
                                     return (
-                                        <div key={year + '' + index} style={{ marginBottom: '20px' }}>
-                                            <h3 style={{ 
-                                                color: '#1976d2', 
-                                                borderBottom: '2px solid #e3f2fd',
-                                                paddingBottom: '8px',
-                                                margin: '16px 0 12px 0'
-                                            }}>
+                                        <div key={year + '' + index} className="mb-5">
+                                            <h3 className="text-lg font-semibold text-blue-600 border-b-2 border-blue-100 pb-2 mb-3">
                                                 📅 Jahr {year}
                                             </h3>
                                             {simulationData?.sparplanElements
@@ -724,88 +777,67 @@ export default function HomePage() {
                                                         return null;
                                                     }
                                                     return (
-                                                        <div key={index} style={{ 
-                                                            border: '1px solid #e6e6e6', 
-                                                            padding: '12px', 
-                                                            margin: '8px 0', 
-                                                            borderRadius: '6px',
-                                                            backgroundColor: '#fafafa'
-                                                        }}>
-                                                            <div style={{ 
-                                                                fontWeight: 600, 
-                                                                marginBottom: '8px',
-                                                                color: '#333'
-                                                            }}>
-                                                                💰 Sparplan #{index + 1}
-                                                            </div>
-                                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '12px' }}>
-                                                                <div>
-                                                                    <strong>Startkapital:</strong> {Number(value.startkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                        <Card key={index} className="mb-2 bg-gray-50">
+                                                            <CardContent className="p-3">
+                                                                <div className="font-semibold mb-2">
+                                                                    💰 Sparplan #{index + 1}
                                                                 </div>
-                                                                <div>
-                                                                    <strong>Zinsen:</strong> {Number(value.zinsen).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
-                                                                </div>
-                                                                <div>
-                                                                    <strong>Endkapital:</strong> {Number(value.endkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
-                                                                </div>
-                                                            </div>
-                                                            
-                                                            {/* Vorabpauschale Details */}
-                                                            {value.vorabpauschaleDetails && (
-                                                                <div style={{ 
-                                                                    marginTop: '12px', 
-                                                                    padding: '8px', 
-                                                                    backgroundColor: '#f0f8ff',
-                                                                    borderRadius: '4px',
-                                                                    fontSize: '0.9rem'
-                                                                }}>
-                                                                    <div style={{ fontWeight: 600, color: '#1976d2', marginBottom: '6px' }}>
-                                                                        📊 Vorabpauschale-Berechnung
+                                                                <div className="flex flex-wrap gap-x-4 gap-y-1">
+                                                                    <div>
+                                                                        <strong>Startkapital:</strong> {Number(value.startkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
                                                                     </div>
-                                                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '6px' }}>
-                                                                        <div>
-                                                                            <span style={{ fontWeight: 500 }}>Basiszins:</span> {(value.vorabpauschaleDetails.basiszins * 100).toFixed(2)}%
-                                                                        </div>
-                                                                        <div>
-                                                                            <span style={{ fontWeight: 500 }}>Basisertrag:</span> {Number(value.vorabpauschaleDetails.basisertrag).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
-                                                                        </div>
-                                                                        <div>
-                                                                            <span style={{ fontWeight: 500 }}>Vorabpauschale:</span> {Number(value.vorabpauschaleDetails.vorabpauschaleAmount).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
-                                                                        </div>
-                                                                        <div>
-                                                                            <span style={{ fontWeight: 500 }}>Steuer vor Freibetrag:</span> {Number(value.vorabpauschaleDetails.steuerVorFreibetrag).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
-                                                                        </div>
+                                                                    <div>
+                                                                        <strong>Zinsen:</strong> {Number(value.zinsen).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                    </div>
+                                                                    <div>
+                                                                        <strong>Endkapital:</strong> {Number(value.endkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
                                                                     </div>
                                                                 </div>
-                                                            )}
-                                                            
-                                                            <div style={{ 
-                                                                marginTop: '8px', 
-                                                                display: 'flex', 
-                                                                justifyContent: 'space-between',
-                                                                fontSize: '0.9rem'
-                                                            }}>
-                                                                <div style={{ 
-                                                                    color: value.bezahlteSteuer > 0 ? '#d32f2f' : '#388e3c',
-                                                                    fontWeight: 500
-                                                                }}>
-                                                                    💸 Bezahlte Steuer: {Number(value.bezahlteSteuer).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+
+                                                                {/* Vorabpauschale Details */}
+                                                                {value.vorabpauschaleDetails && (
+                                                                    <div className="mt-3 p-2 bg-blue-50 rounded-md text-sm">
+                                                                        <div className="font-semibold text-blue-600 mb-1.5">
+                                                                            📊 Vorabpauschale-Berechnung
+                                                                        </div>
+                                                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-1.5">
+                                                                            <div>
+                                                                                <span className="font-medium">Basiszins:</span> {(value.vorabpauschaleDetails.basiszins * 100).toFixed(2)}%
+                                                                            </div>
+                                                                            <div>
+                                                                                <span className="font-medium">Basisertrag:</span> {Number(value.vorabpauschaleDetails.basisertrag).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                            </div>
+                                                                            <div>
+                                                                                <span className="font-medium">Vorabpauschale:</span> {Number(value.vorabpauschaleDetails.vorabpauschaleAmount).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                            </div>
+                                                                            <div>
+                                                                                <span className="font-medium">Steuer vor Freibetrag:</span> {Number(value.vorabpauschaleDetails.steuerVorFreibetrag).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                )}
+
+                                                                <div className="mt-2 flex justify-between text-sm">
+                                                                    <div className={`font-medium ${value.bezahlteSteuer > 0 ? 'text-red-600' : 'text-green-600'}`}>
+                                                                        💸 Bezahlte Steuer: {Number(value.bezahlteSteuer).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                    </div>
+                                                                    <div className="text-gray-600">
+                                                                        🛡️ Genutzter Freibetrag: {Number(value.genutzterFreibetrag).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
+                                                                    </div>
                                                                 </div>
-                                                                <div style={{ color: '#666' }}>
-                                                                    🛡️ Genutzter Freibetrag: {Number(value.genutzterFreibetrag).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €
-                                                                </div>
-                                                            </div>
-                                                        </div>
+                                                            </CardContent>
+                                                        </Card>
                                                     );
                                                 })}
                                         </div>
                                     );
                                 })}
                         </div>
-                    </Panel>
+                        </CardContent>
+                    </Card>
 
 
-                </>
+                </div>
             )}
 
             {isLoading && (
@@ -817,7 +849,7 @@ export default function HomePage() {
             <footer>
                 <div>💼 Zinseszins-Simulation</div>
                 <div>📧 by Marco</div>
-                <div>🚀 Erstellt mit React, TypeScript & RSuite</div>
+                <div>🚀 Erstellt mit React, TypeScript & shadcn/ui</div>
             </footer>
         </div>
     );
