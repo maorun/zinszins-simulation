@@ -23,6 +23,7 @@ import type { Sparplan, SparplanElement } from "../utils/sparplan-utils";
 import { convertSparplanToElements, initialSparplan } from "../utils/sparplan-utils";
 import type { WithdrawalResult } from "../../helpers/withdrawal";
 import { calculateWithdrawal } from "../../helpers/withdrawal";
+import { getEnhancedSummary } from "../utils/summary-utils";
 import { unique } from "../utils/array-utils";
 import { Zeitspanne } from "../components/Zeitspanne";
 
@@ -159,7 +160,6 @@ export default function HomePage() {
                         const savingsEndYear = startEnd[0]; // Withdrawal starts when savings end
                         
                         // Calculate withdrawal metrics - use actual withdrawal results if available, otherwise fall back to default 4% rule
-                        const baseSummary = fullSummary(simulationData.sparplanElements);
                         let withdrawalResult;
                         
                         if (withdrawalResults) {

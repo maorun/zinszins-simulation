@@ -13,7 +13,7 @@ import {
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
 import type { SparplanElement } from "../utils/sparplan-utils";
-import { calculateWithdrawal, calculateSegmentedWithdrawal, getTotalCapitalAtYear } from "../../helpers/withdrawal";
+import { calculateWithdrawal, calculateSegmentedWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration } from "../../helpers/withdrawal";
 import type { WithdrawalStrategy, WithdrawalResult } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import type { WithdrawalSegment, SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
@@ -181,7 +181,7 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments, steuerlast, teilfreistellungsquote]);
 
     // Notify parent component when withdrawal results change
     useEffect(() => {

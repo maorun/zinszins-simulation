@@ -2,7 +2,7 @@ import type { SparplanElement } from "../src/utils/sparplan-utils";
 import { getBasiszinsForYear, calculateVorabpauschale, calculateSteuerOnVorabpauschale } from "./steuer";
 import type { ReturnConfiguration } from "../src/utils/random-returns";
 import { generateRandomReturns } from "../src/utils/random-returns";
-import type { SegmentedWithdrawalConfig, WithdrawalSegment } from "../src/utils/segmented-withdrawal";
+import type { SegmentedWithdrawalConfig } from "../src/utils/segmented-withdrawal";
 
 
 export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent";
