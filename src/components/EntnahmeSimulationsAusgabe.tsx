@@ -101,8 +101,6 @@ export function EntnahmeSimulationsAusgabe({
                 freibetragPerYear: undefined // Use default
             };
             
-            // TODO: This also needs to be refactored to use the new FIFO logic if it's to be used.
-            // For now, it will use the old logic.
             withdrawalResult = calculateSegmentedWithdrawal(elemente, segmentedConfig);
         } else {
             // Use single-strategy withdrawal calculation (backward compatibility)
