@@ -21,8 +21,8 @@ import { SparplanEingabe } from "../components/SparplanEingabe";
 import { SparplanSimulationsAusgabe } from "../components/SparplanSimulationsAusgabe";
 import type { Sparplan, SparplanElement } from "../utils/sparplan-utils";
 import { convertSparplanToElements, initialSparplan } from "../utils/sparplan-utils";
-import { fullSummary, getEnhancedSummary } from "../utils/summary-utils";
-import { calculateWithdrawal } from "../utils/withdrawal";
+import type { WithdrawalResult } from "../../helpers/withdrawal";
+import { calculateWithdrawal } from "../../helpers/withdrawal";
 import { unique } from "../utils/array-utils";
 import { Zeitspanne } from "../components/Zeitspanne";
 

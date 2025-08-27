@@ -13,8 +13,8 @@ import {
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
 import type { SparplanElement } from "../utils/sparplan-utils";
-import { calculateWithdrawal, calculateSegmentedWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration } from "../utils/withdrawal";
-import type { WithdrawalStrategy, WithdrawalResult } from "../utils/withdrawal";
+import { calculateWithdrawal, calculateSegmentedWithdrawal, getTotalCapitalAtYear } from "../../helpers/withdrawal";
+import type { WithdrawalStrategy, WithdrawalResult } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import type { WithdrawalSegment, SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
 import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
@@ -103,7 +103,7 @@ export function EntnahmeSimulationsAusgabe({
             
             // TODO: This also needs to be refactored to use the new FIFO logic if it's to be used.
             // For now, it will use the old logic.
-            withdrawalResult = calculateSegmentedWithdrawal(startingCapital, segmentedConfig);
+            withdrawalResult = calculateSegmentedWithdrawal(elemente, segmentedConfig);
         } else {
             // Use single-strategy withdrawal calculation (backward compatibility)
             // Build return configuration for withdrawal phase
@@ -135,7 +135,7 @@ export function EntnahmeSimulationsAusgabe({
             }
 
             // Calculate withdrawal projections
-            withdrawalResult = calculateWithdrawal(
+            const withdrawalCalculation = calculateWithdrawal(
                 elemente,
                 startOfIndependence + 1, // Start withdrawals the year after accumulation ends
                 formValue.endOfLife,
@@ -143,14 +143,25 @@ export function EntnahmeSimulationsAusgabe({
                 withdrawalReturnConfig,
                 steuerlast,
                 teilfreistellungsquote,
-                undefined, // Use default freibetrag
-                // Pass monthly config only for monthly strategy
+                undefined, // freibetragPerYear
                 formValue.strategie === "monatlich_fest" ? {
                     monthlyAmount: formValue.monatlicheBetrag,
                     enableGuardrails: formValue.guardrailsAktiv,
                     guardrailsThreshold: formValue.guardrailsSchwelle / 100
-                } : undefined
+                } : undefined,
+                formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined,
+                formValue.grundfreibetragAktiv,
+                formValue.grundfreibetragAktiv ? (() => {
+                    const grundfreibetragPerYear: {[year: number]: number} = {};
+                    for (let year = startOfIndependence + 1; year <= formValue.endOfLife; year++) {
+                        grundfreibetragPerYear[year] = formValue.grundfreibetragBetrag;
+                    }
+                    return grundfreibetragPerYear;
+                })() : undefined,
+                formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined,
+                formValue.inflationAktiv ? { inflationRate: formValue.inflationsrate / 100 } : undefined
             );
+            withdrawalResult = withdrawalCalculation.result;
         }
 
         // Convert to array for table display, sorted by year descending

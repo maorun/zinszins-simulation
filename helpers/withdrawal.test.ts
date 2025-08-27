@@ -40,13 +40,11 @@ describe('Withdrawal Calculations with FIFO', () => {
     const lastSimYear = withdrawalStartYear - 1;
 
     const mockElements: SparplanElement[] = [
-      // Oldest layer (should be sold first)
       createMockElement(2023, 10000, 12000, 100, lastSimYear),
-      // Newest layer
       createMockElement(2024, 5000, 6000, 50, lastSimYear),
     ];
 
-    const result = calculateWithdrawal(
+    const { result } = calculateWithdrawal(
       mockElements,
       withdrawalStartYear,
       withdrawalStartYear, // end year
@@ -64,42 +62,88 @@ describe('Withdrawal Calculations with FIFO', () => {
     const entnahme = initialCapital * 0.04; // 18000 * 0.04 = 720
     expect(resultYear.entnahme).toBeCloseTo(entnahme);
 
-    // --- Manual Tax Calculation for Assertion ---
-
-    // 1. Tax on Realized Gains
-    const proportionSold = entnahme / 12000; // 720 / 12000 = 0.06
-    const costBasisSold = 10000 * proportionSold; // 10000 * 0.06 = 600
-    const accumVorabSold = 100 * proportionSold; // 100 * 0.06 = 6
-
-    const expectedGain = entnahme - costBasisSold - accumVorabSold; // 720 - 600 - 6 = 114
-    const expectedTaxableGain = expectedGain * (1 - teilfreistellungsquote); // 114 * 0.7 = 79.8
-    const expectedTaxOnGains = Math.max(0, expectedTaxableGain - freibetrag) * taxRate; // max(0, 79.8 - 1000) * tax_rate = 0
-
-    expect(expectedTaxOnGains).toBe(0);
-
-    const freibetragUsedOnGains = Math.min(expectedTaxableGain, freibetrag); // min(79.8, 1000) = 79.8
-    const remainingFreibetrag = freibetrag - freibetragUsedOnGains; // 1000 - 79.8 = 920.2
-
-    // 2. Tax on Vorabpauschale for remaining assets
+    const proportionSold = entnahme / 12000;
+    const costBasisSold = 10000 * proportionSold;
+    const accumVorabSold = 100 * proportionSold;
+    const expectedGain = entnahme - costBasisSold - accumVorabSold;
+    const expectedTaxableGain = expectedGain * (1 - teilfreistellungsquote);
+    const expectedTaxOnGains = Math.max(0, expectedTaxableGain - freibetrag) * taxRate;
+    const freibetragUsedOnGains = Math.min(expectedTaxableGain, freibetrag);
+    const remainingFreibetrag = freibetrag - freibetragUsedOnGains;
     const basiszins = getBasiszinsForYear(withdrawalStartYear);
-    let totalPotentialVorabTax = 0;
-
-    // Layer 1 (remaining)
-    const l1_val_after_sale = 12000 - entnahme; // 11280
-    const l1_val_after_growth = l1_val_after_sale * (1 + returnConfig.fixedRate!); // 11280 * 1.05 = 11844
+    const l1_val_after_sale = 12000 - entnahme;
+    const l1_val_after_growth = l1_val_after_sale * (1 + returnConfig.fixedRate!);
     const l1_vorab = calculateVorabpauschale(l1_val_after_sale, l1_val_after_growth, basiszins);
-    totalPotentialVorabTax += calculateSteuerOnVorabpauschale(l1_vorab, taxRate, teilfreistellungsquote);
-
-    // Layer 2 (untouched)
+    const l1_tax_potential = calculateSteuerOnVorabpauschale(l1_vorab, taxRate, teilfreistellungsquote);
     const l2_val_after_sale = 6000;
-    const l2_val_after_growth = l2_val_after_sale * (1 + returnConfig.fixedRate!); // 6000 * 1.05 = 6300
+    const l2_val_after_growth = l2_val_after_sale * (1 + returnConfig.fixedRate!);
     const l2_vorab = calculateVorabpauschale(l2_val_after_sale, l2_val_after_growth, basiszins);
-    totalPotentialVorabTax += calculateSteuerOnVorabpauschale(l2_vorab, taxRate, teilfreistellungsquote);
-
-    const expectedTaxOnVorabpauschale = Math.max(0, totalPotentialVorabTax - remainingFreibetrag); // max(0, tax - 920.2) should be 0
-
-    // 3. Final Assertions
+    const l2_tax_potential = calculateSteuerOnVorabpauschale(l2_vorab, taxRate, teilfreistellungsquote);
+    const totalPotentialVorabTax = l1_tax_potential + l2_tax_potential;
+    const expectedTaxOnVorabpauschale = Math.max(0, totalPotentialVorabTax - remainingFreibetrag);
     const totalExpectedTax = expectedTaxOnGains + expectedTaxOnVorabpauschale;
     expect(resultYear.bezahlteSteuer).toBeCloseTo(totalExpectedTax);
+  });
+
+  test('should apply inflation to withdrawal amount', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+    const { result } = calculateWithdrawal(
+      mockElements,
+      withdrawalStartYear,
+      withdrawalStartYear + 1, // 2 years
+      "4prozent",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      { [withdrawalStartYear]: freibetrag, [withdrawalStartYear + 1]: freibetrag },
+      undefined, // monthlyConfig
+      undefined, // customPercentage
+      false, // enableGrundfreibetrag
+      undefined,
+      undefined,
+      { inflationRate: 0.10 } // 10% inflation for easy testing
+    );
+
+    const entnahme1 = result[withdrawalStartYear].entnahme;
+    const entnahme2 = result[withdrawalStartYear + 1].entnahme;
+
+    expect(entnahme2).toBeCloseTo(entnahme1 * 1.10);
+  });
+
+  test('should apply Grundfreibetrag and income tax', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+    const incomeTaxRate = 0.25;
+    const yearlyGrundfreibetrag = 10000;
+
+    const { result } = calculateWithdrawal(
+      mockElements,
+      withdrawalStartYear,
+      withdrawalStartYear,
+      "4prozent",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      { [withdrawalStartYear]: freibetrag },
+      undefined,
+      undefined,
+      true, // enableGrundfreibetrag
+      { [withdrawalStartYear]: yearlyGrundfreibetrag },
+      incomeTaxRate
+    );
+
+    const resultYear = result[withdrawalStartYear];
+    const entnahme = resultYear.entnahme;
+
+    const expectedEinkommensteuer = Math.max(0, (entnahme - yearlyGrundfreibetrag)) * incomeTaxRate;
+    const expectedGenutzterGrundfreibetrag = Math.min(entnahme, yearlyGrundfreibetrag);
+
+    expect(resultYear.einkommensteuer).toBe(expectedEinkommensteuer);
+    expect(resultYear.genutzterGrundfreibetrag).toBe(expectedGenutzterGrundfreibetrag);
+    expect(resultYear.bezahlteSteuer).toBeGreaterThanOrEqual(expectedEinkommensteuer);
   });
 });

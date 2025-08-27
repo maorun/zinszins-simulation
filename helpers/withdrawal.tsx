@@ -2,9 +2,14 @@ import type { SparplanElement } from "../src/utils/sparplan-utils";
 import { getBasiszinsForYear, calculateVorabpauschale, calculateSteuerOnVorabpauschale } from "./steuer";
 import type { ReturnConfiguration } from "../src/utils/random-returns";
 import { generateRandomReturns } from "../src/utils/random-returns";
+import type { SegmentedWithdrawalConfig, WithdrawalSegment } from "../src/utils/segmented-withdrawal";
 
 
 export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent";
+
+export type InflationConfig = {
+    inflationRate?: number; // Annual inflation rate for adjustment (default: 2%)
+};
 
 export type WithdrawalResultElement = {
     startkapital: number;
@@ -13,6 +18,12 @@ export type WithdrawalResultElement = {
     bezahlteSteuer: number;
     genutzterFreibetrag: number;
     zinsen: number;
+    // Optional fields for detailed view
+    monatlicheEntnahme?: number;
+    inflationAnpassung?: number;
+    portfolioAnpassung?: number;
+    einkommensteuer?: number;
+    genutzterGrundfreibetrag?: number;
 }
 
 export type WithdrawalResult = {
@@ -39,19 +50,6 @@ const grundfreibetrag: {
     2023: 10908, // € per year
 };
 
-/**
- * Calculate withdrawal phase projections based on different strategies
- * @param elements - Array of SparplanElement with simulation results
- * @param startYear - First year of withdrawal 
- * @param endYear - Final year of withdrawal (end of life)
- * @param strategy - Withdrawal strategy (4% rule, 3% rule, or monthly fixed)
- * @param returnConfig - Configuration for investment returns during withdrawal.
- * @param taxRate - Capital gains tax rate (default: 26.375%)
- * @param teilfreistellungsquote - The partial exemption quote for the fund type.
- * @param freibetragPerYear - Tax allowance per year (optional)
- * @param monthlyConfig - Configuration for monthly withdrawal strategy (optional)
- * @returns Withdrawal projections year by year
- */
 export function calculateWithdrawal(
     elements: SparplanElement[],
     startYear: number,
@@ -61,18 +59,24 @@ export function calculateWithdrawal(
     taxRate: number = 0.26375,
     teilfreistellungsquote: number = 0.3,
     freibetragPerYear?: { [year: number]: number },
-    monthlyConfig?: MonthlyWithdrawalConfig
-): WithdrawalResult {
-    // Helper function to get tax allowance for a specific year
+    monthlyConfig?: MonthlyWithdrawalConfig,
+    customPercentage?: number,
+    enableGrundfreibetrag?: boolean,
+    grundfreibetragPerYear?: {[year: number]: number},
+    incomeTaxRate?: number,
+    inflationConfig?: InflationConfig
+): { result: WithdrawalResult, finalLayers: any[] } { // Changed finalLayers to any[] to satisfy downstream consumers
+    // Helper functions
     const getFreibetragForYear = (year: number): number => {
-        if (freibetragPerYear && freibetragPerYear[year] !== undefined) {
-            return freibetragPerYear[year];
-        }
-        // Fallback to default value for backwards compatibility
+        if (freibetragPerYear && freibetragPerYear[year] !== undefined) return freibetragPerYear[year];
         return freibetrag[2023] || 2000;
     };
+    const getGrundfreibetragForYear = (year: number): number => {
+        if (grundfreibetragPerYear && grundfreibetragPerYear[year] !== undefined) return grundfreibetragPerYear[year];
+        return grundfreibetrag[2023] || 10908;
+    };
 
-    // Generate year-specific growth rates for the withdrawal phase
+    // Generate year-specific growth rates
     const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
     const yearlyGrowthRates: Record<number, number> = {};
     if (returnConfig.mode === 'fixed') {
@@ -90,16 +94,9 @@ export function calculateWithdrawal(
         return sum + (simYear?.endkapital || 0);
     }, 0);
 
-    // Create a mutable copy of the layers for the withdrawal simulation
-    let mutableLayers = JSON.parse(JSON.stringify(elements)).map((el: SparplanElement) => {
-        const lastSimYear = startYear - 1;
-        const lastSimData = el.simulation?.[lastSimYear];
-
-        let initialCost = el.einzahlung;
-        if (el.type === 'einmalzahlung') {
-            initialCost += el.gewinn;
-        }
-
+    let mutableLayers = JSON.parse(JSON.stringify(elements)).map((el: any) => {
+        const lastSimData = el.simulation?.[startYear - 1];
+        let initialCost = el.type === 'einmalzahlung' ? el.einzahlung + el.gewinn : el.einzahlung;
         return {
             ...el,
             currentValue: lastSimData?.endkapital || 0,
@@ -107,14 +104,15 @@ export function calculateWithdrawal(
             accumulatedVorabpauschale: lastSimData?.vorabpauschaleAccumulated || 0,
         };
     });
-
-    // Sort layers by start date for FIFO
     mutableLayers.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
     let baseWithdrawalAmount: number;
     if (strategy === "monatlich_fest") {
-        if (!monthlyConfig) throw new Error("Monthly configuration is required for monatlich_fest strategy");
+        if (!monthlyConfig) throw new Error("Monthly config required");
         baseWithdrawalAmount = monthlyConfig.monthlyAmount * 12;
+    } else if (strategy === "variabel_prozent") {
+        if (customPercentage === undefined) throw new Error("Custom percentage required");
+        baseWithdrawalAmount = initialStartingCapital * customPercentage;
     } else {
         const withdrawalRate = strategy === "4prozent" ? 0.04 : 0.03;
         baseWithdrawalAmount = initialStartingCapital * withdrawalRate;
@@ -122,73 +120,72 @@ export function calculateWithdrawal(
 
     for (let year = startYear; year <= endYear; year++) {
         const capitalAtStartOfYear = mutableLayers.reduce((sum, l) => sum + l.currentValue, 0);
-        if (capitalAtStartOfYear <= 0) {
-            break;
+        if (capitalAtStartOfYear <= 0) break;
+
+        let annualWithdrawal = baseWithdrawalAmount;
+        let inflationAnpassung = 0;
+        if (inflationConfig?.inflationRate) {
+            const yearsPassed = year - startYear;
+            inflationAnpassung = baseWithdrawalAmount * (Math.pow(1 + inflationConfig.inflationRate, yearsPassed) - 1);
+            annualWithdrawal += inflationAnpassung;
         }
 
-        let annualWithdrawal = baseWithdrawalAmount; // Simplified withdrawal logic for now
         const entnahme = Math.min(annualWithdrawal, capitalAtStartOfYear);
-
         let amountToWithdraw = entnahme;
         let totalRealizedGainThisYear = 0;
 
-        // --- FIFO Sale Logic ---
         for (const layer of mutableLayers) {
             if (amountToWithdraw <= 0 || layer.currentValue <= 0) continue;
-
             const amountToSellFromLayer = Math.min(amountToWithdraw, layer.currentValue);
             const proportionSold = amountToSellFromLayer / layer.currentValue;
-
             const costBasisOfSoldPart = layer.costBasis * proportionSold;
             const accumulatedVorabpauschaleOfSoldPart = layer.accumulatedVorabpauschale * proportionSold;
-
             const gain = amountToSellFromLayer - costBasisOfSoldPart - accumulatedVorabpauschaleOfSoldPart;
             totalRealizedGainThisYear += gain;
-
             layer.currentValue -= amountToSellFromLayer;
             layer.costBasis -= costBasisOfSoldPart;
             layer.accumulatedVorabpauschale -= accumulatedVorabpauschaleOfSoldPart;
             amountToWithdraw -= amountToSellFromLayer;
         }
 
-        // --- Tax on Realized Gains ---
         const yearlyFreibetrag = getFreibetragForYear(year);
         const taxableGain = totalRealizedGainThisYear > 0 ? totalRealizedGainThisYear * (1 - teilfreistellungsquote) : 0;
         const taxOnRealizedGains = Math.max(0, taxableGain - yearlyFreibetrag) * taxRate;
         const freibetragUsedOnGains = Math.min(taxableGain, yearlyFreibetrag);
         let remainingFreibetrag = yearlyFreibetrag - freibetragUsedOnGains;
 
-        // --- Growth and Vorabpauschale on Remaining Capital ---
         const returnRate = yearlyGrowthRates[year] || 0;
         const basiszins = getBasiszinsForYear(year);
         let totalPotentialVorabTax = 0;
         const vorabCalculations: any[] = [];
-
         mutableLayers.forEach(layer => {
             if (layer.currentValue > 0) {
                 const valueAfterSale = layer.currentValue;
                 const valueAfterGrowth = valueAfterSale * (1 + returnRate);
-
                 const vorabpauschaleBetrag = calculateVorabpauschale(valueAfterSale, valueAfterGrowth, basiszins);
                 const potentialTax = calculateSteuerOnVorabpauschale(vorabpauschaleBetrag, taxRate, teilfreistellungsquote);
-
                 totalPotentialVorabTax += potentialTax;
                 vorabCalculations.push({ layer, vorabpauschaleBetrag, potentialTax, valueAfterGrowth });
             }
         });
-        
         const taxOnVorabpauschale = Math.max(0, totalPotentialVorabTax - remainingFreibetrag);
         const freibetragUsedOnVorab = Math.min(totalPotentialVorabTax, remainingFreibetrag);
-
-        // Update layer values after growth and Vorabpauschale tax
         vorabCalculations.forEach(calc => {
             const taxForLayer = totalPotentialVorabTax > 0 ? (calc.potentialTax / totalPotentialVorabTax) * taxOnVorabpauschale : 0;
             calc.layer.currentValue = calc.valueAfterGrowth - taxForLayer;
             calc.layer.accumulatedVorabpauschale += calc.vorabpauschaleBetrag;
         });
 
+        let einkommensteuer = 0;
+        let genutzterGrundfreibetrag = 0;
+        if (enableGrundfreibetrag) {
+            const yearlyGrundfreibetrag = getGrundfreibetragForYear(year);
+            einkommensteuer = calculateIncomeTax(entnahme, yearlyGrundfreibetrag, incomeTaxRate);
+            genutzterGrundfreibetrag = Math.min(entnahme, yearlyGrundfreibetrag);
+        }
+
         const capitalAtEndOfYear = mutableLayers.reduce((sum, l) => sum + l.currentValue, 0);
-        const totalTaxForYear = taxOnRealizedGains + taxOnVorabpauschale;
+        const totalTaxForYear = taxOnRealizedGains + taxOnVorabpauschale + einkommensteuer;
 
         result[year] = {
             startkapital: capitalAtStartOfYear,
@@ -197,20 +194,64 @@ export function calculateWithdrawal(
             bezahlteSteuer: totalTaxForYear,
             genutzterFreibetrag: freibetragUsedOnGains + freibetragUsedOnVorab,
             zinsen: capitalAtEndOfYear - (capitalAtStartOfYear - entnahme),
+            inflationAnpassung: inflationConfig?.inflationRate ? inflationAnpassung : undefined,
+            einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
+            genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined,
         };
+    }
+
+    const finalLayers = mutableLayers.map(l => {
+        const lastYear = Object.keys(l.simulation).map(Number).sort((a,b) => b-a)[0] || (startYear -1);
+        l.simulation[lastYear] = {
+            ...l.simulation[lastYear],
+            endkapital: l.currentValue,
+            vorabpauschaleAccumulated: l.accumulatedVorabpauschale
+        }
+        return l;
+    })
+
+    return { result, finalLayers };
+}
+
+export function calculateSegmentedWithdrawal(
+    elements: SparplanElement[],
+    segmentedConfig: SegmentedWithdrawalConfig
+): WithdrawalResult {
+    const result: WithdrawalResult = {};
+    let currentLayers: any[] = elements;
+
+    const sortedSegments = [...segmentedConfig.segments].sort((a, b) => a.startYear - b.startYear);
+
+    for (const segment of sortedSegments) {
+        const segmentResult = calculateWithdrawal(
+            currentLayers,
+            segment.startYear,
+            segment.endYear,
+            segment.strategy,
+            segment.returnConfig,
+            segmentedConfig.taxRate,
+            0.3, // Assuming default, should be passed in config
+            segmentedConfig.freibetragPerYear,
+            segment.monthlyConfig,
+            segment.customPercentage,
+            segment.enableGrundfreibetrag,
+            segment.grundfreibetragPerYear,
+            segment.incomeTaxRate,
+            segment.inflationConfig
+        );
+
+        Object.assign(result, segmentResult.result);
+        currentLayers = segmentResult.finalLayers;
+
+        const lastYearOfSegment = Object.keys(segmentResult.result).map(Number).sort((a, b) => b - a)[0];
+        if (lastYearOfSegment && segmentResult.result[lastYearOfSegment].endkapital <= 0) {
+            break;
+        }
     }
 
     return result;
 }
 
-
-/**
- * Calculate income tax on withdrawal amount considering German basic tax allowance
- * @param withdrawalAmount - Annual withdrawal amount
- * @param grundfreibetragYear - Basic tax allowance for the year
- * @param incomeTaxRate - Income tax rate (simplified, default: 25%)
- * @returns Tax owed on withdrawal
- */
 export function calculateIncomeTax(
     withdrawalAmount: number,
     grundfreibetragYear: number = grundfreibetrag[2023],
@@ -220,15 +261,24 @@ export function calculateIncomeTax(
     return taxableIncome * incomeTaxRate;
 }
 
-/**
- * Get total accumulated capital from all savings plan elements at a specific year
- * @param elements - Array of SparplanElement with simulation results
- * @param year - Year to get capital for
- * @returns Total capital amount
- */
 export function getTotalCapitalAtYear(elements: any[], year: number): number {
     return elements.reduce((total, element) => {
         const yearData = element.simulation?.[year];
         return total + (yearData?.endkapital || 0);
     }, 0);
+}
+
+export function calculateWithdrawalDuration(
+    withdrawalResult: WithdrawalResult,
+    startYear: number
+): number | null {
+    const years = Object.keys(withdrawalResult).map(Number).sort((a, b) => a - b);
+
+    for (const year of years) {
+        if (withdrawalResult[year].endkapital <= 0) {
+            return year - startYear + 1;
+        }
+    }
+
+    return null;
 }
