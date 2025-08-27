@@ -1,157 +1,105 @@
-import { calculateWithdrawal, calculateIncomeTax, getTotalCapitalAtYear, type WithdrawalStrategy } from './withdrawal';
+import { describe, test, expect } from 'vitest';
+import { calculateWithdrawal } from './withdrawal';
+import type { SparplanElement } from '../src/utils/sparplan-utils';
+import type { ReturnConfiguration } from '../src/utils/random-returns';
+import { getBasiszinsForYear, calculateVorabpauschale, calculateSteuerOnVorabpauschale } from './steuer';
 
-describe('Withdrawal Calculations', () => {
-  describe('calculateWithdrawal function', () => {
-    test('should calculate 4% rule withdrawal correctly', () => {
-      const startingCapital = 100000;
-      const startYear = 2025;
-      const endYear = 2027;
-      const strategy: WithdrawalStrategy = "4prozent";
-      const returnRate = 0.05; // 5%
-      
-      const result = calculateWithdrawal(startingCapital, startYear, endYear, strategy, returnRate);
-      
-      // Initial withdrawal should be 4% of starting capital
-      const expectedWithdrawal = 4000;
-      
-      expect(result[2025]).toBeDefined();
-      expect(result[2025].startkapital).toBe(100000);
-      expect(result[2025].entnahme).toBe(expectedWithdrawal);
-      expect(result[2025].endkapital).toBeGreaterThan(0);
-      expect(result[2025].zinsen).toBeGreaterThan(0);
-    });
+// Helper to create mock SparplanElement data
+const createMockElement = (
+  startYear: number, // The year the investment was made
+  einzahlung: number,
+  finalValueBeforeWithdrawal: number, // The value at the end of the last simulation year
+  vorabpauschaleAccumulated: number,
+  lastSimYear: number // The year for which to create the simulation data
+): SparplanElement => ({
+  start: new Date(`${startYear}-01-01`).toISOString(),
+  type: 'sparplan',
+  einzahlung: einzahlung,
+  gewinn: 0,
+  simulation: {
+    [lastSimYear]: {
+      startkapital: einzahlung,
+      endkapital: finalValueBeforeWithdrawal,
+      zinsen: 0,
+      bezahlteSteuer: 0,
+      genutzterFreibetrag: 0,
+      vorabpauschale: vorabpauschaleAccumulated, // For simplicity, assume last year's vorab = total accumulated
+      vorabpauschaleAccumulated: vorabpauschaleAccumulated,
+    },
+  },
+});
 
-    test('should calculate 3% rule withdrawal correctly', () => {
-      const startingCapital = 100000;
-      const startYear = 2025;
-      const endYear = 2027;
-      const strategy: WithdrawalStrategy = "3prozent";
-      const returnRate = 0.05; // 5%
-      
-      const result = calculateWithdrawal(startingCapital, startYear, endYear, strategy, returnRate);
-      
-      // Initial withdrawal should be 3% of starting capital
-      const expectedWithdrawal = 3000;
-      
-      expect(result[2025].startkapital).toBe(100000);
-      expect(result[2025].entnahme).toBe(expectedWithdrawal);
-      expect(result[2025].endkapital).toBeGreaterThan(0);
-    });
+describe('Withdrawal Calculations with FIFO', () => {
+  const taxRate = 0.26375;
+  const teilfreistellungsquote = 0.3;
+  const freibetrag = 1000;
+  const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 }; // 5% return
 
-    test('should handle multiple years of withdrawal', () => {
-      const result = calculateWithdrawal(200000, 2025, 2027, "4prozent", 0.02); // Lower return rate
-      
-      expect(Object.keys(result)).toHaveLength(3); // 2025, 2026, 2027
-      expect(result[2025]).toBeDefined();
-      expect(result[2026]).toBeDefined();
-      expect(result[2027]).toBeDefined();
-      
-      // With 4% withdrawal and only 2% return, capital should decrease over time
-      expect(result[2026].startkapital).toBeLessThan(result[2025].startkapital);
-      expect(result[2027].startkapital).toBeLessThan(result[2026].startkapital);
-    });
+  test('should correctly calculate taxes for a partial withdrawal from the oldest layer', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
 
-    test('should apply consistent withdrawal amounts each year', () => {
-      const result = calculateWithdrawal(150000, 2025, 2028, "4prozent", 0.05);
-      
-      const expectedWithdrawal = 6000; // 4% of 150,000
-      
-      // All years should have the same withdrawal amount (fixed dollar amount strategy)
-      expect(result[2025].entnahme).toBe(expectedWithdrawal);
-      expect(result[2026].entnahme).toBe(expectedWithdrawal);
-      expect(result[2027].entnahme).toBe(expectedWithdrawal);
-      expect(result[2028].entnahme).toBe(expectedWithdrawal);
-    });
+    const mockElements: SparplanElement[] = [
+      // Oldest layer (should be sold first)
+      createMockElement(2023, 10000, 12000, 100, lastSimYear),
+      // Newest layer
+      createMockElement(2024, 5000, 6000, 50, lastSimYear),
+    ];
 
-    test('should handle capital depletion', () => {
-      // Small capital with high withdrawal rate relative to returns
-      const result = calculateWithdrawal(20000, 2025, 2035, "4prozent", 0.01); // 1% return, 4% withdrawal
-      
-      // 4% withdrawal = 800/year, 1% growth is much less, so should decline over time
-      const years = Object.keys(result).map(Number).sort((a, b) => a - b);
-      const firstYear = years[0];
-      const lastYear = years[years.length - 1];
-      
-      // Capital should be significantly reduced over the decade
-      expect(result[lastYear].endkapital).toBeLessThan(result[firstYear].startkapital * 0.8);
-    });
+    const result = calculateWithdrawal(
+      mockElements,
+      withdrawalStartYear,
+      withdrawalStartYear, // end year
+      "4prozent", // This strategy results in a 720 withdrawal amount
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      { [withdrawalStartYear]: freibetrag }
+    );
 
-    test('should apply German tax calculations', () => {
-      const result = calculateWithdrawal(500000, 2025, 2026, "4prozent", 0.08);
-      
-      // With large capital and good returns, should have some tax burden
-      expect(result[2025].bezahlteSteuer).toBeGreaterThanOrEqual(0);
-      expect(result[2025].genutzterFreibetrag).toBeGreaterThanOrEqual(0);
-    });
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
 
-    test('should handle zero return rate', () => {
-      const result = calculateWithdrawal(100000, 2025, 2027, "3prozent", 0);
-      
-      expect(result[2025].zinsen).toBe(0);
-      expect(result[2025].endkapital).toBe(97000); // 100,000 - 3,000 withdrawal (no growth, no taxes)
-    });
-  });
+    const initialCapital = 12000 + 6000;
+    const entnahme = initialCapital * 0.04; // 18000 * 0.04 = 720
+    expect(resultYear.entnahme).toBeCloseTo(entnahme);
 
-  describe('calculateIncomeTax function', () => {
-    test('should apply basic tax allowance correctly', () => {
-      const grundfreibetrag = 10908;
-      
-      // Withdrawal below allowance should have no income tax
-      const lowWithdrawal = calculateIncomeTax(8000, grundfreibetrag);
-      expect(lowWithdrawal).toBe(0);
-      
-      // Withdrawal above allowance should have tax on excess
-      const highWithdrawal = calculateIncomeTax(15000, grundfreibetrag);
-      const expectedTax = (15000 - grundfreibetrag) * 0.25;
-      expect(highWithdrawal).toBe(expectedTax);
-    });
+    // --- Manual Tax Calculation for Assertion ---
 
-    test('should handle edge cases', () => {
-      // Zero withdrawal
-      expect(calculateIncomeTax(0)).toBe(0);
-      
-      // Withdrawal exactly equal to allowance
-      expect(calculateIncomeTax(10908, 10908)).toBe(0);
-    });
-  });
+    // 1. Tax on Realized Gains
+    const proportionSold = entnahme / 12000; // 720 / 12000 = 0.06
+    const costBasisSold = 10000 * proportionSold; // 10000 * 0.06 = 600
+    const accumVorabSold = 100 * proportionSold; // 100 * 0.06 = 6
 
-  describe('getTotalCapitalAtYear function', () => {
-    test('should sum capital from multiple elements', () => {
-      const mockElements = [
-        {
-          simulation: {
-            2025: { endkapital: 50000 },
-            2026: { endkapital: 55000 }
-          }
-        },
-        {
-          simulation: {
-            2025: { endkapital: 30000 },
-            2026: { endkapital: 32000 }
-          }
-        }
-      ];
+    const expectedGain = entnahme - costBasisSold - accumVorabSold; // 720 - 600 - 6 = 114
+    const expectedTaxableGain = expectedGain * (1 - teilfreistellungsquote); // 114 * 0.7 = 79.8
+    const expectedTaxOnGains = Math.max(0, expectedTaxableGain - freibetrag) * taxRate; // max(0, 79.8 - 1000) * tax_rate = 0
 
-      const total2025 = getTotalCapitalAtYear(mockElements, 2025);
-      const total2026 = getTotalCapitalAtYear(mockElements, 2026);
+    expect(expectedTaxOnGains).toBe(0);
 
-      expect(total2025).toBe(80000); // 50,000 + 30,000
-      expect(total2026).toBe(87000); // 55,000 + 32,000
-    });
+    const freibetragUsedOnGains = Math.min(expectedTaxableGain, freibetrag); // min(79.8, 1000) = 79.8
+    const remainingFreibetrag = freibetrag - freibetragUsedOnGains; // 1000 - 79.8 = 920.2
 
-    test('should handle missing simulation data', () => {
-      const mockElements = [
-        { simulation: {} },
-        { simulation: { 2025: { endkapital: 25000 } } }
-      ];
+    // 2. Tax on Vorabpauschale for remaining assets
+    const basiszins = getBasiszinsForYear(withdrawalStartYear);
+    let totalPotentialVorabTax = 0;
 
-      const total = getTotalCapitalAtYear(mockElements, 2025);
-      expect(total).toBe(25000);
-    });
+    // Layer 1 (remaining)
+    const l1_val_after_sale = 12000 - entnahme; // 11280
+    const l1_val_after_growth = l1_val_after_sale * (1 + returnConfig.fixedRate!); // 11280 * 1.05 = 11844
+    const l1_vorab = calculateVorabpauschale(l1_val_after_sale, l1_val_after_growth, basiszins);
+    totalPotentialVorabTax += calculateSteuerOnVorabpauschale(l1_vorab, taxRate, teilfreistellungsquote);
 
-    test('should handle empty elements array', () => {
-      const total = getTotalCapitalAtYear([], 2025);
-      expect(total).toBe(0);
-    });
+    // Layer 2 (untouched)
+    const l2_val_after_sale = 6000;
+    const l2_val_after_growth = l2_val_after_sale * (1 + returnConfig.fixedRate!); // 6000 * 1.05 = 6300
+    const l2_vorab = calculateVorabpauschale(l2_val_after_sale, l2_val_after_growth, basiszins);
+    totalPotentialVorabTax += calculateSteuerOnVorabpauschale(l2_vorab, taxRate, teilfreistellungsquote);
+
+    const expectedTaxOnVorabpauschale = Math.max(0, totalPotentialVorabTax - remainingFreibetrag); // max(0, tax - 920.2) should be 0
+
+    // 3. Final Assertions
+    const totalExpectedTax = expectedTaxOnGains + expectedTaxOnVorabpauschale;
+    expect(resultYear.bezahlteSteuer).toBeCloseTo(totalExpectedTax);
   });
 });

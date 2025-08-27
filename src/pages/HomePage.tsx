@@ -168,12 +168,13 @@ export default function HomePage() {
                         } else {
                             // Fall back to default 4% rule calculation for overview
                             withdrawalResult = calculateWithdrawal(
-                                baseSummary.endkapital,
-                                startEnd[0], // Start of withdrawal 
+                                simulationData.sparplanElements,
+                                startEnd[0] + 1, // Start of withdrawal
                                 startEnd[1], // End of life
                                 "4prozent", // Default to 4% rule for overview
-                                rendite / 100, // Convert percentage to decimal
-                                26.375 / 100 // Default tax rate
+                                { mode: 'fixed', fixedRate: rendite / 100 },
+                                steuerlast / 100,
+                                teilfreistellungsquote / 100
                             );
                         }
                         
@@ -601,6 +602,8 @@ export default function HomePage() {
                             elemente={simulationData.sparplanElements}
                             dispatchEnd={(val) => setStartEnd(val)}
                             onWithdrawalResultsChange={setWithdrawalResults}
+                            steuerlast={steuerlast / 100}
+                            teilfreistellungsquote={teilfreistellungsquote / 100}
                         />
                     </Panel>
 

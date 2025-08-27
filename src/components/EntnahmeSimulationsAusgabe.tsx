@@ -29,11 +29,15 @@ export function EntnahmeSimulationsAusgabe({
     elemente,
     dispatchEnd,
     onWithdrawalResultsChange,
+    steuerlast,
+    teilfreistellungsquote,
 }: {
         startEnd: [number, number];
         elemente: SparplanElement[];
         dispatchEnd: (val: [number, number]) => void;
         onWithdrawalResultsChange?: (results: WithdrawalResult | null) => void;
+        steuerlast: number;
+        teilfreistellungsquote: number;
     }) {
     const [startOfIndependence, endOfLife] = startEnd;
 
@@ -81,10 +85,8 @@ export function EntnahmeSimulationsAusgabe({
         if (!elemente || elemente.length === 0) {
             return null;
         }
-
-        // Get total accumulated capital at the start of withdrawal phase
-        const startingCapital = getTotalCapitalAtYear(elemente, startOfIndependence);
         
+        const startingCapital = getTotalCapitalAtYear(elemente, startOfIndependence);
         if (startingCapital <= 0) {
             return null;
         }
@@ -99,6 +101,8 @@ export function EntnahmeSimulationsAusgabe({
                 freibetragPerYear: undefined // Use default
             };
             
+            // TODO: This also needs to be refactored to use the new FIFO logic if it's to be used.
+            // For now, it will use the old logic.
             withdrawalResult = calculateSegmentedWithdrawal(startingCapital, segmentedConfig);
         } else {
             // Use single-strategy withdrawal calculation (backward compatibility)
@@ -132,36 +136,19 @@ export function EntnahmeSimulationsAusgabe({
 
             // Calculate withdrawal projections
             withdrawalResult = calculateWithdrawal(
-                startingCapital,
+                elemente,
                 startOfIndependence + 1, // Start withdrawals the year after accumulation ends
                 formValue.endOfLife,
                 formValue.strategie,
-                withdrawalReturnConfig, // Use new return configuration API
-                0.26375, // Default tax rate
+                withdrawalReturnConfig,
+                steuerlast,
+                teilfreistellungsquote,
                 undefined, // Use default freibetrag
                 // Pass monthly config only for monthly strategy
                 formValue.strategie === "monatlich_fest" ? {
                     monthlyAmount: formValue.monatlicheBetrag,
                     enableGuardrails: formValue.guardrailsAktiv,
                     guardrailsThreshold: formValue.guardrailsSchwelle / 100
-                } : undefined,
-                // Pass custom percentage for variable percentage strategy
-                formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined,
-                // Grundfreibetrag parameters
-                formValue.grundfreibetragAktiv,
-                formValue.grundfreibetragAktiv ? (() => {
-                    // Create grundfreibetrag object for all withdrawal years
-                    const grundfreibetragPerYear: {[year: number]: number} = {};
-                    for (let year = startOfIndependence + 1; year <= formValue.endOfLife; year++) {
-                        grundfreibetragPerYear[year] = formValue.grundfreibetragBetrag;
-                    }
-                    return grundfreibetragPerYear;
-                })() : undefined,
-                formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined,
-                undefined, // variableReturns (legacy parameter)
-                // Inflation configuration for all strategies
-                formValue.inflationAktiv ? {
-                    inflationRate: formValue.inflationsrate / 100
                 } : undefined
             );
         }
