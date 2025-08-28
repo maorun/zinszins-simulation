@@ -146,4 +146,58 @@ describe('Withdrawal Calculations with FIFO', () => {
     expect(resultYear.genutzterGrundfreibetrag).toBe(expectedGenutzterGrundfreibetrag);
     expect(resultYear.bezahlteSteuer).toBeGreaterThanOrEqual(expectedEinkommensteuer);
   });
+
+  test('should return correct monthly withdrawal for "monatlich_fest" strategy', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 500000, 600000, 1000, lastSimYear)];
+    const monthlyAmount = 2000;
+
+    const { result } = calculateWithdrawal(
+      mockElements,
+      withdrawalStartYear,
+      withdrawalStartYear, // end year
+      "monatlich_fest",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      { [withdrawalStartYear]: freibetrag },
+      { monthlyAmount }
+    );
+
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
+    expect(resultYear.monatlicheEntnahme).toBe(monthlyAmount);
+    expect(resultYear.entnahme).toBe(monthlyAmount * 12);
+  });
+
+  test('should adjust monthly withdrawal for inflation', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 500000, 600000, 1000, lastSimYear)];
+    const monthlyAmount = 2000;
+    const inflationRate = 0.10; // 10%
+
+    const { result } = calculateWithdrawal(
+      mockElements,
+      withdrawalStartYear,
+      withdrawalStartYear + 1, // 2 years
+      "monatlich_fest",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      { [withdrawalStartYear]: freibetrag, [withdrawalStartYear + 1]: freibetrag },
+      { monthlyAmount },
+      undefined, // customPercentage
+      false, // enableGrundfreibetrag
+      undefined,
+      undefined,
+      { inflationRate }
+    );
+
+    const resultYear1 = result[withdrawalStartYear];
+    const resultYear2 = result[withdrawalStartYear + 1];
+    expect(resultYear1.monatlicheEntnahme).toBe(monthlyAmount);
+    expect(resultYear2.monatlicheEntnahme).toBeCloseTo(monthlyAmount * (1 + inflationRate));
+  });
 });
