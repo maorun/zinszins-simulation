@@ -194,6 +194,7 @@ export function calculateWithdrawal(
             bezahlteSteuer: totalTaxForYear,
             genutzterFreibetrag: freibetragUsedOnGains + freibetragUsedOnVorab,
             zinsen: capitalAtEndOfYear - (capitalAtStartOfYear - entnahme),
+            monatlicheEntnahme: strategy === 'monatlich_fest' ? annualWithdrawal / 12 : undefined,
             inflationAnpassung: inflationConfig?.inflationRate ? inflationAnpassung : undefined,
             einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
             genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined,
