@@ -5,10 +5,18 @@ import { generateRandomReturns } from "../src/utils/random-returns";
 import type { SegmentedWithdrawalConfig } from "../src/utils/segmented-withdrawal";
 
 
-export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent";
+export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "rendite_basiert";
 
 export type InflationConfig = {
     inflationRate?: number; // Annual inflation rate for adjustment (default: 2%)
+};
+
+export type RenditeBasiertConfig = {
+    baseRate: number; // Base withdrawal rate as a percentage of portfolio
+    upperThreshold: number; // Upper return threshold in %
+    upperAdjustment: number; // % adjustment if return is above upper threshold
+    lowerThreshold: number; // Lower return threshold in %
+    lowerAdjustment: number; // % adjustment if return is below lower threshold
 };
 
 export type WithdrawalResultElement = {
@@ -64,7 +72,8 @@ export function calculateWithdrawal(
     enableGrundfreibetrag?: boolean,
     grundfreibetragPerYear?: {[year: number]: number},
     incomeTaxRate?: number,
-    inflationConfig?: InflationConfig
+    inflationConfig?: InflationConfig,
+    renditeBasiertConfig?: RenditeBasiertConfig
 ): { result: WithdrawalResult, finalLayers: any[] } { // Changed finalLayers to any[] to satisfy downstream consumers
     // Helper functions
     const getFreibetragForYear = (year: number): number => {
@@ -106,14 +115,14 @@ export function calculateWithdrawal(
     });
     mutableLayers.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
-    let baseWithdrawalAmount: number;
+    let baseWithdrawalAmount: number = 0;
     if (strategy === "monatlich_fest") {
         if (!monthlyConfig) throw new Error("Monthly config required");
         baseWithdrawalAmount = monthlyConfig.monthlyAmount * 12;
     } else if (strategy === "variabel_prozent") {
         if (customPercentage === undefined) throw new Error("Custom percentage required");
         baseWithdrawalAmount = initialStartingCapital * customPercentage;
-    } else {
+    } else if (strategy === "4prozent" || strategy === "3prozent") {
         const withdrawalRate = strategy === "4prozent" ? 0.04 : 0.03;
         baseWithdrawalAmount = initialStartingCapital * withdrawalRate;
     }
@@ -122,9 +131,25 @@ export function calculateWithdrawal(
         const capitalAtStartOfYear = mutableLayers.reduce((sum, l) => sum + l.currentValue, 0);
         if (capitalAtStartOfYear <= 0) break;
 
-        let annualWithdrawal = baseWithdrawalAmount;
+        let annualWithdrawal;
+        if (strategy === 'rendite_basiert') {
+            if (!renditeBasiertConfig) throw new Error("Rendite-basiert config required");
+            const previousYearReturn = yearlyGrowthRates[year - 1] || 0;
+            let currentWithdrawalRate = renditeBasiertConfig.baseRate;
+
+            if (previousYearReturn > renditeBasiertConfig.upperThreshold) {
+                currentWithdrawalRate = renditeBasiertConfig.baseRate * (1 + renditeBasiertConfig.upperAdjustment);
+            } else if (previousYearReturn < renditeBasiertConfig.lowerThreshold) {
+                currentWithdrawalRate = renditeBasiertConfig.baseRate * (1 - renditeBasiertConfig.lowerAdjustment);
+            }
+
+            annualWithdrawal = capitalAtStartOfYear * currentWithdrawalRate;
+        } else {
+            annualWithdrawal = baseWithdrawalAmount;
+        }
+
         let inflationAnpassung = 0;
-        if (inflationConfig?.inflationRate) {
+        if (inflationConfig?.inflationRate && strategy !== 'rendite_basiert') {
             const yearsPassed = year - startYear;
             inflationAnpassung = baseWithdrawalAmount * (Math.pow(1 + inflationConfig.inflationRate, yearsPassed) - 1);
             annualWithdrawal += inflationAnpassung;
@@ -238,7 +263,8 @@ export function calculateSegmentedWithdrawal(
             segment.enableGrundfreibetrag,
             segment.grundfreibetragPerYear,
             segment.incomeTaxRate,
-            segment.inflationConfig
+            segment.inflationConfig,
+            segment.renditeBasiertConfig
         );
 
         Object.assign(result, segmentResult.result);
