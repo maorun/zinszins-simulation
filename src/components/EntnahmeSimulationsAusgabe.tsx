@@ -13,8 +13,8 @@ import {
 } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
 import type { SparplanElement } from "../utils/sparplan-utils";
-import { calculateWithdrawal, calculateSegmentedWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration } from "../utils/withdrawal";
-import type { WithdrawalStrategy, WithdrawalResult } from "../utils/withdrawal";
+import { calculateWithdrawal, calculateSegmentedWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration } from "../../helpers/withdrawal";
+import type { WithdrawalStrategy, WithdrawalResult } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import type { WithdrawalSegment, SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
 import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
@@ -29,11 +29,15 @@ export function EntnahmeSimulationsAusgabe({
     elemente,
     dispatchEnd,
     onWithdrawalResultsChange,
+    steuerlast,
+    teilfreistellungsquote,
 }: {
         startEnd: [number, number];
         elemente: SparplanElement[];
         dispatchEnd: (val: [number, number]) => void;
         onWithdrawalResultsChange?: (results: WithdrawalResult | null) => void;
+        steuerlast: number;
+        teilfreistellungsquote: number;
     }) {
     const [startOfIndependence, endOfLife] = startEnd;
 
@@ -81,10 +85,8 @@ export function EntnahmeSimulationsAusgabe({
         if (!elemente || elemente.length === 0) {
             return null;
         }
-
-        // Get total accumulated capital at the start of withdrawal phase
-        const startingCapital = getTotalCapitalAtYear(elemente, startOfIndependence);
         
+        const startingCapital = getTotalCapitalAtYear(elemente, startOfIndependence);
         if (startingCapital <= 0) {
             return null;
         }
@@ -99,7 +101,7 @@ export function EntnahmeSimulationsAusgabe({
                 freibetragPerYear: undefined // Use default
             };
             
-            withdrawalResult = calculateSegmentedWithdrawal(startingCapital, segmentedConfig);
+            withdrawalResult = calculateSegmentedWithdrawal(elemente, segmentedConfig);
         } else {
             // Use single-strategy withdrawal calculation (backward compatibility)
             // Build return configuration for withdrawal phase
@@ -131,26 +133,23 @@ export function EntnahmeSimulationsAusgabe({
             }
 
             // Calculate withdrawal projections
-            withdrawalResult = calculateWithdrawal(
-                startingCapital,
+            const withdrawalCalculation = calculateWithdrawal(
+                elemente,
                 startOfIndependence + 1, // Start withdrawals the year after accumulation ends
                 formValue.endOfLife,
                 formValue.strategie,
-                withdrawalReturnConfig, // Use new return configuration API
-                0.26375, // Default tax rate
-                undefined, // Use default freibetrag
-                // Pass monthly config only for monthly strategy
+                withdrawalReturnConfig,
+                steuerlast,
+                teilfreistellungsquote,
+                undefined, // freibetragPerYear
                 formValue.strategie === "monatlich_fest" ? {
                     monthlyAmount: formValue.monatlicheBetrag,
                     enableGuardrails: formValue.guardrailsAktiv,
                     guardrailsThreshold: formValue.guardrailsSchwelle / 100
                 } : undefined,
-                // Pass custom percentage for variable percentage strategy
                 formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined,
-                // Grundfreibetrag parameters
                 formValue.grundfreibetragAktiv,
                 formValue.grundfreibetragAktiv ? (() => {
-                    // Create grundfreibetrag object for all withdrawal years
                     const grundfreibetragPerYear: {[year: number]: number} = {};
                     for (let year = startOfIndependence + 1; year <= formValue.endOfLife; year++) {
                         grundfreibetragPerYear[year] = formValue.grundfreibetragBetrag;
@@ -158,12 +157,9 @@ export function EntnahmeSimulationsAusgabe({
                     return grundfreibetragPerYear;
                 })() : undefined,
                 formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined,
-                undefined, // variableReturns (legacy parameter)
-                // Inflation configuration for all strategies
-                formValue.inflationAktiv ? {
-                    inflationRate: formValue.inflationsrate / 100
-                } : undefined
+                formValue.inflationAktiv ? { inflationRate: formValue.inflationsrate / 100 } : undefined
             );
+            withdrawalResult = withdrawalCalculation.result;
         }
 
         // Convert to array for table display, sorted by year descending
@@ -183,7 +179,7 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments, steuerlast, teilfreistellungsquote]);
 
     // Notify parent component when withdrawal results change
     useEffect(() => {

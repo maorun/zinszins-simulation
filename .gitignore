@@ -11,3 +11,6 @@ coverage/
 
 # Build output
 dist/
+
+# Log files
+*.log

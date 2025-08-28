@@ -1,6 +1,6 @@
-import type { WithdrawalStrategy } from "./withdrawal";
+import type { WithdrawalStrategy } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
-import type { MonthlyWithdrawalConfig, InflationConfig } from "./withdrawal";
+import type { MonthlyWithdrawalConfig, InflationConfig } from "../../helpers/withdrawal";
 
 /**
  * Configuration for a single withdrawal segment (time period)

@@ -1,5 +1,5 @@
 import type { SparplanElement } from "../utils/sparplan-utils";
-import { zinszinsVorabpauschale, getBasiszinsForYear } from "./steuer";
+import { getBasiszinsForYear, calculateVorabpauschale, calculateSteuerOnVorabpauschale } from "../../helpers/steuer.tsx";
 import { type ReturnConfiguration, generateRandomReturns } from "./random-returns";
 
 export type SimulationResultElement = {
@@ -8,12 +8,8 @@ export type SimulationResultElement = {
     endkapital: number;
     bezahlteSteuer: number;
     genutzterFreibetrag: number;
-    vorabpauschaleDetails?: {
-        basisertrag: number;
-        vorabpauschaleAmount: number;
-        steuerVorFreibetrag: number;
-        basiszins: number;
-    };
+    vorabpauschale: number; // The Vorabpauschale amount for this year
+    vorabpauschaleAccumulated: number; // The accumulated Vorabpauschale over all years
 }
 
 export type SimulationResult = {
@@ -116,134 +112,93 @@ export function simulate(
         }
     }
 
-    // Clear previous simulations
-    for (let year = startYear; year <= endYear; year++) {
-        for (const element of elements) {
-            element.simulation = {}
-        }
+    // Clear previous simulations and ensure simulation objects exist
+    for (const element of elements) {
+        element.simulation = {};
     }
+
     // Main simulation loop
     for (let year = startYear; year <= endYear; year++) {
         const wachstumsrate = yearlyGrowthRates[year];
-        let freibetragInYear = getFreibetragForYear(year);
-        
-        if (simulationAnnual === SimulationAnnual.monthly) {
-            const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1
+        const basiszins = getBasiszinsForYear(year);
 
-            for (const element of elements) {
-                if (new Date(element.start).getFullYear() <= year) {
-                    if (new Date(element.start).getFullYear() === year) {
+        const yearlyCalculations: any[] = [];
+        let totalPotentialTaxThisYear = 0;
 
-                        //wertzuwachs unterjahr
-                        for (let month = 1; month <= 12; month++) {
-                            if (new Date(element.start).getMonth() + 1 <= month) {
-                                if (!element.simulation?.[year]?.startkapital) {
-                                    if (!element.simulation) {
-                                        element.simulation = {}
-                                    }
-                                    element.simulation[year] = {
-                                        startkapital: element.einzahlung,
-                                        endkapital: element.einzahlung * (1 + wachstumsrateMonth),
-                                        zinsen: 0,
-                                        bezahlteSteuer: 0,
-                                        genutzterFreibetrag: 0,
-                                    }
-                                } else {
-                                    element.simulation[year] = {
-                                        startkapital: (element.simulation[year]?.startkapital || 0),
-                                        endkapital: ((element.simulation[year]?.endkapital || 0)) * (1 + wachstumsrateMonth),
-                                        zinsen: 0,
-                                        bezahlteSteuer: 0,
-                                        genutzterFreibetrag: 0,
-                                    };
+        // --- Pass 1: Calculate growth and potential tax for each element ---
+        for (const element of elements) {
+            if (new Date(element.start).getFullYear() > year) continue;
 
-                                }
-                            }
-                        }
-                    } else {
-                        let kapital =
-                            element.simulation?.[year - 1]?.endkapital ||
-                            element.einzahlung + (element.type === "einmalzahlung" ? element.gewinn : 0);
+            const startkapital = element.simulation?.[year - 1]?.endkapital || element.einzahlung + (element.type === "einmalzahlung" ? element.gewinn : 0);
 
-                        const endKapital = zinszinsVorabpauschale(
-                            kapital,
-                            getBasiszinsForYear(year),
-                            freibetragInYear,
-                            steuerlast,
-                            0.7,
-                            teilfreistellungsquote,
-                            12
-                        );
+            let endkapitalVorSteuer: number;
+            let anteilImJahr = 12;
 
-                        if (!element.simulation) {
-                            element.simulation = {}
-                        }
-
-                        element.simulation[year] = {
-                            startkapital: kapital,
-                            endkapital: kapital * (1 + wachstumsrate) - endKapital.steuer,
-                            zinsen: kapital * (1 + wachstumsrate),
-                            bezahlteSteuer: endKapital.steuer,
-                            genutzterFreibetrag: 0,
-                            vorabpauschaleDetails: endKapital.details
-
-                        };
-                        element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - endKapital.verbleibenderFreibetrag
-                    }
-                }
+            if (simulationAnnual === 'monthly' && new Date(element.start).getFullYear() === year) {
+                const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1;
+                const startMonth = new Date(element.start).getMonth(); // 0-11
+                anteilImJahr = 12 - startMonth;
+                endkapitalVorSteuer = startkapital * Math.pow(1 + wachstumsrateMonth, anteilImJahr);
+            } else {
+                endkapitalVorSteuer = startkapital * (1 + wachstumsrate);
             }
-            for (const element of elements) {
-                if (new Date(element.start).getFullYear() <= year) {
-                    const month = new Date(element.start).getMonth() + 1
-                    const kapital = element.simulation?.[year]?.startkapital || element.einzahlung;
 
-                    const vorabPauschaleZinzen = zinszinsVorabpauschale(
-                        kapital,
-                        getBasiszinsForYear(year),
-                        freibetragInYear,
-                        steuerlast,
-                        0.7,
-                        teilfreistellungsquote,
-                        month
-                    );
-                    element.simulation[year]['bezahlteSteuer'] = vorabPauschaleZinzen.steuer
-                    element.simulation[year]['endkapital'] -= vorabPauschaleZinzen.steuer
-                    element.simulation[year]['zinsen'] = element.simulation[year]['endkapital'] - element.simulation[year]['startkapital']
-                    element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - vorabPauschaleZinzen.verbleibenderFreibetrag
-                    element.simulation[year]['vorabpauschaleDetails'] = vorabPauschaleZinzen.details
-                    freibetragInYear = vorabPauschaleZinzen.verbleibenderFreibetrag;
-                }
-            }
-        } else {
-            for (const element of elements) {
-                if (new Date(element.start).getFullYear() <= year) {
-                    let kapital =
-                        element.simulation[year - 1]?.endkapital ||
-                        element.einzahlung + (element.type === "einmalzahlung" ? element.gewinn : 0);
+            const jahresgewinn = endkapitalVorSteuer - startkapital;
 
-                    const endKapital = zinszinsVorabpauschale(
-                        kapital,
-                        getBasiszinsForYear(year),
-                        freibetragInYear,
-                        steuerlast,
-                        0.7,
-                        teilfreistellungsquote,
-                        12
-                    );
+            const vorabpauschaleBetrag = calculateVorabpauschale(
+                startkapital,
+                endkapitalVorSteuer,
+                basiszins,
+                anteilImJahr
+            );
 
-                    element.simulation[year] = {
-                        startkapital: kapital,
-                        endkapital: kapital * (1 + wachstumsrate) - endKapital.steuer,
-                        zinsen: kapital * (1 + wachstumsrate),
-                        bezahlteSteuer: endKapital.steuer,
-                        genutzterFreibetrag: 0,
-                        vorabpauschaleDetails: endKapital.details
+            const potentialTax = calculateSteuerOnVorabpauschale(
+                vorabpauschaleBetrag,
+                steuerlast,
+                teilfreistellungsquote
+            );
 
-                    };
-                    element.simulation[year]['genutzterFreibetrag'] = freibetragInYear - endKapital.verbleibenderFreibetrag
-                    freibetragInYear = endKapital.verbleibenderFreibetrag;
-                }
-            }
+            totalPotentialTaxThisYear += potentialTax;
+            yearlyCalculations.push({
+                element,
+                startkapital,
+                endkapitalVorSteuer,
+                jahresgewinn,
+                vorabpauschaleBetrag,
+                potentialTax,
+            });
+        }
+
+        // --- Pass 2: Determine total tax paid and assign results back to elements ---
+        const freibetragInYear = getFreibetragForYear(year);
+        const totalTaxPaid = Math.max(0, totalPotentialTaxThisYear - freibetragInYear);
+        const genutzterFreibetragTotal = Math.min(totalPotentialTaxThisYear, freibetragInYear);
+
+        for (const calc of yearlyCalculations) {
+            const taxForElement =
+                totalPotentialTaxThisYear > 0
+                    ? (calc.potentialTax / totalPotentialTaxThisYear) * totalTaxPaid
+                    : 0;
+
+            const genutzterFreibetragForElement =
+                totalPotentialTaxThisYear > 0
+                    ? (calc.potentialTax / totalPotentialTaxThisYear) * genutzterFreibetragTotal
+                    : 0;
+
+            const endkapital = calc.endkapitalVorSteuer - taxForElement;
+            const vorabpauschaleAccumulated =
+                (calc.element.simulation[year - 1]?.vorabpauschaleAccumulated || 0) +
+                calc.vorabpauschaleBetrag;
+
+            calc.element.simulation[year] = {
+                startkapital: calc.startkapital,
+                endkapital: endkapital,
+                zinsen: calc.jahresgewinn,
+                bezahlteSteuer: taxForElement,
+                genutzterFreibetrag: genutzterFreibetragForElement,
+                vorabpauschale: calc.vorabpauschaleBetrag,
+                vorabpauschaleAccumulated: vorabpauschaleAccumulated,
+            };
         }
     }
 

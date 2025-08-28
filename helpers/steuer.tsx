@@ -29,53 +29,53 @@ export function getBasiszinsForYear(year: number): number {
     return basiszinsen[latestYear] || 0.0255; // Ultimate fallback to 2023 rate
 }
 
-function vorabpauschale(
-    startwert = 10000,
-    basiszins = 0.0255,
-    steuerlast = 0.26375,
-    vorabpauschale_prozentsatz = 0.7,
-    teilFreistellungsquote = 0.3,
-    anteilImJahr = 12,
-) {
-    // Berechnung der Vorabpauschale für das aktuelle Jahr
+/**
+ * Calculates the Vorabpauschale amount for a given period.
+ * The Vorabpauschale is the basis for taxation on unrealized gains in German investment funds.
+ * It is capped by the actual gains of the fund.
+ *
+ * @param startwert - The value of the investment at the beginning of the period.
+ * @param endwert - The value of the investment at the end of the period.
+ * @param basiszins - The base interest rate for the year.
+ * @param anteilImJahr - The fraction of the year the investment was held (e.g., 12 for a full year).
+ * @returns The calculated Vorabpauschale amount (pre-tax).
+ */
+export function calculateVorabpauschale(
+    startwert: number,
+    endwert: number,
+    basiszins: number,
+    anteilImJahr: number = 12,
+): number {
+    const jahresgewinn = endwert - startwert;
+    const vorabpauschale_prozentsatz = 0.7;
+
+    // The Basisertrag is 70% of the gain the investment would have made at the base interest rate.
     let basisertrag = startwert * basiszins * vorabpauschale_prozentsatz;
+    basisertrag = (anteilImJahr / 12) * basisertrag;
 
-    basisertrag = anteilImJahr/12 * basisertrag
+    // The Vorabpauschale is the lesser of the Basisertrag and the actual gain. It cannot be negative.
+    const vorabpauschale = Math.max(0, Math.min(basisertrag, jahresgewinn));
 
-    // hier muss noch der vorjahresgewinn berücksichtigen werden
-    // vorabpauschale = vorjahresgewinn > vorabpauschale ? vorabpauschale : vorjahresgewinn;
-    const vorabpauschale = basisertrag
-
-    return vorabpauschale * steuerlast * (1 - teilFreistellungsquote);
+    return vorabpauschale;
 }
 
-export function zinszinsVorabpauschale(
-    startwert = 10000,
-    basiszins = 0.0255,
-    freibetrag = 1000,
-    steuerlast = 0.26375,
-    vorabpauschale_prozentsatz = 0.7,
-    freistellung = 0.3,
-    anteilImJahr = 12,
-) {
-    let steuer = vorabpauschale(
-        startwert,
-        basiszins,
-        steuerlast,
-        vorabpauschale_prozentsatz,
-        freistellung,
-        anteilImJahr,
-    )
 
-    const verbleibenderFreibetrag = freibetrag - steuer;
-    // Abzug der Steuer
-    if (steuer > freibetrag) {
-        steuer -= freibetrag;
+/**
+ * Calculates the tax due on a given Vorabpauschale amount.
+ *
+ * @param vorabpauschale - The Vorabpauschale amount.
+ * @param steuerlast - The capital gains tax rate (e.g., 0.26375).
+ * @param teilFreistellungsquote - The partial exemption quote for the fund type (e.g., 0.3 for equity funds).
+ * @returns The calculated tax amount.
+ */
+export function calculateSteuerOnVorabpauschale(
+    vorabpauschale: number,
+    steuerlast: number,
+    teilFreistellungsquote: number
+): number {
+    if (vorabpauschale <= 0) {
+        return 0;
     }
-    return {
-        steuer: verbleibenderFreibetrag <= 0 ? steuer : 0,
-        verbleibenderFreibetrag:
-        verbleibenderFreibetrag > 0 ? verbleibenderFreibetrag : 0,
-    };
+    return vorabpauschale * steuerlast * (1 - teilFreistellungsquote);
 }
 
