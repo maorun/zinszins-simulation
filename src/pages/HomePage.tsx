@@ -522,7 +522,7 @@ export default function HomePage() {
                                         </Table.Cell>
                                     </Table.Column>
                                     <Table.Column width={80} align="center">
-                                        <HeaderCell>Aktionen</HeaderCell>
+                                        <Table.HeaderCell>Aktionen</Table.HeaderCell>
                                         <Table.Cell>
                                             {(rowData: any) => (
                                                 <IconButton
