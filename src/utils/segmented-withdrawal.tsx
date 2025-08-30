@@ -1,4 +1,4 @@
-import type { WithdrawalStrategy } from "../../helpers/withdrawal";
+import type { WithdrawalStrategy, RenditeBasiertConfig } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import type { MonthlyWithdrawalConfig, InflationConfig } from "../../helpers/withdrawal";
 
@@ -30,6 +30,8 @@ export type WithdrawalSegment = {
     grundfreibetragPerYear?: {[year: number]: number};
     /** Income tax rate for this segment */
     incomeTaxRate?: number;
+    /** Configuration for return-based adjustment strategy */
+    renditeBasiertConfig?: RenditeBasiertConfig;
 };
 
 /**
@@ -137,7 +139,14 @@ export function createDefaultWithdrawalSegment(
         inflationConfig: {
             inflationRate: 0.02 // 2% default inflation
         },
-        enableGrundfreibetrag: false
+        enableGrundfreibetrag: false,
+        renditeBasiertConfig: {
+            baseRate: 0.04,
+            upperThreshold: 0,
+            upperAdjustment: 0.5,
+            lowerThreshold: 0,
+            lowerAdjustment: 0.5
+        }
     };
 }
 

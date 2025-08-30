@@ -206,6 +206,16 @@ export function WithdrawalSegmentForm({
                                             guardrailsThreshold: 0.10
                                         };
                                     }
+
+                                    if (newStrategy === "rendite_basiert" && !segment.renditeBasiertConfig) {
+                                        updates.renditeBasiertConfig = {
+                                            baseRate: 0.04,
+                                            upperThreshold: 0,
+                                            upperAdjustment: 0.5,
+                                            lowerThreshold: 0,
+                                            lowerAdjustment: 0.5
+                                        };
+                                    }
                                     
                                     updateSegment(segment.id, updates);
                                 }}
@@ -221,6 +231,9 @@ export function WithdrawalSegmentForm({
                                 </RadioTile>
                                 <RadioTile value="monatlich_fest" label="Monatlich fest">
                                     Fester monatlicher Betrag
+                                </RadioTile>
+                                <RadioTile value="rendite_basiert" label="Rendite-basierte Anpassung">
+                                    Dynamische Anpassung basierend auf der Vorjahresrendite
                                 </RadioTile>
                             </RadioTileGroup>
                         </Form.Group>
@@ -240,6 +253,77 @@ export function WithdrawalSegmentForm({
                                     graduated
                                 />
                             </Form.Group>
+                        )}
+
+                        {/* Return-based adjustment settings */}
+                        {segment.strategy === "rendite_basiert" && segment.renditeBasiertConfig && (
+                            <>
+                                <Form.Group>
+                                    <Form.ControlLabel>Basis-Entnahmerate (%)</Form.ControlLabel>
+                                    <Slider
+                                        value={segment.renditeBasiertConfig.baseRate * 100}
+                                        min={2}
+                                        max={10}
+                                        step={0.5}
+                                        onChange={(value) => updateSegment(segment.id, { renditeBasiertConfig: { ...segment.renditeBasiertConfig, baseRate: value / 100 } })}
+                                        handleTitle={(<div style={{marginTop: '-17px'}}>{(segment.renditeBasiertConfig.baseRate * 100).toFixed(1)}%</div>)}
+                                        progress
+                                        graduated
+                                    />
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.ControlLabel>Obere Schwelle Rendite (%)</Form.ControlLabel>
+                                    <Slider
+                                        value={segment.renditeBasiertConfig.upperThreshold * 100}
+                                        min={0}
+                                        max={10}
+                                        step={1}
+                                        onChange={(value) => updateSegment(segment.id, { renditeBasiertConfig: { ...segment.renditeBasiertConfig, upperThreshold: value / 100 } })}
+                                        handleTitle={(<div style={{marginTop: '-17px'}}>{(segment.renditeBasiertConfig.upperThreshold * 100).toFixed(0)}%</div>)}
+                                        progress
+                                        graduated
+                                    />
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.ControlLabel>Anpassung bei oberer Schwelle (%)</Form.ControlLabel>
+                                    <Slider
+                                        value={segment.renditeBasiertConfig.upperAdjustment * 100}
+                                        min={0}
+                                        max={100}
+                                        step={10}
+                                        onChange={(value) => updateSegment(segment.id, { renditeBasiertConfig: { ...segment.renditeBasiertConfig, upperAdjustment: value / 100 } })}
+                                        handleTitle={(<div style={{marginTop: '-17px'}}>{(segment.renditeBasiertConfig.upperAdjustment * 100).toFixed(0)}%</div>)}
+                                        progress
+                                        graduated
+                                    />
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.ControlLabel>Untere Schwelle Rendite (%)</Form.ControlLabel>
+                                    <Slider
+                                        value={segment.renditeBasiertConfig.lowerThreshold * 100}
+                                        min={0}
+                                        max={10}
+                                        step={1}
+                                        onChange={(value) => updateSegment(segment.id, { renditeBasiertConfig: { ...segment.renditeBasiertConfig, lowerThreshold: value / 100 } })}
+                                        handleTitle={(<div style={{marginTop: '-17px'}}>{(segment.renditeBasiertConfig.lowerThreshold * 100).toFixed(0)}%</div>)}
+                                        progress
+                                        graduated
+                                    />
+                                </Form.Group>
+                                <Form.Group>
+                                    <Form.ControlLabel>Anpassung bei unterer Schwelle (%)</Form.ControlLabel>
+                                    <Slider
+                                        value={segment.renditeBasiertConfig.lowerAdjustment * 100}
+                                        min={0}
+                                        max={100}
+                                        step={10}
+                                        onChange={(value) => updateSegment(segment.id, { renditeBasiertConfig: { ...segment.renditeBasiertConfig, lowerAdjustment: value / 100 } })}
+                                        handleTitle={(<div style={{marginTop: '-17px'}}>{(segment.renditeBasiertConfig.lowerAdjustment * 100).toFixed(0)}%</div>)}
+                                        progress
+                                        graduated
+                                    />
+                                </Form.Group>
+                            </>
                         )}
 
                         {/* Monthly withdrawal settings */}

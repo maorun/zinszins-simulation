@@ -201,3 +201,104 @@ describe('Withdrawal Calculations with FIFO', () => {
     expect(resultYear2.monatlicheEntnahme).toBeCloseTo(monthlyAmount * (1 + inflationRate));
   });
 });
+
+describe('Rendite-basierte Anpassung Strategy', () => {
+    const taxRate = 0.26375;
+    const teilfreistellungsquote = 0.3;
+    const freibetrag = 1000;
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+
+    const renditeBasiertConfig = {
+        baseRate: 0.04,
+        upperThreshold: 0.05,
+        upperAdjustment: 0.1,
+        lowerThreshold: -0.05,
+        lowerAdjustment: 0.1,
+    };
+
+    const mockElements: SparplanElement[] = [
+        createMockElement(2023, 100000, 120000, 100, lastSimYear),
+    ];
+
+    test('should increase withdrawal rate when return is above upper threshold', () => {
+        const returnConfig: ReturnConfiguration = { mode: 'variable', variableConfig: { yearlyReturns: { [withdrawalStartYear -1]: 0.10 } } }; // 10% return
+
+        const { result } = calculateWithdrawal(
+            mockElements,
+            withdrawalStartYear,
+            withdrawalStartYear,
+            "rendite_basiert",
+            returnConfig,
+            taxRate,
+            teilfreistellungsquote,
+            { [withdrawalStartYear]: freibetrag },
+            undefined,
+            undefined,
+            false,
+            undefined,
+            undefined,
+            undefined,
+            renditeBasiertConfig
+        );
+
+        const resultYear = result[withdrawalStartYear];
+        const expectedRate = renditeBasiertConfig.baseRate * (1 + renditeBasiertConfig.upperAdjustment);
+        const expectedEntnahme = 120000 * expectedRate;
+        expect(resultYear.entnahme).toBeCloseTo(expectedEntnahme);
+    });
+
+    test('should decrease withdrawal rate when return is below lower threshold', () => {
+        const returnConfig: ReturnConfiguration = { mode: 'variable', variableConfig: { yearlyReturns: { [withdrawalStartYear - 1]: -0.10 } } }; // -10% return
+
+        const { result } = calculateWithdrawal(
+            mockElements,
+            withdrawalStartYear,
+            withdrawalStartYear,
+            "rendite_basiert",
+            returnConfig,
+            taxRate,
+            teilfreistellungsquote,
+            { [withdrawalStartYear]: freibetrag },
+            undefined,
+            undefined,
+            false,
+            undefined,
+            undefined,
+            undefined,
+            renditeBasiertConfig
+        );
+
+        const resultYear = result[withdrawalStartYear];
+        const expectedRate = renditeBasiertConfig.baseRate * (1 - renditeBasiertConfig.lowerAdjustment);
+        const expectedEntnahme = 120000 * expectedRate;
+        expect(resultYear.entnahme).toBeCloseTo(expectedEntnahme);
+    });
+
+    test('should use base withdrawal rate when return is between thresholds', () => {
+        const returnConfig: ReturnConfiguration = { mode: 'variable', variableConfig: { yearlyReturns: { [withdrawalStartYear - 1]: 0.02 } } }; // 2% return
+
+        const { result } = calculateWithdrawal(
+            mockElements,
+            withdrawalStartYear,
+            withdrawalStartYear,
+            "rendite_basiert",
+            returnConfig,
+            taxRate,
+            teilfreistellungsquote,
+            { [withdrawalStartYear]: freibetrag },
+            undefined,
+            undefined,
+            false,
+            undefined,
+            undefined,
+            undefined,
+            renditeBasiertConfig
+        );
+
+        const resultYear = result[withdrawalStartYear];
+        const expectedRate = renditeBasiertConfig.baseRate;
+        const expectedEntnahme = 120000 * expectedRate;
+        expect(resultYear.entnahme).toBeCloseTo(expectedEntnahme);
+    });
+});
