@@ -11,19 +11,10 @@ describe('SimulationParameters', () => {
                 <SimulationParameters />
             </SimulationProvider>
         );
-        const allKonfiguration = screen.getAllByText(/Konfiguration/);
-        expect(allKonfiguration.length).toBeGreaterThan(0);
-
-        const allZeitspanne = screen.getAllByText(/Zeitspanne/);
-        expect(allZeitspanne.length).toBeGreaterThan(0);
-
-        const allRendite = screen.getAllByText(/Rendite-Konfiguration/);
-        expect(allRendite.length).toBeGreaterThan(0);
-
-        const allSteuer = screen.getAllByText(/Steuer-Konfiguration/);
-        expect(allSteuer.length).toBeGreaterThan(0);
-
-        const allSimulation = screen.getAllByText(/Simulation-Konfiguration/);
-        expect(allSimulation.length).toBeGreaterThan(0);
+        expect(screen.getAllByText(/Konfiguration/)[0]).toBeInTheDocument();
+        expect(screen.getAllByText(/Zeitspanne/)[0]).toBeInTheDocument();
+        expect(screen.getByText(/Rendite-Konfiguration/)).toBeInTheDocument();
+        expect(screen.getByText(/Steuer-Konfiguration/)).toBeInTheDocument();
+        expect(screen.getByText(/Simulation-Konfiguration/)).toBeInTheDocument();
     });
 });
