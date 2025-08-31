@@ -7,7 +7,9 @@
     "dev": "vite",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 10",
     "preview": "vite preview",
+    "pretypecheck": "npm run lint",
     "typecheck": "tsc",
+    "pretest": "npm run typeckeck",
     "test": "vitest run",
     "test:watch": "vitest",
     "test:coverage": "vitest run --coverage"
