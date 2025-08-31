@@ -285,7 +285,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                             <div key={sparplan.id} className="sparplan-card">
                                 <div className="sparplan-card-header">
                                     <span className="sparplan-year">
-                                        📅 {sparplan.start.toLocaleDateString('de-DE')}
+                                        📅 {new Date(sparplan.start).toLocaleDateString('de-DE')}
                                     </span>
                                     <Button
                                         onClick={() => handleDeleteSparplan(sparplan.id)}
@@ -301,13 +301,13 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                     <div className="sparplan-detail">
                                         <span className="detail-label">📅 Start:</span>
                                         <span className="detail-value" style={{ color: '#28a745' }}>
-                                            {sparplan.start.toLocaleDateString('de-DE')}
+                                            {new Date(sparplan.start).toLocaleDateString('de-DE')}
                                         </span>
                                     </div>
                                     <div className="sparplan-detail">
                                         <span className="detail-label">🏁 Ende:</span>
                                         <span className="detail-value" style={{ color: '#17a2b8' }}>
-                                            {sparplan.end ? sparplan.end.toLocaleDateString('de-DE') : 'Unbegrenzt'}
+                                            {sparplan.end ? new Date(sparplan.end).toLocaleDateString('de-DE') : 'Unbegrenzt'}
                                         </span>
                                     </div>
                                     <div className="sparplan-detail">

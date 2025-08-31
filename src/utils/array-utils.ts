@@ -2,8 +2,8 @@ export const unique = function <T extends undefined | number | string>(data: und
     if (!data || !data.length) {
         return []
     }
-    return data.reduce((acc, curr) => {
-        if (!acc.includes(curr)) {
+    return data.reduce((acc: T[], curr: T) => {
+        if (curr !== undefined && !acc.includes(curr)) {
             acc.push(curr)
         }
         return acc

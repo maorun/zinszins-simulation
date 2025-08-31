@@ -333,7 +333,7 @@ export function EntnahmeSimulationsAusgabe({
                                 <Form.ControlLabel>Zufalls-Seed (optional)</Form.ControlLabel>
                                 <InputNumber
                                     value={withdrawalRandomSeed}
-                                    onChange={(value) => setWithdrawalRandomSeed(value || undefined)}
+                                    onChange={(value) => setWithdrawalRandomSeed(typeof value === 'number' ? value : undefined)}
                                     placeholder="Für reproduzierbare Ergebnisse"
                                 />
                                 <Form.HelpText>

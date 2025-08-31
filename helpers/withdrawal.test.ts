@@ -15,7 +15,6 @@ const createMockElement = (
   start: new Date(`${startYear}-01-01`).toISOString(),
   type: 'sparplan',
   einzahlung: einzahlung,
-  gewinn: 0,
   simulation: {
     [lastSimYear]: {
       startkapital: einzahlung,

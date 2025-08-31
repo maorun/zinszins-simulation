@@ -1,5 +1,5 @@
 import { simulate, SimulationAnnual } from './simulate';
-import type { SparplanElement } from '../app/components/SparplanEingabe';
+import type { SparplanElement } from './sparplan-utils';
 import type { ReturnConfiguration } from './random-returns';
 
 describe('Simulate (Compound Interest) Calculations', () => {

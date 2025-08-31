@@ -21,7 +21,7 @@ import type {
     WithdrawalSegment
 } from "../utils/segmented-withdrawal";
 import { validateWithdrawalSegments, createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
-import type { WithdrawalStrategy } from "../utils/withdrawal";
+import type { WithdrawalStrategy } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 
 export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable';
