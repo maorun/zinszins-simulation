@@ -1,6 +1,6 @@
 import type { SimulationResult, SimulationResultElement } from "./simulate";
 import type { SparplanElement } from "../utils/sparplan-utils";
-import type { WithdrawalResult } from "./withdrawal";
+import type { WithdrawalResult } from "../../helpers/withdrawal";
 
 export type Summary = {
     startkapital: number;

@@ -72,7 +72,7 @@ export function SparplanSimulationsAusgabe({
                             <div className="sparplan-detail">
                                 <span className="detail-label">💰 Einzahlung:</span>
                                 <span className="detail-value" style={{ color: '#28a745' }}>
-                                    {thousands(el.einzahlung)} €
+                                    {thousands(el.einzahlung.toString())} €
                                 </span>
                             </div>
                             <div className="sparplan-detail">

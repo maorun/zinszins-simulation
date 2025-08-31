@@ -203,16 +203,30 @@ export default function HomePage() {
                 }
             }
 
-            const result = simulate(
-                yearToday,
-                startEnd[0],
-                sparplanElemente,
-                returnConfig,
-                steuerlast / 100,
-                simulationAnnual,
-                teilfreistellungsquote / 100,
-                freibetragPerYear
-            );
+            let result;
+            if (typeof returnConfig === 'number') {
+                result = simulate(
+                    yearToday,
+                    startEnd[0],
+                    sparplanElemente,
+                    returnConfig,
+                    steuerlast / 100,
+                    simulationAnnual,
+                    teilfreistellungsquote / 100,
+                    freibetragPerYear
+                );
+            } else {
+                result = simulate(
+                    yearToday,
+                    startEnd[0],
+                    sparplanElemente,
+                    returnConfig,
+                    steuerlast / 100,
+                    simulationAnnual,
+                    teilfreistellungsquote / 100,
+                    freibetragPerYear
+                );
+            }
 
             setSimulationData({
                 sparplanElements: result.map(element => ({
@@ -230,7 +244,7 @@ export default function HomePage() {
         performSimulation();
     }, [performSimulation]);
 
-    const data = unique(simulationData && (simulationData.sparplanElements.flatMap((v: any) => v.simulation && Object.keys(v.simulation)).map(Number)))
+    const data = unique(simulationData ? (simulationData.sparplanElements.flatMap((v: any) => v.simulation ? Object.keys(v.simulation) : []).map(Number).filter((v: number) => !isNaN(v))) : []) as number[]
 
     return (
         <div className="app-container">
@@ -462,10 +476,11 @@ export default function HomePage() {
                                             max={2100}
                                             value={undefined}
                                             onChange={(value) => {
-                                                if (value && !freibetragPerYear[value]) {
+                                                const year = Number(value)
+                                                if (year && !freibetragPerYear[year]) {
                                                     setFreibetragPerYear(prev => ({
                                                         ...prev,
-                                                        [value]: 2000 // Default value
+                                                        [year]: 2000 // Default value
                                                     }));
                                                     performSimulation();
                                                 }
@@ -512,7 +527,7 @@ export default function HomePage() {
                                                         if (value !== null && value !== undefined) {
                                                             setFreibetragPerYear(prev => ({
                                                                 ...prev,
-                                                                [rowData.year]: value
+                                                                [rowData.year]: Number(value)
                                                             }));
                                                             performSimulation();
                                                         }
@@ -585,9 +600,7 @@ export default function HomePage() {
                     
                     <Panel header="📊 Sparplan-Simulation" collapsible bordered>
                         <SparplanSimulationsAusgabe
-                            startEnd={startEnd}
                             elemente={simulationData.sparplanElements}
-                            simulationAnnual={simulationAnnual}
                         />
                     </Panel>
 
@@ -625,7 +638,7 @@ export default function HomePage() {
                                 💡 Tipp: Tippen Sie auf ein Jahr für Details
                             </div>
                             {data
-                                .sort((a, b) => b - a)
+                                .sort((a: number, b: number) => b - a)
                                 .map((year, yearIndex) => {
                                     const yearData = simulationData?.sparplanElements
                                         .map((value: any) => value.simulation?.[Number(year)])
@@ -635,10 +648,10 @@ export default function HomePage() {
                                     if (!yearData || yearData.length === 0) return null;
                                     
                                     // Calculate year totals
-                                    const totalStartkapital = yearData.reduce((sum, item) => sum + Number(item?.startkapital || 0), 0);
-                                    const totalZinsen = yearData.reduce((sum, item) => sum + Number(item?.zinsen || 0), 0);
-                                    const totalEndkapital = yearData.reduce((sum, item) => sum + Number(item?.endkapital || 0), 0);
-                                    const totalSteuer = yearData.reduce((sum, item) => sum + Number(item?.bezahlteSteuer || 0), 0);
+                                    const totalStartkapital = yearData.reduce((sum: number, item: any) => sum + Number(item?.startkapital || 0), 0);
+                                    const totalZinsen = yearData.reduce((sum: number, item: any) => sum + Number(item?.zinsen || 0), 0);
+                                    const totalEndkapital = yearData.reduce((sum: number, item: any) => sum + Number(item?.endkapital || 0), 0);
+                                    const totalSteuer = yearData.reduce((sum: number, item: any) => sum + Number(item?.bezahlteSteuer || 0), 0);
                                     
                                     return (
                                         <Panel 
@@ -701,7 +714,7 @@ export default function HomePage() {
                         {/* Desktop View - Original */}
                         <div className="desktop-only">
                             {data
-                                .sort((a, b) => b - a)
+                                .sort((a: number, b: number) => b - a)
                                 .map((year, index) => {
                                     return (
                                         <div key={year + '' + index} style={{ marginBottom: '20px' }}>

@@ -2,7 +2,7 @@ import type { SparplanElement } from "../src/utils/sparplan-utils";
 import { getBasiszinsForYear, calculateVorabpauschale, calculateSteuerOnVorabpauschale } from "./steuer";
 import type { ReturnConfiguration } from "../src/utils/random-returns";
 import { generateRandomReturns } from "../src/utils/random-returns";
-import type { SegmentedWithdrawalConfig } from "../src/utils/segmented-withdrawal";
+import type { SegmentedWithdrawalConfig, WithdrawalSegment } from "../src/utils/segmented-withdrawal";
 
 
 export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent";
@@ -50,6 +50,12 @@ const grundfreibetrag: {
     2023: 10908, // € per year
 };
 
+type MutableLayer = SparplanElement & {
+    currentValue: number;
+    costBasis: number;
+    accumulatedVorabpauschale: number;
+};
+
 export function calculateWithdrawal(
     elements: SparplanElement[],
     startYear: number,
@@ -62,10 +68,10 @@ export function calculateWithdrawal(
     monthlyConfig?: MonthlyWithdrawalConfig,
     customPercentage?: number,
     enableGrundfreibetrag?: boolean,
-    grundfreibetragPerYear?: {[year: number]: number},
+    grundfreibetragPerYear?: { [year: number]: number },
     incomeTaxRate?: number,
     inflationConfig?: InflationConfig
-): { result: WithdrawalResult, finalLayers: any[] } { // Changed finalLayers to any[] to satisfy downstream consumers
+): { result: WithdrawalResult; finalLayers: MutableLayer[] } {
     // Helper functions
     const getFreibetragForYear = (year: number): number => {
         if (freibetragPerYear && freibetragPerYear[year] !== undefined) return freibetragPerYear[year];
@@ -89,14 +95,14 @@ export function calculateWithdrawal(
     }
 
     const result: WithdrawalResult = {};
-    const initialStartingCapital = elements.reduce((sum, el) => {
+    const initialStartingCapital = elements.reduce((sum: number, el: SparplanElement) => {
         const simYear = el.simulation?.[startYear - 1];
         return sum + (simYear?.endkapital || 0);
     }, 0);
 
-    let mutableLayers = JSON.parse(JSON.stringify(elements)).map((el: any) => {
+    const mutableLayers: MutableLayer[] = JSON.parse(JSON.stringify(elements)).map((el: SparplanElement) => {
         const lastSimData = el.simulation?.[startYear - 1];
-        let initialCost = el.type === 'einmalzahlung' ? el.einzahlung + el.gewinn : el.einzahlung;
+        const initialCost = el.type === 'einmalzahlung' ? el.einzahlung + (el.gewinn || 0) : el.einzahlung;
         return {
             ...el,
             currentValue: lastSimData?.endkapital || 0,
@@ -104,7 +110,7 @@ export function calculateWithdrawal(
             accumulatedVorabpauschale: lastSimData?.vorabpauschaleAccumulated || 0,
         };
     });
-    mutableLayers.sort((a, b) => new Date(a.start).getTime() - new Date(b.start).getTime());
+    mutableLayers.sort((a: MutableLayer, b: MutableLayer) => new Date(a.start).getTime() - new Date(b.start).getTime());
 
     let baseWithdrawalAmount: number;
     if (strategy === "monatlich_fest") {
@@ -119,7 +125,7 @@ export function calculateWithdrawal(
     }
 
     for (let year = startYear; year <= endYear; year++) {
-        const capitalAtStartOfYear = mutableLayers.reduce((sum, l) => sum + l.currentValue, 0);
+        const capitalAtStartOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0);
         if (capitalAtStartOfYear <= 0) break;
 
         let annualWithdrawal = baseWithdrawalAmount;
@@ -157,8 +163,8 @@ export function calculateWithdrawal(
         const returnRate = yearlyGrowthRates[year] || 0;
         const basiszins = getBasiszinsForYear(year);
         let totalPotentialVorabTax = 0;
-        const vorabCalculations: any[] = [];
-        mutableLayers.forEach(layer => {
+        const vorabCalculations: { layer: MutableLayer; vorabpauschaleBetrag: number; potentialTax: number; valueAfterGrowth: number }[] = [];
+        mutableLayers.forEach((layer: MutableLayer) => {
             if (layer.currentValue > 0) {
                 const valueAfterSale = layer.currentValue;
                 const valueAfterGrowth = valueAfterSale * (1 + returnRate);
@@ -184,7 +190,7 @@ export function calculateWithdrawal(
             genutzterGrundfreibetrag = Math.min(entnahme, yearlyGrundfreibetrag);
         }
 
-        const capitalAtEndOfYear = mutableLayers.reduce((sum, l) => sum + l.currentValue, 0);
+        const capitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0);
         const totalTaxForYear = taxOnRealizedGains + taxOnVorabpauschale + einkommensteuer;
 
         result[year] = {
@@ -201,15 +207,16 @@ export function calculateWithdrawal(
         };
     }
 
-    const finalLayers = mutableLayers.map(l => {
-        const lastYear = Object.keys(l.simulation).map(Number).sort((a,b) => b-a)[0] || (startYear -1);
+    const finalLayers = mutableLayers.map((l: MutableLayer) => {
+        const lastYear = Object.keys(l.simulation || {}).map(Number).sort((a: number, b: number) => b-a)[0] || (startYear -1);
+        l.simulation = l.simulation || {};
         l.simulation[lastYear] = {
-            ...l.simulation[lastYear],
+            ...(l.simulation[lastYear] || {}),
             endkapital: l.currentValue,
-            vorabpauschaleAccumulated: l.accumulatedVorabpauschale
-        }
+            vorabpauschaleAccumulated: l.accumulatedVorabpauschale,
+        };
         return l;
-    })
+    });
 
     return { result, finalLayers };
 }
@@ -219,12 +226,12 @@ export function calculateSegmentedWithdrawal(
     segmentedConfig: SegmentedWithdrawalConfig
 ): WithdrawalResult {
     const result: WithdrawalResult = {};
-    let currentLayers: any[] = elements;
+    let currentLayers: SparplanElement[] = elements;
 
-    const sortedSegments = [...segmentedConfig.segments].sort((a, b) => a.startYear - b.startYear);
+    const sortedSegments = [...segmentedConfig.segments].sort((a: WithdrawalSegment, b: WithdrawalSegment) => a.startYear - b.startYear);
 
     for (const segment of sortedSegments) {
-        const segmentResult = calculateWithdrawal(
+        const { result: segmentResultData, finalLayers } = calculateWithdrawal(
             currentLayers,
             segment.startYear,
             segment.endYear,
@@ -241,11 +248,11 @@ export function calculateSegmentedWithdrawal(
             segment.inflationConfig
         );
 
-        Object.assign(result, segmentResult.result);
-        currentLayers = segmentResult.finalLayers;
+        Object.assign(result, segmentResultData);
+        currentLayers = finalLayers;
 
-        const lastYearOfSegment = Object.keys(segmentResult.result).map(Number).sort((a, b) => b - a)[0];
-        if (lastYearOfSegment && segmentResult.result[lastYearOfSegment].endkapital <= 0) {
+        const lastYearOfSegment = Object.keys(segmentResultData).map(Number).sort((a, b) => b - a)[0];
+        if (lastYearOfSegment && segmentResultData[lastYearOfSegment].endkapital <= 0) {
             break;
         }
     }
@@ -262,8 +269,8 @@ export function calculateIncomeTax(
     return taxableIncome * incomeTaxRate;
 }
 
-export function getTotalCapitalAtYear(elements: any[], year: number): number {
-    return elements.reduce((total, element) => {
+export function getTotalCapitalAtYear(elements: SparplanElement[], year: number): number {
+    return elements.reduce((total: number, element: SparplanElement) => {
         const yearData = element.simulation?.[year];
         return total + (yearData?.endkapital || 0);
     }, 0);
@@ -273,7 +280,7 @@ export function calculateWithdrawalDuration(
     withdrawalResult: WithdrawalResult,
     startYear: number
 ): number | null {
-    const years = Object.keys(withdrawalResult).map(Number).sort((a, b) => a - b);
+    const years = Object.keys(withdrawalResult).map(Number).sort((a: number, b: number) => a - b);
 
     for (const year of years) {
         if (withdrawalResult[year].endkapital <= 0) {
