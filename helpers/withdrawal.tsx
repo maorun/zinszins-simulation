@@ -211,7 +211,7 @@ export function calculateWithdrawal(
         const lastYear = Object.keys(l.simulation || {}).map(Number).sort((a: number, b: number) => b-a)[0] || (startYear -1);
         l.simulation = l.simulation || {};
         l.simulation[lastYear] = {
-            ...(l.simulation[lastYear] as any),
+            ...(l.simulation[lastYear] || {}),
             endkapital: l.currentValue,
             vorabpauschaleAccumulated: l.accumulatedVorabpauschale,
         };
