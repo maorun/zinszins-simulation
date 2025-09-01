@@ -19,6 +19,7 @@ import type { ReturnConfiguration } from "../../helpers/random-returns";
 import type { WithdrawalSegment, SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
 import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
 import { WithdrawalSegmentForm } from "./WithdrawalSegmentForm";
+import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -548,82 +549,7 @@ export function EntnahmeSimulationsAusgabe({
 
                     {/* Dynamic strategy specific controls */}
                     {formValue.strategie === "dynamisch" && (
-                        <>
-                            <Form.Group controlId="dynamischBasisrate">
-                                <Form.ControlLabel>Basis-Entnahmerate (%)</Form.ControlLabel>
-                                <Form.Control name="dynamischBasisrate" accepter={Slider} 
-                                    min={2}
-                                    max={7}
-                                    step={0.5}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.dynamischBasisrate}%</div>)}
-                                    progress
-                                    graduated
-                                />
-                                <Form.HelpText>
-                                    Grundlegende jährliche Entnahmerate vor dynamischen Anpassungen
-                                </Form.HelpText>
-                            </Form.Group>
-                            
-                            <Form.Group controlId="dynamischObereSchwell">
-                                <Form.ControlLabel>Obere Schwelle Rendite (%)</Form.ControlLabel>
-                                <Form.Control name="dynamischObereSchwell" accepter={Slider} 
-                                    min={4}
-                                    max={15}
-                                    step={0.5}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.dynamischObereSchwell}%</div>)}
-                                    progress
-                                    graduated
-                                />
-                                <Form.HelpText>
-                                    Rendite-Schwelle: Bei Überschreitung wird die Entnahme erhöht
-                                </Form.HelpText>
-                            </Form.Group>
-                            
-                            <Form.Group controlId="dynamischObereAnpassung">
-                                <Form.ControlLabel>Anpassung bei oberer Schwelle (%)</Form.ControlLabel>
-                                <Form.Control name="dynamischObereAnpassung" accepter={Slider} 
-                                    min={0}
-                                    max={15}
-                                    step={1}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.dynamischObereAnpassung > 0 ? '+' : ''}{formValue.dynamischObereAnpassung}%</div>)}
-                                    progress
-                                    graduated
-                                />
-                                <Form.HelpText>
-                                    Relative Erhöhung der Entnahme bei guter Performance
-                                </Form.HelpText>
-                            </Form.Group>
-                            
-                            <Form.Group controlId="dynamischUntereSchwell">
-                                <Form.ControlLabel>Untere Schwelle Rendite (%)</Form.ControlLabel>
-                                <Form.Control name="dynamischUntereSchwell" accepter={Slider} 
-                                    min={-5}
-                                    max={6}
-                                    step={0.5}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.dynamischUntereSchwell}%</div>)}
-                                    progress
-                                    graduated
-                                />
-                                <Form.HelpText>
-                                    Rendite-Schwelle: Bei Unterschreitung wird die Entnahme reduziert
-                                </Form.HelpText>
-                            </Form.Group>
-                            
-                            <Form.Group controlId="dynamischUntereAnpassung">
-                                <Form.ControlLabel>Anpassung bei unterer Schwelle (%)</Form.ControlLabel>
-                                <Form.Control name="dynamischUntereAnpassung" accepter={Slider} 
-                                    min={-15}
-                                    max={0}
-                                    step={1}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.dynamischUntereAnpassung}%</div>)}
-                                    progress
-                                    graduated
-                                />
-                                <Form.HelpText>
-                                    Relative Reduzierung der Entnahme bei schlechter Performance
-                                </Form.HelpText>
-                            </Form.Group>
-                        </>
+                        <DynamicWithdrawalConfiguration formValue={formValue} />
                     )}
                     </Form>
                 )}
