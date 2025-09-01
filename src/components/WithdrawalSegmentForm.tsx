@@ -226,6 +226,11 @@ export function WithdrawalSegmentForm({
                                         };
                                     }
                                     
+                                    // Initialize customPercentage when switching to variabel_prozent strategy
+                                    if (newStrategy === "variabel_prozent" && segment.customPercentage === undefined) {
+                                        updates.customPercentage = 0.05; // 5% default
+                                    }
+                                    
                                     // Initialize dynamicConfig when switching to dynamisch strategy
                                     if (newStrategy === "dynamisch" && !segment.dynamicConfig) {
                                         updates.dynamicConfig = {
