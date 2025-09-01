@@ -1,6 +1,78 @@
 import type { ReturnMode } from './random-returns';
 import type { Sparplan } from './sparplan-utils';
 import type { SimulationAnnualType } from './simulate';
+import type { WithdrawalStrategy } from '../../helpers/withdrawal';
+import type { WithdrawalSegment } from './segmented-withdrawal';
+
+/**
+ * Return mode for withdrawal phase (subset of main ReturnMode)
+ */
+export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable';
+
+/**
+ * Form values for withdrawal configuration
+ */
+export interface WithdrawalFormValue {
+  endOfLife: number;
+  strategie: WithdrawalStrategy;
+  rendite: number;
+  // General inflation settings
+  inflationAktiv: boolean;
+  inflationsrate: number;
+  // Monthly strategy specific settings
+  monatlicheBetrag: number;
+  guardrailsAktiv: boolean;
+  guardrailsSchwelle: number;
+  // Custom percentage strategy specific settings
+  variabelProzent: number;
+  // Dynamic strategy specific settings
+  dynamischBasisrate: number;
+  dynamischObereSchwell: number;
+  dynamischObereAnpassung: number;
+  dynamischUntereSchwell: number;
+  dynamischUntereAnpassung: number;
+  // Grundfreibetrag settings
+  grundfreibetragAktiv: boolean;
+  grundfreibetragBetrag: number;
+  einkommensteuersatz: number;
+}
+
+/**
+ * Comparison strategy for withdrawal comparison mode
+ */
+export interface ComparisonStrategy {
+  id: string;
+  name: string;
+  strategie: WithdrawalStrategy;
+  rendite: number;
+  variabelProzent?: number;
+  monatlicheBetrag?: number;
+  dynamischBasisrate?: number;
+  dynamischObereSchwell?: number;
+  dynamischObereAnpassung?: number;
+  dynamischUntereSchwell?: number;
+  dynamischUntereAnpassung?: number;
+}
+
+/**
+ * Complete withdrawal configuration that needs to be persisted
+ */
+export interface WithdrawalConfiguration {
+  // Basic withdrawal form values
+  formValue: WithdrawalFormValue;
+  // Return configuration for withdrawal phase
+  withdrawalReturnMode: WithdrawalReturnMode;
+  withdrawalVariableReturns: Record<number, number>;
+  withdrawalAverageReturn: number;
+  withdrawalStandardDeviation: number;
+  withdrawalRandomSeed?: number;
+  // Segmented withdrawal configuration
+  useSegmentedWithdrawal: boolean;
+  withdrawalSegments: WithdrawalSegment[];
+  // Comparison mode configuration
+  useComparisonMode: boolean;
+  comparisonStrategies: ComparisonStrategy[];
+}
 
 /**
  * Configuration interface for values that should be persisted
@@ -18,6 +90,8 @@ export interface SavedConfiguration {
   startEnd: [number, number];
   sparplan: Sparplan[];
   simulationAnnual: SimulationAnnualType;
+  // Withdrawal configuration
+  withdrawal?: WithdrawalConfiguration;
 }
 
 const STORAGE_KEY = 'zinszins-simulation-config';
