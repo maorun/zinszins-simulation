@@ -4,10 +4,9 @@ import 'rsuite/dist/rsuite.min.css';
 import { SimulationProvider, useSimulation } from '../contexts/SimulationContext';
 import Header from '../components/Header';
 import SimulationParameters from '../components/SimulationParameters';
-import SavingsPlan from '../components/SavingsPlan';
 import SimulationResults from '../components/SimulationResults';
 import { convertSparplanToElements } from "../utils/sparplan-utils";
-import WithdrawalPlan from "../components/WithdrawalPlan";
+import SimulationModeSelector from "../components/SimulationModeSelector";
 
 import { getEnhancedOverviewSummary } from "../utils/enhanced-summary";
 
@@ -127,9 +126,7 @@ const HomePageContent = () => {
 
             <SimulationParameters />
 
-            <SavingsPlan />
-
-            <WithdrawalPlan />
+            <SimulationModeSelector />
 
             {simulationData && <SimulationResults />}
 
