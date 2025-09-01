@@ -6,6 +6,10 @@ export type Sparplan = {
     start: Date | string;
     end?: Date | string | null;
     einzahlung: number;
+    // Cost factors
+    ter?: number; // Total Expense Ratio (annual percentage, e.g., 0.75 for 0.75%)
+    transactionCostPercent?: number; // Transaction cost as percentage (e.g., 0.25 for 0.25%)
+    transactionCostAbsolute?: number; // Transaction cost as absolute amount (e.g., 1.5 for 1.50€)
 };
 
 export type SparplanElement = {
@@ -13,12 +17,20 @@ export type SparplanElement = {
     type: "sparplan"
     einzahlung: number;
     simulation: SimulationResult;
+    // Cost factors
+    ter?: number;
+    transactionCostPercent?: number;
+    transactionCostAbsolute?: number;
 } | {
     start: Date | string;
     type: "einmalzahlung"
     gewinn: number;
     einzahlung: number;
     simulation: SimulationResult;
+    // Cost factors
+    ter?: number;
+    transactionCostPercent?: number;
+    transactionCostAbsolute?: number;
 };
 
 export const initialSparplan: Sparplan = {
@@ -45,6 +57,9 @@ export function convertSparplanToElements(val: Sparplan[], startEnd: [number, nu
                     gewinn: 0, // Will be calculated during simulation
                     einzahlung: el.einzahlung,
                     simulation: {},
+                    ter: el.ter,
+                    transactionCostPercent: el.transactionCostPercent,
+                    transactionCostAbsolute: el.transactionCostAbsolute,
                 });
             }
         } else {
@@ -59,6 +74,9 @@ export function convertSparplanToElements(val: Sparplan[], startEnd: [number, nu
                             einzahlung: el.einzahlung,
                             type: "sparplan",
                             simulation: {},
+                            ter: el.ter,
+                            transactionCostPercent: el.transactionCostPercent,
+                            transactionCostAbsolute: el.transactionCostAbsolute,
                         })
                     } else {
                         for (let month = 0; month < 12; month++) {
@@ -72,6 +90,9 @@ export function convertSparplanToElements(val: Sparplan[], startEnd: [number, nu
                                     einzahlung: el.einzahlung / 12,
                                     type: "sparplan",
                                     simulation: {},
+                                    ter: el.ter,
+                                    transactionCostPercent: el.transactionCostPercent,
+                                    transactionCostAbsolute: el.transactionCostAbsolute,
                                 })
                             }
                         }

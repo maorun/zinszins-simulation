@@ -60,14 +60,33 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
         initialSparplan
     ]);
 
-    const [singleFormValue, setSingleFormValue] = useState<{ date: Date, einzahlung: string }>({
+    const [singleFormValue, setSingleFormValue] = useState<{ 
+        date: Date, 
+        einzahlung: string,
+        ter: string,
+        transactionCostPercent: string,
+        transactionCostAbsolute: string
+    }>({
         date: new Date(),
         einzahlung: '',
+        ter: '',
+        transactionCostPercent: '',
+        transactionCostAbsolute: '',
     });
-    const [sparplanFormValues, setSparplanFormValues] = useState<{ start: Date, end: Date | null, einzahlung: string }>({
+    const [sparplanFormValues, setSparplanFormValues] = useState<{ 
+        start: Date, 
+        end: Date | null, 
+        einzahlung: string,
+        ter: string,
+        transactionCostPercent: string,
+        transactionCostAbsolute: string
+    }>({
         start: new Date(),
         end: null,
         einzahlung: '',
+        ter: '',
+        transactionCostPercent: '',
+        transactionCostAbsolute: '',
     });
 
     const toaster = useToaster();
@@ -86,6 +105,9 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                     start: sparplanFormValues.start,
                     end: sparplanFormValues.end,
                     einzahlung: yearlyAmount,
+                    ter: sparplanFormValues.ter ? Number(sparplanFormValues.ter) : undefined,
+                    transactionCostPercent: sparplanFormValues.transactionCostPercent ? Number(sparplanFormValues.transactionCostPercent) : undefined,
+                    transactionCostAbsolute: sparplanFormValues.transactionCostAbsolute ? Number(sparplanFormValues.transactionCostAbsolute) : undefined,
                 }
             ]
             setSparplans(changedSparplans)
@@ -94,6 +116,9 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 start: new Date(),
                 end: null,
                 einzahlung: '',
+                ter: '',
+                transactionCostPercent: '',
+                transactionCostAbsolute: '',
             })
             
             toaster.push(
@@ -114,6 +139,9 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                     start: singleFormValue.date,
                     end: singleFormValue.date,
                     einzahlung: Number(singleFormValue.einzahlung),
+                    ter: singleFormValue.ter ? Number(singleFormValue.ter) : undefined,
+                    transactionCostPercent: singleFormValue.transactionCostPercent ? Number(singleFormValue.transactionCostPercent) : undefined,
+                    transactionCostAbsolute: singleFormValue.transactionCostAbsolute ? Number(singleFormValue.transactionCostAbsolute) : undefined,
                 }
             ]
             setSparplans(changedSparplans)
@@ -121,6 +149,9 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
             setSingleFormValue({
                 date: new Date(),
                 einzahlung: '',
+                ter: '',
+                transactionCostPercent: '',
+                transactionCostAbsolute: '',
             })
             
             toaster.push(
@@ -157,6 +188,9 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                         start: changedFormValue.start,
                         end: changedFormValue.end,
                         einzahlung: changedFormValue.einzahlung,
+                        ter: changedFormValue.ter,
+                        transactionCostPercent: changedFormValue.transactionCostPercent,
+                        transactionCostAbsolute: changedFormValue.transactionCostAbsolute,
                     })}
                     onSubmit={handleSparplanSubmit}
                 >
@@ -202,6 +236,61 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                             />
                         </Form.Group>
                     </div>
+                    <div style={{ marginBottom: '1rem' }}>
+                        <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
+                            💰 Kostenfaktoren (optional)
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                            <Form.Group controlId="ter">
+                                <Form.ControlLabel>
+                                    TER (% p.a.)
+                                    <InfoIcon />
+                                </Form.ControlLabel>
+                                <Form.Control 
+                                    name="ter" 
+                                    accepter={InputNumber}
+                                    placeholder="z.B. 0.75"
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    max={10}
+                                    step={0.01}
+                                />
+                                <Form.HelpText>Total Expense Ratio in % pro Jahr</Form.HelpText>
+                            </Form.Group>
+                            <Form.Group controlId="transactionCostPercent">
+                                <Form.ControlLabel>
+                                    Transaktionskosten (%)
+                                    <InfoIcon />
+                                </Form.ControlLabel>
+                                <Form.Control 
+                                    name="transactionCostPercent" 
+                                    accepter={InputNumber}
+                                    placeholder="z.B. 0.25"
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    max={5}
+                                    step={0.01}
+                                />
+                                <Form.HelpText>Prozentuale Transaktionskosten</Form.HelpText>
+                            </Form.Group>
+                            <Form.Group controlId="transactionCostAbsolute">
+                                <Form.ControlLabel>
+                                    Transaktionskosten (€)
+                                    <InfoIcon />
+                                </Form.ControlLabel>
+                                <Form.Control 
+                                    name="transactionCostAbsolute" 
+                                    accepter={InputNumber}
+                                    placeholder="z.B. 1.50"
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    max={100}
+                                    step={0.01}
+                                />
+                                <Form.HelpText>Absolute Transaktionskosten in Euro</Form.HelpText>
+                            </Form.Group>
+                        </div>
+                    </div>
                     <Form.Group>
                         <ButtonToolbar>
                             <Button
@@ -226,6 +315,9 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                     onChange={changedFormValue => setSingleFormValue({
                         date: changedFormValue.date,
                         einzahlung: changedFormValue.einzahlung,
+                        ter: changedFormValue.ter,
+                        transactionCostPercent: changedFormValue.transactionCostPercent,
+                        transactionCostAbsolute: changedFormValue.transactionCostAbsolute,
                     })}
                     onSubmit={handleSinglePaymentSubmit}
                 >
@@ -257,6 +349,61 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                 step={100}
                             />
                         </Form.Group>
+                    </div>
+                    <div style={{ marginBottom: '1rem' }}>
+                        <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
+                            💰 Kostenfaktoren (optional)
+                        </div>
+                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+                            <Form.Group controlId="ter">
+                                <Form.ControlLabel>
+                                    TER (% p.a.)
+                                    <InfoIcon />
+                                </Form.ControlLabel>
+                                <Form.Control 
+                                    name="ter" 
+                                    accepter={InputNumber}
+                                    placeholder="z.B. 0.75"
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    max={10}
+                                    step={0.01}
+                                />
+                                <Form.HelpText>Total Expense Ratio in % pro Jahr</Form.HelpText>
+                            </Form.Group>
+                            <Form.Group controlId="transactionCostPercent">
+                                <Form.ControlLabel>
+                                    Transaktionskosten (%)
+                                    <InfoIcon />
+                                </Form.ControlLabel>
+                                <Form.Control 
+                                    name="transactionCostPercent" 
+                                    accepter={InputNumber}
+                                    placeholder="z.B. 0.25"
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    max={5}
+                                    step={0.01}
+                                />
+                                <Form.HelpText>Prozentuale Transaktionskosten</Form.HelpText>
+                            </Form.Group>
+                            <Form.Group controlId="transactionCostAbsolute">
+                                <Form.ControlLabel>
+                                    Transaktionskosten (€)
+                                    <InfoIcon />
+                                </Form.ControlLabel>
+                                <Form.Control 
+                                    name="transactionCostAbsolute" 
+                                    accepter={InputNumber}
+                                    placeholder="z.B. 1.50"
+                                    style={{ width: '100%' }}
+                                    min={0}
+                                    max={100}
+                                    step={0.01}
+                                />
+                                <Form.HelpText>Absolute Transaktionskosten in Euro</Form.HelpText>
+                            </Form.Group>
+                        </div>
                     </div>
                     <Form.Group>
                         <ButtonToolbar>

@@ -20,6 +20,9 @@ export type SimulationResultElement = {
     vorabpauschale: number; // The Vorabpauschale amount for this year
     vorabpauschaleAccumulated: number; // The accumulated Vorabpauschale over all years
     vorabpauschaleDetails?: VorabpauschaleDetails; // Detailed breakdown of the calculation
+    terCosts?: number; // TER costs for this year
+    transactionCosts?: number; // Transaction costs for this year
+    totalCosts?: number; // Total costs for this year (TER + transaction costs)
 }
 
 export type SimulationResult = {
@@ -107,6 +110,41 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     return elements;
   }
 
+  function calculateCosts(
+    element: SparplanElement, 
+    startkapital: number, 
+    year: number, 
+    anteilImJahr: number
+  ): { terCosts: number; transactionCosts: number; totalCosts: number } {
+    const isFirstYear = !element.simulation?.[year - 1]?.endkapital;
+    
+    // TER costs: annual percentage of average capital during year
+    let terCosts = 0;
+    if (element.ter && element.ter > 0) {
+      const averageCapital = startkapital; // Simplified: use start capital as proxy for average
+      terCosts = (averageCapital * (element.ter / 100)) * (anteilImJahr / 12);
+    }
+    
+    // Transaction costs: only applied in first year when investment is made
+    let transactionCosts = 0;
+    if (isFirstYear) {
+      const investmentAmount = element.einzahlung;
+      
+      // Percentage-based transaction costs
+      if (element.transactionCostPercent && element.transactionCostPercent > 0) {
+        transactionCosts += investmentAmount * (element.transactionCostPercent / 100);
+      }
+      
+      // Absolute transaction costs
+      if (element.transactionCostAbsolute && element.transactionCostAbsolute > 0) {
+        transactionCosts += element.transactionCostAbsolute;
+      }
+    }
+    
+    const totalCosts = terCosts + transactionCosts;
+    return { terCosts, transactionCosts, totalCosts };
+  }
+
   function calculateYearlySimulation(
     year: number,
     elements: SparplanElement[],
@@ -138,12 +176,17 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
         endkapitalVorSteuer = startkapital * (1 + wachstumsrate);
       }
 
-      const jahresgewinn = endkapitalVorSteuer - startkapital;
+      // Calculate costs
+      const costs = calculateCosts(element, startkapital, year, anteilImJahr);
+      
+      // Apply costs to reduce the end capital
+      const endkapitalAfterCosts = endkapitalVorSteuer - costs.totalCosts;
+      const jahresgewinn = endkapitalAfterCosts - startkapital;
       
       // Calculate detailed Vorabpauschale breakdown for transparency
       const vorabpauschaleDetails = calculateVorabpauschaleDetailed(
         startkapital,
-        endkapitalVorSteuer,
+        endkapitalAfterCosts, // Use capital after costs for tax calculation
         basiszins,
         anteilImJahr,
         steuerlast,
@@ -157,11 +200,12 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
       yearlyCalculations.push({
         element,
         startkapital,
-        endkapitalVorSteuer,
-        jahresgewinn,
+        endkapitalVorSteuer: endkapitalAfterCosts, // Use capital after costs
+        jahresgewinn: endkapitalAfterCosts - startkapital, // Adjust gain for costs
         vorabpauschaleBetrag,
         potentialTax,
         vorabpauschaleDetails,
+        costs, // Store cost information
       });
     }
 
@@ -210,6 +254,9 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
         vorabpauschale: calc.vorabpauschaleBetrag,
         vorabpauschaleAccumulated,
         vorabpauschaleDetails: calc.vorabpauschaleDetails,
+        terCosts: calc.costs.terCosts,
+        transactionCosts: calc.costs.transactionCosts,
+        totalCosts: calc.costs.totalCosts,
       };
     }
   }
