@@ -1,6 +1,15 @@
 import type { SparplanElement } from "../utils/sparplan-utils";
-import { getBasiszinsForYear, calculateVorabpauschale, calculateSteuerOnVorabpauschale } from "../../helpers/steuer.tsx";
+import { getBasiszinsForYear, calculateVorabpauschaleDetailed } from "../../helpers/steuer.tsx";
 import { type ReturnConfiguration, generateRandomReturns } from "./random-returns";
+
+export type VorabpauschaleDetails = {
+    basiszins: number; // Base interest rate for the year
+    basisertrag: number; // 70% of theoretical gain at base interest rate
+    vorabpauschaleAmount: number; // Final Vorabpauschale amount (min of basisertrag and actual gain)
+    steuerVorFreibetrag: number; // Tax on Vorabpauschale before allowance
+    jahresgewinn: number; // Actual gain for the year
+    anteilImJahr: number; // Fraction of year the investment was held
+}
 
 export type SimulationResultElement = {
     startkapital: number;
@@ -10,6 +19,7 @@ export type SimulationResultElement = {
     genutzterFreibetrag: number;
     vorabpauschale: number; // The Vorabpauschale amount for this year
     vorabpauschaleAccumulated: number; // The accumulated Vorabpauschale over all years
+    vorabpauschaleDetails?: VorabpauschaleDetails; // Detailed breakdown of the calculation
     terCosts?: number; // TER costs for this year
     transactionCosts?: number; // Transaction costs for this year
     totalCosts?: number; // Total costs for this year (TER + transaction costs)
@@ -172,17 +182,18 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
       // Apply costs to reduce the end capital
       const endkapitalAfterCosts = endkapitalVorSteuer - costs.totalCosts;
       
-      const vorabpauschaleBetrag = calculateVorabpauschale(
+      // Calculate detailed Vorabpauschale breakdown for transparency
+      const vorabpauschaleDetails = calculateVorabpauschaleDetailed(
         startkapital,
         endkapitalAfterCosts, // Use capital after costs for tax calculation
         basiszins,
-        anteilImJahr
-      );
-      const potentialTax = calculateSteuerOnVorabpauschale(
-        vorabpauschaleBetrag,
+        anteilImJahr,
         steuerlast,
         teilfreistellungsquote
       );
+      
+      const vorabpauschaleBetrag = vorabpauschaleDetails.vorabpauschaleAmount;
+      const potentialTax = vorabpauschaleDetails.steuerVorFreibetrag;
 
       totalPotentialTaxThisYear += potentialTax;
       yearlyCalculations.push({
@@ -192,6 +203,7 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
         jahresgewinn: endkapitalAfterCosts - startkapital, // Adjust gain for costs
         vorabpauschaleBetrag,
         potentialTax,
+        vorabpauschaleDetails,
         costs, // Store cost information
       });
     }
@@ -240,6 +252,7 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
         genutzterFreibetrag: genutzterFreibetragForElement,
         vorabpauschale: calc.vorabpauschaleBetrag,
         vorabpauschaleAccumulated,
+        vorabpauschaleDetails: calc.vorabpauschaleDetails,
         terCosts: calc.costs.terCosts,
         transactionCosts: calc.costs.transactionCosts,
         totalCosts: calc.costs.totalCosts,

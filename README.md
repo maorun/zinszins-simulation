@@ -32,7 +32,11 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
 - **Optionale Konfiguration** - Kostenfaktoren sind optional und bewahren die Abwärtskompatibilität
 
 ### Steuerberechnung
-- **Vorabpauschale** - Deutsche Steuerberechnung für Investmentfonds
+- **Vorabpauschale** - Deutsche Steuerberechnung für Investmentfonds mit vollständiger Transparenz
+  - **Schritt-für-Schritt Erklärung** - Info-Icons in der Detailansicht öffnen eine umfassende Berechnung
+  - **5-Stufen Berechnungsprozess**: Basiszins → Basisertrag → Jahresgewinn → Vorabpauschale → Steuerberechnung
+  - **Detaillierte Aufschlüsselung** aller Zwischenschritte mit konkreten Werten
+  - **Verständliche Erklärung** der deutschen Steuerregelung für thesaurierende Fonds
 - **Konfigurierbare Steuerparameter**:
   - Kapitalertragsteuer (standardmäßig 26,375%)
   - Teilfreistellungsquote für Aktienfonds (standardmäßig 30%)

@@ -1,13 +1,47 @@
 import { Panel } from 'rsuite';
 import { useSimulation } from '../contexts/useSimulation';
 import { unique } from '../utils/array-utils';
+import { useState } from 'react';
+import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal';
+
+// Info icon component for Vorabpauschale explanation
+const InfoIcon = ({ onClick }: { onClick: () => void }) => (
+    <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ 
+            marginLeft: '0.5rem', 
+            cursor: 'pointer', 
+            color: '#1976d2',
+            verticalAlign: 'middle'
+        }}
+        onClick={onClick}
+    >
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"></path>
+        <path d="M12,17h.01"></path>
+    </svg>
+);
 
 const DetailedSimulation = () => {
     const { simulationData } = useSimulation();
+    const [showVorabpauschaleModal, setShowVorabpauschaleModal] = useState(false);
+    const [selectedVorabDetails, setSelectedVorabDetails] = useState<any>(null);
 
     if (!simulationData) return null;
 
     const data = unique(simulationData ? (simulationData.sparplanElements.flatMap((v: any) => v.simulation ? Object.keys(v.simulation) : []).map(Number).filter((v: number) => !isNaN(v))) : []) as number[]
+
+    const handleVorabpauschaleInfoClick = (details: any) => {
+        setSelectedVorabDetails(details);
+        setShowVorabpauschaleModal(true);
+    };
 
     return (
         <Panel header="📋 Detaillierte Simulation" bordered collapsible defaultExpanded>
@@ -74,9 +108,10 @@ const DetailedSimulation = () => {
                                                             <span>Ende: {Number(value.endkapital).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
                                                         </div>
                                                         {value.vorabpauschaleDetails && (
-                                                            <div className="vorab-details">
+                                                            <div className="vorab-details" style={{ display: 'flex', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                                                                 <span>Basiszins: {(value.vorabpauschaleDetails.basiszins * 100).toFixed(2)}%</span>
                                                                 <span>Vorabpauschale: {Number(value.vorabpauschaleDetails.vorabpauschaleAmount).toLocaleString('de-DE', { minimumFractionDigits: 2 })} €</span>
+                                                                <InfoIcon onClick={() => handleVorabpauschaleInfoClick(value.vorabpauschaleDetails)} />
                                                             </div>
                                                         )}
                                                     </div>
@@ -149,8 +184,9 @@ const DetailedSimulation = () => {
                                                         borderRadius: '4px',
                                                         fontSize: '0.9rem'
                                                     }}>
-                                                        <div style={{ fontWeight: 600, color: '#1976d2', marginBottom: '6px' }}>
+                                                        <div style={{ fontWeight: 600, color: '#1976d2', marginBottom: '6px', display: 'flex', alignItems: 'center' }}>
                                                             📊 Vorabpauschale-Berechnung
+                                                            <InfoIcon onClick={() => handleVorabpauschaleInfoClick(value.vorabpauschaleDetails)} />
                                                         </div>
                                                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '6px' }}>
                                                             <div>
@@ -192,6 +228,12 @@ const DetailedSimulation = () => {
                         );
                     })}
             </div>
+
+            <VorabpauschaleExplanationModal
+                open={showVorabpauschaleModal}
+                onClose={() => setShowVorabpauschaleModal(false)}
+                selectedVorabDetails={selectedVorabDetails}
+            />
         </Panel>
     );
 };

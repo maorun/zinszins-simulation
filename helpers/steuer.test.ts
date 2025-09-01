@@ -1,5 +1,5 @@
 import { describe, test, expect } from 'vitest';
-import { calculateVorabpauschale, calculateSteuerOnVorabpauschale } from './steuer';
+import { calculateVorabpauschale, calculateSteuerOnVorabpauschale, calculateVorabpauschaleDetailed } from './steuer';
 
 describe('Steuer (Tax) Calculations - New', () => {
   describe('calculateVorabpauschale', () => {
@@ -55,6 +55,56 @@ describe('Steuer (Tax) Calculations - New', () => {
       const tax2 = calculateSteuerOnVorabpauschale(-100, TAX_RATE, TEILFREISTELLUNG_30);
       expect(tax1).toBe(0);
       expect(tax2).toBe(0);
+    });
+  });
+
+  describe('calculateVorabpauschaleDetailed', () => {
+    test('should return detailed breakdown of Vorabpauschale calculation', () => {
+      const startkapital = 10000;
+      const endkapital = 11000;
+      const basiszins = 0.0255;
+      const steuerlast = 0.26375;
+      const teilfreistellung = 0.3;
+
+      const details = calculateVorabpauschaleDetailed(
+        startkapital, 
+        endkapital, 
+        basiszins, 
+        12, 
+        steuerlast, 
+        teilfreistellung
+      );
+
+      expect(details.basiszins).toBe(0.0255);
+      expect(details.jahresgewinn).toBe(1000);
+      expect(details.anteilImJahr).toBe(12);
+      expect(details.basisertrag).toBeCloseTo(178.5); // 10000 * 0.0255 * 0.7
+      expect(details.vorabpauschaleAmount).toBeCloseTo(178.5); // min(basisertrag, jahresgewinn)
+      expect(details.steuerVorFreibetrag).toBeCloseTo(32.9556, 3); // 178.5 * 0.26375 * (1 - 0.3)
+    });
+
+    test('should handle partial year ownership', () => {
+      const details = calculateVorabpauschaleDetailed(10000, 11000, 0.0255, 6, 0.26375, 0.3);
+      
+      expect(details.anteilImJahr).toBe(6);
+      expect(details.basisertrag).toBeCloseTo(89.25); // 10000 * 0.0255 * 0.7 * (6/12)
+      expect(details.vorabpauschaleAmount).toBeCloseTo(89.25);
+    });
+
+    test('should limit vorabpauschale to actual gain when basisertrag is higher', () => {
+      const details = calculateVorabpauschaleDetailed(10000, 10100, 0.0255, 12, 0.26375, 0.3);
+      
+      expect(details.jahresgewinn).toBe(100);
+      expect(details.basisertrag).toBeCloseTo(178.5);
+      expect(details.vorabpauschaleAmount).toBe(100); // Limited to actual gain
+    });
+
+    test('should be zero when there is no gain', () => {
+      const details = calculateVorabpauschaleDetailed(10000, 9900, 0.0255, 12, 0.26375, 0.3);
+      
+      expect(details.jahresgewinn).toBe(-100);
+      expect(details.vorabpauschaleAmount).toBe(0); // Never negative
+      expect(details.steuerVorFreibetrag).toBe(0);
     });
   });
 });
