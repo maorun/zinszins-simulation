@@ -38,6 +38,12 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Relative Anpassungen bei Über-/Unterschreitung der Schwellen
   - Automatische Jahr-für-Jahr Anpassung basierend auf tatsächlichen Renditen
 - **Monatliche Entnahme-Strategien** - Feste monatliche Entnahmen mit Inflationsanpassung und Portfolio-Guardrails
+- **Bucket Strategie** - Portfolio-Aufteilung in verschiedene Risiko-Töpfe
+  - Mehrere Buckets mit individueller Allokation (z.B. 60% Aktien, 30% Anleihen, 10% Cash)
+  - Separate Rendite-Konfiguration pro Bucket (fest, zufällig oder variabel)
+  - Jährliches Rebalancing zur Aufrechterhaltung der Ziel-Allokation
+  - Proportionale Entnahme aus allen Buckets basierend auf aktueller Allokation
+  - Intuitive Bucket-Verwaltung mit Bearbeiten/Hinzufügen/Löschen-Funktionalität
 - **Variable Renditen während Entnahme** - Jahr-für-Jahr konfigurierbare Renditen für die Entnahmephase
 - **Geteilte Entnahme-Phasen** - Segmentierung der Entsparphase in verschiedene Zeiträume mit unterschiedlichen Strategien
   - Frühe Rente (z.B. 2041-2055): Höhere Entnahmerate mit konservativeren Renditen
