@@ -19,6 +19,7 @@ import type { ReturnConfiguration } from "../../helpers/random-returns";
 import type { WithdrawalSegment, SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
 import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
 import { WithdrawalSegmentForm } from "./WithdrawalSegmentForm";
+import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -54,6 +55,12 @@ export function EntnahmeSimulationsAusgabe({
         guardrailsSchwelle: 10,
         // Custom percentage strategy specific settings
         variabelProzent: 5, // Default to 5%
+        // Dynamic strategy specific settings
+        dynamischBasisrate: 4, // Base withdrawal rate 4%
+        dynamischObereSchwell: 8, // Upper threshold return 8%
+        dynamischObereAnpassung: 5, // Upper adjustment 5%
+        dynamischUntereSchwell: 2, // Lower threshold return 2%
+        dynamischUntereAnpassung: -5, // Lower adjustment -5%
         // Grundfreibetrag settings
         grundfreibetragAktiv: false,
         grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
@@ -148,6 +155,13 @@ export function EntnahmeSimulationsAusgabe({
                     guardrailsThreshold: formValue.guardrailsSchwelle / 100
                 } : undefined,
                 customPercentage: formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined,
+                dynamicConfig: formValue.strategie === "dynamisch" ? {
+                    baseWithdrawalRate: formValue.dynamischBasisrate / 100,
+                    upperThresholdReturn: formValue.dynamischObereSchwell / 100,
+                    upperThresholdAdjustment: formValue.dynamischObereAnpassung / 100,
+                    lowerThresholdReturn: formValue.dynamischUntereSchwell / 100,
+                    lowerThresholdAdjustment: formValue.dynamischUntereAnpassung / 100,
+                } : undefined,
                 enableGrundfreibetrag: formValue.grundfreibetragAktiv,
                 grundfreibetragPerYear: formValue.grundfreibetragAktiv ? (() => {
                     const grundfreibetragPerYear: {[year: number]: number} = {};
@@ -179,7 +193,7 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments, steuerlast, teilfreistellungsquote]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.dynamischBasisrate, formValue.dynamischObereSchwell, formValue.dynamischObereAnpassung, formValue.dynamischUntereSchwell, formValue.dynamischUntereAnpassung, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments, steuerlast, teilfreistellungsquote]);
 
     // Notify parent component when withdrawal results change
     useEffect(() => {
@@ -257,6 +271,11 @@ export function EntnahmeSimulationsAusgabe({
                                 guardrailsAktiv: changedFormValue.guardrailsAktiv,
                                 guardrailsSchwelle: changedFormValue.guardrailsSchwelle,
                                 variabelProzent: changedFormValue.variabelProzent,
+                                dynamischBasisrate: changedFormValue.dynamischBasisrate,
+                                dynamischObereSchwell: changedFormValue.dynamischObereSchwell,
+                                dynamischObereAnpassung: changedFormValue.dynamischObereAnpassung,
+                                dynamischUntereSchwell: changedFormValue.dynamischUntereSchwell,
+                                dynamischUntereAnpassung: changedFormValue.dynamischUntereAnpassung,
                                 grundfreibetragAktiv: changedFormValue.grundfreibetragAktiv,
                                 grundfreibetragBetrag: changedFormValue.grundfreibetragBetrag,
                                 einkommensteuersatz: changedFormValue.einkommensteuersatz,
@@ -402,6 +421,9 @@ export function EntnahmeSimulationsAusgabe({
                             <RadioTile value="monatlich_fest" label="Monatlich fest">
                                 Fester monatlicher Betrag
                             </RadioTile>
+                            <RadioTile value="dynamisch" label="Dynamische Strategie">
+                                Renditebasierte Anpassung
+                            </RadioTile>
                         </Form.Control>
                     </Form.Group>
                     
@@ -524,6 +546,11 @@ export function EntnahmeSimulationsAusgabe({
                             )}
                         </>
                     )}
+
+                    {/* Dynamic strategy specific controls */}
+                    {formValue.strategie === "dynamisch" && (
+                        <DynamicWithdrawalConfiguration formValue={formValue} />
+                    )}
                     </Form>
                 )}
             </Panel>
@@ -543,6 +570,13 @@ export function EntnahmeSimulationsAusgabe({
                                 </>
                             ) : formValue.strategie === "variabel_prozent" ? (
                                 <p><strong>Jährliche Entnahme ({formValue.variabelProzent} Prozent Regel):</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.variabelProzent / 100))}</p>
+                            ) : formValue.strategie === "dynamisch" ? (
+                                <>
+                                    <p><strong>Basis-Entnahmerate:</strong> {formValue.dynamischBasisrate}%</p>
+                                    <p><strong>Jährliche Basis-Entnahme:</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.dynamischBasisrate / 100))}</p>
+                                    <p><strong>Obere Schwelle:</strong> {formValue.dynamischObereSchwell}% Rendite → {formValue.dynamischObereAnpassung > 0 ? '+' : ''}{formValue.dynamischObereAnpassung}% Anpassung</p>
+                                    <p><strong>Untere Schwelle:</strong> {formValue.dynamischUntereSchwell}% Rendite → {formValue.dynamischUntereAnpassung}% Anpassung</p>
+                                </>
                             ) : (
                                 <p><strong>Jährliche Entnahme ({formValue.strategie === "4prozent" ? "4 Prozent" : "3 Prozent"} Regel):</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.strategie === "4prozent" ? 0.04 : 0.03))}</p>
                             )}
@@ -690,6 +724,22 @@ export function EntnahmeSimulationsAusgabe({
                                                 {rowData => rowData.portfolioAnpassung !== undefined ? formatCurrency(rowData.portfolioAnpassung) : '-'}
                                             </Cell>
                                         </Column>
+                                    )}
+                                    {formValue.strategie === "dynamisch" && (
+                                        <>
+                                            <Column width={100}>
+                                                <HeaderCell>Vorjahres-Rendite</HeaderCell>
+                                                <Cell>
+                                                    {rowData => rowData.vorjahresRendite !== undefined ? `${(rowData.vorjahresRendite * 100).toFixed(1)}%` : '-'}
+                                                </Cell>
+                                            </Column>
+                                            <Column width={120}>
+                                                <HeaderCell>Dynamische Anpassung</HeaderCell>
+                                                <Cell>
+                                                    {rowData => rowData.dynamischeAnpassung !== undefined ? formatCurrency(rowData.dynamischeAnpassung) : '-'}
+                                                </Cell>
+                                            </Column>
+                                        </>
                                     )}
                                     <Column width={100}>
                                         <HeaderCell>Zinsen</HeaderCell>

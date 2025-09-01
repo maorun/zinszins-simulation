@@ -5,7 +5,7 @@ import { generateRandomReturns } from "../src/utils/random-returns";
 import type { SegmentedWithdrawalConfig, WithdrawalSegment } from "../src/utils/segmented-withdrawal";
 
 
-export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent";
+export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "dynamisch";
 
 export type InflationConfig = {
     inflationRate?: number; // Annual inflation rate for adjustment (default: 2%)
@@ -24,6 +24,9 @@ export type WithdrawalResultElement = {
     portfolioAnpassung?: number;
     einkommensteuer?: number;
     genutzterGrundfreibetrag?: number;
+    // Dynamic strategy specific fields
+    dynamischeAnpassung?: number; // Amount of dynamic adjustment applied
+    vorjahresRendite?: number; // Previous year's return rate (for dynamic strategy)
 }
 
 export type WithdrawalResult = {
@@ -35,6 +38,14 @@ export type MonthlyWithdrawalConfig = {
     inflationRate?: number; // Annual inflation rate for adjustment (default: 2%)
     enableGuardrails?: boolean; // Enable dynamic adjustment based on portfolio performance
     guardrailsThreshold?: number; // Threshold for portfolio performance adjustment (default: 10%)
+};
+
+export type DynamicWithdrawalConfig = {
+    baseWithdrawalRate: number; // Base withdrawal rate as percentage (e.g., 0.04 for 4%)
+    upperThresholdReturn: number; // Upper threshold return rate as percentage (e.g., 0.08 for 8%)
+    upperThresholdAdjustment: number; // Relative adjustment when return exceeds upper threshold (e.g., 0.05 for 5% increase)
+    lowerThresholdReturn: number; // Lower threshold return rate as percentage (e.g., 0.02 for 2%)
+    lowerThresholdAdjustment: number; // Relative adjustment when return falls below lower threshold (e.g., -0.05 for 5% decrease)
 };
 
 const freibetrag: {
@@ -71,6 +82,7 @@ export type CalculateWithdrawalParams = {
     grundfreibetragPerYear?: { [year: number]: number };
     incomeTaxRate?: number;
     inflationConfig?: InflationConfig;
+    dynamicConfig?: DynamicWithdrawalConfig;
 };
 
 export function calculateWithdrawal({
@@ -87,7 +99,8 @@ export function calculateWithdrawal({
     enableGrundfreibetrag,
     grundfreibetragPerYear,
     incomeTaxRate,
-    inflationConfig
+    inflationConfig,
+    dynamicConfig
 }: CalculateWithdrawalParams): { result: WithdrawalResult; finalLayers: MutableLayer[] } {
     // Helper functions
     const getFreibetragForYear = (year: number): number => {
@@ -101,14 +114,20 @@ export function calculateWithdrawal({
 
     // Generate year-specific growth rates
     const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
+    
+    // For dynamic strategy, we also need the previous year's return rate
+    const allYears = strategy === "dynamisch" ? 
+        Array.from({ length: endYear - startYear + 2 }, (_, i) => startYear - 1 + i) : 
+        years;
+    
     const yearlyGrowthRates: Record<number, number> = {};
     if (returnConfig.mode === 'fixed') {
         const fixedRate = returnConfig.fixedRate || 0.05;
-        for (const year of years) yearlyGrowthRates[year] = fixedRate;
+        for (const year of allYears) yearlyGrowthRates[year] = fixedRate;
     } else if (returnConfig.mode === 'random' && returnConfig.randomConfig) {
-        Object.assign(yearlyGrowthRates, generateRandomReturns(years, returnConfig.randomConfig));
+        Object.assign(yearlyGrowthRates, generateRandomReturns(allYears, returnConfig.randomConfig));
     } else if (returnConfig.mode === 'variable' && returnConfig.variableConfig) {
-        for (const year of years) yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] || 0.05;
+        for (const year of allYears) yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] || 0.05;
     }
 
     const result: WithdrawalResult = {};
@@ -136,6 +155,9 @@ export function calculateWithdrawal({
     } else if (strategy === "variabel_prozent") {
         if (customPercentage === undefined) throw new Error("Custom percentage required");
         baseWithdrawalAmount = initialStartingCapital * customPercentage;
+    } else if (strategy === "dynamisch") {
+        if (!dynamicConfig) throw new Error("Dynamic config required");
+        baseWithdrawalAmount = initialStartingCapital * dynamicConfig.baseWithdrawalRate;
     } else {
         const withdrawalRate = strategy === "4prozent" ? 0.04 : 0.03;
         baseWithdrawalAmount = initialStartingCapital * withdrawalRate;
@@ -151,6 +173,27 @@ export function calculateWithdrawal({
             const yearsPassed = year - startYear;
             inflationAnpassung = baseWithdrawalAmount * (Math.pow(1 + inflationConfig.inflationRate, yearsPassed) - 1);
             annualWithdrawal += inflationAnpassung;
+        }
+
+        // Dynamic adjustment based on previous year's return
+        let dynamischeAnpassung = 0;
+        let vorjahresRendite: number | undefined;
+        if (strategy === "dynamisch" && dynamicConfig) {
+            // Get the previous year's return rate
+            const previousYear = year - 1;
+            vorjahresRendite = yearlyGrowthRates[previousYear];
+            
+            if (vorjahresRendite !== undefined) {
+                // Calculate dynamic adjustment based on thresholds
+                if (vorjahresRendite > dynamicConfig.upperThresholdReturn) {
+                    // Return exceeded upper threshold - increase withdrawal
+                    dynamischeAnpassung = annualWithdrawal * dynamicConfig.upperThresholdAdjustment;
+                } else if (vorjahresRendite < dynamicConfig.lowerThresholdReturn) {
+                    // Return fell below lower threshold - decrease withdrawal
+                    dynamischeAnpassung = annualWithdrawal * dynamicConfig.lowerThresholdAdjustment;
+                }
+                annualWithdrawal += dynamischeAnpassung;
+            }
         }
 
         const entnahme = Math.min(annualWithdrawal, capitalAtStartOfYear);
@@ -221,6 +264,8 @@ export function calculateWithdrawal({
             inflationAnpassung: inflationConfig?.inflationRate ? inflationAnpassung : undefined,
             einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
             genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined,
+            dynamischeAnpassung: strategy === 'dynamisch' ? dynamischeAnpassung : undefined,
+            vorjahresRendite: strategy === 'dynamisch' ? vorjahresRendite : undefined,
         };
     }
 
@@ -262,7 +307,8 @@ export function calculateSegmentedWithdrawal(
             enableGrundfreibetrag: segment.enableGrundfreibetrag,
             grundfreibetragPerYear: segment.grundfreibetragPerYear,
             incomeTaxRate: segment.incomeTaxRate,
-            inflationConfig: segment.inflationConfig
+            inflationConfig: segment.inflationConfig,
+            dynamicConfig: segment.dynamicConfig
         });
 
         Object.assign(result, segmentResultData);

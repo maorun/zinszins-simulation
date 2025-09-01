@@ -1,6 +1,6 @@
 import type { WithdrawalStrategy } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
-import type { MonthlyWithdrawalConfig, InflationConfig } from "../../helpers/withdrawal";
+import type { MonthlyWithdrawalConfig, InflationConfig, DynamicWithdrawalConfig } from "../../helpers/withdrawal";
 
 /**
  * Configuration for a single withdrawal segment (time period)
@@ -24,6 +24,8 @@ export type WithdrawalSegment = {
     monthlyConfig?: MonthlyWithdrawalConfig;
     /** Inflation configuration for this segment */
     inflationConfig?: InflationConfig;
+    /** Dynamic withdrawal configuration (for dynamisch strategy) */
+    dynamicConfig?: DynamicWithdrawalConfig;
     /** Whether to apply Grundfreibetrag for this segment */
     enableGrundfreibetrag?: boolean;
     /** Basic tax allowance per year for this segment */

@@ -189,3 +189,254 @@ describe('Withdrawal Calculations with FIFO', () => {
     expect(resultYear2.monatlicheEntnahme).toBeCloseTo(monthlyAmount * (1 + inflationRate));
   });
 });
+
+describe('Dynamic Withdrawal Strategy', () => {
+  const taxRate = 0.26375;
+  const teilfreistellungsquote = 0.3;
+  const freibetrag = 1000;
+
+  test('should adjust withdrawal up when return exceeds upper threshold', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+    const dynamicConfig = {
+      baseWithdrawalRate: 0.04, // 4% base rate
+      upperThresholdReturn: 0.08, // 8% upper threshold
+      upperThresholdAdjustment: 0.05, // 5% increase when exceeding
+      lowerThresholdReturn: 0.02, // 2% lower threshold
+      lowerThresholdAdjustment: -0.05, // 5% decrease when below
+    };
+
+    // Create return config with high return that exceeds upper threshold
+    const returnConfig: ReturnConfiguration = {
+      mode: 'variable',
+      variableConfig: {
+        yearlyReturns: {
+          [withdrawalStartYear - 1]: 0.10, // 10% return in previous year (exceeds 8% threshold)
+          [withdrawalStartYear]: 0.05, // 5% return in current year
+        }
+      }
+    };
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "dynamisch",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+      dynamicConfig
+    });
+
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
+
+    const baseWithdrawal = 120000 * 0.04; // 4800
+    const expectedAdjustment = baseWithdrawal * 0.05; // 240 (5% increase)
+    const expectedEntnahme = baseWithdrawal + expectedAdjustment; // 5040
+
+    expect(resultYear.entnahme).toBeCloseTo(expectedEntnahme);
+    expect(resultYear.dynamischeAnpassung).toBeCloseTo(expectedAdjustment);
+    expect(resultYear.vorjahresRendite).toBe(0.10);
+  });
+
+  test('should adjust withdrawal down when return falls below lower threshold', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+    const dynamicConfig = {
+      baseWithdrawalRate: 0.04, // 4% base rate
+      upperThresholdReturn: 0.08, // 8% upper threshold
+      upperThresholdAdjustment: 0.05, // 5% increase when exceeding
+      lowerThresholdReturn: 0.02, // 2% lower threshold
+      lowerThresholdAdjustment: -0.05, // 5% decrease when below
+    };
+
+    // Create return config with low return that falls below lower threshold
+    const returnConfig: ReturnConfiguration = {
+      mode: 'variable',
+      variableConfig: {
+        yearlyReturns: {
+          [withdrawalStartYear - 1]: 0.01, // 1% return in previous year (below 2% threshold)
+          [withdrawalStartYear]: 0.05, // 5% return in current year
+        }
+      }
+    };
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "dynamisch",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+      dynamicConfig
+    });
+
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
+
+    const baseWithdrawal = 120000 * 0.04; // 4800
+    const expectedAdjustment = baseWithdrawal * -0.05; // -240 (5% decrease)
+    const expectedEntnahme = baseWithdrawal + expectedAdjustment; // 4560
+
+    expect(resultYear.entnahme).toBeCloseTo(expectedEntnahme);
+    expect(resultYear.dynamischeAnpassung).toBeCloseTo(expectedAdjustment);
+    expect(resultYear.vorjahresRendite).toBe(0.01);
+  });
+
+  test('should not adjust withdrawal when return is between thresholds', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+    const dynamicConfig = {
+      baseWithdrawalRate: 0.04, // 4% base rate
+      upperThresholdReturn: 0.08, // 8% upper threshold
+      upperThresholdAdjustment: 0.05, // 5% increase when exceeding
+      lowerThresholdReturn: 0.02, // 2% lower threshold
+      lowerThresholdAdjustment: -0.05, // 5% decrease when below
+    };
+
+    // Create return config with return between thresholds
+    const returnConfig: ReturnConfiguration = {
+      mode: 'variable',
+      variableConfig: {
+        yearlyReturns: {
+          [withdrawalStartYear - 1]: 0.05, // 5% return in previous year (between 2% and 8%)
+          [withdrawalStartYear]: 0.05, // 5% return in current year
+        }
+      }
+    };
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "dynamisch",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+      dynamicConfig
+    });
+
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
+
+    const baseWithdrawal = 120000 * 0.04; // 4800
+    const expectedAdjustment = 0; // No adjustment between thresholds
+    const expectedEntnahme = baseWithdrawal; // 4800
+
+    expect(resultYear.entnahme).toBeCloseTo(expectedEntnahme);
+    expect(resultYear.dynamischeAnpassung).toBe(expectedAdjustment);
+    expect(resultYear.vorjahresRendite).toBe(0.05);
+  });
+
+  test('should not apply dynamic adjustment in first year (no previous year data)', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+    const dynamicConfig = {
+      baseWithdrawalRate: 0.04, // 4% base rate
+      upperThresholdReturn: 0.08, // 8% upper threshold
+      upperThresholdAdjustment: 0.05, // 5% increase when exceeding
+      lowerThresholdReturn: 0.02, // 2% lower threshold
+      lowerThresholdAdjustment: -0.05, // 5% decrease when below
+    };
+
+    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear, // Only one year
+      strategy: "dynamisch",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+      dynamicConfig
+    });
+
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
+
+    const baseWithdrawal = 120000 * 0.04; // 4800
+    // Since previous year return (5%) is between thresholds (2% and 8%), no adjustment
+    expect(resultYear.entnahme).toBeCloseTo(baseWithdrawal);
+    expect(resultYear.dynamischeAnpassung).toBe(0); // No adjustment between thresholds
+    expect(resultYear.vorjahresRendite).toBe(0.05); // Previous year return rate available with fixed rate
+  });
+
+  test('should combine dynamic adjustment with inflation', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+    const dynamicConfig = {
+      baseWithdrawalRate: 0.04, // 4% base rate
+      upperThresholdReturn: 0.08, // 8% upper threshold
+      upperThresholdAdjustment: 0.05, // 5% increase when exceeding
+      lowerThresholdReturn: 0.02, // 2% lower threshold
+      lowerThresholdAdjustment: -0.05, // 5% decrease when below
+    };
+
+    const returnConfig: ReturnConfiguration = {
+      mode: 'variable',
+      variableConfig: {
+        yearlyReturns: {
+          [withdrawalStartYear - 1]: 0.10, // 10% return in previous year (exceeds threshold)
+          [withdrawalStartYear]: 0.05, // 5% return in current year
+          [withdrawalStartYear + 1]: 0.05, // 5% return in next year
+        }
+      }
+    };
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear + 1, // Two years
+      strategy: "dynamisch",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { 
+        [withdrawalStartYear]: freibetrag,
+        [withdrawalStartYear + 1]: freibetrag 
+      },
+      dynamicConfig,
+      inflationConfig: { inflationRate: 0.02 } // 2% inflation
+    });
+
+    const resultYear1 = result[withdrawalStartYear];
+    const resultYear2 = result[withdrawalStartYear + 1];
+
+    // Year 1: Dynamic adjustment based on previous 10% return
+    const baseWithdrawal = 120000 * 0.04; // 4800
+    const dynamicAdjustment1 = baseWithdrawal * 0.05; // 240 (5% increase)
+    const expectedEntnahme1 = baseWithdrawal + dynamicAdjustment1; // 5040
+
+    expect(resultYear1.entnahme).toBeCloseTo(expectedEntnahme1);
+    expect(resultYear1.dynamischeAnpassung).toBeCloseTo(dynamicAdjustment1);
+
+    // Year 2: Should have both inflation adjustment and dynamic adjustment
+    // Inflation: base = 4800, with 2% inflation after 1 year = 4800 * 0.02 = 96
+    // Dynamic: previous year return = 5%, no adjustment (between thresholds)
+    const inflationAdjustment = baseWithdrawal * 0.02; // 96
+    const baseWithInflation = baseWithdrawal + inflationAdjustment; // 4896
+    const dynamicAdjustment2 = 0; // No adjustment for 5% return
+    const expectedEntnahme2 = baseWithInflation + dynamicAdjustment2; // 4896
+
+    expect(resultYear2.entnahme).toBeCloseTo(expectedEntnahme2);
+    expect(resultYear2.dynamischeAnpassung).toBe(dynamicAdjustment2);
+    expect(resultYear2.vorjahresRendite).toBe(0.05);
+  });
+});
