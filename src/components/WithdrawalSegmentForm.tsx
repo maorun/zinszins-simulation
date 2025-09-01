@@ -23,6 +23,7 @@ import type {
 import { validateWithdrawalSegments, createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
 import type { WithdrawalStrategy } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
+import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
 
 export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable';
 
@@ -315,137 +316,67 @@ export function WithdrawalSegmentForm({
 
                         {/* Dynamic strategy settings */}
                         {segment.strategy === "dynamisch" && (
-                            <>
-                                <Form.Group>
-                                    <Form.ControlLabel>Basis-Entnahmerate (%)</Form.ControlLabel>
-                                    <Slider
-                                        value={(segment.dynamicConfig?.baseWithdrawalRate || 0.04) * 100}
-                                        min={2}
-                                        max={7}
-                                        step={0.5}
-                                        onChange={(value) => updateSegment(segment.id, {
-                                            dynamicConfig: {
-                                                ...segment.dynamicConfig,
-                                                baseWithdrawalRate: value / 100,
-                                                upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
-                                                upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
-                                                lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
-                                                lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
-                                            }
-                                        })}
-                                        handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.dynamicConfig?.baseWithdrawalRate || 0.04) * 100).toFixed(1)}%</div>)}
-                                        progress
-                                        graduated
-                                    />
-                                    <Form.HelpText>
-                                        Grundlegende jährliche Entnahmerate vor dynamischen Anpassungen
-                                    </Form.HelpText>
-                                </Form.Group>
-                                
-                                <Form.Group>
-                                    <Form.ControlLabel>Obere Schwelle Rendite (%)</Form.ControlLabel>
-                                    <Slider
-                                        value={(segment.dynamicConfig?.upperThresholdReturn || 0.08) * 100}
-                                        min={4}
-                                        max={15}
-                                        step={0.5}
-                                        onChange={(value) => updateSegment(segment.id, {
-                                            dynamicConfig: {
-                                                ...segment.dynamicConfig,
-                                                baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
-                                                upperThresholdReturn: value / 100,
-                                                upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
-                                                lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
-                                                lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
-                                            }
-                                        })}
-                                        handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.dynamicConfig?.upperThresholdReturn || 0.08) * 100).toFixed(1)}%</div>)}
-                                        progress
-                                        graduated
-                                    />
-                                    <Form.HelpText>
-                                        Rendite-Schwelle: Bei Überschreitung wird die Entnahme erhöht
-                                    </Form.HelpText>
-                                </Form.Group>
-                                
-                                <Form.Group>
-                                    <Form.ControlLabel>Anpassung bei oberer Schwelle (%)</Form.ControlLabel>
-                                    <Slider
-                                        value={(segment.dynamicConfig?.upperThresholdAdjustment || 0.05) * 100}
-                                        min={0}
-                                        max={15}
-                                        step={1}
-                                        onChange={(value) => updateSegment(segment.id, {
-                                            dynamicConfig: {
-                                                ...segment.dynamicConfig,
-                                                baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
-                                                upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
-                                                upperThresholdAdjustment: value / 100,
-                                                lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
-                                                lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
-                                            }
-                                        })}
-                                        handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.dynamicConfig?.upperThresholdAdjustment || 0.05) * 100) > 0 ? '+' : ''}{((segment.dynamicConfig?.upperThresholdAdjustment || 0.05) * 100).toFixed(0)}%</div>)}
-                                        progress
-                                        graduated
-                                    />
-                                    <Form.HelpText>
-                                        Relative Erhöhung der Entnahme bei guter Performance
-                                    </Form.HelpText>
-                                </Form.Group>
-                                
-                                <Form.Group>
-                                    <Form.ControlLabel>Untere Schwelle Rendite (%)</Form.ControlLabel>
-                                    <Slider
-                                        value={(segment.dynamicConfig?.lowerThresholdReturn || 0.02) * 100}
-                                        min={-5}
-                                        max={6}
-                                        step={0.5}
-                                        onChange={(value) => updateSegment(segment.id, {
-                                            dynamicConfig: {
-                                                ...segment.dynamicConfig,
-                                                baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
-                                                upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
-                                                upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
-                                                lowerThresholdReturn: value / 100,
-                                                lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
-                                            }
-                                        })}
-                                        handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.dynamicConfig?.lowerThresholdReturn || 0.02) * 100).toFixed(1)}%</div>)}
-                                        progress
-                                        graduated
-                                    />
-                                    <Form.HelpText>
-                                        Rendite-Schwelle: Bei Unterschreitung wird die Entnahme reduziert
-                                    </Form.HelpText>
-                                </Form.Group>
-                                
-                                <Form.Group>
-                                    <Form.ControlLabel>Anpassung bei unterer Schwelle (%)</Form.ControlLabel>
-                                    <Slider
-                                        value={(segment.dynamicConfig?.lowerThresholdAdjustment || -0.05) * 100}
-                                        min={-15}
-                                        max={0}
-                                        step={1}
-                                        onChange={(value) => updateSegment(segment.id, {
-                                            dynamicConfig: {
-                                                ...segment.dynamicConfig,
-                                                baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
-                                                upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
-                                                upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
-                                                lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
-                                                lowerThresholdAdjustment: value / 100,
-                                            }
-                                        })}
-                                        handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.dynamicConfig?.lowerThresholdAdjustment || -0.05) * 100).toFixed(0)}%</div>)}
-                                        progress
-                                        graduated
-                                    />
-                                    <Form.HelpText>
-                                        Relative Reduzierung der Entnahme bei schlechter Performance
-                                    </Form.HelpText>
-                                </Form.Group>
-                            </>
+                            <DynamicWithdrawalConfiguration
+                                values={{
+                                    baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
+                                    upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
+                                    upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
+                                    lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
+                                    lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
+                                }}
+                                onChange={{
+                                    onBaseWithdrawalRateChange: (value) => updateSegment(segment.id, {
+                                        dynamicConfig: {
+                                            ...segment.dynamicConfig,
+                                            baseWithdrawalRate: value,
+                                            upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
+                                            upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
+                                            lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
+                                            lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
+                                        }
+                                    }),
+                                    onUpperThresholdReturnChange: (value) => updateSegment(segment.id, {
+                                        dynamicConfig: {
+                                            ...segment.dynamicConfig,
+                                            baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
+                                            upperThresholdReturn: value,
+                                            upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
+                                            lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
+                                            lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
+                                        }
+                                    }),
+                                    onUpperThresholdAdjustmentChange: (value) => updateSegment(segment.id, {
+                                        dynamicConfig: {
+                                            ...segment.dynamicConfig,
+                                            baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
+                                            upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
+                                            upperThresholdAdjustment: value,
+                                            lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
+                                            lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
+                                        }
+                                    }),
+                                    onLowerThresholdReturnChange: (value) => updateSegment(segment.id, {
+                                        dynamicConfig: {
+                                            ...segment.dynamicConfig,
+                                            baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
+                                            upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
+                                            upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
+                                            lowerThresholdReturn: value,
+                                            lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
+                                        }
+                                    }),
+                                    onLowerThresholdAdjustmentChange: (value) => updateSegment(segment.id, {
+                                        dynamicConfig: {
+                                            ...segment.dynamicConfig,
+                                            baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
+                                            upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
+                                            upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
+                                            lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
+                                            lowerThresholdAdjustment: value,
+                                        }
+                                    }),
+                                }}
+                            />
                         )}
 
                         <Divider />
