@@ -181,7 +181,6 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
       
       // Apply costs to reduce the end capital
       const endkapitalAfterCosts = endkapitalVorSteuer - costs.totalCosts;
-      const jahresgewinn = endkapitalAfterCosts - startkapital;
       
       // Calculate detailed Vorabpauschale breakdown for transparency
       const vorabpauschaleDetails = calculateVorabpauschaleDetailed(
