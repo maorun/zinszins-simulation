@@ -59,6 +59,60 @@ export function calculateVorabpauschale(
     return vorabpauschale;
 }
 
+/**
+ * Calculates detailed Vorabpauschale breakdown for transparency.
+ * Provides step-by-step calculation details for user understanding.
+ *
+ * @param startwert - The value of the investment at the beginning of the period.
+ * @param endwert - The value of the investment at the end of the period.
+ * @param basiszins - The base interest rate for the year.
+ * @param anteilImJahr - The fraction of the year the investment was held (e.g., 12 for a full year).
+ * @param steuerlast - The capital gains tax rate (e.g., 0.26375).
+ * @param teilFreistellungsquote - The partial exemption quote for the fund type (e.g., 0.3 for equity funds).
+ * @returns Detailed breakdown of the Vorabpauschale calculation.
+ */
+export function calculateVorabpauschaleDetailed(
+    startwert: number,
+    endwert: number,
+    basiszins: number,
+    anteilImJahr: number = 12,
+    steuerlast: number,
+    teilFreistellungsquote: number
+): {
+    basiszins: number;
+    basisertrag: number;
+    vorabpauschaleAmount: number;
+    steuerVorFreibetrag: number;
+    jahresgewinn: number;
+    anteilImJahr: number;
+} {
+    const jahresgewinn = endwert - startwert;
+    const vorabpauschale_prozentsatz = 0.7;
+
+    // Step 1: Calculate Basisertrag - 70% of theoretical gain at base interest rate
+    let basisertrag = startwert * basiszins * vorabpauschale_prozentsatz;
+    basisertrag = (anteilImJahr / 12) * basisertrag;
+
+    // Step 2: Vorabpauschale is minimum of Basisertrag and actual gain, cannot be negative
+    const vorabpauschaleAmount = Math.max(0, Math.min(basisertrag, jahresgewinn));
+
+    // Step 3: Calculate tax on Vorabpauschale before allowance deduction
+    const steuerVorFreibetrag = calculateSteuerOnVorabpauschale(
+        vorabpauschaleAmount,
+        steuerlast,
+        teilFreistellungsquote
+    );
+
+    return {
+        basiszins,
+        basisertrag,
+        vorabpauschaleAmount,
+        steuerVorFreibetrag,
+        jahresgewinn,
+        anteilImJahr
+    };
+}
+
 
 /**
  * Calculates the tax due on a given Vorabpauschale amount.
