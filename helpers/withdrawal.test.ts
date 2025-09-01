@@ -43,16 +43,16 @@ describe('Withdrawal Calculations with FIFO', () => {
       createMockElement(2024, 5000, 6000, 50, lastSimYear),
     ];
 
-    const { result } = calculateWithdrawal(
-      mockElements,
-      withdrawalStartYear,
-      withdrawalStartYear, // end year
-      "4prozent", // This strategy results in a 720 withdrawal amount
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear, // end year
+      strategy: "4prozent", // This strategy results in a 720 withdrawal amount
       returnConfig,
       taxRate,
       teilfreistellungsquote,
-      { [withdrawalStartYear]: freibetrag }
-    );
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag }
+    });
 
     const resultYear = result[withdrawalStartYear];
     expect(resultYear).toBeDefined();
@@ -89,22 +89,17 @@ describe('Withdrawal Calculations with FIFO', () => {
     const lastSimYear = withdrawalStartYear - 1;
     const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
 
-    const { result } = calculateWithdrawal(
-      mockElements,
-      withdrawalStartYear,
-      withdrawalStartYear + 1, // 2 years
-      "4prozent",
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear + 1, // 2 years
+      strategy: "4prozent",
       returnConfig,
       taxRate,
       teilfreistellungsquote,
-      { [withdrawalStartYear]: freibetrag, [withdrawalStartYear + 1]: freibetrag },
-      undefined, // monthlyConfig
-      undefined, // customPercentage
-      false, // enableGrundfreibetrag
-      undefined,
-      undefined,
-      { inflationRate: 0.10 } // 10% inflation for easy testing
-    );
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag, [withdrawalStartYear + 1]: freibetrag },
+      inflationConfig: { inflationRate: 0.10 } // 10% inflation for easy testing
+    });
 
     const entnahme1 = result[withdrawalStartYear].entnahme;
     const entnahme2 = result[withdrawalStartYear + 1].entnahme;
@@ -119,21 +114,19 @@ describe('Withdrawal Calculations with FIFO', () => {
     const incomeTaxRate = 0.25;
     const yearlyGrundfreibetrag = 10000;
 
-    const { result } = calculateWithdrawal(
-      mockElements,
-      withdrawalStartYear,
-      withdrawalStartYear,
-      "4prozent",
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "4prozent",
       returnConfig,
       taxRate,
       teilfreistellungsquote,
-      { [withdrawalStartYear]: freibetrag },
-      undefined,
-      undefined,
-      true, // enableGrundfreibetrag
-      { [withdrawalStartYear]: yearlyGrundfreibetrag },
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+      enableGrundfreibetrag: true,
+      grundfreibetragPerYear: { [withdrawalStartYear]: yearlyGrundfreibetrag },
       incomeTaxRate
-    );
+    });
 
     const resultYear = result[withdrawalStartYear];
     const entnahme = resultYear.entnahme;
@@ -152,17 +145,17 @@ describe('Withdrawal Calculations with FIFO', () => {
     const mockElements = [createMockElement(2023, 500000, 600000, 1000, lastSimYear)];
     const monthlyAmount = 2000;
 
-    const { result } = calculateWithdrawal(
-      mockElements,
-      withdrawalStartYear,
-      withdrawalStartYear, // end year
-      "monatlich_fest",
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear, // end year
+      strategy: "monatlich_fest",
       returnConfig,
       taxRate,
       teilfreistellungsquote,
-      { [withdrawalStartYear]: freibetrag },
-      { monthlyAmount }
-    );
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+      monthlyConfig: { monthlyAmount }
+    });
 
     const resultYear = result[withdrawalStartYear];
     expect(resultYear).toBeDefined();
@@ -177,22 +170,18 @@ describe('Withdrawal Calculations with FIFO', () => {
     const monthlyAmount = 2000;
     const inflationRate = 0.10; // 10%
 
-    const { result } = calculateWithdrawal(
-      mockElements,
-      withdrawalStartYear,
-      withdrawalStartYear + 1, // 2 years
-      "monatlich_fest",
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear + 1, // 2 years
+      strategy: "monatlich_fest",
       returnConfig,
       taxRate,
       teilfreistellungsquote,
-      { [withdrawalStartYear]: freibetrag, [withdrawalStartYear + 1]: freibetrag },
-      { monthlyAmount },
-      undefined, // customPercentage
-      false, // enableGrundfreibetrag
-      undefined,
-      undefined,
-      { inflationRate }
-    );
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag, [withdrawalStartYear + 1]: freibetrag },
+      monthlyConfig: { monthlyAmount },
+      inflationConfig: { inflationRate }
+    });
 
     const resultYear1 = result[withdrawalStartYear];
     const resultYear2 = result[withdrawalStartYear + 1];
