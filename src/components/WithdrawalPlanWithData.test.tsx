@@ -27,6 +27,9 @@ describe('WithdrawalPlan with simulation data', () => {
             setWithdrawalResults: vi.fn(),
             steuerlast: 26.375,
             teilfreistellungsquote: 30,
+            // Add withdrawal config properties
+            withdrawalConfig: null,
+            setWithdrawalConfig: vi.fn(),
         } as any);
 
         render(

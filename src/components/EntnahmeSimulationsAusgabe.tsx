@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect } from "react";
+import { useMemo, useEffect } from "react";
 import {
     Form,
     InputNumber,
@@ -16,10 +16,21 @@ import type { SparplanElement } from "../utils/sparplan-utils";
 import { calculateWithdrawal, calculateSegmentedWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration } from "../../helpers/withdrawal";
 import type { WithdrawalStrategy, WithdrawalResult } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
-import type { WithdrawalSegment, SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
+import type { SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
 import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
 import { WithdrawalSegmentForm } from "./WithdrawalSegmentForm";
 import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
+import { useSimulation } from "../contexts/useSimulation";
+import type { WithdrawalReturnMode, WithdrawalFormValue, ComparisonStrategy } from "../utils/config-storage";
+
+// Type for comparison results
+type ComparisonResult = {
+    strategy: ComparisonStrategy;
+    finalCapital: number;
+    totalWithdrawal: number;
+    averageAnnualWithdrawal: number;
+    duration: number | string;
+};
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -35,21 +46,6 @@ function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
     }
 }
 
-export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable';
-
-export type ComparisonStrategy = {
-    id: string;
-    name: string;
-    strategie: WithdrawalStrategy;
-    rendite: number;
-    variabelProzent?: number;
-    monatlicheBetrag?: number;
-    dynamischBasisrate?: number;
-    dynamischObereSchwell?: number;
-    dynamischObereAnpassung?: number;
-    dynamischUntereSchwell?: number;
-    dynamischUntereAnpassung?: number;
-};
 
 export function EntnahmeSimulationsAusgabe({
     startEnd,
@@ -67,10 +63,12 @@ export function EntnahmeSimulationsAusgabe({
         teilfreistellungsquote: number;
     }) {
     const [startOfIndependence, endOfLife] = startEnd;
+    const { withdrawalConfig, setWithdrawalConfig } = useSimulation();
 
-    const [formValue, setFormValue] = useState({
+    // Create default withdrawal configuration if none exists
+    const defaultFormValue: WithdrawalFormValue = {
         endOfLife,
-        strategie: "4prozent" as WithdrawalStrategy,
+        strategie: "4prozent",
         rendite: 5,
         // General inflation settings (for all strategies)
         inflationAktiv: false,
@@ -91,31 +89,9 @@ export function EntnahmeSimulationsAusgabe({
         grundfreibetragAktiv: false,
         grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
         einkommensteuersatz: 25, // Default income tax rate 25%
-    });
+    };
 
-    // Withdrawal return mode and variable returns state
-    const [withdrawalReturnMode, setWithdrawalReturnMode] = useState<WithdrawalReturnMode>('fixed');
-    const [withdrawalVariableReturns, setWithdrawalVariableReturns] = useState<Record<number, number>>({});
-    
-    // Withdrawal random return configuration
-    const [withdrawalAverageReturn, setWithdrawalAverageReturn] = useState(5); // Default 5% (more conservative than accumulation)
-    const [withdrawalStandardDeviation, setWithdrawalStandardDeviation] = useState(12); // Default 12% (more conservative than accumulation)
-    const [withdrawalRandomSeed, setWithdrawalRandomSeed] = useState<number | undefined>(undefined);
-
-    // Segmented withdrawal state
-    const [useSegmentedWithdrawal, setUseSegmentedWithdrawal] = useState(false);
-    const [withdrawalSegments, setWithdrawalSegments] = useState<WithdrawalSegment[]>(() => [
-        createDefaultWithdrawalSegment(
-            "main",
-            "Hauptphase",
-            startOfIndependence + 1,
-            endOfLife
-        )
-    ]);
-
-    // Comparison mode state
-    const [useComparisonMode, setUseComparisonMode] = useState(false);
-    const [comparisonStrategies, setComparisonStrategies] = useState<ComparisonStrategy[]>([
+    const defaultComparisonStrategies: ComparisonStrategy[] = [
         {
             id: 'strategy1',
             name: '3% Regel',
@@ -129,7 +105,62 @@ export function EntnahmeSimulationsAusgabe({
             rendite: 5,
             monatlicheBetrag: 1500,
         }
-    ]);
+    ];
+
+    // Initialize withdrawal config if not exists or update current form values
+    const currentConfig = withdrawalConfig || {
+        formValue: defaultFormValue,
+        withdrawalReturnMode: 'fixed' as WithdrawalReturnMode,
+        withdrawalVariableReturns: {},
+        withdrawalAverageReturn: 5,
+        withdrawalStandardDeviation: 12,
+        withdrawalRandomSeed: undefined,
+        useSegmentedWithdrawal: false,
+        withdrawalSegments: [
+            createDefaultWithdrawalSegment(
+                "main",
+                "Hauptphase",
+                startOfIndependence + 1,
+                endOfLife
+            )
+        ],
+        useComparisonMode: false,
+        comparisonStrategies: defaultComparisonStrategies,
+    };
+
+    // Extract values from config for easier access
+    const formValue = currentConfig.formValue;
+    const withdrawalReturnMode = currentConfig.withdrawalReturnMode;
+    const withdrawalVariableReturns = currentConfig.withdrawalVariableReturns;
+    const withdrawalAverageReturn = currentConfig.withdrawalAverageReturn;
+    const withdrawalStandardDeviation = currentConfig.withdrawalStandardDeviation;
+    const withdrawalRandomSeed = currentConfig.withdrawalRandomSeed;
+    const useSegmentedWithdrawal = currentConfig.useSegmentedWithdrawal;
+    const withdrawalSegments = currentConfig.withdrawalSegments;
+    const useComparisonMode = currentConfig.useComparisonMode;
+    const comparisonStrategies = currentConfig.comparisonStrategies;
+
+    // Helper function to update config
+    const updateConfig = (updates: Partial<typeof currentConfig>) => {
+        const newConfig = { ...currentConfig, ...updates };
+        setWithdrawalConfig(newConfig);
+    };
+
+    // Helper function to update form value
+    const updateFormValue = (updates: Partial<WithdrawalFormValue>) => {
+        updateConfig({
+            formValue: { ...formValue, ...updates }
+        });
+    };
+
+    // Helper function to update a comparison strategy
+    const updateComparisonStrategy = (strategyId: string, updates: Partial<ComparisonStrategy>) => {
+        updateConfig({
+            comparisonStrategies: comparisonStrategies.map((s: ComparisonStrategy) => 
+                s.id === strategyId ? { ...s, ...updates } : s
+            )
+        });
+    };
 
     // Calculate withdrawal projections
     const withdrawalData = useMemo(() => {
@@ -172,7 +203,7 @@ export function EntnahmeSimulationsAusgabe({
                     mode: 'variable',
                     variableConfig: {
                         yearlyReturns: Object.fromEntries(
-                            Object.entries(withdrawalVariableReturns).map(([year, rate]) => [parseInt(year), rate / 100])
+                            Object.entries(withdrawalVariableReturns).map(([year, rate]) => [parseInt(year), (rate as number) / 100])
                         )
                     }
                 };
@@ -245,7 +276,7 @@ export function EntnahmeSimulationsAusgabe({
             return [];
         }
 
-        const results = comparisonStrategies.map(strategy => {
+        const results = comparisonStrategies.map((strategy: ComparisonStrategy) => {
             // Build return configuration for this strategy
             const returnConfig: ReturnConfiguration = {
                 mode: 'fixed',
@@ -347,8 +378,10 @@ export function EntnahmeSimulationsAusgabe({
                             const useComparison = value === "comparison";
                             const useSegmented = value === "segmented";
                             
-                            setUseComparisonMode(useComparison);
-                            setUseSegmentedWithdrawal(useSegmented);
+                            updateConfig({ 
+                                useComparisonMode: useComparison,
+                                useSegmentedWithdrawal: useSegmented
+                            });
                             
                             // Initialize segments when switching to segmented mode
                             if (useSegmented && withdrawalSegments.length === 0) {
@@ -358,7 +391,7 @@ export function EntnahmeSimulationsAusgabe({
                                     startOfIndependence + 1,
                                     formValue.endOfLife
                                 );
-                                setWithdrawalSegments([defaultSegment]);
+                                updateConfig({ withdrawalSegments: [defaultSegment] });
                             }
                         }}
                     >
@@ -380,7 +413,7 @@ export function EntnahmeSimulationsAusgabe({
                     /* Segmented withdrawal configuration */
                     <WithdrawalSegmentForm
                         segments={withdrawalSegments}
-                        onSegmentsChange={setWithdrawalSegments}
+                        onSegmentsChange={(segments) => updateConfig({ withdrawalSegments: segments })}
                         withdrawalStartYear={startOfIndependence + 1}
                         withdrawalEndYear={formValue.endOfLife}
                     />
@@ -391,7 +424,7 @@ export function EntnahmeSimulationsAusgabe({
                         <Form fluid formValue={formValue}
                             onChange={changedFormValue => {
                                 dispatchEnd([startOfIndependence, changedFormValue.endOfLife])
-                                setFormValue({
+                                updateFormValue({
                                     endOfLife: changedFormValue.endOfLife,
                                     strategie: changedFormValue.strategie,
                                     rendite: changedFormValue.rendite,
@@ -487,7 +520,7 @@ export function EntnahmeSimulationsAusgabe({
                                 Konfiguriere zusätzliche Strategien zum Vergleich. Diese zeigen nur die wichtigsten Parameter und Endergebnisse.
                             </p>
                             
-                            {comparisonStrategies.map((strategy, index) => (
+                            {comparisonStrategies.map((strategy: ComparisonStrategy, index: number) => (
                                 <div key={strategy.id} style={{ 
                                     border: '1px solid #e5e5ea', 
                                     borderRadius: '6px', 
@@ -500,7 +533,9 @@ export function EntnahmeSimulationsAusgabe({
                                         <button 
                                             type="button"
                                             onClick={() => {
-                                                setComparisonStrategies(prev => prev.filter(s => s.id !== strategy.id));
+                                                updateConfig({ 
+                                                    comparisonStrategies: comparisonStrategies.filter((s: ComparisonStrategy) => s.id !== strategy.id)
+                                                });
                                             }}
                                             style={{ 
                                                 background: 'none', 
@@ -521,11 +556,10 @@ export function EntnahmeSimulationsAusgabe({
                                                 value={strategy.strategie}
                                                 onChange={(e) => {
                                                     const newStrategie = e.target.value as WithdrawalStrategy;
-                                                    setComparisonStrategies(prev => 
-                                                        prev.map(s => s.id === strategy.id ? 
-                                                            { ...s, strategie: newStrategie, name: getStrategyDisplayName(newStrategie) } : s
-                                                        )
-                                                    );
+                                                    updateComparisonStrategy(strategy.id, {
+                                                        strategie: newStrategie,
+                                                        name: getStrategyDisplayName(newStrategie)
+                                                    });
                                                 }}
                                                 style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
                                             >
@@ -546,11 +580,9 @@ export function EntnahmeSimulationsAusgabe({
                                                 step="0.5"
                                                 value={strategy.rendite}
                                                 onChange={(e) => {
-                                                    setComparisonStrategies(prev => 
-                                                        prev.map(s => s.id === strategy.id ? 
-                                                            { ...s, rendite: parseFloat(e.target.value) || 0 } : s
-                                                        )
-                                                    );
+                                                    updateComparisonStrategy(strategy.id, {
+                                                        rendite: parseFloat(e.target.value) || 0
+                                                    });
                                                 }}
                                                 style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
                                             />
@@ -567,11 +599,9 @@ export function EntnahmeSimulationsAusgabe({
                                                     step="0.5"
                                                     value={strategy.variabelProzent || 5}
                                                     onChange={(e) => {
-                                                        setComparisonStrategies(prev => 
-                                                            prev.map(s => s.id === strategy.id ? 
-                                                                { ...s, variabelProzent: parseFloat(e.target.value) || 5 } : s
-                                                            )
-                                                        );
+                                                        updateComparisonStrategy(strategy.id, {
+                                                            variabelProzent: parseFloat(e.target.value) || 5
+                                                        });
                                                     }}
                                                     style={{ width: '50%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
                                                 />
@@ -587,11 +617,9 @@ export function EntnahmeSimulationsAusgabe({
                                                     step="100"
                                                     value={strategy.monatlicheBetrag || 2000}
                                                     onChange={(e) => {
-                                                        setComparisonStrategies(prev => 
-                                                            prev.map(s => s.id === strategy.id ? 
-                                                                { ...s, monatlicheBetrag: parseFloat(e.target.value) || 2000 } : s
-                                                            )
-                                                        );
+                                                        updateComparisonStrategy(strategy.id, {
+                                                            monatlicheBetrag: parseFloat(e.target.value) || 2000
+                                                        });
                                                     }}
                                                     style={{ width: '50%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
                                                 />
@@ -609,11 +637,9 @@ export function EntnahmeSimulationsAusgabe({
                                                         step="0.5"
                                                         value={strategy.dynamischBasisrate || 4}
                                                         onChange={(e) => {
-                                                            setComparisonStrategies(prev => 
-                                                                prev.map(s => s.id === strategy.id ? 
-                                                                    { ...s, dynamischBasisrate: parseFloat(e.target.value) || 4 } : s
-                                                                )
-                                                            );
+                                                            updateComparisonStrategy(strategy.id, {
+                                                                dynamischBasisrate: parseFloat(e.target.value) || 4
+                                                            });
                                                         }}
                                                         style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
                                                     />
@@ -627,11 +653,9 @@ export function EntnahmeSimulationsAusgabe({
                                                         step="0.5"
                                                         value={strategy.dynamischObereSchwell || 8}
                                                         onChange={(e) => {
-                                                            setComparisonStrategies(prev => 
-                                                                prev.map(s => s.id === strategy.id ? 
-                                                                    { ...s, dynamischObereSchwell: parseFloat(e.target.value) || 8 } : s
-                                                                )
-                                                            );
+                                                            updateComparisonStrategy(strategy.id, {
+                                                                dynamischObereSchwell: parseFloat(e.target.value) || 8
+                                                            });
                                                         }}
                                                         style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
                                                     />
@@ -652,7 +676,9 @@ export function EntnahmeSimulationsAusgabe({
                                         strategie: '3prozent',
                                         rendite: 5,
                                     };
-                                    setComparisonStrategies(prev => [...prev, newStrategy]);
+                                    updateConfig({
+                                        comparisonStrategies: [...comparisonStrategies, newStrategy]
+                                    });
                                 }}
                                 style={{ 
                                     padding: '8px 16px', 
@@ -672,7 +698,7 @@ export function EntnahmeSimulationsAusgabe({
                     <Form fluid formValue={formValue}
                         onChange={changedFormValue => {
                             dispatchEnd([startOfIndependence, changedFormValue.endOfLife])
-                            setFormValue({
+                            updateFormValue({
                                 endOfLife: changedFormValue.endOfLife,
                                 strategie: changedFormValue.strategie,
                                 rendite: changedFormValue.rendite,
@@ -700,7 +726,7 @@ export function EntnahmeSimulationsAusgabe({
                             inline
                             value={withdrawalReturnMode}
                             onChange={(value) => {
-                                setWithdrawalReturnMode(value as WithdrawalReturnMode);
+                                updateConfig({ withdrawalReturnMode: value as WithdrawalReturnMode });
                             }}
                         >
                             <Radio value="fixed">Feste Rendite</Radio>
@@ -741,7 +767,7 @@ export function EntnahmeSimulationsAusgabe({
                                     handleTitle={(<div style={{marginTop: '-17px'}}>{withdrawalAverageReturn}%</div>)}
                                     progress
                                     graduated
-                                    onChange={(value) => setWithdrawalAverageReturn(value)}
+                                    onChange={(value) => updateConfig({ withdrawalAverageReturn: value })}
                                 />
                                 <Form.HelpText>
                                     Erwartete durchschnittliche Rendite für die Entnahme-Phase (meist konservativer als Ansparphase)
@@ -758,7 +784,7 @@ export function EntnahmeSimulationsAusgabe({
                                     handleTitle={(<div style={{marginTop: '-17px'}}>{withdrawalStandardDeviation}%</div>)}
                                     progress
                                     graduated
-                                    onChange={(value) => setWithdrawalStandardDeviation(value)}
+                                    onChange={(value) => updateConfig({ withdrawalStandardDeviation: value })}
                                 />
                                 <Form.HelpText>
                                     Volatilität der Renditen (meist niedriger als Ansparphase wegen konservativerer Allokation)
@@ -769,7 +795,7 @@ export function EntnahmeSimulationsAusgabe({
                                 <Form.ControlLabel>Zufalls-Seed (optional)</Form.ControlLabel>
                                 <InputNumber
                                     value={withdrawalRandomSeed}
-                                    onChange={(value) => setWithdrawalRandomSeed(typeof value === 'number' ? value : undefined)}
+                                    onChange={(value) => updateConfig({ withdrawalRandomSeed: typeof value === 'number' ? value : undefined })}
                                     placeholder="Für reproduzierbare Ergebnisse"
                                 />
                                 <Form.HelpText>
@@ -796,7 +822,7 @@ export function EntnahmeSimulationsAusgabe({
                                                     step={0.5}
                                                     onChange={(value) => {
                                                         const newReturns = { ...withdrawalVariableReturns, [year]: value };
-                                                        setWithdrawalVariableReturns(newReturns);
+                                                        updateConfig({ withdrawalVariableReturns: newReturns });
                                                     }}
                                                 />
                                             </div>
@@ -1007,7 +1033,7 @@ export function EntnahmeSimulationsAusgabe({
                                 <h5>🔍 Vergleichs-Strategien</h5>
                                 {comparisonResults.length > 0 ? (
                                     <div style={{ display: 'grid', gap: '15px' }}>
-                                        {comparisonResults.map((result, _index) => (
+                                        {comparisonResults.map((result: ComparisonResult, _index: number) => (
                                             <div key={result.strategy.id} style={{ 
                                                 border: '1px solid #e5e5ea', 
                                                 borderRadius: '6px', 
@@ -1081,7 +1107,7 @@ export function EntnahmeSimulationsAusgabe({
                                                         </td>
                                                     </tr>
                                                     {/* Comparison strategies rows */}
-                                                    {comparisonResults.map(result => (
+                                                    {comparisonResults.map((result: ComparisonResult) => (
                                                         <tr key={result.strategy.id}>
                                                             <td style={{ padding: '10px', borderBottom: '1px solid #e5e5ea' }}>
                                                                 {result.strategy.name}
