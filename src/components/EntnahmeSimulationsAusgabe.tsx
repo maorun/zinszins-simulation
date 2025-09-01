@@ -23,7 +23,33 @@ import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration
 
 const { Column, HeaderCell, Cell } = Table;
 
+// Helper function for strategy display names
+function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
+    switch (strategy) {
+        case "4prozent": return "4% Regel";
+        case "3prozent": return "3% Regel";
+        case "variabel_prozent": return "Variable Prozent";
+        case "monatlich_fest": return "Monatlich fest";
+        case "dynamisch": return "Dynamische Strategie";
+        default: return strategy;
+    }
+}
+
 export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable';
+
+export type ComparisonStrategy = {
+    id: string;
+    name: string;
+    strategie: WithdrawalStrategy;
+    rendite: number;
+    variabelProzent?: number;
+    monatlicheBetrag?: number;
+    dynamischBasisrate?: number;
+    dynamischObereSchwell?: number;
+    dynamischObereAnpassung?: number;
+    dynamischUntereSchwell?: number;
+    dynamischUntereAnpassung?: number;
+};
 
 export function EntnahmeSimulationsAusgabe({
     startEnd,
@@ -85,6 +111,24 @@ export function EntnahmeSimulationsAusgabe({
             startOfIndependence + 1,
             endOfLife
         )
+    ]);
+
+    // Comparison mode state
+    const [useComparisonMode, setUseComparisonMode] = useState(false);
+    const [comparisonStrategies, setComparisonStrategies] = useState<ComparisonStrategy[]>([
+        {
+            id: 'strategy1',
+            name: '3% Regel',
+            strategie: '3prozent',
+            rendite: 5,
+        },
+        {
+            id: 'strategy2',
+            name: 'Monatlich 1.500€',
+            strategie: 'monatlich_fest',
+            rendite: 5,
+            monatlicheBetrag: 1500,
+        }
     ]);
 
     // Calculate withdrawal projections
@@ -193,7 +237,85 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.dynamischBasisrate, formValue.dynamischObereSchwell, formValue.dynamischObereAnpassung, formValue.dynamischUntereSchwell, formValue.dynamischUntereAnpassung, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments, steuerlast, teilfreistellungsquote]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.dynamischBasisrate, formValue.dynamischObereSchwell, formValue.dynamischObereAnpassung, formValue.dynamischUntereSchwell, formValue.dynamischUntereAnpassung, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments, useComparisonMode, comparisonStrategies, steuerlast, teilfreistellungsquote]);
+
+    // Calculate comparison results for each strategy
+    const comparisonResults = useMemo(() => {
+        if (!useComparisonMode || !withdrawalData) {
+            return [];
+        }
+
+        const results = comparisonStrategies.map(strategy => {
+            // Build return configuration for this strategy
+            const returnConfig: ReturnConfiguration = {
+                mode: 'fixed',
+                fixedRate: strategy.rendite / 100
+            };
+
+            try {
+                // Calculate withdrawal for this comparison strategy
+                const { result } = calculateWithdrawal({
+                    elements: elemente,
+                    startYear: startOfIndependence + 1,
+                    endYear: formValue.endOfLife,
+                    strategy: strategy.strategie,
+                    returnConfig,
+                    taxRate: steuerlast,
+                    teilfreistellungsquote,
+                    freibetragPerYear: (() => {
+                        const freibetragPerYear: { [year: number]: number } = {};
+                        for (let year = startOfIndependence + 1; year <= formValue.endOfLife; year++) {
+                            freibetragPerYear[year] = 2000; // Default freibetrag
+                        }
+                        return freibetragPerYear;
+                    })(),
+                    monthlyConfig: strategy.strategie === "monatlich_fest" ? { 
+                        monthlyAmount: strategy.monatlicheBetrag || 2000 
+                    } : undefined,
+                    customPercentage: strategy.strategie === "variabel_prozent" ? 
+                        (strategy.variabelProzent || 5) / 100 : undefined,
+                    dynamicConfig: strategy.strategie === "dynamisch" ? {
+                        baseWithdrawalRate: (strategy.dynamischBasisrate || 4) / 100,
+                        upperThresholdReturn: (strategy.dynamischObereSchwell || 8) / 100,
+                        upperThresholdAdjustment: (strategy.dynamischObereAnpassung || 5) / 100,
+                        lowerThresholdReturn: (strategy.dynamischUntereSchwell || 2) / 100,
+                        lowerThresholdAdjustment: (strategy.dynamischUntereAnpassung || -5) / 100,
+                    } : undefined
+                });
+
+                // Get final year capital and total withdrawal
+                const finalYear = Math.max(...Object.keys(result).map(Number));
+                const finalCapital = result[finalYear]?.endkapital || 0;
+                
+                // Calculate total withdrawal
+                const totalWithdrawal = Object.values(result).reduce((sum, year) => sum + year.entnahme, 0);
+                const totalYears = Object.keys(result).length;
+                const averageAnnualWithdrawal = totalWithdrawal / totalYears;
+
+                // Calculate withdrawal duration
+                const duration = calculateWithdrawalDuration(result, startOfIndependence + 1);
+
+                return {
+                    strategy,
+                    finalCapital,
+                    totalWithdrawal,
+                    averageAnnualWithdrawal,
+                    duration: duration ? duration : "unbegrenzt"
+                };
+            } catch (error) {
+                console.error(`Error calculating withdrawal for strategy ${strategy.name}:`, error);
+                return {
+                    strategy,
+                    finalCapital: 0,
+                    totalWithdrawal: 0,
+                    averageAnnualWithdrawal: 0,
+                    duration: "Fehler"
+                };
+            }
+        });
+
+        return results;
+    }, [useComparisonMode, withdrawalData, comparisonStrategies, elemente, startOfIndependence, formValue.endOfLife, steuerlast, teilfreistellungsquote]);
 
     // Notify parent component when withdrawal results change
     useEffect(() => {
@@ -215,14 +337,17 @@ export function EntnahmeSimulationsAusgabe({
     return (
         <>
             <Panel header="Variablen" bordered>
-                {/* Toggle between single and segmented withdrawal */}
-                <Form.Group controlId="useSegmentedWithdrawal">
+                {/* Toggle between single, segmented, and comparison withdrawal */}
+                <Form.Group controlId="withdrawalMode">
                     <Form.ControlLabel>Entnahme-Modus</Form.ControlLabel>
                     <RadioGroup
                         inline
-                        value={useSegmentedWithdrawal ? "segmented" : "single"}
+                        value={useComparisonMode ? "comparison" : (useSegmentedWithdrawal ? "segmented" : "single")}
                         onChange={(value) => {
+                            const useComparison = value === "comparison";
                             const useSegmented = value === "segmented";
+                            
+                            setUseComparisonMode(useComparison);
                             setUseSegmentedWithdrawal(useSegmented);
                             
                             // Initialize segments when switching to segmented mode
@@ -239,9 +364,12 @@ export function EntnahmeSimulationsAusgabe({
                     >
                         <Radio value="single">Einheitliche Strategie</Radio>
                         <Radio value="segmented">Geteilte Phasen</Radio>
+                        <Radio value="comparison">Strategien-Vergleich</Radio>
                     </RadioGroup>
                     <Form.HelpText>
-                        {useSegmentedWithdrawal 
+                        {useComparisonMode 
+                            ? "Vergleiche verschiedene Entnahmestrategien miteinander."
+                            : useSegmentedWithdrawal 
                             ? "Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf."
                             : "Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase."
                         }
@@ -256,6 +384,289 @@ export function EntnahmeSimulationsAusgabe({
                         withdrawalStartYear={startOfIndependence + 1}
                         withdrawalEndYear={formValue.endOfLife}
                     />
+                ) : useComparisonMode ? (
+                    /* Comparison mode configuration */
+                    <div>
+                        <h4>Basis-Strategie (mit vollständigen Details)</h4>
+                        <Form fluid formValue={formValue}
+                            onChange={changedFormValue => {
+                                dispatchEnd([startOfIndependence, changedFormValue.endOfLife])
+                                setFormValue({
+                                    endOfLife: changedFormValue.endOfLife,
+                                    strategie: changedFormValue.strategie,
+                                    rendite: changedFormValue.rendite,
+                                    inflationAktiv: changedFormValue.inflationAktiv,
+                                    inflationsrate: changedFormValue.inflationsrate,
+                                    monatlicheBetrag: changedFormValue.monatlicheBetrag,
+                                    guardrailsAktiv: changedFormValue.guardrailsAktiv,
+                                    guardrailsSchwelle: changedFormValue.guardrailsSchwelle,
+                                    variabelProzent: changedFormValue.variabelProzent,
+                                    dynamischBasisrate: changedFormValue.dynamischBasisrate,
+                                    dynamischObereSchwell: changedFormValue.dynamischObereSchwell,
+                                    dynamischObereAnpassung: changedFormValue.dynamischObereAnpassung,
+                                    dynamischUntereSchwell: changedFormValue.dynamischUntereSchwell,
+                                    dynamischUntereAnpassung: changedFormValue.dynamischUntereAnpassung,
+                                    grundfreibetragAktiv: changedFormValue.grundfreibetragAktiv,
+                                    grundfreibetragBetrag: changedFormValue.grundfreibetragBetrag,
+                                    einkommensteuersatz: changedFormValue.einkommensteuersatz,
+                                })
+                            }}
+                        >
+                        {/* End of Life - shared by base strategy */}
+                        <Form.Group controlId="endOfLife">
+                            <Form.ControlLabel>End of Life</Form.ControlLabel>
+                            <Form.Control name="endOfLife" accepter={InputNumber} />
+                        </Form.Group>
+
+                        {/* Strategy selector - for base strategy only */}
+                        <Form.Group controlId="strategie">
+                            <Form.ControlLabel>Basis-Strategie</Form.ControlLabel>
+                            <Form.Control name="strategie" accepter={RadioTileGroup}>
+                                <RadioTile value="4prozent" label="4% Regel">
+                                    4% Entnahme
+                                </RadioTile>
+                                <RadioTile value="3prozent" label="3% Regel">
+                                    3% Entnahme
+                                </RadioTile>
+                                <RadioTile value="variabel_prozent" label="Variable Prozent">
+                                    Anpassbare Entnahme
+                                </RadioTile>
+                                <RadioTile value="monatlich_fest" label="Monatlich fest">
+                                    Fester monatlicher Betrag
+                                </RadioTile>
+                                <RadioTile value="dynamisch" label="Dynamische Strategie">
+                                    Renditebasierte Anpassung
+                                </RadioTile>
+                            </Form.Control>
+                        </Form.Group>
+
+                        {/* Fixed return rate for base strategy */}
+                        <Form.Group controlId="rendite">
+                            <Form.ControlLabel>Rendite Basis-Strategie (%)</Form.ControlLabel>
+                            <Form.Control name="rendite" accepter={Slider} 
+                                min={0}
+                                max={10}
+                                step={0.5}
+                                handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.rendite}%</div>)}
+                                progress
+                                graduated
+                            />
+                        </Form.Group>
+
+                        {/* Strategy-specific configuration for base strategy */}
+                        {formValue.strategie === "variabel_prozent" && (
+                            <Form.Group controlId="variabelProzent">
+                                <Form.ControlLabel>Entnahme-Prozentsatz (%)</Form.ControlLabel>
+                                <Form.Control name="variabelProzent" accepter={Slider} 
+                                    min={1}
+                                    max={10}
+                                    step={0.5}
+                                    handleTitle={(<div style={{marginTop: '-17px'}}>{formValue.variabelProzent}%</div>)}
+                                    progress
+                                    graduated
+                                />
+                            </Form.Group>
+                        )}
+
+                        {formValue.strategie === "monatlich_fest" && (
+                            <Form.Group controlId="monatlicheBetrag">
+                                <Form.ControlLabel>Monatlicher Betrag (€)</Form.ControlLabel>
+                                <Form.Control name="monatlicheBetrag" accepter={InputNumber} />
+                            </Form.Group>
+                        )}
+
+                        {formValue.strategie === "dynamisch" && (
+                            <DynamicWithdrawalConfiguration formValue={formValue} />
+                        )}
+                        </Form>
+
+                        {/* Comparison strategies configuration */}
+                        <div style={{ marginTop: '30px' }}>
+                            <h4>Vergleichs-Strategien</h4>
+                            <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>
+                                Konfiguriere zusätzliche Strategien zum Vergleich. Diese zeigen nur die wichtigsten Parameter und Endergebnisse.
+                            </p>
+                            
+                            {comparisonStrategies.map((strategy, index) => (
+                                <div key={strategy.id} style={{ 
+                                    border: '1px solid #e5e5ea', 
+                                    borderRadius: '6px', 
+                                    padding: '15px', 
+                                    marginBottom: '15px',
+                                    backgroundColor: '#f8f9fa'
+                                }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '10px' }}>
+                                        <h5 style={{ margin: 0 }}>Strategie {index + 1}: {strategy.name}</h5>
+                                        <button 
+                                            type="button"
+                                            onClick={() => {
+                                                setComparisonStrategies(prev => prev.filter(s => s.id !== strategy.id));
+                                            }}
+                                            style={{ 
+                                                background: 'none', 
+                                                border: 'none', 
+                                                color: '#999', 
+                                                cursor: 'pointer',
+                                                fontSize: '18px'
+                                            }}
+                                        >
+                                            ×
+                                        </button>
+                                    </div>
+                                    
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', alignItems: 'end' }}>
+                                        <div>
+                                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>Strategie-Typ</label>
+                                            <select 
+                                                value={strategy.strategie}
+                                                onChange={(e) => {
+                                                    const newStrategie = e.target.value as WithdrawalStrategy;
+                                                    setComparisonStrategies(prev => 
+                                                        prev.map(s => s.id === strategy.id ? 
+                                                            { ...s, strategie: newStrategie, name: getStrategyDisplayName(newStrategie) } : s
+                                                        )
+                                                    );
+                                                }}
+                                                style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                            >
+                                                <option value="4prozent">4% Regel</option>
+                                                <option value="3prozent">3% Regel</option>
+                                                <option value="variabel_prozent">Variable Prozent</option>
+                                                <option value="monatlich_fest">Monatlich fest</option>
+                                                <option value="dynamisch">Dynamische Strategie</option>
+                                            </select>
+                                        </div>
+                                        
+                                        <div>
+                                            <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>Rendite (%)</label>
+                                            <input 
+                                                type="number"
+                                                min="0"
+                                                max="10"
+                                                step="0.5"
+                                                value={strategy.rendite}
+                                                onChange={(e) => {
+                                                    setComparisonStrategies(prev => 
+                                                        prev.map(s => s.id === strategy.id ? 
+                                                            { ...s, rendite: parseFloat(e.target.value) || 0 } : s
+                                                        )
+                                                    );
+                                                }}
+                                                style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                            />
+                                        </div>
+
+                                        {/* Strategy-specific parameters */}
+                                        {strategy.strategie === "variabel_prozent" && (
+                                            <div style={{ gridColumn: 'span 2' }}>
+                                                <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>Entnahme-Prozentsatz (%)</label>
+                                                <input 
+                                                    type="number"
+                                                    min="1"
+                                                    max="10"
+                                                    step="0.5"
+                                                    value={strategy.variabelProzent || 5}
+                                                    onChange={(e) => {
+                                                        setComparisonStrategies(prev => 
+                                                            prev.map(s => s.id === strategy.id ? 
+                                                                { ...s, variabelProzent: parseFloat(e.target.value) || 5 } : s
+                                                            )
+                                                        );
+                                                    }}
+                                                    style={{ width: '50%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                                />
+                                            </div>
+                                        )}
+
+                                        {strategy.strategie === "monatlich_fest" && (
+                                            <div style={{ gridColumn: 'span 2' }}>
+                                                <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>Monatlicher Betrag (€)</label>
+                                                <input 
+                                                    type="number"
+                                                    min="0"
+                                                    step="100"
+                                                    value={strategy.monatlicheBetrag || 2000}
+                                                    onChange={(e) => {
+                                                        setComparisonStrategies(prev => 
+                                                            prev.map(s => s.id === strategy.id ? 
+                                                                { ...s, monatlicheBetrag: parseFloat(e.target.value) || 2000 } : s
+                                                            )
+                                                        );
+                                                    }}
+                                                    style={{ width: '50%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                                />
+                                            </div>
+                                        )}
+
+                                        {strategy.strategie === "dynamisch" && (
+                                            <>
+                                                <div>
+                                                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>Basis-Rate (%)</label>
+                                                    <input 
+                                                        type="number"
+                                                        min="1"
+                                                        max="10"
+                                                        step="0.5"
+                                                        value={strategy.dynamischBasisrate || 4}
+                                                        onChange={(e) => {
+                                                            setComparisonStrategies(prev => 
+                                                                prev.map(s => s.id === strategy.id ? 
+                                                                    { ...s, dynamischBasisrate: parseFloat(e.target.value) || 4 } : s
+                                                                )
+                                                            );
+                                                        }}
+                                                        style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                                    />
+                                                </div>
+                                                <div>
+                                                    <label style={{ display: 'block', fontSize: '12px', fontWeight: 'bold', marginBottom: '5px' }}>Obere Schwelle (%)</label>
+                                                    <input 
+                                                        type="number"
+                                                        min="0"
+                                                        max="20"
+                                                        step="0.5"
+                                                        value={strategy.dynamischObereSchwell || 8}
+                                                        onChange={(e) => {
+                                                            setComparisonStrategies(prev => 
+                                                                prev.map(s => s.id === strategy.id ? 
+                                                                    { ...s, dynamischObereSchwell: parseFloat(e.target.value) || 8 } : s
+                                                                )
+                                                            );
+                                                        }}
+                                                        style={{ width: '100%', padding: '6px', border: '1px solid #ccc', borderRadius: '4px' }}
+                                                    />
+                                                </div>
+                                            </>
+                                        )}
+                                    </div>
+                                </div>
+                            ))}
+                            
+                            <button 
+                                type="button"
+                                onClick={() => {
+                                    const newId = `strategy${Date.now()}`;
+                                    const newStrategy: ComparisonStrategy = {
+                                        id: newId,
+                                        name: '3% Regel',
+                                        strategie: '3prozent',
+                                        rendite: 5,
+                                    };
+                                    setComparisonStrategies(prev => [...prev, newStrategy]);
+                                }}
+                                style={{ 
+                                    padding: '8px 16px', 
+                                    backgroundColor: '#1675e0', 
+                                    color: 'white', 
+                                    border: 'none', 
+                                    borderRadius: '4px', 
+                                    cursor: 'pointer' 
+                                }}
+                            >
+                                + Weitere Strategie hinzufügen
+                            </button>
+                        </div>
+                    </div>
                 ) : (
                     /* Single strategy configuration (existing UI) */
                     <Form fluid formValue={formValue}
@@ -557,9 +968,151 @@ export function EntnahmeSimulationsAusgabe({
             <Panel header="Simulation" bordered>
                 {withdrawalData ? (
                     <div>
-                        <div style={{ marginBottom: '20px' }}>
-                            <h4>Entnahme-Simulation</h4>
-                            <p><strong>Startkapital bei Entnahme:</strong> {formatCurrency(withdrawalData.startingCapital)}</p>
+                        {useComparisonMode ? (
+                            /* Comparison mode simulation results */
+                            <div>
+                                <h4>Strategien-Vergleich</h4>
+                                <p><strong>Startkapital bei Entnahme:</strong> {formatCurrency(withdrawalData.startingCapital)}</p>
+                                
+                                {/* Base strategy summary */}
+                                <div style={{ 
+                                    border: '2px solid #1675e0', 
+                                    borderRadius: '8px', 
+                                    padding: '15px', 
+                                    marginBottom: '20px',
+                                    backgroundColor: '#f8f9ff'
+                                }}>
+                                    <h5 style={{ color: '#1675e0', margin: '0 0 10px 0' }}>📊 Basis-Strategie: {getStrategyDisplayName(formValue.strategie)}</h5>
+                                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '10px' }}>
+                                        <div><strong>Rendite:</strong> {formValue.rendite}%</div>
+                                        <div><strong>Endkapital:</strong> {formatCurrency(withdrawalData.withdrawalArray[0]?.endkapital || 0)}</div>
+                                        <div><strong>Vermögen reicht für:</strong> {
+                                            withdrawalData.duration 
+                                                ? `${withdrawalData.duration} Jahr${withdrawalData.duration === 1 ? '' : 'e'}`
+                                                : 'unbegrenzt'
+                                        }</div>
+                                        {formValue.strategie === "4prozent" || formValue.strategie === "3prozent" ? (
+                                            <div><strong>Jährliche Entnahme:</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.strategie === "4prozent" ? 0.04 : 0.03))}</div>
+                                        ) : formValue.strategie === "variabel_prozent" ? (
+                                            <div><strong>Jährliche Entnahme:</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.variabelProzent / 100))}</div>
+                                        ) : formValue.strategie === "monatlich_fest" ? (
+                                            <div><strong>Monatliche Entnahme:</strong> {formatCurrency(formValue.monatlicheBetrag)}</div>
+                                        ) : formValue.strategie === "dynamisch" ? (
+                                            <div><strong>Basis-Entnahme:</strong> {formatCurrency(withdrawalData.startingCapital * (formValue.dynamischBasisrate / 100))}</div>
+                                        ) : null}
+                                    </div>
+                                </div>
+                                
+                                {/* Comparison strategies results */}
+                                <h5>🔍 Vergleichs-Strategien</h5>
+                                {comparisonResults.length > 0 ? (
+                                    <div style={{ display: 'grid', gap: '15px' }}>
+                                        {comparisonResults.map((result, _index) => (
+                                            <div key={result.strategy.id} style={{ 
+                                                border: '1px solid #e5e5ea', 
+                                                borderRadius: '6px', 
+                                                padding: '15px',
+                                                backgroundColor: '#f8f9fa'
+                                            }}>
+                                                <h6 style={{ margin: '0 0 10px 0', color: '#666' }}>
+                                                    {result.strategy.name} ({result.strategy.rendite}% Rendite)
+                                                </h6>
+                                                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '10px', fontSize: '14px' }}>
+                                                    <div><strong>Endkapital:</strong> {formatCurrency(result.finalCapital)}</div>
+                                                    <div><strong>Gesamt-Entnahme:</strong> {formatCurrency(result.totalWithdrawal)}</div>
+                                                    <div><strong>Ø Jährlich:</strong> {formatCurrency(result.averageAnnualWithdrawal)}</div>
+                                                    <div><strong>Dauer:</strong> {
+                                                        typeof result.duration === 'number' 
+                                                            ? `${result.duration} Jahre` 
+                                                            : result.duration
+                                                    }</div>
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p style={{ color: '#666', fontStyle: 'italic' }}>
+                                        Keine Vergleichs-Strategien konfiguriert. Fügen Sie Strategien über den Konfigurationsbereich hinzu.
+                                    </p>
+                                )}
+                                
+                                {/* Comparison summary table */}
+                                {comparisonResults.length > 0 && (
+                                    <div style={{ marginTop: '30px' }}>
+                                        <h5>📋 Vergleichstabelle</h5>
+                                        <div style={{ overflowX: 'auto' }}>
+                                            <table style={{ 
+                                                width: '100%', 
+                                                borderCollapse: 'collapse', 
+                                                border: '1px solid #e5e5ea',
+                                                fontSize: '14px'
+                                            }}>
+                                                <thead>
+                                                    <tr style={{ backgroundColor: '#f8f9fa' }}>
+                                                        <th style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'left' }}>Strategie</th>
+                                                        <th style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'right' }}>Rendite</th>
+                                                        <th style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'right' }}>Endkapital</th>
+                                                        <th style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'right' }}>Ø Jährliche Entnahme</th>
+                                                        <th style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'right' }}>Vermögen reicht für</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                                    {/* Base strategy row */}
+                                                    <tr style={{ backgroundColor: '#f8f9ff', fontWeight: 'bold' }}>
+                                                        <td style={{ padding: '10px', borderBottom: '1px solid #e5e5ea' }}>
+                                                            📊 {getStrategyDisplayName(formValue.strategie)} (Basis)
+                                                        </td>
+                                                        <td style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'right' }}>{formValue.rendite}%</td>
+                                                        <td style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'right' }}>
+                                                            {formatCurrency(withdrawalData.withdrawalArray[0]?.endkapital || 0)}
+                                                        </td>
+                                                        <td style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'right' }}>
+                                                            {(() => {
+                                                                const totalWithdrawal = withdrawalData.withdrawalArray.reduce((sum, year) => sum + year.entnahme, 0);
+                                                                const averageAnnual = totalWithdrawal / withdrawalData.withdrawalArray.length;
+                                                                return formatCurrency(averageAnnual);
+                                                            })()}
+                                                        </td>
+                                                        <td style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'right' }}>
+                                                            {withdrawalData.duration 
+                                                                ? `${withdrawalData.duration} Jahre`
+                                                                : 'unbegrenzt'
+                                                            }
+                                                        </td>
+                                                    </tr>
+                                                    {/* Comparison strategies rows */}
+                                                    {comparisonResults.map(result => (
+                                                        <tr key={result.strategy.id}>
+                                                            <td style={{ padding: '10px', borderBottom: '1px solid #e5e5ea' }}>
+                                                                {result.strategy.name}
+                                                            </td>
+                                                            <td style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'right' }}>{result.strategy.rendite}%</td>
+                                                            <td style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'right' }}>
+                                                                {formatCurrency(result.finalCapital)}
+                                                            </td>
+                                                            <td style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'right' }}>
+                                                                {formatCurrency(result.averageAnnualWithdrawal)}
+                                                            </td>
+                                                            <td style={{ padding: '10px', borderBottom: '1px solid #e5e5ea', textAlign: 'right' }}>
+                                                                {typeof result.duration === 'number' 
+                                                                    ? `${result.duration} Jahre` 
+                                                                    : result.duration
+                                                                }
+                                                            </td>
+                                                        </tr>
+                                                    ))}
+                                                </tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
+                        ) : (
+                            /* Regular single strategy simulation results */
+                            <div>
+                                <div style={{ marginBottom: '20px' }}>
+                                    <h4>Entnahme-Simulation</h4>
+                                    <p><strong>Startkapital bei Entnahme:</strong> {formatCurrency(withdrawalData.startingCapital)}</p>
                             {formValue.strategie === "monatlich_fest" ? (
                                 <>
                                     <p><strong>Monatliche Entnahme (Basis):</strong> {formatCurrency(formValue.monatlicheBetrag)}</p>
@@ -778,6 +1331,8 @@ export function EntnahmeSimulationsAusgabe({
                                 </Table>
                             </div>
                         </div>
+                    </div>
+                        )}
                     </div>
                 ) : (
                     <div>
