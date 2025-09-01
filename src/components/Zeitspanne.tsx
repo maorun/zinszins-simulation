@@ -1,6 +1,7 @@
 import {
     InputNumber,
-    Slider
+    Slider,
+    Form
 } from "rsuite";
 
 export function Zeitspanne({
@@ -14,8 +15,8 @@ export function Zeitspanne({
     const max = 2100;
     const [startOfIndependence, endOfLife] = startEnd;
     return (
-        <label>
-            Zeitspanne
+        <Form.Group>
+            <Form.ControlLabel>Ende der Sparphase</Form.ControlLabel>
             <Slider
                 min={min}
                 max={max}
@@ -39,7 +40,10 @@ export function Zeitspanne({
                     dispatch([nextValue, end]);
                 }}
             />
-        </label>
+            <Form.HelpText>
+                Definiert das Ende der Sparphase (Jahr {startOfIndependence}). Die Entnahme-Phase beginnt automatisch im Folgejahr ({startOfIndependence + 1}).
+            </Form.HelpText>
+        </Form.Group>
     );
 }
 
