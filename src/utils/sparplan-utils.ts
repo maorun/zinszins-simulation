@@ -23,9 +23,9 @@ export type SparplanElement = {
 
 export const initialSparplan: Sparplan = {
     id: 1,
-    start: new Date("2023-01-01"),
+    start: new Date(),
     end: new Date("2040-10-01"),
-    einzahlung: 24000,
+    einzahlung: 19800,
 }
 
 export function convertSparplanToElements(val: Sparplan[], startEnd: [number, number], simulationAnnual: SimulationAnnualType): SparplanElement[] {
