@@ -5,7 +5,7 @@ import { generateRandomReturns } from "../src/utils/random-returns";
 import type { SegmentedWithdrawalConfig, WithdrawalSegment } from "../src/utils/segmented-withdrawal";
 
 
-export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "dynamisch";
+export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "dynamisch" | "bucket";
 
 export type InflationConfig = {
     inflationRate?: number; // Annual inflation rate for adjustment (default: 2%)
@@ -48,6 +48,20 @@ export type DynamicWithdrawalConfig = {
     lowerThresholdAdjustment: number; // Relative adjustment when return falls below lower threshold (e.g., -0.05 for 5% decrease)
 };
 
+export type BucketConfig = {
+    id: string; // Unique identifier for the bucket
+    name: string; // Display name (e.g., "Aktien", "Anleihen", "Cash")
+    allocation: number; // Percentage allocation (0-100, total should be 100)
+    returnConfig: ReturnConfiguration; // Return configuration for this bucket
+    description?: string; // Optional description of the bucket
+};
+
+export type BucketWithdrawalConfig = {
+    buckets: BucketConfig[]; // Array of buckets
+    baseWithdrawalRate: number; // Base withdrawal rate as percentage (e.g., 0.04 for 4%)
+    rebalanceAnnually?: boolean; // Whether to rebalance buckets annually (default: true)
+};
+
 const freibetrag: {
     [year: number]: number;
 } = {
@@ -83,6 +97,7 @@ export type CalculateWithdrawalParams = {
     incomeTaxRate?: number;
     inflationConfig?: InflationConfig;
     dynamicConfig?: DynamicWithdrawalConfig;
+    bucketConfig?: BucketWithdrawalConfig;
 };
 
 export function calculateWithdrawal({
@@ -100,7 +115,8 @@ export function calculateWithdrawal({
     grundfreibetragPerYear,
     incomeTaxRate,
     inflationConfig,
-    dynamicConfig
+    dynamicConfig,
+    bucketConfig
 }: CalculateWithdrawalParams): { result: WithdrawalResult; finalLayers: MutableLayer[] } {
     // Helper functions
     const getFreibetragForYear = (year: number): number => {
@@ -158,9 +174,31 @@ export function calculateWithdrawal({
     } else if (strategy === "dynamisch") {
         if (!dynamicConfig) throw new Error("Dynamic config required");
         baseWithdrawalAmount = initialStartingCapital * dynamicConfig.baseWithdrawalRate;
+    } else if (strategy === "bucket") {
+        if (!bucketConfig) throw new Error("Bucket config required");
+        baseWithdrawalAmount = initialStartingCapital * bucketConfig.baseWithdrawalRate;
     } else {
         const withdrawalRate = strategy === "4prozent" ? 0.04 : 0.03;
         baseWithdrawalAmount = initialStartingCapital * withdrawalRate;
+    }
+
+    // Handle bucket strategy separately due to different calculation logic
+    if (strategy === "bucket" && bucketConfig) {
+        return calculateBucketWithdrawal({
+            buckets: bucketConfig.buckets,
+            baseWithdrawalRate: bucketConfig.baseWithdrawalRate,
+            rebalanceAnnually: bucketConfig.rebalanceAnnually ?? true,
+            mutableLayers,
+            startYear,
+            endYear,
+            taxRate,
+            teilfreistellungsquote,
+            freibetragPerYear,
+            enableGrundfreibetrag,
+            grundfreibetragPerYear,
+            incomeTaxRate,
+            inflationConfig
+        });
     }
 
     for (let year = startYear; year <= endYear; year++) {
@@ -321,6 +359,221 @@ export function calculateSegmentedWithdrawal(
     }
 
     return result;
+}
+
+type BucketCalculationParams = {
+    buckets: BucketConfig[];
+    baseWithdrawalRate: number;
+    rebalanceAnnually: boolean;
+    mutableLayers: MutableLayer[];
+    startYear: number;
+    endYear: number;
+    taxRate: number;
+    teilfreistellungsquote: number;
+    freibetragPerYear?: { [year: number]: number };
+    enableGrundfreibetrag?: boolean;
+    grundfreibetragPerYear?: { [year: number]: number };
+    incomeTaxRate?: number;
+    inflationConfig?: InflationConfig;
+};
+
+function calculateBucketWithdrawal(params: BucketCalculationParams): { result: WithdrawalResult; finalLayers: MutableLayer[] } {
+    const {
+        buckets,
+        baseWithdrawalRate,
+        rebalanceAnnually,
+        mutableLayers,
+        startYear,
+        endYear,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear,
+        enableGrundfreibetrag,
+        grundfreibetragPerYear,
+        incomeTaxRate,
+        inflationConfig
+    } = params;
+
+    // Validate bucket allocations
+    const totalAllocation = buckets.reduce((sum, bucket) => sum + bucket.allocation, 0);
+    if (Math.abs(totalAllocation - 100) > 0.01) {
+        throw new Error(`Bucket allocations must sum to 100%. Current total: ${totalAllocation}%`);
+    }
+
+    // Helper functions
+    const getFreibetragForYear = (year: number): number => {
+        if (freibetragPerYear && freibetragPerYear[year] !== undefined) return freibetragPerYear[year];
+        return freibetrag[2023] || 2000;
+    };
+    const getGrundfreibetragForYear = (year: number): number => {
+        if (grundfreibetragPerYear && grundfreibetragPerYear[year] !== undefined) return grundfreibetragPerYear[year];
+        return grundfreibetrag[2023] || 10908;
+    };
+
+    const result: WithdrawalResult = {};
+    const initialStartingCapital = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0);
+    const baseWithdrawalAmount = initialStartingCapital * baseWithdrawalRate;
+
+    // Create bucket portfolios - distribute layers across buckets
+    type BucketPortfolio = {
+        bucket: BucketConfig;
+        layers: MutableLayer[];
+        value: number;
+    };
+
+    const bucketPortfolios: BucketPortfolio[] = buckets.map(bucket => ({
+        bucket,
+        layers: [],
+        value: 0
+    }));
+
+    // Initial allocation of layers to buckets (simplified approach)
+    const targetBucketValues = buckets.map(bucket => initialStartingCapital * (bucket.allocation / 100));
+    let remainingLayers = [...mutableLayers];
+
+    for (let i = 0; i < buckets.length && remainingLayers.length > 0; i++) {
+        const targetValue = targetBucketValues[i];
+        let currentBucketValue = 0;
+
+        for (let j = remainingLayers.length - 1; j >= 0 && currentBucketValue < targetValue; j--) {
+            const layer = remainingLayers[j];
+            if (currentBucketValue + layer.currentValue <= targetValue * 1.1) { // Allow 10% tolerance
+                bucketPortfolios[i].layers.push(layer);
+                currentBucketValue += layer.currentValue;
+                remainingLayers.splice(j, 1);
+            }
+        }
+        bucketPortfolios[i].value = currentBucketValue;
+    }
+
+    // Add any remaining layers to the first bucket
+    if (remainingLayers.length > 0) {
+        bucketPortfolios[0].layers.push(...remainingLayers);
+        bucketPortfolios[0].value += remainingLayers.reduce((sum, l) => sum + l.currentValue, 0);
+    }
+
+    for (let year = startYear; year <= endYear; year++) {
+        const totalCapitalAtStartOfYear = bucketPortfolios.reduce((sum, bp) => sum + bp.value, 0);
+        if (totalCapitalAtStartOfYear <= 0) break;
+
+        let annualWithdrawal = baseWithdrawalAmount;
+        let inflationAnpassung = 0;
+        if (inflationConfig?.inflationRate) {
+            const yearsPassed = year - startYear;
+            inflationAnpassung = baseWithdrawalAmount * (Math.pow(1 + inflationConfig.inflationRate, yearsPassed) - 1);
+            annualWithdrawal += inflationAnpassung;
+        }
+
+        const entnahme = Math.min(annualWithdrawal, totalCapitalAtStartOfYear);
+        let totalRealizedGainThisYear = 0;
+        let totalBezahlteSteuer = 0;
+        let totalGenutzterFreibetrag = 0;
+        let totalGenutzterGrundfreibetrag = 0;
+        let totalEinkommensteuer = 0;
+
+        // Withdraw proportionally from each bucket
+        for (const bucketPortfolio of bucketPortfolios) {
+            if (bucketPortfolio.value <= 0) continue;
+
+            const bucketProportion = bucketPortfolio.value / totalCapitalAtStartOfYear;
+            const bucketWithdrawal = entnahme * bucketProportion;
+            let remainingBucketWithdrawal = bucketWithdrawal;
+
+            // Generate bucket-specific growth rates
+            const bucketYearlyGrowthRates: Record<number, number> = {};
+            if (bucketPortfolio.bucket.returnConfig.mode === 'fixed') {
+                bucketYearlyGrowthRates[year] = bucketPortfolio.bucket.returnConfig.fixedRate || 0.05;
+            } else if (bucketPortfolio.bucket.returnConfig.mode === 'random' && bucketPortfolio.bucket.returnConfig.randomConfig) {
+                Object.assign(bucketYearlyGrowthRates, generateRandomReturns([year], bucketPortfolio.bucket.returnConfig.randomConfig));
+            } else if (bucketPortfolio.bucket.returnConfig.mode === 'variable' && bucketPortfolio.bucket.returnConfig.variableConfig) {
+                bucketYearlyGrowthRates[year] = bucketPortfolio.bucket.returnConfig.variableConfig.yearlyReturns[year] || 0.05;
+            }
+
+            // Withdraw from bucket layers (LIFO)
+            for (let i = bucketPortfolio.layers.length - 1; i >= 0 && remainingBucketWithdrawal > 0; i--) {
+                const layer = bucketPortfolio.layers[i];
+                if (layer.currentValue <= 0) continue;
+
+                const withdrawalFromLayer = Math.min(remainingBucketWithdrawal, layer.currentValue);
+                const proportionSold = withdrawalFromLayer / layer.currentValue;
+
+                // Calculate realized gain
+                const realizedCostBasis = layer.costBasis * proportionSold;
+                const realizedGain = Math.max(0, withdrawalFromLayer - realizedCostBasis);
+                totalRealizedGainThisYear += realizedGain;
+
+                // Update layer values
+                layer.currentValue -= withdrawalFromLayer;
+                layer.costBasis -= realizedCostBasis;
+                remainingBucketWithdrawal -= withdrawalFromLayer;
+            }
+
+            // Apply growth to remaining bucket value
+            const growthRate = bucketYearlyGrowthRates[year] || 0.05;
+            for (const layer of bucketPortfolio.layers) {
+                if (layer.currentValue > 0) {
+                    const yearlyGrowth = layer.currentValue * growthRate;
+                    layer.currentValue += yearlyGrowth;
+                }
+            }
+
+            // Update bucket value
+            bucketPortfolio.value = bucketPortfolio.layers.reduce((sum, l) => sum + l.currentValue, 0);
+        }
+
+        // Calculate taxes on realized gains
+        const teilfreistellungsAbzug = totalRealizedGainThisYear * teilfreistellungsquote;
+        const taxableGain = Math.max(0, totalRealizedGainThisYear - teilfreistellungsAbzug);
+        const freibetragYear = getFreibetragForYear(year);
+        const netTaxableGain = Math.max(0, taxableGain - freibetragYear);
+        totalBezahlteSteuer = netTaxableGain * taxRate;
+        totalGenutzterFreibetrag = Math.min(freibetragYear, taxableGain);
+
+        // Calculate income tax if enabled
+        if (enableGrundfreibetrag && incomeTaxRate) {
+            totalEinkommensteuer = calculateIncomeTax(entnahme, getGrundfreibetragForYear(year), incomeTaxRate);
+            totalGenutzterGrundfreibetrag = Math.min(getGrundfreibetragForYear(year), entnahme);
+        }
+
+        const endCapital = bucketPortfolios.reduce((sum, bp) => sum + bp.value, 0);
+
+        result[year] = {
+            startkapital: totalCapitalAtStartOfYear,
+            entnahme,
+            endkapital: endCapital,
+            bezahlteSteuer: totalBezahlteSteuer,
+            genutzterFreibetrag: totalGenutzterFreibetrag,
+            zinsen: endCapital + entnahme - totalCapitalAtStartOfYear,
+            inflationAnpassung,
+            einkommensteuer: totalEinkommensteuer,
+            genutzterGrundfreibetrag: totalGenutzterGrundfreibetrag,
+        };
+
+        // Rebalance buckets annually if enabled
+        if (rebalanceAnnually && year < endYear) {
+            const totalValueAfterYear = bucketPortfolios.reduce((sum, bp) => sum + bp.value, 0);
+            const targetValues = buckets.map(bucket => totalValueAfterYear * (bucket.allocation / 100));
+
+            // Simplified rebalancing - adjust bucket values to target allocations
+            for (let i = 0; i < bucketPortfolios.length; i++) {
+                const currentValue = bucketPortfolios[i].value;
+                const targetValue = targetValues[i];
+                const rebalanceRatio = currentValue > 0 ? targetValue / currentValue : 1;
+
+                // Adjust all layers in the bucket proportionally
+                for (const layer of bucketPortfolios[i].layers) {
+                    layer.currentValue *= rebalanceRatio;
+                    layer.costBasis *= rebalanceRatio;
+                }
+                bucketPortfolios[i].value = targetValue;
+            }
+        }
+    }
+
+    // Flatten all layers for final result
+    const finalLayers = bucketPortfolios.flatMap(bp => bp.layers);
+
+    return { result, finalLayers };
 }
 
 export function calculateIncomeTax(

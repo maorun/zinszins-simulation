@@ -440,3 +440,134 @@ describe('Dynamic Withdrawal Strategy', () => {
     expect(resultYear2.vorjahresRendite).toBe(0.05);
   });
 });
+
+describe('Bucket Strategy', () => {
+  const taxRate = 0.26375;
+  const teilfreistellungsquote = 0.3;
+  const freibetrag = 1000;
+
+  test('should correctly allocate and withdraw from multiple buckets', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+
+    // Mock element with 100,000 total capital
+    const mockElements: SparplanElement[] = [
+      createMockElement(2023, 100000, 100000, 0, lastSimYear),
+    ];
+
+    const bucketConfig = {
+      buckets: [
+        {
+          id: "stocks",
+          name: "Aktien",
+          allocation: 60,
+          returnConfig: { mode: 'fixed' as const, fixedRate: 0.07 }, // 7% return
+          description: "High risk, high return"
+        },
+        {
+          id: "bonds",
+          name: "Anleihen", 
+          allocation: 30,
+          returnConfig: { mode: 'fixed' as const, fixedRate: 0.04 }, // 4% return
+          description: "Medium risk, stable return"
+        },
+        {
+          id: "cash",
+          name: "Cash",
+          allocation: 10,
+          returnConfig: { mode: 'fixed' as const, fixedRate: 0.02 }, // 2% return
+          description: "Low risk, liquidity"
+        }
+      ],
+      baseWithdrawalRate: 0.04, // 4% withdrawal rate
+      rebalanceAnnually: true
+    };
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "bucket",
+      returnConfig: { mode: 'fixed', fixedRate: 0.05 }, // This will be ignored for bucket strategy
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+      bucketConfig
+    });
+
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
+
+    // Expected withdrawal: 100,000 * 0.04 = 4,000
+    expect(resultYear.entnahme).toBeCloseTo(4000);
+    expect(resultYear.startkapital).toBe(100000);
+    
+    // The portfolio should have grown and then been withdrawn from
+    // The exact calculation depends on bucket allocation and growth order
+    // but should be reasonable (around 102,000-103,000)
+    expect(resultYear.endkapital).toBeGreaterThan(101000);
+    expect(resultYear.endkapital).toBeLessThan(105000);
+  });
+
+  test('should validate bucket allocations sum to 100%', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+
+    const mockElements: SparplanElement[] = [
+      createMockElement(2023, 100000, 100000, 0, lastSimYear),
+    ];
+
+    const invalidBucketConfig = {
+      buckets: [
+        {
+          id: "stocks",
+          name: "Aktien",
+          allocation: 60,
+          returnConfig: { mode: 'fixed' as const, fixedRate: 0.07 },
+          description: "High risk"
+        },
+        {
+          id: "bonds", 
+          name: "Anleihen",
+          allocation: 30,
+          returnConfig: { mode: 'fixed' as const, fixedRate: 0.04 },
+          description: "Medium risk"
+        }
+        // Total allocation: 90% (should be 100%)
+      ],
+      baseWithdrawalRate: 0.04,
+      rebalanceAnnually: true
+    };
+
+    expect(() => {
+      calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "bucket",
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        bucketConfig: invalidBucketConfig
+      });
+    }).toThrow(/Bucket allocations must sum to 100%/);
+  });
+
+  test('should require bucket config for bucket strategy', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+
+    const mockElements: SparplanElement[] = [
+      createMockElement(2023, 100000, 100000, 0, lastSimYear),
+    ];
+
+    expect(() => {
+      calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "bucket",
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        // bucketConfig is missing
+      });
+    }).toThrow(/Bucket config required/);
+  });
+});

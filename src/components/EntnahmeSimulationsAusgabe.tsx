@@ -14,12 +14,13 @@ import {
 import 'rsuite/dist/rsuite.min.css';
 import type { SparplanElement } from "../utils/sparplan-utils";
 import { calculateWithdrawal, calculateSegmentedWithdrawal, getTotalCapitalAtYear, calculateWithdrawalDuration } from "../../helpers/withdrawal";
-import type { WithdrawalStrategy, WithdrawalResult } from "../../helpers/withdrawal";
+import type { WithdrawalStrategy, WithdrawalResult, BucketConfig } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import type { WithdrawalSegment, SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
 import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
 import { WithdrawalSegmentForm } from "./WithdrawalSegmentForm";
 import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
+import { BucketStrategyConfiguration } from "./BucketStrategyConfiguration";
 
 const { Column, HeaderCell, Cell } = Table;
 
@@ -61,6 +62,9 @@ export function EntnahmeSimulationsAusgabe({
         dynamischObereAnpassung: 5, // Upper adjustment 5%
         dynamischUntereSchwell: 2, // Lower threshold return 2%
         dynamischUntereAnpassung: -5, // Lower adjustment -5%
+        // Bucket strategy specific settings
+        bucketBasisrate: 4, // Base withdrawal rate 4%
+        bucketRebalancing: true, // Enable annual rebalancing
         // Grundfreibetrag settings
         grundfreibetragAktiv: false,
         grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
@@ -85,6 +89,31 @@ export function EntnahmeSimulationsAusgabe({
             startOfIndependence + 1,
             endOfLife
         )
+    ]);
+
+    // Bucket strategy state
+    const [bucketConfigs, setBucketConfigs] = useState<BucketConfig[]>(() => [
+        {
+            id: "stocks",
+            name: "Aktien",
+            allocation: 60,
+            returnConfig: { mode: 'fixed', fixedRate: 0.07 },
+            description: "Höheres Risiko, höhere Rendite"
+        },
+        {
+            id: "bonds", 
+            name: "Anleihen",
+            allocation: 30,
+            returnConfig: { mode: 'fixed', fixedRate: 0.04 },
+            description: "Mittleres Risiko, stabile Rendite"
+        },
+        {
+            id: "cash",
+            name: "Cash",
+            allocation: 10,
+            returnConfig: { mode: 'fixed', fixedRate: 0.02 },
+            description: "Niedriges Risiko, Liquidität"
+        }
     ]);
 
     // Calculate withdrawal projections
@@ -162,6 +191,11 @@ export function EntnahmeSimulationsAusgabe({
                     lowerThresholdReturn: formValue.dynamischUntereSchwell / 100,
                     lowerThresholdAdjustment: formValue.dynamischUntereAnpassung / 100,
                 } : undefined,
+                bucketConfig: formValue.strategie === "bucket" ? {
+                    buckets: bucketConfigs,
+                    baseWithdrawalRate: formValue.bucketBasisrate / 100,
+                    rebalanceAnnually: formValue.bucketRebalancing
+                } : undefined,
                 enableGrundfreibetrag: formValue.grundfreibetragAktiv,
                 grundfreibetragPerYear: formValue.grundfreibetragAktiv ? (() => {
                     const grundfreibetragPerYear: {[year: number]: number} = {};
@@ -193,7 +227,7 @@ export function EntnahmeSimulationsAusgabe({
             withdrawalResult,
             duration
         };
-    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.dynamischBasisrate, formValue.dynamischObereSchwell, formValue.dynamischObereAnpassung, formValue.dynamischUntereSchwell, formValue.dynamischUntereAnpassung, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments, steuerlast, teilfreistellungsquote]);
+    }, [elemente, startOfIndependence, formValue.endOfLife, formValue.strategie, formValue.rendite, formValue.inflationAktiv, formValue.inflationsrate, formValue.monatlicheBetrag, formValue.guardrailsAktiv, formValue.guardrailsSchwelle, formValue.variabelProzent, formValue.dynamischBasisrate, formValue.dynamischObereSchwell, formValue.dynamischObereAnpassung, formValue.dynamischUntereSchwell, formValue.dynamischUntereAnpassung, formValue.bucketBasisrate, formValue.bucketRebalancing, formValue.grundfreibetragAktiv, formValue.grundfreibetragBetrag, formValue.einkommensteuersatz, withdrawalReturnMode, withdrawalVariableReturns, withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed, useSegmentedWithdrawal, withdrawalSegments, bucketConfigs, steuerlast, teilfreistellungsquote]);
 
     // Notify parent component when withdrawal results change
     useEffect(() => {
@@ -276,6 +310,8 @@ export function EntnahmeSimulationsAusgabe({
                                 dynamischObereAnpassung: changedFormValue.dynamischObereAnpassung,
                                 dynamischUntereSchwell: changedFormValue.dynamischUntereSchwell,
                                 dynamischUntereAnpassung: changedFormValue.dynamischUntereAnpassung,
+                                bucketBasisrate: changedFormValue.bucketBasisrate,
+                                bucketRebalancing: changedFormValue.bucketRebalancing,
                                 grundfreibetragAktiv: changedFormValue.grundfreibetragAktiv,
                                 grundfreibetragBetrag: changedFormValue.grundfreibetragBetrag,
                                 einkommensteuersatz: changedFormValue.einkommensteuersatz,
@@ -424,6 +460,9 @@ export function EntnahmeSimulationsAusgabe({
                             <RadioTile value="dynamisch" label="Dynamische Strategie">
                                 Renditebasierte Anpassung
                             </RadioTile>
+                            <RadioTile value="bucket" label="Bucket Strategie">
+                                Portfolio in Risiko-Töpfe aufteilen
+                            </RadioTile>
                         </Form.Control>
                     </Form.Group>
                     
@@ -550,6 +589,15 @@ export function EntnahmeSimulationsAusgabe({
                     {/* Dynamic strategy specific controls */}
                     {formValue.strategie === "dynamisch" && (
                         <DynamicWithdrawalConfiguration formValue={formValue} />
+                    )}
+
+                    {/* Bucket strategy specific controls */}
+                    {formValue.strategie === "bucket" && (
+                        <BucketStrategyConfiguration 
+                            bucketConfigs={bucketConfigs}
+                            onBucketConfigsChange={setBucketConfigs}
+                            formValue={formValue}
+                        />
                     )}
                     </Form>
                 )}
