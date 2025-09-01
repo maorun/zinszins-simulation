@@ -6,7 +6,7 @@ import type { Sparplan, SparplanElement } from '../utils/sparplan-utils';
 import { convertSparplanToElements, initialSparplan } from '../utils/sparplan-utils';
 import type { WithdrawalResult } from '../../helpers/withdrawal';
 import { SimulationContext } from './SimulationContextValue';
-import { saveConfiguration, loadConfiguration, type SavedConfiguration } from '../utils/config-storage';
+import { saveConfiguration, loadConfiguration, type SavedConfiguration, type WithdrawalConfiguration } from '../utils/config-storage';
 
 export interface SimulationContextState {
   rendite: number;
@@ -44,6 +44,9 @@ export interface SimulationContextState {
   saveCurrentConfiguration: () => void;
   loadSavedConfiguration: () => void;
   resetToDefaults: () => void;
+  // Withdrawal configuration
+  withdrawalConfig: WithdrawalConfiguration | null;
+  setWithdrawalConfig: (config: WithdrawalConfiguration | null) => void;
 }
 
 export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {
@@ -90,6 +93,11 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [isLoading, setIsLoading] = useState(false);
   const [withdrawalResults, setWithdrawalResults] = useState<WithdrawalResult | null>(null);
 
+  // Withdrawal configuration state
+  const [withdrawalConfig, setWithdrawalConfig] = useState<WithdrawalConfiguration | null>(
+    (initialConfig as SavedConfiguration).withdrawal || null
+  );
+
   const yearToday = new Date().getFullYear();
 
   // Configuration management functions
@@ -106,7 +114,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     startEnd,
     sparplan,
     simulationAnnual,
-  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, startEnd, sparplan, simulationAnnual]);
+    withdrawal: withdrawalConfig || undefined,
+  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration();
@@ -129,6 +138,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setSparplan(savedConfig.sparplan);
       setSimulationAnnual(savedConfig.simulationAnnual);
       setSparplanElemente(convertSparplanToElements(savedConfig.sparplan, savedConfig.startEnd, savedConfig.simulationAnnual));
+      setWithdrawalConfig(savedConfig.withdrawal || null);
     }
   }, []);
 
@@ -146,6 +156,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setSparplan(defaultConfig.sparplan);
     setSimulationAnnual(defaultConfig.simulationAnnual);
     setSparplanElemente(convertSparplanToElements(defaultConfig.sparplan, defaultConfig.startEnd, defaultConfig.simulationAnnual));
+    setWithdrawalConfig(null); // Reset withdrawal config to null
   }, [defaultConfig]);
 
   // Auto-save configuration whenever any config value changes
@@ -231,12 +242,15 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     saveCurrentConfiguration,
     loadSavedConfiguration,
     resetToDefaults,
+    // Withdrawal configuration
+    withdrawalConfig, setWithdrawalConfig,
   }), [
     rendite, steuerlast, teilfreistellungsquote, freibetragPerYear,
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
     simulationData, isLoading, withdrawalResults, performSimulation,
-    saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults
+    saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
+    withdrawalConfig
   ]);
 
   return (
