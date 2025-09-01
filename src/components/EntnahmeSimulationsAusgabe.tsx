@@ -421,12 +421,22 @@ export function EntnahmeSimulationsAusgabe({
                         {/* Strategy selector - for base strategy only */}
                         <Form.Group controlId="strategie">
                             <Form.ControlLabel>Basis-Strategie</Form.ControlLabel>
-                            <Form.Control name="strategie" accepter={RadioTileGroup} inline>
-                                <RadioTile icon="percent" label="4% Regel" value="4prozent" />
-                                <RadioTile icon="percent" label="3% Regel" value="3prozent" />
-                                <RadioTile icon="calculator" label="Variable Prozent" value="variabel_prozent" />
-                                <RadioTile icon="money" label="Monatlich fest" value="monatlich_fest" />
-                                <RadioTile icon="chart-line" label="Dynamische Strategie" value="dynamisch" />
+                            <Form.Control name="strategie" accepter={RadioTileGroup}>
+                                <RadioTile value="4prozent" label="4% Regel">
+                                    4% Entnahme
+                                </RadioTile>
+                                <RadioTile value="3prozent" label="3% Regel">
+                                    3% Entnahme
+                                </RadioTile>
+                                <RadioTile value="variabel_prozent" label="Variable Prozent">
+                                    Anpassbare Entnahme
+                                </RadioTile>
+                                <RadioTile value="monatlich_fest" label="Monatlich fest">
+                                    Fester monatlicher Betrag
+                                </RadioTile>
+                                <RadioTile value="dynamisch" label="Dynamische Strategie">
+                                    Renditebasierte Anpassung
+                                </RadioTile>
                             </Form.Control>
                         </Form.Group>
 
