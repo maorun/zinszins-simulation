@@ -1,4 +1,4 @@
-import { useMemo, useEffect } from "react";
+import { useMemo, useEffect, useCallback } from "react";
 import {
     Form,
     InputNumber,
@@ -141,10 +141,10 @@ export function EntnahmeSimulationsAusgabe({
     const comparisonStrategies = currentConfig.comparisonStrategies;
 
     // Helper function to update config
-    const updateConfig = (updates: Partial<typeof currentConfig>) => {
+    const updateConfig = useCallback((updates: Partial<typeof currentConfig>) => {
         const newConfig = { ...currentConfig, ...updates };
         setWithdrawalConfig(newConfig);
-    };
+    }, [currentConfig, setWithdrawalConfig]);
 
     // Helper function to update form value
     const updateFormValue = (updates: Partial<WithdrawalFormValue>) => {
@@ -354,6 +354,28 @@ export function EntnahmeSimulationsAusgabe({
             onWithdrawalResultsChange(withdrawalData.withdrawalResult);
         }
     }, [withdrawalData, onWithdrawalResultsChange]);
+
+    // Update withdrawal segments when startOfIndependence changes (for segmented withdrawal)
+    useEffect(() => {
+        if (useSegmentedWithdrawal && withdrawalSegments.length > 0) {
+            // Update the start year of the first segment to match the new savings end
+            const updatedSegments = withdrawalSegments.map((segment, index) => {
+                if (index === 0) {
+                    // Update the first segment to start at the new withdrawal start year
+                    return {
+                        ...segment,
+                        startYear: startOfIndependence + 1
+                    };
+                }
+                return segment;
+            });
+            
+            // Only update if there's an actual change
+            if (updatedSegments[0]?.startYear !== withdrawalSegments[0]?.startYear) {
+                updateConfig({ withdrawalSegments: updatedSegments });
+            }
+        }
+    }, [startOfIndependence, useSegmentedWithdrawal, withdrawalSegments, updateConfig]);
 
     // Format currency for display
     const formatCurrency = (amount: number) => {

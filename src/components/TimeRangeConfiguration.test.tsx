@@ -11,6 +11,6 @@ describe('TimeRangeConfiguration', () => {
                 <TimeRangeConfiguration />
             </SimulationProvider>
         );
-        expect(screen.getAllByText(/Zeitspanne/)[0]).toBeInTheDocument();
+        expect(screen.getAllByText(/Sparphase-Ende/)[0]).toBeInTheDocument();
     });
 });

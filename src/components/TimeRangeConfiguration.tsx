@@ -7,7 +7,7 @@ const TimeRangeConfiguration = () => {
     const { startEnd, setStartEnd, sparplan, simulationAnnual, setSparplanElemente } = useSimulation();
 
     return (
-        <Panel header="📅 Zeitspanne" bordered>
+        <Panel header="📅 Sparphase-Ende" bordered>
             <Zeitspanne startEnd={startEnd} dispatch={(val) => {
                 setStartEnd(val);
                 setSparplanElemente(convertSparplanToElements(sparplan, val, simulationAnnual));
