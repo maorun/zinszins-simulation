@@ -21,6 +21,16 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
 - **Sparplan** - Regelmäßige jährliche oder monatliche Einzahlungen
 - **Einmalzahlungen** - Dedizierte UI für einmalige Zahlungen mit Datum und Betrag
 
+### Kostenfaktoren
+- **TER (Total Expense Ratio)** - Jährliche Verwaltungskosten in % pro Jahr
+  - Wird automatisch jedes Jahr vom Portfolio abgezogen
+  - Individuell konfigurierbar für jeden Sparplan und jede Einmalzahlung
+- **Transaktionskosten** - Einmalige Kosten beim Kauf
+  - Prozentuale Kosten (z.B. 0,25% des Kaufbetrags)
+  - Absolute Kosten (z.B. 1,50€ pro Transaktion)
+  - Werden nur im ersten Jahr beim Kauf abgezogen
+- **Optionale Konfiguration** - Kostenfaktoren sind optional und bewahren die Abwärtskompatibilität
+
 ### Steuerberechnung
 - **Vorabpauschale** - Deutsche Steuerberechnung für Investmentfonds
 - **Konfigurierbare Steuerparameter**:
