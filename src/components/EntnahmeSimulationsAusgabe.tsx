@@ -133,32 +133,32 @@ export function EntnahmeSimulationsAusgabe({
             }
 
             // Calculate withdrawal projections
-            const withdrawalCalculation = calculateWithdrawal(
-                elemente,
-                startOfIndependence + 1, // Start withdrawals the year after accumulation ends
-                formValue.endOfLife,
-                formValue.strategie,
-                withdrawalReturnConfig,
-                steuerlast,
-                teilfreistellungsquote,
-                undefined, // freibetragPerYear
-                formValue.strategie === "monatlich_fest" ? {
+            const withdrawalCalculation = calculateWithdrawal({
+                elements: elemente,
+                startYear: startOfIndependence + 1, // Start withdrawals the year after accumulation ends
+                endYear: formValue.endOfLife,
+                strategy: formValue.strategie,
+                returnConfig: withdrawalReturnConfig,
+                taxRate: steuerlast,
+                teilfreistellungsquote: teilfreistellungsquote,
+                freibetragPerYear: undefined, // freibetragPerYear
+                monthlyConfig: formValue.strategie === "monatlich_fest" ? {
                     monthlyAmount: formValue.monatlicheBetrag,
                     enableGuardrails: formValue.guardrailsAktiv,
                     guardrailsThreshold: formValue.guardrailsSchwelle / 100
                 } : undefined,
-                formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined,
-                formValue.grundfreibetragAktiv,
-                formValue.grundfreibetragAktiv ? (() => {
+                customPercentage: formValue.strategie === "variabel_prozent" ? formValue.variabelProzent / 100 : undefined,
+                enableGrundfreibetrag: formValue.grundfreibetragAktiv,
+                grundfreibetragPerYear: formValue.grundfreibetragAktiv ? (() => {
                     const grundfreibetragPerYear: {[year: number]: number} = {};
                     for (let year = startOfIndependence + 1; year <= formValue.endOfLife; year++) {
                         grundfreibetragPerYear[year] = formValue.grundfreibetragBetrag;
                     }
                     return grundfreibetragPerYear;
                 })() : undefined,
-                formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined,
-                formValue.inflationAktiv ? { inflationRate: formValue.inflationsrate / 100 } : undefined
-            );
+                incomeTaxRate: formValue.grundfreibetragAktiv ? formValue.einkommensteuersatz / 100 : undefined,
+                inflationConfig: formValue.inflationAktiv ? { inflationRate: formValue.inflationsrate / 100 } : undefined
+            });
             withdrawalResult = withdrawalCalculation.result;
         }
 

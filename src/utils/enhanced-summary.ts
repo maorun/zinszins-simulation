@@ -19,15 +19,15 @@ export function getEnhancedOverviewSummary(
   if (withdrawalResults) {
     withdrawalResult = withdrawalResults;
   } else {
-    const { result } = calculateWithdrawal(
-      simulationData.sparplanElements,
-      startEnd[0] + 1,
-      startEnd[1],
-      "4prozent",
-      { mode: 'fixed', fixedRate: rendite / 100 },
-      steuerlast / 100,
-      teilfreistellungsquote / 100
-    );
+    const { result } = calculateWithdrawal({
+      elements: simulationData.sparplanElements,
+      startYear: startEnd[0] + 1,
+      endYear: startEnd[1],
+      strategy: "4prozent",
+      returnConfig: { mode: 'fixed', fixedRate: rendite / 100 },
+      taxRate: steuerlast / 100,
+      teilfreistellungsquote: teilfreistellungsquote / 100
+    });
     withdrawalResult = result;
   }
 

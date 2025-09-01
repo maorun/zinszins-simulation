@@ -56,22 +56,39 @@ type MutableLayer = SparplanElement & {
     accumulatedVorabpauschale: number;
 };
 
-export function calculateWithdrawal(
-    elements: SparplanElement[],
-    startYear: number,
-    endYear: number,
-    strategy: WithdrawalStrategy,
-    returnConfig: ReturnConfiguration,
-    taxRate: number = 0.26375,
-    teilfreistellungsquote: number = 0.3,
-    freibetragPerYear?: { [year: number]: number },
-    monthlyConfig?: MonthlyWithdrawalConfig,
-    customPercentage?: number,
-    enableGrundfreibetrag?: boolean,
-    grundfreibetragPerYear?: { [year: number]: number },
-    incomeTaxRate?: number,
-    inflationConfig?: InflationConfig
-): { result: WithdrawalResult; finalLayers: MutableLayer[] } {
+export type CalculateWithdrawalParams = {
+    elements: SparplanElement[];
+    startYear: number;
+    endYear: number;
+    strategy: WithdrawalStrategy;
+    returnConfig: ReturnConfiguration;
+    taxRate?: number;
+    teilfreistellungsquote?: number;
+    freibetragPerYear?: { [year: number]: number };
+    monthlyConfig?: MonthlyWithdrawalConfig;
+    customPercentage?: number;
+    enableGrundfreibetrag?: boolean;
+    grundfreibetragPerYear?: { [year: number]: number };
+    incomeTaxRate?: number;
+    inflationConfig?: InflationConfig;
+};
+
+export function calculateWithdrawal({
+    elements,
+    startYear,
+    endYear,
+    strategy,
+    returnConfig,
+    taxRate = 0.26375,
+    teilfreistellungsquote = 0.3,
+    freibetragPerYear,
+    monthlyConfig,
+    customPercentage,
+    enableGrundfreibetrag,
+    grundfreibetragPerYear,
+    incomeTaxRate,
+    inflationConfig
+}: CalculateWithdrawalParams): { result: WithdrawalResult; finalLayers: MutableLayer[] } {
     // Helper functions
     const getFreibetragForYear = (year: number): number => {
         if (freibetragPerYear && freibetragPerYear[year] !== undefined) return freibetragPerYear[year];
@@ -231,22 +248,22 @@ export function calculateSegmentedWithdrawal(
     const sortedSegments = [...segmentedConfig.segments].sort((a: WithdrawalSegment, b: WithdrawalSegment) => a.startYear - b.startYear);
 
     for (const segment of sortedSegments) {
-        const { result: segmentResultData, finalLayers } = calculateWithdrawal(
-            currentLayers,
-            segment.startYear,
-            segment.endYear,
-            segment.strategy,
-            segment.returnConfig,
-            segmentedConfig.taxRate,
-            0.3, // Assuming default, should be passed in config
-            segmentedConfig.freibetragPerYear,
-            segment.monthlyConfig,
-            segment.customPercentage,
-            segment.enableGrundfreibetrag,
-            segment.grundfreibetragPerYear,
-            segment.incomeTaxRate,
-            segment.inflationConfig
-        );
+        const { result: segmentResultData, finalLayers } = calculateWithdrawal({
+            elements: currentLayers,
+            startYear: segment.startYear,
+            endYear: segment.endYear,
+            strategy: segment.strategy,
+            returnConfig: segment.returnConfig,
+            taxRate: segmentedConfig.taxRate,
+            teilfreistellungsquote: 0.3, // Assuming default, should be passed in config
+            freibetragPerYear: segmentedConfig.freibetragPerYear,
+            monthlyConfig: segment.monthlyConfig,
+            customPercentage: segment.customPercentage,
+            enableGrundfreibetrag: segment.enableGrundfreibetrag,
+            grundfreibetragPerYear: segment.grundfreibetragPerYear,
+            incomeTaxRate: segment.incomeTaxRate,
+            inflationConfig: segment.inflationConfig
+        });
 
         Object.assign(result, segmentResultData);
         currentLayers = finalLayers;
