@@ -1,6 +1,6 @@
 import { Panel } from 'rsuite';
 import { EntnahmeSimulationsAusgabe } from './EntnahmeSimulationsAusgabe';
-import { useSimulation } from '../contexts/SimulationContext';
+import { useSimulation } from '../contexts/useSimulation';
 
 const WithdrawalPlan = () => {
     const {

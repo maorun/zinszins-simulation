@@ -1,6 +1,6 @@
 import { Panel } from 'rsuite';
 import { MonteCarloResults } from './MonteCarloResults';
-import { useSimulation } from '../contexts/SimulationContext';
+import { useSimulation } from '../contexts/useSimulation';
 import { unique } from '../utils/array-utils';
 
 const MonteCarloAnalysis = () => {

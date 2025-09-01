@@ -1,5 +1,5 @@
 import { Form, Slider, InputNumber } from 'rsuite';
-import { useSimulation } from '../contexts/SimulationContext';
+import { useSimulation } from '../contexts/useSimulation';
 
 const RandomReturnConfiguration = () => {
     const {

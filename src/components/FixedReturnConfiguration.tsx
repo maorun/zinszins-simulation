@@ -1,5 +1,5 @@
 import { Form, Slider } from 'rsuite';
-import { useSimulation } from '../contexts/SimulationContext';
+import { useSimulation } from '../contexts/useSimulation';
 
 const FixedReturnConfiguration = () => {
     const {

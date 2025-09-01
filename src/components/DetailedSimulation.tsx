@@ -1,5 +1,5 @@
 import { Panel } from 'rsuite';
-import { useSimulation } from '../contexts/SimulationContext';
+import { useSimulation } from '../contexts/useSimulation';
 import { unique } from '../utils/array-utils';
 
 const DetailedSimulation = () => {

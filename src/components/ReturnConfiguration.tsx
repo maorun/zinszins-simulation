@@ -1,5 +1,5 @@
 import { Panel, Form, RadioGroup, Radio } from 'rsuite';
-import { useSimulation } from '../contexts/SimulationContext';
+import { useSimulation } from '../contexts/useSimulation';
 import type { ReturnMode } from '../utils/random-returns';
 import FixedReturnConfiguration from './FixedReturnConfiguration';
 import RandomReturnConfiguration from './RandomReturnConfiguration';

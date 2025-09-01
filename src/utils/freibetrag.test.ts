@@ -12,14 +12,14 @@ describe('Variable Tax Allowance (Freibetrag) Tests', () => {
   describe('simulate function with variable freibetrag', () => {
     test('should use default freibetrag when none provided', () => {
       const elements = [createTestElement('2023', 24000)];
-      const result = simulate(
-        2023,
-        2024,
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
         elements,
-        0.05, // 5% return
-        0.26375, // 26.375% tax rate
-        'yearly'
-      );
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
 
       expect(result).toHaveLength(1);
       expect(result[0].simulation[2023]).toBeDefined();
@@ -35,16 +35,16 @@ describe('Variable Tax Allowance (Freibetrag) Tests', () => {
         2024: 3000
       };
 
-      const result = simulate(
-        2023,
-        2024,
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
         elements,
-        0.08, // 8% return to generate more tax
-        0.26375,
-        'yearly',
-        0.3, // teilfreistellungsquote
-        freibetragPerYear
-      );
+        returnConfig: { mode: 'fixed', fixedRate: 0.08 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+        teilfreistellungsquote: 0.3,
+        freibetragPerYear,
+      });
 
       expect(result).toHaveLength(1);
       
@@ -67,16 +67,16 @@ describe('Variable Tax Allowance (Freibetrag) Tests', () => {
         // 2024 missing, should use default
       };
 
-      const result = simulate(
-        2023,
-        2024,
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
         elements,
-        0.06,
-        0.26375,
-        'yearly',
-        0.3,
-        freibetragPerYear
-      );
+        returnConfig: { mode: 'fixed', fixedRate: 0.06 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+        teilfreistellungsquote: 0.3,
+        freibetragPerYear,
+      });
 
       expect(result).toHaveLength(1);
       expect(result[0].simulation[2023]).toBeDefined();
@@ -90,16 +90,16 @@ describe('Variable Tax Allowance (Freibetrag) Tests', () => {
         2023: 2500
       };
 
-      const result = simulate(
-        2023,
-        2024,
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
         elements,
-        0.05,
-        0.26375,
-        'monthly',
-        0.3,
-        freibetragPerYear
-      );
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'monthly',
+        teilfreistellungsquote: 0.3,
+        freibetragPerYear,
+      });
 
       expect(result).toHaveLength(1);
       expect(result[0].simulation[2023]).toBeDefined();
@@ -116,16 +116,16 @@ describe('Variable Tax Allowance (Freibetrag) Tests', () => {
         2024: 4000
       };
 
-      const result = simulate(
-        2023,
-        2025,
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2025,
         elements,
-        0.07,
-        0.26375,
-        'yearly',
-        0.3,
-        freibetragPerYear
-      );
+        returnConfig: { mode: 'fixed', fixedRate: 0.07 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+        teilfreistellungsquote: 0.3,
+        freibetragPerYear,
+      });
 
       expect(result).toHaveLength(2);
       
@@ -145,16 +145,16 @@ describe('Variable Tax Allowance (Freibetrag) Tests', () => {
         2024: 3500
       };
 
-      const result = simulate(
-        2023,
-        2024,
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
         elements,
-        0.05,
-        0.26375,
-        'yearly',
-        0.3,
-        freibetragPerYear
-      );
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+        teilfreistellungsquote: 0.3,
+        freibetragPerYear,
+      });
 
       expect(result).toHaveLength(1);
       
@@ -168,16 +168,16 @@ describe('Variable Tax Allowance (Freibetrag) Tests', () => {
     test('should maintain backwards compatibility when freibetragPerYear is undefined', () => {
       const elements = [createTestElement('2023', 24000)];
 
-      const result = simulate(
-        2023,
-        2024,
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
         elements,
-        0.05,
-        0.26375,
-        'yearly',
-        0.3,
-        undefined // No freibetragPerYear provided
-      );
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+        teilfreistellungsquote: 0.3,
+        freibetragPerYear: undefined,
+      });
 
       expect(result).toHaveLength(1);
       expect(result[0].simulation[2023]).toBeDefined();

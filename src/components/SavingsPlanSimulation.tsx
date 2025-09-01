@@ -1,6 +1,6 @@
 import { Panel } from 'rsuite';
 import { SparplanSimulationsAusgabe } from './SparplanSimulationsAusgabe';
-import { useSimulation } from '../contexts/SimulationContext';
+import { useSimulation } from '../contexts/useSimulation';
 
 const SavingsPlanSimulation = () => {
     const { simulationData } = useSimulation();
