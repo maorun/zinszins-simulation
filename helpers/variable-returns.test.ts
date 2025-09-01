@@ -28,7 +28,14 @@ describe('Variable Returns per Year', () => {
             }
         };
         
-        const result = simulate(2023, 2025, elements, returnConfig, 0.26375, 'yearly');
+        const result = simulate({
+            startYear: 2023,
+            endYear: 2025,
+            elements,
+            returnConfig,
+            steuerlast: 0.26375,
+            simulationAnnual: 'yearly',
+        });
         
         expect(result).toHaveLength(1);
         expect(result[0].simulation[2023]).toBeDefined();
@@ -56,7 +63,14 @@ describe('Variable Returns per Year', () => {
             }
         };
         
-        const result = simulate(2023, 2024, elements, returnConfig, 0.26375, 'yearly');
+        const result = simulate({
+            startYear: 2023,
+            endYear: 2024,
+            elements,
+            returnConfig,
+            steuerlast: 0.26375,
+            simulationAnnual: 'yearly',
+        });
         
         expect(result[0].simulation[2023]).toBeDefined();
         expect(result[0].simulation[2024]).toBeDefined();
@@ -77,7 +91,14 @@ describe('Variable Returns per Year', () => {
             }
         };
         
-        const result = simulate(2023, 2023, elements, returnConfig, 0.26375, 'yearly');
+        const result = simulate({
+            startYear: 2023,
+            endYear: 2023,
+            elements,
+            returnConfig,
+            steuerlast: 0.26375,
+            simulationAnnual: 'yearly',
+        });
         
         const sim2023 = result[0].simulation[2023];
         expect(sim2023.endkapital).toBeLessThan(10000); // Should be less than initial investment
@@ -95,7 +116,14 @@ describe('Variable Returns per Year', () => {
             }
         };
         
-        const result = simulate(2023, 2024, elements, returnConfig, 0.26375, 'monthly');
+        const result = simulate({
+            startYear: 2023,
+            endYear: 2024,
+            elements,
+            returnConfig,
+            steuerlast: 0.26375,
+            simulationAnnual: 'monthly',
+        });
         
         expect(result[0].simulation[2023]).toBeDefined();
         expect(result[0].simulation[2024]).toBeDefined();
@@ -103,25 +131,6 @@ describe('Variable Returns per Year', () => {
         // Should handle monthly compounding correctly
         const sim2024 = result[0].simulation[2024];
         expect(sim2024.endkapital).toBeGreaterThan(12000); // Should be more than just one year's contribution
-    });
-
-    test('should maintain backward compatibility with fixed rates', () => {
-        const elements = [createSparplanElement('2023-01-01', 10000)];
-        
-        // Test old API (number)
-        const legacyResult = simulate(2023, 2024, elements, 0.07, 0.26375, 'yearly');
-        
-        // Test new API with fixed rate
-        const fixedResult = simulate(2023, 2024, elements, {
-            mode: 'fixed',
-            fixedRate: 0.07
-        }, 0.26375, 'yearly');
-        
-        // Results should be identical
-        expect(legacyResult[0].simulation[2023].endkapital)
-            .toBeCloseTo(fixedResult[0].simulation[2023].endkapital, 2);
-        expect(legacyResult[0].simulation[2024].endkapital)
-            .toBeCloseTo(fixedResult[0].simulation[2024].endkapital, 2);
     });
 
     test('should handle empty variable returns gracefully', () => {
@@ -133,7 +142,14 @@ describe('Variable Returns per Year', () => {
             }
         };
         
-        const result = simulate(2023, 2024, elements, returnConfig, 0.26375, 'yearly');
+        const result = simulate({
+            startYear: 2023,
+            endYear: 2024,
+            elements,
+            returnConfig,
+            steuerlast: 0.26375,
+            simulationAnnual: 'yearly',
+        });
         
         expect(result[0].simulation[2023]).toBeDefined();
         expect(result[0].simulation[2024]).toBeDefined();

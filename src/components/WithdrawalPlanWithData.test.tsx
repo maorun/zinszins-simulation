@@ -2,7 +2,7 @@
 import { render, screen } from '@testing-library/react';
 import { describe, it, expect, vi } from 'vitest';
 import WithdrawalPlan from './WithdrawalPlan';
-import * as SimulationContext from '../contexts/SimulationContext';
+import * as useSimulation from '../contexts/useSimulation';
 
 const mockSimulationData = {
     sparplanElements: [
@@ -19,7 +19,7 @@ const mockSimulationData = {
 
 describe('WithdrawalPlan with simulation data', () => {
     it('renders the withdrawal plan section', () => {
-        const useSimulationSpy = vi.spyOn(SimulationContext, 'useSimulation');
+        const useSimulationSpy = vi.spyOn(useSimulation, 'useSimulation');
         useSimulationSpy.mockReturnValue({
             simulationData: mockSimulationData,
             startEnd: [2040, 2080],

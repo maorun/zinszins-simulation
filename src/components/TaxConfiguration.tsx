@@ -1,5 +1,5 @@
 import { Panel, Form, Slider, FlexboxGrid, Button, Table, IconButton, InputNumber } from 'rsuite';
-import { useSimulation } from '../contexts/SimulationContext';
+import { useSimulation } from '../contexts/useSimulation';
 
 const TaxConfiguration = () => {
     const {

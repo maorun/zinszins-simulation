@@ -1,5 +1,5 @@
 import { Panel } from 'rsuite';
-import { useSimulation } from '../contexts/SimulationContext';
+import { useSimulation } from '../contexts/useSimulation';
 import { Zeitspanne } from './Zeitspanne';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
 

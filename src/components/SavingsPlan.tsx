@@ -1,6 +1,6 @@
 import { Panel } from 'rsuite';
 import { SparplanEingabe } from './SparplanEingabe';
-import { useSimulation } from '../contexts/SimulationContext';
+import { useSimulation } from '../contexts/useSimulation';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
 
 const SavingsPlan = () => {

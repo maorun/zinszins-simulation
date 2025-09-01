@@ -1,12 +1,13 @@
-import React, { createContext, useContext, useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import type { SimulationAnnualType } from '../utils/simulate';
 import { SimulationAnnual, simulate } from '../utils/simulate';
 import type { ReturnMode, ReturnConfiguration } from '../utils/random-returns';
 import type { Sparplan, SparplanElement } from '../utils/sparplan-utils';
 import { convertSparplanToElements, initialSparplan } from '../utils/sparplan-utils';
 import type { WithdrawalResult } from '../../helpers/withdrawal';
+import { SimulationContext } from './SimulationContextValue';
 
-interface SimulationContextState {
+export interface SimulationContextState {
   rendite: number;
   setRendite: (rendite: number) => void;
   steuerlast: number;
@@ -40,8 +41,6 @@ interface SimulationContextState {
   performSimulation: (overwrite?: { rendite?: number }) => Promise<void>;
 }
 
-const SimulationContext = createContext<SimulationContextState | undefined>(undefined);
-
 export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {
   const [rendite, setRendite] = useState(5);
   const [steuerlast, setSteuerlast] = useState(26.375);
@@ -67,9 +66,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const performSimulation = useCallback(async (overwrite: { rendite?: number } = {}) => {
     setIsLoading(true);
     try {
-      let returnConfig: ReturnConfiguration | number;
+      let returnConfig: ReturnConfiguration;
       if (overwrite.rendite !== undefined) {
-        returnConfig = overwrite.rendite / 100;
+        returnConfig = { mode: 'fixed', fixedRate: overwrite.rendite / 100 };
       } else {
         if (returnMode === 'random') {
           returnConfig = {
@@ -97,30 +96,16 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
         }
       }
 
-      let result;
-      if (typeof returnConfig === 'number') {
-          result = simulate(
-              yearToday,
-              startEnd[0],
-              sparplanElemente,
-              returnConfig,
-              steuerlast / 100,
-              simulationAnnual,
-              teilfreistellungsquote / 100,
-              freibetragPerYear
-          );
-      } else {
-          result = simulate(
-              yearToday,
-              startEnd[0],
-              sparplanElemente,
-              returnConfig,
-              steuerlast / 100,
-              simulationAnnual,
-              teilfreistellungsquote / 100,
-              freibetragPerYear
-          );
-      }
+      const result = simulate({
+        startYear: yearToday,
+        endYear: startEnd[0],
+        elements: sparplanElemente,
+        returnConfig,
+        steuerlast: steuerlast / 100,
+        simulationAnnual,
+        teilfreistellungsquote: teilfreistellungsquote / 100,
+        freibetragPerYear,
+      });
 
       setSimulationData({
         sparplanElements: result.map(element => ({
@@ -166,10 +151,3 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   );
 };
 
-export const useSimulation = () => {
-  const context = useContext(SimulationContext);
-  if (context === undefined) {
-    throw new Error('useSimulation must be used within a SimulationProvider');
-  }
-  return context;
-};

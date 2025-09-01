@@ -31,14 +31,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
     test('should process basic yearly simulation', () => {
       const elements = [createSparplanElement('2023-01-01', 24000)];
       
-      const result = simulate(
-        2023, // startYear
-        2025, // endYear  
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2025,
         elements,
-        0.05, // 5% growth rate
-        0.26375, // tax rate
-        'yearly'
-      );
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       expect(result).toHaveLength(1);
       expect(result[0].simulation).toBeDefined();
@@ -50,7 +50,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
     test('should calculate compound growth correctly', () => {
       const elements = [createSparplanElement('2023-01-01', 10000)];
       
-      const result = simulate(2023, 2024, elements, 0.05, 0.26375, 'yearly');
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       const year2023 = result[0].simulation[2023];
       const year2024 = result[0].simulation[2024];
@@ -67,8 +74,22 @@ describe('Simulate (Compound Interest) Calculations', () => {
     test('should handle monthly vs yearly simulations differently', () => {
       const elements = [createSparplanElement('2023-01-01', 12000)];
       
-      const yearlyResult = simulate(2023, 2024, [...elements], 0.05, 0.26375, 'yearly');
-      const monthlyResult = simulate(2023, 2024, [...elements], 0.05, 0.26375, 'monthly');
+      const yearlyResult = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements: [...elements],
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
+      const monthlyResult = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements: [...elements],
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'monthly',
+      });
       
       // Both should have results
       expect(yearlyResult[0].simulation[2023]).toBeDefined();
@@ -85,7 +106,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
     test('should handle Einmalzahlung (one-time payment)', () => {
       const elements = [createSparplanElement('2023-01-01', 50000, 'einmalzahlung', 5000)];
       
-      const result = simulate(2023, 2024, elements, 0.05, 0.26375, 'yearly');
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       expect(result[0].simulation[2023]).toBeDefined();
       expect(result[0].simulation[2023].startkapital).toBe(55000); // einzahlung + gewinn
@@ -97,7 +125,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
         createSparplanElement('2023-06-01', 20000, 'einmalzahlung', 2000)
       ];
       
-      const result = simulate(2023, 2024, elements, 0.05, 0.26375, 'yearly');
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       expect(result).toHaveLength(2);
       expect(result[0].simulation[2023]).toBeDefined();
@@ -107,7 +142,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
     test('should apply German tax logic correctly', () => {
       const elements = [createSparplanElement('2023-01-01', 1000000)]; // Much larger amount
       
-      const result = simulate(2023, 2024, elements, 0.08, 0.26375, 'yearly');
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.08 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       const simulation = result[0].simulation[2024];
       expect(simulation.bezahlteSteuer).toBeGreaterThanOrEqual(0); // Changed to >= since small amounts may not trigger tax
@@ -120,7 +162,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
     test('should handle edge case: zero growth rate', () => {
       const elements = [createSparplanElement('2023-01-01', 10000)];
       
-      const result = simulate(2023, 2024, elements, 0, 0.26375, 'yearly');
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       const simulation = result[0].simulation[2024];
       expect(simulation.endkapital).toBeLessThanOrEqual(simulation.startkapital);
@@ -129,7 +178,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
     test('should handle edge case: single year simulation', () => {
       const elements = [createSparplanElement('2023-01-01', 15000)];
       
-      const result = simulate(2023, 2023, elements, 0.05, 0.26375, 'yearly');
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2023,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       expect(result[0].simulation[2023]).toBeDefined();
       expect(Object.keys(result[0].simulation)).toHaveLength(1);
@@ -138,7 +194,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
     test('should validate simulation result structure', () => {
       const elements = [createSparplanElement('2023-01-01', 25000)];
       
-      const result = simulate(2023, 2024, elements, 0.06, 0.26375, 'yearly');
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.06 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       const simulation = result[0].simulation[2023];
       
@@ -159,7 +222,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
       // Simulate typical German investor: 2000€/month for 15 years
       const elements = [createSparplanElement('2025-01-01', 240000)]; // Much larger to trigger taxes
       
-      const result = simulate(2025, 2040, elements, 0.07, 0.26375, 'yearly');
+      const result = simulate({
+        startYear: 2025,
+        endYear: 2040,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.07 },
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       const finalYear = result[0].simulation[2040];
       
@@ -187,7 +257,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
         fixedRate: 0.05
       };
       
-      const result = simulate(2023, 2025, elements, returnConfig, 0.26375, 'yearly');
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2025,
+        elements,
+        returnConfig,
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       expect(result).toHaveLength(1);
       expect(result[0].simulation).toBeDefined();
@@ -207,7 +284,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
         }
       };
       
-      const result = simulate(2023, 2025, elements, returnConfig, 0.26375, 'yearly');
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2025,
+        elements,
+        returnConfig,
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       expect(result).toHaveLength(1);
       expect(result[0].simulation).toBeDefined();
@@ -233,8 +317,22 @@ describe('Simulate (Compound Interest) Calculations', () => {
         }
       };
       
-      const result1 = simulate(2023, 2025, elements1, returnConfig, 0.26375, 'yearly');
-      const result2 = simulate(2023, 2025, elements2, returnConfig, 0.26375, 'yearly');
+      const result1 = simulate({
+        startYear: 2023,
+        endYear: 2025,
+        elements: elements1,
+        returnConfig,
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
+      const result2 = simulate({
+        startYear: 2023,
+        endYear: 2025,
+        elements: elements2,
+        returnConfig,
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       // Results should be identical with same seed
       expect(result1[0].simulation[2023].endkapital).toBe(result2[0].simulation[2023].endkapital);
@@ -256,8 +354,22 @@ describe('Simulate (Compound Interest) Calculations', () => {
         randomConfig: { averageReturn: 0.07, seed: 2 }
       };
       
-      const result1 = simulate(2023, 2025, elements1, returnConfig1, 0.26375, 'yearly');
-      const result2 = simulate(2023, 2025, elements2, returnConfig2, 0.26375, 'yearly');
+      const result1 = simulate({
+        startYear: 2023,
+        endYear: 2025,
+        elements: elements1,
+        returnConfig: returnConfig1,
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
+      const result2 = simulate({
+        startYear: 2023,
+        endYear: 2025,
+        elements: elements2,
+        returnConfig: returnConfig2,
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       // Results should be different with different seeds
       expect(result1[0].simulation[2025].endkapital).not.toBe(result2[0].simulation[2025].endkapital);
@@ -273,7 +385,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
         }
       };
       
-      const result = simulate(2023, 2024, elements, returnConfig, 0.26375, 'monthly');
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig,
+        steuerlast: 0.26375,
+        simulationAnnual: 'monthly',
+      });
       
       expect(result[0].simulation[2023]).toBeDefined();
       expect(result[0].simulation[2024]).toBeDefined();
@@ -291,7 +410,14 @@ describe('Simulate (Compound Interest) Calculations', () => {
         // No fixedRate provided, should use default
       };
       
-      const result = simulate(2023, 2024, elements, returnConfig, 0.26375, 'yearly');
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig,
+        steuerlast: 0.26375,
+        simulationAnnual: 'yearly',
+      });
       
       const simulation = result[0].simulation[2023];
       expect(simulation).toBeDefined();

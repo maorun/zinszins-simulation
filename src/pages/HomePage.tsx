@@ -1,7 +1,8 @@
 import { useEffect, useMemo } from "react";
 import { Button } from "rsuite";
 import 'rsuite/dist/rsuite.min.css';
-import { SimulationProvider, useSimulation } from '../contexts/SimulationContext';
+import { SimulationProvider } from '../contexts/SimulationContext';
+import { useSimulation } from '../contexts/useSimulation';
 import Header from '../components/Header';
 import SimulationParameters from '../components/SimulationParameters';
 import SimulationResults from '../components/SimulationResults';

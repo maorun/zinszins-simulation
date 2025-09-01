@@ -1,5 +1,5 @@
 import { Panel, Form, RadioGroup, Radio } from 'rsuite';
-import { useSimulation } from '../contexts/SimulationContext';
+import { useSimulation } from '../contexts/useSimulation';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
 
 const SimulationConfiguration = () => {
