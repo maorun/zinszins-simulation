@@ -265,7 +265,7 @@ export function EntnahmeSimulationsAusgabe({
                     >
                     {/* Withdrawal Return Configuration */}
                     <Form.Group controlId="withdrawalReturnMode">
-                        <Form.ControlLabel>Entnahme-Rendite Modus</Form.ControlLabel>
+                        <Form.ControlLabel>Rendite-Konfiguration (Entnahme-Phase)</Form.ControlLabel>
                         <RadioGroup
                             inline
                             value={withdrawalReturnMode}
@@ -277,11 +277,14 @@ export function EntnahmeSimulationsAusgabe({
                             <Radio value="random">Zufällige Rendite</Radio>
                             <Radio value="variable">Variable Rendite</Radio>
                         </RadioGroup>
+                        <Form.HelpText>
+                            Konfiguration der erwarteten Rendite während der Entnahme-Phase (unabhängig von der Sparphase-Rendite).
+                        </Form.HelpText>
                     </Form.Group>
 
                     {withdrawalReturnMode === 'fixed' && (
                         <Form.Group controlId="rendite">
-                            <Form.ControlLabel>Erwartete Rendite (%)</Form.ControlLabel>
+                            <Form.ControlLabel>Erwartete Rendite Entnahme-Phase (%)</Form.ControlLabel>
                             <Form.Control name="rendite" accepter={Slider} 
                                 min={0}
                                 max={10}
@@ -290,6 +293,9 @@ export function EntnahmeSimulationsAusgabe({
                                 progress
                                 graduated
                             />
+                            <Form.HelpText>
+                                Feste Rendite für die gesamte Entnahme-Phase (oft konservativer als die Sparphase-Rendite).
+                            </Form.HelpText>
                         </Form.Group>
                     )}
 

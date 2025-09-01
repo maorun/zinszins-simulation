@@ -13,9 +13,9 @@ const ReturnConfiguration = () => {
     } = useSimulation();
 
     return (
-        <Panel header="📈 Rendite-Konfiguration" bordered>
+        <Panel header="📈 Rendite-Konfiguration (Sparphase)" bordered>
             <Form.Group controlId="returnMode">
-                <Form.ControlLabel>Rendite-Modus</Form.ControlLabel>
+                <Form.ControlLabel>Rendite-Modus für Sparphase</Form.ControlLabel>
                 <RadioGroup
                     inline
                     value={returnMode}
@@ -29,6 +29,9 @@ const ReturnConfiguration = () => {
                     <Radio value="random">Zufällige Rendite</Radio>
                     <Radio value="variable">Variable Rendite</Radio>
                 </RadioGroup>
+                <Form.HelpText>
+                    Konfiguration der erwarteten Rendite während der Ansparphase (bis zum Beginn der Entnahme).
+                </Form.HelpText>
             </Form.Group>
 
             {returnMode === 'fixed' && <FixedReturnConfiguration />}
