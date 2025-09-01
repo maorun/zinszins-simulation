@@ -23,6 +23,7 @@ import type {
 import { validateWithdrawalSegments, createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
 import type { WithdrawalStrategy } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
+import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
 
 export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable';
 
@@ -207,6 +208,17 @@ export function WithdrawalSegmentForm({
                                         };
                                     }
                                     
+                                    // Initialize dynamicConfig when switching to dynamisch strategy
+                                    if (newStrategy === "dynamisch" && !segment.dynamicConfig) {
+                                        updates.dynamicConfig = {
+                                            baseWithdrawalRate: 0.04, // 4% base rate
+                                            upperThresholdReturn: 0.08, // 8% upper threshold
+                                            upperThresholdAdjustment: 0.05, // 5% increase when exceeding
+                                            lowerThresholdReturn: 0.02, // 2% lower threshold
+                                            lowerThresholdAdjustment: -0.05, // 5% decrease when below
+                                        };
+                                    }
+                                    
                                     updateSegment(segment.id, updates);
                                 }}
                             >
@@ -221,6 +233,9 @@ export function WithdrawalSegmentForm({
                                 </RadioTile>
                                 <RadioTile value="monatlich_fest" label="Monatlich fest">
                                     Fester monatlicher Betrag
+                                </RadioTile>
+                                <RadioTile value="dynamisch" label="Dynamische Strategie">
+                                    Rendite-abhängige Anpassung
                                 </RadioTile>
                             </RadioTileGroup>
                         </Form.Group>
@@ -297,6 +312,71 @@ export function WithdrawalSegmentForm({
                                     </Form.Group>
                                 )}
                             </>
+                        )}
+
+                        {/* Dynamic strategy settings */}
+                        {segment.strategy === "dynamisch" && (
+                            <DynamicWithdrawalConfiguration
+                                values={{
+                                    baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
+                                    upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
+                                    upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
+                                    lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
+                                    lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
+                                }}
+                                onChange={{
+                                    onBaseWithdrawalRateChange: (value) => updateSegment(segment.id, {
+                                        dynamicConfig: {
+                                            ...segment.dynamicConfig,
+                                            baseWithdrawalRate: value,
+                                            upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
+                                            upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
+                                            lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
+                                            lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
+                                        }
+                                    }),
+                                    onUpperThresholdReturnChange: (value) => updateSegment(segment.id, {
+                                        dynamicConfig: {
+                                            ...segment.dynamicConfig,
+                                            baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
+                                            upperThresholdReturn: value,
+                                            upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
+                                            lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
+                                            lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
+                                        }
+                                    }),
+                                    onUpperThresholdAdjustmentChange: (value) => updateSegment(segment.id, {
+                                        dynamicConfig: {
+                                            ...segment.dynamicConfig,
+                                            baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
+                                            upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
+                                            upperThresholdAdjustment: value,
+                                            lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
+                                            lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
+                                        }
+                                    }),
+                                    onLowerThresholdReturnChange: (value) => updateSegment(segment.id, {
+                                        dynamicConfig: {
+                                            ...segment.dynamicConfig,
+                                            baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
+                                            upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
+                                            upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
+                                            lowerThresholdReturn: value,
+                                            lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
+                                        }
+                                    }),
+                                    onLowerThresholdAdjustmentChange: (value) => updateSegment(segment.id, {
+                                        dynamicConfig: {
+                                            ...segment.dynamicConfig,
+                                            baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
+                                            upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
+                                            upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
+                                            lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
+                                            lowerThresholdAdjustment: value,
+                                        }
+                                    }),
+                                }}
+                            />
                         )}
 
                         <Divider />
