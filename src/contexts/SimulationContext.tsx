@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useMemo } from 'react';
+import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import type { SimulationAnnualType } from '../utils/simulate';
 import { SimulationAnnual, simulate } from '../utils/simulate';
 import type { ReturnMode, ReturnConfiguration } from '../utils/random-returns';
@@ -6,6 +6,7 @@ import type { Sparplan, SparplanElement } from '../utils/sparplan-utils';
 import { convertSparplanToElements, initialSparplan } from '../utils/sparplan-utils';
 import type { WithdrawalResult } from '../../helpers/withdrawal';
 import { SimulationContext } from './SimulationContextValue';
+import { saveConfiguration, loadConfiguration, type SavedConfiguration } from '../utils/config-storage';
 
 export interface SimulationContextState {
   rendite: number;
@@ -39,29 +40,118 @@ export interface SimulationContextState {
   withdrawalResults: WithdrawalResult | null;
   setWithdrawalResults: (withdrawalResults: WithdrawalResult | null) => void;
   performSimulation: (overwrite?: { rendite?: number }) => Promise<void>;
+  // Configuration management
+  saveCurrentConfiguration: () => void;
+  loadSavedConfiguration: () => void;
+  resetToDefaults: () => void;
 }
 
 export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {
-  const [rendite, setRendite] = useState(5);
-  const [steuerlast, setSteuerlast] = useState(26.375);
-  const [teilfreistellungsquote, setTeilfreistellungsquote] = useState(30);
-  const [freibetragPerYear, setFreibetragPerYear] = useState<{ [year: number]: number }>({ 2023: 2000 });
-  const [returnMode, setReturnMode] = useState<ReturnMode>('fixed');
-  const [averageReturn, setAverageReturn] = useState(7);
-  const [standardDeviation, setStandardDeviation] = useState(15);
-  const [randomSeed, setRandomSeed] = useState<number | undefined>(undefined);
-  const [variableReturns, setVariableReturns] = useState<Record<number, number>>({});
-  const [startEnd, setStartEnd] = useState<[number, number]>([2040, 2080]);
-  const [sparplan, setSparplan] = useState<Sparplan[]>([initialSparplan]);
-  const [simulationAnnual, setSimulationAnnual] = useState<SimulationAnnualType>(SimulationAnnual.yearly);
+  // Default configuration
+  const defaultConfig = useMemo(() => ({
+    rendite: 5,
+    steuerlast: 26.375,
+    teilfreistellungsquote: 30,
+    freibetragPerYear: { 2023: 2000 },
+    returnMode: 'fixed' as ReturnMode,
+    averageReturn: 7,
+    standardDeviation: 15,
+    randomSeed: undefined,
+    variableReturns: {},
+    startEnd: [2040, 2080] as [number, number],
+    sparplan: [initialSparplan],
+    simulationAnnual: SimulationAnnual.yearly,
+  }), []);
+
+  // Try to load saved configuration, fallback to defaults
+  const loadInitialConfig = () => {
+    const savedConfig = loadConfiguration();
+    return savedConfig || defaultConfig;
+  };
+
+  const initialConfig = loadInitialConfig();
+
+  const [rendite, setRendite] = useState(initialConfig.rendite);
+  const [steuerlast, setSteuerlast] = useState(initialConfig.steuerlast);
+  const [teilfreistellungsquote, setTeilfreistellungsquote] = useState(initialConfig.teilfreistellungsquote);
+  const [freibetragPerYear, setFreibetragPerYear] = useState<{ [year: number]: number }>(initialConfig.freibetragPerYear);
+  const [returnMode, setReturnMode] = useState<ReturnMode>(initialConfig.returnMode);
+  const [averageReturn, setAverageReturn] = useState(initialConfig.averageReturn);
+  const [standardDeviation, setStandardDeviation] = useState(initialConfig.standardDeviation);
+  const [randomSeed, setRandomSeed] = useState<number | undefined>(initialConfig.randomSeed);
+  const [variableReturns, setVariableReturns] = useState<Record<number, number>>(initialConfig.variableReturns);
+  const [startEnd, setStartEnd] = useState<[number, number]>(initialConfig.startEnd);
+  const [sparplan, setSparplan] = useState<Sparplan[]>(initialConfig.sparplan);
+  const [simulationAnnual, setSimulationAnnual] = useState<SimulationAnnualType>(initialConfig.simulationAnnual);
   const [sparplanElemente, setSparplanElemente] = useState<SparplanElement[]>(
-    convertSparplanToElements([initialSparplan], startEnd, simulationAnnual)
+    convertSparplanToElements(initialConfig.sparplan, initialConfig.startEnd, initialConfig.simulationAnnual)
   );
   const [simulationData, setSimulationData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [withdrawalResults, setWithdrawalResults] = useState<WithdrawalResult | null>(null);
 
   const yearToday = new Date().getFullYear();
+
+  // Configuration management functions
+  const getCurrentConfiguration = useCallback((): SavedConfiguration => ({
+    rendite,
+    steuerlast,
+    teilfreistellungsquote,
+    freibetragPerYear,
+    returnMode,
+    averageReturn,
+    standardDeviation,
+    randomSeed,
+    variableReturns,
+    startEnd,
+    sparplan,
+    simulationAnnual,
+  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, startEnd, sparplan, simulationAnnual]);
+
+  const saveCurrentConfiguration = useCallback(() => {
+    const config = getCurrentConfiguration();
+    saveConfiguration(config);
+  }, [getCurrentConfiguration]);
+
+  const loadSavedConfiguration = useCallback(() => {
+    const savedConfig = loadConfiguration();
+    if (savedConfig) {
+      setRendite(savedConfig.rendite);
+      setSteuerlast(savedConfig.steuerlast);
+      setTeilfreistellungsquote(savedConfig.teilfreistellungsquote);
+      setFreibetragPerYear(savedConfig.freibetragPerYear);
+      setReturnMode(savedConfig.returnMode);
+      setAverageReturn(savedConfig.averageReturn);
+      setStandardDeviation(savedConfig.standardDeviation);
+      setRandomSeed(savedConfig.randomSeed);
+      setVariableReturns(savedConfig.variableReturns);
+      setStartEnd(savedConfig.startEnd);
+      setSparplan(savedConfig.sparplan);
+      setSimulationAnnual(savedConfig.simulationAnnual);
+      setSparplanElemente(convertSparplanToElements(savedConfig.sparplan, savedConfig.startEnd, savedConfig.simulationAnnual));
+    }
+  }, []);
+
+  const resetToDefaults = useCallback(() => {
+    setRendite(defaultConfig.rendite);
+    setSteuerlast(defaultConfig.steuerlast);
+    setTeilfreistellungsquote(defaultConfig.teilfreistellungsquote);
+    setFreibetragPerYear(defaultConfig.freibetragPerYear);
+    setReturnMode(defaultConfig.returnMode);
+    setAverageReturn(defaultConfig.averageReturn);
+    setStandardDeviation(defaultConfig.standardDeviation);
+    setRandomSeed(defaultConfig.randomSeed);
+    setVariableReturns(defaultConfig.variableReturns);
+    setStartEnd(defaultConfig.startEnd);
+    setSparplan(defaultConfig.sparplan);
+    setSimulationAnnual(defaultConfig.simulationAnnual);
+    setSparplanElemente(convertSparplanToElements(defaultConfig.sparplan, defaultConfig.startEnd, defaultConfig.simulationAnnual));
+  }, [defaultConfig]);
+
+  // Auto-save configuration whenever any config value changes
+  useEffect(() => {
+    saveCurrentConfiguration();
+  }, [saveCurrentConfiguration]);
 
   const performSimulation = useCallback(async (overwrite: { rendite?: number } = {}) => {
     setIsLoading(true);
@@ -137,11 +227,16 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     isLoading,
     withdrawalResults, setWithdrawalResults,
     performSimulation,
+    // Configuration management
+    saveCurrentConfiguration,
+    loadSavedConfiguration,
+    resetToDefaults,
   }), [
     rendite, steuerlast, teilfreistellungsquote, freibetragPerYear,
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
-    simulationData, isLoading, withdrawalResults, performSimulation
+    simulationData, isLoading, withdrawalResults, performSimulation,
+    saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults
   ]);
 
   return (
