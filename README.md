@@ -32,6 +32,11 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
 - **4% Regel** - Jährliche Entnahme von 4% des Startkapitals
 - **3% Regel** - Jährliche Entnahme von 3% des Startkapitals
 - **Variable Entnahme-Strategien** - Benutzerdefinierte Entnahmeprozentsätze
+- **Dynamische Entnahmestrategie** - Renditebasierte Anpassung der Entnahme basierend auf Vorjahres-Performance
+  - Konfigurierbare Basis-Entnahmerate
+  - Obere und untere Rendite-Schwellenwerte
+  - Relative Anpassungen bei Über-/Unterschreitung der Schwellen
+  - Automatische Jahr-für-Jahr Anpassung basierend auf tatsächlichen Renditen
 - **Monatliche Entnahme-Strategien** - Feste monatliche Entnahmen mit Inflationsanpassung und Portfolio-Guardrails
 - **Variable Renditen während Entnahme** - Jahr-für-Jahr konfigurierbare Renditen für die Entnahmephase
 - **Geteilte Entnahme-Phasen** - Segmentierung der Entsparphase in verschiedene Zeiträume mit unterschiedlichen Strategien
