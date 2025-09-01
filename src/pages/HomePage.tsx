@@ -6,6 +6,7 @@ import { useSimulation } from '../contexts/useSimulation';
 import Header from '../components/Header';
 import SimulationParameters from '../components/SimulationParameters';
 import SimulationResults from '../components/SimulationResults';
+import ConfigurationManagement from '../components/ConfigurationManagement';
 import { convertSparplanToElements } from "../utils/sparplan-utils";
 import SimulationModeSelector from "../components/SimulationModeSelector";
 
@@ -126,6 +127,8 @@ const HomePageContent = () => {
             )}
 
             <SimulationParameters />
+
+            <ConfigurationManagement />
 
             <SimulationModeSelector />
 
