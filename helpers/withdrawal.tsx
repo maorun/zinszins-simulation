@@ -270,10 +270,11 @@ export function calculateWithdrawal({
     }
 
     const finalLayers = mutableLayers.map((l: MutableLayer) => {
-        const lastYear = Object.keys(l.simulation || {}).map(Number).sort((a: number, b: number) => b-a)[0] || (startYear -1);
+        // For finalLayers, we should set the simulation data at endYear, not the last existing year
+        // This ensures proper handoff between segments
         l.simulation = l.simulation || {};
-        l.simulation[lastYear] = {
-            ...(l.simulation[lastYear] || {}),
+        l.simulation[endYear] = {
+            ...(l.simulation[endYear] || {}),
             endkapital: l.currentValue,
             vorabpauschaleAccumulated: l.accumulatedVorabpauschale,
         };

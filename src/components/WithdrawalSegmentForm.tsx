@@ -42,6 +42,13 @@ export function WithdrawalSegmentForm({
 }: WithdrawalSegmentFormProps) {
     const [errors, setErrors] = useState<string[]>([]);
 
+    // Check if more segments can be added
+    const canAddMoreSegments = () => {
+        const lastSegment = segments[segments.length - 1];
+        const nextStartYear = lastSegment ? lastSegment.endYear + 1 : withdrawalStartYear;
+        return nextStartYear <= withdrawalEndYear;
+    };
+
     // Validate segments whenever they change
     const validateAndUpdateSegments = (newSegments: WithdrawalSegment[]) => {
         const validationErrors = validateWithdrawalSegments(newSegments, withdrawalStartYear, withdrawalEndYear);
@@ -54,9 +61,15 @@ export function WithdrawalSegmentForm({
         const newId = `segment_${Date.now()}`;
         const lastSegment = segments[segments.length - 1];
         const startYear = lastSegment ? lastSegment.endYear + 1 : withdrawalStartYear;
-        const endYear = Math.min(startYear + 5, withdrawalEndYear); // Default 5 year segment
         
-        // Import createDefaultWithdrawalSegment here
+        // Check if there's space for a new segment
+        if (startYear > withdrawalEndYear) {
+            return; // Cannot add more segments - no available years
+        }
+        
+        // Calculate end year, ensuring it's at least the start year and doesn't exceed withdrawal end year
+        const endYear = Math.max(startYear, Math.min(startYear + 5, withdrawalEndYear)); // Default 5 year segment
+        
         const newSegment = createDefaultWithdrawalSegment(newId, `Phase ${segments.length + 1}`, startYear, endYear);
         
         validateAndUpdateSegments([...segments, newSegment]);
@@ -131,7 +144,12 @@ export function WithdrawalSegmentForm({
                     </div>
                 )}
                 
-                <Button appearance="primary" onClick={addSegment} startIcon={<PlusIcon />}>
+                <Button 
+                    appearance="primary" 
+                    onClick={addSegment} 
+                    startIcon={<PlusIcon />}
+                    disabled={!canAddMoreSegments()}
+                >
                     Phase hinzufügen
                 </Button>
             </div>
