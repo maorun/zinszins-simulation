@@ -1,5 +1,6 @@
 import { Panel } from 'rsuite';
 import { EntnahmeSimulationsAusgabe } from './EntnahmeSimulationsAusgabe';
+import WithdrawalPhaseMonteCarloAnalysis from './WithdrawalPhaseMonteCarloAnalysis';
 import { useSimulation } from '../contexts/useSimulation';
 
 const WithdrawalPlan = () => {
@@ -24,6 +25,9 @@ const WithdrawalPlan = () => {
                 steuerlast={steuerlast / 100}
                 teilfreistellungsquote={teilfreistellungsquote / 100}
             />
+            
+            {/* Monte Carlo Analysis positioned after the withdrawal summary */}
+            <WithdrawalPhaseMonteCarloAnalysis />
         </Panel>
     );
 };

@@ -1,6 +1,7 @@
 import { Panel } from 'rsuite';
 import { SparplanEingabe } from './SparplanEingabe';
 import { SparplanSimulationsAusgabe } from './SparplanSimulationsAusgabe';
+import SavingsPhaseMonteCarloAnalysis from './SavingsPhaseMonteCarloAnalysis';
 import { useSimulation } from '../contexts/useSimulation';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
 
@@ -24,6 +25,9 @@ const SavingsPlan = () => {
           <SparplanSimulationsAusgabe
             elemente={simulationData.sparplanElements}
           />
+          
+          {/* Monte Carlo Analysis positioned after the summary */}
+          <SavingsPhaseMonteCarloAnalysis />
         </Panel>
       )}
     </>
