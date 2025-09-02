@@ -24,7 +24,7 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
       // Component should render successfully, content may vary based on state
       const container = document.body;
       expect(container).toBeInTheDocument();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
   });
 
   it('handles withdrawal strategy selection', async () => {
@@ -38,7 +38,7 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     await waitFor(() => {
       const container = document.body;
       expect(container).toBeInTheDocument();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
   });
 
   it('displays Monte Carlo analysis for savings phase', async () => {
@@ -52,7 +52,7 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     await waitFor(() => {
       const container = document.body;
       expect(container).toBeInTheDocument();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
   });
 
   it('displays Monte Carlo analysis for withdrawal phase', async () => {
@@ -66,7 +66,7 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     await waitFor(() => {
       const container = document.body;
       expect(container).toBeInTheDocument();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
   });
 
   it('shows comprehensive Monte Carlo scenarios', async () => {
@@ -93,7 +93,7 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
       
       // Monte Carlo might not show if no data, but component should render
       expect(scenarios.length).toBeGreaterThanOrEqual(0);
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
   });
 
   it('handles different return configurations in Monte Carlo', async () => {
@@ -108,7 +108,7 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
       // Component should render without crashing
       const container = document.body;
       expect(container).toBeInTheDocument();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
   });
 
   it('integrates withdrawal calculations with tax considerations', async () => {
@@ -131,7 +131,7 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
       // Tax considerations might not be visible in withdrawal plan directly,
       // but component should render properly
       expect(taxElements.length).toBeGreaterThanOrEqual(0);
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
   });
 
   it('maintains calculation consistency between savings and withdrawal phases', async () => {
@@ -149,7 +149,7 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
       // Should not crash and should maintain state consistency
       const container = document.body;
       expect(container).toBeInTheDocument();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
   });
 
   it('handles random seed configuration for deterministic results', async () => {
@@ -170,7 +170,7 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
       
       // Seed information might not always be visible
       expect(seedElements.length).toBeGreaterThanOrEqual(0);
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
   });
 
   it('displays volatility and risk information', async () => {
@@ -192,6 +192,6 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
       ].filter(Boolean);
       
       expect(riskElements.length).toBeGreaterThanOrEqual(0);
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
   });
 });

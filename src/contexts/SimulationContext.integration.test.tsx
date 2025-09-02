@@ -50,7 +50,7 @@ describe('Cross-Component State Management Integration Tests', () => {
       expect(contextData.rendite).toBeDefined();
       expect(contextData.steuerlast).toBeDefined();
       expect(contextData.simulationAnnual).toBeDefined();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
     
     // Check default values are reasonable
     expect(contextData.startEnd).toHaveLength(2);
@@ -71,7 +71,7 @@ describe('Cross-Component State Management Integration Tests', () => {
     
     await waitFor(() => {
       expect(contextData).toBeTruthy();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
     
     const initialStartYear = contextData.startEnd[0];
     const initialEndYear = contextData.startEnd[1];
@@ -95,7 +95,7 @@ describe('Cross-Component State Management Integration Tests', () => {
     
     await waitFor(() => {
       expect(contextData).toBeTruthy();
-    }, { timeout: 3000 });
+    }, { timeout: 1000 });
     
     // Should have simulation data structure (might be null initially)
     expect(contextData).toHaveProperty('simulationData');
@@ -114,7 +114,7 @@ describe('Cross-Component State Management Integration Tests', () => {
     
     await waitFor(() => {
       expect(screen.getByTestId('test-context')).toBeInTheDocument();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
     
     // Check that displayed values are in expected formats
     const startYear = screen.getByTestId('start-year').textContent;
@@ -156,7 +156,7 @@ describe('Cross-Component State Management Integration Tests', () => {
     
     await waitFor(() => {
       expect(screen.getByTestId('render-count')).toBeInTheDocument();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
     
     // Should not have excessive re-renders
     expect(renderCount).toBeLessThan(10);
@@ -173,7 +173,7 @@ describe('Cross-Component State Management Integration Tests', () => {
     
     await waitFor(() => {
       expect(contextData).toBeTruthy();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
     
     // Check that required methods exist
     expect(typeof contextData.performSimulation).toBe('function');
@@ -199,7 +199,7 @@ describe('Cross-Component State Management Integration Tests', () => {
     
     await waitFor(() => {
       expect(contextData).toBeTruthy();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
     
     // Should load with reasonable defaults
     // Default: startEnd [2040, 2080], 5% return, 26.375% tax
@@ -224,7 +224,7 @@ describe('Cross-Component State Management Integration Tests', () => {
     
     await waitFor(() => {
       expect(contextData).toBeTruthy();
-    }, { timeout: 2000 });
+    }, { timeout: 800 });
     
     const initialData = { ...contextData };
     
