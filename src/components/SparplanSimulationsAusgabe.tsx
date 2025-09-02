@@ -1,9 +1,36 @@
 import { Panel, Table } from "rsuite";
+import { useState } from 'react';
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type { Summary } from "../utils/summary-utils";
 import { fullSummary, getSparplanSummary } from "../utils/summary-utils";
+import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal';
 
 const { Column, HeaderCell, Cell } = Table;
+
+// Info icon component for Vorabpauschale explanation
+const InfoIcon = ({ onClick }: { onClick: () => void }) => (
+    <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ 
+            marginLeft: '0.5rem', 
+            cursor: 'pointer', 
+            color: '#1976d2',
+            verticalAlign: 'middle'
+        }}
+        onClick={onClick}
+    >
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"></path>
+        <path d="M12,17h.01"></path>
+    </svg>
+);
 
 
 
@@ -40,6 +67,9 @@ export function SparplanSimulationsAusgabe({
 }: {
     elemente?: SparplanElement[]
 }) {
+    const [showVorabpauschaleModal, setShowVorabpauschaleModal] = useState(false);
+    const [selectedVorabDetails, setSelectedVorabDetails] = useState<any>(null);
+
     const summary: Summary = fullSummary(elemente)
     const tableData = elemente?.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime()
     ).map((el) => ({
@@ -51,6 +81,11 @@ export function SparplanSimulationsAusgabe({
         ).bezahlteSteuer.toFixed(2),
         endkapital: getSparplanSummary(el.simulation).endkapital?.toFixed(2),
     }));
+
+    const handleVorabpauschaleInfoClick = (details: any) => {
+        setSelectedVorabDetails(details);
+        setShowVorabpauschaleModal(true);
+    };
 
     return (
         <Panel header="📈 Sparplan-Verlauf" bordered>
@@ -87,6 +122,29 @@ export function SparplanSimulationsAusgabe({
                                     {thousands(el.bezahlteSteuer)} €
                                 </span>
                             </div>
+                            
+                            {/* Vorabpauschale Information */}
+                            {el.simulation && (() => {
+                                // Get the latest year with vorabpauschale details for this sparplan
+                                const years = Object.keys(el.simulation).map(Number).sort((a, b) => b - a);
+                                const latestYearWithVorab = years.find(year => 
+                                    el.simulation[year]?.vorabpauschaleDetails
+                                );
+                                
+                                if (latestYearWithVorab && el.simulation[latestYearWithVorab]?.vorabpauschaleDetails) {
+                                    const vorabDetails = el.simulation[latestYearWithVorab].vorabpauschaleDetails;
+                                    return (
+                                        <div className="sparplan-detail">
+                                            <span className="detail-label">📊 Vorabpauschale (aktuelles Jahr):</span>
+                                            <span className="detail-value" style={{ color: '#1976d2', display: 'flex', alignItems: 'center' }}>
+                                                {thousands(vorabDetails.vorabpauschaleAmount.toString())} €
+                                                <InfoIcon onClick={() => handleVorabpauschaleInfoClick(vorabDetails)} />
+                                            </span>
+                                        </div>
+                                    );
+                                }
+                                return null;
+                            })()}
                         </div>
                     </div>
                 ))}
@@ -179,6 +237,12 @@ export function SparplanSimulationsAusgabe({
                     </Column>
                 </Table>
             </div>
+            
+            <VorabpauschaleExplanationModal
+                open={showVorabpauschaleModal}
+                onClose={() => setShowVorabpauschaleModal(false)}
+                selectedVorabDetails={selectedVorabDetails}
+            />
         </Panel>
     );
 }

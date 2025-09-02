@@ -35,7 +35,7 @@ describe('WithdrawalPlan with simulation data', () => {
         render(
             <WithdrawalPlan />
         );
-        expect(screen.getByRole('heading', { name: /Entnahme/ })).toBeInTheDocument();
+        expect(screen.getByRole('heading', { name: /💸 Entnahme/ })).toBeInTheDocument();
         useSimulationSpy.mockRestore();
     });
 });
