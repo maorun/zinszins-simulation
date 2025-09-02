@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from "react";
 import { Button } from "rsuite";
 import "rsuite/dist/rsuite.min.css";
-import MonteCarloAnalysis from "~/components/MonteCarloAnalysis";
 import ConfigurationManagement from "../components/ConfigurationManagement";
 import Header from "../components/Header";
 import SimulationModeSelector from "../components/SimulationModeSelector";
@@ -178,8 +177,6 @@ const HomePageContent = () => {
       <ConfigurationManagement />
 
       <SimulationModeSelector />
-
-      <MonteCarloAnalysis />
 
       {isLoading && <div className="loading-state">⏳ Berechnung läuft...</div>}
 
