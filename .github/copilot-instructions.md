@@ -175,6 +175,8 @@ This is a personal finance tool focused on German tax law and investment plannin
 
 When making changes to this codebase, follow this complete workflow to ensure high-quality, reliable code:
 
+**IMPORTANT: The following instructions about testing are not optional. They are the most critical part of the workflow.**
+
 ### Development Workflow Steps
 
 1. **Development Phase**
@@ -183,15 +185,17 @@ When making changes to this codebase, follow this complete workflow to ensure hi
    - Follow existing code patterns and architectural decisions
    - Update documentation (README.md) when implementing new features
 
-2. **Testing and Linting Phase**
-   - Run all tests: `npm run test` (should pass all 138+ tests)
-   - Run linting: `npm run lint` (should pass with max 10 warnings)
-   - Run type checking: `npm run typecheck` (expect minimal errors)
-   - Run build: `npm run build` (should complete successfully)
-   - **If any errors are found**: Fix them and return to step 1
+2. **Testing and Linting Phase - MANDATORY**
+   - **No Exceptions:** For **every single change or addition** of a feature, corresponding tests **must** be added or adapted. This is a mandatory requirement for every pull request.
+   - **Run all tests:** `npm run test` (should pass all 138+ tests). If you add new features, add new tests. If you change features, adapt existing tests.
+   - **Run linting:** `npm run lint` (should pass with max 10 warnings)
+   - **Run type checking:** `npm run typecheck` (expect minimal errors)
+   - **Run build:** `npm run build` (should complete successfully)
+   - **If any errors are found**: Fix them and return to step 1. Do not proceed if tests are failing.
 
 3. **Code Review Phase**
    - Review all changes thoroughly before finalizing
+   - **Crucially, verify that the testing requirements have been met.**
    - Check for code quality, maintainability, and adherence to project standards
    - Verify changes align with German financial requirements and tax calculations
    - Ensure no unintended side effects or regressions
@@ -228,7 +232,7 @@ When performing code review, examine the following aspects:
 - **German Language**: Proper German terminology and user-facing text
 
 #### Testing & Documentation
-- **Test Coverage**: New functionality has appropriate test coverage
+- **Test Coverage**: **Is there sufficient test coverage for the new functionality? This is not a suggestion, it is a requirement.**
 - **Documentation Updates**: README.md updated for new features
 - **Code Comments**: Complex German tax calculations are well documented
 - **Backwards Compatibility**: Changes don't break existing functionality
@@ -237,7 +241,7 @@ When performing code review, examine the following aspects:
 
 Before approving changes, verify:
 
-- [ ] All tests pass (`npm run test`)
+- [ ] **All tests pass (`npm run test`) - This is the most important check.**
 - [ ] Linting passes (`npm run lint`) 
 - [ ] Build succeeds (`npm run build`)
 - [ ] Manual testing confirms functionality works
