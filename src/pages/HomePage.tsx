@@ -116,21 +116,17 @@ const HomePageContent = () => {
                 🔄 Neu berechnen
             </Button>
 
-            {simulationData ? (
-                <div className="enhanced-endkapital-overview">
-                    <EnhancedOverview />
-                </div>
-            ) : (
-                <div className="endkapital-highlight">
-                    💰 Endkapital: ...
-                </div>
-            )}
-
             <SimulationParameters />
 
             <ConfigurationManagement />
 
             <SimulationModeSelector />
+
+            {simulationData && (
+                <div className="enhanced-endkapital-overview" style={{ marginTop: '1rem' }}>
+                    <EnhancedOverview />
+                </div>
+            )}
 
             {simulationData && <SimulationResults />}
 
