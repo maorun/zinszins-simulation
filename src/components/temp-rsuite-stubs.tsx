@@ -1,9 +1,11 @@
 // Temporary stubs for RSuite components to maintain compatibility while migrating
-import React from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button as ShadcnButton } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 
 // Re-export Button from shadcn with appearance prop compatibility
@@ -22,25 +24,58 @@ export const Button = ({ appearance, startIcon, ...props }: any) => {
   );
 };
 
-// Panel component stub
+// Enhanced Panel component with proper collapsible functionality
 export const Panel = ({ 
   header, 
   children, 
   bordered: _bordered, 
-  collapsible: _collapsible, 
+  collapsible = false, 
   bodyFill: _bodyFill, 
-  expanded: _expanded, 
+  expanded = true,
+  defaultExpanded = true,
   ...props 
-}: any) => (
-  <Card {...props}>
-    {header && (
-      <CardHeader>
-        <CardTitle>{header}</CardTitle>
-      </CardHeader>
-    )}
-    <CardContent>{children}</CardContent>
-  </Card>
-);
+}: any) => {
+  const [isOpen, setIsOpen] = useState(expanded !== undefined ? expanded : defaultExpanded);
+  
+  if (!collapsible) {
+    // Non-collapsible panel - just render as a regular Card
+    return (
+      <Card {...props}>
+        {header && (
+          <CardHeader>
+            <CardTitle>{header}</CardTitle>
+          </CardHeader>
+        )}
+        <CardContent>{children}</CardContent>
+      </Card>
+    );
+  }
+
+  // Collapsible panel using Radix UI Collapsible
+  return (
+    <Card {...props}>
+      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        {header && (
+          <CardHeader>
+            <CollapsibleTrigger asChild>
+              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2">
+                <CardTitle className="text-left">{header}</CardTitle>
+                {isOpen ? (
+                  <ChevronUp className="h-4 w-4 text-gray-500" />
+                ) : (
+                  <ChevronDown className="h-4 w-4 text-gray-500" />
+                )}
+              </div>
+            </CollapsibleTrigger>
+          </CardHeader>
+        )}
+        <CollapsibleContent>
+          <CardContent>{children}</CardContent>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
+  );
+};
 
 // Form component stubs
 export const Form = ({ children, onSubmit, ...props }: any) => (
