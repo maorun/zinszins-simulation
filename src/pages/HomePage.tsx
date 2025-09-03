@@ -1,6 +1,5 @@
 import { useEffect, useMemo } from "react";
-import { Button } from "rsuite";
-import "rsuite/dist/rsuite.min.css";
+import { Button } from "../components/ui/button";
 import ConfigurationManagement from "../components/ConfigurationManagement";
 import Header from "../components/Header";
 import SimulationModeSelector from "../components/SimulationModeSelector";
@@ -157,8 +156,8 @@ const HomePageContent = () => {
           );
           performSimulation();
         }}
-        style={{ marginBottom: "1rem", width: "100%" }}
-        appearance="primary"
+        className="mb-4 w-full"
+        variant="default"
       >
         🔄 Neu berechnen
       </Button>
