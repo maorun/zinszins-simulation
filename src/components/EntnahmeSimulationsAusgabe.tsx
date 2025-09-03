@@ -1,5 +1,11 @@
 import { useMemo, useEffect, useCallback } from "react";
-// RSuite imports temporarily removed
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Input } from "./ui/input";
+import { Label } from "./ui/label";
+import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
+import { Slider } from "./ui/slider";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { toast } from "sonner";
 import type { SparplanElement } from "../utils/sparplan-utils";
 import {
   calculateWithdrawal,

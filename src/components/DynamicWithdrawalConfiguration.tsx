@@ -65,7 +65,7 @@ export function DynamicWithdrawalConfiguration({
                         <Slider
                             name="dynamischBasisrate"
                             value={[formValue!.dynamischBasisrate]}
-                            onValueChange={([value]) => {
+                            onValueChange={([_value]) => {
                                 // Handle form change if needed
                             }}
                             min={2}
@@ -110,7 +110,7 @@ export function DynamicWithdrawalConfiguration({
                         <Slider
                             name="dynamischObereSchwell"
                             value={[formValue!.dynamischObereSchwell]}
-                            onValueChange={([value]) => {
+                            onValueChange={([_value]) => {
                                 // Handle form change if needed
                             }}
                             min={4}
@@ -155,7 +155,7 @@ export function DynamicWithdrawalConfiguration({
                         <Slider
                             name="dynamischObereAnpassung"
                             value={[formValue!.dynamischObereAnpassung]}
-                            onValueChange={([value]) => {
+                            onValueChange={([_value]) => {
                                 // Handle form change if needed
                             }}
                             min={0}
@@ -200,7 +200,7 @@ export function DynamicWithdrawalConfiguration({
                         <Slider
                             name="dynamischUntereSchwell"
                             value={[formValue!.dynamischUntereSchwell]}
-                            onValueChange={([value]) => {
+                            onValueChange={([_value]) => {
                                 // Handle form change if needed
                             }}
                             min={-5}
@@ -245,7 +245,7 @@ export function DynamicWithdrawalConfiguration({
                         <Slider
                             name="dynamischUntereAnpassung"
                             value={[formValue!.dynamischUntereAnpassung]}
-                            onValueChange={([value]) => {
+                            onValueChange={([_value]) => {
                                 // Handle form change if needed
                             }}
                             min={-15}

@@ -40,10 +40,10 @@ const InfoIcon = () => (
     </svg>
 );
 
-import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Input } from "./ui/input";
-import { Alert, AlertDescription } from "./ui/alert";
+import { Label } from "./ui/label";
 import { toast } from "sonner";
 
 
@@ -173,16 +173,23 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <Card>
-                <CardHeader>
-                    <CardTitle>💰 Sparpläne erstellen</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
-                        Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum
-                    </div>
-                    <form onSubmit={handleSparplanSubmit}>
-                        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+            <Panel header="💰 Sparpläne erstellen" bordered collapsible>
+                <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
+                    Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum
+                </div>
+                <Form fluid
+                    formValue={sparplanFormValues}
+                    onChange={changedFormValue => setSparplanFormValues({
+                        start: changedFormValue.start,
+                        end: changedFormValue.end,
+                        einzahlung: changedFormValue.einzahlung,
+                        ter: changedFormValue.ter,
+                        transactionCostPercent: changedFormValue.transactionCostPercent,
+                        transactionCostAbsolute: changedFormValue.transactionCostAbsolute,
+                    })}
+                    onSubmit={handleSparplanSubmit}
+                >
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
                         <Form.Group controlId="start">
                             <Form.ControlLabel>
                                 Start
