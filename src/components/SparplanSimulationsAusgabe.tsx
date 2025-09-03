@@ -1,4 +1,4 @@
-import { Panel, Table } from "rsuite";
+import { Table } from "rsuite";
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { useState } from 'react';
 import type { SparplanElement } from "../utils/sparplan-utils";

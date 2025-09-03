@@ -1,6 +1,7 @@
 import { Button } from './ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Alert, AlertDescription } from './ui/alert';
+import { toast } from 'sonner';
 import { useSimulation } from '../contexts/useSimulation';
 import { hasConfiguration, clearConfiguration } from '../utils/config-storage';
 
@@ -15,7 +16,7 @@ export default function ConfigurationManagement() {
     if (confirm('Möchten Sie wirklich alle gespeicherten Einstellungen löschen und zu den Standardwerten zurückkehren?')) {
       clearConfiguration();
       resetToDefaults();
-      alert('Konfiguration wurde gelöscht und auf Standardwerte zurückgesetzt.');
+      toast.success('Konfiguration wurde gelöscht und auf Standardwerte zurückgesetzt.');
     }
   };
 
