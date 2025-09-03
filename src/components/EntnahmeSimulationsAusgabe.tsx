@@ -512,7 +512,7 @@ export function EntnahmeSimulationsAusgabe({
 
   return (
     <>
-      <Panel header="Variablen" bordered>
+      <Panel header="Variablen" bordered collapsible>
         {/* Toggle between single, segmented, and comparison withdrawal */}
         <Form.Group controlId="withdrawalMode">
           <Form.ControlLabel>Entnahme-Modus</Form.ControlLabel>
@@ -1406,7 +1406,7 @@ export function EntnahmeSimulationsAusgabe({
           </Form>
         )}
       </Panel>
-      <Panel header="Simulation" bordered>
+      <Panel header="Simulation" bordered collapsible>
         {withdrawalData ? (
           <div>
             {useComparisonMode ? (

@@ -5,6 +5,7 @@ import { Button as ShadcnButton } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { Slider as ShadcnSlider } from './ui/slider';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -99,8 +100,16 @@ Form.Control = ({
   value,
   onChange,
   fluid,
+  handleTitle, // Remove this prop - not valid for inputs
+  min,
+  max,
+  step,
   ...props 
 }: any) => {
+  // Filter out non-HTML input attributes
+  const validInputProps = { ...props };
+  delete validInputProps.handleTitle;
+  
   if (accepter === DatePicker) {
     return (
       <Input 
@@ -110,7 +119,7 @@ Form.Control = ({
         value={value ? value.toISOString().slice(0, 7) : ''}
         onChange={(e) => onChange && onChange(new Date(e.target.value))}
         style={{ width: fluid ? '100%' : undefined }}
-        {...props}
+        {...validInputProps}
       />
     );
   }
@@ -123,7 +132,43 @@ Form.Control = ({
         value={value || ''}
         onChange={(e) => onChange && onChange(Number(e.target.value) || 0)}
         style={{ width: fluid ? '100%' : undefined }}
-        {...props}
+        min={min}
+        max={max}
+        step={step}
+        {...validInputProps}
+      />
+    );
+  }
+  if (accepter === Slider) {
+    return (
+      <ShadcnSlider 
+        value={[value || 0]}
+        onValueChange={(values: number[]) => onChange && onChange(values[0])}
+        min={min}
+        max={max}
+        step={step}
+        className="mt-2"
+        {...validInputProps}
+      />
+    );
+  }
+  if (accepter === RadioTileGroup) {
+    return (
+      <RadioTileGroup 
+        value={value}
+        onValueChange={onChange}
+        {...validInputProps}
+      >
+        {props.children}
+      </RadioTileGroup>
+    );
+  }
+  if (accepter === Toggle) {
+    return (
+      <Toggle 
+        checked={value}
+        onCheckedChange={onChange}
+        {...validInputProps}
       />
     );
   }
@@ -134,7 +179,7 @@ Form.Control = ({
       value={value || ''}
       onChange={(e) => onChange && onChange(e.target.value)}
       style={{ width: fluid ? '100%' : undefined }}
-      {...props}
+      {...validInputProps}
     />
   );
 };
@@ -216,14 +261,13 @@ export const RadioTile = Radio;
 export const RadioTileGroup = RadioGroup;
 
 export const Slider = ({ value, onChange, min, max, step, ...props }: any) => (
-  <input 
-    type="range"
-    value={value}
-    onChange={(e) => onChange && onChange(Number(e.target.value))}
+  <ShadcnSlider 
+    value={[value || 0]}
+    onValueChange={(values: number[]) => onChange && onChange(values[0])}
     min={min}
     max={max}
     step={step}
-    style={{ width: '100%' }}
+    className="mt-2"
     {...props}
   />
 );
