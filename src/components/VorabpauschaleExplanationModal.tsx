@@ -1,4 +1,5 @@
-import { Modal, Button } from 'rsuite';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from './ui/dialog';
+import { Button } from './ui/button';
 
 interface VorabpauschaleExplanationModalProps {
     open: boolean;
@@ -12,15 +13,12 @@ const VorabpauschaleExplanationModal = ({
     selectedVorabDetails 
 }: VorabpauschaleExplanationModalProps) => {
     return (
-        <Modal 
-            open={open} 
-            onClose={onClose}
-            size="lg"
-        >
-            <Modal.Header>
-                <Modal.Title>📊 Vorabpauschale-Berechnung Schritt für Schritt</Modal.Title>
-            </Modal.Header>
-            <Modal.Body>
+        <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
+            <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle>📊 Vorabpauschale-Berechnung Schritt für Schritt</DialogTitle>
+                </DialogHeader>
+                <div>
                 {selectedVorabDetails && (
                     <div style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>
                         <div style={{ 
@@ -184,13 +182,16 @@ const VorabpauschaleExplanationModal = ({
                         </div>
                     </div>
                 )}
-            </Modal.Body>
-            <Modal.Footer>
-                <Button onClick={onClose} appearance="primary">
-                    Verstanden
-                </Button>
-            </Modal.Footer>
-        </Modal>
+                </div>
+                <DialogFooter>
+                    <DialogClose asChild>
+                        <Button>
+                            Verstanden
+                        </Button>
+                    </DialogClose>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
     );
 };
 

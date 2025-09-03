@@ -1,16 +1,20 @@
-import { Tabs } from 'rsuite';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from './ui/tabs';
 import SavingsPlan from './SavingsPlan';
 import WithdrawalPlan from './WithdrawalPlan';
 
 const SimulationModeSelector = () => {
   return (
-    <Tabs defaultActiveKey="1" appearance="subtle">
-      <Tabs.Tab eventKey="1" title="Ansparen">
+    <Tabs defaultValue="ansparen">
+      <TabsList className="grid w-full grid-cols-2">
+        <TabsTrigger value="ansparen">Ansparen</TabsTrigger>
+        <TabsTrigger value="entnehmen">Entnehmen</TabsTrigger>
+      </TabsList>
+      <TabsContent value="ansparen">
         <SavingsPlan />
-      </Tabs.Tab>
-      <Tabs.Tab eventKey="2" title="Entnehmen">
+      </TabsContent>
+      <TabsContent value="entnehmen">
         <WithdrawalPlan />
-      </Tabs.Tab>
+      </TabsContent>
     </Tabs>
   );
 };

@@ -1,8 +1,6 @@
-import {
-    InputNumber,
-    Slider,
-    Form
-} from "rsuite";
+import { Input } from "./ui/input";
+import { Slider } from "./ui/slider";
+import { Label } from "./ui/label";
 
 export function Zeitspanne({
     startEnd,
@@ -15,35 +13,44 @@ export function Zeitspanne({
     const max = 2100;
     const [startOfIndependence, endOfLife] = startEnd;
     return (
-        <Form.Group>
-            <Form.ControlLabel>Ende der Sparphase</Form.ControlLabel>
-            <Slider
-                min={min}
-                max={max}
-                progress
-                style={{ marginTop: 16, marginBottom: 16 }}
-                value={startOfIndependence}
-                onChange={(value) => {
-                    dispatch([value, endOfLife]);
-                }}
-            />
-            <InputNumber
+        <div className="space-y-4">
+            <div className="space-y-2">
+                <Label htmlFor="endOfSavingsPhase">Ende der Sparphase</Label>
+                <Slider
+                    id="endOfSavingsPhase"
+                    min={min}
+                    max={max}
+                    value={[startOfIndependence]}
+                    onValueChange={([value]) => {
+                        dispatch([value, endOfLife]);
+                    }}
+                    className="w-full"
+                />
+                <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>{min}</span>
+                    <span className="font-medium">{startOfIndependence}</span>
+                    <span>{max}</span>
+                </div>
+            </div>
+            <Input
+                type="number"
                 min={min}
                 max={max}
                 value={startEnd[0]}
-                onChange={(nextValue) => {
-                    nextValue = Number(nextValue);
+                onChange={(e) => {
+                    const nextValue = Number(e.target.value);
                     const [, end] = startEnd;
                     if (nextValue > end || nextValue < min || nextValue > max) {
                         return;
                     }
                     dispatch([nextValue, end]);
                 }}
+                className="w-32"
             />
-            <Form.HelpText>
+            <p className="text-sm text-muted-foreground">
                 Definiert das Ende der Sparphase (Jahr {startOfIndependence}). Die Entnahme-Phase beginnt automatisch im Folgejahr ({startOfIndependence + 1}).
-            </Form.HelpText>
-        </Form.Group>
+            </p>
+        </div>
     );
 }
 

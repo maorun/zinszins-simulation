@@ -1,4 +1,6 @@
-import { Form, Slider, InputNumber } from 'rsuite';
+import { Slider } from './ui/slider';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
 import { useSimulation } from '../contexts/useSimulation';
 
 const RandomReturnConfiguration = () => {
@@ -13,59 +15,66 @@ const RandomReturnConfiguration = () => {
     } = useSimulation();
 
     return (
-        <>
-            <Form.Group controlId="averageReturn">
-                <Form.ControlLabel>Durchschnittliche Rendite</Form.ControlLabel>
+        <div className="space-y-6">
+            <div className="space-y-2">
+                <Label htmlFor="averageReturn">Durchschnittliche Rendite</Label>
                 <Slider
-                    name="averageReturn"
-                    renderTooltip={(value) => value + "%"}
-                    handleTitle={(<div style={{ marginTop: '-17px' }}>{averageReturn}%</div>)}
-                    progress
-                    value={averageReturn}
-                    min={0}
-                    max={15}
-                    step={0.5}
-                    graduated
-                    onChange={(value) => {
+                    id="averageReturn"
+                    value={[averageReturn]}
+                    onValueChange={([value]) => {
                         setAverageReturn(value);
                         performSimulation();
                     }}
+                    min={0}
+                    max={15}
+                    step={0.5}
+                    className="w-full"
                 />
-            </Form.Group>
+                <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>0%</span>
+                    <span className="font-medium">{averageReturn}%</span>
+                    <span>15%</span>
+                </div>
+            </div>
 
-            <Form.Group controlId="standardDeviation">
-                <Form.ControlLabel>Volatilität (Standardabweichung)</Form.ControlLabel>
+            <div className="space-y-2">
+                <Label htmlFor="standardDeviation">Volatilität (Standardabweichung)</Label>
                 <Slider
-                    name="standardDeviation"
-                    renderTooltip={(value) => value + "%"}
-                    handleTitle={(<div style={{ marginTop: '-17px' }}>{standardDeviation}%</div>)}
-                    progress
-                    value={standardDeviation}
-                    min={5}
-                    max={30}
-                    step={1}
-                    graduated
-                    onChange={(value) => {
+                    id="standardDeviation"
+                    value={[standardDeviation]}
+                    onValueChange={([value]) => {
                         setStandardDeviation(value);
                         performSimulation();
                     }}
+                    min={5}
+                    max={30}
+                    step={1}
+                    className="w-full"
                 />
-            </Form.Group>
+                <div className="flex justify-between text-sm text-muted-foreground">
+                    <span>5%</span>
+                    <span className="font-medium">{standardDeviation}%</span>
+                    <span>30%</span>
+                </div>
+            </div>
 
-            <Form.Group controlId="randomSeed">
-                <Form.ControlLabel>Zufallsseed (optional für reproduzierbare Ergebnisse)</Form.ControlLabel>
-                <InputNumber
+            <div className="space-y-2">
+                <Label htmlFor="randomSeed">Zufallsseed (optional für reproduzierbare Ergebnisse)</Label>
+                <Input
+                    id="randomSeed"
+                    type="number"
                     placeholder="Leer lassen für echte Zufälligkeit"
-                    value={randomSeed}
-                    onChange={(value) => {
-                        setRandomSeed(typeof value === 'number' ? value : undefined);
+                    value={randomSeed || ''}
+                    onChange={(e) => {
+                        const value = e.target.value ? parseInt(e.target.value) : undefined;
+                        setRandomSeed(value);
                         performSimulation();
                     }}
                     min={1}
                     max={999999}
                 />
-            </Form.Group>
-        </>
+            </div>
+        </div>
     );
 };
 

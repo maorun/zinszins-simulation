@@ -1,4 +1,4 @@
-import { Panel } from 'rsuite';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { SparplanSimulationsAusgabe } from './SparplanSimulationsAusgabe';
 import { useSimulation } from '../contexts/useSimulation';
 
@@ -8,11 +8,16 @@ const SavingsPlanSimulation = () => {
     if (!simulationData) return null;
 
     return (
-        <Panel header="📊 Sparplan-Simulation" collapsible bordered>
-            <SparplanSimulationsAusgabe
-                elemente={simulationData.sparplanElements}
-            />
-        </Panel>
+        <Card>
+            <CardHeader>
+                <CardTitle>📊 Sparplan-Simulation</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <SparplanSimulationsAusgabe
+                    elemente={simulationData.sparplanElements}
+                />
+            </CardContent>
+        </Card>
     );
 };
 

@@ -1,7 +1,5 @@
-import { Table } from 'rsuite';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import type { RandomReturnConfig } from '../utils/random-returns';
-
-const { Column, HeaderCell, Cell } = Table;
 
 interface MonteCarloResult {
     scenario: string;
@@ -77,26 +75,23 @@ const MonteCarloAnalysisDisplay = ({ config, title, phaseTitle }: MonteCarloAnal
 
             {/* Desktop Table Layout */}
             <div className="desktop-only">
-                <Table
-                    data={scenarios}
-                    bordered
-                    style={{ marginBottom: '20px' }}
-                    rowClassName={(rowData) => rowData ? getRowClassName(rowData.scenario) : ''}
-                >
-                    <Column width={300} flexGrow={1}>
-                        <HeaderCell>Szenario</HeaderCell>
-                        <Cell dataKey="scenario" />
-                    </Column>
-
-                    <Column width={400} flexGrow={2}>
-                        <HeaderCell>Beschreibung</HeaderCell>
-                        <Cell dataKey="description" />
-                    </Column>
-
-                    <Column width={200} flexGrow={1}>
-                        <HeaderCell>Wahrscheinlichkeit</HeaderCell>
-                        <Cell dataKey="probability" />
-                    </Column>
+                <Table className="mb-5">
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Szenario</TableHead>
+                            <TableHead>Beschreibung</TableHead>
+                            <TableHead>Wahrscheinlichkeit</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {scenarios.map((scenario, index) => (
+                            <TableRow key={index} className={getRowClassName(scenario.scenario)}>
+                                <TableCell>{scenario.scenario}</TableCell>
+                                <TableCell>{scenario.description}</TableCell>
+                                <TableCell>{scenario.probability}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
                 </Table>
             </div>
 

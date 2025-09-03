@@ -1,7 +1,6 @@
-import { Panel, Table } from 'rsuite';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import type { RandomReturnConfig } from '../utils/random-returns';
-
-const { Column, HeaderCell, Cell } = Table;
 
 interface MonteCarloResultsProps {
     years: number[];
@@ -99,32 +98,34 @@ export function MonteCarloResults({
 
             {/* Desktop Table Layout */}
             <div className="desktop-only table-container">
-                <Table 
-                    data={scenarios}
-                    autoHeight
-                    rowClassName={(rowData) => getRowClassName(rowData?.scenario || '')}
-                >
-                    <Column width={200} flexGrow={1}>
-                        <HeaderCell>Szenario</HeaderCell>
-                        <Cell dataKey="scenario" />
-                    </Column>
-
-                    <Column width={400} flexGrow={2}>
-                        <HeaderCell>Beschreibung</HeaderCell>
-                        <Cell dataKey="description" />
-                    </Column>
-
-                    <Column width={200} flexGrow={1}>
-                        <HeaderCell>Wahrscheinlichkeit</HeaderCell>
-                        <Cell dataKey="probability" />
-                    </Column>
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHead>Szenario</TableHead>
+                            <TableHead>Beschreibung</TableHead>
+                            <TableHead>Wahrscheinlichkeit</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {scenarios.map((scenario, index) => (
+                            <TableRow key={index} className={getRowClassName(scenario.scenario)}>
+                                <TableCell>{scenario.scenario}</TableCell>
+                                <TableCell>{scenario.description}</TableCell>
+                                <TableCell>{scenario.probability}</TableCell>
+                            </TableRow>
+                        ))}
+                    </TableBody>
                 </Table>
             </div>
         </div>
     );
 
     return (
-        <Panel header={`Statistische Szenarien (Monte Carlo Simulation)`} bordered collapsible>
+        <Card>
+            <CardHeader>
+                <CardTitle>Statistische Szenarien (Monte Carlo Simulation)</CardTitle>
+            </CardHeader>
+            <CardContent>
             {renderAnalysisTable(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
             
             {withdrawalScenarios && withdrawalConfig && (
@@ -151,6 +152,7 @@ export function MonteCarloResults({
                     background-color: #d1ecf1 !important;
                 }
             `}</style>
-        </Panel>
+            </CardContent>
+        </Card>
     );
 }

@@ -1,4 +1,5 @@
-import { Form, Slider } from 'rsuite';
+import { Slider } from './ui/slider';
+import { Label } from './ui/label';
 import { useSimulation } from '../contexts/useSimulation';
 
 const VariableReturnConfiguration = () => {
@@ -12,38 +13,39 @@ const VariableReturnConfiguration = () => {
     const yearToday = new Date().getFullYear();
 
     return (
-        <Form.Group controlId="variableReturns">
-            <Form.ControlLabel>Variable Renditen pro Jahr</Form.ControlLabel>
-            <div style={{ maxHeight: '300px', overflowY: 'auto', border: '1px solid #e5e5ea', borderRadius: '6px', padding: '10px' }}>
+        <div className="space-y-2">
+            <Label htmlFor="variableReturns">Variable Renditen pro Jahr</Label>
+            <div className="max-h-[300px] overflow-y-auto border border-border rounded-md p-4 space-y-4">
                 {Array.from({ length: startEnd[0] - yearToday + 1 }, (_, i) => {
                     const year = yearToday + i;
                     return (
-                        <div key={year} style={{ display: 'flex', alignItems: 'center', marginBottom: '10px', gap: '10px' }}>
-                            <div style={{ minWidth: '60px', fontWeight: 'bold' }}>{year}:</div>
-                            <div style={{ flex: 1 }}>
+                        <div key={year} className="flex items-center gap-4">
+                            <div className="min-w-[60px] font-semibold">{year}:</div>
+                            <div className="flex-1">
                                 <Slider
-                                    value={variableReturns[year] || 5}
-                                    min={-10}
-                                    max={20}
-                                    step={0.5}
-                                    onChange={(value) => {
+                                    value={[variableReturns[year] || 5]}
+                                    onValueChange={([value]) => {
                                         const newReturns = { ...variableReturns, [year]: value };
                                         setVariableReturns(newReturns);
                                         performSimulation();
                                     }}
+                                    min={-10}
+                                    max={20}
+                                    step={0.5}
+                                    className="w-full"
                                 />
                             </div>
-                            <div style={{ minWidth: '50px', textAlign: 'right' }}>
+                            <div className="min-w-[50px] text-right text-sm font-medium">
                                 {(variableReturns[year] || 5).toFixed(1)}%
                             </div>
                         </div>
                     );
                 })}
             </div>
-            <div style={{ marginTop: '10px', fontSize: '12px', color: '#666' }}>
+            <div className="text-xs text-muted-foreground">
                 Tipp: Verwende negative Werte für wirtschaftliche Krisen und höhere Werte für Boom-Jahre.
             </div>
-        </Form.Group>
+        </div>
     );
 };
 
