@@ -1,17 +1,5 @@
 import { useMemo, useEffect, useCallback } from "react";
-import {
-  Form,
-  InputNumber,
-  Panel,
-  Radio,
-  RadioGroup,
-  RadioTile,
-  RadioTileGroup,
-  Slider,
-  Table,
-  Toggle,
-} from "rsuite";
-import "rsuite/dist/rsuite.min.css";
+// RSuite imports temporarily removed
 import type { SparplanElement } from "../utils/sparplan-utils";
 import {
   calculateWithdrawal,

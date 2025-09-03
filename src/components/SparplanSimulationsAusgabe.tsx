@@ -1,12 +1,13 @@
-import { Table } from "rsuite";
+// RSuite Table import temporarily removed
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
 import { useState } from 'react';
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type { Summary } from "../utils/summary-utils";
 import { fullSummary, getSparplanSummary } from "../utils/summary-utils";
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal';
 
-const { Column, HeaderCell, Cell } = Table;
+// Removed RSuite Table destructuring
 
 // Info icon component for Vorabpauschale explanation
 const InfoIcon = ({ onClick }: { onClick: () => void }) => (
