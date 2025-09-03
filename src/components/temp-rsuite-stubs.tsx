@@ -99,7 +99,18 @@ export const ButtonToolbar = ({ children, ...props }: any) => (
 );
 
 export const DatePicker = () => null; // Used as accepter identifier
-export const InputNumber = () => null; // Used as accepter identifier
+export const InputNumber = ({ value, onChange, min, max, step, placeholder, ...props }: any) => (
+  <Input
+    type="number"
+    value={value || ''}
+    onChange={(e) => onChange && onChange(e.target.value ? Number(e.target.value) : undefined)}
+    min={min}
+    max={max}
+    step={step}
+    placeholder={placeholder}
+    {...props}
+  />
+);
 
 export const Message = ({ type, children, ...props }: any) => (
   <div style={{ 
@@ -164,24 +175,36 @@ export const Slider = ({ value, onChange, min, max, step, ...props }: any) => (
   />
 );
 
-export const Table = ({ children, ...props }: any) => (
+// Define Table sub-components first
+const Column = () => null; // Not used in actual render, just for RSuite compatibility
+const HeaderCell = ({ children, ...props }: any) => (
+  <th style={{ padding: '0.5rem', borderBottom: '1px solid #e5e7eb', textAlign: 'left' }} {...props}>
+    {children}
+  </th>
+);
+
+const Cell = ({ children, ...props }: any) => (
+  <td style={{ padding: '0.5rem', borderBottom: '1px solid #f3f4f6' }} {...props}>
+    {children}
+  </td>
+);
+
+// Create Table component with attached sub-components
+const TableComponent = ({ children, ...props }: any) => (
   <table style={{ width: '100%', borderCollapse: 'collapse' }} {...props}>
     {children}
   </table>
 );
 
-// Add Column, HeaderCell, Cell as properties of Table
-export const Column = () => null; // Not used in actual render, just for RSuite compatibility
-export const HeaderCell = ({ children, ...props }: any) => (
-  <th style={{ padding: '0.5rem', borderBottom: '1px solid #e5e7eb', textAlign: 'left' }} {...props}>
-    {children}
-  </th>
-);
-export const Cell = ({ children, ...props }: any) => (
-  <td style={{ padding: '0.5rem', borderBottom: '1px solid #f3f4f6' }} {...props}>
-    {children}
-  </td>
-);
+// Attach sub-components to Table
+TableComponent.Column = Column;
+TableComponent.HeaderCell = HeaderCell;
+TableComponent.Cell = Cell;
+
+export const Table = TableComponent;
+
+// Also export individual components for direct imports
+export { Column, HeaderCell, Cell };
 
 // Assign static properties for RSuite compatibility
 (Table as any).Column = Column;

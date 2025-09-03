@@ -267,14 +267,11 @@ export function WithdrawalSegmentForm({
                             <Form.Group>
                                 <Form.ControlLabel>Entnahme-Prozentsatz (%)</Form.ControlLabel>
                                 <Slider
-                                    value={(segment.customPercentage || 0.05) * 100}
+                                    value={[(segment.customPercentage || 0.05) * 100]}
                                     min={2}
                                     max={7}
                                     step={0.5}
-                                    onChange={(value) => updateSegment(segment.id, { customPercentage: value / 100 })}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.customPercentage || 0.05) * 100).toFixed(1)}%</div>)}
-                                    progress
-                                    graduated
+                                    onValueChange={(value) => updateSegment(segment.id, { customPercentage: value[0] / 100 })}
                                 />
                             </Form.Group>
                         )}
@@ -316,20 +313,17 @@ export function WithdrawalSegmentForm({
                                     <Form.Group>
                                         <Form.ControlLabel>Anpassungsschwelle (%)</Form.ControlLabel>
                                         <Slider
-                                            value={(segment.monthlyConfig?.guardrailsThreshold || 0.10) * 100}
+                                            value={[(segment.monthlyConfig?.guardrailsThreshold || 0.10) * 100]}
                                             min={5}
                                             max={20}
                                             step={1}
-                                            onChange={(value) => updateSegment(segment.id, {
+                                            onValueChange={(value) => updateSegment(segment.id, {
                                                 monthlyConfig: {
                                                     ...segment.monthlyConfig,
                                                     monthlyAmount: segment.monthlyConfig?.monthlyAmount || 2000,
-                                                    guardrailsThreshold: value / 100
+                                                    guardrailsThreshold: value[0] / 100
                                                 }
                                             })}
-                                            handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.monthlyConfig?.guardrailsThreshold || 0.10) * 100).toFixed(0)}%</div>)}
-                                            progress
-                                            graduated
                                         />
                                     </Form.Group>
                                 )}
@@ -425,19 +419,16 @@ export function WithdrawalSegmentForm({
                             <Form.Group>
                                 <Form.ControlLabel>Erwartete Rendite (%)</Form.ControlLabel>
                                 <Slider
-                                    value={(segment.returnConfig.fixedRate || 0.05) * 100}
+                                    value={[(segment.returnConfig.fixedRate || 0.05) * 100]}
                                     min={0}
                                     max={10}
                                     step={0.5}
-                                    onChange={(value) => updateSegment(segment.id, {
+                                    onValueChange={(value) => updateSegment(segment.id, {
                                         returnConfig: {
                                             mode: 'fixed',
-                                            fixedRate: value / 100
+                                            fixedRate: value[0] / 100
                                         }
                                     })}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.returnConfig.fixedRate || 0.05) * 100).toFixed(1)}%</div>)}
-                                    progress
-                                    graduated
                                 />
                             </Form.Group>
                         )}
@@ -459,16 +450,13 @@ export function WithdrawalSegmentForm({
                             <Form.Group>
                                 <Form.ControlLabel>Inflationsrate (%)</Form.ControlLabel>
                                 <Slider
-                                    value={(segment.inflationConfig.inflationRate || 0.02) * 100}
+                                    value={[(segment.inflationConfig.inflationRate || 0.02) * 100]}
                                     min={0}
                                     max={5}
                                     step={0.1}
-                                    onChange={(value) => updateSegment(segment.id, {
-                                        inflationConfig: { inflationRate: value / 100 }
+                                    onValueChange={(value) => updateSegment(segment.id, {
+                                        inflationConfig: { inflationRate: value[0] / 100 }
                                     })}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.inflationConfig.inflationRate || 0.02) * 100).toFixed(1)}%</div>)}
-                                    progress
-                                    graduated
                                 />
                             </Form.Group>
                         )}
@@ -513,14 +501,11 @@ export function WithdrawalSegmentForm({
                                 <Form.Group>
                                     <Form.ControlLabel>Einkommensteuersatz (%)</Form.ControlLabel>
                                     <Slider
-                                        value={(segment.incomeTaxRate || 0.25) * 100}
+                                        value={[(segment.incomeTaxRate || 0.25) * 100]}
                                         min={14}
                                         max={42}
                                         step={1}
-                                        onChange={(value) => updateSegment(segment.id, { incomeTaxRate: value / 100 })}
-                                        handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.incomeTaxRate || 0.25) * 100).toFixed(0)}%</div>)}
-                                        progress
-                                        graduated
+                                        onValueChange={(value) => updateSegment(segment.id, { incomeTaxRate: value[0] / 100 })}
                                     />
                                 </Form.Group>
                             </>
