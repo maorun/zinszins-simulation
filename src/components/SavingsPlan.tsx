@@ -1,4 +1,4 @@
-import { Panel } from 'rsuite';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { SparplanEingabe } from './SparplanEingabe';
 import { SparplanSimulationsAusgabe } from './SparplanSimulationsAusgabe';
 import SavingsPhaseMonteCarloAnalysis from './SavingsPhaseMonteCarloAnalysis';
@@ -10,25 +10,35 @@ const SavingsPlan = () => {
 
   return (
     <>
-      <Panel header="💼 Sparpläne erstellen" collapsible bordered>
-        <SparplanEingabe
-          dispatch={(sparplan) => {
-            setSparplan(sparplan);
-            setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual));
-          }}
-          simulationAnnual={simulationAnnual}
-        />
-      </Panel>
+      <Card className="mb-4">
+        <CardHeader>
+          <CardTitle>💼 Sparpläne erstellen</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <SparplanEingabe
+            dispatch={(sparplan) => {
+              setSparplan(sparplan);
+              setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual));
+            }}
+            simulationAnnual={simulationAnnual}
+          />
+        </CardContent>
+      </Card>
       
       {simulationData && (
-        <Panel header="📊 Sparplan-Verlauf" collapsible bordered style={{ marginTop: '1rem' }}>
-          <SparplanSimulationsAusgabe
-            elemente={simulationData.sparplanElements}
-          />
-          
-          {/* Monte Carlo Analysis positioned after the summary */}
-          <SavingsPhaseMonteCarloAnalysis />
-        </Panel>
+        <Card className="mb-4">
+          <CardHeader>
+            <CardTitle>📊 Sparplan-Verlauf</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <SparplanSimulationsAusgabe
+              elemente={simulationData.sparplanElements}
+            />
+            
+            {/* Monte Carlo Analysis positioned after the summary */}
+            <SavingsPhaseMonteCarloAnalysis />
+          </CardContent>
+        </Card>
       )}
     </>
   );

@@ -1,4 +1,5 @@
 import { Panel, Table } from "rsuite";
+import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { useState } from 'react';
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type { Summary } from "../utils/summary-utils";
@@ -41,24 +42,29 @@ export function SparplanEnd({
 }) {
     const summary: Summary = fullSummary(elemente)
     return (
-        <Panel header="🎯 Endkapital" bordered>
-            <div style={{
-                textAlign: 'center',
-                padding: '1.5rem',
-                background: 'linear-gradient(135deg, #28a745, #20c997)',
-                color: 'white',
-                borderRadius: '12px',
-                margin: '1rem 0',
-                boxShadow: '0 4px 12px rgba(40, 167, 69, 0.3)'
-            }}>
-                <div style={{ fontSize: '1.2rem', marginBottom: '0.5rem', opacity: 0.9 }}>
-                    Ihr Gesamtkapital
+        <Card className="mb-4">
+            <CardHeader>
+                <CardTitle>🎯 Endkapital</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div style={{
+                    textAlign: 'center',
+                    padding: '1.5rem',
+                    background: 'linear-gradient(135deg, #28a745, #20c997)',
+                    color: 'white',
+                    borderRadius: '12px',
+                    margin: '1rem 0',
+                    boxShadow: '0 4px 12px rgba(40, 167, 69, 0.3)'
+                }}>
+                    <div style={{ fontSize: '1.2rem', marginBottom: '0.5rem', opacity: 0.9 }}>
+                        Ihr Gesamtkapital
+                    </div>
+                    <div style={{ fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-1px' }}>
+                        {thousands(summary.endkapital.toFixed(2))} €
+                    </div>
                 </div>
-                <div style={{ fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-1px' }}>
-                    {thousands(summary.endkapital.toFixed(2))} €
-                </div>
-            </div>
-        </Panel>
+            </CardContent>
+        </Card>
     )
 }
 
@@ -88,10 +94,14 @@ export function SparplanSimulationsAusgabe({
     };
 
     return (
-        <Panel header="📈 Sparplan-Verlauf" bordered>
-            <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
-                Detaillierte Aufschlüsselung Ihrer Sparpläne nach Jahren
-            </div>
+        <Card className="mb-4">
+            <CardHeader>
+                <CardTitle>📈 Sparplan-Verlauf</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
+                    Detaillierte Aufschlüsselung Ihrer Sparpläne nach Jahren
+                </div>
             
             {/* Card Layout for All Devices */}
             <div className="sparplan-cards">
@@ -243,7 +253,8 @@ export function SparplanSimulationsAusgabe({
                 onClose={() => setShowVorabpauschaleModal(false)}
                 selectedVorabDetails={selectedVorabDetails}
             />
-        </Panel>
+            </CardContent>
+        </Card>
     );
 }
 
