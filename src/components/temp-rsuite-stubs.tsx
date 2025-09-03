@@ -188,9 +188,6 @@ export const Cell = ({ children, ...props }: any) => (
 (Table as any).HeaderCell = HeaderCell;
 (Table as any).Cell = Cell;
 
-// Also add them as direct exports for destructuring
-export { Column, HeaderCell, Cell };
-
 export const Toggle = ({ checked, onChange, ...props }: any) => (
   <input 
     type="checkbox"
