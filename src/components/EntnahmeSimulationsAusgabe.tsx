@@ -1,11 +1,16 @@
 import { useMemo, useEffect, useCallback } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
-import { Slider } from "./ui/slider";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
-import { toast } from "sonner";
+import {
+  Form,
+  InputNumber,
+  Panel,
+  Radio,
+  RadioGroup,
+  RadioTile,
+  RadioTileGroup,
+  Slider,
+  Table,
+  Toggle,
+} from "./temp-rsuite-stubs";
 import type { SparplanElement } from "../utils/sparplan-utils";
 import {
   calculateWithdrawal,

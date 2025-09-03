@@ -1,12 +1,21 @@
 import { useState } from "react";
-import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
 import { Input } from "./ui/input";
 import { Button } from "./ui/button";
-import { RadioGroup, RadioGroupItem } from "./ui/radio-group";
 import { Slider } from "./ui/slider";
-import { Label } from "./ui/label";
-import { Separator } from "./ui/separator";
-import { Plus, Trash2 } from 'lucide-react';
+import { 
+  Panel, 
+  Form, 
+  InputNumber, 
+  Radio, 
+  RadioGroup,
+  RadioTile, 
+  RadioTileGroup, 
+  Toggle, 
+  Divider,
+  IconButton,
+  PlusIcon,
+  TrashIcon
+} from './temp-rsuite-stubs';
 import type { 
     WithdrawalSegment
 } from "../utils/segmented-withdrawal";

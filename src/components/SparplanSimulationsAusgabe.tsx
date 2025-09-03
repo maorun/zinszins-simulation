@@ -1,6 +1,6 @@
 // RSuite Table import temporarily removed
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "./ui/table";
+import { Table, Column, HeaderCell, Cell } from "./temp-rsuite-stubs";
 import { useState } from 'react';
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type { Summary } from "../utils/summary-utils";
