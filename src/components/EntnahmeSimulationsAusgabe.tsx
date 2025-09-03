@@ -525,7 +525,7 @@ export function EntnahmeSimulationsAusgabe({
                   ? "segmented"
                   : "single"
             }
-            onChange={(value) => {
+            onChange={(value: string) => {
               const useComparison = value === "comparison";
               const useSegmented = value === "segmented";
 
@@ -576,7 +576,7 @@ export function EntnahmeSimulationsAusgabe({
             <Form
               fluid
               formValue={formValue}
-              onChange={(changedFormValue) => {
+              onChange={(changedFormValue: any) => {
                 dispatchEnd([startOfIndependence, changedFormValue.endOfLife]);
                 updateFormValue({
                   endOfLife: changedFormValue.endOfLife,
@@ -1000,7 +1000,7 @@ export function EntnahmeSimulationsAusgabe({
           <Form
             fluid
             formValue={formValue}
-            onChange={(changedFormValue) => {
+            onChange={(changedFormValue: any) => {
               dispatchEnd([startOfIndependence, changedFormValue.endOfLife]);
               updateFormValue({
                 endOfLife: changedFormValue.endOfLife,
@@ -1033,7 +1033,7 @@ export function EntnahmeSimulationsAusgabe({
               <RadioGroup
                 inline
                 value={withdrawalReturnMode}
-                onChange={(value) => {
+                onChange={(value: string) => {
                   updateConfig({
                     withdrawalReturnMode: value as WithdrawalReturnMode,
                   });
@@ -1093,7 +1093,7 @@ export function EntnahmeSimulationsAusgabe({
                     }
                     progress
                     graduated
-                    onChange={(value) =>
+                    onChange={(value: number) =>
                       updateConfig({ withdrawalAverageReturn: value })
                     }
                   />
@@ -1117,7 +1117,7 @@ export function EntnahmeSimulationsAusgabe({
                     }
                     progress
                     graduated
-                    onChange={(value) =>
+                    onChange={(value: number) =>
                       updateConfig({ withdrawalStandardDeviation: value })
                     }
                   />
@@ -1131,7 +1131,7 @@ export function EntnahmeSimulationsAusgabe({
                   <Form.ControlLabel>Zufalls-Seed (optional)</Form.ControlLabel>
                   <InputNumber
                     value={withdrawalRandomSeed}
-                    onChange={(value) =>
+                    onChange={(value: number | undefined) =>
                       updateConfig({
                         withdrawalRandomSeed:
                           typeof value === "number" ? value : undefined,
@@ -1184,7 +1184,7 @@ export function EntnahmeSimulationsAusgabe({
                               min={-10}
                               max={15}
                               step={0.5}
-                              onChange={(value) => {
+                              onChange={(value: number) => {
                                 const newReturns = {
                                   ...withdrawalVariableReturns,
                                   [year]: value,
@@ -1987,20 +1987,20 @@ export function EntnahmeSimulationsAusgabe({
                       <Column width={120}>
                         <HeaderCell>Startkapital</HeaderCell>
                         <Cell>
-                          {(rowData) => formatCurrency(rowData.startkapital)}
+                          {(rowData: any) => formatCurrency(rowData.startkapital)}
                         </Cell>
                       </Column>
                       <Column width={120}>
                         <HeaderCell>Entnahme</HeaderCell>
                         <Cell>
-                          {(rowData) => formatCurrency(rowData.entnahme)}
+                          {(rowData: any) => formatCurrency(rowData.entnahme)}
                         </Cell>
                       </Column>
                       {formValue.strategie === "monatlich_fest" && (
                         <Column width={120}>
                           <HeaderCell>Monatlich</HeaderCell>
                           <Cell>
-                            {(rowData) =>
+                            {(rowData: any) =>
                               rowData.monatlicheEntnahme
                                 ? formatCurrency(rowData.monatlicheEntnahme)
                                 : "-"
@@ -2012,7 +2012,7 @@ export function EntnahmeSimulationsAusgabe({
                         <Column width={120}>
                           <HeaderCell>Inflation</HeaderCell>
                           <Cell>
-                            {(rowData) =>
+                            {(rowData: any) =>
                               rowData.inflationAnpassung !== undefined
                                 ? formatCurrency(rowData.inflationAnpassung)
                                 : "-"
@@ -2025,7 +2025,7 @@ export function EntnahmeSimulationsAusgabe({
                           <Column width={120}>
                             <HeaderCell>Guardrails</HeaderCell>
                             <Cell>
-                              {(rowData) =>
+                              {(rowData: any) =>
                                 rowData.portfolioAnpassung !== undefined
                                   ? formatCurrency(rowData.portfolioAnpassung)
                                   : "-"
@@ -2038,7 +2038,7 @@ export function EntnahmeSimulationsAusgabe({
                           <Column width={100}>
                             <HeaderCell>Vorjahres-Rendite</HeaderCell>
                             <Cell>
-                              {(rowData) =>
+                              {(rowData: any) =>
                                 rowData.vorjahresRendite !== undefined
                                   ? `${(rowData.vorjahresRendite * 100).toFixed(1)}%`
                                   : "-"
@@ -2048,7 +2048,7 @@ export function EntnahmeSimulationsAusgabe({
                           <Column width={120}>
                             <HeaderCell>Dynamische Anpassung</HeaderCell>
                             <Cell>
-                              {(rowData) =>
+                              {(rowData: any) =>
                                 rowData.dynamischeAnpassung !== undefined
                                   ? formatCurrency(rowData.dynamischeAnpassung)
                                   : "-"
@@ -2060,20 +2060,20 @@ export function EntnahmeSimulationsAusgabe({
                       <Column width={100}>
                         <HeaderCell>Zinsen</HeaderCell>
                         <Cell>
-                          {(rowData) => formatCurrency(rowData.zinsen)}
+                          {(rowData: any) => formatCurrency(rowData.zinsen)}
                         </Cell>
                       </Column>
                       <Column width={120}>
                         <HeaderCell>bezahlte Steuer</HeaderCell>
                         <Cell>
-                          {(rowData) => formatCurrency(rowData.bezahlteSteuer)}
+                          {(rowData: any) => formatCurrency(rowData.bezahlteSteuer)}
                         </Cell>
                       </Column>
                       {formValue.grundfreibetragAktiv && (
                         <Column width={120}>
                           <HeaderCell>Einkommensteuer</HeaderCell>
                           <Cell>
-                            {(rowData) =>
+                            {(rowData: any) =>
                               rowData.einkommensteuer !== undefined
                                 ? formatCurrency(rowData.einkommensteuer)
                                 : "-"
@@ -2085,7 +2085,7 @@ export function EntnahmeSimulationsAusgabe({
                         <Column width={140}>
                           <HeaderCell>Grundfreibetrag genutzt</HeaderCell>
                           <Cell>
-                            {(rowData) =>
+                            {(rowData: any) =>
                               rowData.genutzterGrundfreibetrag !== undefined
                                 ? formatCurrency(
                                     rowData.genutzterGrundfreibetrag,
@@ -2098,7 +2098,7 @@ export function EntnahmeSimulationsAusgabe({
                       <Column width={120}>
                         <HeaderCell>Endkapital</HeaderCell>
                         <Cell>
-                          {(rowData) => formatCurrency(rowData.endkapital)}
+                          {(rowData: any) => formatCurrency(rowData.endkapital)}
                         </Cell>
                       </Column>
                     </Table>

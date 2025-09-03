@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { Input } from "./ui/input";
-import { Button } from "./ui/button";
 import { Slider } from "./ui/slider";
 import { 
   Panel, 
@@ -14,7 +13,8 @@ import {
   Divider,
   IconButton,
   PlusIcon,
-  TrashIcon
+  TrashIcon,
+  Button
 } from './temp-rsuite-stubs';
 import type { 
     WithdrawalSegment
@@ -181,7 +181,7 @@ export function WithdrawalSegmentForm({
                                 <Form.ControlLabel>Name der Phase</Form.ControlLabel>
                                 <Input
                                     value={segment.name}
-                                    onChange={(value) => updateSegment(segment.id, { name: value })}
+                                    onChange={(e) => updateSegment(segment.id, { name: e.target.value })}
                                     placeholder="z.B. Frühe Rente"
                                 />
                             </Form.Group>
@@ -189,7 +189,7 @@ export function WithdrawalSegmentForm({
                                 <Form.ControlLabel>Startjahr</Form.ControlLabel>
                                 <InputNumber
                                     value={segment.startYear}
-                                    onChange={(value) => updateSegment(segment.id, { startYear: Number(value) || withdrawalStartYear })}
+                                    onChange={(value: number | undefined) => updateSegment(segment.id, { startYear: Number(value) || withdrawalStartYear })}
                                     min={withdrawalStartYear}
                                     max={withdrawalEndYear}
                                 />
@@ -198,7 +198,7 @@ export function WithdrawalSegmentForm({
                                 <Form.ControlLabel>Endjahr</Form.ControlLabel>
                                 <InputNumber
                                     value={segment.endYear}
-                                    onChange={(value) => updateSegment(segment.id, { endYear: Number(value) || withdrawalEndYear })}
+                                    onChange={(value: number | undefined) => updateSegment(segment.id, { endYear: Number(value) || withdrawalEndYear })}
                                     min={withdrawalStartYear}
                                     max={withdrawalEndYear}
                                 />
@@ -212,7 +212,7 @@ export function WithdrawalSegmentForm({
                             <Form.ControlLabel>Entnahme-Strategie</Form.ControlLabel>
                             <RadioTileGroup 
                                 value={segment.strategy}
-                                onChange={(value) => {
+                                onChange={(value: string) => {
                                     const newStrategy = value as WithdrawalStrategy;
                                     const updates: Partial<WithdrawalSegment> = { strategy: newStrategy };
                                     
@@ -283,7 +283,7 @@ export function WithdrawalSegmentForm({
                                     <Form.ControlLabel>Monatlicher Betrag (€)</Form.ControlLabel>
                                     <InputNumber
                                         value={segment.monthlyConfig?.monthlyAmount || 2000}
-                                        onChange={(value) => updateSegment(segment.id, {
+                                        onChange={(value: any) => updateSegment(segment.id, {
                                             monthlyConfig: {
                                                 ...segment.monthlyConfig,
                                                 monthlyAmount: Number(value) || 2000
@@ -299,7 +299,7 @@ export function WithdrawalSegmentForm({
                                     <Form.ControlLabel>Dynamische Anpassung (Guardrails)</Form.ControlLabel>
                                     <Toggle
                                         checked={segment.monthlyConfig?.enableGuardrails || false}
-                                        onChange={(checked) => updateSegment(segment.id, {
+                                        onChange={(checked: boolean) => updateSegment(segment.id, {
                                             monthlyConfig: {
                                                 ...segment.monthlyConfig,
                                                 monthlyAmount: segment.monthlyConfig?.monthlyAmount || 2000,
@@ -403,7 +403,7 @@ export function WithdrawalSegmentForm({
                             <RadioGroup
                                 inline
                                 value={getReturnModeFromConfig(segment.returnConfig)}
-                                onChange={(value) => {
+                                onChange={(value: any) => {
                                     const newReturnConfig = getReturnConfigFromMode(value as WithdrawalReturnMode, segment);
                                     updateSegment(segment.id, { returnConfig: newReturnConfig });
                                 }}
@@ -440,7 +440,7 @@ export function WithdrawalSegmentForm({
                             <Form.ControlLabel>Inflation berücksichtigen</Form.ControlLabel>
                             <Toggle
                                 checked={segment.inflationConfig !== undefined}
-                                onChange={(checked) => updateSegment(segment.id, {
+                                onChange={(checked: boolean) => updateSegment(segment.id, {
                                     inflationConfig: checked ? { inflationRate: 0.02 } : undefined
                                 })}
                             />
@@ -466,7 +466,7 @@ export function WithdrawalSegmentForm({
                             <Form.ControlLabel>Grundfreibetrag berücksichtigen</Form.ControlLabel>
                             <Toggle
                                 checked={segment.enableGrundfreibetrag || false}
-                                onChange={(checked) => updateSegment(segment.id, { enableGrundfreibetrag: checked })}
+                                onChange={(checked: boolean) => updateSegment(segment.id, { enableGrundfreibetrag: checked })}
                             />
                         </Form.Group>
 
@@ -482,7 +482,7 @@ export function WithdrawalSegmentForm({
                                             }
                                             return 10908; // Default German basic allowance for 2023
                                         })()}
-                                        onChange={(value) => {
+                                        onChange={(value: any) => {
                                             const grundfreibetragPerYear: {[year: number]: number} = {};
                                             for (let year = segment.startYear; year <= segment.endYear; year++) {
                                                 grundfreibetragPerYear[year] = Number(value) || 10908;

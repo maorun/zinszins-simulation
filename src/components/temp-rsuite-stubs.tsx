@@ -6,8 +6,21 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { toast } from 'sonner';
 
-// Re-export Button from shadcn
-export const Button = ShadcnButton;
+// Re-export Button from shadcn with appearance prop compatibility
+export const Button = ({ appearance, startIcon, ...props }: any) => {
+  // Map RSuite appearance to shadcn variants
+  let variant = 'default';
+  if (appearance === 'primary') variant = 'default';
+  if (appearance === 'ghost') variant = 'ghost';
+  if (appearance === 'subtle') variant = 'secondary';
+  
+  return (
+    <ShadcnButton variant={variant as any} {...props}>
+      {startIcon && <span style={{ marginRight: '0.5rem' }}>{startIcon}</span>}
+      {props.children}
+    </ShadcnButton>
+  );
+};
 
 // Panel component stub
 export const Panel = ({ 
@@ -50,6 +63,7 @@ Form.Control = ({
   placeholder,
   value,
   onChange,
+  fluid,
   ...props 
 }: any) => {
   if (accepter === DatePicker) {
@@ -60,6 +74,7 @@ Form.Control = ({
         placeholder={placeholder}
         value={value ? value.toISOString().slice(0, 7) : ''}
         onChange={(e) => onChange && onChange(new Date(e.target.value))}
+        style={{ width: fluid ? '100%' : undefined }}
         {...props}
       />
     );
@@ -71,7 +86,8 @@ Form.Control = ({
         name={name}
         placeholder={placeholder}
         value={value || ''}
-        onChange={(e) => onChange && onChange(e.target.value)}
+        onChange={(e) => onChange && onChange(Number(e.target.value) || 0)}
+        style={{ width: fluid ? '100%' : undefined }}
         {...props}
       />
     );
@@ -82,6 +98,7 @@ Form.Control = ({
       placeholder={placeholder}
       value={value || ''}
       onChange={(e) => onChange && onChange(e.target.value)}
+      style={{ width: fluid ? '100%' : undefined }}
       {...props}
     />
   );
@@ -99,7 +116,7 @@ export const ButtonToolbar = ({ children, ...props }: any) => (
 );
 
 export const DatePicker = () => null; // Used as accepter identifier
-export const InputNumber = ({ value, onChange, min, max, step, placeholder, ...props }: any) => (
+export const InputNumber = ({ value, onChange, min, max, step, placeholder, fluid, ...props }: any) => (
   <Input
     type="number"
     value={value || ''}
@@ -108,6 +125,7 @@ export const InputNumber = ({ value, onChange, min, max, step, placeholder, ...p
     max={max}
     step={step}
     placeholder={placeholder}
+    style={{ width: fluid ? '100%' : undefined }}
     {...props}
   />
 );
@@ -148,8 +166,8 @@ export const Radio = ({ children, value, ...props }: any) => (
   </label>
 );
 
-export const RadioGroup = ({ children, value, onChange, ...props }: any) => (
-  <div {...props}>
+export const RadioGroup = ({ children, value, onChange, inline, ...props }: any) => (
+  <div style={{ display: inline ? 'flex' : 'block', gap: inline ? '1rem' : '0.5rem' }} {...props}>
     {React.Children.map(children, (child) => 
       React.cloneElement(child, { 
         checked: child.props.value === value,
@@ -175,26 +193,130 @@ export const Slider = ({ value, onChange, min, max, step, ...props }: any) => (
   />
 );
 
-// Define Table sub-components first
-const Column = () => null; // Not used in actual render, just for RSuite compatibility
+// Define Table sub-components that actually render content
+const Column = ({ children, width: _width, flexGrow: _flexGrow }: any) => {
+  // Column is a container that renders its children
+  return <>{children}</>;
+};
+
 const HeaderCell = ({ children, ...props }: any) => (
   <th style={{ padding: '0.5rem', borderBottom: '1px solid #e5e7eb', textAlign: 'left' }} {...props}>
     {children}
   </th>
 );
 
-const Cell = ({ children, ...props }: any) => (
-  <td style={{ padding: '0.5rem', borderBottom: '1px solid #f3f4f6' }} {...props}>
-    {children}
-  </td>
-);
+const Cell = ({ children, dataKey: _dataKey, ...props }: any) => {
+  // If it's a function, call it with rowData context
+  if (typeof children === 'function') {
+    return (
+      <td style={{ padding: '0.5rem', borderBottom: '1px solid #f3f4f6' }} {...props}>
+        {/* Function cells will be handled by the parent Table */}
+        {children}
+      </td>
+    );
+  }
+  
+  return (
+    <td style={{ padding: '0.5rem', borderBottom: '1px solid #f3f4f6' }} {...props}>
+      {children}
+    </td>
+  );
+};
 
-// Create Table component with attached sub-components
-const TableComponent = ({ children, ...props }: any) => (
-  <table style={{ width: '100%', borderCollapse: 'collapse' }} {...props}>
-    {children}
-  </table>
-);
+// Create Table component that processes Column children
+const TableComponent = ({ children, data, bordered: _bordered, rowHeight: _rowHeight, ...props }: any) => {
+  // Extract columns from children
+  const columns = React.Children.toArray(children).filter((child: any) => 
+    child?.type === Column
+  );
+
+  if (!data || data.length === 0) {
+    return (
+      <table style={{ width: '100%', borderCollapse: 'collapse' }} {...props}>
+        <thead>
+          <tr>
+            {columns.map((column: any, index) => {
+              const headerCell = React.Children.toArray(column.props.children).find((child: any) => 
+                React.isValidElement(child) && child?.type === HeaderCell
+              );
+              return (
+                <HeaderCell key={index}>
+                  {React.isValidElement(headerCell) ? (headerCell.props as any).children : ''}
+                </HeaderCell>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colSpan={columns.length} style={{ textAlign: 'center', padding: '2rem' }}>
+              Keine Daten verfügbar
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    );
+  }
+
+  return (
+    <table style={{ width: '100%', borderCollapse: 'collapse' }} {...props}>
+      <thead>
+        <tr>
+          {columns.map((column: any, index) => {
+            const headerCell = React.Children.toArray(column.props.children).find((child: any) => 
+              React.isValidElement(child) && child?.type === HeaderCell
+            );
+            return (
+              <HeaderCell key={index}>
+                {React.isValidElement(headerCell) ? (headerCell.props as any).children : ''}
+              </HeaderCell>
+            );
+          })}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((rowData: any, rowIndex: number) => (
+          <tr key={rowIndex}>
+            {columns.map((column: any, colIndex) => {
+              const cell = React.Children.toArray(column.props.children).find((child: any) => 
+                React.isValidElement(child) && child?.type === Cell
+              );
+              
+              if (!React.isValidElement(cell)) return <td key={colIndex}></td>;
+              
+              const cellProps = cell.props as any;
+              
+              // Handle function children
+              if (typeof cellProps.children === 'function') {
+                return (
+                  <Cell key={colIndex}>
+                    {cellProps.children(rowData)}
+                  </Cell>
+                );
+              }
+              
+              // Handle dataKey
+              if (cellProps.dataKey) {
+                return (
+                  <Cell key={colIndex}>
+                    {rowData[cellProps.dataKey]}
+                  </Cell>
+                );
+              }
+              
+              // Handle direct children
+              return (
+                <Cell key={colIndex}>
+                  {cellProps.children}
+                </Cell>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
 
 // Attach sub-components to Table
 TableComponent.Column = Column;
@@ -205,11 +327,6 @@ export const Table = TableComponent;
 
 // Also export individual components for direct imports
 export { Column, HeaderCell, Cell };
-
-// Assign static properties for RSuite compatibility
-(Table as any).Column = Column;
-(Table as any).HeaderCell = HeaderCell;
-(Table as any).Cell = Cell;
 
 export const Toggle = ({ checked, onChange, ...props }: any) => (
   <input 
