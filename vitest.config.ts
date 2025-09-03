@@ -6,6 +6,8 @@ export default defineConfig({
     globals: true,
     setupFiles: './vitest.setup.ts',
     include: ['**/*.test.{ts,tsx}'],
+    testTimeout: 3000,   // Maximum 3 seconds per test - much shorter
+    hookTimeout: 1000,   // Maximum 1 second for hooks - much shorter
     coverage: {
       provider: 'v8',
       include: [
