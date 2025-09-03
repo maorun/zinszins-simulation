@@ -19,7 +19,7 @@ Zinseszins-Simulation is a German compound interest calculator built with Vite, 
   - Will show Vite build output - expected behavior
   - Uses Vite for fast bundling and optimization
 - **Type checking**: `npm run typecheck` -- takes 10-15 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
-  - Expect minimal TypeScript errors - application functions correctly
+  - Expect no TypeScript errors - application functions correctly
   - Main application code is well-typed
 - **Development server**: `npm run dev` -- starts in 5-6 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
   - Runs on http://localhost:5173 (Vite default port)
@@ -36,7 +36,7 @@ Zinseszins-Simulation is a German compound interest calculator built with Vite, 
 - **React 19 Compatibility**: Updated to React 19 
   - All functionality works correctly
   - Uses standard npm package resolution
-- **TypeScript**: Well-typed application with minimal errors
+- **TypeScript**: Well-typed application with no errors
 
 ## Validation and Testing
 
