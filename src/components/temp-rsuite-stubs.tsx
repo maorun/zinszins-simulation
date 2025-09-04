@@ -99,7 +99,7 @@ export const Form = ({ children, onSubmit, formValue, onChange, ...props }: any)
   </FormContext.Provider>
 );
 
-Form.Group = ({ children, className = "", ...props }: any) => (
+Form.Group = ({ children, className = "", controlId: _controlId, ...props }: any) => (
   <div className={`mb-4 space-y-2 ${className}`} {...props}>{children}</div>
 );
 
@@ -113,7 +113,7 @@ export const FormControl = ({
   placeholder,
   value,
   onChange,
-  fluid,
+  fluid: _fluid, // Remove from DOM output
   handleTitle: _handleTitle, // Remove this prop - not valid for inputs
   min,
   max,
@@ -137,6 +137,7 @@ export const FormControl = ({
   // Filter out non-HTML input attributes
   const validInputProps = { ...props };
   delete validInputProps.handleTitle;
+  delete validInputProps.fluid;
   
   if (accepter === DatePicker) {
     return (
@@ -146,7 +147,7 @@ export const FormControl = ({
         onChange={actualOnChange}
         format={format}
         placeholder={placeholder}
-        style={{ width: fluid ? '100%' : undefined }}
+        style={{ width: _fluid ? '100%' : undefined }}
         {...validInputProps}
       />
     );
@@ -159,7 +160,7 @@ export const FormControl = ({
         placeholder={placeholder}
         value={actualValue || ''}
         onChange={(e) => actualOnChange(Number(e.target.value) || 0)}
-        style={{ width: fluid ? '100%' : undefined }}
+        style={{ width: _fluid ? '100%' : undefined }}
         min={min}
         max={max}
         step={step}
@@ -169,15 +170,22 @@ export const FormControl = ({
   }
   if (accepter === Slider) {
     return (
-      <ShadcnSlider 
-        value={[actualValue || 0]}
-        onValueChange={(values: number[]) => actualOnChange(values[0])}
-        min={min}
-        max={max}
-        step={step}
-        className="mt-2"
-        {...validInputProps}
-      />
+      <div className="space-y-2">
+        <ShadcnSlider 
+          value={[actualValue || 0]}
+          onValueChange={(values: number[]) => actualOnChange(values[0])}
+          min={min}
+          max={max}
+          step={step}
+          className="mt-2"
+          {...validInputProps}
+        />
+        <div className="flex justify-between text-sm text-gray-500">
+          <span>{min}</span>
+          <span className="font-medium text-gray-900">{actualValue || 0}%</span>
+          <span>{max}</span>
+        </div>
+      </div>
     );
   }
   if (accepter === RadioTileGroup) {
@@ -206,7 +214,7 @@ export const FormControl = ({
       placeholder={placeholder}
       value={actualValue || ''}
       onChange={(e) => actualOnChange(e.target.value)}
-      style={{ width: fluid ? '100%' : undefined }}
+      style={{ width: _fluid ? '100%' : undefined }}
       {...validInputProps}
     />
   );
@@ -263,7 +271,7 @@ export const DatePicker = ({ value, onChange, format, placeholder, ...props }: a
     />
   );
 };
-export const InputNumber = ({ value, onChange, min, max, step, placeholder, fluid, ...props }: any) => (
+export const InputNumber = ({ value, onChange, min, max, step, placeholder, fluid: _fluid, ...props }: any) => (
   <Input
     type="number"
     value={value || ''}
@@ -272,7 +280,7 @@ export const InputNumber = ({ value, onChange, min, max, step, placeholder, flui
     max={max}
     step={step}
     placeholder={placeholder}
-    style={{ width: fluid ? '100%' : undefined }}
+    style={{ width: _fluid ? '100%' : undefined }}
     {...props}
   />
 );
@@ -306,37 +314,92 @@ export const useToaster = () => ({
 });
 
 // Stubs for EntnahmeSimulationsAusgabe components
-export const Radio = ({ children, value, ...props }: any) => (
-  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-    <input type="radio" value={value} {...props} />
+export const Radio = ({ children, value, checked, onChange, ...props }: any) => (
+  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
+    <input 
+      type="radio" 
+      value={value} 
+      checked={checked}
+      onChange={onChange}
+      {...props} 
+    />
     {children}
   </label>
 );
 
 export const RadioGroup = ({ children, value, onChange, inline, ...props }: any) => (
   <div style={{ display: inline ? 'flex' : 'block', gap: inline ? '1rem' : '0.5rem' }} {...props}>
-    {React.Children.map(children, (child) => 
-      React.cloneElement(child, { 
-        checked: child.props.value === value,
-        onChange: () => onChange && onChange(child.props.value)
-      })
-    )}
+    {React.Children.map(children, (child) => {
+      if (!React.isValidElement(child)) return child;
+      const childProps = child.props as any;
+      return React.cloneElement(child as any, { 
+        checked: childProps.value === value,
+        onChange: () => onChange && onChange(childProps.value)
+      });
+    })}
   </div>
 );
 
-export const RadioTile = Radio;
-export const RadioTileGroup = RadioGroup;
-
-export const Slider = ({ value, onChange, min, max, step, ...props }: any) => (
-  <ShadcnSlider 
-    value={[value || 0]}
-    onValueChange={(values: number[]) => onChange && onChange(values[0])}
-    min={min}
-    max={max}
-    step={step}
-    className="mt-2"
+export const RadioTile = ({ children, value, checked, onChange, label, ...props }: any) => (
+  <label 
+    style={{ 
+      display: 'block',
+      padding: '1rem',
+      border: '2px solid',
+      borderColor: checked ? '#1675e0' : '#e5e7eb',
+      borderRadius: '0.5rem',
+      cursor: 'pointer',
+      backgroundColor: checked ? '#f0f8ff' : 'white',
+      transition: 'all 0.2s ease'
+    }}
     {...props}
-  />
+  >
+    <input 
+      type="radio" 
+      value={value}
+      checked={checked}
+      onChange={onChange}
+      style={{ display: 'none' }}
+    />
+    <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{label}</div>
+    <div style={{ fontSize: '0.875rem', color: '#666' }}>{children}</div>
+  </label>
+);
+
+export const RadioTileGroup = ({ children, value, onChange, onValueChange, ...props }: any) => {
+  const handleChange = onValueChange || onChange;
+  
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }} {...props}>
+      {React.Children.map(children, (child) => {
+        if (!React.isValidElement(child)) return child;
+        const childProps = child.props as any;
+        return React.cloneElement(child as any, { 
+          checked: childProps.value === value,
+          onChange: () => handleChange && handleChange(childProps.value)
+        });
+      })}
+    </div>
+  );
+};
+
+export const Slider = ({ value, onChange, min, max, step, handleTitle: _handleTitle, ...props }: any) => (
+  <div className="space-y-2">
+    <ShadcnSlider 
+      value={[value || 0]}
+      onValueChange={(values: number[]) => onChange && onChange(values[0])}
+      min={min}
+      max={max}
+      step={step}
+      className="mt-2"
+      {...props}
+    />
+    <div className="flex justify-between text-sm text-gray-500">
+      <span>{min}</span>
+      <span className="font-medium text-gray-900">{value || 0}{typeof value === 'number' && value < 1 ? '' : ''}</span>
+      <span>{max}</span>
+    </div>
+  </div>
 );
 
 // Define Table sub-components that actually render content
@@ -474,14 +537,33 @@ export const Table = TableComponent;
 // Also export individual components for direct imports
 export { Column, HeaderCell, Cell };
 
-export const Toggle = ({ checked, onChange, ...props }: any) => (
-  <input 
-    type="checkbox"
-    checked={checked}
-    onChange={(e) => onChange && onChange(e.target.checked)}
-    {...props}
-  />
-);
+export const Toggle = ({ checked, onChange, onCheckedChange, ...props }: any) => {
+  const handleChange = onCheckedChange || onChange;
+  
+  return (
+    <label style={{ 
+      display: 'inline-flex', 
+      alignItems: 'center', 
+      cursor: 'pointer',
+      gap: '0.5rem'
+    }}>
+      <input 
+        type="checkbox"
+        checked={checked}
+        onChange={(e) => handleChange && handleChange(e.target.checked)}
+        style={{
+          width: '1.25rem',
+          height: '1.25rem',
+          accentColor: '#1675e0'
+        }}
+        {...props}
+      />
+      <span className="text-sm">
+        {checked ? 'Aktiviert' : 'Deaktiviert'}
+      </span>
+    </label>
+  );
+};
 
 export const Divider = ({ ...props }: any) => (
   <hr style={{ margin: '1rem 0', border: 'none', borderTop: '1px solid #e5e7eb' }} {...props} />

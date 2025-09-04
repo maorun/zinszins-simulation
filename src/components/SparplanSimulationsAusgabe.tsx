@@ -197,7 +197,6 @@ export function SparplanSimulationsAusgabe({
                 <Table
                     data={tableData}
                     bordered
-                    headerHeight={70}
                     style={{ fontSize: '0.9rem' }}
                 >
                     <Column width={120}>
