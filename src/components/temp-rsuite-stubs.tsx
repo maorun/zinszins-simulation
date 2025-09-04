@@ -1,5 +1,5 @@
 // Temporary stubs for RSuite components to maintain compatibility while migrating
-import React, { useState } from 'react';
+import React, { useState, createContext } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button as ShadcnButton } from './ui/button';
 import { Input } from './ui/input';
@@ -8,6 +8,17 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { Slider as ShadcnSlider } from './ui/slider';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
+
+// Form context for RSuite-style form value binding
+const FormContext = createContext<{
+  formValue?: any;
+  onChange?: (value: any) => void;
+} | null>(null);
+
+// Hook to access form context
+const useFormContext = () => {
+  return React.useContext(FormContext);
+};
 
 // Re-export Button from shadcn with appearance prop compatibility
 export const Button = ({ appearance, startIcon, ...props }: any) => {
@@ -34,6 +45,7 @@ export const Panel = ({
   bodyFill: _bodyFill, 
   expanded = true,
   defaultExpanded = true,
+  className = "",
   ...props 
 }: any) => {
   const [isOpen, setIsOpen] = useState(expanded !== undefined ? expanded : defaultExpanded);
@@ -41,37 +53,37 @@ export const Panel = ({
   if (!collapsible) {
     // Non-collapsible panel - just render as a regular Card
     return (
-      <Card {...props}>
+      <Card className={`mb-6 ${className}`} {...props}>
         {header && (
-          <CardHeader>
-            <CardTitle>{header}</CardTitle>
+          <CardHeader className="pb-4">
+            <CardTitle className="text-lg">{header}</CardTitle>
           </CardHeader>
         )}
-        <CardContent>{children}</CardContent>
+        <CardContent className="pt-0">{children}</CardContent>
       </Card>
     );
   }
 
   // Collapsible panel using Radix UI Collapsible
   return (
-    <Card {...props}>
+    <Card className={`mb-6 ${className}`} {...props}>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         {header && (
-          <CardHeader>
+          <CardHeader className="pb-4">
             <CollapsibleTrigger asChild>
-              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2">
-                <CardTitle className="text-left">{header}</CardTitle>
+              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                <CardTitle className="text-left text-lg">{header}</CardTitle>
                 {isOpen ? (
-                  <ChevronUp className="h-4 w-4 text-gray-500" />
+                  <ChevronUp className="h-5 w-5 text-gray-500" />
                 ) : (
-                  <ChevronDown className="h-4 w-4 text-gray-500" />
+                  <ChevronDown className="h-5 w-5 text-gray-500" />
                 )}
               </div>
             </CollapsibleTrigger>
           </CardHeader>
         )}
         <CollapsibleContent>
-          <CardContent>{children}</CardContent>
+          <CardContent className="pt-0">{children}</CardContent>
         </CollapsibleContent>
       </Collapsible>
     </Card>
@@ -79,21 +91,23 @@ export const Panel = ({
 };
 
 // Form component stubs
-export const Form = ({ children, onSubmit, ...props }: any) => (
-  <form onSubmit={onSubmit ? (e) => { e.preventDefault(); onSubmit(); } : undefined} {...props}>
-    {children}
-  </form>
+export const Form = ({ children, onSubmit, formValue, onChange, ...props }: any) => (
+  <FormContext.Provider value={{ formValue, onChange }}>
+    <form onSubmit={onSubmit ? (e) => { e.preventDefault(); onSubmit(); } : undefined} {...props}>
+      {children}
+    </form>
+  </FormContext.Provider>
 );
 
-Form.Group = ({ children, ...props }: any) => (
-  <div style={{ marginBottom: '1rem' }} {...props}>{children}</div>
+Form.Group = ({ children, className = "", ...props }: any) => (
+  <div className={`mb-4 space-y-2 ${className}`} {...props}>{children}</div>
 );
 
 Form.ControlLabel = ({ children, ...props }: any) => (
   <Label {...props}>{children}</Label>
 );
 
-Form.Control = ({ 
+export const FormControl = ({ 
   accepter, 
   name,
   placeholder,
@@ -107,6 +121,19 @@ Form.Control = ({
   format,
   ...props 
 }: any) => {
+  // In RSuite, Form.Control gets values from the parent Form's formValue based on name
+  // We need to access the form context to get the actual value
+  const formContext = useFormContext();
+  const actualValue = formContext?.formValue?.[name] || value;
+  const actualOnChange = (newValue: any) => {
+    if (formContext?.onChange) {
+      formContext.onChange({ ...formContext.formValue, [name]: newValue });
+    }
+    if (onChange) {
+      onChange(newValue);
+    }
+  };
+
   // Filter out non-HTML input attributes
   const validInputProps = { ...props };
   delete validInputProps.handleTitle;
@@ -115,8 +142,8 @@ Form.Control = ({
     return (
       <DatePicker
         name={name}
-        value={value}
-        onChange={onChange}
+        value={actualValue}
+        onChange={actualOnChange}
         format={format}
         placeholder={placeholder}
         style={{ width: fluid ? '100%' : undefined }}
@@ -130,8 +157,8 @@ Form.Control = ({
         type="number"
         name={name}
         placeholder={placeholder}
-        value={value || ''}
-        onChange={(e) => onChange && onChange(Number(e.target.value) || 0)}
+        value={actualValue || ''}
+        onChange={(e) => actualOnChange(Number(e.target.value) || 0)}
         style={{ width: fluid ? '100%' : undefined }}
         min={min}
         max={max}
@@ -143,8 +170,8 @@ Form.Control = ({
   if (accepter === Slider) {
     return (
       <ShadcnSlider 
-        value={[value || 0]}
-        onValueChange={(values: number[]) => onChange && onChange(values[0])}
+        value={[actualValue || 0]}
+        onValueChange={(values: number[]) => actualOnChange(values[0])}
         min={min}
         max={max}
         step={step}
@@ -156,8 +183,8 @@ Form.Control = ({
   if (accepter === RadioTileGroup) {
     return (
       <RadioTileGroup 
-        value={value}
-        onValueChange={onChange}
+        value={actualValue}
+        onValueChange={actualOnChange}
         {...validInputProps}
       >
         {props.children}
@@ -167,8 +194,8 @@ Form.Control = ({
   if (accepter === Toggle) {
     return (
       <Toggle 
-        checked={value}
-        onCheckedChange={onChange}
+        checked={actualValue}
+        onCheckedChange={actualOnChange}
         {...validInputProps}
       />
     );
@@ -177,16 +204,19 @@ Form.Control = ({
     <Input 
       name={name}
       placeholder={placeholder}
-      value={value || ''}
-      onChange={(e) => onChange && onChange(e.target.value)}
+      value={actualValue || ''}
+      onChange={(e) => actualOnChange(e.target.value)}
       style={{ width: fluid ? '100%' : undefined }}
       {...validInputProps}
     />
   );
 };
 
-Form.HelpText = ({ children, ...props }: any) => (
-  <div style={{ fontSize: '0.8rem', color: '#666', marginTop: '0.25rem' }} {...props}>
+// Attach FormControl to Form
+Form.Control = FormControl;
+
+Form.HelpText = ({ children, className = "", ...props }: any) => (
+  <div className={`text-sm text-muted-foreground mt-1 ${className}`} {...props}>
     {children}
   </div>
 );
