@@ -4,7 +4,7 @@ import { Table, Column, HeaderCell, Cell } from "./temp-rsuite-stubs";
 import { useState } from 'react';
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type { Summary } from "../utils/summary-utils";
-import { fullSummary, getSparplanSummary } from "../utils/summary-utils";
+import { fullSummary, getYearlyPortfolioProgression } from "../utils/summary-utils";
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal';
 
 // Removed RSuite Table destructuring
@@ -78,16 +78,24 @@ export function SparplanSimulationsAusgabe({
     const [selectedVorabDetails, setSelectedVorabDetails] = useState<any>(null);
 
     const summary: Summary = fullSummary(elemente)
-    const tableData = elemente?.sort((a, b) => new Date(b.start).getTime() - new Date(a.start).getTime()
-    ).map((el) => ({
-        ...el,
-        zeitpunkt: new Date(el.start).toLocaleDateString('de-DE'),
-        zinsen: getSparplanSummary(el.simulation).zinsen.toFixed(2),
-        bezahlteSteuer: getSparplanSummary(
-            el.simulation
-        ).bezahlteSteuer.toFixed(2),
-        endkapital: getSparplanSummary(el.simulation).endkapital?.toFixed(2),
-    }));
+    
+    // Get year-by-year portfolio progression
+    const yearlyProgression = getYearlyPortfolioProgression(elemente);
+    
+    // Convert progression to table data format (reverse order to show newest first)
+    const tableData = yearlyProgression
+        .sort((a, b) => b.year - a.year)
+        .map((progression) => ({
+            zeitpunkt: `1.1.${progression.year}`,
+            jahr: progression.year,
+            einzahlung: progression.yearlyContribution,
+            zinsen: progression.yearlyInterest.toFixed(2),
+            bezahlteSteuer: progression.yearlyTax.toFixed(2),
+            endkapital: progression.totalCapital.toFixed(2),
+            cumulativeContributions: progression.cumulativeContributions,
+            cumulativeInterest: progression.cumulativeInterest,
+            cumulativeTax: progression.cumulativeTax
+        }));
 
     const handleVorabpauschaleInfoClick = (details: any) => {
         setSelectedVorabDetails(details);
@@ -101,54 +109,59 @@ export function SparplanSimulationsAusgabe({
             </CardHeader>
             <CardContent>
                 <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
-                    Detaillierte Aufschlüsselung Ihrer Sparpläne nach Jahren
+                    Jahr-für-Jahr Progression Ihres Portfolios - zeigt die kumulierte Kapitalentwicklung über die Zeit
                 </div>
             
             {/* Card Layout for All Devices */}
             <div className="sparplan-cards">
-                {tableData?.map((el, index) => (
+                {tableData?.map((row, index) => (
                     <div key={index} className="sparplan-card">
                         <div className="sparplan-card-header">
-                            <span className="sparplan-year">📅 {el.zeitpunkt}</span>
+                            <span className="sparplan-year">📅 {row.zeitpunkt}</span>
                             <span className="sparplan-endkapital">
-                                🎯 {thousands(el.endkapital)} €
+                                🎯 {thousands(row.endkapital)} €
                             </span>
                         </div>
                         <div className="sparplan-card-details">
                             <div className="sparplan-detail">
-                                <span className="detail-label">💰 Einzahlung:</span>
+                                <span className="detail-label">💰 Neue Einzahlung:</span>
                                 <span className="detail-value" style={{ color: '#28a745' }}>
-                                    {thousands(el.einzahlung.toString())} €
+                                    {thousands(row.einzahlung.toString())} €
                                 </span>
                             </div>
                             <div className="sparplan-detail">
-                                <span className="detail-label">📈 Zinsen:</span>
+                                <span className="detail-label">📈 Zinsen (Jahr):</span>
                                 <span className="detail-value" style={{ color: '#17a2b8' }}>
-                                    {thousands(el.zinsen)} €
+                                    {thousands(row.zinsen)} €
                                 </span>
                             </div>
                             <div className="sparplan-detail">
-                                <span className="detail-label">💸 Bezahlte Steuer:</span>
+                                <span className="detail-label">💸 Bezahlte Steuer (Jahr):</span>
                                 <span className="detail-value" style={{ color: '#dc3545' }}>
-                                    {thousands(el.bezahlteSteuer)} €
+                                    {thousands(row.bezahlteSteuer)} €
+                                </span>
+                            </div>
+                            <div className="sparplan-detail">
+                                <span className="detail-label">💼 Kumulierte Einzahlungen:</span>
+                                <span className="detail-value" style={{ color: '#6c757d' }}>
+                                    {thousands(row.cumulativeContributions.toFixed(2))} €
                                 </span>
                             </div>
                             
-                            {/* Vorabpauschale Information */}
-                            {el.simulation && (() => {
-                                // Get the latest year with vorabpauschale details for this sparplan
-                                const years = Object.keys(el.simulation).map(Number).sort((a, b) => b - a);
-                                const latestYearWithVorab = years.find(year => 
-                                    el.simulation[year]?.vorabpauschaleDetails
+                            {/* Find Vorabpauschale details for this year */}
+                            {(() => {
+                                // Find any element that has vorabpauschale details for this year
+                                const elementWithVorab = elemente?.find(el => 
+                                    el.simulation[row.jahr]?.vorabpauschaleDetails
                                 );
                                 
-                                if (latestYearWithVorab && el.simulation[latestYearWithVorab]?.vorabpauschaleDetails) {
-                                    const vorabDetails = el.simulation[latestYearWithVorab].vorabpauschaleDetails;
+                                if (elementWithVorab?.simulation[row.jahr]?.vorabpauschaleDetails) {
+                                    const vorabDetails = elementWithVorab.simulation[row.jahr].vorabpauschaleDetails;
                                     return (
                                         <div className="sparplan-detail">
-                                            <span className="detail-label">📊 Vorabpauschale (aktuelles Jahr):</span>
+                                            <span className="detail-label">📊 Vorabpauschale (Beispiel):</span>
                                             <span className="detail-value" style={{ color: '#1976d2', display: 'flex', alignItems: 'center' }}>
-                                                {thousands(vorabDetails.vorabpauschaleAmount.toString())} €
+                                                {thousands(vorabDetails?.vorabpauschaleAmount?.toString() || "0")} €
                                                 <InfoIcon onClick={() => handleVorabpauschaleInfoClick(vorabDetails)} />
                                             </span>
                                         </div>
@@ -209,7 +222,7 @@ export function SparplanSimulationsAusgabe({
                     <Column flexGrow={1}>
                         <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
                             <HeaderSummary
-                                title="💰 Einzahlung"
+                                title="💰 Neue Einzahlung (Jahr)"
                                 summary={summary.startkapital?.toFixed(2).toString() || ""}
                             />
                         </HeaderCell>
@@ -219,7 +232,7 @@ export function SparplanSimulationsAusgabe({
                     <Column flexGrow={1}>
                         <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
                             <HeaderSummary
-                                title="💸 Bezahlte Steuer"
+                                title="💸 Bezahlte Steuer (Jahr)"
                                 summary={summary.bezahlteSteuer?.toFixed(2).toString() || ""}
                             />
                         </HeaderCell>
@@ -229,7 +242,7 @@ export function SparplanSimulationsAusgabe({
                     <Column flexGrow={1}>
                         <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
                             <HeaderSummary
-                                title="📈 Zinsen"
+                                title="📈 Zinsen (Jahr)"
                                 summary={summary.zinsen?.toFixed(2).toString() || ""}
                             />
                         </HeaderCell>
@@ -239,7 +252,7 @@ export function SparplanSimulationsAusgabe({
                     <Column flexGrow={1}>
                         <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
                             <HeaderSummary
-                                title="🎯 Endkapital"
+                                title="🎯 Gesamtkapital"
                                 summary={summary.endkapital?.toFixed(2).toString() || ""}
                             />
                         </HeaderCell>
