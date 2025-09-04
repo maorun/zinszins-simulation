@@ -3,8 +3,6 @@ import {
   Form,
   InputNumber,
   Panel,
-  Radio,
-  RadioGroup,
   RadioTile,
   RadioTileGroup,
   Slider,
@@ -518,8 +516,7 @@ export function EntnahmeSimulationsAusgabe({
         {/* Toggle between single, segmented, and comparison withdrawal */}
         <Form.Group controlId="withdrawalMode">
           <Form.ControlLabel>Entnahme-Modus</Form.ControlLabel>
-          <RadioGroup
-            inline
+          <RadioTileGroup
             value={
               useComparisonMode
                 ? "comparison"
@@ -527,7 +524,7 @@ export function EntnahmeSimulationsAusgabe({
                   ? "segmented"
                   : "single"
             }
-            onChange={(value: string) => {
+            onValueChange={(value: string) => {
               const useComparison = value === "comparison";
               const useSegmented = value === "segmented";
 
@@ -548,10 +545,16 @@ export function EntnahmeSimulationsAusgabe({
               }
             }}
           >
-            <Radio value="single">Einheitliche Strategie</Radio>
-            <Radio value="segmented">Geteilte Phasen</Radio>
-            <Radio value="comparison">Strategien-Vergleich</Radio>
-          </RadioGroup>
+            <RadioTile value="single" label="Einheitliche Strategie">
+              Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase
+            </RadioTile>
+            <RadioTile value="segmented" label="Geteilte Phasen">
+              Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf
+            </RadioTile>
+            <RadioTile value="comparison" label="Strategien-Vergleich">
+              Vergleiche verschiedene Entnahmestrategien miteinander
+            </RadioTile>
+          </RadioTileGroup>
           <Form.HelpText>
             {useComparisonMode
               ? "Vergleiche verschiedene Entnahmestrategien miteinander."
@@ -1032,19 +1035,24 @@ export function EntnahmeSimulationsAusgabe({
               <Form.ControlLabel>
                 Rendite-Konfiguration (Entnahme-Phase)
               </Form.ControlLabel>
-              <RadioGroup
-                inline
+              <RadioTileGroup
                 value={withdrawalReturnMode}
-                onChange={(value: string) => {
+                onValueChange={(value: string) => {
                   updateConfig({
                     withdrawalReturnMode: value as WithdrawalReturnMode,
                   });
                 }}
               >
-                <Radio value="fixed">Feste Rendite</Radio>
-                <Radio value="random">Zufällige Rendite</Radio>
-                <Radio value="variable">Variable Rendite</Radio>
-              </RadioGroup>
+                <RadioTile value="fixed" label="Feste Rendite">
+                  Konstante jährliche Rendite für die gesamte Entnahme-Phase
+                </RadioTile>
+                <RadioTile value="random" label="Zufällige Rendite">
+                  Monte Carlo Simulation mit Durchschnitt und Volatilität
+                </RadioTile>
+                <RadioTile value="variable" label="Variable Rendite">
+                  Jahr-für-Jahr konfigurierbare Renditen
+                </RadioTile>
+              </RadioTileGroup>
               <Form.HelpText>
                 Konfiguration der erwarteten Rendite während der Entnahme-Phase
                 (unabhängig von der Sparphase-Rendite).
