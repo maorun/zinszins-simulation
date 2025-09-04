@@ -6,9 +6,9 @@ import {
   RadioTile,
   RadioTileGroup,
   Slider,
-  Table,
   Toggle,
-} from "./temp-rsuite-stubs";
+} from "./ui/components";
+import { RSuiteCompatibleTable as Table, Column, HeaderCell, Cell } from "./ui/table";
 import type { SparplanElement } from "../utils/sparplan-utils";
 import {
   calculateWithdrawal,
@@ -40,8 +40,6 @@ type ComparisonResult = {
   averageAnnualWithdrawal: number;
   duration: number | string;
 };
-
-const { Column, HeaderCell, Cell } = Table;
 
 // Helper function for strategy display names
 function getStrategyDisplayName(strategy: WithdrawalStrategy): string {

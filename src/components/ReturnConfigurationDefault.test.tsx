@@ -11,6 +11,6 @@ describe('ReturnConfiguration', () => {
                 <ReturnConfiguration />
             </SimulationProvider>
         );
-        expect(screen.getByRole('radio', { name: 'Feste Rendite' })).toBeChecked();
+        expect(screen.getByRole('radio', { name: 'Feste Rendite Konstanter jährlicher Zinssatz' })).toBeChecked();
     });
 });
