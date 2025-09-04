@@ -81,68 +81,70 @@ export function EntnahmeSimulationsAusgabe({
   const [startOfIndependence, endOfLife] = startEnd;
   const { withdrawalConfig, setWithdrawalConfig } = useSimulation();
 
-  // Create default withdrawal configuration if none exists
-  const defaultFormValue: WithdrawalFormValue = {
-    endOfLife,
-    strategie: "4prozent",
-    rendite: 5,
-    // General inflation settings (for all strategies)
-    inflationAktiv: false,
-    inflationsrate: 2,
-    // Monthly strategy specific settings
-    monatlicheBetrag: 2000,
-    guardrailsAktiv: false,
-    guardrailsSchwelle: 10,
-    // Custom percentage strategy specific settings
-    variabelProzent: 5, // Default to 5%
-    // Dynamic strategy specific settings
-    dynamischBasisrate: 4, // Base withdrawal rate 4%
-    dynamischObereSchwell: 8, // Upper threshold return 8%
-    dynamischObereAnpassung: 5, // Upper adjustment 5%
-    dynamischUntereSchwell: 2, // Lower threshold return 2%
-    dynamischUntereAnpassung: -5, // Lower adjustment -5%
-    // Grundfreibetrag settings
-    grundfreibetragAktiv: false,
-    grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
-    einkommensteuersatz: 25, // Default income tax rate 25%
-  };
-
-  const defaultComparisonStrategies: ComparisonStrategy[] = [
-    {
-      id: "strategy1",
-      name: "3% Regel",
-      strategie: "3prozent",
-      rendite: 5,
-    },
-    {
-      id: "strategy2",
-      name: "Monatlich 1.500€",
-      strategie: "monatlich_fest",
-      rendite: 5,
-      monatlicheBetrag: 1500,
-    },
-  ];
-
   // Initialize withdrawal config if not exists or update current form values
-  const currentConfig = withdrawalConfig || {
-    formValue: defaultFormValue,
-    withdrawalReturnMode: "fixed" as WithdrawalReturnMode,
-    withdrawalVariableReturns: {},
-    withdrawalAverageReturn: 5,
-    withdrawalStandardDeviation: 12,
-    withdrawalRandomSeed: undefined,
-    useSegmentedWithdrawal: false,
-    withdrawalSegments: [
-      createDefaultWithdrawalSegment(
-        "main",
-        "Hauptphase",
-        startOfIndependence + 1,
-        endOfLife,
-      ),
-    ],
-    useComparisonMode: false,
-    comparisonStrategies: defaultComparisonStrategies,
-  };
+  const currentConfig = useMemo(() => {
+    // Create default withdrawal configuration if none exists
+    const defaultFormValue: WithdrawalFormValue = {
+      endOfLife,
+      strategie: "4prozent",
+      rendite: 5,
+      // General inflation settings (for all strategies)
+      inflationAktiv: false,
+      inflationsrate: 2,
+      // Monthly strategy specific settings
+      monatlicheBetrag: 2000,
+      guardrailsAktiv: false,
+      guardrailsSchwelle: 10,
+      // Custom percentage strategy specific settings
+      variabelProzent: 5, // Default to 5%
+      // Dynamic strategy specific settings
+      dynamischBasisrate: 4, // Base withdrawal rate 4%
+      dynamischObereSchwell: 8, // Upper threshold return 8%
+      dynamischObereAnpassung: 5, // Upper adjustment 5%
+      dynamischUntereSchwell: 2, // Lower threshold return 2%
+      dynamischUntereAnpassung: -5, // Lower adjustment -5%
+      // Grundfreibetrag settings
+      grundfreibetragAktiv: false,
+      grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
+      einkommensteuersatz: 25, // Default income tax rate 25%
+    };
+
+    const defaultComparisonStrategies: ComparisonStrategy[] = [
+      {
+        id: "strategy1",
+        name: "3% Regel",
+        strategie: "3prozent",
+        rendite: 5,
+      },
+      {
+        id: "strategy2",
+        name: "Monatlich 1.500€",
+        strategie: "monatlich_fest",
+        rendite: 5,
+        monatlicheBetrag: 1500,
+      },
+    ];
+
+    return withdrawalConfig || {
+      formValue: defaultFormValue,
+      withdrawalReturnMode: "fixed" as WithdrawalReturnMode,
+      withdrawalVariableReturns: {},
+      withdrawalAverageReturn: 5,
+      withdrawalStandardDeviation: 12,
+      withdrawalRandomSeed: undefined,
+      useSegmentedWithdrawal: false,
+      withdrawalSegments: [
+        createDefaultWithdrawalSegment(
+          "main",
+          "Hauptphase",
+          startOfIndependence + 1,
+          endOfLife,
+        ),
+      ],
+      useComparisonMode: false,
+      comparisonStrategies: defaultComparisonStrategies,
+    };
+  }, [withdrawalConfig, startOfIndependence, endOfLife]);
 
   // Extract values from config for easier access
   const formValue = currentConfig.formValue;

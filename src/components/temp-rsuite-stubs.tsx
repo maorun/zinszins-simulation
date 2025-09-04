@@ -100,10 +100,11 @@ Form.Control = ({
   value,
   onChange,
   fluid,
-  handleTitle, // Remove this prop - not valid for inputs
+  handleTitle: _handleTitle, // Remove this prop - not valid for inputs
   min,
   max,
   step,
+  format,
   ...props 
 }: any) => {
   // Filter out non-HTML input attributes
@@ -112,12 +113,12 @@ Form.Control = ({
   
   if (accepter === DatePicker) {
     return (
-      <Input 
-        type="month"
+      <DatePicker
         name={name}
+        value={value}
+        onChange={onChange}
+        format={format}
         placeholder={placeholder}
-        value={value ? value.toISOString().slice(0, 7) : ''}
-        onChange={(e) => onChange && onChange(new Date(e.target.value))}
         style={{ width: fluid ? '100%' : undefined }}
         {...validInputProps}
       />
@@ -195,7 +196,43 @@ export const ButtonToolbar = ({ children, ...props }: any) => (
   <div style={{ display: 'flex', gap: '0.5rem' }} {...props}>{children}</div>
 );
 
-export const DatePicker = () => null; // Used as accepter identifier
+export const DatePicker = ({ value, onChange, format, placeholder, ...props }: any) => {
+  // Convert Date to YYYY-MM or YYYY-MM-DD format for input
+  const formatDate = (date: Date | string | null): string => {
+    if (!date) return '';
+    const d = new Date(date);
+    if (isNaN(d.getTime())) return '';
+    
+    if (format === 'yyyy-MM') {
+      return d.toISOString().substring(0, 7); // YYYY-MM
+    }
+    return d.toISOString().substring(0, 10); // YYYY-MM-DD (default)
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    if (!inputValue) {
+      onChange && onChange(null);
+      return;
+    }
+    
+    // Create date from input value
+    const date = new Date(inputValue + (format === 'yyyy-MM' ? '-01' : ''));
+    if (!isNaN(date.getTime())) {
+      onChange && onChange(date);
+    }
+  };
+
+  return (
+    <Input
+      type={format === 'yyyy-MM' ? 'month' : 'date'}
+      value={formatDate(value)}
+      onChange={handleChange}
+      placeholder={placeholder}
+      {...props}
+    />
+  );
+};
 export const InputNumber = ({ value, onChange, min, max, step, placeholder, fluid, ...props }: any) => (
   <Input
     type="number"

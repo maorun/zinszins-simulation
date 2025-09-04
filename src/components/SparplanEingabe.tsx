@@ -328,7 +328,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                 <InfoIcon />
                             </Form.ControlLabel>
                             <Form.Control 
-                                format="yyyy-MM" 
+                                format="yyyy-MM-dd" 
                                 name="date" 
                                 accepter={DatePicker}
                                 placeholder="Datum wählen"
