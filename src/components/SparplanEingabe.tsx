@@ -49,7 +49,7 @@ import {
     Panel,
     Message,
     useToaster
-} from "./ui/components";
+} from "./temp-rsuite-stubs";
 
 
 

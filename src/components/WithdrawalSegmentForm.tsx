@@ -13,7 +13,7 @@ import {
   PlusIcon,
   TrashIcon,
   Button
-} from './ui/components';
+} from './temp-rsuite-stubs';
 import type { 
     WithdrawalSegment
 } from "../utils/segmented-withdrawal";

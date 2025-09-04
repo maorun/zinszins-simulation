@@ -1,17 +1,16 @@
-import * as React from "react"
-import { cn } from "../../lib/utils"
-import { Card, CardContent, CardHeader, CardTitle } from './card'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './collapsible'
-import { Input } from './input'
-import { Label } from './label'
-import { Slider as ShadcnSlider } from './slider'
-import { ChevronDown, ChevronUp } from 'lucide-react'
-import { Button as ShadcnButton } from './button'
-import { RadioTileGroup } from './radio-tile'
-import { toast } from 'sonner'
+// Temporary stubs for RSuite components to maintain compatibility while migrating
+import React, { useState, createContext } from 'react';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button as ShadcnButton } from './ui/button';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { Slider as ShadcnSlider } from './ui/slider';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { toast } from 'sonner';
 
 // Form context for RSuite-style form value binding
-const FormContext = React.createContext<{
+const FormContext = createContext<{
   formValue?: any;
   onChange?: (value: any) => void;
 } | null>(null);
@@ -19,6 +18,22 @@ const FormContext = React.createContext<{
 // Hook to access form context
 const useFormContext = () => {
   return React.useContext(FormContext);
+};
+
+// Re-export Button from shadcn with appearance prop compatibility
+export const Button = ({ appearance, startIcon, ...props }: any) => {
+  // Map RSuite appearance to shadcn variants
+  let variant = 'default';
+  if (appearance === 'primary') variant = 'default';
+  if (appearance === 'ghost') variant = 'ghost';
+  if (appearance === 'subtle') variant = 'secondary';
+  
+  return (
+    <ShadcnButton variant={variant as any} {...props}>
+      {startIcon && <span style={{ marginRight: '0.5rem' }}>{startIcon}</span>}
+      {props.children}
+    </ShadcnButton>
+  );
 };
 
 // Enhanced Panel component with proper collapsible functionality
@@ -33,12 +48,12 @@ export const Panel = ({
   className = "",
   ...props 
 }: any) => {
-  const [isOpen, setIsOpen] = React.useState(expanded !== undefined ? expanded : defaultExpanded);
+  const [isOpen, setIsOpen] = useState(expanded !== undefined ? expanded : defaultExpanded);
   
   if (!collapsible) {
     // Non-collapsible panel - just render as a regular Card
     return (
-      <Card className={cn("mb-6", className)} {...props}>
+      <Card className={`mb-6 ${className}`} {...props}>
         {header && (
           <CardHeader className="pb-4">
             <CardTitle className="text-lg">{header}</CardTitle>
@@ -51,7 +66,7 @@ export const Panel = ({
 
   // Collapsible panel using Radix UI Collapsible
   return (
-    <Card className={cn("mb-6", className)} {...props}>
+    <Card className={`mb-6 ${className}`} {...props}>
       <Collapsible open={isOpen} onOpenChange={setIsOpen}>
         {header && (
           <CardHeader className="pb-4">
@@ -85,7 +100,7 @@ export const Form = ({ children, onSubmit, formValue, onChange, ...props }: any)
 );
 
 Form.Group = ({ children, className = "", controlId: _controlId, ...props }: any) => (
-  <div className={cn("mb-4 space-y-2", className)} {...props}>{children}</div>
+  <div className={`mb-4 space-y-2 ${className}`} {...props}>{children}</div>
 );
 
 Form.ControlLabel = ({ children, ...props }: any) => (
@@ -98,13 +113,16 @@ export const FormControl = ({
   placeholder,
   value,
   onChange,
-  fluid: _fluid,
+  fluid: _fluid, // Remove from DOM output
+  handleTitle: _handleTitle, // Remove this prop - not valid for inputs
   min,
   max,
   step,
   format,
   ...props 
 }: any) => {
+  // In RSuite, Form.Control gets values from the parent Form's formValue based on name
+  // We need to access the form context to get the actual value
   const formContext = useFormContext();
   const actualValue = formContext?.formValue?.[name] || value;
   const actualOnChange = (newValue: any) => {
@@ -116,6 +134,7 @@ export const FormControl = ({
     }
   };
 
+  // Filter out non-HTML input attributes
   const validInputProps = { ...props };
   delete validInputProps.handleTitle;
   delete validInputProps.fluid;
@@ -201,43 +220,31 @@ export const FormControl = ({
   );
 };
 
+// Attach FormControl to Form
 Form.Control = FormControl;
 
 Form.HelpText = ({ children, className = "", ...props }: any) => (
-  <div className={cn("text-sm text-muted-foreground mt-1", className)} {...props}>
+  <div className={`text-sm text-muted-foreground mt-1 ${className}`} {...props}>
     {children}
   </div>
 );
 
-// Re-export Button from shadcn with appearance prop compatibility
-export const Button = ({ appearance, startIcon, ...props }: any) => {
-  let variant = 'default';
-  if (appearance === 'primary') variant = 'default';
-  if (appearance === 'ghost') variant = 'ghost';
-  if (appearance === 'subtle') variant = 'secondary';
-  
-  return (
-    <ShadcnButton variant={variant as any} {...props}>
-      {startIcon && <span style={{ marginRight: '0.5rem' }}>{startIcon}</span>}
-      {props.children}
-    </ShadcnButton>
-  );
-};
-
+// Simple component stubs
 export const ButtonToolbar = ({ children, ...props }: any) => (
-  <div className="flex gap-2" {...props}>{children}</div>
+  <div style={{ display: 'flex', gap: '0.5rem' }} {...props}>{children}</div>
 );
 
 export const DatePicker = ({ value, onChange, format, placeholder, ...props }: any) => {
+  // Convert Date to YYYY-MM or YYYY-MM-DD format for input
   const formatDate = (date: Date | string | null): string => {
     if (!date) return '';
     const d = new Date(date);
     if (isNaN(d.getTime())) return '';
     
     if (format === 'yyyy-MM') {
-      return d.toISOString().substring(0, 7);
+      return d.toISOString().substring(0, 7); // YYYY-MM
     }
-    return d.toISOString().substring(0, 10);
+    return d.toISOString().substring(0, 10); // YYYY-MM-DD (default)
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -247,6 +254,7 @@ export const DatePicker = ({ value, onChange, format, placeholder, ...props }: a
       return;
     }
     
+    // Create date from input value
     const date = new Date(inputValue + (format === 'yyyy-MM' ? '-01' : ''));
     if (!isNaN(date.getTime())) {
       onChange && onChange(date);
@@ -263,7 +271,6 @@ export const DatePicker = ({ value, onChange, format, placeholder, ...props }: a
     />
   );
 };
-
 export const InputNumber = ({ value, onChange, min, max, step, placeholder, fluid: _fluid, ...props }: any) => (
   <Input
     type="number"
@@ -279,14 +286,12 @@ export const InputNumber = ({ value, onChange, min, max, step, placeholder, flui
 );
 
 export const Message = ({ type, children, ...props }: any) => (
-  <div className={cn(
-    "p-3 rounded-md",
-    type === 'success' && "bg-green-50 text-green-800",
-    type === 'info' && "bg-blue-50 text-blue-800",
-    type === 'warning' && "bg-yellow-50 text-yellow-800",
-    type === 'error' && "bg-red-50 text-red-800",
-    !type && "bg-gray-50 text-gray-800"
-  )} {...props}>
+  <div style={{ 
+    padding: '0.75rem', 
+    borderRadius: '0.375rem',
+    backgroundColor: type === 'success' ? '#dcfce7' : type === 'info' ? '#dbeafe' : '#f3f4f6',
+    color: type === 'success' ? '#166534' : type === 'info' ? '#1e40af' : '#374151'
+  }} {...props}>
     {children}
   </div>
 );
@@ -308,8 +313,9 @@ export const useToaster = () => ({
   }
 });
 
+// Stubs for EntnahmeSimulationsAusgabe components
 export const Radio = ({ children, value, checked, onChange, ...props }: any) => (
-  <label className="flex items-center gap-2 cursor-pointer">
+  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
     <input 
       type="radio" 
       value={value} 
@@ -322,7 +328,7 @@ export const Radio = ({ children, value, checked, onChange, ...props }: any) => 
 );
 
 export const RadioGroup = ({ children, value, onChange, inline, ...props }: any) => (
-  <div className={cn(inline ? "flex gap-4" : "space-y-2")} {...props}>
+  <div style={{ display: inline ? 'flex' : 'block', gap: inline ? '1rem' : '0.5rem' }} {...props}>
     {React.Children.map(children, (child) => {
       if (!React.isValidElement(child)) return child;
       const childProps = child.props as any;
@@ -333,6 +339,49 @@ export const RadioGroup = ({ children, value, onChange, inline, ...props }: any)
     })}
   </div>
 );
+
+export const RadioTile = ({ children, value, checked, onChange, label, ...props }: any) => (
+  <label 
+    style={{ 
+      display: 'block',
+      padding: '1rem',
+      border: '2px solid',
+      borderColor: checked ? '#1675e0' : '#e5e7eb',
+      borderRadius: '0.5rem',
+      cursor: 'pointer',
+      backgroundColor: checked ? '#f0f8ff' : 'white',
+      transition: 'all 0.2s ease'
+    }}
+    {...props}
+  >
+    <input 
+      type="radio" 
+      value={value}
+      checked={checked}
+      onChange={onChange}
+      style={{ display: 'none' }}
+    />
+    <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{label}</div>
+    <div style={{ fontSize: '0.875rem', color: '#666' }}>{children}</div>
+  </label>
+);
+
+export const RadioTileGroup = ({ children, value, onChange, onValueChange, ...props }: any) => {
+  const handleChange = onValueChange || onChange;
+  
+  return (
+    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }} {...props}>
+      {React.Children.map(children, (child) => {
+        if (!React.isValidElement(child)) return child;
+        const childProps = child.props as any;
+        return React.cloneElement(child as any, { 
+          checked: childProps.value === value,
+          onChange: () => handleChange && handleChange(childProps.value)
+        });
+      })}
+    </div>
+  );
+};
 
 export const Slider = ({ value, onChange, min, max, step, handleTitle: _handleTitle, ...props }: any) => (
   <div className="space-y-2">
@@ -353,16 +402,160 @@ export const Slider = ({ value, onChange, min, max, step, handleTitle: _handleTi
   </div>
 );
 
+// Define Table sub-components that actually render content
+const Column = ({ children, width: _width, flexGrow: _flexGrow }: any) => {
+  // Column is a container that renders its children
+  return <>{children}</>;
+};
+
+const HeaderCell = ({ children, ...props }: any) => (
+  <th style={{ padding: '0.5rem', borderBottom: '1px solid #e5e7eb', textAlign: 'left' }} {...props}>
+    {children}
+  </th>
+);
+
+const Cell = ({ children, dataKey: _dataKey, ...props }: any) => {
+  // If it's a function, call it with rowData context
+  if (typeof children === 'function') {
+    return (
+      <td style={{ padding: '0.5rem', borderBottom: '1px solid #f3f4f6' }} {...props}>
+        {/* Function cells will be handled by the parent Table */}
+        {children}
+      </td>
+    );
+  }
+  
+  return (
+    <td style={{ padding: '0.5rem', borderBottom: '1px solid #f3f4f6' }} {...props}>
+      {children}
+    </td>
+  );
+};
+
+// Create Table component that processes Column children
+const TableComponent = ({ children, data, bordered: _bordered, rowHeight: _rowHeight, ...props }: any) => {
+  // Extract columns from children
+  const columns = React.Children.toArray(children).filter((child: any) => 
+    child?.type === Column
+  );
+
+  if (!data || data.length === 0) {
+    return (
+      <table style={{ width: '100%', borderCollapse: 'collapse' }} {...props}>
+        <thead>
+          <tr>
+            {columns.map((column: any, index) => {
+              const headerCell = React.Children.toArray(column.props.children).find((child: any) => 
+                React.isValidElement(child) && child?.type === HeaderCell
+              );
+              return (
+                <HeaderCell key={index}>
+                  {React.isValidElement(headerCell) ? (headerCell.props as any).children : ''}
+                </HeaderCell>
+              );
+            })}
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colSpan={columns.length} style={{ textAlign: 'center', padding: '2rem' }}>
+              Keine Daten verfügbar
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    );
+  }
+
+  return (
+    <table style={{ width: '100%', borderCollapse: 'collapse' }} {...props}>
+      <thead>
+        <tr>
+          {columns.map((column: any, index) => {
+            const headerCell = React.Children.toArray(column.props.children).find((child: any) => 
+              React.isValidElement(child) && child?.type === HeaderCell
+            );
+            return (
+              <HeaderCell key={index}>
+                {React.isValidElement(headerCell) ? (headerCell.props as any).children : ''}
+              </HeaderCell>
+            );
+          })}
+        </tr>
+      </thead>
+      <tbody>
+        {data.map((rowData: any, rowIndex: number) => (
+          <tr key={rowIndex}>
+            {columns.map((column: any, colIndex) => {
+              const cell = React.Children.toArray(column.props.children).find((child: any) => 
+                React.isValidElement(child) && child?.type === Cell
+              );
+              
+              if (!React.isValidElement(cell)) return <td key={colIndex}></td>;
+              
+              const cellProps = cell.props as any;
+              
+              // Handle function children
+              if (typeof cellProps.children === 'function') {
+                return (
+                  <Cell key={colIndex}>
+                    {cellProps.children(rowData)}
+                  </Cell>
+                );
+              }
+              
+              // Handle dataKey
+              if (cellProps.dataKey) {
+                return (
+                  <Cell key={colIndex}>
+                    {rowData[cellProps.dataKey]}
+                  </Cell>
+                );
+              }
+              
+              // Handle direct children
+              return (
+                <Cell key={colIndex}>
+                  {cellProps.children}
+                </Cell>
+              );
+            })}
+          </tr>
+        ))}
+      </tbody>
+    </table>
+  );
+};
+
+// Attach sub-components to Table
+TableComponent.Column = Column;
+TableComponent.HeaderCell = HeaderCell;
+TableComponent.Cell = Cell;
+
+export const Table = TableComponent;
+
+// Also export individual components for direct imports
+export { Column, HeaderCell, Cell };
+
 export const Toggle = ({ checked, onChange, onCheckedChange, ...props }: any) => {
   const handleChange = onCheckedChange || onChange;
   
   return (
-    <label className="inline-flex items-center cursor-pointer gap-2">
+    <label style={{ 
+      display: 'inline-flex', 
+      alignItems: 'center', 
+      cursor: 'pointer',
+      gap: '0.5rem'
+    }}>
       <input 
         type="checkbox"
         checked={checked}
         onChange={(e) => handleChange && handleChange(e.target.checked)}
-        className="w-5 h-5 accent-blue-600"
+        style={{
+          width: '1.25rem',
+          height: '1.25rem',
+          accentColor: '#1675e0'
+        }}
         {...props}
       />
       <span className="text-sm">
@@ -373,13 +566,22 @@ export const Toggle = ({ checked, onChange, onCheckedChange, ...props }: any) =>
 };
 
 export const Divider = ({ ...props }: any) => (
-  <hr className="my-4 border-gray-200" {...props} />
+  <hr style={{ margin: '1rem 0', border: 'none', borderTop: '1px solid #e5e7eb' }} {...props} />
 );
 
 export const IconButton = ({ children, onClick, ...props }: any) => (
   <button 
     onClick={onClick}
-    className="flex items-center justify-center p-2 border border-gray-200 rounded-md cursor-pointer hover:bg-gray-50 transition-colors"
+    style={{ 
+      background: 'none', 
+      border: '1px solid #e5e7eb', 
+      borderRadius: '0.375rem',
+      padding: '0.5rem',
+      cursor: 'pointer',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}
     {...props}
   >
     {children}
@@ -399,6 +601,3 @@ export const TrashIcon = () => (
     <path d="m19,6v14a2,2 0 0,1 -2,2H7a2,2 0 0,1 -2,-2V6m3,0V4a2,2 0 0,1 2,-2h4a2,2 0 0,1 2,2v2"></path>
   </svg>
 );
-
-// Export RadioTile components
-export { RadioTile, RadioTileGroup } from './radio-tile';

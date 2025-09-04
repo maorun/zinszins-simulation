@@ -1,5 +1,5 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
-import { RadioTile, RadioTileGroup } from './ui/radio-tile';
+import { RadioGroup, RadioGroupItem } from './ui/radio-group';
 import { Label } from './ui/label';
 import { useSimulation } from '../contexts/useSimulation';
 import type { ReturnMode } from '../utils/random-returns';
@@ -22,24 +22,28 @@ const ReturnConfiguration = () => {
             <CardContent className="space-y-4">
                 <div className="space-y-3">
                     <Label>Rendite-Modus für Sparphase</Label>
-                    <RadioTileGroup
+                    <RadioGroup
                         value={returnMode}
                         onValueChange={(value) => {
                             const mode = value as ReturnMode;
                             setReturnMode(mode);
                             performSimulation();
                         }}
+                        className="flex space-x-4"
                     >
-                        <RadioTile value="fixed" label="Feste Rendite">
-                            Konstanter jährlicher Zinssatz
-                        </RadioTile>
-                        <RadioTile value="random" label="Zufällige Rendite">
-                            Monte Carlo Simulation mit Durchschnitt und Volatilität
-                        </RadioTile>
-                        <RadioTile value="variable" label="Variable Rendite">
-                            Jahr-für-Jahr konfigurierbare Renditen
-                        </RadioTile>
-                    </RadioTileGroup>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="fixed" id="fixed" />
+                            <Label htmlFor="fixed">Feste Rendite</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="random" id="random" />
+                            <Label htmlFor="random">Zufällige Rendite</Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                            <RadioGroupItem value="variable" id="variable" />
+                            <Label htmlFor="variable">Variable Rendite</Label>
+                        </div>
+                    </RadioGroup>
                     <p className="text-sm text-muted-foreground">
                         Konfiguration der erwarteten Rendite während der Ansparphase (bis zum Beginn der Entnahme).
                     </p>
