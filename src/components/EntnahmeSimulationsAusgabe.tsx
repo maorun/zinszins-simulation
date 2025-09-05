@@ -9,6 +9,7 @@ import {
   Table,
   Toggle,
 } from "./temp-rsuite-stubs";
+import { Switch } from "./ui/switch";
 import type { SparplanElement } from "../utils/sparplan-utils";
 import {
   calculateWithdrawal,
@@ -123,6 +124,8 @@ export function EntnahmeSimulationsAusgabe({
       endOfLife,
       strategie: "4prozent",
       rendite: 5,
+      // Withdrawal frequency configuration
+      withdrawalFrequency: "yearly", // Default to yearly as specified in requirements
       // General inflation settings (for all strategies)
       inflationAktiv: false,
       inflationsrate: 2,
@@ -288,6 +291,7 @@ export function EntnahmeSimulationsAusgabe({
         startYear: startOfIndependence + 1, // Start withdrawals the year after accumulation ends
         endYear: formValue.endOfLife,
         strategy: formValue.strategie,
+        withdrawalFrequency: formValue.withdrawalFrequency,
         returnConfig: withdrawalReturnConfig,
         taxRate: steuerlast,
         teilfreistellungsquote: teilfreistellungsquote,
@@ -365,6 +369,7 @@ export function EntnahmeSimulationsAusgabe({
     startOfIndependence,
     formValue.endOfLife,
     formValue.strategie,
+    formValue.withdrawalFrequency,
     formValue.rendite,
     formValue.inflationAktiv,
     formValue.inflationsrate,
@@ -681,6 +686,7 @@ export function EntnahmeSimulationsAusgabe({
                 updateFormValue({
                   endOfLife: changedFormValue.endOfLife,
                   strategie: changedFormValue.strategie,
+                  withdrawalFrequency: changedFormValue.withdrawalFrequency,
                   rendite: changedFormValue.rendite,
                   inflationAktiv: changedFormValue.inflationAktiv,
                   inflationsrate: changedFormValue.inflationsrate,
@@ -728,6 +734,29 @@ export function EntnahmeSimulationsAusgabe({
                     Renditebasierte Anpassung
                   </RadioTile>
                 </Form.Control>
+              </Form.Group>
+
+              {/* Withdrawal frequency configuration */}
+              <Form.Group controlId="withdrawalFrequency">
+                <Form.ControlLabel>Entnahme-Häufigkeit</Form.ControlLabel>
+                <div className="flex items-center space-x-3 mt-2">
+                  <span className="text-sm">Jährlich</span>
+                  <Switch
+                    checked={formValue.withdrawalFrequency === "monthly"}
+                    onCheckedChange={(checked) => {
+                      updateFormValue({
+                        withdrawalFrequency: checked ? "monthly" : "yearly",
+                      });
+                    }}
+                  />
+                  <span className="text-sm">Monatlich</span>
+                </div>
+                <Form.HelpText>
+                  {formValue.withdrawalFrequency === "yearly" 
+                    ? "Entnahme erfolgt einmal jährlich am Anfang des Jahres"
+                    : "Entnahme erfolgt monatlich - Portfolio hat mehr Zeit zu wachsen"
+                  }
+                </Form.HelpText>
               </Form.Group>
 
               {/* Fixed return rate for base strategy */}
@@ -1105,6 +1134,7 @@ export function EntnahmeSimulationsAusgabe({
               updateFormValue({
                 endOfLife: changedFormValue.endOfLife,
                 strategie: changedFormValue.strategie,
+                withdrawalFrequency: changedFormValue.withdrawalFrequency,
                 rendite: changedFormValue.rendite,
                 inflationAktiv: changedFormValue.inflationAktiv,
                 inflationsrate: changedFormValue.inflationsrate,
@@ -1340,6 +1370,29 @@ export function EntnahmeSimulationsAusgabe({
                   Renditebasierte Anpassung
                 </RadioTile>
               </Form.Control>
+            </Form.Group>
+
+            {/* Withdrawal frequency configuration */}
+            <Form.Group controlId="withdrawalFrequency">
+              <Form.ControlLabel>Entnahme-Häufigkeit</Form.ControlLabel>
+              <div className="flex items-center space-x-3 mt-2">
+                <span className="text-sm">Jährlich</span>
+                <Switch
+                  checked={formValue.withdrawalFrequency === "monthly"}
+                  onCheckedChange={(checked) => {
+                    updateFormValue({
+                      withdrawalFrequency: checked ? "monthly" : "yearly",
+                    });
+                  }}
+                />
+                <span className="text-sm">Monatlich</span>
+              </div>
+              <Form.HelpText>
+                {formValue.withdrawalFrequency === "yearly" 
+                  ? "Entnahme erfolgt einmal jährlich am Anfang des Jahres"
+                  : "Entnahme erfolgt monatlich - Portfolio hat mehr Zeit zu wachsen"
+                }
+              </Form.HelpText>
             </Form.Group>
 
             {/* Grundfreibetrag settings */}
