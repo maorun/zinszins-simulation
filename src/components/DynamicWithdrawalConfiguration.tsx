@@ -1,4 +1,5 @@
-import { Form, Slider } from "rsuite";
+import { Slider } from "./ui/slider";
+import { Label } from "./ui/label";
 
 interface DynamicWithdrawalFormValues {
     dynamischBasisrate: number;
@@ -54,146 +55,231 @@ export function DynamicWithdrawalConfiguration({
         lowerThresholdAdjustment: formValue!.dynamischUntereAnpassung / 100,
     } : values!;
     return (
-        <>
-            <Form.Group controlId={isFormMode ? "dynamischBasisrate" : undefined}>
-                <Form.ControlLabel>Basis-Entnahmerate (%)</Form.ControlLabel>
+        <div className="space-y-6">
+            <div className="space-y-2">
+                <Label htmlFor={isFormMode ? "dynamischBasisrate" : "baseWithdrawalRate"}>
+                    Basis-Entnahmerate (%)
+                </Label>
                 {isFormMode ? (
-                    <Form.Control name="dynamischBasisrate" accepter={Slider} 
-                        min={2}
-                        max={7}
-                        step={0.5}
-                        handleTitle={(<div style={{marginTop: '-17px'}}>{formValue!.dynamischBasisrate}%</div>)}
-                        progress
-                        graduated
-                    />
+                    <div className="space-y-2">
+                        <Slider
+                            name="dynamischBasisrate"
+                            value={[formValue!.dynamischBasisrate]}
+                            onValueChange={([_value]) => {
+                                // Handle form change if needed
+                            }}
+                            min={2}
+                            max={7}
+                            step={0.5}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>2%</span>
+                            <span className="font-medium">{formValue!.dynamischBasisrate}%</span>
+                            <span>7%</span>
+                        </div>
+                    </div>
                 ) : (
-                    <Slider
-                        value={currentValues.baseWithdrawalRate * 100}
-                        min={2}
-                        max={7}
-                        step={0.5}
-                        onChange={(value) => onChange!.onBaseWithdrawalRateChange(value / 100)}
-                        handleTitle={(<div style={{marginTop: '-17px'}}>{(currentValues.baseWithdrawalRate * 100).toFixed(1)}%</div>)}
-                        progress
-                        graduated
-                    />
+                    <div className="space-y-2">
+                        <Slider
+                            value={[currentValues.baseWithdrawalRate * 100]}
+                            onValueChange={([value]) => onChange!.onBaseWithdrawalRateChange(value / 100)}
+                            min={2}
+                            max={7}
+                            step={0.5}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>2%</span>
+                            <span className="font-medium">{(currentValues.baseWithdrawalRate * 100).toFixed(1)}%</span>
+                            <span>7%</span>
+                        </div>
+                    </div>
                 )}
-                <Form.HelpText>
+                <p className="text-sm text-muted-foreground">
                     Grundlegende jährliche Entnahmerate vor dynamischen Anpassungen
-                </Form.HelpText>
-            </Form.Group>
+                </p>
+            </div>
             
-            <Form.Group controlId={isFormMode ? "dynamischObereSchwell" : undefined}>
-                <Form.ControlLabel>Obere Schwelle Rendite (%)</Form.ControlLabel>
+            <div className="space-y-2">
+                <Label htmlFor={isFormMode ? "dynamischObereSchwell" : "upperThresholdReturn"}>
+                    Obere Schwelle Rendite (%)
+                </Label>
                 {isFormMode ? (
-                    <Form.Control name="dynamischObereSchwell" accepter={Slider} 
-                        min={4}
-                        max={15}
-                        step={0.5}
-                        handleTitle={(<div style={{marginTop: '-17px'}}>{formValue!.dynamischObereSchwell}%</div>)}
-                        progress
-                        graduated
-                    />
+                    <div className="space-y-2">
+                        <Slider
+                            name="dynamischObereSchwell"
+                            value={[formValue!.dynamischObereSchwell]}
+                            onValueChange={([_value]) => {
+                                // Handle form change if needed
+                            }}
+                            min={4}
+                            max={15}
+                            step={0.5}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>4%</span>
+                            <span className="font-medium">{formValue!.dynamischObereSchwell}%</span>
+                            <span>15%</span>
+                        </div>
+                    </div>
                 ) : (
-                    <Slider
-                        value={currentValues.upperThresholdReturn * 100}
-                        min={4}
-                        max={15}
-                        step={0.5}
-                        onChange={(value) => onChange!.onUpperThresholdReturnChange(value / 100)}
-                        handleTitle={(<div style={{marginTop: '-17px'}}>{(currentValues.upperThresholdReturn * 100).toFixed(1)}%</div>)}
-                        progress
-                        graduated
-                    />
+                    <div className="space-y-2">
+                        <Slider
+                            value={[currentValues.upperThresholdReturn * 100]}
+                            onValueChange={([value]) => onChange!.onUpperThresholdReturnChange(value / 100)}
+                            min={4}
+                            max={15}
+                            step={0.5}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>4%</span>
+                            <span className="font-medium">{(currentValues.upperThresholdReturn * 100).toFixed(1)}%</span>
+                            <span>15%</span>
+                        </div>
+                    </div>
                 )}
-                <Form.HelpText>
+                <p className="text-sm text-muted-foreground">
                     Rendite-Schwelle: Bei Überschreitung wird die Entnahme erhöht
-                </Form.HelpText>
-            </Form.Group>
+                </p>
+            </div>
             
-            <Form.Group controlId={isFormMode ? "dynamischObereAnpassung" : undefined}>
-                <Form.ControlLabel>Anpassung bei oberer Schwelle (%)</Form.ControlLabel>
+            <div className="space-y-2">
+                <Label htmlFor={isFormMode ? "dynamischObereAnpassung" : "upperThresholdAdjustment"}>
+                    Anpassung bei oberer Schwelle (%)
+                </Label>
                 {isFormMode ? (
-                    <Form.Control name="dynamischObereAnpassung" accepter={Slider} 
-                        min={0}
-                        max={15}
-                        step={1}
-                        handleTitle={(<div style={{marginTop: '-17px'}}>{formValue!.dynamischObereAnpassung > 0 ? '+' : ''}{formValue!.dynamischObereAnpassung}%</div>)}
-                        progress
-                        graduated
-                    />
+                    <div className="space-y-2">
+                        <Slider
+                            name="dynamischObereAnpassung"
+                            value={[formValue!.dynamischObereAnpassung]}
+                            onValueChange={([_value]) => {
+                                // Handle form change if needed
+                            }}
+                            min={0}
+                            max={15}
+                            step={1}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>0%</span>
+                            <span className="font-medium">{formValue!.dynamischObereAnpassung > 0 ? '+' : ''}{formValue!.dynamischObereAnpassung}%</span>
+                            <span>15%</span>
+                        </div>
+                    </div>
                 ) : (
-                    <Slider
-                        value={currentValues.upperThresholdAdjustment * 100}
-                        min={0}
-                        max={15}
-                        step={1}
-                        onChange={(value) => onChange!.onUpperThresholdAdjustmentChange(value / 100)}
-                        handleTitle={(<div style={{marginTop: '-17px'}}>{currentValues.upperThresholdAdjustment > 0 ? '+' : ''}{(currentValues.upperThresholdAdjustment * 100).toFixed(0)}%</div>)}
-                        progress
-                        graduated
-                    />
+                    <div className="space-y-2">
+                        <Slider
+                            value={[currentValues.upperThresholdAdjustment * 100]}
+                            onValueChange={([value]) => onChange!.onUpperThresholdAdjustmentChange(value / 100)}
+                            min={0}
+                            max={15}
+                            step={1}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>0%</span>
+                            <span className="font-medium">{currentValues.upperThresholdAdjustment > 0 ? '+' : ''}{(currentValues.upperThresholdAdjustment * 100).toFixed(0)}%</span>
+                            <span>15%</span>
+                        </div>
+                    </div>
                 )}
-                <Form.HelpText>
+                <p className="text-sm text-muted-foreground">
                     Relative Erhöhung der Entnahme bei guter Performance
-                </Form.HelpText>
-            </Form.Group>
+                </p>
+            </div>
             
-            <Form.Group controlId={isFormMode ? "dynamischUntereSchwell" : undefined}>
-                <Form.ControlLabel>Untere Schwelle Rendite (%)</Form.ControlLabel>
+            <div className="space-y-2">
+                <Label htmlFor={isFormMode ? "dynamischUntereSchwell" : "lowerThresholdReturn"}>
+                    Untere Schwelle Rendite (%)
+                </Label>
                 {isFormMode ? (
-                    <Form.Control name="dynamischUntereSchwell" accepter={Slider} 
-                        min={-5}
-                        max={6}
-                        step={0.5}
-                        handleTitle={(<div style={{marginTop: '-17px'}}>{formValue!.dynamischUntereSchwell}%</div>)}
-                        progress
-                        graduated
-                    />
+                    <div className="space-y-2">
+                        <Slider
+                            name="dynamischUntereSchwell"
+                            value={[formValue!.dynamischUntereSchwell]}
+                            onValueChange={([_value]) => {
+                                // Handle form change if needed
+                            }}
+                            min={-5}
+                            max={6}
+                            step={0.5}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>-5%</span>
+                            <span className="font-medium">{formValue!.dynamischUntereSchwell}%</span>
+                            <span>6%</span>
+                        </div>
+                    </div>
                 ) : (
-                    <Slider
-                        value={currentValues.lowerThresholdReturn * 100}
-                        min={-5}
-                        max={6}
-                        step={0.5}
-                        onChange={(value) => onChange!.onLowerThresholdReturnChange(value / 100)}
-                        handleTitle={(<div style={{marginTop: '-17px'}}>{(currentValues.lowerThresholdReturn * 100).toFixed(1)}%</div>)}
-                        progress
-                        graduated
-                    />
+                    <div className="space-y-2">
+                        <Slider
+                            value={[currentValues.lowerThresholdReturn * 100]}
+                            onValueChange={([value]) => onChange!.onLowerThresholdReturnChange(value / 100)}
+                            min={-5}
+                            max={6}
+                            step={0.5}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>-5%</span>
+                            <span className="font-medium">{(currentValues.lowerThresholdReturn * 100).toFixed(1)}%</span>
+                            <span>6%</span>
+                        </div>
+                    </div>
                 )}
-                <Form.HelpText>
+                <p className="text-sm text-muted-foreground">
                     Rendite-Schwelle: Bei Unterschreitung wird die Entnahme reduziert
-                </Form.HelpText>
-            </Form.Group>
+                </p>
+            </div>
             
-            <Form.Group controlId={isFormMode ? "dynamischUntereAnpassung" : undefined}>
-                <Form.ControlLabel>Anpassung bei unterer Schwelle (%)</Form.ControlLabel>
+            <div className="space-y-2">
+                <Label htmlFor={isFormMode ? "dynamischUntereAnpassung" : "lowerThresholdAdjustment"}>
+                    Anpassung bei unterer Schwelle (%)
+                </Label>
                 {isFormMode ? (
-                    <Form.Control name="dynamischUntereAnpassung" accepter={Slider} 
-                        min={-15}
-                        max={0}
-                        step={1}
-                        handleTitle={(<div style={{marginTop: '-17px'}}>{formValue!.dynamischUntereAnpassung}%</div>)}
-                        progress
-                        graduated
-                    />
+                    <div className="space-y-2">
+                        <Slider
+                            name="dynamischUntereAnpassung"
+                            value={[formValue!.dynamischUntereAnpassung]}
+                            onValueChange={([_value]) => {
+                                // Handle form change if needed
+                            }}
+                            min={-15}
+                            max={0}
+                            step={1}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>-15%</span>
+                            <span className="font-medium">{formValue!.dynamischUntereAnpassung}%</span>
+                            <span>0%</span>
+                        </div>
+                    </div>
                 ) : (
-                    <Slider
-                        value={currentValues.lowerThresholdAdjustment * 100}
-                        min={-15}
-                        max={0}
-                        step={1}
-                        onChange={(value) => onChange!.onLowerThresholdAdjustmentChange(value / 100)}
-                        handleTitle={(<div style={{marginTop: '-17px'}}>{(currentValues.lowerThresholdAdjustment * 100).toFixed(0)}%</div>)}
-                        progress
-                        graduated
-                    />
+                    <div className="space-y-2">
+                        <Slider
+                            value={[currentValues.lowerThresholdAdjustment * 100]}
+                            onValueChange={([value]) => onChange!.onLowerThresholdAdjustmentChange(value / 100)}
+                            min={-15}
+                            max={0}
+                            step={1}
+                            className="w-full"
+                        />
+                        <div className="flex justify-between text-sm text-muted-foreground">
+                            <span>-15%</span>
+                            <span className="font-medium">{(currentValues.lowerThresholdAdjustment * 100).toFixed(0)}%</span>
+                            <span>0%</span>
+                        </div>
+                    </div>
                 )}
-                <Form.HelpText>
+                <p className="text-sm text-muted-foreground">
                     Relative Reduzierung der Entnahme bei schlechter Performance
-                </Form.HelpText>
-            </Form.Group>
-        </>
+                </p>
+            </div>
+        </div>
     );
 }

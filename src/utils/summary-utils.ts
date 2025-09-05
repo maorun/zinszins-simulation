@@ -183,3 +183,100 @@ export function getEnhancedSummary(
     
     return enhancedSummary;
 }
+
+/**
+ * Calculate year-by-year portfolio progression (cumulative capital for each year)
+ */
+export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Array<{
+    year: number;
+    totalCapital: number;
+    yearlyContribution: number;
+    yearlyInterest: number;
+    yearlyTax: number;
+    cumulativeContributions: number;
+    cumulativeInterest: number;
+    cumulativeTax: number;
+}> {
+    if (!elemente || elemente.length === 0) {
+        return [];
+    }
+
+    // Get all years from all simulation results
+    const allYears = new Set<number>();
+    elemente.forEach(element => {
+        Object.keys(element.simulation).forEach(year => {
+            allYears.add(parseInt(year));
+        });
+    });
+
+    const sortedYears = Array.from(allYears).sort((a, b) => a - b);
+    const progression: Array<{
+        year: number;
+        totalCapital: number;
+        yearlyContribution: number;
+        yearlyInterest: number;
+        yearlyTax: number;
+        cumulativeContributions: number;
+        cumulativeInterest: number;
+        cumulativeTax: number;
+    }> = [];
+
+    let cumulativeContributions = 0;
+    let cumulativeInterest = 0;
+    let cumulativeTax = 0;
+
+    for (const year of sortedYears) {
+        let yearlyContribution = 0;
+        let yearlyInterest = 0;
+        let yearlyTax = 0;
+        let totalCapital = 0;
+
+        // Sum up all elements for this year
+        elemente.forEach(element => {
+            const yearData = element.simulation[year];
+            if (yearData) {
+                // For yearly contribution, only count the actual contributions made this year
+                if (element.type === 'sparplan') {
+                    // For savings plans, check if this year falls within the plan period
+                    const elementStartYear = new Date(element.start).getFullYear();
+                    if (elementStartYear === year) {
+                        yearlyContribution += element.einzahlung;
+                    }
+                } else if (element.type === 'einmalzahlung') {
+                    // For one-time payments, include the contribution if it's made this year
+                    const elementStartYear = new Date(element.start).getFullYear();
+                    if (elementStartYear === year) {
+                        yearlyContribution += element.einzahlung;
+                    }
+                }
+
+                // Add the end capital from this element for this year
+                totalCapital += yearData.endkapital;
+                
+                // Add the interest from this element for this year
+                yearlyInterest += yearData.zinsen;
+                
+                // Add the tax paid by this element for this year
+                yearlyTax += yearData.bezahlteSteuer;
+            }
+        });
+
+        // Update cumulative totals
+        cumulativeContributions += yearlyContribution;
+        cumulativeInterest += yearlyInterest;
+        cumulativeTax += yearlyTax;
+
+        progression.push({
+            year,
+            totalCapital,
+            yearlyContribution,
+            yearlyInterest,
+            yearlyTax,
+            cumulativeContributions,
+            cumulativeInterest,
+            cumulativeTax
+        });
+    }
+
+    return progression;
+}

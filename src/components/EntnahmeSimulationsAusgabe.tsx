@@ -3,15 +3,12 @@ import {
   Form,
   InputNumber,
   Panel,
-  Radio,
-  RadioGroup,
   RadioTile,
   RadioTileGroup,
   Slider,
   Table,
   Toggle,
-} from "rsuite";
-import "rsuite/dist/rsuite.min.css";
+} from "./temp-rsuite-stubs";
 import type { SparplanElement } from "../utils/sparplan-utils";
 import {
   calculateWithdrawal,
@@ -82,68 +79,70 @@ export function EntnahmeSimulationsAusgabe({
   const [startOfIndependence, endOfLife] = startEnd;
   const { withdrawalConfig, setWithdrawalConfig } = useSimulation();
 
-  // Create default withdrawal configuration if none exists
-  const defaultFormValue: WithdrawalFormValue = {
-    endOfLife,
-    strategie: "4prozent",
-    rendite: 5,
-    // General inflation settings (for all strategies)
-    inflationAktiv: false,
-    inflationsrate: 2,
-    // Monthly strategy specific settings
-    monatlicheBetrag: 2000,
-    guardrailsAktiv: false,
-    guardrailsSchwelle: 10,
-    // Custom percentage strategy specific settings
-    variabelProzent: 5, // Default to 5%
-    // Dynamic strategy specific settings
-    dynamischBasisrate: 4, // Base withdrawal rate 4%
-    dynamischObereSchwell: 8, // Upper threshold return 8%
-    dynamischObereAnpassung: 5, // Upper adjustment 5%
-    dynamischUntereSchwell: 2, // Lower threshold return 2%
-    dynamischUntereAnpassung: -5, // Lower adjustment -5%
-    // Grundfreibetrag settings
-    grundfreibetragAktiv: false,
-    grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
-    einkommensteuersatz: 25, // Default income tax rate 25%
-  };
-
-  const defaultComparisonStrategies: ComparisonStrategy[] = [
-    {
-      id: "strategy1",
-      name: "3% Regel",
-      strategie: "3prozent",
-      rendite: 5,
-    },
-    {
-      id: "strategy2",
-      name: "Monatlich 1.500€",
-      strategie: "monatlich_fest",
-      rendite: 5,
-      monatlicheBetrag: 1500,
-    },
-  ];
-
   // Initialize withdrawal config if not exists or update current form values
-  const currentConfig = withdrawalConfig || {
-    formValue: defaultFormValue,
-    withdrawalReturnMode: "fixed" as WithdrawalReturnMode,
-    withdrawalVariableReturns: {},
-    withdrawalAverageReturn: 5,
-    withdrawalStandardDeviation: 12,
-    withdrawalRandomSeed: undefined,
-    useSegmentedWithdrawal: false,
-    withdrawalSegments: [
-      createDefaultWithdrawalSegment(
-        "main",
-        "Hauptphase",
-        startOfIndependence + 1,
-        endOfLife,
-      ),
-    ],
-    useComparisonMode: false,
-    comparisonStrategies: defaultComparisonStrategies,
-  };
+  const currentConfig = useMemo(() => {
+    // Create default withdrawal configuration if none exists
+    const defaultFormValue: WithdrawalFormValue = {
+      endOfLife,
+      strategie: "4prozent",
+      rendite: 5,
+      // General inflation settings (for all strategies)
+      inflationAktiv: false,
+      inflationsrate: 2,
+      // Monthly strategy specific settings
+      monatlicheBetrag: 2000,
+      guardrailsAktiv: false,
+      guardrailsSchwelle: 10,
+      // Custom percentage strategy specific settings
+      variabelProzent: 5, // Default to 5%
+      // Dynamic strategy specific settings
+      dynamischBasisrate: 4, // Base withdrawal rate 4%
+      dynamischObereSchwell: 8, // Upper threshold return 8%
+      dynamischObereAnpassung: 5, // Upper adjustment 5%
+      dynamischUntereSchwell: 2, // Lower threshold return 2%
+      dynamischUntereAnpassung: -5, // Lower adjustment -5%
+      // Grundfreibetrag settings
+      grundfreibetragAktiv: false,
+      grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
+      einkommensteuersatz: 25, // Default income tax rate 25%
+    };
+
+    const defaultComparisonStrategies: ComparisonStrategy[] = [
+      {
+        id: "strategy1",
+        name: "3% Regel",
+        strategie: "3prozent",
+        rendite: 5,
+      },
+      {
+        id: "strategy2",
+        name: "Monatlich 1.500€",
+        strategie: "monatlich_fest",
+        rendite: 5,
+        monatlicheBetrag: 1500,
+      },
+    ];
+
+    return withdrawalConfig || {
+      formValue: defaultFormValue,
+      withdrawalReturnMode: "fixed" as WithdrawalReturnMode,
+      withdrawalVariableReturns: {},
+      withdrawalAverageReturn: 5,
+      withdrawalStandardDeviation: 12,
+      withdrawalRandomSeed: undefined,
+      useSegmentedWithdrawal: false,
+      withdrawalSegments: [
+        createDefaultWithdrawalSegment(
+          "main",
+          "Hauptphase",
+          startOfIndependence + 1,
+          endOfLife,
+        ),
+      ],
+      useComparisonMode: false,
+      comparisonStrategies: defaultComparisonStrategies,
+    };
+  }, [withdrawalConfig, startOfIndependence, endOfLife]);
 
   // Extract values from config for easier access
   const formValue = currentConfig.formValue;
@@ -513,12 +512,11 @@ export function EntnahmeSimulationsAusgabe({
 
   return (
     <>
-      <Panel header="Variablen" bordered>
+      <Panel header="Variablen" bordered collapsible>
         {/* Toggle between single, segmented, and comparison withdrawal */}
         <Form.Group controlId="withdrawalMode">
           <Form.ControlLabel>Entnahme-Modus</Form.ControlLabel>
-          <RadioGroup
-            inline
+          <RadioTileGroup
             value={
               useComparisonMode
                 ? "comparison"
@@ -526,7 +524,7 @@ export function EntnahmeSimulationsAusgabe({
                   ? "segmented"
                   : "single"
             }
-            onChange={(value) => {
+            onValueChange={(value: string) => {
               const useComparison = value === "comparison";
               const useSegmented = value === "segmented";
 
@@ -547,10 +545,16 @@ export function EntnahmeSimulationsAusgabe({
               }
             }}
           >
-            <Radio value="single">Einheitliche Strategie</Radio>
-            <Radio value="segmented">Geteilte Phasen</Radio>
-            <Radio value="comparison">Strategien-Vergleich</Radio>
-          </RadioGroup>
+            <RadioTile value="single" label="Einheitliche Strategie">
+              Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase
+            </RadioTile>
+            <RadioTile value="segmented" label="Geteilte Phasen">
+              Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf
+            </RadioTile>
+            <RadioTile value="comparison" label="Strategien-Vergleich">
+              Vergleiche verschiedene Entnahmestrategien miteinander
+            </RadioTile>
+          </RadioTileGroup>
           <Form.HelpText>
             {useComparisonMode
               ? "Vergleiche verschiedene Entnahmestrategien miteinander."
@@ -577,7 +581,7 @@ export function EntnahmeSimulationsAusgabe({
             <Form
               fluid
               formValue={formValue}
-              onChange={(changedFormValue) => {
+              onChange={(changedFormValue: any) => {
                 dispatchEnd([startOfIndependence, changedFormValue.endOfLife]);
                 updateFormValue({
                   endOfLife: changedFormValue.endOfLife,
@@ -1001,7 +1005,7 @@ export function EntnahmeSimulationsAusgabe({
           <Form
             fluid
             formValue={formValue}
-            onChange={(changedFormValue) => {
+            onChange={(changedFormValue: any) => {
               dispatchEnd([startOfIndependence, changedFormValue.endOfLife]);
               updateFormValue({
                 endOfLife: changedFormValue.endOfLife,
@@ -1031,19 +1035,24 @@ export function EntnahmeSimulationsAusgabe({
               <Form.ControlLabel>
                 Rendite-Konfiguration (Entnahme-Phase)
               </Form.ControlLabel>
-              <RadioGroup
-                inline
+              <RadioTileGroup
                 value={withdrawalReturnMode}
-                onChange={(value) => {
+                onValueChange={(value: string) => {
                   updateConfig({
                     withdrawalReturnMode: value as WithdrawalReturnMode,
                   });
                 }}
               >
-                <Radio value="fixed">Feste Rendite</Radio>
-                <Radio value="random">Zufällige Rendite</Radio>
-                <Radio value="variable">Variable Rendite</Radio>
-              </RadioGroup>
+                <RadioTile value="fixed" label="Feste Rendite">
+                  Konstante jährliche Rendite für die gesamte Entnahme-Phase
+                </RadioTile>
+                <RadioTile value="random" label="Zufällige Rendite">
+                  Monte Carlo Simulation mit Durchschnitt und Volatilität
+                </RadioTile>
+                <RadioTile value="variable" label="Variable Rendite">
+                  Jahr-für-Jahr konfigurierbare Renditen
+                </RadioTile>
+              </RadioTileGroup>
               <Form.HelpText>
                 Konfiguration der erwarteten Rendite während der Entnahme-Phase
                 (unabhängig von der Sparphase-Rendite).
@@ -1094,7 +1103,7 @@ export function EntnahmeSimulationsAusgabe({
                     }
                     progress
                     graduated
-                    onChange={(value) =>
+                    onChange={(value: number) =>
                       updateConfig({ withdrawalAverageReturn: value })
                     }
                   />
@@ -1118,7 +1127,7 @@ export function EntnahmeSimulationsAusgabe({
                     }
                     progress
                     graduated
-                    onChange={(value) =>
+                    onChange={(value: number) =>
                       updateConfig({ withdrawalStandardDeviation: value })
                     }
                   />
@@ -1132,7 +1141,7 @@ export function EntnahmeSimulationsAusgabe({
                   <Form.ControlLabel>Zufalls-Seed (optional)</Form.ControlLabel>
                   <InputNumber
                     value={withdrawalRandomSeed}
-                    onChange={(value) =>
+                    onChange={(value: number | undefined) =>
                       updateConfig({
                         withdrawalRandomSeed:
                           typeof value === "number" ? value : undefined,
@@ -1185,7 +1194,7 @@ export function EntnahmeSimulationsAusgabe({
                               min={-10}
                               max={15}
                               step={0.5}
-                              onChange={(value) => {
+                              onChange={(value: number) => {
                                 const newReturns = {
                                   ...withdrawalVariableReturns,
                                   [year]: value,
@@ -1407,7 +1416,7 @@ export function EntnahmeSimulationsAusgabe({
           </Form>
         )}
       </Panel>
-      <Panel header="Simulation" bordered>
+      <Panel header="Simulation" bordered collapsible>
         {withdrawalData ? (
           <div>
             {useComparisonMode ? (
@@ -1988,20 +1997,20 @@ export function EntnahmeSimulationsAusgabe({
                       <Column width={120}>
                         <HeaderCell>Startkapital</HeaderCell>
                         <Cell>
-                          {(rowData) => formatCurrency(rowData.startkapital)}
+                          {(rowData: any) => formatCurrency(rowData.startkapital)}
                         </Cell>
                       </Column>
                       <Column width={120}>
                         <HeaderCell>Entnahme</HeaderCell>
                         <Cell>
-                          {(rowData) => formatCurrency(rowData.entnahme)}
+                          {(rowData: any) => formatCurrency(rowData.entnahme)}
                         </Cell>
                       </Column>
                       {formValue.strategie === "monatlich_fest" && (
                         <Column width={120}>
                           <HeaderCell>Monatlich</HeaderCell>
                           <Cell>
-                            {(rowData) =>
+                            {(rowData: any) =>
                               rowData.monatlicheEntnahme
                                 ? formatCurrency(rowData.monatlicheEntnahme)
                                 : "-"
@@ -2013,7 +2022,7 @@ export function EntnahmeSimulationsAusgabe({
                         <Column width={120}>
                           <HeaderCell>Inflation</HeaderCell>
                           <Cell>
-                            {(rowData) =>
+                            {(rowData: any) =>
                               rowData.inflationAnpassung !== undefined
                                 ? formatCurrency(rowData.inflationAnpassung)
                                 : "-"
@@ -2026,7 +2035,7 @@ export function EntnahmeSimulationsAusgabe({
                           <Column width={120}>
                             <HeaderCell>Guardrails</HeaderCell>
                             <Cell>
-                              {(rowData) =>
+                              {(rowData: any) =>
                                 rowData.portfolioAnpassung !== undefined
                                   ? formatCurrency(rowData.portfolioAnpassung)
                                   : "-"
@@ -2039,7 +2048,7 @@ export function EntnahmeSimulationsAusgabe({
                           <Column width={100}>
                             <HeaderCell>Vorjahres-Rendite</HeaderCell>
                             <Cell>
-                              {(rowData) =>
+                              {(rowData: any) =>
                                 rowData.vorjahresRendite !== undefined
                                   ? `${(rowData.vorjahresRendite * 100).toFixed(1)}%`
                                   : "-"
@@ -2049,7 +2058,7 @@ export function EntnahmeSimulationsAusgabe({
                           <Column width={120}>
                             <HeaderCell>Dynamische Anpassung</HeaderCell>
                             <Cell>
-                              {(rowData) =>
+                              {(rowData: any) =>
                                 rowData.dynamischeAnpassung !== undefined
                                   ? formatCurrency(rowData.dynamischeAnpassung)
                                   : "-"
@@ -2061,20 +2070,20 @@ export function EntnahmeSimulationsAusgabe({
                       <Column width={100}>
                         <HeaderCell>Zinsen</HeaderCell>
                         <Cell>
-                          {(rowData) => formatCurrency(rowData.zinsen)}
+                          {(rowData: any) => formatCurrency(rowData.zinsen)}
                         </Cell>
                       </Column>
                       <Column width={120}>
                         <HeaderCell>bezahlte Steuer</HeaderCell>
                         <Cell>
-                          {(rowData) => formatCurrency(rowData.bezahlteSteuer)}
+                          {(rowData: any) => formatCurrency(rowData.bezahlteSteuer)}
                         </Cell>
                       </Column>
                       {formValue.grundfreibetragAktiv && (
                         <Column width={120}>
                           <HeaderCell>Einkommensteuer</HeaderCell>
                           <Cell>
-                            {(rowData) =>
+                            {(rowData: any) =>
                               rowData.einkommensteuer !== undefined
                                 ? formatCurrency(rowData.einkommensteuer)
                                 : "-"
@@ -2086,7 +2095,7 @@ export function EntnahmeSimulationsAusgabe({
                         <Column width={140}>
                           <HeaderCell>Grundfreibetrag genutzt</HeaderCell>
                           <Cell>
-                            {(rowData) =>
+                            {(rowData: any) =>
                               rowData.genutzterGrundfreibetrag !== undefined
                                 ? formatCurrency(
                                     rowData.genutzterGrundfreibetrag,
@@ -2099,7 +2108,7 @@ export function EntnahmeSimulationsAusgabe({
                       <Column width={120}>
                         <HeaderCell>Endkapital</HeaderCell>
                         <Cell>
-                          {(rowData) => formatCurrency(rowData.endkapital)}
+                          {(rowData: any) => formatCurrency(rowData.endkapital)}
                         </Cell>
                       </Column>
                     </Table>

@@ -1,22 +1,19 @@
 import { useState } from "react";
-import {
-    Form,
-    Input,
-    InputNumber,
-    Panel,
-    Button,
-    Radio,
-    RadioGroup,
-    RadioTile,
-    RadioTileGroup,
-    Slider,
-    Toggle,
-    IconButton,
-    Divider
-} from "rsuite";
-import PlusIcon from '@rsuite/icons/Plus';
-import TrashIcon from '@rsuite/icons/Trash';
-import 'rsuite/dist/rsuite.min.css';
+import { Input } from "./ui/input";
+import { Slider } from "./ui/slider";
+import { 
+  Panel, 
+  Form, 
+  InputNumber, 
+  RadioTile, 
+  RadioTileGroup, 
+  Toggle, 
+  Divider,
+  IconButton,
+  PlusIcon,
+  TrashIcon,
+  Button
+} from './temp-rsuite-stubs';
 import type { 
     WithdrawalSegment
 } from "../utils/segmented-withdrawal";
@@ -182,7 +179,7 @@ export function WithdrawalSegmentForm({
                                 <Form.ControlLabel>Name der Phase</Form.ControlLabel>
                                 <Input
                                     value={segment.name}
-                                    onChange={(value) => updateSegment(segment.id, { name: value })}
+                                    onChange={(e) => updateSegment(segment.id, { name: e.target.value })}
                                     placeholder="z.B. Frühe Rente"
                                 />
                             </Form.Group>
@@ -190,7 +187,7 @@ export function WithdrawalSegmentForm({
                                 <Form.ControlLabel>Startjahr</Form.ControlLabel>
                                 <InputNumber
                                     value={segment.startYear}
-                                    onChange={(value) => updateSegment(segment.id, { startYear: Number(value) || withdrawalStartYear })}
+                                    onChange={(value: number | undefined) => updateSegment(segment.id, { startYear: Number(value) || withdrawalStartYear })}
                                     min={withdrawalStartYear}
                                     max={withdrawalEndYear}
                                 />
@@ -199,7 +196,7 @@ export function WithdrawalSegmentForm({
                                 <Form.ControlLabel>Endjahr</Form.ControlLabel>
                                 <InputNumber
                                     value={segment.endYear}
-                                    onChange={(value) => updateSegment(segment.id, { endYear: Number(value) || withdrawalEndYear })}
+                                    onChange={(value: number | undefined) => updateSegment(segment.id, { endYear: Number(value) || withdrawalEndYear })}
                                     min={withdrawalStartYear}
                                     max={withdrawalEndYear}
                                 />
@@ -213,7 +210,7 @@ export function WithdrawalSegmentForm({
                             <Form.ControlLabel>Entnahme-Strategie</Form.ControlLabel>
                             <RadioTileGroup 
                                 value={segment.strategy}
-                                onChange={(value) => {
+                                onChange={(value: string) => {
                                     const newStrategy = value as WithdrawalStrategy;
                                     const updates: Partial<WithdrawalSegment> = { strategy: newStrategy };
                                     
@@ -267,16 +264,21 @@ export function WithdrawalSegmentForm({
                         {segment.strategy === "variabel_prozent" && (
                             <Form.Group>
                                 <Form.ControlLabel>Entnahme-Prozentsatz (%)</Form.ControlLabel>
-                                <Slider
-                                    value={(segment.customPercentage || 0.05) * 100}
-                                    min={2}
-                                    max={7}
-                                    step={0.5}
-                                    onChange={(value) => updateSegment(segment.id, { customPercentage: value / 100 })}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.customPercentage || 0.05) * 100).toFixed(1)}%</div>)}
-                                    progress
-                                    graduated
-                                />
+                                <div className="space-y-2">
+                                    <Slider
+                                        value={[(segment.customPercentage || 0.05) * 100]}
+                                        min={2}
+                                        max={7}
+                                        step={0.5}
+                                        onValueChange={(value) => updateSegment(segment.id, { customPercentage: value[0] / 100 })}
+                                        className="mt-2"
+                                    />
+                                    <div className="flex justify-between text-sm text-gray-500">
+                                        <span>2%</span>
+                                        <span className="font-medium text-gray-900">{((segment.customPercentage || 0.05) * 100).toFixed(1)}%</span>
+                                        <span>7%</span>
+                                    </div>
+                                </div>
                             </Form.Group>
                         )}
 
@@ -287,7 +289,7 @@ export function WithdrawalSegmentForm({
                                     <Form.ControlLabel>Monatlicher Betrag (€)</Form.ControlLabel>
                                     <InputNumber
                                         value={segment.monthlyConfig?.monthlyAmount || 2000}
-                                        onChange={(value) => updateSegment(segment.id, {
+                                        onChange={(value: any) => updateSegment(segment.id, {
                                             monthlyConfig: {
                                                 ...segment.monthlyConfig,
                                                 monthlyAmount: Number(value) || 2000
@@ -303,7 +305,7 @@ export function WithdrawalSegmentForm({
                                     <Form.ControlLabel>Dynamische Anpassung (Guardrails)</Form.ControlLabel>
                                     <Toggle
                                         checked={segment.monthlyConfig?.enableGuardrails || false}
-                                        onChange={(checked) => updateSegment(segment.id, {
+                                        onChange={(checked: boolean) => updateSegment(segment.id, {
                                             monthlyConfig: {
                                                 ...segment.monthlyConfig,
                                                 monthlyAmount: segment.monthlyConfig?.monthlyAmount || 2000,
@@ -316,22 +318,27 @@ export function WithdrawalSegmentForm({
                                 {segment.monthlyConfig?.enableGuardrails && (
                                     <Form.Group>
                                         <Form.ControlLabel>Anpassungsschwelle (%)</Form.ControlLabel>
-                                        <Slider
-                                            value={(segment.monthlyConfig?.guardrailsThreshold || 0.10) * 100}
-                                            min={5}
-                                            max={20}
-                                            step={1}
-                                            onChange={(value) => updateSegment(segment.id, {
-                                                monthlyConfig: {
-                                                    ...segment.monthlyConfig,
-                                                    monthlyAmount: segment.monthlyConfig?.monthlyAmount || 2000,
-                                                    guardrailsThreshold: value / 100
-                                                }
-                                            })}
-                                            handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.monthlyConfig?.guardrailsThreshold || 0.10) * 100).toFixed(0)}%</div>)}
-                                            progress
-                                            graduated
-                                        />
+                                        <div className="space-y-2">
+                                            <Slider
+                                                value={[(segment.monthlyConfig?.guardrailsThreshold || 0.10) * 100]}
+                                                min={5}
+                                                max={20}
+                                                step={1}
+                                                onValueChange={(value) => updateSegment(segment.id, {
+                                                    monthlyConfig: {
+                                                        ...segment.monthlyConfig,
+                                                        monthlyAmount: segment.monthlyConfig?.monthlyAmount || 2000,
+                                                        guardrailsThreshold: value[0] / 100
+                                                    }
+                                                })}
+                                                className="mt-2"
+                                            />
+                                            <div className="flex justify-between text-sm text-gray-500">
+                                                <span>5%</span>
+                                                <span className="font-medium text-gray-900">{((segment.monthlyConfig?.guardrailsThreshold || 0.10) * 100).toFixed(0)}%</span>
+                                                <span>20%</span>
+                                            </div>
+                                        </div>
                                     </Form.Group>
                                 )}
                             </>
@@ -407,39 +414,49 @@ export function WithdrawalSegmentForm({
                         {/* Return configuration */}
                         <Form.Group>
                             <Form.ControlLabel>Rendite-Modus</Form.ControlLabel>
-                            <RadioGroup
-                                inline
+                            <RadioTileGroup
                                 value={getReturnModeFromConfig(segment.returnConfig)}
-                                onChange={(value) => {
+                                onValueChange={(value: any) => {
                                     const newReturnConfig = getReturnConfigFromMode(value as WithdrawalReturnMode, segment);
                                     updateSegment(segment.id, { returnConfig: newReturnConfig });
                                 }}
                             >
-                                <Radio value="fixed">Feste Rendite</Radio>
-                                <Radio value="random">Zufällige Rendite</Radio>
-                                <Radio value="variable">Variable Rendite</Radio>
-                            </RadioGroup>
+                                <RadioTile value="fixed" label="Feste Rendite">
+                                    Konstante jährliche Rendite für diese Phase
+                                </RadioTile>
+                                <RadioTile value="random" label="Zufällige Rendite">
+                                    Monte Carlo Simulation mit Volatilität
+                                </RadioTile>
+                                <RadioTile value="variable" label="Variable Rendite">
+                                    Jahr-für-Jahr konfigurierbare Renditen
+                                </RadioTile>
+                            </RadioTileGroup>
                         </Form.Group>
 
                         {/* Fixed return settings */}
                         {segment.returnConfig.mode === 'fixed' && (
                             <Form.Group>
                                 <Form.ControlLabel>Erwartete Rendite (%)</Form.ControlLabel>
-                                <Slider
-                                    value={(segment.returnConfig.fixedRate || 0.05) * 100}
-                                    min={0}
-                                    max={10}
-                                    step={0.5}
-                                    onChange={(value) => updateSegment(segment.id, {
-                                        returnConfig: {
-                                            mode: 'fixed',
-                                            fixedRate: value / 100
-                                        }
-                                    })}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.returnConfig.fixedRate || 0.05) * 100).toFixed(1)}%</div>)}
-                                    progress
-                                    graduated
-                                />
+                                <div className="space-y-2">
+                                    <Slider
+                                        value={[(segment.returnConfig.fixedRate || 0.05) * 100]}
+                                        min={0}
+                                        max={10}
+                                        step={0.5}
+                                        onValueChange={(value) => updateSegment(segment.id, {
+                                            returnConfig: {
+                                                mode: 'fixed',
+                                                fixedRate: value[0] / 100
+                                            }
+                                        })}
+                                        className="mt-2"
+                                    />
+                                    <div className="flex justify-between text-sm text-gray-500">
+                                        <span>0%</span>
+                                        <span className="font-medium text-gray-900">{((segment.returnConfig.fixedRate || 0.05) * 100).toFixed(1)}%</span>
+                                        <span>10%</span>
+                                    </div>
+                                </div>
                             </Form.Group>
                         )}
 
@@ -450,7 +467,7 @@ export function WithdrawalSegmentForm({
                             <Form.ControlLabel>Inflation berücksichtigen</Form.ControlLabel>
                             <Toggle
                                 checked={segment.inflationConfig !== undefined}
-                                onChange={(checked) => updateSegment(segment.id, {
+                                onChange={(checked: boolean) => updateSegment(segment.id, {
                                     inflationConfig: checked ? { inflationRate: 0.02 } : undefined
                                 })}
                             />
@@ -459,18 +476,23 @@ export function WithdrawalSegmentForm({
                         {segment.inflationConfig && (
                             <Form.Group>
                                 <Form.ControlLabel>Inflationsrate (%)</Form.ControlLabel>
-                                <Slider
-                                    value={(segment.inflationConfig.inflationRate || 0.02) * 100}
-                                    min={0}
-                                    max={5}
-                                    step={0.1}
-                                    onChange={(value) => updateSegment(segment.id, {
-                                        inflationConfig: { inflationRate: value / 100 }
-                                    })}
-                                    handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.inflationConfig.inflationRate || 0.02) * 100).toFixed(1)}%</div>)}
-                                    progress
-                                    graduated
-                                />
+                                <div className="space-y-2">
+                                    <Slider
+                                        value={[(segment.inflationConfig.inflationRate || 0.02) * 100]}
+                                        min={0}
+                                        max={5}
+                                        step={0.1}
+                                        onValueChange={(value) => updateSegment(segment.id, {
+                                            inflationConfig: { inflationRate: value[0] / 100 }
+                                        })}
+                                        className="mt-2"
+                                    />
+                                    <div className="flex justify-between text-sm text-gray-500">
+                                        <span>0%</span>
+                                        <span className="font-medium text-gray-900">{((segment.inflationConfig.inflationRate || 0.02) * 100).toFixed(1)}%</span>
+                                        <span>5%</span>
+                                    </div>
+                                </div>
                             </Form.Group>
                         )}
 
@@ -479,7 +501,7 @@ export function WithdrawalSegmentForm({
                             <Form.ControlLabel>Grundfreibetrag berücksichtigen</Form.ControlLabel>
                             <Toggle
                                 checked={segment.enableGrundfreibetrag || false}
-                                onChange={(checked) => updateSegment(segment.id, { enableGrundfreibetrag: checked })}
+                                onChange={(checked: boolean) => updateSegment(segment.id, { enableGrundfreibetrag: checked })}
                             />
                         </Form.Group>
 
@@ -495,7 +517,7 @@ export function WithdrawalSegmentForm({
                                             }
                                             return 10908; // Default German basic allowance for 2023
                                         })()}
-                                        onChange={(value) => {
+                                        onChange={(value: any) => {
                                             const grundfreibetragPerYear: {[year: number]: number} = {};
                                             for (let year = segment.startYear; year <= segment.endYear; year++) {
                                                 grundfreibetragPerYear[year] = Number(value) || 10908;
@@ -513,16 +535,21 @@ export function WithdrawalSegmentForm({
                                 
                                 <Form.Group>
                                     <Form.ControlLabel>Einkommensteuersatz (%)</Form.ControlLabel>
-                                    <Slider
-                                        value={(segment.incomeTaxRate || 0.25) * 100}
-                                        min={14}
-                                        max={42}
-                                        step={1}
-                                        onChange={(value) => updateSegment(segment.id, { incomeTaxRate: value / 100 })}
-                                        handleTitle={(<div style={{marginTop: '-17px'}}>{((segment.incomeTaxRate || 0.25) * 100).toFixed(0)}%</div>)}
-                                        progress
-                                        graduated
-                                    />
+                                    <div className="space-y-2">
+                                        <Slider
+                                            value={[(segment.incomeTaxRate || 0.25) * 100]}
+                                            min={14}
+                                            max={42}
+                                            step={1}
+                                            onValueChange={(value) => updateSegment(segment.id, { incomeTaxRate: value[0] / 100 })}
+                                            className="mt-2"
+                                        />
+                                        <div className="flex justify-between text-sm text-gray-500">
+                                            <span>14%</span>
+                                            <span className="font-medium text-gray-900">{((segment.incomeTaxRate || 0.25) * 100).toFixed(0)}%</span>
+                                            <span>42%</span>
+                                        </div>
+                                    </div>
                                 </Form.Group>
                             </>
                         )}

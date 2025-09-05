@@ -1,4 +1,10 @@
-import { Panel, Form, Slider, FlexboxGrid, Button, Table, IconButton, InputNumber } from 'rsuite';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Slider } from './ui/slider';
+import { Button } from './ui/button';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { Input } from './ui/input';
+import { Label } from './ui/label';
+import { Trash2, Plus } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
 
 const TaxConfiguration = () => {
@@ -15,140 +21,149 @@ const TaxConfiguration = () => {
     const yearToday = new Date().getFullYear();
 
     return (
-        <Panel header="💰 Steuer-Konfiguration" bordered>
-            <Form.Group controlId="steuerlast">
-                <Form.ControlLabel>Kapitalertragsteuer (%)</Form.ControlLabel>
-                <Slider
-                    name="steuerlast"
-                    renderTooltip={(value) => value + "%"}
-                    handleTitle={(<div style={{ marginTop: '-17px' }}>{steuerlast}%</div>)}
-                    progress
-                    value={steuerlast}
-                    min={20}
-                    max={35}
-                    step={0.025}
-                    graduated
-                    onChange={(value) => {
-                        setSteuerlast(value);
-                        performSimulation();
-                    }}
-                />
-            </Form.Group>
+        <Card>
+            <CardHeader>
+                <CardTitle>💰 Steuer-Konfiguration</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="space-y-2">
+                    <Label htmlFor="steuerlast">Kapitalertragsteuer (%)</Label>
+                    <Slider
+                        id="steuerlast"
+                        value={[steuerlast]}
+                        onValueChange={([value]) => {
+                            setSteuerlast(value);
+                            performSimulation();
+                        }}
+                        min={20}
+                        max={35}
+                        step={0.025}
+                        className="w-full"
+                    />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>20%</span>
+                        <span className="font-medium">{steuerlast}%</span>
+                        <span>35%</span>
+                    </div>
+                </div>
 
-            <Form.Group controlId="teilfreistellungsquote">
-                <Form.ControlLabel>Teilfreistellungsquote (%)</Form.ControlLabel>
-                <Slider
-                    name="teilfreistellungsquote"
-                    renderTooltip={(value) => value + "%"}
-                    handleTitle={(<div style={{ marginTop: '-17px' }}>{teilfreistellungsquote}%</div>)}
-                    progress
-                    value={teilfreistellungsquote}
-                    min={0}
-                    max={50}
-                    step={1}
-                    graduated
-                    onChange={(value) => {
-                        setTeilfreistellungsquote(value);
-                        performSimulation();
-                    }}
-                />
-            </Form.Group>
+                <div className="space-y-2">
+                    <Label htmlFor="teilfreistellungsquote">Teilfreistellungsquote (%)</Label>
+                    <Slider
+                        id="teilfreistellungsquote"
+                        value={[teilfreistellungsquote]}
+                        onValueChange={([value]) => {
+                            setTeilfreistellungsquote(value);
+                            performSimulation();
+                        }}
+                        min={0}
+                        max={50}
+                        step={1}
+                        className="w-full"
+                    />
+                    <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>0%</span>
+                        <span className="font-medium">{teilfreistellungsquote}%</span>
+                        <span>50%</span>
+                    </div>
+                </div>
 
-            <Form.Group controlId="freibetragConfiguration">
-                <Form.ControlLabel>Freibetrag pro Jahr (€)</Form.ControlLabel>
-                <div style={{ marginBottom: '10px' }}>
-                    <FlexboxGrid>
-                        <FlexboxGrid.Item colspan={8}>
-                            <InputNumber
+                <div className="space-y-4">
+                    <Label htmlFor="freibetragConfiguration">Freibetrag pro Jahr (€)</Label>
+                    <div className="flex gap-2 items-end">
+                        <div className="flex-1">
+                            <Input
+                                type="number"
                                 placeholder="Jahr"
                                 min={yearToday}
                                 max={2100}
-                                value={undefined}
-                                onChange={(value) => {
-                                    const year = Number(value);
-                                    if (year && !freibetragPerYear[year]) {
-                                        setFreibetragPerYear({
-                                            ...freibetragPerYear,
-                                            [year]: 2000 // Default value
-                                        });
-                                        performSimulation();
+                                onKeyDown={(e) => {
+                                    if (e.key === 'Enter') {
+                                        const input = e.target as HTMLInputElement;
+                                        const year = Number(input.value);
+                                        if (year && !freibetragPerYear[year]) {
+                                            setFreibetragPerYear({
+                                                ...freibetragPerYear,
+                                                [year]: 2000 // Default value
+                                            });
+                                            performSimulation();
+                                            input.value = '';
+                                        }
                                     }
                                 }}
                             />
-                        </FlexboxGrid.Item>
-                        <FlexboxGrid.Item colspan={2}>
-                            <Button
-                                onClick={() => {
-                                    const year = yearToday;
-                                    if (!freibetragPerYear[year]) {
-                                        setFreibetragPerYear({
-                                            ...freibetragPerYear,
-                                            [year]: 2000
-                                        });
-                                        performSimulation();
-                                    }
-                                }}
-                            >
-                                Jahr hinzufügen
-                            </Button>
-                        </FlexboxGrid.Item>
-                    </FlexboxGrid>
+                        </div>
+                        <Button
+                            onClick={() => {
+                                const year = yearToday;
+                                if (!freibetragPerYear[year]) {
+                                    setFreibetragPerYear({
+                                        ...freibetragPerYear,
+                                        [year]: 2000
+                                    });
+                                    performSimulation();
+                                }
+                            }}
+                        >
+                            <Plus className="h-4 w-4 mr-2" />
+                            Jahr hinzufügen
+                        </Button>
+                    </div>
+                    <div className="border rounded-md max-h-[200px] overflow-y-auto">
+                        <Table>
+                            <TableHeader>
+                                <TableRow>
+                                    <TableHead className="text-center">Jahr</TableHead>
+                                    <TableHead className="text-center">Freibetrag (€)</TableHead>
+                                    <TableHead className="text-center">Aktionen</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {Object.entries(freibetragPerYear).map(([year, amount]) => (
+                                    <TableRow key={year}>
+                                        <TableCell className="text-center">{year}</TableCell>
+                                        <TableCell className="text-center">
+                                            <Input
+                                                type="number"
+                                                value={amount}
+                                                min={0}
+                                                max={10000}
+                                                step={50}
+                                                onChange={(e) => {
+                                                    const value = Number(e.target.value);
+                                                    if (!isNaN(value)) {
+                                                        setFreibetragPerYear({
+                                                            ...freibetragPerYear,
+                                                            [year]: value
+                                                        });
+                                                        performSimulation();
+                                                    }
+                                                }}
+                                                className="w-24 mx-auto"
+                                            />
+                                        </TableCell>
+                                        <TableCell className="text-center">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                onClick={() => {
+                                                    const newFreibetrag = { ...freibetragPerYear };
+                                                    delete newFreibetrag[Number(year)];
+                                                    setFreibetragPerYear(newFreibetrag);
+                                                    performSimulation();
+                                                }}
+                                            >
+                                                <Trash2 className="h-4 w-4" />
+                                            </Button>
+                                        </TableCell>
+                                    </TableRow>
+                                ))}
+                            </TableBody>
+                        </Table>
+                    </div>
                 </div>
-                <div className="table-container">
-                    <Table
-                        height={200}
-                        data={Object.entries(freibetragPerYear).map(([year, amount]) => ({ year: Number(year), amount }))}
-                    >
-                        <Table.Column width={100} align="center">
-                            <Table.HeaderCell>Jahr</Table.HeaderCell>
-                            <Table.Cell dataKey="year" />
-                        </Table.Column>
-                        <Table.Column width={120} align="center">
-                            <Table.HeaderCell>Freibetrag (€)</Table.HeaderCell>
-                            <Table.Cell>
-                                {(rowData: any) => (
-                                    <InputNumber
-                                        value={freibetragPerYear[rowData.year]}
-                                        min={0}
-                                        max={10000}
-                                        step={50}
-                                        onChange={(value) => {
-                                            if (value !== null && value !== undefined) {
-                                                setFreibetragPerYear({
-                                                    ...freibetragPerYear,
-                                                    [rowData.year]: Number(value)
-                                                });
-                                                performSimulation();
-                                            }
-                                        }}
-                                    />
-                                )}
-                            </Table.Cell>
-                        </Table.Column>
-                        <Table.Column width={80} align="center">
-                            <Table.HeaderCell>Aktionen</Table.HeaderCell>
-                            <Table.Cell>
-                                {(rowData: any) => (
-                                    <IconButton
-                                        size="sm"
-                                        color="red"
-                                        appearance="ghost"
-                                        onClick={() => {
-                                            const newFreibetrag = { ...freibetragPerYear };
-                                            delete newFreibetrag[rowData.year];
-                                            setFreibetragPerYear(newFreibetrag);
-                                            performSimulation();
-                                        }}
-                                    >
-                                        Löschen
-                                    </IconButton>
-                                )}
-                            </Table.Cell>
-                        </Table.Column>
-                    </Table>
-                </div>
-            </Form.Group>
-        </Panel>
+            </CardContent>
+        </Card>
     );
 };
 

@@ -49,7 +49,7 @@ import {
     Panel,
     Message,
     useToaster
-} from "rsuite";
+} from "./temp-rsuite-stubs";
 
 
 
@@ -184,7 +184,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 </div>
                 <Form fluid
                     formValue={sparplanFormValues}
-                    onChange={changedFormValue => setSparplanFormValues({
+                    onChange={(changedFormValue: any) => setSparplanFormValues({
                         start: changedFormValue.start,
                         end: changedFormValue.end,
                         einzahlung: changedFormValue.einzahlung,
@@ -312,7 +312,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 </div>
                 <Form fluid
                     formValue={singleFormValue}
-                    onChange={changedFormValue => setSingleFormValue({
+                    onChange={(changedFormValue: any) => setSingleFormValue({
                         date: changedFormValue.date,
                         einzahlung: changedFormValue.einzahlung,
                         ter: changedFormValue.ter,
@@ -328,7 +328,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                 <InfoIcon />
                             </Form.ControlLabel>
                             <Form.Control 
-                                format="yyyy-MM" 
+                                format="yyyy-MM-dd" 
                                 name="date" 
                                 accepter={DatePicker}
                                 placeholder="Datum wählen"
