@@ -6,10 +6,10 @@ import type { SparplanElement } from "../utils/sparplan-utils";
 import type { Summary } from "../utils/summary-utils";
 import { fullSummary, getYearlyPortfolioProgression } from "../utils/summary-utils";
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal';
+import CalculationExplanationModal from './CalculationExplanationModal';
+import { createInterestExplanation, createTaxExplanation } from './calculationHelpers';
 
-// Removed RSuite Table destructuring
-
-// Info icon component for Vorabpauschale explanation
+// Info icon component for calculation explanations
 const InfoIcon = ({ onClick }: { onClick: () => void }) => (
     <svg
         width="16"
@@ -33,6 +33,8 @@ const InfoIcon = ({ onClick }: { onClick: () => void }) => (
         <path d="M12,17h.01"></path>
     </svg>
 );
+
+// Removed RSuite Table destructuring
 
 
 
@@ -76,6 +78,8 @@ export function SparplanSimulationsAusgabe({
 }) {
     const [showVorabpauschaleModal, setShowVorabpauschaleModal] = useState(false);
     const [selectedVorabDetails, setSelectedVorabDetails] = useState<any>(null);
+    const [showCalculationModal, setShowCalculationModal] = useState(false);
+    const [calculationDetails, setCalculationDetails] = useState<any>(null);
 
     const summary: Summary = fullSummary(elemente)
     
@@ -100,6 +104,34 @@ export function SparplanSimulationsAusgabe({
     const handleVorabpauschaleInfoClick = (details: any) => {
         setSelectedVorabDetails(details);
         setShowVorabpauschaleModal(true);
+    };
+
+    const handleCalculationInfoClick = (explanationType: string, rowData: any) => {
+        // Find simulation data for this year to get detailed information
+        const yearSimData = elemente?.find(el => el.simulation[rowData.jahr]);
+        const simData = yearSimData?.simulation[rowData.jahr];
+        
+        if (explanationType === 'interest' && simData) {
+            const explanation = createInterestExplanation(
+                simData.startkapital,
+                simData.zinsen,
+                5, // Default rendite - would need to get from actual config
+                rowData.jahr
+            );
+            setCalculationDetails(explanation);
+            setShowCalculationModal(true);
+        } else if (explanationType === 'tax' && simData?.vorabpauschaleDetails) {
+            const explanation = createTaxExplanation(
+                simData.bezahlteSteuer,
+                simData.vorabpauschaleDetails.vorabpauschaleAmount,
+                0.26375, // Default tax rate - would need to get from actual config
+                0.3, // Default Teilfreistellungsquote - would need to get from actual config
+                simData.genutzterFreibetrag || 2000, // Default freibetrag
+                rowData.jahr
+            );
+            setCalculationDetails(explanation);
+            setShowCalculationModal(true);
+        }
     };
 
     return (
@@ -131,14 +163,16 @@ export function SparplanSimulationsAusgabe({
                             </div>
                             <div className="sparplan-detail">
                                 <span className="detail-label">📈 Zinsen (Jahr):</span>
-                                <span className="detail-value" style={{ color: '#17a2b8' }}>
+                                <span className="detail-value" style={{ color: '#17a2b8', display: 'flex', alignItems: 'center' }}>
                                     {thousands(row.zinsen)} €
+                                    <InfoIcon onClick={() => handleCalculationInfoClick('interest', row)} />
                                 </span>
                             </div>
                             <div className="sparplan-detail">
                                 <span className="detail-label">💸 Bezahlte Steuer (Jahr):</span>
-                                <span className="detail-value" style={{ color: '#dc3545' }}>
+                                <span className="detail-value" style={{ color: '#dc3545', display: 'flex', alignItems: 'center' }}>
                                     {thousands(row.bezahlteSteuer)} €
+                                    <InfoIcon onClick={() => handleCalculationInfoClick('tax', row)} />
                                 </span>
                             </div>
                             <div className="sparplan-detail">
@@ -266,6 +300,17 @@ export function SparplanSimulationsAusgabe({
                 onClose={() => setShowVorabpauschaleModal(false)}
                 selectedVorabDetails={selectedVorabDetails}
             />
+            
+            {calculationDetails && (
+                <CalculationExplanationModal
+                    open={showCalculationModal}
+                    onClose={() => setShowCalculationModal(false)}
+                    title={calculationDetails.title}
+                    introduction={calculationDetails.introduction}
+                    steps={calculationDetails.steps}
+                    finalResult={calculationDetails.finalResult}
+                />
+            )}
             </CardContent>
         </Card>
     );

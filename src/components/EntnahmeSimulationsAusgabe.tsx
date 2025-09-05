@@ -1,4 +1,4 @@
-import { useMemo, useEffect, useCallback } from "react";
+import { useMemo, useEffect, useCallback, useState } from "react";
 import {
   Form,
   InputNumber,
@@ -26,6 +26,14 @@ import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
 import { WithdrawalSegmentForm } from "./WithdrawalSegmentForm";
 import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
 import { useSimulation } from "../contexts/useSimulation";
+import CalculationExplanationModal from './CalculationExplanationModal';
+import { 
+  createInflationExplanation, 
+  createWithdrawalInterestExplanation, 
+  createTaxExplanation,
+  createIncomeTaxExplanation,
+  createTaxableIncomeExplanation 
+} from './calculationHelpers';
 import type {
   WithdrawalReturnMode,
   WithdrawalFormValue,
@@ -42,6 +50,31 @@ type ComparisonResult = {
 };
 
 const { Column, HeaderCell, Cell } = Table;
+
+// Info icon component for calculation explanations
+const InfoIcon = ({ onClick }: { onClick: () => void }) => (
+    <svg
+        width="16"
+        height="16"
+        viewBox="0 0 24 24"
+        fill="none"
+        stroke="currentColor"
+        strokeWidth="2"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+        style={{ 
+            marginLeft: '0.5rem', 
+            cursor: 'pointer', 
+            color: '#1976d2',
+            verticalAlign: 'middle'
+        }}
+        onClick={onClick}
+    >
+        <circle cx="12" cy="12" r="10"></circle>
+        <path d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"></path>
+        <path d="M12,17h.01"></path>
+    </svg>
+);
 
 // Helper function for strategy display names
 function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
@@ -78,6 +111,10 @@ export function EntnahmeSimulationsAusgabe({
 }) {
   const [startOfIndependence, endOfLife] = startEnd;
   const { withdrawalConfig, setWithdrawalConfig } = useSimulation();
+
+  // State for calculation explanation modals
+  const [showCalculationModal, setShowCalculationModal] = useState(false);
+  const [calculationDetails, setCalculationDetails] = useState<any>(null);
 
   // Initialize withdrawal config if not exists or update current form values
   const currentConfig = useMemo(() => {
@@ -508,6 +545,64 @@ export function EntnahmeSimulationsAusgabe({
       minimumFractionDigits: 2,
       maximumFractionDigits: 2,
     }).format(amount);
+  };
+
+  // Handle calculation explanation clicks
+  const handleCalculationInfoClick = (explanationType: string, rowData: any) => {
+    const formValue = currentConfig.formValue;
+    
+    if (explanationType === 'inflation' && rowData.inflationAnpassung !== undefined) {
+      const yearsPassed = rowData.year - startOfIndependence - 1;
+      const baseAmount = withdrawalData ? withdrawalData.startingCapital * 0.04 : 0; // Estimate base amount
+      const inflationRate = formValue.inflationsrate / 100 || 0.02;
+      
+      const explanation = createInflationExplanation(
+        baseAmount,
+        inflationRate,
+        yearsPassed,
+        rowData.inflationAnpassung
+      );
+      setCalculationDetails(explanation);
+      setShowCalculationModal(true);
+    } else if (explanationType === 'interest' && rowData.zinsen) {
+      const explanation = createWithdrawalInterestExplanation(
+        rowData.startkapital,
+        rowData.zinsen,
+        formValue.rendite || 5,
+        rowData.year
+      );
+      setCalculationDetails(explanation);
+      setShowCalculationModal(true);
+    } else if (explanationType === 'tax' && rowData.bezahlteSteuer) {
+      // For withdrawal phase tax explanation - this is usually capital gains tax
+      const explanation = createTaxExplanation(
+        rowData.bezahlteSteuer,
+        rowData.bezahlteSteuer / (steuerlast * (1 - teilfreistellungsquote)), // Estimate vorabpauschale
+        steuerlast,
+        teilfreistellungsquote,
+        rowData.genutzterFreibetrag || 2000,
+        rowData.year
+      );
+      setCalculationDetails(explanation);
+      setShowCalculationModal(true);
+    } else if (explanationType === 'incomeTax' && rowData.einkommensteuer !== undefined) {
+      const explanation = createIncomeTaxExplanation(
+        rowData.entnahme,
+        formValue.grundfreibetragBetrag || 10908,
+        formValue.einkommensteuersatz || 25,
+        rowData.einkommensteuer,
+        rowData.genutzterGrundfreibetrag || 0
+      );
+      setCalculationDetails(explanation);
+      setShowCalculationModal(true);
+    } else if (explanationType === 'taxableIncome') {
+      const explanation = createTaxableIncomeExplanation(
+        rowData.entnahme,
+        formValue.grundfreibetragBetrag || 10908
+      );
+      setCalculationDetails(explanation);
+      setShowCalculationModal(true);
+    }
   };
 
   return (
@@ -1904,9 +1999,10 @@ export function EntnahmeSimulationsAusgabe({
                                 </span>
                                 <span
                                   className="detail-value"
-                                  style={{ color: "#fd7e14" }}
+                                  style={{ color: "#fd7e14", display: 'flex', alignItems: 'center' }}
                                 >
                                   {formatCurrency(rowData.inflationAnpassung)}
+                                  <InfoIcon onClick={() => handleCalculationInfoClick('inflation', rowData)} />
                                 </span>
                               </div>
                             )}
@@ -1929,9 +2025,10 @@ export function EntnahmeSimulationsAusgabe({
                             <span className="detail-label">📈 Zinsen:</span>
                             <span
                               className="detail-value"
-                              style={{ color: "#17a2b8" }}
+                              style={{ color: "#17a2b8", display: 'flex', alignItems: 'center' }}
                             >
                               {formatCurrency(rowData.zinsen)}
+                              <InfoIcon onClick={() => handleCalculationInfoClick('interest', rowData)} />
                             </span>
                           </div>
                           <div className="sparplan-detail">
@@ -1940,9 +2037,10 @@ export function EntnahmeSimulationsAusgabe({
                             </span>
                             <span
                               className="detail-value"
-                              style={{ color: "#dc3545" }}
+                              style={{ color: "#dc3545", display: 'flex', alignItems: 'center' }}
                             >
                               {formatCurrency(rowData.bezahlteSteuer)}
+                              <InfoIcon onClick={() => handleCalculationInfoClick('tax', rowData)} />
                             </span>
                           </div>
                           {formValue.grundfreibetragAktiv &&
@@ -1953,9 +2051,10 @@ export function EntnahmeSimulationsAusgabe({
                                 </span>
                                 <span
                                   className="detail-value"
-                                  style={{ color: "#e83e8c" }}
+                                  style={{ color: "#e83e8c", display: 'flex', alignItems: 'center' }}
                                 >
                                   {formatCurrency(rowData.einkommensteuer)}
+                                  <InfoIcon onClick={() => handleCalculationInfoClick('incomeTax', rowData)} />
                                 </span>
                               </div>
                             )}
@@ -1967,14 +2066,28 @@ export function EntnahmeSimulationsAusgabe({
                                 </span>
                                 <span
                                   className="detail-value"
-                                  style={{ color: "#28a745" }}
+                                  style={{ color: "#28a745", display: 'flex', alignItems: 'center' }}
                                 >
                                   {formatCurrency(
                                     rowData.genutzterGrundfreibetrag,
                                   )}
+                                  <InfoIcon onClick={() => handleCalculationInfoClick('incomeTax', rowData)} />
                                 </span>
                               </div>
                             )}
+                          {/* New section for taxable income */}
+                          <div className="sparplan-detail">
+                            <span className="detail-label">
+                              💰 Zu versteuerndes Einkommen:
+                            </span>
+                            <span
+                              className="detail-value"
+                              style={{ color: "#6c757d", display: 'flex', alignItems: 'center' }}
+                            >
+                              {formatCurrency(Math.max(0, rowData.entnahme - (formValue.grundfreibetragBetrag || 10908)))}
+                              <InfoIcon onClick={() => handleCalculationInfoClick('taxableIncome', rowData)} />
+                            </span>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -2126,6 +2239,18 @@ export function EntnahmeSimulationsAusgabe({
           </div>
         )}
       </Panel>
+      
+      {/* Calculation Explanation Modal */}
+      {calculationDetails && (
+        <CalculationExplanationModal
+          open={showCalculationModal}
+          onClose={() => setShowCalculationModal(false)}
+          title={calculationDetails.title}
+          introduction={calculationDetails.introduction}
+          steps={calculationDetails.steps}
+          finalResult={calculationDetails.finalResult}
+        />
+      )}
     </>
   );
 }
