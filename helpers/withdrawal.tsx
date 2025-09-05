@@ -201,6 +201,9 @@ export function calculateWithdrawal({
 
         const entnahme = Math.min(annualWithdrawal, capitalAtStartOfYear);
         
+        // Get the return rate for this year (needed for monthly withdrawal calculations)
+        const returnRate = yearlyGrowthRates[year] || 0;
+        
         // Adjust withdrawal timing based on frequency
         // For yearly: withdrawal happens at beginning of year (current behavior)
         // For monthly: withdrawal happens throughout the year (portfolio grows more)
@@ -222,13 +225,25 @@ export function calculateWithdrawal({
         }
         
         if (withdrawalFrequency === "monthly") {
-            // For monthly frequency, we simulate the effect of withdrawing monthly by
-            // reducing the effective withdrawal at the beginning of the year.
-            // This approximates the fact that for monthly withdrawals, on average,
-            // we have more capital invested throughout the year.
-            // We use a factor of approximately 0.5 to represent that on average,
-            // half the capital is available for growth throughout the year.
-            effectiveWithdrawal = entnahme * 0.5; // Simplified monthly withdrawal effect
+            // For monthly frequency, we calculate a more accurate effective withdrawal.
+            // 
+            // Mathematical model: Instead of withdrawing the full amount at the beginning,
+            // monthly withdrawals are spread throughout the year. This can be modeled as:
+            // 
+            // For yearly: All capital available for growth except the withdrawn amount
+            // For monthly: Capital decreases gradually, with more average capital earning returns
+            //
+            // The effective impact can be calculated as the present value of monthly withdrawals
+            // versus a lump sum at the beginning of the year.
+            // 
+            // Using the return rate to discount monthly withdrawals back to beginning of year:
+            const monthlyReturn = Math.pow(1 + returnRate, 1/12) - 1;
+            let monthlyPresentValue = 0;
+            for (let month = 1; month <= 12; month++) {
+                // Each monthly withdrawal discounted back to beginning of year
+                monthlyPresentValue += (entnahme / 12) / Math.pow(1 + monthlyReturn, month - 1);
+            }
+            effectiveWithdrawal = monthlyPresentValue;
         }
         
         let amountToWithdraw = effectiveWithdrawal;
@@ -254,7 +269,6 @@ export function calculateWithdrawal({
         const freibetragUsedOnGains = Math.min(taxableGain, yearlyFreibetrag);
         let remainingFreibetrag = yearlyFreibetrag - freibetragUsedOnGains;
 
-        const returnRate = yearlyGrowthRates[year] || 0;
         const basiszins = getBasiszinsForYear(year);
         let totalPotentialVorabTax = 0;
         const vorabCalculations: { layer: MutableLayer; vorabpauschaleBetrag: number; potentialTax: number; valueAfterGrowth: number }[] = [];

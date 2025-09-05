@@ -440,3 +440,130 @@ describe('Dynamic Withdrawal Strategy', () => {
     expect(resultYear2.vorjahresRendite).toBe(0.05);
   });
 });
+
+describe('Withdrawal Frequency Tests', () => {
+  const taxRate = 0.26375;
+  const teilfreistellungsquote = 0.3;
+  const freibetrag = 1000;
+  const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 }; // 5% return
+
+  test('should have realistic difference between yearly and monthly withdrawal frequencies', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 500000, 600000, 1000, lastSimYear)];
+
+    // Test yearly withdrawal
+    const { result: yearlyResult } = calculateWithdrawal({
+      elements: JSON.parse(JSON.stringify(mockElements)), // Deep copy
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear + 10, // 10 years
+      strategy: "4prozent",
+      withdrawalFrequency: "yearly",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: Array.from({ length: 11 }, (_, i) => ({
+        [withdrawalStartYear + i]: freibetrag
+      })).reduce((acc, curr) => ({ ...acc, ...curr }), {})
+    });
+
+    // Test monthly withdrawal  
+    const { result: monthlyResult } = calculateWithdrawal({
+      elements: JSON.parse(JSON.stringify(mockElements)), // Deep copy
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear + 10, // 10 years
+      strategy: "4prozent",
+      withdrawalFrequency: "monthly",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: Array.from({ length: 11 }, (_, i) => ({
+        [withdrawalStartYear + i]: freibetrag
+      })).reduce((acc, curr) => ({ ...acc, ...curr }), {})
+    });
+
+    const lastYear = withdrawalStartYear + 10;
+    const yearlyFinalCapital = yearlyResult[lastYear]?.endkapital || 0;
+    const monthlyFinalCapital = monthlyResult[lastYear]?.endkapital || 0;
+
+    // Monthly withdrawals should result in higher final capital, but not dramatically so
+    expect(monthlyFinalCapital).toBeGreaterThan(yearlyFinalCapital);
+    
+    // The difference should be realistic - typically 1-5% advantage for monthly withdrawals
+    const improvementRatio = monthlyFinalCapital / yearlyFinalCapital;
+    expect(improvementRatio).toBeGreaterThan(1.01); // At least 1% improvement
+    expect(improvementRatio).toBeLessThan(1.08); // Less than 8% improvement
+  });
+
+  test('should calculate same annual withdrawal amounts for both frequencies', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 500000, 600000, 1000, lastSimYear)];
+
+    const { result: yearlyResult } = calculateWithdrawal({
+      elements: JSON.parse(JSON.stringify(mockElements)),
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "4prozent",
+      withdrawalFrequency: "yearly",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag }
+    });
+
+    const { result: monthlyResult } = calculateWithdrawal({
+      elements: JSON.parse(JSON.stringify(mockElements)),
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "4prozent",
+      withdrawalFrequency: "monthly",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag }
+    });
+
+    // Annual withdrawal amounts should be the same regardless of frequency
+    expect(yearlyResult[withdrawalStartYear].entnahme).toBe(monthlyResult[withdrawalStartYear].entnahme);
+  });
+
+  test('should show monthly amounts only for monthly frequency with non-fixed strategies', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 500000, 600000, 1000, lastSimYear)];
+
+    const { result: yearlyResult } = calculateWithdrawal({
+      elements: JSON.parse(JSON.stringify(mockElements)),
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "4prozent",
+      withdrawalFrequency: "yearly",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag }
+    });
+
+    const { result: monthlyResult } = calculateWithdrawal({
+      elements: JSON.parse(JSON.stringify(mockElements)),
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "4prozent",
+      withdrawalFrequency: "monthly",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag }
+    });
+
+    // Yearly frequency should not show monthly amounts for non-fixed strategies
+    expect(yearlyResult[withdrawalStartYear].monatlicheEntnahme).toBeUndefined();
+    
+    // Monthly frequency should show monthly amounts
+    expect(monthlyResult[withdrawalStartYear].monatlicheEntnahme).toBeDefined();
+    expect(monthlyResult[withdrawalStartYear].monatlicheEntnahme).toBeCloseTo(
+      monthlyResult[withdrawalStartYear].entnahme / 12
+    );
+  });
+});
