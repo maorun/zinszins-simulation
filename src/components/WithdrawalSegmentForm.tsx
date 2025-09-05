@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Input } from "./ui/input";
 import { Slider } from "./ui/slider";
+import { Switch } from "./ui/switch";
 import { 
   Panel, 
   Form, 
@@ -258,6 +259,29 @@ export function WithdrawalSegmentForm({
                                     Rendite-abhängige Anpassung
                                 </RadioTile>
                             </RadioTileGroup>
+                        </Form.Group>
+
+                        {/* Withdrawal frequency configuration */}
+                        <Form.Group>
+                            <Form.ControlLabel>Entnahme-Häufigkeit</Form.ControlLabel>
+                            <div className="flex items-center space-x-3 mt-2">
+                                <span className="text-sm">Jährlich</span>
+                                <Switch
+                                    checked={segment.withdrawalFrequency === "monthly"}
+                                    onCheckedChange={(checked) => {
+                                        updateSegment(segment.id, {
+                                            withdrawalFrequency: checked ? "monthly" : "yearly"
+                                        });
+                                    }}
+                                />
+                                <span className="text-sm">Monatlich</span>
+                            </div>
+                            <Form.HelpText>
+                                {segment.withdrawalFrequency === "yearly" 
+                                    ? "Entnahme erfolgt einmal jährlich am Anfang des Jahres"
+                                    : "Entnahme erfolgt monatlich - Portfolio hat mehr Zeit zu wachsen"
+                                }
+                            </Form.HelpText>
                         </Form.Group>
 
                         {/* Variable percentage settings */}

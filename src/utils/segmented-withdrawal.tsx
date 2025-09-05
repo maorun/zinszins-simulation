@@ -1,6 +1,7 @@
 import type { WithdrawalStrategy } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import type { MonthlyWithdrawalConfig, InflationConfig, DynamicWithdrawalConfig } from "../../helpers/withdrawal";
+import type { WithdrawalFrequency } from "./config-storage";
 
 /**
  * Configuration for a single withdrawal segment (time period)
@@ -16,6 +17,8 @@ export type WithdrawalSegment = {
     endYear: number;
     /** Withdrawal strategy for this segment */
     strategy: WithdrawalStrategy;
+    /** Withdrawal frequency for this segment */
+    withdrawalFrequency: WithdrawalFrequency;
     /** Return configuration for this segment */
     returnConfig: ReturnConfiguration;
     /** Custom withdrawal percentage (for variabel_prozent strategy) */
@@ -132,6 +135,7 @@ export function createDefaultWithdrawalSegment(
         startYear,
         endYear,
         strategy: "4prozent",
+        withdrawalFrequency: "yearly", // Default to yearly as specified in requirements
         returnConfig: {
             mode: 'fixed',
             fixedRate: 0.05 // 5% default
@@ -149,6 +153,7 @@ export function createDefaultWithdrawalSegment(
  * @param returnConfig - Return configuration
  * @param startYear - Start year
  * @param endYear - End year
+ * @param withdrawalFrequency - Withdrawal frequency (optional, defaults to yearly)
  * @param customPercentage - Custom percentage (optional)
  * @param monthlyConfig - Monthly config (optional)
  * @param inflationConfig - Inflation config (optional)
@@ -162,6 +167,7 @@ export function createSingleSegmentConfig(
     returnConfig: ReturnConfiguration,
     startYear: number,
     endYear: number,
+    withdrawalFrequency: WithdrawalFrequency = "yearly",
     customPercentage?: number,
     monthlyConfig?: MonthlyWithdrawalConfig,
     inflationConfig?: InflationConfig,
@@ -175,6 +181,7 @@ export function createSingleSegmentConfig(
         startYear,
         endYear,
         strategy,
+        withdrawalFrequency,
         returnConfig,
         customPercentage,
         monthlyConfig,

@@ -10,12 +10,19 @@ import type { WithdrawalSegment } from './segmented-withdrawal';
 export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable';
 
 /**
+ * Frequency mode for withdrawal calculations
+ */
+export type WithdrawalFrequency = 'yearly' | 'monthly';
+
+/**
  * Form values for withdrawal configuration
  */
 export interface WithdrawalFormValue {
   endOfLife: number;
   strategie: WithdrawalStrategy;
   rendite: number;
+  // Withdrawal frequency configuration
+  withdrawalFrequency: WithdrawalFrequency;
   // General inflation settings
   inflationAktiv: boolean;
   inflationsrate: number;

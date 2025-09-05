@@ -3,6 +3,7 @@ import { getBasiszinsForYear, calculateVorabpauschale, calculateSteuerOnVorabpau
 import type { ReturnConfiguration } from "../src/utils/random-returns";
 import { generateRandomReturns } from "../src/utils/random-returns";
 import type { SegmentedWithdrawalConfig, WithdrawalSegment } from "../src/utils/segmented-withdrawal";
+import type { WithdrawalFrequency } from "../src/utils/config-storage";
 
 
 export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "dynamisch";
@@ -72,6 +73,7 @@ export type CalculateWithdrawalParams = {
     startYear: number;
     endYear: number;
     strategy: WithdrawalStrategy;
+    withdrawalFrequency?: WithdrawalFrequency;
     returnConfig: ReturnConfiguration;
     taxRate?: number;
     teilfreistellungsquote?: number;
@@ -90,6 +92,7 @@ export function calculateWithdrawal({
     startYear,
     endYear,
     strategy,
+    withdrawalFrequency = "yearly",
     returnConfig,
     taxRate = 0.26375,
     teilfreistellungsquote = 0.3,
@@ -197,7 +200,53 @@ export function calculateWithdrawal({
         }
 
         const entnahme = Math.min(annualWithdrawal, capitalAtStartOfYear);
-        let amountToWithdraw = entnahme;
+        
+        // Get the return rate for this year (needed for monthly withdrawal calculations)
+        const returnRate = yearlyGrowthRates[year] || 0;
+        
+        // Adjust withdrawal timing based on frequency
+        // For yearly: withdrawal happens at beginning of year (current behavior)
+        // For monthly: withdrawal happens throughout the year (portfolio grows more)
+        let effectiveWithdrawal = entnahme;
+        let monthlyWithdrawalAmount = undefined;
+        
+        // Calculate the actual monthly withdrawal amount for display purposes
+        if (strategy === "monatlich_fest" && monthlyConfig) {
+            // For monthly fixed strategy, use the actual configured monthly amount (with inflation adjustment)
+            let adjustedMonthlyAmount = monthlyConfig.monthlyAmount;
+            if (inflationConfig?.inflationRate) {
+                const yearsPassed = year - startYear;
+                adjustedMonthlyAmount = monthlyConfig.monthlyAmount * Math.pow(1 + inflationConfig.inflationRate, yearsPassed);
+            }
+            monthlyWithdrawalAmount = adjustedMonthlyAmount;
+        } else if (withdrawalFrequency === "monthly") {
+            // For other strategies with monthly frequency, divide annual amount by 12
+            monthlyWithdrawalAmount = entnahme / 12;
+        }
+        
+        if (withdrawalFrequency === "monthly") {
+            // For monthly frequency, we calculate a more accurate effective withdrawal.
+            // 
+            // Mathematical model: Instead of withdrawing the full amount at the beginning,
+            // monthly withdrawals are spread throughout the year. This can be modeled as:
+            // 
+            // For yearly: All capital available for growth except the withdrawn amount
+            // For monthly: Capital decreases gradually, with more average capital earning returns
+            //
+            // The effective impact can be calculated as the present value of monthly withdrawals
+            // versus a lump sum at the beginning of the year.
+            // 
+            // Using the return rate to discount monthly withdrawals back to beginning of year:
+            const monthlyReturn = Math.pow(1 + returnRate, 1/12) - 1;
+            let monthlyPresentValue = 0;
+            for (let month = 1; month <= 12; month++) {
+                // Each monthly withdrawal discounted back to beginning of year
+                monthlyPresentValue += (entnahme / 12) / Math.pow(1 + monthlyReturn, month - 1);
+            }
+            effectiveWithdrawal = monthlyPresentValue;
+        }
+        
+        let amountToWithdraw = effectiveWithdrawal;
         let totalRealizedGainThisYear = 0;
 
         for (const layer of mutableLayers) {
@@ -220,7 +269,6 @@ export function calculateWithdrawal({
         const freibetragUsedOnGains = Math.min(taxableGain, yearlyFreibetrag);
         let remainingFreibetrag = yearlyFreibetrag - freibetragUsedOnGains;
 
-        const returnRate = yearlyGrowthRates[year] || 0;
         const basiszins = getBasiszinsForYear(year);
         let totalPotentialVorabTax = 0;
         const vorabCalculations: { layer: MutableLayer; vorabpauschaleBetrag: number; potentialTax: number; valueAfterGrowth: number }[] = [];
@@ -260,7 +308,7 @@ export function calculateWithdrawal({
             bezahlteSteuer: totalTaxForYear,
             genutzterFreibetrag: freibetragUsedOnGains + freibetragUsedOnVorab,
             zinsen: capitalAtEndOfYear - (capitalAtStartOfYear - entnahme),
-            monatlicheEntnahme: strategy === 'monatlich_fest' ? annualWithdrawal / 12 : undefined,
+            monatlicheEntnahme: monthlyWithdrawalAmount,
             inflationAnpassung: inflationConfig?.inflationRate ? inflationAnpassung : undefined,
             einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
             genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined,
@@ -299,6 +347,7 @@ export function calculateSegmentedWithdrawal(
             startYear: segment.startYear,
             endYear: segment.endYear,
             strategy: segment.strategy,
+            withdrawalFrequency: segment.withdrawalFrequency,
             returnConfig: segment.returnConfig,
             taxRate: segmentedConfig.taxRate,
             teilfreistellungsquote: 0.3, // Assuming default, should be passed in config
