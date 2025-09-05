@@ -207,11 +207,21 @@ export function calculateWithdrawal({
         let effectiveWithdrawal = entnahme;
         let monthlyWithdrawalAmount = undefined;
         
-        if (withdrawalFrequency === "monthly") {
-            // For monthly withdrawals, we calculate the effective impact differently
-            // The portfolio has more time to grow since we're withdrawing monthly
+        // Calculate the actual monthly withdrawal amount for display purposes
+        if (strategy === "monatlich_fest" && monthlyConfig) {
+            // For monthly fixed strategy, use the actual configured monthly amount (with inflation adjustment)
+            let adjustedMonthlyAmount = monthlyConfig.monthlyAmount;
+            if (inflationConfig?.inflationRate) {
+                const yearsPassed = year - startYear;
+                adjustedMonthlyAmount = monthlyConfig.monthlyAmount * Math.pow(1 + inflationConfig.inflationRate, yearsPassed);
+            }
+            monthlyWithdrawalAmount = adjustedMonthlyAmount;
+        } else if (withdrawalFrequency === "monthly") {
+            // For other strategies with monthly frequency, divide annual amount by 12
             monthlyWithdrawalAmount = entnahme / 12;
-            
+        }
+        
+        if (withdrawalFrequency === "monthly") {
             // For monthly frequency, we simulate the effect of withdrawing monthly by
             // reducing the effective withdrawal at the beginning of the year.
             // This approximates the fact that for monthly withdrawals, on average,
@@ -284,7 +294,7 @@ export function calculateWithdrawal({
             bezahlteSteuer: totalTaxForYear,
             genutzterFreibetrag: freibetragUsedOnGains + freibetragUsedOnVorab,
             zinsen: capitalAtEndOfYear - (capitalAtStartOfYear - entnahme),
-            monatlicheEntnahme: withdrawalFrequency === 'monthly' ? monthlyWithdrawalAmount : (strategy === 'monatlich_fest' ? annualWithdrawal / 12 : undefined),
+            monatlicheEntnahme: monthlyWithdrawalAmount,
             inflationAnpassung: inflationConfig?.inflationRate ? inflationAnpassung : undefined,
             einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
             genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined,
