@@ -70,18 +70,78 @@ describe('Withdrawal Calculations with FIFO', () => {
     const freibetragUsedOnGains = Math.min(expectedTaxableGain, freibetrag);
     const remainingFreibetrag = freibetrag - freibetragUsedOnGains;
     const basiszins = getBasiszinsForYear(withdrawalStartYear);
-    const l1_val_after_sale = 12000 - entnahme;
-    const l1_val_after_growth = l1_val_after_sale * (1 + returnConfig.fixedRate!);
-    const l1_vorab = calculateVorabpauschale(l1_val_after_sale, l1_val_after_growth, basiszins);
+    // Calculate Vorabpauschale using values BEFORE withdrawal (corrected logic)
+    const l1_val_before_withdrawal = 12000; // Full value at start of year
+    const l1_val_after_growth_before_withdrawal = l1_val_before_withdrawal * (1 + returnConfig.fixedRate!);
+    const l1_vorab = calculateVorabpauschale(l1_val_before_withdrawal, l1_val_after_growth_before_withdrawal, basiszins);
     const l1_tax_potential = calculateSteuerOnVorabpauschale(l1_vorab, taxRate, teilfreistellungsquote);
-    const l2_val_after_sale = 6000;
-    const l2_val_after_growth = l2_val_after_sale * (1 + returnConfig.fixedRate!);
-    const l2_vorab = calculateVorabpauschale(l2_val_after_sale, l2_val_after_growth, basiszins);
+    const l2_val_before_withdrawal = 6000; // Full value at start of year
+    const l2_val_after_growth_before_withdrawal = l2_val_before_withdrawal * (1 + returnConfig.fixedRate!);
+    const l2_vorab = calculateVorabpauschale(l2_val_before_withdrawal, l2_val_after_growth_before_withdrawal, basiszins);
     const l2_tax_potential = calculateSteuerOnVorabpauschale(l2_vorab, taxRate, teilfreistellungsquote);
     const totalPotentialVorabTax = l1_tax_potential + l2_tax_potential;
     const expectedTaxOnVorabpauschale = Math.max(0, totalPotentialVorabTax - remainingFreibetrag);
     const totalExpectedTax = expectedTaxOnGains + expectedTaxOnVorabpauschale;
     expect(resultYear.bezahlteSteuer).toBeCloseTo(totalExpectedTax);
+  });
+
+  test('should calculate Vorabpauschale based on portfolio value BEFORE withdrawal, not after', () => {
+    // This test specifically verifies the fix for the tax calculation timing issue
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    
+    // Create a single layer with known values
+    const mockElements: SparplanElement[] = [
+      createMockElement(2023, 100000, 120000, 1000, lastSimYear), // 120k value, 100k cost basis, 1k accumulated vorab
+    ];
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "4prozent", // Will withdraw 4800 (4% of 120k)
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag }
+    });
+
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
+
+    const entnahme = 120000 * 0.04; // 4800
+    expect(resultYear.entnahme).toBeCloseTo(entnahme);
+
+    // VERIFY: Vorabpauschale should be calculated on FULL 120k value, not on 115.2k (120k - 4.8k)
+    const basiszins = getBasiszinsForYear(withdrawalStartYear);
+    const fullValueBeforeWithdrawal = 120000;
+    const fullValueAfterGrowthBeforeWithdrawal = fullValueBeforeWithdrawal * (1 + returnConfig.fixedRate!);
+    const expectedVorabpauschale = calculateVorabpauschale(fullValueBeforeWithdrawal, fullValueAfterGrowthBeforeWithdrawal, basiszins);
+    const expectedVorabTax = calculateSteuerOnVorabpauschale(expectedVorabpauschale, taxRate, teilfreistellungsquote);
+
+    // Calculate realized gain from withdrawal (FIFO)
+    const costBasisSold = 100000 * (entnahme / 120000); // Proportional cost basis sold
+    const accumVorabSold = 1000 * (entnahme / 120000); // Proportional accumulated vorab sold
+    const realizedGain = entnahme - costBasisSold - accumVorabSold;
+    const taxableRealizedGain = realizedGain * (1 - teilfreistellungsquote);
+    const taxOnRealizedGains = Math.max(0, taxableRealizedGain - freibetrag) * taxRate;
+    const freibetragUsedOnGains = Math.min(taxableRealizedGain, freibetrag);
+    const remainingFreibetrag = freibetrag - freibetragUsedOnGains;
+    
+    // Apply remaining freibetrag to vorab tax
+    const finalVorabTax = Math.max(0, expectedVorabTax - remainingFreibetrag);
+    const totalExpectedTax = taxOnRealizedGains + finalVorabTax;
+
+    expect(resultYear.bezahlteSteuer).toBeCloseTo(totalExpectedTax);
+    
+    // The key verification: if calculated correctly, this should produce a higher tax
+    // than if calculated on post-withdrawal value (115.2k instead of 120k)
+    const incorrectValueAfterWithdrawal = 120000 - entnahme; // 115200
+    const incorrectValueAfterGrowth = incorrectValueAfterWithdrawal * (1 + returnConfig.fixedRate!);
+    const incorrectVorabpauschale = calculateVorabpauschale(incorrectValueAfterWithdrawal, incorrectValueAfterGrowth, basiszins);
+    
+    // Vorabpauschale calculated on full portfolio should be higher than on reduced portfolio
+    expect(expectedVorabpauschale).toBeGreaterThan(incorrectVorabpauschale);
   });
 
   test('should apply inflation to withdrawal amount', () => {
