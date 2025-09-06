@@ -246,6 +246,24 @@ export function calculateWithdrawal({
             effectiveWithdrawal = monthlyPresentValue;
         }
         
+        // FIRST: Calculate Vorabpauschale BEFORE any withdrawal, using full portfolio values at start of year
+        const yearlyFreibetrag = getFreibetragForYear(year);
+        const basiszins = getBasiszinsForYear(year);
+        let totalPotentialVorabTax = 0;
+        const vorabCalculations: { layer: MutableLayer; vorabpauschaleBetrag: number; potentialTax: number; valueBeforeWithdrawal: number }[] = [];
+        
+        mutableLayers.forEach((layer: MutableLayer) => {
+            if (layer.currentValue > 0) {
+                const valueBeforeWithdrawal = layer.currentValue; // Full value at start of year
+                const valueAfterGrowthBeforeWithdrawal = valueBeforeWithdrawal * (1 + returnRate);
+                const vorabpauschaleBetrag = calculateVorabpauschale(valueBeforeWithdrawal, valueAfterGrowthBeforeWithdrawal, basiszins);
+                const potentialTax = calculateSteuerOnVorabpauschale(vorabpauschaleBetrag, taxRate, teilfreistellungsquote);
+                totalPotentialVorabTax += potentialTax;
+                vorabCalculations.push({ layer, vorabpauschaleBetrag, potentialTax, valueBeforeWithdrawal });
+            }
+        });
+
+        // SECOND: Process withdrawal and calculate realized gains
         let amountToWithdraw = effectiveWithdrawal;
         let totalRealizedGainThisYear = 0;
 
@@ -263,30 +281,22 @@ export function calculateWithdrawal({
             amountToWithdraw -= amountToSellFromLayer;
         }
 
-        const yearlyFreibetrag = getFreibetragForYear(year);
+        // THIRD: Calculate taxes on realized gains and apply freibetrag
         const taxableGain = totalRealizedGainThisYear > 0 ? totalRealizedGainThisYear * (1 - teilfreistellungsquote) : 0;
         const taxOnRealizedGains = Math.max(0, taxableGain - yearlyFreibetrag) * taxRate;
         const freibetragUsedOnGains = Math.min(taxableGain, yearlyFreibetrag);
         let remainingFreibetrag = yearlyFreibetrag - freibetragUsedOnGains;
 
-        const basiszins = getBasiszinsForYear(year);
-        let totalPotentialVorabTax = 0;
-        const vorabCalculations: { layer: MutableLayer; vorabpauschaleBetrag: number; potentialTax: number; valueAfterGrowth: number }[] = [];
-        mutableLayers.forEach((layer: MutableLayer) => {
-            if (layer.currentValue > 0) {
-                const valueAfterSale = layer.currentValue;
-                const valueAfterGrowth = valueAfterSale * (1 + returnRate);
-                const vorabpauschaleBetrag = calculateVorabpauschale(valueAfterSale, valueAfterGrowth, basiszins);
-                const potentialTax = calculateSteuerOnVorabpauschale(vorabpauschaleBetrag, taxRate, teilfreistellungsquote);
-                totalPotentialVorabTax += potentialTax;
-                vorabCalculations.push({ layer, vorabpauschaleBetrag, potentialTax, valueAfterGrowth });
-            }
-        });
+        // FOURTH: Apply remaining freibetrag to Vorabpauschale and calculate final growth
         const taxOnVorabpauschale = Math.max(0, totalPotentialVorabTax - remainingFreibetrag);
         const freibetragUsedOnVorab = Math.min(totalPotentialVorabTax, remainingFreibetrag);
+        
         vorabCalculations.forEach(calc => {
             const taxForLayer = totalPotentialVorabTax > 0 ? (calc.potentialTax / totalPotentialVorabTax) * taxOnVorabpauschale : 0;
-            calc.layer.currentValue = calc.valueAfterGrowth - taxForLayer;
+            // Apply growth to remaining value after withdrawal, then subtract vorab tax
+            const valueAfterWithdrawal = calc.layer.currentValue;
+            const valueAfterGrowth = valueAfterWithdrawal * (1 + returnRate);
+            calc.layer.currentValue = valueAfterGrowth - taxForLayer;
             calc.layer.accumulatedVorabpauschale += calc.vorabpauschaleBetrag;
         });
 
