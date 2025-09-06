@@ -21,8 +21,6 @@ const TaxConfiguration = () => {
         setSteuerReduzierenEndkapitalSparphase,
         steuerReduzierenEndkapitalEntspharphase,
         setSteuerReduzierenEndkapitalEntspharphase,
-        steuerReduzierenEndkapitalGeteilteEntspharphase,
-        setSteuerReduzierenEndkapitalGeteilteEntspharphase,
     } = useSimulation();
 
     const yearToday = new Date().getFullYear();
@@ -111,23 +109,6 @@ const TaxConfiguration = () => {
                                 checked={steuerReduzierenEndkapitalEntspharphase}
                                 onCheckedChange={(checked) => {
                                     setSteuerReduzierenEndkapitalEntspharphase(checked);
-                                    performSimulation();
-                                }}
-                            />
-                        </div>
-
-                        <div className="flex items-center justify-between p-3 border rounded-lg">
-                            <div className="space-y-1">
-                                <Label htmlFor="steuerReduzierenEndkapitalGeteilteEntspharphase" className="font-medium">Geteilte Entsparphase</Label>
-                                <p className="text-sm text-muted-foreground">
-                                    Bei segmentierter Entnahme vom Kapital abziehen
-                                </p>
-                            </div>
-                            <Switch
-                                id="steuerReduzierenEndkapitalGeteilteEntspharphase"
-                                checked={steuerReduzierenEndkapitalGeteilteEntspharphase}
-                                onCheckedChange={(checked) => {
-                                    setSteuerReduzierenEndkapitalGeteilteEntspharphase(checked);
                                     performSimulation();
                                 }}
                             />

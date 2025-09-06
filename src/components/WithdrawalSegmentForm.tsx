@@ -577,6 +577,32 @@ export function WithdrawalSegmentForm({
                                 </Form.Group>
                             </>
                         )}
+
+                        <Divider />
+
+                        {/* Tax reduction setting */}
+                        <Form.Group>
+                            <Form.ControlLabel>Steuer reduziert Endkapital</Form.ControlLabel>
+                            <div className="flex items-center space-x-3 mt-2">
+                                <Switch
+                                    checked={segment.steuerReduzierenEndkapital ?? true}
+                                    onCheckedChange={(checked) => {
+                                        updateSegment(segment.id, {
+                                            steuerReduzierenEndkapital: checked
+                                        });
+                                    }}
+                                />
+                                <span className="text-sm">
+                                    {(segment.steuerReduzierenEndkapital ?? true) 
+                                        ? "Steuern werden vom Kapital abgezogen" 
+                                        : "Steuern werden separat bezahlt"
+                                    }
+                                </span>
+                            </div>
+                            <Form.HelpText>
+                                Bestimmt, ob Vorabpauschale-Steuern das Endkapital dieser Phase reduzieren oder über ein separates Verrechnungskonto bezahlt werden.
+                            </Form.HelpText>
+                        </Form.Group>
                     </Form>
                 </Panel>
             ))}

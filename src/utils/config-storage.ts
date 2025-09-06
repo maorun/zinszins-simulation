@@ -94,7 +94,6 @@ export interface SavedConfiguration {
   // New phase-specific settings
   steuerReduzierenEndkapitalSparphase?: boolean;
   steuerReduzierenEndkapitalEntspharphase?: boolean;
-  steuerReduzierenEndkapitalGeteilteEntspharphase?: boolean;
   returnMode: ReturnMode;
   averageReturn: number;
   standardDeviation: number;
@@ -133,15 +132,13 @@ function migrateTaxSettings(config: SavedConfiguration): SavedConfiguration {
   // If we have the legacy setting but not the new ones, migrate
   if (config.steuerReduzierenEndkapital !== undefined && 
       config.steuerReduzierenEndkapitalSparphase === undefined &&
-      config.steuerReduzierenEndkapitalEntspharphase === undefined &&
-      config.steuerReduzierenEndkapitalGeteilteEntspharphase === undefined) {
+      config.steuerReduzierenEndkapitalEntspharphase === undefined) {
     
     const legacyValue = config.steuerReduzierenEndkapital;
     return {
       ...config,
       steuerReduzierenEndkapitalSparphase: legacyValue,
       steuerReduzierenEndkapitalEntspharphase: legacyValue,
-      steuerReduzierenEndkapitalGeteilteEntspharphase: legacyValue,
     };
   }
   
@@ -150,7 +147,6 @@ function migrateTaxSettings(config: SavedConfiguration): SavedConfiguration {
     ...config,
     steuerReduzierenEndkapitalSparphase: config.steuerReduzierenEndkapitalSparphase ?? true,
     steuerReduzierenEndkapitalEntspharphase: config.steuerReduzierenEndkapitalEntspharphase ?? true,
-    steuerReduzierenEndkapitalGeteilteEntspharphase: config.steuerReduzierenEndkapitalGeteilteEntspharphase ?? true,
   };
 }
 
