@@ -84,7 +84,7 @@ describe('Parameter Export', () => {
       const result = formatParametersForExport(mockContext);
       
       expect(result).toContain('Freibeträge pro Jahr:');
-      expect(result).toContain('  2023: 2.000,00 €');
+      expect(result).toContain('  2023: 2.000,00\u00A0€'); // Note: \u00A0 is non-breaking space from German locale formatting
     });
 
     it('should handle context without optional configurations', () => {
@@ -97,7 +97,76 @@ describe('Parameter Export', () => {
       expect(result).toContain('Rendite: 5.00 %');
       expect(result).not.toContain('Freibeträge pro Jahr:');
       expect(result).not.toContain('Sparpläne:');
-      expect(result).not.toContain('Entnahme-Konfiguration:');
+      // Withdrawal configuration should always be included, even when null
+      expect(result).toContain('Entnahme-Konfiguration:');
+      expect(result).toContain('Lebensende: 2040 (Standard)');
+      expect(result).toContain('Strategie: 4% Regel (Standard)');
+    });
+
+    it('should include withdrawal parameters even when no config exists', () => {
+      mockContext.withdrawalConfig = null;
+      
+      const result = formatParametersForExport(mockContext);
+      
+      expect(result).toContain('Entnahme-Konfiguration:');
+      expect(result).toContain('Lebensende: 2040 (Standard)');
+      expect(result).toContain('Strategie: 4% Regel (Standard)');
+      expect(result).toContain('Entnahme-Rendite: 5.00 % (Standard)');
+      expect(result).toContain('Entnahme-Häufigkeit: Jährlich (Standard)');
+      expect(result).toContain('Inflation aktiv: Nein (Standard)');
+      expect(result).toContain('Grundfreibetrag aktiv: Nein (Standard)');
+      expect(result).toContain('Entnahme-Rendite-Modus: Fest (Standard)');
+    });
+
+    it('should include full withdrawal parameters when config exists', () => {
+      mockContext.withdrawalConfig = {
+        formValue: {
+          endOfLife: 2080,
+          strategie: 'monatlich_fest',
+          rendite: 4.5,
+          withdrawalFrequency: 'monthly',
+          inflationAktiv: true,
+          inflationsrate: 2.5,
+          monatlicheBetrag: 3000,
+          guardrailsAktiv: true,
+          guardrailsSchwelle: 15,
+          variabelProzent: 5,
+          dynamischBasisrate: 4,
+          dynamischObereSchwell: 8,
+          dynamischObereAnpassung: 5,
+          dynamischUntereSchwell: 2,
+          dynamischUntereAnpassung: -5,
+          grundfreibetragAktiv: true,
+          grundfreibetragBetrag: 11000,
+          einkommensteuersatz: 28,
+        },
+        withdrawalReturnMode: 'random',
+        withdrawalVariableReturns: {},
+        withdrawalAverageReturn: 6.5,
+        withdrawalStandardDeviation: 18,
+        withdrawalRandomSeed: 12345,
+        useSegmentedWithdrawal: false,
+        withdrawalSegments: [],
+        useComparisonMode: false,
+        comparisonStrategies: []
+      };
+      
+      const result = formatParametersForExport(mockContext);
+      
+      expect(result).toContain('Entnahme-Konfiguration:');
+      expect(result).toContain('Lebensende: 2080');
+      expect(result).toContain('Strategie: Monatliche Entnahme');
+      expect(result).toContain('Entnahme-Rendite: 4.50 %');
+      expect(result).toContain('Entnahme-Häufigkeit: Monatlich');
+      expect(result).toContain('Inflation aktiv: Ja (2.50 %)');
+      expect(result).toContain('Monatlicher Betrag: 3.000,00\u00A0€');
+      expect(result).toContain('Guardrails aktiv: Ja (15.0 %)');
+      expect(result).toContain('Grundfreibetrag aktiv: Ja');
+      expect(result).toContain('Grundfreibetrag: 11.000,00\u00A0€');
+      expect(result).toContain('Einkommensteuersatz: 28.00 %');
+      expect(result).toContain('Entnahme-Rendite-Modus: Zufällig');
+      expect(result).toContain('Entnahme-Durchschnittsrendite: 6.50 %');
+      expect(result).toContain('Entnahme-Standardabweichung: 18.00 %');
     });
   });
 

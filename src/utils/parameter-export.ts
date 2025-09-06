@@ -75,40 +75,79 @@ export function formatParametersForExport(context: SimulationContextState): stri
     });
   }
   
-  // Withdrawal configuration (if available)
-  if (context.withdrawalConfig) {
-    lines.push(`Entnahme-Konfiguration:`);
+  // Withdrawal configuration (always show, with defaults if not configured)
+  lines.push(`Entnahme-Konfiguration:`);
+  
+  if (context.withdrawalConfig && context.withdrawalConfig.formValue) {
     const wc = context.withdrawalConfig;
+    const fv = wc.formValue;
     
-    if (wc.formValue) {
-      lines.push(`  Lebensende: ${wc.formValue.endOfLife}`);
-      lines.push(`  Strategie: ${getWithdrawalStrategyLabel(wc.formValue.strategie)}`);
-      lines.push(`  Entnahme-Rendite: ${wc.formValue.rendite.toFixed(2)} %`);
-      lines.push(`  Entnahme-Häufigkeit: ${wc.formValue.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'}`);
-      
-      if (wc.formValue.inflationAktiv) {
-        lines.push(`  Inflation aktiv: Ja (${wc.formValue.inflationsrate.toFixed(2)} %)`);
+    lines.push(`  Lebensende: ${fv.endOfLife}`);
+    lines.push(`  Strategie: ${getWithdrawalStrategyLabel(fv.strategie)}`);
+    lines.push(`  Entnahme-Rendite: ${fv.rendite.toFixed(2)} %`);
+    lines.push(`  Entnahme-Häufigkeit: ${fv.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'}`);
+    
+    if (fv.inflationAktiv) {
+      lines.push(`  Inflation aktiv: Ja (${fv.inflationsrate.toFixed(2)} %)`);
+    } else {
+      lines.push(`  Inflation aktiv: Nein`);
+    }
+    
+    if (fv.strategie === 'monatlich_fest') {
+      lines.push(`  Monatlicher Betrag: ${formatCurrency(fv.monatlicheBetrag)}`);
+      if (fv.guardrailsAktiv) {
+        lines.push(`  Guardrails aktiv: Ja (${fv.guardrailsSchwelle.toFixed(1)} %)`);
       } else {
-        lines.push(`  Inflation aktiv: Nein`);
-      }
-      
-      if (wc.formValue.strategie === 'monatlich_fest' && wc.formValue.monatlicheBetrag) {
-        lines.push(`  Monatlicher Betrag: ${formatCurrency(wc.formValue.monatlicheBetrag)}`);
-        if (wc.formValue.guardrailsAktiv) {
-          lines.push(`  Guardrails aktiv: Ja (${wc.formValue.guardrailsSchwelle.toFixed(1)} %)`);
-        }
-      }
-      
-      if (wc.formValue.strategie === 'variabel_prozent' && wc.formValue.variabelProzent) {
-        lines.push(`  Variabler Prozentsatz: ${wc.formValue.variabelProzent.toFixed(2)} %`);
-      }
-      
-      if (wc.formValue.grundfreibetragAktiv) {
-        lines.push(`  Grundfreibetrag aktiv: Ja`);
-        lines.push(`  Grundfreibetrag: ${formatCurrency(wc.formValue.grundfreibetragBetrag)}`);
-        lines.push(`  Einkommensteuersatz: ${wc.formValue.einkommensteuersatz.toFixed(2)} %`);
+        lines.push(`  Guardrails aktiv: Nein`);
       }
     }
+    
+    if (fv.strategie === 'variabel_prozent') {
+      lines.push(`  Variabler Prozentsatz: ${fv.variabelProzent.toFixed(2)} %`);
+    }
+    
+    if (fv.strategie === 'dynamisch') {
+      lines.push(`  Dynamische Basisrate: ${fv.dynamischBasisrate.toFixed(2)} %`);
+      lines.push(`  Obere Schwelle: ${fv.dynamischObereSchwell.toFixed(2)} %`);
+      lines.push(`  Obere Anpassung: ${fv.dynamischObereAnpassung.toFixed(2)} %`);
+      lines.push(`  Untere Schwelle: ${fv.dynamischUntereSchwell.toFixed(2)} %`);
+      lines.push(`  Untere Anpassung: ${fv.dynamischUntereAnpassung.toFixed(2)} %`);
+    }
+    
+    if (fv.grundfreibetragAktiv) {
+      lines.push(`  Grundfreibetrag aktiv: Ja`);
+      lines.push(`  Grundfreibetrag: ${formatCurrency(fv.grundfreibetragBetrag)}`);
+      lines.push(`  Einkommensteuersatz: ${fv.einkommensteuersatz.toFixed(2)} %`);
+    } else {
+      lines.push(`  Grundfreibetrag aktiv: Nein`);
+    }
+    
+    // Additional withdrawal configuration details
+    lines.push(`  Entnahme-Rendite-Modus: ${getReturnModeLabel(wc.withdrawalReturnMode)}`);
+    if (wc.withdrawalReturnMode === 'random') {
+      lines.push(`  Entnahme-Durchschnittsrendite: ${wc.withdrawalAverageReturn.toFixed(2)} %`);
+      lines.push(`  Entnahme-Standardabweichung: ${wc.withdrawalStandardDeviation.toFixed(2)} %`);
+    }
+    
+    if (wc.useSegmentedWithdrawal) {
+      lines.push(`  Segmentierte Entnahme: Ja`);
+      lines.push(`  Anzahl Segmente: ${wc.withdrawalSegments.length}`);
+    }
+    
+    if (wc.useComparisonMode) {
+      lines.push(`  Vergleichsmodus: Ja`);
+      lines.push(`  Anzahl Strategien: ${wc.comparisonStrategies.length}`);
+    }
+  } else {
+    // Show default values when no withdrawal config is set
+    const defaultEndOfLife = context.startEnd[1];
+    lines.push(`  Lebensende: ${defaultEndOfLife} (Standard)`);
+    lines.push(`  Strategie: 4% Regel (Standard)`);
+    lines.push(`  Entnahme-Rendite: 5.00 % (Standard)`);
+    lines.push(`  Entnahme-Häufigkeit: Jährlich (Standard)`);
+    lines.push(`  Inflation aktiv: Nein (Standard)`);
+    lines.push(`  Grundfreibetrag aktiv: Nein (Standard)`);
+    lines.push(`  Entnahme-Rendite-Modus: Fest (Standard)`);
   }
   
   return lines.join('\n');
@@ -156,7 +195,7 @@ function getWithdrawalStrategyLabel(strategy: string): string {
     case 'monatlich_fest':
       return 'Monatliche Entnahme';
     case 'dynamisch':
-      return 'Dynamische Entnahme';
+      return 'Dynamische Strategie';
     default:
       return strategy;
   }
