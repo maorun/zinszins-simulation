@@ -4,6 +4,7 @@ import { Button } from './ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { Switch } from './ui/switch';
 import { Trash2, Plus } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
 
@@ -16,6 +17,10 @@ const TaxConfiguration = () => {
         setTeilfreistellungsquote,
         freibetragPerYear,
         setFreibetragPerYear,
+        steuerReduzierenEndkapitalSparphase,
+        setSteuerReduzierenEndkapitalSparphase,
+        steuerReduzierenEndkapitalEntspharphase,
+        setSteuerReduzierenEndkapitalEntspharphase,
     } = useSimulation();
 
     const yearToday = new Date().getFullYear();
@@ -65,6 +70,49 @@ const TaxConfiguration = () => {
                         <span>0%</span>
                         <span className="font-medium">{teilfreistellungsquote}%</span>
                         <span>50%</span>
+                    </div>
+                </div>
+
+                <div className="space-y-4">
+                    <Label className="text-base font-medium">Steuer reduziert Endkapital</Label>
+                    <p className="text-sm text-muted-foreground">
+                        Konfigurieren Sie für jede Phase, ob die Steuer vom Endkapital abgezogen wird oder über ein separates Verrechnungskonto bezahlt wird.
+                    </p>
+                    
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="space-y-1">
+                                <Label htmlFor="steuerReduzierenEndkapitalSparphase" className="font-medium">Sparphase</Label>
+                                <p className="text-sm text-muted-foreground">
+                                    Während der Ansparphase vom Kapital abziehen
+                                </p>
+                            </div>
+                            <Switch
+                                id="steuerReduzierenEndkapitalSparphase"
+                                checked={steuerReduzierenEndkapitalSparphase}
+                                onCheckedChange={(checked) => {
+                                    setSteuerReduzierenEndkapitalSparphase(checked);
+                                    performSimulation();
+                                }}
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="space-y-1">
+                                <Label htmlFor="steuerReduzierenEndkapitalEntspharphase" className="font-medium">Entsparphase</Label>
+                                <p className="text-sm text-muted-foreground">
+                                    Während der Entnahmephase vom Kapital abziehen
+                                </p>
+                            </div>
+                            <Switch
+                                id="steuerReduzierenEndkapitalEntspharphase"
+                                checked={steuerReduzierenEndkapitalEntspharphase}
+                                onCheckedChange={(checked) => {
+                                    setSteuerReduzierenEndkapitalEntspharphase(checked);
+                                    performSimulation();
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
 

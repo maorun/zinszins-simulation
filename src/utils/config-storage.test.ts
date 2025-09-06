@@ -26,6 +26,8 @@ describe('config-storage', () => {
     steuerlast: 25,
     teilfreistellungsquote: 30,
     freibetragPerYear: { 2023: 2000 },
+    steuerReduzierenEndkapitalSparphase: true,
+    steuerReduzierenEndkapitalEntspharphase: true,
     returnMode: 'fixed',
     averageReturn: 8,
     standardDeviation: 15,

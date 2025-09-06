@@ -35,6 +35,8 @@ export type WithdrawalSegment = {
     grundfreibetragPerYear?: {[year: number]: number};
     /** Income tax rate for this segment */
     incomeTaxRate?: number;
+    /** Whether taxes should reduce capital for this segment */
+    steuerReduzierenEndkapital?: boolean;
 };
 
 /**
@@ -143,7 +145,8 @@ export function createDefaultWithdrawalSegment(
         inflationConfig: {
             inflationRate: 0.02 // 2% default inflation
         },
-        enableGrundfreibetrag: false
+        enableGrundfreibetrag: false,
+        steuerReduzierenEndkapital: true // Default: taxes reduce capital
     };
 }
 
@@ -173,7 +176,8 @@ export function createSingleSegmentConfig(
     inflationConfig?: InflationConfig,
     enableGrundfreibetrag?: boolean,
     grundfreibetragPerYear?: {[year: number]: number},
-    incomeTaxRate?: number
+    incomeTaxRate?: number,
+    steuerReduzierenEndkapital: boolean = true
 ): SegmentedWithdrawalConfig {
     const segment: WithdrawalSegment = {
         id: "main",
@@ -188,7 +192,8 @@ export function createSingleSegmentConfig(
         inflationConfig,
         enableGrundfreibetrag,
         grundfreibetragPerYear,
-        incomeTaxRate
+        incomeTaxRate,
+        steuerReduzierenEndkapital
     };
     
     return {

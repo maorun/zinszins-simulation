@@ -53,6 +53,7 @@ export interface SimulateOptions {
     simulationAnnual: SimulationAnnualType;
     teilfreistellungsquote?: number;
     freibetragPerYear?: { [year: number]: number };
+    steuerReduzierenEndkapital?: boolean;
   }
 
 function generateYearlyGrowthRates(
@@ -151,7 +152,7 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     wachstumsrate: number,
     options: SimulateOptions
   ) {
-    const { simulationAnnual, steuerlast, teilfreistellungsquote = 0.3, freibetragPerYear } = options;
+    const { simulationAnnual, steuerlast, teilfreistellungsquote = 0.3, freibetragPerYear, steuerReduzierenEndkapital = true } = options;
     const basiszins = getBasiszinsForYear(year);
     const yearlyCalculations: any[] = [];
     let totalPotentialTaxThisYear = 0;
@@ -209,14 +210,15 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     }
 
     // Pass 2: Apply taxes
-    applyTaxes(year, yearlyCalculations, totalPotentialTaxThisYear, freibetragPerYear);
+    applyTaxes(year, yearlyCalculations, totalPotentialTaxThisYear, freibetragPerYear, steuerReduzierenEndkapital);
   }
 
   function applyTaxes(
     year: number,
     yearlyCalculations: any[],
     totalPotentialTaxThisYear: number,
-    freibetragPerYear?: { [year: number]: number }
+    freibetragPerYear?: { [year: number]: number },
+    steuerReduzierenEndkapital: boolean = true
   ) {
     const getFreibetragForYear = (year: number): number => {
       if (freibetragPerYear && freibetragPerYear[year] !== undefined) {
@@ -239,7 +241,9 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
           ? (calc.potentialTax / totalPotentialTaxThisYear) * genutzterFreibetragTotal
           : 0;
 
-      const endkapital = calc.endkapitalVorSteuer - taxForElement;
+      const endkapital = steuerReduzierenEndkapital 
+        ? calc.endkapitalVorSteuer - taxForElement
+        : calc.endkapitalVorSteuer;
       const vorabpauschaleAccumulated =
         (calc.element.simulation[year - 1]?.vorabpauschaleAccumulated || 0) +
         calc.vorabpauschaleBetrag;
