@@ -63,8 +63,8 @@ describe('Withdrawal Calculations with FIFO', () => {
 
     const proportionSold = entnahme / 12000;
     const costBasisSold = 10000 * proportionSold;
-    const accumVorabSold = 100 * proportionSold;
-    const expectedGain = entnahme - costBasisSold - accumVorabSold;
+    // Fix: Use correct FIFO calculation - only subtract cost basis, not accumulated Vorabpauschale
+    const expectedGain = entnahme - costBasisSold;
     const expectedTaxableGain = expectedGain * (1 - teilfreistellungsquote);
     const expectedTaxOnGains = Math.max(0, expectedTaxableGain - freibetrag) * taxRate;
     const freibetragUsedOnGains = Math.min(expectedTaxableGain, freibetrag);

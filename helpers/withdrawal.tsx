@@ -286,7 +286,9 @@ export function calculateWithdrawal({
             const proportionSold = amountToSellFromLayer / layer.currentValue;
             const costBasisOfSoldPart = layer.costBasis * proportionSold;
             const accumulatedVorabpauschaleOfSoldPart = layer.accumulatedVorabpauschale * proportionSold;
-            const gain = amountToSellFromLayer - costBasisOfSoldPart - accumulatedVorabpauschaleOfSoldPart;
+            // Fix: Calculate gain using FIFO principle - only subtract cost basis (eingesetztes Kapital)
+            // Do NOT subtract accumulated Vorabpauschale as it was already taxed in previous years
+            const gain = amountToSellFromLayer - costBasisOfSoldPart;
             totalRealizedGainThisYear += gain;
             layer.currentValue -= amountToSellFromLayer;
             layer.costBasis -= costBasisOfSoldPart;
