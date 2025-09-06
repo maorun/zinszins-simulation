@@ -28,6 +28,17 @@ export type WithdrawalResultElement = {
     // Dynamic strategy specific fields
     dynamischeAnpassung?: number; // Amount of dynamic adjustment applied
     vorjahresRendite?: number; // Previous year's return rate (for dynamic strategy)
+    // Vorabpauschale fields for transparency
+    vorabpauschale?: number; // Total Vorabpauschale amount for the year
+    vorabpauschaleDetails?: {
+        basiszins: number;
+        basisertrag: number;
+        vorabpauschaleAmount: number;
+        steuerVorFreibetrag: number;
+        jahresgewinn: number;
+        anteilImJahr: number;
+        startkapital: number; // For explanation calculations
+    };
 }
 
 export type WithdrawalResult = {
@@ -311,6 +322,27 @@ export function calculateWithdrawal({
         const capitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0);
         const totalTaxForYear = taxOnRealizedGains + taxOnVorabpauschale + einkommensteuer;
 
+        // Calculate total Vorabpauschale amount for this year
+        const totalVorabpauschale = vorabCalculations.reduce((sum, calc) => sum + calc.vorabpauschaleBetrag, 0);
+        
+        // Create detailed Vorabpauschale information for explanation
+        const vorabpauschaleDetails = totalVorabpauschale > 0 ? {
+            basiszins,
+            basisertrag: vorabCalculations.reduce((sum, calc) => {
+                const valueBeforeWithdrawal = calc.valueBeforeWithdrawal;
+                return sum + (valueBeforeWithdrawal * basiszins * 0.7);
+            }, 0),
+            vorabpauschaleAmount: totalVorabpauschale,
+            steuerVorFreibetrag: totalPotentialVorabTax,
+            jahresgewinn: vorabCalculations.reduce((sum, calc) => {
+                const valueBeforeWithdrawal = calc.valueBeforeWithdrawal;
+                const valueAfterGrowthBeforeWithdrawal = valueBeforeWithdrawal * (1 + returnRate);
+                return sum + (valueAfterGrowthBeforeWithdrawal - valueBeforeWithdrawal);
+            }, 0),
+            anteilImJahr: 12,
+            startkapital: capitalAtStartOfYear
+        } : undefined;
+
         result[year] = {
             startkapital: capitalAtStartOfYear,
             entnahme,
@@ -324,6 +356,8 @@ export function calculateWithdrawal({
             genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined,
             dynamischeAnpassung: strategy === 'dynamisch' ? dynamischeAnpassung : undefined,
             vorjahresRendite: strategy === 'dynamisch' ? vorjahresRendite : undefined,
+            vorabpauschale: totalVorabpauschale > 0 ? totalVorabpauschale : undefined,
+            vorabpauschaleDetails: vorabpauschaleDetails,
         };
     }
 

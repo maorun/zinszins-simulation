@@ -28,6 +28,7 @@ import { WithdrawalSegmentForm } from "./WithdrawalSegmentForm";
 import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
 import { useSimulation } from "../contexts/useSimulation";
 import CalculationExplanationModal from './CalculationExplanationModal';
+import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal';
 import { 
   createInflationExplanation, 
   createWithdrawalInterestExplanation, 
@@ -116,6 +117,8 @@ export function EntnahmeSimulationsAusgabe({
   // State for calculation explanation modals
   const [showCalculationModal, setShowCalculationModal] = useState(false);
   const [calculationDetails, setCalculationDetails] = useState<any>(null);
+  const [showVorabpauschaleModal, setShowVorabpauschaleModal] = useState(false);
+  const [selectedVorabDetails, setSelectedVorabDetails] = useState<any>(null);
 
   // Initialize withdrawal config if not exists or update current form values
   const currentConfig = useMemo(() => {
@@ -607,6 +610,9 @@ export function EntnahmeSimulationsAusgabe({
       );
       setCalculationDetails(explanation);
       setShowCalculationModal(true);
+    } else if (explanationType === 'vorabpauschale' && rowData.vorabpauschaleDetails) {
+      setSelectedVorabDetails(rowData.vorabpauschaleDetails);
+      setShowVorabpauschaleModal(true);
     }
   };
 
@@ -2096,6 +2102,31 @@ export function EntnahmeSimulationsAusgabe({
                               <InfoIcon onClick={() => handleCalculationInfoClick('tax', rowData)} />
                             </span>
                           </div>
+                          {rowData.vorabpauschale !== undefined && rowData.vorabpauschale > 0 && (
+                            <div className="sparplan-detail">
+                              <span className="detail-label">
+                                📊 Vorabpauschale:
+                              </span>
+                              <span
+                                className="detail-value"
+                                style={{ color: "#ff6b6b", display: 'flex', alignItems: 'center' }}
+                              >
+                                {formatCurrency(rowData.vorabpauschale)}
+                                <InfoIcon onClick={() => handleCalculationInfoClick('vorabpauschale', rowData)} />
+                              </span>
+                            </div>
+                          )}
+                          <div className="sparplan-detail">
+                            <span className="detail-label">
+                              🎯 Genutzter Freibetrag:
+                            </span>
+                            <span
+                              className="detail-value"
+                              style={{ color: "#28a745" }}
+                            >
+                              {formatCurrency(rowData.genutzterFreibetrag)}
+                            </span>
+                          </div>
                           {formValue.grundfreibetragAktiv &&
                             rowData.einkommensteuer !== undefined && (
                               <div className="sparplan-detail">
@@ -2245,6 +2276,16 @@ export function EntnahmeSimulationsAusgabe({
                           {(rowData: any) => formatCurrency(rowData.bezahlteSteuer)}
                         </Cell>
                       </Column>
+                      <Column width={120}>
+                        <HeaderCell>Vorabpauschale</HeaderCell>
+                        <Cell>
+                          {(rowData: any) =>
+                            rowData.vorabpauschale !== undefined && rowData.vorabpauschale > 0
+                              ? formatCurrency(rowData.vorabpauschale)
+                              : "-"
+                          }
+                        </Cell>
+                      </Column>
                       {formValue.grundfreibetragAktiv && (
                         <Column width={120}>
                           <HeaderCell>Einkommensteuer</HeaderCell>
@@ -2302,6 +2343,15 @@ export function EntnahmeSimulationsAusgabe({
           introduction={calculationDetails.introduction}
           steps={calculationDetails.steps}
           finalResult={calculationDetails.finalResult}
+        />
+      )}
+
+      {/* Vorabpauschale Explanation Modal */}
+      {selectedVorabDetails && (
+        <VorabpauschaleExplanationModal
+          open={showVorabpauschaleModal}
+          onClose={() => setShowVorabpauschaleModal(false)}
+          selectedVorabDetails={selectedVorabDetails}
         />
       )}
     </>
