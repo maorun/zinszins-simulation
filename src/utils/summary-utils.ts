@@ -231,25 +231,49 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
         let yearlyTax = 0;
         let totalCapital = 0;
 
-        // Sum up all elements for this year
+        // Calculate yearly contribution for this year
+        // For savings plans: sum up all elements that represent contributions for this year
+        const sparplanElementsThisYear = elemente.filter(el => 
+            el.type === 'sparplan' && el.simulation[year]
+        );
+        
+        if (sparplanElementsThisYear.length > 0) {
+            // Check if we have monthly elements (multiple elements per year) or yearly elements (one element per year)
+            const elementsWithSameStartYear = sparplanElementsThisYear.filter(el => 
+                new Date(el.start).getFullYear() === year
+            );
+            
+            if (elementsWithSameStartYear.length === 1) {
+                // Single yearly element for this year
+                yearlyContribution += elementsWithSameStartYear[0].einzahlung;
+            } else if (elementsWithSameStartYear.length > 1) {
+                // Multiple monthly elements for this year - calculate annual amount
+                const monthlyAmount = elementsWithSameStartYear[0].einzahlung;
+                yearlyContribution += monthlyAmount * 12;
+            } else if (sparplanElementsThisYear.length > 0) {
+                // This year has simulation data but no elements start this year
+                // This means it's a continuation of a savings plan from a previous year
+                // Use the annual amount (12 * monthly amount)
+                const monthlyAmount = sparplanElementsThisYear[0].einzahlung;
+                yearlyContribution += monthlyAmount * 12;
+            }
+        }
+
+        // Handle one-time payments (Einmalzahlungen)
+        elemente.forEach(element => {
+            const yearData = element.simulation[year];
+            if (yearData && element.type === 'einmalzahlung') {
+                const elementStartYear = new Date(element.start).getFullYear();
+                if (elementStartYear === year) {
+                    yearlyContribution += element.einzahlung;
+                }
+            }
+        });
+
+        // Sum up all elements for this year (capital, interest, tax)
         elemente.forEach(element => {
             const yearData = element.simulation[year];
             if (yearData) {
-                // For yearly contribution, only count the actual contributions made this year
-                if (element.type === 'sparplan') {
-                    // For savings plans, check if this year falls within the plan period
-                    const elementStartYear = new Date(element.start).getFullYear();
-                    if (elementStartYear === year) {
-                        yearlyContribution += element.einzahlung;
-                    }
-                } else if (element.type === 'einmalzahlung') {
-                    // For one-time payments, include the contribution if it's made this year
-                    const elementStartYear = new Date(element.start).getFullYear();
-                    if (elementStartYear === year) {
-                        yearlyContribution += element.einzahlung;
-                    }
-                }
-
                 // Add the end capital from this element for this year
                 totalCapital += yearData.endkapital;
                 
