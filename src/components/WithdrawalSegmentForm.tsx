@@ -561,7 +561,7 @@ export function WithdrawalSegmentForm({
                                     <Form.ControlLabel>Einkommensteuersatz (%)</Form.ControlLabel>
                                     <div className="space-y-2">
                                         <Slider
-                                            value={[(segment.incomeTaxRate || 0.25) * 100]}
+                                            value={[(segment.incomeTaxRate || 0.18) * 100]}
                                             min={14}
                                             max={42}
                                             step={1}
@@ -570,7 +570,7 @@ export function WithdrawalSegmentForm({
                                         />
                                         <div className="flex justify-between text-sm text-gray-500">
                                             <span>14%</span>
-                                            <span className="font-medium text-gray-900">{((segment.incomeTaxRate || 0.25) * 100).toFixed(0)}%</span>
+                                            <span className="font-medium text-gray-900">{((segment.incomeTaxRate || 0.18) * 100).toFixed(0)}%</span>
                                             <span>42%</span>
                                         </div>
                                     </div>
