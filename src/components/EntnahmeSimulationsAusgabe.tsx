@@ -147,7 +147,7 @@ export function EntnahmeSimulationsAusgabe({
       // Grundfreibetrag settings
       grundfreibetragAktiv: false,
       grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
-      einkommensteuersatz: 25, // Default income tax rate 25%
+      einkommensteuersatz: 18, // Default income tax rate 18%
     };
 
     const defaultComparisonStrategies: ComparisonStrategy[] = [
