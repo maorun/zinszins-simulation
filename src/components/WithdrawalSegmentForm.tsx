@@ -523,9 +523,9 @@ export function WithdrawalSegmentForm({
                         {/* Grundfreibetrag settings */}
                         <Form.Group>
                             <Form.ControlLabel>Grundfreibetrag berücksichtigen</Form.ControlLabel>
-                            <Toggle
+                            <Switch
                                 checked={segment.enableGrundfreibetrag || false}
-                                onChange={(checked: boolean) => updateSegment(segment.id, { enableGrundfreibetrag: checked })}
+                                onCheckedChange={(checked: boolean) => updateSegment(segment.id, { enableGrundfreibetrag: checked })}
                             />
                         </Form.Group>
 
