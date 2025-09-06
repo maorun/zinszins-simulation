@@ -33,7 +33,7 @@ describe('steuerReduzierenEndkapital functionality', () => {
     it('should reduce endkapital by tax when steuerReduzierenEndkapital is true (default)', () => {
       const result = simulate({
         ...baseOptions,
-        steuerReduzierenEndkapital: true,
+        steuerReduzierenEndkapital: true, // This still uses the old parameter for the simulate function
       });
 
       // We only have one element, so use the first one

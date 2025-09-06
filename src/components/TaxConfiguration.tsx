@@ -17,8 +17,12 @@ const TaxConfiguration = () => {
         setTeilfreistellungsquote,
         freibetragPerYear,
         setFreibetragPerYear,
-        steuerReduzierenEndkapital,
-        setSteuerReduzierenEndkapital,
+        steuerReduzierenEndkapitalSparphase,
+        setSteuerReduzierenEndkapitalSparphase,
+        steuerReduzierenEndkapitalEntspharphase,
+        setSteuerReduzierenEndkapitalEntspharphase,
+        steuerReduzierenEndkapitalGeteilteEntspharphase,
+        setSteuerReduzierenEndkapitalGeteilteEntspharphase,
     } = useSimulation();
 
     const yearToday = new Date().getFullYear();
@@ -71,22 +75,63 @@ const TaxConfiguration = () => {
                     </div>
                 </div>
 
-                <div className="space-y-3">
-                    <div className="flex items-center justify-between">
-                        <div className="space-y-1">
-                            <Label htmlFor="steuerReduzierenEndkapital">Steuer reduziert Endkapital</Label>
-                            <p className="text-sm text-muted-foreground">
-                                Wenn aktiviert, wird die Steuer vom Endkapital abgezogen. Wenn deaktiviert, wird die Steuer über ein separates Verrechnungskonto bezahlt.
-                            </p>
+                <div className="space-y-4">
+                    <Label className="text-base font-medium">Steuer reduziert Endkapital</Label>
+                    <p className="text-sm text-muted-foreground">
+                        Konfigurieren Sie für jede Phase, ob die Steuer vom Endkapital abgezogen wird oder über ein separates Verrechnungskonto bezahlt wird.
+                    </p>
+                    
+                    <div className="space-y-3">
+                        <div className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="space-y-1">
+                                <Label htmlFor="steuerReduzierenEndkapitalSparphase" className="font-medium">Sparphase</Label>
+                                <p className="text-sm text-muted-foreground">
+                                    Während der Ansparphase vom Kapital abziehen
+                                </p>
+                            </div>
+                            <Switch
+                                id="steuerReduzierenEndkapitalSparphase"
+                                checked={steuerReduzierenEndkapitalSparphase}
+                                onCheckedChange={(checked) => {
+                                    setSteuerReduzierenEndkapitalSparphase(checked);
+                                    performSimulation();
+                                }}
+                            />
                         </div>
-                        <Switch
-                            id="steuerReduzierenEndkapital"
-                            checked={steuerReduzierenEndkapital}
-                            onCheckedChange={(checked) => {
-                                setSteuerReduzierenEndkapital(checked);
-                                performSimulation();
-                            }}
-                        />
+
+                        <div className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="space-y-1">
+                                <Label htmlFor="steuerReduzierenEndkapitalEntspharphase" className="font-medium">Entsparphase</Label>
+                                <p className="text-sm text-muted-foreground">
+                                    Während der Entnahmephase vom Kapital abziehen
+                                </p>
+                            </div>
+                            <Switch
+                                id="steuerReduzierenEndkapitalEntspharphase"
+                                checked={steuerReduzierenEndkapitalEntspharphase}
+                                onCheckedChange={(checked) => {
+                                    setSteuerReduzierenEndkapitalEntspharphase(checked);
+                                    performSimulation();
+                                }}
+                            />
+                        </div>
+
+                        <div className="flex items-center justify-between p-3 border rounded-lg">
+                            <div className="space-y-1">
+                                <Label htmlFor="steuerReduzierenEndkapitalGeteilteEntspharphase" className="font-medium">Geteilte Entsparphase</Label>
+                                <p className="text-sm text-muted-foreground">
+                                    Bei segmentierter Entnahme vom Kapital abziehen
+                                </p>
+                            </div>
+                            <Switch
+                                id="steuerReduzierenEndkapitalGeteilteEntspharphase"
+                                checked={steuerReduzierenEndkapitalGeteilteEntspharphase}
+                                onCheckedChange={(checked) => {
+                                    setSteuerReduzierenEndkapitalGeteilteEntspharphase(checked);
+                                    performSimulation();
+                                }}
+                            />
+                        </div>
                     </div>
                 </div>
 

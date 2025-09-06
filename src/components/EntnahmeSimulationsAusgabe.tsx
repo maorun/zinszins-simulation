@@ -112,7 +112,7 @@ export function EntnahmeSimulationsAusgabe({
   teilfreistellungsquote: number;
 }) {
   const [startOfIndependence, endOfLife] = startEnd;
-  const { withdrawalConfig, setWithdrawalConfig, steuerReduzierenEndkapital } = useSimulation();
+  const { withdrawalConfig, setWithdrawalConfig, steuerReduzierenEndkapitalEntspharphase, steuerReduzierenEndkapitalGeteilteEntspharphase } = useSimulation();
 
   // State for calculation explanation modals
   const [showCalculationModal, setShowCalculationModal] = useState(false);
@@ -249,6 +249,7 @@ export function EntnahmeSimulationsAusgabe({
         segments: withdrawalSegments,
         taxRate: 0.26375,
         freibetragPerYear: undefined, // Use default
+        steuerReduzierenEndkapital: steuerReduzierenEndkapitalGeteilteEntspharphase,
       };
 
       withdrawalResult = calculateSegmentedWithdrawal(
@@ -343,7 +344,7 @@ export function EntnahmeSimulationsAusgabe({
         inflationConfig: formValue.inflationAktiv
           ? { inflationRate: formValue.inflationsrate / 100 }
           : undefined,
-        steuerReduzierenEndkapital,
+        steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
       });
       withdrawalResult = withdrawalCalculation.result;
     }
@@ -398,7 +399,8 @@ export function EntnahmeSimulationsAusgabe({
     withdrawalSegments,
     steuerlast,
     teilfreistellungsquote,
-    steuerReduzierenEndkapital,
+    steuerReduzierenEndkapitalEntspharphase,
+    steuerReduzierenEndkapitalGeteilteEntspharphase,
   ]);
 
   // Calculate comparison results for each strategy
@@ -459,7 +461,7 @@ export function EntnahmeSimulationsAusgabe({
                     (strategy.dynamischUntereAnpassung || -5) / 100,
                 }
               : undefined,
-          steuerReduzierenEndkapital,
+          steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
         });
 
         // Get final year capital and total withdrawal
@@ -512,7 +514,8 @@ export function EntnahmeSimulationsAusgabe({
     formValue.endOfLife,
     steuerlast,
     teilfreistellungsquote,
-    steuerReduzierenEndkapital,
+    steuerReduzierenEndkapitalEntspharphase,
+    steuerReduzierenEndkapitalGeteilteEntspharphase,
   ]);
 
   // Notify parent component when withdrawal results change

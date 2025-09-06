@@ -89,7 +89,12 @@ export interface SavedConfiguration {
   steuerlast: number;
   teilfreistellungsquote: number;
   freibetragPerYear: { [year: number]: number };
+  // Legacy single setting for backward compatibility
   steuerReduzierenEndkapital?: boolean;
+  // New phase-specific settings
+  steuerReduzierenEndkapitalSparphase?: boolean;
+  steuerReduzierenEndkapitalEntspharphase?: boolean;
+  steuerReduzierenEndkapitalGeteilteEntspharphase?: boolean;
   returnMode: ReturnMode;
   averageReturn: number;
   standardDeviation: number;
@@ -122,6 +127,34 @@ export function saveConfiguration(config: SavedConfiguration): void {
 }
 
 /**
+ * Migrate legacy single steuerReduzierenEndkapital to phase-specific settings
+ */
+function migrateTaxSettings(config: SavedConfiguration): SavedConfiguration {
+  // If we have the legacy setting but not the new ones, migrate
+  if (config.steuerReduzierenEndkapital !== undefined && 
+      config.steuerReduzierenEndkapitalSparphase === undefined &&
+      config.steuerReduzierenEndkapitalEntspharphase === undefined &&
+      config.steuerReduzierenEndkapitalGeteilteEntspharphase === undefined) {
+    
+    const legacyValue = config.steuerReduzierenEndkapital;
+    return {
+      ...config,
+      steuerReduzierenEndkapitalSparphase: legacyValue,
+      steuerReduzierenEndkapitalEntspharphase: legacyValue,
+      steuerReduzierenEndkapitalGeteilteEntspharphase: legacyValue,
+    };
+  }
+  
+  // Ensure all phase-specific settings have defaults if missing
+  return {
+    ...config,
+    steuerReduzierenEndkapitalSparphase: config.steuerReduzierenEndkapitalSparphase ?? true,
+    steuerReduzierenEndkapitalEntspharphase: config.steuerReduzierenEndkapitalEntspharphase ?? true,
+    steuerReduzierenEndkapitalGeteilteEntspharphase: config.steuerReduzierenEndkapitalGeteilteEntspharphase ?? true,
+  };
+}
+
+/**
  * Load configuration from localStorage
  * Returns null if no configuration exists or if loading fails
  */
@@ -140,7 +173,8 @@ export function loadConfiguration(): SavedConfiguration | null {
       return null;
     }
 
-    return parsedData.config;
+    // Migrate legacy tax settings
+    return migrateTaxSettings(parsedData.config);
   } catch (error) {
     console.error('Failed to load configuration from localStorage:', error);
     return null;

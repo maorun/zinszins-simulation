@@ -47,6 +47,8 @@ export type SegmentedWithdrawalConfig = {
     taxRate: number;
     /** Global tax allowance configuration */
     freibetragPerYear?: {[year: number]: number};
+    /** Whether taxes should reduce capital for segmented withdrawal phase */
+    steuerReduzierenEndkapital?: boolean;
 };
 
 /**

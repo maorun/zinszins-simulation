@@ -400,6 +400,7 @@ export function calculateSegmentedWithdrawal(
             taxRate: segmentedConfig.taxRate,
             teilfreistellungsquote: 0.3, // Assuming default, should be passed in config
             freibetragPerYear: segmentedConfig.freibetragPerYear,
+            steuerReduzierenEndkapital: segmentedConfig.steuerReduzierenEndkapital,
             monthlyConfig: segment.monthlyConfig,
             customPercentage: segment.customPercentage,
             enableGrundfreibetrag: segment.enableGrundfreibetrag,

@@ -17,8 +17,13 @@ export interface SimulationContextState {
   setTeilfreistellungsquote: (teilfreistellungsquote: number) => void;
   freibetragPerYear: { [year: number]: number };
   setFreibetragPerYear: (freibetragPerYear: { [year: number]: number }) => void;
-  steuerReduzierenEndkapital: boolean;
-  setSteuerReduzierenEndkapital: (steuerReduzierenEndkapital: boolean) => void;
+  // Phase-specific tax reduction settings
+  steuerReduzierenEndkapitalSparphase: boolean;
+  setSteuerReduzierenEndkapitalSparphase: (steuerReduzierenEndkapitalSparphase: boolean) => void;
+  steuerReduzierenEndkapitalEntspharphase: boolean;
+  setSteuerReduzierenEndkapitalEntspharphase: (steuerReduzierenEndkapitalEntspharphase: boolean) => void;
+  steuerReduzierenEndkapitalGeteilteEntspharphase: boolean;
+  setSteuerReduzierenEndkapitalGeteilteEntspharphase: (steuerReduzierenEndkapitalGeteilteEntspharphase: boolean) => void;
   returnMode: ReturnMode;
   setReturnMode: (returnMode: ReturnMode) => void;
   averageReturn: number;
@@ -58,7 +63,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerlast: 26.375,
     teilfreistellungsquote: 30,
     freibetragPerYear: { 2023: 2000 },
-    steuerReduzierenEndkapital: true, // Default: taxes reduce capital
+    // Default: taxes reduce capital for all phases
+    steuerReduzierenEndkapitalSparphase: true,
+    steuerReduzierenEndkapitalEntspharphase: true,
+    steuerReduzierenEndkapitalGeteilteEntspharphase: true,
     returnMode: 'fixed' as ReturnMode,
     averageReturn: 7,
     standardDeviation: 15,
@@ -81,8 +89,14 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [steuerlast, setSteuerlast] = useState(initialConfig.steuerlast);
   const [teilfreistellungsquote, setTeilfreistellungsquote] = useState(initialConfig.teilfreistellungsquote);
   const [freibetragPerYear, setFreibetragPerYear] = useState<{ [year: number]: number }>(initialConfig.freibetragPerYear);
-  const [steuerReduzierenEndkapital, setSteuerReduzierenEndkapital] = useState(
-    (initialConfig as any).steuerReduzierenEndkapital ?? true
+  const [steuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalSparphase] = useState(
+    (initialConfig as any).steuerReduzierenEndkapitalSparphase ?? true
+  );
+  const [steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase] = useState(
+    (initialConfig as any).steuerReduzierenEndkapitalEntspharphase ?? true
+  );
+  const [steuerReduzierenEndkapitalGeteilteEntspharphase, setSteuerReduzierenEndkapitalGeteilteEntspharphase] = useState(
+    (initialConfig as any).steuerReduzierenEndkapitalGeteilteEntspharphase ?? true
   );
   const [returnMode, setReturnMode] = useState<ReturnMode>(initialConfig.returnMode);
   const [averageReturn, setAverageReturn] = useState(initialConfig.averageReturn);
@@ -112,7 +126,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerlast,
     teilfreistellungsquote,
     freibetragPerYear,
-    steuerReduzierenEndkapital,
+    steuerReduzierenEndkapitalSparphase,
+    steuerReduzierenEndkapitalEntspharphase,
+    steuerReduzierenEndkapitalGeteilteEntspharphase,
     returnMode,
     averageReturn,
     standardDeviation,
@@ -122,7 +138,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     sparplan,
     simulationAnnual,
     withdrawal: withdrawalConfig || undefined,
-  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, steuerReduzierenEndkapital, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
+  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, steuerReduzierenEndkapitalGeteilteEntspharphase, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration();
@@ -136,6 +152,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setSteuerlast(savedConfig.steuerlast);
       setTeilfreistellungsquote(savedConfig.teilfreistellungsquote);
       setFreibetragPerYear(savedConfig.freibetragPerYear);
+      setSteuerReduzierenEndkapitalSparphase(savedConfig.steuerReduzierenEndkapitalSparphase ?? true);
+      setSteuerReduzierenEndkapitalEntspharphase(savedConfig.steuerReduzierenEndkapitalEntspharphase ?? true);
+      setSteuerReduzierenEndkapitalGeteilteEntspharphase(savedConfig.steuerReduzierenEndkapitalGeteilteEntspharphase ?? true);
       setReturnMode(savedConfig.returnMode);
       setAverageReturn(savedConfig.averageReturn);
       setStandardDeviation(savedConfig.standardDeviation);
@@ -154,6 +173,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setSteuerlast(defaultConfig.steuerlast);
     setTeilfreistellungsquote(defaultConfig.teilfreistellungsquote);
     setFreibetragPerYear(defaultConfig.freibetragPerYear);
+    setSteuerReduzierenEndkapitalSparphase(defaultConfig.steuerReduzierenEndkapitalSparphase);
+    setSteuerReduzierenEndkapitalEntspharphase(defaultConfig.steuerReduzierenEndkapitalEntspharphase);
+    setSteuerReduzierenEndkapitalGeteilteEntspharphase(defaultConfig.steuerReduzierenEndkapitalGeteilteEntspharphase);
     setReturnMode(defaultConfig.returnMode);
     setAverageReturn(defaultConfig.averageReturn);
     setStandardDeviation(defaultConfig.standardDeviation);
@@ -213,7 +235,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
         simulationAnnual,
         teilfreistellungsquote: teilfreistellungsquote / 100,
         freibetragPerYear,
-        steuerReduzierenEndkapital,
+        steuerReduzierenEndkapital: steuerReduzierenEndkapitalSparphase, // Use savings phase setting
       });
 
       setSimulationData({
@@ -226,14 +248,16 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     } finally {
       setIsLoading(false);
     }
-  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, steuerReduzierenEndkapital]);
+  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, steuerReduzierenEndkapitalSparphase]);
 
   const value = useMemo(() => ({
     rendite, setRendite,
     steuerlast, setSteuerlast,
     teilfreistellungsquote, setTeilfreistellungsquote,
     freibetragPerYear, setFreibetragPerYear,
-    steuerReduzierenEndkapital, setSteuerReduzierenEndkapital,
+    steuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalSparphase,
+    steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase,
+    steuerReduzierenEndkapitalGeteilteEntspharphase, setSteuerReduzierenEndkapitalGeteilteEntspharphase,
     returnMode, setReturnMode,
     averageReturn, setAverageReturn,
     standardDeviation, setStandardDeviation,
@@ -254,7 +278,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     // Withdrawal configuration
     withdrawalConfig, setWithdrawalConfig,
   }), [
-    rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, steuerReduzierenEndkapital,
+    rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, 
+    steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, steuerReduzierenEndkapitalGeteilteEntspharphase,
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
     simulationData, isLoading, withdrawalResults, performSimulation,
