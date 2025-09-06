@@ -89,6 +89,7 @@ export type CalculateWithdrawalParams = {
     taxRate?: number;
     teilfreistellungsquote?: number;
     freibetragPerYear?: { [year: number]: number };
+    steuerReduzierenEndkapital?: boolean;
     monthlyConfig?: MonthlyWithdrawalConfig;
     customPercentage?: number;
     enableGrundfreibetrag?: boolean;
@@ -108,6 +109,7 @@ export function calculateWithdrawal({
     taxRate = 0.26375,
     teilfreistellungsquote = 0.3,
     freibetragPerYear,
+    steuerReduzierenEndkapital = true,
     monthlyConfig,
     customPercentage,
     enableGrundfreibetrag,
@@ -307,7 +309,9 @@ export function calculateWithdrawal({
             // Apply growth to remaining value after withdrawal, then subtract vorab tax
             const valueAfterWithdrawal = calc.layer.currentValue;
             const valueAfterGrowth = valueAfterWithdrawal * (1 + returnRate);
-            calc.layer.currentValue = valueAfterGrowth - taxForLayer;
+            calc.layer.currentValue = steuerReduzierenEndkapital 
+                ? valueAfterGrowth - taxForLayer
+                : valueAfterGrowth;
             calc.layer.accumulatedVorabpauschale += calc.vorabpauschaleBetrag;
         });
 

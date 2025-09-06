@@ -89,6 +89,7 @@ export interface SavedConfiguration {
   steuerlast: number;
   teilfreistellungsquote: number;
   freibetragPerYear: { [year: number]: number };
+  steuerReduzierenEndkapital?: boolean;
   returnMode: ReturnMode;
   averageReturn: number;
   standardDeviation: number;

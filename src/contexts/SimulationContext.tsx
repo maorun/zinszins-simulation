@@ -17,6 +17,8 @@ export interface SimulationContextState {
   setTeilfreistellungsquote: (teilfreistellungsquote: number) => void;
   freibetragPerYear: { [year: number]: number };
   setFreibetragPerYear: (freibetragPerYear: { [year: number]: number }) => void;
+  steuerReduzierenEndkapital: boolean;
+  setSteuerReduzierenEndkapital: (steuerReduzierenEndkapital: boolean) => void;
   returnMode: ReturnMode;
   setReturnMode: (returnMode: ReturnMode) => void;
   averageReturn: number;
@@ -56,6 +58,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerlast: 26.375,
     teilfreistellungsquote: 30,
     freibetragPerYear: { 2023: 2000 },
+    steuerReduzierenEndkapital: true, // Default: taxes reduce capital
     returnMode: 'fixed' as ReturnMode,
     averageReturn: 7,
     standardDeviation: 15,
@@ -78,6 +81,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [steuerlast, setSteuerlast] = useState(initialConfig.steuerlast);
   const [teilfreistellungsquote, setTeilfreistellungsquote] = useState(initialConfig.teilfreistellungsquote);
   const [freibetragPerYear, setFreibetragPerYear] = useState<{ [year: number]: number }>(initialConfig.freibetragPerYear);
+  const [steuerReduzierenEndkapital, setSteuerReduzierenEndkapital] = useState(
+    (initialConfig as any).steuerReduzierenEndkapital ?? true
+  );
   const [returnMode, setReturnMode] = useState<ReturnMode>(initialConfig.returnMode);
   const [averageReturn, setAverageReturn] = useState(initialConfig.averageReturn);
   const [standardDeviation, setStandardDeviation] = useState(initialConfig.standardDeviation);
@@ -106,6 +112,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerlast,
     teilfreistellungsquote,
     freibetragPerYear,
+    steuerReduzierenEndkapital,
     returnMode,
     averageReturn,
     standardDeviation,
@@ -115,7 +122,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     sparplan,
     simulationAnnual,
     withdrawal: withdrawalConfig || undefined,
-  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
+  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, steuerReduzierenEndkapital, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration();
@@ -206,6 +213,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
         simulationAnnual,
         teilfreistellungsquote: teilfreistellungsquote / 100,
         freibetragPerYear,
+        steuerReduzierenEndkapital,
       });
 
       setSimulationData({
@@ -218,13 +226,14 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     } finally {
       setIsLoading(false);
     }
-  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear]);
+  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, steuerReduzierenEndkapital]);
 
   const value = useMemo(() => ({
     rendite, setRendite,
     steuerlast, setSteuerlast,
     teilfreistellungsquote, setTeilfreistellungsquote,
     freibetragPerYear, setFreibetragPerYear,
+    steuerReduzierenEndkapital, setSteuerReduzierenEndkapital,
     returnMode, setReturnMode,
     averageReturn, setAverageReturn,
     standardDeviation, setStandardDeviation,
@@ -245,7 +254,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     // Withdrawal configuration
     withdrawalConfig, setWithdrawalConfig,
   }), [
-    rendite, steuerlast, teilfreistellungsquote, freibetragPerYear,
+    rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, steuerReduzierenEndkapital,
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
     simulationData, isLoading, withdrawalResults, performSimulation,

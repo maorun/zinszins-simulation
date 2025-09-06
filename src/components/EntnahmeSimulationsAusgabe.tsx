@@ -112,7 +112,7 @@ export function EntnahmeSimulationsAusgabe({
   teilfreistellungsquote: number;
 }) {
   const [startOfIndependence, endOfLife] = startEnd;
-  const { withdrawalConfig, setWithdrawalConfig } = useSimulation();
+  const { withdrawalConfig, setWithdrawalConfig, steuerReduzierenEndkapital } = useSimulation();
 
   // State for calculation explanation modals
   const [showCalculationModal, setShowCalculationModal] = useState(false);
@@ -343,6 +343,7 @@ export function EntnahmeSimulationsAusgabe({
         inflationConfig: formValue.inflationAktiv
           ? { inflationRate: formValue.inflationsrate / 100 }
           : undefined,
+        steuerReduzierenEndkapital,
       });
       withdrawalResult = withdrawalCalculation.result;
     }
@@ -397,6 +398,7 @@ export function EntnahmeSimulationsAusgabe({
     withdrawalSegments,
     steuerlast,
     teilfreistellungsquote,
+    steuerReduzierenEndkapital,
   ]);
 
   // Calculate comparison results for each strategy
@@ -457,6 +459,7 @@ export function EntnahmeSimulationsAusgabe({
                     (strategy.dynamischUntereAnpassung || -5) / 100,
                 }
               : undefined,
+          steuerReduzierenEndkapital,
         });
 
         // Get final year capital and total withdrawal
@@ -509,6 +512,7 @@ export function EntnahmeSimulationsAusgabe({
     formValue.endOfLife,
     steuerlast,
     teilfreistellungsquote,
+    steuerReduzierenEndkapital,
   ]);
 
   // Notify parent component when withdrawal results change
