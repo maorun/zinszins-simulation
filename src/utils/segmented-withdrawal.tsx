@@ -146,6 +146,7 @@ export function createDefaultWithdrawalSegment(
             inflationRate: 0.02 // 2% default inflation
         },
         enableGrundfreibetrag: false,
+        incomeTaxRate: 0.18, // Default income tax rate 18%
         steuerReduzierenEndkapital: true // Default: taxes reduce capital
     };
 }

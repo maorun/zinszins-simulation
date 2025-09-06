@@ -427,7 +427,7 @@ export function calculateSegmentedWithdrawal(
 export function calculateIncomeTax(
     withdrawalAmount: number,
     grundfreibetragYear: number = grundfreibetrag[2023],
-    incomeTaxRate: number = 0.25
+    incomeTaxRate: number = 0.18
 ): number {
     const taxableIncome = Math.max(0, withdrawalAmount - grundfreibetragYear);
     return taxableIncome * incomeTaxRate;
