@@ -168,6 +168,117 @@ describe('Parameter Export', () => {
       expect(result).toContain('Entnahme-Durchschnittsrendite: 6.50 %');
       expect(result).toContain('Entnahme-Standardabweichung: 18.00 %');
     });
+
+    it('should include detailed segmented withdrawal configuration', () => {
+      mockContext.withdrawalConfig = {
+        formValue: {
+          endOfLife: 2080,
+          strategie: '4prozent',
+          rendite: 5.0,
+          withdrawalFrequency: 'yearly',
+          inflationAktiv: false,
+          inflationsrate: 2.0,
+          monatlicheBetrag: 3000,
+          guardrailsAktiv: false,
+          guardrailsSchwelle: 15,
+          variabelProzent: 5,
+          dynamischBasisrate: 4,
+          dynamischObereSchwell: 8,
+          dynamischObereAnpassung: 5,
+          dynamischUntereSchwell: 2,
+          dynamischUntereAnpassung: -5,
+          grundfreibetragAktiv: false,
+          grundfreibetragBetrag: 11000,
+          einkommensteuersatz: 28,
+        },
+        withdrawalReturnMode: 'fixed',
+        withdrawalVariableReturns: {},
+        withdrawalAverageReturn: 6.5,
+        withdrawalStandardDeviation: 18,
+        withdrawalRandomSeed: undefined,
+        useSegmentedWithdrawal: true,
+        withdrawalSegments: [
+          {
+            id: 'phase1',
+            name: 'Frühphase',
+            startYear: 2040,
+            endYear: 2060,
+            strategy: 'variabel_prozent',
+            withdrawalFrequency: 'yearly',
+            returnConfig: {
+              mode: 'fixed',
+              fixedRate: 0.06
+            },
+            customPercentage: 3.5,
+            inflationConfig: {
+              inflationRate: 0.02
+            },
+            enableGrundfreibetrag: true,
+            incomeTaxRate: 25,
+            steuerReduzierenEndkapital: true
+          },
+          {
+            id: 'phase2',
+            name: 'Spätphase',
+            startYear: 2061,
+            endYear: 2080,
+            strategy: 'monatlich_fest',
+            withdrawalFrequency: 'monthly',
+            returnConfig: {
+              mode: 'random',
+              randomConfig: {
+                averageReturn: 0.04,
+                standardDeviation: 0.12
+              }
+            },
+            monthlyConfig: {
+              monthlyAmount: 2500,
+              enableGuardrails: true,
+              guardrailsThreshold: 20.0
+            },
+            inflationConfig: {
+              inflationRate: 0.025
+            },
+            enableGrundfreibetrag: false,
+            steuerReduzierenEndkapital: false
+          }
+        ],
+        useComparisonMode: false,
+        comparisonStrategies: []
+      };
+      
+      const result = formatParametersForExport(mockContext);
+      
+      expect(result).toContain('Segmentierte Entnahme: Ja');
+      expect(result).toContain('Anzahl Segmente: 2');
+      expect(result).toContain('Segment-Details:');
+      
+      // First segment details
+      expect(result).toContain('Segment 1 (Frühphase):');
+      expect(result).toContain('Zeitraum: 2040 - 2060');
+      expect(result).toContain('Strategie: Variabler Prozentsatz');
+      expect(result).toContain('Häufigkeit: Jährlich');
+      expect(result).toContain('Rendite-Modus: Fest');
+      expect(result).toContain('Rendite: 6.00 %');
+      expect(result).toContain('Variabler Prozentsatz: 3.50 %');
+      expect(result).toContain('Inflation: 2.00 %');
+      expect(result).toContain('Grundfreibetrag aktiv: Ja');
+      expect(result).toContain('Einkommensteuersatz: 25.00 %');
+      expect(result).toContain('Steuerreduzierung: Ja');
+      
+      // Second segment details
+      expect(result).toContain('Segment 2 (Spätphase):');
+      expect(result).toContain('Zeitraum: 2061 - 2080');
+      expect(result).toContain('Strategie: Monatliche Entnahme');
+      expect(result).toContain('Häufigkeit: Monatlich');
+      expect(result).toContain('Rendite-Modus: Zufällig');
+      expect(result).toContain('Durchschnittsrendite: 4.00 %');
+      expect(result).toContain('Standardabweichung: 12.00 %');
+      expect(result).toContain('Monatlicher Betrag: 2.500,00\u00A0€');
+      expect(result).toContain('Guardrails: 20.0 %');
+      expect(result).toContain('Inflation: 2.50 %');
+      expect(result).toContain('Steuerreduzierung: Nein');
+    });
   });
 
   describe('copyParametersToClipboard', () => {

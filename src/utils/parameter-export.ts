@@ -132,6 +132,65 @@ export function formatParametersForExport(context: SimulationContextState): stri
     if (wc.useSegmentedWithdrawal) {
       lines.push(`  Segmentierte Entnahme: Ja`);
       lines.push(`  Anzahl Segmente: ${wc.withdrawalSegments.length}`);
+      
+      // Export detailed segment configuration
+      if (wc.withdrawalSegments.length > 0) {
+        lines.push(`  Segment-Details:`);
+        wc.withdrawalSegments.forEach((segment, index) => {
+          lines.push(`    Segment ${index + 1} (${segment.name}):`);
+          lines.push(`      Zeitraum: ${segment.startYear} - ${segment.endYear}`);
+          lines.push(`      Strategie: ${getWithdrawalStrategyLabel(segment.strategy)}`);
+          lines.push(`      Häufigkeit: ${segment.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'}`);
+          
+          // Return configuration
+          lines.push(`      Rendite-Modus: ${getReturnModeLabel(segment.returnConfig.mode)}`);
+          if (segment.returnConfig.mode === 'fixed' && segment.returnConfig.fixedRate !== undefined) {
+            lines.push(`      Rendite: ${(segment.returnConfig.fixedRate * 100).toFixed(2)} %`);
+          } else if (segment.returnConfig.mode === 'random' && segment.returnConfig.randomConfig) {
+            lines.push(`      Durchschnittsrendite: ${(segment.returnConfig.randomConfig.averageReturn * 100).toFixed(2)} %`);
+            if (segment.returnConfig.randomConfig.standardDeviation !== undefined) {
+              lines.push(`      Standardabweichung: ${(segment.returnConfig.randomConfig.standardDeviation * 100).toFixed(2)} %`);
+            }
+          }
+          
+          // Strategy-specific parameters
+          if (segment.strategy === 'variabel_prozent' && segment.customPercentage !== undefined) {
+            lines.push(`      Variabler Prozentsatz: ${segment.customPercentage.toFixed(2)} %`);
+          }
+          
+          if (segment.strategy === 'monatlich_fest' && segment.monthlyConfig) {
+            lines.push(`      Monatlicher Betrag: ${formatCurrency(segment.monthlyConfig.monthlyAmount)}`);
+            if (segment.monthlyConfig.enableGuardrails) {
+              lines.push(`      Guardrails: ${segment.monthlyConfig.guardrailsThreshold?.toFixed(1) || 'N/A'} %`);
+            }
+          }
+          
+          if (segment.strategy === 'dynamisch' && segment.dynamicConfig) {
+            lines.push(`      Dynamische Basisrate: ${segment.dynamicConfig.baseWithdrawalRate.toFixed(2)} %`);
+            lines.push(`      Obere Schwelle: ${segment.dynamicConfig.upperThresholdReturn.toFixed(2)} %`);
+            lines.push(`      Obere Anpassung: ${segment.dynamicConfig.upperThresholdAdjustment.toFixed(2)} %`);
+            lines.push(`      Untere Schwelle: ${segment.dynamicConfig.lowerThresholdReturn.toFixed(2)} %`);
+            lines.push(`      Untere Anpassung: ${segment.dynamicConfig.lowerThresholdAdjustment.toFixed(2)} %`);
+          }
+          
+          // Inflation configuration
+          if (segment.inflationConfig && segment.inflationConfig.inflationRate !== undefined) {
+            lines.push(`      Inflation: ${(segment.inflationConfig.inflationRate * 100).toFixed(2)} %`);
+          }
+          
+          // Tax configuration
+          if (segment.enableGrundfreibetrag) {
+            lines.push(`      Grundfreibetrag aktiv: Ja`);
+            if (segment.incomeTaxRate !== undefined) {
+              lines.push(`      Einkommensteuersatz: ${segment.incomeTaxRate.toFixed(2)} %`);
+            }
+          }
+          
+          if (segment.steuerReduzierenEndkapital !== undefined) {
+            lines.push(`      Steuerreduzierung: ${segment.steuerReduzierenEndkapital ? 'Ja' : 'Nein'}`);
+          }
+        });
+      }
     }
     
     if (wc.useComparisonMode) {
