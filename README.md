@@ -69,6 +69,10 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Berechnete Rendite der Entsparphase unter Berücksichtigung von Entnahmen
 - **Monte Carlo Analyse** - Statistische Auswertung verschiedener Rendite-Szenarien
 - **Detaillierte Simulation** - Jahr-für-Jahr Aufschlüsselung mit Vorabpauschale-Berechnungen
+- **Parameter Export** - Ein-Klick Export aller Konfigurationsparameter in die Zwischenablage
+  - Exportiert alle relevanten Parameter im deutschen Format (Parameter: xyz €, Parameter: xyz %)
+  - Hilfreich für Entwicklung, Fehlerbeschreibung und Dokumentation von Simulationsszenarien
+  - Inklusive Sparpläne, Steuereinstellungen, Rendite-Konfiguration und Entnahme-Parameter
 - Echtzeit-Updates bei Parameteränderungen
 
 ---
