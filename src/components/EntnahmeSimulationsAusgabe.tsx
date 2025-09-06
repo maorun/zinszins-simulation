@@ -600,7 +600,7 @@ export function EntnahmeSimulationsAusgabe({
     } else if (explanationType === 'incomeTax' && rowData.einkommensteuer !== undefined) {
       const explanation = createIncomeTaxExplanation(
         rowData.entnahme,
-        formValue.grundfreibetragBetrag || 10908,
+        formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0,
         formValue.einkommensteuersatz || 25,
         rowData.einkommensteuer,
         rowData.genutzterGrundfreibetrag || 0
@@ -610,7 +610,7 @@ export function EntnahmeSimulationsAusgabe({
     } else if (explanationType === 'taxableIncome') {
       const explanation = createTaxableIncomeExplanation(
         rowData.entnahme,
-        formValue.grundfreibetragBetrag || 10908
+        formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0
       );
       setCalculationDetails(explanation);
       setShowCalculationModal(true);
@@ -1410,7 +1410,7 @@ export function EntnahmeSimulationsAusgabe({
               <Form.ControlLabel>
                 Grundfreibetrag berücksichtigen
               </Form.ControlLabel>
-              <Form.Control name="grundfreibetragAktiv" accepter={Toggle} />
+              <Form.Control name="grundfreibetragAktiv" accepter={Switch} />
               <Form.HelpText>
                 Berücksichtigt den Grundfreibetrag für die Einkommensteuer bei
                 Entnahmen (relevant für Rentner ohne weiteres Einkommen)
@@ -2172,7 +2172,7 @@ export function EntnahmeSimulationsAusgabe({
                               className="detail-value"
                               style={{ color: "#6c757d", display: 'flex', alignItems: 'center' }}
                             >
-                              {formatCurrency(Math.max(0, rowData.entnahme - (formValue.grundfreibetragBetrag || 10908)))}
+                              {formatCurrency(Math.max(0, rowData.entnahme - (formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0)))}
                               <InfoIcon onClick={() => handleCalculationInfoClick('taxableIncome', rowData)} />
                             </span>
                           </div>
