@@ -6,6 +6,7 @@ import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { Slider as ShadcnSlider } from './ui/slider';
+import { Switch } from './ui/switch';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 
@@ -202,6 +203,15 @@ export const FormControl = ({
   if (accepter === Toggle) {
     return (
       <Toggle 
+        checked={actualValue}
+        onCheckedChange={actualOnChange}
+        {...validInputProps}
+      />
+    );
+  }
+  if (accepter === Switch) {
+    return (
+      <Switch 
         checked={actualValue}
         onCheckedChange={actualOnChange}
         {...validInputProps}
