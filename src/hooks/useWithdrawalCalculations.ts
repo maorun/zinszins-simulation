@@ -21,7 +21,11 @@ export function useWithdrawalCalculations(
   steuerlast: number,
   teilfreistellungsquote: number,
 ) {
-  const { steuerReduzierenEndkapitalEntspharphase } = useSimulation();
+  const { 
+    steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+  } = useSimulation();
 
   const {
     formValue,
@@ -132,8 +136,8 @@ export function useWithdrawalCalculations(
                   formValue.dynamischUntereAnpassung / 100,
               }
             : undefined,
-        enableGrundfreibetrag: formValue.grundfreibetragAktiv,
-        grundfreibetragPerYear: formValue.grundfreibetragAktiv
+        enableGrundfreibetrag: grundfreibetragAktiv,
+        grundfreibetragPerYear: grundfreibetragAktiv
           ? (() => {
               const grundfreibetragPerYear: { [year: number]: number } = {};
               for (
@@ -141,12 +145,12 @@ export function useWithdrawalCalculations(
                 year <= formValue.endOfLife;
                 year++
               ) {
-                grundfreibetragPerYear[year] = formValue.grundfreibetragBetrag;
+                grundfreibetragPerYear[year] = grundfreibetragBetrag;
               }
               return grundfreibetragPerYear;
             })()
           : undefined,
-        incomeTaxRate: formValue.grundfreibetragAktiv
+        incomeTaxRate: grundfreibetragAktiv
           ? formValue.einkommensteuersatz / 100
           : undefined,
         inflationConfig: formValue.inflationAktiv
@@ -195,8 +199,8 @@ export function useWithdrawalCalculations(
     formValue.dynamischObereAnpassung,
     formValue.dynamischUntereSchwell,
     formValue.dynamischUntereAnpassung,
-    formValue.grundfreibetragAktiv,
-    formValue.grundfreibetragBetrag,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
     formValue.einkommensteuersatz,
     withdrawalReturnMode,
     withdrawalVariableReturns,
@@ -268,6 +272,23 @@ export function useWithdrawalCalculations(
                     (strategy.dynamischUntereAnpassung || -5) / 100,
                 }
               : undefined,
+          enableGrundfreibetrag: grundfreibetragAktiv,
+          grundfreibetragPerYear: grundfreibetragAktiv
+            ? (() => {
+                const grundfreibetragPerYear: { [year: number]: number } = {};
+                for (
+                  let year = startOfIndependence + 1;
+                  year <= formValue.endOfLife;
+                  year++
+                ) {
+                  grundfreibetragPerYear[year] = grundfreibetragBetrag;
+                }
+                return grundfreibetragPerYear;
+              })()
+            : undefined,
+          incomeTaxRate: grundfreibetragAktiv
+            ? formValue.einkommensteuersatz / 100
+            : undefined,
           steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
         });
 
@@ -321,6 +342,9 @@ export function useWithdrawalCalculations(
     formValue.endOfLife,
     steuerlast,
     teilfreistellungsquote,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    formValue.einkommensteuersatz,
     steuerReduzierenEndkapitalEntspharphase,
   ]);
 

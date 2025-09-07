@@ -26,6 +26,11 @@ export interface SimulationContextState {
   setSteuerReduzierenEndkapitalSparphase: (steuerReduzierenEndkapitalSparphase: boolean) => void;
   steuerReduzierenEndkapitalEntspharphase: boolean;
   setSteuerReduzierenEndkapitalEntspharphase: (steuerReduzierenEndkapitalEntspharphase: boolean) => void;
+  // Grundfreibetrag settings
+  grundfreibetragAktiv: boolean;
+  setGrundfreibetragAktiv: (grundfreibetragAktiv: boolean) => void;
+  grundfreibetragBetrag: number;
+  setGrundfreibetragBetrag: (grundfreibetragBetrag: number) => void;
   returnMode: ReturnMode;
   setReturnMode: (returnMode: ReturnMode) => void;
   averageReturn: number;
@@ -78,6 +83,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     // Default: taxes reduce capital for savings and withdrawal phases
     steuerReduzierenEndkapitalSparphase: true,
     steuerReduzierenEndkapitalEntspharphase: true,
+    // Grundfreibetrag settings (German basic tax allowance for retirees)
+    grundfreibetragAktiv: false,
+    grundfreibetragBetrag: 11604, // Updated to 2024 German basic tax allowance, default when activated will be double (23208)
     returnMode: 'fixed' as ReturnMode,
     averageReturn: 7,
     standardDeviation: 15,
@@ -108,6 +116,15 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   );
   const [steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase] = useState(
     (initialConfig as any).steuerReduzierenEndkapitalEntspharphase ?? true
+  );
+  const [grundfreibetragAktiv, setGrundfreibetragAktiv] = useState(
+    (initialConfig as any).grundfreibetragAktiv ?? false
+  );
+  const [grundfreibetragBetrag, setGrundfreibetragBetrag] = useState(
+    (initialConfig as any).grundfreibetragBetrag ?? (
+      // When enabled for the first time, use double the current value as default
+      (initialConfig as any).grundfreibetragAktiv ? 23208 : 11604
+    )
   );
   const [returnMode, setReturnMode] = useState<ReturnMode>(initialConfig.returnMode);
   const [averageReturn, setAverageReturn] = useState(initialConfig.averageReturn);
@@ -140,6 +157,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     basiszinsConfiguration,
     steuerReduzierenEndkapitalSparphase,
     steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
     returnMode,
     averageReturn,
     standardDeviation,
@@ -149,7 +168,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     sparplan,
     simulationAnnual,
     withdrawal: withdrawalConfig || undefined,
-  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
+  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration();
@@ -166,6 +185,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setBasiszinsConfiguration((savedConfig as any).basiszinsConfiguration || defaultConfig.basiszinsConfiguration);
       setSteuerReduzierenEndkapitalSparphase(savedConfig.steuerReduzierenEndkapitalSparphase ?? true);
       setSteuerReduzierenEndkapitalEntspharphase(savedConfig.steuerReduzierenEndkapitalEntspharphase ?? true);
+      setGrundfreibetragAktiv((savedConfig as any).grundfreibetragAktiv ?? false);
+      setGrundfreibetragBetrag((savedConfig as any).grundfreibetragBetrag ?? 11604);
       setReturnMode(savedConfig.returnMode);
       setAverageReturn(savedConfig.averageReturn);
       setStandardDeviation(savedConfig.standardDeviation);
@@ -187,6 +208,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setBasiszinsConfiguration(defaultConfig.basiszinsConfiguration);
     setSteuerReduzierenEndkapitalSparphase(defaultConfig.steuerReduzierenEndkapitalSparphase);
     setSteuerReduzierenEndkapitalEntspharphase(defaultConfig.steuerReduzierenEndkapitalEntspharphase);
+    setGrundfreibetragAktiv(defaultConfig.grundfreibetragAktiv);
+    setGrundfreibetragBetrag(defaultConfig.grundfreibetragBetrag);
     setReturnMode(defaultConfig.returnMode);
     setAverageReturn(defaultConfig.averageReturn);
     setStandardDeviation(defaultConfig.standardDeviation);
@@ -270,6 +293,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     basiszinsConfiguration, setBasiszinsConfiguration,
     steuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalSparphase,
     steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv, setGrundfreibetragAktiv,
+    grundfreibetragBetrag, setGrundfreibetragBetrag,
     returnMode, setReturnMode,
     averageReturn, setAverageReturn,
     standardDeviation, setStandardDeviation,
@@ -292,6 +317,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   }), [
     rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, 
     steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv, grundfreibetragBetrag,
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
     simulationData, isLoading, withdrawalResults, performSimulation,

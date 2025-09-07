@@ -53,6 +53,9 @@ interface EntnahmeSimulationDisplayProps {
   useSegmentedWithdrawal: boolean;
   withdrawalSegments: any[];
   onCalculationInfoClick: (explanationType: string, rowData: any) => void;
+  // Global Grundfreibetrag configuration
+  grundfreibetragAktiv?: boolean;
+  grundfreibetragBetrag?: number;
 }
 
 export function EntnahmeSimulationDisplay({
@@ -63,6 +66,8 @@ export function EntnahmeSimulationDisplay({
   useSegmentedWithdrawal,
   withdrawalSegments,
   onCalculationInfoClick,
+  grundfreibetragAktiv,
+  grundfreibetragBetrag,
 }: EntnahmeSimulationDisplayProps) {
   if (!withdrawalData) {
     return (
@@ -194,11 +199,11 @@ export function EntnahmeSimulationDisplay({
               );
             }
             return null;
-          } else if (formValue.grundfreibetragAktiv) {
+          } else if (grundfreibetragAktiv && grundfreibetragBetrag) {
             return (
               <p>
                 <strong>Grundfreibetrag:</strong>{" "}
-                {formatCurrency(formValue.grundfreibetragBetrag)} pro Jahr
+                {formatCurrency(grundfreibetragBetrag)} pro Jahr
                 (Einkommensteuersatz: {formValue.einkommensteuersatz}%)
               </p>
             );

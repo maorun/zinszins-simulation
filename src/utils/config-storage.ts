@@ -39,9 +39,9 @@ export interface WithdrawalFormValue {
   dynamischObereAnpassung: number;
   dynamischUntereSchwell: number;
   dynamischUntereAnpassung: number;
-  // Grundfreibetrag settings
-  grundfreibetragAktiv: boolean;
-  grundfreibetragBetrag: number;
+  // Grundfreibetrag settings (now handled globally, kept for backward compatibility)
+  grundfreibetragAktiv?: boolean;
+  grundfreibetragBetrag?: number;
   einkommensteuersatz: number;
 }
 
@@ -97,6 +97,9 @@ export interface SavedConfiguration {
   // New phase-specific settings
   steuerReduzierenEndkapitalSparphase?: boolean;
   steuerReduzierenEndkapitalEntspharphase?: boolean;
+  // Grundfreibetrag settings
+  grundfreibetragAktiv?: boolean;
+  grundfreibetragBetrag?: number;
   returnMode: ReturnMode;
   averageReturn: number;
   standardDeviation: number;

@@ -23,6 +23,7 @@ import { useWithdrawalCalculations } from "../hooks/useWithdrawalCalculations";
 import { useWithdrawalModals } from "../hooks/useWithdrawalModals";
 import CalculationExplanationModal from './CalculationExplanationModal';
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal';
+import { useSimulation } from '../contexts/useSimulation';
 import type {
   WithdrawalReturnMode,
   ComparisonStrategy,
@@ -74,6 +75,9 @@ export function EntnahmeSimulationsAusgabe({
     steuerlast,
     teilfreistellungsquote,
   );
+
+  // Access global Grundfreibetrag configuration
+  const { grundfreibetragAktiv, grundfreibetragBetrag } = useSimulation();
 
   const {
     showCalculationModal,
@@ -231,8 +235,6 @@ export function EntnahmeSimulationsAusgabe({
                     changedFormValue.dynamischUntereSchwell,
                   dynamischUntereAnpassung:
                     changedFormValue.dynamischUntereAnpassung,
-                  grundfreibetragAktiv: changedFormValue.grundfreibetragAktiv,
-                  grundfreibetragBetrag: changedFormValue.grundfreibetragBetrag,
                   einkommensteuersatz: changedFormValue.einkommensteuersatz,
                 });
               }}
@@ -678,8 +680,6 @@ export function EntnahmeSimulationsAusgabe({
                 dynamischUntereSchwell: changedFormValue.dynamischUntereSchwell,
                 dynamischUntereAnpassung:
                   changedFormValue.dynamischUntereAnpassung,
-                grundfreibetragAktiv: changedFormValue.grundfreibetragAktiv,
-                grundfreibetragBetrag: changedFormValue.grundfreibetragBetrag,
                 einkommensteuersatz: changedFormValue.einkommensteuersatz,
               });
             }}
@@ -924,18 +924,6 @@ export function EntnahmeSimulationsAusgabe({
               </Form.HelpText>
             </Form.Group>
 
-            {/* Grundfreibetrag settings */}
-            <Form.Group controlId="grundfreibetragAktiv">
-              <Form.ControlLabel>
-                Grundfreibetrag berücksichtigen
-              </Form.ControlLabel>
-              <Form.Control name="grundfreibetragAktiv" accepter={Switch} />
-              <Form.HelpText>
-                Berücksichtigt den Grundfreibetrag für die Einkommensteuer bei
-                Entnahmen (relevant für Rentner ohne weiteres Einkommen)
-              </Form.HelpText>
-            </Form.Group>
-
             {/* General inflation controls for all strategies */}
             <Form.Group controlId="inflationAktiv">
               <Form.ControlLabel>Inflation berücksichtigen</Form.ControlLabel>
@@ -967,47 +955,6 @@ export function EntnahmeSimulationsAusgabe({
                   Jährliche Inflationsrate zur Anpassung der Entnahmebeträge
                 </Form.HelpText>
               </Form.Group>
-            )}
-
-            {formValue.grundfreibetragAktiv && (
-              <>
-                <Form.Group controlId="grundfreibetragBetrag">
-                  <Form.ControlLabel>
-                    Grundfreibetrag pro Jahr (€)
-                  </Form.ControlLabel>
-                  <Form.Control
-                    name="grundfreibetragBetrag"
-                    accepter={InputNumber}
-                    min={0}
-                    max={30000}
-                    step={100}
-                  />
-                  <Form.HelpText>
-                    Grundfreibetrag für die Einkommensteuer (2023: 10.908 €)
-                  </Form.HelpText>
-                </Form.Group>
-                <Form.Group controlId="einkommensteuersatz">
-                  <Form.ControlLabel>Einkommensteuersatz (%)</Form.ControlLabel>
-                  <Form.Control
-                    name="einkommensteuersatz"
-                    accepter={Slider}
-                    min={14}
-                    max={42}
-                    step={1}
-                    handleTitle={
-                      <div style={{ marginTop: "-17px" }}>
-                        {formValue.einkommensteuersatz}%
-                      </div>
-                    }
-                    progress
-                    graduated
-                  />
-                  <Form.HelpText>
-                    Vereinfachter Einkommensteuersatz (normalerweise zwischen
-                    14% und 42%)
-                  </Form.HelpText>
-                </Form.Group>
-              </>
             )}
 
             {/* Variable percentage strategy specific controls */}
@@ -1102,6 +1049,8 @@ export function EntnahmeSimulationsAusgabe({
           useSegmentedWithdrawal={useSegmentedWithdrawal}
           withdrawalSegments={withdrawalSegments}
           onCalculationInfoClick={handleCalculationInfoClick}
+          grundfreibetragAktiv={grundfreibetragAktiv}
+          grundfreibetragBetrag={grundfreibetragBetrag}
         />
       </Panel>
       

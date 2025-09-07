@@ -37,9 +37,6 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
       dynamischObereAnpassung: 5, // Upper adjustment 5%
       dynamischUntereSchwell: 2, // Lower threshold return 2%
       dynamischUntereAnpassung: -5, // Lower adjustment -5%
-      // Grundfreibetrag settings
-      grundfreibetragAktiv: false,
-      grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
       einkommensteuersatz: 18, // Default income tax rate 18%
     };
 
