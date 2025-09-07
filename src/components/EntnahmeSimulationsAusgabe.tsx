@@ -147,7 +147,7 @@ export function EntnahmeSimulationsAusgabe({
       // Grundfreibetrag settings
       grundfreibetragAktiv: false,
       grundfreibetragBetrag: 10908, // Default German basic tax allowance for 2023
-      einkommensteuersatz: 25, // Default income tax rate 25%
+      einkommensteuersatz: 18, // Default income tax rate 18%
     };
 
     const defaultComparisonStrategies: ComparisonStrategy[] = [
@@ -563,10 +563,18 @@ export function EntnahmeSimulationsAusgabe({
   const handleCalculationInfoClick = (explanationType: string, rowData: any) => {
     const formValue = currentConfig.formValue;
     
+    // For segmented withdrawal, find the segment that applies to this year
+    let applicableSegment: any = null;
+    if (useSegmentedWithdrawal) {
+      applicableSegment = withdrawalSegments.find(segment => 
+        rowData.year >= segment.startYear && rowData.year <= segment.endYear
+      );
+    }
+    
     if (explanationType === 'inflation' && rowData.inflationAnpassung !== undefined) {
       const yearsPassed = rowData.year - startOfIndependence - 1;
       const baseAmount = withdrawalData ? withdrawalData.startingCapital * 0.04 : 0; // Estimate base amount
-      const inflationRate = formValue.inflationsrate / 100 || 0.02;
+      const inflationRate = applicableSegment?.inflationConfig?.inflationRate || formValue.inflationsrate / 100 || 0.02;
       
       const explanation = createInflationExplanation(
         baseAmount,
@@ -577,10 +585,14 @@ export function EntnahmeSimulationsAusgabe({
       setCalculationDetails(explanation);
       setShowCalculationModal(true);
     } else if (explanationType === 'interest' && rowData.zinsen) {
+      const returnRate = applicableSegment?.returnConfig?.mode === 'fixed' 
+        ? applicableSegment.returnConfig.fixedRate * 100
+        : formValue.rendite || 5;
+      
       const explanation = createWithdrawalInterestExplanation(
         rowData.startkapital,
         rowData.zinsen,
-        formValue.rendite || 5,
+        returnRate,
         rowData.year
       );
       setCalculationDetails(explanation);
@@ -598,19 +610,33 @@ export function EntnahmeSimulationsAusgabe({
       setCalculationDetails(explanation);
       setShowCalculationModal(true);
     } else if (explanationType === 'incomeTax' && rowData.einkommensteuer !== undefined) {
+      // Use segment-specific settings if in segmented mode, otherwise use form values
+      const grundfreibetragAmount = applicableSegment?.enableGrundfreibetrag 
+        ? (applicableSegment.grundfreibetragPerYear?.[rowData.year] || 10908)
+        : (formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0);
+      
+      const incomeTaxRate = applicableSegment?.incomeTaxRate 
+        ? applicableSegment.incomeTaxRate * 100
+        : formValue.einkommensteuersatz || 18; // Default to 18% instead of 25%
+      
       const explanation = createIncomeTaxExplanation(
         rowData.entnahme,
-        formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0,
-        formValue.einkommensteuersatz || 25,
+        grundfreibetragAmount,
+        incomeTaxRate,
         rowData.einkommensteuer,
         rowData.genutzterGrundfreibetrag || 0
       );
       setCalculationDetails(explanation);
       setShowCalculationModal(true);
     } else if (explanationType === 'taxableIncome') {
+      // Use segment-specific settings if in segmented mode, otherwise use form values
+      const grundfreibetragAmount = applicableSegment?.enableGrundfreibetrag 
+        ? (applicableSegment.grundfreibetragPerYear?.[rowData.year] || 10908)
+        : (formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0);
+      
       const explanation = createTaxableIncomeExplanation(
         rowData.entnahme,
-        formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0
+        grundfreibetragAmount
       );
       setCalculationDetails(explanation);
       setShowCalculationModal(true);
@@ -1991,13 +2017,38 @@ export function EntnahmeSimulationsAusgabe({
                     <strong>Erwartete Rendite:</strong> {formValue.rendite}{" "}
                     Prozent p.a.
                   </p>
-                  {formValue.grundfreibetragAktiv && (
-                    <p>
-                      <strong>Grundfreibetrag:</strong>{" "}
-                      {formatCurrency(formValue.grundfreibetragBetrag)} pro Jahr
-                      (Einkommensteuersatz: {formValue.einkommensteuersatz}%)
-                    </p>
-                  )}
+                  {(() => {
+                    // Show Grundfreibetrag information for segmented withdrawal
+                    if (useSegmentedWithdrawal) {
+                      const segmentsWithGrundfreibetrag = withdrawalSegments.filter(segment => segment.enableGrundfreibetrag);
+                      if (segmentsWithGrundfreibetrag.length > 0) {
+                        return (
+                          <div>
+                            <strong>Grundfreibetrag-Phasen:</strong>
+                            {segmentsWithGrundfreibetrag.map((segment, _index) => {
+                              const grundfreibetragAmount = segment.grundfreibetragPerYear?.[segment.startYear] || 10908;
+                              const incomeTaxRate = (segment.incomeTaxRate || 0.18) * 100;
+                              return (
+                                <div key={segment.id} style={{ marginLeft: '10px', fontSize: '14px' }}>
+                                  • {segment.name} ({segment.startYear}-{segment.endYear}): {formatCurrency(grundfreibetragAmount)} pro Jahr (Einkommensteuersatz: {incomeTaxRate.toFixed(0)}%)
+                                </div>
+                              );
+                            })}
+                          </div>
+                        );
+                      }
+                      return null;
+                    } else if (formValue.grundfreibetragAktiv) {
+                      return (
+                        <p>
+                          <strong>Grundfreibetrag:</strong>{" "}
+                          {formatCurrency(formValue.grundfreibetragBetrag)} pro Jahr
+                          (Einkommensteuersatz: {formValue.einkommensteuersatz}%)
+                        </p>
+                      );
+                    }
+                    return null;
+                  })()}
                   <p>
                     <strong>Vermögen reicht für:</strong>{" "}
                     {withdrawalData.duration
@@ -2131,8 +2182,17 @@ export function EntnahmeSimulationsAusgabe({
                               {formatCurrency(rowData.genutzterFreibetrag)}
                             </span>
                           </div>
-                          {formValue.grundfreibetragAktiv &&
-                            rowData.einkommensteuer !== undefined && (
+                          {(() => {
+                            // Check if Grundfreibetrag is enabled for this year
+                            const isGrundfreibetragEnabled = useSegmentedWithdrawal 
+                              ? withdrawalSegments.some(segment => 
+                                  rowData.year >= segment.startYear && 
+                                  rowData.year <= segment.endYear && 
+                                  segment.enableGrundfreibetrag
+                                )
+                              : formValue.grundfreibetragAktiv;
+                            
+                            return isGrundfreibetragEnabled && rowData.einkommensteuer !== undefined && (
                               <div className="sparplan-detail">
                                 <span className="detail-label">
                                   🏛️ Einkommensteuer:
@@ -2145,9 +2205,19 @@ export function EntnahmeSimulationsAusgabe({
                                   <InfoIcon onClick={() => handleCalculationInfoClick('incomeTax', rowData)} />
                                 </span>
                               </div>
-                            )}
-                          {formValue.grundfreibetragAktiv &&
-                            rowData.genutzterGrundfreibetrag !== undefined && (
+                            );
+                          })()}
+                          {(() => {
+                            // Check if Grundfreibetrag is enabled for this year
+                            const isGrundfreibetragEnabled = useSegmentedWithdrawal 
+                              ? withdrawalSegments.some(segment => 
+                                  rowData.year >= segment.startYear && 
+                                  rowData.year <= segment.endYear && 
+                                  segment.enableGrundfreibetrag
+                                )
+                              : formValue.grundfreibetragAktiv;
+                            
+                            return isGrundfreibetragEnabled && rowData.genutzterGrundfreibetrag !== undefined && (
                               <div className="sparplan-detail">
                                 <span className="detail-label">
                                   🆓 Grundfreibetrag:
@@ -2162,7 +2232,8 @@ export function EntnahmeSimulationsAusgabe({
                                   <InfoIcon onClick={() => handleCalculationInfoClick('incomeTax', rowData)} />
                                 </span>
                               </div>
-                            )}
+                            );
+                          })()}
                           {/* New section for taxable income */}
                           <div className="sparplan-detail">
                             <span className="detail-label">
@@ -2172,7 +2243,21 @@ export function EntnahmeSimulationsAusgabe({
                               className="detail-value"
                               style={{ color: "#6c757d", display: 'flex', alignItems: 'center' }}
                             >
-                              {formatCurrency(Math.max(0, rowData.entnahme - (formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0)))}
+                              {(() => {
+                                // Calculate taxable income based on segment-specific or form settings
+                                const grundfreibetragAmount = useSegmentedWithdrawal 
+                                  ? (() => {
+                                      const applicableSegment = withdrawalSegments.find(segment => 
+                                        rowData.year >= segment.startYear && rowData.year <= segment.endYear
+                                      );
+                                      return applicableSegment?.enableGrundfreibetrag 
+                                        ? (applicableSegment.grundfreibetragPerYear?.[rowData.year] || 10908)
+                                        : 0;
+                                    })()
+                                  : (formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0);
+                                
+                                return formatCurrency(Math.max(0, rowData.entnahme - grundfreibetragAmount));
+                              })()}
                               <InfoIcon onClick={() => handleCalculationInfoClick('taxableIncome', rowData)} />
                             </span>
                           </div>
@@ -2290,32 +2375,46 @@ export function EntnahmeSimulationsAusgabe({
                           }
                         </Cell>
                       </Column>
-                      {formValue.grundfreibetragAktiv && (
-                        <Column width={120}>
-                          <HeaderCell>Einkommensteuer</HeaderCell>
-                          <Cell>
-                            {(rowData: any) =>
-                              rowData.einkommensteuer !== undefined
-                                ? formatCurrency(rowData.einkommensteuer)
-                                : "-"
-                            }
-                          </Cell>
-                        </Column>
-                      )}
-                      {formValue.grundfreibetragAktiv && (
-                        <Column width={140}>
-                          <HeaderCell>Grundfreibetrag genutzt</HeaderCell>
-                          <Cell>
-                            {(rowData: any) =>
-                              rowData.genutzterGrundfreibetrag !== undefined
-                                ? formatCurrency(
-                                    rowData.genutzterGrundfreibetrag,
-                                  )
-                                : "-"
-                            }
-                          </Cell>
-                        </Column>
-                      )}
+                      {(() => {
+                        // Check if any segments or form has Grundfreibetrag enabled
+                        const isGrundfreibetragEnabled = useSegmentedWithdrawal 
+                          ? withdrawalSegments.some(segment => segment.enableGrundfreibetrag)
+                          : formValue.grundfreibetragAktiv;
+                        
+                        return isGrundfreibetragEnabled && (
+                          <Column width={120}>
+                            <HeaderCell>Einkommensteuer</HeaderCell>
+                            <Cell>
+                              {(rowData: any) =>
+                                rowData.einkommensteuer !== undefined
+                                  ? formatCurrency(rowData.einkommensteuer)
+                                  : "-"
+                              }
+                            </Cell>
+                          </Column>
+                        );
+                      })()}
+                      {(() => {
+                        // Check if any segments or form has Grundfreibetrag enabled
+                        const isGrundfreibetragEnabled = useSegmentedWithdrawal 
+                          ? withdrawalSegments.some(segment => segment.enableGrundfreibetrag)
+                          : formValue.grundfreibetragAktiv;
+                        
+                        return isGrundfreibetragEnabled && (
+                          <Column width={140}>
+                            <HeaderCell>Grundfreibetrag genutzt</HeaderCell>
+                            <Cell>
+                              {(rowData: any) =>
+                                rowData.genutzterGrundfreibetrag !== undefined
+                                  ? formatCurrency(
+                                      rowData.genutzterGrundfreibetrag,
+                                    )
+                                  : "-"
+                              }
+                            </Cell>
+                          </Column>
+                        );
+                      })()}
                       <Column width={120}>
                         <HeaderCell>Endkapital</HeaderCell>
                         <Cell>
