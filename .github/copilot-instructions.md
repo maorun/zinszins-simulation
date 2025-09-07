@@ -177,6 +177,75 @@ When making changes to this codebase, follow this complete workflow to ensure hi
 
 **IMPORTANT: The following instructions about testing are not optional. They are the most critical part of the workflow.**
 
+### Component Refactoring Best Practices
+
+When components become too large (> 500-800 lines), follow this refactoring approach:
+
+#### 1. Extract Display Components
+- **Extract simulation/results display** into separate components (e.g., `EntnahmeSimulationDisplay.tsx`)
+- **Keep display logic together**: Move related UI rendering, formatting, and presentation logic together
+- **Maintain component interfaces**: Ensure props are well-typed and focused on what the component needs
+- **Example pattern**: `ComponentNameDisplay.tsx` for rendering logic, `ComponentNameConfig.tsx` for configuration forms
+
+#### 2. Extract Business Logic into Custom Hooks
+- **Configuration management**: Extract state and config management into `useComponentConfig` hooks
+- **Calculation logic**: Extract complex calculations into `useComponentCalculations` hooks  
+- **Modal/UI state**: Extract modal and interaction state into `useComponentModals` hooks
+- **Keep simple useState**: Don't extract trivial state management - focus on complex logic
+
+#### 3. Extract Utility Functions
+- **Pure functions**: Extract formatting, validation, and transformation functions
+- **Currency formatting**: Use shared `formatCurrency` utility from `src/utils/currency.ts`
+- **Helper functions**: Extract helper functions that don't need React context
+
+#### 4. Maintain Test Coverage
+- **Test extracted components**: Each new component needs comprehensive tests
+- **Test custom hooks**: Use `renderHook` to test custom hooks in isolation
+- **Test utility functions**: Unit test pure functions thoroughly
+- **Integration tests**: Ensure the refactored components work together correctly
+
+#### 5. Refactoring Process
+1. **Identify extraction boundaries**: Look for distinct UI sections or logical groupings
+2. **Extract in small steps**: Start with one component or hook at a time
+3. **Test after each extraction**: Ensure functionality remains intact
+4. **Update imports gradually**: Fix import paths and dependencies systematically
+5. **Run full test suite**: Verify no regressions have been introduced
+
+#### Example Refactoring (EntnahmeSimulationsAusgabe)
+```typescript
+// Before: 2463 lines in one file
+export function EntnahmeSimulationsAusgabe() {
+  // All logic mixed together
+}
+
+// After: Separated into focused pieces
+export function EntnahmeSimulationsAusgabe() {
+  // Use custom hooks for logic
+  const { currentConfig, updateConfig } = useWithdrawalConfig();
+  const { withdrawalData } = useWithdrawalCalculations();
+  const { handleModalClick } = useWithdrawalModals();
+  
+  return (
+    <>
+      {/* Configuration forms */}
+      <Panel>...</Panel>
+      
+      {/* Extracted display component */}
+      <EntnahmeSimulationDisplay
+        withdrawalData={withdrawalData}
+        onCalculationInfoClick={handleModalClick}
+      />
+    </>
+  );
+}
+```
+
+This approach resulted in:
+- Main component: 2463 → 1131 lines (54% reduction)
+- Better separation of concerns
+- Easier testing and maintenance
+- Reusable components and logic
+
 ### Development Workflow Steps
 
 1. **Development Phase**
