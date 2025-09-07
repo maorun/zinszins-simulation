@@ -177,6 +177,108 @@ When making changes to this codebase, follow this complete workflow to ensure hi
 
 **IMPORTANT: The following instructions about testing are not optional. They are the most critical part of the workflow.**
 
+### Component Refactoring Best Practices
+
+When components become too large (> 500-800 lines), follow this refactoring approach:
+
+#### 1. Extract Display Components
+- **Extract simulation/results display** into separate components (e.g., `EntnahmeSimulationDisplay.tsx`)
+- **Keep display logic together**: Move related UI rendering, formatting, and presentation logic together
+- **Maintain component interfaces**: Ensure props are well-typed and focused on what the component needs
+- **Example pattern**: `ComponentNameDisplay.tsx` for rendering logic, `ComponentNameConfig.tsx` for configuration forms
+
+#### 2. Extract Business Logic into Custom Hooks
+- **Configuration management**: Extract state and config management into `useComponentConfig` hooks
+- **Calculation logic**: Extract complex calculations into `useComponentCalculations` hooks  
+- **Modal/UI state**: Extract modal and interaction state into `useComponentModals` hooks
+- **Keep simple useState**: Don't extract trivial state management - focus on complex logic
+
+#### 3. Extract Utility Functions
+- **Pure functions**: Extract formatting, validation, and transformation functions
+- **Currency formatting**: Use shared `formatCurrency` utility from `src/utils/currency.ts`
+- **Helper functions**: Extract helper functions that don't need React context
+
+#### 4. Maintain Test Coverage - MANDATORY
+- **Test extracted components**: Each new component needs comprehensive tests
+- **Test custom hooks**: Use `renderHook` to test custom hooks in isolation
+- **Test utility functions**: Unit test pure functions thoroughly
+- **Integration tests**: Ensure the refactored components work together correctly
+- **Fix test failures**: When components are extracted, existing tests may fail due to multiple DOM elements with same text. Use `getAllByText()` instead of `getByText()` when content appears in multiple places
+
+#### 5. Refactoring Process - Testing & Linting at Every Step
+1. **Identify extraction boundaries**: Look for distinct UI sections or logical groupings
+2. **Extract in small steps**: Start with one component or hook at a time
+3. **Test immediately after each extraction**: 
+   - Run `npm run test` after each component extraction
+   - Fix any test failures immediately before proceeding
+   - Tests may fail due to duplicate content across components - update tests to handle this
+4. **Lint immediately after each extraction**: 
+   - Run `npm run lint` to ensure code style compliance
+   - Fix any linting issues before proceeding
+5. **Build verification**: Run `npm run build` to ensure TypeScript compilation works
+6. **Update imports gradually**: Fix import paths and dependencies systematically
+7. **Final validation**: Run full test suite and linting before considering refactoring complete
+
+**CRITICAL: Never proceed to the next extraction if tests are failing or linting issues exist. Each step must be validated before moving forward.**
+
+#### Example Refactoring (EntnahmeSimulationsAusgabe)
+```typescript
+// Before: 2463 lines in one file
+export function EntnahmeSimulationsAusgabe() {
+  // All logic mixed together
+}
+
+// After: Separated into focused pieces
+export function EntnahmeSimulationsAusgabe() {
+  // Use custom hooks for logic
+  const { currentConfig, updateConfig } = useWithdrawalConfig();
+  const { withdrawalData } = useWithdrawalCalculations();
+  const { handleModalClick } = useWithdrawalModals();
+  
+  return (
+    <>
+      {/* Configuration forms */}
+      <Panel>...</Panel>
+      
+      {/* Extracted display component */}
+      <EntnahmeSimulationDisplay
+        withdrawalData={withdrawalData}
+        onCalculationInfoClick={handleModalClick}
+      />
+    </>
+  );
+}
+```
+
+This approach resulted in:
+- Main component: 2463 → 1131 lines (54% reduction)
+- Better separation of concerns
+- Easier testing and maintenance
+- Reusable components and logic
+
+#### Common Testing Issues During Refactoring
+
+**Multiple Element Error**: When components are extracted and display the same content in multiple places (e.g., base strategy summary + comparison table), tests using `getByText()` will fail:
+
+```typescript
+// ❌ This will fail if "5%" appears multiple times
+expect(screen.getByText('5%')).toBeInTheDocument();
+
+// ✅ Fix by using getAllByText() instead
+expect(screen.getAllByText('5%')).toHaveLength(2);
+
+// ✅ Or use more specific queries
+expect(screen.getByText(/📊 Basis-Strategie.*5%/)).toBeInTheDocument();
+```
+
+**Common patterns that need `getAllByText()`**:
+- Currency amounts (e.g., "498.000,00 €") appearing in cards + tables
+- Percentages (e.g., "5%") in summaries + tables  
+- Duration text (e.g., "25 Jahre", "unbegrenzt") in multiple sections
+- Strategy names appearing in headers + table rows
+
+**Always run tests after each component extraction** and fix these issues immediately before proceeding to the next extraction.
+
 ### Development Workflow Steps
 
 1. **Development Phase**
