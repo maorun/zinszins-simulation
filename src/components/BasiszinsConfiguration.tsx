@@ -8,7 +8,7 @@ import { Alert, AlertDescription } from './ui/alert';
 import { Trash2, Plus, Download, RefreshCw } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
 import { 
-  fetchBasiszinsFromBundesbank, 
+  refreshBasiszinsFromAPI,
   validateBasiszinsRate, 
   estimateFutureBasiszins,
   type BasiszinsConfiguration,
@@ -42,25 +42,24 @@ export default function BasiszinsConfiguration() {
     setError(null);
     
     try {
-      const data = await fetchBasiszinsFromBundesbank(2018, currentYear + 5);
-      
-      // Update configuration with API data
-      const updatedConfig: BasiszinsConfiguration = { ...basiszinsConfiguration };
-      
-      data.forEach((item: BasiszinsData) => {
-        updatedConfig[item.year] = item;
-      });
+      // Use the new refresh function that properly handles merging
+      const updatedConfig = await refreshBasiszinsFromAPI(basiszinsConfiguration);
       
       setBasiszinsConfiguration(updatedConfig);
       setLastApiUpdate(new Date().toISOString());
       performSimulation();
       
+      // Show success message
+      console.log('✅ Basiszins-Daten erfolgreich von der API aktualisiert');
+      
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Fehler beim Abrufen der Daten');
+      const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler beim Abrufen der Daten';
+      setError(errorMessage);
+      console.error('❌ Fehler beim Aktualisieren der Basiszins-Daten:', errorMessage);
     } finally {
       setIsLoading(false);
     }
-  }, [basiszinsConfiguration, setBasiszinsConfiguration, performSimulation, currentYear]);
+  }, [basiszinsConfiguration, setBasiszinsConfiguration, performSimulation]);
 
   /**
    * Add manual entry for a specific year

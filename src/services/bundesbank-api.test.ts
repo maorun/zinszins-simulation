@@ -1,16 +1,34 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { 
   fetchBasiszinsFromBundesbank, 
+  refreshBasiszinsFromAPI,
   validateBasiszinsRate, 
   formatBasiszinsRate, 
   estimateFutureBasiszins,
   type BasiszinsConfiguration 
 } from '../services/bundesbank-api';
 
+// Mock fetch for testing
+const mockFetch = vi.fn();
+global.fetch = mockFetch;
+
 describe('Deutsche Bundesbank API Service', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    // Mock console methods to reduce test noise
+    vi.spyOn(console, 'log').mockImplementation(() => {});
+    vi.spyOn(console, 'warn').mockImplementation(() => {});
+    vi.spyOn(console, 'info').mockImplementation(() => {});
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
   describe('fetchBasiszinsFromBundesbank', () => {
-    it('should return fallback data when API is not implemented', async () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+    it('should try real APIs and fall back to historical data', async () => {
+      // Mock all API calls to fail so we test the fallback
+      mockFetch.mockRejectedValue(new Error('API not available'));
       
       const result = await fetchBasiszinsFromBundesbank(2018, 2024);
       
@@ -22,23 +40,101 @@ describe('Deutsche Bundesbank API Service', () => {
         lastUpdated: expect.any(String),
       });
       
-      expect(consoleSpy).toHaveBeenCalledWith(
-        'Deutsche Bundesbank API integration not yet implemented. Using fallback data.'
-      );
+      // Should have tried multiple API endpoints
+      expect(mockFetch).toHaveBeenCalledTimes(3); // Bundesbank, ECB, BMF
+    });
+
+    it('should attempt to call real APIs before falling back', async () => {
+      // Mock API responses that return insufficient data, forcing fallback
+      mockFetch.mockResolvedValue({
+        ok: true,
+        text: () => Promise.resolve('TIME_PERIOD,OBS_VALUE\n'), // Empty data
+      });
       
-      consoleSpy.mockRestore();
+      const result = await fetchBasiszinsFromBundesbank(2023, 2024);
+      
+      expect(result).toHaveLength(2);
+      expect(result[0].source).toBe('fallback'); // Falls back when APIs return insufficient data
+      
+      // Should have attempted multiple API calls
+      expect(mockFetch).toHaveBeenCalledWith(
+        expect.stringContaining('api.bundesbank.de'),
+        expect.any(Object)
+      );
     });
 
     it('should handle custom year ranges', async () => {
-      const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
+      // Mock API failure to test fallback
+      mockFetch.mockRejectedValue(new Error('API not available'));
       
       const result = await fetchBasiszinsFromBundesbank(2022, 2023);
       
       expect(result).toHaveLength(2);
       expect(result[0].year).toBe(2022);
       expect(result[1].year).toBe(2023);
+    });
+
+    it('should handle invalid API responses gracefully', async () => {
+      // Mock invalid CSV data
+      mockFetch.mockResolvedValue({
+        ok: false,
+        status: 404,
+        statusText: 'Not Found',
+      });
       
-      consoleSpy.mockRestore();
+      // Should fallback to next API and eventually historical data
+      const result = await fetchBasiszinsFromBundesbank(2022, 2023);
+      
+      expect(result).toHaveLength(2);
+      expect(result[0].source).toBe('fallback');
+    });
+  });
+
+  describe('refreshBasiszinsFromAPI', () => {
+    it('should merge API data with existing configuration', async () => {
+      const existingConfig: BasiszinsConfiguration = {
+        2025: { year: 2025, rate: 0.03, source: 'manual', lastUpdated: '2024-01-01' },
+      };
+      
+      // Mock API to fail and use fallback data
+      mockFetch.mockRejectedValue(new Error('API not available')); 
+      
+      const result = await refreshBasiszinsFromAPI(existingConfig);
+      
+      // Should preserve manual entry
+      expect(result[2025]).toEqual(existingConfig[2025]);
+      
+      // Should have added historical data from the fallback
+      expect(Object.keys(result).length).toBeGreaterThan(1);
+      
+      // Should have historical years in the result (now that we fixed the range)
+      expect(result[2023]).toBeDefined();
+      expect(result[2023]?.source).toBe('fallback');
+    });
+
+    it('should preserve manual entries for future years', async () => {
+      const manualEntry = { year: 2026, rate: 0.035, source: 'manual' as const, lastUpdated: '2024-01-01' };
+      const existingConfig: BasiszinsConfiguration = {
+        2026: manualEntry,
+      };
+      
+      mockFetch.mockRejectedValue(new Error('API not available'));
+      
+      const result = await refreshBasiszinsFromAPI(existingConfig);
+      
+      expect(result[2026]).toEqual(manualEntry);
+    });
+
+    it('should handle empty configuration correctly', async () => {
+      const emptyConfig: BasiszinsConfiguration = {};
+      
+      mockFetch.mockRejectedValue(new Error('API not available'));
+      
+      const result = await refreshBasiszinsFromAPI(emptyConfig);
+      
+      // Should return historical data from 2018 onwards
+      expect(Object.keys(result).length).toBeGreaterThan(0);
+      expect(result[2023]).toBeDefined();
     });
   });
 
