@@ -30,8 +30,8 @@ describe('calculationHelpers', () => {
       expect(explanation.introduction).toContain('Steuerberechnung erfolgt basierend auf der Vorabpauschale');
       expect(explanation.steps).toHaveLength(3);
       expect(explanation.steps[0].title).toBe('Schritt 1: Vorabpauschale ermitteln');
-      expect(explanation.steps[1].title).toBe('Schritt 2: Steuer vor Freibetrag berechnen');
-      expect(explanation.steps[2].title).toBe('Schritt 3: Freibetrag anwenden');
+      expect(explanation.steps[1].title).toBe('Schritt 2: Steuer vor Sparerpauschbetrag berechnen');
+      expect(explanation.steps[2].title).toBe('Schritt 3: Sparerpauschbetrag anwenden');
       expect(explanation.finalResult.values).toHaveLength(4);
     });
   });
