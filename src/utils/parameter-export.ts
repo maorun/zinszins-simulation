@@ -114,7 +114,7 @@ export function formatParametersForExport(context: SimulationContextState): stri
       lines.push(`  Untere Anpassung: ${fv.dynamischUntereAnpassung.toFixed(2)} %`);
     }
     
-    if (fv.grundfreibetragAktiv) {
+    if (fv.grundfreibetragAktiv && fv.grundfreibetragBetrag !== undefined) {
       lines.push(`  Grundfreibetrag aktiv: Ja`);
       lines.push(`  Grundfreibetrag: ${formatCurrency(fv.grundfreibetragBetrag)}`);
       lines.push(`  Einkommensteuersatz: ${fv.einkommensteuersatz.toFixed(2)} %`);

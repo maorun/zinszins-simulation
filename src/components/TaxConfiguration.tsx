@@ -22,6 +22,10 @@ const TaxConfiguration = () => {
         setSteuerReduzierenEndkapitalSparphase,
         steuerReduzierenEndkapitalEntspharphase,
         setSteuerReduzierenEndkapitalEntspharphase,
+        grundfreibetragAktiv,
+        setGrundfreibetragAktiv,
+        grundfreibetragBetrag,
+        setGrundfreibetragBetrag,
     } = useSimulation();
 
     const yearToday = new Date().getFullYear();
@@ -212,6 +216,61 @@ const TaxConfiguration = () => {
                         </Table>
                     </div>
                 </div>
+            </CardContent>
+        </Card>
+        
+        {/* Grundfreibetrag Configuration */}
+        <Card>
+            <CardHeader>
+                <CardTitle>🏠 Grundfreibetrag-Konfiguration</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+                <div className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="space-y-1">
+                        <Label htmlFor="grundfreibetragAktiv" className="font-medium">Grundfreibetrag berücksichtigen</Label>
+                        <p className="text-sm text-muted-foreground">
+                            Berücksichtigt den Grundfreibetrag für die Einkommensteuer bei Entnahmen (relevant für Rentner ohne weiteres Einkommen)
+                        </p>
+                    </div>
+                    <Switch
+                        id="grundfreibetragAktiv"
+                        checked={grundfreibetragAktiv}
+                        onCheckedChange={(checked) => {
+                            setGrundfreibetragAktiv(checked);
+                            // When activating for the first time, set to double the base value
+                            if (checked && grundfreibetragBetrag === 11604) {
+                                setGrundfreibetragBetrag(23208);
+                            }
+                            performSimulation();
+                        }}
+                    />
+                </div>
+
+                {grundfreibetragAktiv && (
+                    <div className="space-y-2">
+                        <Label htmlFor="grundfreibetragBetrag">Grundfreibetrag pro Jahr (€)</Label>
+                        <Input
+                            id="grundfreibetragBetrag"
+                            type="number"
+                            value={grundfreibetragBetrag}
+                            min={0}
+                            max={50000}
+                            step={100}
+                            onChange={(e) => {
+                                const value = Number(e.target.value);
+                                if (!isNaN(value)) {
+                                    setGrundfreibetragBetrag(value);
+                                    performSimulation();
+                                }
+                            }}
+                            className="w-full"
+                        />
+                        <div className="text-sm text-muted-foreground">
+                            <p>Aktueller Grundfreibetrag 2024: €11.604 | Empfohlener Wert für Paare: €23.208</p>
+                            <p>Der Grundfreibetrag wird sowohl für einheitliche Strategien als auch für geteilte Entsparphasen berücksichtigt.</p>
+                        </div>
+                    </div>
+                )}
             </CardContent>
         </Card>
         

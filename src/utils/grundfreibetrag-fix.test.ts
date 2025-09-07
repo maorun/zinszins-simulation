@@ -104,12 +104,12 @@ describe('Grundfreibetrag Calculation Fix', () => {
         incomeTaxRate: 0.25
       });
 
-      // Should use the default value of 10908
+      // Should use the default value of 11604 (2024 German basic tax allowance)
       const yearResults = Object.values(result.result);
       yearResults.forEach(yearResult => {
         expect(yearResult.einkommensteuer).toBeDefined();
         expect(yearResult.genutzterGrundfreibetrag).toBeDefined();
-        expect(yearResult.genutzterGrundfreibetrag!).toBeLessThanOrEqual(10908);
+        expect(yearResult.genutzterGrundfreibetrag!).toBeLessThanOrEqual(11604); // Updated to 2024 value
       });
     });
   });
@@ -118,7 +118,7 @@ describe('Grundfreibetrag Calculation Fix', () => {
     test('taxable income should be (withdrawal - grundfreibetrag) when enabled', () => {
       const withdrawalStartYear = 2024;
       const lastSimYear = withdrawalStartYear - 1;
-      const grundfreibetrag = 10908;
+      const grundfreibetrag = 11604; // Updated to 2024 German basic tax allowance
       const elements = [createTestElement(2023, 50000, 60000, lastSimYear)];
       
       const resultEnabled = calculateWithdrawal({
