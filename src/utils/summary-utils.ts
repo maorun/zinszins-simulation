@@ -1,6 +1,7 @@
 import type { SimulationResult, SimulationResultElement } from "./simulate";
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type { WithdrawalResult } from "../../helpers/withdrawal";
+import type { WithdrawalSegment } from "../utils/segmented-withdrawal";
 
 export type Summary = {
     startkapital: number;
@@ -16,8 +17,23 @@ export type EnhancedSummary = Summary & {
     // Withdrawal phase (Entsparphase) metrics - optional as they may not always be calculated
     endkapitalEntspharphase?: number; // End capital after withdrawal phase
     monatlicheAuszahlung?: number; // Monthly withdrawal amount in Euro
-    renditeEntspharphase?: number; // Return rate in withdrawal phase as percentage
     jahreEntspharphase?: number; // Number of years in withdrawal phase
+    
+    // Segmented withdrawal phase information
+    isSegmentedWithdrawal?: boolean; // Whether withdrawal uses multiple segments
+    withdrawalSegments?: WithdrawalSegmentSummary[]; // Summary for each segment
+};
+
+export type WithdrawalSegmentSummary = {
+    id: string;
+    name: string;
+    startYear: number;
+    endYear: number;
+    strategy: string;
+    startkapital: number;
+    endkapital: number;
+    totalWithdrawn: number;
+    averageMonthlyWithdrawal: number;
 };
 
 export function getSparplanSummary(element?: SimulationResult): Summary {
@@ -136,7 +152,9 @@ export function getEnhancedSummary(
     elemente?: SparplanElement[],
     startYear?: number,
     endYear?: number,
-    withdrawalResult?: WithdrawalResult
+    withdrawalResult?: WithdrawalResult,
+    isSegmentedWithdrawal?: boolean,
+    withdrawalSegments?: WithdrawalSegment[]
 ): EnhancedSummary {
     const baseSummary = fullSummary(elemente);
     
@@ -154,6 +172,7 @@ export function getEnhancedSummary(
     const enhancedSummary: EnhancedSummary = {
         ...baseSummary,
         renditeAnsparphase,
+        isSegmentedWithdrawal,
     };
     
     // Add withdrawal phase metrics if provided
@@ -164,20 +183,13 @@ export function getEnhancedSummary(
         enhancedSummary.monatlicheAuszahlung = withdrawalData.averageMonthlyWithdrawal;
         enhancedSummary.jahreEntspharphase = withdrawalData.totalYears;
         
-        // Calculate withdrawal phase return rate
-        if (withdrawalData.totalYears > 0 && baseSummary.endkapital > 0) {
-            // Calculate the effective annual return during withdrawal phase
-            // This considers both growth and withdrawals
-            const initialCapital = baseSummary.endkapital;
-            const finalCapital = withdrawalData.finalCapital;
-            const totalWithdrawn = withdrawalData.totalWithdrawn;
-            
-            // If we have final capital + total withdrawn, we can estimate the return
-            if (totalWithdrawn > 0) {
-                const totalValue = finalCapital + totalWithdrawn;
-                const annualizedReturn = Math.pow(totalValue / initialCapital, 1 / withdrawalData.totalYears) - 1;
-                enhancedSummary.renditeEntspharphase = annualizedReturn * 100;
-            }
+        // Handle segmented withdrawal summaries
+        if (isSegmentedWithdrawal && withdrawalSegments && withdrawalSegments.length > 1) {
+            enhancedSummary.withdrawalSegments = createWithdrawalSegmentSummaries(
+                withdrawalSegments, 
+                withdrawalResult, 
+                baseSummary.endkapital
+            );
         }
     }
     
@@ -303,4 +315,91 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
     }
 
     return progression;
+}
+
+/**
+ * Create summaries for each withdrawal segment
+ */
+function createWithdrawalSegmentSummaries(
+    segments: WithdrawalSegment[],
+    withdrawalResult: WithdrawalResult,
+    initialCapital: number
+): WithdrawalSegmentSummary[] {
+    const summaries: WithdrawalSegmentSummary[] = [];
+    let currentCapital = initialCapital;
+    
+    // Sort segments by start year
+    const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear);
+    
+    for (const segment of sortedSegments) {
+        const segmentYears = Array.from(
+            { length: segment.endYear - segment.startYear + 1 }, 
+            (_, i) => segment.startYear + i
+        );
+        
+        // Calculate metrics for this segment
+        let segmentStartCapital = currentCapital;
+        let segmentEndCapital = currentCapital;
+        let totalWithdrawn = 0;
+        let totalMonthlyWithdrawals = 0;
+        let monthsWithData = 0;
+        
+        for (const year of segmentYears) {
+            const yearData = withdrawalResult[year];
+            if (yearData) {
+                segmentEndCapital = yearData.endkapital;
+                totalWithdrawn += yearData.entnahme;
+                
+                if (yearData.monatlicheEntnahme !== undefined) {
+                    totalMonthlyWithdrawals += yearData.monatlicheEntnahme;
+                    monthsWithData += 1;
+                }
+            }
+        }
+        
+        // Calculate average monthly withdrawal for this segment
+        let averageMonthlyWithdrawal = 0;
+        if (monthsWithData > 0) {
+            averageMonthlyWithdrawal = totalMonthlyWithdrawals / monthsWithData;
+        } else if (totalWithdrawn > 0) {
+            averageMonthlyWithdrawal = totalWithdrawn / segmentYears.length / 12;
+        }
+        
+        summaries.push({
+            id: segment.id,
+            name: segment.name,
+            startYear: segment.startYear,
+            endYear: segment.endYear,
+            strategy: getStrategyDisplayName(segment.strategy),
+            startkapital: segmentStartCapital,
+            endkapital: segmentEndCapital,
+            totalWithdrawn,
+            averageMonthlyWithdrawal,
+        });
+        
+        // Update current capital for next segment
+        currentCapital = segmentEndCapital;
+    }
+    
+    return summaries;
+}
+
+/**
+ * Get display name for withdrawal strategy
+ */
+function getStrategyDisplayName(strategy: string): string {
+    switch (strategy) {
+        case "4prozent":
+            return "4% Regel";
+        case "3prozent":
+            return "3% Regel";
+        case "variabel_prozent":
+            return "Variable Prozent";
+        case "monatlich_fest":
+            return "Monatlich fest";
+        case "dynamisch":
+            return "Dynamische Strategie";
+        default:
+            return strategy;
+    }
 }

@@ -7,7 +7,8 @@ export function getEnhancedOverviewSummary(
   withdrawalResults: any,
   rendite: number,
   steuerlast: number,
-  teilfreistellungsquote: number
+  teilfreistellungsquote: number,
+  withdrawalConfig?: any
 ) {
   if (!simulationData) return null;
 
@@ -35,6 +36,8 @@ export function getEnhancedOverviewSummary(
     simulationData.sparplanElements,
     savingsStartYear,
     savingsEndYear,
-    withdrawalResult
+    withdrawalResult,
+    withdrawalConfig?.useSegmentedWithdrawal,
+    withdrawalConfig?.withdrawalSegments
   );
 }
