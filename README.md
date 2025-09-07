@@ -41,6 +41,12 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Kapitalertragsteuer (standardmäßig 26,375%)
   - Teilfreistellungsquote für Aktienfonds (standardmäßig 30%)
   - Freibetrag pro Jahr - Individuelle Konfiguration der jährlichen Steuerfreibeträge
+- **Basiszins-Konfiguration (Deutsche Bundesbank)** - Verwaltung der offiziellen Basiszinssätze für Vorabpauschale-Berechnungen
+  - **Automatischer Abruf** - Integration mit der Deutschen Bundesbank API (geplant)
+  - **Historische Daten** - Offizielle Basiszinssätze von 2018-2024 bereits enthalten
+  - **Manuelle Eingabe** - Möglichkeit zur Eingabe zukünftiger Zinssätze (z.B. für 2025+)
+  - **Flexible Konfiguration** - Jahr-für-Jahr anpassbare Zinssätze mit Quellenangabe
+  - **Echtzeit-Update** - Simulation wird automatisch bei Änderungen neu berechnet
 
 ### Auszahlungsphase
 - **4% Regel** - Jährliche Entnahme von 4% des Startkapitals

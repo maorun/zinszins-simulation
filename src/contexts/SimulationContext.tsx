@@ -7,6 +7,7 @@ import { convertSparplanToElements, initialSparplan } from '../utils/sparplan-ut
 import type { WithdrawalResult } from '../../helpers/withdrawal';
 import { SimulationContext } from './SimulationContextValue';
 import { saveConfiguration, loadConfiguration, type SavedConfiguration, type WithdrawalConfiguration } from '../utils/config-storage';
+import type { BasiszinsConfiguration } from '../services/bundesbank-api';
 
 export interface SimulationContextState {
   rendite: number;
@@ -17,6 +18,9 @@ export interface SimulationContextState {
   setTeilfreistellungsquote: (teilfreistellungsquote: number) => void;
   freibetragPerYear: { [year: number]: number };
   setFreibetragPerYear: (freibetragPerYear: { [year: number]: number }) => void;
+  // Basiszins configuration for Vorabpauschale calculation
+  basiszinsConfiguration: BasiszinsConfiguration;
+  setBasiszinsConfiguration: (basiszinsConfiguration: BasiszinsConfiguration) => void;
   // Phase-specific tax reduction settings
   steuerReduzierenEndkapitalSparphase: boolean;
   setSteuerReduzierenEndkapitalSparphase: (steuerReduzierenEndkapitalSparphase: boolean) => void;
@@ -61,6 +65,16 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerlast: 26.375,
     teilfreistellungsquote: 30,
     freibetragPerYear: { 2023: 2000 },
+    // Default Basiszins configuration with historical rates
+    basiszinsConfiguration: {
+      2018: { year: 2018, rate: 0.0087, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
+      2019: { year: 2019, rate: 0.0087, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
+      2020: { year: 2020, rate: 0.0070, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
+      2021: { year: 2021, rate: 0.0070, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
+      2022: { year: 2022, rate: 0.0180, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
+      2023: { year: 2023, rate: 0.0255, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
+      2024: { year: 2024, rate: 0.0255, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
+    } as BasiszinsConfiguration,
     // Default: taxes reduce capital for savings and withdrawal phases
     steuerReduzierenEndkapitalSparphase: true,
     steuerReduzierenEndkapitalEntspharphase: true,
@@ -86,6 +100,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [steuerlast, setSteuerlast] = useState(initialConfig.steuerlast);
   const [teilfreistellungsquote, setTeilfreistellungsquote] = useState(initialConfig.teilfreistellungsquote);
   const [freibetragPerYear, setFreibetragPerYear] = useState<{ [year: number]: number }>(initialConfig.freibetragPerYear);
+  const [basiszinsConfiguration, setBasiszinsConfiguration] = useState<BasiszinsConfiguration>(
+    (initialConfig as any).basiszinsConfiguration || defaultConfig.basiszinsConfiguration
+  );
   const [steuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalSparphase] = useState(
     (initialConfig as any).steuerReduzierenEndkapitalSparphase ?? true
   );
@@ -120,6 +137,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerlast,
     teilfreistellungsquote,
     freibetragPerYear,
+    basiszinsConfiguration,
     steuerReduzierenEndkapitalSparphase,
     steuerReduzierenEndkapitalEntspharphase,
     returnMode,
@@ -131,7 +149,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     sparplan,
     simulationAnnual,
     withdrawal: withdrawalConfig || undefined,
-  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
+  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration();
@@ -145,6 +163,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setSteuerlast(savedConfig.steuerlast);
       setTeilfreistellungsquote(savedConfig.teilfreistellungsquote);
       setFreibetragPerYear(savedConfig.freibetragPerYear);
+      setBasiszinsConfiguration((savedConfig as any).basiszinsConfiguration || defaultConfig.basiszinsConfiguration);
       setSteuerReduzierenEndkapitalSparphase(savedConfig.steuerReduzierenEndkapitalSparphase ?? true);
       setSteuerReduzierenEndkapitalEntspharphase(savedConfig.steuerReduzierenEndkapitalEntspharphase ?? true);
       setReturnMode(savedConfig.returnMode);
@@ -165,6 +184,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setSteuerlast(defaultConfig.steuerlast);
     setTeilfreistellungsquote(defaultConfig.teilfreistellungsquote);
     setFreibetragPerYear(defaultConfig.freibetragPerYear);
+    setBasiszinsConfiguration(defaultConfig.basiszinsConfiguration);
     setSteuerReduzierenEndkapitalSparphase(defaultConfig.steuerReduzierenEndkapitalSparphase);
     setSteuerReduzierenEndkapitalEntspharphase(defaultConfig.steuerReduzierenEndkapitalEntspharphase);
     setReturnMode(defaultConfig.returnMode);
@@ -177,7 +197,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setSimulationAnnual(defaultConfig.simulationAnnual);
     setSparplanElemente(convertSparplanToElements(defaultConfig.sparplan, defaultConfig.startEnd, defaultConfig.simulationAnnual));
     setWithdrawalConfig(null); // Reset withdrawal config to null
-  }, [defaultConfig]);
+  }, [defaultConfig, setSparplanElemente]);
 
   // Auto-save configuration whenever any config value changes
   useEffect(() => {
@@ -227,6 +247,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
         teilfreistellungsquote: teilfreistellungsquote / 100,
         freibetragPerYear,
         steuerReduzierenEndkapital: steuerReduzierenEndkapitalSparphase, // Use savings phase setting
+        basiszinsConfiguration,
       });
 
       setSimulationData({
@@ -239,13 +260,14 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     } finally {
       setIsLoading(false);
     }
-  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, steuerReduzierenEndkapitalSparphase]);
+  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase]);
 
   const value = useMemo(() => ({
     rendite, setRendite,
     steuerlast, setSteuerlast,
     teilfreistellungsquote, setTeilfreistellungsquote,
     freibetragPerYear, setFreibetragPerYear,
+    basiszinsConfiguration, setBasiszinsConfiguration,
     steuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalSparphase,
     steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase,
     returnMode, setReturnMode,
@@ -268,7 +290,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     // Withdrawal configuration
     withdrawalConfig, setWithdrawalConfig,
   }), [
-    rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, 
+    rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, 
     steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase,
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns,
     startEnd, sparplan, simulationAnnual, sparplanElemente,

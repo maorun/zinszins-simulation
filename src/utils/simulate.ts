@@ -1,6 +1,7 @@
 import type { SparplanElement } from "../utils/sparplan-utils";
 import { getBasiszinsForYear, calculateVorabpauschaleDetailed } from "../../helpers/steuer.tsx";
 import { type ReturnConfiguration, generateRandomReturns } from "./random-returns";
+import type { BasiszinsConfiguration } from "../services/bundesbank-api";
 
 export type VorabpauschaleDetails = {
     basiszins: number; // Base interest rate for the year
@@ -54,6 +55,7 @@ export interface SimulateOptions {
     teilfreistellungsquote?: number;
     freibetragPerYear?: { [year: number]: number };
     steuerReduzierenEndkapital?: boolean;
+    basiszinsConfiguration?: BasiszinsConfiguration;
   }
 
 function generateYearlyGrowthRates(
@@ -152,8 +154,8 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     wachstumsrate: number,
     options: SimulateOptions
   ) {
-    const { simulationAnnual, steuerlast, teilfreistellungsquote = 0.3, freibetragPerYear, steuerReduzierenEndkapital = true } = options;
-    const basiszins = getBasiszinsForYear(year);
+    const { simulationAnnual, steuerlast, teilfreistellungsquote = 0.3, freibetragPerYear, steuerReduzierenEndkapital = true, basiszinsConfiguration } = options;
+    const basiszins = getBasiszinsForYear(year, basiszinsConfiguration);
     const yearlyCalculations: any[] = [];
     let totalPotentialTaxThisYear = 0;
 
