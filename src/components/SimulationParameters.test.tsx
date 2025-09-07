@@ -18,15 +18,26 @@ describe('SimulationParameters', () => {
         mockClipboard.writeText.mockReset();
     });
 
-    it('renders the simulation parameters form', () => {
+    it('renders the simulation parameters form', async () => {
         render(
             <SimulationProvider>
                 <SimulationParameters />
             </SimulationProvider>
         );
+        
+        // Check that the Configuration header is visible
         expect(screen.getAllByText(/Konfiguration/)[0]).toBeInTheDocument();
-        expect(screen.getAllByText(/Sparphase-Ende/)[0]).toBeInTheDocument();
-        expect(screen.getByText(/Rendite-Konfiguration/)).toBeInTheDocument();
+        
+        // Expand the collapsible panel by clicking on the trigger div
+        const expandTrigger = screen.getByText('⚙️ Konfiguration').closest('div[aria-expanded="false"]');
+        expect(expandTrigger).toBeInTheDocument();
+        fireEvent.click(expandTrigger!);
+        
+        // Wait for the content to be visible
+        await waitFor(() => {
+            expect(screen.getAllByText(/Sparphase-Ende/)[0]).toBeInTheDocument();
+        });
+        
         expect(screen.getByText(/Steuer-Konfiguration/)).toBeInTheDocument();
         expect(screen.getByText(/Simulation-Konfiguration/)).toBeInTheDocument();
     });

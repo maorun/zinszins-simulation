@@ -1,5 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Label } from './ui/label';
+import { Switch } from './ui/switch';
 import { useSimulation } from '../contexts/useSimulation';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
 
@@ -19,38 +20,35 @@ const SimulationConfiguration = () => {
             </CardHeader>
             <CardContent>
                 <div className="space-y-4">
-                    <div>
-                        <Label className="text-base font-medium">Berechnungsmodus</Label>
-                        <div className="flex space-x-6 mt-2">
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    value="yearly"
-                                    checked={simulationAnnual === 'yearly'}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
-                                        setSimulationAnnual(value as any);
-                                        setSparplanElemente(convertSparplanToElements(sparplan, startEnd, value as any));
-                                    }}
-                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
-                                />
-                                <span>Jährlich</span>
-                            </label>
-                            <label className="flex items-center space-x-2 cursor-pointer">
-                                <input
-                                    type="radio"
-                                    value="monthly"
+                    <div className="p-3 border rounded-lg">
+                        <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+                            <div className="space-y-1 sm:space-y-1">
+                                <Label htmlFor="berechnungsmodus" className="font-medium">Berechnungsmodus</Label>
+                                <p className="text-sm text-muted-foreground hidden sm:block">
+                                    Jährlich für schnellere Berechnung, Monatlich für präzisere Ergebnisse
+                                </p>
+                            </div>
+                            <div className="flex items-center space-x-3">
+                                <span className={`text-sm ${simulationAnnual === 'yearly' ? 'font-medium' : 'text-muted-foreground'}`}>
+                                    Jährlich
+                                </span>
+                                <Switch
+                                    id="berechnungsmodus"
                                     checked={simulationAnnual === 'monthly'}
-                                    onChange={(e) => {
-                                        const value = e.target.value;
+                                    onCheckedChange={(checked) => {
+                                        const value = checked ? 'monthly' : 'yearly';
                                         setSimulationAnnual(value as any);
                                         setSparplanElemente(convertSparplanToElements(sparplan, startEnd, value as any));
                                     }}
-                                    className="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 focus:ring-blue-500 focus:ring-2"
                                 />
-                                <span>Monatlich</span>
-                            </label>
+                                <span className={`text-sm ${simulationAnnual === 'monthly' ? 'font-medium' : 'text-muted-foreground'}`}>
+                                    Monatlich
+                                </span>
+                            </div>
                         </div>
+                        <p className="text-sm text-muted-foreground mt-3 sm:hidden">
+                            Jährlich für schnellere Berechnung, Monatlich für präzisere Ergebnisse
+                        </p>
                     </div>
                 </div>
             </CardContent>

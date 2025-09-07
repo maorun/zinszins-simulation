@@ -2,6 +2,7 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { SparplanEingabe } from './SparplanEingabe';
 import { SparplanSimulationsAusgabe } from './SparplanSimulationsAusgabe';
 import SavingsPhaseMonteCarloAnalysis from './SavingsPhaseMonteCarloAnalysis';
+import ReturnConfiguration from './ReturnConfiguration';
 import { useSimulation } from '../contexts/useSimulation';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
 
@@ -10,6 +11,8 @@ const SavingsPlan = () => {
 
   return (
     <>
+      <ReturnConfiguration />
+      
       <Card className="mb-4">
         <CardHeader>
           <CardTitle>💼 Sparpläne erstellen</CardTitle>

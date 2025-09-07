@@ -11,7 +11,7 @@ describe('ReturnConfiguration', () => {
                 <ReturnConfiguration />
             </SimulationProvider>
         );
-        fireEvent.click(screen.getByRole('radio', { name: 'Zufällige Rendite' }));
+        fireEvent.click(screen.getByText('Zufällige Rendite'));
         expect(screen.getByText('Durchschnittliche Rendite')).toBeInTheDocument();
     });
 
@@ -21,7 +21,7 @@ describe('ReturnConfiguration', () => {
                 <ReturnConfiguration />
             </SimulationProvider>
         );
-        fireEvent.click(screen.getByRole('radio', { name: 'Variable Rendite' }));
+        fireEvent.click(screen.getByText('Variable Rendite'));
         expect(screen.getByText('Variable Renditen pro Jahr')).toBeInTheDocument();
     });
 });
