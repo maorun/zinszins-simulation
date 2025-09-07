@@ -198,18 +198,28 @@ When components become too large (> 500-800 lines), follow this refactoring appr
 - **Currency formatting**: Use shared `formatCurrency` utility from `src/utils/currency.ts`
 - **Helper functions**: Extract helper functions that don't need React context
 
-#### 4. Maintain Test Coverage
+#### 4. Maintain Test Coverage - MANDATORY
 - **Test extracted components**: Each new component needs comprehensive tests
 - **Test custom hooks**: Use `renderHook` to test custom hooks in isolation
 - **Test utility functions**: Unit test pure functions thoroughly
 - **Integration tests**: Ensure the refactored components work together correctly
+- **Fix test failures**: When components are extracted, existing tests may fail due to multiple DOM elements with same text. Use `getAllByText()` instead of `getByText()` when content appears in multiple places
 
-#### 5. Refactoring Process
+#### 5. Refactoring Process - Testing & Linting at Every Step
 1. **Identify extraction boundaries**: Look for distinct UI sections or logical groupings
 2. **Extract in small steps**: Start with one component or hook at a time
-3. **Test after each extraction**: Ensure functionality remains intact
-4. **Update imports gradually**: Fix import paths and dependencies systematically
-5. **Run full test suite**: Verify no regressions have been introduced
+3. **Test immediately after each extraction**: 
+   - Run `npm run test` after each component extraction
+   - Fix any test failures immediately before proceeding
+   - Tests may fail due to duplicate content across components - update tests to handle this
+4. **Lint immediately after each extraction**: 
+   - Run `npm run lint` to ensure code style compliance
+   - Fix any linting issues before proceeding
+5. **Build verification**: Run `npm run build` to ensure TypeScript compilation works
+6. **Update imports gradually**: Fix import paths and dependencies systematically
+7. **Final validation**: Run full test suite and linting before considering refactoring complete
+
+**CRITICAL: Never proceed to the next extraction if tests are failing or linting issues exist. Each step must be validated before moving forward.**
 
 #### Example Refactoring (EntnahmeSimulationsAusgabe)
 ```typescript
@@ -245,6 +255,29 @@ This approach resulted in:
 - Better separation of concerns
 - Easier testing and maintenance
 - Reusable components and logic
+
+#### Common Testing Issues During Refactoring
+
+**Multiple Element Error**: When components are extracted and display the same content in multiple places (e.g., base strategy summary + comparison table), tests using `getByText()` will fail:
+
+```typescript
+// ❌ This will fail if "5%" appears multiple times
+expect(screen.getByText('5%')).toBeInTheDocument();
+
+// ✅ Fix by using getAllByText() instead
+expect(screen.getAllByText('5%')).toHaveLength(2);
+
+// ✅ Or use more specific queries
+expect(screen.getByText(/📊 Basis-Strategie.*5%/)).toBeInTheDocument();
+```
+
+**Common patterns that need `getAllByText()`**:
+- Currency amounts (e.g., "498.000,00 €") appearing in cards + tables
+- Percentages (e.g., "5%") in summaries + tables  
+- Duration text (e.g., "25 Jahre", "unbegrenzt") in multiple sections
+- Strategy names appearing in headers + table rows
+
+**Always run tests after each component extraction** and fix these issues immediately before proceeding to the next extraction.
 
 ### Development Workflow Steps
 

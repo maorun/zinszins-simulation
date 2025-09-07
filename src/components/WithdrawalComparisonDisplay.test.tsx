@@ -135,9 +135,12 @@ describe('WithdrawalComparisonDisplay', () => {
 
     expect(screen.getByText(/📊 Basis-Strategie: 4% Regel/)).toBeInTheDocument();
     expect(screen.getByText('Rendite:')).toBeInTheDocument();
-    expect(screen.getByText('5%')).toBeInTheDocument();
-    expect(screen.getByText(/498.000,00 €/)).toBeInTheDocument(); // Endkapital
-    expect(screen.getByText('25 Jahre')).toBeInTheDocument(); // Duration
+    // Use getAllByText since 5% appears multiple times (base strategy + table)
+    expect(screen.getAllByText('5%')).toHaveLength(2);
+    // 498.000,00 € appears in both base strategy and table
+    expect(screen.getAllByText(/498.000,00 €/)).toHaveLength(2);
+    // 25 Jahre appears in both base strategy and table
+    expect(screen.getAllByText('25 Jahre')).toHaveLength(2);
     expect(screen.getByText('20.000,00 €')).toBeInTheDocument(); // Annual withdrawal (4% of 500k)
   });
 
@@ -211,16 +214,16 @@ describe('WithdrawalComparisonDisplay', () => {
     expect(screen.getByText('3% Regel (4% Rendite)')).toBeInTheDocument();
     expect(screen.getByText('Conservative Strategy (3% Rendite)')).toBeInTheDocument();
     
-    // Check comparison strategy details
-    expect(screen.getByText('450.000,00 €')).toBeInTheDocument(); // First strategy final capital
+    // Check comparison strategy details - use getAllByText for amounts that appear in table too
+    expect(screen.getAllByText('450.000,00 €')).toHaveLength(2); // First strategy final capital (card + table)
     expect(screen.getByText('375.000,00 €')).toBeInTheDocument(); // First strategy total withdrawal
-    expect(screen.getByText('15.000,00 €')).toBeInTheDocument(); // First strategy average annual
-    expect(screen.getByText('30 Jahre')).toBeInTheDocument(); // First strategy duration
+    expect(screen.getAllByText('15.000,00 €')).toHaveLength(2); // First strategy average annual (card + table)
+    expect(screen.getAllByText('30 Jahre')).toHaveLength(2); // First strategy duration (card + table)
     
-    expect(screen.getByText('480.000,00 €')).toBeInTheDocument(); // Second strategy final capital
+    expect(screen.getAllByText('480.000,00 €')).toHaveLength(2); // Second strategy final capital (card + table)
     expect(screen.getByText('312.500,00 €')).toBeInTheDocument(); // Second strategy total withdrawal
-    expect(screen.getByText('12.500,00 €')).toBeInTheDocument(); // Second strategy average annual
-    expect(screen.getByText('unbegrenzt')).toBeInTheDocument(); // Second strategy duration
+    expect(screen.getAllByText('12.500,00 €')).toHaveLength(2); // Second strategy average annual (card + table)
+    expect(screen.getAllByText('unbegrenzt')).toHaveLength(2); // Second strategy duration (card + table)
   });
 
   it('renders empty state when no comparison results', () => {
@@ -289,7 +292,8 @@ describe('WithdrawalComparisonDisplay', () => {
       />
     );
 
-    expect(screen.getByText('unbegrenzt')).toBeInTheDocument();
+    // "unbegrenzt" appears multiple times (base strategy + comparison table)
+    expect(screen.getAllByText('unbegrenzt')).toHaveLength(4);
   });
 
   it('calculates average annual withdrawal correctly for base strategy in table', () => {
