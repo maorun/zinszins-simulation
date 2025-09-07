@@ -1,5 +1,8 @@
+import type { BasiszinsConfiguration } from '../src/services/bundesbank-api';
+
 // Historical and projected German Basiszins (base interest rate) values for Vorabpauschale calculation
 // These are official rates set by the German Federal Ministry of Finance
+// NOTE: This is now a fallback - the main configuration should come from BasiszinsConfiguration
 const basiszinsen: {
     [year: number]: number;
 } = {
@@ -16,13 +19,31 @@ const basiszinsen: {
 /**
  * Get the basiszins (base interest rate) for a specific year
  * Falls back to the latest available year if the requested year is not found
+ * 
+ * @param year - The year to get the basiszins for
+ * @param basiszinsConfig - Optional configurable basiszins configuration (from Deutsche Bundesbank)
  */
-export function getBasiszinsForYear(year: number): number {
+export function getBasiszinsForYear(year: number, basiszinsConfig?: BasiszinsConfiguration): number {
+    // First, try to use the configurable basiszins if provided
+    if (basiszinsConfig && basiszinsConfig[year]) {
+        return basiszinsConfig[year].rate;
+    }
+    
+    // Fallback to hardcoded historical data
     if (basiszinsen[year] !== undefined) {
         return basiszinsen[year];
     }
     
-    // Fallback to the latest available year
+    // If using configurable basiszins, find the most recent rate
+    if (basiszinsConfig) {
+        const availableYears = Object.keys(basiszinsConfig).map(Number).sort((a, b) => b - a);
+        if (availableYears.length > 0) {
+            const latestYear = availableYears[0];
+            return basiszinsConfig[latestYear].rate;
+        }
+    }
+    
+    // Final fallback to the latest available year from hardcoded data
     const availableYears = Object.keys(basiszinsen).map(Number).sort((a, b) => b - a);
     const latestYear = availableYears[0];
     

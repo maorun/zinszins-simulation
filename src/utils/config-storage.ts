@@ -3,6 +3,7 @@ import type { Sparplan } from './sparplan-utils';
 import type { SimulationAnnualType } from './simulate';
 import type { WithdrawalStrategy } from '../../helpers/withdrawal';
 import type { WithdrawalSegment } from './segmented-withdrawal';
+import type { BasiszinsConfiguration } from '../services/bundesbank-api';
 
 /**
  * Return mode for withdrawal phase (subset of main ReturnMode)
@@ -89,6 +90,8 @@ export interface SavedConfiguration {
   steuerlast: number;
   teilfreistellungsquote: number;
   freibetragPerYear: { [year: number]: number };
+  // Basiszins configuration for Vorabpauschale calculation
+  basiszinsConfiguration?: BasiszinsConfiguration;
   // Legacy single setting for backward compatibility
   steuerReduzierenEndkapital?: boolean;
   // New phase-specific settings

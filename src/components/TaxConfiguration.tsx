@@ -7,6 +7,7 @@ import { Label } from './ui/label';
 import { Switch } from './ui/switch';
 import { Trash2, Plus } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
+import BasiszinsConfiguration from './BasiszinsConfiguration';
 
 const TaxConfiguration = () => {
     const {
@@ -26,11 +27,12 @@ const TaxConfiguration = () => {
     const yearToday = new Date().getFullYear();
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>💰 Steuer-Konfiguration</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
+        <div className="space-y-4">
+            <Card>
+                <CardHeader>
+                    <CardTitle>💰 Steuer-Konfiguration</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-6">{/* ... existing tax configuration content ... */}
                 <div className="space-y-2">
                     <Label htmlFor="steuerlast">Kapitalertragsteuer (%)</Label>
                     <Slider
@@ -212,7 +214,11 @@ const TaxConfiguration = () => {
                 </div>
             </CardContent>
         </Card>
-    );
+        
+        {/* Basiszins Configuration */}
+        <BasiszinsConfiguration />
+    </div>
+);
 };
 
 export default TaxConfiguration;

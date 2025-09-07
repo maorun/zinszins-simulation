@@ -4,6 +4,7 @@ import type { ReturnConfiguration } from "../src/utils/random-returns";
 import { generateRandomReturns } from "../src/utils/random-returns";
 import type { SegmentedWithdrawalConfig, WithdrawalSegment } from "../src/utils/segmented-withdrawal";
 import type { WithdrawalFrequency } from "../src/utils/config-storage";
+import type { BasiszinsConfiguration } from "../src/services/bundesbank-api";
 
 
 export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "dynamisch";
@@ -97,6 +98,7 @@ export type CalculateWithdrawalParams = {
     incomeTaxRate?: number;
     inflationConfig?: InflationConfig;
     dynamicConfig?: DynamicWithdrawalConfig;
+    basiszinsConfiguration?: BasiszinsConfiguration;
 };
 
 export function calculateWithdrawal({
@@ -116,7 +118,8 @@ export function calculateWithdrawal({
     grundfreibetragPerYear,
     incomeTaxRate,
     inflationConfig,
-    dynamicConfig
+    dynamicConfig,
+    basiszinsConfiguration
 }: CalculateWithdrawalParams): { result: WithdrawalResult; finalLayers: MutableLayer[] } {
     // Helper functions
     const getFreibetragForYear = (year: number): number => {
@@ -261,7 +264,7 @@ export function calculateWithdrawal({
         
         // FIRST: Calculate Vorabpauschale BEFORE any withdrawal, using full portfolio values at start of year
         const yearlyFreibetrag = getFreibetragForYear(year);
-        const basiszins = getBasiszinsForYear(year);
+        const basiszins = getBasiszinsForYear(year, basiszinsConfiguration);
         let totalPotentialVorabTax = 0;
         const vorabCalculations: { layer: MutableLayer; vorabpauschaleBetrag: number; potentialTax: number; valueBeforeWithdrawal: number }[] = [];
         
