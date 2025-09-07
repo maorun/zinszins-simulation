@@ -430,7 +430,14 @@ function getWithdrawalStrategyLabel(strategy: string): string {
  * Download text content as file
  */
 export function downloadTextAsFile(content: string, filename: string, mimeType: string = 'text/plain'): void {
-  const blob = new Blob([content], { type: mimeType });
+  // Add UTF-8 BOM (Byte Order Mark) to ensure proper encoding for special characters
+  const BOM = '\uFEFF';
+  const contentWithBOM = BOM + content;
+  
+  // Ensure the MIME type includes charset=utf-8 if not already specified
+  const finalMimeType = mimeType.includes('charset') ? mimeType : `${mimeType};charset=utf-8`;
+  
+  const blob = new Blob([contentWithBOM], { type: finalMimeType });
   const url = URL.createObjectURL(blob);
   
   const link = document.createElement('a');

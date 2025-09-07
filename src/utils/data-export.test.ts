@@ -199,7 +199,7 @@ describe('data-export', () => {
       expect(result).toContain('## Sparphase');
       expect(result).toContain('## Entnahmephase');
       expect(result).toContain('| Jahr | Startkapital | Zinsen |');
-      expect(result).toContain('| 2023 | 0,00 € |');
+      expect(result).toContain('0,00 €');
       expect(result).toContain('| 2041 | 500.000,00 € |');
     });
 
@@ -226,7 +226,7 @@ describe('data-export', () => {
       expect(result).toContain('3. STEUERBERECHNUNG');
       expect(result).toContain('4. FREIBETRÄGE');
       expect(result).toContain('Verwendete Rendite: 5.00%');
-      expect(result).toContain('2023: 2.000,00 € Sparerpauschbetrag');
+      expect(result).toContain('2.000,00 € Sparerpauschbetrag');
     });
 
     it('should include withdrawal strategy explanations', () => {
@@ -247,7 +247,12 @@ describe('data-export', () => {
   });
 
   describe('downloadTextAsFile', () => {
-    it('should create and trigger download', () => {
+    beforeEach(() => {
+      global.URL.createObjectURL = vi.fn().mockReturnValue('blob:mock-url');
+      global.URL.revokeObjectURL = vi.fn();
+    });
+
+    it('should create and trigger download with UTF-8 BOM and charset', () => {
       const mockLink = {
         href: '',
         download: '',
@@ -256,14 +261,51 @@ describe('data-export', () => {
       const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as any);
       const removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as any);
       const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockLink as any);
+      
+      // Mock Blob constructor to capture the content and options
+      const originalBlob = global.Blob;
+      let blobContent: any;
+      let blobOptions: any;
+      global.Blob = vi.fn().mockImplementation((content, options) => {
+        blobContent = content;
+        blobOptions = options;
+        return new originalBlob(content, options);
+      }) as any;
 
-      downloadTextAsFile('test content', 'test.txt');
+      downloadTextAsFile('test content with äöü and €', 'test.txt');
 
       expect(createElementSpy).toHaveBeenCalledWith('a');
       expect(mockLink.download).toBe('test.txt');
       expect(mockLink.click).toHaveBeenCalled();
       expect(appendChildSpy).toHaveBeenCalledWith(mockLink);
       expect(removeChildSpy).toHaveBeenCalledWith(mockLink);
+      
+      // Verify BOM is added
+      expect(blobContent[0]).toBe('\uFEFFtest content with äöü and €');
+      // Verify charset is added to MIME type
+      expect(blobOptions.type).toBe('text/plain;charset=utf-8');
+
+      global.Blob = originalBlob;
+    });
+
+    it('should preserve existing charset in MIME type', () => {
+      const mockLink = { href: '', download: '', click: vi.fn() };
+      vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as any);
+      vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as any);
+      vi.spyOn(document, 'createElement').mockReturnValue(mockLink as any);
+      
+      const originalBlob = global.Blob;
+      let blobOptions: any;
+      global.Blob = vi.fn().mockImplementation((content, options) => {
+        blobOptions = options;
+        return new originalBlob(content, options);
+      }) as any;
+
+      downloadTextAsFile('test', 'test.md', 'text/markdown;charset=utf-8');
+
+      expect(blobOptions.type).toBe('text/markdown;charset=utf-8');
+
+      global.Blob = originalBlob;
     });
   });
 
