@@ -79,6 +79,11 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Exportiert alle relevanten Parameter im deutschen Format (Parameter: xyz €, Parameter: xyz %)
   - Hilfreich für Entwicklung, Fehlerbeschreibung und Dokumentation von Simulationsszenarien
   - Inklusive Sparpläne, Steuereinstellungen, Rendite-Konfiguration und Entnahme-Parameter
+- **Daten Export** - Umfassende Export-Funktionen für alle Simulationsdaten
+  - **CSV Export**: Jahr-für-Jahr Aufschlüsselung der Sparphase und Entnahmephase in Excel/Calc-kompatiblem Format
+  - **Markdown Export**: Vollständiger Bericht mit Parametern, Berechnungsformeln und Übersichtstabellen
+  - **Berechnungs-Export**: Detaillierte Formeln und Erklärungen der verwendeten Berechnungsmethoden
+  - Deutsche Zahlenformatierung und GitHub/Wiki-kompatible Ausgabe
 - Echtzeit-Updates bei Parameteränderungen
 
 ---
