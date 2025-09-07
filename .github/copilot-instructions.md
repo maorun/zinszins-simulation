@@ -104,7 +104,11 @@ After making changes, ALWAYS test the complete user workflow:
 
 ### Styling and UI
 - **RSuite components** for UI (Tables, Forms, Panels, Sliders)
-- **CSS**: Uses `rsuite/dist/rsuite.min.css` - imported in components
+- **CSS Framework**: Uses Tailwind CSS utility classes exclusively
+  - **NO new CSS classes**: Never create custom CSS classes or styles in separate CSS files
+  - **Tailwind only**: Use only Tailwind CSS utility classes for all styling needs
+  - **RSuite imports**: Uses `rsuite/dist/rsuite.min.css` - imported in components for RSuite component base styles
+  - **Index.css**: Contains only Tailwind imports, CSS reset, and essential global styles
 - **Icons**: RSuite icons work correctly
 
 ### API and Data Flow
@@ -318,6 +322,7 @@ When performing code review, examine the following aspects:
 - **Minimal Changes**: Are changes surgical and focused? Avoid unnecessary modifications
 - **TypeScript**: Are types properly defined? No `any` types without justification
 - **React Patterns**: Proper use of hooks, state management, and component structure
+- **Styling Guidelines**: Use only Tailwind CSS utility classes - never create custom CSS classes or separate CSS files
 - **Performance**: No unnecessary re-renders or expensive calculations
 - **Error Handling**: Appropriate error handling for user inputs and edge cases
 
@@ -348,6 +353,7 @@ Before approving changes, verify:
 - [ ] Build succeeds (`npm run build`)
 - [ ] Manual testing confirms functionality works
 - [ ] Changes are minimal and focused
+- [ ] **Styling uses only Tailwind CSS utility classes** - no custom CSS classes created
 - [ ] German financial calculations are accurate
 - [ ] UI/UX remains consistent and responsive
 - [ ] Documentation is updated appropriately
