@@ -145,39 +145,39 @@ export function SparplanSimulationsAusgabe({
                 </div>
             
             {/* Card Layout for All Devices */}
-            <div className="sparplan-cards">
+            <div className="flex flex-col gap-4">
                 {tableData?.map((row, index) => (
-                    <div key={index} className="sparplan-card">
-                        <div className="sparplan-card-header">
-                            <span className="sparplan-year">📅 {row.zeitpunkt}</span>
-                            <span className="sparplan-endkapital">
+                    <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-shadow hover:shadow-md">
+                        <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">
+                            <span className="font-semibold text-gray-800 text-base">📅 {row.zeitpunkt}</span>
+                            <span className="font-bold text-blue-600 text-lg">
                                 🎯 {thousands(row.endkapital)} €
                             </span>
                         </div>
-                        <div className="sparplan-card-details">
-                            <div className="sparplan-detail">
-                                <span className="detail-label">💰 Neue Einzahlung:</span>
-                                <span className="detail-value" style={{ color: '#28a745' }}>
+                        <div className="flex flex-col gap-2">
+                            <div className="flex justify-between items-center py-1">
+                                <span className="text-sm text-gray-600 font-medium">💰 Neue Einzahlung:</span>
+                                <span className="font-semibold text-green-600 text-sm">
                                     {thousands(row.einzahlung.toString())} €
                                 </span>
                             </div>
-                            <div className="sparplan-detail">
-                                <span className="detail-label">📈 Zinsen (Jahr):</span>
-                                <span className="detail-value" style={{ color: '#17a2b8', display: 'flex', alignItems: 'center' }}>
+                            <div className="flex justify-between items-center py-1">
+                                <span className="text-sm text-gray-600 font-medium">📈 Zinsen (Jahr):</span>
+                                <span className="font-semibold text-cyan-600 text-sm flex items-center">
                                     {thousands(row.zinsen)} €
                                     <InfoIcon onClick={() => handleCalculationInfoClick('interest', row)} />
                                 </span>
                             </div>
-                            <div className="sparplan-detail">
-                                <span className="detail-label">💸 Bezahlte Steuer (Jahr):</span>
-                                <span className="detail-value" style={{ color: '#dc3545', display: 'flex', alignItems: 'center' }}>
+                            <div className="flex justify-between items-center py-1">
+                                <span className="text-sm text-gray-600 font-medium">💸 Bezahlte Steuer (Jahr):</span>
+                                <span className="font-semibold text-red-600 text-sm flex items-center">
                                     {thousands(row.bezahlteSteuer)} €
                                     <InfoIcon onClick={() => handleCalculationInfoClick('tax', row)} />
                                 </span>
                             </div>
-                            <div className="sparplan-detail">
-                                <span className="detail-label">💼 Kumulierte Einzahlungen:</span>
-                                <span className="detail-value" style={{ color: '#6c757d' }}>
+                            <div className="flex justify-between items-center py-1">
+                                <span className="text-sm text-gray-600 font-medium">💼 Kumulierte Einzahlungen:</span>
+                                <span className="font-semibold text-gray-600 text-sm">
                                     {thousands(row.cumulativeContributions.toFixed(2))} €
                                 </span>
                             </div>
@@ -192,9 +192,9 @@ export function SparplanSimulationsAusgabe({
                                 if (elementWithVorab?.simulation[row.jahr]?.vorabpauschaleDetails) {
                                     const vorabDetails = elementWithVorab.simulation[row.jahr].vorabpauschaleDetails;
                                     return (
-                                        <div className="sparplan-detail">
-                                            <span className="detail-label">📊 Vorabpauschale (Beispiel):</span>
-                                            <span className="detail-value" style={{ color: '#1976d2', display: 'flex', alignItems: 'center' }}>
+                                        <div className="flex justify-between items-center py-1">
+                                            <span className="text-sm text-gray-600 font-medium">📊 Vorabpauschale (Beispiel):</span>
+                                            <span className="font-semibold text-blue-700 text-sm flex items-center">
                                                 {thousands(vorabDetails?.vorabpauschaleAmount?.toString() || "0")} €
                                                 <InfoIcon onClick={() => handleVorabpauschaleInfoClick(vorabDetails)} />
                                             </span>
@@ -208,30 +208,30 @@ export function SparplanSimulationsAusgabe({
                 ))}
                 
                 {/* Summary Card */}
-                <div className="sparplan-summary-card">
-                    <div className="summary-title">📊 Gesamtübersicht</div>
-                    <div className="summary-grid">
-                        <div className="summary-item">
-                            <span className="summary-label">💰 Einzahlungen</span>
-                            <span className="summary-value">
+                <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-blue-500 rounded-xl p-5 mt-2">
+                    <div className="text-lg font-bold text-blue-500 text-center mb-4">📊 Gesamtübersicht</div>
+                    <div className="grid grid-cols-2 gap-3">
+                        <div className="flex flex-col text-center p-2 bg-white rounded border border-gray-300">
+                            <span className="text-xs mb-1 opacity-80">💰 Einzahlungen</span>
+                            <span className="font-bold text-sm">
                                 {thousands(summary.startkapital?.toFixed(2) || "0")} €
                             </span>
                         </div>
-                        <div className="summary-item">
-                            <span className="summary-label">📈 Zinsen</span>
-                            <span className="summary-value">
+                        <div className="flex flex-col text-center p-2 bg-white rounded border border-gray-300">
+                            <span className="text-xs mb-1 opacity-80">📈 Zinsen</span>
+                            <span className="font-bold text-sm">
                                 {thousands(summary.zinsen?.toFixed(2) || "0")} €
                             </span>
                         </div>
-                        <div className="summary-item">
-                            <span className="summary-label">💸 Steuern</span>
-                            <span className="summary-value">
+                        <div className="flex flex-col text-center p-2 bg-white rounded border border-gray-300">
+                            <span className="text-xs mb-1 opacity-80">💸 Steuern</span>
+                            <span className="font-bold text-sm">
                                 {thousands(summary.bezahlteSteuer?.toFixed(2) || "0")} €
                             </span>
                         </div>
-                        <div className="summary-item highlight">
-                            <span className="summary-label">🎯 Endkapital</span>
-                            <span className="summary-value">
+                        <div className="flex flex-col text-center p-2 bg-gradient-to-br from-green-500 to-teal-500 text-white rounded border border-green-500">
+                            <span className="text-xs mb-1 opacity-90">🎯 Endkapital</span>
+                            <span className="font-bold text-sm">
                                 {thousands(summary.endkapital?.toFixed(2) || "0")} €
                             </span>
                         </div>

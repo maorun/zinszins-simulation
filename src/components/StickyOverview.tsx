@@ -89,49 +89,49 @@ export function StickyOverview({ activeTab, overviewElementRef }: StickyOverview
     if (isMobile) {
       // Mobile: Zeit / Endkapital Ansparphase / Rendite (symbols and numbers only)
       return (
-        <div className="sticky-overview-mobile">
-          <div className="sticky-metric">
-            <span className="sticky-symbol">⏱️</span>
-            <span className="sticky-value">{yearsRange}</span>
+        <div className="flex justify-around items-center gap-4">
+          <div className="flex flex-col items-center text-center">
+            <span className="text-xl mb-1">⏱️</span>
+            <span className="text-sm font-semibold text-slate-800">{yearsRange}</span>
           </div>
-          <div className="sticky-metric">
-            <span className="sticky-symbol">🎯</span>
-            <span className="sticky-value">{formatCompactCurrency(enhancedSummary.endkapital)}</span>
+          <div className="flex flex-col items-center text-center">
+            <span className="text-xl mb-1">🎯</span>
+            <span className="text-sm font-semibold text-slate-800">{formatCompactCurrency(enhancedSummary.endkapital)}</span>
           </div>
-          <div className="sticky-metric">
-            <span className="sticky-symbol">📈</span>
-            <span className="sticky-value">{enhancedSummary.renditeAnsparphase.toFixed(1)}%</span>
+          <div className="flex flex-col items-center text-center">
+            <span className="text-xl mb-1">📈</span>
+            <span className="text-sm font-semibold text-slate-800">{enhancedSummary.renditeAnsparphase.toFixed(1)}%</span>
           </div>
         </div>
       );
     } else {
       // Desktop: Complete savings phase data
       return (
-        <div className="sticky-overview-desktop">
-          <div className="sticky-section">
-            <h4 className="sticky-section-title">📈 Ansparphase ({yearsRange})</h4>
-            <div className="sticky-metrics-grid">
-              <div className="sticky-metric-item">
-                <span className="sticky-metric-label">💰 Einzahlungen</span>
-                <span className="sticky-metric-value">
+        <div className="w-full">
+          <div className="w-full">
+            <h4 className="m-0 mb-3 text-slate-800 text-base font-semibold">📈 Ansparphase ({yearsRange})</h4>
+            <div className="grid grid-cols-4 gap-4">
+              <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
+                <span className="text-xs text-gray-600 mb-1">💰 Einzahlungen</span>
+                <span className="font-semibold text-sm text-slate-800">
                   {enhancedSummary.startkapital.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                 </span>
               </div>
-              <div className="sticky-metric-item highlight">
-                <span className="sticky-metric-label">🎯 Endkapital</span>
-                <span className="sticky-metric-value">
+              <div className="flex flex-col p-2 bg-gradient-to-br from-green-50 to-green-100 rounded-md border border-green-300">
+                <span className="text-xs text-gray-600 mb-1">🎯 Endkapital</span>
+                <span className="font-semibold text-sm text-slate-800">
                   {enhancedSummary.endkapital.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                 </span>
               </div>
-              <div className="sticky-metric-item">
-                <span className="sticky-metric-label">📊 Zinsen</span>
-                <span className="sticky-metric-value">
+              <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
+                <span className="text-xs text-gray-600 mb-1">📊 Zinsen</span>
+                <span className="font-semibold text-sm text-slate-800">
                   {enhancedSummary.zinsen.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                 </span>
               </div>
-              <div className="sticky-metric-item">
-                <span className="sticky-metric-label">📈 Rendite</span>
-                <span className="sticky-metric-value">
+              <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
+                <span className="text-xs text-gray-600 mb-1">📈 Rendite</span>
+                <span className="font-semibold text-sm text-slate-800">
                   {enhancedSummary.renditeAnsparphase.toFixed(2)}% p.a.
                 </span>
               </div>
@@ -159,52 +159,52 @@ export function StickyOverview({ activeTab, overviewElementRef }: StickyOverview
     if (isMobile) {
       // Mobile: Zeit / Startkapital / Endkapital (symbols and numbers only)
       return (
-        <div className="sticky-overview-mobile">
-          <div className="sticky-metric">
-            <span className="sticky-symbol">⏱️</span>
-            <span className="sticky-value">
+        <div className="flex justify-around items-center gap-4">
+          <div className="flex flex-col items-center text-center">
+            <span className="text-xl mb-1">⏱️</span>
+            <span className="text-sm font-semibold text-slate-800">
               {withdrawalYearsRange}
               {hasSegments && ` (${enhancedSummary.withdrawalSegments!.length})`}
             </span>
           </div>
-          <div className="sticky-metric">
-            <span className="sticky-symbol">🏁</span>
-            <span className="sticky-value">{formatCompactCurrency(enhancedSummary.endkapital)}</span>
+          <div className="flex flex-col items-center text-center">
+            <span className="text-xl mb-1">🏁</span>
+            <span className="text-sm font-semibold text-slate-800">{formatCompactCurrency(enhancedSummary.endkapital)}</span>
           </div>
-          <div className="sticky-metric">
-            <span className="sticky-symbol">💰</span>
-            <span className="sticky-value">{formatCompactCurrency(enhancedSummary.endkapitalEntspharphase)}</span>
+          <div className="flex flex-col items-center text-center">
+            <span className="text-xl mb-1">💰</span>
+            <span className="text-sm font-semibold text-slate-800">{formatCompactCurrency(enhancedSummary.endkapitalEntspharphase)}</span>
           </div>
         </div>
       );
     } else {
       // Desktop: Zeit / Startkapital / Endkapital
       return (
-        <div className="sticky-overview-desktop">
-          <div className="sticky-section">
-            <h4 className="sticky-section-title">
+        <div className="w-full">
+          <div className="w-full">
+            <h4 className="m-0 mb-3 text-slate-800 text-base font-semibold">
               💸 Entsparphase ({withdrawalYearsRange})
               {hasSegments && (
-                <span className="sticky-segmented-indicator"> - {enhancedSummary.withdrawalSegments!.length} Phasen</span>
+                <span className="text-sm text-teal-600 font-normal"> - {enhancedSummary.withdrawalSegments!.length} Phasen</span>
               )}
             </h4>
-            <div className="sticky-metrics-grid">
-              <div className="sticky-metric-item">
-                <span className="sticky-metric-label">🏁 Startkapital</span>
-                <span className="sticky-metric-value">
+            <div className="grid grid-cols-3 gap-4">
+              <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
+                <span className="text-xs text-gray-600 mb-1">🏁 Startkapital</span>
+                <span className="font-semibold text-sm text-slate-800">
                   {enhancedSummary.endkapital.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                 </span>
               </div>
-              <div className="sticky-metric-item highlight">
-                <span className="sticky-metric-label">💰 Endkapital</span>
-                <span className="sticky-metric-value">
+              <div className="flex flex-col p-2 bg-gradient-to-br from-green-50 to-green-100 rounded-md border border-green-300">
+                <span className="text-xs text-gray-600 mb-1">💰 Endkapital</span>
+                <span className="font-semibold text-sm text-slate-800">
                   {enhancedSummary.endkapitalEntspharphase.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                 </span>
               </div>
               {enhancedSummary.monatlicheAuszahlung && (
-                <div className="sticky-metric-item">
-                  <span className="sticky-metric-label">💶 Monatliche Auszahlung</span>
-                  <span className="sticky-metric-value">
+                <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
+                  <span className="text-xs text-gray-600 mb-1">💶 Monatliche Auszahlung</span>
+                  <span className="font-semibold text-sm text-slate-800">
                     {enhancedSummary.monatlicheAuszahlung.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
                   </span>
                 </div>
@@ -217,8 +217,8 @@ export function StickyOverview({ activeTab, overviewElementRef }: StickyOverview
   };
 
   return (
-    <div className="sticky-overview">
-      <div className="sticky-overview-content">
+    <div className="fixed top-0 left-0 right-0 z-[1000] bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-lg animate-slide-down">
+      <div className="max-w-6xl mx-auto px-4 py-3 md:px-6">
         {activeTab === 'ansparen' ? renderAnsparenContent() : renderEntnahmenContent()}
       </div>
     </div>
