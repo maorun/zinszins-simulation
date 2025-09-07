@@ -119,7 +119,7 @@ const TaxConfiguration = () => {
                 </div>
 
                 <div className="space-y-4">
-                    <Label htmlFor="freibetragConfiguration">Freibetrag pro Jahr (€)</Label>
+                    <Label htmlFor="freibetragConfiguration">Sparerpauschbetrag pro Jahr (€)</Label>
                     <div className="flex gap-2 items-end">
                         <div className="flex-1">
                             <Input
@@ -164,7 +164,7 @@ const TaxConfiguration = () => {
                             <TableHeader>
                                 <TableRow>
                                     <TableHead className="text-center">Jahr</TableHead>
-                                    <TableHead className="text-center">Freibetrag (€)</TableHead>
+                                    <TableHead className="text-center">Sparerpauschbetrag (€)</TableHead>
                                     <TableHead className="text-center">Aktionen</TableHead>
                                 </TableRow>
                             </TableHeader>

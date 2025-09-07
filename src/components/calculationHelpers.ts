@@ -88,7 +88,7 @@ export function createTaxExplanation(
                 borderColor: '#ffcc80'
             },
             {
-                title: 'Schritt 2: Steuer vor Freibetrag berechnen',
+                title: 'Schritt 2: Steuer vor Sparerpauschbetrag berechnen',
                 description: `Steuer wird mit ${(steuersatz * 100).toFixed(1)}% Steuersatz berechnet, reduziert um ${(teilfreistellungsquote * 100)}% Teilfreistellung.`,
                 calculation: `Steuer = Vorabpauschale × ${(steuersatz * 100).toFixed(1)}% × (1 - ${(teilfreistellungsquote * 100)}%)<br/>${formatCurrency(vorabpauschaleAmount)} × ${(steuersatz * 100).toFixed(1)}% × ${((1 - teilfreistellungsquote) * 100)}%`,
                 result: formatCurrency(steuerVorFreibetrag),
@@ -96,9 +96,9 @@ export function createTaxExplanation(
                 borderColor: '#81c784'
             },
             {
-                title: 'Schritt 3: Freibetrag anwenden',
-                description: `Der verfügbare Sparerpauschfreibetrag von ${formatCurrency(freibetrag)} reduziert die zu zahlende Steuer.`,
-                calculation: `Bezahlte Steuer = max(0, Steuer vor Freibetrag - Freibetrag)<br/>max(0, ${formatCurrency(steuerVorFreibetrag)} - ${formatCurrency(freibetrag)})`,
+                title: 'Schritt 3: Sparerpauschbetrag anwenden',
+                description: `Der verfügbare Sparerpauschbetrag von ${formatCurrency(freibetrag)} reduziert die zu zahlende Steuer.`,
+                calculation: `Bezahlte Steuer = max(0, Steuer vor Sparerpauschbetrag - Sparerpauschbetrag)<br/>max(0, ${formatCurrency(steuerVorFreibetrag)} - ${formatCurrency(freibetrag)})`,
                 result: formatCurrency(bezahlteSteuer),
                 backgroundColor: '#e3f2fd',
                 borderColor: '#64b5f6'
@@ -108,8 +108,8 @@ export function createTaxExplanation(
             title: 'Endergebnis',
             values: [
                 { label: 'Vorabpauschale', value: formatCurrency(vorabpauschaleAmount) },
-                { label: 'Steuer vor Freibetrag', value: formatCurrency(steuerVorFreibetrag) },
-                { label: 'Genutzter Freibetrag', value: formatCurrency(Math.min(freibetrag, steuerVorFreibetrag)) },
+                { label: 'Steuer vor Sparerpauschbetrag', value: formatCurrency(steuerVorFreibetrag) },
+                { label: 'Genutzter Sparerpauschbetrag', value: formatCurrency(Math.min(freibetrag, steuerVorFreibetrag)) },
                 { label: 'Bezahlte Steuer', value: formatCurrency(bezahlteSteuer) }
             ]
         }
