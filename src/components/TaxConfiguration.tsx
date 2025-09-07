@@ -38,7 +38,20 @@ const TaxConfiguration = () => {
                 </CardHeader>
                 <CardContent className="space-y-6">{/* ... existing tax configuration content ... */}
                 <div className="space-y-2">
-                    <Label htmlFor="steuerlast">Kapitalertragsteuer (%)</Label>
+                    <div className="flex items-center justify-between">
+                        <Label htmlFor="steuerlast">Kapitalertragsteuer (%)</Label>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                                setSteuerlast(26.375); // Default value
+                                performSimulation();
+                            }}
+                            className="text-xs"
+                        >
+                            Reset
+                        </Button>
+                    </div>
                     <Slider
                         id="steuerlast"
                         value={[steuerlast]}

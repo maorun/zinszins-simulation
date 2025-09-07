@@ -1,4 +1,3 @@
-import { Input } from "./ui/input";
 import { Slider } from "./ui/slider";
 import { Label } from "./ui/label";
 
@@ -32,21 +31,6 @@ export function Zeitspanne({
                     <span>{max}</span>
                 </div>
             </div>
-            <Input
-                type="number"
-                min={min}
-                max={max}
-                value={startEnd[0]}
-                onChange={(e) => {
-                    const nextValue = Number(e.target.value);
-                    const [, end] = startEnd;
-                    if (nextValue > end || nextValue < min || nextValue > max) {
-                        return;
-                    }
-                    dispatch([nextValue, end]);
-                }}
-                className="w-32"
-            />
             <p className="text-sm text-muted-foreground">
                 Definiert das Ende der Sparphase (Jahr {startOfIndependence}). Die Entnahme-Phase beginnt automatisch im Folgejahr ({startOfIndependence + 1}).
             </p>
