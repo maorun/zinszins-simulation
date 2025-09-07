@@ -40,8 +40,8 @@ describe('Deutsche Bundesbank API Service', () => {
         lastUpdated: expect.any(String),
       });
       
-      // Should have tried multiple API endpoints
-      expect(mockFetch).toHaveBeenCalledTimes(3); // Bundesbank, ECB, BMF
+      // Should have tried the real API endpoints
+      expect(mockFetch).toHaveBeenCalledTimes(2); // Bundesbank, ECB (no longer BMF theoretical endpoint)
     });
 
     it('should attempt to call real APIs before falling back', async () => {

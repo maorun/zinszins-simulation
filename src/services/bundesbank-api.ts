@@ -163,66 +163,18 @@ async function fetchFromECBAPI(fromYear: number, toYear: number): Promise<Basisz
 }
 
 /**
- * Fetches Basiszins data from alternative government sources
- * Falls back to checking official publications
+ * Provides enhanced fallback data that simulates official government sources
+ * Uses deterministic estimates for future years instead of making theoretical API calls
  */
 async function fetchFromMinistryOfFinance(fromYear: number, toYear: number): Promise<BasiszinsData[]> {
-  // The Ministry of Finance publishes Basiszins rates in official announcements
-  // Since there's no direct API, we implement a fallback strategy
-  
-  // Try to fetch from a theoretical government API endpoint
-  const bmfApiUrl = 'https://www.bundesfinanzministerium.de/api/basiszins'; // Theoretical endpoint
-  
-  try {
-    const response = await fetch(bmfApiUrl, {
-      headers: {
-        'Accept': 'application/json',
-        'User-Agent': 'Zinszins-Simulation/1.0 (German Tax Calculator)',
-      },
-      ...(typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? { signal: AbortSignal.timeout(5000) } : {}),
-    });
-    
-    if (response.ok) {
-      const data = await response.json();
-      return parseBMFAPIData(data, fromYear, toYear);
-    }
-    
-    throw new Error('BMF API not available');
-    
-  } catch (error) {
-    // As expected, this API doesn't exist yet
-    // Return enhanced fallback data that simulates API response
-    return getEnhancedFallbackData(fromYear, toYear);
-  }
+  // Instead of making HTTP requests to theoretical endpoints,
+  // provide enhanced fallback data with deterministic estimates
+  console.info('📊 Using enhanced fallback data with deterministic estimates');
+  return getEnhancedFallbackData(fromYear, toYear);
 }
 
 /**
- * Parse BMF API data (theoretical structure)
- */
-function parseBMFAPIData(data: any, fromYear: number, toYear: number): BasiszinsData[] {
-  const results: BasiszinsData[] = [];
-  
-  if (data && Array.isArray(data.rates)) {
-    for (const item of data.rates) {
-      const year = parseInt(item.year);
-      const rate = parseFloat(item.rate) / 100; // Convert percentage to decimal
-      
-      if (year >= fromYear && year <= toYear && !isNaN(rate)) {
-        results.push({
-          year,
-          rate,
-          source: 'api',
-          lastUpdated: item.lastUpdated || new Date().toISOString(),
-        });
-      }
-    }
-  }
-  
-  return results.sort((a, b) => a.year - b.year);
-}
-
-/**
- * Enhanced fallback data that includes recent estimates
+ * Enhanced fallback data that includes deterministic estimates for future years
  */
 function getEnhancedFallbackData(fromYear: number, toYear: number): BasiszinsData[] {
   const results: BasiszinsData[] = [];
@@ -231,15 +183,20 @@ function getEnhancedFallbackData(fromYear: number, toYear: number): BasiszinsDat
   for (let year = fromYear; year <= toYear; year++) {
     let rate = getHistoricalBasiszinsFallback(year);
     
-    // For future years, provide reasonable estimates based on economic trends
+    // For future years, provide deterministic estimates based on economic trends
     if (rate === null && year > currentYear) {
       // Use the last known rate as base for future estimates
       const lastKnownRate = getHistoricalBasiszinsFallback(currentYear) || 0.0255;
       
-      // Apply slight variations for future years (simplified economic modeling)
+      // Apply deterministic variations for future years based on year difference
       const yearDiff = year - currentYear;
-      const randomVariation = (Math.random() - 0.5) * 0.005; // ±0.5%
-      rate = Math.max(0, Math.min(0.1, lastKnownRate + (yearDiff * 0.001) + randomVariation));
+      
+      // Deterministic variation based on year offset
+      // Uses sine function to create realistic economic cycle patterns
+      const cyclicalVariation = Math.sin(yearDiff * 0.5) * 0.003; // ±0.3% cyclical
+      const trendVariation = yearDiff * 0.0002; // Small positive trend 0.02% per year
+      
+      rate = Math.max(0, Math.min(0.1, lastKnownRate + trendVariation + cyclicalVariation));
     }
     
     if (rate !== null) {
