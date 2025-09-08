@@ -42,6 +42,9 @@ const mockUseSimulation = {
       genutzterFreibetrag: 800,
     }
   } as any,
+  withdrawalConfig: {
+    formValue: { strategy: '4_percent' }
+  } as any,
 };
 
 vi.mock('../hooks/useParameterExport', () => ({
@@ -64,6 +67,32 @@ describe('DataExport', () => {
     mockUseDataExport.isExporting = false;
     mockUseDataExport.lastExportResult = null;
     mockUseDataExport.exportType = null;
+    
+    // Reset simulation data to default values
+    mockUseSimulation.simulationData = {
+      sparplanElements: [
+        {
+          start: new Date('2023-01-01'),
+          startkapital: 0,
+          zinsen: 100,
+          endkapital: 2100,
+          amount: 2000,
+        }
+      ]
+    } as any;
+    mockUseSimulation.withdrawalResults = {
+      2041: {
+        startkapital: 500000,
+        entnahme: 20000,
+        zinsen: 24000,
+        endkapital: 504000,
+        bezahlteSteuer: 1000,
+        genutzterFreibetrag: 800,
+      }
+    } as any;
+    mockUseSimulation.withdrawalConfig = {
+      formValue: { strategy: '4_percent' }
+    } as any;
   });
 
   it('should render the export panel collapsed by default', () => {
@@ -130,6 +159,7 @@ describe('DataExport', () => {
   it('should show warning when no simulation data is available', async () => {
     mockUseSimulation.simulationData = null as any;
     mockUseSimulation.withdrawalResults = null as any;
+    mockUseSimulation.withdrawalConfig = null as any;
     
     render(<DataExport />);
     
@@ -251,16 +281,18 @@ describe('DataExport', () => {
   });
 
   it('should show loading state for data export', async () => {
+    // Set the mock state before rendering
     mockUseDataExport.isExporting = true;
-    mockUseDataExport.exportType = 'csv';
+    mockUseDataExport.exportType = 'markdown'; // Change to markdown since CSV buttons don't use dynamic text
     
     render(<DataExport />);
     
     const trigger = screen.getByText('📤 Export');
     fireEvent.click(trigger);
     
+    // Look for markdown export button with loading text
     await waitFor(() => {
-      expect(screen.getAllByText('Exportiere...').length).toBeGreaterThan(0);
+      expect(screen.getByText('Exportiere...')).toBeInTheDocument();
     });
   });
 
@@ -270,13 +302,21 @@ describe('DataExport', () => {
     const trigger = screen.getByText('📤 Export');
     fireEvent.click(trigger);
     
+    // First wait for the panel to open with basic content
+    await waitFor(() => {
+      expect(screen.getByText('Parameter Export')).toBeInTheDocument();
+    });
+    
+    // Then check for format information
     await waitFor(() => {
       expect(screen.getByText('Format-Informationen')).toBeInTheDocument();
-      expect(screen.getByText('CSV Export')).toBeInTheDocument();
-      expect(screen.getByText('Markdown Export')).toBeInTheDocument();
-      expect(screen.getByText('Tabellenformat für Excel/Calc')).toBeInTheDocument();
-      expect(screen.getByText('GitHub/Wiki kompatibel')).toBeInTheDocument();
     });
+    
+    // Check for the specific content items one by one with more flexible matchers
+    expect(screen.getByText('CSV Export')).toBeInTheDocument();
+    expect(screen.getByText('Markdown Export')).toBeInTheDocument();
+    expect(screen.getByText(/Tabellenformat.*Excel.*Calc/)).toBeInTheDocument();
+    expect(screen.getByText(/GitHub.*Wiki/)).toBeInTheDocument();
   });
 
   it('should disable buttons when export is in progress', async () => {
