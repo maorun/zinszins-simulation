@@ -1,5 +1,7 @@
 import React from 'react';
-import { Panel } from './temp-rsuite-stubs';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { ChevronDown } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
 import MonteCarloAnalysisDisplay from './MonteCarloAnalysisDisplay';
 import { calculateRiskMetrics, formatRiskMetric, type PortfolioData } from '../utils/risk-metrics';
@@ -78,12 +80,18 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
   const phaseTitle = phase === 'savings' ? 'Ansparphase' : 'Entnahmephase';
 
   return (
-    <Panel 
-      header={`🎯 Risikobewertung - ${phaseTitle}`} 
-      collapsible 
-      defaultExpanded={false}
-      className="mt-4"
-    >
+    <Card className="mt-4">
+      <Collapsible defaultOpen={false}>
+        <CardHeader>
+          <CollapsibleTrigger asChild>
+            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+              <CardTitle className="text-left">🎯 Risikobewertung - {phaseTitle}</CardTitle>
+              <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+            </div>
+          </CollapsibleTrigger>
+        </CardHeader>
+        <CollapsibleContent>
+          <CardContent>
       <div className="space-y-4">
         {/* Show notice for fixed return mode */}
         {returnMode === 'fixed' && (
@@ -184,27 +192,42 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
         )}
 
         {/* Monte Carlo Analysis in collapsible sub-panel */}
-        <Panel 
-          header="🎲 Monte Carlo Analyse" 
-          collapsible 
-          defaultExpanded={false}
-          className="border-l-4 border-l-blue-400"
-        >
+        <Card className="border-l-4 border-l-blue-400">
+          <Collapsible defaultOpen={false}>
+            <CardHeader>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+                  <CardTitle className="text-left">🎲 Monte Carlo Analyse</CardTitle>
+                  <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </div>
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent>
           <MonteCarloAnalysisDisplay 
             config={riskConfig}
             title="Monte Carlo Simulation"
             phaseTitle={phaseTitle}
           />
-        </Panel>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
+        </Card>
 
         {/* Drawdown Analysis in collapsible sub-panel if there's detailed data */}
         {riskMetrics?.drawdownSeries && hasRiskData && riskMetrics.drawdownSeries.length > 3 && (
-          <Panel 
-            header="📈 Drawdown-Analyse" 
-            collapsible 
-            defaultExpanded={false}
-            className="border-l-4 border-l-orange-400"
-          >
+          <Card className="border-l-4 border-l-orange-400">
+            <Collapsible defaultOpen={false}>
+              <CardHeader>
+                <CollapsibleTrigger asChild>
+                  <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+                    <CardTitle className="text-left">📈 Drawdown-Analyse</CardTitle>
+                    <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                  </div>
+                </CollapsibleTrigger>
+              </CardHeader>
+              <CollapsibleContent>
+                <CardContent>
             <div className="space-y-4">
               <p className="text-sm text-gray-600 mb-4">
                 <strong>Drawdown-Analyse:</strong> Zeigt die historische Entwicklung von Verlusten 
@@ -289,10 +312,16 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
                 </div>
               )}
             </div>
-          </Panel>
+                </CardContent>
+              </CollapsibleContent>
+            </Collapsible>
+          </Card>
         )}
       </div>
-    </Panel>
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
   );
 };
 

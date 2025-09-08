@@ -1,13 +1,11 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { EntnahmeSimulationsAusgabe } from './EntnahmeSimulationsAusgabe';
 import RiskAssessment from './RiskAssessment';
 import { useSimulation } from '../contexts/useSimulation';
 
 const WithdrawalPlan = () => {
-    const [isOpen, setIsOpen] = useState(false); // Default to closed
     const {
         startEnd,
         simulationData,
@@ -21,16 +19,12 @@ const WithdrawalPlan = () => {
 
     return (
         <Card className="mb-4">
-            <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+            <Collapsible defaultOpen={false}>
                 <CardHeader>
                     <CollapsibleTrigger asChild>
-                        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
                             <CardTitle className="text-left">💸 Entnahme</CardTitle>
-                            {isOpen ? (
-                                <ChevronUp className="h-5 w-5 text-gray-500" />
-                            ) : (
-                                <ChevronDown className="h-5 w-5 text-gray-500" />
-                            )}
+                            <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         </div>
                     </CollapsibleTrigger>
                 </CardHeader>

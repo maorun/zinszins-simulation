@@ -118,10 +118,20 @@ describe('HomePage Integration Tests - Optimized', () => {
     const user = userEvent.setup();
     const { container } = render(<HomePage />);
     
-    // Find the Sparpläne erstellen section trigger
-    const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/);
+    // First ensure we're on the correct tab (Ansparen)
+    await waitFor(() => {
+      const ansparenTab = screen.getByText('Ansparen');
+      expect(ansparenTab).toBeInTheDocument();
+    }, { timeout: 1000 });
     
-    // Click on the trigger element (the div, not just the heading)
+    // Wait for the tab content to render
+    await waitFor(() => {
+      const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/);
+      expect(sparplanHeading).toBeInTheDocument();
+    }, { timeout: 1000 });
+    
+    // Find and click the Sparpläne erstellen section trigger
+    const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/);
     const triggerElement = sparplanHeading.closest('[aria-expanded="false"]');
     if (triggerElement) {
       await user.click(triggerElement);
