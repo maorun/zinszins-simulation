@@ -20,7 +20,7 @@ const DataExport = () => {
     exportType
   } = useDataExport();
   
-  const { simulationData, withdrawalResults } = useSimulation();
+  const { simulationData, withdrawalResults, withdrawalConfig } = useSimulation();
   
   const [isOpen, setIsOpen] = useState(false); // Collapsed by default
 
@@ -72,7 +72,8 @@ const DataExport = () => {
 
   const hasSavingsData = simulationData?.sparplanElements && simulationData.sparplanElements.length > 0;
   const hasWithdrawalData = withdrawalResults && Object.keys(withdrawalResults).length > 0;
-  const hasAnyData = hasSavingsData || hasWithdrawalData;
+  const hasWithdrawalConfig = withdrawalConfig && withdrawalConfig.formValue;
+  const hasAnyData = hasSavingsData || hasWithdrawalData || hasWithdrawalConfig;
 
   return (
     <Card className="mb-4">
@@ -159,7 +160,7 @@ const DataExport = () => {
                         </Button>
                       )}
                       
-                      {hasWithdrawalData && (
+                      {hasWithdrawalConfig && (
                         <Button
                           variant={getDataExportButtonVariant('csv')}
                           size="sm"
@@ -172,7 +173,7 @@ const DataExport = () => {
                         </Button>
                       )}
                       
-                      {hasSavingsData && hasWithdrawalData && (
+                      {hasSavingsData && hasWithdrawalConfig && (
                         <Button
                           variant={getDataExportButtonVariant('csv')}
                           size="sm"

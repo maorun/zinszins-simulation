@@ -136,6 +136,7 @@ function exportSimulationStructure(simulationElements: any[], context: any, line
   
   // Sort years and process each one
   const sortedYears = Array.from(allYears).sort((a, b) => a - b);
+  let cumulativeContributions = 0;
   
   for (const year of sortedYears) {
     const isMonthly = context.simulationAnnual === 'monthly';
@@ -173,9 +174,13 @@ function exportSimulationStructure(simulationElements: any[], context: any, line
       }
     });
     
+    // Calculate cumulative contributions
+    const yearlyContributions = sparplanContributions.reduce((sum, contrib) => sum + contrib, 0);
+    cumulativeContributions += yearlyContributions;
+    
     addYearRows(year, isMonthly, totalStartkapital, totalZinsen, totalEndkapital, 
                 totalBezahlteSteuer, totalGenutzterFreibetrag, totalVorabpauschale, 
-                sparplanContributions, lines);
+                sparplanContributions, cumulativeContributions, lines);
   }
 }
 
@@ -183,6 +188,8 @@ function exportSimulationStructure(simulationElements: any[], context: any, line
  * Export data from test mock structure (each element represents a year)
  */
 function exportMockStructure(simulationElements: any[], context: any, lines: string[]) {
+  let cumulativeContributions = 0;
+  
   for (const element of simulationElements) {
     if (!element) continue;
     
@@ -195,10 +202,14 @@ function exportMockStructure(simulationElements: any[], context: any, lines: str
       sparplanContributions.push(element.amount || 0);
     });
     
+    // Calculate cumulative contributions
+    const yearlyContributions = sparplanContributions.reduce((sum, contrib) => sum + contrib, 0);
+    cumulativeContributions += yearlyContributions;
+    
     addYearRows(year, isMonthly, element.startkapital || 0, element.zinsen || 0, 
                 element.endkapital || 0, element.bezahlteSteuer || 0, 
                 element.genutzterFreibetrag || 0, element.vorabpauschale || 0,
-                sparplanContributions, lines);
+                sparplanContributions, cumulativeContributions, lines);
   }
 }
 
@@ -215,6 +226,7 @@ function addYearRows(
   genutzterFreibetrag: number, 
   vorabpauschale: number,
   sparplanContributions: number[], 
+  cumulativeContributions: number,
   lines: string[]
 ) {
   const months = isMonthly ? 12 : 1;
@@ -233,9 +245,8 @@ function addYearRows(
       row.push(formatCurrencyForCSV(contribution));
     });
     
-    // Summary data
-    const totalContributions = sparplanContributions.reduce((sum, contrib) => sum + contrib, 0);
-    row.push(formatCurrencyForCSV(totalContributions));
+    // Summary data - now using cumulative contributions
+    row.push(formatCurrencyForCSV(cumulativeContributions));
     row.push(formatCurrencyForCSV(endkapital));
     row.push(formatCurrencyForCSV(vorabpauschale));
     row.push(formatCurrencyForCSV(bezahlteSteuer));
@@ -281,7 +292,18 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
   const withdrawalConfig = context.withdrawalConfig;
   if (withdrawalConfig?.formValue) {
     lines.push('# Lebensende: ' + withdrawalConfig.formValue.endOfLife);
-    lines.push('# Strategie: ' + getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie));
+    
+    // Handle segmented withdrawal - multiple strategies
+    if (withdrawalConfig.useSegmentedWithdrawal && withdrawalConfig.withdrawalSegments && withdrawalConfig.withdrawalSegments.length > 1) {
+      lines.push('# Strategie: Segmentierte Entnahme');
+      withdrawalConfig.withdrawalSegments.forEach((segment: any, index: number) => {
+        lines.push(`# Segment ${index + 1} (${segment.name}): ${getWithdrawalStrategyLabel(segment.strategy)} (${segment.startYear}-${segment.endYear})`);
+      });
+    } else {
+      // Single strategy
+      lines.push('# Strategie: ' + getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie));
+    }
+    
     lines.push('# Entnahme-Rendite: ' + formatPercentage(withdrawalConfig.formValue.rendite));
     lines.push('# Häufigkeit: ' + (withdrawalConfig.formValue.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'));
   }
@@ -513,7 +535,18 @@ export function exportDataToMarkdown(data: ExportData): string {
     const withdrawalConfig = context.withdrawalConfig;
     if (withdrawalConfig?.formValue) {
       lines.push('### Entnahme-Parameter');
-      lines.push(`- **Strategie:** ${getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie)}`);
+      
+      // Handle segmented withdrawal - multiple strategies
+      if (withdrawalConfig.useSegmentedWithdrawal && withdrawalConfig.withdrawalSegments && withdrawalConfig.withdrawalSegments.length > 1) {
+        lines.push(`- **Strategie:** Segmentierte Entnahme`);
+        withdrawalConfig.withdrawalSegments.forEach((segment: any, index: number) => {
+          lines.push(`  - **Segment ${index + 1} (${segment.name}):** ${getWithdrawalStrategyLabel(segment.strategy)} (${segment.startYear}-${segment.endYear})`);
+        });
+      } else {
+        // Single strategy
+        lines.push(`- **Strategie:** ${getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie)}`);
+      }
+      
       lines.push(`- **Lebensende:** ${withdrawalConfig.formValue.endOfLife}`);
       lines.push(`- **Entnahme-Rendite:** ${formatPercentage(withdrawalConfig.formValue.rendite)}`);
       lines.push('');
@@ -594,22 +627,32 @@ export function generateCalculationExplanations(context: SimulationContextState)
   const withdrawalConfig = context.withdrawalConfig;
   if (withdrawalConfig?.formValue) {
     lines.push('6. ENTNAHMESTRATEGIE');
-    lines.push(`   Strategie: ${getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie)}`);
     
-    if (withdrawalConfig.formValue.strategie === '4prozent') {
-      lines.push('   Formel: Jährliche Entnahme = 4% vom Startkapital');
-    } else if (withdrawalConfig.formValue.strategie === '3prozent') {
-      lines.push('   Formel: Jährliche Entnahme = 3% vom Startkapital');
-    } else if (withdrawalConfig.formValue.strategie === 'variabel_prozent') {
-      lines.push(`   Formel: Jährliche Entnahme = ${formatPercentage(withdrawalConfig.formValue.variabelProzent || 0)} vom aktuellen Kapital`);
-    } else if (withdrawalConfig.formValue.strategie === 'monatlich_fest') {
-      lines.push(`   Monatliche Entnahme: ${formatCurrency(withdrawalConfig.formValue.monatlicheBetrag || 0)}`);
-      if (withdrawalConfig.formValue.inflationAktiv) {
-        lines.push(`   Inflationsanpassung: ${formatPercentage(withdrawalConfig.formValue.inflationsrate || 2)} jährlich`);
+    // Handle segmented withdrawal - multiple strategies
+    if (withdrawalConfig.useSegmentedWithdrawal && withdrawalConfig.withdrawalSegments && withdrawalConfig.withdrawalSegments.length > 1) {
+      lines.push('   Strategie: Segmentierte Entnahme');
+      withdrawalConfig.withdrawalSegments.forEach((segment: any, index: number) => {
+        lines.push(`   Segment ${index + 1} (${segment.name}): ${getWithdrawalStrategyLabel(segment.strategy)} (${segment.startYear}-${segment.endYear})`);
+      });
+    } else {
+      // Single strategy
+      lines.push(`   Strategie: ${getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie)}`);
+      
+      if (withdrawalConfig.formValue.strategie === '4prozent') {
+        lines.push('   Formel: Jährliche Entnahme = 4% vom Startkapital');
+      } else if (withdrawalConfig.formValue.strategie === '3prozent') {
+        lines.push('   Formel: Jährliche Entnahme = 3% vom Startkapital');
+      } else if (withdrawalConfig.formValue.strategie === 'variabel_prozent') {
+        lines.push(`   Formel: Jährliche Entnahme = ${formatPercentage(withdrawalConfig.formValue.variabelProzent || 0)} vom aktuellen Kapital`);
+      } else if (withdrawalConfig.formValue.strategie === 'monatlich_fest') {
+        lines.push(`   Monatliche Entnahme: ${formatCurrency(withdrawalConfig.formValue.monatlicheBetrag || 0)}`);
+        if (withdrawalConfig.formValue.inflationAktiv) {
+          lines.push(`   Inflationsanpassung: ${formatPercentage(withdrawalConfig.formValue.inflationsrate || 2)} jährlich`);
+        }
+      } else if (withdrawalConfig.formValue.strategie === 'dynamisch') {
+        lines.push(`   Basisrate: ${formatPercentage(withdrawalConfig.formValue.dynamischBasisrate || 4)}`);
+        lines.push('   Anpassung basierend auf Vorjahres-Performance');
       }
-    } else if (withdrawalConfig.formValue.strategie === 'dynamisch') {
-      lines.push(`   Basisrate: ${formatPercentage(withdrawalConfig.formValue.dynamischBasisrate || 4)}`);
-      lines.push('   Anpassung basierend auf Vorjahres-Performance');
     }
     lines.push('');
   }
