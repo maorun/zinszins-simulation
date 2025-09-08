@@ -51,10 +51,10 @@ describe('RiskAssessment', () => {
     render(<RiskAssessment phase="savings" />);
     
     expect(screen.getByText(/Risikobewertung - Ansparphase/)).toBeInTheDocument();
-    expect(screen.getByText(/Value-at-Risk \(95%\)/)).toBeInTheDocument();
-    expect(screen.getByText(/Maximum Drawdown/)).toBeInTheDocument();
-    expect(screen.getByText(/Sharpe Ratio/)).toBeInTheDocument();
-    expect(screen.getByText(/Volatilität/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Value-at-Risk \(95%\)/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Maximum Drawdown/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Sharpe Ratio/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Volatilität/)[0]).toBeInTheDocument();
   });
 
   test('renders risk assessment for withdrawal phase', () => {
@@ -67,13 +67,13 @@ describe('RiskAssessment', () => {
   test('displays risk metrics cards', () => {
     render(<RiskAssessment phase="savings" />);
     
-    // Check for risk metric cards
-    expect(screen.getByText(/Value-at-Risk \(95%\)/)).toBeInTheDocument();
-    expect(screen.getByText(/Maximum Drawdown/)).toBeInTheDocument();
-    expect(screen.getByText(/Sharpe Ratio/)).toBeInTheDocument();
-    expect(screen.getByText(/Volatilität/)).toBeInTheDocument();
-    expect(screen.getByText(/Sortino Ratio/)).toBeInTheDocument();
-    expect(screen.getByText(/Calmar Ratio/)).toBeInTheDocument();
+    // Check for risk metric cards using more specific queries
+    expect(screen.getAllByText(/Value-at-Risk \(95%\)/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Maximum Drawdown/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Sharpe Ratio/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Volatilität/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Sortino Ratio/)[0]).toBeInTheDocument();
+    expect(screen.getAllByText(/Calmar Ratio/)[0]).toBeInTheDocument();
   });
 
   test('includes Monte Carlo analysis in collapsible panel', () => {
@@ -86,7 +86,7 @@ describe('RiskAssessment', () => {
   test('shows risk explanation section', () => {
     render(<RiskAssessment phase="savings" />);
     
-    expect(screen.getByText(/Risikokennzahlen für Ansparphase/)).toBeInTheDocument();
+    expect(screen.getAllByText(/Risikokennzahlen für Ansparphase/)[0]).toBeInTheDocument();
     expect(screen.getByText(/Value-at-Risk \(VaR\):/)).toBeInTheDocument();
     expect(screen.getByText(/Sharpe Ratio:/)).toBeInTheDocument();
     expect(screen.getByText(/Maximum Drawdown:/)).toBeInTheDocument();

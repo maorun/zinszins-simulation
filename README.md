@@ -74,6 +74,19 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Endkapital und monatliche Auszahlungen der Entsparphase
   - Berechnete Rendite der Entsparphase unter Berücksichtigung von Entnahmen
 - **Monte Carlo Analyse** - Statistische Auswertung verschiedener Rendite-Szenarien
+- **Erweiterte Risikobewertung** - Umfassende Risikoanalyse für Ansparen und Entnehmen
+  - **Value-at-Risk (VaR)** - Potenzielle Verluste bei 95% und 99% Konfidenzintervall
+  - **Maximum Drawdown** - Größter historischer Verlust vom Höchststand zum Tiefststand
+  - **Sharpe Ratio** - Risikoadjustierte Rendite pro Risikoeinheit
+  - **Sortino Ratio** - Downside-Risk-adjustierte Rendite (nur negative Volatilität)
+  - **Calmar Ratio** - Rendite pro Drawdown-Risiko
+  - **Volatilität** - Standardabweichung der Renditen als Prozentsatz
+  - **Drawdown-Analyse** - Jahr-für-Jahr Aufschlüsselung historischer Portfolio-Rückgänge
+  - **Zusammengeklapptes "Risikobewertung" Panel** - Organisiert in beiden Tabs (Ansparen/Entnehmen)
+    - Einzelwerte prominent angezeigt in farbcodierten Karten
+    - Monte Carlo Analyse als Unterpanel
+    - Detaillierte Drawdown-Tabelle als Unterpanel
+    - Deutsche Erklärungen aller Risikokennzahlen
 - **Detaillierte Simulation** - Jahr-für-Jahr Aufschlüsselung mit Vorabpauschale-Berechnungen
 - **Parameter Export** - Ein-Klick Export aller Konfigurationsparameter in die Zwischenablage
   - Exportiert alle relevanten Parameter im deutschen Format (Parameter: xyz €, Parameter: xyz %)
