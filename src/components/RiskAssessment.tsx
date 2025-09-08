@@ -11,7 +11,7 @@ interface RiskAssessmentProps {
 }
 
 const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
-  const { simulationData, averageReturn, standardDeviation, randomSeed } = useSimulation();
+  const { simulationData, averageReturn, standardDeviation, randomSeed, returnMode } = useSimulation();
 
   // Use provided config or default based on phase
   const riskConfig: RandomReturnConfig = config || {
@@ -61,6 +61,18 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
     return calculateRiskMetrics(portfolioData);
   }, [portfolioData]);
 
+  // Check if we have meaningful risk data (not all zeros)
+  const hasRiskData = React.useMemo(() => {
+    if (!riskMetrics) return false;
+    
+    // Check if there's actual variation in the data
+    const hasDrawdown = riskMetrics.maxDrawdown > 0.01;
+    const hasVolatility = riskMetrics.volatility > 0.01;
+    const hasVaR = riskMetrics.valueAtRisk5 > 0.01;
+    
+    return hasDrawdown || hasVolatility || hasVaR;
+  }, [riskMetrics]);
+
   if (!simulationData) return null;
 
   const phaseTitle = phase === 'savings' ? 'Ansparphase' : 'Entnahmephase';
@@ -74,6 +86,17 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
       className="mt-4"
     >
       <div className="space-y-4">
+        {/* Show notice for fixed return mode */}
+        {returnMode === 'fixed' && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+            <div className="text-blue-800 font-semibold mb-2">ℹ️ Feste Rendite gewählt</div>
+            <div className="text-sm text-blue-700">
+              Bei einer festen Rendite gibt es keine Volatilität und damit keine klassischen Risikokennzahlen. 
+              Wechseln Sie zu "Zufällige Renditen" oder "Variable Renditen" für eine vollständige Risikoanalyse.
+            </div>
+          </div>
+        )}
+
         {/* Single-value metrics displayed prominently */}
         {riskMetrics && (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-6">
@@ -120,7 +143,7 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
             <div className="bg-green-50 border border-green-200 rounded-lg p-4 border-l-4 border-l-green-500">
               <div className="text-sm font-medium text-gray-600 mb-1">🎯 Sortino Ratio</div>
               <div className="text-xl font-bold text-green-700">
-                {formatRiskMetric(riskMetrics.sortinoRatio, 'ratio')}
+                {riskMetrics.sortinoRatio >= 999 ? '999+' : formatRiskMetric(riskMetrics.sortinoRatio, 'ratio')}
               </div>
               <div className="text-xs text-gray-500 mt-1">
                 Downside-Risk-adjustierte Rendite
@@ -130,7 +153,7 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
             <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4 border-l-4 border-l-indigo-500">
               <div className="text-sm font-medium text-gray-600 mb-1">📊 Calmar Ratio</div>
               <div className="text-xl font-bold text-indigo-700">
-                {formatRiskMetric(riskMetrics.calmarRatio, 'ratio')}
+                {riskMetrics.calmarRatio >= 999 ? '999+' : formatRiskMetric(riskMetrics.calmarRatio, 'ratio')}
               </div>
               <div className="text-xs text-gray-500 mt-1">
                 Rendite pro Drawdown-Risiko
@@ -176,7 +199,7 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
         </Panel>
 
         {/* Drawdown Analysis in collapsible sub-panel if there's detailed data */}
-        {riskMetrics?.drawdownSeries && riskMetrics.drawdownSeries.length > 3 && (
+        {riskMetrics?.drawdownSeries && hasRiskData && riskMetrics.drawdownSeries.length > 3 && (
           <Panel 
             header="📈 Drawdown-Analyse" 
             collapsible 
@@ -190,68 +213,81 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
                 Portfolio 20% unter seinem bisherigen Höchststand liegt.
               </p>
               
-              {/* Drawdown Statistics */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-                <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-                  <div className="text-sm font-medium text-gray-600">Maximum Drawdown</div>
-                  <div className="text-lg font-bold text-red-700">
-                    {formatRiskMetric(riskMetrics.maxDrawdown, 'percentage')}
+              {/* Only show detailed analysis if there are actual drawdowns */}
+              {riskMetrics.drawdownSeries.filter(item => item.drawdown > 0.1).length > 0 ? (
+                <>
+                  {/* Drawdown Statistics */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+                    <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                      <div className="text-sm font-medium text-gray-600">Maximum Drawdown</div>
+                      <div className="text-lg font-bold text-red-700">
+                        {formatRiskMetric(riskMetrics.maxDrawdown, 'percentage')}
+                      </div>
+                    </div>
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                      <div className="text-sm font-medium text-gray-600">Durchschnittlicher Drawdown</div>
+                      <div className="text-lg font-bold text-orange-700">
+                        {formatRiskMetric(
+                          riskMetrics.drawdownSeries.reduce((sum, item) => sum + item.drawdown, 0) / riskMetrics.drawdownSeries.length,
+                          'percentage'
+                        )}
+                      </div>
+                    </div>
+                    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                      <div className="text-sm font-medium text-gray-600">Perioden im Drawdown</div>
+                      <div className="text-lg font-bold text-yellow-700">
+                        {riskMetrics.drawdownSeries.filter(item => item.drawdown > 0).length} Jahre
+                      </div>
+                    </div>
                   </div>
-                </div>
-                <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                  <div className="text-sm font-medium text-gray-600">Durchschnittlicher Drawdown</div>
-                  <div className="text-lg font-bold text-orange-700">
-                    {formatRiskMetric(
-                      riskMetrics.drawdownSeries.reduce((sum, item) => sum + item.drawdown, 0) / riskMetrics.drawdownSeries.length,
-                      'percentage'
-                    )}
-                  </div>
-                </div>
-                <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-                  <div className="text-sm font-medium text-gray-600">Perioden im Drawdown</div>
-                  <div className="text-lg font-bold text-yellow-700">
-                    {riskMetrics.drawdownSeries.filter(item => item.drawdown > 0).length} Jahre
-                  </div>
-                </div>
-              </div>
 
-              {/* Drawdown Table for detailed analysis */}
-              <div className="overflow-x-auto">
-                <table className="min-w-full bg-white border border-gray-200 rounded-lg">
-                  <thead className="bg-gray-50">
-                    <tr>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jahr</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Portfolio-Wert</th>
-                      <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drawdown</th>
-                    </tr>
-                  </thead>
-                  <tbody className="divide-y divide-gray-200">
-                    {riskMetrics.drawdownSeries
-                      .filter(item => item.drawdown > 1) // Only show significant drawdowns
-                      .slice(0, 10) // Limit to first 10 items
-                      .map((item, index) => (
-                        <tr key={index} className={item.drawdown > 10 ? 'bg-red-50' : 'bg-white'}>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            {portfolioData.years[item.year] || `Jahr ${item.year + 1}`}
-                          </td>
-                          <td className="px-4 py-2 text-sm text-gray-900">
-                            {formatRiskMetric(item.value, 'currency')}
-                          </td>
-                          <td className="px-4 py-2 text-sm font-medium">
-                            <span className={`${item.drawdown > 10 ? 'text-red-600' : 'text-orange-600'}`}>
-                              -{formatRiskMetric(item.drawdown, 'percentage')}
-                            </span>
-                          </td>
+                  {/* Drawdown Table for detailed analysis */}
+                  <div className="overflow-x-auto">
+                    <table className="min-w-full bg-white border border-gray-200 rounded-lg">
+                      <thead className="bg-gray-50">
+                        <tr>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Jahr</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Portfolio-Wert</th>
+                          <th className="px-4 py-2 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Drawdown</th>
                         </tr>
-                      ))}
-                  </tbody>
-                </table>
-              </div>
+                      </thead>
+                      <tbody className="divide-y divide-gray-200">
+                        {riskMetrics.drawdownSeries
+                          .filter(item => item.drawdown > 1) // Only show significant drawdowns
+                          .slice(0, 10) // Limit to first 10 items
+                          .map((item, index) => (
+                            <tr key={index} className={item.drawdown > 10 ? 'bg-red-50' : 'bg-white'}>
+                              <td className="px-4 py-2 text-sm text-gray-900">
+                                {portfolioData.years[item.year] || `Jahr ${item.year + 1}`}
+                              </td>
+                              <td className="px-4 py-2 text-sm text-gray-900">
+                                {formatRiskMetric(item.value, 'currency')}
+                              </td>
+                              <td className="px-4 py-2 text-sm font-medium">
+                                <span className={`${item.drawdown > 10 ? 'text-red-600' : 'text-orange-600'}`}>
+                                  -{formatRiskMetric(item.drawdown, 'percentage')}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
 
-              {riskMetrics.drawdownSeries.filter(item => item.drawdown > 1).length > 10 && (
-                <p className="text-sm text-gray-500 mt-2">
-                  Zeigt die ersten 10 Jahre mit signifikanten Drawdowns (&gt; 1%).
-                </p>
+                  {riskMetrics.drawdownSeries.filter(item => item.drawdown > 1).length > 10 && (
+                    <p className="text-sm text-gray-500 mt-2">
+                      Zeigt die ersten 10 Jahre mit signifikanten Drawdowns (&gt; 1%).
+                    </p>
+                  )}
+                </>
+              ) : (
+                <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+                  <div className="text-green-800 font-semibold mb-2">✅ Keine signifikanten Drawdowns</div>
+                  <div className="text-sm text-green-700">
+                    Im simulierten Zeitraum gab es keine nennenswerten Verluste vom Höchststand. 
+                    Dies deutet auf eine stabile Aufwärtsentwicklung hin.
+                  </div>
+                </div>
               )}
             </div>
           </Panel>

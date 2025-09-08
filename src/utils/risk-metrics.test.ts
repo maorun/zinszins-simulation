@@ -128,7 +128,7 @@ describe('Risk Metrics Calculations', () => {
       const returns = [0.05, 0.08, 0.12];
       const riskFreeRate = 0.03;
       const sortinoRatio = calculateSortinoRatio(returns, riskFreeRate);
-      expect(sortinoRatio).toBe(Infinity);
+      expect(sortinoRatio).toBe(999.999);
     });
 
     test('handles empty returns', () => {
@@ -150,7 +150,7 @@ describe('Risk Metrics Calculations', () => {
     test('handles zero drawdown', () => {
       const returns = [0.08, 0.12, 0.05, 0.15];
       const calmarRatio = calculateCalmarRatio(returns, 0);
-      expect(calmarRatio).toBe(0);
+      expect(calmarRatio).toBe(999.999);
     });
 
     test('handles empty returns', () => {

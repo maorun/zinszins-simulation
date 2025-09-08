@@ -117,7 +117,10 @@ export function calculateSortinoRatio(returns: number[], riskFreeRate: number = 
   
   // Calculate downside deviation (only negative excess returns)
   const negativeReturns = returns.filter(ret => ret < riskFreeRate);
-  if (negativeReturns.length === 0) return Infinity; // No downside risk
+  if (negativeReturns.length === 0) {
+    // No downside risk - return a high but finite value instead of Infinity
+    return excessReturn > 0 ? 999.999 : 0;
+  }
   
   const downsideVariance = negativeReturns.reduce((sum, ret) => 
     sum + Math.pow(ret - riskFreeRate, 2), 0) / returns.length;
@@ -130,10 +133,15 @@ export function calculateSortinoRatio(returns: number[], riskFreeRate: number = 
  * Calculate Calmar Ratio (annual return divided by maximum drawdown)
  */
 export function calculateCalmarRatio(returns: number[], maxDrawdown: number): number {
-  if (returns.length === 0 || maxDrawdown === 0) return 0;
+  if (returns.length === 0) return 0;
   
   const avgReturn = returns.reduce((sum, ret) => sum + ret, 0) / returns.length;
   const annualizedReturn = avgReturn * 100; // Convert to percentage
+  
+  // If no drawdown, return a high but finite value instead of Infinity
+  if (maxDrawdown === 0) {
+    return annualizedReturn > 0 ? 999.999 : 0;
+  }
   
   return annualizedReturn / maxDrawdown;
 }
