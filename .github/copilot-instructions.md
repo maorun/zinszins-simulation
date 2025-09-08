@@ -1,6 +1,6 @@
 # Zinseszins-Simulation (Compound Interest Calculator)
 
-Zinseszins-Simulation is a German compound interest calculator built with Vite, React 19, TypeScript, and RSuite UI components. The application simulates investment growth over time, including German tax considerations (Vorabpauschale, Freibetrag), savings plans, withdrawal strategies, Monte Carlo analysis, and advanced return configurations.
+Zinseszins-Simulation is a German compound interest calculator built with Vite, React 19, TypeScript, and modern UI components (shadcn/ui with Tailwind CSS). The application simulates investment growth over time, including German tax considerations (Vorabpauschale, Freibetrag), savings plans, withdrawal strategies, Monte Carlo analysis, and advanced return configurations.
 
 **Always reference these instructions first and fallback to search or bash commands only when you encounter unexpected information that does not match the info here.**
 
@@ -25,9 +25,10 @@ Zinseszins-Simulation is a German compound interest calculator built with Vite, 
   - Runs on http://localhost:5173 (Vite default port)
   - Hot module reloading works correctly
   - Will show Vite development server output
-- **Testing**: `npm run test` -- runs 106 tests across 11 files in ~1 second
+- **Testing**: `npm run test` -- runs 296 tests across 56 files in ~23 seconds
   - All tests should pass
   - Uses Vitest for testing
+  - Comprehensive test coverage including integration, component, and utility tests
 
 ### Known Issues and Workarounds
 - **ESLint Configuration**: Uses modern ESLint with flat config (eslint.config.js)
@@ -37,6 +38,10 @@ Zinseszins-Simulation is a German compound interest calculator built with Vite, 
   - All functionality works correctly
   - Uses standard npm package resolution
 - **TypeScript**: Well-typed application with no errors
+- **UI Framework Migration**: Currently migrating from RSuite to shadcn/ui components
+  - `temp-rsuite-stubs.tsx` provides compatibility layer during transition
+  - Some components may show legacy RSuite patterns while migration is ongoing
+  - New components should use shadcn/ui components from `src/components/ui/`
 
 ## Validation and Testing
 
@@ -57,11 +62,13 @@ After making changes, ALWAYS test the complete user workflow:
 4. **Test interactive features**:
    - Change the time span slider and verify calculations update
    - Switch between "jährlich" (yearly) and "monatlich" (monthly) calculation modes
-   - Expand/collapse different sections (Entnahme, Monte Carlo Analyse, Simulation)
+   - Expand/collapse different sections (Entnahme, Monte Carlo Analyse, Simulation, Daten Export)
    - Test withdrawal strategies in the "Entnahme" section
    - Verify Monte Carlo analysis functionality
    - Test tax configuration changes (Kapitalertragsteuer, Teilfreistellungsquote)
    - Test configurable tax allowances per year
+   - Test data export functionality (Parameter export, CSV export, Markdown export)
+   - Verify sticky overview navigation shows correct metrics
 
 ### Essential Commands for Development
 - `npm run dev` - Start development server (never cancel, wait for startup)
@@ -86,14 +93,21 @@ After making changes, ALWAYS test the complete user workflow:
 - **`src/components/SparplanSimulationsAusgabe.tsx`** - Results display tables and summaries
 - **`src/components/EntnahmeSimulationsAusgabe.tsx`** - Withdrawal phase planning interface
 - **`src/components/Zeitspanne.tsx`** - Time range selection component
+- **`src/components/StickyOverview.tsx`** - Navigation overview component with key metrics
+- **`src/components/DataExport.tsx`** - Comprehensive data export functionality
+- **`src/components/ui/`** - Modern shadcn/ui components (cards, buttons, inputs, etc.)
+- **`src/components/temp-rsuite-stubs.tsx`** - Compatibility layer for RSuite migration
 
 ### Configuration Files
 - **`package.json`** - Dependencies and scripts with test scripts defined
   - Uses React 19, ESLint 8, Vite 5, TypeScript 5.9.2, Vitest 2
+  - Migrating from RSuite to shadcn/ui components
+  - Lucide React icons for modern iconography
   - Standard npm package resolution
 - **`vite.config.ts`** - Vite configuration for development and build
 - **`tsconfig.json`** - TypeScript configuration
 - **`eslint.config.js`** - ESLint flat configuration
+- **`components.json`** - shadcn/ui configuration for component generation
 
 ## Development Patterns
 
@@ -103,13 +117,20 @@ After making changes, ALWAYS test the complete user workflow:
 - No external state management library
 
 ### Styling and UI
-- **RSuite components** for UI (Tables, Forms, Panels, Sliders)
+- **Primary UI Framework**: **shadcn/ui components** - Modern, accessible UI components built on Radix UI
+  - **Component Library**: Use components from `src/components/ui/` directory
+  - **New Development**: Always use shadcn/ui components for new features
+  - **Migration Status**: Currently migrating from RSuite to shadcn/ui
 - **CSS Framework**: Uses Tailwind CSS utility classes exclusively
   - **NO new CSS classes**: Never create custom CSS classes or styles in separate CSS files
   - **Tailwind only**: Use only Tailwind CSS utility classes for all styling needs
-  - **RSuite imports**: Uses `rsuite/dist/rsuite.min.css` - imported in components for RSuite component base styles
   - **Index.css**: Contains only Tailwind imports, CSS reset, and essential global styles
-- **Icons**: RSuite icons work correctly
+- **Icons**: **Lucide React** icons (modern, consistent iconography)
+  - Import from `lucide-react` package
+  - Use semantic icon names (ChevronDown, ChevronUp, Download, etc.)
+- **Legacy Compatibility**: 
+  - **RSuite Stubs**: `temp-rsuite-stubs.tsx` provides compatibility layer during migration
+  - **Gradual Migration**: Some components may still use RSuite patterns temporarily
 
 ### API and Data Flow
 - All calculations performed client-side for real-time responsiveness
@@ -173,6 +194,13 @@ This is a personal finance tool focused on German tax law and investment plannin
 - Model different savings and withdrawal scenarios
 - Make informed financial planning decisions
 
+### Current Development Status
+- **Comprehensive Feature Set**: All major financial calculation features implemented
+- **Modern UI Migration**: Transitioning from RSuite to shadcn/ui for better maintainability
+- **Extensive Testing**: 296 tests across 56 files ensure reliability
+- **Enhanced User Experience**: Sticky navigation, comprehensive data export, real-time updates
+- **German Tax Compliance**: Full Vorabpauschale calculations with explanations
+
 **Author**: Marco (see footer in application)
 
 ## Development Workflow with Code Review
@@ -201,12 +229,14 @@ When components become too large (> 500-800 lines), follow this refactoring appr
 - **Pure functions**: Extract formatting, validation, and transformation functions
 - **Currency formatting**: Use shared `formatCurrency` utility from `src/utils/currency.ts`
 - **Helper functions**: Extract helper functions that don't need React context
+- **UI Components**: Prefer shadcn/ui components from `src/components/ui/` for new extractions
 
 #### 4. Maintain Test Coverage - MANDATORY
 - **Test extracted components**: Each new component needs comprehensive tests
 - **Test custom hooks**: Use `renderHook` to test custom hooks in isolation
 - **Test utility functions**: Unit test pure functions thoroughly
 - **Integration tests**: Ensure the refactored components work together correctly
+- **UI Migration Testing**: Test both shadcn/ui components and legacy RSuite compatibility
 - **Fix test failures**: When components are extracted, existing tests may fail due to multiple DOM elements with same text. Use `getAllByText()` instead of `getByText()` when content appears in multiple places
 
 #### 5. Refactoring Process - Testing & Linting at Every Step
@@ -293,7 +323,7 @@ expect(screen.getByText(/📊 Basis-Strategie.*5%/)).toBeInTheDocument();
 
 2. **Testing and Linting Phase - MANDATORY**
    - **No Exceptions:** For **every single change or addition** of a feature, corresponding tests **must** be added or adapted. This is a mandatory requirement for every pull request.
-   - **Run all tests:** `npm run test` (should pass all 138+ tests). If you add new features, add new tests. If you change features, adapt existing tests.
+   - **Run all tests:** `npm run test` (should pass all 296+ tests across 56 files). If you add new features, add new tests. If you change features, adapt existing tests.
    - **Run linting:** `npm run lint` (should pass with max 10 warnings)
    - **Run type checking:** `npm run typecheck` (expect minimal errors)
    - **Run build:** `npm run build` (should complete successfully)
@@ -322,6 +352,7 @@ When performing code review, examine the following aspects:
 - **Minimal Changes**: Are changes surgical and focused? Avoid unnecessary modifications
 - **TypeScript**: Are types properly defined? No `any` types without justification
 - **React Patterns**: Proper use of hooks, state management, and component structure
+- **UI Framework**: Use shadcn/ui components for new development; avoid mixing UI frameworks
 - **Styling Guidelines**: Use only Tailwind CSS utility classes - never create custom CSS classes or separate CSS files
 - **Performance**: No unnecessary re-renders or expensive calculations
 - **Error Handling**: Appropriate error handling for user inputs and edge cases
@@ -333,10 +364,11 @@ When performing code review, examine the following aspects:
 - **Investment Logic**: Accurate compound interest, withdrawal strategies, and return configurations
 
 #### User Experience
-- **UI Consistency**: RSuite components used appropriately and consistently
+- **UI Consistency**: shadcn/ui components used appropriately and consistently; avoid mixing UI frameworks
 - **Responsiveness**: Mobile and desktop layouts work correctly
 - **Real-time Updates**: Changes reflect immediately in calculations and displays
 - **German Language**: Proper German terminology and user-facing text
+- **Navigation**: Sticky overview and section navigation work smoothly
 
 #### Testing & Documentation
 - **Test Coverage**: **Is there sufficient test coverage for the new functionality? This is not a suggestion, it is a requirement.**
@@ -353,6 +385,7 @@ Before approving changes, verify:
 - [ ] Build succeeds (`npm run build`)
 - [ ] Manual testing confirms functionality works
 - [ ] Changes are minimal and focused
+- [ ] **UI Framework**: New components use shadcn/ui; no mixing of UI frameworks
 - [ ] **Styling uses only Tailwind CSS utility classes** - no custom CSS classes created
 - [ ] German financial calculations are accurate
 - [ ] UI/UX remains consistent and responsive
