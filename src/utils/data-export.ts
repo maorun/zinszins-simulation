@@ -161,7 +161,11 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
     'Entnahme (EUR)',
     'Zinsen (EUR)',
     'Endkapital (EUR)',
+    'Basiszins (%)',
+    'Basisertrag (EUR)',
+    'Tatsächlicher Gewinn (EUR)',
     'Vorabpauschale (EUR)',
+    'Steuerbasis vor Freibetrag (EUR)',
     'Bezahlte Steuer (EUR)',
     'Genutzter Freibetrag (EUR)'
   ];
@@ -209,9 +213,16 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
       row.push(formatCurrencyForCSV(yearData.entnahme));
       row.push(formatCurrencyForCSV(yearData.zinsen));
       row.push(formatCurrencyForCSV(yearData.endkapital));
-      row.push(formatCurrencyForCSV(yearData.vorabpauschale || 0));
-      row.push(formatCurrencyForCSV(yearData.bezahlteSteuer));
-      row.push(formatCurrencyForCSV(yearData.genutzterFreibetrag));
+      
+      // Vorabpauschale details for transparency
+      const details = yearData.vorabpauschaleDetails;
+      row.push(details ? formatPercentage(details.basiszins * 100).replace('%', '') : '0,00'); // Basiszins in %
+      row.push(formatCurrencyForCSV(details?.basisertrag || 0)); // Basisertrag
+      row.push(formatCurrencyForCSV(details?.jahresgewinn || 0)); // Tatsächlicher Gewinn
+      row.push(formatCurrencyForCSV(yearData.vorabpauschale || 0)); // Final Vorabpauschale
+      row.push(formatCurrencyForCSV(details?.steuerVorFreibetrag || 0)); // Steuerbasis vor Freibetrag
+      row.push(formatCurrencyForCSV(yearData.bezahlteSteuer)); // Bezahlte Steuer
+      row.push(formatCurrencyForCSV(yearData.genutzterFreibetrag)); // Genutzter Freibetrag
       
       // Conditional data
       if (withdrawalConfig?.formValue.strategie === 'monatlich_fest') {
@@ -292,7 +303,7 @@ export function exportDataToMarkdown(data: ExportData): string {
   lines.push('');
   
   // Savings phase data
-  if (savingsData?.sparplanElements) {
+  if (savingsData?.sparplanElements && savingsData.sparplanElements.length > 0) {
     lines.push('## Sparphase');
     lines.push('');
     lines.push('| Jahr | Startkapital | Zinsen | Einzahlungen | Endkapital | Vorabpauschale | Steuer |');
@@ -307,10 +318,15 @@ export function exportDataToMarkdown(data: ExportData): string {
       lines.push(`| ${year} | ${formatCurrency(yearData.startkapital || 0)} | ${formatCurrency(yearData.zinsen || 0)} | ${formatCurrency(contribution)} | ${formatCurrency(yearData.endkapital || 0)} | ${formatCurrency(yearData.vorabpauschale || 0)} | ${formatCurrency(yearData.bezahlteSteuer || 0)} |`);
     }
     lines.push('');
+  } else {
+    lines.push('## Sparphase');
+    lines.push('');
+    lines.push('> ℹ️ Keine Sparplan-Daten verfügbar. Führen Sie eine Simulation durch oder wechseln Sie zum Ansparen-Tab, um Daten zu generieren.');
+    lines.push('');
   }
   
   // Withdrawal phase data
-  if (withdrawalData) {
+  if (withdrawalData && Object.keys(withdrawalData).length > 0) {
     lines.push('## Entnahmephase');
     lines.push('');
     
@@ -323,16 +339,31 @@ export function exportDataToMarkdown(data: ExportData): string {
       lines.push('');
     }
     
-    lines.push('| Jahr | Startkapital | Entnahme | Zinsen | Endkapital | Steuer |');
-    lines.push('|------|--------------|----------|--------|------------|--------|');
+    lines.push('| Jahr | Startkapital | Entnahme | Zinsen | Endkapital | Vorabpauschale Details | Steuer |');
+    lines.push('|------|--------------|----------|--------|------------|------------------------|--------|');
     
     const years = Object.keys(withdrawalData).map(Number).sort();
     for (const year of years) {
       const yearData = withdrawalData[year];
       if (!yearData) continue;
       
-      lines.push(`| ${year} | ${formatCurrency(yearData.startkapital)} | ${formatCurrency(yearData.entnahme)} | ${formatCurrency(yearData.zinsen)} | ${formatCurrency(yearData.endkapital)} | ${formatCurrency(yearData.bezahlteSteuer)} |`);
+      // Format Vorabpauschale details for transparency
+      let vorabDetails = 'N/A';
+      if (yearData.vorabpauschaleDetails) {
+        const details = yearData.vorabpauschaleDetails;
+        vorabDetails = `Basiszins: ${formatPercentage(details.basiszins * 100)}<br/>` +
+                      `Basisertrag: ${formatCurrency(details.basisertrag)}<br/>` +
+                      `Jahresgewinn: ${formatCurrency(details.jahresgewinn)}<br/>` +
+                      `Vorabpauschale: ${formatCurrency(yearData.vorabpauschale || 0)}`;
+      }
+      
+      lines.push(`| ${year} | ${formatCurrency(yearData.startkapital)} | ${formatCurrency(yearData.entnahme)} | ${formatCurrency(yearData.zinsen)} | ${formatCurrency(yearData.endkapital)} | ${vorabDetails} | ${formatCurrency(yearData.bezahlteSteuer)} |`);
     }
+    lines.push('');
+  } else {
+    lines.push('## Entnahmephase');
+    lines.push('');
+    lines.push('> ℹ️ Keine Entnahme-Daten verfügbar. Wechseln Sie zum Entnehmen-Tab und konfigurieren Sie eine Entnahmestrategie, um Daten zu generieren.');
     lines.push('');
   }
   

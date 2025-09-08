@@ -55,6 +55,11 @@ export function useDataExport() {
     setExportingState('csv');
     
     try {
+      // Ensure we have savings data available
+      if (!context.simulationData?.sparplanElements) {
+        throw new Error('Keine Sparplan-Daten verfügbar. Bitte führen Sie zuerst eine Simulation durch.');
+      }
+
       const exportData: ExportData = {
         savingsData: context.simulationData,
         context,
@@ -78,7 +83,7 @@ export function useDataExport() {
     
     try {
       if (!context.withdrawalResults) {
-        throw new Error('Keine Entnahme-Daten verfügbar');
+        throw new Error('Keine Entnahme-Daten verfügbar. Bitte konfigurieren Sie eine Entnahmestrategie.');
       }
 
       const exportData: ExportData = {
@@ -149,9 +154,17 @@ export function useDataExport() {
     setExportingState('markdown');
     
     try {
+      // Check if we have any data to export
+      const hasSavingsData = context.simulationData?.sparplanElements?.length > 0;
+      const hasWithdrawalData = context.withdrawalResults && Object.keys(context.withdrawalResults).length > 0;
+      
+      if (!hasSavingsData && !hasWithdrawalData) {
+        throw new Error('Keine Simulationsdaten verfügbar. Bitte führen Sie zuerst eine Simulation durch.');
+      }
+
       const exportData: ExportData = {
-        savingsData: context.simulationData,
-        withdrawalData: context.withdrawalResults || undefined,
+        savingsData: hasSavingsData ? context.simulationData : undefined,
+        withdrawalData: hasWithdrawalData ? context.withdrawalResults || undefined : undefined,
         context,
       };
       
