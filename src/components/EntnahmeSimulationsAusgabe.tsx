@@ -1,14 +1,15 @@
 import { useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { RadioTileGroup, RadioTile } from "./ui/radio-tile";
+import { Switch } from "./ui/switch";
+
+// Temporary components still from stubs
 import {
   Form,
   InputNumber,
-  Panel,
-  RadioTile,
-  RadioTileGroup,
-  Slider,
   Toggle,
+  Slider,
 } from "./temp-rsuite-stubs";
-import { Switch } from "./ui/switch";
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type {
   WithdrawalStrategy,
@@ -145,7 +146,11 @@ export function EntnahmeSimulationsAusgabe({
 
   return (
     <>
-      <Panel header="Variablen" bordered collapsible>
+      <Card>
+        <CardHeader>
+          <CardTitle>Variablen</CardTitle>
+        </CardHeader>
+        <CardContent>
         {/* Toggle between single, segmented, and comparison withdrawal */}
         <Form.Group controlId="withdrawalMode">
           <Form.ControlLabel>Entnahme-Modus</Form.ControlLabel>
@@ -1039,8 +1044,13 @@ export function EntnahmeSimulationsAusgabe({
             )}
           </Form>
         )}
-      </Panel>
-      <Panel header="Simulation" bordered collapsible>
+        </CardContent>
+      </Card>
+      <Card>
+        <CardHeader>
+          <CardTitle>Simulation</CardTitle>
+        </CardHeader>
+        <CardContent>
         <EntnahmeSimulationDisplay
           withdrawalData={withdrawalData}
           formValue={formValue}
@@ -1052,7 +1062,8 @@ export function EntnahmeSimulationsAusgabe({
           grundfreibetragAktiv={grundfreibetragAktiv}
           grundfreibetragBetrag={grundfreibetragBetrag}
         />
-      </Panel>
+        </CardContent>
+      </Card>
       
       {/* Calculation Explanation Modal */}
       {calculationDetails && (

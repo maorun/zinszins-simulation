@@ -5,7 +5,7 @@ import type { ReturnMode } from '../utils/random-returns';
 import FixedReturnConfiguration from './FixedReturnConfiguration';
 import RandomReturnConfiguration from './RandomReturnConfiguration';
 import VariableReturnConfiguration from './VariableReturnConfiguration';
-import { RadioTileGroup, RadioTile } from './temp-rsuite-stubs';
+import { RadioTileGroup, RadioTile } from './ui/radio-tile';
 
 const ReturnConfiguration = () => {
     const {

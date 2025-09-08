@@ -1,6 +1,5 @@
 // RSuite Table import temporarily removed
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
-import { Table, Column, HeaderCell, Cell } from "./temp-rsuite-stubs";
 import { useState } from 'react';
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type { Summary } from "../utils/summary-utils";
@@ -239,61 +238,6 @@ export function SparplanSimulationsAusgabe({
                 </div>
             </div>
 
-            {/* Hidden Desktop Table Layout */}
-            <div style={{ display: 'none' }}>
-                <Table
-                    data={tableData}
-                    bordered
-                    style={{ fontSize: '0.9rem' }}
-                >
-                    <Column width={120}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa', textAlign: 'center' }}>
-                            📅 Jahr
-                        </HeaderCell>
-                        <Cell dataKey="zeitpunkt" style={{ textAlign: 'center', fontWeight: 500 }} />
-                    </Column>
-
-                    <Column flexGrow={1}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                            <HeaderSummary
-                                title="💰 Neue Einzahlung (Jahr)"
-                                summary={summary.startkapital?.toFixed(2).toString() || ""}
-                            />
-                        </HeaderCell>
-                        <EnhancedNumberCell dataKey="einzahlung" color="#28a745" />
-                    </Column>
-
-                    <Column flexGrow={1}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                            <HeaderSummary
-                                title="💸 Bezahlte Steuer (Jahr)"
-                                summary={summary.bezahlteSteuer?.toFixed(2).toString() || ""}
-                            />
-                        </HeaderCell>
-                        <EnhancedNumberCell dataKey="bezahlteSteuer" color="#dc3545" />
-                    </Column>
-                    
-                    <Column flexGrow={1}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                            <HeaderSummary
-                                title="📈 Zinsen (Jahr)"
-                                summary={summary.zinsen?.toFixed(2).toString() || ""}
-                            />
-                        </HeaderCell>
-                        <EnhancedNumberCell dataKey="zinsen" color="#17a2b8" />
-                    </Column>
-                    
-                    <Column flexGrow={1}>
-                        <HeaderCell style={{ fontWeight: 600, backgroundColor: '#f8f9fa' }}>
-                            <HeaderSummary
-                                title="🎯 Gesamtkapital"
-                                summary={summary.endkapital?.toFixed(2).toString() || ""}
-                            />
-                        </HeaderCell>
-                        <EnhancedNumberCell dataKey="endkapital" color="#2eabdf" bold />
-                    </Column>
-                </Table>
-            </div>
             
             <VorabpauschaleExplanationModal
                 open={showVorabpauschaleModal}
@@ -321,52 +265,4 @@ const thousands = (value: string) =>
         minimumFractionDigits: 2,
         maximumFractionDigits: 2,
     });
-
-const HeaderSummary = ({
-    title,
-    summary,
-}: {
-    title: string;
-    summary: string;
-}) => (
-    <div style={{ textAlign: 'center' }}>
-        <div style={{ fontSize: '0.85rem', fontWeight: 500, marginBottom: '0.25rem' }}>
-            {title}
-        </div>
-        <div style={{
-            fontSize: '1.1rem',
-            color: "#2eabdf",
-            fontWeight: 700,
-            background: 'linear-gradient(135deg, #2eabdf, #17a2b8)',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text'
-        }}>
-            {thousands(summary)} €
-        </div>
-    </div>
-);
-
-const EnhancedNumberCell = ({
-    rowData,
-    dataKey,
-    color = "#333",
-    bold = false,
-    ...props
-}: {
-    rowData?: any;
-    dataKey: string;
-    color?: string;
-    bold?: boolean;
-}) => (
-    <Cell {...props} style={{ textAlign: 'right', paddingRight: '1rem' }}>
-        <span style={{ 
-            color, 
-            fontWeight: bold ? 600 : 500,
-            fontSize: bold ? '1rem' : '0.9rem'
-        }}>
-            {thousands(rowData[dataKey])} €
-        </span>
-    </Cell>
-);
 

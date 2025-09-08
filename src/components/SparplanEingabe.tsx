@@ -40,15 +40,16 @@ const InfoIcon = () => (
     </svg>
 );
 
+// Temporary imports - remove unused ones for now
 import {
     Button,
-    ButtonToolbar,
     DatePicker,
     Form,
     InputNumber,
     Panel,
     Message,
-    useToaster
+    useToaster,
+    ButtonToolbar
 } from "./temp-rsuite-stubs";
 
 

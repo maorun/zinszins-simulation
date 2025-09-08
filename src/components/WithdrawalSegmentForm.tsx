@@ -2,18 +2,17 @@ import { useState } from "react";
 import { Input } from "./ui/input";
 import { Slider } from "./ui/slider";
 import { Switch } from "./ui/switch";
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { RadioTileGroup, RadioTile } from './ui/radio-tile';
+import { Separator } from './ui/separator';
+import { Plus, Trash2 } from 'lucide-react';
+
+// Temporary components still from stubs
 import { 
-  Panel, 
   Form, 
   InputNumber, 
-  RadioTile, 
-  RadioTileGroup, 
-  Toggle, 
-  Divider,
-  IconButton,
-  PlusIcon,
-  TrashIcon,
-  Button
+  Toggle
 } from './temp-rsuite-stubs';
 import type { 
     WithdrawalSegment
@@ -124,55 +123,59 @@ export function WithdrawalSegmentForm({
     };
 
     return (
-        <Panel header="Entnahme-Phasen konfigurieren" bordered collapsible>
-            <div style={{ marginBottom: '20px' }}>
-                <p>
-                    Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf.
-                    Dies ermöglicht es, verschiedene Ansätze für Früh-, Mittel- und Spätrente zu kombinieren.
-                </p>
-                
-                {errors.length > 0 && (
-                    <div style={{ color: 'red', marginBottom: '10px' }}>
-                        <strong>Fehler:</strong>
-                        <ul>
-                            {errors.map((error, index) => (
-                                <li key={index}>{error}</li>
-                            ))}
-                        </ul>
-                    </div>
-                )}
-                
-                <Button 
-                    appearance="primary" 
-                    onClick={addSegment} 
-                    startIcon={<PlusIcon />}
-                    disabled={!canAddMoreSegments()}
-                >
-                    Phase hinzufügen
-                </Button>
-            </div>
-
-            {segments.map((segment, _index) => (
-                <Panel 
-                    key={segment.id} 
-                    header={
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                            <span>{segment.name} ({segment.startYear} - {segment.endYear})</span>
-                            {segments.length > 1 && (
-                                <IconButton 
-                                    icon={<TrashIcon />} 
-                                    size="sm" 
-                                    color="red" 
-                                    appearance="subtle"
-                                    onClick={() => removeSegment(segment.id)}
-                                />
-                            )}
+        <Card>
+            <CardHeader>
+                <CardTitle>Entnahme-Phasen konfigurieren</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <div className="mb-5">
+                    <p className="mb-4">
+                        Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf.
+                        Dies ermöglicht es, verschiedene Ansätze für Früh-, Mittel- und Spätrente zu kombinieren.
+                    </p>
+                    
+                    {errors.length > 0 && (
+                        <div className="text-destructive mb-4">
+                            <strong>Fehler:</strong>
+                            <ul className="list-disc list-inside">
+                                {errors.map((error, index) => (
+                                    <li key={index}>{error}</li>
+                                ))}
+                            </ul>
                         </div>
-                    }
-                    bordered
-                    collapsible
-                    style={{ marginBottom: '15px' }}
-                >
+                    )}
+                    
+                    <Button 
+                        onClick={addSegment} 
+                        disabled={!canAddMoreSegments()}
+                        className="mb-4"
+                    >
+                        <Plus className="h-4 w-4 mr-2" />
+                        Phase hinzufügen
+                    </Button>
+                </div>
+
+                {segments.map((segment, _index) => (
+                    <Card 
+                        key={segment.id} 
+                        className="mb-4"
+                    >
+                        <CardHeader>
+                            <div className="flex justify-between items-center">
+                                <CardTitle className="text-lg">{segment.name} ({segment.startYear} - {segment.endYear})</CardTitle>
+                                {segments.length > 1 && (
+                                    <Button 
+                                        variant="ghost" 
+                                        size="sm" 
+                                        onClick={() => removeSegment(segment.id)}
+                                        className="text-destructive hover:text-destructive"
+                                    >
+                                        <Trash2 className="h-4 w-4" />
+                                    </Button>
+                                )}
+                            </div>
+                        </CardHeader>
+                        <CardContent>
                     <Form fluid>
                         {/* Basic segment configuration - Mobile responsive layout */}
                         <div className="form-grid">
@@ -204,14 +207,14 @@ export function WithdrawalSegmentForm({
                             </Form.Group>
                         </div>
 
-                        <Divider />
+                        <Separator />
 
                         {/* Withdrawal strategy */}
                         <Form.Group>
                             <Form.ControlLabel>Entnahme-Strategie</Form.ControlLabel>
                             <RadioTileGroup 
                                 value={segment.strategy}
-                                onChange={(value: string) => {
+                                onValueChange={(value: string) => {
                                     const newStrategy = value as WithdrawalStrategy;
                                     const updates: Partial<WithdrawalSegment> = { strategy: newStrategy };
                                     
@@ -433,7 +436,7 @@ export function WithdrawalSegmentForm({
                             />
                         )}
 
-                        <Divider />
+                        <Separator />
 
                         {/* Return configuration */}
                         <Form.Group>
@@ -484,7 +487,7 @@ export function WithdrawalSegmentForm({
                             </Form.Group>
                         )}
 
-                        <Divider />
+                        <Separator />
 
                         {/* Inflation settings */}
                         <Form.Group>
@@ -578,7 +581,7 @@ export function WithdrawalSegmentForm({
                             </>
                         )}
 
-                        <Divider />
+                        <Separator />
 
                         {/* Tax reduction setting */}
                         <Form.Group>
@@ -604,8 +607,10 @@ export function WithdrawalSegmentForm({
                             </Form.HelpText>
                         </Form.Group>
                     </Form>
-                </Panel>
+                        </CardContent>
+                    </Card>
             ))}
-        </Panel>
+            </CardContent>
+        </Card>
     );
 }
