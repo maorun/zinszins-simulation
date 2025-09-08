@@ -214,7 +214,7 @@ export function WithdrawalSegmentForm({
                             <Form.ControlLabel>Entnahme-Strategie</Form.ControlLabel>
                             <RadioTileGroup 
                                 value={segment.strategy}
-                                onChange={(value: string) => {
+                                onValueChange={(value: string) => {
                                     const newStrategy = value as WithdrawalStrategy;
                                     const updates: Partial<WithdrawalSegment> = { strategy: newStrategy };
                                     

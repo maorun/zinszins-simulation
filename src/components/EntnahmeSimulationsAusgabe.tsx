@@ -1,7 +1,6 @@
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { RadioTileGroup, RadioTile } from "./ui/radio-tile";
-import { Slider } from "./ui/slider";
 import { Switch } from "./ui/switch";
 
 // Temporary components still from stubs
@@ -9,6 +8,7 @@ import {
   Form,
   InputNumber,
   Toggle,
+  Slider,
 } from "./temp-rsuite-stubs";
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type {

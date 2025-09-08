@@ -116,11 +116,18 @@ After making changes, ALWAYS test the complete user workflow:
 - Client-side calculations with immediate updates
 - No external state management library
 
-### Styling and UI
+## UI Framework Migration
+
+**Current Status:** **MIGRATION COMPLETED** - Successfully migrated from RSuite to shadcn/ui
+
+The project has been successfully migrated from RSuite to shadcn/ui components:
 - **Primary UI Framework**: **shadcn/ui components** - Modern, accessible UI components built on Radix UI
   - **Component Library**: Use components from `src/components/ui/` directory
-  - **New Development**: Always use shadcn/ui components for new features
-  - **Migration Status**: Currently migrating from RSuite to shadcn/ui
+  - **Migration Status**: **COMPLETE** - All visible UI components migrated
+  - **RadioTile Components**: Custom RadioTile built on shadcn/ui RadioGroup
+  - **Card Components**: All Panel components migrated to shadcn/ui Card
+  - **Button Components**: All Button components migrated to shadcn/ui Button
+  - **Interactive Components**: All user-facing components fully functional
 - **CSS Framework**: Uses Tailwind CSS utility classes exclusively
   - **NO new CSS classes**: Never create custom CSS classes or styles in separate CSS files
   - **Tailwind only**: Use only Tailwind CSS utility classes for all styling needs
@@ -129,8 +136,8 @@ After making changes, ALWAYS test the complete user workflow:
   - Import from `lucide-react` package
   - Use semantic icon names (ChevronDown, ChevronUp, Download, etc.)
 - **Legacy Compatibility**: 
-  - **RSuite Stubs**: `temp-rsuite-stubs.tsx` provides compatibility layer during migration
-  - **Gradual Migration**: Some components may still use RSuite patterns temporarily
+  - **Migration Complete**: `temp-rsuite-stubs.tsx` contains only Form components for internal data binding
+  - **All UI Components**: User-facing components fully migrated to shadcn/ui
 
 ### API and Data Flow
 - All calculations performed client-side for real-time responsiveness
@@ -195,15 +202,30 @@ This is a personal finance tool focused on German tax law and investment plannin
 - Make informed financial planning decisions
 
 ### Current Development Status
-- **Comprehensive Feature Set**: All major financial calculation features implemented
-- **Modern UI Migration**: Transitioning from RSuite to shadcn/ui for better maintainability
-- **Extensive Testing**: 296 tests across 56 files ensure reliability
+- **UI Migration: COMPLETED** - Successfully migrated from RSuite to shadcn/ui
+- **Modern Component Library**: All user-facing components use shadcn/ui
+- **Comprehensive Testing**: 296 tests across 56 files ensure reliability
 - **Enhanced User Experience**: Sticky navigation, comprehensive data export, real-time updates
 - **German Tax Compliance**: Full Vorabpauschale calculations with explanations
+- **Interactive Functionality**: All RadioTile, Card, and Button components fully functional
+- **Development Tools**: Use Context7 for up-to-date documentation and best practices
 
 **Author**: Marco (see footer in application)
 
 ## Development Workflow with Code Review
+
+**IMPORTANT: Use Context7 for Development Documentation**
+
+When developing new features or making changes to this codebase, always use **Context7** to access up-to-date documentation and examples:
+
+### Context7 Integration
+- **Library Documentation**: Use Context7 to get current documentation for any libraries or frameworks
+- **Best Practices**: Context7 provides current best practices and patterns for React 19, TypeScript, and shadcn/ui
+- **Code Examples**: Get real-world examples and implementation patterns through Context7
+- **Problem Solving**: Use Context7 to research solutions for complex technical challenges
+- **API References**: Access the latest API documentation for dependencies and frameworks
+
+**Always consult Context7 first** for documentation and examples before implementing new features or making architectural changes.
 
 When making changes to this codebase, follow this complete workflow to ensure high-quality, reliable code:
 
