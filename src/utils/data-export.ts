@@ -75,16 +75,23 @@ export function exportSavingsDataToCSV(data: ExportData): string {
 
   const lines: string[] = [];
   
+  // Calculate the correct savings phase period
+  const currentYear = new Date().getFullYear();
+  const savingsStartYear = Math.min(currentYear, 
+    ...context.sparplanElemente.map(plan => new Date(plan.start).getFullYear())
+  );
+  const savingsEndYear = context.startEnd[0]; // End of savings phase = start of withdrawal phase
+  
   // Add header with parameter information
   lines.push('# Sparphase - Simulationsdaten');
-  lines.push('# Zeitraum: ' + context.startEnd[0] + ' - ' + context.startEnd[1]);
+  lines.push('# Zeitraum: ' + savingsStartYear + ' - ' + savingsEndYear);
   lines.push('# Rendite: ' + formatPercentage(context.rendite));
   lines.push('# Kapitalertragsteuer: ' + formatPercentage(context.steuerlast));
   lines.push('# Teilfreistellungsquote: ' + formatPercentage(context.teilfreistellungsquote));
   lines.push('# Berechnungsmodus: ' + (context.simulationAnnual === 'yearly' ? 'Jährlich' : 'Monatlich'));
   lines.push('');
   
-  // Add CSV header
+  // Add CSV header with only the configured savings plans
   lines.push(generateSavingsCSVHeader(context.sparplanElemente));
   
   // Process simulation data

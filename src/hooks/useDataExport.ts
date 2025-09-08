@@ -66,7 +66,14 @@ export function useDataExport() {
       };
       
       const csvContent = exportSavingsDataToCSV(exportData);
-      const filename = `sparphase_${context.startEnd[0]}-${context.startEnd[1]}_${new Date().toISOString().slice(0, 10)}.csv`;
+      
+      // Calculate correct savings phase period for filename
+      const currentYear = new Date().getFullYear();
+      const savingsStartYear = Math.min(currentYear, 
+        ...context.sparplanElemente.map(plan => new Date(plan.start).getFullYear())
+      );
+      const savingsEndYear = context.startEnd[0]; // End of savings phase = start of withdrawal
+      const filename = `sparphase_${savingsStartYear}-${savingsEndYear}_${new Date().toISOString().slice(0, 10)}.csv`;
       
       downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8');
       setResultState(true, 'csv');
