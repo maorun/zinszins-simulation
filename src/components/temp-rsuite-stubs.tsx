@@ -9,6 +9,7 @@ import { Slider as ShadcnSlider } from './ui/slider';
 import { Switch } from './ui/switch';
 import { ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
+import { RadioTileGroup as ShadcnRadioTileGroup } from './ui/radio-tile';
 
 // Form context for RSuite-style form value binding
 const FormContext = createContext<{
@@ -189,15 +190,15 @@ export const FormControl = ({
       </div>
     );
   }
-  if (accepter === RadioTileGroup) {
+  if (accepter === ShadcnRadioTileGroup || accepter?.displayName === 'RadioTileGroup') {
     return (
-      <RadioTileGroup 
+      <ShadcnRadioTileGroup 
         value={actualValue}
         onValueChange={actualOnChange}
         {...validInputProps}
       >
         {props.children}
-      </RadioTileGroup>
+      </ShadcnRadioTileGroup>
     );
   }
   if (accepter === Toggle) {
