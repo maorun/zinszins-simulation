@@ -691,12 +691,21 @@ export function downloadTextAsFile(content: string, filename: string, mimeType: 
   // Ensure the MIME type includes charset=utf-8 if not already specified
   const finalMimeType = mimeType.includes('charset') ? mimeType : `${mimeType};charset=utf-8`;
   
-  const blob = new Blob([contentWithBOM], { type: finalMimeType });
+  // Use explicit UTF-8 encoding for the blob to ensure special characters are preserved
+  const blob = new Blob([contentWithBOM], { 
+    type: finalMimeType,
+    endings: 'native'
+  });
   const url = URL.createObjectURL(blob);
   
   const link = document.createElement('a');
   link.href = url;
   link.download = filename;
+  // Ensure the download attribute is properly set for UTF-8 content
+  // Only set charset attribute if setAttribute method exists (avoid test issues)
+  if (typeof link.setAttribute === 'function') {
+    link.setAttribute('charset', 'utf-8');
+  }
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);

@@ -73,6 +73,8 @@ const DataExport = () => {
   const hasSavingsData = simulationData?.sparplanElements && simulationData.sparplanElements.length > 0;
   const hasWithdrawalData = withdrawalResults && Object.keys(withdrawalResults).length > 0;
   const hasWithdrawalConfig = withdrawalConfig && withdrawalConfig.formValue;
+  // More robust detection: withdrawal capability exists if we have either results, config, or both savings data and basic setup
+  const hasWithdrawalCapability = hasWithdrawalData || hasWithdrawalConfig || (hasSavingsData && withdrawalConfig);
   const hasAnyData = hasSavingsData || hasWithdrawalData || hasWithdrawalConfig;
 
   return (
@@ -160,7 +162,7 @@ const DataExport = () => {
                         </Button>
                       )}
                       
-                      {hasWithdrawalConfig && (
+                      {hasWithdrawalCapability && (
                         <Button
                           variant={getDataExportButtonVariant('csv')}
                           size="sm"
@@ -173,7 +175,7 @@ const DataExport = () => {
                         </Button>
                       )}
                       
-                      {hasSavingsData && hasWithdrawalConfig && (
+                      {hasSavingsData && hasWithdrawalCapability && (
                         <Button
                           variant={getDataExportButtonVariant('csv')}
                           size="sm"

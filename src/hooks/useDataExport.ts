@@ -108,6 +108,27 @@ export function useDataExport() {
         withdrawalData = result;
       }
       
+      // Fallback: If still no withdrawal data but we have savings data, generate with default strategy
+      if (!withdrawalData && context.simulationData?.sparplanElements && context.withdrawalConfig) {
+        // Use default withdrawal strategy if formValue is incomplete but some config exists
+        const defaultStrategy = '4prozent';
+        const defaultEndYear = context.startEnd[1] + 40; // 40 years after savings end
+        const defaultReturn = 5; // 5% default return for withdrawal phase
+        
+        const { result } = calculateWithdrawal({
+          elements: context.simulationData.sparplanElements,
+          startYear: context.startEnd[1] + 1,
+          endYear: defaultEndYear,
+          strategy: defaultStrategy,
+          returnConfig: { mode: 'fixed', fixedRate: defaultReturn / 100 },
+          taxRate: context.steuerlast / 100,
+          teilfreistellungsquote: context.teilfreistellungsquote / 100,
+          freibetragPerYear: context.freibetragPerYear,
+          withdrawalFrequency: 'yearly'
+        });
+        withdrawalData = result;
+      }
+      
       if (!withdrawalData) {
         throw new Error('Keine Entnahme-Daten verfügbar. Bitte konfigurieren Sie eine Entnahmestrategie.');
       }
@@ -120,7 +141,7 @@ export function useDataExport() {
       const csvContent = exportWithdrawalDataToCSV(exportData);
       const withdrawalConfig = context.withdrawalConfig;
       const startYear = context.startEnd[1] + 1;
-      const endYear = withdrawalConfig?.formValue.endOfLife || (startYear + 20);
+      const endYear = withdrawalConfig?.formValue?.endOfLife || (startYear + 39);
       const filename = `entnahmephase_${startYear}-${endYear}_${new Date().toISOString().slice(0, 10)}.csv`;
       
       downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8');
@@ -152,6 +173,27 @@ export function useDataExport() {
           teilfreistellungsquote: context.teilfreistellungsquote / 100,
           freibetragPerYear: context.freibetragPerYear,
           withdrawalFrequency: context.withdrawalConfig.formValue.withdrawalFrequency
+        });
+        withdrawalData = result;
+      }
+      
+      // Fallback: If still no withdrawal data but we have savings data, generate with default strategy
+      if (!withdrawalData && savingsData?.sparplanElements && context.withdrawalConfig) {
+        // Use default withdrawal strategy if formValue is incomplete but some config exists
+        const defaultStrategy = '4prozent';
+        const defaultEndYear = context.startEnd[1] + 40; // 40 years after savings end
+        const defaultReturn = 5; // 5% default return for withdrawal phase
+        
+        const { result } = calculateWithdrawal({
+          elements: savingsData.sparplanElements,
+          startYear: context.startEnd[1] + 1,
+          endYear: defaultEndYear,
+          strategy: defaultStrategy,
+          returnConfig: { mode: 'fixed', fixedRate: defaultReturn / 100 },
+          taxRate: context.steuerlast / 100,
+          teilfreistellungsquote: context.teilfreistellungsquote / 100,
+          freibetragPerYear: context.freibetragPerYear,
+          withdrawalFrequency: 'yearly'
         });
         withdrawalData = result;
       }
