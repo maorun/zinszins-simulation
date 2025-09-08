@@ -73,9 +73,15 @@ const DataExport = () => {
   const hasSavingsData = simulationData?.sparplanElements && simulationData.sparplanElements.length > 0;
   const hasWithdrawalData = withdrawalResults && Object.keys(withdrawalResults).length > 0;
   const hasWithdrawalConfig = withdrawalConfig && withdrawalConfig.formValue;
+  // Enhanced detection: check for withdrawal configuration that might be loaded from localStorage
+  const hasWithdrawalConfigFromStorage = withdrawalConfig && (
+    withdrawalConfig.formValue || 
+    withdrawalConfig.useSegmentedWithdrawal || 
+    withdrawalConfig.withdrawalSegments?.length > 0
+  );
   // More robust detection: withdrawal capability exists if we have either results, config, or both savings data and basic setup
-  const hasWithdrawalCapability = hasWithdrawalData || hasWithdrawalConfig || (hasSavingsData && withdrawalConfig);
-  const hasAnyData = hasSavingsData || hasWithdrawalData || hasWithdrawalConfig;
+  const hasWithdrawalCapability = hasWithdrawalData || hasWithdrawalConfig || hasWithdrawalConfigFromStorage || (hasSavingsData && withdrawalConfig);
+  const hasAnyData = hasSavingsData || hasWithdrawalData || hasWithdrawalConfig || hasWithdrawalConfigFromStorage;
 
   return (
     <Card className="mb-4">

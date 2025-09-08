@@ -96,8 +96,8 @@ export function useDataExport() {
       if (!withdrawalData && context.withdrawalConfig?.formValue && context.simulationData?.sparplanElements) {
         const { result } = calculateWithdrawal({
           elements: context.simulationData.sparplanElements,
-          startYear: context.startEnd[1] + 1,
-          endYear: context.withdrawalConfig.formValue.endOfLife || (context.startEnd[1] + 21),
+          startYear: context.startEnd[0],
+          endYear: context.withdrawalConfig.formValue.endOfLife || context.startEnd[1],
           strategy: context.withdrawalConfig.formValue.strategie,
           returnConfig: { mode: 'fixed', fixedRate: context.withdrawalConfig.formValue.rendite / 100 },
           taxRate: context.steuerlast / 100,
@@ -112,12 +112,12 @@ export function useDataExport() {
       if (!withdrawalData && context.simulationData?.sparplanElements && context.withdrawalConfig) {
         // Use default withdrawal strategy if formValue is incomplete but some config exists
         const defaultStrategy = '4prozent';
-        const defaultEndYear = context.startEnd[1] + 40; // 40 years after savings end
+        const defaultEndYear = context.startEnd[1]; // Use end year from context
         const defaultReturn = 5; // 5% default return for withdrawal phase
         
         const { result } = calculateWithdrawal({
           elements: context.simulationData.sparplanElements,
-          startYear: context.startEnd[1] + 1,
+          startYear: context.startEnd[0],
           endYear: defaultEndYear,
           strategy: defaultStrategy,
           returnConfig: { mode: 'fixed', fixedRate: defaultReturn / 100 },
@@ -140,8 +140,8 @@ export function useDataExport() {
       
       const csvContent = exportWithdrawalDataToCSV(exportData);
       const withdrawalConfig = context.withdrawalConfig;
-      const startYear = context.startEnd[1] + 1;
-      const endYear = withdrawalConfig?.formValue?.endOfLife || (startYear + 39);
+      const startYear = context.startEnd[0];
+      const endYear = withdrawalConfig?.formValue?.endOfLife || context.startEnd[1];
       const filename = `entnahmephase_${startYear}-${endYear}_${new Date().toISOString().slice(0, 10)}.csv`;
       
       downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8');
@@ -165,8 +165,8 @@ export function useDataExport() {
       if (!withdrawalData && context.withdrawalConfig?.formValue && savingsData?.sparplanElements) {
         const { result } = calculateWithdrawal({
           elements: savingsData.sparplanElements,
-          startYear: context.startEnd[1] + 1,
-          endYear: context.withdrawalConfig.formValue.endOfLife || (context.startEnd[1] + 21),
+          startYear: context.startEnd[0],
+          endYear: context.withdrawalConfig.formValue.endOfLife || context.startEnd[1],
           strategy: context.withdrawalConfig.formValue.strategie,
           returnConfig: { mode: 'fixed', fixedRate: context.withdrawalConfig.formValue.rendite / 100 },
           taxRate: context.steuerlast / 100,
@@ -181,12 +181,12 @@ export function useDataExport() {
       if (!withdrawalData && savingsData?.sparplanElements && context.withdrawalConfig) {
         // Use default withdrawal strategy if formValue is incomplete but some config exists
         const defaultStrategy = '4prozent';
-        const defaultEndYear = context.startEnd[1] + 40; // 40 years after savings end
+        const defaultEndYear = context.startEnd[1]; // Use end year from context
         const defaultReturn = 5; // 5% default return for withdrawal phase
         
         const { result } = calculateWithdrawal({
           elements: savingsData.sparplanElements,
-          startYear: context.startEnd[1] + 1,
+          startYear: context.startEnd[0],
           endYear: defaultEndYear,
           strategy: defaultStrategy,
           returnConfig: { mode: 'fixed', fixedRate: defaultReturn / 100 },

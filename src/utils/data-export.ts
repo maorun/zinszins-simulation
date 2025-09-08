@@ -688,8 +688,13 @@ export function downloadTextAsFile(content: string, filename: string, mimeType: 
   const BOM = '\uFEFF';
   const contentWithBOM = BOM + content;
   
-  // Ensure the MIME type includes charset=utf-8 if not already specified
-  const finalMimeType = mimeType.includes('charset') ? mimeType : `${mimeType};charset=utf-8`;
+  // Enhanced MIME type for CSV files with explicit UTF-8 encoding
+  let finalMimeType: string;
+  if (filename.endsWith('.csv')) {
+    finalMimeType = 'text/csv;charset=utf-8';
+  } else {
+    finalMimeType = mimeType.includes('charset') ? mimeType : `${mimeType};charset=utf-8`;
+  }
   
   // Use explicit UTF-8 encoding for the blob to ensure special characters are preserved
   const blob = new Blob([contentWithBOM], { 
