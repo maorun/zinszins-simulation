@@ -1,6 +1,5 @@
 import type { SimulationContextState } from '../contexts/SimulationContext';
 import type { WithdrawalResult } from '../../helpers/withdrawal';
-import type { SparplanElement } from './sparplan-utils';
 
 /**
  * Utility functions for exporting simulation data in CSV and Markdown formats
@@ -44,11 +43,11 @@ function formatPercentage(value: number): string {
 /**
  * Generate CSV header for savings phase export
  */
-function generateSavingsCSVHeader(sparplanElements: SparplanElement[]): string {
+function generateSavingsCSVHeader(sparplans: any[]): string {
   const baseHeaders = ['Jahr', 'Monat', 'Startkapital (EUR)', 'Zinsen (EUR)'];
   
-  // Add headers for each savings plan
-  const sparplanHeaders = sparplanElements.map((_, index) => 
+  // Add headers for each configured savings plan
+  const sparplanHeaders = sparplans.map((_, index) => 
     `Einzahlung Sparplan ${index + 1} (EUR)`
   );
   
@@ -107,7 +106,7 @@ export function exportSavingsDataToCSV(data: ExportData): string {
   lines.push('');
   
   // Add CSV header with only the configured savings plans
-  lines.push(generateSavingsCSVHeader(context.sparplanElemente));
+  lines.push(generateSavingsCSVHeader(context.sparplan));
   
   // Detect data structure and export accordingly
   const hasSimulationProperty = simulationElements.some((element: any) => element.simulation);
@@ -150,8 +149,8 @@ function exportSimulationStructure(simulationElements: any[], context: any, line
     let totalVorabpauschale = 0;
     const sparplanContributions: number[] = [];
     
-    // Initialize contributions array for each savings plan
-    context.sparplanElemente.forEach(() => {
+    // Initialize contributions array for each configured savings plan
+    context.sparplan.forEach(() => {
       sparplanContributions.push(0);
     });
     
@@ -192,7 +191,7 @@ function exportMockStructure(simulationElements: any[], context: any, lines: str
     
     // For mock data, treat each element as year data
     const sparplanContributions: number[] = [];
-    context.sparplanElemente.forEach(() => {
+    context.sparplan.forEach(() => {
       sparplanContributions.push(element.amount || 0);
     });
     
