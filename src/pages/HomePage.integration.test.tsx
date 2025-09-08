@@ -1,5 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
 import { render, screen, fireEvent } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import HomePage from '../pages/HomePage';
 
@@ -91,16 +92,26 @@ describe('HomePage Integration Tests - Optimized', () => {
     expect(formElements.length).toBeGreaterThan(0);
   });
 
-  it('shows year-by-year breakdown simulation table', () => {
+  it('shows year-by-year breakdown simulation table', async () => {
+    const user = userEvent.setup();
     const { container } = render(<HomePage />);
+    
+    // Expand the Sparplan-Verlauf section to see the table by clicking on the heading
+    const sparplanVerlaufButton = screen.getByText(/📊 Sparplan-Verlauf/);
+    await user.click(sparplanVerlaufButton);
     
     // Should have table or simulation display elements
     const tableElements = container.querySelectorAll('table, .rs-table, .simulation');
     expect(tableElements.length).toBeGreaterThan(0);
   });
 
-  it('displays savings plan creation interface', () => {
+  it('displays savings plan creation interface', async () => {
+    const user = userEvent.setup();
     const { container } = render(<HomePage />);
+    
+    // Expand the Sparpläne erstellen section to see the form elements by clicking on the heading
+    const sparplanButton = screen.getByText(/💼 Sparpläne erstellen/);
+    await user.click(sparplanButton);
     
     // Should have form elements for sparplan configuration
     const inputElements = container.querySelectorAll('input');

@@ -1,5 +1,6 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import RiskAssessment from './RiskAssessment';
 
 // Mock the useSimulation hook
@@ -77,15 +78,25 @@ describe('RiskAssessment', () => {
     expect(screen.getAllByText(/Calmar Ratio/)[0]).toBeInTheDocument();
   });
 
-  test('includes Monte Carlo analysis in collapsible panel', () => {
+  test('includes Monte Carlo analysis in collapsible panel', async () => {
+    const user = userEvent.setup();
     render(<RiskAssessment phase="savings" />);
+    
+    // First expand the risk assessment panel by clicking on the heading
+    const expandButton = screen.getByText(/🎯 Risikobewertung - Ansparphase/);
+    await user.click(expandButton);
     
     expect(screen.getByText(/Monte Carlo Analyse/)).toBeInTheDocument();
     expect(screen.getByTestId('monte-carlo-display')).toBeInTheDocument();
   });
 
-  test('shows risk metrics with inline explanations', () => {
+  test('shows risk metrics with inline explanations', async () => {
+    const user = userEvent.setup();
     render(<RiskAssessment phase="savings" />);
+    
+    // First expand the risk assessment panel by clicking on the heading
+    const expandButton = screen.getByText(/🎯 Risikobewertung - Ansparphase/);
+    await user.click(expandButton);
     
     // Check that metrics have their explanations inline
     expect(screen.getByText(/Zeigt potenzielle Verluste in einer bestimmten Zeitperiode/)).toBeInTheDocument();
@@ -119,16 +130,26 @@ describe('RiskAssessment', () => {
     expect(screen.getByText(/Risikobewertung - Ansparphase/)).toBeInTheDocument();
   });
 
-  test('calculates risk metrics from simulation data', () => {
+  test('calculates risk metrics from simulation data', async () => {
+    const user = userEvent.setup();
     render(<RiskAssessment phase="savings" />);
+    
+    // First expand the risk assessment panel by clicking on the heading
+    const expandButton = screen.getByText(/🎯 Risikobewertung - Ansparphase/);
+    await user.click(expandButton);
     
     // Should display numerical risk values (even if we can't predict exact values)
     const valueAtRiskElements = screen.getAllByText(/%$/);
     expect(valueAtRiskElements.length).toBeGreaterThan(0);
   });
 
-  test('shows drawdown analysis when sufficient data available', () => {
+  test('shows drawdown analysis when sufficient data available', async () => {
+    const user = userEvent.setup();
     render(<RiskAssessment phase="savings" />);
+    
+    // First expand the risk assessment panel by clicking on the heading
+    const expandButton = screen.getByText(/🎯 Risikobewertung - Ansparphase/);
+    await user.click(expandButton);
     
     // Should include drawdown analysis section
     expect(screen.getAllByText(/Drawdown-Analyse/)[0]).toBeInTheDocument();
