@@ -1,9 +1,13 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { ChevronDown, ChevronUp } from 'lucide-react';
+import { useState } from 'react';
 import { MonteCarloResults } from './MonteCarloResults';
 import { useSimulation } from '../contexts/useSimulation';
 import { unique } from '../utils/array-utils';
 
 const MonteCarloAnalysis = () => {
+    const [isOpen, setIsOpen] = useState(false); // Default to closed
     const { simulationData, averageReturn, standardDeviation, randomSeed } = useSimulation();
 
     if (!simulationData) return null;
@@ -12,10 +16,21 @@ const MonteCarloAnalysis = () => {
 
     return (
         <Card className="mb-4">
-            <CardHeader>
-                <CardTitle>🎲 Monte Carlo Analyse</CardTitle>
-            </CardHeader>
-            <CardContent>
+            <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+                <CardHeader>
+                    <CollapsibleTrigger asChild>
+                        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                            <CardTitle className="text-left">🎲 Monte Carlo Analyse</CardTitle>
+                            {isOpen ? (
+                                <ChevronUp className="h-5 w-5 text-gray-500" />
+                            ) : (
+                                <ChevronDown className="h-5 w-5 text-gray-500" />
+                            )}
+                        </div>
+                    </CollapsibleTrigger>
+                </CardHeader>
+                <CollapsibleContent>
+                    <CardContent>
                 <MonteCarloResults
                     years={data}
                     accumulationConfig={{
@@ -29,7 +44,9 @@ const MonteCarloAnalysis = () => {
                         seed: randomSeed
                     }}
                 />
-            </CardContent>
+                    </CardContent>
+                </CollapsibleContent>
+            </Collapsible>
         </Card>
     );
 };

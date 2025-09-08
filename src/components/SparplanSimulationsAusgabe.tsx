@@ -1,5 +1,7 @@
 // RSuite Table import temporarily removed
 import { Card, CardHeader, CardTitle, CardContent } from "./ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { useState } from 'react';
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type { Summary } from "../utils/summary-utils";
@@ -42,13 +44,25 @@ export function SparplanEnd({
 }: {
     elemente?: SparplanElement[]
 }) {
+    const [isOpen, setIsOpen] = useState(false); // Default to closed
     const summary: Summary = fullSummary(elemente)
     return (
         <Card className="mb-4">
-            <CardHeader>
-                <CardTitle>🎯 Endkapital</CardTitle>
-            </CardHeader>
-            <CardContent>
+            <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+                <CardHeader>
+                    <CollapsibleTrigger asChild>
+                        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                            <CardTitle className="text-left">🎯 Endkapital</CardTitle>
+                            {isOpen ? (
+                                <ChevronUp className="h-5 w-5 text-gray-500" />
+                            ) : (
+                                <ChevronDown className="h-5 w-5 text-gray-500" />
+                            )}
+                        </div>
+                    </CollapsibleTrigger>
+                </CardHeader>
+                <CollapsibleContent>
+                    <CardContent>
                 <div style={{
                     textAlign: 'center',
                     padding: '1.5rem',
@@ -65,7 +79,9 @@ export function SparplanEnd({
                         {thousands(summary.endkapital.toFixed(2))} €
                     </div>
                 </div>
-            </CardContent>
+                    </CardContent>
+                </CollapsibleContent>
+            </Collapsible>
         </Card>
     )
 }
@@ -75,6 +91,7 @@ export function SparplanSimulationsAusgabe({
 }: {
     elemente?: SparplanElement[]
 }) {
+    const [isVerlaufOpen, setIsVerlaufOpen] = useState(false); // Default to closed
     const [showVorabpauschaleModal, setShowVorabpauschaleModal] = useState(false);
     const [selectedVorabDetails, setSelectedVorabDetails] = useState<any>(null);
     const [showCalculationModal, setShowCalculationModal] = useState(false);
@@ -135,10 +152,21 @@ export function SparplanSimulationsAusgabe({
 
     return (
         <Card className="mb-4">
-            <CardHeader>
-                <CardTitle>📈 Sparplan-Verlauf</CardTitle>
-            </CardHeader>
-            <CardContent>
+            <Collapsible open={isVerlaufOpen} onOpenChange={setIsVerlaufOpen}>
+                <CardHeader>
+                    <CollapsibleTrigger asChild>
+                        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                            <CardTitle className="text-left">📈 Sparplan-Verlauf</CardTitle>
+                            {isVerlaufOpen ? (
+                                <ChevronUp className="h-5 w-5 text-gray-500" />
+                            ) : (
+                                <ChevronDown className="h-5 w-5 text-gray-500" />
+                            )}
+                        </div>
+                    </CollapsibleTrigger>
+                </CardHeader>
+                <CollapsibleContent>
+                    <CardContent>
                 <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
                     Jahr-für-Jahr Progression Ihres Portfolios - zeigt die kumulierte Kapitalentwicklung über die Zeit
                 </div>
@@ -255,7 +283,9 @@ export function SparplanSimulationsAusgabe({
                     finalResult={calculationDetails.finalResult}
                 />
             )}
-            </CardContent>
+                    </CardContent>
+                </CollapsibleContent>
+            </Collapsible>
         </Card>
     );
 }
