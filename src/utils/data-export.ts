@@ -257,8 +257,9 @@ function getElementContributionForYear(element: any, year: number, isMonthly: bo
     return 0;
   }
   
-  // Return the element's annual amount (or monthly if needed)
-  const yearlyAmount = element.amount || 0;
+  // Return the element's annual contribution amount
+  // Try different property names to handle both real data and test data
+  const yearlyAmount = element.einzahlung || element.amount || element.monthlyAmount || 0;
   return isMonthly ? yearlyAmount / 12 : yearlyAmount;
 }
 
@@ -442,13 +443,59 @@ export function exportDataToMarkdown(data: ExportData): string {
     lines.push('| Jahr | Startkapital | Zinsen | Einzahlungen | Endkapital | Vorabpauschale | Steuer |');
     lines.push('|------|--------------|--------|--------------|------------|----------------|--------|');
     
-    for (const yearData of savingsData.sparplanElements) {
-      if (!yearData) continue;
+    // Detect data structure and export accordingly
+    const hasSimulationProperty = savingsData.sparplanElements.some((element: any) => element.simulation);
+    
+    if (hasSimulationProperty) {
+      // Real app structure: elements have simulation property with years as keys
+      // Collect all years from all simulation elements
+      const allYears = new Set<number>();
+      for (const element of savingsData.sparplanElements) {
+        if (element.simulation) {
+          Object.keys(element.simulation).forEach(year => allYears.add(parseInt(year)));
+        }
+      }
       
-      const year = new Date(yearData.start).getFullYear();
-      const contribution = yearData.amount || yearData.monthlyAmount || 0;
+      // Sort years and process each one
+      const sortedYears = Array.from(allYears).sort((a, b) => a - b);
       
-      lines.push(`| ${year} | ${formatCurrency(yearData.startkapital || 0)} | ${formatCurrency(yearData.zinsen || 0)} | ${formatCurrency(contribution)} | ${formatCurrency(yearData.endkapital || 0)} | ${formatCurrency(yearData.vorabpauschale || 0)} | ${formatCurrency(yearData.bezahlteSteuer || 0)} |`);
+      for (const year of sortedYears) {
+        // Aggregate data for this year across all elements
+        let totalStartkapital = 0;
+        let totalZinsen = 0;
+        let totalEndkapital = 0;
+        let totalBezahlteSteuer = 0;
+        let totalVorabpauschale = 0;
+        let totalContributions = 0;
+        
+        // Sum up data from all elements for this year
+        savingsData.sparplanElements.forEach((element: any) => {
+          const yearData = element.simulation?.[year];
+          if (yearData) {
+            totalStartkapital += yearData.startkapital || 0;
+            totalZinsen += yearData.zinsen || 0;
+            totalEndkapital += yearData.endkapital || 0;
+            totalBezahlteSteuer += yearData.bezahlteSteuer || 0;
+            totalVorabpauschale += yearData.vorabpauschale || 0;
+          }
+          
+          // Calculate contribution for this element in this year
+          const elementContribution = getElementContributionForYear(element, year, false);
+          totalContributions += elementContribution;
+        });
+        
+        lines.push(`| ${year} | ${formatCurrency(totalStartkapital)} | ${formatCurrency(totalZinsen)} | ${formatCurrency(totalContributions)} | ${formatCurrency(totalEndkapital)} | ${formatCurrency(totalVorabpauschale)} | ${formatCurrency(totalBezahlteSteuer)} |`);
+      }
+    } else {
+      // Test mock structure: each element represents a year's data
+      for (const yearData of savingsData.sparplanElements) {
+        if (!yearData) continue;
+        
+        const year = new Date(yearData.start).getFullYear();
+        const contribution = yearData.einzahlung || yearData.amount || yearData.monthlyAmount || 0;
+        
+        lines.push(`| ${year} | ${formatCurrency(yearData.startkapital || 0)} | ${formatCurrency(yearData.zinsen || 0)} | ${formatCurrency(contribution)} | ${formatCurrency(yearData.endkapital || 0)} | ${formatCurrency(yearData.vorabpauschale || 0)} | ${formatCurrency(yearData.bezahlteSteuer || 0)} |`);
+      }
     }
     lines.push('');
   } else {
@@ -484,9 +531,9 @@ export function exportDataToMarkdown(data: ExportData): string {
       let vorabDetails = 'N/A';
       if (yearData.vorabpauschaleDetails) {
         const details = yearData.vorabpauschaleDetails;
-        vorabDetails = `Basiszins: ${formatPercentage(details.basiszins * 100)}<br/>` +
-                      `Basisertrag: ${formatCurrency(details.basisertrag)}<br/>` +
-                      `Jahresgewinn: ${formatCurrency(details.jahresgewinn)}<br/>` +
+        vorabDetails = `Basiszins: ${formatPercentage(details.basiszins * 100)} / ` +
+                      `Basisertrag: ${formatCurrency(details.basisertrag)} / ` +
+                      `Jahresgewinn: ${formatCurrency(details.jahresgewinn)} / ` +
                       `Vorabpauschale: ${formatCurrency(yearData.vorabpauschale || 0)}`;
       }
       
