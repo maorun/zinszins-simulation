@@ -1,6 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { EntnahmeSimulationsAusgabe } from './EntnahmeSimulationsAusgabe';
-import WithdrawalPhaseMonteCarloAnalysis from './WithdrawalPhaseMonteCarloAnalysis';
+import RiskAssessment from './RiskAssessment';
 import { useSimulation } from '../contexts/useSimulation';
 
 const WithdrawalPlan = () => {
@@ -30,8 +30,8 @@ const WithdrawalPlan = () => {
                     teilfreistellungsquote={teilfreistellungsquote / 100}
                 />
                 
-                {/* Monte Carlo Analysis positioned after the withdrawal summary */}
-                <WithdrawalPhaseMonteCarloAnalysis />
+                {/* Risk Assessment with Monte Carlo Analysis moved to collapsible panel */}
+                <RiskAssessment phase="withdrawal" />
             </CardContent>
         </Card>
     );
