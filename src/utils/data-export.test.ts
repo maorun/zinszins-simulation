@@ -37,6 +37,14 @@ describe('data-export', () => {
       simulationAnnual: 'yearly' as const,
       grundfreibetragAktiv: false,
       grundfreibetragBetrag: 11604,
+      sparplan: [
+        {
+          id: 1,
+          start: new Date('2023-01-01'),
+          end: new Date('2040-12-31'),
+          einzahlung: 2000,
+        }
+      ],
       sparplanElemente: [
         {
           name: 'Hauptsparplan',
