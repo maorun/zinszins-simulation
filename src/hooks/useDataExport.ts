@@ -249,8 +249,8 @@ export function useDataExport() {
       if (!hasWithdrawalData && hasWithdrawalConfig && context.simulationData?.sparplanElements) {
         const { result } = calculateWithdrawal({
           elements: context.simulationData.sparplanElements,
-          startYear: context.startEnd[1] + 1,
-          endYear: context.withdrawalConfig!.formValue.endOfLife || (context.startEnd[1] + 21),
+          startYear: context.startEnd[0], // Start of withdrawal phase (corrected from context.startEnd[1] + 1)
+          endYear: context.withdrawalConfig!.formValue.endOfLife || context.startEnd[1],
           strategy: context.withdrawalConfig!.formValue.strategie,
           returnConfig: { mode: 'fixed', fixedRate: context.withdrawalConfig!.formValue.rendite / 100 },
           taxRate: context.steuerlast / 100,

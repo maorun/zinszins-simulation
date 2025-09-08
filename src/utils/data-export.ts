@@ -684,38 +684,57 @@ function getWithdrawalStrategyLabel(strategy: string): string {
  * Download text content as file
  */
 export function downloadTextAsFile(content: string, filename: string, mimeType: string = 'text/plain'): void {
-  // Add UTF-8 BOM (Byte Order Mark) to ensure proper encoding for special characters
-  const BOM = '\uFEFF';
-  const contentWithBOM = BOM + content;
-  
-  // Enhanced MIME type for CSV files with explicit UTF-8 encoding
-  let finalMimeType: string;
+  // For CSV files, use a more robust UTF-8 encoding approach
   if (filename.endsWith('.csv')) {
-    finalMimeType = 'text/csv;charset=utf-8';
+    // Convert string to UTF-8 byte array and add UTF-8 BOM for CSV compatibility
+    const BOM = new Uint8Array([0xEF, 0xBB, 0xBF]); // UTF-8 BOM bytes
+    const encoder = new TextEncoder();
+    const contentBytes = encoder.encode(content);
+    
+    // Combine BOM and content
+    const combinedArray = new Uint8Array(BOM.length + contentBytes.length);
+    combinedArray.set(BOM);
+    combinedArray.set(contentBytes, BOM.length);
+    
+    const blob = new Blob([combinedArray], { 
+      type: 'text/csv;charset=utf-8'
+    });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    URL.revokeObjectURL(url);
   } else {
-    finalMimeType = mimeType.includes('charset') ? mimeType : `${mimeType};charset=utf-8`;
+    // For non-CSV files, use the existing approach with string BOM
+    const BOM = '\uFEFF';
+    const contentWithBOM = BOM + content;
+    
+    const finalMimeType = mimeType.includes('charset') ? mimeType : `${mimeType};charset=utf-8`;
+    
+    const blob = new Blob([contentWithBOM], { 
+      type: finalMimeType,
+      endings: 'native'
+    });
+    const url = URL.createObjectURL(blob);
+    
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = filename;
+    // Only set charset attribute if setAttribute method exists (avoid test issues)
+    if (typeof link.setAttribute === 'function') {
+      link.setAttribute('charset', 'utf-8');
+    }
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    
+    URL.revokeObjectURL(url);
   }
-  
-  // Use explicit UTF-8 encoding for the blob to ensure special characters are preserved
-  const blob = new Blob([contentWithBOM], { 
-    type: finalMimeType,
-    endings: 'native'
-  });
-  const url = URL.createObjectURL(blob);
-  
-  const link = document.createElement('a');
-  link.href = url;
-  link.download = filename;
-  // Ensure the download attribute is properly set for UTF-8 content
-  // Only set charset attribute if setAttribute method exists (avoid test issues)
-  if (typeof link.setAttribute === 'function') {
-    link.setAttribute('charset', 'utf-8');
-  }
-  document.body.appendChild(link);
-  link.click();
-  document.body.removeChild(link);
-  
-  URL.revokeObjectURL(url);
 }
 
 /**
