@@ -1,5 +1,5 @@
 /// <reference types="@testing-library/jest-dom" />
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import HomePage from '../pages/HomePage';
@@ -96,26 +96,44 @@ describe('HomePage Integration Tests - Optimized', () => {
     const user = userEvent.setup();
     const { container } = render(<HomePage />);
     
-    // Expand the Sparplan-Verlauf section to see the table by clicking on the heading
-    const sparplanVerlaufButton = screen.getByText(/📊 Sparplan-Verlauf/);
-    await user.click(sparplanVerlaufButton);
+    // Find the Sparplan-Verlauf section trigger
+    const sparplanVerlaufHeading = screen.getByText(/📊 Sparplan-Verlauf/);
     
-    // Should have table or simulation display elements
-    const tableElements = container.querySelectorAll('table, .rs-table, .simulation');
-    expect(tableElements.length).toBeGreaterThan(0);
+    // Click on the trigger element (the div, not just the heading)
+    const triggerElement = sparplanVerlaufHeading.closest('[aria-expanded="false"]');
+    if (triggerElement) {
+      await user.click(triggerElement);
+    } else {
+      await user.click(sparplanVerlaufHeading);
+    }
+    
+    // Wait for the collapsible animation to complete and content to become visible
+    await waitFor(() => {
+      const tableElements = container.querySelectorAll('table, .rs-table, .simulation');
+      expect(tableElements.length).toBeGreaterThan(0);
+    }, { timeout: 1000 });
   });
 
   it('displays savings plan creation interface', async () => {
     const user = userEvent.setup();
     const { container } = render(<HomePage />);
     
-    // Expand the Sparpläne erstellen section to see the form elements by clicking on the heading
-    const sparplanButton = screen.getByText(/💼 Sparpläne erstellen/);
-    await user.click(sparplanButton);
+    // Find the Sparpläne erstellen section trigger
+    const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/);
     
-    // Should have form elements for sparplan configuration
-    const inputElements = container.querySelectorAll('input');
-    expect(inputElements.length).toBeGreaterThan(0);
+    // Click on the trigger element (the div, not just the heading)
+    const triggerElement = sparplanHeading.closest('[aria-expanded="false"]');
+    if (triggerElement) {
+      await user.click(triggerElement);
+    } else {
+      await user.click(sparplanHeading);
+    }
+    
+    // Wait for the collapsible animation to complete and content to become visible
+    await waitFor(() => {
+      const inputElements = container.querySelectorAll('input');
+      expect(inputElements.length).toBeGreaterThan(0);
+    }, { timeout: 1000 });
   });
 
   it('renders without performance issues', () => {

@@ -6,14 +6,10 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Switch } from './ui/switch';
-import { Trash2, Plus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Trash2, Plus, ChevronDown } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
 import BasiszinsConfiguration from './BasiszinsConfiguration';
-import { useState } from 'react';
-
 const TaxConfiguration = () => {
-    const [isOpen, setIsOpen] = useState(false); // Default to closed
-    const [isGrundfreibetragOpen, setIsGrundfreibetragOpen] = useState(false); // Default to closed
     const {
         performSimulation,
         steuerlast,
@@ -37,16 +33,12 @@ const TaxConfiguration = () => {
     return (
         <div className="space-y-4">
             <Card>
-                <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+                <Collapsible defaultOpen={false}>
                     <CardHeader>
                         <CollapsibleTrigger asChild>
                             <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
                                 <CardTitle className="text-left">💰 Steuer-Konfiguration</CardTitle>
-                                {isOpen ? (
-                                    <ChevronUp className="h-5 w-5 text-gray-500" />
-                                ) : (
-                                    <ChevronDown className="h-5 w-5 text-gray-500" />
-                                )}
+                                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                             </div>
                         </CollapsibleTrigger>
                     </CardHeader>
@@ -251,16 +243,12 @@ const TaxConfiguration = () => {
         
         {/* Grundfreibetrag Configuration */}
         <Card>
-            <Collapsible open={isGrundfreibetragOpen} onOpenChange={setIsGrundfreibetragOpen}>
+            <Collapsible defaultOpen={false}>
                 <CardHeader>
                     <CollapsibleTrigger asChild>
                         <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
                             <CardTitle className="text-left">🏠 Grundfreibetrag-Konfiguration</CardTitle>
-                            {isGrundfreibetragOpen ? (
-                                <ChevronUp className="h-5 w-5 text-gray-500" />
-                            ) : (
-                                <ChevronDown className="h-5 w-5 text-gray-500" />
-                            )}
+                            <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         </div>
                     </CollapsibleTrigger>
                 </CardHeader>

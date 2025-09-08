@@ -1,14 +1,13 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { Button } from './ui/button';
-import { Plus, Minus, ChevronDown, ChevronUp } from 'lucide-react';
+import { Plus, Minus, ChevronDown } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
 import { Zeitspanne } from './Zeitspanne';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
-import { useCallback, useState } from 'react';
+import { useCallback } from 'react';
 
 const TimeRangeConfiguration = () => {
-    const [isOpen, setIsOpen] = useState(false); // Default to closed
     const { startEnd, setStartEnd, sparplan, simulationAnnual, setSparplanElemente } = useSimulation();
 
     const handleStartEndChange = useCallback((val: [number, number]) => {
@@ -24,16 +23,12 @@ const TimeRangeConfiguration = () => {
 
     return (
         <Card className="mb-4">
-            <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+            <Collapsible defaultOpen={false}>
                 <CardHeader>
                     <CollapsibleTrigger asChild>
                         <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
                             <CardTitle className="text-left">📅 Sparphase-Ende</CardTitle>
-                            {isOpen ? (
-                                <ChevronUp className="h-5 w-5 text-gray-500" />
-                            ) : (
-                                <ChevronDown className="h-5 w-5 text-gray-500" />
-                            )}
+                            <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         </div>
                     </CollapsibleTrigger>
                 </CardHeader>

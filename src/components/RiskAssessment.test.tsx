@@ -1,5 +1,5 @@
 import { describe, test, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import RiskAssessment from './RiskAssessment';
 
@@ -83,11 +83,21 @@ describe('RiskAssessment', () => {
     render(<RiskAssessment phase="savings" />);
     
     // First expand the risk assessment panel by clicking on the heading
-    const expandButton = screen.getByText(/🎯 Risikobewertung - Ansparphase/);
-    await user.click(expandButton);
+    const expandHeading = screen.getByText(/🎯 Risikobewertung - Ansparphase/);
     
-    expect(screen.getByText(/Monte Carlo Analyse/)).toBeInTheDocument();
-    expect(screen.getByTestId('monte-carlo-display')).toBeInTheDocument();
+    // Click on the trigger element (the div, not just the heading)
+    const triggerElement = expandHeading.closest('[aria-expanded="false"]');
+    if (triggerElement) {
+      await user.click(triggerElement);
+    } else {
+      await user.click(expandHeading);
+    }
+    
+    // Wait for the collapsible animation to complete and content to become visible
+    await waitFor(() => {
+      expect(screen.getByText(/Monte Carlo Analyse/)).toBeInTheDocument();
+      expect(screen.getByTestId('monte-carlo-display')).toBeInTheDocument();
+    }, { timeout: 1000 });
   });
 
   test('shows risk metrics with inline explanations', async () => {

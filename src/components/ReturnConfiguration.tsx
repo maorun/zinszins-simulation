@@ -1,8 +1,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { Label } from './ui/label';
-import { ChevronDown, ChevronUp } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronDown } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
 import type { ReturnMode } from '../utils/random-returns';
 import FixedReturnConfiguration from './FixedReturnConfiguration';
@@ -11,7 +10,6 @@ import VariableReturnConfiguration from './VariableReturnConfiguration';
 import { RadioTileGroup, RadioTile } from './ui/radio-tile';
 
 const ReturnConfiguration = () => {
-    const [isOpen, setIsOpen] = useState(false); // Default to closed
     const {
         returnMode,
         setReturnMode,
@@ -20,16 +18,12 @@ const ReturnConfiguration = () => {
 
     return (
         <Card>
-            <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+            <Collapsible defaultOpen={false}>
                 <CardHeader>
                     <CollapsibleTrigger asChild>
                         <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
                             <CardTitle className="text-left">📈 Rendite-Konfiguration (Sparphase)</CardTitle>
-                            {isOpen ? (
-                                <ChevronUp className="h-5 w-5 text-gray-500" />
-                            ) : (
-                                <ChevronDown className="h-5 w-5 text-gray-500" />
-                            )}
+                            <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         </div>
                     </CollapsibleTrigger>
                 </CardHeader>
