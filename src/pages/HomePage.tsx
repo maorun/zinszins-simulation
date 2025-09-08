@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { Button } from "../components/ui/button";
 import ConfigurationManagement from "../components/ConfigurationManagement";
+import DataExport from "../components/DataExport";
 import Header from "../components/Header";
 import SimulationModeSelector from "../components/SimulationModeSelector";
 import SimulationParameters from "../components/SimulationParameters";
@@ -260,6 +261,8 @@ const HomePageContent = () => {
       <ConfigurationManagement />
 
       <SimulationModeSelector onTabChange={setActiveTab} />
+
+      <DataExport />
 
       {/* Sticky Overview */}
       <StickyOverview 
