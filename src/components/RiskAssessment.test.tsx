@@ -61,7 +61,8 @@ describe('RiskAssessment', () => {
     render(<RiskAssessment phase="withdrawal" />);
     
     expect(screen.getByText(/Risikobewertung - Entnahmephase/)).toBeInTheDocument();
-    expect(screen.getByText(/💸 Risikokennzahlen für Entnahmephase/)).toBeInTheDocument();
+    // Check that the main panel shows for withdrawal phase - no longer checking for specific explanation text
+    expect(screen.getAllByText(/Value-at-Risk/)).toHaveLength(2); // 95% and 99%
   });
 
   test('displays risk metrics cards', () => {
@@ -83,13 +84,14 @@ describe('RiskAssessment', () => {
     expect(screen.getByTestId('monte-carlo-display')).toBeInTheDocument();
   });
 
-  test('shows risk explanation section', () => {
+  test('shows risk metrics with inline explanations', () => {
     render(<RiskAssessment phase="savings" />);
     
-    expect(screen.getAllByText(/Risikokennzahlen für Ansparphase/)[0]).toBeInTheDocument();
-    expect(screen.getByText(/Value-at-Risk \(VaR\):/)).toBeInTheDocument();
-    expect(screen.getByText(/Sharpe Ratio:/)).toBeInTheDocument();
-    expect(screen.getByText(/Maximum Drawdown:/)).toBeInTheDocument();
+    // Check that metrics have their explanations inline
+    expect(screen.getByText(/Zeigt potenzielle Verluste in einer bestimmten Zeitperiode/)).toBeInTheDocument();
+    expect(screen.getByText(/Misst die risikoadjustierte Rendite/)).toBeInTheDocument();
+    expect(screen.getByText(/Der größte Verlust vom Höchststand/)).toBeInTheDocument();
+    expect(screen.getByText(/Standardabweichung der Renditen/)).toBeInTheDocument();
   });
 
   test('returns null when no simulation data', () => {
