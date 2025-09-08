@@ -681,6 +681,28 @@ function getWithdrawalStrategyLabel(strategy: string): string {
 }
 
 /**
+ * Helper function to handle the common DOM manipulation logic for file downloads
+ */
+function downloadBlobAsFile(blob: Blob, filename: string, setCharsetAttribute: boolean = false): void {
+  const url = URL.createObjectURL(blob);
+  
+  const link = document.createElement('a');
+  link.href = url;
+  link.download = filename;
+  
+  // Only set charset attribute if requested and setAttribute method exists (avoid test issues)
+  if (setCharsetAttribute && typeof link.setAttribute === 'function') {
+    link.setAttribute('charset', 'utf-8');
+  }
+  
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  
+  URL.revokeObjectURL(url);
+}
+
+/**
  * Download text content as file
  */
 export function downloadTextAsFile(content: string, filename: string, mimeType: string = 'text/plain'): void {
@@ -699,16 +721,8 @@ export function downloadTextAsFile(content: string, filename: string, mimeType: 
     const blob = new Blob([combinedArray], { 
       type: 'text/csv;charset=utf-8'
     });
-    const url = URL.createObjectURL(blob);
     
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    URL.revokeObjectURL(url);
+    downloadBlobAsFile(blob, filename);
   } else {
     // For non-CSV files, use the existing approach with string BOM
     const BOM = '\uFEFF';
@@ -720,20 +734,8 @@ export function downloadTextAsFile(content: string, filename: string, mimeType: 
       type: finalMimeType,
       endings: 'native'
     });
-    const url = URL.createObjectURL(blob);
     
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = filename;
-    // Only set charset attribute if setAttribute method exists (avoid test issues)
-    if (typeof link.setAttribute === 'function') {
-      link.setAttribute('charset', 'utf-8');
-    }
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-    
-    URL.revokeObjectURL(url);
+    downloadBlobAsFile(blob, filename, true);
   }
 }
 
