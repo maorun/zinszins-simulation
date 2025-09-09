@@ -57,7 +57,6 @@ import {
 
 // Import shadcn/ui components for form elements
 import { Label } from "./ui/label";
-import { Input } from "./ui/input";
 
 
 
@@ -215,7 +214,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                             <DatePicker
                                 format="yyyy-MM" 
                                 value={sparplanFormValues.start}
-                                onChange={(date) => setSparplanFormValues({...sparplanFormValues, start: date})}
+                                onChange={(date: Date) => setSparplanFormValues({...sparplanFormValues, start: date})}
                                 placeholder="Startdatum wählen"
                                 style={{ width: '100%' }}
                             />
@@ -228,7 +227,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                             <DatePicker
                                 format="yyyy-MM" 
                                 value={sparplanFormValues.end}
-                                onChange={(date) => setSparplanFormValues({...sparplanFormValues, end: date})}
+                                onChange={(date: Date) => setSparplanFormValues({...sparplanFormValues, end: date})}
                                 placeholder="Enddatum wählen"
                                 style={{ width: '100%' }}
                             />
@@ -240,7 +239,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                             </Label>
                             <InputNumber
                                 value={sparplanFormValues.einzahlung}
-                                onChange={(value) => setSparplanFormValues({...sparplanFormValues, einzahlung: value})}
+                                onChange={(value: string) => setSparplanFormValues({...sparplanFormValues, einzahlung: value})}
                                 placeholder="Betrag eingeben"
                                 style={{ width: '100%' }}
                                 min={0}
@@ -260,7 +259,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                 </Label>
                                 <InputNumber
                                     value={sparplanFormValues.ter}
-                                    onChange={(value) => setSparplanFormValues({...sparplanFormValues, ter: value})}
+                                    onChange={(value: string) => setSparplanFormValues({...sparplanFormValues, ter: value})}
                                     placeholder="z.B. 0.75"
                                     style={{ width: '100%' }}
                                     min={0}
@@ -276,7 +275,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                 </Label>
                                 <InputNumber
                                     value={sparplanFormValues.transactionCostPercent}
-                                    onChange={(value) => setSparplanFormValues({...sparplanFormValues, transactionCostPercent: value})}
+                                    onChange={(value: string) => setSparplanFormValues({...sparplanFormValues, transactionCostPercent: value})}
                                     placeholder="z.B. 0.25"
                                     style={{ width: '100%' }}
                                     min={0}
@@ -292,7 +291,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                 </Label>
                                 <InputNumber
                                     value={sparplanFormValues.transactionCostAbsolute}
-                                    onChange={(value) => setSparplanFormValues({...sparplanFormValues, transactionCostAbsolute: value})}
+                                    onChange={(value: string) => setSparplanFormValues({...sparplanFormValues, transactionCostAbsolute: value})}
                                     placeholder="z.B. 1.50"
                                     style={{ width: '100%' }}
                                     min={0}
@@ -348,7 +347,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                             <DatePicker
                                 format="yyyy-MM-dd" 
                                 value={singleFormValue.date}
-                                onChange={(date) => setSingleFormValue({...singleFormValue, date: date})}
+                                onChange={(date: Date) => setSingleFormValue({...singleFormValue, date: date})}
                                 placeholder="Datum wählen"
                                 style={{ width: '100%' }}
                             />
@@ -360,7 +359,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                             </Label>
                             <InputNumber
                                 value={singleFormValue.einzahlung}
-                                onChange={(value) => setSingleFormValue({...singleFormValue, einzahlung: value})}
+                                onChange={(value: string) => setSingleFormValue({...singleFormValue, einzahlung: value})}
                                 placeholder="Betrag eingeben"
                                 style={{ width: '100%' }}
                                 min={0}
@@ -380,7 +379,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                 </Label>
                                 <InputNumber
                                     value={singleFormValue.ter}
-                                    onChange={(value) => setSingleFormValue({...singleFormValue, ter: value})}
+                                    onChange={(value: string) => setSingleFormValue({...singleFormValue, ter: value})}
                                     placeholder="z.B. 0.75"
                                     style={{ width: '100%' }}
                                     min={0}
@@ -396,7 +395,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                 </Label>
                                 <InputNumber
                                     value={singleFormValue.transactionCostPercent}
-                                    onChange={(value) => setSingleFormValue({...singleFormValue, transactionCostPercent: value})}
+                                    onChange={(value: string) => setSingleFormValue({...singleFormValue, transactionCostPercent: value})}
                                     placeholder="z.B. 0.25"
                                     style={{ width: '100%' }}
                                     min={0}
@@ -412,7 +411,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                 </Label>
                                 <InputNumber
                                     value={singleFormValue.transactionCostAbsolute}
-                                    onChange={(value) => setSingleFormValue({...singleFormValue, transactionCostAbsolute: value})}
+                                    onChange={(value: string) => setSingleFormValue({...singleFormValue, transactionCostAbsolute: value})}
                                     placeholder="z.B. 1.50"
                                     style={{ width: '100%' }}
                                     min={0}
