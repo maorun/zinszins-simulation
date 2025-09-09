@@ -44,7 +44,7 @@ const InfoIcon = () => (
 import { Button } from "./ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import { ChevronDown, ChevronUp } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 
 // Temporary imports - remove unused ones for now
 import {
@@ -94,10 +94,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
         transactionCostAbsolute: '',
     });
 
-    // State for collapsible panels
-    const [isSparplanOpen, setIsSparplanOpen] = useState(false);
-    const [isEinmalzahlungOpen, setIsEinmalzahlungOpen] = useState(false);
-    const [isGespeichertOpen, setIsGespeichertOpen] = useState(true); // This one starts expanded
+
 
     const toaster = useToaster();
 
@@ -189,16 +186,12 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
             <Card className="mb-6">
-                <Collapsible open={isSparplanOpen} onOpenChange={setIsSparplanOpen}>
+                <Collapsible defaultOpen={false}>
                     <CardHeader className="pb-4">
                         <CollapsibleTrigger asChild>
                             <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
                                 <CardTitle className="text-left text-lg">💰 Sparpläne erstellen</CardTitle>
-                                {isSparplanOpen ? (
-                                    <ChevronUp className="h-5 w-5 text-gray-500" />
-                                ) : (
-                                    <ChevronDown className="h-5 w-5 text-gray-500" />
-                                )}
+                                <ChevronDown className="h-5 w-5 text-gray-500" />
                             </div>
                         </CollapsibleTrigger>
                     </CardHeader>
@@ -335,16 +328,12 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
             </Card>
             
             <Card className="mb-6">
-                <Collapsible open={isEinmalzahlungOpen} onOpenChange={setIsEinmalzahlungOpen}>
+                <Collapsible defaultOpen={false}>
                     <CardHeader className="pb-4">
                         <CollapsibleTrigger asChild>
                             <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
                                 <CardTitle className="text-left text-lg">💵 Einmalzahlungen erstellen</CardTitle>
-                                {isEinmalzahlungOpen ? (
-                                    <ChevronUp className="h-5 w-5 text-gray-500" />
-                                ) : (
-                                    <ChevronDown className="h-5 w-5 text-gray-500" />
-                                )}
+                                <ChevronDown className="h-5 w-5 text-gray-500" />
                             </div>
                         </CollapsibleTrigger>
                     </CardHeader>
@@ -467,16 +456,12 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
             </Card>
             
             <Card className="mb-6">
-                <Collapsible open={isGespeichertOpen} onOpenChange={setIsGespeichertOpen}>
+                <Collapsible defaultOpen={true}>
                     <CardHeader className="pb-4">
                         <CollapsibleTrigger asChild>
                             <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
                                 <CardTitle className="text-left text-lg">📋 Gespeicherte Sparpläne</CardTitle>
-                                {isGespeichertOpen ? (
-                                    <ChevronUp className="h-5 w-5 text-gray-500" />
-                                ) : (
-                                    <ChevronDown className="h-5 w-5 text-gray-500" />
-                                )}
+                                <ChevronDown className="h-5 w-5 text-gray-500" />
                             </div>
                         </CollapsibleTrigger>
                     </CardHeader>
