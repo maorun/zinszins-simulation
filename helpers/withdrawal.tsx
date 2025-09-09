@@ -5,9 +5,10 @@ import { generateRandomReturns } from "../src/utils/random-returns";
 import type { SegmentedWithdrawalConfig, WithdrawalSegment } from "../src/utils/segmented-withdrawal";
 import type { WithdrawalFrequency } from "../src/utils/config-storage";
 import type { BasiszinsConfiguration } from "../src/services/bundesbank-api";
+import { calculateRMDWithdrawal } from "./rmd-tables";
 
 
-export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "dynamisch" | "bucket_strategie";
+export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "dynamisch" | "bucket_strategie" | "rmd";
 
 export type InflationConfig = {
     inflationRate?: number; // Annual inflation rate for adjustment (default: 2%)
@@ -73,6 +74,12 @@ export type BucketStrategyConfig = {
     baseWithdrawalRate: number; // Base withdrawal rate as percentage (e.g., 0.04 for 4%)
 };
 
+export type RMDConfig = {
+    startAge: number; // Age at start of withdrawal phase (required)
+    lifeExpectancyTable: 'german_2020_22' | 'custom'; // Which mortality table to use
+    customLifeExpectancy?: number; // Custom life expectancy override (years)
+};
+
 const freibetrag: {
     [year: number]: number;
 } = {
@@ -111,6 +118,7 @@ export type CalculateWithdrawalParams = {
     inflationConfig?: InflationConfig;
     dynamicConfig?: DynamicWithdrawalConfig;
     bucketConfig?: BucketStrategyConfig;
+    rmdConfig?: RMDConfig;
     basiszinsConfiguration?: BasiszinsConfiguration;
 };
 
@@ -133,6 +141,7 @@ export function calculateWithdrawal({
     inflationConfig,
     dynamicConfig,
     bucketConfig,
+    rmdConfig,
     basiszinsConfiguration
 }: CalculateWithdrawalParams): { result: WithdrawalResult; finalLayers: MutableLayer[] } {
     // Helper functions
@@ -194,6 +203,17 @@ export function calculateWithdrawal({
     } else if (strategy === "bucket_strategie") {
         if (!bucketConfig) throw new Error("Bucket strategy config required");
         baseWithdrawalAmount = initialStartingCapital * bucketConfig.baseWithdrawalRate;
+    } else if (strategy === "rmd") {
+        if (!rmdConfig) throw new Error("RMD config required");
+        // For RMD, baseWithdrawalAmount will be calculated dynamically each year
+        // Set initial value based on first year calculation
+        const currentAge = rmdConfig.startAge;
+        baseWithdrawalAmount = calculateRMDWithdrawal(
+            initialStartingCapital,
+            currentAge,
+            rmdConfig.lifeExpectancyTable,
+            rmdConfig.customLifeExpectancy
+        );
     } else {
         const withdrawalRate = strategy === "4prozent" ? 0.04 : 0.03;
         baseWithdrawalAmount = initialStartingCapital * withdrawalRate;
@@ -207,6 +227,19 @@ export function calculateWithdrawal({
         if (capitalAtStartOfYear <= 0) break;
 
         let annualWithdrawal = baseWithdrawalAmount;
+        
+        // RMD strategy: recalculate withdrawal based on current portfolio value and age
+        if (strategy === "rmd" && rmdConfig) {
+            const yearsSinceStart = year - startYear;
+            const currentAge = rmdConfig.startAge + yearsSinceStart;
+            annualWithdrawal = calculateRMDWithdrawal(
+                capitalAtStartOfYear,
+                currentAge,
+                rmdConfig.lifeExpectancyTable,
+                rmdConfig.customLifeExpectancy
+            );
+        }
+        
         let inflationAnpassung = 0;
         if (inflationConfig?.inflationRate) {
             const yearsPassed = year - startYear;

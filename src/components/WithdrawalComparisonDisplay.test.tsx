@@ -45,6 +45,8 @@ const mockFormValue: WithdrawalFormValue = {
   inflationsrate: 2,
   guardrailsAktiv: false,
   guardrailsSchwelle: 80,
+  rmdStartAge: 65,
+  rmdLifeExpectancyTable: 'german_2020_22',
   grundfreibetragAktiv: false,
   grundfreibetragBetrag: 10908,
   einkommensteuersatz: 18,

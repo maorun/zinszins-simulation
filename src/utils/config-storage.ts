@@ -41,6 +41,10 @@ export interface WithdrawalFormValue {
   dynamischUntereAnpassung: number;
   // Bucket strategy specific settings
   bucketConfig?: BucketStrategyConfig;
+  // RMD strategy specific settings
+  rmdStartAge: number;
+  rmdLifeExpectancyTable: 'german_2020_22' | 'custom';
+  rmdCustomLifeExpectancy?: number;
   // Grundfreibetrag settings (now handled globally, kept for backward compatibility)
   grundfreibetragAktiv?: boolean;
   grundfreibetragBetrag?: number;
@@ -67,6 +71,10 @@ export interface ComparisonStrategy {
   bucketBaseRate?: number;
   bucketRefillThreshold?: number;
   bucketRefillPercentage?: number;
+  // RMD strategy specific fields
+  rmdStartAge?: number;
+  rmdLifeExpectancyTable?: 'german_2020_22' | 'custom';
+  rmdCustomLifeExpectancy?: number;
 }
 
 /**

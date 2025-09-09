@@ -893,4 +893,197 @@ describe('Bucket Strategy Tests', () => {
       });
     }).toThrow("Bucket strategy config required");
   });
+
+  describe('RMD Strategy', () => {
+    test('should calculate RMD withdrawal based on age and portfolio value', () => {
+      const withdrawalStartYear = 2040;
+      const lastSimYear = withdrawalStartYear - 1;
+      const mockElements = [createMockElement(2023, 100000, 500000, 100, lastSimYear)];
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+      
+      const rmdConfig = {
+        startAge: 65,
+        lifeExpectancyTable: 'german_2020_22' as const
+      };
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "rmd",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+        rmdConfig
+      });
+
+      const year1 = result[withdrawalStartYear];
+      expect(year1).toBeDefined();
+
+      // At age 65, German life expectancy is 19.4 years
+      // Portfolio value: €500,000
+      // Expected withdrawal: 500,000 / 19.4 ≈ €25,773
+      const expectedWithdrawal = 500000 / 19.4;
+      expect(year1.entnahme).toBeCloseTo(expectedWithdrawal, 0);
+    });
+
+    test('should increase withdrawal percentage as age increases', () => {
+      const withdrawalStartYear = 2040;
+      const lastSimYear = withdrawalStartYear - 1;
+      
+      const rmdConfig = {
+        startAge: 65,
+        lifeExpectancyTable: 'german_2020_22' as const
+      };
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+      // Test 3-year period to see increasing withdrawal rates
+      const mockElements = [createMockElement(2023, 100000, 400000, 100, lastSimYear)];
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear + 2,
+        strategy: "rmd",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { 
+          [withdrawalStartYear]: freibetrag,
+          [withdrawalStartYear + 1]: freibetrag,
+          [withdrawalStartYear + 2]: freibetrag
+        },
+        rmdConfig
+      });
+
+      const year1 = result[withdrawalStartYear];     // Age 65
+      const year2 = result[withdrawalStartYear + 1]; // Age 66  
+      const year3 = result[withdrawalStartYear + 2]; // Age 67
+
+      expect(year1).toBeDefined();
+      expect(year2).toBeDefined();
+      expect(year3).toBeDefined();
+
+      // Calculate expected withdrawal percentages
+      // Age 65: 1/19.4 ≈ 5.15%
+      // Age 66: 1/18.6 ≈ 5.38%
+      // Age 67: 1/17.8 ≈ 5.62%
+      
+      const portfolioAtStart1 = 400000;
+      const expectedPercentage1 = 1 / 19.4;
+      const expectedWithdrawal1 = portfolioAtStart1 * expectedPercentage1;
+      
+      expect(year1.entnahme).toBeCloseTo(expectedWithdrawal1, 0);
+      
+      // Portfolio value decreases each year, but withdrawal percentage increases
+      // So we need to check that withdrawal percentage is increasing
+      const withdrawalPercentage1 = year1.entnahme / year1.startkapital;
+      const withdrawalPercentage2 = year2.entnahme / year2.startkapital;
+      const withdrawalPercentage3 = year3.entnahme / year3.startkapital;
+      
+      expect(withdrawalPercentage2).toBeGreaterThan(withdrawalPercentage1);
+      expect(withdrawalPercentage3).toBeGreaterThan(withdrawalPercentage2);
+    });
+
+    test('should use custom life expectancy when specified', () => {
+      const withdrawalStartYear = 2040;
+      const lastSimYear = withdrawalStartYear - 1;
+      const mockElements = [createMockElement(2023, 100000, 300000, 100, lastSimYear)];
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+      
+      const rmdConfig = {
+        startAge: 70,
+        lifeExpectancyTable: 'custom' as const,
+        customLifeExpectancy: 20 // 20 years remaining
+      };
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "rmd",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+        rmdConfig
+      });
+
+      const year1 = result[withdrawalStartYear];
+      expect(year1).toBeDefined();
+
+      // Custom life expectancy of 20 years
+      // Portfolio value: €300,000
+      // Expected withdrawal: 300,000 / 20 = €15,000
+      expect(year1.entnahme).toBeCloseTo(15000, 0);
+    });
+
+    test('should handle portfolio depletion scenarios', () => {
+      const withdrawalStartYear = 2040;
+      const lastSimYear = withdrawalStartYear - 1;
+      const mockElements = [createMockElement(2023, 100000, 50000, 100, lastSimYear)];
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.02 }; // Low return
+      
+      const rmdConfig = {
+        startAge: 85, // Very old age, high withdrawal rate
+        lifeExpectancyTable: 'german_2020_22' as const
+      };
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear + 5,
+        strategy: "rmd",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { 
+          [withdrawalStartYear]: freibetrag,
+          [withdrawalStartYear + 1]: freibetrag,
+          [withdrawalStartYear + 2]: freibetrag,
+          [withdrawalStartYear + 3]: freibetrag,
+          [withdrawalStartYear + 4]: freibetrag,
+          [withdrawalStartYear + 5]: freibetrag
+        },
+        rmdConfig
+      });
+
+      // At age 85, life expectancy is 5.9 years, so withdrawal rate is ~16.9%
+      // This should deplete the portfolio relatively quickly
+      const year1 = result[withdrawalStartYear];
+      expect(year1).toBeDefined();
+      
+      // Withdrawal should be significant portion of portfolio
+      const withdrawalPercentage = year1.entnahme / year1.startkapital;
+      expect(withdrawalPercentage).toBeGreaterThan(0.15); // More than 15%
+      expect(withdrawalPercentage).toBeLessThan(0.20); // Less than 20%
+    });
+
+    test('should require RMD config for RMD strategy', () => {
+      const withdrawalStartYear = 2040;
+      const lastSimYear = withdrawalStartYear - 1;
+      const mockElements = [createMockElement(2023, 100000, 300000, 100, lastSimYear)];
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+      expect(() => {
+        calculateWithdrawal({
+          elements: mockElements,
+          startYear: withdrawalStartYear,
+          endYear: withdrawalStartYear,
+          strategy: "rmd",
+          returnConfig,
+          taxRate,
+          teilfreistellungsquote,
+          freibetragPerYear: { [withdrawalStartYear]: freibetrag }
+          // Missing rmdConfig
+        });
+      }).toThrow("RMD config required");
+    });
+  });
 });

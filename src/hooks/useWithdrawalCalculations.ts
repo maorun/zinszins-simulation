@@ -145,6 +145,14 @@ export function useWithdrawalCalculations(
                 baseWithdrawalRate: formValue.bucketConfig.baseWithdrawalRate,
               }
             : undefined,
+        rmdConfig:
+          formValue.strategie === "rmd"
+            ? {
+                startAge: formValue.rmdStartAge,
+                lifeExpectancyTable: formValue.rmdLifeExpectancyTable,
+                customLifeExpectancy: formValue.rmdCustomLifeExpectancy,
+              }
+            : undefined,
         enableGrundfreibetrag: grundfreibetragAktiv,
         grundfreibetragPerYear: grundfreibetragAktiv
           ? (() => {
@@ -209,6 +217,9 @@ export function useWithdrawalCalculations(
     formValue.dynamischUntereSchwell,
     formValue.dynamischUntereAnpassung,
     formValue.bucketConfig,
+    formValue.rmdStartAge,
+    formValue.rmdLifeExpectancyTable,
+    formValue.rmdCustomLifeExpectancy,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     formValue.einkommensteuersatz,
@@ -289,6 +300,14 @@ export function useWithdrawalCalculations(
                   refillThreshold: strategy.bucketRefillThreshold || 5000,
                   refillPercentage: strategy.bucketRefillPercentage || 0.5,
                   baseWithdrawalRate: (strategy.bucketBaseRate || 4) / 100,
+                }
+              : undefined,
+          rmdConfig:
+            strategy.strategie === "rmd"
+              ? {
+                  startAge: strategy.rmdStartAge || 65,
+                  lifeExpectancyTable: strategy.rmdLifeExpectancyTable || 'german_2020_22',
+                  customLifeExpectancy: strategy.rmdCustomLifeExpectancy,
                 }
               : undefined,
           enableGrundfreibetrag: grundfreibetragAktiv,
