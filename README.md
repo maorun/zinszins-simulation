@@ -57,6 +57,14 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Obere und untere Rendite-Schwellenwerte
   - Relative Anpassungen bei Über-/Unterschreitung der Schwellen
   - Automatische Jahr-für-Jahr Anpassung basierend auf tatsächlichen Renditen
+- **Drei-Eimer-Strategie (Bucket-Strategie)** - Vereinfachte Simulation der beliebten Bucket-Strategie
+  - **Cash-Polster**: Anfängliches Cash-Polster (Standard: €20,000) für Entnahmen bei negativen Renditen
+  - **Intelligente Entnahme-Logik**: Automatische Auswahl zwischen Portfolio (positive Rendite) und Cash-Polster (negative Rendite)
+  - **Auffüll-Mechanismus**: Überschussgewinne werden automatisch ins Cash-Polster verschoben
+    - Auffüll-Schwellenwert: Gewinne müssen konfigurierbaren Betrag überschreiten (Standard: €5,000)
+    - Auffüll-Anteil: Prozentsatz der Überschussgewinne für Cash-Polster (Standard: 50%)
+  - **Konfigurierbare Basis-Entnahmerate**: Unabhängige Entnahmerate für Portfolio-Berechnungen (Standard: 4%)
+  - **Marktschutz**: Vermeidung von Verkäufen zu ungünstigen Kursen während Marktabschwüngen
 - **Monatliche Entnahme-Strategien** - Feste monatliche Entnahmen mit Inflationsanpassung und Portfolio-Guardrails
 - **Variable Renditen während Entnahme** - Jahr-für-Jahr konfigurierbare Renditen für die Entnahmephase
 - **Geteilte Entnahme-Phasen** - Segmentierung der Entsparphase in verschiedene Zeiträume mit unterschiedlichen Strategien
