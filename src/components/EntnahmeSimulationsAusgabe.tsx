@@ -10,7 +10,6 @@ import { Slider } from "./ui/slider";
 // Temporary components still from stubs
 import {
   InputNumber,
-  Toggle,
 } from "./temp-rsuite-stubs";
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type {
@@ -904,7 +903,7 @@ export function EntnahmeSimulationsAusgabe({
             {/* General inflation controls for all strategies */}
             <div className="mb-4 space-y-2">
               <Label>Inflation berücksichtigen</Label>
-              <Toggle 
+              <Switch 
                 checked={formValue.inflationAktiv}
                 onCheckedChange={(checked: boolean) => updateFormValue({ ...formValue, inflationAktiv: checked })}
               />
@@ -991,7 +990,7 @@ export function EntnahmeSimulationsAusgabe({
                   <Label>
                     Dynamische Anpassung (Guardrails)
                   </Label>
-                  <Toggle 
+                  <Switch 
                     checked={formValue.guardrailsAktiv}
                     onCheckedChange={(checked: boolean) => updateFormValue({ ...formValue, guardrailsAktiv: checked })}
                   />
