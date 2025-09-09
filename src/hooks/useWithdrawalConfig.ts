@@ -44,6 +44,10 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
         refillPercentage: 0.5, // Move 50% of excess gains to cash
         baseWithdrawalRate: 0.04, // 4% base withdrawal rate
       },
+      // RMD strategy specific settings
+      rmdStartAge: 65, // Default retirement age
+      rmdLifeExpectancyTable: 'german_2020_22', // Use German mortality tables
+      rmdCustomLifeExpectancy: 20, // Default custom life expectancy
       einkommensteuersatz: 18, // Default income tax rate 18%
     };
 

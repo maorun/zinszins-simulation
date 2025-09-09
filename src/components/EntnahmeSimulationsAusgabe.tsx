@@ -17,6 +17,7 @@ import type {
 import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
 import { WithdrawalSegmentForm } from "./WithdrawalSegmentForm";
 import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
+import { RMDWithdrawalConfiguration } from "./RMDWithdrawalConfiguration";
 import { EntnahmeSimulationDisplay } from "./EntnahmeSimulationDisplay";
 import { useWithdrawalConfig } from "../hooks/useWithdrawalConfig";
 import { useWithdrawalCalculations } from "../hooks/useWithdrawalCalculations";
@@ -44,6 +45,8 @@ function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
       return "Dynamische Strategie";
     case "bucket_strategie":
       return "Drei-Eimer-Strategie";
+    case "rmd":
+      return "RMD (Lebenserwartung)";
     default:
       return strategy;
   }
@@ -263,6 +266,9 @@ export function EntnahmeSimulationsAusgabe({
                   <RadioTile value="bucket_strategie" label="Drei-Eimer-Strategie">
                     Cash-Polster bei negativen Renditen
                   </RadioTile>
+                  <RadioTile value="rmd" label="RMD (Lebenserwartung)">
+                    Entnahme basierend auf Alter und Lebenserwartung
+                  </RadioTile>
                 </RadioTileGroup>
               </div>
 
@@ -351,6 +357,13 @@ export function EntnahmeSimulationsAusgabe({
 
               {formValue.strategie === "dynamisch" && (
                 <DynamicWithdrawalConfiguration formValue={formValue} />
+              )}
+
+              {formValue.strategie === "rmd" && (
+                <RMDWithdrawalConfiguration 
+                  formValue={formValue} 
+                  updateFormValue={updateFormValue}
+                />
               )}
 
               {formValue.strategie === "bucket_strategie" && (
@@ -572,6 +585,9 @@ export function EntnahmeSimulationsAusgabe({
                           </option>
                           <option value="bucket_strategie">
                             Drei-Eimer-Strategie
+                          </option>
+                          <option value="rmd">
+                            RMD (Lebenserwartung)
                           </option>
                         </select>
                       </div>
@@ -1075,6 +1091,9 @@ export function EntnahmeSimulationsAusgabe({
                 <RadioTile value="bucket_strategie" label="Drei-Eimer-Strategie">
                   Cash-Polster bei negativen Renditen
                 </RadioTile>
+                <RadioTile value="rmd" label="RMD (Lebenserwartung)">
+                  Entnahme basierend auf Alter und Lebenserwartung
+                </RadioTile>
               </RadioTileGroup>
             </div>
 
@@ -1240,6 +1259,14 @@ export function EntnahmeSimulationsAusgabe({
             {/* Dynamic strategy specific controls */}
             {formValue.strategie === "dynamisch" && (
               <DynamicWithdrawalConfiguration formValue={formValue} />
+            )}
+
+            {/* RMD strategy specific controls */}
+            {formValue.strategie === "rmd" && (
+              <RMDWithdrawalConfiguration 
+                formValue={formValue} 
+                updateFormValue={updateFormValue}
+              />
             )}
 
             {/* Bucket strategy specific controls */}
