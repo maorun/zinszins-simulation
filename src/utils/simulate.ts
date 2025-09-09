@@ -115,7 +115,8 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
 
   function calculateCosts(
     element: SparplanElement, 
-    startkapital: number, 
+    startkapital: number,
+    endkapitalVorKosten: number,
     year: number, 
     anteilImJahr: number
   ): { terCosts: number; transactionCosts: number; totalCosts: number } {
@@ -124,7 +125,8 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     // TER costs: annual percentage of average capital during year
     let terCosts = 0;
     if (element.ter && element.ter > 0) {
-      const averageCapital = startkapital; // Simplified: use start capital as proxy for average
+      // A more accurate average capital for the year
+      const averageCapital = (startkapital + endkapitalVorKosten) / 2;
       terCosts = (averageCapital * (element.ter / 100)) * (anteilImJahr / 12);
     }
     
@@ -155,64 +157,111 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     options: SimulateOptions
   ) {
     const { simulationAnnual, steuerlast, teilfreistellungsquote = 0.3, freibetragPerYear, steuerReduzierenEndkapital = true, basiszinsConfiguration } = options;
-    const basiszins = getBasiszinsForYear(year, basiszinsConfiguration);
     const yearlyCalculations: any[] = [];
     let totalPotentialTaxThisYear = 0;
 
-    // Pass 1: Calculate growth and potential tax for each element
-    for (const element of elements) {
-      if (new Date(element.start).getFullYear() > year) continue;
+    // If steuerlast is 0, we can skip all tax calculations
+    if (steuerlast > 0) {
+        const basiszins = getBasiszinsForYear(year, basiszinsConfiguration);
 
-      const startkapital =
-        element.simulation?.[year - 1]?.endkapital ||
-        element.einzahlung + (element.type === 'einmalzahlung' ? element.gewinn : 0);
+        // Pass 1: Calculate growth and potential tax for each element
+        for (const element of elements) {
+          if (new Date(element.start).getFullYear() > year) continue;
 
-      let endkapitalVorSteuer: number;
-      let anteilImJahr = 12;
+          const startkapital =
+            element.simulation?.[year - 1]?.endkapital ||
+            element.einzahlung + (element.type === 'einmalzahlung' ? element.gewinn : 0);
 
-      if (simulationAnnual === 'monthly' && new Date(element.start).getFullYear() === year) {
-        const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1;
-        const startMonth = new Date(element.start).getMonth();
-        anteilImJahr = 12 - startMonth;
-        endkapitalVorSteuer = startkapital * Math.pow(1 + wachstumsrateMonth, anteilImJahr);
-      } else {
-        endkapitalVorSteuer = startkapital * (1 + wachstumsrate);
-      }
+          let endkapitalVorSteuer: number;
+          let anteilImJahr = 12;
 
-      // Calculate costs
-      const costs = calculateCosts(element, startkapital, year, anteilImJahr);
+          if (simulationAnnual === 'monthly' && new Date(element.start).getFullYear() === year) {
+            const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1;
+            const startMonth = new Date(element.start).getMonth();
+            anteilImJahr = 12 - startMonth;
+            endkapitalVorSteuer = startkapital * Math.pow(1 + wachstumsrateMonth, anteilImJahr);
+          } else {
+            endkapitalVorSteuer = startkapital * (1 + wachstumsrate);
+          }
+
+          // Calculate costs
+          const costs = calculateCosts(element, startkapital, endkapitalVorSteuer, year, anteilImJahr);
+
+          // Apply costs to reduce the end capital
+          const endkapitalAfterCosts = endkapitalVorSteuer - costs.totalCosts;
+
+          // Calculate detailed Vorabpauschale breakdown for transparency
+          const vorabpauschaleDetails = calculateVorabpauschaleDetailed(
+            startkapital,
+            endkapitalAfterCosts, // Use capital after costs for tax calculation
+            basiszins,
+            anteilImJahr,
+            steuerlast,
+            teilfreistellungsquote
+          );
+
+          const vorabpauschaleBetrag = vorabpauschaleDetails.vorabpauschaleAmount;
+          const potentialTax = vorabpauschaleDetails.steuerVorFreibetrag;
+
+          totalPotentialTaxThisYear += potentialTax;
+          yearlyCalculations.push({
+            element,
+            startkapital,
+            endkapitalVorSteuer: endkapitalAfterCosts, // Use capital after costs
+            jahresgewinn: endkapitalAfterCosts - startkapital, // Adjust gain for costs
+            vorabpauschaleBetrag,
+            potentialTax,
+            vorabpauschaleDetails,
+            costs, // Store cost information
+          });
+        }
+
+        // Pass 2: Apply taxes
+        applyTaxes(year, yearlyCalculations, totalPotentialTaxThisYear, freibetragPerYear, steuerReduzierenEndkapital);
+    } else {
+        // No taxes to be calculated, just calculate growth and costs
+        for (const element of elements) {
+            if (new Date(element.start).getFullYear() > year) continue;
+
+            const startkapital =
+              element.simulation?.[year - 1]?.endkapital ||
+              element.einzahlung + (element.type === 'einmalzahlung' ? element.gewinn : 0);
       
-      // Apply costs to reduce the end capital
-      const endkapitalAfterCosts = endkapitalVorSteuer - costs.totalCosts;
+            let endkapitalVorSteuer: number;
+            let anteilImJahr = 12;
       
-      // Calculate detailed Vorabpauschale breakdown for transparency
-      const vorabpauschaleDetails = calculateVorabpauschaleDetailed(
-        startkapital,
-        endkapitalAfterCosts, // Use capital after costs for tax calculation
-        basiszins,
-        anteilImJahr,
-        steuerlast,
-        teilfreistellungsquote
-      );
+            if (simulationAnnual === 'monthly' && new Date(element.start).getFullYear() === year) {
+              const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1;
+              const startMonth = new Date(element.start).getMonth();
+              anteilImJahr = 12 - startMonth;
+              endkapitalVorSteuer = startkapital * Math.pow(1 + wachstumsrateMonth, anteilImJahr);
+            } else {
+              endkapitalVorSteuer = startkapital * (1 + wachstumsrate);
+            }
       
-      const vorabpauschaleBetrag = vorabpauschaleDetails.vorabpauschaleAmount;
-      const potentialTax = vorabpauschaleDetails.steuerVorFreibetrag;
+            // Calculate costs
+            const costs = calculateCosts(element, startkapital, endkapitalVorSteuer, year, anteilImJahr);
 
-      totalPotentialTaxThisYear += potentialTax;
-      yearlyCalculations.push({
-        element,
-        startkapital,
-        endkapitalVorSteuer: endkapitalAfterCosts, // Use capital after costs
-        jahresgewinn: endkapitalAfterCosts - startkapital, // Adjust gain for costs
-        vorabpauschaleBetrag,
-        potentialTax,
-        vorabpauschaleDetails,
-        costs, // Store cost information
-      });
+            // Apply costs to reduce the end capital
+            const endkapitalAfterCosts = endkapitalVorSteuer - costs.totalCosts;
+
+            const jahresgewinn = endkapitalAfterCosts - startkapital;
+            const vorabpauschaleAccumulated = (element.simulation[year - 1]?.vorabpauschaleAccumulated || 0);
+
+            element.simulation[year] = {
+                startkapital,
+                endkapital: endkapitalAfterCosts,
+                zinsen: jahresgewinn,
+                bezahlteSteuer: 0,
+                genutzterFreibetrag: 0,
+                vorabpauschale: 0,
+                vorabpauschaleAccumulated,
+                terCosts: costs.terCosts,
+                transactionCosts: costs.transactionCosts,
+                totalCosts: costs.totalCosts,
+              };
+        }
     }
-
-    // Pass 2: Apply taxes
-    applyTaxes(year, yearlyCalculations, totalPotentialTaxThisYear, freibetragPerYear, steuerReduzierenEndkapital);
   }
 
   function applyTaxes(
