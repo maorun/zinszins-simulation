@@ -2,10 +2,8 @@
 import React, { createContext } from 'react';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Slider as ShadcnSlider } from './ui/slider';
 import { Switch } from './ui/switch';
 import { toast } from 'sonner';
-import { RadioTileGroup as ShadcnRadioTileGroup } from './ui/radio-tile';
 
 // Form context for RSuite-style form value binding
 const FormContext = createContext<{
@@ -94,37 +92,6 @@ export const FormControl = ({
         step={step}
         {...validInputProps}
       />
-    );
-  }
-  if (accepter === Slider) {
-    return (
-      <div className="space-y-2">
-        <ShadcnSlider 
-          value={[actualValue || 0]}
-          onValueChange={(values: number[]) => actualOnChange(values[0])}
-          min={min}
-          max={max}
-          step={step}
-          className="mt-2"
-          {...validInputProps}
-        />
-        <div className="flex justify-between text-sm text-gray-500">
-          <span>{min}</span>
-          <span className="font-medium text-gray-900">{actualValue || 0}%</span>
-          <span>{max}</span>
-        </div>
-      </div>
-    );
-  }
-  if (accepter === ShadcnRadioTileGroup || accepter?.displayName === 'RadioTileGroup') {
-    return (
-      <ShadcnRadioTileGroup 
-        value={actualValue}
-        onValueChange={actualOnChange}
-        {...validInputProps}
-      >
-        {props.children}
-      </ShadcnRadioTileGroup>
     );
   }
   if (accepter === Toggle) {
@@ -251,93 +218,6 @@ export const useToaster = () => ({
 });
 
 // Stubs for EntnahmeSimulationsAusgabe components
-export const Radio = ({ children, value, checked, onChange, ...props }: any) => (
-  <label style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', cursor: 'pointer' }}>
-    <input 
-      type="radio" 
-      value={value} 
-      checked={checked}
-      onChange={onChange}
-      {...props} 
-    />
-    {children}
-  </label>
-);
-
-export const RadioGroup = ({ children, value, onChange, inline, ...props }: any) => (
-  <div style={{ display: inline ? 'flex' : 'block', gap: inline ? '1rem' : '0.5rem' }} {...props}>
-    {React.Children.map(children, (child) => {
-      if (!React.isValidElement(child)) return child;
-      const childProps = child.props as any;
-      return React.cloneElement(child as any, { 
-        checked: childProps.value === value,
-        onChange: () => onChange && onChange(childProps.value)
-      });
-    })}
-  </div>
-);
-
-export const RadioTile = ({ children, value, checked, onChange, label, ...props }: any) => (
-  <label 
-    style={{ 
-      display: 'block',
-      padding: '1rem',
-      border: '2px solid',
-      borderColor: checked ? '#1675e0' : '#e5e7eb',
-      borderRadius: '0.5rem',
-      cursor: 'pointer',
-      backgroundColor: checked ? '#f0f8ff' : 'white',
-      transition: 'all 0.2s ease'
-    }}
-    {...props}
-  >
-    <input 
-      type="radio" 
-      value={value}
-      checked={checked}
-      onChange={onChange}
-      style={{ display: 'none' }}
-    />
-    <div style={{ fontWeight: 'bold', marginBottom: '0.25rem' }}>{label}</div>
-    <div style={{ fontSize: '0.875rem', color: '#666' }}>{children}</div>
-  </label>
-);
-
-export const RadioTileGroup = ({ children, value, onChange, onValueChange, ...props }: any) => {
-  const handleChange = onValueChange || onChange;
-  
-  return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }} {...props}>
-      {React.Children.map(children, (child) => {
-        if (!React.isValidElement(child)) return child;
-        const childProps = child.props as any;
-        return React.cloneElement(child as any, { 
-          checked: childProps.value === value,
-          onChange: () => handleChange && handleChange(childProps.value)
-        });
-      })}
-    </div>
-  );
-};
-
-export const Slider = ({ value, onChange, min, max, step, handleTitle: _handleTitle, ...props }: any) => (
-  <div className="space-y-2">
-    <ShadcnSlider 
-      value={[value || 0]}
-      onValueChange={(values: number[]) => onChange && onChange(values[0])}
-      min={min}
-      max={max}
-      step={step}
-      className="mt-2"
-      {...props}
-    />
-    <div className="flex justify-between text-sm text-gray-500">
-      <span>{min}</span>
-      <span className="font-medium text-gray-900">{value || 0}{typeof value === 'number' && value < 1 ? '' : ''}</span>
-      <span>{max}</span>
-    </div>
-  </div>
-);
 
 
 

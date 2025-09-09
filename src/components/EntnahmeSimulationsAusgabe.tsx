@@ -4,13 +4,13 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collap
 import { ChevronDown } from "lucide-react";
 import { RadioTileGroup, RadioTile } from "./ui/radio-tile";
 import { Switch } from "./ui/switch";
+import { Slider } from "./ui/slider";
 
 // Temporary components still from stubs
 import {
   Form,
   InputNumber,
   Toggle,
-  Slider,
 } from "./temp-rsuite-stubs";
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type {
@@ -262,7 +262,10 @@ export function EntnahmeSimulationsAusgabe({
               {/* Strategy selector - for base strategy only */}
               <Form.Group controlId="strategie">
                 <Form.ControlLabel>Basis-Strategie</Form.ControlLabel>
-                <Form.Control name="strategie" accepter={RadioTileGroup}>
+                <RadioTileGroup
+                  value={formValue.strategie}
+                  onValueChange={(value) => updateFormValue({ ...formValue, strategie: value as WithdrawalStrategy })}
+                >
                   <RadioTile value="4prozent" label="4% Regel">
                     4% Entnahme
                   </RadioTile>
@@ -278,7 +281,7 @@ export function EntnahmeSimulationsAusgabe({
                   <RadioTile value="dynamisch" label="Dynamische Strategie">
                     Renditebasierte Anpassung
                   </RadioTile>
-                </Form.Control>
+                </RadioTileGroup>
               </Form.Group>
 
               {/* Withdrawal frequency configuration */}
@@ -309,20 +312,21 @@ export function EntnahmeSimulationsAusgabe({
                 <Form.ControlLabel>
                   Rendite Basis-Strategie (%)
                 </Form.ControlLabel>
-                <Form.Control
-                  name="rendite"
-                  accepter={Slider}
-                  min={0}
-                  max={10}
-                  step={0.5}
-                  handleTitle={
-                    <div style={{ marginTop: "-17px" }}>
-                      {formValue.rendite}%
-                    </div>
-                  }
-                  progress
-                  graduated
-                />
+                <div className="space-y-2">
+                  <Slider
+                    value={[formValue.rendite]}
+                    onValueChange={(values: number[]) => updateFormValue({ ...formValue, rendite: values[0] })}
+                    min={0}
+                    max={10}
+                    step={0.5}
+                    className="mt-2"
+                  />
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>0%</span>
+                    <span className="font-medium text-gray-900">{formValue.rendite}%</span>
+                    <span>10%</span>
+                  </div>
+                </div>
               </Form.Group>
 
               {/* Strategy-specific configuration for base strategy */}
@@ -331,20 +335,21 @@ export function EntnahmeSimulationsAusgabe({
                   <Form.ControlLabel>
                     Entnahme-Prozentsatz (%)
                   </Form.ControlLabel>
-                  <Form.Control
-                    name="variabelProzent"
-                    accepter={Slider}
-                    min={1}
-                    max={10}
-                    step={0.5}
-                    handleTitle={
-                      <div style={{ marginTop: "-17px" }}>
-                        {formValue.variabelProzent}%
-                      </div>
-                    }
-                    progress
-                    graduated
-                  />
+                  <div className="space-y-2">
+                    <Slider
+                      value={[formValue.variabelProzent]}
+                      onValueChange={(values: number[]) => updateFormValue({ ...formValue, variabelProzent: values[0] })}
+                      min={1}
+                      max={10}
+                      step={0.5}
+                      className="mt-2"
+                    />
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>1%</span>
+                      <span className="font-medium text-gray-900">{formValue.variabelProzent}%</span>
+                      <span>10%</span>
+                    </div>
+                  </div>
                 </Form.Group>
               )}
 
@@ -732,20 +737,21 @@ export function EntnahmeSimulationsAusgabe({
                 <Form.ControlLabel>
                   Erwartete Rendite Entnahme-Phase (%)
                 </Form.ControlLabel>
-                <Form.Control
-                  name="rendite"
-                  accepter={Slider}
-                  min={0}
-                  max={10}
-                  step={0.5}
-                  handleTitle={
-                    <div style={{ marginTop: "-17px" }}>
-                      {formValue.rendite}%
-                    </div>
-                  }
-                  progress
-                  graduated
-                />
+                <div className="space-y-2">
+                  <Slider
+                    value={[formValue.rendite]}
+                    onValueChange={(values: number[]) => updateFormValue({ ...formValue, rendite: values[0] })}
+                    min={0}
+                    max={10}
+                    step={0.5}
+                    className="mt-2"
+                  />
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>0%</span>
+                    <span className="font-medium text-gray-900">{formValue.rendite}%</span>
+                    <span>10%</span>
+                  </div>
+                </div>
                 <Form.HelpText>
                   Feste Rendite für die gesamte Entnahme-Phase (oft
                   konservativer als die Sparphase-Rendite).
@@ -759,22 +765,23 @@ export function EntnahmeSimulationsAusgabe({
                   <Form.ControlLabel>
                     Durchschnittliche Rendite (%)
                   </Form.ControlLabel>
-                  <Slider
-                    value={withdrawalAverageReturn}
-                    min={0}
-                    max={12}
-                    step={0.5}
-                    handleTitle={
-                      <div style={{ marginTop: "-17px" }}>
-                        {withdrawalAverageReturn}%
-                      </div>
-                    }
-                    progress
-                    graduated
-                    onChange={(value: number) =>
-                      updateConfig({ withdrawalAverageReturn: value })
-                    }
-                  />
+                  <div className="space-y-2">
+                    <Slider
+                      value={[withdrawalAverageReturn]}
+                      onValueChange={(values: number[]) =>
+                        updateConfig({ withdrawalAverageReturn: values[0] })
+                      }
+                      min={0}
+                      max={12}
+                      step={0.5}
+                      className="mt-2"
+                    />
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>0%</span>
+                      <span className="font-medium text-gray-900">{withdrawalAverageReturn}%</span>
+                      <span>12%</span>
+                    </div>
+                  </div>
                   <Form.HelpText>
                     Erwartete durchschnittliche Rendite für die Entnahme-Phase
                     (meist konservativer als Ansparphase)
@@ -783,22 +790,23 @@ export function EntnahmeSimulationsAusgabe({
 
                 <Form.Group controlId="withdrawalStandardDeviation">
                   <Form.ControlLabel>Standardabweichung (%)</Form.ControlLabel>
-                  <Slider
-                    value={withdrawalStandardDeviation}
-                    min={5}
-                    max={25}
-                    step={1}
-                    handleTitle={
-                      <div style={{ marginTop: "-17px" }}>
-                        {withdrawalStandardDeviation}%
-                      </div>
-                    }
-                    progress
-                    graduated
-                    onChange={(value: number) =>
-                      updateConfig({ withdrawalStandardDeviation: value })
-                    }
-                  />
+                  <div className="space-y-2">
+                    <Slider
+                      value={[withdrawalStandardDeviation]}
+                      onValueChange={(values: number[]) =>
+                        updateConfig({ withdrawalStandardDeviation: values[0] })
+                      }
+                      min={5}
+                      max={25}
+                      step={1}
+                      className="mt-2"
+                    />
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>5%</span>
+                      <span className="font-medium text-gray-900">{withdrawalStandardDeviation}%</span>
+                      <span>25%</span>
+                    </div>
+                  </div>
                   <Form.HelpText>
                     Volatilität der Renditen (meist niedriger als Ansparphase
                     wegen konservativerer Allokation)
@@ -858,19 +866,20 @@ export function EntnahmeSimulationsAusgabe({
                           </div>
                           <div style={{ flex: 1 }}>
                             <Slider
-                              value={withdrawalVariableReturns[year] || 5}
-                              min={-10}
-                              max={15}
-                              step={0.5}
-                              onChange={(value: number) => {
+                              value={[withdrawalVariableReturns[year] || 5]}
+                              onValueChange={(values: number[]) => {
                                 const newReturns = {
                                   ...withdrawalVariableReturns,
-                                  [year]: value,
+                                  [year]: values[0],
                                 };
                                 updateConfig({
                                   withdrawalVariableReturns: newReturns,
                                 });
                               }}
+                              min={-10}
+                              max={15}
+                              step={0.5}
+                              className="mt-2"
                             />
                           </div>
                           <div style={{ minWidth: "50px", textAlign: "right" }}>
@@ -896,7 +905,16 @@ export function EntnahmeSimulationsAusgabe({
             </Form.Group>
             <Form.Group controlId="strategie">
               <Form.ControlLabel>Strategie</Form.ControlLabel>
-              <Form.Control name="strategie" accepter={RadioTileGroup}>
+              <RadioTileGroup
+                value={formValue.strategie}
+                onValueChange={(value) => {
+                  const newFormValue = { ...formValue, strategie: value as WithdrawalStrategy };
+                  dispatchEnd([startOfIndependence, newFormValue.endOfLife]);
+                  updateFormValue({
+                    strategie: value as WithdrawalStrategy,
+                  });
+                }}
+              >
                 <RadioTile value="4prozent" label="4% Regel">
                   4% Entnahme
                 </RadioTile>
@@ -912,7 +930,7 @@ export function EntnahmeSimulationsAusgabe({
                 <RadioTile value="dynamisch" label="Dynamische Strategie">
                   Renditebasierte Anpassung
                 </RadioTile>
-              </Form.Control>
+              </RadioTileGroup>
             </Form.Group>
 
             {/* Withdrawal frequency configuration */}
@@ -951,20 +969,27 @@ export function EntnahmeSimulationsAusgabe({
             {formValue.inflationAktiv && (
               <Form.Group controlId="inflationsrate">
                 <Form.ControlLabel>Inflationsrate (%)</Form.ControlLabel>
-                <Form.Control
-                  name="inflationsrate"
-                  accepter={Slider}
-                  min={0}
-                  max={5}
-                  step={0.1}
-                  handleTitle={
-                    <div style={{ marginTop: "-17px" }}>
-                      {formValue.inflationsrate}%
-                    </div>
-                  }
-                  progress
-                  graduated
-                />
+                <div className="space-y-2">
+                  <Slider
+                    value={[formValue.inflationsrate]}
+                    onValueChange={(values: number[]) => {
+                      const newFormValue = { ...formValue, inflationsrate: values[0] };
+                      dispatchEnd([startOfIndependence, newFormValue.endOfLife]);
+                      updateFormValue({
+                        inflationsrate: values[0],
+                      });
+                    }}
+                    min={0}
+                    max={5}
+                    step={0.1}
+                    className="mt-2"
+                  />
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>0%</span>
+                    <span className="font-medium text-gray-900">{formValue.inflationsrate}%</span>
+                    <span>5%</span>
+                  </div>
+                </div>
                 <Form.HelpText>
                   Jährliche Inflationsrate zur Anpassung der Entnahmebeträge
                 </Form.HelpText>
@@ -975,20 +1000,25 @@ export function EntnahmeSimulationsAusgabe({
             {formValue.strategie === "variabel_prozent" && (
               <Form.Group controlId="variabelProzent">
                 <Form.ControlLabel>Entnahme-Prozentsatz (%)</Form.ControlLabel>
-                <Form.Control
-                  name="variabelProzent"
-                  accepter={Slider}
-                  min={2}
-                  max={7}
-                  step={0.5}
-                  handleTitle={
-                    <div style={{ marginTop: "-17px" }}>
-                      {formValue.variabelProzent}%
-                    </div>
-                  }
-                  progress
-                  graduated
-                />
+                <div className="space-y-2">
+                  <Slider
+                    value={[formValue.variabelProzent]}
+                    onValueChange={(values: number[]) => {
+                      updateFormValue({
+                        variabelProzent: values[0],
+                      });
+                    }}
+                    min={2}
+                    max={7}
+                    step={0.5}
+                    className="mt-2"
+                  />
+                  <div className="flex justify-between text-sm text-gray-500">
+                    <span>2%</span>
+                    <span className="font-medium text-gray-900">{formValue.variabelProzent}%</span>
+                    <span>7%</span>
+                  </div>
+                </div>
                 <Form.HelpText>
                   Wählen Sie einen Entnahme-Prozentsatz zwischen 2% und 7% in
                   0,5%-Schritten
@@ -1024,20 +1054,25 @@ export function EntnahmeSimulationsAusgabe({
                     <Form.ControlLabel>
                       Anpassungsschwelle (%)
                     </Form.ControlLabel>
-                    <Form.Control
-                      name="guardrailsSchwelle"
-                      accepter={Slider}
-                      min={5}
-                      max={20}
-                      step={1}
-                      handleTitle={
-                        <div style={{ marginTop: "-17px" }}>
-                          {formValue.guardrailsSchwelle}%
-                        </div>
-                      }
-                      progress
-                      graduated
-                    />
+                    <div className="space-y-2">
+                      <Slider
+                        value={[formValue.guardrailsSchwelle]}
+                        onValueChange={(values: number[]) => {
+                          updateFormValue({
+                            guardrailsSchwelle: values[0],
+                          });
+                        }}
+                        min={5}
+                        max={20}
+                        step={1}
+                        className="mt-2"
+                      />
+                      <div className="flex justify-between text-sm text-gray-500">
+                        <span>5%</span>
+                        <span className="font-medium text-gray-900">{formValue.guardrailsSchwelle}%</span>
+                        <span>20%</span>
+                      </div>
+                    </div>
                     <Form.HelpText>
                       Bei Überschreitung dieser Schwelle wird die Entnahme
                       angepasst
