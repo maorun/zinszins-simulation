@@ -1,12 +1,9 @@
 // Temporary stubs for RSuite components to maintain compatibility while migrating
-import React, { useState, createContext } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import React, { createContext } from 'react';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { Slider as ShadcnSlider } from './ui/slider';
 import { Switch } from './ui/switch';
-import { ChevronDown, ChevronUp } from 'lucide-react';
 import { toast } from 'sonner';
 import { RadioTileGroup as ShadcnRadioTileGroup } from './ui/radio-tile';
 
@@ -19,61 +16,6 @@ const FormContext = createContext<{
 // Hook to access form context
 const useFormContext = () => {
   return React.useContext(FormContext);
-};
-
-
-// Enhanced Panel component with proper collapsible functionality
-export const Panel = ({ 
-  header, 
-  children, 
-  bordered: _bordered, 
-  collapsible = false, 
-  bodyFill: _bodyFill, 
-  expanded = false,
-  defaultExpanded = false, // Now defaults to false
-  className = "",
-  ...props 
-}: any) => {
-  const [isOpen, setIsOpen] = useState(expanded !== undefined ? expanded : defaultExpanded);
-  
-  if (!collapsible) {
-    // Non-collapsible panel - just render as a regular Card
-    return (
-      <Card className={`mb-6 ${className}`} {...props}>
-        {header && (
-          <CardHeader className="pb-4">
-            <CardTitle className="text-lg">{header}</CardTitle>
-          </CardHeader>
-        )}
-        <CardContent className="pt-0">{children}</CardContent>
-      </Card>
-    );
-  }
-
-  // Collapsible panel using Radix UI Collapsible
-  return (
-    <Card className={`mb-6 ${className}`} {...props}>
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-        {header && (
-          <CardHeader className="pb-4">
-            <CollapsibleTrigger asChild>
-              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-                <CardTitle className="text-left text-lg">{header}</CardTitle>
-                {isOpen ? (
-                  <ChevronUp className="h-5 w-5 text-gray-500" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-gray-500" />
-                )}
-              </div>
-            </CollapsibleTrigger>
-          </CardHeader>
-        )}
-        <CollapsibleContent>
-          <CardContent className="pt-0">{children}</CardContent>
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
-  );
 };
 
 // Form component stubs

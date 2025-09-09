@@ -42,13 +42,15 @@ const InfoIcon = () => (
 
 // Import Button directly from shadcn/ui
 import { Button } from "./ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { ChevronDown } from "lucide-react";
 
 // Temporary imports - remove unused ones for now
 import {
     DatePicker,
     Form,
     InputNumber,
-    Panel,
     Message,
     useToaster,
     ButtonToolbar
@@ -91,6 +93,8 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
         transactionCostPercent: '',
         transactionCostAbsolute: '',
     });
+
+
 
     const toaster = useToaster();
 
@@ -181,7 +185,18 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <Panel header="💰 Sparpläne erstellen" bordered collapsible>
+            <Card className="mb-6">
+                <Collapsible defaultOpen={false}>
+                    <CardHeader className="pb-4">
+                        <CollapsibleTrigger asChild>
+                            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                                <CardTitle className="text-left text-lg">💰 Sparpläne erstellen</CardTitle>
+                                <ChevronDown className="h-5 w-5 text-gray-500" />
+                            </div>
+                        </CollapsibleTrigger>
+                    </CardHeader>
+                    <CollapsibleContent>
+                        <CardContent className="pt-0">
                 <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
                     Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum
                 </div>
@@ -307,9 +322,23 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                         </ButtonToolbar>
                     </Form.Group>
                 </Form>
-            </Panel>
+                        </CardContent>
+                    </CollapsibleContent>
+                </Collapsible>
+            </Card>
             
-            <Panel header="💵 Einmalzahlungen erstellen" bordered collapsible>
+            <Card className="mb-6">
+                <Collapsible defaultOpen={false}>
+                    <CardHeader className="pb-4">
+                        <CollapsibleTrigger asChild>
+                            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                                <CardTitle className="text-left text-lg">💵 Einmalzahlungen erstellen</CardTitle>
+                                <ChevronDown className="h-5 w-5 text-gray-500" />
+                            </div>
+                        </CollapsibleTrigger>
+                    </CardHeader>
+                    <CollapsibleContent>
+                        <CardContent className="pt-0">
                 <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
                     Fügen Sie einmalige Zahlungen zu einem bestimmten Zeitpunkt hinzu
                 </div>
@@ -421,9 +450,23 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                         </ButtonToolbar>
                     </Form.Group>
                 </Form>
-            </Panel>
+                        </CardContent>
+                    </CollapsibleContent>
+                </Collapsible>
+            </Card>
             
-            <Panel header="📋 Gespeicherte Sparpläne" bordered bodyFill collapsible expanded>
+            <Card className="mb-6">
+                <Collapsible defaultOpen={true}>
+                    <CardHeader className="pb-4">
+                        <CollapsibleTrigger asChild>
+                            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                                <CardTitle className="text-left text-lg">📋 Gespeicherte Sparpläne</CardTitle>
+                                <ChevronDown className="h-5 w-5 text-gray-500" />
+                            </div>
+                        </CollapsibleTrigger>
+                    </CardHeader>
+                    <CollapsibleContent>
+                        <CardContent className="pt-0">
                 <div style={{ padding: '1rem 1.5rem 0.5rem', color: '#666', fontSize: '0.9rem', borderBottom: '1px solid #f0f0f0' }}>
                     Ihre konfigurierten Sparpläne und Einmalzahlungen
                 </div>
@@ -494,7 +537,10 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 <div style={{ display: 'none' }}>
                     {/* Table functionality has been replaced with card layout above */}
                 </div>
-            </Panel>
+                        </CardContent>
+                    </CollapsibleContent>
+                </Collapsible>
+            </Card>
         </div>
     );
 }
