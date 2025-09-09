@@ -231,6 +231,61 @@ When making changes to this codebase, follow this complete workflow to ensure hi
 
 **IMPORTANT: The following instructions about testing are not optional. They are the most critical part of the workflow.**
 
+## Step-by-Step Development Approach (Teilschritt commits)
+
+This project follows a **step-by-step commit approach** where development work is broken into discrete, focused steps that are individually implemented, tested, and committed. This approach ensures:
+
+- **Better code quality** through focused changes
+- **Easier code review** with smaller, understandable commits  
+- **Progressive validation** where each step is verified before proceeding
+- **Clear progress tracking** through detailed checklists
+- **Reduced risk** of introducing bugs through smaller change sets
+
+### Using the report_progress Tool
+
+The `report_progress` tool is central to the step-by-step approach and should be used:
+
+#### Initial Planning
+- **Start with `report_progress`** to outline your complete plan as a detailed checklist
+- **Break down the work** into 3-8 discrete steps that can be implemented independently
+- **Use markdown checklists** with `- [ ]` for pending items and `- [x]` for completed items
+- **Include "Fixes #XXX."** as the last line of the PR description
+
+#### After Each Step
+- **Use `report_progress`** immediately after completing and validating each step
+- **Update the checklist** to mark the current step as completed (`- [x]`)
+- **Provide a clear commit message** describing what was accomplished
+- **Review the committed files** to ensure only relevant changes are included
+- **Never skip this step** - every meaningful unit of work must be committed individually
+
+#### Progress Tracking Guidelines
+- **Maintain consistent checklist structure** between updates while being accurate
+- **Update step descriptions** if the implementation differs from the original plan
+- **Add new steps** if additional work is discovered during implementation
+- **Keep stakeholders informed** with regular progress updates
+- **Document any changes** in approach or scope in the progress updates
+
+#### Example Progress Flow
+```markdown
+Initial Plan:
+- [ ] Step 1: Analyze current implementation and identify changes needed
+- [ ] Step 2: Add new utility function with comprehensive tests  
+- [ ] Step 3: Update component to use new utility function
+- [ ] Step 4: Update documentation and validate complete workflow
+
+After Step 1:
+- [x] Step 1: Analyze current implementation and identify changes needed
+- [ ] Step 2: Add new utility function with comprehensive tests
+- [ ] Step 3: Update component to use new utility function  
+- [ ] Step 4: Update documentation and validate complete workflow
+
+After Step 2:
+- [x] Step 1: Analyze current implementation and identify changes needed
+- [x] Step 2: Add new utility function with comprehensive tests
+- [ ] Step 3: Update component to use new utility function
+- [ ] Step 4: Update documentation and validate complete workflow
+```
+
 ### Component Refactoring Best Practices
 
 When components become too large (> 500-800 lines), follow this refactoring approach:
@@ -337,34 +392,75 @@ expect(screen.getByText(/📊 Basis-Strategie.*5%/)).toBeInTheDocument();
 
 ### Development Workflow Steps
 
+The development workflow follows a **step-by-step commit approach (Teilschritt commits)** where each discrete development step is implemented, validated, and committed individually. This ensures focused, reviewable commits and better progress tracking.
+
+#### Planning Phase
+1. **Analyze the requirements** thoroughly before making any changes
+2. **Break down the work** into discrete, focused steps that can be implemented independently
+3. **Create an initial plan** using `report_progress` with a checklist of all identified steps
+4. **Prioritize steps** to ensure dependencies are handled correctly
+
+#### Step-by-Step Implementation
+For each individual step in your plan:
+
 1. **Development Phase**
-   - Implement your changes following the guidelines above
-   - Make minimal, focused changes that address the specific requirements
+   - Implement **only one focused change** that addresses a single step from your plan
+   - Make minimal, surgical changes that address the specific step requirements
    - Follow existing code patterns and architectural decisions
-   - Update documentation (README.md) when implementing new features
+   - Update documentation (README.md) when implementing new features that affect user-facing functionality
 
 2. **Testing and Linting Phase - MANDATORY**
-   - **No Exceptions:** For **every single change or addition** of a feature, corresponding tests **must** be added or adapted. This is a mandatory requirement for every pull request.
-   - **Run all tests:** `npm run test` (should pass all 296+ tests across 56 files). If you add new features, add new tests. If you change features, adapt existing tests.
+   - **No Exceptions:** For **every single change or addition** of a feature, corresponding tests **must** be added or adapted. This is a mandatory requirement for every step.
+   - **Run all tests:** `npm run test` (should pass all 337+ tests across 58 files). If you add new features, add new tests. If you change features, adapt existing tests.
    - **Run linting:** `npm run lint` (should pass with max 10 warnings)
    - **Run type checking:** `npm run typecheck` (expect minimal errors)
    - **Run build:** `npm run build` (should complete successfully)
-   - **If any errors are found**: Fix them and return to step 1. Do not proceed if tests are failing.
+   - **If any errors are found**: Fix them and return to Development Phase. Do not proceed if tests are failing.
 
-3. **Code Review Phase**
-   - Review all changes thoroughly before finalizing
-   - **Crucially, verify that the testing requirements have been met.**
+3. **Individual Step Commit**
+   - **Use `report_progress`** to commit each completed step individually
+   - **Update the checklist** to mark the current step as completed
+   - **Provide a clear commit message** describing what was accomplished in this step
+   - **Review committed files** to ensure only relevant changes are included
+   - **Do not proceed** to the next step until the current step is fully committed
+
+4. **Step Validation Phase**
+   - **Manual testing:** Verify the specific functionality changed in this step works correctly
+   - **Integration testing:** Ensure the step doesn't break existing functionality
+   - **Check browser console** for new errors (ignore expected Vercel Analytics warnings)
+   - **Take screenshots** of any UI changes to document the impact of this step
+
+#### Final Review Phase
+After all steps are completed:
+
+5. **Comprehensive Code Review**
+   - Review all changes across all commits thoroughly
+   - **Crucially, verify that the testing requirements have been met for each step.**
    - Check for code quality, maintainability, and adherence to project standards
    - Verify changes align with German financial requirements and tax calculations
-   - Ensure no unintended side effects or regressions
-   - **If issues are found**: Return to step 1 with feedback
+   - Ensure no unintended side effects or regressions across the entire change set
+   - **If issues are found**: Address them in additional individual commits
 
-4. **Manual Validation Phase**
+6. **Complete Manual Validation**
    - Start the development server: `npm run dev`
    - Test the complete user workflow as documented in "Manual Validation Requirements"
-   - Verify all interactive features work correctly
-   - Check browser console for new errors (ignore expected Vercel Analytics warnings)
-   - Take screenshots of any UI changes to document the impact
+   - Verify all interactive features work correctly across the entire change set
+   - Ensure the full integration works as expected
+
+#### Step-by-Step Commit Benefits
+- **Focused changes**: Each commit addresses a single, well-defined aspect
+- **Better reviewability**: Reviewers can understand and validate individual steps
+- **Easier debugging**: Issues can be traced to specific steps
+- **Progressive validation**: Each step is tested before proceeding
+- **Clear progress tracking**: The checklist shows exactly what has been completed
+- **Safer development**: Smaller changes reduce the risk of introducing bugs
+
+#### Commit Message Guidelines
+- Use clear, descriptive commit messages for each step
+- Format: `[Step X/Y] Brief description of what was accomplished`
+- Example: `[Step 2/5] Add withdrawal calculation validation with comprehensive tests`
+- Include the step number and total steps when possible
+- Focus on what was accomplished, not what will be done next
 
 ### Code Review Guidelines
 
@@ -406,7 +502,10 @@ Before approving changes, verify:
 - [ ] Linting passes (`npm run lint`) 
 - [ ] Build succeeds (`npm run build`)
 - [ ] Manual testing confirms functionality works
-- [ ] Changes are minimal and focused
+- [ ] **Step-by-step approach followed**: Changes are broken into logical, focused commits
+- [ ] **Progress tracking used**: `report_progress` was used appropriately for each step
+- [ ] **Commit messages are clear**: Each step has a descriptive commit message
+- [ ] Changes are minimal and focused per step
 - [ ] **UI Framework**: New components use shadcn/ui; no mixing of UI frameworks
 - [ ] **Styling uses only Tailwind CSS utility classes** - no custom CSS classes created
 - [ ] German financial calculations are accurate
