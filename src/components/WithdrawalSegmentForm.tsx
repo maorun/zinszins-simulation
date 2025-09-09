@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { Input } from "./ui/input";
 import { Slider } from "./ui/slider";
 import { Switch } from "./ui/switch";
@@ -9,10 +9,13 @@ import { Separator } from './ui/separator';
 import { Label } from './ui/label';
 import { Plus, Trash2 } from 'lucide-react';
 
-// Temporary components still from stubs
-import { 
-  InputNumber
-} from './temp-rsuite-stubs';
+// Helper function for number input handling with number onChange
+const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: number | undefined) => void) => {
+    const value = e.target.value;
+    onChange(value ? Number(value) : undefined);
+};
+
+// No more temporary components needed!
 import type { 
     WithdrawalSegment
 } from "../utils/segmented-withdrawal";
@@ -187,18 +190,20 @@ export function WithdrawalSegmentForm({
                                 </div>
                                 <div className="mb-4 space-y-2">
                                     <Label>Startjahr</Label>
-                                    <InputNumber
+                                    <Input
+                                        type="number"
                                         value={segment.startYear}
-                                        onChange={(value: number | undefined) => updateSegment(segment.id, { startYear: Number(value) || withdrawalStartYear })}
+                                        onChange={(e) => handleNumberInputChange(e, (value) => updateSegment(segment.id, { startYear: Number(value) || withdrawalStartYear }))}
                                         min={withdrawalStartYear}
                                         max={withdrawalEndYear}
                                     />
                                 </div>
                                 <div className="mb-4 space-y-2">
                                     <Label>Endjahr</Label>
-                                    <InputNumber
+                                    <Input
+                                        type="number"
                                         value={segment.endYear}
-                                        onChange={(value: number | undefined) => updateSegment(segment.id, { endYear: Number(value) || withdrawalEndYear })}
+                                        onChange={(e) => handleNumberInputChange(e, (value) => updateSegment(segment.id, { endYear: Number(value) || withdrawalEndYear }))}
                                         min={withdrawalStartYear}
                                         max={withdrawalEndYear}
                                     />
@@ -312,14 +317,18 @@ export function WithdrawalSegmentForm({
                                 <>
                                     <div className="mb-4 space-y-2">
                                         <Label>Monatlicher Betrag (€)</Label>
-                                        <InputNumber
+                                        <Input
+                                            type="number"
                                             value={segment.monthlyConfig?.monthlyAmount || 2000}
-                                            onChange={(value: any) => updateSegment(segment.id, {
-                                                monthlyConfig: {
-                                                    ...segment.monthlyConfig,
-                                                    monthlyAmount: Number(value) || 2000
-                                                }
-                                            })}
+                                            onChange={(e) => {
+                                                const value = e.target.value ? Number(e.target.value) : 2000;
+                                                updateSegment(segment.id, {
+                                                    monthlyConfig: {
+                                                        ...segment.monthlyConfig,
+                                                        monthlyAmount: value
+                                                    }
+                                                });
+                                            }}
                                             min={100}
                                             max={50000}
                                             step={100}
@@ -534,7 +543,8 @@ export function WithdrawalSegmentForm({
                                 <>
                                     <div className="mb-4 space-y-2">
                                         <Label>Grundfreibetrag pro Jahr (€)</Label>
-                                        <InputNumber
+                                        <Input
+                                            type="number"
                                             value={(() => {
                                                 // Get the first year's value or default to 10908
                                                 if (segment.grundfreibetragPerYear && segment.startYear in segment.grundfreibetragPerYear) {
@@ -542,10 +552,11 @@ export function WithdrawalSegmentForm({
                                                 }
                                                 return 10908; // Default German basic allowance for 2023
                                             })()}
-                                            onChange={(value: any) => {
+                                            onChange={(e) => {
+                                                const value = e.target.value ? Number(e.target.value) : 10908;
                                                 const grundfreibetragPerYear: {[year: number]: number} = {};
                                                 for (let year = segment.startYear; year <= segment.endYear; year++) {
-                                                    grundfreibetragPerYear[year] = Number(value) || 10908;
+                                                    grundfreibetragPerYear[year] = value;
                                                 }
                                                 updateSegment(segment.id, { grundfreibetragPerYear });
                                             }}
