@@ -65,6 +65,13 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
     - Auffüll-Anteil: Prozentsatz der Überschussgewinne für Cash-Polster (Standard: 50%)
   - **Konfigurierbare Basis-Entnahmerate**: Unabhängige Entnahmerate für Portfolio-Berechnungen (Standard: 4%)
   - **Marktschutz**: Vermeidung von Verkäufen zu ungünstigen Kursen während Marktabschwüngen
+- **RMD-ähnliche Entnahme (Lebenserwartung)** - Entnahmestrategie basierend auf statistischer Lebenserwartung
+  - **Altersbasierte Berechnung**: Jährliche Entnahme = Portfoliowert ÷ Lebenserwartungs-Divisor
+  - **Deutsche Sterbetafeln**: Verwendung offizieller Daten vom Statistischen Bundesamt (2020-2022)
+  - **Ansteigende Entnahmen**: Entnahmerate steigt automatisch mit dem Alter (65 Jahre: ~5,2%, 80 Jahre: ~11,8%)
+  - **Vollständiger Kapitalverzehr**: Zielt auf Aufbrauch des Portfolios bis zum statistischen Lebensende
+  - **Flexible Konfiguration**: Wählbares Startalter und optionale benutzerdefinierte Lebenserwartung
+  - **Realistische Projektionen**: Basiert auf deutschen Mortalitätsdaten für authentische Planungsszenarien
 - **Monatliche Entnahme-Strategien** - Feste monatliche Entnahmen mit Inflationsanpassung und Portfolio-Guardrails
 - **Variable Renditen während Entnahme** - Jahr-für-Jahr konfigurierbare Renditen für die Entnahmephase
 - **Geteilte Entnahme-Phasen** - Segmentierung der Entsparphase in verschiedene Zeiträume mit unterschiedlichen Strategien
