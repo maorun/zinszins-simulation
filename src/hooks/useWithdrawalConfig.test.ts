@@ -43,9 +43,10 @@ describe('useWithdrawalConfig', () => {
       wrapper: SimulationProvider,
     });
 
-    expect(result.current.currentConfig.comparisonStrategies).toHaveLength(2);
+    expect(result.current.currentConfig.comparisonStrategies).toHaveLength(3);
     expect(result.current.currentConfig.comparisonStrategies[0].name).toBe("3% Regel");
     expect(result.current.currentConfig.comparisonStrategies[1].name).toBe("Monatlich 1.500€");
+    expect(result.current.currentConfig.comparisonStrategies[2].name).toBe("Drei-Eimer 15k€");
   });
 
   it('creates default withdrawal segments', () => {

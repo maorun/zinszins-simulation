@@ -37,6 +37,13 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
       dynamischObereAnpassung: 5, // Upper adjustment 5%
       dynamischUntereSchwell: 2, // Lower threshold return 2%
       dynamischUntereAnpassung: -5, // Lower adjustment -5%
+      // Bucket strategy specific settings
+      bucketConfig: {
+        initialCashCushion: 20000, // €20,000 initial cash cushion
+        refillThreshold: 5000, // Refill when gains exceed €5,000
+        refillPercentage: 0.5, // Move 50% of excess gains to cash
+        baseWithdrawalRate: 0.04, // 4% base withdrawal rate
+      },
       einkommensteuersatz: 18, // Default income tax rate 18%
     };
 
@@ -53,6 +60,16 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
         strategie: "monatlich_fest",
         rendite: 5,
         monatlicheBetrag: 1500,
+      },
+      {
+        id: "strategy3",
+        name: "Drei-Eimer 15k€",
+        strategie: "bucket_strategie",
+        rendite: 5,
+        bucketInitialCash: 15000,
+        bucketBaseRate: 4,
+        bucketRefillThreshold: 3000,
+        bucketRefillPercentage: 0.6,
       },
     ];
 

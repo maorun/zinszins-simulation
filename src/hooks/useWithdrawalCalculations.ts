@@ -136,6 +136,15 @@ export function useWithdrawalCalculations(
                   formValue.dynamischUntereAnpassung / 100,
               }
             : undefined,
+        bucketConfig:
+          formValue.strategie === "bucket_strategie" && formValue.bucketConfig
+            ? {
+                initialCashCushion: formValue.bucketConfig.initialCashCushion,
+                refillThreshold: formValue.bucketConfig.refillThreshold,
+                refillPercentage: formValue.bucketConfig.refillPercentage,
+                baseWithdrawalRate: formValue.bucketConfig.baseWithdrawalRate,
+              }
+            : undefined,
         enableGrundfreibetrag: grundfreibetragAktiv,
         grundfreibetragPerYear: grundfreibetragAktiv
           ? (() => {
@@ -199,6 +208,7 @@ export function useWithdrawalCalculations(
     formValue.dynamischObereAnpassung,
     formValue.dynamischUntereSchwell,
     formValue.dynamischUntereAnpassung,
+    formValue.bucketConfig,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     formValue.einkommensteuersatz,
@@ -270,6 +280,15 @@ export function useWithdrawalCalculations(
                     (strategy.dynamischUntereSchwell || 2) / 100,
                   lowerThresholdAdjustment:
                     (strategy.dynamischUntereAnpassung || -5) / 100,
+                }
+              : undefined,
+          bucketConfig:
+            strategy.strategie === "bucket_strategie"
+              ? {
+                  initialCashCushion: strategy.bucketInitialCash || 20000,
+                  refillThreshold: strategy.bucketRefillThreshold || 5000,
+                  refillPercentage: strategy.bucketRefillPercentage || 0.5,
+                  baseWithdrawalRate: (strategy.bucketBaseRate || 4) / 100,
                 }
               : undefined,
           enableGrundfreibetrag: grundfreibetragAktiv,
