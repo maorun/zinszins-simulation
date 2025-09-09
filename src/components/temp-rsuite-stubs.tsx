@@ -1,7 +1,6 @@
 // Temporary stubs for RSuite components to maintain compatibility while migrating
 import React, { createContext } from 'react';
 import { Input } from './ui/input';
-import { Label } from './ui/label';
 import { Slider as ShadcnSlider } from './ui/slider';
 import { Switch } from './ui/switch';
 import { toast } from 'sonner';
@@ -18,7 +17,7 @@ const useFormContext = () => {
   return React.useContext(FormContext);
 };
 
-// Form component stubs
+// Form component stubs - keeping minimal functionality for complex form binding
 export const Form = ({ children, onSubmit, formValue, onChange, ...props }: any) => (
   <FormContext.Provider value={{ formValue, onChange }}>
     <form onSubmit={onSubmit ? (e) => { e.preventDefault(); onSubmit(); } : undefined} {...props}>
@@ -27,13 +26,10 @@ export const Form = ({ children, onSubmit, formValue, onChange, ...props }: any)
   </FormContext.Provider>
 );
 
-Form.Group = ({ children, className = "", controlId: _controlId, ...props }: any) => (
-  <div className={`mb-4 space-y-2 ${className}`} {...props}>{children}</div>
-);
-
-Form.ControlLabel = ({ children, ...props }: any) => (
-  <Label {...props}>{children}</Label>
-);
+// Remove Form.Group, Form.ControlLabel, and Form.HelpText - replaced with shadcn/ui components
+// Form.Group -> <div className="mb-4 space-y-2">
+// Form.ControlLabel -> <Label> from shadcn/ui
+// Form.HelpText -> <div className="text-sm text-muted-foreground mt-1"
 
 export const FormControl = ({ 
   accepter, 
@@ -157,14 +153,8 @@ export const FormControl = ({
   );
 };
 
-// Attach FormControl to Form
+// Attach FormControl to Form for compatibility
 Form.Control = FormControl;
-
-Form.HelpText = ({ children, className = "", ...props }: any) => (
-  <div className={`text-sm text-muted-foreground mt-1 ${className}`} {...props}>
-    {children}
-  </div>
-);
 
 // Simple component stubs
 export const ButtonToolbar = ({ children, ...props }: any) => (
