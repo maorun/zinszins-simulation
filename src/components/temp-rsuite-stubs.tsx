@@ -1,7 +1,6 @@
 // Temporary stubs for RSuite components to maintain compatibility while migrating
 import React, { useState, createContext } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
-import { Button as ShadcnButton } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
@@ -22,21 +21,6 @@ const useFormContext = () => {
   return React.useContext(FormContext);
 };
 
-// Re-export Button from shadcn with appearance prop compatibility
-export const Button = ({ appearance, startIcon, ...props }: any) => {
-  // Map RSuite appearance to shadcn variants
-  let variant = 'default';
-  if (appearance === 'primary') variant = 'default';
-  if (appearance === 'ghost') variant = 'ghost';
-  if (appearance === 'subtle') variant = 'secondary';
-  
-  return (
-    <ShadcnButton variant={variant as any} {...props}>
-      {startIcon && <span style={{ marginRight: '0.5rem' }}>{startIcon}</span>}
-      {props.children}
-    </ShadcnButton>
-  );
-};
 
 // Enhanced Panel component with proper collapsible functionality
 export const Panel = ({ 

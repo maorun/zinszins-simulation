@@ -40,9 +40,11 @@ const InfoIcon = () => (
     </svg>
 );
 
+// Import Button directly from shadcn/ui
+import { Button } from "./ui/button";
+
 // Temporary imports - remove unused ones for now
 import {
-    Button,
     DatePicker,
     Form,
     InputNumber,
@@ -295,7 +297,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                     <Form.Group>
                         <ButtonToolbar>
                             <Button
-                                appearance="primary"
+                                variant="default"
                                 type="submit"
                                 size="lg"
                                 disabled={!sparplanFormValues.start || !sparplanFormValues.einzahlung}
@@ -409,7 +411,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                     <Form.Group>
                         <ButtonToolbar>
                             <Button
-                                appearance="primary"
+                                variant="default"
                                 type="submit"
                                 size="lg"
                                 disabled={!singleFormValue.einzahlung}
@@ -437,10 +439,10 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                     </span>
                                     <Button
                                         onClick={() => handleDeleteSparplan(sparplan.id)}
-                                        color="red"
-                                        appearance="ghost"
+                                        variant="ghost"
                                         size="sm"
                                         title="Sparplan löschen"
+                                        className="text-red-600 hover:text-red-700"
                                     >
                                         <CloseIcon />
                                     </Button>
