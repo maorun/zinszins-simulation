@@ -7,7 +7,7 @@ import type { WithdrawalFrequency } from "../src/utils/config-storage";
 import type { BasiszinsConfiguration } from "../src/services/bundesbank-api";
 
 
-export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "dynamisch";
+export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "dynamisch" | "bucket_strategie";
 
 export type InflationConfig = {
     inflationRate?: number; // Annual inflation rate for adjustment (default: 2%)
@@ -29,6 +29,11 @@ export type WithdrawalResultElement = {
     // Dynamic strategy specific fields
     dynamischeAnpassung?: number; // Amount of dynamic adjustment applied
     vorjahresRendite?: number; // Previous year's return rate (for dynamic strategy)
+    // Bucket strategy specific fields
+    cashCushionStart?: number; // Cash cushion amount at start of year
+    cashCushionEnd?: number; // Cash cushion amount at end of year
+    bucketUsed?: 'portfolio' | 'cash'; // Which bucket was used for withdrawal
+    refillAmount?: number; // Amount moved from portfolio to cash cushion
     // Vorabpauschale fields for transparency
     vorabpauschale?: number; // Total Vorabpauschale amount for the year
     vorabpauschaleDetails?: {
@@ -59,6 +64,13 @@ export type DynamicWithdrawalConfig = {
     upperThresholdAdjustment: number; // Relative adjustment when return exceeds upper threshold (e.g., 0.05 for 5% increase)
     lowerThresholdReturn: number; // Lower threshold return rate as percentage (e.g., 0.02 for 2%)
     lowerThresholdAdjustment: number; // Relative adjustment when return falls below lower threshold (e.g., -0.05 for 5% decrease)
+};
+
+export type BucketStrategyConfig = {
+    initialCashCushion: number; // Initial cash cushion amount in €
+    refillThreshold: number; // Threshold for moving gains to cash cushion in €
+    refillPercentage: number; // Percentage of gains above threshold to move to cash (e.g., 0.5 for 50%)
+    baseWithdrawalRate: number; // Base withdrawal rate as percentage (e.g., 0.04 for 4%)
 };
 
 const freibetrag: {
@@ -98,6 +110,7 @@ export type CalculateWithdrawalParams = {
     incomeTaxRate?: number;
     inflationConfig?: InflationConfig;
     dynamicConfig?: DynamicWithdrawalConfig;
+    bucketConfig?: BucketStrategyConfig;
     basiszinsConfiguration?: BasiszinsConfiguration;
 };
 
@@ -119,6 +132,7 @@ export function calculateWithdrawal({
     incomeTaxRate,
     inflationConfig,
     dynamicConfig,
+    bucketConfig,
     basiszinsConfiguration
 }: CalculateWithdrawalParams): { result: WithdrawalResult; finalLayers: MutableLayer[] } {
     // Helper functions
@@ -177,10 +191,16 @@ export function calculateWithdrawal({
     } else if (strategy === "dynamisch") {
         if (!dynamicConfig) throw new Error("Dynamic config required");
         baseWithdrawalAmount = initialStartingCapital * dynamicConfig.baseWithdrawalRate;
+    } else if (strategy === "bucket_strategie") {
+        if (!bucketConfig) throw new Error("Bucket strategy config required");
+        baseWithdrawalAmount = initialStartingCapital * bucketConfig.baseWithdrawalRate;
     } else {
         const withdrawalRate = strategy === "4prozent" ? 0.04 : 0.03;
         baseWithdrawalAmount = initialStartingCapital * withdrawalRate;
     }
+
+    // Initialize cash cushion for bucket strategy
+    let cashCushion = strategy === "bucket_strategie" && bucketConfig ? bucketConfig.initialCashCushion : 0;
 
     for (let year = startYear; year <= endYear; year++) {
         const capitalAtStartOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0);
@@ -219,6 +239,28 @@ export function calculateWithdrawal({
         
         // Get the return rate for this year (needed for monthly withdrawal calculations)
         const returnRate = yearlyGrowthRates[year] || 0;
+        
+        // Bucket strategy logic: decide which bucket to use for withdrawal
+        let bucketUsed: 'portfolio' | 'cash' | undefined;
+        let cashCushionAtStart = cashCushion;
+        let refillAmount = 0;
+        
+        if (strategy === "bucket_strategie" && bucketConfig) {
+            // Decide which bucket to use based on return rate
+            if (returnRate >= 0) {
+                // Positive return: use portfolio for withdrawal
+                bucketUsed = 'portfolio';
+            } else {
+                // Negative return: use cash cushion if available
+                if (cashCushion >= entnahme) {
+                    bucketUsed = 'cash';
+                    cashCushion -= entnahme;
+                } else {
+                    // Not enough cash, need to use portfolio anyway
+                    bucketUsed = 'portfolio';
+                }
+            }
+        }
         
         // Adjust withdrawal timing based on frequency
         // For yearly: withdrawal happens at beginning of year (current behavior)
@@ -283,6 +325,12 @@ export function calculateWithdrawal({
         let amountToWithdraw = effectiveWithdrawal;
         let totalRealizedGainThisYear = 0;
 
+        // For bucket strategy, only process portfolio withdrawal if using portfolio bucket
+        if (strategy === "bucket_strategie" && bucketUsed === 'cash') {
+            // Withdrawal comes from cash cushion, no portfolio sale needed
+            amountToWithdraw = 0; 
+        }
+
         for (const layer of mutableLayers) {
             if (amountToWithdraw <= 0 || layer.currentValue <= 0) continue;
             const amountToSellFromLayer = Math.min(amountToWithdraw, layer.currentValue);
@@ -329,6 +377,33 @@ export function calculateWithdrawal({
         }
 
         const capitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0);
+        
+        // Bucket strategy refill logic: move gains to cash cushion if in positive return year
+        if (strategy === "bucket_strategie" && bucketConfig && returnRate > 0) {
+            const capitalGain = capitalAtEndOfYear - (capitalAtStartOfYear - (bucketUsed === 'portfolio' ? entnahme : 0));
+            if (capitalGain > bucketConfig.refillThreshold) {
+                const excessGain = capitalGain - bucketConfig.refillThreshold;
+                refillAmount = excessGain * bucketConfig.refillPercentage;
+                
+                // Move money from portfolio to cash cushion (by reducing portfolio value)
+                if (refillAmount > 0 && capitalAtEndOfYear > refillAmount) {
+                    // Proportionally reduce each layer's value
+                    const totalPortfolioValue = capitalAtEndOfYear;
+                    mutableLayers.forEach(layer => {
+                        if (layer.currentValue > 0 && totalPortfolioValue > 0) {
+                            const layerProportion = layer.currentValue / totalPortfolioValue;
+                            const layerReduction = refillAmount * layerProportion;
+                            layer.currentValue -= layerReduction;
+                        }
+                    });
+                    cashCushion += refillAmount;
+                }
+            }
+        }
+        
+        // Recalculate capital at end of year after potential refill
+        const finalCapitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0);
+        
         const totalTaxForYear = taxOnRealizedGains + taxOnVorabpauschale + einkommensteuer;
 
         // Calculate total Vorabpauschale amount for this year
@@ -355,16 +430,21 @@ export function calculateWithdrawal({
         result[year] = {
             startkapital: capitalAtStartOfYear,
             entnahme,
-            endkapital: capitalAtEndOfYear,
+            endkapital: finalCapitalAtEndOfYear,
             bezahlteSteuer: totalTaxForYear,
             genutzterFreibetrag: freibetragUsedOnGains + freibetragUsedOnVorab,
-            zinsen: capitalAtEndOfYear - (capitalAtStartOfYear - entnahme),
+            zinsen: finalCapitalAtEndOfYear - (capitalAtStartOfYear - entnahme),
             monatlicheEntnahme: monthlyWithdrawalAmount,
             inflationAnpassung: inflationConfig?.inflationRate ? inflationAnpassung : undefined,
             einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
             genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined,
             dynamischeAnpassung: strategy === 'dynamisch' ? dynamischeAnpassung : undefined,
             vorjahresRendite: strategy === 'dynamisch' ? vorjahresRendite : undefined,
+            // Bucket strategy specific fields
+            cashCushionStart: strategy === 'bucket_strategie' ? cashCushionAtStart : undefined,
+            cashCushionEnd: strategy === 'bucket_strategie' ? cashCushion : undefined,
+            bucketUsed: strategy === 'bucket_strategie' ? bucketUsed : undefined,
+            refillAmount: strategy === 'bucket_strategie' && refillAmount > 0 ? refillAmount : undefined,
             vorabpauschale: totalVorabpauschale > 0 ? totalVorabpauschale : undefined,
             vorabpauschaleDetails: vorabpauschaleDetails,
         };
