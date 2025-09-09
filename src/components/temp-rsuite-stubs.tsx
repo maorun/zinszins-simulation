@@ -45,8 +45,8 @@ export const Panel = ({
   bordered: _bordered, 
   collapsible = false, 
   bodyFill: _bodyFill, 
-  expanded = true,
-  defaultExpanded = true,
+  expanded = false,
+  defaultExpanded = false, // Now defaults to false
   className = "",
   ...props 
 }: any) => {

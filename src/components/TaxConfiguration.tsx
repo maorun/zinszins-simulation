@@ -1,14 +1,14 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { Slider } from './ui/slider';
 import { Button } from './ui/button';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Switch } from './ui/switch';
-import { Trash2, Plus } from 'lucide-react';
+import { Trash2, Plus, ChevronDown } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
 import BasiszinsConfiguration from './BasiszinsConfiguration';
-
 const TaxConfiguration = () => {
     const {
         performSimulation,
@@ -33,10 +33,17 @@ const TaxConfiguration = () => {
     return (
         <div className="space-y-4">
             <Card>
-                <CardHeader>
-                    <CardTitle>💰 Steuer-Konfiguration</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-6">{/* ... existing tax configuration content ... */}
+                <Collapsible defaultOpen={false}>
+                    <CardHeader>
+                        <CollapsibleTrigger asChild>
+                            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                                <CardTitle className="text-left">💰 Steuer-Konfiguration</CardTitle>
+                                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                            </div>
+                        </CollapsibleTrigger>
+                    </CardHeader>
+                    <CollapsibleContent>
+                        <CardContent className="space-y-6">{/* ... existing tax configuration content ... */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <Label htmlFor="steuerlast">Kapitalertragsteuer (%)</Label>
@@ -229,15 +236,24 @@ const TaxConfiguration = () => {
                         </Table>
                     </div>
                 </div>
-            </CardContent>
-        </Card>
+                        </CardContent>
+                    </CollapsibleContent>
+                </Collapsible>
+            </Card>
         
         {/* Grundfreibetrag Configuration */}
         <Card>
-            <CardHeader>
-                <CardTitle>🏠 Grundfreibetrag-Konfiguration</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-6">
+            <Collapsible defaultOpen={false}>
+                <CardHeader>
+                    <CollapsibleTrigger asChild>
+                        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                            <CardTitle className="text-left">🏠 Grundfreibetrag-Konfiguration</CardTitle>
+                            <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                        </div>
+                    </CollapsibleTrigger>
+                </CardHeader>
+                <CollapsibleContent>
+                    <CardContent className="space-y-6">
                 <div className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="space-y-1">
                         <Label htmlFor="grundfreibetragAktiv" className="font-medium">Grundfreibetrag berücksichtigen</Label>
@@ -284,7 +300,9 @@ const TaxConfiguration = () => {
                         </div>
                     </div>
                 )}
-            </CardContent>
+                    </CardContent>
+                </CollapsibleContent>
+            </Collapsible>
         </Card>
         
         {/* Basiszins Configuration */}

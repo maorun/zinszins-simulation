@@ -1,6 +1,8 @@
 import { Button } from './ui/button';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { Alert, AlertDescription } from './ui/alert';
+import { ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSimulation } from '../contexts/useSimulation';
 import { hasConfiguration, clearConfiguration } from '../utils/config-storage';
@@ -24,10 +26,17 @@ export default function ConfigurationManagement() {
 
   return (
     <Card className="mb-4">
-      <CardHeader>
-        <CardTitle>💾 Konfiguration verwalten</CardTitle>
-      </CardHeader>
-      <CardContent>
+      <Collapsible defaultOpen={false}>
+        <CardHeader>
+          <CollapsibleTrigger asChild>
+            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+              <CardTitle className="text-left">💾 Konfiguration verwalten</CardTitle>
+              <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+            </div>
+          </CollapsibleTrigger>
+        </CardHeader>
+        <CollapsibleContent>
+          <CardContent>
         <Alert variant="info" className="mb-4">
           <AlertDescription>
             <strong>Automatisches Speichern:</strong> Ihre Einstellungen werden automatisch beim Ändern gespeichert und beim nächsten Besuch wiederhergestellt.
@@ -59,7 +68,9 @@ export default function ConfigurationManagement() {
             </Alert>
           )}
         </div>
-      </CardContent>
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 }

@@ -1,6 +1,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { Button } from './ui/button';
-import { Plus, Minus } from 'lucide-react';
+import { Plus, Minus, ChevronDown } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
 import { Zeitspanne } from './Zeitspanne';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
@@ -22,10 +23,17 @@ const TimeRangeConfiguration = () => {
 
     return (
         <Card className="mb-4">
-            <CardHeader>
-                <CardTitle>📅 Sparphase-Ende</CardTitle>
-            </CardHeader>
-            <CardContent>
+            <Collapsible defaultOpen={false}>
+                <CardHeader>
+                    <CollapsibleTrigger asChild>
+                        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                            <CardTitle className="text-left">📅 Sparphase-Ende</CardTitle>
+                            <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                        </div>
+                    </CollapsibleTrigger>
+                </CardHeader>
+                <CollapsibleContent>
+                    <CardContent>
                 <div className="space-y-4">
                     <Zeitspanne startEnd={startEnd} dispatch={handleStartEndChange} />
                     <div className="flex items-center gap-2">
@@ -50,7 +58,9 @@ const TimeRangeConfiguration = () => {
                         </Button>
                     </div>
                 </div>
-            </CardContent>
+                    </CardContent>
+                </CollapsibleContent>
+            </Collapsible>
         </Card>
     );
 };

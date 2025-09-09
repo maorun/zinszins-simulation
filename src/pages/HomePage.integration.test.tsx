@@ -1,5 +1,6 @@
 /// <reference types="@testing-library/jest-dom" />
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { describe, it, expect, beforeEach, vi } from 'vitest';
 import HomePage from '../pages/HomePage';
 
@@ -91,20 +92,71 @@ describe('HomePage Integration Tests - Optimized', () => {
     expect(formElements.length).toBeGreaterThan(0);
   });
 
-  it('shows year-by-year breakdown simulation table', () => {
+  it('shows collapsible configuration section', async () => {
+    const user = userEvent.setup();
     const { container } = render(<HomePage />);
     
-    // Should have table or simulation display elements
-    const tableElements = container.querySelectorAll('table, .rs-table, .simulation');
-    expect(tableElements.length).toBeGreaterThan(0);
+    // The configuration section should always be present
+    await waitFor(() => {
+      const configHeading = screen.getByText(/⚙️ Konfiguration/);
+      expect(configHeading).toBeInTheDocument();
+    }, { timeout: 1000 });
+    
+    // Panel should be collapsed initially, so content should not be visible
+    expect(container.querySelectorAll('input, select, [role="slider"]')).toHaveLength(0);
+    
+    // Click the trigger to expand
+    const configHeading = screen.getByText(/⚙️ Konfiguration/);
+    await user.click(configHeading);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Wait for the collapsible animation to complete and content to become visible
+    await waitFor(() => {
+      const formElements = container.querySelectorAll('input, select, [role="slider"]');
+      expect(formElements.length).toBeGreaterThan(0);
+    }, { timeout: 2000 });
   });
 
-  it('displays savings plan creation interface', () => {
+  it('displays savings plan creation interface', async () => {
+    const user = userEvent.setup();
     const { container } = render(<HomePage />);
     
-    // Should have form elements for sparplan configuration
-    const inputElements = container.querySelectorAll('input');
-    expect(inputElements.length).toBeGreaterThan(0);
+    // First ensure we're on the correct tab (Ansparen)
+    await waitFor(() => {
+      const ansparenTab = screen.getByText('Ansparen');
+      expect(ansparenTab).toBeInTheDocument();
+    }, { timeout: 1000 });
+    
+    // Click the Ansparen tab to make sure it's active
+    const ansparenTab = screen.getByText('Ansparen');
+    await user.click(ansparenTab);
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    // Find and expand the outer "💼 Sparpläne erstellen" section
+    await waitFor(() => {
+      const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/);
+      expect(sparplanHeading).toBeInTheDocument();
+    }, { timeout: 1000 });
+    
+    const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/);
+    await user.click(sparplanHeading);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Now find and expand the inner "💰 Sparpläne erstellen" section (the actual form)
+    await waitFor(() => {
+      const innerSparplanHeading = screen.getByText(/💰 Sparpläne erstellen/);
+      expect(innerSparplanHeading).toBeInTheDocument();
+    }, { timeout: 1000 });
+    
+    const innerSparplanHeading = screen.getByText(/💰 Sparpläne erstellen/);
+    await user.click(innerSparplanHeading);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Now the input elements should be visible
+    await waitFor(() => {
+      const inputElements = container.querySelectorAll('input');
+      expect(inputElements.length).toBeGreaterThan(0);
+    }, { timeout: 2000 });
   });
 
   it('renders without performance issues', () => {

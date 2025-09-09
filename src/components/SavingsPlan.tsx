@@ -1,4 +1,6 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { ChevronDown } from 'lucide-react';
 import { SparplanEingabe } from './SparplanEingabe';
 import { SparplanSimulationsAusgabe } from './SparplanSimulationsAusgabe';
 import RiskAssessment from './RiskAssessment';
@@ -14,10 +16,17 @@ const SavingsPlan = () => {
       <ReturnConfiguration />
       
       <Card className="mb-4">
-        <CardHeader>
-          <CardTitle>💼 Sparpläne erstellen</CardTitle>
-        </CardHeader>
-        <CardContent>
+        <Collapsible defaultOpen={false}>
+          <CardHeader>
+            <CollapsibleTrigger asChild>
+              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+                <CardTitle className="text-left">💼 Sparpläne erstellen</CardTitle>
+                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </div>
+            </CollapsibleTrigger>
+          </CardHeader>
+          <CollapsibleContent>
+            <CardContent>
           <SparplanEingabe
             dispatch={(sparplan) => {
               setSparplan(sparplan);
@@ -25,22 +34,33 @@ const SavingsPlan = () => {
             }}
             simulationAnnual={simulationAnnual}
           />
-        </CardContent>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
       </Card>
       
       {simulationData && (
         <Card className="mb-4">
-          <CardHeader>
-            <CardTitle>📊 Sparplan-Verlauf</CardTitle>
-          </CardHeader>
-          <CardContent>
+          <Collapsible defaultOpen={false}>
+            <CardHeader>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+                  <CardTitle className="text-left">📊 Sparplan-Verlauf</CardTitle>
+                  <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </div>
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent>
             <SparplanSimulationsAusgabe
               elemente={simulationData.sparplanElements}
             />
             
             {/* Risk Assessment with Monte Carlo Analysis moved to collapsible panel */}
             <RiskAssessment phase="savings" />
-          </CardContent>
+              </CardContent>
+            </CollapsibleContent>
+          </Collapsible>
         </Card>
       )}
     </>

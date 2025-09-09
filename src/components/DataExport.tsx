@@ -1,8 +1,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { ChevronDown, ChevronUp, Download, FileText, Copy, Info } from 'lucide-react';
-import { useState } from 'react';
+import { ChevronDown, Download, FileText, Copy, Info } from 'lucide-react';
 import { useParameterExport } from '../hooks/useParameterExport';
 import { useDataExport } from '../hooks/useDataExport';
 import { useSimulation } from '../contexts/useSimulation';
@@ -21,8 +20,6 @@ const DataExport = () => {
   } = useDataExport();
   
   const { simulationData, withdrawalResults, withdrawalConfig } = useSimulation();
-  
-  const [isOpen, setIsOpen] = useState(false); // Collapsed by default
 
   const handleParameterExportClick = async () => {
     await exportParameters();
@@ -85,17 +82,13 @@ const DataExport = () => {
 
   return (
     <Card className="mb-4">
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible defaultOpen={false}>
         <CardHeader>
           <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
               <CardTitle className="text-left">📤 Export</CardTitle>
               <div className="flex items-center gap-2">
-                {isOpen ? (
-                  <ChevronUp className="h-5 w-5 text-gray-500" />
-                ) : (
-                  <ChevronDown className="h-5 w-5 text-gray-500" />
-                )}
+                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </div>
             </div>
           </CollapsibleTrigger>
