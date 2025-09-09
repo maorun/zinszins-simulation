@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { expect, test, describe, vi } from 'vitest';
 import { EntnahmeSimulationsAusgabe } from './EntnahmeSimulationsAusgabe';
 import { SimulationProvider } from '../contexts/SimulationContext';
@@ -26,7 +26,7 @@ describe('EntnahmeSimulationsAusgabe - Segmented Withdrawal Tax Display', () => 
     }
   ];
 
-  test('displays segment-specific Grundfreibetrag information in summary', () => {
+  test('displays segment-specific Grundfreibetrag information in summary', async () => {
     const mockDispatchEnd = vi.fn();
     const mockOnWithdrawalResultsChange = vi.fn();
 
@@ -43,11 +43,17 @@ describe('EntnahmeSimulationsAusgabe - Segmented Withdrawal Tax Display', () => 
       </SimulationProvider>
     );
 
-    // Test that the component renders without crashing
-    expect(screen.getByText(/Entnahme-Modus/)).toBeInTheDocument();
+    // Expand the "Variablen" section to access the content
+    const variablenHeading = screen.getByText('Variablen');
+    fireEvent.click(variablenHeading);
+
+    // Wait for content to be visible and test that the component renders
+    await waitFor(() => {
+      expect(screen.getByText(/Entnahme-Modus/)).toBeInTheDocument();
+    });
   });
 
-  test('correctly determines tax display logic for segmented withdrawal', () => {
+  test('correctly determines tax display logic for segmented withdrawal', async () => {
     const mockDispatchEnd = vi.fn();
     const mockOnWithdrawalResultsChange = vi.fn();
 
@@ -64,8 +70,14 @@ describe('EntnahmeSimulationsAusgabe - Segmented Withdrawal Tax Display', () => 
       </SimulationProvider>
     );
 
-    // Test that the component renders and shows withdrawal mode options
-    expect(screen.getByText(/Einheitliche Strategie/)).toBeInTheDocument();
-    expect(screen.getByText(/Geteilte Phasen/)).toBeInTheDocument();
+    // Expand the "Variablen" section to access the content
+    const variablenHeading = screen.getByText('Variablen');
+    fireEvent.click(variablenHeading);
+
+    // Wait for content to be visible and test withdrawal mode options
+    await waitFor(() => {
+      expect(screen.getByText(/Einheitliche Strategie/)).toBeInTheDocument();
+      expect(screen.getByText(/Geteilte Phasen/)).toBeInTheDocument();
+    });
   });
 });

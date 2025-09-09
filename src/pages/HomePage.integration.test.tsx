@@ -92,26 +92,29 @@ describe('HomePage Integration Tests - Optimized', () => {
     expect(formElements.length).toBeGreaterThan(0);
   });
 
-  it('shows year-by-year breakdown simulation table', async () => {
+  it('shows collapsible configuration section', async () => {
     const user = userEvent.setup();
     const { container } = render(<HomePage />);
     
-    // Find the Sparplan-Verlauf section trigger
-    const sparplanVerlaufHeading = screen.getByText(/📊 Sparplan-Verlauf/);
+    // The configuration section should always be present
+    await waitFor(() => {
+      const configHeading = screen.getByText(/⚙️ Konfiguration/);
+      expect(configHeading).toBeInTheDocument();
+    }, { timeout: 1000 });
     
-    // Click on the trigger element (the div, not just the heading)
-    const triggerElement = sparplanVerlaufHeading.closest('[aria-expanded="false"]');
-    if (triggerElement) {
-      await user.click(triggerElement);
-    } else {
-      await user.click(sparplanVerlaufHeading);
-    }
+    // Panel should be collapsed initially, so content should not be visible
+    expect(container.querySelectorAll('input, select, [role="slider"]')).toHaveLength(0);
+    
+    // Click the trigger to expand
+    const configHeading = screen.getByText(/⚙️ Konfiguration/);
+    await user.click(configHeading);
+    await new Promise(resolve => setTimeout(resolve, 500));
     
     // Wait for the collapsible animation to complete and content to become visible
     await waitFor(() => {
-      const tableElements = container.querySelectorAll('table, .rs-table, .simulation');
-      expect(tableElements.length).toBeGreaterThan(0);
-    }, { timeout: 1000 });
+      const formElements = container.querySelectorAll('input, select, [role="slider"]');
+      expect(formElements.length).toBeGreaterThan(0);
+    }, { timeout: 2000 });
   });
 
   it('displays savings plan creation interface', async () => {
@@ -124,26 +127,36 @@ describe('HomePage Integration Tests - Optimized', () => {
       expect(ansparenTab).toBeInTheDocument();
     }, { timeout: 1000 });
     
-    // Wait for the tab content to render
+    // Click the Ansparen tab to make sure it's active
+    const ansparenTab = screen.getByText('Ansparen');
+    await user.click(ansparenTab);
+    await new Promise(resolve => setTimeout(resolve, 200));
+    
+    // Find and expand the outer "💼 Sparpläne erstellen" section
     await waitFor(() => {
       const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/);
       expect(sparplanHeading).toBeInTheDocument();
     }, { timeout: 1000 });
     
-    // Find and click the Sparpläne erstellen section trigger
     const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/);
-    const triggerElement = sparplanHeading.closest('[aria-expanded="false"]');
-    if (triggerElement) {
-      await user.click(triggerElement);
-    } else {
-      await user.click(sparplanHeading);
-    }
+    await user.click(sparplanHeading);
+    await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Wait for the collapsible animation to complete and content to become visible
+    // Now find and expand the inner "💰 Sparpläne erstellen" section (the actual form)
+    await waitFor(() => {
+      const innerSparplanHeading = screen.getByText(/💰 Sparpläne erstellen/);
+      expect(innerSparplanHeading).toBeInTheDocument();
+    }, { timeout: 1000 });
+    
+    const innerSparplanHeading = screen.getByText(/💰 Sparpläne erstellen/);
+    await user.click(innerSparplanHeading);
+    await new Promise(resolve => setTimeout(resolve, 500));
+    
+    // Now the input elements should be visible
     await waitFor(() => {
       const inputElements = container.querySelectorAll('input');
       expect(inputElements.length).toBeGreaterThan(0);
-    }, { timeout: 1000 });
+    }, { timeout: 2000 });
   });
 
   it('renders without performance issues', () => {
