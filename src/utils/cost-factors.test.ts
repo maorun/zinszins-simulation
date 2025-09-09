@@ -25,13 +25,14 @@ describe('Cost Factors', () => {
 
     // Check that TER costs are applied
     const firstYear = result[0].simulation[2025];
-    expect(firstYear.terCosts).toBeCloseTo(90); // 12,000 * 0.75% = 90€
-    expect(firstYear.totalCosts).toBeCloseTo(90);
+    const expectedTerCosts = ((12000 + 12000 * 1.05) / 2) * 0.0075; // 92.25
+    expect(firstYear.terCosts).toBeCloseTo(expectedTerCosts);
+    expect(firstYear.totalCosts).toBeCloseTo(expectedTerCosts);
     
     // Check that capital is reduced by costs
     const withoutCosts = 12000 * 1.05; // 12,600€
-    const expectedWithCosts = withoutCosts - 90; // 12,510€
-    expect(firstYear.endkapital).toBeCloseTo(expectedWithCosts, 0);
+    const expectedWithCosts = withoutCosts - expectedTerCosts; // 12,507.75€
+    expect(firstYear.endkapital).toBeCloseTo(expectedWithCosts, 2);
   });
 
   it('should apply transaction costs only in first year', () => {
@@ -91,14 +92,14 @@ describe('Cost Factors', () => {
 
     const firstYear = result[0].simulation[2025];
     
-    // TER: 10,000 * 1% = 100€
-    expect(firstYear.terCosts).toBeCloseTo(100);
+    const expectedTerCosts = ((10000 + 10000 * 1.05) / 2) * 0.01; // 102.5€
+    expect(firstYear.terCosts).toBeCloseTo(expectedTerCosts);
     
-    // Transaction: (10,000 * 0.5%) + 10€ = 50 + 10 = 60€
-    expect(firstYear.transactionCosts).toBeCloseTo(60);
+    const expectedTransactionCosts = (10000 * 0.005) + 10; // 60€
+    expect(firstYear.transactionCosts).toBeCloseTo(expectedTransactionCosts);
     
-    // Total: 100 + 60 = 160€
-    expect(firstYear.totalCosts).toBeCloseTo(160);
+    const expectedTotalCosts = expectedTerCosts + expectedTransactionCosts; // 162.5€
+    expect(firstYear.totalCosts).toBeCloseTo(expectedTotalCosts);
   });
 
   it('should apply costs to one-time payments', () => {
@@ -126,14 +127,14 @@ describe('Cost Factors', () => {
 
     const firstYear = result[0].simulation[2025];
     
-    // TER: 50,000 * 0.75% = 375€
-    expect(firstYear.terCosts).toBeCloseTo(375);
+    const expectedTerCosts = ((50000 + 50000 * 1.06) / 2) * 0.0075; // 386.25€
+    expect(firstYear.terCosts).toBeCloseTo(expectedTerCosts);
     
-    // Transaction: (50,000 * 1%) + 25€ = 500 + 25 = 525€
-    expect(firstYear.transactionCosts).toBeCloseTo(525);
+    const expectedTransactionCosts = (50000 * 0.01) + 25; // 525€
+    expect(firstYear.transactionCosts).toBeCloseTo(expectedTransactionCosts);
     
-    // Total: 375 + 525 = 900€
-    expect(firstYear.totalCosts).toBeCloseTo(900);
+    const expectedTotalCosts = expectedTerCosts + expectedTransactionCosts; // 911.25€
+    expect(firstYear.totalCosts).toBeCloseTo(expectedTotalCosts);
 
     // Second year should only have TER costs
     const secondYear = result[0].simulation[2026];
