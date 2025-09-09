@@ -9,7 +9,6 @@ import { Slider } from "./ui/slider";
 
 // Temporary components still from stubs
 import {
-  Form,
   InputNumber,
   Toggle,
 } from "./temp-rsuite-stubs";
@@ -255,14 +254,17 @@ export function EntnahmeSimulationsAusgabe({
               }}
             >
               {/* End of Life - shared by base strategy */}
-              <Form.Group controlId="endOfLife">
-                <Form.ControlLabel>End of Life</Form.ControlLabel>
-                <Form.Control name="endOfLife" accepter={InputNumber} />
-              </Form.Group>
+              <div className="mb-4 space-y-2">
+                <Label>End of Life</Label>
+                <InputNumber 
+                  value={formValue.endOfLife}
+                  onChange={(value) => updateFormValue({ ...formValue, endOfLife: value })}
+                />
+              </div>
 
               {/* Strategy selector - for base strategy only */}
-              <Form.Group controlId="strategie">
-                <Form.ControlLabel>Basis-Strategie</Form.ControlLabel>
+              <div className="mb-4 space-y-2">
+                <Label>Basis-Strategie</Label>
                 <RadioTileGroup
                   value={formValue.strategie}
                   onValueChange={(value) => updateFormValue({ ...formValue, strategie: value as WithdrawalStrategy })}
@@ -283,11 +285,11 @@ export function EntnahmeSimulationsAusgabe({
                     Renditebasierte Anpassung
                   </RadioTile>
                 </RadioTileGroup>
-              </Form.Group>
+              </div>
 
               {/* Withdrawal frequency configuration */}
-              <Form.Group controlId="withdrawalFrequency">
-                <Form.ControlLabel>Entnahme-Häufigkeit</Form.ControlLabel>
+              <div className="mb-4 space-y-2">
+                <Label>Entnahme-Häufigkeit</Label>
                 <div className="flex items-center space-x-3 mt-2">
                   <span className="text-sm">Jährlich</span>
                   <Switch
@@ -300,19 +302,19 @@ export function EntnahmeSimulationsAusgabe({
                   />
                   <span className="text-sm">Monatlich</span>
                 </div>
-                <Form.HelpText>
+                <div className="text-sm text-muted-foreground mt-1">
                   {formValue.withdrawalFrequency === "yearly" 
                     ? "Entnahme erfolgt einmal jährlich am Anfang des Jahres"
                     : "Entnahme erfolgt monatlich - Portfolio hat mehr Zeit zu wachsen"
                   }
-                </Form.HelpText>
-              </Form.Group>
+                </div>
+              </div>
 
               {/* Fixed return rate for base strategy */}
-              <Form.Group controlId="rendite">
-                <Form.ControlLabel>
+              <div className="mb-4 space-y-2">
+                <Label>
                   Rendite Basis-Strategie (%)
-                </Form.ControlLabel>
+                </Label>
                 <div className="space-y-2">
                   <Slider
                     value={[formValue.rendite]}
@@ -328,14 +330,14 @@ export function EntnahmeSimulationsAusgabe({
                     <span>10%</span>
                   </div>
                 </div>
-              </Form.Group>
+              </div>
 
               {/* Strategy-specific configuration for base strategy */}
               {formValue.strategie === "variabel_prozent" && (
-                <Form.Group controlId="variabelProzent">
-                  <Form.ControlLabel>
+                <div className="mb-4 space-y-2">
+                  <Label>
                     Entnahme-Prozentsatz (%)
-                  </Form.ControlLabel>
+                  </Label>
                   <div className="space-y-2">
                     <Slider
                       value={[formValue.variabelProzent]}
@@ -351,17 +353,17 @@ export function EntnahmeSimulationsAusgabe({
                       <span>10%</span>
                     </div>
                   </div>
-                </Form.Group>
+                </div>
               )}
 
               {formValue.strategie === "monatlich_fest" && (
-                <Form.Group controlId="monatlicheBetrag">
-                  <Form.ControlLabel>Monatlicher Betrag (€)</Form.ControlLabel>
-                  <Form.Control
-                    name="monatlicheBetrag"
-                    accepter={InputNumber}
+                <div className="mb-4 space-y-2">
+                  <Label>Monatlicher Betrag (€)</Label>
+                  <InputNumber
+                    value={formValue.monatlicheBetrag}
+                    onChange={(value) => updateFormValue({ ...formValue, monatlicheBetrag: value })}
                   />
-                </Form.Group>
+                </div>
               )}
 
               {formValue.strategie === "dynamisch" && (
@@ -732,10 +734,10 @@ export function EntnahmeSimulationsAusgabe({
             </div>
 
             {withdrawalReturnMode === "fixed" && (
-              <Form.Group controlId="rendite">
-                <Form.ControlLabel>
+              <div className="mb-4 space-y-2">
+                <Label>
                   Erwartete Rendite Entnahme-Phase (%)
-                </Form.ControlLabel>
+                </Label>
                 <div className="space-y-2">
                   <Slider
                     value={[formValue.rendite]}
@@ -751,11 +753,11 @@ export function EntnahmeSimulationsAusgabe({
                     <span>10%</span>
                   </div>
                 </div>
-                <Form.HelpText>
+                <div className="text-sm text-muted-foreground mt-1">
                   Feste Rendite für die gesamte Entnahme-Phase (oft
                   konservativer als die Sparphase-Rendite).
-                </Form.HelpText>
-              </Form.Group>
+                </div>
+              </div>
             )}
 
             {withdrawalReturnMode === "random" && (
@@ -892,12 +894,15 @@ export function EntnahmeSimulationsAusgabe({
                 </div>
               </div>
             )}
-            <Form.Group controlId="endOfLife">
-              <Form.ControlLabel>End of Life</Form.ControlLabel>
-              <Form.Control name="endOfLife" accepter={InputNumber} />
-            </Form.Group>
-            <Form.Group controlId="strategie">
-              <Form.ControlLabel>Strategie</Form.ControlLabel>
+            <div className="mb-4 space-y-2">
+              <Label>End of Life</Label>
+              <InputNumber 
+                value={formValue.endOfLife}
+                onChange={(value) => updateFormValue({ ...formValue, endOfLife: value })}
+              />
+            </div>
+            <div className="mb-4 space-y-2">
+              <Label>Strategie</Label>
               <RadioTileGroup
                 value={formValue.strategie}
                 onValueChange={(value) => {
@@ -924,7 +929,7 @@ export function EntnahmeSimulationsAusgabe({
                   Renditebasierte Anpassung
                 </RadioTile>
               </RadioTileGroup>
-            </Form.Group>
+            </div>
 
             {/* Withdrawal frequency configuration */}
             <Form.Group controlId="withdrawalFrequency">
