@@ -105,20 +105,21 @@ describe('RiskAssessment', () => {
     const user = userEvent.setup();
     render(<RiskAssessment phase="savings" />);
     
-    // First expand the risk assessment panel by clicking on the heading
+    // First expand the main risk assessment panel
     const expandHeading = screen.getByText(/🎯 Risikobewertung - Ansparphase/);
+    await user.click(expandHeading);
     
-    // Click on the trigger element (the div, not just the heading)
-    const triggerElement = expandHeading.closest('[aria-expanded="false"]');
-    if (triggerElement) {
-      await user.click(triggerElement);
-    } else {
-      await user.click(expandHeading);
-    }
-    
-    // Wait for the collapsible animation to complete and content to become visible
+    // Wait for the main panel content to become visible
     await waitFor(() => {
       expect(screen.getByText(/Monte Carlo Analyse/)).toBeInTheDocument();
+    });
+    
+    // Now expand the nested Monte Carlo analysis panel
+    const monteCarloHeading = screen.getByText(/🎲 Monte Carlo Analyse/);
+    await user.click(monteCarloHeading);
+    
+    // Wait for the Monte Carlo content to become visible
+    await waitFor(() => {
       expect(screen.getByTestId('monte-carlo-display')).toBeInTheDocument();
     }, { timeout: 1000 });
   });
