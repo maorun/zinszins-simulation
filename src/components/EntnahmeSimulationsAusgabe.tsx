@@ -1,5 +1,7 @@
 import { useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { ChevronDown } from "lucide-react";
 import { RadioTileGroup, RadioTile } from "./ui/radio-tile";
 import { Switch } from "./ui/switch";
 
@@ -146,11 +148,18 @@ export function EntnahmeSimulationsAusgabe({
 
   return (
     <>
-      <Card>
-        <CardHeader>
-          <CardTitle>Variablen</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Card className="mb-4">
+        <Collapsible defaultOpen={false}>
+          <CardHeader>
+            <CollapsibleTrigger asChild>
+              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+                <CardTitle className="text-left">Variablen</CardTitle>
+                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </div>
+            </CollapsibleTrigger>
+          </CardHeader>
+          <CollapsibleContent>
+            <CardContent>
         {/* Toggle between single, segmented, and comparison withdrawal */}
         <Form.Group controlId="withdrawalMode">
           <Form.ControlLabel>Entnahme-Modus</Form.ControlLabel>
@@ -1045,12 +1054,21 @@ export function EntnahmeSimulationsAusgabe({
           </Form>
         )}
         </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
       </Card>
-      <Card>
-        <CardHeader>
-          <CardTitle>Simulation</CardTitle>
-        </CardHeader>
-        <CardContent>
+      <Card className="mb-4">
+        <Collapsible defaultOpen={false}>
+          <CardHeader>
+            <CollapsibleTrigger asChild>
+              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+                <CardTitle className="text-left">Simulation</CardTitle>
+                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </div>
+            </CollapsibleTrigger>
+          </CardHeader>
+          <CollapsibleContent>
+            <CardContent>
         <EntnahmeSimulationDisplay
           withdrawalData={withdrawalData}
           formValue={formValue}
@@ -1063,6 +1081,8 @@ export function EntnahmeSimulationsAusgabe({
           grundfreibetragBetrag={grundfreibetragBetrag}
         />
         </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
       </Card>
       
       {/* Calculation Explanation Modal */}
