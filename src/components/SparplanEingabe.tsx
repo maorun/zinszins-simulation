@@ -46,15 +46,17 @@ import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
 import { ChevronDown } from "lucide-react";
 
-// Temporary imports - remove unused ones for now
+// Temporary imports - only keep what's needed
 import {
     DatePicker,
-    Form,
     InputNumber,
     Message,
     useToaster,
     ButtonToolbar
 } from "./temp-rsuite-stubs";
+
+// Import shadcn/ui components for form elements
+import { Label } from "./ui/label";
 
 
 
@@ -200,116 +202,107 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
                     Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum
                 </div>
-                <Form fluid
-                    formValue={sparplanFormValues}
-                    onChange={(changedFormValue: any) => setSparplanFormValues({
-                        start: changedFormValue.start,
-                        end: changedFormValue.end,
-                        einzahlung: changedFormValue.einzahlung,
-                        ter: changedFormValue.ter,
-                        transactionCostPercent: changedFormValue.transactionCostPercent,
-                        transactionCostAbsolute: changedFormValue.transactionCostAbsolute,
-                    })}
-                    onSubmit={handleSparplanSubmit}
+                <form 
+                    onSubmit={(e) => { e.preventDefault(); handleSparplanSubmit(); }}
                 >
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-                        <Form.Group controlId="start">
-                            <Form.ControlLabel>
+                        <div className="mb-4 space-y-2">
+                            <Label>
                                 Start
                                 <InfoIcon />
-                            </Form.ControlLabel>
-                            <Form.Control 
+                            </Label>
+                            <DatePicker
                                 format="yyyy-MM" 
-                                name="start" 
-                                accepter={DatePicker}
+                                value={sparplanFormValues.start}
+                                onChange={(date: Date) => setSparplanFormValues({...sparplanFormValues, start: date})}
                                 placeholder="Startdatum wählen"
                                 style={{ width: '100%' }}
                             />
-                        </Form.Group>
-                        <Form.Group controlId="end">
-                            <Form.ControlLabel>
+                        </div>
+                        <div className="mb-4 space-y-2">
+                            <Label>
                                 Ende (optional)
                                 <InfoIcon />
-                            </Form.ControlLabel>
-                            <Form.Control 
+                            </Label>
+                            <DatePicker
                                 format="yyyy-MM" 
-                                name="end" 
-                                accepter={DatePicker}
+                                value={sparplanFormValues.end}
+                                onChange={(date: Date) => setSparplanFormValues({...sparplanFormValues, end: date})}
                                 placeholder="Enddatum wählen"
                                 style={{ width: '100%' }}
                             />
-                        </Form.Group>
-                        <Form.Group controlId="einzahlung">
-                            <Form.ControlLabel>
+                        </div>
+                        <div className="mb-4 space-y-2">
+                            <Label>
                                 {simulationAnnual === SimulationAnnual.yearly ? 'Einzahlungen je Jahr (€)' : 'Einzahlungen je Monat (€)'}
                                 <InfoIcon />
-                            </Form.ControlLabel>
-                            <Form.Control 
-                                name="einzahlung" 
-                                accepter={InputNumber}
+                            </Label>
+                            <InputNumber
+                                value={sparplanFormValues.einzahlung}
+                                onChange={(value: string) => setSparplanFormValues({...sparplanFormValues, einzahlung: value})}
                                 placeholder="Betrag eingeben"
                                 style={{ width: '100%' }}
                                 min={0}
                                 step={simulationAnnual === SimulationAnnual.monthly ? 10 : 100}
                             />
-                        </Form.Group>
+                        </div>
                     </div>
                     <div style={{ marginBottom: '1rem' }}>
                         <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
                             💰 Kostenfaktoren (optional)
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                            <Form.Group controlId="ter">
-                                <Form.ControlLabel>
+                            <div className="mb-4 space-y-2">
+                                <Label>
                                     TER (% p.a.)
                                     <InfoIcon />
-                                </Form.ControlLabel>
-                                <Form.Control 
-                                    name="ter" 
-                                    accepter={InputNumber}
+                                </Label>
+                                <InputNumber
+                                    value={sparplanFormValues.ter}
+                                    onChange={(value: string) => setSparplanFormValues({...sparplanFormValues, ter: value})}
                                     placeholder="z.B. 0.75"
                                     style={{ width: '100%' }}
                                     min={0}
                                     max={10}
                                     step={0.01}
                                 />
-                                <Form.HelpText>Total Expense Ratio in % pro Jahr</Form.HelpText>
-                            </Form.Group>
-                            <Form.Group controlId="transactionCostPercent">
-                                <Form.ControlLabel>
+                                <div className="text-sm text-muted-foreground mt-1">Total Expense Ratio in % pro Jahr</div>
+                            </div>
+                            <div className="mb-4 space-y-2">
+                                <Label>
                                     Transaktionskosten (%)
                                     <InfoIcon />
-                                </Form.ControlLabel>
-                                <Form.Control 
-                                    name="transactionCostPercent" 
-                                    accepter={InputNumber}
+                                </Label>
+                                <InputNumber
+                                    value={sparplanFormValues.transactionCostPercent}
+                                    onChange={(value: string) => setSparplanFormValues({...sparplanFormValues, transactionCostPercent: value})}
                                     placeholder="z.B. 0.25"
                                     style={{ width: '100%' }}
                                     min={0}
                                     max={5}
                                     step={0.01}
                                 />
-                                <Form.HelpText>Prozentuale Transaktionskosten</Form.HelpText>
-                            </Form.Group>
-                            <Form.Group controlId="transactionCostAbsolute">
-                                <Form.ControlLabel>
+                                <div className="text-sm text-muted-foreground mt-1">Prozentuale Transaktionskosten</div>
+                            </div>
+                            <div className="mb-4 space-y-2">
+                                <Label>
                                     Transaktionskosten (€)
                                     <InfoIcon />
-                                </Form.ControlLabel>
-                                <Form.Control 
-                                    name="transactionCostAbsolute" 
-                                    accepter={InputNumber}
+                                </Label>
+                                <InputNumber
+                                    value={sparplanFormValues.transactionCostAbsolute}
+                                    onChange={(value: string) => setSparplanFormValues({...sparplanFormValues, transactionCostAbsolute: value})}
                                     placeholder="z.B. 1.50"
                                     style={{ width: '100%' }}
                                     min={0}
                                     max={100}
                                     step={0.01}
                                 />
-                                <Form.HelpText>Absolute Transaktionskosten in Euro</Form.HelpText>
-                            </Form.Group>
+                                <div className="text-sm text-muted-foreground mt-1">Absolute Transaktionskosten in Euro</div>
+                            </div>
                         </div>
                     </div>
-                    <Form.Group>
+                    <div className="mb-4 space-y-2">
                         <ButtonToolbar>
                             <Button
                                 variant="default"
@@ -320,8 +313,8 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                 💾 Sparplan hinzufügen
                             </Button>
                         </ButtonToolbar>
-                    </Form.Group>
-                </Form>
+                    </div>
+                </form>
                         </CardContent>
                     </CollapsibleContent>
                 </Collapsible>
@@ -342,102 +335,94 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                 <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
                     Fügen Sie einmalige Zahlungen zu einem bestimmten Zeitpunkt hinzu
                 </div>
-                <Form fluid
-                    formValue={singleFormValue}
-                    onChange={(changedFormValue: any) => setSingleFormValue({
-                        date: changedFormValue.date,
-                        einzahlung: changedFormValue.einzahlung,
-                        ter: changedFormValue.ter,
-                        transactionCostPercent: changedFormValue.transactionCostPercent,
-                        transactionCostAbsolute: changedFormValue.transactionCostAbsolute,
-                    })}
-                    onSubmit={handleSinglePaymentSubmit}
+                <form 
+                    onSubmit={(e) => { e.preventDefault(); handleSinglePaymentSubmit(); }}
                 >
                     <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-                        <Form.Group controlId="date">
-                            <Form.ControlLabel>
+                        <div className="mb-4 space-y-2">
+                            <Label>
                                 Datum
                                 <InfoIcon />
-                            </Form.ControlLabel>
-                            <Form.Control 
+                            </Label>
+                            <DatePicker
                                 format="yyyy-MM-dd" 
-                                name="date" 
-                                accepter={DatePicker}
+                                value={singleFormValue.date}
+                                onChange={(date: Date) => setSingleFormValue({...singleFormValue, date: date})}
                                 placeholder="Datum wählen"
                                 style={{ width: '100%' }}
                             />
-                        </Form.Group>
-                        <Form.Group controlId="einzahlung">
-                            <Form.ControlLabel>
+                        </div>
+                        <div className="mb-4 space-y-2">
+                            <Label>
                                 Einzahlung (€)
                                 <InfoIcon />
-                            </Form.ControlLabel>
-                            <Form.Control 
-                                name="einzahlung" 
-                                accepter={InputNumber}
+                            </Label>
+                            <InputNumber
+                                value={singleFormValue.einzahlung}
+                                onChange={(value: string) => setSingleFormValue({...singleFormValue, einzahlung: value})}
                                 placeholder="Betrag eingeben"
                                 style={{ width: '100%' }}
                                 min={0}
                                 step={100}
                             />
-                        </Form.Group>
+                        </div>
                     </div>
                     <div style={{ marginBottom: '1rem' }}>
                         <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
                             💰 Kostenfaktoren (optional)
                         </div>
                         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                            <Form.Group controlId="ter">
-                                <Form.ControlLabel>
+                            <div className="mb-4 space-y-2">
+                                <Label>
                                     TER (% p.a.)
                                     <InfoIcon />
-                                </Form.ControlLabel>
-                                <Form.Control 
-                                    name="ter" 
-                                    accepter={InputNumber}
+                                </Label>
+                                <InputNumber
+                                    value={singleFormValue.ter}
+                                    onChange={(value: string) => setSingleFormValue({...singleFormValue, ter: value})}
                                     placeholder="z.B. 0.75"
                                     style={{ width: '100%' }}
                                     min={0}
                                     max={10}
                                     step={0.01}
                                 />
-                                <Form.HelpText>Total Expense Ratio in % pro Jahr</Form.HelpText>
-                            </Form.Group>
-                            <Form.Group controlId="transactionCostPercent">
-                                <Form.ControlLabel>
+                                <div className="text-sm text-muted-foreground mt-1">Total Expense Ratio in % pro Jahr</div>
+                            </div>
+                            <div className="mb-4 space-y-2">
+                                <Label>
                                     Transaktionskosten (%)
                                     <InfoIcon />
-                                </Form.ControlLabel>
-                                <Form.Control 
-                                    name="transactionCostPercent" 
-                                    accepter={InputNumber}
+                                </Label>
+                                <InputNumber
+                                    value={singleFormValue.transactionCostPercent}
+                                    onChange={(value: string) => setSingleFormValue({...singleFormValue, transactionCostPercent: value})}
                                     placeholder="z.B. 0.25"
                                     style={{ width: '100%' }}
                                     min={0}
                                     max={5}
                                     step={0.01}
                                 />
-                                <Form.HelpText>Prozentuale Transaktionskosten</Form.HelpText>
-                            </Form.Group>
-                            <Form.Group controlId="transactionCostAbsolute">
-                                <Form.ControlLabel>
+                                <div className="text-sm text-muted-foreground mt-1">Prozentuale Transaktionskosten</div>
+                            </div>
+                            <div className="mb-4 space-y-2">
+                                <Label>
                                     Transaktionskosten (€)
                                     <InfoIcon />
-                                </Form.ControlLabel>
-                                <Form.Control 
-                                    name="transactionCostAbsolute" 
-                                    accepter={InputNumber}
+                                </Label>
+                                <InputNumber
+                                    value={singleFormValue.transactionCostAbsolute}
+                                    onChange={(value: string) => setSingleFormValue({...singleFormValue, transactionCostAbsolute: value})}
                                     placeholder="z.B. 1.50"
                                     style={{ width: '100%' }}
                                     min={0}
                                     max={100}
                                     step={0.01}
                                 />
-                                <Form.HelpText>Absolute Transaktionskosten in Euro</Form.HelpText>
-                            </Form.Group>
+                                <div className="text-sm text-muted-foreground mt-1">Absolute Transaktionskosten in Euro</div>
+                            </div>
                         </div>
                     </div>
-                    <Form.Group>
+                    <div className="mb-4 space-y-2">
                         <ButtonToolbar>
                             <Button
                                 variant="default"
@@ -448,8 +433,8 @@ export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val
                                 💰 Einmalzahlung hinzufügen
                             </Button>
                         </ButtonToolbar>
-                    </Form.Group>
-                </Form>
+                    </div>
+                </form>
                         </CardContent>
                     </CollapsibleContent>
                 </Collapsible>
