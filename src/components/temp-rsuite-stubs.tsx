@@ -1,8 +1,6 @@
 // Temporary stubs for RSuite components to maintain compatibility while migrating
 import React, { createContext } from 'react';
 import { Input } from './ui/input';
-import { Slider as ShadcnSlider } from './ui/slider';
-import { Label } from './ui/label';
 import { Switch } from './ui/switch';
 import { toast } from 'sonner';
 
@@ -26,10 +24,24 @@ export const Form = ({ children, onSubmit, formValue, onChange, ...props }: any)
   </FormContext.Provider>
 );
 
-// Remove Form.Group, Form.ControlLabel, and Form.HelpText - replaced with shadcn/ui components
-// Form.Group -> <div className="mb-4 space-y-2">
-// Form.ControlLabel -> <Label> from shadcn/ui
-// Form.HelpText -> <div className="text-sm text-muted-foreground mt-1"
+// Temporary Form components - will be removed as migration completes
+Form.Group = ({ children, controlId: _controlId, ...props }: any) => (
+  <div className="mb-4 space-y-2" {...props}>
+    {children}
+  </div>
+);
+
+Form.ControlLabel = ({ children, ...props }: any) => (
+  <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" {...props}>
+    {children}
+  </label>
+);
+
+Form.HelpText = ({ children, ...props }: any) => (
+  <div className="text-sm text-muted-foreground mt-1" {...props}>
+    {children}
+  </div>
+);
 
 export const FormControl = ({ 
   accepter, 
