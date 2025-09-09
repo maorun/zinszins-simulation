@@ -6,11 +6,9 @@ import { RadioTileGroup, RadioTile } from "./ui/radio-tile";
 import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
 import { Slider } from "./ui/slider";
+import { Input } from "./ui/input";
 
-// Temporary components still from stubs
-import {
-  InputNumber,
-} from "./temp-rsuite-stubs";
+// No more temporary components needed!
 import type { SparplanElement } from "../utils/sparplan-utils";
 import type {
   WithdrawalStrategy,
@@ -228,9 +226,13 @@ export function EntnahmeSimulationsAusgabe({
               {/* End of Life - shared by base strategy */}
               <div className="mb-4 space-y-2">
                 <Label>End of Life</Label>
-                <InputNumber 
+                <Input
+                  type="number"
                   value={formValue.endOfLife}
-                  onChange={(value: number) => updateFormValue({ ...formValue, endOfLife: value })}
+                  onChange={(e) => {
+                    const value = e.target.value ? Number(e.target.value) : undefined;
+                    if (value) updateFormValue({ ...formValue, endOfLife: value });
+                  }}
                 />
               </div>
 
@@ -331,9 +333,13 @@ export function EntnahmeSimulationsAusgabe({
               {formValue.strategie === "monatlich_fest" && (
                 <div className="mb-4 space-y-2">
                   <Label>Monatlicher Betrag (€)</Label>
-                  <InputNumber
+                  <Input
+                    type="number"
                     value={formValue.monatlicheBetrag}
-                    onChange={(value: number) => updateFormValue({ ...formValue, monatlicheBetrag: value })}
+                    onChange={(e) => {
+                      const value = e.target.value ? Number(e.target.value) : undefined;
+                      if (value) updateFormValue({ ...formValue, monatlicheBetrag: value });
+                    }}
                   />
                 </div>
               )}
@@ -760,14 +766,15 @@ export function EntnahmeSimulationsAusgabe({
 
                 <div className="mb-4 space-y-2">
                   <Label>Zufalls-Seed (optional)</Label>
-                  <InputNumber
-                    value={withdrawalRandomSeed}
-                    onChange={(value: number | undefined) =>
+                  <Input
+                    type="number"
+                    value={withdrawalRandomSeed || ''}
+                    onChange={(e) => {
+                      const value = e.target.value ? Number(e.target.value) : undefined;
                       updateConfig({
-                        withdrawalRandomSeed:
-                          typeof value === "number" ? value : undefined,
-                      })
-                    }
+                        withdrawalRandomSeed: value,
+                      });
+                    }}
                     placeholder="Für reproduzierbare Ergebnisse"
                   />
                   <div className="text-sm text-muted-foreground mt-1">
@@ -842,9 +849,13 @@ export function EntnahmeSimulationsAusgabe({
             )}
             <div className="mb-4 space-y-2">
               <Label>End of Life</Label>
-              <InputNumber 
+              <Input
+                type="number"
                 value={formValue.endOfLife}
-                onChange={(value: number) => updateFormValue({ ...formValue, endOfLife: value })}
+                onChange={(e) => {
+                  const value = e.target.value ? Number(e.target.value) : undefined;
+                  if (value) updateFormValue({ ...formValue, endOfLife: value });
+                }}
               />
             </div>
             <div className="mb-4 space-y-2">
@@ -978,9 +989,13 @@ export function EntnahmeSimulationsAusgabe({
               <>
                 <div className="mb-4 space-y-2">
                   <Label>Monatlicher Betrag (€)</Label>
-                  <InputNumber
+                  <Input
+                    type="number"
                     value={formValue.monatlicheBetrag}
-                    onChange={(value: number) => updateFormValue({ ...formValue, monatlicheBetrag: value })}
+                    onChange={(e) => {
+                      const value = e.target.value ? Number(e.target.value) : undefined;
+                      if (value) updateFormValue({ ...formValue, monatlicheBetrag: value });
+                    }}
                     min={100}
                     max={50000}
                     step={100}
