@@ -11,8 +11,7 @@ import { Plus, Trash2 } from 'lucide-react';
 
 // Temporary components still from stubs
 import { 
-  InputNumber, 
-  Toggle
+  InputNumber
 } from './temp-rsuite-stubs';
 import type { 
     WithdrawalSegment
@@ -329,9 +328,9 @@ export function WithdrawalSegmentForm({
                                     
                                     <div className="mb-4 space-y-2">
                                         <Label>Dynamische Anpassung (Guardrails)</Label>
-                                        <Toggle
+                                        <Switch
                                             checked={segment.monthlyConfig?.enableGuardrails || false}
-                                            onChange={(checked: boolean) => updateSegment(segment.id, {
+                                            onCheckedChange={(checked: boolean) => updateSegment(segment.id, {
                                                 monthlyConfig: {
                                                     ...segment.monthlyConfig,
                                                     monthlyAmount: segment.monthlyConfig?.monthlyAmount || 2000,
@@ -491,9 +490,9 @@ export function WithdrawalSegmentForm({
                             {/* Inflation settings */}
                             <div className="mb-4 space-y-2">
                                 <Label>Inflation berücksichtigen</Label>
-                                <Toggle
+                                <Switch
                                     checked={segment.inflationConfig !== undefined}
-                                    onChange={(checked: boolean) => updateSegment(segment.id, {
+                                    onCheckedChange={(checked: boolean) => updateSegment(segment.id, {
                                         inflationConfig: checked ? { inflationRate: 0.02 } : undefined
                                     })}
                                 />
