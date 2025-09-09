@@ -150,6 +150,43 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     return { terCosts, transactionCosts, totalCosts };
   }
 
+  // Helper function to calculate growth and costs for a single element in a year
+  function calculateGrowthAndCostsForElement(
+    element: SparplanElement,
+    year: number,
+    wachstumsrate: number,
+    simulationAnnual: SimulationAnnualType
+  ) {
+    const startkapital =
+      element.simulation?.[year - 1]?.endkapital ||
+      element.einzahlung + (element.type === 'einmalzahlung' ? element.gewinn : 0);
+
+    let endkapitalVorSteuer: number;
+    let anteilImJahr = 12;
+
+    if (simulationAnnual === 'monthly' && new Date(element.start).getFullYear() === year) {
+      const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1;
+      const startMonth = new Date(element.start).getMonth();
+      anteilImJahr = 12 - startMonth;
+      endkapitalVorSteuer = startkapital * Math.pow(1 + wachstumsrateMonth, anteilImJahr);
+    } else {
+      endkapitalVorSteuer = startkapital * (1 + wachstumsrate);
+    }
+
+    const costs = calculateCosts(element, startkapital, endkapitalVorSteuer, year, anteilImJahr);
+    const endkapitalAfterCosts = endkapitalVorSteuer - costs.totalCosts;
+    const jahresgewinn = endkapitalAfterCosts - startkapital;
+
+    return {
+      startkapital,
+      endkapitalAfterCosts,
+      jahresgewinn,
+      anteilImJahr,
+      costs,
+    };
+  }
+
+
   function calculateYearlySimulation(
     year: number,
     elements: SparplanElement[],
@@ -168,27 +205,13 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
         for (const element of elements) {
           if (new Date(element.start).getFullYear() > year) continue;
 
-          const startkapital =
-            element.simulation?.[year - 1]?.endkapital ||
-            element.einzahlung + (element.type === 'einmalzahlung' ? element.gewinn : 0);
-
-          let endkapitalVorSteuer: number;
-          let anteilImJahr = 12;
-
-          if (simulationAnnual === 'monthly' && new Date(element.start).getFullYear() === year) {
-            const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1;
-            const startMonth = new Date(element.start).getMonth();
-            anteilImJahr = 12 - startMonth;
-            endkapitalVorSteuer = startkapital * Math.pow(1 + wachstumsrateMonth, anteilImJahr);
-          } else {
-            endkapitalVorSteuer = startkapital * (1 + wachstumsrate);
-          }
-
-          // Calculate costs
-          const costs = calculateCosts(element, startkapital, endkapitalVorSteuer, year, anteilImJahr);
-
-          // Apply costs to reduce the end capital
-          const endkapitalAfterCosts = endkapitalVorSteuer - costs.totalCosts;
+          const {
+            startkapital,
+            endkapitalAfterCosts,
+            jahresgewinn,
+            anteilImJahr,
+            costs,
+          } = calculateGrowthAndCostsForElement(element, year, wachstumsrate, simulationAnnual);
 
           // Calculate detailed Vorabpauschale breakdown for transparency
           const vorabpauschaleDetails = calculateVorabpauschaleDetailed(
@@ -208,7 +231,7 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
             element,
             startkapital,
             endkapitalVorSteuer: endkapitalAfterCosts, // Use capital after costs
-            jahresgewinn: endkapitalAfterCosts - startkapital, // Adjust gain for costs
+            jahresgewinn,
             vorabpauschaleBetrag,
             potentialTax,
             vorabpauschaleDetails,
@@ -223,29 +246,13 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
         for (const element of elements) {
             if (new Date(element.start).getFullYear() > year) continue;
 
-            const startkapital =
-              element.simulation?.[year - 1]?.endkapital ||
-              element.einzahlung + (element.type === 'einmalzahlung' ? element.gewinn : 0);
-      
-            let endkapitalVorSteuer: number;
-            let anteilImJahr = 12;
-      
-            if (simulationAnnual === 'monthly' && new Date(element.start).getFullYear() === year) {
-              const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1;
-              const startMonth = new Date(element.start).getMonth();
-              anteilImJahr = 12 - startMonth;
-              endkapitalVorSteuer = startkapital * Math.pow(1 + wachstumsrateMonth, anteilImJahr);
-            } else {
-              endkapitalVorSteuer = startkapital * (1 + wachstumsrate);
-            }
-      
-            // Calculate costs
-            const costs = calculateCosts(element, startkapital, endkapitalVorSteuer, year, anteilImJahr);
+            const {
+                startkapital,
+                endkapitalAfterCosts,
+                jahresgewinn,
+                costs,
+            } = calculateGrowthAndCostsForElement(element, year, wachstumsrate, simulationAnnual);
 
-            // Apply costs to reduce the end capital
-            const endkapitalAfterCosts = endkapitalVorSteuer - costs.totalCosts;
-
-            const jahresgewinn = endkapitalAfterCosts - startkapital;
             const vorabpauschaleAccumulated = (element.simulation[year - 1]?.vorabpauschaleAccumulated || 0);
 
             element.simulation[year] = {
@@ -314,4 +321,3 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
       };
     }
   }
-
