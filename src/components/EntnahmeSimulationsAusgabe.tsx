@@ -42,6 +42,8 @@ function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
       return "Monatlich fest";
     case "dynamisch":
       return "Dynamische Strategie";
+    case "bucket_strategie":
+      return "Drei-Eimer-Strategie";
     default:
       return strategy;
   }
@@ -258,6 +260,9 @@ export function EntnahmeSimulationsAusgabe({
                   <RadioTile value="dynamisch" label="Dynamische Strategie">
                     Renditebasierte Anpassung
                   </RadioTile>
+                  <RadioTile value="bucket_strategie" label="Drei-Eimer-Strategie">
+                    Cash-Polster bei negativen Renditen
+                  </RadioTile>
                 </RadioTileGroup>
               </div>
 
@@ -346,6 +351,119 @@ export function EntnahmeSimulationsAusgabe({
 
               {formValue.strategie === "dynamisch" && (
                 <DynamicWithdrawalConfiguration formValue={formValue} />
+              )}
+
+              {formValue.strategie === "bucket_strategie" && (
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Drei-Eimer-Strategie Konfiguration</Label>
+                  
+                  <div className="space-y-2">
+                    <Label>Anfängliches Cash-Polster (€)</Label>
+                    <Input
+                      type="number"
+                      value={formValue.bucketConfig?.initialCashCushion || 20000}
+                      onChange={(e) => {
+                        const value = e.target.value ? Number(e.target.value) : 20000;
+                        updateFormValue({ 
+                          ...formValue, 
+                          bucketConfig: {
+                            initialCashCushion: value,
+                            refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
+                            refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
+                            baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04
+                          }
+                        });
+                      }}
+                    />
+                    <p className="text-sm text-gray-600">
+                      Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Basis-Entnahmerate (%)</Label>
+                    <div className="px-3">
+                      <Slider
+                        value={[formValue.bucketConfig?.baseWithdrawalRate ? formValue.bucketConfig.baseWithdrawalRate * 100 : 4]}
+                        onValueChange={(value) => {
+                          updateFormValue({
+                            ...formValue,
+                            bucketConfig: {
+                              initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
+                              refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
+                              refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
+                              baseWithdrawalRate: value[0] / 100
+                            }
+                          });
+                        }}
+                        max={10}
+                        min={1}
+                        step={0.1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-500 mt-1">
+                        <span>1%</span>
+                        <span className="font-medium text-gray-900">{formValue.bucketConfig?.baseWithdrawalRate ? (formValue.bucketConfig.baseWithdrawalRate * 100).toFixed(1) : '4.0'}%</span>
+                        <span>10%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Auffüll-Schwellenwert (€)</Label>
+                    <Input
+                      type="number"
+                      value={formValue.bucketConfig?.refillThreshold || 5000}
+                      onChange={(e) => {
+                        const value = e.target.value ? Number(e.target.value) : 5000;
+                        updateFormValue({ 
+                          ...formValue, 
+                          bucketConfig: {
+                            initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
+                            refillThreshold: value,
+                            refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
+                            baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04
+                          }
+                        });
+                      }}
+                    />
+                    <p className="text-sm text-gray-600">
+                      Überschreiten die jährlichen Gewinne diesen Betrag, wird Cash-Polster aufgefüllt
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Auffüll-Anteil (%)</Label>
+                    <div className="px-3">
+                      <Slider
+                        value={[formValue.bucketConfig?.refillPercentage ? formValue.bucketConfig.refillPercentage * 100 : 50]}
+                        onValueChange={(value) => {
+                          updateFormValue({
+                            ...formValue,
+                            bucketConfig: {
+                              initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
+                              refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
+                              refillPercentage: value[0] / 100,
+                              baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04
+                            }
+                          });
+                        }}
+                        max={100}
+                        min={10}
+                        step={5}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-500 mt-1">
+                        <span>10%</span>
+                        <span className="font-medium text-gray-900">{formValue.bucketConfig?.refillPercentage ? (formValue.bucketConfig.refillPercentage * 100).toFixed(0) : '50'}%</span>
+                        <span>100%</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird
+                    </p>
+                  </div>
+                </div>
               )}
             </div>
 
@@ -451,6 +569,9 @@ export function EntnahmeSimulationsAusgabe({
                           <option value="monatlich_fest">Monatlich fest</option>
                           <option value="dynamisch">
                             Dynamische Strategie
+                          </option>
+                          <option value="bucket_strategie">
+                            Drei-Eimer-Strategie
                           </option>
                         </select>
                       </div>
@@ -608,6 +729,72 @@ export function EntnahmeSimulationsAusgabe({
                                 updateComparisonStrategy(strategy.id, {
                                   dynamischObereSchwell:
                                     parseFloat(e.target.value) || 8,
+                                });
+                              }}
+                              style={{
+                                width: "100%",
+                                padding: "6px",
+                                border: "1px solid #ccc",
+                                borderRadius: "4px",
+                              }}
+                            />
+                          </div>
+                        </>
+                      )}
+
+                      {strategy.strategie === "bucket_strategie" && (
+                        <>
+                          <div>
+                            <label
+                              style={{
+                                display: "block",
+                                fontSize: "12px",
+                                fontWeight: "bold",
+                                marginBottom: "5px",
+                              }}
+                            >
+                              Cash-Polster (€)
+                            </label>
+                            <input
+                              type="number"
+                              min="1000"
+                              step="1000"
+                              value={strategy.bucketInitialCash || 20000}
+                              onChange={(e) => {
+                                updateComparisonStrategy(strategy.id, {
+                                  bucketInitialCash:
+                                    parseFloat(e.target.value) || 20000,
+                                });
+                              }}
+                              style={{
+                                width: "100%",
+                                padding: "6px",
+                                border: "1px solid #ccc",
+                                borderRadius: "4px",
+                              }}
+                            />
+                          </div>
+                          <div>
+                            <label
+                              style={{
+                                display: "block",
+                                fontSize: "12px",
+                                fontWeight: "bold",
+                                marginBottom: "5px",
+                              }}
+                            >
+                              Basis-Rate (%)
+                            </label>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.1"
+                              value={strategy.bucketBaseRate || 4}
+                              onChange={(e) => {
+                                updateComparisonStrategy(strategy.id, {
+                                  bucketBaseRate:
+                                    parseFloat(e.target.value) || 4,
                                 });
                               }}
                               style={{
@@ -885,6 +1072,9 @@ export function EntnahmeSimulationsAusgabe({
                 <RadioTile value="dynamisch" label="Dynamische Strategie">
                   Renditebasierte Anpassung
                 </RadioTile>
+                <RadioTile value="bucket_strategie" label="Drei-Eimer-Strategie">
+                  Cash-Polster bei negativen Renditen
+                </RadioTile>
               </RadioTileGroup>
             </div>
 
@@ -1050,6 +1240,120 @@ export function EntnahmeSimulationsAusgabe({
             {/* Dynamic strategy specific controls */}
             {formValue.strategie === "dynamisch" && (
               <DynamicWithdrawalConfiguration formValue={formValue} />
+            )}
+
+            {/* Bucket strategy specific controls */}
+            {formValue.strategie === "bucket_strategie" && (
+              <div className="space-y-4">
+                <Label className="text-base font-medium">Drei-Eimer-Strategie Konfiguration</Label>
+                
+                <div className="space-y-2">
+                  <Label>Anfängliches Cash-Polster (€)</Label>
+                  <Input
+                    type="number"
+                    value={formValue.bucketConfig?.initialCashCushion || 20000}
+                    onChange={(e) => {
+                      const value = e.target.value ? Number(e.target.value) : 20000;
+                      updateFormValue({ 
+                        ...formValue, 
+                        bucketConfig: {
+                          initialCashCushion: value,
+                          refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
+                          refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
+                          baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04
+                        }
+                      });
+                    }}
+                  />
+                  <p className="text-sm text-gray-600">
+                    Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Basis-Entnahmerate (%)</Label>
+                  <div className="px-3">
+                    <Slider
+                      value={[formValue.bucketConfig?.baseWithdrawalRate ? formValue.bucketConfig.baseWithdrawalRate * 100 : 4]}
+                      onValueChange={(value) => {
+                        updateFormValue({
+                          ...formValue,
+                          bucketConfig: {
+                            initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
+                            refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
+                            refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
+                            baseWithdrawalRate: value[0] / 100
+                          }
+                        });
+                      }}
+                      max={10}
+                      min={1}
+                      step={0.1}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-sm text-gray-500 mt-1">
+                      <span>1%</span>
+                      <span className="font-medium text-gray-900">{formValue.bucketConfig?.baseWithdrawalRate ? (formValue.bucketConfig.baseWithdrawalRate * 100).toFixed(1) : '4.0'}%</span>
+                      <span>10%</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Auffüll-Schwellenwert (€)</Label>
+                  <Input
+                    type="number"
+                    value={formValue.bucketConfig?.refillThreshold || 5000}
+                    onChange={(e) => {
+                      const value = e.target.value ? Number(e.target.value) : 5000;
+                      updateFormValue({ 
+                        ...formValue, 
+                        bucketConfig: {
+                          initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
+                          refillThreshold: value,
+                          refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
+                          baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04
+                        }
+                      });
+                    }}
+                  />
+                  <p className="text-sm text-gray-600">
+                    Überschreiten die jährlichen Gewinne diesen Betrag, wird Cash-Polster aufgefüllt
+                  </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Auffüll-Anteil (%)</Label>
+                  <div className="px-3">
+                    <Slider
+                      value={[formValue.bucketConfig?.refillPercentage ? formValue.bucketConfig.refillPercentage * 100 : 50]}
+                      onValueChange={(value) => {
+                        updateFormValue({
+                          ...formValue,
+                          bucketConfig: {
+                            initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
+                            refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
+                            refillPercentage: value[0] / 100,
+                            baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04
+                          }
+                        });
+                      }}
+                      max={100}
+                      min={10}
+                      step={5}
+                      className="w-full"
+                    />
+                    <div className="flex justify-between text-sm text-gray-500 mt-1">
+                      <span>10%</span>
+                      <span className="font-medium text-gray-900">{formValue.bucketConfig?.refillPercentage ? (formValue.bucketConfig.refillPercentage * 100).toFixed(0) : '50'}%</span>
+                      <span>100%</span>
+                    </div>
+                  </div>
+                  <p className="text-sm text-gray-600">
+                    Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird
+                  </p>
+                </div>
+              </div>
             )}
           </div>
         )}

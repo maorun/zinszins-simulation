@@ -1,7 +1,7 @@
 import type { ReturnMode } from './random-returns';
 import type { Sparplan } from './sparplan-utils';
 import type { SimulationAnnualType } from './simulate';
-import type { WithdrawalStrategy } from '../../helpers/withdrawal';
+import type { WithdrawalStrategy, BucketStrategyConfig } from '../../helpers/withdrawal';
 import type { WithdrawalSegment } from './segmented-withdrawal';
 import type { BasiszinsConfiguration } from '../services/bundesbank-api';
 
@@ -39,6 +39,8 @@ export interface WithdrawalFormValue {
   dynamischObereAnpassung: number;
   dynamischUntereSchwell: number;
   dynamischUntereAnpassung: number;
+  // Bucket strategy specific settings
+  bucketConfig?: BucketStrategyConfig;
   // Grundfreibetrag settings (now handled globally, kept for backward compatibility)
   grundfreibetragAktiv?: boolean;
   grundfreibetragBetrag?: number;
@@ -60,6 +62,11 @@ export interface ComparisonStrategy {
   dynamischObereAnpassung?: number;
   dynamischUntereSchwell?: number;
   dynamischUntereAnpassung?: number;
+  // Bucket strategy specific fields
+  bucketInitialCash?: number;
+  bucketBaseRate?: number;
+  bucketRefillThreshold?: number;
+  bucketRefillPercentage?: number;
 }
 
 /**

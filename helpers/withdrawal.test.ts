@@ -627,3 +627,270 @@ describe('Withdrawal Frequency Tests', () => {
     );
   });
 });
+
+describe('Bucket Strategy Tests', () => {
+  const taxRate = 0.26375;
+  const teilfreistellungsquote = 0.3;
+  const freibetrag = 1000;
+
+  test('should use portfolio for withdrawal in positive return years', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+    const bucketConfig = {
+      initialCashCushion: 10000, // €10,000 initial cash
+      refillThreshold: 1000, // Refill when gains exceed €1,000
+      refillPercentage: 0.5, // Move 50% of excess gains to cash
+      baseWithdrawalRate: 0.04 // 4% withdrawal rate
+    };
+
+    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 }; // 5% positive return
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "bucket_strategie",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+      bucketConfig
+    });
+
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
+    
+    // Should use portfolio for withdrawal in positive return year
+    expect(resultYear.bucketUsed).toBe('portfolio');
+    expect(resultYear.cashCushionStart).toBe(10000);
+    expect(resultYear.entnahme).toBeCloseTo(120000 * 0.04); // 4% of initial capital = 4800
+  });
+
+  test('should use cash cushion for withdrawal in negative return years', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+    const bucketConfig = {
+      initialCashCushion: 10000, // €10,000 initial cash (enough for withdrawal)
+      refillThreshold: 1000,
+      refillPercentage: 0.5,
+      baseWithdrawalRate: 0.04 // 4% withdrawal rate = 4800
+    };
+
+    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: -0.10 }; // -10% negative return
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "bucket_strategie",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+      bucketConfig
+    });
+
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
+    
+    // Should use cash cushion for withdrawal in negative return year
+    expect(resultYear.bucketUsed).toBe('cash');
+    expect(resultYear.cashCushionStart).toBe(10000);
+    expect(resultYear.cashCushionEnd).toBe(10000 - 4800); // Reduced by withdrawal amount
+    expect(resultYear.entnahme).toBeCloseTo(4800);
+  });
+
+  test('should fall back to portfolio when cash cushion is insufficient', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+    const bucketConfig = {
+      initialCashCushion: 2000, // €2,000 initial cash (not enough for 4800 withdrawal)
+      refillThreshold: 1000,
+      refillPercentage: 0.5,
+      baseWithdrawalRate: 0.04 // 4% withdrawal rate = 4800
+    };
+
+    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: -0.10 }; // -10% negative return
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "bucket_strategie",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+      bucketConfig
+    });
+
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
+    
+    // Should fall back to portfolio when cash is insufficient
+    expect(resultYear.bucketUsed).toBe('portfolio');
+    expect(resultYear.cashCushionStart).toBe(2000);
+    expect(resultYear.cashCushionEnd).toBe(2000); // Cash unchanged since portfolio was used
+  });
+
+  test('should refill cash cushion in good years with excess gains', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+    const bucketConfig = {
+      initialCashCushion: 5000,
+      refillThreshold: 2000, // Refill when gains exceed €2,000
+      refillPercentage: 0.6, // Move 60% of excess gains to cash
+      baseWithdrawalRate: 0.04
+    };
+
+    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.10 }; // 10% return
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "bucket_strategie",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+      bucketConfig
+    });
+
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
+    
+    expect(resultYear.bucketUsed).toBe('portfolio');
+    expect(resultYear.cashCushionStart).toBe(5000);
+    
+    // Calculate expected refill: 
+    // Portfolio after withdrawal and growth, minus taxes
+    // Gain should be > 2000 threshold, so excess gets moved to cash
+    expect(resultYear.refillAmount).toBeDefined();
+    expect(resultYear.refillAmount).toBeGreaterThan(0);
+    expect(resultYear.cashCushionEnd).toBeGreaterThan(5000);
+  });
+
+  test('should not refill cash cushion when gains are below threshold', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+    const bucketConfig = {
+      initialCashCushion: 5000,
+      refillThreshold: 10000, // Very high threshold - gains won't exceed this
+      refillPercentage: 0.5,
+      baseWithdrawalRate: 0.04
+    };
+
+    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.03 }; // 3% return
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear,
+      strategy: "bucket_strategie",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+      bucketConfig
+    });
+
+    const resultYear = result[withdrawalStartYear];
+    expect(resultYear).toBeDefined();
+    
+    expect(resultYear.bucketUsed).toBe('portfolio');
+    expect(resultYear.cashCushionStart).toBe(5000);
+    expect(resultYear.refillAmount).toBeUndefined(); // No refill due to low gains
+    expect(resultYear.cashCushionEnd).toBe(5000); // Cash unchanged
+  });
+
+  test('should work correctly over multiple years with mixed returns', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 150000, 100, lastSimYear)];
+
+    const bucketConfig = {
+      initialCashCushion: 8000,
+      refillThreshold: 1500,
+      refillPercentage: 0.4, // Move 40% of excess gains
+      baseWithdrawalRate: 0.04
+    };
+
+    // Year 1: positive return, Year 2: negative return, Year 3: positive return
+    const returnConfig: ReturnConfiguration = {
+      mode: 'variable',
+      variableConfig: {
+        yearlyReturns: {
+          [withdrawalStartYear]: 0.08,     // 8% positive
+          [withdrawalStartYear + 1]: -0.15, // -15% negative
+          [withdrawalStartYear + 2]: 0.12   // 12% positive
+        }
+      }
+    };
+
+    const { result } = calculateWithdrawal({
+      elements: mockElements,
+      startYear: withdrawalStartYear,
+      endYear: withdrawalStartYear + 2,
+      strategy: "bucket_strategie",
+      returnConfig,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear: { 
+        [withdrawalStartYear]: freibetrag,
+        [withdrawalStartYear + 1]: freibetrag,
+        [withdrawalStartYear + 2]: freibetrag
+      },
+      bucketConfig
+    });
+
+    const year1 = result[withdrawalStartYear];
+    const year2 = result[withdrawalStartYear + 1];
+    const year3 = result[withdrawalStartYear + 2];
+
+    // Year 1: Positive return, should use portfolio and possibly refill cash
+    expect(year1.bucketUsed).toBe('portfolio');
+    expect(year1.cashCushionStart).toBe(8000);
+
+    // Year 2: Negative return, should try to use cash
+    expect(year2.bucketUsed).toBe('cash');
+    
+    // Year 3: Positive return again, should use portfolio
+    expect(year3.bucketUsed).toBe('portfolio');
+    
+    // Ensure portfolio depletion is realistic across years
+    expect(year3.endkapital).toBeGreaterThan(0);
+  });
+
+  test('should require bucket config for bucket strategy', () => {
+    const withdrawalStartYear = 2025;
+    const lastSimYear = withdrawalStartYear - 1;
+    const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+    expect(() => {
+      calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "bucket_strategie",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { [withdrawalStartYear]: freibetrag }
+        // Missing bucketConfig
+      });
+    }).toThrow("Bucket strategy config required");
+  });
+});
