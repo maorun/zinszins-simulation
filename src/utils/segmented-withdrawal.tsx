@@ -1,6 +1,6 @@
 import type { WithdrawalStrategy } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
-import type { MonthlyWithdrawalConfig, InflationConfig, DynamicWithdrawalConfig } from "../../helpers/withdrawal";
+import type { MonthlyWithdrawalConfig, InflationConfig, DynamicWithdrawalConfig, BucketStrategyConfig, RMDConfig } from "../../helpers/withdrawal";
 import type { WithdrawalFrequency } from "./config-storage";
 
 /**
@@ -29,6 +29,10 @@ export type WithdrawalSegment = {
     inflationConfig?: InflationConfig;
     /** Dynamic withdrawal configuration (for dynamisch strategy) */
     dynamicConfig?: DynamicWithdrawalConfig;
+    /** Bucket strategy configuration (for bucket_strategie strategy) */
+    bucketConfig?: BucketStrategyConfig;
+    /** RMD configuration (for rmd strategy) */
+    rmdConfig?: RMDConfig;
     /** Whether to apply Grundfreibetrag for this segment */
     enableGrundfreibetrag?: boolean;
     /** Basic tax allowance per year for this segment */
