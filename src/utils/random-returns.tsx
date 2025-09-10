@@ -8,7 +8,13 @@ export type RandomReturnConfig = {
     seed?: number; // Random seed for reproducible results
 };
 
-export type ReturnMode = 'fixed' | 'random' | 'variable';
+export type ReturnMode = 'fixed' | 'random' | 'variable' | 'historical';
+
+export type HistoricalReturnConfig = {
+    indexId: string; // ID of the historical index (e.g., 'dax', 'sp500')
+    startYear?: number; // Optional: override start year for backtesting period
+    endYear?: number; // Optional: override end year for backtesting period
+};
 
 export type VariableReturnConfig = {
     yearlyReturns: Record<number, number>; // Map of year to return rate
@@ -19,6 +25,7 @@ export type ReturnConfiguration = {
     fixedRate?: number; // Used when mode is 'fixed'
     randomConfig?: RandomReturnConfig; // Used when mode is 'random'
     variableConfig?: VariableReturnConfig; // Used when mode is 'variable'
+    historicalConfig?: HistoricalReturnConfig; // Used when mode is 'historical'
 };
 
 /**

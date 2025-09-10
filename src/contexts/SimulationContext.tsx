@@ -41,6 +41,8 @@ export interface SimulationContextState {
   setRandomSeed: (randomSeed?: number) => void;
   variableReturns: Record<number, number>;
   setVariableReturns: (variableReturns: Record<number, number>) => void;
+  historicalIndex: string;
+  setHistoricalIndex: (historicalIndex: string) => void;
   startEnd: [number, number];
   setStartEnd: (startEnd: [number, number]) => void;
   sparplan: Sparplan[];
@@ -91,6 +93,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     standardDeviation: 15,
     randomSeed: undefined,
     variableReturns: {},
+    historicalIndex: 'dax',
     startEnd: [2040, 2080] as [number, number],
     sparplan: [initialSparplan],
     simulationAnnual: SimulationAnnual.yearly,
@@ -131,6 +134,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [standardDeviation, setStandardDeviation] = useState(initialConfig.standardDeviation);
   const [randomSeed, setRandomSeed] = useState<number | undefined>(initialConfig.randomSeed);
   const [variableReturns, setVariableReturns] = useState<Record<number, number>>(initialConfig.variableReturns);
+  const [historicalIndex, setHistoricalIndex] = useState<string>(
+    (initialConfig as any).historicalIndex || defaultConfig.historicalIndex
+  );
   const [startEnd, setStartEnd] = useState<[number, number]>(initialConfig.startEnd);
   const [sparplan, setSparplan] = useState<Sparplan[]>(initialConfig.sparplan);
   const [simulationAnnual, setSimulationAnnual] = useState<SimulationAnnualType>(initialConfig.simulationAnnual);
@@ -164,11 +170,12 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     standardDeviation,
     randomSeed,
     variableReturns,
+    historicalIndex,
     startEnd,
     sparplan,
     simulationAnnual,
     withdrawal: withdrawalConfig || undefined,
-  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
+  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration();
@@ -192,6 +199,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setStandardDeviation(savedConfig.standardDeviation);
       setRandomSeed(savedConfig.randomSeed);
       setVariableReturns(savedConfig.variableReturns);
+      setHistoricalIndex((savedConfig as any).historicalIndex || defaultConfig.historicalIndex);
       setStartEnd(savedConfig.startEnd);
       setSparplan(savedConfig.sparplan);
       setSimulationAnnual(savedConfig.simulationAnnual);
@@ -215,12 +223,13 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setStandardDeviation(defaultConfig.standardDeviation);
     setRandomSeed(defaultConfig.randomSeed);
     setVariableReturns(defaultConfig.variableReturns);
+    setHistoricalIndex(defaultConfig.historicalIndex);
     setStartEnd(defaultConfig.startEnd);
     setSparplan(defaultConfig.sparplan);
     setSimulationAnnual(defaultConfig.simulationAnnual);
     setSparplanElemente(convertSparplanToElements(defaultConfig.sparplan, defaultConfig.startEnd, defaultConfig.simulationAnnual));
     setWithdrawalConfig(null); // Reset withdrawal config to null
-  }, [defaultConfig, setSparplanElemente]);
+  }, [defaultConfig.basiszinsConfiguration, defaultConfig.historicalIndex, setSparplanElemente]);
 
   // Auto-save configuration whenever any config value changes
   useEffect(() => {
@@ -250,6 +259,13 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
               yearlyReturns: Object.fromEntries(
                 Object.entries(variableReturns).map(([year, rate]) => [parseInt(year), rate / 100])
               ),
+            },
+          };
+        } else if (returnMode === 'historical') {
+          returnConfig = {
+            mode: 'historical',
+            historicalConfig: {
+              indexId: historicalIndex,
             },
           };
         } else {
@@ -283,7 +299,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     } finally {
       setIsLoading(false);
     }
-  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase]);
+  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase]);
 
   const value = useMemo(() => ({
     rendite, setRendite,
@@ -300,6 +316,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     standardDeviation, setStandardDeviation,
     randomSeed, setRandomSeed,
     variableReturns, setVariableReturns,
+    historicalIndex, setHistoricalIndex,
     startEnd, setStartEnd,
     sparplan, setSparplan,
     simulationAnnual, setSimulationAnnual,
@@ -318,7 +335,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, 
     steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv, grundfreibetragBetrag,
-    returnMode, averageReturn, standardDeviation, randomSeed, variableReturns,
+    returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
     simulationData, isLoading, withdrawalResults, performSimulation,
     saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
