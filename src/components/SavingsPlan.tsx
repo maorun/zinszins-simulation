@@ -9,7 +9,7 @@ import { useSimulation } from '../contexts/useSimulation';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
 
 const SavingsPlan = () => {
-  const { setSparplan, startEnd, simulationAnnual, setSparplanElemente, simulationData } = useSimulation();
+  const { setSparplan, sparplan, startEnd, simulationAnnual, setSparplanElemente, simulationData } = useSimulation();
 
   return (
     <>
@@ -33,6 +33,7 @@ const SavingsPlan = () => {
               setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual));
             }}
             simulationAnnual={simulationAnnual}
+            currentSparplans={sparplan}
           />
             </CardContent>
           </CollapsibleContent>
