@@ -525,7 +525,9 @@ export function calculateSegmentedWithdrawal(
             grundfreibetragPerYear: segment.grundfreibetragPerYear,
             incomeTaxRate: segment.incomeTaxRate,
             inflationConfig: segment.inflationConfig,
-            dynamicConfig: segment.dynamicConfig
+            dynamicConfig: segment.dynamicConfig,
+            bucketConfig: segment.bucketConfig,
+            rmdConfig: segment.rmdConfig
         });
 
         Object.assign(result, segmentResultData);

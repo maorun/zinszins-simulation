@@ -23,6 +23,8 @@ import { validateWithdrawalSegments, createDefaultWithdrawalSegment } from "../u
 import type { WithdrawalStrategy } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
+import { BucketStrategyConfiguration } from "./BucketStrategyConfiguration";
+import { RMDWithdrawalConfiguration } from "./RMDWithdrawalConfiguration";
 
 export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable';
 
@@ -246,6 +248,25 @@ export function WithdrawalSegmentForm({
                                             };
                                         }
                                         
+                                        // Initialize bucketConfig when switching to bucket_strategie strategy
+                                        if (newStrategy === "bucket_strategie" && !segment.bucketConfig) {
+                                            updates.bucketConfig = {
+                                                initialCashCushion: 20000, // €20,000 default
+                                                refillThreshold: 5000, // €5,000 threshold
+                                                refillPercentage: 0.5, // 50% of excess gains
+                                                baseWithdrawalRate: 0.04, // 4% base withdrawal rate
+                                            };
+                                        }
+                                        
+                                        // Initialize rmdConfig when switching to rmd strategy
+                                        if (newStrategy === "rmd" && !segment.rmdConfig) {
+                                            updates.rmdConfig = {
+                                                startAge: 65, // Default retirement age
+                                                lifeExpectancyTable: 'german_2020_22', // German 2020-22 mortality table
+                                                customLifeExpectancy: undefined, // Use table by default
+                                            };
+                                        }
+                                        
                                         updateSegment(segment.id, updates);
                                     }}
                                 >
@@ -263,6 +284,12 @@ export function WithdrawalSegmentForm({
                                     </RadioTile>
                                     <RadioTile value="dynamisch" label="Dynamische Strategie">
                                         Rendite-abhängige Anpassung
+                                    </RadioTile>
+                                    <RadioTile value="bucket_strategie" label="Drei-Eimer-Strategie">
+                                        Cash-Polster bei negativen Renditen
+                                    </RadioTile>
+                                    <RadioTile value="rmd" label="RMD (Lebenserwartung)">
+                                        Entnahme basierend auf Alter und Lebenserwartung
                                     </RadioTile>
                                 </RadioTileGroup>
                             </div>
@@ -437,6 +464,86 @@ export function WithdrawalSegmentForm({
                                             upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
                                             lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
                                             lowerThresholdAdjustment: value,
+                                        }
+                                    }),
+                                }}
+                            />
+                        )}
+
+                        {/* Bucket strategy settings */}
+                        {segment.strategy === "bucket_strategie" && (
+                            <BucketStrategyConfiguration
+                                values={{
+                                    initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                    refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                    refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                    baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04,
+                                }}
+                                onChange={{
+                                    onInitialCashCushionChange: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: value,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04
+                                        }
+                                    }),
+                                    onRefillThresholdChange: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: value,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04
+                                        }
+                                    }),
+                                    onRefillPercentageChange: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: value,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04
+                                        }
+                                    }),
+                                    onBaseWithdrawalRateChange: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: value
+                                        }
+                                    }),
+                                }}
+                            />
+                        )}
+
+                        {/* RMD strategy settings */}
+                        {segment.strategy === "rmd" && (
+                            <RMDWithdrawalConfiguration
+                                values={{
+                                    startAge: segment.rmdConfig?.startAge || 65,
+                                    lifeExpectancyTable: segment.rmdConfig?.lifeExpectancyTable || 'german_2020_22',
+                                    customLifeExpectancy: segment.rmdConfig?.customLifeExpectancy,
+                                }}
+                                onChange={{
+                                    onStartAgeChange: (age) => updateSegment(segment.id, {
+                                        rmdConfig: {
+                                            startAge: age,
+                                            lifeExpectancyTable: segment.rmdConfig?.lifeExpectancyTable || 'german_2020_22',
+                                            customLifeExpectancy: segment.rmdConfig?.customLifeExpectancy
+                                        }
+                                    }),
+                                    onLifeExpectancyTableChange: (table) => updateSegment(segment.id, {
+                                        rmdConfig: {
+                                            startAge: segment.rmdConfig?.startAge || 65,
+                                            lifeExpectancyTable: table,
+                                            customLifeExpectancy: segment.rmdConfig?.customLifeExpectancy
+                                        }
+                                    }),
+                                    onCustomLifeExpectancyChange: (years) => updateSegment(segment.id, {
+                                        rmdConfig: {
+                                            startAge: segment.rmdConfig?.startAge || 65,
+                                            lifeExpectancyTable: 'custom',
+                                            customLifeExpectancy: years
                                         }
                                     }),
                                 }}
