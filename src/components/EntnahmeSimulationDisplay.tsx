@@ -216,130 +216,86 @@ export function EntnahmeSimulationDisplay({
       </div>
 
       {/* Card Layout for All Devices */}
-      <div>
-        <div className="sparplan-cards">
-          {withdrawalData.withdrawalArray.map((rowData, index) => (
-            <div key={index} className="sparplan-card">
-              <div className="sparplan-card-header">
-                <span className="sparplan-year">
-                  📅 {rowData.year}
-                </span>
-                <span className="sparplan-endkapital">
-                  🎯 {formatCurrency(rowData.endkapital)}
+      <div className="flex flex-col gap-4">
+        {withdrawalData.withdrawalArray.map((rowData, index) => (
+          <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-shadow hover:shadow-md">
+            <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">
+              <span className="font-semibold text-gray-800 text-base">📅 {rowData.year}</span>
+              <span className="font-bold text-blue-600 text-lg">
+                🎯 {formatCurrency(rowData.endkapital)}
+              </span>
+            </div>
+            <div className="flex flex-col gap-2">
+              <div className="flex justify-between items-center py-1">
+                <span className="text-sm text-gray-600 font-medium">💰 Startkapital:</span>
+                <span className="font-semibold text-green-600 text-sm">
+                  {formatCurrency(rowData.startkapital)}
                 </span>
               </div>
-              <div className="sparplan-card-details">
-                <div className="sparplan-detail">
-                  <span className="detail-label">
-                    💰 Startkapital:
-                  </span>
-                  <span
-                    className="detail-value"
-                    style={{ color: "#28a745" }}
-                  >
-                    {formatCurrency(rowData.startkapital)}
-                  </span>
-                </div>
-                <div className="sparplan-detail">
-                  <span className="detail-label">💸 Entnahme:</span>
-                  <span
-                    className="detail-value"
-                    style={{ color: "#dc3545" }}
-                  >
-                    {formatCurrency(rowData.entnahme)}
-                  </span>
-                </div>
-                {formValue.strategie === "monatlich_fest" &&
-                  rowData.monatlicheEntnahme && (
-                    <div className="sparplan-detail">
-                      <span className="detail-label">
-                        📅 Monatlich:
-                      </span>
-                      <span
-                        className="detail-value"
-                        style={{ color: "#6f42c1" }}
-                      >
-                        {formatCurrency(rowData.monatlicheEntnahme)}
-                      </span>
-                    </div>
-                  )}
-                {formValue.inflationAktiv &&
-                  rowData.inflationAnpassung !== undefined && (
-                    <div className="sparplan-detail">
-                      <span className="detail-label">
-                        📈 Inflation:
-                      </span>
-                      <span
-                        className="detail-value"
-                        style={{ color: "#fd7e14", display: 'flex', alignItems: 'center' }}
-                      >
-                        {formatCurrency(rowData.inflationAnpassung)}
-                        <InfoIcon onClick={() => onCalculationInfoClick('inflation', rowData)} />
-                      </span>
-                    </div>
-                  )}
-                {formValue.strategie === "monatlich_fest" &&
-                  formValue.guardrailsAktiv &&
-                  rowData.portfolioAnpassung !== undefined && (
-                    <div className="sparplan-detail">
-                      <span className="detail-label">
-                        🛡️ Guardrails:
-                      </span>
-                      <span
-                        className="detail-value"
-                        style={{ color: "#20c997" }}
-                      >
-                        {formatCurrency(rowData.portfolioAnpassung)}
-                      </span>
-                    </div>
-                  )}
-                <div className="sparplan-detail">
-                  <span className="detail-label">📈 Zinsen:</span>
-                  <span
-                    className="detail-value"
-                    style={{ color: "#17a2b8", display: 'flex', alignItems: 'center' }}
-                  >
-                    {formatCurrency(rowData.zinsen)}
-                    <InfoIcon onClick={() => onCalculationInfoClick('interest', rowData)} />
-                  </span>
-                </div>
-                <div className="sparplan-detail">
-                  <span className="detail-label">
-                    💳 Bezahlte Steuer:
-                  </span>
-                  <span
-                    className="detail-value"
-                    style={{ color: "#dc3545", display: 'flex', alignItems: 'center' }}
-                  >
-                    {formatCurrency(rowData.bezahlteSteuer)}
-                    <InfoIcon onClick={() => onCalculationInfoClick('tax', rowData)} />
-                  </span>
-                </div>
-                {rowData.vorabpauschale !== undefined && rowData.vorabpauschale > 0 && (
-                  <div className="sparplan-detail">
-                    <span className="detail-label">
-                      📊 Vorabpauschale:
-                    </span>
-                    <span
-                      className="detail-value"
-                      style={{ color: "#ff6b6b", display: 'flex', alignItems: 'center' }}
-                    >
-                      {formatCurrency(rowData.vorabpauschale)}
-                      <InfoIcon onClick={() => onCalculationInfoClick('vorabpauschale', rowData)} />
+              <div className="flex justify-between items-center py-1">
+                <span className="text-sm text-gray-600 font-medium">💸 Entnahme:</span>
+                <span className="font-semibold text-red-600 text-sm">
+                  {formatCurrency(rowData.entnahme)}
+                </span>
+              </div>
+              {formValue.strategie === "monatlich_fest" &&
+                rowData.monatlicheEntnahme && (
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">📅 Monatlich:</span>
+                    <span className="font-semibold text-purple-600 text-sm">
+                      {formatCurrency(rowData.monatlicheEntnahme)}
                     </span>
                   </div>
                 )}
-                <div className="sparplan-detail">
-                  <span className="detail-label">
-                    🎯 Genutzter Freibetrag:
-                  </span>
-                  <span
-                    className="detail-value"
-                    style={{ color: "#28a745" }}
-                  >
-                    {formatCurrency(rowData.genutzterFreibetrag)}
+              {formValue.inflationAktiv &&
+                rowData.inflationAnpassung !== undefined && (
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">📈 Inflation:</span>
+                    <span className="font-semibold text-orange-600 text-sm flex items-center">
+                      {formatCurrency(rowData.inflationAnpassung)}
+                      <InfoIcon onClick={() => onCalculationInfoClick('inflation', rowData)} />
+                    </span>
+                  </div>
+                )}
+              {formValue.strategie === "monatlich_fest" &&
+                formValue.guardrailsAktiv &&
+                rowData.portfolioAnpassung !== undefined && (
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">🛡️ Guardrails:</span>
+                    <span className="font-semibold text-teal-600 text-sm">
+                      {formatCurrency(rowData.portfolioAnpassung)}
+                    </span>
+                  </div>
+                )}
+              <div className="flex justify-between items-center py-1">
+                <span className="text-sm text-gray-600 font-medium">📈 Zinsen:</span>
+                <span className="font-semibold text-cyan-600 text-sm flex items-center">
+                  {formatCurrency(rowData.zinsen)}
+                  <InfoIcon onClick={() => onCalculationInfoClick('interest', rowData)} />
+                </span>
+              </div>
+              <div className="flex justify-between items-center py-1">
+                <span className="text-sm text-gray-600 font-medium">💸 Bezahlte Steuer:</span>
+                <span className="font-semibold text-red-600 text-sm flex items-center">
+                  {formatCurrency(rowData.bezahlteSteuer)}
+                  <InfoIcon onClick={() => onCalculationInfoClick('tax', rowData)} />
+                </span>
+              </div>
+              {rowData.vorabpauschale !== undefined && rowData.vorabpauschale > 0 && (
+                <div className="flex justify-between items-center py-1">
+                  <span className="text-sm text-gray-600 font-medium">📊 Vorabpauschale:</span>
+                  <span className="font-semibold text-blue-700 text-sm flex items-center">
+                    {formatCurrency(rowData.vorabpauschale)}
+                    <InfoIcon onClick={() => onCalculationInfoClick('vorabpauschale', rowData)} />
                   </span>
                 </div>
+              )}
+              <div className="flex justify-between items-center py-1">
+                <span className="text-sm text-gray-600 font-medium">🎯 Genutzter Freibetrag:</span>
+                <span className="font-semibold text-green-600 text-sm">
+                  {formatCurrency(rowData.genutzterFreibetrag)}
+                </span>
+              </div>
                 {(() => {
                   // Check if Grundfreibetrag is enabled for this year
                   const isGrundfreibetragEnabled = useSegmentedWithdrawal 
@@ -351,14 +307,9 @@ export function EntnahmeSimulationDisplay({
                     : formValue.grundfreibetragAktiv;
                   
                   return isGrundfreibetragEnabled && rowData.einkommensteuer !== undefined && (
-                    <div className="sparplan-detail">
-                      <span className="detail-label">
-                        🏛️ Einkommensteuer:
-                      </span>
-                      <span
-                        className="detail-value"
-                        style={{ color: "#e83e8c", display: 'flex', alignItems: 'center' }}
-                      >
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-gray-600 font-medium">🏛️ Einkommensteuer:</span>
+                      <span className="font-semibold text-pink-600 text-sm flex items-center">
                         {formatCurrency(rowData.einkommensteuer)}
                         <InfoIcon onClick={() => onCalculationInfoClick('incomeTax', rowData)} />
                       </span>
@@ -376,14 +327,9 @@ export function EntnahmeSimulationDisplay({
                     : formValue.grundfreibetragAktiv;
                   
                   return isGrundfreibetragEnabled && rowData.genutzterGrundfreibetrag !== undefined && (
-                    <div className="sparplan-detail">
-                      <span className="detail-label">
-                        🆓 Grundfreibetrag:
-                      </span>
-                      <span
-                        className="detail-value"
-                        style={{ color: "#28a745", display: 'flex', alignItems: 'center' }}
-                      >
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-gray-600 font-medium">🆓 Grundfreibetrag:</span>
+                      <span className="font-semibold text-green-600 text-sm flex items-center">
                         {formatCurrency(
                           rowData.genutzterGrundfreibetrag,
                         )}
@@ -392,37 +338,31 @@ export function EntnahmeSimulationDisplay({
                     </div>
                   );
                 })()}
-                {/* New section for taxable income */}
-                <div className="sparplan-detail">
-                  <span className="detail-label">
-                    💰 Zu versteuerndes Einkommen:
-                  </span>
-                  <span
-                    className="detail-value"
-                    style={{ color: "#6c757d", display: 'flex', alignItems: 'center' }}
-                  >
-                    {(() => {
-                      // Calculate taxable income based on segment-specific or form settings
-                      const grundfreibetragAmount = useSegmentedWithdrawal 
-                        ? (() => {
-                            const applicableSegment = withdrawalSegments.find(segment => 
-                              rowData.year >= segment.startYear && rowData.year <= segment.endYear
-                            );
-                            return applicableSegment?.enableGrundfreibetrag 
-                              ? (applicableSegment.grundfreibetragPerYear?.[rowData.year] || 10908)
-                              : 0;
-                          })()
-                        : (formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0);
-                      
-                      return formatCurrency(Math.max(0, rowData.entnahme - grundfreibetragAmount));
-                    })()}
-                    <InfoIcon onClick={() => onCalculationInfoClick('taxableIncome', rowData)} />
-                  </span>
-                </div>
+              {/* New section for taxable income */}
+              <div className="flex justify-between items-center py-1">
+                <span className="text-sm text-gray-600 font-medium">💰 Zu versteuerndes Einkommen:</span>
+                <span className="font-semibold text-gray-600 text-sm flex items-center">
+                  {(() => {
+                    // Calculate taxable income based on segment-specific or form settings
+                    const grundfreibetragAmount = useSegmentedWithdrawal 
+                      ? (() => {
+                          const applicableSegment = withdrawalSegments.find(segment => 
+                            rowData.year >= segment.startYear && rowData.year <= segment.endYear
+                          );
+                          return applicableSegment?.enableGrundfreibetrag 
+                            ? (applicableSegment.grundfreibetragPerYear?.[rowData.year] || 10908)
+                            : 0;
+                        })()
+                      : (formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0);
+                    
+                    return formatCurrency(Math.max(0, rowData.entnahme - grundfreibetragAmount));
+                  })()}
+                  <InfoIcon onClick={() => onCalculationInfoClick('taxableIncome', rowData)} />
+                </span>
               </div>
             </div>
-          ))}
-        </div>
+          </div>
+        ))}
       </div>
 
     </div>
