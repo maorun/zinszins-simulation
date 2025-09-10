@@ -120,6 +120,7 @@ export interface SavedConfiguration {
   standardDeviation: number;
   randomSeed?: number;
   variableReturns: Record<number, number>;
+  historicalIndex?: string;
   startEnd: [number, number];
   sparplan: Sparplan[];
   simulationAnnual: SimulationAnnualType;
