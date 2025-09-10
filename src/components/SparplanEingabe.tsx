@@ -2,7 +2,7 @@ import type { SimulationAnnualType } from '../utils/simulate';
 import { SimulationAnnual } from '../utils/simulate';
 import type { Sparplan } from '../utils/sparplan-utils';
 import { initialSparplan } from '../utils/sparplan-utils';
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 // Simple Close icon component to avoid RSuite icons ESM/CommonJS issues
 const CloseIcon = () => (
@@ -90,10 +90,13 @@ const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (v
 
 
 
-export function SparplanEingabe({ dispatch, simulationAnnual }: { dispatch: (val: Sparplan[]) => void; simulationAnnual: SimulationAnnualType }) {
-    const [sparplans, setSparplans] = useState<Sparplan[]>([
-        initialSparplan
-    ]);
+export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans = [initialSparplan] }: { dispatch: (val: Sparplan[]) => void; simulationAnnual: SimulationAnnualType; currentSparplans?: Sparplan[] }) {
+    const [sparplans, setSparplans] = useState<Sparplan[]>(currentSparplans);
+
+    // Synchronize local state with prop changes
+    useEffect(() => {
+        setSparplans(currentSparplans);
+    }, [currentSparplans]);
 
     const [singleFormValue, setSingleFormValue] = useState<{ 
         date: Date, 
