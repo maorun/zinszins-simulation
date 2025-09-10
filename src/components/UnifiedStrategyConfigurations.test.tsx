@@ -133,6 +133,8 @@ describe('Unified Strategy Configurations', () => {
         rmdStartAge: 67,
         rmdLifeExpectancyTable: 'custom' as const,
         rmdCustomLifeExpectancy: 25,
+        kapitalerhaltNominalReturn: 7,
+        kapitalerhaltInflationRate: 2,
         einkommensteuersatz: 0.42
       };
       
@@ -210,6 +212,8 @@ describe('Unified Strategy Configurations', () => {
           rmdStartAge: 65,
           rmdLifeExpectancyTable: 'german_2020_22' as const,
           rmdCustomLifeExpectancy: undefined,
+          kapitalerhaltNominalReturn: 7,
+          kapitalerhaltInflationRate: 2,
           einkommensteuersatz: 0.42
         };
         

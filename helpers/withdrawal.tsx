@@ -8,7 +8,7 @@ import type { BasiszinsConfiguration } from "../src/services/bundesbank-api";
 import { calculateRMDWithdrawal } from "./rmd-tables";
 
 
-export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "dynamisch" | "bucket_strategie" | "rmd";
+export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "dynamisch" | "bucket_strategie" | "rmd" | "kapitalerhalt";
 
 export type InflationConfig = {
     inflationRate?: number; // Annual inflation rate for adjustment (default: 2%)
@@ -80,6 +80,11 @@ export type RMDConfig = {
     customLifeExpectancy?: number; // Custom life expectancy override (years)
 };
 
+export type KapitalerhaltConfig = {
+    nominalReturn: number; // Expected nominal return rate as percentage (e.g., 0.07 for 7%)
+    inflationRate: number; // Expected inflation rate as percentage (e.g., 0.02 for 2%)
+};
+
 const freibetrag: {
     [year: number]: number;
 } = {
@@ -119,6 +124,7 @@ export type CalculateWithdrawalParams = {
     dynamicConfig?: DynamicWithdrawalConfig;
     bucketConfig?: BucketStrategyConfig;
     rmdConfig?: RMDConfig;
+    kapitalerhaltConfig?: KapitalerhaltConfig;
     basiszinsConfiguration?: BasiszinsConfiguration;
 };
 
@@ -142,6 +148,7 @@ export function calculateWithdrawal({
     dynamicConfig,
     bucketConfig,
     rmdConfig,
+    kapitalerhaltConfig,
     basiszinsConfiguration
 }: CalculateWithdrawalParams): { result: WithdrawalResult; finalLayers: MutableLayer[] } {
     // Helper functions
@@ -214,6 +221,11 @@ export function calculateWithdrawal({
             rmdConfig.lifeExpectancyTable,
             rmdConfig.customLifeExpectancy
         );
+    } else if (strategy === "kapitalerhalt") {
+        if (!kapitalerhaltConfig) throw new Error("Kapitalerhalt config required");
+        // Calculate real return rate: nominal return - inflation rate
+        const realReturnRate = kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate;
+        baseWithdrawalAmount = initialStartingCapital * realReturnRate;
     } else {
         const withdrawalRate = strategy === "4prozent" ? 0.04 : 0.03;
         baseWithdrawalAmount = initialStartingCapital * withdrawalRate;

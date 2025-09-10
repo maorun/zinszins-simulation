@@ -1086,4 +1086,186 @@ describe('Bucket Strategy Tests', () => {
       }).toThrow("RMD config required");
     });
   });
+
+  describe('Kapitalerhalt Strategy Tests', () => {
+    test('should calculate withdrawal based on real return (nominal - inflation)', () => {
+      const withdrawalStartYear = 2040;
+      const lastSimYear = withdrawalStartYear - 1;
+      const initialCapital = 100000;
+      const mockElements = [createMockElement(2023, initialCapital, initialCapital, 0, lastSimYear)];
+
+      const kapitalerhaltConfig = {
+        nominalReturn: 0.07, // 7% nominal return
+        inflationRate: 0.02  // 2% inflation
+      };
+      // Expected real return: 7% - 2% = 5%
+      // Expected withdrawal: 100,000 * 0.05 = 5,000
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "kapitalerhalt",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+        kapitalerhaltConfig
+      });
+
+      const resultYear = result[withdrawalStartYear];
+      expect(resultYear).toBeDefined();
+      
+      // The withdrawal should be based on real return rate
+      const expectedWithdrawal = initialCapital * (kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate);
+      expect(resultYear.entnahme).toBeCloseTo(expectedWithdrawal);
+      
+      // Verify the withdrawal rate is 5%
+      const withdrawalRate = resultYear.entnahme / resultYear.startkapital;
+      expect(withdrawalRate).toBeCloseTo(0.05);
+    });
+
+    test('should handle different nominal return and inflation combinations', () => {
+      const withdrawalStartYear = 2040;
+      const lastSimYear = withdrawalStartYear - 1;
+      const initialCapital = 200000;
+      const mockElements = [createMockElement(2023, initialCapital, initialCapital, 0, lastSimYear)];
+
+      const kapitalerhaltConfig = {
+        nominalReturn: 0.08, // 8% nominal return
+        inflationRate: 0.03  // 3% inflation
+      };
+      // Expected real return: 8% - 3% = 5%
+      // Expected withdrawal: 200,000 * 0.05 = 10,000
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "kapitalerhalt",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+        kapitalerhaltConfig
+      });
+
+      const resultYear = result[withdrawalStartYear];
+      expect(resultYear).toBeDefined();
+      
+      const expectedWithdrawal = initialCapital * (kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate);
+      expect(resultYear.entnahme).toBeCloseTo(expectedWithdrawal);
+      expect(resultYear.entnahme).toBeCloseTo(10000);
+    });
+
+    test('should handle low real return scenarios', () => {
+      const withdrawalStartYear = 2040;
+      const lastSimYear = withdrawalStartYear - 1;
+      const initialCapital = 150000;
+      const mockElements = [createMockElement(2023, initialCapital, initialCapital, 0, lastSimYear)];
+
+      const kapitalerhaltConfig = {
+        nominalReturn: 0.04, // 4% nominal return
+        inflationRate: 0.025 // 2.5% inflation
+      };
+      // Expected real return: 4% - 2.5% = 1.5%
+      // Expected withdrawal: 150,000 * 0.015 = 2,250
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "kapitalerhalt",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+        kapitalerhaltConfig
+      });
+
+      const resultYear = result[withdrawalStartYear];
+      expect(resultYear).toBeDefined();
+      
+      const expectedWithdrawal = initialCapital * (kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate);
+      expect(resultYear.entnahme).toBeCloseTo(expectedWithdrawal);
+      expect(resultYear.entnahme).toBeCloseTo(2250);
+    });
+
+    test('should require kapitalerhalt config for kapitalerhalt strategy', () => {
+      const withdrawalStartYear = 2040;
+      const lastSimYear = withdrawalStartYear - 1;
+      const mockElements = [createMockElement(2023, 100000, 100000, 0, lastSimYear)];
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+      expect(() => {
+        calculateWithdrawal({
+          elements: mockElements,
+          startYear: withdrawalStartYear,
+          endYear: withdrawalStartYear,
+          strategy: "kapitalerhalt",
+          returnConfig,
+          taxRate,
+          teilfreistellungsquote,
+          freibetragPerYear: { [withdrawalStartYear]: freibetrag }
+          // Missing kapitalerhaltConfig
+        });
+      }).toThrow("Kapitalerhalt config required");
+    });
+
+    test('should work with multiple years', () => {
+      const withdrawalStartYear = 2040;
+      const withdrawalEndYear = 2042;
+      const lastSimYear = withdrawalStartYear - 1;
+      const initialCapital = 100000;
+      const mockElements = [createMockElement(2023, initialCapital, initialCapital, 0, lastSimYear)];
+
+      const kapitalerhaltConfig = {
+        nominalReturn: 0.06, // 6% nominal return
+        inflationRate: 0.02  // 2% inflation
+      };
+      // Expected real return: 6% - 2% = 4%
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalEndYear,
+        strategy: "kapitalerhalt",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: {
+          [withdrawalStartYear]: freibetrag,
+          [withdrawalStartYear + 1]: freibetrag,
+          [withdrawalStartYear + 2]: freibetrag
+        },
+        kapitalerhaltConfig
+      });
+
+      // Check that all years have results
+      expect(result[withdrawalStartYear]).toBeDefined();
+      expect(result[withdrawalStartYear + 1]).toBeDefined();
+      expect(result[withdrawalStartYear + 2]).toBeDefined();
+      
+      // For Kapitalerhalt strategy, the withdrawal amount should be based on the 
+      // starting capital of each year, maintaining the same percentage
+      const year1 = result[withdrawalStartYear];
+      const year2 = result[withdrawalStartYear + 1];
+      const year3 = result[withdrawalStartYear + 2];
+      
+      // Each year should withdraw 4% of the starting capital for that year
+      const expectedRate = kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate;
+      expect(year1.entnahme / year1.startkapital).toBeCloseTo(expectedRate);
+      expect(year2.entnahme / year2.startkapital).toBeCloseTo(expectedRate);
+      expect(year3.entnahme / year3.startkapital).toBeCloseTo(expectedRate);
+    });
+  });
 });

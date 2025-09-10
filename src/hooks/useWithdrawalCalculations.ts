@@ -153,6 +153,13 @@ export function useWithdrawalCalculations(
                 customLifeExpectancy: formValue.rmdCustomLifeExpectancy,
               }
             : undefined,
+        kapitalerhaltConfig:
+          formValue.strategie === "kapitalerhalt"
+            ? {
+                nominalReturn: formValue.kapitalerhaltNominalReturn / 100,
+                inflationRate: formValue.kapitalerhaltInflationRate / 100,
+              }
+            : undefined,
         enableGrundfreibetrag: grundfreibetragAktiv,
         grundfreibetragPerYear: grundfreibetragAktiv
           ? (() => {
@@ -220,6 +227,8 @@ export function useWithdrawalCalculations(
     formValue.rmdStartAge,
     formValue.rmdLifeExpectancyTable,
     formValue.rmdCustomLifeExpectancy,
+    formValue.kapitalerhaltNominalReturn,
+    formValue.kapitalerhaltInflationRate,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     formValue.einkommensteuersatz,
@@ -308,6 +317,13 @@ export function useWithdrawalCalculations(
                   startAge: strategy.rmdStartAge || 65,
                   lifeExpectancyTable: strategy.rmdLifeExpectancyTable || 'german_2020_22',
                   customLifeExpectancy: strategy.rmdCustomLifeExpectancy,
+                }
+              : undefined,
+          kapitalerhaltConfig:
+            strategy.strategie === "kapitalerhalt"
+              ? {
+                  nominalReturn: (strategy.kapitalerhaltNominalReturn || 7) / 100,
+                  inflationRate: (strategy.kapitalerhaltInflationRate || 2) / 100,
                 }
               : undefined,
           enableGrundfreibetrag: grundfreibetragAktiv,

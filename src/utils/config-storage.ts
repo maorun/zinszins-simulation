@@ -45,6 +45,9 @@ export interface WithdrawalFormValue {
   rmdStartAge: number;
   rmdLifeExpectancyTable: 'german_2020_22' | 'custom';
   rmdCustomLifeExpectancy?: number;
+  // Kapitalerhalt strategy specific settings
+  kapitalerhaltNominalReturn: number;
+  kapitalerhaltInflationRate: number;
   // Grundfreibetrag settings (now handled globally, kept for backward compatibility)
   grundfreibetragAktiv?: boolean;
   grundfreibetragBetrag?: number;
@@ -75,6 +78,9 @@ export interface ComparisonStrategy {
   rmdStartAge?: number;
   rmdLifeExpectancyTable?: 'german_2020_22' | 'custom';
   rmdCustomLifeExpectancy?: number;
+  // Kapitalerhalt strategy specific fields
+  kapitalerhaltNominalReturn?: number;
+  kapitalerhaltInflationRate?: number;
 }
 
 /**

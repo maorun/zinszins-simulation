@@ -19,6 +19,7 @@ import { WithdrawalSegmentForm } from "./WithdrawalSegmentForm";
 import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
 import { RMDWithdrawalConfiguration } from "./RMDWithdrawalConfiguration";
 import { BucketStrategyConfiguration } from "./BucketStrategyConfiguration";
+import { KapitalerhaltConfiguration } from "./KapitalerhaltConfiguration";
 import { EntnahmeSimulationDisplay } from "./EntnahmeSimulationDisplay";
 import { useWithdrawalConfig } from "../hooks/useWithdrawalConfig";
 import { useWithdrawalCalculations } from "../hooks/useWithdrawalCalculations";
@@ -48,6 +49,8 @@ function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
       return "Drei-Eimer-Strategie";
     case "rmd":
       return "RMD (Lebenserwartung)";
+    case "kapitalerhalt":
+      return "Kapitalerhalt / Ewige Rente";
     default:
       return strategy;
   }
@@ -270,6 +273,9 @@ export function EntnahmeSimulationsAusgabe({
                   <RadioTile value="rmd" label="RMD (Lebenserwartung)">
                     Entnahme basierend auf Alter und Lebenserwartung
                   </RadioTile>
+                  <RadioTile value="kapitalerhalt" label="Kapitalerhalt / Ewige Rente">
+                    Reale Rendite für Kapitalerhalt
+                  </RadioTile>
                 </RadioTileGroup>
               </div>
 
@@ -363,6 +369,13 @@ export function EntnahmeSimulationsAusgabe({
               {formValue.strategie === "rmd" && (
                 <RMDWithdrawalConfiguration 
                   formValue={formValue} 
+                  updateFormValue={updateFormValue}
+                />
+              )}
+
+              {formValue.strategie === "kapitalerhalt" && (
+                <KapitalerhaltConfiguration
+                  formValue={formValue}
                   updateFormValue={updateFormValue}
                 />
               )}
@@ -1160,6 +1173,14 @@ export function EntnahmeSimulationsAusgabe({
             {formValue.strategie === "rmd" && (
               <RMDWithdrawalConfiguration 
                 formValue={formValue} 
+                updateFormValue={updateFormValue}
+              />
+            )}
+
+            {/* Kapitalerhalt strategy specific controls */}
+            {formValue.strategie === "kapitalerhalt" && (
+              <KapitalerhaltConfiguration
+                formValue={formValue}
                 updateFormValue={updateFormValue}
               />
             )}

@@ -38,6 +38,8 @@ const mockFormValue: WithdrawalFormValue = {
   dynamischUntereAnpassung: -5,
   rmdStartAge: 65,
   rmdLifeExpectancyTable: 'german_2020_22',
+  kapitalerhaltNominalReturn: 7,
+  kapitalerhaltInflationRate: 2,
   grundfreibetragAktiv: false,
   grundfreibetragBetrag: 10908,
   einkommensteuersatz: 18,
