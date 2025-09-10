@@ -16,6 +16,13 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
 - **Feste Rendite** - Konstante jährliche Rendite
 - **Zufällige Rendite** - Monte Carlo Simulation mit konfigurierbarer durchschnittlicher Rendite und Volatilität
 - **Variable Rendite pro Jahr** - Jahr-für-Jahr konfigurierbare Renditen für realistische Szenarien
+- **Historische Daten (Backtesting)** - Backtesting mit echten historischen Marktdaten
+  - **DAX** - Deutscher Aktienindex (2000-2023)
+  - **S&P 500** - Amerikanischer Standard & Poor's 500 Index (2000-2023)
+  - **MSCI World** - Globaler diversifizierter Aktienindex (2000-2023)
+  - **Wichtiger Warnhinweis** - Prominent platzierte Warnungen, dass vergangene Wertentwicklungen keine Garantie für zukünftige Ergebnisse sind
+  - **Statistische Kennzahlen** - Anzeige von durchschnittlicher Rendite, Volatilität und Währung für jeden Index
+  - **Automatisches Fallback** - Bei fehlenden historischen Daten werden Durchschnittsrenditen verwendet
 
 ### Sparplan und Einmalzahlungen
 - **Sparplan** - Regelmäßige jährliche oder monatliche Einzahlungen
@@ -88,6 +95,12 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Berechnete Rendite der Ansparphase (annualisiert)
   - Endkapital und monatliche Auszahlungen der Entsparphase
   - Berechnete Rendite der Entsparphase unter Berücksichtigung von Entnahmen
+- **Historisches Backtesting** - Test von Strategien mit echten historischen Marktdaten
+  - **24 Jahre Marktdaten** - DAX, S&P 500 und MSCI World von 2000-2023
+  - **Realistische Szenarien** - Inklusive Marktkrisen wie 2002 Dotcom-Crash und 2008 Finanzkrise
+  - **Automatische Integration** - Nahtlose Verwendung historischer Renditen in allen Simulationsberechnungen
+  - **Vergleichbare Ergebnisse** - Deterministische Ergebnisse für konsistente Strategievergleiche
+  - **Wichtige Warnhinweise** - Prominent platzierte Hinweise auf Grenzen historischer Daten
 - **Monte Carlo Analyse** - Statistische Auswertung verschiedener Rendite-Szenarien
 - **Erweiterte Risikobewertung** - Umfassende Risikoanalyse für Ansparen und Entnehmen
   - **Value-at-Risk (VaR)** - Potenzielle Verluste bei 95% und 99% Konfidenzintervall
