@@ -48,6 +48,9 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
       rmdStartAge: 65, // Default retirement age
       rmdLifeExpectancyTable: 'german_2020_22', // Use German mortality tables
       rmdCustomLifeExpectancy: 20, // Default custom life expectancy
+      // Kapitalerhalt strategy specific settings
+      kapitalerhaltNominalReturn: 7, // Default nominal return 7%
+      kapitalerhaltInflationRate: 2, // Default inflation rate 2%
       einkommensteuersatz: 18, // Default income tax rate 18%
     };
 
