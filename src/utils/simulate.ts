@@ -2,6 +2,7 @@ import type { SparplanElement } from "../utils/sparplan-utils";
 import { getBasiszinsForYear, calculateVorabpauschaleDetailed } from "../../helpers/steuer.tsx";
 import { type ReturnConfiguration, generateRandomReturns } from "./random-returns";
 import type { BasiszinsConfiguration } from "../services/bundesbank-api";
+import { getHistoricalReturns } from "./historical-data";
 
 export type VorabpauschaleDetails = {
     basiszins: number; // Base interest rate for the year
@@ -85,6 +86,24 @@ function generateYearlyGrowthRates(
           if (returnConfig.variableConfig) {
             for (const year of years) {
               yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] ?? 0.05;
+            }
+          }
+          break;
+        }
+        case 'historical': {
+          if (returnConfig.historicalConfig) {
+            const historicalReturns = getHistoricalReturns(
+              returnConfig.historicalConfig.indexId,
+              startYear,
+              endYear
+            );
+            if (historicalReturns) {
+              Object.assign(yearlyGrowthRates, historicalReturns);
+            } else {
+              // Fallback to 5% if historical data is not available
+              for (const year of years) {
+                yearlyGrowthRates[year] = 0.05;
+              }
             }
           }
           break;

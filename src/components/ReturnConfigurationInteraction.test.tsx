@@ -52,4 +52,29 @@ describe('ReturnConfiguration', () => {
             expect(screen.getByText('Variable Renditen pro Jahr')).toBeInTheDocument();
         });
     });
+
+    it('renders the historical return configuration when the historical radio button is clicked', async () => {
+        render(
+            <SimulationProvider>
+                <ReturnConfiguration />
+            </SimulationProvider>
+        );
+        
+        // First expand the collapsible section
+        const heading = screen.getByText('📈 Rendite-Konfiguration (Sparphase)');
+        fireEvent.click(heading);
+        
+        // Wait for content to be visible, then click the historical option
+        await waitFor(() => {
+            expect(screen.getByText('Historische Daten')).toBeInTheDocument();
+        });
+        
+        fireEvent.click(screen.getByText('Historische Daten'));
+        
+        // Check that the historical return configuration appears with warning
+        await waitFor(() => {
+            expect(screen.getByText('Wichtiger Hinweis zum Backtesting')).toBeInTheDocument();
+            expect(screen.getByText('Historischer Index für Backtesting')).toBeInTheDocument();
+        });
+    });
 });

@@ -7,6 +7,7 @@ import type { ReturnMode } from '../utils/random-returns';
 import FixedReturnConfiguration from './FixedReturnConfiguration';
 import RandomReturnConfiguration from './RandomReturnConfiguration';
 import VariableReturnConfiguration from './VariableReturnConfiguration';
+import HistoricalReturnConfiguration from './HistoricalReturnConfiguration';
 import { RadioTileGroup, RadioTile } from './ui/radio-tile';
 
 const ReturnConfiguration = () => {
@@ -48,6 +49,9 @@ const ReturnConfiguration = () => {
                         <RadioTile value="variable" label="Variable Rendite">
                             Jahr-für-Jahr konfigurierbare Renditen für realistische Szenarien
                         </RadioTile>
+                        <RadioTile value="historical" label="Historische Daten">
+                            Backtesting mit echten historischen Marktdaten (Vergangenheit ≠ Zukunft!)
+                        </RadioTile>
                     </RadioTileGroup>
                     <p className="text-sm text-muted-foreground">
                         Konfiguration der erwarteten Rendite während der Ansparphase (bis zum Beginn der Entnahme).
@@ -57,6 +61,7 @@ const ReturnConfiguration = () => {
                 {returnMode === 'fixed' && <FixedReturnConfiguration />}
                 {returnMode === 'random' && <RandomReturnConfiguration />}
                 {returnMode === 'variable' && <VariableReturnConfiguration />}
+                {returnMode === 'historical' && <HistoricalReturnConfiguration />}
                     </CardContent>
                 </CollapsibleContent>
             </Collapsible>

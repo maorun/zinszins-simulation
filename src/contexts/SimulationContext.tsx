@@ -261,6 +261,13 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
               ),
             },
           };
+        } else if (returnMode === 'historical') {
+          returnConfig = {
+            mode: 'historical',
+            historicalConfig: {
+              indexId: historicalIndex,
+            },
+          };
         } else {
           returnConfig = {
             mode: 'fixed',
@@ -292,7 +299,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     } finally {
       setIsLoading(false);
     }
-  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase]);
+  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase]);
 
   const value = useMemo(() => ({
     rendite, setRendite,
