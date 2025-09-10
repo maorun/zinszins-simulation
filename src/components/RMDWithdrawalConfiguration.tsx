@@ -5,46 +5,94 @@ import { RadioTileGroup, RadioTile } from "./ui/radio-tile";
 import type { WithdrawalFormValue } from "../utils/config-storage";
 import { getRMDDescription } from "../../helpers/rmd-tables";
 
+interface RMDConfigValues {
+  startAge: number;
+  lifeExpectancyTable: 'german_2020_22' | 'custom';
+  customLifeExpectancy?: number;
+}
+
+interface RMDChangeHandlers {
+  onStartAgeChange: (age: number) => void;
+  onLifeExpectancyTableChange: (table: 'german_2020_22' | 'custom') => void;
+  onCustomLifeExpectancyChange: (years: number) => void;
+}
+
 interface RMDWithdrawalConfigurationProps {
-  formValue: WithdrawalFormValue;
-  updateFormValue: (newValue: WithdrawalFormValue) => void;
+  // For existing form-based usage (Einheitlich)
+  formValue?: WithdrawalFormValue;
+  updateFormValue?: (newValue: WithdrawalFormValue) => void;
+  
+  // For direct state management (Segmentiert)
+  values?: RMDConfigValues;
+  onChange?: RMDChangeHandlers;
 }
 
 export function RMDWithdrawalConfiguration({ 
   formValue, 
-  updateFormValue 
+  updateFormValue,
+  values,
+  onChange
 }: RMDWithdrawalConfigurationProps) {
+  // Determine which mode we're in
+  const isFormMode = formValue !== undefined && updateFormValue !== undefined;
+  const isDirectMode = values !== undefined && onChange !== undefined;
+
+  if (!isFormMode && !isDirectMode) {
+    throw new Error("RMDWithdrawalConfiguration requires either (formValue + updateFormValue) or (values + onChange)");
+  }
+
+  // Get current values based on mode
+  const currentValues = isFormMode ? {
+    startAge: formValue!.rmdStartAge,
+    lifeExpectancyTable: formValue!.rmdLifeExpectancyTable,
+    customLifeExpectancy: formValue!.rmdCustomLifeExpectancy,
+  } : values!;
   const handleAgeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const age = Number(event.target.value);
-    updateFormValue({
-      ...formValue,
-      rmdStartAge: age
-    });
+    if (isFormMode) {
+      updateFormValue!({
+        ...formValue!,
+        rmdStartAge: age
+      });
+    } else {
+      onChange!.onStartAgeChange(age);
+    }
   };
 
   const handleTableChange = (value: string) => {
-    updateFormValue({
-      ...formValue,
-      rmdLifeExpectancyTable: value as 'german_2020_22' | 'custom'
-    });
+    const table = value as 'german_2020_22' | 'custom';
+    if (isFormMode) {
+      updateFormValue!({
+        ...formValue!,
+        rmdLifeExpectancyTable: table
+      });
+    } else {
+      onChange!.onLifeExpectancyTableChange(table);
+    }
   };
 
   const handleCustomLifeExpectancyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const years = Number(event.target.value);
-    updateFormValue({
-      ...formValue,
-      rmdCustomLifeExpectancy: years
-    });
+    if (isFormMode) {
+      updateFormValue!({
+        ...formValue!,
+        rmdCustomLifeExpectancy: years
+      });
+    } else {
+      onChange!.onCustomLifeExpectancyChange(years);
+    }
   };
 
   return (
     <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
       <div className="space-y-2">
-        <Label htmlFor="rmdStartAge">Alter zu Beginn der Entnahmephase</Label>
+        <Label htmlFor={isFormMode ? "rmdStartAge" : "rmd-start-age"}>
+          Alter zu Beginn der Entnahmephase
+        </Label>
         <Input
-          id="rmdStartAge"
+          id={isFormMode ? "rmdStartAge" : "rmd-start-age"}
           type="number"
-          value={formValue.rmdStartAge}
+          value={currentValues.startAge}
           onChange={handleAgeChange}
           min={50}
           max={100}
@@ -52,40 +100,54 @@ export function RMDWithdrawalConfiguration({
           className="w-32"
         />
         <div className="text-sm text-muted-foreground">
-          Das Alter, mit dem die RMD-Entnahme beginnt (Standard: 65 Jahre)
+          {isFormMode
+            ? "Das Alter, mit dem die RMD-Entnahme beginnt (Standard: 65 Jahre)"
+            : "Das Alter zu Beginn dieser Entnahme-Phase (wird für die Berechnung der Lebenserwartung verwendet)"
+          }
         </div>
       </div>
 
       <div className="space-y-2">
-        <Label>Datengrundlage für Lebenserwartung</Label>
+        <Label>{isFormMode ? "Datengrundlage für Lebenserwartung" : "Sterbetabelle"}</Label>
         <RadioTileGroup
-          value={formValue.rmdLifeExpectancyTable}
+          value={currentValues.lifeExpectancyTable}
           onValueChange={handleTableChange}
         >
-          <RadioTile value="german_2020_22" label="Deutsche Sterbetafel">
-            Offizielle Sterbetafel 2020-2022 vom Statistischen Bundesamt
+          <RadioTile value="german_2020_22" label={isFormMode ? "Deutsche Sterbetafel" : "Deutsche Sterbetabelle 2020/22"}>
+            {isFormMode 
+              ? "Offizielle Sterbetafel 2020-2022 vom Statistischen Bundesamt"
+              : "Offizielle deutsche Sterbetabelle (aktuarisch)"
+            }
           </RadioTile>
           <RadioTile value="custom" label="Benutzerdefiniert">
-            Eigene Lebenserwartung festlegen
+            {isFormMode
+              ? "Eigene Lebenserwartung festlegen"
+              : "Eigene Lebenserwartung festlegen"
+            }
           </RadioTile>
         </RadioTileGroup>
       </div>
 
-      {formValue.rmdLifeExpectancyTable === 'custom' && (
+      {currentValues.lifeExpectancyTable === 'custom' && (
         <div className="space-y-2">
-          <Label htmlFor="rmdCustomLifeExpectancy">Verbleibende Lebenserwartung (Jahre)</Label>
+          <Label htmlFor={isFormMode ? "rmdCustomLifeExpectancy" : "rmd-custom-life-expectancy"}>
+            {isFormMode ? "Verbleibende Lebenserwartung (Jahre)" : "Benutzerdefinierte Lebenserwartung (Jahre)"}
+          </Label>
           <Input
-            id="rmdCustomLifeExpectancy"
+            id={isFormMode ? "rmdCustomLifeExpectancy" : "rmd-custom-life-expectancy"}
             type="number"
-            value={formValue.rmdCustomLifeExpectancy || 20}
+            value={currentValues.customLifeExpectancy || 20}
             onChange={handleCustomLifeExpectancyChange}
-            min={1}
+            min={isFormMode ? 1 : 5}
             max={50}
-            step={0.1}
+            step={isFormMode ? 0.1 : 1}
             className="w-32"
           />
           <div className="text-sm text-muted-foreground">
-            Anzahl der Jahre, die das Portfolio vorhalten soll
+            {isFormMode
+              ? "Anzahl der Jahre, die das Portfolio vorhalten soll"
+              : `Erwartete Lebensdauer ab dem Startalter (z.B. 20 Jahre bedeutet Leben bis Alter ${currentValues.startAge + (currentValues.customLifeExpectancy || 20)})`
+            }
           </div>
         </div>
       )}
@@ -95,7 +157,7 @@ export function RMDWithdrawalConfiguration({
           Entnahme-Berechnung
         </div>
         <div className="text-sm text-blue-800">
-          {getRMDDescription(formValue.rmdStartAge)}
+          {getRMDDescription(currentValues.startAge)}
         </div>
         <div className="text-xs text-blue-700 mt-2">
           Die jährliche Entnahme wird berechnet als: <strong>Portfoliowert ÷ Divisor (Lebenserwartung)</strong>

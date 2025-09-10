@@ -23,6 +23,8 @@ import { validateWithdrawalSegments, createDefaultWithdrawalSegment } from "../u
 import type { WithdrawalStrategy } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
+import { BucketStrategyConfiguration } from "./BucketStrategyConfiguration";
+import { RMDWithdrawalConfiguration } from "./RMDWithdrawalConfiguration";
 
 export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable';
 
@@ -470,192 +472,82 @@ export function WithdrawalSegmentForm({
 
                         {/* Bucket strategy settings */}
                         {segment.strategy === "bucket_strategie" && (
-                            <div className="space-y-4">
-                                <div className="mb-4 space-y-2">
-                                    <Label>Initiales Cash-Polster (€)</Label>
-                                    <Input
-                                        type="number"
-                                        value={segment.bucketConfig?.initialCashCushion || 20000}
-                                        onChange={(e) => {
-                                            const value = e.target.value ? Number(e.target.value) : 20000;
-                                            updateSegment(segment.id, {
-                                                bucketConfig: {
-                                                    initialCashCushion: value,
-                                                    refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
-                                                    refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
-                                                    baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04
-                                                }
-                                            });
-                                        }}
-                                        min={1000}
-                                        max={100000}
-                                        step={1000}
-                                    />
-                                    <p className="text-sm text-gray-600">
-                                        Anfänglicher Cash-Puffer für negative Rendite-Jahre
-                                    </p>
-                                </div>
-                                
-                                <div className="mb-4 space-y-2">
-                                    <Label>Basis-Entnahmerate (%)</Label>
-                                    <div className="space-y-2">
-                                        <Slider
-                                            value={[segment.bucketConfig?.baseWithdrawalRate ? segment.bucketConfig.baseWithdrawalRate * 100 : 4]}
-                                            onValueChange={(value) => {
-                                                updateSegment(segment.id, {
-                                                    bucketConfig: {
-                                                        initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
-                                                        refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
-                                                        refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
-                                                        baseWithdrawalRate: value[0] / 100
-                                                    }
-                                                });
-                                            }}
-                                            max={10}
-                                            min={1}
-                                            step={0.1}
-                                            className="w-full"
-                                        />
-                                        <div className="flex justify-between text-sm text-gray-500">
-                                            <span>1%</span>
-                                            <span className="font-medium text-gray-900">{segment.bucketConfig?.baseWithdrawalRate ? (segment.bucketConfig.baseWithdrawalRate * 100).toFixed(1) : '4.0'}%</span>
-                                            <span>10%</span>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <div className="mb-4 space-y-2">
-                                    <Label>Auffüll-Schwellenwert (€)</Label>
-                                    <Input
-                                        type="number"
-                                        value={segment.bucketConfig?.refillThreshold || 5000}
-                                        onChange={(e) => {
-                                            const value = e.target.value ? Number(e.target.value) : 5000;
-                                            updateSegment(segment.id, {
-                                                bucketConfig: {
-                                                    initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
-                                                    refillThreshold: value,
-                                                    refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
-                                                    baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04
-                                                }
-                                            });
-                                        }}
-                                        min={100}
-                                        max={50000}
-                                        step={100}
-                                    />
-                                    <p className="text-sm text-gray-600">
-                                        Überschreiten die jährlichen Gewinne diesen Betrag, wird Cash-Polster aufgefüllt
-                                    </p>
-                                </div>
-
-                                <div className="mb-4 space-y-2">
-                                    <Label>Auffüll-Anteil (%)</Label>
-                                    <div className="space-y-2">
-                                        <Slider
-                                            value={[segment.bucketConfig?.refillPercentage ? segment.bucketConfig.refillPercentage * 100 : 50]}
-                                            onValueChange={(value) => {
-                                                updateSegment(segment.id, {
-                                                    bucketConfig: {
-                                                        initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
-                                                        refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
-                                                        refillPercentage: value[0] / 100,
-                                                        baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04
-                                                    }
-                                                });
-                                            }}
-                                            max={100}
-                                            min={10}
-                                            step={5}
-                                            className="w-full"
-                                        />
-                                        <div className="flex justify-between text-sm text-gray-500">
-                                            <span>10%</span>
-                                            <span className="font-medium text-gray-900">{segment.bucketConfig?.refillPercentage ? (segment.bucketConfig.refillPercentage * 100).toFixed(0) : '50'}%</span>
-                                            <span>100%</span>
-                                        </div>
-                                    </div>
-                                    <p className="text-sm text-gray-600">
-                                        Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird
-                                    </p>
-                                </div>
-                            </div>
+                            <BucketStrategyConfiguration
+                                values={{
+                                    initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                    refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                    refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                    baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04,
+                                }}
+                                onChange={{
+                                    onInitialCashCushionChange: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: value,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04
+                                        }
+                                    }),
+                                    onRefillThresholdChange: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: value,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04
+                                        }
+                                    }),
+                                    onRefillPercentageChange: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: value,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04
+                                        }
+                                    }),
+                                    onBaseWithdrawalRateChange: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: value
+                                        }
+                                    }),
+                                }}
+                            />
                         )}
 
                         {/* RMD strategy settings */}
                         {segment.strategy === "rmd" && (
-                            <div className="space-y-4">
-                                <div className="mb-4 space-y-2">
-                                    <Label>Alter zu Beginn der Entnahmephase</Label>
-                                    <Input
-                                        type="number"
-                                        value={segment.rmdConfig?.startAge || 65}
-                                        onChange={(e) => {
-                                            const age = e.target.value ? Number(e.target.value) : 65;
-                                            updateSegment(segment.id, {
-                                                rmdConfig: {
-                                                    startAge: age,
-                                                    lifeExpectancyTable: segment.rmdConfig?.lifeExpectancyTable || 'german_2020_22',
-                                                    customLifeExpectancy: segment.rmdConfig?.customLifeExpectancy
-                                                }
-                                            });
-                                        }}
-                                        min={50}
-                                        max={100}
-                                    />
-                                    <p className="text-sm text-gray-600">
-                                        Das Alter zu Beginn dieser Entnahme-Phase (wird für die Berechnung der Lebenserwartung verwendet)
-                                    </p>
-                                </div>
-
-                                <div className="mb-4 space-y-2">
-                                    <Label>Sterbetabelle</Label>
-                                    <RadioTileGroup
-                                        value={segment.rmdConfig?.lifeExpectancyTable || 'german_2020_22'}
-                                        onValueChange={(value: string) => {
-                                            updateSegment(segment.id, {
-                                                rmdConfig: {
-                                                    startAge: segment.rmdConfig?.startAge || 65,
-                                                    lifeExpectancyTable: value as 'german_2020_22' | 'custom',
-                                                    customLifeExpectancy: segment.rmdConfig?.customLifeExpectancy
-                                                }
-                                            });
-                                        }}
-                                    >
-                                        <RadioTile value="german_2020_22" label="Deutsche Sterbetabelle 2020/22">
-                                            Offizielle deutsche Sterbetabelle (aktuarisch)
-                                        </RadioTile>
-                                        <RadioTile value="custom" label="Benutzerdefiniert">
-                                            Eigene Lebenserwartung festlegen
-                                        </RadioTile>
-                                    </RadioTileGroup>
-                                </div>
-
-                                {segment.rmdConfig?.lifeExpectancyTable === 'custom' && (
-                                    <div className="mb-4 space-y-2">
-                                        <Label>Benutzerdefinierte Lebenserwartung (Jahre)</Label>
-                                        <Input
-                                            type="number"
-                                            value={segment.rmdConfig?.customLifeExpectancy || 20}
-                                            onChange={(e) => {
-                                                const years = e.target.value ? Number(e.target.value) : 20;
-                                                updateSegment(segment.id, {
-                                                    rmdConfig: {
-                                                        startAge: segment.rmdConfig?.startAge || 65,
-                                                        lifeExpectancyTable: 'custom',
-                                                        customLifeExpectancy: years
-                                                    }
-                                                });
-                                            }}
-                                            min={5}
-                                            max={50}
-                                        />
-                                        <p className="text-sm text-gray-600">
-                                            Erwartete Lebensdauer ab dem Startalter (z.B. 20 Jahre bedeutet Leben bis Alter {(segment.rmdConfig?.startAge || 65) + (segment.rmdConfig?.customLifeExpectancy || 20)})
-                                        </p>
-                                    </div>
-                                )}
-                            </div>
+                            <RMDWithdrawalConfiguration
+                                values={{
+                                    startAge: segment.rmdConfig?.startAge || 65,
+                                    lifeExpectancyTable: segment.rmdConfig?.lifeExpectancyTable || 'german_2020_22',
+                                    customLifeExpectancy: segment.rmdConfig?.customLifeExpectancy,
+                                }}
+                                onChange={{
+                                    onStartAgeChange: (age) => updateSegment(segment.id, {
+                                        rmdConfig: {
+                                            startAge: age,
+                                            lifeExpectancyTable: segment.rmdConfig?.lifeExpectancyTable || 'german_2020_22',
+                                            customLifeExpectancy: segment.rmdConfig?.customLifeExpectancy
+                                        }
+                                    }),
+                                    onLifeExpectancyTableChange: (table) => updateSegment(segment.id, {
+                                        rmdConfig: {
+                                            startAge: segment.rmdConfig?.startAge || 65,
+                                            lifeExpectancyTable: table,
+                                            customLifeExpectancy: segment.rmdConfig?.customLifeExpectancy
+                                        }
+                                    }),
+                                    onCustomLifeExpectancyChange: (years) => updateSegment(segment.id, {
+                                        rmdConfig: {
+                                            startAge: segment.rmdConfig?.startAge || 65,
+                                            lifeExpectancyTable: 'custom',
+                                            customLifeExpectancy: years
+                                        }
+                                    }),
+                                }}
+                            />
                         )}
 
                             <Separator />
