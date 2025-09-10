@@ -3,11 +3,12 @@ import { Input } from "./ui/input";
 import { Slider } from "./ui/slider";
 import { Switch } from "./ui/switch";
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { Button } from './ui/button';
 import { RadioTileGroup, RadioTile } from './ui/radio-tile';
 import { Separator } from './ui/separator';
 import { Label } from './ui/label';
-import { Plus, Trash2 } from 'lucide-react';
+import { Plus, Trash2, ChevronDown } from 'lucide-react';
 
 // Helper function for number input handling with number onChange
 const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: number | undefined) => void) => {
@@ -128,10 +129,17 @@ export function WithdrawalSegmentForm({
 
     return (
         <Card>
-            <CardHeader>
-                <CardTitle>Entnahme-Phasen konfigurieren</CardTitle>
-            </CardHeader>
-            <CardContent>
+            <Collapsible defaultOpen={false}>
+                <CardHeader>
+                    <CollapsibleTrigger asChild>
+                        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+                            <CardTitle className="text-left">Entnahme-Phasen konfigurieren</CardTitle>
+                            <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                        </div>
+                    </CollapsibleTrigger>
+                </CardHeader>
+                <CollapsibleContent>
+                    <CardContent>
                 <div className="mb-5">
                     <p className="mb-4">
                         Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf.
@@ -164,22 +172,32 @@ export function WithdrawalSegmentForm({
                         key={segment.id} 
                         className="mb-4"
                     >
-                        <CardHeader>
-                            <div className="flex justify-between items-center">
-                                <CardTitle className="text-lg">{segment.name} ({segment.startYear} - {segment.endYear})</CardTitle>
-                                {segments.length > 1 && (
-                                    <Button 
-                                        variant="ghost" 
-                                        size="sm" 
-                                        onClick={() => removeSegment(segment.id)}
-                                        className="text-destructive hover:text-destructive"
-                                    >
-                                        <Trash2 className="h-4 w-4" />
-                                    </Button>
-                                )}
-                            </div>
-                        </CardHeader>
-                        <CardContent>
+                        <Collapsible defaultOpen={false}>
+                            <CardHeader>
+                                <CollapsibleTrigger asChild>
+                                    <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+                                        <CardTitle className="text-lg text-left">{segment.name} ({segment.startYear} - {segment.endYear})</CardTitle>
+                                        <div className="flex items-center space-x-2">
+                                            <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                                            {segments.length > 1 && (
+                                                <Button 
+                                                    variant="ghost" 
+                                                    size="sm" 
+                                                    onClick={(e) => {
+                                                        e.stopPropagation();
+                                                        removeSegment(segment.id);
+                                                    }}
+                                                    className="text-destructive hover:text-destructive ml-2"
+                                                >
+                                                    <Trash2 className="h-4 w-4" />
+                                                </Button>
+                                            )}
+                                        </div>
+                                    </div>
+                                </CollapsibleTrigger>
+                            </CardHeader>
+                            <CollapsibleContent>
+                                <CardContent>
                             {/* Basic segment configuration - Mobile responsive layout */}
                             <div className="form-grid">
                                 <div className="mb-4 space-y-2">
@@ -722,10 +740,14 @@ export function WithdrawalSegmentForm({
                                     Bestimmt, ob Vorabpauschale-Steuern das Endkapital dieser Phase reduzieren oder über ein separates Verrechnungskonto bezahlt werden.
                                 </div>
                             </div>
-                        </CardContent>
+                                </CardContent>
+                            </CollapsibleContent>
+                        </Collapsible>
                     </Card>
             ))}
-            </CardContent>
+                    </CardContent>
+                </CollapsibleContent>
+            </Collapsible>
         </Card>
     );
 }
