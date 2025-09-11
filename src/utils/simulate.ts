@@ -25,6 +25,47 @@ export type SimulationResultElement = {
     terCosts?: number; // TER costs for this year
     transactionCosts?: number; // Transaction costs for this year
     totalCosts?: number; // Total costs for this year (TER + transaction costs)
+    // Inflation-adjusted values for Gesamtmenge mode (for display purposes only)
+    endkapitalReal?: number; // Real value (inflation-adjusted) of endkapital
+    zinsenReal?: number; // Real value (inflation-adjusted) of zinsen
+}
+
+// Helper function to apply inflation adjustments for display purposes
+function applyInflationAdjustmentForDisplay(
+  elements: SparplanElement[], 
+  options: SimulateOptions
+): void {
+  if (!options.inflationAktivSparphase || 
+      !options.inflationsrateSparphase || 
+      options.inflationsrateSparphase <= 0 ||
+      options.inflationAnwendungSparphase !== 'gesamtmenge') {
+    return; // No inflation adjustment needed
+  }
+
+  const inflationRate = options.inflationsrateSparphase / 100;
+
+  for (const element of elements) {
+    if (!element.simulation) continue;
+    
+    const elementStartYear = new Date(element.start).getFullYear();
+    
+    for (const [year, simulation] of Object.entries(element.simulation)) {
+      const currentYear = parseInt(year);
+      const yearsSinceElementStart = currentYear - elementStartYear + 1;
+      
+      if (yearsSinceElementStart > 0) {
+        const inflationFactor = Math.pow(1 + inflationRate, yearsSinceElementStart);
+        
+        // Calculate real (inflation-adjusted) values for display
+        simulation.endkapitalReal = simulation.endkapital / inflationFactor;
+        simulation.zinsenReal = simulation.zinsen / inflationFactor;
+      } else {
+        // No inflation adjustment for years before element started
+        simulation.endkapitalReal = simulation.endkapital;
+        simulation.zinsenReal = simulation.zinsen;
+      }
+    }
+  }
 }
 
 export type SimulationResult = {
@@ -132,6 +173,9 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     for (let year = startYear; year <= endYear; year++) {
       calculateYearlySimulation(year, elements, yearlyGrowthRates[year], options);
     }
+
+    // Apply inflation adjustments for display purposes if using Gesamtmenge mode
+    applyInflationAdjustmentForDisplay(elements, options);
 
     return elements;
   }
@@ -310,18 +354,9 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
 
             let endkapital = endkapitalAfterCosts;
             
-            // Apply inflation adjustment for Gesamtmenge mode (only when explicitly specified)
-            if (options.inflationAktivSparphase && 
-                options.inflationsrateSparphase && 
-                options.inflationsrateSparphase > 0 &&
-                options.inflationAnwendungSparphase === 'gesamtmenge') {
-              const inflationRate = options.inflationsrateSparphase / 100;
-              const yearsPassed = year - options.startYear + 1;
-              if (yearsPassed > 0) {
-                // Reduce the capital by accumulated inflation to reflect loss of purchasing power
-                endkapital = endkapital / Math.pow(1 + inflationRate, yearsPassed);
-              }
-            }
+            // Note: For gesamtmenge inflation mode, we let money grow at nominal rates
+            // and apply inflation adjustment only for display purposes
+            // This prevents compounding inflation effects in the simulation loop
 
             element.simulation[year] = {
                 startkapital,
@@ -345,7 +380,7 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     totalPotentialTaxThisYear: number,
     freibetragPerYear?: { [year: number]: number },
     steuerReduzierenEndkapital: boolean = true,
-    options?: SimulateOptions
+    _options?: SimulateOptions
   ) {
     const getFreibetragForYear = (year: number): number => {
       if (freibetragPerYear && freibetragPerYear[year] !== undefined) {
@@ -372,19 +407,10 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
         ? calc.endkapitalVorSteuer - taxForElement
         : calc.endkapitalVorSteuer;
       
-      // Apply inflation adjustment for Gesamtmenge mode (only when explicitly specified)
-      if (options && 
-          options.inflationAktivSparphase && 
-          options.inflationsrateSparphase && 
-          options.inflationsrateSparphase > 0 &&
-          options.inflationAnwendungSparphase === 'gesamtmenge') {
-        const inflationRate = options.inflationsrateSparphase / 100;
-        const yearsPassed = year - options.startYear + 1;
-        if (yearsPassed > 0) {
-          // Reduce the capital by accumulated inflation to reflect loss of purchasing power
-          endkapital = endkapital / Math.pow(1 + inflationRate, yearsPassed);
-        }
-      }
+      // Note: For gesamtmenge inflation mode, we let money grow at nominal rates
+      // and apply inflation adjustment only for display purposes
+      // This prevents compounding inflation effects in the simulation loop
+      
       const vorabpauschaleAccumulated =
         (calc.element.simulation[year - 1]?.vorabpauschaleAccumulated || 0) +
         calc.vorabpauschaleBetrag;
