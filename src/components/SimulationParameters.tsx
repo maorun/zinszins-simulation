@@ -7,7 +7,7 @@ import SimulationConfiguration from './SimulationConfiguration';
 
 const SimulationParameters = () => {
   return (
-    <Card>
+    <Card className="mb-4">
       <Collapsible defaultOpen={false}>
         <CardHeader>
           <CollapsibleTrigger asChild>
