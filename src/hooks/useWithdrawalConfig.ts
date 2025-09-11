@@ -5,6 +5,7 @@ import type {
   WithdrawalReturnMode,
   WithdrawalFormValue,
   ComparisonStrategy,
+  SegmentedComparisonStrategy,
 } from "../utils/config-storage";
 
 /**
@@ -98,6 +99,8 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
       ],
       useComparisonMode: false,
       comparisonStrategies: defaultComparisonStrategies,
+      useSegmentedComparisonMode: false,
+      segmentedComparisonStrategies: [],
     };
   }, [withdrawalConfig, startOfIndependence, endOfLife]);
 
@@ -132,10 +135,45 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
     [currentConfig.comparisonStrategies, updateConfig],
   );
 
+  // Helper function to update a segmented comparison strategy
+  const updateSegmentedComparisonStrategy = useCallback(
+    (strategyId: string, updates: Partial<SegmentedComparisonStrategy>) => {
+      updateConfig({
+        segmentedComparisonStrategies: currentConfig.segmentedComparisonStrategies.map((s: SegmentedComparisonStrategy) =>
+          s.id === strategyId ? { ...s, ...updates } : s,
+        ),
+      });
+    },
+    [currentConfig.segmentedComparisonStrategies, updateConfig],
+  );
+
+  // Helper function to add a new segmented comparison strategy
+  const addSegmentedComparisonStrategy = useCallback(
+    (strategy: SegmentedComparisonStrategy) => {
+      updateConfig({
+        segmentedComparisonStrategies: [...currentConfig.segmentedComparisonStrategies, strategy],
+      });
+    },
+    [currentConfig.segmentedComparisonStrategies, updateConfig],
+  );
+
+  // Helper function to remove a segmented comparison strategy
+  const removeSegmentedComparisonStrategy = useCallback(
+    (strategyId: string) => {
+      updateConfig({
+        segmentedComparisonStrategies: currentConfig.segmentedComparisonStrategies.filter((s: SegmentedComparisonStrategy) => s.id !== strategyId),
+      });
+    },
+    [currentConfig.segmentedComparisonStrategies, updateConfig],
+  );
+
   return {
     currentConfig,
     updateConfig,
     updateFormValue,
     updateComparisonStrategy,
+    updateSegmentedComparisonStrategy,
+    addSegmentedComparisonStrategy,
+    removeSegmentedComparisonStrategy,
   };
 }

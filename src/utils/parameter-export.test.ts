@@ -174,7 +174,9 @@ describe('Parameter Export', () => {
         useSegmentedWithdrawal: false,
         withdrawalSegments: [],
         useComparisonMode: false,
-        comparisonStrategies: []
+        comparisonStrategies: [],
+        useSegmentedComparisonMode: false,
+        segmentedComparisonStrategies: []
       };
       
       const result = formatParametersForExport(mockContext);
@@ -274,7 +276,9 @@ describe('Parameter Export', () => {
           }
         ],
         useComparisonMode: false,
-        comparisonStrategies: []
+        comparisonStrategies: [],
+        useSegmentedComparisonMode: false,
+        segmentedComparisonStrategies: []
       };
       
       const result = formatParametersForExport(mockContext);

@@ -84,6 +84,15 @@ export interface ComparisonStrategy {
 }
 
 /**
+ * Segmented comparison strategy for comparing complete segmented withdrawal configurations
+ */
+export interface SegmentedComparisonStrategy {
+  id: string;
+  name: string;
+  segments: WithdrawalSegment[];
+}
+
+/**
  * Complete withdrawal configuration that needs to be persisted
  */
 export interface WithdrawalConfiguration {
@@ -101,6 +110,9 @@ export interface WithdrawalConfiguration {
   // Comparison mode configuration
   useComparisonMode: boolean;
   comparisonStrategies: ComparisonStrategy[];
+  // Segmented comparison mode configuration
+  useSegmentedComparisonMode: boolean;
+  segmentedComparisonStrategies: SegmentedComparisonStrategy[];
 }
 
 /**
