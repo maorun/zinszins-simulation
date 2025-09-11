@@ -60,6 +60,7 @@ export interface SimulateOptions {
     // Inflation settings for savings phase
     inflationAktivSparphase?: boolean;
     inflationsrateSparphase?: number;
+    inflationAnwendungSparphase?: 'sparplan' | 'gesamtmenge';
   }
 
 function generateYearlyGrowthRates(

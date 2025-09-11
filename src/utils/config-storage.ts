@@ -130,6 +130,7 @@ export interface SavedConfiguration {
   // Inflation settings for savings phase
   inflationAktivSparphase?: boolean;
   inflationsrateSparphase?: number;
+  inflationAnwendungSparphase?: 'sparplan' | 'gesamtmenge';
   startEnd: [number, number];
   sparplan: Sparplan[];
   simulationAnnual: SimulationAnnualType;
