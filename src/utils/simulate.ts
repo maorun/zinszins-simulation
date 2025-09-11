@@ -194,9 +194,12 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     simulationAnnual: SimulationAnnualType,
     options: SimulateOptions
   ) {
-    // Apply inflation adjustment to contributions if enabled
+    // Apply inflation adjustment to contributions if enabled and in Sparplan mode
     let adjustedEinzahlung = element.einzahlung;
-    if (options.inflationAktivSparphase && options.inflationsrateSparphase && options.inflationsrateSparphase > 0) {
+    if (options.inflationAktivSparphase && 
+        options.inflationsrateSparphase && 
+        options.inflationsrateSparphase > 0 &&
+        options.inflationAnwendungSparphase === 'sparplan') {
       const inflationRate = options.inflationsrateSparphase / 100;
       const baseYear = options.startYear;
       adjustedEinzahlung = getInflationAdjustedContribution(
@@ -290,7 +293,7 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
         }
 
         // Pass 2: Apply taxes
-        applyTaxes(year, yearlyCalculations, totalPotentialTaxThisYear, freibetragPerYear, steuerReduzierenEndkapital);
+        applyTaxes(year, yearlyCalculations, totalPotentialTaxThisYear, freibetragPerYear, steuerReduzierenEndkapital, options);
     } else {
         // No taxes to be calculated, just calculate growth and costs
         for (const element of elements) {
@@ -305,9 +308,24 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
 
             const vorabpauschaleAccumulated = (element.simulation[year - 1]?.vorabpauschaleAccumulated || 0);
 
+            let endkapital = endkapitalAfterCosts;
+            
+            // Apply inflation adjustment for Gesamtmenge mode
+            if (options.inflationAktivSparphase && 
+                options.inflationsrateSparphase && 
+                options.inflationsrateSparphase > 0 &&
+                options.inflationAnwendungSparphase === 'gesamtmenge') {
+              const inflationRate = options.inflationsrateSparphase / 100;
+              const yearsPassed = year - options.startYear + 1;
+              if (yearsPassed > 0) {
+                // Reduce the capital by accumulated inflation to reflect loss of purchasing power
+                endkapital = endkapital / Math.pow(1 + inflationRate, yearsPassed);
+              }
+            }
+
             element.simulation[year] = {
                 startkapital,
-                endkapital: endkapitalAfterCosts,
+                endkapital,
                 zinsen: jahresgewinn,
                 bezahlteSteuer: 0,
                 genutzterFreibetrag: 0,
@@ -326,7 +344,8 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     yearlyCalculations: any[],
     totalPotentialTaxThisYear: number,
     freibetragPerYear?: { [year: number]: number },
-    steuerReduzierenEndkapital: boolean = true
+    steuerReduzierenEndkapital: boolean = true,
+    options?: SimulateOptions
   ) {
     const getFreibetragForYear = (year: number): number => {
       if (freibetragPerYear && freibetragPerYear[year] !== undefined) {
@@ -349,9 +368,22 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
           ? (calc.potentialTax / totalPotentialTaxThisYear) * genutzterFreibetragTotal
           : 0;
 
-      const endkapital = steuerReduzierenEndkapital 
+      let endkapital = steuerReduzierenEndkapital 
         ? calc.endkapitalVorSteuer - taxForElement
         : calc.endkapitalVorSteuer;
+      
+      // Apply inflation adjustment for Gesamtmenge mode
+      if (options.inflationAktivSparphase && 
+          options.inflationsrateSparphase && 
+          options.inflationsrateSparphase > 0 &&
+          options.inflationAnwendungSparphase === 'gesamtmenge') {
+        const inflationRate = options.inflationsrateSparphase / 100;
+        const yearsPassed = year - options.startYear + 1;
+        if (yearsPassed > 0) {
+          // Reduce the capital by accumulated inflation to reflect loss of purchasing power
+          endkapital = endkapital / Math.pow(1 + inflationRate, yearsPassed);
+        }
+      }
       const vorabpauschaleAccumulated =
         (calc.element.simulation[year - 1]?.vorabpauschaleAccumulated || 0) +
         calc.vorabpauschaleBetrag;
