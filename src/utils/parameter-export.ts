@@ -29,6 +29,7 @@ export function formatParametersForExport(context: SimulationContextState): stri
   lines.push(`Inflation Sparphase: ${context.inflationAktivSparphase ? 'Ja' : 'Nein'}`);
   if (context.inflationAktivSparphase) {
     lines.push(`Inflationsrate Sparphase: ${context.inflationsrateSparphase.toFixed(2)} %`);
+    lines.push(`Inflationsanwendung Sparphase: ${context.inflationAnwendungSparphase === 'sparplan' ? 'Auf Sparplan' : 'Auf Gesamtmenge'}`);
   }
   
   if (context.returnMode === 'random') {

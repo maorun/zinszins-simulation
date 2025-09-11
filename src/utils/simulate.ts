@@ -194,12 +194,12 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     simulationAnnual: SimulationAnnualType,
     options: SimulateOptions
   ) {
-    // Apply inflation adjustment to contributions if enabled and in Sparplan mode
+    // Apply inflation adjustment to contributions if enabled and in Sparplan mode (default)
     let adjustedEinzahlung = element.einzahlung;
     if (options.inflationAktivSparphase && 
         options.inflationsrateSparphase && 
         options.inflationsrateSparphase > 0 &&
-        options.inflationAnwendungSparphase === 'sparplan') {
+        (!options.inflationAnwendungSparphase || options.inflationAnwendungSparphase === 'sparplan')) {
       const inflationRate = options.inflationsrateSparphase / 100;
       const baseYear = options.startYear;
       adjustedEinzahlung = getInflationAdjustedContribution(
@@ -310,7 +310,7 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
 
             let endkapital = endkapitalAfterCosts;
             
-            // Apply inflation adjustment for Gesamtmenge mode
+            // Apply inflation adjustment for Gesamtmenge mode (only when explicitly specified)
             if (options.inflationAktivSparphase && 
                 options.inflationsrateSparphase && 
                 options.inflationsrateSparphase > 0 &&
@@ -372,8 +372,9 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
         ? calc.endkapitalVorSteuer - taxForElement
         : calc.endkapitalVorSteuer;
       
-      // Apply inflation adjustment for Gesamtmenge mode
-      if (options.inflationAktivSparphase && 
+      // Apply inflation adjustment for Gesamtmenge mode (only when explicitly specified)
+      if (options && 
+          options.inflationAktivSparphase && 
           options.inflationsrateSparphase && 
           options.inflationsrateSparphase > 0 &&
           options.inflationAnwendungSparphase === 'gesamtmenge') {
