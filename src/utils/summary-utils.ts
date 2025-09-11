@@ -121,17 +121,9 @@ export function extractWithdrawalMetrics(withdrawalResult: WithdrawalResult): {
     // Calculate average monthly withdrawal
     let averageMonthlyWithdrawal = 0;
     if (monthsWithData > 0) {
-        // For monthly withdrawals, prefer showing the first year's amount (base amount before inflation)
-        // rather than the time-weighted average, as it's more intuitive for users
-        const firstYear = Math.min(...years);
-        const firstYearData = withdrawalResult[firstYear];
-        
-        if (firstYearData && firstYearData.monatlicheEntnahme !== undefined) {
-            averageMonthlyWithdrawal = firstYearData.monatlicheEntnahme;
-        } else {
-            // Fall back to average if first year data is unavailable
-            averageMonthlyWithdrawal = totalMonthlyWithdrawals / monthsWithData;
-        }
+        // Calculate time-weighted average of monthly withdrawals across all years
+        // This is more accurate for segmented withdrawal strategies with varying amounts
+        averageMonthlyWithdrawal = totalMonthlyWithdrawals / monthsWithData;
     } else if (totalWithdrawn > 0) {
         // Fallback: divide total annual withdrawals by 12
         averageMonthlyWithdrawal = totalWithdrawn / years.length / 12;
@@ -360,8 +352,10 @@ function createWithdrawalSegmentSummaries(
         // Calculate average monthly withdrawal for this segment
         let averageMonthlyWithdrawal = 0;
         if (monthsWithData > 0) {
+            // Calculate time-weighted average of monthly withdrawals for this segment
             averageMonthlyWithdrawal = totalMonthlyWithdrawals / monthsWithData;
         } else if (totalWithdrawn > 0) {
+            // Fallback: divide total annual withdrawals by 12
             averageMonthlyWithdrawal = totalWithdrawn / segmentYears.length / 12;
         }
         

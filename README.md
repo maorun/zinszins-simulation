@@ -91,6 +91,7 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Frühe Rente (z.B. 2041-2055): Höhere Entnahmerate mit konservativeren Renditen
   - Mittlere Rente (z.B. 2055-2070): Ausgewogene Strategie mit moderaten Entnahmen
   - Späte Rente (z.B. 2070-2080): Niedrigere Entnahmerate für Kapitalerhalt
+  - **Korrekte Durchschnittsberechnung**: Monatliche Auszahlungen werden als gewichteter Durchschnitt über alle Segmente berechnet
 - **Berücksichtigung des Grundfreibetrages** - Einkommensteuer-Grundfreibetrag für Rentner ohne weiteres Einkommen
 - Jahr-für-Jahr Entnahmeprojektion mit detaillierter Aufschlüsselung
 - Interaktive Parametereinstellung (Rendite, Lebensende, Strategie)
