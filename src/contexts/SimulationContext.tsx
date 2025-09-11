@@ -43,6 +43,13 @@ export interface SimulationContextState {
   setVariableReturns: (variableReturns: Record<number, number>) => void;
   historicalIndex: string;
   setHistoricalIndex: (historicalIndex: string) => void;
+  // Inflation settings for savings phase
+  inflationAktivSparphase: boolean;
+  setInflationAktivSparphase: (inflationAktivSparphase: boolean) => void;
+  inflationsrateSparphase: number;
+  setInflationsrateSparphase: (inflationsrateSparphase: number) => void;
+  inflationAnwendungSparphase: 'sparplan' | 'gesamtmenge';
+  setInflationAnwendungSparphase: (inflationAnwendungSparphase: 'sparplan' | 'gesamtmenge') => void;
   startEnd: [number, number];
   setStartEnd: (startEnd: [number, number]) => void;
   sparplan: Sparplan[];
@@ -94,6 +101,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     randomSeed: undefined,
     variableReturns: {},
     historicalIndex: 'dax',
+    // Inflation settings for savings phase (default: enabled with 2%)
+    inflationAktivSparphase: true,
+    inflationsrateSparphase: 2,
+    inflationAnwendungSparphase: 'sparplan' as 'sparplan' | 'gesamtmenge',
     startEnd: [2040, 2080] as [number, number],
     sparplan: [initialSparplan],
     simulationAnnual: SimulationAnnual.yearly,
@@ -137,6 +148,16 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [historicalIndex, setHistoricalIndex] = useState<string>(
     (initialConfig as any).historicalIndex || defaultConfig.historicalIndex
   );
+  // Inflation state for savings phase
+  const [inflationAktivSparphase, setInflationAktivSparphase] = useState(
+    (initialConfig as any).inflationAktivSparphase ?? defaultConfig.inflationAktivSparphase
+  );
+  const [inflationsrateSparphase, setInflationsrateSparphase] = useState(
+    (initialConfig as any).inflationsrateSparphase ?? defaultConfig.inflationsrateSparphase
+  );
+  const [inflationAnwendungSparphase, setInflationAnwendungSparphase] = useState<'sparplan' | 'gesamtmenge'>(
+    (initialConfig as any).inflationAnwendungSparphase ?? defaultConfig.inflationAnwendungSparphase
+  );
   const [startEnd, setStartEnd] = useState<[number, number]>(initialConfig.startEnd);
   const [sparplan, setSparplan] = useState<Sparplan[]>(initialConfig.sparplan);
   const [simulationAnnual, setSimulationAnnual] = useState<SimulationAnnualType>(initialConfig.simulationAnnual);
@@ -171,11 +192,15 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     randomSeed,
     variableReturns,
     historicalIndex,
+    // Inflation for savings phase
+    inflationAktivSparphase,
+    inflationsrateSparphase,
+    inflationAnwendungSparphase,
     startEnd,
     sparplan,
     simulationAnnual,
     withdrawal: withdrawalConfig || undefined,
-  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
+  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration();
@@ -200,6 +225,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setRandomSeed(savedConfig.randomSeed);
       setVariableReturns(savedConfig.variableReturns);
       setHistoricalIndex((savedConfig as any).historicalIndex || defaultConfig.historicalIndex);
+      // Load inflation settings for savings phase
+      setInflationAktivSparphase((savedConfig as any).inflationAktivSparphase ?? defaultConfig.inflationAktivSparphase);
+      setInflationsrateSparphase((savedConfig as any).inflationsrateSparphase ?? defaultConfig.inflationsrateSparphase);
+      setInflationAnwendungSparphase((savedConfig as any).inflationAnwendungSparphase ?? defaultConfig.inflationAnwendungSparphase);
       setStartEnd(savedConfig.startEnd);
       setSparplan(savedConfig.sparplan);
       setSimulationAnnual(savedConfig.simulationAnnual);
@@ -224,6 +253,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setRandomSeed(defaultConfig.randomSeed);
     setVariableReturns(defaultConfig.variableReturns);
     setHistoricalIndex(defaultConfig.historicalIndex);
+    // Reset inflation settings for savings phase
+    setInflationAktivSparphase(defaultConfig.inflationAktivSparphase);
+    setInflationsrateSparphase(defaultConfig.inflationsrateSparphase);
+    setInflationAnwendungSparphase(defaultConfig.inflationAnwendungSparphase);
     setStartEnd(defaultConfig.startEnd);
     setSparplan(defaultConfig.sparplan);
     setSimulationAnnual(defaultConfig.simulationAnnual);
@@ -287,6 +320,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
         freibetragPerYear,
         steuerReduzierenEndkapital: steuerReduzierenEndkapitalSparphase, // Use savings phase setting
         basiszinsConfiguration,
+        // Inflation settings for savings phase
+        inflationAktivSparphase,
+        inflationsrateSparphase,
+        inflationAnwendungSparphase,
       });
 
       setSimulationData({
@@ -299,7 +336,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     } finally {
       setIsLoading(false);
     }
-  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase]);
+  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase]);
 
   const value = useMemo(() => ({
     rendite, setRendite,
@@ -317,6 +354,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     randomSeed, setRandomSeed,
     variableReturns, setVariableReturns,
     historicalIndex, setHistoricalIndex,
+    // Inflation for savings phase
+    inflationAktivSparphase, setInflationAktivSparphase,
+    inflationsrateSparphase, setInflationsrateSparphase,
+    inflationAnwendungSparphase, setInflationAnwendungSparphase,
     startEnd, setStartEnd,
     sparplan, setSparplan,
     simulationAnnual, setSimulationAnnual,
@@ -336,6 +377,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv, grundfreibetragBetrag,
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
+    inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
     simulationData, isLoading, withdrawalResults, performSimulation,
     saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
