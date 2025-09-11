@@ -107,6 +107,7 @@ export function SegmentedComparisonConfiguration({
                     variant="ghost"
                     size="sm"
                     className="ml-4 text-red-600 hover:text-red-700 hover:bg-red-50"
+                    aria-label="Konfiguration löschen"
                   >
                     <Trash2 className="h-4 w-4" />
                   </Button>
