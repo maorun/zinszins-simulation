@@ -23,6 +23,11 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - **Wichtiger Warnhinweis** - Prominent platzierte Warnungen, dass vergangene Wertentwicklungen keine Garantie für zukünftige Ergebnisse sind
   - **Statistische Kennzahlen** - Anzeige von durchschnittlicher Rendite, Volatilität und Währung für jeden Index
   - **Automatisches Fallback** - Bei fehlenden historischen Daten werden Durchschnittsrenditen verwendet
+- **Inflation (Sparphase)** - Berücksichtigung der Inflation während der Ansparphase
+  - **Toggle-Schalter** - Ein-/Ausschaltung der Inflationsberücksichtigung
+  - **Konfigurierbare Inflationsrate** - Slider von 0% bis 10% (Standard: 2%)
+  - **Automatische Anpassung** - Sparbeträge werden jährlich um die Inflationsrate erhöht, um die Kaufkraft zu erhalten
+  - **Real-time Berechnung** - Sofortige Aktualisierung der Berechnungen bei Änderungen
 
 ### Sparplan und Einmalzahlungen
 - **Sparplan** - Regelmäßige jährliche oder monatliche Einzahlungen
@@ -126,7 +131,7 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
 - **Parameter Export** - Ein-Klick Export aller Konfigurationsparameter in die Zwischenablage
   - Exportiert alle relevanten Parameter im deutschen Format (Parameter: xyz €, Parameter: xyz %)
   - Hilfreich für Entwicklung, Fehlerbeschreibung und Dokumentation von Simulationsszenarien
-  - Inklusive Sparpläne, Steuereinstellungen, Rendite-Konfiguration und Entnahme-Parameter
+  - Inklusive Sparpläne, Steuereinstellungen, Rendite-Konfiguration, Inflation (Sparphase) und Entnahme-Parameter
 - **Daten Export** - Umfassende Export-Funktionen für alle Simulationsdaten
   - **CSV Export**: Jahr-für-Jahr Aufschlüsselung der Sparphase und Entnahmephase in Excel/Calc-kompatiblem Format
   - **Markdown Export**: Vollständiger Bericht mit Parametern, Berechnungsformeln und Übersichtstabellen
