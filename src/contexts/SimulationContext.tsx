@@ -311,6 +311,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
         freibetragPerYear,
         steuerReduzierenEndkapital: steuerReduzierenEndkapitalSparphase, // Use savings phase setting
         basiszinsConfiguration,
+        // Inflation settings for savings phase
+        inflationAktivSparphase,
+        inflationsrateSparphase,
       });
 
       setSimulationData({
@@ -323,7 +326,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     } finally {
       setIsLoading(false);
     }
-  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase]);
+  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, inflationAktivSparphase, inflationsrateSparphase]);
 
   const value = useMemo(() => ({
     rendite, setRendite,

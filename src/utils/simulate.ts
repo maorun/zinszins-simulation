@@ -57,6 +57,9 @@ export interface SimulateOptions {
     freibetragPerYear?: { [year: number]: number };
     steuerReduzierenEndkapital?: boolean;
     basiszinsConfiguration?: BasiszinsConfiguration;
+    // Inflation settings for savings phase
+    inflationAktivSparphase?: boolean;
+    inflationsrateSparphase?: number;
   }
 
 function generateYearlyGrowthRates(
@@ -169,16 +172,43 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
     return { terCosts, transactionCosts, totalCosts };
   }
 
+  // Helper function to calculate inflation-adjusted contribution amount
+  function getInflationAdjustedContribution(
+    originalAmount: number,
+    baseYear: number,
+    currentYear: number,
+    inflationRate: number
+  ): number {
+    if (inflationRate <= 0) return originalAmount;
+    const yearsPassed = currentYear - baseYear;
+    if (yearsPassed <= 0) return originalAmount;
+    return originalAmount * Math.pow(1 + inflationRate, yearsPassed);
+  }
+
   // Helper function to calculate growth and costs for a single element in a year
   function calculateGrowthAndCostsForElement(
     element: SparplanElement,
     year: number,
     wachstumsrate: number,
-    simulationAnnual: SimulationAnnualType
+    simulationAnnual: SimulationAnnualType,
+    options: SimulateOptions
   ) {
+    // Apply inflation adjustment to contributions if enabled
+    let adjustedEinzahlung = element.einzahlung;
+    if (options.inflationAktivSparphase && options.inflationsrateSparphase && options.inflationsrateSparphase > 0) {
+      const inflationRate = options.inflationsrateSparphase / 100;
+      const baseYear = options.startYear;
+      adjustedEinzahlung = getInflationAdjustedContribution(
+        element.einzahlung,
+        baseYear,
+        year,
+        inflationRate
+      );
+    }
+
     const startkapital =
       element.simulation?.[year - 1]?.endkapital ||
-      element.einzahlung + (element.type === 'einmalzahlung' ? element.gewinn : 0);
+      adjustedEinzahlung + (element.type === 'einmalzahlung' ? element.gewinn : 0);
 
     let endkapitalVorSteuer: number;
     let anteilImJahr = 12;
@@ -230,7 +260,7 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
             jahresgewinn,
             anteilImJahr,
             costs,
-          } = calculateGrowthAndCostsForElement(element, year, wachstumsrate, simulationAnnual);
+          } = calculateGrowthAndCostsForElement(element, year, wachstumsrate, simulationAnnual, options);
 
           // Calculate detailed Vorabpauschale breakdown for transparency
           const vorabpauschaleDetails = calculateVorabpauschaleDetailed(
@@ -270,7 +300,7 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
                 endkapitalAfterCosts,
                 jahresgewinn,
                 costs,
-            } = calculateGrowthAndCostsForElement(element, year, wachstumsrate, simulationAnnual);
+            } = calculateGrowthAndCostsForElement(element, year, wachstumsrate, simulationAnnual, options);
 
             const vorabpauschaleAccumulated = (element.simulation[year - 1]?.vorabpauschaleAccumulated || 0);
 
