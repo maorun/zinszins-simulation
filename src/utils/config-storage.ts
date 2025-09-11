@@ -127,6 +127,9 @@ export interface SavedConfiguration {
   randomSeed?: number;
   variableReturns: Record<number, number>;
   historicalIndex?: string;
+  // Inflation settings for savings phase
+  inflationAktivSparphase?: boolean;
+  inflationsrateSparphase?: number;
   startEnd: [number, number];
   sparplan: Sparplan[];
   simulationAnnual: SimulationAnnualType;
