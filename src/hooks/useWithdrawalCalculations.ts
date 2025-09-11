@@ -410,7 +410,7 @@ export function useWithdrawalCalculations(
       return [];
     }
 
-    const results = segmentedComparisonStrategies.map((strategy: SegmentedComparisonStrategy) => {
+    const results = (segmentedComparisonStrategies || []).map((strategy: SegmentedComparisonStrategy) => {
       try {
         // Create segmented configuration for this comparison strategy
         const segmentedConfig: SegmentedWithdrawalConfig = {

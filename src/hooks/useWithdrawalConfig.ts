@@ -139,7 +139,7 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
   const updateSegmentedComparisonStrategy = useCallback(
     (strategyId: string, updates: Partial<SegmentedComparisonStrategy>) => {
       updateConfig({
-        segmentedComparisonStrategies: currentConfig.segmentedComparisonStrategies.map((s: SegmentedComparisonStrategy) =>
+        segmentedComparisonStrategies: (currentConfig.segmentedComparisonStrategies || []).map((s: SegmentedComparisonStrategy) =>
           s.id === strategyId ? { ...s, ...updates } : s,
         ),
       });
@@ -151,7 +151,7 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
   const addSegmentedComparisonStrategy = useCallback(
     (strategy: SegmentedComparisonStrategy) => {
       updateConfig({
-        segmentedComparisonStrategies: [...currentConfig.segmentedComparisonStrategies, strategy],
+        segmentedComparisonStrategies: [...(currentConfig.segmentedComparisonStrategies || []), strategy],
       });
     },
     [currentConfig.segmentedComparisonStrategies, updateConfig],
@@ -161,7 +161,7 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
   const removeSegmentedComparisonStrategy = useCallback(
     (strategyId: string) => {
       updateConfig({
-        segmentedComparisonStrategies: currentConfig.segmentedComparisonStrategies.filter((s: SegmentedComparisonStrategy) => s.id !== strategyId),
+        segmentedComparisonStrategies: (currentConfig.segmentedComparisonStrategies || []).filter((s: SegmentedComparisonStrategy) => s.id !== strategyId),
       });
     },
     [currentConfig.segmentedComparisonStrategies, updateConfig],

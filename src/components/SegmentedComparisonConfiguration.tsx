@@ -19,7 +19,7 @@ interface SegmentedComparisonConfigurationProps {
 }
 
 export function SegmentedComparisonConfiguration({
-  segmentedComparisonStrategies,
+  segmentedComparisonStrategies = [],
   withdrawalStartYear,
   withdrawalEndYear,
   onAddStrategy,

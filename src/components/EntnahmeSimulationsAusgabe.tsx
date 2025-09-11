@@ -85,7 +85,7 @@ export function EntnahmeSimulationsAusgabe({
     removeSegmentedComparisonStrategy,
   } = useWithdrawalConfig(startOfIndependence, endOfLife);
   
-  const { withdrawalData, comparisonResults, segmentedComparisonResults } = useWithdrawalCalculations(
+  const { withdrawalData, comparisonResults, segmentedComparisonResults = [] } = useWithdrawalCalculations(
     elemente,
     startOfIndependence,
     currentConfig,
