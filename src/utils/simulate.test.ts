@@ -390,6 +390,146 @@ describe('Simulate (Compound Interest) Calculations', () => {
     });
   });
 
+  describe('Inflation application modes for savings phase', () => {
+    test('should apply sparplan mode correctly (default behavior)', () => {
+      const elements = [
+        createSparplanElement('2023-01-01', 10000),
+        createSparplanElement('2024-01-01', 10000)
+      ];
+      
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.0,
+        simulationAnnual: 'yearly',
+        inflationAktivSparphase: true,
+        inflationsrateSparphase: 2, // 2% inflation
+        inflationAnwendungSparphase: 'sparplan', // Explicitly set sparplan mode
+      });
+
+      // Base year should be unchanged
+      expect(result[0].simulation[2023].startkapital).toBe(10000);
+      
+      // Year 2024 (1 year later): 10000 * 1.02 = 10200
+      expect(result[1].simulation[2024].startkapital).toBeCloseTo(10000 * 1.02, 2);
+    });
+
+    test('should apply gesamtmenge mode correctly', () => {
+      const elements = [
+        createSparplanElement('2023-01-01', 10000),
+        createSparplanElement('2024-01-01', 10000)
+      ];
+      
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.0,
+        simulationAnnual: 'yearly',
+        inflationAktivSparphase: true,
+        inflationsrateSparphase: 2, // 2% inflation
+        inflationAnwendungSparphase: 'gesamtmenge', // Apply inflation to total amount
+      });
+
+      // In gesamtmenge mode, contributions are not inflated
+      expect(result[0].simulation[2023].startkapital).toBe(10000);
+      expect(result[1].simulation[2024].startkapital).toBe(10000); // Not inflated
+
+      // But the endkapital should be reduced by accumulated inflation
+      // Year 2023: 10000 * 1.05 = 10500, then reduced by 1 year inflation: 10500 / 1.02 ≈ 10294
+      expect(result[0].simulation[2023].endkapital).toBeCloseTo(10500 / 1.02, 2);
+      
+      // Year 2024: The previous endkapital carries over, plus new contribution
+      // But in the simulation, each element tracks its own growth independently
+      // So we should check the endkapital for the 2024 element specifically
+      expect(result[1].simulation[2024].endkapital).toBeCloseTo(10500 / Math.pow(1.02, 2), 2);
+    });
+
+    test('should default to sparplan mode when not specified', () => {
+      const elements = [
+        createSparplanElement('2023-01-01', 10000),
+        createSparplanElement('2024-01-01', 10000)
+      ];
+      
+      // Test without inflationAnwendungSparphase specified
+      const resultDefault = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.0,
+        simulationAnnual: 'yearly',
+        inflationAktivSparphase: true,
+        inflationsrateSparphase: 2,
+        // inflationAnwendungSparphase not specified - should default to sparplan
+      });
+
+      // Test with explicit sparplan mode
+      const resultExplicit = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.0,
+        simulationAnnual: 'yearly',
+        inflationAktivSparphase: true,
+        inflationsrateSparphase: 2,
+        inflationAnwendungSparphase: 'sparplan',
+      });
+
+      // Both should behave the same (sparplan mode)
+      expect(resultDefault[0].simulation[2023].startkapital).toBe(resultExplicit[0].simulation[2023].startkapital);
+      expect(resultDefault[1].simulation[2024].startkapital).toBe(resultExplicit[1].simulation[2024].startkapital);
+    });
+
+    test('should work with gesamtmenge mode and taxes', () => {
+      const elements = [
+        createSparplanElement('2023-01-01', 10000),
+      ];
+      
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2023,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.26375, // German capital gains tax
+        simulationAnnual: 'yearly',
+        inflationAktivSparphase: true,
+        inflationsrateSparphase: 2,
+        inflationAnwendungSparphase: 'gesamtmenge',
+        freibetragPerYear: { 2023: 2000 }, // Tax allowance
+      });
+
+      // Should still apply inflation adjustment after taxes
+      expect(result[0].simulation[2023]).toBeDefined();
+      expect(result[0].simulation[2023].endkapital).toBeLessThan(result[0].simulation[2023].startkapital * 1.05); // Reduced by inflation and taxes
+    });
+
+    test('should not apply gesamtmenge mode when inflation is disabled', () => {
+      const elements = [
+        createSparplanElement('2023-01-01', 10000),
+      ];
+      
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2023,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.0,
+        simulationAnnual: 'yearly',
+        inflationAktivSparphase: false, // Inflation disabled
+        inflationsrateSparphase: 2,
+        inflationAnwendungSparphase: 'gesamtmenge',
+      });
+
+      // Should behave like normal calculation without inflation
+      expect(result[0].simulation[2023].endkapital).toBeCloseTo(10500, 2); // 10000 * 1.05
+    });
+  });
+
   describe('SimulationAnnual constants', () => {
     test('should have correct values', () => {
       expect(SimulationAnnual.yearly).toBe('yearly');
