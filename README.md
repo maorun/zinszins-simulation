@@ -97,6 +97,16 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Mittlere Rente (z.B. 2055-2070): Ausgewogene Strategie mit moderaten Entnahmen
   - Späte Rente (z.B. 2070-2080): Niedrigere Entnahmerate für Kapitalerhalt
   - **Korrekte Durchschnittsberechnung**: Monatliche Auszahlungen werden als gewichteter Durchschnitt über alle Segmente berechnet
+- **Strategienvergleich** - Vergleich verschiedener Entnahmestrategien mit demselben Startkapital
+  - 3% Regel vs. 4% Regel vs. Drei-Eimer-Strategie nebeneinander
+  - Monatliche feste Entnahmen vs. variable Strategien
+  - Übersichtliche Darstellung der Unterschiede in Endkapital, Gesamtentnahme und Laufzeit
+- **Geteilte Phasen Vergleich** - Vergleich kompletter segmentierter Entnahme-Konfigurationen
+  - Vergleich verschiedener Kombinationen von geteilten Phasen
+  - Beispiel: "Konservativ-Aggressiv Mix" vs. "Aggressiv-Konservativ Mix"
+  - Detaillierte Aufschlüsselung der Phasen und deren spezifische Strategien
+  - Vergleichstabelle mit Endkapital, Gesamtentnahme, durchschnittlichen jährlichen Entnahmen und Laufzeit
+  - Möglichkeit zur individuellen Benennung und Konfiguration der Vergleichsstrategien
 - **Berücksichtigung des Grundfreibetrages** - Einkommensteuer-Grundfreibetrag für Rentner ohne weiteres Einkommen
 - Jahr-für-Jahr Entnahmeprojektion mit detaillierter Aufschlüsselung
 - Interaktive Parametereinstellung (Rendite, Lebensende, Strategie)
@@ -107,6 +117,11 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Berechnete Rendite der Ansparphase (annualisiert)
   - Endkapital und monatliche Auszahlungen der Entsparphase
   - Berechnete Rendite der Entsparphase unter Berücksichtigung von Entnahmen
+- **Strategievergleich und -analyse** - Umfassende Vergleichsmöglichkeiten für Entnahmestrategien
+  - **Einheitliche Strategien**: Vergleich verschiedener Standard-Entnahmestrategien
+  - **Geteilte Phasen**: Vergleich komplexer segmentierter Entnahme-Konfigurationen
+  - **Detaillierte Auswertung**: Endkapital, Gesamtentnahme, durchschnittliche jährliche Entnahmen und Portfoliolaufzeit
+  - **Visuelle Aufschlüsselung**: Klare Darstellung der verschiedenen Phasen und deren spezifische Parameter
 - **Historisches Backtesting** - Test von Strategien mit echten historischen Marktdaten
   - **24 Jahre Marktdaten** - DAX, S&P 500 und MSCI World von 2000-2023
   - **Realistische Szenarien** - Inklusive Marktkrisen wie 2002 Dotcom-Crash und 2008 Finanzkrise
