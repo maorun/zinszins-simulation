@@ -20,6 +20,8 @@ const ReturnConfiguration = () => {
         setInflationAktivSparphase,
         inflationsrateSparphase,
         setInflationsrateSparphase,
+        inflationAnwendungSparphase,
+        setInflationAnwendungSparphase,
         performSimulation,
     } = useSimulation();
 
@@ -99,6 +101,26 @@ const ReturnConfiguration = () => {
                                 Die reale Kaufkraft der Einzahlungen wird durch die Inflation gemindert. 
                                 Ihre Sparbeträge behalten nicht ihre volle Kaufkraft über die Zeit.
                             </p>
+                            
+                            {/* Toggle for inflation application mode */}
+                            <div className="mt-4 space-y-2">
+                                <Label className="text-sm font-medium">Anwendung der Inflation:</Label>
+                                <RadioTileGroup
+                                    value={inflationAnwendungSparphase}
+                                    onValueChange={(value: string) => {
+                                        const mode = value as 'sparplan' | 'gesamtmenge';
+                                        setInflationAnwendungSparphase(mode);
+                                        performSimulation();
+                                    }}
+                                >
+                                    <RadioTile value="sparplan" label="Auf Sparplan">
+                                        Inflation wird auf einzelne Beiträge angewendet (realistische Anpassung zukünftiger Einzahlungen)
+                                    </RadioTile>
+                                    <RadioTile value="gesamtmenge" label="Auf Gesamtmenge">
+                                        Inflation wird auf die gesamte Sparsumme in der Sparphase angewendet
+                                    </RadioTile>
+                                </RadioTileGroup>
+                            </div>
                         </div>
                     )}
                 </div>
