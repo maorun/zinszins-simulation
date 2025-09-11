@@ -1,7 +1,8 @@
 import { formatCurrency } from "../utils/currency";
 import type { WithdrawalResult } from "../../helpers/withdrawal";
-import type { WithdrawalFormValue, ComparisonStrategy } from "../utils/config-storage";
+import type { WithdrawalFormValue, ComparisonStrategy, SegmentedComparisonStrategy } from "../utils/config-storage";
 import { WithdrawalComparisonDisplay } from "./WithdrawalComparisonDisplay";
+import { SegmentedWithdrawalComparisonDisplay } from "./SegmentedWithdrawalComparisonDisplay";
 
 // Info icon component for calculation explanations
 const InfoIcon = ({ onClick }: { onClick: () => void }) => (
@@ -28,6 +29,16 @@ const InfoIcon = ({ onClick }: { onClick: () => void }) => (
   </svg>
 );
 
+// Type for segmented comparison results
+type SegmentedComparisonResult = {
+  strategy: SegmentedComparisonStrategy;
+  finalCapital: number;
+  totalWithdrawal: number;
+  averageAnnualWithdrawal: number;
+  duration: number | string;
+  result: any; // Full withdrawal result for detailed analysis
+};
+
 // Type for comparison results
 type ComparisonResult = {
   strategy: ComparisonStrategy;
@@ -49,6 +60,8 @@ interface EntnahmeSimulationDisplayProps {
   comparisonResults: ComparisonResult[];
   useSegmentedWithdrawal: boolean;
   withdrawalSegments: any[];
+  useSegmentedComparisonMode?: boolean;
+  segmentedComparisonResults?: SegmentedComparisonResult[];
   onCalculationInfoClick: (explanationType: string, rowData: any) => void;
   // Global Grundfreibetrag configuration
   grundfreibetragAktiv?: boolean;
@@ -62,6 +75,8 @@ export function EntnahmeSimulationDisplay({
   comparisonResults,
   useSegmentedWithdrawal,
   withdrawalSegments,
+  useSegmentedComparisonMode = false,
+  segmentedComparisonResults = [],
   onCalculationInfoClick,
   grundfreibetragAktiv,
   grundfreibetragBetrag,
@@ -74,6 +89,15 @@ export function EntnahmeSimulationDisplay({
           definiert sind und eine Simulation durchgeführt wurde.
         </p>
       </div>
+    );
+  }
+
+  if (useSegmentedComparisonMode) {
+    return (
+      <SegmentedWithdrawalComparisonDisplay
+        withdrawalData={withdrawalData}
+        segmentedComparisonResults={segmentedComparisonResults}
+      />
     );
   }
 
