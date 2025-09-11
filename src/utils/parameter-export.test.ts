@@ -30,6 +30,9 @@ describe('Parameter Export', () => {
       averageReturn: 7.0,
       standardDeviation: 15.0,
       variableReturns: {},
+      // Inflation settings for savings phase
+      inflationAktivSparphase: true,
+      inflationsrateSparphase: 2.5,
       startEnd: [2023, 2040] as [number, number],
       sparplan: [],
       simulationAnnual: 'yearly' as const,
@@ -46,6 +49,9 @@ describe('Parameter Export', () => {
       setStandardDeviation: vi.fn(),
       setRandomSeed: vi.fn(),
       setVariableReturns: vi.fn(),
+      // Inflation setter functions
+      setInflationAktivSparphase: vi.fn(),
+      setInflationsrateSparphase: vi.fn(),
       setStartEnd: vi.fn(),
       setSparplan: vi.fn(),
       setSimulationAnnual: vi.fn(),
@@ -85,6 +91,22 @@ describe('Parameter Export', () => {
       
       expect(result).toContain('Freibeträge pro Jahr:');
       expect(result).toContain('  2023: 2.000,00\u00A0€'); // Note: \u00A0 is non-breaking space from German locale formatting
+    });
+
+    it('should format inflation settings for savings phase when enabled', () => {
+      const result = formatParametersForExport(mockContext);
+      
+      expect(result).toContain('Inflation Sparphase: Ja');
+      expect(result).toContain('Inflationsrate Sparphase: 2.50 %');
+    });
+
+    it('should format inflation settings for savings phase when disabled', () => {
+      mockContext.inflationAktivSparphase = false;
+      
+      const result = formatParametersForExport(mockContext);
+      
+      expect(result).toContain('Inflation Sparphase: Nein');
+      expect(result).not.toContain('Inflationsrate Sparphase:');
     });
 
     it('should handle context without optional configurations', () => {

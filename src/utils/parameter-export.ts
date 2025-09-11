@@ -25,6 +25,12 @@ export function formatParametersForExport(context: SimulationContextState): stri
   // Return configuration
   lines.push(`Rendite-Modus: ${getReturnModeLabel(context.returnMode)}`);
   
+  // Inflation settings for savings phase
+  lines.push(`Inflation Sparphase: ${context.inflationAktivSparphase ? 'Ja' : 'Nein'}`);
+  if (context.inflationAktivSparphase) {
+    lines.push(`Inflationsrate Sparphase: ${context.inflationsrateSparphase.toFixed(2)} %`);
+  }
+  
   if (context.returnMode === 'random') {
     lines.push(`Durchschnittsrendite: ${context.averageReturn.toFixed(2)} %`);
     lines.push(`Standardabweichung: ${context.standardDeviation.toFixed(2)} %`);
