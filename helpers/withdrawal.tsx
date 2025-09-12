@@ -67,11 +67,23 @@ export type DynamicWithdrawalConfig = {
     lowerThresholdAdjustment: number; // Relative adjustment when return falls below lower threshold (e.g., -0.05 for 5% decrease)
 };
 
+export type BucketSubStrategy = "4prozent" | "3prozent" | "variabel_prozent" | "monatlich_fest" | "dynamisch";
+
 export type BucketStrategyConfig = {
     initialCashCushion: number; // Initial cash cushion amount in €
     refillThreshold: number; // Threshold for moving gains to cash cushion in €
     refillPercentage: number; // Percentage of gains above threshold to move to cash (e.g., 0.5 for 50%)
-    baseWithdrawalRate: number; // Base withdrawal rate as percentage (e.g., 0.04 for 4%)
+    baseWithdrawalRate: number; // Base withdrawal rate as percentage (e.g., 0.04 for 4%) - only used when subStrategy is not "variabel_prozent" or "monatlich_fest" 
+    // Sub-strategy configuration
+    subStrategy?: BucketSubStrategy; // Which withdrawal strategy to use within bucket strategy (optional for backward compatibility)
+    variabelProzent?: number; // Variable percentage for variabel_prozent sub-strategy
+    monatlicheBetrag?: number; // Monthly amount for monatlich_fest sub-strategy
+    // Dynamic strategy sub-configuration
+    dynamischBasisrate?: number;
+    dynamischObereSchwell?: number;
+    dynamischObereAnpassung?: number;
+    dynamischUntereSchwell?: number;
+    dynamischUntereAnpassung?: number;
 };
 
 export type RMDConfig = {
@@ -209,7 +221,36 @@ export function calculateWithdrawal({
         baseWithdrawalAmount = initialStartingCapital * dynamicConfig.baseWithdrawalRate;
     } else if (strategy === "bucket_strategie") {
         if (!bucketConfig) throw new Error("Bucket strategy config required");
-        baseWithdrawalAmount = initialStartingCapital * bucketConfig.baseWithdrawalRate;
+        
+        // Calculate base withdrawal amount based on sub-strategy
+        switch (bucketConfig.subStrategy) {
+            case "4prozent": {
+                baseWithdrawalAmount = initialStartingCapital * 0.04;
+                break;
+            }
+            case "3prozent": {
+                baseWithdrawalAmount = initialStartingCapital * 0.03;
+                break;
+            }
+            case "variabel_prozent": {
+                const variableRate = bucketConfig.variabelProzent ? bucketConfig.variabelProzent / 100 : 0.04;
+                baseWithdrawalAmount = initialStartingCapital * variableRate;
+                break;
+            }
+            case "monatlich_fest": {
+                baseWithdrawalAmount = bucketConfig.monatlicheBetrag ? bucketConfig.monatlicheBetrag * 12 : initialStartingCapital * 0.04;
+                break;
+            }
+            case "dynamisch": {
+                const dynamicBaseRate = bucketConfig.dynamischBasisrate ? bucketConfig.dynamischBasisrate / 100 : 0.04;
+                baseWithdrawalAmount = initialStartingCapital * dynamicBaseRate;
+                break;
+            }
+            default: {
+                // Fallback to baseWithdrawalRate for backward compatibility (when subStrategy is not defined)
+                baseWithdrawalAmount = initialStartingCapital * bucketConfig.baseWithdrawalRate;
+            }
+        }
     } else if (strategy === "rmd") {
         if (!rmdConfig) throw new Error("RMD config required");
         // For RMD, baseWithdrawalAmount will be calculated dynamically each year
@@ -276,6 +317,32 @@ export function calculateWithdrawal({
                     // Return fell below lower threshold - decrease withdrawal
                     dynamischeAnpassung = annualWithdrawal * dynamicConfig.lowerThresholdAdjustment;
                 }
+                annualWithdrawal += dynamischeAnpassung;
+            }
+        } else if (strategy === "bucket_strategie" && bucketConfig && bucketConfig.subStrategy === "dynamisch") {
+            // Handle dynamic adjustments within bucket strategy
+            const previousYear = year - 1;
+            vorjahresRendite = yearlyGrowthRates[previousYear];
+            
+            if (vorjahresRendite !== undefined && 
+                bucketConfig.dynamischObereSchwell !== undefined &&
+                bucketConfig.dynamischUntereSchwell !== undefined &&
+                bucketConfig.dynamischObereAnpassung !== undefined &&
+                bucketConfig.dynamischUntereAnpassung !== undefined) {
+                
+                const upperThreshold = bucketConfig.dynamischObereSchwell / 100;
+                const lowerThreshold = bucketConfig.dynamischUntereSchwell / 100;
+                const upperAdjustment = bucketConfig.dynamischObereAnpassung / 100;
+                const lowerAdjustment = bucketConfig.dynamischUntereAnpassung / 100;
+                
+                if (vorjahresRendite > upperThreshold) {
+                    // Return exceeded upper threshold - increase withdrawal
+                    dynamischeAnpassung = annualWithdrawal * upperAdjustment;
+                } else if (vorjahresRendite < lowerThreshold) {
+                    // Return fell below lower threshold - decrease withdrawal
+                    dynamischeAnpassung = annualWithdrawal * lowerAdjustment;
+                }
+                
                 annualWithdrawal += dynamischeAnpassung;
             }
         }
