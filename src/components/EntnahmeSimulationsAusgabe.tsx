@@ -20,6 +20,7 @@ import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration
 import { RMDWithdrawalConfiguration } from "./RMDWithdrawalConfiguration";
 import { BucketStrategyConfiguration } from "./BucketStrategyConfiguration";
 import { KapitalerhaltConfiguration } from "./KapitalerhaltConfiguration";
+import { StatutoryPensionConfiguration } from "./StatutoryPensionConfiguration";
 import { EntnahmeSimulationDisplay } from "./EntnahmeSimulationDisplay";
 import { SegmentedComparisonConfiguration } from "./SegmentedComparisonConfiguration";
 import { useWithdrawalConfig } from "../hooks/useWithdrawalConfig";
@@ -341,6 +342,79 @@ export function EntnahmeSimulationsAusgabe({
                     <span>10%</span>
                   </div>
                 </div>
+              </div>
+
+              {/* Statutory Pension Configuration */}
+              <div className="mb-6">
+                <StatutoryPensionConfiguration
+                  values={{
+                    enabled: formValue.statutoryPensionConfig?.enabled || false,
+                    startYear: formValue.statutoryPensionConfig?.startYear || startOfIndependence,
+                    monthlyAmount: formValue.statutoryPensionConfig?.monthlyAmount || 1500,
+                    annualIncreaseRate: formValue.statutoryPensionConfig?.annualIncreaseRate || 1.0,
+                    taxablePercentage: formValue.statutoryPensionConfig?.taxablePercentage || 80,
+                    retirementAge: formValue.statutoryPensionConfig?.retirementAge || 67,
+                    birthYear: formValue.statutoryPensionConfig?.birthYear,
+                    hasTaxReturnData: !!formValue.statutoryPensionConfig?.taxReturnData,
+                    taxYear: formValue.statutoryPensionConfig?.taxReturnData?.taxYear || 2023,
+                    annualPensionReceived: formValue.statutoryPensionConfig?.taxReturnData?.annualPensionReceived || 0,
+                    taxablePortion: formValue.statutoryPensionConfig?.taxReturnData?.taxablePortion || 0,
+                  }}
+                  onChange={{
+                    onEnabledChange: (enabled) => updateFormValue({
+                      statutoryPensionConfig: {
+                        ...formValue.statutoryPensionConfig!,
+                        enabled,
+                      },
+                    }),
+                    onStartYearChange: (startYear) => updateFormValue({
+                      statutoryPensionConfig: {
+                        ...formValue.statutoryPensionConfig!,
+                        startYear,
+                      },
+                    }),
+                    onMonthlyAmountChange: (monthlyAmount) => updateFormValue({
+                      statutoryPensionConfig: {
+                        ...formValue.statutoryPensionConfig!,
+                        monthlyAmount,
+                      },
+                    }),
+                    onAnnualIncreaseRateChange: (annualIncreaseRate) => updateFormValue({
+                      statutoryPensionConfig: {
+                        ...formValue.statutoryPensionConfig!,
+                        annualIncreaseRate,
+                      },
+                    }),
+                    onTaxablePercentageChange: (taxablePercentage) => updateFormValue({
+                      statutoryPensionConfig: {
+                        ...formValue.statutoryPensionConfig!,
+                        taxablePercentage,
+                      },
+                    }),
+                    onRetirementAgeChange: (retirementAge) => updateFormValue({
+                      statutoryPensionConfig: {
+                        ...formValue.statutoryPensionConfig!,
+                        retirementAge,
+                      },
+                    }),
+                    onBirthYearChange: (birthYear) => updateFormValue({
+                      statutoryPensionConfig: {
+                        ...formValue.statutoryPensionConfig!,
+                        birthYear,
+                      },
+                    }),
+                    onTaxReturnDataChange: (data) => updateFormValue({
+                      statutoryPensionConfig: {
+                        ...formValue.statutoryPensionConfig!,
+                        taxReturnData: data.hasTaxReturnData ? {
+                          taxYear: data.taxYear,
+                          annualPensionReceived: data.annualPensionReceived,
+                          taxablePortion: data.taxablePortion,
+                        } : undefined,
+                      },
+                    }),
+                  }}
+                />
               </div>
 
               {/* Strategy-specific configuration for base strategy */}
