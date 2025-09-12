@@ -65,9 +65,14 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - **Echtzeit-Update** - Simulation wird automatisch bei Änderungen neu berechnet
 
 ### Globale Konfiguration
-- **Alter zu ENDE der Entnahmephase** - Zentralisierte Lebensende-Konfiguration für alle Entnahmestrategien
+- **Lebensende-Parameter** - Zentrale Konfiguration des Lebensendes für alle Entnahmestrategien
   - **Globale Einstellung** - Eine zentrale Konfiguration für alle Entnahme-Modi und -Strategien
-  - **Standardwerte** - Intelligente Defaults basierend auf dem Ende des Sparzeitraums  
+  - **Geburtsjahr-Rechner** - Automatische Berechnung des Lebensende-Jahrs basierend auf Geburtsjahr und Lebenserwartung
+    - Eingabe des Geburtsjahrs (z.B. 1974)
+    - Automatische Vorschläge für altersbasierte Lebenserwartung
+    - Sofortige Berechnung des Lebensende-Jahrs (z.B. 1974 + 85 = 2059)
+    - Anzeige des aktuellen Alters zur Orientierung
+  - **Manuelle Eingabe** - Direkte Eingabe des gewünschten Lebensende-Jahrs möglich
   - **Automatische Synchronisation** - Änderungen werden sofort in allen Berechnungen berücksichtigt
 - **Datengrundlage für Lebenserwartung** - Konfiguration der statistischen Grundlagen für RMD-Berechnungen
   - **Deutsche Sterbetafel 2020-2022** - Offizielle Daten vom Statistischen Bundesamt
