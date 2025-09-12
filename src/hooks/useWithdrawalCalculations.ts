@@ -64,6 +64,7 @@ export function useWithdrawalCalculations(
         segments: withdrawalSegments,
         taxRate: 0.26375,
         freibetragPerYear: undefined, // Use default
+        statutoryPensionConfig: formValue.statutoryPensionConfig,
       };
 
       withdrawalResult = calculateSegmentedWithdrawal(
@@ -183,6 +184,7 @@ export function useWithdrawalCalculations(
           ? { inflationRate: formValue.inflationsrate / 100 }
           : undefined,
         steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
+        statutoryPensionConfig: formValue.statutoryPensionConfig,
       });
       withdrawalResult = withdrawalCalculation.result;
     }
@@ -346,6 +348,7 @@ export function useWithdrawalCalculations(
             ? formValue.einkommensteuersatz / 100
             : undefined,
           steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
+          statutoryPensionConfig: formValue.statutoryPensionConfig,
         });
 
         // Get final year capital and total withdrawal
@@ -427,6 +430,7 @@ export function useWithdrawalCalculations(
             }
             return freibetragPerYear;
           })(),
+          statutoryPensionConfig: formValue.statutoryPensionConfig,
         };
 
         // Calculate segmented withdrawal for this comparison strategy

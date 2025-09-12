@@ -7,6 +7,7 @@ import type {
   ComparisonStrategy,
   SegmentedComparisonStrategy,
 } from "../utils/config-storage";
+import { createDefaultStatutoryPensionConfig } from "../../helpers/statutory-pension";
 
 /**
  * Custom hook for managing withdrawal configuration state
@@ -60,6 +61,8 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
       // Kapitalerhalt strategy specific settings
       kapitalerhaltNominalReturn: 7, // Default nominal return 7%
       kapitalerhaltInflationRate: 2, // Default inflation rate 2%
+      // Statutory pension settings
+      statutoryPensionConfig: createDefaultStatutoryPensionConfig(),
       einkommensteuersatz: 18, // Default income tax rate 18%
     };
 
