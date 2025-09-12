@@ -89,7 +89,7 @@ export function formatParametersForExport(context: SimulationContextState): stri
     const wc = context.withdrawalConfig;
     const fv = wc.formValue;
     
-    lines.push(`  Lebensende: ${fv.endOfLife}`);
+    lines.push(`  Lebensende: ${context.endOfLife}`); // Use global setting
     lines.push(`  Strategie: ${getWithdrawalStrategyLabel(fv.strategie)}`);
     lines.push(`  Entnahme-Rendite: ${fv.rendite.toFixed(2)} %`);
     lines.push(`  Entnahme-Häufigkeit: ${fv.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'}`);

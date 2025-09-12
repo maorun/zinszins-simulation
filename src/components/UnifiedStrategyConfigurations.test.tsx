@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { BucketStrategyConfiguration } from './BucketStrategyConfiguration';
 import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration';
+import { SimulationProvider } from '../contexts/SimulationContext';
 
 describe('Unified Strategy Configurations', () => {
   describe('BucketStrategyConfiguration', () => {
@@ -135,7 +136,7 @@ describe('Unified Strategy Configurations', () => {
   describe('RMDWithdrawalConfiguration', () => {
     it('should work in form mode (unified strategy)', async () => {
       const formValue = {
-        endOfLife: 2080,
+        // endOfLife moved to global configuration
         strategie: 'rmd' as const,
         rendite: 0.05,
         withdrawalFrequency: 'yearly' as const,
@@ -157,8 +158,6 @@ describe('Unified Strategy Configurations', () => {
           baseWithdrawalRate: 0.04
         },
         rmdStartAge: 67,
-        rmdLifeExpectancyTable: 'custom' as const,
-        rmdCustomLifeExpectancy: 25,
         kapitalerhaltNominalReturn: 7,
         kapitalerhaltInflationRate: 2,
         einkommensteuersatz: 0.42
@@ -167,15 +166,17 @@ describe('Unified Strategy Configurations', () => {
       const updateFormValue = vi.fn();
 
       render(
-        <RMDWithdrawalConfiguration
-          formValue={formValue}
-          updateFormValue={updateFormValue}
-        />
+        <SimulationProvider>
+          <RMDWithdrawalConfiguration
+            formValue={formValue}
+            updateFormValue={updateFormValue}
+          />
+        </SimulationProvider>
       );
 
       // Check that form values are displayed
       expect(screen.getByDisplayValue('67')).toBeInTheDocument();
-      expect(screen.getByDisplayValue('25')).toBeInTheDocument();
+      // Custom life expectancy is now global, not part of form value
 
       // Check form mode specific text
       expect(screen.getByText('Das Alter, mit dem die RMD-Entnahme beginnt (Standard: 65 Jahre)')).toBeInTheDocument();
@@ -196,10 +197,12 @@ describe('Unified Strategy Configurations', () => {
       };
 
       render(
-        <RMDWithdrawalConfiguration
-          values={values}
-          onChange={onChange}
-        />
+        <SimulationProvider>
+          <RMDWithdrawalConfiguration
+            values={values}
+            onChange={onChange}
+          />
+        </SimulationProvider>
       );
 
       // Check that direct values are displayed
@@ -236,36 +239,38 @@ describe('Unified Strategy Configurations', () => {
             baseWithdrawalRate: 0.04
           },
           rmdStartAge: 65,
-          rmdLifeExpectancyTable: 'german_2020_22' as const,
-          rmdCustomLifeExpectancy: undefined,
           kapitalerhaltNominalReturn: 7,
           kapitalerhaltInflationRate: 2,
           einkommensteuersatz: 0.42
         };
         
         render(
-          <RMDWithdrawalConfiguration
-            formValue={formValue}
-            updateFormValue={() => {}}
-          />
+          <SimulationProvider>
+            <RMDWithdrawalConfiguration
+              formValue={formValue}
+              updateFormValue={() => {}}
+            />
+          </SimulationProvider>
         );
       }).not.toThrow();
 
       // Test that direct mode doesn't throw
       expect(() => {
         render(
-          <RMDWithdrawalConfiguration
-            values={{
-              startAge: 70,
-              lifeExpectancyTable: 'german_2020_22',
-              customLifeExpectancy: undefined
-            }}
-            onChange={{
-              onStartAgeChange: () => {},
-              onLifeExpectancyTableChange: () => {},
-              onCustomLifeExpectancyChange: () => {}
-            }}
-          />
+          <SimulationProvider>
+            <RMDWithdrawalConfiguration
+              values={{
+                startAge: 70,
+                lifeExpectancyTable: 'german_2020_22',
+                customLifeExpectancy: undefined
+              }}
+              onChange={{
+                onStartAgeChange: () => {},
+                onLifeExpectancyTableChange: () => {},
+                onCustomLifeExpectancyChange: () => {}
+              }}
+            />
+          </SimulationProvider>
         );
       }).not.toThrow();
     });
@@ -280,7 +285,11 @@ describe('Unified Strategy Configurations', () => {
 
     it('should throw error if RMDWithdrawalConfiguration has invalid props', () => {
       expect(() => {
-        render(<RMDWithdrawalConfiguration />);
+        render(
+          <SimulationProvider>
+            <RMDWithdrawalConfiguration />
+          </SimulationProvider>
+        );
       }).toThrow('RMDWithdrawalConfiguration requires either (formValue + updateFormValue) or (values + onChange)');
     });
   });

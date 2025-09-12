@@ -21,7 +21,6 @@ const mockWithdrawalData = {
 };
 
 const mockFormValue: WithdrawalFormValue = {
-  endOfLife: 2050,
   strategie: "4prozent",
   rendite: 5,
   withdrawalFrequency: "yearly",
@@ -37,7 +36,6 @@ const mockFormValue: WithdrawalFormValue = {
   dynamischUntereSchwell: 2,
   dynamischUntereAnpassung: -5,
   rmdStartAge: 65,
-  rmdLifeExpectancyTable: 'german_2020_22',
   kapitalerhaltNominalReturn: 7,
   kapitalerhaltInflationRate: 2,
   grundfreibetragAktiv: false,

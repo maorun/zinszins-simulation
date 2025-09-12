@@ -20,7 +20,7 @@ export type WithdrawalFrequency = 'yearly' | 'monthly';
  * Form values for withdrawal configuration
  */
 export interface WithdrawalFormValue {
-  endOfLife: number;
+  // endOfLife moved to global configuration
   strategie: WithdrawalStrategy;
   rendite: number;
   // Withdrawal frequency configuration
@@ -44,8 +44,7 @@ export interface WithdrawalFormValue {
   bucketConfig?: BucketStrategyConfig;
   // RMD strategy specific settings
   rmdStartAge: number;
-  rmdLifeExpectancyTable: 'german_2020_22' | 'custom';
-  rmdCustomLifeExpectancy?: number;
+  // rmdLifeExpectancyTable and rmdCustomLifeExpectancy moved to global configuration
   // Kapitalerhalt strategy specific settings
   kapitalerhaltNominalReturn: number;
   kapitalerhaltInflationRate: number;
@@ -79,8 +78,7 @@ export interface ComparisonStrategy {
   bucketRefillPercentage?: number;
   // RMD strategy specific fields
   rmdStartAge?: number;
-  rmdLifeExpectancyTable?: 'german_2020_22' | 'custom';
-  rmdCustomLifeExpectancy?: number;
+  // rmdLifeExpectancyTable and rmdCustomLifeExpectancy moved to global configuration
   // Kapitalerhalt strategy specific fields
   kapitalerhaltNominalReturn?: number;
   kapitalerhaltInflationRate?: number;
@@ -179,6 +177,32 @@ export function saveConfiguration(config: SavedConfiguration): void {
 }
 
 /**
+ * Migrate legacy endOfLife from withdrawal config to global config
+ */
+function migrateEndOfLifeSettings(config: SavedConfiguration): SavedConfiguration {
+  // If we have a withdrawal config with endOfLife but no global endOfLife, migrate
+  if (config.withdrawal?.formValue && (config.withdrawal.formValue as any).endOfLife && config.endOfLife === undefined) {
+    const withdrawalEndOfLife = (config.withdrawal.formValue as any).endOfLife;
+    const lifeExpectancyTable = (config.withdrawal.formValue as any).rmdLifeExpectancyTable || 'german_2020_22';
+    const customLifeExpectancy = (config.withdrawal.formValue as any).rmdCustomLifeExpectancy;
+    
+    return {
+      ...config,
+      endOfLife: withdrawalEndOfLife,
+      lifeExpectancyTable,
+      customLifeExpectancy,
+    };
+  }
+  
+  // Ensure defaults if missing
+  return {
+    ...config,
+    endOfLife: config.endOfLife ?? config.startEnd[1],
+    lifeExpectancyTable: config.lifeExpectancyTable ?? 'german_2020_22',
+  };
+}
+
+/**
  * Migrate legacy single steuerReduzierenEndkapital to phase-specific settings
  */
 function migrateTaxSettings(config: SavedConfiguration): SavedConfiguration {
@@ -222,8 +246,10 @@ export function loadConfiguration(): SavedConfiguration | null {
       return null;
     }
 
-    // Migrate legacy tax settings
-    return migrateTaxSettings(parsedData.config);
+    // Migrate legacy settings
+    let migratedConfig = migrateTaxSettings(parsedData.config);
+    migratedConfig = migrateEndOfLifeSettings(migratedConfig);
+    return migratedConfig;
   } catch (error) {
     console.error('Failed to load configuration from localStorage:', error);
     return null;

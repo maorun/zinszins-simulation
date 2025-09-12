@@ -4,6 +4,7 @@ import { Input } from "./ui/input";
 import { RadioTileGroup, RadioTile } from "./ui/radio-tile";
 import type { WithdrawalFormValue } from "../utils/config-storage";
 import { getRMDDescription } from "../../helpers/rmd-tables";
+import { useSimulation } from "../contexts/useSimulation";
 
 interface RMDConfigValues {
   startAge: number;
@@ -33,6 +34,9 @@ export function RMDWithdrawalConfiguration({
   values,
   onChange
 }: RMDWithdrawalConfigurationProps) {
+  // Use global life expectancy settings
+  const { lifeExpectancyTable, customLifeExpectancy, setLifeExpectancyTable, setCustomLifeExpectancy } = useSimulation();
+  
   // Determine which mode we're in
   const isFormMode = formValue !== undefined && updateFormValue !== undefined;
   const isDirectMode = values !== undefined && onChange !== undefined;
@@ -44,8 +48,8 @@ export function RMDWithdrawalConfiguration({
   // Get current values based on mode
   const currentValues = isFormMode ? {
     startAge: formValue!.rmdStartAge,
-    lifeExpectancyTable: formValue!.rmdLifeExpectancyTable,
-    customLifeExpectancy: formValue!.rmdCustomLifeExpectancy,
+    lifeExpectancyTable: lifeExpectancyTable, // Use global setting
+    customLifeExpectancy: customLifeExpectancy, // Use global setting
   } : values!;
   const handleAgeChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const age = Number(event.target.value);
@@ -62,10 +66,8 @@ export function RMDWithdrawalConfiguration({
   const handleTableChange = (value: string) => {
     const table = value as 'german_2020_22' | 'custom';
     if (isFormMode) {
-      updateFormValue!({
-        ...formValue!,
-        rmdLifeExpectancyTable: table
-      });
+      // Update global setting instead of form value
+      setLifeExpectancyTable(table);
     } else {
       onChange!.onLifeExpectancyTableChange(table);
     }
@@ -74,10 +76,8 @@ export function RMDWithdrawalConfiguration({
   const handleCustomLifeExpectancyChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const years = Number(event.target.value);
     if (isFormMode) {
-      updateFormValue!({
-        ...formValue!,
-        rmdCustomLifeExpectancy: years
-      });
+      // Update global setting instead of form value
+      setCustomLifeExpectancy(years);
     } else {
       onChange!.onCustomLifeExpectancyChange(years);
     }

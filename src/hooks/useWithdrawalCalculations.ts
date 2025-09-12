@@ -26,6 +26,8 @@ export function useWithdrawalCalculations(
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
   } = useSimulation();
 
   const {
@@ -153,8 +155,8 @@ export function useWithdrawalCalculations(
           formValue.strategie === "rmd"
             ? {
                 startAge: formValue.rmdStartAge,
-                lifeExpectancyTable: formValue.rmdLifeExpectancyTable,
-                customLifeExpectancy: formValue.rmdCustomLifeExpectancy,
+                lifeExpectancyTable: lifeExpectancyTable, // Use global setting
+                customLifeExpectancy: customLifeExpectancy, // Use global setting
               }
             : undefined,
         kapitalerhaltConfig:
@@ -230,8 +232,9 @@ export function useWithdrawalCalculations(
     formValue.dynamischUntereAnpassung,
     formValue.bucketConfig,
     formValue.rmdStartAge,
-    formValue.rmdLifeExpectancyTable,
-    formValue.rmdCustomLifeExpectancy,
+    formValue.statutoryPensionConfig,
+    lifeExpectancyTable, // Use global setting
+    customLifeExpectancy, // Use global setting
     formValue.kapitalerhaltNominalReturn,
     formValue.kapitalerhaltInflationRate,
     grundfreibetragAktiv,
@@ -320,8 +323,8 @@ export function useWithdrawalCalculations(
             strategy.strategie === "rmd"
               ? {
                   startAge: strategy.rmdStartAge || 65,
-                  lifeExpectancyTable: strategy.rmdLifeExpectancyTable || 'german_2020_22',
-                  customLifeExpectancy: strategy.rmdCustomLifeExpectancy,
+                  lifeExpectancyTable: lifeExpectancyTable, // Use global setting
+                  customLifeExpectancy: customLifeExpectancy, // Use global setting
                 }
               : undefined,
           kapitalerhaltConfig:
@@ -405,6 +408,9 @@ export function useWithdrawalCalculations(
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     formValue.einkommensteuersatz,
+    formValue.statutoryPensionConfig,
+    customLifeExpectancy,
+    lifeExpectancyTable,
     steuerReduzierenEndkapitalEntspharphase,
   ]);
 
@@ -491,6 +497,7 @@ export function useWithdrawalCalculations(
     startOfIndependence,
     endOfLife,
     steuerlast,
+    formValue.statutoryPensionConfig,
   ]);
 
   return {

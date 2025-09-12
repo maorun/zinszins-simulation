@@ -139,9 +139,8 @@ export function useDataExport() {
       };
       
       const csvContent = exportWithdrawalDataToCSV(exportData);
-      const withdrawalConfig = context.withdrawalConfig;
       const startYear = context.startEnd[0];
-      const endYear = withdrawalConfig?.formValue?.endOfLife || context.startEnd[1];
+      const endYear = context.endOfLife;
       const filename = `entnahmephase_${startYear}-${endYear}_${new Date().toISOString().slice(0, 10)}.csv`;
       
       downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8');
