@@ -21,6 +21,7 @@ import { RMDWithdrawalConfiguration } from "./RMDWithdrawalConfiguration";
 import { BucketStrategyConfiguration } from "./BucketStrategyConfiguration";
 import { KapitalerhaltConfiguration } from "./KapitalerhaltConfiguration";
 import { EntnahmeSimulationDisplay } from "./EntnahmeSimulationDisplay";
+import { SegmentedComparisonConfiguration } from "./SegmentedComparisonConfiguration";
 import { useWithdrawalConfig } from "../hooks/useWithdrawalConfig";
 import { useWithdrawalCalculations } from "../hooks/useWithdrawalCalculations";
 import { useWithdrawalModals } from "../hooks/useWithdrawalModals";
@@ -74,10 +75,17 @@ export function EntnahmeSimulationsAusgabe({
   const [startOfIndependence, endOfLife] = startEnd;
   
   // Use custom hooks for state management
-  const { currentConfig, updateConfig, updateFormValue, updateComparisonStrategy } = 
-    useWithdrawalConfig(startOfIndependence, endOfLife);
+  const { 
+    currentConfig, 
+    updateConfig, 
+    updateFormValue, 
+    updateComparisonStrategy,
+    updateSegmentedComparisonStrategy,
+    addSegmentedComparisonStrategy,
+    removeSegmentedComparisonStrategy,
+  } = useWithdrawalConfig(startOfIndependence, endOfLife);
   
-  const { withdrawalData, comparisonResults } = useWithdrawalCalculations(
+  const { withdrawalData, comparisonResults, segmentedComparisonResults = [] } = useWithdrawalCalculations(
     elemente,
     startOfIndependence,
     currentConfig,
@@ -117,6 +125,8 @@ export function EntnahmeSimulationsAusgabe({
   const withdrawalSegments = currentConfig.withdrawalSegments;
   const useComparisonMode = currentConfig.useComparisonMode;
   const comparisonStrategies = currentConfig.comparisonStrategies;
+  const useSegmentedComparisonMode = currentConfig.useSegmentedComparisonMode;
+  const segmentedComparisonStrategies = currentConfig.segmentedComparisonStrategies;
 
   // Notify parent component when withdrawal results change
   useEffect(() => {
@@ -171,19 +181,23 @@ export function EntnahmeSimulationsAusgabe({
           <Label>Entnahme-Modus</Label>
           <RadioTileGroup
             value={
-              useComparisonMode
-                ? "comparison"
-                : useSegmentedWithdrawal
-                  ? "segmented"
-                  : "single"
+              useSegmentedComparisonMode
+                ? "segmented-comparison"
+                : useComparisonMode
+                  ? "comparison"
+                  : useSegmentedWithdrawal
+                    ? "segmented"
+                    : "single"
             }
             onValueChange={(value: string) => {
               const useComparison = value === "comparison";
               const useSegmented = value === "segmented";
+              const useSegmentedComparison = value === "segmented-comparison";
 
               updateConfig({
                 useComparisonMode: useComparison,
                 useSegmentedWithdrawal: useSegmented,
+                useSegmentedComparisonMode: useSegmentedComparison,
               });
 
               // Initialize segments when switching to segmented mode
@@ -207,13 +221,18 @@ export function EntnahmeSimulationsAusgabe({
             <RadioTile value="comparison" label="Strategien-Vergleich">
               Vergleiche verschiedene Entnahmestrategien miteinander
             </RadioTile>
+            <RadioTile value="segmented-comparison" label="Geteilte Phasen Vergleich">
+              Vergleiche verschiedene geteilte Entnahme-Phasen miteinander
+            </RadioTile>
           </RadioTileGroup>
           <div className="text-sm text-muted-foreground mt-1">
-            {useComparisonMode
-              ? "Vergleiche verschiedene Entnahmestrategien miteinander."
-              : useSegmentedWithdrawal
-                ? "Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf."
-                : "Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase."}
+            {useSegmentedComparisonMode
+              ? "Vergleiche verschiedene geteilte Entnahme-Phasen miteinander."
+              : useComparisonMode
+                ? "Vergleiche verschiedene Entnahmestrategien miteinander."
+                : useSegmentedWithdrawal
+                  ? "Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf."
+                  : "Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase."}
           </div>
         </div>
 
@@ -766,6 +785,16 @@ export function EntnahmeSimulationsAusgabe({
               </button>
             </div>
           </div>
+        ) : useSegmentedComparisonMode ? (
+          /* Segmented comparison mode configuration */
+          <SegmentedComparisonConfiguration
+            segmentedComparisonStrategies={segmentedComparisonStrategies}
+            withdrawalStartYear={startOfIndependence + 1}
+            withdrawalEndYear={formValue.endOfLife}
+            onAddStrategy={addSegmentedComparisonStrategy}
+            onUpdateStrategy={updateSegmentedComparisonStrategy}
+            onRemoveStrategy={removeSegmentedComparisonStrategy}
+          />
         ) : (
           /* Single strategy configuration (existing UI) */
           <div>
@@ -1323,6 +1352,8 @@ export function EntnahmeSimulationsAusgabe({
           comparisonResults={comparisonResults}
           useSegmentedWithdrawal={useSegmentedWithdrawal}
           withdrawalSegments={withdrawalSegments}
+          useSegmentedComparisonMode={useSegmentedComparisonMode}
+          segmentedComparisonResults={segmentedComparisonResults}
           onCalculationInfoClick={handleCalculationInfoClick}
           grundfreibetragAktiv={grundfreibetragAktiv}
           grundfreibetragBetrag={grundfreibetragBetrag}

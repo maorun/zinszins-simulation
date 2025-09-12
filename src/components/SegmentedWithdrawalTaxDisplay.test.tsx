@@ -77,7 +77,8 @@ describe('EntnahmeSimulationsAusgabe - Segmented Withdrawal Tax Display', () => 
     // Wait for content to be visible and test withdrawal mode options
     await waitFor(() => {
       expect(screen.getByText(/Einheitliche Strategie/)).toBeInTheDocument();
-      expect(screen.getByText(/Geteilte Phasen/)).toBeInTheDocument();
+      expect(screen.getAllByText(/Geteilte Phasen/)).toHaveLength(2); // Original + Comparison
+      expect(screen.getByText(/Strategien-Vergleich/)).toBeInTheDocument();
     });
   });
 });

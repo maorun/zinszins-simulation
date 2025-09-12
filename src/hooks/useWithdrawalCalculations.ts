@@ -8,7 +8,7 @@ import {
 } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import type { SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
-import type { ComparisonStrategy } from "../utils/config-storage";
+import type { ComparisonStrategy, SegmentedComparisonStrategy } from "../utils/config-storage";
 import { useSimulation } from "../contexts/useSimulation";
 
 /**
@@ -38,6 +38,8 @@ export function useWithdrawalCalculations(
     withdrawalSegments,
     useComparisonMode,
     comparisonStrategies,
+    useSegmentedComparisonMode,
+    segmentedComparisonStrategies,
   } = currentConfig;
 
   // Calculate withdrawal projections
@@ -402,8 +404,93 @@ export function useWithdrawalCalculations(
     steuerReduzierenEndkapitalEntspharphase,
   ]);
 
+  // Calculate segmented comparison results for each segmented strategy
+  const segmentedComparisonResults = useMemo(() => {
+    if (!useSegmentedComparisonMode || !withdrawalData) {
+      return [];
+    }
+
+    const results = (segmentedComparisonStrategies || []).map((strategy: SegmentedComparisonStrategy) => {
+      try {
+        // Create segmented configuration for this comparison strategy
+        const segmentedConfig: SegmentedWithdrawalConfig = {
+          segments: strategy.segments,
+          taxRate: steuerlast,
+          freibetragPerYear: (() => {
+            const freibetragPerYear: { [year: number]: number } = {};
+            for (
+              let year = startOfIndependence + 1;
+              year <= formValue.endOfLife;
+              year++
+            ) {
+              freibetragPerYear[year] = 2000; // Default freibetrag
+            }
+            return freibetragPerYear;
+          })(),
+        };
+
+        // Calculate segmented withdrawal for this comparison strategy
+        const result = calculateSegmentedWithdrawal(
+          elemente,
+          segmentedConfig,
+        );
+
+        // Get final year capital and total withdrawal
+        const finalYear = Math.max(...Object.keys(result).map(Number));
+        const finalCapital = result[finalYear]?.endkapital || 0;
+
+        // Calculate total withdrawal
+        const totalWithdrawal = Object.values(result).reduce(
+          (sum, year) => sum + year.entnahme,
+          0,
+        );
+        const totalYears = Object.keys(result).length;
+        const averageAnnualWithdrawal = totalWithdrawal / totalYears;
+
+        // Calculate withdrawal duration
+        const duration = calculateWithdrawalDuration(
+          result,
+          startOfIndependence + 1,
+        );
+
+        return {
+          strategy,
+          finalCapital,
+          totalWithdrawal,
+          averageAnnualWithdrawal,
+          duration: duration ? duration : "unbegrenzt",
+          result, // Include full result for detailed analysis
+        };
+      } catch (error) {
+        console.error(
+          `Error calculating segmented withdrawal for strategy ${strategy.name}:`,
+          error,
+        );
+        return {
+          strategy,
+          finalCapital: 0,
+          totalWithdrawal: 0,
+          averageAnnualWithdrawal: 0,
+          duration: "Fehler",
+          result: {},
+        };
+      }
+    });
+
+    return results;
+  }, [
+    useSegmentedComparisonMode,
+    withdrawalData,
+    segmentedComparisonStrategies,
+    elemente,
+    startOfIndependence,
+    formValue.endOfLife,
+    steuerlast,
+  ]);
+
   return {
     withdrawalData,
     comparisonResults,
+    segmentedComparisonResults,
   };
 }
