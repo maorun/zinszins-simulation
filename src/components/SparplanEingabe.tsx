@@ -471,7 +471,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
                     <CardHeader className="pb-4">
                         <CollapsibleTrigger asChild>
                             <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-                                <CardTitle className="text-left text-lg">📋 Gespeicherte Sparpläne</CardTitle>
+                                <CardTitle className="text-left text-lg">📋 Gespeicherte Sparpläne & Einmalzahlungen</CardTitle>
                                 <ChevronDown className="h-5 w-5 text-gray-500" />
                             </div>
                         </CollapsibleTrigger>
@@ -484,52 +484,76 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
                 
                 {/* Card Layout for All Devices */}
                 <div style={{ padding: '1rem' }}>
-                    <div className="sparplan-cards">
-                        {sparplans.map((sparplan) => (
-                            <div key={sparplan.id} className="sparplan-card">
-                                <div className="sparplan-card-header">
-                                    <span className="sparplan-year">
-                                        📅 {new Date(sparplan.start).toLocaleDateString('de-DE')}
-                                    </span>
-                                    <Button
-                                        onClick={() => handleDeleteSparplan(sparplan.id)}
-                                        variant="ghost"
-                                        size="sm"
-                                        title="Sparplan löschen"
-                                        className="text-red-600 hover:text-red-700"
-                                    >
-                                        <CloseIcon />
-                                    </Button>
+                    <div className="grid gap-4">
+                        {sparplans.map((sparplan) => {
+                            // Detect if this is a one-time payment (start and end dates are the same)
+                            const isEinmalzahlung = sparplan.end && new Date(sparplan.start).getTime() === new Date(sparplan.end).getTime();
+                            
+                            return (
+                                <div 
+                                    key={sparplan.id} 
+                                    className={`p-4 rounded-lg border-2 transition-colors ${
+                                        isEinmalzahlung 
+                                            ? 'bg-orange-50 border-orange-200 hover:bg-orange-100' 
+                                            : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                                    }`}
+                                >
+                                    <div className="flex items-center justify-between mb-3">
+                                        <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+                                            isEinmalzahlung 
+                                                ? 'bg-orange-100 text-orange-800 border border-orange-200' 
+                                                : 'bg-blue-100 text-blue-800 border border-blue-200'
+                                        }`}>
+                                            {isEinmalzahlung ? '💰 Einmalzahlung' : '📈 Sparplan'}
+                                            <span className="text-xs opacity-75">
+                                                📅 {new Date(sparplan.start).toLocaleDateString('de-DE')}
+                                            </span>
+                                        </span>
+                                        <Button
+                                            onClick={() => handleDeleteSparplan(sparplan.id)}
+                                            variant="ghost"
+                                            size="sm"
+                                            title={isEinmalzahlung ? "Einmalzahlung löschen" : "Sparplan löschen"}
+                                            className="text-red-600 hover:text-red-700"
+                                        >
+                                            <CloseIcon />
+                                        </Button>
+                                    </div>
+                                    <div className="grid gap-2">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm font-medium text-gray-600">📅 Start:</span>
+                                            <span className="text-sm font-semibold text-green-600">
+                                                {new Date(sparplan.start).toLocaleDateString('de-DE')}
+                                            </span>
+                                        </div>
+                                        {!isEinmalzahlung && (
+                                            <div className="flex justify-between items-center">
+                                                <span className="text-sm font-medium text-gray-600">🏁 Ende:</span>
+                                                <span className="text-sm font-semibold text-blue-600">
+                                                    {sparplan.end ? new Date(sparplan.end).toLocaleDateString('de-DE') : 'Unbegrenzt'}
+                                                </span>
+                                            </div>
+                                        )}
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-sm font-medium text-gray-600">
+                                                {isEinmalzahlung 
+                                                    ? '💵 Betrag:' 
+                                                    : (simulationAnnual === SimulationAnnual.yearly ? '💰 Jährlich:' : '💰 Monatlich:')
+                                                }
+                                            </span>
+                                            <span className="text-sm font-bold text-cyan-600">
+                                                {(() => {
+                                                    const displayValue = simulationAnnual === SimulationAnnual.monthly && !isEinmalzahlung
+                                                        ? (sparplan.einzahlung / 12).toFixed(2)
+                                                        : sparplan.einzahlung.toFixed(2);
+                                                    return Number(displayValue).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
+                                                })()}
+                                            </span>
+                                        </div>
+                                    </div>
                                 </div>
-                                <div className="sparplan-card-details">
-                                    <div className="sparplan-detail">
-                                        <span className="detail-label">📅 Start:</span>
-                                        <span className="detail-value" style={{ color: '#28a745' }}>
-                                            {new Date(sparplan.start).toLocaleDateString('de-DE')}
-                                        </span>
-                                    </div>
-                                    <div className="sparplan-detail">
-                                        <span className="detail-label">🏁 Ende:</span>
-                                        <span className="detail-value" style={{ color: '#17a2b8' }}>
-                                            {sparplan.end ? new Date(sparplan.end).toLocaleDateString('de-DE') : 'Unbegrenzt'}
-                                        </span>
-                                    </div>
-                                    <div className="sparplan-detail">
-                                        <span className="detail-label">
-                                            {simulationAnnual === SimulationAnnual.yearly ? '💰 Jährlich:' : '💰 Monatlich:'}
-                                        </span>
-                                        <span className="detail-value" style={{ color: '#2eabdf', fontWeight: 600 }}>
-                                            {(() => {
-                                                const displayValue = simulationAnnual === SimulationAnnual.monthly 
-                                                    ? (sparplan.einzahlung / 12).toFixed(2)
-                                                    : sparplan.einzahlung.toFixed(2);
-                                                return Number(displayValue).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €';
-                                            })()}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                         
                         {sparplans.length === 0 && (
                             <div style={{ 
@@ -538,7 +562,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
                                 color: '#666',
                                 fontStyle: 'italic'
                             }}>
-                                Noch keine Sparpläne erstellt. Fügen Sie oben einen Sparplan hinzu.
+                                Noch keine Sparpläne oder Einmalzahlungen erstellt. Fügen Sie oben einen Sparplan oder eine Einmalzahlung hinzu.
                             </div>
                         )}
                     </div>
