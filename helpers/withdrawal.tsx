@@ -176,8 +176,8 @@ export function calculateWithdrawal({
     // Generate year-specific growth rates
     const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i);
     
-    // For dynamic strategy, we also need the previous year's return rate
-    const allYears = strategy === "dynamisch" ? 
+    // For dynamic strategy or bucket strategy with dynamic sub-strategy, we also need the previous year's return rate
+    const allYears = (strategy === "dynamisch" || (strategy === "bucket_strategie" && bucketConfig?.subStrategy === "dynamisch")) ? 
         Array.from({ length: endYear - startYear + 2 }, (_, i) => startYear - 1 + i) : 
         years;
     
@@ -550,8 +550,8 @@ export function calculateWithdrawal({
             inflationAnpassung: inflationConfig?.inflationRate ? inflationAnpassung : undefined,
             einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
             genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined,
-            dynamischeAnpassung: strategy === 'dynamisch' ? dynamischeAnpassung : undefined,
-            vorjahresRendite: strategy === 'dynamisch' ? vorjahresRendite : undefined,
+            dynamischeAnpassung: (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')) ? dynamischeAnpassung : undefined,
+            vorjahresRendite: (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')) ? vorjahresRendite : undefined,
             // Bucket strategy specific fields
             cashCushionStart: strategy === 'bucket_strategie' ? cashCushionAtStart : undefined,
             cashCushionEnd: strategy === 'bucket_strategie' ? cashCushion : undefined,
