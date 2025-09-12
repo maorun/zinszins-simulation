@@ -53,6 +53,10 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Kapitalertragsteuer (standardmäßig 26,375%)
   - Teilfreistellungsquote für Aktienfonds (standardmäßig 30%)
   - Freibetrag pro Jahr - Individuelle Konfiguration der jährlichen Steuerfreibeträge
+- **Einkommensteuer auf Renten** - Berücksichtigung der deutschen Rentenbesteuerung in der Entnahmephase
+  - **Steuerpflichtiger Anteil** - Konfigurierbare Besteuerung der gesetzlichen Rente (typisch 80-100%)
+  - **Grundfreibetrag** - Anrechnung des Grundfreibetrags für Rentner ohne weiteres Einkommen
+  - **Kombinierte Besteuerung** - Korrekte Berücksichtigung bei gleichzeitigem Kapitalertrag und Rentenbezug
 - **Basiszins-Konfiguration (Deutsche Bundesbank)** - Verwaltung der offiziellen Basiszinssätze für Vorabpauschale-Berechnungen
   - **Automatischer Abruf** - Integration mit der Deutschen Bundesbank API (geplant)
   - **Historische Daten** - Offizielle Basiszinssätze von 2018-2024 bereits enthalten
@@ -117,6 +121,14 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Vergleichstabelle mit Endkapital, Gesamtentnahme, durchschnittlichen jährlichen Entnahmen und Laufzeit
   - Möglichkeit zur individuellen Benennung und Konfiguration der Vergleichsstrategien
 - **Berücksichtigung des Grundfreibetrages** - Einkommensteuer-Grundfreibetrag für Rentner ohne weiteres Einkommen
+- **Gesetzliche Rente Integration** - Vollständige Integration der deutschen gesetzlichen Rente in die Entnahmeplanung
+  - **Steuerberechnung**: Berücksichtigung steuerpflichtiger Anteile der Rente nach deutschem Steuerrecht
+  - **Import aus Steuerbescheid**: Direkte Eingabe von Rentenbezügen und steuerpflichtigen Anteilen aus dem Steuerbescheid
+  - **Automatische Rentenanpassungen**: Konfigurierbare jährliche Rentensteigerungen (historisch 1-3% p.a.)
+  - **Altersabhängiger Rentenbeginn**: Flexible Konfiguration des Renteneintrittsalters mit automatischer Berechnung
+  - **Einkommensteuer-Integration**: Berücksichtigung der Besteuerung der Rente unter Anrechnung des Grundfreibetrages
+  - **Realistische Entnahmeplanung**: Anzeige des tatsächlichen Bedarfs an privaten Entnahmen nach Abzug der gesetzlichen Rente
+  - **Vollständige Integration**: Funktioniert mit allen Entnahmestrategien und Modi (einheitlich, segmentiert, Vergleich)
 - Jahr-für-Jahr Entnahmeprojektion mit detaillierter Aufschlüsselung
 - Interaktive Parametereinstellung (Rendite, Lebensende, Strategie)
 
