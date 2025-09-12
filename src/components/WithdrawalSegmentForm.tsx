@@ -701,6 +701,154 @@ export function WithdrawalSegmentForm({
                                 </div>
                             )}
 
+                            {/* Random return settings */}
+                            {segment.returnConfig.mode === 'random' && (
+                                <>
+                                    <div className="mb-4 space-y-2">
+                                        <Label>Durchschnittliche Rendite (%)</Label>
+                                        <div className="space-y-2">
+                                            <Slider
+                                                value={[(segment.returnConfig.randomConfig?.averageReturn || 0.05) * 100]}
+                                                min={0}
+                                                max={12}
+                                                step={0.5}
+                                                onValueChange={(value) => updateSegment(segment.id, {
+                                                    returnConfig: {
+                                                        mode: 'random',
+                                                        randomConfig: {
+                                                            averageReturn: value[0] / 100,
+                                                            standardDeviation: segment.returnConfig.randomConfig?.standardDeviation || 0.12,
+                                                            seed: segment.returnConfig.randomConfig?.seed
+                                                        }
+                                                    }
+                                                })}
+                                                className="mt-2"
+                                            />
+                                            <div className="flex justify-between text-sm text-gray-500">
+                                                <span>0%</span>
+                                                <span className="font-medium text-gray-900">{((segment.returnConfig.randomConfig?.averageReturn || 0.05) * 100).toFixed(1)}%</span>
+                                                <span>12%</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-sm text-muted-foreground mt-1">
+                                            Erwartete durchschnittliche Rendite für diese Phase (meist konservativer als Ansparphase)
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-4 space-y-2">
+                                        <Label>Standardabweichung (%)</Label>
+                                        <div className="space-y-2">
+                                            <Slider
+                                                value={[(segment.returnConfig.randomConfig?.standardDeviation || 0.12) * 100]}
+                                                min={5}
+                                                max={25}
+                                                step={1}
+                                                onValueChange={(value) => updateSegment(segment.id, {
+                                                    returnConfig: {
+                                                        mode: 'random',
+                                                        randomConfig: {
+                                                            averageReturn: segment.returnConfig.randomConfig?.averageReturn || 0.05,
+                                                            standardDeviation: value[0] / 100,
+                                                            seed: segment.returnConfig.randomConfig?.seed
+                                                        }
+                                                    }
+                                                })}
+                                                className="mt-2"
+                                            />
+                                            <div className="flex justify-between text-sm text-gray-500">
+                                                <span>5%</span>
+                                                <span className="font-medium text-gray-900">{((segment.returnConfig.randomConfig?.standardDeviation || 0.12) * 100).toFixed(0)}%</span>
+                                                <span>25%</span>
+                                            </div>
+                                        </div>
+                                        <div className="text-sm text-muted-foreground mt-1">
+                                            Volatilität der Renditen (meist niedriger als Ansparphase wegen konservativerer Allokation)
+                                        </div>
+                                    </div>
+
+                                    <div className="mb-4 space-y-2">
+                                        <Label>Zufalls-Seed (optional)</Label>
+                                        <Input
+                                            type="number"
+                                            value={segment.returnConfig.randomConfig?.seed || ''}
+                                            onChange={(e) => {
+                                                const value = e.target.value ? Number(e.target.value) : undefined;
+                                                updateSegment(segment.id, {
+                                                    returnConfig: {
+                                                        mode: 'random',
+                                                        randomConfig: {
+                                                            averageReturn: segment.returnConfig.randomConfig?.averageReturn || 0.05,
+                                                            standardDeviation: segment.returnConfig.randomConfig?.standardDeviation || 0.12,
+                                                            seed: value
+                                                        }
+                                                    }
+                                                });
+                                            }}
+                                            placeholder="Für reproduzierbare Ergebnisse"
+                                        />
+                                        <div className="text-sm text-muted-foreground mt-1">
+                                            Optionaler Seed für reproduzierbare Zufallsrenditen. Leer lassen für echte Zufälligkeit.
+                                        </div>
+                                    </div>
+                                </>
+                            )}
+
+                            {/* Variable return settings */}
+                            {segment.returnConfig.mode === 'variable' && (
+                                <div className="mb-4 space-y-2">
+                                    <Label>Variable Renditen pro Jahr</Label>
+                                    <div
+                                        style={{
+                                            maxHeight: "300px",
+                                            overflowY: "auto",
+                                            padding: "8px",
+                                            border: "1px solid #e2e8f0",
+                                            borderRadius: "6px",
+                                        }}
+                                    >
+                                        {Array.from(
+                                            { length: segment.endYear - segment.startYear + 1 },
+                                            (_, index) => {
+                                                const year = segment.startYear + index;
+                                                const currentReturn = segment.returnConfig.variableConfig?.yearlyReturns[year] || 0.05;
+                                                return (
+                                                    <div key={year} className="flex items-center space-x-3 mb-2">
+                                                        <span className="text-sm font-medium min-w-[60px]">{year}:</span>
+                                                        <Input
+                                                            type="number"
+                                                            value={(currentReturn * 100).toFixed(1)}
+                                                            onChange={(e) => {
+                                                                const newReturn = e.target.value ? Number(e.target.value) / 100 : 0.05;
+                                                                const newYearlyReturns = {
+                                                                    ...(segment.returnConfig.variableConfig?.yearlyReturns || {}),
+                                                                    [year]: newReturn
+                                                                };
+                                                                updateSegment(segment.id, {
+                                                                    returnConfig: {
+                                                                        mode: 'variable',
+                                                                        variableConfig: {
+                                                                            yearlyReturns: newYearlyReturns
+                                                                        }
+                                                                    }
+                                                                });
+                                                            }}
+                                                            step={0.1}
+                                                            min={-50}
+                                                            max={50}
+                                                            className="flex-1"
+                                                        />
+                                                        <span className="text-sm text-gray-500">%</span>
+                                                    </div>
+                                                );
+                                            }
+                                        )}
+                                    </div>
+                                    <div className="text-sm text-muted-foreground mt-1">
+                                        Konfiguriere die erwartete Rendite für jedes Jahr dieser Phase individuell.
+                                    </div>
+                                </div>
+                            )}
+
                             <Separator />
 
                             {/* Inflation settings */}
