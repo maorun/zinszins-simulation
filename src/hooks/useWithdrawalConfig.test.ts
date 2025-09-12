@@ -1,16 +1,18 @@
 import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useWithdrawalConfig } from './useWithdrawalConfig';
 import { SimulationProvider } from '../contexts/SimulationContext';
 import type { SegmentedComparisonStrategy } from '../utils/config-storage';
 
 // Mock the simulation context
 const mockSetWithdrawalConfig = vi.fn();
+
 vi.mock('../contexts/useSimulation', () => ({
-  useSimulation: () => ({
+  useSimulation: vi.fn(() => ({
     withdrawalConfig: null,
     setWithdrawalConfig: mockSetWithdrawalConfig,
-  }),
+    endOfLife: 2080,
+  })),
 }));
 
 describe('useWithdrawalConfig', () => {

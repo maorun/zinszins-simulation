@@ -1,6 +1,6 @@
 import { useCallback, useMemo } from "react";
 import { useSimulation } from "../contexts/useSimulation";
-import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
+import { createDefaultWithdrawalSegment, synchronizeWithdrawalSegmentsEndYear } from "../utils/segmented-withdrawal";
 import type {
   WithdrawalReturnMode,
   WithdrawalFormValue,
@@ -114,71 +114,96 @@ export function useWithdrawalConfig(startOfIndependence: number) {
     };
   }, [withdrawalConfig, startOfIndependence, endOfLife]);
 
+  // Synchronize existing segments with global end of life when endOfLife changes
+  const synchronizedConfig = useMemo(() => {
+    if (!withdrawalConfig) {
+      return currentConfig;
+    }
+
+    // Synchronize regular withdrawal segments
+    const synchronizedSegments = synchronizeWithdrawalSegmentsEndYear(
+      currentConfig.withdrawalSegments,
+      endOfLife
+    );
+
+    // Synchronize segmented comparison strategies
+    const synchronizedComparisonStrategies = (currentConfig.segmentedComparisonStrategies || []).map(strategy => ({
+      ...strategy,
+      segments: synchronizeWithdrawalSegmentsEndYear(strategy.segments, endOfLife)
+    }));
+
+    return {
+      ...currentConfig,
+      withdrawalSegments: synchronizedSegments,
+      segmentedComparisonStrategies: synchronizedComparisonStrategies
+    };
+  }, [currentConfig, endOfLife, withdrawalConfig]);
+
   // Helper function to update config
   const updateConfig = useCallback(
-    (updates: Partial<typeof currentConfig>) => {
-      const newConfig = { ...currentConfig, ...updates };
+    (updates: Partial<typeof synchronizedConfig>) => {
+      const newConfig = { ...synchronizedConfig, ...updates };
       setWithdrawalConfig(newConfig);
     },
-    [currentConfig, setWithdrawalConfig],
+    [synchronizedConfig, setWithdrawalConfig],
   );
 
   // Helper function to update form value
   const updateFormValue = useCallback(
     (updates: Partial<WithdrawalFormValue>) => {
       updateConfig({
-        formValue: { ...currentConfig.formValue, ...updates },
+        formValue: { ...synchronizedConfig.formValue, ...updates },
       });
     },
-    [currentConfig.formValue, updateConfig],
+    [synchronizedConfig.formValue, updateConfig],
   );
 
   // Helper function to update a comparison strategy
   const updateComparisonStrategy = useCallback(
     (strategyId: string, updates: Partial<ComparisonStrategy>) => {
       updateConfig({
-        comparisonStrategies: currentConfig.comparisonStrategies.map((s: ComparisonStrategy) =>
+        comparisonStrategies: synchronizedConfig.comparisonStrategies.map((s: ComparisonStrategy) =>
           s.id === strategyId ? { ...s, ...updates } : s,
         ),
       });
     },
-    [currentConfig.comparisonStrategies, updateConfig],
+    [synchronizedConfig.comparisonStrategies, updateConfig],
   );
 
   // Helper function to update a segmented comparison strategy
   const updateSegmentedComparisonStrategy = useCallback(
     (strategyId: string, updates: Partial<SegmentedComparisonStrategy>) => {
       updateConfig({
-        segmentedComparisonStrategies: (currentConfig.segmentedComparisonStrategies || []).map((s: SegmentedComparisonStrategy) =>
+        segmentedComparisonStrategies: (synchronizedConfig.segmentedComparisonStrategies || []).map((s: SegmentedComparisonStrategy) =>
           s.id === strategyId ? { ...s, ...updates } : s,
         ),
       });
     },
-    [currentConfig.segmentedComparisonStrategies, updateConfig],
+    [synchronizedConfig.segmentedComparisonStrategies, updateConfig],
   );
 
   // Helper function to add a new segmented comparison strategy
   const addSegmentedComparisonStrategy = useCallback(
     (strategy: SegmentedComparisonStrategy) => {
       updateConfig({
-        segmentedComparisonStrategies: [...(currentConfig.segmentedComparisonStrategies || []), strategy],
+        segmentedComparisonStrategies: [...(synchronizedConfig.segmentedComparisonStrategies || []), strategy],
       });
     },
-    [currentConfig.segmentedComparisonStrategies, updateConfig],
+    [synchronizedConfig.segmentedComparisonStrategies, updateConfig],
   );
 
   // Helper function to remove a segmented comparison strategy
   const removeSegmentedComparisonStrategy = useCallback(
     (strategyId: string) => {
       updateConfig({
-        segmentedComparisonStrategies: (currentConfig.segmentedComparisonStrategies || []).filter((s: SegmentedComparisonStrategy) => s.id !== strategyId),
+        segmentedComparisonStrategies: (synchronizedConfig.segmentedComparisonStrategies || []).filter((s: SegmentedComparisonStrategy) => s.id !== strategyId),
       });
     },
-    [currentConfig.segmentedComparisonStrategies, updateConfig],
+    [synchronizedConfig.segmentedComparisonStrategies, updateConfig],
   );
 
   return {
-    currentConfig,
+    currentConfig: synchronizedConfig,
     updateConfig,
     updateFormValue,
     updateComparisonStrategy,

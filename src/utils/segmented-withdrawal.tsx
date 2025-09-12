@@ -159,6 +159,41 @@ export function createDefaultWithdrawalSegment(
 }
 
 /**
+ * Synchronize withdrawal segments to use a new global end year
+ * @param segments - Array of withdrawal segments to synchronize
+ * @param newEndYear - New global end of life year
+ * @returns Updated segments with synchronized end year
+ */
+export function synchronizeWithdrawalSegmentsEndYear(
+    segments: WithdrawalSegment[],
+    newEndYear: number
+): WithdrawalSegment[] {
+    if (segments.length === 0) {
+        return segments;
+    }
+    
+    // Sort segments by start year to find the last segment
+    const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear);
+    const lastSegment = sortedSegments[sortedSegments.length - 1];
+    
+    // If the last segment already ends at the new end year, no changes needed
+    if (lastSegment.endYear === newEndYear) {
+        return segments;
+    }
+    
+    // Update only the last segment to end at the new global end year
+    return segments.map(segment => {
+        if (segment.id === lastSegment.id) {
+            return {
+                ...segment,
+                endYear: newEndYear
+            };
+        }
+        return segment;
+    });
+}
+
+/**
  * Convert a single withdrawal configuration to segmented format for backward compatibility
  * @param strategy - Withdrawal strategy
  * @param returnConfig - Return configuration
