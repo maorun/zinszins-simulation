@@ -69,14 +69,20 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Obere und untere Rendite-Schwellenwerte
   - Relative Anpassungen bei Über-/Unterschreitung der Schwellen
   - Automatische Jahr-für-Jahr Anpassung basierend auf tatsächlichen Renditen
-- **Drei-Eimer-Strategie (Bucket-Strategie)** - Vereinfachte Simulation der beliebten Bucket-Strategie
+- **Drei-Eimer-Strategie (Bucket-Strategie)** - Vereinfachte Simulation der beliebten Bucket-Strategie mit flexiblen Entnahme-Strategien
   - **Cash-Polster**: Anfängliches Cash-Polster (Standard: €20,000) für Entnahmen bei negativen Renditen
   - **Intelligente Entnahme-Logik**: Automatische Auswahl zwischen Portfolio (positive Rendite) und Cash-Polster (negative Rendite)
   - **Auffüll-Mechanismus**: Überschussgewinne werden automatisch ins Cash-Polster verschoben
     - Auffüll-Schwellenwert: Gewinne müssen konfigurierbaren Betrag überschreiten (Standard: €5,000)
     - Auffüll-Anteil: Prozentsatz der Überschussgewinne für Cash-Polster (Standard: 50%)
-  - **Konfigurierbare Basis-Entnahmerate**: Unabhängige Entnahmerate für Portfolio-Berechnungen (Standard: 4%)
+  - **Flexible Entnahme-Strategien**: Wählbare Sub-Strategien innerhalb der Bucket-Strategie
+    - **4% Regel**: Klassische 4%-Entnahme vom Startkapital
+    - **3% Regel**: Konservative 3%-Entnahme vom Startkapital  
+    - **Variable Prozent**: Benutzerdefinierte Entnahmerate (1-10% konfigurierbar)
+    - **Monatlich fest**: Feste monatliche Entnahmebeträge mit Inflationsanpassung
+    - **Dynamische Strategie**: Renditebasierte Anpassung mit konfigurierbaren Schwellenwerten
   - **Marktschutz**: Vermeidung von Verkäufen zu ungünstigen Kursen während Marktabschwüngen
+  - **Vollständige Integration**: Funktioniert in allen Modi (einheitlich, segmentiert, Vergleich)
 - **RMD-ähnliche Entnahme (Lebenserwartung)** - Entnahmestrategie basierend auf statistischer Lebenserwartung
   - **Altersbasierte Berechnung**: Jährliche Entnahme = Portfoliowert ÷ Lebenserwartungs-Divisor
   - **Deutsche Sterbetafeln**: Verwendung offizieller Daten vom Statistischen Bundesamt (2020-2022)
