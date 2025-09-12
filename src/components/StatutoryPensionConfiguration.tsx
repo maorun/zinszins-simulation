@@ -119,7 +119,7 @@ export function StatutoryPensionConfiguration({
         <CardHeader className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Calculator className="h-4 w-4" />
-            Daten aus Steuerbescheid importieren
+            Daten aus Rentenbescheid importieren
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -137,7 +137,7 @@ export function StatutoryPensionConfiguration({
               id="has-tax-return-data"
             />
             <Label htmlFor="has-tax-return-data">
-              Daten aus Steuerbescheid verfügbar
+              Daten aus Rentenbescheid verfügbar
             </Label>
           </div>
 

@@ -45,7 +45,7 @@ describe('StatutoryPensionConfiguration', () => {
     expect(screen.getByText(/Aktivieren Sie diese Option/)).toBeInTheDocument();
     
     // Should not show configuration options when disabled
-    expect(screen.queryByText('Daten aus Steuerbescheid importieren')).not.toBeInTheDocument();
+    expect(screen.queryByText('Daten aus Rentenbescheid importieren')).not.toBeInTheDocument();
   });
 
   it('renders enabled state with all configuration options', () => {
@@ -57,7 +57,7 @@ describe('StatutoryPensionConfiguration', () => {
     );
 
     expect(screen.getByLabelText('Gesetzliche Rente berücksichtigen')).toBeChecked();
-    expect(screen.getByText('Daten aus Steuerbescheid importieren')).toBeInTheDocument();
+    expect(screen.getByText('Daten aus Rentenbescheid importieren')).toBeInTheDocument();
     expect(screen.getByLabelText('Rentenbeginn (Jahr)')).toBeInTheDocument();
     expect(screen.getByLabelText('Monatliche Rente (brutto) €')).toBeInTheDocument();
     expect(screen.getByText('Jährliche Rentenanpassung (%)')).toBeInTheDocument();
@@ -131,7 +131,7 @@ describe('StatutoryPensionConfiguration', () => {
       />
     );
 
-    const taxReturnToggle = screen.getByLabelText('Daten aus Steuerbescheid verfügbar');
+    const taxReturnToggle = screen.getByLabelText('Daten aus Rentenbescheid verfügbar');
     fireEvent.click(taxReturnToggle);
 
     expect(mockOnChange.onTaxReturnDataChange).toHaveBeenCalledWith({

@@ -315,7 +315,7 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
 
     // Wait for content to be visible and check configuration fields
     await waitFor(() => {
-      expect(screen.getByText('Daten aus Steuerbescheid importieren')).toBeInTheDocument();
+      expect(screen.getByText('Daten aus Rentenbescheid importieren')).toBeInTheDocument();
       expect(screen.getByLabelText('Rentenbeginn (Jahr)')).toBeInTheDocument();
       expect(screen.getByLabelText('Monatliche Rente (brutto) €')).toBeInTheDocument();
       expect(screen.getByText('Jährliche Rentenanpassung (%)')).toBeInTheDocument();
@@ -471,7 +471,7 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
 
     // Wait for the content to be visible
     await waitFor(() => {
-      const toggle = screen.getByLabelText('Daten aus Steuerbescheid verfügbar');
+      const toggle = screen.getByLabelText('Daten aus Rentenbescheid verfügbar');
       expect(toggle).toBeInTheDocument();
       fireEvent.click(toggle);
     });
