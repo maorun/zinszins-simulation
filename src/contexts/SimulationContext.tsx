@@ -65,6 +65,11 @@ export interface SimulationContextState {
   setLifeExpectancyTable: (table: 'german_2020_22' | 'custom') => void;
   customLifeExpectancy?: number;
   setCustomLifeExpectancy: (expectancy?: number) => void;
+  // Birth year helper for end of life calculation
+  birthYear?: number;
+  setBirthYear: (birthYear?: number) => void;
+  expectedLifespan?: number;
+  setExpectedLifespan: (lifespan?: number) => void;
   simulationData: any;
   isLoading: boolean;
   withdrawalResults: WithdrawalResult | null;
@@ -119,6 +124,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     endOfLife: 2080,
     lifeExpectancyTable: 'german_2020_22' as 'german_2020_22' | 'custom',
     customLifeExpectancy: undefined,
+    // Birth year helper for end of life calculation
+    birthYear: undefined,
+    expectedLifespan: 85,
   }), []);
 
   // Try to load saved configuration, fallback to defaults
@@ -185,6 +193,13 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [customLifeExpectancy, setCustomLifeExpectancy] = useState<number | undefined>(
     (initialConfig as any).customLifeExpectancy
   );
+  // Birth year helper for end of life calculation
+  const [birthYear, setBirthYear] = useState<number | undefined>(
+    (initialConfig as any).birthYear
+  );
+  const [expectedLifespan, setExpectedLifespan] = useState<number | undefined>(
+    (initialConfig as any).expectedLifespan ?? defaultConfig.expectedLifespan
+  );
   const [simulationData, setSimulationData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [withdrawalResults, setWithdrawalResults] = useState<WithdrawalResult | null>(null);
@@ -224,8 +239,11 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     endOfLife,
     lifeExpectancyTable,
     customLifeExpectancy,
+    // Birth year helper for end of life calculation
+    birthYear,
+    expectedLifespan,
     withdrawal: withdrawalConfig || undefined,
-  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase, startEnd, sparplan, simulationAnnual, endOfLife, lifeExpectancyTable, customLifeExpectancy, withdrawalConfig]);
+  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase, startEnd, sparplan, simulationAnnual, endOfLife, lifeExpectancyTable, customLifeExpectancy, birthYear, expectedLifespan, withdrawalConfig]);
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration();
@@ -262,6 +280,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setEndOfLife((savedConfig as any).endOfLife ?? savedConfig.startEnd[1]);
       setLifeExpectancyTable((savedConfig as any).lifeExpectancyTable ?? defaultConfig.lifeExpectancyTable);
       setCustomLifeExpectancy((savedConfig as any).customLifeExpectancy);
+      // Load birth year helper settings
+      setBirthYear((savedConfig as any).birthYear);
+      setExpectedLifespan((savedConfig as any).expectedLifespan ?? defaultConfig.expectedLifespan);
       setWithdrawalConfig(savedConfig.withdrawal || null);
     }
   }, []);
@@ -294,6 +315,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setEndOfLife(defaultConfig.endOfLife);
     setLifeExpectancyTable(defaultConfig.lifeExpectancyTable);
     setCustomLifeExpectancy(defaultConfig.customLifeExpectancy);
+    // Reset birth year helper settings
+    setBirthYear(defaultConfig.birthYear);
+    setExpectedLifespan(defaultConfig.expectedLifespan);
     setWithdrawalConfig(null); // Reset withdrawal config to null
   }, [defaultConfig.basiszinsConfiguration, defaultConfig.historicalIndex, setSparplanElemente]);
 
@@ -399,6 +423,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     endOfLife, setEndOfLife,
     lifeExpectancyTable, setLifeExpectancyTable,
     customLifeExpectancy, setCustomLifeExpectancy,
+    // Birth year helper for end of life calculation
+    birthYear, setBirthYear,
+    expectedLifespan, setExpectedLifespan,
     simulationData,
     isLoading,
     withdrawalResults, setWithdrawalResults,
@@ -416,7 +443,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
     inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
-    endOfLife, lifeExpectancyTable, customLifeExpectancy,
+    endOfLife, lifeExpectancyTable, customLifeExpectancy, birthYear, expectedLifespan,
     simulationData, isLoading, withdrawalResults, performSimulation,
     saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
     withdrawalConfig

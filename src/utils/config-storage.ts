@@ -153,6 +153,9 @@ export interface SavedConfiguration {
   endOfLife?: number;
   lifeExpectancyTable?: 'german_2020_22' | 'custom';
   customLifeExpectancy?: number;
+  // Birth year helper for end of life calculation
+  birthYear?: number;
+  expectedLifespan?: number;
   // Withdrawal configuration
   withdrawal?: WithdrawalConfiguration;
 }

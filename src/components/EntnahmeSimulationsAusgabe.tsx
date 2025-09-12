@@ -7,6 +7,8 @@ import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
 import { Slider } from "./ui/slider";
 import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { Calculator } from "lucide-react";
 
 // No more temporary components needed!
 import type { SparplanElement } from "../utils/sparplan-utils";
@@ -33,6 +35,7 @@ import type {
   WithdrawalReturnMode,
   ComparisonStrategy,
 } from "../utils/config-storage";
+import { calculateEndOfLifeYear, calculateCurrentAge, getDefaultLifeExpectancy } from "../../helpers/life-expectancy";
 
 // Helper function for strategy display names
 function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
@@ -95,7 +98,7 @@ export function EntnahmeSimulationsAusgabe({
   );
 
   // Access global Grundfreibetrag configuration and End of Life settings
-  const { grundfreibetragAktiv, grundfreibetragBetrag, endOfLife: globalEndOfLife, lifeExpectancyTable, customLifeExpectancy, setEndOfLife, setLifeExpectancyTable, setCustomLifeExpectancy } = useSimulation();
+  const { grundfreibetragAktiv, grundfreibetragBetrag, endOfLife: globalEndOfLife, lifeExpectancyTable, customLifeExpectancy, setEndOfLife, setLifeExpectancyTable, setCustomLifeExpectancy, birthYear, setBirthYear, expectedLifespan, setExpectedLifespan } = useSimulation();
 
   const {
     showCalculationModal,
@@ -195,6 +198,69 @@ export function EntnahmeSimulationsAusgabe({
               />
               <div className="text-sm text-muted-foreground">
                 Das Jahr, in dem die Entnahmephase enden soll (z.B. 2080)
+              </div>
+              
+              {/* Helper for calculating end of life year from birth year */}
+              <div className="p-3 bg-blue-50 rounded-lg space-y-2">
+                <div className="text-sm font-medium text-blue-900">Lebensende automatisch berechnen</div>
+                <div className="grid grid-cols-2 gap-2">
+                  <div className="space-y-1">
+                    <Label htmlFor="birth-year-eol" className="text-xs">Geburtsjahr</Label>
+                    <Input
+                      id="birth-year-eol"
+                      type="number"
+                      value={birthYear || ''}
+                      onChange={(e) => {
+                        const year = e.target.value ? Number(e.target.value) : undefined;
+                        setBirthYear(year);
+                        // Auto-suggest life expectancy based on current age
+                        if (year) {
+                          const currentAge = calculateCurrentAge(year);
+                          const suggestedLifespan = getDefaultLifeExpectancy(currentAge);
+                          if (!expectedLifespan) {
+                            setExpectedLifespan(suggestedLifespan);
+                          }
+                        }
+                      }}
+                      placeholder="1974"
+                      min={1930}
+                      max={new Date().getFullYear() - 18}
+                      className="text-xs h-8"
+                    />
+                  </div>
+                  <div className="space-y-1">
+                    <Label htmlFor="expected-lifespan" className="text-xs">Lebenserwartung (Alter)</Label>
+                    <Input
+                      id="expected-lifespan"
+                      type="number"
+                      value={expectedLifespan || 85}
+                      onChange={(e) => setExpectedLifespan(Number(e.target.value))}
+                      min={50}
+                      max={120}
+                      className="text-xs h-8"
+                    />
+                  </div>
+                </div>
+                <Button 
+                  size="sm"
+                  variant="outline"
+                  onClick={() => {
+                    if (birthYear && expectedLifespan) {
+                      const calculatedYear = calculateEndOfLifeYear(birthYear, expectedLifespan);
+                      setEndOfLife(calculatedYear);
+                    }
+                  }}
+                  disabled={!birthYear || !expectedLifespan}
+                  className="w-full text-xs"
+                >
+                  <Calculator className="h-3 w-3 mr-1" />
+                  Berechnen ({birthYear && expectedLifespan ? calculateEndOfLifeYear(birthYear, expectedLifespan) : '—'})
+                </Button>
+                {birthYear && (
+                  <div className="text-xs text-muted-foreground">
+                    Aktuelles Alter: {calculateCurrentAge(birthYear)} Jahre
+                  </div>
+                )}
               </div>
             </div>
             <div className="space-y-2">
