@@ -894,6 +894,203 @@ describe('Bucket Strategy Tests', () => {
     }).toThrow("Bucket strategy config required");
   });
 
+  // Test bucket strategy sub-strategies
+  describe('Bucket Sub-Strategy Tests', () => {
+    test('should use variable percentage sub-strategy within bucket strategy', () => {
+      const withdrawalStartYear = 2025;
+      const lastSimYear = withdrawalStartYear - 1;
+      const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+      const bucketConfig = {
+        initialCashCushion: 10000,
+        refillThreshold: 5000,
+        refillPercentage: 0.5,
+        baseWithdrawalRate: 0.04, // This should be ignored
+        subStrategy: 'variabel_prozent' as const,
+        variabelProzent: 6 // 6% withdrawal rate instead of 4%
+      };
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "bucket_strategie",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+        bucketConfig
+      });
+
+      const resultYear = result[withdrawalStartYear];
+      expect(resultYear).toBeDefined();
+      
+      // Should use the variable percentage (6%) instead of base withdrawal rate (4%)
+      expect(resultYear.entnahme).toBeCloseTo(120000 * 0.06); // 6% of initial capital = 7200
+      expect(resultYear.bucketUsed).toBe('portfolio'); // Positive return, should use portfolio
+    });
+
+    test('should use monthly fixed sub-strategy within bucket strategy', () => {
+      const withdrawalStartYear = 2025;
+      const lastSimYear = withdrawalStartYear - 1;
+      const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+      const bucketConfig = {
+        initialCashCushion: 10000,
+        refillThreshold: 5000,
+        refillPercentage: 0.5,
+        baseWithdrawalRate: 0.04, // This should be ignored
+        subStrategy: 'monatlich_fest' as const,
+        monatlicheBetrag: 800 // €800 per month = €9600 per year
+      };
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "bucket_strategie",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+        bucketConfig
+      });
+
+      const resultYear = result[withdrawalStartYear];
+      expect(resultYear).toBeDefined();
+      
+      // Should use the monthly amount * 12
+      expect(resultYear.entnahme).toBeCloseTo(800 * 12); // €9600 per year
+      expect(resultYear.bucketUsed).toBe('portfolio');
+    });
+
+    test('should use dynamic sub-strategy within bucket strategy', () => {
+      const withdrawalStartYear = 2025;
+      const lastSimYear = withdrawalStartYear - 1;
+      const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+      const bucketConfig = {
+        initialCashCushion: 10000,
+        refillThreshold: 5000,
+        refillPercentage: 0.5,
+        baseWithdrawalRate: 0.04, // This should be ignored for dynamic
+        subStrategy: 'dynamisch' as const,
+        dynamischBasisrate: 5, // 5% base rate
+        dynamischObereSchwell: 8, // 8% upper threshold
+        dynamischObereAnpassung: 10, // 10% increase when exceeded
+        dynamischUntereSchwell: 2, // 2% lower threshold
+        dynamischUntereAnpassung: -10 // 10% decrease when below
+      };
+
+      // Use variable returns to test dynamic adjustments
+      const returnConfig: ReturnConfiguration = {
+        mode: 'variable',
+        variableConfig: {
+          yearlyReturns: {
+            [withdrawalStartYear - 1]: 0.12, // 12% return in previous year (above 8% threshold)
+            [withdrawalStartYear]: 0.05
+          }
+        }
+      };
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "bucket_strategie",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+        bucketConfig
+      });
+
+      const resultYear = result[withdrawalStartYear];
+      expect(resultYear).toBeDefined();
+      
+      // Base withdrawal: 120000 * 0.05 = 6000
+      // Dynamic adjustment: 6000 * 0.10 = 600 (10% increase due to 12% > 8%)
+      // Total: 6000 + 600 = 6600
+      expect(resultYear.entnahme).toBeCloseTo(6600);
+      expect(resultYear.dynamischeAnpassung).toBeCloseTo(600);
+      expect(resultYear.bucketUsed).toBe('portfolio');
+    });
+
+    test('should use 4% rule sub-strategy within bucket strategy', () => {
+      const withdrawalStartYear = 2025;
+      const lastSimYear = withdrawalStartYear - 1;
+      const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+      const bucketConfig = {
+        initialCashCushion: 10000,
+        refillThreshold: 5000,
+        refillPercentage: 0.5,
+        baseWithdrawalRate: 0.08, // This should be ignored
+        subStrategy: '4prozent' as const
+      };
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "bucket_strategie",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+        bucketConfig
+      });
+
+      const resultYear = result[withdrawalStartYear];
+      expect(resultYear).toBeDefined();
+      
+      // Should use 4% rule regardless of baseWithdrawalRate
+      expect(resultYear.entnahme).toBeCloseTo(120000 * 0.04); // 4% of initial capital = 4800
+      expect(resultYear.bucketUsed).toBe('portfolio');
+    });
+
+    test('should fall back to baseWithdrawalRate when subStrategy is not defined', () => {
+      const withdrawalStartYear = 2025;
+      const lastSimYear = withdrawalStartYear - 1;
+      const mockElements = [createMockElement(2023, 100000, 120000, 100, lastSimYear)];
+
+      const bucketConfig = {
+        initialCashCushion: 10000,
+        refillThreshold: 5000,
+        refillPercentage: 0.5,
+        baseWithdrawalRate: 0.035 // Should use this for backward compatibility
+        // subStrategy is undefined
+      };
+
+      const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.05 };
+
+      const { result } = calculateWithdrawal({
+        elements: mockElements,
+        startYear: withdrawalStartYear,
+        endYear: withdrawalStartYear,
+        strategy: "bucket_strategie",
+        returnConfig,
+        taxRate,
+        teilfreistellungsquote,
+        freibetragPerYear: { [withdrawalStartYear]: freibetrag },
+        bucketConfig
+      });
+
+      const resultYear = result[withdrawalStartYear];
+      expect(resultYear).toBeDefined();
+      
+      // Should fall back to baseWithdrawalRate for backward compatibility
+      expect(resultYear.entnahme).toBeCloseTo(120000 * 0.035); // 3.5% of initial capital = 4200
+      expect(resultYear.bucketUsed).toBe('portfolio');
+    });
+  });
+
   describe('RMD Strategy', () => {
     test('should calculate RMD withdrawal based on age and portfolio value', () => {
       const withdrawalStartYear = 2040;

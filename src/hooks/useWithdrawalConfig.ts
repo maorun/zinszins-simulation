@@ -43,7 +43,15 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
         initialCashCushion: 20000, // €20,000 initial cash cushion
         refillThreshold: 5000, // Refill when gains exceed €5,000
         refillPercentage: 0.5, // Move 50% of excess gains to cash
-        baseWithdrawalRate: 0.04, // 4% base withdrawal rate
+        baseWithdrawalRate: 0.04, // 4% base withdrawal rate (fallback)
+        subStrategy: "4prozent", // Default to 4% rule sub-strategy
+        variabelProzent: 4, // Default variable percentage
+        monatlicheBetrag: 2000, // Default monthly amount €2,000
+        dynamischBasisrate: 4, // Default dynamic base rate 4%
+        dynamischObereSchwell: 8, // Default upper threshold 8%
+        dynamischObereAnpassung: 5, // Default upper adjustment 5%
+        dynamischUntereSchwell: 2, // Default lower threshold 2%
+        dynamischUntereAnpassung: -5, // Default lower adjustment -5%
       },
       // RMD strategy specific settings
       rmdStartAge: 65, // Default retirement age
