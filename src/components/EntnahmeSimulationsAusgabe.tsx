@@ -182,7 +182,7 @@ export function EntnahmeSimulationsAusgabe({
           <h4 className="text-lg font-semibold mb-4 text-blue-800">Globale Konfiguration</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label>Alter zu ENDE der Entnahmephase</Label>
+              <Label>Lebensende (Jahr)</Label>
               <Input
                 type="number"
                 value={globalEndOfLife}
@@ -194,7 +194,7 @@ export function EntnahmeSimulationsAusgabe({
                 max={2150}
               />
               <div className="text-sm text-muted-foreground">
-                Das Alter, bis zu dem die Entnahmephase geplant wird
+                Das Jahr, in dem die Entnahmephase enden soll (z.B. 2080)
               </div>
             </div>
             <div className="space-y-2">
