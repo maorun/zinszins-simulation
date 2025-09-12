@@ -97,11 +97,6 @@ export function EntnahmeSimulationsAusgabe({
   // Access global Grundfreibetrag configuration and End of Life settings
   const { grundfreibetragAktiv, grundfreibetragBetrag, endOfLife: globalEndOfLife, lifeExpectancyTable, customLifeExpectancy, setEndOfLife, setLifeExpectancyTable, setCustomLifeExpectancy } = useSimulation();
 
-  // Sync global endOfLife with parent component
-  useEffect(() => {
-    dispatchEnd([startOfIndependence, globalEndOfLife]);
-  }, [globalEndOfLife, startOfIndependence, dispatchEnd]);
-
   const {
     showCalculationModal,
     setShowCalculationModal,

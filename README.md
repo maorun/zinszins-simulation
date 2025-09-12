@@ -64,6 +64,16 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - **Flexible Konfiguration** - Jahr-für-Jahr anpassbare Zinssätze mit Quellenangabe
   - **Echtzeit-Update** - Simulation wird automatisch bei Änderungen neu berechnet
 
+### Globale Konfiguration
+- **Alter zu ENDE der Entnahmephase** - Zentralisierte Lebensende-Konfiguration für alle Entnahmestrategien
+  - **Globale Einstellung** - Eine zentrale Konfiguration für alle Entnahme-Modi und -Strategien
+  - **Standardwerte** - Intelligente Defaults basierend auf dem Ende des Sparzeitraums  
+  - **Automatische Synchronisation** - Änderungen werden sofort in allen Berechnungen berücksichtigt
+- **Datengrundlage für Lebenserwartung** - Konfiguration der statistischen Grundlagen für RMD-Berechnungen
+  - **Deutsche Sterbetafel 2020-2022** - Offizielle Daten vom Statistischen Bundesamt
+  - **Benutzerdefinierte Werte** - Manuelle Eingabe eigener Lebenserwartung
+  - **Zentrale Verwaltung** - Eine Einstellung für alle lebenserwartungsbasierten Berechnungen
+
 ### Auszahlungsphase
 - **4% Regel** - Jährliche Entnahme von 4% des Startkapitals
 - **3% Regel** - Jährliche Entnahme von 3% des Startkapitals
