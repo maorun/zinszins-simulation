@@ -45,11 +45,13 @@ export function getDefaultLifeExpectancy(currentAge: number, gender?: 'male' | '
   const baseLifeExpectancy = gender === 'male' ? 78 : gender === 'female' ? 83 : 80.5;
   
   // Adjust for current age (people who have already reached a certain age tend to live longer)
+  let adjustedLifeExpectancy = baseLifeExpectancy;
+  
   if (currentAge >= 65) {
-    return baseLifeExpectancy + 2;
+    adjustedLifeExpectancy += 2;
   } else if (currentAge >= 50) {
-    return baseLifeExpectancy + 1;
+    adjustedLifeExpectancy += 1;
   }
   
-  return Math.round(baseLifeExpectancy);
+  return Math.round(adjustedLifeExpectancy);
 }
