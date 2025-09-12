@@ -6,6 +6,8 @@ import type { SegmentedWithdrawalConfig, WithdrawalSegment } from "../src/utils/
 import type { WithdrawalFrequency } from "../src/utils/config-storage";
 import type { BasiszinsConfiguration } from "../src/services/bundesbank-api";
 import { calculateRMDWithdrawal } from "./rmd-tables";
+import type { StatutoryPensionConfig } from "./statutory-pension";
+import { calculateStatutoryPension } from "./statutory-pension";
 
 
 export type WithdrawalStrategy = "4prozent" | "3prozent" | "monatlich_fest" | "variabel_prozent" | "dynamisch" | "bucket_strategie" | "rmd" | "kapitalerhalt";
@@ -45,6 +47,13 @@ export type WithdrawalResultElement = {
         jahresgewinn: number;
         anteilImJahr: number;
         startkapital: number; // For explanation calculations
+    };
+    // Statutory pension fields
+    statutoryPension?: {
+        grossAnnualAmount: number;
+        netAnnualAmount: number;
+        incomeTax: number;
+        taxableAmount: number;
     };
 }
 
@@ -138,6 +147,7 @@ export type CalculateWithdrawalParams = {
     rmdConfig?: RMDConfig;
     kapitalerhaltConfig?: KapitalerhaltConfig;
     basiszinsConfiguration?: BasiszinsConfiguration;
+    statutoryPensionConfig?: StatutoryPensionConfig;
 };
 
 export function calculateWithdrawal({
@@ -161,7 +171,8 @@ export function calculateWithdrawal({
     bucketConfig,
     rmdConfig,
     kapitalerhaltConfig,
-    basiszinsConfiguration
+    basiszinsConfiguration,
+    statutoryPensionConfig
 }: CalculateWithdrawalParams): { result: WithdrawalResult; finalLayers: MutableLayer[] } {
     // Helper functions
     const getFreibetragForYear = (year: number): number => {
@@ -192,6 +203,17 @@ export function calculateWithdrawal({
     }
 
     const result: WithdrawalResult = {};
+    
+    // Calculate statutory pension for all years if configured
+    const statutoryPensionData = statutoryPensionConfig?.enabled ? 
+        calculateStatutoryPension(
+            statutoryPensionConfig, 
+            startYear, 
+            endYear, 
+            incomeTaxRate || 0,
+            grundfreibetragPerYear
+        ) : {};
+    
     const initialStartingCapital = elements.reduce((sum: number, el: SparplanElement) => {
         const simYear = el.simulation?.[startYear - 1];
         return sum + (simYear?.endkapital || 0);
@@ -559,6 +581,13 @@ export function calculateWithdrawal({
             refillAmount: strategy === 'bucket_strategie' && refillAmount > 0 ? refillAmount : undefined,
             vorabpauschale: totalVorabpauschale > 0 ? totalVorabpauschale : undefined,
             vorabpauschaleDetails: vorabpauschaleDetails,
+            // Statutory pension data
+            statutoryPension: statutoryPensionData[year] && statutoryPensionData[year].grossAnnualAmount > 0 ? {
+                grossAnnualAmount: statutoryPensionData[year].grossAnnualAmount,
+                netAnnualAmount: statutoryPensionData[year].netAnnualAmount,
+                incomeTax: statutoryPensionData[year].incomeTax,
+                taxableAmount: statutoryPensionData[year].taxableAmount,
+            } : undefined,
         };
     }
 
@@ -606,7 +635,8 @@ export function calculateSegmentedWithdrawal(
             inflationConfig: segment.inflationConfig,
             dynamicConfig: segment.dynamicConfig,
             bucketConfig: segment.bucketConfig,
-            rmdConfig: segment.rmdConfig
+            rmdConfig: segment.rmdConfig,
+            statutoryPensionConfig: segmentedConfig.statutoryPensionConfig
         });
 
         Object.assign(result, segmentResultData);

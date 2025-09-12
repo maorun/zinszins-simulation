@@ -2,6 +2,7 @@ import type { WithdrawalStrategy } from "../../helpers/withdrawal";
 import type { ReturnConfiguration } from "../../helpers/random-returns";
 import type { MonthlyWithdrawalConfig, InflationConfig, DynamicWithdrawalConfig, BucketStrategyConfig, RMDConfig } from "../../helpers/withdrawal";
 import type { WithdrawalFrequency } from "./config-storage";
+import type { StatutoryPensionConfig } from "../../helpers/statutory-pension";
 
 /**
  * Configuration for a single withdrawal segment (time period)
@@ -53,6 +54,8 @@ export type SegmentedWithdrawalConfig = {
     taxRate: number;
     /** Global tax allowance configuration */
     freibetragPerYear?: {[year: number]: number};
+    /** Statutory pension configuration (applies to all segments) */
+    statutoryPensionConfig?: StatutoryPensionConfig;
 };
 
 /**

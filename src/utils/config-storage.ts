@@ -4,6 +4,7 @@ import type { SimulationAnnualType } from './simulate';
 import type { WithdrawalStrategy, BucketStrategyConfig } from '../../helpers/withdrawal';
 import type { WithdrawalSegment } from './segmented-withdrawal';
 import type { BasiszinsConfiguration } from '../services/bundesbank-api';
+import type { StatutoryPensionConfig } from '../../helpers/statutory-pension';
 
 /**
  * Return mode for withdrawal phase (subset of main ReturnMode)
@@ -48,6 +49,8 @@ export interface WithdrawalFormValue {
   // Kapitalerhalt strategy specific settings
   kapitalerhaltNominalReturn: number;
   kapitalerhaltInflationRate: number;
+  // Statutory pension settings
+  statutoryPensionConfig?: StatutoryPensionConfig;
   // Grundfreibetrag settings (now handled globally, kept for backward compatibility)
   grundfreibetragAktiv?: boolean;
   grundfreibetragBetrag?: number;
@@ -81,6 +84,8 @@ export interface ComparisonStrategy {
   // Kapitalerhalt strategy specific fields
   kapitalerhaltNominalReturn?: number;
   kapitalerhaltInflationRate?: number;
+  // Statutory pension configuration
+  statutoryPensionConfig?: StatutoryPensionConfig;
 }
 
 /**
