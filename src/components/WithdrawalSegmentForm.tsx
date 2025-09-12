@@ -496,6 +496,14 @@ export function WithdrawalSegmentForm({
                                     refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
                                     refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
                                     baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04,
+                                    subStrategy: segment.bucketConfig?.subStrategy || "4prozent",
+                                    variabelProzent: segment.bucketConfig?.variabelProzent || 4,
+                                    monatlicheBetrag: segment.bucketConfig?.monatlicheBetrag || 2000,
+                                    dynamischBasisrate: segment.bucketConfig?.dynamischBasisrate || 4,
+                                    dynamischObereSchwell: segment.bucketConfig?.dynamischObereSchwell || 8,
+                                    dynamischObereAnpassung: segment.bucketConfig?.dynamischObereAnpassung || 5,
+                                    dynamischUntereSchwell: segment.bucketConfig?.dynamischUntereSchwell || 2,
+                                    dynamischUntereAnpassung: segment.bucketConfig?.dynamischUntereAnpassung || -5,
                                 }}
                                 onChange={{
                                     onInitialCashCushionChange: (value) => updateSegment(segment.id, {
@@ -524,10 +532,84 @@ export function WithdrawalSegmentForm({
                                     }),
                                     onBaseWithdrawalRateChange: (value) => updateSegment(segment.id, {
                                         bucketConfig: {
+                                            ...segment.bucketConfig,
                                             initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
                                             refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
                                             refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
                                             baseWithdrawalRate: value
+                                        }
+                                    }),
+                                    onSubStrategyChange: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            ...segment.bucketConfig,
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04,
+                                            subStrategy: value
+                                        }
+                                    }),
+                                    onVariabelProzentChange: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04,
+                                            variabelProzent: value
+                                        }
+                                    }),
+                                    onMonatlicheBetragChange: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04,
+                                            monatlicheBetrag: value
+                                        }
+                                    }),
+                                    onDynamischBasisrateChange: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04,
+                                            dynamischBasisrate: value
+                                        }
+                                    }),
+                                    onDynamischObereSchwell: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04,
+                                            dynamischObereSchwell: value
+                                        }
+                                    }),
+                                    onDynamischObereAnpassung: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04,
+                                            dynamischObereAnpassung: value
+                                        }
+                                    }),
+                                    onDynamischUntereSchwell: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04,
+                                            dynamischUntereSchwell: value
+                                        }
+                                    }),
+                                    onDynamischUntereAnpassung: (value) => updateSegment(segment.id, {
+                                        bucketConfig: {
+                                            initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
+                                            refillThreshold: segment.bucketConfig?.refillThreshold || 5000,
+                                            refillPercentage: segment.bucketConfig?.refillPercentage || 0.5,
+                                            baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || 0.04,
+                                            dynamischUntereAnpassung: value
                                         }
                                     }),
                                 }}

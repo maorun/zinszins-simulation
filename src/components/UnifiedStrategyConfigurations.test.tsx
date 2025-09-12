@@ -11,7 +11,9 @@ describe('Unified Strategy Configurations', () => {
           initialCashCushion: 25000,
           refillThreshold: 10000,
           refillPercentage: 0.6,
-          baseWithdrawalRate: 0.035
+          baseWithdrawalRate: 0.035,
+          subStrategy: 'variabel_prozent' as const,
+          variabelProzent: 3.5,
         }
       };
       
@@ -27,8 +29,11 @@ describe('Unified Strategy Configurations', () => {
       // Check that form values are displayed
       expect(screen.getByDisplayValue('25000')).toBeInTheDocument();
       expect(screen.getByDisplayValue('10000')).toBeInTheDocument();
-      expect(screen.getByText('3.5%')).toBeInTheDocument();
-      expect(screen.getByText('60%')).toBeInTheDocument();
+      expect(screen.getByText('3.5%')).toBeInTheDocument(); // Variable percentage
+      expect(screen.getByText('60%')).toBeInTheDocument(); // Refill percentage
+
+      // Check that the Variable Prozent strategy is selected
+      expect(screen.getByRole('radio', { name: /Variable Prozent/ })).toBeChecked();
 
       // Check form mode specific text
       expect(screen.getByText('Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen')).toBeInTheDocument();
@@ -39,14 +44,24 @@ describe('Unified Strategy Configurations', () => {
         initialCashCushion: 15000,
         refillThreshold: 8000,
         refillPercentage: 0.4,
-        baseWithdrawalRate: 0.045
+        baseWithdrawalRate: 0.045,
+        subStrategy: 'variabel_prozent' as const,
+        variabelProzent: 4.5,
       };
       
       const onChange = {
         onInitialCashCushionChange: vi.fn(),
         onRefillThresholdChange: vi.fn(),
         onRefillPercentageChange: vi.fn(),
-        onBaseWithdrawalRateChange: vi.fn()
+        onBaseWithdrawalRateChange: vi.fn(),
+        onSubStrategyChange: vi.fn(),
+        onVariabelProzentChange: vi.fn(),
+        onMonatlicheBetragChange: vi.fn(),
+        onDynamischBasisrateChange: vi.fn(),
+        onDynamischObereSchwell: vi.fn(),
+        onDynamischObereAnpassung: vi.fn(),
+        onDynamischUntereSchwell: vi.fn(),
+        onDynamischUntereAnpassung: vi.fn(),
       };
 
       render(
@@ -59,8 +74,11 @@ describe('Unified Strategy Configurations', () => {
       // Check that direct values are displayed
       expect(screen.getByDisplayValue('15000')).toBeInTheDocument();
       expect(screen.getByDisplayValue('8000')).toBeInTheDocument();
-      expect(screen.getByText('4.5%')).toBeInTheDocument();
-      expect(screen.getByText('40%')).toBeInTheDocument();
+      expect(screen.getByText('4.5%')).toBeInTheDocument(); // Variable percentage
+      expect(screen.getByText('40%')).toBeInTheDocument(); // Refill percentage
+
+      // Check that the Variable Prozent strategy is selected
+      expect(screen.getByRole('radio', { name: /Variable Prozent/ })).toBeChecked();
 
       // Check direct mode specific text
       expect(screen.getByText('Anfänglicher Cash-Puffer für negative Rendite-Jahre')).toBeInTheDocument();
@@ -98,7 +116,15 @@ describe('Unified Strategy Configurations', () => {
               onInitialCashCushionChange: () => {},
               onRefillThresholdChange: () => {},
               onRefillPercentageChange: () => {},
-              onBaseWithdrawalRateChange: () => {}
+              onBaseWithdrawalRateChange: () => {},
+              onSubStrategyChange: () => {},
+              onVariabelProzentChange: () => {},
+              onMonatlicheBetragChange: () => {},
+              onDynamischBasisrateChange: () => {},
+              onDynamischObereSchwell: () => {},
+              onDynamischObereAnpassung: () => {},
+              onDynamischUntereSchwell: () => {},
+              onDynamischUntereAnpassung: () => {},
             }}
           />
         );
