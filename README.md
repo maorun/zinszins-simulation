@@ -102,6 +102,9 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - Frühe Rente (z.B. 2041-2055): Höhere Entnahmerate mit konservativeren Renditen
   - Mittlere Rente (z.B. 2055-2070): Ausgewogene Strategie mit moderaten Entnahmen
   - Späte Rente (z.B. 2070-2080): Niedrigere Entnahmerate für Kapitalerhalt
+  - **Vollständige Rendite-Konfiguration**: Feste, zufällige (Monte Carlo) oder variable Renditen pro Segment
+    - **Monte Carlo pro Segment**: Individuelle Durchschnittsrendite, Volatilität und Zufalls-Seed für jede Phase
+    - **Variable Renditen pro Segment**: Jahr-für-Jahr konfigurierbare Renditen für jede Phase
   - **Korrekte Durchschnittsberechnung**: Monatliche Auszahlungen werden als gewichteter Durchschnitt über alle Segmente berechnet
 - **Strategienvergleich** - Vergleich verschiedener Entnahmestrategien mit demselben Startkapital
   - 3% Regel vs. 4% Regel vs. Drei-Eimer-Strategie nebeneinander
