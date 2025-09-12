@@ -72,7 +72,7 @@ describe('SparplanEingabe localStorage sync', () => {
     );
 
     // Should show empty state message
-    expect(screen.getByText(/Noch keine Sparpläne erstellt/)).toBeInTheDocument();
+    expect(screen.getByText(/Noch keine Sparpläne oder Einmalzahlungen erstellt/)).toBeInTheDocument();
   });
 
   it('should properly display monthly values when simulation is monthly', () => {
