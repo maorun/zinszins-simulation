@@ -73,7 +73,7 @@ export function EntnahmeSimulationsAusgabe({
   steuerlast: number;
   teilfreistellungsquote: number;
 }) {
-  const [startOfIndependence, endOfLife] = startEnd;
+  const [startOfIndependence] = startEnd;
   
   // Use custom hooks for state management
   const { 
@@ -84,7 +84,7 @@ export function EntnahmeSimulationsAusgabe({
     updateSegmentedComparisonStrategy,
     addSegmentedComparisonStrategy,
     removeSegmentedComparisonStrategy,
-  } = useWithdrawalConfig(startOfIndependence, endOfLife);
+  } = useWithdrawalConfig(startOfIndependence);
   
   const { withdrawalData, comparisonResults, segmentedComparisonResults = [] } = useWithdrawalCalculations(
     elemente,
@@ -94,8 +94,13 @@ export function EntnahmeSimulationsAusgabe({
     teilfreistellungsquote,
   );
 
-  // Access global Grundfreibetrag configuration
-  const { grundfreibetragAktiv, grundfreibetragBetrag } = useSimulation();
+  // Access global Grundfreibetrag configuration and End of Life settings
+  const { grundfreibetragAktiv, grundfreibetragBetrag, endOfLife: globalEndOfLife, lifeExpectancyTable, customLifeExpectancy, setEndOfLife, setLifeExpectancyTable, setCustomLifeExpectancy } = useSimulation();
+
+  // Sync global endOfLife with parent component
+  useEffect(() => {
+    dispatchEnd([startOfIndependence, globalEndOfLife]);
+  }, [globalEndOfLife, startOfIndependence, dispatchEnd]);
 
   const {
     showCalculationModal,
@@ -177,6 +182,58 @@ export function EntnahmeSimulationsAusgabe({
           </CardHeader>
           <CollapsibleContent>
             <CardContent>
+        {/* Global End of Life Configuration */}
+        <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h4 className="text-lg font-semibold mb-4 text-blue-800">Globale Konfiguration</h4>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label>Alter zu ENDE der Entnahmephase</Label>
+              <Input
+                type="number"
+                value={globalEndOfLife}
+                onChange={(e) => {
+                  const value = e.target.value ? Number(e.target.value) : 2080;
+                  setEndOfLife(value);
+                }}
+                min={startOfIndependence + 1}
+                max={2150}
+              />
+              <div className="text-sm text-muted-foreground">
+                Das Alter, bis zu dem die Entnahmephase geplant wird
+              </div>
+            </div>
+            <div className="space-y-2">
+              <Label>Datengrundlage für Lebenserwartung</Label>
+              <RadioTileGroup
+                value={lifeExpectancyTable}
+                onValueChange={(value: string) => setLifeExpectancyTable(value as 'german_2020_22' | 'custom')}
+              >
+                <RadioTile value="german_2020_22" label="Deutsche Sterbetafel">
+                  Offizielle Sterbetafel 2020-2022 vom Statistischen Bundesamt
+                </RadioTile>
+                <RadioTile value="custom" label="Benutzerdefiniert">
+                  Eigene Lebenserwartung eingeben
+                </RadioTile>
+              </RadioTileGroup>
+              {lifeExpectancyTable === 'custom' && (
+                <div className="space-y-2 mt-2">
+                  <Label>Lebenserwartung (Jahre)</Label>
+                  <Input
+                    type="number"
+                    value={customLifeExpectancy || ''}
+                    onChange={(e) => {
+                      const value = e.target.value ? Number(e.target.value) : undefined;
+                      setCustomLifeExpectancy(value);
+                    }}
+                    min={1}
+                    max={50}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Toggle between single, segmented, and comparison withdrawal */}
         <div className="mb-4 space-y-2">
           <Label>Entnahme-Modus</Label>
@@ -207,7 +264,7 @@ export function EntnahmeSimulationsAusgabe({
                   "main",
                   "Hauptphase",
                   startOfIndependence + 1,
-                  formValue.endOfLife,
+                  globalEndOfLife,
                 );
                 updateConfig({ withdrawalSegments: [defaultSegment] });
               }
@@ -245,26 +302,13 @@ export function EntnahmeSimulationsAusgabe({
               updateConfig({ withdrawalSegments: segments })
             }
             withdrawalStartYear={startOfIndependence + 1}
-            withdrawalEndYear={formValue.endOfLife}
+            withdrawalEndYear={globalEndOfLife}
           />
         ) : useComparisonMode ? (
           /* Comparison mode configuration */
           <div>
             <h4>Basis-Strategie (mit vollständigen Details)</h4>
             <div>
-              {/* End of Life - shared by base strategy */}
-              <div className="mb-4 space-y-2">
-                <Label>End of Life</Label>
-                <Input
-                  type="number"
-                  value={formValue.endOfLife}
-                  onChange={(e) => {
-                    const value = e.target.value ? Number(e.target.value) : undefined;
-                    if (value) updateFormValue({ ...formValue, endOfLife: value });
-                  }}
-                />
-              </div>
-
               {/* Strategy selector - for base strategy only */}
               <div className="mb-4 space-y-2">
                 <Label>Basis-Strategie</Label>
@@ -793,7 +837,7 @@ export function EntnahmeSimulationsAusgabe({
           <SegmentedComparisonConfiguration
             segmentedComparisonStrategies={segmentedComparisonStrategies}
             withdrawalStartYear={startOfIndependence + 1}
-            withdrawalEndYear={formValue.endOfLife}
+            withdrawalEndYear={globalEndOfLife}
             onAddStrategy={addSegmentedComparisonStrategy}
             onUpdateStrategy={updateSegmentedComparisonStrategy}
             onRemoveStrategy={removeSegmentedComparisonStrategy}
@@ -941,7 +985,7 @@ export function EntnahmeSimulationsAusgabe({
                   }}
                 >
                   {Array.from(
-                    { length: formValue.endOfLife - startOfIndependence },
+                    { length: globalEndOfLife - startOfIndependence },
                     (_, i) => {
                       const year = startOfIndependence + 1 + i;
                       return (
@@ -991,23 +1035,11 @@ export function EntnahmeSimulationsAusgabe({
               </div>
             )}
             <div className="mb-4 space-y-2">
-              <Label>End of Life</Label>
-              <Input
-                type="number"
-                value={formValue.endOfLife}
-                onChange={(e) => {
-                  const value = e.target.value ? Number(e.target.value) : undefined;
-                  if (value) updateFormValue({ ...formValue, endOfLife: value });
-                }}
-              />
-            </div>
-            <div className="mb-4 space-y-2">
               <Label>Strategie</Label>
               <RadioTileGroup
                 value={formValue.strategie}
                 onValueChange={(value) => {
-                  const newFormValue = { ...formValue, strategie: value as WithdrawalStrategy };
-                  dispatchEnd([startOfIndependence, newFormValue.endOfLife]);
+                  dispatchEnd([startOfIndependence, globalEndOfLife]);
                   updateFormValue({
                     strategie: value as WithdrawalStrategy,
                   });
@@ -1080,8 +1112,7 @@ export function EntnahmeSimulationsAusgabe({
                   <Slider
                     value={[formValue.inflationsrate]}
                     onValueChange={(values: number[]) => {
-                      const newFormValue = { ...formValue, inflationsrate: values[0] };
-                      dispatchEnd([startOfIndependence, newFormValue.endOfLife]);
+                      dispatchEnd([startOfIndependence, globalEndOfLife]);
                       updateFormValue({
                         inflationsrate: values[0],
                       });

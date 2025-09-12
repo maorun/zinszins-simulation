@@ -25,6 +25,7 @@ export function useWithdrawalCalculations(
     steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
+    endOfLife,
   } = useSimulation();
 
   const {
@@ -108,7 +109,7 @@ export function useWithdrawalCalculations(
       const withdrawalCalculation = calculateWithdrawal({
         elements: elemente,
         startYear: startOfIndependence + 1, // Start withdrawals the year after accumulation ends
-        endYear: formValue.endOfLife,
+        endYear: endOfLife,
         strategy: formValue.strategie,
         withdrawalFrequency: formValue.withdrawalFrequency,
         returnConfig: withdrawalReturnConfig,
@@ -169,7 +170,7 @@ export function useWithdrawalCalculations(
               const grundfreibetragPerYear: { [year: number]: number } = {};
               for (
                 let year = startOfIndependence + 1;
-                year <= formValue.endOfLife;
+                year <= endOfLife;
                 year++
               ) {
                 grundfreibetragPerYear[year] = grundfreibetragBetrag;
@@ -212,7 +213,7 @@ export function useWithdrawalCalculations(
   }, [
     elemente,
     startOfIndependence,
-    formValue.endOfLife,
+    endOfLife,
     formValue.strategie,
     formValue.withdrawalFrequency,
     formValue.rendite,
@@ -266,7 +267,7 @@ export function useWithdrawalCalculations(
         const { result } = calculateWithdrawal({
           elements: elemente,
           startYear: startOfIndependence + 1,
-          endYear: formValue.endOfLife,
+          endYear: endOfLife,
           strategy: strategy.strategie,
           returnConfig,
           taxRate: steuerlast,
@@ -275,7 +276,7 @@ export function useWithdrawalCalculations(
             const freibetragPerYear: { [year: number]: number } = {};
             for (
               let year = startOfIndependence + 1;
-              year <= formValue.endOfLife;
+              year <= endOfLife;
               year++
             ) {
               freibetragPerYear[year] = 2000; // Default freibetrag
@@ -336,7 +337,7 @@ export function useWithdrawalCalculations(
                 const grundfreibetragPerYear: { [year: number]: number } = {};
                 for (
                   let year = startOfIndependence + 1;
-                  year <= formValue.endOfLife;
+                  year <= endOfLife;
                   year++
                 ) {
                   grundfreibetragPerYear[year] = grundfreibetragBetrag;
@@ -398,7 +399,7 @@ export function useWithdrawalCalculations(
     comparisonStrategies,
     elemente,
     startOfIndependence,
-    formValue.endOfLife,
+    endOfLife,
     steuerlast,
     teilfreistellungsquote,
     grundfreibetragAktiv,
@@ -423,7 +424,7 @@ export function useWithdrawalCalculations(
             const freibetragPerYear: { [year: number]: number } = {};
             for (
               let year = startOfIndependence + 1;
-              year <= formValue.endOfLife;
+              year <= endOfLife;
               year++
             ) {
               freibetragPerYear[year] = 2000; // Default freibetrag
@@ -488,7 +489,7 @@ export function useWithdrawalCalculations(
     segmentedComparisonStrategies,
     elemente,
     startOfIndependence,
-    formValue.endOfLife,
+    endOfLife,
     steuerlast,
   ]);
 

@@ -12,8 +12,8 @@ import { createDefaultStatutoryPensionConfig } from "../../helpers/statutory-pen
 /**
  * Custom hook for managing withdrawal configuration state
  */
-export function useWithdrawalConfig(startOfIndependence: number, endOfLife: number) {
-  const { withdrawalConfig, setWithdrawalConfig } = useSimulation();
+export function useWithdrawalConfig(startOfIndependence: number) {
+  const { withdrawalConfig, setWithdrawalConfig, endOfLife, lifeExpectancyTable, customLifeExpectancy } = useSimulation();
 
   // Initialize withdrawal config if not exists or update current form values
   const currentConfig = useMemo(() => {
@@ -56,8 +56,8 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
       },
       // RMD strategy specific settings
       rmdStartAge: 65, // Default retirement age
-      rmdLifeExpectancyTable: 'german_2020_22', // Use German mortality tables
-      rmdCustomLifeExpectancy: 20, // Default custom life expectancy
+      rmdLifeExpectancyTable: lifeExpectancyTable, // Use global life expectancy table
+      rmdCustomLifeExpectancy: customLifeExpectancy, // Use global custom life expectancy
       // Kapitalerhalt strategy specific settings
       kapitalerhaltNominalReturn: 7, // Default nominal return 7%
       kapitalerhaltInflationRate: 2, // Default inflation rate 2%
@@ -113,7 +113,7 @@ export function useWithdrawalConfig(startOfIndependence: number, endOfLife: numb
       useSegmentedComparisonMode: false,
       segmentedComparisonStrategies: [],
     };
-  }, [withdrawalConfig, startOfIndependence, endOfLife]);
+  }, [withdrawalConfig, startOfIndependence, endOfLife, lifeExpectancyTable, customLifeExpectancy]);
 
   // Helper function to update config
   const updateConfig = useCallback(

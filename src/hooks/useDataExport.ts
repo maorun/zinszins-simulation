@@ -97,7 +97,7 @@ export function useDataExport() {
         const { result } = calculateWithdrawal({
           elements: context.simulationData.sparplanElements,
           startYear: context.startEnd[0],
-          endYear: context.withdrawalConfig.formValue.endOfLife || context.startEnd[1],
+          endYear: context.endOfLife,
           strategy: context.withdrawalConfig.formValue.strategie,
           returnConfig: { mode: 'fixed', fixedRate: context.withdrawalConfig.formValue.rendite / 100 },
           taxRate: context.steuerlast / 100,
@@ -166,7 +166,7 @@ export function useDataExport() {
         const { result } = calculateWithdrawal({
           elements: savingsData.sparplanElements,
           startYear: context.startEnd[0],
-          endYear: context.withdrawalConfig.formValue.endOfLife || context.startEnd[1],
+          endYear: context.endOfLife,
           strategy: context.withdrawalConfig.formValue.strategie,
           returnConfig: { mode: 'fixed', fixedRate: context.withdrawalConfig.formValue.rendite / 100 },
           taxRate: context.steuerlast / 100,
@@ -222,7 +222,7 @@ export function useDataExport() {
       }
       
       const csvContent = parts.join('\n');
-      const filename = `simulation_komplett_${context.startEnd[0]}-${(context.withdrawalConfig?.formValue.endOfLife || context.startEnd[1])}_${new Date().toISOString().slice(0, 10)}.csv`;
+      const filename = `simulation_komplett_${context.startEnd[0]}-${context.endOfLife}_${new Date().toISOString().slice(0, 10)}.csv`;
       
       downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8');
       setResultState(true, 'csv');
@@ -250,7 +250,7 @@ export function useDataExport() {
         const { result } = calculateWithdrawal({
           elements: context.simulationData.sparplanElements,
           startYear: context.startEnd[0], // Start of withdrawal phase (corrected from context.startEnd[1] + 1)
-          endYear: context.withdrawalConfig!.formValue.endOfLife || context.startEnd[1],
+          endYear: context.endOfLife,
           strategy: context.withdrawalConfig!.formValue.strategie,
           returnConfig: { mode: 'fixed', fixedRate: context.withdrawalConfig!.formValue.rendite / 100 },
           taxRate: context.steuerlast / 100,
@@ -273,7 +273,7 @@ export function useDataExport() {
       };
       
       const markdownContent = exportDataToMarkdown(exportData);
-      const filename = `simulation_${context.startEnd[0]}-${(context.withdrawalConfig?.formValue.endOfLife || context.startEnd[1])}_${new Date().toISOString().slice(0, 10)}.md`;
+      const filename = `simulation_${context.startEnd[0]}-${context.endOfLife}_${new Date().toISOString().slice(0, 10)}.md`;
       
       downloadTextAsFile(markdownContent, filename, 'text/markdown;charset=utf-8');
       setResultState(true, 'markdown');
