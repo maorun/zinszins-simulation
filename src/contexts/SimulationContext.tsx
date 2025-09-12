@@ -58,6 +58,13 @@ export interface SimulationContextState {
   setSimulationAnnual: (simulationAnnual: SimulationAnnualType) => void;
   sparplanElemente: SparplanElement[];
   setSparplanElemente: (sparplanElemente: SparplanElement[]) => void;
+  // Global End of Life and Life Expectancy configuration
+  endOfLife: number;
+  setEndOfLife: (endOfLife: number) => void;
+  lifeExpectancyTable: 'german_2020_22' | 'custom';
+  setLifeExpectancyTable: (table: 'german_2020_22' | 'custom') => void;
+  customLifeExpectancy?: number;
+  setCustomLifeExpectancy: (expectancy?: number) => void;
   simulationData: any;
   isLoading: boolean;
   withdrawalResults: WithdrawalResult | null;
@@ -108,6 +115,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     startEnd: [2040, 2080] as [number, number],
     sparplan: [initialSparplan],
     simulationAnnual: SimulationAnnual.yearly,
+    // Global End of Life and Life Expectancy settings
+    endOfLife: 2080,
+    lifeExpectancyTable: 'german_2020_22' as 'german_2020_22' | 'custom',
+    customLifeExpectancy: undefined,
   }), []);
 
   // Try to load saved configuration, fallback to defaults
@@ -164,6 +175,16 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [sparplanElemente, setSparplanElemente] = useState<SparplanElement[]>(
     convertSparplanToElements(initialConfig.sparplan, initialConfig.startEnd, initialConfig.simulationAnnual)
   );
+  // Global End of Life and Life Expectancy state
+  const [endOfLife, setEndOfLife] = useState(
+    (initialConfig as any).endOfLife ?? initialConfig.startEnd[1]
+  );
+  const [lifeExpectancyTable, setLifeExpectancyTable] = useState<'german_2020_22' | 'custom'>(
+    (initialConfig as any).lifeExpectancyTable ?? defaultConfig.lifeExpectancyTable
+  );
+  const [customLifeExpectancy, setCustomLifeExpectancy] = useState<number | undefined>(
+    (initialConfig as any).customLifeExpectancy
+  );
   const [simulationData, setSimulationData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [withdrawalResults, setWithdrawalResults] = useState<WithdrawalResult | null>(null);
@@ -199,8 +220,12 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     startEnd,
     sparplan,
     simulationAnnual,
+    // Global End of Life and Life Expectancy settings
+    endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
     withdrawal: withdrawalConfig || undefined,
-  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase, startEnd, sparplan, simulationAnnual, withdrawalConfig]);
+  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase, startEnd, sparplan, simulationAnnual, endOfLife, lifeExpectancyTable, customLifeExpectancy, withdrawalConfig]);
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration();
@@ -233,6 +258,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setSparplan(savedConfig.sparplan);
       setSimulationAnnual(savedConfig.simulationAnnual);
       setSparplanElemente(convertSparplanToElements(savedConfig.sparplan, savedConfig.startEnd, savedConfig.simulationAnnual));
+      // Load global End of Life and Life Expectancy settings
+      setEndOfLife((savedConfig as any).endOfLife ?? savedConfig.startEnd[1]);
+      setLifeExpectancyTable((savedConfig as any).lifeExpectancyTable ?? defaultConfig.lifeExpectancyTable);
+      setCustomLifeExpectancy((savedConfig as any).customLifeExpectancy);
       setWithdrawalConfig(savedConfig.withdrawal || null);
     }
   }, []);
@@ -261,6 +290,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setSparplan(defaultConfig.sparplan);
     setSimulationAnnual(defaultConfig.simulationAnnual);
     setSparplanElemente(convertSparplanToElements(defaultConfig.sparplan, defaultConfig.startEnd, defaultConfig.simulationAnnual));
+    // Reset global End of Life and Life Expectancy settings
+    setEndOfLife(defaultConfig.endOfLife);
+    setLifeExpectancyTable(defaultConfig.lifeExpectancyTable);
+    setCustomLifeExpectancy(defaultConfig.customLifeExpectancy);
     setWithdrawalConfig(null); // Reset withdrawal config to null
   }, [defaultConfig.basiszinsConfiguration, defaultConfig.historicalIndex, setSparplanElemente]);
 
@@ -362,6 +395,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     sparplan, setSparplan,
     simulationAnnual, setSimulationAnnual,
     sparplanElemente, setSparplanElemente,
+    // Global End of Life and Life Expectancy settings
+    endOfLife, setEndOfLife,
+    lifeExpectancyTable, setLifeExpectancyTable,
+    customLifeExpectancy, setCustomLifeExpectancy,
     simulationData,
     isLoading,
     withdrawalResults, setWithdrawalResults,
@@ -379,6 +416,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
     inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
+    endOfLife, lifeExpectancyTable, customLifeExpectancy,
     simulationData, isLoading, withdrawalResults, performSimulation,
     saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
     withdrawalConfig

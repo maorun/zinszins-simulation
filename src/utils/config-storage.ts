@@ -151,6 +151,10 @@ export interface SavedConfiguration {
   startEnd: [number, number];
   sparplan: Sparplan[];
   simulationAnnual: SimulationAnnualType;
+  // Global End of Life and Life Expectancy configuration
+  endOfLife?: number;
+  lifeExpectancyTable?: 'german_2020_22' | 'custom';
+  customLifeExpectancy?: number;
   // Withdrawal configuration
   withdrawal?: WithdrawalConfiguration;
 }
