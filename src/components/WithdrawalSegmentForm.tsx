@@ -13,7 +13,7 @@ import { Plus, Trash2, ChevronDown } from 'lucide-react';
 // Helper function for number input handling with number onChange
 const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: number | undefined) => void) => {
     const value = e.target.value;
-    onChange(value ? Number(value) : undefined);
+    onChange(value ? Math.round(Number(value)) : undefined);
 };
 
 // No more temporary components needed!

@@ -630,11 +630,14 @@ export function EntnahmeSimulationsAusgabe({
 
               // Initialize segments when switching to segmented mode
               if (useSegmented && withdrawalSegments.length === 0) {
+                // Create initial segment covering only the first 15 years, leaving room for additional segments
+                const withdrawalStartYear = startOfIndependence + 1;
+                const initialSegmentEndYear = Math.min(withdrawalStartYear + 14, globalEndOfLife); // 15 years or until end of life
                 const defaultSegment = createDefaultWithdrawalSegment(
                   "main",
-                  "Hauptphase",
-                  startOfIndependence + 1,
-                  globalEndOfLife,
+                  "Frühphase",
+                  withdrawalStartYear,
+                  initialSegmentEndYear,
                 );
                 updateConfig({ withdrawalSegments: [defaultSegment] });
               }
