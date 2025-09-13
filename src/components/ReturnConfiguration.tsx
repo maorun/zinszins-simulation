@@ -5,6 +5,8 @@ import { Switch } from './ui/switch';
 import { Slider } from './ui/slider';
 import { ChevronDown } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
+import { useNestingLevel } from '../lib/nesting-utils';
+import { NestingProvider } from '../lib/nesting-context';
 import type { ReturnMode } from '../utils/random-returns';
 import FixedReturnConfiguration from './FixedReturnConfiguration';
 import RandomReturnConfiguration from './RandomReturnConfiguration';
@@ -24,11 +26,12 @@ const ReturnConfiguration = () => {
         setInflationAnwendungSparphase,
         performSimulation,
     } = useSimulation();
+    const nestingLevel = useNestingLevel();
 
     return (
-        <Card>
+        <Card nestingLevel={nestingLevel}>
             <Collapsible defaultOpen={false}>
-                <CardHeader>
+                <CardHeader nestingLevel={nestingLevel}>
                     <CollapsibleTrigger asChild>
                         <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
                             <CardTitle className="text-left">📈 Rendite-Konfiguration (Sparphase)</CardTitle>
@@ -37,7 +40,7 @@ const ReturnConfiguration = () => {
                     </CollapsibleTrigger>
                 </CardHeader>
                 <CollapsibleContent>
-                    <CardContent className="space-y-4">
+                    <CardContent nestingLevel={nestingLevel} className="space-y-4">
                 <div className="space-y-3">
                     <Label>Rendite-Modus für Sparphase</Label>
                     <RadioTileGroup
@@ -125,10 +128,12 @@ const ReturnConfiguration = () => {
                     )}
                 </div>
 
-                {returnMode === 'fixed' && <FixedReturnConfiguration />}
-                {returnMode === 'random' && <RandomReturnConfiguration />}
-                {returnMode === 'variable' && <VariableReturnConfiguration />}
-                {returnMode === 'historical' && <HistoricalReturnConfiguration />}
+                <NestingProvider>
+                    {returnMode === 'fixed' && <FixedReturnConfiguration />}
+                    {returnMode === 'random' && <RandomReturnConfiguration />}
+                    {returnMode === 'variable' && <VariableReturnConfiguration />}
+                    {returnMode === 'historical' && <HistoricalReturnConfiguration />}
+                </NestingProvider>
                     </CardContent>
                 </CollapsibleContent>
             </Collapsible>
