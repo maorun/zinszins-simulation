@@ -8,13 +8,13 @@ import { useSimulation } from "../contexts/useSimulation";
 
 interface RMDConfigValues {
   startAge: number;
-  lifeExpectancyTable: 'german_2020_22' | 'custom';
+  lifeExpectancyTable: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom';
   customLifeExpectancy?: number;
 }
 
 interface RMDChangeHandlers {
   onStartAgeChange: (age: number) => void;
-  onLifeExpectancyTableChange: (table: 'german_2020_22' | 'custom') => void;
+  onLifeExpectancyTableChange: (table: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom') => void;
   onCustomLifeExpectancyChange: (years: number) => void;
 }
 

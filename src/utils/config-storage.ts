@@ -151,8 +151,16 @@ export interface SavedConfiguration {
   simulationAnnual: SimulationAnnualType;
   // Global End of Life and Life Expectancy configuration
   endOfLife?: number;
-  lifeExpectancyTable?: 'german_2020_22' | 'custom';
+  lifeExpectancyTable?: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom';
   customLifeExpectancy?: number;
+  // Gender and couple planning configuration
+  planningMode?: 'individual' | 'couple';
+  gender?: 'male' | 'female';
+  // Couple planning fields
+  spouse?: {
+    birthYear?: number;
+    gender: 'male' | 'female';
+  };
   // Birth year helper for end of life calculation
   birthYear?: number;
   expectedLifespan?: number;
@@ -192,7 +200,7 @@ function migrateEndOfLifeSettings(config: SavedConfiguration): SavedConfiguratio
     return {
       ...config,
       endOfLife: withdrawalEndOfLife,
-      lifeExpectancyTable,
+      lifeExpectancyTable: lifeExpectancyTable as 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
       customLifeExpectancy,
     };
   }

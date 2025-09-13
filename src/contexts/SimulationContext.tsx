@@ -61,10 +61,17 @@ export interface SimulationContextState {
   // Global End of Life and Life Expectancy configuration
   endOfLife: number;
   setEndOfLife: (endOfLife: number) => void;
-  lifeExpectancyTable: 'german_2020_22' | 'custom';
-  setLifeExpectancyTable: (table: 'german_2020_22' | 'custom') => void;
+  lifeExpectancyTable: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom';
+  setLifeExpectancyTable: (table: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom') => void;
   customLifeExpectancy?: number;
   setCustomLifeExpectancy: (expectancy?: number) => void;
+  // Gender and couple planning configuration
+  planningMode: 'individual' | 'couple';
+  setPlanningMode: (mode: 'individual' | 'couple') => void;
+  gender?: 'male' | 'female';
+  setGender: (gender?: 'male' | 'female') => void;
+  spouse?: { birthYear?: number; gender: 'male' | 'female' };
+  setSpouse: (spouse?: { birthYear?: number; gender: 'male' | 'female' }) => void;
   // Birth year helper for end of life calculation
   birthYear?: number;
   setBirthYear: (birthYear?: number) => void;
@@ -122,8 +129,12 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     simulationAnnual: SimulationAnnual.yearly,
     // Global End of Life and Life Expectancy settings
     endOfLife: 2080,
-    lifeExpectancyTable: 'german_2020_22' as 'german_2020_22' | 'custom',
+    lifeExpectancyTable: 'german_2020_22' as 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
     customLifeExpectancy: undefined,
+    // Gender and couple planning configuration
+    planningMode: 'individual' as 'individual' | 'couple',
+    gender: undefined,
+    spouse: undefined,
     // Birth year helper for end of life calculation
     birthYear: undefined,
     expectedLifespan: 85,
@@ -187,11 +198,21 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [endOfLife, setEndOfLife] = useState(
     (initialConfig as any).endOfLife ?? initialConfig.startEnd[1]
   );
-  const [lifeExpectancyTable, setLifeExpectancyTable] = useState<'german_2020_22' | 'custom'>(
+  const [lifeExpectancyTable, setLifeExpectancyTable] = useState<'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'>(
     (initialConfig as any).lifeExpectancyTable ?? defaultConfig.lifeExpectancyTable
   );
   const [customLifeExpectancy, setCustomLifeExpectancy] = useState<number | undefined>(
     (initialConfig as any).customLifeExpectancy
+  );
+  // Gender and couple planning state
+  const [planningMode, setPlanningMode] = useState<'individual' | 'couple'>(
+    (initialConfig as any).planningMode ?? defaultConfig.planningMode
+  );
+  const [gender, setGender] = useState<'male' | 'female' | undefined>(
+    (initialConfig as any).gender
+  );
+  const [spouse, setSpouse] = useState<{ birthYear?: number; gender: 'male' | 'female' } | undefined>(
+    (initialConfig as any).spouse
   );
   // Birth year helper for end of life calculation
   const [birthYear, setBirthYear] = useState<number | undefined>(
@@ -239,11 +260,15 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     endOfLife,
     lifeExpectancyTable,
     customLifeExpectancy,
+    // Gender and couple planning settings
+    planningMode,
+    gender,
+    spouse,
     // Birth year helper for end of life calculation
     birthYear,
     expectedLifespan,
     withdrawal: withdrawalConfig || undefined,
-  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase, startEnd, sparplan, simulationAnnual, endOfLife, lifeExpectancyTable, customLifeExpectancy, birthYear, expectedLifespan, withdrawalConfig]);
+  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase, startEnd, sparplan, simulationAnnual, endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse, birthYear, expectedLifespan, withdrawalConfig]);
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration();
@@ -280,6 +305,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setEndOfLife((savedConfig as any).endOfLife ?? savedConfig.startEnd[1]);
       setLifeExpectancyTable((savedConfig as any).lifeExpectancyTable ?? defaultConfig.lifeExpectancyTable);
       setCustomLifeExpectancy((savedConfig as any).customLifeExpectancy);
+      // Load gender and couple planning settings
+      setPlanningMode((savedConfig as any).planningMode ?? defaultConfig.planningMode);
+      setGender((savedConfig as any).gender);
+      setSpouse((savedConfig as any).spouse);
       // Load birth year helper settings
       setBirthYear((savedConfig as any).birthYear);
       setExpectedLifespan((savedConfig as any).expectedLifespan ?? defaultConfig.expectedLifespan);
@@ -315,6 +344,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setEndOfLife(defaultConfig.endOfLife);
     setLifeExpectancyTable(defaultConfig.lifeExpectancyTable);
     setCustomLifeExpectancy(defaultConfig.customLifeExpectancy);
+    // Reset gender and couple planning settings
+    setPlanningMode(defaultConfig.planningMode);
+    setGender(defaultConfig.gender);
+    setSpouse(defaultConfig.spouse);
     // Reset birth year helper settings
     setBirthYear(defaultConfig.birthYear);
     setExpectedLifespan(defaultConfig.expectedLifespan);
@@ -423,6 +456,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     endOfLife, setEndOfLife,
     lifeExpectancyTable, setLifeExpectancyTable,
     customLifeExpectancy, setCustomLifeExpectancy,
+    // Gender and couple planning settings
+    planningMode, setPlanningMode,
+    gender, setGender,
+    spouse, setSpouse,
     // Birth year helper for end of life calculation
     birthYear, setBirthYear,
     expectedLifespan, setExpectedLifespan,
@@ -443,7 +480,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
     inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
-    endOfLife, lifeExpectancyTable, customLifeExpectancy, birthYear, expectedLifespan,
+    endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse, birthYear, expectedLifespan,
     simulationData, isLoading, withdrawalResults, performSimulation,
     saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
     withdrawalConfig
