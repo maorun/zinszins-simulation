@@ -235,7 +235,8 @@ export function EntnahmeSimulationsAusgabe({
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div className="space-y-6">
+            {/* 1. End of Life Year Configuration */}
             <div className="space-y-2">
               <Label>Lebensende (Jahr)</Label>
               <Input
@@ -428,6 +429,8 @@ export function EntnahmeSimulationsAusgabe({
               </div>
               )}
             </div>
+
+            {/* 2. Planning Mode - moved up */}
             <div className="space-y-2">
               <Label>Planungsmodus</Label>
               <RadioTileGroup
@@ -442,25 +445,146 @@ export function EntnahmeSimulationsAusgabe({
                 </RadioTile>
               </RadioTileGroup>
             </div>
+
+            {/* 3. Gender Configuration - extracted and moved up */}
+            {planningMode === 'individual' ? (
+              <div className="space-y-2">
+                <Label>Geschlecht für Lebenserwartung</Label>
+                <RadioTileGroup
+                  value={gender || ''}
+                  onValueChange={(value: string) => setGender(value as 'male' | 'female' | undefined)}
+                >
+                  <RadioTile value="male" label="Männlich">
+                    Verwende Lebenserwartung für Männer
+                  </RadioTile>
+                  <RadioTile value="female" label="Weiblich">
+                    Verwende Lebenserwartung für Frauen
+                  </RadioTile>
+                </RadioTileGroup>
+                {gender && (
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="text-sm text-blue-800 font-medium">
+                      ℹ️ Automatische Sterbetafel-Auswahl
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {gender === 'male' 
+                        ? 'Es wird automatisch die deutsche Sterbetafel für Männer (2020-2022) verwendet. Die männliche Lebenserwartung liegt im Durchschnitt ca. 5 Jahre unter der weiblichen.'
+                        : 'Es wird automatisch die deutsche Sterbetafel für Frauen (2020-2022) verwendet. Die weibliche Lebenserwartung liegt im Durchschnitt ca. 5 Jahre über der männlichen.'
+                      }
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="text-sm font-medium text-blue-900">Konfiguration für Ehepaar/Partner</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Person 1 - Geschlecht</Label>
+                    <RadioTileGroup
+                      value={gender || 'male'}
+                      onValueChange={(value: string) => setGender(value as 'male' | 'female')}
+                      idPrefix="person1"
+                    >
+                      <RadioTile value="male" label="Männlich">
+                        Verwende Lebenserwartung für Männer
+                      </RadioTile>
+                      <RadioTile value="female" label="Weiblich">
+                        Verwende Lebenserwartung für Frauen
+                      </RadioTile>
+                    </RadioTileGroup>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Person 2 - Geschlecht</Label>
+                    <RadioTileGroup
+                      value={spouse?.gender || 'female'}
+                      onValueChange={(value: string) => setSpouse({
+                        ...spouse,
+                        gender: value as 'male' | 'female'
+                      })}
+                      idPrefix="person2"
+                    >
+                      <RadioTile value="male" label="Männlich">
+                        Männlich
+                      </RadioTile>
+                      <RadioTile value="female" label="Weiblich">
+                        Weiblich
+                      </RadioTile>
+                    </RadioTileGroup>
+                  </div>
+                </div>
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="text-sm text-blue-800 font-medium">
+                    ℹ️ Automatische Sterbetafel-Auswahl für Paare
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Es werden automatisch geschlechtsspezifische deutsche Sterbetafeln (2020-2022) für beide Partner verwendet. 
+                    Die gemeinsame Lebenserwartung wird nach aktuariellen Methoden als "Joint Life Expectancy" berechnet.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 4. Smart Data Source Configuration - simplified */}
             <div className="space-y-2">
               <Label>Datengrundlage für Lebenserwartung</Label>
-              <RadioTileGroup
-                value={lifeExpectancyTable}
-                onValueChange={(value: string) => setLifeExpectancyTable(value as 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom')}
-              >
-                <RadioTile value="german_2020_22" label="Deutsche Sterbetafel (Durchschnitt)">
-                  Offizielle Sterbetafel 2020-2022 vom Statistischen Bundesamt (geschlechtsneutral)
-                </RadioTile>
-                <RadioTile value="german_male_2020_22" label="Deutsche Sterbetafel (Männer)">
-                  Sterbetafel 2020-2022 für Männer (kürzere Lebenserwartung)
-                </RadioTile>
-                <RadioTile value="german_female_2020_22" label="Deutsche Sterbetafel (Frauen)">
-                  Sterbetafel 2020-2022 für Frauen (längere Lebenserwartung)
-                </RadioTile>
-                <RadioTile value="custom" label="Benutzerdefiniert">
-                  Eigene Lebenserwartung eingeben
-                </RadioTile>
-              </RadioTileGroup>
+              {(planningMode === 'individual' && gender) || (planningMode === 'couple' && gender && spouse?.gender) ? (
+                // Smart mode: Gender is specified, auto-select appropriate table and only show custom option
+                <>
+                  <RadioTileGroup
+                    value={lifeExpectancyTable === 'custom' ? 'custom' : 'auto'}
+                    onValueChange={(value: string) => {
+                      if (value === 'custom') {
+                        setLifeExpectancyTable('custom');
+                      } else {
+                        // Auto-select based on context
+                        if (planningMode === 'couple') {
+                          // For couples, we use gender-specific tables automatically
+                          setLifeExpectancyTable('german_2020_22'); // The system will use gender-specific data
+                        } else {
+                          // For individuals, use gender-specific table
+                          setLifeExpectancyTable(gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22');
+                        }
+                      }
+                    }}
+                  >
+                    <RadioTile value="auto" label="Automatische Auswahl">
+                      {planningMode === 'couple' 
+                        ? 'Geschlechtsspezifische Sterbetafeln für beide Partner'
+                        : `Deutsche Sterbetafel für ${gender === 'male' ? 'Männer' : 'Frauen'}`
+                      }
+                    </RadioTile>
+                    <RadioTile value="custom" label="Benutzerdefiniert">
+                      Eigene Lebenserwartung eingeben
+                    </RadioTile>
+                  </RadioTileGroup>
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="text-sm text-blue-800 font-medium">
+                      ℹ️ Automatische Sterbetafel-Auswahl
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {planningMode === 'couple' 
+                        ? `Basierend auf den gewählten Geschlechtern (${gender === 'male' ? 'Männlich' : 'Weiblich'} und ${spouse?.gender === 'male' ? 'Männlich' : 'Weiblich'}) werden automatisch die entsprechenden deutschen Sterbetafeln (2020-2022) verwendet.`
+                        : `Basierend auf dem gewählten Geschlecht (${gender === 'male' ? 'Männlich' : 'Weiblich'}) wird automatisch die entsprechende deutsche Sterbetafel (2020-2022) verwendet.`
+                      }
+                    </div>
+                  </div>
+                </>
+              ) : (
+                // Manual mode: No gender specified, show neutral and custom options
+                <RadioTileGroup
+                  value={lifeExpectancyTable}
+                  onValueChange={(value: string) => setLifeExpectancyTable(value as 'german_2020_22' | 'custom')}
+                >
+                  <RadioTile value="german_2020_22" label="Deutsche Sterbetafel (Durchschnitt)">
+                    Offizielle Sterbetafel 2020-2022 vom Statistischen Bundesamt (geschlechtsneutral)
+                  </RadioTile>
+                  <RadioTile value="custom" label="Benutzerdefiniert">
+                    Eigene Lebenserwartung eingeben
+                  </RadioTile>
+                </RadioTileGroup>
+              )}
+              
               {lifeExpectancyTable === 'custom' && (
                 <div className="space-y-2 mt-2">
                   <Label>Lebenserwartung (Jahre)</Label>
@@ -474,88 +598,6 @@ export function EntnahmeSimulationsAusgabe({
                     min={1}
                     max={50}
                   />
-                </div>
-              )}
-              
-              {/* Individual planning mode - show gender selection for specific tables */}
-              {planningMode === 'individual' && (lifeExpectancyTable === 'german_male_2020_22' || lifeExpectancyTable === 'german_female_2020_22' || lifeExpectancyTable === 'german_2020_22') && (
-                <div className="space-y-2 mt-2 p-3 bg-gray-50 rounded-lg">
-                  <Label>Geschlecht für Lebenserwartung</Label>
-                  <RadioTileGroup
-                    value={gender || ''}
-                    onValueChange={(value: string) => setGender(value as 'male' | 'female' | undefined)}
-                  >
-                    <RadioTile value="male" label="Männlich">
-                      Verwende Lebenserwartung für Männer
-                    </RadioTile>
-                    <RadioTile value="female" label="Weiblich">
-                      Verwende Lebenserwartung für Frauen
-                    </RadioTile>
-                  </RadioTileGroup>
-                  {gender && (
-                    <div className="p-3 bg-blue-50 rounded-lg">
-                      <div className="text-sm text-blue-800 font-medium">
-                        ℹ️ Automatische Sterbetafel-Auswahl
-                      </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        {gender === 'male' 
-                          ? 'Es wird die deutsche Sterbetafel für Männer (2020-2022) verwendet. Die männliche Lebenserwartung liegt im Durchschnitt ca. 5 Jahre unter der weiblichen.'
-                          : 'Es wird die deutsche Sterbetafel für Frauen (2020-2022) verwendet. Die weibliche Lebenserwartung liegt im Durchschnitt ca. 5 Jahre über der männlichen.'
-                        }
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
-              
-              {/* Couple planning mode - show spouse configuration */}
-              {planningMode === 'couple' && (
-                <div className="space-y-4 mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
-                  <div className="text-sm font-medium text-blue-900">Konfiguration für Ehepaar/Partner</div>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label>Person 1 - Geschlecht</Label>
-                      <RadioTileGroup
-                        value={gender || 'male'}
-                        onValueChange={(value: string) => setGender(value as 'male' | 'female')}
-                        idPrefix="person1"
-                      >
-                        <RadioTile value="male" label="Männlich">
-                          Verwende Lebenserwartung für Männer
-                        </RadioTile>
-                        <RadioTile value="female" label="Weiblich">
-                          Verwende Lebenserwartung für Frauen
-                        </RadioTile>
-                      </RadioTileGroup>
-                    </div>
-                    <div className="space-y-2">
-                      <Label>Person 2 - Geschlecht</Label>
-                      <RadioTileGroup
-                        value={spouse?.gender || 'female'}
-                        onValueChange={(value: string) => setSpouse({
-                          ...spouse,
-                          gender: value as 'male' | 'female'
-                        })}
-                        idPrefix="person2"
-                      >
-                        <RadioTile value="male" label="Männlich">
-                          Männlich
-                        </RadioTile>
-                        <RadioTile value="female" label="Weiblich">
-                          Weiblich
-                        </RadioTile>
-                      </RadioTileGroup>
-                    </div>
-                  </div>
-                  <div className="p-3 bg-blue-50 rounded-lg">
-                    <div className="text-sm text-blue-800 font-medium">
-                      ℹ️ Automatische Sterbetafel-Auswahl für Paare
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Es werden geschlechtsspezifische deutsche Sterbetafeln (2020-2022) für beide Partner verwendet. 
-                      Die gemeinsame Lebenserwartung wird nach aktuariellen Methoden als "Joint Life Expectancy" berechnet.
-                    </div>
-                  </div>
                 </div>
               )}
             </div>
