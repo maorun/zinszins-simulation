@@ -493,11 +493,16 @@ export function EntnahmeSimulationsAusgabe({
                     </RadioTile>
                   </RadioTileGroup>
                   {gender && (
-                    <div className="text-sm text-muted-foreground">
-                      {gender === 'male' 
-                        ? 'Die männliche Lebenserwartung ist im Durchschnitt ca. 5 Jahre kürzer als die weibliche.'
-                        : 'Die weibliche Lebenserwartung ist im Durchschnitt ca. 5 Jahre länger als die männliche.'
-                      }
+                    <div className="p-3 bg-blue-50 rounded-lg">
+                      <div className="text-sm text-blue-800 font-medium">
+                        ℹ️ Automatische Sterbetafel-Auswahl
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        {gender === 'male' 
+                          ? 'Es wird die deutsche Sterbetafel für Männer (2020-2022) verwendet. Die männliche Lebenserwartung liegt im Durchschnitt ca. 5 Jahre unter der weiblichen.'
+                          : 'Es wird die deutsche Sterbetafel für Frauen (2020-2022) verwendet. Die weibliche Lebenserwartung liegt im Durchschnitt ca. 5 Jahre über der männlichen.'
+                        }
+                      </div>
                     </div>
                   )}
                 </div>
@@ -542,9 +547,14 @@ export function EntnahmeSimulationsAusgabe({
                       </RadioTileGroup>
                     </div>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    Die gemeinsame Lebenserwartung wird basierend auf der Wahrscheinlichkeit berechnet, dass mindestens eine Person noch am Leben ist. 
-                    Dies ist wichtig für die Ruhestandsplanung von Ehepaaren.
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="text-sm text-blue-800 font-medium">
+                      ℹ️ Automatische Sterbetafel-Auswahl für Paare
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Es werden geschlechtsspezifische deutsche Sterbetafeln (2020-2022) für beide Partner verwendet. 
+                      Die gemeinsame Lebenserwartung wird nach aktuariellen Methoden als "Joint Life Expectancy" berechnet.
+                    </div>
                   </div>
                 </div>
               )}
