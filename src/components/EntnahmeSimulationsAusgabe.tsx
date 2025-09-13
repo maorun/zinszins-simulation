@@ -402,7 +402,8 @@ export function EntnahmeSimulationsAusgabe({
                       className="w-full text-xs"
                     >
                       <Calculator className="h-3 w-3 mr-1" />
-                      Gemeinsame Lebenserwartung berechnen
+                      <span className="hidden sm:inline">Gemeinsame Lebenserwartung berechnen</span>
+                      <span className="sm:hidden">Berechnen</span>
                       {birthYear && spouse?.birthYear && gender && spouse?.gender ? 
                         ` (${Math.round(calculateJointLifeExpectancy(
                           calculateCurrentAge(birthYear), 
