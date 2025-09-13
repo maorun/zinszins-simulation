@@ -48,6 +48,9 @@ export function WithdrawalSegmentForm({
     const canAddMoreSegments = () => {
         const lastSegment = segments[segments.length - 1];
         const nextStartYear = lastSegment ? lastSegment.endYear + 1 : withdrawalStartYear;
+        
+        // Allow adding segments as long as there would be at least 1 year available
+        // This is more user-friendly than requiring strict end-to-end coverage
         return nextStartYear <= withdrawalEndYear;
     };
 
