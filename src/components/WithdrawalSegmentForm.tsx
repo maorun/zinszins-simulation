@@ -47,11 +47,12 @@ export function WithdrawalSegmentForm({
     // Check if more segments can be added
     const canAddMoreSegments = () => {
         const lastSegment = segments[segments.length - 1];
-        const nextStartYear = lastSegment ? lastSegment.endYear + 1 : withdrawalStartYear;
+        const nextStartYear = lastSegment ? Math.round(lastSegment.endYear) + 1 : Math.round(withdrawalStartYear);
         
         // Allow adding segments as long as there would be at least 1 year available
         // This is more user-friendly than requiring strict end-to-end coverage
-        return nextStartYear <= withdrawalEndYear;
+        // Round withdrawalEndYear to handle floating-point values from couple calculations
+        return nextStartYear <= Math.round(withdrawalEndYear);
     };
 
     // Validate segments whenever they change
@@ -65,15 +66,16 @@ export function WithdrawalSegmentForm({
     const addSegment = () => {
         const newId = `segment_${Date.now()}`;
         const lastSegment = segments[segments.length - 1];
-        const startYear = lastSegment ? lastSegment.endYear + 1 : withdrawalStartYear;
+        const startYear = lastSegment ? Math.round(lastSegment.endYear) + 1 : Math.round(withdrawalStartYear);
         
-        // Check if there's space for a new segment
-        if (startYear > withdrawalEndYear) {
+        // Check if there's space for a new segment - round values for floating-point safety
+        const roundedWithdrawalEndYear = Math.round(withdrawalEndYear);
+        if (startYear > roundedWithdrawalEndYear) {
             return; // Cannot add more segments - no available years
         }
         
         // Calculate end year, ensuring it's at least the start year and doesn't exceed withdrawal end year
-        const endYear = Math.max(startYear, Math.min(startYear + 5, withdrawalEndYear)); // Default 5 year segment
+        const endYear = Math.max(startYear, Math.min(startYear + 5, roundedWithdrawalEndYear)); // Default 5 year segment
         
         const newSegment = createDefaultWithdrawalSegment(newId, `Phase ${segments.length + 1}`, startYear, endYear);
         
