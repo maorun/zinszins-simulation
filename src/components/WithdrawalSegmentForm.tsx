@@ -13,7 +13,7 @@ import { Plus, Trash2, ChevronDown } from 'lucide-react';
 // Helper function for number input handling with number onChange
 const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: number | undefined) => void) => {
     const value = e.target.value;
-    onChange(value ? Number(value) : undefined);
+    onChange(value ? Math.round(Number(value)) : undefined);
 };
 
 // No more temporary components needed!
@@ -46,9 +46,10 @@ export function WithdrawalSegmentForm({
 
     // Check if more segments can be added
     const canAddMoreSegments = () => {
-        const lastSegment = segments[segments.length - 1];
-        const nextStartYear = lastSegment ? lastSegment.endYear + 1 : withdrawalStartYear;
-        return nextStartYear <= withdrawalEndYear;
+        // Allow adding segments as long as the last segment doesn't extend indefinitely
+        // Remove the constraint of requiring segments to end at globalEndOfLife
+        // Users can create segments with any end year they choose
+        return true;
     };
 
     // Validate segments whenever they change
@@ -62,15 +63,11 @@ export function WithdrawalSegmentForm({
     const addSegment = () => {
         const newId = `segment_${Date.now()}`;
         const lastSegment = segments[segments.length - 1];
-        const startYear = lastSegment ? lastSegment.endYear + 1 : withdrawalStartYear;
+        const startYear = lastSegment ? Math.round(lastSegment.endYear) + 1 : Math.round(withdrawalStartYear);
         
-        // Check if there's space for a new segment
-        if (startYear > withdrawalEndYear) {
-            return; // Cannot add more segments - no available years
-        }
-        
-        // Calculate end year, ensuring it's at least the start year and doesn't exceed withdrawal end year
-        const endYear = Math.max(startYear, Math.min(startYear + 5, withdrawalEndYear)); // Default 5 year segment
+        // Create a default 5-year segment without constraining to withdrawalEndYear
+        // Users can modify the end year as needed
+        const endYear = startYear + 5; // Default 5 year segment
         
         const newSegment = createDefaultWithdrawalSegment(newId, `Phase ${segments.length + 1}`, startYear, endYear);
         

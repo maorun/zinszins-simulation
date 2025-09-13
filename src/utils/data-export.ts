@@ -291,7 +291,7 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
   
   const withdrawalConfig = context.withdrawalConfig;
   if (withdrawalConfig?.formValue) {
-    lines.push('# Lebensende: ' + withdrawalConfig.formValue.endOfLife);
+    lines.push('# Lebensende: ' + context.endOfLife);
     
     // Handle segmented withdrawal - multiple strategies
     if (withdrawalConfig.useSegmentedWithdrawal && withdrawalConfig.withdrawalSegments && withdrawalConfig.withdrawalSegments.length > 1) {
@@ -547,7 +547,7 @@ export function exportDataToMarkdown(data: ExportData): string {
         lines.push(`- **Strategie:** ${getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie)}`);
       }
       
-      lines.push(`- **Lebensende:** ${withdrawalConfig.formValue.endOfLife}`);
+      lines.push(`- **Lebensende:** ${context.endOfLife}`);
       lines.push(`- **Entnahme-Rendite:** ${formatPercentage(withdrawalConfig.formValue.rendite)}`);
       lines.push('');
     }

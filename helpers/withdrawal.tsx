@@ -97,7 +97,7 @@ export type BucketStrategyConfig = {
 
 export type RMDConfig = {
     startAge: number; // Age at start of withdrawal phase (required)
-    lifeExpectancyTable: 'german_2020_22' | 'custom'; // Which mortality table to use
+    lifeExpectancyTable: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'; // Which mortality table to use
     customLifeExpectancy?: number; // Custom life expectancy override (years)
 };
 

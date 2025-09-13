@@ -40,7 +40,10 @@ describe('config-storage', () => {
       end: '2045-01-01',
       einzahlung: 12000
     }],
-    simulationAnnual: 'monthly'
+    simulationAnnual: 'monthly',
+    // Global End of Life and life expectancy settings
+    endOfLife: 2080,
+    lifeExpectancyTable: 'german_2020_22'
   };
 
   it('should save and load configuration correctly', () => {

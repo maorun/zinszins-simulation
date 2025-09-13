@@ -68,7 +68,7 @@ export type SegmentedWithdrawalConfig = {
 export function validateWithdrawalSegments(
     segments: WithdrawalSegment[],
     startYear: number,
-    endYear: number
+    _endYear: number
 ): string[] {
     const errors: string[] = [];
     
@@ -77,23 +77,25 @@ export function validateWithdrawalSegments(
         return errors;
     }
     
+    // Ensure all years are rounded to handle floating-point comparisons
+    const roundedStartYear = Math.round(startYear);
+    
     // Sort segments by start year
     const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear);
     
     // Check if first segment starts at the withdrawal start year
-    if (sortedSegments[0].startYear !== startYear) {
-        errors.push(`Erstes Segment muss im Jahr ${startYear} beginnen`);
+    if (Math.round(sortedSegments[0].startYear) !== roundedStartYear) {
+        errors.push(`Erstes Segment muss im Jahr ${roundedStartYear} beginnen`);
     }
     
-    // Check if last segment ends at the withdrawal end year
-    if (sortedSegments[sortedSegments.length - 1].endYear !== endYear) {
-        errors.push(`Letztes Segment muss im Jahr ${endYear} enden`);
-    }
+    // Allow segments to end before the withdrawal end year
+    // No longer require segments to end exactly at the withdrawal end year
+    // This allows users to create segments that don't cover the entire withdrawal period
     
     // Check each segment individually
     for (const segment of sortedSegments) {
         // Check if segment end year is before start year
-        if (segment.endYear < segment.startYear) {
+        if (Math.round(segment.endYear) < Math.round(segment.startYear)) {
             errors.push(`Segment "${segment.name}": Endjahr kann nicht vor Startjahr liegen`);
         }
     }
@@ -103,13 +105,16 @@ export function validateWithdrawalSegments(
         const currentSegment = sortedSegments[i];
         const nextSegment = sortedSegments[i + 1];
         
+        const currentEndYear = Math.round(currentSegment.endYear);
+        const nextStartYear = Math.round(nextSegment.startYear);
+        
         // Check for gaps
-        if (currentSegment.endYear + 1 < nextSegment.startYear) {
+        if (currentEndYear + 1 < nextStartYear) {
             errors.push(`Lücke zwischen Segment "${currentSegment.name}" und "${nextSegment.name}"`);
         }
         
         // Check for overlaps
-        if (currentSegment.endYear >= nextSegment.startYear) {
+        if (currentEndYear >= nextStartYear) {
             errors.push(`Überlappung zwischen Segment "${currentSegment.name}" und "${nextSegment.name}"`);
         }
     }
@@ -156,6 +161,44 @@ export function createDefaultWithdrawalSegment(
         incomeTaxRate: 0.18, // Default income tax rate 18%
         steuerReduzierenEndkapital: true // Default: taxes reduce capital
     };
+}
+
+/**
+ * Synchronize withdrawal segments to use a new global end year
+ * @param segments - Array of withdrawal segments to synchronize
+ * @param newEndYear - New global end of life year
+ * @returns Updated segments with synchronized end year
+ */
+export function synchronizeWithdrawalSegmentsEndYear(
+    segments: WithdrawalSegment[],
+    newEndYear: number
+): WithdrawalSegment[] {
+    if (segments.length === 0) {
+        return segments;
+    }
+    
+    // Ensure the new end year is always a whole number
+    const roundedEndYear = Math.round(newEndYear);
+    
+    // Sort segments by start year to find the last segment
+    const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear);
+    const lastSegment = sortedSegments[sortedSegments.length - 1];
+    
+    // If the last segment already ends at the new end year, no changes needed
+    if (lastSegment.endYear === roundedEndYear) {
+        return segments;
+    }
+    
+    // Update only the last segment to end at the new global end year
+    return segments.map(segment => {
+        if (segment.id === lastSegment.id) {
+            return {
+                ...segment,
+                endYear: roundedEndYear
+            };
+        }
+        return segment;
+    });
 }
 
 /**

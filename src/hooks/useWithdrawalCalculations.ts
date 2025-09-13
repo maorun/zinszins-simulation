@@ -25,6 +25,12 @@ export function useWithdrawalCalculations(
     steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
+    endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
+    planningMode,
+    gender,
+    // spouse - used indirectly in couple planning calculations
   } = useSimulation();
 
   const {
@@ -44,6 +50,21 @@ export function useWithdrawalCalculations(
 
   // Calculate withdrawal projections
   const withdrawalData = useMemo(() => {
+    // Helper function to determine the effective life expectancy table based on planning mode and gender
+    const getEffectiveLifeExpectancyTable = (): 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom' => {
+      if (lifeExpectancyTable === 'custom') {
+        return 'custom';
+      }
+      
+      // For individual planning with gender selection, use gender-specific table
+      if (planningMode === 'individual' && gender) {
+        return gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22';
+      }
+      
+      // For couple planning or when no gender is selected, use the selected table
+      return lifeExpectancyTable;
+    };
+
     if (!elemente || elemente.length === 0) {
       return null;
     }
@@ -108,7 +129,7 @@ export function useWithdrawalCalculations(
       const withdrawalCalculation = calculateWithdrawal({
         elements: elemente,
         startYear: startOfIndependence + 1, // Start withdrawals the year after accumulation ends
-        endYear: formValue.endOfLife,
+        endYear: endOfLife,
         strategy: formValue.strategie,
         withdrawalFrequency: formValue.withdrawalFrequency,
         returnConfig: withdrawalReturnConfig,
@@ -152,8 +173,8 @@ export function useWithdrawalCalculations(
           formValue.strategie === "rmd"
             ? {
                 startAge: formValue.rmdStartAge,
-                lifeExpectancyTable: formValue.rmdLifeExpectancyTable,
-                customLifeExpectancy: formValue.rmdCustomLifeExpectancy,
+                lifeExpectancyTable: getEffectiveLifeExpectancyTable(), // Use gender-aware setting
+                customLifeExpectancy: customLifeExpectancy, // Use global setting
               }
             : undefined,
         kapitalerhaltConfig:
@@ -169,7 +190,7 @@ export function useWithdrawalCalculations(
               const grundfreibetragPerYear: { [year: number]: number } = {};
               for (
                 let year = startOfIndependence + 1;
-                year <= formValue.endOfLife;
+                year <= endOfLife;
                 year++
               ) {
                 grundfreibetragPerYear[year] = grundfreibetragBetrag;
@@ -212,7 +233,7 @@ export function useWithdrawalCalculations(
   }, [
     elemente,
     startOfIndependence,
-    formValue.endOfLife,
+    endOfLife,
     formValue.strategie,
     formValue.withdrawalFrequency,
     formValue.rendite,
@@ -229,8 +250,9 @@ export function useWithdrawalCalculations(
     formValue.dynamischUntereAnpassung,
     formValue.bucketConfig,
     formValue.rmdStartAge,
-    formValue.rmdLifeExpectancyTable,
-    formValue.rmdCustomLifeExpectancy,
+    formValue.statutoryPensionConfig,
+    lifeExpectancyTable, // Use global setting
+    customLifeExpectancy, // Use global setting
     formValue.kapitalerhaltNominalReturn,
     formValue.kapitalerhaltInflationRate,
     grundfreibetragAktiv,
@@ -246,10 +268,27 @@ export function useWithdrawalCalculations(
     steuerlast,
     teilfreistellungsquote,
     steuerReduzierenEndkapitalEntspharphase,
+    planningMode,
+    gender,
   ]);
 
   // Calculate comparison results for each strategy
   const comparisonResults = useMemo(() => {
+    // Helper function to determine the effective life expectancy table based on planning mode and gender
+    const getEffectiveLifeExpectancyTable = (): 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom' => {
+      if (lifeExpectancyTable === 'custom') {
+        return 'custom';
+      }
+      
+      // For individual planning with gender selection, use gender-specific table
+      if (planningMode === 'individual' && gender) {
+        return gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22';
+      }
+      
+      // For couple planning or when no gender is selected, use the selected table
+      return lifeExpectancyTable;
+    };
+
     if (!useComparisonMode || !withdrawalData) {
       return [];
     }
@@ -266,7 +305,7 @@ export function useWithdrawalCalculations(
         const { result } = calculateWithdrawal({
           elements: elemente,
           startYear: startOfIndependence + 1,
-          endYear: formValue.endOfLife,
+          endYear: endOfLife,
           strategy: strategy.strategie,
           returnConfig,
           taxRate: steuerlast,
@@ -275,7 +314,7 @@ export function useWithdrawalCalculations(
             const freibetragPerYear: { [year: number]: number } = {};
             for (
               let year = startOfIndependence + 1;
-              year <= formValue.endOfLife;
+              year <= endOfLife;
               year++
             ) {
               freibetragPerYear[year] = 2000; // Default freibetrag
@@ -319,8 +358,8 @@ export function useWithdrawalCalculations(
             strategy.strategie === "rmd"
               ? {
                   startAge: strategy.rmdStartAge || 65,
-                  lifeExpectancyTable: strategy.rmdLifeExpectancyTable || 'german_2020_22',
-                  customLifeExpectancy: strategy.rmdCustomLifeExpectancy,
+                  lifeExpectancyTable: getEffectiveLifeExpectancyTable(), // Use gender-aware setting
+                  customLifeExpectancy: customLifeExpectancy, // Use global setting
                 }
               : undefined,
           kapitalerhaltConfig:
@@ -336,7 +375,7 @@ export function useWithdrawalCalculations(
                 const grundfreibetragPerYear: { [year: number]: number } = {};
                 for (
                   let year = startOfIndependence + 1;
-                  year <= formValue.endOfLife;
+                  year <= endOfLife;
                   year++
                 ) {
                   grundfreibetragPerYear[year] = grundfreibetragBetrag;
@@ -398,13 +437,18 @@ export function useWithdrawalCalculations(
     comparisonStrategies,
     elemente,
     startOfIndependence,
-    formValue.endOfLife,
+    endOfLife,
     steuerlast,
     teilfreistellungsquote,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     formValue.einkommensteuersatz,
+    formValue.statutoryPensionConfig,
+    customLifeExpectancy,
+    lifeExpectancyTable,
     steuerReduzierenEndkapitalEntspharphase,
+    planningMode,
+    gender,
   ]);
 
   // Calculate segmented comparison results for each segmented strategy
@@ -423,7 +467,7 @@ export function useWithdrawalCalculations(
             const freibetragPerYear: { [year: number]: number } = {};
             for (
               let year = startOfIndependence + 1;
-              year <= formValue.endOfLife;
+              year <= endOfLife;
               year++
             ) {
               freibetragPerYear[year] = 2000; // Default freibetrag
@@ -488,8 +532,9 @@ export function useWithdrawalCalculations(
     segmentedComparisonStrategies,
     elemente,
     startOfIndependence,
-    formValue.endOfLife,
+    endOfLife,
     steuerlast,
+    formValue.statutoryPensionConfig,
   ]);
 
   return {

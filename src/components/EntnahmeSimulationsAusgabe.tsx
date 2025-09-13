@@ -7,6 +7,8 @@ import { Switch } from "./ui/switch";
 import { Label } from "./ui/label";
 import { Slider } from "./ui/slider";
 import { Input } from "./ui/input";
+import { Button } from "./ui/button";
+import { Calculator } from "lucide-react";
 
 // No more temporary components needed!
 import type { SparplanElement } from "../utils/sparplan-utils";
@@ -33,6 +35,8 @@ import type {
   WithdrawalReturnMode,
   ComparisonStrategy,
 } from "../utils/config-storage";
+import { calculateEndOfLifeYear, calculateCurrentAge, getDefaultLifeExpectancy } from "../../helpers/life-expectancy";
+import { calculateJointLifeExpectancy } from "../../helpers/rmd-tables";
 
 // Helper function for strategy display names
 function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
@@ -73,7 +77,7 @@ export function EntnahmeSimulationsAusgabe({
   steuerlast: number;
   teilfreistellungsquote: number;
 }) {
-  const [startOfIndependence, endOfLife] = startEnd;
+  const [startOfIndependence] = startEnd;
   
   // Use custom hooks for state management
   const { 
@@ -84,7 +88,7 @@ export function EntnahmeSimulationsAusgabe({
     updateSegmentedComparisonStrategy,
     addSegmentedComparisonStrategy,
     removeSegmentedComparisonStrategy,
-  } = useWithdrawalConfig(startOfIndependence, endOfLife);
+  } = useWithdrawalConfig(startOfIndependence);
   
   const { withdrawalData, comparisonResults, segmentedComparisonResults = [] } = useWithdrawalCalculations(
     elemente,
@@ -94,8 +98,30 @@ export function EntnahmeSimulationsAusgabe({
     teilfreistellungsquote,
   );
 
-  // Access global Grundfreibetrag configuration
-  const { grundfreibetragAktiv, grundfreibetragBetrag } = useSimulation();
+  // Access global Grundfreibetrag configuration and End of Life settings
+  const { 
+    grundfreibetragAktiv, 
+    grundfreibetragBetrag, 
+    endOfLife: globalEndOfLife, 
+    lifeExpectancyTable, 
+    customLifeExpectancy, 
+    setEndOfLife, 
+    setLifeExpectancyTable, 
+    setCustomLifeExpectancy, 
+    birthYear, 
+    setBirthYear, 
+    expectedLifespan, 
+    setExpectedLifespan,
+    useAutomaticCalculation,
+    setUseAutomaticCalculation,
+    // Gender and couple planning
+    planningMode,
+    setPlanningMode,
+    gender,
+    setGender,
+    spouse,
+    setSpouse
+  } = useSimulation();
 
   const {
     showCalculationModal,
@@ -177,6 +203,407 @@ export function EntnahmeSimulationsAusgabe({
           </CardHeader>
           <CollapsibleContent>
             <CardContent>
+        {/* Global End of Life Configuration */}
+        <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+          <h4 className="text-lg font-semibold mb-4 text-blue-800">Globale Konfiguration</h4>
+          
+          {/* Toggle between manual and automatic calculation */}
+          <div className="mb-6 p-3 border rounded-lg bg-white">
+            <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+              <div className="space-y-1">
+                <Label htmlFor="calculation-mode" className="font-medium">Lebensende Berechnung</Label>
+                <p className="text-sm text-muted-foreground hidden sm:block">
+                  Manuell für direkte Jahreseingabe, Automatisch für Geburtsjahr-basierte Berechnung
+                </p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className={`text-sm ${!useAutomaticCalculation ? 'font-medium' : 'text-muted-foreground'}`}>
+                  Manuell
+                </span>
+                <Switch
+                  id="calculation-mode"
+                  checked={useAutomaticCalculation}
+                  onCheckedChange={setUseAutomaticCalculation}
+                />
+                <span className={`text-sm ${useAutomaticCalculation ? 'font-medium' : 'text-muted-foreground'}`}>
+                  Automatisch
+                </span>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mt-3 sm:hidden">
+              Manuell für direkte Jahreseingabe, Automatisch für Geburtsjahr-basierte Berechnung
+            </p>
+          </div>
+
+          <div className="space-y-6">
+            {/* 1. End of Life Year Configuration */}
+            <div className="space-y-2">
+              <Label>Lebensende (Jahr)</Label>
+              <Input
+                type="number"
+                value={globalEndOfLife}
+                onChange={(e) => {
+                  const value = e.target.value ? Number(e.target.value) : 2080;
+                  setEndOfLife(value);
+                }}
+                min={startOfIndependence + 1}
+                max={2150}
+                disabled={useAutomaticCalculation}
+              />
+              <div className="text-sm text-muted-foreground">
+                Das Jahr, in dem die Entnahmephase enden soll (z.B. 2080)
+              </div>
+              
+              {/* Helper for calculating end of life year from birth year - only show when automatic mode is enabled */}
+              {useAutomaticCalculation && (
+                <div className="p-3 bg-blue-50 rounded-lg space-y-3">
+                  <div className="text-sm font-medium text-blue-900">Lebensende automatisch berechnen</div>
+                
+                {planningMode === 'individual' ? (
+                  // Individual Planning Mode
+                  <>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <Label htmlFor="birth-year-eol" className="text-xs">Geburtsjahr</Label>
+                        <Input
+                          id="birth-year-eol"
+                          type="number"
+                          value={birthYear || ''}
+                          onChange={(e) => {
+                            const year = e.target.value ? Number(e.target.value) : undefined;
+                            setBirthYear(year);
+                            // Auto-suggest life expectancy based on current age and gender
+                            if (year) {
+                              const currentAge = calculateCurrentAge(year);
+                              const suggestedLifespan = getDefaultLifeExpectancy(currentAge, gender);
+                              if (!expectedLifespan) {
+                                setExpectedLifespan(suggestedLifespan);
+                              }
+                            }
+                          }}
+                          placeholder="1974"
+                          min={1930}
+                          max={new Date().getFullYear() - 18}
+                          className="text-xs h-8"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="expected-lifespan" className="text-xs">Lebenserwartung (Alter)</Label>
+                        <Input
+                          id="expected-lifespan"
+                          type="number"
+                          value={expectedLifespan || 85}
+                          onChange={(e) => setExpectedLifespan(Number(e.target.value))}
+                          min={50}
+                          max={120}
+                          className="text-xs h-8"
+                        />
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (birthYear && expectedLifespan) {
+                          const calculatedYear = calculateEndOfLifeYear(birthYear, expectedLifespan);
+                          setEndOfLife(Math.round(calculatedYear));
+                        }
+                      }}
+                      disabled={!birthYear || !expectedLifespan}
+                      className="w-full text-xs"
+                    >
+                      <Calculator className="h-3 w-3 mr-1" />
+                      Berechnen ({birthYear && expectedLifespan ? calculateEndOfLifeYear(birthYear, expectedLifespan) : '—'})
+                    </Button>
+                    {birthYear && (
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <div>Aktuelles Alter: {calculateCurrentAge(birthYear)} Jahre</div>
+                        {gender && (
+                          <div>
+                            Geschlechts-spezifische Lebenserwartung: 
+                            {gender === 'male' ? ' ♂ Männlich (ca. 78 Jahre)' : ' ♀ Weiblich (ca. 83 Jahre)'}
+                          </div>
+                        )}
+                      </div>
+                    )}
+                  </>
+                ) : (
+                  // Couple Planning Mode
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div className="text-xs font-medium">Person 1 ({gender === 'male' ? '♂ Männlich' : '♀ Weiblich'})</div>
+                        <div className="space-y-1">
+                          <Label htmlFor="birth-year-person1" className="text-xs">Geburtsjahr</Label>
+                          <Input
+                            id="birth-year-person1"
+                            type="number"
+                            value={birthYear || ''}
+                            onChange={(e) => {
+                              const year = e.target.value ? Number(e.target.value) : undefined;
+                              setBirthYear(year);
+                            }}
+                            placeholder="1974"
+                            min={1930}
+                            max={new Date().getFullYear() - 18}
+                            className="text-xs h-8"
+                          />
+                        </div>
+                        {birthYear && (
+                          <div className="text-xs text-muted-foreground">
+                            Alter: {calculateCurrentAge(birthYear)} Jahre
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-xs font-medium">Person 2 ({spouse?.gender === 'male' ? '♂ Männlich' : '♀ Weiblich'})</div>
+                        <div className="space-y-1">
+                          <Label htmlFor="birth-year-person2" className="text-xs">Geburtsjahr</Label>
+                          <Input
+                            id="birth-year-person2"
+                            type="number"
+                            value={spouse?.birthYear || ''}
+                            onChange={(e) => {
+                              const year = e.target.value ? Number(e.target.value) : undefined;
+                              setSpouse({
+                                ...spouse,
+                                gender: spouse?.gender || 'female',
+                                birthYear: year
+                              });
+                            }}
+                            placeholder="1976"
+                            min={1930}
+                            max={new Date().getFullYear() - 18}
+                            className="text-xs h-8"
+                          />
+                        </div>
+                        {spouse?.birthYear && (
+                          <div className="text-xs text-muted-foreground">
+                            Alter: {calculateCurrentAge(spouse.birthYear)} Jahre
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (birthYear && spouse?.birthYear && gender && spouse?.gender) {
+                          const age1 = calculateCurrentAge(birthYear);
+                          const age2 = calculateCurrentAge(spouse.birthYear);
+                          const jointLifeExpectancy = calculateJointLifeExpectancy(age1, age2, gender, spouse.gender);
+                          
+                          // Use the older person's birth year + joint life expectancy
+                          const olderBirthYear = Math.min(birthYear, spouse.birthYear);
+                          const calculatedYear = calculateEndOfLifeYear(olderBirthYear, jointLifeExpectancy + calculateCurrentAge(olderBirthYear));
+                          setEndOfLife(Math.round(calculatedYear));
+                        }
+                      }}
+                      disabled={!birthYear || !spouse?.birthYear}
+                      className="w-full text-xs"
+                    >
+                      <Calculator className="h-3 w-3 mr-1" />
+                      <span className="hidden sm:inline">Gemeinsame Lebenserwartung berechnen</span>
+                      <span className="sm:hidden">Berechnen</span>
+                      {birthYear && spouse?.birthYear && gender && spouse?.gender ? 
+                        ` (${Math.round(calculateJointLifeExpectancy(
+                          calculateCurrentAge(birthYear), 
+                          calculateCurrentAge(spouse.birthYear), 
+                          gender, 
+                          spouse.gender
+                        ))} Jahre)` : ''}
+                    </Button>
+                    {birthYear && spouse?.birthYear && gender && spouse?.gender && (
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <div>Gemeinsame Lebenserwartung: {Math.round(calculateJointLifeExpectancy(
+                          calculateCurrentAge(birthYear), 
+                          calculateCurrentAge(spouse.birthYear), 
+                          gender, 
+                          spouse.gender
+                        ))} Jahre (längerer überlebender Partner)</div>
+                        <div>Dies entspricht der Wahrscheinlichkeit, dass mindestens eine Person noch am Leben ist.</div>
+                      </div>
+                    )}
+                  </>
+                )}
+              </div>
+              )}
+            </div>
+
+            {/* 2. Planning Mode - moved up */}
+            <div className="space-y-2">
+              <Label>Planungsmodus</Label>
+              <RadioTileGroup
+                value={planningMode}
+                onValueChange={(value: string) => setPlanningMode(value as 'individual' | 'couple')}
+              >
+                <RadioTile value="individual" label="Einzelperson">
+                  Planung für eine Person mit individueller Lebenserwartung
+                </RadioTile>
+                <RadioTile value="couple" label="Ehepaar/Partner">
+                  Planung für zwei Personen mit gemeinsamer Lebenserwartung (längerer überlebender Partner)
+                </RadioTile>
+              </RadioTileGroup>
+            </div>
+
+            {/* 3. Gender Configuration - extracted and moved up */}
+            {planningMode === 'individual' ? (
+              <div className="space-y-2">
+                <Label>Geschlecht für Lebenserwartung</Label>
+                <RadioTileGroup
+                  value={gender || ''}
+                  onValueChange={(value: string) => setGender(value as 'male' | 'female' | undefined)}
+                >
+                  <RadioTile value="male" label="Männlich">
+                    Verwende Lebenserwartung für Männer
+                  </RadioTile>
+                  <RadioTile value="female" label="Weiblich">
+                    Verwende Lebenserwartung für Frauen
+                  </RadioTile>
+                </RadioTileGroup>
+                {gender && (
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="text-sm text-blue-800 font-medium">
+                      ℹ️ Automatische Sterbetafel-Auswahl
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {gender === 'male' 
+                        ? 'Es wird automatisch die deutsche Sterbetafel für Männer (2020-2022) verwendet. Die männliche Lebenserwartung liegt im Durchschnitt ca. 5 Jahre unter der weiblichen.'
+                        : 'Es wird automatisch die deutsche Sterbetafel für Frauen (2020-2022) verwendet. Die weibliche Lebenserwartung liegt im Durchschnitt ca. 5 Jahre über der männlichen.'
+                      }
+                    </div>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="space-y-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                <div className="text-sm font-medium text-blue-900">Konfiguration für Ehepaar/Partner</div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label>Person 1 - Geschlecht</Label>
+                    <RadioTileGroup
+                      value={gender || 'male'}
+                      onValueChange={(value: string) => setGender(value as 'male' | 'female')}
+                      idPrefix="person1"
+                    >
+                      <RadioTile value="male" label="Männlich">
+                        Verwende Lebenserwartung für Männer
+                      </RadioTile>
+                      <RadioTile value="female" label="Weiblich">
+                        Verwende Lebenserwartung für Frauen
+                      </RadioTile>
+                    </RadioTileGroup>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Person 2 - Geschlecht</Label>
+                    <RadioTileGroup
+                      value={spouse?.gender || 'female'}
+                      onValueChange={(value: string) => setSpouse({
+                        ...spouse,
+                        gender: value as 'male' | 'female'
+                      })}
+                      idPrefix="person2"
+                    >
+                      <RadioTile value="male" label="Männlich">
+                        Männlich
+                      </RadioTile>
+                      <RadioTile value="female" label="Weiblich">
+                        Weiblich
+                      </RadioTile>
+                    </RadioTileGroup>
+                  </div>
+                </div>
+                <div className="p-3 bg-blue-50 rounded-lg">
+                  <div className="text-sm text-blue-800 font-medium">
+                    ℹ️ Automatische Sterbetafel-Auswahl für Paare
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Es werden automatisch geschlechtsspezifische deutsche Sterbetafeln (2020-2022) für beide Partner verwendet. 
+                    Die gemeinsame Lebenserwartung wird nach aktuariellen Methoden als "Joint Life Expectancy" berechnet.
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* 4. Smart Data Source Configuration - simplified */}
+            <div className="space-y-2">
+              <Label>Datengrundlage für Lebenserwartung</Label>
+              {(planningMode === 'individual' && gender) || (planningMode === 'couple' && gender && spouse?.gender) ? (
+                // Smart mode: Gender is specified, auto-select appropriate table and only show custom option
+                <>
+                  <RadioTileGroup
+                    value={lifeExpectancyTable === 'custom' ? 'custom' : 'auto'}
+                    onValueChange={(value: string) => {
+                      if (value === 'custom') {
+                        setLifeExpectancyTable('custom');
+                      } else {
+                        // Auto-select based on context
+                        if (planningMode === 'couple') {
+                          // For couples, we use gender-specific tables automatically
+                          setLifeExpectancyTable('german_2020_22'); // The system will use gender-specific data
+                        } else {
+                          // For individuals, use gender-specific table
+                          setLifeExpectancyTable(gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22');
+                        }
+                      }
+                    }}
+                  >
+                    <RadioTile value="auto" label="Automatische Auswahl">
+                      {planningMode === 'couple' 
+                        ? 'Geschlechtsspezifische Sterbetafeln für beide Partner'
+                        : `Deutsche Sterbetafel für ${gender === 'male' ? 'Männer' : 'Frauen'}`
+                      }
+                    </RadioTile>
+                    <RadioTile value="custom" label="Benutzerdefiniert">
+                      Eigene Lebenserwartung eingeben
+                    </RadioTile>
+                  </RadioTileGroup>
+                  <div className="p-3 bg-blue-50 rounded-lg">
+                    <div className="text-sm text-blue-800 font-medium">
+                      ℹ️ Automatische Sterbetafel-Auswahl
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      {planningMode === 'couple' 
+                        ? `Basierend auf den gewählten Geschlechtern (${gender === 'male' ? 'Männlich' : 'Weiblich'} und ${spouse?.gender === 'male' ? 'Männlich' : 'Weiblich'}) werden automatisch die entsprechenden deutschen Sterbetafeln (2020-2022) verwendet.`
+                        : `Basierend auf dem gewählten Geschlecht (${gender === 'male' ? 'Männlich' : 'Weiblich'}) wird automatisch die entsprechende deutsche Sterbetafel (2020-2022) verwendet.`
+                      }
+                    </div>
+                  </div>
+                </>
+              ) : (
+                // Manual mode: No gender specified, show neutral and custom options
+                <RadioTileGroup
+                  value={lifeExpectancyTable}
+                  onValueChange={(value: string) => setLifeExpectancyTable(value as 'german_2020_22' | 'custom')}
+                >
+                  <RadioTile value="german_2020_22" label="Deutsche Sterbetafel (Durchschnitt)">
+                    Offizielle Sterbetafel 2020-2022 vom Statistischen Bundesamt (geschlechtsneutral)
+                  </RadioTile>
+                  <RadioTile value="custom" label="Benutzerdefiniert">
+                    Eigene Lebenserwartung eingeben
+                  </RadioTile>
+                </RadioTileGroup>
+              )}
+              
+              {lifeExpectancyTable === 'custom' && (
+                <div className="space-y-2 mt-2">
+                  <Label>Lebenserwartung (Jahre)</Label>
+                  <Input
+                    type="number"
+                    value={customLifeExpectancy || ''}
+                    onChange={(e) => {
+                      const value = e.target.value ? Number(e.target.value) : undefined;
+                      setCustomLifeExpectancy(value);
+                    }}
+                    min={1}
+                    max={50}
+                  />
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Toggle between single, segmented, and comparison withdrawal */}
         <div className="mb-4 space-y-2">
           <Label>Entnahme-Modus</Label>
@@ -203,11 +630,14 @@ export function EntnahmeSimulationsAusgabe({
 
               // Initialize segments when switching to segmented mode
               if (useSegmented && withdrawalSegments.length === 0) {
+                // Create initial segment covering only the first 15 years, leaving room for additional segments
+                const withdrawalStartYear = startOfIndependence + 1;
+                const initialSegmentEndYear = Math.min(withdrawalStartYear + 14, globalEndOfLife); // 15 years or until end of life
                 const defaultSegment = createDefaultWithdrawalSegment(
                   "main",
-                  "Hauptphase",
-                  startOfIndependence + 1,
-                  formValue.endOfLife,
+                  "Frühphase",
+                  withdrawalStartYear,
+                  initialSegmentEndYear,
                 );
                 updateConfig({ withdrawalSegments: [defaultSegment] });
               }
@@ -245,26 +675,13 @@ export function EntnahmeSimulationsAusgabe({
               updateConfig({ withdrawalSegments: segments })
             }
             withdrawalStartYear={startOfIndependence + 1}
-            withdrawalEndYear={formValue.endOfLife}
+            withdrawalEndYear={globalEndOfLife}
           />
         ) : useComparisonMode ? (
           /* Comparison mode configuration */
           <div>
             <h4>Basis-Strategie (mit vollständigen Details)</h4>
             <div>
-              {/* End of Life - shared by base strategy */}
-              <div className="mb-4 space-y-2">
-                <Label>End of Life</Label>
-                <Input
-                  type="number"
-                  value={formValue.endOfLife}
-                  onChange={(e) => {
-                    const value = e.target.value ? Number(e.target.value) : undefined;
-                    if (value) updateFormValue({ ...formValue, endOfLife: value });
-                  }}
-                />
-              </div>
-
               {/* Strategy selector - for base strategy only */}
               <div className="mb-4 space-y-2">
                 <Label>Basis-Strategie</Label>
@@ -793,7 +1210,7 @@ export function EntnahmeSimulationsAusgabe({
           <SegmentedComparisonConfiguration
             segmentedComparisonStrategies={segmentedComparisonStrategies}
             withdrawalStartYear={startOfIndependence + 1}
-            withdrawalEndYear={formValue.endOfLife}
+            withdrawalEndYear={globalEndOfLife}
             onAddStrategy={addSegmentedComparisonStrategy}
             onUpdateStrategy={updateSegmentedComparisonStrategy}
             onRemoveStrategy={removeSegmentedComparisonStrategy}
@@ -941,7 +1358,7 @@ export function EntnahmeSimulationsAusgabe({
                   }}
                 >
                   {Array.from(
-                    { length: formValue.endOfLife - startOfIndependence },
+                    { length: globalEndOfLife - startOfIndependence },
                     (_, i) => {
                       const year = startOfIndependence + 1 + i;
                       return (
@@ -991,23 +1408,11 @@ export function EntnahmeSimulationsAusgabe({
               </div>
             )}
             <div className="mb-4 space-y-2">
-              <Label>End of Life</Label>
-              <Input
-                type="number"
-                value={formValue.endOfLife}
-                onChange={(e) => {
-                  const value = e.target.value ? Number(e.target.value) : undefined;
-                  if (value) updateFormValue({ ...formValue, endOfLife: value });
-                }}
-              />
-            </div>
-            <div className="mb-4 space-y-2">
               <Label>Strategie</Label>
               <RadioTileGroup
                 value={formValue.strategie}
                 onValueChange={(value) => {
-                  const newFormValue = { ...formValue, strategie: value as WithdrawalStrategy };
-                  dispatchEnd([startOfIndependence, newFormValue.endOfLife]);
+                  dispatchEnd([startOfIndependence, globalEndOfLife]);
                   updateFormValue({
                     strategie: value as WithdrawalStrategy,
                   });
@@ -1080,8 +1485,7 @@ export function EntnahmeSimulationsAusgabe({
                   <Slider
                     value={[formValue.inflationsrate]}
                     onValueChange={(values: number[]) => {
-                      const newFormValue = { ...formValue, inflationsrate: values[0] };
-                      dispatchEnd([startOfIndependence, newFormValue.endOfLife]);
+                      dispatchEnd([startOfIndependence, globalEndOfLife]);
                       updateFormValue({
                         inflationsrate: values[0],
                       });

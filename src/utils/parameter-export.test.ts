@@ -36,6 +36,10 @@ describe('Parameter Export', () => {
       startEnd: [2023, 2040] as [number, number],
       sparplan: [],
       simulationAnnual: 'yearly' as const,
+      // Global End of Life and life expectancy settings
+      endOfLife: 2080,
+      lifeExpectancyTable: 'german_2020_22' as const,
+      customLifeExpectancy: undefined,
       withdrawalConfig: null,
       // Mock functions (not used in formatting)
       setRendite: vi.fn(),
@@ -66,6 +70,10 @@ describe('Parameter Export', () => {
       simulationData: {},
       isLoading: false,
       withdrawalResults: null,
+      // Global End of Life setters
+      setEndOfLife: vi.fn(),
+      setLifeExpectancyTable: vi.fn(),
+      setCustomLifeExpectancy: vi.fn(),
     } as any;
   });
 
@@ -143,7 +151,6 @@ describe('Parameter Export', () => {
     it('should include full withdrawal parameters when config exists', () => {
       mockContext.withdrawalConfig = {
         formValue: {
-          endOfLife: 2080,
           strategie: 'monatlich_fest',
           rendite: 4.5,
           withdrawalFrequency: 'monthly',
@@ -159,7 +166,6 @@ describe('Parameter Export', () => {
           dynamischUntereSchwell: 2,
           dynamischUntereAnpassung: -5,
           rmdStartAge: 65,
-          rmdLifeExpectancyTable: 'german_2020_22',
           kapitalerhaltNominalReturn: 7,
           kapitalerhaltInflationRate: 2,
           grundfreibetragAktiv: true,
@@ -200,7 +206,6 @@ describe('Parameter Export', () => {
     it('should include detailed segmented withdrawal configuration', () => {
       mockContext.withdrawalConfig = {
         formValue: {
-          endOfLife: 2080,
           strategie: '4prozent',
           rendite: 5.0,
           withdrawalFrequency: 'yearly',
@@ -216,7 +221,6 @@ describe('Parameter Export', () => {
           dynamischUntereSchwell: 2,
           dynamischUntereAnpassung: -5,
           rmdStartAge: 65,
-          rmdLifeExpectancyTable: 'german_2020_22',
           kapitalerhaltNominalReturn: 7,
           kapitalerhaltInflationRate: 2,
           grundfreibetragAktiv: false,

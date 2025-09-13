@@ -1,16 +1,18 @@
 import { renderHook, act } from '@testing-library/react';
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect, beforeEach, vi } from 'vitest';
 import { useWithdrawalConfig } from './useWithdrawalConfig';
 import { SimulationProvider } from '../contexts/SimulationContext';
 import type { SegmentedComparisonStrategy } from '../utils/config-storage';
 
 // Mock the simulation context
 const mockSetWithdrawalConfig = vi.fn();
+
 vi.mock('../contexts/useSimulation', () => ({
-  useSimulation: () => ({
+  useSimulation: vi.fn(() => ({
     withdrawalConfig: null,
     setWithdrawalConfig: mockSetWithdrawalConfig,
-  }),
+    endOfLife: 2080,
+  })),
 }));
 
 describe('useWithdrawalConfig', () => {
@@ -19,18 +21,18 @@ describe('useWithdrawalConfig', () => {
   });
 
   it('creates default configuration when none exists', () => {
-    const { result } = renderHook(() => useWithdrawalConfig(2023, 2040), {
+    const { result } = renderHook(() => useWithdrawalConfig(2023), {
       wrapper: SimulationProvider,
     });
 
     expect(result.current.currentConfig).toBeDefined();
-    expect(result.current.currentConfig.formValue.endOfLife).toBe(2040);
+    // endOfLife is now managed globally, not in formValue
     expect(result.current.currentConfig.formValue.strategie).toBe("4prozent");
     expect(result.current.currentConfig.formValue.rendite).toBe(5);
   });
 
   it('provides update functions', () => {
-    const { result } = renderHook(() => useWithdrawalConfig(2023, 2040), {
+    const { result } = renderHook(() => useWithdrawalConfig(2023), {
       wrapper: SimulationProvider,
     });
 
@@ -43,7 +45,7 @@ describe('useWithdrawalConfig', () => {
   });
 
   it('creates default comparison strategies', () => {
-    const { result } = renderHook(() => useWithdrawalConfig(2023, 2040), {
+    const { result } = renderHook(() => useWithdrawalConfig(2023), {
       wrapper: SimulationProvider,
     });
 
@@ -54,7 +56,7 @@ describe('useWithdrawalConfig', () => {
   });
 
   it('creates default withdrawal segments', () => {
-    const { result } = renderHook(() => useWithdrawalConfig(2023, 2040), {
+    const { result } = renderHook(() => useWithdrawalConfig(2023), {
       wrapper: SimulationProvider,
     });
 
@@ -63,7 +65,7 @@ describe('useWithdrawalConfig', () => {
   });
 
   it('sets default values correctly', () => {
-    const { result } = renderHook(() => useWithdrawalConfig(2023, 2040), {
+    const { result } = renderHook(() => useWithdrawalConfig(2023), {
       wrapper: SimulationProvider,
     });
 
@@ -79,7 +81,7 @@ describe('useWithdrawalConfig', () => {
 
   describe('segmented comparison strategies', () => {
     it('can add a segmented comparison strategy', () => {
-      const { result } = renderHook(() => useWithdrawalConfig(2023, 2040), {
+      const { result } = renderHook(() => useWithdrawalConfig(2023), {
         wrapper: SimulationProvider,
       });
 
@@ -123,7 +125,7 @@ describe('useWithdrawalConfig', () => {
     });
 
     it('can update a segmented comparison strategy', () => {
-      const { result } = renderHook(() => useWithdrawalConfig(2023, 2040), {
+      const { result } = renderHook(() => useWithdrawalConfig(2023), {
         wrapper: SimulationProvider,
       });
 
@@ -143,7 +145,7 @@ describe('useWithdrawalConfig', () => {
     });
 
     it('can remove a segmented comparison strategy', () => {
-      const { result } = renderHook(() => useWithdrawalConfig(2023, 2040), {
+      const { result } = renderHook(() => useWithdrawalConfig(2023), {
         wrapper: SimulationProvider,
       });
 
@@ -155,7 +157,7 @@ describe('useWithdrawalConfig', () => {
     });
 
     it('handles undefined segmentedComparisonStrategies gracefully', () => {
-      const { result } = renderHook(() => useWithdrawalConfig(2023, 2040), {
+      const { result } = renderHook(() => useWithdrawalConfig(2023), {
         wrapper: SimulationProvider,
       });
 
@@ -177,7 +179,7 @@ describe('useWithdrawalConfig', () => {
     });
 
     it('helper functions exist and are callable', () => {
-      const { result } = renderHook(() => useWithdrawalConfig(2023, 2040), {
+      const { result } = renderHook(() => useWithdrawalConfig(2023), {
         wrapper: SimulationProvider,
       });
 

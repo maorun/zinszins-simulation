@@ -30,7 +30,6 @@ const mockWithdrawalData = {
 };
 
 const mockFormValue: WithdrawalFormValue = {
-  endOfLife: 2050,
   strategie: '4prozent' as const,
   rendite: 5,
   withdrawalFrequency: 'yearly' as const,
@@ -46,7 +45,6 @@ const mockFormValue: WithdrawalFormValue = {
   guardrailsAktiv: false,
   guardrailsSchwelle: 80,
   rmdStartAge: 65,
-  rmdLifeExpectancyTable: 'german_2020_22',
   kapitalerhaltNominalReturn: 7,
   kapitalerhaltInflationRate: 2,
   grundfreibetragAktiv: false,
@@ -59,7 +57,6 @@ const mockComparisonResults = [
     strategy: {
       id: '1',
       name: '3% Regel',
-      endOfLife: 2050,
       strategie: '3prozent' as const,
       rendite: 4,
       withdrawalFrequency: 'yearly' as const,
@@ -87,7 +84,6 @@ const mockComparisonResults = [
     strategy: {
       id: '2',
       name: 'Conservative Strategy',
-      endOfLife: 2050,
       strategie: 'variabel_prozent' as const,
       rendite: 3,
       withdrawalFrequency: 'yearly' as const,

@@ -13,6 +13,7 @@ const WithdrawalPlan = () => {
         setWithdrawalResults,
         steuerlast,
         teilfreistellungsquote,
+        endOfLife,
     } = useSimulation();
 
     if (!simulationData) return null;
@@ -31,9 +32,9 @@ const WithdrawalPlan = () => {
                 <CollapsibleContent>
                     <CardContent>
                 <EntnahmeSimulationsAusgabe
-                    startEnd={startEnd}
+                    startEnd={[startEnd[0], endOfLife]}
                     elemente={simulationData.sparplanElements}
-                    dispatchEnd={(val) => setStartEnd(val)}
+                    dispatchEnd={(val) => setStartEnd([val[0], endOfLife])}
                     onWithdrawalResultsChange={setWithdrawalResults}
                     steuerlast={steuerlast / 100}
                     teilfreistellungsquote={teilfreistellungsquote / 100}

@@ -64,6 +64,29 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
   - **Flexible Konfiguration** - Jahr-für-Jahr anpassbare Zinssätze mit Quellenangabe
   - **Echtzeit-Update** - Simulation wird automatisch bei Änderungen neu berechnet
 
+### Globale Konfiguration
+- **Lebensende-Parameter** - Zentrale Konfiguration des Lebensendes für alle Entnahmestrategien
+  - **Globale Einstellung** - Eine zentrale Konfiguration für alle Entnahme-Modi und -Strategien
+  - **Planungsmodus-Auswahl** - Wahl zwischen Individual- und Paarplanung
+    - **Einzelperson** - Individuelle Lebenserwartung mit geschlechtsspezifischen Daten
+    - **Ehepaar/Partner** - Gemeinsame Lebenserwartung für zwei Personen (längerer überlebender Partner)
+  - **Geburtsjahr-Rechner** - Automatische Berechnung des Lebensende-Jahrs basierend auf Geburtsjahr und Lebenserwartung
+    - **Einzelperson-Modus**: Eingabe eines Geburtsjahrs mit geschlechtsspezifischen Vorschlägen
+    - **Paar-Modus**: Separate Geburtsjahr-Eingaben für beide Partner mit gemeinsamer Lebenserwartungsberechnung
+    - Automatische Vorschläge für altersbasierte Lebenserwartung
+    - Sofortige Berechnung des Lebensende-Jahrs (z.B. 1974 + 85 = 2059 für Einzelpersonen)
+    - Anzeige des aktuellen Alters zur Orientierung
+    - **Joint Life Expectancy**: Aktuarielle Berechnung für Paare basierend auf "Last Survivor"-Prinzip
+  - **Manuelle Eingabe** - Direkte Eingabe des gewünschten Lebensende-Jahrs möglich
+  - **Automatische Synchronisation** - Änderungen werden sofort in allen Berechnungen berücksichtigt
+- **Datengrundlage für Lebenserwartung** - Geschlechtsspezifische statistische Grundlagen für RMD-Berechnungen
+  - **Deutsche Sterbetafel (Durchschnitt)** - Geschlechtsneutrale Daten vom Statistischen Bundesamt (2020-2022)
+  - **Deutsche Sterbetafel (Männer)** - Geschlechtsspezifische Daten für Männer (kürzere Lebenserwartung, ca. 78 Jahre)
+  - **Deutsche Sterbetafel (Frauen)** - Geschlechtsspezifische Daten für Frauen (längere Lebenserwartung, ca. 83 Jahre)
+  - **Benutzerdefinierte Werte** - Manuelle Eingabe eigener Lebenserwartung
+  - **Zentrale Verwaltung** - Eine Einstellung für alle lebenserwartungsbasierten Berechnungen
+  - **Automatische Tabellenauswahl** - Intelligente Auswahl basierend auf Planungsmodus und Geschlecht
+
 ### Auszahlungsphase
 - **4% Regel** - Jährliche Entnahme von 4% des Startkapitals
 - **3% Regel** - Jährliche Entnahme von 3% des Startkapitals
@@ -87,13 +110,20 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
     - **Dynamische Strategie**: Renditebasierte Anpassung mit konfigurierbaren Schwellenwerten
   - **Marktschutz**: Vermeidung von Verkäufen zu ungünstigen Kursen während Marktabschwüngen
   - **Vollständige Integration**: Funktioniert in allen Modi (einheitlich, segmentiert, Vergleich)
-- **RMD-ähnliche Entnahme (Lebenserwartung)** - Entnahmestrategie basierend auf statistischer Lebenserwartung
+- **RMD-ähnliche Entnahme (Lebenserwartung)** - Geschlechtsspezifische Entnahmestrategie basierend auf statistischer Lebenserwartung
   - **Altersbasierte Berechnung**: Jährliche Entnahme = Portfoliowert ÷ Lebenserwartungs-Divisor
   - **Deutsche Sterbetafeln**: Verwendung offizieller Daten vom Statistischen Bundesamt (2020-2022)
-  - **Ansteigende Entnahmen**: Entnahmerate steigt automatisch mit dem Alter (65 Jahre: ~5,2%, 80 Jahre: ~11,8%)
+    - **Geschlechtsspezifische Tabellen**: Separate Daten für Männer und Frauen
+    - **Männliche Lebenserwartung**: Kürzere Lebenserwartung (z.B. 65 Jahre: 17,2 Jahre verbleibend)
+    - **Weibliche Lebenserwartung**: Längere Lebenserwartung (z.B. 65 Jahre: 21,3 Jahre verbleibend)
+    - **Gemeinsame Lebenserwartung**: Joint Life Expectancy für Ehepaare/Partner
+  - **Ansteigende Entnahmen**: Entnahmerate steigt automatisch mit dem Alter
+    - Männer 70 Jahre: ~7,5% (höhere Entnahmerate aufgrund kürzerer Lebenserwartung)
+    - Frauen 70 Jahre: ~5,9% (niedrigere Entnahmerate aufgrund längerer Lebenserwartung)
   - **Vollständiger Kapitalverzehr**: Zielt auf Aufbrauch des Portfolios bis zum statistischen Lebensende
   - **Flexible Konfiguration**: Wählbares Startalter und optionale benutzerdefinierte Lebenserwartung
-  - **Realistische Projektionen**: Basiert auf deutschen Mortalitätsdaten für authentische Planungsszenarien
+  - **Realistische Projektionen**: Basiert auf geschlechtsspezifischen deutschen Mortalitätsdaten für authentische Planungsszenarien
+  - **Paarberechnung**: Berücksichtigt die Wahrscheinlichkeit, dass mindestens ein Partner noch am Leben ist
 - **Kapitalerhalt / Ewige Rente** - Strategie zum dauerhaften Erhalt des realen Kapitalwerts
   - **Reale Rendite-Entnahme**: Entnahme nur der erwarteten realen Rendite (nominale Rendite minus Inflation)
   - **Konfigurierbare Parameter**: Erwartete nominale Rendite (%) und Inflationsrate (%)
