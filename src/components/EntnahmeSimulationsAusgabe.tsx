@@ -112,6 +112,8 @@ export function EntnahmeSimulationsAusgabe({
     setBirthYear, 
     expectedLifespan, 
     setExpectedLifespan,
+    useAutomaticCalculation,
+    setUseAutomaticCalculation,
     // Gender and couple planning
     planningMode,
     setPlanningMode,
@@ -204,6 +206,35 @@ export function EntnahmeSimulationsAusgabe({
         {/* Global End of Life Configuration */}
         <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
           <h4 className="text-lg font-semibold mb-4 text-blue-800">Globale Konfiguration</h4>
+          
+          {/* Toggle between manual and automatic calculation */}
+          <div className="mb-6 p-3 border rounded-lg bg-white">
+            <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
+              <div className="space-y-1">
+                <Label htmlFor="calculation-mode" className="font-medium">Lebensende Berechnung</Label>
+                <p className="text-sm text-muted-foreground hidden sm:block">
+                  Manuell für direkte Jahreseingabe, Automatisch für Geburtsjahr-basierte Berechnung
+                </p>
+              </div>
+              <div className="flex items-center space-x-3">
+                <span className={`text-sm ${!useAutomaticCalculation ? 'font-medium' : 'text-muted-foreground'}`}>
+                  Manuell
+                </span>
+                <Switch
+                  id="calculation-mode"
+                  checked={useAutomaticCalculation}
+                  onCheckedChange={setUseAutomaticCalculation}
+                />
+                <span className={`text-sm ${useAutomaticCalculation ? 'font-medium' : 'text-muted-foreground'}`}>
+                  Automatisch
+                </span>
+              </div>
+            </div>
+            <p className="text-sm text-muted-foreground mt-3 sm:hidden">
+              Manuell für direkte Jahreseingabe, Automatisch für Geburtsjahr-basierte Berechnung
+            </p>
+          </div>
+
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Lebensende (Jahr)</Label>
@@ -216,14 +247,16 @@ export function EntnahmeSimulationsAusgabe({
                 }}
                 min={startOfIndependence + 1}
                 max={2150}
+                disabled={useAutomaticCalculation}
               />
               <div className="text-sm text-muted-foreground">
                 Das Jahr, in dem die Entnahmephase enden soll (z.B. 2080)
               </div>
               
-              {/* Helper for calculating end of life year from birth year */}
-              <div className="p-3 bg-blue-50 rounded-lg space-y-3">
-                <div className="text-sm font-medium text-blue-900">Lebensende automatisch berechnen</div>
+              {/* Helper for calculating end of life year from birth year - only show when automatic mode is enabled */}
+              {useAutomaticCalculation && (
+                <div className="p-3 bg-blue-50 rounded-lg space-y-3">
+                  <div className="text-sm font-medium text-blue-900">Lebensende automatisch berechnen</div>
                 
                 {planningMode === 'individual' ? (
                   // Individual Planning Mode
@@ -392,6 +425,7 @@ export function EntnahmeSimulationsAusgabe({
                   </>
                 )}
               </div>
+              )}
             </div>
             <div className="space-y-2">
               <Label>Planungsmodus</Label>

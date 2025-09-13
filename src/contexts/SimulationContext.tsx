@@ -77,6 +77,8 @@ export interface SimulationContextState {
   setBirthYear: (birthYear?: number) => void;
   expectedLifespan?: number;
   setExpectedLifespan: (lifespan?: number) => void;
+  useAutomaticCalculation: boolean;
+  setUseAutomaticCalculation: (useAutomatic: boolean) => void;
   simulationData: any;
   isLoading: boolean;
   withdrawalResults: WithdrawalResult | null;
@@ -138,6 +140,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     // Birth year helper for end of life calculation
     birthYear: undefined,
     expectedLifespan: 85,
+    useAutomaticCalculation: false,
   }), []);
 
   // Try to load saved configuration, fallback to defaults
@@ -221,6 +224,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [expectedLifespan, setExpectedLifespan] = useState<number | undefined>(
     (initialConfig as any).expectedLifespan ?? defaultConfig.expectedLifespan
   );
+  const [useAutomaticCalculation, setUseAutomaticCalculation] = useState<boolean>(
+    (initialConfig as any).useAutomaticCalculation ?? false
+  );
   const [simulationData, setSimulationData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [withdrawalResults, setWithdrawalResults] = useState<WithdrawalResult | null>(null);
@@ -267,8 +273,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     // Birth year helper for end of life calculation
     birthYear,
     expectedLifespan,
+    useAutomaticCalculation,
     withdrawal: withdrawalConfig || undefined,
-  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase, startEnd, sparplan, simulationAnnual, endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse, birthYear, expectedLifespan, withdrawalConfig]);
+  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase, startEnd, sparplan, simulationAnnual, endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse, birthYear, expectedLifespan, useAutomaticCalculation, withdrawalConfig]);
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration();
@@ -312,6 +319,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       // Load birth year helper settings
       setBirthYear((savedConfig as any).birthYear);
       setExpectedLifespan((savedConfig as any).expectedLifespan ?? defaultConfig.expectedLifespan);
+      setUseAutomaticCalculation((savedConfig as any).useAutomaticCalculation ?? defaultConfig.useAutomaticCalculation);
       setWithdrawalConfig(savedConfig.withdrawal || null);
     }
   }, []);
@@ -351,6 +359,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     // Reset birth year helper settings
     setBirthYear(defaultConfig.birthYear);
     setExpectedLifespan(defaultConfig.expectedLifespan);
+    setUseAutomaticCalculation(defaultConfig.useAutomaticCalculation);
     setWithdrawalConfig(null); // Reset withdrawal config to null
   }, [defaultConfig.basiszinsConfiguration, defaultConfig.historicalIndex, setSparplanElemente]);
 
@@ -463,6 +472,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     // Birth year helper for end of life calculation
     birthYear, setBirthYear,
     expectedLifespan, setExpectedLifespan,
+    useAutomaticCalculation, setUseAutomaticCalculation,
     simulationData,
     isLoading,
     withdrawalResults, setWithdrawalResults,
@@ -480,7 +490,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
     inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
-    endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse, birthYear, expectedLifespan,
+    endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse, birthYear, expectedLifespan, useAutomaticCalculation,
     simulationData, isLoading, withdrawalResults, performSimulation,
     saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
     withdrawalConfig
