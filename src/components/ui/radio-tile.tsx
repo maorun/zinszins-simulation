@@ -56,7 +56,7 @@ export const RadioTileGroup = React.forwardRef<
     >
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
-          return React.cloneElement(child, { ...child.props, idPrefix } as any);
+          return React.cloneElement(child, { idPrefix } as any);
         }
         return child;
       })}

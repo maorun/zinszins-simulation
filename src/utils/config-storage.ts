@@ -164,6 +164,7 @@ export interface SavedConfiguration {
   // Birth year helper for end of life calculation
   birthYear?: number;
   expectedLifespan?: number;
+  useAutomaticCalculation?: boolean;
   // Withdrawal configuration
   withdrawal?: WithdrawalConfiguration;
 }
