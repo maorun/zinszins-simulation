@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import SimulationModeSelector from "../components/SimulationModeSelector";
 import SimulationParameters from "../components/SimulationParameters";
 import { StickyOverview } from "../components/StickyOverview";
+import { StickyBottomOverview } from "../components/StickyBottomOverview";
 import { SimulationProvider } from "../contexts/SimulationContext";
 import { useSimulation } from "../contexts/useSimulation";
 import { getEnhancedOverviewSummary } from "../utils/enhanced-summary";
@@ -264,8 +265,12 @@ const HomePageContent = () => {
 
       <DataExport />
 
-      {/* Sticky Overview */}
+      {/* Sticky Overviews */}
       <StickyOverview 
+        activeTab={activeTab} 
+        overviewElementRef={overviewRef}
+      />
+      <StickyBottomOverview 
         activeTab={activeTab} 
         overviewElementRef={overviewRef}
       />
