@@ -5,6 +5,7 @@ import { ChevronDown, Download, FileText, Copy, Info } from 'lucide-react';
 import { useParameterExport } from '../hooks/useParameterExport';
 import { useDataExport } from '../hooks/useDataExport';
 import { useSimulation } from '../contexts/useSimulation';
+import { useNestingLevel } from '../lib/nesting-utils';
 
 const DataExport = () => {
   const { exportParameters, isExporting: isParameterExporting, lastExportResult: parameterExportResult } = useParameterExport();
@@ -20,6 +21,7 @@ const DataExport = () => {
   } = useDataExport();
   
   const { simulationData, withdrawalResults, withdrawalConfig } = useSimulation();
+  const nestingLevel = useNestingLevel();
 
   const handleParameterExportClick = async () => {
     await exportParameters();
@@ -81,9 +83,9 @@ const DataExport = () => {
   const hasAnyData = hasSavingsData || hasWithdrawalData || hasWithdrawalConfig || hasWithdrawalConfigFromStorage;
 
   return (
-    <Card className="mb-4">
+    <Card nestingLevel={nestingLevel} className="mb-4">
       <Collapsible defaultOpen={false}>
-        <CardHeader>
+        <CardHeader nestingLevel={nestingLevel}>
           <CollapsibleTrigger asChild>
             <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
               <CardTitle className="text-left">📤 Export</CardTitle>
@@ -94,7 +96,7 @@ const DataExport = () => {
           </CollapsibleTrigger>
         </CardHeader>
         <CollapsibleContent>
-          <CardContent>
+          <CardContent nestingLevel={nestingLevel}>
             <div className="space-y-6">
               
               {/* Parameter Export Section */}
