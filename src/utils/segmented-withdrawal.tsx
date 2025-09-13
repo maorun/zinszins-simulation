@@ -68,7 +68,7 @@ export type SegmentedWithdrawalConfig = {
 export function validateWithdrawalSegments(
     segments: WithdrawalSegment[],
     startYear: number,
-    endYear: number
+    _endYear: number
 ): string[] {
     const errors: string[] = [];
     
@@ -79,7 +79,6 @@ export function validateWithdrawalSegments(
     
     // Ensure all years are rounded to handle floating-point comparisons
     const roundedStartYear = Math.round(startYear);
-    const roundedEndYear = Math.round(endYear);
     
     // Sort segments by start year
     const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear);
