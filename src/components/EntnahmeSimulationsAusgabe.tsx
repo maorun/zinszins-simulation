@@ -306,7 +306,7 @@ export function EntnahmeSimulationsAusgabe({
                       onClick={() => {
                         if (birthYear && expectedLifespan) {
                           const calculatedYear = calculateEndOfLifeYear(birthYear, expectedLifespan);
-                          setEndOfLife(calculatedYear);
+                          setEndOfLife(Math.round(calculatedYear));
                         }
                       }}
                       disabled={!birthYear || !expectedLifespan}
@@ -396,7 +396,7 @@ export function EntnahmeSimulationsAusgabe({
                           // Use the older person's birth year + joint life expectancy
                           const olderBirthYear = Math.min(birthYear, spouse.birthYear);
                           const calculatedYear = calculateEndOfLifeYear(olderBirthYear, jointLifeExpectancy + calculateCurrentAge(olderBirthYear));
-                          setEndOfLife(calculatedYear);
+                          setEndOfLife(Math.round(calculatedYear));
                         }
                       }}
                       disabled={!birthYear || !spouse?.birthYear}

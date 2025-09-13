@@ -236,6 +236,11 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     (initialConfig as SavedConfiguration).withdrawal || null
   );
 
+  // Create a wrapper for setEndOfLife that ensures values are always rounded to whole numbers
+  const setEndOfLifeRounded = useCallback((value: number) => {
+    setEndOfLife(Math.round(value));
+  }, []);
+
   const yearToday = new Date().getFullYear();
 
   // Configuration management functions
@@ -462,7 +467,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     simulationAnnual, setSimulationAnnual,
     sparplanElemente, setSparplanElemente,
     // Global End of Life and Life Expectancy settings
-    endOfLife, setEndOfLife,
+    endOfLife, setEndOfLife: setEndOfLifeRounded,
     lifeExpectancyTable, setLifeExpectancyTable,
     customLifeExpectancy, setCustomLifeExpectancy,
     // Gender and couple planning settings
@@ -493,7 +498,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse, birthYear, expectedLifespan, useAutomaticCalculation,
     simulationData, isLoading, withdrawalResults, performSimulation,
     saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
-    withdrawalConfig
+    withdrawalConfig, setEndOfLifeRounded
   ]);
 
   return (

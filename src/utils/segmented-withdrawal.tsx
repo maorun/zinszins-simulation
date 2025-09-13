@@ -77,19 +77,23 @@ export function validateWithdrawalSegments(
         return errors;
     }
     
+    // Ensure all years are rounded to handle floating-point comparisons
+    const roundedStartYear = Math.round(startYear);
+    const roundedEndYear = Math.round(endYear);
+    
     // Sort segments by start year
     const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear);
     
     // Check if first segment starts at the withdrawal start year
-    if (sortedSegments[0].startYear !== startYear) {
-        errors.push(`Erstes Segment muss im Jahr ${startYear} beginnen`);
+    if (Math.round(sortedSegments[0].startYear) !== roundedStartYear) {
+        errors.push(`Erstes Segment muss im Jahr ${roundedStartYear} beginnen`);
     }
     
     // Check if last segment ends at the withdrawal end year - make this a warning only
-    if (sortedSegments[sortedSegments.length - 1].endYear !== endYear) {
+    if (Math.round(sortedSegments[sortedSegments.length - 1].endYear) !== roundedEndYear) {
         // Only show error if there are multiple segments but still incomplete coverage
         if (sortedSegments.length > 1) {
-            errors.push(`Letztes Segment muss im Jahr ${endYear} enden`);
+            errors.push(`Letztes Segment muss im Jahr ${roundedEndYear} enden`);
         }
         // For single segments, we allow incomplete coverage to enable adding more segments
     }
@@ -97,7 +101,7 @@ export function validateWithdrawalSegments(
     // Check each segment individually
     for (const segment of sortedSegments) {
         // Check if segment end year is before start year
-        if (segment.endYear < segment.startYear) {
+        if (Math.round(segment.endYear) < Math.round(segment.startYear)) {
             errors.push(`Segment "${segment.name}": Endjahr kann nicht vor Startjahr liegen`);
         }
     }
@@ -107,13 +111,16 @@ export function validateWithdrawalSegments(
         const currentSegment = sortedSegments[i];
         const nextSegment = sortedSegments[i + 1];
         
+        const currentEndYear = Math.round(currentSegment.endYear);
+        const nextStartYear = Math.round(nextSegment.startYear);
+        
         // Check for gaps
-        if (currentSegment.endYear + 1 < nextSegment.startYear) {
+        if (currentEndYear + 1 < nextStartYear) {
             errors.push(`Lücke zwischen Segment "${currentSegment.name}" und "${nextSegment.name}"`);
         }
         
         // Check for overlaps
-        if (currentSegment.endYear >= nextSegment.startYear) {
+        if (currentEndYear >= nextStartYear) {
             errors.push(`Überlappung zwischen Segment "${currentSegment.name}" und "${nextSegment.name}"`);
         }
     }
@@ -176,12 +183,15 @@ export function synchronizeWithdrawalSegmentsEndYear(
         return segments;
     }
     
+    // Ensure the new end year is always a whole number
+    const roundedEndYear = Math.round(newEndYear);
+    
     // Sort segments by start year to find the last segment
     const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear);
     const lastSegment = sortedSegments[sortedSegments.length - 1];
     
     // If the last segment already ends at the new end year, no changes needed
-    if (lastSegment.endYear === newEndYear) {
+    if (lastSegment.endYear === roundedEndYear) {
         return segments;
     }
     
@@ -190,7 +200,7 @@ export function synchronizeWithdrawalSegmentsEndYear(
         if (segment.id === lastSegment.id) {
             return {
                 ...segment,
-                endYear: newEndYear
+                endYear: roundedEndYear
             };
         }
         return segment;
