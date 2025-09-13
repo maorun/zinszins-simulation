@@ -327,7 +327,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setUseAutomaticCalculation((savedConfig as any).useAutomaticCalculation ?? defaultConfig.useAutomaticCalculation);
       setWithdrawalConfig(savedConfig.withdrawal || null);
     }
-  }, []);
+  }, [defaultConfig]);
 
   const resetToDefaults = useCallback(() => {
     setRendite(defaultConfig.rendite);
@@ -366,7 +366,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setExpectedLifespan(defaultConfig.expectedLifespan);
     setUseAutomaticCalculation(defaultConfig.useAutomaticCalculation);
     setWithdrawalConfig(null); // Reset withdrawal config to null
-  }, [defaultConfig.basiszinsConfiguration, defaultConfig.historicalIndex, setSparplanElemente]);
+  }, [defaultConfig, setSparplanElemente]);
 
   // Auto-save configuration whenever any config value changes
   useEffect(() => {
