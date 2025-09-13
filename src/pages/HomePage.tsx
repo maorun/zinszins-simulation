@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Button } from "../components/ui/button";
 import ConfigurationManagement from "../components/ConfigurationManagement";
 import DataExport from "../components/DataExport";
@@ -224,7 +224,6 @@ const HomePageContent = () => {
     isLoading,
   } = useSimulation();
 
-  const [activeTab, setActiveTab] = useState<'ansparen' | 'entnehmen'>('ansparen');
   const overviewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -261,17 +260,15 @@ const HomePageContent = () => {
 
       <ConfigurationManagement />
 
-      <SimulationModeSelector onTabChange={setActiveTab} />
+      <SimulationModeSelector />
 
       <DataExport />
 
       {/* Sticky Overviews */}
       <StickyOverview 
-        activeTab={activeTab} 
         overviewElementRef={overviewRef}
       />
       <StickyBottomOverview 
-        activeTab={activeTab} 
         overviewElementRef={overviewRef}
       />
 
