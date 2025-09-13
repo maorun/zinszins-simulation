@@ -7,6 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Alert, AlertDescription } from './ui/alert';
 import { Trash2, Plus, Download, RefreshCw } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
+import { useNestingLevel } from '../lib/nesting-context';
 import { 
   refreshBasiszinsFromAPI,
   validateBasiszinsRate, 
@@ -25,6 +26,8 @@ export default function BasiszinsConfiguration() {
     setBasiszinsConfiguration,
     performSimulation,
   } = useSimulation();
+  
+  const nestingLevel = useNestingLevel();
 
   const [isLoading, setIsLoading] = useState(false);
   const [lastApiUpdate, setLastApiUpdate] = useState<string | null>(null);
@@ -145,11 +148,11 @@ export default function BasiszinsConfiguration() {
     .sort((a, b) => b - a); // Newest first
 
   return (
-    <Card>
-      <CardHeader>
+    <Card nestingLevel={nestingLevel}>
+      <CardHeader nestingLevel={nestingLevel}>
         <CardTitle>📈 Basiszins-Konfiguration (Deutsche Bundesbank)</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-6">
+      <CardContent nestingLevel={nestingLevel} className="space-y-6">
         
         {/* Information Panel */}
         <Alert>

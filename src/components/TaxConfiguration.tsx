@@ -8,6 +8,7 @@ import { Label } from './ui/label';
 import { Switch } from './ui/switch';
 import { Trash2, Plus, ChevronDown } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
+import { NestingProvider } from '../lib/nesting-context';
 import BasiszinsConfiguration from './BasiszinsConfiguration';
 const TaxConfiguration = () => {
     const {
@@ -31,19 +32,20 @@ const TaxConfiguration = () => {
     const yearToday = new Date().getFullYear();
 
     return (
-        <div className="space-y-4">
-            <Card>
-                <Collapsible defaultOpen={false}>
-                    <CardHeader>
-                        <CollapsibleTrigger asChild>
-                            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-                                <CardTitle className="text-left">💰 Steuer-Konfiguration</CardTitle>
-                                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                            </div>
-                        </CollapsibleTrigger>
-                    </CardHeader>
-                    <CollapsibleContent>
-                        <CardContent className="space-y-6">{/* ... existing tax configuration content ... */}
+        <NestingProvider level={1}>
+            <div className="space-y-4">
+                <Card nestingLevel={1}>
+                    <Collapsible defaultOpen={false}>
+                        <CardHeader nestingLevel={1}>
+                            <CollapsibleTrigger asChild>
+                                <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                                    <CardTitle className="text-left">💰 Steuer-Konfiguration</CardTitle>
+                                    <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                                </div>
+                            </CollapsibleTrigger>
+                        </CardHeader>
+                        <CollapsibleContent>
+                            <CardContent nestingLevel={1} className="space-y-6">{/* ... existing tax configuration content ... */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
                         <Label htmlFor="steuerlast">Kapitalertragsteuer (%)</Label>
@@ -242,9 +244,9 @@ const TaxConfiguration = () => {
             </Card>
         
         {/* Grundfreibetrag Configuration */}
-        <Card>
+        <Card nestingLevel={1}>
             <Collapsible defaultOpen={false}>
-                <CardHeader>
+                <CardHeader nestingLevel={1}>
                     <CollapsibleTrigger asChild>
                         <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
                             <CardTitle className="text-left">🏠 Grundfreibetrag-Konfiguration</CardTitle>
@@ -253,7 +255,7 @@ const TaxConfiguration = () => {
                     </CollapsibleTrigger>
                 </CardHeader>
                 <CollapsibleContent>
-                    <CardContent className="space-y-6">
+                    <CardContent nestingLevel={1} className="space-y-6">
                 <div className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="space-y-1">
                         <Label htmlFor="grundfreibetragAktiv" className="font-medium">Grundfreibetrag berücksichtigen</Label>
@@ -305,10 +307,13 @@ const TaxConfiguration = () => {
             </Collapsible>
         </Card>
         
-        {/* Basiszins Configuration */}
-        <BasiszinsConfiguration />
-    </div>
-);
+        {/* Basiszins Configuration - wrapped in nesting provider */}
+        <NestingProvider>
+            <BasiszinsConfiguration />
+        </NestingProvider>
+        </div>
+        </NestingProvider>
+    );
 };
 
 export default TaxConfiguration;
