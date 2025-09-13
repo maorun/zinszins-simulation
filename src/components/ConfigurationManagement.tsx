@@ -5,6 +5,7 @@ import { Alert, AlertDescription } from './ui/alert';
 import { ChevronDown } from 'lucide-react';
 import { toast } from 'sonner';
 import { useSimulation } from '../contexts/useSimulation';
+import { useNestingLevel } from '../lib/nesting-utils';
 import { hasConfiguration, clearConfiguration } from '../utils/config-storage';
 
 /**
@@ -13,6 +14,7 @@ import { hasConfiguration, clearConfiguration } from '../utils/config-storage';
  */
 export default function ConfigurationManagement() {
   const { resetToDefaults } = useSimulation();
+  const nestingLevel = useNestingLevel();
 
   const handleClearConfiguration = () => {
     if (confirm('Möchten Sie wirklich alle gespeicherten Einstellungen löschen und zu den Standardwerten zurückkehren?')) {
@@ -25,9 +27,9 @@ export default function ConfigurationManagement() {
   const hasStoredConfig = hasConfiguration();
 
   return (
-    <Card className="mb-4">
+    <Card nestingLevel={nestingLevel} className="mb-4">
       <Collapsible defaultOpen={false}>
-        <CardHeader>
+        <CardHeader nestingLevel={nestingLevel}>
           <CollapsibleTrigger asChild>
             <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
               <CardTitle className="text-left">💾 Konfiguration verwalten</CardTitle>
@@ -36,7 +38,7 @@ export default function ConfigurationManagement() {
           </CollapsibleTrigger>
         </CardHeader>
         <CollapsibleContent>
-          <CardContent>
+          <CardContent nestingLevel={nestingLevel}>
         <Alert variant="info" className="mb-4">
           <AlertDescription>
             <strong>Automatisches Speichern:</strong> Ihre Einstellungen werden automatisch beim Ändern gespeichert und beim nächsten Besuch wiederhergestellt.

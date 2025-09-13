@@ -7,7 +7,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '.
 import { Alert, AlertDescription } from './ui/alert';
 import { Trash2, Plus, Download, RefreshCw } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
-import { useNestingLevel } from '../lib/nesting-context';
+import { useNestingLevel } from '../lib/nesting-utils';
 import { 
   refreshBasiszinsFromAPI,
   validateBasiszinsRate, 

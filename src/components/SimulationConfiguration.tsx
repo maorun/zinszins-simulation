@@ -2,6 +2,7 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Label } from './ui/label';
 import { Switch } from './ui/switch';
 import { useSimulation } from '../contexts/useSimulation';
+import { useNestingLevel } from '../lib/nesting-utils';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
 
 const SimulationConfiguration = () => {
@@ -12,13 +13,14 @@ const SimulationConfiguration = () => {
         sparplan,
         startEnd,
     } = useSimulation();
+    const nestingLevel = useNestingLevel();
 
     return (
-        <Card className="mb-4">
-            <CardHeader>
+        <Card nestingLevel={nestingLevel} className="mb-4">
+            <CardHeader nestingLevel={nestingLevel}>
                 <CardTitle>⚙️ Simulation-Konfiguration</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent nestingLevel={nestingLevel}>
                 <div className="space-y-4">
                     <div className="p-3 border rounded-lg">
                         <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
