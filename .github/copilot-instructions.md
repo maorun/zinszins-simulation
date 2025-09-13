@@ -25,7 +25,7 @@ Zinseszins-Simulation is a German compound interest calculator built with Vite, 
   - Runs on http://localhost:5173 (Vite default port)
   - Hot module reloading works correctly
   - Will show Vite development server output
-- **Testing**: `npm run test` -- runs 296 tests across 56 files in ~23 seconds
+- **Testing**: `npm run test` -- runs 578 tests across 77 files in ~32 seconds
   - All tests should pass
   - Uses Vitest for testing
   - Comprehensive test coverage including integration, component, and utility tests
@@ -38,10 +38,10 @@ Zinseszins-Simulation is a German compound interest calculator built with Vite, 
   - All functionality works correctly
   - Uses standard npm package resolution
 - **TypeScript**: Well-typed application with no errors
-- **UI Framework Migration**: Currently migrating from RSuite to shadcn/ui components
-  - `temp-rsuite-stubs.tsx` provides compatibility layer during transition
-  - Some components may show legacy RSuite patterns while migration is ongoing
+- **UI Framework**: **shadcn/ui components** - Migration from RSuite to shadcn/ui is **COMPLETE**
+  - All user-facing components use modern shadcn/ui components
   - New components should use shadcn/ui components from `src/components/ui/`
+  - No legacy RSuite components remain in the codebase
 
 ## Validation and Testing
 
@@ -96,7 +96,6 @@ After making changes, ALWAYS test the complete user workflow:
 - **`src/components/StickyOverview.tsx`** - Navigation overview component with key metrics
 - **`src/components/DataExport.tsx`** - Comprehensive data export functionality
 - **`src/components/ui/`** - Modern shadcn/ui components (cards, buttons, inputs, etc.)
-- **`src/components/temp-rsuite-stubs.tsx`** - Compatibility layer for RSuite migration
 
 ### Configuration Files
 - **`package.json`** - Dependencies and scripts with test scripts defined
@@ -136,8 +135,8 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
   - Import from `lucide-react` package
   - Use semantic icon names (ChevronDown, ChevronUp, Download, etc.)
 - **Legacy Compatibility**: 
-  - **Migration Complete**: `temp-rsuite-stubs.tsx` contains only Form components for internal data binding
-  - **All UI Components**: User-facing components fully migrated to shadcn/ui
+  - **Migration Complete**: All RSuite components have been fully migrated to shadcn/ui
+  - **All UI Components**: User-facing components use shadcn/ui exclusively
 
 ### API and Data Flow
 - All calculations performed client-side for real-time responsiveness
@@ -167,6 +166,33 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
 - **Variable Percentage**: Custom withdrawal percentages
 - **Monthly Fixed Withdrawal**: Fixed monthly amounts with inflation adjustment and portfolio guardrails
 - **Variable Returns during Withdrawal**: Year-by-year configurable returns for withdrawal phase
+
+#### Implementing New Withdrawal Strategies
+
+**IMPORTANT:** When implementing new withdrawal (Entnahme) strategies, they must be implemented in **BOTH** systems to ensure complete user flexibility:
+
+1. **Unified Strategy System** (`einheitlichen Strategie`):
+   - Single strategy applied to the entire withdrawal phase
+   - Implementation in unified strategy configurations and calculations
+   - Used when users want consistent strategy throughout retirement
+
+2. **Segmented Withdrawal System** (`geteilten Entsparphasen`):  
+   - Different strategies for different time periods/life phases
+   - Implementation in segmented strategy configurations and calculations
+   - Allows users to model changing needs (e.g., active retirement vs. care phase)
+
+3. **Comparison Systems**:
+   - **Unified Comparisons**: Compare different strategies as single approaches
+   - **Segmented Comparisons**: Compare different segmented withdrawal plans
+   - Both comparison systems must support the new strategy
+
+**Architecture Requirements for New Strategies:**
+- Add strategy type to `WithdrawalStrategy` union type in `helpers/withdrawal.tsx`
+- Implement calculation logic in withdrawal helper functions
+- Add configuration components for both unified and segmented contexts
+- Add strategy to comparison displays for both systems
+- Add comprehensive tests for all contexts (unified, segmented, comparisons)
+- Update strategy display names in helper functions
 
 ## Common Development Tasks
 
@@ -204,7 +230,7 @@ This is a personal finance tool focused on German tax law and investment plannin
 ### Current Development Status
 - **UI Migration: COMPLETED** - Successfully migrated from RSuite to shadcn/ui
 - **Modern Component Library**: All user-facing components use shadcn/ui
-- **Comprehensive Testing**: 296 tests across 56 files ensure reliability
+- **Comprehensive Testing**: 578 tests across 77 files ensure reliability
 - **Enhanced User Experience**: Sticky navigation, comprehensive data export, real-time updates
 - **German Tax Compliance**: Full Vorabpauschale calculations with explanations
 - **Interactive Functionality**: All RadioTile, Card, and Button components fully functional
@@ -411,7 +437,7 @@ For each individual step in your plan:
 
 2. **Testing and Linting Phase - MANDATORY**
    - **No Exceptions:** For **every single change or addition** of a feature, corresponding tests **must** be added or adapted. This is a mandatory requirement for every step.
-   - **Run all tests:** `npm run test` (should pass all 337+ tests across 58 files). If you add new features, add new tests. If you change features, adapt existing tests.
+   - **Run all tests:** `npm run test` (should pass all 578+ tests across 77 files). If you add new features, add new tests. If you change features, adapt existing tests.
    - **Run linting:** `npm run lint` (should pass with max 10 warnings)
    - **Run type checking:** `npm run typecheck` (expect minimal errors)
    - **Run build:** `npm run build` (should complete successfully)
