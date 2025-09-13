@@ -512,6 +512,7 @@ export function EntnahmeSimulationsAusgabe({
                       <RadioTileGroup
                         value={gender || 'male'}
                         onValueChange={(value: string) => setGender(value as 'male' | 'female')}
+                        idPrefix="person1"
                       >
                         <RadioTile value="male" label="Männlich">
                           Verwende Lebenserwartung für Männer
@@ -529,6 +530,7 @@ export function EntnahmeSimulationsAusgabe({
                           ...spouse,
                           gender: value as 'male' | 'female'
                         })}
+                        idPrefix="person2"
                       >
                         <RadioTile value="male" label="Männlich">
                           Männlich
