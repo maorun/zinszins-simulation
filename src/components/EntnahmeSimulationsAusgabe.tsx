@@ -479,8 +479,12 @@ export function EntnahmeSimulationsAusgabe({
                         value={gender || 'male'}
                         onValueChange={(value: string) => setGender(value as 'male' | 'female')}
                       >
-                        <RadioTile value="male" label="Männlich" />
-                        <RadioTile value="female" label="Weiblich" />
+                        <RadioTile value="male" label="Männlich">
+                          Verwende Lebenserwartung für Männer
+                        </RadioTile>
+                        <RadioTile value="female" label="Weiblich">
+                          Verwende Lebenserwartung für Frauen
+                        </RadioTile>
                       </RadioTileGroup>
                     </div>
                     <div className="space-y-2">
@@ -492,8 +496,12 @@ export function EntnahmeSimulationsAusgabe({
                           gender: value as 'male' | 'female'
                         })}
                       >
-                        <RadioTile value="male" label="Männlich" />
-                        <RadioTile value="female" label="Weiblich" />
+                        <RadioTile value="male" label="Männlich">
+                          Männlich
+                        </RadioTile>
+                        <RadioTile value="female" label="Weiblich">
+                          Weiblich
+                        </RadioTile>
                       </RadioTileGroup>
                     </div>
                   </div>

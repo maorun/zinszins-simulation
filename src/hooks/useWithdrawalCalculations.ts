@@ -30,7 +30,7 @@ export function useWithdrawalCalculations(
     customLifeExpectancy,
     planningMode,
     gender,
-    spouse,
+    // spouse - used indirectly in couple planning calculations
   } = useSimulation();
 
   const {
@@ -48,23 +48,23 @@ export function useWithdrawalCalculations(
     segmentedComparisonStrategies,
   } = currentConfig;
 
-  // Helper function to determine the effective life expectancy table based on planning mode and gender
-  const getEffectiveLifeExpectancyTable = (): 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom' => {
-    if (lifeExpectancyTable === 'custom') {
-      return 'custom';
-    }
-    
-    // For individual planning with gender selection, use gender-specific table
-    if (planningMode === 'individual' && gender) {
-      return gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22';
-    }
-    
-    // For couple planning or when no gender is selected, use the selected table
-    return lifeExpectancyTable;
-  };
-
   // Calculate withdrawal projections
   const withdrawalData = useMemo(() => {
+    // Helper function to determine the effective life expectancy table based on planning mode and gender
+    const getEffectiveLifeExpectancyTable = (): 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom' => {
+      if (lifeExpectancyTable === 'custom') {
+        return 'custom';
+      }
+      
+      // For individual planning with gender selection, use gender-specific table
+      if (planningMode === 'individual' && gender) {
+        return gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22';
+      }
+      
+      // For couple planning or when no gender is selected, use the selected table
+      return lifeExpectancyTable;
+    };
+
     if (!elemente || elemente.length === 0) {
       return null;
     }
@@ -268,10 +268,27 @@ export function useWithdrawalCalculations(
     steuerlast,
     teilfreistellungsquote,
     steuerReduzierenEndkapitalEntspharphase,
+    planningMode,
+    gender,
   ]);
 
   // Calculate comparison results for each strategy
   const comparisonResults = useMemo(() => {
+    // Helper function to determine the effective life expectancy table based on planning mode and gender
+    const getEffectiveLifeExpectancyTable = (): 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom' => {
+      if (lifeExpectancyTable === 'custom') {
+        return 'custom';
+      }
+      
+      // For individual planning with gender selection, use gender-specific table
+      if (planningMode === 'individual' && gender) {
+        return gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22';
+      }
+      
+      // For couple planning or when no gender is selected, use the selected table
+      return lifeExpectancyTable;
+    };
+
     if (!useComparisonMode || !withdrawalData) {
       return [];
     }
@@ -430,6 +447,8 @@ export function useWithdrawalCalculations(
     customLifeExpectancy,
     lifeExpectancyTable,
     steuerReduzierenEndkapitalEntspharphase,
+    planningMode,
+    gender,
   ]);
 
   // Calculate segmented comparison results for each segmented strategy
