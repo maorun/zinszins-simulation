@@ -98,7 +98,27 @@ export function EntnahmeSimulationsAusgabe({
   );
 
   // Access global Grundfreibetrag configuration and End of Life settings
-  const { grundfreibetragAktiv, grundfreibetragBetrag, endOfLife: globalEndOfLife, lifeExpectancyTable, customLifeExpectancy, setEndOfLife, setLifeExpectancyTable, setCustomLifeExpectancy, birthYear, setBirthYear, expectedLifespan, setExpectedLifespan } = useSimulation();
+  const { 
+    grundfreibetragAktiv, 
+    grundfreibetragBetrag, 
+    endOfLife: globalEndOfLife, 
+    lifeExpectancyTable, 
+    customLifeExpectancy, 
+    setEndOfLife, 
+    setLifeExpectancyTable, 
+    setCustomLifeExpectancy, 
+    birthYear, 
+    setBirthYear, 
+    expectedLifespan, 
+    setExpectedLifespan,
+    // Gender and couple planning
+    planningMode,
+    setPlanningMode,
+    gender,
+    setGender,
+    spouse,
+    setSpouse
+  } = useSimulation();
 
   const {
     showCalculationModal,
@@ -213,10 +233,10 @@ export function EntnahmeSimulationsAusgabe({
                       onChange={(e) => {
                         const year = e.target.value ? Number(e.target.value) : undefined;
                         setBirthYear(year);
-                        // Auto-suggest life expectancy based on current age
+                        // Auto-suggest life expectancy based on current age and gender
                         if (year) {
                           const currentAge = calculateCurrentAge(year);
-                          const suggestedLifespan = getDefaultLifeExpectancy(currentAge);
+                          const suggestedLifespan = getDefaultLifeExpectancy(currentAge, gender);
                           if (!expectedLifespan) {
                             setExpectedLifespan(suggestedLifespan);
                           }
@@ -257,20 +277,51 @@ export function EntnahmeSimulationsAusgabe({
                   Berechnen ({birthYear && expectedLifespan ? calculateEndOfLifeYear(birthYear, expectedLifespan) : '—'})
                 </Button>
                 {birthYear && (
-                  <div className="text-xs text-muted-foreground">
-                    Aktuelles Alter: {calculateCurrentAge(birthYear)} Jahre
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    <div>Aktuelles Alter: {calculateCurrentAge(birthYear)} Jahre</div>
+                    {planningMode === 'individual' && gender && (
+                      <div>
+                        Geschlechts-spezifische Lebenserwartung: 
+                        {gender === 'male' ? ' ♂ Männlich (ca. 78 Jahre)' : ' ♀ Weiblich (ca. 83 Jahre)'}
+                      </div>
+                    )}
+                    {planningMode === 'couple' && (
+                      <div>
+                        Ehepaar-Planung: Gemeinsame Lebenserwartung (längerer überlebender Partner)
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
             </div>
             <div className="space-y-2">
+              <Label>Planungsmodus</Label>
+              <RadioTileGroup
+                value={planningMode}
+                onValueChange={(value: string) => setPlanningMode(value as 'individual' | 'couple')}
+              >
+                <RadioTile value="individual" label="Einzelperson">
+                  Planung für eine Person mit individueller Lebenserwartung
+                </RadioTile>
+                <RadioTile value="couple" label="Ehepaar/Partner">
+                  Planung für zwei Personen mit gemeinsamer Lebenserwartung (längerer überlebender Partner)
+                </RadioTile>
+              </RadioTileGroup>
+            </div>
+            <div className="space-y-2">
               <Label>Datengrundlage für Lebenserwartung</Label>
               <RadioTileGroup
                 value={lifeExpectancyTable}
-                onValueChange={(value: string) => setLifeExpectancyTable(value as 'german_2020_22' | 'custom')}
+                onValueChange={(value: string) => setLifeExpectancyTable(value as 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom')}
               >
-                <RadioTile value="german_2020_22" label="Deutsche Sterbetafel">
-                  Offizielle Sterbetafel 2020-2022 vom Statistischen Bundesamt
+                <RadioTile value="german_2020_22" label="Deutsche Sterbetafel (Durchschnitt)">
+                  Offizielle Sterbetafel 2020-2022 vom Statistischen Bundesamt (geschlechtsneutral)
+                </RadioTile>
+                <RadioTile value="german_male_2020_22" label="Deutsche Sterbetafel (Männer)">
+                  Sterbetafel 2020-2022 für Männer (kürzere Lebenserwartung)
+                </RadioTile>
+                <RadioTile value="german_female_2020_22" label="Deutsche Sterbetafel (Frauen)">
+                  Sterbetafel 2020-2022 für Frauen (längere Lebenserwartung)
                 </RadioTile>
                 <RadioTile value="custom" label="Benutzerdefiniert">
                   Eigene Lebenserwartung eingeben
@@ -289,6 +340,68 @@ export function EntnahmeSimulationsAusgabe({
                     min={1}
                     max={50}
                   />
+                </div>
+              )}
+              
+              {/* Individual planning mode - show gender selection for specific tables */}
+              {planningMode === 'individual' && (lifeExpectancyTable === 'german_male_2020_22' || lifeExpectancyTable === 'german_female_2020_22' || lifeExpectancyTable === 'german_2020_22') && (
+                <div className="space-y-2 mt-2 p-3 bg-gray-50 rounded-lg">
+                  <Label>Geschlecht für Lebenserwartung</Label>
+                  <RadioTileGroup
+                    value={gender || ''}
+                    onValueChange={(value: string) => setGender(value as 'male' | 'female' | undefined)}
+                  >
+                    <RadioTile value="male" label="Männlich">
+                      Verwende Lebenserwartung für Männer
+                    </RadioTile>
+                    <RadioTile value="female" label="Weiblich">
+                      Verwende Lebenserwartung für Frauen
+                    </RadioTile>
+                  </RadioTileGroup>
+                  {gender && (
+                    <div className="text-sm text-muted-foreground">
+                      {gender === 'male' 
+                        ? 'Die männliche Lebenserwartung ist im Durchschnitt ca. 5 Jahre kürzer als die weibliche.'
+                        : 'Die weibliche Lebenserwartung ist im Durchschnitt ca. 5 Jahre länger als die männliche.'
+                      }
+                    </div>
+                  )}
+                </div>
+              )}
+              
+              {/* Couple planning mode - show spouse configuration */}
+              {planningMode === 'couple' && (
+                <div className="space-y-4 mt-2 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                  <div className="text-sm font-medium text-blue-900">Konfiguration für Ehepaar/Partner</div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label>Person 1 - Geschlecht</Label>
+                      <RadioTileGroup
+                        value={gender || 'male'}
+                        onValueChange={(value: string) => setGender(value as 'male' | 'female')}
+                      >
+                        <RadioTile value="male" label="Männlich" />
+                        <RadioTile value="female" label="Weiblich" />
+                      </RadioTileGroup>
+                    </div>
+                    <div className="space-y-2">
+                      <Label>Person 2 - Geschlecht</Label>
+                      <RadioTileGroup
+                        value={spouse?.gender || 'female'}
+                        onValueChange={(value: string) => setSpouse({
+                          ...spouse,
+                          gender: value as 'male' | 'female'
+                        })}
+                      >
+                        <RadioTile value="male" label="Männlich" />
+                        <RadioTile value="female" label="Weiblich" />
+                      </RadioTileGroup>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground">
+                    Die gemeinsame Lebenserwartung wird basierend auf der Wahrscheinlichkeit berechnet, dass mindestens eine Person noch am Leben ist. 
+                    Dies ist wichtig für die Ruhestandsplanung von Ehepaaren.
+                  </div>
                 </div>
               )}
             </div>
