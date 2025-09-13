@@ -166,8 +166,12 @@ Stand der Entwicklung unter https://zinszins-simulation.vercel.app/
 - **Finanzübersicht - Schnelle Eckpunkte** - Kompakte Übersicht aller wichtigen Kennzahlen für Anspar- und Entsparphase
   - Gesamte Einzahlungen, Endkapital und Zinsen der Ansparphase
   - Berechnete Rendite der Ansparphase (annualisiert)
-  - Endkapital und monatliche Auszahlungen der Entsparphase
+  - Endkapital und monatliche Auszahlungen der Entsparphase  
   - Berechnete Rendite der Entsparphase unter Berücksichtigung von Entnahmen
+  - **Sticky Navigation**: Sowohl obere als auch untere klebrige Übersichten zeigen kontextuelle Daten basierend auf dem aktiven Tab
+    - **Ansparen-Tab**: Daten der Sparphase (Endkapital, Zinsen, Rendite)
+    - **Entnehmen-Tab**: Daten der Entsparphase (Startkapital, Endkapital, monatliche Auszahlung)
+  - **Responsive Design**: Desktop-Layout mit detaillierten Metriken, Mobile-Layout mit kompakter Icon-basierter Darstellung
 - **Strategievergleich und -analyse** - Umfassende Vergleichsmöglichkeiten für Entnahmestrategien
   - **Einheitliche Strategien**: Vergleich verschiedener Standard-Entnahmestrategien
   - **Geteilte Phasen**: Vergleich komplexer segmentierter Entnahme-Konfigurationen

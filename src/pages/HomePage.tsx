@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { Button } from "../components/ui/button";
 import ConfigurationManagement from "../components/ConfigurationManagement";
 import DataExport from "../components/DataExport";
@@ -6,6 +6,7 @@ import Header from "../components/Header";
 import SimulationModeSelector from "../components/SimulationModeSelector";
 import SimulationParameters from "../components/SimulationParameters";
 import { StickyOverview } from "../components/StickyOverview";
+import { StickyBottomOverview } from "../components/StickyBottomOverview";
 import { SimulationProvider } from "../contexts/SimulationContext";
 import { useSimulation } from "../contexts/useSimulation";
 import { getEnhancedOverviewSummary } from "../utils/enhanced-summary";
@@ -223,7 +224,6 @@ const HomePageContent = () => {
     isLoading,
   } = useSimulation();
 
-  const [activeTab, setActiveTab] = useState<'ansparen' | 'entnehmen'>('ansparen');
   const overviewRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -260,13 +260,15 @@ const HomePageContent = () => {
 
       <ConfigurationManagement />
 
-      <SimulationModeSelector onTabChange={setActiveTab} />
+      <SimulationModeSelector />
 
       <DataExport />
 
-      {/* Sticky Overview */}
+      {/* Sticky Overviews */}
       <StickyOverview 
-        activeTab={activeTab} 
+        overviewElementRef={overviewRef}
+      />
+      <StickyBottomOverview 
         overviewElementRef={overviewRef}
       />
 
