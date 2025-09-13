@@ -89,14 +89,9 @@ export function validateWithdrawalSegments(
         errors.push(`Erstes Segment muss im Jahr ${roundedStartYear} beginnen`);
     }
     
-    // Check if last segment ends at the withdrawal end year - make this a warning only
-    if (Math.round(sortedSegments[sortedSegments.length - 1].endYear) !== roundedEndYear) {
-        // Only show error if there are multiple segments but still incomplete coverage
-        if (sortedSegments.length > 1) {
-            errors.push(`Letztes Segment muss im Jahr ${roundedEndYear} enden`);
-        }
-        // For single segments, we allow incomplete coverage to enable adding more segments
-    }
+    // Allow segments to end before the withdrawal end year
+    // No longer require segments to end exactly at the withdrawal end year
+    // This allows users to create segments that don't cover the entire withdrawal period
     
     // Check each segment individually
     for (const segment of sortedSegments) {
