@@ -65,8 +65,8 @@ export function StickyBottomOverview({ activeTab, overviewElementRef }: StickyBo
     return () => window.removeEventListener('scroll', handleScroll);
   }, [overviewElementRef]);
 
-  // Only show for savings phase when main overview is not visible
-  if (!isSticky || activeTab !== 'ansparen' || !enhancedSummary || !simulationData) {
+  // Only show when main overview is not visible and we have data
+  if (!isSticky || !enhancedSummary || !simulationData) {
     return null;
   }
 
@@ -86,7 +86,7 @@ export function StickyBottomOverview({ activeTab, overviewElementRef }: StickyBo
     return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
   };
 
-  const renderContent = () => {
+  const renderAnsparenContent = () => {
     if (isMobile) {
       // Mobile: Compact view with icons and key metrics
       return (
@@ -135,6 +135,84 @@ export function StickyBottomOverview({ activeTab, overviewElementRef }: StickyBo
         </div>
       );
     }
+  };
+
+  const renderEntnahmenContent = () => {
+    if (!enhancedSummary.endkapitalEntspharphase) {
+      return null;
+    }
+
+    const withdrawalStartYear = startEnd[0] + 1;
+    const withdrawalEndYear = startEnd[1];
+    const withdrawalYearsRange = `${withdrawalStartYear} - ${withdrawalEndYear}`;
+    
+    // Check if we have segmented withdrawal
+    const hasSegments = enhancedSummary.isSegmentedWithdrawal && 
+                       enhancedSummary.withdrawalSegments && 
+                       enhancedSummary.withdrawalSegments.length > 1;
+
+    if (isMobile) {
+      // Mobile: Zeit / Startkapital / Endkapital (symbols and numbers only)
+      return (
+        <div className="flex justify-around items-center gap-4">
+          <div className="flex flex-col items-center text-center">
+            <span className="text-xl mb-1">⏱️</span>
+            <span className="text-xs font-semibold text-slate-800">
+              {withdrawalYearsRange}
+              {hasSegments && ` (${enhancedSummary.withdrawalSegments!.length})`}
+            </span>
+          </div>
+          <div className="flex flex-col items-center text-center">
+            <span className="text-xl mb-1">🏁</span>
+            <span className="text-sm font-semibold text-slate-800">{formatCompactCurrency(enhancedSummary.endkapital)}</span>
+          </div>
+          <div className="flex flex-col items-center text-center">
+            <span className="text-xl mb-1">💰</span>
+            <span className="text-sm font-semibold text-green-600">{formatCompactCurrency(enhancedSummary.endkapitalEntspharphase)}</span>
+          </div>
+        </div>
+      );
+    } else {
+      // Desktop: Zeit / Startkapital / Endkapital
+      return (
+        <div className="w-full">
+          <div className="w-full">
+            <h4 className="m-0 mb-3 text-slate-800 text-sm font-semibold">
+              💸 Entsparphase ({withdrawalYearsRange})
+              {hasSegments && (
+                <span className="text-sm text-teal-600 font-normal"> - {enhancedSummary.withdrawalSegments!.length} Phasen</span>
+              )}
+            </h4>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
+                <span className="text-xs text-gray-600 mb-1">🏁 Startkapital</span>
+                <span className="font-semibold text-sm text-slate-800">
+                  {enhancedSummary.endkapital.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                </span>
+              </div>
+              <div className="flex flex-col p-2 bg-gradient-to-br from-green-50 to-green-100 rounded-md border border-green-300">
+                <span className="text-xs text-gray-600 mb-1">💰 Endkapital</span>
+                <span className="font-semibold text-sm text-green-600">
+                  {enhancedSummary.endkapitalEntspharphase.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                </span>
+              </div>
+              {enhancedSummary.monatlicheAuszahlung && (
+                <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
+                  <span className="text-xs text-gray-600 mb-1">💶 Monatliche Auszahlung</span>
+                  <span className="font-semibold text-sm text-slate-800">
+                    {enhancedSummary.monatlicheAuszahlung.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                  </span>
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      );
+    }
+  };
+
+  const renderContent = () => {
+    return activeTab === 'ansparen' ? renderAnsparenContent() : renderEntnahmenContent();
   };
 
   return (

@@ -21,7 +21,10 @@ describe('StickyBottomOverview', () => {
     endkapital: 561391.60,
     startkapital: 369057.85,
     zinsen: 192333.75,
-    renditeAnsparphase: 2.84
+    renditeAnsparphase: 2.84,
+    endkapitalEntspharphase: 450000.00,
+    monatlicheAuszahlung: 2500.00,
+    jahreEntspharphase: 30
   };
 
   beforeEach(() => {
@@ -50,17 +53,6 @@ describe('StickyBottomOverview', () => {
   });
 
   describe('visibility conditions', () => {
-    it('should not render when activeTab is not "ansparen"', () => {
-      render(
-        <StickyBottomOverview 
-          activeTab="entnehmen" 
-          overviewElementRef={mockOverviewRef}
-        />
-      );
-
-      expect(screen.queryByText('🎯 Endsparphase')).not.toBeInTheDocument();
-    });
-
     it('should not render when simulationData is not available', () => {
       mockUseSimulation.mockReturnValue({
         simulationData: null,
@@ -140,28 +132,117 @@ describe('StickyBottomOverview', () => {
       Object.defineProperty(window, 'innerWidth', { value: 1024 }); // Desktop
     });
 
-    it('should render desktop layout with correct data when conditions are met', () => {
-      render(
-        <StickyBottomOverview 
-          activeTab="ansparen" 
-          overviewElementRef={mockOverviewRef}
-        />
-      );
+    describe('savings phase (ansparen)', () => {
+      it('should render desktop layout with correct savings data when conditions are met', () => {
+        render(
+          <StickyBottomOverview 
+            activeTab="ansparen" 
+            overviewElementRef={mockOverviewRef}
+          />
+        );
 
-      // Check title
-      expect(screen.getByText('🎯 Endsparphase (2025 - 2040)')).toBeInTheDocument();
+        // Check title
+        expect(screen.getByText('🎯 Endsparphase (2025 - 2040)')).toBeInTheDocument();
 
-      // Check end capital (highlighted)
-      expect(screen.getByText('561.391,60 €')).toBeInTheDocument();
-      expect(screen.getByText('🎯 Endkapital')).toBeInTheDocument();
+        // Check end capital (highlighted)
+        expect(screen.getByText('561.391,60 €')).toBeInTheDocument();
+        expect(screen.getByText('🎯 Endkapital')).toBeInTheDocument();
 
-      // Check interest
-      expect(screen.getByText('192.333,75 €')).toBeInTheDocument();
-      expect(screen.getByText('📊 Zinsen')).toBeInTheDocument();
+        // Check interest
+        expect(screen.getByText('192.333,75 €')).toBeInTheDocument();
+        expect(screen.getByText('📊 Zinsen')).toBeInTheDocument();
 
-      // Check return rate - use flexible text matcher for split content
-      expect(screen.getByText(/2\.84.*p\.a\./)).toBeInTheDocument();
-      expect(screen.getByText('📈 Rendite')).toBeInTheDocument();
+        // Check return rate - use flexible text matcher for split content
+        expect(screen.getByText(/2\.84.*p\.a\./)).toBeInTheDocument();
+        expect(screen.getByText('📈 Rendite')).toBeInTheDocument();
+      });
+    });
+
+    describe('withdrawal phase (entnehmen)', () => {
+      it('should render desktop layout with correct withdrawal data when activeTab is entnehmen', () => {
+        render(
+          <StickyBottomOverview 
+            activeTab="entnehmen" 
+            overviewElementRef={mockOverviewRef}
+          />
+        );
+
+        // Check title
+        expect(screen.getByText('💸 Entsparphase (2041 - 2080)')).toBeInTheDocument();
+
+        // Check start capital (from end of savings phase)
+        expect(screen.getByText('561.391,60 €')).toBeInTheDocument();
+        expect(screen.getByText('🏁 Startkapital')).toBeInTheDocument();
+
+        // Check end capital after withdrawal (highlighted)
+        expect(screen.getByText('450.000,00 €')).toBeInTheDocument();
+        expect(screen.getByText('💰 Endkapital')).toBeInTheDocument();
+
+        // Check monthly withdrawal
+        expect(screen.getByText('2.500,00 €')).toBeInTheDocument();
+        expect(screen.getByText('💶 Monatliche Auszahlung')).toBeInTheDocument();
+      });
+
+      it('should not render withdrawal content when withdrawal data is not available', () => {
+        mockGetEnhancedOverviewSummary.mockReturnValue({
+          ...mockEnhancedSummary,
+          endkapitalEntspharphase: undefined,
+        } as any);
+
+        render(
+          <StickyBottomOverview 
+            activeTab="entnehmen" 
+            overviewElementRef={mockOverviewRef}
+          />
+        );
+
+        expect(screen.queryByText('💸 Entsparphase')).not.toBeInTheDocument();
+      });
+
+      it('should handle withdrawal content without monthly withdrawal amount', () => {
+        mockGetEnhancedOverviewSummary.mockReturnValue({
+          ...mockEnhancedSummary,
+          endkapitalEntspharphase: 400000,
+          monatlicheAuszahlung: undefined,
+        } as any);
+
+        render(
+          <StickyBottomOverview 
+            activeTab="entnehmen" 
+            overviewElementRef={mockOverviewRef}
+          />
+        );
+
+        // Should show title and capital amounts
+        expect(screen.getByText('💸 Entsparphase (2041 - 2080)')).toBeInTheDocument();
+        expect(screen.getByText('400.000,00 €')).toBeInTheDocument();
+        
+        // Should not show monthly withdrawal section
+        expect(screen.queryByText('💶 Monatliche Auszahlung')).not.toBeInTheDocument();
+      });
+
+      it('should display segmented withdrawal information when available', () => {
+        mockGetEnhancedOverviewSummary.mockReturnValue({
+          ...mockEnhancedSummary,
+          isSegmentedWithdrawal: true,
+          withdrawalSegments: [
+            { id: '1', name: 'Phase 1' },
+            { id: '2', name: 'Phase 2' },
+            { id: '3', name: 'Phase 3' }
+          ]
+        } as any);
+
+        render(
+          <StickyBottomOverview 
+            activeTab="entnehmen" 
+            overviewElementRef={mockOverviewRef}
+          />
+        );
+
+        expect(screen.getByText((_content, element) => {
+          return element?.textContent === '💸 Entsparphase (2041 - 2080) - 3 Phasen';
+        })).toBeInTheDocument();
+      });
     });
 
     it('should have correct styling classes for desktop', () => {
@@ -198,27 +279,74 @@ describe('StickyBottomOverview', () => {
       Object.defineProperty(window, 'innerWidth', { value: 600 }); // Mobile
     });
 
-    it('should render mobile layout with compact format', () => {
-      render(
-        <StickyBottomOverview 
-          activeTab="ansparen" 
-          overviewElementRef={mockOverviewRef}
-        />
-      );
+    describe('savings phase (ansparen)', () => {
+      it('should render mobile layout with compact format for savings', () => {
+        render(
+          <StickyBottomOverview 
+            activeTab="ansparen" 
+            overviewElementRef={mockOverviewRef}
+          />
+        );
 
-      // Check time range
-      expect(screen.getByText('2025 - 2040')).toBeInTheDocument();
+        // Check time range
+        expect(screen.getByText('2025 - 2040')).toBeInTheDocument();
 
-      // Check compact end capital format (should be 561k €)
-      expect(screen.getByText('561k €')).toBeInTheDocument();
+        // Check compact end capital format (should be 561k €)
+        expect(screen.getByText('561k €')).toBeInTheDocument();
 
-      // Check compact return rate
-      expect(screen.getByText('2.8%')).toBeInTheDocument();
+        // Check compact return rate
+        expect(screen.getByText('2.8%')).toBeInTheDocument();
 
-      // Check icons are present
-      expect(screen.getByText('⏱️')).toBeInTheDocument();
-      expect(screen.getByText('🎯')).toBeInTheDocument();
-      expect(screen.getByText('📈')).toBeInTheDocument();
+        // Check icons are present
+        expect(screen.getByText('⏱️')).toBeInTheDocument();
+        expect(screen.getByText('🎯')).toBeInTheDocument();
+        expect(screen.getByText('📈')).toBeInTheDocument();
+      });
+    });
+
+    describe('withdrawal phase (entnehmen)', () => {
+      it('should render mobile layout with compact format for withdrawal', () => {
+        render(
+          <StickyBottomOverview 
+            activeTab="entnehmen" 
+            overviewElementRef={mockOverviewRef}
+          />
+        );
+
+        // Check time range
+        expect(screen.getByText('2041 - 2080')).toBeInTheDocument();
+
+        // Check compact start capital format (561k €)
+        expect(screen.getByText('561k €')).toBeInTheDocument();
+
+        // Check compact end capital format (450k €)
+        expect(screen.getByText('450k €')).toBeInTheDocument();
+
+        // Check icons are present
+        expect(screen.getByText('⏱️')).toBeInTheDocument();
+        expect(screen.getByText('🏁')).toBeInTheDocument();
+        expect(screen.getByText('💰')).toBeInTheDocument();
+      });
+
+      it('should display segment count in mobile withdrawal view when available', () => {
+        mockGetEnhancedOverviewSummary.mockReturnValue({
+          ...mockEnhancedSummary,
+          isSegmentedWithdrawal: true,
+          withdrawalSegments: [
+            { id: '1', name: 'Phase 1' },
+            { id: '2', name: 'Phase 2' }
+          ]
+        } as any);
+
+        render(
+          <StickyBottomOverview 
+            activeTab="entnehmen" 
+            overviewElementRef={mockOverviewRef}
+          />
+        );
+
+        expect(screen.getByText('2041 - 2080 (2)')).toBeInTheDocument();
+      });
     });
   });
 
@@ -275,7 +403,7 @@ describe('StickyBottomOverview', () => {
       mockOverviewRef.current!.getBoundingClientRect = mockGetBoundingClientRect;
     });
 
-    it('should format large amounts correctly in mobile view', () => {
+    it('should format large amounts correctly in mobile view - savings phase', () => {
       Object.defineProperty(window, 'innerWidth', { value: 600 }); // Mobile
       
       mockGetEnhancedOverviewSummary.mockReturnValue({
@@ -291,6 +419,26 @@ describe('StickyBottomOverview', () => {
       );
 
       expect(screen.getByText('1.5M €')).toBeInTheDocument();
+    });
+
+    it('should format large amounts correctly in mobile view - withdrawal phase', () => {
+      Object.defineProperty(window, 'innerWidth', { value: 600 }); // Mobile
+      
+      mockGetEnhancedOverviewSummary.mockReturnValue({
+        ...mockEnhancedSummary,
+        endkapital: 1500000, // 1.5M start capital
+        endkapitalEntspharphase: 1200000, // 1.2M end capital
+      } as any);
+
+      render(
+        <StickyBottomOverview 
+          activeTab="entnehmen" 
+          overviewElementRef={mockOverviewRef}
+        />
+      );
+
+      expect(screen.getByText('1.5M €')).toBeInTheDocument(); // Start capital
+      expect(screen.getByText('1.2M €')).toBeInTheDocument(); // End capital
     });
 
     it('should format medium amounts correctly in mobile view', () => {
