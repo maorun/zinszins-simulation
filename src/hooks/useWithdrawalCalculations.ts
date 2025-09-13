@@ -28,6 +28,9 @@ export function useWithdrawalCalculations(
     endOfLife,
     lifeExpectancyTable,
     customLifeExpectancy,
+    planningMode,
+    gender,
+    spouse,
   } = useSimulation();
 
   const {
@@ -44,6 +47,21 @@ export function useWithdrawalCalculations(
     useSegmentedComparisonMode,
     segmentedComparisonStrategies,
   } = currentConfig;
+
+  // Helper function to determine the effective life expectancy table based on planning mode and gender
+  const getEffectiveLifeExpectancyTable = (): 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom' => {
+    if (lifeExpectancyTable === 'custom') {
+      return 'custom';
+    }
+    
+    // For individual planning with gender selection, use gender-specific table
+    if (planningMode === 'individual' && gender) {
+      return gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22';
+    }
+    
+    // For couple planning or when no gender is selected, use the selected table
+    return lifeExpectancyTable;
+  };
 
   // Calculate withdrawal projections
   const withdrawalData = useMemo(() => {
@@ -155,7 +173,7 @@ export function useWithdrawalCalculations(
           formValue.strategie === "rmd"
             ? {
                 startAge: formValue.rmdStartAge,
-                lifeExpectancyTable: lifeExpectancyTable, // Use global setting
+                lifeExpectancyTable: getEffectiveLifeExpectancyTable(), // Use gender-aware setting
                 customLifeExpectancy: customLifeExpectancy, // Use global setting
               }
             : undefined,
@@ -323,7 +341,7 @@ export function useWithdrawalCalculations(
             strategy.strategie === "rmd"
               ? {
                   startAge: strategy.rmdStartAge || 65,
-                  lifeExpectancyTable: lifeExpectancyTable, // Use global setting
+                  lifeExpectancyTable: getEffectiveLifeExpectancyTable(), // Use gender-aware setting
                   customLifeExpectancy: customLifeExpectancy, // Use global setting
                 }
               : undefined,

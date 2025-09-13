@@ -36,6 +36,7 @@ import type {
   ComparisonStrategy,
 } from "../utils/config-storage";
 import { calculateEndOfLifeYear, calculateCurrentAge, getDefaultLifeExpectancy } from "../../helpers/life-expectancy";
+import { calculateJointLifeExpectancy } from "../../helpers/rmd-tables";
 
 // Helper function for strategy display names
 function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
@@ -221,76 +222,174 @@ export function EntnahmeSimulationsAusgabe({
               </div>
               
               {/* Helper for calculating end of life year from birth year */}
-              <div className="p-3 bg-blue-50 rounded-lg space-y-2">
+              <div className="p-3 bg-blue-50 rounded-lg space-y-3">
                 <div className="text-sm font-medium text-blue-900">Lebensende automatisch berechnen</div>
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="space-y-1">
-                    <Label htmlFor="birth-year-eol" className="text-xs">Geburtsjahr</Label>
-                    <Input
-                      id="birth-year-eol"
-                      type="number"
-                      value={birthYear || ''}
-                      onChange={(e) => {
-                        const year = e.target.value ? Number(e.target.value) : undefined;
-                        setBirthYear(year);
-                        // Auto-suggest life expectancy based on current age and gender
-                        if (year) {
-                          const currentAge = calculateCurrentAge(year);
-                          const suggestedLifespan = getDefaultLifeExpectancy(currentAge, gender);
-                          if (!expectedLifespan) {
-                            setExpectedLifespan(suggestedLifespan);
-                          }
+                
+                {planningMode === 'individual' ? (
+                  // Individual Planning Mode
+                  <>
+                    <div className="grid grid-cols-2 gap-2">
+                      <div className="space-y-1">
+                        <Label htmlFor="birth-year-eol" className="text-xs">Geburtsjahr</Label>
+                        <Input
+                          id="birth-year-eol"
+                          type="number"
+                          value={birthYear || ''}
+                          onChange={(e) => {
+                            const year = e.target.value ? Number(e.target.value) : undefined;
+                            setBirthYear(year);
+                            // Auto-suggest life expectancy based on current age and gender
+                            if (year) {
+                              const currentAge = calculateCurrentAge(year);
+                              const suggestedLifespan = getDefaultLifeExpectancy(currentAge, gender);
+                              if (!expectedLifespan) {
+                                setExpectedLifespan(suggestedLifespan);
+                              }
+                            }
+                          }}
+                          placeholder="1974"
+                          min={1930}
+                          max={new Date().getFullYear() - 18}
+                          className="text-xs h-8"
+                        />
+                      </div>
+                      <div className="space-y-1">
+                        <Label htmlFor="expected-lifespan" className="text-xs">Lebenserwartung (Alter)</Label>
+                        <Input
+                          id="expected-lifespan"
+                          type="number"
+                          value={expectedLifespan || 85}
+                          onChange={(e) => setExpectedLifespan(Number(e.target.value))}
+                          min={50}
+                          max={120}
+                          className="text-xs h-8"
+                        />
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (birthYear && expectedLifespan) {
+                          const calculatedYear = calculateEndOfLifeYear(birthYear, expectedLifespan);
+                          setEndOfLife(calculatedYear);
                         }
                       }}
-                      placeholder="1974"
-                      min={1930}
-                      max={new Date().getFullYear() - 18}
-                      className="text-xs h-8"
-                    />
-                  </div>
-                  <div className="space-y-1">
-                    <Label htmlFor="expected-lifespan" className="text-xs">Lebenserwartung (Alter)</Label>
-                    <Input
-                      id="expected-lifespan"
-                      type="number"
-                      value={expectedLifespan || 85}
-                      onChange={(e) => setExpectedLifespan(Number(e.target.value))}
-                      min={50}
-                      max={120}
-                      className="text-xs h-8"
-                    />
-                  </div>
-                </div>
-                <Button 
-                  size="sm"
-                  variant="outline"
-                  onClick={() => {
-                    if (birthYear && expectedLifespan) {
-                      const calculatedYear = calculateEndOfLifeYear(birthYear, expectedLifespan);
-                      setEndOfLife(calculatedYear);
-                    }
-                  }}
-                  disabled={!birthYear || !expectedLifespan}
-                  className="w-full text-xs"
-                >
-                  <Calculator className="h-3 w-3 mr-1" />
-                  Berechnen ({birthYear && expectedLifespan ? calculateEndOfLifeYear(birthYear, expectedLifespan) : '—'})
-                </Button>
-                {birthYear && (
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    <div>Aktuelles Alter: {calculateCurrentAge(birthYear)} Jahre</div>
-                    {planningMode === 'individual' && gender && (
-                      <div>
-                        Geschlechts-spezifische Lebenserwartung: 
-                        {gender === 'male' ? ' ♂ Männlich (ca. 78 Jahre)' : ' ♀ Weiblich (ca. 83 Jahre)'}
+                      disabled={!birthYear || !expectedLifespan}
+                      className="w-full text-xs"
+                    >
+                      <Calculator className="h-3 w-3 mr-1" />
+                      Berechnen ({birthYear && expectedLifespan ? calculateEndOfLifeYear(birthYear, expectedLifespan) : '—'})
+                    </Button>
+                    {birthYear && (
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <div>Aktuelles Alter: {calculateCurrentAge(birthYear)} Jahre</div>
+                        {gender && (
+                          <div>
+                            Geschlechts-spezifische Lebenserwartung: 
+                            {gender === 'male' ? ' ♂ Männlich (ca. 78 Jahre)' : ' ♀ Weiblich (ca. 83 Jahre)'}
+                          </div>
+                        )}
                       </div>
                     )}
-                    {planningMode === 'couple' && (
-                      <div>
-                        Ehepaar-Planung: Gemeinsame Lebenserwartung (längerer überlebender Partner)
+                  </>
+                ) : (
+                  // Couple Planning Mode
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <div className="text-xs font-medium">Person 1 ({gender === 'male' ? '♂ Männlich' : '♀ Weiblich'})</div>
+                        <div className="space-y-1">
+                          <Label htmlFor="birth-year-person1" className="text-xs">Geburtsjahr</Label>
+                          <Input
+                            id="birth-year-person1"
+                            type="number"
+                            value={birthYear || ''}
+                            onChange={(e) => {
+                              const year = e.target.value ? Number(e.target.value) : undefined;
+                              setBirthYear(year);
+                            }}
+                            placeholder="1974"
+                            min={1930}
+                            max={new Date().getFullYear() - 18}
+                            className="text-xs h-8"
+                          />
+                        </div>
+                        {birthYear && (
+                          <div className="text-xs text-muted-foreground">
+                            Alter: {calculateCurrentAge(birthYear)} Jahre
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <div className="text-xs font-medium">Person 2 ({spouse?.gender === 'male' ? '♂ Männlich' : '♀ Weiblich'})</div>
+                        <div className="space-y-1">
+                          <Label htmlFor="birth-year-person2" className="text-xs">Geburtsjahr</Label>
+                          <Input
+                            id="birth-year-person2"
+                            type="number"
+                            value={spouse?.birthYear || ''}
+                            onChange={(e) => {
+                              const year = e.target.value ? Number(e.target.value) : undefined;
+                              setSpouse({
+                                ...spouse,
+                                gender: spouse?.gender || 'female',
+                                birthYear: year
+                              });
+                            }}
+                            placeholder="1976"
+                            min={1930}
+                            max={new Date().getFullYear() - 18}
+                            className="text-xs h-8"
+                          />
+                        </div>
+                        {spouse?.birthYear && (
+                          <div className="text-xs text-muted-foreground">
+                            Alter: {calculateCurrentAge(spouse.birthYear)} Jahre
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                    <Button 
+                      size="sm"
+                      variant="outline"
+                      onClick={() => {
+                        if (birthYear && spouse?.birthYear && gender && spouse?.gender) {
+                          const age1 = calculateCurrentAge(birthYear);
+                          const age2 = calculateCurrentAge(spouse.birthYear);
+                          const jointLifeExpectancy = calculateJointLifeExpectancy(age1, age2, gender, spouse.gender);
+                          
+                          // Use the older person's birth year + joint life expectancy
+                          const olderBirthYear = Math.min(birthYear, spouse.birthYear);
+                          const calculatedYear = calculateEndOfLifeYear(olderBirthYear, jointLifeExpectancy + calculateCurrentAge(olderBirthYear));
+                          setEndOfLife(calculatedYear);
+                        }
+                      }}
+                      disabled={!birthYear || !spouse?.birthYear}
+                      className="w-full text-xs"
+                    >
+                      <Calculator className="h-3 w-3 mr-1" />
+                      Gemeinsame Lebenserwartung berechnen
+                      {birthYear && spouse?.birthYear && gender && spouse?.gender ? 
+                        ` (${Math.round(calculateJointLifeExpectancy(
+                          calculateCurrentAge(birthYear), 
+                          calculateCurrentAge(spouse.birthYear), 
+                          gender, 
+                          spouse.gender
+                        ))} Jahre)` : ''}
+                    </Button>
+                    {birthYear && spouse?.birthYear && gender && spouse?.gender && (
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        <div>Gemeinsame Lebenserwartung: {Math.round(calculateJointLifeExpectancy(
+                          calculateCurrentAge(birthYear), 
+                          calculateCurrentAge(spouse.birthYear), 
+                          gender, 
+                          spouse.gender
+                        ))} Jahre (längerer überlebender Partner)</div>
+                        <div>Dies entspricht der Wahrscheinlichkeit, dass mindestens eine Person noch am Leben ist.</div>
                       </div>
                     )}
-                  </div>
+                  </>
                 )}
               </div>
             </div>
