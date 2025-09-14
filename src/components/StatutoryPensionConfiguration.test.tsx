@@ -1,6 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
-import { NestingProvider } from '../lib/nesting-utils';
 import { StatutoryPensionConfiguration } from './StatutoryPensionConfiguration';
 
 const mockOnChange = {
@@ -33,20 +32,21 @@ describe('StatutoryPensionConfiguration', () => {
     vi.clearAllMocks();
   });
 
-  // Helper function to render with NestingProvider
-  const renderWithNesting = (component: any) => {
-    return render(
-      <NestingProvider>
-        {component}
-      </NestingProvider>
-    );
-  };
-
   // Helper function to expand collapsible
   const expandCollapsible = () => {
-    const trigger = screen.getByRole('button', { name: /Gesetzliche Renten-Konfiguration/i });
-    fireEvent.click(trigger);
+    // Find the collapsible trigger by its button type and content
+    const trigger = screen.getByText(/🏛️ Gesetzliche Renten-Konfiguration/).closest('button');
+    if (trigger) {
+      fireEvent.click(trigger);
+    } else {
+      // Fallback to find by heading and click its parent
+      const heading = screen.getByText(/🏛️ Gesetzliche Renten-Konfiguration/);
+      const button = heading.closest('[type="button"]');
+      if (button) fireEvent.click(button);
+    }
   };
+
+
 
   it('renders disabled state correctly', () => {
     const disabledValues = { ...defaultValues, enabled: false };
@@ -57,6 +57,9 @@ describe('StatutoryPensionConfiguration', () => {
       />
     );
 
+    // First expand to access content
+    expandCollapsible();
+    
     expect(screen.getByLabelText('Gesetzliche Rente berücksichtigen')).not.toBeChecked();
     expect(screen.getByText(/Aktivieren Sie diese Option/)).toBeInTheDocument();
     
@@ -71,6 +74,9 @@ describe('StatutoryPensionConfiguration', () => {
         onChange={mockOnChange} 
       />
     );
+
+    // First expand to access content
+    expandCollapsible();
 
     expect(screen.getByLabelText('Gesetzliche Rente berücksichtigen')).toBeChecked();
     expect(screen.getByText('Daten aus Rentenbescheid importieren')).toBeInTheDocument();
@@ -90,6 +96,9 @@ describe('StatutoryPensionConfiguration', () => {
       />
     );
 
+    // First expand to access content
+    expandCollapsible();
+
     const toggle = screen.getByRole('switch');
     fireEvent.click(toggle);
 
@@ -104,6 +113,9 @@ describe('StatutoryPensionConfiguration', () => {
       />
     );
 
+    // First expand to access content
+    expandCollapsible();
+
     const monthlyInput = screen.getByLabelText('Monatliche Rente (brutto) €');
     fireEvent.change(monthlyInput, { target: { value: '1600' } });
 
@@ -117,6 +129,9 @@ describe('StatutoryPensionConfiguration', () => {
         onChange={mockOnChange} 
       />
     );
+
+    // First expand to access content
+    expandCollapsible();
 
     const startYearInput = screen.getByLabelText('Rentenbeginn (Jahr)');
     fireEvent.change(startYearInput, { target: { value: '2042' } });
@@ -133,6 +148,9 @@ describe('StatutoryPensionConfiguration', () => {
       />
     );
 
+    // First expand to access content
+    expandCollapsible();
+
     expect(screen.getByLabelText('Steuerjahr')).toBeInTheDocument();
     expect(screen.getByLabelText('Jahresrente (brutto) €')).toBeInTheDocument();
     expect(screen.getByLabelText('Steuerpflichtiger Anteil €')).toBeInTheDocument();
@@ -146,6 +164,9 @@ describe('StatutoryPensionConfiguration', () => {
         onChange={mockOnChange} 
       />
     );
+
+    // First expand to access content
+    expandCollapsible();
 
     const taxReturnToggle = screen.getByLabelText('Daten aus Rentenbescheid verfügbar');
     fireEvent.click(taxReturnToggle);
@@ -172,6 +193,9 @@ describe('StatutoryPensionConfiguration', () => {
       />
     );
 
+    // First expand to access content
+    expandCollapsible();
+
     const annualPensionInput = screen.getByLabelText('Jahresrente (brutto) €');
     fireEvent.change(annualPensionInput, { target: { value: '19200' } });
 
@@ -192,6 +216,9 @@ describe('StatutoryPensionConfiguration', () => {
       />
     );
 
+    // First expand to access content
+    expandCollapsible();
+
     const calculateButton = screen.getByRole('button', { name: 'Berechnen' });
     fireEvent.click(calculateButton);
 
@@ -205,6 +232,9 @@ describe('StatutoryPensionConfiguration', () => {
         onChange={mockOnChange} 
       />
     );
+
+    // First expand to access content
+    expandCollapsible();
 
     const birthYearInput = screen.getByLabelText('Geburtsjahr');
     fireEvent.change(birthYearInput, { target: { value: '1975' } });
@@ -230,6 +260,9 @@ describe('StatutoryPensionConfiguration', () => {
       />
     );
 
+    // First expand to access content
+    expandCollapsible();
+
     const importButton = screen.getByRole('button', { name: /Werte automatisch berechnen/ });
     fireEvent.click(importButton);
 
@@ -250,6 +283,9 @@ describe('StatutoryPensionConfiguration', () => {
       />
     );
 
+    // First expand to access content
+    expandCollapsible();
+
     const importButton = screen.getByRole('button', { name: /Werte automatisch berechnen/ });
     expect(importButton).toBeDisabled();
   });
@@ -263,6 +299,9 @@ describe('StatutoryPensionConfiguration', () => {
       />
     );
 
+    // First expand to access content
+    expandCollapsible();
+
     const calculateButton = screen.getByRole('button', { name: 'Berechnen' });
     expect(calculateButton).toBeDisabled();
   });
@@ -274,6 +313,9 @@ describe('StatutoryPensionConfiguration', () => {
         onChange={mockOnChange} 
       />
     );
+
+    // First expand to access content
+    expandCollapsible();
 
     expect(screen.getByText('Rentenbeginn:')).toBeInTheDocument();
     expect(screen.getByText('2041')).toBeInTheDocument();
@@ -293,7 +335,10 @@ describe('StatutoryPensionConfiguration', () => {
       />
     );
 
-    expect(screen.getByText('Jährliche Rente: 18.000 €')).toBeInTheDocument();
+    // First expand to access content
+    expandCollapsible();
+
+    expect(screen.getByText('18.000 €')).toBeInTheDocument();
 
     const updatedValues = { ...defaultValues, monthlyAmount: 1600 };
     rerender(
@@ -303,6 +348,6 @@ describe('StatutoryPensionConfiguration', () => {
       />
     );
 
-    expect(screen.getByText('Jährliche Rente: 19.200 €')).toBeInTheDocument();
+    expect(screen.getByText('19.200 €')).toBeInTheDocument();
   });
 });
