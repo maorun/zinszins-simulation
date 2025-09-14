@@ -3,12 +3,14 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { Button } from './ui/button';
 import { Plus, Minus, ChevronDown } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
+import { useNestingLevel } from '../lib/nesting-utils';
 import { Zeitspanne } from './Zeitspanne';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
 import { useCallback } from 'react';
 
 const TimeRangeConfiguration = () => {
     const { startEnd, setStartEnd, sparplan, simulationAnnual, setSparplanElemente } = useSimulation();
+    const nestingLevel = useNestingLevel();
 
     const handleStartEndChange = useCallback((val: [number, number]) => {
         setStartEnd(val);
@@ -22,9 +24,9 @@ const TimeRangeConfiguration = () => {
     }, [startEnd, handleStartEndChange]);
 
     return (
-        <Card className="mb-4">
+        <Card nestingLevel={nestingLevel} className="mb-4">
             <Collapsible defaultOpen={false}>
-                <CardHeader>
+                <CardHeader nestingLevel={nestingLevel}>
                     <CollapsibleTrigger asChild>
                         <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
                             <CardTitle className="text-left">📅 Sparphase-Ende</CardTitle>
@@ -33,7 +35,7 @@ const TimeRangeConfiguration = () => {
                     </CollapsibleTrigger>
                 </CardHeader>
                 <CollapsibleContent>
-                    <CardContent>
+                    <CardContent nestingLevel={nestingLevel}>
                 <div className="space-y-4">
                     <Zeitspanne startEnd={startEnd} dispatch={handleStartEndChange} />
                     <div className="flex items-center gap-2">

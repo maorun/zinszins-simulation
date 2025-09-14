@@ -1,11 +1,13 @@
-import { Card, CardContent, CardHeader } from "./ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
-import { Plus, Trash2 } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { Plus, Trash2, ChevronDown } from "lucide-react";
 import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
 import { WithdrawalSegmentForm } from "./WithdrawalSegmentForm";
+import { useNestingLevel } from "../lib/nesting-utils";
 import type { SegmentedComparisonStrategy } from "../utils/config-storage";
 import type { WithdrawalSegment } from "../utils/segmented-withdrawal";
 
@@ -26,6 +28,7 @@ export function SegmentedComparisonConfiguration({
   onUpdateStrategy,
   onRemoveStrategy,
 }: SegmentedComparisonConfigurationProps) {
+  const nestingLevel = useNestingLevel();
 
   // Add a new segmented comparison strategy
   const handleAddStrategy = () => {
@@ -57,7 +60,27 @@ export function SegmentedComparisonConfiguration({
   };
 
   return (
-    <div className="space-y-6">
+    <Collapsible defaultOpen={false}>
+      <Card nestingLevel={nestingLevel}>
+        <CollapsibleTrigger asChild>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-between p-0"
+            asChild
+          >
+            <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
+              <div className="flex items-center justify-between w-full">
+                <CardTitle className="flex items-center gap-2">
+                  🔄 Geteilte Phasen Vergleich
+                </CardTitle>
+                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </div>
+            </CardHeader>
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent nestingLevel={nestingLevel}>
+            <div className="space-y-6">
       <div>
         <h4 className="text-lg font-medium mb-2">Geteilte Phasen Vergleich</h4>
         <p className="text-sm text-muted-foreground mb-4">
@@ -76,8 +99,8 @@ export function SegmentedComparisonConfiguration({
       </div>
 
       {segmentedComparisonStrategies.length === 0 ? (
-        <Card>
-          <CardContent className="pt-6">
+        <Card nestingLevel={nestingLevel + 1}>
+          <CardContent nestingLevel={nestingLevel + 1} className="pt-6">
             <p className="text-center text-muted-foreground">
               Noch keine Vergleichskonfigurationen erstellt. 
               Klicke auf "Neue Konfiguration hinzufügen", um zu beginnen.
@@ -87,8 +110,8 @@ export function SegmentedComparisonConfiguration({
       ) : (
         <div className="space-y-4">
           {segmentedComparisonStrategies.map((strategy) => (
-            <Card key={strategy.id} className="border-2">
-              <CardHeader>
+            <Card key={strategy.id} nestingLevel={nestingLevel + 1} className="border-2">
+              <CardHeader nestingLevel={nestingLevel + 1}>
                 <div className="flex items-center justify-between">
                   <div className="flex-1">
                     <Label htmlFor={`strategy-name-${strategy.id}`}>
@@ -113,7 +136,7 @@ export function SegmentedComparisonConfiguration({
                   </Button>
                 </div>
               </CardHeader>
-              <CardContent>
+              <CardContent nestingLevel={nestingLevel + 1}>
                 <div className="space-y-4">
                   <Separator />
                   <div>
@@ -148,6 +171,10 @@ export function SegmentedComparisonConfiguration({
           </ul>
         </div>
       )}
-    </div>
+            </div>
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   );
 }

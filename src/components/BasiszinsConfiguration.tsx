@@ -1,12 +1,14 @@
 import { useState, useCallback } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { Button } from './ui/button';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
 import { Alert, AlertDescription } from './ui/alert';
-import { Trash2, Plus, Download, RefreshCw } from 'lucide-react';
+import { Trash2, Plus, Download, RefreshCw, ChevronDown } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
+import { useNestingLevel } from '../lib/nesting-utils';
 import { 
   refreshBasiszinsFromAPI,
   validateBasiszinsRate, 
@@ -25,6 +27,8 @@ export default function BasiszinsConfiguration() {
     setBasiszinsConfiguration,
     performSimulation,
   } = useSimulation();
+  
+  const nestingLevel = useNestingLevel();
 
   const [isLoading, setIsLoading] = useState(false);
   const [lastApiUpdate, setLastApiUpdate] = useState<string | null>(null);
@@ -145,11 +149,20 @@ export default function BasiszinsConfiguration() {
     .sort((a, b) => b - a); // Newest first
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>📈 Basiszins-Konfiguration (Deutsche Bundesbank)</CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-6">
+    <Card nestingLevel={nestingLevel}>
+      <Collapsible defaultOpen={false}>
+        <CardHeader nestingLevel={nestingLevel}>
+          <CollapsibleTrigger asChild>
+            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+              <CardTitle className="text-left">📈 Basiszins-Konfiguration (Deutsche Bundesbank)</CardTitle>
+              <div className="flex items-center gap-2">
+                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </div>
+            </div>
+          </CollapsibleTrigger>
+        </CardHeader>
+        <CollapsibleContent>
+          <CardContent nestingLevel={nestingLevel} className="space-y-6">
         
         {/* Information Panel */}
         <Alert>
@@ -287,7 +300,9 @@ export default function BasiszinsConfiguration() {
             Zukünftige Raten können manuell hinzugefügt oder über die Bundesbank-API aktualisiert werden.
           </p>
         </div>
-      </CardContent>
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
     </Card>
   );
 }

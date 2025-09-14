@@ -1,9 +1,12 @@
 import { useState } from 'react';
-import { AlertTriangle, TrendingUp } from 'lucide-react';
+import { AlertTriangle, TrendingUp, ChevronDown } from 'lucide-react';
 import { Label } from './ui/label';
-import { Card, CardContent } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { RadioTileGroup, RadioTile } from './ui/radio-tile';
 import { useSimulation } from '../contexts/useSimulation';
+import { useNestingLevel } from '../lib/nesting-utils';
 import { HISTORICAL_INDICES, getHistoricalReturns, isYearRangeAvailable } from '../utils/historical-data';
 
 const HistoricalReturnConfiguration = () => {
@@ -13,6 +16,7 @@ const HistoricalReturnConfiguration = () => {
         startEnd,
         performSimulation,
     } = useSimulation();
+    const nestingLevel = useNestingLevel();
 
     const [selectedIndexId, setSelectedIndexId] = useState(historicalIndex || 'dax');
 
@@ -43,10 +47,30 @@ const HistoricalReturnConfiguration = () => {
     const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`;
 
     return (
-        <div className="space-y-6">
+        <Collapsible defaultOpen={false}>
+            <Card nestingLevel={nestingLevel}>
+                <CollapsibleTrigger asChild>
+                    <Button 
+                        variant="ghost" 
+                        className="w-full justify-between p-0"
+                        asChild
+                    >
+                        <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
+                            <div className="flex items-center justify-between w-full">
+                                <CardTitle className="flex items-center gap-2">
+                                    📈 Historische Rendite-Konfiguration
+                                </CardTitle>
+                                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                            </div>
+                        </CardHeader>
+                    </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                    <CardContent nestingLevel={nestingLevel}>
+                        <div className="space-y-6">
             {/* Important Warning */}
-            <Card className="border-amber-200 bg-amber-50">
-                <CardContent className="pt-4">
+            <Card nestingLevel={nestingLevel} className="border-amber-200 bg-amber-50">
+                <CardContent nestingLevel={nestingLevel} className="pt-4">
                     <div className="flex items-start gap-3">
                         <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
                         <div className="space-y-2">
@@ -88,8 +112,8 @@ const HistoricalReturnConfiguration = () => {
 
             {/* Index Statistics */}
             {currentIndex && (
-                <Card>
-                    <CardContent className="pt-4">
+                <Card nestingLevel={nestingLevel}>
+                    <CardContent nestingLevel={nestingLevel} className="pt-4">
                         <div className="space-y-3">
                             <div className="flex items-center gap-2">
                                 <TrendingUp className="h-4 w-4 text-blue-600" />
@@ -120,8 +144,8 @@ const HistoricalReturnConfiguration = () => {
 
             {/* Data Availability Warning */}
             {!isAvailable && currentIndex && (
-                <Card className="border-orange-200 bg-orange-50">
-                    <CardContent className="pt-4">
+                <Card nestingLevel={nestingLevel} className="border-orange-200 bg-orange-50">
+                    <CardContent nestingLevel={nestingLevel} className="pt-4">
                         <div className="flex items-start gap-3">
                             <AlertTriangle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
                             <div className="text-sm text-orange-700">
@@ -140,8 +164,8 @@ const HistoricalReturnConfiguration = () => {
 
             {/* Historical Data Preview */}
             {historicalReturns && Object.keys(historicalReturns).length > 0 && (
-                <Card>
-                    <CardContent className="pt-4">
+                <Card nestingLevel={nestingLevel}>
+                    <CardContent nestingLevel={nestingLevel} className="pt-4">
                         <div className="space-y-3">
                             <div className="font-medium">Historische Renditen (Auswahl)</div>
                             <div className="max-h-32 overflow-y-auto">
@@ -167,7 +191,11 @@ const HistoricalReturnConfiguration = () => {
                     </CardContent>
                 </Card>
             )}
-        </div>
+                        </div>
+                    </CardContent>
+                </CollapsibleContent>
+            </Card>
+        </Collapsible>
     );
 };
 

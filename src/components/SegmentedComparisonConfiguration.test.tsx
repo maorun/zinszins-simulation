@@ -39,10 +39,26 @@ describe('SegmentedComparisonConfiguration', () => {
     onRemoveStrategy: vi.fn(),
   };
 
+  // Helper function to expand collapsible
+  const expandCollapsible = () => {
+    // Find the collapsible trigger by its content
+    const trigger = screen.getByText(/🔄 Geteilte Phasen Vergleich/).closest('button');
+    if (trigger) {
+      fireEvent.click(trigger);
+    } else {
+      // Fallback to find by heading and click its parent
+      const heading = screen.getByText(/🔄 Geteilte Phasen Vergleich/);
+      const button = heading.closest('[type="button"]');
+      if (button) fireEvent.click(button);
+    }
+  };
+
   it('renders the component with initial empty state', () => {
     render(<SegmentedComparisonConfiguration {...defaultProps} />);
     
-    expect(screen.getByText('Geteilte Phasen Vergleich')).toBeInTheDocument();
+    // First expand to access content
+    expandCollapsible();
+    
     expect(screen.getByText(/Erstelle und vergleiche verschiedene Konfigurationen/)).toBeInTheDocument();
     expect(screen.getByText('Neue Konfiguration hinzufügen')).toBeInTheDocument();
     expect(screen.getByText(/Noch keine Vergleichskonfigurationen erstellt/)).toBeInTheDocument();
@@ -51,6 +67,9 @@ describe('SegmentedComparisonConfiguration', () => {
   it('calls onAddStrategy when add button is clicked', () => {
     const onAddStrategy = vi.fn();
     render(<SegmentedComparisonConfiguration {...defaultProps} onAddStrategy={onAddStrategy} />);
+    
+    // First expand to access content
+    expandCollapsible();
     
     fireEvent.click(screen.getByText('Neue Konfiguration hinzufügen'));
     
@@ -80,6 +99,9 @@ describe('SegmentedComparisonConfiguration', () => {
       />
     );
     
+    // First expand to access content
+    expandCollapsible();
+    
     expect(screen.getByDisplayValue('Test Configuration')).toBeInTheDocument();
     expect(screen.getByText(/Phasen konfigurieren \(1 Phase\)/)).toBeInTheDocument();
     expect(screen.queryByText(/Noch keine Vergleichskonfigurationen erstellt/)).not.toBeInTheDocument();
@@ -95,6 +117,9 @@ describe('SegmentedComparisonConfiguration', () => {
         onUpdateStrategy={onUpdateStrategy}
       />
     );
+    
+    // First expand to access content
+    expandCollapsible();
     
     const nameInput = screen.getByDisplayValue('Test Configuration');
     fireEvent.change(nameInput, { target: { value: 'Updated Configuration' } });
@@ -114,6 +139,9 @@ describe('SegmentedComparisonConfiguration', () => {
         onRemoveStrategy={onRemoveStrategy}
       />
     );
+    
+    // First expand to access content
+    expandCollapsible();
     
     // Find the remove button by its accessible label
     const removeButton = screen.getByRole('button', { name: /Konfiguration löschen/i });
@@ -153,6 +181,9 @@ describe('SegmentedComparisonConfiguration', () => {
       />
     );
     
+    // First expand to access content
+    expandCollapsible();
+    
     expect(screen.getByDisplayValue('Test Configuration')).toBeInTheDocument();
     expect(screen.getByDisplayValue('Second Configuration')).toBeInTheDocument();
     expect(screen.getByText(/Phasen konfigurieren \(1 Phase\)/)).toBeInTheDocument();
@@ -167,6 +198,9 @@ describe('SegmentedComparisonConfiguration', () => {
         segmentedComparisonStrategies={strategies}
       />
     );
+    
+    // First expand to access content
+    expandCollapsible();
     
     expect(screen.getByText('💡 Hinweise zum Vergleich')).toBeInTheDocument();
     expect(screen.getByText(/Jede Konfiguration kann verschiedene Phasen/)).toBeInTheDocument();
@@ -187,6 +221,9 @@ describe('SegmentedComparisonConfiguration', () => {
       />
     );
     
+    // First expand to access content
+    expandCollapsible();
+    
     expect(screen.getByText(/Phasen konfigurieren \(0 Phasen\)/)).toBeInTheDocument();
   });
 
@@ -201,6 +238,9 @@ describe('SegmentedComparisonConfiguration', () => {
         onAddStrategy={onAddStrategy}
       />
     );
+    
+    // First expand to access content
+    expandCollapsible();
     
     fireEvent.click(screen.getByText('Neue Konfiguration hinzufügen'));
     

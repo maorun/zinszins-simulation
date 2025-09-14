@@ -4,7 +4,9 @@ import { Switch } from "./ui/switch";
 import { Slider } from "./ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
-import { Info, Calculator } from "lucide-react";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
+import { Info, Calculator, ChevronDown } from "lucide-react";
+import { useNestingLevel } from "../lib/nesting-utils";
 import { 
   estimateMonthlyPensionFromTaxReturn, 
   estimateTaxablePercentageFromTaxReturn,
@@ -53,6 +55,7 @@ export function StatutoryPensionConfiguration({
   onChange,
   currentYear = new Date().getFullYear()
 }: StatutoryPensionConfigurationProps) {
+  const nestingLevel = useNestingLevel();
 
   const handleImportFromTaxReturn = () => {
     if (values.hasTaxReturnData && values.annualPensionReceived > 0) {
@@ -82,27 +85,71 @@ export function StatutoryPensionConfiguration({
 
   if (!values.enabled) {
     return (
-      <div className="space-y-4">
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={values.enabled}
-            onCheckedChange={onChange.onEnabledChange}
-            id="statutory-pension-enabled"
-          />
-          <Label htmlFor="statutory-pension-enabled">
-            Gesetzliche Rente berücksichtigen
-          </Label>
-        </div>
-        <div className="text-sm text-muted-foreground">
-          Aktivieren Sie diese Option, um Ihre gesetzliche Rente in die Entnahmeplanung einzubeziehen.
-          Dies ermöglicht eine realistische Berechnung Ihres privaten Entnahmebedarfs.
-        </div>
-      </div>
+      <Collapsible defaultOpen={false}>
+        <Card nestingLevel={nestingLevel}>
+          <CollapsibleTrigger asChild>
+            <Button 
+              variant="ghost" 
+              className="w-full justify-between p-0"
+              asChild
+            >
+              <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
+                <div className="flex items-center justify-between w-full">
+                  <CardTitle className="flex items-center gap-2">
+                    🏛️ Gesetzliche Renten-Konfiguration
+                  </CardTitle>
+                  <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </div>
+              </CardHeader>
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent nestingLevel={nestingLevel}>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={values.enabled}
+                    onCheckedChange={onChange.onEnabledChange}
+                    id="statutory-pension-enabled"
+                  />
+                  <Label htmlFor="statutory-pension-enabled">
+                    Gesetzliche Rente berücksichtigen
+                  </Label>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Aktivieren Sie diese Option, um Ihre gesetzliche Rente in die Entnahmeplanung einzubeziehen.
+                  Dies ermöglicht eine realistische Berechnung Ihres privaten Entnahmebedarfs.
+                </div>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <Collapsible defaultOpen={false}>
+      <Card nestingLevel={nestingLevel}>
+        <CollapsibleTrigger asChild>
+          <Button 
+            variant="ghost" 
+            className="w-full justify-between p-0"
+            asChild
+          >
+            <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
+              <div className="flex items-center justify-between w-full">
+                <CardTitle className="flex items-center gap-2">
+                  🏛️ Gesetzliche Renten-Konfiguration
+                </CardTitle>
+                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </div>
+            </CardHeader>
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent nestingLevel={nestingLevel}>
+            <div className="space-y-6">
       <div className="flex items-center space-x-2">
         <Switch
           checked={values.enabled}
@@ -115,14 +162,14 @@ export function StatutoryPensionConfiguration({
       </div>
 
       {/* Tax Return Data Import */}
-      <Card>
-        <CardHeader className="pb-3">
+      <Card nestingLevel={nestingLevel + 1}>
+        <CardHeader nestingLevel={nestingLevel + 1} className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Calculator className="h-4 w-4" />
             Daten aus Rentenbescheid importieren
           </CardTitle>
         </CardHeader>
-        <CardContent className="space-y-4">
+        <CardContent nestingLevel={nestingLevel + 1} className="space-y-4">
           <div className="flex items-center space-x-2">
             <Switch
               checked={values.hasTaxReturnData}
@@ -340,14 +387,14 @@ export function StatutoryPensionConfiguration({
       </div>
 
       {/* Summary Information */}
-      <Card>
-        <CardHeader className="pb-3">
+      <Card nestingLevel={nestingLevel + 1}>
+        <CardHeader nestingLevel={nestingLevel + 1} className="pb-3">
           <CardTitle className="text-base flex items-center gap-2">
             <Info className="h-4 w-4" />
             Zusammenfassung
           </CardTitle>
         </CardHeader>
-        <CardContent>
+        <CardContent nestingLevel={nestingLevel + 1}>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
             <div>
               <span className="font-medium">Rentenbeginn:</span> {values.startYear}
@@ -365,6 +412,10 @@ export function StatutoryPensionConfiguration({
           </div>
         </CardContent>
       </Card>
-    </div>
+            </div>
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
   );
 }

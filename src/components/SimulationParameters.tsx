@@ -1,15 +1,16 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { ChevronDown } from 'lucide-react';
+import { NestingProvider } from '../lib/nesting-context';
 import TimeRangeConfiguration from './TimeRangeConfiguration';
 import TaxConfiguration from './TaxConfiguration';
 import SimulationConfiguration from './SimulationConfiguration';
 
 const SimulationParameters = () => {
   return (
-    <Card className="mb-4">
+    <Card nestingLevel={0} className="mb-4">
       <Collapsible defaultOpen={false}>
-        <CardHeader>
+        <CardHeader nestingLevel={0}>
           <CollapsibleTrigger asChild>
             <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
               <CardTitle className="text-left">⚙️ Konfiguration</CardTitle>
@@ -20,12 +21,14 @@ const SimulationParameters = () => {
           </CollapsibleTrigger>
         </CardHeader>
         <CollapsibleContent>
-          <CardContent>
-            <div className="form-grid">
-              <SimulationConfiguration />
-              <TimeRangeConfiguration />
-              <TaxConfiguration />
-            </div>
+          <CardContent nestingLevel={0}>
+            <NestingProvider level={0}>
+              <div className="form-grid">
+                <SimulationConfiguration />
+                <TimeRangeConfiguration />
+                <TaxConfiguration />
+              </div>
+            </NestingProvider>
           </CardContent>
         </CollapsibleContent>
       </Collapsible>

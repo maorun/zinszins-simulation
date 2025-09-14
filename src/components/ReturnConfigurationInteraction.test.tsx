@@ -71,6 +71,13 @@ describe('ReturnConfiguration', () => {
         
         fireEvent.click(screen.getByText('Historische Daten'));
         
+        // Now expand the historical return configuration component
+        await waitFor(() => {
+            expect(screen.getByText('📈 Historische Rendite-Konfiguration')).toBeInTheDocument();
+        });
+        
+        fireEvent.click(screen.getByText('📈 Historische Rendite-Konfiguration'));
+        
         // Check that the historical return configuration appears with warning
         await waitFor(() => {
             expect(screen.getByText('Wichtiger Hinweis zum Backtesting')).toBeInTheDocument();
