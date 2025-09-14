@@ -27,6 +27,34 @@ vi.mock('../hooks/useWithdrawalModals', () => ({
 }));
 
 describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
+  // Helper function to expand both Variables and Global Configuration sections
+  const expandVariablesAndGlobalConfig = async () => {
+    // Expand the Variables section first
+    const variablesSection = screen.getByText('Variablen');
+    fireEvent.click(variablesSection);
+
+    // Then expand the Global Configuration section
+    await waitFor(() => {
+      expect(screen.getByText('Globale Konfiguration')).toBeInTheDocument();
+    });
+    
+    const globalConfigSection = screen.getByText('Globale Konfiguration');
+    fireEvent.click(globalConfigSection);
+
+    // Then expand the Statutory Pension Configuration section
+    await waitFor(() => {
+      expect(screen.getByText('🏛️ Gesetzliche Renten-Konfiguration')).toBeInTheDocument();
+    });
+    
+    const statutoryPensionSection = screen.getByText('🏛️ Gesetzliche Renten-Konfiguration');
+    fireEvent.click(statutoryPensionSection);
+
+    // Wait for the statutory pension content to be visible
+    await waitFor(() => {
+      expect(screen.getByText('Gesetzliche Rente berücksichtigen')).toBeInTheDocument();
+    });
+  };
+
   const mockElements: SparplanElement[] = [
     {
       type: 'sparplan',
@@ -144,14 +172,8 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       />
     );
 
-    // Expand the Variables section first
-    const variablesSection = screen.getByText('Variablen');
-    fireEvent.click(variablesSection);
-
-    // Wait for content to be visible
-    await waitFor(() => {
-      expect(screen.getByText('Gesetzliche Rente berücksichtigen')).toBeInTheDocument();
-    });
+    // Expand the Variables and Global Configuration sections
+    await expandVariablesAndGlobalConfig();
   });
 
   it('should handle statutory pension configuration updates', async () => {
@@ -221,16 +243,13 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       />
     );
 
-    // Expand the Variables section first
-    const variablesSection = screen.getByText('Variablen');
-    fireEvent.click(variablesSection);
+    // Expand the Variables and Global Configuration sections
+    await expandVariablesAndGlobalConfig();
 
     // Wait for the toggle to be visible and then click it
-    await waitFor(() => {
-      const toggle = screen.getByRole('switch', { name: /Gesetzliche Rente berücksichtigen/i });
-      expect(toggle).toBeInTheDocument();
-      fireEvent.click(toggle);
-    });
+    const toggle = screen.getByRole('switch', { name: /Gesetzliche Rente berücksichtigen/i });
+    expect(toggle).toBeInTheDocument();
+    fireEvent.click(toggle);
 
     // Should call updateFormValue with enabled: true
     await waitFor(() => {
@@ -309,9 +328,8 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       />
     );
 
-    // Expand the Variables section first
-    const variablesSection = screen.getByText('Variablen');
-    fireEvent.click(variablesSection);
+    // Expand the Variables and Global Configuration sections
+    await expandVariablesAndGlobalConfig();
 
     // Wait for content to be visible and check configuration fields
     await waitFor(() => {
@@ -465,9 +483,8 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       />
     );
 
-    // Expand the Variables section first
-    const variablesSection = screen.getByText('Variablen');
-    fireEvent.click(variablesSection);
+    // Expand the Variables and Global Configuration sections
+    await expandVariablesAndGlobalConfig();
 
     // Wait for the content to be visible
     await waitFor(() => {

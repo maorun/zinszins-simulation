@@ -1,6 +1,6 @@
 import React from 'react';
 import { describe, it, expect } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { userEvent } from '@testing-library/user-event';
 import { SimulationProvider } from '../contexts/SimulationContext';
 import HistoricalReturnConfiguration from './HistoricalReturnConfiguration';
@@ -10,13 +10,26 @@ const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <SimulationProvider>{children}</SimulationProvider>
 );
 
+// Helper function to expand the collapsible component
+const expandHistoricalReturnConfiguration = async () => {
+  const heading = screen.getByText('📈 Historische Rendite-Konfiguration');
+  fireEvent.click(heading);
+  
+  await waitFor(() => {
+    expect(screen.getByText('Wichtiger Hinweis zum Backtesting')).toBeInTheDocument();
+  });
+};
+
 describe('HistoricalReturnConfiguration', () => {
-  it('should render with important warnings about past performance', () => {
+  it('should render with important warnings about past performance', async () => {
     render(
       <TestWrapper>
         <HistoricalReturnConfiguration />
       </TestWrapper>
     );
+
+    // Expand the collapsible component first
+    await expandHistoricalReturnConfiguration();
 
     // Check for the important warning
     expect(screen.getByText('Wichtiger Hinweis zum Backtesting')).toBeInTheDocument();
@@ -24,12 +37,15 @@ describe('HistoricalReturnConfiguration', () => {
     expect(screen.getByText(/Vergangene Wertentwicklungen sind kein verlässlicher Indikator/)).toBeInTheDocument();
   });
 
-  it('should display all available historical indices', () => {
+  it('should display all available historical indices', async () => {
     render(
       <TestWrapper>
         <HistoricalReturnConfiguration />
       </TestWrapper>
     );
+
+    // Expand the collapsible component first
+    await expandHistoricalReturnConfiguration();
 
     // Check for DAX option
     expect(screen.getByText('DAX')).toBeInTheDocument();
@@ -44,12 +60,15 @@ describe('HistoricalReturnConfiguration', () => {
     expect(screen.getByText(/Globaler Aktienindex/)).toBeInTheDocument();
   });
 
-  it('should show statistical information for selected index', () => {
+  it('should show statistical information for selected index', async () => {
     render(
       <TestWrapper>
         <HistoricalReturnConfiguration />
       </TestWrapper>
     );
+
+    // Expand the collapsible component first
+    await expandHistoricalReturnConfiguration();
 
     // Should show statistics section
     expect(screen.getByText(/Statistische Kennzahlen/)).toBeInTheDocument();
@@ -59,12 +78,15 @@ describe('HistoricalReturnConfiguration', () => {
     expect(screen.getByText(/Datenpunkte:/)).toBeInTheDocument();
   });
 
-  it('should show historical data preview', () => {
+  it('should show historical data preview', async () => {
     render(
       <TestWrapper>
         <HistoricalReturnConfiguration />
       </TestWrapper>
     );
+
+    // Expand the collapsible component first
+    await expandHistoricalReturnConfiguration();
 
     // Should show historical returns section
     expect(screen.getByText(/Historische Renditen/)).toBeInTheDocument();
@@ -79,6 +101,9 @@ describe('HistoricalReturnConfiguration', () => {
       </TestWrapper>
     );
 
+    // Expand the collapsible component first
+    await expandHistoricalReturnConfiguration();
+
     // DAX should be selected by default
     const daxRadio = screen.getByRole('radio', { name: /DAX/ });
     expect(daxRadio).toBeChecked();
@@ -92,12 +117,15 @@ describe('HistoricalReturnConfiguration', () => {
     expect(daxRadio).not.toBeChecked();
   });
 
-  it('should display warning when simulation period has limited data coverage', () => {
+  it('should display warning when simulation period has limited data coverage', async () => {
     render(
       <TestWrapper>
         <HistoricalReturnConfiguration />
       </TestWrapper>
     );
+
+    // Expand the collapsible component first
+    await expandHistoricalReturnConfiguration();
 
     // Note: This test checks if the component can handle the warning display
     // The actual warning display depends on the simulation time range in context
@@ -105,12 +133,15 @@ describe('HistoricalReturnConfiguration', () => {
     expect(screen.getByText('Historischer Index für Backtesting')).toBeInTheDocument();
   });
 
-  it('should show index-specific information in radio tiles', () => {
+  it('should show index-specific information in radio tiles', async () => {
     render(
       <TestWrapper>
         <HistoricalReturnConfiguration />
       </TestWrapper>
     );
+
+    // Expand the collapsible component first
+    await expandHistoricalReturnConfiguration();
 
     // Check that each index shows its time range and currency
     expect(screen.getAllByText(/2000-2023/).length).toBeGreaterThan(0);
@@ -118,12 +149,15 @@ describe('HistoricalReturnConfiguration', () => {
     expect(screen.getAllByText(/USD/).length).toBeGreaterThan(0);
   });
 
-  it('should display percentage values correctly', () => {
+  it('should display percentage values correctly', async () => {
     render(
       <TestWrapper>
         <HistoricalReturnConfiguration />
       </TestWrapper>
     );
+
+    // Expand the collapsible component first
+    await expandHistoricalReturnConfiguration();
 
     // Should display percentage values with proper formatting
     const percentageElements = screen.getAllByText(/%/);
