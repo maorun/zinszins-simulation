@@ -52,7 +52,7 @@ describe('Enhanced Card Components', () => {
 
     const card = screen.getByTestId('deep-card');
     expect(card).toHaveAttribute('data-nesting-level', '4');
-    expect(card).toHaveClass('border-l-2');
+    expect(card).toHaveClass('border-l-4');
     expect(card).toHaveClass('mx-4');
   });
 });
