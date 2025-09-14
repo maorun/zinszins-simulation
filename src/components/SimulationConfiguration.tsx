@@ -1,10 +1,9 @@
-import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
 import { Button } from './ui/button';
 import { Label } from './ui/label';
 import { Switch } from './ui/switch';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { ChevronDown, ChevronUp } from 'lucide-react';
+import { ChevronDown } from 'lucide-react';
 import { useSimulation } from '../contexts/useSimulation';
 import { useNestingLevel } from '../lib/nesting-utils';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
@@ -18,10 +17,9 @@ const SimulationConfiguration = () => {
         startEnd,
     } = useSimulation();
     const nestingLevel = useNestingLevel();
-    const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <Collapsible defaultOpen={false}>
             <Card nestingLevel={nestingLevel} className="mb-4">
                 <CollapsibleTrigger asChild>
                     <Button 
@@ -32,11 +30,7 @@ const SimulationConfiguration = () => {
                         <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
                             <div className="flex items-center justify-between w-full">
                                 <CardTitle>⚙️ Simulation-Konfiguration</CardTitle>
-                                {isOpen ? (
-                                    <ChevronUp className="h-4 w-4" />
-                                ) : (
-                                    <ChevronDown className="h-4 w-4" />
-                                )}
+                                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                             </div>
                         </CardHeader>
                     </Button>

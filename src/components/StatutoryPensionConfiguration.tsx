@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { Switch } from "./ui/switch";
@@ -6,7 +5,7 @@ import { Slider } from "./ui/slider";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import { Info, Calculator, ChevronDown, ChevronUp } from "lucide-react";
+import { Info, Calculator, ChevronDown } from "lucide-react";
 import { useNestingLevel } from "../lib/nesting-utils";
 import { 
   estimateMonthlyPensionFromTaxReturn, 
@@ -57,7 +56,6 @@ export function StatutoryPensionConfiguration({
   currentYear = new Date().getFullYear()
 }: StatutoryPensionConfigurationProps) {
   const nestingLevel = useNestingLevel();
-  const [isOpen, setIsOpen] = useState(false);
 
   const handleImportFromTaxReturn = () => {
     if (values.hasTaxReturnData && values.annualPensionReceived > 0) {
@@ -87,7 +85,7 @@ export function StatutoryPensionConfiguration({
 
   if (!values.enabled) {
     return (
-      <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <Collapsible defaultOpen={false}>
         <Card nestingLevel={nestingLevel}>
           <CollapsibleTrigger asChild>
             <Button 
@@ -100,11 +98,7 @@ export function StatutoryPensionConfiguration({
                   <CardTitle className="flex items-center gap-2">
                     🏛️ Gesetzliche Renten-Konfiguration
                   </CardTitle>
-                  {isOpen ? (
-                    <ChevronUp className="h-4 w-4" />
-                  ) : (
-                    <ChevronDown className="h-4 w-4" />
-                  )}
+                  <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                 </div>
               </CardHeader>
             </Button>
@@ -135,7 +129,7 @@ export function StatutoryPensionConfiguration({
   }
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+    <Collapsible defaultOpen={false}>
       <Card nestingLevel={nestingLevel}>
         <CollapsibleTrigger asChild>
           <Button 
@@ -148,11 +142,7 @@ export function StatutoryPensionConfiguration({
                 <CardTitle className="flex items-center gap-2">
                   🏛️ Gesetzliche Renten-Konfiguration
                 </CardTitle>
-                {isOpen ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
+                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </div>
             </CardHeader>
           </Button>

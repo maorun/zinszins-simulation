@@ -1,11 +1,10 @@
-import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { Label } from "./ui/label";
 import { Separator } from "./ui/separator";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "./ui/collapsible";
-import { Plus, Trash2, ChevronDown, ChevronUp } from "lucide-react";
+import { Plus, Trash2, ChevronDown } from "lucide-react";
 import { createDefaultWithdrawalSegment } from "../utils/segmented-withdrawal";
 import { WithdrawalSegmentForm } from "./WithdrawalSegmentForm";
 import { useNestingLevel } from "../lib/nesting-utils";
@@ -30,7 +29,6 @@ export function SegmentedComparisonConfiguration({
   onRemoveStrategy,
 }: SegmentedComparisonConfigurationProps) {
   const nestingLevel = useNestingLevel();
-  const [isOpen, setIsOpen] = useState(false);
 
   // Add a new segmented comparison strategy
   const handleAddStrategy = () => {
@@ -62,7 +60,7 @@ export function SegmentedComparisonConfiguration({
   };
 
   return (
-    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+    <Collapsible defaultOpen={false}>
       <Card nestingLevel={nestingLevel}>
         <CollapsibleTrigger asChild>
           <Button 
@@ -75,11 +73,7 @@ export function SegmentedComparisonConfiguration({
                 <CardTitle className="flex items-center gap-2">
                   🔄 Geteilte Phasen Vergleich
                 </CardTitle>
-                {isOpen ? (
-                  <ChevronUp className="h-4 w-4" />
-                ) : (
-                  <ChevronDown className="h-4 w-4" />
-                )}
+                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </div>
             </CardHeader>
           </Button>

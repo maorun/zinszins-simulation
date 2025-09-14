@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { AlertTriangle, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
+import { AlertTriangle, TrendingUp, ChevronDown } from 'lucide-react';
 import { Label } from './ui/label';
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
 import { Button } from './ui/button';
@@ -19,7 +19,6 @@ const HistoricalReturnConfiguration = () => {
     const nestingLevel = useNestingLevel();
 
     const [selectedIndexId, setSelectedIndexId] = useState(historicalIndex || 'dax');
-    const [isOpen, setIsOpen] = useState(false);
 
     const handleIndexChange = (indexId: string) => {
         setSelectedIndexId(indexId);
@@ -48,7 +47,7 @@ const HistoricalReturnConfiguration = () => {
     const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`;
 
     return (
-        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+        <Collapsible defaultOpen={false}>
             <Card nestingLevel={nestingLevel}>
                 <CollapsibleTrigger asChild>
                     <Button 
@@ -61,11 +60,7 @@ const HistoricalReturnConfiguration = () => {
                                 <CardTitle className="flex items-center gap-2">
                                     📈 Historische Rendite-Konfiguration
                                 </CardTitle>
-                                {isOpen ? (
-                                    <ChevronUp className="h-4 w-4" />
-                                ) : (
-                                    <ChevronDown className="h-4 w-4" />
-                                )}
+                                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                             </div>
                         </CardHeader>
                     </Button>
