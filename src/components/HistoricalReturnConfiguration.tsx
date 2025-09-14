@@ -1,7 +1,9 @@
 import { useState } from 'react';
-import { AlertTriangle, TrendingUp } from 'lucide-react';
+import { AlertTriangle, TrendingUp, ChevronDown, ChevronUp } from 'lucide-react';
 import { Label } from './ui/label';
-import { Card, CardContent } from './ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card';
+import { Button } from './ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 import { RadioTileGroup, RadioTile } from './ui/radio-tile';
 import { useSimulation } from '../contexts/useSimulation';
 import { useNestingLevel } from '../lib/nesting-utils';
@@ -17,6 +19,7 @@ const HistoricalReturnConfiguration = () => {
     const nestingLevel = useNestingLevel();
 
     const [selectedIndexId, setSelectedIndexId] = useState(historicalIndex || 'dax');
+    const [isOpen, setIsOpen] = useState(false);
 
     const handleIndexChange = (indexId: string) => {
         setSelectedIndexId(indexId);
@@ -45,7 +48,31 @@ const HistoricalReturnConfiguration = () => {
     const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`;
 
     return (
-        <div className="space-y-6">
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+            <Card nestingLevel={nestingLevel}>
+                <CollapsibleTrigger asChild>
+                    <Button 
+                        variant="ghost" 
+                        className="w-full justify-between p-0"
+                        asChild
+                    >
+                        <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
+                            <div className="flex items-center justify-between w-full">
+                                <CardTitle className="flex items-center gap-2">
+                                    📈 Historische Rendite-Konfiguration
+                                </CardTitle>
+                                {isOpen ? (
+                                    <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                    <ChevronDown className="h-4 w-4" />
+                                )}
+                            </div>
+                        </CardHeader>
+                    </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                    <CardContent nestingLevel={nestingLevel}>
+                        <div className="space-y-6">
             {/* Important Warning */}
             <Card nestingLevel={nestingLevel} className="border-amber-200 bg-amber-50">
                 <CardContent nestingLevel={nestingLevel} className="pt-4">
@@ -169,7 +196,11 @@ const HistoricalReturnConfiguration = () => {
                     </CardContent>
                 </Card>
             )}
-        </div>
+                        </div>
+                    </CardContent>
+                </CollapsibleContent>
+            </Card>
+        </Collapsible>
     );
 };
 

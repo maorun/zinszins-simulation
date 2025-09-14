@@ -1,5 +1,10 @@
+import { useState } from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
+import { Button } from './ui/button';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { ChevronDown, ChevronUp } from 'lucide-react';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { useNestingLevel } from '../lib/nesting-utils';
 import type { RandomReturnConfig } from '../utils/random-returns';
 
 interface MonteCarloResultsProps {
@@ -21,6 +26,8 @@ export function MonteCarloResults({
     withdrawalConfig,
     runs: _runs = 500
 }: MonteCarloResultsProps) {
+    const nestingLevel = useNestingLevel();
+    const [isOpen, setIsOpen] = useState(false);
     const formatPercent = (value: number) => (value * 100).toFixed(1) + '%';
 
     // Create statistical scenarios based on normal distribution
@@ -121,11 +128,28 @@ export function MonteCarloResults({
     );
 
     return (
-        <Card>
-            <CardHeader>
-                <CardTitle>Statistische Szenarien (Monte Carlo Simulation)</CardTitle>
-            </CardHeader>
-            <CardContent>
+        <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+            <Card nestingLevel={nestingLevel}>
+                <CollapsibleTrigger asChild>
+                    <Button 
+                        variant="ghost" 
+                        className="w-full justify-between p-0"
+                        asChild
+                    >
+                        <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
+                            <div className="flex items-center justify-between w-full">
+                                <CardTitle>📊 Statistische Szenarien (Monte Carlo)</CardTitle>
+                                {isOpen ? (
+                                    <ChevronUp className="h-4 w-4" />
+                                ) : (
+                                    <ChevronDown className="h-4 w-4" />
+                                )}
+                            </div>
+                        </CardHeader>
+                    </Button>
+                </CollapsibleTrigger>
+                <CollapsibleContent>
+                    <CardContent nestingLevel={nestingLevel}>
             {renderAnalysisTable(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
             
             {withdrawalScenarios && withdrawalConfig && (
@@ -152,7 +176,9 @@ export function MonteCarloResults({
                     background-color: #d1ecf1 !important;
                 }
             `}</style>
-            </CardContent>
-        </Card>
+                    </CardContent>
+                </CollapsibleContent>
+            </Card>
+        </Collapsible>
     );
 }
