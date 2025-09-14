@@ -204,8 +204,18 @@ export function EntnahmeSimulationsAusgabe({
           <CollapsibleContent>
             <CardContent>
         {/* Global End of Life Configuration */}
-        <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-          <h4 className="text-lg font-semibold mb-4 text-blue-800">Globale Konfiguration</h4>
+        <Card className="mb-6">
+          <Collapsible defaultOpen={false}>
+            <CardHeader>
+              <CollapsibleTrigger asChild>
+                <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+                  <CardTitle className="text-lg font-semibold text-blue-800">Globale Konfiguration</CardTitle>
+                  <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </div>
+              </CollapsibleTrigger>
+            </CardHeader>
+            <CollapsibleContent>
+              <CardContent>
           
           {/* Toggle between manual and automatic calculation */}
           <div className="mb-6 p-3 border rounded-lg bg-white">
@@ -602,7 +612,10 @@ export function EntnahmeSimulationsAusgabe({
               )}
             </div>
           </div>
-        </div>
+        </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
 
         {/* Toggle between single, segmented, and comparison withdrawal */}
         <div className="mb-4 space-y-2">
