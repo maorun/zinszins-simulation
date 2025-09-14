@@ -50,19 +50,12 @@ describe('StatutoryPensionConfiguration', () => {
 
   it('renders disabled state correctly', () => {
     const disabledValues = { ...defaultValues, enabled: false };
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={disabledValues} 
         onChange={mockOnChange} 
       />
     );
-
-    // Expand the collapsible to see the content
-    expandCollapsible();
 
     expect(screen.getByLabelText('Gesetzliche Rente berücksichtigen')).not.toBeChecked();
     expect(screen.getByText(/Aktivieren Sie diese Option/)).toBeInTheDocument();
@@ -72,19 +65,12 @@ describe('StatutoryPensionConfiguration', () => {
   });
 
   it('renders enabled state with all configuration options', () => {
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={defaultValues} 
         onChange={mockOnChange} 
       />
     );
-
-    // Expand the collapsible to see the content
-    expandCollapsible();
 
     expect(screen.getByLabelText('Gesetzliche Rente berücksichtigen')).toBeChecked();
     expect(screen.getByText('Daten aus Rentenbescheid importieren')).toBeInTheDocument();
@@ -97,19 +83,12 @@ describe('StatutoryPensionConfiguration', () => {
 
   it('toggles enabled state correctly', () => {
     const disabledValues = { ...defaultValues, enabled: false };
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={disabledValues} 
         onChange={mockOnChange} 
       />
     );
-
-    // Expand the collapsible to see the content
-    expandCollapsible();
 
     const toggle = screen.getByRole('switch');
     fireEvent.click(toggle);
@@ -118,11 +97,7 @@ describe('StatutoryPensionConfiguration', () => {
   });
 
   it('handles monthly amount input correctly', () => {
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={defaultValues} 
         onChange={mockOnChange} 
@@ -136,11 +111,7 @@ describe('StatutoryPensionConfiguration', () => {
   });
 
   it('handles start year input correctly', () => {
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={defaultValues} 
         onChange={mockOnChange} 
@@ -155,11 +126,7 @@ describe('StatutoryPensionConfiguration', () => {
 
   it('shows tax return data fields when enabled', () => {
     const valuesWithTaxReturn = { ...defaultValues, hasTaxReturnData: true };
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={valuesWithTaxReturn} 
         onChange={mockOnChange} 
@@ -173,11 +140,7 @@ describe('StatutoryPensionConfiguration', () => {
   });
 
   it('handles tax return data toggle correctly', () => {
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={defaultValues} 
         onChange={mockOnChange} 
@@ -202,11 +165,7 @@ describe('StatutoryPensionConfiguration', () => {
       annualPensionReceived: 18000,
       taxablePortion: 14400,
     };
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={valuesWithTaxReturn} 
         onChange={mockOnChange} 
@@ -226,11 +185,7 @@ describe('StatutoryPensionConfiguration', () => {
 
   it('calculates start year from birth year and retirement age', () => {
     const valuesWithBirthYear = { ...defaultValues, birthYear: 1975, retirementAge: 65 };
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={valuesWithBirthYear} 
         onChange={mockOnChange} 
@@ -244,11 +199,7 @@ describe('StatutoryPensionConfiguration', () => {
   });
 
   it('handles birth year and retirement age input changes', () => {
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={defaultValues} 
         onChange={mockOnChange} 
@@ -272,11 +223,7 @@ describe('StatutoryPensionConfiguration', () => {
       annualPensionReceived: 19200,
       taxablePortion: 15360,
     };
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={valuesWithTaxReturn} 
         onChange={mockOnChange} 
@@ -296,11 +243,7 @@ describe('StatutoryPensionConfiguration', () => {
       hasTaxReturnData: true,
       annualPensionReceived: 0,
     };
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={valuesWithTaxReturn} 
         onChange={mockOnChange} 
@@ -313,11 +256,7 @@ describe('StatutoryPensionConfiguration', () => {
 
   it('disables calculate button when birth year or retirement age missing', () => {
     const valuesWithoutBirthYear = { ...defaultValues, birthYear: undefined };
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={valuesWithoutBirthYear} 
         onChange={mockOnChange} 
@@ -329,11 +268,7 @@ describe('StatutoryPensionConfiguration', () => {
   });
 
   it('displays correct summary information', () => {
-    renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    render(
       <StatutoryPensionConfiguration 
         values={defaultValues} 
         onChange={mockOnChange} 
@@ -351,11 +286,7 @@ describe('StatutoryPensionConfiguration', () => {
   });
 
   it('updates annual pension display when monthly amount changes', () => {
-    const { rerender } = renderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    const { rerender } = render(
       <StatutoryPensionConfiguration 
         values={defaultValues} 
         onChange={mockOnChange} 
@@ -365,11 +296,7 @@ describe('StatutoryPensionConfiguration', () => {
     expect(screen.getByText('Jährliche Rente: 18.000 €')).toBeInTheDocument();
 
     const updatedValues = { ...defaultValues, monthlyAmount: 1600 };
-    rerenderWithNesting(
-    
-    // Expand the collapsible to see the content
-    expandCollapsible();
-
+    rerender(
       <StatutoryPensionConfiguration 
         values={updatedValues} 
         onChange={mockOnChange} 
