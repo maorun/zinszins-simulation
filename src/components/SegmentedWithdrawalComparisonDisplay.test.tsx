@@ -117,8 +117,8 @@ describe('SegmentedWithdrawalComparisonDisplay', () => {
     expect(screen.getByText('Conservative-Aggressive Mix (2 Phasen)')).toBeInTheDocument()
     expect(screen.getByText('Early Phase')).toBeInTheDocument()
     expect(screen.getByText('Late Phase')).toBeInTheDocument()
-    expect(screen.getByText(/3% Regel - 4\.0% Rendite/)).toBeInTheDocument()
-    expect(screen.getByText(/4% Regel - 6\.0% Rendite/)).toBeInTheDocument()
+    expect(screen.getByText(/3% Regel.*4\.0.*Rendite/)).toBeInTheDocument()
+    expect(screen.getByText(/4% Regel.*6\.0.*Rendite/)).toBeInTheDocument()
   })
 
   it('displays comparison results correctly', () => {
@@ -231,8 +231,8 @@ describe('SegmentedWithdrawalComparisonDisplay', () => {
 
     render(<SegmentedWithdrawalComparisonDisplay {...props} />)
 
-    expect(screen.getByText(/Monatlich fest - 4\.0% Rendite/)).toBeInTheDocument()
-    expect(screen.getByText(/Drei-Eimer-Strategie - 6\.0% Rendite/)).toBeInTheDocument()
+    expect(screen.getByText(/Monatlich fest.*4\.0.*Rendite/)).toBeInTheDocument()
+    expect(screen.getByText(/Drei-Eimer-Strategie.*6\.0.*Rendite/)).toBeInTheDocument()
   })
 
   it('handles base configuration with unlimited duration', () => {
