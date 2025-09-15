@@ -241,34 +241,37 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
     let totalCapital = 0
 
     // Calculate yearly contribution for this year
-    // For savings plans: sum up all elements that represent contributions for this year
-    const sparplanElementsThisYear = elemente.filter(el =>
-      el.type === 'sparplan' && el.simulation[year],
+    // ONLY count contributions from elements that actually start in this year
+    const elementsStartingThisYear = elemente.filter(el =>
+      el.type === 'sparplan' && new Date(el.start).getFullYear() === year,
     )
 
-    if (sparplanElementsThisYear.length > 0) {
+    if (elementsStartingThisYear.length > 0) {
       // Check if we have monthly elements (multiple elements per year) or yearly elements (one element per year)
-      const elementsWithSameStartYear = sparplanElementsThisYear.filter(el =>
-        new Date(el.start).getFullYear() === year,
-      )
-
-      if (elementsWithSameStartYear.length === 1) {
+      if (elementsStartingThisYear.length === 1) {
         // Single yearly element for this year
-        yearlyContribution += elementsWithSameStartYear[0].einzahlung
+        yearlyContribution += elementsStartingThisYear[0].einzahlung
       }
-      else if (elementsWithSameStartYear.length > 1) {
-        // Multiple monthly elements for this year - calculate annual amount
-        const monthlyAmount = elementsWithSameStartYear[0].einzahlung
-        yearlyContribution += monthlyAmount * 12
-      }
-      else if (sparplanElementsThisYear.length > 0) {
-        // This year has simulation data but no elements start this year
-        // This means it's a continuation of a savings plan from a previous year
-        // Use the annual amount (12 * monthly amount)
-        const monthlyAmount = sparplanElementsThisYear[0].einzahlung
-        yearlyContribution += monthlyAmount * 12
+      else if (elementsStartingThisYear.length > 1) {
+        // Multiple elements starting this year - could be multiple Sparpläne or monthly elements
+        // Check if they have the same einzahlung amount (indicating monthly elements from same Sparplan)
+        const firstAmount = elementsStartingThisYear[0].einzahlung
+        const allSameAmount = elementsStartingThisYear.every(el => el.einzahlung === firstAmount)
+
+        if (allSameAmount && elementsStartingThisYear.length === 12) {
+          // 12 elements with same amount = monthly elements from one Sparplan
+          yearlyContribution += firstAmount * 12
+        }
+        else {
+          // Multiple different Sparpläne starting in the same year - sum them up
+          yearlyContribution += elementsStartingThisYear.reduce((sum, el) => sum + el.einzahlung, 0)
+        }
       }
     }
+
+    // Note: We removed the problematic "else if" branch that incorrectly assumed
+    // contributions from simulation data alone. If no elements start this year,
+    // there are NO NEW CONTRIBUTIONS - only compound growth of existing capital.
 
     // Handle one-time payments (Einmalzahlungen)
     elemente.forEach((element) => {
