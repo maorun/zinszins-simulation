@@ -78,7 +78,7 @@ export function WithdrawalSegmentForm({
     const startYear = lastSegment ? Math.round(lastSegment.endYear) + 1 : Math.round(withdrawalStartYear)
 
     // Create a default 5-year segment without constraining to withdrawalEndYear
-    // Users can modify the end year as needed  
+    // Users can modify the end year as needed
     const endYear = startYear + 4 // 5-year inclusive duration (start + 4 = 5 years inclusive)
 
     const newSegment = createDefaultWithdrawalSegment(newId, `Phase ${segments.length + 1}`, startYear, endYear)
@@ -89,10 +89,10 @@ export function WithdrawalSegmentForm({
   // Reset to clean default segments (helper function for recovery from broken states)
   const resetSegments = () => {
     const defaultSegment = createDefaultWithdrawalSegment(
-      'main', 
-      'Hauptphase', 
-      Math.round(withdrawalStartYear), 
-      Math.round(withdrawalEndYear)
+      'main',
+      'Hauptphase',
+      Math.round(withdrawalStartYear),
+      Math.round(withdrawalEndYear),
     )
     validateAndUpdateSegments([defaultSegment])
   }
@@ -251,7 +251,7 @@ export function WithdrawalSegmentForm({
                   <Plus className="h-4 w-4 mr-2" />
                   Phase hinzufügen
                 </Button>
-                
+
                 {errors.length > 0 && (
                   <Button
                     onClick={resetSegments}
