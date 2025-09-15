@@ -394,3 +394,81 @@ export function insertSegmentBefore(
   // Add the new segment to the array
   return [...updatedSegments, newSegment]
 }
+
+/**
+ * Auto-correct broken segment time ranges while preserving all phase data
+ * This function fixes segments with invalid time ranges (e.g. endYear < startYear)
+ * while maintaining all configuration, strategies, and other phase information
+ * @param segments - Array of potentially broken withdrawal segments
+ * @param withdrawalStartYear - Year when withdrawal phase begins
+ * @returns Corrected segments with valid time ranges
+ */
+export function autoCorrectSegmentTimeRanges(
+  segments: WithdrawalSegment[],
+  withdrawalStartYear: number,
+): WithdrawalSegment[] {
+  if (segments.length === 0) {
+    return segments
+  }
+
+  // Sort segments by their original start year to preserve intended order
+  const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
+
+  let currentStartYear = Math.round(withdrawalStartYear)
+
+  return sortedSegments.map((segment) => {
+    // Calculate a reasonable duration - use original if valid, otherwise default to 5 years
+    let segmentDuration = segment.endYear - segment.startYear + 1
+
+    // If the original duration is invalid (negative or zero), use 5 years as default
+    if (segmentDuration <= 0) {
+      segmentDuration = 5
+    }
+
+    // Ensure minimum duration of 1 year
+    segmentDuration = Math.max(1, segmentDuration)
+
+    const correctedStartYear = currentStartYear
+    const correctedEndYear = correctedStartYear + segmentDuration - 1
+
+    // Update the start year for the next segment
+    currentStartYear = correctedEndYear + 1
+
+    // Return the segment with corrected time range but all other data preserved
+    return {
+      ...segment, // Preserve ALL original data: strategy, config, returns, etc.
+      startYear: correctedStartYear,
+      endYear: correctedEndYear,
+    }
+  })
+}
+
+/**
+ * Create a new segment with valid time range based on existing segments
+ * @param segments - Array of existing withdrawal segments
+ * @param segmentName - Name for the new segment
+ * @param segmentDuration - Duration in years for the new segment (default: 5)
+ * @returns New segment with valid time range
+ */
+export function createValidNewSegment(
+  segments: WithdrawalSegment[],
+  segmentName: string,
+  segmentDuration: number = 5,
+): WithdrawalSegment {
+  const newId = `segment_${Date.now()}`
+
+  if (segments.length === 0) {
+    // No existing segments - this shouldn't happen in normal usage
+    return createDefaultWithdrawalSegment(newId, segmentName, 2041, 2041 + segmentDuration - 1)
+  }
+
+  // Find the chronologically last segment by end year
+  const lastSegment = segments.reduce((latest, segment) => {
+    return segment.endYear > latest.endYear ? segment : latest
+  })
+
+  const newStartYear = lastSegment.endYear + 1
+  const newEndYear = newStartYear + segmentDuration - 1
+
+  return createDefaultWithdrawalSegment(newId, segmentName, newStartYear, newEndYear)
+}

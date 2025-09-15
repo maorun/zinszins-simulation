@@ -6,6 +6,8 @@ import {
   moveSegmentUp,
   moveSegmentDown,
   insertSegmentBefore,
+  autoCorrectSegmentTimeRanges,
+  createValidNewSegment,
   type WithdrawalSegment,
 } from './segmented-withdrawal'
 
@@ -278,6 +280,107 @@ describe('segmented-withdrawal synchronization', () => {
       const newSegment = result.find(s => s.name === 'New Phase')
       expect(newSegment).toBeDefined()
       expect(newSegment!.endYear - newSegment!.startYear + 1).toBe(5) // Default 5-year inclusive duration
+    })
+  })
+
+  describe('autoCorrectSegmentTimeRanges', () => {
+    it('should fix segments with invalid time ranges while preserving data', () => {
+      const segments = [
+        {
+          ...createDefaultWithdrawalSegment('1', 'Phase 1', 2041, 2080),
+          strategy: '3prozent' as const,
+          customPercentage: 0.04,
+        },
+        {
+          ...createDefaultWithdrawalSegment('2', 'Phase 2', 2081, 2080), // Invalid: end before start
+          strategy: 'monatlich_fest' as const,
+          monthlyConfig: { monthlyAmount: 3000, enableGuardrails: true, guardrailsThreshold: 0.15 },
+        },
+        {
+          ...createDefaultWithdrawalSegment('3', 'Phase 3', 2081, 2085),
+          strategy: 'variabel_prozent' as const,
+          customPercentage: 0.06,
+        },
+      ]
+
+      const result = autoCorrectSegmentTimeRanges(segments, 2041)
+
+      // Should have 3 segments with corrected time ranges
+      expect(result).toHaveLength(3)
+
+      // Check corrected time ranges
+      const sorted = result.sort((a, b) => a.startYear - b.startYear)
+      expect(sorted[0].startYear).toBe(2041)
+      expect(sorted[0].endYear).toBe(2080) // Original duration preserved (40 years)
+      expect(sorted[1].startYear).toBe(2081)
+      expect(sorted[1].endYear).toBe(2085) // Fixed invalid range to 5-year default
+      expect(sorted[2].startYear).toBe(2086)
+      expect(sorted[2].endYear).toBe(2090) // Original duration preserved (5 years)
+
+      // Check that all other data is preserved
+      expect(sorted[0].strategy).toBe('3prozent')
+      expect(sorted[0].customPercentage).toBe(0.04)
+      expect(sorted[1].strategy).toBe('monatlich_fest')
+      expect(sorted[1].monthlyConfig?.monthlyAmount).toBe(3000)
+      expect(sorted[1].monthlyConfig?.enableGuardrails).toBe(true)
+      expect(sorted[2].strategy).toBe('variabel_prozent')
+      expect(sorted[2].customPercentage).toBe(0.06)
+    })
+
+    it('should handle empty segments array', () => {
+      const result = autoCorrectSegmentTimeRanges([], 2041)
+      expect(result).toEqual([])
+    })
+
+    it('should preserve valid segments unchanged', () => {
+      const segments = [
+        createDefaultWithdrawalSegment('1', 'Phase 1', 2041, 2050),
+        createDefaultWithdrawalSegment('2', 'Phase 2', 2051, 2060),
+      ]
+
+      const result = autoCorrectSegmentTimeRanges(segments, 2041)
+
+      expect(result[0].startYear).toBe(2041)
+      expect(result[0].endYear).toBe(2050)
+      expect(result[1].startYear).toBe(2051)
+      expect(result[1].endYear).toBe(2060)
+    })
+  })
+
+  describe('createValidNewSegment', () => {
+    it('should create new segment after existing segments', () => {
+      const segments = [
+        createDefaultWithdrawalSegment('1', 'Phase 1', 2041, 2050),
+        createDefaultWithdrawalSegment('2', 'Phase 2', 2051, 2060),
+      ]
+
+      const newSegment = createValidNewSegment(segments, 'Phase 3', 7)
+
+      expect(newSegment.name).toBe('Phase 3')
+      expect(newSegment.startYear).toBe(2061)
+      expect(newSegment.endYear).toBe(2067) // 2061 + 7 - 1
+    })
+
+    it('should handle segments with broken time ranges by finding true last segment', () => {
+      const segments = [
+        createDefaultWithdrawalSegment('1', 'Phase 1', 2041, 2080),
+        createDefaultWithdrawalSegment('2', 'Phase 2', 2081, 2080), // Broken: end before start
+        createDefaultWithdrawalSegment('3', 'Phase 3', 2081, 2085),
+      ]
+
+      const newSegment = createValidNewSegment(segments, 'Phase 4', 5)
+
+      // Should use the segment with highest endYear (Phase 3 with 2085)
+      expect(newSegment.startYear).toBe(2086)
+      expect(newSegment.endYear).toBe(2090)
+    })
+
+    it('should create fallback segment if no segments exist', () => {
+      const newSegment = createValidNewSegment([], 'Phase 1', 5)
+
+      expect(newSegment.name).toBe('Phase 1')
+      expect(newSegment.startYear).toBe(2041)
+      expect(newSegment.endYear).toBe(2045)
     })
   })
 })

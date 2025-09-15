@@ -29,6 +29,8 @@ import {
   moveSegmentUp,
   moveSegmentDown,
   insertSegmentBefore,
+  autoCorrectSegmentTimeRanges,
+  createValidNewSegment,
 } from '../utils/segmented-withdrawal'
 import type { WithdrawalStrategy } from '../../helpers/withdrawal'
 import type { ReturnConfiguration } from '../../helpers/random-returns'
@@ -70,18 +72,10 @@ export function WithdrawalSegmentForm({
 
   // Add a new segment
   const addSegment = () => {
-    const newId = `segment_${Date.now()}`
+    const segmentName = `Phase ${segments.length + 1}`
 
-    // Find the chronologically last segment, not the last in the array
-    const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
-    const lastSegment = sortedSegments[sortedSegments.length - 1]
-    const startYear = lastSegment ? Math.round(lastSegment.endYear) + 1 : Math.round(withdrawalStartYear)
-
-    // Create a default 5-year segment without constraining to withdrawalEndYear
-    // Users can modify the end year as needed
-    const endYear = startYear + 4 // 5-year inclusive duration (start + 4 = 5 years inclusive)
-
-    const newSegment = createDefaultWithdrawalSegment(newId, `Phase ${segments.length + 1}`, startYear, endYear)
+    // Create a new segment with a valid time range
+    const newSegment = createValidNewSegment(segments, segmentName, 5)
 
     validateAndUpdateSegments([...segments, newSegment])
   }
@@ -95,6 +89,12 @@ export function WithdrawalSegmentForm({
       Math.round(withdrawalEndYear),
     )
     validateAndUpdateSegments([defaultSegment])
+  }
+
+  // Auto-correct broken segments while preserving all phase data
+  const correctSegments = () => {
+    const correctedSegments = autoCorrectSegmentTimeRanges(segments, withdrawalStartYear)
+    validateAndUpdateSegments(correctedSegments)
   }
 
   // Remove a segment
@@ -115,34 +115,69 @@ export function WithdrawalSegmentForm({
 
   // Move a segment up (earlier in time)
   const moveSegmentUpHandler = (segmentId: string) => {
-    const newSegments = moveSegmentUp(segments, segmentId)
-    validateAndUpdateSegments(newSegments)
+    // If there are validation errors, auto-correct first, then move
+    if (errors.length > 0) {
+      const correctedSegments = autoCorrectSegmentTimeRanges(segments, withdrawalStartYear)
+      const newSegments = moveSegmentUp(correctedSegments, segmentId)
+      validateAndUpdateSegments(newSegments)
+    }
+    else {
+      const newSegments = moveSegmentUp(segments, segmentId)
+      validateAndUpdateSegments(newSegments)
+    }
   }
 
   // Move a segment down (later in time)
   const moveSegmentDownHandler = (segmentId: string) => {
-    const newSegments = moveSegmentDown(segments, segmentId)
-    validateAndUpdateSegments(newSegments)
+    // If there are validation errors, auto-correct first, then move
+    if (errors.length > 0) {
+      const correctedSegments = autoCorrectSegmentTimeRanges(segments, withdrawalStartYear)
+      const newSegments = moveSegmentDown(correctedSegments, segmentId)
+      validateAndUpdateSegments(newSegments)
+    }
+    else {
+      const newSegments = moveSegmentDown(segments, segmentId)
+      validateAndUpdateSegments(newSegments)
+    }
   }
 
   // Insert a new segment before an existing one
   const insertSegmentBeforeHandler = (beforeSegmentId: string) => {
     const segmentCount = segments.length
     const newSegmentName = `Phase ${segmentCount + 1}`
-    const newSegments = insertSegmentBefore(segments, beforeSegmentId, newSegmentName, 5)
-    validateAndUpdateSegments(newSegments)
+
+    // If there are validation errors, auto-correct first, then insert
+    if (errors.length > 0) {
+      const correctedSegments = autoCorrectSegmentTimeRanges(segments, withdrawalStartYear)
+      const newSegments = insertSegmentBefore(correctedSegments, beforeSegmentId, newSegmentName, 5)
+      validateAndUpdateSegments(newSegments)
+    }
+    else {
+      const newSegments = insertSegmentBefore(segments, beforeSegmentId, newSegmentName, 5)
+      validateAndUpdateSegments(newSegments)
+    }
   }
 
   // Helper function to check if a segment can be moved up
   const canMoveUp = (segmentId: string): boolean => {
-    const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
+    // Use corrected segments for checking if there are errors
+    const segmentsToCheck = errors.length > 0
+      ? autoCorrectSegmentTimeRanges(segments, withdrawalStartYear)
+      : segments
+
+    const sortedSegments = [...segmentsToCheck].sort((a, b) => a.startYear - b.startYear)
     const segmentIndex = sortedSegments.findIndex(s => s.id === segmentId)
     return segmentIndex > 0
   }
 
   // Helper function to check if a segment can be moved down
   const canMoveDown = (segmentId: string): boolean => {
-    const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
+    // Use corrected segments for checking if there are errors
+    const segmentsToCheck = errors.length > 0
+      ? autoCorrectSegmentTimeRanges(segments, withdrawalStartYear)
+      : segments
+
+    const sortedSegments = [...segmentsToCheck].sort((a, b) => a.startYear - b.startYear)
     const segmentIndex = sortedSegments.findIndex(s => s.id === segmentId)
     return segmentIndex >= 0 && segmentIndex < sortedSegments.length - 1
   }
@@ -253,13 +288,22 @@ export function WithdrawalSegmentForm({
                 </Button>
 
                 {errors.length > 0 && (
-                  <Button
-                    onClick={resetSegments}
-                    variant="outline"
-                    className="text-orange-600 border-orange-600 hover:bg-orange-50"
-                  >
-                    Phasen zurücksetzen
-                  </Button>
+                  <>
+                    <Button
+                      onClick={correctSegments}
+                      variant="default"
+                      className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                    >
+                      Phasen korrigieren
+                    </Button>
+                    <Button
+                      onClick={resetSegments}
+                      variant="outline"
+                      className="text-orange-600 border-orange-600 hover:bg-orange-50"
+                    >
+                      Phasen zurücksetzen
+                    </Button>
+                  </>
                 )}
               </div>
             </div>
