@@ -66,7 +66,11 @@ const formatDateForInput = (date: Date | string | null, format: string): string 
   return d.toISOString().substring(0, 10) // YYYY-MM-DD (default)
 }
 
-const handleDateChange = (e: React.ChangeEvent<HTMLInputElement>, format: string, onChange: (date: Date | null) => void) => {
+const handleDateChange = (
+  e: React.ChangeEvent<HTMLInputElement>,
+  format: string,
+  onChange: (date: Date | null) => void,
+) => {
   const inputValue = e.target.value
   if (!inputValue) {
     onChange(null)
@@ -86,7 +90,15 @@ const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (v
   onChange(value ? value : '')
 }
 
-export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans = [initialSparplan] }: { dispatch: (val: Sparplan[]) => void, simulationAnnual: SimulationAnnualType, currentSparplans?: Sparplan[] }) {
+export function SparplanEingabe({
+  dispatch,
+  simulationAnnual,
+  currentSparplans = [initialSparplan],
+}: {
+  dispatch: (val: Sparplan[]) => void
+  simulationAnnual: SimulationAnnualType
+  currentSparplans?: Sparplan[]
+}) {
   const [sparplans, setSparplans] = useState<Sparplan[]>(currentSparplans)
 
   // Synchronize local state with prop changes
@@ -138,8 +150,10 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
           end: sparplanFormValues.end,
           einzahlung: yearlyAmount,
           ter: sparplanFormValues.ter ? Number(sparplanFormValues.ter) : undefined,
-          transactionCostPercent: sparplanFormValues.transactionCostPercent ? Number(sparplanFormValues.transactionCostPercent) : undefined,
-          transactionCostAbsolute: sparplanFormValues.transactionCostAbsolute ? Number(sparplanFormValues.transactionCostAbsolute) : undefined,
+          transactionCostPercent: sparplanFormValues.transactionCostPercent
+            ? Number(sparplanFormValues.transactionCostPercent) : undefined,
+          transactionCostAbsolute: sparplanFormValues.transactionCostAbsolute
+            ? Number(sparplanFormValues.transactionCostAbsolute) : undefined,
         },
       ]
       setSparplans(changedSparplans)
@@ -167,8 +181,10 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
           end: singleFormValue.date,
           einzahlung: Number(singleFormValue.einzahlung),
           ter: singleFormValue.ter ? Number(singleFormValue.ter) : undefined,
-          transactionCostPercent: singleFormValue.transactionCostPercent ? Number(singleFormValue.transactionCostPercent) : undefined,
-          transactionCostAbsolute: singleFormValue.transactionCostAbsolute ? Number(singleFormValue.transactionCostAbsolute) : undefined,
+          transactionCostPercent: singleFormValue.transactionCostPercent
+            ? Number(singleFormValue.transactionCostPercent) : undefined,
+          transactionCostAbsolute: singleFormValue.transactionCostAbsolute
+            ? Number(singleFormValue.transactionCostAbsolute) : undefined,
         },
       ]
       setSparplans(changedSparplans)
@@ -211,7 +227,10 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
                 Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum
               </div>
               <form
-                onSubmit={(e) => { e.preventDefault(); handleSparplanSubmit() }}
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  handleSparplanSubmit()
+                }}
               >
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
                   <div className="mb-4 space-y-2">
@@ -250,7 +269,9 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
                     <Input
                       type="number"
                       value={sparplanFormValues.einzahlung || ''}
-                      onChange={e => handleNumberChange(e, value => setSparplanFormValues({ ...sparplanFormValues, einzahlung: value }))}
+                      onChange={e => handleNumberChange(e, value =>
+                        setSparplanFormValues({ ...sparplanFormValues, einzahlung: value }),
+                      )}
                       placeholder="Betrag eingeben"
                       className="w-full"
                       min={0}
@@ -271,7 +292,9 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
                       <Input
                         type="number"
                         value={sparplanFormValues.ter || ''}
-                        onChange={e => handleNumberChange(e, value => setSparplanFormValues({ ...sparplanFormValues, ter: value }))}
+                        onChange={e => handleNumberChange(e, value =>
+                          setSparplanFormValues({ ...sparplanFormValues, ter: value }),
+                        )}
                         placeholder="z.B. 0.75"
                         className="w-full"
                         min={0}
@@ -288,7 +311,9 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
                       <Input
                         type="number"
                         value={sparplanFormValues.transactionCostPercent || ''}
-                        onChange={e => handleNumberChange(e, value => setSparplanFormValues({ ...sparplanFormValues, transactionCostPercent: value }))}
+                        onChange={e => handleNumberChange(e, value =>
+                          setSparplanFormValues({ ...sparplanFormValues, transactionCostPercent: value }),
+                        )}
                         placeholder="z.B. 0.25"
                         className="w-full"
                         min={0}
@@ -305,7 +330,9 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
                       <Input
                         type="number"
                         value={sparplanFormValues.transactionCostAbsolute || ''}
-                        onChange={e => handleNumberChange(e, value => setSparplanFormValues({ ...sparplanFormValues, transactionCostAbsolute: value }))}
+                        onChange={e => handleNumberChange(e, value =>
+                          setSparplanFormValues({ ...sparplanFormValues, transactionCostAbsolute: value }),
+                        )}
                         placeholder="z.B. 1.50"
                         className="w-full"
                         min={0}
@@ -350,7 +377,10 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
                 Fügen Sie einmalige Zahlungen zu einem bestimmten Zeitpunkt hinzu
               </div>
               <form
-                onSubmit={(e) => { e.preventDefault(); handleSinglePaymentSubmit() }}
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  handleSinglePaymentSubmit()
+                }}
               >
                 <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
                   <div className="mb-4 space-y-2">

@@ -11,7 +11,10 @@ import { Label } from './ui/label'
 import { Plus, Trash2, ChevronDown } from 'lucide-react'
 
 // Helper function for number input handling with number onChange
-const handleNumberInputChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: number | undefined) => void) => {
+const handleNumberInputChange = (
+  e: React.ChangeEvent<HTMLInputElement>,
+  onChange: (value: number | undefined) => void,
+) => {
   const value = e.target.value
   onChange(value ? Math.round(Number(value)) : undefined)
 }
@@ -220,7 +223,9 @@ export function WithdrawalSegmentForm({
                           <Input
                             type="number"
                             value={segment.startYear}
-                            onChange={e => handleNumberInputChange(e, value => updateSegment(segment.id, { startYear: Number(value) || withdrawalStartYear }))}
+                            onChange={e => handleNumberInputChange(e, value =>
+                              updateSegment(segment.id, { startYear: Number(value) || withdrawalStartYear }),
+                            )}
                             min={withdrawalStartYear}
                             max={withdrawalEndYear}
                           />
@@ -230,7 +235,9 @@ export function WithdrawalSegmentForm({
                           <Input
                             type="number"
                             value={segment.endYear}
-                            onChange={e => handleNumberInputChange(e, value => updateSegment(segment.id, { endYear: Number(value) || withdrawalEndYear }))}
+                            onChange={e => handleNumberInputChange(e, value =>
+                              updateSegment(segment.id, { endYear: Number(value) || withdrawalEndYear }),
+                            )}
                             min={withdrawalStartYear}
                             max={withdrawalEndYear}
                           />
@@ -783,7 +790,8 @@ export function WithdrawalSegmentForm({
                               </div>
                             </div>
                             <div className="text-sm text-muted-foreground mt-1">
-                              Volatilität der Renditen (meist niedriger als Ansparphase wegen konservativerer Allokation)
+                              Volatilität der Renditen (meist niedriger als Ansparphase wegen konservativerer
+                              Allokation)
                             </div>
                           </div>
 
@@ -917,7 +925,9 @@ export function WithdrawalSegmentForm({
                         <Label>Grundfreibetrag berücksichtigen</Label>
                         <Switch
                           checked={segment.enableGrundfreibetrag || false}
-                          onCheckedChange={(checked: boolean) => updateSegment(segment.id, { enableGrundfreibetrag: checked })}
+                          onCheckedChange={(checked: boolean) =>
+                            updateSegment(segment.id, { enableGrundfreibetrag: checked })
+                          }
                         />
                       </div>
 
@@ -929,7 +939,8 @@ export function WithdrawalSegmentForm({
                               type="number"
                               value={(() => {
                                 // Get the first year's value or default to 10908
-                                if (segment.grundfreibetragPerYear && segment.startYear in segment.grundfreibetragPerYear) {
+                                if (segment.grundfreibetragPerYear
+                                  && segment.startYear in segment.grundfreibetragPerYear) {
                                   return segment.grundfreibetragPerYear[segment.startYear]
                                 }
                                 return 10908 // Default German basic allowance for 2023
@@ -996,7 +1007,8 @@ export function WithdrawalSegmentForm({
                           </span>
                         </div>
                         <div className="text-sm text-muted-foreground mt-1">
-                          Bestimmt, ob Vorabpauschale-Steuern das Endkapital dieser Phase reduzieren oder über ein separates Verrechnungskonto bezahlt werden.
+                          Bestimmt, ob Vorabpauschale-Steuern das Endkapital dieser Phase reduzieren oder über ein
+                          separates Verrechnungskonto bezahlt werden.
                         </div>
                       </div>
                     </CardContent>

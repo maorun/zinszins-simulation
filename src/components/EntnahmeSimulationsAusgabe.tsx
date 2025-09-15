@@ -264,7 +264,8 @@ export function EntnahmeSimulationsAusgabe({
                             Das Jahr, in dem die Entnahmephase enden soll (z.B. 2080)
                           </div>
 
-                          {/* Helper for calculating end of life year from birth year - only show when automatic mode is enabled */}
+                          {/* Helper for calculating end of life year from birth year - only show when
+                               automatic mode is enabled */}
                           {useAutomaticCalculation && (
                             <div className="p-3 bg-blue-50 rounded-lg space-y-3">
                               <div className="text-sm font-medium text-blue-900">Lebensende automatisch berechnen</div>
@@ -424,11 +425,15 @@ export function EntnahmeSimulationsAusgabe({
                                       if (birthYear && spouse?.birthYear && gender && spouse?.gender) {
                                         const age1 = calculateCurrentAge(birthYear)
                                         const age2 = calculateCurrentAge(spouse.birthYear)
-                                        const jointLifeExpectancy = calculateJointLifeExpectancy(age1, age2, gender, spouse.gender)
+                                        const jointLifeExpectancy = calculateJointLifeExpectancy(
+                                          age1, age2, gender, spouse.gender,
+                                        )
 
                                         // Use the older person's birth year + joint life expectancy
                                         const olderBirthYear = Math.min(birthYear, spouse.birthYear)
-                                        const calculatedYear = calculateEndOfLifeYear(olderBirthYear, jointLifeExpectancy + calculateCurrentAge(olderBirthYear))
+                                        const calculatedYear = calculateEndOfLifeYear(
+                                          olderBirthYear, jointLifeExpectancy + calculateCurrentAge(olderBirthYear),
+                                        )
                                         setEndOfLife(Math.round(calculatedYear))
                                       }
                                     }}
@@ -460,7 +465,10 @@ export function EntnahmeSimulationsAusgabe({
                                         {' '}
                                         Jahre (längerer überlebender Partner)
                                       </div>
-                                      <div>Dies entspricht der Wahrscheinlichkeit, dass mindestens eine Person noch am Leben ist.</div>
+                                      <div>
+                                        Dies entspricht der Wahrscheinlichkeit, dass mindestens eine Person noch am
+                                        Leben ist.
+                                      </div>
                                     </div>
                                   )}
                                 </>
