@@ -1,59 +1,59 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
-import { EntnahmeSimulationsAusgabe } from './EntnahmeSimulationsAusgabe';
-import type { SparplanElement } from '../utils/sparplan-utils';
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { EntnahmeSimulationsAusgabe } from './EntnahmeSimulationsAusgabe'
+import type { SparplanElement } from '../utils/sparplan-utils'
 
 // Mock the simulation context
-const mockUseSimulation = vi.fn();
+const mockUseSimulation = vi.fn()
 vi.mock('../contexts/useSimulation', () => ({
   useSimulation: () => mockUseSimulation(),
-}));
+}))
 
 // Mock the hooks
-const mockUseWithdrawalConfig = vi.fn();
-const mockUseWithdrawalCalculations = vi.fn();
-const mockUseWithdrawalModals = vi.fn();
+const mockUseWithdrawalConfig = vi.fn()
+const mockUseWithdrawalCalculations = vi.fn()
+const mockUseWithdrawalModals = vi.fn()
 
 vi.mock('../hooks/useWithdrawalConfig', () => ({
   useWithdrawalConfig: () => mockUseWithdrawalConfig(),
-}));
+}))
 
 vi.mock('../hooks/useWithdrawalCalculations', () => ({
   useWithdrawalCalculations: () => mockUseWithdrawalCalculations(),
-}));
+}))
 
 vi.mock('../hooks/useWithdrawalModals', () => ({
   useWithdrawalModals: () => mockUseWithdrawalModals(),
-}));
+}))
 
 describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
   // Helper function to expand both Variables and Global Configuration sections
   const expandVariablesAndGlobalConfig = async () => {
     // Expand the Variables section first
-    const variablesSection = screen.getByText('Variablen');
-    fireEvent.click(variablesSection);
+    const variablesSection = screen.getByText('Variablen')
+    fireEvent.click(variablesSection)
 
     // Then expand the Global Configuration section
     await waitFor(() => {
-      expect(screen.getByText('Globale Konfiguration')).toBeInTheDocument();
-    });
-    
-    const globalConfigSection = screen.getByText('Globale Konfiguration');
-    fireEvent.click(globalConfigSection);
+      expect(screen.getByText('Globale Konfiguration')).toBeInTheDocument()
+    })
+
+    const globalConfigSection = screen.getByText('Globale Konfiguration')
+    fireEvent.click(globalConfigSection)
 
     // Then expand the Statutory Pension Configuration section
     await waitFor(() => {
-      expect(screen.getByText('🏛️ Gesetzliche Renten-Konfiguration')).toBeInTheDocument();
-    });
-    
-    const statutoryPensionSection = screen.getByText('🏛️ Gesetzliche Renten-Konfiguration');
-    fireEvent.click(statutoryPensionSection);
+      expect(screen.getByText('🏛️ Gesetzliche Renten-Konfiguration')).toBeInTheDocument()
+    })
+
+    const statutoryPensionSection = screen.getByText('🏛️ Gesetzliche Renten-Konfiguration')
+    fireEvent.click(statutoryPensionSection)
 
     // Wait for the statutory pension content to be visible
     await waitFor(() => {
-      expect(screen.getByText('Gesetzliche Rente berücksichtigen')).toBeInTheDocument();
-    });
-  };
+      expect(screen.getByText('Gesetzliche Rente berücksichtigen')).toBeInTheDocument()
+    })
+  }
 
   const mockElements: SparplanElement[] = [
     {
@@ -69,22 +69,22 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
           genutzterFreibetrag: 0,
           vorabpauschale: 0,
           vorabpauschaleAccumulated: 0,
-        }
-      }
-    }
-  ];
+        },
+      },
+    },
+  ]
 
-  const mockDispatchEnd = vi.fn();
-  const mockOnWithdrawalResultsChange = vi.fn();
+  const mockDispatchEnd = vi.fn()
+  const mockOnWithdrawalResultsChange = vi.fn()
 
   beforeEach(() => {
-    vi.clearAllMocks();
-    
+    vi.clearAllMocks()
+
     // Default mock implementations
     mockUseSimulation.mockReturnValue({
       grundfreibetragAktiv: false,
       grundfreibetragBetrag: 12000,
-    });
+    })
 
     mockUseWithdrawalModals.mockReturnValue({
       showCalculationModal: false,
@@ -95,14 +95,14 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       setSelectedVorabDetails: vi.fn(),
       showVorabModal: false,
       setShowVorabModal: vi.fn(),
-    });
+    })
 
     mockUseWithdrawalCalculations.mockReturnValue({
       withdrawalData: null,
       comparisonResults: [],
       segmentedComparisonResults: [],
-    });
-  });
+    })
+  })
 
   it('should render statutory pension configuration when enabled', async () => {
     const mockCurrentConfig = {
@@ -147,10 +147,10 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       comparisonStrategies: [],
       useSegmentedComparisonMode: false,
       segmentedComparisonStrategies: [],
-    };
+    }
 
-    const mockUpdateFormValue = vi.fn();
-    
+    const mockUpdateFormValue = vi.fn()
+
     mockUseWithdrawalConfig.mockReturnValue({
       currentConfig: mockCurrentConfig,
       updateConfig: vi.fn(),
@@ -159,7 +159,7 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       updateSegmentedComparisonStrategy: vi.fn(),
       addSegmentedComparisonStrategy: vi.fn(),
       removeSegmentedComparisonStrategy: vi.fn(),
-    });
+    })
 
     render(
       <EntnahmeSimulationsAusgabe
@@ -169,12 +169,12 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
         onWithdrawalResultsChange={mockOnWithdrawalResultsChange}
         steuerlast={26.375}
         teilfreistellungsquote={30}
-      />
-    );
+      />,
+    )
 
     // Expand the Variables and Global Configuration sections
-    await expandVariablesAndGlobalConfig();
-  });
+    await expandVariablesAndGlobalConfig()
+  })
 
   it('should handle statutory pension configuration updates', async () => {
     const mockCurrentConfig = {
@@ -218,10 +218,10 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       comparisonStrategies: [],
       useSegmentedComparisonMode: false,
       segmentedComparisonStrategies: [],
-    };
+    }
 
-    const mockUpdateFormValue = vi.fn();
-    
+    const mockUpdateFormValue = vi.fn()
+
     mockUseWithdrawalConfig.mockReturnValue({
       currentConfig: mockCurrentConfig,
       updateConfig: vi.fn(),
@@ -230,7 +230,7 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       updateSegmentedComparisonStrategy: vi.fn(),
       addSegmentedComparisonStrategy: vi.fn(),
       removeSegmentedComparisonStrategy: vi.fn(),
-    });
+    })
 
     render(
       <EntnahmeSimulationsAusgabe
@@ -240,16 +240,16 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
         onWithdrawalResultsChange={mockOnWithdrawalResultsChange}
         steuerlast={26.375}
         teilfreistellungsquote={30}
-      />
-    );
+      />,
+    )
 
     // Expand the Variables and Global Configuration sections
-    await expandVariablesAndGlobalConfig();
+    await expandVariablesAndGlobalConfig()
 
     // Wait for the toggle to be visible and then click it
-    const toggle = screen.getByRole('switch', { name: /Gesetzliche Rente berücksichtigen/i });
-    expect(toggle).toBeInTheDocument();
-    fireEvent.click(toggle);
+    const toggle = screen.getByRole('switch', { name: /Gesetzliche Rente berücksichtigen/i })
+    expect(toggle).toBeInTheDocument()
+    fireEvent.click(toggle)
 
     // Should call updateFormValue with enabled: true
     await waitFor(() => {
@@ -258,9 +258,9 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
           ...mockCurrentConfig.formValue.statutoryPensionConfig,
           enabled: true,
         },
-      });
-    });
-  });
+      })
+    })
+  })
 
   it('should display statutory pension configuration fields when enabled', async () => {
     const mockCurrentConfig = {
@@ -305,7 +305,7 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       comparisonStrategies: [],
       useSegmentedComparisonMode: false,
       segmentedComparisonStrategies: [],
-    };
+    }
 
     mockUseWithdrawalConfig.mockReturnValue({
       currentConfig: mockCurrentConfig,
@@ -315,7 +315,7 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       updateSegmentedComparisonStrategy: vi.fn(),
       addSegmentedComparisonStrategy: vi.fn(),
       removeSegmentedComparisonStrategy: vi.fn(),
-    });
+    })
 
     render(
       <EntnahmeSimulationsAusgabe
@@ -325,22 +325,22 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
         onWithdrawalResultsChange={mockOnWithdrawalResultsChange}
         steuerlast={26.375}
         teilfreistellungsquote={30}
-      />
-    );
+      />,
+    )
 
     // Expand the Variables and Global Configuration sections
-    await expandVariablesAndGlobalConfig();
+    await expandVariablesAndGlobalConfig()
 
     // Wait for content to be visible and check configuration fields
     await waitFor(() => {
-      expect(screen.getByText('Daten aus Rentenbescheid importieren')).toBeInTheDocument();
-      expect(screen.getByLabelText('Rentenbeginn (Jahr)')).toBeInTheDocument();
-      expect(screen.getByLabelText('Monatliche Rente (brutto) €')).toBeInTheDocument();
-      expect(screen.getByText('Jährliche Rentenanpassung (%)')).toBeInTheDocument();
-      expect(screen.getByText('Steuerpflichtiger Anteil (%)')).toBeInTheDocument();
-      expect(screen.getByText('Zusammenfassung')).toBeInTheDocument();
-    });
-  });
+      expect(screen.getByText('Daten aus Rentenbescheid importieren')).toBeInTheDocument()
+      expect(screen.getByLabelText('Rentenbeginn (Jahr)')).toBeInTheDocument()
+      expect(screen.getByLabelText('Monatliche Rente (brutto) €')).toBeInTheDocument()
+      expect(screen.getByText('Jährliche Rentenanpassung (%)')).toBeInTheDocument()
+      expect(screen.getByText('Steuerpflichtiger Anteil (%)')).toBeInTheDocument()
+      expect(screen.getByText('Zusammenfassung')).toBeInTheDocument()
+    })
+  })
 
   it('should pass statutory pension config to withdrawal calculations', () => {
     const mockCurrentConfig = {
@@ -384,7 +384,7 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       comparisonStrategies: [],
       useSegmentedComparisonMode: false,
       segmentedComparisonStrategies: [],
-    };
+    }
 
     mockUseWithdrawalConfig.mockReturnValue({
       currentConfig: mockCurrentConfig,
@@ -394,7 +394,7 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       updateSegmentedComparisonStrategy: vi.fn(),
       addSegmentedComparisonStrategy: vi.fn(),
       removeSegmentedComparisonStrategy: vi.fn(),
-    });
+    })
 
     render(
       <EntnahmeSimulationsAusgabe
@@ -404,12 +404,12 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
         onWithdrawalResultsChange={mockOnWithdrawalResultsChange}
         steuerlast={26.375}
         teilfreistellungsquote={30}
-      />
-    );
+      />,
+    )
 
     // Verify that useWithdrawalCalculations was called (the exact parameters are complex to match)
-    expect(mockUseWithdrawalCalculations).toHaveBeenCalled();
-  });
+    expect(mockUseWithdrawalCalculations).toHaveBeenCalled()
+  })
 
   it('should handle tax return data import', async () => {
     const mockCurrentConfig = {
@@ -458,9 +458,9 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       comparisonStrategies: [],
       useSegmentedComparisonMode: false,
       segmentedComparisonStrategies: [],
-    };
+    }
 
-    const mockUpdateFormValue = vi.fn();
+    const mockUpdateFormValue = vi.fn()
 
     mockUseWithdrawalConfig.mockReturnValue({
       currentConfig: mockCurrentConfig,
@@ -470,7 +470,7 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
       updateSegmentedComparisonStrategy: vi.fn(),
       addSegmentedComparisonStrategy: vi.fn(),
       removeSegmentedComparisonStrategy: vi.fn(),
-    });
+    })
 
     render(
       <EntnahmeSimulationsAusgabe
@@ -480,25 +480,25 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
         onWithdrawalResultsChange={mockOnWithdrawalResultsChange}
         steuerlast={26.375}
         teilfreistellungsquote={30}
-      />
-    );
+      />,
+    )
 
     // Expand the Variables and Global Configuration sections
-    await expandVariablesAndGlobalConfig();
+    await expandVariablesAndGlobalConfig()
 
     // Wait for the content to be visible
     await waitFor(() => {
-      const toggle = screen.getByLabelText('Daten aus Rentenbescheid verfügbar');
-      expect(toggle).toBeInTheDocument();
-      fireEvent.click(toggle);
-    });
+      const toggle = screen.getByLabelText('Daten aus Rentenbescheid verfügbar')
+      expect(toggle).toBeInTheDocument()
+      fireEvent.click(toggle)
+    })
 
     // Wait for tax return fields to appear and find the import button
     await waitFor(() => {
-      const importButton = screen.getByRole('button', { name: /Werte automatisch berechnen/i });
-      expect(importButton).toBeInTheDocument();
-      fireEvent.click(importButton);
-    });
+      const importButton = screen.getByRole('button', { name: /Werte automatisch berechnen/i })
+      expect(importButton).toBeInTheDocument()
+      fireEvent.click(importButton)
+    })
 
     // Should call updateFormValue with calculated values
     await waitFor(() => {
@@ -507,7 +507,7 @@ describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
           monthlyAmount: 1600, // 19200 / 12
           taxablePercentage: 80, // 15360 / 19200 * 100
         }),
-      });
-    });
-  });
-});
+      })
+    })
+  })
+})

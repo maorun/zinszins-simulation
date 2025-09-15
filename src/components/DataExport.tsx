@@ -1,14 +1,18 @@
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
-import { Button } from './ui/button';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { ChevronDown, Download, FileText, Copy, Info } from 'lucide-react';
-import { useParameterExport } from '../hooks/useParameterExport';
-import { useDataExport } from '../hooks/useDataExport';
-import { useSimulation } from '../contexts/useSimulation';
-import { useNestingLevel } from '../lib/nesting-utils';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
+import { Button } from './ui/button'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
+import { ChevronDown, Download, FileText, Copy, Info } from 'lucide-react'
+import { useParameterExport } from '../hooks/useParameterExport'
+import { useDataExport } from '../hooks/useDataExport'
+import { useSimulation } from '../contexts/useSimulation'
+import { useNestingLevel } from '../lib/nesting-utils'
 
 const DataExport = () => {
-  const { exportParameters, isExporting: isParameterExporting, lastExportResult: parameterExportResult } = useParameterExport();
+  const {
+    exportParameters,
+    isExporting: isParameterExporting,
+    lastExportResult: parameterExportResult,
+  } = useParameterExport()
   const {
     exportSavingsDataCSV,
     exportWithdrawalDataCSV,
@@ -17,73 +21,80 @@ const DataExport = () => {
     copyCalculationExplanations,
     isExporting: isDataExporting,
     lastExportResult: dataExportResult,
-    exportType
-  } = useDataExport();
-  
-  const { simulationData, withdrawalResults, withdrawalConfig } = useSimulation();
-  const nestingLevel = useNestingLevel();
+    exportType,
+  } = useDataExport()
+
+  const { simulationData, withdrawalResults, withdrawalConfig } = useSimulation()
+  const nestingLevel = useNestingLevel()
 
   const handleParameterExportClick = async () => {
-    await exportParameters();
-  };
+    await exportParameters()
+  }
 
   const getParameterExportButtonText = () => {
-    if (isParameterExporting) return 'Exportiere...';
-    if (parameterExportResult === 'success') return '✓ Kopiert!';
-    if (parameterExportResult === 'error') return '✗ Fehler';
-    return '📋 Parameter kopieren';
-  };
+    if (isParameterExporting) return 'Exportiere...'
+    if (parameterExportResult === 'success') return '✓ Kopiert!'
+    if (parameterExportResult === 'error') return '✗ Fehler'
+    return '📋 Parameter kopieren'
+  }
 
   const getParameterExportButtonVariant = () => {
-    if (parameterExportResult === 'success') return 'secondary';
-    if (parameterExportResult === 'error') return 'destructive';
-    return 'outline';
-  };
+    if (parameterExportResult === 'success') return 'secondary'
+    if (parameterExportResult === 'error') return 'destructive'
+    return 'outline'
+  }
 
   const getDataExportButtonText = (buttonType: 'csv' | 'markdown' | 'clipboard') => {
     if (isDataExporting && exportType === buttonType) {
-      return 'Exportiere...';
+      return 'Exportiere...'
     }
     if (dataExportResult === 'success' && exportType === buttonType) {
-      return '✓ Erfolg!';
+      return '✓ Erfolg!'
     }
     if (dataExportResult === 'error' && exportType === buttonType) {
-      return '✗ Fehler';
+      return '✗ Fehler'
     }
-    
+
     switch (buttonType) {
       case 'csv':
-        return 'CSV herunterladen';
+        return 'CSV herunterladen'
       case 'markdown':
-        return 'Markdown herunterladen';
+        return 'Markdown herunterladen'
       case 'clipboard':
-        return 'Formeln kopieren';
+        return 'Formeln kopieren'
       default:
-        return 'Export';
+        return 'Export'
     }
-  };
+  }
 
   const getDataExportButtonVariant = (buttonType: 'csv' | 'markdown' | 'clipboard') => {
-    if (dataExportResult === 'success' && exportType === buttonType) return 'secondary';
-    if (dataExportResult === 'error' && exportType === buttonType) return 'destructive';
-    return 'default';
-  };
+    if (dataExportResult === 'success' && exportType === buttonType) return 'secondary'
+    if (dataExportResult === 'error' && exportType === buttonType) return 'destructive'
+    return 'default'
+  }
 
-  const hasSavingsData = simulationData?.sparplanElements && simulationData.sparplanElements.length > 0;
-  const hasWithdrawalData = withdrawalResults && Object.keys(withdrawalResults).length > 0;
-  const hasWithdrawalConfig = withdrawalConfig && withdrawalConfig.formValue;
+  const hasSavingsData = simulationData?.sparplanElements && simulationData.sparplanElements.length > 0
+  const hasWithdrawalData = withdrawalResults && Object.keys(withdrawalResults).length > 0
+  const hasWithdrawalConfig = withdrawalConfig && withdrawalConfig.formValue
   // Enhanced detection: check for withdrawal configuration that might be loaded from localStorage
   const hasWithdrawalConfigFromStorage = withdrawalConfig && (
-    withdrawalConfig.formValue || 
-    withdrawalConfig.useSegmentedWithdrawal || 
-    withdrawalConfig.withdrawalSegments?.length > 0
-  );
-  // More robust detection: withdrawal capability exists if we have either results, config, or both savings data and basic setup
-  const hasWithdrawalCapability = hasWithdrawalData || hasWithdrawalConfig || hasWithdrawalConfigFromStorage || (hasSavingsData && withdrawalConfig);
-  const hasAnyData = hasSavingsData || hasWithdrawalData || hasWithdrawalConfig || hasWithdrawalConfigFromStorage;
+    withdrawalConfig.formValue
+    || withdrawalConfig.useSegmentedWithdrawal
+    || withdrawalConfig.withdrawalSegments?.length > 0
+  )
+  // More robust detection: withdrawal capability exists if we have either results,
+  // config, or both savings data and basic setup
+  const hasWithdrawalCapability = hasWithdrawalData
+    || hasWithdrawalConfig
+    || hasWithdrawalConfigFromStorage
+    || (hasSavingsData && withdrawalConfig)
+  const hasAnyData = hasSavingsData
+    || hasWithdrawalData
+    || hasWithdrawalConfig
+    || hasWithdrawalConfigFromStorage
 
   return (
-    <Card nestingLevel={nestingLevel}>
+    <Card nestingLevel={nestingLevel} className="mb-4">
       <Collapsible defaultOpen={false}>
         <CardHeader nestingLevel={nestingLevel}>
           <CollapsibleTrigger asChild>
@@ -98,7 +109,7 @@ const DataExport = () => {
         <CollapsibleContent>
           <CardContent nestingLevel={nestingLevel}>
             <div className="space-y-6">
-              
+
               {/* Parameter Export Section */}
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -131,7 +142,7 @@ const DataExport = () => {
                 <p className="text-sm text-gray-600">
                   Exportiert Simulationsdaten in verschiedenen Formaten mit Jahr-für-Jahr Aufschlüsselung.
                 </p>
-                
+
                 {!hasAnyData && (
                   <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
                     <div className="flex items-center gap-2 text-yellow-800 text-sm">
@@ -145,11 +156,11 @@ const DataExport = () => {
 
                 {hasAnyData && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-                    
+
                     {/* CSV Export Options */}
                     <div className="space-y-2">
                       <h4 className="text-xs font-medium text-gray-600 uppercase tracking-wide">CSV Format</h4>
-                      
+
                       {hasSavingsData && (
                         <Button
                           variant={getDataExportButtonVariant('csv')}
@@ -162,7 +173,7 @@ const DataExport = () => {
                           Sparphase
                         </Button>
                       )}
-                      
+
                       {hasWithdrawalCapability && (
                         <Button
                           variant={getDataExportButtonVariant('csv')}
@@ -175,7 +186,7 @@ const DataExport = () => {
                           Entnahmephase
                         </Button>
                       )}
-                      
+
                       {hasSavingsData && hasWithdrawalCapability && (
                         <Button
                           variant={getDataExportButtonVariant('csv')}
@@ -257,7 +268,7 @@ const DataExport = () => {
         </CollapsibleContent>
       </Collapsible>
     </Card>
-  );
-};
+  )
+}
 
-export default DataExport;
+export default DataExport

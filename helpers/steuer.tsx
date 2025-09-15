@@ -1,53 +1,53 @@
-import type { BasiszinsConfiguration } from '../src/services/bundesbank-api';
+import type { BasiszinsConfiguration } from '../src/services/bundesbank-api'
 
 // Historical and projected German Basiszins (base interest rate) values for Vorabpauschale calculation
 // These are official rates set by the German Federal Ministry of Finance
 // NOTE: This is now a fallback - the main configuration should come from BasiszinsConfiguration
 const basiszinsen: {
-    [year: number]: number;
+  [year: number]: number
 } = {
-    2018: 0.0087, // 0.87%
-    2019: 0.0087, // 0.87%
-    2020: 0.0070, // 0.70%
-    2021: 0.0070, // 0.70%
-    2022: 0.0180, // 1.80%
-    2023: 0.0255, // 2.55%
-    2024: 0.0255, // 2.55% (estimated - to be updated when official)
-    2025: 0.0255, // 2.55% (projected - to be updated when official)
-};
+  2018: 0.0087, // 0.87%
+  2019: 0.0087, // 0.87%
+  2020: 0.0070, // 0.70%
+  2021: 0.0070, // 0.70%
+  2022: 0.0180, // 1.80%
+  2023: 0.0255, // 2.55%
+  2024: 0.0255, // 2.55% (estimated - to be updated when official)
+  2025: 0.0255, // 2.55% (projected - to be updated when official)
+}
 
 /**
  * Get the basiszins (base interest rate) for a specific year
  * Falls back to the latest available year if the requested year is not found
- * 
+ *
  * @param year - The year to get the basiszins for
  * @param basiszinsConfig - Optional configurable basiszins configuration (from Deutsche Bundesbank)
  */
 export function getBasiszinsForYear(year: number, basiszinsConfig?: BasiszinsConfiguration): number {
-    // First, try to use the configurable basiszins if provided
-    if (basiszinsConfig && basiszinsConfig[year]) {
-        return basiszinsConfig[year].rate;
+  // First, try to use the configurable basiszins if provided
+  if (basiszinsConfig && basiszinsConfig[year]) {
+    return basiszinsConfig[year].rate
+  }
+
+  // Fallback to hardcoded historical data
+  if (basiszinsen[year] !== undefined) {
+    return basiszinsen[year]
+  }
+
+  // If using configurable basiszins, find the most recent rate
+  if (basiszinsConfig) {
+    const availableYears = Object.keys(basiszinsConfig).map(Number).sort((a, b) => b - a)
+    if (availableYears.length > 0) {
+      const latestYear = availableYears[0]
+      return basiszinsConfig[latestYear].rate
     }
-    
-    // Fallback to hardcoded historical data
-    if (basiszinsen[year] !== undefined) {
-        return basiszinsen[year];
-    }
-    
-    // If using configurable basiszins, find the most recent rate
-    if (basiszinsConfig) {
-        const availableYears = Object.keys(basiszinsConfig).map(Number).sort((a, b) => b - a);
-        if (availableYears.length > 0) {
-            const latestYear = availableYears[0];
-            return basiszinsConfig[latestYear].rate;
-        }
-    }
-    
-    // Final fallback to the latest available year from hardcoded data
-    const availableYears = Object.keys(basiszinsen).map(Number).sort((a, b) => b - a);
-    const latestYear = availableYears[0];
-    
-    return basiszinsen[latestYear] || 0.0255; // Ultimate fallback to 2023 rate
+  }
+
+  // Final fallback to the latest available year from hardcoded data
+  const availableYears = Object.keys(basiszinsen).map(Number).sort((a, b) => b - a)
+  const latestYear = availableYears[0]
+
+  return basiszinsen[latestYear] || 0.0255 // Ultimate fallback to 2023 rate
 }
 
 /**
@@ -62,22 +62,22 @@ export function getBasiszinsForYear(year: number, basiszinsConfig?: BasiszinsCon
  * @returns The calculated Vorabpauschale amount (pre-tax).
  */
 export function calculateVorabpauschale(
-    startwert: number,
-    endwert: number,
-    basiszins: number,
-    anteilImJahr: number = 12,
+  startwert: number,
+  endwert: number,
+  basiszins: number,
+  anteilImJahr: number = 12,
 ): number {
-    const jahresgewinn = endwert - startwert;
-    const vorabpauschale_prozentsatz = 0.7;
+  const jahresgewinn = endwert - startwert
+  const vorabpauschale_prozentsatz = 0.7
 
-    // The Basisertrag is 70% of the gain the investment would have made at the base interest rate.
-    let basisertrag = startwert * basiszins * vorabpauschale_prozentsatz;
-    basisertrag = (anteilImJahr / 12) * basisertrag;
+  // The Basisertrag is 70% of the gain the investment would have made at the base interest rate.
+  let basisertrag = startwert * basiszins * vorabpauschale_prozentsatz
+  basisertrag = (anteilImJahr / 12) * basisertrag
 
-    // The Vorabpauschale is the lesser of the Basisertrag and the actual gain. It cannot be negative.
-    const vorabpauschale = Math.max(0, Math.min(basisertrag, jahresgewinn));
+  // The Vorabpauschale is the lesser of the Basisertrag and the actual gain. It cannot be negative.
+  const vorabpauschale = Math.max(0, Math.min(basisertrag, jahresgewinn))
 
-    return vorabpauschale;
+  return vorabpauschale
 }
 
 /**
@@ -93,47 +93,46 @@ export function calculateVorabpauschale(
  * @returns Detailed breakdown of the Vorabpauschale calculation.
  */
 export function calculateVorabpauschaleDetailed(
-    startwert: number,
-    endwert: number,
-    basiszins: number,
-    anteilImJahr: number = 12,
-    steuerlast: number,
-    teilFreistellungsquote: number
+  startwert: number,
+  endwert: number,
+  basiszins: number,
+  anteilImJahr: number = 12,
+  steuerlast: number,
+  teilFreistellungsquote: number,
 ): {
-    basiszins: number;
-    basisertrag: number;
-    vorabpauschaleAmount: number;
-    steuerVorFreibetrag: number;
-    jahresgewinn: number;
-    anteilImJahr: number;
+  basiszins: number
+  basisertrag: number
+  vorabpauschaleAmount: number
+  steuerVorFreibetrag: number
+  jahresgewinn: number
+  anteilImJahr: number
 } {
-    const jahresgewinn = endwert - startwert;
-    const vorabpauschale_prozentsatz = 0.7;
+  const jahresgewinn = endwert - startwert
+  const vorabpauschale_prozentsatz = 0.7
 
-    // Step 1: Calculate Basisertrag - 70% of theoretical gain at base interest rate
-    let basisertrag = startwert * basiszins * vorabpauschale_prozentsatz;
-    basisertrag = (anteilImJahr / 12) * basisertrag;
+  // Step 1: Calculate Basisertrag - 70% of theoretical gain at base interest rate
+  let basisertrag = startwert * basiszins * vorabpauschale_prozentsatz
+  basisertrag = (anteilImJahr / 12) * basisertrag
 
-    // Step 2: Vorabpauschale is minimum of Basisertrag and actual gain, cannot be negative
-    const vorabpauschaleAmount = Math.max(0, Math.min(basisertrag, jahresgewinn));
+  // Step 2: Vorabpauschale is minimum of Basisertrag and actual gain, cannot be negative
+  const vorabpauschaleAmount = Math.max(0, Math.min(basisertrag, jahresgewinn))
 
-    // Step 3: Calculate tax on Vorabpauschale before allowance deduction
-    const steuerVorFreibetrag = calculateSteuerOnVorabpauschale(
-        vorabpauschaleAmount,
-        steuerlast,
-        teilFreistellungsquote
-    );
+  // Step 3: Calculate tax on Vorabpauschale before allowance deduction
+  const steuerVorFreibetrag = calculateSteuerOnVorabpauschale(
+    vorabpauschaleAmount,
+    steuerlast,
+    teilFreistellungsquote,
+  )
 
-    return {
-        basiszins,
-        basisertrag,
-        vorabpauschaleAmount,
-        steuerVorFreibetrag,
-        jahresgewinn,
-        anteilImJahr
-    };
+  return {
+    basiszins,
+    basisertrag,
+    vorabpauschaleAmount,
+    steuerVorFreibetrag,
+    jahresgewinn,
+    anteilImJahr,
+  }
 }
-
 
 /**
  * Calculates the tax due on a given Vorabpauschale amount.
@@ -144,13 +143,12 @@ export function calculateVorabpauschaleDetailed(
  * @returns The calculated tax amount.
  */
 export function calculateSteuerOnVorabpauschale(
-    vorabpauschale: number,
-    steuerlast: number,
-    teilFreistellungsquote: number
+  vorabpauschale: number,
+  steuerlast: number,
+  teilFreistellungsquote: number,
 ): number {
-    if (vorabpauschale <= 0) {
-        return 0;
-    }
-    return vorabpauschale * steuerlast * (1 - teilFreistellungsquote);
+  if (vorabpauschale <= 0) {
+    return 0
+  }
+  return vorabpauschale * steuerlast * (1 - teilFreistellungsquote)
 }
-

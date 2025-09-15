@@ -1,23 +1,23 @@
 /// <reference types="@testing-library/jest-dom" />
-import { describe, it, expect, beforeEach, vi } from 'vitest';
-import { formatParametersForExport, copyParametersToClipboard } from './parameter-export';
-import type { SimulationContextState } from '../contexts/SimulationContext';
+import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { formatParametersForExport, copyParametersToClipboard } from './parameter-export'
+import type { SimulationContextState } from '../contexts/SimulationContext'
 
 // Mock the navigator.clipboard API
 const mockClipboard = {
   writeText: vi.fn(),
-};
+}
 
 Object.assign(navigator, {
   clipboard: mockClipboard,
-});
+})
 
 describe('Parameter Export', () => {
-  let mockContext: SimulationContextState;
+  let mockContext: SimulationContextState
 
   beforeEach(() => {
-    mockClipboard.writeText.mockReset();
-    
+    mockClipboard.writeText.mockReset()
+
     // Create a minimal mock context with required properties
     mockContext = {
       rendite: 5.0,
@@ -74,79 +74,79 @@ describe('Parameter Export', () => {
       setEndOfLife: vi.fn(),
       setLifeExpectancyTable: vi.fn(),
       setCustomLifeExpectancy: vi.fn(),
-    } as any;
-  });
+    } as any
+  })
 
   describe('formatParametersForExport', () => {
     it('should format basic financial parameters correctly', () => {
-      const result = formatParametersForExport(mockContext);
-      
-      expect(result).toContain('Rendite: 5.00 %');
-      expect(result).toContain('Kapitalertragsteuer: 26.38 %');
-      expect(result).toContain('Teilfreistellungsquote: 30.00 %');
-    });
+      const result = formatParametersForExport(mockContext)
+
+      expect(result).toContain('Rendite: 5.00 %')
+      expect(result).toContain('Kapitalertragsteuer: 26.38 %')
+      expect(result).toContain('Teilfreistellungsquote: 30.00 %')
+    })
 
     it('should format time range and simulation settings', () => {
-      const result = formatParametersForExport(mockContext);
-      
-      expect(result).toContain('Zeitraum: 2023 - 2040');
-      expect(result).toContain('Simulationsmodus: Jährlich');
-      expect(result).toContain('Rendite-Modus: Fest');
-    });
+      const result = formatParametersForExport(mockContext)
+
+      expect(result).toContain('Zeitraum: 2023 - 2040')
+      expect(result).toContain('Simulationsmodus: Jährlich')
+      expect(result).toContain('Rendite-Modus: Fest')
+    })
 
     it('should format tax allowances with Euro currency', () => {
-      const result = formatParametersForExport(mockContext);
-      
-      expect(result).toContain('Freibeträge pro Jahr:');
-      expect(result).toContain('  2023: 2.000,00\u00A0€'); // Note: \u00A0 is non-breaking space from German locale formatting
-    });
+      const result = formatParametersForExport(mockContext)
+
+      expect(result).toContain('Freibeträge pro Jahr:')
+      expect(result).toContain('  2023: 2.000,00\u00A0€') // Note: \u00A0 is non-breaking space from German locale formatting
+    })
 
     it('should format inflation settings for savings phase when enabled', () => {
-      const result = formatParametersForExport(mockContext);
-      
-      expect(result).toContain('Inflation Sparphase: Ja');
-      expect(result).toContain('Inflationsrate Sparphase: 2.50 %');
-    });
+      const result = formatParametersForExport(mockContext)
+
+      expect(result).toContain('Inflation Sparphase: Ja')
+      expect(result).toContain('Inflationsrate Sparphase: 2.50 %')
+    })
 
     it('should format inflation settings for savings phase when disabled', () => {
-      mockContext.inflationAktivSparphase = false;
-      
-      const result = formatParametersForExport(mockContext);
-      
-      expect(result).toContain('Inflation Sparphase: Nein');
-      expect(result).not.toContain('Inflationsrate Sparphase:');
-    });
+      mockContext.inflationAktivSparphase = false
+
+      const result = formatParametersForExport(mockContext)
+
+      expect(result).toContain('Inflation Sparphase: Nein')
+      expect(result).not.toContain('Inflationsrate Sparphase:')
+    })
 
     it('should handle context without optional configurations', () => {
-      mockContext.freibetragPerYear = {};
-      mockContext.sparplan = [];
-      mockContext.withdrawalConfig = null;
-      
-      const result = formatParametersForExport(mockContext);
-      
-      expect(result).toContain('Rendite: 5.00 %');
-      expect(result).not.toContain('Freibeträge pro Jahr:');
-      expect(result).not.toContain('Sparpläne:');
+      mockContext.freibetragPerYear = {}
+      mockContext.sparplan = []
+      mockContext.withdrawalConfig = null
+
+      const result = formatParametersForExport(mockContext)
+
+      expect(result).toContain('Rendite: 5.00 %')
+      expect(result).not.toContain('Freibeträge pro Jahr:')
+      expect(result).not.toContain('Sparpläne:')
       // Withdrawal configuration should always be included, even when null
-      expect(result).toContain('Entnahme-Konfiguration:');
-      expect(result).toContain('Lebensende: 2040 (Standard)');
-      expect(result).toContain('Strategie: 4% Regel (Standard)');
-    });
+      expect(result).toContain('Entnahme-Konfiguration:')
+      expect(result).toContain('Lebensende: 2040 (Standard)')
+      expect(result).toContain('Strategie: 4% Regel (Standard)')
+    })
 
     it('should include withdrawal parameters even when no config exists', () => {
-      mockContext.withdrawalConfig = null;
-      
-      const result = formatParametersForExport(mockContext);
-      
-      expect(result).toContain('Entnahme-Konfiguration:');
-      expect(result).toContain('Lebensende: 2040 (Standard)');
-      expect(result).toContain('Strategie: 4% Regel (Standard)');
-      expect(result).toContain('Entnahme-Rendite: 5.00 % (Standard)');
-      expect(result).toContain('Entnahme-Häufigkeit: Jährlich (Standard)');
-      expect(result).toContain('Inflation aktiv: Nein (Standard)');
-      expect(result).toContain('Grundfreibetrag aktiv: Nein (Standard)');
-      expect(result).toContain('Entnahme-Rendite-Modus: Fest (Standard)');
-    });
+      mockContext.withdrawalConfig = null
+
+      const result = formatParametersForExport(mockContext)
+
+      expect(result).toContain('Entnahme-Konfiguration:')
+      expect(result).toContain('Lebensende: 2040 (Standard)')
+      expect(result).toContain('Strategie: 4% Regel (Standard)')
+      expect(result).toContain('Entnahme-Rendite: 5.00 % (Standard)')
+      expect(result).toContain('Entnahme-Häufigkeit: Jährlich (Standard)')
+      expect(result).toContain('Inflation aktiv: Nein (Standard)')
+      expect(result).toContain('Grundfreibetrag aktiv: Nein (Standard)')
+      expect(result).toContain('Entnahme-Rendite-Modus: Fest (Standard)')
+    })
 
     it('should include full withdrawal parameters when config exists', () => {
       mockContext.withdrawalConfig = {
@@ -182,26 +182,26 @@ describe('Parameter Export', () => {
         useComparisonMode: false,
         comparisonStrategies: [],
         useSegmentedComparisonMode: false,
-        segmentedComparisonStrategies: []
-      };
-      
-      const result = formatParametersForExport(mockContext);
-      
-      expect(result).toContain('Entnahme-Konfiguration:');
-      expect(result).toContain('Lebensende: 2080');
-      expect(result).toContain('Strategie: Monatliche Entnahme');
-      expect(result).toContain('Entnahme-Rendite: 4.50 %');
-      expect(result).toContain('Entnahme-Häufigkeit: Monatlich');
-      expect(result).toContain('Inflation aktiv: Ja (2.50 %)');
-      expect(result).toContain('Monatlicher Betrag: 3.000,00\u00A0€');
-      expect(result).toContain('Guardrails aktiv: Ja (15.0 %)');
-      expect(result).toContain('Grundfreibetrag aktiv: Ja');
-      expect(result).toContain('Grundfreibetrag: 11.000,00\u00A0€');
-      expect(result).toContain('Einkommensteuersatz: 28.00 %');
-      expect(result).toContain('Entnahme-Rendite-Modus: Zufällig');
-      expect(result).toContain('Entnahme-Durchschnittsrendite: 6.50 %');
-      expect(result).toContain('Entnahme-Standardabweichung: 18.00 %');
-    });
+        segmentedComparisonStrategies: [],
+      }
+
+      const result = formatParametersForExport(mockContext)
+
+      expect(result).toContain('Entnahme-Konfiguration:')
+      expect(result).toContain('Lebensende: 2080')
+      expect(result).toContain('Strategie: Monatliche Entnahme')
+      expect(result).toContain('Entnahme-Rendite: 4.50 %')
+      expect(result).toContain('Entnahme-Häufigkeit: Monatlich')
+      expect(result).toContain('Inflation aktiv: Ja (2.50 %)')
+      expect(result).toContain('Monatlicher Betrag: 3.000,00\u00A0€')
+      expect(result).toContain('Guardrails aktiv: Ja (15.0 %)')
+      expect(result).toContain('Grundfreibetrag aktiv: Ja')
+      expect(result).toContain('Grundfreibetrag: 11.000,00\u00A0€')
+      expect(result).toContain('Einkommensteuersatz: 28.00 %')
+      expect(result).toContain('Entnahme-Rendite-Modus: Zufällig')
+      expect(result).toContain('Entnahme-Durchschnittsrendite: 6.50 %')
+      expect(result).toContain('Entnahme-Standardabweichung: 18.00 %')
+    })
 
     it('should include detailed segmented withdrawal configuration', () => {
       mockContext.withdrawalConfig = {
@@ -243,15 +243,15 @@ describe('Parameter Export', () => {
             withdrawalFrequency: 'yearly',
             returnConfig: {
               mode: 'fixed',
-              fixedRate: 0.06
+              fixedRate: 0.06,
             },
             customPercentage: 3.5,
             inflationConfig: {
-              inflationRate: 0.02
+              inflationRate: 0.02,
             },
             enableGrundfreibetrag: true,
             incomeTaxRate: 25,
-            steuerReduzierenEndkapital: true
+            steuerReduzierenEndkapital: true,
           },
           {
             id: 'phase2',
@@ -264,84 +264,84 @@ describe('Parameter Export', () => {
               mode: 'random',
               randomConfig: {
                 averageReturn: 0.04,
-                standardDeviation: 0.12
-              }
+                standardDeviation: 0.12,
+              },
             },
             monthlyConfig: {
               monthlyAmount: 2500,
               enableGuardrails: true,
-              guardrailsThreshold: 20.0
+              guardrailsThreshold: 20.0,
             },
             inflationConfig: {
-              inflationRate: 0.025
+              inflationRate: 0.025,
             },
             enableGrundfreibetrag: false,
-            steuerReduzierenEndkapital: false
-          }
+            steuerReduzierenEndkapital: false,
+          },
         ],
         useComparisonMode: false,
         comparisonStrategies: [],
         useSegmentedComparisonMode: false,
-        segmentedComparisonStrategies: []
-      };
-      
-      const result = formatParametersForExport(mockContext);
-      
-      expect(result).toContain('Segmentierte Entnahme: Ja');
-      expect(result).toContain('Anzahl Segmente: 2');
-      expect(result).toContain('Segment-Details:');
-      
+        segmentedComparisonStrategies: [],
+      }
+
+      const result = formatParametersForExport(mockContext)
+
+      expect(result).toContain('Segmentierte Entnahme: Ja')
+      expect(result).toContain('Anzahl Segmente: 2')
+      expect(result).toContain('Segment-Details:')
+
       // First segment details
-      expect(result).toContain('Segment 1 (Frühphase):');
-      expect(result).toContain('Zeitraum: 2040 - 2060');
-      expect(result).toContain('Strategie: Variabler Prozentsatz');
-      expect(result).toContain('Häufigkeit: Jährlich');
-      expect(result).toContain('Rendite-Modus: Fest');
-      expect(result).toContain('Rendite: 6.00 %');
-      expect(result).toContain('Variabler Prozentsatz: 3.50 %');
-      expect(result).toContain('Inflation: 2.00 %');
-      expect(result).toContain('Grundfreibetrag aktiv: Ja');
-      expect(result).toContain('Einkommensteuersatz: 25.00 %');
-      expect(result).toContain('Steuerreduzierung: Ja');
-      
+      expect(result).toContain('Segment 1 (Frühphase):')
+      expect(result).toContain('Zeitraum: 2040 - 2060')
+      expect(result).toContain('Strategie: Variabler Prozentsatz')
+      expect(result).toContain('Häufigkeit: Jährlich')
+      expect(result).toContain('Rendite-Modus: Fest')
+      expect(result).toContain('Rendite: 6.00 %')
+      expect(result).toContain('Variabler Prozentsatz: 3.50 %')
+      expect(result).toContain('Inflation: 2.00 %')
+      expect(result).toContain('Grundfreibetrag aktiv: Ja')
+      expect(result).toContain('Einkommensteuersatz: 25.00 %')
+      expect(result).toContain('Steuerreduzierung: Ja')
+
       // Second segment details
-      expect(result).toContain('Segment 2 (Spätphase):');
-      expect(result).toContain('Zeitraum: 2061 - 2080');
-      expect(result).toContain('Strategie: Monatliche Entnahme');
-      expect(result).toContain('Häufigkeit: Monatlich');
-      expect(result).toContain('Rendite-Modus: Zufällig');
-      expect(result).toContain('Durchschnittsrendite: 4.00 %');
-      expect(result).toContain('Standardabweichung: 12.00 %');
-      expect(result).toContain('Monatlicher Betrag: 2.500,00\u00A0€');
-      expect(result).toContain('Guardrails: 20.0 %');
-      expect(result).toContain('Inflation: 2.50 %');
-      expect(result).toContain('Steuerreduzierung: Nein');
-    });
-  });
+      expect(result).toContain('Segment 2 (Spätphase):')
+      expect(result).toContain('Zeitraum: 2061 - 2080')
+      expect(result).toContain('Strategie: Monatliche Entnahme')
+      expect(result).toContain('Häufigkeit: Monatlich')
+      expect(result).toContain('Rendite-Modus: Zufällig')
+      expect(result).toContain('Durchschnittsrendite: 4.00 %')
+      expect(result).toContain('Standardabweichung: 12.00 %')
+      expect(result).toContain('Monatlicher Betrag: 2.500,00\u00A0€')
+      expect(result).toContain('Guardrails: 20.0 %')
+      expect(result).toContain('Inflation: 2.50 %')
+      expect(result).toContain('Steuerreduzierung: Nein')
+    })
+  })
 
   describe('copyParametersToClipboard', () => {
     it('should successfully copy parameters to clipboard', async () => {
-      mockClipboard.writeText.mockResolvedValue(undefined);
-      
-      const result = await copyParametersToClipboard(mockContext);
-      
-      expect(result).toBe(true);
-      expect(mockClipboard.writeText).toHaveBeenCalledOnce();
-    });
+      mockClipboard.writeText.mockResolvedValue(undefined)
+
+      const result = await copyParametersToClipboard(mockContext)
+
+      expect(result).toBe(true)
+      expect(mockClipboard.writeText).toHaveBeenCalledOnce()
+    })
 
     it('should handle clipboard errors gracefully', async () => {
-      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
-      mockClipboard.writeText.mockRejectedValue(new Error('Clipboard access denied'));
-      
-      const result = await copyParametersToClipboard(mockContext);
-      
-      expect(result).toBe(false);
+      const consoleErrorSpy = vi.spyOn(console, 'error').mockImplementation(() => {})
+      mockClipboard.writeText.mockRejectedValue(new Error('Clipboard access denied'))
+
+      const result = await copyParametersToClipboard(mockContext)
+
+      expect(result).toBe(false)
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Failed to copy parameters to clipboard:',
-        expect.any(Error)
-      );
-      
-      consoleErrorSpy.mockRestore();
-    });
-  });
-});
+        expect.any(Error),
+      )
+
+      consoleErrorSpy.mockRestore()
+    })
+  })
+})

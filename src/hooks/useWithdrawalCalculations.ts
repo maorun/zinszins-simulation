@@ -1,15 +1,15 @@
-import { useMemo } from "react";
-import type { SparplanElement } from "../utils/sparplan-utils";
+import { useMemo } from 'react'
+import type { SparplanElement } from '../utils/sparplan-utils'
 import {
   calculateWithdrawal,
   calculateSegmentedWithdrawal,
   getTotalCapitalAtYear,
   calculateWithdrawalDuration,
-} from "../../helpers/withdrawal";
-import type { ReturnConfiguration } from "../../helpers/random-returns";
-import type { SegmentedWithdrawalConfig } from "../utils/segmented-withdrawal";
-import type { ComparisonStrategy, SegmentedComparisonStrategy } from "../utils/config-storage";
-import { useSimulation } from "../contexts/useSimulation";
+} from '../../helpers/withdrawal'
+import type { ReturnConfiguration } from '../../helpers/random-returns'
+import type { SegmentedWithdrawalConfig } from '../utils/segmented-withdrawal'
+import type { ComparisonStrategy, SegmentedComparisonStrategy } from '../utils/config-storage'
+import { useSimulation } from '../contexts/useSimulation'
 
 /**
  * Custom hook for withdrawal calculations
@@ -21,7 +21,7 @@ export function useWithdrawalCalculations(
   steuerlast: number,
   teilfreistellungsquote: number,
 ) {
-  const { 
+  const {
     steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
@@ -31,7 +31,7 @@ export function useWithdrawalCalculations(
     planningMode,
     gender,
     // spouse - used indirectly in couple planning calculations
-  } = useSimulation();
+  } = useSimulation()
 
   const {
     formValue,
@@ -46,38 +46,38 @@ export function useWithdrawalCalculations(
     comparisonStrategies,
     useSegmentedComparisonMode,
     segmentedComparisonStrategies,
-  } = currentConfig;
+  } = currentConfig
 
   // Calculate withdrawal projections
   const withdrawalData = useMemo(() => {
     // Helper function to determine the effective life expectancy table based on planning mode and gender
     const getEffectiveLifeExpectancyTable = (): 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom' => {
       if (lifeExpectancyTable === 'custom') {
-        return 'custom';
+        return 'custom'
       }
-      
+
       // For individual planning with gender selection, use gender-specific table
       if (planningMode === 'individual' && gender) {
-        return gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22';
+        return gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22'
       }
-      
+
       // For couple planning or when no gender is selected, use the selected table
-      return lifeExpectancyTable;
-    };
+      return lifeExpectancyTable
+    }
 
     if (!elemente || elemente.length === 0) {
-      return null;
+      return null
     }
 
     const startingCapital = getTotalCapitalAtYear(
       elemente,
       startOfIndependence,
-    );
+    )
     if (startingCapital <= 0) {
-      return null;
+      return null
     }
 
-    let withdrawalResult;
+    let withdrawalResult
 
     if (useSegmentedWithdrawal) {
       // Use segmented withdrawal calculation
@@ -86,29 +86,31 @@ export function useWithdrawalCalculations(
         taxRate: 0.26375,
         freibetragPerYear: undefined, // Use default
         statutoryPensionConfig: formValue.statutoryPensionConfig,
-      };
+      }
 
       withdrawalResult = calculateSegmentedWithdrawal(
         elemente,
         segmentedConfig,
-      );
-    } else {
+      )
+    }
+    else {
       // Use single-strategy withdrawal calculation (backward compatibility)
       // Build return configuration for withdrawal phase
-      let withdrawalReturnConfig: ReturnConfiguration;
+      let withdrawalReturnConfig: ReturnConfiguration
 
-      if (withdrawalReturnMode === "random") {
+      if (withdrawalReturnMode === 'random') {
         withdrawalReturnConfig = {
-          mode: "random",
+          mode: 'random',
           randomConfig: {
             averageReturn: withdrawalAverageReturn / 100, // Convert percentage to decimal
             standardDeviation: withdrawalStandardDeviation / 100, // Convert percentage to decimal
             seed: withdrawalRandomSeed,
           },
-        };
-      } else if (withdrawalReturnMode === "variable") {
+        }
+      }
+      else if (withdrawalReturnMode === 'variable') {
         withdrawalReturnConfig = {
-          mode: "variable",
+          mode: 'variable',
           variableConfig: {
             yearlyReturns: Object.fromEntries(
               Object.entries(withdrawalVariableReturns).map(([year, rate]) => [
@@ -117,12 +119,13 @@ export function useWithdrawalCalculations(
               ]),
             ),
           },
-        };
-      } else {
+        }
+      }
+      else {
         withdrawalReturnConfig = {
-          mode: "fixed",
+          mode: 'fixed',
           fixedRate: formValue.rendite / 100, // Convert percentage to decimal
-        };
+        }
       }
 
       // Calculate withdrawal projections
@@ -137,7 +140,7 @@ export function useWithdrawalCalculations(
         teilfreistellungsquote: teilfreistellungsquote,
         freibetragPerYear: undefined, // freibetragPerYear
         monthlyConfig:
-          formValue.strategie === "monatlich_fest"
+          formValue.strategie === 'monatlich_fest'
             ? {
                 monthlyAmount: formValue.monatlicheBetrag,
                 enableGuardrails: formValue.guardrailsAktiv,
@@ -145,11 +148,11 @@ export function useWithdrawalCalculations(
               }
             : undefined,
         customPercentage:
-          formValue.strategie === "variabel_prozent"
+          formValue.strategie === 'variabel_prozent'
             ? formValue.variabelProzent / 100
             : undefined,
         dynamicConfig:
-          formValue.strategie === "dynamisch"
+          formValue.strategie === 'dynamisch'
             ? {
                 baseWithdrawalRate: formValue.dynamischBasisrate / 100,
                 upperThresholdReturn: formValue.dynamischObereSchwell / 100,
@@ -161,7 +164,7 @@ export function useWithdrawalCalculations(
               }
             : undefined,
         bucketConfig:
-          formValue.strategie === "bucket_strategie" && formValue.bucketConfig
+          formValue.strategie === 'bucket_strategie' && formValue.bucketConfig
             ? {
                 initialCashCushion: formValue.bucketConfig.initialCashCushion,
                 refillThreshold: formValue.bucketConfig.refillThreshold,
@@ -170,7 +173,7 @@ export function useWithdrawalCalculations(
               }
             : undefined,
         rmdConfig:
-          formValue.strategie === "rmd"
+          formValue.strategie === 'rmd'
             ? {
                 startAge: formValue.rmdStartAge,
                 lifeExpectancyTable: getEffectiveLifeExpectancyTable(), // Use gender-aware setting
@@ -178,7 +181,7 @@ export function useWithdrawalCalculations(
               }
             : undefined,
         kapitalerhaltConfig:
-          formValue.strategie === "kapitalerhalt"
+          formValue.strategie === 'kapitalerhalt'
             ? {
                 nominalReturn: formValue.kapitalerhaltNominalReturn / 100,
                 inflationRate: formValue.kapitalerhaltInflationRate / 100,
@@ -187,15 +190,15 @@ export function useWithdrawalCalculations(
         enableGrundfreibetrag: grundfreibetragAktiv,
         grundfreibetragPerYear: grundfreibetragAktiv
           ? (() => {
-              const grundfreibetragPerYear: { [year: number]: number } = {};
+              const grundfreibetragPerYear: { [year: number]: number } = {}
               for (
                 let year = startOfIndependence + 1;
                 year <= endOfLife;
                 year++
               ) {
-                grundfreibetragPerYear[year] = grundfreibetragBetrag;
+                grundfreibetragPerYear[year] = grundfreibetragBetrag
               }
-              return grundfreibetragPerYear;
+              return grundfreibetragPerYear
             })()
           : undefined,
         incomeTaxRate: grundfreibetragAktiv
@@ -206,8 +209,8 @@ export function useWithdrawalCalculations(
           : undefined,
         steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
         statutoryPensionConfig: formValue.statutoryPensionConfig,
-      });
-      withdrawalResult = withdrawalCalculation.result;
+      })
+      withdrawalResult = withdrawalCalculation.result
     }
 
     // Convert to array for table display, sorted by year descending
@@ -216,20 +219,20 @@ export function useWithdrawalCalculations(
         year: parseInt(year),
         ...data,
       }))
-      .sort((a, b) => b.year - a.year);
+      .sort((a, b) => b.year - a.year)
 
     // Calculate withdrawal duration
     const duration = calculateWithdrawalDuration(
       withdrawalResult,
       startOfIndependence + 1,
-    );
+    )
 
     return {
       startingCapital,
       withdrawalArray,
       withdrawalResult,
       duration,
-    };
+    }
   }, [
     elemente,
     startOfIndependence,
@@ -270,35 +273,35 @@ export function useWithdrawalCalculations(
     steuerReduzierenEndkapitalEntspharphase,
     planningMode,
     gender,
-  ]);
+  ])
 
   // Calculate comparison results for each strategy
   const comparisonResults = useMemo(() => {
     // Helper function to determine the effective life expectancy table based on planning mode and gender
     const getEffectiveLifeExpectancyTable = (): 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom' => {
       if (lifeExpectancyTable === 'custom') {
-        return 'custom';
+        return 'custom'
       }
-      
+
       // For individual planning with gender selection, use gender-specific table
       if (planningMode === 'individual' && gender) {
-        return gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22';
+        return gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22'
       }
-      
+
       // For couple planning or when no gender is selected, use the selected table
-      return lifeExpectancyTable;
-    };
+      return lifeExpectancyTable
+    }
 
     if (!useComparisonMode || !withdrawalData) {
-      return [];
+      return []
     }
 
     const results = comparisonStrategies.map((strategy: ComparisonStrategy) => {
       // Build return configuration for this strategy
       const returnConfig: ReturnConfiguration = {
-        mode: "fixed",
+        mode: 'fixed',
         fixedRate: strategy.rendite / 100,
-      };
+      }
 
       try {
         // Calculate withdrawal for this comparison strategy
@@ -311,28 +314,28 @@ export function useWithdrawalCalculations(
           taxRate: steuerlast,
           teilfreistellungsquote,
           freibetragPerYear: (() => {
-            const freibetragPerYear: { [year: number]: number } = {};
+            const freibetragPerYear: { [year: number]: number } = {}
             for (
               let year = startOfIndependence + 1;
               year <= endOfLife;
               year++
             ) {
-              freibetragPerYear[year] = 2000; // Default freibetrag
+              freibetragPerYear[year] = 2000 // Default freibetrag
             }
-            return freibetragPerYear;
+            return freibetragPerYear
           })(),
           monthlyConfig:
-            strategy.strategie === "monatlich_fest"
+            strategy.strategie === 'monatlich_fest'
               ? {
                   monthlyAmount: strategy.monatlicheBetrag || 2000,
                 }
               : undefined,
           customPercentage:
-            strategy.strategie === "variabel_prozent"
+            strategy.strategie === 'variabel_prozent'
               ? (strategy.variabelProzent || 5) / 100
               : undefined,
           dynamicConfig:
-            strategy.strategie === "dynamisch"
+            strategy.strategie === 'dynamisch'
               ? {
                   baseWithdrawalRate: (strategy.dynamischBasisrate || 4) / 100,
                   upperThresholdReturn:
@@ -346,7 +349,7 @@ export function useWithdrawalCalculations(
                 }
               : undefined,
           bucketConfig:
-            strategy.strategie === "bucket_strategie"
+            strategy.strategie === 'bucket_strategie'
               ? {
                   initialCashCushion: strategy.bucketInitialCash || 20000,
                   refillThreshold: strategy.bucketRefillThreshold || 5000,
@@ -355,7 +358,7 @@ export function useWithdrawalCalculations(
                 }
               : undefined,
           rmdConfig:
-            strategy.strategie === "rmd"
+            strategy.strategie === 'rmd'
               ? {
                   startAge: strategy.rmdStartAge || 65,
                   lifeExpectancyTable: getEffectiveLifeExpectancyTable(), // Use gender-aware setting
@@ -363,7 +366,7 @@ export function useWithdrawalCalculations(
                 }
               : undefined,
           kapitalerhaltConfig:
-            strategy.strategie === "kapitalerhalt"
+            strategy.strategie === 'kapitalerhalt'
               ? {
                   nominalReturn: (strategy.kapitalerhaltNominalReturn || 7) / 100,
                   inflationRate: (strategy.kapitalerhaltInflationRate || 2) / 100,
@@ -372,15 +375,15 @@ export function useWithdrawalCalculations(
           enableGrundfreibetrag: grundfreibetragAktiv,
           grundfreibetragPerYear: grundfreibetragAktiv
             ? (() => {
-                const grundfreibetragPerYear: { [year: number]: number } = {};
+                const grundfreibetragPerYear: { [year: number]: number } = {}
                 for (
                   let year = startOfIndependence + 1;
                   year <= endOfLife;
                   year++
                 ) {
-                  grundfreibetragPerYear[year] = grundfreibetragBetrag;
+                  grundfreibetragPerYear[year] = grundfreibetragBetrag
                 }
-                return grundfreibetragPerYear;
+                return grundfreibetragPerYear
               })()
             : undefined,
           incomeTaxRate: grundfreibetragAktiv
@@ -388,49 +391,50 @@ export function useWithdrawalCalculations(
             : undefined,
           steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
           statutoryPensionConfig: formValue.statutoryPensionConfig,
-        });
+        })
 
         // Get final year capital and total withdrawal
-        const finalYear = Math.max(...Object.keys(result).map(Number));
-        const finalCapital = result[finalYear]?.endkapital || 0;
+        const finalYear = Math.max(...Object.keys(result).map(Number))
+        const finalCapital = result[finalYear]?.endkapital || 0
 
         // Calculate total withdrawal
         const totalWithdrawal = Object.values(result).reduce(
           (sum, year) => sum + year.entnahme,
           0,
-        );
-        const totalYears = Object.keys(result).length;
-        const averageAnnualWithdrawal = totalWithdrawal / totalYears;
+        )
+        const totalYears = Object.keys(result).length
+        const averageAnnualWithdrawal = totalWithdrawal / totalYears
 
         // Calculate withdrawal duration
         const duration = calculateWithdrawalDuration(
           result,
           startOfIndependence + 1,
-        );
+        )
 
         return {
           strategy,
           finalCapital,
           totalWithdrawal,
           averageAnnualWithdrawal,
-          duration: duration ? duration : "unbegrenzt",
-        };
-      } catch (error) {
+          duration: duration ? duration : 'unbegrenzt',
+        }
+      }
+      catch (error) {
         console.error(
           `Error calculating withdrawal for strategy ${strategy.name}:`,
           error,
-        );
+        )
         return {
           strategy,
           finalCapital: 0,
           totalWithdrawal: 0,
           averageAnnualWithdrawal: 0,
-          duration: "Fehler",
-        };
+          duration: 'Fehler',
+        }
       }
-    });
+    })
 
-    return results;
+    return results
   }, [
     useComparisonMode,
     withdrawalData,
@@ -449,12 +453,12 @@ export function useWithdrawalCalculations(
     steuerReduzierenEndkapitalEntspharphase,
     planningMode,
     gender,
-  ]);
+  ])
 
   // Calculate segmented comparison results for each segmented strategy
   const segmentedComparisonResults = useMemo(() => {
     if (!useSegmentedComparisonMode || !withdrawalData) {
-      return [];
+      return []
     }
 
     const results = (segmentedComparisonStrategies || []).map((strategy: SegmentedComparisonStrategy) => {
@@ -464,68 +468,69 @@ export function useWithdrawalCalculations(
           segments: strategy.segments,
           taxRate: steuerlast,
           freibetragPerYear: (() => {
-            const freibetragPerYear: { [year: number]: number } = {};
+            const freibetragPerYear: { [year: number]: number } = {}
             for (
               let year = startOfIndependence + 1;
               year <= endOfLife;
               year++
             ) {
-              freibetragPerYear[year] = 2000; // Default freibetrag
+              freibetragPerYear[year] = 2000 // Default freibetrag
             }
-            return freibetragPerYear;
+            return freibetragPerYear
           })(),
           statutoryPensionConfig: formValue.statutoryPensionConfig,
-        };
+        }
 
         // Calculate segmented withdrawal for this comparison strategy
         const result = calculateSegmentedWithdrawal(
           elemente,
           segmentedConfig,
-        );
+        )
 
         // Get final year capital and total withdrawal
-        const finalYear = Math.max(...Object.keys(result).map(Number));
-        const finalCapital = result[finalYear]?.endkapital || 0;
+        const finalYear = Math.max(...Object.keys(result).map(Number))
+        const finalCapital = result[finalYear]?.endkapital || 0
 
         // Calculate total withdrawal
         const totalWithdrawal = Object.values(result).reduce(
           (sum, year) => sum + year.entnahme,
           0,
-        );
-        const totalYears = Object.keys(result).length;
-        const averageAnnualWithdrawal = totalWithdrawal / totalYears;
+        )
+        const totalYears = Object.keys(result).length
+        const averageAnnualWithdrawal = totalWithdrawal / totalYears
 
         // Calculate withdrawal duration
         const duration = calculateWithdrawalDuration(
           result,
           startOfIndependence + 1,
-        );
+        )
 
         return {
           strategy,
           finalCapital,
           totalWithdrawal,
           averageAnnualWithdrawal,
-          duration: duration ? duration : "unbegrenzt",
+          duration: duration ? duration : 'unbegrenzt',
           result, // Include full result for detailed analysis
-        };
-      } catch (error) {
+        }
+      }
+      catch (error) {
         console.error(
           `Error calculating segmented withdrawal for strategy ${strategy.name}:`,
           error,
-        );
+        )
         return {
           strategy,
           finalCapital: 0,
           totalWithdrawal: 0,
           averageAnnualWithdrawal: 0,
-          duration: "Fehler",
+          duration: 'Fehler',
           result: {},
-        };
+        }
       }
-    });
+    })
 
-    return results;
+    return results
   }, [
     useSegmentedComparisonMode,
     withdrawalData,
@@ -535,11 +540,11 @@ export function useWithdrawalCalculations(
     endOfLife,
     steuerlast,
     formValue.statutoryPensionConfig,
-  ]);
+  ])
 
   return {
     withdrawalData,
     comparisonResults,
     segmentedComparisonResults,
-  };
+  }
 }

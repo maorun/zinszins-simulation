@@ -1,7 +1,7 @@
-import * as React from "react"
-import { RadioGroup, RadioGroupItem } from "./radio-group"
-import { Label } from "./label"
-import { cn } from "../../lib/utils"
+import * as React from 'react'
+import { RadioGroup, RadioGroupItem } from './radio-group'
+import { Label } from './label'
+import { cn } from '../../lib/utils'
 
 interface RadioTileProps {
   value: string
@@ -15,13 +15,13 @@ export const RadioTile = React.forwardRef<
   React.ElementRef<typeof RadioGroupItem>,
   RadioTileProps
 >(({ value, label, children, className, idPrefix, ...props }, ref) => {
-  const uniqueId = idPrefix ? `${idPrefix}-${value}` : value;
+  const uniqueId = idPrefix ? `${idPrefix}-${value}` : value
   return (
-    <Label 
+    <Label
       htmlFor={uniqueId}
       className={cn(
-        "flex cursor-pointer flex-col space-y-2 rounded-lg border border-input p-4 transition-colors hover:bg-accent/50 data-[state=checked]:border-primary data-[state=checked]:bg-accent",
-        className
+        'flex cursor-pointer flex-col space-y-2 rounded-lg border border-input p-4 transition-colors hover:bg-accent/50 data-[state=checked]:border-primary data-[state=checked]:bg-accent',
+        className,
       )}
     >
       <div className="flex items-center space-x-2">
@@ -32,7 +32,7 @@ export const RadioTile = React.forwardRef<
     </Label>
   )
 })
-RadioTile.displayName = "RadioTile"
+RadioTile.displayName = 'RadioTile'
 
 interface RadioTileGroupProps {
   value?: string
@@ -51,16 +51,16 @@ export const RadioTileGroup = React.forwardRef<
       ref={ref}
       value={value}
       onValueChange={onValueChange}
-      className={cn("grid grid-cols-1 gap-4 md:grid-cols-3", className)}
+      className={cn('grid grid-cols-1 gap-4 md:grid-cols-3', className)}
       {...props}
     >
       {React.Children.map(children, (child) => {
         if (React.isValidElement(child)) {
-          return React.cloneElement(child, { idPrefix } as any);
+          return React.cloneElement(child, { idPrefix } as any)
         }
-        return child;
+        return child
       })}
     </RadioGroup>
   )
 })
-RadioTileGroup.displayName = "RadioTileGroup"
+RadioTileGroup.displayName = 'RadioTileGroup'

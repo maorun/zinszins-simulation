@@ -9,7 +9,7 @@
  * @returns The calculated end of life year (e.g., 2059)
  */
 export function calculateEndOfLifeYear(birthYear: number, expectedLifespan: number): number {
-  return birthYear + expectedLifespan;
+  return birthYear + expectedLifespan
 }
 
 /**
@@ -19,7 +19,7 @@ export function calculateEndOfLifeYear(birthYear: number, expectedLifespan: numb
  * @returns Current age
  */
 export function calculateCurrentAge(birthYear: number, currentYear: number = new Date().getFullYear()): number {
-  return currentYear - birthYear;
+  return currentYear - birthYear
 }
 
 /**
@@ -29,7 +29,7 @@ export function calculateCurrentAge(birthYear: number, currentYear: number = new
  * @returns Age at the target year
  */
 export function calculateAgeAtYear(birthYear: number, targetYear: number): number {
-  return targetYear - birthYear;
+  return targetYear - birthYear
 }
 
 /**
@@ -42,16 +42,17 @@ export function calculateAgeAtYear(birthYear: number, targetYear: number): numbe
 export function getDefaultLifeExpectancy(currentAge: number, gender?: 'male' | 'female'): number {
   // German life expectancy approximations (simplified)
   // These are rough estimates for planning purposes
-  const baseLifeExpectancy = gender === 'male' ? 78 : gender === 'female' ? 83 : 80.5;
-  
+  const baseLifeExpectancy = gender === 'male' ? 78 : gender === 'female' ? 83 : 80.5
+
   // Adjust for current age (people who have already reached a certain age tend to live longer)
-  let adjustedLifeExpectancy = baseLifeExpectancy;
-  
+  let adjustedLifeExpectancy = baseLifeExpectancy
+
   if (currentAge >= 65) {
-    adjustedLifeExpectancy += 2;
-  } else if (currentAge >= 50) {
-    adjustedLifeExpectancy += 1;
+    adjustedLifeExpectancy += 2
   }
-  
-  return Math.round(adjustedLifeExpectancy);
+  else if (currentAge >= 50) {
+    adjustedLifeExpectancy += 1
+  }
+
+  return Math.round(adjustedLifeExpectancy)
 }

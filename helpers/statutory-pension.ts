@@ -8,34 +8,34 @@
  */
 export interface StatutoryPensionConfig {
   /** Whether statutory pension is enabled in the calculation */
-  enabled: boolean;
-  
+  enabled: boolean
+
   /** Starting year for pension payments */
-  startYear: number;
-  
+  startYear: number
+
   /** Monthly pension amount in EUR (before taxes) */
-  monthlyAmount: number;
-  
+  monthlyAmount: number
+
   /** Annual increase rate for pension adjustments (default: 1% based on historical data) */
-  annualIncreaseRate: number;
-  
+  annualIncreaseRate: number
+
   /** Percentage of pension subject to income tax (Steuerpflichtiger Anteil) */
-  taxablePercentage: number;
-  
+  taxablePercentage: number
+
   /** Tax return specific data */
   taxReturnData?: {
     /** Year of the tax return */
-    taxYear: number;
+    taxYear: number
     /** Annual pension received according to tax return */
-    annualPensionReceived: number;
+    annualPensionReceived: number
     /** Taxable portion according to tax return */
-    taxablePortion: number;
-  };
-  
+    taxablePortion: number
+  }
+
   /** Optional: Expected retirement age for automatic start year calculation */
-  retirementAge?: number;
+  retirementAge?: number
   /** Optional: Birth year for calculating start year from retirement age */
-  birthYear?: number;
+  birthYear?: number
 }
 
 /**
@@ -43,24 +43,24 @@ export interface StatutoryPensionConfig {
  */
 export interface StatutoryPensionYearResult {
   /** Total annual pension received (before taxes) */
-  grossAnnualAmount: number;
+  grossAnnualAmount: number
   /** Monthly pension amount (before taxes) */
-  grossMonthlyAmount: number;
+  grossMonthlyAmount: number
   /** Taxable portion of annual pension */
-  taxableAmount: number;
+  taxableAmount: number
   /** Income tax on pension (if any) */
-  incomeTax: number;
+  incomeTax: number
   /** Net annual pension after taxes */
-  netAnnualAmount: number;
+  netAnnualAmount: number
   /** Adjustment factor applied this year */
-  adjustmentFactor: number;
+  adjustmentFactor: number
 }
 
 /**
  * Complete statutory pension calculation result across years
  */
 export interface StatutoryPensionResult {
-  [year: number]: StatutoryPensionYearResult;
+  [year: number]: StatutoryPensionYearResult
 }
 
 /**
@@ -70,7 +70,7 @@ export function calculateStatutoryPensionForYear(
   config: StatutoryPensionConfig,
   year: number,
   incomeTaxRate: number = 0.0, // Income tax rate for pension taxation
-  grundfreibetragAmount: number = 0 // Basic tax allowance
+  grundfreibetragAmount: number = 0, // Basic tax allowance
 ): StatutoryPensionYearResult {
   if (!config.enabled || year < config.startYear) {
     return {
@@ -80,26 +80,26 @@ export function calculateStatutoryPensionForYear(
       incomeTax: 0,
       netAnnualAmount: 0,
       adjustmentFactor: 1,
-    };
+    }
   }
 
   // Calculate adjustment factor for pension increases
-  const yearsFromStart = year - config.startYear;
-  const adjustmentFactor = Math.pow(1 + config.annualIncreaseRate / 100, yearsFromStart);
-  
+  const yearsFromStart = year - config.startYear
+  const adjustmentFactor = Math.pow(1 + config.annualIncreaseRate / 100, yearsFromStart)
+
   // Calculate gross amounts
-  const grossMonthlyAmount = config.monthlyAmount * adjustmentFactor;
-  const grossAnnualAmount = grossMonthlyAmount * 12;
-  
+  const grossMonthlyAmount = config.monthlyAmount * adjustmentFactor
+  const grossAnnualAmount = grossMonthlyAmount * 12
+
   // Calculate taxable amount
-  const taxableAmount = grossAnnualAmount * (config.taxablePercentage / 100);
-  
+  const taxableAmount = grossAnnualAmount * (config.taxablePercentage / 100)
+
   // Calculate income tax (only on amount above Grundfreibetrag)
-  const taxableAmountAboveAllowance = Math.max(0, taxableAmount - grundfreibetragAmount);
-  const incomeTax = taxableAmountAboveAllowance * (incomeTaxRate / 100);
-  
+  const taxableAmountAboveAllowance = Math.max(0, taxableAmount - grundfreibetragAmount)
+  const incomeTax = taxableAmountAboveAllowance * (incomeTaxRate / 100)
+
   // Calculate net amount
-  const netAnnualAmount = grossAnnualAmount - incomeTax;
+  const netAnnualAmount = grossAnnualAmount - incomeTax
 
   return {
     grossAnnualAmount,
@@ -108,7 +108,7 @@ export function calculateStatutoryPensionForYear(
     incomeTax,
     netAnnualAmount,
     adjustmentFactor,
-  };
+  }
 }
 
 /**
@@ -119,21 +119,21 @@ export function calculateStatutoryPension(
   startYear: number,
   endYear: number,
   incomeTaxRate: number = 0.0,
-  grundfreibetragPerYear?: { [year: number]: number }
+  grundfreibetragPerYear?: { [year: number]: number },
 ): StatutoryPensionResult {
-  const result: StatutoryPensionResult = {};
-  
+  const result: StatutoryPensionResult = {}
+
   for (let year = startYear; year <= endYear; year++) {
-    const grundfreibetrag = grundfreibetragPerYear?.[year] || 0;
+    const grundfreibetrag = grundfreibetragPerYear?.[year] || 0
     result[year] = calculateStatutoryPensionForYear(
-      config, 
-      year, 
-      incomeTaxRate, 
-      grundfreibetrag
-    );
+      config,
+      year,
+      incomeTaxRate,
+      grundfreibetrag,
+    )
   }
-  
-  return result;
+
+  return result
 }
 
 /**
@@ -147,33 +147,33 @@ export function createDefaultStatutoryPensionConfig(): StatutoryPensionConfig {
     annualIncreaseRate: 1.0, // 1% annual increase
     taxablePercentage: 80, // 80% taxable (typical for current retirees)
     retirementAge: 67, // Standard retirement age in Germany
-  };
+  }
 }
 
 /**
  * Calculate start year from birth year and retirement age
  */
 export function calculatePensionStartYear(birthYear: number, retirementAge: number = 67): number {
-  return birthYear + retirementAge;
+  return birthYear + retirementAge
 }
 
 /**
  * Estimate monthly pension from tax return data
  */
 export function estimateMonthlyPensionFromTaxReturn(
-  taxReturnData: NonNullable<StatutoryPensionConfig['taxReturnData']>
+  taxReturnData: NonNullable<StatutoryPensionConfig['taxReturnData']>,
 ): number {
-  return taxReturnData.annualPensionReceived / 12;
+  return taxReturnData.annualPensionReceived / 12
 }
 
 /**
  * Estimate taxable percentage from tax return data
  */
 export function estimateTaxablePercentageFromTaxReturn(
-  taxReturnData: NonNullable<StatutoryPensionConfig['taxReturnData']>
+  taxReturnData: NonNullable<StatutoryPensionConfig['taxReturnData']>,
 ): number {
   if (taxReturnData.annualPensionReceived === 0) {
-    return 80; // Default fallback
+    return 80 // Default fallback
   }
-  return (taxReturnData.taxablePortion / taxReturnData.annualPensionReceived) * 100;
+  return (taxReturnData.taxablePortion / taxReturnData.annualPensionReceived) * 100
 }

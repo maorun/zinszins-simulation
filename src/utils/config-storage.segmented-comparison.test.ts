@@ -1,6 +1,6 @@
-import { describe, it, expect } from 'vitest';
-import type { SegmentedComparisonStrategy } from './config-storage';
-import type { WithdrawalStrategy } from '../../helpers/withdrawal';
+import { describe, it, expect } from 'vitest'
+import type { SegmentedComparisonStrategy } from './config-storage'
+import type { WithdrawalStrategy } from '../../helpers/withdrawal'
 
 describe('Config Storage - Segmented Comparison Interface Tests', () => {
   it('validates SegmentedComparisonStrategy interface structure', () => {
@@ -45,28 +45,28 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
           steuerReduzierenEndkapital: true,
         },
       ],
-    };
-    
+    }
+
     // Test interface compliance
-    expect(mockSegmentedComparisonStrategy.id).toBe('test-strategy-1');
-    expect(mockSegmentedComparisonStrategy.name).toBe('Conservative-Aggressive Mix');
-    expect(mockSegmentedComparisonStrategy.segments).toHaveLength(2);
-    
-    const firstSegment = mockSegmentedComparisonStrategy.segments[0];
-    expect(firstSegment.id).toBe('early-phase');
-    expect(firstSegment.name).toBe('Early Conservative Phase');
-    expect(firstSegment.startYear).toBe(2041);
-    expect(firstSegment.endYear).toBe(2050);
-    expect(firstSegment.strategy).toBe('3prozent');
-    expect(firstSegment.withdrawalFrequency).toBe('yearly');
-    expect(firstSegment.returnConfig.mode).toBe('fixed');
-    expect(firstSegment.returnConfig.fixedRate).toBe(0.04);
-    expect(firstSegment.inflationConfig?.inflationRate).toBe(0.02);
-  });
+    expect(mockSegmentedComparisonStrategy.id).toBe('test-strategy-1')
+    expect(mockSegmentedComparisonStrategy.name).toBe('Conservative-Aggressive Mix')
+    expect(mockSegmentedComparisonStrategy.segments).toHaveLength(2)
+
+    const firstSegment = mockSegmentedComparisonStrategy.segments[0]
+    expect(firstSegment.id).toBe('early-phase')
+    expect(firstSegment.name).toBe('Early Conservative Phase')
+    expect(firstSegment.startYear).toBe(2041)
+    expect(firstSegment.endYear).toBe(2050)
+    expect(firstSegment.strategy).toBe('3prozent')
+    expect(firstSegment.withdrawalFrequency).toBe('yearly')
+    expect(firstSegment.returnConfig.mode).toBe('fixed')
+    expect(firstSegment.returnConfig.fixedRate).toBe(0.04)
+    expect(firstSegment.inflationConfig?.inflationRate).toBe(0.02)
+  })
 
   it('handles multiple withdrawal strategies correctly', () => {
-    const strategies = ['3prozent', '4prozent', 'monatlich_fest', 'bucket_strategie', 'dynamisch'] as WithdrawalStrategy[];
-    
+    const strategies = ['3prozent', '4prozent', 'monatlich_fest', 'bucket_strategie', 'dynamisch'] as WithdrawalStrategy[]
+
     strategies.forEach((strategyType, index) => {
       const testStrategy: SegmentedComparisonStrategy = {
         id: `test-strategy-${index}`,
@@ -91,11 +91,11 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
             steuerReduzierenEndkapital: true,
           },
         ],
-      };
-      
-      expect(testStrategy.segments[0].strategy).toBe(strategyType);
-    });
-  });
+      }
+
+      expect(testStrategy.segments[0].strategy).toBe(strategyType)
+    })
+  })
 
   it('validates segment configurations with different return modes', () => {
     const fixedReturnSegment = {
@@ -115,11 +115,11 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
       enableGrundfreibetrag: true,
       incomeTaxRate: 0.20,
       steuerReduzierenEndkapital: false,
-    };
+    }
 
-    expect(fixedReturnSegment.returnConfig.mode).toBe('fixed');
-    expect(fixedReturnSegment.returnConfig.fixedRate).toBe(0.05);
-    expect(fixedReturnSegment.withdrawalFrequency).toBe('monthly');
-    expect(fixedReturnSegment.enableGrundfreibetrag).toBe(true);
-  });
-});
+    expect(fixedReturnSegment.returnConfig.mode).toBe('fixed')
+    expect(fixedReturnSegment.returnConfig.fixedRate).toBe(0.05)
+    expect(fixedReturnSegment.withdrawalFrequency).toBe('monthly')
+    expect(fixedReturnSegment.enableGrundfreibetrag).toBe(true)
+  })
+})

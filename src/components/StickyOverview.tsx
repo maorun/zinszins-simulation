@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useSimulation } from '../contexts/useSimulation';
-import { getEnhancedOverviewSummary } from '../utils/enhanced-summary';
+import React, { useState, useEffect, useMemo } from 'react'
+import { useSimulation } from '../contexts/useSimulation'
+import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
 
 interface StickyOverviewProps {
-  overviewElementRef: React.RefObject<HTMLElement | null>;
+  overviewElementRef: React.RefObject<HTMLElement | null>
 }
 
 export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
-  const [isSticky, setIsSticky] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isSticky, setIsSticky] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   const {
     simulationData,
@@ -17,7 +17,7 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
     rendite,
     steuerlast,
     teilfreistellungsquote,
-  } = useSimulation();
+  } = useSimulation()
 
   const enhancedSummary = useMemo(() => {
     return getEnhancedOverviewSummary(
@@ -27,7 +27,7 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
       rendite,
       steuerlast,
       teilfreistellungsquote,
-    );
+    )
   }, [
     simulationData,
     startEnd,
@@ -35,54 +35,55 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
     rendite,
     steuerlast,
     teilfreistellungsquote,
-  ]);
+  ])
 
   // Check if we're on mobile
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Track scroll position to show/hide sticky header
   useEffect(() => {
     const handleScroll = () => {
-      if (!overviewElementRef.current) return;
-      
-      const overviewRect = overviewElementRef.current.getBoundingClientRect();
-      const shouldBeSticky = overviewRect.bottom < 0;
-      setIsSticky(shouldBeSticky);
-    };
+      if (!overviewElementRef.current) return
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Check initial state
-    
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [overviewElementRef]);
+      const overviewRect = overviewElementRef.current.getBoundingClientRect()
+      const shouldBeSticky = overviewRect.bottom < 0
+      setIsSticky(shouldBeSticky)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    handleScroll() // Check initial state
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [overviewElementRef])
 
   if (!isSticky || !enhancedSummary || !simulationData) {
-    return null;
+    return null
   }
 
   // Calculate years range
-  const startDates = simulationData.sparplanElements.map((el: any) => new Date(el.start).getFullYear());
-  const savingsStartYear = Math.min(...startDates);
-  const savingsEndYear = startEnd[0];
-  const yearsRange = `${savingsStartYear} - ${savingsEndYear}`;
+  const startDates = simulationData.sparplanElements.map((el: any) => new Date(el.start).getFullYear())
+  const savingsStartYear = Math.min(...startDates)
+  const savingsEndYear = startEnd[0]
+  const yearsRange = `${savingsStartYear} - ${savingsEndYear}`
 
   // Helper function to format currency in compact form for mobile
   const formatCompactCurrency = (amount: number) => {
     if (amount >= 1000000) {
-      return `${(amount / 1000000).toFixed(1)}M €`;
-    } else if (amount >= 1000) {
-      return `${(amount / 1000).toFixed(0)}k €`;
+      return `${(amount / 1000000).toFixed(1)}M €`
     }
-    return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
-  };
+    else if (amount >= 1000) {
+      return `${(amount / 1000).toFixed(0)}k €`
+    }
+    return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
+  }
 
   const renderAnsparenContent = () => {
     if (isMobile) {
@@ -99,16 +100,24 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
           </div>
           <div className="flex flex-col items-center text-center">
             <span className="text-xl mb-1">📈</span>
-            <span className="text-sm font-semibold text-slate-800">{enhancedSummary.renditeAnsparphase.toFixed(1)}%</span>
+            <span className="text-sm font-semibold text-slate-800">
+              {enhancedSummary.renditeAnsparphase.toFixed(1)}
+              %
+            </span>
           </div>
         </div>
-      );
-    } else {
+      )
+    }
+    else {
       // Desktop: Complete savings phase data
       return (
         <div className="w-full">
           <div className="w-full">
-            <h4 className="m-0 mb-3 text-slate-800 text-base font-semibold">📈 Ansparphase ({yearsRange})</h4>
+            <h4 className="m-0 mb-3 text-slate-800 text-base font-semibold">
+              📈 Ansparphase (
+              {yearsRange}
+              )
+            </h4>
             <div className="grid grid-cols-4 gap-4">
               <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
                 <span className="text-xs text-gray-600 mb-1">💰 Einzahlungen</span>
@@ -131,15 +140,16 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
               <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
                 <span className="text-xs text-gray-600 mb-1">📈 Rendite</span>
                 <span className="font-semibold text-sm text-slate-800">
-                  {enhancedSummary.renditeAnsparphase.toFixed(2)}% p.a.
+                  {enhancedSummary.renditeAnsparphase.toFixed(2)}
+                  % p.a.
                 </span>
               </div>
             </div>
           </div>
         </div>
-      );
+      )
     }
-  };
+  }
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[1000] bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-lg animate-slide-down">
@@ -147,5 +157,5 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
         {renderAnsparenContent()}
       </div>
     </div>
-  );
+  )
 }

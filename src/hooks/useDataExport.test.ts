@@ -1,7 +1,7 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, act } from '@testing-library/react';
-import { useDataExport } from './useDataExport';
-import type { SimulationContextState } from '../contexts/SimulationContext';
+import { describe, it, expect, vi, beforeEach } from 'vitest'
+import { renderHook, act } from '@testing-library/react'
+import { useDataExport } from './useDataExport'
+import type { SimulationContextState } from '../contexts/SimulationContext'
 
 // Mock the useSimulation hook
 const mockContext = {
@@ -16,8 +16,8 @@ const mockContext = {
         bezahlteSteuer: 25,
         genutzterFreibetrag: 1000,
         vorabpauschale: 50,
-      }
-    ]
+      },
+    ],
   },
   withdrawalResults: {
     2041: {
@@ -28,7 +28,7 @@ const mockContext = {
       bezahlteSteuer: 1000,
       genutzterFreibetrag: 800,
       vorabpauschale: 200,
-    }
+    },
   },
   sparplanElemente: [
     {
@@ -37,7 +37,7 @@ const mockContext = {
       end: new Date('2040-12-31'),
       amount: 2000,
       einzahlung: 2000,
-    }
+    },
   ],
   sparplan: [
     {
@@ -45,7 +45,7 @@ const mockContext = {
       start: new Date('2023-01-01'),
       end: new Date('2040-12-31'),
       einzahlung: 2000,
-    }
+    },
   ],
   startEnd: [2023, 2040] as [number, number],
   rendite: 5.0,
@@ -61,11 +61,11 @@ const mockContext = {
       withdrawalFrequency: 'yearly' as const,
     },
   },
-} as unknown as SimulationContextState;
+} as unknown as SimulationContextState
 
 vi.mock('../contexts/useSimulation', () => ({
   useSimulation: () => mockContext,
-}));
+}))
 
 // Mock the export utility functions
 vi.mock('../utils/data-export', () => ({
@@ -75,140 +75,140 @@ vi.mock('../utils/data-export', () => ({
   generateCalculationExplanations: vi.fn().mockReturnValue('Calculation explanations'),
   downloadTextAsFile: vi.fn(),
   copyTextToClipboard: vi.fn().mockResolvedValue(true),
-}));
+}))
 
 describe('useDataExport', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
-  });
+    vi.clearAllMocks()
+  })
 
   it('should initialize with correct default state', () => {
-    const { result } = renderHook(() => useDataExport());
+    const { result } = renderHook(() => useDataExport())
 
-    expect(result.current.isExporting).toBe(false);
-    expect(result.current.lastExportResult).toBe(null);
-    expect(result.current.exportType).toBe(null);
-  });
+    expect(result.current.isExporting).toBe(false)
+    expect(result.current.lastExportResult).toBe(null)
+    expect(result.current.exportType).toBe(null)
+  })
 
   it('should export savings data to CSV successfully', async () => {
-    const { result } = renderHook(() => useDataExport());
+    const { result } = renderHook(() => useDataExport())
 
     await act(async () => {
-      const success = await result.current.exportSavingsDataCSV();
-      expect(success).toBe(true);
-    });
+      const success = await result.current.exportSavingsDataCSV()
+      expect(success).toBe(true)
+    })
 
-    expect(result.current.lastExportResult).toBe('success');
-    expect(result.current.exportType).toBe('csv');
-  });
+    expect(result.current.lastExportResult).toBe('success')
+    expect(result.current.exportType).toBe('csv')
+  })
 
   it('should export withdrawal data to CSV successfully', async () => {
-    const { result } = renderHook(() => useDataExport());
+    const { result } = renderHook(() => useDataExport())
 
     await act(async () => {
-      const success = await result.current.exportWithdrawalDataCSV();
-      expect(success).toBe(true);
-    });
+      const success = await result.current.exportWithdrawalDataCSV()
+      expect(success).toBe(true)
+    })
 
-    expect(result.current.lastExportResult).toBe('success');
-    expect(result.current.exportType).toBe('csv');
-  });
+    expect(result.current.lastExportResult).toBe('success')
+    expect(result.current.exportType).toBe('csv')
+  })
 
   it('should export all data to CSV successfully', async () => {
-    const { result } = renderHook(() => useDataExport());
+    const { result } = renderHook(() => useDataExport())
 
     await act(async () => {
-      const success = await result.current.exportAllDataCSV();
-      expect(success).toBe(true);
-    });
+      const success = await result.current.exportAllDataCSV()
+      expect(success).toBe(true)
+    })
 
-    expect(result.current.lastExportResult).toBe('success');
-    expect(result.current.exportType).toBe('csv');
-  });
+    expect(result.current.lastExportResult).toBe('success')
+    expect(result.current.exportType).toBe('csv')
+  })
 
   it('should export data to Markdown successfully', async () => {
-    const { result } = renderHook(() => useDataExport());
+    const { result } = renderHook(() => useDataExport())
 
     await act(async () => {
-      const success = await result.current.exportDataMarkdown();
-      expect(success).toBe(true);
-    });
+      const success = await result.current.exportDataMarkdown()
+      expect(success).toBe(true)
+    })
 
-    expect(result.current.lastExportResult).toBe('success');
-    expect(result.current.exportType).toBe('markdown');
-  });
+    expect(result.current.lastExportResult).toBe('success')
+    expect(result.current.exportType).toBe('markdown')
+  })
 
   it('should copy calculation explanations successfully', async () => {
-    const { result } = renderHook(() => useDataExport());
+    const { result } = renderHook(() => useDataExport())
 
     await act(async () => {
-      const success = await result.current.copyCalculationExplanations();
-      expect(success).toBe(true);
-    });
+      const success = await result.current.copyCalculationExplanations()
+      expect(success).toBe(true)
+    })
 
-    expect(result.current.lastExportResult).toBe('success');
-    expect(result.current.exportType).toBe('clipboard');
-  });
+    expect(result.current.lastExportResult).toBe('success')
+    expect(result.current.exportType).toBe('clipboard')
+  })
 
   it('should handle export errors', async () => {
     const { exportSavingsDataToCSV } = await import('../utils/data-export');
     (exportSavingsDataToCSV as any).mockImplementationOnce(() => {
-      throw new Error('Export failed');
-    });
+      throw new Error('Export failed')
+    })
 
-    const { result } = renderHook(() => useDataExport());
+    const { result } = renderHook(() => useDataExport())
 
     await act(async () => {
-      const success = await result.current.exportSavingsDataCSV();
-      expect(success).toBe(false);
-    });
+      const success = await result.current.exportSavingsDataCSV()
+      expect(success).toBe(false)
+    })
 
-    expect(result.current.lastExportResult).toBe('error');
-    expect(result.current.exportType).toBe('csv');
-  });
+    expect(result.current.lastExportResult).toBe('error')
+    expect(result.current.exportType).toBe('csv')
+  })
 
   it('should handle missing withdrawal data', async () => {
     // This test validates the behavior when no withdrawal data is available
     // The actual implementation properly handles this case by checking for data
     // and returning appropriate error messages
-    const { result } = renderHook(() => useDataExport());
+    const { result } = renderHook(() => useDataExport())
 
     // The hook should handle missing data gracefully
-    expect(result.current.isExporting).toBe(false);
-    expect(result.current.lastExportResult).toBe(null);
-  });
+    expect(result.current.isExporting).toBe(false)
+    expect(result.current.lastExportResult).toBe(null)
+  })
 
   it('should set isExporting to true during export operations', async () => {
-    const { result } = renderHook(() => useDataExport());
+    const { result } = renderHook(() => useDataExport())
 
     // This test is complex to implement properly with the async nature
     // For now, we'll test that exports complete successfully
     await act(async () => {
-      const success = await result.current.exportSavingsDataCSV();
-      expect(success).toBe(true);
-    });
+      const success = await result.current.exportSavingsDataCSV()
+      expect(success).toBe(true)
+    })
 
-    expect(result.current.isExporting).toBe(false);
-  });
+    expect(result.current.isExporting).toBe(false)
+  })
 
   it('should clear result state after delay', async () => {
-    vi.useFakeTimers();
-    const { result } = renderHook(() => useDataExport());
+    vi.useFakeTimers()
+    const { result } = renderHook(() => useDataExport())
 
     await act(async () => {
-      await result.current.exportSavingsDataCSV();
-    });
+      await result.current.exportSavingsDataCSV()
+    })
 
-    expect(result.current.lastExportResult).toBe('success');
+    expect(result.current.lastExportResult).toBe('success')
 
     // Fast-forward time by 3 seconds
     act(() => {
-      vi.advanceTimersByTime(3000);
-    });
+      vi.advanceTimersByTime(3000)
+    })
 
-    expect(result.current.lastExportResult).toBe(null);
-    expect(result.current.exportType).toBe(null);
+    expect(result.current.lastExportResult).toBe(null)
+    expect(result.current.exportType).toBe(null)
 
-    vi.useRealTimers();
-  });
-});
+    vi.useRealTimers()
+  })
+})

@@ -1,14 +1,14 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import { useSimulation } from '../contexts/useSimulation';
-import { getEnhancedOverviewSummary } from '../utils/enhanced-summary';
+import React, { useState, useEffect, useMemo } from 'react'
+import { useSimulation } from '../contexts/useSimulation'
+import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
 
 interface StickyBottomOverviewProps {
-  overviewElementRef: React.RefObject<HTMLElement | null>;
+  overviewElementRef: React.RefObject<HTMLElement | null>
 }
 
 export function StickyBottomOverview({ overviewElementRef }: StickyBottomOverviewProps) {
-  const [isSticky, setIsSticky] = useState(false);
-  const [isMobile, setIsMobile] = useState(false);
+  const [isSticky, setIsSticky] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   const {
     simulationData,
@@ -17,7 +17,7 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
     rendite,
     steuerlast,
     teilfreistellungsquote,
-  } = useSimulation();
+  } = useSimulation()
 
   const enhancedSummary = useMemo(() => {
     return getEnhancedOverviewSummary(
@@ -27,7 +27,7 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
       rendite,
       steuerlast,
       teilfreistellungsquote,
-    );
+    )
   }, [
     simulationData,
     startEnd,
@@ -35,38 +35,38 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
     rendite,
     steuerlast,
     teilfreistellungsquote,
-  ]);
+  ])
 
   // Check if we're on mobile
   useEffect(() => {
     const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768);
-    };
-    
-    checkMobile();
-    window.addEventListener('resize', checkMobile);
-    return () => window.removeEventListener('resize', checkMobile);
-  }, []);
+      setIsMobile(window.innerWidth < 768)
+    }
+
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   // Track scroll position to show/hide sticky bottom header
   useEffect(() => {
     const handleScroll = () => {
-      if (!overviewElementRef.current) return;
-      
-      const overviewRect = overviewElementRef.current.getBoundingClientRect();
-      const shouldBeSticky = overviewRect.bottom < 0;
-      setIsSticky(shouldBeSticky);
-    };
+      if (!overviewElementRef.current) return
 
-    window.addEventListener('scroll', handleScroll);
-    handleScroll(); // Check initial state
-    
-    return () => window.removeEventListener('scroll', handleScroll);
-  }, [overviewElementRef]);
+      const overviewRect = overviewElementRef.current.getBoundingClientRect()
+      const shouldBeSticky = overviewRect.bottom < 0
+      setIsSticky(shouldBeSticky)
+    }
+
+    window.addEventListener('scroll', handleScroll)
+    handleScroll() // Check initial state
+
+    return () => window.removeEventListener('scroll', handleScroll)
+  }, [overviewElementRef])
 
   // Only show when main overview is not visible and we have withdrawal data
   if (!isSticky || !enhancedSummary || !simulationData || !enhancedSummary.endkapitalEntspharphase) {
-    return null;
+    return null
   }
 
   // Calculate years range
@@ -74,26 +74,27 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
   // Helper function to format currency in compact form for mobile
   const formatCompactCurrency = (amount: number) => {
     if (amount >= 1000000) {
-      return `${(amount / 1000000).toFixed(1)}M €`;
-    } else if (amount >= 1000) {
-      return `${(amount / 1000).toFixed(0)}k €`;
+      return `${(amount / 1000000).toFixed(1)}M €`
     }
-    return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' });
-  };
+    else if (amount >= 1000) {
+      return `${(amount / 1000).toFixed(0)}k €`
+    }
+    return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
+  }
 
   const renderEntnahmenContent = () => {
     if (!enhancedSummary.endkapitalEntspharphase) {
-      return null;
+      return null
     }
 
-    const withdrawalStartYear = startEnd[0] + 1;
-    const withdrawalEndYear = startEnd[1];
-    const withdrawalYearsRange = `${withdrawalStartYear} - ${withdrawalEndYear}`;
-    
+    const withdrawalStartYear = startEnd[0] + 1
+    const withdrawalEndYear = startEnd[1]
+    const withdrawalYearsRange = `${withdrawalStartYear} - ${withdrawalEndYear}`
+
     // Check if we have segmented withdrawal
-    const hasSegments = enhancedSummary.isSegmentedWithdrawal && 
-                       enhancedSummary.withdrawalSegments && 
-                       enhancedSummary.withdrawalSegments.length > 1;
+    const hasSegments = enhancedSummary.isSegmentedWithdrawal
+      && enhancedSummary.withdrawalSegments
+      && enhancedSummary.withdrawalSegments.length > 1
 
     if (isMobile) {
       // Mobile: Zeit / Startkapital / Endkapital (symbols and numbers only)
@@ -115,16 +116,25 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
             <span className="text-sm font-semibold text-green-600">{formatCompactCurrency(enhancedSummary.endkapitalEntspharphase)}</span>
           </div>
         </div>
-      );
-    } else {
+      )
+    }
+    else {
       // Desktop: Zeit / Startkapital / Endkapital
       return (
         <div className="w-full">
           <div className="w-full">
             <h4 className="m-0 mb-3 text-slate-800 text-sm font-semibold">
-              💸 Entsparphase ({withdrawalYearsRange})
+              💸 Entsparphase (
+              {withdrawalYearsRange}
+              )
               {hasSegments && (
-                <span className="text-sm text-teal-600 font-normal"> - {enhancedSummary.withdrawalSegments!.length} Phasen</span>
+                <span className="text-sm text-teal-600 font-normal">
+                  {' '}
+                  -
+                  {enhancedSummary.withdrawalSegments!.length}
+                  {' '}
+                  Phasen
+                </span>
               )}
             </h4>
             <div className="grid grid-cols-3 gap-3">
@@ -151,13 +161,13 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
             </div>
           </div>
         </div>
-      );
+      )
     }
-  };
+  }
 
   const renderContent = () => {
-    return renderEntnahmenContent();
-  };
+    return renderEntnahmenContent()
+  }
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[999] bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg animate-slide-up">
@@ -165,5 +175,5 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
         {renderContent()}
       </div>
     </div>
-  );
+  )
 }

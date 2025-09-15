@@ -1,29 +1,29 @@
-import { useCallback, useMemo } from "react";
-import { useSimulation } from "../contexts/useSimulation";
-import { createDefaultWithdrawalSegment, synchronizeWithdrawalSegmentsEndYear } from "../utils/segmented-withdrawal";
+import { useCallback, useMemo } from 'react'
+import { useSimulation } from '../contexts/useSimulation'
+import { createDefaultWithdrawalSegment, synchronizeWithdrawalSegmentsEndYear } from '../utils/segmented-withdrawal'
 import type {
   WithdrawalReturnMode,
   WithdrawalFormValue,
   ComparisonStrategy,
   SegmentedComparisonStrategy,
-} from "../utils/config-storage";
-import { createDefaultStatutoryPensionConfig } from "../../helpers/statutory-pension";
+} from '../utils/config-storage'
+import { createDefaultStatutoryPensionConfig } from '../../helpers/statutory-pension'
 
 /**
  * Custom hook for managing withdrawal configuration state
  */
 export function useWithdrawalConfig(startOfIndependence: number) {
-  const { withdrawalConfig, setWithdrawalConfig, endOfLife } = useSimulation();
+  const { withdrawalConfig, setWithdrawalConfig, endOfLife } = useSimulation()
 
   // Initialize withdrawal config if not exists or update current form values
   const currentConfig = useMemo(() => {
     // Create default withdrawal configuration if none exists
     const defaultFormValue: WithdrawalFormValue = {
       // endOfLife moved to global configuration
-      strategie: "4prozent",
+      strategie: '4prozent',
       rendite: 5,
       // Withdrawal frequency configuration
-      withdrawalFrequency: "yearly", // Default to yearly as specified in requirements
+      withdrawalFrequency: 'yearly', // Default to yearly as specified in requirements
       // General inflation settings (for all strategies)
       inflationAktiv: false,
       inflationsrate: 2,
@@ -45,7 +45,7 @@ export function useWithdrawalConfig(startOfIndependence: number) {
         refillThreshold: 5000, // Refill when gains exceed €5,000
         refillPercentage: 0.5, // Move 50% of excess gains to cash
         baseWithdrawalRate: 0.04, // 4% base withdrawal rate (fallback)
-        subStrategy: "4prozent", // Default to 4% rule sub-strategy
+        subStrategy: '4prozent', // Default to 4% rule sub-strategy
         variabelProzent: 4, // Default variable percentage
         monatlicheBetrag: 2000, // Default monthly amount €2,000
         dynamischBasisrate: 4, // Default dynamic base rate 4%
@@ -63,37 +63,37 @@ export function useWithdrawalConfig(startOfIndependence: number) {
       // Statutory pension settings
       statutoryPensionConfig: createDefaultStatutoryPensionConfig(),
       einkommensteuersatz: 18, // Default income tax rate 18%
-    };
+    }
 
     const defaultComparisonStrategies: ComparisonStrategy[] = [
       {
-        id: "strategy1",
-        name: "3% Regel",
-        strategie: "3prozent",
+        id: 'strategy1',
+        name: '3% Regel',
+        strategie: '3prozent',
         rendite: 5,
       },
       {
-        id: "strategy2",
-        name: "Monatlich 1.500€",
-        strategie: "monatlich_fest",
+        id: 'strategy2',
+        name: 'Monatlich 1.500€',
+        strategie: 'monatlich_fest',
         rendite: 5,
         monatlicheBetrag: 1500,
       },
       {
-        id: "strategy3",
-        name: "Drei-Eimer 15k€",
-        strategie: "bucket_strategie",
+        id: 'strategy3',
+        name: 'Drei-Eimer 15k€',
+        strategie: 'bucket_strategie',
         rendite: 5,
         bucketInitialCash: 15000,
         bucketBaseRate: 4,
         bucketRefillThreshold: 3000,
         bucketRefillPercentage: 0.6,
       },
-    ];
+    ]
 
     return withdrawalConfig || {
       formValue: defaultFormValue,
-      withdrawalReturnMode: "fixed" as WithdrawalReturnMode,
+      withdrawalReturnMode: 'fixed' as WithdrawalReturnMode,
       withdrawalVariableReturns: {},
       withdrawalAverageReturn: 5,
       withdrawalStandardDeviation: 12,
@@ -101,8 +101,8 @@ export function useWithdrawalConfig(startOfIndependence: number) {
       useSegmentedWithdrawal: false,
       withdrawalSegments: [
         createDefaultWithdrawalSegment(
-          "main",
-          "Hauptphase",
+          'main',
+          'Hauptphase',
           startOfIndependence + 1,
           endOfLife,
         ),
@@ -111,52 +111,52 @@ export function useWithdrawalConfig(startOfIndependence: number) {
       comparisonStrategies: defaultComparisonStrategies,
       useSegmentedComparisonMode: false,
       segmentedComparisonStrategies: [],
-    };
-  }, [withdrawalConfig, startOfIndependence, endOfLife]);
+    }
+  }, [withdrawalConfig, startOfIndependence, endOfLife])
 
   // Synchronize existing segments with global end of life when endOfLife changes
   const synchronizedConfig = useMemo(() => {
     if (!withdrawalConfig) {
-      return currentConfig;
+      return currentConfig
     }
 
     // Synchronize regular withdrawal segments
     const synchronizedSegments = synchronizeWithdrawalSegmentsEndYear(
       currentConfig.withdrawalSegments,
-      endOfLife
-    );
+      endOfLife,
+    )
 
     // Synchronize segmented comparison strategies
     const synchronizedComparisonStrategies = (currentConfig.segmentedComparisonStrategies || []).map(strategy => ({
       ...strategy,
-      segments: synchronizeWithdrawalSegmentsEndYear(strategy.segments, endOfLife)
-    }));
+      segments: synchronizeWithdrawalSegmentsEndYear(strategy.segments, endOfLife),
+    }))
 
     return {
       ...currentConfig,
       withdrawalSegments: synchronizedSegments,
-      segmentedComparisonStrategies: synchronizedComparisonStrategies
-    };
-  }, [currentConfig, endOfLife, withdrawalConfig]);
+      segmentedComparisonStrategies: synchronizedComparisonStrategies,
+    }
+  }, [currentConfig, endOfLife, withdrawalConfig])
 
   // Helper function to update config
   const updateConfig = useCallback(
     (updates: Partial<typeof synchronizedConfig>) => {
-      const newConfig = { ...synchronizedConfig, ...updates };
-      setWithdrawalConfig(newConfig);
+      const newConfig = { ...synchronizedConfig, ...updates }
+      setWithdrawalConfig(newConfig)
     },
     [synchronizedConfig, setWithdrawalConfig],
-  );
+  )
 
   // Helper function to update form value
   const updateFormValue = useCallback(
     (updates: Partial<WithdrawalFormValue>) => {
       updateConfig({
         formValue: { ...synchronizedConfig.formValue, ...updates },
-      });
+      })
     },
     [synchronizedConfig.formValue, updateConfig],
-  );
+  )
 
   // Helper function to update a comparison strategy
   const updateComparisonStrategy = useCallback(
@@ -165,42 +165,44 @@ export function useWithdrawalConfig(startOfIndependence: number) {
         comparisonStrategies: synchronizedConfig.comparisonStrategies.map((s: ComparisonStrategy) =>
           s.id === strategyId ? { ...s, ...updates } : s,
         ),
-      });
+      })
     },
     [synchronizedConfig.comparisonStrategies, updateConfig],
-  );
+  )
 
   // Helper function to update a segmented comparison strategy
   const updateSegmentedComparisonStrategy = useCallback(
     (strategyId: string, updates: Partial<SegmentedComparisonStrategy>) => {
       updateConfig({
-        segmentedComparisonStrategies: (synchronizedConfig.segmentedComparisonStrategies || []).map((s: SegmentedComparisonStrategy) =>
-          s.id === strategyId ? { ...s, ...updates } : s,
-        ),
-      });
+        segmentedComparisonStrategies: (synchronizedConfig.segmentedComparisonStrategies || [])
+          .map((s: SegmentedComparisonStrategy) =>
+            s.id === strategyId ? { ...s, ...updates } : s,
+          ),
+      })
     },
     [synchronizedConfig.segmentedComparisonStrategies, updateConfig],
-  );
+  )
 
   // Helper function to add a new segmented comparison strategy
   const addSegmentedComparisonStrategy = useCallback(
     (strategy: SegmentedComparisonStrategy) => {
       updateConfig({
         segmentedComparisonStrategies: [...(synchronizedConfig.segmentedComparisonStrategies || []), strategy],
-      });
+      })
     },
     [synchronizedConfig.segmentedComparisonStrategies, updateConfig],
-  );
+  )
 
   // Helper function to remove a segmented comparison strategy
   const removeSegmentedComparisonStrategy = useCallback(
     (strategyId: string) => {
       updateConfig({
-        segmentedComparisonStrategies: (synchronizedConfig.segmentedComparisonStrategies || []).filter((s: SegmentedComparisonStrategy) => s.id !== strategyId),
-      });
+        segmentedComparisonStrategies: (synchronizedConfig.segmentedComparisonStrategies || [])
+          .filter((s: SegmentedComparisonStrategy) => s.id !== strategyId),
+      })
     },
     [synchronizedConfig.segmentedComparisonStrategies, updateConfig],
-  );
+  )
 
   return {
     currentConfig: synchronizedConfig,
@@ -210,5 +212,5 @@ export function useWithdrawalConfig(startOfIndependence: number) {
     updateSegmentedComparisonStrategy,
     addSegmentedComparisonStrategy,
     removeSegmentedComparisonStrategy,
-  };
+  }
 }

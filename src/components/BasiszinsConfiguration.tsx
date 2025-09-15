@@ -1,19 +1,18 @@
-import { Download, Plus, RefreshCw, Trash2 } from 'lucide-react';
-import { useCallback, useState } from 'react';
-import { useSimulation } from '../contexts/useSimulation';
-import { useNestingLevel } from '../lib/nesting-utils';
+import { useCallback, useState } from 'react'
+import { Download, Plus, RefreshCw, Trash2 } from 'lucide-react'
+import { useSimulation } from '../contexts/useSimulation'
 import {
-    estimateFutureBasiszins,
-    refreshBasiszinsFromAPI,
-    validateBasiszinsRate,
-    type BasiszinsData
-} from '../services/bundesbank-api';
-import { Alert, AlertDescription } from './ui/alert';
-import { Button } from './ui/button';
-import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card';
-import { Input } from './ui/input';
-import { Label } from './ui/label';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+  estimateFutureBasiszins,
+  refreshBasiszinsFromAPI,
+  validateBasiszinsRate,
+  type BasiszinsData,
+} from '../services/bundesbank-api'
+import { Alert, AlertDescription } from './ui/alert'
+import { Button } from './ui/button'
+import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
 
 /**
  * Basiszins Configuration Component
@@ -24,159 +23,162 @@ export default function BasiszinsConfiguration() {
     basiszinsConfiguration,
     setBasiszinsConfiguration,
     performSimulation,
-  } = useSimulation();
-  
-  const nestingLevel = useNestingLevel();
+  } = useSimulation()
 
-  const [isLoading, setIsLoading] = useState(false);
-  const [lastApiUpdate, setLastApiUpdate] = useState<string | null>(null);
-  const [newYear, setNewYear] = useState('');
-  const [newRate, setNewRate] = useState('');
-  const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false)
+  const [lastApiUpdate, setLastApiUpdate] = useState<string | null>(null)
+  const [newYear, setNewYear] = useState('')
+  const [newRate, setNewRate] = useState('')
+  const [error, setError] = useState<string | null>(null)
 
-  const currentYear = new Date().getFullYear();
+  const currentYear = new Date().getFullYear()
 
   /**
    * Fetch latest rates from Deutsche Bundesbank API
    */
   const handleFetchFromApi = useCallback(async () => {
-    setIsLoading(true);
-    setError(null);
-    
+    setIsLoading(true)
+    setError(null)
+
     try {
       // Use the new refresh function that properly handles merging
-      const updatedConfig = await refreshBasiszinsFromAPI(basiszinsConfiguration);
-      
-      setBasiszinsConfiguration(updatedConfig);
-      setLastApiUpdate(new Date().toISOString());
-      performSimulation();
-      
+      const updatedConfig = await refreshBasiszinsFromAPI(basiszinsConfiguration)
+
+      setBasiszinsConfiguration(updatedConfig)
+      setLastApiUpdate(new Date().toISOString())
+      performSimulation()
+
       // Show success message
-      console.log('✅ Basiszins-Daten erfolgreich von der API aktualisiert');
-      
-    } catch (err) {
-      const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler beim Abrufen der Daten';
-      setError(errorMessage);
-      console.error('❌ Fehler beim Aktualisieren der Basiszins-Daten:', errorMessage);
-    } finally {
-      setIsLoading(false);
+      console.log('✅ Basiszins-Daten erfolgreich von der API aktualisiert')
     }
-  }, [basiszinsConfiguration, setBasiszinsConfiguration, performSimulation]);
+    catch (err) {
+      const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler beim Abrufen der Daten'
+      setError(errorMessage)
+      console.error('❌ Fehler beim Aktualisieren der Basiszins-Daten:', errorMessage)
+    }
+    finally {
+      setIsLoading(false)
+    }
+  }, [basiszinsConfiguration, setBasiszinsConfiguration, performSimulation])
 
   /**
    * Add manual entry for a specific year
    */
   const handleAddManualEntry = useCallback(() => {
-    const year = parseInt(newYear);
-    const rate = parseFloat(newRate) / 100; // Convert percentage to decimal
-    
+    const year = parseInt(newYear)
+    const rate = parseFloat(newRate) / 100 // Convert percentage to decimal
+
     if (isNaN(year) || year < 2018 || year > 2050) {
-      setError('Bitte geben Sie ein gültiges Jahr zwischen 2018 und 2050 ein.');
-      return;
+      setError('Bitte geben Sie ein gültiges Jahr zwischen 2018 und 2050 ein.')
+      return
     }
-    
+
     if (isNaN(rate) || !validateBasiszinsRate(rate)) {
-      setError('Bitte geben Sie einen gültigen Zinssatz zwischen -2% und 10% ein.');
-      return;
+      setError('Bitte geben Sie einen gültigen Zinssatz zwischen -2% und 10% ein.')
+      return
     }
-    
+
     const newEntry: BasiszinsData = {
       year,
       rate,
       source: 'manual',
       lastUpdated: new Date().toISOString(),
-    };
-    
+    }
+
     setBasiszinsConfiguration({
       ...basiszinsConfiguration,
       [year]: newEntry,
-    });
-    
-    setNewYear('');
-    setNewRate('');
-    setError(null);
-    performSimulation();
-  }, [newYear, newRate, basiszinsConfiguration, setBasiszinsConfiguration, performSimulation]);
+    })
+
+    setNewYear('')
+    setNewRate('')
+    setError(null)
+    performSimulation()
+  }, [newYear, newRate, basiszinsConfiguration, setBasiszinsConfiguration, performSimulation])
 
   /**
    * Remove a year from configuration
    */
   const handleRemoveYear = useCallback((year: number) => {
-    const updatedConfig = { ...basiszinsConfiguration };
-    delete updatedConfig[year];
-    setBasiszinsConfiguration(updatedConfig);
-    performSimulation();
-  }, [basiszinsConfiguration, setBasiszinsConfiguration, performSimulation]);
+    const updatedConfig = { ...basiszinsConfiguration }
+    delete updatedConfig[year]
+    setBasiszinsConfiguration(updatedConfig)
+    performSimulation()
+  }, [basiszinsConfiguration, setBasiszinsConfiguration, performSimulation])
 
   /**
    * Update rate for existing year
    */
   const handleUpdateRate = useCallback((year: number, newRateValue: string) => {
-    const rate = parseFloat(newRateValue) / 100; // Convert percentage to decimal
-    
+    const rate = parseFloat(newRateValue) / 100 // Convert percentage to decimal
+
     if (isNaN(rate) || !validateBasiszinsRate(rate)) {
-      return; // Invalid rate, don't update
+      return // Invalid rate, don't update
     }
-    
+
     const updatedEntry: BasiszinsData = {
       ...basiszinsConfiguration[year],
       rate,
       source: 'manual', // Mark as manually edited
       lastUpdated: new Date().toISOString(),
-    };
-    
+    }
+
     setBasiszinsConfiguration({
       ...basiszinsConfiguration,
       [year]: updatedEntry,
-    });
-    
-    performSimulation();
-  }, [basiszinsConfiguration, setBasiszinsConfiguration, performSimulation]);
+    })
+
+    performSimulation()
+  }, [basiszinsConfiguration, setBasiszinsConfiguration, performSimulation])
 
   /**
    * Suggest rate for future years
    */
   const getSuggestedRate = useCallback(() => {
-    const estimate = estimateFutureBasiszins(basiszinsConfiguration);
-    return (estimate * 100).toFixed(2); // Convert to percentage
-  }, [basiszinsConfiguration]);
+    const estimate = estimateFutureBasiszins(basiszinsConfiguration)
+    return (estimate * 100).toFixed(2) // Convert to percentage
+  }, [basiszinsConfiguration])
 
   // Sort years for display
   const sortedYears = Object.keys(basiszinsConfiguration)
     .map(Number)
-    .sort((a, b) => b - a); // Newest first
+    .sort((a, b) => b - a) // Newest first
 
   return (
     <CollapsibleCard>
       <CollapsibleCardHeader>📈 Basiszins-Konfiguration (Deutsche Bundesbank)</CollapsibleCardHeader>
-        <CollapsibleCardContent>
-        
+      <CollapsibleCardContent>
+
         {/* Information Panel */}
         <Alert>
           <AlertDescription>
-            Der Basiszins wird zur Berechnung der Vorabpauschale verwendet. 
-            Die offiziellen Sätze werden jährlich vom Bundesfinanzministerium 
+            Der Basiszins wird zur Berechnung der Vorabpauschale verwendet.
+            Die offiziellen Sätze werden jährlich vom Bundesfinanzministerium
             basierend auf Bundesbank-Daten veröffentlicht.
           </AlertDescription>
         </Alert>
 
         {/* API Actions */}
         <div className="flex gap-2">
-          <Button 
+          <Button
             onClick={handleFetchFromApi}
             disabled={isLoading}
           >
-            {isLoading ? (
-              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-            ) : (
-              <Download className="h-4 w-4 mr-2" />
-            )}
+            {isLoading
+              ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                )
+              : (
+                  <Download className="h-4 w-4 mr-2" />
+                )}
             Von Bundesbank aktualisieren
           </Button>
-          
+
           {lastApiUpdate && (
             <div className="text-sm text-muted-foreground self-center">
-              Zuletzt aktualisiert: {new Date(lastApiUpdate).toLocaleDateString('de-DE')}
+              Zuletzt aktualisiert:
+              {' '}
+              {new Date(lastApiUpdate).toLocaleDateString('de-DE')}
             </div>
           )}
         </div>
@@ -198,7 +200,7 @@ export default function BasiszinsConfiguration() {
               value={newYear}
               min={currentYear}
               max={2050}
-              onChange={(e) => setNewYear(e.target.value)}
+              onChange={e => setNewYear(e.target.value)}
             />
             <Input
               type="number"
@@ -207,7 +209,7 @@ export default function BasiszinsConfiguration() {
               min={-2}
               max={10}
               step={0.01}
-              onChange={(e) => setNewRate(e.target.value)}
+              onChange={e => setNewRate(e.target.value)}
             />
             <Button onClick={handleAddManualEntry}>
               <Plus className="h-4 w-4 mr-2" />
@@ -230,7 +232,7 @@ export default function BasiszinsConfiguration() {
             </TableHeader>
             <TableBody>
               {sortedYears.map((year) => {
-                const data = basiszinsConfiguration[year];
+                const data = basiszinsConfiguration[year]
                 return (
                   <TableRow key={year}>
                     <TableCell className="text-center font-medium">{year}</TableCell>
@@ -241,27 +243,28 @@ export default function BasiszinsConfiguration() {
                         min={-2}
                         max={10}
                         step={0.01}
-                        onChange={(e) => handleUpdateRate(year, e.target.value)}
+                        onChange={e => handleUpdateRate(year, e.target.value)}
                         className="w-20 mx-auto text-center"
                       />
                     </TableCell>
                     <TableCell className="text-center">
                       <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        data.source === 'api' 
+                        data.source === 'api'
                           ? 'bg-green-100 text-green-800'
                           : data.source === 'manual'
-                          ? 'bg-blue-100 text-blue-800'
-                          : 'bg-gray-100 text-gray-800'
-                      }`}>
-                        {data.source === 'api' ? '🏛️ API' : 
-                         data.source === 'manual' ? '✏️ Manuell' : '📋 Standard'}
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-gray-100 text-gray-800'
+                      }`}
+                      >
+                        {data.source === 'api'
+                          ? '🏛️ API'
+                          : data.source === 'manual' ? '✏️ Manuell' : '📋 Standard'}
                       </span>
                     </TableCell>
                     <TableCell className="text-center text-sm text-muted-foreground">
-                      {data.lastUpdated 
+                      {data.lastUpdated
                         ? new Date(data.lastUpdated).toLocaleDateString('de-DE')
-                        : 'N/A'
-                      }
+                        : 'N/A'}
                     </TableCell>
                     <TableCell className="text-center">
                       <Button
@@ -274,7 +277,7 @@ export default function BasiszinsConfiguration() {
                       </Button>
                     </TableCell>
                   </TableRow>
-                );
+                )
               })}
             </TableBody>
           </Table>
@@ -283,11 +286,18 @@ export default function BasiszinsConfiguration() {
         {/* Summary Info */}
         <div className="text-sm text-muted-foreground">
           <p>
-            💡 <strong>Tipp:</strong> Historische Daten (vor {currentYear}) können nicht gelöscht werden. 
+            💡
+            {' '}
+            <strong>Tipp:</strong>
+            {' '}
+            Historische Daten (vor
+            {' '}
+            {currentYear}
+            ) können nicht gelöscht werden.
             Zukünftige Raten können manuell hinzugefügt oder über die Bundesbank-API aktualisiert werden.
           </p>
         </div>
-        </CollapsibleCardContent>
-      </CollapsibleCard>
-  );
+      </CollapsibleCardContent>
+    </CollapsibleCard>
+  )
 }

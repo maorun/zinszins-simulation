@@ -1,33 +1,33 @@
-import { Button } from './ui/button';
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { Alert, AlertDescription } from './ui/alert';
-import { ChevronDown } from 'lucide-react';
-import { toast } from 'sonner';
-import { useSimulation } from '../contexts/useSimulation';
-import { useNestingLevel } from '../lib/nesting-utils';
-import { hasConfiguration, clearConfiguration } from '../utils/config-storage';
+import { Button } from './ui/button'
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
+import { Alert, AlertDescription } from './ui/alert'
+import { ChevronDown } from 'lucide-react'
+import { toast } from 'sonner'
+import { useSimulation } from '../contexts/useSimulation'
+import { useNestingLevel } from '../lib/nesting-utils'
+import { hasConfiguration, clearConfiguration } from '../utils/config-storage'
 
 /**
  * Configuration Management Panel Component
  * Provides user-friendly controls for save/load/reset configuration
  */
 export default function ConfigurationManagement() {
-  const { resetToDefaults } = useSimulation();
-  const nestingLevel = useNestingLevel();
+  const { resetToDefaults } = useSimulation()
+  const nestingLevel = useNestingLevel()
 
   const handleClearConfiguration = () => {
     if (confirm('Möchten Sie wirklich alle gespeicherten Einstellungen löschen und zu den Standardwerten zurückkehren?')) {
-      clearConfiguration();
-      resetToDefaults();
-      toast.success('Konfiguration wurde gelöscht und auf Standardwerte zurückgesetzt.');
+      clearConfiguration()
+      resetToDefaults()
+      toast.success('Konfiguration wurde gelöscht und auf Standardwerte zurückgesetzt.')
     }
-  };
+  }
 
-  const hasStoredConfig = hasConfiguration();
+  const hasStoredConfig = hasConfiguration()
 
   return (
-    <Card nestingLevel={nestingLevel}>
+    <Card nestingLevel={nestingLevel} className="mb-4">
       <Collapsible defaultOpen={false}>
         <CardHeader nestingLevel={nestingLevel}>
           <CollapsibleTrigger asChild>
@@ -39,40 +39,45 @@ export default function ConfigurationManagement() {
         </CardHeader>
         <CollapsibleContent>
           <CardContent nestingLevel={nestingLevel}>
-        <Alert variant="info" className="mb-4">
-          <AlertDescription>
-            <strong>Automatisches Speichern:</strong> Ihre Einstellungen werden automatisch beim Ändern gespeichert und beim nächsten Besuch wiederhergestellt.
-          </AlertDescription>
-        </Alert>
-        
-        <div className="space-y-4">
-          <div>
-            <Button 
-              variant="destructive"
-              disabled={!hasStoredConfig}
-              onClick={handleClearConfiguration}
-            >
-              🗑️ Einstellungen löschen
-            </Button>
-          </div>
-          
-          {hasStoredConfig ? (
-            <Alert variant="success">
+            <Alert variant="info" className="mb-4">
               <AlertDescription>
-                ✅ Gespeicherte Konfiguration gefunden - wird automatisch geladen
+                <strong>Automatisches Speichern:</strong>
+                {' '}
+                Ihre Einstellungen werden automatisch beim Ändern gespeichert
+                und beim nächsten Besuch wiederhergestellt.
               </AlertDescription>
             </Alert>
-          ) : (
-            <Alert variant="warning">
-              <AlertDescription>
-                ⚠️ Keine gespeicherte Konfiguration - Standardwerte werden verwendet
-              </AlertDescription>
-            </Alert>
-          )}
-        </div>
+
+            <div className="space-y-4">
+              <div>
+                <Button
+                  variant="destructive"
+                  disabled={!hasStoredConfig}
+                  onClick={handleClearConfiguration}
+                >
+                  🗑️ Einstellungen löschen
+                </Button>
+              </div>
+
+              {hasStoredConfig
+                ? (
+                    <Alert variant="success">
+                      <AlertDescription>
+                        ✅ Gespeicherte Konfiguration gefunden - wird automatisch geladen
+                      </AlertDescription>
+                    </Alert>
+                  )
+                : (
+                    <Alert variant="warning">
+                      <AlertDescription>
+                        ⚠️ Keine gespeicherte Konfiguration - Standardwerte werden verwendet
+                      </AlertDescription>
+                    </Alert>
+                  )}
+            </div>
           </CardContent>
         </CollapsibleContent>
       </Collapsible>
     </Card>
-  );
+  )
 }

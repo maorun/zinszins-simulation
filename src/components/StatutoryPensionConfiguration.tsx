@@ -1,61 +1,61 @@
-import { Label } from "./ui/label";
-import { Input } from "./ui/input";
-import { Switch } from "./ui/switch";
-import { Slider } from "./ui/slider";
-import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
-import { Button } from "./ui/button";
-import { Info, Calculator } from "lucide-react";
-import { useNestingLevel } from "../lib/nesting-utils";
-import { 
-  estimateMonthlyPensionFromTaxReturn, 
+import { Label } from './ui/label'
+import { Input } from './ui/input'
+import { Switch } from './ui/switch'
+import { Slider } from './ui/slider'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Button } from './ui/button'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
+import { Info, Calculator, ChevronDown } from 'lucide-react'
+import { useNestingLevel } from '../lib/nesting-utils'
+import {
+  estimateMonthlyPensionFromTaxReturn,
   estimateTaxablePercentageFromTaxReturn,
-  calculatePensionStartYear 
-} from "../../helpers/statutory-pension";
-import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from "./ui/collapsible-card";
+  calculatePensionStartYear,
+} from '../../helpers/statutory-pension'
 
 interface StatutoryPensionFormValues {
-  enabled: boolean;
-  startYear: number;
-  monthlyAmount: number;
-  annualIncreaseRate: number;
-  taxablePercentage: number;
-  retirementAge?: number;
-  birthYear?: number;
+  enabled: boolean
+  startYear: number
+  monthlyAmount: number
+  annualIncreaseRate: number
+  taxablePercentage: number
+  retirementAge?: number
+  birthYear?: number
   // Tax return data fields
-  hasTaxReturnData: boolean;
-  taxYear: number;
-  annualPensionReceived: number;
-  taxablePortion: number;
+  hasTaxReturnData: boolean
+  taxYear: number
+  annualPensionReceived: number
+  taxablePortion: number
 }
 
 interface StatutoryPensionChangeHandlers {
-  onEnabledChange: (enabled: boolean) => void;
-  onStartYearChange: (year: number) => void;
-  onMonthlyAmountChange: (amount: number) => void;
-  onAnnualIncreaseRateChange: (rate: number) => void;
-  onTaxablePercentageChange: (percentage: number) => void;
-  onRetirementAgeChange: (age: number) => void;
-  onBirthYearChange: (year: number) => void;
+  onEnabledChange: (enabled: boolean) => void
+  onStartYearChange: (year: number) => void
+  onMonthlyAmountChange: (amount: number) => void
+  onAnnualIncreaseRateChange: (rate: number) => void
+  onTaxablePercentageChange: (percentage: number) => void
+  onRetirementAgeChange: (age: number) => void
+  onBirthYearChange: (year: number) => void
   onTaxReturnDataChange: (data: {
-    hasTaxReturnData: boolean;
-    taxYear: number;
-    annualPensionReceived: number;
-    taxablePortion: number;
-  }) => void;
+    hasTaxReturnData: boolean
+    taxYear: number
+    annualPensionReceived: number
+    taxablePortion: number
+  }) => void
 }
 
 interface StatutoryPensionConfigurationProps {
-  values: StatutoryPensionFormValues;
-  onChange: StatutoryPensionChangeHandlers;
-  currentYear?: number;
+  values: StatutoryPensionFormValues
+  onChange: StatutoryPensionChangeHandlers
+  currentYear?: number
 }
 
-export function StatutoryPensionConfiguration({ 
-  values, 
+export function StatutoryPensionConfiguration({
+  values,
   onChange,
-  currentYear = new Date().getFullYear()
+  currentYear = new Date().getFullYear(),
 }: StatutoryPensionConfigurationProps) {
-  const nestingLevel = useNestingLevel();
+  const nestingLevel = useNestingLevel()
 
   const handleImportFromTaxReturn = () => {
     if (values.hasTaxReturnData && values.annualPensionReceived > 0) {
@@ -63,49 +63,104 @@ export function StatutoryPensionConfiguration({
         taxYear: values.taxYear,
         annualPensionReceived: values.annualPensionReceived,
         taxablePortion: values.taxablePortion,
-      });
+      })
 
       const estimatedTaxablePercentage = estimateTaxablePercentageFromTaxReturn({
         taxYear: values.taxYear,
         annualPensionReceived: values.annualPensionReceived,
         taxablePortion: values.taxablePortion,
-      });
+      })
 
-      onChange.onMonthlyAmountChange(Math.round(estimatedMonthly));
-      onChange.onTaxablePercentageChange(Math.round(estimatedTaxablePercentage));
+      onChange.onMonthlyAmountChange(Math.round(estimatedMonthly))
+      onChange.onTaxablePercentageChange(Math.round(estimatedTaxablePercentage))
     }
-  };
+  }
 
   const handleCalculateStartYear = () => {
     if (values.birthYear && values.retirementAge) {
-      const calculatedStartYear = calculatePensionStartYear(values.birthYear, values.retirementAge);
-      onChange.onStartYearChange(calculatedStartYear);
+      const calculatedStartYear = calculatePensionStartYear(values.birthYear, values.retirementAge)
+      onChange.onStartYearChange(calculatedStartYear)
     }
-  };
+  }
+
+  if (!values.enabled) {
+    return (
+      <Collapsible defaultOpen={false}>
+        <Card nestingLevel={nestingLevel}>
+          <CollapsibleTrigger asChild>
+            <Button
+              variant="ghost"
+              className="w-full justify-between p-0"
+              asChild
+            >
+              <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
+                <div className="flex items-center justify-between w-full">
+                  <CardTitle className="flex items-center gap-2">
+                    🏛️ Gesetzliche Renten-Konfiguration
+                  </CardTitle>
+                  <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+                </div>
+              </CardHeader>
+            </Button>
+          </CollapsibleTrigger>
+          <CollapsibleContent>
+            <CardContent nestingLevel={nestingLevel}>
+              <div className="space-y-4">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={values.enabled}
+                    onCheckedChange={onChange.onEnabledChange}
+                    id="statutory-pension-enabled"
+                  />
+                  <Label htmlFor="statutory-pension-enabled">
+                    Gesetzliche Rente berücksichtigen
+                  </Label>
+                </div>
+                <div className="text-sm text-muted-foreground">
+                  Aktivieren Sie diese Option, um Ihre gesetzliche Rente in die Entnahmeplanung einzubeziehen.
+                  Dies ermöglicht eine realistische Berechnung Ihres privaten Entnahmebedarfs.
+                </div>
+              </div>
+            </CardContent>
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
+    )
+  }
 
   return (
-    <CollapsibleCard>
-      <CollapsibleCardHeader>🏛️ Gesetzliche Renten-Konfiguration</CollapsibleCardHeader>
-      <CollapsibleCardContent>
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={values.enabled}
-            onCheckedChange={onChange.onEnabledChange}
-            id="statutory-pension-enabled"
-          />
-          <Label htmlFor="statutory-pension-enabled">
-            Gesetzliche Rente berücksichtigen
-          </Label>
-        </div>
-        {
-          !values.enabled ? (
-            <div className="text-sm text-muted-foreground">
-              Aktivieren Sie diese Option, um Ihre gesetzliche Rente in die Entnahmeplanung einzubeziehen.
-              Dies ermöglicht eine realistische Berechnung Ihres privaten Entnahmebedarfs.
-            </div>
-          ) :
-          (
-            <>
+    <Collapsible defaultOpen={false}>
+      <Card nestingLevel={nestingLevel}>
+        <CollapsibleTrigger asChild>
+          <Button
+            variant="ghost"
+            className="w-full justify-between p-0"
+            asChild
+          >
+            <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
+              <div className="flex items-center justify-between w-full">
+                <CardTitle className="flex items-center gap-2">
+                  🏛️ Gesetzliche Renten-Konfiguration
+                </CardTitle>
+                <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              </div>
+            </CardHeader>
+          </Button>
+        </CollapsibleTrigger>
+        <CollapsibleContent>
+          <CardContent nestingLevel={nestingLevel}>
+            <div className="space-y-6">
+              <div className="flex items-center space-x-2">
+                <Switch
+                  checked={values.enabled}
+                  onCheckedChange={onChange.onEnabledChange}
+                  id="statutory-pension-enabled"
+                />
+                <Label htmlFor="statutory-pension-enabled" className="font-medium">
+                  Gesetzliche Rente berücksichtigen
+                </Label>
+              </div>
+
               {/* Tax Return Data Import */}
               <Card nestingLevel={nestingLevel + 1}>
                 <CardHeader nestingLevel={nestingLevel + 1} className="pb-3">
@@ -118,14 +173,13 @@ export function StatutoryPensionConfiguration({
                   <div className="flex items-center space-x-2">
                     <Switch
                       checked={values.hasTaxReturnData}
-                        onCheckedChange={(hasTaxReturnData) => 
+                      onCheckedChange={hasTaxReturnData =>
                         onChange.onTaxReturnDataChange({
                           hasTaxReturnData,
                           taxYear: values.taxYear,
                           annualPensionReceived: values.annualPensionReceived,
                           taxablePortion: values.taxablePortion,
-                        })
-                      }
+                        })}
                       id="has-tax-return-data"
                     />
                     <Label htmlFor="has-tax-return-data">
@@ -142,7 +196,7 @@ export function StatutoryPensionConfiguration({
                             id="tax-year"
                             type="number"
                             value={values.taxYear}
-                            onChange={(e) => onChange.onTaxReturnDataChange({
+                            onChange={e => onChange.onTaxReturnDataChange({
                               hasTaxReturnData: values.hasTaxReturnData,
                               taxYear: Number(e.target.value),
                               annualPensionReceived: values.annualPensionReceived,
@@ -161,7 +215,7 @@ export function StatutoryPensionConfiguration({
                             id="annual-pension-received"
                             type="number"
                             value={values.annualPensionReceived}
-                            onChange={(e) => onChange.onTaxReturnDataChange({
+                            onChange={e => onChange.onTaxReturnDataChange({
                               hasTaxReturnData: values.hasTaxReturnData,
                               taxYear: values.taxYear,
                               annualPensionReceived: Number(e.target.value),
@@ -179,7 +233,7 @@ export function StatutoryPensionConfiguration({
                             id="taxable-portion"
                             type="number"
                             value={values.taxablePortion}
-                            onChange={(e) => onChange.onTaxReturnDataChange({
+                            onChange={e => onChange.onTaxReturnDataChange({
                               hasTaxReturnData: values.hasTaxReturnData,
                               taxYear: values.taxYear,
                               annualPensionReceived: values.annualPensionReceived,
@@ -192,7 +246,7 @@ export function StatutoryPensionConfiguration({
                         </div>
                       </div>
 
-                      <Button 
+                      <Button
                         onClick={handleImportFromTaxReturn}
                         disabled={values.annualPensionReceived === 0}
                         className="w-full md:w-auto"
@@ -216,7 +270,7 @@ export function StatutoryPensionConfiguration({
                         id="pension-start-year"
                         type="number"
                         value={values.startYear}
-                        onChange={(e) => onChange.onStartYearChange(Number(e.target.value))}
+                        onChange={e => onChange.onStartYearChange(Number(e.target.value))}
                         min={currentYear}
                         max={currentYear + 50}
                         step={1}
@@ -234,7 +288,7 @@ export function StatutoryPensionConfiguration({
                             id="birth-year"
                             type="number"
                             value={values.birthYear || ''}
-                            onChange={(e) => onChange.onBirthYearChange(Number(e.target.value))}
+                            onChange={e => onChange.onBirthYearChange(Number(e.target.value))}
                             placeholder="1974"
                             min={1940}
                             max={currentYear - 18}
@@ -247,14 +301,14 @@ export function StatutoryPensionConfiguration({
                             id="retirement-age"
                             type="number"
                             value={values.retirementAge || 67}
-                            onChange={(e) => onChange.onRetirementAgeChange(Number(e.target.value))}
+                            onChange={e => onChange.onRetirementAgeChange(Number(e.target.value))}
                             min={60}
                             max={75}
                             className="text-xs h-8"
                           />
                         </div>
                       </div>
-                      <Button 
+                      <Button
                         size="sm"
                         variant="outline"
                         onClick={handleCalculateStartYear}
@@ -273,13 +327,17 @@ export function StatutoryPensionConfiguration({
                       id="monthly-amount"
                       type="number"
                       value={values.monthlyAmount}
-                      onChange={(e) => onChange.onMonthlyAmountChange(Number(e.target.value))}
+                      onChange={e => onChange.onMonthlyAmountChange(Number(e.target.value))}
                       min={0}
                       step={50}
                       className="w-40"
                     />
                     <div className="text-sm text-muted-foreground">
-                      Jährliche Rente: {(values.monthlyAmount * 12).toLocaleString('de-DE')} €
+                      Jährliche Rente:
+                      {' '}
+                      {(values.monthlyAmount * 12).toLocaleString('de-DE')}
+                      {' '}
+                      €
                     </div>
                   </div>
                 </div>
@@ -290,7 +348,7 @@ export function StatutoryPensionConfiguration({
                   <div className="space-y-2">
                     <Slider
                       value={[values.annualIncreaseRate]}
-                      onValueChange={(vals) => onChange.onAnnualIncreaseRateChange(vals[0])}
+                      onValueChange={vals => onChange.onAnnualIncreaseRateChange(vals[0])}
                       min={0}
                       max={5}
                       step={0.1}
@@ -298,7 +356,10 @@ export function StatutoryPensionConfiguration({
                     />
                     <div className="flex justify-between text-sm text-gray-500">
                       <span>0%</span>
-                      <span className="font-medium text-gray-900">{values.annualIncreaseRate.toFixed(1)}%</span>
+                      <span className="font-medium text-gray-900">
+                        {values.annualIncreaseRate.toFixed(1)}
+                        %
+                      </span>
                       <span>5%</span>
                     </div>
                   </div>
@@ -313,7 +374,7 @@ export function StatutoryPensionConfiguration({
                   <div className="space-y-2">
                     <Slider
                       value={[values.taxablePercentage]}
-                      onValueChange={(vals) => onChange.onTaxablePercentageChange(vals[0])}
+                      onValueChange={vals => onChange.onTaxablePercentageChange(vals[0])}
                       min={50}
                       max={100}
                       step={1}
@@ -321,7 +382,10 @@ export function StatutoryPensionConfiguration({
                     />
                     <div className="flex justify-between text-sm text-gray-500">
                       <span>50%</span>
-                      <span className="font-medium text-gray-900">{values.taxablePercentage.toFixed(0)}%</span>
+                      <span className="font-medium text-gray-900">
+                        {values.taxablePercentage.toFixed(0)}
+                        %
+                      </span>
                       <span>100%</span>
                     </div>
                   </div>
@@ -342,27 +406,38 @@ export function StatutoryPensionConfiguration({
                 <CardContent nestingLevel={nestingLevel + 1}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
                     <div>
-                      <span className="font-medium">Rentenbeginn:</span> {values.startYear}
+                      <span className="font-medium">Rentenbeginn:</span>
+                      {' '}
+                      {values.startYear}
                     </div>
                     <div>
-                      <span className="font-medium">Monatliche Rente:</span> {values.monthlyAmount.toLocaleString('de-DE')} €
+                      <span className="font-medium">Monatliche Rente:</span>
+                      {' '}
+                      {values.monthlyAmount.toLocaleString('de-DE')}
+                      {' '}
+                      €
                     </div>
                     <div>
-                      <span className="font-medium">Jährliche Rente:</span> {(values.monthlyAmount * 12).toLocaleString('de-DE')} €
+                      <span className="font-medium">Jährliche Rente:</span>
+                      {' '}
+                      {(values.monthlyAmount * 12).toLocaleString('de-DE')}
+                      {' '}
+                      €
                     </div>
                     <div>
-                      <span className="font-medium">Steuerpflichtiger Betrag:</span>{' '}
-                      {Math.round(values.monthlyAmount * 12 * values.taxablePercentage / 100).toLocaleString('de-DE')} €/Jahr
+                      <span className="font-medium">Steuerpflichtiger Betrag:</span>
+                      {' '}
+                      {Math.round(values.monthlyAmount * 12 * values.taxablePercentage / 100).toLocaleString('de-DE')}
+                      {' '}
+                      €/Jahr
                     </div>
                   </div>
                 </CardContent>
               </Card>
-            </>
-          )
-
-        }
-      </CollapsibleCardContent>
-    </CollapsibleCard>
-  );
-
+            </div>
+          </CardContent>
+        </CollapsibleContent>
+      </Card>
+    </Collapsible>
+  )
 }
