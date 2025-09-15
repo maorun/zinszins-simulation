@@ -33,7 +33,7 @@ Zinseszins-Simulation is a German compound interest calculator built with Vite, 
 ### Known Issues and Workarounds
 - **ESLint Configuration**: Uses modern ESLint with flat config (eslint.config.js)
   - Basic configuration supports JavaScript and TypeScript files
-  - Linting works correctly with max 10 warnings allowed
+  - Linting works correctly with max 0 warnings enforced
 - **React 19 Compatibility**: Updated to React 19 
   - All functionality works correctly
   - Uses standard npm package resolution
@@ -99,7 +99,7 @@ After making changes, ALWAYS test the complete user workflow:
 
 ### Configuration Files
 - **`package.json`** - Dependencies and scripts with test scripts defined
-  - Uses React 19, ESLint 8, Vite 5, TypeScript 5.9.2, Vitest 2
+  - Uses React 19, ESLint 9, Vite 5, TypeScript 5.9.2, Vitest 2
   - Migrating from RSuite to shadcn/ui components
   - Lucide React icons for modern iconography
   - Standard npm package resolution
