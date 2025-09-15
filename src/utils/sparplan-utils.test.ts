@@ -216,5 +216,85 @@ describe('sparplan-utils', () => {
       expect(yearsWithEnd).not.toContain(2040)
       expect(Math.max(...yearsWithEnd)).toBe(2028)
     })
+
+    test('should not continue beyond end date when simulation extends further - reproduce maorun issue', () => {
+      // Test case to reproduce @maorun's reported issue:
+      // "wenn man ein sparplan von 2026 bis 203 anlegt. Da wird bis 2040 eingezahlt."
+
+      const sparplan: Sparplan = {
+        id: 1,
+        start: new Date('2026-01-01'),
+        end: new Date('2030-12-31'), // Should stop in 2030
+        einzahlung: 12000,
+      }
+
+      const startEnd: [number, number] = [2040, 2080] // Simulation goes until 2040
+
+      const elements = convertSparplanToElements([sparplan], startEnd, SimulationAnnual.yearly)
+
+      // Should create elements only from 2026 to 2030 (5 years)
+      expect(elements).toHaveLength(5)
+
+      // Check years
+      const years = elements.map(el => new Date(el.start).getFullYear())
+      expect(years).toEqual([2026, 2027, 2028, 2029, 2030])
+
+      // Should NOT continue beyond 2030
+      expect(years).not.toContain(2031)
+      expect(years).not.toContain(2032)
+      expect(years).not.toContain(2040)
+
+      // Verify the max year is 2030
+      expect(Math.max(...years)).toBe(2030)
+    })
+
+    test('should handle multiple Sparpläne correctly - reproduce the exact UI scenario', () => {
+      // Test the exact scenario from the UI that shows the bug
+      const sparplans: Sparplan[] = [
+        {
+          id: 1,
+          start: new Date('2025-09-15'), // September 2025 (first Sparplan, no end)
+          end: null,
+          einzahlung: 19800,
+        },
+        {
+          id: 2,
+          start: new Date('2026-01-01'), // January 2026 to December 2030
+          end: new Date('2030-12-01'),
+          einzahlung: 12000,
+        },
+      ]
+
+      const startEnd: [number, number] = [2040, 2080] // Simulation goes until 2040
+
+      const elements = convertSparplanToElements(sparplans, startEnd, SimulationAnnual.yearly)
+
+      // Group elements by year to check totals
+      const byYear: { [key: number]: number } = {}
+      elements.forEach((el) => {
+        const year = new Date(el.start).getFullYear()
+        if (!byYear[year]) byYear[year] = 0
+        byYear[year] += el.einzahlung
+      })
+
+      // Check expected yearly amounts:
+      // 2025: First Sparplan partial year (Sep-Dec = 4 months) = 19800 * 4/12 = 6600
+      expect(byYear[2025]).toBeCloseTo(6600, 0)
+
+      // 2026-2030: Both Sparpläne active = 19800 + 12000 = 31800 per year
+      expect(byYear[2026]).toBeCloseTo(31800, 0)
+      expect(byYear[2027]).toBeCloseTo(31800, 0)
+      expect(byYear[2028]).toBeCloseTo(31800, 0)
+      expect(byYear[2029]).toBeCloseTo(31800, 0)
+      expect(byYear[2030]).toBeCloseTo(31800, 0)
+
+      // 2031-2040: Only first Sparplan (second should have ended) = 19800 per year
+      for (let year = 2031; year <= 2040; year++) {
+        expect(byYear[year] || 0).toBeCloseTo(19800, 0)
+      }
+
+      // Should not have any contributions beyond 2040
+      expect(byYear[2041]).toBeUndefined()
+    })
   })
 })
