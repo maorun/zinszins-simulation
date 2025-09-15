@@ -184,6 +184,40 @@ export function formatParametersForExport(context: SimulationContextState): stri
             lines.push(`      Untere Anpassung: ${segment.dynamicConfig.lowerThresholdAdjustment.toFixed(2)} %`)
           }
 
+          if (segment.strategy === 'bucket_strategie' && segment.bucketConfig) {
+            lines.push(`      Sub-Strategie: ${getBucketSubStrategyLabel(segment.bucketConfig.subStrategy || '4prozent')}`)
+            lines.push(`      Initiales Cash-Polster: ${formatCurrency(segment.bucketConfig.initialCashCushion)}`)
+            lines.push(`      Auffüll-Schwellenwert: ${formatCurrency(segment.bucketConfig.refillThreshold)}`)
+            lines.push(`      Auffüll-Anteil: ${(segment.bucketConfig.refillPercentage * 100).toFixed(0)} %`)
+
+            // Add sub-strategy specific configuration
+            if (segment.bucketConfig.subStrategy === 'variabel_prozent' && segment.bucketConfig.variabelProzent !== undefined) {
+              lines.push(`      Variabler Prozentsatz: ${segment.bucketConfig.variabelProzent.toFixed(2)} %`)
+            }
+
+            if (segment.bucketConfig.subStrategy === 'monatlich_fest' && segment.bucketConfig.monatlicheBetrag !== undefined) {
+              lines.push(`      Monatlicher Betrag: ${formatCurrency(segment.bucketConfig.monatlicheBetrag)}`)
+            }
+
+            if (segment.bucketConfig.subStrategy === 'dynamisch') {
+              if (segment.bucketConfig.dynamischBasisrate !== undefined) {
+                lines.push(`      Dynamische Basisrate: ${segment.bucketConfig.dynamischBasisrate.toFixed(2)} %`)
+              }
+              if (segment.bucketConfig.dynamischObereSchwell !== undefined) {
+                lines.push(`      Obere Schwelle: ${segment.bucketConfig.dynamischObereSchwell.toFixed(2)} %`)
+              }
+              if (segment.bucketConfig.dynamischObereAnpassung !== undefined) {
+                lines.push(`      Obere Anpassung: ${segment.bucketConfig.dynamischObereAnpassung.toFixed(2)} %`)
+              }
+              if (segment.bucketConfig.dynamischUntereSchwell !== undefined) {
+                lines.push(`      Untere Schwelle: ${segment.bucketConfig.dynamischUntereSchwell.toFixed(2)} %`)
+              }
+              if (segment.bucketConfig.dynamischUntereAnpassung !== undefined) {
+                lines.push(`      Untere Anpassung: ${segment.bucketConfig.dynamischUntereAnpassung.toFixed(2)} %`)
+              }
+            }
+          }
+
           // Inflation configuration
           if (segment.inflationConfig && segment.inflationConfig.inflationRate !== undefined) {
             lines.push(`      Inflation: ${(segment.inflationConfig.inflationRate * 100).toFixed(2)} %`)
@@ -267,8 +301,30 @@ function getWithdrawalStrategyLabel(strategy: string): string {
       return 'Monatliche Entnahme'
     case 'dynamisch':
       return 'Dynamische Strategie'
+    case 'bucket_strategie':
+      return 'Drei-Eimer-Strategie'
     default:
       return strategy
+  }
+}
+
+/**
+ * Helper function to get German label for bucket sub-strategy
+ */
+function getBucketSubStrategyLabel(subStrategy: string): string {
+  switch (subStrategy) {
+    case '4prozent':
+      return '4% Regel'
+    case '3prozent':
+      return '3% Regel'
+    case 'variabel_prozent':
+      return 'Variabler Prozentsatz'
+    case 'monatlich_fest':
+      return 'Monatlich fest'
+    case 'dynamisch':
+      return 'Dynamische Strategie'
+    default:
+      return subStrategy
   }
 }
 
