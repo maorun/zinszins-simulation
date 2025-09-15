@@ -184,7 +184,8 @@ export const GERMAN_LIFE_EXPECTANCY_FEMALE_2020_22: Record<number, number> = {
 /**
  * Calculate joint life expectancy for couples
  * This represents the probability that at least one spouse will still be alive
- * Uses actuarial formula: Joint Life Expectancy ≈ Individual1 + Individual2 - (Individual1 * Individual2 / (Individual1 + Individual2 + constant))
+ * Uses actuarial formula: Joint Life Expectancy ≈ Individual1 + Individual2
+ * - (Individual1 * Individual2 / (Individual1 + Individual2 + constant))
  */
 export function calculateJointLifeExpectancy(
   age1: number,

@@ -57,16 +57,29 @@ const MonteCarloAnalysisDisplay = ({ config, title, phaseTitle }: MonteCarloAnal
   return (
     <div className="mb-8">
       <h4 className="text-blue-700 mb-4 text-lg font-semibold">
-        📊 {title} - {phaseTitle}
+        📊
+        {' '}
+        {title}
+        {' '}
+        -
+        {' '}
+        {phaseTitle}
       </h4>
       <div className="mb-5">
         <p className="mb-2">
           <strong>Simulationsparameter:</strong>
           {' '}
-          Durchschnittliche Rendite {formatPercent(config.averageReturn)}, Volatilität {formatPercent(config.standardDeviation || 0.15)}
+          Durchschnittliche Rendite
+          {' '}
+          {formatPercent(config.averageReturn)}
+          , Volatilität
+          {' '}
+          {formatPercent(config.standardDeviation || 0.15)}
         </p>
         <p className="mb-2">
-          <strong>Annahme:</strong> Die jährlichen Renditen folgen einer Normalverteilung. Reale Märkte können von dieser Annahme abweichen.
+          <strong>Annahme:</strong>
+          {' '}
+          Die jährlichen Renditen folgen einer Normalverteilung. Reale Märkte können von dieser Annahme abweichen.
         </p>
         {config.seed && (
           <p className="mb-2">

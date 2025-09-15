@@ -70,9 +70,11 @@ export type MonthlyWithdrawalConfig = {
 export type DynamicWithdrawalConfig = {
   baseWithdrawalRate: number // Base withdrawal rate as percentage (e.g., 0.04 for 4%)
   upperThresholdReturn: number // Upper threshold return rate as percentage (e.g., 0.08 for 8%)
-  upperThresholdAdjustment: number // Relative adjustment when return exceeds upper threshold (e.g., 0.05 for 5% increase)
+  // Relative adjustment when return exceeds upper threshold (e.g., 0.05 for 5% increase)
+  upperThresholdAdjustment: number
   lowerThresholdReturn: number // Lower threshold return rate as percentage (e.g., 0.02 for 2%)
-  lowerThresholdAdjustment: number // Relative adjustment when return falls below lower threshold (e.g., -0.05 for 5% decrease)
+  // Relative adjustment when return falls below lower threshold (e.g., -0.05 for 5% decrease)
+  lowerThresholdAdjustment: number
 }
 
 export type BucketSubStrategy = '4prozent' | '3prozent' | 'variabel_prozent' | 'monatlich_fest' | 'dynamisch'
@@ -81,9 +83,12 @@ export type BucketStrategyConfig = {
   initialCashCushion: number // Initial cash cushion amount in €
   refillThreshold: number // Threshold for moving gains to cash cushion in €
   refillPercentage: number // Percentage of gains above threshold to move to cash (e.g., 0.5 for 50%)
-  baseWithdrawalRate: number // Base withdrawal rate as percentage (e.g., 0.04 for 4%) - only used when subStrategy is not "variabel_prozent" or "monatlich_fest"
+  // Base withdrawal rate as percentage (e.g., 0.04 for 4%)
+  // - only used when subStrategy is not "variabel_prozent" or "monatlich_fest"
+  baseWithdrawalRate: number
   // Sub-strategy configuration
-  subStrategy?: BucketSubStrategy // Which withdrawal strategy to use within bucket strategy (optional for backward compatibility)
+  // Which withdrawal strategy to use within bucket strategy (optional for backward compatibility)
+  subStrategy?: BucketSubStrategy
   variabelProzent?: number // Variable percentage for variabel_prozent sub-strategy
   monatlicheBetrag?: number // Monthly amount for monatlich_fest sub-strategy
   // Dynamic strategy sub-configuration
@@ -265,7 +270,9 @@ export function calculateWithdrawal({
         break
       }
       case 'monatlich_fest': {
-        baseWithdrawalAmount = bucketConfig.monatlicheBetrag ? bucketConfig.monatlicheBetrag * 12 : initialStartingCapital * 0.04
+        baseWithdrawalAmount = bucketConfig.monatlicheBetrag
+          ? bucketConfig.monatlicheBetrag * 12
+          : initialStartingCapital * 0.04
         break
       }
       case 'dynamisch': {
@@ -455,14 +462,27 @@ export function calculateWithdrawal({
     const yearlyFreibetrag = getFreibetragForYear(year)
     const basiszins = getBasiszinsForYear(year, basiszinsConfiguration)
     let totalPotentialVorabTax = 0
-    const vorabCalculations: { layer: MutableLayer, vorabpauschaleBetrag: number, potentialTax: number, valueBeforeWithdrawal: number }[] = []
+    const vorabCalculations: {
+      layer: MutableLayer
+      vorabpauschaleBetrag: number
+      potentialTax: number
+      valueBeforeWithdrawal: number
+    }[] = []
 
     mutableLayers.forEach((layer: MutableLayer) => {
       if (layer.currentValue > 0) {
         const valueBeforeWithdrawal = layer.currentValue // Full value at start of year
         const valueAfterGrowthBeforeWithdrawal = valueBeforeWithdrawal * (1 + returnRate)
-        const vorabpauschaleBetrag = calculateVorabpauschale(valueBeforeWithdrawal, valueAfterGrowthBeforeWithdrawal, basiszins)
-        const potentialTax = calculateSteuerOnVorabpauschale(vorabpauschaleBetrag, taxRate, teilfreistellungsquote)
+        const vorabpauschaleBetrag = calculateVorabpauschale(
+          valueBeforeWithdrawal,
+          valueAfterGrowthBeforeWithdrawal,
+          basiszins,
+        )
+        const potentialTax = calculateSteuerOnVorabpauschale(
+          vorabpauschaleBetrag,
+          taxRate,
+          teilfreistellungsquote,
+        )
         totalPotentialVorabTax += potentialTax
         vorabCalculations.push({ layer, vorabpauschaleBetrag, potentialTax, valueBeforeWithdrawal })
       }
@@ -505,7 +525,9 @@ export function calculateWithdrawal({
     const freibetragUsedOnVorab = Math.min(totalPotentialVorabTax, remainingFreibetrag)
 
     vorabCalculations.forEach((calc) => {
-      const taxForLayer = totalPotentialVorabTax > 0 ? (calc.potentialTax / totalPotentialVorabTax) * taxOnVorabpauschale : 0
+      const taxForLayer = totalPotentialVorabTax > 0
+        ? (calc.potentialTax / totalPotentialVorabTax) * taxOnVorabpauschale
+        : 0
       // Apply growth to remaining value after withdrawal, then subtract vorab tax
       const valueAfterWithdrawal = calc.layer.currentValue
       const valueAfterGrowth = valueAfterWithdrawal * (1 + returnRate)
@@ -630,7 +652,9 @@ export function calculateSegmentedWithdrawal(
   const result: WithdrawalResult = {}
   let currentLayers: SparplanElement[] = elements
 
-  const sortedSegments = [...segmentedConfig.segments].sort((a: WithdrawalSegment, b: WithdrawalSegment) => a.startYear - b.startYear)
+  const sortedSegments = [...segmentedConfig.segments].sort(
+    (a: WithdrawalSegment, b: WithdrawalSegment) => a.startYear - b.startYear,
+  )
 
   for (const segment of sortedSegments) {
     const { result: segmentResultData, finalLayers } = calculateWithdrawal({

@@ -116,7 +116,11 @@ describe('Withdrawal Calculations with FIFO', () => {
     const basiszins = getBasiszinsForYear(withdrawalStartYear)
     const fullValueBeforeWithdrawal = 120000
     const fullValueAfterGrowthBeforeWithdrawal = fullValueBeforeWithdrawal * (1 + returnConfig.fixedRate!)
-    const expectedVorabpauschale = calculateVorabpauschale(fullValueBeforeWithdrawal, fullValueAfterGrowthBeforeWithdrawal, basiszins)
+    const expectedVorabpauschale = calculateVorabpauschale(
+      fullValueBeforeWithdrawal,
+      fullValueAfterGrowthBeforeWithdrawal,
+      basiszins,
+    )
     const expectedVorabTax = calculateSteuerOnVorabpauschale(expectedVorabpauschale, taxRate, teilfreistellungsquote)
 
     // Calculate realized gain from withdrawal (FIFO)
@@ -138,7 +142,11 @@ describe('Withdrawal Calculations with FIFO', () => {
     // than if calculated on post-withdrawal value (115.2k instead of 120k)
     const incorrectValueAfterWithdrawal = 120000 - entnahme // 115200
     const incorrectValueAfterGrowth = incorrectValueAfterWithdrawal * (1 + returnConfig.fixedRate!)
-    const incorrectVorabpauschale = calculateVorabpauschale(incorrectValueAfterWithdrawal, incorrectValueAfterGrowth, basiszins)
+    const incorrectVorabpauschale = calculateVorabpauschale(
+      incorrectValueAfterWithdrawal,
+      incorrectValueAfterGrowth,
+      basiszins,
+    )
 
     // Vorabpauschale calculated on full portfolio should be higher than on reduced portfolio
     expect(expectedVorabpauschale).toBeGreaterThan(incorrectVorabpauschale)
@@ -1356,7 +1364,9 @@ describe('Bucket Strategy Tests', () => {
       const resultYear = result[withdrawalStartYear]
       expect(resultYear).toBeDefined()
 
-      const expectedWithdrawal = initialCapital * (kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate)
+      const expectedWithdrawal = initialCapital * (
+        kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate
+      )
       expect(resultYear.entnahme).toBeCloseTo(expectedWithdrawal)
       expect(resultYear.entnahme).toBeCloseTo(10000)
     })
@@ -1391,7 +1401,9 @@ describe('Bucket Strategy Tests', () => {
       const resultYear = result[withdrawalStartYear]
       expect(resultYear).toBeDefined()
 
-      const expectedWithdrawal = initialCapital * (kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate)
+      const expectedWithdrawal = initialCapital * (
+        kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate
+      )
       expect(resultYear.entnahme).toBeCloseTo(expectedWithdrawal)
       expect(resultYear.entnahme).toBeCloseTo(2250)
     })
