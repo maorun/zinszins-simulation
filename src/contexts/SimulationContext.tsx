@@ -344,7 +344,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       const inflationSettings = {
         inflationAktivSparphase: (savedConfig as any).inflationAktivSparphase ?? defaultConfig.inflationAktivSparphase,
         inflationsrateSparphase: (savedConfig as any).inflationsrateSparphase ?? defaultConfig.inflationsrateSparphase,
-        inflationAnwendungSparphase: (savedConfig as any).inflationAnwendungSparphase ?? defaultConfig.inflationAnwendungSparphase,
+        inflationAnwendungSparphase: (savedConfig as any).inflationAnwendungSparphase
+          ?? defaultConfig.inflationAnwendungSparphase,
       }
       setInflationAktivSparphase(inflationSettings.inflationAktivSparphase)
       setInflationsrateSparphase(inflationSettings.inflationsrateSparphase)

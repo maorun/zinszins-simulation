@@ -566,8 +566,10 @@ export function EntnahmeSimulationsAusgabe({
                                     ℹ️ Automatische Sterbetafel-Auswahl für Paare
                                   </div>
                                   <div className="text-sm text-muted-foreground mt-1">
-                                    Es werden automatisch geschlechtsspezifische deutsche Sterbetafeln (2020-2022) für beide Partner verwendet.
-                                    Die gemeinsame Lebenserwartung wird nach aktuariellen Methoden als "Joint Life Expectancy" berechnet.
+                                    Es werden automatisch geschlechtsspezifische deutsche Sterbetafeln (2020-2022) für
+                                    beide Partner verwendet.
+                                    Die gemeinsame Lebenserwartung wird nach aktuariellen Methoden als "Joint Life
+                                    Expectancy" berechnet.
                                   </div>
                                 </div>
                               </div>
@@ -683,7 +685,8 @@ export function EntnahmeSimulationsAusgabe({
                     if (useSegmented && withdrawalSegments.length === 0) {
                       // Create initial segment covering only the first 15 years, leaving room for additional segments
                       const withdrawalStartYear = startOfIndependence + 1
-                      const initialSegmentEndYear = Math.min(withdrawalStartYear + 14, globalEndOfLife) // 15 years or until end of life
+                      // 15 years or until end of life
+                      const initialSegmentEndYear = Math.min(withdrawalStartYear + 14, globalEndOfLife)
                       const defaultSegment = createDefaultWithdrawalSegment(
                         'main',
                         'Frühphase',
@@ -737,7 +740,8 @@ export function EntnahmeSimulationsAusgabe({
                       <Label>Basis-Strategie</Label>
                       <RadioTileGroup
                         value={formValue.strategie}
-                        onValueChange={value => updateFormValue({ ...formValue, strategie: value as WithdrawalStrategy })}
+                        onValueChange={value =>
+                          updateFormValue({ ...formValue, strategie: value as WithdrawalStrategy })}
                       >
                         <RadioTile value="4prozent" label="4% Regel">
                           4% Entnahme
@@ -822,7 +826,8 @@ export function EntnahmeSimulationsAusgabe({
                         <div className="space-y-2">
                           <Slider
                             value={[formValue.variabelProzent]}
-                            onValueChange={(values: number[]) => updateFormValue({ ...formValue, variabelProzent: values[0] })}
+                            onValueChange={(values: number[]) =>
+                              updateFormValue({ ...formValue, variabelProzent: values[0] })}
                             min={1}
                             max={10}
                             step={0.5}
@@ -1632,7 +1637,8 @@ export function EntnahmeSimulationsAusgabe({
                         </Label>
                         <Switch
                           checked={formValue.guardrailsAktiv}
-                          onCheckedChange={(checked: boolean) => updateFormValue({ ...formValue, guardrailsAktiv: checked })}
+                          onCheckedChange={(checked: boolean) =>
+                            updateFormValue({ ...formValue, guardrailsAktiv: checked })}
                         />
                         <div className="text-sm text-muted-foreground mt-1">
                           Passt die Entnahme basierend auf der Portfolio-Performance
@@ -1728,7 +1734,8 @@ export function EntnahmeSimulationsAusgabe({
                         <Label>Basis-Entnahmerate (%)</Label>
                         <div className="px-3">
                           <Slider
-                            value={[formValue.bucketConfig?.baseWithdrawalRate ? formValue.bucketConfig.baseWithdrawalRate * 100 : 4]}
+                            value={[formValue.bucketConfig?.baseWithdrawalRate
+                              ? formValue.bucketConfig.baseWithdrawalRate * 100 : 4]}
                             onValueChange={(value) => {
                               updateFormValue({
                                 ...formValue,
@@ -1783,7 +1790,8 @@ export function EntnahmeSimulationsAusgabe({
                         <Label>Auffüll-Anteil (%)</Label>
                         <div className="px-3">
                           <Slider
-                            value={[formValue.bucketConfig?.refillPercentage ? formValue.bucketConfig.refillPercentage * 100 : 50]}
+                            value={[formValue.bucketConfig?.refillPercentage
+                              ? formValue.bucketConfig.refillPercentage * 100 : 50]}
                             onValueChange={(value) => {
                               updateFormValue({
                                 ...formValue,

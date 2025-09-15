@@ -926,8 +926,7 @@ export function WithdrawalSegmentForm({
                         <Switch
                           checked={segment.enableGrundfreibetrag || false}
                           onCheckedChange={(checked: boolean) =>
-                            updateSegment(segment.id, { enableGrundfreibetrag: checked })
-                          }
+                            updateSegment(segment.id, { enableGrundfreibetrag: checked })}
                         />
                       </div>
 

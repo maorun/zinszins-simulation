@@ -404,7 +404,9 @@ export function SparplanEingabe({
                     <Input
                       type="number"
                       value={singleFormValue.einzahlung || ''}
-                      onChange={e => handleNumberChange(e, value => setSingleFormValue({ ...singleFormValue, einzahlung: value }))}
+                      onChange={e => handleNumberChange(e, value =>
+                        setSingleFormValue({ ...singleFormValue, einzahlung: value }),
+                      )}
                       placeholder="Betrag eingeben"
                       className="w-full"
                       min={0}
@@ -425,7 +427,9 @@ export function SparplanEingabe({
                       <Input
                         type="number"
                         value={singleFormValue.ter || ''}
-                        onChange={e => handleNumberChange(e, value => setSingleFormValue({ ...singleFormValue, ter: value }))}
+                        onChange={e => handleNumberChange(e, value =>
+                          setSingleFormValue({ ...singleFormValue, ter: value }),
+                        )}
                         placeholder="z.B. 0.75"
                         className="w-full"
                         min={0}
@@ -442,7 +446,9 @@ export function SparplanEingabe({
                       <Input
                         type="number"
                         value={singleFormValue.transactionCostPercent || ''}
-                        onChange={e => handleNumberChange(e, value => setSingleFormValue({ ...singleFormValue, transactionCostPercent: value }))}
+                        onChange={e => handleNumberChange(e, value =>
+                          setSingleFormValue({ ...singleFormValue, transactionCostPercent: value }),
+                        )}
                         placeholder="z.B. 0.25"
                         className="w-full"
                         min={0}
@@ -459,7 +465,9 @@ export function SparplanEingabe({
                       <Input
                         type="number"
                         value={singleFormValue.transactionCostAbsolute || ''}
-                        onChange={e => handleNumberChange(e, value => setSingleFormValue({ ...singleFormValue, transactionCostAbsolute: value }))}
+                        onChange={e => handleNumberChange(e, value =>
+                          setSingleFormValue({ ...singleFormValue, transactionCostAbsolute: value }),
+                        )}
                         placeholder="z.B. 1.50"
                         className="w-full"
                         min={0}
@@ -500,7 +508,11 @@ export function SparplanEingabe({
           </CardHeader>
           <CollapsibleContent>
             <CardContent className="pt-0">
-              <div style={{ padding: '1rem 1.5rem 0.5rem', color: '#666', fontSize: '0.9rem', borderBottom: '1px solid #f0f0f0' }}>
+              <div style={{
+                padding: '1rem 1.5rem 0.5rem', color: '#666', fontSize: '0.9rem',
+                borderBottom: '1px solid #f0f0f0',
+              }}
+              >
                 Ihre konfigurierten Sparpläne und Einmalzahlungen
               </div>
 
@@ -509,7 +521,8 @@ export function SparplanEingabe({
                 <div className="grid gap-4">
                   {sparplans.map((sparplan) => {
                     // Detect if this is a one-time payment (start and end dates are the same)
-                    const isEinmalzahlung = sparplan.end && new Date(sparplan.start).getTime() === new Date(sparplan.end).getTime()
+                    const isEinmalzahlung = sparplan.end
+                      && new Date(sparplan.start).getTime() === new Date(sparplan.end).getTime()
 
                     return (
                       <div
@@ -587,7 +600,8 @@ export function SparplanEingabe({
                       fontStyle: 'italic',
                     }}
                     >
-                      Noch keine Sparpläne oder Einmalzahlungen erstellt. Fügen Sie oben einen Sparplan oder eine Einmalzahlung hinzu.
+                      Noch keine Sparpläne oder Einmalzahlungen erstellt. Fügen Sie oben einen Sparplan oder eine
+                      Einmalzahlung hinzu.
                     </div>
                   )}
                 </div>

@@ -267,7 +267,8 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
                                   <div className="text-sm font-medium text-gray-600">Durchschnittlicher Drawdown</div>
                                   <div className="text-lg font-bold text-orange-700">
                                     {formatRiskMetric(
-                                      riskMetrics.drawdownSeries.reduce((sum, item) => sum + item.drawdown, 0) / riskMetrics.drawdownSeries.length,
+                                      riskMetrics.drawdownSeries.reduce((sum, item) => sum + item.drawdown, 0)
+                                      / riskMetrics.drawdownSeries.length,
                                       'percentage',
                                     )}
                                   </div>

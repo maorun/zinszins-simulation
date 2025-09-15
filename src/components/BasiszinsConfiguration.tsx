@@ -1,7 +1,6 @@
 import { useCallback, useState } from 'react'
 import { Download, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import { useSimulation } from '../contexts/useSimulation'
-import { useNestingLevel } from '../lib/nesting-utils'
 import {
   estimateFutureBasiszins,
   refreshBasiszinsFromAPI,
@@ -25,8 +24,6 @@ export default function BasiszinsConfiguration() {
     setBasiszinsConfiguration,
     performSimulation,
   } = useSimulation()
-
-  const _nestingLevel = useNestingLevel()
 
   const [isLoading, setIsLoading] = useState(false)
   const [lastApiUpdate, setLastApiUpdate] = useState<string | null>(null)
