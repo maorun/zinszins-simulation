@@ -58,4 +58,3 @@ export const CollapsibleCard = React.forwardRef<
     </Collapsible>
   )
 })
-
