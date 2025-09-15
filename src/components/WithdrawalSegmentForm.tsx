@@ -78,12 +78,23 @@ export function WithdrawalSegmentForm({
     const startYear = lastSegment ? Math.round(lastSegment.endYear) + 1 : Math.round(withdrawalStartYear)
 
     // Create a default 5-year segment without constraining to withdrawalEndYear
-    // Users can modify the end year as needed
-    const endYear = startYear + 5 // Default 5 year segment
+    // Users can modify the end year as needed  
+    const endYear = startYear + 4 // 5-year inclusive duration (start + 4 = 5 years inclusive)
 
     const newSegment = createDefaultWithdrawalSegment(newId, `Phase ${segments.length + 1}`, startYear, endYear)
 
     validateAndUpdateSegments([...segments, newSegment])
+  }
+
+  // Reset to clean default segments (helper function for recovery from broken states)
+  const resetSegments = () => {
+    const defaultSegment = createDefaultWithdrawalSegment(
+      'main', 
+      'Hauptphase', 
+      Math.round(withdrawalStartYear), 
+      Math.round(withdrawalEndYear)
+    )
+    validateAndUpdateSegments([defaultSegment])
   }
 
   // Remove a segment
@@ -232,14 +243,25 @@ export function WithdrawalSegmentForm({
                 </div>
               )}
 
-              <Button
-                onClick={addSegment}
-                disabled={!canAddMoreSegments()}
-                className="mb-4"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Phase hinzufügen
-              </Button>
+              <div className="flex gap-2 mb-4">
+                <Button
+                  onClick={addSegment}
+                  disabled={!canAddMoreSegments()}
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  Phase hinzufügen
+                </Button>
+                
+                {errors.length > 0 && (
+                  <Button
+                    onClick={resetSegments}
+                    variant="outline"
+                    className="text-orange-600 border-orange-600 hover:bg-orange-50"
+                  >
+                    Phasen zurücksetzen
+                  </Button>
+                )}
+              </div>
             </div>
 
             {segments.map((segment, _index) => (
