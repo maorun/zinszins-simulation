@@ -280,7 +280,39 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     expectedLifespan,
     useAutomaticCalculation,
     withdrawal: withdrawalConfig || undefined,
-  }), [rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, grundfreibetragAktiv, grundfreibetragBetrag, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase, startEnd, sparplan, simulationAnnual, endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse, birthYear, expectedLifespan, useAutomaticCalculation, withdrawalConfig])
+  }), [
+    rendite, 
+    steuerlast, 
+    teilfreistellungsquote, 
+    freibetragPerYear, 
+    basiszinsConfiguration, 
+    steuerReduzierenEndkapitalSparphase, 
+    steuerReduzierenEndkapitalEntspharphase, 
+    grundfreibetragAktiv, 
+    grundfreibetragBetrag, 
+    returnMode, 
+    averageReturn, 
+    standardDeviation, 
+    randomSeed, 
+    variableReturns, 
+    historicalIndex, 
+    inflationAktivSparphase, 
+    inflationsrateSparphase, 
+    inflationAnwendungSparphase, 
+    startEnd, 
+    sparplan, 
+    simulationAnnual, 
+    endOfLife, 
+    lifeExpectancyTable, 
+    customLifeExpectancy, 
+    planningMode, 
+    gender, 
+    spouse, 
+    birthYear, 
+    expectedLifespan, 
+    useAutomaticCalculation, 
+    withdrawalConfig
+  ])
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration()
@@ -446,7 +478,27 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     finally {
       setIsLoading(false)
     }
-  }, [rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, simulationAnnual, sparplanElemente, startEnd, yearToday, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration, steuerReduzierenEndkapitalSparphase, inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase])
+  }, [
+    rendite, 
+    returnMode, 
+    averageReturn, 
+    standardDeviation, 
+    randomSeed, 
+    variableReturns, 
+    historicalIndex, 
+    simulationAnnual, 
+    sparplanElemente, 
+    startEnd, 
+    yearToday, 
+    steuerlast, 
+    teilfreistellungsquote, 
+    freibetragPerYear, 
+    basiszinsConfiguration, 
+    steuerReduzierenEndkapitalSparphase, 
+    inflationAktivSparphase, 
+    inflationsrateSparphase, 
+    inflationAnwendungSparphase
+  ])
 
   const value = useMemo(() => ({
     rendite, setRendite,

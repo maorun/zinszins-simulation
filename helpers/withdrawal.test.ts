@@ -1316,7 +1316,9 @@ describe('Bucket Strategy Tests', () => {
       expect(resultYear).toBeDefined()
 
       // The withdrawal should be based on real return rate
-      const expectedWithdrawal = initialCapital * (kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate)
+      const expectedWithdrawal = initialCapital * (
+        kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate
+      )
       expect(resultYear.entnahme).toBeCloseTo(expectedWithdrawal)
 
       // Verify the withdrawal rate is 5%

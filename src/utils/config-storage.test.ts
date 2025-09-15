@@ -70,8 +70,8 @@ describe('config-storage', () => {
   it('should handle localStorage errors gracefully', () => {
     // Mock localStorage to throw error
     const originalSetItem = localStorageMock.setItem
-    localStorageMock.setItem = () => { 
-      throw new Error('Storage full') 
+    localStorageMock.setItem = () => {
+      throw new Error('Storage full')
     }
 
     // Should not throw
