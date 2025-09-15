@@ -252,3 +252,145 @@ export function createSingleSegmentConfig(
     taxRate: 0.26375, // Default German capital gains tax
   }
 }
+
+/**
+ * Move a segment up in the order (earlier in time)
+ * @param segments - Array of withdrawal segments
+ * @param segmentId - ID of the segment to move up
+ * @returns Updated segments array with the segment moved up
+ */
+export function moveSegmentUp(segments: WithdrawalSegment[], segmentId: string): WithdrawalSegment[] {
+  // Sort segments by start year to determine chronological order
+  const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
+  const segmentIndex = sortedSegments.findIndex(s => s.id === segmentId)
+
+  // Can't move the first segment up
+  if (segmentIndex <= 0) {
+    return segments
+  }
+
+  const targetSegment = sortedSegments[segmentIndex]
+  const previousSegment = sortedSegments[segmentIndex - 1]
+
+  // Calculate new time ranges
+  const segmentDuration = targetSegment.endYear - targetSegment.startYear
+  const previousDuration = previousSegment.endYear - previousSegment.startYear
+
+  // Swap the time ranges
+  const newTargetStartYear = previousSegment.startYear
+  const newTargetEndYear = newTargetStartYear + segmentDuration
+  const newPreviousStartYear = newTargetEndYear + 1
+  const newPreviousEndYear = newPreviousStartYear + previousDuration
+
+  // Return the updated segments array maintaining the same order as the original input
+  return segments.map((segment) => {
+    if (segment.id === segmentId) {
+      return { ...segment, startYear: newTargetStartYear, endYear: newTargetEndYear }
+    }
+    if (segment.id === previousSegment.id) {
+      return { ...segment, startYear: newPreviousStartYear, endYear: newPreviousEndYear }
+    }
+    return segment
+  })
+}
+
+/**
+ * Move a segment down in the order (later in time)
+ * @param segments - Array of withdrawal segments
+ * @param segmentId - ID of the segment to move down
+ * @returns Updated segments array with the segment moved down
+ */
+export function moveSegmentDown(segments: WithdrawalSegment[], segmentId: string): WithdrawalSegment[] {
+  // Sort segments by start year to determine chronological order
+  const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
+  const segmentIndex = sortedSegments.findIndex(s => s.id === segmentId)
+
+  // Can't move the last segment down
+  if (segmentIndex < 0 || segmentIndex >= sortedSegments.length - 1) {
+    return segments
+  }
+
+  const targetSegment = sortedSegments[segmentIndex]
+  const nextSegment = sortedSegments[segmentIndex + 1]
+
+  // Calculate new time ranges
+  const segmentDuration = targetSegment.endYear - targetSegment.startYear
+  const nextDuration = nextSegment.endYear - nextSegment.startYear
+
+  // Swap the time ranges
+  const newNextStartYear = targetSegment.startYear
+  const newNextEndYear = newNextStartYear + nextDuration
+  const newTargetStartYear = newNextEndYear + 1
+  const newTargetEndYear = newTargetStartYear + segmentDuration
+
+  // Return the updated segments array maintaining the same order as the original input
+  return segments.map((segment) => {
+    if (segment.id === segmentId) {
+      return { ...segment, startYear: newTargetStartYear, endYear: newTargetEndYear }
+    }
+    if (segment.id === nextSegment.id) {
+      return { ...segment, startYear: newNextStartYear, endYear: newNextEndYear }
+    }
+    return segment
+  })
+}
+
+/**
+ * Insert a new segment before an existing segment
+ * @param segments - Array of withdrawal segments
+ * @param beforeSegmentId - ID of the segment before which to insert
+ * @param newSegmentName - Name for the new segment
+ * @param newSegmentDuration - Duration in years for the new segment (default: 5)
+ * @returns Updated segments array with the new segment inserted
+ */
+export function insertSegmentBefore(
+  segments: WithdrawalSegment[],
+  beforeSegmentId: string,
+  newSegmentName: string,
+  newSegmentDuration: number = 5,
+): WithdrawalSegment[] {
+  // Sort segments by start year to determine chronological order
+  const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
+  const targetSegmentIndex = sortedSegments.findIndex(s => s.id === beforeSegmentId)
+
+  if (targetSegmentIndex < 0) {
+    return segments
+  }
+
+  const targetSegment = sortedSegments[targetSegmentIndex]
+
+  // Calculate the new segment's time range
+  const newSegmentStartYear = targetSegment.startYear
+  const newSegmentEndYear = newSegmentStartYear + newSegmentDuration
+
+  // Create the new segment
+  const newSegmentId = `segment_${Date.now()}`
+  const newSegment = createDefaultWithdrawalSegment(
+    newSegmentId,
+    newSegmentName,
+    newSegmentStartYear,
+    newSegmentEndYear,
+  )
+
+  // Update the target segment to start after the new segment
+  const updatedTargetStartYear = newSegmentEndYear + 1
+  const targetDuration = targetSegment.endYear - targetSegment.startYear
+  const updatedTargetEndYear = updatedTargetStartYear + targetDuration
+
+  // Update all segments that need to be shifted
+  const updatedSegments = segments.map((segment) => {
+    if (segment.id === beforeSegmentId) {
+      return { ...segment, startYear: updatedTargetStartYear, endYear: updatedTargetEndYear }
+    }
+    // Shift any segments that come after the target segment
+    const segmentChronologicalIndex = sortedSegments.findIndex(s => s.id === segment.id)
+    if (segmentChronologicalIndex > targetSegmentIndex) {
+      const shiftAmount = newSegmentDuration + 1 // +1 for the gap between segments
+      return { ...segment, startYear: segment.startYear + shiftAmount, endYear: segment.endYear + shiftAmount }
+    }
+    return segment
+  })
+
+  // Add the new segment to the array
+  return [...updatedSegments, newSegment]
+}

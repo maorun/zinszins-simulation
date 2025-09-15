@@ -8,7 +8,7 @@ import { Button } from './ui/button'
 import { RadioTileGroup, RadioTile } from './ui/radio-tile'
 import { Separator } from './ui/separator'
 import { Label } from './ui/label'
-import { Plus, Trash2, ChevronDown } from 'lucide-react'
+import { Plus, Trash2, ChevronDown, ArrowUp, ArrowDown } from 'lucide-react'
 
 // Helper function for number input handling with number onChange
 const handleNumberInputChange = (
@@ -23,7 +23,13 @@ const handleNumberInputChange = (
 import type {
   WithdrawalSegment,
 } from '../utils/segmented-withdrawal'
-import { validateWithdrawalSegments, createDefaultWithdrawalSegment } from '../utils/segmented-withdrawal'
+import {
+  validateWithdrawalSegments,
+  createDefaultWithdrawalSegment,
+  moveSegmentUp,
+  moveSegmentDown,
+  insertSegmentBefore,
+} from '../utils/segmented-withdrawal'
 import type { WithdrawalStrategy } from '../../helpers/withdrawal'
 import type { ReturnConfiguration } from '../../helpers/random-returns'
 import { DynamicWithdrawalConfiguration } from './DynamicWithdrawalConfiguration'
@@ -91,6 +97,40 @@ export function WithdrawalSegmentForm({
         : segment,
     )
     validateAndUpdateSegments(newSegments)
+  }
+
+  // Move a segment up (earlier in time)
+  const moveSegmentUpHandler = (segmentId: string) => {
+    const newSegments = moveSegmentUp(segments, segmentId)
+    validateAndUpdateSegments(newSegments)
+  }
+
+  // Move a segment down (later in time)
+  const moveSegmentDownHandler = (segmentId: string) => {
+    const newSegments = moveSegmentDown(segments, segmentId)
+    validateAndUpdateSegments(newSegments)
+  }
+
+  // Insert a new segment before an existing one
+  const insertSegmentBeforeHandler = (beforeSegmentId: string) => {
+    const segmentCount = segments.length
+    const newSegmentName = `Phase ${segmentCount + 1}`
+    const newSegments = insertSegmentBefore(segments, beforeSegmentId, newSegmentName, 5)
+    validateAndUpdateSegments(newSegments)
+  }
+
+  // Helper function to check if a segment can be moved up
+  const canMoveUp = (segmentId: string): boolean => {
+    const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
+    const segmentIndex = sortedSegments.findIndex(s => s.id === segmentId)
+    return segmentIndex > 0
+  }
+
+  // Helper function to check if a segment can be moved down
+  const canMoveDown = (segmentId: string): boolean => {
+    const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
+    const segmentIndex = sortedSegments.findIndex(s => s.id === segmentId)
+    return segmentIndex >= 0 && segmentIndex < sortedSegments.length - 1
   }
 
   // Convert return mode to return configuration
@@ -174,37 +214,93 @@ export function WithdrawalSegmentForm({
               >
                 <Collapsible defaultOpen={false}>
                   <CardHeader>
-                    <CollapsibleTrigger asChild>
-                      <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
-                        <CardTitle className="text-lg text-left">
-                          {segment.name}
-                          {' '}
-                          (
-                          {segment.startYear}
-                          {' '}
-                          -
-                          {' '}
-                          {segment.endYear}
-                          )
-                        </CardTitle>
-                        <div className="flex items-center space-x-2">
+                    <div className="flex items-center justify-between w-full">
+                      <CollapsibleTrigger asChild>
+                        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group flex-1">
+                          <CardTitle className="text-lg text-left">
+                            {segment.name}
+                            {' '}
+                            (
+                            {segment.startYear}
+                            {' '}
+                            -
+                            {' '}
+                            {segment.endYear}
+                            )
+                          </CardTitle>
                           <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                          {segments.length > 1 && (
-                            <Button
-                              variant="ghost"
-                              size="sm"
-                              onClick={(e) => {
-                                e.stopPropagation()
-                                removeSegment(segment.id)
-                              }}
-                              className="text-destructive hover:text-destructive ml-2"
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          )}
                         </div>
+                      </CollapsibleTrigger>
+
+                      {/* Phase control buttons */}
+                      <div className="flex items-center space-x-1 ml-2">
+                        {/* Insert before button */}
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={(e) => {
+                            e.stopPropagation()
+                            insertSegmentBeforeHandler(segment.id)
+                          }}
+                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          aria-label="Phase davor einfügen"
+                          title="Phase davor einfügen"
+                        >
+                          <Plus className="h-4 w-4" />
+                        </Button>
+
+                        {/* Move up button */}
+                        {canMoveUp(segment.id) && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              moveSegmentUpHandler(segment.id)
+                            }}
+                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                            aria-label="Phase nach oben verschieben"
+                            title="Phase nach oben verschieben"
+                          >
+                            <ArrowUp className="h-4 w-4" />
+                          </Button>
+                        )}
+
+                        {/* Move down button */}
+                        {canMoveDown(segment.id) && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              moveSegmentDownHandler(segment.id)
+                            }}
+                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                            aria-label="Phase nach unten verschieben"
+                            title="Phase nach unten verschieben"
+                          >
+                            <ArrowDown className="h-4 w-4" />
+                          </Button>
+                        )}
+
+                        {/* Delete button */}
+                        {segments.length > 1 && (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={(e) => {
+                              e.stopPropagation()
+                              removeSegment(segment.id)
+                            }}
+                            className="text-destructive hover:text-destructive hover:bg-red-50"
+                            aria-label="Phase löschen"
+                            title="Phase löschen"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        )}
                       </div>
-                    </CollapsibleTrigger>
+                    </div>
                   </CardHeader>
                   <CollapsibleContent>
                     <CardContent>
