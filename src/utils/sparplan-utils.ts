@@ -36,7 +36,7 @@ export type SparplanElement = {
 export const initialSparplan: Sparplan = {
   id: 1,
   start: new Date(),
-  end: new Date('2040-10-01'),
+  end: null, // Make end date optional by default
   einzahlung: 19800,
 }
 

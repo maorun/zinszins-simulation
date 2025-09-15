@@ -1,5 +1,5 @@
 import { describe, expect, test } from 'vitest'
-import { convertSparplanToElements, type Sparplan } from './sparplan-utils'
+import { convertSparplanToElements, initialSparplan, type Sparplan } from './sparplan-utils'
 import { SimulationAnnual } from './simulate'
 
 describe('sparplan-utils', () => {
@@ -141,6 +141,47 @@ describe('sparplan-utils', () => {
       const months = elements.map(el => new Date(el.start).getMonth())
       expect(months).toEqual([2, 3, 4, 5, 6, 7, 8, 9, 10]) // March (2) to November (10)
     })
+    test('should fix the original issue: initialSparplan should not have hard-coded end date', () => {
+      // This test confirms that the fix for the reported issue is working
 
+      // The issue was that initialSparplan had end: new Date('2040-10-01')
+      // But it should be null to make end dates truly optional
+      expect(initialSparplan.end).toBeNull()
+
+      // When no end date is provided, convertSparplanToElements should continue until startEnd[0]
+      const elementsWithoutEnd = convertSparplanToElements(
+        [{ ...initialSparplan }],
+        [2030, 2080],
+        SimulationAnnual.yearly,
+      )
+
+      // Should create elements from current year to 2030
+      const currentYear = new Date().getFullYear()
+      const expectedLength = 2030 - currentYear + 1
+      expect(elementsWithoutEnd).toHaveLength(expectedLength)
+
+      // Should include 2030 but not beyond
+      const years = elementsWithoutEnd.map(el => new Date(el.start).getFullYear())
+      expect(years).toContain(2030)
+      expect(years).not.toContain(2031)
+
+      // When an explicit end date is provided, it should be respected
+      const sparplanWithEnd: Sparplan = {
+        ...initialSparplan,
+        end: new Date('2028-09-01'),
+      }
+
+      const elementsWithEnd = convertSparplanToElements(
+        [sparplanWithEnd],
+        [2040, 2080],
+        SimulationAnnual.yearly,
+      )
+
+      // Should stop at 2028, not continue to 2040
+      const yearsWithEnd = elementsWithEnd.map(el => new Date(el.start).getFullYear())
+      expect(yearsWithEnd).not.toContain(2029)
+      expect(yearsWithEnd).not.toContain(2040)
+      expect(Math.max(...yearsWithEnd)).toBe(2028)
+    })
   })
 })
