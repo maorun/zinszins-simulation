@@ -10,7 +10,13 @@ const MonteCarloAnalysis = () => {
 
   if (!simulationData) return null
 
-  const data = unique(simulationData ? (simulationData.sparplanElements.flatMap((v: any) => v.simulation ? Object.keys(v.simulation) : []).map(Number).filter((v: number) => !isNaN(v))) : []) as number[]
+  const data = unique(
+    simulationData
+      ? (simulationData.sparplanElements.flatMap((v: any) =>
+          v.simulation ? Object.keys(v.simulation) : [],
+        ).map(Number).filter((v: number) => !isNaN(v)))
+      : [],
+  ) as number[]
 
   return (
     <Card className="mb-4">

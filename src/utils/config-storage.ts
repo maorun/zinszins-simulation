@@ -194,7 +194,9 @@ export function saveConfiguration(config: SavedConfiguration): void {
  */
 function migrateEndOfLifeSettings(config: SavedConfiguration): SavedConfiguration {
   // If we have a withdrawal config with endOfLife but no global endOfLife, migrate
-  if (config.withdrawal?.formValue && (config.withdrawal.formValue as any).endOfLife && config.endOfLife === undefined) {
+  if (config.withdrawal?.formValue
+    && (config.withdrawal.formValue as any).endOfLife
+    && config.endOfLife === undefined) {
     const withdrawalEndOfLife = (config.withdrawal.formValue as any).endOfLife
     const lifeExpectancyTable = (config.withdrawal.formValue as any).rmdLifeExpectancyTable || 'german_2020_22'
     const customLifeExpectancy = (config.withdrawal.formValue as any).rmdCustomLifeExpectancy

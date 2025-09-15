@@ -220,7 +220,8 @@ const HistoricalReturnConfiguration = () => {
                         </div>
                       </div>
                       <div className="text-xs text-muted-foreground">
-                        Die Simulation verwendet die tatsächlichen historischen Jahresrenditen für den gewählten Zeitraum.
+                        Die Simulation verwendet die tatsächlichen historischen
+                        Jahresrenditen für den gewählten Zeitraum.
                       </div>
                     </div>
                   </CardContent>

@@ -152,7 +152,8 @@ describe('Simulate (Compound Interest) Calculations', () => {
       })
 
       const simulation = result[0].simulation[2024]
-      expect(simulation.bezahlteSteuer).toBeGreaterThanOrEqual(0) // Changed to >= since small amounts may not trigger tax
+      // Changed to >= since small amounts may not trigger tax
+      expect(simulation.bezahlteSteuer).toBeGreaterThanOrEqual(0)
       expect(simulation.genutzterFreibetrag).toBeGreaterThanOrEqual(0)
 
       // End capital should be start capital + growth - taxes
@@ -234,8 +235,10 @@ describe('Simulate (Compound Interest) Calculations', () => {
       const finalYear = result[0].simulation[2040]
 
       // After 15 years with 7% return, should have significant growth
-      expect(finalYear.endkapital).toBeGreaterThan(600000) // Adjusted expectation based on actual result
-      expect(finalYear.bezahlteSteuer).toBeGreaterThanOrEqual(0) // May or may not have taxes depending on German tax logic
+      // Adjusted expectation based on actual result
+      expect(finalYear.endkapital).toBeGreaterThan(600000)
+      // May or may not have taxes depending on German tax logic
+      expect(finalYear.bezahlteSteuer).toBeGreaterThanOrEqual(0)
 
       // Should utilize some tax allowance
       expect(finalYear.genutzterFreibetrag).toBeGreaterThanOrEqual(0)
@@ -444,7 +447,8 @@ describe('Simulate (Compound Interest) Calculations', () => {
 
       // But the real (inflation-adjusted) endkapital should be reduced
       expect(result[0].simulation[2023].endkapitalReal).toBeCloseTo(10500 / 1.02, 2) // 1 year inflation
-      expect(result[1].simulation[2024].endkapitalReal).toBeCloseTo(10500 / 1.02, 2) // 1 year inflation since 2024 element started in 2024
+      // 1 year inflation since 2024 element started in 2024
+      expect(result[1].simulation[2024].endkapitalReal).toBeCloseTo(10500 / 1.02, 2)
     })
 
     test('should default to sparplan mode when not specified', () => {

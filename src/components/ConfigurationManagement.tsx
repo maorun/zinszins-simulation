@@ -43,7 +43,8 @@ export default function ConfigurationManagement() {
               <AlertDescription>
                 <strong>Automatisches Speichern:</strong>
                 {' '}
-                Ihre Einstellungen werden automatisch beim Ändern gespeichert und beim nächsten Besuch wiederhergestellt.
+                Ihre Einstellungen werden automatisch beim Ändern gespeichert
+                und beim nächsten Besuch wiederhergestellt.
               </AlertDescription>
             </Alert>
 

@@ -8,7 +8,11 @@ import { useSimulation } from '../contexts/useSimulation'
 import { useNestingLevel } from '../lib/nesting-utils'
 
 const DataExport = () => {
-  const { exportParameters, isExporting: isParameterExporting, lastExportResult: parameterExportResult } = useParameterExport()
+  const {
+    exportParameters,
+    isExporting: isParameterExporting,
+    lastExportResult: parameterExportResult,
+  } = useParameterExport()
   const {
     exportSavingsDataCSV,
     exportWithdrawalDataCSV,
@@ -78,9 +82,16 @@ const DataExport = () => {
     || withdrawalConfig.useSegmentedWithdrawal
     || withdrawalConfig.withdrawalSegments?.length > 0
   )
-  // More robust detection: withdrawal capability exists if we have either results, config, or both savings data and basic setup
-  const hasWithdrawalCapability = hasWithdrawalData || hasWithdrawalConfig || hasWithdrawalConfigFromStorage || (hasSavingsData && withdrawalConfig)
-  const hasAnyData = hasSavingsData || hasWithdrawalData || hasWithdrawalConfig || hasWithdrawalConfigFromStorage
+  // More robust detection: withdrawal capability exists if we have either results,
+  // config, or both savings data and basic setup
+  const hasWithdrawalCapability = hasWithdrawalData
+    || hasWithdrawalConfig
+    || hasWithdrawalConfigFromStorage
+    || (hasSavingsData && withdrawalConfig)
+  const hasAnyData = hasSavingsData
+    || hasWithdrawalData
+    || hasWithdrawalConfig
+    || hasWithdrawalConfigFromStorage
 
   return (
     <Card nestingLevel={nestingLevel} className="mb-4">

@@ -14,8 +14,24 @@ vi.mock('./utils/simulate', () => ({
     type: 'sparplan',
     einzahlung: 24000,
     simulation: {
-      2023: { startkapital: 0, zinsen: 1200, endkapital: 25200, bezahlteSteuer: 0, genutzterFreibetrag: 0, vorabpauschale: 0, vorabpauschaleAccumulated: 0 },
-      2040: { startkapital: 596168.79, zinsen: 29808.44, endkapital: 625977.23, bezahlteSteuer: 0, genutzterFreibetrag: 0, vorabpauschale: 0, vorabpauschaleAccumulated: 0 },
+      2023: {
+        startkapital: 0,
+        zinsen: 1200,
+        endkapital: 25200,
+        bezahlteSteuer: 0,
+        genutzterFreibetrag: 0,
+        vorabpauschale: 0,
+        vorabpauschaleAccumulated: 0,
+      },
+      2040: {
+        startkapital: 596168.79,
+        zinsen: 29808.44,
+        endkapital: 625977.23,
+        bezahlteSteuer: 0,
+        genutzterFreibetrag: 0,
+        vorabpauschale: 0,
+        vorabpauschaleAccumulated: 0,
+      },
     },
   }]),
 }))

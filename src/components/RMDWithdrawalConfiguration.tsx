@@ -163,7 +163,8 @@ export function RMDWithdrawalConfiguration({
           {' '}
           <strong>Portfoliowert ÷ Divisor (Lebenserwartung)</strong>
           <br />
-          Der Divisor sinkt mit jedem Jahr, wodurch die Entnahme steigt und das Portfolio bis zum Lebensende aufgebraucht wird.
+          Der Divisor sinkt mit jedem Jahr, wodurch die Entnahme steigt
+          und das Portfolio bis zum Lebensende aufgebraucht wird.
         </div>
       </div>
     </div>

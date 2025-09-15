@@ -292,7 +292,14 @@ function calculateYearlySimulation(
   wachstumsrate: number,
   options: SimulateOptions,
 ) {
-  const { simulationAnnual, steuerlast, teilfreistellungsquote = 0.3, freibetragPerYear, steuerReduzierenEndkapital = true, basiszinsConfiguration } = options
+  const {
+    simulationAnnual,
+    steuerlast,
+    teilfreistellungsquote = 0.3,
+    freibetragPerYear,
+    steuerReduzierenEndkapital = true,
+    basiszinsConfiguration,
+  } = options
   const yearlyCalculations: any[] = []
   let totalPotentialTaxThisYear = 0
 
@@ -339,7 +346,14 @@ function calculateYearlySimulation(
     }
 
     // Pass 2: Apply taxes
-    applyTaxes(year, yearlyCalculations, totalPotentialTaxThisYear, freibetragPerYear, steuerReduzierenEndkapital, options)
+    applyTaxes(
+      year,
+      yearlyCalculations,
+      totalPotentialTaxThisYear,
+      freibetragPerYear,
+      steuerReduzierenEndkapital,
+      options,
+    )
   }
   else {
     // No taxes to be calculated, just calculate growth and costs

@@ -40,7 +40,11 @@ export const initialSparplan: Sparplan = {
   einzahlung: 19800,
 }
 
-export function convertSparplanToElements(val: Sparplan[], startEnd: [number, number], simulationAnnual: SimulationAnnualType): SparplanElement[] {
+export function convertSparplanToElements(
+  val: Sparplan[],
+  startEnd: [number, number],
+  simulationAnnual: SimulationAnnualType,
+): SparplanElement[] {
   const data: SparplanElement[] = val.flatMap((el) => {
     const sparplanElementsToSave: SparplanElement[] = []
 
