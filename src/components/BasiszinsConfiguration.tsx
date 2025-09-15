@@ -1,21 +1,19 @@
-import { useState, useCallback } from 'react'
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { Button } from './ui/button'
-import { Input } from './ui/input'
-import { Label } from './ui/label'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
-import { Alert, AlertDescription } from './ui/alert'
-import { Trash2, Plus, Download, RefreshCw, ChevronDown } from 'lucide-react'
+import { useCallback, useState } from 'react'
+import { Download, Plus, RefreshCw, Trash2 } from 'lucide-react'
 import { useSimulation } from '../contexts/useSimulation'
 import { useNestingLevel } from '../lib/nesting-utils'
 import {
+  estimateFutureBasiszins,
   refreshBasiszinsFromAPI,
   validateBasiszinsRate,
-  estimateFutureBasiszins,
-  type BasiszinsConfiguration,
   type BasiszinsData,
 } from '../services/bundesbank-api'
+import { Alert, AlertDescription } from './ui/alert'
+import { Button } from './ui/button'
+import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
 
 /**
  * Basiszins Configuration Component
@@ -150,6 +148,7 @@ export default function BasiszinsConfiguration() {
     .sort((a, b) => b - a) // Newest first
 
   return (
+<<<<<<< HEAD
     <Card nestingLevel={nestingLevel}>
       <Collapsible defaultOpen={false}>
         <CardHeader nestingLevel={nestingLevel}>
@@ -164,6 +163,20 @@ export default function BasiszinsConfiguration() {
         </CardHeader>
         <CollapsibleContent>
           <CardContent nestingLevel={nestingLevel} className="space-y-6">
+=======
+    <CollapsibleCard>
+      <CollapsibleCardHeader>📈 Basiszins-Konfiguration (Deutsche Bundesbank)</CollapsibleCardHeader>
+        <CollapsibleCardContent>
+        
+        {/* Information Panel */}
+        <Alert>
+          <AlertDescription>
+            Der Basiszins wird zur Berechnung der Vorabpauschale verwendet. 
+            Die offiziellen Sätze werden jährlich vom Bundesfinanzministerium 
+            basierend auf Bundesbank-Daten veröffentlicht.
+          </AlertDescription>
+        </Alert>
+>>>>>>> b676b0cbcce16db50198c07fd579e78654342d79
 
             {/* Information Panel */}
             <Alert>
@@ -299,6 +312,7 @@ export default function BasiszinsConfiguration() {
               </Table>
             </div>
 
+<<<<<<< HEAD
             {/* Summary Info */}
             <div className="text-sm text-muted-foreground">
               <p>
@@ -318,4 +332,16 @@ export default function BasiszinsConfiguration() {
       </Collapsible>
     </Card>
   )
+=======
+        {/* Summary Info */}
+        <div className="text-sm text-muted-foreground">
+          <p>
+            💡 <strong>Tipp:</strong> Historische Daten (vor {currentYear}) können nicht gelöscht werden. 
+            Zukünftige Raten können manuell hinzugefügt oder über die Bundesbank-API aktualisiert werden.
+          </p>
+        </div>
+        </CollapsibleCardContent>
+      </CollapsibleCard>
+  );
+>>>>>>> b676b0cbcce16db50198c07fd579e78654342d79
 }
