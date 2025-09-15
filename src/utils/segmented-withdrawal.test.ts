@@ -112,9 +112,9 @@ describe('segmented-withdrawal synchronization', () => {
   describe('moveSegmentUp', () => {
     it('should move a segment up (earlier in time) by swapping time ranges', () => {
       const segments: WithdrawalSegment[] = [
-        createDefaultWithdrawalSegment('segment1', 'Phase 1', 2041, 2050), // 10 years
-        createDefaultWithdrawalSegment('segment2', 'Phase 2', 2051, 2065), // 15 years
-        createDefaultWithdrawalSegment('segment3', 'Phase 3', 2066, 2080), // 15 years
+        createDefaultWithdrawalSegment('segment1', 'Phase 1', 2041, 2050), // 10 years inclusive
+        createDefaultWithdrawalSegment('segment2', 'Phase 2', 2051, 2065), // 15 years inclusive
+        createDefaultWithdrawalSegment('segment3', 'Phase 3', 2066, 2080), // 15 years inclusive
       ]
 
       const result = moveSegmentUp(segments, 'segment2')
@@ -123,12 +123,12 @@ describe('segmented-withdrawal synchronization', () => {
       // segment2 should now be first with segment1's original time range
       const movedSegment = result.find(s => s.id === 'segment2')
       expect(movedSegment?.startYear).toBe(2041)
-      expect(movedSegment?.endYear).toBe(2055) // 2041 + 14 (segment2's original duration)
+      expect(movedSegment?.endYear).toBe(2055) // 2041 + 15 - 1 (segment2's original 15-year duration)
 
       // segment1 should move to after segment2
       const originalFirstSegment = result.find(s => s.id === 'segment1')
       expect(originalFirstSegment?.startYear).toBe(2056) // 2055 + 1
-      expect(originalFirstSegment?.endYear).toBe(2065) // 2056 + 9 (segment1's original duration)
+      expect(originalFirstSegment?.endYear).toBe(2065) // 2056 + 10 - 1 (segment1's original 10-year duration)
 
       // segment3 should remain unchanged
       const thirdSegment = result.find(s => s.id === 'segment3')
@@ -161,9 +161,9 @@ describe('segmented-withdrawal synchronization', () => {
   describe('moveSegmentDown', () => {
     it('should move a segment down (later in time) by swapping time ranges', () => {
       const segments: WithdrawalSegment[] = [
-        createDefaultWithdrawalSegment('segment1', 'Phase 1', 2041, 2050), // 10 years
-        createDefaultWithdrawalSegment('segment2', 'Phase 2', 2051, 2065), // 15 years
-        createDefaultWithdrawalSegment('segment3', 'Phase 3', 2066, 2080), // 15 years
+        createDefaultWithdrawalSegment('segment1', 'Phase 1', 2041, 2050), // 10 years inclusive
+        createDefaultWithdrawalSegment('segment2', 'Phase 2', 2051, 2065), // 15 years inclusive
+        createDefaultWithdrawalSegment('segment3', 'Phase 3', 2066, 2080), // 15 years inclusive
       ]
 
       const result = moveSegmentDown(segments, 'segment1')
@@ -172,12 +172,12 @@ describe('segmented-withdrawal synchronization', () => {
       // segment2 should now be first with segment1's original time range
       const movedDownSegment = result.find(s => s.id === 'segment2')
       expect(movedDownSegment?.startYear).toBe(2041)
-      expect(movedDownSegment?.endYear).toBe(2055) // 2041 + 14 (segment2's original duration)
+      expect(movedDownSegment?.endYear).toBe(2055) // 2041 + 15 - 1 (segment2's original 15-year duration)
 
       // segment1 should move to after segment2
       const originalFirstSegment = result.find(s => s.id === 'segment1')
       expect(originalFirstSegment?.startYear).toBe(2056) // 2055 + 1
-      expect(originalFirstSegment?.endYear).toBe(2065) // 2056 + 9 (segment1's original duration)
+      expect(originalFirstSegment?.endYear).toBe(2065) // 2056 + 10 - 1 (segment1's original 10-year duration)
 
       // segment3 should remain unchanged
       const thirdSegment = result.find(s => s.id === 'segment3')
@@ -222,12 +222,12 @@ describe('segmented-withdrawal synchronization', () => {
       const newSegment = result.find(s => s.name === 'New Phase')
       expect(newSegment).toBeDefined()
       expect(newSegment?.startYear).toBe(2051) // Takes segment2's original start year
-      expect(newSegment?.endYear).toBe(2058) // 2051 + 7 (7-year duration)
+      expect(newSegment?.endYear).toBe(2057) // 2051 + 7 - 1 (7-year inclusive duration)
 
       // segment2 should be shifted
       const shiftedSegment = result.find(s => s.id === 'segment2')
-      expect(shiftedSegment?.startYear).toBe(2059) // 2058 + 1
-      expect(shiftedSegment?.endYear).toBe(2073) // 2059 + 14 (original duration)
+      expect(shiftedSegment?.startYear).toBe(2058) // 2057 + 1
+      expect(shiftedSegment?.endYear).toBe(2072) // 2058 + 14 (original 15-year inclusive duration)
 
       // segment1 should remain unchanged
       const firstSegment = result.find(s => s.id === 'segment1')
@@ -248,12 +248,12 @@ describe('segmented-withdrawal synchronization', () => {
       const newSegment = result.find(s => s.name === 'Earlier Phase')
       expect(newSegment).toBeDefined()
       expect(newSegment?.startYear).toBe(2041) // Takes segment1's original start year
-      expect(newSegment?.endYear).toBe(2044) // 2041 + 3 (3-year duration)
+      expect(newSegment?.endYear).toBe(2043) // 2041 + 3 - 1 (3-year inclusive duration)
 
       // segment1 should be shifted
       const shiftedSegment = result.find(s => s.id === 'segment1')
-      expect(shiftedSegment?.startYear).toBe(2045) // 2044 + 1
-      expect(shiftedSegment?.endYear).toBe(2054) // 2045 + 9 (original duration)
+      expect(shiftedSegment?.startYear).toBe(2044) // 2043 + 1
+      expect(shiftedSegment?.endYear).toBe(2053) // 2044 + 9 (original 10-year inclusive duration)
     })
 
     it('should handle invalid segment ID', () => {
@@ -277,7 +277,7 @@ describe('segmented-withdrawal synchronization', () => {
 
       const newSegment = result.find(s => s.name === 'New Phase')
       expect(newSegment).toBeDefined()
-      expect(newSegment!.endYear - newSegment!.startYear).toBe(5) // Default 5-year duration
+      expect(newSegment!.endYear - newSegment!.startYear + 1).toBe(5) // Default 5-year inclusive duration
     })
   })
 })

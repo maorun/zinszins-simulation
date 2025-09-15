@@ -272,15 +272,15 @@ export function moveSegmentUp(segments: WithdrawalSegment[], segmentId: string):
   const targetSegment = sortedSegments[segmentIndex]
   const previousSegment = sortedSegments[segmentIndex - 1]
 
-  // Calculate new time ranges
-  const segmentDuration = targetSegment.endYear - targetSegment.startYear
-  const previousDuration = previousSegment.endYear - previousSegment.startYear
+  // Calculate new time ranges (inclusive years: duration = end - start + 1)
+  const segmentDuration = targetSegment.endYear - targetSegment.startYear + 1
+  const previousDuration = previousSegment.endYear - previousSegment.startYear + 1
 
   // Swap the time ranges
   const newTargetStartYear = previousSegment.startYear
-  const newTargetEndYear = newTargetStartYear + segmentDuration
+  const newTargetEndYear = newTargetStartYear + segmentDuration - 1
   const newPreviousStartYear = newTargetEndYear + 1
-  const newPreviousEndYear = newPreviousStartYear + previousDuration
+  const newPreviousEndYear = newPreviousStartYear + previousDuration - 1
 
   // Return the updated segments array maintaining the same order as the original input
   return segments.map((segment) => {
@@ -313,15 +313,15 @@ export function moveSegmentDown(segments: WithdrawalSegment[], segmentId: string
   const targetSegment = sortedSegments[segmentIndex]
   const nextSegment = sortedSegments[segmentIndex + 1]
 
-  // Calculate new time ranges
-  const segmentDuration = targetSegment.endYear - targetSegment.startYear
-  const nextDuration = nextSegment.endYear - nextSegment.startYear
+  // Calculate new time ranges (inclusive years: duration = end - start + 1)
+  const segmentDuration = targetSegment.endYear - targetSegment.startYear + 1
+  const nextDuration = nextSegment.endYear - nextSegment.startYear + 1
 
   // Swap the time ranges
   const newNextStartYear = targetSegment.startYear
-  const newNextEndYear = newNextStartYear + nextDuration
+  const newNextEndYear = newNextStartYear + nextDuration - 1
   const newTargetStartYear = newNextEndYear + 1
-  const newTargetEndYear = newTargetStartYear + segmentDuration
+  const newTargetEndYear = newTargetStartYear + segmentDuration - 1
 
   // Return the updated segments array maintaining the same order as the original input
   return segments.map((segment) => {
@@ -361,7 +361,7 @@ export function insertSegmentBefore(
 
   // Calculate the new segment's time range
   const newSegmentStartYear = targetSegment.startYear
-  const newSegmentEndYear = newSegmentStartYear + newSegmentDuration
+  const newSegmentEndYear = newSegmentStartYear + newSegmentDuration - 1
 
   // Create the new segment
   const newSegmentId = `segment_${Date.now()}`
@@ -374,8 +374,8 @@ export function insertSegmentBefore(
 
   // Update the target segment to start after the new segment
   const updatedTargetStartYear = newSegmentEndYear + 1
-  const targetDuration = targetSegment.endYear - targetSegment.startYear
-  const updatedTargetEndYear = updatedTargetStartYear + targetDuration
+  const targetDuration = targetSegment.endYear - targetSegment.startYear + 1
+  const updatedTargetEndYear = updatedTargetStartYear + targetDuration - 1
 
   // Update all segments that need to be shifted
   const updatedSegments = segments.map((segment) => {

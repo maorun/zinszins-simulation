@@ -71,7 +71,10 @@ export function WithdrawalSegmentForm({
   // Add a new segment
   const addSegment = () => {
     const newId = `segment_${Date.now()}`
-    const lastSegment = segments[segments.length - 1]
+
+    // Find the chronologically last segment, not the last in the array
+    const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
+    const lastSegment = sortedSegments[sortedSegments.length - 1]
     const startYear = lastSegment ? Math.round(lastSegment.endYear) + 1 : Math.round(withdrawalStartYear)
 
     // Create a default 5-year segment without constraining to withdrawalEndYear
