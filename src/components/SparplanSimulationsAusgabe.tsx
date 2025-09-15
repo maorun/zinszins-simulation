@@ -95,7 +95,7 @@ export function SparplanSimulationsAusgabe({
 
   // Access inflation settings from simulation context
   const { inflationAktivSparphase, inflationAnwendungSparphase, inflationsrateSparphase } = useSimulation()
-  
+
   // Determine if we should show real (inflation-adjusted) values
   const showRealValues = inflationAktivSparphase && inflationAnwendungSparphase === 'gesamtmenge'
 
@@ -104,7 +104,7 @@ export function SparplanSimulationsAusgabe({
   // Get real (inflation-adjusted) summary values for gesamtmenge mode
   let realEndkapital: number | undefined
   let realZinsen: number | undefined
-  
+
   if (showRealValues && elemente) {
     // Find the latest year with simulation data to get final real values
     let latestYear = 0
@@ -114,7 +114,7 @@ export function SparplanSimulationsAusgabe({
         latestYear = Math.max(latestYear, ...years)
       }
     }
-    
+
     if (latestYear > 0) {
       // Get real values from the final year
       for (const element of elemente) {
@@ -134,11 +134,11 @@ export function SparplanSimulationsAusgabe({
   // Convert progression to table data format (reverse order to show newest first)
   const tableData = yearlyProgression
     .sort((a, b) => b.year - a.year)
-    .map(progression => {
+    .map((progression) => {
       // Get real values from simulation data if available (for gesamtmenge mode)
       let endkapitalReal: number | undefined
       let zinsenReal: number | undefined
-      
+
       if (showRealValues && elemente) {
         // Find the first element that has simulation data for this year
         for (const element of elemente) {
@@ -218,7 +218,11 @@ export function SparplanSimulationsAusgabe({
               {showRealValues && (
                 <>
                   <br />
-                  <strong>💰 Inflation berücksichtigt:</strong> Die "Kaufkraft"-Werte zeigen die reale Kaufkraft nach {inflationsrateSparphase}% jährlicher Inflation.
+                  <strong>💰 Inflation berücksichtigt:</strong>
+                  {' '}
+                  Die "Kaufkraft"-Werte zeigen die reale Kaufkraft nach
+                  {inflationsrateSparphase}
+                  % jährlicher Inflation.
                 </>
               )}
             </div>
@@ -245,9 +249,15 @@ export function SparplanSimulationsAusgabe({
                       </div>
                       {showRealValues && row.endkapitalReal && (
                         <div className="font-semibold text-orange-600 text-sm mt-1">
-                          💰 Kaufkraft: {thousands(row.endkapitalReal)} €
+                          💰 Kaufkraft:
+                          {' '}
+                          {thousands(row.endkapitalReal)}
+                          {' '}
+                          €
                           <span className="text-gray-500 text-xs ml-1">
-                            ({inflationsrateSparphase}% Inflation)
+                            (
+                            {inflationsrateSparphase}
+                            % Inflation)
                           </span>
                         </div>
                       )}
@@ -276,7 +286,11 @@ export function SparplanSimulationsAusgabe({
                         </span>
                         {showRealValues && row.zinsenReal && (
                           <div className="font-semibold text-orange-600 text-xs mt-1">
-                            Kaufkraft: {thousands(row.zinsenReal)} €
+                            Kaufkraft:
+                            {' '}
+                            {thousands(row.zinsenReal)}
+                            {' '}
+                            €
                           </div>
                         )}
                       </div>
@@ -350,7 +364,11 @@ export function SparplanSimulationsAusgabe({
                     </div>
                     {showRealValues && realZinsen !== undefined && (
                       <div className="font-semibold text-xs text-orange-600 mt-1">
-                        Kaufkraft: {thousands(realZinsen.toFixed(2))} €
+                        Kaufkraft:
+                        {' '}
+                        {thousands(realZinsen.toFixed(2))}
+                        {' '}
+                        €
                       </div>
                     )}
                   </div>
@@ -374,14 +392,21 @@ export function SparplanSimulationsAusgabe({
                     </div>
                     {showRealValues && realEndkapital !== undefined && (
                       <div className="font-semibold text-xs text-yellow-200 mt-1">
-                        Kaufkraft: {thousands(realEndkapital.toFixed(2))} €
+                        Kaufkraft:
+                        {' '}
+                        {thousands(realEndkapital.toFixed(2))}
+                        {' '}
+                        €
                       </div>
                     )}
                   </div>
                 </div>
                 {showRealValues && (
                   <div className="text-xs text-gray-600 text-center mt-3">
-                    💡 Die Kaufkraft-Werte zeigen die reale Kaufkraft nach {inflationsrateSparphase}% jährlicher Inflation
+                    💡 Die Kaufkraft-Werte zeigen die reale Kaufkraft nach
+                    {' '}
+                    {inflationsrateSparphase}
+                    % jährlicher Inflation
                   </div>
                 )}
               </div>
