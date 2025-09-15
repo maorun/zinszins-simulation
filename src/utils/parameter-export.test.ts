@@ -317,6 +317,181 @@ describe('Parameter Export', () => {
       expect(result).toContain('Inflation: 2.50 %')
       expect(result).toContain('Steuerreduzierung: Nein')
     })
+
+    it('should include bucket strategy configuration in segmented withdrawal', () => {
+      mockContext.withdrawalConfig = {
+        formValue: {
+          strategie: '4prozent',
+          rendite: 5.0,
+          withdrawalFrequency: 'yearly',
+          inflationAktiv: false,
+          inflationsrate: 2.0,
+          monatlicheBetrag: 3000,
+          guardrailsAktiv: false,
+          guardrailsSchwelle: 15,
+          variabelProzent: 5,
+          dynamischBasisrate: 4,
+          dynamischObereSchwell: 8,
+          dynamischObereAnpassung: 5,
+          dynamischUntereSchwell: 2,
+          dynamischUntereAnpassung: -5,
+          rmdStartAge: 65,
+          kapitalerhaltNominalReturn: 7,
+          kapitalerhaltInflationRate: 2,
+          grundfreibetragAktiv: false,
+          grundfreibetragBetrag: 11000,
+          einkommensteuersatz: 28,
+        },
+        withdrawalReturnMode: 'fixed',
+        withdrawalVariableReturns: {},
+        withdrawalAverageReturn: 5.0,
+        withdrawalStandardDeviation: 15,
+        withdrawalRandomSeed: undefined,
+        useSegmentedWithdrawal: true,
+        withdrawalSegments: [
+          {
+            id: 'bucket_phase',
+            name: 'Hauptphase',
+            startYear: 2036,
+            endYear: 2045,
+            strategy: 'bucket_strategie',
+            withdrawalFrequency: 'monthly',
+            returnConfig: {
+              mode: 'fixed',
+              fixedRate: 0.05,
+            },
+            bucketConfig: {
+              initialCashCushion: 20000,
+              refillThreshold: 5000,
+              refillPercentage: 0.5,
+              baseWithdrawalRate: 0.04,
+              subStrategy: 'monatlich_fest',
+              monatlicheBetrag: 2000,
+            },
+            inflationConfig: {
+              inflationRate: 0.02,
+            },
+            enableGrundfreibetrag: true,
+            incomeTaxRate: 18,
+            steuerReduzierenEndkapital: true,
+          },
+        ],
+        useComparisonMode: false,
+        comparisonStrategies: [],
+        useSegmentedComparisonMode: false,
+        segmentedComparisonStrategies: [],
+      }
+
+      const result = formatParametersForExport(mockContext)
+
+      expect(result).toContain('Segmentierte Entnahme: Ja')
+      expect(result).toContain('Anzahl Segmente: 1')
+      expect(result).toContain('Segment-Details:')
+
+      // Bucket strategy segment details
+      expect(result).toContain('Segment 1 (Hauptphase):')
+      expect(result).toContain('Zeitraum: 2036 - 2045')
+      expect(result).toContain('Strategie: Drei-Eimer-Strategie')
+      expect(result).toContain('Häufigkeit: Monatlich')
+      expect(result).toContain('Rendite-Modus: Fest')
+      expect(result).toContain('Rendite: 5.00 %')
+
+      // Bucket strategy specific configuration
+      expect(result).toContain('Sub-Strategie: Monatlich fest')
+      expect(result).toContain('Initiales Cash-Polster: 20.000,00\u00A0€')
+      expect(result).toContain('Auffüll-Schwellenwert: 5.000,00\u00A0€')
+      expect(result).toContain('Auffüll-Anteil: 50 %')
+      expect(result).toContain('Monatlicher Betrag: 2.000,00\u00A0€')
+
+      // Common segment details
+      expect(result).toContain('Inflation: 2.00 %')
+      expect(result).toContain('Grundfreibetrag aktiv: Ja')
+      expect(result).toContain('Einkommensteuersatz: 18.00 %')
+      expect(result).toContain('Steuerreduzierung: Ja')
+    })
+
+    it('should include bucket strategy with dynamic sub-strategy configuration', () => {
+      mockContext.withdrawalConfig = {
+        formValue: {
+          strategie: '4prozent',
+          rendite: 5.0,
+          withdrawalFrequency: 'yearly',
+          inflationAktiv: false,
+          inflationsrate: 2.0,
+          monatlicheBetrag: 3000,
+          guardrailsAktiv: false,
+          guardrailsSchwelle: 15,
+          variabelProzent: 5,
+          dynamischBasisrate: 4,
+          dynamischObereSchwell: 8,
+          dynamischObereAnpassung: 5,
+          dynamischUntereSchwell: 2,
+          dynamischUntereAnpassung: -5,
+          rmdStartAge: 65,
+          kapitalerhaltNominalReturn: 7,
+          kapitalerhaltInflationRate: 2,
+          grundfreibetragAktiv: false,
+          grundfreibetragBetrag: 11000,
+          einkommensteuersatz: 28,
+        },
+        withdrawalReturnMode: 'fixed',
+        withdrawalVariableReturns: {},
+        withdrawalAverageReturn: 5.0,
+        withdrawalStandardDeviation: 15,
+        withdrawalRandomSeed: undefined,
+        useSegmentedWithdrawal: true,
+        withdrawalSegments: [
+          {
+            id: 'bucket_dynamic_phase',
+            name: 'Dynamische Phase',
+            startYear: 2050,
+            endYear: 2080,
+            strategy: 'bucket_strategie',
+            withdrawalFrequency: 'monthly',
+            returnConfig: {
+              mode: 'fixed',
+              fixedRate: 0.05,
+            },
+            bucketConfig: {
+              initialCashCushion: 30000,
+              refillThreshold: 7500,
+              refillPercentage: 0.3,
+              baseWithdrawalRate: 0.04,
+              subStrategy: 'dynamisch',
+              dynamischBasisrate: 4.5,
+              dynamischObereSchwell: 8.5,
+              dynamischObereAnpassung: 10,
+              dynamischUntereSchwell: 1.5,
+              dynamischUntereAnpassung: -8,
+            },
+            inflationConfig: {
+              inflationRate: 0.02,
+            },
+            enableGrundfreibetrag: false,
+            steuerReduzierenEndkapital: true,
+          },
+        ],
+        useComparisonMode: false,
+        comparisonStrategies: [],
+        useSegmentedComparisonMode: false,
+        segmentedComparisonStrategies: [],
+      }
+
+      const result = formatParametersForExport(mockContext)
+
+      expect(result).toContain('Strategie: Drei-Eimer-Strategie')
+      expect(result).toContain('Sub-Strategie: Dynamische Strategie')
+      expect(result).toContain('Initiales Cash-Polster: 30.000,00\u00A0€')
+      expect(result).toContain('Auffüll-Schwellenwert: 7.500,00\u00A0€')
+      expect(result).toContain('Auffüll-Anteil: 30 %')
+
+      // Dynamic sub-strategy specific configuration
+      expect(result).toContain('Dynamische Basisrate: 4.50 %')
+      expect(result).toContain('Obere Schwelle: 8.50 %')
+      expect(result).toContain('Obere Anpassung: 10.00 %')
+      expect(result).toContain('Untere Schwelle: 1.50 %')
+      expect(result).toContain('Untere Anpassung: -8.00 %')
+    })
   })
 
   describe('copyParametersToClipboard', () => {
