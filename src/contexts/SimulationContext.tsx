@@ -115,7 +115,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerReduzierenEndkapitalEntspharphase: true,
     // Grundfreibetrag settings (German basic tax allowance for retirees)
     grundfreibetragAktiv: false,
-    grundfreibetragBetrag: 11604, // Updated to 2024 German basic tax allowance, default when activated will be double (23208)
+    // Updated to 2024 German basic tax allowance, default when activated will be double (23208)
+    grundfreibetragBetrag: 11604,
     returnMode: 'fixed' as ReturnMode,
     averageReturn: 7,
     standardDeviation: 15,
@@ -154,7 +155,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [rendite, setRendite] = useState(initialConfig.rendite)
   const [steuerlast, setSteuerlast] = useState(initialConfig.steuerlast)
   const [teilfreistellungsquote, setTeilfreistellungsquote] = useState(initialConfig.teilfreistellungsquote)
-  const [freibetragPerYear, setFreibetragPerYear] = useState<{ [year: number]: number }>(initialConfig.freibetragPerYear)
+  const [freibetragPerYear, setFreibetragPerYear] = useState<{ [year: number]: number }>(
+    initialConfig.freibetragPerYear,
+  )
   const [basiszinsConfiguration, setBasiszinsConfiguration] = useState<BasiszinsConfiguration>(
     (initialConfig as any).basiszinsConfiguration || defaultConfig.basiszinsConfiguration,
   )
@@ -338,13 +341,20 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setVariableReturns(savedConfig.variableReturns)
       setHistoricalIndex((savedConfig as any).historicalIndex || defaultConfig.historicalIndex)
       // Load inflation settings for savings phase
-      setInflationAktivSparphase((savedConfig as any).inflationAktivSparphase ?? defaultConfig.inflationAktivSparphase)
-      setInflationsrateSparphase((savedConfig as any).inflationsrateSparphase ?? defaultConfig.inflationsrateSparphase)
-      setInflationAnwendungSparphase((savedConfig as any).inflationAnwendungSparphase ?? defaultConfig.inflationAnwendungSparphase)
+      const inflationSettings = {
+        inflationAktivSparphase: (savedConfig as any).inflationAktivSparphase ?? defaultConfig.inflationAktivSparphase,
+        inflationsrateSparphase: (savedConfig as any).inflationsrateSparphase ?? defaultConfig.inflationsrateSparphase,
+        inflationAnwendungSparphase: (savedConfig as any).inflationAnwendungSparphase ?? defaultConfig.inflationAnwendungSparphase,
+      }
+      setInflationAktivSparphase(inflationSettings.inflationAktivSparphase)
+      setInflationsrateSparphase(inflationSettings.inflationsrateSparphase)
+      setInflationAnwendungSparphase(inflationSettings.inflationAnwendungSparphase)
       setStartEnd(savedConfig.startEnd)
       setSparplan(savedConfig.sparplan)
       setSimulationAnnual(savedConfig.simulationAnnual)
-      setSparplanElemente(convertSparplanToElements(savedConfig.sparplan, savedConfig.startEnd, savedConfig.simulationAnnual))
+      setSparplanElemente(
+        convertSparplanToElements(savedConfig.sparplan, savedConfig.startEnd, savedConfig.simulationAnnual),
+      )
       // Load global End of Life and Life Expectancy settings
       setEndOfLife((savedConfig as any).endOfLife ?? savedConfig.startEnd[1])
       setLifeExpectancyTable((savedConfig as any).lifeExpectancyTable ?? defaultConfig.lifeExpectancyTable)
@@ -384,7 +394,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setStartEnd(defaultConfig.startEnd)
     setSparplan(defaultConfig.sparplan)
     setSimulationAnnual(defaultConfig.simulationAnnual)
-    setSparplanElemente(convertSparplanToElements(defaultConfig.sparplan, defaultConfig.startEnd, defaultConfig.simulationAnnual))
+    setSparplanElemente(
+      convertSparplanToElements(defaultConfig.sparplan, defaultConfig.startEnd, defaultConfig.simulationAnnual),
+    )
     // Reset global End of Life and Life Expectancy settings
     setEndOfLife(defaultConfig.endOfLife)
     setLifeExpectancyTable(defaultConfig.lifeExpectancyTable)
@@ -553,7 +565,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
     inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
-    endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse, birthYear, expectedLifespan, useAutomaticCalculation,
+    endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse,
+    birthYear, expectedLifespan, useAutomaticCalculation,
     simulationData, isLoading, withdrawalResults, performSimulation,
     saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
     withdrawalConfig, setEndOfLifeRounded,

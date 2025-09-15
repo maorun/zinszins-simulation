@@ -111,7 +111,8 @@ const TaxConfiguration = () => {
                 <div className="space-y-4">
                   <Label className="text-base font-medium">Steuer reduziert Endkapital</Label>
                   <p className="text-sm text-muted-foreground">
-                    Konfigurieren Sie für jede Phase, ob die Steuer vom Endkapital abgezogen wird oder über ein separates Verrechnungskonto bezahlt wird.
+                    Konfigurieren Sie für jede Phase, ob die Steuer vom Endkapital abgezogen wird oder über ein
+                    separates Verrechnungskonto bezahlt wird.
                   </p>
 
                   <div className="space-y-3">
@@ -267,7 +268,8 @@ const TaxConfiguration = () => {
                   <div className="space-y-1">
                     <Label htmlFor="grundfreibetragAktiv" className="font-medium">Grundfreibetrag berücksichtigen</Label>
                     <p className="text-sm text-muted-foreground">
-                      Berücksichtigt den Grundfreibetrag für die Einkommensteuer bei Entnahmen (relevant für Rentner ohne weiteres Einkommen)
+                      Berücksichtigt den Grundfreibetrag für die Einkommensteuer bei Entnahmen
+                      (relevant für Rentner ohne weiteres Einkommen)
                     </p>
                   </div>
                   <Switch
@@ -305,7 +307,10 @@ const TaxConfiguration = () => {
                     />
                     <div className="text-sm text-muted-foreground">
                       <p>Aktueller Grundfreibetrag 2024: €11.604 | Empfohlener Wert für Paare: €23.208</p>
-                      <p>Der Grundfreibetrag wird sowohl für einheitliche Strategien als auch für geteilte Entsparphasen berücksichtigt.</p>
+                      <p>
+                        Der Grundfreibetrag wird sowohl für einheitliche Strategien als auch für geteilte
+                        Entsparphasen berücksichtigt.
+                      </p>
                     </div>
                   </div>
                 )}

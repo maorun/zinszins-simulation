@@ -135,7 +135,8 @@ describe('FIFO Cost Basis Tax Calculation (Issue #268)', () => {
     // Gain = Withdrawal - Cost Basis (correct FIFO calculation)
     const expectedGain = withdrawalAmount - costBasisSold // 10,000 - 6,666.67 = 3,333.33
     const expectedTaxableGain = expectedGain * (1 - teilfreistellungsquote) // 3,333.33 * 0.7 = 2,333.33
-    const expectedTaxOnGains = Math.max(0, expectedTaxableGain - freibetrag) * taxRate // (2,333.33 - 1,000) * 0.26375 = 351.67
+    // (2,333.33 - 1,000) * 0.26375 = 351.67
+    const expectedTaxOnGains = Math.max(0, expectedTaxableGain - freibetrag) * taxRate
 
     // Verify the calculations
     expect(expectedGain).toBeCloseTo(3333.33, 2)

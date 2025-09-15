@@ -295,10 +295,14 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
     lines.push('# Lebensende: ' + context.endOfLife)
 
     // Handle segmented withdrawal - multiple strategies
-    if (withdrawalConfig.useSegmentedWithdrawal && withdrawalConfig.withdrawalSegments && withdrawalConfig.withdrawalSegments.length > 1) {
+    const hasMultipleSegments = withdrawalConfig.useSegmentedWithdrawal
+      && withdrawalConfig.withdrawalSegments
+      && withdrawalConfig.withdrawalSegments.length > 1
+    if (hasMultipleSegments) {
       lines.push('# Strategie: Segmentierte Entnahme')
       withdrawalConfig.withdrawalSegments.forEach((segment: any, index: number) => {
-        lines.push(`# Segment ${index + 1} (${segment.name}): ${getWithdrawalStrategyLabel(segment.strategy)} (${segment.startYear}-${segment.endYear})`)
+        const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
+        lines.push(`# Segment ${index + 1} (${segment.name}): ${strategyLabel} (${segment.startYear}-${segment.endYear})`)
       })
     }
     else {
@@ -541,10 +545,15 @@ export function exportDataToMarkdown(data: ExportData): string {
       lines.push('### Entnahme-Parameter')
 
       // Handle segmented withdrawal - multiple strategies
-      if (withdrawalConfig.useSegmentedWithdrawal && withdrawalConfig.withdrawalSegments && withdrawalConfig.withdrawalSegments.length > 1) {
+      const hasMultipleSegments = withdrawalConfig.useSegmentedWithdrawal
+        && withdrawalConfig.withdrawalSegments
+        && withdrawalConfig.withdrawalSegments.length > 1
+      if (hasMultipleSegments) {
         lines.push(`- **Strategie:** Segmentierte Entnahme`)
         withdrawalConfig.withdrawalSegments.forEach((segment: any, index: number) => {
-          lines.push(`  - **Segment ${index + 1} (${segment.name}):** ${getWithdrawalStrategyLabel(segment.strategy)} (${segment.startYear}-${segment.endYear})`)
+          const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
+          const segmentInfo = `  - **Segment ${index + 1} (${segment.name}):** ${strategyLabel} (${segment.startYear}-${segment.endYear})`
+          lines.push(segmentInfo)
         })
       }
       else {
@@ -635,10 +644,14 @@ export function generateCalculationExplanations(context: SimulationContextState)
     lines.push('6. ENTNAHMESTRATEGIE')
 
     // Handle segmented withdrawal - multiple strategies
-    if (withdrawalConfig.useSegmentedWithdrawal && withdrawalConfig.withdrawalSegments && withdrawalConfig.withdrawalSegments.length > 1) {
+    const hasMultipleSegments = withdrawalConfig.useSegmentedWithdrawal
+      && withdrawalConfig.withdrawalSegments
+      && withdrawalConfig.withdrawalSegments.length > 1
+    if (hasMultipleSegments) {
       lines.push('   Strategie: Segmentierte Entnahme')
       withdrawalConfig.withdrawalSegments.forEach((segment: any, index: number) => {
-        lines.push(`   Segment ${index + 1} (${segment.name}): ${getWithdrawalStrategyLabel(segment.strategy)} (${segment.startYear}-${segment.endYear})`)
+        const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
+        lines.push(`   Segment ${index + 1} (${segment.name}): ${strategyLabel} (${segment.startYear}-${segment.endYear})`)
       })
     }
     else {

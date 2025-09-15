@@ -117,7 +117,9 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
                       {formatRiskMetric(riskMetrics.valueAtRisk5, 'percentage')}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
-                      Zeigt potenzielle Verluste in einer bestimmten Zeitperiode mit einer bestimmten Wahrscheinlichkeit. In 5% der Fälle können die Verluste diesen Wert erreichen oder überschreiten.
+                      Zeigt potenzielle Verluste in einer bestimmten Zeitperiode mit einer bestimmten
+                      Wahrscheinlichkeit. In 5% der Fälle können die Verluste diesen Wert erreichen oder
+                      überschreiten.
                     </div>
                   </div>
 
@@ -127,7 +129,8 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
                       {formatRiskMetric(riskMetrics.maxDrawdown, 'percentage')}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
-                      Der größte Verlust vom Höchststand bis zum Tiefststand in der betrachteten Periode. Misst das maximale Risiko von Portfoliorückgängen.
+                      Der größte Verlust vom Höchststand bis zum Tiefststand in der betrachteten Periode.
+                      Misst das maximale Risiko von Portfoliorückgängen.
                     </div>
                   </div>
 
@@ -137,7 +140,8 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
                       {formatRiskMetric(riskMetrics.sharpeRatio, 'ratio')}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
-                      Misst die risikoadjustierte Rendite. Höhere Werte zeigen bessere Renditen pro Risikoeinheit und eine effizientere Nutzung des eingegangenen Risikos.
+                      Misst die risikoadjustierte Rendite. Höhere Werte zeigen bessere Renditen pro
+                      Risikoeinheit und eine effizientere Nutzung des eingegangenen Risikos.
                     </div>
                   </div>
 
@@ -147,7 +151,8 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
                       {formatRiskMetric(riskMetrics.volatility, 'percentage')}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
-                      Standardabweichung der Renditen. Misst die Schwankungsbreite der Anlage - höhere Werte bedeuten unvorhersagbarere Ergebnisse.
+                      Standardabweichung der Renditen. Misst die Schwankungsbreite der Anlage - höhere Werte
+                      bedeuten unvorhersagbarere Ergebnisse.
                     </div>
                   </div>
 
@@ -157,7 +162,8 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
                       {riskMetrics.sortinoRatio >= 999 ? '999+' : formatRiskMetric(riskMetrics.sortinoRatio, 'ratio')}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
-                      Ähnlich der Sharpe Ratio, berücksichtigt aber nur negative Volatilität (Downside-Risk). Fokussiert auf unerwünschte Verluste statt allgemeine Schwankungen.
+                      Ähnlich der Sharpe Ratio, berücksichtigt aber nur negative Volatilität (Downside-Risk).
+                      Fokussiert auf unerwünschte Verluste statt allgemeine Schwankungen.
                     </div>
                   </div>
 
@@ -167,7 +173,8 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
                       {riskMetrics.calmarRatio >= 999 ? '999+' : formatRiskMetric(riskMetrics.calmarRatio, 'ratio')}
                     </div>
                     <div className="text-xs text-gray-500 mt-1">
-                      Verhältnis von Jahresrendite zu maximalem Drawdown. Bewertet die Performance im Verhältnis zum größten erlittenen Verlust.
+                      Verhältnis von Jahresrendite zu maximalem Drawdown. Bewertet die Performance im
+                      Verhältnis zum größten erlittenen Verlust.
                     </div>
                   </div>
                 </div>
@@ -182,7 +189,9 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
                       <div className="text-lg font-bold text-gray-700">
                         {formatRiskMetric(riskMetrics.valueAtRisk1, 'percentage')}
                       </div>
-                      <div className="text-xs text-gray-500">Potenzielle Verluste in 1% der Fälle - extremere Verlustszenarien als VaR 95%</div>
+                      <div className="text-xs text-gray-500">
+                        Potenzielle Verluste in 1% der Fälle - extremere Verlustszenarien als VaR 95%
+                      </div>
                     </div>
                     <div>
                       <div className="text-sm font-medium text-gray-600 mb-1">📊 Datenpunkte</div>

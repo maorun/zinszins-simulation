@@ -21,7 +21,10 @@ describe('EntnahmeSimulationsAusgabe - Segmented Withdrawal Tax Display', () => 
       gewinn: 0,
       einzahlung: 100000,
       simulation: {
-        2040: { startkapital: 100000, endkapital: 100000, bezahlteSteuer: 0, genutzterFreibetrag: 0, zinsen: 0, vorabpauschale: 0, vorabpauschaleAccumulated: 0 },
+        2040: {
+          startkapital: 100000, endkapital: 100000, bezahlteSteuer: 0, genutzterFreibetrag: 0,
+          zinsen: 0, vorabpauschale: 0, vorabpauschaleAccumulated: 0,
+        },
       },
     },
   ]

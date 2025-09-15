@@ -174,9 +174,10 @@ export function useWithdrawalConfig(startOfIndependence: number) {
   const updateSegmentedComparisonStrategy = useCallback(
     (strategyId: string, updates: Partial<SegmentedComparisonStrategy>) => {
       updateConfig({
-        segmentedComparisonStrategies: (synchronizedConfig.segmentedComparisonStrategies || []).map((s: SegmentedComparisonStrategy) =>
-          s.id === strategyId ? { ...s, ...updates } : s,
-        ),
+        segmentedComparisonStrategies: (synchronizedConfig.segmentedComparisonStrategies || [])
+          .map((s: SegmentedComparisonStrategy) =>
+            s.id === strategyId ? { ...s, ...updates } : s,
+          ),
       })
     },
     [synchronizedConfig.segmentedComparisonStrategies, updateConfig],
@@ -196,7 +197,8 @@ export function useWithdrawalConfig(startOfIndependence: number) {
   const removeSegmentedComparisonStrategy = useCallback(
     (strategyId: string) => {
       updateConfig({
-        segmentedComparisonStrategies: (synchronizedConfig.segmentedComparisonStrategies || []).filter((s: SegmentedComparisonStrategy) => s.id !== strategyId),
+        segmentedComparisonStrategies: (synchronizedConfig.segmentedComparisonStrategies || [])
+          .filter((s: SegmentedComparisonStrategy) => s.id !== strategyId),
       })
     },
     [synchronizedConfig.segmentedComparisonStrategies, updateConfig],
