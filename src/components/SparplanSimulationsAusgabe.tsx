@@ -9,6 +9,7 @@ import { fullSummary, getYearlyPortfolioProgression } from '../utils/summary-uti
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
 import CalculationExplanationModal from './CalculationExplanationModal'
 import { createInterestExplanation, createTaxExplanation } from './calculationHelpers'
+import { useSimulation } from '../contexts/useSimulation'
 
 // Info icon component for calculation explanations
 const InfoIcon = ({ onClick }: { onClick: () => void }) => (
@@ -92,7 +93,40 @@ export function SparplanSimulationsAusgabe({
   const [showCalculationModal, setShowCalculationModal] = useState(false)
   const [calculationDetails, setCalculationDetails] = useState<any>(null)
 
+  // Access inflation settings from simulation context
+  const { inflationAktivSparphase, inflationAnwendungSparphase, inflationsrateSparphase } = useSimulation()
+  
+  // Determine if we should show real (inflation-adjusted) values
+  const showRealValues = inflationAktivSparphase && inflationAnwendungSparphase === 'gesamtmenge'
+
   const summary: Summary = fullSummary(elemente)
+
+  // Get real (inflation-adjusted) summary values for gesamtmenge mode
+  let realEndkapital: number | undefined
+  let realZinsen: number | undefined
+  
+  if (showRealValues && elemente) {
+    // Find the latest year with simulation data to get final real values
+    let latestYear = 0
+    for (const element of elemente) {
+      if (element.simulation) {
+        const years = Object.keys(element.simulation).map(Number)
+        latestYear = Math.max(latestYear, ...years)
+      }
+    }
+    
+    if (latestYear > 0) {
+      // Get real values from the final year
+      for (const element of elemente) {
+        const yearData = element.simulation?.[latestYear]
+        if (yearData?.endkapitalReal !== undefined) {
+          realEndkapital = yearData.endkapitalReal
+          realZinsen = yearData.zinsenReal
+          break
+        }
+      }
+    }
+  }
 
   // Get year-by-year portfolio progression
   const yearlyProgression = getYearlyPortfolioProgression(elemente)
@@ -100,17 +134,37 @@ export function SparplanSimulationsAusgabe({
   // Convert progression to table data format (reverse order to show newest first)
   const tableData = yearlyProgression
     .sort((a, b) => b.year - a.year)
-    .map(progression => ({
-      zeitpunkt: `1.1.${progression.year}`,
-      jahr: progression.year,
-      einzahlung: progression.yearlyContribution,
-      zinsen: progression.yearlyInterest.toFixed(2),
-      bezahlteSteuer: progression.yearlyTax.toFixed(2),
-      endkapital: progression.totalCapital.toFixed(2),
-      cumulativeContributions: progression.cumulativeContributions,
-      cumulativeInterest: progression.cumulativeInterest,
-      cumulativeTax: progression.cumulativeTax,
-    }))
+    .map(progression => {
+      // Get real values from simulation data if available (for gesamtmenge mode)
+      let endkapitalReal: number | undefined
+      let zinsenReal: number | undefined
+      
+      if (showRealValues && elemente) {
+        // Find the first element that has simulation data for this year
+        for (const element of elemente) {
+          const yearData = element.simulation?.[progression.year]
+          if (yearData?.endkapitalReal !== undefined) {
+            endkapitalReal = yearData.endkapitalReal
+            zinsenReal = yearData.zinsenReal
+            break
+          }
+        }
+      }
+
+      return {
+        zeitpunkt: `1.1.${progression.year}`,
+        jahr: progression.year,
+        einzahlung: progression.yearlyContribution,
+        zinsen: progression.yearlyInterest.toFixed(2),
+        zinsenReal: zinsenReal?.toFixed(2),
+        bezahlteSteuer: progression.yearlyTax.toFixed(2),
+        endkapital: progression.totalCapital.toFixed(2),
+        endkapitalReal: endkapitalReal?.toFixed(2),
+        cumulativeContributions: progression.cumulativeContributions,
+        cumulativeInterest: progression.cumulativeInterest,
+        cumulativeTax: progression.cumulativeTax,
+      }
+    })
 
   const handleVorabpauschaleInfoClick = (details: any) => {
     setSelectedVorabDetails(details)
@@ -161,6 +215,12 @@ export function SparplanSimulationsAusgabe({
           <CardContent>
             <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
               Jahr-für-Jahr Progression Ihres Portfolios - zeigt die kumulierte Kapitalentwicklung über die Zeit
+              {showRealValues && (
+                <>
+                  <br />
+                  <strong>💰 Inflation berücksichtigt:</strong> Die "Kaufkraft"-Werte zeigen die reale Kaufkraft nach {inflationsrateSparphase}% jährlicher Inflation.
+                </>
+              )}
             </div>
 
             {/* Card Layout for All Devices */}
@@ -172,13 +232,26 @@ export function SparplanSimulationsAusgabe({
                       📅
                       {row.zeitpunkt}
                     </span>
-                    <span className="font-bold text-blue-600 text-lg">
-                      🎯
-                      {' '}
-                      {thousands(row.endkapital)}
-                      {' '}
-                      €
-                    </span>
+                    <div className="text-right">
+                      <div className="font-bold text-blue-600 text-lg">
+                        🎯
+                        {' '}
+                        {thousands(row.endkapital)}
+                        {' '}
+                        €
+                        {showRealValues && (
+                          <span className="text-gray-500 text-xs ml-1">(nominal)</span>
+                        )}
+                      </div>
+                      {showRealValues && row.endkapitalReal && (
+                        <div className="font-semibold text-orange-600 text-sm mt-1">
+                          💰 Kaufkraft: {thousands(row.endkapitalReal)} €
+                          <span className="text-gray-500 text-xs ml-1">
+                            ({inflationsrateSparphase}% Inflation)
+                          </span>
+                        </div>
+                      )}
+                    </div>
                   </div>
                   <div className="flex flex-col gap-2">
                     <div className="flex justify-between items-center py-1">
@@ -191,12 +264,22 @@ export function SparplanSimulationsAusgabe({
                     </div>
                     <div className="flex justify-between items-center py-1">
                       <span className="text-sm text-gray-600 font-medium">📈 Zinsen (Jahr):</span>
-                      <span className="font-semibold text-cyan-600 text-sm flex items-center">
-                        {thousands(row.zinsen)}
-                        {' '}
-                        €
-                        <InfoIcon onClick={() => handleCalculationInfoClick('interest', row)} />
-                      </span>
+                      <div className="text-right">
+                        <span className="font-semibold text-cyan-600 text-sm flex items-center justify-end">
+                          {thousands(row.zinsen)}
+                          {' '}
+                          €
+                          {showRealValues && (
+                            <span className="text-gray-500 text-xs ml-1">(nominal)</span>
+                          )}
+                          <InfoIcon onClick={() => handleCalculationInfoClick('interest', row)} />
+                        </span>
+                        {showRealValues && row.zinsenReal && (
+                          <div className="font-semibold text-orange-600 text-xs mt-1">
+                            Kaufkraft: {thousands(row.zinsenReal)} €
+                          </div>
+                        )}
+                      </div>
                     </div>
                     <div className="flex justify-between items-center py-1">
                       <span className="text-sm text-gray-600 font-medium">💸 Bezahlte Steuer (Jahr):</span>
@@ -257,11 +340,19 @@ export function SparplanSimulationsAusgabe({
                   </div>
                   <div className="flex flex-col text-center p-2 bg-white rounded border border-gray-300">
                     <span className="text-xs mb-1 opacity-80">📈 Zinsen</span>
-                    <span className="font-bold text-sm">
+                    <div className="font-bold text-sm">
                       {thousands(summary.zinsen?.toFixed(2) || '0')}
                       {' '}
                       €
-                    </span>
+                      {showRealValues && (
+                        <div className="text-xs font-medium text-gray-500">(nominal)</div>
+                      )}
+                    </div>
+                    {showRealValues && realZinsen !== undefined && (
+                      <div className="font-semibold text-xs text-orange-600 mt-1">
+                        Kaufkraft: {thousands(realZinsen.toFixed(2))} €
+                      </div>
+                    )}
                   </div>
                   <div className="flex flex-col text-center p-2 bg-white rounded border border-gray-300">
                     <span className="text-xs mb-1 opacity-80">💸 Steuern</span>
@@ -273,13 +364,26 @@ export function SparplanSimulationsAusgabe({
                   </div>
                   <div className="flex flex-col text-center p-2 bg-gradient-to-br from-green-500 to-teal-500 text-white rounded border border-green-500">
                     <span className="text-xs mb-1 opacity-90">🎯 Endkapital</span>
-                    <span className="font-bold text-sm">
+                    <div className="font-bold text-sm">
                       {thousands(summary.endkapital?.toFixed(2) || '0')}
                       {' '}
                       €
-                    </span>
+                      {showRealValues && (
+                        <div className="text-xs font-medium text-green-200">(nominal)</div>
+                      )}
+                    </div>
+                    {showRealValues && realEndkapital !== undefined && (
+                      <div className="font-semibold text-xs text-yellow-200 mt-1">
+                        Kaufkraft: {thousands(realEndkapital.toFixed(2))} €
+                      </div>
+                    )}
                   </div>
                 </div>
+                {showRealValues && (
+                  <div className="text-xs text-gray-600 text-center mt-3">
+                    💡 Die Kaufkraft-Werte zeigen die reale Kaufkraft nach {inflationsrateSparphase}% jährlicher Inflation
+                  </div>
+                )}
               </div>
             </div>
 
