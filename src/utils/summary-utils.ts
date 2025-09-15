@@ -253,9 +253,19 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
         yearlyContribution += elementsStartingThisYear[0].einzahlung
       }
       else if (elementsStartingThisYear.length > 1) {
-        // Multiple monthly elements for this year - calculate annual amount
-        const monthlyAmount = elementsStartingThisYear[0].einzahlung
-        yearlyContribution += monthlyAmount * 12
+        // Multiple elements starting this year - could be multiple Sparpläne or monthly elements
+        // Check if they have the same einzahlung amount (indicating monthly elements from same Sparplan)
+        const firstAmount = elementsStartingThisYear[0].einzahlung
+        const allSameAmount = elementsStartingThisYear.every(el => el.einzahlung === firstAmount)
+
+        if (allSameAmount && elementsStartingThisYear.length === 12) {
+          // 12 elements with same amount = monthly elements from one Sparplan
+          yearlyContribution += firstAmount * 12
+        }
+        else {
+          // Multiple different Sparpläne starting in the same year - sum them up
+          yearlyContribution += elementsStartingThisYear.reduce((sum, el) => sum + el.einzahlung, 0)
+        }
       }
     }
 

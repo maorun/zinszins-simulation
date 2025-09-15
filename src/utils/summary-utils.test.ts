@@ -112,6 +112,52 @@ describe('summary-utils - getYearlyPortfolioProgression', () => {
     expect(progression2029.totalCapital).toBeGreaterThan(0)
   })
 
+  test('should handle multiple Sparpläne starting in the same year', () => {
+    const sparplans: Sparplan[] = [
+      // Two Sparpläne starting in 2026
+      {
+        id: 1,
+        start: new Date('2026-01-01'),
+        end: new Date('2026-12-31'),
+        einzahlung: 10000,
+      },
+      {
+        id: 2,
+        start: new Date('2026-01-01'),
+        end: new Date('2026-12-31'),
+        einzahlung: 5000,
+      },
+    ]
+
+    const elements = convertSparplanToElements(sparplans, [2030, 2080], SimulationAnnual.yearly)
+
+    // Should create 2 elements both starting in 2026
+    expect(elements).toHaveLength(2)
+
+    // Add simulation data
+    elements.forEach((element) => {
+      element.simulation = {
+        2026: {
+          startkapital: 0,
+          zinsen: element.einzahlung * 0.05,
+          endkapital: element.einzahlung * 1.05,
+          bezahlteSteuer: 0,
+          genutzterFreibetrag: 0,
+          vorabpauschale: 0,
+          vorabpauschaleAccumulated: 0,
+        },
+      }
+    })
+
+    const progression = getYearlyPortfolioProgression(elements)
+
+    expect(progression).toHaveLength(1)
+    expect(progression[0].year).toBe(2026)
+
+    // Should correctly sum both Sparpläne: 10000 + 5000 = 15000
+    expect(progression[0].yearlyContribution).toBe(15000)
+  })
+
   test('should handle multiple Sparpläne with different end dates', () => {
     const sparplans: Sparplan[] = [
       // First Sparplan: 2026-2027 (2 years)
