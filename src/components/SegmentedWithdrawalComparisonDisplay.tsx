@@ -127,11 +127,7 @@ export function SegmentedWithdrawalComparisonDisplay({
                         )
                         <br />
                         <span style={{ color: '#666' }}>
-                          {getStrategyDisplayName(segment.strategy)}
-                          {' '}
-                          -
-                          {((segment.returnConfig.fixedRate || 0.05) * 100).toFixed(1)}
-                          % Rendite
+                          {getStrategyDisplayName(segment.strategy)} - {((segment.returnConfig.fixedRate || 0.05) * 100).toFixed(1)}% Rendite
                         </span>
                       </div>
                     ))}
