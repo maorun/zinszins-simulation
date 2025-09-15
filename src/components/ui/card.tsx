@@ -39,13 +39,8 @@ const Card = React.forwardRef<
 })
 Card.displayName = 'Card'
 
-<<<<<<< HEAD
-interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  nestingLevel?: number
-=======
 export interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  nestingLevel?: number;
->>>>>>> b676b0cbcce16db50198c07fd579e78654342d79
+  nestingLevel?: number
 }
 
 const CardHeader = React.forwardRef<
@@ -102,13 +97,8 @@ const CardDescription = React.forwardRef<
 ))
 CardDescription.displayName = 'CardDescription'
 
-<<<<<<< HEAD
-interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  nestingLevel?: number
-=======
 export interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  nestingLevel?: number;
->>>>>>> b676b0cbcce16db50198c07fd579e78654342d79
+  nestingLevel?: number
 }
 
 const CardContent = React.forwardRef<

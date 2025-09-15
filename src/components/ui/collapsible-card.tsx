@@ -2,7 +2,6 @@ import * as React from 'react'
 import { ChevronDown } from 'lucide-react'
 import { NestingProvider } from '../../lib/nesting-context'
 import { useNestingLevel } from '../../lib/nesting-utils'
-import { cn } from '../../lib/utils'
 import { Card, CardContent, CardContentProps, CardHeader, CardHeaderProps, CardProps, CardTitle } from './card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './collapsible'
 
@@ -29,7 +28,7 @@ export const CollapsibleCardHeader = React.forwardRef<
 export const CollapsibleCardContent = React.forwardRef<
   HTMLDivElement,
   CardContentProps
->(({ children, className, ...props }, ref) => {
+>(({ children, ...props }, ref) => {
   const nestingLevel = useNestingLevel()
 
   return (
@@ -48,7 +47,7 @@ export const CollapsibleCardContent = React.forwardRef<
 export const CollapsibleCard = React.forwardRef<
   HTMLDivElement,
   CardProps
->(({children, ...props}, ref) => {
+>(({ children, ...props }, ref) => {
   const nestingLevel = useNestingLevel()
 
   return (
@@ -59,3 +58,4 @@ export const CollapsibleCard = React.forwardRef<
     </Collapsible>
   )
 })
+

@@ -26,7 +26,7 @@ export default function BasiszinsConfiguration() {
     performSimulation,
   } = useSimulation()
 
-  const nestingLevel = useNestingLevel()
+  const _nestingLevel = useNestingLevel()
 
   const [isLoading, setIsLoading] = useState(false)
   const [lastApiUpdate, setLastApiUpdate] = useState<string | null>(null)
@@ -148,200 +148,159 @@ export default function BasiszinsConfiguration() {
     .sort((a, b) => b - a) // Newest first
 
   return (
-<<<<<<< HEAD
-    <Card nestingLevel={nestingLevel}>
-      <Collapsible defaultOpen={false}>
-        <CardHeader nestingLevel={nestingLevel}>
-          <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
-              <CardTitle className="text-left">📈 Basiszins-Konfiguration (Deutsche Bundesbank)</CardTitle>
-              <div className="flex items-center gap-2">
-                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-              </div>
-            </div>
-          </CollapsibleTrigger>
-        </CardHeader>
-        <CollapsibleContent>
-          <CardContent nestingLevel={nestingLevel} className="space-y-6">
-=======
     <CollapsibleCard>
       <CollapsibleCardHeader>📈 Basiszins-Konfiguration (Deutsche Bundesbank)</CollapsibleCardHeader>
-        <CollapsibleCardContent>
-        
+      <CollapsibleCardContent>
+
         {/* Information Panel */}
         <Alert>
           <AlertDescription>
-            Der Basiszins wird zur Berechnung der Vorabpauschale verwendet. 
-            Die offiziellen Sätze werden jährlich vom Bundesfinanzministerium 
+            Der Basiszins wird zur Berechnung der Vorabpauschale verwendet.
+            Die offiziellen Sätze werden jährlich vom Bundesfinanzministerium
             basierend auf Bundesbank-Daten veröffentlicht.
           </AlertDescription>
         </Alert>
->>>>>>> b676b0cbcce16db50198c07fd579e78654342d79
 
-            {/* Information Panel */}
-            <Alert>
-              <AlertDescription>
-                Der Basiszins wird zur Berechnung der Vorabpauschale verwendet.
-                Die offiziellen Sätze werden jährlich vom Bundesfinanzministerium
-                basierend auf Bundesbank-Daten veröffentlicht.
-              </AlertDescription>
-            </Alert>
+        {/* API Actions */}
+        <div className="flex gap-2">
+          <Button
+            onClick={handleFetchFromApi}
+            disabled={isLoading}
+          >
+            {isLoading
+              ? (
+                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+                )
+              : (
+                  <Download className="h-4 w-4 mr-2" />
+                )}
+            Von Bundesbank aktualisieren
+          </Button>
 
-            {/* API Actions */}
-            <div className="flex gap-2">
-              <Button
-                onClick={handleFetchFromApi}
-                disabled={isLoading}
-              >
-                {isLoading
-                  ? (
-                      <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                    )
-                  : (
-                      <Download className="h-4 w-4 mr-2" />
-                    )}
-                Von Bundesbank aktualisieren
-              </Button>
-
-              {lastApiUpdate && (
-                <div className="text-sm text-muted-foreground self-center">
-                  Zuletzt aktualisiert:
-                  {' '}
-                  {new Date(lastApiUpdate).toLocaleDateString('de-DE')}
-                </div>
-              )}
+          {lastApiUpdate && (
+            <div className="text-sm text-muted-foreground self-center">
+              Zuletzt aktualisiert:
+              {' '}
+              {new Date(lastApiUpdate).toLocaleDateString('de-DE')}
             </div>
+          )}
+        </div>
 
-            {/* Error Display */}
-            {error && (
-              <Alert variant="destructive">
-                <AlertDescription>{error}</AlertDescription>
-              </Alert>
-            )}
+        {/* Error Display */}
+        {error && (
+          <Alert variant="destructive">
+            <AlertDescription>{error}</AlertDescription>
+          </Alert>
+        )}
 
-            {/* Manual Entry Form */}
-            <div className="space-y-4">
-              <Label>Manueller Eintrag für zukünftige Jahre</Label>
-              <div className="flex gap-2">
-                <Input
-                  type="number"
-                  placeholder="Jahr"
-                  value={newYear}
-                  min={currentYear}
-                  max={2050}
-                  onChange={e => setNewYear(e.target.value)}
-                />
-                <Input
-                  type="number"
-                  placeholder={`Zinssatz (%) - Vorschlag: ${getSuggestedRate()}%`}
-                  value={newRate}
-                  min={-2}
-                  max={10}
-                  step={0.01}
-                  onChange={e => setNewRate(e.target.value)}
-                />
-                <Button onClick={handleAddManualEntry}>
-                  <Plus className="h-4 w-4 mr-2" />
-                  Hinzufügen
-                </Button>
-              </div>
-            </div>
+        {/* Manual Entry Form */}
+        <div className="space-y-4">
+          <Label>Manueller Eintrag für zukünftige Jahre</Label>
+          <div className="flex gap-2">
+            <Input
+              type="number"
+              placeholder="Jahr"
+              value={newYear}
+              min={currentYear}
+              max={2050}
+              onChange={e => setNewYear(e.target.value)}
+            />
+            <Input
+              type="number"
+              placeholder={`Zinssatz (%) - Vorschlag: ${getSuggestedRate()}%`}
+              value={newRate}
+              min={-2}
+              max={10}
+              step={0.01}
+              onChange={e => setNewRate(e.target.value)}
+            />
+            <Button onClick={handleAddManualEntry}>
+              <Plus className="h-4 w-4 mr-2" />
+              Hinzufügen
+            </Button>
+          </div>
+        </div>
 
-            {/* Rates Table */}
-            <div className="border rounded-md max-h-[400px] overflow-y-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead className="text-center">Jahr</TableHead>
-                    <TableHead className="text-center">Basiszins (%)</TableHead>
-                    <TableHead className="text-center">Quelle</TableHead>
-                    <TableHead className="text-center">Zuletzt aktualisiert</TableHead>
-                    <TableHead className="text-center">Aktionen</TableHead>
+        {/* Rates Table */}
+        <div className="border rounded-md max-h-[400px] overflow-y-auto">
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead className="text-center">Jahr</TableHead>
+                <TableHead className="text-center">Basiszins (%)</TableHead>
+                <TableHead className="text-center">Quelle</TableHead>
+                <TableHead className="text-center">Zuletzt aktualisiert</TableHead>
+                <TableHead className="text-center">Aktionen</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {sortedYears.map((year) => {
+                const data = basiszinsConfiguration[year]
+                return (
+                  <TableRow key={year}>
+                    <TableCell className="text-center font-medium">{year}</TableCell>
+                    <TableCell className="text-center">
+                      <Input
+                        type="number"
+                        value={(data.rate * 100).toFixed(2)}
+                        min={-2}
+                        max={10}
+                        step={0.01}
+                        onChange={e => handleUpdateRate(year, e.target.value)}
+                        className="w-20 mx-auto text-center"
+                      />
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                        data.source === 'api'
+                          ? 'bg-green-100 text-green-800'
+                          : data.source === 'manual'
+                            ? 'bg-blue-100 text-blue-800'
+                            : 'bg-gray-100 text-gray-800'
+                      }`}
+                      >
+                        {data.source === 'api'
+                          ? '🏛️ API'
+                          : data.source === 'manual' ? '✏️ Manuell' : '📋 Standard'}
+                      </span>
+                    </TableCell>
+                    <TableCell className="text-center text-sm text-muted-foreground">
+                      {data.lastUpdated
+                        ? new Date(data.lastUpdated).toLocaleDateString('de-DE')
+                        : 'N/A'}
+                    </TableCell>
+                    <TableCell className="text-center">
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => handleRemoveYear(year)}
+                        disabled={year <= currentYear - 1} // Prevent deletion of historical data
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
                   </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {sortedYears.map((year) => {
-                    const data = basiszinsConfiguration[year]
-                    return (
-                      <TableRow key={year}>
-                        <TableCell className="text-center font-medium">{year}</TableCell>
-                        <TableCell className="text-center">
-                          <Input
-                            type="number"
-                            value={(data.rate * 100).toFixed(2)}
-                            min={-2}
-                            max={10}
-                            step={0.01}
-                            onChange={e => handleUpdateRate(year, e.target.value)}
-                            className="w-20 mx-auto text-center"
-                          />
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            data.source === 'api'
-                              ? 'bg-green-100 text-green-800'
-                              : data.source === 'manual'
-                                ? 'bg-blue-100 text-blue-800'
-                                : 'bg-gray-100 text-gray-800'
-                          }`}
-                          >
-                            {data.source === 'api'
-                              ? '🏛️ API'
-                              : data.source === 'manual' ? '✏️ Manuell' : '📋 Standard'}
-                          </span>
-                        </TableCell>
-                        <TableCell className="text-center text-sm text-muted-foreground">
-                          {data.lastUpdated
-                            ? new Date(data.lastUpdated).toLocaleDateString('de-DE')
-                            : 'N/A'}
-                        </TableCell>
-                        <TableCell className="text-center">
-                          <Button
-                            variant="ghost"
-                            size="sm"
-                            onClick={() => handleRemoveYear(year)}
-                            disabled={year <= currentYear - 1} // Prevent deletion of historical data
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </TableCell>
-                      </TableRow>
-                    )
-                  })}
-                </TableBody>
-              </Table>
-            </div>
+                )
+              })}
+            </TableBody>
+          </Table>
+        </div>
 
-<<<<<<< HEAD
-            {/* Summary Info */}
-            <div className="text-sm text-muted-foreground">
-              <p>
-                💡
-                {' '}
-                <strong>Tipp:</strong>
-                {' '}
-                Historische Daten (vor
-                {' '}
-                {currentYear}
-                ) können nicht gelöscht werden.
-                Zukünftige Raten können manuell hinzugefügt oder über die Bundesbank-API aktualisiert werden.
-              </p>
-            </div>
-          </CardContent>
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
-  )
-=======
         {/* Summary Info */}
         <div className="text-sm text-muted-foreground">
           <p>
-            💡 <strong>Tipp:</strong> Historische Daten (vor {currentYear}) können nicht gelöscht werden. 
+            💡
+            {' '}
+            <strong>Tipp:</strong>
+            {' '}
+            Historische Daten (vor
+            {' '}
+            {currentYear}
+            ) können nicht gelöscht werden.
             Zukünftige Raten können manuell hinzugefügt oder über die Bundesbank-API aktualisiert werden.
           </p>
         </div>
-        </CollapsibleCardContent>
-      </CollapsibleCard>
-  );
->>>>>>> b676b0cbcce16db50198c07fd579e78654342d79
+      </CollapsibleCardContent>
+    </CollapsibleCard>
+  )
 }
