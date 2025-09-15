@@ -7,15 +7,17 @@ import RiskAssessment from './RiskAssessment';
 import ReturnConfiguration from './ReturnConfiguration';
 import { useSimulation } from '../contexts/useSimulation';
 import { convertSparplanToElements } from '../utils/sparplan-utils';
+import { useNestingLevel } from '~/lib/nesting-utils';
 
 const SavingsPlan = () => {
   const { setSparplan, sparplan, startEnd, simulationAnnual, setSparplanElemente, simulationData } = useSimulation();
+  const nestingLevel = useNestingLevel();
 
   return (
-    <>
+          <div className="form-grid space-y-4">
       <ReturnConfiguration />
       
-      <Card className="mb-4">
+      <Card nestingLevel={nestingLevel}>
         <Collapsible defaultOpen={false}>
           <CardHeader>
             <CollapsibleTrigger asChild>
@@ -41,7 +43,7 @@ const SavingsPlan = () => {
       </Card>
       
       {simulationData && (
-        <Card className="mb-4">
+        <Card nestingLevel={nestingLevel}>
           <Collapsible defaultOpen={false}>
             <CardHeader>
               <CollapsibleTrigger asChild>
@@ -64,7 +66,7 @@ const SavingsPlan = () => {
           </Collapsible>
         </Card>
       )}
-    </>
+    </div>
   );
 };
 

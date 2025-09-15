@@ -37,6 +37,8 @@ import type {
 } from "../utils/config-storage";
 import { calculateEndOfLifeYear, calculateCurrentAge, getDefaultLifeExpectancy } from "../../helpers/life-expectancy";
 import { calculateJointLifeExpectancy } from "../../helpers/rmd-tables";
+import { useNestingLevel } from "~/lib/nesting-utils";
+import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from "./ui/collapsible-card";
 
 // Helper function for strategy display names
 function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
@@ -77,6 +79,7 @@ export function EntnahmeSimulationsAusgabe({
   steuerlast: number;
   teilfreistellungsquote: number;
 }) {
+  const nestingLevel = useNestingLevel();
   const [startOfIndependence] = startEnd;
   
   // Use custom hooks for state management
@@ -191,31 +194,13 @@ export function EntnahmeSimulationsAusgabe({
 
   return (
     <>
-      <Card className="mb-4">
-        <Collapsible defaultOpen={false}>
-          <CardHeader>
-            <CollapsibleTrigger asChild>
-              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
-                <CardTitle className="text-left">Variablen</CardTitle>
-                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-              </div>
-            </CollapsibleTrigger>
-          </CardHeader>
-          <CollapsibleContent>
-            <CardContent>
+    <CollapsibleCard>
+      <CollapsibleCardHeader>Variablen</CollapsibleCardHeader>
+          <CollapsibleCardContent>
         {/* Global End of Life Configuration */}
-        <Card className="mb-6">
-          <Collapsible defaultOpen={false}>
-            <CardHeader>
-              <CollapsibleTrigger asChild>
-                <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
-                  <CardTitle className="text-lg font-semibold text-blue-800">Globale Konfiguration</CardTitle>
-                  <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                </div>
-              </CollapsibleTrigger>
-            </CardHeader>
-            <CollapsibleContent>
-              <CardContent>
+    <CollapsibleCard>
+      <CollapsibleCardHeader>Globale Konfiguration</CollapsibleCardHeader>
+            <CollapsibleCardContent>
           
           {/* Toggle between manual and automatic calculation */}
           <div className="mb-6 p-3 border rounded-lg bg-white">
@@ -612,10 +597,8 @@ export function EntnahmeSimulationsAusgabe({
               )}
             </div>
           </div>
-        </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
+          </CollapsibleCardContent>
+        </CollapsibleCard>
 
         {/* Toggle between single, segmented, and comparison withdrawal */}
         <div className="mb-4 space-y-2">
@@ -1751,7 +1734,6 @@ export function EntnahmeSimulationsAusgabe({
         )}
 
         {/* Statutory Pension Configuration - Available in all withdrawal modes */}
-        <div className="mb-6">
           <StatutoryPensionConfiguration
             values={{
               enabled: formValue.statutoryPensionConfig?.enabled || false,
@@ -1877,13 +1859,10 @@ export function EntnahmeSimulationsAusgabe({
               }),
             }}
           />
-        </div>
 
-        </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
-      <Card className="mb-4">
+          </CollapsibleCardContent>
+        </CollapsibleCard>
+      <Card nestingLevel={nestingLevel}>
         <Collapsible defaultOpen={false}>
           <CardHeader>
             <CollapsibleTrigger asChild>

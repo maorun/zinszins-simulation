@@ -1,15 +1,14 @@
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { Slider } from './ui/slider';
+import { Plus, Trash2 } from 'lucide-react';
+import { useSimulation } from '../contexts/useSimulation';
+import BasiszinsConfiguration from './BasiszinsConfiguration';
 import { Button } from './ui/button';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card';
 import { Input } from './ui/input';
 import { Label } from './ui/label';
+import { Slider } from './ui/slider';
 import { Switch } from './ui/switch';
-import { Trash2, Plus, ChevronDown } from 'lucide-react';
-import { useSimulation } from '../contexts/useSimulation';
-import { NestingProvider } from '../lib/nesting-context';
-import BasiszinsConfiguration from './BasiszinsConfiguration';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table';
+
 const TaxConfiguration = () => {
     const {
         performSimulation,
@@ -32,23 +31,14 @@ const TaxConfiguration = () => {
     const yearToday = new Date().getFullYear();
 
     return (
-        <NestingProvider level={1}>
-            <div className="space-y-4">
-                <Card nestingLevel={1}>
-                    <Collapsible defaultOpen={false}>
-                        <CardHeader nestingLevel={1}>
-                            <CollapsibleTrigger asChild>
-                                <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-                                    <CardTitle className="text-left">💰 Steuer-Konfiguration</CardTitle>
-                                    <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                                </div>
-                            </CollapsibleTrigger>
-                        </CardHeader>
-                        <CollapsibleContent>
-                            <CardContent nestingLevel={1} className="space-y-6">{/* ... existing tax configuration content ... */}
+        <>
+            <CollapsibleCard>
+                <CollapsibleCardHeader>💰 Steuer-Konfiguration</CollapsibleCardHeader>
+                <CollapsibleCardContent>
+{/* ... existing tax configuration content ... */}
                 <div className="space-y-2">
                     <div className="flex items-center justify-between">
-                        <Label htmlFor="steuerlast">Kapitalertragsteuer (%)</Label>
+                            <Label htmlFor="steuerlast">Kapitalertragsteuer (%)</Label>
                         <Button
                             variant="outline"
                             size="sm"
@@ -238,24 +228,13 @@ const TaxConfiguration = () => {
                         </Table>
                     </div>
                 </div>
-                        </CardContent>
-                    </CollapsibleContent>
-                </Collapsible>
-            </Card>
+                </CollapsibleCardContent>
+            </CollapsibleCard>
         
         {/* Grundfreibetrag Configuration */}
-        <Card nestingLevel={1}>
-            <Collapsible defaultOpen={false}>
-                <CardHeader nestingLevel={1}>
-                    <CollapsibleTrigger asChild>
-                        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-                            <CardTitle className="text-left">🏠 Grundfreibetrag-Konfiguration</CardTitle>
-                            <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                        </div>
-                    </CollapsibleTrigger>
-                </CardHeader>
-                <CollapsibleContent>
-                    <CardContent nestingLevel={1} className="space-y-6">
+            <CollapsibleCard>
+                <CollapsibleCardHeader>🏠 Grundfreibetrag-Konfiguration</CollapsibleCardHeader>
+                <CollapsibleCardContent>
                 <div className="flex items-center justify-between p-3 border rounded-lg">
                     <div className="space-y-1">
                         <Label htmlFor="grundfreibetragAktiv" className="font-medium">Grundfreibetrag berücksichtigen</Label>
@@ -302,17 +281,11 @@ const TaxConfiguration = () => {
                         </div>
                     </div>
                 )}
-                    </CardContent>
-                </CollapsibleContent>
-            </Collapsible>
-        </Card>
-        
-        {/* Basiszins Configuration - wrapped in nesting provider */}
-        <NestingProvider>
+                </CollapsibleCardContent>
+            </CollapsibleCard>
+
             <BasiszinsConfiguration />
-        </NestingProvider>
-        </div>
-        </NestingProvider>
+        </>
     );
 };
 

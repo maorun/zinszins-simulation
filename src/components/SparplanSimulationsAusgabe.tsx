@@ -9,6 +9,7 @@ import { fullSummary, getYearlyPortfolioProgression } from "../utils/summary-uti
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal';
 import CalculationExplanationModal from './CalculationExplanationModal';
 import { createInterestExplanation, createTaxExplanation } from './calculationHelpers';
+import { useNestingLevel } from "~/lib/nesting-utils";
 
 // Info icon component for calculation explanations
 const InfoIcon = ({ onClick }: { onClick: () => void }) => (
@@ -44,9 +45,10 @@ export function SparplanEnd({
 }: {
     elemente?: SparplanElement[]
 }) {
+    const nestingLevel = useNestingLevel();
     const summary: Summary = fullSummary(elemente)
     return (
-        <Card className="mb-4">
+      <Card nestingLevel={nestingLevel}>
             <Collapsible defaultOpen={false}>
                 <CardHeader>
                     <CollapsibleTrigger asChild>
@@ -86,6 +88,8 @@ export function SparplanSimulationsAusgabe({
 }: {
     elemente?: SparplanElement[]
 }) {
+    const nestingLevel = useNestingLevel();
+
     const [showVorabpauschaleModal, setShowVorabpauschaleModal] = useState(false);
     const [selectedVorabDetails, setSelectedVorabDetails] = useState<any>(null);
     const [showCalculationModal, setShowCalculationModal] = useState(false);
@@ -145,7 +149,7 @@ export function SparplanSimulationsAusgabe({
     };
 
     return (
-        <Card className="mb-4">
+      <Card nestingLevel={nestingLevel}>
             <Collapsible defaultOpen={false}>
                 <CardHeader>
                     <CollapsibleTrigger asChild>

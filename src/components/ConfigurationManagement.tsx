@@ -27,7 +27,7 @@ export default function ConfigurationManagement() {
   const hasStoredConfig = hasConfiguration();
 
   return (
-    <Card nestingLevel={nestingLevel} className="mb-4">
+    <Card nestingLevel={nestingLevel}>
       <Collapsible defaultOpen={false}>
         <CardHeader nestingLevel={nestingLevel}>
           <CollapsibleTrigger asChild>

@@ -24,12 +24,12 @@ const TimeRangeConfiguration = () => {
     }, [startEnd, handleStartEndChange]);
 
     return (
-        <Card nestingLevel={nestingLevel} className="mb-4">
+        <Card nestingLevel={nestingLevel}>
             <Collapsible defaultOpen={false}>
                 <CardHeader nestingLevel={nestingLevel}>
                     <CollapsibleTrigger asChild>
                         <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-                            <CardTitle className="text-left">📅 Sparphase-Ende</CardTitle>
+                            <CardTitle>📅 Sparphase-Ende</CardTitle>
                             <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                         </div>
                     </CollapsibleTrigger>

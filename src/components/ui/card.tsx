@@ -2,7 +2,7 @@ import * as React from "react"
 
 import { cn } from "../../lib/utils"
 
-interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
   nestingLevel?: number;
 }
 
@@ -39,7 +39,7 @@ const Card = React.forwardRef<
 })
 Card.displayName = "Card"
 
-interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
   nestingLevel?: number;
 }
 
@@ -97,7 +97,7 @@ const CardDescription = React.forwardRef<
 ))
 CardDescription.displayName = "CardDescription"
 
-interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
+export interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
   nestingLevel?: number;
 }
 

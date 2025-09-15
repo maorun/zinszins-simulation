@@ -53,6 +53,7 @@ import { ChevronDown } from "lucide-react";
 import { Label } from "./ui/label";
 import { Input } from "./ui/input";
 import { toast } from "sonner";
+import { useNestingLevel } from '~/lib/nesting-utils';
 
 // Helper functions for date formatting and handling
 const formatDateForInput = (date: Date | string | null, format: string): string => {
@@ -92,6 +93,7 @@ const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (v
 
 export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans = [initialSparplan] }: { dispatch: (val: Sparplan[]) => void; simulationAnnual: SimulationAnnualType; currentSparplans?: Sparplan[] }) {
     const [sparplans, setSparplans] = useState<Sparplan[]>(currentSparplans);
+    const nestingLevel = useNestingLevel();
 
     // Synchronize local state with prop changes
     useEffect(() => {
@@ -203,7 +205,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
 
     return (
         <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
-            <Card className="mb-6">
+        <Card nestingLevel={nestingLevel}>
                 <Collapsible defaultOpen={false}>
                     <CardHeader className="pb-4">
                         <CollapsibleTrigger asChild>
@@ -342,7 +344,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
                 </Collapsible>
             </Card>
             
-            <Card className="mb-6">
+            <Card nestingLevel={nestingLevel}>
                 <Collapsible defaultOpen={false}>
                     <CardHeader className="pb-4">
                         <CollapsibleTrigger asChild>
@@ -466,7 +468,7 @@ export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans =
                 </Collapsible>
             </Card>
             
-            <Card className="mb-6">
+            <Card nestingLevel={nestingLevel}>
                 <Collapsible defaultOpen={true}>
                     <CardHeader className="pb-4">
                         <CollapsibleTrigger asChild>

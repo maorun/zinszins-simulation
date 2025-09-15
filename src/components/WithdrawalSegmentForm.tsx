@@ -26,6 +26,7 @@ import type { ReturnConfiguration } from "../../helpers/random-returns";
 import { DynamicWithdrawalConfiguration } from "./DynamicWithdrawalConfiguration";
 import { BucketStrategyConfiguration } from "./BucketStrategyConfiguration";
 import { RMDWithdrawalConfiguration } from "./RMDWithdrawalConfiguration";
+import { useNestingLevel } from "~/lib/nesting-utils";
 
 export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable';
 
@@ -123,9 +124,10 @@ export function WithdrawalSegmentForm({
     const getReturnModeFromConfig = (returnConfig: ReturnConfiguration): WithdrawalReturnMode => {
         return returnConfig.mode as WithdrawalReturnMode;
     };
+  const nestingLevel = useNestingLevel();
 
     return (
-        <Card>
+        <Card nestingLevel={nestingLevel}>
             <Collapsible defaultOpen={false}>
                 <CardHeader>
                     <CollapsibleTrigger asChild>
@@ -166,8 +168,8 @@ export function WithdrawalSegmentForm({
 
                 {segments.map((segment, _index) => (
                     <Card 
+                        nestingLevel={nestingLevel + 1}
                         key={segment.id} 
-                        className="mb-4"
                     >
                         <Collapsible defaultOpen={false}>
                             <CardHeader>

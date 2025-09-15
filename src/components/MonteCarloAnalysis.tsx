@@ -4,16 +4,18 @@ import { ChevronDown } from 'lucide-react';
 import { MonteCarloResults } from './MonteCarloResults';
 import { useSimulation } from '../contexts/useSimulation';
 import { unique } from '../utils/array-utils';
+import { useNestingLevel } from '~/lib/nesting-utils';
 
 const MonteCarloAnalysis = () => {
     const { simulationData, averageReturn, standardDeviation, randomSeed } = useSimulation();
+    const nestingLevel = useNestingLevel();
 
     if (!simulationData) return null;
 
     const data = unique(simulationData ? (simulationData.sparplanElements.flatMap((v: any) => v.simulation ? Object.keys(v.simulation) : []).map(Number).filter((v: number) => !isNaN(v))) : []) as number[]
 
     return (
-        <Card className="mb-4">
+        <Card nestingLevel={nestingLevel}>
             <Collapsible defaultOpen={false}>
                 <CardHeader>
                     <CollapsibleTrigger asChild>

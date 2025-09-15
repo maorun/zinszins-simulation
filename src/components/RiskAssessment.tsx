@@ -6,6 +6,7 @@ import { useSimulation } from '../contexts/useSimulation';
 import MonteCarloAnalysisDisplay from './MonteCarloAnalysisDisplay';
 import { calculateRiskMetrics, formatRiskMetric, type PortfolioData } from '../utils/risk-metrics';
 import type { RandomReturnConfig } from '../utils/random-returns';
+import { useNestingLevel } from '~/lib/nesting-utils';
 
 interface RiskAssessmentProps {
   phase: 'savings' | 'withdrawal';
@@ -13,6 +14,7 @@ interface RiskAssessmentProps {
 }
 
 const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
+  const nestingLevel = useNestingLevel();
   const { simulationData, averageReturn, standardDeviation, randomSeed, returnMode } = useSimulation();
 
   // Use provided config or default based on phase
@@ -80,7 +82,7 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
   const phaseTitle = phase === 'savings' ? 'Ansparphase' : 'Entnahmephase';
 
   return (
-    <Card className="mt-4">
+    <Card nestingLevel={nestingLevel}>
       <Collapsible defaultOpen={false}>
         <CardHeader>
           <CollapsibleTrigger asChild>
@@ -192,7 +194,7 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
         )}
 
         {/* Monte Carlo Analysis in collapsible sub-panel */}
-        <Card className="border-l-4 border-l-blue-400">
+        <Card nestingLevel={nestingLevel} className="border-l-4 border-l-blue-400">
           <Collapsible defaultOpen={false}>
             <CardHeader>
               <CollapsibleTrigger asChild>
@@ -216,7 +218,7 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
 
         {/* Drawdown Analysis in collapsible sub-panel if there's detailed data */}
         {riskMetrics?.drawdownSeries && hasRiskData && riskMetrics.drawdownSeries.length > 3 && (
-          <Card className="border-l-4 border-l-orange-400">
+          <Card nestingLevel={nestingLevel} className="border-l-4 border-l-orange-400">
             <Collapsible defaultOpen={false}>
               <CardHeader>
                 <CollapsibleTrigger asChild>
