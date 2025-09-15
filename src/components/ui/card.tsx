@@ -1,9 +1,9 @@
-import * as React from "react"
+import * as React from 'react'
 
-import { cn } from "../../lib/utils"
+import { cn } from '../../lib/utils'
 
 interface CardProps extends React.HTMLAttributes<HTMLDivElement> {
-  nestingLevel?: number;
+  nestingLevel?: number
 }
 
 const Card = React.forwardRef<
@@ -14,19 +14,19 @@ const Card = React.forwardRef<
   const nestingClasses = React.useMemo(() => {
     switch (nestingLevel) {
       case 0: // Top level cards
-        return "rounded-xl border bg-card text-card-foreground shadow-sm";
+        return 'rounded-xl border bg-card text-card-foreground shadow-sm'
       case 1: // First level nested cards - reduced padding on mobile
-        return "rounded-lg border bg-card text-card-foreground shadow-sm sm:shadow-md mx-1 sm:mx-0 bg-gray-50/30";
-      case 2: // Second level nested cards - minimal padding, lighter borders  
-        return "rounded-md border border-gray-200 bg-gray-50/60 text-card-foreground shadow-none mx-2 sm:mx-1 sm:shadow-sm";
+        return 'rounded-lg border bg-card text-card-foreground shadow-sm sm:shadow-md mx-1 sm:mx-0 bg-gray-50/30'
+      case 2: // Second level nested cards - minimal padding, lighter borders
+        return 'rounded-md border border-gray-200 bg-gray-50/60 text-card-foreground shadow-none mx-2 sm:mx-1 sm:shadow-sm'
       case 3: // Third level nested cards - very minimal styling
-        return "rounded border border-gray-100 bg-gray-100/80 text-card-foreground shadow-none mx-3 sm:mx-2 border-l-4 border-l-gray-300";
+        return 'rounded border border-gray-100 bg-gray-100/80 text-card-foreground shadow-none mx-3 sm:mx-2 border-l-4 border-l-gray-300'
       case 4: // Fourth level nested cards - border only with more indentation
-        return "rounded border-l-4 border-l-blue-200 bg-blue-50/30 text-card-foreground shadow-none mx-4 sm:mx-3 pl-4 sm:pl-6";
+        return 'rounded border-l-4 border-l-blue-200 bg-blue-50/30 text-card-foreground shadow-none mx-4 sm:mx-3 pl-4 sm:pl-6'
       default: // Fifth level and beyond - distinct visual separation
-        return "border-l-4 border-l-orange-200 bg-orange-50/20 text-card-foreground shadow-none mx-5 sm:mx-4 pl-4 sm:pl-6 rounded-md";
+        return 'border-l-4 border-l-orange-200 bg-orange-50/20 text-card-foreground shadow-none mx-5 sm:mx-4 pl-4 sm:pl-6 rounded-md'
     }
-  }, [nestingLevel]);
+  }, [nestingLevel])
 
   return (
     <div
@@ -35,12 +35,12 @@ const Card = React.forwardRef<
       data-nesting-level={nestingLevel}
       {...props}
     />
-  );
+  )
 })
-Card.displayName = "Card"
+Card.displayName = 'Card'
 
 interface CardHeaderProps extends React.HTMLAttributes<HTMLDivElement> {
-  nestingLevel?: number;
+  nestingLevel?: number
 }
 
 const CardHeader = React.forwardRef<
@@ -51,17 +51,17 @@ const CardHeader = React.forwardRef<
   const nestingClasses = React.useMemo(() => {
     switch (nestingLevel) {
       case 0: // Top level headers - full padding
-        return "flex flex-col space-y-1.5 p-4 sm:p-6";
+        return 'flex flex-col space-y-1.5 p-4 sm:p-6'
       case 1: // First level nested - slightly reduced
-        return "flex flex-col space-y-1.5 p-3 sm:p-4";
+        return 'flex flex-col space-y-1.5 p-3 sm:p-4'
       case 2: // Second level nested - more reduced
-        return "flex flex-col space-y-1 p-2 sm:p-3";
+        return 'flex flex-col space-y-1 p-2 sm:p-3'
       case 3: // Third level nested - minimal padding
-        return "flex flex-col space-y-1 p-2 sm:p-2";
+        return 'flex flex-col space-y-1 p-2 sm:p-2'
       default: // Fourth level and beyond - very minimal
-        return "flex flex-col space-y-0.5 p-1 sm:p-2";
+        return 'flex flex-col space-y-0.5 p-1 sm:p-2'
     }
-  }, [nestingLevel]);
+  }, [nestingLevel])
 
   return (
     <div
@@ -69,9 +69,9 @@ const CardHeader = React.forwardRef<
       className={cn(nestingClasses, className)}
       {...props}
     />
-  );
+  )
 })
-CardHeader.displayName = "CardHeader"
+CardHeader.displayName = 'CardHeader'
 
 const CardTitle = React.forwardRef<
   HTMLParagraphElement,
@@ -79,11 +79,11 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn("font-semibold leading-none tracking-tight", className)}
+    className={cn('font-semibold leading-none tracking-tight', className)}
     {...props}
   />
 ))
-CardTitle.displayName = "CardTitle"
+CardTitle.displayName = 'CardTitle'
 
 const CardDescription = React.forwardRef<
   HTMLParagraphElement,
@@ -91,14 +91,14 @@ const CardDescription = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <p
     ref={ref}
-    className={cn("text-sm text-muted-foreground", className)}
+    className={cn('text-sm text-muted-foreground', className)}
     {...props}
   />
 ))
-CardDescription.displayName = "CardDescription"
+CardDescription.displayName = 'CardDescription'
 
 interface CardContentProps extends React.HTMLAttributes<HTMLDivElement> {
-  nestingLevel?: number;
+  nestingLevel?: number
 }
 
 const CardContent = React.forwardRef<
@@ -109,26 +109,26 @@ const CardContent = React.forwardRef<
   const nestingClasses = React.useMemo(() => {
     switch (nestingLevel) {
       case 0: // Top level content - full padding
-        return "p-4 pt-0 sm:p-6 sm:pt-0";
+        return 'p-4 pt-0 sm:p-6 sm:pt-0'
       case 1: // First level nested - slightly reduced
-        return "p-3 pt-0 sm:p-4 sm:pt-0";
+        return 'p-3 pt-0 sm:p-4 sm:pt-0'
       case 2: // Second level nested - more reduced
-        return "p-2 pt-0 sm:p-3 sm:pt-0";
+        return 'p-2 pt-0 sm:p-3 sm:pt-0'
       case 3: // Third level nested - minimal padding
-        return "p-2 pt-0 sm:p-2 sm:pt-0";
+        return 'p-2 pt-0 sm:p-2 sm:pt-0'
       default: // Fourth level and beyond - very minimal
-        return "p-1 pt-0 sm:p-2 sm:pt-0";
+        return 'p-1 pt-0 sm:p-2 sm:pt-0'
     }
-  }, [nestingLevel]);
+  }, [nestingLevel])
 
   return (
     <div ref={ref} className={cn(nestingClasses, className)} {...props} />
-  );
+  )
 })
-CardContent.displayName = "CardContent"
+CardContent.displayName = 'CardContent'
 
 interface CardFooterProps extends React.HTMLAttributes<HTMLDivElement> {
-  nestingLevel?: number;
+  nestingLevel?: number
 }
 
 const CardFooter = React.forwardRef<
@@ -139,17 +139,17 @@ const CardFooter = React.forwardRef<
   const nestingClasses = React.useMemo(() => {
     switch (nestingLevel) {
       case 0: // Top level footer - full padding
-        return "flex items-center p-4 pt-0 sm:p-6 sm:pt-0";
+        return 'flex items-center p-4 pt-0 sm:p-6 sm:pt-0'
       case 1: // First level nested - slightly reduced
-        return "flex items-center p-3 pt-0 sm:p-5 sm:pt-0";
+        return 'flex items-center p-3 pt-0 sm:p-5 sm:pt-0'
       case 2: // Second level nested - more reduced
-        return "flex items-center p-2 pt-0 sm:p-4 sm:pt-0";
+        return 'flex items-center p-2 pt-0 sm:p-4 sm:pt-0'
       case 3: // Third level nested - minimal padding
-        return "flex items-center p-2 pt-0 sm:p-3 sm:pt-0";
+        return 'flex items-center p-2 pt-0 sm:p-3 sm:pt-0'
       default: // Fourth level and beyond - very minimal
-        return "flex items-center p-1 pt-0 sm:p-2 sm:pt-0";
+        return 'flex items-center p-1 pt-0 sm:p-2 sm:pt-0'
     }
-  }, [nestingLevel]);
+  }, [nestingLevel])
 
   return (
     <div
@@ -157,8 +157,8 @@ const CardFooter = React.forwardRef<
       className={cn(nestingClasses, className)}
       {...props}
     />
-  );
+  )
 })
-CardFooter.displayName = "CardFooter"
+CardFooter.displayName = 'CardFooter'
 
 export { Card, CardHeader, CardFooter, CardTitle, CardDescription, CardContent }

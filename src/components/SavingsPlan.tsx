@@ -1,20 +1,20 @@
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { ChevronDown } from 'lucide-react';
-import { SparplanEingabe } from './SparplanEingabe';
-import { SparplanSimulationsAusgabe } from './SparplanSimulationsAusgabe';
-import RiskAssessment from './RiskAssessment';
-import ReturnConfiguration from './ReturnConfiguration';
-import { useSimulation } from '../contexts/useSimulation';
-import { convertSparplanToElements } from '../utils/sparplan-utils';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
+import { ChevronDown } from 'lucide-react'
+import { SparplanEingabe } from './SparplanEingabe'
+import { SparplanSimulationsAusgabe } from './SparplanSimulationsAusgabe'
+import RiskAssessment from './RiskAssessment'
+import ReturnConfiguration from './ReturnConfiguration'
+import { useSimulation } from '../contexts/useSimulation'
+import { convertSparplanToElements } from '../utils/sparplan-utils'
 
 const SavingsPlan = () => {
-  const { setSparplan, sparplan, startEnd, simulationAnnual, setSparplanElemente, simulationData } = useSimulation();
+  const { setSparplan, sparplan, startEnd, simulationAnnual, setSparplanElemente, simulationData } = useSimulation()
 
   return (
     <>
       <ReturnConfiguration />
-      
+
       <Card className="mb-4">
         <Collapsible defaultOpen={false}>
           <CardHeader>
@@ -27,19 +27,19 @@ const SavingsPlan = () => {
           </CardHeader>
           <CollapsibleContent>
             <CardContent>
-          <SparplanEingabe
-            dispatch={(sparplan) => {
-              setSparplan(sparplan);
-              setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual));
-            }}
-            simulationAnnual={simulationAnnual}
-            currentSparplans={sparplan}
-          />
+              <SparplanEingabe
+                dispatch={(sparplan) => {
+                  setSparplan(sparplan)
+                  setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual))
+                }}
+                simulationAnnual={simulationAnnual}
+                currentSparplans={sparplan}
+              />
             </CardContent>
           </CollapsibleContent>
         </Collapsible>
       </Card>
-      
+
       {simulationData && (
         <Card className="mb-4">
           <Collapsible defaultOpen={false}>
@@ -53,19 +53,19 @@ const SavingsPlan = () => {
             </CardHeader>
             <CollapsibleContent>
               <CardContent>
-            <SparplanSimulationsAusgabe
-              elemente={simulationData.sparplanElements}
-            />
-            
-            {/* Risk Assessment with Monte Carlo Analysis moved to collapsible panel */}
-            <RiskAssessment phase="savings" />
+                <SparplanSimulationsAusgabe
+                  elemente={simulationData.sparplanElements}
+                />
+
+                {/* Risk Assessment with Monte Carlo Analysis moved to collapsible panel */}
+                <RiskAssessment phase="savings" />
               </CardContent>
             </CollapsibleContent>
           </Collapsible>
         </Card>
       )}
     </>
-  );
-};
+  )
+}
 
-export default SavingsPlan;
+export default SavingsPlan

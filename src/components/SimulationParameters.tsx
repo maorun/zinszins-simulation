@@ -1,10 +1,10 @@
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card';
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
-import { ChevronDown } from 'lucide-react';
-import { NestingProvider } from '../lib/nesting-context';
-import TimeRangeConfiguration from './TimeRangeConfiguration';
-import TaxConfiguration from './TaxConfiguration';
-import SimulationConfiguration from './SimulationConfiguration';
+import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
+import { ChevronDown } from 'lucide-react'
+import { NestingProvider } from '../lib/nesting-context'
+import TimeRangeConfiguration from './TimeRangeConfiguration'
+import TaxConfiguration from './TaxConfiguration'
+import SimulationConfiguration from './SimulationConfiguration'
 
 const SimulationParameters = () => {
   return (
@@ -33,7 +33,7 @@ const SimulationParameters = () => {
         </CollapsibleContent>
       </Collapsible>
     </Card>
-  );
-};
+  )
+}
 
-export default SimulationParameters;
+export default SimulationParameters

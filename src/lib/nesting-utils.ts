@@ -2,16 +2,16 @@
  * Hook to get current nesting level for responsive design
  * @returns Current nesting level (0 = top level, 1+ = nested)
  */
-import { useContext, createContext } from 'react';
+import { useContext, createContext } from 'react'
 
 /**
  * Context for tracking nesting level in card hierarchies
  * Enables progressive design adjustments for deep nesting on mobile
  */
-export const NestingContext = createContext<number>(0);
+export const NestingContext = createContext<number>(0)
 
 export function useNestingLevel(): number {
-  return useContext(NestingContext);
+  return useContext(NestingContext)
 }
 
 /**
@@ -20,9 +20,9 @@ export function useNestingLevel(): number {
  * @returns Object with common responsive spacing classes
  */
 export function useNestingClasses(level?: number) {
-  const contextLevel = useNestingLevel();
-  const nestingLevel = level !== undefined ? level : contextLevel;
-  
+  const contextLevel = useNestingLevel()
+  const nestingLevel = level !== undefined ? level : contextLevel
+
   return {
     nestingLevel,
     // Spacing utilities for different nesting levels
@@ -44,6 +44,6 @@ export function useNestingClasses(level?: number) {
       shadow: nestingLevel === 0 ? 'shadow-sm' : nestingLevel === 1 ? 'shadow-sm sm:shadow-md' : 'shadow-none',
       // Rounded corners - reduce with nesting
       rounded: nestingLevel <= 1 ? 'rounded-xl' : nestingLevel <= 2 ? 'rounded-lg' : 'rounded-md',
-    }
-  };
+    },
+  }
 }

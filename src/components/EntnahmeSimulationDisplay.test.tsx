@@ -1,7 +1,7 @@
-import { render, screen } from '@testing-library/react';
-import { describe, it, expect } from 'vitest';
-import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay';
-import type { WithdrawalFormValue } from '../utils/config-storage';
+import { render, screen } from '@testing-library/react'
+import { describe, it, expect } from 'vitest'
+import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
+import type { WithdrawalFormValue } from '../utils/config-storage'
 
 const mockWithdrawalData = {
   startingCapital: 500000,
@@ -18,12 +18,12 @@ const mockWithdrawalData = {
   ],
   withdrawalResult: {},
   duration: 25,
-};
+}
 
 const mockFormValue: WithdrawalFormValue = {
-  strategie: "4prozent",
+  strategie: '4prozent',
   rendite: 5,
-  withdrawalFrequency: "yearly",
+  withdrawalFrequency: 'yearly',
   inflationAktiv: false,
   inflationsrate: 2,
   monatlicheBetrag: 2000,
@@ -41,14 +41,14 @@ const mockFormValue: WithdrawalFormValue = {
   grundfreibetragAktiv: false,
   grundfreibetragBetrag: 10908,
   einkommensteuersatz: 18,
-};
+}
 
 const mockComparisonResults = [
   {
     strategy: {
-      id: "test1",
-      name: "3% Regel",
-      strategie: "3prozent" as const,
+      id: 'test1',
+      name: '3% Regel',
+      strategie: '3prozent' as const,
       rendite: 5,
     },
     finalCapital: 450000,
@@ -56,7 +56,7 @@ const mockComparisonResults = [
     averageAnnualWithdrawal: 15000,
     duration: 20,
   },
-];
+]
 
 describe('EntnahmeSimulationDisplay', () => {
   it('displays no data message when withdrawalData is null', () => {
@@ -69,11 +69,11 @@ describe('EntnahmeSimulationDisplay', () => {
         useSegmentedWithdrawal={false}
         withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
-      />
-    );
+      />,
+    )
 
-    expect(screen.getByText(/Keine Daten verfügbar/)).toBeInTheDocument();
-  });
+    expect(screen.getByText(/Keine Daten verfügbar/)).toBeInTheDocument()
+  })
 
   it('displays comparison mode results', () => {
     render(
@@ -85,13 +85,13 @@ describe('EntnahmeSimulationDisplay', () => {
         useSegmentedWithdrawal={false}
         withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
-      />
-    );
+      />,
+    )
 
-    expect(screen.getByText('Strategien-Vergleich')).toBeInTheDocument();
-    expect(screen.getByText('📊 Basis-Strategie: 4% Regel')).toBeInTheDocument();
-    expect(screen.getByText('🔍 Vergleichs-Strategien')).toBeInTheDocument();
-  });
+    expect(screen.getByText('Strategien-Vergleich')).toBeInTheDocument()
+    expect(screen.getByText('📊 Basis-Strategie: 4% Regel')).toBeInTheDocument()
+    expect(screen.getByText('🔍 Vergleichs-Strategien')).toBeInTheDocument()
+  })
 
   it('displays comparison results table when there are comparison strategies', () => {
     render(
@@ -103,12 +103,12 @@ describe('EntnahmeSimulationDisplay', () => {
         useSegmentedWithdrawal={false}
         withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
-      />
-    );
+      />,
+    )
 
-    expect(screen.getByText('📋 Vergleichstabelle')).toBeInTheDocument();
-    expect(screen.getByText('3% Regel')).toBeInTheDocument();
-  });
+    expect(screen.getByText('📋 Vergleichstabelle')).toBeInTheDocument()
+    expect(screen.getByText('3% Regel')).toBeInTheDocument()
+  })
 
   it('shows no comparison strategies message when array is empty', () => {
     render(
@@ -120,15 +120,15 @@ describe('EntnahmeSimulationDisplay', () => {
         useSegmentedWithdrawal={false}
         withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
-      />
-    );
+      />,
+    )
 
-    expect(screen.getByText(/Keine Vergleichs-Strategien konfiguriert/)).toBeInTheDocument();
-  });
+    expect(screen.getByText(/Keine Vergleichs-Strategien konfiguriert/)).toBeInTheDocument()
+  })
 
   it('component exports and basic functionality work', () => {
     // Test that the component function exists and can be called
-    expect(typeof EntnahmeSimulationDisplay).toBe('function');
+    expect(typeof EntnahmeSimulationDisplay).toBe('function')
 
     // Test basic rendering without throwing
     const result = render(
@@ -140,9 +140,9 @@ describe('EntnahmeSimulationDisplay', () => {
         useSegmentedWithdrawal={false}
         withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
-      />
-    );
+      />,
+    )
 
-    expect(result).toBeDefined();
-  });
-});
+    expect(result).toBeDefined()
+  })
+})
