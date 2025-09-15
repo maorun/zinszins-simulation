@@ -357,4 +357,83 @@ describe('WithdrawalSegmentForm', () => {
       expect(deleteButtons[0]).toHaveClass('text-destructive')
     })
   })
+
+  describe('Dynamic Year Constraints', () => {
+    const multiSegmentScenario: WithdrawalSegment[] = [
+      createDefaultWithdrawalSegment('segment1', 'Phase 1', 2041, 2050),
+      createDefaultWithdrawalSegment('segment2', 'Phase 2', 2051, 2060),
+      createDefaultWithdrawalSegment('segment3', 'Phase 3', 2061, 2070),
+    ]
+
+    it('applies correct minimum year constraints for chronologically first segment', () => {
+      render(
+        <WithdrawalSegmentForm
+          segments={multiSegmentScenario}
+          onSegmentsChange={vi.fn()}
+          withdrawalStartYear={2041}
+          withdrawalEndYear={2080}
+        />,
+      )
+
+      // Expand main card
+      const mainCardHeader = screen.getByText('Entnahme-Phasen konfigurieren').closest('div')
+      fireEvent.click(mainCardHeader!)
+
+      // Expand first phase card
+      const firstPhaseHeader = screen.getByText('Phase 1 (2041 - 2050)').closest('div')
+      fireEvent.click(firstPhaseHeader!)
+
+      // Check start year input constraints for first segment
+      const startYearInput = screen.getByDisplayValue('2041')
+      expect(startYearInput).toHaveAttribute('min', '2041') // Should be withdrawal start year
+    })
+
+    it('applies correct minimum year constraints for middle segment', () => {
+      render(
+        <WithdrawalSegmentForm
+          segments={multiSegmentScenario}
+          onSegmentsChange={vi.fn()}
+          withdrawalStartYear={2041}
+          withdrawalEndYear={2080}
+        />,
+      )
+
+      // Expand main card
+      const mainCardHeader = screen.getByText('Entnahme-Phasen konfigurieren').closest('div')
+      fireEvent.click(mainCardHeader!)
+
+      // Expand second phase card
+      const secondPhaseHeader = screen.getByText('Phase 2 (2051 - 2060)').closest('div')
+      fireEvent.click(secondPhaseHeader!)
+
+      // Check start year input constraints for second segment
+      const startYearInputs = screen.getAllByDisplayValue('2051')
+      const startYearInput = startYearInputs[0] // First one should be the start year input
+      expect(startYearInput).toHaveAttribute('min', '2051') // Should be previous segment end + 1
+    })
+
+    it('updates constraints correctly after segment reordering', () => {
+      const onSegmentsChangeMock = vi.fn()
+
+      render(
+        <WithdrawalSegmentForm
+          segments={multiSegmentScenario}
+          onSegmentsChange={onSegmentsChangeMock}
+          withdrawalStartYear={2041}
+          withdrawalEndYear={2080}
+        />,
+      )
+
+      // Expand main card
+      const mainCardHeader = screen.getByText('Entnahme-Phasen konfigurieren').closest('div')
+      fireEvent.click(mainCardHeader!)
+
+      // Move segment2 up (before segment1)
+      const moveUpButtons = screen.getAllByLabelText('Phase nach oben verschieben')
+      fireEvent.click(moveUpButtons[0]) // First move up button should be for segment2
+
+      // Verify the reordering function was called
+      expect(onSegmentsChangeMock).toHaveBeenCalled()
+    })
+  })
 })

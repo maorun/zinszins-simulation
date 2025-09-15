@@ -133,6 +133,38 @@ export function WithdrawalSegmentForm({
     return segmentIndex >= 0 && segmentIndex < sortedSegments.length - 1
   }
 
+  // Helper function to get dynamic minimum year for a segment
+  const getMinYearForSegment = (segmentId: string): number => {
+    const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
+    const segmentIndex = sortedSegments.findIndex(s => s.id === segmentId)
+
+    if (segmentIndex === 0) {
+      // First segment chronologically must start at withdrawal start year
+      return withdrawalStartYear
+    }
+    else if (segmentIndex > 0) {
+      // Other segments must start after the previous segment ends
+      return sortedSegments[segmentIndex - 1].endYear + 1
+    }
+
+    // Fallback to withdrawal start year
+    return withdrawalStartYear
+  }
+
+  // Helper function to get dynamic maximum year for a segment
+  const getMaxYearForSegment = (segmentId: string): number => {
+    const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
+    const segmentIndex = sortedSegments.findIndex(s => s.id === segmentId)
+
+    if (segmentIndex >= 0 && segmentIndex < sortedSegments.length - 1) {
+      // If there's a next segment, this segment must end before it starts
+      return sortedSegments[segmentIndex + 1].startYear - 1
+    }
+
+    // Last segment or no next segment can extend to withdrawal end year
+    return withdrawalEndYear
+  }
+
   // Convert return mode to return configuration
   const getReturnConfigFromMode = (mode: WithdrawalReturnMode, segment: WithdrawalSegment): ReturnConfiguration => {
     switch (mode) {
@@ -319,11 +351,12 @@ export function WithdrawalSegmentForm({
                           <Input
                             type="number"
                             value={segment.startYear}
-                            onChange={e => handleNumberInputChange(e, value =>
-                              updateSegment(segment.id, { startYear: Number(value) || withdrawalStartYear }),
-                            )}
-                            min={withdrawalStartYear}
-                            max={withdrawalEndYear}
+                            onChange={e => handleNumberInputChange(e, (value) => {
+                              const defaultValue = getMinYearForSegment(segment.id)
+                              return updateSegment(segment.id, { startYear: Number(value) || defaultValue })
+                            })}
+                            min={getMinYearForSegment(segment.id)}
+                            max={getMaxYearForSegment(segment.id)}
                           />
                         </div>
                         <div className="mb-4 space-y-2">
@@ -331,11 +364,12 @@ export function WithdrawalSegmentForm({
                           <Input
                             type="number"
                             value={segment.endYear}
-                            onChange={e => handleNumberInputChange(e, value =>
-                              updateSegment(segment.id, { endYear: Number(value) || withdrawalEndYear }),
-                            )}
-                            min={withdrawalStartYear}
-                            max={withdrawalEndYear}
+                            onChange={e => handleNumberInputChange(e, (value) => {
+                              const defaultValue = getMaxYearForSegment(segment.id)
+                              return updateSegment(segment.id, { endYear: Number(value) || defaultValue })
+                            })}
+                            min={segment.startYear}
+                            max={getMaxYearForSegment(segment.id)}
                           />
                         </div>
                       </div>
