@@ -137,7 +137,7 @@ describe('WithdrawalSegmentForm', () => {
       // Find and click delete button for first phase
       const deleteButtons = screen.getAllByRole('button')
       const deleteButton = deleteButtons.find(button =>
-        button.querySelector('svg') && button.className.includes('text-destructive'),
+        button.querySelector('svg') && button.className.includes('text-red-700'),
       )
 
       expect(deleteButton).toBeInTheDocument()
@@ -347,14 +347,14 @@ describe('WithdrawalSegmentForm', () => {
       const deleteButtons = screen.getAllByLabelText('Phase löschen')
 
       // Insert buttons should have blue styling
-      expect(insertButtons[0]).toHaveClass('text-blue-600')
+      expect(insertButtons[0]).toHaveClass('text-blue-700')
 
       // Move buttons should have green styling
-      expect(moveUpButtons[0]).toHaveClass('text-green-600')
-      expect(moveDownButtons[0]).toHaveClass('text-green-600')
+      expect(moveUpButtons[0]).toHaveClass('text-green-700')
+      expect(moveDownButtons[0]).toHaveClass('text-green-700')
 
-      // Delete buttons should have destructive styling
-      expect(deleteButtons[0]).toHaveClass('text-destructive')
+      // Delete buttons should have red styling
+      expect(deleteButtons[0]).toHaveClass('text-red-700')
     })
   })
 

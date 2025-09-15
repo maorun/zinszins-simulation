@@ -278,10 +278,12 @@ export function WithdrawalSegmentForm({
                 </div>
               )}
 
-              <div className="flex gap-2 mb-4">
+              {/* Mobile-responsive button layout with proper spacing */}
+              <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 mb-4">
                 <Button
                   onClick={addSegment}
                   disabled={!canAddMoreSegments()}
+                  className="w-full sm:w-auto"
                 >
                   <Plus className="h-4 w-4 mr-2" />
                   Phase hinzufügen
@@ -291,15 +293,15 @@ export function WithdrawalSegmentForm({
                   <>
                     <Button
                       onClick={correctSegments}
-                      variant="default"
-                      className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                      variant="secondary"
+                      className="w-full sm:w-auto bg-blue-100 text-blue-700 hover:bg-blue-200 border-blue-300"
                     >
                       Phasen korrigieren
                     </Button>
                     <Button
                       onClick={resetSegments}
                       variant="outline"
-                      className="text-orange-600 border-orange-600 hover:bg-orange-50"
+                      className="w-full sm:w-auto text-orange-700 border-orange-400 hover:bg-orange-50 hover:text-orange-800"
                     >
                       Phasen zurücksetzen
                     </Button>
@@ -333,8 +335,8 @@ export function WithdrawalSegmentForm({
                         </div>
                       </CollapsibleTrigger>
 
-                      {/* Phase control buttons */}
-                      <div className="flex items-center space-x-1 ml-2">
+                      {/* Mobile-responsive phase control buttons */}
+                      <div className="flex flex-wrap items-center gap-1 sm:gap-2 ml-2">
                         {/* Insert before button */}
                         <Button
                           variant="ghost"
@@ -343,7 +345,7 @@ export function WithdrawalSegmentForm({
                             e.stopPropagation()
                             insertSegmentBeforeHandler(segment.id)
                           }}
-                          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                          className="text-blue-700 hover:text-blue-800 hover:bg-blue-100 min-w-[36px]"
                           aria-label="Phase davor einfügen"
                           title="Phase davor einfügen"
                         >
@@ -359,7 +361,7 @@ export function WithdrawalSegmentForm({
                               e.stopPropagation()
                               moveSegmentUpHandler(segment.id)
                             }}
-                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                            className="text-green-700 hover:text-green-800 hover:bg-green-100 min-w-[36px]"
                             aria-label="Phase nach oben verschieben"
                             title="Phase nach oben verschieben"
                           >
@@ -376,7 +378,7 @@ export function WithdrawalSegmentForm({
                               e.stopPropagation()
                               moveSegmentDownHandler(segment.id)
                             }}
-                            className="text-green-600 hover:text-green-700 hover:bg-green-50"
+                            className="text-green-700 hover:text-green-800 hover:bg-green-100 min-w-[36px]"
                             aria-label="Phase nach unten verschieben"
                             title="Phase nach unten verschieben"
                           >
@@ -393,7 +395,7 @@ export function WithdrawalSegmentForm({
                               e.stopPropagation()
                               removeSegment(segment.id)
                             }}
-                            className="text-destructive hover:text-destructive hover:bg-red-50"
+                            className="text-red-700 hover:text-red-800 hover:bg-red-100 min-w-[36px]"
                             aria-label="Phase löschen"
                             title="Phase löschen"
                           >
