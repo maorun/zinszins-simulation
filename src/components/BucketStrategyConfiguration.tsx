@@ -125,6 +125,7 @@ export function BucketStrategyConfiguration({
         <Label>Entnahme-Strategie</Label>
         <RadioTileGroup
           value={currentValues.subStrategy}
+          idPrefix="bucket-sub-strategy"
           onValueChange={(value: string) => {
             const subStrategy = value as BucketSubStrategy
             if (isFormMode) {
