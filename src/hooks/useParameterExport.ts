@@ -33,7 +33,7 @@ export function useParameterExport() {
       }, 3000);
       
       return success;
-    } catch (error) {
+    } catch (_error) {
       setState({
         isExporting: false,
         lastExportResult: 'error',

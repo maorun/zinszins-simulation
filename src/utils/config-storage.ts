@@ -285,7 +285,7 @@ export function clearConfiguration(): void {
 export function hasConfiguration(): boolean {
   try {
     return localStorage.getItem(STORAGE_KEY) !== null;
-  } catch (error) {
+  } catch (_error) {
     return false;
   }
 }
