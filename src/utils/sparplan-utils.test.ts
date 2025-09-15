@@ -29,6 +29,39 @@ describe('sparplan-utils', () => {
       expect(years).not.toContain(2040)
     })
 
+    test('should calculate partial year amounts correctly in yearly simulation', () => {
+      const sparplan: Sparplan = {
+        id: 1,
+        start: new Date('2025-09-10'), // Starts in September
+        end: new Date('2028-09-01'), // Ends in September
+        einzahlung: 12000, // 12000€ per year
+      }
+
+      const startEnd: [number, number] = [2040, 2080]
+
+      const elements = convertSparplanToElements([sparplan], startEnd, SimulationAnnual.yearly)
+
+      expect(elements).toHaveLength(4)
+
+      // 2025: September (month 8) to December (month 11) = 4 months
+      // Expected: (12000 * 4) / 12 = 4000€
+      expect(elements[0].einzahlung).toBeCloseTo(4000, 2)
+
+      // 2026 and 2027: Full years = 12000€ each
+      expect(elements[1].einzahlung).toBeCloseTo(12000, 2)
+      expect(elements[2].einzahlung).toBeCloseTo(12000, 2)
+
+      // 2028: January (month 0) to September (month 8) = 9 months
+      // Expected: (12000 * 9) / 12 = 9000€
+      expect(elements[3].einzahlung).toBeCloseTo(9000, 2)
+
+      // Verify years
+      expect(new Date(elements[0].start).getFullYear()).toBe(2025)
+      expect(new Date(elements[1].start).getFullYear()).toBe(2026)
+      expect(new Date(elements[2].start).getFullYear()).toBe(2027)
+      expect(new Date(elements[3].start).getFullYear()).toBe(2028)
+    })
+
     test('should respect end date for monthly simulation', () => {
       const sparplan: Sparplan = {
         id: 1,

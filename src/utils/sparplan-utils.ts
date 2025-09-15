@@ -74,15 +74,31 @@ export function convertSparplanToElements(
           && (!el.end || new Date(el.end).getFullYear() >= i)
         ) {
           if (simulationAnnual === SimulationAnnual.yearly) {
-            sparplanElementsToSave.push({
-              start: new Date(i + '-01-01'),
-              einzahlung: el.einzahlung,
-              type: 'sparplan',
-              simulation: {},
-              ter: el.ter,
-              transactionCostPercent: el.transactionCostPercent,
-              transactionCostAbsolute: el.transactionCostAbsolute,
-            })
+            let yearlyAmount = el.einzahlung
+
+            // Handle partial years for start/end dates
+            if (new Date(el.start).getFullYear() === i || (el.end && new Date(el.end).getFullYear() === i)) {
+              const startMonth = new Date(el.start).getFullYear() === i ? new Date(el.start).getMonth() : 0
+              const endMonth = el.end && new Date(el.end).getFullYear() === i ? new Date(el.end).getMonth() : 11
+
+              // Calculate the fraction of the year that this Sparplan is active
+              // +1 because months are 0-indexed but we want inclusive count
+              const activeMonths = Math.max(0, endMonth - startMonth + 1)
+              yearlyAmount = (el.einzahlung * activeMonths) / 12
+            }
+
+            // Only add if there are active months in this year
+            if (yearlyAmount > 0) {
+              sparplanElementsToSave.push({
+                start: new Date(i + '-01-01'),
+                einzahlung: yearlyAmount,
+                type: 'sparplan',
+                simulation: {},
+                ter: el.ter,
+                transactionCostPercent: el.transactionCostPercent,
+                transactionCostAbsolute: el.transactionCostAbsolute,
+              })
+            }
           }
           else {
             for (let month = 0; month < 12; month++) {
