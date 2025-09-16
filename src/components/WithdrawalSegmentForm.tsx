@@ -152,12 +152,24 @@ export function WithdrawalSegmentForm({
     if (originalSegment && movedSegment) {
       const wasMovedDown = movedSegment.startYear > originalSegment.startYear
 
-      if (segmentId === 'main' && !wasMovedDown) {
-        console.warn('Main phase movement failed - no change detected:', {
-          originalStart: originalSegment.startYear,
-          newStart: movedSegment.startYear,
-          segmentsEqual: JSON.stringify(correctedSegments) === JSON.stringify(newSegments),
+      if (segmentId === 'main') {
+        const originalDuration = originalSegment.endYear - originalSegment.startYear + 1
+        const newDuration = movedSegment.endYear - movedSegment.startYear + 1
+
+        console.log('Main phase movement completed:', {
+          originalRange: `${originalSegment.startYear}-${originalSegment.endYear}`,
+          newRange: `${movedSegment.startYear}-${movedSegment.endYear}`,
+          durationPreserved: originalDuration === newDuration,
+          wasMovedDown,
         })
+
+        if (!wasMovedDown) {
+          console.warn('Main phase movement failed - no change detected:', {
+            originalStart: originalSegment.startYear,
+            newStart: movedSegment.startYear,
+            segmentsEqual: JSON.stringify(correctedSegments) === JSON.stringify(newSegments),
+          })
+        }
       }
     }
 
@@ -319,6 +331,19 @@ export function WithdrawalSegmentForm({
                 Dies ermöglicht es, verschiedene Ansätze für Früh-, Mittel- und Spätrente zu kombinieren.
               </p>
 
+              {/* Information about phase movement behavior */}
+              {segments.length > 1 && (
+                <div className="bg-blue-50 border border-blue-200 rounded-md p-3 mb-4 text-sm">
+                  <div className="font-medium text-blue-800 mb-1">
+                    💡 Phasen-Verschiebung
+                  </div>
+                  <div className="text-blue-700">
+                    Beim Verschieben von Phasen bleibt die Dauer jeder Phase erhalten.
+                    Die Phasen werden chronologisch neu angeordnet und die Zeiträume entsprechend angepasst.
+                  </div>
+                </div>
+              )}
+
               {errors.length > 0 && (
                 <div className="text-destructive mb-4">
                   <strong>Fehler:</strong>
@@ -420,8 +445,8 @@ export function WithdrawalSegmentForm({
                               moveSegmentUpHandler(segment.id)
                             }}
                             className="text-green-700 hover:text-green-800 hover:bg-green-100 min-w-[36px]"
-                            aria-label="Phase nach oben verschieben"
-                            title="Phase nach oben verschieben"
+                            aria-label="Phase nach oben verschieben - Dauer wird beibehalten"
+                            title="Phase nach oben verschieben - Die Phase wird chronologisch früher positioniert, die Dauer bleibt erhalten"
                           >
                             <ArrowUp className="h-4 w-4" />
                           </Button>
@@ -437,8 +462,8 @@ export function WithdrawalSegmentForm({
                               moveSegmentDownHandler(segment.id)
                             }}
                             className="text-green-700 hover:text-green-800 hover:bg-green-100 min-w-[36px]"
-                            aria-label="Phase nach unten verschieben"
-                            title="Phase nach unten verschieben"
+                            aria-label="Phase nach unten verschieben - Dauer wird beibehalten"
+                            title="Phase nach unten verschieben - Die Phase wird chronologisch später positioniert, die Dauer bleibt erhalten"
                           >
                             <ArrowDown className="h-4 w-4" />
                           </Button>

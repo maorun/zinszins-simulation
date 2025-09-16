@@ -236,10 +236,10 @@ describe('WithdrawalSegmentForm', () => {
       expect(screen.getAllByLabelText('Phase davor einfügen')).toHaveLength(3)
 
       // Move up buttons should be available for all phases except the first
-      expect(screen.getAllByLabelText('Phase nach oben verschieben')).toHaveLength(2)
+      expect(screen.getAllByLabelText('Phase nach oben verschieben - Dauer wird beibehalten')).toHaveLength(2)
 
       // Move down buttons should be available for all phases except the last
-      expect(screen.getAllByLabelText('Phase nach unten verschieben')).toHaveLength(2)
+      expect(screen.getAllByLabelText('Phase nach unten verschieben - Dauer wird beibehalten')).toHaveLength(2)
     })
 
     it('calls onSegmentsChange when move up button is clicked', () => {
@@ -256,7 +256,7 @@ describe('WithdrawalSegmentForm', () => {
       fireEvent.click(mainCardHeader!)
 
       // Click the move up button for the second phase
-      const moveUpButtons = screen.getAllByLabelText('Phase nach oben verschieben')
+      const moveUpButtons = screen.getAllByLabelText('Phase nach oben verschieben - Dauer wird beibehalten')
       fireEvent.click(moveUpButtons[0]) // First move up button (for second phase)
 
       expect(onSegmentsChangeMock).toHaveBeenCalled()
@@ -283,7 +283,7 @@ describe('WithdrawalSegmentForm', () => {
       fireEvent.click(mainCardHeader!)
 
       // Click the move down button for the first phase
-      const moveDownButtons = screen.getAllByLabelText('Phase nach unten verschieben')
+      const moveDownButtons = screen.getAllByLabelText('Phase nach unten verschieben - Dauer wird beibehalten')
       fireEvent.click(moveDownButtons[0]) // First move down button (for first phase)
 
       expect(onSegmentsChangeMock).toHaveBeenCalled()
@@ -326,7 +326,7 @@ describe('WithdrawalSegmentForm', () => {
 
       // The individual phase cards should still be collapsed after clicking buttons
       // Click a move up button
-      const moveUpButtons = screen.getAllByLabelText('Phase nach oben verschieben')
+      const moveUpButtons = screen.getAllByLabelText('Phase nach oben verschieben - Dauer wird beibehalten')
       fireEvent.click(moveUpButtons[0])
 
       // Phase content should still not be visible (card should remain collapsed)
@@ -342,8 +342,8 @@ describe('WithdrawalSegmentForm', () => {
 
       // Check that buttons have appropriate colors
       const insertButtons = screen.getAllByLabelText('Phase davor einfügen')
-      const moveUpButtons = screen.getAllByLabelText('Phase nach oben verschieben')
-      const moveDownButtons = screen.getAllByLabelText('Phase nach unten verschieben')
+      const moveUpButtons = screen.getAllByLabelText('Phase nach oben verschieben - Dauer wird beibehalten')
+      const moveDownButtons = screen.getAllByLabelText('Phase nach unten verschieben - Dauer wird beibehalten')
       const deleteButtons = screen.getAllByLabelText('Phase löschen')
 
       // Insert buttons should have blue styling
@@ -429,7 +429,7 @@ describe('WithdrawalSegmentForm', () => {
       fireEvent.click(mainCardHeader!)
 
       // Move segment2 up (before segment1)
-      const moveUpButtons = screen.getAllByLabelText('Phase nach oben verschieben')
+      const moveUpButtons = screen.getAllByLabelText('Phase nach oben verschieben - Dauer wird beibehalten')
       fireEvent.click(moveUpButtons[0]) // First move up button should be for segment2
 
       // Verify the reordering function was called
