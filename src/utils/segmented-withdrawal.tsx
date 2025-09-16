@@ -301,38 +301,87 @@ export function moveSegmentUp(segments: WithdrawalSegment[], segmentId: string):
  * @returns Updated segments array with the segment moved down
  */
 export function moveSegmentDown(segments: WithdrawalSegment[], segmentId: string): WithdrawalSegment[] {
+  // Ensure we have at least 2 segments to move
+  if (segments.length < 2) {
+    console.warn('moveSegmentDown: Cannot move segment - need at least 2 segments')
+    return segments
+  }
+
   // Sort segments by start year to determine chronological order
   const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
   const segmentIndex = sortedSegments.findIndex(s => s.id === segmentId)
 
-  // Can't move the last segment down
-  if (segmentIndex < 0 || segmentIndex >= sortedSegments.length - 1) {
+  // Validate segment can be moved
+  if (segmentIndex < 0) {
+    console.warn('moveSegmentDown: Segment not found:', segmentId)
+    return segments
+  }
+
+  if (segmentIndex >= sortedSegments.length - 1) {
+    console.warn('moveSegmentDown: Cannot move last segment down:', segmentId)
     return segments
   }
 
   const targetSegment = sortedSegments[segmentIndex]
   const nextSegment = sortedSegments[segmentIndex + 1]
 
-  // Calculate new time ranges (inclusive years: duration = end - start + 1)
-  const segmentDuration = targetSegment.endYear - targetSegment.startYear + 1
+  // Validate segments have valid time ranges
+  const targetDuration = targetSegment.endYear - targetSegment.startYear + 1
   const nextDuration = nextSegment.endYear - nextSegment.startYear + 1
 
-  // Swap the time ranges
-  const newNextStartYear = targetSegment.startYear
-  const newNextEndYear = newNextStartYear + nextDuration - 1
-  const newTargetStartYear = newNextEndYear + 1
-  const newTargetEndYear = newTargetStartYear + segmentDuration - 1
+  if (targetDuration <= 0 || nextDuration <= 0) {
+    console.warn('moveSegmentDown: Invalid segment durations detected', {
+      target: `${targetSegment.name}: ${targetSegment.startYear}-${targetSegment.endYear}`,
+      next: `${nextSegment.name}: ${nextSegment.startYear}-${nextSegment.endYear}`,
+    })
+    return segments
+  }
+
+  // Calculate new time ranges (inclusive years: duration = end - start + 1)
+  const segmentDuration = targetDuration
+  const nextStartYear = targetSegment.startYear
+  const nextEndYear = nextStartYear + nextDuration - 1
+  const targetStartYear = nextEndYear + 1
+  const targetEndYear = targetStartYear + segmentDuration - 1
+
+  console.debug('moveSegmentDown: Swapping segments', {
+    target: {
+      name: targetSegment.name,
+      from: `${targetSegment.startYear}-${targetSegment.endYear}`,
+      to: `${targetStartYear}-${targetEndYear}`,
+    },
+    next: {
+      name: nextSegment.name,
+      from: `${nextSegment.startYear}-${nextSegment.endYear}`,
+      to: `${nextStartYear}-${nextEndYear}`,
+    },
+  })
 
   // Return the updated segments array maintaining the same order as the original input
-  return segments.map((segment) => {
+  const result = segments.map((segment) => {
     if (segment.id === segmentId) {
-      return { ...segment, startYear: newTargetStartYear, endYear: newTargetEndYear }
+      return { ...segment, startYear: targetStartYear, endYear: targetEndYear }
     }
     if (segment.id === nextSegment.id) {
-      return { ...segment, startYear: newNextStartYear, endYear: newNextEndYear }
+      return { ...segment, startYear: nextStartYear, endYear: nextEndYear }
     }
     return segment
   })
+
+  // Validate result doesn't have identical ranges
+  const resultMain = result.find(s => s.id === 'main')
+  const resultOther = result.find(s => s.id !== 'main')
+  if (resultMain && resultOther
+    && resultMain.startYear === resultOther.startYear
+    && resultMain.endYear === resultOther.endYear) {
+    console.error('moveSegmentDown: BUG DETECTED - identical ranges created!', {
+      main: `${resultMain.startYear}-${resultMain.endYear}`,
+      other: `${resultOther.startYear}-${resultOther.endYear}`,
+      originalSegments: segments.map(s => ({ id: s.id, range: `${s.startYear}-${s.endYear}` })),
+    })
+  }
+
+  return result
 }
 
 /**
