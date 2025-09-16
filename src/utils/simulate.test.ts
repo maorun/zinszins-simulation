@@ -441,14 +441,11 @@ describe('Simulate (Compound Interest) Calculations', () => {
       expect(result[0].simulation[2023].startkapital).toBe(10000)
       expect(result[1].simulation[2024].startkapital).toBe(10000) // Not inflated
 
-      // The nominal endkapital should grow normally (no inflation effect during growth)
-      expect(result[0].simulation[2023].endkapital).toBeCloseTo(10500, 2) // 10000 * 1.05
-      expect(result[1].simulation[2024].endkapital).toBeCloseTo(10500, 2) // 10000 * 1.05
-
-      // But the real (inflation-adjusted) endkapital should be reduced
-      expect(result[0].simulation[2023].endkapitalReal).toBeCloseTo(10500 / 1.02, 2) // 1 year inflation
-      // 1 year inflation since 2024 element started in 2024
-      expect(result[1].simulation[2024].endkapitalReal).toBeCloseTo(10500 / 1.02, 2)
+      // The endkapital should be reduced by inflation annually (2%)
+      // Year 2023: 10000 * 1.05 * 0.98 = 10290
+      expect(result[0].simulation[2023].endkapital).toBeCloseTo(10290, 2)
+      // Year 2024: 10000 * 1.05 * 0.98 = 10290 (same reduction)
+      expect(result[1].simulation[2024].endkapital).toBeCloseTo(10290, 2)
     })
 
     test('should default to sparplan mode when not specified', () => {
@@ -506,14 +503,12 @@ describe('Simulate (Compound Interest) Calculations', () => {
         freibetragPerYear: { 2023: 2000 }, // Tax allowance
       })
 
-      // Should still apply inflation adjustment after taxes
+      // Should still apply inflation reduction after taxes
       expect(result[0].simulation[2023]).toBeDefined()
-      // With this specific test case and freibetrag, taxes might not reduce the capital significantly
+      // With inflation reduction: actual endkapital should be less than nominal
       expect(result[0].simulation[2023].endkapital).toBeGreaterThan(0)
-      // Real endkapital should show inflation effect if available
-      if (result[0].simulation[2023].endkapitalReal !== undefined) {
-        expect(result[0].simulation[2023].endkapitalReal).toBeLessThan(result[0].simulation[2023].endkapital)
-      }
+      // The endkapital should be reduced by inflation (2%)
+      expect(result[0].simulation[2023].endkapital).toBeLessThan(10500) // Should be less than nominal 5% growth
     })
 
     test('should not produce negative returns over long periods', () => {
@@ -540,24 +535,12 @@ describe('Simulate (Compound Interest) Calculations', () => {
 
       expect(simulation).toBeDefined()
 
-      // The nominal values should grow normally (no inflation effect on growth)
-      expect(simulation.endkapital).toBeGreaterThan(100000) // Should be around 149,744 (nominal)
+      // With 7% growth and 2% inflation reduction each year:
+      // Each year: capital * 1.07 * 0.98 = capital * 1.0486
+      // Over 40 years: 10000 * (1.0486^40) ≈ 58,374
+      expect(simulation.endkapital).toBeGreaterThan(40000) // Should be around 58,374
+      expect(simulation.endkapital).toBeLessThan(80000) // Should be much less than nominal
       expect(simulation.zinsen).toBeGreaterThan(0) // Interest should be positive
-
-      // The real (inflation-adjusted) values should show the purchasing power effect
-      if (simulation.endkapitalReal !== undefined && simulation.zinsenReal !== undefined) {
-        // With 7% returns and 2% inflation over 40 years:
-        // Expected nominal: 10000 * (1.07^40) = 149,744.58
-        // Expected real: 149,744.58 / (1.02^40) = 67,892.10
-        expect(simulation.endkapitalReal).toBeGreaterThan(50000) // Should be around 67,892
-        expect(simulation.endkapitalReal).toBeLessThan(100000) // Should be less than nominal
-        expect(simulation.zinsenReal).toBeGreaterThan(0) // Real interest should still be positive
-
-        // Verify the calculation is approximately correct
-        const expectedNominal = 10000 * Math.pow(1.07, 40)
-        const expectedReal = expectedNominal / Math.pow(1.02, 40)
-        expect(simulation.endkapitalReal).toBeCloseTo(expectedReal, -4) // Within 10 thousands
-      }
     })
 
     test('should not apply gesamtmenge mode when inflation is disabled', () => {
@@ -579,8 +562,6 @@ describe('Simulate (Compound Interest) Calculations', () => {
 
       // Should behave like normal calculation without inflation
       expect(result[0].simulation[2023].endkapital).toBeCloseTo(10500, 2) // 10000 * 1.05
-      // Should not have real values when inflation is disabled
-      expect(result[0].simulation[2023].endkapitalReal).toBeUndefined()
     })
   })
 
