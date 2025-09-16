@@ -115,30 +115,53 @@ export function WithdrawalSegmentForm({
 
   // Move a segment up (earlier in time)
   const moveSegmentUpHandler = (segmentId: string) => {
-    // If there are validation errors, auto-correct first, then move
-    if (errors.length > 0) {
-      const correctedSegments = autoCorrectSegmentTimeRanges(segments, withdrawalStartYear)
-      const newSegments = moveSegmentUp(correctedSegments, segmentId)
-      validateAndUpdateSegments(newSegments)
-    }
-    else {
-      const newSegments = moveSegmentUp(segments, segmentId)
-      validateAndUpdateSegments(newSegments)
-    }
+    // Always auto-correct first to ensure consistent behavior
+    const correctedSegments = errors.length > 0
+      ? autoCorrectSegmentTimeRanges(segments, withdrawalStartYear)
+      : segments
+
+    const newSegments = moveSegmentUp(correctedSegments, segmentId)
+    validateAndUpdateSegments(newSegments)
   }
 
   // Move a segment down (later in time)
   const moveSegmentDownHandler = (segmentId: string) => {
-    // If there are validation errors, auto-correct first, then move
-    if (errors.length > 0) {
-      const correctedSegments = autoCorrectSegmentTimeRanges(segments, withdrawalStartYear)
-      const newSegments = moveSegmentDown(correctedSegments, segmentId)
-      validateAndUpdateSegments(newSegments)
+    // Debug logging for main phase movement
+    if (segmentId === 'main') {
+      console.debug('Attempting to move main phase down:', {
+        segmentId,
+        segmentsCount: segments.length,
+        hasErrors: errors.length > 0,
+        errors: errors,
+        segmentIds: segments.map(s => s.id),
+      })
     }
-    else {
-      const newSegments = moveSegmentDown(segments, segmentId)
-      validateAndUpdateSegments(newSegments)
+
+    // Always auto-correct first to ensure consistent behavior
+    const correctedSegments = errors.length > 0
+      ? autoCorrectSegmentTimeRanges(segments, withdrawalStartYear)
+      : segments
+
+    // Attempt the movement
+    const newSegments = moveSegmentDown(correctedSegments, segmentId)
+
+    // Check if movement actually occurred
+    const originalSegment = correctedSegments.find(s => s.id === segmentId)
+    const movedSegment = newSegments.find(s => s.id === segmentId)
+
+    if (originalSegment && movedSegment) {
+      const wasMovedDown = movedSegment.startYear > originalSegment.startYear
+
+      if (segmentId === 'main' && !wasMovedDown) {
+        console.warn('Main phase movement failed - no change detected:', {
+          originalStart: originalSegment.startYear,
+          newStart: movedSegment.startYear,
+          segmentsEqual: JSON.stringify(correctedSegments) === JSON.stringify(newSegments),
+        })
+      }
     }
+
+    validateAndUpdateSegments(newSegments)
   }
 
   // Insert a new segment before an existing one
@@ -160,6 +183,12 @@ export function WithdrawalSegmentForm({
 
   // Helper function to check if a segment can be moved up
   const canMoveUp = (segmentId: string): boolean => {
+    // Always allow movement if there are multiple segments
+    // The movement functions handle auto-correction internally
+    if (segments.length <= 1) {
+      return false
+    }
+
     // Use corrected segments for checking if there are errors
     const segmentsToCheck = errors.length > 0
       ? autoCorrectSegmentTimeRanges(segments, withdrawalStartYear)
@@ -167,11 +196,19 @@ export function WithdrawalSegmentForm({
 
     const sortedSegments = [...segmentsToCheck].sort((a, b) => a.startYear - b.startYear)
     const segmentIndex = sortedSegments.findIndex(s => s.id === segmentId)
+
+    // Can move up if not the first segment chronologically
     return segmentIndex > 0
   }
 
   // Helper function to check if a segment can be moved down
   const canMoveDown = (segmentId: string): boolean => {
+    // Always allow movement if there are multiple segments
+    // The movement functions handle auto-correction internally
+    if (segments.length <= 1) {
+      return false
+    }
+
     // Use corrected segments for checking if there are errors
     const segmentsToCheck = errors.length > 0
       ? autoCorrectSegmentTimeRanges(segments, withdrawalStartYear)
@@ -179,7 +216,22 @@ export function WithdrawalSegmentForm({
 
     const sortedSegments = [...segmentsToCheck].sort((a, b) => a.startYear - b.startYear)
     const segmentIndex = sortedSegments.findIndex(s => s.id === segmentId)
-    return segmentIndex >= 0 && segmentIndex < sortedSegments.length - 1
+
+    // Can move down if not the last segment chronologically
+    const canMove = segmentIndex >= 0 && segmentIndex < sortedSegments.length - 1
+
+    // Debug logging for troubleshooting
+    if (segmentId === 'main' && !canMove && segments.length > 1) {
+      console.debug('Main phase cannot move down:', {
+        segmentId,
+        segmentIndex,
+        sortedSegmentsLength: sortedSegments.length,
+        segmentIds: sortedSegments.map(s => s.id),
+        hasErrors: errors.length > 0,
+      })
+    }
+
+    return canMove
   }
 
   // Helper function to get dynamic minimum year for a segment
@@ -275,6 +327,12 @@ export function WithdrawalSegmentForm({
                       <li key={index}>{error}</li>
                     ))}
                   </ul>
+                  <div className="mt-2 text-sm text-muted-foreground">
+                    <strong>Hinweis:</strong>
+                    {' '}
+                    Bei Validierungsfehlern werden Phasen automatisch korrigiert bevor sie verschoben werden.
+                    Verwenden Sie "Phasen korrigieren" um alle Zeiträume zu reparieren.
+                  </div>
                 </div>
               )}
 
