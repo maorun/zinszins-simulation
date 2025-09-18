@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useCallback } from 'react'
 import { Input } from './ui/input'
 import { Slider } from './ui/slider'
 import { Switch } from './ui/switch'
@@ -54,6 +54,7 @@ export function WithdrawalSegmentForm({
   withdrawalEndYear,
 }: WithdrawalSegmentFormProps) {
   const [errors, setErrors] = useState<string[]>([])
+  const [renderKey, setRenderKey] = useState(0)
 
   // Check if more segments can be added
   const canAddMoreSegments = () => {
@@ -64,11 +65,13 @@ export function WithdrawalSegmentForm({
   }
 
   // Validate segments whenever they change
-  const validateAndUpdateSegments = (newSegments: WithdrawalSegment[]) => {
+  const validateAndUpdateSegments = useCallback((newSegments: WithdrawalSegment[]) => {
     const validationErrors = validateWithdrawalSegments(newSegments, withdrawalStartYear, withdrawalEndYear)
     setErrors(validationErrors)
     onSegmentsChange(newSegments)
-  }
+    // Force re-render to ensure UI synchronization after state changes
+    setRenderKey(prev => prev + 1)
+  }, [withdrawalStartYear, withdrawalEndYear, onSegmentsChange])
 
   // Add a new segment
   const addSegment = () => {
@@ -395,7 +398,7 @@ export function WithdrawalSegmentForm({
 
             {segments.map((segment, _index) => (
               <Card
-                key={segment.id}
+                key={`${segment.id}-${renderKey}`}
                 className="mb-4"
               >
                 <Collapsible defaultOpen={false}>
