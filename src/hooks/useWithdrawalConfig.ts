@@ -12,7 +12,7 @@ import { createDefaultStatutoryPensionConfig } from '../../helpers/statutory-pen
 /**
  * Custom hook for managing withdrawal configuration state
  */
-export function useWithdrawalConfig(startOfIndependence: number) {
+export function useWithdrawalConfig() {
   const { withdrawalConfig, setWithdrawalConfig } = useSimulation()
 
   // Initialize withdrawal config if not exists or update current form values
@@ -103,8 +103,8 @@ export function useWithdrawalConfig(startOfIndependence: number) {
         createDefaultWithdrawalSegment(
           'main',
           'Hauptphase',
-          startOfIndependence + 1,
-          startOfIndependence + 40, // Default 40-year withdrawal period instead of tying to endOfLife
+          2041, // Use independent default year - not tied to startOfIndependence
+          2080, // Use independent default end year
         ),
       ],
       useComparisonMode: false,
@@ -112,7 +112,7 @@ export function useWithdrawalConfig(startOfIndependence: number) {
       useSegmentedComparisonMode: false,
       segmentedComparisonStrategies: [],
     }
-  }, [withdrawalConfig, startOfIndependence])
+  }, [withdrawalConfig])
 
   // Return the current config without automatic synchronization to endOfLife
   const finalConfig = useMemo(() => {
