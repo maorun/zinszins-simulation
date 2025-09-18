@@ -8,7 +8,7 @@ import { Button } from './ui/button'
 import { RadioTileGroup, RadioTile } from './ui/radio-tile'
 import { Separator } from './ui/separator'
 import { Label } from './ui/label'
-import { Plus, Trash2, ChevronDown } from 'lucide-react'
+import { Plus, Trash2, ChevronDown, MoveUp, MoveDown } from 'lucide-react'
 
 // Helper function for number input handling with number onChange
 const handleNumberInputChange = (
@@ -62,15 +62,27 @@ export function WithdrawalSegmentForm({
     onSegmentsChange(newSegments)
   }
 
-  // Add a new segment
+  // Add a new segment - allow flexible positioning
   const addSegment = () => {
     const newId = `segment_${Date.now()}`
-    const lastSegment = segments[segments.length - 1]
-    const startYear = lastSegment ? Math.round(lastSegment.endYear) + 1 : Math.round(withdrawalStartYear)
 
-    // Create a default 5-year segment without constraining to withdrawalEndYear
-    // Users can modify the end year as needed
-    const endYear = startYear + 5 // Default 5 year segment
+    // Default to starting one year before the withdrawal start year if no segments exist
+    // This allows users to create phases before the end of the savings phase
+    let startYear: number
+    let endYear: number
+
+    if (segments.length === 0) {
+      // For the first segment, start one year before the withdrawal start year by default
+      startYear = Math.round(withdrawalStartYear) - 1
+      endYear = startYear + 4 // Default 5-year segment
+    }
+    else {
+      // For additional segments, try to position after the last segment
+      const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
+      const lastSegment = sortedSegments[sortedSegments.length - 1]
+      startYear = Math.round(lastSegment.endYear) + 1
+      endYear = startYear + 4 // Default 5-year segment
+    }
 
     const newSegment = createDefaultWithdrawalSegment(newId, `Phase ${segments.length + 1}`, startYear, endYear)
 
@@ -91,6 +103,30 @@ export function WithdrawalSegmentForm({
         : segment,
     )
     validateAndUpdateSegments(newSegments)
+  }
+
+  // Move a segment up in the list
+  const moveSegmentUp = (segmentId: string) => {
+    const currentIndex = segments.findIndex(s => s.id === segmentId)
+    if (currentIndex > 0) {
+      const newSegments = [...segments]
+      const temp = newSegments[currentIndex]
+      newSegments[currentIndex] = newSegments[currentIndex - 1]
+      newSegments[currentIndex - 1] = temp
+      validateAndUpdateSegments(newSegments)
+    }
+  }
+
+  // Move a segment down in the list
+  const moveSegmentDown = (segmentId: string) => {
+    const currentIndex = segments.findIndex(s => s.id === segmentId)
+    if (currentIndex < segments.length - 1) {
+      const newSegments = [...segments]
+      const temp = newSegments[currentIndex]
+      newSegments[currentIndex] = newSegments[currentIndex + 1]
+      newSegments[currentIndex + 1] = temp
+      validateAndUpdateSegments(newSegments)
+    }
   }
 
   // Convert return mode to return configuration
@@ -143,7 +179,8 @@ export function WithdrawalSegmentForm({
             <div className="mb-5">
               <p className="mb-4">
                 Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf.
-                Dies ermöglicht es, verschiedene Ansätze für Früh-, Mittel- und Spätrente zu kombinieren.
+                Phasen können flexibel positioniert werden - sie müssen nicht am Ende der Sparphase beginnen
+                und können Lücken zwischen ihnen haben. Verwende die Pfeil-Buttons, um die Reihenfolge zu ändern.
               </p>
 
               {errors.length > 0 && (
@@ -167,7 +204,7 @@ export function WithdrawalSegmentForm({
               </Button>
             </div>
 
-            {segments.map((segment, _index) => (
+            {segments.map((segment, index) => (
               <Card
                 key={segment.id}
                 className="mb-4"
@@ -188,6 +225,34 @@ export function WithdrawalSegmentForm({
                           )
                         </CardTitle>
                         <div className="flex items-center space-x-2">
+                          <div className="flex items-center space-x-1">
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                moveSegmentUp(segment.id)
+                              }}
+                              disabled={index === 0}
+                              className="text-gray-500 hover:text-gray-700"
+                              title="Phase nach oben verschieben"
+                            >
+                              <MoveUp className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={(e) => {
+                                e.stopPropagation()
+                                moveSegmentDown(segment.id)
+                              }}
+                              disabled={index === segments.length - 1}
+                              className="text-gray-500 hover:text-gray-700"
+                              title="Phase nach unten verschieben"
+                            >
+                              <MoveDown className="h-4 w-4" />
+                            </Button>
+                          </div>
                           <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
                           {segments.length > 1 && (
                             <Button
@@ -198,6 +263,7 @@ export function WithdrawalSegmentForm({
                                 removeSegment(segment.id)
                               }}
                               className="text-destructive hover:text-destructive ml-2"
+                              title="Phase löschen"
                             >
                               <Trash2 className="h-4 w-4" />
                             </Button>
@@ -226,8 +292,8 @@ export function WithdrawalSegmentForm({
                             onChange={e => handleNumberInputChange(e, value =>
                               updateSegment(segment.id, { startYear: Number(value) || withdrawalStartYear }),
                             )}
-                            min={withdrawalStartYear}
-                            max={withdrawalEndYear}
+                            min={2020}
+                            max={2100}
                           />
                         </div>
                         <div className="mb-4 space-y-2">
@@ -238,8 +304,8 @@ export function WithdrawalSegmentForm({
                             onChange={e => handleNumberInputChange(e, value =>
                               updateSegment(segment.id, { endYear: Number(value) || withdrawalEndYear }),
                             )}
-                            min={withdrawalStartYear}
-                            max={withdrawalEndYear}
+                            min={2020}
+                            max={2100}
                           />
                         </div>
                       </div>

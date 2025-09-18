@@ -59,15 +59,15 @@ export type SegmentedWithdrawalConfig = {
 }
 
 /**
- * Validate that withdrawal segments cover the entire withdrawal period without gaps or overlaps
+ * Validate that withdrawal segments are properly configured without overlaps
  * @param segments - Array of withdrawal segments
- * @param startYear - First year of withdrawal phase
- * @param endYear - Last year of withdrawal phase
+ * @param startYear - First year of withdrawal phase (for reference only)
+ * @param endYear - Last year of withdrawal phase (for reference only)
  * @returns Array of validation errors (empty if valid)
  */
 export function validateWithdrawalSegments(
   segments: WithdrawalSegment[],
-  startYear: number,
+  _startYear: number,
   _endYear: number,
 ): string[] {
   const errors: string[] = []
@@ -77,20 +77,11 @@ export function validateWithdrawalSegments(
     return errors
   }
 
-  // Ensure all years are rounded to handle floating-point comparisons
-  const roundedStartYear = Math.round(startYear)
-
-  // Sort segments by start year
+  // Sort segments by start year for validation
   const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
 
-  // Check if first segment starts at the withdrawal start year
-  if (Math.round(sortedSegments[0].startYear) !== roundedStartYear) {
-    errors.push(`Erstes Segment muss im Jahr ${roundedStartYear} beginnen`)
-  }
-
-  // Allow segments to end before the withdrawal end year
-  // No longer require segments to end exactly at the withdrawal end year
-  // This allows users to create segments that don't cover the entire withdrawal period
+  // No longer require the first segment to start at the withdrawal start year
+  // Phases can now start before the end of the savings phase
 
   // Check each segment individually
   for (const segment of sortedSegments) {
@@ -100,7 +91,7 @@ export function validateWithdrawalSegments(
     }
   }
 
-  // Check for gaps and overlaps
+  // Check for overlaps only (gaps are allowed)
   for (let i = 0; i < sortedSegments.length - 1; i++) {
     const currentSegment = sortedSegments[i]
     const nextSegment = sortedSegments[i + 1]
@@ -108,12 +99,7 @@ export function validateWithdrawalSegments(
     const currentEndYear = Math.round(currentSegment.endYear)
     const nextStartYear = Math.round(nextSegment.startYear)
 
-    // Check for gaps
-    if (currentEndYear + 1 < nextStartYear) {
-      errors.push(`Lücke zwischen Segment "${currentSegment.name}" und "${nextSegment.name}"`)
-    }
-
-    // Check for overlaps
+    // Check for overlaps only - gaps are now allowed for flexible phase positioning
     if (currentEndYear >= nextStartYear) {
       errors.push(`Überlappung zwischen Segment "${currentSegment.name}" und "${nextSegment.name}"`)
     }
