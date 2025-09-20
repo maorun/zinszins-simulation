@@ -21,7 +21,7 @@ describe('useWithdrawalConfig', () => {
   })
 
   it('creates default configuration when none exists', () => {
-    const { result } = renderHook(() => useWithdrawalConfig(2023), {
+    const { result } = renderHook(() => useWithdrawalConfig(), {
       wrapper: SimulationProvider,
     })
 
@@ -32,7 +32,7 @@ describe('useWithdrawalConfig', () => {
   })
 
   it('provides update functions', () => {
-    const { result } = renderHook(() => useWithdrawalConfig(2023), {
+    const { result } = renderHook(() => useWithdrawalConfig(), {
       wrapper: SimulationProvider,
     })
 
@@ -45,7 +45,7 @@ describe('useWithdrawalConfig', () => {
   })
 
   it('creates default comparison strategies', () => {
-    const { result } = renderHook(() => useWithdrawalConfig(2023), {
+    const { result } = renderHook(() => useWithdrawalConfig(), {
       wrapper: SimulationProvider,
     })
 
@@ -56,7 +56,7 @@ describe('useWithdrawalConfig', () => {
   })
 
   it('creates default withdrawal segments', () => {
-    const { result } = renderHook(() => useWithdrawalConfig(2023), {
+    const { result } = renderHook(() => useWithdrawalConfig(), {
       wrapper: SimulationProvider,
     })
 
@@ -65,7 +65,7 @@ describe('useWithdrawalConfig', () => {
   })
 
   it('sets default values correctly', () => {
-    const { result } = renderHook(() => useWithdrawalConfig(2023), {
+    const { result } = renderHook(() => useWithdrawalConfig(), {
       wrapper: SimulationProvider,
     })
 
@@ -81,7 +81,7 @@ describe('useWithdrawalConfig', () => {
 
   describe('segmented comparison strategies', () => {
     it('can add a segmented comparison strategy', () => {
-      const { result } = renderHook(() => useWithdrawalConfig(2023), {
+      const { result } = renderHook(() => useWithdrawalConfig(), {
         wrapper: SimulationProvider,
       })
 
@@ -125,7 +125,7 @@ describe('useWithdrawalConfig', () => {
     })
 
     it('can update a segmented comparison strategy', () => {
-      const { result } = renderHook(() => useWithdrawalConfig(2023), {
+      const { result } = renderHook(() => useWithdrawalConfig(), {
         wrapper: SimulationProvider,
       })
 
@@ -145,7 +145,7 @@ describe('useWithdrawalConfig', () => {
     })
 
     it('can remove a segmented comparison strategy', () => {
-      const { result } = renderHook(() => useWithdrawalConfig(2023), {
+      const { result } = renderHook(() => useWithdrawalConfig(), {
         wrapper: SimulationProvider,
       })
 
@@ -157,7 +157,7 @@ describe('useWithdrawalConfig', () => {
     })
 
     it('handles undefined segmentedComparisonStrategies gracefully', () => {
-      const { result } = renderHook(() => useWithdrawalConfig(2023), {
+      const { result } = renderHook(() => useWithdrawalConfig(), {
         wrapper: SimulationProvider,
       })
 
@@ -179,7 +179,7 @@ describe('useWithdrawalConfig', () => {
     })
 
     it('helper functions exist and are callable', () => {
-      const { result } = renderHook(() => useWithdrawalConfig(2023), {
+      const { result } = renderHook(() => useWithdrawalConfig(), {
         wrapper: SimulationProvider,
       })
 
