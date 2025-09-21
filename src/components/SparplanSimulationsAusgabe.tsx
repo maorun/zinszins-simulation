@@ -1,4 +1,4 @@
-// RSuite Table import temporarily removed
+// Modern shadcn/ui component implementation
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { ChevronDown } from 'lucide-react'
@@ -35,7 +35,7 @@ const InfoIcon = ({ onClick }: { onClick: () => void }) => (
   </svg>
 )
 
-// Removed RSuite Table destructuring
+// Using shadcn/ui table components instead of legacy table
 
 export function SparplanEnd({
   elemente,
