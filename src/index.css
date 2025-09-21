@@ -172,3 +172,25 @@
 .animate-slide-up {
   animation: slideUp 0.3s ease-out;
 }
+
+/* Mobile-specific visual improvements */
+@media (max-width: 767px) {
+  /* Better section separation on mobile */
+  .mobile-section-separator {
+    border-bottom: 2px solid #f1f5f9;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
+  
+  /* Enhanced tap targets for mobile */
+  .mobile-tap-target {
+    min-height: 44px;
+    padding: 0.75rem;
+  }
+  
+  /* Improved visual hierarchy for mobile scanning */
+  .mobile-card-hierarchy {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border-radius: 0.5rem;
+  }
+}

@@ -55,4 +55,31 @@ describe('Enhanced Card Components', () => {
     expect(card).toHaveClass('border-l-4')
     expect(card).toHaveClass('mx-4')
   })
+
+  it('should apply mobile-specific hierarchy classes for top-level cards', () => {
+    render(
+      <Card nestingLevel={0} data-testid="top-card">
+        <CardContent>Top level content</CardContent>
+      </Card>,
+    )
+
+    const card = screen.getByTestId('top-card')
+    expect(card).toHaveClass('mobile-card-hierarchy')
+    expect(card).toHaveClass('rounded-xl')
+    expect(card).toHaveClass('shadow-sm')
+  })
+
+  it('should apply mobile hierarchy for first-level nested cards', () => {
+    render(
+      <Card nestingLevel={1} data-testid="nested-card">
+        <CardContent>Nested content</CardContent>
+      </Card>,
+    )
+
+    const card = screen.getByTestId('nested-card')
+    expect(card).toHaveClass('mobile-card-hierarchy')
+    expect(card).toHaveClass('rounded-lg')
+    expect(card).toHaveClass('mx-1')
+    expect(card).toHaveClass('sm:mx-0')
+  })
 })

@@ -14,9 +14,9 @@ const Card = React.forwardRef<
   const nestingClasses = React.useMemo(() => {
     switch (nestingLevel) {
       case 0: // Top level cards
-        return 'rounded-xl border bg-card text-card-foreground shadow-sm'
+        return 'rounded-xl border bg-card text-card-foreground shadow-sm mobile-card-hierarchy'
       case 1: // First level nested cards - reduced padding on mobile
-        return 'rounded-lg border bg-card text-card-foreground shadow-sm sm:shadow-md mx-1 sm:mx-0 bg-gray-50/30'
+        return 'rounded-lg border bg-card text-card-foreground shadow-sm sm:shadow-md mx-1 sm:mx-0 bg-gray-50/30 mobile-card-hierarchy'
       case 2: // Second level nested cards - minimal padding, lighter borders
         return 'rounded-md border border-gray-200 bg-gray-50/60 text-card-foreground shadow-none mx-2 sm:mx-1 sm:shadow-sm'
       case 3: // Third level nested cards - very minimal styling
@@ -79,7 +79,7 @@ const CardTitle = React.forwardRef<
 >(({ className, ...props }, ref) => (
   <h3
     ref={ref}
-    className={cn('font-semibold leading-none tracking-tight', className)}
+    className={cn('font-semibold leading-snug tracking-tight text-base sm:text-lg', className)}
     {...props}
   />
 ))
