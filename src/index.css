@@ -136,9 +136,27 @@
     line-height: 1.15;
     -webkit-text-size-adjust: 100%;
     font-size: 16px;
+    /* Enhanced mobile scrolling */
+    scroll-behavior: smooth;
   }
   #root {
     min-height: 100vh;
+  }
+  
+  /* Mobile-specific enhancements */
+  @media (max-width: 767px) {
+    html {
+      /* Improved momentum scrolling on iOS */
+      -webkit-overflow-scrolling: touch;
+    }
+    
+    body {
+      /* Prevent horizontal scroll on mobile */
+      overflow-x: hidden;
+      /* Enhanced text rendering on mobile */
+      text-rendering: optimizeLegibility;
+      -webkit-font-smoothing: antialiased;
+    }
   }
 }
 
@@ -171,4 +189,71 @@
 
 .animate-slide-up {
   animation: slideUp 0.3s ease-out;
+}
+
+/* Mobile-specific visual improvements */
+@media (max-width: 767px) {
+  /* Better section separation on mobile */
+  .mobile-section-separator {
+    border-bottom: 2px solid #f1f5f9;
+    margin-bottom: 1rem;
+    padding-bottom: 0.75rem;
+  }
+  
+  /* Enhanced tap targets for mobile */
+  .mobile-tap-target {
+    min-height: 44px;
+    padding: 0.75rem;
+  }
+  
+  /* Improved visual hierarchy for mobile scanning */
+  .mobile-card-hierarchy {
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    border-radius: 0.5rem;
+  }
+  
+  /* Enhanced mobile interaction feedback */
+  .mobile-interactive {
+    -webkit-tap-highlight-color: rgba(59, 130, 246, 0.1);
+    transition: transform 0.1s ease, background-color 0.15s ease;
+  }
+  
+  .mobile-interactive:active {
+    transform: scale(0.98);
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+  
+  /* Better mobile button feedback */
+  button:active,
+  [role="button"]:active {
+    transform: scale(0.95);
+    transition: transform 0.1s ease;
+  }
+  
+  /* Improved mobile focus states */
+  button:focus-visible,
+  [role="button"]:focus-visible,
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: 2px solid #3b82f6;
+    outline-offset: 2px;
+  }
+  
+  /* Enhanced scroll indicator for mobile */
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: rgba(156, 163, 175, 0.5);
+    border-radius: 2px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover {
+    background: rgba(156, 163, 175, 0.8);
+  }
 }

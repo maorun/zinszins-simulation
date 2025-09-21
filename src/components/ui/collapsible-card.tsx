@@ -14,11 +14,11 @@ export const CollapsibleCardHeader = React.forwardRef<
   return (
     <CardHeader nestingLevel={nestingLevel} {...props} ref={ref}>
       <CollapsibleTrigger asChild>
-        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-3 -m-3 sm:p-2 sm:-m-2 transition-colors group min-h-[44px] sm:min-h-[36px] active:bg-gray-100 mobile-interactive">
           <CardTitle>
             {children}
           </CardTitle>
-          <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+          <ChevronDown className="h-5 w-5 sm:h-4 sm:w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
         </div>
       </CollapsibleTrigger>
     </CardHeader>
