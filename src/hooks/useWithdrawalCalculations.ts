@@ -46,6 +46,7 @@ export function useWithdrawalCalculations(
     comparisonStrategies,
     useSegmentedComparisonMode,
     segmentedComparisonStrategies,
+    otherIncomeConfig,
   } = currentConfig
 
   // Calculate withdrawal projections
@@ -209,6 +210,7 @@ export function useWithdrawalCalculations(
           : undefined,
         steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
         statutoryPensionConfig: formValue.statutoryPensionConfig,
+        otherIncomeConfig,
       })
       withdrawalResult = withdrawalCalculation.result
     }
@@ -273,6 +275,7 @@ export function useWithdrawalCalculations(
     steuerReduzierenEndkapitalEntspharphase,
     planningMode,
     gender,
+    otherIncomeConfig,
   ])
 
   // Calculate comparison results for each strategy
@@ -391,6 +394,7 @@ export function useWithdrawalCalculations(
             : undefined,
           steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
           statutoryPensionConfig: formValue.statutoryPensionConfig,
+          otherIncomeConfig,
         })
 
         // Get final year capital and total withdrawal
@@ -453,6 +457,7 @@ export function useWithdrawalCalculations(
     steuerReduzierenEndkapitalEntspharphase,
     planningMode,
     gender,
+    otherIncomeConfig,
   ])
 
   // Calculate segmented comparison results for each segmented strategy

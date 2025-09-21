@@ -8,6 +8,8 @@ import type { BasiszinsConfiguration } from '../src/services/bundesbank-api'
 import { calculateRMDWithdrawal } from './rmd-tables'
 import type { StatutoryPensionConfig } from './statutory-pension'
 import { calculateStatutoryPension } from './statutory-pension'
+import type { OtherIncomeConfiguration } from './other-income'
+import { calculateOtherIncome } from './other-income'
 
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt'
 
@@ -53,6 +55,12 @@ export type WithdrawalResultElement = {
     netAnnualAmount: number
     incomeTax: number
     taxableAmount: number
+  }
+  // Other income sources fields
+  otherIncome?: {
+    totalNetAmount: number
+    totalTaxAmount: number
+    sourceCount: number
   }
 }
 
@@ -152,6 +160,7 @@ export type CalculateWithdrawalParams = {
   kapitalerhaltConfig?: KapitalerhaltConfig
   basiszinsConfiguration?: BasiszinsConfiguration
   statutoryPensionConfig?: StatutoryPensionConfig
+  otherIncomeConfig?: OtherIncomeConfiguration
 }
 
 export function calculateWithdrawal({
@@ -177,6 +186,7 @@ export function calculateWithdrawal({
   kapitalerhaltConfig,
   basiszinsConfiguration,
   statutoryPensionConfig,
+  otherIncomeConfig,
 }: CalculateWithdrawalParams): { result: WithdrawalResult, finalLayers: MutableLayer[] } {
   // Helper functions
   const getFreibetragForYear = (year: number): number => {
@@ -218,6 +228,15 @@ export function calculateWithdrawal({
         endYear,
         incomeTaxRate || 0,
         grundfreibetragPerYear,
+      )
+    : {}
+
+  // Calculate other income for all years if configured
+  const otherIncomeData = otherIncomeConfig?.enabled
+    ? calculateOtherIncome(
+        otherIncomeConfig,
+        startYear,
+        endYear,
       )
     : {}
 
@@ -625,6 +644,14 @@ export function calculateWithdrawal({
             netAnnualAmount: statutoryPensionData[year].netAnnualAmount,
             incomeTax: statutoryPensionData[year].incomeTax,
             taxableAmount: statutoryPensionData[year].taxableAmount,
+          }
+        : undefined,
+      // Other income data
+      otherIncome: otherIncomeData[year] && otherIncomeData[year].totalNetAnnualAmount > 0
+        ? {
+            totalNetAmount: otherIncomeData[year].totalNetAnnualAmount,
+            totalTaxAmount: otherIncomeData[year].totalTaxAmount,
+            sourceCount: otherIncomeData[year].sources.length,
           }
         : undefined,
     }
