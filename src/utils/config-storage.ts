@@ -117,6 +117,8 @@ export interface WithdrawalConfiguration {
   // Segmented comparison mode configuration
   useSegmentedComparisonMode: boolean
   segmentedComparisonStrategies: SegmentedComparisonStrategy[]
+  // Other income sources configuration
+  otherIncomeConfig?: OtherIncomeConfiguration
 }
 
 /**

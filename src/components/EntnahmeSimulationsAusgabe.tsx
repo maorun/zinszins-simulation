@@ -23,6 +23,7 @@ import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
 import { BucketStrategyConfiguration } from './BucketStrategyConfiguration'
 import { KapitalerhaltConfiguration } from './KapitalerhaltConfiguration'
 import { StatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
+import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
 import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
 import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
@@ -656,6 +657,12 @@ export function EntnahmeSimulationsAusgabe({
                   </CollapsibleContent>
                 </Collapsible>
               </Card>
+
+              {/* Other Income Sources Configuration */}
+              <OtherIncomeConfigurationComponent
+                config={currentConfig.otherIncomeConfig || { enabled: false, sources: [] }}
+                onChange={otherIncomeConfig => updateConfig({ otherIncomeConfig })}
+              />
 
               {/* Toggle between single, segmented, and comparison withdrawal */}
               <div className="mb-4 space-y-2">
