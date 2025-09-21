@@ -14,7 +14,7 @@ export const CollapsibleCardHeader = React.forwardRef<
   return (
     <CardHeader nestingLevel={nestingLevel} {...props} ref={ref}>
       <CollapsibleTrigger asChild>
-        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-3 -m-3 sm:p-2 sm:-m-2 transition-colors group min-h-[44px] sm:min-h-[36px] active:bg-gray-100">
+        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-3 -m-3 sm:p-2 sm:-m-2 transition-colors group min-h-[44px] sm:min-h-[36px] active:bg-gray-100 mobile-interactive">
           <CardTitle>
             {children}
           </CardTitle>
