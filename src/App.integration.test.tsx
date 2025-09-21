@@ -61,7 +61,7 @@ describe('App Integration Tests - Optimized', () => {
 
     // Check footer elements exist
     expect(screen.getByText('📧 by Marco')).toBeInTheDocument()
-    expect(screen.getByText('🚀 Erstellt mit React, TypeScript & RSuite')).toBeInTheDocument()
+    expect(screen.getByText('🚀 Erstellt mit React, TypeScript & shadcn/ui')).toBeInTheDocument()
 
     // Check that configuration sections exist
     const configElements = screen.getAllByText(/Konfiguration/)

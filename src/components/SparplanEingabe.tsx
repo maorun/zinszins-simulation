@@ -4,7 +4,7 @@ import type { Sparplan } from '../utils/sparplan-utils'
 import { initialSparplan } from '../utils/sparplan-utils'
 import React, { useState, useEffect } from 'react'
 
-// Simple Close icon component to avoid RSuite icons ESM/CommonJS issues
+// Simple Close icon component using modern Lucide React icons
 const CloseIcon = () => (
   <svg
     width="16"
