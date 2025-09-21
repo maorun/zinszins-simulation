@@ -5,6 +5,7 @@ import {
   createTaxExplanation,
   createIncomeTaxExplanation,
   createTaxableIncomeExplanation,
+  createOtherIncomeExplanation,
 } from '../components/calculationHelpers'
 
 /**
@@ -105,6 +106,16 @@ export function useWithdrawalModals(
       const explanation = createTaxableIncomeExplanation(
         rowData.entnahme,
         grundfreibetragAmount,
+      )
+      setCalculationDetails(explanation)
+      setShowCalculationModal(true)
+    }
+    else if (explanationType === 'otherIncome' && rowData.otherIncome) {
+      const explanation = createOtherIncomeExplanation(
+        rowData.otherIncome.totalNetAmount,
+        rowData.otherIncome.totalTaxAmount,
+        rowData.otherIncome.sourceCount,
+        rowData.otherIncome,
       )
       setCalculationDetails(explanation)
       setShowCalculationModal(true)
