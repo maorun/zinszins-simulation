@@ -26,12 +26,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 ### Kostenfaktoren
 - **TER (Total Expense Ratio)** - Jährliche Verwaltungskosten in Prozent
 - **Transaktionskosten** - Einmalige Kosten beim Kauf (prozentual oder absolut)
+- **Kostenaufschlüsselung** - Detaillierte Darstellung aller Kostenfaktoren in der Simulation
 
 ### Steuerberechnung
 - **Vorabpauschale** - Deutsche Steuerberechnung für Investmentfonds mit detaillierter Erklärung
+- **Interaktive Berechnungsmodals** - Schritt-für-Schritt Aufschlüsselung der Steuerberechnungen
 - **Konfigurierbare Parameter**: Kapitalertragsteuer, Teilfreistellungsquote, Freibetrag pro Jahr
 - **Einkommensteuer auf Renten** - Berücksichtigung der deutschen Rentenbesteuerung
 - **Basiszins-Konfiguration** - Verwaltung der offiziellen Basiszinssätze der Deutschen Bundesbank
+- **Bundesbank API Integration** - Automatischer Abruf aktueller Basiszinssätze über SDMX API
+- **Validierung und Fallbacks** - Intelligente Validierung mit automatischen Fallback-Mechanismen
 
 ### Globale Konfiguration
 - **Lebensende-Parameter** - Zentrale Konfiguration für alle Entnahmestrategien
@@ -56,9 +60,12 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Strategievergleich** - Umfassende Vergleichsmöglichkeiten für Entnahmestrategien
 - **Historisches Backtesting** - Test mit 24 Jahren Marktdaten (DAX, S&P 500, MSCI World)
 - **Monte Carlo Analyse** - Statistische Auswertung verschiedener Rendite-Szenarien
-- **Erweiterte Risikobewertung** - Value-at-Risk, Maximum Drawdown, Sharpe Ratio, Sortino Ratio, Calmar Ratio
+- **Erweiterte Risikobewertung** - Value-at-Risk (5% & 1% VaR), Maximum Drawdown, Sharpe Ratio, Sortino Ratio, Calmar Ratio
+- **Risiko-Zeitreihen** - Detaillierte Drawdown- und Rendite-Serien für tiefere Analyse
 - **Detaillierte Simulation** - Jahr-für-Jahr Aufschlüsselung mit Vorabpauschale-Berechnungen
+- **Berechnungsaufschlüsselung** - Interaktive Erklärungen für Steuer- und Zinsberechnungen
 - **Daten Export** - CSV Export, Markdown Export, Parameter Export für alle Simulationsdaten
+- **Konfigurationsverwaltung** - Automatisches Speichern/Laden mit localStorage Integration
 - Echtzeit-Updates bei Parameteränderungen
 
 ---
