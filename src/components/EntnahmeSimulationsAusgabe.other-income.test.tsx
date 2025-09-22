@@ -26,6 +26,19 @@ Object.defineProperty(window, 'matchMedia', {
   })),
 })
 
+// Helper function to navigate to other income section
+async function navigateToOtherIncomeSection() {
+  // First find and click the "Variablen" heading to expand the section
+  const variablenHeading = screen.getByText('Variablen')
+  fireEvent.click(variablenHeading)
+
+  await waitFor(() => {
+    // Now find the "💰 Andere Einkünfte" heading and click it
+    const otherIncomeHeading = screen.getByText('💰 Andere Einkünfte')
+    fireEvent.click(otherIncomeHeading)
+  })
+}
+
 describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
   const mockElemente: SparplanElement[] = [
     {
@@ -69,13 +82,11 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
       </SimulationProvider>,
     )
 
-    // Click on the "Andere Einkünfte" section
-    const otherIncomeButton = screen.getByRole('button', { name: /Andere Einkünfte/i })
-    fireEvent.click(otherIncomeButton)
+    await navigateToOtherIncomeSection()
 
     await waitFor(() => {
       expect(screen.getByText('Andere Einkünfte aktivieren')).toBeInTheDocument()
-      expect(screen.getByText('Hier können Sie zusätzliche Einkünfte')).toBeInTheDocument()
+      expect(screen.getByText(/Hier können Sie zusätzliche Einkünfte/)).toBeInTheDocument()
     })
   })
 
@@ -86,9 +97,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
       </SimulationProvider>,
     )
 
-    // Click on other income section
-    const otherIncomeButton = screen.getByRole('button', { name: /Andere Einkünfte/i })
-    fireEvent.click(otherIncomeButton)
+    await navigateToOtherIncomeSection()
 
     await waitFor(() => {
       // Enable other income
@@ -108,9 +117,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
       </SimulationProvider>,
     )
 
-    // Navigate to other income section
-    const otherIncomeButton = screen.getByRole('button', { name: /Andere Einkünfte/i })
-    fireEvent.click(otherIncomeButton)
+    await navigateToOtherIncomeSection()
 
     // Enable other income
     await waitFor(() => {
@@ -150,9 +157,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
       </SimulationProvider>,
     )
 
-    // Navigate and enable other income
-    const otherIncomeButton = screen.getByRole('button', { name: /Andere Einkünfte/i })
-    fireEvent.click(otherIncomeButton)
+    await navigateToOtherIncomeSection()
 
     await waitFor(() => {
       const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
@@ -186,9 +191,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
       </SimulationProvider>,
     )
 
-    // Navigate and enable other income
-    const otherIncomeButton = screen.getByRole('button', { name: /Andere Einkünfte/i })
-    fireEvent.click(otherIncomeButton)
+    await navigateToOtherIncomeSection()
 
     await waitFor(() => {
       const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
@@ -219,9 +222,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
       </SimulationProvider>,
     )
 
-    // First, add an income source
-    const otherIncomeButton = screen.getByRole('button', { name: /Andere Einkünfte/i })
-    fireEvent.click(otherIncomeButton)
+    await navigateToOtherIncomeSection()
 
     await waitFor(() => {
       const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
@@ -270,9 +271,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
       </SimulationProvider>,
     )
 
-    // First, add an income source
-    const otherIncomeButton = screen.getByRole('button', { name: /Andere Einkünfte/i })
-    fireEvent.click(otherIncomeButton)
+    await navigateToOtherIncomeSection()
 
     await waitFor(() => {
       const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
@@ -324,8 +323,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
       </SimulationProvider>,
     )
 
-    const otherIncomeButton = screen.getByRole('button', { name: /Andere Einkünfte/i })
-    fireEvent.click(otherIncomeButton)
+    await navigateToOtherIncomeSection()
 
     await waitFor(() => {
       const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
@@ -357,8 +355,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
       </SimulationProvider>,
     )
 
-    const otherIncomeButton = screen.getByRole('button', { name: /Andere Einkünfte/i })
-    fireEvent.click(otherIncomeButton)
+    await navigateToOtherIncomeSection()
 
     await waitFor(() => {
       const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
