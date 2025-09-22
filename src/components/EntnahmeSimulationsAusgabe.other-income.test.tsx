@@ -177,15 +177,8 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
 
     await navigateToOtherIncomeSection()
 
-    await waitFor(() => {
-      const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
-      fireEvent.click(enableSwitch)
-    })
-
-    await waitFor(() => {
-      const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
-      fireEvent.click(addButton)
-    })
+    const addButton = await enableOtherIncomeAndWaitForAddButton()
+    fireEvent.click(addButton)
 
     await waitFor(() => {
       // Initially should be gross (showing tax rate slider)
@@ -287,15 +280,8 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
 
     await navigateToOtherIncomeSection()
 
-    await waitFor(() => {
-      const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
-      fireEvent.click(enableSwitch)
-    })
-
-    await waitFor(() => {
-      const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
-      fireEvent.click(addButton)
-    })
+    const addButton = await enableOtherIncomeAndWaitForAddButton()
+    fireEvent.click(addButton)
 
     await waitFor(() => {
       const nameInput = screen.getByLabelText('Bezeichnung')
@@ -339,15 +325,8 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
 
     await navigateToOtherIncomeSection()
 
-    await waitFor(() => {
-      const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
-      fireEvent.click(enableSwitch)
-    })
-
-    await waitFor(() => {
-      const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
-      fireEvent.click(addButton)
-    })
+    const addButton = await enableOtherIncomeAndWaitForAddButton()
+    fireEvent.click(addButton)
 
     await waitFor(() => {
       // Try to submit with empty name
@@ -371,17 +350,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
 
     await navigateToOtherIncomeSection()
 
-    await waitFor(() => {
-      const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
-      fireEvent.click(enableSwitch)
-    })
-
-    // Wait for the add button to appear after enabling the switch
-    await waitFor(() => {
-      expect(screen.getByText('Neue Einkommensquelle hinzufügen')).toBeInTheDocument()
-    })
-
-    const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
+    const addButton = await enableOtherIncomeAndWaitForAddButton()
     fireEvent.click(addButton)
 
     await waitFor(() => {
