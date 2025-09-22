@@ -1,5 +1,6 @@
 import type { SimulationContextState } from '../contexts/SimulationContext'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
+import type { OtherIncomeSource } from '../../helpers/other-income'
 
 /**
  * Utility functions for exporting simulation data in CSV and Markdown formats
@@ -354,8 +355,8 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
   }
 
   // Check if any withdrawal data contains other income
-  const hasOtherIncomeData = Object.values(withdrawalData).some(yearData => 
-    yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0
+  const hasOtherIncomeData = Object.values(withdrawalData).some(yearData =>
+    yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
   )
 
   if (hasOtherIncomeData) {
@@ -419,8 +420,8 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
       }
 
       // Other income data if present
-      const hasOtherIncomeData = Object.values(withdrawalData).some(yearData => 
-        yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0
+      const hasOtherIncomeData = Object.values(withdrawalData).some(yearData =>
+        yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
       )
 
       if (hasOtherIncomeData) {
@@ -460,38 +461,38 @@ export function exportDataToMarkdown(data: ExportData): string {
   lines.push(`- **Kapitalertragsteuer:** ${formatPercentage(context.steuerlast)}`)
   lines.push(`- **Teilfreistellungsquote:** ${formatPercentage(context.teilfreistellungsquote)}`)
   lines.push(`- **Berechnungsmodus:** ${context.simulationAnnual === 'yearly' ? 'Jährlich' : 'Monatlich'}`)
-  
+
   // Other income sources information if configured
   const withdrawalConfig = context.withdrawalConfig
   if (withdrawalConfig?.otherIncomeConfig?.enabled && withdrawalConfig.otherIncomeConfig.sources.length > 0) {
     lines.push('')
     lines.push('### Andere Einkünfte')
     lines.push(`- **Anzahl Einkommensquellen:** ${withdrawalConfig.otherIncomeConfig.sources.length}`)
-    withdrawalConfig.otherIncomeConfig.sources.forEach((source, index) => {
+    withdrawalConfig.otherIncomeConfig.sources.forEach((source: OtherIncomeSource) => {
       const incomeType = {
-        'rental': 'Mieteinnahmen',
-        'pension': 'Rente/Pension',
-        'business': 'Gewerbeeinkünfte', 
-        'investment': 'Kapitalerträge',
-        'other': 'Sonstige Einkünfte'
+        rental: 'Mieteinnahmen',
+        pension: 'Rente/Pension',
+        business: 'Gewerbeeinkünfte',
+        investment: 'Kapitalerträge',
+        other: 'Sonstige Einkünfte',
       }[source.type] || source.type
-      
-      const grossNet = source.isGross ? 'Brutto' : 'Netto'
+
+      const grossNet = source.amountType === 'gross' ? 'Brutto' : 'Netto'
       const endYear = source.endYear ? source.endYear.toString() : 'Unbegrenzt'
-      
+
       lines.push(`  - **${source.name}** (${incomeType})`)
       lines.push(`    - Betrag: ${formatCurrency(source.monthlyAmount * 12)}/Jahr (${grossNet})`)
       lines.push(`    - Zeitraum: ${source.startYear} - ${endYear}`)
-      lines.push(`    - Inflation: ${formatPercentage(source.inflationRate * 100)}`)
-      if (source.isGross) {
-        lines.push(`    - Steuersatz: ${formatPercentage(source.taxRate * 100)}`)
+      lines.push(`    - Inflation: ${formatPercentage(source.inflationRate)}`)
+      if (source.amountType === 'gross') {
+        lines.push(`    - Steuersatz: ${formatPercentage(source.taxRate)}`)
       }
       if (source.notes) {
         lines.push(`    - Notizen: ${source.notes}`)
       }
     })
   }
-  
+
   lines.push('')
 
   // Calculation explanations

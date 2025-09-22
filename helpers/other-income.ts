@@ -206,7 +206,7 @@ export function createDefaultOtherIncomeSource(): OtherIncomeSource {
  * Generate a unique ID for income sources
  */
 function generateId(): string {
-  return `income_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`
+  return `income_${Date.now()}_${Math.random().toString(36).substring(2, 11)}`
 }
 
 /**

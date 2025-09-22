@@ -304,7 +304,7 @@ export function createOtherIncomeExplanation(
   totalNetAmount: number,
   totalTaxAmount: number,
   sourceCount: number,
-  otherIncomeData: any,
+  _otherIncomeData: any,
 ): CalculationExplanation {
   const totalGrossAmount = totalNetAmount + totalTaxAmount
 

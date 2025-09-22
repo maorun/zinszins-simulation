@@ -197,8 +197,8 @@ export function OtherIncomeConfigurationComponent({
                         </div>
                         <p className="text-xs text-gray-600">
                           {editingSource.amountType === 'gross'
-                            ? 'Bei Bruttoeinkünften wird automatisch die Steuer abgezogen'
-                            : 'Nettoeinkünfte werden bereits nach Steuern angegeben'}
+                            ? 'Bei Brutto-Einkünften wird automatisch die Steuer abgezogen'
+                            : 'Netto-Einkünfte werden bereits nach Steuern angegeben'}
                         </p>
                       </div>
 
