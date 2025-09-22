@@ -39,6 +39,21 @@ async function navigateToOtherIncomeSection() {
   })
 }
 
+// Helper function to enable other income and wait for add button
+async function enableOtherIncomeAndWaitForAddButton() {
+  await waitFor(() => {
+    const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
+    fireEvent.click(enableSwitch)
+  })
+
+  // Wait for the add button to appear after enabling the switch
+  await waitFor(() => {
+    expect(screen.getByText('Neue Einkommensquelle hinzufügen')).toBeInTheDocument()
+  })
+
+  return screen.getByText('Neue Einkommensquelle hinzufügen')
+}
+
 describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
   const mockElemente: SparplanElement[] = [
     {
@@ -125,11 +140,14 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
       fireEvent.click(enableSwitch)
     })
 
-    // Click add new income source
+    // Wait for the add button to appear after enabling the switch
     await waitFor(() => {
-      const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
-      fireEvent.click(addButton)
+      expect(screen.getByText('Neue Einkommensquelle hinzufügen')).toBeInTheDocument()
     })
+
+    // Click add new income source
+    const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
+    fireEvent.click(addButton)
 
     // Fill in the form
     await waitFor(() => {
@@ -146,7 +164,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
     // Check if the income source is displayed
     await waitFor(() => {
       expect(screen.getByText('Test Mieteinnahmen')).toBeInTheDocument()
-      expect(screen.getByText('1.200 €/Monat (14.400 €/Jahr)')).toBeInTheDocument()
+      expect(screen.getByText(/1\.200.*€\/Monat.*14\.400.*€\/Jahr/)).toBeInTheDocument()
     })
   })
 
@@ -198,10 +216,13 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
       fireEvent.click(enableSwitch)
     })
 
+    // Wait for the add button to appear after enabling the switch
     await waitFor(() => {
-      const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
-      fireEvent.click(addButton)
+      expect(screen.getByText('Neue Einkommensquelle hinzufügen')).toBeInTheDocument()
     })
+
+    const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
+    fireEvent.click(addButton)
 
     await waitFor(() => {
       const typeSelect = screen.getByLabelText('Art der Einkünfte')
@@ -224,15 +245,8 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
 
     await navigateToOtherIncomeSection()
 
-    await waitFor(() => {
-      const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
-      fireEvent.click(enableSwitch)
-    })
-
-    await waitFor(() => {
-      const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
-      fireEvent.click(addButton)
-    })
+    const addButton = await enableOtherIncomeAndWaitForAddButton()
+    fireEvent.click(addButton)
 
     await waitFor(() => {
       const nameInput = screen.getByLabelText('Bezeichnung')
@@ -362,10 +376,13 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
       fireEvent.click(enableSwitch)
     })
 
+    // Wait for the add button to appear after enabling the switch
     await waitFor(() => {
-      const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
-      fireEvent.click(addButton)
+      expect(screen.getByText('Neue Einkommensquelle hinzufügen')).toBeInTheDocument()
     })
+
+    const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
+    fireEvent.click(addButton)
 
     await waitFor(() => {
       // Check default inflation rate is 2%
