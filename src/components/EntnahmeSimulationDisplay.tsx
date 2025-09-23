@@ -324,6 +324,56 @@ export function EntnahmeSimulationDisplay({
                   {formatCurrency(rowData.entnahme)}
                 </span>
               </div>
+              {/* Health Insurance Display */}
+              {rowData.healthInsurance && (
+                <>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">
+                      🏥 Krankenversicherung:
+                      <span className="text-xs text-gray-500 ml-1">
+                        ({rowData.healthInsurance.health.calculationMethod === 'percentage' 
+                          ? `${rowData.healthInsurance.health.percentage}%` 
+                          : 'Festbetrag'})
+                      </span>
+                    </span>
+                    <span className="font-semibold text-orange-600 text-sm">
+                      {formatCurrency(rowData.healthInsurance.health.annualAmount)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">
+                      🩺 Pflegeversicherung:
+                      <span className="text-xs text-gray-500 ml-1">
+                        ({rowData.healthInsurance.care.calculationMethod === 'percentage' 
+                          ? `${rowData.healthInsurance.care.percentage}%${rowData.healthInsurance.care.childlessSupplementAmount ? ' + Zuschlag' : ''}` 
+                          : 'Festbetrag'})
+                      </span>
+                    </span>
+                    <span className="font-semibold text-orange-600 text-sm">
+                      {formatCurrency(rowData.healthInsurance.care.annualAmount)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 bg-orange-50 px-2 rounded">
+                    <span className="text-sm text-gray-700 font-medium">
+                      🏥 Gesamt Versicherung:
+                      <span className="text-xs text-gray-500 ml-1">
+                        ({rowData.healthInsurance.phase === 'pre-retirement' ? 'Vorrente' : 'Rente'})
+                      </span>
+                    </span>
+                    <span className="font-bold text-orange-700 text-sm">
+                      {formatCurrency(rowData.healthInsurance.totalAnnualAmount)}
+                    </span>
+                  </div>
+                  {rowData.netEntnahme !== undefined && (
+                    <div className="flex justify-between items-center py-1 bg-green-50 px-2 rounded">
+                      <span className="text-sm text-gray-700 font-medium">✅ Netto-Entnahme:</span>
+                      <span className="font-bold text-green-700 text-sm">
+                        {formatCurrency(rowData.netEntnahme)}
+                      </span>
+                    </div>
+                  )}
+                </>
+              )}
               {formValue.strategie === 'monatlich_fest'
                 && rowData.monatlicheEntnahme && (
                 <div className="flex justify-between items-center py-1">

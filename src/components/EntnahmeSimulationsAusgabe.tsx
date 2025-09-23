@@ -23,6 +23,7 @@ import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
 import { BucketStrategyConfiguration } from './BucketStrategyConfiguration'
 import { KapitalerhaltConfiguration } from './KapitalerhaltConfiguration'
 import { StatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
+import { HealthInsuranceConfiguration } from './HealthInsuranceConfiguration'
 import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
 import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
@@ -1951,6 +1952,295 @@ export function EntnahmeSimulationsAusgabe({
                               taxablePortion: data.taxablePortion,
                             }
                           : undefined,
+                      },
+                    }),
+                  }}
+                />
+              </div>
+
+              {/* Health Insurance Configuration - Available in all withdrawal modes */}
+              <div className="mb-6">
+                <HealthInsuranceConfiguration
+                  values={{
+                    enabled: formValue.healthInsuranceConfig?.enabled || false,
+                    retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
+                    childless: formValue.childless || false,
+                    preRetirement: {
+                      health: {
+                        usePercentage: formValue.healthInsuranceConfig?.preRetirement.health.usePercentage ?? true,
+                        percentage: formValue.healthInsuranceConfig?.preRetirement.health.percentage,
+                        fixedAmount: formValue.healthInsuranceConfig?.preRetirement.health.fixedAmount,
+                      },
+                      care: {
+                        usePercentage: formValue.healthInsuranceConfig?.preRetirement.care.usePercentage ?? true,
+                        percentage: formValue.healthInsuranceConfig?.preRetirement.care.percentage,
+                        fixedAmount: formValue.healthInsuranceConfig?.preRetirement.care.fixedAmount,
+                        childlessSupplement: formValue.healthInsuranceConfig?.preRetirement.care.childlessSupplement,
+                      },
+                    },
+                    retirement: {
+                      health: {
+                        usePercentage: formValue.healthInsuranceConfig?.retirement.health.usePercentage ?? true,
+                        percentage: formValue.healthInsuranceConfig?.retirement.health.percentage,
+                        fixedAmount: formValue.healthInsuranceConfig?.retirement.health.fixedAmount,
+                      },
+                      care: {
+                        usePercentage: formValue.healthInsuranceConfig?.retirement.care.usePercentage ?? true,
+                        percentage: formValue.healthInsuranceConfig?.retirement.care.percentage,
+                        fixedAmount: formValue.healthInsuranceConfig?.retirement.care.fixedAmount,
+                        childlessSupplement: formValue.healthInsuranceConfig?.retirement.care.childlessSupplement,
+                      },
+                    },
+                  }}
+                  onChange={{
+                    onEnabledChange: enabled => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...(formValue.healthInsuranceConfig || {
+                          enabled: false,
+                          retirementStartYear: startOfIndependence,
+                          preRetirement: {
+                            health: { usePercentage: true, percentage: 14.6 },
+                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
+                          },
+                          retirement: {
+                            health: { usePercentage: true, percentage: 7.3 },
+                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
+                          },
+                        }),
+                        enabled,
+                      },
+                      childless: formValue.childless || false,
+                    }),
+                    onRetirementStartYearChange: retirementStartYear => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...(formValue.healthInsuranceConfig || {
+                          enabled: false,
+                          retirementStartYear: startOfIndependence,
+                          preRetirement: {
+                            health: { usePercentage: true, percentage: 14.6 },
+                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
+                          },
+                          retirement: {
+                            health: { usePercentage: true, percentage: 7.3 },
+                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
+                          },
+                        }),
+                        retirementStartYear,
+                      },
+                    }),
+                    onChildlessChange: childless => updateFormValue({
+                      childless,
+                    }),
+                    onPreRetirementHealthMethodChange: usePercentage => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...(formValue.healthInsuranceConfig || {
+                          enabled: false,
+                          retirementStartYear: startOfIndependence,
+                          preRetirement: {
+                            health: { usePercentage: true, percentage: 14.6 },
+                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
+                          },
+                          retirement: {
+                            health: { usePercentage: true, percentage: 7.3 },
+                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
+                          },
+                        }),
+                        preRetirement: {
+                          ...formValue.healthInsuranceConfig?.preRetirement,
+                          health: {
+                            ...formValue.healthInsuranceConfig?.preRetirement?.health,
+                            usePercentage,
+                          },
+                        },
+                      },
+                    }),
+                    onPreRetirementHealthPercentageChange: percentage => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...formValue.healthInsuranceConfig,
+                        preRetirement: {
+                          ...formValue.healthInsuranceConfig?.preRetirement,
+                          health: {
+                            ...formValue.healthInsuranceConfig?.preRetirement?.health,
+                            percentage,
+                          },
+                        },
+                      },
+                    }),
+                    onPreRetirementHealthFixedAmountChange: fixedAmount => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...formValue.healthInsuranceConfig,
+                        preRetirement: {
+                          ...formValue.healthInsuranceConfig?.preRetirement,
+                          health: {
+                            ...formValue.healthInsuranceConfig?.preRetirement?.health,
+                            fixedAmount,
+                          },
+                        },
+                      },
+                    }),
+                    onPreRetirementCareMethodChange: usePercentage => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...(formValue.healthInsuranceConfig || {
+                          enabled: false,
+                          retirementStartYear: startOfIndependence,
+                          preRetirement: {
+                            health: { usePercentage: true, percentage: 14.6 },
+                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
+                          },
+                          retirement: {
+                            health: { usePercentage: true, percentage: 7.3 },
+                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
+                          },
+                        }),
+                        preRetirement: {
+                          ...formValue.healthInsuranceConfig?.preRetirement,
+                          care: {
+                            ...formValue.healthInsuranceConfig?.preRetirement?.care,
+                            usePercentage,
+                          },
+                        },
+                      },
+                    }),
+                    onPreRetirementCarePercentageChange: percentage => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...formValue.healthInsuranceConfig,
+                        preRetirement: {
+                          ...formValue.healthInsuranceConfig?.preRetirement,
+                          care: {
+                            ...formValue.healthInsuranceConfig?.preRetirement?.care,
+                            percentage,
+                          },
+                        },
+                      },
+                    }),
+                    onPreRetirementCareFixedAmountChange: fixedAmount => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...formValue.healthInsuranceConfig,
+                        preRetirement: {
+                          ...formValue.healthInsuranceConfig?.preRetirement,
+                          care: {
+                            ...formValue.healthInsuranceConfig?.preRetirement?.care,
+                            fixedAmount,
+                          },
+                        },
+                      },
+                    }),
+                    onPreRetirementCareChildlessSupplementChange: childlessSupplement => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...formValue.healthInsuranceConfig,
+                        preRetirement: {
+                          ...formValue.healthInsuranceConfig?.preRetirement,
+                          care: {
+                            ...formValue.healthInsuranceConfig?.preRetirement?.care,
+                            childlessSupplement,
+                          },
+                        },
+                      },
+                    }),
+                    onRetirementHealthMethodChange: usePercentage => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...(formValue.healthInsuranceConfig || {
+                          enabled: false,
+                          retirementStartYear: startOfIndependence,
+                          preRetirement: {
+                            health: { usePercentage: true, percentage: 14.6 },
+                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
+                          },
+                          retirement: {
+                            health: { usePercentage: true, percentage: 7.3 },
+                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
+                          },
+                        }),
+                        retirement: {
+                          ...formValue.healthInsuranceConfig?.retirement,
+                          health: {
+                            ...formValue.healthInsuranceConfig?.retirement?.health,
+                            usePercentage,
+                          },
+                        },
+                      },
+                    }),
+                    onRetirementHealthPercentageChange: percentage => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...formValue.healthInsuranceConfig,
+                        retirement: {
+                          ...formValue.healthInsuranceConfig?.retirement,
+                          health: {
+                            ...formValue.healthInsuranceConfig?.retirement?.health,
+                            percentage,
+                          },
+                        },
+                      },
+                    }),
+                    onRetirementHealthFixedAmountChange: fixedAmount => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...formValue.healthInsuranceConfig,
+                        retirement: {
+                          ...formValue.healthInsuranceConfig?.retirement,
+                          health: {
+                            ...formValue.healthInsuranceConfig?.retirement?.health,
+                            fixedAmount,
+                          },
+                        },
+                      },
+                    }),
+                    onRetirementCareMethodChange: usePercentage => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...(formValue.healthInsuranceConfig || {
+                          enabled: false,
+                          retirementStartYear: startOfIndependence,
+                          preRetirement: {
+                            health: { usePercentage: true, percentage: 14.6 },
+                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
+                          },
+                          retirement: {
+                            health: { usePercentage: true, percentage: 7.3 },
+                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
+                          },
+                        }),
+                        retirement: {
+                          ...formValue.healthInsuranceConfig?.retirement,
+                          care: {
+                            ...formValue.healthInsuranceConfig?.retirement?.care,
+                            usePercentage,
+                          },
+                        },
+                      },
+                    }),
+                    onRetirementCarePercentageChange: percentage => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...formValue.healthInsuranceConfig,
+                        retirement: {
+                          ...formValue.healthInsuranceConfig?.retirement,
+                          care: {
+                            ...formValue.healthInsuranceConfig?.retirement?.care,
+                            percentage,
+                          },
+                        },
+                      },
+                    }),
+                    onRetirementCareFixedAmountChange: fixedAmount => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...formValue.healthInsuranceConfig,
+                        retirement: {
+                          ...formValue.healthInsuranceConfig?.retirement,
+                          care: {
+                            ...formValue.healthInsuranceConfig?.retirement?.care,
+                            fixedAmount,
+                          },
+                        },
+                      },
+                    }),
+                    onRetirementCareChildlessSupplementChange: childlessSupplement => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...formValue.healthInsuranceConfig,
+                        retirement: {
+                          ...formValue.healthInsuranceConfig?.retirement,
+                          care: {
+                            ...formValue.healthInsuranceConfig?.retirement?.care,
+                            childlessSupplement,
+                          },
+                        },
                       },
                     }),
                   }}
