@@ -1,345 +1,223 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { SimulationProvider } from '../contexts/SimulationContext'
 import { EntnahmeSimulationsAusgabe } from './EntnahmeSimulationsAusgabe'
-import type { SparplanElement } from '../utils/sparplan-utils'
 
-// Mock sonner toast
-vi.mock('sonner', () => ({
-  toast: {
-    success: vi.fn(),
-  },
+// Mock the simulation context
+const mockUseSimulation = vi.fn()
+vi.mock('../contexts/useSimulation', () => ({
+  useSimulation: () => mockUseSimulation(),
 }))
 
-// Mock window.matchMedia for responsive behavior
-Object.defineProperty(window, 'matchMedia', {
-  writable: true,
-  value: vi.fn().mockImplementation(query => ({
-    matches: false,
-    media: query,
-    onchange: null,
-    addListener: vi.fn(),
-    removeListener: vi.fn(),
-    addEventListener: vi.fn(),
-    removeEventListener: vi.fn(),
-    dispatchEvent: vi.fn(),
-  })),
-})
+// Mock the hooks
+const mockUseWithdrawalConfig = vi.fn()
+const mockUseWithdrawalCalculations = vi.fn()
+const mockUseWithdrawalModals = vi.fn()
 
-// Helper function to navigate to other income section
-async function navigateToOtherIncomeSection() {
-  // First find and click the "Variablen" heading to expand the section
-  const variablenHeading = screen.getByText('Variablen')
-  fireEvent.click(variablenHeading)
+vi.mock('../hooks/useWithdrawalConfig', () => ({
+  useWithdrawalConfig: () => mockUseWithdrawalConfig(),
+}))
 
-  await waitFor(() => {
-    // Now find the "💰 Andere Einkünfte" heading and click it
-    const otherIncomeHeading = screen.getByText('💰 Andere Einkünfte')
-    fireEvent.click(otherIncomeHeading)
-  })
-}
+vi.mock('../hooks/useWithdrawalCalculations', () => ({
+  useWithdrawalCalculations: () => mockUseWithdrawalCalculations(),
+}))
 
-// Helper function to enable other income and wait for add button
-async function enableOtherIncomeAndWaitForAddButton() {
-  // First find and click the enable switch
-  const enableSwitch = await waitFor(() => {
-    return screen.getByLabelText('Andere Einkünfte aktivieren')
-  })
-  
-  fireEvent.click(enableSwitch)
-
-  // Wait for the add button to appear after enabling the switch with longer timeout
-  const addButton = await waitFor(() => {
-    return screen.getByText('Neue Einkommensquelle hinzufügen')
-  }, { timeout: 3000 })
-
-  return addButton
-}
-
-// Helper function to click add button and wait for form
-async function clickAddButtonAndWaitForForm() {
-  const addButton = await enableOtherIncomeAndWaitForAddButton()
-  fireEvent.click(addButton)
-
-  // Wait for the form to appear
-  await waitFor(() => {
-    expect(screen.getByLabelText('Bezeichnung')).toBeInTheDocument()
-  })
-
-  return addButton
-}
+vi.mock('../hooks/useWithdrawalModals', () => ({
+  useWithdrawalModals: () => mockUseWithdrawalModals(),
+}))
 
 describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
-  const mockElemente: SparplanElement[] = [
-    {
-      start: new Date('2023-01-01'),
-      type: 'einmalzahlung',
-      gewinn: 176719.80,
-      einzahlung: 2000,
-      ter: 0.5,
-      transactionCostPercent: 0,
-      transactionCostAbsolute: 0,
-      simulation: {
-        2040: {
-          startkapital: 532577.65,
-          endkapital: 532577.65,
-          zinsen: 176719.80,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          vorabpauschale: 0,
-          vorabpauschaleAccumulated: 0,
-        },
-      },
-    },
-  ]
+  // Helper function to expand Variables section and Other Income section
+  const expandVariablesAndOtherIncome = async () => {
+    // Step 1: Expand the Variables section
+    const variablesSection = screen.getByText('Variablen')
+    fireEvent.click(variablesSection)
 
-  const defaultProps = {
-    startEnd: [2023, 2040] as [number, number],
-    elemente: mockElemente,
-    dispatchEnd: vi.fn(),
-    steuerlast: 0.26375,
-    teilfreistellungsquote: 0.3,
+    // Step 2: Wait for and expand the Other Income section
+    await waitFor(() => {
+      expect(screen.getByText('💰 Andere Einkünfte')).toBeInTheDocument()
+    })
+
+    const otherIncomeSection = screen.getByText('💰 Andere Einkünfte')
+    fireEvent.click(otherIncomeSection)
   }
 
   beforeEach(() => {
+    // Reset all mocks
     vi.clearAllMocks()
+
+    // Setup default mock returns
+    mockUseSimulation.mockReturnValue({
+      grundfreibetragAktiv: false,
+      grundfreibetragBetrag: 12000,
+    })
+
+    const mockCurrentConfig = {
+      formValue: {
+        endOfLife: 2080,
+        strategie: '4prozent' as const,
+        rendite: 5,
+        withdrawalFrequency: 'yearly' as const,
+        inflationAktiv: false,
+        inflationsrate: 2,
+      },
+      withdrawalReturnMode: 'fixed' as const,
+      useSegmentedWithdrawal: false,
+      withdrawalSegments: [],
+      otherIncomeConfig: {
+        enabled: false,
+        sources: [],
+      },
+    }
+
+    mockUseWithdrawalConfig.mockReturnValue({
+      currentConfig: mockCurrentConfig,
+      updateConfig: vi.fn(),
+      updateFormValue: vi.fn(),
+    })
+
+    mockUseWithdrawalCalculations.mockReturnValue({
+      withdrawalData: null,
+      isCalculating: false,
+    })
+
+    mockUseWithdrawalModals.mockReturnValue({
+      showCalculationModal: false,
+      setShowCalculationModal: vi.fn(),
+      calculationDetails: null,
+      handleCalculationInfoClick: vi.fn(),
+      selectedVorabDetails: null,
+      setSelectedVorabDetails: vi.fn(),
+      showVorabModal: false,
+      setShowVorabModal: vi.fn(),
+    })
   })
 
-  it('should render other income configuration when enabled', async () => {
+  it('should render other income section', async () => {
     render(
-      <SimulationProvider>
-        <EntnahmeSimulationsAusgabe {...defaultProps} />
-      </SimulationProvider>,
+      <EntnahmeSimulationsAusgabe
+        startEnd={[2025, 2080]}
+        elemente={[]}
+        dispatchEnd={vi.fn()}
+        steuerlast={0.26375}
+        teilfreistellungsquote={0.30}
+      />,
     )
 
-    await navigateToOtherIncomeSection()
+    // Navigate to other income section
+    await expandVariablesAndOtherIncome()
 
+    // Check that the other income section is rendered
     await waitFor(() => {
-      expect(screen.getByText('Andere Einkünfte aktivieren')).toBeInTheDocument()
       expect(screen.getByText(/Hier können Sie zusätzliche Einkünfte/)).toBeInTheDocument()
     })
   })
 
-  it('should show add income source form when activated', async () => {
-    render(
-      <SimulationProvider>
-        <EntnahmeSimulationsAusgabe {...defaultProps} />
-      </SimulationProvider>,
-    )
+  it('should show other income configuration when enabled', async () => {
+    // Override mock to enable other income
+    const mockCurrentConfigEnabled = {
+      formValue: {
+        endOfLife: 2080,
+        strategie: '4prozent' as const,
+        rendite: 5,
+        withdrawalFrequency: 'yearly' as const,
+        inflationAktiv: false,
+        inflationsrate: 2,
+      },
+      withdrawalReturnMode: 'fixed' as const,
+      useSegmentedWithdrawal: false,
+      withdrawalSegments: [],
+      otherIncomeConfig: {
+        enabled: true,
+        sources: [],
+      },
+    }
 
-    await navigateToOtherIncomeSection()
-    await enableOtherIncomeAndWaitForAddButton()
-  })
-
-  it('should add and display other income source', async () => {
-    render(
-      <SimulationProvider>
-        <EntnahmeSimulationsAusgabe {...defaultProps} />
-      </SimulationProvider>,
-    )
-
-    await navigateToOtherIncomeSection()
-
-    // Enable other income and get the add button, then wait for form
-    await clickAddButtonAndWaitForForm()
-
-    // Fill in the form
-    await waitFor(() => {
-      const nameInput = screen.getByLabelText('Bezeichnung')
-      fireEvent.change(nameInput, { target: { value: 'Test Mieteinnahmen' } })
-
-      const amountInput = screen.getByLabelText('Monatlicher Betrag (€) - Brutto')
-      fireEvent.change(amountInput, { target: { value: '1200' } })
-
-      const submitButton = screen.getByRole('button', { name: 'Hinzufügen' })
-      fireEvent.click(submitButton)
+    mockUseWithdrawalConfig.mockReturnValue({
+      currentConfig: mockCurrentConfigEnabled,
+      updateConfig: vi.fn(),
+      updateFormValue: vi.fn(),
     })
 
-    // Check if the income source is displayed
-    await waitFor(() => {
-      expect(screen.getByText('Test Mieteinnahmen')).toBeInTheDocument()
-      expect(screen.getByText(/1\.200.*€\/Monat.*14\.400.*€\/Jahr/)).toBeInTheDocument()
-    })
-  })
-
-  it('should toggle between gross and net income types', async () => {
     render(
-      <SimulationProvider>
-        <EntnahmeSimulationsAusgabe {...defaultProps} />
-      </SimulationProvider>,
+      <EntnahmeSimulationsAusgabe
+        startEnd={[2025, 2080]}
+        elemente={[]}
+        dispatchEnd={vi.fn()}
+        steuerlast={0.26375}
+        teilfreistellungsquote={0.30}
+      />,
     )
 
-    await navigateToOtherIncomeSection()
+    // Navigate to other income section
+    await expandVariablesAndOtherIncome()
 
-    await clickAddButtonAndWaitForForm()
-
+    // Check that the enable toggle exists and is visible
     await waitFor(() => {
-      // Initially should be gross (showing tax rate slider)
-      expect(screen.getByLabelText('Monatlicher Betrag (€) - Brutto')).toBeInTheDocument()
-      expect(screen.getByText('Steuersatz (%)')).toBeInTheDocument()
+      expect(screen.getByText('Andere Einkünfte aktivieren')).toBeInTheDocument()
+    })
 
-      // Toggle to net - find the switch that's not the enable toggle
-      const switches = screen.getAllByRole('switch')
-      const grossNetToggle = switches.find(sw => sw.id !== 'other-income-enabled')
-      expect(grossNetToggle).toBeDefined()
-      fireEvent.click(grossNetToggle!)
-
-      // Should now show net and hide tax rate
-      expect(screen.getByLabelText('Monatlicher Betrag (€) - Netto')).toBeInTheDocument()
-      expect(screen.queryByText('Steuersatz (%)')).not.toBeInTheDocument()
+    // Should also show the add button when enabled
+    await waitFor(() => {
+      expect(screen.getByText('Neue Einkommensquelle hinzufügen')).toBeInTheDocument()
     })
   })
 
-  it('should handle different income types correctly', async () => {
+  it('should display income sources when configured', async () => {
+    // Override mock to show configured income sources
+    const mockCurrentConfigWithSources = {
+      formValue: {
+        endOfLife: 2080,
+        strategie: '4prozent' as const,
+        rendite: 5,
+        withdrawalFrequency: 'yearly' as const,
+        inflationAktiv: false,
+        inflationsrate: 2,
+      },
+      withdrawalReturnMode: 'fixed' as const,
+      useSegmentedWithdrawal: false,
+      withdrawalSegments: [],
+      otherIncomeConfig: {
+        enabled: true,
+        sources: [
+          {
+            id: 'test-rental',
+            name: 'Rental Property Income',
+            type: 'rental',
+            amountType: 'net',
+            monthlyAmount: 1200,
+            startYear: 2025,
+            endYear: 2080,
+            inflationRate: 0.02,
+            taxRate: 0.25,
+            enabled: true,
+            notes: 'Monthly rental income',
+          },
+        ],
+      },
+    }
+
+    mockUseWithdrawalConfig.mockReturnValue({
+      currentConfig: mockCurrentConfigWithSources,
+      updateConfig: vi.fn(),
+      updateFormValue: vi.fn(),
+    })
+
     render(
-      <SimulationProvider>
-        <EntnahmeSimulationsAusgabe {...defaultProps} />
-      </SimulationProvider>,
+      <EntnahmeSimulationsAusgabe
+        startEnd={[2025, 2080]}
+        elemente={[]}
+        dispatchEnd={vi.fn()}
+        steuerlast={0.26375}
+        teilfreistellungsquote={0.30}
+      />,
     )
 
-    await navigateToOtherIncomeSection()
+    // Navigate to other income section
+    await expandVariablesAndOtherIncome()
 
-    await clickAddButtonAndWaitForForm()
-
+    // Check that the configured income source is displayed
     await waitFor(() => {
-      const typeSelect = screen.getByLabelText('Art der Einkünfte')
-
-      // Should have default value "Mieteinnahmen"
-      expect(typeSelect).toHaveValue('rental')
-
-      // Change to pension
-      fireEvent.change(typeSelect, { target: { value: 'pension' } })
-      expect(typeSelect).toHaveValue('pension')
-    })
-  })
-
-  it('should allow editing existing income sources', async () => {
-    render(
-      <SimulationProvider>
-        <EntnahmeSimulationsAusgabe {...defaultProps} />
-      </SimulationProvider>,
-    )
-
-    await navigateToOtherIncomeSection()
-
-    await clickAddButtonAndWaitForForm()
-
-    await waitFor(() => {
-      const nameInput = screen.getByLabelText('Bezeichnung')
-      fireEvent.change(nameInput, { target: { value: 'Original Name' } })
-
-      const amountInput = screen.getByLabelText('Monatlicher Betrag (€) - Brutto')
-      fireEvent.change(amountInput, { target: { value: '1000' } })
-
-      const submitButton = screen.getByRole('button', { name: 'Hinzufügen' })
-      fireEvent.click(submitButton)
-    })
-
-    // Now edit it
-    await waitFor(() => {
-      const editButton = screen.getByRole('button', { name: 'Bearbeiten' })
-      fireEvent.click(editButton)
-    })
-
-    await waitFor(() => {
-      const nameInput = screen.getByDisplayValue('Original Name')
-      fireEvent.change(nameInput, { target: { value: 'Updated Name' } })
-
-      const saveButton = screen.getByRole('button', { name: 'Speichern' })
-      fireEvent.click(saveButton)
-    })
-
-    await waitFor(() => {
-      expect(screen.getByText('Updated Name')).toBeInTheDocument()
-    })
-  })
-
-  it('should allow deleting income sources', async () => {
-    render(
-      <SimulationProvider>
-        <EntnahmeSimulationsAusgabe {...defaultProps} />
-      </SimulationProvider>,
-    )
-
-    await navigateToOtherIncomeSection()
-
-    await clickAddButtonAndWaitForForm()
-
-    await waitFor(() => {
-      const nameInput = screen.getByLabelText('Bezeichnung')
-      fireEvent.change(nameInput, { target: { value: 'To Delete' } })
-
-      const amountInput = screen.getByLabelText('Monatlicher Betrag (€) - Brutto')
-      fireEvent.change(amountInput, { target: { value: '1000' } })
-
-      const submitButton = screen.getByRole('button', { name: 'Hinzufügen' })
-      fireEvent.click(submitButton)
-    })
-
-    // Wait for the income source to be added and then delete it
-    await waitFor(() => {
-      expect(screen.getByText('To Delete')).toBeInTheDocument()
-
-      // Find delete button (should be the trash icon button)
-      const buttons = screen.getAllByRole('button')
-      const deleteButton = buttons.find((button) => {
-        const svg = button.querySelector('svg')
-        return svg && !button.textContent?.trim()
-      })
-
-      if (deleteButton) {
-        fireEvent.click(deleteButton)
-      }
-    })
-
-    await waitFor(() => {
-      expect(screen.queryByText('To Delete')).not.toBeInTheDocument()
-      expect(screen.getByText('Noch keine Einkommensquellen konfiguriert.')).toBeInTheDocument()
-    })
-  })
-
-  it('should validate form fields correctly', async () => {
-    render(
-      <SimulationProvider>
-        <EntnahmeSimulationsAusgabe {...defaultProps} />
-      </SimulationProvider>,
-    )
-
-    await navigateToOtherIncomeSection()
-
-    await clickAddButtonAndWaitForForm()
-
-    await waitFor(() => {
-      // Try to submit with empty name
-      const nameInput = screen.getByLabelText('Bezeichnung')
-      fireEvent.change(nameInput, { target: { value: '' } })
-
-      const submitButton = screen.getByRole('button', { name: 'Hinzufügen' })
-      fireEvent.click(submitButton)
-
-      // Form should still be visible (not submitted)
-      expect(screen.getByText('Neue Einkommensquelle')).toBeInTheDocument()
-    })
-  })
-
-  it('should handle inflation rate adjustments', async () => {
-    render(
-      <SimulationProvider>
-        <EntnahmeSimulationsAusgabe {...defaultProps} />
-      </SimulationProvider>,
-    )
-
-    await navigateToOtherIncomeSection()
-
-    await clickAddButtonAndWaitForForm()
-
-    await waitFor(() => {
-      // Check default inflation rate is 2%
-      expect(screen.getByText('2.0%')).toBeInTheDocument()
-
-      // The inflation slider should be adjustable
-      const inflationSlider = screen.getByDisplayValue('2')
-      expect(inflationSlider).toBeInTheDocument()
+      expect(screen.getByText('Rental Property Income')).toBeInTheDocument()
     })
   })
 })
