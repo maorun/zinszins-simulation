@@ -3,6 +3,7 @@ import type { ReturnConfiguration } from '../../helpers/random-returns'
 import type { MonthlyWithdrawalConfig, InflationConfig, DynamicWithdrawalConfig, BucketStrategyConfig, RMDConfig } from '../../helpers/withdrawal'
 import type { WithdrawalFrequency } from './config-storage'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
+import type { HealthInsuranceConfig } from '../../helpers/health-insurance'
 
 /**
  * Configuration for a single withdrawal segment (time period)
@@ -56,6 +57,10 @@ export type SegmentedWithdrawalConfig = {
   freibetragPerYear?: { [year: number]: number }
   /** Statutory pension configuration (applies to all segments) */
   statutoryPensionConfig?: StatutoryPensionConfig
+  /** Health insurance configuration (applies to all segments) */
+  healthInsuranceConfig?: HealthInsuranceConfig
+  /** Whether the person is childless (for health insurance supplement) */
+  childless?: boolean
 }
 
 /**

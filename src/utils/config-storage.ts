@@ -5,6 +5,7 @@ import type { WithdrawalStrategy, BucketStrategyConfig } from '../../helpers/wit
 import type { WithdrawalSegment } from './segmented-withdrawal'
 import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
+import type { HealthInsuranceConfig } from '../../helpers/health-insurance'
 
 /**
  * Return mode for withdrawal phase (subset of main ReturnMode)
@@ -50,6 +51,9 @@ export interface WithdrawalFormValue {
   kapitalerhaltInflationRate: number
   // Statutory pension settings
   statutoryPensionConfig?: StatutoryPensionConfig
+  // Health insurance settings
+  healthInsuranceConfig?: HealthInsuranceConfig
+  childless?: boolean
   // Grundfreibetrag settings (now handled globally, kept for backward compatibility)
   grundfreibetragAktiv?: boolean
   grundfreibetragBetrag?: number
@@ -84,6 +88,9 @@ export interface ComparisonStrategy {
   kapitalerhaltInflationRate?: number
   // Statutory pension configuration
   statutoryPensionConfig?: StatutoryPensionConfig
+  // Health insurance configuration
+  healthInsuranceConfig?: HealthInsuranceConfig
+  childless?: boolean
 }
 
 /**

@@ -8,6 +8,8 @@ import type { BasiszinsConfiguration } from '../src/services/bundesbank-api'
 import { calculateRMDWithdrawal } from './rmd-tables'
 import type { StatutoryPensionConfig } from './statutory-pension'
 import { calculateStatutoryPension } from './statutory-pension'
+import type { HealthInsuranceConfig, HealthInsuranceYearResult } from './health-insurance'
+import { calculateHealthInsurance, calculateNetWithdrawalAmount } from './health-insurance'
 
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt'
 
@@ -54,6 +56,29 @@ export type WithdrawalResultElement = {
     incomeTax: number
     taxableAmount: number
   }
+  // Health insurance fields
+  healthInsurance?: {
+    totalAnnualAmount: number
+    totalMonthlyAmount: number
+    phase: 'pre-retirement' | 'retirement'
+    health: {
+      annualAmount: number
+      monthlyAmount: number
+      calculationMethod: 'percentage' | 'fixed'
+      percentage?: number
+      baseAmount?: number
+    }
+    care: {
+      annualAmount: number
+      monthlyAmount: number
+      calculationMethod: 'percentage' | 'fixed'
+      percentage?: number
+      baseAmount?: number
+      childlessSupplementAmount?: number
+    }
+  }
+  // Net withdrawal amount after all deductions (taxes + health insurance)
+  netEntnahme?: number
 }
 
 export type WithdrawalResult = {
@@ -152,6 +177,8 @@ export type CalculateWithdrawalParams = {
   kapitalerhaltConfig?: KapitalerhaltConfig
   basiszinsConfiguration?: BasiszinsConfiguration
   statutoryPensionConfig?: StatutoryPensionConfig
+  healthInsuranceConfig?: HealthInsuranceConfig
+  childless?: boolean // For health insurance childless supplement
 }
 
 export function calculateWithdrawal({
@@ -177,6 +204,8 @@ export function calculateWithdrawal({
   kapitalerhaltConfig,
   basiszinsConfiguration,
   statutoryPensionConfig,
+  healthInsuranceConfig,
+  childless = false,
 }: CalculateWithdrawalParams): { result: WithdrawalResult, finalLayers: MutableLayer[] } {
   // Helper functions
   const getFreibetragForYear = (year: number): number => {
@@ -220,6 +249,21 @@ export function calculateWithdrawal({
         grundfreibetragPerYear,
       )
     : {}
+
+  // Calculate health insurance contributions for all years if configured
+  const healthInsuranceData: { [year: number]: HealthInsuranceYearResult } = {}
+  if (healthInsuranceConfig?.enabled) {
+    for (let year = startYear; year <= endYear; year++) {
+      // We'll calculate based on gross withdrawal which we don't have yet,
+      // so we'll do this calculation inside the yearly loop below
+      healthInsuranceData[year] = calculateHealthInsurance(
+        year,
+        healthInsuranceConfig,
+        0, // Placeholder - will be updated in the loop
+        childless,
+      )
+    }
+  }
 
   const initialStartingCapital = elements.reduce((sum: number, el: SparplanElement) => {
     const simYear = el.simulation?.[startYear - 1]
@@ -387,6 +431,25 @@ export function calculateWithdrawal({
     }
 
     const entnahme = Math.min(annualWithdrawal, capitalAtStartOfYear)
+
+    // Calculate health insurance for this year based on gross withdrawal amount
+    let healthInsuranceForYear: HealthInsuranceYearResult | undefined
+    let netEntnahme = entnahme // Net withdrawal after health insurance deduction
+
+    if (healthInsuranceConfig?.enabled) {
+      healthInsuranceForYear = calculateHealthInsurance(
+        year,
+        healthInsuranceConfig,
+        entnahme, // Use gross withdrawal amount as base for insurance calculation
+        childless,
+      )
+
+      // Calculate net withdrawal amount after health insurance deduction
+      netEntnahme = calculateNetWithdrawalAmount(entnahme, healthInsuranceForYear)
+
+      // Update the health insurance data for this year
+      healthInsuranceData[year] = healthInsuranceForYear
+    }
 
     // Get the return rate for this year (needed for monthly withdrawal calculations)
     const returnRate = yearlyGrowthRates[year] || 0
@@ -627,6 +690,18 @@ export function calculateWithdrawal({
             taxableAmount: statutoryPensionData[year].taxableAmount,
           }
         : undefined,
+      // Health insurance data
+      healthInsurance: healthInsuranceForYear && healthInsuranceForYear.totalAnnualAmount > 0
+        ? {
+            totalAnnualAmount: healthInsuranceForYear.totalAnnualAmount,
+            totalMonthlyAmount: healthInsuranceForYear.totalMonthlyAmount,
+            phase: healthInsuranceForYear.phase,
+            health: healthInsuranceForYear.health,
+            care: healthInsuranceForYear.care,
+          }
+        : undefined,
+      // Net withdrawal amount after all deductions (taxes + health insurance)
+      netEntnahme: healthInsuranceForYear ? netEntnahme : undefined,
     }
   }
 
@@ -678,6 +753,8 @@ export function calculateSegmentedWithdrawal(
       bucketConfig: segment.bucketConfig,
       rmdConfig: segment.rmdConfig,
       statutoryPensionConfig: segmentedConfig.statutoryPensionConfig,
+      healthInsuranceConfig: segmentedConfig.healthInsuranceConfig,
+      childless: segmentedConfig.childless,
     })
 
     Object.assign(result, segmentResultData)
