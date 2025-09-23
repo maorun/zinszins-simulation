@@ -54,6 +54,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Geteilte Entnahme-Phasen** - Segmentierung in verschiedene Zeiträume mit unterschiedlichen Strategien
 - **Strategienvergleich** - Vergleich verschiedener Entnahmestrategien mit demselben Startkapital
 - **Gesetzliche Rente Integration** - Vollständige Integration der deutschen gesetzlichen Rente
+- **Andere Einkünfte** - Zusätzliche Einkommensquellen wie Mieteinnahmen, private Renten oder Gewerbeeinkünfte mit Brutto-/Netto-Konfiguration, Inflationsanpassung und Steuerberechnung
 
 ### Analyse und Simulation
 - **Finanzübersicht** - Kompakte Übersicht aller wichtigen Kennzahlen mit Sticky Navigation

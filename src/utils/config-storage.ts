@@ -5,6 +5,7 @@ import type { WithdrawalStrategy, BucketStrategyConfig } from '../../helpers/wit
 import type { WithdrawalSegment } from './segmented-withdrawal'
 import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
+import type { OtherIncomeConfiguration } from '../../helpers/other-income'
 
 /**
  * Return mode for withdrawal phase (subset of main ReturnMode)
@@ -116,6 +117,8 @@ export interface WithdrawalConfiguration {
   // Segmented comparison mode configuration
   useSegmentedComparisonMode: boolean
   segmentedComparisonStrategies: SegmentedComparisonStrategy[]
+  // Other income sources configuration
+  otherIncomeConfig?: OtherIncomeConfiguration
 }
 
 /**
@@ -167,6 +170,8 @@ export interface SavedConfiguration {
   useAutomaticCalculation?: boolean
   // Withdrawal configuration
   withdrawal?: WithdrawalConfiguration
+  // Other income sources configuration
+  otherIncome?: OtherIncomeConfiguration
 }
 
 const STORAGE_KEY = 'zinszins-simulation-config'
