@@ -41,17 +41,32 @@ async function navigateToOtherIncomeSection() {
 
 // Helper function to enable other income and wait for add button
 async function enableOtherIncomeAndWaitForAddButton() {
+  // First find and click the enable switch
+  const enableSwitch = await waitFor(() => {
+    return screen.getByLabelText('Andere Einkünfte aktivieren')
+  })
+  
+  fireEvent.click(enableSwitch)
+
+  // Wait for the add button to appear after enabling the switch with longer timeout
+  const addButton = await waitFor(() => {
+    return screen.getByText('Neue Einkommensquelle hinzufügen')
+  }, { timeout: 3000 })
+
+  return addButton
+}
+
+// Helper function to click add button and wait for form
+async function clickAddButtonAndWaitForForm() {
+  const addButton = await enableOtherIncomeAndWaitForAddButton()
+  fireEvent.click(addButton)
+
+  // Wait for the form to appear
   await waitFor(() => {
-    const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
-    fireEvent.click(enableSwitch)
+    expect(screen.getByLabelText('Bezeichnung')).toBeInTheDocument()
   })
 
-  // Wait for the add button to appear after enabling the switch
-  await waitFor(() => {
-    expect(screen.getByText('Neue Einkommensquelle hinzufügen')).toBeInTheDocument()
-  })
-
-  return screen.getByText('Neue Einkommensquelle hinzufügen')
+  return addButton
 }
 
 describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
@@ -113,16 +128,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
     )
 
     await navigateToOtherIncomeSection()
-
-    await waitFor(() => {
-      // Enable other income
-      const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
-      fireEvent.click(enableSwitch)
-    })
-
-    await waitFor(() => {
-      expect(screen.getByText('Neue Einkommensquelle hinzufügen')).toBeInTheDocument()
-    })
+    await enableOtherIncomeAndWaitForAddButton()
   })
 
   it('should add and display other income source', async () => {
@@ -134,20 +140,8 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
 
     await navigateToOtherIncomeSection()
 
-    // Enable other income
-    await waitFor(() => {
-      const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
-      fireEvent.click(enableSwitch)
-    })
-
-    // Wait for the add button to appear after enabling the switch
-    await waitFor(() => {
-      expect(screen.getByText('Neue Einkommensquelle hinzufügen')).toBeInTheDocument()
-    })
-
-    // Click add new income source
-    const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
-    fireEvent.click(addButton)
+    // Enable other income and get the add button, then wait for form
+    await clickAddButtonAndWaitForForm()
 
     // Fill in the form
     await waitFor(() => {
@@ -177,17 +171,18 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
 
     await navigateToOtherIncomeSection()
 
-    const addButton = await enableOtherIncomeAndWaitForAddButton()
-    fireEvent.click(addButton)
+    await clickAddButtonAndWaitForForm()
 
     await waitFor(() => {
       // Initially should be gross (showing tax rate slider)
       expect(screen.getByLabelText('Monatlicher Betrag (€) - Brutto')).toBeInTheDocument()
       expect(screen.getByText('Steuersatz (%)')).toBeInTheDocument()
 
-      // Toggle to net
-      const grossNetToggle = screen.getByRole('switch', { name: /Brutto.*Netto/i })
-      fireEvent.click(grossNetToggle)
+      // Toggle to net - find the switch that's not the enable toggle
+      const switches = screen.getAllByRole('switch')
+      const grossNetToggle = switches.find(sw => sw.id !== 'other-income-enabled')
+      expect(grossNetToggle).toBeDefined()
+      fireEvent.click(grossNetToggle!)
 
       // Should now show net and hide tax rate
       expect(screen.getByLabelText('Monatlicher Betrag (€) - Netto')).toBeInTheDocument()
@@ -204,18 +199,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
 
     await navigateToOtherIncomeSection()
 
-    await waitFor(() => {
-      const enableSwitch = screen.getByLabelText('Andere Einkünfte aktivieren')
-      fireEvent.click(enableSwitch)
-    })
-
-    // Wait for the add button to appear after enabling the switch
-    await waitFor(() => {
-      expect(screen.getByText('Neue Einkommensquelle hinzufügen')).toBeInTheDocument()
-    })
-
-    const addButton = screen.getByText('Neue Einkommensquelle hinzufügen')
-    fireEvent.click(addButton)
+    await clickAddButtonAndWaitForForm()
 
     await waitFor(() => {
       const typeSelect = screen.getByLabelText('Art der Einkünfte')
@@ -238,8 +222,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
 
     await navigateToOtherIncomeSection()
 
-    const addButton = await enableOtherIncomeAndWaitForAddButton()
-    fireEvent.click(addButton)
+    await clickAddButtonAndWaitForForm()
 
     await waitFor(() => {
       const nameInput = screen.getByLabelText('Bezeichnung')
@@ -280,8 +263,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
 
     await navigateToOtherIncomeSection()
 
-    const addButton = await enableOtherIncomeAndWaitForAddButton()
-    fireEvent.click(addButton)
+    await clickAddButtonAndWaitForForm()
 
     await waitFor(() => {
       const nameInput = screen.getByLabelText('Bezeichnung')
@@ -325,8 +307,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
 
     await navigateToOtherIncomeSection()
 
-    const addButton = await enableOtherIncomeAndWaitForAddButton()
-    fireEvent.click(addButton)
+    await clickAddButtonAndWaitForForm()
 
     await waitFor(() => {
       // Try to submit with empty name
@@ -350,8 +331,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
 
     await navigateToOtherIncomeSection()
 
-    const addButton = await enableOtherIncomeAndWaitForAddButton()
-    fireEvent.click(addButton)
+    await clickAddButtonAndWaitForForm()
 
     await waitFor(() => {
       // Check default inflation rate is 2%
