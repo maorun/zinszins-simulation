@@ -400,7 +400,7 @@ export function OtherIncomeConfigurationComponent({
                                 )}
                               </div>
                             </div>
-                            <div className="flex gap-2 ml-4">
+                            <div className="flex flex-col md:flex-row gap-2 ml-4">
                               <Button
                                 onClick={() => handleEditSource(source)}
                                 variant="outline"
