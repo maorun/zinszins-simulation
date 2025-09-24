@@ -7,11 +7,10 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { Info, ChevronDown } from 'lucide-react'
 import { useNestingLevel } from '../lib/nesting-utils'
 import { RadioTileGroup, RadioTile } from './ui/radio-tile'
-import type { 
-  HealthInsuranceConfig,
+import type {
   StatutoryHealthInsuranceConfig,
   PrivateHealthInsuranceConfig,
-  HealthInsuranceType
+  HealthInsuranceType,
 } from '../../helpers/health-insurance'
 
 interface HealthInsuranceFormValues {
@@ -91,8 +90,8 @@ export function HealthInsuranceConfiguration({
                 <div className="p-3 bg-blue-50 rounded-lg">
                   <div className="text-sm text-blue-800">
                     <Info className="inline w-4 h-4 mr-2" />
-                    Aktivieren Sie diese Option, um Kranken- und Pflegeversicherungsbeiträge 
-                    in der Entnahmephase zu berücksichtigen. Die Beiträge werden vom 
+                    Aktivieren Sie diese Option, um Kranken- und Pflegeversicherungsbeiträge
+                    in der Entnahmephase zu berücksichtigen. Die Beiträge werden vom
                     Entnahmebetrag abgezogen.
                   </div>
                 </div>
@@ -148,7 +147,7 @@ export function HealthInsuranceConfiguration({
                     id="retirement-start-year"
                     type="number"
                     value={values.retirementStartYear}
-                    onChange={(e) => onChange.onRetirementStartYearChange(Number(e.target.value))}
+                    onChange={e => onChange.onRetirementStartYearChange(Number(e.target.value))}
                     min={currentYear}
                     max={currentYear + 50}
                   />
@@ -181,7 +180,7 @@ export function HealthInsuranceConfiguration({
                       <Label className="font-medium">Versicherungsart</Label>
                       <RadioTileGroup
                         value={values.preRetirementType}
-                        onValueChange={(value) => onChange.onPreRetirementTypeChange(value as HealthInsuranceType)}
+                        onValueChange={value => onChange.onPreRetirementTypeChange(value as HealthInsuranceType)}
                       >
                         <RadioTile value="statutory" label="Gesetzliche Krankenversicherung">
                           Standard-Beitragssätze mit Beitragsbemessungsgrenzen
@@ -198,7 +197,7 @@ export function HealthInsuranceConfiguration({
                         <div className="text-sm font-medium text-gray-700">
                           Gesetzliche Krankenversicherung - Vorrente
                         </div>
-                        
+
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="pre-statutory-health-rate">
@@ -209,8 +208,8 @@ export function HealthInsuranceConfiguration({
                               type="number"
                               step="0.1"
                               value={values.preRetirement.statutory?.healthRate || 14.6}
-                              onChange={(e) => onChange.onPreRetirementStatutoryChange({
-                                healthRate: Number(e.target.value)
+                              onChange={e => onChange.onPreRetirementStatutoryChange({
+                                healthRate: Number(e.target.value),
                               })}
                               min={0}
                               max={20}
@@ -219,7 +218,7 @@ export function HealthInsuranceConfiguration({
                               Standard: 14,6%
                             </div>
                           </div>
-                          
+
                           <div className="space-y-2">
                             <Label htmlFor="pre-statutory-care-rate">
                               Pflegeversicherung (%)
@@ -229,8 +228,8 @@ export function HealthInsuranceConfiguration({
                               type="number"
                               step="0.01"
                               value={values.preRetirement.statutory?.careRate || 3.05}
-                              onChange={(e) => onChange.onPreRetirementStatutoryChange({
-                                careRate: Number(e.target.value)
+                              onChange={e => onChange.onPreRetirementStatutoryChange({
+                                careRate: Number(e.target.value),
                               })}
                               min={0}
                               max={5}
@@ -249,8 +248,8 @@ export function HealthInsuranceConfiguration({
                             id="pre-statutory-ceiling"
                             type="number"
                             value={values.preRetirement.statutory?.contributionAssessmentCeiling || 62100}
-                            onChange={(e) => onChange.onPreRetirementStatutoryChange({
-                              contributionAssessmentCeiling: Number(e.target.value)
+                            onChange={e => onChange.onPreRetirementStatutoryChange({
+                              contributionAssessmentCeiling: Number(e.target.value),
                             })}
                             min={30000}
                             max={100000}
@@ -268,7 +267,7 @@ export function HealthInsuranceConfiguration({
                         <div className="text-sm font-medium text-blue-700">
                           Private Krankenversicherung - Vorrente
                         </div>
-                        
+
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="pre-private-health-premium">
@@ -278,8 +277,8 @@ export function HealthInsuranceConfiguration({
                               id="pre-private-health-premium"
                               type="number"
                               value={values.preRetirement.private?.monthlyHealthPremium || 400}
-                              onChange={(e) => onChange.onPreRetirementPrivateChange({
-                                monthlyHealthPremium: Number(e.target.value)
+                              onChange={e => onChange.onPreRetirementPrivateChange({
+                                monthlyHealthPremium: Number(e.target.value),
                               })}
                               min={100}
                               max={1500}
@@ -288,17 +287,17 @@ export function HealthInsuranceConfiguration({
                               Euro pro Monat
                             </div>
                           </div>
-                          
+
                           <div className="space-y-2">
                             <Label htmlFor="pre-private-care-premium">
                               Pflegeversicherung (monatlich)
                             </Label>
                             <Input
-                              id="pre-private-care-premium" 
+                              id="pre-private-care-premium"
                               type="number"
                               value={values.preRetirement.private?.monthlyCareRremium || 80}
-                              onChange={(e) => onChange.onPreRetirementPrivateChange({
-                                monthlyCareRremium: Number(e.target.value)
+                              onChange={e => onChange.onPreRetirementPrivateChange({
+                                monthlyCareRremium: Number(e.target.value),
                               })}
                               min={20}
                               max={300}
@@ -318,8 +317,8 @@ export function HealthInsuranceConfiguration({
                             type="number"
                             step="0.1"
                             value={((values.preRetirement.private?.annualAdjustmentRate || 1.03) - 1) * 100}
-                            onChange={(e) => onChange.onPreRetirementPrivateChange({
-                              annualAdjustmentRate: 1 + (Number(e.target.value) / 100)
+                            onChange={e => onChange.onPreRetirementPrivateChange({
+                              annualAdjustmentRate: 1 + (Number(e.target.value) / 100),
                             })}
                             min={0}
                             max={10}
@@ -346,7 +345,7 @@ export function HealthInsuranceConfiguration({
                       <Label className="font-medium">Versicherungsart</Label>
                       <RadioTileGroup
                         value={values.retirementType}
-                        onValueChange={(value) => onChange.onRetirementTypeChange(value as HealthInsuranceType)}
+                        onValueChange={value => onChange.onRetirementTypeChange(value as HealthInsuranceType)}
                       >
                         <RadioTile value="statutory" label="Gesetzliche Krankenversicherung">
                           Standard-Beitragssätze mit Beitragsbemessungsgrenzen
@@ -363,7 +362,7 @@ export function HealthInsuranceConfiguration({
                         <div className="text-sm font-medium text-gray-700">
                           Gesetzliche Krankenversicherung - Rente
                         </div>
-                        
+
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="ret-statutory-health-rate">
@@ -374,8 +373,8 @@ export function HealthInsuranceConfiguration({
                               type="number"
                               step="0.1"
                               value={values.retirement.statutory?.healthRate || 7.3}
-                              onChange={(e) => onChange.onRetirementStatutoryChange({
-                                healthRate: Number(e.target.value)
+                              onChange={e => onChange.onRetirementStatutoryChange({
+                                healthRate: Number(e.target.value),
                               })}
                               min={0}
                               max={15}
@@ -384,7 +383,7 @@ export function HealthInsuranceConfiguration({
                               Standard: 7,3% (ohne Arbeitgeberanteil)
                             </div>
                           </div>
-                          
+
                           <div className="space-y-2">
                             <Label htmlFor="ret-statutory-care-rate">
                               Pflegeversicherung (%)
@@ -394,8 +393,8 @@ export function HealthInsuranceConfiguration({
                               type="number"
                               step="0.01"
                               value={values.retirement.statutory?.careRate || 3.05}
-                              onChange={(e) => onChange.onRetirementStatutoryChange({
-                                careRate: Number(e.target.value)
+                              onChange={e => onChange.onRetirementStatutoryChange({
+                                careRate: Number(e.target.value),
                               })}
                               min={0}
                               max={5}
@@ -414,7 +413,7 @@ export function HealthInsuranceConfiguration({
                         <div className="text-sm font-medium text-blue-700">
                           Private Krankenversicherung - Rente
                         </div>
-                        
+
                         <div className="grid grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="ret-private-health-premium">
@@ -424,8 +423,8 @@ export function HealthInsuranceConfiguration({
                               id="ret-private-health-premium"
                               type="number"
                               value={values.retirement.private?.monthlyHealthPremium || 450}
-                              onChange={(e) => onChange.onRetirementPrivateChange({
-                                monthlyHealthPremium: Number(e.target.value)
+                              onChange={e => onChange.onRetirementPrivateChange({
+                                monthlyHealthPremium: Number(e.target.value),
                               })}
                               min={150}
                               max={2000}
@@ -434,7 +433,7 @@ export function HealthInsuranceConfiguration({
                               Euro pro Monat
                             </div>
                           </div>
-                          
+
                           <div className="space-y-2">
                             <Label htmlFor="ret-private-care-premium">
                               Pflegeversicherung (monatlich)
@@ -443,8 +442,8 @@ export function HealthInsuranceConfiguration({
                               id="ret-private-care-premium"
                               type="number"
                               value={values.retirement.private?.monthlyCareRremium || 90}
-                              onChange={(e) => onChange.onRetirementPrivateChange({
-                                monthlyCareRremium: Number(e.target.value)
+                              onChange={e => onChange.onRetirementPrivateChange({
+                                monthlyCareRremium: Number(e.target.value),
                               })}
                               min={30}
                               max={400}
@@ -464,8 +463,8 @@ export function HealthInsuranceConfiguration({
                             type="number"
                             step="0.1"
                             value={((values.retirement.private?.annualAdjustmentRate || 1.03) - 1) * 100}
-                            onChange={(e) => onChange.onRetirementPrivateChange({
-                              annualAdjustmentRate: 1 + (Number(e.target.value) / 100)
+                            onChange={e => onChange.onRetirementPrivateChange({
+                              annualAdjustmentRate: 1 + (Number(e.target.value) / 100),
                             })}
                             min={0}
                             max={10}
@@ -486,11 +485,31 @@ export function HealthInsuranceConfiguration({
                   <Info className="inline w-4 h-4 mr-2" />
                   <strong>Hinweise:</strong>
                   <ul className="mt-2 space-y-1 list-disc list-inside">
-                    <li><strong>Gesetzliche KV:</strong> Beiträge basieren auf Entnahmebeträgen mit Mindest-/Höchstbeitrag</li>
-                    <li><strong>Private KV:</strong> Feste monatliche Beiträge unabhängig von der Entnahme</li>
-                    <li><strong>Kinderlose:</strong> Zahlen 0,6% Zuschlag zur Pflegeversicherung</li>
-                    <li><strong>Rentner-Beitragssätze:</strong> Reduzierte Sätze ab dem konfigurierten Renteneintritt</li>
-                    <li><strong>Alle Beiträge:</strong> Werden vom jährlichen Entnahmebetrag abgezogen</li>
+                    <li>
+                      <strong>Gesetzliche KV:</strong>
+                      {' '}
+                      Beiträge basieren auf Entnahmebeträgen mit Mindest-/Höchstbeitrag
+                    </li>
+                    <li>
+                      <strong>Private KV:</strong>
+                      {' '}
+                      Feste monatliche Beiträge unabhängig von der Entnahme
+                    </li>
+                    <li>
+                      <strong>Kinderlose:</strong>
+                      {' '}
+                      Zahlen 0,6% Zuschlag zur Pflegeversicherung
+                    </li>
+                    <li>
+                      <strong>Rentner-Beitragssätze:</strong>
+                      {' '}
+                      Reduzierte Sätze ab dem konfigurierten Renteneintritt
+                    </li>
+                    <li>
+                      <strong>Alle Beiträge:</strong>
+                      {' '}
+                      Werden vom jährlichen Entnahmebetrag abgezogen
+                    </li>
                   </ul>
                 </div>
               </div>

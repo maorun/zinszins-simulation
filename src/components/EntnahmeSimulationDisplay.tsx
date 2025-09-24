@@ -331,9 +331,11 @@ export function EntnahmeSimulationDisplay({
                     <span className="text-sm text-gray-600 font-medium">
                       🏥 Krankenversicherung:
                       <span className="text-xs text-gray-500 ml-1">
-                        ({rowData.healthInsurance.health.calculationMethod === 'percentage' 
-                          ? `${rowData.healthInsurance.health.percentage}%` 
-                          : 'Festbetrag'})
+                        (
+                        {rowData.healthInsurance.health.calculationMethod === 'percentage'
+                          ? `${rowData.healthInsurance.health.percentage}%`
+                          : 'Festbetrag'}
+                        )
                       </span>
                     </span>
                     <span className="font-semibold text-orange-600 text-sm">
@@ -344,9 +346,11 @@ export function EntnahmeSimulationDisplay({
                     <span className="text-sm text-gray-600 font-medium">
                       🩺 Pflegeversicherung:
                       <span className="text-xs text-gray-500 ml-1">
-                        ({rowData.healthInsurance.care.calculationMethod === 'percentage' 
-                          ? `${rowData.healthInsurance.care.percentage}%${rowData.healthInsurance.care.childlessSupplementAmount ? ' + Zuschlag' : ''}` 
-                          : 'Festbetrag'})
+                        (
+                        {rowData.healthInsurance.care.calculationMethod === 'percentage'
+                          ? `${rowData.healthInsurance.care.percentage}%${rowData.healthInsurance.care.childlessSupplementAmount ? ' + Zuschlag' : ''}`
+                          : 'Festbetrag'}
+                        )
                       </span>
                     </span>
                     <span className="font-semibold text-orange-600 text-sm">
@@ -357,7 +361,9 @@ export function EntnahmeSimulationDisplay({
                     <span className="text-sm text-gray-700 font-medium">
                       🏥 Gesamt Versicherung:
                       <span className="text-xs text-gray-500 ml-1">
-                        ({rowData.healthInsurance.phase === 'pre-retirement' ? 'Vorrente' : 'Rente'})
+                        (
+                        {rowData.healthInsurance.phase === 'pre-retirement' ? 'Vorrente' : 'Rente'}
+                        )
                       </span>
                     </span>
                     <span className="font-bold text-orange-700 text-sm">

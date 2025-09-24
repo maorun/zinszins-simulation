@@ -14,22 +14,22 @@ export type HealthInsuranceType = 'statutory' | 'private'
  */
 export interface StatutoryHealthInsuranceConfig {
   type: 'statutory'
-  
+
   /** Health insurance rate (default: 14.6% for employees, 7.3% for retirees) */
   healthRate: number
-  
+
   /** Care insurance rate (default: 3.05%) */
   careRate: number
-  
+
   /** Additional care insurance rate for childless individuals (default: 0.6%) */
   childlessSupplementRate: number
-  
+
   /** Minimum monthly contribution (Mindestbeitrag) */
   minimumMonthlyContribution: number
-  
+
   /** Maximum monthly contribution (Höchstbeitrag) */
   maximumMonthlyContribution: number
-  
+
   /** Annual contribution assessment ceiling (Beitragsbemessungsgrenze) */
   contributionAssessmentCeiling: number
 }
@@ -40,16 +40,16 @@ export interface StatutoryHealthInsuranceConfig {
  */
 export interface PrivateHealthInsuranceConfig {
   type: 'private'
-  
+
   /** Monthly base premium for health insurance */
   monthlyHealthPremium: number
-  
+
   /** Monthly base premium for care insurance */
   monthlyCareRremium: number
-  
+
   /** Annual adjustment rate (e.g., 3% = 1.03) */
   annualAdjustmentRate: number
-  
+
   /** Starting year for the premium calculation */
   baseYear: number
 }
@@ -60,16 +60,16 @@ export interface PrivateHealthInsuranceConfig {
 export interface HealthInsuranceConfig {
   /** Whether health insurance is enabled in calculations */
   enabled: boolean
-  
+
   /** Year when retirement phase begins (for statutory insurance rate changes) */
   retirementStartYear: number
-  
+
   /** Whether the person is childless (affects care insurance) */
   childless: boolean
-  
+
   /** Configuration for pre-retirement phase */
   preRetirement: StatutoryHealthInsuranceConfig | PrivateHealthInsuranceConfig
-  
+
   /** Configuration for retirement phase */
   retirement: StatutoryHealthInsuranceConfig | PrivateHealthInsuranceConfig
 }
@@ -80,13 +80,13 @@ export interface HealthInsuranceConfig {
 export interface HealthInsuranceCalculationResult {
   /** Year of calculation */
   year: number
-  
+
   /** Which phase: 'pre-retirement' or 'retirement' */
   phase: 'pre-retirement' | 'retirement'
-  
+
   /** Type of insurance system used */
   insuranceType: HealthInsuranceType
-  
+
   /** Health insurance details */
   health: {
     /** Calculation method used */
@@ -98,7 +98,7 @@ export interface HealthInsuranceCalculationResult {
     /** Annual amount */
     annualAmount: number
   }
-  
+
   /** Care insurance details */
   care: {
     /** Calculation method used */
@@ -112,7 +112,7 @@ export interface HealthInsuranceCalculationResult {
     /** Additional amount for childless individuals */
     childlessSupplementAmount?: number
   }
-  
+
   /** Total insurance cost */
   totalMonthlyAmount: number
   totalAnnualAmount: number
@@ -176,45 +176,47 @@ function calculateStatutoryHealthInsurance(
   childless: boolean,
 ): { health: HealthInsuranceCalculationResult['health'], care: HealthInsuranceCalculationResult['care'] } {
   const monthlyWithdrawal = annualWithdrawalAmount / 12
-  
+
   // Check contribution limits
   const monthlyAssessmentBase = Math.min(monthlyWithdrawal, config.contributionAssessmentCeiling / 12)
-  
+
   // Calculate health insurance
   const healthPercentageAmount = monthlyAssessmentBase * (config.healthRate / 100)
   const healthMonthlyAmount = Math.max(
     Math.min(healthPercentageAmount, config.maximumMonthlyContribution * 0.6), // Rough split between health and care
-    config.minimumMonthlyContribution * 0.6
+    config.minimumMonthlyContribution * 0.6,
   )
-  
+
   // Determine calculation method for health insurance
   let healthCalculationMethod: HealthInsuranceCalculationResult['health']['calculationMethod'] = 'percentage'
   if (healthMonthlyAmount === config.minimumMonthlyContribution * 0.6) {
     healthCalculationMethod = 'minimum-contribution'
-  } else if (healthMonthlyAmount === config.maximumMonthlyContribution * 0.6) {
+  }
+  else if (healthMonthlyAmount === config.maximumMonthlyContribution * 0.6) {
     healthCalculationMethod = 'maximum-contribution'
   }
-  
+
   // Calculate care insurance
   const careBaseRate = childless ? config.careRate + config.childlessSupplementRate : config.careRate
   const carePercentageAmount = monthlyAssessmentBase * (careBaseRate / 100)
   const careMonthlyAmount = Math.max(
     Math.min(carePercentageAmount, config.maximumMonthlyContribution * 0.4), // Rough split
-    config.minimumMonthlyContribution * 0.4
+    config.minimumMonthlyContribution * 0.4,
   )
-  
+
   // Determine calculation method for care insurance
   let careCalculationMethod: HealthInsuranceCalculationResult['care']['calculationMethod'] = 'percentage'
   if (careMonthlyAmount === config.minimumMonthlyContribution * 0.4) {
     careCalculationMethod = 'minimum-contribution'
-  } else if (careMonthlyAmount === config.maximumMonthlyContribution * 0.4) {
+  }
+  else if (careMonthlyAmount === config.maximumMonthlyContribution * 0.4) {
     careCalculationMethod = 'maximum-contribution'
   }
-  
-  const childlessSupplementAmount = childless 
+
+  const childlessSupplementAmount = childless
     ? monthlyAssessmentBase * (config.childlessSupplementRate / 100)
     : 0
-  
+
   return {
     health: {
       calculationMethod: healthCalculationMethod,
@@ -241,10 +243,10 @@ function calculatePrivateHealthInsurance(
 ): { health: HealthInsuranceCalculationResult['health'], care: HealthInsuranceCalculationResult['care'] } {
   const yearsFromBase = year - config.baseYear
   const adjustmentFactor = Math.pow(config.annualAdjustmentRate, yearsFromBase)
-  
+
   const healthMonthlyAmount = config.monthlyHealthPremium * adjustmentFactor
   const careMonthlyAmount = config.monthlyCareRremium * adjustmentFactor
-  
+
   return {
     health: {
       calculationMethod: 'fixed-premium',
@@ -289,27 +291,28 @@ export function calculateHealthInsurance(
       totalAnnualAmount: 0,
     }
   }
-  
+
   const phase = year >= config.retirementStartYear ? 'retirement' : 'pre-retirement'
   const phaseConfig = phase === 'retirement' ? config.retirement : config.preRetirement
   const isChildless = childless ?? config.childless
-  
+
   let healthResult: HealthInsuranceCalculationResult['health']
   let careResult: HealthInsuranceCalculationResult['care']
-  
+
   if (phaseConfig.type === 'statutory') {
     const result = calculateStatutoryHealthInsurance(year, phaseConfig, annualWithdrawalAmount, isChildless)
     healthResult = result.health
     careResult = result.care
-  } else {
+  }
+  else {
     const result = calculatePrivateHealthInsurance(year, phaseConfig)
     healthResult = result.health
     careResult = result.care
   }
-  
+
   const totalMonthlyAmount = healthResult.monthlyAmount + careResult.monthlyAmount
   const totalAnnualAmount = healthResult.annualAmount + careResult.annualAmount
-  
+
   return {
     year,
     phase,
