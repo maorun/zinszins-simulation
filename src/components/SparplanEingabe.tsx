@@ -44,7 +44,7 @@ const InfoIcon = () => (
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { ChevronDown } from 'lucide-react'
+import { ChevronDown, Edit2 } from 'lucide-react'
 
 // Temporary imports - only keep what's needed
 // No more temp imports needed!
@@ -101,6 +101,10 @@ export function SparplanEingabe({
 }) {
   const [sparplans, setSparplans] = useState<Sparplan[]>(currentSparplans)
 
+  // Edit state management
+  const [editingSparplan, setEditingSparplan] = useState<Sparplan | null>(null)
+  const [isEditMode, setIsEditMode] = useState(false)
+
   // Synchronize local state with prop changes
   useEffect(() => {
     setSparplans(currentSparplans)
@@ -137,67 +141,81 @@ export function SparplanEingabe({
 
   const handleSparplanSubmit = () => {
     if (sparplanFormValues.start && sparplanFormValues.einzahlung && sparplanFormValues.einzahlung) {
-      // Convert monthly input to yearly for storage (backend always expects yearly amounts)
-      const yearlyAmount = simulationAnnual === SimulationAnnual.monthly
-        ? Number(sparplanFormValues.einzahlung) * 12
-        : Number(sparplanFormValues.einzahlung)
+      if (isEditMode) {
+        // In edit mode, call save edit
+        handleSaveEdit()
+      }
+      else {
+        // In create mode, add new sparplan
+        // Convert monthly input to yearly for storage (backend always expects yearly amounts)
+        const yearlyAmount = simulationAnnual === SimulationAnnual.monthly
+          ? Number(sparplanFormValues.einzahlung) * 12
+          : Number(sparplanFormValues.einzahlung)
 
-      const changedSparplans: Sparplan[] = [
-        ...sparplans,
-        {
-          id: new Date().getTime(),
-          start: sparplanFormValues.start,
-          end: sparplanFormValues.end,
-          einzahlung: yearlyAmount,
-          ter: sparplanFormValues.ter ? Number(sparplanFormValues.ter) : undefined,
-          transactionCostPercent: sparplanFormValues.transactionCostPercent
-            ? Number(sparplanFormValues.transactionCostPercent) : undefined,
-          transactionCostAbsolute: sparplanFormValues.transactionCostAbsolute
-            ? Number(sparplanFormValues.transactionCostAbsolute) : undefined,
-        },
-      ]
-      setSparplans(changedSparplans)
-      dispatch(changedSparplans)
-      setSparplanFormValues({
-        start: new Date(),
-        end: null,
-        einzahlung: '',
-        ter: '',
-        transactionCostPercent: '',
-        transactionCostAbsolute: '',
-      })
+        const changedSparplans: Sparplan[] = [
+          ...sparplans,
+          {
+            id: new Date().getTime(),
+            start: sparplanFormValues.start,
+            end: sparplanFormValues.end,
+            einzahlung: yearlyAmount,
+            ter: sparplanFormValues.ter ? Number(sparplanFormValues.ter) : undefined,
+            transactionCostPercent: sparplanFormValues.transactionCostPercent
+              ? Number(sparplanFormValues.transactionCostPercent) : undefined,
+            transactionCostAbsolute: sparplanFormValues.transactionCostAbsolute
+              ? Number(sparplanFormValues.transactionCostAbsolute) : undefined,
+          },
+        ]
+        setSparplans(changedSparplans)
+        dispatch(changedSparplans)
+        setSparplanFormValues({
+          start: new Date(),
+          end: null,
+          einzahlung: '',
+          ter: '',
+          transactionCostPercent: '',
+          transactionCostAbsolute: '',
+        })
 
-      toast.success('Sparplan erfolgreich hinzugefügt!')
+        toast.success('Sparplan erfolgreich hinzugefügt!')
+      }
     }
   }
 
   const handleSinglePaymentSubmit = () => {
     if (singleFormValue.einzahlung) {
-      const changedSparplans: Sparplan[] = [
-        ...sparplans,
-        {
-          id: new Date().getTime(),
-          start: singleFormValue.date,
-          end: singleFormValue.date,
-          einzahlung: Number(singleFormValue.einzahlung),
-          ter: singleFormValue.ter ? Number(singleFormValue.ter) : undefined,
-          transactionCostPercent: singleFormValue.transactionCostPercent
-            ? Number(singleFormValue.transactionCostPercent) : undefined,
-          transactionCostAbsolute: singleFormValue.transactionCostAbsolute
-            ? Number(singleFormValue.transactionCostAbsolute) : undefined,
-        },
-      ]
-      setSparplans(changedSparplans)
-      dispatch(changedSparplans)
-      setSingleFormValue({
-        date: new Date(),
-        einzahlung: '',
-        ter: '',
-        transactionCostPercent: '',
-        transactionCostAbsolute: '',
-      })
+      if (isEditMode) {
+        // In edit mode, call save edit
+        handleSaveEdit()
+      }
+      else {
+        // In create mode, add new single payment
+        const changedSparplans: Sparplan[] = [
+          ...sparplans,
+          {
+            id: new Date().getTime(),
+            start: singleFormValue.date,
+            end: singleFormValue.date,
+            einzahlung: Number(singleFormValue.einzahlung),
+            ter: singleFormValue.ter ? Number(singleFormValue.ter) : undefined,
+            transactionCostPercent: singleFormValue.transactionCostPercent
+              ? Number(singleFormValue.transactionCostPercent) : undefined,
+            transactionCostAbsolute: singleFormValue.transactionCostAbsolute
+              ? Number(singleFormValue.transactionCostAbsolute) : undefined,
+          },
+        ]
+        setSparplans(changedSparplans)
+        dispatch(changedSparplans)
+        setSingleFormValue({
+          date: new Date(),
+          einzahlung: '',
+          ter: '',
+          transactionCostPercent: '',
+          transactionCostAbsolute: '',
+        })
 
-      toast.success('Einmalzahlung erfolgreich hinzugefügt!')
+        toast.success('Einmalzahlung erfolgreich hinzugefügt!')
+      }
     }
   }
 
@@ -207,6 +225,141 @@ export function SparplanEingabe({
     dispatch(changedSparplans)
 
     toast.info('Sparplan entfernt')
+  }
+
+  // Edit handlers
+  const handleEditSparplan = (sparplan: Sparplan) => {
+    setEditingSparplan(sparplan)
+    setIsEditMode(true)
+
+    // Check if this is a one-time payment
+    const isEinmalzahlung = sparplan.end
+      && new Date(sparplan.start).getTime() === new Date(sparplan.end).getTime()
+
+    if (isEinmalzahlung) {
+      // Pre-fill single payment form
+      setSingleFormValue({
+        date: new Date(sparplan.start),
+        einzahlung: sparplan.einzahlung.toString(),
+        ter: sparplan.ter?.toString() || '',
+        transactionCostPercent: sparplan.transactionCostPercent?.toString() || '',
+        transactionCostAbsolute: sparplan.transactionCostAbsolute?.toString() || '',
+      })
+    }
+    else {
+      // Pre-fill savings plan form
+      // Convert yearly amount to display format based on simulation mode
+      const displayAmount = simulationAnnual === SimulationAnnual.monthly && !isEinmalzahlung
+        ? (sparplan.einzahlung / 12).toString()
+        : sparplan.einzahlung.toString()
+
+      setSparplanFormValues({
+        start: new Date(sparplan.start),
+        end: sparplan.end ? new Date(sparplan.end) : null,
+        einzahlung: displayAmount,
+        ter: sparplan.ter?.toString() || '',
+        transactionCostPercent: sparplan.transactionCostPercent?.toString() || '',
+        transactionCostAbsolute: sparplan.transactionCostAbsolute?.toString() || '',
+      })
+    }
+  }
+
+  const handleSaveEdit = () => {
+    if (!editingSparplan) return
+
+    // Check if this is a one-time payment
+    const isEinmalzahlung = editingSparplan.end
+      && new Date(editingSparplan.start).getTime() === new Date(editingSparplan.end).getTime()
+
+    let updatedSparplan: Sparplan
+
+    if (isEinmalzahlung) {
+      // Update with single payment form values
+      updatedSparplan = {
+        ...editingSparplan,
+        start: singleFormValue.date,
+        end: singleFormValue.date,
+        einzahlung: Number(singleFormValue.einzahlung),
+        ter: singleFormValue.ter ? Number(singleFormValue.ter) : undefined,
+        transactionCostPercent: singleFormValue.transactionCostPercent
+          ? Number(singleFormValue.transactionCostPercent) : undefined,
+        transactionCostAbsolute: singleFormValue.transactionCostAbsolute
+          ? Number(singleFormValue.transactionCostAbsolute) : undefined,
+      }
+    }
+    else {
+      // Update with savings plan form values
+      // Convert monthly input to yearly for storage (backend always expects yearly amounts)
+      const yearlyAmount = simulationAnnual === SimulationAnnual.monthly
+        ? Number(sparplanFormValues.einzahlung) * 12
+        : Number(sparplanFormValues.einzahlung)
+
+      updatedSparplan = {
+        ...editingSparplan,
+        start: sparplanFormValues.start,
+        end: sparplanFormValues.end,
+        einzahlung: yearlyAmount,
+        ter: sparplanFormValues.ter ? Number(sparplanFormValues.ter) : undefined,
+        transactionCostPercent: sparplanFormValues.transactionCostPercent
+          ? Number(sparplanFormValues.transactionCostPercent) : undefined,
+        transactionCostAbsolute: sparplanFormValues.transactionCostAbsolute
+          ? Number(sparplanFormValues.transactionCostAbsolute) : undefined,
+      }
+    }
+
+    // Update the sparplans array
+    const changedSparplans = sparplans.map(sp =>
+      sp.id === editingSparplan.id ? updatedSparplan : sp,
+    )
+
+    setSparplans(changedSparplans)
+    dispatch(changedSparplans)
+
+    // Reset edit state
+    setEditingSparplan(null)
+    setIsEditMode(false)
+
+    // Reset forms
+    setSparplanFormValues({
+      start: new Date(),
+      end: null,
+      einzahlung: '',
+      ter: '',
+      transactionCostPercent: '',
+      transactionCostAbsolute: '',
+    })
+    setSingleFormValue({
+      date: new Date(),
+      einzahlung: '',
+      ter: '',
+      transactionCostPercent: '',
+      transactionCostAbsolute: '',
+    })
+
+    const itemType = isEinmalzahlung ? 'Einmalzahlung' : 'Sparplan'
+    toast.success(`${itemType} erfolgreich aktualisiert!`)
+  }
+
+  const handleCancelEdit = () => {
+    setEditingSparplan(null)
+    setIsEditMode(false)
+
+    // Reset forms
+    setSparplanFormValues({
+      start: new Date(),
+      end: null,
+      einzahlung: '',
+      ter: '',
+      transactionCostPercent: '',
+      transactionCostAbsolute: '',
+    })
+    setSingleFormValue({
+      date: new Date(),
+      einzahlung: '',
+      ter: '',
+      transactionCostPercent: '',
+      transactionCostAbsolute: '',
+    })
   }
 
   return (
@@ -351,8 +504,24 @@ export function SparplanEingabe({
                       size="lg"
                       disabled={!sparplanFormValues.start || !sparplanFormValues.einzahlung}
                     >
-                      💾 Sparplan hinzufügen
+                      {isEditMode && editingSparplan
+                        && !(editingSparplan.end
+                          && new Date(editingSparplan.start).getTime() === new Date(editingSparplan.end).getTime())
+                        ? '✏️ Sparplan aktualisieren'
+                        : '💾 Sparplan hinzufügen'}
                     </Button>
+                    {isEditMode && editingSparplan
+                      && !(editingSparplan.end
+                        && new Date(editingSparplan.start).getTime() === new Date(editingSparplan.end).getTime()) && (
+                      <Button
+                        onClick={handleCancelEdit}
+                        variant="outline"
+                        size="lg"
+                        type="button"
+                      >
+                        Abbrechen
+                      </Button>
+                    )}
                   </div>
                 </div>
               </form>
@@ -486,8 +655,22 @@ export function SparplanEingabe({
                       size="lg"
                       disabled={!singleFormValue.einzahlung}
                     >
-                      💰 Einmalzahlung hinzufügen
+                      {isEditMode && editingSparplan && editingSparplan.end
+                        && new Date(editingSparplan.start).getTime() === new Date(editingSparplan.end).getTime()
+                        ? '✏️ Einmalzahlung aktualisieren'
+                        : '💰 Einmalzahlung hinzufügen'}
                     </Button>
+                    {isEditMode && editingSparplan && editingSparplan.end
+                      && new Date(editingSparplan.start).getTime() === new Date(editingSparplan.end).getTime() && (
+                      <Button
+                        onClick={handleCancelEdit}
+                        variant="outline"
+                        size="lg"
+                        type="button"
+                      >
+                        Abbrechen
+                      </Button>
+                    )}
                   </div>
                 </div>
               </form>
@@ -528,9 +711,11 @@ export function SparplanEingabe({
                       <div
                         key={sparplan.id}
                         className={`p-4 rounded-lg border-2 transition-colors ${
-                          isEinmalzahlung
-                            ? 'bg-orange-50 border-orange-200 hover:bg-orange-100'
-                            : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                          isEditMode && editingSparplan?.id === sparplan.id
+                            ? 'bg-yellow-50 border-yellow-300 ring-2 ring-yellow-200'
+                            : isEinmalzahlung
+                              ? 'bg-orange-50 border-orange-200 hover:bg-orange-100'
+                              : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-3">
@@ -547,15 +732,28 @@ export function SparplanEingabe({
                               {new Date(sparplan.start).toLocaleDateString('de-DE')}
                             </span>
                           </span>
-                          <Button
-                            onClick={() => handleDeleteSparplan(sparplan.id)}
-                            variant="ghost"
-                            size="sm"
-                            title={isEinmalzahlung ? 'Einmalzahlung löschen' : 'Sparplan löschen'}
-                            className="text-red-600 hover:text-red-700"
-                          >
-                            <CloseIcon />
-                          </Button>
+                          <div className="flex gap-2">
+                            <Button
+                              onClick={() => handleEditSparplan(sparplan)}
+                              variant="outline"
+                              size="sm"
+                              title={isEinmalzahlung ? 'Einmalzahlung bearbeiten' : 'Sparplan bearbeiten'}
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                              disabled={isEditMode}
+                            >
+                              <Edit2 className="h-4 w-4" />
+                            </Button>
+                            <Button
+                              onClick={() => handleDeleteSparplan(sparplan.id)}
+                              variant="ghost"
+                              size="sm"
+                              title={isEinmalzahlung ? 'Einmalzahlung löschen' : 'Sparplan löschen'}
+                              className="text-red-600 hover:text-red-700"
+                              disabled={isEditMode}
+                            >
+                              <CloseIcon />
+                            </Button>
+                          </div>
                         </div>
                         <div className="grid gap-2">
                           <div className="flex justify-between items-center">
