@@ -324,12 +324,12 @@ export function OtherIncomeConfigurationComponent({
                       </div>
 
                       {/* Action Buttons */}
-                      <div className="flex gap-2 pt-4">
-                        <Button onClick={handleSaveSource} size="lg" className="flex-1">
+                      <div className="flex flex-col sm:flex-row gap-2 pt-4">
+                        <Button onClick={handleSaveSource} size="lg" className="flex-1 w-full sm:w-auto">
                           <Calculator className="h-4 w-4 mr-2" />
                           {isAddingNew ? 'Hinzufügen' : 'Aktualisieren'}
                         </Button>
-                        <Button onClick={handleCancelEdit} variant="outline" size="lg">
+                        <Button onClick={handleCancelEdit} variant="outline" size="lg" className="w-full sm:w-auto">
                           Abbrechen
                         </Button>
                       </div>
@@ -344,25 +344,30 @@ export function OtherIncomeConfigurationComponent({
                     {config.sources.map(source => (
                       <Card key={source.id} className="border-gray-200">
                         <CardContent className="p-4">
-                          <div className="flex items-start justify-between">
+                          <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
                             <div className="flex-1">
-                              <div className="flex items-center gap-2 mb-2">
-                                <h4 className="font-medium">{source.name}</h4>
-                                <span className="text-xs px-2 py-1 bg-gray-100 rounded">
-                                  {getIncomeTypeDisplayName(source.type)}
-                                </span>
-                                <span className={`text-xs px-2 py-1 rounded ${
-                                  source.amountType === 'gross'
-                                    ? 'bg-blue-100 text-blue-800'
-                                    : 'bg-green-100 text-green-800'
-                                }`}
-                                >
-                                  {getAmountTypeDisplayName(source.amountType)}
-                                </span>
-                                <Switch
-                                  checked={source.enabled}
-                                  onCheckedChange={enabled => handleSourceChange(source.id, { enabled })}
-                                />
+                              {/* Title and badges - stacked on mobile, inline on desktop */}
+                              <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
+                                <h4 className="font-medium text-base">{source.name}</h4>
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="text-xs px-2 py-1 bg-gray-100 rounded whitespace-nowrap">
+                                    {getIncomeTypeDisplayName(source.type)}
+                                  </span>
+                                  <span className={`text-xs px-2 py-1 rounded whitespace-nowrap ${
+                                    source.amountType === 'gross'
+                                      ? 'bg-blue-100 text-blue-800'
+                                      : 'bg-green-100 text-green-800'
+                                  }`}
+                                  >
+                                    {getAmountTypeDisplayName(source.amountType)}
+                                  </span>
+                                  <div className="flex items-center">
+                                    <Switch
+                                      checked={source.enabled}
+                                      onCheckedChange={enabled => handleSourceChange(source.id, { enabled })}
+                                    />
+                                  </div>
+                                </div>
                               </div>
                               <div className="text-sm text-gray-600 space-y-1">
                                 <div>
@@ -400,20 +405,22 @@ export function OtherIncomeConfigurationComponent({
                                 )}
                               </div>
                             </div>
-                            <div className="flex flex-col md:flex-row gap-2 ml-4">
+                            {/* Action buttons - better positioned for mobile */}
+                            <div className="flex flex-row sm:flex-col gap-2 sm:ml-4 sm:min-w-0">
                               <Button
                                 onClick={() => handleEditSource(source)}
                                 variant="outline"
                                 size="sm"
                                 disabled={editingSource !== null}
+                                className="flex-1 sm:flex-initial min-w-0"
                               >
-                                Bearbeiten
+                                <span className="truncate">Bearbeiten</span>
                               </Button>
                               <Button
                                 onClick={() => handleDeleteSource(source.id)}
                                 variant="outline"
                                 size="sm"
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 flex-shrink-0"
                               >
                                 <Trash2 className="h-4 w-4" />
                               </Button>
