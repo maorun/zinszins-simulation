@@ -4,270 +4,329 @@
  */
 
 /**
- * Health insurance contribution configuration
- * Supports both percentage-based and fixed amount contributions
+ * Types of health insurance systems in Germany
  */
-export interface HealthInsuranceContribution {
-  /** Whether to use percentage-based calculation */
-  usePercentage: boolean
-  /** Percentage rate (e.g., 14.6 for 14.6%) - only used if usePercentage is true */
-  percentage?: number
-  /** Fixed monthly amount in EUR - only used if usePercentage is false */
-  fixedAmount?: number
+export type HealthInsuranceType = 'statutory' | 'private'
+
+/**
+ * Statutory health insurance configuration (Gesetzliche Krankenversicherung)
+ * Uses fixed percentage rates with contribution limits
+ */
+export interface StatutoryHealthInsuranceConfig {
+  type: 'statutory'
+  
+  /** Health insurance rate (default: 14.6% for employees, 7.3% for retirees) */
+  healthRate: number
+  
+  /** Care insurance rate (default: 3.05%) */
+  careRate: number
+  
+  /** Additional care insurance rate for childless individuals (default: 0.6%) */
+  childlessSupplementRate: number
+  
+  /** Minimum monthly contribution (Mindestbeitrag) */
+  minimumMonthlyContribution: number
+  
+  /** Maximum monthly contribution (Höchstbeitrag) */
+  maximumMonthlyContribution: number
+  
+  /** Annual contribution assessment ceiling (Beitragsbemessungsgrenze) */
+  contributionAssessmentCeiling: number
 }
 
 /**
- * Care insurance contribution configuration
- * Supports both percentage-based and fixed amount contributions
+ * Private health insurance configuration (Private Krankenversicherung)
+ * Uses fixed monthly premiums with annual adjustments
  */
-export interface CareInsuranceContribution {
-  /** Whether to use percentage-based calculation */
-  usePercentage: boolean
-  /** Percentage rate (e.g., 3.05 for 3.05%) - only used if usePercentage is true */
-  percentage?: number
-  /** Fixed monthly amount in EUR - only used if usePercentage is false */
-  fixedAmount?: number
-  /** Additional rate for childless individuals (Kinderloser Zuschlag) */
-  childlessSupplement?: number
+export interface PrivateHealthInsuranceConfig {
+  type: 'private'
+  
+  /** Monthly base premium for health insurance */
+  monthlyHealthPremium: number
+  
+  /** Monthly base premium for care insurance */
+  monthlyCareRremium: number
+  
+  /** Annual adjustment rate (e.g., 3% = 1.03) */
+  annualAdjustmentRate: number
+  
+  /** Starting year for the premium calculation */
+  baseYear: number
 }
 
 /**
- * Configuration for German health and care insurance in retirement
- * Differentiates between pre-retirement (Vorrente) and retirement phases
+ * Overall health insurance configuration for retirement planning
  */
 export interface HealthInsuranceConfig {
-  /** Whether health and care insurance is enabled in the calculation */
+  /** Whether health insurance is enabled in calculations */
   enabled: boolean
-
-  /** Year when retirement begins (determines phase switch) */
+  
+  /** Year when retirement phase begins (for statutory insurance rate changes) */
   retirementStartYear: number
-
-  /** Health insurance configuration for pre-retirement phase */
-  preRetirement: {
-    health: HealthInsuranceContribution
-    care: CareInsuranceContribution
-  }
-
-  /** Health and care insurance configuration for retirement phase */
-  retirement: {
-    health: HealthInsuranceContribution
-    care: CareInsuranceContribution
-  }
+  
+  /** Whether the person is childless (affects care insurance) */
+  childless: boolean
+  
+  /** Configuration for pre-retirement phase */
+  preRetirement: StatutoryHealthInsuranceConfig | PrivateHealthInsuranceConfig
+  
+  /** Configuration for retirement phase */
+  retirement: StatutoryHealthInsuranceConfig | PrivateHealthInsuranceConfig
 }
 
 /**
- * Result of health and care insurance calculation for a specific year
+ * Result of health insurance calculation for a specific year
  */
-export interface HealthInsuranceYearResult {
-  /** Whether this is pre-retirement or retirement phase */
+export interface HealthInsuranceCalculationResult {
+  /** Year of calculation */
+  year: number
+  
+  /** Which phase: 'pre-retirement' or 'retirement' */
   phase: 'pre-retirement' | 'retirement'
-
-  /** Health insurance contribution calculations */
+  
+  /** Type of insurance system used */
+  insuranceType: HealthInsuranceType
+  
+  /** Health insurance details */
   health: {
-    /** Annual health insurance contribution in EUR */
-    annualAmount: number
-    /** Monthly health insurance contribution in EUR */
-    monthlyAmount: number
-    /** Whether calculated using percentage or fixed amount */
-    calculationMethod: 'percentage' | 'fixed'
-    /** Percentage used if calculation method is percentage */
+    /** Calculation method used */
+    calculationMethod: 'percentage' | 'fixed-premium' | 'minimum-contribution' | 'maximum-contribution'
+    /** Percentage rate used (for statutory) */
     percentage?: number
-    /** Base amount for percentage calculation (withdrawal amount) */
-    baseAmount?: number
+    /** Monthly amount */
+    monthlyAmount: number
+    /** Annual amount */
+    annualAmount: number
   }
-
-  /** Care insurance contribution calculations */
+  
+  /** Care insurance details */
   care: {
-    /** Annual care insurance contribution in EUR */
-    annualAmount: number
-    /** Monthly care insurance contribution in EUR */
-    monthlyAmount: number
-    /** Whether calculated using percentage or fixed amount */
-    calculationMethod: 'percentage' | 'fixed'
-    /** Percentage used if calculation method is percentage */
+    /** Calculation method used */
+    calculationMethod: 'percentage' | 'fixed-premium' | 'minimum-contribution' | 'maximum-contribution'
+    /** Percentage rate used (for statutory) */
     percentage?: number
-    /** Base amount for percentage calculation (withdrawal amount) */
-    baseAmount?: number
-    /** Childless supplement amount if applicable */
+    /** Monthly amount */
+    monthlyAmount: number
+    /** Annual amount */
+    annualAmount: number
+    /** Additional amount for childless individuals */
     childlessSupplementAmount?: number
   }
-
-  /** Total annual insurance contribution (health + care) */
-  totalAnnualAmount: number
-  /** Total monthly insurance contribution (health + care) */
+  
+  /** Total insurance cost */
   totalMonthlyAmount: number
+  totalAnnualAmount: number
 }
 
 /**
- * Default health insurance configuration with typical German rates
+ * Default configuration for German statutory health insurance
+ */
+export const defaultStatutoryHealthInsuranceConfig: StatutoryHealthInsuranceConfig = {
+  type: 'statutory',
+  healthRate: 14.6, // Standard rate for employees
+  careRate: 3.05,
+  childlessSupplementRate: 0.6,
+  minimumMonthlyContribution: 166.69, // 2024 values (approximate)
+  maximumMonthlyContribution: 884.87, // 2024 values (approximate)
+  contributionAssessmentCeiling: 62100, // 2024 value (approximate)
+}
+
+/**
+ * Default configuration for German statutory health insurance in retirement
+ */
+export const defaultStatutoryHealthInsuranceConfigRetirement: StatutoryHealthInsuranceConfig = {
+  type: 'statutory',
+  healthRate: 7.3, // Reduced rate for retirees (no employer contribution)
+  careRate: 3.05,
+  childlessSupplementRate: 0.6,
+  minimumMonthlyContribution: 166.69,
+  maximumMonthlyContribution: 884.87,
+  contributionAssessmentCeiling: 62100,
+}
+
+/**
+ * Default configuration for private health insurance
+ */
+export const defaultPrivateHealthInsuranceConfig: PrivateHealthInsuranceConfig = {
+  type: 'private',
+  monthlyHealthPremium: 400,
+  monthlyCareRremium: 80,
+  annualAdjustmentRate: 1.03, // 3% annual increase
+  baseYear: new Date().getFullYear(),
+}
+
+/**
+ * Default overall health insurance configuration
  */
 export const defaultHealthInsuranceConfig: HealthInsuranceConfig = {
   enabled: false,
-  retirementStartYear: 2040,
-  preRetirement: {
-    health: {
-      usePercentage: true,
-      percentage: 14.6, // Typical German health insurance rate
-    },
-    care: {
-      usePercentage: true,
-      percentage: 3.05, // Typical German care insurance rate
-      childlessSupplement: 0.6, // Additional rate for childless individuals
-    },
-  },
-  retirement: {
-    health: {
-      usePercentage: true,
-      percentage: 7.3, // Reduced rate for retirees (employer portion typically covered)
-    },
-    care: {
-      usePercentage: true,
-      percentage: 3.05, // Same rate as pre-retirement
-      childlessSupplement: 0.6, // Same supplement for childless
-    },
-  },
+  retirementStartYear: new Date().getFullYear() + 15,
+  childless: false,
+  preRetirement: defaultStatutoryHealthInsuranceConfig,
+  retirement: defaultStatutoryHealthInsuranceConfigRetirement,
 }
 
 /**
- * Calculate health and care insurance contributions for a given year
- * @param year - The year to calculate contributions for
- * @param config - Health insurance configuration
- * @param grossWithdrawalAmount - Annual gross withdrawal amount before insurance deductions
- * @param childless - Whether the person is childless (for care insurance supplement)
- * @returns Health and care insurance calculation results
+ * Calculate statutory health insurance contribution for a given year and withdrawal amount
+ */
+function calculateStatutoryHealthInsurance(
+  year: number,
+  config: StatutoryHealthInsuranceConfig,
+  annualWithdrawalAmount: number,
+  childless: boolean,
+): { health: HealthInsuranceCalculationResult['health'], care: HealthInsuranceCalculationResult['care'] } {
+  const monthlyWithdrawal = annualWithdrawalAmount / 12
+  
+  // Check contribution limits
+  const monthlyAssessmentBase = Math.min(monthlyWithdrawal, config.contributionAssessmentCeiling / 12)
+  
+  // Calculate health insurance
+  const healthPercentageAmount = monthlyAssessmentBase * (config.healthRate / 100)
+  const healthMonthlyAmount = Math.max(
+    Math.min(healthPercentageAmount, config.maximumMonthlyContribution * 0.6), // Rough split between health and care
+    config.minimumMonthlyContribution * 0.6
+  )
+  
+  // Determine calculation method for health insurance
+  let healthCalculationMethod: HealthInsuranceCalculationResult['health']['calculationMethod'] = 'percentage'
+  if (healthMonthlyAmount === config.minimumMonthlyContribution * 0.6) {
+    healthCalculationMethod = 'minimum-contribution'
+  } else if (healthMonthlyAmount === config.maximumMonthlyContribution * 0.6) {
+    healthCalculationMethod = 'maximum-contribution'
+  }
+  
+  // Calculate care insurance
+  const careBaseRate = childless ? config.careRate + config.childlessSupplementRate : config.careRate
+  const carePercentageAmount = monthlyAssessmentBase * (careBaseRate / 100)
+  const careMonthlyAmount = Math.max(
+    Math.min(carePercentageAmount, config.maximumMonthlyContribution * 0.4), // Rough split
+    config.minimumMonthlyContribution * 0.4
+  )
+  
+  // Determine calculation method for care insurance
+  let careCalculationMethod: HealthInsuranceCalculationResult['care']['calculationMethod'] = 'percentage'
+  if (careMonthlyAmount === config.minimumMonthlyContribution * 0.4) {
+    careCalculationMethod = 'minimum-contribution'
+  } else if (careMonthlyAmount === config.maximumMonthlyContribution * 0.4) {
+    careCalculationMethod = 'maximum-contribution'
+  }
+  
+  const childlessSupplementAmount = childless 
+    ? monthlyAssessmentBase * (config.childlessSupplementRate / 100)
+    : 0
+  
+  return {
+    health: {
+      calculationMethod: healthCalculationMethod,
+      percentage: config.healthRate,
+      monthlyAmount: healthMonthlyAmount,
+      annualAmount: healthMonthlyAmount * 12,
+    },
+    care: {
+      calculationMethod: careCalculationMethod,
+      percentage: careBaseRate,
+      monthlyAmount: careMonthlyAmount,
+      annualAmount: careMonthlyAmount * 12,
+      childlessSupplementAmount: childlessSupplementAmount * 12,
+    },
+  }
+}
+
+/**
+ * Calculate private health insurance contribution for a given year
+ */
+function calculatePrivateHealthInsurance(
+  year: number,
+  config: PrivateHealthInsuranceConfig,
+): { health: HealthInsuranceCalculationResult['health'], care: HealthInsuranceCalculationResult['care'] } {
+  const yearsFromBase = year - config.baseYear
+  const adjustmentFactor = Math.pow(config.annualAdjustmentRate, yearsFromBase)
+  
+  const healthMonthlyAmount = config.monthlyHealthPremium * adjustmentFactor
+  const careMonthlyAmount = config.monthlyCareRremium * adjustmentFactor
+  
+  return {
+    health: {
+      calculationMethod: 'fixed-premium',
+      monthlyAmount: healthMonthlyAmount,
+      annualAmount: healthMonthlyAmount * 12,
+    },
+    care: {
+      calculationMethod: 'fixed-premium',
+      monthlyAmount: careMonthlyAmount,
+      annualAmount: careMonthlyAmount * 12,
+    },
+  }
+}
+
+/**
+ * Calculate health insurance contribution for a specific year and withdrawal amount
  */
 export function calculateHealthInsurance(
   year: number,
   config: HealthInsuranceConfig,
-  grossWithdrawalAmount: number,
-  childless: boolean = false,
-): HealthInsuranceYearResult {
+  annualWithdrawalAmount: number,
+  childless?: boolean,
+): HealthInsuranceCalculationResult {
   if (!config.enabled) {
     return {
-      phase: year >= config.retirementStartYear ? 'retirement' : 'pre-retirement',
+      year,
+      phase: 'pre-retirement',
+      insuranceType: 'statutory',
       health: {
-        annualAmount: 0,
+        calculationMethod: 'percentage',
+        percentage: 0,
         monthlyAmount: 0,
-        calculationMethod: 'fixed',
+        annualAmount: 0,
       },
       care: {
-        annualAmount: 0,
+        calculationMethod: 'percentage',
+        percentage: 0,
         monthlyAmount: 0,
-        calculationMethod: 'fixed',
+        annualAmount: 0,
       },
-      totalAnnualAmount: 0,
       totalMonthlyAmount: 0,
+      totalAnnualAmount: 0,
     }
   }
-
+  
   const phase = year >= config.retirementStartYear ? 'retirement' : 'pre-retirement'
   const phaseConfig = phase === 'retirement' ? config.retirement : config.preRetirement
-
-  // Calculate health insurance
-  let healthAnnualAmount = 0
-  let healthCalculationMethod: 'percentage' | 'fixed' = 'fixed'
-  let healthPercentage: number | undefined
-  let healthBaseAmount: number | undefined
-
-  if (phaseConfig.health.usePercentage && phaseConfig.health.percentage) {
-    healthCalculationMethod = 'percentage'
-    healthPercentage = phaseConfig.health.percentage
-    healthBaseAmount = grossWithdrawalAmount
-    healthAnnualAmount = grossWithdrawalAmount * (phaseConfig.health.percentage / 100)
+  const isChildless = childless ?? config.childless
+  
+  let healthResult: HealthInsuranceCalculationResult['health']
+  let careResult: HealthInsuranceCalculationResult['care']
+  
+  if (phaseConfig.type === 'statutory') {
+    const result = calculateStatutoryHealthInsurance(year, phaseConfig, annualWithdrawalAmount, isChildless)
+    healthResult = result.health
+    careResult = result.care
+  } else {
+    const result = calculatePrivateHealthInsurance(year, phaseConfig)
+    healthResult = result.health
+    careResult = result.care
   }
-  else if (!phaseConfig.health.usePercentage && phaseConfig.health.fixedAmount) {
-    healthCalculationMethod = 'fixed'
-    healthAnnualAmount = phaseConfig.health.fixedAmount * 12 // Convert monthly to annual
-  }
-
-  // Calculate care insurance
-  let careAnnualAmount = 0
-  let careCalculationMethod: 'percentage' | 'fixed' = 'fixed'
-  let carePercentage: number | undefined
-  let careBaseAmount: number | undefined
-  let childlessSupplementAmount: number | undefined
-
-  if (phaseConfig.care.usePercentage && phaseConfig.care.percentage) {
-    careCalculationMethod = 'percentage'
-    carePercentage = phaseConfig.care.percentage
-    careBaseAmount = grossWithdrawalAmount
-
-    let totalCareRate = phaseConfig.care.percentage
-    if (childless && phaseConfig.care.childlessSupplement) {
-      totalCareRate += phaseConfig.care.childlessSupplement
-      childlessSupplementAmount = grossWithdrawalAmount * (phaseConfig.care.childlessSupplement / 100)
-    }
-
-    careAnnualAmount = grossWithdrawalAmount * (totalCareRate / 100)
-  }
-  else if (!phaseConfig.care.usePercentage && phaseConfig.care.fixedAmount) {
-    careCalculationMethod = 'fixed'
-    careAnnualAmount = phaseConfig.care.fixedAmount * 12 // Convert monthly to annual
-
-    // Add childless supplement if applicable and configured
-    if (childless && phaseConfig.care.childlessSupplement) {
-      childlessSupplementAmount = phaseConfig.care.childlessSupplement * 12
-      careAnnualAmount += childlessSupplementAmount
-    }
-  }
-
-  const totalAnnualAmount = healthAnnualAmount + careAnnualAmount
-
+  
+  const totalMonthlyAmount = healthResult.monthlyAmount + careResult.monthlyAmount
+  const totalAnnualAmount = healthResult.annualAmount + careResult.annualAmount
+  
   return {
+    year,
     phase,
-    health: {
-      annualAmount: healthAnnualAmount,
-      monthlyAmount: healthAnnualAmount / 12,
-      calculationMethod: healthCalculationMethod,
-      percentage: healthPercentage,
-      baseAmount: healthBaseAmount,
-    },
-    care: {
-      annualAmount: careAnnualAmount,
-      monthlyAmount: careAnnualAmount / 12,
-      calculationMethod: careCalculationMethod,
-      percentage: carePercentage,
-      baseAmount: careBaseAmount,
-      childlessSupplementAmount,
-    },
+    insuranceType: phaseConfig.type,
+    health: healthResult,
+    care: careResult,
+    totalMonthlyAmount,
     totalAnnualAmount,
-    totalMonthlyAmount: totalAnnualAmount / 12,
   }
 }
 
 /**
- * Calculate net withdrawal amount after health and care insurance deductions
- * @param grossWithdrawalAmount - Annual gross withdrawal amount
- * @param healthInsuranceResult - Health insurance calculation result
- * @returns Net withdrawal amount after insurance deductions
+ * Calculate net withdrawal amount after health insurance deductions
  */
 export function calculateNetWithdrawalAmount(
   grossWithdrawalAmount: number,
-  healthInsuranceResult: HealthInsuranceYearResult,
+  healthInsurance: HealthInsuranceCalculationResult,
 ): number {
-  return Math.max(0, grossWithdrawalAmount - healthInsuranceResult.totalAnnualAmount)
-}
-
-/**
- * Get display name for health insurance calculation method
- */
-export function getHealthInsuranceCalculationMethodName(method: 'percentage' | 'fixed'): string {
-  switch (method) {
-    case 'percentage':
-      return 'Prozentual'
-    case 'fixed':
-      return 'Festbetrag'
-  }
-}
-
-/**
- * Get display name for insurance phase
- */
-export function getInsurancePhaseName(phase: 'pre-retirement' | 'retirement'): string {
-  switch (phase) {
-    case 'pre-retirement':
-      return 'Vorrente'
-    case 'retirement':
-      return 'Rente'
-  }
+  return Math.max(0, grossWithdrawalAmount - healthInsurance.totalAnnualAmount)
 }

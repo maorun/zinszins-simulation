@@ -7,38 +7,26 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { Info, ChevronDown } from 'lucide-react'
 import { useNestingLevel } from '../lib/nesting-utils'
 import { RadioTileGroup, RadioTile } from './ui/radio-tile'
-import type { HealthInsuranceConfig } from '../../helpers/health-insurance'
-import { defaultHealthInsuranceConfig } from '../../helpers/health-insurance'
+import type { 
+  HealthInsuranceConfig,
+  StatutoryHealthInsuranceConfig,
+  PrivateHealthInsuranceConfig,
+  HealthInsuranceType
+} from '../../helpers/health-insurance'
 
 interface HealthInsuranceFormValues {
   enabled: boolean
   retirementStartYear: number
   childless: boolean
+  preRetirementType: HealthInsuranceType
+  retirementType: HealthInsuranceType
   preRetirement: {
-    health: {
-      usePercentage: boolean
-      percentage?: number
-      fixedAmount?: number
-    }
-    care: {
-      usePercentage: boolean
-      percentage?: number
-      fixedAmount?: number
-      childlessSupplement?: number
-    }
+    statutory?: StatutoryHealthInsuranceConfig
+    private?: PrivateHealthInsuranceConfig
   }
   retirement: {
-    health: {
-      usePercentage: boolean
-      percentage?: number
-      fixedAmount?: number
-    }
-    care: {
-      usePercentage: boolean
-      percentage?: number
-      fixedAmount?: number
-      childlessSupplement?: number
-    }
+    statutory?: StatutoryHealthInsuranceConfig
+    private?: PrivateHealthInsuranceConfig
   }
 }
 
@@ -46,20 +34,12 @@ interface HealthInsuranceChangeHandlers {
   onEnabledChange: (enabled: boolean) => void
   onRetirementStartYearChange: (year: number) => void
   onChildlessChange: (childless: boolean) => void
-  onPreRetirementHealthMethodChange: (usePercentage: boolean) => void
-  onPreRetirementHealthPercentageChange: (percentage: number) => void
-  onPreRetirementHealthFixedAmountChange: (amount: number) => void
-  onPreRetirementCareMethodChange: (usePercentage: boolean) => void
-  onPreRetirementCarePercentageChange: (percentage: number) => void
-  onPreRetirementCareFixedAmountChange: (amount: number) => void
-  onPreRetirementCareChildlessSupplementChange: (supplement: number) => void
-  onRetirementHealthMethodChange: (usePercentage: boolean) => void
-  onRetirementHealthPercentageChange: (percentage: number) => void
-  onRetirementHealthFixedAmountChange: (amount: number) => void
-  onRetirementCareMethodChange: (usePercentage: boolean) => void
-  onRetirementCarePercentageChange: (percentage: number) => void
-  onRetirementCareFixedAmountChange: (amount: number) => void
-  onRetirementCareChildlessSupplementChange: (supplement: number) => void
+  onPreRetirementTypeChange: (type: HealthInsuranceType) => void
+  onRetirementTypeChange: (type: HealthInsuranceType) => void
+  onPreRetirementStatutoryChange: (config: Partial<StatutoryHealthInsuranceConfig>) => void
+  onPreRetirementPrivateChange: (config: Partial<PrivateHealthInsuranceConfig>) => void
+  onRetirementStatutoryChange: (config: Partial<StatutoryHealthInsuranceConfig>) => void
+  onRetirementPrivateChange: (config: Partial<PrivateHealthInsuranceConfig>) => void
 }
 
 interface HealthInsuranceConfigurationProps {
@@ -196,141 +176,160 @@ export function HealthInsuranceConfiguration({
                 </CardHeader>
                 <CardContent nestingLevel={nestingLevel + 1}>
                   <div className="space-y-4">
-                    {/* Health Insurance - Pre-Retirement */}
+                    {/* Insurance Type Selection */}
                     <div className="space-y-3">
-                      <Label className="font-medium">Krankenversicherung</Label>
+                      <Label className="font-medium">Versicherungsart</Label>
                       <RadioTileGroup
-                        value={values.preRetirement.health.usePercentage ? 'percentage' : 'fixed'}
-                        onValueChange={(value) => onChange.onPreRetirementHealthMethodChange(value === 'percentage')}
+                        value={values.preRetirementType}
+                        onValueChange={(value) => onChange.onPreRetirementTypeChange(value as HealthInsuranceType)}
                       >
-                        <RadioTile value="percentage" label="Prozentual">
-                          Beitragssatz basierend auf Entnahme
+                        <RadioTile value="statutory" label="Gesetzliche Krankenversicherung">
+                          Standard-Beitragssätze mit Beitragsbemessungsgrenzen
                         </RadioTile>
-                        <RadioTile value="fixed" label="Festbetrag">
-                          Fester monatlicher Betrag
+                        <RadioTile value="private" label="Private Krankenversicherung">
+                          Feste monatliche Beiträge mit jährlichen Anpassungen
                         </RadioTile>
                       </RadioTileGroup>
-                      
-                      {values.preRetirement.health.usePercentage ? (
-                        <div className="space-y-2">
-                          <Label htmlFor="pre-health-percentage">
-                            Beitragssatz (%)
-                          </Label>
-                          <Input
-                            id="pre-health-percentage"
-                            type="number"
-                            step="0.1"
-                            value={values.preRetirement.health.percentage || 14.6}
-                            onChange={(e) => onChange.onPreRetirementHealthPercentageChange(Number(e.target.value))}
-                            min={0}
-                            max={25}
-                          />
-                          <div className="text-sm text-gray-500">
-                            Standard: 14,6% (gesetzlich versichert)
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <Label htmlFor="pre-health-fixed">
-                            Monatlicher Betrag (€)
-                          </Label>
-                          <Input
-                            id="pre-health-fixed"
-                            type="number"
-                            value={values.preRetirement.health.fixedAmount || 400}
-                            onChange={(e) => onChange.onPreRetirementHealthFixedAmountChange(Number(e.target.value))}
-                            min={0}
-                            max={2000}
-                          />
-                        </div>
-                      )}
                     </div>
 
-                    {/* Care Insurance - Pre-Retirement */}
-                    <div className="space-y-3">
-                      <Label className="font-medium">Pflegeversicherung</Label>
-                      <RadioTileGroup
-                        value={values.preRetirement.care.usePercentage ? 'percentage' : 'fixed'}
-                        onValueChange={(value) => onChange.onPreRetirementCareMethodChange(value === 'percentage')}
-                      >
-                        <RadioTile value="percentage" label="Prozentual">
-                          Beitragssatz basierend auf Entnahme
-                        </RadioTile>
-                        <RadioTile value="fixed" label="Festbetrag">
-                          Fester monatlicher Betrag
-                        </RadioTile>
-                      </RadioTileGroup>
-                      
-                      {values.preRetirement.care.usePercentage ? (
-                        <div className="space-y-2">
-                          <Label htmlFor="pre-care-percentage">
-                            Beitragssatz (%)
-                          </Label>
-                          <Input
-                            id="pre-care-percentage"
-                            type="number"
-                            step="0.01"
-                            value={values.preRetirement.care.percentage || 3.05}
-                            onChange={(e) => onChange.onPreRetirementCarePercentageChange(Number(e.target.value))}
-                            min={0}
-                            max={5}
-                          />
-                          <div className="text-sm text-gray-500">
-                            Standard: 3,05%
+                    {/* Statutory Insurance Configuration */}
+                    {values.preRetirementType === 'statutory' && (
+                      <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="text-sm font-medium text-gray-700">
+                          Gesetzliche Krankenversicherung - Vorrente
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="pre-statutory-health-rate">
+                              Krankenversicherung (%)
+                            </Label>
+                            <Input
+                              id="pre-statutory-health-rate"
+                              type="number"
+                              step="0.1"
+                              value={values.preRetirement.statutory?.healthRate || 14.6}
+                              onChange={(e) => onChange.onPreRetirementStatutoryChange({
+                                healthRate: Number(e.target.value)
+                              })}
+                              min={0}
+                              max={20}
+                            />
+                            <div className="text-xs text-gray-500">
+                              Standard: 14,6%
+                            </div>
                           </div>
                           
-                          {values.childless && (
-                            <div className="space-y-2">
-                              <Label htmlFor="pre-care-childless">
-                                Kinderloser Zuschlag (%)
-                              </Label>
-                              <Input
-                                id="pre-care-childless"
-                                type="number"
-                                step="0.01"
-                                value={values.preRetirement.care.childlessSupplement || 0.6}
-                                onChange={(e) => onChange.onPreRetirementCareChildlessSupplementChange(Number(e.target.value))}
-                                min={0}
-                                max={2}
-                              />
-                              <div className="text-sm text-gray-500">
-                                Standard: 0,6%
-                              </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="pre-statutory-care-rate">
+                              Pflegeversicherung (%)
+                            </Label>
+                            <Input
+                              id="pre-statutory-care-rate"
+                              type="number"
+                              step="0.01"
+                              value={values.preRetirement.statutory?.careRate || 3.05}
+                              onChange={(e) => onChange.onPreRetirementStatutoryChange({
+                                careRate: Number(e.target.value)
+                              })}
+                              min={0}
+                              max={5}
+                            />
+                            <div className="text-xs text-gray-500">
+                              Standard: 3,05%
                             </div>
-                          )}
+                          </div>
                         </div>
-                      ) : (
+
                         <div className="space-y-2">
-                          <Label htmlFor="pre-care-fixed">
-                            Monatlicher Betrag (€)
+                          <Label htmlFor="pre-statutory-ceiling">
+                            Beitragsbemessungsgrenze (jährlich)
                           </Label>
                           <Input
-                            id="pre-care-fixed"
+                            id="pre-statutory-ceiling"
                             type="number"
-                            value={values.preRetirement.care.fixedAmount || 120}
-                            onChange={(e) => onChange.onPreRetirementCareFixedAmountChange(Number(e.target.value))}
-                            min={0}
-                            max={500}
+                            value={values.preRetirement.statutory?.contributionAssessmentCeiling || 62100}
+                            onChange={(e) => onChange.onPreRetirementStatutoryChange({
+                              contributionAssessmentCeiling: Number(e.target.value)
+                            })}
+                            min={30000}
+                            max={100000}
                           />
-                          
-                          {values.childless && (
-                            <div className="space-y-2">
-                              <Label htmlFor="pre-care-childless-fixed">
-                                Kinderloser Zuschlag monatlich (€)
-                              </Label>
-                              <Input
-                                id="pre-care-childless-fixed"
-                                type="number"
-                                value={values.preRetirement.care.childlessSupplement || 30}
-                                onChange={(e) => onChange.onPreRetirementCareChildlessSupplementChange(Number(e.target.value))}
-                                min={0}
-                                max={100}
-                              />
-                            </div>
-                          )}
+                          <div className="text-xs text-gray-500">
+                            Standard: 62.100€ (2024)
+                          </div>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
+
+                    {/* Private Insurance Configuration */}
+                    {values.preRetirementType === 'private' && (
+                      <div className="space-y-4 p-4 bg-blue-50 rounded-lg">
+                        <div className="text-sm font-medium text-blue-700">
+                          Private Krankenversicherung - Vorrente
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="pre-private-health-premium">
+                              Krankenversicherung (monatlich)
+                            </Label>
+                            <Input
+                              id="pre-private-health-premium"
+                              type="number"
+                              value={values.preRetirement.private?.monthlyHealthPremium || 400}
+                              onChange={(e) => onChange.onPreRetirementPrivateChange({
+                                monthlyHealthPremium: Number(e.target.value)
+                              })}
+                              min={100}
+                              max={1500}
+                            />
+                            <div className="text-xs text-gray-500">
+                              Euro pro Monat
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="pre-private-care-premium">
+                              Pflegeversicherung (monatlich)
+                            </Label>
+                            <Input
+                              id="pre-private-care-premium" 
+                              type="number"
+                              value={values.preRetirement.private?.monthlyCareRremium || 80}
+                              onChange={(e) => onChange.onPreRetirementPrivateChange({
+                                monthlyCareRremium: Number(e.target.value)
+                              })}
+                              min={20}
+                              max={300}
+                            />
+                            <div className="text-xs text-gray-500">
+                              Euro pro Monat
+                            </div>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <Label htmlFor="pre-private-adjustment">
+                            Jährliche Anpassung (%)
+                          </Label>
+                          <Input
+                            id="pre-private-adjustment"
+                            type="number"
+                            step="0.1"
+                            value={((values.preRetirement.private?.annualAdjustmentRate || 1.03) - 1) * 100}
+                            onChange={(e) => onChange.onPreRetirementPrivateChange({
+                              annualAdjustmentRate: 1 + (Number(e.target.value) / 100)
+                            })}
+                            min={0}
+                            max={10}
+                          />
+                          <div className="text-xs text-gray-500">
+                            Standard: 3% (Beitragsanpassung pro Jahr)
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -342,141 +341,141 @@ export function HealthInsuranceConfiguration({
                 </CardHeader>
                 <CardContent nestingLevel={nestingLevel + 1}>
                   <div className="space-y-4">
-                    {/* Health Insurance - Retirement */}
+                    {/* Insurance Type Selection */}
                     <div className="space-y-3">
-                      <Label className="font-medium">Krankenversicherung</Label>
+                      <Label className="font-medium">Versicherungsart</Label>
                       <RadioTileGroup
-                        value={values.retirement.health.usePercentage ? 'percentage' : 'fixed'}
-                        onValueChange={(value) => onChange.onRetirementHealthMethodChange(value === 'percentage')}
+                        value={values.retirementType}
+                        onValueChange={(value) => onChange.onRetirementTypeChange(value as HealthInsuranceType)}
                       >
-                        <RadioTile value="percentage" label="Prozentual">
-                          Beitragssatz basierend auf Entnahme
+                        <RadioTile value="statutory" label="Gesetzliche Krankenversicherung">
+                          Standard-Beitragssätze mit Beitragsbemessungsgrenzen
                         </RadioTile>
-                        <RadioTile value="fixed" label="Festbetrag">
-                          Fester monatlicher Betrag
+                        <RadioTile value="private" label="Private Krankenversicherung">
+                          Feste monatliche Beiträge mit jährlichen Anpassungen
                         </RadioTile>
                       </RadioTileGroup>
-                      
-                      {values.retirement.health.usePercentage ? (
-                        <div className="space-y-2">
-                          <Label htmlFor="ret-health-percentage">
-                            Beitragssatz (%)
-                          </Label>
-                          <Input
-                            id="ret-health-percentage"
-                            type="number"
-                            step="0.1"
-                            value={values.retirement.health.percentage || 7.3}
-                            onChange={(e) => onChange.onRetirementHealthPercentageChange(Number(e.target.value))}
-                            min={0}
-                            max={15}
-                          />
-                          <div className="text-sm text-gray-500">
-                            Standard: 7,3% (Rentner ohne Arbeitgeberanteil)
-                          </div>
-                        </div>
-                      ) : (
-                        <div className="space-y-2">
-                          <Label htmlFor="ret-health-fixed">
-                            Monatlicher Betrag (€)
-                          </Label>
-                          <Input
-                            id="ret-health-fixed"
-                            type="number"
-                            value={values.retirement.health.fixedAmount || 300}
-                            onChange={(e) => onChange.onRetirementHealthFixedAmountChange(Number(e.target.value))}
-                            min={0}
-                            max={1500}
-                          />
-                        </div>
-                      )}
                     </div>
 
-                    {/* Care Insurance - Retirement */}
-                    <div className="space-y-3">
-                      <Label className="font-medium">Pflegeversicherung</Label>
-                      <RadioTileGroup
-                        value={values.retirement.care.usePercentage ? 'percentage' : 'fixed'}
-                        onValueChange={(value) => onChange.onRetirementCareMethodChange(value === 'percentage')}
-                      >
-                        <RadioTile value="percentage" label="Prozentual">
-                          Beitragssatz basierend auf Entnahme
-                        </RadioTile>
-                        <RadioTile value="fixed" label="Festbetrag">
-                          Fester monatlicher Betrag
-                        </RadioTile>
-                      </RadioTileGroup>
-                      
-                      {values.retirement.care.usePercentage ? (
-                        <div className="space-y-2">
-                          <Label htmlFor="ret-care-percentage">
-                            Beitragssatz (%)
-                          </Label>
-                          <Input
-                            id="ret-care-percentage"
-                            type="number"
-                            step="0.01"
-                            value={values.retirement.care.percentage || 3.05}
-                            onChange={(e) => onChange.onRetirementCarePercentageChange(Number(e.target.value))}
-                            min={0}
-                            max={5}
-                          />
-                          <div className="text-sm text-gray-500">
-                            Standard: 3,05%
+                    {/* Statutory Insurance Configuration */}
+                    {values.retirementType === 'statutory' && (
+                      <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+                        <div className="text-sm font-medium text-gray-700">
+                          Gesetzliche Krankenversicherung - Rente
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="ret-statutory-health-rate">
+                              Krankenversicherung (%)
+                            </Label>
+                            <Input
+                              id="ret-statutory-health-rate"
+                              type="number"
+                              step="0.1"
+                              value={values.retirement.statutory?.healthRate || 7.3}
+                              onChange={(e) => onChange.onRetirementStatutoryChange({
+                                healthRate: Number(e.target.value)
+                              })}
+                              min={0}
+                              max={15}
+                            />
+                            <div className="text-xs text-gray-500">
+                              Standard: 7,3% (ohne Arbeitgeberanteil)
+                            </div>
                           </div>
                           
-                          {values.childless && (
-                            <div className="space-y-2">
-                              <Label htmlFor="ret-care-childless">
-                                Kinderloser Zuschlag (%)
-                              </Label>
-                              <Input
-                                id="ret-care-childless"
-                                type="number"
-                                step="0.01"
-                                value={values.retirement.care.childlessSupplement || 0.6}
-                                onChange={(e) => onChange.onRetirementCareChildlessSupplementChange(Number(e.target.value))}
-                                min={0}
-                                max={2}
-                              />
-                              <div className="text-sm text-gray-500">
-                                Standard: 0,6%
-                              </div>
+                          <div className="space-y-2">
+                            <Label htmlFor="ret-statutory-care-rate">
+                              Pflegeversicherung (%)
+                            </Label>
+                            <Input
+                              id="ret-statutory-care-rate"
+                              type="number"
+                              step="0.01"
+                              value={values.retirement.statutory?.careRate || 3.05}
+                              onChange={(e) => onChange.onRetirementStatutoryChange({
+                                careRate: Number(e.target.value)
+                              })}
+                              min={0}
+                              max={5}
+                            />
+                            <div className="text-xs text-gray-500">
+                              Standard: 3,05%
                             </div>
-                          )}
+                          </div>
                         </div>
-                      ) : (
+                      </div>
+                    )}
+
+                    {/* Private Insurance Configuration */}
+                    {values.retirementType === 'private' && (
+                      <div className="space-y-4 p-4 bg-blue-50 rounded-lg">
+                        <div className="text-sm font-medium text-blue-700">
+                          Private Krankenversicherung - Rente
+                        </div>
+                        
+                        <div className="grid grid-cols-2 gap-4">
+                          <div className="space-y-2">
+                            <Label htmlFor="ret-private-health-premium">
+                              Krankenversicherung (monatlich)
+                            </Label>
+                            <Input
+                              id="ret-private-health-premium"
+                              type="number"
+                              value={values.retirement.private?.monthlyHealthPremium || 450}
+                              onChange={(e) => onChange.onRetirementPrivateChange({
+                                monthlyHealthPremium: Number(e.target.value)
+                              })}
+                              min={150}
+                              max={2000}
+                            />
+                            <div className="text-xs text-gray-500">
+                              Euro pro Monat
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="ret-private-care-premium">
+                              Pflegeversicherung (monatlich)
+                            </Label>
+                            <Input
+                              id="ret-private-care-premium"
+                              type="number"
+                              value={values.retirement.private?.monthlyCareRremium || 90}
+                              onChange={(e) => onChange.onRetirementPrivateChange({
+                                monthlyCareRremium: Number(e.target.value)
+                              })}
+                              min={30}
+                              max={400}
+                            />
+                            <div className="text-xs text-gray-500">
+                              Euro pro Monat
+                            </div>
+                          </div>
+                        </div>
+
                         <div className="space-y-2">
-                          <Label htmlFor="ret-care-fixed">
-                            Monatlicher Betrag (€)
+                          <Label htmlFor="ret-private-adjustment">
+                            Jährliche Anpassung (%)
                           </Label>
                           <Input
-                            id="ret-care-fixed"
+                            id="ret-private-adjustment"
                             type="number"
-                            value={values.retirement.care.fixedAmount || 100}
-                            onChange={(e) => onChange.onRetirementCareFixedAmountChange(Number(e.target.value))}
+                            step="0.1"
+                            value={((values.retirement.private?.annualAdjustmentRate || 1.03) - 1) * 100}
+                            onChange={(e) => onChange.onRetirementPrivateChange({
+                              annualAdjustmentRate: 1 + (Number(e.target.value) / 100)
+                            })}
                             min={0}
-                            max={400}
+                            max={10}
                           />
-                          
-                          {values.childless && (
-                            <div className="space-y-2">
-                              <Label htmlFor="ret-care-childless-fixed">
-                                Kinderloser Zuschlag monatlich (€)
-                              </Label>
-                              <Input
-                                id="ret-care-childless-fixed"
-                                type="number"
-                                value={values.retirement.care.childlessSupplement || 25}
-                                onChange={(e) => onChange.onRetirementCareChildlessSupplementChange(Number(e.target.value))}
-                                min={0}
-                                max={80}
-                              />
-                            </div>
-                          )}
+                          <div className="text-xs text-gray-500">
+                            Standard: 3% (Beitragsanpassung pro Jahr)
+                          </div>
                         </div>
-                      )}
-                    </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
@@ -487,11 +486,11 @@ export function HealthInsuranceConfiguration({
                   <Info className="inline w-4 h-4 mr-2" />
                   <strong>Hinweise:</strong>
                   <ul className="mt-2 space-y-1 list-disc list-inside">
-                    <li>Die Beiträge werden vom jährlichen Entnahmebetrag abgezogen</li>
-                    <li>Bei prozentualer Berechnung: Beitrag = Entnahme × Beitragssatz</li>
-                    <li>Bei Festbetrag: Konstanter monatlicher Betrag unabhängig von der Entnahme</li>
-                    <li>Kinderlose zahlen einen Zuschlag zur Pflegeversicherung</li>
-                    <li>In der Rente entfällt der Arbeitgeberanteil bei der Krankenversicherung</li>
+                    <li><strong>Gesetzliche KV:</strong> Beiträge basieren auf Entnahmebeträgen mit Mindest-/Höchstbeitrag</li>
+                    <li><strong>Private KV:</strong> Feste monatliche Beiträge unabhängig von der Entnahme</li>
+                    <li><strong>Kinderlose:</strong> Zahlen 0,6% Zuschlag zur Pflegeversicherung</li>
+                    <li><strong>Rentner-Beitragssätze:</strong> Reduzierte Sätze ab dem konfigurierten Renteneintritt</li>
+                    <li><strong>Alle Beiträge:</strong> Werden vom jährlichen Entnahmebetrag abgezogen</li>
                   </ul>
                 </div>
               </div>
