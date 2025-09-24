@@ -105,6 +105,10 @@ export function SparplanEingabe({
   const [editingSparplan, setEditingSparplan] = useState<Sparplan | null>(null)
   const [isEditMode, setIsEditMode] = useState(false)
 
+  // Collapsible section state management
+  const [isSparplanFormOpen, setIsSparplanFormOpen] = useState(false)
+  const [isSingleFormOpen, setIsSingleFormOpen] = useState(false)
+
   // Synchronize local state with prop changes
   useEffect(() => {
     setSparplans(currentSparplans)
@@ -245,6 +249,8 @@ export function SparplanEingabe({
         transactionCostPercent: sparplan.transactionCostPercent?.toString() || '',
         transactionCostAbsolute: sparplan.transactionCostAbsolute?.toString() || '',
       })
+      // Auto-expand the single payment form section
+      setIsSingleFormOpen(true)
     }
     else {
       // Pre-fill savings plan form
@@ -261,6 +267,8 @@ export function SparplanEingabe({
         transactionCostPercent: sparplan.transactionCostPercent?.toString() || '',
         transactionCostAbsolute: sparplan.transactionCostAbsolute?.toString() || '',
       })
+      // Auto-expand the savings plan form section
+      setIsSparplanFormOpen(true)
     }
   }
 
@@ -336,6 +344,10 @@ export function SparplanEingabe({
       transactionCostAbsolute: '',
     })
 
+    // Close the expanded form sections
+    setIsSparplanFormOpen(false)
+    setIsSingleFormOpen(false)
+
     const itemType = isEinmalzahlung ? 'Einmalzahlung' : 'Sparplan'
     toast.success(`${itemType} erfolgreich aktualisiert!`)
   }
@@ -360,12 +372,16 @@ export function SparplanEingabe({
       transactionCostPercent: '',
       transactionCostAbsolute: '',
     })
+
+    // Close the expanded form sections
+    setIsSparplanFormOpen(false)
+    setIsSingleFormOpen(false)
   }
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
       <Card className="mb-6">
-        <Collapsible defaultOpen={false}>
+        <Collapsible open={isSparplanFormOpen} onOpenChange={setIsSparplanFormOpen}>
           <CardHeader className="pb-4">
             <CollapsibleTrigger asChild>
               <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
@@ -531,7 +547,7 @@ export function SparplanEingabe({
       </Card>
 
       <Card className="mb-6">
-        <Collapsible defaultOpen={false}>
+        <Collapsible open={isSingleFormOpen} onOpenChange={setIsSingleFormOpen}>
           <CardHeader className="pb-4">
             <CollapsibleTrigger asChild>
               <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
