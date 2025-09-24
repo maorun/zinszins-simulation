@@ -713,6 +713,7 @@ export function calculateWithdrawal({
             taxableAmount: statutoryPensionData[year].taxableAmount,
           }
         : undefined,
+
       // Health insurance data
       healthInsurance: healthInsuranceForYear && healthInsuranceForYear.totalAnnualAmount > 0
         ? {
@@ -725,6 +726,7 @@ export function calculateWithdrawal({
         : undefined,
       // Net withdrawal amount after all deductions (taxes + health insurance)
       netEntnahme: healthInsuranceForYear ? netEntnahme : undefined,
+
       // Other income data
       otherIncome: otherIncomeData[year] && otherIncomeData[year].totalNetAnnualAmount > 0
         ? {
