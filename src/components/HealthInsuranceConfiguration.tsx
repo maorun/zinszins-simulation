@@ -200,6 +200,7 @@ export function HealthInsuranceConfiguration({
                       <RadioTileGroup
                         value={values.preRetirementType}
                         onValueChange={value => onChange.onPreRetirementTypeChange(value as HealthInsuranceType)}
+                        idPrefix="pre-retirement-insurance"
                       >
                         <RadioTile value="statutory" label="Gesetzliche Krankenversicherung">
                           Standard-Beitragssätze mit Beitragsbemessungsgrenzen
@@ -369,6 +370,7 @@ export function HealthInsuranceConfiguration({
                       <RadioTileGroup
                         value={values.retirementType}
                         onValueChange={value => onChange.onRetirementTypeChange(value as HealthInsuranceType)}
+                        idPrefix="retirement-insurance"
                       >
                         <RadioTile value="statutory" label="Gesetzliche Krankenversicherung">
                           Standard-Beitragssätze mit Beitragsbemessungsgrenzen
