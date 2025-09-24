@@ -67,11 +67,26 @@ export interface HealthInsuranceConfig {
   /** Whether the person is childless (affects care insurance) */
   childless: boolean
 
+  /** Whether to pay only employee portion (true) or full contribution (false, default for retirees) */
+  employeeOnly: boolean
+
+  /** Insurance type for pre-retirement phase */
+  preRetirementType: HealthInsuranceType
+
+  /** Insurance type for retirement phase */
+  retirementType: HealthInsuranceType
+
   /** Configuration for pre-retirement phase */
-  preRetirement: StatutoryHealthInsuranceConfig | PrivateHealthInsuranceConfig
+  preRetirement: {
+    statutory?: StatutoryHealthInsuranceConfig
+    private?: PrivateHealthInsuranceConfig
+  }
 
   /** Configuration for retirement phase */
-  retirement: StatutoryHealthInsuranceConfig | PrivateHealthInsuranceConfig
+  retirement: {
+    statutory?: StatutoryHealthInsuranceConfig
+    private?: PrivateHealthInsuranceConfig
+  }
 }
 
 /**
@@ -293,9 +308,36 @@ export function calculateHealthInsurance(
   }
 
   const phase = year >= config.retirementStartYear ? 'retirement' : 'pre-retirement'
-  const phaseConfig = phase === 'retirement' ? config.retirement : config.preRetirement
-  const isChildless = childless ?? config.childless
+  const insuranceType = phase === 'retirement' ? config.retirementType : config.preRetirementType
+  const phaseConfig = phase === 'retirement' 
+    ? (insuranceType === 'statutory' ? config.retirement.statutory : config.retirement.private)
+    : (insuranceType === 'statutory' ? config.preRetirement.statutory : config.preRetirement.private)
+  
+  if (!phaseConfig) {
+    // Return zero contribution if config is missing
+    return {
+      year,
+      phase,
+      insuranceType,
+      health: {
+        calculationMethod: 'percentage',
+        percentage: 0,
+        monthlyAmount: 0,
+        annualAmount: 0,
+      },
+      care: {
+        calculationMethod: 'percentage',
+        percentage: 0,
+        monthlyAmount: 0,
+        annualAmount: 0,
+      },
+      totalMonthlyAmount: 0,
+      totalAnnualAmount: 0,
+    }
+  }
 
+  const isChildless = childless ?? config.childless
+  
   let healthResult: HealthInsuranceCalculationResult['health']
   let careResult: HealthInsuranceCalculationResult['care']
 
@@ -303,11 +345,26 @@ export function calculateHealthInsurance(
     const result = calculateStatutoryHealthInsurance(year, phaseConfig, annualWithdrawalAmount, isChildless)
     healthResult = result.health
     careResult = result.care
+    
+    // Apply employee-only factor if enabled (typically half the contribution)
+    if (config.employeeOnly) {
+      healthResult = {
+        ...healthResult,
+        monthlyAmount: healthResult.monthlyAmount * 0.5,
+        annualAmount: healthResult.annualAmount * 0.5,
+      }
+      careResult = {
+        ...careResult,
+        monthlyAmount: careResult.monthlyAmount * 0.5,
+        annualAmount: careResult.annualAmount * 0.5,
+      }
+    }
   }
   else {
     const result = calculatePrivateHealthInsurance(year, phaseConfig)
     healthResult = result.health
     careResult = result.care
+    // Private insurance premiums are not affected by employee/employer split
   }
 
   const totalMonthlyAmount = healthResult.monthlyAmount + careResult.monthlyAmount
@@ -316,7 +373,7 @@ export function calculateHealthInsurance(
   return {
     year,
     phase,
-    insuranceType: phaseConfig.type,
+    insuranceType,
     health: healthResult,
     care: careResult,
     totalMonthlyAmount,

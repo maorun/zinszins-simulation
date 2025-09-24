@@ -1975,59 +1975,54 @@ export function EntnahmeSimulationsAusgabe({
                     enabled: formValue.healthInsuranceConfig?.enabled || false,
                     retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
                     childless: formValue.childless || false,
-                    preRetirementType: (formValue.healthInsuranceConfig?.preRetirement?.type as HealthInsuranceType) || 'statutory',
-                    retirementType: (formValue.healthInsuranceConfig?.retirement?.type as HealthInsuranceType) || 'statutory',
+                    employeeOnly: formValue.healthInsuranceConfig?.employeeOnly || false,
+                    preRetirementType: formValue.healthInsuranceConfig?.preRetirementType || 'statutory',
+                    retirementType: formValue.healthInsuranceConfig?.retirementType || 'statutory',
                     preRetirement: {
-                      statutory: formValue.healthInsuranceConfig?.preRetirement?.type === 'statutory'
-                        ? formValue.healthInsuranceConfig.preRetirement as StatutoryHealthInsuranceConfig
-                        : undefined,
-                      private: formValue.healthInsuranceConfig?.preRetirement?.type === 'private'
-                        ? formValue.healthInsuranceConfig.preRetirement as PrivateHealthInsuranceConfig
-                        : undefined,
+                      statutory: formValue.healthInsuranceConfig?.preRetirement?.statutory || defaultStatutoryHealthInsuranceConfig,
+                      private: formValue.healthInsuranceConfig?.preRetirement?.private || defaultPrivateHealthInsuranceConfig,
                     },
                     retirement: {
-                      statutory: formValue.healthInsuranceConfig?.retirement?.type === 'statutory'
-                        ? formValue.healthInsuranceConfig.retirement as StatutoryHealthInsuranceConfig
-                        : undefined,
-                      private: formValue.healthInsuranceConfig?.retirement?.type === 'private'
-                        ? formValue.healthInsuranceConfig.retirement as PrivateHealthInsuranceConfig
-                        : undefined,
+                      statutory: formValue.healthInsuranceConfig?.retirement?.statutory || defaultStatutoryHealthInsuranceConfigRetirement,
+                      private: formValue.healthInsuranceConfig?.retirement?.private || { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
                     },
                   }}
                   onChange={{
                     onEnabledChange: enabled => updateFormValue({
                       healthInsuranceConfig: {
-                        ...(formValue.healthInsuranceConfig || {
-                          enabled: false,
-                          retirementStartYear: startOfIndependence,
-                          preRetirement: {
-                            health: { usePercentage: true, percentage: 14.6 },
-                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
-                          },
-                          retirement: {
-                            health: { usePercentage: true, percentage: 7.3 },
-                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
-                          },
-                        }),
                         enabled,
+                        retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
+                        childless: formValue.childless || false,
+                        employeeOnly: formValue.healthInsuranceConfig?.employeeOnly || false,
+                        preRetirementType: formValue.healthInsuranceConfig?.preRetirementType || 'statutory',
+                        retirementType: formValue.healthInsuranceConfig?.retirementType || 'statutory',
+                        preRetirement: formValue.healthInsuranceConfig?.preRetirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfig,
+                          private: defaultPrivateHealthInsuranceConfig,
+                        },
+                        retirement: formValue.healthInsuranceConfig?.retirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfigRetirement,
+                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                        },
                       },
                       childless: formValue.childless || false,
                     }),
                     onRetirementStartYearChange: retirementStartYear => updateFormValue({
                       healthInsuranceConfig: {
-                        ...(formValue.healthInsuranceConfig || {
-                          enabled: false,
-                          retirementStartYear: startOfIndependence,
-                          preRetirement: {
-                            health: { usePercentage: true, percentage: 14.6 },
-                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
-                          },
-                          retirement: {
-                            health: { usePercentage: true, percentage: 7.3 },
-                            care: { usePercentage: true, percentage: 3.05, childlessSupplement: 0.6 },
-                          },
-                        }),
+                        enabled: formValue.healthInsuranceConfig?.enabled || false,
                         retirementStartYear,
+                        childless: formValue.childless || false,
+                        employeeOnly: formValue.healthInsuranceConfig?.employeeOnly || false,
+                        preRetirementType: formValue.healthInsuranceConfig?.preRetirementType || 'statutory',
+                        retirementType: formValue.healthInsuranceConfig?.retirementType || 'statutory',
+                        preRetirement: formValue.healthInsuranceConfig?.preRetirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfig,
+                          private: defaultPrivateHealthInsuranceConfig,
+                        },
+                        retirement: formValue.healthInsuranceConfig?.retirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfigRetirement,
+                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                        },
                       },
                     }),
                     onChildlessChange: childless => updateFormValue({
@@ -2035,27 +2030,74 @@ export function EntnahmeSimulationsAusgabe({
                         enabled: formValue.healthInsuranceConfig?.enabled || false,
                         retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
                         childless,
-                        preRetirement: formValue.healthInsuranceConfig?.preRetirement || defaultStatutoryHealthInsuranceConfig,
-                        retirement: formValue.healthInsuranceConfig?.retirement || defaultStatutoryHealthInsuranceConfigRetirement,
+                        employeeOnly: formValue.healthInsuranceConfig?.employeeOnly || false,
+                        preRetirementType: formValue.healthInsuranceConfig?.preRetirementType || 'statutory',
+                        retirementType: formValue.healthInsuranceConfig?.retirementType || 'statutory',
+                        preRetirement: formValue.healthInsuranceConfig?.preRetirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfig,
+                          private: defaultPrivateHealthInsuranceConfig,
+                        },
+                        retirement: formValue.healthInsuranceConfig?.retirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfigRetirement,
+                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                        },
                       },
                       childless,
                     }),
-                    onPreRetirementTypeChange: (type: HealthInsuranceType) => updateFormValue({
+                    onEmployeeOnlyChange: employeeOnly => updateFormValue({
                       healthInsuranceConfig: {
                         enabled: formValue.healthInsuranceConfig?.enabled || false,
                         retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
                         childless: formValue.childless || false,
-                        preRetirement: type === 'statutory' ? defaultStatutoryHealthInsuranceConfig : defaultPrivateHealthInsuranceConfig,
-                        retirement: formValue.healthInsuranceConfig?.retirement || defaultStatutoryHealthInsuranceConfigRetirement,
+                        employeeOnly,
+                        preRetirementType: formValue.healthInsuranceConfig?.preRetirementType || 'statutory',
+                        retirementType: formValue.healthInsuranceConfig?.retirementType || 'statutory',
+                        preRetirement: formValue.healthInsuranceConfig?.preRetirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfig,
+                          private: defaultPrivateHealthInsuranceConfig,
+                        },
+                        retirement: formValue.healthInsuranceConfig?.retirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfigRetirement,
+                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                        },
                       },
                     }),
-                    onRetirementTypeChange: (type: HealthInsuranceType) => updateFormValue({
+                    onPreRetirementTypeChange: (preRetirementType: HealthInsuranceType) => updateFormValue({
                       healthInsuranceConfig: {
+                        ...formValue.healthInsuranceConfig,
                         enabled: formValue.healthInsuranceConfig?.enabled || false,
                         retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
                         childless: formValue.childless || false,
-                        preRetirement: formValue.healthInsuranceConfig?.preRetirement || defaultStatutoryHealthInsuranceConfig,
-                        retirement: type === 'statutory' ? defaultStatutoryHealthInsuranceConfigRetirement : { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                        employeeOnly: formValue.healthInsuranceConfig?.employeeOnly || false,
+                        preRetirementType,
+                        retirementType: formValue.healthInsuranceConfig?.retirementType || 'statutory',
+                        preRetirement: formValue.healthInsuranceConfig?.preRetirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfig,
+                          private: defaultPrivateHealthInsuranceConfig,
+                        },
+                        retirement: formValue.healthInsuranceConfig?.retirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfigRetirement,
+                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                        },
+                      },
+                    }),
+                    onRetirementTypeChange: (retirementType: HealthInsuranceType) => updateFormValue({
+                      healthInsuranceConfig: {
+                        ...formValue.healthInsuranceConfig,
+                        enabled: formValue.healthInsuranceConfig?.enabled || false,
+                        retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
+                        childless: formValue.childless || false,
+                        employeeOnly: formValue.healthInsuranceConfig?.employeeOnly || false,
+                        preRetirementType: formValue.healthInsuranceConfig?.preRetirementType || 'statutory',
+                        retirementType,
+                        preRetirement: formValue.healthInsuranceConfig?.preRetirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfig,
+                          private: defaultPrivateHealthInsuranceConfig,
+                        },
+                        retirement: formValue.healthInsuranceConfig?.retirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfigRetirement,
+                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                        },
                       },
                     }),
                     onPreRetirementStatutoryChange: (config: Partial<StatutoryHealthInsuranceConfig>) => updateFormValue({
@@ -2063,14 +2105,20 @@ export function EntnahmeSimulationsAusgabe({
                         enabled: formValue.healthInsuranceConfig?.enabled || false,
                         retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
                         childless: formValue.childless || false,
+                        employeeOnly: formValue.healthInsuranceConfig?.employeeOnly || false,
+                        preRetirementType: formValue.healthInsuranceConfig?.preRetirementType || 'statutory',
+                        retirementType: formValue.healthInsuranceConfig?.retirementType || 'statutory',
                         preRetirement: {
-                          ...(
-                            (formValue.healthInsuranceConfig?.preRetirement as StatutoryHealthInsuranceConfig) ||
-                            defaultStatutoryHealthInsuranceConfig
-                          ),
-                          ...config,
+                          ...formValue.healthInsuranceConfig?.preRetirement,
+                          statutory: {
+                            ...(formValue.healthInsuranceConfig?.preRetirement?.statutory || defaultStatutoryHealthInsuranceConfig),
+                            ...config,
+                          },
                         },
-                        retirement: formValue.healthInsuranceConfig?.retirement || defaultStatutoryHealthInsuranceConfigRetirement,
+                        retirement: formValue.healthInsuranceConfig?.retirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfigRetirement,
+                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                        },
                       },
                     }),
                     onPreRetirementPrivateChange: (config: Partial<PrivateHealthInsuranceConfig>) => updateFormValue({
@@ -2078,11 +2126,20 @@ export function EntnahmeSimulationsAusgabe({
                         enabled: formValue.healthInsuranceConfig?.enabled || false,
                         retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
                         childless: formValue.childless || false,
+                        employeeOnly: formValue.healthInsuranceConfig?.employeeOnly || false,
+                        preRetirementType: formValue.healthInsuranceConfig?.preRetirementType || 'statutory',
+                        retirementType: formValue.healthInsuranceConfig?.retirementType || 'statutory',
                         preRetirement: {
-                          ...((formValue.healthInsuranceConfig?.preRetirement as PrivateHealthInsuranceConfig) || defaultPrivateHealthInsuranceConfig),
-                          ...config,
+                          ...formValue.healthInsuranceConfig?.preRetirement,
+                          private: {
+                            ...(formValue.healthInsuranceConfig?.preRetirement?.private || defaultPrivateHealthInsuranceConfig),
+                            ...config,
+                          },
                         },
-                        retirement: formValue.healthInsuranceConfig?.retirement || defaultStatutoryHealthInsuranceConfigRetirement,
+                        retirement: formValue.healthInsuranceConfig?.retirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfigRetirement,
+                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                        },
                       },
                     }),
                     onRetirementStatutoryChange: (config: Partial<StatutoryHealthInsuranceConfig>) => updateFormValue({
@@ -2090,10 +2147,19 @@ export function EntnahmeSimulationsAusgabe({
                         enabled: formValue.healthInsuranceConfig?.enabled || false,
                         retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
                         childless: formValue.childless || false,
-                        preRetirement: formValue.healthInsuranceConfig?.preRetirement || defaultStatutoryHealthInsuranceConfig,
+                        employeeOnly: formValue.healthInsuranceConfig?.employeeOnly || false,
+                        preRetirementType: formValue.healthInsuranceConfig?.preRetirementType || 'statutory',
+                        retirementType: formValue.healthInsuranceConfig?.retirementType || 'statutory',
+                        preRetirement: formValue.healthInsuranceConfig?.preRetirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfig,
+                          private: defaultPrivateHealthInsuranceConfig,
+                        },
                         retirement: {
-                          ...((formValue.healthInsuranceConfig?.retirement as StatutoryHealthInsuranceConfig) || defaultStatutoryHealthInsuranceConfigRetirement),
-                          ...config,
+                          ...formValue.healthInsuranceConfig?.retirement,
+                          statutory: {
+                            ...(formValue.healthInsuranceConfig?.retirement?.statutory || defaultStatutoryHealthInsuranceConfigRetirement),
+                            ...config,
+                          },
                         },
                       },
                     }),
@@ -2102,13 +2168,19 @@ export function EntnahmeSimulationsAusgabe({
                         enabled: formValue.healthInsuranceConfig?.enabled || false,
                         retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
                         childless: formValue.childless || false,
-                        preRetirement: formValue.healthInsuranceConfig?.preRetirement || defaultStatutoryHealthInsuranceConfig,
+                        employeeOnly: formValue.healthInsuranceConfig?.employeeOnly || false,
+                        preRetirementType: formValue.healthInsuranceConfig?.preRetirementType || 'statutory',
+                        retirementType: formValue.healthInsuranceConfig?.retirementType || 'statutory',
+                        preRetirement: formValue.healthInsuranceConfig?.preRetirement || {
+                          statutory: defaultStatutoryHealthInsuranceConfig,
+                          private: defaultPrivateHealthInsuranceConfig,
+                        },
                         retirement: {
-                          ...(
-                            (formValue.healthInsuranceConfig?.retirement as PrivateHealthInsuranceConfig) ||
-                            { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 }
-                          ),
-                          ...config,
+                          ...formValue.healthInsuranceConfig?.retirement,
+                          private: {
+                            ...(formValue.healthInsuranceConfig?.retirement?.private || { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 }),
+                            ...config,
+                          },
                         },
                       },
                     }),

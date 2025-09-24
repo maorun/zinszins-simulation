@@ -1,6 +1,7 @@
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { Switch } from './ui/switch'
+import { Slider } from './ui/slider'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
@@ -17,6 +18,7 @@ interface HealthInsuranceFormValues {
   enabled: boolean
   retirementStartYear: number
   childless: boolean
+  employeeOnly: boolean
   preRetirementType: HealthInsuranceType
   retirementType: HealthInsuranceType
   preRetirement: {
@@ -33,6 +35,7 @@ interface HealthInsuranceChangeHandlers {
   onEnabledChange: (enabled: boolean) => void
   onRetirementStartYearChange: (year: number) => void
   onChildlessChange: (childless: boolean) => void
+  onEmployeeOnlyChange: (employeeOnly: boolean) => void
   onPreRetirementTypeChange: (type: HealthInsuranceType) => void
   onRetirementTypeChange: (type: HealthInsuranceType) => void
   onPreRetirementStatutoryChange: (config: Partial<StatutoryHealthInsuranceConfig>) => void
@@ -166,6 +169,22 @@ export function HealthInsuranceConfiguration({
                     onCheckedChange={onChange.onChildlessChange}
                   />
                 </div>
+
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label htmlFor="employee-only">
+                      Nur Arbeitnehmeranteil zahlen
+                    </Label>
+                    <div className="text-sm text-gray-500">
+                      Standard: Vollbeitrag (als Privatier). Aktivieren für Arbeitnehmeranteil.
+                    </div>
+                  </div>
+                  <Switch
+                    id="employee-only"
+                    checked={values.employeeOnly}
+                    onCheckedChange={onChange.onEmployeeOnlyChange}
+                  />
+                </div>
               </div>
 
               {/* Pre-Retirement Configuration */}
@@ -198,7 +217,7 @@ export function HealthInsuranceConfiguration({
                           Gesetzliche Krankenversicherung - Vorrente
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
                           <div className="space-y-2">
                             <Label htmlFor="pre-statutory-health-rate">
                               Krankenversicherung (%)
@@ -268,7 +287,7 @@ export function HealthInsuranceConfiguration({
                           Private Krankenversicherung - Vorrente
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="pre-private-health-premium">
                               Krankenversicherung (monatlich)
@@ -308,21 +327,25 @@ export function HealthInsuranceConfiguration({
                           </div>
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           <Label htmlFor="pre-private-adjustment">
-                            Jährliche Anpassung (%)
+                            Jährliche Anpassung: {(((values.preRetirement.private?.annualAdjustmentRate || 1.03) - 1) * 100).toFixed(1)}%
                           </Label>
-                          <Input
+                          <Slider
                             id="pre-private-adjustment"
-                            type="number"
-                            step="0.1"
-                            value={((values.preRetirement.private?.annualAdjustmentRate || 1.03) - 1) * 100}
-                            onChange={e => onChange.onPreRetirementPrivateChange({
-                              annualAdjustmentRate: 1 + (Number(e.target.value) / 100),
+                            value={[((values.preRetirement.private?.annualAdjustmentRate || 1.03) - 1) * 100]}
+                            onValueChange={([value]) => onChange.onPreRetirementPrivateChange({
+                              annualAdjustmentRate: 1 + (value / 100),
                             })}
                             min={0}
-                            max={10}
+                            max={8}
+                            step={0.1}
+                            className="mt-2"
                           />
+                          <div className="flex justify-between text-sm text-gray-500">
+                            <span>0%</span>
+                            <span>8%</span>
+                          </div>
                           <div className="text-xs text-gray-500">
                             Standard: 3% (Beitragsanpassung pro Jahr)
                           </div>
@@ -363,7 +386,7 @@ export function HealthInsuranceConfiguration({
                           Gesetzliche Krankenversicherung - Rente
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="flex flex-col space-y-4 md:grid md:grid-cols-2 md:gap-4 md:space-y-0">
                           <div className="space-y-2">
                             <Label htmlFor="ret-statutory-health-rate">
                               Krankenversicherung (%)
@@ -414,7 +437,7 @@ export function HealthInsuranceConfiguration({
                           Private Krankenversicherung - Rente
                         </div>
 
-                        <div className="grid grid-cols-2 gap-4">
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <div className="space-y-2">
                             <Label htmlFor="ret-private-health-premium">
                               Krankenversicherung (monatlich)
@@ -454,21 +477,25 @@ export function HealthInsuranceConfiguration({
                           </div>
                         </div>
 
-                        <div className="space-y-2">
+                        <div className="space-y-3">
                           <Label htmlFor="ret-private-adjustment">
-                            Jährliche Anpassung (%)
+                            Jährliche Anpassung: {(((values.retirement.private?.annualAdjustmentRate || 1.03) - 1) * 100).toFixed(1)}%
                           </Label>
-                          <Input
+                          <Slider
                             id="ret-private-adjustment"
-                            type="number"
-                            step="0.1"
-                            value={((values.retirement.private?.annualAdjustmentRate || 1.03) - 1) * 100}
-                            onChange={e => onChange.onRetirementPrivateChange({
-                              annualAdjustmentRate: 1 + (Number(e.target.value) / 100),
+                            value={[((values.retirement.private?.annualAdjustmentRate || 1.03) - 1) * 100]}
+                            onValueChange={([value]) => onChange.onRetirementPrivateChange({
+                              annualAdjustmentRate: 1 + (value / 100),
                             })}
                             min={0}
-                            max={10}
+                            max={8}
+                            step={0.1}
+                            className="mt-2"
                           />
+                          <div className="flex justify-between text-sm text-gray-500">
+                            <span>0%</span>
+                            <span>8%</span>
+                          </div>
                           <div className="text-xs text-gray-500">
                             Standard: 3% (Beitragsanpassung pro Jahr)
                           </div>
