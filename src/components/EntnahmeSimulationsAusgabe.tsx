@@ -16,6 +16,11 @@ import type {
   WithdrawalStrategy,
   WithdrawalResult,
 } from '../../helpers/withdrawal'
+import type {
+  HealthInsuranceType,
+  StatutoryHealthInsuranceConfig,
+  PrivateHealthInsuranceConfig,
+} from '../../helpers/health-insurance'
 import { createDefaultWithdrawalSegment } from '../utils/segmented-withdrawal'
 import { WithdrawalSegmentForm } from './WithdrawalSegmentForm'
 import { DynamicWithdrawalConfiguration } from './DynamicWithdrawalConfiguration'
@@ -1965,31 +1970,23 @@ export function EntnahmeSimulationsAusgabe({
                     enabled: formValue.healthInsuranceConfig?.enabled || false,
                     retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
                     childless: formValue.childless || false,
+                    preRetirementType: (formValue.healthInsuranceConfig?.preRetirement?.type as HealthInsuranceType) || 'statutory',
+                    retirementType: (formValue.healthInsuranceConfig?.retirement?.type as HealthInsuranceType) || 'statutory',
                     preRetirement: {
-                      health: {
-                        usePercentage: formValue.healthInsuranceConfig?.preRetirement.health.usePercentage ?? true,
-                        percentage: formValue.healthInsuranceConfig?.preRetirement.health.percentage,
-                        fixedAmount: formValue.healthInsuranceConfig?.preRetirement.health.fixedAmount,
-                      },
-                      care: {
-                        usePercentage: formValue.healthInsuranceConfig?.preRetirement.care.usePercentage ?? true,
-                        percentage: formValue.healthInsuranceConfig?.preRetirement.care.percentage,
-                        fixedAmount: formValue.healthInsuranceConfig?.preRetirement.care.fixedAmount,
-                        childlessSupplement: formValue.healthInsuranceConfig?.preRetirement.care.childlessSupplement,
-                      },
+                      statutory: formValue.healthInsuranceConfig?.preRetirement?.type === 'statutory'
+                        ? formValue.healthInsuranceConfig.preRetirement as StatutoryHealthInsuranceConfig
+                        : undefined,
+                      private: formValue.healthInsuranceConfig?.preRetirement?.type === 'private'
+                        ? formValue.healthInsuranceConfig.preRetirement as PrivateHealthInsuranceConfig
+                        : undefined,
                     },
                     retirement: {
-                      health: {
-                        usePercentage: formValue.healthInsuranceConfig?.retirement.health.usePercentage ?? true,
-                        percentage: formValue.healthInsuranceConfig?.retirement.health.percentage,
-                        fixedAmount: formValue.healthInsuranceConfig?.retirement.health.fixedAmount,
-                      },
-                      care: {
-                        usePercentage: formValue.healthInsuranceConfig?.retirement.care.usePercentage ?? true,
-                        percentage: formValue.healthInsuranceConfig?.retirement.care.percentage,
-                        fixedAmount: formValue.healthInsuranceConfig?.retirement.care.fixedAmount,
-                        childlessSupplement: formValue.healthInsuranceConfig?.retirement.care.childlessSupplement,
-                      },
+                      statutory: formValue.healthInsuranceConfig?.retirement?.type === 'statutory'
+                        ? formValue.healthInsuranceConfig.retirement as StatutoryHealthInsuranceConfig
+                        : undefined,
+                      private: formValue.healthInsuranceConfig?.retirement?.type === 'private'
+                        ? formValue.healthInsuranceConfig.retirement as PrivateHealthInsuranceConfig
+                        : undefined,
                     },
                   }}
                   onChange={{
