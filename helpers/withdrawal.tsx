@@ -604,8 +604,12 @@ export function calculateWithdrawal({
     let genutzterGrundfreibetrag = 0
     if (enableGrundfreibetrag) {
       const yearlyGrundfreibetrag = getGrundfreibetragForYear(year)
-      einkommensteuer = calculateIncomeTax(entnahme, yearlyGrundfreibetrag, incomeTaxRate)
-      genutzterGrundfreibetrag = Math.min(entnahme, yearlyGrundfreibetrag)
+      // Calculate income tax on amount after health insurance deduction (German tax law)
+      const taxableAmount = healthInsuranceForYear 
+        ? netEntnahme  // Use net amount after health insurance deduction
+        : entnahme     // Use gross amount if no health insurance
+      einkommensteuer = calculateIncomeTax(taxableAmount, yearlyGrundfreibetrag, incomeTaxRate)
+      genutzterGrundfreibetrag = Math.min(taxableAmount, yearlyGrundfreibetrag)
     }
 
     const capitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)

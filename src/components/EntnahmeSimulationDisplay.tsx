@@ -497,7 +497,12 @@ export function EntnahmeSimulationDisplay({
                         })()
                       : (formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0)
 
-                    return formatCurrency(Math.max(0, rowData.entnahme - grundfreibetragAmount))
+                    // Use net withdrawal amount (after health insurance) for taxable income calculation
+                    const taxableBase = rowData.healthInsurance && rowData.netEntnahme !== undefined
+                      ? rowData.netEntnahme  // Net amount after health insurance deduction
+                      : rowData.entnahme     // Gross amount if no health insurance
+
+                    return formatCurrency(Math.max(0, taxableBase - grundfreibetragAmount))
                   })()}
                   <InfoIcon onClick={() => onCalculationInfoClick('taxableIncome', rowData)} />
                 </span>

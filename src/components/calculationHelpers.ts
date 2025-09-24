@@ -262,39 +262,75 @@ export function createWithdrawalInterestExplanation(
 export function createTaxableIncomeExplanation(
   entnahme: number,
   grundfreibetrag: number,
+  healthInsuranceAmount?: number,
   _vorabpauschale?: number,
   _kapitalertragsteuer?: number,
 ): CalculationExplanation {
-  const steuerpflichtigesEinkommen = Math.max(0, entnahme - grundfreibetrag)
+  // Step 1: Calculate net amount after health insurance
+  const netAmountAfterInsurance = healthInsuranceAmount 
+    ? entnahme - healthInsuranceAmount 
+    : entnahme
+  
+  // Step 2: Calculate taxable income after Grundfreibetrag
+  const steuerpflichtigesEinkommen = Math.max(0, netAmountAfterInsurance - grundfreibetrag)
+
+  const steps = [
+    {
+      title: 'Schritt 1: Brutto-Entnahme',
+      description: 'Die gesamte Entnahme aus dem Portfolio vor Abzügen.',
+      calculation: `Brutto-Entnahme = ${formatCurrency(entnahme)}`,
+      result: formatCurrency(entnahme),
+      backgroundColor: '#fff3e0',
+      borderColor: '#ffcc80',
+    },
+  ]
+
+  // Add health insurance step if applicable
+  if (healthInsuranceAmount && healthInsuranceAmount > 0) {
+    steps.push({
+      title: 'Schritt 2: Kranken- und Pflegeversicherung abziehen',
+      description: 'Kranken- und Pflegeversicherungsbeiträge sind steuerlich absetzbar.',
+      calculation: `Netto-Entnahme = Brutto-Entnahme - Versicherungsbeiträge<br/>${formatCurrency(entnahme)} - ${formatCurrency(healthInsuranceAmount)}`,
+      result: formatCurrency(netAmountAfterInsurance),
+      backgroundColor: '#ffeaa7',
+      borderColor: '#fdcb6e',
+    })
+  }
+
+  steps.push({
+    title: healthInsuranceAmount ? 'Schritt 3: Grundfreibetrag abziehen' : 'Schritt 2: Grundfreibetrag abziehen',
+    description: `Der steuerfreie Grundfreibetrag von ${formatCurrency(grundfreibetrag)} wird abgezogen.`,
+    calculation: `Zu versteuerndes Einkommen = max(0, ${healthInsuranceAmount ? 'Netto-Entnahme' : 'Brutto-Entnahme'} - Grundfreibetrag)<br/>max(0, ${formatCurrency(netAmountAfterInsurance)} - ${formatCurrency(grundfreibetrag)})`,
+    result: formatCurrency(steuerpflichtigesEinkommen),
+    backgroundColor: '#e8f5e8',
+    borderColor: '#81c784',
+  })
+
+  const finalResultValues = [
+    { label: 'Brutto-Entnahme', value: formatCurrency(entnahme) },
+  ]
+
+  if (healthInsuranceAmount && healthInsuranceAmount > 0) {
+    finalResultValues.push(
+      { label: 'Kranken-/Pflegeversicherung', value: formatCurrency(healthInsuranceAmount) },
+      { label: 'Netto-Entnahme', value: formatCurrency(netAmountAfterInsurance) },
+    )
+  }
+
+  finalResultValues.push(
+    { label: 'Grundfreibetrag', value: formatCurrency(grundfreibetrag) },
+    { label: 'Zu versteuerndes Einkommen', value: formatCurrency(steuerpflichtigesEinkommen) },
+  )
 
   return {
     title: '💰 Zu versteuerndes Einkommen Schritt für Schritt',
-    introduction: 'Das zu versteuernde Einkommen ergibt sich aus der Entnahme nach Abzug der verfügbaren Freibeträge. Dies ist die Grundlage für die Berechnung der Einkommensteuer.',
-    steps: [
-      {
-        title: 'Schritt 1: Brutto-Entnahme',
-        description: 'Die gesamte Entnahme aus dem Portfolio vor Steuern.',
-        calculation: `Brutto-Entnahme = ${formatCurrency(entnahme)}`,
-        result: formatCurrency(entnahme),
-        backgroundColor: '#fff3e0',
-        borderColor: '#ffcc80',
-      },
-      {
-        title: 'Schritt 2: Grundfreibetrag abziehen',
-        description: `Der steuerfreie Grundfreibetrag von ${formatCurrency(grundfreibetrag)} wird abgezogen.`,
-        calculation: `Zu versteuerndes Einkommen = max(0, Brutto-Entnahme - Grundfreibetrag)<br/>max(0, ${formatCurrency(entnahme)} - ${formatCurrency(grundfreibetrag)})`,
-        result: formatCurrency(steuerpflichtigesEinkommen),
-        backgroundColor: '#e8f5e8',
-        borderColor: '#81c784',
-      },
-    ],
+    introduction: healthInsuranceAmount 
+      ? 'Das zu versteuernde Einkommen ergibt sich aus der Brutto-Entnahme nach Abzug der Kranken-/Pflegeversicherung und des Grundfreibetrags. Versicherungsbeiträge sind in Deutschland steuerlich absetzbar.'
+      : 'Das zu versteuernde Einkommen ergibt sich aus der Entnahme nach Abzug der verfügbaren Freibeträge. Dies ist die Grundlage für die Berechnung der Einkommensteuer.',
+    steps,
     finalResult: {
       title: 'Endergebnis',
-      values: [
-        { label: 'Brutto-Entnahme', value: formatCurrency(entnahme) },
-        { label: 'Grundfreibetrag', value: formatCurrency(grundfreibetrag) },
-        { label: 'Zu versteuerndes Einkommen', value: formatCurrency(steuerpflichtigesEinkommen) },
-      ],
+      values: finalResultValues,
     },
   }
 }

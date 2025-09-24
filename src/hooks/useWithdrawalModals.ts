@@ -105,6 +105,7 @@ export function useWithdrawalModals(
       const explanation = createTaxableIncomeExplanation(
         rowData.entnahme,
         grundfreibetragAmount,
+        rowData.healthInsurance?.totalAnnualAmount, // Pass health insurance amount for tax deduction
       )
       setCalculationDetails(explanation)
       setShowCalculationModal(true)
