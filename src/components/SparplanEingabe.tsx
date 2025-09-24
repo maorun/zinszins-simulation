@@ -249,8 +249,7 @@ export function SparplanEingabe({
         transactionCostPercent: sparplan.transactionCostPercent?.toString() || '',
         transactionCostAbsolute: sparplan.transactionCostAbsolute?.toString() || '',
       })
-      // Auto-expand the single payment form section
-      setIsSingleFormOpen(true)
+      // NO auto-expansion for better mobile UX - inline editing instead
     }
     else {
       // Pre-fill savings plan form
@@ -267,8 +266,7 @@ export function SparplanEingabe({
         transactionCostPercent: sparplan.transactionCostPercent?.toString() || '',
         transactionCostAbsolute: sparplan.transactionCostAbsolute?.toString() || '',
       })
-      // Auto-expand the savings plan form section
-      setIsSparplanFormOpen(true)
+      // NO auto-expansion for better mobile UX - inline editing instead
     }
   }
 
@@ -344,9 +342,9 @@ export function SparplanEingabe({
       transactionCostAbsolute: '',
     })
 
-    // Close the expanded form sections
-    setIsSparplanFormOpen(false)
-    setIsSingleFormOpen(false)
+    // Close the expanded form sections - removed for better mobile UX
+    // setIsSparplanFormOpen(false)
+    // setIsSingleFormOpen(false)
 
     const itemType = isEinmalzahlung ? 'Einmalzahlung' : 'Sparplan'
     toast.success(`${itemType} erfolgreich aktualisiert!`)
@@ -373,9 +371,9 @@ export function SparplanEingabe({
       transactionCostAbsolute: '',
     })
 
-    // Close the expanded form sections
-    setIsSparplanFormOpen(false)
-    setIsSingleFormOpen(false)
+    // Close the expanded form sections - removed for better mobile UX
+    // setIsSparplanFormOpen(false)
+    // setIsSingleFormOpen(false)
   }
 
   return (
@@ -802,6 +800,95 @@ export function SparplanEingabe({
                             </span>
                           </div>
                         </div>
+
+                        {/* Inline Edit Form - only show when this specific item is being edited */}
+                        {isEditMode && editingSparplan?.id === sparplan.id && (
+                          <div className="mt-4 p-4 bg-yellow-25 border border-yellow-200 rounded-lg">
+                            <div className="text-sm font-semibold text-yellow-800 mb-3">✏️ Bearbeiten</div>
+                            <div className="space-y-3">
+                              {/* Date field for one-time payments */}
+                              {isEinmalzahlung && (
+                                <div>
+                                  <Label className="text-sm font-medium">📅 Datum</Label>
+                                  <Input
+                                    type="date"
+                                    value={formatDateForInput(singleFormValue.date, 'yyyy-MM-dd')}
+                                    onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => setSingleFormValue({ ...singleFormValue, date }))}
+                                    className="mt-1"
+                                  />
+                                </div>
+                              )}
+
+                              {/* Start and End dates for savings plans */}
+                              {!isEinmalzahlung && (
+                                <>
+                                  <div>
+                                    <Label className="text-sm font-medium">📅 Start</Label>
+                                    <Input
+                                      type="month"
+                                      value={formatDateForInput(sparplanFormValues.start, 'yyyy-MM')}
+                                      onChange={e => handleDateChange(e, 'yyyy-MM', date => setSparplanFormValues({ ...sparplanFormValues, start: date }))}
+                                      className="mt-1"
+                                    />
+                                  </div>
+                                  <div>
+                                    <Label className="text-sm font-medium">🏁 Ende (optional)</Label>
+                                    <Input
+                                      type="month"
+                                      value={formatDateForInput(sparplanFormValues.end, 'yyyy-MM')}
+                                      onChange={e => handleDateChange(e, 'yyyy-MM', date => setSparplanFormValues({ ...sparplanFormValues, end: date }))}
+                                      className="mt-1"
+                                    />
+                                  </div>
+                                </>
+                              )}
+
+                              {/* Amount field */}
+                              <div>
+                                <Label className="text-sm font-medium">
+                                  {isEinmalzahlung
+                                    ? '💰 Betrag (€)'
+                                    : `💰 ${simulationAnnual === SimulationAnnual.yearly ? 'Jährlich' : 'Monatlich'} (€)`}
+                                </Label>
+                                <Input
+                                  type="number"
+                                  value={isEinmalzahlung ? singleFormValue.einzahlung : sparplanFormValues.einzahlung}
+                                  onChange={(e) => {
+                                    const value = e.target.value
+                                    if (isEinmalzahlung) {
+                                      setSingleFormValue({ ...singleFormValue, einzahlung: value })
+                                    }
+                                    else {
+                                      setSparplanFormValues({ ...sparplanFormValues, einzahlung: value })
+                                    }
+                                  }}
+                                  className="mt-1"
+                                  min={0}
+                                  step={100}
+                                />
+                              </div>
+
+                              {/* Action buttons */}
+                              <div className="flex gap-2 pt-2">
+                                <Button
+                                  onClick={handleSaveEdit}
+                                  size="sm"
+                                  className="flex-1"
+                                >
+                                  ✅ Speichern
+                                </Button>
+                                <Button
+                                  onClick={handleCancelEdit}
+                                  variant="outline"
+                                  size="sm"
+                                  className="flex-1"
+                                >
+                                  ❌ Abbrechen
+                                </Button>
+                              </div>
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )
                   })}
