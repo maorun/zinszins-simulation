@@ -74,6 +74,13 @@ function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
   }
 }
 
+// Default private health insurance config for retirement phase to avoid duplication
+const DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE = {
+  ...defaultPrivateHealthInsuranceConfig,
+  monthlyHealthPremium: 450,
+  monthlyCareRemium: 90,
+}
+
 export function EntnahmeSimulationsAusgabe({
   startEnd,
   elemente,
@@ -1991,7 +1998,7 @@ export function EntnahmeSimulationsAusgabe({
                     },
                     retirement: {
                       statutory: formValue.healthInsuranceConfig?.retirement?.statutory || defaultStatutoryHealthInsuranceConfigRetirement,
-                      private: formValue.healthInsuranceConfig?.retirement?.private || { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                      private: formValue.healthInsuranceConfig?.retirement?.private || DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE,
                     },
                   }}
                   onChange={{
@@ -2009,7 +2016,7 @@ export function EntnahmeSimulationsAusgabe({
                         },
                         retirement: formValue.healthInsuranceConfig?.retirement || {
                           statutory: defaultStatutoryHealthInsuranceConfigRetirement,
-                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                          private: DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE,
                         },
                       },
                       childless: formValue.childless || false,
@@ -2028,7 +2035,7 @@ export function EntnahmeSimulationsAusgabe({
                         },
                         retirement: formValue.healthInsuranceConfig?.retirement || {
                           statutory: defaultStatutoryHealthInsuranceConfigRetirement,
-                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                          private: DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE,
                         },
                       },
                     }),
@@ -2046,7 +2053,7 @@ export function EntnahmeSimulationsAusgabe({
                         },
                         retirement: formValue.healthInsuranceConfig?.retirement || {
                           statutory: defaultStatutoryHealthInsuranceConfigRetirement,
-                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                          private: DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE,
                         },
                       },
                       childless,
@@ -2065,7 +2072,7 @@ export function EntnahmeSimulationsAusgabe({
                         },
                         retirement: formValue.healthInsuranceConfig?.retirement || {
                           statutory: defaultStatutoryHealthInsuranceConfigRetirement,
-                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                          private: DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE,
                         },
                       },
                     }),
@@ -2084,7 +2091,7 @@ export function EntnahmeSimulationsAusgabe({
                         },
                         retirement: formValue.healthInsuranceConfig?.retirement || {
                           statutory: defaultStatutoryHealthInsuranceConfigRetirement,
-                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                          private: DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE,
                         },
                       },
                     }),
@@ -2103,7 +2110,7 @@ export function EntnahmeSimulationsAusgabe({
                         },
                         retirement: formValue.healthInsuranceConfig?.retirement || {
                           statutory: defaultStatutoryHealthInsuranceConfigRetirement,
-                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                          private: DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE,
                         },
                       },
                     }),
@@ -2124,7 +2131,7 @@ export function EntnahmeSimulationsAusgabe({
                         },
                         retirement: formValue.healthInsuranceConfig?.retirement || {
                           statutory: defaultStatutoryHealthInsuranceConfigRetirement,
-                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                          private: DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE,
                         },
                       },
                     }),
@@ -2145,7 +2152,7 @@ export function EntnahmeSimulationsAusgabe({
                         },
                         retirement: formValue.healthInsuranceConfig?.retirement || {
                           statutory: defaultStatutoryHealthInsuranceConfigRetirement,
-                          private: { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 },
+                          private: DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE,
                         },
                       },
                     }),
@@ -2185,7 +2192,7 @@ export function EntnahmeSimulationsAusgabe({
                         retirement: {
                           ...formValue.healthInsuranceConfig?.retirement,
                           private: {
-                            ...(formValue.healthInsuranceConfig?.retirement?.private || { ...defaultPrivateHealthInsuranceConfig, monthlyHealthPremium: 450, monthlyCareRremium: 90 }),
+                            ...(formValue.healthInsuranceConfig?.retirement?.private || DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE),
                             ...config,
                           },
                         },

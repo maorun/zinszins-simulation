@@ -45,7 +45,7 @@ export interface PrivateHealthInsuranceConfig {
   monthlyHealthPremium: number
 
   /** Monthly base premium for care insurance */
-  monthlyCareRremium: number
+  monthlyCareRemium: number
 
   /** Annual adjustment rate (e.g., 3% = 1.03) */
   annualAdjustmentRate: number
@@ -165,7 +165,7 @@ export const defaultStatutoryHealthInsuranceConfigRetirement: StatutoryHealthIns
 export const defaultPrivateHealthInsuranceConfig: PrivateHealthInsuranceConfig = {
   type: 'private',
   monthlyHealthPremium: 400,
-  monthlyCareRremium: 80,
+  monthlyCareRemium: 80,
   annualAdjustmentRate: 1.03, // 3% annual increase
   baseYear: new Date().getFullYear(),
 }
@@ -260,7 +260,7 @@ function calculatePrivateHealthInsurance(
   const adjustmentFactor = Math.pow(config.annualAdjustmentRate, yearsFromBase)
 
   const healthMonthlyAmount = config.monthlyHealthPremium * adjustmentFactor
-  const careMonthlyAmount = config.monthlyCareRremium * adjustmentFactor
+  const careMonthlyAmount = config.monthlyCareRemium * adjustmentFactor
 
   return {
     health: {

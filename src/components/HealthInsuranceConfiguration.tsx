@@ -315,9 +315,9 @@ export function HealthInsuranceConfiguration({
                             <Input
                               id="pre-private-care-premium"
                               type="number"
-                              value={values.preRetirement.private?.monthlyCareRremium || 80}
+                              value={values.preRetirement.private?.monthlyCareRemium || 80}
                               onChange={e => onChange.onPreRetirementPrivateChange({
-                                monthlyCareRremium: Number(e.target.value),
+                                monthlyCareRemium: Number(e.target.value),
                               })}
                               min={20}
                               max={300}
@@ -469,9 +469,9 @@ export function HealthInsuranceConfiguration({
                             <Input
                               id="ret-private-care-premium"
                               type="number"
-                              value={values.retirement.private?.monthlyCareRremium || 90}
+                              value={values.retirement.private?.monthlyCareRemium || 90}
                               onChange={e => onChange.onRetirementPrivateChange({
-                                monthlyCareRremium: Number(e.target.value),
+                                monthlyCareRemium: Number(e.target.value),
                               })}
                               min={30}
                               max={400}
