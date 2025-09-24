@@ -121,26 +121,6 @@ export function useWithdrawalModals(
       setCalculationDetails(explanation)
       setShowCalculationModal(true)
     }
-    else if (explanationType === 'otherIncome' && rowData.otherIncome) {
-      const explanation = createOtherIncomeExplanation(
-        rowData.otherIncome.totalNetAmount,
-        rowData.otherIncome.totalTaxAmount,
-        rowData.otherIncome.sourceCount,
-        rowData.otherIncome,
-      )
-      setCalculationDetails(explanation)
-      setShowCalculationModal(true)
-    }
-    else if (explanationType === 'otherIncome' && rowData.otherIncome) {
-      const explanation = createOtherIncomeExplanation(
-        rowData.otherIncome.totalNetAmount,
-        rowData.otherIncome.totalTaxAmount,
-        rowData.otherIncome.sourceCount,
-        rowData.otherIncome,
-      )
-      setCalculationDetails(explanation)
-      setShowCalculationModal(true)
-    }
     else if (explanationType === 'vorabpauschale' && rowData.vorabpauschaleDetails) {
       setSelectedVorabDetails(rowData.vorabpauschaleDetails)
       setShowVorabpauschaleModal(true)

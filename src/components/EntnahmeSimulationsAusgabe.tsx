@@ -1993,12 +1993,16 @@ export function EntnahmeSimulationsAusgabe({
                     preRetirementType: formValue.healthInsuranceConfig?.preRetirementType || 'statutory',
                     retirementType: formValue.healthInsuranceConfig?.retirementType || 'statutory',
                     preRetirement: {
-                      statutory: formValue.healthInsuranceConfig?.preRetirement?.statutory || defaultStatutoryHealthInsuranceConfig,
-                      private: formValue.healthInsuranceConfig?.preRetirement?.private || defaultPrivateHealthInsuranceConfig,
+                      statutory: formValue.healthInsuranceConfig?.preRetirement?.statutory
+                        || defaultStatutoryHealthInsuranceConfig,
+                      private: formValue.healthInsuranceConfig?.preRetirement?.private
+                        || defaultPrivateHealthInsuranceConfig,
                     },
                     retirement: {
-                      statutory: formValue.healthInsuranceConfig?.retirement?.statutory || defaultStatutoryHealthInsuranceConfigRetirement,
-                      private: formValue.healthInsuranceConfig?.retirement?.private || DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE,
+                      statutory: formValue.healthInsuranceConfig?.retirement?.statutory
+                        || defaultStatutoryHealthInsuranceConfigRetirement,
+                      private: formValue.healthInsuranceConfig?.retirement?.private
+                        || DEFAULT_RETIREMENT_PRIVATE_HEALTH_INSURANCE,
                     },
                   }}
                   onChange={{
