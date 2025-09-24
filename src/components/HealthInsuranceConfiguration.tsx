@@ -330,7 +330,10 @@ export function HealthInsuranceConfiguration({
 
                         <div className="space-y-3">
                           <Label htmlFor="pre-private-adjustment">
-                            Jährliche Anpassung: {(((values.preRetirement.private?.annualAdjustmentRate || 1.03) - 1) * 100).toFixed(1)}%
+                            Jährliche Anpassung:
+                            {' '}
+                            {(((values.preRetirement.private?.annualAdjustmentRate || 1.03) - 1) * 100).toFixed(1)}
+                            %
                           </Label>
                           <Slider
                             id="pre-private-adjustment"
@@ -481,7 +484,10 @@ export function HealthInsuranceConfiguration({
 
                         <div className="space-y-3">
                           <Label htmlFor="ret-private-adjustment">
-                            Jährliche Anpassung: {(((values.retirement.private?.annualAdjustmentRate || 1.03) - 1) * 100).toFixed(1)}%
+                            Jährliche Anpassung:
+                            {' '}
+                            {(((values.retirement.private?.annualAdjustmentRate || 1.03) - 1) * 100).toFixed(1)}
+                            %
                           </Label>
                           <Slider
                             id="ret-private-adjustment"

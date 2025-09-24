@@ -5,6 +5,7 @@ import {
   createTaxExplanation,
   createIncomeTaxExplanation,
   createTaxableIncomeExplanation,
+  createOtherIncomeExplanation,
 } from '../components/calculationHelpers'
 
 /**
@@ -106,6 +107,16 @@ export function useWithdrawalModals(
         rowData.entnahme,
         grundfreibetragAmount,
         rowData.healthInsurance?.totalAnnualAmount, // Pass health insurance amount for tax deduction
+      )
+      setCalculationDetails(explanation)
+      setShowCalculationModal(true)
+    }
+    else if (explanationType === 'otherIncome' && rowData.otherIncome) {
+      const explanation = createOtherIncomeExplanation(
+        rowData.otherIncome.totalNetAmount,
+        rowData.otherIncome.totalTaxAmount,
+        rowData.otherIncome.sourceCount,
+        rowData.otherIncome,
       )
       setCalculationDetails(explanation)
       setShowCalculationModal(true)

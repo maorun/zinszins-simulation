@@ -10,6 +10,8 @@ import type { StatutoryPensionConfig } from './statutory-pension'
 import { calculateStatutoryPension } from './statutory-pension'
 import type { HealthInsuranceConfig, HealthInsuranceYearResult } from './health-insurance'
 import { calculateHealthInsurance, calculateNetWithdrawalAmount } from './health-insurance'
+import type { OtherIncomeConfiguration } from './other-income'
+import { calculateOtherIncome } from './other-income'
 
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt'
 
@@ -79,6 +81,12 @@ export type WithdrawalResultElement = {
   }
   // Net withdrawal amount after all deductions (taxes + health insurance)
   netEntnahme?: number
+  // Other income sources fields
+  otherIncome?: {
+    totalNetAmount: number
+    totalTaxAmount: number
+    sourceCount: number
+  }
 }
 
 export type WithdrawalResult = {
@@ -179,6 +187,7 @@ export type CalculateWithdrawalParams = {
   statutoryPensionConfig?: StatutoryPensionConfig
   healthInsuranceConfig?: HealthInsuranceConfig
   childless?: boolean // For health insurance childless supplement
+  otherIncomeConfig?: OtherIncomeConfiguration
 }
 
 export function calculateWithdrawal({
@@ -206,6 +215,7 @@ export function calculateWithdrawal({
   statutoryPensionConfig,
   healthInsuranceConfig,
   childless = false,
+  otherIncomeConfig,
 }: CalculateWithdrawalParams): { result: WithdrawalResult, finalLayers: MutableLayer[] } {
   // Helper functions
   const getFreibetragForYear = (year: number): number => {
@@ -264,6 +274,15 @@ export function calculateWithdrawal({
       )
     }
   }
+
+  // Calculate other income for all years if configured
+  const otherIncomeData = otherIncomeConfig?.enabled
+    ? calculateOtherIncome(
+        otherIncomeConfig,
+        startYear,
+        endYear,
+      )
+    : {}
 
   const initialStartingCapital = elements.reduce((sum: number, el: SparplanElement) => {
     const simYear = el.simulation?.[startYear - 1]
@@ -605,9 +624,9 @@ export function calculateWithdrawal({
     if (enableGrundfreibetrag) {
       const yearlyGrundfreibetrag = getGrundfreibetragForYear(year)
       // Calculate income tax on amount after health insurance deduction (German tax law)
-      const taxableAmount = healthInsuranceForYear 
-        ? netEntnahme  // Use net amount after health insurance deduction
-        : entnahme     // Use gross amount if no health insurance
+      const taxableAmount = healthInsuranceForYear
+        ? netEntnahme // Use net amount after health insurance deduction
+        : entnahme // Use gross amount if no health insurance
       einkommensteuer = calculateIncomeTax(taxableAmount, yearlyGrundfreibetrag, incomeTaxRate)
       genutzterGrundfreibetrag = Math.min(taxableAmount, yearlyGrundfreibetrag)
     }
@@ -706,6 +725,14 @@ export function calculateWithdrawal({
         : undefined,
       // Net withdrawal amount after all deductions (taxes + health insurance)
       netEntnahme: healthInsuranceForYear ? netEntnahme : undefined,
+      // Other income data
+      otherIncome: otherIncomeData[year] && otherIncomeData[year].totalNetAnnualAmount > 0
+        ? {
+            totalNetAmount: otherIncomeData[year].totalNetAnnualAmount,
+            totalTaxAmount: otherIncomeData[year].totalTaxAmount,
+            sourceCount: otherIncomeData[year].sources.length,
+          }
+        : undefined,
     }
   }
 

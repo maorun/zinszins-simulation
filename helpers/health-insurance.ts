@@ -309,10 +309,10 @@ export function calculateHealthInsurance(
 
   const phase = year >= config.retirementStartYear ? 'retirement' : 'pre-retirement'
   const insuranceType = phase === 'retirement' ? config.retirementType : config.preRetirementType
-  const phaseConfig = phase === 'retirement' 
+  const phaseConfig = phase === 'retirement'
     ? (insuranceType === 'statutory' ? config.retirement.statutory : config.retirement.private)
     : (insuranceType === 'statutory' ? config.preRetirement.statutory : config.preRetirement.private)
-  
+
   if (!phaseConfig) {
     // Return zero contribution if config is missing
     return {
@@ -337,7 +337,7 @@ export function calculateHealthInsurance(
   }
 
   const isChildless = childless ?? config.childless
-  
+
   let healthResult: HealthInsuranceCalculationResult['health']
   let careResult: HealthInsuranceCalculationResult['care']
 
@@ -345,7 +345,7 @@ export function calculateHealthInsurance(
     const result = calculateStatutoryHealthInsurance(year, phaseConfig, annualWithdrawalAmount, isChildless)
     healthResult = result.health
     careResult = result.care
-    
+
     // Apply employee-only factor if enabled (typically half the contribution)
     if (config.employeeOnly) {
       healthResult = {

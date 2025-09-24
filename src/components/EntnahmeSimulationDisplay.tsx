@@ -480,6 +480,32 @@ export function EntnahmeSimulationDisplay({
                   </div>
                 )
               })()}
+              {/* Other Income Sources Display */}
+              {rowData.otherIncome && rowData.otherIncome.totalNetAmount > 0 && (
+                <>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">💰 Andere Einkünfte (Netto):</span>
+                    <span className="font-semibold text-green-600 text-sm flex items-center">
+                      {formatCurrency(rowData.otherIncome.totalNetAmount)}
+                      <InfoIcon onClick={() => onCalculationInfoClick('otherIncome', rowData)} />
+                    </span>
+                  </div>
+                  {rowData.otherIncome.totalTaxAmount > 0 && (
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-gray-600 font-medium">💸 Steuern auf andere Einkünfte:</span>
+                      <span className="font-semibold text-red-600 text-sm">
+                        {formatCurrency(rowData.otherIncome.totalTaxAmount)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">📊 Anzahl Einkommensquellen:</span>
+                    <span className="font-semibold text-blue-600 text-sm">
+                      {rowData.otherIncome.sourceCount}
+                    </span>
+                  </div>
+                </>
+              )}
               {/* New section for taxable income */}
               <div className="flex justify-between items-center py-1">
                 <span className="text-sm text-gray-600 font-medium">💰 Zu versteuerndes Einkommen:</span>
@@ -499,8 +525,8 @@ export function EntnahmeSimulationDisplay({
 
                     // Use net withdrawal amount (after health insurance) for taxable income calculation
                     const taxableBase = rowData.healthInsurance && rowData.netEntnahme !== undefined
-                      ? rowData.netEntnahme  // Net amount after health insurance deduction
-                      : rowData.entnahme     // Gross amount if no health insurance
+                      ? rowData.netEntnahme // Net amount after health insurance deduction
+                      : rowData.entnahme // Gross amount if no health insurance
 
                     return formatCurrency(Math.max(0, taxableBase - grundfreibetragAmount))
                   })()}

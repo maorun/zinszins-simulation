@@ -267,10 +267,10 @@ export function createTaxableIncomeExplanation(
   _kapitalertragsteuer?: number,
 ): CalculationExplanation {
   // Step 1: Calculate net amount after health insurance
-  const netAmountAfterInsurance = healthInsuranceAmount 
-    ? entnahme - healthInsuranceAmount 
+  const netAmountAfterInsurance = healthInsuranceAmount
+    ? entnahme - healthInsuranceAmount
     : entnahme
-  
+
   // Step 2: Calculate taxable income after Grundfreibetrag
   const steuerpflichtigesEinkommen = Math.max(0, netAmountAfterInsurance - grundfreibetrag)
 
@@ -324,13 +324,64 @@ export function createTaxableIncomeExplanation(
 
   return {
     title: '💰 Zu versteuerndes Einkommen Schritt für Schritt',
-    introduction: healthInsuranceAmount 
+    introduction: healthInsuranceAmount
       ? 'Das zu versteuernde Einkommen ergibt sich aus der Brutto-Entnahme nach Abzug der Kranken-/Pflegeversicherung und des Grundfreibetrags. Versicherungsbeiträge sind in Deutschland steuerlich absetzbar.'
       : 'Das zu versteuernde Einkommen ergibt sich aus der Entnahme nach Abzug der verfügbaren Freibeträge. Dies ist die Grundlage für die Berechnung der Einkommensteuer.',
     steps,
     finalResult: {
       title: 'Endergebnis',
       values: finalResultValues,
+    },
+  }
+}
+
+// Other income calculation explanation
+export function createOtherIncomeExplanation(
+  totalNetAmount: number,
+  totalTaxAmount: number,
+  sourceCount: number,
+  _otherIncomeData: any,
+): CalculationExplanation {
+  const totalGrossAmount = totalNetAmount + totalTaxAmount
+
+  return {
+    title: '💰 Andere Einkünfte Schritt für Schritt',
+    introduction: `Die anderen Einkünfte umfassen ${sourceCount} Einkommensquelle${sourceCount === 1 ? '' : 'n'} wie Mieteinnahmen, private Renten oder Gewerbeeinkünfte. Diese reduzieren die notwendigen Entnahmen aus dem Portfolio.`,
+    steps: [
+      {
+        title: 'Schritt 1: Brutto-Einkünfte',
+        description: `Gesamte Brutto-Einkünfte aus ${sourceCount} Quelle${sourceCount === 1 ? '' : 'n'}.`,
+        calculation: `Brutto-Einkünfte = ${formatCurrency(totalGrossAmount)}`,
+        result: formatCurrency(totalGrossAmount),
+        backgroundColor: '#fff3e0',
+        borderColor: '#ff9800',
+      },
+      {
+        title: 'Schritt 2: Steuern berechnen',
+        description: 'Steuern werden basierend auf den konfigurierten Steuersätzen der Brutto-Einkünfte berechnet.',
+        calculation: `Steuern = ${formatCurrency(totalTaxAmount)}`,
+        result: formatCurrency(totalTaxAmount),
+        backgroundColor: '#ffebee',
+        borderColor: '#f44336',
+      },
+      {
+        title: 'Schritt 3: Netto-Einkünfte',
+        description: 'Die verfügbaren Netto-Einkünfte nach Abzug der Steuern.',
+        calculation: `Netto-Einkünfte = ${formatCurrency(totalGrossAmount)} - ${formatCurrency(totalTaxAmount)}`,
+        result: formatCurrency(totalNetAmount),
+        backgroundColor: '#e8f5e8',
+        borderColor: '#4caf50',
+      },
+    ],
+    finalResult: {
+      title: 'Zusammenfassung der anderen Einkünfte',
+      values: [
+        { label: 'Anzahl Einkommensquellen', value: sourceCount.toString() },
+        { label: 'Brutto-Einkünfte gesamt', value: formatCurrency(totalGrossAmount) },
+        { label: 'Steuern gesamt', value: formatCurrency(totalTaxAmount) },
+        { label: 'Netto-Einkünfte verfügbar', value: formatCurrency(totalNetAmount) },
+        { label: 'Entlastung des Portfolios', value: formatCurrency(totalNetAmount) },
+      ],
     },
   }
 }
