@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { vi, describe, it, expect, beforeEach } from 'vitest'
 import { SparplanEingabe } from './SparplanEingabe'
 import { SimulationAnnual } from '../utils/simulate'
@@ -96,5 +97,106 @@ describe('SparplanEingabe localStorage sync', () => {
     // Should show monthly equivalent (24000 / 12 = 2000)
     expect(screen.getByText(/2\.000,00 €/)).toBeInTheDocument()
     expect(screen.getByText(/💰 Monatlich:/)).toBeInTheDocument()
+  })
+})
+
+describe('SparplanEingabe edit functionality', () => {
+  const mockDispatch = vi.fn()
+
+  beforeEach(() => {
+    vi.clearAllMocks()
+  })
+
+  it('should show edit buttons for existing savings plans and one-time payments', () => {
+    const testSparplans: Sparplan[] = [
+      {
+        id: 1,
+        start: new Date('2024-01-01'),
+        end: null,
+        einzahlung: 24000,
+      },
+      {
+        id: 2,
+        start: new Date('2025-06-15'),
+        end: new Date('2025-06-15'), // Same date = one-time payment
+        einzahlung: 5000,
+      },
+    ]
+
+    render(
+      <SparplanEingabe
+        dispatch={mockDispatch}
+        simulationAnnual={SimulationAnnual.yearly}
+        currentSparplans={testSparplans}
+      />,
+    )
+
+    // Should show edit buttons for both items
+    expect(screen.getByRole('button', { name: 'Sparplan bearbeiten' })).toBeInTheDocument()
+    expect(screen.getByRole('button', { name: 'Einmalzahlung bearbeiten' })).toBeInTheDocument()
+  })
+
+  it('should disable edit/delete buttons when in edit mode', async () => {
+    const user = userEvent.setup()
+    const testSparplans: Sparplan[] = [
+      {
+        id: 1,
+        start: new Date('2024-01-01'),
+        end: null,
+        einzahlung: 24000,
+      },
+    ]
+
+    render(
+      <SparplanEingabe
+        dispatch={mockDispatch}
+        simulationAnnual={SimulationAnnual.yearly}
+        currentSparplans={testSparplans}
+      />,
+    )
+
+    const editButton = screen.getByRole('button', { name: 'Sparplan bearbeiten' })
+    const deleteButton = screen.getByRole('button', { name: 'Sparplan löschen' })
+
+    // Click edit button
+    await user.click(editButton)
+
+    // Buttons should now be disabled
+    expect(editButton).toBeDisabled()
+    expect(deleteButton).toBeDisabled()
+  })
+
+  it('should disable buttons in edit mode indicating edit functionality works', async () => {
+    const user = userEvent.setup()
+    const testSparplans: Sparplan[] = [
+      {
+        id: 1,
+        start: new Date('2024-01-01'),
+        end: null,
+        einzahlung: 24000,
+      },
+    ]
+
+    render(
+      <SparplanEingabe
+        dispatch={mockDispatch}
+        simulationAnnual={SimulationAnnual.yearly}
+        currentSparplans={testSparplans}
+      />,
+    )
+
+    const editButton = screen.getByRole('button', { name: 'Sparplan bearbeiten' })
+    const deleteButton = screen.getByRole('button', { name: 'Sparplan löschen' })
+
+    // Initially buttons should be enabled
+    expect(editButton).not.toBeDisabled()
+    expect(deleteButton).not.toBeDisabled()
+
+    // Click edit button to enter edit mode
+    await user.click(editButton)
+
+    // Buttons should be disabled in edit mode (proving edit mode is active)
+    expect(editButton).toBeDisabled()
+    expect(deleteButton).toBeDisabled()
   })
 })
