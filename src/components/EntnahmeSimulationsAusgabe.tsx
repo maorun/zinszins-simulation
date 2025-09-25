@@ -2009,7 +2009,8 @@ export function EntnahmeSimulationsAusgabe({
                     onEnabledChange: enabled => updateFormValue({
                       healthInsuranceConfig: {
                         enabled,
-                        retirementStartYear: formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
+                        retirementStartYear:
+                          formValue.healthInsuranceConfig?.retirementStartYear || startOfIndependence,
                         childless: formValue.childless || false,
                         employeeOnly: formValue.healthInsuranceConfig?.employeeOnly || false,
                         preRetirementType: formValue.healthInsuranceConfig?.preRetirementType || 'statutory',
