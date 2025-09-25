@@ -177,15 +177,21 @@ export const defaultHealthInsuranceConfig: HealthInsuranceConfig = {
   enabled: false,
   retirementStartYear: new Date().getFullYear() + 15,
   childless: false,
-  preRetirement: defaultStatutoryHealthInsuranceConfig,
-  retirement: defaultStatutoryHealthInsuranceConfigRetirement,
+  employeeOnly: false,
+  preRetirementType: 'statutory' as const,
+  retirementType: 'statutory' as const,
+  preRetirement: {
+    statutory: defaultStatutoryHealthInsuranceConfig,
+  },
+  retirement: {
+    statutory: defaultStatutoryHealthInsuranceConfigRetirement,
+  },
 }
 
 /**
  * Calculate statutory health insurance contribution for a given year and withdrawal amount
  */
 function calculateStatutoryHealthInsurance(
-  year: number,
   config: StatutoryHealthInsuranceConfig,
   annualWithdrawalAmount: number,
   childless: boolean,
@@ -255,7 +261,7 @@ function calculateStatutoryHealthInsurance(
 function calculatePrivateHealthInsurance(
   year: number,
   config: PrivateHealthInsuranceConfig,
-): { health: HealthInsuranceCalculationResult['health'], care: HealthInsuranceCalculationResult['care'] } {
+): HealthInsuranceCalculationResult {
   const yearsFromBase = year - config.baseYear
   const adjustmentFactor = Math.pow(config.annualAdjustmentRate, yearsFromBase)
 
@@ -273,6 +279,7 @@ function calculatePrivateHealthInsurance(
       monthlyAmount: careMonthlyAmount,
       annualAmount: careMonthlyAmount * 12,
     },
+    totalAnnualAmount: (healthMonthlyAmount + careMonthlyAmount) * 12,
   }
 }
 
@@ -287,9 +294,6 @@ export function calculateHealthInsurance(
 ): HealthInsuranceCalculationResult {
   if (!config.enabled) {
     return {
-      year,
-      phase: 'pre-retirement',
-      insuranceType: 'statutory',
       health: {
         calculationMethod: 'percentage',
         percentage: 0,
@@ -302,7 +306,6 @@ export function calculateHealthInsurance(
         monthlyAmount: 0,
         annualAmount: 0,
       },
-      totalMonthlyAmount: 0,
       totalAnnualAmount: 0,
     }
   }
@@ -316,9 +319,6 @@ export function calculateHealthInsurance(
   if (!phaseConfig) {
     // Return zero contribution if config is missing
     return {
-      year,
-      phase,
-      insuranceType,
       health: {
         calculationMethod: 'percentage',
         percentage: 0,
@@ -331,7 +331,6 @@ export function calculateHealthInsurance(
         monthlyAmount: 0,
         annualAmount: 0,
       },
-      totalMonthlyAmount: 0,
       totalAnnualAmount: 0,
     }
   }
@@ -342,7 +341,7 @@ export function calculateHealthInsurance(
   let careResult: HealthInsuranceCalculationResult['care']
 
   if (phaseConfig.type === 'statutory') {
-    const result = calculateStatutoryHealthInsurance(year, phaseConfig, annualWithdrawalAmount, isChildless)
+    const result = calculateStatutoryHealthInsurance(phaseConfig, annualWithdrawalAmount, isChildless)
     healthResult = result.health
     careResult = result.care
 
@@ -367,16 +366,11 @@ export function calculateHealthInsurance(
     // Private insurance premiums are not affected by employee/employer split
   }
 
-  const totalMonthlyAmount = healthResult.monthlyAmount + careResult.monthlyAmount
   const totalAnnualAmount = healthResult.annualAmount + careResult.annualAmount
 
   return {
-    year,
-    phase,
-    insuranceType,
     health: healthResult,
     care: careResult,
-    totalMonthlyAmount,
     totalAnnualAmount,
   }
 }
