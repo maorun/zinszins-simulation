@@ -450,6 +450,54 @@ export function EntnahmeSimulationDisplay({
                   </div>
                 </>
               )}
+              {/* Health Care Insurance Display */}
+              {rowData.healthCareInsurance && rowData.healthCareInsurance.totalAnnual > 0 && (
+                <>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">
+                      🏥 Krankenversicherung ({rowData.healthCareInsurance.isRetirementPhase ? 'Rente' : 'Vorrente'}):
+                    </span>
+                    <span className="font-semibold text-red-600 text-sm">
+                      -{formatCurrency(rowData.healthCareInsurance.healthInsuranceAnnual)}
+                      {!rowData.healthCareInsurance.usedFixedAmounts && (
+                        <span className="text-xs text-gray-500 ml-1">
+                          ({rowData.healthCareInsurance.effectiveHealthInsuranceRate.toFixed(2)}%)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">
+                      🩺 Pflegeversicherung:
+                    </span>
+                    <span className="font-semibold text-red-600 text-sm">
+                      -{formatCurrency(rowData.healthCareInsurance.careInsuranceAnnual)}
+                      {!rowData.healthCareInsurance.usedFixedAmounts && (
+                        <span className="text-xs text-gray-500 ml-1">
+                          ({rowData.healthCareInsurance.effectiveCareInsuranceRate.toFixed(2)}%)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-t border-gray-200 pt-1">
+                    <span className="text-sm text-gray-600 font-medium">
+                      🏥 Gesamt Kranken- & Pflegeversicherung:
+                    </span>
+                    <span className="font-semibold text-red-600 text-sm">
+                      -{formatCurrency(rowData.healthCareInsurance.totalAnnual)}
+                      <span className="text-xs text-gray-500 ml-1">
+                        ({rowData.healthCareInsurance.usedFixedAmounts ? 'Fest' : 'Prozentual'})
+                      </span>
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">📅 Monatliche Beiträge:</span>
+                    <span className="font-semibold text-blue-600 text-sm">
+                      {formatCurrency(rowData.healthCareInsurance.totalMonthly)}
+                    </span>
+                  </div>
+                </>
+              )}
               {/* New section for taxable income */}
               <div className="flex justify-between items-center py-1">
                 <span className="text-sm text-gray-600 font-medium">💰 Zu versteuerndes Einkommen:</span>
