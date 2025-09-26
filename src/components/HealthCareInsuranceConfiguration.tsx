@@ -12,32 +12,32 @@ import { formatCurrency } from '../utils/currency'
 
 interface HealthCareInsuranceFormValues {
   enabled: boolean
-  healthInsuranceRatePreRetirement: number
-  careInsuranceRatePreRetirement: number
-  healthInsuranceRateRetirement: number
-  careInsuranceRateRetirement: number
+  insuranceType: 'statutory' | 'private'
+  includeEmployerContribution: boolean
+  statutoryHealthInsuranceRate: number
+  statutoryCareInsuranceRate: number
+  statutoryMinimumIncomeBase: number
+  statutoryMaximumIncomeBase: number
+  privateHealthInsuranceMonthly: number
+  privateCareInsuranceMonthly: number
+  privateInsuranceInflationRate: number
   retirementStartYear: number
-  useFixedAmounts: boolean
-  fixedHealthInsuranceMonthly?: number
-  fixedCareInsuranceMonthly?: number
-  healthInsuranceIncomeThreshold?: number
-  careInsuranceIncomeThreshold?: number
   additionalCareInsuranceForChildless: boolean
   additionalCareInsuranceAge: number
 }
 
 interface HealthCareInsuranceChangeHandlers {
   onEnabledChange: (enabled: boolean) => void
-  onHealthInsuranceRatePreRetirementChange: (rate: number) => void
-  onCareInsuranceRatePreRetirementChange: (rate: number) => void
-  onHealthInsuranceRateRetirementChange: (rate: number) => void
-  onCareInsuranceRateRetirementChange: (rate: number) => void
+  onInsuranceTypeChange: (type: 'statutory' | 'private') => void
+  onIncludeEmployerContributionChange: (include: boolean) => void
+  onStatutoryHealthInsuranceRateChange: (rate: number) => void
+  onStatutoryCareInsuranceRateChange: (rate: number) => void
+  onStatutoryMinimumIncomeBaseChange: (amount: number) => void
+  onStatutoryMaximumIncomeBaseChange: (amount: number) => void
+  onPrivateHealthInsuranceMonthlyChange: (amount: number) => void
+  onPrivateCareInsuranceMonthlyChange: (amount: number) => void
+  onPrivateInsuranceInflationRateChange: (rate: number) => void
   onRetirementStartYearChange: (year: number) => void
-  onUseFixedAmountsChange: (useFixed: boolean) => void
-  onFixedHealthInsuranceMonthlyChange: (amount: number) => void
-  onFixedCareInsuranceMonthlyChange: (amount: number) => void
-  onHealthInsuranceIncomeThresholdChange: (threshold: number) => void
-  onCareInsuranceIncomeThresholdChange: (threshold: number) => void
   onAdditionalCareInsuranceForChildlessChange: (enabled: boolean) => void
   onAdditionalCareInsuranceAgeChange: (age: number) => void
 }
@@ -90,7 +90,7 @@ export function HealthCareInsuranceConfiguration({
                 </div>
                 <div className="text-sm text-muted-foreground">
                   Aktivieren Sie diese Option, um Kranken- und Pflegeversicherungsbeiträge in die Entnahmeplanung einzubeziehen.
-                  Berücksichtigt unterschiedliche Beitragssätze vor und während der Rente.
+                  Berücksichtigt unterschiedliche Versicherungsarten und Beitragssätze.
                 </div>
               </div>
             </CardContent>
@@ -114,7 +114,7 @@ export function HealthCareInsuranceConfiguration({
                 <CardTitle className="flex items-center gap-2">
                   🏥 Kranken- und Pflegeversicherung
                   <span className="text-sm font-normal text-muted-foreground">
-                    ({values.useFixedAmounts ? 'Feste Beiträge' : 'Prozentuale Beiträge'})
+                    ({values.insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat'})
                   </span>
                 </CardTitle>
                 <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
@@ -137,261 +137,233 @@ export function HealthCareInsuranceConfiguration({
                 </Label>
               </div>
 
-              {/* Calculation Method Selection */}
+              {/* Insurance Type Selection */}
               <div className="space-y-3">
-                <Label className="text-sm font-medium">Berechnungsart</Label>
+                <Label className="text-sm font-medium">Versicherungsart</Label>
                 <RadioTileGroup
-                  value={values.useFixedAmounts ? 'fixed' : 'percentage'}
-                  onValueChange={(value) => onChange.onUseFixedAmountsChange(value === 'fixed')}
+                  value={values.insuranceType}
+                  onValueChange={(value) => onChange.onInsuranceTypeChange(value as 'statutory' | 'private')}
                   className="grid grid-cols-1 md:grid-cols-2 gap-3"
                 >
-                  <RadioTile value="percentage" label="Prozentuale Beiträge">
-                    Basierend auf Einkommen (Entnahme + Rente)
+                  <RadioTile value="statutory" label="Gesetzliche Krankenversicherung">
+                    Prozentuale Beiträge basierend auf Einkommen mit festen Sätzen
                   </RadioTile>
-                  <RadioTile value="fixed" label="Feste monatliche Beiträge">
-                    Feste Beträge unabhängig vom Einkommen
+                  <RadioTile value="private" label="Private Krankenversicherung">
+                    Feste monatliche Beiträge mit Inflationsanpassung
                   </RadioTile>
                 </RadioTileGroup>
               </div>
 
-              {/* Fixed Amounts Configuration */}
-              {values.useFixedAmounts && (
-                <div className="space-y-4 p-4 bg-blue-50 rounded-lg">
-                  <h4 className="font-medium text-sm">Feste monatliche Beiträge</h4>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="fixed-health-insurance">
-                        Krankenversicherung (monatlich)
-                      </Label>
-                      <Input
-                        id="fixed-health-insurance"
-                        type="number"
-                        min="0"
-                        step="10"
-                        value={values.fixedHealthInsuranceMonthly || ''}
-                        onChange={(e) => onChange.onFixedHealthInsuranceMonthlyChange(Number(e.target.value))}
-                        placeholder="z.B. 400"
-                      />
-                    </div>
-
-                    <div className="space-y-2">
-                      <Label htmlFor="fixed-care-insurance">
-                        Pflegeversicherung (monatlich)
-                      </Label>
-                      <Input
-                        id="fixed-care-insurance"
-                        type="number"
-                        min="0"
-                        step="10"
-                        value={values.fixedCareInsuranceMonthly || ''}
-                        onChange={(e) => onChange.onFixedCareInsuranceMonthlyChange(Number(e.target.value))}
-                        placeholder="z.B. 150"
-                      />
-                    </div>
-                  </div>
-
-                  {values.fixedHealthInsuranceMonthly && values.fixedCareInsuranceMonthly && (
-                    <div className="text-sm text-muted-foreground">
-                      <strong>Gesamt pro Monat:</strong> {formatCurrency((values.fixedHealthInsuranceMonthly + values.fixedCareInsuranceMonthly))}
-                      {' '}
-                      <strong>pro Jahr:</strong> {formatCurrency((values.fixedHealthInsuranceMonthly + values.fixedCareInsuranceMonthly) * 12)}
-                    </div>
-                  )}
+              {/* Retirement Start Year */}
+              <div className="space-y-2">
+                <Label htmlFor="retirement-start-year">
+                  Rentenbeginn (Jahr)
+                </Label>
+                <Input
+                  id="retirement-start-year"
+                  type="number"
+                  min={currentYear}
+                  max={currentYear + 50}
+                  value={values.retirementStartYear}
+                  onChange={(e) => onChange.onRetirementStartYearChange(Number(e.target.value))}
+                />
+                <div className="text-xs text-muted-foreground">
+                  Jahr ab dem die Rentnerregelungen gelten
                 </div>
-              )}
+              </div>
 
-              {/* Percentage-Based Configuration */}
-              {!values.useFixedAmounts && (
+              {/* Statutory Insurance Configuration */}
+              {values.insuranceType === 'statutory' && (
                 <div className="space-y-6">
-                  {/* Retirement Start Year */}
-                  <div className="space-y-2">
-                    <Label htmlFor="retirement-start-year">
-                      Rentenbeginn (Jahr)
-                    </Label>
-                    <Input
-                      id="retirement-start-year"
-                      type="number"
-                      min={currentYear}
-                      max={currentYear + 50}
-                      value={values.retirementStartYear}
-                      onChange={(e) => onChange.onRetirementStartYearChange(Number(e.target.value))}
-                    />
+                  {/* Employer Contribution Setting */}
+                  <div className="space-y-3 p-4 bg-blue-50 rounded-lg">
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={values.includeEmployerContribution}
+                        onCheckedChange={onChange.onIncludeEmployerContributionChange}
+                        id="include-employer-contribution"
+                      />
+                      <Label htmlFor="include-employer-contribution">
+                        Arbeitgeberanteil in Entnahme-Phase berücksichtigen
+                      </Label>
+                    </div>
                     <div className="text-xs text-muted-foreground">
-                      Ab diesem Jahr gelten die Renten-Beitragssätze (normalerweise niedriger)
+                      Standard: Arbeitgeberanteil muss in der Entnahme-Phase selbst getragen werden.
+                      Deaktivieren Sie diese Option, wenn nur der Arbeitnehmeranteil gezahlt wird.
                     </div>
                   </div>
 
-                  {/* Pre-Retirement Rates */}
-                  <div className="space-y-4 p-4 bg-yellow-50 rounded-lg">
-                    <h4 className="font-medium text-sm flex items-center gap-2">
-                      <Info className="h-4 w-4" />
-                      Beitragssätze vor Rentenbeginn (Vorrente)
-                    </h4>
-                    
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div className="space-y-2">
-                        <Label htmlFor="health-rate-pre">
-                          Krankenversicherung: {values.healthInsuranceRatePreRetirement.toFixed(2)}%
-                        </Label>
-                        <Slider
-                          id="health-rate-pre"
-                          min={10}
-                          max={20}
-                          step={0.1}
-                          value={[values.healthInsuranceRatePreRetirement]}
-                          onValueChange={([value]) => onChange.onHealthInsuranceRatePreRetirementChange(value)}
-                          className="w-full"
-                        />
-                        <div className="text-xs text-muted-foreground">
-                          Typisch: 14,6% (Arbeitnehmer + Arbeitgeber)
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label htmlFor="care-rate-pre">
-                          Pflegeversicherung: {values.careInsuranceRatePreRetirement.toFixed(2)}%
-                        </Label>
-                        <Slider
-                          id="care-rate-pre"
-                          min={2}
-                          max={5}
-                          step={0.05}
-                          value={[values.careInsuranceRatePreRetirement]}
-                          onValueChange={([value]) => onChange.onCareInsuranceRatePreRetirementChange(value)}
-                          className="w-full"
-                        />
-                        <div className="text-xs text-muted-foreground">
-                          Typisch: 3,05% (+ 0,6% für Kinderlose)
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Retirement Rates */}
+                  {/* Statutory Rates */}
                   <div className="space-y-4 p-4 bg-green-50 rounded-lg">
                     <h4 className="font-medium text-sm flex items-center gap-2">
                       <Info className="h-4 w-4" />
-                      Beitragssätze während der Rente
+                      Gesetzliche Beitragssätze (Deutschland 2024)
                     </h4>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="health-rate-retirement">
-                          Krankenversicherung: {values.healthInsuranceRateRetirement.toFixed(2)}%
+                        <Label htmlFor="statutory-health-rate">
+                          Krankenversicherung: {values.statutoryHealthInsuranceRate.toFixed(2)}%
                         </Label>
-                        <Slider
-                          id="health-rate-retirement"
-                          min={5}
-                          max={15}
-                          step={0.1}
-                          value={[values.healthInsuranceRateRetirement]}
-                          onValueChange={([value]) => onChange.onHealthInsuranceRateRetirementChange(value)}
-                          className="w-full"
-                        />
                         <div className="text-xs text-muted-foreground">
-                          Typisch: 7,3% (nur Rentneranteil)
+                          Gesetzlich festgelegt: 14,6% (7,3% Arbeitnehmer + 7,3% Arbeitgeber)
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="care-rate-retirement">
-                          Pflegeversicherung: {values.careInsuranceRateRetirement.toFixed(2)}%
+                        <Label htmlFor="statutory-care-rate">
+                          Pflegeversicherung: {values.statutoryCareInsuranceRate.toFixed(2)}%
                         </Label>
-                        <Slider
-                          id="care-rate-retirement"
-                          min={2}
-                          max={5}
-                          step={0.05}
-                          value={[values.careInsuranceRateRetirement]}
-                          onValueChange={([value]) => onChange.onCareInsuranceRateRetirementChange(value)}
-                          className="w-full"
-                        />
                         <div className="text-xs text-muted-foreground">
-                          Typisch: 3,05% (gleicher Satz wie vor Rente)
+                          Gesetzlich festgelegt: 3,05% (+ 0,6% für Kinderlose)
                         </div>
                       </div>
                     </div>
                   </div>
 
-                  {/* Additional Care Insurance for Childless */}
-                  <div className="space-y-3">
-                    <div className="flex items-center space-x-2">
-                      <Switch
-                        checked={values.additionalCareInsuranceForChildless}
-                        onCheckedChange={onChange.onAdditionalCareInsuranceForChildlessChange}
-                        id="additional-care-insurance"
-                      />
-                      <Label htmlFor="additional-care-insurance">
-                        Zusätzlicher Pflegeversicherungsbeitrag für Kinderlose
-                      </Label>
-                    </div>
-
-                    {values.additionalCareInsuranceForChildless && (
-                      <div className="ml-6 space-y-2">
-                        <Label htmlFor="additional-care-age">
-                          Ab Alter: {values.additionalCareInsuranceAge} Jahre
-                        </Label>
-                        <Slider
-                          id="additional-care-age"
-                          min={18}
-                          max={35}
-                          step={1}
-                          value={[values.additionalCareInsuranceAge]}
-                          onValueChange={([value]) => onChange.onAdditionalCareInsuranceAgeChange(value)}
-                          className="w-32"
-                        />
-                        <div className="text-xs text-muted-foreground">
-                          Zusätzlich 0,6% Pflegeversicherung ab diesem Alter
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Income Thresholds */}
+                  {/* Income Limits */}
                   <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-                    <h4 className="font-medium text-sm">Beitragsbemessungsgrenzen (optional)</h4>
+                    <h4 className="font-medium text-sm">Beitragsbemessungsgrenzen</h4>
                     
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
-                        <Label htmlFor="health-threshold">
-                          Krankenversicherung (jährlich)
+                        <Label htmlFor="statutory-min-income">
+                          Mindestbeitragsbemessungsgrundlage (jährlich)
                         </Label>
                         <Input
-                          id="health-threshold"
+                          id="statutory-min-income"
                           type="number"
                           min="0"
-                          step="1000"
-                          value={values.healthInsuranceIncomeThreshold || ''}
-                          onChange={(e) => onChange.onHealthInsuranceIncomeThresholdChange(Number(e.target.value))}
-                          placeholder="z.B. 62550 (2024)"
+                          step="100"
+                          value={values.statutoryMinimumIncomeBase}
+                          onChange={(e) => onChange.onStatutoryMinimumIncomeBaseChange(Number(e.target.value))}
                         />
                         <div className="text-xs text-muted-foreground">
-                          Leer lassen für keine Obergrenze
+                          Mindestbeitrag wird auch bei geringerem Einkommen erhoben
                         </div>
                       </div>
 
                       <div className="space-y-2">
-                        <Label htmlFor="care-threshold">
-                          Pflegeversicherung (jährlich)
+                        <Label htmlFor="statutory-max-income">
+                          Beitragsbemessungsgrenze (jährlich)
                         </Label>
                         <Input
-                          id="care-threshold"
+                          id="statutory-max-income"
                           type="number"
                           min="0"
                           step="1000"
-                          value={values.careInsuranceIncomeThreshold || ''}
-                          onChange={(e) => onChange.onCareInsuranceIncomeThresholdChange(Number(e.target.value))}
-                          placeholder="z.B. 62550 (2024)"
+                          value={values.statutoryMaximumIncomeBase}
+                          onChange={(e) => onChange.onStatutoryMaximumIncomeBaseChange(Number(e.target.value))}
                         />
                         <div className="text-xs text-muted-foreground">
-                          Leer lassen für keine Obergrenze
+                          Maximale Beitragsbemessungsgrundlage (2024: 62.550€)
                         </div>
                       </div>
                     </div>
                   </div>
                 </div>
               )}
+
+              {/* Private Insurance Configuration */}
+              {values.insuranceType === 'private' && (
+                <div className="space-y-6">
+                  <div className="space-y-4 p-4 bg-purple-50 rounded-lg">
+                    <h4 className="font-medium text-sm">Private Versicherungsbeiträge</h4>
+                    
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="private-health-monthly">
+                          Krankenversicherung (monatlich)
+                        </Label>
+                        <Input
+                          id="private-health-monthly"
+                          type="number"
+                          min="0"
+                          step="10"
+                          value={values.privateHealthInsuranceMonthly}
+                          onChange={(e) => onChange.onPrivateHealthInsuranceMonthlyChange(Number(e.target.value))}
+                          placeholder="z.B. 450"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="private-care-monthly">
+                          Pflegeversicherung (monatlich)
+                        </Label>
+                        <Input
+                          id="private-care-monthly"
+                          type="number"
+                          min="0"
+                          step="5"
+                          value={values.privateCareInsuranceMonthly}
+                          onChange={(e) => onChange.onPrivateCareInsuranceMonthlyChange(Number(e.target.value))}
+                          placeholder="z.B. 60"
+                        />
+                      </div>
+
+                      <div className="space-y-2">
+                        <Label htmlFor="private-inflation-rate">
+                          Jährliche Steigerung: {values.privateInsuranceInflationRate.toFixed(1)}%
+                        </Label>
+                        <Slider
+                          id="private-inflation-rate"
+                          min={0}
+                          max={5}
+                          step={0.1}
+                          value={[values.privateInsuranceInflationRate]}
+                          onValueChange={([value]) => onChange.onPrivateInsuranceInflationRateChange(value)}
+                          className="w-full"
+                        />
+                        <div className="text-xs text-muted-foreground">
+                          Typisch: 2-4% jährliche Beitragssteigerung
+                        </div>
+                      </div>
+                    </div>
+
+                    {values.privateHealthInsuranceMonthly > 0 && values.privateCareInsuranceMonthly > 0 && (
+                      <div className="text-sm text-muted-foreground">
+                        <strong>Gesamt pro Monat:</strong> {formatCurrency(values.privateHealthInsuranceMonthly + values.privateCareInsuranceMonthly)}
+                        {' '}
+                        <strong>pro Jahr:</strong> {formatCurrency((values.privateHealthInsuranceMonthly + values.privateCareInsuranceMonthly) * 12)}
+                      </div>
+                    )}
+                  </div>
+                </div>
+              )}
+
+              {/* Additional Care Insurance for Childless */}
+              <div className="space-y-3">
+                <div className="flex items-center space-x-2">
+                  <Switch
+                    checked={values.additionalCareInsuranceForChildless}
+                    onCheckedChange={onChange.onAdditionalCareInsuranceForChildlessChange}
+                    id="additional-care-insurance"
+                  />
+                  <Label htmlFor="additional-care-insurance">
+                    Zusätzlicher Pflegeversicherungsbeitrag für Kinderlose
+                  </Label>
+                </div>
+
+                {values.additionalCareInsuranceForChildless && (
+                  <div className="ml-6 space-y-2">
+                    <Label htmlFor="additional-care-age">
+                      Ab Alter: {values.additionalCareInsuranceAge} Jahre
+                    </Label>
+                    <Slider
+                      id="additional-care-age"
+                      min={18}
+                      max={35}
+                      step={1}
+                      value={[values.additionalCareInsuranceAge]}
+                      onValueChange={([value]) => onChange.onAdditionalCareInsuranceAgeChange(value)}
+                      className="w-32"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      Zusätzlich 0,6% Pflegeversicherung ab diesem Alter
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </CardContent>
         </CollapsibleContent>

@@ -15,35 +15,35 @@ export interface HealthCareInsuranceConfig {
   /** Whether health and care insurance contributions are enabled in the calculation */
   enabled: boolean
 
-  /** Health insurance contribution rate during pre-retirement phase (as percentage) */
-  healthInsuranceRatePreRetirement: number
+  /** Insurance type: 'statutory' for gesetzliche KV or 'private' for private KV */
+  insuranceType: 'statutory' | 'private'
 
-  /** Care insurance contribution rate during pre-retirement phase (as percentage) */
-  careInsuranceRatePreRetirement: number
+  /** For statutory insurance: Whether to include employer contributions in withdrawal phase (default: true) */
+  includeEmployerContribution: boolean
 
-  /** Health insurance contribution rate during retirement phase (as percentage) */
-  healthInsuranceRateRetirement: number
+  /** For statutory insurance: Health insurance contribution rate (fixed at 14.6% including employer portion) */
+  statutoryHealthInsuranceRate: number
 
-  /** Care insurance contribution rate during retirement phase (as percentage) */
-  careInsuranceRateRetirement: number
+  /** For statutory insurance: Care insurance contribution rate (fixed at 3.05% including employer portion) */
+  statutoryCareInsuranceRate: number
 
-  /** Year when retirement begins (switches from pre-retirement to retirement rates) */
+  /** For statutory insurance: Minimum contribution base amount (annual) */
+  statutoryMinimumIncomeBase: number
+
+  /** For statutory insurance: Maximum contribution base amount (annual) - Beitragsbemessungsgrenze */
+  statutoryMaximumIncomeBase: number
+
+  /** For private insurance: Monthly health insurance premium */
+  privateHealthInsuranceMonthly: number
+
+  /** For private insurance: Monthly care insurance premium */
+  privateCareInsuranceMonthly: number
+
+  /** For private insurance: Annual inflation rate for premium adjustment (default: 2%) */
+  privateInsuranceInflationRate: number
+
+  /** Year when retirement begins */
   retirementStartYear: number
-
-  /** Fixed monthly health insurance contribution (optional, overrides percentage-based calculation) */
-  fixedHealthInsuranceMonthly?: number
-
-  /** Fixed monthly care insurance contribution (optional, overrides percentage-based calculation) */
-  fixedCareInsuranceMonthly?: number
-
-  /** Whether to use fixed amounts instead of percentage-based calculation */
-  useFixedAmounts: boolean
-
-  /** Income threshold for health insurance contributions (Beitragsbemessungsgrenze) */
-  healthInsuranceIncomeThreshold?: number
-
-  /** Income threshold for care insurance contributions */
-  careInsuranceIncomeThreshold?: number
 
   /** Additional care insurance contribution for childless individuals over 23 (default: 0.6%) */
   additionalCareInsuranceForChildless: boolean
@@ -74,23 +74,29 @@ export interface HealthCareInsuranceYearResult {
   /** Monthly total health and care insurance contribution */
   totalMonthly: number
 
-  /** Whether fixed amounts were used instead of percentage calculation */
-  usedFixedAmounts: boolean
+  /** Insurance type used for calculation */
+  insuranceType: 'statutory' | 'private'
 
-  /** Whether pre-retirement or retirement rates were applied */
+  /** Whether this is during retirement phase */
   isRetirementPhase: boolean
 
-  /** Effective health insurance rate applied (as percentage) */
-  effectiveHealthInsuranceRate: number
+  /** For statutory insurance: effective health insurance rate applied (as percentage) */
+  effectiveHealthInsuranceRate?: number
 
-  /** Effective care insurance rate applied (as percentage) */
-  effectiveCareInsuranceRate: number
+  /** For statutory insurance: effective care insurance rate applied (as percentage) */
+  effectiveCareInsuranceRate?: number
 
-  /** Base income amount used for percentage calculation */
-  baseIncomeForCalculation: number
+  /** For statutory insurance: base income amount used for percentage calculation */
+  baseIncomeForCalculation?: number
+
+  /** For statutory insurance: whether employer contributions are included */
+  includesEmployerContribution?: boolean
 
   /** Whether additional care insurance for childless was applied */
   appliedAdditionalCareInsurance: boolean
+
+  /** For private insurance: inflation adjustment factor applied */
+  inflationAdjustmentFactor?: number
 }
 
 /**
@@ -118,87 +124,92 @@ export function calculateHealthCareInsuranceForYear(
       healthInsuranceMonthly: 0,
       careInsuranceMonthly: 0,
       totalMonthly: 0,
-      usedFixedAmounts: false,
-      isRetirementPhase: false,
-      effectiveHealthInsuranceRate: 0,
-      effectiveCareInsuranceRate: 0,
-      baseIncomeForCalculation: 0,
+      insuranceType: config.insuranceType,
+      isRetirementPhase: year >= config.retirementStartYear,
       appliedAdditionalCareInsurance: false,
     }
   }
 
   const isRetirementPhase = year >= config.retirementStartYear
+  let healthInsuranceAnnual = 0
+  let careInsuranceAnnual = 0
+  let appliedAdditionalCareInsurance = false
+  let inflationAdjustmentFactor: number | undefined
 
-  // Use fixed amounts if configured
-  if (config.useFixedAmounts && config.fixedHealthInsuranceMonthly && config.fixedCareInsuranceMonthly) {
-    const healthInsuranceMonthly = config.fixedHealthInsuranceMonthly
-    const careInsuranceMonthly = config.fixedCareInsuranceMonthly
+  if (config.insuranceType === 'statutory') {
+    // Statutory insurance calculation based on income
+    const totalIncome = withdrawalAmount + pensionAmount
+    const baseIncome = Math.max(
+      config.statutoryMinimumIncomeBase,
+      Math.min(totalIncome, config.statutoryMaximumIncomeBase)
+    )
+
+    // Calculate base rates
+    let healthRate = config.statutoryHealthInsuranceRate
+    let careRate = config.statutoryCareInsuranceRate
+
+    // In retirement phase, if not including employer contribution, halve the health insurance rate
+    // (Care insurance rate stays the same as employee pays full amount)
+    if (isRetirementPhase && !config.includeEmployerContribution) {
+      healthRate = healthRate / 2 // Only employee portion
+    }
+
+    // Apply additional care insurance for childless
+    if (config.additionalCareInsuranceForChildless && currentAge >= config.additionalCareInsuranceAge) {
+      careRate += 0.6 // Additional 0.6% for childless
+      appliedAdditionalCareInsurance = true
+    }
+
+    healthInsuranceAnnual = baseIncome * (healthRate / 100)
+    careInsuranceAnnual = baseIncome * (careRate / 100)
 
     return {
-      healthInsuranceAnnual: healthInsuranceMonthly * 12,
-      careInsuranceAnnual: careInsuranceMonthly * 12,
-      totalAnnual: (healthInsuranceMonthly + careInsuranceMonthly) * 12,
-      healthInsuranceMonthly,
-      careInsuranceMonthly,
-      totalMonthly: healthInsuranceMonthly + careInsuranceMonthly,
-      usedFixedAmounts: true,
+      healthInsuranceAnnual,
+      careInsuranceAnnual,
+      totalAnnual: healthInsuranceAnnual + careInsuranceAnnual,
+      healthInsuranceMonthly: healthInsuranceAnnual / 12,
+      careInsuranceMonthly: careInsuranceAnnual / 12,
+      totalMonthly: (healthInsuranceAnnual + careInsuranceAnnual) / 12,
+      insuranceType: 'statutory',
       isRetirementPhase,
-      effectiveHealthInsuranceRate: 0,
-      effectiveCareInsuranceRate: 0,
-      baseIncomeForCalculation: 0,
-      appliedAdditionalCareInsurance: false,
+      effectiveHealthInsuranceRate: healthRate,
+      effectiveCareInsuranceRate: careRate,
+      baseIncomeForCalculation: baseIncome,
+      includesEmployerContribution: !isRetirementPhase || config.includeEmployerContribution,
+      appliedAdditionalCareInsurance,
     }
-  }
+  } else {
+    // Private insurance calculation with inflation adjustment
+    const yearsFromStart = Math.max(0, year - config.retirementStartYear)
+    inflationAdjustmentFactor = Math.pow(1 + config.privateInsuranceInflationRate / 100, yearsFromStart)
+    
+    const adjustedHealthMonthly = config.privateHealthInsuranceMonthly * inflationAdjustmentFactor
+    const adjustedCareMonthly = config.privateCareInsuranceMonthly * inflationAdjustmentFactor
 
-  // Calculate percentage-based contributions
-  const baseIncome = withdrawalAmount + pensionAmount
+    // Apply additional care insurance for childless (also applies to private insurance)
+    let finalCareMonthly = adjustedCareMonthly
+    if (config.additionalCareInsuranceForChildless && currentAge >= config.additionalCareInsuranceAge) {
+      // For private insurance, additional care insurance is typically added as statutory contribution
+      const additionalCareAnnual = (withdrawalAmount + pensionAmount) * 0.006 // 0.6%
+      finalCareMonthly += additionalCareAnnual / 12
+      appliedAdditionalCareInsurance = true
+    }
 
-  // Apply income thresholds if configured
-  let healthInsuranceBaseIncome = baseIncome
-  let careInsuranceBaseIncome = baseIncome
+    healthInsuranceAnnual = adjustedHealthMonthly * 12
+    careInsuranceAnnual = finalCareMonthly * 12
 
-  if (config.healthInsuranceIncomeThreshold) {
-    healthInsuranceBaseIncome = Math.min(baseIncome, config.healthInsuranceIncomeThreshold)
-  }
-
-  if (config.careInsuranceIncomeThreshold) {
-    careInsuranceBaseIncome = Math.min(baseIncome, config.careInsuranceIncomeThreshold)
-  }
-
-  // Select appropriate rates based on retirement phase
-  const healthInsuranceRate = isRetirementPhase
-    ? config.healthInsuranceRateRetirement
-    : config.healthInsuranceRatePreRetirement
-
-  let careInsuranceRate = isRetirementPhase
-    ? config.careInsuranceRateRetirement
-    : config.careInsuranceRatePreRetirement
-
-  // Add additional care insurance for childless individuals
-  const appliedAdditionalCareInsurance = config.additionalCareInsuranceForChildless
-    && currentAge >= config.additionalCareInsuranceAge
-
-  if (appliedAdditionalCareInsurance) {
-    careInsuranceRate += 0.6 // Additional 0.6% for childless individuals over 23
-  }
-
-  // Calculate annual contributions
-  const healthInsuranceAnnual = healthInsuranceBaseIncome * (healthInsuranceRate / 100)
-  const careInsuranceAnnual = careInsuranceBaseIncome * (careInsuranceRate / 100)
-
-  return {
-    healthInsuranceAnnual,
-    careInsuranceAnnual,
-    totalAnnual: healthInsuranceAnnual + careInsuranceAnnual,
-    healthInsuranceMonthly: healthInsuranceAnnual / 12,
-    careInsuranceMonthly: careInsuranceAnnual / 12,
-    totalMonthly: (healthInsuranceAnnual + careInsuranceAnnual) / 12,
-    usedFixedAmounts: false,
-    isRetirementPhase,
-    effectiveHealthInsuranceRate: healthInsuranceRate,
-    effectiveCareInsuranceRate: careInsuranceRate,
-    baseIncomeForCalculation: baseIncome,
-    appliedAdditionalCareInsurance,
+    return {
+      healthInsuranceAnnual,
+      careInsuranceAnnual,
+      totalAnnual: healthInsuranceAnnual + careInsuranceAnnual,
+      healthInsuranceMonthly: adjustedHealthMonthly,
+      careInsuranceMonthly: finalCareMonthly,
+      totalMonthly: adjustedHealthMonthly + finalCareMonthly,
+      insuranceType: 'private',
+      isRetirementPhase,
+      appliedAdditionalCareInsurance,
+      inflationAdjustmentFactor,
+    }
   }
 }
 
@@ -237,42 +248,45 @@ export function calculateHealthCareInsurance(
  */
 export function createDefaultHealthCareInsuranceConfig(): HealthCareInsuranceConfig {
   return {
-    enabled: false,
-    // Pre-retirement rates (typical values for German public insurance)
-    healthInsuranceRatePreRetirement: 14.6, // 14.6% health insurance (employee + employer)
-    careInsuranceRatePreRetirement: 3.05, // 3.05% care insurance (+ 0.6% for childless)
-    // Retirement rates (typically lower, only retiree portion)
-    healthInsuranceRateRetirement: 7.3, // 7.3% health insurance (retiree only)
-    careInsuranceRateRetirement: 3.05, // 3.05% care insurance (same rate)
+    enabled: true, // Default: enabled
+    insuranceType: 'statutory', // Default: statutory insurance
+    includeEmployerContribution: true, // Default: include employer portion
+    // Statutory insurance fixed rates (as per German law)
+    statutoryHealthInsuranceRate: 14.6, // 14.6% total (7.3% employee + 7.3% employer)
+    statutoryCareInsuranceRate: 3.05, // 3.05% total (1.525% employee + 1.525% employer)
+    // Statutory insurance income limits (2024 values)
+    statutoryMinimumIncomeBase: 13230, // Minimum assessment base (annual)
+    statutoryMaximumIncomeBase: 62550, // Maximum assessment base (Beitragsbemessungsgrenze, annual)
+    // Private insurance defaults
+    privateHealthInsuranceMonthly: 450, // Default monthly private health insurance premium
+    privateCareInsuranceMonthly: 60, // Default monthly private care insurance premium
+    privateInsuranceInflationRate: 2.0, // Default 2% annual increase
     retirementStartYear: 2041,
-    useFixedAmounts: false,
     additionalCareInsuranceForChildless: false,
     additionalCareInsuranceAge: 23,
-    // Income thresholds (Beitragsbemessungsgrenzen 2024)
-    healthInsuranceIncomeThreshold: 62550, // Annual threshold for health insurance
-    careInsuranceIncomeThreshold: 62550, // Annual threshold for care insurance
   }
 }
 
 /**
- * Get display name for health and care insurance calculation type
+ * Get display name for health and care insurance configuration
  */
 export function getHealthCareInsuranceDisplayInfo(config: HealthCareInsuranceConfig): {
-  healthInsuranceType: 'fixed' | 'percentage'
-  careInsuranceType: 'fixed' | 'percentage'
+  insuranceType: 'statutory' | 'private'
   displayText: string
+  detailText: string
 } {
-  if (config.useFixedAmounts) {
+  if (config.insuranceType === 'statutory') {
+    const employerText = config.includeEmployerContribution ? 'mit Arbeitgeberanteil' : 'nur Arbeitnehmeranteil'
     return {
-      healthInsuranceType: 'fixed',
-      careInsuranceType: 'fixed',
-      displayText: 'Feste monatliche Beiträge',
+      insuranceType: 'statutory',
+      displayText: 'Gesetzliche Krankenversicherung',
+      detailText: `Beitragssätze: ${config.statutoryHealthInsuranceRate}% KV, ${config.statutoryCareInsuranceRate}% PV (${employerText})`,
     }
   }
 
   return {
-    healthInsuranceType: 'percentage',
-    careInsuranceType: 'percentage',
-    displayText: 'Prozentuale Beiträge basierend auf Einkommen',
+    insuranceType: 'private',
+    displayText: 'Private Krankenversicherung',
+    detailText: `Monatliche Beiträge mit ${config.privateInsuranceInflationRate}% jährlicher Anpassung`,
   }
 }
