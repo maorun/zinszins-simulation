@@ -10,6 +10,8 @@ import type { StatutoryPensionConfig } from './statutory-pension'
 import { calculateStatutoryPension } from './statutory-pension'
 import type { OtherIncomeConfiguration } from './other-income'
 import { calculateOtherIncome } from './other-income'
+import type { HealthCareInsuranceConfig } from './health-care-insurance'
+import { calculateHealthCareInsurance, calculateHealthCareInsuranceForYear } from './health-care-insurance'
 
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt'
 
@@ -61,6 +63,19 @@ export type WithdrawalResultElement = {
     totalNetAmount: number
     totalTaxAmount: number
     sourceCount: number
+  }
+  // Health and care insurance fields
+  healthCareInsurance?: {
+    healthInsuranceAnnual: number
+    careInsuranceAnnual: number
+    totalAnnual: number
+    healthInsuranceMonthly: number
+    careInsuranceMonthly: number
+    totalMonthly: number
+    usedFixedAmounts: boolean
+    isRetirementPhase: boolean
+    effectiveHealthInsuranceRate: number
+    effectiveCareInsuranceRate: number
   }
 }
 
@@ -161,6 +176,8 @@ export type CalculateWithdrawalParams = {
   basiszinsConfiguration?: BasiszinsConfiguration
   statutoryPensionConfig?: StatutoryPensionConfig
   otherIncomeConfig?: OtherIncomeConfiguration
+  healthCareInsuranceConfig?: HealthCareInsuranceConfig
+  birthYear?: number // For health care insurance age calculation
 }
 
 export function calculateWithdrawal({
@@ -187,6 +204,8 @@ export function calculateWithdrawal({
   basiszinsConfiguration,
   statutoryPensionConfig,
   otherIncomeConfig,
+  healthCareInsuranceConfig,
+  birthYear,
 }: CalculateWithdrawalParams): { result: WithdrawalResult, finalLayers: MutableLayer[] } {
   // Helper functions
   const getFreibetragForYear = (year: number): number => {
@@ -406,6 +425,26 @@ export function calculateWithdrawal({
     }
 
     const entnahme = Math.min(annualWithdrawal, capitalAtStartOfYear)
+
+    // Calculate health care insurance contributions for this year
+    let healthCareInsuranceData
+    let healthCareInsuranceTotal = 0
+    if (healthCareInsuranceConfig?.enabled) {
+      const pensionAmount = statutoryPensionData[year]?.grossAnnualAmount || 0
+      const currentAge = birthYear ? year - birthYear : 30
+
+      healthCareInsuranceData = calculateHealthCareInsuranceForYear(
+        healthCareInsuranceConfig,
+        year,
+        entnahme,
+        pensionAmount,
+        currentAge,
+      )
+      healthCareInsuranceTotal = healthCareInsuranceData.totalAnnual
+    }
+
+    // The net withdrawal amount available to the user after health care insurance
+    const netEntnahme = entnahme - healthCareInsuranceTotal
 
     // Get the return rate for this year (needed for monthly withdrawal calculations)
     const returnRate = yearlyGrowthRates[year] || 0
@@ -652,6 +691,21 @@ export function calculateWithdrawal({
             totalNetAmount: otherIncomeData[year].totalNetAnnualAmount,
             totalTaxAmount: otherIncomeData[year].totalTaxAmount,
             sourceCount: otherIncomeData[year].sources.length,
+          }
+        : undefined,
+      // Health and care insurance data
+      healthCareInsurance: healthCareInsuranceData && healthCareInsuranceConfig?.enabled
+        ? {
+            healthInsuranceAnnual: healthCareInsuranceData.healthInsuranceAnnual,
+            careInsuranceAnnual: healthCareInsuranceData.careInsuranceAnnual,
+            totalAnnual: healthCareInsuranceData.totalAnnual,
+            healthInsuranceMonthly: healthCareInsuranceData.healthInsuranceMonthly,
+            careInsuranceMonthly: healthCareInsuranceData.careInsuranceMonthly,
+            totalMonthly: healthCareInsuranceData.totalMonthly,
+            usedFixedAmounts: healthCareInsuranceData.usedFixedAmounts,
+            isRetirementPhase: healthCareInsuranceData.isRetirementPhase,
+            effectiveHealthInsuranceRate: healthCareInsuranceData.effectiveHealthInsuranceRate,
+            effectiveCareInsuranceRate: healthCareInsuranceData.effectiveCareInsuranceRate,
           }
         : undefined,
     }
