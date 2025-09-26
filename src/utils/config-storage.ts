@@ -6,6 +6,7 @@ import type { WithdrawalSegment } from './segmented-withdrawal'
 import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
 import type { OtherIncomeConfiguration } from '../../helpers/other-income'
+import type { HealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
 
 /**
  * Return mode for withdrawal phase (subset of main ReturnMode)
@@ -51,6 +52,8 @@ export interface WithdrawalFormValue {
   kapitalerhaltInflationRate: number
   // Statutory pension settings
   statutoryPensionConfig?: StatutoryPensionConfig
+  // Health and care insurance settings
+  healthCareInsuranceConfig?: HealthCareInsuranceConfig
   // Grundfreibetrag settings (now handled globally, kept for backward compatibility)
   grundfreibetragAktiv?: boolean
   grundfreibetragBetrag?: number

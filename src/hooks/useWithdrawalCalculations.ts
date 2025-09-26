@@ -211,6 +211,8 @@ export function useWithdrawalCalculations(
         steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
         statutoryPensionConfig: formValue.statutoryPensionConfig,
         otherIncomeConfig,
+        healthCareInsuranceConfig: formValue.healthCareInsuranceConfig,
+        birthYear: formValue.statutoryPensionConfig?.birthYear, // Use birth year from statutory pension config
       })
       withdrawalResult = withdrawalCalculation.result
     }
@@ -395,6 +397,8 @@ export function useWithdrawalCalculations(
           steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
           statutoryPensionConfig: formValue.statutoryPensionConfig,
           otherIncomeConfig,
+          healthCareInsuranceConfig: formValue.healthCareInsuranceConfig,
+          birthYear: formValue.statutoryPensionConfig?.birthYear, // Use birth year from statutory pension config
         })
 
         // Get final year capital and total withdrawal

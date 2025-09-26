@@ -8,6 +8,7 @@ import type {
   SegmentedComparisonStrategy,
 } from '../utils/config-storage'
 import { createDefaultStatutoryPensionConfig } from '../../helpers/statutory-pension'
+import { createDefaultHealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
 
 /**
  * Custom hook for managing withdrawal configuration state
@@ -62,6 +63,8 @@ export function useWithdrawalConfig() {
       kapitalerhaltInflationRate: 2, // Default inflation rate 2%
       // Statutory pension settings
       statutoryPensionConfig: createDefaultStatutoryPensionConfig(),
+      // Health and care insurance settings
+      healthCareInsuranceConfig: createDefaultHealthCareInsuranceConfig(),
       einkommensteuersatz: 18, // Default income tax rate 18%
     }
 
