@@ -455,13 +455,18 @@ export function EntnahmeSimulationDisplay({
                 <>
                   <div className="flex justify-between items-center py-1">
                     <span className="text-sm text-gray-600 font-medium">
-                      🏥 Krankenversicherung ({rowData.healthCareInsurance.isRetirementPhase ? 'Rente' : 'Vorrente'}):
+                      🏥 Krankenversicherung ({rowData.healthCareInsurance.insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat'}):
                     </span>
                     <span className="font-semibold text-red-600 text-sm">
                       -{formatCurrency(rowData.healthCareInsurance.healthInsuranceAnnual)}
-                      {!rowData.healthCareInsurance.usedFixedAmounts && (
+                      {rowData.healthCareInsurance.insuranceType === 'statutory' && rowData.healthCareInsurance.effectiveHealthInsuranceRate && (
                         <span className="text-xs text-gray-500 ml-1">
                           ({rowData.healthCareInsurance.effectiveHealthInsuranceRate.toFixed(2)}%)
+                        </span>
+                      )}
+                      {rowData.healthCareInsurance.inflationAdjustmentFactor && (
+                        <span className="text-xs text-gray-500 ml-1">
+                          (Inflationsanpassung: {(rowData.healthCareInsurance.inflationAdjustmentFactor * 100 - 100).toFixed(1)}%)
                         </span>
                       )}
                     </span>
@@ -472,7 +477,7 @@ export function EntnahmeSimulationDisplay({
                     </span>
                     <span className="font-semibold text-red-600 text-sm">
                       -{formatCurrency(rowData.healthCareInsurance.careInsuranceAnnual)}
-                      {!rowData.healthCareInsurance.usedFixedAmounts && (
+                      {rowData.healthCareInsurance.insuranceType === 'statutory' && rowData.healthCareInsurance.effectiveCareInsuranceRate && (
                         <span className="text-xs text-gray-500 ml-1">
                           ({rowData.healthCareInsurance.effectiveCareInsuranceRate.toFixed(2)}%)
                         </span>
@@ -486,7 +491,8 @@ export function EntnahmeSimulationDisplay({
                     <span className="font-semibold text-red-600 text-sm">
                       -{formatCurrency(rowData.healthCareInsurance.totalAnnual)}
                       <span className="text-xs text-gray-500 ml-1">
-                        ({rowData.healthCareInsurance.usedFixedAmounts ? 'Fest' : 'Prozentual'})
+                        ({rowData.healthCareInsurance.insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat'})
+                        {rowData.healthCareInsurance.insuranceType === 'statutory' && !rowData.healthCareInsurance.includesEmployerContribution && ' - nur AN-Anteil'}
                       </span>
                     </span>
                   </div>

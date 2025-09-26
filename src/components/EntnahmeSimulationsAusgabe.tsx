@@ -1969,7 +1969,7 @@ export function EntnahmeSimulationsAusgabe({
               <div className="mb-6">
                 <HealthCareInsuranceConfiguration
                   values={{
-                    enabled: formValue.healthCareInsuranceConfig?.enabled || false,
+                    enabled: formValue.healthCareInsuranceConfig?.enabled ?? true, // Default: enabled
                     healthInsuranceRatePreRetirement: formValue.healthCareInsuranceConfig?.healthInsuranceRatePreRetirement || 14.6,
                     careInsuranceRatePreRetirement: formValue.healthCareInsuranceConfig?.careInsuranceRatePreRetirement || 3.05,
                     healthInsuranceRateRetirement: formValue.healthCareInsuranceConfig?.healthInsuranceRateRetirement || 7.3,
