@@ -115,7 +115,7 @@ export function SparplanEingabe({
   }, [currentSparplans])
 
   const [singleFormValue, setSingleFormValue] = useState<{
-    date: Date
+    date: Date | null
     einzahlung: string
     ter: string
     transactionCostPercent: string
@@ -128,7 +128,7 @@ export function SparplanEingabe({
     transactionCostAbsolute: '',
   })
   const [sparplanFormValues, setSparplanFormValues] = useState<{
-    start: Date
+    start: Date | null
     end: Date | null
     einzahlung: string
     ter: string
@@ -187,6 +187,11 @@ export function SparplanEingabe({
   }
 
   const handleSinglePaymentSubmit = () => {
+    if (!singleFormValue.date) {
+      toast.error('Bitte geben Sie ein Datum für die Einmalzahlung an.')
+      return
+    }
+
     if (singleFormValue.einzahlung) {
       if (isEditMode) {
         // In edit mode, call save edit
@@ -280,6 +285,10 @@ export function SparplanEingabe({
     let updatedSparplan: Sparplan
 
     if (isEinmalzahlung) {
+      if (!singleFormValue.date) {
+        toast.error('Das Datum für eine Einmalzahlung darf nicht leer sein.')
+        return
+      }
       // Update with single payment form values
       updatedSparplan = {
         ...editingSparplan,
@@ -294,6 +303,10 @@ export function SparplanEingabe({
       }
     }
     else {
+      if (!sparplanFormValues.start) {
+        toast.error('Das Startdatum für einen Sparplan darf nicht leer sein.')
+        return
+      }
       // Update with savings plan form values
       // Convert monthly input to yearly for storage (backend always expects yearly amounts)
       const yearlyAmount = simulationAnnual === SimulationAnnual.monthly
@@ -574,7 +587,7 @@ export function SparplanEingabe({
                     <Input
                       type="date"
                       value={formatDateForInput(singleFormValue.date, 'yyyy-MM-dd')}
-                      onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => setSingleFormValue({ ...singleFormValue, date: date! }))}
+                      onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => setSingleFormValue({ ...singleFormValue, date }))}
                       placeholder="Datum wählen"
                       className="w-full"
                     />
@@ -667,7 +680,7 @@ export function SparplanEingabe({
                       variant="default"
                       type="submit"
                       size="lg"
-                      disabled={!singleFormValue.einzahlung}
+                      disabled={!singleFormValue.einzahlung || !singleFormValue.date}
                     >
                       {isEditMode && editingSparplan && editingSparplan.end
                         && new Date(editingSparplan.start).getTime() === new Date(editingSparplan.end).getTime()
