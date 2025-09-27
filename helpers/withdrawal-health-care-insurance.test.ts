@@ -7,15 +7,9 @@ describe('Withdrawal with Health Care Insurance Integration', () => {
   // Helper function to create test elements
   const createTestElements = (): SparplanElement[] => [
     {
-      id: 'test-1',
-      name: 'Test Investment',
       type: 'sparplan',
       start: '2024-01-01',
       einzahlung: 24000,
-      betrag: 2000,
-      jahresrendite: 0.05,
-      teilfreistellungsquote: 0.3,
-      thesaurierend: true,
       simulation: {
         2039: {
           startkapital: 480000,
@@ -226,15 +220,9 @@ describe('Withdrawal with Health Care Insurance Integration', () => {
     // Create elements with small capital
     const elements: SparplanElement[] = [
       {
-        id: 'test-1',
-        name: 'Test Investment',
         type: 'sparplan',
         start: '2024-01-01',
         einzahlung: 1000,
-        betrag: 100,
-        jahresrendite: 0.05,
-        teilfreistellungsquote: 0.3,
-        thesaurierend: true,
         simulation: {
           2039: {
             startkapital: 950,
