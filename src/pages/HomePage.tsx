@@ -5,6 +5,7 @@ import DataExport from '../components/DataExport'
 import Header from '../components/Header'
 import SimulationModeSelector from '../components/SimulationModeSelector'
 import SimulationParameters from '../components/SimulationParameters'
+import { SpecialEvents } from '../components/SpecialEvents'
 import { StickyOverview } from '../components/StickyOverview'
 import { StickyBottomOverview } from '../components/StickyBottomOverview'
 import { SimulationProvider } from '../contexts/SimulationContext'
@@ -251,15 +252,29 @@ function EnhancedOverview() {
 const HomePageContent = () => {
   const {
     sparplan,
+    setSparplan,
+    setSparplanElemente,
     startEnd,
     simulationAnnual,
-    setSparplanElemente,
     performSimulation,
     simulationData,
     isLoading,
+    endOfLife,
   } = useSimulation()
 
   const overviewRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    performSimulation()
+  }, [performSimulation])
+
+  // Calculate phase date ranges for special events
+  const savingsStartYear = sparplan.length > 0
+    ? Math.min(...sparplan.map(p => new Date(p.start).getFullYear()))
+    : new Date().getFullYear()
+  const savingsEndYear = startEnd[0]
+  const withdrawalStartYear = startEnd[0] + 1
+  const withdrawalEndYear = endOfLife
 
   useEffect(() => {
     performSimulation()
@@ -294,6 +309,19 @@ const HomePageContent = () => {
       <SimulationParameters />
 
       <ConfigurationManagement />
+
+      <SpecialEvents
+        dispatch={(updatedSparplan) => {
+          setSparplan(updatedSparplan)
+          setSparplanElemente(convertSparplanToElements(updatedSparplan, startEnd, simulationAnnual))
+        }}
+        simulationAnnual={simulationAnnual}
+        currentSparplans={sparplan}
+        savingsStartYear={savingsStartYear}
+        savingsEndYear={savingsEndYear}
+        withdrawalStartYear={withdrawalStartYear}
+        withdrawalEndYear={withdrawalEndYear}
+      />
 
       <SimulationModeSelector />
 

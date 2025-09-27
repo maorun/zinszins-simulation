@@ -35,6 +35,7 @@ export type SpecialEventData = {
   // General event fields
   description?: string
   taxRelevant?: boolean // Whether this event affects tax calculations
+  phase?: 'sparphase' | 'entsparphase' // Which life phase this event occurs in
 }
 
 export type Sparplan = {
