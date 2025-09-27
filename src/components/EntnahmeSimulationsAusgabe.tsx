@@ -23,6 +23,8 @@ import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
 import { BucketStrategyConfiguration } from './BucketStrategyConfiguration'
 import { KapitalerhaltConfiguration } from './KapitalerhaltConfiguration'
 import { StatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
+import { HealthCareInsuranceConfiguration } from './HealthCareInsuranceConfiguration'
+import { createDefaultHealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
 import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
 import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
 import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
@@ -1958,6 +1960,117 @@ export function EntnahmeSimulationsAusgabe({
                               taxablePortion: data.taxablePortion,
                             }
                           : undefined,
+                      },
+                    }),
+                  }}
+                />
+              </div>
+
+              {/* Health Care Insurance Configuration - Available in all withdrawal modes */}
+              <div className="mb-6">
+                <HealthCareInsuranceConfiguration
+                  values={{
+                    enabled: formValue.healthCareInsuranceConfig?.enabled ?? true,
+                    insuranceType: formValue.healthCareInsuranceConfig?.insuranceType || 'statutory',
+                    includeEmployerContribution: formValue.healthCareInsuranceConfig?.includeEmployerContribution
+                      ?? true,
+                    statutoryHealthInsuranceRate: formValue.healthCareInsuranceConfig?.statutoryHealthInsuranceRate
+                      || 14.6,
+                    statutoryCareInsuranceRate: formValue.healthCareInsuranceConfig?.statutoryCareInsuranceRate
+                      || 3.05,
+                    statutoryMinimumIncomeBase: formValue.healthCareInsuranceConfig?.statutoryMinimumIncomeBase
+                      || 13230,
+                    statutoryMaximumIncomeBase: formValue.healthCareInsuranceConfig?.statutoryMaximumIncomeBase
+                      || 62550,
+                    privateHealthInsuranceMonthly: formValue.healthCareInsuranceConfig?.privateHealthInsuranceMonthly
+                      || 400,
+                    privateCareInsuranceMonthly: formValue.healthCareInsuranceConfig?.privateCareInsuranceMonthly
+                      || 100,
+                    privateInsuranceInflationRate: formValue.healthCareInsuranceConfig?.privateInsuranceInflationRate
+                      || 2,
+                    retirementStartYear: formValue.healthCareInsuranceConfig?.retirementStartYear
+                      || startOfIndependence,
+                    additionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig
+                      ?.additionalCareInsuranceForChildless || false,
+                    additionalCareInsuranceAge: formValue.healthCareInsuranceConfig?.additionalCareInsuranceAge || 23,
+                  }}
+                  onChange={{
+                    onEnabledChange: enabled => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        enabled,
+                      },
+                    }),
+                    onInsuranceTypeChange: insuranceType => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        insuranceType,
+                      },
+                    }),
+                    onIncludeEmployerContributionChange: includeEmployerContribution => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        includeEmployerContribution,
+                      },
+                    }),
+                    onStatutoryHealthInsuranceRateChange: rate => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        statutoryHealthInsuranceRate: rate,
+                      },
+                    }),
+                    onStatutoryCareInsuranceRateChange: rate => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        statutoryCareInsuranceRate: rate,
+                      },
+                    }),
+                    onStatutoryMinimumIncomeBaseChange: amount => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        statutoryMinimumIncomeBase: amount,
+                      },
+                    }),
+                    onStatutoryMaximumIncomeBaseChange: amount => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        statutoryMaximumIncomeBase: amount,
+                      },
+                    }),
+                    onPrivateHealthInsuranceMonthlyChange: amount => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        privateHealthInsuranceMonthly: amount,
+                      },
+                    }),
+                    onPrivateCareInsuranceMonthlyChange: amount => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        privateCareInsuranceMonthly: amount,
+                      },
+                    }),
+                    onPrivateInsuranceInflationRateChange: rate => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        privateInsuranceInflationRate: rate,
+                      },
+                    }),
+                    onRetirementStartYearChange: year => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        retirementStartYear: year,
+                      },
+                    }),
+                    onAdditionalCareInsuranceForChildlessChange: enabled => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        additionalCareInsuranceForChildless: enabled,
+                      },
+                    }),
+                    onAdditionalCareInsuranceAgeChange: age => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        additionalCareInsuranceAge: age,
                       },
                     }),
                   }}

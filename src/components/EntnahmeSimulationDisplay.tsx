@@ -450,6 +450,74 @@ export function EntnahmeSimulationDisplay({
                   </div>
                 </>
               )}
+              {/* Health Care Insurance Display */}
+              {rowData.healthCareInsurance && rowData.healthCareInsurance.totalAnnual > 0 && (
+                <>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">
+                      🏥 Krankenversicherung (
+                      {rowData.healthCareInsurance.insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat'}
+                      ):
+                    </span>
+                    <span className="font-semibold text-red-600 text-sm">
+                      -
+                      {formatCurrency(rowData.healthCareInsurance.healthInsuranceAnnual)}
+                      {rowData.healthCareInsurance.insuranceType === 'statutory' && rowData.healthCareInsurance.effectiveHealthInsuranceRate && (
+                        <span className="text-xs text-gray-500 ml-1">
+                          (
+                          {rowData.healthCareInsurance.effectiveHealthInsuranceRate.toFixed(2)}
+                          %)
+                        </span>
+                      )}
+                      {rowData.healthCareInsurance.inflationAdjustmentFactor && (
+                        <span className="text-xs text-gray-500 ml-1">
+                          (Inflationsanpassung:
+                          {' '}
+                          {(rowData.healthCareInsurance.inflationAdjustmentFactor * 100 - 100).toFixed(1)}
+                          %)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">
+                      🩺 Pflegeversicherung:
+                    </span>
+                    <span className="font-semibold text-red-600 text-sm">
+                      -
+                      {formatCurrency(rowData.healthCareInsurance.careInsuranceAnnual)}
+                      {rowData.healthCareInsurance.insuranceType === 'statutory' && rowData.healthCareInsurance.effectiveCareInsuranceRate && (
+                        <span className="text-xs text-gray-500 ml-1">
+                          (
+                          {rowData.healthCareInsurance.effectiveCareInsuranceRate.toFixed(2)}
+                          %)
+                        </span>
+                      )}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1 border-t border-gray-200 pt-1">
+                    <span className="text-sm text-gray-600 font-medium">
+                      🏥 Gesamt Kranken- & Pflegeversicherung:
+                    </span>
+                    <span className="font-semibold text-red-600 text-sm">
+                      -
+                      {formatCurrency(rowData.healthCareInsurance.totalAnnual)}
+                      <span className="text-xs text-gray-500 ml-1">
+                        (
+                        {rowData.healthCareInsurance.insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat'}
+                        )
+                        {rowData.healthCareInsurance.insuranceType === 'statutory' && !rowData.healthCareInsurance.includesEmployerContribution && ' - nur AN-Anteil'}
+                      </span>
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">📅 Monatliche Beiträge:</span>
+                    <span className="font-semibold text-blue-600 text-sm">
+                      {formatCurrency(rowData.healthCareInsurance.totalMonthly)}
+                    </span>
+                  </div>
+                </>
+              )}
               {/* New section for taxable income */}
               <div className="flex justify-between items-center py-1">
                 <span className="text-sm text-gray-600 font-medium">💰 Zu versteuerndes Einkommen:</span>
