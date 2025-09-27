@@ -1244,7 +1244,7 @@ export function SparplanEingabe({
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm font-medium text-gray-600">💳 Kredit:</span>
                                   <span className="text-sm font-semibold text-red-600">
-                                    {sparplan.specialEventData.creditTerms.interestRate.toFixed(1)}% / {sparplan.specialEventData.creditTerms.termYears}J
+                                    {(sparplan.specialEventData.creditTerms.interestRate * 100).toFixed(1)}% / {sparplan.specialEventData.creditTerms.termYears}J
                                   </span>
                                 </div>
                               )}

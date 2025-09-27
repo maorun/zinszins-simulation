@@ -516,7 +516,244 @@ describe('Parameter Export', () => {
         expect.any(Error),
       )
 
-      consoleErrorSpy.mockRestore()
     })
+  })
+})
+
+describe('Parameter Export Special Events', () => {
+  let mockContext: SimulationContextState
+
+  beforeEach(() => {
+    // Create a minimal mock context with required properties for special events
+    mockContext = {
+      rendite: 5.0,
+      steuerlast: 26.375,
+      teilfreistellungsquote: 30.0,
+      freibetragPerYear: {},
+      steuerReduzierenEndkapitalSparphase: true,
+      steuerReduzierenEndkapitalEntspharphase: true,
+      returnMode: 'fixed' as const,
+      averageReturn: 7.0,
+      standardDeviation: 15.0,
+      variableReturns: {},
+      inflationAktivSparphase: false,
+      inflationsrateSparphase: 2.0,
+      startEnd: [2025, 2040] as [number, number],
+      sparplan: [],
+      simulationAnnual: 'yearly' as const,
+      endOfLife: 2080,
+      lifeExpectancyTable: 'german_2020_22' as const,
+      customLifeExpectancy: undefined,
+      withdrawalConfig: null,
+      // Mock functions (not used in formatting)
+      setRendite: vi.fn(),
+      setSteuerlast: vi.fn(),
+      setTeilfreistellungsquote: vi.fn(),
+      setFreibetragPerYear: vi.fn(),
+      setSteuerReduzierenEndkapitalSparphase: vi.fn(),
+      setSteuerReduzierenEndkapitalEntspharphase: vi.fn(),
+      setReturnMode: vi.fn(),
+      setAverageReturn: vi.fn(),
+      setStandardDeviation: vi.fn(),
+      setRandomSeed: vi.fn(),
+      setVariableReturns: vi.fn(),
+      setInflationAktivSparphase: vi.fn(),
+      setInflationsrateSparphase: vi.fn(),
+      setStartEnd: vi.fn(),
+      setSparplan: vi.fn(),
+      setSimulationAnnual: vi.fn(),
+      setSparplanElemente: vi.fn(),
+      setWithdrawalResults: vi.fn(),
+      performSimulation: vi.fn(),
+      saveCurrentConfiguration: vi.fn(),
+      loadSavedConfiguration: vi.fn(),
+      resetToDefaults: vi.fn(),
+      setWithdrawalConfig: vi.fn(),
+      sparplanElemente: [],
+      simulationData: {},
+      isLoading: false,
+      withdrawalResults: null,
+      setEndOfLife: vi.fn(),
+      setLifeExpectancyTable: vi.fn(),
+      setCustomLifeExpectancy: vi.fn(),
+    } as any
+  })
+
+  it('should export inheritance event correctly', () => {
+    mockContext.sparplan = [
+      {
+        id: 1,
+        start: new Date('2025-06-01'),
+        end: new Date('2025-06-01'),
+        einzahlung: 75000,
+        eventType: 'inheritance',
+        specialEventData: {
+          relationshipType: 'child',
+          grossInheritanceAmount: 80000,
+          description: 'Erbschaft Großeltern',
+        },
+      },
+    ]
+
+    const result = formatParametersForExport(mockContext)
+
+    expect(result).toContain('Sparpläne und Sonderereignisse:')
+    expect(result).toContain('Erbschaft 1:')
+    expect(result).toContain('Betrag: 75.000,00\u00A0€')
+    expect(result).toContain('Verwandtschaftsgrad: child')
+    expect(result).toContain('Brutto-Erbschaft: 80.000,00\u00A0€')
+    expect(result).toContain('Beschreibung: Erbschaft Großeltern')
+  })
+
+  it('should export expense event with credit correctly', () => {
+    mockContext.sparplan = [
+      {
+        id: 1,
+        start: new Date('2025-08-15'),
+        end: new Date('2025-08-15'),
+        einzahlung: -25000,
+        eventType: 'expense',
+        specialEventData: {
+          expenseType: 'car',
+          description: 'Neuwagenkauf Tesla',
+          creditTerms: {
+            interestRate: 0.045,
+            termYears: 5,
+            monthlyPayment: 466.08,
+          },
+        },
+      },
+    ]
+
+    const result = formatParametersForExport(mockContext)
+
+    expect(result).toContain('Sparpläne und Sonderereignisse:')
+    expect(result).toContain('Ausgabe 1:')
+    expect(result).toContain('Betrag: 25.000,00\u00A0€ (Ausgabe)')
+    expect(result).toContain('Ausgabentyp: car')
+    expect(result).toContain('Kredit: 4.5% für 5 Jahre')
+    expect(result).toContain('Monatliche Rate: 466,08\u00A0€')
+    expect(result).toContain('Beschreibung: Neuwagenkauf Tesla')
+  })
+
+  it('should export mixed savings plans and special events', () => {
+    mockContext.sparplan = [
+      {
+        id: 1,
+        start: new Date('2025-01-01'),
+        end: null,
+        einzahlung: 24000,
+      },
+      {
+        id: 2,
+        start: new Date('2025-06-01'),
+        end: new Date('2025-06-01'),
+        einzahlung: 50000,
+        eventType: 'inheritance',
+        specialEventData: {
+          relationshipType: 'spouse',
+          grossInheritanceAmount: 50000,
+          description: 'Lebensversicherung',
+        },
+      },
+      {
+        id: 3,
+        start: new Date('2025-12-01'),
+        end: new Date('2025-12-01'),
+        einzahlung: 5000,
+      },
+      {
+        id: 4,
+        start: new Date('2026-03-01'),
+        end: new Date('2026-03-01'),
+        einzahlung: -15000,
+        eventType: 'expense',
+        specialEventData: {
+          expenseType: 'medical',
+          description: 'Zahnbehandlung',
+        },
+      },
+    ]
+
+    const result = formatParametersForExport(mockContext)
+
+    expect(result).toContain('Sparpläne und Sonderereignisse:')
+    expect(result).toContain('Sparplan 1:')
+    expect(result).toContain('Betrag: 24.000,00\u00A0€')
+    expect(result).toContain('Ende: Unbegrenzt')
+    
+    expect(result).toContain('Erbschaft 2:')
+    expect(result).toContain('Verwandtschaftsgrad: spouse')
+    
+    expect(result).toContain('Einmalzahlung 3:')
+    expect(result).toContain('Betrag: 5.000,00\u00A0€')
+    
+    expect(result).toContain('Ausgabe 4:')
+    expect(result).toContain('Betrag: 15.000,00\u00A0€ (Ausgabe)')
+    expect(result).toContain('Ausgabentyp: medical')
+    expect(result).toContain('Beschreibung: Zahnbehandlung')
+  })
+
+  it('should handle special events without optional fields', () => {
+    mockContext.sparplan = [
+      {
+        id: 1,
+        start: new Date('2025-01-01'),
+        end: new Date('2025-01-01'),
+        einzahlung: 30000,
+        eventType: 'inheritance',
+        specialEventData: {
+          relationshipType: 'sibling',
+        },
+      },
+      {
+        id: 2,
+        start: new Date('2025-06-01'),
+        end: new Date('2025-06-01'),
+        einzahlung: -10000,
+        eventType: 'expense',
+        specialEventData: {
+          expenseType: 'other',
+        },
+      },
+    ]
+
+    const result = formatParametersForExport(mockContext)
+
+    expect(result).toContain('Erbschaft 1:')
+    expect(result).toContain('Verwandtschaftsgrad: sibling')
+    expect(result).not.toContain('Brutto-Erbschaft:')
+    expect(result).not.toContain('Beschreibung:')
+    
+    expect(result).toContain('Ausgabe 2:')
+    expect(result).toContain('Ausgabentyp: other')
+    expect(result).not.toContain('Kredit:')
+    expect(result).not.toContain('Beschreibung:')
+  })
+
+  it('should export cost factors for special events', () => {
+    mockContext.sparplan = [
+      {
+        id: 1,
+        start: new Date('2025-01-01'),
+        end: new Date('2025-01-01'),
+        einzahlung: 40000,
+        eventType: 'inheritance',
+        specialEventData: {
+          relationshipType: 'child',
+          description: 'Erbschaft mit Kosten',
+        },
+        ter: 0.75,
+        transactionCostPercent: 0.25,
+        transactionCostAbsolute: 15.0,
+      },
+    ]
+
+    const result = formatParametersForExport(mockContext)
+
+    expect(result).toContain('Erbschaft 1:')
+    expect(result).toContain('TER: 0.75 %')
+    expect(result).toContain('Transaktionskosten: 0.25 %')
+    expect(result).toContain('Absolute Transaktionskosten: 15,00\u00A0€')
   })
 })
