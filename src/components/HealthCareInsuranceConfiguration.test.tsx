@@ -52,7 +52,7 @@ describe('HealthCareInsuranceConfiguration', () => {
   })
 
   it('displays correct mode in title for statutory insurance', () => {
-    const statutoryValues = { ...defaultValues, insuranceType: 'statutory' as const }
+    const statutoryValues = { ...defaultValues, enabled: true, insuranceType: 'statutory' as const }
 
     render(
       <HealthCareInsuranceConfiguration
@@ -65,7 +65,7 @@ describe('HealthCareInsuranceConfiguration', () => {
   })
 
   it('displays correct mode in title for private insurance', () => {
-    const privateValues = { ...defaultValues, insuranceType: 'private' as const }
+    const privateValues = { ...defaultValues, enabled: true, insuranceType: 'private' as const }
 
     render(
       <HealthCareInsuranceConfiguration
