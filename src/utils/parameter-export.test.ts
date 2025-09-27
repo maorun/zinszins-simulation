@@ -515,7 +515,6 @@ describe('Parameter Export', () => {
         'Failed to copy parameters to clipboard:',
         expect.any(Error),
       )
-
     })
   })
 })
@@ -681,13 +680,13 @@ describe('Parameter Export Special Events', () => {
     expect(result).toContain('Sparplan 1:')
     expect(result).toContain('Betrag: 24.000,00\u00A0€')
     expect(result).toContain('Ende: Unbegrenzt')
-    
+
     expect(result).toContain('Erbschaft 2:')
     expect(result).toContain('Verwandtschaftsgrad: spouse')
-    
+
     expect(result).toContain('Einmalzahlung 3:')
     expect(result).toContain('Betrag: 5.000,00\u00A0€')
-    
+
     expect(result).toContain('Ausgabe 4:')
     expect(result).toContain('Betrag: 15.000,00\u00A0€ (Ausgabe)')
     expect(result).toContain('Ausgabentyp: medical')
@@ -724,7 +723,7 @@ describe('Parameter Export Special Events', () => {
     expect(result).toContain('Verwandtschaftsgrad: sibling')
     expect(result).not.toContain('Brutto-Erbschaft:')
     expect(result).not.toContain('Beschreibung:')
-    
+
     expect(result).toContain('Ausgabe 2:')
     expect(result).toContain('Ausgabentyp: other')
     expect(result).not.toContain('Kredit:')

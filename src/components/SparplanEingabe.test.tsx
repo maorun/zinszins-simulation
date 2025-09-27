@@ -216,17 +216,17 @@ describe('SparplanEingabe Special Events', () => {
   describe('Special Events Section', () => {
     it('should render special events section', () => {
       render(<SparplanEingabe {...defaultProps} />)
-      
+
       expect(screen.getByText('🎯 Sonderereignisse erstellen')).toBeInTheDocument()
     })
 
     it('should expand special events form when clicked', async () => {
       const user = userEvent.setup()
       render(<SparplanEingabe {...defaultProps} />)
-      
+
       // Click on the special events section
       await user.click(screen.getByText('🎯 Sonderereignisse erstellen'))
-      
+
       // Should show form fields
       expect(screen.getByText('Erstellen Sie besondere Ereignisse wie Erbschaften oder größere Ausgaben')).toBeInTheDocument()
       expect(screen.getByText('Ereignistyp')).toBeInTheDocument()
@@ -237,14 +237,14 @@ describe('SparplanEingabe Special Events', () => {
     it('should show inheritance tax calculation for child relationship', async () => {
       const user = userEvent.setup()
       render(<SparplanEingabe {...defaultProps} />)
-      
+
       // Expand the special events section
       await user.click(screen.getByText('🎯 Sonderereignisse erstellen'))
-      
+
       // Fill in inheritance amount
       const amountInput = screen.getByPlaceholderText('z.B. 100000')
       await user.type(amountInput, '100000')
-      
+
       // Should show tax calculation
       expect(screen.getByText(/Steuerberechnung:/)).toBeInTheDocument()
       expect(screen.getByText('Brutto-Erbschaft: 100.000 €')).toBeInTheDocument()
@@ -256,21 +256,21 @@ describe('SparplanEingabe Special Events', () => {
     it('should add inheritance event successfully', async () => {
       const user = userEvent.setup()
       render(<SparplanEingabe {...defaultProps} />)
-      
+
       // Expand and fill form
       await user.click(screen.getByText('🎯 Sonderereignisse erstellen'))
-      
+
       const amountInput = screen.getByPlaceholderText('z.B. 100000')
       await user.type(amountInput, '50000')
-      
+
       const descriptionInput = screen.getByPlaceholderText('z.B. Erbschaft Großeltern, Neuwagenkauf')
       await user.type(descriptionInput, 'Erbschaft Großeltern')
-      
+
       // Submit the form
       const submitButton = screen.getByText('💰 Erbschaft hinzufügen')
       expect(submitButton).not.toBeDisabled()
       await user.click(submitButton)
-      
+
       // Should call dispatch with correct data
       expect(mockDispatch).toHaveBeenCalledWith(
         expect.arrayContaining([
@@ -292,12 +292,12 @@ describe('SparplanEingabe Special Events', () => {
     it('should show expense form when expense is selected', async () => {
       const user = userEvent.setup()
       render(<SparplanEingabe {...defaultProps} />)
-      
+
       // Expand and switch to expense
       await user.click(screen.getByText('🎯 Sonderereignisse erstellen'))
       const eventTypeSelect = screen.getByDisplayValue('💰 Erbschaft')
       await user.selectOptions(eventTypeSelect, 'expense')
-      
+
       // Should show expense-specific fields
       expect(screen.getByText('Ausgabentyp')).toBeInTheDocument()
       expect(screen.getByText('Ausgabenbetrag (€)')).toBeInTheDocument()
@@ -307,16 +307,16 @@ describe('SparplanEingabe Special Events', () => {
     it('should show credit fields when credit option is enabled', async () => {
       const user = userEvent.setup()
       render(<SparplanEingabe {...defaultProps} />)
-      
+
       // Setup expense form with credit
       await user.click(screen.getByText('🎯 Sonderereignisse erstellen'))
       const eventTypeSelect = screen.getByDisplayValue('💰 Erbschaft')
       await user.selectOptions(eventTypeSelect, 'expense')
-      
+
       // Enable credit financing
       const creditCheckbox = screen.getByLabelText(/Mit Kredit finanzieren/)
       await user.click(creditCheckbox)
-      
+
       // Should show credit fields with defaults
       expect(screen.getByText('Zinssatz (% p.a.)')).toBeInTheDocument()
       expect(screen.getByText('Laufzeit (Jahre)')).toBeInTheDocument()
@@ -327,25 +327,25 @@ describe('SparplanEingabe Special Events', () => {
     it('should add expense event with credit', async () => {
       const user = userEvent.setup()
       render(<SparplanEingabe {...defaultProps} />)
-      
+
       // Setup expense with credit
       await user.click(screen.getByText('🎯 Sonderereignisse erstellen'))
       const eventTypeSelect = screen.getByDisplayValue('💰 Erbschaft')
       await user.selectOptions(eventTypeSelect, 'expense')
-      
+
       const amountInput = screen.getByPlaceholderText('z.B. 25000')
       await user.type(amountInput, '30000')
-      
+
       const creditCheckbox = screen.getByLabelText(/Mit Kredit finanzieren/)
       await user.click(creditCheckbox)
-      
+
       const descriptionInput = screen.getByPlaceholderText('z.B. Erbschaft Großeltern, Neuwagenkauf')
       await user.type(descriptionInput, 'Neuwagenkauf')
-      
+
       // Submit
       const submitButton = screen.getByText('💸 Ausgabe hinzufügen')
       await user.click(submitButton)
-      
+
       // Should call dispatch with expense data (negative amount)
       expect(mockDispatch).toHaveBeenCalledWith(
         expect.arrayContaining([
@@ -401,7 +401,7 @@ describe('SparplanEingabe Special Events', () => {
 
     it('should display inheritance events with correct details', () => {
       render(<SparplanEingabe {...defaultProps} currentSparplans={sampleSparplans} />)
-      
+
       // Should show inheritance event details
       expect(screen.getByText('🎯 Erbschaft')).toBeInTheDocument()
       expect(screen.getByText('75.000,00 €')).toBeInTheDocument()
@@ -411,7 +411,7 @@ describe('SparplanEingabe Special Events', () => {
 
     it('should display expense events with correct details', () => {
       render(<SparplanEingabe {...defaultProps} currentSparplans={sampleSparplans} />)
-      
+
       // Should show expense event details
       expect(screen.getAllByText('🎯 Ausgabe')).toHaveLength(1)
       expect(screen.getByText('20.000,00 €')).toBeInTheDocument()
@@ -422,7 +422,7 @@ describe('SparplanEingabe Special Events', () => {
 
     it('should show updated section title including special events', () => {
       render(<SparplanEingabe {...defaultProps} />)
-      
+
       expect(screen.getByText('📋 Gespeicherte Sparpläne, Einmalzahlungen & Sonderereignisse')).toBeInTheDocument()
     })
   })
@@ -431,9 +431,9 @@ describe('SparplanEingabe Special Events', () => {
     it('should disable submit button when no amount is entered', async () => {
       const user = userEvent.setup()
       render(<SparplanEingabe {...defaultProps} />)
-      
+
       await user.click(screen.getByText('🎯 Sonderereignisse erstellen'))
-      
+
       const submitButton = screen.getByText('💰 Erbschaft hinzufügen')
       expect(submitButton).toBeDisabled()
     })
@@ -441,12 +441,12 @@ describe('SparplanEingabe Special Events', () => {
     it('should enable submit button when amount is entered', async () => {
       const user = userEvent.setup()
       render(<SparplanEingabe {...defaultProps} />)
-      
+
       await user.click(screen.getByText('🎯 Sonderereignisse erstellen'))
-      
+
       const amountInput = screen.getByPlaceholderText('z.B. 100000')
       await user.type(amountInput, '50000')
-      
+
       const submitButton = screen.getByText('💰 Erbschaft hinzufügen')
       expect(submitButton).not.toBeDisabled()
     })

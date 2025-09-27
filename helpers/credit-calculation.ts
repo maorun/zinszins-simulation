@@ -125,7 +125,7 @@ export function calculateRemainingBalance(
     return (principal / totalPayments) * remainingPayments
   }
 
-  const monthlyPayment = calculateMonthlyPayment(principal, annualInterestRate, termYears)
+  // Calculate monthly payment - for reference only, not used in remaining balance calculation
   const monthlyRate = annualInterestRate / 12
   const numberOfPayments = termYears * 12
 

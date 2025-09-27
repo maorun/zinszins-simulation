@@ -70,7 +70,9 @@ export function formatParametersForExport(context: SimulationContextState): stri
       const isSpecialEvent = plan.eventType && plan.eventType !== 'normal'
       const isInheritance = plan.eventType === 'inheritance'
       const isExpense = plan.eventType === 'expense'
-      const isEinmalzahlung = plan.end && new Date(plan.start).getTime() === new Date(plan.end).getTime() && !isSpecialEvent
+      const isEinmalzahlung = plan.end
+        && new Date(plan.start).getTime() === new Date(plan.end).getTime()
+        && !isSpecialEvent
 
       let planType = 'Sparplan'
       if (isInheritance) planType = 'Erbschaft'
@@ -82,7 +84,8 @@ export function formatParametersForExport(context: SimulationContextState): stri
       lines.push(`    Start: ${plan.start}`)
       if (plan.end && !isEinmalzahlung && !isSpecialEvent) {
         lines.push(`    Ende: ${plan.end}`)
-      } else if (!isEinmalzahlung && !isSpecialEvent) {
+      }
+      else if (!isEinmalzahlung && !isSpecialEvent) {
         lines.push(`    Ende: Unbegrenzt`)
       }
 
@@ -98,7 +101,7 @@ export function formatParametersForExport(context: SimulationContextState): stri
           lines.push(`    Ausgabentyp: ${plan.specialEventData.expenseType}`)
           if (plan.specialEventData.creditTerms) {
             lines.push(`    Kredit: ${(plan.specialEventData.creditTerms.interestRate * 100).toFixed(1)}% für ${plan.specialEventData.creditTerms.termYears} Jahre`)
-            lines.push(`    Monatliche Rate: ${formatCurrency(plan.specialEventData.creditTerms.monthlyPayment)}`)
+            lines.push(`    Monatliche Rate: ${formatCurrency(plan.specialEventData.creditTerms.monthlyPayment || 0)}`)
           }
         }
         if (plan.specialEventData.description) {

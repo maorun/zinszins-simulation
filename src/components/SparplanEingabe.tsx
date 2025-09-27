@@ -279,7 +279,7 @@ export function SparplanEingabe({
         // Calculate inheritance tax
         const grossAmount = Number(specialEventFormValues.grossAmount || specialEventFormValues.amount)
         const taxCalculation = calculateInheritanceTax(grossAmount, specialEventFormValues.relationshipType)
-        
+
         finalAmount = taxCalculation.netAmount
         eventData = {
           ...eventData,
@@ -839,7 +839,7 @@ export function SparplanEingabe({
                     <Input
                       type="date"
                       value={formatDateForInput(specialEventFormValues.date, 'yyyy-MM-dd')}
-                      onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => 
+                      onChange={e => handleDateChange(e, 'yyyy-MM-dd', date =>
                         setSpecialEventFormValues({ ...specialEventFormValues, date: date! }))}
                       placeholder="Datum wählen"
                       className="w-full"
@@ -852,9 +852,9 @@ export function SparplanEingabe({
                     </Label>
                     <select
                       value={specialEventFormValues.eventType}
-                      onChange={e => setSpecialEventFormValues({ 
-                        ...specialEventFormValues, 
-                        eventType: e.target.value as 'inheritance' | 'expense' 
+                      onChange={e => setSpecialEventFormValues({
+                        ...specialEventFormValues,
+                        eventType: e.target.value as 'inheritance' | 'expense',
                       })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                     >
@@ -874,9 +874,9 @@ export function SparplanEingabe({
                         </Label>
                         <select
                           value={specialEventFormValues.relationshipType}
-                          onChange={e => setSpecialEventFormValues({ 
-                            ...specialEventFormValues, 
-                            relationshipType: e.target.value as RelationshipType 
+                          onChange={e => setSpecialEventFormValues({
+                            ...specialEventFormValues,
+                            relationshipType: e.target.value as RelationshipType,
                           })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
@@ -897,10 +897,10 @@ export function SparplanEingabe({
                         <Input
                           type="number"
                           value={specialEventFormValues.grossAmount || ''}
-                          onChange={e => setSpecialEventFormValues({ 
-                            ...specialEventFormValues, 
+                          onChange={e => setSpecialEventFormValues({
+                            ...specialEventFormValues,
                             grossAmount: e.target.value,
-                            amount: e.target.value // Auto-sync with amount field
+                            amount: e.target.value, // Auto-sync with amount field
                           })}
                           placeholder="z.B. 100000"
                           className="w-full"
@@ -921,10 +921,30 @@ export function SparplanEingabe({
                             const calc = calculateInheritanceTax(grossAmount, specialEventFormValues.relationshipType)
                             return (
                               <div className="text-sm text-green-700 space-y-1">
-                                <div>Brutto-Erbschaft: {grossAmount.toLocaleString('de-DE')} €</div>
-                                <div>Freibetrag: {calc.exemption.toLocaleString('de-DE')} €</div>
-                                <div>Erbschaftsteuer: {calc.tax.toLocaleString('de-DE')} €</div>
-                                <div className="font-semibold">Netto-Erbschaft: {calc.netAmount.toLocaleString('de-DE')} €</div>
+                                <div>
+                                  Brutto-Erbschaft:
+                                  {grossAmount.toLocaleString('de-DE')}
+                                  {' '}
+                                  €
+                                </div>
+                                <div>
+                                  Freibetrag:
+                                  {calc.exemption.toLocaleString('de-DE')}
+                                  {' '}
+                                  €
+                                </div>
+                                <div>
+                                  Erbschaftsteuer:
+                                  {calc.tax.toLocaleString('de-DE')}
+                                  {' '}
+                                  €
+                                </div>
+                                <div className="font-semibold">
+                                  Netto-Erbschaft:
+                                  {calc.netAmount.toLocaleString('de-DE')}
+                                  {' '}
+                                  €
+                                </div>
                               </div>
                             )
                           }
@@ -945,9 +965,9 @@ export function SparplanEingabe({
                         </Label>
                         <select
                           value={specialEventFormValues.expenseType}
-                          onChange={e => setSpecialEventFormValues({ 
-                            ...specialEventFormValues, 
-                            expenseType: e.target.value as ExpenseType 
+                          onChange={e => setSpecialEventFormValues({
+                            ...specialEventFormValues,
+                            expenseType: e.target.value as ExpenseType,
                           })}
                           className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
@@ -966,9 +986,9 @@ export function SparplanEingabe({
                         <Input
                           type="number"
                           value={specialEventFormValues.amount || ''}
-                          onChange={e => setSpecialEventFormValues({ 
-                            ...specialEventFormValues, 
-                            amount: e.target.value 
+                          onChange={e => setSpecialEventFormValues({
+                            ...specialEventFormValues,
+                            amount: e.target.value,
                           })}
                           placeholder="z.B. 25000"
                           className="w-full"
@@ -984,9 +1004,9 @@ export function SparplanEingabe({
                           type="checkbox"
                           id="useCredit"
                           checked={specialEventFormValues.useCredit}
-                          onChange={e => setSpecialEventFormValues({ 
-                            ...specialEventFormValues, 
-                            useCredit: e.target.checked 
+                          onChange={e => setSpecialEventFormValues({
+                            ...specialEventFormValues,
+                            useCredit: e.target.checked,
                           })}
                           className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
                         />
@@ -1006,9 +1026,9 @@ export function SparplanEingabe({
                           <Input
                             type="number"
                             value={specialEventFormValues.interestRate || ''}
-                            onChange={e => setSpecialEventFormValues({ 
-                              ...specialEventFormValues, 
-                              interestRate: e.target.value 
+                            onChange={e => setSpecialEventFormValues({
+                              ...specialEventFormValues,
+                              interestRate: e.target.value,
                             })}
                             placeholder="z.B. 4.5"
                             className="w-full"
@@ -1025,9 +1045,9 @@ export function SparplanEingabe({
                           <Input
                             type="number"
                             value={specialEventFormValues.termYears || ''}
-                            onChange={e => setSpecialEventFormValues({ 
-                              ...specialEventFormValues, 
-                              termYears: e.target.value 
+                            onChange={e => setSpecialEventFormValues({
+                              ...specialEventFormValues,
+                              termYears: e.target.value,
                             })}
                             placeholder="z.B. 5"
                             className="w-full"
@@ -1049,9 +1069,9 @@ export function SparplanEingabe({
                   <Input
                     type="text"
                     value={specialEventFormValues.description || ''}
-                    onChange={e => setSpecialEventFormValues({ 
-                      ...specialEventFormValues, 
-                      description: e.target.value 
+                    onChange={e => setSpecialEventFormValues({
+                      ...specialEventFormValues,
+                      description: e.target.value,
                     })}
                     placeholder="z.B. Erbschaft Großeltern, Neuwagenkauf"
                     className="w-full"
@@ -1103,7 +1123,7 @@ export function SparplanEingabe({
                     // Detect if this is a one-time payment (start and end dates are the same)
                     const isEinmalzahlung = sparplan.end
                       && new Date(sparplan.start).getTime() === new Date(sparplan.end).getTime()
-                    
+
                     // Detect if this is a special event
                     const isSpecialEvent = sparplan.eventType && sparplan.eventType !== 'normal'
                     const isInheritance = sparplan.eventType === 'inheritance'
@@ -1212,7 +1232,7 @@ export function SparplanEingabe({
                               })()}
                             </span>
                           </div>
-                          
+
                           {/* Special event details */}
                           {isSpecialEvent && sparplan.specialEventData && (
                             <>
@@ -1244,7 +1264,10 @@ export function SparplanEingabe({
                                 <div className="flex justify-between items-center">
                                   <span className="text-sm font-medium text-gray-600">💳 Kredit:</span>
                                   <span className="text-sm font-semibold text-red-600">
-                                    {(sparplan.specialEventData.creditTerms.interestRate * 100).toFixed(1)}% / {sparplan.specialEventData.creditTerms.termYears}J
+                                    {(sparplan.specialEventData.creditTerms.interestRate * 100).toFixed(1)}
+                                    % /
+                                    {sparplan.specialEventData.creditTerms.termYears}
+                                    J
                                   </span>
                                 </div>
                               )}
@@ -1264,7 +1287,7 @@ export function SparplanEingabe({
                                   <Input
                                     type="date"
                                     value={formatDateForInput(singleFormValue.date, 'yyyy-MM-dd')}
-                                    onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => setSingleFormValue({ ...singleFormValue, date }))}
+                                    onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => setSingleFormValue({ ...singleFormValue, date: date || new Date() }))}
                                     className="mt-1"
                                   />
                                 </div>
@@ -1278,7 +1301,7 @@ export function SparplanEingabe({
                                     <Input
                                       type="month"
                                       value={formatDateForInput(sparplanFormValues.start, 'yyyy-MM')}
-                                      onChange={e => handleDateChange(e, 'yyyy-MM', date => setSparplanFormValues({ ...sparplanFormValues, start: date }))}
+                                      onChange={e => handleDateChange(e, 'yyyy-MM', date => setSparplanFormValues({ ...sparplanFormValues, start: date || new Date() }))}
                                       className="mt-1"
                                     />
                                   </div>

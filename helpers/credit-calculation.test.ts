@@ -98,7 +98,7 @@ describe('credit-calculation', () => {
       expect(schedule[1].endingBalance).toBeCloseTo(schedule[2].beginningBalance, 2)
 
       // Payment should equal principal + interest each year
-      schedule.forEach(year => {
+      schedule.forEach((year) => {
         expect(year.payment).toBeCloseTo(year.principal + year.interest, 2)
       })
     })
