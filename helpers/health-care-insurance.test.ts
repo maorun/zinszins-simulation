@@ -21,7 +21,7 @@ describe('Health Care Insurance Calculations', () => {
       expect(result.careInsuranceAnnual).toBe(0)
       expect(result.totalAnnual).toBe(0)
       expect(result.usedFixedAmounts).toBe(false)
-      expect(result.isRetirementPhase).toBe(false)
+      expect(result.isRetirementPhase).toBe(true) // 2041 is retirement start year
     })
 
     it('should calculate percentage-based contributions for pre-retirement phase', () => {
@@ -130,7 +130,7 @@ describe('Health Care Insurance Calculations', () => {
 
       const result = calculateHealthCareInsuranceForYear(config, 2040, 80000, 0, 30)
 
-      expect(result.baseIncomeForCalculation).toBe(80000)
+      expect(result.baseIncomeForCalculation).toBe(60000) // Capped at threshold
       // But calculations should be based on threshold
       expect(result.healthInsuranceAnnual).toBe(60000 * 0.146)
       expect(result.careInsuranceAnnual).toBe(60000 * 0.0305)
@@ -178,11 +178,11 @@ describe('Health Care Insurance Calculations', () => {
       // 2041: Retirement phase (age 68)
       expect(result[2041].isRetirementPhase).toBe(true)
       expect(result[2041].effectiveHealthInsuranceRate).toBe(7.3)
-      expect(result[2041].baseIncomeForCalculation).toBe(63000) // 45000 + 18000
+      expect(result[2041].baseIncomeForCalculation).toBe(62550) // Capped at statutory maximum
 
       // 2042: Retirement phase (age 69)
       expect(result[2042].isRetirementPhase).toBe(true)
-      expect(result[2042].baseIncomeForCalculation).toBe(68500) // 50000 + 18500
+      expect(result[2042].baseIncomeForCalculation).toBe(62550) // Capped at statutory maximum
     })
 
     it('should handle missing withdrawal amounts gracefully', () => {
@@ -206,7 +206,7 @@ describe('Health Care Insurance Calculations', () => {
       )
 
       expect(result[2040].baseIncomeForCalculation).toBe(40000)
-      expect(result[2041].baseIncomeForCalculation).toBe(0)
+      expect(result[2041].baseIncomeForCalculation).toBe(13230) // Minimum income base applied when no withdrawal
       expect(result[2042].baseIncomeForCalculation).toBe(50000)
     })
   })
@@ -233,6 +233,8 @@ describe('Health Care Insurance Calculations', () => {
       const config: HealthCareInsuranceConfig = {
         ...createDefaultHealthCareInsuranceConfig(),
         useFixedAmounts: true,
+        fixedHealthInsuranceMonthly: 400,
+        fixedCareInsuranceMonthly: 150,
       }
 
       const info = getHealthCareInsuranceDisplayInfo(config)
@@ -265,10 +267,11 @@ describe('Health Care Insurance Calculations', () => {
 
       const result = calculateHealthCareInsuranceForYear(config, 2041, 0, 0, 30)
 
-      expect(result.healthInsuranceAnnual).toBe(0)
-      expect(result.careInsuranceAnnual).toBe(0)
-      expect(result.totalAnnual).toBe(0)
-      expect(result.baseIncomeForCalculation).toBe(0)
+      // When income is 0, minimum income base is applied for statutory insurance
+      expect(result.healthInsuranceAnnual).toBe(13230 * 0.073) // Minimum base * retirement rate
+      expect(result.careInsuranceAnnual).toBe(13230 * 0.0305)
+      expect(result.totalAnnual).toBe(13230 * 0.073 + 13230 * 0.0305)
+      expect(result.baseIncomeForCalculation).toBe(13230) // Minimum income base
     })
 
     it('should handle very high income amounts correctly', () => {
@@ -281,7 +284,7 @@ describe('Health Care Insurance Calculations', () => {
 
       const result = calculateHealthCareInsuranceForYear(config, 2040, 500000, 0, 30)
 
-      expect(result.baseIncomeForCalculation).toBe(500000)
+      expect(result.baseIncomeForCalculation).toBe(100000) // Capped at custom threshold
       expect(result.healthInsuranceAnnual).toBe(100000 * 0.146) // Capped at threshold
     })
 

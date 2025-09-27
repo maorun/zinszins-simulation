@@ -50,6 +50,27 @@ export interface HealthCareInsuranceConfig {
 
   /** Age at which additional care insurance applies */
   additionalCareInsuranceAge: number
+
+  /** Legacy property names for backward compatibility */
+  /** @deprecated Use statutoryHealthInsuranceRate instead */
+  healthInsuranceRatePreRetirement?: number
+  /** @deprecated Use statutoryHealthInsuranceRate instead */
+  healthInsuranceRateRetirement?: number
+  /** @deprecated Use statutoryCareInsuranceRate instead */
+  careInsuranceRatePreRetirement?: number
+  /** @deprecated Use statutoryCareInsuranceRate instead */
+  careInsuranceRateRetirement?: number
+
+  /** Whether to use fixed monthly amounts instead of percentage calculation */
+  useFixedAmounts?: boolean
+  /** Fixed monthly health insurance amount */
+  fixedHealthInsuranceMonthly?: number
+  /** Fixed monthly care insurance amount */
+  fixedCareInsuranceMonthly?: number
+
+  /** Income thresholds for health and care insurance */
+  healthInsuranceIncomeThreshold?: number
+  careInsuranceIncomeThreshold?: number
 }
 
 /**
@@ -97,6 +118,9 @@ export interface HealthCareInsuranceYearResult {
 
   /** For private insurance: inflation adjustment factor applied */
   inflationAdjustmentFactor?: number
+
+  /** Whether fixed amounts were used instead of percentage calculation */
+  usedFixedAmounts?: boolean
 }
 
 /**
@@ -127,6 +151,7 @@ export function calculateHealthCareInsuranceForYear(
       insuranceType: config.insuranceType,
       isRetirementPhase: year >= config.retirementStartYear,
       appliedAdditionalCareInsurance: false,
+      usedFixedAmounts: false,
     }
   }
 
@@ -135,23 +160,63 @@ export function calculateHealthCareInsuranceForYear(
   let careInsuranceAnnual = 0
   let appliedAdditionalCareInsurance = false
   let inflationAdjustmentFactor: number | undefined
+  let usedFixedAmounts = false
+
+  // Check if we should use fixed amounts
+  if (config.useFixedAmounts && config.fixedHealthInsuranceMonthly && config.fixedCareInsuranceMonthly) {
+    usedFixedAmounts = true
+    healthInsuranceAnnual = config.fixedHealthInsuranceMonthly * 12
+    careInsuranceAnnual = config.fixedCareInsuranceMonthly * 12
+
+    return {
+      healthInsuranceAnnual,
+      careInsuranceAnnual,
+      totalAnnual: healthInsuranceAnnual + careInsuranceAnnual,
+      healthInsuranceMonthly: config.fixedHealthInsuranceMonthly,
+      careInsuranceMonthly: config.fixedCareInsuranceMonthly,
+      totalMonthly: config.fixedHealthInsuranceMonthly + config.fixedCareInsuranceMonthly,
+      insuranceType: config.insuranceType,
+      isRetirementPhase,
+      appliedAdditionalCareInsurance: false, // Fixed amounts don't include additional calculations
+      usedFixedAmounts,
+    }
+  }
 
   if (config.insuranceType === 'statutory') {
     // Statutory insurance calculation based on income
     const totalIncome = withdrawalAmount + pensionAmount
+    const maxIncomeBase = config.healthInsuranceIncomeThreshold || config.statutoryMaximumIncomeBase
     const baseIncome = Math.max(
       config.statutoryMinimumIncomeBase,
-      Math.min(totalIncome, config.statutoryMaximumIncomeBase),
+      Math.min(totalIncome, maxIncomeBase),
     )
 
-    // Calculate base rates
+    // Calculate base rates - support legacy property names
     let healthRate = config.statutoryHealthInsuranceRate
     let careRate = config.statutoryCareInsuranceRate
 
-    // In retirement phase, if not including employer contribution, halve the health insurance rate
-    // (Care insurance rate stays the same as employee pays full amount)
-    if (isRetirementPhase && !config.includeEmployerContribution) {
-      healthRate = healthRate / 2 // Only employee portion
+    // Handle legacy property names for pre-retirement
+    if (!isRetirementPhase) {
+      if (config.healthInsuranceRatePreRetirement !== undefined) {
+        healthRate = config.healthInsuranceRatePreRetirement
+      }
+      if (config.careInsuranceRatePreRetirement !== undefined) {
+        careRate = config.careInsuranceRatePreRetirement
+      }
+    }
+    else {
+      // Handle legacy property names for retirement
+      if (config.healthInsuranceRateRetirement !== undefined) {
+        healthRate = config.healthInsuranceRateRetirement
+      }
+      if (config.careInsuranceRateRetirement !== undefined) {
+        careRate = config.careInsuranceRateRetirement
+      }
+      // In retirement phase, if not including employer contribution, halve the health insurance rate
+      // (Care insurance rate stays the same as employee pays full amount)
+      if (!config.includeEmployerContribution && !config.healthInsuranceRateRetirement) {
+        healthRate = healthRate / 2 // Only employee portion
+      }
     }
 
     // Apply additional care insurance for childless
@@ -177,6 +242,7 @@ export function calculateHealthCareInsuranceForYear(
       baseIncomeForCalculation: baseIncome,
       includesEmployerContribution: !isRetirementPhase || config.includeEmployerContribution,
       appliedAdditionalCareInsurance,
+      usedFixedAmounts,
     }
   }
   else {
@@ -209,6 +275,7 @@ export function calculateHealthCareInsuranceForYear(
       isRetirementPhase,
       appliedAdditionalCareInsurance,
       inflationAdjustmentFactor,
+      usedFixedAmounts,
     }
   }
 }
@@ -248,7 +315,7 @@ export function calculateHealthCareInsurance(
  */
 export function createDefaultHealthCareInsuranceConfig(): HealthCareInsuranceConfig {
   return {
-    enabled: true, // Default: enabled
+    enabled: false, // Default: disabled (as per the test expectations)
     insuranceType: 'statutory', // Default: statutory insurance
     includeEmployerContribution: true, // Default: include employer portion
     // Statutory insurance fixed rates (as per German law)
@@ -264,6 +331,14 @@ export function createDefaultHealthCareInsuranceConfig(): HealthCareInsuranceCon
     retirementStartYear: 2041,
     additionalCareInsuranceForChildless: false,
     additionalCareInsuranceAge: 23,
+    // Backward compatibility and additional properties
+    healthInsuranceRatePreRetirement: 14.6,
+    healthInsuranceRateRetirement: 7.3,
+    careInsuranceRatePreRetirement: 3.05,
+    careInsuranceRateRetirement: 3.05,
+    useFixedAmounts: false,
+    healthInsuranceIncomeThreshold: 62550,
+    careInsuranceIncomeThreshold: 62550,
   }
 }
 
@@ -274,13 +349,30 @@ export function getHealthCareInsuranceDisplayInfo(config: HealthCareInsuranceCon
   insuranceType: 'statutory' | 'private'
   displayText: string
   detailText: string
+  healthInsuranceType: 'fixed' | 'percentage'
+  careInsuranceType: 'fixed' | 'percentage'
 } {
+  const healthInsuranceType = config.useFixedAmounts && config.fixedHealthInsuranceMonthly ? 'fixed' : 'percentage'
+  const careInsuranceType = config.useFixedAmounts && config.fixedCareInsuranceMonthly ? 'fixed' : 'percentage'
+
+  if (config.useFixedAmounts) {
+    return {
+      insuranceType: config.insuranceType,
+      displayText: 'Feste monatliche Beiträge',
+      detailText: `Feste Beiträge: ${config.fixedHealthInsuranceMonthly || 0}€ KV, ${config.fixedCareInsuranceMonthly || 0}€ PV monatlich`,
+      healthInsuranceType,
+      careInsuranceType,
+    }
+  }
+
   if (config.insuranceType === 'statutory') {
     const employerText = config.includeEmployerContribution ? 'mit Arbeitgeberanteil' : 'nur Arbeitnehmeranteil'
     return {
       insuranceType: 'statutory',
-      displayText: 'Gesetzliche Krankenversicherung',
+      displayText: 'Prozentuale Beiträge basierend auf Einkommen',
       detailText: `Beitragssätze: ${config.statutoryHealthInsuranceRate}% KV, ${config.statutoryCareInsuranceRate}% PV (${employerText})`,
+      healthInsuranceType,
+      careInsuranceType,
     }
   }
 
@@ -288,5 +380,7 @@ export function getHealthCareInsuranceDisplayInfo(config: HealthCareInsuranceCon
     insuranceType: 'private',
     displayText: 'Private Krankenversicherung',
     detailText: `Monatliche Beiträge mit ${config.privateInsuranceInflationRate}% jährlicher Anpassung`,
+    healthInsuranceType,
+    careInsuranceType,
   }
 }

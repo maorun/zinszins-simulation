@@ -7,15 +7,9 @@ describe('Withdrawal with Health Care Insurance Integration', () => {
   // Helper function to create test elements
   const createTestElements = (): SparplanElement[] => [
     {
-      id: 'test-1',
-      name: 'Test Investment',
       type: 'sparplan',
       start: '2024-01-01',
       einzahlung: 24000,
-      betrag: 2000,
-      jahresrendite: 0.05,
-      teilfreistellungsquote: 0.3,
-      thesaurierend: true,
       simulation: {
         2039: {
           startkapital: 480000,
@@ -226,15 +220,9 @@ describe('Withdrawal with Health Care Insurance Integration', () => {
     // Create elements with small capital
     const elements: SparplanElement[] = [
       {
-        id: 'test-1',
-        name: 'Test Investment',
         type: 'sparplan',
         start: '2024-01-01',
         einzahlung: 1000,
-        betrag: 100,
-        jahresrendite: 0.05,
-        teilfreistellungsquote: 0.3,
-        thesaurierend: true,
         simulation: {
           2039: {
             startkapital: 950,
@@ -272,9 +260,11 @@ describe('Withdrawal with Health Care Insurance Integration', () => {
     expect(result[2040].healthCareInsurance!.totalAnnual).toBeGreaterThan(0)
     expect(result[2040].healthCareInsurance!.isRetirementPhase).toBe(true)
 
-    // Health care insurance should be calculated based on the small withdrawal amount
-    const expectedHealthInsurance = 40 * 0.073 // 7.3% (retirement rate)
-    const expectedCareInsurance = 40 * 0.0305 // 3.05%
+    // Health care insurance should be calculated based on the minimum income base since withdrawal is very small
+    // German statutory insurance has a minimum contribution base of 13,230€ annually
+    const minimumIncomeBase = 13230
+    const expectedHealthInsurance = minimumIncomeBase * 0.073 // 7.3% (retirement rate)
+    const expectedCareInsurance = minimumIncomeBase * 0.0305 // 3.05%
     expect(result[2040].healthCareInsurance!.healthInsuranceAnnual).toBeCloseTo(expectedHealthInsurance, 2)
     expect(result[2040].healthCareInsurance!.careInsuranceAnnual).toBeCloseTo(expectedCareInsurance, 2)
   })
