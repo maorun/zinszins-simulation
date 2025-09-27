@@ -260,9 +260,11 @@ describe('Withdrawal with Health Care Insurance Integration', () => {
     expect(result[2040].healthCareInsurance!.totalAnnual).toBeGreaterThan(0)
     expect(result[2040].healthCareInsurance!.isRetirementPhase).toBe(true)
 
-    // Health care insurance should be calculated based on the small withdrawal amount
-    const expectedHealthInsurance = 40 * 0.073 // 7.3% (retirement rate)
-    const expectedCareInsurance = 40 * 0.0305 // 3.05%
+    // Health care insurance should be calculated based on the minimum income base since withdrawal is very small
+    // German statutory insurance has a minimum contribution base of 13,230€ annually
+    const minimumIncomeBase = 13230
+    const expectedHealthInsurance = minimumIncomeBase * 0.073 // 7.3% (retirement rate)
+    const expectedCareInsurance = minimumIncomeBase * 0.0305 // 3.05%
     expect(result[2040].healthCareInsurance!.healthInsuranceAnnual).toBeCloseTo(expectedHealthInsurance, 2)
     expect(result[2040].healthCareInsurance!.careInsuranceAnnual).toBeCloseTo(expectedCareInsurance, 2)
   })

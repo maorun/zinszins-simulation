@@ -702,7 +702,7 @@ export function calculateWithdrawal({
             healthInsuranceMonthly: healthCareInsuranceData.healthInsuranceMonthly,
             careInsuranceMonthly: healthCareInsuranceData.careInsuranceMonthly,
             totalMonthly: healthCareInsuranceData.totalMonthly,
-            usedFixedAmounts: healthCareInsuranceData.insuranceType === 'private', // Use insuranceType as a proxy
+            usedFixedAmounts: healthCareInsuranceData.usedFixedAmounts || false,
             isRetirementPhase: healthCareInsuranceData.isRetirementPhase,
             effectiveHealthInsuranceRate: healthCareInsuranceData.effectiveHealthInsuranceRate || 0,
             effectiveCareInsuranceRate: healthCareInsuranceData.effectiveCareInsuranceRate || 0,
