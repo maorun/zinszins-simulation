@@ -1,7 +1,9 @@
 import type { SimulationAnnualType } from '../utils/simulate'
 import { SimulationAnnual } from '../utils/simulate'
-import type { Sparplan } from '../utils/sparplan-utils'
+import type { Sparplan, RelationshipType, ExpenseType, SpecialEventData } from '../utils/sparplan-utils'
 import { initialSparplan } from '../utils/sparplan-utils'
+import { getRelationshipTypeLabel, getExpenseTypeLabel, calculateInheritanceTax } from '../../helpers/inheritance-tax'
+import { getDefaultCreditTerms } from '../../helpers/credit-calculation'
 import React, { useState, useEffect } from 'react'
 
 // Simple Close icon component using modern Lucide React icons
@@ -108,6 +110,7 @@ export function SparplanEingabe({
   // Collapsible section state management
   const [isSparplanFormOpen, setIsSparplanFormOpen] = useState(false)
   const [isSingleFormOpen, setIsSingleFormOpen] = useState(false)
+  const [isSpecialEventFormOpen, setIsSpecialEventFormOpen] = useState(false)
 
   // Synchronize local state with prop changes
   useEffect(() => {
@@ -138,6 +141,39 @@ export function SparplanEingabe({
     start: new Date(),
     end: null,
     einzahlung: '',
+    ter: '',
+    transactionCostPercent: '',
+    transactionCostAbsolute: '',
+  })
+
+  // Special events form state
+  const [specialEventFormValues, setSpecialEventFormValues] = useState<{
+    date: Date
+    eventType: 'inheritance' | 'expense'
+    amount: string
+    description: string
+    // Inheritance specific
+    relationshipType: RelationshipType
+    grossAmount: string
+    // Expense specific
+    expenseType: ExpenseType
+    useCredit: boolean
+    interestRate: string
+    termYears: string
+    ter: string
+    transactionCostPercent: string
+    transactionCostAbsolute: string
+  }>({
+    date: new Date(),
+    eventType: 'inheritance',
+    amount: '',
+    description: '',
+    relationshipType: 'child',
+    grossAmount: '',
+    expenseType: 'car',
+    useCredit: false,
+    interestRate: '4.5',
+    termYears: '5',
     ter: '',
     transactionCostPercent: '',
     transactionCostAbsolute: '',
@@ -229,6 +265,86 @@ export function SparplanEingabe({
     dispatch(changedSparplans)
 
     toast.info('Sparplan entfernt')
+  }
+
+  const handleSpecialEventSubmit = () => {
+    if (specialEventFormValues.date && specialEventFormValues.amount) {
+      let finalAmount = Number(specialEventFormValues.amount)
+      let eventData: SpecialEventData = {
+        description: specialEventFormValues.description,
+        taxRelevant: true,
+      }
+
+      if (specialEventFormValues.eventType === 'inheritance') {
+        // Calculate inheritance tax
+        const grossAmount = Number(specialEventFormValues.grossAmount || specialEventFormValues.amount)
+        const taxCalculation = calculateInheritanceTax(grossAmount, specialEventFormValues.relationshipType)
+        
+        finalAmount = taxCalculation.netAmount
+        eventData = {
+          ...eventData,
+          relationshipType: specialEventFormValues.relationshipType,
+          grossInheritanceAmount: grossAmount,
+        }
+      }
+      else if (specialEventFormValues.eventType === 'expense') {
+        // Handle expense event - negative amount
+        finalAmount = -Math.abs(finalAmount)
+        eventData = {
+          ...eventData,
+          expenseType: specialEventFormValues.expenseType,
+        }
+
+        if (specialEventFormValues.useCredit) {
+          eventData.creditTerms = {
+            interestRate: Number(specialEventFormValues.interestRate) / 100,
+            termYears: Number(specialEventFormValues.termYears),
+            monthlyPayment: getDefaultCreditTerms(
+              specialEventFormValues.expenseType,
+              Math.abs(finalAmount),
+            ).monthlyPayment,
+          }
+        }
+      }
+
+      const newSparplan: Sparplan = {
+        id: Math.max(...sparplans.map(s => s.id), 0) + 1,
+        start: specialEventFormValues.date,
+        end: specialEventFormValues.date, // Special events are one-time
+        einzahlung: finalAmount,
+        eventType: specialEventFormValues.eventType,
+        specialEventData: eventData,
+        ter: specialEventFormValues.ter ? Number(specialEventFormValues.ter) : undefined,
+        transactionCostPercent: specialEventFormValues.transactionCostPercent
+          ? Number(specialEventFormValues.transactionCostPercent) : undefined,
+        transactionCostAbsolute: specialEventFormValues.transactionCostAbsolute
+          ? Number(specialEventFormValues.transactionCostAbsolute) : undefined,
+      }
+
+      const changedSparplans = [...sparplans, newSparplan]
+      setSparplans(changedSparplans)
+      dispatch(changedSparplans)
+
+      // Reset form
+      setSpecialEventFormValues({
+        date: new Date(),
+        eventType: 'inheritance',
+        amount: '',
+        description: '',
+        relationshipType: 'child',
+        grossAmount: '',
+        expenseType: 'car',
+        useCredit: false,
+        interestRate: '4.5',
+        termYears: '5',
+        ter: '',
+        transactionCostPercent: '',
+        transactionCostAbsolute: '',
+      })
+
+      const eventTypeName = specialEventFormValues.eventType === 'inheritance' ? 'Erbschaft' : 'Ausgabe'
+      toast.success(`${eventTypeName} erfolgreich hinzugefügt!`)
+    }
   }
 
   // Edit handlers
@@ -694,11 +810,278 @@ export function SparplanEingabe({
       </Card>
 
       <Card className="mb-6">
+        <Collapsible open={isSpecialEventFormOpen} onOpenChange={setIsSpecialEventFormOpen}>
+          <CardHeader className="pb-4">
+            <CollapsibleTrigger asChild>
+              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+                <CardTitle className="text-left text-lg">🎯 Sonderereignisse erstellen</CardTitle>
+                <ChevronDown className="h-5 w-5 text-gray-500" />
+              </div>
+            </CollapsibleTrigger>
+          </CardHeader>
+          <CollapsibleContent>
+            <CardContent className="pt-0">
+              <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
+                Erstellen Sie besondere Ereignisse wie Erbschaften oder größere Ausgaben
+              </div>
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault()
+                  handleSpecialEventSubmit()
+                }}
+              >
+                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                  <div className="mb-4 space-y-2">
+                    <Label>
+                      Datum
+                      <InfoIcon />
+                    </Label>
+                    <Input
+                      type="date"
+                      value={formatDateForInput(specialEventFormValues.date, 'yyyy-MM-dd')}
+                      onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => 
+                        setSpecialEventFormValues({ ...specialEventFormValues, date: date! }))}
+                      placeholder="Datum wählen"
+                      className="w-full"
+                    />
+                  </div>
+                  <div className="mb-4 space-y-2">
+                    <Label>
+                      Ereignistyp
+                      <InfoIcon />
+                    </Label>
+                    <select
+                      value={specialEventFormValues.eventType}
+                      onChange={e => setSpecialEventFormValues({ 
+                        ...specialEventFormValues, 
+                        eventType: e.target.value as 'inheritance' | 'expense' 
+                      })}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    >
+                      <option value="inheritance">💰 Erbschaft</option>
+                      <option value="expense">💸 Ausgabe</option>
+                    </select>
+                  </div>
+                </div>
+
+                {specialEventFormValues.eventType === 'inheritance' && (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                      <div className="mb-4 space-y-2">
+                        <Label>
+                          Verwandtschaftsgrad
+                          <InfoIcon />
+                        </Label>
+                        <select
+                          value={specialEventFormValues.relationshipType}
+                          onChange={e => setSpecialEventFormValues({ 
+                            ...specialEventFormValues, 
+                            relationshipType: e.target.value as RelationshipType 
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="spouse">Ehegatte/Ehegattin (€500.000 Freibetrag)</option>
+                          <option value="child">Kind/Stiefkind (€400.000 Freibetrag)</option>
+                          <option value="grandchild">Enkelkind (€200.000 Freibetrag)</option>
+                          <option value="parent_from_descendant">Eltern v. Nachkommen (€100.000 Freibetrag)</option>
+                          <option value="parent_other">Eltern sonstige (€20.000 Freibetrag)</option>
+                          <option value="sibling">Geschwister (€20.000 Freibetrag)</option>
+                          <option value="other">Sonstige/Nicht verwandt (€20.000 Freibetrag)</option>
+                        </select>
+                      </div>
+                      <div className="mb-4 space-y-2">
+                        <Label>
+                          Brutto-Erbschaft (€)
+                          <InfoIcon />
+                        </Label>
+                        <Input
+                          type="number"
+                          value={specialEventFormValues.grossAmount || ''}
+                          onChange={e => setSpecialEventFormValues({ 
+                            ...specialEventFormValues, 
+                            grossAmount: e.target.value,
+                            amount: e.target.value // Auto-sync with amount field
+                          })}
+                          placeholder="z.B. 100000"
+                          className="w-full"
+                          min={0}
+                          step={1}
+                        />
+                        <div className="text-sm text-muted-foreground mt-1">
+                          Bruttobetrag vor Erbschaftsteuer
+                        </div>
+                      </div>
+                    </div>
+                    {specialEventFormValues.grossAmount && (
+                      <div className="mb-4 p-3 bg-green-50 border border-green-200 rounded-md">
+                        <div className="text-sm font-semibold text-green-800 mb-2">💡 Steuerberechnung:</div>
+                        {(() => {
+                          const grossAmount = Number(specialEventFormValues.grossAmount)
+                          if (grossAmount > 0) {
+                            const calc = calculateInheritanceTax(grossAmount, specialEventFormValues.relationshipType)
+                            return (
+                              <div className="text-sm text-green-700 space-y-1">
+                                <div>Brutto-Erbschaft: {grossAmount.toLocaleString('de-DE')} €</div>
+                                <div>Freibetrag: {calc.exemption.toLocaleString('de-DE')} €</div>
+                                <div>Erbschaftsteuer: {calc.tax.toLocaleString('de-DE')} €</div>
+                                <div className="font-semibold">Netto-Erbschaft: {calc.netAmount.toLocaleString('de-DE')} €</div>
+                              </div>
+                            )
+                          }
+                          return null
+                        })()}
+                      </div>
+                    )}
+                  </>
+                )}
+
+                {specialEventFormValues.eventType === 'expense' && (
+                  <>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                      <div className="mb-4 space-y-2">
+                        <Label>
+                          Ausgabentyp
+                          <InfoIcon />
+                        </Label>
+                        <select
+                          value={specialEventFormValues.expenseType}
+                          onChange={e => setSpecialEventFormValues({ 
+                            ...specialEventFormValues, 
+                            expenseType: e.target.value as ExpenseType 
+                          })}
+                          className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        >
+                          <option value="car">🚗 Autokauf</option>
+                          <option value="real_estate">🏠 Immobilienkauf</option>
+                          <option value="education">🎓 Bildungsausgaben</option>
+                          <option value="medical">🏥 Medizinische Ausgaben</option>
+                          <option value="other">💰 Sonstige Ausgaben</option>
+                        </select>
+                      </div>
+                      <div className="mb-4 space-y-2">
+                        <Label>
+                          Ausgabenbetrag (€)
+                          <InfoIcon />
+                        </Label>
+                        <Input
+                          type="number"
+                          value={specialEventFormValues.amount || ''}
+                          onChange={e => setSpecialEventFormValues({ 
+                            ...specialEventFormValues, 
+                            amount: e.target.value 
+                          })}
+                          placeholder="z.B. 25000"
+                          className="w-full"
+                          min={0}
+                          step={1}
+                        />
+                      </div>
+                    </div>
+
+                    <div className="mb-4 space-y-2">
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="checkbox"
+                          id="useCredit"
+                          checked={specialEventFormValues.useCredit}
+                          onChange={e => setSpecialEventFormValues({ 
+                            ...specialEventFormValues, 
+                            useCredit: e.target.checked 
+                          })}
+                          className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        />
+                        <Label htmlFor="useCredit" className="text-sm font-medium">
+                          💳 Mit Kredit finanzieren
+                        </Label>
+                      </div>
+                    </div>
+
+                    {specialEventFormValues.useCredit && (
+                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+                        <div className="mb-4 space-y-2">
+                          <Label>
+                            Zinssatz (% p.a.)
+                            <InfoIcon />
+                          </Label>
+                          <Input
+                            type="number"
+                            value={specialEventFormValues.interestRate || ''}
+                            onChange={e => setSpecialEventFormValues({ 
+                              ...specialEventFormValues, 
+                              interestRate: e.target.value 
+                            })}
+                            placeholder="z.B. 4.5"
+                            className="w-full"
+                            min={0}
+                            max={20}
+                            step={0.1}
+                          />
+                        </div>
+                        <div className="mb-4 space-y-2">
+                          <Label>
+                            Laufzeit (Jahre)
+                            <InfoIcon />
+                          </Label>
+                          <Input
+                            type="number"
+                            value={specialEventFormValues.termYears || ''}
+                            onChange={e => setSpecialEventFormValues({ 
+                              ...specialEventFormValues, 
+                              termYears: e.target.value 
+                            })}
+                            placeholder="z.B. 5"
+                            className="w-full"
+                            min={1}
+                            max={30}
+                            step={1}
+                          />
+                        </div>
+                      </div>
+                    )}
+                  </>
+                )}
+
+                <div className="mb-4 space-y-2">
+                  <Label>
+                    Beschreibung (optional)
+                    <InfoIcon />
+                  </Label>
+                  <Input
+                    type="text"
+                    value={specialEventFormValues.description || ''}
+                    onChange={e => setSpecialEventFormValues({ 
+                      ...specialEventFormValues, 
+                      description: e.target.value 
+                    })}
+                    placeholder="z.B. Erbschaft Großeltern, Neuwagenkauf"
+                    className="w-full"
+                  />
+                </div>
+
+                <div className="mb-4 space-y-2">
+                  <div className="flex gap-2">
+                    <Button
+                      variant="default"
+                      type="submit"
+                      size="lg"
+                      disabled={!specialEventFormValues.amount}
+                    >
+                      {specialEventFormValues.eventType === 'inheritance' ? '💰 Erbschaft hinzufügen' : '💸 Ausgabe hinzufügen'}
+                    </Button>
+                  </div>
+                </div>
+              </form>
+            </CardContent>
+          </CollapsibleContent>
+        </Collapsible>
+      </Card>
+
+      <Card className="mb-6">
         <Collapsible defaultOpen={true}>
           <CardHeader className="pb-4">
             <CollapsibleTrigger asChild>
               <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-                <CardTitle className="text-left text-lg">📋 Gespeicherte Sparpläne & Einmalzahlungen</CardTitle>
+                <CardTitle className="text-left text-lg">📋 Gespeicherte Sparpläne, Einmalzahlungen & Sonderereignisse</CardTitle>
                 <ChevronDown className="h-5 w-5 text-gray-500" />
               </div>
             </CollapsibleTrigger>
@@ -710,7 +1093,7 @@ export function SparplanEingabe({
                 borderBottom: '1px solid #f0f0f0',
               }}
               >
-                Ihre konfigurierten Sparpläne und Einmalzahlungen
+                Ihre konfigurierten Sparpläne, Einmalzahlungen und Sonderereignisse
               </div>
 
               {/* Card Layout for All Devices */}
@@ -720,6 +1103,11 @@ export function SparplanEingabe({
                     // Detect if this is a one-time payment (start and end dates are the same)
                     const isEinmalzahlung = sparplan.end
                       && new Date(sparplan.start).getTime() === new Date(sparplan.end).getTime()
+                    
+                    // Detect if this is a special event
+                    const isSpecialEvent = sparplan.eventType && sparplan.eventType !== 'normal'
+                    const isInheritance = sparplan.eventType === 'inheritance'
+                    const isExpense = sparplan.eventType === 'expense'
 
                     return (
                       <div
@@ -727,19 +1115,33 @@ export function SparplanEingabe({
                         className={`p-4 rounded-lg border-2 transition-colors ${
                           isEditMode && editingSparplan?.id === sparplan.id
                             ? 'bg-yellow-50 border-yellow-300 ring-2 ring-yellow-200'
-                            : isEinmalzahlung
-                              ? 'bg-orange-50 border-orange-200 hover:bg-orange-100'
-                              : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                            : isSpecialEvent
+                              ? isInheritance
+                                ? 'bg-green-50 border-green-200 hover:bg-green-100'
+                                : 'bg-red-50 border-red-200 hover:bg-red-100'
+                              : isEinmalzahlung
+                                ? 'bg-orange-50 border-orange-200 hover:bg-orange-100'
+                                : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
                         }`}
                       >
                         <div className="flex items-center justify-between mb-3">
                           <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                            isEinmalzahlung
-                              ? 'bg-orange-100 text-orange-800 border border-orange-200'
-                              : 'bg-blue-100 text-blue-800 border border-blue-200'
+                            isSpecialEvent
+                              ? isInheritance
+                                ? 'bg-green-100 text-green-800 border border-green-200'
+                                : 'bg-red-100 text-red-800 border border-red-200'
+                              : isEinmalzahlung
+                                ? 'bg-orange-100 text-orange-800 border border-orange-200'
+                                : 'bg-blue-100 text-blue-800 border border-blue-200'
                           }`}
                           >
-                            {isEinmalzahlung ? '💰 Einmalzahlung' : '📈 Sparplan'}
+                            {isSpecialEvent
+                              ? isInheritance
+                                ? '🎯 Erbschaft'
+                                : '🎯 Ausgabe'
+                              : isEinmalzahlung
+                                ? '💰 Einmalzahlung'
+                                : '📈 Sparplan'}
                             <span className="text-xs opacity-75">
                               📅
                               {' '}
@@ -786,19 +1188,68 @@ export function SparplanEingabe({
                           )}
                           <div className="flex justify-between items-center">
                             <span className="text-sm font-medium text-gray-600">
-                              {isEinmalzahlung
-                                ? '💵 Betrag:'
-                                : (simulationAnnual === SimulationAnnual.yearly ? '💰 Jährlich:' : '💰 Monatlich:')}
+                              {isSpecialEvent
+                                ? isInheritance
+                                  ? '💰 Netto-Erbschaft:'
+                                  : '💸 Ausgabe:'
+                                : isEinmalzahlung
+                                  ? '💵 Betrag:'
+                                  : (simulationAnnual === SimulationAnnual.yearly ? '💰 Jährlich:' : '💰 Monatlich:')}
                             </span>
-                            <span className="text-sm font-bold text-cyan-600">
+                            <span className={`text-sm font-bold ${
+                              isSpecialEvent
+                                ? isInheritance
+                                  ? 'text-green-600'
+                                  : 'text-red-600'
+                                : 'text-cyan-600'
+                            }`}
+                            >
                               {(() => {
                                 const displayValue = simulationAnnual === SimulationAnnual.monthly && !isEinmalzahlung
                                   ? (sparplan.einzahlung / 12).toFixed(2)
-                                  : sparplan.einzahlung.toFixed(2)
+                                  : Math.abs(sparplan.einzahlung).toFixed(2)
                                 return Number(displayValue).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €'
                               })()}
                             </span>
                           </div>
+                          
+                          {/* Special event details */}
+                          {isSpecialEvent && sparplan.specialEventData && (
+                            <>
+                              {isInheritance && sparplan.specialEventData.relationshipType && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm font-medium text-gray-600">👥 Verwandtschaft:</span>
+                                  <span className="text-sm font-semibold text-green-600">
+                                    {getRelationshipTypeLabel(sparplan.specialEventData.relationshipType)}
+                                  </span>
+                                </div>
+                              )}
+                              {isExpense && sparplan.specialEventData.expenseType && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm font-medium text-gray-600">🏷️ Typ:</span>
+                                  <span className="text-sm font-semibold text-red-600">
+                                    {getExpenseTypeLabel(sparplan.specialEventData.expenseType)}
+                                  </span>
+                                </div>
+                              )}
+                              {sparplan.specialEventData.description && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm font-medium text-gray-600">📝 Beschreibung:</span>
+                                  <span className="text-sm font-semibold text-gray-700">
+                                    {sparplan.specialEventData.description}
+                                  </span>
+                                </div>
+                              )}
+                              {isExpense && sparplan.specialEventData.creditTerms && (
+                                <div className="flex justify-between items-center">
+                                  <span className="text-sm font-medium text-gray-600">💳 Kredit:</span>
+                                  <span className="text-sm font-semibold text-red-600">
+                                    {sparplan.specialEventData.creditTerms.interestRate.toFixed(1)}% / {sparplan.specialEventData.creditTerms.termYears}J
+                                  </span>
+                                </div>
+                              )}
+                            </>
+                          )}
                         </div>
 
                         {/* Inline Edit Form - only show when this specific item is being edited */}
