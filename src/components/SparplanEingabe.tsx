@@ -813,7 +813,7 @@ export function SparplanEingabe({
                                   <Input
                                     type="date"
                                     value={formatDateForInput(singleFormValue.date, 'yyyy-MM-dd')}
-                                    onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => setSingleFormValue({ ...singleFormValue, date }))}
+                                    onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => setSingleFormValue({ ...singleFormValue, date: date || new Date() }))}
                                     className="mt-1"
                                   />
                                 </div>
@@ -827,7 +827,7 @@ export function SparplanEingabe({
                                     <Input
                                       type="month"
                                       value={formatDateForInput(sparplanFormValues.start, 'yyyy-MM')}
-                                      onChange={e => handleDateChange(e, 'yyyy-MM', date => setSparplanFormValues({ ...sparplanFormValues, start: date }))}
+                                      onChange={e => handleDateChange(e, 'yyyy-MM', date => setSparplanFormValues({ ...sparplanFormValues, start: date || new Date() }))}
                                       className="mt-1"
                                     />
                                   </div>

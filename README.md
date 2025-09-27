@@ -19,9 +19,18 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Historische Daten** - Backtesting mit DAX, S&P 500, MSCI World (2000-2023)
 - **Inflation** - Berücksichtigung während der Ansparphase mit automatischer Anpassung
 
-### Sparplan und Einmalzahlungen
+### Sparplan, Einmalzahlungen und Sonderereignisse
 - **Sparpläne** - Regelmäßige monatliche oder jährliche Einzahlungen
 - **Einmalzahlungen** - Einmalige Zahlungen mit Datum und Betrag
+- **Sonderereignisse** - Besondere finanzielle Ereignisse im Lebensverlauf
+  - **💰 Erbschaften** - Berücksichtigung deutscher Erbschaftsteuer nach Verwandtschaftsgrad
+    - Steuerklassen und Freibeträge (Ehegatte €500k, Kind €400k, Enkelkind €200k, etc.)
+    - Echtzeit-Berechnung der Erbschaftsteuer nach ErbStG
+    - Automatische Netto/Brutto-Umrechnung
+  - **💸 Ausgaben** - Größere Ausgaben mit optionaler Kreditfinanzierung
+    - Kategorien: Autokauf, Immobilie, Bildung, Medizin, Sonstiges
+    - Kreditberechnung mit Standard-Zinssätzen je Kategorie
+    - Monatliche Ratenzahlung und Gesamtkosten-Aufstellung
 
 ### Kostenfaktoren
 - **TER (Total Expense Ratio)** - Jährliche Verwaltungskosten in Prozent
@@ -66,7 +75,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Risiko-Zeitreihen** - Detaillierte Drawdown- und Rendite-Serien für tiefere Analyse
 - **Detaillierte Simulation** - Jahr-für-Jahr Aufschlüsselung mit Vorabpauschale-Berechnungen
 - **Berechnungsaufschlüsselung** - Interaktive Erklärungen für Steuer- und Zinsberechnungen
-- **Daten Export** - CSV Export, Markdown Export, Parameter Export für alle Simulationsdaten
+- **Daten Export** - CSV Export, Markdown Export, Parameter Export für alle Simulationsdaten (inkl. Sonderereignisse)
 - **Konfigurationsverwaltung** - Automatisches Speichern/Laden mit localStorage Integration
 - Echtzeit-Updates bei Parameteränderungen
 

@@ -1,6 +1,43 @@
 import type { SimulationAnnualType, SimulationResult } from './simulate'
 import { SimulationAnnual } from './simulate'
 
+export type RelationshipType
+  = | 'spouse' // Ehegatte - €500,000 exemption
+    | 'child' // Kind/Stiefkind - €400,000 exemption
+    | 'grandchild' // Enkelkind - €200,000 exemption
+    | 'parent_from_descendant' // Eltern bei Erbe von Nachkommen - €100,000 exemption
+    | 'parent_other' // Eltern bei sonstigem Erbe - €20,000 exemption
+    | 'sibling' // Geschwister - €20,000 exemption
+    | 'other' // Sonstige - €20,000 exemption
+
+export type ExpenseType
+  = | 'car' // Autokauf
+    | 'real_estate' // Immobilienkauf
+    | 'education' // Bildungsausgaben
+    | 'medical' // Medizinische Ausgaben
+    | 'other' // Sonstige Ausgaben
+
+export type CreditTerms = {
+  interestRate: number // Annual interest rate as decimal (e.g., 0.05 for 5%)
+  termYears: number // Credit term in years
+  monthlyPayment?: number // Optional: calculated monthly payment
+}
+
+export type SpecialEventData = {
+  // Inheritance-specific fields
+  relationshipType?: RelationshipType
+  grossInheritanceAmount?: number // Gross inheritance before tax
+
+  // Expense-specific fields
+  expenseType?: ExpenseType
+  creditTerms?: CreditTerms
+
+  // General event fields
+  description?: string
+  taxRelevant?: boolean // Whether this event affects tax calculations
+  phase?: 'sparphase' | 'entsparphase' // Which life phase this event occurs in
+}
+
 export type Sparplan = {
   id: number
   start: Date | string
@@ -10,6 +47,9 @@ export type Sparplan = {
   ter?: number // Total Expense Ratio (annual percentage, e.g., 0.75 for 0.75%)
   transactionCostPercent?: number // Transaction cost as percentage (e.g., 0.25 for 0.25%)
   transactionCostAbsolute?: number // Transaction cost as absolute amount (e.g., 1.5 for 1.50€)
+  // Special events data
+  eventType?: 'normal' | 'inheritance' | 'expense' // Event type classification
+  specialEventData?: SpecialEventData // Additional data for special events
 }
 
 export type SparplanElement = {
@@ -21,6 +61,9 @@ export type SparplanElement = {
   ter?: number
   transactionCostPercent?: number
   transactionCostAbsolute?: number
+  // Special events data
+  eventType?: 'normal' | 'inheritance' | 'expense'
+  specialEventData?: SpecialEventData
 } | {
   start: Date | string
   type: 'einmalzahlung'
@@ -31,6 +74,9 @@ export type SparplanElement = {
   ter?: number
   transactionCostPercent?: number
   transactionCostAbsolute?: number
+  // Special events data
+  eventType?: 'normal' | 'inheritance' | 'expense'
+  specialEventData?: SpecialEventData
 }
 
 export const initialSparplan: Sparplan = {
@@ -64,6 +110,8 @@ export function convertSparplanToElements(
           ter: el.ter,
           transactionCostPercent: el.transactionCostPercent,
           transactionCostAbsolute: el.transactionCostAbsolute,
+          eventType: el.eventType || 'normal',
+          specialEventData: el.specialEventData,
         })
       }
     }
@@ -97,6 +145,8 @@ export function convertSparplanToElements(
                 ter: el.ter,
                 transactionCostPercent: el.transactionCostPercent,
                 transactionCostAbsolute: el.transactionCostAbsolute,
+                eventType: el.eventType || 'normal',
+                specialEventData: el.specialEventData,
               })
             }
           }
@@ -117,6 +167,8 @@ export function convertSparplanToElements(
                   ter: el.ter,
                   transactionCostPercent: el.transactionCostPercent,
                   transactionCostAbsolute: el.transactionCostAbsolute,
+                  eventType: el.eventType || 'normal',
+                  specialEventData: el.specialEventData,
                 })
               }
             }

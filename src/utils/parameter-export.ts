@@ -62,14 +62,54 @@ export function formatParametersForExport(context: SimulationContextState): stri
       })
   }
 
-  // Savings plans
+  // Savings plans and special events
   if (context.sparplan.length > 0) {
-    lines.push(`Sparpläne:`)
+    lines.push(`Sparpläne und Sonderereignisse:`)
     context.sparplan.forEach((plan, index) => {
-      lines.push(`  Sparplan ${index + 1}:`)
-      lines.push(`    Betrag: ${formatCurrency(plan.einzahlung)}`)
+      // Detect event type
+      const isSpecialEvent = plan.eventType && plan.eventType !== 'normal'
+      const isInheritance = plan.eventType === 'inheritance'
+      const isExpense = plan.eventType === 'expense'
+      const isEinmalzahlung = plan.end
+        && new Date(plan.start).getTime() === new Date(plan.end).getTime()
+        && !isSpecialEvent
+
+      let planType = 'Sparplan'
+      if (isInheritance) planType = 'Erbschaft'
+      else if (isExpense) planType = 'Ausgabe'
+      else if (isEinmalzahlung) planType = 'Einmalzahlung'
+
+      lines.push(`  ${planType} ${index + 1}:`)
+      lines.push(`    Betrag: ${formatCurrency(Math.abs(plan.einzahlung))}${isExpense ? ' (Ausgabe)' : ''}`)
       lines.push(`    Start: ${plan.start}`)
-      lines.push(`    Ende: ${plan.end || 'Unbegrenzt'}`)
+      if (plan.end && !isEinmalzahlung && !isSpecialEvent) {
+        lines.push(`    Ende: ${plan.end}`)
+      }
+      else if (!isEinmalzahlung && !isSpecialEvent) {
+        lines.push(`    Ende: Unbegrenzt`)
+      }
+
+      // Special event specific details
+      if (isSpecialEvent && plan.specialEventData) {
+        if (isInheritance && plan.specialEventData.relationshipType) {
+          lines.push(`    Verwandtschaftsgrad: ${plan.specialEventData.relationshipType}`)
+          if (plan.specialEventData.grossInheritanceAmount) {
+            lines.push(`    Brutto-Erbschaft: ${formatCurrency(plan.specialEventData.grossInheritanceAmount)}`)
+          }
+        }
+        if (isExpense && plan.specialEventData.expenseType) {
+          lines.push(`    Ausgabentyp: ${plan.specialEventData.expenseType}`)
+          if (plan.specialEventData.creditTerms) {
+            lines.push(`    Kredit: ${(plan.specialEventData.creditTerms.interestRate * 100).toFixed(1)}% für ${plan.specialEventData.creditTerms.termYears} Jahre`)
+            lines.push(`    Monatliche Rate: ${formatCurrency(plan.specialEventData.creditTerms.monthlyPayment || 0)}`)
+          }
+        }
+        if (plan.specialEventData.description) {
+          lines.push(`    Beschreibung: ${plan.specialEventData.description}`)
+        }
+      }
+
+      // Cost factors
       if (plan.ter !== undefined) {
         lines.push(`    TER: ${plan.ter.toFixed(2)} %`)
       }

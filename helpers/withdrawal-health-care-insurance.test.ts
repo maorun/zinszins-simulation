@@ -18,7 +18,12 @@ describe('Withdrawal with Health Care Insurance Integration', () => {
       thesaurierend: true,
       simulation: {
         2039: {
+          startkapital: 480000,
           endkapital: 500000,
+          zinsen: 20000,
+          bezahlteSteuer: 0,
+          genutzterFreibetrag: 0,
+          vorabpauschale: 100,
           vorabpauschaleAccumulated: 1000,
         },
       },
@@ -232,7 +237,12 @@ describe('Withdrawal with Health Care Insurance Integration', () => {
         thesaurierend: true,
         simulation: {
           2039: {
+            startkapital: 950,
             endkapital: 1000, // Small amount
+            zinsen: 50,
+            bezahlteSteuer: 0,
+            genutzterFreibetrag: 0,
+            vorabpauschale: 10,
             vorabpauschaleAccumulated: 0,
           },
         },
