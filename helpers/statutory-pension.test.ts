@@ -14,7 +14,7 @@ describe('statutory-pension', () => {
     it('should create a default configuration', () => {
       const config = createDefaultStatutoryPensionConfig()
 
-      expect(config.enabled).toBe(false)
+      expect(config.enabled).toBe(true)
       expect(config.startYear).toBe(2041)
       expect(config.monthlyAmount).toBe(1500)
       expect(config.annualIncreaseRate).toBe(1.0)

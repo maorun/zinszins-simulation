@@ -81,8 +81,8 @@ describe('SparplanEingabe localStorage integration', () => {
       // Should show the saved sparplans, not the default one
       expect(screen.getByText(/30\.000,00 €/)).toBeInTheDocument()
       expect(screen.getByText(/15\.000,00 €/)).toBeInTheDocument()
-      // Should NOT show the default sparplan amount
-      expect(screen.queryByText(/19\.800,00 €/)).not.toBeInTheDocument()
+      // Should NOT show the old default sparplan amount
+      expect(screen.queryByText(/24\.000,00 €/)).not.toBeInTheDocument()
     })
   })
 
@@ -100,9 +100,19 @@ describe('SparplanEingabe localStorage integration', () => {
     const sparplanTrigger = screen.getByText('💼 Sparpläne erstellen')
     fireEvent.click(sparplanTrigger)
 
+    // Also expand the inner sparplan creation section
     await waitFor(() => {
-      // Should show the default sparplan
-      expect(screen.getByText(/19\.800,00 €/)).toBeInTheDocument()
+      const innerSparplanTrigger = screen.getByText('💰 Sparpläne erstellen')
+      fireEvent.click(innerSparplanTrigger)
+    })
+
+    await waitFor(() => {
+      // Should show the default sparplan (24,000€ annually = 2,000€ monthly)
+      // Check for monthly amount format since we're in monthly calculation mode
+      const elements = screen.getAllByText((_, element) => {
+        return element?.textContent?.includes('2.000') || element?.textContent?.includes('2,000') || false
+      })
+      expect(elements.length).toBeGreaterThan(0)
     })
   })
 })

@@ -5,7 +5,7 @@ import ReturnConfiguration from './ReturnConfiguration'
 import { SimulationProvider } from '../contexts/SimulationContext'
 
 describe('ReturnConfiguration', () => {
-  it('renders the fixed return configuration by default', async () => {
+  it('renders the random return configuration by default', async () => {
     render(
       <SimulationProvider>
         <ReturnConfiguration />
@@ -21,9 +21,11 @@ describe('ReturnConfiguration', () => {
 
     // Wait for content to become visible and check the options
     await waitFor(() => {
-      expect(screen.getAllByText('Feste Rendite')).toHaveLength(2) // One in the tile, one as the label
       expect(screen.getByText('Zufällige Rendite')).toBeInTheDocument()
+      expect(screen.getByText('Feste Rendite')).toBeInTheDocument()
       expect(screen.getByText('Variable Rendite')).toBeInTheDocument()
+      // Check that the random return configuration is visible by default (since it's the default mode)
+      expect(screen.getByText('Durchschnittliche Rendite')).toBeInTheDocument()
     })
   })
 })

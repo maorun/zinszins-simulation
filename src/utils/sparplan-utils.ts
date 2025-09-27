@@ -83,7 +83,7 @@ export const initialSparplan: Sparplan = {
   id: 1,
   start: new Date(),
   end: null, // Make end date optional by default
-  einzahlung: 19800,
+  einzahlung: 24000, // Updated to more realistic baseline (24,000€ annually = 2,000€ monthly)
 }
 
 export function convertSparplanToElements(
