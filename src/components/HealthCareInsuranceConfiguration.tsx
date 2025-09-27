@@ -89,8 +89,9 @@ export function HealthCareInsuranceConfiguration({
                   </Label>
                 </div>
                 <div className="text-sm text-muted-foreground">
-                  Aktivieren Sie diese Option, um Kranken- und Pflegeversicherungsbeiträge in die Entnahmeplanung einzubeziehen.
-                  Berücksichtigt unterschiedliche Versicherungsarten und Beitragssätze.
+                  Aktivieren Sie diese Option, um Kranken- und Pflegeversicherungsbeiträge in die
+                  Entnahmeplanung einzubeziehen. Berücksichtigt unterschiedliche Versicherungsarten und
+                  Beitragssätze.
                 </div>
               </div>
             </CardContent>
@@ -114,7 +115,9 @@ export function HealthCareInsuranceConfiguration({
                 <CardTitle className="flex items-center gap-2">
                   🏥 Kranken- und Pflegeversicherung
                   <span className="text-sm font-normal text-muted-foreground">
-                    ({values.insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat'})
+                    (
+                    {values.insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat'}
+                    )
                   </span>
                 </CardTitle>
                 <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
@@ -142,7 +145,7 @@ export function HealthCareInsuranceConfiguration({
                 <Label className="text-sm font-medium">Versicherungsart</Label>
                 <RadioTileGroup
                   value={values.insuranceType}
-                  onValueChange={(value) => onChange.onInsuranceTypeChange(value as 'statutory' | 'private')}
+                  onValueChange={value => onChange.onInsuranceTypeChange(value as 'statutory' | 'private')}
                   className="grid grid-cols-1 md:grid-cols-2 gap-3"
                 >
                   <RadioTile value="statutory" label="Gesetzliche Krankenversicherung">
@@ -165,7 +168,7 @@ export function HealthCareInsuranceConfiguration({
                   min={currentYear}
                   max={currentYear + 50}
                   value={values.retirementStartYear}
-                  onChange={(e) => onChange.onRetirementStartYearChange(Number(e.target.value))}
+                  onChange={e => onChange.onRetirementStartYearChange(Number(e.target.value))}
                 />
                 <div className="text-xs text-muted-foreground">
                   Jahr ab dem die Rentnerregelungen gelten
@@ -199,11 +202,14 @@ export function HealthCareInsuranceConfiguration({
                       <Info className="h-4 w-4" />
                       Gesetzliche Beitragssätze (Deutschland 2024)
                     </h4>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="statutory-health-rate">
-                          Krankenversicherung: {values.statutoryHealthInsuranceRate.toFixed(2)}%
+                          Krankenversicherung:
+                          {' '}
+                          {values.statutoryHealthInsuranceRate.toFixed(2)}
+                          %
                         </Label>
                         <div className="text-xs text-muted-foreground">
                           Gesetzlich festgelegt: 14,6% (7,3% Arbeitnehmer + 7,3% Arbeitgeber)
@@ -212,7 +218,10 @@ export function HealthCareInsuranceConfiguration({
 
                       <div className="space-y-2">
                         <Label htmlFor="statutory-care-rate">
-                          Pflegeversicherung: {values.statutoryCareInsuranceRate.toFixed(2)}%
+                          Pflegeversicherung:
+                          {' '}
+                          {values.statutoryCareInsuranceRate.toFixed(2)}
+                          %
                         </Label>
                         <div className="text-xs text-muted-foreground">
                           Gesetzlich festgelegt: 3,05% (+ 0,6% für Kinderlose)
@@ -224,7 +233,7 @@ export function HealthCareInsuranceConfiguration({
                   {/* Income Limits */}
                   <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
                     <h4 className="font-medium text-sm">Beitragsbemessungsgrenzen</h4>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="statutory-min-income">
@@ -236,7 +245,7 @@ export function HealthCareInsuranceConfiguration({
                           min="0"
                           step="100"
                           value={values.statutoryMinimumIncomeBase}
-                          onChange={(e) => onChange.onStatutoryMinimumIncomeBaseChange(Number(e.target.value))}
+                          onChange={e => onChange.onStatutoryMinimumIncomeBaseChange(Number(e.target.value))}
                         />
                         <div className="text-xs text-muted-foreground">
                           Mindestbeitrag wird auch bei geringerem Einkommen erhoben
@@ -253,7 +262,7 @@ export function HealthCareInsuranceConfiguration({
                           min="0"
                           step="1000"
                           value={values.statutoryMaximumIncomeBase}
-                          onChange={(e) => onChange.onStatutoryMaximumIncomeBaseChange(Number(e.target.value))}
+                          onChange={e => onChange.onStatutoryMaximumIncomeBaseChange(Number(e.target.value))}
                         />
                         <div className="text-xs text-muted-foreground">
                           Maximale Beitragsbemessungsgrundlage (2024: 62.550€)
@@ -269,7 +278,7 @@ export function HealthCareInsuranceConfiguration({
                 <div className="space-y-6">
                   <div className="space-y-4 p-4 bg-purple-50 rounded-lg">
                     <h4 className="font-medium text-sm">Private Versicherungsbeiträge</h4>
-                    
+
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div className="space-y-2">
                         <Label htmlFor="private-health-monthly">
@@ -281,7 +290,7 @@ export function HealthCareInsuranceConfiguration({
                           min="0"
                           step="10"
                           value={values.privateHealthInsuranceMonthly}
-                          onChange={(e) => onChange.onPrivateHealthInsuranceMonthlyChange(Number(e.target.value))}
+                          onChange={e => onChange.onPrivateHealthInsuranceMonthlyChange(Number(e.target.value))}
                           placeholder="z.B. 450"
                         />
                       </div>
@@ -296,14 +305,17 @@ export function HealthCareInsuranceConfiguration({
                           min="0"
                           step="5"
                           value={values.privateCareInsuranceMonthly}
-                          onChange={(e) => onChange.onPrivateCareInsuranceMonthlyChange(Number(e.target.value))}
+                          onChange={e => onChange.onPrivateCareInsuranceMonthlyChange(Number(e.target.value))}
                           placeholder="z.B. 60"
                         />
                       </div>
 
                       <div className="space-y-2">
                         <Label htmlFor="private-inflation-rate">
-                          Jährliche Steigerung: {values.privateInsuranceInflationRate.toFixed(1)}%
+                          Jährliche Steigerung:
+                          {' '}
+                          {values.privateInsuranceInflationRate.toFixed(1)}
+                          %
                         </Label>
                         <Slider
                           id="private-inflation-rate"
@@ -322,9 +334,15 @@ export function HealthCareInsuranceConfiguration({
 
                     {values.privateHealthInsuranceMonthly > 0 && values.privateCareInsuranceMonthly > 0 && (
                       <div className="text-sm text-muted-foreground">
-                        <strong>Gesamt pro Monat:</strong> {formatCurrency(values.privateHealthInsuranceMonthly + values.privateCareInsuranceMonthly)}
+                        <strong>Gesamt pro Monat:</strong>
                         {' '}
-                        <strong>pro Jahr:</strong> {formatCurrency((values.privateHealthInsuranceMonthly + values.privateCareInsuranceMonthly) * 12)}
+                        {formatCurrency(values.privateHealthInsuranceMonthly + values.privateCareInsuranceMonthly)}
+                        {' '}
+                        <strong>pro Jahr:</strong>
+                        {' '}
+                        {formatCurrency(
+                          (values.privateHealthInsuranceMonthly + values.privateCareInsuranceMonthly) * 12,
+                        )}
                       </div>
                     )}
                   </div>
@@ -347,7 +365,11 @@ export function HealthCareInsuranceConfiguration({
                 {values.additionalCareInsuranceForChildless && (
                   <div className="ml-6 space-y-2">
                     <Label htmlFor="additional-care-age">
-                      Ab Alter: {values.additionalCareInsuranceAge} Jahre
+                      Ab Alter:
+                      {' '}
+                      {values.additionalCareInsuranceAge}
+                      {' '}
+                      Jahre
                     </Label>
                     <Slider
                       id="additional-care-age"

@@ -141,7 +141,7 @@ export function calculateHealthCareInsuranceForYear(
     const totalIncome = withdrawalAmount + pensionAmount
     const baseIncome = Math.max(
       config.statutoryMinimumIncomeBase,
-      Math.min(totalIncome, config.statutoryMaximumIncomeBase)
+      Math.min(totalIncome, config.statutoryMaximumIncomeBase),
     )
 
     // Calculate base rates
@@ -178,11 +178,11 @@ export function calculateHealthCareInsuranceForYear(
       includesEmployerContribution: !isRetirementPhase || config.includeEmployerContribution,
       appliedAdditionalCareInsurance,
     }
-  } else {
+  }
+  else {
     // Private insurance calculation with inflation adjustment
     const yearsFromStart = Math.max(0, year - config.retirementStartYear)
     inflationAdjustmentFactor = Math.pow(1 + config.privateInsuranceInflationRate / 100, yearsFromStart)
-    
     const adjustedHealthMonthly = config.privateHealthInsuranceMonthly * inflationAdjustmentFactor
     const adjustedCareMonthly = config.privateCareInsuranceMonthly * inflationAdjustmentFactor
 

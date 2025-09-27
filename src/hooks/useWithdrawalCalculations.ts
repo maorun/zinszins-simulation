@@ -278,6 +278,7 @@ export function useWithdrawalCalculations(
     planningMode,
     gender,
     otherIncomeConfig,
+    formValue.healthCareInsuranceConfig,
   ])
 
   // Calculate comparison results for each strategy
@@ -462,6 +463,7 @@ export function useWithdrawalCalculations(
     planningMode,
     gender,
     otherIncomeConfig,
+    formValue.healthCareInsuranceConfig,
   ])
 
   // Calculate segmented comparison results for each segmented strategy

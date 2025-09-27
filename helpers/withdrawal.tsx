@@ -11,7 +11,7 @@ import { calculateStatutoryPension } from './statutory-pension'
 import type { OtherIncomeConfiguration } from './other-income'
 import { calculateOtherIncome } from './other-income'
 import type { HealthCareInsuranceConfig } from './health-care-insurance'
-import { calculateHealthCareInsurance, calculateHealthCareInsuranceForYear } from './health-care-insurance'
+import { calculateHealthCareInsuranceForYear } from './health-care-insurance'
 
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt'
 
@@ -444,7 +444,7 @@ export function calculateWithdrawal({
     }
 
     // The net withdrawal amount available to the user after health care insurance
-    const netEntnahme = entnahme - healthCareInsuranceTotal
+    const _netEntnahme = entnahme - healthCareInsuranceTotal
 
     // Get the return rate for this year (needed for monthly withdrawal calculations)
     const returnRate = yearlyGrowthRates[year] || 0

@@ -1,36 +1,36 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { HealthCareInsuranceConfiguration } from './HealthCareInsuranceConfiguration'
 
 describe('HealthCareInsuranceConfiguration', () => {
   const defaultValues = {
     enabled: false,
-    healthInsuranceRatePreRetirement: 14.6,
-    careInsuranceRatePreRetirement: 3.05,
-    healthInsuranceRateRetirement: 7.3,
-    careInsuranceRateRetirement: 3.05,
+    insuranceType: 'statutory' as const,
+    includeEmployerContribution: true,
+    statutoryHealthInsuranceRate: 14.6,
+    statutoryCareInsuranceRate: 3.05,
+    statutoryMinimumIncomeBase: 13230,
+    statutoryMaximumIncomeBase: 62550,
+    privateHealthInsuranceMonthly: 400,
+    privateCareInsuranceMonthly: 100,
+    privateInsuranceInflationRate: 2,
     retirementStartYear: 2041,
-    useFixedAmounts: false,
-    fixedHealthInsuranceMonthly: undefined,
-    fixedCareInsuranceMonthly: undefined,
-    healthInsuranceIncomeThreshold: undefined,
-    careInsuranceIncomeThreshold: undefined,
     additionalCareInsuranceForChildless: false,
     additionalCareInsuranceAge: 23,
   }
 
   const mockHandlers = {
     onEnabledChange: vi.fn(),
-    onHealthInsuranceRatePreRetirementChange: vi.fn(),
-    onCareInsuranceRatePreRetirementChange: vi.fn(),
-    onHealthInsuranceRateRetirementChange: vi.fn(),
-    onCareInsuranceRateRetirementChange: vi.fn(),
+    onInsuranceTypeChange: vi.fn(),
+    onIncludeEmployerContributionChange: vi.fn(),
+    onStatutoryHealthInsuranceRateChange: vi.fn(),
+    onStatutoryCareInsuranceRateChange: vi.fn(),
+    onStatutoryMinimumIncomeBaseChange: vi.fn(),
+    onStatutoryMaximumIncomeBaseChange: vi.fn(),
+    onPrivateHealthInsuranceMonthlyChange: vi.fn(),
+    onPrivateCareInsuranceMonthlyChange: vi.fn(),
+    onPrivateInsuranceInflationRateChange: vi.fn(),
     onRetirementStartYearChange: vi.fn(),
-    onUseFixedAmountsChange: vi.fn(),
-    onFixedHealthInsuranceMonthlyChange: vi.fn(),
-    onFixedCareInsuranceMonthlyChange: vi.fn(),
-    onHealthInsuranceIncomeThresholdChange: vi.fn(),
-    onCareInsuranceIncomeThresholdChange: vi.fn(),
     onAdditionalCareInsuranceForChildlessChange: vi.fn(),
     onAdditionalCareInsuranceAgeChange: vi.fn(),
   }
@@ -51,30 +51,30 @@ describe('HealthCareInsuranceConfiguration', () => {
     expect(screen.getByText(/Kranken- und Pflegeversicherung/)).toBeInTheDocument()
   })
 
-  it('displays correct mode in title for percentage configuration', () => {
-    const percentageValues = { ...defaultValues, enabled: true, useFixedAmounts: false }
+  it('displays correct mode in title for statutory insurance', () => {
+    const statutoryValues = { ...defaultValues, insuranceType: 'statutory' as const }
 
     render(
       <HealthCareInsuranceConfiguration
-        values={percentageValues}
+        values={statutoryValues}
         onChange={mockHandlers}
       />,
     )
 
-    expect(screen.getByText('(Prozentuale Beiträge)')).toBeInTheDocument()
+    expect(screen.getByText('(Gesetzlich)')).toBeInTheDocument()
   })
 
-  it('displays correct mode in title for fixed amounts configuration', () => {
-    const fixedValues = { ...defaultValues, enabled: true, useFixedAmounts: true }
+  it('displays correct mode in title for private insurance', () => {
+    const privateValues = { ...defaultValues, insuranceType: 'private' as const }
 
     render(
       <HealthCareInsuranceConfiguration
-        values={fixedValues}
+        values={privateValues}
         onChange={mockHandlers}
       />,
     )
 
-    expect(screen.getByText('(Feste Beiträge)')).toBeInTheDocument()
+    expect(screen.getByText('(Privat)')).toBeInTheDocument()
   })
 
   it('handles basic enabled state correctly', () => {

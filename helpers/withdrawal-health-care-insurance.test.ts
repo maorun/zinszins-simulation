@@ -261,7 +261,7 @@ describe('Withdrawal with Health Care Insurance Integration', () => {
     expect(result[2040].healthCareInsurance).toBeDefined()
     expect(result[2040].healthCareInsurance!.totalAnnual).toBeGreaterThan(0)
     expect(result[2040].healthCareInsurance!.isRetirementPhase).toBe(true)
-    
+
     // Health care insurance should be calculated based on the small withdrawal amount
     const expectedHealthInsurance = 40 * 0.073 // 7.3% (retirement rate)
     const expectedCareInsurance = 40 * 0.0305 // 3.05%

@@ -24,6 +24,7 @@ import { BucketStrategyConfiguration } from './BucketStrategyConfiguration'
 import { KapitalerhaltConfiguration } from './KapitalerhaltConfiguration'
 import { StatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
 import { HealthCareInsuranceConfiguration } from './HealthCareInsuranceConfiguration'
+import { createDefaultHealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
 import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
 import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
 import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
@@ -1969,226 +1970,106 @@ export function EntnahmeSimulationsAusgabe({
               <div className="mb-6">
                 <HealthCareInsuranceConfiguration
                   values={{
-                    enabled: formValue.healthCareInsuranceConfig?.enabled ?? true, // Default: enabled
-                    healthInsuranceRatePreRetirement: formValue.healthCareInsuranceConfig?.healthInsuranceRatePreRetirement || 14.6,
-                    careInsuranceRatePreRetirement: formValue.healthCareInsuranceConfig?.careInsuranceRatePreRetirement || 3.05,
-                    healthInsuranceRateRetirement: formValue.healthCareInsuranceConfig?.healthInsuranceRateRetirement || 7.3,
-                    careInsuranceRateRetirement: formValue.healthCareInsuranceConfig?.careInsuranceRateRetirement || 3.05,
-                    retirementStartYear: formValue.healthCareInsuranceConfig?.retirementStartYear || startOfIndependence,
-                    useFixedAmounts: formValue.healthCareInsuranceConfig?.useFixedAmounts || false,
-                    fixedHealthInsuranceMonthly: formValue.healthCareInsuranceConfig?.fixedHealthInsuranceMonthly,
-                    fixedCareInsuranceMonthly: formValue.healthCareInsuranceConfig?.fixedCareInsuranceMonthly,
-                    healthInsuranceIncomeThreshold: formValue.healthCareInsuranceConfig?.healthInsuranceIncomeThreshold,
-                    careInsuranceIncomeThreshold: formValue.healthCareInsuranceConfig?.careInsuranceIncomeThreshold,
-                    additionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig?.additionalCareInsuranceForChildless || false,
+                    enabled: formValue.healthCareInsuranceConfig?.enabled ?? true,
+                    insuranceType: formValue.healthCareInsuranceConfig?.insuranceType || 'statutory',
+                    includeEmployerContribution: formValue.healthCareInsuranceConfig?.includeEmployerContribution
+                      ?? true,
+                    statutoryHealthInsuranceRate: formValue.healthCareInsuranceConfig?.statutoryHealthInsuranceRate
+                      || 14.6,
+                    statutoryCareInsuranceRate: formValue.healthCareInsuranceConfig?.statutoryCareInsuranceRate
+                      || 3.05,
+                    statutoryMinimumIncomeBase: formValue.healthCareInsuranceConfig?.statutoryMinimumIncomeBase
+                      || 13230,
+                    statutoryMaximumIncomeBase: formValue.healthCareInsuranceConfig?.statutoryMaximumIncomeBase
+                      || 62550,
+                    privateHealthInsuranceMonthly: formValue.healthCareInsuranceConfig?.privateHealthInsuranceMonthly
+                      || 400,
+                    privateCareInsuranceMonthly: formValue.healthCareInsuranceConfig?.privateCareInsuranceMonthly
+                      || 100,
+                    privateInsuranceInflationRate: formValue.healthCareInsuranceConfig?.privateInsuranceInflationRate
+                      || 2,
+                    retirementStartYear: formValue.healthCareInsuranceConfig?.retirementStartYear
+                      || startOfIndependence,
+                    additionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig
+                      ?.additionalCareInsuranceForChildless || false,
                     additionalCareInsuranceAge: formValue.healthCareInsuranceConfig?.additionalCareInsuranceAge || 23,
                   }}
                   onChange={{
                     onEnabledChange: enabled => updateFormValue({
                       healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                         enabled,
                       },
                     }),
-                    onHealthInsuranceRatePreRetirementChange: rate => updateFormValue({
+                    onInsuranceTypeChange: insuranceType => updateFormValue({
                       healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
-                        healthInsuranceRatePreRetirement: rate,
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        insuranceType,
                       },
                     }),
-                    onCareInsuranceRatePreRetirementChange: rate => updateFormValue({
+                    onIncludeEmployerContributionChange: includeEmployerContribution => updateFormValue({
                       healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
-                        careInsuranceRatePreRetirement: rate,
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        includeEmployerContribution,
                       },
                     }),
-                    onHealthInsuranceRateRetirementChange: rate => updateFormValue({
+                    onStatutoryHealthInsuranceRateChange: rate => updateFormValue({
                       healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
-                        healthInsuranceRateRetirement: rate,
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        statutoryHealthInsuranceRate: rate,
                       },
                     }),
-                    onCareInsuranceRateRetirementChange: rate => updateFormValue({
+                    onStatutoryCareInsuranceRateChange: rate => updateFormValue({
                       healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
-                        careInsuranceRateRetirement: rate,
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        statutoryCareInsuranceRate: rate,
+                      },
+                    }),
+                    onStatutoryMinimumIncomeBaseChange: amount => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        statutoryMinimumIncomeBase: amount,
+                      },
+                    }),
+                    onStatutoryMaximumIncomeBaseChange: amount => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        statutoryMaximumIncomeBase: amount,
+                      },
+                    }),
+                    onPrivateHealthInsuranceMonthlyChange: amount => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        privateHealthInsuranceMonthly: amount,
+                      },
+                    }),
+                    onPrivateCareInsuranceMonthlyChange: amount => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        privateCareInsuranceMonthly: amount,
+                      },
+                    }),
+                    onPrivateInsuranceInflationRateChange: rate => updateFormValue({
+                      healthCareInsuranceConfig: {
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                        privateInsuranceInflationRate: rate,
                       },
                     }),
                     onRetirementStartYearChange: year => updateFormValue({
                       healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                         retirementStartYear: year,
-                      },
-                    }),
-                    onUseFixedAmountsChange: useFixed => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
-                        useFixedAmounts: useFixed,
-                      },
-                    }),
-                    onFixedHealthInsuranceMonthlyChange: amount => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
-                        fixedHealthInsuranceMonthly: amount,
-                      },
-                    }),
-                    onFixedCareInsuranceMonthlyChange: amount => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
-                        fixedCareInsuranceMonthly: amount,
-                      },
-                    }),
-                    onHealthInsuranceIncomeThresholdChange: threshold => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
-                        healthInsuranceIncomeThreshold: threshold,
-                      },
-                    }),
-                    onCareInsuranceIncomeThresholdChange: threshold => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
-                        careInsuranceIncomeThreshold: threshold,
                       },
                     }),
                     onAdditionalCareInsuranceForChildlessChange: enabled => updateFormValue({
                       healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                         additionalCareInsuranceForChildless: enabled,
                       },
                     }),
                     onAdditionalCareInsuranceAgeChange: age => updateFormValue({
                       healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || {
-                          enabled: false,
-                          healthInsuranceRatePreRetirement: 14.6,
-                          careInsuranceRatePreRetirement: 3.05,
-                          healthInsuranceRateRetirement: 7.3,
-                          careInsuranceRateRetirement: 3.05,
-                          retirementStartYear: startOfIndependence,
-                          useFixedAmounts: false,
-                          additionalCareInsuranceForChildless: false,
-                          additionalCareInsuranceAge: 23,
-                        }),
+                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                         additionalCareInsuranceAge: age,
                       },
                     }),
