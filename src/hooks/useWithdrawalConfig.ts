@@ -26,7 +26,7 @@ export function useWithdrawalConfig() {
       // Withdrawal frequency configuration
       withdrawalFrequency: 'yearly', // Default to yearly as specified in requirements
       // General inflation settings (for all strategies)
-      inflationAktiv: false,
+      inflationAktiv: true,
       inflationsrate: 2,
       // Monthly strategy specific settings
       monatlicheBetrag: 2000,
@@ -96,9 +96,9 @@ export function useWithdrawalConfig() {
 
     return withdrawalConfig || {
       formValue: defaultFormValue,
-      withdrawalReturnMode: 'fixed' as WithdrawalReturnMode,
+      withdrawalReturnMode: 'random' as WithdrawalReturnMode,
       withdrawalVariableReturns: {},
-      withdrawalAverageReturn: 5,
+      withdrawalAverageReturn: 7,
       withdrawalStandardDeviation: 12,
       withdrawalRandomSeed: undefined,
       useSegmentedWithdrawal: false,
