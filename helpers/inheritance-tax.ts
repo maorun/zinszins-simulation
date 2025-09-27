@@ -24,7 +24,7 @@ export type InheritanceTaxClass = 'I' | 'II' | 'III'
 
 export const RELATIONSHIP_TO_TAX_CLASS: Record<RelationshipType, InheritanceTaxClass> = {
   spouse: 'I',
-  child: 'I', 
+  child: 'I',
   grandchild: 'I',
   parent_from_descendant: 'I',
   parent_other: 'II',
@@ -68,14 +68,14 @@ export const INHERITANCE_TAX_RATES = {
 
 /**
  * Calculate German inheritance tax based on relationship and gross inheritance amount
- * 
+ *
  * @param grossAmount - Gross inheritance amount before tax
  * @param relationshipType - Relationship to deceased person
  * @returns Object with tax calculation details
  */
 export function calculateInheritanceTax(
   grossAmount: number,
-  relationshipType: RelationshipType
+  relationshipType: RelationshipType,
 ): {
   grossAmount: number
   exemption: number
@@ -88,23 +88,26 @@ export function calculateInheritanceTax(
   const exemption = INHERITANCE_TAX_EXEMPTIONS[relationshipType]
   const taxClass = RELATIONSHIP_TO_TAX_CLASS[relationshipType]
   const taxableAmount = Math.max(0, grossAmount - exemption)
-  
+
   // Calculate progressive tax
   let tax = 0
   let remainingAmount = taxableAmount
   const rates = INHERITANCE_TAX_RATES[taxClass]
-  
+  let previousThreshold = 0
+
   for (const bracket of rates) {
-    const taxableInBracket = Math.min(remainingAmount, bracket.upTo)
+    const bracketSize = bracket.upTo - previousThreshold
+    const taxableInBracket = Math.min(remainingAmount, bracketSize)
     tax += taxableInBracket * bracket.rate
     remainingAmount -= taxableInBracket
-    
+    previousThreshold = bracket.upTo
+
     if (remainingAmount <= 0) break
   }
-  
+
   const netAmount = grossAmount - tax
   const effectiveTaxRate = grossAmount > 0 ? tax / grossAmount : 0
-  
+
   return {
     grossAmount,
     exemption,
@@ -138,7 +141,7 @@ export function getRelationshipTypeLabel(relationshipType: RelationshipType): st
 export function getExpenseTypeLabel(expenseType: string): string {
   const labels: Record<string, string> = {
     car: 'Autokauf',
-    real_estate: 'Immobilienkauf', 
+    real_estate: 'Immobilienkauf',
     education: 'Bildungsausgaben',
     medical: 'Medizinische Ausgaben',
     other: 'Sonstige Ausgaben',

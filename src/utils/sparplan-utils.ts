@@ -1,21 +1,21 @@
 import type { SimulationAnnualType, SimulationResult } from './simulate'
 import { SimulationAnnual } from './simulate'
 
-export type RelationshipType = 
-  | 'spouse' // Ehegatte - €500,000 exemption
-  | 'child' // Kind/Stiefkind - €400,000 exemption  
-  | 'grandchild' // Enkelkind - €200,000 exemption
-  | 'parent_from_descendant' // Eltern bei Erbe von Nachkommen - €100,000 exemption
-  | 'parent_other' // Eltern bei sonstigem Erbe - €20,000 exemption
-  | 'sibling' // Geschwister - €20,000 exemption
-  | 'other' // Sonstige - €20,000 exemption
+export type RelationshipType
+  = | 'spouse' // Ehegatte - €500,000 exemption
+    | 'child' // Kind/Stiefkind - €400,000 exemption
+    | 'grandchild' // Enkelkind - €200,000 exemption
+    | 'parent_from_descendant' // Eltern bei Erbe von Nachkommen - €100,000 exemption
+    | 'parent_other' // Eltern bei sonstigem Erbe - €20,000 exemption
+    | 'sibling' // Geschwister - €20,000 exemption
+    | 'other' // Sonstige - €20,000 exemption
 
-export type ExpenseType = 
-  | 'car' // Autokauf
-  | 'real_estate' // Immobilienkauf
-  | 'education' // Bildungsausgaben
-  | 'medical' // Medizinische Ausgaben
-  | 'other' // Sonstige Ausgaben
+export type ExpenseType
+  = | 'car' // Autokauf
+    | 'real_estate' // Immobilienkauf
+    | 'education' // Bildungsausgaben
+    | 'medical' // Medizinische Ausgaben
+    | 'other' // Sonstige Ausgaben
 
 export type CreditTerms = {
   interestRate: number // Annual interest rate as decimal (e.g., 0.05 for 5%)
@@ -27,11 +27,11 @@ export type SpecialEventData = {
   // Inheritance-specific fields
   relationshipType?: RelationshipType
   grossInheritanceAmount?: number // Gross inheritance before tax
-  
-  // Expense-specific fields  
+
+  // Expense-specific fields
   expenseType?: ExpenseType
   creditTerms?: CreditTerms
-  
+
   // General event fields
   description?: string
   taxRelevant?: boolean // Whether this event affects tax calculations
