@@ -428,7 +428,7 @@ export function calculateWithdrawal({
 
     // Calculate health care insurance contributions for this year
     let healthCareInsuranceData
-    let healthCareInsuranceTotal = 0
+    // let _healthCareInsuranceTotal = 0
     if (healthCareInsuranceConfig?.enabled) {
       const pensionAmount = statutoryPensionData[year]?.grossAnnualAmount || 0
       const currentAge = birthYear ? year - birthYear : 30
@@ -440,11 +440,11 @@ export function calculateWithdrawal({
         pensionAmount,
         currentAge,
       )
-      healthCareInsuranceTotal = healthCareInsuranceData.totalAnnual
+      // _healthCareInsuranceTotal = healthCareInsuranceData.totalAnnual
     }
 
     // The net withdrawal amount available to the user after health care insurance
-    const _netEntnahme = entnahme - healthCareInsuranceTotal
+    // const _netEntnahme = entnahme - healthCareInsuranceTotal
 
     // Get the return rate for this year (needed for monthly withdrawal calculations)
     const returnRate = yearlyGrowthRates[year] || 0
@@ -702,10 +702,10 @@ export function calculateWithdrawal({
             healthInsuranceMonthly: healthCareInsuranceData.healthInsuranceMonthly,
             careInsuranceMonthly: healthCareInsuranceData.careInsuranceMonthly,
             totalMonthly: healthCareInsuranceData.totalMonthly,
-            usedFixedAmounts: healthCareInsuranceData.usedFixedAmounts,
+            usedFixedAmounts: healthCareInsuranceData.insuranceType === 'private', // Use insuranceType as a proxy
             isRetirementPhase: healthCareInsuranceData.isRetirementPhase,
-            effectiveHealthInsuranceRate: healthCareInsuranceData.effectiveHealthInsuranceRate,
-            effectiveCareInsuranceRate: healthCareInsuranceData.effectiveCareInsuranceRate,
+            effectiveHealthInsuranceRate: healthCareInsuranceData.effectiveHealthInsuranceRate || 0,
+            effectiveCareInsuranceRate: healthCareInsuranceData.effectiveCareInsuranceRate || 0,
           }
         : undefined,
     }

@@ -144,12 +144,13 @@ export function SpecialEvents({
       let creditTerms = undefined
 
       if (specialEventFormValues.useCredit) {
+        const defaultTerms = getDefaultCreditTerms(specialEventFormValues.expenseType, expenseAmount)
         const interestRate = specialEventFormValues.interestRate
           ? Number(specialEventFormValues.interestRate) / 100
-          : getDefaultCreditTerms(specialEventFormValues.expenseType).interestRate
+          : defaultTerms.interestRate
         const termYears = specialEventFormValues.termYears
           ? Number(specialEventFormValues.termYears)
-          : getDefaultCreditTerms(specialEventFormValues.expenseType).termYears
+          : defaultTerms.termYears
 
         creditTerms = {
           interestRate,
@@ -441,7 +442,9 @@ export function SpecialEvents({
                                 checked={specialEventFormValues.useCredit}
                                 onChange={(e) => {
                                   const checked = e.target.checked
-                                  const defaults = getDefaultCreditTerms(specialEventFormValues.expenseType)
+                                  // Default amount for defaults calculation
+                                  const amount = Number(specialEventFormValues.expenseAmount) || 1000
+                                  const defaults = getDefaultCreditTerms(specialEventFormValues.expenseType, amount)
                                   setSpecialEventFormValues({
                                     ...specialEventFormValues,
                                     useCredit: checked,
