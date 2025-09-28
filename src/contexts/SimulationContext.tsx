@@ -114,10 +114,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerReduzierenEndkapitalSparphase: true,
     steuerReduzierenEndkapitalEntspharphase: true,
     // Grundfreibetrag settings (German basic tax allowance for retirees)
-    grundfreibetragAktiv: false,
+    grundfreibetragAktiv: true,
     // Updated to 2024 German basic tax allowance, default when activated will be double (23208)
-    grundfreibetragBetrag: 11604,
-    returnMode: 'fixed' as ReturnMode,
+    grundfreibetragBetrag: 23208,
+    returnMode: 'random' as ReturnMode,
     averageReturn: 7,
     standardDeviation: 15,
     randomSeed: undefined,
@@ -126,22 +126,22 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     // Inflation settings for savings phase (default: enabled with 2%)
     inflationAktivSparphase: true,
     inflationsrateSparphase: 2,
-    inflationAnwendungSparphase: 'sparplan' as 'sparplan' | 'gesamtmenge',
+    inflationAnwendungSparphase: 'gesamtmenge' as 'sparplan' | 'gesamtmenge',
     startEnd: [2040, 2080] as [number, number],
     sparplan: [initialSparplan],
-    simulationAnnual: SimulationAnnual.yearly,
+    simulationAnnual: SimulationAnnual.monthly,
     // Global End of Life and Life Expectancy settings
     endOfLife: 2080,
     lifeExpectancyTable: 'german_2020_22' as 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
     customLifeExpectancy: undefined,
     // Gender and couple planning configuration
-    planningMode: 'individual' as 'individual' | 'couple',
-    gender: undefined,
-    spouse: undefined,
+    planningMode: 'couple' as 'individual' | 'couple',
+    gender: 'male' as 'male' | 'female',
+    spouse: { birthYear: 1986, gender: 'female' as 'male' | 'female' },
     // Birth year helper for end of life calculation
-    birthYear: undefined,
+    birthYear: 1984,
     expectedLifespan: 85,
-    useAutomaticCalculation: false,
+    useAutomaticCalculation: true,
   }), [])
 
   // Try to load saved configuration, fallback to defaults
@@ -168,13 +168,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     (initialConfig as any).steuerReduzierenEndkapitalEntspharphase ?? true,
   )
   const [grundfreibetragAktiv, setGrundfreibetragAktiv] = useState(
-    (initialConfig as any).grundfreibetragAktiv ?? false,
+    (initialConfig as any).grundfreibetragAktiv ?? true,
   )
   const [grundfreibetragBetrag, setGrundfreibetragBetrag] = useState(
-    (initialConfig as any).grundfreibetragBetrag ?? (
-      // When enabled for the first time, use double the current value as default
-      (initialConfig as any).grundfreibetragAktiv ? 23208 : 11604
-    ),
+    (initialConfig as any).grundfreibetragBetrag ?? 23208,
   )
   const [returnMode, setReturnMode] = useState<ReturnMode>(initialConfig.returnMode)
   const [averageReturn, setAverageReturn] = useState(initialConfig.averageReturn)
@@ -228,7 +225,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     (initialConfig as any).expectedLifespan ?? defaultConfig.expectedLifespan,
   )
   const [useAutomaticCalculation, setUseAutomaticCalculation] = useState<boolean>(
-    (initialConfig as any).useAutomaticCalculation ?? false,
+    (initialConfig as any).useAutomaticCalculation ?? true,
   )
   const [simulationData, setSimulationData] = useState<any>(null)
   const [isLoading, setIsLoading] = useState(false)

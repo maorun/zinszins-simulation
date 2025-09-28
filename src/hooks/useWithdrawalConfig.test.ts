@@ -70,8 +70,8 @@ describe('useWithdrawalConfig', () => {
     })
 
     const config = result.current.currentConfig
-    expect(config.withdrawalReturnMode).toBe('fixed')
-    expect(config.withdrawalAverageReturn).toBe(5)
+    expect(config.withdrawalReturnMode).toBe('random')
+    expect(config.withdrawalAverageReturn).toBe(7)
     expect(config.withdrawalStandardDeviation).toBe(12)
     expect(config.useSegmentedWithdrawal).toBe(false)
     expect(config.useComparisonMode).toBe(false)

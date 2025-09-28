@@ -141,7 +141,7 @@ export function calculateStatutoryPension(
  */
 export function createDefaultStatutoryPensionConfig(): StatutoryPensionConfig {
   return {
-    enabled: false,
+    enabled: true,
     startYear: 2041, // Default retirement year
     monthlyAmount: 1500, // Default monthly pension amount in EUR
     annualIncreaseRate: 1.0, // 1% annual increase
