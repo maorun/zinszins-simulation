@@ -26,7 +26,6 @@ import { createDefaultHealthCareInsuranceConfig } from '../../helpers/health-car
 import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
 import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
 import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
-import { GlobalPlanningConfiguration } from './GlobalPlanningConfiguration'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
 import { useWithdrawalCalculations } from '../hooks/useWithdrawalCalculations'
 import { useWithdrawalModals } from '../hooks/useWithdrawalModals'
@@ -185,9 +184,6 @@ export function EntnahmeSimulationsAusgabe({
           </CardHeader>
           <CollapsibleContent>
             <CardContent>
-              {/* Global Planning Configuration - extracted to separate component */}
-              <GlobalPlanningConfiguration startOfIndependence={startOfIndependence} />
-
               {/* Other Income Sources Configuration */}
               <OtherIncomeConfigurationComponent
                 config={currentConfig.otherIncomeConfig || { enabled: false, sources: [] }}
