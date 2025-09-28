@@ -61,14 +61,14 @@ export type SegmentedWithdrawalConfig = {
 /**
  * Validate that withdrawal segments are properly configured without overlaps
  * @param segments - Array of withdrawal segments
- * @param startYear - First year of withdrawal phase (for reference only)
- * @param endYear - Last year of withdrawal phase (for reference only)
+ * @param startYear - First year of withdrawal phase (Entsparzeitpunkt)
+ * @param endYear - Last year of withdrawal phase (Lebensende)
  * @returns Array of validation errors (empty if valid)
  */
 export function validateWithdrawalSegments(
   segments: WithdrawalSegment[],
-  _startYear: number,
-  _endYear: number,
+  startYear: number,
+  endYear: number,
 ): string[] {
   const errors: string[] = []
 
@@ -79,9 +79,6 @@ export function validateWithdrawalSegments(
 
   // Sort segments by start year for validation
   const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
-
-  // No longer require the first segment to start at the withdrawal start year
-  // Phases can now start before the end of the savings phase
 
   // Check each segment individually
   for (const segment of sortedSegments) {
@@ -110,6 +107,34 @@ export function validateWithdrawalSegments(
   const uniqueIds = new Set(ids)
   if (ids.length !== uniqueIds.size) {
     errors.push('Segment-IDs müssen eindeutig sein')
+  }
+
+  // Enhanced validation for segmented phases (geteilte Phasen)
+  const firstSegment = sortedSegments[0]
+  const lastSegment = sortedSegments[sortedSegments.length - 1]
+
+  // 1. Check if the start time of the first phase is identical to the withdrawal start time
+  if (Math.round(firstSegment.startYear) !== Math.round(startYear)) {
+    errors.push(`Die erste Phase muss am Entsparzeitpunkt (${startYear}) beginnen. Aktuelle erste Phase beginnt ${Math.round(firstSegment.startYear)}.`)
+  }
+
+  // 2. Check if the end time of the last phase is identical to the end of life
+  if (Math.round(lastSegment.endYear) !== Math.round(endYear)) {
+    errors.push(`Die letzte Phase muss am Lebensende (${endYear}) enden. Aktuelle letzte Phase endet ${Math.round(lastSegment.endYear)}.`)
+  }
+
+  // 3. Check if the time periods are continuous (no gaps between phases)
+  for (let i = 0; i < sortedSegments.length - 1; i++) {
+    const currentSegment = sortedSegments[i]
+    const nextSegment = sortedSegments[i + 1]
+
+    const currentEndYear = Math.round(currentSegment.endYear)
+    const nextStartYear = Math.round(nextSegment.startYear)
+
+    // Check for gaps between consecutive segments
+    if (currentEndYear + 1 !== nextStartYear) {
+      errors.push(`Lücke zwischen Segment "${currentSegment.name}" (endet ${currentEndYear}) und "${nextSegment.name}" (beginnt ${nextStartYear}). Die Zeiträume müssen durchgängig sein.`)
+    }
   }
 
   return errors
