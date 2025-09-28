@@ -23,6 +23,7 @@ function EnhancedOverview() {
     steuerlast,
     teilfreistellungsquote,
     withdrawalConfig,
+    endOfLife,
   } = useSimulation()
 
   const enhancedSummary = useMemo(() => {
@@ -34,6 +35,7 @@ function EnhancedOverview() {
       steuerlast,
       teilfreistellungsquote,
       withdrawalConfig,
+      endOfLife,
     )
   }, [
     simulationData,
@@ -43,6 +45,7 @@ function EnhancedOverview() {
     steuerlast,
     teilfreistellungsquote,
     withdrawalConfig,
+    endOfLife,
   ])
 
   if (!enhancedSummary) return null

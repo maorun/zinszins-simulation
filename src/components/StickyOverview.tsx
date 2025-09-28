@@ -17,6 +17,7 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
     rendite,
     steuerlast,
     teilfreistellungsquote,
+    endOfLife,
   } = useSimulation()
 
   const enhancedSummary = useMemo(() => {
@@ -27,6 +28,8 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
       rendite,
       steuerlast,
       teilfreistellungsquote,
+      undefined, // withdrawalConfig - not available in this component
+      endOfLife,
     )
   }, [
     simulationData,
@@ -35,6 +38,7 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
     rendite,
     steuerlast,
     teilfreistellungsquote,
+    endOfLife,
   ])
 
   // Check if we're on mobile
