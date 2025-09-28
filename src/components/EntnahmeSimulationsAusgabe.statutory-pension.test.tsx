@@ -27,21 +27,14 @@ vi.mock('../hooks/useWithdrawalModals', () => ({
 }))
 
 describe('EntnahmeSimulationsAusgabe - Statutory Pension Integration', () => {
-  // Helper function to expand both Variables and Global Configuration sections
+  // Helper function to expand both Variables section to access Statutory Pension Configuration
   const expandVariablesAndGlobalConfig = async () => {
     // Expand the Variables section first
     const variablesSection = screen.getByText('Variablen')
     fireEvent.click(variablesSection)
 
-    // Then expand the Global Configuration section
-    await waitFor(() => {
-      expect(screen.getByText('Globale Konfiguration')).toBeInTheDocument()
-    })
-
-    const globalConfigSection = screen.getByText('Globale Konfiguration')
-    fireEvent.click(globalConfigSection)
-
-    // Then expand the Statutory Pension Configuration section
+    // The Statutory Pension Configuration is now directly in the Variables section
+    // (Global Configuration was moved to HomePage)
     await waitFor(() => {
       expect(screen.getByText('🏛️ Gesetzliche Renten-Konfiguration')).toBeInTheDocument()
     })
