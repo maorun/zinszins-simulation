@@ -20,7 +20,6 @@ import { DynamicWithdrawalConfiguration } from './DynamicWithdrawalConfiguration
 import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
 import { BucketStrategyConfiguration } from './BucketStrategyConfiguration'
 import { KapitalerhaltConfiguration } from './KapitalerhaltConfiguration'
-import { StatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
 import { HealthCareInsuranceConfiguration } from './HealthCareInsuranceConfiguration'
 import { createDefaultHealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
 import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
@@ -102,7 +101,6 @@ export function EntnahmeSimulationsAusgabe({
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     endOfLife: globalEndOfLife,
-    birthYear,
   } = useSimulation()
 
   const {
@@ -1359,124 +1357,6 @@ export function EntnahmeSimulationsAusgabe({
                   )}
                 </div>
               )}
-
-              {/* Statutory Pension Configuration - Available in all withdrawal modes */}
-              <div className="mb-6">
-                <StatutoryPensionConfiguration
-                  values={{
-                    enabled: formValue.statutoryPensionConfig?.enabled || false,
-                    startYear: formValue.statutoryPensionConfig?.startYear || startOfIndependence,
-                    monthlyAmount: formValue.statutoryPensionConfig?.monthlyAmount || 1500,
-                    annualIncreaseRate: formValue.statutoryPensionConfig?.annualIncreaseRate || 1.0,
-                    taxablePercentage: formValue.statutoryPensionConfig?.taxablePercentage || 80,
-                    retirementAge: formValue.statutoryPensionConfig?.retirementAge || 67,
-                    hasTaxReturnData: !!formValue.statutoryPensionConfig?.taxReturnData,
-                    taxYear: formValue.statutoryPensionConfig?.taxReturnData?.taxYear || 2023,
-                    annualPensionReceived: formValue.statutoryPensionConfig?.taxReturnData?.annualPensionReceived || 0,
-                    taxablePortion: formValue.statutoryPensionConfig?.taxReturnData?.taxablePortion || 0,
-                  }}
-                  birthYear={birthYear}
-                  onChange={{
-                    onEnabledChange: enabled => updateFormValue({
-                      statutoryPensionConfig: {
-                        ...(formValue.statutoryPensionConfig || {
-                          enabled: false,
-                          startYear: startOfIndependence,
-                          monthlyAmount: 1500,
-                          annualIncreaseRate: 1.0,
-                          taxablePercentage: 80,
-                          retirementAge: 67,
-                        }),
-                        enabled,
-                      },
-                    }),
-                    onStartYearChange: startYear => updateFormValue({
-                      statutoryPensionConfig: {
-                        ...(formValue.statutoryPensionConfig || {
-                          enabled: false,
-                          startYear: startOfIndependence,
-                          monthlyAmount: 1500,
-                          annualIncreaseRate: 1.0,
-                          taxablePercentage: 80,
-                          retirementAge: 67,
-                        }),
-                        startYear,
-                      },
-                    }),
-                    onMonthlyAmountChange: monthlyAmount => updateFormValue({
-                      statutoryPensionConfig: {
-                        ...(formValue.statutoryPensionConfig || {
-                          enabled: false,
-                          startYear: startOfIndependence,
-                          monthlyAmount: 1500,
-                          annualIncreaseRate: 1.0,
-                          taxablePercentage: 80,
-                          retirementAge: 67,
-                        }),
-                        monthlyAmount,
-                      },
-                    }),
-                    onAnnualIncreaseRateChange: annualIncreaseRate => updateFormValue({
-                      statutoryPensionConfig: {
-                        ...(formValue.statutoryPensionConfig || {
-                          enabled: false,
-                          startYear: startOfIndependence,
-                          monthlyAmount: 1500,
-                          annualIncreaseRate: 1.0,
-                          taxablePercentage: 80,
-                          retirementAge: 67,
-                        }),
-                        annualIncreaseRate,
-                      },
-                    }),
-                    onTaxablePercentageChange: taxablePercentage => updateFormValue({
-                      statutoryPensionConfig: {
-                        ...(formValue.statutoryPensionConfig || {
-                          enabled: false,
-                          startYear: startOfIndependence,
-                          monthlyAmount: 1500,
-                          annualIncreaseRate: 1.0,
-                          taxablePercentage: 80,
-                          retirementAge: 67,
-                        }),
-                        taxablePercentage,
-                      },
-                    }),
-                    onRetirementAgeChange: retirementAge => updateFormValue({
-                      statutoryPensionConfig: {
-                        ...(formValue.statutoryPensionConfig || {
-                          enabled: false,
-                          startYear: startOfIndependence,
-                          monthlyAmount: 1500,
-                          annualIncreaseRate: 1.0,
-                          taxablePercentage: 80,
-                          retirementAge: 67,
-                        }),
-                        retirementAge,
-                      },
-                    }),
-                    onTaxReturnDataChange: data => updateFormValue({
-                      statutoryPensionConfig: {
-                        ...(formValue.statutoryPensionConfig || {
-                          enabled: false,
-                          startYear: startOfIndependence,
-                          monthlyAmount: 1500,
-                          annualIncreaseRate: 1.0,
-                          taxablePercentage: 80,
-                          retirementAge: 67,
-                        }),
-                        taxReturnData: data.hasTaxReturnData
-                          ? {
-                              taxYear: data.taxYear,
-                              annualPensionReceived: data.annualPensionReceived,
-                              taxablePortion: data.taxablePortion,
-                            }
-                          : undefined,
-                      },
-                    }),
-                  }}
-                />
-              </div>
 
               {/* Health Care Insurance Configuration - Available in all withdrawal modes */}
               <div className="mb-6">

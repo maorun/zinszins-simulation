@@ -9,6 +9,7 @@ import { Button } from './ui/button'
 import { useSimulation } from '../contexts/useSimulation'
 import { calculateEndOfLifeYear, calculateCurrentAge, getDefaultLifeExpectancy } from '../../helpers/life-expectancy'
 import { calculateJointLifeExpectancy } from '../../helpers/rmd-tables'
+import { StatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
 
 interface GlobalPlanningConfigurationProps {
   startOfIndependence: number
@@ -35,6 +36,9 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
     setGender,
     spouse,
     setSpouse,
+    // Statutory pension configuration
+    statutoryPensionConfig,
+    setStatutoryPensionConfig,
   } = useSimulation()
 
   return (
@@ -502,6 +506,114 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
                       </div>
                     </CardContent>
                   </CollapsibleContent>
+                </Collapsible>
+              </Card>
+
+              {/* Statutory Pension Configuration Card */}
+              <Card>
+                <Collapsible defaultOpen={false}>
+                  <div className="mb-6">
+                    <StatutoryPensionConfiguration
+                      values={{
+                        enabled: statutoryPensionConfig?.enabled || false,
+                        startYear: statutoryPensionConfig?.startYear || startOfIndependence,
+                        monthlyAmount: statutoryPensionConfig?.monthlyAmount || 1500,
+                        annualIncreaseRate: statutoryPensionConfig?.annualIncreaseRate || 1.0,
+                        taxablePercentage: statutoryPensionConfig?.taxablePercentage || 80,
+                        retirementAge: statutoryPensionConfig?.retirementAge || 67,
+                        hasTaxReturnData: !!statutoryPensionConfig?.taxReturnData,
+                        taxYear: statutoryPensionConfig?.taxReturnData?.taxYear || 2023,
+                        annualPensionReceived: statutoryPensionConfig?.taxReturnData?.annualPensionReceived || 0,
+                        taxablePortion: statutoryPensionConfig?.taxReturnData?.taxablePortion || 0,
+                      }}
+                      birthYear={birthYear}
+                      onChange={{
+                        onEnabledChange: enabled => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          enabled,
+                        }),
+                        onStartYearChange: startYear => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          startYear,
+                        }),
+                        onMonthlyAmountChange: monthlyAmount => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          monthlyAmount,
+                        }),
+                        onAnnualIncreaseRateChange: annualIncreaseRate => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          annualIncreaseRate,
+                        }),
+                        onTaxablePercentageChange: taxablePercentage => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          taxablePercentage,
+                        }),
+                        onRetirementAgeChange: retirementAge => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          retirementAge,
+                        }),
+                        onTaxReturnDataChange: data => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          taxReturnData: data.hasTaxReturnData
+                            ? {
+                                taxYear: data.taxYear,
+                                annualPensionReceived: data.annualPensionReceived,
+                                taxablePortion: data.taxablePortion,
+                              }
+                            : undefined,
+                        }),
+                      }}
+                    />
+                  </div>
                 </Collapsible>
               </Card>
             </div>
