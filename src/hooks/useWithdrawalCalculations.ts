@@ -31,6 +31,8 @@ export function useWithdrawalCalculations(
     planningMode,
     gender,
     // spouse - used indirectly in couple planning calculations
+    statutoryPensionConfig,
+    birthYear,
   } = useSimulation()
 
   const {
@@ -86,7 +88,7 @@ export function useWithdrawalCalculations(
         segments: withdrawalSegments,
         taxRate: 0.26375,
         freibetragPerYear: undefined, // Use default
-        statutoryPensionConfig: formValue.statutoryPensionConfig,
+        statutoryPensionConfig: statutoryPensionConfig || undefined,
       }
 
       withdrawalResult = calculateSegmentedWithdrawal(
@@ -209,10 +211,10 @@ export function useWithdrawalCalculations(
           ? { inflationRate: formValue.inflationsrate / 100 }
           : undefined,
         steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
-        statutoryPensionConfig: formValue.statutoryPensionConfig,
+        statutoryPensionConfig: statutoryPensionConfig || undefined,
         otherIncomeConfig,
         healthCareInsuranceConfig: formValue.healthCareInsuranceConfig,
-        birthYear: formValue.statutoryPensionConfig?.birthYear, // Use birth year from statutory pension config
+        birthYear: birthYear, // Use birth year from global context
       })
       withdrawalResult = withdrawalCalculation.result
     }
@@ -257,7 +259,8 @@ export function useWithdrawalCalculations(
     formValue.dynamischUntereAnpassung,
     formValue.bucketConfig,
     formValue.rmdStartAge,
-    formValue.statutoryPensionConfig,
+    statutoryPensionConfig, // Use global statutory pension config
+    birthYear, // Use global birth year
     lifeExpectancyTable, // Use global setting
     customLifeExpectancy, // Use global setting
     formValue.kapitalerhaltNominalReturn,
@@ -396,10 +399,10 @@ export function useWithdrawalCalculations(
             ? formValue.einkommensteuersatz / 100
             : undefined,
           steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
-          statutoryPensionConfig: formValue.statutoryPensionConfig,
+          statutoryPensionConfig: statutoryPensionConfig || undefined,
           otherIncomeConfig,
           healthCareInsuranceConfig: formValue.healthCareInsuranceConfig,
-          birthYear: formValue.statutoryPensionConfig?.birthYear, // Use birth year from statutory pension config
+          birthYear: birthYear, // Use birth year from global context
         })
 
         // Get final year capital and total withdrawal
@@ -456,7 +459,8 @@ export function useWithdrawalCalculations(
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     formValue.einkommensteuersatz,
-    formValue.statutoryPensionConfig,
+    statutoryPensionConfig, // Use global statutory pension config
+    birthYear, // Use global birth year
     customLifeExpectancy,
     lifeExpectancyTable,
     steuerReduzierenEndkapitalEntspharphase,
@@ -489,7 +493,7 @@ export function useWithdrawalCalculations(
             }
             return freibetragPerYear
           })(),
-          statutoryPensionConfig: formValue.statutoryPensionConfig,
+          statutoryPensionConfig: statutoryPensionConfig || undefined,
         }
 
         // Calculate segmented withdrawal for this comparison strategy
@@ -550,7 +554,7 @@ export function useWithdrawalCalculations(
     startOfIndependence,
     endOfLife,
     steuerlast,
-    formValue.statutoryPensionConfig,
+    statutoryPensionConfig, // Use global statutory pension config
   ])
 
   return {
