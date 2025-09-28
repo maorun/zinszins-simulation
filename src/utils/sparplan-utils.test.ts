@@ -9,7 +9,7 @@ describe('sparplan-utils', () => {
         id: 1,
         start: new Date('2025-09-10'),
         end: new Date('2028-09-01'), // Should stop in 2028
-        einzahlung: 19800,
+        einzahlung: 24000,
       }
 
       const startEnd: [number, number] = [2040, 2080] // Simulation goes until 2040
@@ -67,7 +67,7 @@ describe('sparplan-utils', () => {
         id: 1,
         start: new Date('2025-09-10'),
         end: new Date('2028-09-01'), // Should stop in September 2028
-        einzahlung: 19800, // Annual amount
+        einzahlung: 24000, // Annual amount
       }
 
       const startEnd: [number, number] = [2040, 2080] // Simulation goes until 2040
@@ -84,7 +84,7 @@ describe('sparplan-utils', () => {
 
       // Each monthly payment should be yearly amount / 12
       elements.forEach((element) => {
-        expect(element.einzahlung).toBeCloseTo(19800 / 12, 2)
+        expect(element.einzahlung).toBeCloseTo(24000 / 12, 2)
       })
 
       // Should not create elements for October 2028 onwards
@@ -123,7 +123,7 @@ describe('sparplan-utils', () => {
           id: 1,
           start: new Date('2025-09-10'),
           end: new Date('2028-09-01'), // Ends in 2028
-          einzahlung: 19800,
+          einzahlung: 24000,
         },
         {
           id: 2,
@@ -255,7 +255,7 @@ describe('sparplan-utils', () => {
           id: 1,
           start: new Date('2025-09-15'), // September 2025 (first Sparplan, no end)
           end: null,
-          einzahlung: 19800,
+          einzahlung: 24000,
         },
         {
           id: 2,
@@ -278,19 +278,19 @@ describe('sparplan-utils', () => {
       })
 
       // Check expected yearly amounts:
-      // 2025: First Sparplan partial year (Sep-Dec = 4 months) = 19800 * 4/12 = 6600
-      expect(byYear[2025]).toBeCloseTo(6600, 0)
+      // 2025: First Sparplan partial year (Sep-Dec = 4 months) = 24000 * 4/12 = 8000
+      expect(byYear[2025]).toBeCloseTo(8000, 0)
 
-      // 2026-2030: Both Sparpläne active = 19800 + 12000 = 31800 per year
-      expect(byYear[2026]).toBeCloseTo(31800, 0)
-      expect(byYear[2027]).toBeCloseTo(31800, 0)
-      expect(byYear[2028]).toBeCloseTo(31800, 0)
-      expect(byYear[2029]).toBeCloseTo(31800, 0)
-      expect(byYear[2030]).toBeCloseTo(31800, 0)
+      // 2026-2030: Both Sparpläne active = 24000 + 12000 = 36000 per year
+      expect(byYear[2026]).toBeCloseTo(36000, 0)
+      expect(byYear[2027]).toBeCloseTo(36000, 0)
+      expect(byYear[2028]).toBeCloseTo(36000, 0)
+      expect(byYear[2029]).toBeCloseTo(36000, 0)
+      expect(byYear[2030]).toBeCloseTo(36000, 0)
 
-      // 2031-2040: Only first Sparplan (second should have ended) = 19800 per year
+      // 2031-2040: Only first Sparplan (second should have ended) = 24000 per year
       for (let year = 2031; year <= 2040; year++) {
-        expect(byYear[year] || 0).toBeCloseTo(19800, 0)
+        expect(byYear[year] || 0).toBeCloseTo(24000, 0)
       }
 
       // Should not have any contributions beyond 2040

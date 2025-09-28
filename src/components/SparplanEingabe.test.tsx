@@ -29,8 +29,8 @@ describe('SparplanEingabe localStorage sync', () => {
       />,
     )
 
-    // Should show the initial default sparplan
-    expect(screen.getByText(/19\.800,00 €/)).toBeInTheDocument()
+    // Should show the initial default sparplan (updated to 24,000€)
+    expect(screen.getByText(/24\.000,00 €/)).toBeInTheDocument()
   })
 
   it('should initialize with provided currentSparplans', () => {
@@ -39,7 +39,7 @@ describe('SparplanEingabe localStorage sync', () => {
         id: 100,
         start: new Date('2024-01-01'),
         end: new Date('2030-12-31'),
-        einzahlung: 24000,
+        einzahlung: 30000, // Changed to different amount to avoid conflict with default
       },
       {
         id: 200,
@@ -58,9 +58,9 @@ describe('SparplanEingabe localStorage sync', () => {
     )
 
     // Should show the custom sparplans, not the default one
-    expect(screen.getByText(/24\.000,00 €/)).toBeInTheDocument()
+    expect(screen.getByText(/30\.000,00 €/)).toBeInTheDocument()
     expect(screen.getByText(/12\.000,00 €/)).toBeInTheDocument()
-    expect(screen.queryByText(/19\.800,00 €/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/24\.000,00 €/)).not.toBeInTheDocument() // Should not show default
   })
 
   it('should show empty state when empty sparplans array provided', () => {
