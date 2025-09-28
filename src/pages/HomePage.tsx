@@ -57,6 +57,23 @@ function EnhancedOverview() {
   )
   const savingsEndYear = startEnd[0]
 
+  // Calculate proper withdrawal end year (same logic as StickyBottomOverview)
+  let withdrawalEndYear = endOfLife || startEnd[1] // Use global end of life or fall back to startEnd[1]
+
+  // If we have segmented withdrawal, use the actual end year from segments
+  if (enhancedSummary.isSegmentedWithdrawal
+    && enhancedSummary.withdrawalSegments
+    && enhancedSummary.withdrawalSegments.length > 0) {
+    // Find the latest end year from all segments
+    const segmentEndYears = enhancedSummary.withdrawalSegments
+      .map(segment => segment.endYear)
+      .filter(year => typeof year === 'number' && !isNaN(year))
+
+    if (segmentEndYears.length > 0) {
+      withdrawalEndYear = Math.max(...segmentEndYears)
+    }
+  }
+
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
       <h3 className="bg-gradient-to-r from-slate-700 to-slate-600 text-white m-0 p-4 sm:p-6 text-lg sm:text-xl font-bold text-center tracking-tight">
@@ -117,7 +134,7 @@ function EnhancedOverview() {
             {' '}
             -
             {' '}
-            {startEnd[1]}
+            {withdrawalEndYear}
             )
             {enhancedSummary.isSegmentedWithdrawal
               && enhancedSummary.withdrawalSegments
