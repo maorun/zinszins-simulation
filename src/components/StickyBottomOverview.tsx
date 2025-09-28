@@ -17,6 +17,7 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
     rendite,
     steuerlast,
     teilfreistellungsquote,
+    endOfLife,
   } = useSimulation()
 
   const enhancedSummary = useMemo(() => {
@@ -27,6 +28,8 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
       rendite,
       steuerlast,
       teilfreistellungsquote,
+      undefined, // withdrawalConfig - not available in this component
+      endOfLife,
     )
   }, [
     simulationData,
@@ -35,6 +38,7 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
     rendite,
     steuerlast,
     teilfreistellungsquote,
+    endOfLife,
   ])
 
   // Check if we're on mobile
@@ -88,7 +92,24 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
     }
 
     const withdrawalStartYear = startEnd[0] + 1
-    const withdrawalEndYear = startEnd[1]
+
+    // Calculate proper withdrawal end year
+    let withdrawalEndYear = endOfLife || startEnd[1] // Use global end of life or fall back to startEnd[1]
+
+    // If we have segmented withdrawal, use the actual end year from segments
+    if (enhancedSummary.isSegmentedWithdrawal
+      && enhancedSummary.withdrawalSegments
+      && enhancedSummary.withdrawalSegments.length > 0) {
+      // Find the latest end year from all segments
+      const segmentEndYears = enhancedSummary.withdrawalSegments
+        .map(segment => segment.endYear)
+        .filter(year => typeof year === 'number' && !isNaN(year))
+
+      if (segmentEndYears.length > 0) {
+        withdrawalEndYear = Math.max(...segmentEndYears)
+      }
+    }
+
     const withdrawalYearsRange = `${withdrawalStartYear} - ${withdrawalEndYear}`
 
     // Check if we have segmented withdrawal

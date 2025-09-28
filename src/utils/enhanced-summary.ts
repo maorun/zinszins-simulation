@@ -9,6 +9,7 @@ export function getEnhancedOverviewSummary(
   steuerlast: number,
   teilfreistellungsquote: number,
   withdrawalConfig?: any,
+  endOfLife?: number,
 ) {
   if (!simulationData) return null
 
@@ -21,10 +22,12 @@ export function getEnhancedOverviewSummary(
     withdrawalResult = withdrawalResults
   }
   else {
+    // Use endOfLife if provided, otherwise fall back to startEnd[1]
+    const withdrawalEndYear = endOfLife || startEnd[1]
     const { result } = calculateWithdrawal({
       elements: simulationData.sparplanElements,
       startYear: startEnd[0] + 1,
-      endYear: startEnd[1],
+      endYear: withdrawalEndYear,
       strategy: '4prozent',
       returnConfig: { mode: 'fixed', fixedRate: rendite / 100 },
       taxRate: steuerlast / 100,
