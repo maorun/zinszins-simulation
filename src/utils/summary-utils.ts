@@ -181,7 +181,7 @@ export function getEnhancedSummary(
     enhancedSummary.jahreEntspharphase = withdrawalData.totalYears
 
     // Handle segmented withdrawal summaries
-    if (isSegmentedWithdrawal && withdrawalSegments && withdrawalSegments.length > 1) {
+    if (isSegmentedWithdrawal && withdrawalSegments && withdrawalSegments.length > 0) {
       enhancedSummary.withdrawalSegments = createWithdrawalSegmentSummaries(
         withdrawalSegments,
         withdrawalResult,
