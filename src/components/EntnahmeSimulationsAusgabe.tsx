@@ -102,6 +102,7 @@ export function EntnahmeSimulationsAusgabe({
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     endOfLife: globalEndOfLife,
+    birthYear,
   } = useSimulation()
 
   const {
@@ -1369,12 +1370,12 @@ export function EntnahmeSimulationsAusgabe({
                     annualIncreaseRate: formValue.statutoryPensionConfig?.annualIncreaseRate || 1.0,
                     taxablePercentage: formValue.statutoryPensionConfig?.taxablePercentage || 80,
                     retirementAge: formValue.statutoryPensionConfig?.retirementAge || 67,
-                    birthYear: formValue.statutoryPensionConfig?.birthYear,
                     hasTaxReturnData: !!formValue.statutoryPensionConfig?.taxReturnData,
                     taxYear: formValue.statutoryPensionConfig?.taxReturnData?.taxYear || 2023,
                     annualPensionReceived: formValue.statutoryPensionConfig?.taxReturnData?.annualPensionReceived || 0,
                     taxablePortion: formValue.statutoryPensionConfig?.taxReturnData?.taxablePortion || 0,
                   }}
+                  birthYear={birthYear}
                   onChange={{
                     onEnabledChange: enabled => updateFormValue({
                       statutoryPensionConfig: {
@@ -1452,19 +1453,6 @@ export function EntnahmeSimulationsAusgabe({
                           retirementAge: 67,
                         }),
                         retirementAge,
-                      },
-                    }),
-                    onBirthYearChange: birthYear => updateFormValue({
-                      statutoryPensionConfig: {
-                        ...(formValue.statutoryPensionConfig || {
-                          enabled: false,
-                          startYear: startOfIndependence,
-                          monthlyAmount: 1500,
-                          annualIncreaseRate: 1.0,
-                          taxablePercentage: 80,
-                          retirementAge: 67,
-                        }),
-                        birthYear,
                       },
                     }),
                     onTaxReturnDataChange: data => updateFormValue({

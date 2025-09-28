@@ -20,7 +20,6 @@ interface StatutoryPensionFormValues {
   annualIncreaseRate: number
   taxablePercentage: number
   retirementAge?: number
-  birthYear?: number
   // Tax return data fields
   hasTaxReturnData: boolean
   taxYear: number
@@ -35,7 +34,6 @@ interface StatutoryPensionChangeHandlers {
   onAnnualIncreaseRateChange: (rate: number) => void
   onTaxablePercentageChange: (percentage: number) => void
   onRetirementAgeChange: (age: number) => void
-  onBirthYearChange: (year: number) => void
   onTaxReturnDataChange: (data: {
     hasTaxReturnData: boolean
     taxYear: number
@@ -48,12 +46,15 @@ interface StatutoryPensionConfigurationProps {
   values: StatutoryPensionFormValues
   onChange: StatutoryPensionChangeHandlers
   currentYear?: number
+  // Birth year from global context
+  birthYear?: number
 }
 
 export function StatutoryPensionConfiguration({
   values,
   onChange,
   currentYear = new Date().getFullYear(),
+  birthYear,
 }: StatutoryPensionConfigurationProps) {
   const nestingLevel = useNestingLevel()
 
@@ -77,8 +78,8 @@ export function StatutoryPensionConfiguration({
   }
 
   const handleCalculateStartYear = () => {
-    if (values.birthYear && values.retirementAge) {
-      const calculatedStartYear = calculatePensionStartYear(values.birthYear, values.retirementAge)
+    if (birthYear && values.retirementAge) {
+      const calculatedStartYear = calculatePensionStartYear(birthYear, values.retirementAge)
       onChange.onStartYearChange(calculatedStartYear)
     }
   }
@@ -283,17 +284,15 @@ export function StatutoryPensionConfiguration({
                       <div className="text-sm font-medium text-blue-900">Rentenbeginn automatisch berechnen</div>
                       <div className="grid grid-cols-2 gap-2">
                         <div className="space-y-1">
-                          <Label htmlFor="birth-year" className="text-xs">Geburtsjahr</Label>
-                          <Input
-                            id="birth-year"
-                            type="number"
-                            value={values.birthYear || ''}
-                            onChange={e => onChange.onBirthYearChange(Number(e.target.value))}
-                            placeholder="1974"
-                            min={1940}
-                            max={currentYear - 18}
-                            className="text-xs h-8"
-                          />
+                          <Label className="text-xs">Geburtsjahr (aus Globaler Planung)</Label>
+                          <div className="text-sm font-medium text-gray-700 p-2 bg-gray-50 rounded border">
+                            {birthYear || 'Nicht festgelegt'}
+                          </div>
+                          {!birthYear && (
+                            <div className="text-xs text-orange-600">
+                              Bitte Geburtsjahr in der Globalen Planung festlegen
+                            </div>
+                          )}
                         </div>
                         <div className="space-y-1">
                           <Label htmlFor="retirement-age" className="text-xs">Renteneintrittsalter</Label>
@@ -312,7 +311,7 @@ export function StatutoryPensionConfiguration({
                         size="sm"
                         variant="outline"
                         onClick={handleCalculateStartYear}
-                        disabled={!values.birthYear || !values.retirementAge}
+                        disabled={!birthYear || !values.retirementAge}
                         className="w-full text-xs"
                       >
                         Berechnen

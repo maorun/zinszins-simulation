@@ -9,7 +9,6 @@ const mockOnChange = {
   onAnnualIncreaseRateChange: vi.fn(),
   onTaxablePercentageChange: vi.fn(),
   onRetirementAgeChange: vi.fn(),
-  onBirthYearChange: vi.fn(),
   onTaxReturnDataChange: vi.fn(),
 }
 
@@ -20,7 +19,6 @@ const defaultValues = {
   annualIncreaseRate: 1.0,
   taxablePercentage: 80,
   retirementAge: 67,
-  birthYear: 1974,
   hasTaxReturnData: false,
   taxYear: 2023,
   annualPensionReceived: 0,
@@ -53,6 +51,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={disabledValues}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
@@ -71,6 +70,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={defaultValues}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
@@ -92,6 +92,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={disabledValues}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
@@ -109,6 +110,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={defaultValues}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
@@ -126,6 +128,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={defaultValues}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
@@ -144,6 +147,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={valuesWithTaxReturn}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
@@ -161,6 +165,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={defaultValues}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
@@ -189,6 +194,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={valuesWithTaxReturn}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
@@ -207,11 +213,12 @@ describe('StatutoryPensionConfiguration', () => {
   })
 
   it('calculates start year from birth year and retirement age', () => {
-    const valuesWithBirthYear = { ...defaultValues, birthYear: 1975, retirementAge: 65 }
+    const valuesWithRetirementAge = { ...defaultValues, retirementAge: 65 }
     render(
       <StatutoryPensionConfiguration
-        values={valuesWithBirthYear}
+        values={valuesWithRetirementAge}
         onChange={mockOnChange}
+        birthYear={1975}
       />,
     )
 
@@ -224,25 +231,47 @@ describe('StatutoryPensionConfiguration', () => {
     expect(mockOnChange.onStartYearChange).toHaveBeenCalledWith(2040) // 1975 + 65
   })
 
-  it('handles birth year and retirement age input changes', () => {
+  it('handles retirement age input changes and displays birth year from props', () => {
     render(
       <StatutoryPensionConfiguration
         values={defaultValues}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
     // First expand to access content
     expandCollapsible()
 
-    const birthYearInput = screen.getByLabelText('Geburtsjahr')
-    fireEvent.change(birthYearInput, { target: { value: '1975' } })
+    // Should display birth year from props (read-only)
+    expect(screen.getByText('1974')).toBeInTheDocument()
+    expect(screen.getByText('Geburtsjahr (aus Globaler Planung)')).toBeInTheDocument()
 
     const retirementAgeInput = screen.getByLabelText('Renteneintrittsalter')
     fireEvent.change(retirementAgeInput, { target: { value: '65' } })
 
-    expect(mockOnChange.onBirthYearChange).toHaveBeenCalledWith(1975)
     expect(mockOnChange.onRetirementAgeChange).toHaveBeenCalledWith(65)
+  })
+
+  it('shows warning when birth year is not provided', () => {
+    render(
+      <StatutoryPensionConfiguration
+        values={defaultValues}
+        onChange={mockOnChange}
+        birthYear={undefined}
+      />,
+    )
+
+    // First expand to access content
+    expandCollapsible()
+
+    // Should show "not set" message and warning
+    expect(screen.getByText('Nicht festgelegt')).toBeInTheDocument()
+    expect(screen.getByText('Bitte Geburtsjahr in der Globalen Planung festlegen')).toBeInTheDocument()
+
+    // Calculate button should be disabled
+    const calculateButton = screen.getByRole('button', { name: 'Berechnen' })
+    expect(calculateButton).toBeDisabled()
   })
 
   it('imports values from tax return data correctly', () => {
@@ -256,6 +285,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={valuesWithTaxReturn}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
@@ -279,6 +309,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={valuesWithTaxReturn}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
@@ -290,11 +321,12 @@ describe('StatutoryPensionConfiguration', () => {
   })
 
   it('disables calculate button when birth year or retirement age missing', () => {
-    const valuesWithoutBirthYear = { ...defaultValues, birthYear: undefined }
+    // Test with missing birth year (undefined)
     render(
       <StatutoryPensionConfiguration
-        values={valuesWithoutBirthYear}
+        values={defaultValues}
         onChange={mockOnChange}
+        birthYear={undefined}
       />,
     )
 
@@ -310,6 +342,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={defaultValues}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
@@ -331,6 +364,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={defaultValues}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
@@ -344,6 +378,7 @@ describe('StatutoryPensionConfiguration', () => {
       <StatutoryPensionConfiguration
         values={updatedValues}
         onChange={mockOnChange}
+        birthYear={1974}
       />,
     )
 
