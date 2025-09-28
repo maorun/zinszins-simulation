@@ -236,6 +236,14 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     (initialConfig as SavedConfiguration).withdrawal || null,
   )
 
+  // Synchronize startEnd[1] (withdrawal end year) with endOfLife (life expectancy calculation)
+  useEffect(() => {
+    // Only update if endOfLife is different from current startEnd[1]
+    if (endOfLife !== startEnd[1]) {
+      setStartEnd([startEnd[0], endOfLife])
+    }
+  }, [endOfLife, startEnd])
+
   // Create a wrapper for setEndOfLife that ensures values are always rounded to whole numbers
   const setEndOfLifeRounded = useCallback((value: number) => {
     setEndOfLife(Math.round(value))

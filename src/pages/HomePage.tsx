@@ -8,6 +8,7 @@ import SimulationParameters from '../components/SimulationParameters'
 import { SpecialEvents } from '../components/SpecialEvents'
 import { StickyOverview } from '../components/StickyOverview'
 import { StickyBottomOverview } from '../components/StickyBottomOverview'
+import { GlobalPlanningConfiguration } from '../components/GlobalPlanningConfiguration'
 import { SimulationProvider } from '../contexts/SimulationContext'
 import { useSimulation } from '../contexts/useSimulation'
 import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
@@ -307,6 +308,9 @@ const HomePageContent = () => {
       )}
 
       <SimulationParameters />
+
+      {/* Global Planning Configuration - Available for all calculations including Vorabpauschale */}
+      <GlobalPlanningConfiguration startOfIndependence={startEnd[0]} />
 
       <ConfigurationManagement />
 
