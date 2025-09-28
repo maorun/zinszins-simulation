@@ -46,11 +46,18 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Bundesbank API Integration** - Automatischer Abruf aktueller Basiszinssätze über SDMX API
 - **Validierung und Fallbacks** - Intelligente Validierung mit automatischen Fallback-Mechanismen
 
-### Globale Konfiguration
-- **Lebensende-Parameter** - Zentrale Konfiguration für alle Entnahmestrategien
-- **Planungsmodus** - Individual- oder Paarplanung mit geschlechtsspezifischen Daten
-- **Geburtsjahr-Rechner** - Automatische Berechnung der Lebenserwartung
-- **Deutsche Sterbetafeln** - Statistische Grundlagen vom Statistischen Bundesamt
+### Globale Planung (Einzelperson/Ehepaar)
+- **Planungsmodus** - Zentrale Auswahl zwischen Individual- und Paarplanung
+- **Geschlechtskonfiguration** - Geschlechtsspezifische Einstellungen für präzise Lebenserwartungsberechnung
+- **Lebensende-Berechnung** - Flexible Konfiguration mit manueller oder automatischer Berechnung
+  - **Manuelle Eingabe** - Direkte Jahreseingabe für das Lebensende
+  - **Automatische Berechnung** - Berechnung basierend auf Geburtsjahr und Lebenserwartung
+  - **Geburtsjahr-Rechner** - Automatische Berechnung der Lebenserwartung für Einzelpersonen und Paare
+  - **Gemeinsame Lebenserwartung** - Joint Life Expectancy Berechnung für Paare nach aktuariellen Methoden
+- **Deutsche Sterbetafeln** - Statistische Grundlagen vom Statistischen Bundesamt (2020-2022)
+  - Automatische geschlechtsspezifische Auswahl
+  - Unterstützung für Individual- und Paarplanung
+  - Benutzerdefinierte Lebenserwartung möglich
 
 ### Auszahlungsphase
 - **Standard-Strategien**: 4% Regel, 3% Regel, variable Entnahme-Strategien
