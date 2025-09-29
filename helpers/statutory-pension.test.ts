@@ -5,6 +5,8 @@ import {
   calculateStatutoryPension,
   createDefaultStatutoryPensionConfig,
   calculatePensionStartYear,
+  calculateCoupleRetirementStartYear,
+  calculateRetirementStartYear,
   estimateMonthlyPensionFromTaxReturn,
   estimateTaxablePercentageFromTaxReturn,
 } from './statutory-pension'
@@ -27,6 +29,47 @@ describe('statutory-pension', () => {
     it('should calculate start year from birth year and retirement age', () => {
       expect(calculatePensionStartYear(1974)).toBe(2041) // 1974 + 67 = 2041
       expect(calculatePensionStartYear(1980, 65)).toBe(2045) // 1980 + 65 = 2045
+    })
+  })
+
+  describe('calculateCoupleRetirementStartYear', () => {
+    it('should return the earlier retirement year for couples', () => {
+      // Person 1: 1974 + 67 = 2041, Person 2: 1976 + 67 = 2043
+      expect(calculateCoupleRetirementStartYear(1974, 1976)).toBe(2041)
+
+      // Person 1: 1980 + 65 = 2045, Person 2: 1978 + 67 = 2045
+      expect(calculateCoupleRetirementStartYear(1980, 1978, 65, 67)).toBe(2045)
+
+      // Person 1: 1985 + 67 = 2052, Person 2: 1982 + 65 = 2047
+      expect(calculateCoupleRetirementStartYear(1985, 1982, 67, 65)).toBe(2047)
+    })
+
+    it('should handle different retirement ages for each person', () => {
+      // Person 1: 1970 + 65 = 2035, Person 2: 1975 + 67 = 2042
+      expect(calculateCoupleRetirementStartYear(1970, 1975, 65, 67)).toBe(2035)
+
+      // Person 1: 1980 + 67 = 2047, Person 2: 1978 + 63 = 2041
+      expect(calculateCoupleRetirementStartYear(1980, 1978, 67, 63)).toBe(2041)
+    })
+  })
+
+  describe('calculateRetirementStartYear', () => {
+    it('should handle individual planning mode', () => {
+      expect(calculateRetirementStartYear('individual', 1974)).toBe(2041)
+      expect(calculateRetirementStartYear('individual', 1980, undefined, 65)).toBe(2045)
+      expect(calculateRetirementStartYear('individual')).toBe(null)
+    })
+
+    it('should handle couple planning mode', () => {
+      expect(calculateRetirementStartYear('couple', 1974, 1976)).toBe(2041)
+      expect(calculateRetirementStartYear('couple', 1980, 1978, 65, 67)).toBe(2045)
+      expect(calculateRetirementStartYear('couple', 1974)).toBe(null) // Missing spouse birth year
+      expect(calculateRetirementStartYear('couple')).toBe(null) // Missing both birth years
+    })
+
+    it('should handle custom retirement ages', () => {
+      expect(calculateRetirementStartYear('individual', 1974, undefined, 65)).toBe(2039)
+      expect(calculateRetirementStartYear('couple', 1974, 1976, 65, 67)).toBe(2039)
     })
   })
 

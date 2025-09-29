@@ -158,6 +158,43 @@ export function calculatePensionStartYear(birthYear: number, retirementAge: numb
 }
 
 /**
+ * Calculate retirement start year for couples - uses the earlier retirement year
+ * This ensures that retirement costs are covered when the first partner retires
+ */
+export function calculateCoupleRetirementStartYear(
+  person1BirthYear: number,
+  person2BirthYear: number,
+  person1RetirementAge: number = 67,
+  person2RetirementAge: number = 67,
+): number {
+  const person1RetirementYear = calculatePensionStartYear(person1BirthYear, person1RetirementAge)
+  const person2RetirementYear = calculatePensionStartYear(person2BirthYear, person2RetirementAge)
+
+  // Return the earlier retirement year (when first partner retires)
+  return Math.min(person1RetirementYear, person2RetirementYear)
+}
+
+/**
+ * Calculate retirement start year based on planning mode and available data
+ */
+export function calculateRetirementStartYear(
+  planningMode: 'individual' | 'couple',
+  birthYear?: number,
+  spouseBirthYear?: number,
+  retirementAge: number = 67,
+  spouseRetirementAge: number = 67,
+): number | null {
+  if (planningMode === 'individual') {
+    return birthYear ? calculatePensionStartYear(birthYear, retirementAge) : null
+  }
+  else {
+    return (birthYear && spouseBirthYear)
+      ? calculateCoupleRetirementStartYear(birthYear, spouseBirthYear, retirementAge, spouseRetirementAge)
+      : null
+  }
+}
+
+/**
  * Estimate monthly pension from tax return data
  */
 export function estimateMonthlyPensionFromTaxReturn(
