@@ -50,14 +50,14 @@ interface HealthCareInsuranceConfigurationProps {
   currentYear?: number
   // Birth year information for automatic retirement calculation
   birthYear?: number
-  spouseBirthYear?: number 
+  spouseBirthYear?: number
   planningMode: 'individual' | 'couple'
 }
 
 export function HealthCareInsuranceConfiguration({
   values,
   onChange,
-  currentYear = new Date().getFullYear(),
+  currentYear: _currentYear = new Date().getFullYear(),
   birthYear,
   spouseBirthYear,
   planningMode,
@@ -73,7 +73,7 @@ export function HealthCareInsuranceConfiguration({
       67, // Default retirement age
       67, // Default retirement age for spouse
     )
-    
+
     if (calculatedStartYear && calculatedStartYear !== values.retirementStartYear) {
       onChange.onRetirementStartYearChange(calculatedStartYear)
     }
@@ -192,7 +192,9 @@ export function HealthCareInsuranceConfiguration({
                         <div className="font-medium">{birthYear || 'Nicht festgelegt'}</div>
                       </div>
                       <div className="text-lg font-bold text-green-800">
-                        Rentenbeginn: {birthYear ? values.retirementStartYear : '—'}
+                        Rentenbeginn:
+                        {' '}
+                        {birthYear ? values.retirementStartYear : '—'}
                       </div>
                     </div>
                   ) : (
@@ -208,7 +210,9 @@ export function HealthCareInsuranceConfiguration({
                         </div>
                       </div>
                       <div className="text-lg font-bold text-green-800">
-                        Rentenbeginn (frühester): {(birthYear && spouseBirthYear) ? values.retirementStartYear : '—'}
+                        Rentenbeginn (frühester):
+                        {' '}
+                        {(birthYear && spouseBirthYear) ? values.retirementStartYear : '—'}
                       </div>
                     </div>
                   )}
