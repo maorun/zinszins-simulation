@@ -94,11 +94,6 @@ describe('EntnahmeSimulationsAusgabe - Global Statutory Pension Integration', ()
         rendite: 5,
         einkommensteuersatz: 18,
       },
-    }
-
-    mockUseWithdrawalConfig.mockReturnValue({
-      formValue: mockCurrentConfig.formValue,
-      updateFormValue: vi.fn(),
       withdrawalReturnMode: 'fixed' as const,
       withdrawalVariableReturns: {},
       withdrawalAverageReturn: 5,
@@ -106,28 +101,26 @@ describe('EntnahmeSimulationsAusgabe - Global Statutory Pension Integration', ()
       withdrawalRandomSeed: undefined,
       useSegmentedWithdrawal: false,
       withdrawalSegments: [],
-      setUseSegmentedWithdrawal: vi.fn(),
-      addWithdrawalSegment: vi.fn(),
-      updateWithdrawalSegment: vi.fn(),
-      deleteWithdrawalSegment: vi.fn(),
       useComparisonMode: false,
-      setUseComparisonMode: vi.fn(),
       comparisonStrategies: [],
-      addComparisonStrategy: vi.fn(),
-      updateComparisonStrategy: vi.fn(),
-      deleteComparisonStrategy: vi.fn(),
       useSegmentedComparisonMode: false,
-      setUseSegmentedComparisonMode: vi.fn(),
       segmentedComparisonStrategies: [],
-      addSegmentedComparisonStrategy: vi.fn(),
+    }
+
+    mockUseWithdrawalConfig.mockReturnValue({
+      currentConfig: mockCurrentConfig,
+      updateConfig: vi.fn(),
+      updateFormValue: vi.fn(),
+      updateComparisonStrategy: vi.fn(),
       updateSegmentedComparisonStrategy: vi.fn(),
-      deleteSegmentedComparisonStrategy: vi.fn(),
+      addSegmentedComparisonStrategy: vi.fn(),
+      removeSegmentedComparisonStrategy: vi.fn(),
     })
 
     render(
       <EntnahmeSimulationsAusgabe
         elemente={mockElements}
-        startOfIndependence={2040}
+        startEnd={[2040, 2080]}
         onWithdrawalResultsChange={mockOnWithdrawalResultsChange}
         dispatchEnd={mockDispatchEnd}
         steuerlast={26.375}
