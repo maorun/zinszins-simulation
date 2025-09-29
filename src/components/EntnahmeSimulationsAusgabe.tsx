@@ -101,6 +101,10 @@ export function EntnahmeSimulationsAusgabe({
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     endOfLife: globalEndOfLife,
+    // Birth year and planning data for automatic retirement calculation
+    birthYear,
+    spouse,
+    planningMode,
   } = useSimulation()
 
   const {
@@ -1386,6 +1390,9 @@ export function EntnahmeSimulationsAusgabe({
                       ?.additionalCareInsuranceForChildless || false,
                     additionalCareInsuranceAge: formValue.healthCareInsuranceConfig?.additionalCareInsuranceAge || 23,
                   }}
+                  birthYear={birthYear}
+                  spouseBirthYear={spouse?.birthYear}
+                  planningMode={planningMode}
                   onChange={{
                     onEnabledChange: enabled => updateFormValue({
                       healthCareInsuranceConfig: {
