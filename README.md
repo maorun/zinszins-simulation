@@ -51,9 +51,9 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Geschlechtskonfiguration** - Geschlechtsspezifische Einstellungen für präzise Lebenserwartungsberechnung
 - **Lebensende-Berechnung** - Flexible Konfiguration mit manueller oder automatischer Berechnung
   - **Manuelle Eingabe** - Direkte Jahreseingabe für das Lebensende
-  - **Automatische Berechnung** - Berechnung basierend auf Geburtsjahr und Lebenserwartung
-  - **Geburtsjahr-Rechner** - Automatische Berechnung der Lebenserwartung für Einzelpersonen und Paare
-  - **Gemeinsame Lebenserwartung** - Joint Life Expectancy Berechnung für Paare nach aktuariellen Methoden
+  - **Automatische Berechnung** - Automatische Berechnung basierend auf Geburtsjahr und Lebenserwartung (ohne manuelle Buttons)
+  - **Geburtsjahr-Rechner** - Automatische Echtzeit-Berechnung der Lebenserwartung für Einzelpersonen und Paare
+  - **Gemeinsame Lebenserwartung** - Automatische Joint Life Expectancy Berechnung für Paare nach aktuariellen Methoden
 - **Deutsche Sterbetafeln** - Statistische Grundlagen vom Statistischen Bundesamt (2020-2022)
   - Automatische geschlechtsspezifische Auswahl
   - Unterstützung für Individual- und Paarplanung
