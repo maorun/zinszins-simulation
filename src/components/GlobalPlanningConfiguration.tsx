@@ -9,6 +9,7 @@ import { Button } from './ui/button'
 import { useSimulation } from '../contexts/useSimulation'
 import { calculateEndOfLifeYear, calculateCurrentAge, getDefaultLifeExpectancy } from '../../helpers/life-expectancy'
 import { calculateJointLifeExpectancy } from '../../helpers/rmd-tables'
+import { StatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
 
 interface GlobalPlanningConfigurationProps {
   startOfIndependence: number
@@ -35,6 +36,9 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
     setGender,
     spouse,
     setSpouse,
+    // Statutory pension configuration
+    statutoryPensionConfig,
+    setStatutoryPensionConfig,
   } = useSimulation()
 
   return (
@@ -149,6 +153,124 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
                     </div>
                   )}
 
+              {/* Birth Year Configuration - Moved up one level */}
+              <div className="space-y-2">
+                <Label>Geburtsjahr Konfiguration</Label>
+                {planningMode === 'individual' ? (
+                  // Individual Birth Year
+                  <div className="p-3 border rounded-lg bg-white">
+                    <div className="space-y-2">
+                      <Label htmlFor="birth-year-main" className="text-sm font-medium">Geburtsjahr</Label>
+                      <Input
+                        id="birth-year-main"
+                        type="number"
+                        value={birthYear || ''}
+                        onChange={(e) => {
+                          const year = e.target.value ? Number(e.target.value) : undefined
+                          setBirthYear(year)
+                          // Auto-suggest life expectancy based on current age and gender
+                          if (year) {
+                            const currentAge = calculateCurrentAge(year)
+                            const suggestedLifespan = getDefaultLifeExpectancy(currentAge, gender)
+                            if (!expectedLifespan) {
+                              setExpectedLifespan(suggestedLifespan)
+                            }
+                          }
+                        }}
+                        placeholder="1974"
+                        min={1930}
+                        max={new Date().getFullYear() - 18}
+                        className="w-40"
+                      />
+                      {birthYear && (
+                        <div className="text-sm text-muted-foreground">
+                          Aktuelles Alter:
+                          {' '}
+                          {calculateCurrentAge(birthYear)}
+                          {' '}
+                          Jahre
+                          {gender && (
+                            <span className="ml-2">
+                              (
+                              {gender === 'male' ? '♂ Männlich' : '♀ Weiblich'}
+                              )
+                            </span>
+                          )}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  // Couple Birth Years
+                  <div className="p-3 border rounded-lg bg-white">
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div className="space-y-2">
+                        <Label htmlFor="birth-year-person1-main" className="text-sm font-medium">
+                          Person 1 Geburtsjahr (
+                          {gender === 'male' ? '♂ Männlich' : '♀ Weiblich'}
+                          )
+                        </Label>
+                        <Input
+                          id="birth-year-person1-main"
+                          type="number"
+                          value={birthYear || ''}
+                          onChange={(e) => {
+                            const year = e.target.value ? Number(e.target.value) : undefined
+                            setBirthYear(year)
+                          }}
+                          placeholder="1974"
+                          min={1930}
+                          max={new Date().getFullYear() - 18}
+                          className="w-40"
+                        />
+                        {birthYear && (
+                          <div className="text-sm text-muted-foreground">
+                            Alter:
+                            {' '}
+                            {calculateCurrentAge(birthYear)}
+                            {' '}
+                            Jahre
+                          </div>
+                        )}
+                      </div>
+                      <div className="space-y-2">
+                        <Label htmlFor="birth-year-person2-main" className="text-sm font-medium">
+                          Person 2 Geburtsjahr (
+                          {spouse?.gender === 'male' ? '♂ Männlich' : '♀ Weiblich'}
+                          )
+                        </Label>
+                        <Input
+                          id="birth-year-person2-main"
+                          type="number"
+                          value={spouse?.birthYear || ''}
+                          onChange={(e) => {
+                            const year = e.target.value ? Number(e.target.value) : undefined
+                            setSpouse({
+                              ...spouse,
+                              gender: spouse?.gender || 'female',
+                              birthYear: year,
+                            })
+                          }}
+                          placeholder="1976"
+                          min={1930}
+                          max={new Date().getFullYear() - 18}
+                          className="w-40"
+                        />
+                        {spouse?.birthYear && (
+                          <div className="text-sm text-muted-foreground">
+                            Alter:
+                            {' '}
+                            {calculateCurrentAge(spouse.birthYear)}
+                            {' '}
+                            Jahre
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+
               {/* Life Expectancy Calculation Card */}
               <Card>
                 <Collapsible defaultOpen={false}>
@@ -215,45 +337,19 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
                               <div className="text-sm font-medium text-blue-900">Lebensende automatisch berechnen</div>
 
                               {planningMode === 'individual' ? (
-                                // Individual Planning Mode
+                                // Individual Planning Mode - using birth year from main level
                                 <>
-                                  <div className="grid grid-cols-2 gap-2">
-                                    <div className="space-y-1">
-                                      <Label htmlFor="birth-year-eol" className="text-xs">Geburtsjahr</Label>
-                                      <Input
-                                        id="birth-year-eol"
-                                        type="number"
-                                        value={birthYear || ''}
-                                        onChange={(e) => {
-                                          const year = e.target.value ? Number(e.target.value) : undefined
-                                          setBirthYear(year)
-                                          // Auto-suggest life expectancy based on current age and gender
-                                          if (year) {
-                                            const currentAge = calculateCurrentAge(year)
-                                            const suggestedLifespan = getDefaultLifeExpectancy(currentAge, gender)
-                                            if (!expectedLifespan) {
-                                              setExpectedLifespan(suggestedLifespan)
-                                            }
-                                          }
-                                        }}
-                                        placeholder="1974"
-                                        min={1930}
-                                        max={new Date().getFullYear() - 18}
-                                        className="text-xs h-8"
-                                      />
-                                    </div>
-                                    <div className="space-y-1">
-                                      <Label htmlFor="expected-lifespan" className="text-xs">Lebenserwartung (Alter)</Label>
-                                      <Input
-                                        id="expected-lifespan"
-                                        type="number"
-                                        value={expectedLifespan || 85}
-                                        onChange={e => setExpectedLifespan(Number(e.target.value))}
-                                        min={50}
-                                        max={120}
-                                        className="text-xs h-8"
-                                      />
-                                    </div>
+                                  <div className="space-y-2">
+                                    <Label htmlFor="expected-lifespan" className="text-sm">Lebenserwartung (Alter)</Label>
+                                    <Input
+                                      id="expected-lifespan"
+                                      type="number"
+                                      value={expectedLifespan || 85}
+                                      onChange={e => setExpectedLifespan(Number(e.target.value))}
+                                      min={50}
+                                      max={120}
+                                      className="w-32"
+                                    />
                                   </div>
                                   <Button
                                     size="sm"
@@ -265,17 +361,18 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
                                       }
                                     }}
                                     disabled={!birthYear || !expectedLifespan}
-                                    className="w-full text-xs"
+                                    className="w-full text-sm"
                                   >
-                                    <Calculator className="h-3 w-3 mr-1" />
+                                    <Calculator className="h-4 w-4 mr-2" />
                                     Berechnen (
                                     {birthYear && expectedLifespan ? calculateEndOfLifeYear(birthYear, expectedLifespan) : '—'}
                                     )
                                   </Button>
                                   {birthYear && (
-                                    <div className="text-xs text-muted-foreground space-y-1">
+                                    <div className="text-sm text-muted-foreground space-y-1">
                                       <div>
                                         Aktuelles Alter:
+                                        {' '}
                                         {calculateCurrentAge(birthYear)}
                                         {' '}
                                         Jahre
@@ -290,78 +387,8 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
                                   )}
                                 </>
                               ) : (
-                                // Couple Planning Mode
+                                // Couple Planning Mode - using birth years from main level
                                 <>
-                                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                      <div className="text-xs font-medium">
-                                        Person 1 (
-                                        {gender === 'male' ? '♂ Männlich' : '♀ Weiblich'}
-                                        )
-                                      </div>
-                                      <div className="space-y-1">
-                                        <Label htmlFor="birth-year-person1" className="text-xs">Geburtsjahr</Label>
-                                        <Input
-                                          id="birth-year-person1"
-                                          type="number"
-                                          value={birthYear || ''}
-                                          onChange={(e) => {
-                                            const year = e.target.value ? Number(e.target.value) : undefined
-                                            setBirthYear(year)
-                                          }}
-                                          placeholder="1974"
-                                          min={1930}
-                                          max={new Date().getFullYear() - 18}
-                                          className="text-xs h-8"
-                                        />
-                                      </div>
-                                      {birthYear && (
-                                        <div className="text-xs text-muted-foreground">
-                                          Alter:
-                                          {' '}
-                                          {calculateCurrentAge(birthYear)}
-                                          {' '}
-                                          Jahre
-                                        </div>
-                                      )}
-                                    </div>
-                                    <div className="space-y-2">
-                                      <div className="text-xs font-medium">
-                                        Person 2 (
-                                        {spouse?.gender === 'male' ? '♂ Männlich' : '♀ Weiblich'}
-                                        )
-                                      </div>
-                                      <div className="space-y-1">
-                                        <Label htmlFor="birth-year-person2" className="text-xs">Geburtsjahr</Label>
-                                        <Input
-                                          id="birth-year-person2"
-                                          type="number"
-                                          value={spouse?.birthYear || ''}
-                                          onChange={(e) => {
-                                            const year = e.target.value ? Number(e.target.value) : undefined
-                                            setSpouse({
-                                              ...spouse,
-                                              gender: spouse?.gender || 'female',
-                                              birthYear: year,
-                                            })
-                                          }}
-                                          placeholder="1976"
-                                          min={1930}
-                                          max={new Date().getFullYear() - 18}
-                                          className="text-xs h-8"
-                                        />
-                                      </div>
-                                      {spouse?.birthYear && (
-                                        <div className="text-xs text-muted-foreground">
-                                          Alter:
-                                          {' '}
-                                          {calculateCurrentAge(spouse.birthYear)}
-                                          {' '}
-                                          Jahre
-                                        </div>
-                                      )}
-                                    </div>
-                                  </div>
                                   <Button
                                     size="sm"
                                     variant="outline"
@@ -383,9 +410,9 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
                                       }
                                     }}
                                     disabled={!birthYear || !spouse?.birthYear}
-                                    className="w-full text-xs"
+                                    className="w-full text-sm"
                                   >
-                                    <Calculator className="h-3 w-3 mr-1" />
+                                    <Calculator className="h-4 w-4 mr-2" />
                                     <span className="hidden sm:inline">Gemeinsame Lebenserwartung berechnen</span>
                                     <span className="sm:hidden">Berechnen</span>
                                     {birthYear && spouse?.birthYear && gender && spouse?.gender
@@ -398,7 +425,7 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
                                       : ''}
                                   </Button>
                                   {birthYear && spouse?.birthYear && gender && spouse?.gender && (
-                                    <div className="text-xs text-muted-foreground space-y-1">
+                                    <div className="text-sm text-muted-foreground space-y-1">
                                       <div>
                                         Gemeinsame Lebenserwartung:
                                         {Math.round(calculateJointLifeExpectancy(
@@ -502,6 +529,114 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
                       </div>
                     </CardContent>
                   </CollapsibleContent>
+                </Collapsible>
+              </Card>
+
+              {/* Statutory Pension Configuration Card */}
+              <Card>
+                <Collapsible defaultOpen={false}>
+                  <div className="mb-6">
+                    <StatutoryPensionConfiguration
+                      values={{
+                        enabled: statutoryPensionConfig?.enabled || false,
+                        startYear: statutoryPensionConfig?.startYear || startOfIndependence,
+                        monthlyAmount: statutoryPensionConfig?.monthlyAmount || 1500,
+                        annualIncreaseRate: statutoryPensionConfig?.annualIncreaseRate || 1.0,
+                        taxablePercentage: statutoryPensionConfig?.taxablePercentage || 80,
+                        retirementAge: statutoryPensionConfig?.retirementAge || 67,
+                        hasTaxReturnData: !!statutoryPensionConfig?.taxReturnData,
+                        taxYear: statutoryPensionConfig?.taxReturnData?.taxYear || 2023,
+                        annualPensionReceived: statutoryPensionConfig?.taxReturnData?.annualPensionReceived || 0,
+                        taxablePortion: statutoryPensionConfig?.taxReturnData?.taxablePortion || 0,
+                      }}
+                      birthYear={birthYear}
+                      onChange={{
+                        onEnabledChange: enabled => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          enabled,
+                        }),
+                        onStartYearChange: startYear => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          startYear,
+                        }),
+                        onMonthlyAmountChange: monthlyAmount => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          monthlyAmount,
+                        }),
+                        onAnnualIncreaseRateChange: annualIncreaseRate => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          annualIncreaseRate,
+                        }),
+                        onTaxablePercentageChange: taxablePercentage => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          taxablePercentage,
+                        }),
+                        onRetirementAgeChange: retirementAge => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          retirementAge,
+                        }),
+                        onTaxReturnDataChange: data => setStatutoryPensionConfig({
+                          ...(statutoryPensionConfig || {
+                            enabled: false,
+                            startYear: startOfIndependence,
+                            monthlyAmount: 1500,
+                            annualIncreaseRate: 1.0,
+                            taxablePercentage: 80,
+                            retirementAge: 67,
+                          }),
+                          taxReturnData: data.hasTaxReturnData
+                            ? {
+                                taxYear: data.taxYear,
+                                annualPensionReceived: data.annualPensionReceived,
+                                taxablePortion: data.taxablePortion,
+                              }
+                            : undefined,
+                        }),
+                      }}
+                    />
+                  </div>
                 </Collapsible>
               </Card>
             </div>

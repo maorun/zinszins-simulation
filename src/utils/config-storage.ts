@@ -173,6 +173,8 @@ export interface SavedConfiguration {
   useAutomaticCalculation?: boolean
   // Withdrawal configuration
   withdrawal?: WithdrawalConfiguration
+  // Statutory pension configuration
+  statutoryPensionConfig?: StatutoryPensionConfig
   // Other income sources configuration
   otherIncome?: OtherIncomeConfiguration
 }

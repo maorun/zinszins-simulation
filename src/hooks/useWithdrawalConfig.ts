@@ -7,7 +7,6 @@ import type {
   ComparisonStrategy,
   SegmentedComparisonStrategy,
 } from '../utils/config-storage'
-import { createDefaultStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import { createDefaultHealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
 
 /**
@@ -61,8 +60,7 @@ export function useWithdrawalConfig() {
       // Kapitalerhalt strategy specific settings
       kapitalerhaltNominalReturn: 7, // Default nominal return 7%
       kapitalerhaltInflationRate: 2, // Default inflation rate 2%
-      // Statutory pension settings
-      statutoryPensionConfig: createDefaultStatutoryPensionConfig(),
+      // Statutory pension settings - moved to global configuration
       // Health and care insurance settings
       healthCareInsuranceConfig: createDefaultHealthCareInsuranceConfig(),
       einkommensteuersatz: 18, // Default income tax rate 18%

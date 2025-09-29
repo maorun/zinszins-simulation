@@ -8,6 +8,7 @@ import type { WithdrawalResult } from '../../helpers/withdrawal'
 import { SimulationContext } from './SimulationContextValue'
 import { saveConfiguration, loadConfiguration, type SavedConfiguration, type WithdrawalConfiguration } from '../utils/config-storage'
 import type { BasiszinsConfiguration } from '../services/bundesbank-api'
+import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
 
 export interface SimulationContextState {
   rendite: number
@@ -91,6 +92,9 @@ export interface SimulationContextState {
   // Withdrawal configuration
   withdrawalConfig: WithdrawalConfiguration | null
   setWithdrawalConfig: (config: WithdrawalConfiguration | null) => void
+  // Statutory pension configuration
+  statutoryPensionConfig: StatutoryPensionConfig | null
+  setStatutoryPensionConfig: (config: StatutoryPensionConfig | null) => void
 }
 
 export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {
@@ -236,6 +240,11 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     (initialConfig as SavedConfiguration).withdrawal || null,
   )
 
+  // Statutory pension configuration state
+  const [statutoryPensionConfig, setStatutoryPensionConfig] = useState<StatutoryPensionConfig | null>(
+    (initialConfig as SavedConfiguration).statutoryPensionConfig || null,
+  )
+
   // Synchronize startEnd[1] (withdrawal end year) with endOfLife (life expectancy calculation)
   useEffect(() => {
     // Only update if endOfLife is different from current startEnd[1]
@@ -288,6 +297,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     expectedLifespan,
     useAutomaticCalculation,
     withdrawal: withdrawalConfig || undefined,
+    statutoryPensionConfig: statutoryPensionConfig || undefined,
   }), [
     rendite,
     steuerlast,
@@ -320,6 +330,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     expectedLifespan,
     useAutomaticCalculation,
     withdrawalConfig,
+    statutoryPensionConfig,
   ])
 
   const saveCurrentConfiguration = useCallback(() => {
@@ -374,6 +385,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setExpectedLifespan((savedConfig as any).expectedLifespan ?? defaultConfig.expectedLifespan)
       setUseAutomaticCalculation((savedConfig as any).useAutomaticCalculation ?? defaultConfig.useAutomaticCalculation)
       setWithdrawalConfig(savedConfig.withdrawal || null)
+      setStatutoryPensionConfig(savedConfig.statutoryPensionConfig || null)
     }
   }, [defaultConfig])
 
@@ -416,6 +428,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setExpectedLifespan(defaultConfig.expectedLifespan)
     setUseAutomaticCalculation(defaultConfig.useAutomaticCalculation)
     setWithdrawalConfig(null) // Reset withdrawal config to null
+    setStatutoryPensionConfig(null) // Reset statutory pension config to null
   }, [defaultConfig, setSparplanElemente])
 
   // Auto-save configuration whenever any config value changes
@@ -564,6 +577,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     resetToDefaults,
     // Withdrawal configuration
     withdrawalConfig, setWithdrawalConfig,
+    // Statutory pension configuration
+    statutoryPensionConfig, setStatutoryPensionConfig,
   }), [
     rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration,
     steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase,
@@ -575,7 +590,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     birthYear, expectedLifespan, useAutomaticCalculation,
     simulationData, isLoading, withdrawalResults, performSimulation,
     saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
-    withdrawalConfig, setEndOfLifeRounded,
+    withdrawalConfig, statutoryPensionConfig, setEndOfLifeRounded,
   ])
 
   return (
