@@ -52,6 +52,7 @@ describe('StatutoryPensionConfiguration', () => {
         values={disabledValues}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
@@ -71,6 +72,7 @@ describe('StatutoryPensionConfiguration', () => {
         values={defaultValues}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
@@ -79,7 +81,7 @@ describe('StatutoryPensionConfiguration', () => {
 
     expect(screen.getByLabelText('Gesetzliche Rente berücksichtigen')).toBeChecked()
     expect(screen.getByText('Daten aus Rentenbescheid importieren')).toBeInTheDocument()
-    expect(screen.getByLabelText('Rentenbeginn (Jahr)')).toBeInTheDocument()
+    expect(screen.getByText('Automatischer Rentenbeginn')).toBeInTheDocument()
     expect(screen.getByLabelText('Monatliche Rente (brutto) €')).toBeInTheDocument()
     expect(screen.getByText('Jährliche Rentenanpassung (%)')).toBeInTheDocument()
     expect(screen.getByText('Steuerpflichtiger Anteil (%)')).toBeInTheDocument()
@@ -93,6 +95,7 @@ describe('StatutoryPensionConfiguration', () => {
         values={disabledValues}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
@@ -111,6 +114,7 @@ describe('StatutoryPensionConfiguration', () => {
         values={defaultValues}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
@@ -123,22 +127,22 @@ describe('StatutoryPensionConfiguration', () => {
     expect(mockOnChange.onMonthlyAmountChange).toHaveBeenCalledWith(1600)
   })
 
-  it('handles start year input correctly', () => {
+  it('automatically calculates start year based on birth year and retirement age', () => {
     render(
       <StatutoryPensionConfiguration
         values={defaultValues}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
     // First expand to access content
     expandCollapsible()
 
-    const startYearInput = screen.getByLabelText('Rentenbeginn (Jahr)')
-    fireEvent.change(startYearInput, { target: { value: '2042' } })
-
-    expect(mockOnChange.onStartYearChange).toHaveBeenCalledWith(2042)
+    // Check that the retirement start year is automatically displayed
+    expect(screen.getByText('Automatischer Rentenbeginn')).toBeInTheDocument()
+    expect(screen.getAllByText('2041')).toHaveLength(2) // 1974 + 67 = 2041, appears in auto-calc and summary
   })
 
   it('shows tax return data fields when enabled', () => {
@@ -148,6 +152,7 @@ describe('StatutoryPensionConfiguration', () => {
         values={valuesWithTaxReturn}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
@@ -166,6 +171,7 @@ describe('StatutoryPensionConfiguration', () => {
         values={defaultValues}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
@@ -195,6 +201,7 @@ describe('StatutoryPensionConfiguration', () => {
         values={valuesWithTaxReturn}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
@@ -212,23 +219,21 @@ describe('StatutoryPensionConfiguration', () => {
     })
   })
 
-  it('calculates start year from birth year and retirement age', () => {
+  it('automatically calculates start year when retirement age changes', () => {
     const valuesWithRetirementAge = { ...defaultValues, retirementAge: 65 }
     render(
       <StatutoryPensionConfiguration
         values={valuesWithRetirementAge}
         onChange={mockOnChange}
         birthYear={1975}
+        planningMode="individual"
       />,
     )
 
-    // First expand to access content
-    expandCollapsible()
-
-    const calculateButton = screen.getByRole('button', { name: 'Berechnen' })
-    fireEvent.click(calculateButton)
-
-    expect(mockOnChange.onStartYearChange).toHaveBeenCalledWith(2040) // 1975 + 65
+    // The start year should be automatically calculated via useEffect
+    // 1975 + 65 = 2040, and since this differs from the default startYear (2041),
+    // onStartYearChange should be called automatically
+    expect(mockOnChange.onStartYearChange).toHaveBeenCalledWith(2040)
   })
 
   it('handles retirement age input changes and displays birth year from props', () => {
@@ -237,15 +242,16 @@ describe('StatutoryPensionConfiguration', () => {
         values={defaultValues}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
     // First expand to access content
     expandCollapsible()
 
-    // Should display birth year from props (read-only)
+    // Should display birth year from props in automatic calculation
     expect(screen.getByText('1974')).toBeInTheDocument()
-    expect(screen.getByText('Geburtsjahr (aus Globaler Planung)')).toBeInTheDocument()
+    expect(screen.getByText('Geburtsjahr:')).toBeInTheDocument()
 
     const retirementAgeInput = screen.getByLabelText('Renteneintrittsalter')
     fireEvent.change(retirementAgeInput, { target: { value: '65' } })
@@ -259,6 +265,7 @@ describe('StatutoryPensionConfiguration', () => {
         values={defaultValues}
         onChange={mockOnChange}
         birthYear={undefined}
+        planningMode="individual"
       />,
     )
 
@@ -267,11 +274,7 @@ describe('StatutoryPensionConfiguration', () => {
 
     // Should show "not set" message and warning
     expect(screen.getByText('Nicht festgelegt')).toBeInTheDocument()
-    expect(screen.getByText('Bitte Geburtsjahr in der Globalen Planung festlegen')).toBeInTheDocument()
-
-    // Calculate button should be disabled
-    const calculateButton = screen.getByRole('button', { name: 'Berechnen' })
-    expect(calculateButton).toBeDisabled()
+    expect(screen.getByText('Bitte Geburtsjahr(e) in der Globalen Planung festlegen')).toBeInTheDocument()
   })
 
   it('imports values from tax return data correctly', () => {
@@ -286,6 +289,7 @@ describe('StatutoryPensionConfiguration', () => {
         values={valuesWithTaxReturn}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
@@ -310,6 +314,7 @@ describe('StatutoryPensionConfiguration', () => {
         values={valuesWithTaxReturn}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
@@ -320,29 +325,13 @@ describe('StatutoryPensionConfiguration', () => {
     expect(importButton).toBeDisabled()
   })
 
-  it('disables calculate button when birth year or retirement age missing', () => {
-    // Test with missing birth year (undefined)
-    render(
-      <StatutoryPensionConfiguration
-        values={defaultValues}
-        onChange={mockOnChange}
-        birthYear={undefined}
-      />,
-    )
-
-    // First expand to access content
-    expandCollapsible()
-
-    const calculateButton = screen.getByRole('button', { name: 'Berechnen' })
-    expect(calculateButton).toBeDisabled()
-  })
-
   it('displays correct summary information', () => {
     render(
       <StatutoryPensionConfiguration
         values={defaultValues}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
@@ -350,7 +339,7 @@ describe('StatutoryPensionConfiguration', () => {
     expandCollapsible()
 
     expect(screen.getByText('Rentenbeginn:')).toBeInTheDocument()
-    expect(screen.getByText('2041')).toBeInTheDocument()
+    expect(screen.getAllByText('2041')).toHaveLength(2) // Should appear in both auto-calc and summary
     expect(screen.getByText('Monatliche Rente:')).toBeInTheDocument()
     expect(screen.getByText('1.500 €')).toBeInTheDocument()
     expect(screen.getByText('Jährliche Rente:')).toBeInTheDocument()
@@ -365,6 +354,7 @@ describe('StatutoryPensionConfiguration', () => {
         values={defaultValues}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 
@@ -379,6 +369,7 @@ describe('StatutoryPensionConfiguration', () => {
         values={updatedValues}
         onChange={mockOnChange}
         birthYear={1974}
+        planningMode="individual"
       />,
     )
 

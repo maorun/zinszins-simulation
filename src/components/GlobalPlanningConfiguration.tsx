@@ -550,6 +550,8 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
                         taxablePortion: statutoryPensionConfig?.taxReturnData?.taxablePortion || 0,
                       }}
                       birthYear={birthYear}
+                      spouseBirthYear={spouse?.birthYear}
+                      planningMode={planningMode}
                       onChange={{
                         onEnabledChange: enabled => setStatutoryPensionConfig({
                           ...(statutoryPensionConfig || {
