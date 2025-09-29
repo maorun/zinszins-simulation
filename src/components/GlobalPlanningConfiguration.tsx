@@ -1,15 +1,15 @@
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { ChevronDown, Calculator } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { RadioTileGroup, RadioTile } from './ui/radio-tile'
 import { Switch } from './ui/switch'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
-import { Button } from './ui/button'
 import { useSimulation } from '../contexts/useSimulation'
 import { calculateEndOfLifeYear, calculateCurrentAge, getDefaultLifeExpectancy } from '../../helpers/life-expectancy'
 import { calculateJointLifeExpectancy } from '../../helpers/rmd-tables'
 import { StatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
+import { useEffect } from 'react'
 
 interface GlobalPlanningConfigurationProps {
   startOfIndependence: number
@@ -40,6 +40,46 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
     statutoryPensionConfig,
     setStatutoryPensionConfig,
   } = useSimulation()
+
+  // Automatic calculation effect - triggers when automatic mode is enabled and relevant data changes
+  useEffect(() => {
+    if (useAutomaticCalculation) {
+      if (planningMode === 'individual') {
+        // Individual planning: calculate when birth year and expected lifespan are available
+        if (birthYear && expectedLifespan) {
+          const calculatedYear = calculateEndOfLifeYear(birthYear, expectedLifespan)
+          setEndOfLife(Math.round(calculatedYear))
+        }
+      }
+      else {
+        // Couple planning: calculate when both birth years and genders are available
+        if (birthYear && spouse?.birthYear && gender && spouse?.gender) {
+          const age1 = calculateCurrentAge(birthYear)
+          const age2 = calculateCurrentAge(spouse.birthYear)
+          const jointLifeExpectancy = calculateJointLifeExpectancy(
+            age1, age2, gender, spouse.gender,
+          )
+
+          // Use the older person's birth year + joint life expectancy
+          const olderBirthYear = Math.min(birthYear, spouse.birthYear)
+          const calculatedYear = calculateEndOfLifeYear(
+            olderBirthYear,
+            jointLifeExpectancy + calculateCurrentAge(olderBirthYear),
+          )
+          setEndOfLife(Math.round(calculatedYear))
+        }
+      }
+    }
+  }, [
+    useAutomaticCalculation,
+    planningMode,
+    birthYear,
+    spouse?.birthYear,
+    gender,
+    spouse?.gender,
+    expectedLifespan,
+    setEndOfLife,
+  ])
 
   return (
     <Card className="mb-6">
@@ -351,23 +391,6 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
                                       className="w-32"
                                     />
                                   </div>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      if (birthYear && expectedLifespan) {
-                                        const calculatedYear = calculateEndOfLifeYear(birthYear, expectedLifespan)
-                                        setEndOfLife(Math.round(calculatedYear))
-                                      }
-                                    }}
-                                    disabled={!birthYear || !expectedLifespan}
-                                    className="w-full text-sm"
-                                  >
-                                    <Calculator className="h-4 w-4 mr-2" />
-                                    Berechnen (
-                                    {birthYear && expectedLifespan ? calculateEndOfLifeYear(birthYear, expectedLifespan) : '—'}
-                                    )
-                                  </Button>
                                   {birthYear && (
                                     <div className="text-sm text-muted-foreground space-y-1">
                                       <div>
@@ -389,41 +412,6 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
                               ) : (
                                 // Couple Planning Mode - using birth years from main level
                                 <>
-                                  <Button
-                                    size="sm"
-                                    variant="outline"
-                                    onClick={() => {
-                                      if (birthYear && spouse?.birthYear && gender && spouse?.gender) {
-                                        const age1 = calculateCurrentAge(birthYear)
-                                        const age2 = calculateCurrentAge(spouse.birthYear)
-                                        const jointLifeExpectancy = calculateJointLifeExpectancy(
-                                          age1, age2, gender, spouse.gender,
-                                        )
-
-                                        // Use the older person's birth year + joint life expectancy
-                                        const olderBirthYear = Math.min(birthYear, spouse.birthYear)
-                                        const calculatedYear = calculateEndOfLifeYear(
-                                          olderBirthYear,
-                                          jointLifeExpectancy + calculateCurrentAge(olderBirthYear),
-                                        )
-                                        setEndOfLife(Math.round(calculatedYear))
-                                      }
-                                    }}
-                                    disabled={!birthYear || !spouse?.birthYear}
-                                    className="w-full text-sm"
-                                  >
-                                    <Calculator className="h-4 w-4 mr-2" />
-                                    <span className="hidden sm:inline">Gemeinsame Lebenserwartung berechnen</span>
-                                    <span className="sm:hidden">Berechnen</span>
-                                    {birthYear && spouse?.birthYear && gender && spouse?.gender
-                                      ? ` (${Math.round(calculateJointLifeExpectancy(
-                                        calculateCurrentAge(birthYear),
-                                        calculateCurrentAge(spouse.birthYear),
-                                        gender,
-                                        spouse.gender,
-                                      ))} Jahre)`
-                                      : ''}
-                                  </Button>
                                   {birthYear && spouse?.birthYear && gender && spouse?.gender && (
                                     <div className="text-sm text-muted-foreground space-y-1">
                                       <div>
