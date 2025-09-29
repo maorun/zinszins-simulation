@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { Switch } from './ui/switch'
@@ -9,6 +10,7 @@ import { RadioTileGroup, RadioTile } from './ui/radio-tile'
 import { ChevronDown, Info } from 'lucide-react'
 import { useNestingLevel } from '../lib/nesting-utils'
 import { formatCurrency } from '../utils/currency'
+import { calculateRetirementStartYear } from '../../helpers/statutory-pension'
 
 interface HealthCareInsuranceFormValues {
   enabled: boolean
@@ -46,14 +48,36 @@ interface HealthCareInsuranceConfigurationProps {
   values: HealthCareInsuranceFormValues
   onChange: HealthCareInsuranceChangeHandlers
   currentYear?: number
+  // Birth year information for automatic retirement calculation
+  birthYear?: number
+  spouseBirthYear?: number
+  planningMode: 'individual' | 'couple'
 }
 
 export function HealthCareInsuranceConfiguration({
   values,
   onChange,
-  currentYear = new Date().getFullYear(),
+  currentYear: _currentYear = new Date().getFullYear(),
+  birthYear,
+  spouseBirthYear,
+  planningMode,
 }: HealthCareInsuranceConfigurationProps) {
   const nestingLevel = useNestingLevel()
+
+  // Auto-calculate retirement start year when birth year changes
+  useEffect(() => {
+    const calculatedStartYear = calculateRetirementStartYear(
+      planningMode,
+      birthYear,
+      spouseBirthYear,
+      67, // Default retirement age
+      67, // Default retirement age for spouse
+    )
+
+    if (calculatedStartYear && calculatedStartYear !== values.retirementStartYear) {
+      onChange.onRetirementStartYearChange(calculatedStartYear)
+    }
+  }, [birthYear, spouseBirthYear, planningMode, values.retirementStartYear, onChange])
 
   if (!values.enabled) {
     return (
@@ -157,21 +181,49 @@ export function HealthCareInsuranceConfiguration({
                 </RadioTileGroup>
               </div>
 
-              {/* Retirement Start Year */}
+              {/* Automatic Retirement Start Year Display */}
               <div className="space-y-2">
-                <Label htmlFor="retirement-start-year">
-                  Rentenbeginn (Jahr)
-                </Label>
-                <Input
-                  id="retirement-start-year"
-                  type="number"
-                  min={currentYear}
-                  max={currentYear + 50}
-                  value={values.retirementStartYear}
-                  onChange={e => onChange.onRetirementStartYearChange(Number(e.target.value))}
-                />
-                <div className="text-xs text-muted-foreground">
-                  Jahr ab dem die Rentnerregelungen gelten
+                <Label>Rentenbeginn (automatisch berechnet)</Label>
+                <div className="p-3 border rounded-lg bg-green-50">
+                  {planningMode === 'individual' ? (
+                    <div className="space-y-2">
+                      <div className="text-sm">
+                        <span className="text-gray-600">Basierend auf Geburtsjahr aus Globaler Planung:</span>
+                        <div className="font-medium">{birthYear || 'Nicht festgelegt'}</div>
+                      </div>
+                      <div className="text-lg font-bold text-green-800">
+                        Rentenbeginn:
+                        {' '}
+                        {birthYear ? values.retirementStartYear : '—'}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="space-y-2">
+                      <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div>
+                          <span className="text-gray-600">Person 1:</span>
+                          <div className="font-medium">{birthYear || 'Nicht festgelegt'}</div>
+                        </div>
+                        <div>
+                          <span className="text-gray-600">Person 2:</span>
+                          <div className="font-medium">{spouseBirthYear || 'Nicht festgelegt'}</div>
+                        </div>
+                      </div>
+                      <div className="text-lg font-bold text-green-800">
+                        Rentenbeginn (frühester):
+                        {' '}
+                        {(birthYear && spouseBirthYear) ? values.retirementStartYear : '—'}
+                      </div>
+                    </div>
+                  )}
+                  <div className="text-xs text-muted-foreground mt-2">
+                    Jahr ab dem die Rentnerregelungen gelten (berechnet mit Renteneintrittsalter 67)
+                  </div>
+                  {!birthYear || (planningMode === 'couple' && !spouseBirthYear) ? (
+                    <div className="text-xs text-orange-600 bg-orange-50 p-2 rounded border border-orange-200 mt-2">
+                      Bitte Geburtsjahr(e) in der Globalen Planung festlegen
+                    </div>
+                  ) : null}
                 </div>
               </div>
 

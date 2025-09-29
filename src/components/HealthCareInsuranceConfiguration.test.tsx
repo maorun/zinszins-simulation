@@ -44,6 +44,7 @@ describe('HealthCareInsuranceConfiguration', () => {
       <HealthCareInsuranceConfiguration
         values={defaultValues}
         onChange={mockHandlers}
+        planningMode="individual"
       />,
     )
 
@@ -58,6 +59,7 @@ describe('HealthCareInsuranceConfiguration', () => {
       <HealthCareInsuranceConfiguration
         values={statutoryValues}
         onChange={mockHandlers}
+        planningMode="individual"
       />,
     )
 
@@ -71,6 +73,7 @@ describe('HealthCareInsuranceConfiguration', () => {
       <HealthCareInsuranceConfiguration
         values={privateValues}
         onChange={mockHandlers}
+        planningMode="individual"
       />,
     )
 
@@ -84,6 +87,7 @@ describe('HealthCareInsuranceConfiguration', () => {
       <HealthCareInsuranceConfiguration
         values={enabledValues}
         onChange={mockHandlers}
+        planningMode="individual"
       />,
     )
 
@@ -96,6 +100,7 @@ describe('HealthCareInsuranceConfiguration', () => {
       <HealthCareInsuranceConfiguration
         values={defaultValues}
         onChange={mockHandlers}
+        planningMode="individual"
       />,
     )
 

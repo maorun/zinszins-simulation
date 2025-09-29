@@ -1,3 +1,4 @@
+import { useEffect } from 'react'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { Switch } from './ui/switch'
@@ -10,7 +11,7 @@ import { useNestingLevel } from '../lib/nesting-utils'
 import {
   estimateMonthlyPensionFromTaxReturn,
   estimateTaxablePercentageFromTaxReturn,
-  calculatePensionStartYear,
+  calculateRetirementStartYear,
 } from '../../helpers/statutory-pension'
 
 interface StatutoryPensionFormValues {
@@ -46,8 +47,10 @@ interface StatutoryPensionConfigurationProps {
   values: StatutoryPensionFormValues
   onChange: StatutoryPensionChangeHandlers
   currentYear?: number
-  // Birth year from global context
+  // Birth year information for retirement calculation
   birthYear?: number
+  spouseBirthYear?: number
+  planningMode: 'individual' | 'couple'
 }
 
 export function StatutoryPensionConfiguration({
@@ -55,8 +58,24 @@ export function StatutoryPensionConfiguration({
   onChange,
   currentYear = new Date().getFullYear(),
   birthYear,
+  spouseBirthYear,
+  planningMode,
 }: StatutoryPensionConfigurationProps) {
   const nestingLevel = useNestingLevel()
+
+  // Auto-calculate retirement start year when birth year or retirement age changes
+  useEffect(() => {
+    const calculatedStartYear = calculateRetirementStartYear(
+      planningMode,
+      birthYear,
+      spouseBirthYear,
+      values.retirementAge || 67,
+      values.retirementAge || 67, // Use same retirement age for both unless we add spouse retirement age support
+    )
+    if (calculatedStartYear && calculatedStartYear !== values.startYear) {
+      onChange.onStartYearChange(calculatedStartYear)
+    }
+  }, [birthYear, spouseBirthYear, planningMode, values.retirementAge, values.startYear, onChange])
 
   const handleImportFromTaxReturn = () => {
     if (values.hasTaxReturnData && values.annualPensionReceived > 0) {
@@ -74,13 +93,6 @@ export function StatutoryPensionConfiguration({
 
       onChange.onMonthlyAmountChange(Math.round(estimatedMonthly))
       onChange.onTaxablePercentageChange(Math.round(estimatedTaxablePercentage))
-    }
-  }
-
-  const handleCalculateStartYear = () => {
-    if (birthYear && values.retirementAge) {
-      const calculatedStartYear = calculatePensionStartYear(birthYear, values.retirementAge)
-      onChange.onStartYearChange(calculatedStartYear)
     }
   }
 
@@ -263,59 +275,86 @@ export function StatutoryPensionConfiguration({
               {/* Basic Pension Configuration */}
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  {/* Start Year Configuration */}
+                  {/* Automatic Retirement Start Year Display */}
                   <div className="space-y-4">
-                    <div className="space-y-2">
-                      <Label htmlFor="pension-start-year">Rentenbeginn (Jahr)</Label>
-                      <Input
-                        id="pension-start-year"
-                        type="number"
-                        value={values.startYear}
-                        onChange={e => onChange.onStartYearChange(Number(e.target.value))}
-                        min={currentYear}
-                        max={currentYear + 50}
-                        step={1}
-                        className="w-32"
-                      />
+                    <div className="p-3 bg-green-50 rounded-lg space-y-3">
+                      <div className="text-sm font-medium text-green-900">Automatischer Rentenbeginn</div>
+
+                      {planningMode === 'individual' ? (
+                        <div className="space-y-2">
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <span className="text-gray-600">Geburtsjahr:</span>
+                              <div className="font-medium">{birthYear || 'Nicht festgelegt'}</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Renteneintrittsalter:</span>
+                              <div className="font-medium">
+                                {values.retirementAge || 67}
+                                {' '}
+                                Jahre
+                              </div>
+                            </div>
+                          </div>
+                          <div className="pt-2 border-t border-green-200">
+                            <span className="text-gray-600">Berechneter Rentenbeginn:</span>
+                            <div className="text-lg font-bold text-green-800">
+                              {birthYear ? values.startYear : '—'}
+                            </div>
+                          </div>
+                        </div>
+                      ) : (
+                        <div className="space-y-2">
+                          <div className="grid grid-cols-2 gap-2 text-sm">
+                            <div>
+                              <span className="text-gray-600">Person 1 (Geburtsjahr):</span>
+                              <div className="font-medium">{birthYear || 'Nicht festgelegt'}</div>
+                            </div>
+                            <div>
+                              <span className="text-gray-600">Person 2 (Geburtsjahr):</span>
+                              <div className="font-medium">{spouseBirthYear || 'Nicht festgelegt'}</div>
+                            </div>
+                          </div>
+                          <div className="text-sm">
+                            <span className="text-gray-600">Renteneintrittsalter:</span>
+                            <span className="font-medium ml-1">
+                              {values.retirementAge || 67}
+                              {' '}
+                              Jahre (beide Partner)
+                            </span>
+                          </div>
+                          <div className="pt-2 border-t border-green-200">
+                            <span className="text-gray-600">Berechneter Rentenbeginn (frühester Partner):</span>
+                            <div className="text-lg font-bold text-green-800">
+                              {(birthYear && spouseBirthYear) ? values.startYear : '—'}
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {!birthYear || (planningMode === 'couple' && !spouseBirthYear) ? (
+                        <div className="text-xs text-orange-600 bg-orange-50 p-2 rounded border border-orange-200">
+                          Bitte Geburtsjahr(e) in der Globalen Planung festlegen
+                        </div>
+                      ) : null}
                     </div>
 
-                    {/* Helper for calculating start year */}
-                    <div className="p-3 bg-blue-50 rounded-lg space-y-2">
-                      <div className="text-sm font-medium text-blue-900">Rentenbeginn automatisch berechnen</div>
-                      <div className="grid grid-cols-2 gap-2">
-                        <div className="space-y-1">
-                          <Label className="text-xs">Geburtsjahr (aus Globaler Planung)</Label>
-                          <div className="text-sm font-medium text-gray-700 p-2 bg-gray-50 rounded border">
-                            {birthYear || 'Nicht festgelegt'}
-                          </div>
-                          {!birthYear && (
-                            <div className="text-xs text-orange-600">
-                              Bitte Geburtsjahr in der Globalen Planung festlegen
-                            </div>
-                          )}
-                        </div>
-                        <div className="space-y-1">
-                          <Label htmlFor="retirement-age" className="text-xs">Renteneintrittsalter</Label>
-                          <Input
-                            id="retirement-age"
-                            type="number"
-                            value={values.retirementAge || 67}
-                            onChange={e => onChange.onRetirementAgeChange(Number(e.target.value))}
-                            min={60}
-                            max={75}
-                            className="text-xs h-8"
-                          />
-                        </div>
+                    {/* Retirement Age Configuration */}
+                    <div className="space-y-2">
+                      <Label htmlFor="retirement-age">Renteneintrittsalter</Label>
+                      <Input
+                        id="retirement-age"
+                        type="number"
+                        value={values.retirementAge || 67}
+                        onChange={e => onChange.onRetirementAgeChange(Number(e.target.value))}
+                        min={60}
+                        max={75}
+                        className="w-32"
+                      />
+                      <div className="text-sm text-muted-foreground">
+                        Geplantes Alter für den Renteneintritt.
+                        Wird automatisch zur Berechnung des Rentenbeginns verwendet.
                       </div>
-                      <Button
-                        size="sm"
-                        variant="outline"
-                        onClick={handleCalculateStartYear}
-                        disabled={!birthYear || !values.retirementAge}
-                        className="w-full text-xs"
-                      >
-                        Berechnen
-                      </Button>
                     </div>
                   </div>
 
