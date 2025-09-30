@@ -6,6 +6,7 @@ import {
   createIncomeTaxExplanation,
   createWithdrawalInterestExplanation,
   createTaxableIncomeExplanation,
+  createStatutoryPensionExplanation,
 } from '../components/calculationHelpers'
 
 describe('calculationHelpers', () => {
@@ -87,6 +88,34 @@ describe('calculationHelpers', () => {
       expect(explanation.steps[0].title).toBe('Schritt 1: Brutto-Entnahme')
       expect(explanation.steps[1].title).toBe('Schritt 2: Grundfreibetrag abziehen')
       expect(explanation.finalResult.values).toHaveLength(3)
+    })
+  })
+
+  describe('createStatutoryPensionExplanation', () => {
+    it('should create correct statutory pension explanation', () => {
+      const explanation = createStatutoryPensionExplanation(18000, 15000, 3000, 14400, 2041)
+
+      expect(explanation.title).toBe('🏛️ Gesetzliche Rente - Berechnung Schritt für Schritt')
+      expect(explanation.introduction).toContain('gesetzliche Rente wird mit dem steuerpflichtigen Anteil versteuert')
+      expect(explanation.introduction).toContain('Jahr 2041')
+      expect(explanation.steps).toHaveLength(4)
+      expect(explanation.steps[0].title).toBe('Schritt 1: Brutto-Renteneinkommen')
+      expect(explanation.steps[1].title).toBe('Schritt 2: Steuerpflichtiger Anteil')
+      expect(explanation.steps[2].title).toBe('Schritt 3: Einkommensteuer auf Rente')
+      expect(explanation.steps[3].title).toBe('Schritt 4: Netto-Renteneinkommen')
+      expect(explanation.finalResult.values).toHaveLength(7)
+      expect(explanation.finalResult.values[0].label).toBe('Brutto-Rente (jährlich)')
+      expect(explanation.finalResult.values[4].label).toBe('Netto-Rente (jährlich)')
+      expect(explanation.finalResult.values[5].label).toBe('Netto-Rente (monatlich)')
+    })
+
+    it('should handle edge cases correctly', () => {
+      const explanation = createStatutoryPensionExplanation(0, 0, 0, 0, 2041)
+
+      expect(explanation.title).toBe('🏛️ Gesetzliche Rente - Berechnung Schritt für Schritt')
+      expect(explanation.steps).toHaveLength(4)
+      expect(explanation.finalResult.values).toHaveLength(7)
+      expect(explanation.finalResult.values[1].value).toBe('0,0%') // Taxable percentage should be 0
     })
   })
 })

@@ -518,6 +518,44 @@ export function EntnahmeSimulationDisplay({
                   </div>
                 </>
               )}
+              {/* Statutory Pension Display */}
+              {rowData.statutoryPension && rowData.statutoryPension.grossAnnualAmount > 0 && (
+                <>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">🏛️ Gesetzliche Rente (Brutto):</span>
+                    <span className="font-semibold text-green-600 text-sm flex items-center">
+                      +
+                      {formatCurrency(rowData.statutoryPension.grossAnnualAmount)}
+                      <InfoIcon onClick={() => onCalculationInfoClick('statutoryPension', rowData)} />
+                    </span>
+                  </div>
+                  {rowData.statutoryPension.incomeTax > 0 && (
+                    <div className="flex justify-between items-center py-1">
+                      <span className="text-sm text-gray-600 font-medium">💸 Einkommensteuer auf Rente:</span>
+                      <span className="font-semibold text-red-600 text-sm">
+                        -
+                        {formatCurrency(rowData.statutoryPension.incomeTax)}
+                      </span>
+                    </div>
+                  )}
+                  <div className="flex justify-between items-center py-1 border-t border-gray-200 pt-1">
+                    <span className="text-sm text-gray-600 font-medium">
+                      🏛️ Gesetzliche Rente (Netto):
+                    </span>
+                    <span className="font-semibold text-green-600 text-sm">
+                      +
+                      {formatCurrency(rowData.statutoryPension.netAnnualAmount)}
+                    </span>
+                  </div>
+                  <div className="flex justify-between items-center py-1">
+                    <span className="text-sm text-gray-600 font-medium">📅 Monatliche Rente (Netto):</span>
+                    <span className="font-semibold text-green-600 text-sm">
+                      +
+                      {formatCurrency(rowData.statutoryPension.netAnnualAmount / 12)}
+                    </span>
+                  </div>
+                </>
+              )}
               {/* New section for taxable income */}
               <div className="flex justify-between items-center py-1">
                 <span className="text-sm text-gray-600 font-medium">💰 Zu versteuerndes Einkommen:</span>
