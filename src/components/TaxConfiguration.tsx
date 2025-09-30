@@ -10,6 +10,7 @@ import { Trash2, Plus, ChevronDown } from 'lucide-react'
 import { useSimulation } from '../contexts/useSimulation'
 import { NestingProvider } from '../lib/nesting-context'
 import BasiszinsConfiguration from './BasiszinsConfiguration'
+import { calculateFreibetragForPlanningMode } from '../utils/freibetrag-calculation'
 const TaxConfiguration = () => {
   const {
     performSimulation,
@@ -27,9 +28,13 @@ const TaxConfiguration = () => {
     setGrundfreibetragAktiv,
     grundfreibetragBetrag,
     setGrundfreibetragBetrag,
+    planningMode, // Add planning mode for freibetrag calculation
   } = useSimulation()
 
   const yearToday = new Date().getFullYear()
+
+  // Calculate the default freibetrag amount based on planning mode
+  const defaultFreibetragAmount = calculateFreibetragForPlanningMode(planningMode || 'individual')
 
   return (
     <NestingProvider level={1}>
@@ -153,7 +158,21 @@ const TaxConfiguration = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <Label htmlFor="freibetragConfiguration">Sparerpauschbetrag pro Jahr (€)</Label>
+                  <div className="space-y-2">
+                    <Label htmlFor="freibetragConfiguration">Sparerpauschbetrag pro Jahr (€)</Label>
+                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+                      <div className="text-sm text-blue-800 font-medium">
+                        ℹ️ Planungsmodus-abhängiger Standardwert
+                      </div>
+                      <div className="text-sm text-blue-700 mt-1">
+                        {planningMode === 'couple'
+                          ? `Ehepaar/Partner: ${defaultFreibetragAmount.toLocaleString('de-DE')}€ (2.000€ pro Person)`
+                          : `Einzelperson: ${defaultFreibetragAmount.toLocaleString('de-DE')}€`}
+                        <br />
+                        Der Standardwert wird automatisch basierend auf Ihrem Planungsmodus gesetzt.
+                      </div>
+                    </div>
+                  </div>
                   <div className="flex gap-2 items-end">
                     <div className="flex-1">
                       <Input
@@ -168,7 +187,7 @@ const TaxConfiguration = () => {
                             if (year && !freibetragPerYear[year]) {
                               setFreibetragPerYear({
                                 ...freibetragPerYear,
-                                [year]: 2000, // Default value
+                                [year]: defaultFreibetragAmount, // Use planning mode-aware default
                               })
                               performSimulation()
                               input.value = ''
@@ -183,7 +202,7 @@ const TaxConfiguration = () => {
                         if (!freibetragPerYear[year]) {
                           setFreibetragPerYear({
                             ...freibetragPerYear,
-                            [year]: 2000,
+                            [year]: defaultFreibetragAmount, // Use planning mode-aware default
                           })
                           performSimulation()
                         }
