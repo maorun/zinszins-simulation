@@ -2,11 +2,14 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { ChevronDown } from 'lucide-react'
 import { NestingProvider } from '../lib/nesting-context'
+import { useSimulation } from '../contexts/useSimulation'
 import TimeRangeConfiguration from './TimeRangeConfiguration'
 import TaxConfiguration from './TaxConfiguration'
 import SimulationConfiguration from './SimulationConfiguration'
 
 const SimulationParameters = () => {
+  const { planningMode } = useSimulation()
+
   return (
     <Card nestingLevel={0} className="mb-4">
       <Collapsible defaultOpen={false}>
@@ -26,7 +29,7 @@ const SimulationParameters = () => {
               <div className="form-grid">
                 <SimulationConfiguration />
                 <TimeRangeConfiguration />
-                <TaxConfiguration />
+                <TaxConfiguration planningMode={planningMode} />
               </div>
             </NestingProvider>
           </CardContent>
