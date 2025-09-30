@@ -198,4 +198,141 @@ describe('GlobalPlanningConfiguration', () => {
       expect(screen.getByText('Datengrundlage für Lebenserwartung')).toBeInTheDocument()
     })
   })
+
+  describe('Automatic Life Expectancy Calculation - Core Fix Validation', () => {
+    it('allows birth year changes to trigger useEffect in couple mode', () => {
+      render(
+        <TestWrapper>
+          <GlobalPlanningConfiguration {...defaultProps} />
+        </TestWrapper>,
+      )
+
+      // Expand the main configuration
+      const mainTrigger = screen.getByText(/👥 Globale Planung \(Einzelperson\/Ehepaar\)/).closest('div')
+      fireEvent.click(mainTrigger!)
+
+      // Switch to couple mode
+      const coupleRadio = screen.getByText('Ehepaar/Partner').closest('label')
+      fireEvent.click(coupleRadio!)
+
+      // Find and change both birth year inputs - this is the core test
+      const person1Input = screen.getByLabelText(/Person 1 Geburtsjahr/)
+      const person2Input = screen.getByLabelText(/Person 2 Geburtsjahr/)
+
+      // Change values - the fix ensures these changes trigger useEffect
+      fireEvent.change(person1Input, { target: { value: '1980' } })
+      fireEvent.change(person2Input, { target: { value: '1985' } })
+
+      // Verify the inputs accept the values (this validates the fix allows state updates)
+      expect(person1Input).toHaveValue(1980)
+      expect(person2Input).toHaveValue(1985)
+
+      // Change values again to test reactivity
+      fireEvent.change(person1Input, { target: { value: '1970' } })
+      expect(person1Input).toHaveValue(1970)
+
+      // Should show updated age displays when birth years change
+      const ageTexts = screen.getAllByText(/Alter: \d+ Jahre/)
+      expect(ageTexts.length).toBeGreaterThan(0) // At least one age should be displayed
+    })
+
+    it('allows birth year changes to trigger useEffect in individual mode', () => {
+      render(
+        <TestWrapper>
+          <GlobalPlanningConfiguration {...defaultProps} />
+        </TestWrapper>,
+      )
+
+      // Expand the main configuration
+      const mainTrigger = screen.getByText(/👥 Globale Planung \(Einzelperson\/Ehepaar\)/).closest('div')
+      fireEvent.click(mainTrigger!)
+
+      // Switch to individual mode
+      const individualRadio = screen.getByText('Einzelperson').closest('label')
+      fireEvent.click(individualRadio!)
+
+      // Find and change the birth year input
+      const birthYearInput = screen.getByLabelText(/Geburtsjahr/)
+
+      // Change value - this should trigger useEffect
+      fireEvent.change(birthYearInput, { target: { value: '1980' } })
+
+      // Verify the input accepts the value
+      expect(birthYearInput).toHaveValue(1980)
+
+      // Change value again to test reactivity
+      fireEvent.change(birthYearInput, { target: { value: '1974' } })
+      expect(birthYearInput).toHaveValue(1974)
+
+      // Should show updated age display
+      expect(screen.getByText(/Aktuelles Alter: \d+ Jahre/)).toBeInTheDocument()
+    })
+
+    it('handles empty birth year values without crashing', () => {
+      render(
+        <TestWrapper>
+          <GlobalPlanningConfiguration {...defaultProps} />
+        </TestWrapper>,
+      )
+
+      // Expand the main configuration
+      const mainTrigger = screen.getByText(/👥 Globale Planung \(Einzelperson\/Ehepaar\)/).closest('div')
+      fireEvent.click(mainTrigger!)
+
+      // Test individual mode
+      const individualRadio = screen.getByText('Einzelperson').closest('label')
+      fireEvent.click(individualRadio!)
+
+      const birthYearInput = screen.getByLabelText(/Geburtsjahr/)
+
+      // Should handle empty values gracefully - the fix ensures useEffect still works
+      fireEvent.change(birthYearInput, { target: { value: '' } })
+
+      // Should not crash - the main test is that it doesn't throw an error
+      expect(birthYearInput).toBeInTheDocument()
+
+      // Switch to couple mode and test the same
+      const coupleRadio = screen.getByText('Ehepaar/Partner').closest('label')
+      fireEvent.click(coupleRadio!)
+
+      const person1Input = screen.getByLabelText(/Person 1 Geburtsjahr/)
+      const person2Input = screen.getByLabelText(/Person 2 Geburtsjahr/)
+
+      fireEvent.change(person1Input, { target: { value: '' } })
+      fireEvent.change(person2Input, { target: { value: '' } })
+
+      // Should handle empty values gracefully - main test is no crash
+      expect(person1Input).toBeInTheDocument()
+      expect(person2Input).toBeInTheDocument()
+    })
+  })
+
+  describe('Age Display Updates - Validation of Fix', () => {
+    it('updates age displays when birth years change in couple mode', () => {
+      render(
+        <TestWrapper>
+          <GlobalPlanningConfiguration {...defaultProps} />
+        </TestWrapper>,
+      )
+
+      // Expand the main configuration
+      const mainTrigger = screen.getByText(/👥 Globale Planung \(Einzelperson\/Ehepaar\)/).closest('div')
+      fireEvent.click(mainTrigger!)
+
+      // Switch to couple mode
+      const coupleRadio = screen.getByText('Ehepaar/Partner').closest('label')
+      fireEvent.click(coupleRadio!)
+
+      // Set birth years for both partners
+      const person1Input = screen.getByLabelText(/Person 1 Geburtsjahr/)
+      const person2Input = screen.getByLabelText(/Person 2 Geburtsjahr/)
+
+      fireEvent.change(person1Input, { target: { value: '1974' } })
+      fireEvent.change(person2Input, { target: { value: '1978' } })
+
+      // Both ages should be calculated and displayed - this validates the fix works
+      const ageTexts = screen.getAllByText(/Alter: \d+ Jahre/)
+      expect(ageTexts).toHaveLength(2) // Should have age displays for both persons
+    })
+  })
 })

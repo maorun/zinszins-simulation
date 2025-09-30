@@ -349,3 +349,66 @@ export function createOtherIncomeExplanation(
     },
   }
 }
+
+// Statutory pension calculation explanation
+export function createStatutoryPensionExplanation(
+  grossAnnualAmount: number,
+  netAnnualAmount: number,
+  incomeTax: number,
+  taxableAmount: number,
+  year: number,
+): CalculationExplanation {
+  const taxablePercentage = grossAnnualAmount > 0 ? (taxableAmount / grossAnnualAmount) * 100 : 0
+  const monthlyNetAmount = netAnnualAmount / 12
+
+  return {
+    title: '🏛️ Gesetzliche Rente - Berechnung Schritt für Schritt',
+    introduction: `Die gesetzliche Rente wird mit dem steuerpflichtigen Anteil versteuert. Hier sehen Sie die Berechnung für das Jahr ${year}.`,
+    steps: [
+      {
+        title: 'Schritt 1: Brutto-Renteneinkommen',
+        description: 'Die jährliche Brutto-Rente, die Sie von der Deutschen Rentenversicherung erhalten.',
+        calculation: `Brutto-Rente (jährlich) = ${formatCurrency(grossAnnualAmount)}`,
+        result: formatCurrency(grossAnnualAmount),
+        backgroundColor: '#e8f5e8',
+        borderColor: '#4caf50',
+      },
+      {
+        title: 'Schritt 2: Steuerpflichtiger Anteil',
+        description: `Der steuerpflichtige Anteil der Rente beträgt ${taxablePercentage.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}% der Brutto-Rente.`,
+        calculation: `Steuerpflichtiger Anteil = ${formatCurrency(grossAnnualAmount)} × ${taxablePercentage.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`,
+        result: formatCurrency(taxableAmount),
+        backgroundColor: '#fff3e0',
+        borderColor: '#ffcc80',
+      },
+      {
+        title: 'Schritt 3: Einkommensteuer auf Rente',
+        description: 'Auf den steuerpflichtigen Anteil wird die Einkommensteuer erhoben.',
+        calculation: `Einkommensteuer = ${formatCurrency(taxableAmount)} - Grundfreibetrag, dann Steuersatz anwenden`,
+        result: formatCurrency(incomeTax),
+        backgroundColor: '#ffebee',
+        borderColor: '#ef5350',
+      },
+      {
+        title: 'Schritt 4: Netto-Renteneinkommen',
+        description: 'Das verfügbare Netto-Einkommen aus der gesetzlichen Rente nach Abzug der Steuern.',
+        calculation: `Netto-Rente = ${formatCurrency(grossAnnualAmount)} - ${formatCurrency(incomeTax)}`,
+        result: formatCurrency(netAnnualAmount),
+        backgroundColor: '#e8f5e8',
+        borderColor: '#4caf50',
+      },
+    ],
+    finalResult: {
+      title: 'Zusammenfassung der gesetzlichen Rente',
+      values: [
+        { label: 'Brutto-Rente (jährlich)', value: formatCurrency(grossAnnualAmount) },
+        { label: 'Steuerpflichtiger Anteil', value: `${taxablePercentage.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%` },
+        { label: 'Zu versteuernder Betrag', value: formatCurrency(taxableAmount) },
+        { label: 'Einkommensteuer', value: formatCurrency(incomeTax) },
+        { label: 'Netto-Rente (jährlich)', value: formatCurrency(netAnnualAmount) },
+        { label: 'Netto-Rente (monatlich)', value: formatCurrency(monthlyNetAmount) },
+        { label: 'Entlastung des Portfolios', value: formatCurrency(netAnnualAmount) },
+      ],
+    },
+  }
+}

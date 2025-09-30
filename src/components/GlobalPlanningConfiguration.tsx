@@ -74,9 +74,8 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
     useAutomaticCalculation,
     planningMode,
     birthYear,
-    spouse?.birthYear,
+    spouse,
     gender,
-    spouse?.gender,
     expectedLifespan,
     setEndOfLife,
   ])

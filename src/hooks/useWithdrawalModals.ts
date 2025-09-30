@@ -6,6 +6,7 @@ import {
   createIncomeTaxExplanation,
   createTaxableIncomeExplanation,
   createOtherIncomeExplanation,
+  createStatutoryPensionExplanation,
 } from '../components/calculationHelpers'
 
 /**
@@ -116,6 +117,17 @@ export function useWithdrawalModals(
         rowData.otherIncome.totalTaxAmount,
         rowData.otherIncome.sourceCount,
         rowData.otherIncome,
+      )
+      setCalculationDetails(explanation)
+      setShowCalculationModal(true)
+    }
+    else if (explanationType === 'statutoryPension' && rowData.statutoryPension) {
+      const explanation = createStatutoryPensionExplanation(
+        rowData.statutoryPension.grossAnnualAmount,
+        rowData.statutoryPension.netAnnualAmount,
+        rowData.statutoryPension.incomeTax,
+        rowData.statutoryPension.taxableAmount,
+        rowData.year,
       )
       setCalculationDetails(explanation)
       setShowCalculationModal(true)
