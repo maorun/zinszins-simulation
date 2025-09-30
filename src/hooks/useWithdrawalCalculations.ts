@@ -10,6 +10,7 @@ import type { ReturnConfiguration } from '../../helpers/random-returns'
 import type { SegmentedWithdrawalConfig } from '../utils/segmented-withdrawal'
 import type { ComparisonStrategy, SegmentedComparisonStrategy } from '../utils/config-storage'
 import { useSimulation } from '../contexts/useSimulation'
+import { createPlanningModeAwareFreibetragPerYear } from '../utils/freibetrag-calculation'
 
 /**
  * Custom hook for withdrawal calculations
@@ -322,17 +323,11 @@ export function useWithdrawalCalculations(
           returnConfig,
           taxRate: steuerlast,
           teilfreistellungsquote,
-          freibetragPerYear: (() => {
-            const freibetragPerYear: { [year: number]: number } = {}
-            for (
-              let year = startOfIndependence + 1;
-              year <= endOfLife;
-              year++
-            ) {
-              freibetragPerYear[year] = 2000 // Default freibetrag
-            }
-            return freibetragPerYear
-          })(),
+          freibetragPerYear: createPlanningModeAwareFreibetragPerYear(
+            startOfIndependence + 1,
+            endOfLife,
+            planningMode || 'individual', // Use planningMode from global config, fallback to individual
+          ),
           monthlyConfig:
             strategy.strategie === 'monatlich_fest'
               ? {
@@ -482,17 +477,11 @@ export function useWithdrawalCalculations(
         const segmentedConfig: SegmentedWithdrawalConfig = {
           segments: strategy.segments,
           taxRate: steuerlast,
-          freibetragPerYear: (() => {
-            const freibetragPerYear: { [year: number]: number } = {}
-            for (
-              let year = startOfIndependence + 1;
-              year <= endOfLife;
-              year++
-            ) {
-              freibetragPerYear[year] = 2000 // Default freibetrag
-            }
-            return freibetragPerYear
-          })(),
+          freibetragPerYear: createPlanningModeAwareFreibetragPerYear(
+            startOfIndependence + 1,
+            endOfLife,
+            planningMode || 'individual', // Use planningMode from global config, fallback to individual
+          ),
           statutoryPensionConfig: statutoryPensionConfig || undefined,
         }
 
@@ -554,6 +543,7 @@ export function useWithdrawalCalculations(
     startOfIndependence,
     endOfLife,
     steuerlast,
+    planningMode, // Add planningMode dependency for freibetrag calculation
     statutoryPensionConfig, // Use global statutory pension config
   ])
 
