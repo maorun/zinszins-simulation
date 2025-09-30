@@ -9,6 +9,7 @@ import { SimulationContext } from './SimulationContextValue'
 import { saveConfiguration, loadConfiguration, type SavedConfiguration, type WithdrawalConfiguration } from '../utils/config-storage'
 import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
+import { updateFreibetragForPlanningMode } from '../utils/freibetrag-calculation'
 
 export interface SimulationContextState {
   rendite: number
@@ -252,6 +253,23 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setStartEnd([startEnd[0], endOfLife])
     }
   }, [endOfLife, startEnd])
+
+  // Update freibetragPerYear when planning mode changes
+  useEffect(() => {
+    const updatedFreibetrag = updateFreibetragForPlanningMode(
+      freibetragPerYear,
+      planningMode,
+    )
+
+    // Only update if there are actual changes to avoid infinite loops
+    const hasChanges = Object.keys(updatedFreibetrag).some(
+      year => updatedFreibetrag[parseInt(year)] !== freibetragPerYear[parseInt(year)],
+    )
+
+    if (hasChanges) {
+      setFreibetragPerYear(updatedFreibetrag)
+    }
+  }, [planningMode, freibetragPerYear, setFreibetragPerYear])
 
   // Create a wrapper for setEndOfLife that ensures values are always rounded to whole numbers
   const setEndOfLifeRounded = useCallback((value: number) => {
