@@ -126,6 +126,98 @@ describe('EntnahmeSimulationDisplay', () => {
     expect(screen.getByText(/Keine Vergleichs-Strategien konfiguriert/)).toBeInTheDocument()
   })
 
+  it('displays statutory pension information when available', () => {
+    const mockWithdrawalDataWithPension = {
+      ...mockWithdrawalData,
+      withdrawalArray: [
+        {
+          ...mockWithdrawalData.withdrawalArray[0],
+          statutoryPension: {
+            grossAnnualAmount: 18000,
+            netAnnualAmount: 15000,
+            incomeTax: 3000,
+            taxableAmount: 14400,
+          },
+        },
+      ],
+    }
+
+    render(
+      <EntnahmeSimulationDisplay
+        withdrawalData={mockWithdrawalDataWithPension}
+        formValue={mockFormValue}
+        useComparisonMode={false}
+        comparisonResults={[]}
+        useSegmentedWithdrawal={false}
+        withdrawalSegments={[]}
+        onCalculationInfoClick={() => {}}
+      />,
+    )
+
+    // Check that statutory pension information is displayed
+    expect(screen.getByText('🏛️ Gesetzliche Rente (Brutto):')).toBeInTheDocument()
+    expect(screen.getByText('+18.000,00 €')).toBeInTheDocument()
+    expect(screen.getByText('💸 Einkommensteuer auf Rente:')).toBeInTheDocument()
+    expect(screen.getByText('-3.000,00 €')).toBeInTheDocument()
+    expect(screen.getByText('🏛️ Gesetzliche Rente (Netto):')).toBeInTheDocument()
+    expect(screen.getByText('+15.000,00 €')).toBeInTheDocument()
+    expect(screen.getByText('📅 Monatliche Rente (Netto):')).toBeInTheDocument()
+    expect(screen.getByText('+1.250,00 €')).toBeInTheDocument()
+  })
+
+  it('does not display statutory pension when not available', () => {
+    render(
+      <EntnahmeSimulationDisplay
+        withdrawalData={mockWithdrawalData}
+        formValue={mockFormValue}
+        useComparisonMode={false}
+        comparisonResults={[]}
+        useSegmentedWithdrawal={false}
+        withdrawalSegments={[]}
+        onCalculationInfoClick={() => {}}
+      />,
+    )
+
+    // Check that statutory pension information is not displayed
+    expect(screen.queryByText('🏛️ Gesetzliche Rente (Brutto):')).not.toBeInTheDocument()
+    expect(screen.queryByText('💸 Einkommensteuer auf Rente:')).not.toBeInTheDocument()
+  })
+
+  it('does not display income tax when no tax is owed on pension', () => {
+    const mockWithdrawalDataWithPensionNoTax = {
+      ...mockWithdrawalData,
+      withdrawalArray: [
+        {
+          ...mockWithdrawalData.withdrawalArray[0],
+          statutoryPension: {
+            grossAnnualAmount: 15000,
+            netAnnualAmount: 15000,
+            incomeTax: 0,
+            taxableAmount: 0,
+          },
+        },
+      ],
+    }
+
+    render(
+      <EntnahmeSimulationDisplay
+        withdrawalData={mockWithdrawalDataWithPensionNoTax}
+        formValue={mockFormValue}
+        useComparisonMode={false}
+        comparisonResults={[]}
+        useSegmentedWithdrawal={false}
+        withdrawalSegments={[]}
+        onCalculationInfoClick={() => {}}
+      />,
+    )
+
+    // Pension should be displayed, but not income tax
+    expect(screen.getByText('🏛️ Gesetzliche Rente (Brutto):')).toBeInTheDocument()
+    expect(screen.getAllByText('+15.000,00 €')).toHaveLength(2) // Both gross and net amounts are the same
+    expect(screen.queryByText('💸 Einkommensteuer auf Rente:')).not.toBeInTheDocument()
+    expect(screen.getByText('🏛️ Gesetzliche Rente (Netto):')).toBeInTheDocument()
+  })
+
   it('component exports and basic functionality work', () => {
     // Test that the component function exists and can be called
     expect(typeof EntnahmeSimulationDisplay).toBe('function')
