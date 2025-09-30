@@ -51,7 +51,7 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
           setEndOfLife(Math.round(calculatedYear))
         }
       }
-      else {
+      else if (planningMode === 'couple') {
         // Couple planning: calculate when both birth years and genders are available
         if (birthYear && spouse?.birthYear && gender && spouse?.gender) {
           const age1 = calculateCurrentAge(birthYear)
