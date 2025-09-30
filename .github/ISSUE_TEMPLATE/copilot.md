@@ -7,4 +7,4 @@ assignees: ''
 
 ---
 
-Berücksichtige bei der Entwicklung die copilot-instructions.md
+Berücksichtige bei der Entwicklung die komplette copilot-instructions.md
