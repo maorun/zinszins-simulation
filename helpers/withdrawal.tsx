@@ -240,13 +240,15 @@ export function calculateWithdrawal({
   const result: WithdrawalResult = {}
 
   // Calculate statutory pension for all years if configured
+  // Note: We pass 0 for incomeTaxRate because income tax is now calculated centrally
+  // combining all income sources (portfolio withdrawal + pension + other income)
   const statutoryPensionData = statutoryPensionConfig?.enabled
     ? calculateStatutoryPension(
         statutoryPensionConfig,
         startYear,
         endYear,
-        incomeTaxRate || 0,
-        grundfreibetragPerYear,
+        0, // Income tax calculated centrally, not per source
+        {}, // No Grundfreibetrag per source, applied centrally
       )
     : {}
 
@@ -599,8 +601,26 @@ export function calculateWithdrawal({
     let genutzterGrundfreibetrag = 0
     if (enableGrundfreibetrag) {
       const yearlyGrundfreibetrag = getGrundfreibetragForYear(year)
-      einkommensteuer = calculateIncomeTax(entnahme, yearlyGrundfreibetrag, incomeTaxRate)
-      genutzterGrundfreibetrag = Math.min(entnahme, yearlyGrundfreibetrag)
+
+      // Calculate total taxable income from all sources
+      let totalTaxableIncome = entnahme
+
+      // Add taxable amount from statutory pension
+      if (statutoryPensionData[year]?.taxableAmount) {
+        totalTaxableIncome += statutoryPensionData[year].taxableAmount
+      }
+
+      // Add taxable amount from other income sources
+      if (otherIncomeData[year]?.sources) {
+        const otherIncomeGrossTotal = otherIncomeData[year].sources.reduce(
+          (sum: number, source: any) => sum + (source.grossAnnualAmount || 0),
+          0,
+        )
+        totalTaxableIncome += otherIncomeGrossTotal
+      }
+
+      einkommensteuer = calculateIncomeTax(totalTaxableIncome, yearlyGrundfreibetrag, incomeTaxRate)
+      genutzterGrundfreibetrag = Math.min(totalTaxableIncome, yearlyGrundfreibetrag)
     }
 
     const capitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)
