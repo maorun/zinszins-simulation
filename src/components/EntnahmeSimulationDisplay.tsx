@@ -561,7 +561,13 @@ export function EntnahmeSimulationDisplay({
                 <span className="text-sm text-gray-600 font-medium">💰 Zu versteuerndes Einkommen:</span>
                 <span className="font-semibold text-gray-600 text-sm flex items-center">
                   {(() => {
-                    // Calculate taxable income based on segment-specific or form settings
+                    // Use the calculated taxableIncome from withdrawal calculation if available
+                    if (rowData.taxableIncome !== undefined) {
+                      return formatCurrency(rowData.taxableIncome)
+                    }
+
+                    // Fallback to old calculation for backwards compatibility
+                    // (though this is incorrect for multiple income sources)
                     const grundfreibetragAmount = useSegmentedWithdrawal
                       ? (() => {
                           const applicableSegment = withdrawalSegments.find(segment =>

@@ -163,6 +163,9 @@ describe('Parameter Export', () => {
     })
 
     it('should include full withdrawal parameters when config exists', () => {
+      // Set Grundfreibetrag in global context (not form value)
+      mockContext.grundfreibetragAktiv = true
+      mockContext.grundfreibetragBetrag = 11000
       mockContext.withdrawalConfig = {
         formValue: {
           strategie: 'monatlich_fest',
@@ -182,8 +185,6 @@ describe('Parameter Export', () => {
           rmdStartAge: 65,
           kapitalerhaltNominalReturn: 7,
           kapitalerhaltInflationRate: 2,
-          grundfreibetragAktiv: true,
-          grundfreibetragBetrag: 11000,
           einkommensteuersatz: 28,
         },
         withdrawalReturnMode: 'random',

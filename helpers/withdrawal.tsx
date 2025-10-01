@@ -32,6 +32,7 @@ export type WithdrawalResultElement = {
   portfolioAnpassung?: number
   einkommensteuer?: number
   genutzterGrundfreibetrag?: number
+  taxableIncome?: number // Actual taxable income after applying Grundfreibetrag
   // Dynamic strategy specific fields
   dynamischeAnpassung?: number // Amount of dynamic adjustment applied
   vorjahresRendite?: number // Previous year's return rate (for dynamic strategy)
@@ -599,6 +600,7 @@ export function calculateWithdrawal({
 
     let einkommensteuer = 0
     let genutzterGrundfreibetrag = 0
+    let taxableIncome = 0
     if (enableGrundfreibetrag) {
       const yearlyGrundfreibetrag = getGrundfreibetragForYear(year)
 
@@ -621,6 +623,8 @@ export function calculateWithdrawal({
 
       einkommensteuer = calculateIncomeTax(totalTaxableIncome, yearlyGrundfreibetrag, (incomeTaxRate || 0) / 100)
       genutzterGrundfreibetrag = Math.min(totalTaxableIncome, yearlyGrundfreibetrag)
+      // Calculate the actual taxable income after applying Grundfreibetrag
+      taxableIncome = Math.max(0, totalTaxableIncome - yearlyGrundfreibetrag)
     }
 
     const capitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)
@@ -687,6 +691,7 @@ export function calculateWithdrawal({
       inflationAnpassung: inflationConfig?.inflationRate ? inflationAnpassung : undefined,
       einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
       genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined,
+      taxableIncome: enableGrundfreibetrag ? taxableIncome : undefined,
       dynamischeAnpassung: (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')) ? dynamischeAnpassung : undefined,
       vorjahresRendite: (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')) ? vorjahresRendite : undefined,
       // Bucket strategy specific fields
