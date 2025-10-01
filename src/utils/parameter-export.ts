@@ -163,9 +163,9 @@ export function formatParametersForExport(context: SimulationContextState): stri
       lines.push(`  Untere Anpassung: ${fv.dynamischUntereAnpassung.toFixed(2)} %`)
     }
 
-    if (fv.grundfreibetragAktiv && fv.grundfreibetragBetrag !== undefined) {
+    if (context.grundfreibetragAktiv) {
       lines.push(`  Grundfreibetrag aktiv: Ja`)
-      lines.push(`  Grundfreibetrag: ${formatCurrency(fv.grundfreibetragBetrag)}`)
+      lines.push(`  Grundfreibetrag: ${formatCurrency(context.grundfreibetragBetrag)}`)
       lines.push(`  Einkommensteuersatz: ${fv.einkommensteuersatz.toFixed(2)} %`)
     }
     else {
@@ -291,7 +291,7 @@ export function formatParametersForExport(context: SimulationContextState): stri
     lines.push(`  Entnahme-Rendite: 5.00 % (Standard)`)
     lines.push(`  Entnahme-Häufigkeit: Jährlich (Standard)`)
     lines.push(`  Inflation aktiv: Nein (Standard)`)
-    lines.push(`  Grundfreibetrag aktiv: Nein (Standard)`)
+    lines.push(`  Grundfreibetrag aktiv: ${context.grundfreibetragAktiv ? 'Ja' : 'Nein (Standard)'}`)
     lines.push(`  Entnahme-Rendite-Modus: Fest (Standard)`)
   }
 
