@@ -2,6 +2,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi, beforeEach } from 'vitest'
 import TaxConfiguration from './TaxConfiguration'
+import { GERMAN_TAX_CONSTANTS } from '../../helpers/steuer'
 
 // Mock useSimulation hook
 const mockUseSimulation = {
@@ -18,7 +19,7 @@ const mockUseSimulation = {
   setSteuerReduzierenEndkapitalEntspharphase: vi.fn(),
   grundfreibetragAktiv: true,
   setGrundfreibetragAktiv: vi.fn(),
-  grundfreibetragBetrag: 11604,
+  grundfreibetragBetrag: GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_INDIVIDUAL,
   setGrundfreibetragBetrag: vi.fn(),
 }
 
@@ -39,6 +40,14 @@ const expandGrundfreibetragSection = async () => {
 
 describe('TaxConfiguration - Planning Mode Integration', () => {
   beforeEach(() => {
+    // Reset all mocks to default state before each test
+    vi.clearAllMocks()
+
+    // Ensure consistent mock state
+    vi.mocked(mockUseSimulation).grundfreibetragAktiv = true
+    vi.mocked(mockUseSimulation).grundfreibetragBetrag = GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_INDIVIDUAL
+  })
+  beforeEach(() => {
     vi.clearAllMocks()
   })
 
@@ -47,9 +56,9 @@ describe('TaxConfiguration - Planning Mode Integration', () => {
 
     await expandGrundfreibetragSection()
 
-    // Should show individual-specific values (text may be split across elements)
-    expect(screen.getByText('Einzelpersonen')).toBeInTheDocument()
-    expect(screen.getByText('11,604')).toBeInTheDocument()
+    // Should show individual-specific values - look for them in the context where they appear
+    expect(screen.getByText(/Reset \(Einzelpersonen\)/)).toBeInTheDocument()
+    expect(screen.getByText(/Empfohlener Wert für.*Einzelpersonen.*11,604/)).toBeInTheDocument()
   })
 
   it('displays couple planning mode values correctly', async () => {
@@ -57,9 +66,9 @@ describe('TaxConfiguration - Planning Mode Integration', () => {
 
     await expandGrundfreibetragSection()
 
-    // Should show couple-specific values (text may be split across elements)
-    expect(screen.getByText('Paare')).toBeInTheDocument()
-    expect(screen.getByText('23,208')).toBeInTheDocument()
+    // Should show couple-specific values - look for them in the context where they appear
+    expect(screen.getByText(/Reset \(Paare\)/)).toBeInTheDocument()
+    expect(screen.getByText(/Empfohlener Wert für.*Paare.*23,208/)).toBeInTheDocument()
   })
 
   it('sets correct Grundfreibetrag when activating for individual', async () => {
@@ -74,8 +83,10 @@ describe('TaxConfiguration - Planning Mode Integration', () => {
     const grundfreibetragSwitch = screen.getByRole('switch')
     fireEvent.click(grundfreibetragSwitch)
 
-    // Should set to individual value (11604)
-    expect(mockUseSimulation.setGrundfreibetragBetrag).toHaveBeenCalledWith(11604)
+    // Should set to individual value
+    expect(mockUseSimulation.setGrundfreibetragBetrag).toHaveBeenCalledWith(
+      GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_INDIVIDUAL,
+    )
   })
 
   it('sets correct Grundfreibetrag when activating for couple', async () => {
@@ -90,8 +101,8 @@ describe('TaxConfiguration - Planning Mode Integration', () => {
     const grundfreibetragSwitch = screen.getByRole('switch')
     fireEvent.click(grundfreibetragSwitch)
 
-    // Should set to couple value (23208)
-    expect(mockUseSimulation.setGrundfreibetragBetrag).toHaveBeenCalledWith(23208)
+    // Should set to couple value
+    expect(mockUseSimulation.setGrundfreibetragBetrag).toHaveBeenCalledWith(GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_COUPLE)
   })
 
   it('shows correct reset button text for individual', async () => {
@@ -100,8 +111,7 @@ describe('TaxConfiguration - Planning Mode Integration', () => {
     await expandGrundfreibetragSection()
 
     // Should show "Reset (Einzelpersonen)" button
-    expect(screen.getByText(/Reset \(/)).toBeInTheDocument()
-    expect(screen.getByText('Einzelpersonen')).toBeInTheDocument()
+    expect(screen.getByText(/Reset \(Einzelpersonen\)/)).toBeInTheDocument()
   })
 
   it('shows correct reset button text for couple', async () => {
@@ -110,8 +120,7 @@ describe('TaxConfiguration - Planning Mode Integration', () => {
     await expandGrundfreibetragSection()
 
     // Should show "Reset (Paare)" button
-    expect(screen.getByText(/Reset \(/)).toBeInTheDocument()
-    expect(screen.getByText('Paare')).toBeInTheDocument()
+    expect(screen.getByText(/Reset \(Paare\)/)).toBeInTheDocument()
   })
 
   it('resets to correct value when reset button is clicked for individual', async () => {
@@ -147,12 +156,15 @@ describe('TaxConfiguration - Planning Mode Integration', () => {
 
     await expandGrundfreibetragSection()
 
-    // Should default to individual values
-    expect(screen.getByText('Einzelpersonen')).toBeInTheDocument()
-    expect(screen.getByText('11,604')).toBeInTheDocument()
+    // Should default to individual values - look for text in the reset button
+    expect(screen.getByText(/Reset \(Einzelpersonen\)/)).toBeInTheDocument()
+    expect(screen.getByText(/11,604/)).toBeInTheDocument()
   })
 
   it('displays planning mode explanation text', async () => {
+    // Ensure Grundfreibetrag is activated for this test so the explanation text is visible
+    vi.mocked(mockUseSimulation).grundfreibetragAktiv = true
+
     render(<TaxConfiguration planningMode="couple" />)
 
     await expandGrundfreibetragSection()

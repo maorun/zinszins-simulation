@@ -11,6 +11,7 @@ import { useSimulation } from '../contexts/useSimulation'
 import { NestingProvider } from '../lib/nesting-context'
 import BasiszinsConfiguration from './BasiszinsConfiguration'
 import { useEffect } from 'react'
+import { getGrundfreibetragForPlanningMode, isStandardGrundfreibetragValue, GERMAN_TAX_CONSTANTS } from '../../helpers/steuer'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -37,14 +38,14 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
 
   const yearToday = new Date().getFullYear()
 
-  // Calculate recommended Grundfreibetrag based on planning mode
-  const recommendedGrundfreibetrag = planningMode === 'couple' ? 23208 : 11604 // 2024 values
+  // Calculate recommended Grundfreibetrag based on planning mode using constants
+  const recommendedGrundfreibetrag = getGrundfreibetragForPlanningMode(planningMode)
   const planningModeLabel = planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'
 
   // Automatically update Grundfreibetrag when planning mode changes
-  // Only update if current value is a standard value (11604 or 23208) to preserve custom user values
+  // Only update if current value is a standard value to preserve custom user values
   useEffect(() => {
-    if (grundfreibetragAktiv && (grundfreibetragBetrag === 11604 || grundfreibetragBetrag === 23208)) {
+    if (grundfreibetragAktiv && isStandardGrundfreibetragValue(grundfreibetragBetrag)) {
       if (grundfreibetragBetrag !== recommendedGrundfreibetrag) {
         setGrundfreibetragBetrag(recommendedGrundfreibetrag)
         performSimulation()
@@ -350,7 +351,10 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
                     />
                     <div className="text-sm text-muted-foreground">
                       <p>
-                        Aktueller Grundfreibetrag 2024: €11.604 pro Person | Empfohlener Wert für
+                        Aktueller Grundfreibetrag 2024: €
+                        {GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_2024.toLocaleString()}
+                        {' '}
+                        pro Person | Empfohlener Wert für
                         {' '}
                         {planningModeLabel}
                         : €
