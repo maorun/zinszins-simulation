@@ -10,8 +10,14 @@ import { Trash2, Plus, ChevronDown } from 'lucide-react'
 import { useSimulation } from '../contexts/useSimulation'
 import { NestingProvider } from '../lib/nesting-context'
 import BasiszinsConfiguration from './BasiszinsConfiguration'
-import { calculateFreibetragForPlanningMode } from '../utils/freibetrag-calculation'
-const TaxConfiguration = () => {
+import { useEffect } from 'react'
+import { getGrundfreibetragForPlanningMode, isStandardGrundfreibetragValue, GERMAN_TAX_CONSTANTS } from '../../helpers/steuer'
+
+interface TaxConfigurationProps {
+  planningMode?: 'individual' | 'couple'
+}
+
+const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps) => {
   const {
     performSimulation,
     steuerlast,
@@ -28,13 +34,31 @@ const TaxConfiguration = () => {
     setGrundfreibetragAktiv,
     grundfreibetragBetrag,
     setGrundfreibetragBetrag,
-    planningMode, // Add planning mode for freibetrag calculation
   } = useSimulation()
 
   const yearToday = new Date().getFullYear()
 
-  // Calculate the default freibetrag amount based on planning mode
-  const defaultFreibetragAmount = calculateFreibetragForPlanningMode(planningMode || 'individual')
+  // Calculate recommended Grundfreibetrag based on planning mode using constants
+  const recommendedGrundfreibetrag = getGrundfreibetragForPlanningMode(planningMode)
+  const planningModeLabel = planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'
+
+  // Automatically update Grundfreibetrag when planning mode changes
+  // Only update if current value is a standard value to preserve custom user values
+  useEffect(() => {
+    if (grundfreibetragAktiv && isStandardGrundfreibetragValue(grundfreibetragBetrag)) {
+      if (grundfreibetragBetrag !== recommendedGrundfreibetrag) {
+        setGrundfreibetragBetrag(recommendedGrundfreibetrag)
+        performSimulation()
+      }
+    }
+  }, [
+    planningMode,
+    recommendedGrundfreibetrag,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    setGrundfreibetragBetrag,
+    performSimulation,
+  ])
 
   return (
     <NestingProvider level={1}>
@@ -158,21 +182,7 @@ const TaxConfiguration = () => {
                 </div>
 
                 <div className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="freibetragConfiguration">Sparerpauschbetrag pro Jahr (€)</Label>
-                    <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-                      <div className="text-sm text-blue-800 font-medium">
-                        ℹ️ Planungsmodus-abhängiger Standardwert
-                      </div>
-                      <div className="text-sm text-blue-700 mt-1">
-                        {planningMode === 'couple'
-                          ? `Ehepaar/Partner: ${defaultFreibetragAmount.toLocaleString('de-DE')}€ (2.000€ pro Person)`
-                          : `Einzelperson: ${defaultFreibetragAmount.toLocaleString('de-DE')}€`}
-                        <br />
-                        Der Standardwert wird automatisch basierend auf Ihrem Planungsmodus gesetzt.
-                      </div>
-                    </div>
-                  </div>
+                  <Label htmlFor="freibetragConfiguration">Sparerpauschbetrag pro Jahr (€)</Label>
                   <div className="flex gap-2 items-end">
                     <div className="flex-1">
                       <Input
@@ -187,7 +197,7 @@ const TaxConfiguration = () => {
                             if (year && !freibetragPerYear[year]) {
                               setFreibetragPerYear({
                                 ...freibetragPerYear,
-                                [year]: defaultFreibetragAmount, // Use planning mode-aware default
+                                [year]: 2000, // Default value
                               })
                               performSimulation()
                               input.value = ''
@@ -202,7 +212,7 @@ const TaxConfiguration = () => {
                         if (!freibetragPerYear[year]) {
                           setFreibetragPerYear({
                             ...freibetragPerYear,
-                            [year]: defaultFreibetragAmount, // Use planning mode-aware default
+                            [year]: 2000,
                           })
                           performSimulation()
                         }
@@ -296,9 +306,9 @@ const TaxConfiguration = () => {
                     checked={grundfreibetragAktiv}
                     onCheckedChange={(checked) => {
                       setGrundfreibetragAktiv(checked)
-                      // When activating for the first time, set to double the base value
-                      if (checked && grundfreibetragBetrag === 11604) {
-                        setGrundfreibetragBetrag(23208)
+                      // When activating, automatically set the correct value based on planning mode
+                      if (checked) {
+                        setGrundfreibetragBetrag(recommendedGrundfreibetrag)
                       }
                       performSimulation()
                     }}
@@ -307,7 +317,22 @@ const TaxConfiguration = () => {
 
                 {grundfreibetragAktiv && (
                   <div className="space-y-2">
-                    <Label htmlFor="grundfreibetragBetrag">Grundfreibetrag pro Jahr (€)</Label>
+                    <div className="flex items-center justify-between">
+                      <Label htmlFor="grundfreibetragBetrag">Grundfreibetrag pro Jahr (€)</Label>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setGrundfreibetragBetrag(recommendedGrundfreibetrag)
+                          performSimulation()
+                        }}
+                        className="text-xs"
+                      >
+                        Reset (
+                        {planningModeLabel}
+                        )
+                      </Button>
+                    </div>
                     <Input
                       id="grundfreibetragBetrag"
                       type="number"
@@ -325,10 +350,20 @@ const TaxConfiguration = () => {
                       className="w-full"
                     />
                     <div className="text-sm text-muted-foreground">
-                      <p>Aktueller Grundfreibetrag 2024: €11.604 | Empfohlener Wert für Paare: €23.208</p>
                       <p>
-                        Der Grundfreibetrag wird sowohl für einheitliche Strategien als auch für geteilte
-                        Entsparphasen berücksichtigt.
+                        Aktueller Grundfreibetrag 2024: €
+                        {GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_2024.toLocaleString()}
+                        {' '}
+                        pro Person | Empfohlener Wert für
+                        {' '}
+                        {planningModeLabel}
+                        : €
+                        {recommendedGrundfreibetrag.toLocaleString()}
+                      </p>
+                      <p>
+                        Der Grundfreibetrag wird automatisch basierend auf dem Planungsmodus
+                        (Einzelperson/Ehepaar) gesetzt. Er wird sowohl für einheitliche Strategien
+                        als auch für geteilte Entsparphasen berücksichtigt.
                       </p>
                     </div>
                   </div>

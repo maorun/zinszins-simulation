@@ -1,5 +1,37 @@
 import type { BasiszinsConfiguration } from '../src/services/bundesbank-api'
 
+// German tax constants (as of 2024)
+export const GERMAN_TAX_CONSTANTS = {
+  // Grundfreibetrag (Basic Tax Allowance) - per person
+  GRUNDFREIBETRAG_2024: 11604, // €11,604 per person in 2024
+
+  // Calculated values for different planning modes
+  get GRUNDFREIBETRAG_INDIVIDUAL() { return this.GRUNDFREIBETRAG_2024 },
+  get GRUNDFREIBETRAG_COUPLE() { return this.GRUNDFREIBETRAG_2024 * 2 }, // €23,208 for couples
+} as const
+
+/**
+ * Get the appropriate Grundfreibetrag amount based on planning mode
+ * @param planningMode - 'individual' or 'couple'
+ * @returns The Grundfreibetrag amount in euros
+ */
+export function getGrundfreibetragForPlanningMode(planningMode: 'individual' | 'couple'): number {
+  return planningMode === 'couple'
+    ? GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_COUPLE
+    : GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_INDIVIDUAL
+}
+
+/**
+ * Check if a given amount is a standard Grundfreibetrag value
+ * Used to determine whether to auto-update user values when planning mode changes
+ * @param amount - The amount to check
+ * @returns true if the amount matches a standard Grundfreibetrag value
+ */
+export function isStandardGrundfreibetragValue(amount: number): boolean {
+  return amount === GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_INDIVIDUAL
+    || amount === GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_COUPLE
+}
+
 // Historical and projected German Basiszins (base interest rate) values for Vorabpauschale calculation
 // These are official rates set by the German Federal Ministry of Finance
 // NOTE: This is now a fallback - the main configuration should come from BasiszinsConfiguration
