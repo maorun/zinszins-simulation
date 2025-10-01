@@ -104,9 +104,20 @@ export function useWithdrawalModals(
         ? (applicableSegment.grundfreibetragPerYear?.[rowData.year] || 10908)
         : (formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0)
 
+      // Get statutory pension taxable amount if available
+      const statutoryPensionTaxableAmount = rowData.statutoryPension?.taxableAmount || 0
+
+      // Get other income gross amount if available
+      const otherIncomeGrossAmount = rowData.otherIncome?.sources?.reduce(
+        (sum: number, source: any) => sum + (source.grossAnnualAmount || 0),
+        0,
+      ) || 0
+
       const explanation = createTaxableIncomeExplanation(
         rowData.entnahme,
         grundfreibetragAmount,
+        statutoryPensionTaxableAmount,
+        otherIncomeGrossAmount,
       )
       setCalculationDetails(explanation)
       setShowCalculationModal(true)
