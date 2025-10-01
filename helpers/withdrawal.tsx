@@ -619,7 +619,7 @@ export function calculateWithdrawal({
         totalTaxableIncome += otherIncomeGrossTotal
       }
 
-      einkommensteuer = calculateIncomeTax(totalTaxableIncome, yearlyGrundfreibetrag, incomeTaxRate)
+      einkommensteuer = calculateIncomeTax(totalTaxableIncome, yearlyGrundfreibetrag, (incomeTaxRate || 0) / 100)
       genutzterGrundfreibetrag = Math.min(totalTaxableIncome, yearlyGrundfreibetrag)
     }
 
