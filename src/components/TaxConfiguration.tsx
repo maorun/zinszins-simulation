@@ -10,6 +10,7 @@ import { Trash2, Plus, ChevronDown } from 'lucide-react'
 import { useSimulation } from '../contexts/useSimulation'
 import { NestingProvider } from '../lib/nesting-context'
 import BasiszinsConfiguration from './BasiszinsConfiguration'
+import { useEffect } from 'react'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -39,6 +40,24 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
   // Calculate recommended Grundfreibetrag based on planning mode
   const recommendedGrundfreibetrag = planningMode === 'couple' ? 23208 : 11604 // 2024 values
   const planningModeLabel = planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'
+
+  // Automatically update Grundfreibetrag when planning mode changes
+  // Only update if current value is a standard value (11604 or 23208) to preserve custom user values
+  useEffect(() => {
+    if (grundfreibetragAktiv && (grundfreibetragBetrag === 11604 || grundfreibetragBetrag === 23208)) {
+      if (grundfreibetragBetrag !== recommendedGrundfreibetrag) {
+        setGrundfreibetragBetrag(recommendedGrundfreibetrag)
+        performSimulation()
+      }
+    }
+  }, [
+    planningMode,
+    recommendedGrundfreibetrag,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    setGrundfreibetragBetrag,
+    performSimulation,
+  ])
 
   return (
     <NestingProvider level={1}>
