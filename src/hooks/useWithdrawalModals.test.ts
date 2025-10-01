@@ -31,8 +31,12 @@ describe('useWithdrawalModals', () => {
       [],
       mockWithdrawalData,
       2023,
+      true,
+      23208,
       0.26375,
       0.3,
+      true,
+      23208,
     ))
 
     expect(result.current.showCalculationModal).toBe(false)
@@ -49,8 +53,12 @@ describe('useWithdrawalModals', () => {
       [],
       mockWithdrawalData,
       2023,
+      true,
+      23208,
       0.26375,
       0.3,
+      true,
+      23208,
     ))
 
     const rowData = {
@@ -73,8 +81,12 @@ describe('useWithdrawalModals', () => {
       [],
       mockWithdrawalData,
       2023,
+      true,
+      23208,
       0.26375,
       0.3,
+      true,
+      23208,
     ))
 
     expect(typeof result.current.setShowCalculationModal).toBe('function')
@@ -88,8 +100,12 @@ describe('useWithdrawalModals', () => {
       [],
       mockWithdrawalData,
       2023,
+      true,
+      23208,
       0.26375,
       0.3,
+      true,
+      23208,
     ))
 
     // Test that the function doesn't throw for different explanation types

@@ -20,6 +20,8 @@ export function useWithdrawalModals(
   startOfIndependence: number,
   steuerlast: number,
   teilfreistellungsquote: number,
+  grundfreibetragAktiv: boolean,
+  grundfreibetragBetrag: number,
 ) {
   // State for calculation explanation modals
   const [showCalculationModal, setShowCalculationModal] = useState(false)
@@ -79,10 +81,10 @@ export function useWithdrawalModals(
       setShowCalculationModal(true)
     }
     else if (explanationType === 'incomeTax' && rowData.einkommensteuer !== undefined) {
-      // Use segment-specific settings if in segmented mode, otherwise use form values
+      // Use segment-specific settings if in segmented mode, otherwise use global values
       const grundfreibetragAmount = applicableSegment?.enableGrundfreibetrag
         ? (applicableSegment.grundfreibetragPerYear?.[rowData.year] || 10908)
-        : (formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0)
+        : (grundfreibetragAktiv ? grundfreibetragBetrag : 0)
 
       const incomeTaxRate = applicableSegment?.incomeTaxRate
         ? applicableSegment.incomeTaxRate * 100
@@ -99,10 +101,10 @@ export function useWithdrawalModals(
       setShowCalculationModal(true)
     }
     else if (explanationType === 'taxableIncome') {
-      // Use segment-specific settings if in segmented mode, otherwise use form values
+      // Use segment-specific settings if in segmented mode, otherwise use global values
       const grundfreibetragAmount = applicableSegment?.enableGrundfreibetrag
         ? (applicableSegment.grundfreibetragPerYear?.[rowData.year] || 10908)
-        : (formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0)
+        : (grundfreibetragAktiv ? grundfreibetragBetrag : 0)
 
       // Get statutory pension taxable amount if available
       const statutoryPensionTaxableAmount = rowData.statutoryPension?.taxableAmount || 0
