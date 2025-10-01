@@ -70,8 +70,8 @@ describe('SimulationParameters', () => {
       expect(taxConfig).toBeInTheDocument()
 
       // The default planningMode from SimulationContext should be passed to TaxConfiguration
-      // Based on the context, this should be 'individual' by default
-      expect(taxConfig).toHaveAttribute('data-planning-mode', 'individual')
+      // Based on the context default config, this should be 'couple' by default
+      expect(taxConfig).toHaveAttribute('data-planning-mode', 'couple')
     })
   })
 
