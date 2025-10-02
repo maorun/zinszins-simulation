@@ -1,4 +1,3 @@
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
 import type { RandomReturnConfig } from '../utils/random-returns'
 
 interface MonteCarloResult {
@@ -45,13 +44,6 @@ const MonteCarloAnalysisDisplay = ({ config, title, phaseTitle }: MonteCarloAnal
     },
   ]
 
-  const getRowClassName = (scenario: string) => {
-    if (scenario.includes('Best Case')) return 'success-row'
-    if (scenario.includes('Worst Case')) return 'danger-row'
-    if (scenario.includes('Median')) return 'info-row'
-    return ''
-  }
-
   const scenarios = createScenarios(config)
 
   return (
@@ -92,30 +84,7 @@ const MonteCarloAnalysisDisplay = ({ config, title, phaseTitle }: MonteCarloAnal
         )}
       </div>
 
-      {/* Desktop Table Layout */}
-      <div className="hidden md:block">
-        <Table className="mb-5">
-          <TableHeader>
-            <TableRow>
-              <TableHead>Szenario</TableHead>
-              <TableHead>Beschreibung</TableHead>
-              <TableHead>Wahrscheinlichkeit</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {scenarios.map((scenario, index) => (
-              <TableRow key={index} className={getRowClassName(scenario.scenario)}>
-                <TableCell>{scenario.scenario}</TableCell>
-                <TableCell>{scenario.description}</TableCell>
-                <TableCell>{scenario.probability}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
-
-      {/* Mobile Card Layout */}
-      <div className="block md:hidden flex flex-col gap-3">
+      <div className="block flex flex-col gap-3">
         {scenarios.map((scenario, index) => {
           const isSuccess = scenario.scenario.includes('Best Case')
           const isDanger = scenario.scenario.includes('Worst Case')
