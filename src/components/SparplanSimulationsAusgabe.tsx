@@ -8,7 +8,7 @@ import type { Summary } from '../utils/summary-utils'
 import { fullSummary, getYearlyPortfolioProgression } from '../utils/summary-utils'
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
 import CalculationExplanationModal from './CalculationExplanationModal'
-import { createInterestExplanation, createTaxExplanation } from './calculationHelpers'
+import { createInterestExplanation, createTaxExplanation, createEndkapitalExplanation } from './calculationHelpers'
 
 // Info icon component for calculation explanations
 const InfoIcon = ({ onClick }: { onClick: () => void }) => (
@@ -39,8 +39,10 @@ const InfoIcon = ({ onClick }: { onClick: () => void }) => (
 
 export function SparplanEnd({
   elemente,
+  onCalculationInfoClick,
 }: {
   elemente?: SparplanElement[]
+  onCalculationInfoClick?: (explanationType: string, rowData: any) => void
 }) {
   const summary: Summary = fullSummary(elemente)
   return (
@@ -69,10 +71,20 @@ export function SparplanEnd({
               <div style={{ fontSize: '1.2rem', marginBottom: '0.5rem', opacity: 0.9 }}>
                 Ihr Gesamtkapital
               </div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-1px' }}>
-                {thousands(summary.endkapital.toFixed(2))}
-                {' '}
-                €
+              <div style={{ fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-1px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
+                <span>
+                  {thousands(summary.endkapital.toFixed(2))}
+                  {' '}
+                  €
+                </span>
+                {onCalculationInfoClick && (
+                  <InfoIcon onClick={() => onCalculationInfoClick('endkapital', {
+                    jahr: new Date().getFullYear(),
+                    endkapital: summary.endkapital.toFixed(2),
+                    einzahlung: summary.startkapital || 0,
+                  })}
+                  />
+                )}
               </div>
             </div>
           </CardContent>
@@ -144,6 +156,18 @@ export function SparplanSimulationsAusgabe({
       setCalculationDetails(explanation)
       setShowCalculationModal(true)
     }
+    else if (explanationType === 'endkapital' && simData) {
+      const explanation = createEndkapitalExplanation(
+        simData.endkapital,
+        simData.startkapital,
+        rowData.einzahlung, // Use rowData since it has the yearly contribution amount
+        simData.zinsen,
+        simData.bezahlteSteuer,
+        rowData.jahr,
+      )
+      setCalculationDetails(explanation)
+      setShowCalculationModal(true)
+    }
   }
 
   return (
@@ -172,12 +196,13 @@ export function SparplanSimulationsAusgabe({
                       📅
                       {row.zeitpunkt}
                     </span>
-                    <span className="font-bold text-blue-600 text-lg">
+                    <span className="font-bold text-blue-600 text-lg flex items-center">
                       🎯
                       {' '}
                       {thousands(row.endkapital)}
                       {' '}
                       €
+                      <InfoIcon onClick={() => handleCalculationInfoClick('endkapital', row)} />
                     </span>
                   </div>
                   <div className="flex flex-col gap-2">
@@ -273,10 +298,16 @@ export function SparplanSimulationsAusgabe({
                   </div>
                   <div className="flex flex-col text-center p-2 bg-gradient-to-br from-green-500 to-teal-500 text-white rounded border border-green-500">
                     <span className="text-xs mb-1 opacity-90">🎯 Endkapital</span>
-                    <span className="font-bold text-sm">
+                    <span className="font-bold text-sm flex items-center justify-center">
                       {thousands(summary.endkapital?.toFixed(2) || '0')}
                       {' '}
                       €
+                      <InfoIcon onClick={() => handleCalculationInfoClick('endkapital', {
+                        jahr: tableData?.[0]?.jahr || new Date().getFullYear(),
+                        endkapital: summary.endkapital?.toFixed(2) || '0',
+                        einzahlung: summary.startkapital || 0,
+                      })}
+                      />
                     </span>
                   </div>
                 </div>

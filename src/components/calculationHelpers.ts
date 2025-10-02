@@ -115,6 +115,65 @@ export function createTaxExplanation(
   }
 }
 
+// Final capital calculation explanation (for savings phase)
+export function createEndkapitalExplanation(
+  endkapital: number,
+  startkapital: number,
+  einzahlung: number,
+  zinsen: number,
+  bezahlteSteuer: number,
+  year: number,
+): CalculationExplanation {
+  return {
+    title: '🎯 Endkapital-Berechnung Schritt für Schritt',
+    introduction: `Die Endkapital-Berechnung für das Jahr ${year} zeigt, wie sich Ihr Portfolio durch Einzahlungen, Zinserträge und Steuern entwickelt. Das Endkapital ist das verfügbare Kapital am Ende des Jahres.`,
+    steps: [
+      {
+        title: 'Schritt 1: Startkapital zu Jahresbeginn',
+        description: 'Das verfügbare Kapital zu Beginn des Jahres (Endkapital des Vorjahres).',
+        calculation: `Startkapital = ${formatCurrency(startkapital)}`,
+        result: formatCurrency(startkapital),
+        backgroundColor: '#fff3e0',
+        borderColor: '#ffcc80',
+      },
+      {
+        title: 'Schritt 2: Neue Einzahlungen addieren',
+        description: 'Ihre Einzahlungen/Sparraten für das Jahr werden zum Startkapital hinzugefügt.',
+        calculation: `Kapital nach Einzahlungen = Startkapital + Einzahlungen<br/>${formatCurrency(startkapital)} + ${formatCurrency(einzahlung)}`,
+        result: formatCurrency(startkapital + einzahlung),
+        backgroundColor: '#e8f5e8',
+        borderColor: '#81c784',
+      },
+      {
+        title: 'Schritt 3: Zinserträge/Wertzuwachs berücksichtigen',
+        description: 'Die erwirtschafteten Zinsen und Wertsteigerungen werden hinzugefügt (können auch negativ sein bei Verlusten).',
+        calculation: `Kapital nach Zinsen = Kapital nach Einzahlungen + Zinsen<br/>${formatCurrency(startkapital + einzahlung)} + ${formatCurrency(zinsen)}`,
+        result: formatCurrency(startkapital + einzahlung + zinsen),
+        backgroundColor: '#e3f2fd',
+        borderColor: '#64b5f6',
+      },
+      {
+        title: 'Schritt 4: Steuern abziehen',
+        description: 'Die für das Jahr anfallenden Steuern (z.B. Vorabpauschale) werden vom Kapital abgezogen.',
+        calculation: `Endkapital = Kapital nach Zinsen - Bezahlte Steuern<br/>${formatCurrency(startkapital + einzahlung + zinsen)} - ${formatCurrency(bezahlteSteuer)}`,
+        result: formatCurrency(endkapital),
+        backgroundColor: '#f3e5f5',
+        borderColor: '#ba68c8',
+      },
+    ],
+    finalResult: {
+      title: 'Endergebnis',
+      values: [
+        { label: 'Startkapital', value: formatCurrency(startkapital) },
+        { label: 'Einzahlungen', value: formatCurrency(einzahlung) },
+        { label: 'Zinsen/Wertzuwachs', value: formatCurrency(zinsen) },
+        { label: 'Bezahlte Steuern', value: formatCurrency(bezahlteSteuer) },
+        { label: 'Endkapital', value: formatCurrency(endkapital) },
+      ],
+    },
+  }
+}
+
 // Inflation calculation explanation (for withdrawal phase)
 export function createInflationExplanation(
   baseAmount: number,
