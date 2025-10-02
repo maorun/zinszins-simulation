@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest'
 import {
   createInterestExplanation,
   createTaxExplanation,
+  createEndkapitalExplanation,
   createInflationExplanation,
   createIncomeTaxExplanation,
   createWithdrawalInterestExplanation,
@@ -34,6 +35,51 @@ describe('calculationHelpers', () => {
       expect(explanation.steps[1].title).toBe('Schritt 2: Steuer vor Sparerpauschbetrag berechnen')
       expect(explanation.steps[2].title).toBe('Schritt 3: Sparerpauschbetrag anwenden')
       expect(explanation.finalResult.values).toHaveLength(4)
+    })
+  })
+
+  describe('createEndkapitalExplanation', () => {
+    it('should create correct endkapital explanation for savings phase', () => {
+      const explanation = createEndkapitalExplanation(25000, 20000, 5000, 1000, 100, 2023)
+
+      expect(explanation.title).toBe('🎯 Endkapital-Berechnung Schritt für Schritt')
+      expect(explanation.introduction).toContain('Die Endkapital-Berechnung für das Jahr 2023')
+      expect(explanation.introduction).toContain('wie sich Ihr Portfolio durch Einzahlungen, Zinserträge und Steuern entwickelt')
+      expect(explanation.steps).toHaveLength(4)
+      expect(explanation.steps[0].title).toBe('Schritt 1: Startkapital zu Jahresbeginn')
+      expect(explanation.steps[1].title).toBe('Schritt 2: Neue Einzahlungen addieren')
+      expect(explanation.steps[2].title).toBe('Schritt 3: Zinserträge/Wertzuwachs berücksichtigen')
+      expect(explanation.steps[3].title).toBe('Schritt 4: Steuern abziehen')
+    })
+
+    it('should calculate step results correctly', () => {
+      const explanation = createEndkapitalExplanation(25000, 20000, 5000, 1000, 100, 2023)
+
+      // Check step calculations
+      expect(explanation.steps[0].result).toBe('20.000,00 €') // Startkapital
+      expect(explanation.steps[1].result).toBe('25.000,00 €') // After contributions: 20000 + 5000
+      expect(explanation.steps[2].result).toBe('26.000,00 €') // After interest: 25000 + 1000
+      expect(explanation.steps[3].result).toBe('25.000,00 €') // After taxes: 26000 - 100
+    })
+
+    it('should handle negative interest correctly', () => {
+      const explanation = createEndkapitalExplanation(18000, 20000, 5000, -2000, 0, 2023)
+
+      expect(explanation.steps[2].result).toBe('23.000,00 €') // 25000 + (-2000)
+      expect(explanation.steps[2].description).toContain('können auch negativ sein bei Verlusten')
+    })
+
+    it('should show final result with all components', () => {
+      const explanation = createEndkapitalExplanation(25000, 20000, 5000, 1000, 100, 2023)
+
+      expect(explanation.finalResult.title).toBe('Endergebnis')
+      expect(explanation.finalResult.values).toHaveLength(5)
+      expect(explanation.finalResult.values[0].label).toBe('Startkapital')
+      expect(explanation.finalResult.values[1].label).toBe('Einzahlungen')
+      expect(explanation.finalResult.values[2].label).toBe('Zinsen/Wertzuwachs')
+      expect(explanation.finalResult.values[3].label).toBe('Bezahlte Steuern')
+      expect(explanation.finalResult.values[4].label).toBe('Endkapital')
+      expect(explanation.finalResult.values[4].value).toBe('25.000,00 €')
     })
   })
 
