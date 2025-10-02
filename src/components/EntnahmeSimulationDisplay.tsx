@@ -305,10 +305,11 @@ export function EntnahmeSimulationDisplay({
                 📅
                 {rowData.year}
               </span>
-              <span className="font-bold text-blue-600 text-lg">
+              <span className="font-bold text-blue-600 text-lg flex items-center">
                 🎯
                 {' '}
                 {formatCurrency(rowData.endkapital)}
+                <InfoIcon onClick={() => onCalculationInfoClick('endkapital', rowData)} />
               </span>
             </div>
             <div className="flex flex-col gap-2">

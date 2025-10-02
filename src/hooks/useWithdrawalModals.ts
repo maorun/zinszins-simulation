@@ -7,6 +7,7 @@ import {
   createTaxableIncomeExplanation,
   createOtherIncomeExplanation,
   createStatutoryPensionExplanation,
+  createEndkapitalExplanation,
 } from '../components/calculationHelpers'
 
 /**
@@ -140,6 +141,25 @@ export function useWithdrawalModals(
         rowData.statutoryPension.netAnnualAmount,
         rowData.statutoryPension.incomeTax,
         rowData.statutoryPension.taxableAmount,
+        rowData.year,
+      )
+      setCalculationDetails(explanation)
+      setShowCalculationModal(true)
+    }
+    else if (explanationType === 'endkapital') {
+      // For withdrawal phase, calculate the Endkapital explanation
+      // Endkapital = Startkapital + Zinsen - Entnahme - Steuern - Kosten
+      const zinsen = rowData.zinsen || 0
+      const entnahme = rowData.entnahme || 0
+      const bezahlteSteuer = rowData.bezahlteSteuer || 0
+      const kosten = (rowData.terCosts || 0) + (rowData.transactionCosts || 0)
+
+      const explanation = createEndkapitalExplanation(
+        rowData.endkapital,
+        rowData.startkapital,
+        -entnahme, // Negative because it's a withdrawal (reduces capital)
+        zinsen,
+        bezahlteSteuer + kosten, // Total costs including taxes
         rowData.year,
       )
       setCalculationDetails(explanation)
