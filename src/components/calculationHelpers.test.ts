@@ -79,15 +79,32 @@ describe('calculationHelpers', () => {
   })
 
   describe('createTaxableIncomeExplanation', () => {
-    it('should create correct taxable income explanation', () => {
+    it('should create correct taxable income explanation with portfolio withdrawal only', () => {
       const explanation = createTaxableIncomeExplanation(20000, 10908)
 
       expect(explanation.title).toBe('💰 Zu versteuerndes Einkommen Schritt für Schritt')
       expect(explanation.introduction).toContain('zu versteuernde Einkommen ergibt sich')
       expect(explanation.steps).toHaveLength(2)
-      expect(explanation.steps[0].title).toBe('Schritt 1: Brutto-Entnahme')
+      expect(explanation.steps[0].title).toBe('Schritt 1: Portfolio-Entnahme')
       expect(explanation.steps[1].title).toBe('Schritt 2: Grundfreibetrag abziehen')
-      expect(explanation.finalResult.values).toHaveLength(3)
+      // Portfolio-Entnahme, Gesamte Brutto-Einkünfte, Grundfreibetrag, Zu versteuerndes Einkommen
+      expect(explanation.finalResult.values).toHaveLength(4)
+    })
+
+    it('should create correct taxable income explanation with all income sources', () => {
+      const explanation = createTaxableIncomeExplanation(20000, 10908, 15000, 5000)
+
+      expect(explanation.title).toBe('💰 Zu versteuerndes Einkommen Schritt für Schritt')
+      expect(explanation.introduction).toContain('zu versteuernde Einkommen ergibt sich')
+      // Portfolio, Pension, Other Income, Total, Grundfreibetrag
+      expect(explanation.steps).toHaveLength(5)
+      expect(explanation.steps[0].title).toBe('Schritt 1: Portfolio-Entnahme')
+      expect(explanation.steps[1].title).toBe('Schritt 2: Gesetzliche Rente (steuerpflichtiger Anteil)')
+      expect(explanation.steps[2].title).toBe('Schritt 3: Andere Einkünfte')
+      expect(explanation.steps[3].title).toBe('Schritt 4: Gesamte Brutto-Einkünfte')
+      expect(explanation.steps[4].title).toBe('Schritt 5: Grundfreibetrag abziehen')
+      // All sources + Total + Grundfreibetrag + Final result
+      expect(explanation.finalResult.values).toHaveLength(6)
     })
   })
 

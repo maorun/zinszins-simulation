@@ -123,6 +123,8 @@ export function EntnahmeSimulationsAusgabe({
     startOfIndependence,
     steuerlast,
     teilfreistellungsquote,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
   )
 
   // Extract values from config for easier access

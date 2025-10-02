@@ -26,6 +26,8 @@ describe('Parameter Export', () => {
       freibetragPerYear: { 2023: 2000 },
       steuerReduzierenEndkapitalSparphase: true,
       steuerReduzierenEndkapitalEntspharphase: false,
+      grundfreibetragAktiv: false,
+      grundfreibetragBetrag: 11604,
       returnMode: 'fixed' as const,
       averageReturn: 7.0,
       standardDeviation: 15.0,
@@ -48,6 +50,8 @@ describe('Parameter Export', () => {
       setFreibetragPerYear: vi.fn(),
       setSteuerReduzierenEndkapitalSparphase: vi.fn(),
       setSteuerReduzierenEndkapitalEntspharphase: vi.fn(),
+      setGrundfreibetragAktiv: vi.fn(),
+      setGrundfreibetragBetrag: vi.fn(),
       setReturnMode: vi.fn(),
       setAverageReturn: vi.fn(),
       setStandardDeviation: vi.fn(),
@@ -148,7 +152,20 @@ describe('Parameter Export', () => {
       expect(result).toContain('Entnahme-Rendite-Modus: Fest (Standard)')
     })
 
+    it('should show Grundfreibetrag status based on global context when active', () => {
+      mockContext.grundfreibetragAktiv = true
+      mockContext.grundfreibetragBetrag = 12000
+      mockContext.withdrawalConfig = null
+
+      const result = formatParametersForExport(mockContext)
+
+      expect(result).toContain('Grundfreibetrag aktiv: Ja')
+    })
+
     it('should include full withdrawal parameters when config exists', () => {
+      // Set Grundfreibetrag in global context (not form value)
+      mockContext.grundfreibetragAktiv = true
+      mockContext.grundfreibetragBetrag = 11000
       mockContext.withdrawalConfig = {
         formValue: {
           strategie: 'monatlich_fest',
@@ -168,8 +185,6 @@ describe('Parameter Export', () => {
           rmdStartAge: 65,
           kapitalerhaltNominalReturn: 7,
           kapitalerhaltInflationRate: 2,
-          grundfreibetragAktiv: true,
-          grundfreibetragBetrag: 11000,
           einkommensteuersatz: 28,
         },
         withdrawalReturnMode: 'random',

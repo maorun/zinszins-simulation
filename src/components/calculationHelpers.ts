@@ -262,39 +262,120 @@ export function createWithdrawalInterestExplanation(
 export function createTaxableIncomeExplanation(
   entnahme: number,
   grundfreibetrag: number,
-  _vorabpauschale?: number,
-  _kapitalertragsteuer?: number,
+  statutoryPensionTaxableAmount?: number,
+  otherIncomeGrossAmount?: number,
 ): CalculationExplanation {
-  const steuerpflichtigesEinkommen = Math.max(0, entnahme - grundfreibetrag)
+  // Calculate total taxable income from all sources
+  let totalTaxableIncome = entnahme
+
+  if (statutoryPensionTaxableAmount) {
+    totalTaxableIncome += statutoryPensionTaxableAmount
+  }
+
+  if (otherIncomeGrossAmount) {
+    totalTaxableIncome += otherIncomeGrossAmount
+  }
+
+  const steuerpflichtigesEinkommen = Math.max(0, totalTaxableIncome - grundfreibetrag)
+
+  const steps = [
+    {
+      title: 'Schritt 1: Portfolio-Entnahme',
+      description: 'Die Entnahme aus dem Portfolio vor Steuern.',
+      calculation: `Portfolio-Entnahme = ${formatCurrency(entnahme)}`,
+      result: formatCurrency(entnahme),
+      backgroundColor: '#fff3e0',
+      borderColor: '#ffcc80',
+    },
+  ]
+
+  // Add statutory pension step if applicable
+  if (statutoryPensionTaxableAmount && statutoryPensionTaxableAmount > 0) {
+    steps.push({
+      title: 'Schritt 2: Gesetzliche Rente (steuerpflichtiger Anteil)',
+      description: 'Der steuerpflichtige Anteil der gesetzlichen Rente wird zu den Einkünften hinzugefügt.',
+      calculation: `Steuerpflichtiger Rentenanteil = ${formatCurrency(statutoryPensionTaxableAmount)}`,
+      result: formatCurrency(statutoryPensionTaxableAmount),
+      backgroundColor: '#e3f2fd',
+      borderColor: '#90caf9',
+    })
+  }
+
+  // Add other income step if applicable
+  if (otherIncomeGrossAmount && otherIncomeGrossAmount > 0) {
+    steps.push({
+      title: `Schritt ${steps.length + 1}: Andere Einkünfte`,
+      description: 'Weitere Einkünfte (Mieteinnahmen, Nebeneinkünfte, etc.) werden zu den Einkünften hinzugefügt.',
+      calculation: `Andere Einkünfte = ${formatCurrency(otherIncomeGrossAmount)}`,
+      result: formatCurrency(otherIncomeGrossAmount),
+      backgroundColor: '#f3e5f5',
+      borderColor: '#ce93d8',
+    })
+  }
+
+  // Add total income step if we have multiple sources
+  if (statutoryPensionTaxableAmount || otherIncomeGrossAmount) {
+    let calculationText = `Gesamte Brutto-Einkünfte = Portfolio-Entnahme`
+    if (statutoryPensionTaxableAmount && statutoryPensionTaxableAmount > 0) {
+      calculationText += ` + Gesetzliche Rente`
+    }
+    if (otherIncomeGrossAmount && otherIncomeGrossAmount > 0) {
+      calculationText += ` + Andere Einkünfte`
+    }
+    calculationText += `<br/>${formatCurrency(entnahme)}`
+    if (statutoryPensionTaxableAmount && statutoryPensionTaxableAmount > 0) {
+      calculationText += ` + ${formatCurrency(statutoryPensionTaxableAmount)}`
+    }
+    if (otherIncomeGrossAmount && otherIncomeGrossAmount > 0) {
+      calculationText += ` + ${formatCurrency(otherIncomeGrossAmount)}`
+    }
+    calculationText += ` = ${formatCurrency(totalTaxableIncome)}`
+
+    steps.push({
+      title: `Schritt ${steps.length + 1}: Gesamte Brutto-Einkünfte`,
+      description: 'Alle Einkunftsarten werden zusammengefasst.',
+      calculation: calculationText,
+      result: formatCurrency(totalTaxableIncome),
+      backgroundColor: '#fff9c4',
+      borderColor: '#fff176',
+    })
+  }
+
+  // Final step: subtract Grundfreibetrag
+  steps.push({
+    title: `Schritt ${steps.length + 1}: Grundfreibetrag abziehen`,
+    description: `Der steuerfreie Grundfreibetrag von ${formatCurrency(grundfreibetrag)} wird von den gesamten Einkünften abgezogen.`,
+    calculation: `Zu versteuerndes Einkommen = max(0, Gesamte Einkünfte - Grundfreibetrag)<br/>max(0, ${formatCurrency(totalTaxableIncome)} - ${formatCurrency(grundfreibetrag)})`,
+    result: formatCurrency(steuerpflichtigesEinkommen),
+    backgroundColor: '#e8f5e8',
+    borderColor: '#81c784',
+  })
+
+  const finalResultValues = [
+    { label: 'Portfolio-Entnahme', value: formatCurrency(entnahme) },
+  ]
+
+  if (statutoryPensionTaxableAmount && statutoryPensionTaxableAmount > 0) {
+    finalResultValues.push({ label: 'Gesetzliche Rente (steuerpflichtig)', value: formatCurrency(statutoryPensionTaxableAmount) })
+  }
+
+  if (otherIncomeGrossAmount && otherIncomeGrossAmount > 0) {
+    finalResultValues.push({ label: 'Andere Einkünfte', value: formatCurrency(otherIncomeGrossAmount) })
+  }
+
+  finalResultValues.push(
+    { label: 'Gesamte Brutto-Einkünfte', value: formatCurrency(totalTaxableIncome) },
+    { label: 'Grundfreibetrag', value: formatCurrency(grundfreibetrag) },
+    { label: 'Zu versteuerndes Einkommen', value: formatCurrency(steuerpflichtigesEinkommen) },
+  )
 
   return {
     title: '💰 Zu versteuerndes Einkommen Schritt für Schritt',
-    introduction: 'Das zu versteuernde Einkommen ergibt sich aus der Entnahme nach Abzug der verfügbaren Freibeträge. Dies ist die Grundlage für die Berechnung der Einkommensteuer.',
-    steps: [
-      {
-        title: 'Schritt 1: Brutto-Entnahme',
-        description: 'Die gesamte Entnahme aus dem Portfolio vor Steuern.',
-        calculation: `Brutto-Entnahme = ${formatCurrency(entnahme)}`,
-        result: formatCurrency(entnahme),
-        backgroundColor: '#fff3e0',
-        borderColor: '#ffcc80',
-      },
-      {
-        title: 'Schritt 2: Grundfreibetrag abziehen',
-        description: `Der steuerfreie Grundfreibetrag von ${formatCurrency(grundfreibetrag)} wird abgezogen.`,
-        calculation: `Zu versteuerndes Einkommen = max(0, Brutto-Entnahme - Grundfreibetrag)<br/>max(0, ${formatCurrency(entnahme)} - ${formatCurrency(grundfreibetrag)})`,
-        result: formatCurrency(steuerpflichtigesEinkommen),
-        backgroundColor: '#e8f5e8',
-        borderColor: '#81c784',
-      },
-    ],
+    introduction: 'Das zu versteuernde Einkommen ergibt sich aus allen Einkunftsarten (Portfolio-Entnahme, gesetzliche Rente, andere Einkünfte) nach Abzug des Grundfreibetrags. Dies ist die Grundlage für die Berechnung der Einkommensteuer.',
+    steps,
     finalResult: {
       title: 'Endergebnis',
-      values: [
-        { label: 'Brutto-Entnahme', value: formatCurrency(entnahme) },
-        { label: 'Grundfreibetrag', value: formatCurrency(grundfreibetrag) },
-        { label: 'Zu versteuerndes Einkommen', value: formatCurrency(steuerpflichtigesEinkommen) },
-      ],
+      values: finalResultValues,
     },
   }
 }
