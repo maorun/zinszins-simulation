@@ -318,7 +318,6 @@ function calculateYearlySimulation(
       const {
         startkapital,
         endkapitalAfterCosts,
-        jahresgewinn,
         costs,
       } = calculateGrowthAndCostsForElement(element, year, wachstumsrate, simulationAnnual, options)
 
@@ -335,10 +334,13 @@ function calculateYearlySimulation(
         endkapital = endkapital * (1 - inflationRate)
       }
 
+      // Calculate actual interest/gain after all adjustments (including inflation)
+      const actualZinsen = endkapital - startkapital
+
       element.simulation[year] = {
         startkapital,
         endkapital,
-        zinsen: jahresgewinn,
+        zinsen: actualZinsen,
         bezahlteSteuer: 0,
         genutzterFreibetrag: 0,
         vorabpauschale: 0,
@@ -393,6 +395,9 @@ function applyTaxes(
       endkapital = endkapital * (1 - inflationRate)
     }
 
+    // Calculate actual interest/gain after all adjustments (including inflation and taxes)
+    const actualZinsen = endkapital - calc.startkapital
+
     const vorabpauschaleAccumulated
       = (calc.element.simulation[year - 1]?.vorabpauschaleAccumulated || 0)
         + calc.vorabpauschaleBetrag
@@ -400,7 +405,7 @@ function applyTaxes(
     calc.element.simulation[year] = {
       startkapital: calc.startkapital,
       endkapital,
-      zinsen: calc.jahresgewinn,
+      zinsen: actualZinsen,
       bezahlteSteuer: taxForElement,
       genutzterFreibetrag: genutzterFreibetragForElement,
       vorabpauschale: calc.vorabpauschaleBetrag,
