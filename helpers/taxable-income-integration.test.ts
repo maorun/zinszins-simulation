@@ -4,8 +4,13 @@ import type { SparplanElement } from '../src/utils/sparplan-utils'
 import { createDefaultStatutoryPensionConfig } from './statutory-pension'
 import type { StatutoryPensionConfig } from './statutory-pension'
 import type { OtherIncomeConfiguration, OtherIncomeSource } from './other-income'
+import type { HealthCareInsuranceConfig } from './health-care-insurance'
+import { createDefaultHealthCareInsuranceConfig } from './health-care-insurance'
 
 describe('Centralized Taxable Income Calculation', () => {
+  // Helper function to create test elements
+  const createTestElements = (): SparplanElement[] => baseElements
+
   const baseElements: SparplanElement[] = [
     {
       start: new Date('2020-01-01'),
@@ -263,5 +268,49 @@ describe('Centralized Taxable Income Calculation', () => {
         expect(result[2041].einkommensteuer).toBeLessThan(scenario.expectedMaxTax)
       }
     })
+  })
+
+  it('should deduct health care insurance contributions from taxable income', () => {
+    const healthCareInsuranceConfig: HealthCareInsuranceConfig = {
+      ...createDefaultHealthCareInsuranceConfig(),
+      enabled: true,
+      insuranceType: 'statutory',
+      statutoryHealthInsuranceRate: 14.6,
+      statutoryCareInsuranceRate: 3.05,
+      statutoryMinimumIncomeBase: 12000,
+      statutoryMaximumIncomeBase: 60000,
+      retirementStartYear: 2041,
+      includeEmployerContribution: false, // Only employee portion in retirement
+    }
+
+    const { result } = calculateWithdrawal({
+      elements: createTestElements(),
+      startYear: 2041,
+      endYear: 2041,
+      strategy: '4prozent',
+      returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+      healthCareInsuranceConfig,
+      enableGrundfreibetrag: true,
+      grundfreibetragPerYear: { 2041: 12000 },
+      incomeTaxRate: 25,
+      birthYear: 1973,
+    })
+
+    const portfolioWithdrawal = result[2041].entnahme
+    const healthCareTotal = result[2041].healthCareInsurance!.totalAnnual
+    const expectedTaxableIncome = portfolioWithdrawal - healthCareTotal // Health insurance is deductible
+    const expectedTaxableAfterGrundfreibetrag = Math.max(0, expectedTaxableIncome - 12000)
+    const expectedTax = expectedTaxableAfterGrundfreibetrag * 0.25
+
+    expect(result[2041].healthCareInsurance).toBeDefined()
+    expect(result[2041].healthCareInsurance!.totalAnnual).toBeGreaterThan(0)
+    expect(result[2041].einkommensteuer).toBe(expectedTax)
+    expect(result[2041].taxableIncome).toBe(expectedTaxableAfterGrundfreibetrag)
+
+    // Verify that health insurance contributions are properly deducted from taxable income
+    // The actual taxable income should be lower due to health insurance deduction
+    const taxableIncomeWithoutDeduction = Math.max(0, portfolioWithdrawal - 12000)
+    const actualTaxableIncome = result[2041].taxableIncome || 0
+    expect(actualTaxableIncome).toBeLessThanOrEqual(taxableIncomeWithoutDeduction)
   })
 })
