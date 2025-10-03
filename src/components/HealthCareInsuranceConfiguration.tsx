@@ -2,10 +2,10 @@ import { Info } from 'lucide-react'
 import { useEffect, useMemo } from 'react'
 import { calculateRetirementStartYear } from '../../helpers/statutory-pension'
 import { formatCurrency } from '../utils/currency'
-import { 
-  calculateHealthCareInsuranceForYear, 
+import {
+  calculateHealthCareInsuranceForYear,
   calculateCoupleHealthInsuranceForYear,
-  createDefaultHealthCareInsuranceConfig
+  createDefaultHealthCareInsuranceConfig,
 } from '../../helpers/health-care-insurance'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import { Input } from './ui/input'
@@ -79,6 +79,8 @@ interface HealthCareInsuranceConfigurationProps {
   birthYear?: number
   spouseBirthYear?: number
   planningMode: 'individual' | 'couple'
+  // Current withdrawal amount from simulation for cost preview
+  currentWithdrawalAmount?: number
 }
 
 export function HealthCareInsuranceConfiguration({
@@ -88,6 +90,7 @@ export function HealthCareInsuranceConfiguration({
   birthYear,
   spouseBirthYear,
   planningMode,
+  currentWithdrawalAmount,
 }: HealthCareInsuranceConfigurationProps) {
   // Auto-calculate retirement start year when birth year changes
   useEffect(() => {
@@ -663,6 +666,7 @@ export function HealthCareInsuranceConfiguration({
             planningMode={planningMode}
             birthYear={birthYear}
             spouseBirthYear={spouseBirthYear}
+            currentWithdrawalAmount={currentWithdrawalAmount}
           />
         )}
       </CollapsibleCardContent>
@@ -675,15 +679,18 @@ function HealthInsuranceCostPreview({
   planningMode,
   birthYear,
   spouseBirthYear,
+  currentWithdrawalAmount,
 }: {
   values: HealthCareInsuranceFormValues
   planningMode: 'individual' | 'couple'
   birthYear?: number
   spouseBirthYear?: number
+  currentWithdrawalAmount?: number
 }) {
   const currentYear = new Date().getFullYear()
-  const sampleWithdrawalAmount = 30000 // Sample 30k annual withdrawal
-  
+  // Use actual withdrawal amount from simulation, fallback to 30k if not available
+  const withdrawalAmount = currentWithdrawalAmount || 30000
+
   const previewResults = useMemo(() => {
     if (!values.enabled) return null
 
@@ -722,8 +729,9 @@ function HealthInsuranceCostPreview({
           },
         }
 
-        return calculateCoupleHealthInsuranceForYear(coupleConfig, currentYear + 16, sampleWithdrawalAmount, 0)
-      } else {
+        return calculateCoupleHealthInsuranceForYear(coupleConfig, currentYear + 16, withdrawalAmount, 0)
+      }
+      else {
         // Individual calculation
         const individualConfig = {
           ...createDefaultHealthCareInsuranceConfig(),
@@ -740,12 +748,13 @@ function HealthInsuranceCostPreview({
         return calculateHealthCareInsuranceForYear(
           individualConfig,
           currentYear + 16,
-          sampleWithdrawalAmount,
+          withdrawalAmount,
           0,
-          (birthYear || 1980) + 16
+          (birthYear || 1980) + 16,
         )
       }
-    } catch (error) {
+    }
+    catch (error) {
       console.error('Error calculating health insurance preview:', error)
       return null
     }
@@ -755,7 +764,7 @@ function HealthInsuranceCostPreview({
     birthYear,
     spouseBirthYear,
     currentYear,
-    sampleWithdrawalAmount,
+    withdrawalAmount,
   ])
 
   if (!previewResults) return null
@@ -765,67 +774,114 @@ function HealthInsuranceCostPreview({
     return (
       <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
         <h4 className="font-medium text-sm text-green-900 mb-3 flex items-center gap-2">
-          💰 Kostenvorschau (bei {formatCurrency(sampleWithdrawalAmount)} Entnahme)
+          💰 Kostenvorschau (bei
+          {' '}
+          {formatCurrency(withdrawalAmount)}
+          {' '}
+          Entnahme)
         </h4>
-        
+
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
           <div className="space-y-2">
             <div className="text-sm font-medium text-blue-700">
-              👤 {coupleResults.person1.name}
+              👤
+              {' '}
+              {coupleResults.person1.name}
             </div>
             <div className="text-xs space-y-1">
-              <div>Jährlich: {formatCurrency(coupleResults.person1.healthInsuranceResult.totalAnnual)}</div>
-              <div>Monatlich: {formatCurrency(coupleResults.person1.healthInsuranceResult.totalMonthly)}</div>
+              <div>
+                Jährlich:
+                {formatCurrency(coupleResults.person1.healthInsuranceResult.totalAnnual)}
+              </div>
+              <div>
+                Monatlich:
+                {formatCurrency(coupleResults.person1.healthInsuranceResult.totalMonthly)}
+              </div>
               <div className="text-blue-600">
                 {coupleResults.person1.coveredByFamilyInsurance ? '👨‍👩‍👧‍👦 Familienversichert' : '💳 Eigenversichert'}
               </div>
             </div>
           </div>
-          
+
           <div className="space-y-2">
             <div className="text-sm font-medium text-purple-700">
-              👤 {coupleResults.person2.name}
+              👤
+              {' '}
+              {coupleResults.person2.name}
             </div>
             <div className="text-xs space-y-1">
-              <div>Jährlich: {formatCurrency(coupleResults.person2.healthInsuranceResult.totalAnnual)}</div>
-              <div>Monatlich: {formatCurrency(coupleResults.person2.healthInsuranceResult.totalMonthly)}</div>
+              <div>
+                Jährlich:
+                {formatCurrency(coupleResults.person2.healthInsuranceResult.totalAnnual)}
+              </div>
+              <div>
+                Monatlich:
+                {formatCurrency(coupleResults.person2.healthInsuranceResult.totalMonthly)}
+              </div>
               <div className="text-purple-600">
                 {coupleResults.person2.coveredByFamilyInsurance ? '👨‍👩‍👧‍👦 Familienversichert' : '💳 Eigenversichert'}
               </div>
             </div>
           </div>
         </div>
-        
+
         <div className="pt-3 border-t border-green-300">
           <div className="text-sm font-medium text-green-900">
-            Gesamt: {formatCurrency(coupleResults.totalAnnual)} / Jahr • {formatCurrency(coupleResults.totalMonthly)} / Monat
+            Gesamt:
+            {' '}
+            {formatCurrency(coupleResults.totalAnnual)}
+            {' '}
+            / Jahr •
+            {' '}
+            {formatCurrency(coupleResults.totalMonthly)}
+            {' '}
+            / Monat
           </div>
           <div className="text-xs text-green-700 mt-1">
-            Strategie: {coupleResults.strategyUsed === 'family' ? '👨‍👩‍👧‍👦 Familienversicherung' : 
-                         coupleResults.strategyUsed === 'individual' ? '💳 Einzelversicherung' : '🎯 Optimiert'}
+            Strategie:
+            {' '}
+            {coupleResults.strategyUsed === 'family' ? '👨‍👩‍👧‍👦 Familienversicherung'
+              : coupleResults.strategyUsed === 'individual' ? '💳 Einzelversicherung' : '🎯 Optimiert'}
           </div>
         </div>
       </div>
     )
-  } else {
+  }
+  else {
     // Individual results
     const individualResults = previewResults as any
     return (
       <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <h4 className="font-medium text-sm text-blue-900 mb-3">
-          💰 Kostenvorschau (bei {formatCurrency(sampleWithdrawalAmount)} Entnahme)
+          💰 Kostenvorschau (bei
+          {' '}
+          {formatCurrency(withdrawalAmount)}
+          {' '}
+          Entnahme)
         </h4>
-        
+
         <div className="space-y-2">
           <div className="text-sm">
-            <span className="font-medium">Jährlich:</span> {formatCurrency(individualResults.totalAnnual)}
+            <span className="font-medium">Jährlich:</span>
+            {' '}
+            {formatCurrency(individualResults.totalAnnual)}
           </div>
           <div className="text-sm">
-            <span className="font-medium">Monatlich:</span> {formatCurrency(individualResults.totalMonthly)}
+            <span className="font-medium">Monatlich:</span>
+            {' '}
+            {formatCurrency(individualResults.totalMonthly)}
           </div>
           <div className="text-xs text-blue-700">
-            Krankenversicherung: {formatCurrency(individualResults.healthInsuranceAnnual)} / Jahr • 
-            Pflegeversicherung: {formatCurrency(individualResults.careInsuranceAnnual)} / Jahr
+            Krankenversicherung:
+            {' '}
+            {formatCurrency(individualResults.healthInsuranceAnnual)}
+            {' '}
+            / Jahr •
+            Pflegeversicherung:
+            {' '}
+            {formatCurrency(individualResults.careInsuranceAnnual)}
+            {' '}
+            / Jahr
           </div>
         </div>
       </div>

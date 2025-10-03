@@ -98,7 +98,7 @@ describe('Withdrawal - Couple Health Insurance Integration', () => {
       elements,
       startYear: withdrawalStartYear,
       endYear: withdrawalStartYear,
-      strategy: '4prozent',  
+      strategy: '4prozent',
       returnConfig,
       taxRate: 0.26375,
       teilfreistellungsquote: 0.3,
@@ -149,7 +149,7 @@ describe('Withdrawal - Couple Health Insurance Integration', () => {
         strategy: 'optimize' as const,
         person1: {
           name: 'Person 1',
-          birthYear: 1980, 
+          birthYear: 1980,
           withdrawalShare: 0.1, // Low share for family insurance
           otherIncomeAnnual: 0,
           additionalCareInsuranceForChildless: false,
@@ -191,10 +191,10 @@ describe('Withdrawal - Couple Health Insurance Integration', () => {
 
     expect(individualCost).toBeGreaterThan(0)
     expect(coupleCost).toBeGreaterThan(0)
-    
+
     // Family insurance should be cheaper than paying for two individuals
     expect(coupleCost).toBeLessThan(individualCost * 2)
-    
+
     // Verify the optimization worked
     expect(coupleYear.healthCareInsurance!.coupleDetails!.strategyUsed).toBe('family')
   })

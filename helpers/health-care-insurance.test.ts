@@ -680,7 +680,7 @@ describe('Health Care Insurance Calculations', () => {
         expect(result[2041].totalAnnual).toBeLessThan(
           result[2041].strategyComparison.individual.totalAnnual,
         ) // Should be cheaper than individual
-        
+
         // Verify family insurance eligibility
         expect(result[2041].familyInsuranceDetails.person1QualifiesForFamily).toBe(true) // 333/month < 505
         expect(result[2041].familyInsuranceDetails.person2QualifiesForFamily).toBe(false) // 3833/month > 505
