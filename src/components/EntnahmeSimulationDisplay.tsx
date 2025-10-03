@@ -227,14 +227,24 @@ export function EntnahmeSimulationDisplay({
         </p>
         {(() => {
           // Show Grundfreibetrag information (now global for all strategies)
-          if (formValue.grundfreibetragAktiv) {
+          if (formValue.grundfreibetragAktiv && formValue.grundfreibetragBetrag) {
             return (
-              <div>
-                <strong>Grundfreibetrag aktiv:</strong>
+              <p>
+                <strong>Grundfreibetrag:</strong>
                 {' '}
-                {formatCurrency(formValue.grundfreibetragBetrag || 10908)}
-                {' pro Jahr (global für alle Phasen)'}
-              </div>
+                {formatCurrency(formValue.grundfreibetragBetrag)}
+                {' '}
+                pro Jahr
+                {formValue.einkommensteuersatz && (
+                  <>
+                    {' '}
+                    (Einkommensteuersatz:
+                    {' '}
+                    {formValue.einkommensteuersatz}
+                    %)
+                  </>
+                )}
+              </p>
             )
           }
           return null
