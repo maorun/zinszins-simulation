@@ -5,6 +5,7 @@ import { HealthCareInsuranceConfiguration } from './HealthCareInsuranceConfigura
 describe('HealthCareInsuranceConfiguration', () => {
   const defaultValues = {
     enabled: false,
+    planningMode: 'individual' as const,
     insuranceType: 'statutory' as const,
     includeEmployerContribution: true,
     statutoryHealthInsuranceRate: 14.6,
@@ -21,6 +22,7 @@ describe('HealthCareInsuranceConfiguration', () => {
 
   const mockHandlers = {
     onEnabledChange: vi.fn(),
+    onPlanningModeChange: vi.fn(),
     onInsuranceTypeChange: vi.fn(),
     onIncludeEmployerContributionChange: vi.fn(),
     onStatutoryHealthInsuranceRateChange: vi.fn(),
