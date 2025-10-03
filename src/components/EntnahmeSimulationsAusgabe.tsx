@@ -1619,7 +1619,7 @@ export function EntnahmeSimulationsAusgabe({
               }}
               currentWithdrawalAmount={
                 withdrawalData && withdrawalData.withdrawalArray.length > 0
-                  ? withdrawalData.withdrawalArray[0].entnahme
+                  ? withdrawalData.withdrawalArray[withdrawalData.withdrawalArray.length - 1].entnahme
                   : undefined
               }
             />
