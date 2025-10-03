@@ -74,7 +74,6 @@ describe('segmented-withdrawal synchronization', () => {
           ...createDefaultWithdrawalSegment('segment1', 'Custom Phase', 2041, 2080),
           strategy: '3prozent',
           customPercentage: 3.5,
-          enableGrundfreibetrag: true,
           incomeTaxRate: 25,
         },
       ]
@@ -88,7 +87,6 @@ describe('segmented-withdrawal synchronization', () => {
         endYear: 2090, // Only this should change
         strategy: '3prozent',
         customPercentage: 3.5,
-        enableGrundfreibetrag: true,
         incomeTaxRate: 25,
       })
     })

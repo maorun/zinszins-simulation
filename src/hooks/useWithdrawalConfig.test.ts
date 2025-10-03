@@ -103,7 +103,7 @@ describe('useWithdrawalConfig', () => {
             inflationConfig: {
               inflationRate: 0.02,
             },
-            enableGrundfreibetrag: false,
+
             incomeTaxRate: 0.18,
             steuerReduzierenEndkapital: true,
           },

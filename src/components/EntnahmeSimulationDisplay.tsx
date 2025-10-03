@@ -58,14 +58,9 @@ interface EntnahmeSimulationDisplayProps {
   formValue: WithdrawalFormValue
   useComparisonMode: boolean
   comparisonResults: ComparisonResult[]
-  useSegmentedWithdrawal: boolean
-  withdrawalSegments: any[]
   useSegmentedComparisonMode?: boolean
   segmentedComparisonResults?: SegmentedComparisonResult[]
   onCalculationInfoClick: (explanationType: string, rowData: any) => void
-  // Global Grundfreibetrag configuration
-  grundfreibetragAktiv?: boolean
-  grundfreibetragBetrag?: number
 }
 
 export function EntnahmeSimulationDisplay({
@@ -73,13 +68,9 @@ export function EntnahmeSimulationDisplay({
   formValue,
   useComparisonMode,
   comparisonResults,
-  useSegmentedWithdrawal,
-  withdrawalSegments,
   useSegmentedComparisonMode = false,
   segmentedComparisonResults = [],
   onCalculationInfoClick,
-  grundfreibetragAktiv,
-  grundfreibetragBetrag,
 }: EntnahmeSimulationDisplayProps) {
   if (!withdrawalData) {
     return (
@@ -235,58 +226,20 @@ export function EntnahmeSimulationDisplay({
           Prozent p.a.
         </p>
         {(() => {
-          // Show Grundfreibetrag information for segmented withdrawal
-          if (useSegmentedWithdrawal) {
-            const segmentsWithGrundfreibetrag = withdrawalSegments.filter(segment => segment.enableGrundfreibetrag)
-            if (segmentsWithGrundfreibetrag.length > 0) {
-              return (
-                <div>
-                  <strong>Grundfreibetrag-Phasen:</strong>
-                  {segmentsWithGrundfreibetrag.map((segment, _index) => {
-                    const grundfreibetragAmount = segment.grundfreibetragPerYear?.[segment.startYear] || 10908
-                    const incomeTaxRate = (segment.incomeTaxRate || 0.18) * 100
-                    return (
-                      <div key={segment.id} style={{ marginLeft: '10px', fontSize: '14px' }}>
-                        •
-                        {' '}
-                        {segment.name}
-                        {' '}
-                        (
-                        {segment.startYear}
-                        -
-                        {segment.endYear}
-                        ):
-                        {' '}
-                        {formatCurrency(grundfreibetragAmount)}
-                        {' '}
-                        pro Jahr (Einkommensteuersatz:
-                        {' '}
-                        {incomeTaxRate.toFixed(0)}
-                        %)
-                      </div>
-                    )
-                  })}
-                </div>
-              )
-            }
-            return null
-          }
-          else if (grundfreibetragAktiv && grundfreibetragBetrag) {
+          // Show Grundfreibetrag information (now global for all strategies)
+          if (formValue.grundfreibetragAktiv) {
             return (
-              <p>
-                <strong>Grundfreibetrag:</strong>
+              <div>
+                <strong>Grundfreibetrag aktiv:</strong>
                 {' '}
-                {formatCurrency(grundfreibetragBetrag)}
-                {' '}
-                pro Jahr
-                (Einkommensteuersatz:
-                {formValue.einkommensteuersatz}
-                %)
-              </p>
+                {formatCurrency(formValue.grundfreibetragBetrag || 10908)}
+                {' pro Jahr (global für alle Phasen)'}
+              </div>
             )
           }
           return null
         })()}
+
         <p>
           <strong>Vermögen reicht für:</strong>
           {' '}
@@ -383,14 +336,8 @@ export function EntnahmeSimulationDisplay({
                 </span>
               </div>
               {(() => {
-                // Check if Grundfreibetrag is enabled for this year
-                const isGrundfreibetragEnabled = useSegmentedWithdrawal
-                  ? withdrawalSegments.some(segment =>
-                      rowData.year >= segment.startYear
-                      && rowData.year <= segment.endYear
-                      && segment.enableGrundfreibetrag,
-                    )
-                  : formValue.grundfreibetragAktiv
+                // Check if Grundfreibetrag is enabled (now global)
+                const isGrundfreibetragEnabled = formValue.grundfreibetragAktiv
 
                 return isGrundfreibetragEnabled && rowData.einkommensteuer !== undefined && (
                   <div className="flex justify-between items-center py-1">
@@ -403,14 +350,8 @@ export function EntnahmeSimulationDisplay({
                 )
               })()}
               {(() => {
-                // Check if Grundfreibetrag is enabled for this year
-                const isGrundfreibetragEnabled = useSegmentedWithdrawal
-                  ? withdrawalSegments.some(segment =>
-                      rowData.year >= segment.startYear
-                      && rowData.year <= segment.endYear
-                      && segment.enableGrundfreibetrag,
-                    )
-                  : formValue.grundfreibetragAktiv
+                // Check if Grundfreibetrag is enabled (now global)
+                const isGrundfreibetragEnabled = formValue.grundfreibetragAktiv
 
                 return isGrundfreibetragEnabled && rowData.genutzterGrundfreibetrag !== undefined && (
                   <div className="flex justify-between items-center py-1">
@@ -567,17 +508,10 @@ export function EntnahmeSimulationDisplay({
                     }
 
                     // Fallback to old calculation for backwards compatibility
-                    // (though this is incorrect for multiple income sources)
-                    const grundfreibetragAmount = useSegmentedWithdrawal
-                      ? (() => {
-                          const applicableSegment = withdrawalSegments.find(segment =>
-                            rowData.year >= segment.startYear && rowData.year <= segment.endYear,
-                          )
-                          return applicableSegment?.enableGrundfreibetrag
-                            ? (applicableSegment.grundfreibetragPerYear?.[rowData.year] || 10908)
-                            : 0
-                        })()
-                      : (formValue.grundfreibetragAktiv ? (formValue.grundfreibetragBetrag || 10908) : 0)
+                    // Use global Grundfreibetrag setting
+                    const grundfreibetragAmount = formValue.grundfreibetragAktiv
+                      ? (formValue.grundfreibetragBetrag || 10908)
+                      : 0
 
                     return formatCurrency(Math.max(0, rowData.entnahme - grundfreibetragAmount))
                   })()}

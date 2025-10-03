@@ -776,8 +776,7 @@ export function calculateSegmentedWithdrawal(
       steuerReduzierenEndkapital: segment.steuerReduzierenEndkapital ?? true,
       monthlyConfig: segment.monthlyConfig,
       customPercentage: segment.customPercentage,
-      enableGrundfreibetrag: segment.enableGrundfreibetrag,
-      grundfreibetragPerYear: segment.grundfreibetragPerYear,
+
       incomeTaxRate: segment.incomeTaxRate,
       inflationConfig: segment.inflationConfig,
       dynamicConfig: segment.dynamicConfig,

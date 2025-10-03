@@ -22,7 +22,6 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
           inflationConfig: {
             inflationRate: 0.02,
           },
-          enableGrundfreibetrag: false,
           incomeTaxRate: 0.18,
           steuerReduzierenEndkapital: true,
         },
@@ -40,7 +39,6 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
           inflationConfig: {
             inflationRate: 0.02,
           },
-          enableGrundfreibetrag: false,
           incomeTaxRate: 0.18,
           steuerReduzierenEndkapital: true,
         },
@@ -86,7 +84,6 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
             inflationConfig: {
               inflationRate: 0.02,
             },
-            enableGrundfreibetrag: false,
             incomeTaxRate: 0.18,
             steuerReduzierenEndkapital: true,
           },
@@ -112,7 +109,6 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
       inflationConfig: {
         inflationRate: 0.025,
       },
-      enableGrundfreibetrag: true,
       incomeTaxRate: 0.20,
       steuerReduzierenEndkapital: false,
     }
@@ -120,6 +116,5 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
     expect(fixedReturnSegment.returnConfig.mode).toBe('fixed')
     expect(fixedReturnSegment.returnConfig.fixedRate).toBe(0.05)
     expect(fixedReturnSegment.withdrawalFrequency).toBe('monthly')
-    expect(fixedReturnSegment.enableGrundfreibetrag).toBe(true)
   })
 })

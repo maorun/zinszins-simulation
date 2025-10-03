@@ -34,10 +34,6 @@ export type WithdrawalSegment = {
   bucketConfig?: BucketStrategyConfig
   /** RMD configuration (for rmd strategy) */
   rmdConfig?: RMDConfig
-  /** Whether to apply Grundfreibetrag for this segment */
-  enableGrundfreibetrag?: boolean
-  /** Basic tax allowance per year for this segment */
-  grundfreibetragPerYear?: { [year: number]: number }
   /** Income tax rate for this segment */
   incomeTaxRate?: number
   /** Whether taxes should reduce capital for this segment */
@@ -168,7 +164,6 @@ export function createDefaultWithdrawalSegment(
     inflationConfig: {
       inflationRate: 0.02, // 2% default inflation
     },
-    enableGrundfreibetrag: false,
     incomeTaxRate: 0.18, // Default income tax rate 18%
     steuerReduzierenEndkapital: true, // Default: taxes reduce capital
   }
@@ -222,8 +217,7 @@ export function synchronizeWithdrawalSegmentsEndYear(
  * @param customPercentage - Custom percentage (optional)
  * @param monthlyConfig - Monthly config (optional)
  * @param inflationConfig - Inflation config (optional)
- * @param enableGrundfreibetrag - Enable Grundfreibetrag (optional)
- * @param grundfreibetragPerYear - Grundfreibetrag per year (optional)
+
  * @param incomeTaxRate - Income tax rate (optional)
  * @returns Single segment configuration
  */
@@ -236,8 +230,6 @@ export function createSingleSegmentConfig(
   customPercentage?: number,
   monthlyConfig?: MonthlyWithdrawalConfig,
   inflationConfig?: InflationConfig,
-  enableGrundfreibetrag?: boolean,
-  grundfreibetragPerYear?: { [year: number]: number },
   incomeTaxRate?: number,
   steuerReduzierenEndkapital: boolean = true,
 ): SegmentedWithdrawalConfig {
@@ -252,8 +244,6 @@ export function createSingleSegmentConfig(
     customPercentage,
     monthlyConfig,
     inflationConfig,
-    enableGrundfreibetrag,
-    grundfreibetragPerYear,
     incomeTaxRate,
     steuerReduzierenEndkapital,
   }

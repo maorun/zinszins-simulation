@@ -82,10 +82,8 @@ export function useWithdrawalModals(
       setShowCalculationModal(true)
     }
     else if (explanationType === 'incomeTax' && rowData.einkommensteuer !== undefined) {
-      // Use segment-specific settings if in segmented mode, otherwise use global values
-      const grundfreibetragAmount = applicableSegment?.enableGrundfreibetrag
-        ? (applicableSegment.grundfreibetragPerYear?.[rowData.year] || 10908)
-        : (grundfreibetragAktiv ? grundfreibetragBetrag : 0)
+      // Use global Grundfreibetrag settings
+      const grundfreibetragAmount = grundfreibetragAktiv ? grundfreibetragBetrag : 0
 
       const incomeTaxRate = applicableSegment?.incomeTaxRate
         ? applicableSegment.incomeTaxRate * 100
@@ -102,10 +100,8 @@ export function useWithdrawalModals(
       setShowCalculationModal(true)
     }
     else if (explanationType === 'taxableIncome') {
-      // Use segment-specific settings if in segmented mode, otherwise use global values
-      const grundfreibetragAmount = applicableSegment?.enableGrundfreibetrag
-        ? (applicableSegment.grundfreibetragPerYear?.[rowData.year] || 10908)
-        : (grundfreibetragAktiv ? grundfreibetragBetrag : 0)
+      // Use global Grundfreibetrag settings
+      const grundfreibetragAmount = grundfreibetragAktiv ? grundfreibetragBetrag : 0
 
       // Get statutory pension taxable amount if available
       const statutoryPensionTaxableAmount = rowData.statutoryPension?.taxableAmount || 0
