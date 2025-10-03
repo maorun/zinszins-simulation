@@ -39,6 +39,38 @@ export interface StatutoryPensionConfig {
 }
 
 /**
+ * Individual statutory pension configuration for one person
+ * Extends the base config with person identification
+ */
+export interface IndividualStatutoryPensionConfig extends StatutoryPensionConfig {
+  /** Person identifier (1 or 2) */
+  personId: 1 | 2
+  /** Person name for display (e.g., "Person 1", "Person 2") */
+  personName?: string
+}
+
+/**
+ * Couple's statutory pension configuration supporting individual pensions
+ * for each partner with different amounts and start dates
+ */
+export interface CoupleStatutoryPensionConfig {
+  /** Whether statutory pension is enabled for the couple */
+  enabled: boolean
+
+  /** Planning mode - determines configuration structure */
+  planningMode: 'individual' | 'couple'
+
+  /** Configuration for single person (individual mode) */
+  individual?: StatutoryPensionConfig
+
+  /** Configuration for couple (couple mode) - individual configs per person */
+  couple?: {
+    person1: IndividualStatutoryPensionConfig
+    person2: IndividualStatutoryPensionConfig
+  }
+}
+
+/**
  * Result of statutory pension calculation for a specific year
  */
 export interface StatutoryPensionYearResult {
@@ -61,6 +93,47 @@ export interface StatutoryPensionYearResult {
  */
 export interface StatutoryPensionResult {
   [year: number]: StatutoryPensionYearResult
+}
+
+/**
+ * Individual pension result for one person
+ */
+export interface IndividualStatutoryPensionYearResult extends StatutoryPensionYearResult {
+  /** Person identifier */
+  personId: 1 | 2
+  /** Person name for display */
+  personName?: string
+}
+
+/**
+ * Combined statutory pension result for couples
+ * Contains individual results plus combined totals
+ */
+export interface CoupleStatutoryPensionYearResult {
+  /** Individual results for each person */
+  person1?: IndividualStatutoryPensionYearResult
+  person2?: IndividualStatutoryPensionYearResult
+
+  /** Combined totals for the couple */
+  combined: {
+    /** Total gross annual amount from both pensions */
+    grossAnnualAmount: number
+    /** Total gross monthly amount from both pensions */
+    grossMonthlyAmount: number
+    /** Total taxable amount from both pensions */
+    taxableAmount: number
+    /** Total income tax on both pensions */
+    incomeTax: number
+    /** Total net annual amount from both pensions */
+    netAnnualAmount: number
+  }
+}
+
+/**
+ * Complete couple statutory pension calculation result across years
+ */
+export interface CoupleStatutoryPensionResult {
+  [year: number]: CoupleStatutoryPensionYearResult
 }
 
 /**
@@ -213,4 +286,167 @@ export function estimateTaxablePercentageFromTaxReturn(
     return 80 // Default fallback
   }
   return (taxReturnData.taxablePortion / taxReturnData.annualPensionReceived) * 100
+}
+
+/**
+ * Create default couple statutory pension configuration
+ */
+export function createDefaultCoupleStatutoryPensionConfig(): CoupleStatutoryPensionConfig {
+  return {
+    enabled: false,
+    planningMode: 'couple',
+    couple: {
+      person1: {
+        ...createDefaultStatutoryPensionConfig(),
+        personId: 1,
+        personName: 'Person 1',
+      },
+      person2: {
+        ...createDefaultStatutoryPensionConfig(),
+        personId: 2,
+        personName: 'Person 2',
+      },
+    },
+  }
+}
+
+/**
+ * Calculate statutory pension for couples with individual configurations
+ */
+export function calculateCoupleStatutoryPension(
+  config: CoupleStatutoryPensionConfig,
+  startYear: number,
+  endYear: number,
+  incomeTaxRate: number = 0.0,
+  grundfreibetragPerYear?: { [year: number]: number },
+): CoupleStatutoryPensionResult {
+  const result: CoupleStatutoryPensionResult = {}
+
+  if (!config.enabled) {
+    // Return empty results for all years
+    for (let year = startYear; year <= endYear; year++) {
+      result[year] = {
+        combined: {
+          grossAnnualAmount: 0,
+          grossMonthlyAmount: 0,
+          taxableAmount: 0,
+          incomeTax: 0,
+          netAnnualAmount: 0,
+        },
+      }
+    }
+    return result
+  }
+
+  // Handle different planning modes
+  if (config.planningMode === 'individual' && config.individual) {
+    // For individual mode, calculate single pension
+    const individualResult = calculateStatutoryPension(
+      config.individual,
+      startYear,
+      endYear,
+      incomeTaxRate,
+      grundfreibetragPerYear,
+    )
+
+    for (let year = startYear; year <= endYear; year++) {
+      const yearResult = individualResult[year]
+      result[year] = {
+        combined: {
+          grossAnnualAmount: yearResult.grossAnnualAmount,
+          grossMonthlyAmount: yearResult.grossMonthlyAmount,
+          taxableAmount: yearResult.taxableAmount,
+          incomeTax: yearResult.incomeTax,
+          netAnnualAmount: yearResult.netAnnualAmount,
+        },
+      }
+    }
+  }
+  else if (config.planningMode === 'couple' && config.couple) {
+    // For couple mode, calculate both pensions and combine
+    const person1Result = calculateStatutoryPension(
+      config.couple.person1,
+      startYear,
+      endYear,
+      incomeTaxRate,
+      grundfreibetragPerYear,
+    )
+
+    const person2Result = calculateStatutoryPension(
+      config.couple.person2,
+      startYear,
+      endYear,
+      incomeTaxRate,
+      grundfreibetragPerYear,
+    )
+
+    for (let year = startYear; year <= endYear; year++) {
+      const person1Year = person1Result[year]
+      const person2Year = person2Result[year]
+
+      result[year] = {
+        person1: person1Year.grossAnnualAmount > 0 ? {
+          ...person1Year,
+          personId: 1,
+          personName: config.couple.person1.personName || 'Person 1',
+        } : undefined,
+        person2: person2Year.grossAnnualAmount > 0 ? {
+          ...person2Year,
+          personId: 2,
+          personName: config.couple.person2.personName || 'Person 2',
+        } : undefined,
+        combined: {
+          grossAnnualAmount: person1Year.grossAnnualAmount + person2Year.grossAnnualAmount,
+          grossMonthlyAmount: person1Year.grossMonthlyAmount + person2Year.grossMonthlyAmount,
+          taxableAmount: person1Year.taxableAmount + person2Year.taxableAmount,
+          incomeTax: person1Year.incomeTax + person2Year.incomeTax,
+          netAnnualAmount: person1Year.netAnnualAmount + person2Year.netAnnualAmount,
+        },
+      }
+    }
+  }
+
+  return result
+}
+
+/**
+ * Convert legacy StatutoryPensionConfig to CoupleStatutoryPensionConfig
+ * for backward compatibility
+ */
+export function convertLegacyToCoupleConfig(
+  legacyConfig: StatutoryPensionConfig | null,
+  planningMode: 'individual' | 'couple',
+): CoupleStatutoryPensionConfig {
+  if (!legacyConfig) {
+    const defaultConfig = createDefaultCoupleStatutoryPensionConfig()
+    defaultConfig.planningMode = planningMode
+    return defaultConfig
+  }
+
+  if (planningMode === 'individual') {
+    return {
+      enabled: legacyConfig.enabled,
+      planningMode: 'individual',
+      individual: legacyConfig,
+    }
+  }
+  else {
+    // For couple mode, apply the legacy config to both persons as a starting point
+    return {
+      enabled: legacyConfig.enabled,
+      planningMode: 'couple',
+      couple: {
+        person1: {
+          ...legacyConfig,
+          personId: 1,
+          personName: 'Person 1',
+        },
+        person2: {
+          ...legacyConfig,
+          personId: 2,
+          personName: 'Person 2',
+        },
+      },
+    }
+  }
 }
