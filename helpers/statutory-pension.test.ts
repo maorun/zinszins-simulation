@@ -1,14 +1,18 @@
 import { describe, it, expect } from 'vitest'
 import {
   StatutoryPensionConfig,
+  CoupleStatutoryPensionConfig,
   calculateStatutoryPensionForYear,
   calculateStatutoryPension,
+  calculateCoupleStatutoryPension,
   createDefaultStatutoryPensionConfig,
+  createDefaultCoupleStatutoryPensionConfig,
   calculatePensionStartYear,
   calculateCoupleRetirementStartYear,
   calculateRetirementStartYear,
   estimateMonthlyPensionFromTaxReturn,
   estimateTaxablePercentageFromTaxReturn,
+  convertLegacyToCoupleConfig,
 } from './statutory-pension'
 
 describe('statutory-pension', () => {
@@ -277,5 +281,158 @@ describe('statutory-pension', () => {
       expect(result.grossAnnualAmount).toBe(19200)
       expect(result.taxableAmount).toBe(15360)
     })
+  })
+})
+
+describe('Couple Statutory Pension Calculations', () => {
+  it('should create default couple configuration', () => {
+    const config = createDefaultCoupleStatutoryPensionConfig()
+
+    expect(config.enabled).toBe(false)
+    expect(config.planningMode).toBe('couple')
+    expect(config.couple).toBeDefined()
+    expect(config.couple!.person1.personId).toBe(1)
+    expect(config.couple!.person2.personId).toBe(2)
+    expect(config.couple!.person1.personName).toBe('Person 1')
+    expect(config.couple!.person2.personName).toBe('Person 2')
+  })
+
+  it('should calculate couple pension with different amounts and start years', () => {
+    const config: CoupleStatutoryPensionConfig = {
+      enabled: true,
+      planningMode: 'couple',
+      couple: {
+        person1: {
+          ...createDefaultStatutoryPensionConfig(),
+          enabled: true,
+          startYear: 2041,
+          monthlyAmount: 1500, // €1500/month = €18000/year
+          personId: 1,
+          personName: 'Person 1',
+        },
+        person2: {
+          ...createDefaultStatutoryPensionConfig(),
+          enabled: true,
+          startYear: 2043, // Starts 2 years later
+          monthlyAmount: 1200, // €1200/month = €14400/year
+          personId: 2,
+          personName: 'Person 2',
+        },
+      },
+    }
+
+    const result = calculateCoupleStatutoryPension(config, 2041, 2044)
+
+    // 2041: Only person1 gets pension
+    expect(result[2041].person1).toBeDefined()
+    expect(result[2041].person2).toBeUndefined()
+    expect(result[2041].person1!.grossAnnualAmount).toBe(18000)
+    expect(result[2041].combined.grossAnnualAmount).toBe(18000)
+
+    // 2042: Only person1 gets pension
+    expect(result[2042].person1).toBeDefined()
+    expect(result[2042].person2).toBeUndefined()
+    expect(result[2042].combined.grossAnnualAmount).toBe(result[2042].person1!.grossAnnualAmount)
+
+    // 2043: Both get pension
+    expect(result[2043].person1).toBeDefined()
+    expect(result[2043].person2).toBeDefined()
+    expect(result[2043].person2!.grossAnnualAmount).toBe(14400)
+    expect(result[2043].combined.grossAnnualAmount).toBe(
+      result[2043].person1!.grossAnnualAmount + result[2043].person2!.grossAnnualAmount,
+    )
+
+    // 2044: Both get pension with annual increases
+    expect(result[2044].person1).toBeDefined()
+    expect(result[2044].person2).toBeDefined()
+    expect(result[2044].combined.grossAnnualAmount).toBeGreaterThan(result[2043].combined.grossAnnualAmount)
+  })
+
+  it('should handle individual planning mode within couple config', () => {
+    const config: CoupleStatutoryPensionConfig = {
+      enabled: true,
+      planningMode: 'individual',
+      individual: {
+        ...createDefaultStatutoryPensionConfig(),
+        enabled: true,
+        startYear: 2041,
+        monthlyAmount: 1500,
+      },
+    }
+
+    const result = calculateCoupleStatutoryPension(config, 2041, 2042)
+
+    expect(result[2041].person1).toBeUndefined()
+    expect(result[2041].person2).toBeUndefined()
+    expect(result[2041].combined.grossAnnualAmount).toBe(18000)
+  })
+
+  it('should handle disabled couple pension', () => {
+    const config: CoupleStatutoryPensionConfig = {
+      enabled: false,
+      planningMode: 'couple',
+      couple: {
+        person1: {
+          ...createDefaultStatutoryPensionConfig(),
+          enabled: true, // Individual configs enabled, but overall disabled
+          personId: 1,
+        },
+        person2: {
+          ...createDefaultStatutoryPensionConfig(),
+          enabled: true,
+          personId: 2,
+        },
+      },
+    }
+
+    const result = calculateCoupleStatutoryPension(config, 2041, 2042)
+
+    expect(result[2041].person1).toBeUndefined()
+    expect(result[2041].person2).toBeUndefined()
+    expect(result[2041].combined.grossAnnualAmount).toBe(0)
+  })
+
+  it('should convert legacy config to couple config for individual mode', () => {
+    const legacyConfig: StatutoryPensionConfig = {
+      enabled: true,
+      startYear: 2041,
+      monthlyAmount: 1500,
+      annualIncreaseRate: 1.0,
+      taxablePercentage: 80,
+    }
+
+    const coupleConfig = convertLegacyToCoupleConfig(legacyConfig, 'individual')
+
+    expect(coupleConfig.enabled).toBe(true)
+    expect(coupleConfig.planningMode).toBe('individual')
+    expect(coupleConfig.individual).toEqual(legacyConfig)
+  })
+
+  it('should convert legacy config to couple config for couple mode', () => {
+    const legacyConfig: StatutoryPensionConfig = {
+      enabled: true,
+      startYear: 2041,
+      monthlyAmount: 1500,
+      annualIncreaseRate: 1.0,
+      taxablePercentage: 80,
+    }
+
+    const coupleConfig = convertLegacyToCoupleConfig(legacyConfig, 'couple')
+
+    expect(coupleConfig.enabled).toBe(true)
+    expect(coupleConfig.planningMode).toBe('couple')
+    expect(coupleConfig.couple).toBeDefined()
+    expect(coupleConfig.couple!.person1.monthlyAmount).toBe(1500)
+    expect(coupleConfig.couple!.person2.monthlyAmount).toBe(1500)
+    expect(coupleConfig.couple!.person1.personId).toBe(1)
+    expect(coupleConfig.couple!.person2.personId).toBe(2)
+  })
+
+  it('should handle null legacy config', () => {
+    const coupleConfig = convertLegacyToCoupleConfig(null, 'couple')
+
+    expect(coupleConfig.enabled).toBe(false)
+    expect(coupleConfig.planningMode).toBe('couple')
+    expect(coupleConfig.couple).toBeDefined()
   })
 })

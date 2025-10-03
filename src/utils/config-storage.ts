@@ -4,7 +4,7 @@ import type { SimulationAnnualType } from './simulate'
 import type { WithdrawalStrategy, BucketStrategyConfig } from '../../helpers/withdrawal'
 import type { WithdrawalSegment } from './segmented-withdrawal'
 import type { BasiszinsConfiguration } from '../services/bundesbank-api'
-import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
+import type { StatutoryPensionConfig, CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import type { OtherIncomeConfiguration } from '../../helpers/other-income'
 import type { HealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
 
@@ -175,6 +175,8 @@ export interface SavedConfiguration {
   withdrawal?: WithdrawalConfiguration
   // Statutory pension configuration
   statutoryPensionConfig?: StatutoryPensionConfig
+  // Couple statutory pension configuration (new enhanced version)
+  coupleStatutoryPensionConfig?: CoupleStatutoryPensionConfig
   // Other income sources configuration
   otherIncome?: OtherIncomeConfiguration
 }
