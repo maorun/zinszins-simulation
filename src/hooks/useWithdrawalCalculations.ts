@@ -11,6 +11,53 @@ import type { SegmentedWithdrawalConfig } from '../utils/segmented-withdrawal'
 import type { ComparisonStrategy, SegmentedComparisonStrategy } from '../utils/config-storage'
 import { useSimulation } from '../contexts/useSimulation'
 import { createPlanningModeAwareFreibetragPerYear } from '../utils/freibetrag-calculation'
+import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
+
+/**
+ * Convert couple statutory pension config to legacy single config for backward compatibility
+ * Combines both pensions into a single equivalent pension
+ */
+function convertCoupleToLegacyConfig(
+  coupleConfig: any, // CoupleStatutoryPensionConfig
+  planningMode: 'individual' | 'couple',
+): StatutoryPensionConfig | null {
+  if (!coupleConfig || !coupleConfig.enabled) return null
+
+  if (planningMode === 'individual' && coupleConfig.individual) {
+    return coupleConfig.individual
+  }
+
+  if (planningMode === 'couple' && coupleConfig.couple) {
+    const { person1, person2 } = coupleConfig.couple
+
+    // If neither person has pension enabled, return null
+    if (!person1.enabled && !person2.enabled) return null
+
+    // If only one person has pension, return that config
+    if (person1.enabled && !person2.enabled) return person1
+    if (!person1.enabled && person2.enabled) return person2
+
+    // If both have pensions, combine them
+    if (person1.enabled && person2.enabled) {
+      // Use the earlier start year
+      const earlierStartYear = Math.min(person1.startYear, person2.startYear)
+
+      // For simplicity, we'll create a combined pension that starts at the earlier date
+      // and has the sum of both monthly amounts when both are active
+      return {
+        enabled: true,
+        startYear: earlierStartYear,
+        monthlyAmount: person1.monthlyAmount + person2.monthlyAmount,
+        // Use average of both rates for combined pension
+        annualIncreaseRate: (person1.annualIncreaseRate + person2.annualIncreaseRate) / 2,
+        taxablePercentage: (person1.taxablePercentage + person2.taxablePercentage) / 2,
+        retirementAge: Math.min(person1.retirementAge || 67, person2.retirementAge || 67),
+      }
+    }
+  }
+
+  return null
+}
 
 /**
  * Custom hook for withdrawal calculations
@@ -33,6 +80,7 @@ export function useWithdrawalCalculations(
     gender,
     // spouse - used indirectly in couple planning calculations
     statutoryPensionConfig,
+    coupleStatutoryPensionConfig,
     birthYear,
   } = useSimulation()
 
@@ -51,6 +99,14 @@ export function useWithdrawalCalculations(
     segmentedComparisonStrategies,
     otherIncomeConfig,
   } = currentConfig
+
+  // Convert couple statutory pension config to legacy format for withdrawal calculations
+  const effectiveStatutoryPensionConfig = useMemo(() => {
+    // Prefer couple config if available, fallback to legacy config
+    return coupleStatutoryPensionConfig
+      ? convertCoupleToLegacyConfig(coupleStatutoryPensionConfig, planningMode)
+      : statutoryPensionConfig
+  }, [coupleStatutoryPensionConfig, statutoryPensionConfig, planningMode])
 
   // Calculate withdrawal projections
   const withdrawalData = useMemo(() => {
@@ -89,7 +145,7 @@ export function useWithdrawalCalculations(
         segments: withdrawalSegments,
         taxRate: 0.26375,
         freibetragPerYear: undefined, // Use default
-        statutoryPensionConfig: statutoryPensionConfig || undefined,
+        statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
       }
 
       withdrawalResult = calculateSegmentedWithdrawal(
@@ -212,7 +268,7 @@ export function useWithdrawalCalculations(
           ? { inflationRate: formValue.inflationsrate / 100 }
           : undefined,
         steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
-        statutoryPensionConfig: statutoryPensionConfig || undefined,
+        statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
         otherIncomeConfig,
         healthCareInsuranceConfig: formValue.healthCareInsuranceConfig,
         birthYear: birthYear, // Use birth year from global context
@@ -260,7 +316,7 @@ export function useWithdrawalCalculations(
     formValue.dynamischUntereAnpassung,
     formValue.bucketConfig,
     formValue.rmdStartAge,
-    statutoryPensionConfig, // Use global statutory pension config
+    effectiveStatutoryPensionConfig, // Use effective statutory pension config
     birthYear, // Use global birth year
     lifeExpectancyTable, // Use global setting
     customLifeExpectancy, // Use global setting
@@ -394,7 +450,7 @@ export function useWithdrawalCalculations(
             ? formValue.einkommensteuersatz / 100
             : undefined,
           steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
-          statutoryPensionConfig: statutoryPensionConfig || undefined,
+          statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
           otherIncomeConfig,
           healthCareInsuranceConfig: formValue.healthCareInsuranceConfig,
           birthYear: birthYear, // Use birth year from global context
@@ -454,7 +510,7 @@ export function useWithdrawalCalculations(
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     formValue.einkommensteuersatz,
-    statutoryPensionConfig, // Use global statutory pension config
+    effectiveStatutoryPensionConfig, // Use effective statutory pension config
     birthYear, // Use global birth year
     customLifeExpectancy,
     lifeExpectancyTable,
@@ -482,7 +538,7 @@ export function useWithdrawalCalculations(
             endOfLife,
             planningMode || 'individual', // Use planningMode from global config, fallback to individual
           ),
-          statutoryPensionConfig: statutoryPensionConfig || undefined,
+          statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
         }
 
         // Calculate segmented withdrawal for this comparison strategy
@@ -544,7 +600,7 @@ export function useWithdrawalCalculations(
     endOfLife,
     steuerlast,
     planningMode, // Add planningMode dependency for freibetrag calculation
-    statutoryPensionConfig, // Use global statutory pension config
+    effectiveStatutoryPensionConfig, // Use effective statutory pension config
   ])
 
   return {
