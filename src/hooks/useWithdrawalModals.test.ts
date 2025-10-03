@@ -9,6 +9,10 @@ vi.mock('../components/calculationHelpers', () => ({
   createTaxExplanation: vi.fn(() => ({ title: 'Tax', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
   createIncomeTaxExplanation: vi.fn(() => ({ title: 'Income Tax', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
   createTaxableIncomeExplanation: vi.fn(() => ({ title: 'Taxable Income', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
+  createOtherIncomeExplanation: vi.fn(() => ({ title: 'Other Income', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
+  createStatutoryPensionExplanation: vi.fn(() => ({ title: 'Statutory Pension', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
+  createEndkapitalExplanation: vi.fn(() => ({ title: 'Endkapital', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
+  createHealthCareInsuranceExplanation: vi.fn(() => ({ title: 'Gesetzliche Kranken- & Pflegeversicherung', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
 }))
 
 const mockFormValue = {
@@ -119,5 +123,43 @@ describe('useWithdrawalModals', () => {
 
     // Just verify that the function executes without throwing
     expect(typeof result.current.handleCalculationInfoClick).toBe('function')
+  })
+
+  it('should handle healthCareInsurance explanation correctly', () => {
+    const { result } = renderHook(() => useWithdrawalModals(
+      mockFormValue,
+      false,
+      [],
+      mockWithdrawalData,
+      2040,
+      0.26375,
+      0.3,
+      true,
+      12000,
+    ))
+
+    const mockRowData = {
+      year: 2041,
+      healthCareInsurance: {
+        healthInsuranceAnnual: 2920,
+        careInsuranceAnnual: 1220,
+        totalAnnual: 4140,
+        insuranceType: 'statutory' as const,
+        effectiveHealthInsuranceRate: 7.3,
+        effectiveCareInsuranceRate: 3.05,
+        baseIncomeForCalculation: 40000,
+        isRetirementPhase: true,
+        includesEmployerContribution: false,
+      },
+    }
+
+    act(() => {
+      result.current.handleCalculationInfoClick('healthCareInsurance', mockRowData)
+    })
+
+    expect(result.current.showCalculationModal).toBe(true)
+    expect(result.current.calculationDetails).toBeDefined()
+    expect(result.current.calculationDetails.title).toContain('Kranken- & Pflegeversicherung')
+    expect(result.current.calculationDetails.title).toContain('Gesetzliche')
   })
 })

@@ -8,6 +8,7 @@ import {
   createOtherIncomeExplanation,
   createStatutoryPensionExplanation,
   createEndkapitalExplanation,
+  createHealthCareInsuranceExplanation,
 } from '../components/calculationHelpers'
 
 /**
@@ -156,6 +157,24 @@ export function useWithdrawalModals(
         -entnahme, // Negative because it's a withdrawal (reduces capital)
         zinsen,
         bezahlteSteuer + kosten, // Total costs including taxes
+        rowData.year,
+      )
+      setCalculationDetails(explanation)
+      setShowCalculationModal(true)
+    }
+    else if (explanationType === 'healthCareInsurance' && rowData.healthCareInsurance) {
+      const insuranceData = rowData.healthCareInsurance
+      const explanation = createHealthCareInsuranceExplanation(
+        insuranceData.healthInsuranceAnnual,
+        insuranceData.careInsuranceAnnual,
+        insuranceData.totalAnnual,
+        insuranceData.insuranceType,
+        insuranceData.effectiveHealthInsuranceRate,
+        insuranceData.effectiveCareInsuranceRate,
+        insuranceData.baseIncomeForCalculation,
+        insuranceData.isRetirementPhase,
+        insuranceData.includesEmployerContribution,
+        insuranceData.inflationAdjustmentFactor,
         rowData.year,
       )
       setCalculationDetails(explanation)

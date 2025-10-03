@@ -552,3 +552,136 @@ export function createStatutoryPensionExplanation(
     },
   }
 }
+
+// Health care insurance calculation explanation
+export function createHealthCareInsuranceExplanation(
+  healthInsuranceAnnual: number,
+  careInsuranceAnnual: number,
+  totalAnnual: number,
+  insuranceType: 'statutory' | 'private',
+  effectiveHealthInsuranceRate?: number,
+  effectiveCareInsuranceRate?: number,
+  baseIncomeForCalculation?: number,
+  isRetirementPhase?: boolean,
+  includesEmployerContribution?: boolean,
+  inflationAdjustmentFactor?: number,
+  year?: number,
+): CalculationExplanation {
+  const monthlyHealthInsurance = healthInsuranceAnnual / 12
+  const monthlyCareInsurance = careInsuranceAnnual / 12
+  const monthlyTotal = totalAnnual / 12
+
+  const title = insuranceType === 'statutory'
+    ? '🏥 Gesetzliche Kranken- & Pflegeversicherung - Berechnung'
+    : '🏥 Private Kranken- & Pflegeversicherung - Berechnung'
+
+  const phaseText = isRetirementPhase ? 'Rente' : 'vor der Rente'
+  const employerText = includesEmployerContribution
+    ? 'inklusive Arbeitgeberanteil'
+    : 'nur Arbeitnehmeranteil'
+
+  let steps: CalculationStep[] = []
+  let introduction = ''
+
+  if (insuranceType === 'statutory') {
+    introduction = `Die gesetzliche Kranken- und Pflegeversicherung wird basierend auf dem Einkommen berechnet. In der Phase ${phaseText} gelten besondere Beitragssätze.`
+
+    if (baseIncomeForCalculation && effectiveHealthInsuranceRate && effectiveCareInsuranceRate) {
+      steps = [
+        {
+          title: 'Schritt 1: Beitragsbemessungsgrundlage',
+          description: 'Das Einkommen, auf das die Kranken- und Pflegeversicherungsbeiträge berechnet werden.',
+          calculation: `Bemessungsgrundlage = ${formatCurrency(baseIncomeForCalculation)}`,
+          result: formatCurrency(baseIncomeForCalculation),
+          backgroundColor: '#fff3e0',
+          borderColor: '#ff9800',
+        },
+        {
+          title: 'Schritt 2: Krankenversicherungsbeitrag',
+          description: `Krankenversicherung: ${effectiveHealthInsuranceRate}% ${employerText}`,
+          calculation: `Krankenversicherung = ${formatCurrency(baseIncomeForCalculation)} × ${effectiveHealthInsuranceRate}%`,
+          result: formatCurrency(healthInsuranceAnnual),
+          backgroundColor: '#e3f2fd',
+          borderColor: '#2196f3',
+        },
+        {
+          title: 'Schritt 3: Pflegeversicherungsbeitrag',
+          description: `Pflegeversicherung: ${effectiveCareInsuranceRate}% ${employerText}`,
+          calculation: `Pflegeversicherung = ${formatCurrency(baseIncomeForCalculation)} × ${effectiveCareInsuranceRate}%`,
+          result: formatCurrency(careInsuranceAnnual),
+          backgroundColor: '#e8f5e8',
+          borderColor: '#4caf50',
+        },
+        {
+          title: 'Schritt 4: Gesamtbeitrag',
+          description: 'Die Summe aus Kranken- und Pflegeversicherungsbeiträgen.',
+          calculation: `Gesamt = ${formatCurrency(healthInsuranceAnnual)} + ${formatCurrency(careInsuranceAnnual)}`,
+          result: formatCurrency(totalAnnual),
+          backgroundColor: '#fce4ec',
+          borderColor: '#e91e63',
+        },
+      ]
+    }
+  }
+  else {
+    introduction = `Die private Kranken- und Pflegeversicherung basiert auf festen monatlichen Beiträgen${inflationAdjustmentFactor ? ' mit jährlicher Anpassung' : ''}.`
+
+    steps = [
+      {
+        title: 'Schritt 1: Krankenversicherung (privat)',
+        description: 'Der monatliche Beitrag zur privaten Krankenversicherung.',
+        calculation: `Krankenversicherung = ${formatCurrency(monthlyHealthInsurance)} × 12 Monate`,
+        result: formatCurrency(healthInsuranceAnnual),
+        backgroundColor: '#e3f2fd',
+        borderColor: '#2196f3',
+      },
+      {
+        title: 'Schritt 2: Pflegeversicherung (privat)',
+        description: 'Der monatliche Beitrag zur privaten Pflegeversicherung.',
+        calculation: `Pflegeversicherung = ${formatCurrency(monthlyCareInsurance)} × 12 Monate`,
+        result: formatCurrency(careInsuranceAnnual),
+        backgroundColor: '#e8f5e8',
+        borderColor: '#4caf50',
+      },
+    ]
+
+    if (inflationAdjustmentFactor && inflationAdjustmentFactor > 1) {
+      const inflationRate = ((inflationAdjustmentFactor - 1) * 100)
+      steps.unshift({
+        title: 'Schritt 1: Inflationsanpassung',
+        description: `Die Beiträge werden jährlich um ${inflationRate.toFixed(1)}% angepasst.`,
+        calculation: `Anpassungsfaktor = ${(inflationAdjustmentFactor * 100).toFixed(1)}%`,
+        result: `+${inflationRate.toFixed(1)}%`,
+        backgroundColor: '#fff3e0',
+        borderColor: '#ff9800',
+      })
+    }
+
+    steps.push({
+      title: `Schritt ${steps.length + 1}: Gesamtbeitrag`,
+      description: 'Die Summe aus Kranken- und Pflegeversicherungsbeiträgen.',
+      calculation: `Gesamt = ${formatCurrency(healthInsuranceAnnual)} + ${formatCurrency(careInsuranceAnnual)}`,
+      result: formatCurrency(totalAnnual),
+      backgroundColor: '#fce4ec',
+      borderColor: '#e91e63',
+    })
+  }
+
+  return {
+    title,
+    introduction,
+    steps,
+    finalResult: {
+      title: 'Zusammenfassung der Kranken- & Pflegeversicherung',
+      values: [
+        { label: 'Versicherungsart', value: insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat' },
+        { label: 'Krankenversicherung (jährlich)', value: formatCurrency(healthInsuranceAnnual) },
+        { label: 'Pflegeversicherung (jährlich)', value: formatCurrency(careInsuranceAnnual) },
+        { label: 'Gesamtbeitrag (jährlich)', value: formatCurrency(totalAnnual) },
+        { label: 'Gesamtbeitrag (monatlich)', value: formatCurrency(monthlyTotal) },
+        { label: 'Steuerliche Behandlung', value: 'Vollständig absetzbar' },
+        ...(year ? [{ label: 'Jahr', value: year.toString() }] : []),
+      ],
+    },
+  }
+}
