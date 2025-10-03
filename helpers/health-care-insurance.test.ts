@@ -215,7 +215,7 @@ describe('Health Care Insurance Calculations', () => {
     it('should create valid default configuration', () => {
       const config = createDefaultHealthCareInsuranceConfig()
 
-      expect(config.enabled).toBe(false)
+      expect(config.enabled).toBe(true)
       expect(config.healthInsuranceRatePreRetirement).toBe(14.6)
       expect(config.careInsuranceRatePreRetirement).toBe(3.05)
       expect(config.healthInsuranceRateRetirement).toBe(7.3)
