@@ -302,8 +302,7 @@ export function EntnahmeSimulationDisplay({
           <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-shadow hover:shadow-md">
             <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">
               <span className="font-semibold text-gray-800 text-base">
-                📅
-                {rowData.year}
+                {`📅 ${rowData.year}`}
               </span>
               <span className="font-bold text-blue-600 text-lg flex items-center">
                 🎯

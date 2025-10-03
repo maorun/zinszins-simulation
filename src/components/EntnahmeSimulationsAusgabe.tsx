@@ -1,40 +1,36 @@
 import { useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { ChevronDown } from 'lucide-react'
-import { RadioTileGroup, RadioTile } from './ui/radio-tile'
-import { Switch } from './ui/switch'
-import { Label } from './ui/label'
-import { Slider } from './ui/slider'
-import { Input } from './ui/input'
-
-// No more temporary components needed!
-import type { SparplanElement } from '../utils/sparplan-utils'
-import type {
-  WithdrawalStrategy,
-  WithdrawalResult,
-} from '../../helpers/withdrawal'
-import { createDefaultWithdrawalSegment } from '../utils/segmented-withdrawal'
-import { WithdrawalSegmentForm } from './WithdrawalSegmentForm'
-import { DynamicWithdrawalConfiguration } from './DynamicWithdrawalConfiguration'
-import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
-import { BucketStrategyConfiguration } from './BucketStrategyConfiguration'
-import { KapitalerhaltConfiguration } from './KapitalerhaltConfiguration'
-import { HealthCareInsuranceConfiguration } from './HealthCareInsuranceConfiguration'
 import { createDefaultHealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
-import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
-import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
-import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
-import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
-import { useWithdrawalCalculations } from '../hooks/useWithdrawalCalculations'
-import { useWithdrawalModals } from '../hooks/useWithdrawalModals'
-import CalculationExplanationModal from './CalculationExplanationModal'
-import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
-import { useSimulation } from '../contexts/useSimulation'
 import type {
-  WithdrawalReturnMode,
+  WithdrawalResult,
+  WithdrawalStrategy,
+} from '../../helpers/withdrawal'
+import { useSimulation } from '../contexts/useSimulation'
+import { useWithdrawalCalculations } from '../hooks/useWithdrawalCalculations'
+import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
+import { useWithdrawalModals } from '../hooks/useWithdrawalModals'
+import type {
   ComparisonStrategy,
+  WithdrawalReturnMode,
 } from '../utils/config-storage'
+import { createDefaultWithdrawalSegment } from '../utils/segmented-withdrawal'
+import type { SparplanElement } from '../utils/sparplan-utils'
+import { BucketStrategyConfiguration } from './BucketStrategyConfiguration'
+import CalculationExplanationModal from './CalculationExplanationModal'
+import { DynamicWithdrawalConfiguration } from './DynamicWithdrawalConfiguration'
+import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
+import { HealthCareInsuranceConfiguration } from './HealthCareInsuranceConfiguration'
+import { KapitalerhaltConfiguration } from './KapitalerhaltConfiguration'
+import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
+import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
+import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
+import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
+import { Input } from './ui/input'
+import { Label } from './ui/label'
+import { RadioTile, RadioTileGroup } from './ui/radio-tile'
+import { Slider } from './ui/slider'
+import { Switch } from './ui/switch'
+import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
+import { WithdrawalSegmentForm } from './WithdrawalSegmentForm'
 
 // Helper function for strategy display names
 function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
@@ -176,324 +172,462 @@ export function EntnahmeSimulationsAusgabe({
   ])
 
   return (
-    <>
-      <Card className="mb-4">
-        <Collapsible defaultOpen={false}>
-          <CardHeader>
-            <CollapsibleTrigger asChild>
-              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
-                <CardTitle className="text-left">Variablen</CardTitle>
-                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+    <div className="space-y-4">
+      <CollapsibleCard>
+        <CollapsibleCardHeader>Variablen</CollapsibleCardHeader>
+        <CollapsibleCardContent>
+          {/* Other Income Sources Configuration */}
+          <OtherIncomeConfigurationComponent
+            config={currentConfig.otherIncomeConfig || { enabled: false, sources: [] }}
+            onChange={otherIncomeConfig => updateConfig({ otherIncomeConfig })}
+          />
+
+          {/* Toggle between single, segmented, and comparison withdrawal */}
+          <div className="mb-4 space-y-2">
+            <Label>Entnahme-Modus</Label>
+            <RadioTileGroup
+              value={
+                useSegmentedComparisonMode
+                  ? 'segmented-comparison'
+                  : useComparisonMode
+                    ? 'comparison'
+                    : useSegmentedWithdrawal
+                      ? 'segmented'
+                      : 'single'
+              }
+              onValueChange={(value: string) => {
+                const useComparison = value === 'comparison'
+                const useSegmented = value === 'segmented'
+                const useSegmentedComparison = value === 'segmented-comparison'
+
+                updateConfig({
+                  useComparisonMode: useComparison,
+                  useSegmentedWithdrawal: useSegmented,
+                  useSegmentedComparisonMode: useSegmentedComparison,
+                })
+
+                // Initialize segments when switching to segmented mode
+                if (useSegmented && withdrawalSegments.length === 0) {
+                  // Create initial segment covering only the first 15 years, leaving room for additional segments
+                  const withdrawalStartYear = startOfIndependence + 1
+                  // 15 years or until end of life
+                  const initialSegmentEndYear = Math.min(withdrawalStartYear + 14, globalEndOfLife)
+                  const defaultSegment = createDefaultWithdrawalSegment(
+                    'main',
+                    'Frühphase',
+                    withdrawalStartYear,
+                    initialSegmentEndYear,
+                  )
+                  updateConfig({ withdrawalSegments: [defaultSegment] })
+                }
+              }}
+            >
+              <RadioTile value="single" label="Einheitliche Strategie">
+                Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase
+              </RadioTile>
+              <RadioTile value="segmented" label="Geteilte Phasen">
+                Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf
+              </RadioTile>
+              <RadioTile value="comparison" label="Strategien-Vergleich">
+                Vergleiche verschiedene Entnahmestrategien miteinander
+              </RadioTile>
+              <RadioTile value="segmented-comparison" label="Geteilte Phasen Vergleich">
+                Vergleiche verschiedene geteilte Entnahme-Phasen miteinander
+              </RadioTile>
+            </RadioTileGroup>
+            <div className="text-sm text-muted-foreground mt-1">
+              {useSegmentedComparisonMode
+                ? 'Vergleiche verschiedene geteilte Entnahme-Phasen miteinander.'
+                : useComparisonMode
+                  ? 'Vergleiche verschiedene Entnahmestrategien miteinander.'
+                  : useSegmentedWithdrawal
+                    ? 'Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf.'
+                    : 'Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase.'}
+            </div>
+          </div>
+
+          {useSegmentedWithdrawal ? (
+          /* Segmented withdrawal configuration */
+            <WithdrawalSegmentForm
+              segments={withdrawalSegments}
+              onSegmentsChange={segments =>
+                updateConfig({ withdrawalSegments: segments })}
+              withdrawalStartYear={startOfIndependence + 1}
+              withdrawalEndYear={globalEndOfLife}
+            />
+          ) : useComparisonMode ? (
+          /* Comparison mode configuration */
+            <div>
+              <h4>Basis-Strategie (mit vollständigen Details)</h4>
+              <div>
+                {/* Strategy selector - for base strategy only */}
+                <div className="mb-4 space-y-2">
+                  <Label>Basis-Strategie</Label>
+                  <RadioTileGroup
+                    value={formValue.strategie}
+                    onValueChange={value =>
+                      updateFormValue({ ...formValue, strategie: value as WithdrawalStrategy })}
+                  >
+                    <RadioTile value="4prozent" label="4% Regel">
+                      4% Entnahme
+                    </RadioTile>
+                    <RadioTile value="3prozent" label="3% Regel">
+                      3% Entnahme
+                    </RadioTile>
+                    <RadioTile value="variabel_prozent" label="Variable Prozent">
+                      Anpassbare Entnahme
+                    </RadioTile>
+                    <RadioTile value="monatlich_fest" label="Monatlich fest">
+                      Fester monatlicher Betrag
+                    </RadioTile>
+                    <RadioTile value="dynamisch" label="Dynamische Strategie">
+                      Renditebasierte Anpassung
+                    </RadioTile>
+                    <RadioTile value="bucket_strategie" label="Drei-Eimer-Strategie">
+                      Cash-Polster bei negativen Renditen
+                    </RadioTile>
+                    <RadioTile value="rmd" label="RMD (Lebenserwartung)">
+                      Entnahme basierend auf Alter und Lebenserwartung
+                    </RadioTile>
+                    <RadioTile value="kapitalerhalt" label="Kapitalerhalt / Ewige Rente">
+                      Reale Rendite für Kapitalerhalt
+                    </RadioTile>
+                  </RadioTileGroup>
+                </div>
+
+                {/* Withdrawal frequency configuration */}
+                <div className="mb-4 space-y-2">
+                  <Label>Entnahme-Häufigkeit</Label>
+                  <div className="flex items-center space-x-3 mt-2">
+                    <span className="text-sm">Jährlich</span>
+                    <Switch
+                      checked={formValue.withdrawalFrequency === 'monthly'}
+                      onCheckedChange={(checked) => {
+                        updateFormValue({
+                          withdrawalFrequency: checked ? 'monthly' : 'yearly',
+                        })
+                      }}
+                    />
+                    <span className="text-sm">Monatlich</span>
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    {formValue.withdrawalFrequency === 'yearly'
+                      ? 'Entnahme erfolgt einmal jährlich am Anfang des Jahres'
+                      : 'Entnahme erfolgt monatlich - Portfolio hat mehr Zeit zu wachsen'}
+                  </div>
+                </div>
+
+                {/* Fixed return rate for base strategy */}
+                <div className="mb-4 space-y-2">
+                  <Label>
+                    Rendite Basis-Strategie (%)
+                  </Label>
+                  <div className="space-y-2">
+                    <Slider
+                      value={[formValue.rendite]}
+                      onValueChange={(values: number[]) => updateFormValue({ ...formValue, rendite: values[0] })}
+                      min={0}
+                      max={10}
+                      step={0.5}
+                      className="mt-2"
+                    />
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>0%</span>
+                      <span className="font-medium text-gray-900">
+                        {formValue.rendite}
+                        %
+                      </span>
+                      <span>10%</span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Strategy-specific configuration for base strategy */}
+                {formValue.strategie === 'variabel_prozent' && (
+                  <div className="mb-4 space-y-2">
+                    <Label>
+                      Entnahme-Prozentsatz (%)
+                    </Label>
+                    <div className="space-y-2">
+                      <Slider
+                        value={[formValue.variabelProzent]}
+                        onValueChange={(values: number[]) =>
+                          updateFormValue({ ...formValue, variabelProzent: values[0] })}
+                        min={1}
+                        max={10}
+                        step={0.5}
+                        className="mt-2"
+                      />
+                      <div className="flex justify-between text-sm text-gray-500">
+                        <span>1%</span>
+                        <span className="font-medium text-gray-900">
+                          {formValue.variabelProzent}
+                          %
+                        </span>
+                        <span>10%</span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {formValue.strategie === 'monatlich_fest' && (
+                  <div className="mb-4 space-y-2">
+                    <Label>Monatlicher Betrag (€)</Label>
+                    <Input
+                      type="number"
+                      value={formValue.monatlicheBetrag}
+                      onChange={(e) => {
+                        const value = e.target.value ? Number(e.target.value) : undefined
+                        if (value) updateFormValue({ ...formValue, monatlicheBetrag: value })
+                      }}
+                    />
+                  </div>
+                )}
+
+                {formValue.strategie === 'dynamisch' && (
+                  <DynamicWithdrawalConfiguration formValue={formValue} />
+                )}
+
+                {formValue.strategie === 'rmd' && (
+                  <RMDWithdrawalConfiguration
+                    formValue={formValue}
+                    updateFormValue={updateFormValue}
+                  />
+                )}
+
+                {formValue.strategie === 'kapitalerhalt' && (
+                  <KapitalerhaltConfiguration
+                    formValue={formValue}
+                    updateFormValue={updateFormValue}
+                  />
+                )}
+
+                {formValue.strategie === 'bucket_strategie' && (
+                  <BucketStrategyConfiguration
+                    formValue={formValue}
+                    updateFormValue={updateFormValue}
+                  />
+                )}
               </div>
-            </CollapsibleTrigger>
-          </CardHeader>
-          <CollapsibleContent>
-            <CardContent>
-              {/* Other Income Sources Configuration */}
-              <OtherIncomeConfigurationComponent
-                config={currentConfig.otherIncomeConfig || { enabled: false, sources: [] }}
-                onChange={otherIncomeConfig => updateConfig({ otherIncomeConfig })}
-              />
 
-              {/* Toggle between single, segmented, and comparison withdrawal */}
-              <div className="mb-4 space-y-2">
-                <Label>Entnahme-Modus</Label>
-                <RadioTileGroup
-                  value={
-                    useSegmentedComparisonMode
-                      ? 'segmented-comparison'
-                      : useComparisonMode
-                        ? 'comparison'
-                        : useSegmentedWithdrawal
-                          ? 'segmented'
-                          : 'single'
-                  }
-                  onValueChange={(value: string) => {
-                    const useComparison = value === 'comparison'
-                    const useSegmented = value === 'segmented'
-                    const useSegmentedComparison = value === 'segmented-comparison'
-
-                    updateConfig({
-                      useComparisonMode: useComparison,
-                      useSegmentedWithdrawal: useSegmented,
-                      useSegmentedComparisonMode: useSegmentedComparison,
-                    })
-
-                    // Initialize segments when switching to segmented mode
-                    if (useSegmented && withdrawalSegments.length === 0) {
-                      // Create initial segment covering only the first 15 years, leaving room for additional segments
-                      const withdrawalStartYear = startOfIndependence + 1
-                      // 15 years or until end of life
-                      const initialSegmentEndYear = Math.min(withdrawalStartYear + 14, globalEndOfLife)
-                      const defaultSegment = createDefaultWithdrawalSegment(
-                        'main',
-                        'Frühphase',
-                        withdrawalStartYear,
-                        initialSegmentEndYear,
-                      )
-                      updateConfig({ withdrawalSegments: [defaultSegment] })
-                    }
+              {/* Comparison strategies configuration */}
+              <div style={{ marginTop: '30px' }}>
+                <h4>Vergleichs-Strategien</h4>
+                <p
+                  style={{
+                    fontSize: '14px',
+                    color: '#666',
+                    marginBottom: '20px',
                   }}
                 >
-                  <RadioTile value="single" label="Einheitliche Strategie">
-                    Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase
-                  </RadioTile>
-                  <RadioTile value="segmented" label="Geteilte Phasen">
-                    Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf
-                  </RadioTile>
-                  <RadioTile value="comparison" label="Strategien-Vergleich">
-                    Vergleiche verschiedene Entnahmestrategien miteinander
-                  </RadioTile>
-                  <RadioTile value="segmented-comparison" label="Geteilte Phasen Vergleich">
-                    Vergleiche verschiedene geteilte Entnahme-Phasen miteinander
-                  </RadioTile>
-                </RadioTileGroup>
-                <div className="text-sm text-muted-foreground mt-1">
-                  {useSegmentedComparisonMode
-                    ? 'Vergleiche verschiedene geteilte Entnahme-Phasen miteinander.'
-                    : useComparisonMode
-                      ? 'Vergleiche verschiedene Entnahmestrategien miteinander.'
-                      : useSegmentedWithdrawal
-                        ? 'Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf.'
-                        : 'Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase.'}
-                </div>
-              </div>
+                  Konfiguriere zusätzliche Strategien zum Vergleich. Diese zeigen
+                  nur die wichtigsten Parameter und Endergebnisse.
+                </p>
 
-              {useSegmentedWithdrawal ? (
-              /* Segmented withdrawal configuration */
-                <WithdrawalSegmentForm
-                  segments={withdrawalSegments}
-                  onSegmentsChange={segments =>
-                    updateConfig({ withdrawalSegments: segments })}
-                  withdrawalStartYear={startOfIndependence + 1}
-                  withdrawalEndYear={globalEndOfLife}
-                />
-              ) : useComparisonMode ? (
-              /* Comparison mode configuration */
-                <div>
-                  <h4>Basis-Strategie (mit vollständigen Details)</h4>
-                  <div>
-                    {/* Strategy selector - for base strategy only */}
-                    <div className="mb-4 space-y-2">
-                      <Label>Basis-Strategie</Label>
-                      <RadioTileGroup
-                        value={formValue.strategie}
-                        onValueChange={value =>
-                          updateFormValue({ ...formValue, strategie: value as WithdrawalStrategy })}
-                      >
-                        <RadioTile value="4prozent" label="4% Regel">
-                          4% Entnahme
-                        </RadioTile>
-                        <RadioTile value="3prozent" label="3% Regel">
-                          3% Entnahme
-                        </RadioTile>
-                        <RadioTile value="variabel_prozent" label="Variable Prozent">
-                          Anpassbare Entnahme
-                        </RadioTile>
-                        <RadioTile value="monatlich_fest" label="Monatlich fest">
-                          Fester monatlicher Betrag
-                        </RadioTile>
-                        <RadioTile value="dynamisch" label="Dynamische Strategie">
-                          Renditebasierte Anpassung
-                        </RadioTile>
-                        <RadioTile value="bucket_strategie" label="Drei-Eimer-Strategie">
-                          Cash-Polster bei negativen Renditen
-                        </RadioTile>
-                        <RadioTile value="rmd" label="RMD (Lebenserwartung)">
-                          Entnahme basierend auf Alter und Lebenserwartung
-                        </RadioTile>
-                        <RadioTile value="kapitalerhalt" label="Kapitalerhalt / Ewige Rente">
-                          Reale Rendite für Kapitalerhalt
-                        </RadioTile>
-                      </RadioTileGroup>
-                    </div>
-
-                    {/* Withdrawal frequency configuration */}
-                    <div className="mb-4 space-y-2">
-                      <Label>Entnahme-Häufigkeit</Label>
-                      <div className="flex items-center space-x-3 mt-2">
-                        <span className="text-sm">Jährlich</span>
-                        <Switch
-                          checked={formValue.withdrawalFrequency === 'monthly'}
-                          onCheckedChange={(checked) => {
-                            updateFormValue({
-                              withdrawalFrequency: checked ? 'monthly' : 'yearly',
-                            })
-                          }}
-                        />
-                        <span className="text-sm">Monatlich</span>
-                      </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        {formValue.withdrawalFrequency === 'yearly'
-                          ? 'Entnahme erfolgt einmal jährlich am Anfang des Jahres'
-                          : 'Entnahme erfolgt monatlich - Portfolio hat mehr Zeit zu wachsen'}
-                      </div>
-                    </div>
-
-                    {/* Fixed return rate for base strategy */}
-                    <div className="mb-4 space-y-2">
-                      <Label>
-                        Rendite Basis-Strategie (%)
-                      </Label>
-                      <div className="space-y-2">
-                        <Slider
-                          value={[formValue.rendite]}
-                          onValueChange={(values: number[]) => updateFormValue({ ...formValue, rendite: values[0] })}
-                          min={0}
-                          max={10}
-                          step={0.5}
-                          className="mt-2"
-                        />
-                        <div className="flex justify-between text-sm text-gray-500">
-                          <span>0%</span>
-                          <span className="font-medium text-gray-900">
-                            {formValue.rendite}
-                            %
-                          </span>
-                          <span>10%</span>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Strategy-specific configuration for base strategy */}
-                    {formValue.strategie === 'variabel_prozent' && (
-                      <div className="mb-4 space-y-2">
-                        <Label>
-                          Entnahme-Prozentsatz (%)
-                        </Label>
-                        <div className="space-y-2">
-                          <Slider
-                            value={[formValue.variabelProzent]}
-                            onValueChange={(values: number[]) =>
-                              updateFormValue({ ...formValue, variabelProzent: values[0] })}
-                            min={1}
-                            max={10}
-                            step={0.5}
-                            className="mt-2"
-                          />
-                          <div className="flex justify-between text-sm text-gray-500">
-                            <span>1%</span>
-                            <span className="font-medium text-gray-900">
-                              {formValue.variabelProzent}
-                              %
-                            </span>
-                            <span>10%</span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-
-                    {formValue.strategie === 'monatlich_fest' && (
-                      <div className="mb-4 space-y-2">
-                        <Label>Monatlicher Betrag (€)</Label>
-                        <Input
-                          type="number"
-                          value={formValue.monatlicheBetrag}
-                          onChange={(e) => {
-                            const value = e.target.value ? Number(e.target.value) : undefined
-                            if (value) updateFormValue({ ...formValue, monatlicheBetrag: value })
-                          }}
-                        />
-                      </div>
-                    )}
-
-                    {formValue.strategie === 'dynamisch' && (
-                      <DynamicWithdrawalConfiguration formValue={formValue} />
-                    )}
-
-                    {formValue.strategie === 'rmd' && (
-                      <RMDWithdrawalConfiguration
-                        formValue={formValue}
-                        updateFormValue={updateFormValue}
-                      />
-                    )}
-
-                    {formValue.strategie === 'kapitalerhalt' && (
-                      <KapitalerhaltConfiguration
-                        formValue={formValue}
-                        updateFormValue={updateFormValue}
-                      />
-                    )}
-
-                    {formValue.strategie === 'bucket_strategie' && (
-                      <BucketStrategyConfiguration
-                        formValue={formValue}
-                        updateFormValue={updateFormValue}
-                      />
-                    )}
-                  </div>
-
-                  {/* Comparison strategies configuration */}
-                  <div style={{ marginTop: '30px' }}>
-                    <h4>Vergleichs-Strategien</h4>
-                    <p
+                {comparisonStrategies.map(
+                  (strategy: ComparisonStrategy, index: number) => (
+                    <div
+                      key={strategy.id}
                       style={{
-                        fontSize: '14px',
-                        color: '#666',
-                        marginBottom: '20px',
+                        border: '1px solid #e5e5ea',
+                        borderRadius: '6px',
+                        padding: '15px',
+                        marginBottom: '15px',
+                        backgroundColor: '#f8f9fa',
                       }}
                     >
-                      Konfiguriere zusätzliche Strategien zum Vergleich. Diese zeigen
-                      nur die wichtigsten Parameter und Endergebnisse.
-                    </p>
-
-                    {comparisonStrategies.map(
-                      (strategy: ComparisonStrategy, index: number) => (
-                        <div
-                          key={strategy.id}
+                      <div
+                        style={{
+                          display: 'flex',
+                          justifyContent: 'space-between',
+                          alignItems: 'center',
+                          marginBottom: '10px',
+                        }}
+                      >
+                        <h5 style={{ margin: 0 }}>
+                          Strategie
+                          {' '}
+                          {index + 1}
+                          :
+                          {' '}
+                          {strategy.name}
+                        </h5>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            updateConfig({
+                              comparisonStrategies: comparisonStrategies.filter(
+                                (s: ComparisonStrategy) => s.id !== strategy.id,
+                              ),
+                            })
+                          }}
                           style={{
-                            border: '1px solid #e5e5ea',
-                            borderRadius: '6px',
-                            padding: '15px',
-                            marginBottom: '15px',
-                            backgroundColor: '#f8f9fa',
+                            background: 'none',
+                            border: 'none',
+                            color: '#999',
+                            cursor: 'pointer',
+                            fontSize: '18px',
                           }}
                         >
-                          <div
+                          ×
+                        </button>
+                      </div>
+
+                      <div
+                        style={{
+                          display: 'grid',
+                          gridTemplateColumns: '1fr 1fr',
+                          gap: '10px',
+                          alignItems: 'end',
+                        }}
+                      >
+                        <div>
+                          <label
                             style={{
-                              display: 'flex',
-                              justifyContent: 'space-between',
-                              alignItems: 'center',
-                              marginBottom: '10px',
+                              display: 'block',
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              marginBottom: '5px',
                             }}
                           >
-                            <h5 style={{ margin: 0 }}>
-                              Strategie
-                              {' '}
-                              {index + 1}
-                              :
-                              {' '}
-                              {strategy.name}
-                            </h5>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                updateConfig({
-                                  comparisonStrategies: comparisonStrategies.filter(
-                                    (s: ComparisonStrategy) => s.id !== strategy.id,
-                                  ),
+                            Strategie-Typ
+                          </label>
+                          <select
+                            value={strategy.strategie}
+                            onChange={(e) => {
+                              const newStrategie = e.target
+                                .value as WithdrawalStrategy
+                              updateComparisonStrategy(strategy.id, {
+                                strategie: newStrategie,
+                                name: getStrategyDisplayName(newStrategie),
+                              })
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '6px',
+                              border: '1px solid #ccc',
+                              borderRadius: '4px',
+                            }}
+                          >
+                            <option value="4prozent">4% Regel</option>
+                            <option value="3prozent">3% Regel</option>
+                            <option value="variabel_prozent">
+                              Variable Prozent
+                            </option>
+                            <option value="monatlich_fest">Monatlich fest</option>
+                            <option value="dynamisch">
+                              Dynamische Strategie
+                            </option>
+                            <option value="bucket_strategie">
+                              Drei-Eimer-Strategie
+                            </option>
+                            <option value="rmd">
+                              RMD (Lebenserwartung)
+                            </option>
+                          </select>
+                        </div>
+
+                        <div>
+                          <label
+                            style={{
+                              display: 'block',
+                              fontSize: '12px',
+                              fontWeight: 'bold',
+                              marginBottom: '5px',
+                            }}
+                          >
+                            Rendite (%)
+                          </label>
+                          <input
+                            type="number"
+                            min="0"
+                            max="10"
+                            step="0.5"
+                            value={strategy.rendite}
+                            onChange={(e) => {
+                              updateComparisonStrategy(strategy.id, {
+                                rendite: parseFloat(e.target.value) || 0,
+                              })
+                            }}
+                            style={{
+                              width: '100%',
+                              padding: '6px',
+                              border: '1px solid #ccc',
+                              borderRadius: '4px',
+                            }}
+                          />
+                        </div>
+
+                        {/* Strategy-specific parameters */}
+                        {strategy.strategie === 'variabel_prozent' && (
+                          <div style={{ gridColumn: 'span 2' }}>
+                            <label
+                              style={{
+                                display: 'block',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                marginBottom: '5px',
+                              }}
+                            >
+                              Entnahme-Prozentsatz (%)
+                            </label>
+                            <input
+                              type="number"
+                              min="1"
+                              max="10"
+                              step="0.5"
+                              value={strategy.variabelProzent || 5}
+                              onChange={(e) => {
+                                updateComparisonStrategy(strategy.id, {
+                                  variabelProzent:
+                                  parseFloat(e.target.value) || 5,
                                 })
                               }}
                               style={{
-                                background: 'none',
-                                border: 'none',
-                                color: '#999',
-                                cursor: 'pointer',
-                                fontSize: '18px',
+                                width: '50%',
+                                padding: '6px',
+                                border: '1px solid #ccc',
+                                borderRadius: '4px',
+                              }}
+                            />
+                          </div>
+                        )}
+
+                        {strategy.strategie === 'monatlich_fest' && (
+                          <div style={{ gridColumn: 'span 2' }}>
+                            <label
+                              style={{
+                                display: 'block',
+                                fontSize: '12px',
+                                fontWeight: 'bold',
+                                marginBottom: '5px',
                               }}
                             >
-                              ×
-                            </button>
+                              Monatlicher Betrag (€)
+                            </label>
+                            <input
+                              type="number"
+                              min="0"
+                              step="100"
+                              value={strategy.monatlicheBetrag || 2000}
+                              onChange={(e) => {
+                                updateComparisonStrategy(strategy.id, {
+                                  monatlicheBetrag:
+                                  parseFloat(e.target.value) || 2000,
+                                })
+                              }}
+                              style={{
+                                width: '50%',
+                                padding: '6px',
+                                border: '1px solid #ccc',
+                                borderRadius: '4px',
+                              }}
+                            />
                           </div>
+                        )}
 
-                          <div
-                            style={{
-                              display: 'grid',
-                              gridTemplateColumns: '1fr 1fr',
-                              gap: '10px',
-                              alignItems: 'end',
-                            }}
-                          >
+                        {strategy.strategie === 'dynamisch' && (
+                          <>
                             <div>
                               <label
                                 style={{
@@ -503,63 +637,18 @@ export function EntnahmeSimulationsAusgabe({
                                   marginBottom: '5px',
                                 }}
                               >
-                                Strategie-Typ
-                              </label>
-                              <select
-                                value={strategy.strategie}
-                                onChange={(e) => {
-                                  const newStrategie = e.target
-                                    .value as WithdrawalStrategy
-                                  updateComparisonStrategy(strategy.id, {
-                                    strategie: newStrategie,
-                                    name: getStrategyDisplayName(newStrategie),
-                                  })
-                                }}
-                                style={{
-                                  width: '100%',
-                                  padding: '6px',
-                                  border: '1px solid #ccc',
-                                  borderRadius: '4px',
-                                }}
-                              >
-                                <option value="4prozent">4% Regel</option>
-                                <option value="3prozent">3% Regel</option>
-                                <option value="variabel_prozent">
-                                  Variable Prozent
-                                </option>
-                                <option value="monatlich_fest">Monatlich fest</option>
-                                <option value="dynamisch">
-                                  Dynamische Strategie
-                                </option>
-                                <option value="bucket_strategie">
-                                  Drei-Eimer-Strategie
-                                </option>
-                                <option value="rmd">
-                                  RMD (Lebenserwartung)
-                                </option>
-                              </select>
-                            </div>
-
-                            <div>
-                              <label
-                                style={{
-                                  display: 'block',
-                                  fontSize: '12px',
-                                  fontWeight: 'bold',
-                                  marginBottom: '5px',
-                                }}
-                              >
-                                Rendite (%)
+                                Basis-Rate (%)
                               </label>
                               <input
                                 type="number"
-                                min="0"
+                                min="1"
                                 max="10"
                                 step="0.5"
-                                value={strategy.rendite}
+                                value={strategy.dynamischBasisrate || 4}
                                 onChange={(e) => {
                                   updateComparisonStrategy(strategy.id, {
-                                    rendite: parseFloat(e.target.value) || 0,
+                                    dynamischBasisrate:
+                                    parseFloat(e.target.value) || 4,
                                   })
                                 }}
                                 style={{
@@ -570,947 +659,832 @@ export function EntnahmeSimulationsAusgabe({
                                 }}
                               />
                             </div>
-
-                            {/* Strategy-specific parameters */}
-                            {strategy.strategie === 'variabel_prozent' && (
-                              <div style={{ gridColumn: 'span 2' }}>
-                                <label
-                                  style={{
-                                    display: 'block',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold',
-                                    marginBottom: '5px',
-                                  }}
-                                >
-                                  Entnahme-Prozentsatz (%)
-                                </label>
-                                <input
-                                  type="number"
-                                  min="1"
-                                  max="10"
-                                  step="0.5"
-                                  value={strategy.variabelProzent || 5}
-                                  onChange={(e) => {
-                                    updateComparisonStrategy(strategy.id, {
-                                      variabelProzent:
-                                  parseFloat(e.target.value) || 5,
-                                    })
-                                  }}
-                                  style={{
-                                    width: '50%',
-                                    padding: '6px',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '4px',
-                                  }}
-                                />
-                              </div>
-                            )}
-
-                            {strategy.strategie === 'monatlich_fest' && (
-                              <div style={{ gridColumn: 'span 2' }}>
-                                <label
-                                  style={{
-                                    display: 'block',
-                                    fontSize: '12px',
-                                    fontWeight: 'bold',
-                                    marginBottom: '5px',
-                                  }}
-                                >
-                                  Monatlicher Betrag (€)
-                                </label>
-                                <input
-                                  type="number"
-                                  min="0"
-                                  step="100"
-                                  value={strategy.monatlicheBetrag || 2000}
-                                  onChange={(e) => {
-                                    updateComparisonStrategy(strategy.id, {
-                                      monatlicheBetrag:
-                                  parseFloat(e.target.value) || 2000,
-                                    })
-                                  }}
-                                  style={{
-                                    width: '50%',
-                                    padding: '6px',
-                                    border: '1px solid #ccc',
-                                    borderRadius: '4px',
-                                  }}
-                                />
-                              </div>
-                            )}
-
-                            {strategy.strategie === 'dynamisch' && (
-                              <>
-                                <div>
-                                  <label
-                                    style={{
-                                      display: 'block',
-                                      fontSize: '12px',
-                                      fontWeight: 'bold',
-                                      marginBottom: '5px',
-                                    }}
-                                  >
-                                    Basis-Rate (%)
-                                  </label>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    max="10"
-                                    step="0.5"
-                                    value={strategy.dynamischBasisrate || 4}
-                                    onChange={(e) => {
-                                      updateComparisonStrategy(strategy.id, {
-                                        dynamischBasisrate:
-                                    parseFloat(e.target.value) || 4,
-                                      })
-                                    }}
-                                    style={{
-                                      width: '100%',
-                                      padding: '6px',
-                                      border: '1px solid #ccc',
-                                      borderRadius: '4px',
-                                    }}
-                                  />
-                                </div>
-                                <div>
-                                  <label
-                                    style={{
-                                      display: 'block',
-                                      fontSize: '12px',
-                                      fontWeight: 'bold',
-                                      marginBottom: '5px',
-                                    }}
-                                  >
-                                    Obere Schwelle (%)
-                                  </label>
-                                  <input
-                                    type="number"
-                                    min="0"
-                                    max="20"
-                                    step="0.5"
-                                    value={strategy.dynamischObereSchwell || 8}
-                                    onChange={(e) => {
-                                      updateComparisonStrategy(strategy.id, {
-                                        dynamischObereSchwell:
-                                    parseFloat(e.target.value) || 8,
-                                      })
-                                    }}
-                                    style={{
-                                      width: '100%',
-                                      padding: '6px',
-                                      border: '1px solid #ccc',
-                                      borderRadius: '4px',
-                                    }}
-                                  />
-                                </div>
-                              </>
-                            )}
-
-                            {strategy.strategie === 'bucket_strategie' && (
-                              <>
-                                <div>
-                                  <label
-                                    style={{
-                                      display: 'block',
-                                      fontSize: '12px',
-                                      fontWeight: 'bold',
-                                      marginBottom: '5px',
-                                    }}
-                                  >
-                                    Cash-Polster (€)
-                                  </label>
-                                  <input
-                                    type="number"
-                                    min="1000"
-                                    step="1000"
-                                    value={strategy.bucketInitialCash || 20000}
-                                    onChange={(e) => {
-                                      updateComparisonStrategy(strategy.id, {
-                                        bucketInitialCash:
-                                    parseFloat(e.target.value) || 20000,
-                                      })
-                                    }}
-                                    style={{
-                                      width: '100%',
-                                      padding: '6px',
-                                      border: '1px solid #ccc',
-                                      borderRadius: '4px',
-                                    }}
-                                  />
-                                </div>
-                                <div>
-                                  <label
-                                    style={{
-                                      display: 'block',
-                                      fontSize: '12px',
-                                      fontWeight: 'bold',
-                                      marginBottom: '5px',
-                                    }}
-                                  >
-                                    Basis-Rate (%)
-                                  </label>
-                                  <input
-                                    type="number"
-                                    min="1"
-                                    max="10"
-                                    step="0.1"
-                                    value={strategy.bucketBaseRate || 4}
-                                    onChange={(e) => {
-                                      updateComparisonStrategy(strategy.id, {
-                                        bucketBaseRate:
-                                    parseFloat(e.target.value) || 4,
-                                      })
-                                    }}
-                                    style={{
-                                      width: '100%',
-                                      padding: '6px',
-                                      border: '1px solid #ccc',
-                                      borderRadius: '4px',
-                                    }}
-                                  />
-                                </div>
-                              </>
-                            )}
-                          </div>
-                        </div>
-                      ),
-                    )}
-
-                    <button
-                      type="button"
-                      onClick={() => {
-                        const newId = `strategy${Date.now()}`
-                        const newStrategy: ComparisonStrategy = {
-                          id: newId,
-                          name: '3% Regel',
-                          strategie: '3prozent',
-                          rendite: 5,
-                        }
-                        updateConfig({
-                          comparisonStrategies: [
-                            ...comparisonStrategies,
-                            newStrategy,
-                          ],
-                        })
-                      }}
-                      style={{
-                        padding: '8px 16px',
-                        backgroundColor: '#1675e0',
-                        color: 'white',
-                        border: 'none',
-                        borderRadius: '4px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      + Weitere Strategie hinzufügen
-                    </button>
-                  </div>
-                </div>
-              ) : useSegmentedComparisonMode ? (
-              /* Segmented comparison mode configuration */
-                <SegmentedComparisonConfiguration
-                  segmentedComparisonStrategies={segmentedComparisonStrategies}
-                  withdrawalStartYear={startOfIndependence + 1}
-                  withdrawalEndYear={globalEndOfLife}
-                  onAddStrategy={addSegmentedComparisonStrategy}
-                  onUpdateStrategy={updateSegmentedComparisonStrategy}
-                  onRemoveStrategy={removeSegmentedComparisonStrategy}
-                />
-              ) : (
-              /* Single strategy configuration (existing UI) */
-                <div>
-                  {/* Withdrawal Return Configuration */}
-                  <div className="mb-4 space-y-2">
-                    <Label>Rendite-Konfiguration (Entnahme-Phase)</Label>
-                    <RadioTileGroup
-                      value={withdrawalReturnMode}
-                      onValueChange={(value: string) => {
-                        updateConfig({
-                          withdrawalReturnMode: value as WithdrawalReturnMode,
-                        })
-                      }}
-                    >
-                      <RadioTile value="fixed" label="Feste Rendite">
-                        Konstante jährliche Rendite für die gesamte Entnahme-Phase
-                      </RadioTile>
-                      <RadioTile value="random" label="Zufällige Rendite">
-                        Monte Carlo Simulation mit Durchschnitt und Volatilität
-                      </RadioTile>
-                      <RadioTile value="variable" label="Variable Rendite">
-                        Jahr-für-Jahr konfigurierbare Renditen
-                      </RadioTile>
-                    </RadioTileGroup>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Konfiguration der erwarteten Rendite während der Entnahme-Phase
-                      (unabhängig von der Sparphase-Rendite).
-                    </div>
-                  </div>
-
-                  {withdrawalReturnMode === 'fixed' && (
-                    <div className="mb-4 space-y-2">
-                      <Label>
-                        Erwartete Rendite Entnahme-Phase (%)
-                      </Label>
-                      <div className="space-y-2">
-                        <Slider
-                          value={[formValue.rendite]}
-                          onValueChange={(values: number[]) => updateFormValue({ ...formValue, rendite: values[0] })}
-                          min={0}
-                          max={10}
-                          step={0.5}
-                          className="mt-2"
-                        />
-                        <div className="flex justify-between text-sm text-gray-500">
-                          <span>0%</span>
-                          <span className="font-medium text-gray-900">
-                            {formValue.rendite}
-                            %
-                          </span>
-                          <span>10%</span>
-                        </div>
-                      </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        Feste Rendite für die gesamte Entnahme-Phase (oft
-                        konservativer als die Sparphase-Rendite).
-                      </div>
-                    </div>
-                  )}
-
-                  {withdrawalReturnMode === 'random' && (
-                    <>
-                      <div className="mb-4 space-y-2">
-                        <Label>Durchschnittliche Rendite (%)</Label>
-                        <div className="space-y-2">
-                          <Slider
-                            value={[withdrawalAverageReturn]}
-                            min={0}
-                            max={12}
-                            step={0.5}
-                            onValueChange={value =>
-                              updateConfig({ withdrawalAverageReturn: value[0] })}
-                            className="mt-2"
-                          />
-                          <div className="flex justify-between text-sm text-gray-500">
-                            <span>0%</span>
-                            <span className="font-medium text-gray-900">
-                              {withdrawalAverageReturn}
-                              %
-                            </span>
-                            <span>12%</span>
-                          </div>
-                        </div>
-                        <div className="text-sm text-muted-foreground mt-1">
-                          Erwartete durchschnittliche Rendite für die Entnahme-Phase
-                          (meist konservativer als Ansparphase)
-                        </div>
-                      </div>
-
-                      <div className="mb-4 space-y-2">
-                        <Label>Standardabweichung (%)</Label>
-                        <div className="space-y-2">
-                          <Slider
-                            value={[withdrawalStandardDeviation]}
-                            min={5}
-                            max={25}
-                            step={1}
-                            onValueChange={value =>
-                              updateConfig({ withdrawalStandardDeviation: value[0] })}
-                            className="mt-2"
-                          />
-                          <div className="flex justify-between text-sm text-gray-500">
-                            <span>5%</span>
-                            <span className="font-medium text-gray-900">
-                              {withdrawalStandardDeviation}
-                              %
-                            </span>
-                            <span>25%</span>
-                          </div>
-                        </div>
-                        <div className="text-sm text-muted-foreground mt-1">
-                          Volatilität der Renditen (meist niedriger als Ansparphase
-                          wegen konservativerer Allokation)
-                        </div>
-                      </div>
-
-                      <div className="mb-4 space-y-2">
-                        <Label>Zufalls-Seed (optional)</Label>
-                        <Input
-                          type="number"
-                          value={withdrawalRandomSeed || ''}
-                          onChange={(e) => {
-                            const value = e.target.value ? Number(e.target.value) : undefined
-                            updateConfig({
-                              withdrawalRandomSeed: value,
-                            })
-                          }}
-                          placeholder="Für reproduzierbare Ergebnisse"
-                        />
-                        <div className="text-sm text-muted-foreground mt-1">
-                          Optionaler Seed für reproduzierbare Zufallsrenditen. Leer
-                          lassen für echte Zufälligkeit.
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {withdrawalReturnMode === 'variable' && (
-                    <div className="mb-4 space-y-2">
-                      <Label>Variable Renditen pro Jahr (Entnahme-Phase)</Label>
-                      <div
-                        style={{
-                          maxHeight: '300px',
-                          overflowY: 'auto',
-                          border: '1px solid #e5e5ea',
-                          borderRadius: '6px',
-                          padding: '10px',
-                        }}
-                      >
-                        {Array.from(
-                          { length: globalEndOfLife - startOfIndependence },
-                          (_, i) => {
-                            const year = startOfIndependence + 1 + i
-                            return (
-                              <div
-                                key={year}
+                            <div>
+                              <label
                                 style={{
-                                  display: 'flex',
-                                  alignItems: 'center',
-                                  marginBottom: '10px',
-                                  gap: '10px',
+                                  display: 'block',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  marginBottom: '5px',
                                 }}
                               >
-                                <div style={{ minWidth: '60px', fontWeight: 'bold' }}>
-                                  {year}
-                                  :
-                                </div>
-                                <div style={{ flex: 1 }}>
-                                  <Slider
-                                    value={[withdrawalVariableReturns[year] || 5]}
-                                    onValueChange={(values: number[]) => {
-                                      const newReturns = {
-                                        ...withdrawalVariableReturns,
-                                        [year]: values[0],
-                                      }
-                                      updateConfig({
-                                        withdrawalVariableReturns: newReturns,
-                                      })
-                                    }}
-                                    min={-10}
-                                    max={15}
-                                    step={0.5}
-                                    className="mt-2"
-                                  />
-                                </div>
-                                <div style={{ minWidth: '50px', textAlign: 'right' }}>
-                                  {(withdrawalVariableReturns[year] || 5).toFixed(1)}
-                                  %
-                                </div>
-                              </div>
-                            )
-                          },
+                                Obere Schwelle (%)
+                              </label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="20"
+                                step="0.5"
+                                value={strategy.dynamischObereSchwell || 8}
+                                onChange={(e) => {
+                                  updateComparisonStrategy(strategy.id, {
+                                    dynamischObereSchwell:
+                                    parseFloat(e.target.value) || 8,
+                                  })
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '6px',
+                                  border: '1px solid #ccc',
+                                  borderRadius: '4px',
+                                }}
+                              />
+                            </div>
+                          </>
+                        )}
+
+                        {strategy.strategie === 'bucket_strategie' && (
+                          <>
+                            <div>
+                              <label
+                                style={{
+                                  display: 'block',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  marginBottom: '5px',
+                                }}
+                              >
+                                Cash-Polster (€)
+                              </label>
+                              <input
+                                type="number"
+                                min="1000"
+                                step="1000"
+                                value={strategy.bucketInitialCash || 20000}
+                                onChange={(e) => {
+                                  updateComparisonStrategy(strategy.id, {
+                                    bucketInitialCash:
+                                    parseFloat(e.target.value) || 20000,
+                                  })
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '6px',
+                                  border: '1px solid #ccc',
+                                  borderRadius: '4px',
+                                }}
+                              />
+                            </div>
+                            <div>
+                              <label
+                                style={{
+                                  display: 'block',
+                                  fontSize: '12px',
+                                  fontWeight: 'bold',
+                                  marginBottom: '5px',
+                                }}
+                              >
+                                Basis-Rate (%)
+                              </label>
+                              <input
+                                type="number"
+                                min="1"
+                                max="10"
+                                step="0.1"
+                                value={strategy.bucketBaseRate || 4}
+                                onChange={(e) => {
+                                  updateComparisonStrategy(strategy.id, {
+                                    bucketBaseRate:
+                                    parseFloat(e.target.value) || 4,
+                                  })
+                                }}
+                                style={{
+                                  width: '100%',
+                                  padding: '6px',
+                                  border: '1px solid #ccc',
+                                  borderRadius: '4px',
+                                }}
+                              />
+                            </div>
+                          </>
                         )}
                       </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        Tipp: Verwende niedrigere Werte für konservative
-                        Portfolio-Allokation in der Rente und negative Werte für
-                        Krisen-Jahre.
-                      </div>
                     </div>
-                  )}
-                  <div className="mb-4 space-y-2">
-                    <Label>Strategie</Label>
-                    <RadioTileGroup
-                      value={formValue.strategie}
-                      onValueChange={(value) => {
-                        dispatchEnd([startOfIndependence, globalEndOfLife])
-                        updateFormValue({
-                          strategie: value as WithdrawalStrategy,
-                        })
-                      }}
-                    >
-                      <RadioTile value="4prozent" label="4% Regel">
-                        4% Entnahme
-                      </RadioTile>
-                      <RadioTile value="3prozent" label="3% Regel">
-                        3% Entnahme
-                      </RadioTile>
-                      <RadioTile value="variabel_prozent" label="Variable Prozent">
-                        Anpassbare Entnahme
-                      </RadioTile>
-                      <RadioTile value="monatlich_fest" label="Monatlich fest">
-                        Fester monatlicher Betrag
-                      </RadioTile>
-                      <RadioTile value="dynamisch" label="Dynamische Strategie">
-                        Renditebasierte Anpassung
-                      </RadioTile>
-                      <RadioTile value="bucket_strategie" label="Drei-Eimer-Strategie">
-                        Cash-Polster bei negativen Renditen
-                      </RadioTile>
-                      <RadioTile value="rmd" label="RMD (Lebenserwartung)">
-                        Entnahme basierend auf Alter und Lebenserwartung
-                      </RadioTile>
-                    </RadioTileGroup>
-                  </div>
+                  ),
+                )}
 
-                  {/* Withdrawal frequency configuration */}
-                  <div className="mb-4 space-y-2">
-                    <Label>Entnahme-Häufigkeit</Label>
-                    <div className="flex items-center space-x-3 mt-2">
-                      <span className="text-sm">Jährlich</span>
-                      <Switch
-                        checked={formValue.withdrawalFrequency === 'monthly'}
-                        onCheckedChange={(checked) => {
-                          updateFormValue({
-                            withdrawalFrequency: checked ? 'monthly' : 'yearly',
-                          })
-                        }}
-                      />
-                      <span className="text-sm">Monatlich</span>
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      {formValue.withdrawalFrequency === 'yearly'
-                        ? 'Entnahme erfolgt einmal jährlich am Anfang des Jahres'
-                        : 'Entnahme erfolgt monatlich - Portfolio hat mehr Zeit zu wachsen'}
-                    </div>
-                  </div>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const newId = `strategy${Date.now()}`
+                    const newStrategy: ComparisonStrategy = {
+                      id: newId,
+                      name: '3% Regel',
+                      strategie: '3prozent',
+                      rendite: 5,
+                    }
+                    updateConfig({
+                      comparisonStrategies: [
+                        ...comparisonStrategies,
+                        newStrategy,
+                      ],
+                    })
+                  }}
+                  style={{
+                    padding: '8px 16px',
+                    backgroundColor: '#1675e0',
+                    color: 'white',
+                    border: 'none',
+                    borderRadius: '4px',
+                    cursor: 'pointer',
+                  }}
+                >
+                  + Weitere Strategie hinzufügen
+                </button>
+              </div>
+            </div>
+          ) : useSegmentedComparisonMode ? (
+          /* Segmented comparison mode configuration */
+            <SegmentedComparisonConfiguration
+              segmentedComparisonStrategies={segmentedComparisonStrategies}
+              withdrawalStartYear={startOfIndependence + 1}
+              withdrawalEndYear={globalEndOfLife}
+              onAddStrategy={addSegmentedComparisonStrategy}
+              onUpdateStrategy={updateSegmentedComparisonStrategy}
+              onRemoveStrategy={removeSegmentedComparisonStrategy}
+            />
+          ) : (
+          /* Single strategy configuration (existing UI) */
+            <div>
+              {/* Withdrawal Return Configuration */}
+              <div className="mb-4 space-y-2">
+                <Label>Rendite-Konfiguration (Entnahme-Phase)</Label>
+                <RadioTileGroup
+                  value={withdrawalReturnMode}
+                  onValueChange={(value: string) => {
+                    updateConfig({
+                      withdrawalReturnMode: value as WithdrawalReturnMode,
+                    })
+                  }}
+                >
+                  <RadioTile value="fixed" label="Feste Rendite">
+                    Konstante jährliche Rendite für die gesamte Entnahme-Phase
+                  </RadioTile>
+                  <RadioTile value="random" label="Zufällige Rendite">
+                    Monte Carlo Simulation mit Durchschnitt und Volatilität
+                  </RadioTile>
+                  <RadioTile value="variable" label="Variable Rendite">
+                    Jahr-für-Jahr konfigurierbare Renditen
+                  </RadioTile>
+                </RadioTileGroup>
+                <div className="text-sm text-muted-foreground mt-1">
+                  Konfiguration der erwarteten Rendite während der Entnahme-Phase
+                  (unabhängig von der Sparphase-Rendite).
+                </div>
+              </div>
 
-                  {/* General inflation controls for all strategies */}
-                  <div className="mb-4 space-y-2">
-                    <Label>Inflation berücksichtigen</Label>
-                    <Switch
-                      checked={formValue.inflationAktiv}
-                      onCheckedChange={(checked: boolean) => updateFormValue({ ...formValue, inflationAktiv: checked })}
+              {withdrawalReturnMode === 'fixed' && (
+                <div className="mb-4 space-y-2">
+                  <Label>
+                    Erwartete Rendite Entnahme-Phase (%)
+                  </Label>
+                  <div className="space-y-2">
+                    <Slider
+                      value={[formValue.rendite]}
+                      onValueChange={(values: number[]) => updateFormValue({ ...formValue, rendite: values[0] })}
+                      min={0}
+                      max={10}
+                      step={0.5}
+                      className="mt-2"
                     />
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Passt die Entnahmebeträge jährlich an die Inflation an (für alle
-                      Entnahme-Strategien)
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>0%</span>
+                      <span className="font-medium text-gray-900">
+                        {formValue.rendite}
+                        %
+                      </span>
+                      <span>10%</span>
                     </div>
                   </div>
-
-                  {formValue.inflationAktiv && (
-                    <div className="mb-4 space-y-2">
-                      <Label>Inflationsrate (%)</Label>
-                      <div className="space-y-2">
-                        <Slider
-                          value={[formValue.inflationsrate]}
-                          onValueChange={(values: number[]) => {
-                            dispatchEnd([startOfIndependence, globalEndOfLife])
-                            updateFormValue({
-                              inflationsrate: values[0],
-                            })
-                          }}
-                          min={0}
-                          max={5}
-                          step={0.1}
-                          className="mt-2"
-                        />
-                        <div className="flex justify-between text-sm text-gray-500">
-                          <span>0%</span>
-                          <span className="font-medium text-gray-900">
-                            {formValue.inflationsrate}
-                            %
-                          </span>
-                          <span>5%</span>
-                        </div>
-                      </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        Jährliche Inflationsrate zur Anpassung der Entnahmebeträge
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Variable percentage strategy specific controls */}
-                  {formValue.strategie === 'variabel_prozent' && (
-                    <div className="mb-4 space-y-2">
-                      <Label>Entnahme-Prozentsatz (%)</Label>
-                      <div className="space-y-2">
-                        <Slider
-                          value={[formValue.variabelProzent]}
-                          onValueChange={(values: number[]) => {
-                            updateFormValue({
-                              variabelProzent: values[0],
-                            })
-                          }}
-                          min={2}
-                          max={7}
-                          step={0.5}
-                          className="mt-2"
-                        />
-                        <div className="flex justify-between text-sm text-gray-500">
-                          <span>2%</span>
-                          <span className="font-medium text-gray-900">
-                            {formValue.variabelProzent}
-                            %
-                          </span>
-                          <span>7%</span>
-                        </div>
-                      </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        Wählen Sie einen Entnahme-Prozentsatz zwischen 2% und 7% in
-                        0,5%-Schritten
-                      </div>
-                    </div>
-                  )}
-
-                  {/* Monthly strategy specific controls */}
-                  {formValue.strategie === 'monatlich_fest' && (
-                    <>
-                      <div className="mb-4 space-y-2">
-                        <Label>Monatlicher Betrag (€)</Label>
-                        <Input
-                          type="number"
-                          value={formValue.monatlicheBetrag}
-                          onChange={(e) => {
-                            const value = e.target.value ? Number(e.target.value) : undefined
-                            if (value) updateFormValue({ ...formValue, monatlicheBetrag: value })
-                          }}
-                          min={100}
-                          max={50000}
-                          step={100}
-                        />
-                      </div>
-                      <div className="mb-4 space-y-2">
-                        <Label>
-                          Dynamische Anpassung (Guardrails)
-                        </Label>
-                        <Switch
-                          checked={formValue.guardrailsAktiv}
-                          onCheckedChange={(checked: boolean) =>
-                            updateFormValue({ ...formValue, guardrailsAktiv: checked })}
-                        />
-                        <div className="text-sm text-muted-foreground mt-1">
-                          Passt die Entnahme basierend auf der Portfolio-Performance
-                          an
-                        </div>
-                      </div>
-                      {formValue.guardrailsAktiv && (
-                        <div className="mb-4 space-y-2">
-                          <Label>
-                            Anpassungsschwelle (%)
-                          </Label>
-                          <div className="space-y-2">
-                            <Slider
-                              value={[formValue.guardrailsSchwelle]}
-                              onValueChange={(values: number[]) => {
-                                updateFormValue({
-                                  guardrailsSchwelle: values[0],
-                                })
-                              }}
-                              min={5}
-                              max={20}
-                              step={1}
-                              className="mt-2"
-                            />
-                            <div className="flex justify-between text-sm text-gray-500">
-                              <span>5%</span>
-                              <span className="font-medium text-gray-900">
-                                {formValue.guardrailsSchwelle}
-                                %
-                              </span>
-                              <span>20%</span>
-                            </div>
-                          </div>
-                          <div className="text-sm text-muted-foreground mt-1">
-                            Bei Überschreitung dieser Schwelle wird die Entnahme
-                            angepasst
-                          </div>
-                        </div>
-                      )}
-                    </>
-                  )}
-
-                  {/* Dynamic strategy specific controls */}
-                  {formValue.strategie === 'dynamisch' && (
-                    <DynamicWithdrawalConfiguration formValue={formValue} />
-                  )}
-
-                  {/* RMD strategy specific controls */}
-                  {formValue.strategie === 'rmd' && (
-                    <RMDWithdrawalConfiguration
-                      formValue={formValue}
-                      updateFormValue={updateFormValue}
-                    />
-                  )}
-
-                  {/* Kapitalerhalt strategy specific controls */}
-                  {formValue.strategie === 'kapitalerhalt' && (
-                    <KapitalerhaltConfiguration
-                      formValue={formValue}
-                      updateFormValue={updateFormValue}
-                    />
-                  )}
-
-                  {/* Bucket strategy specific controls */}
-                  {formValue.strategie === 'bucket_strategie' && (
-                    <div className="space-y-4">
-                      <Label className="text-base font-medium">Drei-Eimer-Strategie Konfiguration</Label>
-
-                      <div className="space-y-2">
-                        <Label>Anfängliches Cash-Polster (€)</Label>
-                        <Input
-                          type="number"
-                          value={formValue.bucketConfig?.initialCashCushion || 20000}
-                          onChange={(e) => {
-                            const value = e.target.value ? Number(e.target.value) : 20000
-                            updateFormValue({
-                              ...formValue,
-                              bucketConfig: {
-                                initialCashCushion: value,
-                                refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
-                                refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
-                                baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04,
-                              },
-                            })
-                          }}
-                        />
-                        <p className="text-sm text-gray-600">
-                          Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen
-                        </p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Basis-Entnahmerate (%)</Label>
-                        <div className="px-3">
-                          <Slider
-                            value={[formValue.bucketConfig?.baseWithdrawalRate
-                              ? formValue.bucketConfig.baseWithdrawalRate * 100 : 4]}
-                            onValueChange={(value) => {
-                              updateFormValue({
-                                ...formValue,
-                                bucketConfig: {
-                                  initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
-                                  refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
-                                  refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
-                                  baseWithdrawalRate: value[0] / 100,
-                                },
-                              })
-                            }}
-                            max={10}
-                            min={1}
-                            step={0.1}
-                            className="w-full"
-                          />
-                          <div className="flex justify-between text-sm text-gray-500 mt-1">
-                            <span>1%</span>
-                            <span className="font-medium text-gray-900">
-                              {formValue.bucketConfig?.baseWithdrawalRate ? (formValue.bucketConfig.baseWithdrawalRate * 100).toFixed(1) : '4.0'}
-                              %
-                            </span>
-                            <span>10%</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Auffüll-Schwellenwert (€)</Label>
-                        <Input
-                          type="number"
-                          value={formValue.bucketConfig?.refillThreshold || 5000}
-                          onChange={(e) => {
-                            const value = e.target.value ? Number(e.target.value) : 5000
-                            updateFormValue({
-                              ...formValue,
-                              bucketConfig: {
-                                initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
-                                refillThreshold: value,
-                                refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
-                                baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04,
-                              },
-                            })
-                          }}
-                        />
-                        <p className="text-sm text-gray-600">
-                          Überschreiten die jährlichen Gewinne diesen Betrag, wird Cash-Polster aufgefüllt
-                        </p>
-                      </div>
-
-                      <div className="space-y-2">
-                        <Label>Auffüll-Anteil (%)</Label>
-                        <div className="px-3">
-                          <Slider
-                            value={[formValue.bucketConfig?.refillPercentage
-                              ? formValue.bucketConfig.refillPercentage * 100 : 50]}
-                            onValueChange={(value) => {
-                              updateFormValue({
-                                ...formValue,
-                                bucketConfig: {
-                                  initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
-                                  refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
-                                  refillPercentage: value[0] / 100,
-                                  baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04,
-                                },
-                              })
-                            }}
-                            max={100}
-                            min={10}
-                            step={5}
-                            className="w-full"
-                          />
-                          <div className="flex justify-between text-sm text-gray-500 mt-1">
-                            <span>10%</span>
-                            <span className="font-medium text-gray-900">
-                              {formValue.bucketConfig?.refillPercentage ? (formValue.bucketConfig.refillPercentage * 100).toFixed(0) : '50'}
-                              %
-                            </span>
-                            <span>100%</span>
-                          </div>
-                        </div>
-                        <p className="text-sm text-gray-600">
-                          Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird
-                        </p>
-                      </div>
-                    </div>
-                  )}
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Feste Rendite für die gesamte Entnahme-Phase (oft
+                    konservativer als die Sparphase-Rendite).
+                  </div>
                 </div>
               )}
 
-              {/* Health Care Insurance Configuration - Available in all withdrawal modes */}
-              <div className="mb-6">
-                <HealthCareInsuranceConfiguration
-                  values={{
-                    enabled: formValue.healthCareInsuranceConfig?.enabled ?? true,
-                    insuranceType: formValue.healthCareInsuranceConfig?.insuranceType || 'statutory',
-                    includeEmployerContribution: formValue.healthCareInsuranceConfig?.includeEmployerContribution
-                      ?? true,
-                    statutoryHealthInsuranceRate: formValue.healthCareInsuranceConfig?.statutoryHealthInsuranceRate
-                      || 14.6,
-                    statutoryCareInsuranceRate: formValue.healthCareInsuranceConfig?.statutoryCareInsuranceRate
-                      || 3.05,
-                    statutoryMinimumIncomeBase: formValue.healthCareInsuranceConfig?.statutoryMinimumIncomeBase
-                      || 13230,
-                    statutoryMaximumIncomeBase: formValue.healthCareInsuranceConfig?.statutoryMaximumIncomeBase
-                      || 62550,
-                    privateHealthInsuranceMonthly: formValue.healthCareInsuranceConfig?.privateHealthInsuranceMonthly
-                      || 400,
-                    privateCareInsuranceMonthly: formValue.healthCareInsuranceConfig?.privateCareInsuranceMonthly
-                      || 100,
-                    privateInsuranceInflationRate: formValue.healthCareInsuranceConfig?.privateInsuranceInflationRate
-                      || 2,
-                    retirementStartYear: formValue.healthCareInsuranceConfig?.retirementStartYear
-                      || startOfIndependence,
-                    additionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig
-                      ?.additionalCareInsuranceForChildless || false,
-                    additionalCareInsuranceAge: formValue.healthCareInsuranceConfig?.additionalCareInsuranceAge || 23,
+              {withdrawalReturnMode === 'random' && (
+                <>
+                  <div className="mb-4 space-y-2">
+                    <Label>Durchschnittliche Rendite (%)</Label>
+                    <div className="space-y-2">
+                      <Slider
+                        value={[withdrawalAverageReturn]}
+                        min={0}
+                        max={12}
+                        step={0.5}
+                        onValueChange={value =>
+                          updateConfig({ withdrawalAverageReturn: value[0] })}
+                        className="mt-2"
+                      />
+                      <div className="flex justify-between text-sm text-gray-500">
+                        <span>0%</span>
+                        <span className="font-medium text-gray-900">
+                          {withdrawalAverageReturn}
+                          %
+                        </span>
+                        <span>12%</span>
+                      </div>
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Erwartete durchschnittliche Rendite für die Entnahme-Phase
+                      (meist konservativer als Ansparphase)
+                    </div>
+                  </div>
+
+                  <div className="mb-4 space-y-2">
+                    <Label>Standardabweichung (%)</Label>
+                    <div className="space-y-2">
+                      <Slider
+                        value={[withdrawalStandardDeviation]}
+                        min={5}
+                        max={25}
+                        step={1}
+                        onValueChange={value =>
+                          updateConfig({ withdrawalStandardDeviation: value[0] })}
+                        className="mt-2"
+                      />
+                      <div className="flex justify-between text-sm text-gray-500">
+                        <span>5%</span>
+                        <span className="font-medium text-gray-900">
+                          {withdrawalStandardDeviation}
+                          %
+                        </span>
+                        <span>25%</span>
+                      </div>
+                    </div>
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Volatilität der Renditen (meist niedriger als Ansparphase
+                      wegen konservativerer Allokation)
+                    </div>
+                  </div>
+
+                  <div className="mb-4 space-y-2">
+                    <Label>Zufalls-Seed (optional)</Label>
+                    <Input
+                      type="number"
+                      value={withdrawalRandomSeed || ''}
+                      onChange={(e) => {
+                        const value = e.target.value ? Number(e.target.value) : undefined
+                        updateConfig({
+                          withdrawalRandomSeed: value,
+                        })
+                      }}
+                      placeholder="Für reproduzierbare Ergebnisse"
+                    />
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Optionaler Seed für reproduzierbare Zufallsrenditen. Leer
+                      lassen für echte Zufälligkeit.
+                    </div>
+                  </div>
+                </>
+              )}
+
+              {withdrawalReturnMode === 'variable' && (
+                <div className="mb-4 space-y-2">
+                  <Label>Variable Renditen pro Jahr (Entnahme-Phase)</Label>
+                  <div
+                    style={{
+                      maxHeight: '300px',
+                      overflowY: 'auto',
+                      border: '1px solid #e5e5ea',
+                      borderRadius: '6px',
+                      padding: '10px',
+                    }}
+                  >
+                    {Array.from(
+                      { length: globalEndOfLife - startOfIndependence },
+                      (_, i) => {
+                        const year = startOfIndependence + 1 + i
+                        return (
+                          <div
+                            key={year}
+                            style={{
+                              display: 'flex',
+                              alignItems: 'center',
+                              marginBottom: '10px',
+                              gap: '10px',
+                            }}
+                          >
+                            <div style={{ minWidth: '60px', fontWeight: 'bold' }}>
+                              {year}
+                              :
+                            </div>
+                            <div style={{ flex: 1 }}>
+                              <Slider
+                                value={[withdrawalVariableReturns[year] || 5]}
+                                onValueChange={(values: number[]) => {
+                                  const newReturns = {
+                                    ...withdrawalVariableReturns,
+                                    [year]: values[0],
+                                  }
+                                  updateConfig({
+                                    withdrawalVariableReturns: newReturns,
+                                  })
+                                }}
+                                min={-10}
+                                max={15}
+                                step={0.5}
+                                className="mt-2"
+                              />
+                            </div>
+                            <div style={{ minWidth: '50px', textAlign: 'right' }}>
+                              {(withdrawalVariableReturns[year] || 5).toFixed(1)}
+                              %
+                            </div>
+                          </div>
+                        )
+                      },
+                    )}
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Tipp: Verwende niedrigere Werte für konservative
+                    Portfolio-Allokation in der Rente und negative Werte für
+                    Krisen-Jahre.
+                  </div>
+                </div>
+              )}
+              <div className="mb-4 space-y-2">
+                <Label>Strategie</Label>
+                <RadioTileGroup
+                  value={formValue.strategie}
+                  onValueChange={(value) => {
+                    dispatchEnd([startOfIndependence, globalEndOfLife])
+                    updateFormValue({
+                      strategie: value as WithdrawalStrategy,
+                    })
                   }}
-                  birthYear={birthYear}
-                  spouseBirthYear={spouse?.birthYear}
-                  planningMode={planningMode}
-                  onChange={{
-                    onEnabledChange: enabled => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        enabled,
-                      },
-                    }),
-                    onInsuranceTypeChange: insuranceType => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        insuranceType,
-                      },
-                    }),
-                    onIncludeEmployerContributionChange: includeEmployerContribution => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        includeEmployerContribution,
-                      },
-                    }),
-                    onStatutoryHealthInsuranceRateChange: rate => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        statutoryHealthInsuranceRate: rate,
-                      },
-                    }),
-                    onStatutoryCareInsuranceRateChange: rate => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        statutoryCareInsuranceRate: rate,
-                      },
-                    }),
-                    onStatutoryMinimumIncomeBaseChange: amount => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        statutoryMinimumIncomeBase: amount,
-                      },
-                    }),
-                    onStatutoryMaximumIncomeBaseChange: amount => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        statutoryMaximumIncomeBase: amount,
-                      },
-                    }),
-                    onPrivateHealthInsuranceMonthlyChange: amount => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        privateHealthInsuranceMonthly: amount,
-                      },
-                    }),
-                    onPrivateCareInsuranceMonthlyChange: amount => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        privateCareInsuranceMonthly: amount,
-                      },
-                    }),
-                    onPrivateInsuranceInflationRateChange: rate => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        privateInsuranceInflationRate: rate,
-                      },
-                    }),
-                    onRetirementStartYearChange: year => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        retirementStartYear: year,
-                      },
-                    }),
-                    onAdditionalCareInsuranceForChildlessChange: enabled => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        additionalCareInsuranceForChildless: enabled,
-                      },
-                    }),
-                    onAdditionalCareInsuranceAgeChange: age => updateFormValue({
-                      healthCareInsuranceConfig: {
-                        ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                        additionalCareInsuranceAge: age,
-                      },
-                    }),
-                  }}
-                />
+                >
+                  <RadioTile value="4prozent" label="4% Regel">
+                    4% Entnahme
+                  </RadioTile>
+                  <RadioTile value="3prozent" label="3% Regel">
+                    3% Entnahme
+                  </RadioTile>
+                  <RadioTile value="variabel_prozent" label="Variable Prozent">
+                    Anpassbare Entnahme
+                  </RadioTile>
+                  <RadioTile value="monatlich_fest" label="Monatlich fest">
+                    Fester monatlicher Betrag
+                  </RadioTile>
+                  <RadioTile value="dynamisch" label="Dynamische Strategie">
+                    Renditebasierte Anpassung
+                  </RadioTile>
+                  <RadioTile value="bucket_strategie" label="Drei-Eimer-Strategie">
+                    Cash-Polster bei negativen Renditen
+                  </RadioTile>
+                  <RadioTile value="rmd" label="RMD (Lebenserwartung)">
+                    Entnahme basierend auf Alter und Lebenserwartung
+                  </RadioTile>
+                </RadioTileGroup>
               </div>
 
-            </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
-      <Card className="mb-4">
-        <Collapsible defaultOpen={false}>
-          <CardHeader>
-            <CollapsibleTrigger asChild>
-              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
-                <CardTitle className="text-left">Simulation</CardTitle>
-                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+              {/* Withdrawal frequency configuration */}
+              <div className="mb-4 space-y-2">
+                <Label>Entnahme-Häufigkeit</Label>
+                <div className="flex items-center space-x-3 mt-2">
+                  <span className="text-sm">Jährlich</span>
+                  <Switch
+                    checked={formValue.withdrawalFrequency === 'monthly'}
+                    onCheckedChange={(checked) => {
+                      updateFormValue({
+                        withdrawalFrequency: checked ? 'monthly' : 'yearly',
+                      })
+                    }}
+                  />
+                  <span className="text-sm">Monatlich</span>
+                </div>
+                <div className="text-sm text-muted-foreground mt-1">
+                  {formValue.withdrawalFrequency === 'yearly'
+                    ? 'Entnahme erfolgt einmal jährlich am Anfang des Jahres'
+                    : 'Entnahme erfolgt monatlich - Portfolio hat mehr Zeit zu wachsen'}
+                </div>
               </div>
-            </CollapsibleTrigger>
-          </CardHeader>
-          <CollapsibleContent>
-            <CardContent>
-              <EntnahmeSimulationDisplay
-                withdrawalData={withdrawalData}
-                formValue={formValue}
-                useComparisonMode={useComparisonMode}
-                comparisonResults={comparisonResults}
-                useSegmentedWithdrawal={useSegmentedWithdrawal}
-                withdrawalSegments={withdrawalSegments}
-                useSegmentedComparisonMode={useSegmentedComparisonMode}
-                segmentedComparisonResults={segmentedComparisonResults}
-                onCalculationInfoClick={handleCalculationInfoClick}
-                grundfreibetragAktiv={grundfreibetragAktiv}
-                grundfreibetragBetrag={grundfreibetragBetrag}
-              />
-            </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
+
+              {/* General inflation controls for all strategies */}
+              <div className="mb-4 space-y-2">
+                <Label>Inflation berücksichtigen</Label>
+                <Switch
+                  checked={formValue.inflationAktiv}
+                  onCheckedChange={(checked: boolean) => updateFormValue({ ...formValue, inflationAktiv: checked })}
+                />
+                <div className="text-sm text-muted-foreground mt-1">
+                  Passt die Entnahmebeträge jährlich an die Inflation an (für alle
+                  Entnahme-Strategien)
+                </div>
+              </div>
+
+              {formValue.inflationAktiv && (
+                <div className="mb-4 space-y-2">
+                  <Label>Inflationsrate (%)</Label>
+                  <div className="space-y-2">
+                    <Slider
+                      value={[formValue.inflationsrate]}
+                      onValueChange={(values: number[]) => {
+                        dispatchEnd([startOfIndependence, globalEndOfLife])
+                        updateFormValue({
+                          inflationsrate: values[0],
+                        })
+                      }}
+                      min={0}
+                      max={5}
+                      step={0.1}
+                      className="mt-2"
+                    />
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>0%</span>
+                      <span className="font-medium text-gray-900">
+                        {formValue.inflationsrate}
+                        %
+                      </span>
+                      <span>5%</span>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Jährliche Inflationsrate zur Anpassung der Entnahmebeträge
+                  </div>
+                </div>
+              )}
+
+              {/* Variable percentage strategy specific controls */}
+              {formValue.strategie === 'variabel_prozent' && (
+                <div className="mb-4 space-y-2">
+                  <Label>Entnahme-Prozentsatz (%)</Label>
+                  <div className="space-y-2">
+                    <Slider
+                      value={[formValue.variabelProzent]}
+                      onValueChange={(values: number[]) => {
+                        updateFormValue({
+                          variabelProzent: values[0],
+                        })
+                      }}
+                      min={2}
+                      max={7}
+                      step={0.5}
+                      className="mt-2"
+                    />
+                    <div className="flex justify-between text-sm text-gray-500">
+                      <span>2%</span>
+                      <span className="font-medium text-gray-900">
+                        {formValue.variabelProzent}
+                        %
+                      </span>
+                      <span>7%</span>
+                    </div>
+                  </div>
+                  <div className="text-sm text-muted-foreground mt-1">
+                    Wählen Sie einen Entnahme-Prozentsatz zwischen 2% und 7% in
+                    0,5%-Schritten
+                  </div>
+                </div>
+              )}
+
+              {/* Monthly strategy specific controls */}
+              {formValue.strategie === 'monatlich_fest' && (
+                <>
+                  <div className="mb-4 space-y-2">
+                    <Label>Monatlicher Betrag (€)</Label>
+                    <Input
+                      type="number"
+                      value={formValue.monatlicheBetrag}
+                      onChange={(e) => {
+                        const value = e.target.value ? Number(e.target.value) : undefined
+                        if (value) updateFormValue({ ...formValue, monatlicheBetrag: value })
+                      }}
+                      min={100}
+                      max={50000}
+                      step={100}
+                    />
+                  </div>
+                  <div className="mb-4 space-y-2">
+                    <Label>
+                      Dynamische Anpassung (Guardrails)
+                    </Label>
+                    <Switch
+                      checked={formValue.guardrailsAktiv}
+                      onCheckedChange={(checked: boolean) =>
+                        updateFormValue({ ...formValue, guardrailsAktiv: checked })}
+                    />
+                    <div className="text-sm text-muted-foreground mt-1">
+                      Passt die Entnahme basierend auf der Portfolio-Performance
+                      an
+                    </div>
+                  </div>
+                  {formValue.guardrailsAktiv && (
+                    <div className="mb-4 space-y-2">
+                      <Label>
+                        Anpassungsschwelle (%)
+                      </Label>
+                      <div className="space-y-2">
+                        <Slider
+                          value={[formValue.guardrailsSchwelle]}
+                          onValueChange={(values: number[]) => {
+                            updateFormValue({
+                              guardrailsSchwelle: values[0],
+                            })
+                          }}
+                          min={5}
+                          max={20}
+                          step={1}
+                          className="mt-2"
+                        />
+                        <div className="flex justify-between text-sm text-gray-500">
+                          <span>5%</span>
+                          <span className="font-medium text-gray-900">
+                            {formValue.guardrailsSchwelle}
+                            %
+                          </span>
+                          <span>20%</span>
+                        </div>
+                      </div>
+                      <div className="text-sm text-muted-foreground mt-1">
+                        Bei Überschreitung dieser Schwelle wird die Entnahme
+                        angepasst
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+
+              {/* Dynamic strategy specific controls */}
+              {formValue.strategie === 'dynamisch' && (
+                <DynamicWithdrawalConfiguration formValue={formValue} />
+              )}
+
+              {/* RMD strategy specific controls */}
+              {formValue.strategie === 'rmd' && (
+                <RMDWithdrawalConfiguration
+                  formValue={formValue}
+                  updateFormValue={updateFormValue}
+                />
+              )}
+
+              {/* Kapitalerhalt strategy specific controls */}
+              {formValue.strategie === 'kapitalerhalt' && (
+                <KapitalerhaltConfiguration
+                  formValue={formValue}
+                  updateFormValue={updateFormValue}
+                />
+              )}
+
+              {/* Bucket strategy specific controls */}
+              {formValue.strategie === 'bucket_strategie' && (
+                <div className="space-y-4">
+                  <Label className="text-base font-medium">Drei-Eimer-Strategie Konfiguration</Label>
+
+                  <div className="space-y-2">
+                    <Label>Anfängliches Cash-Polster (€)</Label>
+                    <Input
+                      type="number"
+                      value={formValue.bucketConfig?.initialCashCushion || 20000}
+                      onChange={(e) => {
+                        const value = e.target.value ? Number(e.target.value) : 20000
+                        updateFormValue({
+                          ...formValue,
+                          bucketConfig: {
+                            initialCashCushion: value,
+                            refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
+                            refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
+                            baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04,
+                          },
+                        })
+                      }}
+                    />
+                    <p className="text-sm text-gray-600">
+                      Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Basis-Entnahmerate (%)</Label>
+                    <div className="px-3">
+                      <Slider
+                        value={[formValue.bucketConfig?.baseWithdrawalRate
+                          ? formValue.bucketConfig.baseWithdrawalRate * 100 : 4]}
+                        onValueChange={(value) => {
+                          updateFormValue({
+                            ...formValue,
+                            bucketConfig: {
+                              initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
+                              refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
+                              refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
+                              baseWithdrawalRate: value[0] / 100,
+                            },
+                          })
+                        }}
+                        max={10}
+                        min={1}
+                        step={0.1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-500 mt-1">
+                        <span>1%</span>
+                        <span className="font-medium text-gray-900">
+                          {formValue.bucketConfig?.baseWithdrawalRate ? (formValue.bucketConfig.baseWithdrawalRate * 100).toFixed(1) : '4.0'}
+                          %
+                        </span>
+                        <span>10%</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Auffüll-Schwellenwert (€)</Label>
+                    <Input
+                      type="number"
+                      value={formValue.bucketConfig?.refillThreshold || 5000}
+                      onChange={(e) => {
+                        const value = e.target.value ? Number(e.target.value) : 5000
+                        updateFormValue({
+                          ...formValue,
+                          bucketConfig: {
+                            initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
+                            refillThreshold: value,
+                            refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
+                            baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04,
+                          },
+                        })
+                      }}
+                    />
+                    <p className="text-sm text-gray-600">
+                      Überschreiten die jährlichen Gewinne diesen Betrag, wird Cash-Polster aufgefüllt
+                    </p>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Auffüll-Anteil (%)</Label>
+                    <div className="px-3">
+                      <Slider
+                        value={[formValue.bucketConfig?.refillPercentage
+                          ? formValue.bucketConfig.refillPercentage * 100 : 50]}
+                        onValueChange={(value) => {
+                          updateFormValue({
+                            ...formValue,
+                            bucketConfig: {
+                              initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
+                              refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
+                              refillPercentage: value[0] / 100,
+                              baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04,
+                            },
+                          })
+                        }}
+                        max={100}
+                        min={10}
+                        step={5}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-gray-500 mt-1">
+                        <span>10%</span>
+                        <span className="font-medium text-gray-900">
+                          {formValue.bucketConfig?.refillPercentage ? (formValue.bucketConfig.refillPercentage * 100).toFixed(0) : '50'}
+                          %
+                        </span>
+                        <span>100%</span>
+                      </div>
+                    </div>
+                    <p className="text-sm text-gray-600">
+                      Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Health Care Insurance Configuration - Available in all withdrawal modes */}
+          <div className="mb-6">
+            <HealthCareInsuranceConfiguration
+              values={{
+                enabled: formValue.healthCareInsuranceConfig?.enabled ?? true,
+                insuranceType: formValue.healthCareInsuranceConfig?.insuranceType || 'statutory',
+                includeEmployerContribution: formValue.healthCareInsuranceConfig?.includeEmployerContribution
+                  ?? true,
+                statutoryHealthInsuranceRate: formValue.healthCareInsuranceConfig?.statutoryHealthInsuranceRate
+                  || 14.6,
+                statutoryCareInsuranceRate: formValue.healthCareInsuranceConfig?.statutoryCareInsuranceRate
+                  || 3.05,
+                statutoryMinimumIncomeBase: formValue.healthCareInsuranceConfig?.statutoryMinimumIncomeBase
+                  || 13230,
+                statutoryMaximumIncomeBase: formValue.healthCareInsuranceConfig?.statutoryMaximumIncomeBase
+                  || 62550,
+                privateHealthInsuranceMonthly: formValue.healthCareInsuranceConfig?.privateHealthInsuranceMonthly
+                  || 400,
+                privateCareInsuranceMonthly: formValue.healthCareInsuranceConfig?.privateCareInsuranceMonthly
+                  || 100,
+                privateInsuranceInflationRate: formValue.healthCareInsuranceConfig?.privateInsuranceInflationRate
+                  || 2,
+                retirementStartYear: formValue.healthCareInsuranceConfig?.retirementStartYear
+                  || startOfIndependence,
+                additionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig
+                  ?.additionalCareInsuranceForChildless || false,
+                additionalCareInsuranceAge: formValue.healthCareInsuranceConfig?.additionalCareInsuranceAge || 23,
+              }}
+              birthYear={birthYear}
+              spouseBirthYear={spouse?.birthYear}
+              planningMode={planningMode}
+              onChange={{
+                onEnabledChange: enabled => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    enabled,
+                  },
+                }),
+                onInsuranceTypeChange: insuranceType => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    insuranceType,
+                  },
+                }),
+                onIncludeEmployerContributionChange: includeEmployerContribution => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    includeEmployerContribution,
+                  },
+                }),
+                onStatutoryHealthInsuranceRateChange: rate => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    statutoryHealthInsuranceRate: rate,
+                  },
+                }),
+                onStatutoryCareInsuranceRateChange: rate => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    statutoryCareInsuranceRate: rate,
+                  },
+                }),
+                onStatutoryMinimumIncomeBaseChange: amount => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    statutoryMinimumIncomeBase: amount,
+                  },
+                }),
+                onStatutoryMaximumIncomeBaseChange: amount => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    statutoryMaximumIncomeBase: amount,
+                  },
+                }),
+                onPrivateHealthInsuranceMonthlyChange: amount => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    privateHealthInsuranceMonthly: amount,
+                  },
+                }),
+                onPrivateCareInsuranceMonthlyChange: amount => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    privateCareInsuranceMonthly: amount,
+                  },
+                }),
+                onPrivateInsuranceInflationRateChange: rate => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    privateInsuranceInflationRate: rate,
+                  },
+                }),
+                onRetirementStartYearChange: year => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    retirementStartYear: year,
+                  },
+                }),
+                onAdditionalCareInsuranceForChildlessChange: enabled => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    additionalCareInsuranceForChildless: enabled,
+                  },
+                }),
+                onAdditionalCareInsuranceAgeChange: age => updateFormValue({
+                  healthCareInsuranceConfig: {
+                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+                    additionalCareInsuranceAge: age,
+                  },
+                }),
+              }}
+            />
+          </div>
+
+        </CollapsibleCardContent>
+      </CollapsibleCard>
+      <CollapsibleCard>
+        <CollapsibleCardHeader className="text-left">Simulation</CollapsibleCardHeader>
+        <CollapsibleCardContent>
+          <EntnahmeSimulationDisplay
+            withdrawalData={withdrawalData}
+            formValue={formValue}
+            useComparisonMode={useComparisonMode}
+            comparisonResults={comparisonResults}
+            useSegmentedWithdrawal={useSegmentedWithdrawal}
+            withdrawalSegments={withdrawalSegments}
+            useSegmentedComparisonMode={useSegmentedComparisonMode}
+            segmentedComparisonResults={segmentedComparisonResults}
+            onCalculationInfoClick={handleCalculationInfoClick}
+            grundfreibetragAktiv={grundfreibetragAktiv}
+            grundfreibetragBetrag={grundfreibetragBetrag}
+          />
+        </CollapsibleCardContent>
+      </CollapsibleCard>
 
       {/* Calculation Explanation Modal */}
       {calculationDetails && (
@@ -1532,6 +1506,6 @@ export function EntnahmeSimulationsAusgabe({
           selectedVorabDetails={selectedVorabDetails}
         />
       )}
-    </>
+    </div>
   )
 }

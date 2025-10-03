@@ -377,7 +377,7 @@ export function SparplanEingabe({
   }
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
+    <div className="space-y-4">
       <Card className="mb-6">
         <Collapsible open={isSparplanFormOpen} onOpenChange={setIsSparplanFormOpen}>
           <CardHeader className="pb-4">
