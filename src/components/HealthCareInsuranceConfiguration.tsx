@@ -1,7 +1,12 @@
 import { Info } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { calculateRetirementStartYear } from '../../helpers/statutory-pension'
 import { formatCurrency } from '../utils/currency'
+import { 
+  calculateHealthCareInsuranceForYear, 
+  calculateCoupleHealthInsuranceForYear,
+  createDefaultHealthCareInsuranceConfig
+} from '../../helpers/health-care-insurance'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
@@ -40,7 +45,6 @@ interface HealthCareInsuranceFormValues {
 
 interface HealthCareInsuranceChangeHandlers {
   onEnabledChange: (enabled: boolean) => void
-  onPlanningModeChange: (mode: 'individual' | 'couple') => void
   onInsuranceTypeChange: (type: 'statutory' | 'private') => void
   onIncludeEmployerContributionChange: (include: boolean) => void
   onStatutoryHealthInsuranceRateChange: (rate: number) => void
@@ -152,22 +156,17 @@ export function HealthCareInsuranceConfiguration({
           </Label>
         </div>
 
-        {/* Planning Mode Selection */}
-        <div className="space-y-3">
-          <Label className="text-sm font-medium">Planungsmodus</Label>
-          <RadioTileGroup
-            value={values.planningMode}
-            onValueChange={value => onChange.onPlanningModeChange(value as 'individual' | 'couple')}
-            className="grid grid-cols-1 md:grid-cols-2 gap-3"
-          >
-            <RadioTile value="individual" label="Einzelplanung">
-              Krankenversicherung für eine Person
-            </RadioTile>
-            <RadioTile value="couple" label="Paarplanung">
-              Optimierung für zwei Partner (Familienversicherung möglich)
-            </RadioTile>
-          </RadioTileGroup>
-        </div>
+        {/* Planning Mode Info (derived from global planning) */}
+        {planningMode === 'couple' && (
+          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="text-sm font-medium text-blue-900">
+              💑 Paarplanung aktiviert
+            </div>
+            <div className="text-xs text-blue-700 mt-1">
+              Planungsmodus wird aus der globalen Planung übernommen
+            </div>
+          </div>
+        )}
 
         {/* Insurance Type Selection */}
         <div className="space-y-3">
@@ -407,7 +406,7 @@ export function HealthCareInsuranceConfiguration({
         )}
 
         {/* Couple Configuration */}
-        {values.planningMode === 'couple' && values.insuranceType === 'statutory' && (
+        {planningMode === 'couple' && values.insuranceType === 'statutory' && (
           <div className="space-y-6">
             <div className="space-y-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
               <h4 className="font-medium text-sm flex items-center gap-2">
@@ -498,14 +497,15 @@ export function HealthCareInsuranceConfiguration({
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="person1-withdrawal-share">
+                      <Label htmlFor="health-insurance-person1-withdrawal-share">
                         Anteil am Entnahmebetrag:
                         {' '}
                         {((values.person1WithdrawalShare || 0.5) * 100).toFixed(0)}
                         %
                       </Label>
                       <Slider
-                        id="person1-withdrawal-share"
+                        id="health-insurance-person1-withdrawal-share"
+                        name="person1-withdrawal-share-slider"
                         min={0}
                         max={1}
                         step={0.01}
@@ -563,14 +563,15 @@ export function HealthCareInsuranceConfiguration({
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="person2-withdrawal-share">
+                      <Label htmlFor="health-insurance-person2-withdrawal-share">
                         Anteil am Entnahmebetrag:
                         {' '}
                         {((values.person2WithdrawalShare || 0.5) * 100).toFixed(0)}
                         %
                       </Label>
                       <Slider
-                        id="person2-withdrawal-share"
+                        id="health-insurance-person2-withdrawal-share"
+                        name="person2-withdrawal-share-slider"
                         min={0}
                         max={1}
                         step={0.01}
@@ -618,7 +619,7 @@ export function HealthCareInsuranceConfiguration({
         )}
 
         {/* Additional Care Insurance for Childless (Individual Mode Only) */}
-        {values.planningMode === 'individual' && (
+        {planningMode === 'individual' && (
           <div className="space-y-3">
             <div className="flex items-center space-x-2">
               <Switch
@@ -656,7 +657,180 @@ export function HealthCareInsuranceConfiguration({
             )}
           </div>
         )}
+
+        {/* Health Insurance Cost Preview */}
+        {values.enabled && (
+          <HealthInsuranceCostPreview
+            values={values}
+            planningMode={planningMode}
+            birthYear={birthYear}
+            spouseBirthYear={spouseBirthYear}
+          />
+        )}
       </CollapsibleCardContent>
     </CollapsibleCard>
   )
+}
+
+function HealthInsuranceCostPreview({
+  values,
+  planningMode,
+  birthYear,
+  spouseBirthYear,
+}: {
+  values: HealthCareInsuranceFormValues
+  planningMode: 'individual' | 'couple'
+  birthYear?: number
+  spouseBirthYear?: number
+}) {
+  const currentYear = new Date().getFullYear()
+  const sampleWithdrawalAmount = 30000 // Sample 30k annual withdrawal
+  
+  const previewResults = useMemo(() => {
+    if (!values.enabled) return null
+
+    try {
+      if (planningMode === 'couple') {
+        // Create couple config from form values
+        const coupleConfig = {
+          ...createDefaultHealthCareInsuranceConfig(),
+          planningMode: 'couple' as const,
+          insuranceType: values.insuranceType,
+          statutoryHealthInsuranceRate: values.statutoryHealthInsuranceRate,
+          statutoryCareInsuranceRate: values.statutoryCareInsuranceRate,
+          statutoryMinimumIncomeBase: values.statutoryMinimumIncomeBase,
+          statutoryMaximumIncomeBase: values.statutoryMaximumIncomeBase,
+          coupleConfig: {
+            strategy: values.coupleStrategy || 'optimize',
+            familyInsuranceThresholds: {
+              regularEmploymentLimit: values.familyInsuranceThresholdRegular || 505,
+              miniJobLimit: values.familyInsuranceThresholdMiniJob || 538,
+              year: 2025,
+            },
+            person1: {
+              name: values.person1Name || 'Person 1',
+              birthYear: birthYear || 1980,
+              withdrawalShare: values.person1WithdrawalShare || 0.5,
+              otherIncomeAnnual: values.person1OtherIncomeAnnual || 0,
+              additionalCareInsuranceForChildless: values.person1AdditionalCareInsuranceForChildless || false,
+            },
+            person2: {
+              name: values.person2Name || 'Person 2',
+              birthYear: spouseBirthYear || 1980,
+              withdrawalShare: values.person2WithdrawalShare || 0.5,
+              otherIncomeAnnual: values.person2OtherIncomeAnnual || 0,
+              additionalCareInsuranceForChildless: values.person2AdditionalCareInsuranceForChildless || false,
+            },
+          },
+        }
+
+        return calculateCoupleHealthInsuranceForYear(coupleConfig, currentYear + 16, sampleWithdrawalAmount, 0)
+      } else {
+        // Individual calculation
+        const individualConfig = {
+          ...createDefaultHealthCareInsuranceConfig(),
+          planningMode: 'individual' as const,
+          insuranceType: values.insuranceType,
+          statutoryHealthInsuranceRate: values.statutoryHealthInsuranceRate,
+          statutoryCareInsuranceRate: values.statutoryCareInsuranceRate,
+          statutoryMinimumIncomeBase: values.statutoryMinimumIncomeBase,
+          statutoryMaximumIncomeBase: values.statutoryMaximumIncomeBase,
+          additionalCareInsuranceForChildless: values.additionalCareInsuranceForChildless,
+          additionalCareInsuranceAge: values.additionalCareInsuranceAge,
+        }
+
+        return calculateHealthCareInsuranceForYear(
+          individualConfig,
+          currentYear + 16,
+          sampleWithdrawalAmount,
+          0,
+          (birthYear || 1980) + 16
+        )
+      }
+    } catch (error) {
+      console.error('Error calculating health insurance preview:', error)
+      return null
+    }
+  }, [
+    values,
+    planningMode,
+    birthYear,
+    spouseBirthYear,
+    currentYear,
+    sampleWithdrawalAmount,
+  ])
+
+  if (!previewResults) return null
+
+  if (planningMode === 'couple' && 'person1' in previewResults) {
+    const coupleResults = previewResults
+    return (
+      <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+        <h4 className="font-medium text-sm text-green-900 mb-3 flex items-center gap-2">
+          💰 Kostenvorschau (bei {formatCurrency(sampleWithdrawalAmount)} Entnahme)
+        </h4>
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-blue-700">
+              👤 {coupleResults.person1.name}
+            </div>
+            <div className="text-xs space-y-1">
+              <div>Jährlich: {formatCurrency(coupleResults.person1.healthInsuranceResult.totalAnnual)}</div>
+              <div>Monatlich: {formatCurrency(coupleResults.person1.healthInsuranceResult.totalMonthly)}</div>
+              <div className="text-blue-600">
+                {coupleResults.person1.coveredByFamilyInsurance ? '👨‍👩‍👧‍👦 Familienversichert' : '💳 Eigenversichert'}
+              </div>
+            </div>
+          </div>
+          
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-purple-700">
+              👤 {coupleResults.person2.name}
+            </div>
+            <div className="text-xs space-y-1">
+              <div>Jährlich: {formatCurrency(coupleResults.person2.healthInsuranceResult.totalAnnual)}</div>
+              <div>Monatlich: {formatCurrency(coupleResults.person2.healthInsuranceResult.totalMonthly)}</div>
+              <div className="text-purple-600">
+                {coupleResults.person2.coveredByFamilyInsurance ? '👨‍👩‍👧‍👦 Familienversichert' : '💳 Eigenversichert'}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div className="pt-3 border-t border-green-300">
+          <div className="text-sm font-medium text-green-900">
+            Gesamt: {formatCurrency(coupleResults.totalAnnual)} / Jahr • {formatCurrency(coupleResults.totalMonthly)} / Monat
+          </div>
+          <div className="text-xs text-green-700 mt-1">
+            Strategie: {coupleResults.strategyUsed === 'family' ? '👨‍👩‍👧‍👦 Familienversicherung' : 
+                         coupleResults.strategyUsed === 'individual' ? '💳 Einzelversicherung' : '🎯 Optimiert'}
+          </div>
+        </div>
+      </div>
+    )
+  } else {
+    // Individual results
+    const individualResults = previewResults as any
+    return (
+      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <h4 className="font-medium text-sm text-blue-900 mb-3">
+          💰 Kostenvorschau (bei {formatCurrency(sampleWithdrawalAmount)} Entnahme)
+        </h4>
+        
+        <div className="space-y-2">
+          <div className="text-sm">
+            <span className="font-medium">Jährlich:</span> {formatCurrency(individualResults.totalAnnual)}
+          </div>
+          <div className="text-sm">
+            <span className="font-medium">Monatlich:</span> {formatCurrency(individualResults.totalMonthly)}
+          </div>
+          <div className="text-xs text-blue-700">
+            Krankenversicherung: {formatCurrency(individualResults.healthInsuranceAnnual)} / Jahr • 
+            Pflegeversicherung: {formatCurrency(individualResults.careInsuranceAnnual)} / Jahr
+          </div>
+        </div>
+      </div>
+    )
+  }
 }

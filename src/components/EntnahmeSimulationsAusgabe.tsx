@@ -1360,7 +1360,7 @@ export function EntnahmeSimulationsAusgabe({
             <HealthCareInsuranceConfiguration
               values={{
                 enabled: formValue.healthCareInsuranceConfig?.enabled ?? true,
-                planningMode: formValue.healthCareInsuranceConfig?.planningMode || planningMode,
+                planningMode: planningMode,
                 insuranceType: formValue.healthCareInsuranceConfig?.insuranceType || 'statutory',
                 includeEmployerContribution: formValue.healthCareInsuranceConfig?.includeEmployerContribution
                   ?? true,
@@ -1404,12 +1404,6 @@ export function EntnahmeSimulationsAusgabe({
                   healthCareInsuranceConfig: {
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     enabled,
-                  },
-                }),
-                onPlanningModeChange: planningMode => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    planningMode,
                   },
                 }),
                 onInsuranceTypeChange: insuranceType => updateFormValue({
