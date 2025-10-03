@@ -25,7 +25,7 @@ describe('createDefaultWithdrawalSegment', () => {
       inflationConfig: {
         inflationRate: 0.02,
       },
-      enableGrundfreibetrag: false,
+
       incomeTaxRate: 0.18,
       steuerReduzierenEndkapital: true,
     })
@@ -46,12 +46,6 @@ describe('createDefaultWithdrawalSegment', () => {
     expect(segment2.startYear).toBe(2051)
     expect(segment2.endYear).toBe(2080)
     expect(segment2.incomeTaxRate).toBe(0.18)
-  })
-
-  it('should have Grundfreibetrag disabled by default', () => {
-    const segment = createDefaultWithdrawalSegment('test-id', 'Test Phase', 2041, 2080)
-
-    expect(segment.enableGrundfreibetrag).toBe(false)
   })
 
   it('should have correct default return configuration', () => {

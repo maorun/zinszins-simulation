@@ -66,8 +66,6 @@ describe('EntnahmeSimulationDisplay', () => {
         formValue={mockFormValue}
         useComparisonMode={false}
         comparisonResults={[]}
-        useSegmentedWithdrawal={false}
-        withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
       />,
     )
@@ -82,8 +80,6 @@ describe('EntnahmeSimulationDisplay', () => {
         formValue={mockFormValue}
         useComparisonMode={true}
         comparisonResults={mockComparisonResults}
-        useSegmentedWithdrawal={false}
-        withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
       />,
     )
@@ -100,8 +96,6 @@ describe('EntnahmeSimulationDisplay', () => {
         formValue={mockFormValue}
         useComparisonMode={true}
         comparisonResults={mockComparisonResults}
-        useSegmentedWithdrawal={false}
-        withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
       />,
     )
@@ -117,8 +111,6 @@ describe('EntnahmeSimulationDisplay', () => {
         formValue={mockFormValue}
         useComparisonMode={true}
         comparisonResults={[]}
-        useSegmentedWithdrawal={false}
-        withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
       />,
     )
@@ -148,8 +140,6 @@ describe('EntnahmeSimulationDisplay', () => {
         formValue={mockFormValue}
         useComparisonMode={false}
         comparisonResults={[]}
-        useSegmentedWithdrawal={false}
-        withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
       />,
     )
@@ -172,8 +162,6 @@ describe('EntnahmeSimulationDisplay', () => {
         formValue={mockFormValue}
         useComparisonMode={false}
         comparisonResults={[]}
-        useSegmentedWithdrawal={false}
-        withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
       />,
     )
@@ -205,8 +193,6 @@ describe('EntnahmeSimulationDisplay', () => {
         formValue={mockFormValue}
         useComparisonMode={false}
         comparisonResults={[]}
-        useSegmentedWithdrawal={false}
-        withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
       />,
     )
@@ -229,8 +215,6 @@ describe('EntnahmeSimulationDisplay', () => {
         formValue={mockFormValue}
         useComparisonMode={false}
         comparisonResults={[]}
-        useSegmentedWithdrawal={false}
-        withdrawalSegments={[]}
         onCalculationInfoClick={() => {}}
       />,
     )

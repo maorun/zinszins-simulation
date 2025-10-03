@@ -1475,13 +1475,9 @@ export function EntnahmeSimulationsAusgabe({
             formValue={formValue}
             useComparisonMode={useComparisonMode}
             comparisonResults={comparisonResults}
-            useSegmentedWithdrawal={useSegmentedWithdrawal}
-            withdrawalSegments={withdrawalSegments}
             useSegmentedComparisonMode={useSegmentedComparisonMode}
             segmentedComparisonResults={segmentedComparisonResults}
             onCalculationInfoClick={handleCalculationInfoClick}
-            grundfreibetragAktiv={grundfreibetragAktiv}
-            grundfreibetragBetrag={grundfreibetragBetrag}
           />
         </CollapsibleCardContent>
       </CollapsibleCard>

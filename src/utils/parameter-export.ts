@@ -264,11 +264,8 @@ export function formatParametersForExport(context: SimulationContextState): stri
           }
 
           // Tax configuration
-          if (segment.enableGrundfreibetrag) {
-            lines.push(`      Grundfreibetrag aktiv: Ja`)
-            if (segment.incomeTaxRate !== undefined) {
-              lines.push(`      Einkommensteuersatz: ${segment.incomeTaxRate.toFixed(2)} %`)
-            }
+          if (segment.incomeTaxRate !== undefined) {
+            lines.push(`      Einkommensteuersatz: ${segment.incomeTaxRate.toFixed(2)} %`)
           }
 
           if (segment.steuerReduzierenEndkapital !== undefined) {

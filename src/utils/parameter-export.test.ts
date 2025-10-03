@@ -264,7 +264,6 @@ describe('Parameter Export', () => {
             inflationConfig: {
               inflationRate: 0.02,
             },
-            enableGrundfreibetrag: true,
             incomeTaxRate: 25,
             steuerReduzierenEndkapital: true,
           },
@@ -290,7 +289,6 @@ describe('Parameter Export', () => {
             inflationConfig: {
               inflationRate: 0.025,
             },
-            enableGrundfreibetrag: false,
             steuerReduzierenEndkapital: false,
           },
         ],
@@ -315,7 +313,6 @@ describe('Parameter Export', () => {
       expect(result).toContain('Rendite: 6.00 %')
       expect(result).toContain('Variabler Prozentsatz: 3.50 %')
       expect(result).toContain('Inflation: 2.00 %')
-      expect(result).toContain('Grundfreibetrag aktiv: Ja')
       expect(result).toContain('Einkommensteuersatz: 25.00 %')
       expect(result).toContain('Steuerreduzierung: Ja')
 
@@ -386,7 +383,6 @@ describe('Parameter Export', () => {
             inflationConfig: {
               inflationRate: 0.02,
             },
-            enableGrundfreibetrag: true,
             incomeTaxRate: 18,
             steuerReduzierenEndkapital: true,
           },
@@ -420,7 +416,6 @@ describe('Parameter Export', () => {
 
       // Common segment details
       expect(result).toContain('Inflation: 2.00 %')
-      expect(result).toContain('Grundfreibetrag aktiv: Ja')
       expect(result).toContain('Einkommensteuersatz: 18.00 %')
       expect(result).toContain('Steuerreduzierung: Ja')
     })
@@ -482,7 +477,6 @@ describe('Parameter Export', () => {
             inflationConfig: {
               inflationRate: 0.02,
             },
-            enableGrundfreibetrag: false,
             steuerReduzierenEndkapital: true,
           },
         ],
