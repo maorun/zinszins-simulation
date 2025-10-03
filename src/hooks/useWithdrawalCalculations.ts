@@ -270,7 +270,11 @@ export function useWithdrawalCalculations(
         steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
         statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
         otherIncomeConfig,
-        healthCareInsuranceConfig: formValue.healthCareInsuranceConfig,
+        healthCareInsuranceConfig: formValue.healthCareInsuranceConfig ? {
+          ...formValue.healthCareInsuranceConfig,
+          // Ensure the insurance type is explicitly set from the form value
+          insuranceType: formValue.healthCareInsuranceConfig.insuranceType || 'statutory',
+        } : undefined,
         birthYear: birthYear, // Use birth year from global context
       })
       withdrawalResult = withdrawalCalculation.result
@@ -452,7 +456,11 @@ export function useWithdrawalCalculations(
           steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
           statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
           otherIncomeConfig,
-          healthCareInsuranceConfig: formValue.healthCareInsuranceConfig,
+          healthCareInsuranceConfig: formValue.healthCareInsuranceConfig ? {
+            ...formValue.healthCareInsuranceConfig,
+            // Ensure the insurance type is explicitly set from the form value
+            insuranceType: formValue.healthCareInsuranceConfig.insuranceType || 'statutory',
+          } : undefined,
           birthYear: birthYear, // Use birth year from global context
         })
 

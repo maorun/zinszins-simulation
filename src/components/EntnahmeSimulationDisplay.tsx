@@ -450,7 +450,7 @@ export function EntnahmeSimulationDisplay({
                     <span className="text-sm text-gray-600 font-medium">
                       🏥 Gesamt Kranken- & Pflegeversicherung:
                     </span>
-                    <span className="font-semibold text-red-600 text-sm">
+                    <span className="font-semibold text-red-600 text-sm flex items-center">
                       -
                       {formatCurrency(rowData.healthCareInsurance.totalAnnual)}
                       <span className="text-xs text-gray-500 ml-1">
@@ -459,6 +459,7 @@ export function EntnahmeSimulationDisplay({
                         )
                         {rowData.healthCareInsurance.insuranceType === 'statutory' && !rowData.healthCareInsurance.includesEmployerContribution && ' - nur AN-Anteil'}
                       </span>
+                      <InfoIcon onClick={() => onCalculationInfoClick('healthCareInsurance', rowData)} />
                     </span>
                   </div>
                   <div className="flex justify-between items-center py-1">

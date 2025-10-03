@@ -215,7 +215,7 @@ describe('Health Care Insurance Calculations', () => {
     it('should create valid default configuration', () => {
       const config = createDefaultHealthCareInsuranceConfig()
 
-      expect(config.enabled).toBe(false)
+      expect(config.enabled).toBe(true)
       expect(config.healthInsuranceRatePreRetirement).toBe(14.6)
       expect(config.careInsuranceRatePreRetirement).toBe(3.05)
       expect(config.healthInsuranceRateRetirement).toBe(7.3)
@@ -302,6 +302,60 @@ describe('Health Care Insurance Calculations', () => {
       // Should fall back to percentage calculation
       expect(result.usedFixedAmounts).toBe(false)
       expect(result.healthInsuranceAnnual).toBe(50000 * 0.073) // Retirement rate
+    })
+
+    it('should return correct insurance type when configured as statutory', () => {
+      const config: HealthCareInsuranceConfig = {
+        ...createDefaultHealthCareInsuranceConfig(),
+        enabled: true,
+        insuranceType: 'statutory',
+      }
+
+      const result = calculateHealthCareInsuranceForYear(config, 2041, 50000, 0, 30)
+      expect(result.insuranceType).toBe('statutory')
+    })
+
+    it('should return correct insurance type when configured as private', () => {
+      const config: HealthCareInsuranceConfig = {
+        ...createDefaultHealthCareInsuranceConfig(),
+        enabled: true,
+        insuranceType: 'private',
+        privateHealthInsuranceMonthly: 450,
+        privateCareInsuranceMonthly: 60,
+      }
+
+      const result = calculateHealthCareInsuranceForYear(config, 2041, 50000, 0, 30)
+      expect(result.insuranceType).toBe('private')
+    })
+
+    it('should return correct insurance type with fixed amounts - statutory', () => {
+      const config: HealthCareInsuranceConfig = {
+        ...createDefaultHealthCareInsuranceConfig(),
+        enabled: true,
+        insuranceType: 'statutory',
+        useFixedAmounts: true,
+        fixedHealthInsuranceMonthly: 400,
+        fixedCareInsuranceMonthly: 150,
+      }
+
+      const result = calculateHealthCareInsuranceForYear(config, 2041, 50000, 0, 30)
+      expect(result.insuranceType).toBe('statutory')
+      expect(result.usedFixedAmounts).toBe(true)
+    })
+
+    it('should return correct insurance type with fixed amounts - private', () => {
+      const config: HealthCareInsuranceConfig = {
+        ...createDefaultHealthCareInsuranceConfig(),
+        enabled: true,
+        insuranceType: 'private',
+        useFixedAmounts: true,
+        fixedHealthInsuranceMonthly: 450,
+        fixedCareInsuranceMonthly: 60,
+      }
+
+      const result = calculateHealthCareInsuranceForYear(config, 2041, 50000, 0, 30)
+      expect(result.insuranceType).toBe('private')
+      expect(result.usedFixedAmounts).toBe(true)
     })
   })
 })

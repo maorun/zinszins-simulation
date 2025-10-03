@@ -315,7 +315,7 @@ export function calculateHealthCareInsurance(
  */
 export function createDefaultHealthCareInsuranceConfig(): HealthCareInsuranceConfig {
   return {
-    enabled: false, // Default: disabled (as per the test expectations)
+    enabled: true, // Default: enabled for withdrawal simulations
     insuranceType: 'statutory', // Default: statutory insurance
     includeEmployerContribution: true, // Default: include employer portion
     // Statutory insurance fixed rates (as per German law)

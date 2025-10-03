@@ -621,6 +621,11 @@ export function calculateWithdrawal({
         totalTaxableIncome += otherIncomeGrossTotal
       }
 
+      // Deduct health care insurance contributions (tax-deductible in Germany)
+      if (healthCareInsuranceData && healthCareInsuranceConfig?.enabled) {
+        totalTaxableIncome -= healthCareInsuranceData.totalAnnual
+      }
+
       einkommensteuer = calculateIncomeTax(totalTaxableIncome, yearlyGrundfreibetrag, (incomeTaxRate || 0) / 100)
       genutzterGrundfreibetrag = Math.min(totalTaxableIncome, yearlyGrundfreibetrag)
       // Calculate the actual taxable income after applying Grundfreibetrag

@@ -147,10 +147,33 @@ describe('calculationHelpers', () => {
       expect(explanation.steps[0].title).toBe('Schritt 1: Portfolio-Entnahme')
       expect(explanation.steps[1].title).toBe('Schritt 2: Gesetzliche Rente (steuerpflichtiger Anteil)')
       expect(explanation.steps[2].title).toBe('Schritt 3: Andere Einkünfte')
-      expect(explanation.steps[3].title).toBe('Schritt 4: Gesamte Brutto-Einkünfte')
+      expect(explanation.steps[3].title).toBe('Schritt 4: Gesamte Einkünfte')
       expect(explanation.steps[4].title).toBe('Schritt 5: Grundfreibetrag abziehen')
       // All sources + Total + Grundfreibetrag + Final result
       expect(explanation.finalResult.values).toHaveLength(6)
+    })
+
+    it('should create correct taxable income explanation with health care insurance deduction', () => {
+      const explanation = createTaxableIncomeExplanation(30000, 11604, 0, 0, 3500)
+
+      expect(explanation.title).toBe('💰 Zu versteuerndes Einkommen Schritt für Schritt')
+      expect(explanation.introduction).toContain('steuerlich absetzbarer Beiträge')
+      // Portfolio, Health insurance deduction, Total, Grundfreibetrag
+      expect(explanation.steps).toHaveLength(4)
+      expect(explanation.steps[0].title).toBe('Schritt 1: Portfolio-Entnahme')
+      expect(explanation.steps[1].title).toBe('Schritt 2: Krankenversicherung abziehen')
+      expect(explanation.steps[2].title).toBe('Schritt 3: Gesamte Einkünfte')
+      expect(explanation.steps[3].title).toBe('Schritt 4: Grundfreibetrag abziehen')
+
+      // Verify the health care insurance deduction step
+      expect(explanation.steps[1].description).toContain('steuerlich absetzbar')
+      expect(explanation.steps[1].calculation).toContain('3.500,00 €')
+      expect(explanation.steps[1].result).toBe('-3.500,00 €')
+
+      // Portfolio + Health insurance (absetzbar) + Gesamte Einkünfte + Grundfreibetrag + Final result
+      expect(explanation.finalResult.values).toHaveLength(5)
+      expect(explanation.finalResult.values[1].label).toBe('Krankenversicherung (absetzbar)')
+      expect(explanation.finalResult.values[1].value).toBe('-3.500,00 €')
     })
   })
 
