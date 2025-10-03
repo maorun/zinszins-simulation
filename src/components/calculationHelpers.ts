@@ -323,6 +323,7 @@ export function createTaxableIncomeExplanation(
   grundfreibetrag: number,
   statutoryPensionTaxableAmount?: number,
   otherIncomeGrossAmount?: number,
+  healthCareInsuranceAnnual?: number,
 ): CalculationExplanation {
   // Calculate total taxable income from all sources
   let totalTaxableIncome = entnahme
@@ -333,6 +334,11 @@ export function createTaxableIncomeExplanation(
 
   if (otherIncomeGrossAmount) {
     totalTaxableIncome += otherIncomeGrossAmount
+  }
+
+  // Deduct health care insurance contributions (tax-deductible in Germany)
+  if (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0) {
+    totalTaxableIncome -= healthCareInsuranceAnnual
   }
 
   const steuerpflichtigesEinkommen = Math.max(0, totalTaxableIncome - grundfreibetrag)
@@ -372,14 +378,32 @@ export function createTaxableIncomeExplanation(
     })
   }
 
-  // Add total income step if we have multiple sources
-  if (statutoryPensionTaxableAmount || otherIncomeGrossAmount) {
-    let calculationText = `Gesamte Brutto-Einkünfte = Portfolio-Entnahme`
+  // Add health care insurance deduction step if applicable
+  if (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0) {
+    steps.push({
+      title: `Schritt ${steps.length + 1}: Krankenversicherung abziehen`,
+      description: 'Kranken- und Pflegeversicherungsbeiträge sind in Deutschland steuerlich absetzbar und werden von den '
+        + 'Brutto-Einkünften abgezogen.',
+      calculation: `Krankenversicherungsbeiträge = ${formatCurrency(healthCareInsuranceAnnual)} `
+        + '(steuerlich absetzbar)',
+      result: `-${formatCurrency(healthCareInsuranceAnnual)}`,
+      backgroundColor: '#e1f5fe',
+      borderColor: '#81d4fa',
+    })
+  }
+
+  // Add total income step if we have multiple sources or health care insurance
+  if (statutoryPensionTaxableAmount || otherIncomeGrossAmount
+    || (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0)) {
+    let calculationText = `Gesamte Einkünfte = Portfolio-Entnahme`
     if (statutoryPensionTaxableAmount && statutoryPensionTaxableAmount > 0) {
       calculationText += ` + Gesetzliche Rente`
     }
     if (otherIncomeGrossAmount && otherIncomeGrossAmount > 0) {
       calculationText += ` + Andere Einkünfte`
+    }
+    if (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0) {
+      calculationText += ` - Krankenversicherung`
     }
     calculationText += `<br/>${formatCurrency(entnahme)}`
     if (statutoryPensionTaxableAmount && statutoryPensionTaxableAmount > 0) {
@@ -388,11 +412,14 @@ export function createTaxableIncomeExplanation(
     if (otherIncomeGrossAmount && otherIncomeGrossAmount > 0) {
       calculationText += ` + ${formatCurrency(otherIncomeGrossAmount)}`
     }
+    if (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0) {
+      calculationText += ` - ${formatCurrency(healthCareInsuranceAnnual)}`
+    }
     calculationText += ` = ${formatCurrency(totalTaxableIncome)}`
 
     steps.push({
-      title: `Schritt ${steps.length + 1}: Gesamte Brutto-Einkünfte`,
-      description: 'Alle Einkunftsarten werden zusammengefasst.',
+      title: `Schritt ${steps.length + 1}: Gesamte Einkünfte`,
+      description: 'Alle Einkunftsarten werden zusammengefasst und steuerlich absetzbare Beiträge abgezogen.',
       calculation: calculationText,
       result: formatCurrency(totalTaxableIncome),
       backgroundColor: '#fff9c4',
@@ -422,15 +449,19 @@ export function createTaxableIncomeExplanation(
     finalResultValues.push({ label: 'Andere Einkünfte', value: formatCurrency(otherIncomeGrossAmount) })
   }
 
+  if (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0) {
+    finalResultValues.push({ label: 'Krankenversicherung (absetzbar)', value: `-${formatCurrency(healthCareInsuranceAnnual)}` })
+  }
+
   finalResultValues.push(
-    { label: 'Gesamte Brutto-Einkünfte', value: formatCurrency(totalTaxableIncome) },
+    { label: 'Gesamte Einkünfte', value: formatCurrency(totalTaxableIncome) },
     { label: 'Grundfreibetrag', value: formatCurrency(grundfreibetrag) },
     { label: 'Zu versteuerndes Einkommen', value: formatCurrency(steuerpflichtigesEinkommen) },
   )
 
   return {
     title: '💰 Zu versteuerndes Einkommen Schritt für Schritt',
-    introduction: 'Das zu versteuernde Einkommen ergibt sich aus allen Einkunftsarten (Portfolio-Entnahme, gesetzliche Rente, andere Einkünfte) nach Abzug des Grundfreibetrags. Dies ist die Grundlage für die Berechnung der Einkommensteuer.',
+    introduction: 'Das zu versteuernde Einkommen ergibt sich aus allen Einkunftsarten (Portfolio-Entnahme, gesetzliche Rente, andere Einkünfte) nach Abzug steuerlich absetzbarer Beiträge (z.B. Krankenversicherung) und dem Grundfreibetrag. Dies ist die Grundlage für die Berechnung der Einkommensteuer.',
     steps,
     finalResult: {
       title: 'Endergebnis',

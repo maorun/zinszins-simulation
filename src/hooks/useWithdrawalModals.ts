@@ -113,11 +113,15 @@ export function useWithdrawalModals(
         0,
       ) || 0
 
+      // Get health care insurance annual amount if available
+      const healthCareInsuranceAnnual = rowData.healthCareInsurance?.totalAnnual || 0
+
       const explanation = createTaxableIncomeExplanation(
         rowData.entnahme,
         grundfreibetragAmount,
         statutoryPensionTaxableAmount,
         otherIncomeGrossAmount,
+        healthCareInsuranceAnnual,
       )
       setCalculationDetails(explanation)
       setShowCalculationModal(true)
