@@ -1533,6 +1533,10 @@ export function EntnahmeSimulationsAusgabe({
                         ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1 || createDefaultCoupleHealthInsuranceConfig().person1),
                         withdrawalShare: share,
                       },
+                      person2: {
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2 || createDefaultCoupleHealthInsuranceConfig().person2),
+                        withdrawalShare: 1 - share,
+                      },
                     },
                   },
                 }),
@@ -1577,6 +1581,10 @@ export function EntnahmeSimulationsAusgabe({
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     coupleConfig: {
                       ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
+                      person1: {
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1 || createDefaultCoupleHealthInsuranceConfig().person1),
+                        withdrawalShare: 1 - share,
+                      },
                       person2: {
                         ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2 || createDefaultCoupleHealthInsuranceConfig().person2),
                         withdrawalShare: share,
