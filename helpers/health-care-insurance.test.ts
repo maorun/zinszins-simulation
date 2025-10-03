@@ -647,6 +647,44 @@ describe('Health Care Insurance Calculations', () => {
         expect(result[2041].person1.allocatedIncome).toBe(25000) // (40000 + 10000) * 0.5
         expect(result[2041].person2.allocatedIncome).toBe(25000) // (40000 + 10000) * 0.5
       })
+
+      it('should work with withdrawal calculation optimization example', () => {
+        const config = createDefaultHealthCareInsuranceConfig()
+        config.planningMode = 'couple'
+        config.coupleConfig = {
+          ...createDefaultCoupleHealthInsuranceConfig(),
+          strategy: 'optimize',
+          person1: {
+            name: 'Alice',
+            birthYear: 1980,
+            withdrawalShare: 0.08, // Very low share: 4000 annual = 333/month (< 505, qualifies for family)
+            otherIncomeAnnual: 0,
+            additionalCareInsuranceForChildless: false,
+          },
+          person2: {
+            name: 'Bob',
+            birthYear: 1985,
+            withdrawalShare: 0.92, // High share: 46000 annual = 3833/month (> 505, pays insurance)
+            otherIncomeAnnual: 0,
+            additionalCareInsuranceForChildless: false,
+          },
+        }
+
+        const result = calculateCoupleHealthCareInsurance(config, 2041, 2041, { 2041: 50000 })
+
+        expect(result[2041]).toBeDefined()
+        expect(result[2041].strategyUsed).toBe('family') // Should choose family insurance
+        expect(result[2041].person1.coveredByFamilyInsurance).toBe(true) // Alice is covered by family insurance
+        expect(result[2041].person2.coveredByFamilyInsurance).toBe(false) // Bob pays insurance
+        expect(result[2041].totalAnnual).toBeGreaterThan(0)
+        expect(result[2041].totalAnnual).toBeLessThan(
+          result[2041].strategyComparison.individual.totalAnnual,
+        ) // Should be cheaper than individual
+        
+        // Verify family insurance eligibility
+        expect(result[2041].familyInsuranceDetails.person1QualifiesForFamily).toBe(true) // 333/month < 505
+        expect(result[2041].familyInsuranceDetails.person2QualifiesForFamily).toBe(false) // 3833/month > 505
+      })
     })
   })
 })
