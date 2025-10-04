@@ -7,6 +7,7 @@ import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import type { StatutoryPensionConfig, CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import type { OtherIncomeConfiguration } from '../../helpers/other-income'
 import type { HealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
+import type { CareCostConfiguration } from '../../helpers/care-cost-simulation'
 
 /**
  * Return mode for withdrawal phase (subset of main ReturnMode)
@@ -179,6 +180,8 @@ export interface SavedConfiguration {
   coupleStatutoryPensionConfig?: CoupleStatutoryPensionConfig
   // Other income sources configuration
   otherIncome?: OtherIncomeConfiguration
+  // Care cost configuration
+  careCostConfiguration?: CareCostConfiguration
 }
 
 const STORAGE_KEY = 'zinszins-simulation-config'
