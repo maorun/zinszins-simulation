@@ -1,56 +1,8 @@
-# Zinseszins-Simulation - Feature-Analyse
+# Zinseszins-Simulation - Potenzielle Features
 
-Diese Dokumentation listet implementierte Features und potenzielle Erweiterungen für den deutschen Zinseszins-Rechner auf.
+Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit nicht umzusetzende Features für den deutschen Zinseszins-Rechner auf.
 
-## ✅ Bereits implementierte Features
-
-### Kernfunktionalitäten
-- **Zinseszins-Berechnung** - Deutsche Steuergesetzgebung mit Vorabpauschale und Freibeträgen
-- **Flexible Zeitspannen** - Konfigurierbare Start-/Endjahre mit automatischer Lebenserwartungsberechnung
-- **Multiple Rendite-Modi** - Feste, zufällige und variable Renditen mit historischen Daten
-- **Echtzeit-Berechnungen** - Sofortige Updates bei Parameteränderungen
-- **Deutsche Steuern** - Vollständige Integration der deutschen Steuergesetzgebung
-
-### Ansparphase
-- **Sparpläne** - Monatliche/jährliche regelmäßige Einzahlungen
-- **Einmalzahlungen** - Zeitpunkt-spezifische Einmalzahlungen
-- **Sonderereignisse** - Erbschaften mit deutscher Erbschaftsteuer, große Ausgaben mit Kreditfinanzierung
-- **Kostenfaktoren** - TER, Transaktionskosten mit detaillierter Aufschlüsselung
-- **Inflation** - Berücksichtigung während der Ansparphase
-
-### Entnahmephase
-- **Standard-Strategien** - 4% Regel, 3% Regel, variable Entnahme
-- **Erweiterte Strategien** - Dynamische Entnahme, Drei-Eimer-Strategie, RMD-ähnliche Entnahme
-- **Kapitalerhalt-Strategien** - Ewige Rente mit realem Kapitalwerterhalt
-- **Monatliche Entnahmen** - Feste Beträge mit konfigurierbarer Inflationsanpassung
-- **Segmentierte Entnahme** - Verschiedene Strategien für unterschiedliche Lebensphasen
-- **Strategienvergleich** - Umfassende Vergleichsmöglichkeiten
-
-### Deutsche Sozialversicherung & Steuern
-- **Gesetzliche Rente** - Vollständige Integration mit Rentenbesteuerung
-- **Kranken-/Pflegeversicherung** - Individual- und Paarplanung mit Familienversicherung
-- **Vorabpauschale** - Detaillierte Berechnung mit Bundesbank-Basiszins-API
-- **Einkommensteuer** - Berücksichtigung auf Renten und andere Einkünfte
-- **Andere Einkünfte** - Mieteinnahmen, private Renten mit Steuerberechnung
-
-### Analyse & Simulation
-- **Monte Carlo Analyse** - Statistische Auswertung mit 500+ Simulationen
-- **Risikobewertung** - VaR, Maximum Drawdown, Sharpe/Sortino/Calmar Ratios
-- **Historisches Backtesting** - 24 Jahre Marktdaten (DAX, S&P 500, MSCI World)
-- **Interaktive Berechnungsmodals** - Schritt-für-Schritt Steuer-/Zinsaufschlüsselung
-- **Profilverwaltung** - Multiple Konfigurationsprofile mit automatischem Speichern
-- **Datenexport** - CSV, Markdown, Parameter-Export für alle Simulationsdaten
-
-### Benutzerführung & Interface
-- **Responsive Design** - Shadcn/ui mit Tailwind CSS für alle Geräte
-- **Sticky Navigation** - Übersichtsnavigation mit wichtigen Kennzahlen
-- **Deutsche Lokalisierung** - Vollständige deutsche Benutzeroberfläche
-- **Echtzeit-Updates** - Sofortige Neuberechnung bei Parameteränderungen
-- **Konfigurationsmanagement** - Lokale Speicherung mit automatischer Migration
-
----
-
-## 🔮 Potenzielle fehlende Features
+## 🔮 Potenzielle zukünftige Features
 
 ### Erweiterte Finanzplanung
 
@@ -100,6 +52,19 @@ Diese Dokumentation listet implementierte Features und potenzielle Erweiterungen
 - **Betriebsrente-Alternativen** - Rürup-Rente, Basis-Rente für Selbstständige
 - **Geschäftsrisiko-Integration** - Ausfallrisiko des Haupteinkommens
 - **Unternehmensverkauf-Simulation** - Exit-Strategien und Steueroptimierung
+
+### Versicherung & Absicherung
+
+#### Lebensversicherungen
+- **Kapitallebensversicherung** - Integration klassischer Lebensversicherungsprodukte
+- **Fondsgebundene Lebensversicherung** - ETF-Sparpläne in Versicherungsmänteln
+- **Risikolebensversicherung** - Absicherung von Hinterbliebenen
+- **Berufsunfähigkeitsversicherung** - Auswirkungen von BU-Renten auf die Finanzplanung
+
+#### Pflegevorsorge
+- **Pflegekosten-Simulation** - Statistische Pflegewahrscheinlichkeiten und -kosten
+- **Pflegezusatzversicherung** - Private Pflegeversicherung vs. Eigenvorsorge
+- **Generationenvertrag** - Finanzielle Belastung durch Pflege von Angehörigen
 
 ### Technische Verbesserungen
 
@@ -186,7 +151,7 @@ Die folgenden Features sollen entsprechend der Anforderung **NICHT** entwickelt 
 
 ---
 
-## 📊 Priorisierung der fehlenden Features
+## 📊 Priorisierung der zukünftigen Features
 
 ### Hoch (⭐⭐⭐)
 Direkte Erweiterung der bestehenden Kernfunktionalität:
@@ -220,13 +185,13 @@ Nice-to-have Features für spezielle Anwendungsfälle:
 ## 🎯 Strategische Empfehlungen
 
 ### Fokus auf Deutsche Finanzplanung
-Das Projekt sollte seinen Fokus auf die präzise Abbildung der deutschen Finanzlandschaft beibehalten. Features wie die Vorabpauschale-Berechnung, gesetzliche Rente und Krankenversicherung sind bereits beispielhaft umgesetzt.
+Das Projekt sollte seinen Fokus auf die präzise Abbildung der deutschen Finanzlandschaft beibehalten und entsprechend erweitern.
 
 ### Technische Exzellenz vor Feature-Breite
-Anstatt viele oberflächliche Features hinzuzufügen, sollte die bestehende Funktionalität perfektioniert werden. Die bereits implementierte Monte Carlo Analyse und das Risikomanagement sind technisch hochwertig.
+Anstatt viele oberflächliche Features hinzuzufügen, sollten neue Funktionalitäten die bestehende hohe technische Qualität beibehalten.
 
 ### Benutzerfreundlichkeit
-Die shadcn/ui Migration und die responsive Gestaltung zeigen bereits hohe UX-Standards. Neue Features sollten diese Qualität beibehalten.
+Neue Features sollten die hohen UX-Standards mit shadcn/ui und responsivem Design beibehalten.
 
 ### Offline-First Ansatz
 Die bewusste Entscheidung gegen PWA und Cloud-Features zugunsten lokaler Datenhaltung respektiert die Privatsphäre der Nutzer und reduziert Komplexität.
@@ -236,22 +201,21 @@ Die bewusste Entscheidung gegen PWA und Cloud-Features zugunsten lokaler Datenha
 ## 🔧 Implementierungsaspekte
 
 ### Technische Architektur
-Die bestehende Architektur mit React 19, TypeScript, und shadcn/ui bietet solide Grundlagen für weitere Entwicklungen:
-- **State Management**: Lokale React Hooks sind ausreichend für die Client-Only Architektur
-- **Testing**: Comprehensive Test-Suite (900+ Tests) ermöglicht sichere Refaktorierung
-- **Performance**: Client-side Berechnungen ermöglichen Echtzeit-Updates
-- **UI Framework**: shadcn/ui Migration ist abgeschlossen und bietet moderne, zugängliche Komponenten
+Neue Features sollten die bestehende Architektur-Prinzipien respektieren:
+- **State Management**: Lokale React Hooks für Client-Only Architektur
+- **Testing**: Test-Coverage für alle neuen Funktionalitäten 
+- **Performance**: Client-side Berechnungen für Echtzeit-Updates
+- **UI Framework**: Konsistente shadcn/ui Nutzung
 
 ### Deutsche Finanzgesetzgebung
-Das Projekt zeigt bereits Expertise in komplexen deutschen Steuerberechnungen:
-- **Vorabpauschale-Algorithmus** - Hochkomplexe Berechnung korrekt implementiert
-- **Bundesbank API Integration** - Automatischer Abruf von Basiszinssätzen
-- **Lebenserwartungs-Tabellen** - Korrekte Verwendung deutscher Sterbetafeln
-- **Sozialversicherung** - Gesetzliche Rente und Krankenversicherung bereits integriert
+Neue steuerliche Features müssen deutsche Gesetzgebung korrekt abbilden:
+- **Präzision**: Exakte Umsetzung von Steuerregeln und -berechnungen
+- **Aktualität**: Berücksichtigung aktueller und zukünftiger Gesetzesänderungen
+- **Vollständigkeit**: Umfassende Abdeckung relevanter Steueraspekte
 
 ### Code-Qualitäts-Standards
-- **TypeScript-First**: Typsichere Entwicklung reduziert Fehler
-- **Test-Driven**: Jede neue Funktion sollte Tests haben (bereits 900+ Tests vorhanden)
+- **TypeScript-First**: Typsichere Entwicklung für alle neuen Features
+- **Test-Driven**: Comprehensive Test-Coverage für neue Funktionalitäten
 - **German-Centric**: Deutsche Benutzeroberfläche und Steuergesetzgebung im Fokus
 - **Privacy-Focused**: Lokale Datenhaltung ohne externe Services
 
@@ -266,4 +230,4 @@ Das Projekt zeigt bereits Expertise in komplexen deutschen Steuerberechnungen:
 
 **Letzte Aktualisierung:** Dezember 2024  
 **Basis:** Vollständige Analyse der copilot-instructions.md und des bestehenden Codes  
-**Status:** Umfassende Feature-Analyse mit 50+ implementierten und 90+ potenziellen Features
+**Status:** Katalog mit 90+ potenziellen Features und expliziten Ausschlüssen
