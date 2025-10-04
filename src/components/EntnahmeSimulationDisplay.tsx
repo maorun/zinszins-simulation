@@ -274,10 +274,19 @@ export function EntnahmeSimulationDisplay({
                 {(() => {
                   // Check if inflation is active and we can calculate real values
                   if (formValue.inflationAktiv && formValue.inflationsrate && rowData.year) {
-                    const baseYear = withdrawalData.withdrawalArray[0]?.year || rowData.year
+                    // Find the actual first year in the data by looking at all years and finding the minimum
+                    const allYears = withdrawalData.withdrawalArray.map(row => row.year).filter(year => year != null)
+                    const baseYear = allYears.length > 0 ? Math.min(...allYears) : rowData.year
                     const yearsFromBase = rowData.year - baseYear
                     const inflationRate = formValue.inflationsrate / 100
-                    const realValue = rowData.endkapital / Math.pow(1 + inflationRate, yearsFromBase)
+
+                    // Calculate real value: convert nominal value to base year purchasing power
+                    // For base year (yearsFromBase = 0): nominal = real
+                    // For future years (yearsFromBase > 0): money is worth less due to inflation
+                    const realValue = yearsFromBase === 0
+                      ? rowData.endkapital // Base year: nominal equals real
+                      : rowData.endkapital / Math.pow(1 + inflationRate, yearsFromBase)
+
                     return formatInflationAdjustedValue(rowData.endkapital, realValue, true)
                   }
                   return formatCurrency(rowData.endkapital)
@@ -292,10 +301,14 @@ export function EntnahmeSimulationDisplay({
                   {(() => {
                     // Check if inflation is active and we can calculate real values
                     if (formValue.inflationAktiv && formValue.inflationsrate && rowData.year) {
-                      const baseYear = withdrawalData.withdrawalArray[0]?.year || rowData.year
+                      // Find the actual first year in the data by looking at all years and finding the minimum
+                      const allYears = withdrawalData.withdrawalArray.map(row => row.year).filter(year => year != null)
+                      const baseYear = allYears.length > 0 ? Math.min(...allYears) : rowData.year
                       const yearsFromBase = rowData.year - baseYear
                       const inflationRate = formValue.inflationsrate / 100
-                      const realValue = rowData.startkapital / Math.pow(1 + inflationRate, yearsFromBase)
+                      const realValue = yearsFromBase === 0
+                        ? rowData.startkapital // Base year: nominal equals real
+                        : rowData.startkapital / Math.pow(1 + inflationRate, yearsFromBase)
                       return formatInflationAdjustedValue(rowData.startkapital, realValue, true)
                     }
                     return formatCurrency(rowData.startkapital)
@@ -308,10 +321,14 @@ export function EntnahmeSimulationDisplay({
                   {(() => {
                     // Check if inflation is active and we can calculate real values
                     if (formValue.inflationAktiv && formValue.inflationsrate && rowData.year) {
-                      const baseYear = withdrawalData.withdrawalArray[0]?.year || rowData.year
+                      // Find the actual first year in the data by looking at all years and finding the minimum
+                      const allYears = withdrawalData.withdrawalArray.map(row => row.year).filter(year => year != null)
+                      const baseYear = allYears.length > 0 ? Math.min(...allYears) : rowData.year
                       const yearsFromBase = rowData.year - baseYear
                       const inflationRate = formValue.inflationsrate / 100
-                      const realValue = rowData.entnahme / Math.pow(1 + inflationRate, yearsFromBase)
+                      const realValue = yearsFromBase === 0
+                        ? rowData.entnahme // Base year: nominal equals real
+                        : rowData.entnahme / Math.pow(1 + inflationRate, yearsFromBase)
                       return formatInflationAdjustedValue(rowData.entnahme, realValue, true)
                     }
                     return formatCurrency(rowData.entnahme)
@@ -353,10 +370,14 @@ export function EntnahmeSimulationDisplay({
                   {(() => {
                     // Check if inflation is active and we can calculate real values
                     if (formValue.inflationAktiv && formValue.inflationsrate && rowData.year) {
-                      const baseYear = withdrawalData.withdrawalArray[0]?.year || rowData.year
+                      // Find the actual first year in the data by looking at all years and finding the minimum
+                      const allYears = withdrawalData.withdrawalArray.map(row => row.year).filter(year => year != null)
+                      const baseYear = allYears.length > 0 ? Math.min(...allYears) : rowData.year
                       const yearsFromBase = rowData.year - baseYear
                       const inflationRate = formValue.inflationsrate / 100
-                      const realValue = rowData.zinsen / Math.pow(1 + inflationRate, yearsFromBase)
+                      const realValue = yearsFromBase === 0
+                        ? rowData.zinsen // Base year: nominal equals real
+                        : rowData.zinsen / Math.pow(1 + inflationRate, yearsFromBase)
                       return formatInflationAdjustedValue(rowData.zinsen, realValue, true)
                     }
                     return formatCurrency(rowData.zinsen)
