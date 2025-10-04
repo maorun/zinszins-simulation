@@ -38,7 +38,7 @@ describe('App Integration Tests - Optimized', () => {
 
     // Check that main sections are present
     expect(screen.getByText('⚙️ Konfiguration')).toBeInTheDocument()
-    expect(screen.getByText('💾 Konfiguration verwalten')).toBeInTheDocument()
+    expect(screen.getByText('👤 Profile verwalten')).toBeInTheDocument()
 
     // Check tabs are present
     expect(screen.getByText('Ansparen')).toBeInTheDocument()

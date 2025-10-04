@@ -18,7 +18,6 @@ import {
   deleteProfile,
   duplicateProfile,
   clearAllProfiles,
-  hasProfiles,
   getProfileCount,
   type UserProfile,
 } from '../utils/profile-storage'
@@ -216,7 +215,7 @@ export default function ProfileManagement() {
     })
   }
 
-  const hasStoredProfiles = hasProfiles()
+  const hasStoredProfiles = profiles.length > 0
 
   return (
     <Card nestingLevel={nestingLevel} className="mb-4">
