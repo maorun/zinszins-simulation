@@ -9,6 +9,7 @@ import { Label } from './ui/label'
 import { ChevronDown, Plus, Edit3, Copy, Trash2, UserCheck } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNestingLevel } from '../lib/nesting-utils'
+import { useNavigationItem } from '../hooks/useNavigationItem'
 import {
   getAllProfiles,
   getActiveProfile,
@@ -216,9 +217,15 @@ export default function ProfileManagement() {
   }
 
   const hasStoredProfiles = profiles.length > 0
+  const navigationRef = useNavigationItem({
+    id: 'profile-management',
+    title: 'Profile verwalten',
+    icon: '👤',
+    level: 0,
+  })
 
   return (
-    <Card nestingLevel={nestingLevel} className="mb-4">
+    <Card nestingLevel={nestingLevel} className="mb-4" ref={navigationRef}>
       <Collapsible defaultOpen={false}>
         <CardHeader nestingLevel={nestingLevel}>
           <CollapsibleTrigger asChild>

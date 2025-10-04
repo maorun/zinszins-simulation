@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useSimulation } from '../contexts/useSimulation'
 import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
+import { BurgerNavigation } from './BurgerNavigation'
 
 interface StickyOverviewProps {
   overviewElementRef: React.RefObject<HTMLElement | null>
@@ -157,7 +158,10 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[1000] bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-lg animate-slide-down">
-      <div className="max-w-6xl mx-auto px-4 py-3 md:px-6">
+      <div className="max-w-6xl mx-auto px-4 py-3 md:px-6 relative">
+        <div className="absolute top-3 right-4 md:right-6">
+          <BurgerNavigation />
+        </div>
         {renderAnsparenContent()}
       </div>
     </div>
