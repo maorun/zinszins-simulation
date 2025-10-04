@@ -60,6 +60,8 @@ Diese Dokumentation listet implementierte Features und potenzielle Erweiterungen
 - **Kirchensteuer-Integration** - Berücksichtigung der Kirchensteuer (8-9%) für relevante Personen
 - **Günstigerprüfung** - Automatische Prüfung der Abgeltungsteuer vs. persönlicher Steuersatz
 - **Progressionsvorbehalt** - Auswirkungen auf andere Einkünfte bei ausländischen Einkünften
+- **Verlustverrechnungstöpfe** - Simulation verschiedener Verlustverrechnungsregeln
+- **Freistellungsaufträge-Optimierung** - Optimale Verteilung der Freibeträge auf verschiedene Banken
 
 #### Asset Allocation & Portfolio-Management
 - **Multi-Asset-Portfolio** - Aufteilung zwischen Aktien, Anleihen, REITs, Rohstoffen
@@ -119,8 +121,11 @@ Diese Dokumentation listet implementierte Features und potenzielle Erweiterungen
 - **Interaktive Charts** - Zoom, Filter, verschiedene Zeiträume
 - **Dashboard-Customization** - Personalisierbare Ansichten
 - **KPI-Tracking** - Verfolgung von Fortschritt gegenüber Zielen
-- **Automated Reporting** - Regelmäßige E-Mail-Reports (nur lokal)
+- **Automated Reporting** - Regelmäßige lokale Reports
 - **Advanced Export Options** - Excel mit Formeln, PDF-Reports
+- **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
+- **Heatmaps** - Korrelationsmatrizen und Risikoverteilungen
+- **Animation/Timeline** - Zeitbasierte Animationen der Portfolioentwicklung
 
 ### Beratungs- & Bildungsfeatures
 
@@ -185,27 +190,30 @@ Die folgenden Features sollen entsprechend der Anforderung **NICHT** entwickelt 
 
 ### Hoch (⭐⭐⭐)
 Direkte Erweiterung der bestehenden Kernfunktionalität:
-- Steueroptimierte Entnahmereihenfolge
-- Multi-Asset-Portfolio mit Rebalancing
-- Immobilien-Cashflow Integration
-- Erweiterte Risikomanagement-Tools
-- Interaktive Charts und bessere Visualisierung
+- **Steueroptimierte Entnahmereihenfolge** - Baut auf vorhandener Steuerberechnung auf
+- **Multi-Asset-Portfolio mit Rebalancing** - Erweitert die vorhandenen Rendite-Modi
+- **Immobilien-Cashflow Integration** - Ergänzt die "Andere Einkünfte" Funktionalität
+- **Interaktive Charts und bessere Visualisierung** - Verbessert das bereits sehr gute UI
+- **Pflegekosten-Simulation** - Wichtiger Baustein der deutschen Altersvorsorge
+- **Kirchensteuer-Integration** - Vervollständigt die deutsche Steuerberechnung
 
 ### Mittel (⭐⭐)
 Nützliche Ergänzungen für fortgeschrittene Nutzer:
-- Alternative Investments
-- Schwankende Einkommen für Selbstständige
-- Internationale Steuersysteme
-- Machine Learning Prognosen
-- Automatische Optimierungsalgorithmen
+- **Alternative Investments** - REITs, Rohstoffe, Kryptowährungen
+- **Schwankende Einkommen für Selbstständige** - Wichtig für deutschen Markt
+- **Erweiterte Risikomanagement-Tools** - VaR, Stress-Tests erweitern
+- **Machine Learning Prognosen** - Kann vorhandene Monte Carlo Analyse ergänzen
+- **Versicherungsintegration** - Lebens-, BU-, Pflegeversicherung
+- **Black Swan Event Simulation** - Erweitert vorhandene Monte Carlo Funktionalität
 
 ### Niedrig (⭐)
 Nice-to-have Features für spezielle Anwendungsfälle:
-- ESG-Integration
-- Behavioral Finance Komponenten
-- Erweiterte Bildungsfeatures
-- Multi-Residency Planning
-- Makroökonomische Szenarien
+- **ESG-Integration** - Nachhaltiges Investieren
+- **Behavioral Finance Komponenten** - Anlegerpsychologie
+- **Erweiterte Bildungsfeatures** - Tutorials und Glossar
+- **Internationale Steuersysteme** - Für Auswanderer relevant
+- **3D-Visualisierungen** - Spektakulär, aber nicht essentiell
+- **Makroökonomische Szenarien** - Sehr komplex zu implementieren
 
 ---
 
