@@ -514,8 +514,9 @@ export function HealthCareInsuranceConfiguration({
                         step={0.01}
                         value={[values.person1WithdrawalShare || 0.5]}
                         onValueChange={([value]) => {
-                          // Update person 1 share and let person 2 share be calculated from it
-                          onChange.onPerson1WithdrawalShareChange?.(value)
+                          // Ensure exactly 0 and 1 are possible by rounding to nearest step
+                          const roundedValue = Math.round(value * 100) / 100
+                          onChange.onPerson1WithdrawalShareChange?.(roundedValue)
                         }}
                         className="w-full"
                       />
@@ -579,8 +580,9 @@ export function HealthCareInsuranceConfiguration({
                         step={0.01}
                         value={[values.person2WithdrawalShare || 0.5]}
                         onValueChange={([value]) => {
-                          // Update person 2 share and let person 1 share be calculated from it
-                          onChange.onPerson2WithdrawalShareChange?.(value)
+                          // Ensure exactly 0 and 1 are possible by rounding to nearest step
+                          const roundedValue = Math.round(value * 100) / 100
+                          onChange.onPerson2WithdrawalShareChange?.(roundedValue)
                         }}
                         className="w-full"
                       />
