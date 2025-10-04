@@ -88,6 +88,7 @@ export interface SimulationContextState {
   setWithdrawalResults: (withdrawalResults: WithdrawalResult | null) => void
   performSimulation: (overwrite?: { rendite?: number }) => Promise<void>
   // Configuration management
+  getCurrentConfiguration: () => SavedConfiguration
   saveCurrentConfiguration: () => void
   loadSavedConfiguration: () => void
   resetToDefaults: () => void
@@ -648,6 +649,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     withdrawalResults, setWithdrawalResults,
     performSimulation,
     // Configuration management
+    getCurrentConfiguration,
     saveCurrentConfiguration,
     loadSavedConfiguration,
     resetToDefaults,
@@ -667,7 +669,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse,
     birthYear, expectedLifespan, useAutomaticCalculation,
     simulationData, isLoading, withdrawalResults, performSimulation,
-    saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
+    getCurrentConfiguration, saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
     withdrawalConfig, statutoryPensionConfig, coupleStatutoryPensionConfig, setEndOfLifeRounded,
   ])
 
