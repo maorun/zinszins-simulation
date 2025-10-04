@@ -1385,16 +1385,20 @@ export function EntnahmeSimulationsAusgabe({
                 additionalCareInsuranceAge: formValue.healthCareInsuranceConfig?.additionalCareInsuranceAge || 23,
                 // Couple-specific values
                 coupleStrategy: formValue.healthCareInsuranceConfig?.coupleConfig?.strategy,
-                familyInsuranceThresholdRegular: formValue.healthCareInsuranceConfig?.coupleConfig?.familyInsuranceThresholds?.regularEmploymentLimit,
-                familyInsuranceThresholdMiniJob: formValue.healthCareInsuranceConfig?.coupleConfig?.familyInsuranceThresholds?.miniJobLimit,
+                familyInsuranceThresholdRegular: formValue.healthCareInsuranceConfig?.coupleConfig
+                  ?.familyInsuranceThresholds?.regularEmploymentLimit,
+                familyInsuranceThresholdMiniJob: formValue.healthCareInsuranceConfig?.coupleConfig
+                  ?.familyInsuranceThresholds?.miniJobLimit,
                 person1Name: formValue.healthCareInsuranceConfig?.coupleConfig?.person1?.name,
                 person1WithdrawalShare: formValue.healthCareInsuranceConfig?.coupleConfig?.person1?.withdrawalShare,
                 person1OtherIncomeAnnual: formValue.healthCareInsuranceConfig?.coupleConfig?.person1?.otherIncomeAnnual,
-                person1AdditionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig?.coupleConfig?.person1?.additionalCareInsuranceForChildless,
+                person1AdditionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig
+                  ?.coupleConfig?.person1?.additionalCareInsuranceForChildless,
                 person2Name: formValue.healthCareInsuranceConfig?.coupleConfig?.person2?.name,
                 person2WithdrawalShare: formValue.healthCareInsuranceConfig?.coupleConfig?.person2?.withdrawalShare,
                 person2OtherIncomeAnnual: formValue.healthCareInsuranceConfig?.coupleConfig?.person2?.otherIncomeAnnual,
-                person2AdditionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig?.coupleConfig?.person2?.additionalCareInsuranceForChildless,
+                person2AdditionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig
+                  ?.coupleConfig?.person2?.additionalCareInsuranceForChildless,
               }}
               birthYear={birthYear}
               spouseBirthYear={spouse?.birthYear}
@@ -1483,7 +1487,8 @@ export function EntnahmeSimulationsAusgabe({
                   healthCareInsuranceConfig: {
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
+                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
+                        || createDefaultCoupleHealthInsuranceConfig()),
                       strategy,
                     },
                   },
@@ -1492,9 +1497,11 @@ export function EntnahmeSimulationsAusgabe({
                   healthCareInsuranceConfig: {
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
+                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
+                        || createDefaultCoupleHealthInsuranceConfig()),
                       familyInsuranceThresholds: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.familyInsuranceThresholds || createDefaultFamilyInsuranceThresholds()),
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.familyInsuranceThresholds
+                          || createDefaultFamilyInsuranceThresholds()),
                         regularEmploymentLimit: amount,
                       },
                     },
@@ -1504,9 +1511,11 @@ export function EntnahmeSimulationsAusgabe({
                   healthCareInsuranceConfig: {
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
+                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
+                        || createDefaultCoupleHealthInsuranceConfig()),
                       familyInsuranceThresholds: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.familyInsuranceThresholds || createDefaultFamilyInsuranceThresholds()),
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.familyInsuranceThresholds
+                          || createDefaultFamilyInsuranceThresholds()),
                         miniJobLimit: amount,
                       },
                     },
@@ -1516,9 +1525,11 @@ export function EntnahmeSimulationsAusgabe({
                   healthCareInsuranceConfig: {
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
+                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
+                        || createDefaultCoupleHealthInsuranceConfig()),
                       person1: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1 || createDefaultCoupleHealthInsuranceConfig().person1),
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
+                          || createDefaultCoupleHealthInsuranceConfig().person1),
                         name,
                       },
                     },
@@ -1528,13 +1539,16 @@ export function EntnahmeSimulationsAusgabe({
                   healthCareInsuranceConfig: {
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
+                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
+                        || createDefaultCoupleHealthInsuranceConfig()),
                       person1: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1 || createDefaultCoupleHealthInsuranceConfig().person1),
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
+                          || createDefaultCoupleHealthInsuranceConfig().person1),
                         withdrawalShare: share,
                       },
                       person2: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2 || createDefaultCoupleHealthInsuranceConfig().person2),
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
+                          || createDefaultCoupleHealthInsuranceConfig().person2),
                         withdrawalShare: 1 - share,
                       },
                     },
@@ -1544,9 +1558,11 @@ export function EntnahmeSimulationsAusgabe({
                   healthCareInsuranceConfig: {
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
+                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
+                        || createDefaultCoupleHealthInsuranceConfig()),
                       person1: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1 || createDefaultCoupleHealthInsuranceConfig().person1),
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
+                          || createDefaultCoupleHealthInsuranceConfig().person1),
                         otherIncomeAnnual: amount,
                       },
                     },
@@ -1556,9 +1572,11 @@ export function EntnahmeSimulationsAusgabe({
                   healthCareInsuranceConfig: {
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
+                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
+                        || createDefaultCoupleHealthInsuranceConfig()),
                       person1: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1 || createDefaultCoupleHealthInsuranceConfig().person1),
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
+                          || createDefaultCoupleHealthInsuranceConfig().person1),
                         additionalCareInsuranceForChildless: enabled,
                       },
                     },
@@ -1568,9 +1586,11 @@ export function EntnahmeSimulationsAusgabe({
                   healthCareInsuranceConfig: {
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
+                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
+                        || createDefaultCoupleHealthInsuranceConfig()),
                       person2: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2 || createDefaultCoupleHealthInsuranceConfig().person2),
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
+                          || createDefaultCoupleHealthInsuranceConfig().person2),
                         name,
                       },
                     },
@@ -1580,13 +1600,16 @@ export function EntnahmeSimulationsAusgabe({
                   healthCareInsuranceConfig: {
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
+                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
+                        || createDefaultCoupleHealthInsuranceConfig()),
                       person1: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1 || createDefaultCoupleHealthInsuranceConfig().person1),
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
+                          || createDefaultCoupleHealthInsuranceConfig().person1),
                         withdrawalShare: 1 - share,
                       },
                       person2: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2 || createDefaultCoupleHealthInsuranceConfig().person2),
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
+                          || createDefaultCoupleHealthInsuranceConfig().person2),
                         withdrawalShare: share,
                       },
                     },
@@ -1596,9 +1619,11 @@ export function EntnahmeSimulationsAusgabe({
                   healthCareInsuranceConfig: {
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
+                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
+                        || createDefaultCoupleHealthInsuranceConfig()),
                       person2: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2 || createDefaultCoupleHealthInsuranceConfig().person2),
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
+                          || createDefaultCoupleHealthInsuranceConfig().person2),
                         otherIncomeAnnual: amount,
                       },
                     },
@@ -1608,9 +1633,11 @@ export function EntnahmeSimulationsAusgabe({
                   healthCareInsuranceConfig: {
                     ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
                     coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
+                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
+                        || createDefaultCoupleHealthInsuranceConfig()),
                       person2: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2 || createDefaultCoupleHealthInsuranceConfig().person2),
+                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
+                          || createDefaultCoupleHealthInsuranceConfig().person2),
                         additionalCareInsuranceForChildless: enabled,
                       },
                     },

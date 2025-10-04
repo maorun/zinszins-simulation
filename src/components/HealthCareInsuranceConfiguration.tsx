@@ -503,7 +503,7 @@ export function HealthCareInsuranceConfiguration({
                       <Label htmlFor="health-insurance-person1-withdrawal-share">
                         Anteil am Entnahmebetrag:
                         {' '}
-                        {((values.person1WithdrawalShare || 0.5) * 100).toFixed(0)}
+                        {((values.person1WithdrawalShare ?? 0.5) * 100).toFixed(0)}
                         %
                       </Label>
                       <Slider
@@ -512,7 +512,7 @@ export function HealthCareInsuranceConfiguration({
                         min={0}
                         max={1}
                         step={0.01}
-                        value={[values.person1WithdrawalShare || 0.5]}
+                        value={[values.person1WithdrawalShare ?? 0.5]}
                         onValueChange={([value]) => {
                           // Ensure exactly 0 and 1 are possible by rounding to nearest step
                           const roundedValue = Math.round(value * 100) / 100
@@ -569,7 +569,7 @@ export function HealthCareInsuranceConfiguration({
                       <Label htmlFor="health-insurance-person2-withdrawal-share">
                         Anteil am Entnahmebetrag:
                         {' '}
-                        {((values.person2WithdrawalShare || 0.5) * 100).toFixed(0)}
+                        {((values.person2WithdrawalShare ?? 0.5) * 100).toFixed(0)}
                         %
                       </Label>
                       <Slider
@@ -578,7 +578,7 @@ export function HealthCareInsuranceConfiguration({
                         min={0}
                         max={1}
                         step={0.01}
-                        value={[values.person2WithdrawalShare || 0.5]}
+                        value={[values.person2WithdrawalShare ?? 0.5]}
                         onValueChange={([value]) => {
                           // Ensure exactly 0 and 1 are possible by rounding to nearest step
                           const roundedValue = Math.round(value * 100) / 100

@@ -49,7 +49,7 @@ describe('Withdrawal - Couple Health Insurance Integration', () => {
         person2: {
           name: 'Bob',
           birthYear: 1985,
-          withdrawalShare: 0.92, // High share: 4800*0.92 = 4416€ annual = 368€/month (< 505, also qualifies but will be primary)
+          withdrawalShare: 0.92, // High share: 4800*0.92 = 4416€ annual = 368€/month (< 505, qualifies)
           otherIncomeAnnual: 0,
           additionalCareInsuranceForChildless: false,
         },
