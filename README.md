@@ -18,6 +18,9 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Variable Rendite** - Jahr-für-Jahr konfigurierbare Renditen
 - **Historische Daten** - Backtesting mit DAX, S&P 500, MSCI World (2000-2023)
 - **Inflation** - Berücksichtigung während der Ansparphase mit automatischer Anpassung
+  - **Inflationsbereinigte Werte** - Zusätzliche Anzeige der realen Kaufkraft (inflationsbereinigt) neben Nominalwerten
+  - **Sparphase**: Alle Kapitalwerte werden sowohl nominal als auch real angezeigt (z.B. "793.512,75 € / 589.591,66 € real")
+  - **Entnahmephase**: Entnahmebeträge und Kapitalwerte zeigen sowohl nominale als auch reale Kaufkraft
 
 ### Sparplan, Einmalzahlungen und Sonderereignisse
 - **Sparpläne** - Regelmäßige monatliche oder jährliche Einzahlungen
@@ -69,7 +72,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Drei-Eimer-Strategie** - Cash-Polster für negative Rendite-Phasen
 - **RMD-ähnliche Entnahme** - Geschlechtsspezifische Entnahme basierend auf Lebenserwartung
 - **Kapitalerhalt / Ewige Rente** - Strategie zum dauerhaften Erhalt des realen Kapitalwerts
-- **Monatliche Entnahme-Strategien** - Feste monatliche Entnahmen mit Inflationsanpassung
+- **Monatliche Entnahme-Strategien** - Feste monatliche Entnahmen mit Inflationsanpassung und Anzeige realer Kaufkraft
 - **Variable Renditen** - Jahr-für-Jahr konfigurierbare Renditen für die Entnahmephase
 - **Geteilte Entnahme-Phasen** - Segmentierung in verschiedene Zeiträume mit unterschiedlichen Strategien
 - **Strategienvergleich** - Vergleich verschiedener Entnahmestrategien mit demselben Startkapital
