@@ -205,6 +205,10 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
   cumulativeContributions: number
   cumulativeInterest: number
   cumulativeTax: number
+  // Inflation-adjusted values (real purchasing power)
+  totalCapitalReal?: number
+  yearlyInterestReal?: number
+  cumulativeInterestReal?: number
 }> {
   if (!elemente || elemente.length === 0) {
     return []
@@ -228,11 +232,16 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
     cumulativeContributions: number
     cumulativeInterest: number
     cumulativeTax: number
+    // Inflation-adjusted values (real purchasing power)
+    totalCapitalReal?: number
+    yearlyInterestReal?: number
+    cumulativeInterestReal?: number
   }> = []
 
   let cumulativeContributions = 0
   let cumulativeInterest = 0
   let cumulativeTax = 0
+  let cumulativeInterestReal = 0
 
   for (const year of sortedYears) {
     let yearlyContribution = 0
@@ -284,6 +293,11 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
       }
     })
 
+    // Initialize real values for this year
+    let totalCapitalReal: number | undefined
+    let yearlyInterestReal = 0
+    let hasInflationData = false
+
     // Sum up all elements for this year (capital, interest, tax)
     elemente.forEach((element) => {
       const yearData = element.simulation[year]
@@ -296,6 +310,13 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
 
         // Add the tax paid by this element for this year
         yearlyTax += yearData.bezahlteSteuer
+
+        // Add inflation-adjusted values if available
+        if (yearData.endkapitalReal !== undefined) {
+          hasInflationData = true
+          totalCapitalReal = (totalCapitalReal || 0) + yearData.endkapitalReal
+          yearlyInterestReal += yearData.zinsenReal || 0
+        }
       }
     })
 
@@ -304,7 +325,12 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
     cumulativeInterest += yearlyInterest
     cumulativeTax += yearlyTax
 
-    progression.push({
+    // Update cumulative real interest if we have inflation data
+    if (hasInflationData) {
+      cumulativeInterestReal += yearlyInterestReal
+    }
+
+    const progressionEntry: any = {
       year,
       totalCapital,
       yearlyContribution,
@@ -313,7 +339,16 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
       cumulativeContributions,
       cumulativeInterest,
       cumulativeTax,
-    })
+    }
+
+    // Add inflation-adjusted values only if available
+    if (hasInflationData) {
+      progressionEntry.totalCapitalReal = totalCapitalReal
+      progressionEntry.yearlyInterestReal = yearlyInterestReal
+      progressionEntry.cumulativeInterestReal = cumulativeInterestReal
+    }
+
+    progression.push(progressionEntry)
   }
 
   return progression
