@@ -1240,9 +1240,10 @@ export function EntnahmeSimulationsAusgabe({
                     <Label>Anfängliches Cash-Polster (€)</Label>
                     <Input
                       type="number"
-                      value={formValue.bucketConfig?.initialCashCushion || 20000}
+                      value={formValue.bucketConfig?.initialCashCushion ?? 20000}
                       onChange={(e) => {
-                        const value = e.target.value ? Number(e.target.value) : 20000
+                        const inputValue = e.target.value
+                        const value = inputValue === '' ? 0 : Number(inputValue) || 20000
                         updateFormValue({
                           ...formValue,
                           bucketConfig: {
@@ -1296,13 +1297,14 @@ export function EntnahmeSimulationsAusgabe({
                     <Label>Auffüll-Schwellenwert (€)</Label>
                     <Input
                       type="number"
-                      value={formValue.bucketConfig?.refillThreshold || 5000}
+                      value={formValue.bucketConfig?.refillThreshold ?? 5000}
                       onChange={(e) => {
-                        const value = e.target.value ? Number(e.target.value) : 5000
+                        const inputValue = e.target.value
+                        const value = inputValue === '' ? 0 : Number(inputValue) || 5000
                         updateFormValue({
                           ...formValue,
                           bucketConfig: {
-                            initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
+                            initialCashCushion: formValue.bucketConfig?.initialCashCushion ?? 20000,
                             refillThreshold: value,
                             refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
                             baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04,

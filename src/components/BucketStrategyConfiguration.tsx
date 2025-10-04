@@ -199,7 +199,8 @@ export function BucketStrategyConfiguration({
             type="number"
             value={currentValues.monatlicheBetrag}
             onChange={(e) => {
-              const value = e.target.value ? Number(e.target.value) : 2000
+              const inputValue = e.target.value
+              const value = inputValue === '' ? 0 : Number(inputValue) || 2000
               if (isFormMode) {
                 updateFormBucketConfig({ monatlicheBetrag: value })
               }
@@ -381,7 +382,8 @@ export function BucketStrategyConfiguration({
           type="number"
           value={currentValues.initialCashCushion}
           onChange={(e) => {
-            const value = e.target.value ? Number(e.target.value) : 20000
+            const inputValue = e.target.value
+            const value = inputValue === '' ? 0 : Number(inputValue) || 20000
             if (isFormMode) {
               updateFormBucketConfig({ initialCashCushion: value })
             }
@@ -410,7 +412,8 @@ export function BucketStrategyConfiguration({
           type="number"
           value={currentValues.refillThreshold}
           onChange={(e) => {
-            const value = e.target.value ? Number(e.target.value) : 5000
+            const inputValue = e.target.value
+            const value = inputValue === '' ? 0 : Number(inputValue) || 5000
             if (isFormMode) {
               updateFormBucketConfig({ refillThreshold: value })
             }
