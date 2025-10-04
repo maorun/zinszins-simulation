@@ -25,7 +25,11 @@ const ReturnConfiguration = () => {
   } = useSimulation()
 
   return (
-    <CollapsibleCard>
+    <CollapsibleCard
+      navigationId="return-configuration"
+      navigationTitle="Rendite-Konfiguration (Sparphase)"
+      navigationIcon="📈"
+    >
       <CollapsibleCardHeader>📈 Rendite-Konfiguration (Sparphase)</CollapsibleCardHeader>
       <CollapsibleCardContent>
         <div className="space-y-3">

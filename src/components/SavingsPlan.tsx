@@ -13,7 +13,11 @@ const SavingsPlan = () => {
     <div className="space-y-4">
       <ReturnConfiguration />
 
-      <CollapsibleCard>
+      <CollapsibleCard
+        navigationId="savings-plans"
+        navigationTitle="Sparpläne erstellen"
+        navigationIcon="💼"
+      >
         <CollapsibleCardHeader>💼 Sparpläne erstellen</CollapsibleCardHeader>
         <CollapsibleCardContent>
           <SparplanEingabe
@@ -28,7 +32,11 @@ const SavingsPlan = () => {
       </CollapsibleCard>
 
       {simulationData && (
-        <CollapsibleCard>
+        <CollapsibleCard
+          navigationId="savings-history"
+          navigationTitle="Sparplan-Verlauf"
+          navigationIcon="📊"
+        >
           <CollapsibleCardHeader>📊 Sparplan-Verlauf</CollapsibleCardHeader>
           <CollapsibleCardContent>
             <SparplanSimulationsAusgabe

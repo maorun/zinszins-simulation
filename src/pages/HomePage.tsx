@@ -9,7 +9,9 @@ import { SpecialEvents } from '../components/SpecialEvents'
 import { StickyOverview } from '../components/StickyOverview'
 import { StickyBottomOverview } from '../components/StickyBottomOverview'
 import { GlobalPlanningConfiguration } from '../components/GlobalPlanningConfiguration'
+import { CollapsibleNavigation } from '../components/CollapsibleNavigation'
 import { SimulationProvider } from '../contexts/SimulationContext'
+import { NavigationProvider } from '../contexts/NavigationContext'
 import { useSimulation } from '../contexts/useSimulation'
 import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
 import { convertSparplanToElements } from '../utils/sparplan-utils'
@@ -327,6 +329,8 @@ const HomePageContent = () => {
         </div>
       )}
 
+      <CollapsibleNavigation />
+
       <SimulationParameters />
 
       {/* Global Planning Configuration - Available for all calculations including Vorabpauschale */}
@@ -373,7 +377,9 @@ const HomePageContent = () => {
 export default function HomePage() {
   return (
     <SimulationProvider>
-      <HomePageContent />
+      <NavigationProvider>
+        <HomePageContent />
+      </NavigationProvider>
     </SimulationProvider>
   )
 }

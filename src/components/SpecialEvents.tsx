@@ -10,6 +10,7 @@ import { ChevronDown } from 'lucide-react'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { toast } from 'sonner'
+import { useNavigationItem } from '../hooks/useNavigationItem'
 
 type EventPhase = 'sparphase' | 'entsparphase'
 
@@ -206,8 +207,15 @@ export function SpecialEvents({
 
   const currentPhaseRange = getPhaseYearRange(specialEventFormValues.phase)
 
+  const navigationRef = useNavigationItem({
+    id: 'special-events',
+    title: 'Sonderereignisse verwalten',
+    icon: '🎯',
+    level: 0,
+  })
+
   return (
-    <Card nestingLevel={0} className="mb-6">
+    <Card nestingLevel={0} className="mb-6" ref={navigationRef}>
       <Collapsible defaultOpen={false}>
         <CardHeader nestingLevel={0}>
           <CollapsibleTrigger asChild>

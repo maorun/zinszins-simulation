@@ -3,15 +3,22 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { ChevronDown } from 'lucide-react'
 import { NestingProvider } from '../lib/nesting-context'
 import { useSimulation } from '../contexts/useSimulation'
+import { useNavigationItem } from '../hooks/useNavigationItem'
 import TimeRangeConfiguration from './TimeRangeConfiguration'
 import TaxConfiguration from './TaxConfiguration'
 import SimulationConfiguration from './SimulationConfiguration'
 
 const SimulationParameters = () => {
   const { planningMode } = useSimulation()
+  const navigationRef = useNavigationItem({
+    id: 'configuration',
+    title: 'Konfiguration',
+    icon: '⚙️',
+    level: 0,
+  })
 
   return (
-    <Card nestingLevel={0} className="mb-4">
+    <Card nestingLevel={0} className="mb-4" ref={navigationRef}>
       <Collapsible defaultOpen={false}>
         <CardHeader nestingLevel={0}>
           <CollapsibleTrigger asChild>

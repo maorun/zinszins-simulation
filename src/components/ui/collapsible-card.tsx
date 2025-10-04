@@ -4,6 +4,7 @@ import { NestingProvider } from '../../lib/nesting-context'
 import { useNestingLevel } from '../../lib/nesting-utils'
 import { Card, CardContent, CardContentProps, CardHeader, CardHeaderProps, CardProps, CardTitle } from './card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './collapsible'
+import { useNavigationItem } from '../../hooks/useNavigationItem'
 
 export const CollapsibleCardHeader = React.forwardRef<
   HTMLDivElement,
@@ -46,13 +47,29 @@ export const CollapsibleCardContent = React.forwardRef<
 
 export const CollapsibleCard = React.forwardRef<
   HTMLDivElement,
-  CardProps
->(({ children, ...props }, ref) => {
+  CardProps & {
+    navigationId?: string
+    navigationTitle?: string
+    navigationIcon?: string
+    navigationParentId?: string
+  }
+>(({ children, navigationId, navigationTitle, navigationIcon, navigationParentId, ...props }, ref) => {
   const nestingLevel = useNestingLevel()
+  const navigationRef = useNavigationItem({
+    id: navigationId || '',
+    title: navigationTitle || '',
+    icon: navigationIcon,
+    parentId: navigationParentId,
+    level: nestingLevel,
+  })
 
   return (
     <Collapsible defaultOpen={false}>
-      <Card nestingLevel={nestingLevel} {...props} ref={ref}>
+      <Card 
+        nestingLevel={nestingLevel} 
+        {...props} 
+        ref={navigationId ? navigationRef : ref}
+      >
         {children}
       </Card>
     </Collapsible>

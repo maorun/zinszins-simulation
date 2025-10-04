@@ -6,6 +6,7 @@ import { useParameterExport } from '../hooks/useParameterExport'
 import { useDataExport } from '../hooks/useDataExport'
 import { useSimulation } from '../contexts/useSimulation'
 import { useNestingLevel } from '../lib/nesting-utils'
+import { useNavigationItem } from '../hooks/useNavigationItem'
 
 const DataExport = () => {
   const {
@@ -26,6 +27,12 @@ const DataExport = () => {
 
   const { simulationData, withdrawalResults, withdrawalConfig } = useSimulation()
   const nestingLevel = useNestingLevel()
+  const navigationRef = useNavigationItem({
+    id: 'data-export',
+    title: 'Export',
+    icon: '📤',
+    level: 0,
+  })
 
   const handleParameterExportClick = async () => {
     await exportParameters()
@@ -94,7 +101,7 @@ const DataExport = () => {
     || hasWithdrawalConfigFromStorage
 
   return (
-    <Card nestingLevel={nestingLevel} className="mb-4">
+    <Card nestingLevel={nestingLevel} className="mb-4" ref={navigationRef}>
       <Collapsible defaultOpen={false}>
         <CardHeader nestingLevel={nestingLevel}>
           <CollapsibleTrigger asChild>

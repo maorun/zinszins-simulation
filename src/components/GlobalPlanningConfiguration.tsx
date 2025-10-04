@@ -6,6 +6,7 @@ import { Switch } from './ui/switch'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { useSimulation } from '../contexts/useSimulation'
+import { useNavigationItem } from '../hooks/useNavigationItem'
 import { calculateEndOfLifeYear, calculateCurrentAge, getDefaultLifeExpectancy } from '../../helpers/life-expectancy'
 import { calculateJointLifeExpectancy } from '../../helpers/rmd-tables'
 import { CoupleStatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
@@ -80,8 +81,15 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
     setEndOfLife,
   ])
 
+  const navigationRef = useNavigationItem({
+    id: 'global-planning',
+    title: 'Globale Planung (Einzelperson/Ehepaar)',
+    icon: '👥',
+    level: 0,
+  })
+
   return (
-    <Card className="mb-6">
+    <Card className="mb-6" ref={navigationRef}>
       <Collapsible defaultOpen={false}>
         <CardHeader>
           <CollapsibleTrigger asChild>
