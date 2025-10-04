@@ -17,6 +17,8 @@ import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import type { StatutoryPensionConfig, CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import { convertLegacyToCoupleConfig } from '../../helpers/statutory-pension'
 import { updateFreibetragForPlanningMode } from '../utils/freibetrag-calculation'
+import type { CareCostConfiguration } from '../../helpers/care-cost-simulation'
+import { createDefaultCareCostConfiguration } from '../../helpers/care-cost-simulation'
 
 export interface SimulationContextState {
   rendite: number
@@ -107,6 +109,9 @@ export interface SimulationContextState {
   // Couple statutory pension configuration (new)
   coupleStatutoryPensionConfig: CoupleStatutoryPensionConfig | null
   setCoupleStatutoryPensionConfig: (config: CoupleStatutoryPensionConfig | null) => void
+  // Care cost configuration
+  careCostConfiguration: CareCostConfiguration
+  setCareCostConfiguration: (config: CareCostConfiguration) => void
 }
 
 export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {
@@ -281,6 +286,22 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
         : null
     })
 
+  // Care cost configuration state
+  const [careCostConfiguration, setCareCostConfiguration] = useState<CareCostConfiguration>(() => {
+    const savedConfig = (initialConfig as any).careCostConfiguration
+    if (savedConfig) {
+      // Ensure the planning mode matches the global planning mode
+      return {
+        ...savedConfig,
+        planningMode: (initialConfig as any).planningMode || 'individual',
+      }
+    }
+    return {
+      ...createDefaultCareCostConfiguration(),
+      planningMode: (initialConfig as any).planningMode || 'individual',
+    }
+  })
+
   // Synchronize startEnd[1] (withdrawal end year) with endOfLife (life expectancy calculation)
   useEffect(() => {
     // Only update if endOfLife is different from current startEnd[1]
@@ -338,6 +359,18 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     }
   }, [planningMode, coupleStatutoryPensionConfig])
 
+  // Update care cost configuration when planning mode changes
+  useEffect(() => {
+    if (careCostConfiguration.planningMode !== planningMode) {
+      setCareCostConfiguration(prevConfig => ({
+        ...prevConfig,
+        planningMode,
+        // Reset couple configuration when switching to individual mode
+        coupleConfig: planningMode === 'individual' ? undefined : prevConfig.coupleConfig,
+      }))
+    }
+  }, [planningMode, careCostConfiguration.planningMode])
+
   // Create a wrapper for setEndOfLife that ensures values are always rounded to whole numbers
   const setEndOfLifeRounded = useCallback((value: number) => {
     setEndOfLife(Math.round(value))
@@ -384,6 +417,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     withdrawal: withdrawalConfig || undefined,
     statutoryPensionConfig: statutoryPensionConfig || undefined,
     coupleStatutoryPensionConfig: coupleStatutoryPensionConfig || undefined,
+    careCostConfiguration,
   }), [
     rendite,
     steuerlast,
@@ -418,6 +452,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     withdrawalConfig,
     statutoryPensionConfig,
     coupleStatutoryPensionConfig,
+    careCostConfiguration,
   ])
 
   const saveCurrentConfiguration = useCallback(() => {
@@ -509,6 +544,15 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
           ? convertLegacyToCoupleConfig(savedConfig.statutoryPensionConfig, (savedConfig as any).planningMode || 'couple')
           : null)
       setCoupleStatutoryPensionConfig(coupleConfig)
+
+      // Load care cost configuration
+      const careConfig = (savedConfig as any).careCostConfiguration
+      if (careConfig) {
+        setCareCostConfiguration({
+          ...careConfig,
+          planningMode: (savedConfig as any).planningMode || 'individual',
+        })
+      }
     }
   }, [defaultConfig])
 
@@ -553,6 +597,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setWithdrawalConfig(null) // Reset withdrawal config to null
     setStatutoryPensionConfig(null) // Reset statutory pension config to null
     setCoupleStatutoryPensionConfig(null) // Reset couple statutory pension config to null
+    setCareCostConfiguration(createDefaultCareCostConfiguration()) // Reset care cost config to defaults
   }, [defaultConfig, setSparplanElemente])
 
   // Auto-save configuration whenever any config value changes
@@ -706,6 +751,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     statutoryPensionConfig, setStatutoryPensionConfig,
     // Couple statutory pension configuration (new)
     coupleStatutoryPensionConfig, setCoupleStatutoryPensionConfig,
+    // Care cost configuration
+    careCostConfiguration, setCareCostConfiguration,
   }), [
     rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration,
     steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase,
@@ -717,7 +764,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     birthYear, expectedLifespan, useAutomaticCalculation,
     simulationData, isLoading, withdrawalResults, performSimulation,
     getCurrentConfiguration, saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
-    withdrawalConfig, statutoryPensionConfig, coupleStatutoryPensionConfig, setEndOfLifeRounded,
+    withdrawalConfig, statutoryPensionConfig, coupleStatutoryPensionConfig, careCostConfiguration,
+    setEndOfLifeRounded,
   ])
 
   return (

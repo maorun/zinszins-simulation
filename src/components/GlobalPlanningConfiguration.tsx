@@ -10,6 +10,7 @@ import { useNavigationItem } from '../hooks/useNavigationItem'
 import { calculateEndOfLifeYear, calculateCurrentAge, getDefaultLifeExpectancy } from '../../helpers/life-expectancy'
 import { calculateJointLifeExpectancy } from '../../helpers/rmd-tables'
 import { CoupleStatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
+import { CareCostConfiguration } from './CareCostConfiguration'
 import { useEffect } from 'react'
 
 interface GlobalPlanningConfigurationProps {
@@ -40,6 +41,9 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
     // Couple statutory pension configuration (new)
     coupleStatutoryPensionConfig,
     setCoupleStatutoryPensionConfig,
+    // Care cost configuration
+    careCostConfiguration,
+    setCareCostConfiguration,
   } = useSimulation()
 
   // Automatic calculation effect - triggers when automatic mode is enabled and relevant data changes
@@ -536,6 +540,19 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
                   birthYear={birthYear}
                   spouseBirthYear={spouse?.birthYear}
                   planningMode={planningMode}
+                />
+              </div>
+
+              {/* Care Cost Configuration Card */}
+              <div className="mb-6">
+                <CareCostConfiguration
+                  values={careCostConfiguration}
+                  onChange={setCareCostConfiguration}
+                  currentYear={new Date().getFullYear()}
+                  birthYear={birthYear}
+                  spouseBirthYear={spouse?.birthYear}
+                  planningMode={planningMode}
+                  nestingLevel={1}
                 />
               </div>
             </div>

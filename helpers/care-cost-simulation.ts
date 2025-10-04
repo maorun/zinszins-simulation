@@ -1,0 +1,525 @@
+/**
+ * Types and utilities for German care cost simulation (Pflegekosten-Simulation)
+ *
+ * German care system operates with 5 care levels (Pflegegrade):
+ * - Pflegegrad 1: Geringe Beeinträchtigung der Selbständigkeit (slight impairment)
+ * - Pflegegrad 2: Erhebliche Beeinträchtigung der Selbständigkeit (considerable impairment)
+ * - Pflegegrad 3: Schwere Beeinträchtigung der Selbständigkeit (severe impairment)
+ * - Pflegegrad 4: Schwerste Beeinträchtigung der Selbständigkeit (most severe impairment)
+ * - Pflegegrad 5: Schwerste Beeinträchtigung mit besonderen Anforderungen (most severe with special requirements)
+ */
+
+/**
+ * German care levels (Pflegegrade) with their characteristics and typical monthly costs
+ */
+export type CareLevel = 1 | 2 | 3 | 4 | 5
+
+/**
+ * Care level information with benefits and typical costs
+ */
+export interface CareLevelInfo {
+  /** Care level (1-5) */
+  level: CareLevel
+  /** German name */
+  name: string
+  /** Description of impairment level */
+  description: string
+  /** Monthly care allowance from statutory insurance (Pflegegeld) in EUR */
+  careAllowance: number
+  /** Maximum care service benefit from statutory insurance (Pflegesachleistung) in EUR */
+  careServiceBenefit: number
+  /** Typical monthly out-of-pocket costs in EUR (can be customized) */
+  typicalMonthlyCost: number
+  /** Whether professional care is typically needed */
+  requiresProfessionalCare: boolean
+}
+
+/**
+ * Default care level information based on 2024 German care insurance benefits
+ */
+export const DEFAULT_CARE_LEVELS: Record<CareLevel, CareLevelInfo> = {
+  1: {
+    level: 1,
+    name: 'Pflegegrad 1',
+    description: 'Geringe Beeinträchtigung der Selbständigkeit',
+    careAllowance: 0, // No cash benefit for level 1
+    careServiceBenefit: 0, // Only 125€ relief amount not included here
+    typicalMonthlyCost: 200,
+    requiresProfessionalCare: false,
+  },
+  2: {
+    level: 2,
+    name: 'Pflegegrad 2',
+    description: 'Erhebliche Beeinträchtigung der Selbständigkeit',
+    careAllowance: 332,
+    careServiceBenefit: 760,
+    typicalMonthlyCost: 800,
+    requiresProfessionalCare: false,
+  },
+  3: {
+    level: 3,
+    name: 'Pflegegrad 3',
+    description: 'Schwere Beeinträchtigung der Selbständigkeit',
+    careAllowance: 573,
+    careServiceBenefit: 1432,
+    typicalMonthlyCost: 1500,
+    requiresProfessionalCare: true,
+  },
+  4: {
+    level: 4,
+    name: 'Pflegegrad 4',
+    description: 'Schwerste Beeinträchtigung der Selbständigkeit',
+    careAllowance: 765,
+    careServiceBenefit: 1778,
+    typicalMonthlyCost: 2500,
+    requiresProfessionalCare: true,
+  },
+  5: {
+    level: 5,
+    name: 'Pflegegrad 5',
+    description: 'Schwerste Beeinträchtigung mit besonderen Anforderungen',
+    careAllowance: 947,
+    careServiceBenefit: 2200,
+    typicalMonthlyCost: 3500,
+    requiresProfessionalCare: true,
+  },
+}
+
+/**
+ * Care cost configuration for simulation
+ */
+export interface CareCostConfiguration {
+  /** Whether care cost simulation is enabled */
+  enabled: boolean
+
+  /** Year when care needs are expected to begin */
+  startYear: number
+
+  /** Expected care level (1-5) */
+  careLevel: CareLevel
+
+  /** Custom monthly care costs (overrides typical costs if provided) */
+  customMonthlyCosts?: number
+
+  /** Annual inflation rate for care costs (default: 3%) */
+  careInflationRate: number
+
+  /** Whether to include statutory care insurance benefits */
+  includeStatutoryBenefits: boolean
+
+  /** Private care insurance monthly benefit (additional to statutory) */
+  privateCareInsuranceMonthlyBenefit: number
+
+  /** Duration of care in years (0 = until end of life) */
+  careDurationYears: number
+
+  /** Planning mode for couples */
+  planningMode: 'individual' | 'couple'
+
+  /** For couples: configuration for second person */
+  coupleConfig?: {
+    /** Whether second person also needs care */
+    person2NeedsCare: boolean
+    /** Start year for second person */
+    person2StartYear?: number
+    /** Care level for second person */
+    person2CareLevel?: CareLevel
+    /** Custom monthly costs for second person */
+    person2CustomMonthlyCosts?: number
+    /** Duration for second person */
+    person2CareDurationYears?: number
+  }
+
+  /** Whether care costs are tax deductible */
+  taxDeductible: boolean
+
+  /** Maximum annual tax deduction for care costs */
+  maxAnnualTaxDeduction: number
+}
+
+/**
+ * Result of care cost calculation for a specific year
+ */
+export interface CareCostYearResult {
+  /** Year of calculation */
+  year: number
+
+  /** Whether care is needed this year */
+  careNeeded: boolean
+
+  /** Total monthly care costs before benefits */
+  monthlyCostsGross: number
+
+  /** Monthly statutory care benefits received */
+  monthlyStatutoryBenefits: number
+
+  /** Monthly private care insurance benefits */
+  monthlyPrivateBenefits: number
+
+  /** Total monthly care costs after benefits (net out-of-pocket) */
+  monthlyCostsNet: number
+
+  /** Annual care costs after benefits */
+  annualCostsNet: number
+
+  /** Tax deduction amount for the year */
+  taxDeductionAmount: number
+
+  /** Care level for this year */
+  careLevel: CareLevel
+
+  /** Inflation adjustment factor applied */
+  inflationAdjustmentFactor: number
+
+  /** For couples: results for both persons */
+  coupleResults?: {
+    person1: CareCostPersonResult
+    person2: CareCostPersonResult
+    combined: {
+      monthlyCostsNet: number
+      annualCostsNet: number
+      taxDeductionAmount: number
+    }
+  }
+}
+
+/**
+ * Individual person result for couple care cost calculation
+ */
+export interface CareCostPersonResult {
+  /** Person identifier */
+  personId: 1 | 2
+  /** Whether this person needs care */
+  needsCare: boolean
+  /** Monthly net care costs */
+  monthlyCostsNet: number
+  /** Annual net care costs */
+  annualCostsNet: number
+  /** Care level */
+  careLevel?: CareLevel
+}
+
+/**
+ * Default care cost configuration
+ */
+export function createDefaultCareCostConfiguration(): CareCostConfiguration {
+  return {
+    enabled: false,
+    startYear: new Date().getFullYear() + 15, // Assume care starts in 15 years
+    careLevel: 2, // Moderate care needs
+    careInflationRate: 3, // Higher than general inflation
+    includeStatutoryBenefits: true,
+    privateCareInsuranceMonthlyBenefit: 0,
+    careDurationYears: 0, // Until end of life
+    planningMode: 'individual',
+    taxDeductible: true,
+    maxAnnualTaxDeduction: 20000, // Current German limit for extraordinary burdens
+  }
+}
+
+/**
+ * Calculate care costs for a specific year
+ */
+export function calculateCareCostsForYear(
+  config: CareCostConfiguration,
+  year: number,
+  _birthYear?: number,
+  _spouseBirthYear?: number,
+): CareCostYearResult {
+  // Check if care is needed this year
+  const careNeeded = config.enabled && year >= config.startYear
+
+  if (!careNeeded) {
+    return {
+      year,
+      careNeeded: false,
+      monthlyCostsGross: 0,
+      monthlyStatutoryBenefits: 0,
+      monthlyPrivateBenefits: 0,
+      monthlyCostsNet: 0,
+      annualCostsNet: 0,
+      taxDeductionAmount: 0,
+      careLevel: config.careLevel,
+      inflationAdjustmentFactor: 1,
+    }
+  }
+
+  // Check if care duration has ended
+  if (config.careDurationYears > 0) {
+    const careEndYear = config.startYear + config.careDurationYears
+    if (year >= careEndYear) {
+      return {
+        year,
+        careNeeded: false,
+        monthlyCostsGross: 0,
+        monthlyStatutoryBenefits: 0,
+        monthlyPrivateBenefits: 0,
+        monthlyCostsNet: 0,
+        annualCostsNet: 0,
+        taxDeductionAmount: 0,
+        careLevel: config.careLevel,
+        inflationAdjustmentFactor: 1,
+      }
+    }
+  }
+
+  // Calculate inflation adjustment
+  const yearsFromStart = Math.max(0, year - config.startYear)
+  const inflationAdjustmentFactor = Math.pow(1 + config.careInflationRate / 100, yearsFromStart)
+
+  // Get care level info
+  const careLevelInfo = DEFAULT_CARE_LEVELS[config.careLevel]
+
+  // Calculate gross monthly costs (either custom or typical costs adjusted for inflation)
+  const baseMonthlyCost = config.customMonthlyCosts ?? careLevelInfo.typicalMonthlyCost
+  const monthlyCostsGross = baseMonthlyCost * inflationAdjustmentFactor
+
+  // Calculate statutory benefits (if enabled)
+  let monthlyStatutoryBenefits = 0
+  if (config.includeStatutoryBenefits) {
+    // Use care allowance as the primary statutory benefit
+    // In practice, people often choose between care allowance and care services
+    monthlyStatutoryBenefits = careLevelInfo.careAllowance
+  }
+
+  // Private care insurance benefits
+  const monthlyPrivateBenefits = config.privateCareInsuranceMonthlyBenefit * inflationAdjustmentFactor
+
+  // Calculate net costs
+  const monthlyCostsNet = Math.max(0, monthlyCostsGross - monthlyStatutoryBenefits - monthlyPrivateBenefits)
+  const annualCostsNet = monthlyCostsNet * 12
+
+  // Calculate tax deduction
+  let taxDeductionAmount = 0
+  if (config.taxDeductible && annualCostsNet > 0) {
+    // In Germany, extraordinary burdens (außergewöhnliche Belastungen) are tax deductible
+    // above a certain threshold, but we simplify here
+    taxDeductionAmount = Math.min(annualCostsNet, config.maxAnnualTaxDeduction)
+  }
+
+  const result: CareCostYearResult = {
+    year,
+    careNeeded: true,
+    monthlyCostsGross,
+    monthlyStatutoryBenefits,
+    monthlyPrivateBenefits,
+    monthlyCostsNet,
+    annualCostsNet,
+    taxDeductionAmount,
+    careLevel: config.careLevel,
+    inflationAdjustmentFactor,
+  }
+
+  // Handle couple configuration
+  if (config.planningMode === 'couple' && config.coupleConfig) {
+    const person1Result = calculatePersonCareCosts(config, year, 1, inflationAdjustmentFactor)
+    const person2Result = calculatePersonCareCosts(config, year, 2, inflationAdjustmentFactor)
+
+    result.coupleResults = {
+      person1: person1Result,
+      person2: person2Result,
+      combined: {
+        monthlyCostsNet: person1Result.monthlyCostsNet + person2Result.monthlyCostsNet,
+        annualCostsNet: person1Result.annualCostsNet + person2Result.annualCostsNet,
+        taxDeductionAmount: Math.min(
+          person1Result.annualCostsNet + person2Result.annualCostsNet,
+          config.maxAnnualTaxDeduction,
+        ),
+      },
+    }
+
+    // Update main result with combined values
+    result.monthlyCostsNet = result.coupleResults.combined.monthlyCostsNet
+    result.annualCostsNet = result.coupleResults.combined.annualCostsNet
+    result.taxDeductionAmount = result.coupleResults.combined.taxDeductionAmount
+  }
+
+  return result
+}
+
+/**
+ * Calculate care costs for an individual person in a couple
+ */
+function calculatePersonCareCosts(
+  config: CareCostConfiguration,
+  year: number,
+  personId: 1 | 2,
+  inflationAdjustmentFactor: number,
+): CareCostPersonResult {
+  if (personId === 1) {
+    // Person 1 uses main configuration
+    const careNeeded = year >= config.startYear
+    if (!careNeeded || (config.careDurationYears > 0 && year >= config.startYear + config.careDurationYears)) {
+      return {
+        personId: 1,
+        needsCare: false,
+        monthlyCostsNet: 0,
+        annualCostsNet: 0,
+      }
+    }
+
+    const careLevelInfo = DEFAULT_CARE_LEVELS[config.careLevel]
+    const baseMonthlyCost = config.customMonthlyCosts ?? careLevelInfo.typicalMonthlyCost
+    const monthlyCostsGross = baseMonthlyCost * inflationAdjustmentFactor
+
+    let monthlyStatutoryBenefits = 0
+    if (config.includeStatutoryBenefits) {
+      monthlyStatutoryBenefits = careLevelInfo.careAllowance
+    }
+
+    const monthlyPrivateBenefits = config.privateCareInsuranceMonthlyBenefit * inflationAdjustmentFactor
+    const monthlyCostsNet = Math.max(0, monthlyCostsGross - monthlyStatutoryBenefits - monthlyPrivateBenefits)
+
+    return {
+      personId: 1,
+      needsCare: true,
+      monthlyCostsNet,
+      annualCostsNet: monthlyCostsNet * 12,
+      careLevel: config.careLevel,
+    }
+  }
+  else {
+    // Person 2 uses couple configuration
+    const coupleConfig = config.coupleConfig
+    if (!coupleConfig || !coupleConfig.person2NeedsCare || !coupleConfig.person2StartYear) {
+      return {
+        personId: 2,
+        needsCare: false,
+        monthlyCostsNet: 0,
+        annualCostsNet: 0,
+      }
+    }
+
+    const careNeeded = year >= coupleConfig.person2StartYear
+    const careEndYear = coupleConfig.person2StartYear + (coupleConfig.person2CareDurationYears || 0)
+    const hasDuration = coupleConfig.person2CareDurationYears && coupleConfig.person2CareDurationYears > 0
+    if (!careNeeded || (hasDuration && year >= careEndYear)) {
+      return {
+        personId: 2,
+        needsCare: false,
+        monthlyCostsNet: 0,
+        annualCostsNet: 0,
+      }
+    }
+
+    const careLevel = coupleConfig.person2CareLevel ?? config.careLevel
+    const careLevelInfo = DEFAULT_CARE_LEVELS[careLevel]
+    const baseMonthlyCost = coupleConfig.person2CustomMonthlyCosts ?? careLevelInfo.typicalMonthlyCost
+    const monthlyCostsGross = baseMonthlyCost * inflationAdjustmentFactor
+
+    let monthlyStatutoryBenefits = 0
+    if (config.includeStatutoryBenefits) {
+      monthlyStatutoryBenefits = careLevelInfo.careAllowance
+    }
+
+    const monthlyPrivateBenefits = config.privateCareInsuranceMonthlyBenefit * inflationAdjustmentFactor
+    const monthlyCostsNet = Math.max(0, monthlyCostsGross - monthlyStatutoryBenefits - monthlyPrivateBenefits)
+
+    return {
+      personId: 2,
+      needsCare: true,
+      monthlyCostsNet,
+      annualCostsNet: monthlyCostsNet * 12,
+      careLevel,
+    }
+  }
+}
+
+/**
+ * Calculate total care costs over a period
+ */
+export function calculateTotalCareCosts(
+  config: CareCostConfiguration,
+  startYear: number,
+  endYear: number,
+  birthYear?: number,
+  spouseBirthYear?: number,
+): {
+  totalCosts: number
+  totalTaxDeductions: number
+  yearlyResults: CareCostYearResult[]
+} {
+  const yearlyResults: CareCostYearResult[] = []
+  let totalCosts = 0
+  let totalTaxDeductions = 0
+
+  for (let year = startYear; year <= endYear; year++) {
+    const yearResult = calculateCareCostsForYear(config, year, birthYear, spouseBirthYear)
+    yearlyResults.push(yearResult)
+    totalCosts += yearResult.annualCostsNet
+    totalTaxDeductions += yearResult.taxDeductionAmount
+  }
+
+  return {
+    totalCosts,
+    totalTaxDeductions,
+    yearlyResults,
+  }
+}
+
+/**
+ * Get display name for care level
+ */
+export function getCareLevelDisplayName(level: CareLevel): string {
+  return DEFAULT_CARE_LEVELS[level].name
+}
+
+/**
+ * Get description for care level
+ */
+export function getCareLevelDescription(level: CareLevel): string {
+  return DEFAULT_CARE_LEVELS[level].description
+}
+
+/**
+ * Validate care cost configuration
+ */
+export function validateCareCostConfiguration(config: CareCostConfiguration): string[] {
+  const errors: string[] = []
+
+  if (config.enabled) {
+    if (config.startYear < new Date().getFullYear()) {
+      errors.push('Startjahr für Pflegebedürftigkeit kann nicht in der Vergangenheit liegen.')
+    }
+
+    if (config.careInflationRate < 0 || config.careInflationRate > 20) {
+      errors.push('Inflationsrate für Pflegekosten muss zwischen 0% und 20% liegen.')
+    }
+
+    if (config.privateCareInsuranceMonthlyBenefit < 0) {
+      errors.push('Private Pflegeversicherungsleistung kann nicht negativ sein.')
+    }
+
+    if (config.careDurationYears < 0) {
+      errors.push('Pflegedauer kann nicht negativ sein.')
+    }
+
+    if (config.customMonthlyCosts && config.customMonthlyCosts < 0) {
+      errors.push('Monatliche Pflegekosten können nicht negativ sein.')
+    }
+
+    if (config.maxAnnualTaxDeduction < 0) {
+      errors.push('Maximaler Steuerabzug kann nicht negativ sein.')
+    }
+
+    // Validate couple configuration
+    if (config.planningMode === 'couple' && config.coupleConfig?.person2NeedsCare) {
+      if (!config.coupleConfig.person2StartYear) {
+        errors.push('Startjahr für Person 2 muss angegeben werden.')
+      }
+      else if (config.coupleConfig.person2StartYear < new Date().getFullYear()) {
+        errors.push('Startjahr für Person 2 kann nicht in der Vergangenheit liegen.')
+      }
+
+      if (config.coupleConfig.person2CareDurationYears && config.coupleConfig.person2CareDurationYears < 0) {
+        errors.push('Pflegedauer für Person 2 kann nicht negativ sein.')
+      }
+
+      if (config.coupleConfig.person2CustomMonthlyCosts && config.coupleConfig.person2CustomMonthlyCosts < 0) {
+        errors.push('Monatliche Pflegekosten für Person 2 können nicht negativ sein.')
+      }
+    }
+  }
+
+  return errors
+}
