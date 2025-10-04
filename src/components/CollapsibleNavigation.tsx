@@ -1,15 +1,15 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { ChevronDown, Navigation, ExternalLink } from 'lucide-react'
 import { cn } from '../lib/utils'
-import { useNavigation } from '../contexts/NavigationContext'
+import { useNavigation } from '../hooks/useNavigation'
 
 export function CollapsibleNavigation() {
   const [isOpen, setIsOpen] = useState(false)
   const { getNavigationTree, scrollToItem } = useNavigation()
-  
+
   const navigationItems = getNavigationTree()
 
   const handleItemClick = (id: string) => {
@@ -36,7 +36,9 @@ export function CollapsibleNavigation() {
               </CardTitle>
               <div className="flex items-center gap-2">
                 <span className="text-sm text-blue-600 hidden sm:inline">
-                  {navigationItems.length} Bereiche
+                  {navigationItems.length}
+                  {' '}
+                  Bereiche
                 </span>
                 <ChevronDown className="h-5 w-5 text-blue-600 transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </div>
@@ -50,7 +52,7 @@ export function CollapsibleNavigation() {
                 Klicke auf einen Bereich, um dorthin zu springen und ihn aufzuklappen:
               </p>
               <div className="grid gap-2 max-h-96 overflow-y-auto">
-                {navigationItems.map((item) => (
+                {navigationItems.map(item => (
                   <Button
                     key={item.id}
                     variant="ghost"
@@ -59,7 +61,7 @@ export function CollapsibleNavigation() {
                     className={cn(
                       'justify-start text-left h-auto py-2 px-3 hover:bg-blue-100 hover:text-blue-800 transition-colors group border border-transparent hover:border-blue-300 rounded-md',
                       item.level > 0 && 'ml-4 text-sm',
-                      item.level > 1 && 'ml-8 text-xs'
+                      item.level > 1 && 'ml-8 text-xs',
                     )}
                   >
                     <div className="flex items-center gap-2 w-full">

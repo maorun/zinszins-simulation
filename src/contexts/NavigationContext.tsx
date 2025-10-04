@@ -1,24 +1,6 @@
-import React, { createContext, useContext, useState, useCallback, ReactNode } from 'react'
-
-interface NavigationItem {
-  id: string
-  title: string
-  icon?: string
-  parentId?: string
-  level: number
-  element?: HTMLElement | null
-}
-
-interface NavigationContextType {
-  items: Map<string, NavigationItem>
-  registerItem: (item: NavigationItem) => void
-  unregisterItem: (id: string) => void
-  expandItem: (id: string) => void
-  scrollToItem: (id: string) => void
-  getNavigationTree: () => NavigationItem[]
-}
-
-const NavigationContext = createContext<NavigationContextType | undefined>(undefined)
+import { useState, useCallback, ReactNode } from 'react'
+import { NavigationContext } from './navigationContext'
+import type { NavigationItem } from './navigationContext'
 
 interface NavigationProviderProps {
   children: ReactNode
@@ -28,7 +10,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
   const [items, setItems] = useState<Map<string, NavigationItem>>(new Map())
 
   const registerItem = useCallback((item: NavigationItem) => {
-    setItems(prev => {
+    setItems((prev) => {
       const newItems = new Map(prev)
       newItems.set(item.id, item)
       return newItems
@@ -36,7 +18,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
   }, [])
 
   const unregisterItem = useCallback((id: string) => {
-    setItems(prev => {
+    setItems((prev) => {
       const newItems = new Map(prev)
       newItems.delete(id)
       return newItems
@@ -87,7 +69,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
 
   const getNavigationTree = useCallback((): NavigationItem[] => {
     const itemsArray = Array.from(items.values())
-    
+
     // Sort by level and then by order they were registered
     return itemsArray.sort((a, b) => {
       if (a.level !== b.level) return a.level - b.level
@@ -109,12 +91,4 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
       {children}
     </NavigationContext.Provider>
   )
-}
-
-export function useNavigation() {
-  const context = useContext(NavigationContext)
-  if (context === undefined) {
-    throw new Error('useNavigation must be used within a NavigationProvider')
-  }
-  return context
 }

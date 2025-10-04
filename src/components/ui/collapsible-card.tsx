@@ -65,9 +65,9 @@ export const CollapsibleCard = React.forwardRef<
 
   return (
     <Collapsible defaultOpen={false}>
-      <Card 
-        nestingLevel={nestingLevel} 
-        {...props} 
+      <Card
+        nestingLevel={nestingLevel}
+        {...props}
         ref={navigationId ? navigationRef : ref}
       >
         {children}

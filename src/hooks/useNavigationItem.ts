@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { useNavigation } from '../contexts/NavigationContext'
+import { useNavigationOptional } from './useNavigation'
 
 interface UseNavigationItemProps {
   id: string
@@ -16,11 +16,15 @@ export function useNavigationItem({
   parentId,
   level = 0,
 }: UseNavigationItemProps) {
-  const elementRef = useRef<HTMLElement>(null)
-  const { registerItem, unregisterItem } = useNavigation()
+  const elementRef = useRef<HTMLDivElement>(null)
+
+  // Only use navigation if it's available (optional)
+  const navigation = useNavigationOptional()
+  const registerItem = navigation?.registerItem
+  const unregisterItem = navigation?.unregisterItem
 
   useEffect(() => {
-    if (elementRef.current) {
+    if (elementRef.current && registerItem && id) {
       registerItem({
         id,
         title,
@@ -32,7 +36,9 @@ export function useNavigationItem({
     }
 
     return () => {
-      unregisterItem(id)
+      if (unregisterItem && id) {
+        unregisterItem(id)
+      }
     }
   }, [id, title, icon, parentId, level, registerItem, unregisterItem])
 
