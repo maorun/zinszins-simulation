@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef } from 'react'
 import { Button } from '../components/ui/button'
-import ConfigurationManagement from '../components/ConfigurationManagement'
+import ProfileManagement from '../components/ProfileManagement'
 import DataExport from '../components/DataExport'
 import Header from '../components/Header'
 import SimulationModeSelector from '../components/SimulationModeSelector'
@@ -332,7 +332,7 @@ const HomePageContent = () => {
       {/* Global Planning Configuration - Available for all calculations including Vorabpauschale */}
       <GlobalPlanningConfiguration startOfIndependence={startEnd[0]} />
 
-      <ConfigurationManagement />
+      <ProfileManagement />
 
       <SpecialEvents
         dispatch={(updatedSparplan) => {

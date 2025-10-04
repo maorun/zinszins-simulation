@@ -7,6 +7,13 @@ import { convertSparplanToElements, initialSparplan } from '../utils/sparplan-ut
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import { SimulationContext } from './SimulationContextValue'
 import { saveConfiguration, loadConfiguration, type SavedConfiguration, type WithdrawalConfiguration } from '../utils/config-storage'
+import { 
+  initializeProfileStorage, 
+  getActiveProfile, 
+  updateProfile, 
+  getAllProfiles,
+  hasProfiles,
+} from '../utils/profile-storage'
 import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import type { StatutoryPensionConfig, CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import { convertLegacyToCoupleConfig } from '../../helpers/statutory-pension'
@@ -154,10 +161,22 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     useAutomaticCalculation: true,
   }), [])
 
-  // Try to load saved configuration, fallback to defaults
+  // Try to load saved configuration, initialize profiles if needed
   const loadInitialConfig = () => {
-    const savedConfig = loadConfiguration()
-    return savedConfig || defaultConfig
+    // Try legacy configuration first
+    const legacyConfig = loadConfiguration()
+    
+    // Initialize profile storage with legacy config if it exists
+    const profileStorage = initializeProfileStorage(legacyConfig || undefined)
+    
+    // Get active profile config if available
+    const activeProfile = getActiveProfile()
+    if (activeProfile) {
+      return activeProfile.configuration
+    }
+    
+    // Fallback to legacy config or defaults
+    return legacyConfig || defaultConfig
   }
 
   const initialConfig = loadInitialConfig()
@@ -404,11 +423,38 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration()
-    saveConfiguration(config)
+    
+    // If profiles exist, save to active profile, otherwise use legacy storage
+    if (hasProfiles()) {
+      const activeProfile = getActiveProfile()
+      if (activeProfile) {
+        updateProfile(activeProfile.id, { configuration: config })
+      } else {
+        // Fallback to legacy storage if no active profile
+        saveConfiguration(config)
+      }
+    } else {
+      // Legacy storage for backward compatibility
+      saveConfiguration(config)
+    }
   }, [getCurrentConfiguration])
 
   const loadSavedConfiguration = useCallback(() => {
-    const savedConfig = loadConfiguration()
+    let savedConfig: SavedConfiguration | null = null
+    
+    // Try to load from active profile first
+    if (hasProfiles()) {
+      const activeProfile = getActiveProfile()
+      if (activeProfile) {
+        savedConfig = activeProfile.configuration
+      }
+    }
+    
+    // Fallback to legacy configuration if no profile config found
+    if (!savedConfig) {
+      savedConfig = loadConfiguration()
+    }
+    
     if (savedConfig) {
       setRendite(savedConfig.rendite)
       setSteuerlast(savedConfig.steuerlast)
