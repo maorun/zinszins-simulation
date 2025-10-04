@@ -10,8 +10,8 @@ import type { StatutoryPensionConfig } from './statutory-pension'
 import { calculateStatutoryPension } from './statutory-pension'
 import type { OtherIncomeConfiguration } from './other-income'
 import { calculateOtherIncome } from './other-income'
-import type { HealthCareInsuranceConfig } from './health-care-insurance'
-import { calculateHealthCareInsuranceForYear } from './health-care-insurance'
+import type { HealthCareInsuranceConfig, CoupleHealthInsuranceYearResult } from './health-care-insurance'
+import { calculateHealthCareInsuranceForYear, calculateCoupleHealthInsuranceForYear } from './health-care-insurance'
 
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt'
 
@@ -77,6 +77,8 @@ export type WithdrawalResultElement = {
     isRetirementPhase: boolean
     effectiveHealthInsuranceRate: number
     effectiveCareInsuranceRate: number
+    // Couple health insurance details (only present when in couple mode)
+    coupleDetails?: CoupleHealthInsuranceYearResult
   }
 }
 
@@ -431,18 +433,44 @@ export function calculateWithdrawal({
 
     // Calculate health care insurance contributions for this year
     let healthCareInsuranceData
+    let coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
     // let _healthCareInsuranceTotal = 0
     if (healthCareInsuranceConfig?.enabled) {
       const pensionAmount = statutoryPensionData[year]?.grossAnnualAmount || 0
       const currentAge = birthYear ? year - birthYear : 30
 
-      healthCareInsuranceData = calculateHealthCareInsuranceForYear(
-        healthCareInsuranceConfig,
-        year,
-        entnahme,
-        pensionAmount,
-        currentAge,
-      )
+      if (healthCareInsuranceConfig.planningMode === 'couple') {
+        // Use couple health insurance calculation
+        coupleHealthCareInsuranceData = calculateCoupleHealthInsuranceForYear(
+          healthCareInsuranceConfig,
+          year,
+          entnahme,
+          pensionAmount,
+        )
+        // For compatibility with existing logic, use the total from couple calculation
+        healthCareInsuranceData = {
+          healthInsuranceAnnual: coupleHealthCareInsuranceData.totalAnnual,
+          careInsuranceAnnual: 0, // Included in total
+          totalAnnual: coupleHealthCareInsuranceData.totalAnnual,
+          healthInsuranceMonthly: coupleHealthCareInsuranceData.totalMonthly,
+          careInsuranceMonthly: 0, // Included in total
+          totalMonthly: coupleHealthCareInsuranceData.totalMonthly,
+          insuranceType: healthCareInsuranceConfig.insuranceType,
+          isRetirementPhase: year >= healthCareInsuranceConfig.retirementStartYear,
+          appliedAdditionalCareInsurance: false,
+          usedFixedAmounts: false,
+        }
+      }
+      else {
+        // Use individual health insurance calculation
+        healthCareInsuranceData = calculateHealthCareInsuranceForYear(
+          healthCareInsuranceConfig,
+          year,
+          entnahme,
+          pensionAmount,
+          currentAge,
+        )
+      }
       // _healthCareInsuranceTotal = healthCareInsuranceData.totalAnnual
     }
 
@@ -736,6 +764,8 @@ export function calculateWithdrawal({
             isRetirementPhase: healthCareInsuranceData.isRetirementPhase,
             effectiveHealthInsuranceRate: healthCareInsuranceData.effectiveHealthInsuranceRate || 0,
             effectiveCareInsuranceRate: healthCareInsuranceData.effectiveCareInsuranceRate || 0,
+            // Include couple details if in couple mode
+            coupleDetails: coupleHealthCareInsuranceData,
           }
         : undefined,
     }

@@ -9,11 +9,75 @@
  */
 
 /**
+ * Planning mode for health insurance configuration
+ */
+export type HealthCarePlanningMode = 'individual' | 'couple'
+
+/**
+ * Couple strategy for statutory health insurance
+ */
+export type CoupleHealthInsuranceStrategy = 'individual' | 'family' | 'optimize'
+
+/**
+ * Family insurance thresholds for German statutory health insurance
+ */
+export interface FamilyInsuranceThresholds {
+  /** Regular employment limit (monthly, EUR) */
+  regularEmploymentLimit: number
+  /** Mini-job limit (monthly, EUR) */
+  miniJobLimit: number
+  /** Year these thresholds apply to */
+  year: number
+}
+
+/**
+ * Couple health insurance configuration for statutory insurance
+ */
+export interface CoupleHealthInsuranceConfig {
+  /** Strategy for couple: individual insurance for both, family insurance, or optimize */
+  strategy: CoupleHealthInsuranceStrategy
+
+  /** Family insurance thresholds */
+  familyInsuranceThresholds: FamilyInsuranceThresholds
+
+  /** Person 1 configuration */
+  person1: {
+    /** Person name for display */
+    name?: string
+    /** Birth year for age calculations */
+    birthYear?: number
+    /** Share of withdrawal amount allocated to this person (0-1) */
+    withdrawalShare: number
+    /** Other income sources for this person */
+    otherIncomeAnnual: number
+    /** Additional care insurance for childless */
+    additionalCareInsuranceForChildless: boolean
+  }
+
+  /** Person 2 configuration */
+  person2: {
+    /** Person name for display */
+    name?: string
+    /** Birth year for age calculations */
+    birthYear?: number
+    /** Share of withdrawal amount allocated to this person (0-1) */
+    withdrawalShare: number
+    /** Other income sources for this person */
+    otherIncomeAnnual: number
+    /** Additional care insurance for childless */
+    additionalCareInsuranceForChildless: boolean
+  }
+}
+
+/**
  * Configuration for German health and care insurance contributions
  */
 export interface HealthCareInsuranceConfig {
   /** Whether health and care insurance contributions are enabled in the calculation */
   enabled: boolean
+
+  /** Planning mode: individual or couple */
+  planningMode: HealthCarePlanningMode
 
   /** Insurance type: 'statutory' for gesetzliche KV or 'private' for private KV */
   insuranceType: 'statutory' | 'private'
@@ -50,6 +114,9 @@ export interface HealthCareInsuranceConfig {
 
   /** Age at which additional care insurance applies */
   additionalCareInsuranceAge: number
+
+  /** Couple configuration (only used when planningMode is 'couple') */
+  coupleConfig?: CoupleHealthInsuranceConfig
 
   /** Legacy property names for backward compatibility */
   /** @deprecated Use statutoryHealthInsuranceRate instead */
@@ -124,10 +191,77 @@ export interface HealthCareInsuranceYearResult {
 }
 
 /**
+ * Individual person result for couple health insurance calculation
+ */
+export interface CoupleHealthInsurancePersonResult {
+  /** Person identifier */
+  personId: 1 | 2
+  /** Person name */
+  name: string
+  /** Individual health insurance result for this person */
+  healthInsuranceResult: HealthCareInsuranceYearResult
+  /** Income allocated to this person */
+  allocatedIncome: number
+  /** Other income for this person */
+  otherIncome: number
+  /** Total income for this person */
+  totalIncome: number
+  /** Whether this person is covered by family insurance */
+  coveredByFamilyInsurance: boolean
+  /** Whether this person qualifies for family insurance based on income */
+  qualifiesForFamilyInsurance: boolean
+}
+
+/**
+ * Result of couple health insurance optimization for one year
+ */
+export interface CoupleHealthInsuranceYearResult {
+  /** Strategy used: individual, family, or optimized choice */
+  strategyUsed: CoupleHealthInsuranceStrategy
+  /** Total annual cost for both persons */
+  totalAnnual: number
+  /** Total monthly cost for both persons */
+  totalMonthly: number
+  /** Individual results for each person */
+  person1: CoupleHealthInsurancePersonResult
+  person2: CoupleHealthInsurancePersonResult
+  /** Comparison of different strategies */
+  strategyComparison: {
+    individual: { totalAnnual: number, totalMonthly: number }
+    family: { totalAnnual: number, totalMonthly: number, primaryInsuredPerson: 1 | 2 }
+    optimized: {
+      totalAnnual: number
+      totalMonthly: number
+      recommendedStrategy: CoupleHealthInsuranceStrategy
+      savings: number
+    }
+  }
+  /** Family insurance details */
+  familyInsuranceDetails: {
+    threshold: number
+    person1QualifiesForFamily: boolean
+    person2QualifiesForFamily: boolean
+    possibleFamilyInsuranceArrangements: Array<{
+      primaryPerson: 1 | 2
+      familyInsuredPerson: 1 | 2
+      totalCost: number
+      viable: boolean
+    }>
+  }
+}
+
+/**
  * Complete health and care insurance calculation result across years
  */
 export interface HealthCareInsuranceResult {
   [year: number]: HealthCareInsuranceYearResult
+}
+
+/**
+ * Complete couple health and care insurance calculation result across years
+ */
+export interface CoupleHealthCareInsuranceResult {
+  [year: number]: CoupleHealthInsuranceYearResult
 }
 
 /**
@@ -311,11 +445,411 @@ export function calculateHealthCareInsurance(
 }
 
 /**
+ * Calculate health insurance for one person in a couple scenario
+ */
+function calculatePersonHealthInsurance(
+  config: HealthCareInsuranceConfig,
+  year: number,
+  allocatedIncome: number,
+  otherIncome: number,
+  currentAge: number,
+  additionalCareInsuranceForChildless: boolean,
+): HealthCareInsuranceYearResult {
+  // Create individual config for this person
+  const personConfig: HealthCareInsuranceConfig = {
+    ...config,
+    additionalCareInsuranceForChildless,
+  }
+
+  const totalIncome = allocatedIncome + otherIncome
+  return calculateHealthCareInsuranceForYear(personConfig, year, totalIncome, 0, currentAge)
+}
+
+/**
+ * Check if a person qualifies for family insurance based on their income
+ */
+function qualifiesForFamilyInsurance(
+  monthlyIncome: number,
+  thresholds: FamilyInsuranceThresholds,
+): boolean {
+  // Use regular employment limit as default, mini-job limit would need specific employment type
+  return monthlyIncome <= thresholds.regularEmploymentLimit
+}
+
+/**
+ * Calculate optimal health insurance strategy for couples
+ */
+export function calculateCoupleHealthInsuranceForYear(
+  config: HealthCareInsuranceConfig,
+  year: number,
+  withdrawalAmount: number,
+  pensionAmount: number = 0,
+): CoupleHealthInsuranceYearResult {
+  if (!config.enabled || config.planningMode !== 'couple' || !config.coupleConfig) {
+    throw new Error('Couple health insurance calculation requires couple planning mode and couple config')
+  }
+
+  const coupleConfig = config.coupleConfig
+
+  // Calculate income allocation
+  const totalWithdrawal = withdrawalAmount + pensionAmount
+  const person1Income = totalWithdrawal * coupleConfig.person1.withdrawalShare + coupleConfig.person1.otherIncomeAnnual
+  const person2Income = totalWithdrawal * coupleConfig.person2.withdrawalShare + coupleConfig.person2.otherIncomeAnnual
+
+  // Calculate ages
+  const person1Age = coupleConfig.person1.birthYear ? year - coupleConfig.person1.birthYear : 30
+  const person2Age = coupleConfig.person2.birthYear ? year - coupleConfig.person2.birthYear : 30
+
+  // Check family insurance eligibility
+  const person1QualifiesForFamily = qualifiesForFamilyInsurance(
+    person1Income / 12,
+    coupleConfig.familyInsuranceThresholds,
+  )
+  const person2QualifiesForFamily = qualifiesForFamilyInsurance(
+    person2Income / 12,
+    coupleConfig.familyInsuranceThresholds,
+  )
+
+  // Calculate individual insurance costs for both persons
+  const person1IndividualResult = calculatePersonHealthInsurance(
+    config,
+    year,
+    totalWithdrawal * coupleConfig.person1.withdrawalShare,
+    coupleConfig.person1.otherIncomeAnnual,
+    person1Age,
+    coupleConfig.person1.additionalCareInsuranceForChildless,
+  )
+
+  const person2IndividualResult = calculatePersonHealthInsurance(
+    config,
+    year,
+    totalWithdrawal * coupleConfig.person2.withdrawalShare,
+    coupleConfig.person2.otherIncomeAnnual,
+    person2Age,
+    coupleConfig.person2.additionalCareInsuranceForChildless,
+  )
+
+  // Calculate individual strategy costs
+  const individualTotalAnnual = person1IndividualResult.totalAnnual + person2IndividualResult.totalAnnual
+
+  // Calculate family insurance scenarios
+  const familyScenarios = []
+
+  // Scenario 1: Person 1 primary, Person 2 family insured
+  if (person2QualifiesForFamily) {
+    familyScenarios.push({
+      primaryPerson: 1 as const,
+      familyInsuredPerson: 2 as const,
+      totalCost: person1IndividualResult.totalAnnual,
+      viable: true,
+    })
+  }
+
+  // Scenario 2: Person 2 primary, Person 1 family insured
+  if (person1QualifiesForFamily) {
+    familyScenarios.push({
+      primaryPerson: 2 as const,
+      familyInsuredPerson: 1 as const,
+      totalCost: person2IndividualResult.totalAnnual,
+      viable: true,
+    })
+  }
+
+  // Find best family insurance option
+  const bestFamilyOption = familyScenarios.length > 0
+    ? familyScenarios.reduce((best, current) =>
+        current.totalCost < best.totalCost ? current : best,
+      )
+    : { primaryPerson: 1 as const, familyInsuredPerson: 2 as const, totalCost: Number.MAX_VALUE, viable: false }
+
+  // Determine optimal strategy
+  let strategyUsed: CoupleHealthInsuranceStrategy
+  let finalPerson1Result: CoupleHealthInsurancePersonResult
+  let finalPerson2Result: CoupleHealthInsurancePersonResult
+  let totalAnnual: number
+
+  if (coupleConfig.strategy === 'individual') {
+    strategyUsed = 'individual'
+    finalPerson1Result = {
+      personId: 1,
+      name: coupleConfig.person1.name || 'Person 1',
+      healthInsuranceResult: person1IndividualResult,
+      allocatedIncome: totalWithdrawal * coupleConfig.person1.withdrawalShare,
+      otherIncome: coupleConfig.person1.otherIncomeAnnual,
+      totalIncome: person1Income,
+      coveredByFamilyInsurance: false,
+      qualifiesForFamilyInsurance: person1QualifiesForFamily,
+    }
+    finalPerson2Result = {
+      personId: 2,
+      name: coupleConfig.person2.name || 'Person 2',
+      healthInsuranceResult: person2IndividualResult,
+      allocatedIncome: totalWithdrawal * coupleConfig.person2.withdrawalShare,
+      otherIncome: coupleConfig.person2.otherIncomeAnnual,
+      totalIncome: person2Income,
+      coveredByFamilyInsurance: false,
+      qualifiesForFamilyInsurance: person2QualifiesForFamily,
+    }
+    totalAnnual = individualTotalAnnual
+  }
+  else if (coupleConfig.strategy === 'family' && bestFamilyOption.viable) {
+    strategyUsed = 'family'
+    if (bestFamilyOption.primaryPerson === 1) {
+      finalPerson1Result = {
+        personId: 1,
+        name: coupleConfig.person1.name || 'Person 1',
+        healthInsuranceResult: person1IndividualResult,
+        allocatedIncome: totalWithdrawal * coupleConfig.person1.withdrawalShare,
+        otherIncome: coupleConfig.person1.otherIncomeAnnual,
+        totalIncome: person1Income,
+        coveredByFamilyInsurance: false,
+        qualifiesForFamilyInsurance: person1QualifiesForFamily,
+      }
+      finalPerson2Result = {
+        personId: 2,
+        name: coupleConfig.person2.name || 'Person 2',
+        healthInsuranceResult: {
+          ...person2IndividualResult,
+          totalAnnual: 0,
+          totalMonthly: 0,
+          healthInsuranceAnnual: 0,
+          careInsuranceAnnual: 0,
+          healthInsuranceMonthly: 0,
+          careInsuranceMonthly: 0,
+        },
+        allocatedIncome: totalWithdrawal * coupleConfig.person2.withdrawalShare,
+        otherIncome: coupleConfig.person2.otherIncomeAnnual,
+        totalIncome: person2Income,
+        coveredByFamilyInsurance: true,
+        qualifiesForFamilyInsurance: person2QualifiesForFamily,
+      }
+    }
+    else {
+      finalPerson1Result = {
+        personId: 1,
+        name: coupleConfig.person1.name || 'Person 1',
+        healthInsuranceResult: {
+          ...person1IndividualResult,
+          totalAnnual: 0,
+          totalMonthly: 0,
+          healthInsuranceAnnual: 0,
+          careInsuranceAnnual: 0,
+          healthInsuranceMonthly: 0,
+          careInsuranceMonthly: 0,
+        },
+        allocatedIncome: totalWithdrawal * coupleConfig.person1.withdrawalShare,
+        otherIncome: coupleConfig.person1.otherIncomeAnnual,
+        totalIncome: person1Income,
+        coveredByFamilyInsurance: true,
+        qualifiesForFamilyInsurance: person1QualifiesForFamily,
+      }
+      finalPerson2Result = {
+        personId: 2,
+        name: coupleConfig.person2.name || 'Person 2',
+        healthInsuranceResult: person2IndividualResult,
+        allocatedIncome: totalWithdrawal * coupleConfig.person2.withdrawalShare,
+        otherIncome: coupleConfig.person2.otherIncomeAnnual,
+        totalIncome: person2Income,
+        coveredByFamilyInsurance: false,
+        qualifiesForFamilyInsurance: person2QualifiesForFamily,
+      }
+    }
+    totalAnnual = bestFamilyOption.totalCost
+  }
+  else {
+    // Optimize strategy
+    const bestStrategy = bestFamilyOption.viable && bestFamilyOption.totalCost < individualTotalAnnual ? 'family' : 'individual'
+    strategyUsed = bestStrategy
+
+    if (bestStrategy === 'family') {
+      // Use family insurance logic from above
+      if (bestFamilyOption.primaryPerson === 1) {
+        finalPerson1Result = {
+          personId: 1,
+          name: coupleConfig.person1.name || 'Person 1',
+          healthInsuranceResult: person1IndividualResult,
+          allocatedIncome: totalWithdrawal * coupleConfig.person1.withdrawalShare,
+          otherIncome: coupleConfig.person1.otherIncomeAnnual,
+          totalIncome: person1Income,
+          coveredByFamilyInsurance: false,
+          qualifiesForFamilyInsurance: person1QualifiesForFamily,
+        }
+        finalPerson2Result = {
+          personId: 2,
+          name: coupleConfig.person2.name || 'Person 2',
+          healthInsuranceResult: {
+            ...person2IndividualResult,
+            totalAnnual: 0,
+            totalMonthly: 0,
+            healthInsuranceAnnual: 0,
+            careInsuranceAnnual: 0,
+            healthInsuranceMonthly: 0,
+            careInsuranceMonthly: 0,
+          },
+          allocatedIncome: totalWithdrawal * coupleConfig.person2.withdrawalShare,
+          otherIncome: coupleConfig.person2.otherIncomeAnnual,
+          totalIncome: person2Income,
+          coveredByFamilyInsurance: true,
+          qualifiesForFamilyInsurance: person2QualifiesForFamily,
+        }
+      }
+      else {
+        finalPerson1Result = {
+          personId: 1,
+          name: coupleConfig.person1.name || 'Person 1',
+          healthInsuranceResult: {
+            ...person1IndividualResult,
+            totalAnnual: 0,
+            totalMonthly: 0,
+            healthInsuranceAnnual: 0,
+            careInsuranceAnnual: 0,
+            healthInsuranceMonthly: 0,
+            careInsuranceMonthly: 0,
+          },
+          allocatedIncome: totalWithdrawal * coupleConfig.person1.withdrawalShare,
+          otherIncome: coupleConfig.person1.otherIncomeAnnual,
+          totalIncome: person1Income,
+          coveredByFamilyInsurance: true,
+          qualifiesForFamilyInsurance: person1QualifiesForFamily,
+        }
+        finalPerson2Result = {
+          personId: 2,
+          name: coupleConfig.person2.name || 'Person 2',
+          healthInsuranceResult: person2IndividualResult,
+          allocatedIncome: totalWithdrawal * coupleConfig.person2.withdrawalShare,
+          otherIncome: coupleConfig.person2.otherIncomeAnnual,
+          totalIncome: person2Income,
+          coveredByFamilyInsurance: false,
+          qualifiesForFamilyInsurance: person2QualifiesForFamily,
+        }
+      }
+      totalAnnual = bestFamilyOption.totalCost
+    }
+    else {
+      // Use individual insurance logic
+      finalPerson1Result = {
+        personId: 1,
+        name: coupleConfig.person1.name || 'Person 1',
+        healthInsuranceResult: person1IndividualResult,
+        allocatedIncome: totalWithdrawal * coupleConfig.person1.withdrawalShare,
+        otherIncome: coupleConfig.person1.otherIncomeAnnual,
+        totalIncome: person1Income,
+        coveredByFamilyInsurance: false,
+        qualifiesForFamilyInsurance: person1QualifiesForFamily,
+      }
+      finalPerson2Result = {
+        personId: 2,
+        name: coupleConfig.person2.name || 'Person 2',
+        healthInsuranceResult: person2IndividualResult,
+        allocatedIncome: totalWithdrawal * coupleConfig.person2.withdrawalShare,
+        otherIncome: coupleConfig.person2.otherIncomeAnnual,
+        totalIncome: person2Income,
+        coveredByFamilyInsurance: false,
+        qualifiesForFamilyInsurance: person2QualifiesForFamily,
+      }
+      totalAnnual = individualTotalAnnual
+    }
+  }
+
+  return {
+    strategyUsed,
+    totalAnnual,
+    totalMonthly: totalAnnual / 12,
+    person1: finalPerson1Result,
+    person2: finalPerson2Result,
+    strategyComparison: {
+      individual: {
+        totalAnnual: individualTotalAnnual,
+        totalMonthly: individualTotalAnnual / 12,
+      },
+      family: {
+        totalAnnual: bestFamilyOption.totalCost,
+        totalMonthly: bestFamilyOption.totalCost / 12,
+        primaryInsuredPerson: bestFamilyOption.primaryPerson,
+      },
+      optimized: {
+        totalAnnual,
+        totalMonthly: totalAnnual / 12,
+        recommendedStrategy: strategyUsed,
+        savings: Math.max(0, individualTotalAnnual - totalAnnual),
+      },
+    },
+    familyInsuranceDetails: {
+      threshold: coupleConfig.familyInsuranceThresholds.regularEmploymentLimit,
+      person1QualifiesForFamily: person1QualifiesForFamily,
+      person2QualifiesForFamily: person2QualifiesForFamily,
+      possibleFamilyInsuranceArrangements: familyScenarios,
+    },
+  }
+}
+
+/**
+ * Calculate couple health insurance across multiple years
+ */
+export function calculateCoupleHealthCareInsurance(
+  config: HealthCareInsuranceConfig,
+  startYear: number,
+  endYear: number,
+  withdrawalAmounts: { [year: number]: number },
+  pensionAmounts: { [year: number]: number } = {},
+): CoupleHealthCareInsuranceResult {
+  const result: CoupleHealthCareInsuranceResult = {}
+
+  for (let year = startYear; year <= endYear; year++) {
+    const withdrawalAmount = withdrawalAmounts[year] || 0
+    const pensionAmount = pensionAmounts[year] || 0
+
+    result[year] = calculateCoupleHealthInsuranceForYear(
+      config,
+      year,
+      withdrawalAmount,
+      pensionAmount,
+    )
+  }
+
+  return result
+}
+
+/**
  * Create default health and care insurance configuration
  */
+/**
+ * Create default family insurance thresholds for the given year
+ */
+export function createDefaultFamilyInsuranceThresholds(year: number = 2025): FamilyInsuranceThresholds {
+  return {
+    regularEmploymentLimit: 505, // €505/month for 2025
+    miniJobLimit: 538, // €538/month for mini-jobs in 2025
+    year,
+  }
+}
+
+/**
+ * Create default couple health insurance configuration
+ */
+export function createDefaultCoupleHealthInsuranceConfig(): CoupleHealthInsuranceConfig {
+  return {
+    strategy: 'optimize',
+    familyInsuranceThresholds: createDefaultFamilyInsuranceThresholds(),
+    person1: {
+      name: 'Person 1',
+      withdrawalShare: 0.5, // 50% of withdrawal
+      otherIncomeAnnual: 0,
+      additionalCareInsuranceForChildless: false,
+    },
+    person2: {
+      name: 'Person 2',
+      withdrawalShare: 0.5, // 50% of withdrawal
+      otherIncomeAnnual: 0,
+      additionalCareInsuranceForChildless: false,
+    },
+  }
+}
+
 export function createDefaultHealthCareInsuranceConfig(): HealthCareInsuranceConfig {
   return {
     enabled: true, // Default: enabled for withdrawal simulations
+    planningMode: 'individual', // Default: individual planning
     insuranceType: 'statutory', // Default: statutory insurance
     includeEmployerContribution: true, // Default: include employer portion
     // Statutory insurance fixed rates (as per German law)
@@ -331,6 +865,8 @@ export function createDefaultHealthCareInsuranceConfig(): HealthCareInsuranceCon
     retirementStartYear: 2041,
     additionalCareInsuranceForChildless: false,
     additionalCareInsuranceAge: 23,
+    // Couple configuration
+    coupleConfig: createDefaultCoupleHealthInsuranceConfig(),
     // Backward compatibility and additional properties
     healthInsuranceRatePreRetirement: 14.6,
     healthInsuranceRateRetirement: 7.3,

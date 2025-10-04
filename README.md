@@ -74,7 +74,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Geteilte Entnahme-Phasen** - Segmentierung in verschiedene Zeiträume mit unterschiedlichen Strategien
 - **Strategienvergleich** - Vergleich verschiedener Entnahmestrategien mit demselben Startkapital
 - **Gesetzliche Rente Integration** - Vollständige Integration der deutschen gesetzlichen Rente
-- **Kranken- und Pflegeversicherung** - Berücksichtigung von Kranken- und Pflegeversicherungsbeiträgen mit Unterscheidung zwischen Vorrente und Rente, prozentuale oder feste Beiträge, Beitragsbemessungsgrenzen und zusätzliche Pflegeversicherung für Kinderlose
+- **Kranken- und Pflegeversicherung** - Umfassende Berücksichtigung von Kranken- und Pflegeversicherungsbeiträgen
+  - **Einzelplanung**: Individuelle Krankenversicherung mit konfigurierbaren Beitragssätzen und Beitragsbemessungsgrenzen
+  - **Paarplanung**: Optimierung für Paare mit automatischer Familienversicherung
+    - **Familienversicherung**: Automatische Prüfung der Familienversicherung (505€/Monat, 538€ bei Mini-Jobs für 2025)
+    - **Strategieoptimierung**: Automatische Wahl zwischen Einzelversicherung, Familienversicherung oder Optimierung
+    - **Einkommensaufteilung**: Konfigurierbare Aufteilung von Entnahmebetrag und anderen Einkünften zwischen den Partnern
+    - **Kostenvergleich**: Echtzeit-Vergleich verschiedener Versicherungsstrategien mit Einsparungsberechnung
+  - **Versicherungsarten**: Gesetzliche und private Krankenversicherung mit unterschiedlichen Beitragssystemen
+  - **Lebensphasen**: Unterscheidung zwischen Vorrente und Rente mit angepassten Beitragssätzen
+  - **Zusatzbeiträge**: Kinderloser-Zuschlag (0,6%) individuell konfigurierbar pro Person
 - **Andere Einkünfte** - Zusätzliche Einkommensquellen wie Mieteinnahmen, private Renten oder Gewerbeeinkünfte mit Brutto-/Netto-Konfiguration, Inflationsanpassung und Steuerberechnung
 
 ### Analyse und Simulation

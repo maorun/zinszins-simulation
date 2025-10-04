@@ -1,7 +1,12 @@
 import { Info } from 'lucide-react'
-import { useEffect } from 'react'
+import { useEffect, useMemo } from 'react'
 import { calculateRetirementStartYear } from '../../helpers/statutory-pension'
 import { formatCurrency } from '../utils/currency'
+import {
+  calculateHealthCareInsuranceForYear,
+  calculateCoupleHealthInsuranceForYear,
+  createDefaultHealthCareInsuranceConfig,
+} from '../../helpers/health-care-insurance'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
@@ -11,6 +16,7 @@ import { Switch } from './ui/switch'
 
 interface HealthCareInsuranceFormValues {
   enabled: boolean
+  planningMode: 'individual' | 'couple'
   insuranceType: 'statutory' | 'private'
   includeEmployerContribution: boolean
   statutoryHealthInsuranceRate: number
@@ -23,6 +29,18 @@ interface HealthCareInsuranceFormValues {
   retirementStartYear: number
   additionalCareInsuranceForChildless: boolean
   additionalCareInsuranceAge: number
+  // Couple-specific fields
+  coupleStrategy?: 'individual' | 'family' | 'optimize'
+  familyInsuranceThresholdRegular?: number
+  familyInsuranceThresholdMiniJob?: number
+  person1Name?: string
+  person1WithdrawalShare?: number
+  person1OtherIncomeAnnual?: number
+  person1AdditionalCareInsuranceForChildless?: boolean
+  person2Name?: string
+  person2WithdrawalShare?: number
+  person2OtherIncomeAnnual?: number
+  person2AdditionalCareInsuranceForChildless?: boolean
 }
 
 interface HealthCareInsuranceChangeHandlers {
@@ -39,6 +57,18 @@ interface HealthCareInsuranceChangeHandlers {
   onRetirementStartYearChange: (year: number) => void
   onAdditionalCareInsuranceForChildlessChange: (enabled: boolean) => void
   onAdditionalCareInsuranceAgeChange: (age: number) => void
+  // Couple-specific handlers
+  onCoupleStrategyChange?: (strategy: 'individual' | 'family' | 'optimize') => void
+  onFamilyInsuranceThresholdRegularChange?: (amount: number) => void
+  onFamilyInsuranceThresholdMiniJobChange?: (amount: number) => void
+  onPerson1NameChange?: (name: string) => void
+  onPerson1WithdrawalShareChange?: (share: number) => void
+  onPerson1OtherIncomeAnnualChange?: (amount: number) => void
+  onPerson1AdditionalCareInsuranceForChildlessChange?: (enabled: boolean) => void
+  onPerson2NameChange?: (name: string) => void
+  onPerson2WithdrawalShareChange?: (share: number) => void
+  onPerson2OtherIncomeAnnualChange?: (amount: number) => void
+  onPerson2AdditionalCareInsuranceForChildlessChange?: (enabled: boolean) => void
 }
 
 interface HealthCareInsuranceConfigurationProps {
@@ -49,6 +79,8 @@ interface HealthCareInsuranceConfigurationProps {
   birthYear?: number
   spouseBirthYear?: number
   planningMode: 'individual' | 'couple'
+  // Current withdrawal amount from simulation for cost preview
+  currentWithdrawalAmount?: number
 }
 
 export function HealthCareInsuranceConfiguration({
@@ -58,6 +90,7 @@ export function HealthCareInsuranceConfiguration({
   birthYear,
   spouseBirthYear,
   planningMode,
+  currentWithdrawalAmount,
 }: HealthCareInsuranceConfigurationProps) {
   // Auto-calculate retirement start year when birth year changes
   useEffect(() => {
@@ -125,6 +158,18 @@ export function HealthCareInsuranceConfiguration({
             Kranken- und Pflegeversicherung berücksichtigen
           </Label>
         </div>
+
+        {/* Planning Mode Info (derived from global planning) */}
+        {planningMode === 'couple' && (
+          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+            <div className="text-sm font-medium text-blue-900">
+              💑 Paarplanung aktiviert
+            </div>
+            <div className="text-xs text-blue-700 mt-1">
+              Planungsmodus wird aus der globalen Planung übernommen
+            </div>
+          </div>
+        )}
 
         {/* Insurance Type Selection */}
         <div className="space-y-3">
@@ -363,44 +408,485 @@ export function HealthCareInsuranceConfiguration({
           </div>
         )}
 
-        {/* Additional Care Insurance for Childless */}
-        <div className="space-y-3">
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={values.additionalCareInsuranceForChildless}
-              onCheckedChange={onChange.onAdditionalCareInsuranceForChildlessChange}
-              id="additional-care-insurance"
-            />
-            <Label htmlFor="additional-care-insurance">
-              Zusätzlicher Pflegeversicherungsbeitrag für Kinderlose
-            </Label>
-          </div>
+        {/* Couple Configuration */}
+        {planningMode === 'couple' && values.insuranceType === 'statutory' && (
+          <div className="space-y-6">
+            <div className="space-y-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+              <h4 className="font-medium text-sm flex items-center gap-2">
+                💑 Familienversicherung für Paare
+              </h4>
 
-          {values.additionalCareInsuranceForChildless && (
-            <div className="ml-6 space-y-2">
-              <Label htmlFor="additional-care-age">
-                Ab Alter:
-                {' '}
-                {values.additionalCareInsuranceAge}
-                {' '}
-                Jahre
-              </Label>
-              <Slider
-                id="additional-care-age"
-                min={18}
-                max={35}
-                step={1}
-                value={[values.additionalCareInsuranceAge]}
-                onValueChange={([value]) => onChange.onAdditionalCareInsuranceAgeChange(value)}
-                className="w-32"
-              />
-              <div className="text-xs text-muted-foreground">
-                Zusätzlich 0,6% Pflegeversicherung ab diesem Alter
+              {/* Strategy Selection */}
+              <div className="space-y-3">
+                <Label className="text-sm font-medium">Versicherungsstrategie</Label>
+                <RadioTileGroup
+                  value={values.coupleStrategy || 'optimize'}
+                  onValueChange={value => onChange.onCoupleStrategyChange?.(value as 'individual' | 'family' | 'optimize')}
+                  className="grid grid-cols-1 gap-3"
+                >
+                  <RadioTile value="individual" label="Einzelversicherung">
+                    Beide Partner haben eigene Krankenversicherung
+                  </RadioTile>
+                  <RadioTile value="family" label="Familienversicherung">
+                    Ein Partner zahlt, der andere ist familienversichert (falls möglich)
+                  </RadioTile>
+                  <RadioTile value="optimize" label="Automatisch optimieren" className="border-green-200 bg-green-50">
+                    Wählt automatisch die günstigste Variante
+                  </RadioTile>
+                </RadioTileGroup>
+              </div>
+
+              {/* Family Insurance Thresholds */}
+              <div className="space-y-4 p-3 bg-white rounded border">
+                <h5 className="font-medium text-sm">Familienversicherung Einkommensgrenzen (2025)</h5>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="family-threshold-regular">
+                      Reguläre Beschäftigung (monatlich)
+                    </Label>
+                    <Input
+                      id="family-threshold-regular"
+                      type="number"
+                      min="0"
+                      step="5"
+                      value={values.familyInsuranceThresholdRegular || 505}
+                      onChange={e => onChange.onFamilyInsuranceThresholdRegularChange?.(Number(e.target.value))}
+                      placeholder="505"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      Standard: 505€/Monat (2025)
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="family-threshold-minijob">
+                      Mini-Job (monatlich)
+                    </Label>
+                    <Input
+                      id="family-threshold-minijob"
+                      type="number"
+                      min="0"
+                      step="5"
+                      value={values.familyInsuranceThresholdMiniJob || 538}
+                      onChange={e => onChange.onFamilyInsuranceThresholdMiniJobChange?.(Number(e.target.value))}
+                      placeholder="538"
+                    />
+                    <div className="text-xs text-muted-foreground">
+                      Standard: 538€/Monat für Mini-Jobs (2025)
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Person Configuration */}
+              <div className="space-y-4">
+                <h5 className="font-medium text-sm">Personenkonfiguration</h5>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Person 1 */}
+                  <div className="space-y-4 p-3 bg-white rounded border">
+                    <h6 className="font-medium text-sm text-blue-700">👤 Person 1</h6>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="person1-name">Name (optional)</Label>
+                      <Input
+                        id="person1-name"
+                        type="text"
+                        value={values.person1Name || ''}
+                        onChange={e => onChange.onPerson1NameChange?.(e.target.value)}
+                        placeholder="z.B. Anna"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="health-insurance-person1-withdrawal-share">
+                        Anteil am Entnahmebetrag:
+                        {' '}
+                        {((values.person1WithdrawalShare ?? 0.5) * 100).toFixed(0)}
+                        %
+                      </Label>
+                      <Slider
+                        id="health-insurance-person1-withdrawal-share"
+                        name="person1-withdrawal-share-slider"
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        value={[values.person1WithdrawalShare ?? 0.5]}
+                        onValueChange={([value]) => {
+                          // Ensure exactly 0 and 1 are possible by rounding to nearest step
+                          const roundedValue = Math.round(value * 100) / 100
+                          onChange.onPerson1WithdrawalShareChange?.(roundedValue)
+                        }}
+                        className="w-full"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="person1-other-income">Andere Einkünfte (jährlich)</Label>
+                      <Input
+                        id="person1-other-income"
+                        type="number"
+                        min="0"
+                        step="100"
+                        value={values.person1OtherIncomeAnnual || 0}
+                        onChange={e => onChange.onPerson1OtherIncomeAnnualChange?.(Number(e.target.value))}
+                        placeholder="0"
+                      />
+                      <div className="text-xs text-muted-foreground">
+                        z.B. Rente, Mieteinnahmen, Nebenjob
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={values.person1AdditionalCareInsuranceForChildless || false}
+                        onCheckedChange={onChange.onPerson1AdditionalCareInsuranceForChildlessChange}
+                        id="person1-additional-care"
+                      />
+                      <Label htmlFor="person1-additional-care" className="text-sm">
+                        Kinderlos (+0,6% Pflegeversicherung)
+                      </Label>
+                    </div>
+                  </div>
+
+                  {/* Person 2 */}
+                  <div className="space-y-4 p-3 bg-white rounded border">
+                    <h6 className="font-medium text-sm text-purple-700">👤 Person 2</h6>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="person2-name">Name (optional)</Label>
+                      <Input
+                        id="person2-name"
+                        type="text"
+                        value={values.person2Name || ''}
+                        onChange={e => onChange.onPerson2NameChange?.(e.target.value)}
+                        placeholder="z.B. Max"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="health-insurance-person2-withdrawal-share">
+                        Anteil am Entnahmebetrag:
+                        {' '}
+                        {((values.person2WithdrawalShare ?? 0.5) * 100).toFixed(0)}
+                        %
+                      </Label>
+                      <Slider
+                        id="health-insurance-person2-withdrawal-share"
+                        name="person2-withdrawal-share-slider"
+                        min={0}
+                        max={1}
+                        step={0.01}
+                        value={[values.person2WithdrawalShare ?? 0.5]}
+                        onValueChange={([value]) => {
+                          // Ensure exactly 0 and 1 are possible by rounding to nearest step
+                          const roundedValue = Math.round(value * 100) / 100
+                          onChange.onPerson2WithdrawalShareChange?.(roundedValue)
+                        }}
+                        className="w-full"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <Label htmlFor="person2-other-income">Andere Einkünfte (jährlich)</Label>
+                      <Input
+                        id="person2-other-income"
+                        type="number"
+                        min="0"
+                        step="100"
+                        value={values.person2OtherIncomeAnnual || 0}
+                        onChange={e => onChange.onPerson2OtherIncomeAnnualChange?.(Number(e.target.value))}
+                        placeholder="0"
+                      />
+                      <div className="text-xs text-muted-foreground">
+                        z.B. Rente, Mieteinnahmen, Nebenjob
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-2">
+                      <Switch
+                        checked={values.person2AdditionalCareInsuranceForChildless || false}
+                        onCheckedChange={onChange.onPerson2AdditionalCareInsuranceForChildlessChange}
+                        id="person2-additional-care"
+                      />
+                      <Label htmlFor="person2-additional-care" className="text-sm">
+                        Kinderlos (+0,6% Pflegeversicherung)
+                      </Label>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Additional Care Insurance for Childless (Individual Mode Only) */}
+        {planningMode === 'individual' && (
+          <div className="space-y-3">
+            <div className="flex items-center space-x-2">
+              <Switch
+                checked={values.additionalCareInsuranceForChildless}
+                onCheckedChange={onChange.onAdditionalCareInsuranceForChildlessChange}
+                id="additional-care-insurance"
+              />
+              <Label htmlFor="additional-care-insurance">
+                Zusätzlicher Pflegeversicherungsbeitrag für Kinderlose
+              </Label>
+            </div>
+
+            {values.additionalCareInsuranceForChildless && (
+              <div className="ml-6 space-y-2">
+                <Label htmlFor="additional-care-age">
+                  Ab Alter:
+                  {' '}
+                  {values.additionalCareInsuranceAge}
+                  {' '}
+                  Jahre
+                </Label>
+                <Slider
+                  id="additional-care-age"
+                  min={18}
+                  max={35}
+                  step={1}
+                  value={[values.additionalCareInsuranceAge]}
+                  onValueChange={([value]) => onChange.onAdditionalCareInsuranceAgeChange(value)}
+                  className="w-32"
+                />
+                <div className="text-xs text-muted-foreground">
+                  Zusätzlich 0,6% Pflegeversicherung ab diesem Alter
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Health Insurance Cost Preview */}
+        {values.enabled && (
+          <HealthInsuranceCostPreview
+            values={values}
+            planningMode={planningMode}
+            birthYear={birthYear}
+            spouseBirthYear={spouseBirthYear}
+            currentWithdrawalAmount={currentWithdrawalAmount}
+          />
+        )}
       </CollapsibleCardContent>
     </CollapsibleCard>
   )
+}
+
+function HealthInsuranceCostPreview({
+  values,
+  planningMode,
+  birthYear,
+  spouseBirthYear,
+  currentWithdrawalAmount,
+}: {
+  values: HealthCareInsuranceFormValues
+  planningMode: 'individual' | 'couple'
+  birthYear?: number
+  spouseBirthYear?: number
+  currentWithdrawalAmount?: number
+}) {
+  const currentYear = new Date().getFullYear()
+  // Use actual withdrawal amount from simulation, fallback to 30k if not available
+  const withdrawalAmount = currentWithdrawalAmount || 30000
+
+  const previewResults = useMemo(() => {
+    if (!values.enabled) return null
+
+    try {
+      if (planningMode === 'couple') {
+        // Create couple config from form values
+        const coupleConfig = {
+          ...createDefaultHealthCareInsuranceConfig(),
+          planningMode: 'couple' as const,
+          insuranceType: values.insuranceType,
+          statutoryHealthInsuranceRate: values.statutoryHealthInsuranceRate,
+          statutoryCareInsuranceRate: values.statutoryCareInsuranceRate,
+          statutoryMinimumIncomeBase: values.statutoryMinimumIncomeBase,
+          statutoryMaximumIncomeBase: values.statutoryMaximumIncomeBase,
+          coupleConfig: {
+            strategy: values.coupleStrategy || 'optimize',
+            familyInsuranceThresholds: {
+              regularEmploymentLimit: values.familyInsuranceThresholdRegular || 505,
+              miniJobLimit: values.familyInsuranceThresholdMiniJob || 538,
+              year: 2025,
+            },
+            person1: {
+              name: values.person1Name || 'Person 1',
+              birthYear: birthYear || 1980,
+              withdrawalShare: values.person1WithdrawalShare || 0.5,
+              otherIncomeAnnual: values.person1OtherIncomeAnnual || 0,
+              additionalCareInsuranceForChildless: values.person1AdditionalCareInsuranceForChildless || false,
+            },
+            person2: {
+              name: values.person2Name || 'Person 2',
+              birthYear: spouseBirthYear || 1980,
+              withdrawalShare: values.person2WithdrawalShare || 0.5,
+              otherIncomeAnnual: values.person2OtherIncomeAnnual || 0,
+              additionalCareInsuranceForChildless: values.person2AdditionalCareInsuranceForChildless || false,
+            },
+          },
+        }
+
+        return calculateCoupleHealthInsuranceForYear(coupleConfig, currentYear + 16, withdrawalAmount, 0)
+      }
+      else {
+        // Individual calculation
+        const individualConfig = {
+          ...createDefaultHealthCareInsuranceConfig(),
+          planningMode: 'individual' as const,
+          insuranceType: values.insuranceType,
+          statutoryHealthInsuranceRate: values.statutoryHealthInsuranceRate,
+          statutoryCareInsuranceRate: values.statutoryCareInsuranceRate,
+          statutoryMinimumIncomeBase: values.statutoryMinimumIncomeBase,
+          statutoryMaximumIncomeBase: values.statutoryMaximumIncomeBase,
+          additionalCareInsuranceForChildless: values.additionalCareInsuranceForChildless,
+          additionalCareInsuranceAge: values.additionalCareInsuranceAge,
+        }
+
+        return calculateHealthCareInsuranceForYear(
+          individualConfig,
+          currentYear + 16,
+          withdrawalAmount,
+          0,
+          (birthYear || 1980) + 16,
+        )
+      }
+    }
+    catch (error) {
+      console.error('Error calculating health insurance preview:', error)
+      return null
+    }
+  }, [
+    values,
+    planningMode,
+    birthYear,
+    spouseBirthYear,
+    currentYear,
+    withdrawalAmount,
+  ])
+
+  if (!previewResults) return null
+
+  if (planningMode === 'couple' && 'person1' in previewResults) {
+    const coupleResults = previewResults
+    return (
+      <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
+        <h4 className="font-medium text-sm text-green-900 mb-3 flex items-center gap-2">
+          💰 Kostenvorschau (bei
+          {' '}
+          {formatCurrency(withdrawalAmount)}
+          {' '}
+          Entnahme)
+        </h4>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-blue-700">
+              👤
+              {' '}
+              {coupleResults.person1.name}
+            </div>
+            <div className="text-xs space-y-1">
+              <div>
+                Jährlich:
+                {formatCurrency(coupleResults.person1.healthInsuranceResult.totalAnnual)}
+              </div>
+              <div>
+                Monatlich:
+                {formatCurrency(coupleResults.person1.healthInsuranceResult.totalMonthly)}
+              </div>
+              <div className="text-blue-600">
+                {coupleResults.person1.coveredByFamilyInsurance ? '👨‍👩‍👧‍👦 Familienversichert' : '💳 Eigenversichert'}
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-2">
+            <div className="text-sm font-medium text-purple-700">
+              👤
+              {' '}
+              {coupleResults.person2.name}
+            </div>
+            <div className="text-xs space-y-1">
+              <div>
+                Jährlich:
+                {formatCurrency(coupleResults.person2.healthInsuranceResult.totalAnnual)}
+              </div>
+              <div>
+                Monatlich:
+                {formatCurrency(coupleResults.person2.healthInsuranceResult.totalMonthly)}
+              </div>
+              <div className="text-purple-600">
+                {coupleResults.person2.coveredByFamilyInsurance ? '👨‍👩‍👧‍👦 Familienversichert' : '💳 Eigenversichert'}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="pt-3 border-t border-green-300">
+          <div className="text-sm font-medium text-green-900">
+            Gesamt:
+            {' '}
+            {formatCurrency(coupleResults.totalAnnual)}
+            {' '}
+            / Jahr •
+            {' '}
+            {formatCurrency(coupleResults.totalMonthly)}
+            {' '}
+            / Monat
+          </div>
+          <div className="text-xs text-green-700 mt-1">
+            Strategie:
+            {' '}
+            {coupleResults.strategyUsed === 'family' ? '👨‍👩‍👧‍👦 Familienversicherung'
+              : coupleResults.strategyUsed === 'individual' ? '💳 Einzelversicherung' : '🎯 Optimiert'}
+          </div>
+        </div>
+      </div>
+    )
+  }
+  else {
+    // Individual results
+    const individualResults = previewResults as any
+    return (
+      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+        <h4 className="font-medium text-sm text-blue-900 mb-3">
+          💰 Kostenvorschau (bei
+          {' '}
+          {formatCurrency(withdrawalAmount)}
+          {' '}
+          Entnahme)
+        </h4>
+
+        <div className="space-y-2">
+          <div className="text-sm">
+            <span className="font-medium">Jährlich:</span>
+            {' '}
+            {formatCurrency(individualResults.totalAnnual)}
+          </div>
+          <div className="text-sm">
+            <span className="font-medium">Monatlich:</span>
+            {' '}
+            {formatCurrency(individualResults.totalMonthly)}
+          </div>
+          <div className="text-xs text-blue-700">
+            Krankenversicherung:
+            {' '}
+            {formatCurrency(individualResults.healthInsuranceAnnual)}
+            {' '}
+            / Jahr •
+            Pflegeversicherung:
+            {' '}
+            {formatCurrency(individualResults.careInsuranceAnnual)}
+            {' '}
+            / Jahr
+          </div>
+        </div>
+      </div>
+    )
+  }
 }
