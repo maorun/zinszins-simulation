@@ -265,6 +265,59 @@ describe('Simulate (Compound Interest) Calculations', () => {
     // - Configuration is saved/loaded correctly
     // - Parameter export includes inflation settings
 
+    test('should include inflation-adjusted values when inflation is active', () => {
+      const elements = [
+        createSparplanElement('2023-01-01', 24000),
+        createSparplanElement('2024-01-01', 24000),
+      ]
+
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2024,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.0,
+        simulationAnnual: 'yearly',
+        inflationAktivSparphase: true,
+        inflationsrateSparphase: 2.0,
+        inflationAnwendungSparphase: 'sparplan',
+      })
+
+      // Should have inflation-adjusted values
+      expect(result[0].simulation[2023].startkapitalReal).toBeDefined()
+      expect(result[0].simulation[2023].endkapitalReal).toBeDefined()
+      expect(result[0].simulation[2023].zinsenReal).toBeDefined()
+
+      // Base year should have same nominal and real values
+      expect(result[0].simulation[2023].startkapitalReal).toBe(result[0].simulation[2023].startkapital)
+      expect(result[0].simulation[2023].endkapitalReal).toBe(result[0].simulation[2023].endkapital)
+
+      // Year 2024 should have reduced real values (2% inflation)
+      const nominal2024 = result[0].simulation[2024].endkapital
+      const real2024 = result[0].simulation[2024].endkapitalReal!
+      expect(real2024).toBeLessThan(nominal2024)
+      expect(real2024).toBeCloseTo(nominal2024 / 1.02, 2) // 1 year of 2% inflation
+    })
+
+    test('should not include inflation-adjusted values when inflation is inactive', () => {
+      const elements = [createSparplanElement('2023-01-01', 24000)]
+
+      const result = simulate({
+        startYear: 2023,
+        endYear: 2023,
+        elements,
+        returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+        steuerlast: 0.0,
+        simulationAnnual: 'yearly',
+        inflationAktivSparphase: false,
+      })
+
+      // Should not have inflation-adjusted values
+      expect(result[0].simulation[2023].startkapitalReal).toBeUndefined()
+      expect(result[0].simulation[2023].endkapitalReal).toBeUndefined()
+      expect(result[0].simulation[2023].zinsenReal).toBeUndefined()
+    })
+
     test('should not apply inflation when disabled', () => {
       const elements = [
         createSparplanElement('2023-01-01', 24000),

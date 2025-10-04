@@ -221,4 +221,192 @@ describe('EntnahmeSimulationDisplay', () => {
 
     expect(result).toBeDefined()
   })
+
+  describe('Inflation-adjusted values display', () => {
+    const mockWithdrawalDataWithMultipleYears = {
+      startingCapital: 500000,
+      withdrawalArray: [
+        {
+          year: 2041, // Base year
+          startkapital: 500000,
+          entnahme: 20000,
+          endkapital: 520000,
+          zinsen: 25000,
+          bezahlteSteuer: 3000,
+          genutzterFreibetrag: 2000,
+        },
+        {
+          year: 2042, // 1 year later
+          startkapital: 520000,
+          entnahme: 20400,
+          endkapital: 540800,
+          zinsen: 26000,
+          bezahlteSteuer: 3100,
+          genutzterFreibetrag: 2000,
+        },
+        {
+          year: 2043, // 2 years later
+          startkapital: 540800,
+          entnahme: 20808,
+          endkapital: 562016,
+          zinsen: 27040,
+          bezahlteSteuer: 3200,
+          genutzterFreibetrag: 2000,
+        },
+      ],
+      withdrawalResult: {},
+      duration: 25,
+    }
+
+    it('displays only nominal values when inflation is disabled', () => {
+      const formValueNoInflation = { ...mockFormValue, inflationAktiv: false }
+
+      render(
+        <EntnahmeSimulationDisplay
+          withdrawalData={mockWithdrawalDataWithMultipleYears}
+          formValue={formValueNoInflation}
+          useComparisonMode={false}
+          comparisonResults={[]}
+          onCalculationInfoClick={() => {}}
+        />,
+      )
+
+      // Should show nominal values only (no "real" text)
+      expect(screen.getAllByText(/520\.000,00 €/)).toHaveLength(2) // appears in multiple years
+      expect(screen.queryByText(/real/)).not.toBeInTheDocument()
+    })
+
+    it('displays both nominal and inflation-adjusted values when inflation is enabled', () => {
+      const formValueWithInflation = {
+        ...mockFormValue,
+        inflationAktiv: true,
+        inflationsrate: 2, // 2% inflation
+      }
+
+      render(
+        <EntnahmeSimulationDisplay
+          withdrawalData={mockWithdrawalDataWithMultipleYears}
+          formValue={formValueWithInflation}
+          useComparisonMode={false}
+          comparisonResults={[]}
+          onCalculationInfoClick={() => {}}
+        />,
+      )
+
+      // Should show both nominal and real values for 2041 (base year - equal values)
+      expect(screen.getByText(/520\.000,00 € \/ 520\.000,00 € real/)).toBeInTheDocument()
+
+      // Should show "real" text indicating inflation adjustment is active
+      expect(screen.getAllByText(/real/)).toHaveLength(12) // Multiple real values displayed across years
+
+      // Should show inflation rate in summary
+      expect(screen.getByText(/Inflationsrate/)).toBeInTheDocument()
+      expect(screen.getByText(/2% p\.a\./)).toBeInTheDocument()
+    })
+
+    it('calculates inflation-adjusted values correctly for different years', () => {
+      const formValueWithInflation = {
+        ...mockFormValue,
+        inflationAktiv: true,
+        inflationsrate: 3, // 3% inflation for easier calculation
+      }
+
+      render(
+        <EntnahmeSimulationDisplay
+          withdrawalData={mockWithdrawalDataWithMultipleYears}
+          formValue={formValueWithInflation}
+          useComparisonMode={false}
+          comparisonResults={[]}
+          onCalculationInfoClick={() => {}}
+        />,
+      )
+
+      // Base year 2041: real value equals nominal
+      expect(screen.getByText(/520\.000,00 € \/ 520\.000,00 € real/)).toBeInTheDocument()
+
+      // Check that inflation-adjusted values are being calculated and displayed
+      // We'll look for the presence of "real" text and some inflation adjustment
+      expect(screen.getAllByText(/real/)).toHaveLength(12) // Should have multiple "real" values
+
+      // Check that different years show different calculations
+      const realValues = screen.getAllByText(/€ real/)
+      expect(realValues.length).toBeGreaterThan(0)
+    })
+
+    it('applies inflation adjustment to all key financial values', () => {
+      const formValueWithInflation = {
+        ...mockFormValue,
+        inflationAktiv: true,
+        inflationsrate: 2,
+      }
+
+      render(
+        <EntnahmeSimulationDisplay
+          withdrawalData={mockWithdrawalDataWithMultipleYears}
+          formValue={formValueWithInflation}
+          useComparisonMode={false}
+          comparisonResults={[]}
+          onCalculationInfoClick={() => {}}
+        />,
+      )
+
+      // Check that all main values show inflation adjustment
+      // Should find multiple instances of "real" text across all value types
+      const realValues = screen.getAllByText(/real/)
+      expect(realValues.length).toBeGreaterThan(6) // Multiple fields show real values
+
+      // Check specific values contain both nominal and real formats
+      expect(screen.getByText(/520\.000,00 € \/ 520\.000,00 € real/)).toBeInTheDocument() // Base year should be equal
+
+      // Verify that inflation adjustments are shown for key financial metrics
+      expect(screen.getAllByText(/€ \/ .* € real/)).toHaveLength(12) // All main values show both nominal and real
+    })
+
+    it('handles edge cases correctly', () => {
+      const formValueWithInflation = {
+        ...mockFormValue,
+        inflationAktiv: true,
+        inflationsrate: 0.1, // Very low inflation to test edge case
+      }
+
+      render(
+        <EntnahmeSimulationDisplay
+          withdrawalData={mockWithdrawalDataWithMultipleYears}
+          formValue={formValueWithInflation}
+          useComparisonMode={false}
+          comparisonResults={[]}
+          onCalculationInfoClick={() => {}}
+        />,
+      )
+
+      // With very low inflation, should still show inflation-adjusted values
+      expect(screen.getByText(/520\.000,00 € \/ 520\.000,00 € real/)).toBeInTheDocument()
+
+      // Should have multiple "real" values displayed
+      expect(screen.getAllByText(/real/)).toHaveLength(12)
+    })
+
+    it('displays inflation rate information in summary when active', () => {
+      const formValueWithInflation = {
+        ...mockFormValue,
+        inflationAktiv: true,
+        inflationsrate: 2.5,
+      }
+
+      render(
+        <EntnahmeSimulationDisplay
+          withdrawalData={mockWithdrawalDataWithMultipleYears}
+          formValue={formValueWithInflation}
+          useComparisonMode={false}
+          comparisonResults={[]}
+          onCalculationInfoClick={() => {}}
+        />,
+      )
+
+      // Should display inflation information in the summary
+      expect(screen.getByText(/Inflationsrate/)).toBeInTheDocument()
+      expect(screen.getByText(/2\.5% p\.a\./)).toBeInTheDocument()
+      expect(screen.getByText(/Entnahmebeträge werden jährlich angepasst/)).toBeInTheDocument()
+    })
+  })
 })

@@ -3,6 +3,7 @@ import { getBasiszinsForYear, calculateVorabpauschaleDetailed } from '../../help
 import { type ReturnConfiguration, generateRandomReturns } from './random-returns'
 import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import { getHistoricalReturns } from './historical-data'
+import { calculateRealValue } from './inflation-adjustment'
 
 export type VorabpauschaleDetails = {
   basiszins: number // Base interest rate for the year
@@ -25,6 +26,10 @@ export type SimulationResultElement = {
   terCosts?: number // TER costs for this year
   transactionCosts?: number // Transaction costs for this year
   totalCosts?: number // Total costs for this year (TER + transaction costs)
+  // Inflation-adjusted values (real purchasing power)
+  startkapitalReal?: number // Real value of starting capital
+  zinsenReal?: number // Real value of interest/gains
+  endkapitalReal?: number // Real value of ending capital
 }
 
 export type SimulationResult = {
@@ -61,6 +66,26 @@ export interface SimulateOptions {
   inflationAktivSparphase?: boolean
   inflationsrateSparphase?: number
   inflationAnwendungSparphase?: 'sparplan' | 'gesamtmenge'
+}
+
+// Helper function to add inflation-adjusted values to simulation result
+function addInflationAdjustedValues(
+  result: SimulationResultElement,
+  year: number,
+  baseYear: number,
+  inflationRate: number,
+): SimulationResultElement {
+  if (inflationRate <= 0) {
+    return result
+  }
+
+  const yearsFromBase = year - baseYear
+  return {
+    ...result,
+    startkapitalReal: calculateRealValue(result.startkapital, inflationRate / 100, yearsFromBase),
+    zinsenReal: calculateRealValue(result.zinsen, inflationRate / 100, yearsFromBase),
+    endkapitalReal: calculateRealValue(result.endkapital, inflationRate / 100, yearsFromBase),
+  }
 }
 
 function generateYearlyGrowthRates(
@@ -337,7 +362,7 @@ function calculateYearlySimulation(
       // Calculate actual interest/gain after all adjustments (including inflation)
       const actualZinsen = endkapital - startkapital
 
-      element.simulation[year] = {
+      let simulationResult: SimulationResultElement = {
         startkapital,
         endkapital,
         zinsen: actualZinsen,
@@ -349,6 +374,18 @@ function calculateYearlySimulation(
         transactionCosts: costs.transactionCosts,
         totalCosts: costs.totalCosts,
       }
+
+      // Add inflation-adjusted values if inflation is active
+      if (options.inflationAktivSparphase && options.inflationsrateSparphase) {
+        simulationResult = addInflationAdjustedValues(
+          simulationResult,
+          year,
+          options.startYear,
+          options.inflationsrateSparphase,
+        )
+      }
+
+      element.simulation[year] = simulationResult
     }
   }
 }
@@ -402,7 +439,7 @@ function applyTaxes(
       = (calc.element.simulation[year - 1]?.vorabpauschaleAccumulated || 0)
         + calc.vorabpauschaleBetrag
 
-    calc.element.simulation[year] = {
+    let simulationResult: SimulationResultElement = {
       startkapital: calc.startkapital,
       endkapital,
       zinsen: actualZinsen,
@@ -415,5 +452,17 @@ function applyTaxes(
       transactionCosts: calc.costs.transactionCosts,
       totalCosts: calc.costs.totalCosts,
     }
+
+    // Add inflation-adjusted values if inflation is active
+    if (_options?.inflationAktivSparphase && _options?.inflationsrateSparphase) {
+      simulationResult = addInflationAdjustedValues(
+        simulationResult,
+        year,
+        _options.startYear,
+        _options.inflationsrateSparphase,
+      )
+    }
+
+    calc.element.simulation[year] = simulationResult
   }
 }

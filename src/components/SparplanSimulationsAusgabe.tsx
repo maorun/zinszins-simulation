@@ -6,6 +6,7 @@ import { useState } from 'react'
 import type { SparplanElement } from '../utils/sparplan-utils'
 import type { Summary } from '../utils/summary-utils'
 import { fullSummary, getYearlyPortfolioProgression } from '../utils/summary-utils'
+import { formatInflationAdjustedValue } from '../utils/inflation-adjustment'
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
 import CalculationExplanationModal from './CalculationExplanationModal'
 import { createInterestExplanation, createTaxExplanation, createEndkapitalExplanation } from './calculationHelpers'
@@ -109,6 +110,9 @@ export function SparplanSimulationsAusgabe({
   // Get year-by-year portfolio progression
   const yearlyProgression = getYearlyPortfolioProgression(elemente)
 
+  // Check if inflation is active by seeing if any year has real values
+  const hasInflationData = yearlyProgression.some(p => p.totalCapitalReal !== undefined)
+
   // Convert progression to table data format (reverse order to show newest first)
   const tableData = yearlyProgression
     .sort((a, b) => b.year - a.year)
@@ -122,6 +126,10 @@ export function SparplanSimulationsAusgabe({
       cumulativeContributions: progression.cumulativeContributions,
       cumulativeInterest: progression.cumulativeInterest,
       cumulativeTax: progression.cumulativeTax,
+      // Inflation-adjusted values
+      endkapitalReal: progression.totalCapitalReal?.toFixed(2),
+      zinsenReal: progression.yearlyInterestReal?.toFixed(2),
+      cumulativeInterestReal: progression.cumulativeInterestReal?.toFixed(2),
     }))
 
   const handleVorabpauschaleInfoClick = (details: any) => {
@@ -199,9 +207,13 @@ export function SparplanSimulationsAusgabe({
                     <span className="font-bold text-blue-600 text-lg flex items-center">
                       🎯
                       {' '}
-                      {thousands(row.endkapital)}
-                      {' '}
-                      €
+                      {hasInflationData && row.endkapitalReal
+                        ? formatInflationAdjustedValue(
+                            Number(row.endkapital),
+                            Number(row.endkapitalReal),
+                            true,
+                          )
+                        : `${thousands(row.endkapital)} €`}
                       <InfoIcon onClick={() => handleCalculationInfoClick('endkapital', row)} />
                     </span>
                   </div>
@@ -217,9 +229,13 @@ export function SparplanSimulationsAusgabe({
                     <div className="flex justify-between items-center py-1">
                       <span className="text-sm text-gray-600 font-medium">📈 Zinsen (Jahr):</span>
                       <span className="font-semibold text-cyan-600 text-sm flex items-center">
-                        {thousands(row.zinsen)}
-                        {' '}
-                        €
+                        {hasInflationData && row.zinsenReal
+                          ? formatInflationAdjustedValue(
+                              Number(row.zinsen),
+                              Number(row.zinsenReal),
+                              true,
+                            )
+                          : `${thousands(row.zinsen)} €`}
                         <InfoIcon onClick={() => handleCalculationInfoClick('interest', row)} />
                       </span>
                     </div>
@@ -283,9 +299,17 @@ export function SparplanSimulationsAusgabe({
                   <div className="flex flex-col text-center p-2 bg-white rounded border border-gray-300">
                     <span className="text-xs mb-1 opacity-80">📈 Zinsen</span>
                     <span className="font-bold text-sm">
-                      {thousands(summary.zinsen?.toFixed(2) || '0')}
-                      {' '}
-                      €
+                      {(() => {
+                        const latestProgression = yearlyProgression[yearlyProgression.length - 1]
+                        if (hasInflationData && latestProgression?.cumulativeInterestReal !== undefined) {
+                          return formatInflationAdjustedValue(
+                            summary.zinsen || 0,
+                            latestProgression.cumulativeInterestReal,
+                            true,
+                          )
+                        }
+                        return `${thousands(summary.zinsen?.toFixed(2) || '0')} €`
+                      })()}
                     </span>
                   </div>
                   <div className="flex flex-col text-center p-2 bg-white rounded border border-gray-300">
@@ -299,9 +323,17 @@ export function SparplanSimulationsAusgabe({
                   <div className="flex flex-col text-center p-2 bg-gradient-to-br from-green-500 to-teal-500 text-white rounded border border-green-500">
                     <span className="text-xs mb-1 opacity-90">🎯 Endkapital</span>
                     <span className="font-bold text-sm flex items-center justify-center">
-                      {thousands(summary.endkapital?.toFixed(2) || '0')}
-                      {' '}
-                      €
+                      {(() => {
+                        const latestProgression = yearlyProgression[yearlyProgression.length - 1]
+                        if (hasInflationData && latestProgression?.totalCapitalReal !== undefined) {
+                          return formatInflationAdjustedValue(
+                            summary.endkapital || 0,
+                            latestProgression.totalCapitalReal,
+                            true,
+                          )
+                        }
+                        return `${thousands(summary.endkapital?.toFixed(2) || '0')} €`
+                      })()}
                       <InfoIcon onClick={() => handleCalculationInfoClick('endkapital', {
                         jahr: tableData?.[0]?.jahr || new Date().getFullYear(),
                         endkapital: summary.endkapital?.toFixed(2) || '0',
