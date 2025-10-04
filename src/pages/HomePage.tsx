@@ -9,7 +9,7 @@ import { SpecialEvents } from '../components/SpecialEvents'
 import { StickyOverview } from '../components/StickyOverview'
 import { StickyBottomOverview } from '../components/StickyBottomOverview'
 import { GlobalPlanningConfiguration } from '../components/GlobalPlanningConfiguration'
-import { CollapsibleNavigation } from '../components/CollapsibleNavigation'
+
 import { SimulationProvider } from '../contexts/SimulationContext'
 import { NavigationProvider } from '../contexts/NavigationContext'
 import { useSimulation } from '../contexts/useSimulation'
@@ -328,8 +328,6 @@ const HomePageContent = () => {
           <EnhancedOverview />
         </div>
       )}
-
-      <CollapsibleNavigation />
 
       <SimulationParameters />
 
