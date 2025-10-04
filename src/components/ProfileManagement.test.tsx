@@ -18,6 +18,9 @@ vi.mock('../utils/profile-storage', () => ({
   clearAllProfiles: vi.fn(),
   hasProfiles: vi.fn(),
   getProfileCount: vi.fn(),
+  initializeProfileStorage: vi.fn(),
+  loadProfileStorage: vi.fn(),
+  saveProfileStorage: vi.fn(),
 }))
 
 // Mock sonner toast
