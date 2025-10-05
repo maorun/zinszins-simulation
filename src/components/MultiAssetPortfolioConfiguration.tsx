@@ -31,6 +31,28 @@ export function MultiAssetPortfolioConfiguration({
   // Ensure we have a valid configuration object
   const safeValues = values || createDefaultMultiAssetConfig()
   
+  // Additional safety check - if safeValues is still undefined or malformed, create a minimal valid config
+  if (!safeValues || typeof safeValues !== 'object' || !safeValues.assetClasses) {
+    console.warn('MultiAssetPortfolioConfiguration received invalid values, using default config')
+    const fallbackConfig = createDefaultMultiAssetConfig()
+    onChange?.(fallbackConfig)
+    return (
+      <Card nestingLevel={nestingLevel} className="mb-4">
+        <CardHeader nestingLevel={nestingLevel}>
+          <CardTitle className="flex items-center gap-2">
+            <PieChart className="h-5 w-5" />
+            Multi-Asset Portfolio (wird geladen...)
+          </CardTitle>
+        </CardHeader>
+        <CardContent nestingLevel={nestingLevel}>
+          <div className="p-4 text-center text-gray-600">
+            Konfiguration wird initialisiert...
+          </div>
+        </CardContent>
+      </Card>
+    )
+  }
+
   // Validate configuration
   const validationErrors = validateMultiAssetConfig(safeValues)
   const hasErrors = validationErrors.length > 0
