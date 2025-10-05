@@ -184,3 +184,91 @@ export function calculateSteuerOnVorabpauschale(
   }
   return vorabpauschale * steuerlast * (1 - teilFreistellungsquote)
 }
+
+/**
+ * Performs Günstigerprüfung (tax optimization check) to determine whether
+ * Abgeltungssteuer (capital gains tax) or personal income tax is more favorable.
+ *
+ * @param vorabpauschale - The Vorabpauschale amount subject to taxation
+ * @param abgeltungssteuer - The standard capital gains tax rate (e.g., 0.26375 = 26.375%)
+ * @param personalTaxRate - The personal income tax rate (e.g., 0.25 = 25%)
+ * @param teilfreistellungsquote - The partial exemption quote for the fund type (e.g., 0.3 for equity funds)
+ * @param grundfreibetrag - The annual tax-free allowance for personal income tax
+ * @param alreadyUsedGrundfreibetrag - Amount of Grundfreibetrag already used in the year
+ * @returns Object with calculated tax amounts and recommendation
+ */
+export function performGuenstigerPruefung(
+  vorabpauschale: number,
+  abgeltungssteuer: number,
+  personalTaxRate: number,
+  teilfreistellungsquote: number,
+  grundfreibetrag: number = 0,
+  alreadyUsedGrundfreibetrag: number = 0,
+): {
+  abgeltungssteuerAmount: number
+  personalTaxAmount: number
+  usedTaxRate: number
+  isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
+  availableGrundfreibetrag: number
+  usedGrundfreibetrag: number
+  explanation: string
+} {
+  if (vorabpauschale <= 0) {
+    return {
+      abgeltungssteuerAmount: 0,
+      personalTaxAmount: 0,
+      usedTaxRate: abgeltungssteuer,
+      isFavorable: 'equal',
+      availableGrundfreibetrag: Math.max(0, grundfreibetrag - alreadyUsedGrundfreibetrag),
+      usedGrundfreibetrag: 0,
+      explanation: 'Keine Vorabpauschale - keine Steuer fällig',
+    }
+  }
+
+  // Calculate Abgeltungssteuer (capital gains tax)
+  const abgeltungssteuerAmount = calculateSteuerOnVorabpauschale(
+    vorabpauschale,
+    abgeltungssteuer,
+    teilfreistellungsquote,
+  )
+
+  // Calculate personal income tax
+  const availableGrundfreibetrag = Math.max(0, grundfreibetrag - alreadyUsedGrundfreibetrag)
+  const taxableIncome = Math.max(0, vorabpauschale * (1 - teilfreistellungsquote) - availableGrundfreibetrag)
+  const personalTaxAmount = taxableIncome * personalTaxRate
+  const usedGrundfreibetrag = Math.min(availableGrundfreibetrag, vorabpauschale * (1 - teilfreistellungsquote))
+
+  // Determine which is more favorable
+  let isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
+  let usedTaxRate: number
+  let explanation: string
+
+  if (personalTaxAmount < abgeltungssteuerAmount) {
+    isFavorable = 'personal'
+    // Avoid division by zero
+    usedTaxRate = personalTaxAmount / Math.max(vorabpauschale * (1 - teilfreistellungsquote), 0.01)
+    explanation = `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%) ist günstiger als `
+      + `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
+  }
+  else if (personalTaxAmount > abgeltungssteuerAmount) {
+    isFavorable = 'abgeltungssteuer'
+    usedTaxRate = abgeltungssteuer
+    explanation = `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als `
+      + `persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%)`
+  }
+  else {
+    isFavorable = 'equal'
+    usedTaxRate = abgeltungssteuer
+    explanation = `Abgeltungssteuer und persönlicher Steuersatz führen zum gleichen Ergebnis (${(abgeltungssteuer * 100).toFixed(2)}%)`
+  }
+
+  return {
+    abgeltungssteuerAmount,
+    personalTaxAmount,
+    usedTaxRate,
+    isFavorable,
+    availableGrundfreibetrag,
+    usedGrundfreibetrag,
+    explanation,
+  }
+}

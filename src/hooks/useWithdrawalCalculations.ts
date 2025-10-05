@@ -82,6 +82,9 @@ export function useWithdrawalCalculations(
     statutoryPensionConfig,
     coupleStatutoryPensionConfig,
     birthYear,
+    // Günstigerprüfung settings
+    guenstigerPruefungAktiv,
+    personalTaxRate,
   } = useSimulation()
 
   const {
@@ -263,7 +266,7 @@ export function useWithdrawalCalculations(
           : undefined,
         incomeTaxRate: grundfreibetragAktiv
           ? formValue.einkommensteuersatz / 100
-          : undefined,
+          : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined),
         inflationConfig: formValue.inflationAktiv
           ? { inflationRate: formValue.inflationsrate / 100 }
           : undefined,
@@ -276,6 +279,8 @@ export function useWithdrawalCalculations(
           insuranceType: formValue.healthCareInsuranceConfig.insuranceType || 'statutory',
         } : undefined,
         birthYear: birthYear, // Use birth year from global context
+        // Günstigerprüfung settings
+        guenstigerPruefungAktiv,
       })
       withdrawalResult = withdrawalCalculation.result
     }
@@ -343,6 +348,8 @@ export function useWithdrawalCalculations(
     gender,
     otherIncomeConfig,
     formValue.healthCareInsuranceConfig,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
   ])
 
   // Calculate comparison results for each strategy
@@ -452,7 +459,7 @@ export function useWithdrawalCalculations(
             : undefined,
           incomeTaxRate: grundfreibetragAktiv
             ? formValue.einkommensteuersatz / 100
-            : undefined,
+            : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined),
           steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
           statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
           otherIncomeConfig,
@@ -462,6 +469,8 @@ export function useWithdrawalCalculations(
             insuranceType: formValue.healthCareInsuranceConfig.insuranceType || 'statutory',
           } : undefined,
           birthYear: birthYear, // Use birth year from global context
+          // Günstigerprüfung settings
+          guenstigerPruefungAktiv,
         })
 
         // Get final year capital and total withdrawal
@@ -527,6 +536,8 @@ export function useWithdrawalCalculations(
     gender,
     otherIncomeConfig,
     formValue.healthCareInsuranceConfig,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
   ])
 
   // Calculate segmented comparison results for each segmented strategy
