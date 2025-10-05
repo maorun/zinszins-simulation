@@ -248,6 +248,38 @@ export function SparplanSimulationsAusgabe({
                         <InfoIcon onClick={() => handleCalculationInfoClick('tax', row)} />
                       </span>
                     </div>
+
+                    {/* Show Günstigerprüfung information if available */}
+                    {(() => {
+                      // Find any element that has Günstigerprüfung results for this year
+                      const elementWithGuenstigerPruefung = elemente?.find(el =>
+                        el.simulation[row.jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult,
+                      )
+
+                      const pruefungResult = elementWithGuenstigerPruefung
+                        ?.simulation[row.jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult
+
+                      if (pruefungResult) {
+                        const favorableText = pruefungResult.isFavorable === 'personal'
+                          ? 'Persönlicher Steuersatz'
+                          : 'Abgeltungssteuer'
+                        const usedRate = `${(pruefungResult.usedTaxRate * 100).toFixed(2)}%`
+
+                        return (
+                          <div className="flex justify-between items-center py-1 bg-blue-50 px-2 rounded">
+                            <span className="text-sm text-blue-600 font-medium">🔍 Günstigerprüfung:</span>
+                            <span className="font-semibold text-blue-700 text-sm">
+                              {favorableText}
+                              {' '}
+                              (
+                              {usedRate}
+                              )
+                            </span>
+                          </div>
+                        )
+                      }
+                      return null
+                    })()}
                     <div className="flex justify-between items-center py-1">
                       <span className="text-sm text-gray-600 font-medium">💼 Kumulierte Einzahlungen:</span>
                       <span className="font-semibold text-gray-600 text-sm">

@@ -392,6 +392,20 @@ export function EntnahmeSimulationDisplay({
                   <InfoIcon onClick={() => onCalculationInfoClick('tax', rowData)} />
                 </span>
               </div>
+
+              {/* Show Günstigerprüfung information for realized gains if available */}
+              {rowData.guenstigerPruefungResultRealizedGains && (
+                <div className="flex justify-between items-center py-1 bg-blue-50 px-2 rounded">
+                  <span className="text-sm text-blue-600 font-medium">🔍 Günstigerprüfung (Veräußerung):</span>
+                  <span className="font-semibold text-blue-700 text-sm">
+                    {rowData.guenstigerPruefungResultRealizedGains.isFavorable === 'personal' ? 'Persönlicher Steuersatz' : 'Abgeltungssteuer'}
+                    {' '}
+                    (
+                    {(rowData.guenstigerPruefungResultRealizedGains.usedTaxRate * 100).toFixed(2)}
+                    %)
+                  </span>
+                </div>
+              )}
               {rowData.vorabpauschale !== undefined && rowData.vorabpauschale > 0 && (
                 <div className="flex justify-between items-center py-1">
                   <span className="text-sm text-gray-600 font-medium">📊 Vorabpauschale:</span>
