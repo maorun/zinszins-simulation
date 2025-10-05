@@ -57,15 +57,24 @@ describe('InteractiveChart', () => {
     expect(screen.getByText('(inflationsbereinigt)')).toBeInTheDocument()
   })
 
+  it('renders interactive controls', () => {
+    render(<InteractiveChart simulationData={mockSimulationData} />)
+
+    expect(screen.getByLabelText('Real (inflationsbereinigt)')).toBeInTheDocument()
+    expect(screen.getByLabelText('Steuern anzeigen')).toBeInTheDocument()
+    expect(screen.getByText('Übersicht')).toBeInTheDocument()
+    expect(screen.getByText('Detail')).toBeInTheDocument()
+  })
+
   it('displays interpretation guide', () => {
     render(<InteractiveChart simulationData={mockSimulationData} />)
 
-    expect(screen.getByText('💡')).toBeInTheDocument()
-    expect(screen.getByText('Interpretation:')).toBeInTheDocument()
+    expect(screen.getByText(/Chart-Interpretation:/)).toBeInTheDocument()
     expect(screen.getByText('Blaue Fläche:')).toBeInTheDocument()
     expect(screen.getByText('Grüne Fläche:')).toBeInTheDocument()
     expect(screen.getByText('Rote Linie:')).toBeInTheDocument()
     expect(screen.getByText('Gelbe gestrichelte Linie:')).toBeInTheDocument()
+    expect(screen.getByText(/Interaktive Funktionen:/)).toBeInTheDocument()
   })
 
   it('applies custom className when provided', () => {

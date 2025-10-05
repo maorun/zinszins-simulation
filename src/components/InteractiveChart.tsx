@@ -1,4 +1,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
+import { Button } from './ui/button'
+import { Switch } from './ui/switch'
+import { Label } from './ui/label'
 import {
   Line,
   XAxis,
@@ -9,9 +12,11 @@ import {
   ResponsiveContainer,
   Area,
   AreaChart,
+  Brush,
 } from 'recharts'
 import { formatCurrency } from '../utils/currency'
 import type { SimulationResult } from '../utils/simulate'
+import { useState } from 'react'
 
 interface ChartDataPoint {
   year: number
@@ -31,6 +36,8 @@ interface InteractiveChartProps {
   showRealValues?: boolean
   className?: string
 }
+
+type ChartView = 'overview' | 'detailed'
 
 /**
  * Convert simulation result to chart data format
@@ -71,18 +78,43 @@ function prepareChartData(simulationData: SimulationResult): ChartDataPoint[] {
 }
 
 /**
- * Custom tooltip formatter for chart data
+ * Enhanced tooltip formatter with better formatting and more information
  */
 function CustomTooltip({ active, payload, label }: any) {
   if (active && payload && payload.length) {
+    const data = payload[0]?.payload
+
     return (
-      <div className="bg-white p-3 shadow-lg rounded-lg border">
-        <p className="font-semibold text-gray-800">{`Jahr: ${label}`}</p>
+      <div className="bg-white p-4 shadow-lg rounded-lg border border-gray-200 min-w-64">
+        <p className="font-semibold text-gray-800 text-base mb-2">{`📅 Jahr: ${label}`}</p>
+
         {payload.map((entry: any, index: number) => (
-          <p key={index} style={{ color: entry.color }} className="text-sm">
-            {`${entry.name}: ${formatCurrency(entry.value)}`}
-          </p>
+          <div key={index} className="flex justify-between items-center mb-1">
+            <span className="text-sm text-gray-600">
+              {entry.name}
+              :
+            </span>
+            <span
+              className="text-sm font-medium ml-2"
+              style={{ color: entry.color }}
+            >
+              {formatCurrency(entry.value)}
+            </span>
+          </div>
         ))}
+
+        {data && (
+          <div className="mt-3 pt-2 border-t border-gray-100 text-xs text-gray-500">
+            <div className="flex justify-between">
+              <span>Gesamtrendite:</span>
+              <span className="font-medium">
+                {data.endkapital > data.kumulativeEinzahlungen
+                  ? `+${(((data.endkapital / data.kumulativeEinzahlungen) - 1) * 100).toFixed(1)}%`
+                  : `${(((data.endkapital / data.kumulativeEinzahlungen) - 1) * 100).toFixed(1)}%`}
+              </span>
+            </div>
+          </div>
+        )}
       </div>
     )
   }
@@ -109,18 +141,68 @@ export function InteractiveChart({
 }: InteractiveChartProps) {
   const chartData = prepareChartData(simulationData)
 
-  // Determine which values to show based on showRealValues prop
-  const endkapitalKey = showRealValues ? 'endkapitalReal' : 'endkapital'
+  // Interactive state
+  const [showInflationAdjusted, setShowInflationAdjusted] = useState(showRealValues)
+  const [chartView, setChartView] = useState<ChartView>('overview')
+  const [showTaxes, setShowTaxes] = useState(true)
+
+  // Determine which values to show based on showInflationAdjusted state
+  const endkapitalKey = showInflationAdjusted ? 'endkapitalReal' : 'endkapital'
+  const zinsenKey = showInflationAdjusted ? 'zinsenReal' : 'zinsen'
   return (
     <Card className={className}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          📈 Kapitalentwicklung
-          {showRealValues && <span className="text-sm text-gray-600">(inflationsbereinigt)</span>}
+        <CardTitle className="flex items-center justify-between">
+          <div className="flex items-center gap-2">
+            📈 Kapitalentwicklung
+            {showInflationAdjusted && <span className="text-sm text-gray-600">(inflationsbereinigt)</span>}
+          </div>
+
+          {/* Interactive Controls */}
+          <div className="flex items-center gap-4">
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="inflation-adjusted"
+                checked={showInflationAdjusted}
+                onCheckedChange={setShowInflationAdjusted}
+              />
+              <Label htmlFor="inflation-adjusted" className="text-sm">
+                Real (inflationsbereinigt)
+              </Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Switch
+                id="show-taxes"
+                checked={showTaxes}
+                onCheckedChange={setShowTaxes}
+              />
+              <Label htmlFor="show-taxes" className="text-sm">
+                Steuern anzeigen
+              </Label>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Button
+                variant={chartView === 'overview' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setChartView('overview')}
+              >
+                Übersicht
+              </Button>
+              <Button
+                variant={chartView === 'detailed' ? 'default' : 'outline'}
+                size="sm"
+                onClick={() => setChartView('detailed')}
+              >
+                Detail
+              </Button>
+            </div>
+          </div>
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className="w-full h-96">
+        <div className={`w-full ${chartView === 'detailed' ? 'h-[500px]' : 'h-96'}`}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={chartData}
@@ -128,7 +210,7 @@ export function InteractiveChart({
                 top: 20,
                 right: 30,
                 left: 20,
-                bottom: 5,
+                bottom: chartView === 'detailed' ? 60 : 20,
               }}
             >
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
@@ -136,6 +218,9 @@ export function InteractiveChart({
                 dataKey="year"
                 className="text-xs text-gray-600"
                 tick={{ fontSize: 12 }}
+                angle={chartView === 'detailed' ? -45 : 0}
+                textAnchor={chartView === 'detailed' ? 'end' : 'middle'}
+                height={chartView === 'detailed' ? 60 : 30}
               />
               <YAxis
                 tickFormatter={formatYAxisTick}
@@ -150,8 +235,8 @@ export function InteractiveChart({
                 type="monotone"
                 dataKey="kumulativeEinzahlungen"
                 stackId="1"
-                stroke="#8884d8"
-                fill="#8884d8"
+                stroke="#3b82f6"
+                fill="#3b82f6"
                 fillOpacity={0.6}
                 name="Kumulierte Einzahlungen"
               />
@@ -159,72 +244,131 @@ export function InteractiveChart({
               {/* Area for total gains/interest */}
               <Area
                 type="monotone"
-                dataKey="zinsen"
+                dataKey={zinsenKey}
                 stackId="1"
-                stroke="#82ca9d"
-                fill="#82ca9d"
+                stroke="#10b981"
+                fill="#10b981"
                 fillOpacity={0.6}
-                name="Zinsen/Gewinne"
+                name={showInflationAdjusted ? 'Zinsen/Gewinne (real)' : 'Zinsen/Gewinne'}
               />
 
               {/* Line for end capital */}
               <Line
                 type="monotone"
                 dataKey={endkapitalKey}
-                stroke="#ff7c7c"
+                stroke="#ef4444"
                 strokeWidth={3}
-                dot={{ fill: '#ff7c7c', strokeWidth: 2, r: 4 }}
-                name="Endkapital"
+                dot={chartView === 'detailed' ? { fill: '#ef4444', strokeWidth: 2, r: 4 } : false}
+                name={showInflationAdjusted ? 'Endkapital (real)' : 'Endkapital'}
               />
 
-              {/* Line for taxes paid */}
-              <Line
-                type="monotone"
-                dataKey="bezahlteSteuer"
-                stroke="#ffc658"
-                strokeWidth={2}
-                strokeDasharray="5 5"
-                dot={{ fill: '#ffc658', strokeWidth: 1, r: 2 }}
-                name="Bezahlte Steuern"
-              />
+              {/* Line for taxes paid - conditional */}
+              {showTaxes && (
+                <Line
+                  type="monotone"
+                  dataKey="bezahlteSteuer"
+                  stroke="#f59e0b"
+                  strokeWidth={2}
+                  strokeDasharray="5 5"
+                  dot={chartView === 'detailed' ? { fill: '#f59e0b', strokeWidth: 1, r: 2 } : false}
+                  name="Bezahlte Steuern"
+                />
+              )}
+
+              {/* Add zoom/brush functionality for detailed view */}
+              {chartView === 'detailed' && chartData.length > 5 && (
+                <Brush
+                  dataKey="year"
+                  height={30}
+                  stroke="#8884d8"
+                  startIndex={Math.max(0, chartData.length - 10)}
+                  endIndex={chartData.length - 1}
+                />
+              )}
             </AreaChart>
           </ResponsiveContainer>
         </div>
 
-        <div className="mt-4 text-xs text-gray-600 space-y-1">
-          <p>
-            💡
-            {' '}
-            <strong>Interpretation:</strong>
-          </p>
-          <p>
-            •
-            {' '}
-            <span className="text-blue-600">Blaue Fläche:</span>
-            {' '}
-            Ihre kumulierten Einzahlungen über Zeit
-          </p>
-          <p>
-            •
-            {' '}
-            <span className="text-green-600">Grüne Fläche:</span>
-            {' '}
-            Zinsen und Kapitalgewinne
-          </p>
-          <p>
-            •
-            {' '}
-            <span className="text-red-600">Rote Linie:</span>
-            {' '}
-            Gesamtes Endkapital (Einzahlungen + Gewinne)
-          </p>
-          <p>
-            •
-            {' '}
-            <span className="text-yellow-600">Gelbe gestrichelte Linie:</span>
-            {' '}
-            Bezahlte Steuern
-          </p>
+        <div className="mt-4 text-xs text-gray-600 space-y-2">
+          <div className="bg-gray-50 p-3 rounded-lg">
+            <p className="font-medium text-gray-700 mb-2">
+              💡
+              {' '}
+              <strong>Chart-Interpretation:</strong>
+            </p>
+            <div className="space-y-1">
+              <p>
+                •
+                {' '}
+                <span className="text-blue-600 font-medium">Blaue Fläche:</span>
+                {' '}
+                Ihre kumulierten Einzahlungen über Zeit
+              </p>
+              <p>
+                •
+                {' '}
+                <span className="text-green-600 font-medium">Grüne Fläche:</span>
+                {' '}
+                Zinsen und Kapitalgewinne
+                {' '}
+                {showInflationAdjusted && '(inflationsbereinigt)'}
+              </p>
+              <p>
+                •
+                {' '}
+                <span className="text-red-600 font-medium">Rote Linie:</span>
+                {' '}
+                Gesamtes Endkapital
+                {' '}
+                {showInflationAdjusted && '(inflationsbereinigt)'}
+              </p>
+              {showTaxes && (
+                <p>
+                  •
+                  {' '}
+                  <span className="text-yellow-600 font-medium">Gelbe gestrichelte Linie:</span>
+                  {' '}
+                  Bezahlte Steuern
+                </p>
+              )}
+            </div>
+          </div>
+
+          <div className="bg-blue-50 p-3 rounded-lg">
+            <p className="font-medium text-blue-800 mb-2">
+              🎛️
+              {' '}
+              <strong>Interaktive Funktionen:</strong>
+            </p>
+            <div className="space-y-1 text-blue-700">
+              <p>
+                •
+                <strong>Real-Werte:</strong>
+                {' '}
+                Schalter für inflationsbereinigte Darstellung
+              </p>
+              <p>
+                •
+                <strong>Steuern:</strong>
+                {' '}
+                Ein-/Ausblenden der Steuerbelastung
+              </p>
+              <p>
+                •
+                <strong>Ansichten:</strong>
+                {' '}
+                Übersicht oder Detail-Modus mit Zoom
+              </p>
+              {chartView === 'detailed' && (
+                <p>
+                  •
+                  <strong>Zoom:</strong>
+                  {' '}
+                  Nutzen Sie den Slider unten für Zeitraum-Auswahl
+                </p>
+              )}
+            </div>
+          </div>
         </div>
       </CardContent>
     </Card>
