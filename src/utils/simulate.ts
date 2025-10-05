@@ -1,5 +1,5 @@
 import type { SparplanElement } from '../utils/sparplan-utils'
-import { getBasiszinsForYear, calculateVorabpauschaleDetailed } from '../../helpers/steuer.tsx'
+import { getBasiszinsForYear, calculateVorabpauschaleDetailed, performGuenstigerPruefung } from '../../helpers/steuer.tsx'
 import { type ReturnConfiguration, generateRandomReturns } from './random-returns'
 import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import { getHistoricalReturns } from './historical-data'
@@ -12,6 +12,14 @@ export type VorabpauschaleDetails = {
   steuerVorFreibetrag: number // Tax on Vorabpauschale before allowance
   jahresgewinn: number // Actual gain for the year
   anteilImJahr: number // Fraction of year the investment was held
+  // Günstigerprüfung information
+  guenstigerPruefungResult?: {
+    abgeltungssteuerAmount: number
+    personalTaxAmount: number
+    usedTaxRate: number
+    isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
+    explanation: string
+  }
 }
 
 export type SimulationResultElement = {
@@ -66,6 +74,9 @@ export interface SimulateOptions {
   inflationAktivSparphase?: boolean
   inflationsrateSparphase?: number
   inflationAnwendungSparphase?: 'sparplan' | 'gesamtmenge'
+  // Günstigerprüfung settings
+  guenstigerPruefungAktiv?: boolean
+  personalTaxRate?: number
 }
 
 // Helper function to add inflation-adjusted values to simulation result
@@ -310,7 +321,41 @@ function calculateYearlySimulation(
       )
 
       const vorabpauschaleBetrag = vorabpauschaleDetails.vorabpauschaleAmount
-      const potentialTax = vorabpauschaleDetails.steuerVorFreibetrag
+
+      // Apply Günstigerprüfung if enabled
+      let potentialTax = vorabpauschaleDetails.steuerVorFreibetrag
+      let guenstigerPruefungResult = null
+
+      if (options.guenstigerPruefungAktiv && options.personalTaxRate !== undefined) {
+        guenstigerPruefungResult = performGuenstigerPruefung(
+          vorabpauschaleBetrag,
+          steuerlast,
+          options.personalTaxRate / 100, // Convert percentage to decimal
+          teilfreistellungsquote,
+          0, // No Grundfreibetrag at element level - handled at aggregated level
+          0,
+        )
+
+        // Use the more favorable tax amount
+        if (guenstigerPruefungResult.isFavorable === 'personal') {
+          potentialTax = guenstigerPruefungResult.personalTaxAmount
+        }
+        else {
+          potentialTax = guenstigerPruefungResult.abgeltungssteuerAmount
+        }
+      }
+
+      // Store Günstigerprüfung result in details for display
+      const enhancedVorabpauschaleDetails = {
+        ...vorabpauschaleDetails,
+        guenstigerPruefungResult: guenstigerPruefungResult ? {
+          abgeltungssteuerAmount: guenstigerPruefungResult.abgeltungssteuerAmount,
+          personalTaxAmount: guenstigerPruefungResult.personalTaxAmount,
+          usedTaxRate: guenstigerPruefungResult.usedTaxRate,
+          isFavorable: guenstigerPruefungResult.isFavorable,
+          explanation: guenstigerPruefungResult.explanation,
+        } : undefined,
+      }
 
       totalPotentialTaxThisYear += potentialTax
       yearlyCalculations.push({
@@ -320,7 +365,7 @@ function calculateYearlySimulation(
         jahresgewinn,
         vorabpauschaleBetrag,
         potentialTax,
-        vorabpauschaleDetails,
+        vorabpauschaleDetails: enhancedVorabpauschaleDetails,
         costs, // Store cost information
       })
     }

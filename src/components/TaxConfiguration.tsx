@@ -194,12 +194,13 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
                       <div className="flex justify-between text-sm text-muted-foreground">
                         <span>0%</span>
                         <span className="font-medium">
-                          {personalTaxRate}%
+                          {personalTaxRate}
+                          %
                         </span>
                         <span>45%</span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        Ihr persönlicher Einkommensteuersatz. Bei aktivierter Günstigerprüfung wird automatisch 
+                        Ihr persönlicher Einkommensteuersatz. Bei aktivierter Günstigerprüfung wird automatisch
                         der günstigere Steuersatz (Abgeltungssteuer vs. persönlicher Steuersatz) verwendet.
                       </p>
                     </div>

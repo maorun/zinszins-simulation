@@ -691,6 +691,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
         inflationAktivSparphase,
         inflationsrateSparphase,
         inflationAnwendungSparphase,
+        // Günstigerprüfung settings
+        guenstigerPruefungAktiv,
+        personalTaxRate,
       })
 
       setSimulationData({
@@ -725,6 +728,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     inflationAktivSparphase,
     inflationsrateSparphase,
     inflationAnwendungSparphase,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
   ])
 
   const value = useMemo(() => ({
