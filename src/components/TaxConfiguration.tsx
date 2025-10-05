@@ -39,6 +39,11 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
     setPersonalTaxRate,
     guenstigerPruefungAktiv,
     setGuenstigerPruefungAktiv,
+    // Church tax (Kirchensteuer) settings
+    kirchensteuerAktiv,
+    setKirchensteuerAktiv,
+    kirchensteuersatz,
+    setKirchensteuersatz,
   } = useSimulation()
 
   const yearToday = new Date().getFullYear()
@@ -202,6 +207,71 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
                       <p className="text-xs text-muted-foreground">
                         Ihr persönlicher Einkommensteuersatz. Bei aktivierter Günstigerprüfung wird automatisch
                         der günstigere Steuersatz (Abgeltungssteuer vs. persönlicher Steuersatz) verwendet.
+                      </p>
+                    </div>
+                  )}
+                </div>
+
+                {/* Kirchensteuer Configuration */}
+                <div className="space-y-4 border rounded-lg p-4 bg-purple-50/50">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <Label className="text-base font-medium">⛪ Kirchensteuer</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Kirchensteuer wird als Prozentsatz der Einkommensteuer berechnet (8-9% je nach Bundesland)
+                      </p>
+                    </div>
+                    <Switch
+                      id="kirchensteuerAktiv"
+                      checked={kirchensteuerAktiv}
+                      onCheckedChange={(checked) => {
+                        setKirchensteuerAktiv(checked)
+                        performSimulation()
+                      }}
+                    />
+                  </div>
+
+                  {kirchensteuerAktiv && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="kirchensteuersatz">
+                          Kirchensteuersatz (%)
+                        </Label>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setKirchensteuersatz(9) // Default value
+                            performSimulation()
+                          }}
+                          className="text-xs"
+                        >
+                          Reset
+                        </Button>
+                      </div>
+                      <Slider
+                        id="kirchensteuersatz"
+                        value={[kirchensteuersatz]}
+                        onValueChange={([value]) => {
+                          setKirchensteuersatz(value)
+                          performSimulation()
+                        }}
+                        min={8}
+                        max={9}
+                        step={1}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>8%</span>
+                        <span className="font-medium">
+                          {kirchensteuersatz}
+                          %
+                        </span>
+                        <span>9%</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Kirchensteuer: Bayern/Baden-Württemberg 8%, andere Bundesländer 9%.
+                        Wird automatisch bei der Günstigerprüfung und Einkommensteuerberechnung berücksichtigt.
                       </p>
                     </div>
                   )}

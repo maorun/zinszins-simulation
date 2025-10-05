@@ -52,6 +52,9 @@ export type SegmentedWithdrawalConfig = {
   freibetragPerYear?: { [year: number]: number }
   /** Statutory pension configuration (applies to all segments) */
   statutoryPensionConfig?: StatutoryPensionConfig
+  /** Church tax configuration */
+  kirchensteuerAktiv?: boolean
+  kirchensteuersatz?: number
 }
 
 /**

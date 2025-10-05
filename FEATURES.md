@@ -9,7 +9,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Steueroptimierung
 - **Steueroptimierte Entnahmereihenfolge** - Automatische Optimierung zwischen verschiedenen Depots/Konten (Roth vs. Traditional vs. Taxable)
 - **Tax-Loss Harvesting Simulation** - Simulation von Verlustverrechnungsstrategien
-- **Kirchensteuer-Integration** - Berücksichtigung der Kirchensteuer (8-9%) für relevante Personen
 
 - **Progressionsvorbehalt** - Auswirkungen auf andere Einkünfte bei ausländischen Einkünften
 - **Verlustverrechnungstöpfe** - Simulation verschiedener Verlustverrechnungsregeln
@@ -160,7 +159,6 @@ Direkte Erweiterung der bestehenden Kernfunktionalität:
 - **Immobilien-Cashflow Integration** - Ergänzt die "Andere Einkünfte" Funktionalität
 - **Interaktive Charts und bessere Visualisierung** - Verbessert das bereits sehr gute UI
 - **Pflegekosten-Simulation** - Wichtiger Baustein der deutschen Altersvorsorge
-- **Kirchensteuer-Integration** - Vervollständigt die deutsche Steuerberechnung
 
 ### Mittel (⭐⭐)
 Nützliche Ergänzungen für fortgeschrittene Nutzer:

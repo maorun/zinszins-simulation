@@ -204,6 +204,8 @@ export function performGuenstigerPruefung(
   teilfreistellungsquote: number,
   grundfreibetrag: number = 0,
   alreadyUsedGrundfreibetrag: number = 0,
+  kirchensteuerAktiv: boolean = false,
+  kirchensteuersatz: number = 9,
 ): {
   abgeltungssteuerAmount: number
   personalTaxAmount: number
@@ -235,7 +237,11 @@ export function performGuenstigerPruefung(
   // Calculate personal income tax
   const availableGrundfreibetrag = Math.max(0, grundfreibetrag - alreadyUsedGrundfreibetrag)
   const taxableIncome = Math.max(0, vorabpauschale * (1 - teilfreistellungsquote) - availableGrundfreibetrag)
-  const personalTaxAmount = taxableIncome * personalTaxRate
+  const basePersonalTax = taxableIncome * personalTaxRate
+
+  // Add Kirchensteuer if active (calculated as percentage of income tax)
+  const kirchensteuer = kirchensteuerAktiv ? basePersonalTax * (kirchensteuersatz / 100) : 0
+  const personalTaxAmount = basePersonalTax + kirchensteuer
   const usedGrundfreibetrag = Math.min(availableGrundfreibetrag, vorabpauschale * (1 - teilfreistellungsquote))
 
   // Determine which is more favorable
@@ -243,23 +249,25 @@ export function performGuenstigerPruefung(
   let usedTaxRate: number
   let explanation: string
 
+  const kirchensteuerText = kirchensteuerAktiv ? ` (inkl. ${kirchensteuersatz}% Kirchensteuer)` : ''
+
   if (personalTaxAmount < abgeltungssteuerAmount) {
     isFavorable = 'personal'
     // Avoid division by zero
     usedTaxRate = personalTaxAmount / Math.max(vorabpauschale * (1 - teilfreistellungsquote), 0.01)
-    explanation = `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%) ist günstiger als `
+    explanation = `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText}) ist günstiger als `
       + `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
   }
   else if (personalTaxAmount > abgeltungssteuerAmount) {
     isFavorable = 'abgeltungssteuer'
     usedTaxRate = abgeltungssteuer
     explanation = `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als `
-      + `persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%)`
+      + `persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText})`
   }
   else {
     isFavorable = 'equal'
     usedTaxRate = abgeltungssteuer
-    explanation = `Abgeltungssteuer und persönlicher Steuersatz führen zum gleichen Ergebnis (${(abgeltungssteuer * 100).toFixed(2)}%)`
+    explanation = `Abgeltungssteuer und persönlicher Steuersatz${kirchensteuerText} führen zum gleichen Ergebnis (${(abgeltungssteuer * 100).toFixed(2)}%)`
   }
 
   return {
