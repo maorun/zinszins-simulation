@@ -1,5 +1,6 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
+import userEvent from '@testing-library/user-event'
 import { InteractiveChart } from './InteractiveChart'
 import type { SimulationResult } from '../utils/simulate'
 
@@ -57,9 +58,18 @@ describe('InteractiveChart', () => {
     expect(screen.getByText('(inflationsbereinigt)')).toBeInTheDocument()
   })
 
-  it('renders interactive controls', () => {
+  it('renders interactive controls in collapsible section', async () => {
+    const user = userEvent.setup()
     render(<InteractiveChart simulationData={mockSimulationData} />)
 
+    // Controls should be hidden initially
+    expect(screen.queryByLabelText('Real (inflationsbereinigt)')).not.toBeInTheDocument()
+    // Click the collapsible trigger to reveal controls
+    const settingsButton = screen.getByRole('button', { name: /Chart-Einstellungen/i })
+    expect(settingsButton).toBeInTheDocument()
+    await user.click(settingsButton)
+
+    // Now controls should be visible
     expect(screen.getByLabelText('Real (inflationsbereinigt)')).toBeInTheDocument()
     expect(screen.getByLabelText('Steuern anzeigen')).toBeInTheDocument()
     expect(screen.getByText('Übersicht')).toBeInTheDocument()
