@@ -266,7 +266,7 @@ export function useWithdrawalCalculations(
           : undefined,
         incomeTaxRate: grundfreibetragAktiv
           ? formValue.einkommensteuersatz / 100
-          : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined),
+          : (guenstigerPruefungAktiv ? personalTaxRate : undefined),
         inflationConfig: formValue.inflationAktiv
           ? { inflationRate: formValue.inflationsrate / 100 }
           : undefined,
