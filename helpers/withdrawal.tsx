@@ -181,6 +181,9 @@ export type CalculateWithdrawalParams = {
   incomeTaxRate?: number
   // Günstigerprüfung settings
   guenstigerPruefungAktiv?: boolean
+  // Church tax (Kirchensteuer) settings
+  kirchensteuerAktiv?: boolean
+  kirchensteuersatz?: number
   inflationConfig?: InflationConfig
   dynamicConfig?: DynamicWithdrawalConfig
   bucketConfig?: BucketStrategyConfig
@@ -210,6 +213,8 @@ export function calculateWithdrawal({
   grundfreibetragPerYear,
   incomeTaxRate,
   guenstigerPruefungAktiv,
+  kirchensteuerAktiv = false,
+  kirchensteuersatz = 9,
   inflationConfig,
   dynamicConfig,
   bucketConfig,
@@ -632,6 +637,8 @@ export function calculateWithdrawal({
           teilfreistellungsquote,
           0, // Grundfreibetrag not applicable to capital gains
           0,
+          kirchensteuerAktiv,
+          kirchensteuersatz,
         )
 
         // Use the more favorable tax amount
@@ -696,7 +703,13 @@ export function calculateWithdrawal({
         totalTaxableIncome -= healthCareInsuranceData.totalAnnual
       }
 
-      einkommensteuer = calculateIncomeTax(totalTaxableIncome, yearlyGrundfreibetrag, (incomeTaxRate || 0) / 100)
+      einkommensteuer = calculateIncomeTax(
+        totalTaxableIncome,
+        yearlyGrundfreibetrag,
+        (incomeTaxRate || 0) / 100,
+        kirchensteuerAktiv,
+        kirchensteuersatz,
+      )
       genutzterGrundfreibetrag = Math.min(totalTaxableIncome, yearlyGrundfreibetrag)
       // Calculate the actual taxable income after applying Grundfreibetrag
       taxableIncome = Math.max(0, totalTaxableIncome - yearlyGrundfreibetrag)
@@ -863,6 +876,8 @@ export function calculateSegmentedWithdrawal(
       customPercentage: segment.customPercentage,
 
       incomeTaxRate: segment.incomeTaxRate,
+      kirchensteuerAktiv: segmentedConfig.kirchensteuerAktiv ?? false,
+      kirchensteuersatz: segmentedConfig.kirchensteuersatz ?? 9,
       inflationConfig: segment.inflationConfig,
       dynamicConfig: segment.dynamicConfig,
       bucketConfig: segment.bucketConfig,
@@ -886,9 +901,16 @@ export function calculateIncomeTax(
   withdrawalAmount: number,
   grundfreibetragYear: number = grundfreibetrag[2023],
   incomeTaxRate: number = 0.18,
+  kirchensteuerAktiv: boolean = false,
+  kirchensteuersatz: number = 9,
 ): number {
   const taxableIncome = Math.max(0, withdrawalAmount - grundfreibetragYear)
-  return taxableIncome * incomeTaxRate
+  const baseIncomeTax = taxableIncome * incomeTaxRate
+
+  // Calculate Kirchensteuer as percentage of income tax
+  const kirchensteuer = kirchensteuerAktiv ? baseIncomeTax * (kirchensteuersatz / 100) : 0
+
+  return baseIncomeTax + kirchensteuer
 }
 
 export function getTotalCapitalAtYear(elements: SparplanElement[], year: number): number {

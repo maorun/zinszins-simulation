@@ -48,6 +48,11 @@ export interface SimulationContextState {
   // Enable/disable Günstigerprüfung (automatic tax optimization)
   guenstigerPruefungAktiv: boolean
   setGuenstigerPruefungAktiv: (guenstigerPruefungAktiv: boolean) => void
+  // Church tax (Kirchensteuer) configuration
+  kirchensteuerAktiv: boolean
+  setKirchensteuerAktiv: (kirchensteuerAktiv: boolean) => void
+  kirchensteuersatz: number
+  setKirchensteuersatz: (kirchensteuersatz: number) => void
   returnMode: ReturnMode
   setReturnMode: (returnMode: ReturnMode) => void
   averageReturn: number
@@ -221,6 +226,12 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   )
   const [guenstigerPruefungAktiv, setGuenstigerPruefungAktiv] = useState(
     (initialConfig as any).guenstigerPruefungAktiv ?? defaultConfig.guenstigerPruefungAktiv,
+  )
+  const [kirchensteuerAktiv, setKirchensteuerAktiv] = useState(
+    (initialConfig as any).kirchensteuerAktiv ?? false,
+  )
+  const [kirchensteuersatz, setKirchensteuersatz] = useState(
+    (initialConfig as any).kirchensteuersatz ?? 9,
   )
   const [returnMode, setReturnMode] = useState<ReturnMode>(initialConfig.returnMode)
   const [averageReturn, setAverageReturn] = useState(initialConfig.averageReturn)
@@ -745,6 +756,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     // Personal income tax settings
     personalTaxRate, setPersonalTaxRate,
     guenstigerPruefungAktiv, setGuenstigerPruefungAktiv,
+    // Church tax (Kirchensteuer) settings
+    kirchensteuerAktiv, setKirchensteuerAktiv,
+    kirchensteuersatz, setKirchensteuersatz,
     returnMode, setReturnMode,
     averageReturn, setAverageReturn,
     standardDeviation, setStandardDeviation,
@@ -793,6 +807,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv, grundfreibetragBetrag,
     personalTaxRate, guenstigerPruefungAktiv,
+    kirchensteuerAktiv, kirchensteuersatz,
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
     inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
