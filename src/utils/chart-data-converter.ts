@@ -93,6 +93,58 @@ export function convertSparplanElementsToSimulationResult(
 }
 
 /**
+ * Convert WithdrawalResult to SimulationResult format for use with InteractiveChart
+ */
+export function convertWithdrawalResultToSimulationResult(
+  withdrawalResult: any, // WithdrawalResult type from helpers
+): SimulationResult {
+  if (!withdrawalResult || typeof withdrawalResult !== 'object') {
+    return {}
+  }
+
+  const result: SimulationResult = {}
+
+  Object.entries(withdrawalResult).forEach(([yearStr, data]: [string, any]) => {
+    const year = parseInt(yearStr, 10)
+
+    if (!data || typeof data !== 'object') return
+
+    result[year] = {
+      startkapital: data.startkapital || 0,
+      zinsen: data.zinsen || 0,
+      endkapital: data.endkapital || 0,
+      bezahlteSteuer: data.bezahlteSteuer || 0,
+      genutzterFreibetrag: data.genutzterFreibetrag || 0,
+      vorabpauschale: data.vorabpauschale || 0,
+      vorabpauschaleAccumulated: 0, // Not typically used in withdrawal phase
+    }
+
+    // Copy over optional fields that might exist in withdrawal data
+    if (data.vorabpauschaleDetails) {
+      result[year].vorabpauschaleDetails = data.vorabpauschaleDetails
+    }
+
+    // Note: einkommensteuer and genutzterGrundfreibetrag are specific to withdrawal phase
+    // and don't exist in SimulationResultElement, so we don't copy them
+    // The chart will display the standard fields: capital, interest, taxes, etc.
+
+    // Note: Withdrawal phase typically doesn't have real values like savings phase
+    // since inflation adjustments are handled differently in withdrawal calculations
+  })
+
+  return result
+}
+
+/**
+ * Check if withdrawal result has inflation-adjusted values
+ */
+export function hasWithdrawalInflationAdjustedValues(_withdrawalResult: any): boolean {
+  // Withdrawal phase typically doesn't store separate real values like savings phase
+  // Instead, inflation adjustments are built into the withdrawal calculations
+  return false
+}
+
+/**
  * Check if simulation result has real (inflation-adjusted) values
  */
 export function hasInflationAdjustedValues(simulationResult: SimulationResult): boolean {

@@ -4,6 +4,8 @@ import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { WithdrawalFormValue, ComparisonStrategy, SegmentedComparisonStrategy } from '../utils/config-storage'
 import { WithdrawalComparisonDisplay } from './WithdrawalComparisonDisplay'
 import { SegmentedWithdrawalComparisonDisplay } from './SegmentedWithdrawalComparisonDisplay'
+import InteractiveChart from './InteractiveChart'
+import { convertWithdrawalResultToSimulationResult, hasWithdrawalInflationAdjustedValues } from '../utils/chart-data-converter'
 
 // Info icon component for calculation explanations
 const InfoIcon = ({ onClick }: { onClick: () => void }) => (
@@ -259,6 +261,17 @@ export function EntnahmeSimulationDisplay({
             : 'unbegrenzt (Vermögen wächst weiter)'}
         </p>
       </div>
+
+      {/* Interactive Chart for Withdrawal Phase */}
+      {withdrawalData.withdrawalResult && Object.keys(withdrawalData.withdrawalResult).length > 0 && (
+        <div className="mb-6">
+          <InteractiveChart
+            simulationData={convertWithdrawalResultToSimulationResult(withdrawalData.withdrawalResult)}
+            showRealValues={hasWithdrawalInflationAdjustedValues(withdrawalData.withdrawalResult)}
+            className="mb-4"
+          />
+        </div>
+      )}
 
       {/* Card Layout for All Devices */}
       <div className="flex flex-col gap-4">
