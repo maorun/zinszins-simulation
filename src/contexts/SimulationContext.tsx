@@ -246,8 +246,27 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   )
   // Multi-asset portfolio state
   const [multiAssetConfig, setMultiAssetConfig] = useState(() => {
-    const { createDefaultMultiAssetConfig } = require('../../helpers/multi-asset-portfolio')
-    return (initialConfig as any).multiAssetConfig || createDefaultMultiAssetConfig()
+    // Lazy load the helper to avoid circular dependencies in tests
+    try {
+      const { createDefaultMultiAssetConfig } = require('../../helpers/multi-asset-portfolio')
+      return (initialConfig as any).multiAssetConfig || createDefaultMultiAssetConfig()
+    }
+    catch {
+      // Fallback for test environments
+      return {
+        enabled: false,
+        assetClasses: {},
+        rebalancing: {
+          frequency: 'annually' as const,
+          threshold: 0.05,
+          useThreshold: false,
+        },
+        simulation: {
+          useCorrelation: true,
+          seed: undefined,
+        },
+      }
+    }
   })
   // Inflation state for savings phase
   const [inflationAktivSparphase, setInflationAktivSparphase] = useState(
@@ -741,6 +760,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     randomSeed,
     variableReturns,
     historicalIndex,
+    multiAssetConfig,
     simulationAnnual,
     sparplanElemente,
     startEnd,

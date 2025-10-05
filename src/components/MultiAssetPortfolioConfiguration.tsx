@@ -6,15 +6,12 @@ import { Slider } from './ui/slider'
 import { RadioTileGroup, RadioTile } from './ui/radio-tile'
 import { Button } from './ui/button'
 import { Info, RotateCcw, TrendingUp, PieChart } from 'lucide-react'
-import { formatCurrency } from '../utils/currency'
 import {
   type MultiAssetPortfolioConfig,
   type AssetClass,
   DEFAULT_ASSET_CLASSES,
   createDefaultMultiAssetConfig,
   validateMultiAssetConfig,
-  getAssetClassLabel,
-  getRebalancingFrequencyLabel,
 } from '../../helpers/multi-asset-portfolio'
 
 interface MultiAssetPortfolioConfigurationProps {
@@ -42,13 +39,13 @@ export function MultiAssetPortfolioConfiguration({
   // Calculate expected portfolio return and risk
   const expectedPortfolioReturn = enabledAssets.reduce(
     (sum, [_, config]) => sum + (config.expectedReturn * config.targetAllocation),
-    0
+    0,
   )
   const expectedPortfolioRisk = Math.sqrt(
     enabledAssets.reduce(
       (sum, [_, config]) => sum + Math.pow(config.volatility * config.targetAllocation, 2),
-      0
-    )
+      0,
+    ),
   )
 
   const handleConfigChange = (updates: Partial<MultiAssetPortfolioConfig>) => {
@@ -57,7 +54,7 @@ export function MultiAssetPortfolioConfiguration({
 
   const handleAssetClassChange = (
     assetClass: AssetClass,
-    updates: Partial<typeof values.assetClasses[AssetClass]>
+    updates: Partial<typeof values.assetClasses[AssetClass]>,
   ) => {
     onChange({
       ...values,
@@ -100,12 +97,12 @@ export function MultiAssetPortfolioConfiguration({
   const normalizeAllocations = () => {
     const enabledAssetClasses = Object.entries(values.assetClasses)
       .filter(([_, config]) => config.enabled)
-    
+
     if (enabledAssetClasses.length === 0) return
 
     const totalAllocation = enabledAssetClasses.reduce(
       (sum, [_, config]) => sum + config.targetAllocation,
-      0
+      0,
     )
 
     if (totalAllocation === 0) return
@@ -134,7 +131,7 @@ export function MultiAssetPortfolioConfiguration({
       </CardHeader>
       <CardContent nestingLevel={nestingLevel}>
         <div className="space-y-6">
-          
+
           {/* Enable/Disable Multi-Asset Portfolio */}
           <div className="flex items-center justify-between">
             <div className="space-y-0.5">
@@ -148,7 +145,7 @@ export function MultiAssetPortfolioConfiguration({
             <Switch
               id="multiasset-enabled"
               checked={values.enabled}
-              onCheckedChange={(enabled) => handleConfigChange({ enabled })}
+              onCheckedChange={enabled => handleConfigChange({ enabled })}
             />
           </div>
 
@@ -179,13 +176,15 @@ export function MultiAssetPortfolioConfiguration({
                     <div>
                       <span className="text-blue-700">Erwartete Rendite:</span>
                       <span className="font-medium ml-2">
-                        {(expectedPortfolioReturn * 100).toFixed(1)}%
+                        {(expectedPortfolioReturn * 100).toFixed(1)}
+                        %
                       </span>
                     </div>
                     <div>
                       <span className="text-blue-700">Portfoliorisiko:</span>
                       <span className="font-medium ml-2">
-                        {(expectedPortfolioRisk * 100).toFixed(1)}%
+                        {(expectedPortfolioRisk * 100).toFixed(1)}
+                        %
                       </span>
                     </div>
                   </div>
@@ -208,7 +207,7 @@ export function MultiAssetPortfolioConfiguration({
                       Normalisieren
                     </Button>
                     <Button
-                      variant="outline" 
+                      variant="outline"
                       size="sm"
                       onClick={resetToDefaults}
                       className="text-xs"
@@ -235,9 +234,8 @@ export function MultiAssetPortfolioConfiguration({
                           <div className="flex items-center gap-2 mb-1">
                             <Switch
                               checked={isEnabled}
-                              onCheckedChange={(enabled) =>
-                                handleAssetClassChange(assetClass as AssetClass, { enabled })
-                              }
+                              onCheckedChange={enabled =>
+                                handleAssetClassChange(assetClass as AssetClass, { enabled })}
                             />
                             <Label className="text-sm font-medium">
                               {defaultConfig.name}
@@ -254,15 +252,17 @@ export function MultiAssetPortfolioConfiguration({
                           {/* Target Allocation */}
                           <div className="space-y-2">
                             <Label className="text-xs font-medium text-gray-700">
-                              Zielallokation: {(currentConfig.targetAllocation * 100).toFixed(1)}%
+                              Zielallokation:
+                              {' '}
+                              {(currentConfig.targetAllocation * 100).toFixed(1)}
+                              %
                             </Label>
                             <Slider
                               value={[currentConfig.targetAllocation * 100]}
                               onValueChange={([value]) =>
                                 handleAssetClassChange(assetClass as AssetClass, {
                                   targetAllocation: value / 100,
-                                })
-                              }
+                                })}
                               max={100}
                               step={1}
                               className="w-full"
@@ -272,15 +272,17 @@ export function MultiAssetPortfolioConfiguration({
                           {/* Expected Return */}
                           <div className="space-y-2">
                             <Label className="text-xs font-medium text-gray-700">
-                              Erwartete Rendite: {(currentConfig.expectedReturn * 100).toFixed(1)}%
+                              Erwartete Rendite:
+                              {' '}
+                              {(currentConfig.expectedReturn * 100).toFixed(1)}
+                              %
                             </Label>
                             <Slider
                               value={[currentConfig.expectedReturn * 100]}
                               onValueChange={([value]) =>
                                 handleAssetClassChange(assetClass as AssetClass, {
                                   expectedReturn: value / 100,
-                                })
-                              }
+                                })}
                               min={-10}
                               max={20}
                               step={0.5}
@@ -291,15 +293,17 @@ export function MultiAssetPortfolioConfiguration({
                           {/* Volatility */}
                           <div className="space-y-2">
                             <Label className="text-xs font-medium text-gray-700">
-                              Volatilität: {(currentConfig.volatility * 100).toFixed(1)}%
+                              Volatilität:
+                              {' '}
+                              {(currentConfig.volatility * 100).toFixed(1)}
+                              %
                             </Label>
                             <Slider
                               value={[currentConfig.volatility * 100]}
                               onValueChange={([value]) =>
                                 handleAssetClassChange(assetClass as AssetClass, {
                                   volatility: value / 100,
-                                })
-                              }
+                                })}
                               min={0}
                               max={50}
                               step={1}
@@ -316,19 +320,18 @@ export function MultiAssetPortfolioConfiguration({
               {/* Rebalancing Configuration */}
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-gray-700">Rebalancing</h3>
-                
+
                 <div className="space-y-3">
                   <Label className="text-sm font-medium">Rebalancing-Häufigkeit</Label>
                   <RadioTileGroup
                     value={values.rebalancing.frequency}
-                    onValueChange={(frequency) =>
-                      handleRebalancingChange({ frequency: frequency as any })
-                    }
+                    onValueChange={frequency =>
+                      handleRebalancingChange({ frequency: frequency as any })}
                   >
-                    <RadioTile value="never">Nie</RadioTile>
-                    <RadioTile value="annually">Jährlich</RadioTile>
-                    <RadioTile value="quarterly">Quartalsweise</RadioTile>
-                    <RadioTile value="monthly">Monatlich</RadioTile>
+                    <RadioTile value="never" label="Nie">Nie</RadioTile>
+                    <RadioTile value="annually" label="Jährlich">Jährlich</RadioTile>
+                    <RadioTile value="quarterly" label="Quartalsweise">Quartalsweise</RadioTile>
+                    <RadioTile value="monthly" label="Monatlich">Monatlich</RadioTile>
                   </RadioTileGroup>
                 </div>
 
@@ -337,9 +340,8 @@ export function MultiAssetPortfolioConfiguration({
                     <div className="flex items-center gap-2">
                       <Switch
                         checked={values.rebalancing.useThreshold}
-                        onCheckedChange={(useThreshold) =>
-                          handleRebalancingChange({ useThreshold })
-                        }
+                        onCheckedChange={useThreshold =>
+                          handleRebalancingChange({ useThreshold })}
                       />
                       <Label className="text-sm">
                         Schwellenwert-basiertes Rebalancing
@@ -349,20 +351,22 @@ export function MultiAssetPortfolioConfiguration({
                     {values.rebalancing.useThreshold && (
                       <div className="space-y-2">
                         <Label className="text-xs font-medium text-gray-700">
-                          Drift-Schwellenwert: {(values.rebalancing.threshold * 100).toFixed(1)}%
+                          Drift-Schwellenwert:
+                          {' '}
+                          {(values.rebalancing.threshold * 100).toFixed(1)}
+                          %
                         </Label>
                         <Slider
                           value={[values.rebalancing.threshold * 100]}
                           onValueChange={([value]) =>
-                            handleRebalancingChange({ threshold: value / 100 })
-                          }
+                            handleRebalancingChange({ threshold: value / 100 })}
                           min={1}
                           max={20}
                           step={0.5}
                           className="w-full"
                         />
                         <p className="text-xs text-gray-600">
-                          Rebalancing erfolgt wenn eine Anlageklasse um mehr als diesen Wert 
+                          Rebalancing erfolgt wenn eine Anlageklasse um mehr als diesen Wert
                           von der Zielallokation abweicht
                         </p>
                       </div>
@@ -374,20 +378,19 @@ export function MultiAssetPortfolioConfiguration({
               {/* Advanced Simulation Settings */}
               <div className="space-y-3">
                 <h3 className="text-sm font-semibold text-gray-700">Erweiterte Einstellungen</h3>
-                
+
                 <div className="flex items-center gap-2">
                   <Switch
                     checked={values.simulation.useCorrelation}
-                    onCheckedChange={(useCorrelation) =>
-                      handleSimulationChange({ useCorrelation })
-                    }
+                    onCheckedChange={useCorrelation =>
+                      handleSimulationChange({ useCorrelation })}
                   />
                   <Label className="text-sm">
                     Historische Korrelationen verwenden
                   </Label>
                 </div>
                 <p className="text-xs text-gray-600">
-                  Berücksichtigt die historischen Korrelationen zwischen den Anlageklassen 
+                  Berücksichtigt die historischen Korrelationen zwischen den Anlageklassen
                   für realistischere Simulationsergebnisse
                 </p>
 

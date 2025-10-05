@@ -54,7 +54,7 @@ function generateNormalRandom(rng: SeededRandom): number {
 function generateCorrelatedReturns(
   assetClasses: AssetClass[],
   config: MultiAssetPortfolioConfig,
-  rng: SeededRandom
+  rng: SeededRandom,
 ): Record<AssetClass, number> {
   const returns: Record<AssetClass, number> = {} as Record<AssetClass, number>
 
@@ -100,7 +100,7 @@ function generateCorrelatedReturns(
  */
 function needsRebalancing(
   holdings: PortfolioHoldings,
-  config: MultiAssetPortfolioConfig
+  config: MultiAssetPortfolioConfig,
 ): boolean {
   if (config.rebalancing.frequency === 'never') {
     return false
@@ -125,7 +125,7 @@ function needsRebalancing(
  */
 function rebalancePortfolio(
   holdings: PortfolioHoldings,
-  config: MultiAssetPortfolioConfig
+  config: MultiAssetPortfolioConfig,
 ): PortfolioHoldings {
   const rebalancedHoldings: PortfolioHoldings = {
     totalValue: holdings.totalValue,
@@ -160,10 +160,10 @@ function rebalancePortfolio(
 function applyReturns(
   holdings: PortfolioHoldings,
   assetReturns: Record<AssetClass, number>,
-  config: MultiAssetPortfolioConfig
+  config: MultiAssetPortfolioConfig,
 ): PortfolioHoldings {
   let newTotalValue = 0
-  const newHoldings: Record<AssetClass, any> = {}
+  const newHoldings: Record<string, any> = {}
 
   // Apply returns to each holding
   for (const [assetClass, holding] of Object.entries(holdings.holdings)) {
@@ -171,7 +171,7 @@ function applyReturns(
     const newValue = holding.value * (1 + assetReturn)
     newTotalValue += newValue
 
-    newHoldings[assetClass as AssetClass] = {
+    newHoldings[assetClass] = {
       value: newValue,
       allocation: 0, // Will be calculated below
       targetAllocation: holding.targetAllocation,
@@ -187,10 +187,10 @@ function applyReturns(
 
   const result: PortfolioHoldings = {
     totalValue: newTotalValue,
-    holdings: newHoldings,
+    holdings: newHoldings as any,
     needsRebalancing: needsRebalancing({
       totalValue: newTotalValue,
-      holdings: newHoldings,
+      holdings: newHoldings as any,
       needsRebalancing: false,
       rebalancingCost: 0,
     }, config),
@@ -206,14 +206,14 @@ function applyReturns(
 function addContributions(
   holdings: PortfolioHoldings,
   contribution: number,
-  config: MultiAssetPortfolioConfig
+  config: MultiAssetPortfolioConfig,
 ): PortfolioHoldings {
   if (contribution <= 0) {
     return holdings
   }
 
   const newTotalValue = holdings.totalValue + contribution
-  const newHoldings: Record<AssetClass, any> = { ...holdings.holdings }
+  const newHoldings: Record<string, any> = { ...holdings.holdings }
 
   // Distribute contribution according to target allocations
   const enabledAssets = Object.keys(config.assetClasses).filter(
@@ -229,7 +229,8 @@ function addContributions(
         ...newHoldings[assetClass],
         value: newHoldings[assetClass].value + contributionForAsset,
       }
-    } else {
+    }
+    else {
       // Initialize new asset class
       newHoldings[assetClass] = {
         value: contributionForAsset,
@@ -248,10 +249,10 @@ function addContributions(
 
   return {
     totalValue: newTotalValue,
-    holdings: newHoldings,
+    holdings: newHoldings as any,
     needsRebalancing: needsRebalancing({
       totalValue: newTotalValue,
-      holdings: newHoldings,
+      holdings: newHoldings as any,
       needsRebalancing: false,
       rebalancingCost: 0,
     }, config),
@@ -263,9 +264,9 @@ function addContributions(
  * Check if rebalancing should occur based on frequency
  */
 function shouldRebalanceByFrequency(
-  year: number,
+  _year: number,
   month: number,
-  frequency: 'never' | 'monthly' | 'quarterly' | 'annually'
+  frequency: 'never' | 'monthly' | 'quarterly' | 'annually',
 ): boolean {
   switch (frequency) {
     case 'never':
@@ -287,7 +288,7 @@ function shouldRebalanceByFrequency(
 export function simulateMultiAssetPortfolio(
   config: MultiAssetPortfolioConfig,
   years: number[],
-  contributions: Record<number, number> // Annual contributions by year
+  contributions: Record<number, number>, // Annual contributions by year
 ): MultiAssetSimulationResult {
   if (!config.enabled || years.length === 0) {
     return {
@@ -302,7 +303,7 @@ export function simulateMultiAssetPortfolio(
 
   const rng = new SeededRandom(config.simulation.seed)
   const yearResults: Record<number, MultiAssetYearResult> = {}
-  
+
   // Get enabled asset classes
   const enabledAssets = Object.keys(config.assetClasses).filter(
     assetClass => config.assetClasses[assetClass as AssetClass].enabled,
@@ -343,7 +344,7 @@ export function simulateMultiAssetPortfolio(
   for (let i = 0; i < years.length; i++) {
     const year = years[i]
     const contribution = i === 0 ? firstContribution : (contributions[year] || 0)
-    
+
     if (i > 0) {
       totalContributions += contribution
     }
@@ -364,14 +365,14 @@ export function simulateMultiAssetPortfolio(
     // Check if rebalancing is needed
     let rebalanced = false
     if (shouldRebalanceByFrequency(year, 0, config.rebalancing.frequency)
-        || (config.rebalancing.useThreshold && endHoldings.needsRebalancing)) {
+      || (config.rebalancing.useThreshold && endHoldings.needsRebalancing)) {
       endHoldings = rebalancePortfolio(endHoldings, config)
       rebalanced = true
     }
 
     // Calculate total return for this year
     const startValue = startHoldings.totalValue
-    const endValue = endHoldings.totalValue - (i > 0 ? contribution : 0) // Exclude contributions from return calculation
+    const endValue = endHoldings.totalValue - (i > 0 ? contribution : 0) // contributions excluded
     const totalReturn = startValue > 0 ? (endValue - startValue) / startValue : 0
 
     annualReturns.push(totalReturn)
@@ -420,7 +421,7 @@ export function simulateMultiAssetPortfolio(
 export function calculateEquivalentSingleAssetReturn(
   config: MultiAssetPortfolioConfig,
   year: number,
-  seed?: number
+  seed?: number,
 ): number {
   if (!config.enabled) {
     return 0
@@ -453,7 +454,7 @@ export function calculateEquivalentSingleAssetReturn(
  */
 export function generateMultiAssetReturns(
   years: number[],
-  config: MultiAssetPortfolioConfig
+  config: MultiAssetPortfolioConfig,
 ): Record<number, number> {
   const returns: Record<number, number> = {}
 

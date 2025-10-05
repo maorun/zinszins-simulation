@@ -4,6 +4,7 @@ import { type ReturnConfiguration, generateRandomReturns } from './random-return
 import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import { getHistoricalReturns } from './historical-data'
 import { calculateRealValue } from './inflation-adjustment'
+import { generateMultiAssetReturns } from '../../helpers/multi-asset-calculations'
 
 export type VorabpauschaleDetails = {
   basiszins: number // Base interest rate for the year
@@ -151,7 +152,6 @@ function generateYearlyGrowthRates(
     }
     case 'multiasset': {
       if (returnConfig.multiAssetConfig) {
-        const { generateMultiAssetReturns } = require('../../helpers/multi-asset-calculations')
         const multiAssetReturns = generateMultiAssetReturns(years, returnConfig.multiAssetConfig)
         Object.assign(yearlyGrowthRates, multiAssetReturns)
       }
