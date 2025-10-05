@@ -34,6 +34,11 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
     setGrundfreibetragAktiv,
     grundfreibetragBetrag,
     setGrundfreibetragBetrag,
+    // Personal income tax settings for Günstigerprüfung
+    personalTaxRate,
+    setPersonalTaxRate,
+    guenstigerPruefungAktiv,
+    setGuenstigerPruefungAktiv,
   } = useSimulation()
 
   const yearToday = new Date().getFullYear()
@@ -135,6 +140,70 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
                     </span>
                     <span>50%</span>
                   </div>
+                </div>
+
+                {/* Günstigerprüfung Configuration */}
+                <div className="space-y-4 border rounded-lg p-4 bg-blue-50/50">
+                  <div className="flex items-center justify-between">
+                    <div className="space-y-1">
+                      <Label className="text-base font-medium">🔍 Günstigerprüfung</Label>
+                      <p className="text-sm text-muted-foreground">
+                        Automatische Wahl zwischen Abgeltungssteuer und persönlichem Steuersatz
+                      </p>
+                    </div>
+                    <Switch
+                      id="guenstigerPruefungAktiv"
+                      checked={guenstigerPruefungAktiv}
+                      onCheckedChange={(checked) => {
+                        setGuenstigerPruefungAktiv(checked)
+                        performSimulation()
+                      }}
+                    />
+                  </div>
+
+                  {guenstigerPruefungAktiv && (
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label htmlFor="personalTaxRate">
+                          Persönlicher Steuersatz (%)
+                        </Label>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setPersonalTaxRate(25) // Default value
+                            performSimulation()
+                          }}
+                          className="text-xs"
+                        >
+                          Reset
+                        </Button>
+                      </div>
+                      <Slider
+                        id="personalTaxRate"
+                        value={[personalTaxRate]}
+                        onValueChange={([value]) => {
+                          setPersonalTaxRate(value)
+                          performSimulation()
+                        }}
+                        min={0}
+                        max={45}
+                        step={0.5}
+                        className="w-full"
+                      />
+                      <div className="flex justify-between text-sm text-muted-foreground">
+                        <span>0%</span>
+                        <span className="font-medium">
+                          {personalTaxRate}%
+                        </span>
+                        <span>45%</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        Ihr persönlicher Einkommensteuersatz. Bei aktivierter Günstigerprüfung wird automatisch 
+                        der günstigere Steuersatz (Abgeltungssteuer vs. persönlicher Steuersatz) verwendet.
+                      </p>
+                    </div>
+                  )}
                 </div>
 
                 <div className="space-y-4">

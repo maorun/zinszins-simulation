@@ -42,6 +42,12 @@ export interface SimulationContextState {
   setGrundfreibetragAktiv: (grundfreibetragAktiv: boolean) => void
   grundfreibetragBetrag: number
   setGrundfreibetragBetrag: (grundfreibetragBetrag: number) => void
+  // Personal income tax rate for Günstigerprüfung
+  personalTaxRate: number
+  setPersonalTaxRate: (personalTaxRate: number) => void
+  // Enable/disable Günstigerprüfung (automatic tax optimization)
+  guenstigerPruefungAktiv: boolean
+  setGuenstigerPruefungAktiv: (guenstigerPruefungAktiv: boolean) => void
   returnMode: ReturnMode
   setReturnMode: (returnMode: ReturnMode) => void
   averageReturn: number
@@ -138,6 +144,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     grundfreibetragAktiv: true,
     // Updated to 2024 German basic tax allowance, default when activated will be double (23208)
     grundfreibetragBetrag: 23208,
+    // Personal income tax rate for Günstigerprüfung (default: 25% - typical middle income tax rate)
+    personalTaxRate: 25,
+    // Günstigerprüfung settings (automatic tax optimization: Abgeltungssteuer vs personal income tax)
+    guenstigerPruefungAktiv: true,
     returnMode: 'random' as ReturnMode,
     averageReturn: 7,
     standardDeviation: 15,
@@ -205,6 +215,12 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   )
   const [grundfreibetragBetrag, setGrundfreibetragBetrag] = useState(
     (initialConfig as any).grundfreibetragBetrag ?? 23208,
+  )
+  const [personalTaxRate, setPersonalTaxRate] = useState(
+    (initialConfig as any).personalTaxRate ?? defaultConfig.personalTaxRate,
+  )
+  const [guenstigerPruefungAktiv, setGuenstigerPruefungAktiv] = useState(
+    (initialConfig as any).guenstigerPruefungAktiv ?? defaultConfig.guenstigerPruefungAktiv,
   )
   const [returnMode, setReturnMode] = useState<ReturnMode>(initialConfig.returnMode)
   const [averageReturn, setAverageReturn] = useState(initialConfig.averageReturn)
@@ -389,6 +405,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
+    // Personal income tax settings
+    personalTaxRate,
+    guenstigerPruefungAktiv,
     returnMode,
     averageReturn,
     standardDeviation,
@@ -428,6 +447,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
+    personalTaxRate,
+    guenstigerPruefungAktiv,
     returnMode,
     averageReturn,
     standardDeviation,
@@ -501,6 +522,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       setSteuerReduzierenEndkapitalEntspharphase(savedConfig.steuerReduzierenEndkapitalEntspharphase ?? true)
       setGrundfreibetragAktiv((savedConfig as any).grundfreibetragAktiv ?? false)
       setGrundfreibetragBetrag((savedConfig as any).grundfreibetragBetrag ?? 11604)
+      // Load personal income tax settings
+      setPersonalTaxRate((savedConfig as any).personalTaxRate ?? defaultConfig.personalTaxRate)
+      setGuenstigerPruefungAktiv((savedConfig as any).guenstigerPruefungAktiv ?? defaultConfig.guenstigerPruefungAktiv)
       setReturnMode(savedConfig.returnMode)
       setAverageReturn(savedConfig.averageReturn)
       setStandardDeviation(savedConfig.standardDeviation)
@@ -566,6 +590,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setSteuerReduzierenEndkapitalEntspharphase(defaultConfig.steuerReduzierenEndkapitalEntspharphase)
     setGrundfreibetragAktiv(defaultConfig.grundfreibetragAktiv)
     setGrundfreibetragBetrag(defaultConfig.grundfreibetragBetrag)
+    // Reset personal income tax settings
+    setPersonalTaxRate(defaultConfig.personalTaxRate)
+    setGuenstigerPruefungAktiv(defaultConfig.guenstigerPruefungAktiv)
     setReturnMode(defaultConfig.returnMode)
     setAverageReturn(defaultConfig.averageReturn)
     setStandardDeviation(defaultConfig.standardDeviation)
@@ -710,6 +737,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv, setGrundfreibetragAktiv,
     grundfreibetragBetrag, setGrundfreibetragBetrag,
+    // Personal income tax settings
+    personalTaxRate, setPersonalTaxRate,
+    guenstigerPruefungAktiv, setGuenstigerPruefungAktiv,
     returnMode, setReturnMode,
     averageReturn, setAverageReturn,
     standardDeviation, setStandardDeviation,
@@ -757,6 +787,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration,
     steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv, grundfreibetragBetrag,
+    personalTaxRate, guenstigerPruefungAktiv,
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
     inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,

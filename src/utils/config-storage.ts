@@ -143,6 +143,9 @@ export interface SavedConfiguration {
   // Grundfreibetrag settings
   grundfreibetragAktiv?: boolean
   grundfreibetragBetrag?: number
+  // Personal income tax settings for Günstigerprüfung
+  personalTaxRate?: number
+  guenstigerPruefungAktiv?: boolean
   returnMode: ReturnMode
   averageReturn: number
   standardDeviation: number
