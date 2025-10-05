@@ -30,7 +30,7 @@ export function MultiAssetPortfolioConfiguration({
 }: MultiAssetPortfolioConfigurationProps) {
   // Ensure we have a valid configuration object
   const safeValues = values || createDefaultMultiAssetConfig()
-  
+
   // Additional safety check - if safeValues is still undefined or malformed, create a minimal valid config
   if (!safeValues || typeof safeValues !== 'object' || !safeValues.assetClasses) {
     console.warn('MultiAssetPortfolioConfiguration received invalid values, using default config')
