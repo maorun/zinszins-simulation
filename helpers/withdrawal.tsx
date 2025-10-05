@@ -628,7 +628,7 @@ export function calculateWithdrawal({
         guenstigerPruefungResultRealizedGains = performGuenstigerPruefung(
           gainAfterFreibetrag,
           taxRate,
-          incomeTaxRate / 100, // Convert percentage to decimal
+          incomeTaxRate, // Already in decimal format
           teilfreistellungsquote,
           0, // Grundfreibetrag not applicable to capital gains
           0,
