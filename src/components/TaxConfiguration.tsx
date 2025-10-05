@@ -258,7 +258,7 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
                         }}
                         min={8}
                         max={9}
-                        step={0.1}
+                        step={1}
                         className="w-full"
                       />
                       <div className="flex justify-between text-sm text-muted-foreground">
