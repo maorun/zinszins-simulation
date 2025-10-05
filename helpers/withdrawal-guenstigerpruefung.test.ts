@@ -37,7 +37,7 @@ describe('calculateWithdrawal with Günstigerprüfung', () => {
     const result = calculateWithdrawal({
       ...baseParams,
       guenstigerPruefungAktiv: true,
-      incomeTaxRate: 0.45, // 45% personal tax rate - higher than Abgeltungssteuer
+      incomeTaxRate: 45, // 45% personal tax rate - higher than Abgeltungssteuer
     })
 
     const yearData = result.result[2025]
@@ -51,7 +51,7 @@ describe('calculateWithdrawal with Günstigerprüfung', () => {
     const result = calculateWithdrawal({
       ...baseParams,
       guenstigerPruefungAktiv: true,
-      incomeTaxRate: 0.10, // 10% personal tax rate - lower than effective Abgeltungssteuer
+      incomeTaxRate: 10, // 10% personal tax rate - lower than effective Abgeltungssteuer
     })
 
     const yearData = result.result[2025]
@@ -65,7 +65,7 @@ describe('calculateWithdrawal with Günstigerprüfung', () => {
     const result = calculateWithdrawal({
       ...baseParams,
       guenstigerPruefungAktiv: false,
-      incomeTaxRate: 0.10,
+      incomeTaxRate: 10,
     })
 
     const yearData = result.result[2025]
@@ -89,13 +89,13 @@ describe('calculateWithdrawal with Günstigerprüfung', () => {
     const abgeltungssteuerResult = calculateWithdrawal({
       ...baseParams,
       guenstigerPruefungAktiv: true,
-      incomeTaxRate: 0.45, // Should use Abgeltungssteuer
+      incomeTaxRate: 45, // Should use Abgeltungssteuer
     })
 
     const personalTaxResult = calculateWithdrawal({
       ...baseParams,
       guenstigerPruefungAktiv: true,
-      incomeTaxRate: 0.10, // Should use personal tax
+      incomeTaxRate: 10, // Should use personal tax
     })
 
     const abgeltungssteuerData = abgeltungssteuerResult.result[2025]
@@ -110,7 +110,7 @@ describe('calculateWithdrawal with Günstigerprüfung', () => {
     const result = calculateWithdrawal({
       ...baseParams,
       guenstigerPruefungAktiv: true,
-      incomeTaxRate: 0.25,
+      incomeTaxRate: 25,
     })
 
     const yearData = result.result[2025]
