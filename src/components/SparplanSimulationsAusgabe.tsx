@@ -266,15 +266,20 @@ export function SparplanSimulationsAusgabe({
                         const usedRate = `${(pruefungResult.usedTaxRate * 100).toFixed(2)}%`
 
                         return (
-                          <div className="flex justify-between items-center py-1 bg-blue-50 px-2 rounded">
-                            <span className="text-sm text-blue-600 font-medium">🔍 Günstigerprüfung:</span>
-                            <span className="font-semibold text-blue-700 text-sm">
-                              {favorableText}
-                              {' '}
-                              (
-                              {usedRate}
-                              )
-                            </span>
+                          <div className="bg-blue-50 px-2 py-1 rounded space-y-1">
+                            <div className="flex justify-between items-center">
+                              <span className="text-sm text-blue-600 font-medium">🔍 Günstigerprüfung:</span>
+                              <span className="font-semibold text-blue-700 text-sm">
+                                {favorableText}
+                                {' '}
+                                (
+                                {usedRate}
+                                )
+                              </span>
+                            </div>
+                            <div className="text-xs text-blue-600 italic">
+                              {pruefungResult.explanation}
+                            </div>
                           </div>
                         )
                       }
