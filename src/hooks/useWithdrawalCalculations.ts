@@ -459,7 +459,7 @@ export function useWithdrawalCalculations(
             : undefined,
           incomeTaxRate: grundfreibetragAktiv
             ? formValue.einkommensteuersatz / 100
-            : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined),
+            : (guenstigerPruefungAktiv ? personalTaxRate : undefined),
           steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
           statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
           otherIncomeConfig,
