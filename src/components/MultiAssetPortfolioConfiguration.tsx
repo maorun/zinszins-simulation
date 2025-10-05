@@ -28,13 +28,16 @@ export function MultiAssetPortfolioConfiguration({
   onChange,
   nestingLevel = 0,
 }: MultiAssetPortfolioConfigurationProps) {
+  // Ensure we have a valid configuration object
+  const safeValues = values || createDefaultMultiAssetConfig()
+  
   // Validate configuration
-  const validationErrors = validateMultiAssetConfig(values)
+  const validationErrors = validateMultiAssetConfig(safeValues)
   const hasErrors = validationErrors.length > 0
 
-  // Get enabled asset classes
-  const enabledAssets = Object.entries(values.assetClasses)
-    .filter(([_, config]) => config.enabled)
+  // Get enabled asset classes with safety check
+  const enabledAssets = Object.entries(safeValues.assetClasses || {})
+    .filter(([_, config]) => config && config.enabled)
 
   // Calculate expected portfolio return and risk
   const expectedPortfolioReturn = enabledAssets.reduce(
@@ -49,40 +52,40 @@ export function MultiAssetPortfolioConfiguration({
   )
 
   const handleConfigChange = (updates: Partial<MultiAssetPortfolioConfig>) => {
-    onChange({ ...values, ...updates })
+    onChange({ ...safeValues, ...updates })
   }
 
   const handleAssetClassChange = (
     assetClass: AssetClass,
-    updates: Partial<typeof values.assetClasses[AssetClass]>,
+    updates: Partial<typeof safeValues.assetClasses[AssetClass]>,
   ) => {
     onChange({
-      ...values,
+      ...safeValues,
       assetClasses: {
-        ...values.assetClasses,
+        ...safeValues.assetClasses,
         [assetClass]: {
-          ...values.assetClasses[assetClass],
+          ...safeValues.assetClasses[assetClass],
           ...updates,
         },
       },
     })
   }
 
-  const handleRebalancingChange = (updates: Partial<typeof values.rebalancing>) => {
+  const handleRebalancingChange = (updates: Partial<typeof safeValues.rebalancing>) => {
     onChange({
-      ...values,
+      ...safeValues,
       rebalancing: {
-        ...values.rebalancing,
+        ...safeValues.rebalancing,
         ...updates,
       },
     })
   }
 
-  const handleSimulationChange = (updates: Partial<typeof values.simulation>) => {
+  const handleSimulationChange = (updates: Partial<typeof safeValues.simulation>) => {
     onChange({
-      ...values,
+      ...safeValues,
       simulation: {
-        ...values.simulation,
+        ...safeValues.simulation,
         ...updates,
       },
     })
@@ -90,12 +93,12 @@ export function MultiAssetPortfolioConfiguration({
 
   const resetToDefaults = () => {
     const defaultConfig = createDefaultMultiAssetConfig()
-    defaultConfig.enabled = values.enabled // Preserve enabled state
+    defaultConfig.enabled = safeValues.enabled // Preserve enabled state
     onChange(defaultConfig)
   }
 
   const normalizeAllocations = () => {
-    const enabledAssetClasses = Object.entries(values.assetClasses)
+    const enabledAssetClasses = Object.entries(safeValues.assetClasses)
       .filter(([_, config]) => config.enabled)
 
     if (enabledAssetClasses.length === 0) return
@@ -107,7 +110,7 @@ export function MultiAssetPortfolioConfiguration({
 
     if (totalAllocation === 0) return
 
-    const normalizedAssetClasses = { ...values.assetClasses }
+    const normalizedAssetClasses = { ...safeValues.assetClasses }
     for (const [assetClass, config] of enabledAssetClasses) {
       normalizedAssetClasses[assetClass as AssetClass] = {
         ...config,
@@ -116,7 +119,7 @@ export function MultiAssetPortfolioConfiguration({
     }
 
     onChange({
-      ...values,
+      ...safeValues,
       assetClasses: normalizedAssetClasses,
     })
   }
@@ -144,12 +147,12 @@ export function MultiAssetPortfolioConfiguration({
             </div>
             <Switch
               id="multiasset-enabled"
-              checked={values.enabled}
+              checked={safeValues.enabled}
               onCheckedChange={enabled => handleConfigChange({ enabled })}
             />
           </div>
 
-          {values.enabled && (
+          {safeValues.enabled && (
             <>
               {/* Validation Errors */}
               {hasErrors && (
@@ -219,7 +222,7 @@ export function MultiAssetPortfolioConfiguration({
                 </div>
 
                 {Object.entries(DEFAULT_ASSET_CLASSES).map(([assetClass, defaultConfig]) => {
-                  const currentConfig = values.assetClasses[assetClass as AssetClass]
+                  const currentConfig = safeValues.assetClasses[assetClass as AssetClass]
                   const isEnabled = currentConfig.enabled
 
                   return (
@@ -324,7 +327,7 @@ export function MultiAssetPortfolioConfiguration({
                 <div className="space-y-3">
                   <Label className="text-sm font-medium">Rebalancing-Häufigkeit</Label>
                   <RadioTileGroup
-                    value={values.rebalancing.frequency}
+                    value={safeValues.rebalancing.frequency}
                     onValueChange={frequency =>
                       handleRebalancingChange({ frequency: frequency as any })}
                   >
@@ -335,7 +338,7 @@ export function MultiAssetPortfolioConfiguration({
                   </RadioTileGroup>
                 </div>
 
-                {values.rebalancing.frequency !== 'never' && (
+                {safeValues.rebalancing.frequency !== 'never' && (
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <Switch
