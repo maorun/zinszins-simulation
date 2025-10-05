@@ -1,5 +1,5 @@
 import type { SparplanElement } from '../src/utils/sparplan-utils'
-import { getBasiszinsForYear, calculateVorabpauschale, calculateSteuerOnVorabpauschale } from './steuer'
+import { getBasiszinsForYear, calculateVorabpauschale, calculateSteuerOnVorabpauschale, performGuenstigerPruefung } from './steuer'
 import type { ReturnConfiguration } from '../src/utils/random-returns'
 import { generateRandomReturns } from '../src/utils/random-returns'
 import type { SegmentedWithdrawalConfig, WithdrawalSegment } from '../src/utils/segmented-withdrawal'
@@ -33,6 +33,14 @@ export type WithdrawalResultElement = {
   einkommensteuer?: number
   genutzterGrundfreibetrag?: number
   taxableIncome?: number // Actual taxable income after applying Grundfreibetrag
+  // Günstigerprüfung information for realized gains
+  guenstigerPruefungResultRealizedGains?: {
+    abgeltungssteuerAmount: number
+    personalTaxAmount: number
+    usedTaxRate: number
+    isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
+    explanation: string
+  }
   // Dynamic strategy specific fields
   dynamischeAnpassung?: number // Amount of dynamic adjustment applied
   vorjahresRendite?: number // Previous year's return rate (for dynamic strategy)
@@ -171,6 +179,8 @@ export type CalculateWithdrawalParams = {
   enableGrundfreibetrag?: boolean
   grundfreibetragPerYear?: { [year: number]: number }
   incomeTaxRate?: number
+  // Günstigerprüfung settings
+  guenstigerPruefungAktiv?: boolean
   inflationConfig?: InflationConfig
   dynamicConfig?: DynamicWithdrawalConfig
   bucketConfig?: BucketStrategyConfig
@@ -199,6 +209,7 @@ export function calculateWithdrawal({
   enableGrundfreibetrag,
   grundfreibetragPerYear,
   incomeTaxRate,
+  guenstigerPruefungAktiv,
   inflationConfig,
   dynamicConfig,
   bucketConfig,
@@ -605,7 +616,38 @@ export function calculateWithdrawal({
 
     // THIRD: Calculate taxes on realized gains and apply freibetrag
     const taxableGain = totalRealizedGainThisYear > 0 ? totalRealizedGainThisYear * (1 - teilfreistellungsquote) : 0
-    const taxOnRealizedGains = Math.max(0, taxableGain - yearlyFreibetrag) * taxRate
+
+    let taxOnRealizedGains = 0
+    let guenstigerPruefungResultRealizedGains = null
+
+    if (taxableGain > 0) {
+      const gainAfterFreibetrag = Math.max(0, taxableGain - yearlyFreibetrag)
+
+      if (guenstigerPruefungAktiv && incomeTaxRate !== undefined && gainAfterFreibetrag > 0) {
+        // Apply Günstigerprüfung to realized gains
+        guenstigerPruefungResultRealizedGains = performGuenstigerPruefung(
+          gainAfterFreibetrag,
+          taxRate,
+          incomeTaxRate / 100, // Convert percentage to decimal
+          teilfreistellungsquote,
+          0, // Grundfreibetrag not applicable to capital gains
+          0,
+        )
+
+        // Use the more favorable tax amount
+        if (guenstigerPruefungResultRealizedGains.isFavorable === 'personal') {
+          taxOnRealizedGains = guenstigerPruefungResultRealizedGains.personalTaxAmount
+        }
+        else {
+          taxOnRealizedGains = guenstigerPruefungResultRealizedGains.abgeltungssteuerAmount
+        }
+      }
+      else {
+        // Standard Abgeltungssteuer calculation
+        taxOnRealizedGains = gainAfterFreibetrag * taxRate
+      }
+    }
+
     const freibetragUsedOnGains = Math.min(taxableGain, yearlyFreibetrag)
     let remainingFreibetrag = yearlyFreibetrag - freibetragUsedOnGains
 
@@ -725,6 +767,14 @@ export function calculateWithdrawal({
       einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
       genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined,
       taxableIncome: enableGrundfreibetrag ? taxableIncome : undefined,
+      // Include Günstigerprüfung information for realized gains
+      guenstigerPruefungResultRealizedGains: guenstigerPruefungResultRealizedGains ? {
+        abgeltungssteuerAmount: guenstigerPruefungResultRealizedGains.abgeltungssteuerAmount,
+        personalTaxAmount: guenstigerPruefungResultRealizedGains.personalTaxAmount,
+        usedTaxRate: guenstigerPruefungResultRealizedGains.usedTaxRate,
+        isFavorable: guenstigerPruefungResultRealizedGains.isFavorable,
+        explanation: guenstigerPruefungResultRealizedGains.explanation,
+      } : undefined,
       dynamischeAnpassung: (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')) ? dynamischeAnpassung : undefined,
       vorjahresRendite: (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')) ? vorjahresRendite : undefined,
       // Bucket strategy specific fields
