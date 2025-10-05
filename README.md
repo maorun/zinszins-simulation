@@ -49,6 +49,11 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Sowohl Spar- als auch Entnahmephase**: Optimierung in beiden Phasen für maximale Steuerersparnis
   - **Transparente Darstellung**: Anzeige beider Berechnungen und Erklärung der gewählten Variante
   - **Konfigurierbare Aktivierung**: Ein-/Ausschaltbar je nach individueller Steuersituation
+- **Kirchensteuer** - Berücksichtigung der deutschen Kirchensteuer
+  - **Bundesländerspezifisch**: 8% für Bayern/Baden-Württemberg, 9% für andere Bundesländer
+  - **Automatische Integration**: Wird bei Günstigerprüfung und Einkommensteuerberechnung berücksichtigt
+  - **Konfigurierbar**: Ein-/Ausschaltbar mit präziser Prozentsatz-Einstellung (8-9%)
+  - **Transparente Berechnung**: Kirchensteuer wird als Prozentsatz der Einkommensteuer berechnet
 - **Planungsmodus-abhängiger Sparerpauschbetrag** - Automatische Anpassung des Freibetrags basierend auf Individual- oder Paarplanung
   - **Einzelperson**: 2.000€ jährlicher Sparerpauschbetrag
   - **Ehepaar/Partner**: 4.000€ jährlicher Sparerpauschbetrag (2.000€ pro Person)
