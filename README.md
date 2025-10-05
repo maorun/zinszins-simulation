@@ -76,6 +76,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - Unterstützung für Individual- und Paarplanung
   - Benutzerdefinierte Lebenserwartung möglich
 
+### Interaktive Visualisierung
+- **📈 Interaktive Charts** - Moderne interaktive Diagramme für bessere Datenvisualisierung
+  - **Area Charts** - Gestapelte Flächendiagramme zeigen Kapitalentwicklung über Zeit
+  - **Interaktive Kontrollen** - Toggle für inflationsbereinigte Werte, Steuer-Anzeige, Detail-/Übersichts-Modus
+  - **Enhanced Tooltips** - Detaillierte Informationen mit Gesamtrendite-Berechnung beim Hover
+  - **Zoom & Brush** - Zeitraum-Auswahl im Detail-Modus für große Datensätze
+  - **Responsive Design** - Optimiert für Desktop und mobile Geräte
+  - **Real-Time Updates** - Charts aktualisieren sich automatisch bei Parameteränderungen
+  - **Professional Styling** - Integration mit shadcn/ui Design System
+
 ### Auszahlungsphase
 - **Standard-Strategien**: 4% Regel, 3% Regel, variable Entnahme-Strategien
 - **Dynamische Entnahmestrategie** - Renditebasierte Anpassung der Entnahme

@@ -10,6 +10,8 @@ import { formatInflationAdjustedValue } from '../utils/inflation-adjustment'
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
 import CalculationExplanationModal from './CalculationExplanationModal'
 import { createInterestExplanation, createTaxExplanation, createEndkapitalExplanation } from './calculationHelpers'
+import InteractiveChart from './InteractiveChart'
+import { convertSparplanElementsToSimulationResult, hasInflationAdjustedValues } from '../utils/chart-data-converter'
 
 // Info icon component for calculation explanations
 const InfoIcon = ({ onClick }: { onClick: () => void }) => (
@@ -194,6 +196,17 @@ export function SparplanSimulationsAusgabe({
             <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
               Jahr-für-Jahr Progression Ihres Portfolios - zeigt die kumulierte Kapitalentwicklung über die Zeit
             </div>
+
+            {/* Interactive Chart */}
+            {elemente && elemente.length > 0 && (
+              <div className="mb-6">
+                <InteractiveChart
+                  simulationData={convertSparplanElementsToSimulationResult(elemente)}
+                  showRealValues={hasInflationAdjustedValues(convertSparplanElementsToSimulationResult(elemente))}
+                  className="mb-4"
+                />
+              </div>
+            )}
 
             {/* Card Layout for All Devices */}
             <div className="flex flex-col gap-4">

@@ -82,7 +82,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Stress-Testing** - Systematische Tests extremer Szenarien
 
 #### Reporting & Visualisierung
-- **Interaktive Charts** - Zoom, Filter, verschiedene Zeiträume
 - **Dashboard-Customization** - Personalisierbare Ansichten
 - **KPI-Tracking** - Verfolgung von Fortschritt gegenüber Zielen
 - **Automated Reporting** - Regelmäßige lokale Reports
@@ -157,7 +156,6 @@ Direkte Erweiterung der bestehenden Kernfunktionalität:
 - **Steueroptimierte Entnahmereihenfolge** - Baut auf vorhandener Steuerberechnung auf
 - **Multi-Asset-Portfolio mit Rebalancing** - Erweitert die vorhandenen Rendite-Modi
 - **Immobilien-Cashflow Integration** - Ergänzt die "Andere Einkünfte" Funktionalität
-- **Interaktive Charts und bessere Visualisierung** - Verbessert das bereits sehr gute UI
 - **Pflegekosten-Simulation** - Wichtiger Baustein der deutschen Altersvorsorge
 
 ### Mittel (⭐⭐)
