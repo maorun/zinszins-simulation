@@ -10,7 +10,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Steueroptimierte Entnahmereihenfolge** - Automatische Optimierung zwischen verschiedenen Depots/Konten (Roth vs. Traditional vs. Taxable)
 - **Tax-Loss Harvesting Simulation** - Simulation von Verlustverrechnungsstrategien
 - **Kirchensteuer-Integration** - Berücksichtigung der Kirchensteuer (8-9%) für relevante Personen
-- **Günstigerprüfung** - Automatische Prüfung der Abgeltungsteuer vs. persönlicher Steuersatz
+
 - **Progressionsvorbehalt** - Auswirkungen auf andere Einkünfte bei ausländischen Einkünften
 - **Verlustverrechnungstöpfe** - Simulation verschiedener Verlustverrechnungsregeln
 - **Freistellungsaufträge-Optimierung** - Optimale Verteilung der Freibeträge auf verschiedene Banken
