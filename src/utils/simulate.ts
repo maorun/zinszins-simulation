@@ -149,6 +149,20 @@ function generateYearlyGrowthRates(
       }
       break
     }
+    case 'multiasset': {
+      if (returnConfig.multiAssetConfig) {
+        const { generateMultiAssetReturns } = require('../../helpers/multi-asset-calculations')
+        const multiAssetReturns = generateMultiAssetReturns(years, returnConfig.multiAssetConfig)
+        Object.assign(yearlyGrowthRates, multiAssetReturns)
+      }
+      else {
+        // Fallback to 5% if multiasset config is not available
+        for (const year of years) {
+          yearlyGrowthRates[year] = 0.05
+        }
+      }
+      break
+    }
   }
 
   return yearlyGrowthRates

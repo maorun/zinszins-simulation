@@ -65,6 +65,9 @@ export interface SimulationContextState {
   setVariableReturns: (variableReturns: Record<number, number>) => void
   historicalIndex: string
   setHistoricalIndex: (historicalIndex: string) => void
+  // Multi-asset portfolio configuration
+  multiAssetConfig: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig
+  setMultiAssetConfig: (config: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig) => void
   // Inflation settings for savings phase
   inflationAktivSparphase: boolean
   setInflationAktivSparphase: (inflationAktivSparphase: boolean) => void
@@ -241,6 +244,11 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [historicalIndex, setHistoricalIndex] = useState<string>(
     (initialConfig as any).historicalIndex || defaultConfig.historicalIndex,
   )
+  // Multi-asset portfolio state
+  const [multiAssetConfig, setMultiAssetConfig] = useState(() => {
+    const { createDefaultMultiAssetConfig } = require('../../helpers/multi-asset-portfolio')
+    return (initialConfig as any).multiAssetConfig || createDefaultMultiAssetConfig()
+  })
   // Inflation state for savings phase
   const [inflationAktivSparphase, setInflationAktivSparphase] = useState(
     (initialConfig as any).inflationAktivSparphase ?? defaultConfig.inflationAktivSparphase,
@@ -679,6 +687,12 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
             },
           }
         }
+        else if (returnMode === 'multiasset') {
+          returnConfig = {
+            mode: 'multiasset',
+            multiAssetConfig: multiAssetConfig,
+          }
+        }
         else {
           returnConfig = {
             mode: 'fixed',
@@ -765,6 +779,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     randomSeed, setRandomSeed,
     variableReturns, setVariableReturns,
     historicalIndex, setHistoricalIndex,
+    // Multi-asset portfolio configuration
+    multiAssetConfig, setMultiAssetConfig,
     // Inflation for savings phase
     inflationAktivSparphase, setInflationAktivSparphase,
     inflationsrateSparphase, setInflationsrateSparphase,
@@ -808,7 +824,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     grundfreibetragAktiv, grundfreibetragBetrag,
     personalTaxRate, guenstigerPruefungAktiv,
     kirchensteuerAktiv, kirchensteuersatz,
-    returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
+    returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, multiAssetConfig,
     inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
     endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse,
