@@ -979,7 +979,7 @@ export function WithdrawalSegmentForm({
                         <div className="mb-4">
                           <MultiAssetPortfolioConfiguration
                             values={segment.returnConfig.multiAssetConfig || createDefaultMultiAssetConfig()}
-                            onChange={(newConfig) => updateSegment(segment.id, {
+                            onChange={newConfig => updateSegment(segment.id, {
                               returnConfig: {
                                 mode: 'multiasset',
                                 multiAssetConfig: newConfig,

@@ -345,7 +345,6 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     try {
       const { createDefaultMultiAssetConfig } = require('../../helpers/multi-asset-portfolio')
       const defaultConfig = createDefaultMultiAssetConfig()
-      
       // Make it more conservative for withdrawal phase
       const conservativeConfig = {
         ...defaultConfig,
@@ -377,7 +376,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
           },
         },
       }
-      
+
       return (initialConfig as any).withdrawalMultiAssetConfig || conservativeConfig
     }
     catch {
@@ -977,7 +976,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     grundfreibetragAktiv, grundfreibetragBetrag,
     personalTaxRate, guenstigerPruefungAktiv,
     kirchensteuerAktiv, kirchensteuersatz,
-    returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, multiAssetConfig, withdrawalMultiAssetConfig,
+    returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
+    multiAssetConfig, withdrawalMultiAssetConfig,
     inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
     endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse,
