@@ -160,6 +160,11 @@ describe('Unified Strategy Configurations', () => {
         rmdStartAge: 67,
         kapitalerhaltNominalReturn: 7,
         kapitalerhaltInflationRate: 2,
+        steueroptimierteEntnahmeBaseWithdrawalRate: 0.04,
+        steueroptimierteEntnahmeTargetTaxRate: 0.26375,
+        steueroptimierteEntnahmeOptimizationMode: 'balanced' as const,
+        steueroptimierteEntnahmeFreibetragUtilizationTarget: 0.85,
+        steueroptimierteEntnahmeRebalanceFrequency: 'yearly' as const,
         einkommensteuersatz: 0.42,
       }
 
@@ -241,6 +246,11 @@ describe('Unified Strategy Configurations', () => {
           rmdStartAge: 65,
           kapitalerhaltNominalReturn: 7,
           kapitalerhaltInflationRate: 2,
+          steueroptimierteEntnahmeBaseWithdrawalRate: 0.04,
+          steueroptimierteEntnahmeTargetTaxRate: 0.26375,
+          steueroptimierteEntnahmeOptimizationMode: 'balanced' as const,
+          steueroptimierteEntnahmeFreibetragUtilizationTarget: 0.85,
+          steueroptimierteEntnahmeRebalanceFrequency: 'yearly' as const,
           einkommensteuersatz: 0.42,
         }
 
