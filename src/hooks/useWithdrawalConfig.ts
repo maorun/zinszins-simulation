@@ -60,6 +60,12 @@ export function useWithdrawalConfig() {
       // Kapitalerhalt strategy specific settings
       kapitalerhaltNominalReturn: 7, // Default nominal return 7%
       kapitalerhaltInflationRate: 2, // Default inflation rate 2%
+      // Steueroptimierte Entnahme strategy specific settings
+      steueroptimierteEntnahmeBaseWithdrawalRate: 0.04, // Default base withdrawal rate 4%
+      steueroptimierteEntnahmeTargetTaxRate: 0.26375, // Default target tax rate 26.375%
+      steueroptimierteEntnahmeOptimizationMode: 'balanced' as const, // Default optimization mode
+      steueroptimierteEntnahmeFreibetragUtilizationTarget: 0.85, // Default Freibetrag utilization 85%
+      steueroptimierteEntnahmeRebalanceFrequency: 'yearly' as const, // Default rebalance frequency
       // Statutory pension settings - moved to global configuration
       // Health and care insurance settings
       healthCareInsuranceConfig: createDefaultHealthCareInsuranceConfig(),

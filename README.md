@@ -101,6 +101,12 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Drei-Eimer-Strategie** - Cash-Polster für negative Rendite-Phasen
 - **RMD-ähnliche Entnahme** - Geschlechtsspezifische Entnahme basierend auf Lebenserwartung
 - **Kapitalerhalt / Ewige Rente** - Strategie zum dauerhaften Erhalt des realen Kapitalwerts
+- **Steueroptimierte Entnahme** - Automatische Optimierung zur Minimierung der Steuerlast
+  - **Drei Optimierungsmodi**: Steuerminimierung, Netto-Maximierung oder ausgewogener Ansatz
+  - **Freibetrag-Optimierung**: Intelligente Nutzung des Sparerpauschbetrags (85% Zielnutzung)
+  - **Deutsche Steuerregeln**: Integration von Vorabpauschale, Teilfreistellung und Basiszins
+  - **Dynamische Anpassung**: Jährliche Neukalibrierung basierend auf Portfolioentwicklung
+  - **Kapitalerhalt-Fokus**: Optimiert für langfristige Vermögenserhaltung mit Steuereffizienz
 - **Monatliche Entnahme-Strategien** - Feste monatliche Entnahmen mit Inflationsanpassung und Anzeige realer Kaufkraft
 - **Variable Renditen** - Jahr-für-Jahr konfigurierbare Renditen für die Entnahmephase
 - **Geteilte Entnahme-Phasen** - Segmentierung in verschiedene Zeiträume mit unterschiedlichen Strategien

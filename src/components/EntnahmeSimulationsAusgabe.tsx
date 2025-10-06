@@ -25,6 +25,7 @@ import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
 import { HealthCareInsuranceConfiguration } from './HealthCareInsuranceConfiguration'
 import { KapitalerhaltConfiguration } from './KapitalerhaltConfiguration'
 import { MultiAssetPortfolioConfiguration } from './MultiAssetPortfolioConfiguration'
+import { SteueroptimierteEntnahmeConfiguration } from './SteueroptimierteEntnahmeConfiguration'
 import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
 import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
 import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
@@ -300,6 +301,9 @@ export function EntnahmeSimulationsAusgabe({
                     <RadioTile value="kapitalerhalt" label="Kapitalerhalt / Ewige Rente">
                       Reale Rendite für Kapitalerhalt
                     </RadioTile>
+                    <RadioTile value="steueroptimiert" label="Steueroptimierte Entnahme">
+                      Automatische Optimierung zur Steuerminimierung
+                    </RadioTile>
                   </RadioTileGroup>
                 </div>
 
@@ -412,6 +416,13 @@ export function EntnahmeSimulationsAusgabe({
 
                 {formValue.strategie === 'bucket_strategie' && (
                   <BucketStrategyConfiguration
+                    formValue={formValue}
+                    updateFormValue={updateFormValue}
+                  />
+                )}
+
+                {formValue.strategie === 'steueroptimiert' && (
+                  <SteueroptimierteEntnahmeConfiguration
                     formValue={formValue}
                     updateFormValue={updateFormValue}
                   />
@@ -1055,6 +1066,9 @@ export function EntnahmeSimulationsAusgabe({
                   </RadioTile>
                   <RadioTile value="rmd" label="RMD (Lebenserwartung)">
                     Entnahme basierend auf Alter und Lebenserwartung
+                  </RadioTile>
+                  <RadioTile value="steueroptimiert" label="Steueroptimierte Entnahme">
+                    Automatische Optimierung zur Steuerminimierung
                   </RadioTile>
                 </RadioTileGroup>
               </div>

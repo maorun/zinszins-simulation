@@ -258,6 +258,16 @@ export function useWithdrawalCalculations(
                 inflationRate: formValue.kapitalerhaltInflationRate / 100,
               }
             : undefined,
+        steueroptimierteEntnahmeConfig:
+          formValue.strategie === 'steueroptimiert'
+            ? {
+                baseWithdrawalRate: formValue.steueroptimierteEntnahmeBaseWithdrawalRate,
+                targetTaxRate: formValue.steueroptimierteEntnahmeTargetTaxRate,
+                optimizationMode: formValue.steueroptimierteEntnahmeOptimizationMode,
+                freibetragUtilizationTarget: formValue.steueroptimierteEntnahmeFreibetragUtilizationTarget,
+                rebalanceFrequency: formValue.steueroptimierteEntnahmeRebalanceFrequency,
+              }
+            : undefined,
         enableGrundfreibetrag: grundfreibetragAktiv,
         grundfreibetragPerYear: grundfreibetragAktiv
           ? (() => {
@@ -339,6 +349,11 @@ export function useWithdrawalCalculations(
     customLifeExpectancy, // Use global setting
     formValue.kapitalerhaltNominalReturn,
     formValue.kapitalerhaltInflationRate,
+    formValue.steueroptimierteEntnahmeBaseWithdrawalRate,
+    formValue.steueroptimierteEntnahmeTargetTaxRate,
+    formValue.steueroptimierteEntnahmeOptimizationMode,
+    formValue.steueroptimierteEntnahmeFreibetragUtilizationTarget,
+    formValue.steueroptimierteEntnahmeRebalanceFrequency,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     formValue.einkommensteuersatz,
@@ -450,6 +465,16 @@ export function useWithdrawalCalculations(
               ? {
                   nominalReturn: (strategy.kapitalerhaltNominalReturn || 7) / 100,
                   inflationRate: (strategy.kapitalerhaltInflationRate || 2) / 100,
+                }
+              : undefined,
+          steueroptimierteEntnahmeConfig:
+            strategy.strategie === 'steueroptimiert'
+              ? {
+                  baseWithdrawalRate: 0.04, // Default for comparison strategies
+                  targetTaxRate: 0.26375, // Default tax rate
+                  optimizationMode: 'balanced' as const,
+                  freibetragUtilizationTarget: 0.85,
+                  rebalanceFrequency: 'yearly' as const,
                 }
               : undefined,
           enableGrundfreibetrag: grundfreibetragAktiv,
