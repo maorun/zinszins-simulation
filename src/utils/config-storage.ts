@@ -8,11 +8,12 @@ import type { StatutoryPensionConfig, CoupleStatutoryPensionConfig } from '../..
 import type { OtherIncomeConfiguration } from '../../helpers/other-income'
 import type { HealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
 import type { CareCostConfiguration } from '../../helpers/care-cost-simulation'
+import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
 
 /**
- * Return mode for withdrawal phase (subset of main ReturnMode)
+ * Return mode for withdrawal phase (includes multi-asset support)
  */
-export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable'
+export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable' | 'multiasset'
 
 /**
  * Frequency mode for withdrawal calculations
@@ -112,6 +113,8 @@ export interface WithdrawalConfiguration {
   withdrawalAverageReturn: number
   withdrawalStandardDeviation: number
   withdrawalRandomSeed?: number
+  // Multi-asset portfolio configuration for withdrawal phase
+  withdrawalMultiAssetConfig?: MultiAssetPortfolioConfig
   // Segmented withdrawal configuration
   useSegmentedWithdrawal: boolean
   withdrawalSegments: WithdrawalSegment[]

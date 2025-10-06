@@ -24,6 +24,7 @@ import { DynamicWithdrawalConfiguration } from './DynamicWithdrawalConfiguration
 import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
 import { HealthCareInsuranceConfiguration } from './HealthCareInsuranceConfiguration'
 import { KapitalerhaltConfiguration } from './KapitalerhaltConfiguration'
+import { MultiAssetPortfolioConfiguration } from './MultiAssetPortfolioConfiguration'
 import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
 import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
 import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
@@ -105,6 +106,9 @@ export function EntnahmeSimulationsAusgabe({
     birthYear,
     spouse,
     planningMode,
+    // Multi-asset portfolio configuration for withdrawal phase
+    withdrawalMultiAssetConfig,
+    setWithdrawalMultiAssetConfig,
   } = useSimulation()
 
   const {
@@ -830,6 +834,9 @@ export function EntnahmeSimulationsAusgabe({
                   <RadioTile value="variable" label="Variable Rendite">
                     Jahr-für-Jahr konfigurierbare Renditen
                   </RadioTile>
+                  <RadioTile value="multiasset" label="Multi-Asset Portfolio">
+                    Diversifiziertes Portfolio mit automatischem Rebalancing
+                  </RadioTile>
                 </RadioTileGroup>
                 <div className="text-sm text-muted-foreground mt-1">
                   Konfiguration der erwarteten Rendite während der Entnahme-Phase
@@ -1008,6 +1015,15 @@ export function EntnahmeSimulationsAusgabe({
                   </div>
                 </div>
               )}
+
+              {withdrawalReturnMode === 'multiasset' && (
+                <MultiAssetPortfolioConfiguration
+                  values={withdrawalMultiAssetConfig}
+                  onChange={setWithdrawalMultiAssetConfig}
+                  nestingLevel={0}
+                />
+              )}
+
               <div className="mb-4 space-y-2">
                 <Label>Strategie</Label>
                 <RadioTileGroup

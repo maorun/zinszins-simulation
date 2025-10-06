@@ -85,6 +85,8 @@ export function useWithdrawalCalculations(
     // Günstigerprüfung settings
     guenstigerPruefungAktiv,
     personalTaxRate,
+    // Multi-asset portfolio configuration for withdrawal phase
+    withdrawalMultiAssetConfig,
   } = useSimulation()
 
   const {
@@ -182,6 +184,12 @@ export function useWithdrawalCalculations(
               ]),
             ),
           },
+        }
+      }
+      else if (withdrawalReturnMode === 'multiasset' && withdrawalMultiAssetConfig) {
+        withdrawalReturnConfig = {
+          mode: 'multiasset',
+          multiAssetConfig: withdrawalMultiAssetConfig,
         }
       }
       else {
@@ -339,6 +347,7 @@ export function useWithdrawalCalculations(
     withdrawalAverageReturn,
     withdrawalStandardDeviation,
     withdrawalRandomSeed,
+    withdrawalMultiAssetConfig,
     useSegmentedWithdrawal,
     withdrawalSegments,
     steuerlast,

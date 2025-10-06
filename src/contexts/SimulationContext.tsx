@@ -68,6 +68,9 @@ export interface SimulationContextState {
   // Multi-asset portfolio configuration
   multiAssetConfig: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig
   setMultiAssetConfig: (config: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig) => void
+  // Multi-asset portfolio configuration for withdrawal phase
+  withdrawalMultiAssetConfig: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig
+  setWithdrawalMultiAssetConfig: (config: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig) => void
   // Inflation settings for savings phase
   inflationAktivSparphase: boolean
   setInflationAktivSparphase: (inflationAktivSparphase: boolean) => void
@@ -335,6 +338,67 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
       return (initialConfig as any).multiAssetConfig || fallbackConfig
     }
   })
+
+  // Multi-asset portfolio state for withdrawal phase (more conservative defaults)
+  const [withdrawalMultiAssetConfig, setWithdrawalMultiAssetConfig] = useState(() => {
+    // Try to load from saved configuration or create default
+    try {
+      const { createDefaultMultiAssetConfig } = require('../../helpers/multi-asset-portfolio')
+      const defaultConfig = createDefaultMultiAssetConfig()
+      
+      // Make it more conservative for withdrawal phase
+      const conservativeConfig = {
+        ...defaultConfig,
+        assetClasses: {
+          ...defaultConfig.assetClasses,
+          stocks_domestic: {
+            ...defaultConfig.assetClasses.stocks_domestic,
+            targetAllocation: 0.3, // More conservative allocation
+            expectedReturn: 0.06, // Lower expected return
+            volatility: 0.18, // Lower volatility
+          },
+          stocks_international: {
+            ...defaultConfig.assetClasses.stocks_international,
+            targetAllocation: 0.15,
+            expectedReturn: 0.055,
+            volatility: 0.16,
+          },
+          bonds_government: {
+            ...defaultConfig.assetClasses.bonds_government,
+            targetAllocation: 0.35, // Higher bond allocation
+            expectedReturn: 0.025,
+            volatility: 0.04,
+          },
+          bonds_corporate: {
+            ...defaultConfig.assetClasses.bonds_corporate,
+            targetAllocation: 0.15,
+            expectedReturn: 0.035,
+            volatility: 0.06,
+          },
+        },
+      }
+      
+      return (initialConfig as any).withdrawalMultiAssetConfig || conservativeConfig
+    }
+    catch {
+      // Create fallback configuration if module fails to load
+      return (initialConfig as any).withdrawalMultiAssetConfig || {
+        enabled: false,
+        assetClasses: {
+          stocks_domestic: { enabled: true, targetAllocation: 0.3, expectedReturn: 0.06, volatility: 0.18, taxCategory: 'equity' as const },
+          stocks_international: { enabled: true, targetAllocation: 0.15, expectedReturn: 0.055, volatility: 0.16, taxCategory: 'equity' as const },
+          bonds_government: { enabled: true, targetAllocation: 0.35, expectedReturn: 0.025, volatility: 0.04, taxCategory: 'bond' as const },
+          bonds_corporate: { enabled: true, targetAllocation: 0.15, expectedReturn: 0.035, volatility: 0.06, taxCategory: 'bond' as const },
+          real_estate: { enabled: false, targetAllocation: 0.0, expectedReturn: 0.05, volatility: 0.12, taxCategory: 'reit' as const },
+          commodities: { enabled: false, targetAllocation: 0.0, expectedReturn: 0.04, volatility: 0.18, taxCategory: 'commodity' as const },
+          cash: { enabled: false, targetAllocation: 0.0, expectedReturn: 0.01, volatility: 0.00, taxCategory: 'cash' as const },
+        },
+        rebalancing: { frequency: 'annually' as const, threshold: 0.05, useThreshold: false },
+        simulation: { useCorrelation: true, seed: undefined },
+      }
+    }
+  })
+
   // Inflation state for savings phase
   const [inflationAktivSparphase, setInflationAktivSparphase] = useState(
     (initialConfig as any).inflationAktivSparphase ?? defaultConfig.inflationAktivSparphase,
@@ -868,6 +932,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     historicalIndex, setHistoricalIndex,
     // Multi-asset portfolio configuration
     multiAssetConfig, setMultiAssetConfig,
+    // Multi-asset portfolio configuration for withdrawal phase
+    withdrawalMultiAssetConfig, setWithdrawalMultiAssetConfig,
     // Inflation for savings phase
     inflationAktivSparphase, setInflationAktivSparphase,
     inflationsrateSparphase, setInflationsrateSparphase,
@@ -911,7 +977,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     grundfreibetragAktiv, grundfreibetragBetrag,
     personalTaxRate, guenstigerPruefungAktiv,
     kirchensteuerAktiv, kirchensteuersatz,
-    returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, multiAssetConfig,
+    returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex, multiAssetConfig, withdrawalMultiAssetConfig,
     inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
     endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse,
