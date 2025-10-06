@@ -29,6 +29,7 @@ import type { ReturnConfiguration } from '../../helpers/random-returns'
 import { DynamicWithdrawalConfiguration } from './DynamicWithdrawalConfiguration'
 import { BucketStrategyConfiguration } from './BucketStrategyConfiguration'
 import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
+import { SteueroptimierteEntnahmeConfiguration } from './SteueroptimierteEntnahmeConfiguration'
 import { MultiAssetPortfolioConfiguration } from './MultiAssetPortfolioConfiguration'
 import { createDefaultMultiAssetConfig } from '../../helpers/multi-asset-portfolio'
 
@@ -411,6 +412,9 @@ export function WithdrawalSegmentForm({
                           <RadioTile value="rmd" label="RMD (Lebenserwartung)">
                             Entnahme basierend auf Alter und Lebenserwartung
                           </RadioTile>
+                          <RadioTile value="steueroptimiert" label="Steueroptimierte Entnahme">
+                            Automatische Optimierung zur Steuerminimierung
+                          </RadioTile>
                         </RadioTileGroup>
                       </div>
 
@@ -765,6 +769,47 @@ export function WithdrawalSegmentForm({
                             }),
                           }}
                         />
+                      )}
+
+                      {/* Steueroptimierte Entnahme strategy settings */}
+                      {segment.strategy === 'steueroptimiert' && (
+                        <div className="space-y-4">
+                          <SteueroptimierteEntnahmeConfiguration
+                            formValue={{
+                              steueroptimierteEntnahmeBaseWithdrawalRate:
+                                segment.steuerOptimierteConfig?.baseWithdrawalRate || 0.04,
+                              steueroptimierteEntnahmeTargetTaxRate:
+                                segment.steuerOptimierteConfig?.targetTaxRate || 0.26375,
+                              steueroptimierteEntnahmeOptimizationMode:
+                                segment.steuerOptimierteConfig?.optimizationMode || 'balanced',
+                              steueroptimierteEntnahmeFreibetragUtilizationTarget:
+                                segment.steuerOptimierteConfig?.freibetragUtilizationTarget || 0.85,
+                              steueroptimierteEntnahmeRebalanceFrequency:
+                                segment.steuerOptimierteConfig?.rebalanceFrequency || 'yearly',
+                            } as any}
+                            updateFormValue={(updates: any) => {
+                              updateSegment(segment.id, {
+                                steuerOptimierteConfig: {
+                                  baseWithdrawalRate:
+                                    updates.steueroptimierteEntnahmeBaseWithdrawalRate
+                                    || segment.steuerOptimierteConfig?.baseWithdrawalRate || 0.04,
+                                  targetTaxRate:
+                                    updates.steueroptimierteEntnahmeTargetTaxRate
+                                    || segment.steuerOptimierteConfig?.targetTaxRate || 0.26375,
+                                  optimizationMode:
+                                    updates.steueroptimierteEntnahmeOptimizationMode
+                                    || segment.steuerOptimierteConfig?.optimizationMode || 'balanced',
+                                  freibetragUtilizationTarget:
+                                    updates.steueroptimierteEntnahmeFreibetragUtilizationTarget
+                                    || segment.steuerOptimierteConfig?.freibetragUtilizationTarget || 0.85,
+                                  rebalanceFrequency:
+                                    updates.steueroptimierteEntnahmeRebalanceFrequency
+                                    || segment.steuerOptimierteConfig?.rebalanceFrequency || 'yearly',
+                                },
+                              })
+                            }}
+                          />
+                        </div>
                       )}
 
                       <Separator />

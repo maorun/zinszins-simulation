@@ -52,6 +52,12 @@ export interface WithdrawalFormValue {
   // Kapitalerhalt strategy specific settings
   kapitalerhaltNominalReturn: number
   kapitalerhaltInflationRate: number
+  // Steueroptimierte Entnahme strategy specific settings
+  steueroptimierteEntnahmeBaseWithdrawalRate: number
+  steueroptimierteEntnahmeTargetTaxRate: number
+  steueroptimierteEntnahmeOptimizationMode: 'minimize_taxes' | 'maximize_after_tax' | 'balanced'
+  steueroptimierteEntnahmeFreibetragUtilizationTarget: number
+  steueroptimierteEntnahmeRebalanceFrequency: 'yearly' | 'quarterly' | 'as_needed'
   // Statutory pension settings
   statutoryPensionConfig?: StatutoryPensionConfig
   // Health and care insurance settings

@@ -1,6 +1,6 @@
 import type { WithdrawalStrategy } from '../../helpers/withdrawal'
 import type { ReturnConfiguration } from '../../helpers/random-returns'
-import type { MonthlyWithdrawalConfig, InflationConfig, DynamicWithdrawalConfig, BucketStrategyConfig, RMDConfig } from '../../helpers/withdrawal'
+import type { MonthlyWithdrawalConfig, InflationConfig, DynamicWithdrawalConfig, BucketStrategyConfig, RMDConfig, SteueroptimierteEntnahmeConfig } from '../../helpers/withdrawal'
 import type { WithdrawalFrequency } from './config-storage'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
 
@@ -34,6 +34,8 @@ export type WithdrawalSegment = {
   bucketConfig?: BucketStrategyConfig
   /** RMD configuration (for rmd strategy) */
   rmdConfig?: RMDConfig
+  /** Steueroptimierte Entnahme configuration (for steueroptimiert strategy) */
+  steuerOptimierteConfig?: SteueroptimierteEntnahmeConfig
   /** Income tax rate for this segment */
   incomeTaxRate?: number
   /** Whether taxes should reduce capital for this segment */

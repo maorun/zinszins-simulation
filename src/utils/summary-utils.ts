@@ -439,6 +439,14 @@ function getStrategyDisplayName(strategy: string): string {
       return 'Monatlich fest'
     case 'dynamisch':
       return 'Dynamische Strategie'
+    case 'bucket_strategie':
+      return 'Drei-Eimer-Strategie'
+    case 'rmd':
+      return 'RMD (Lebenserwartung)'
+    case 'kapitalerhalt':
+      return 'Kapitalerhalt / Ewige Rente'
+    case 'steueroptimiert':
+      return 'Steueroptimierte Entnahme'
     default:
       return strategy
   }
