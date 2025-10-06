@@ -115,6 +115,47 @@ After making changes, ALWAYS test the complete user workflow:
 - Client-side calculations with immediate updates
 - No external state management library
 
+### HTML ID Management - CRITICAL REQUIREMENT
+**NEVER create duplicate HTML IDs** - this violates HTML standards and causes accessibility issues.
+
+#### Mandatory Guidelines:
+- **Use unique ID utility functions** from `src/utils/unique-id.ts` for all form elements
+- **Always import and use**: `generateFormId()`, `generateInstanceId()`, or `generateUniqueId()`
+- **Use `useMemo`** to ensure stable IDs within component lifecycle
+- **Apply context-specific prefixes** to distinguish between component instances
+
+#### Required Implementation Pattern:
+```typescript
+import { generateFormId } from '../utils/unique-id'
+
+export function MyComponent() {
+  // Generate unique IDs for each form field
+  const enabledSwitchId = useMemo(() => generateFormId('component-name', 'enabled'), [])
+  const monthlyAmountId = useMemo(() => generateFormId('component-name', 'monthly-amount'), [])
+  
+  return (
+    <>
+      <Switch id={enabledSwitchId} />
+      <Label htmlFor={enabledSwitchId}>Enable</Label>
+      
+      <Input id={monthlyAmountId} />
+      <Label htmlFor={monthlyAmountId}>Monthly Amount</Label>
+    </>
+  )
+}
+```
+
+#### For Multi-Instance Components:
+```typescript
+// When component may be rendered multiple times
+const uniqueId = useMemo(() => generateFormId('component', 'field', instanceContext), [instanceContext])
+```
+
+#### Validation Requirements:
+- **Test for duplicates**: Run `find . -name "*.tsx" | xargs grep -h "id=" | grep -o 'id="[^"]*"' | sort | uniq -c | sort -nr | grep -E "^\s*[2-9]"`
+- **All tests must pass** after implementing unique IDs
+- **Manual testing required** to ensure accessibility is maintained
+
 ## UI Framework Migration
 
 **Current Status:** **MIGRATION COMPLETED** - Successfully migrated from RSuite to shadcn/ui
