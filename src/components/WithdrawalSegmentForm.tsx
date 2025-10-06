@@ -29,8 +29,10 @@ import type { ReturnConfiguration } from '../../helpers/random-returns'
 import { DynamicWithdrawalConfiguration } from './DynamicWithdrawalConfiguration'
 import { BucketStrategyConfiguration } from './BucketStrategyConfiguration'
 import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
+import { MultiAssetPortfolioConfiguration } from './MultiAssetPortfolioConfiguration'
+import { createDefaultMultiAssetConfig } from '../../helpers/multi-asset-portfolio'
 
-export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable'
+export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable' | 'multiasset'
 
 interface WithdrawalSegmentFormProps {
   segments: WithdrawalSegment[]
@@ -153,6 +155,13 @@ export function WithdrawalSegmentForm({
             yearlyReturns: {},
           },
         }
+      case 'multiasset':
+        return {
+          mode: 'multiasset',
+          multiAssetConfig: segment.returnConfig.mode === 'multiasset' && segment.returnConfig.multiAssetConfig
+            ? segment.returnConfig.multiAssetConfig
+            : createDefaultMultiAssetConfig(), // Default configuration for withdrawal segment
+        }
       default:
         return segment.returnConfig
     }
@@ -160,6 +169,10 @@ export function WithdrawalSegmentForm({
 
   // Get return mode from return configuration
   const getReturnModeFromConfig = (returnConfig: ReturnConfiguration): WithdrawalReturnMode => {
+    // Ensure multiasset mode is properly recognized
+    if (returnConfig.mode === 'multiasset') {
+      return 'multiasset'
+    }
     return returnConfig.mode as WithdrawalReturnMode
   }
 
@@ -767,6 +780,9 @@ export function WithdrawalSegmentForm({
                           <RadioTile value="variable" label="Variable Rendite">
                             Jahr-für-Jahr konfigurierbare Renditen
                           </RadioTile>
+                          <RadioTile value="multiasset" label="Multi-Asset Portfolio">
+                            Diversifiziertes Portfolio mit automatischem Rebalancing
+                          </RadioTile>
                         </RadioTileGroup>
                       </div>
 
@@ -955,6 +971,22 @@ export function WithdrawalSegmentForm({
                           <div className="text-sm text-muted-foreground mt-1">
                             Konfiguriere die erwartete Rendite für jedes Jahr dieser Phase individuell.
                           </div>
+                        </div>
+                      )}
+
+                      {/* Multi-Asset Portfolio settings */}
+                      {segment.returnConfig.mode === 'multiasset' && (
+                        <div className="mb-4">
+                          <MultiAssetPortfolioConfiguration
+                            values={segment.returnConfig.multiAssetConfig || createDefaultMultiAssetConfig()}
+                            onChange={(newConfig) => updateSegment(segment.id, {
+                              returnConfig: {
+                                mode: 'multiasset',
+                                multiAssetConfig: newConfig,
+                              },
+                            })}
+                            nestingLevel={1}
+                          />
                         </div>
                       )}
 
