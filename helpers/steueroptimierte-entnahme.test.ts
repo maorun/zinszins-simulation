@@ -41,13 +41,19 @@ describe('Steueroptimierte Entnahme Strategy', () => {
   }
 
   describe('Configuration Validation', () => {
-    it('should require steueroptimierteEntnahmeConfig for steueroptimiert strategy', () => {
-      expect(() => {
-        calculateWithdrawal({
-          ...baseTestParams,
-          // Missing steueroptimierteEntnahmeConfig
-        })
-      }).toThrow('Steueroptimierte Entnahme config required')
+    it('should provide default config when steueroptimierteEntnahmeConfig is missing', () => {
+      // Should not throw an error, but use default configuration
+      const result = calculateWithdrawal({
+        ...baseTestParams,
+        // Missing steueroptimierteEntnahmeConfig - should use defaults
+      })
+
+      // Should have some results (not throw an error)
+      expect(result).toBeDefined()
+      expect(result.result).toBeDefined()
+      expect(Object.keys(result.result)).toHaveLength(5) // 2041-2045
+      expect(result.result[2041]).toBeDefined()
+      expect(result.result[2041].entnahme).toBeGreaterThan(0)
     })
 
     it('should accept valid steueroptimierteEntnahmeConfig', () => {
