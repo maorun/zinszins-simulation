@@ -110,6 +110,7 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
               %
             </span>
           </div>
+          <BurgerNavigation />
         </div>
       )
     }
@@ -117,38 +118,39 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
       // Desktop: Complete savings phase data
       return (
         <div className="w-full">
-          <div className="w-full">
-            <h4 className="m-0 mb-3 text-slate-800 text-base font-semibold">
+          <h4 className="flex m-0 mb-3 text-slate-800 text-base font-semibold">
+            <span className="flex-1">
               📈 Ansparphase (
               {yearsRange}
               )
-            </h4>
-            <div className="grid grid-cols-4 gap-4">
-              <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
-                <span className="text-xs text-gray-600 mb-1">💰 Einzahlungen</span>
-                <span className="font-semibold text-sm text-slate-800">
-                  {enhancedSummary.startkapital.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                </span>
-              </div>
-              <div className="flex flex-col p-2 bg-gradient-to-br from-green-50 to-green-100 rounded-md border border-green-300">
-                <span className="text-xs text-gray-600 mb-1">🎯 Endkapital</span>
-                <span className="font-semibold text-sm text-slate-800">
-                  {enhancedSummary.endkapital.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                </span>
-              </div>
-              <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
-                <span className="text-xs text-gray-600 mb-1">📊 Zinsen</span>
-                <span className="font-semibold text-sm text-slate-800">
-                  {enhancedSummary.zinsen.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                </span>
-              </div>
-              <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
-                <span className="text-xs text-gray-600 mb-1">📈 Rendite</span>
-                <span className="font-semibold text-sm text-slate-800">
-                  {enhancedSummary.renditeAnsparphase.toFixed(2)}
-                  % p.a.
-                </span>
-              </div>
+            </span>
+            <BurgerNavigation />
+          </h4>
+          <div className="grid grid-cols-4 gap-4">
+            <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
+              <span className="text-xs text-gray-600 mb-1">💰 Einzahlungen</span>
+              <span className="font-semibold text-sm text-slate-800">
+                {enhancedSummary.startkapital.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+              </span>
+            </div>
+            <div className="flex flex-col p-2 bg-gradient-to-br from-green-50 to-green-100 rounded-md border border-green-300">
+              <span className="text-xs text-gray-600 mb-1">🎯 Endkapital</span>
+              <span className="font-semibold text-sm text-slate-800">
+                {enhancedSummary.endkapital.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+              </span>
+            </div>
+            <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
+              <span className="text-xs text-gray-600 mb-1">📊 Zinsen</span>
+              <span className="font-semibold text-sm text-slate-800">
+                {enhancedSummary.zinsen.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+              </span>
+            </div>
+            <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
+              <span className="text-xs text-gray-600 mb-1">📈 Rendite</span>
+              <span className="font-semibold text-sm text-slate-800">
+                {enhancedSummary.renditeAnsparphase.toFixed(2)}
+                % p.a.
+              </span>
             </div>
           </div>
         </div>
@@ -159,9 +161,6 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
   return (
     <div className="fixed top-0 left-0 right-0 z-[1000] bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-lg animate-slide-down">
       <div className="max-w-6xl mx-auto px-4 py-3 md:px-6 relative">
-        <div className="absolute top-3 right-4 md:right-6">
-          <BurgerNavigation />
-        </div>
         {renderAnsparenContent()}
       </div>
     </div>

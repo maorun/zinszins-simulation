@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { Button } from './ui/button'
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from './ui/dialog'
 import { Menu, ExternalLink } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useNavigationOptional } from '../hooks/useNavigation'
@@ -28,6 +28,7 @@ export function BurgerNavigation() {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogDescription className="hidden">Menü zur Navigation</DialogDescription>
       <DialogTrigger asChild>
         <Button
           variant="outline"

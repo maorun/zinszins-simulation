@@ -1,9 +1,26 @@
 import { useState, useCallback, ReactNode } from 'react'
-import { NavigationContext } from './navigationContext'
-import type { NavigationItem } from './navigationContext'
+import { NavigationContext } from './NavigationContexValue'
 
 interface NavigationProviderProps {
   children: ReactNode
+}
+
+export interface NavigationItem {
+  id: string
+  title: string
+  icon?: string
+  parentId?: string
+  level: number
+  element?: HTMLDivElement | null
+}
+
+export interface NavigationContextType {
+  items: Map<string, NavigationItem>
+  registerItem: (item: NavigationItem) => void
+  unregisterItem: (id: string) => void
+  expandItem: (id: string) => void
+  scrollToItem: (id: string) => void
+  getNavigationTree: () => NavigationItem[]
 }
 
 export function NavigationProvider({ children }: NavigationProviderProps) {

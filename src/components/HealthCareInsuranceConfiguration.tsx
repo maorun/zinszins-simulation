@@ -109,7 +109,7 @@ export function HealthCareInsuranceConfiguration({
 
   if (!values.enabled) {
     return (
-      <CollapsibleCard>
+      <CollapsibleCard navigationId="health-care-insurance" navigationTitle="Kranken- und Pflegeversicherung" navigationIcon="🏥">
         <CollapsibleCardHeader>
           🏥 Kranken- und Pflegeversicherung
         </CollapsibleCardHeader>
@@ -137,7 +137,7 @@ export function HealthCareInsuranceConfiguration({
   }
 
   return (
-    <CollapsibleCard>
+    <CollapsibleCard navigationId="health-care-insurance" navigationTitle="Kranken- und Pflegeversicherung" navigationIcon="🏥">
       <CollapsibleCardHeader>
         🏥 Kranken- und Pflegeversicherung
         <span className="text-sm font-normal text-muted-foreground">
