@@ -18,7 +18,7 @@ export type VariableReturnConfig = {
   yearlyReturns: Record<number, number> // Map of year to return rate (e.g., {2023: 0.05, 2024: 0.07})
 }
 
-export type ReturnMode = 'fixed' | 'random' | 'variable' | 'historical'
+export type ReturnMode = 'fixed' | 'random' | 'variable' | 'historical' | 'multiasset'
 
 export type ReturnConfiguration = {
   mode: ReturnMode
@@ -26,6 +26,7 @@ export type ReturnConfiguration = {
   randomConfig?: RandomReturnConfig // Used when mode is 'random'
   variableConfig?: VariableReturnConfig // Used when mode is 'variable'
   historicalConfig?: HistoricalReturnConfig // Used when mode is 'historical'
+  multiAssetConfig?: any // Used when mode is 'multiasset' - type defined in multi-asset-portfolio.ts
 }
 
 /**

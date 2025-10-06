@@ -255,6 +255,17 @@ export function calculateWithdrawal({
   else if (returnConfig.mode === 'variable' && returnConfig.variableConfig) {
     for (const year of allYears) yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] || 0.05
   }
+  else if (returnConfig.mode === 'multiasset' && returnConfig.multiAssetConfig) {
+    try {
+      const { generateMultiAssetReturns } = require('./multi-asset-calculations')
+      const multiAssetReturns = generateMultiAssetReturns(allYears, returnConfig.multiAssetConfig)
+      Object.assign(yearlyGrowthRates, multiAssetReturns)
+    }
+    catch (error) {
+      console.warn('Multi-asset calculations not available, falling back to 5% fixed return:', error)
+      for (const year of allYears) yearlyGrowthRates[year] = 0.05
+    }
+  }
 
   const result: WithdrawalResult = {}
 

@@ -99,6 +99,7 @@ export function useWithdrawalConfig() {
       withdrawalAverageReturn: 7,
       withdrawalStandardDeviation: 12,
       withdrawalRandomSeed: undefined,
+      withdrawalMultiAssetConfig: undefined, // Will be initialized from context when needed
       useSegmentedWithdrawal: false,
       withdrawalSegments: [
         createDefaultWithdrawalSegment(
