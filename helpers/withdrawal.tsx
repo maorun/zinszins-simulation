@@ -387,7 +387,16 @@ export function calculateWithdrawal({
     baseWithdrawalAmount = initialStartingCapital * realReturnRate
   }
   else if (strategy === 'steueroptimiert') {
-    if (!steueroptimierteEntnahmeConfig) throw new Error('Steueroptimierte Entnahme config required')
+    if (!steueroptimierteEntnahmeConfig) {
+      // Provide default configuration if missing
+      steueroptimierteEntnahmeConfig = {
+        baseWithdrawalRate: 0.04,
+        targetTaxRate: 0.26375,
+        optimizationMode: 'balanced',
+        freibetragUtilizationTarget: 0.85,
+        rebalanceFrequency: 'yearly',
+      }
+    }
     // Start with base withdrawal rate, optimization happens year by year
     baseWithdrawalAmount = initialStartingCapital * steueroptimierteEntnahmeConfig.baseWithdrawalRate
   }
@@ -935,6 +944,7 @@ export function calculateSegmentedWithdrawal(
       dynamicConfig: segment.dynamicConfig,
       bucketConfig: segment.bucketConfig,
       rmdConfig: segment.rmdConfig,
+      steueroptimierteEntnahmeConfig: segment.steuerOptimierteConfig,
       statutoryPensionConfig: segmentedConfig.statutoryPensionConfig,
     })
 
