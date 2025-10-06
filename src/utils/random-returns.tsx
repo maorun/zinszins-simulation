@@ -8,7 +8,7 @@ export type RandomReturnConfig = {
   seed?: number // Random seed for reproducible results
 }
 
-export type ReturnMode = 'fixed' | 'random' | 'variable' | 'historical'
+export type ReturnMode = 'fixed' | 'random' | 'variable' | 'historical' | 'multiasset'
 
 export type HistoricalReturnConfig = {
   indexId: string // ID of the historical index (e.g., 'dax', 'sp500')
@@ -26,6 +26,7 @@ export type ReturnConfiguration = {
   randomConfig?: RandomReturnConfig // Used when mode is 'random'
   variableConfig?: VariableReturnConfig // Used when mode is 'variable'
   historicalConfig?: HistoricalReturnConfig // Used when mode is 'historical'
+  multiAssetConfig?: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig // Used when mode is 'multiasset'
 }
 
 /**

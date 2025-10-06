@@ -10,6 +10,7 @@ import { RadioTile, RadioTileGroup } from './ui/radio-tile'
 import { Slider } from './ui/slider'
 import { Switch } from './ui/switch'
 import VariableReturnConfiguration from './VariableReturnConfiguration'
+import MultiAssetPortfolioConfiguration from './MultiAssetPortfolioConfiguration'
 
 const ReturnConfiguration = () => {
   const {
@@ -21,6 +22,8 @@ const ReturnConfiguration = () => {
     setInflationsrateSparphase,
     inflationAnwendungSparphase,
     setInflationAnwendungSparphase,
+    multiAssetConfig,
+    setMultiAssetConfig,
     performSimulation,
   } = useSimulation()
 
@@ -53,6 +56,9 @@ const ReturnConfiguration = () => {
             </RadioTile>
             <RadioTile value="historical" label="Historische Daten">
               Backtesting mit echten historischen Marktdaten (Vergangenheit ≠ Zukunft!)
+            </RadioTile>
+            <RadioTile value="multiasset" label="Multi-Asset Portfolio">
+              Diversifiziertes Portfolio mit automatischem Rebalancing
             </RadioTile>
           </RadioTileGroup>
           <p className="text-sm text-muted-foreground">
@@ -130,6 +136,16 @@ const ReturnConfiguration = () => {
           {returnMode === 'random' && <RandomReturnConfiguration />}
           {returnMode === 'variable' && <VariableReturnConfiguration />}
           {returnMode === 'historical' && <HistoricalReturnConfiguration />}
+          {returnMode === 'multiasset' && (
+            <MultiAssetPortfolioConfiguration
+              values={multiAssetConfig}
+              onChange={(config) => {
+                setMultiAssetConfig(config)
+                performSimulation()
+              }}
+              nestingLevel={1}
+            />
+          )}
         </NestingProvider>
       </CollapsibleCardContent>
     </CollapsibleCard>

@@ -15,7 +15,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Freistellungsaufträge-Optimierung** - Optimale Verteilung der Freibeträge auf verschiedene Banken
 
 #### Asset Allocation & Portfolio-Management
-- **Multi-Asset-Portfolio** - Aufteilung zwischen Aktien, Anleihen, REITs, Rohstoffen
 - **Rebalancing-Strategien** - Periodisches, schwellenbasiertes oder taktisches Rebalancing
 - **Faktor-Investing** - Integration von Value, Growth, Small-Cap, Momentum Faktoren
 - **Geografische Diversifikation** - Aufteilung zwischen Regionen mit entsprechenden Steuern
@@ -154,7 +153,6 @@ Die folgenden Features sollen entsprechend der Anforderung **NICHT** entwickelt 
 ### Hoch (⭐⭐⭐)
 Direkte Erweiterung der bestehenden Kernfunktionalität:
 - **Steueroptimierte Entnahmereihenfolge** - Baut auf vorhandener Steuerberechnung auf
-- **Multi-Asset-Portfolio mit Rebalancing** - Erweitert die vorhandenen Rendite-Modi
 - **Immobilien-Cashflow Integration** - Ergänzt die "Andere Einkünfte" Funktionalität
 - **Pflegekosten-Simulation** - Wichtiger Baustein der deutschen Altersvorsorge
 
