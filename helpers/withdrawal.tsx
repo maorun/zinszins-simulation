@@ -1015,12 +1015,12 @@ function calculateTaxOptimizedWithdrawal(
       // Try to use exactly the target amount of Freibetrag to minimize taxes
       // This is a simplified calculation - real optimization would consider Vorabpauschale
       const taxableRate = 1 - teilfreistellungsquote
-      
+
       // Avoid division by zero
       if (taxableRate <= 0 || taxRate <= 0) {
         return Math.min(capitalAtStartOfYear, baseWithdrawalAmount)
       }
-      
+
       const maxTaxFreeWithdrawal = targetFreibetragUsage / (taxableRate * taxRate)
 
       // Choose the minimum of base withdrawal and tax-optimized amount
@@ -1052,7 +1052,7 @@ function calculateTaxOptimizedWithdrawal(
     default: {
       // Balance between tax minimization and income consistency
       // Use base withdrawal as starting point and adjust slightly for tax efficiency
-      const taxEfficientAdjustment = availableFreibetrag > 0 
+      const taxEfficientAdjustment = availableFreibetrag > 0
         ? (targetFreibetragUsage - availableFreibetrag * 0.5) / availableFreibetrag
         : 0
       const adjustmentFactor = 1 + (taxEfficientAdjustment * 0.1) // Max 10% adjustment

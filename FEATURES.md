@@ -7,7 +7,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 ### Erweiterte Finanzplanung
 
 #### Steueroptimierung
-- **Steueroptimierte Entnahmereihenfolge** - Automatische Optimierung zwischen verschiedenen Depots/Konten (Roth vs. Traditional vs. Taxable)
 - **Tax-Loss Harvesting Simulation** - Simulation von Verlustverrechnungsstrategien
 
 - **Progressionsvorbehalt** - Auswirkungen auf andere Einkünfte bei ausländischen Einkünften
@@ -152,7 +151,6 @@ Die folgenden Features sollen entsprechend der Anforderung **NICHT** entwickelt 
 
 ### Hoch (⭐⭐⭐)
 Direkte Erweiterung der bestehenden Kernfunktionalität:
-- **Steueroptimierte Entnahmereihenfolge** - Baut auf vorhandener Steuerberechnung auf
 - **Immobilien-Cashflow Integration** - Ergänzt die "Andere Einkünfte" Funktionalität
 - **Pflegekosten-Simulation** - Wichtiger Baustein der deutschen Altersvorsorge
 
