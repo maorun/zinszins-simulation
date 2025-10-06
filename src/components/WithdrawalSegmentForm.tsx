@@ -602,6 +602,7 @@ export function WithdrawalSegmentForm({
                       {/* Bucket strategy settings */}
                       {segment.strategy === 'bucket_strategie' && (
                         <BucketStrategyConfiguration
+                          idPrefix={`bucket-sub-strategy-${segment.id}`}
                           values={{
                             initialCashCushion: segment.bucketConfig?.initialCashCushion || 20000,
                             refillThreshold: segment.bucketConfig?.refillThreshold || 5000,

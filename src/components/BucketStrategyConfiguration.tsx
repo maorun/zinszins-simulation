@@ -59,6 +59,9 @@ interface BucketStrategyConfigurationProps {
   // For direct state management (Segmentiert)
   values?: BucketStrategyConfigValues
   onChange?: BucketStrategyChangeHandlers
+
+  // Optional unique ID prefix for multiple instances
+  idPrefix?: string
 }
 
 export function BucketStrategyConfiguration({
@@ -66,6 +69,7 @@ export function BucketStrategyConfiguration({
   updateFormValue,
   values,
   onChange,
+  idPrefix = 'bucket-sub-strategy',
 }: BucketStrategyConfigurationProps) {
   // Determine which mode we're in
   const isFormMode = formValue !== undefined && updateFormValue !== undefined
@@ -125,7 +129,7 @@ export function BucketStrategyConfiguration({
         <Label>Entnahme-Strategie</Label>
         <RadioTileGroup
           value={currentValues.subStrategy}
-          idPrefix="bucket-sub-strategy"
+          idPrefix={idPrefix}
           onValueChange={(value: string) => {
             const subStrategy = value as BucketSubStrategy
             if (isFormMode) {
