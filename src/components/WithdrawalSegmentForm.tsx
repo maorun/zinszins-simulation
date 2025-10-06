@@ -367,6 +367,14 @@ export function WithdrawalSegmentForm({
                                 refillThreshold: 5000, // €5,000 threshold
                                 refillPercentage: 0.5, // 50% of excess gains
                                 baseWithdrawalRate: 0.04, // 4% base withdrawal rate
+                                subStrategy: '4prozent', // Default sub-strategy
+                                variabelProzent: 4, // Default variable percentage
+                                monatlicheBetrag: 2000, // Default monthly amount
+                                dynamischBasisrate: 4, // Default dynamic base rate
+                                dynamischObereSchwell: 8, // Default upper threshold
+                                dynamischObereAnpassung: 5, // Default upper adjustment
+                                dynamischUntereSchwell: 2, // Default lower threshold
+                                dynamischUntereAnpassung: -5, // Default lower adjustment
                               }
                             }
 
