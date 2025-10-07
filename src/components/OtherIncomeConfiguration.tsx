@@ -12,6 +12,7 @@ import {
   type OtherIncomeSource,
   type IncomeType,
   createDefaultOtherIncomeSource,
+  createDefaultRealEstateConfig,
   getIncomeTypeDisplayName,
   getAmountTypeDisplayName,
 } from '../../helpers/other-income'
@@ -32,6 +33,8 @@ export function OtherIncomeConfigurationComponent({
 
   // Generate unique IDs for form fields
   const monthlyAmountId = useFormId('other-income', 'monthly-amount')
+  const propertyValueId = useFormId('other-income-real-estate', 'property-value')
+  const mortgagePaymentId = useFormId('other-income-real-estate', 'mortgage-payment')
 
   const handleConfigChange = (updates: Partial<OtherIncomeConfiguration>) => {
     onChange({ ...config, ...updates })
@@ -45,7 +48,7 @@ export function OtherIncomeConfigurationComponent({
   }
 
   const handleAddSource = () => {
-    const newSource = createDefaultOtherIncomeSource()
+    const newSource = createDefaultOtherIncomeSource('rental') // Default to rental with real estate config
     setEditingSource(newSource)
     setIsAddingNew(true)
   }
@@ -168,8 +171,21 @@ export function OtherIncomeConfigurationComponent({
                         <select
                           id="source-type"
                           value={editingSource.type}
-                          onChange={e =>
-                            setEditingSource({ ...editingSource, type: e.target.value as IncomeType })}
+                          onChange={(e) => {
+                            const newType = e.target.value as IncomeType
+                            const updatedSource = { ...editingSource, type: newType }
+
+                            // Add real estate config when switching to rental
+                            if (newType === 'rental' && !updatedSource.realEstateConfig) {
+                              updatedSource.realEstateConfig = createDefaultRealEstateConfig()
+                            }
+                            // Remove real estate config when switching away from rental
+                            else if (newType !== 'rental' && updatedSource.realEstateConfig) {
+                              delete updatedSource.realEstateConfig
+                            }
+
+                            setEditingSource(updatedSource)
+                          }}
                           className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
                         >
                           <option value="rental">Mieteinnahmen</option>
@@ -311,6 +327,188 @@ export function OtherIncomeConfigurationComponent({
                         </p>
                       </div>
 
+                      {/* Real Estate Configuration - only for rental income */}
+                      {editingSource.type === 'rental' && (
+                        <div className="space-y-4 p-4 bg-green-50 rounded-lg border border-green-200">
+                          <h4 className="text-sm font-semibold text-green-800 flex items-center gap-2">
+                            🏠 Immobilien-spezifische Einstellungen
+                          </h4>
+
+                          {/* Initialize real estate config if it doesn't exist */}
+                          {!editingSource.realEstateConfig && (() => {
+                            // Initialize with default config when switching to rental type
+                            setEditingSource({
+                              ...editingSource,
+                              realEstateConfig: createDefaultRealEstateConfig(),
+                            })
+                            return null
+                          })()}
+
+                          {editingSource.realEstateConfig && (
+                            <>
+                              {/* Property Value */}
+                              <div className="space-y-2">
+                                <Label htmlFor={propertyValueId}>Immobilienwert (€)</Label>
+                                <Input
+                                  id={propertyValueId}
+                                  type="number"
+                                  value={editingSource.realEstateConfig.propertyValue}
+                                  onChange={e => setEditingSource({
+                                    ...editingSource,
+                                    realEstateConfig: {
+                                      ...editingSource.realEstateConfig!,
+                                      propertyValue: Number(e.target.value) || 0,
+                                    },
+                                  })}
+                                  min={0}
+                                  step={10000}
+                                />
+                                <p className="text-xs text-gray-600">
+                                  Aktueller Marktwert der Immobilie für Wertsteigerungsberechnungen
+                                </p>
+                              </div>
+
+                              {/* Maintenance Cost Percentage */}
+                              <div className="space-y-2">
+                                <Label>Instandhaltungskosten (% der Mieteinnahmen)</Label>
+                                <Slider
+                                  value={[editingSource.realEstateConfig.maintenanceCostPercent]}
+                                  onValueChange={values => setEditingSource({
+                                    ...editingSource,
+                                    realEstateConfig: {
+                                      ...editingSource.realEstateConfig!,
+                                      maintenanceCostPercent: values[0],
+                                    },
+                                  })}
+                                  min={0}
+                                  max={30}
+                                  step={0.5}
+                                  className="mt-2"
+                                />
+                                <div className="flex justify-between text-sm text-gray-500">
+                                  <span>0%</span>
+                                  <span className="font-medium text-gray-900">
+                                    {editingSource.realEstateConfig.maintenanceCostPercent.toFixed(1)}
+                                    %
+                                  </span>
+                                  <span>30%</span>
+                                </div>
+                                <p className="text-xs text-gray-600">
+                                  Reparaturen, Renovierungen, Verwaltungskosten (Richtwert: 15-20%)
+                                </p>
+                              </div>
+
+                              {/* Vacancy Rate */}
+                              <div className="space-y-2">
+                                <Label>Leerstandsquote (%)</Label>
+                                <Slider
+                                  value={[editingSource.realEstateConfig.vacancyRatePercent]}
+                                  onValueChange={values => setEditingSource({
+                                    ...editingSource,
+                                    realEstateConfig: {
+                                      ...editingSource.realEstateConfig!,
+                                      vacancyRatePercent: values[0],
+                                    },
+                                  })}
+                                  min={0}
+                                  max={20}
+                                  step={0.5}
+                                  className="mt-2"
+                                />
+                                <div className="flex justify-between text-sm text-gray-500">
+                                  <span>0%</span>
+                                  <span className="font-medium text-gray-900">
+                                    {editingSource.realEstateConfig.vacancyRatePercent.toFixed(1)}
+                                    %
+                                  </span>
+                                  <span>20%</span>
+                                </div>
+                                <p className="text-xs text-gray-600">
+                                  Erwarteter jährlicher Leerstand (Richtwert: 3-5%)
+                                </p>
+                              </div>
+
+                              {/* Monthly Mortgage Payment */}
+                              <div className="space-y-2">
+                                <Label htmlFor={mortgagePaymentId}>Monatliche Finanzierungsrate (€)</Label>
+                                <Input
+                                  id={mortgagePaymentId}
+                                  type="number"
+                                  value={editingSource.realEstateConfig.monthlyMortgagePayment}
+                                  onChange={e => setEditingSource({
+                                    ...editingSource,
+                                    realEstateConfig: {
+                                      ...editingSource.realEstateConfig!,
+                                      monthlyMortgagePayment: Number(e.target.value) || 0,
+                                    },
+                                  })}
+                                  min={0}
+                                  step={50}
+                                />
+                                <p className="text-xs text-gray-600">
+                                  Monatliche Rate für Immobilienfinanzierung (0 = keine Finanzierung)
+                                </p>
+                              </div>
+
+                              {/* Property Appreciation */}
+                              <div className="space-y-2">
+                                <Label>Jährliche Wertsteigerung (%)</Label>
+                                <Slider
+                                  value={[editingSource.realEstateConfig.propertyAppreciationRate]}
+                                  onValueChange={values => setEditingSource({
+                                    ...editingSource,
+                                    realEstateConfig: {
+                                      ...editingSource.realEstateConfig!,
+                                      propertyAppreciationRate: values[0],
+                                    },
+                                  })}
+                                  min={0}
+                                  max={8}
+                                  step={0.1}
+                                  className="mt-2"
+                                />
+                                <div className="flex justify-between text-sm text-gray-500">
+                                  <span>0%</span>
+                                  <span className="font-medium text-gray-900">
+                                    {editingSource.realEstateConfig.propertyAppreciationRate.toFixed(1)}
+                                    %
+                                  </span>
+                                  <span>8%</span>
+                                </div>
+                                <p className="text-xs text-gray-600">
+                                  Erwartete jährliche Wertsteigerung der Immobilie (Richtwert: 2-3%)
+                                </p>
+                              </div>
+
+                              {/* Include Appreciation Toggle */}
+                              <div className="space-y-2">
+                                <div className="flex items-center justify-between">
+                                  <Label htmlFor="include-appreciation" className="text-sm font-medium">
+                                    Wertsteigerung in Berechnung einbeziehen
+                                  </Label>
+                                  <Switch
+                                    id="include-appreciation"
+                                    checked={editingSource.realEstateConfig.includeAppreciation}
+                                    onCheckedChange={includeAppreciation => setEditingSource({
+                                      ...editingSource,
+                                      realEstateConfig: {
+                                        ...editingSource.realEstateConfig!,
+                                        includeAppreciation,
+                                      },
+                                    })}
+                                  />
+                                </div>
+                                <p className="text-xs text-gray-600">
+                                  {editingSource.realEstateConfig.includeAppreciation
+                                    ? 'Wertsteigerung wird als zusätzliches Einkommen berücksichtigt'
+                                    : 'Nur Mieteinnahmen werden berücksichtigt (konservativer Ansatz)'}
+                                </p>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      )}
+
                       {/* Notes */}
                       <div className="space-y-2">
                         <Label htmlFor="notes">Notizen (optional)</Label>
@@ -401,6 +599,45 @@ export function OtherIncomeConfigurationComponent({
                                   % Inflation
                                   {source.amountType === 'gross' && `, ${source.taxRate}% Steuersatz`}
                                 </div>
+                                {/* Real Estate Details */}
+                                {source.type === 'rental' && source.realEstateConfig && (
+                                  <div className="text-green-700 bg-green-50 p-2 rounded text-xs space-y-1">
+                                    <div className="font-medium">🏠 Immobilien-Details:</div>
+                                    <div>
+                                      • Immobilienwert:
+                                      {' '}
+                                      {source.realEstateConfig.propertyValue.toLocaleString('de-DE')}
+                                      {' '}
+                                      €
+                                    </div>
+                                    <div>
+                                      • Instandhaltung:
+                                      {' '}
+                                      {source.realEstateConfig.maintenanceCostPercent}
+                                      %,
+                                      Leerstand:
+                                      {' '}
+                                      {source.realEstateConfig.vacancyRatePercent}
+                                      %
+                                    </div>
+                                    {source.realEstateConfig.monthlyMortgagePayment > 0 && (
+                                      <div>
+                                        • Finanzierung:
+                                        {' '}
+                                        {source.realEstateConfig.monthlyMortgagePayment.toLocaleString('de-DE')}
+                                        {' '}
+                                        €/Monat
+                                      </div>
+                                    )}
+                                    <div>
+                                      • Wertsteigerung:
+                                      {' '}
+                                      {source.realEstateConfig.propertyAppreciationRate}
+                                      %
+                                      {source.realEstateConfig.includeAppreciation ? ' (berücksichtigt)' : ' (nicht berücksichtigt)'}
+                                    </div>
+                                  </div>
+                                )}
                                 {source.notes && (
                                   <div className="text-gray-500">
                                     📝
