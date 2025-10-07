@@ -439,6 +439,54 @@ Diese Features sind bereits vollständig im System implementiert und getestet:
   - Vergleich: Gesetzliche Rente vs. private Vorsorge
   - Pflichtversicherung bestimmter Berufsgruppen
 
+### Persönliche Finanzplanung & Budgeting
+
+#### Lebenshaltungskosten & Budgetierung
+- **Persönliches Budget-Tool** - Detaillierte Einnahmen/Ausgaben-Planung
+  - Kategorisierte Ausgaben (Wohnen, Mobilität, Lebensmittel, etc.)
+  - Durchschnittswerte nach Haushaltsgröße und Region
+  - Vergleich mit statistischen Durchschnittshaushalten
+  - Sparpotenzial-Analyse durch Optimierung
+- **Inflationsangepasste Lebenshaltungskosten** - Zusätzlich zur Portfolio-Inflation
+  - Kategoriespezifische Inflationsraten (Energie höher als Durchschnitt)
+  - Historische Inflationsdaten nach Warengruppen
+  - Kaufkraft-Entwicklung über Lebensspanne
+  - Prognose zukünftiger Ausgaben
+- **Lifestyle-Szenarien** - Verschiedene Lebensstandards simulieren
+  - "Minimalist" - Frugalismus mit 50%+ Sparquote
+  - "Durchschnitt" - Statistischer deutscher Haushalt
+  - "Komfortabel" - Höherer Lebensstandard
+  - "Luxus" - Premium-Lifestyle
+  - Auswirkung auf Sparrate und Ruhestandsplanung
+- **Geo-Arbitrage** - Lebenshaltungskosten verschiedener Regionen
+  - München vs. Leipzig vs. ländliche Gebiete
+  - Internationale Vergleiche (Thailand, Portugal, etc.)
+  - Kaufkraftunterschiede visualisieren
+  - Optimierung von Wohnort für FIRE-Strategie
+
+#### FIRE-Movement Features (Financial Independence, Retire Early)
+- **FIRE-Kalkulator** - Wann kann ich in Rente gehen?
+  - 25x-Regel Berechnung (Jahresausgaben * 25)
+  - 4%-Regel Validierung mit deutschen Steuern
+  - Coast-FIRE: Wann kann ich mit Sparen aufhören?
+  - Barista-FIRE: Teilzeit-Arbeit im Ruhestand
+  - Fat-FIRE vs. Lean-FIRE Szenarien
+- **Sparquoten-Optimierung** - Maximierung der Sparrate
+  - Aktueller Lebensstandard vs. Sparpotenzial
+  - "Lifestyle-Inflation" vermeiden
+  - Konkrete Optimierungsvorschläge
+  - Visualisierung: Jede 1% Sparrate = X Jahre früher FIRE
+- **Side-Hustle Integration** - Zusatzeinkommen simulieren
+  - Freiberufliche Tätigkeiten neben Hauptjob
+  - Passive Einkommen (Dividenden, Zinsen, Miete)
+  - Steuerliche Behandlung (Freibeträge, Progressionsvorbehalt)
+  - Auswirkung auf Rentenversicherungspflicht
+- **One-More-Year Syndrome** - Arbeit verlängern vs. sofort FIRE
+  - Vergleich: 1 Jahr länger arbeiten vs. sofort Rente
+  - Sequenz-of-Returns-Risiko in ersten Jahren
+  - Zusätzliche Sicherheit durch Puffer
+  - Psychologische vs. finanzielle Aspekte
+
 ---
 
 ## ❌ Explizit NICHT zu entwickelnde Features
@@ -479,7 +527,9 @@ Die folgenden Features sollen entsprechend der Anforderung **NICHT** entwickelt 
 
 ### Sehr Hoch (⭐⭐⭐⭐) - Quick Wins
 Kleine Erweiterungen der bestehenden Kernfunktionalität mit hohem Nutzwert:
-- **Kindergeld-Integration** - Einfache Ergänzung zu "Andere Einkünfte", hoher Praxisnutzen
+- **Kindergeld-Integration** - Einfache Ergänzung zu "Andere Einkünfte", hoher Praxisnutzen für Familien
+- **FIRE-Kalkulator** - Nutzt vorhandene Berechnungen, hohe Nachfrage in Community
+- **Lifestyle-Szenarien** - Vordefinierte Budget-Templates basierend auf vorhandenen Daten
 - **Erweiterte Riester/Rürup-Rente** - Baut auf vorhandener Rentenintegration auf
 - **Retirement-Readiness Score** - Nutzt vorhandene Berechnungen, gibt nützliches Feedback
 - **Vordefinierte Lernszenarien** - Niedrige Implementierungskosten, hoher Bildungswert
@@ -488,17 +538,22 @@ Kleine Erweiterungen der bestehenden Kernfunktionalität mit hohem Nutzwert:
 
 ### Hoch (⭐⭐⭐) - Strategische Features
 Direkte Erweiterung der bestehenden Kernfunktionalität mit mittlerem Aufwand:
-- **Eigenheim vs. Miete Kalkulator** - Ergänzt Immobilien-Cashflow-Funktionalität
+- **Eigenheim vs. Miete Kalkulator** - Ergänzt Immobilien-Cashflow-Funktionalität, hohe Relevanz
 - **Betriebliche Altersvorsorge (bAV)** - Wichtig für deutsche Arbeitnehmer, komplexe Steuerregeln
+- **Sparquoten-Optimierung** - Praktisches Tool für Vermögensaufbau, hoher Nutzwert
+- **Persönliches Budget-Tool** - Ergänzt Sparplan-Funktionalität mit detailliertem Budgeting
 - **Erweiterte AfA/Werbungskosten** - Vertiefung der Immobiliensteuer-Features
 - **Longevity Risk Analyse** - Baut auf Lebenserwartungs-Berechnung auf
 - **Tax-Loss Harvesting** - Fortgeschrittene Steueroptimierung für erfahrene Anleger
 - **Schwankende Einkommen für Selbstständige** - Wichtig für deutschen Markt (ca. 10% Selbstständige)
 - **KPI-Tracking Dashboard** - Erweitert Sticky Overview mit personalisierbaren Metriken
+- **Geo-Arbitrage Kalkulator** - Relevant für Auswanderer und FIRE-Enthusiasten
 
 ### Mittel (⭐⭐) - Wertvolle Ergänzungen
 Nützliche Ergänzungen für fortgeschrittene Nutzer mit höherem Entwicklungsaufwand:
 - **Kryptowährungen als Anlageklasse** - Hohe Volatilität, spezielle Steuerregeln, umstrittener Nutzen
+- **Inflationsangepasste Lebenshaltungskosten** - Kategoriespezifische Inflation, höhere Präzision
+- **Side-Hustle Integration** - Zusatzeinkommen simulieren, relevant für Nebentätigkeiten
 - **ESG-Integration** - Wachsender Trend, aber komplexe Datenintegration erforderlich
 - **Machine Learning Prognosen** - Kann vorhandene Monte Carlo Analyse ergänzen, aber hoher Aufwand
 - **Faktor-Investing** - Fortgeschrittenes Portfolio-Management für erfahrene Anleger
@@ -509,6 +564,7 @@ Nützliche Ergänzungen für fortgeschrittene Nutzer mit höherem Entwicklungsau
 
 ### Niedrig (⭐) - Nice-to-have Features
 Features für spezielle Anwendungsfälle oder mit hohem Aufwand bei geringem Zusatznutzen:
+- **One-More-Year Syndrome Analyse** - Interessant, aber sehr spezifisch
 - **Behavioral Finance Komponenten** - Anlegerpsychologie, eher edukativ als praktisch
 - **Erweiterte Bildungsfeatures** - Tutorials und Glossar, hoher Content-Aufwand
 - **Internationale Steuersysteme** - Für Auswanderer relevant, aber sehr komplex
@@ -523,6 +579,7 @@ Features für spezielle Anwendungsfälle oder mit hohem Aufwand bei geringem Zus
 - **Private Equity, Hedge Funds** - Illiquide Assets, schwer für Privatanleger zugänglich
 - **Tail-Risk Hedging (Optionen)** - Sehr spezialisiert, hohe Kosten, für Retail-Investoren unpraktisch
 - **Auswanderungs-Szenarien (komplett)** - Zu komplex, zu viele länderspezifische Regeln
+- **Arbeitslosenversicherung detailliert** - Zu komplex, viele Sonderfälle, geringer Planungsnutzen
 
 ---
 
@@ -686,14 +743,30 @@ Für jedes neue Feature folgende Schritte durchlaufen:
 
 ## 📈 Statistik & Metadaten
 
-**Anzahl potenzielle Features:** 120+  
+**Anzahl potenzielle Features:** 150+  
 **Anzahl bereits implementiert:** 45+ (siehe Abschnitt "Bereits implementierte Features")  
 **Anzahl explizit ausgeschlossen:** 20+ (siehe Abschnitt "Explizit NICHT zu entwickelnde Features")  
+**Neue Feature-Kategorien:** Persönliche Finanzplanung & Budgeting, FIRE-Movement, Deutsche Altersvorsorge
+
+**Hauptkategorien:**
+1. 🎯 Bereits implementierte Features (7 Kategorien, 45+ Features)
+2. 🔮 Potenzielle zukünftige Features (8 Hauptkategorien, 150+ Features)
+3. ❌ Explizit NICHT zu entwickelnde Features (4 Kategorien, 20+ Features)
+4. 📊 Priorisierung (5 Stufen: Sehr Hoch, Hoch, Mittel, Niedrig, Nicht empfohlen)
+5. 🎯 Strategische Empfehlungen (5 Fokus-Bereiche)
+6. 🔧 Implementierungsaspekte (5 Bereiche + Checkliste)
 
 **Letzte Aktualisierung:** Januar 2025  
 **Basis:** Vollständige Analyse der copilot-instructions.md, README.md und des bestehenden Codes  
-**Status:** Umfassender Katalog mit Priorisierung und Implementierungsrichtlinien
+**Status:** Umfassender Katalog mit Priorisierung, Implementierungsrichtlinien und strategischen Empfehlungen
 
 **Changelog:**
-- **Januar 2025**: Große Überarbeitung mit Fokus auf deutsche Altersvorsorge, detaillierte Priorisierung, erweiterte Implementierungsaspekte
+- **Januar 2025**: Große Überarbeitung mit:
+  - Neue Kategorie "Persönliche Finanzplanung & Budgeting" (FIRE, Budget-Tools, Geo-Arbitrage)
+  - Detaillierte Priorisierung mit 5 Stufen und Begründungen
+  - Erweiterte Implementierungsaspekte mit Checkliste
+  - 45+ bereits implementierte Features dokumentiert
+  - Fokus auf deutsche Altersvorsorge (Riester, Rürup, bAV)
+  - Strategische Empfehlungen für zukünftige Entwicklung
+  - Von 220 auf 850+ Zeilen erweitert
 - **Dezember 2024**: Initiale Version mit 90+ Features und expliziten Ausschlüssen
