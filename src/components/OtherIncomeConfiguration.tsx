@@ -16,6 +16,7 @@ import {
   getAmountTypeDisplayName,
 } from '../../helpers/other-income'
 import { toast } from 'sonner'
+import { useFormId } from '../utils/unique-id'
 
 interface OtherIncomeConfigurationProps {
   config: OtherIncomeConfiguration
@@ -28,6 +29,9 @@ export function OtherIncomeConfigurationComponent({
 }: OtherIncomeConfigurationProps) {
   const [editingSource, setEditingSource] = useState<OtherIncomeSource | null>(null)
   const [isAddingNew, setIsAddingNew] = useState(false)
+
+  // Generate unique IDs for form fields
+  const monthlyAmountId = useFormId('other-income', 'monthly-amount')
 
   const handleConfigChange = (updates: Partial<OtherIncomeConfiguration>) => {
     onChange({ ...config, ...updates })
@@ -204,12 +208,12 @@ export function OtherIncomeConfigurationComponent({
 
                       {/* Monthly Amount */}
                       <div className="space-y-2">
-                        <Label htmlFor="monthly-amount">
+                        <Label htmlFor={monthlyAmountId}>
                           Monatlicher Betrag (€)
                           {editingSource.amountType === 'gross' ? ' - Brutto' : ' - Netto'}
                         </Label>
                         <Input
-                          id="monthly-amount"
+                          id={monthlyAmountId}
                           type="number"
                           value={editingSource.monthlyAmount}
                           onChange={e => setEditingSource({

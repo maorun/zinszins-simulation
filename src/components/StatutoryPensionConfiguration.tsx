@@ -9,6 +9,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { CollapsibleCard, CollapsibleCardHeader, CollapsibleCardContent } from './ui/collapsible-card'
 import { Info, Calculator, ChevronDown } from 'lucide-react'
 import { useNestingLevel } from '../lib/nesting-utils'
+import { useFormId } from '../utils/unique-id'
 import {
   estimateMonthlyPensionFromTaxReturn,
   estimateTaxablePercentageFromTaxReturn,
@@ -76,6 +77,10 @@ export function CoupleStatutoryPensionConfiguration({
   planningMode,
 }: CoupleStatutoryPensionConfigurationProps) {
   const nestingLevel = useNestingLevel()
+
+  // Generate unique IDs for this component instance
+  const enabledSwitchId = useFormId('statutory-pension', 'enabled', 'couple')
+  const mainEnabledSwitchId = useFormId('statutory-pension', 'main-enabled', 'couple')
 
   // Initialize config if it doesn't exist
   const currentConfig = config || (() => {
@@ -147,9 +152,9 @@ export function CoupleStatutoryPensionConfiguration({
                   <Switch
                     checked={currentConfig.enabled}
                     onCheckedChange={toggleEnabled}
-                    id="statutory-pension-enabled"
+                    id={enabledSwitchId}
                   />
-                  <Label htmlFor="statutory-pension-enabled">
+                  <Label htmlFor={enabledSwitchId}>
                     Gesetzliche Rente berücksichtigen
                   </Label>
                 </div>
@@ -329,9 +334,9 @@ export function CoupleStatutoryPensionConfiguration({
                 <Switch
                   checked={currentConfig.enabled}
                   onCheckedChange={toggleEnabled}
-                  id="statutory-pension-enabled"
+                  id={mainEnabledSwitchId}
                 />
-                <Label htmlFor="statutory-pension-enabled" className="font-medium">
+                <Label htmlFor={mainEnabledSwitchId} className="font-medium">
                   Gesetzliche Rente berücksichtigen
                 </Label>
               </div>
@@ -361,15 +366,17 @@ function PersonPensionConfiguration({
   birthYear,
   personName,
 }: PersonPensionConfigurationProps) {
+  const personEnabledId = useFormId('statutory-pension', 'enabled', personName)
+
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-2">
         <Switch
           checked={config.enabled}
           onCheckedChange={enabled => onChange({ enabled })}
-          id={`${personName.toLowerCase().replace(' ', '-')}-enabled`}
+          id={personEnabledId}
         />
-        <Label htmlFor={`${personName.toLowerCase().replace(' ', '-')}-enabled`}>
+        <Label htmlFor={personEnabledId}>
           Rente für
           {' '}
           {personName}
@@ -484,6 +491,11 @@ export function StatutoryPensionConfiguration({
 }: StatutoryPensionConfigurationProps) {
   const nestingLevel = useNestingLevel()
 
+  // Generate unique IDs for this component instance
+  const enabledSwitchId = useFormId('statutory-pension', 'enabled', 'withdrawal')
+  const mainEnabledSwitchId = useFormId('statutory-pension', 'main-enabled', 'withdrawal')
+  const monthlyAmountId = useFormId('statutory-pension', 'monthly-amount', 'withdrawal')
+
   // Auto-calculate retirement start year when birth year or retirement age changes
   useEffect(() => {
     const calculatedStartYear = calculateRetirementStartYear(
@@ -544,9 +556,9 @@ export function StatutoryPensionConfiguration({
                   <Switch
                     checked={values.enabled}
                     onCheckedChange={onChange.onEnabledChange}
-                    id="statutory-pension-enabled"
+                    id={enabledSwitchId}
                   />
-                  <Label htmlFor="statutory-pension-enabled">
+                  <Label htmlFor={enabledSwitchId}>
                     Gesetzliche Rente berücksichtigen
                   </Label>
                 </div>
@@ -588,9 +600,9 @@ export function StatutoryPensionConfiguration({
                 <Switch
                   checked={values.enabled}
                   onCheckedChange={onChange.onEnabledChange}
-                  id="statutory-pension-enabled"
+                  id={mainEnabledSwitchId}
                 />
-                <Label htmlFor="statutory-pension-enabled" className="font-medium">
+                <Label htmlFor={mainEnabledSwitchId} className="font-medium">
                   Gesetzliche Rente berücksichtigen
                 </Label>
               </div>
@@ -781,9 +793,9 @@ export function StatutoryPensionConfiguration({
 
                   {/* Monthly Amount Configuration */}
                   <div className="space-y-2">
-                    <Label htmlFor="monthly-amount">Monatliche Rente (brutto) €</Label>
+                    <Label htmlFor={monthlyAmountId}>Monatliche Rente (brutto) €</Label>
                     <Input
-                      id="monthly-amount"
+                      id={monthlyAmountId}
                       type="number"
                       value={values.monthlyAmount}
                       onChange={e => onChange.onMonthlyAmountChange(Number(e.target.value))}
