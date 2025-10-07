@@ -2,6 +2,7 @@ import { useEffect, useMemo, useRef } from 'react'
 import { Button } from '../components/ui/button'
 import ProfileManagement from '../components/ProfileManagement'
 import DataExport from '../components/DataExport'
+import SensitivityAnalysisDisplay from '../components/SensitivityAnalysisDisplay'
 import Header from '../components/Header'
 import SimulationModeSelector from '../components/SimulationModeSelector'
 import SimulationParameters from '../components/SimulationParameters'
@@ -277,15 +278,73 @@ const HomePageContent = () => {
     sparplan,
     setSparplan,
     setSparplanElemente,
+    sparplanElemente,
     startEnd,
     simulationAnnual,
     performSimulation,
     simulationData,
     isLoading,
     endOfLife,
+    steuerlast,
+    teilfreistellungsquote,
+    freibetragPerYear,
+    steuerReduzierenEndkapitalSparphase,
+    rendite,
+    returnMode,
+    averageReturn,
+    standardDeviation,
+    randomSeed,
+    variableReturns,
+    historicalIndex,
+    multiAssetConfig,
+    inflationAktivSparphase,
+    inflationsrateSparphase,
+    inflationAnwendungSparphase,
   } = useSimulation()
 
   const overviewRef = useRef<HTMLDivElement>(null)
+
+  // Build ReturnConfiguration from context properties
+  const returnConfig = useMemo(() => {
+    const config: any = { mode: returnMode }
+
+    switch (returnMode) {
+      case 'fixed':
+        config.fixedRate = rendite / 100
+        break
+      case 'random':
+        config.randomConfig = {
+          averageReturn: averageReturn / 100,
+          standardDeviation: standardDeviation / 100,
+          seed: randomSeed,
+        }
+        break
+      case 'variable':
+        config.variableConfig = {
+          yearlyReturns: variableReturns,
+        }
+        break
+      case 'historical':
+        config.historicalConfig = {
+          indexId: historicalIndex,
+        }
+        break
+      case 'multiasset':
+        config.multiAssetConfig = multiAssetConfig
+        break
+    }
+
+    return config
+  }, [
+    returnMode,
+    rendite,
+    averageReturn,
+    standardDeviation,
+    randomSeed,
+    variableReturns,
+    historicalIndex,
+    multiAssetConfig,
+  ])
 
   useEffect(() => {
     performSimulation()
@@ -352,6 +411,26 @@ const HomePageContent = () => {
       <SimulationModeSelector />
 
       <DataExport />
+
+      {/* Sensitivity Analysis */}
+      {simulationData && sparplanElemente && sparplanElemente.length > 0 && (
+        <SensitivityAnalysisDisplay
+          config={{
+            startYear: startEnd[0],
+            endYear: startEnd[1],
+            elements: sparplanElemente,
+            steuerlast: steuerlast / 100,
+            teilfreistellungsquote: teilfreistellungsquote / 100,
+            simulationAnnual,
+            freibetragPerYear,
+            steuerReduzierenEndkapital: steuerReduzierenEndkapitalSparphase,
+            inflationAktivSparphase,
+            inflationsrateSparphase,
+            inflationAnwendungSparphase,
+          }}
+          returnConfig={returnConfig}
+        />
+      )}
 
       {/* Sticky Overviews */}
       <StickyOverview
