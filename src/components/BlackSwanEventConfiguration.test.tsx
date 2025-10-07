@@ -77,7 +77,7 @@ describe('BlackSwanEventConfiguration', () => {
       const disableRadio = screen.getByText('Deaktiviert (Standard Monte Carlo)').closest('label')
       fireEvent.click(disableRadio!)
 
-      expect(onEventChange).toHaveBeenCalledWith(null)
+      expect(onEventChange).toHaveBeenCalledWith(null, '')
     })
   })
 

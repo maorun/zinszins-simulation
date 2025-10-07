@@ -15,7 +15,7 @@ import {
 import { generateFormId } from '../utils/unique-id'
 
 interface BlackSwanEventConfigurationProps {
-  onEventChange?: (eventReturns: Record<number, number> | null) => void
+  onEventChange?: (eventReturns: Record<number, number> | null, eventName?: string) => void
   simulationStartYear: number
 }
 
@@ -55,11 +55,11 @@ const BlackSwanEventConfiguration = ({
     setIsEnabled(enabled)
 
     if (!enabled) {
-      onEventChange?.(null)
+      onEventChange?.(null, '')
     }
     else if (selectedEvent) {
       const eventReturns = applyBlackSwanEvent(eventYear, selectedEvent)
-      onEventChange?.(eventReturns)
+      onEventChange?.(eventReturns, selectedEvent.name)
     }
   }
 
@@ -69,7 +69,7 @@ const BlackSwanEventConfiguration = ({
 
     if (event && isEnabled) {
       const eventReturns = applyBlackSwanEvent(eventYear, event)
-      onEventChange?.(eventReturns)
+      onEventChange?.(eventReturns, event.name)
     }
   }
 
@@ -78,7 +78,7 @@ const BlackSwanEventConfiguration = ({
 
     if (selectedEvent && isEnabled) {
       const eventReturns = applyBlackSwanEvent(year, selectedEvent)
-      onEventChange?.(eventReturns)
+      onEventChange?.(eventReturns, selectedEvent.name)
     }
   }
 

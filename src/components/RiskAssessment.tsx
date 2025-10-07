@@ -14,8 +14,15 @@ interface RiskAssessmentProps {
 const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
   const { simulationData, averageReturn, standardDeviation, randomSeed, returnMode, startEnd } = useSimulation()
 
-  // State for Black Swan event returns (for future integration)
-  const [_blackSwanReturns, _setBlackSwanReturns] = React.useState<Record<number, number> | null>(null)
+  // State for Black Swan event returns and event name
+  const [blackSwanReturns, setBlackSwanReturns] = React.useState<Record<number, number> | null>(null)
+  const [blackSwanEventName, setBlackSwanEventName] = React.useState<string>('')
+
+  // Handle Black Swan event change
+  const handleBlackSwanChange = React.useCallback((eventReturns: Record<number, number> | null, eventName?: string) => {
+    setBlackSwanReturns(eventReturns)
+    setBlackSwanEventName(eventName || '')
+  }, [])
 
   // Use provided config or default based on phase
   const riskConfig: RandomReturnConfig = config || {
@@ -202,7 +209,7 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
           {/* Black Swan Event Configuration */}
           <BlackSwanEventConfiguration
             simulationStartYear={startEnd?.[0] || 2025}
-            onEventChange={_setBlackSwanReturns}
+            onEventChange={handleBlackSwanChange}
           />
 
           {/* Monte Carlo Analysis in collapsible sub-panel */}
@@ -213,6 +220,8 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
                 config={riskConfig}
                 title="Monte Carlo Simulation"
                 phaseTitle={phaseTitle}
+                blackSwanReturns={blackSwanReturns}
+                blackSwanEventName={blackSwanEventName}
               />
             </CollapsibleCardContent>
           </CollapsibleCard>
