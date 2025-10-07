@@ -84,6 +84,15 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - Automatische geschlechtsspezifische Auswahl
   - Unterstützung für Individual- und Paarplanung
   - Benutzerdefinierte Lebenserwartung möglich
+- **🏥 Pflegekosten-Simulation** - Umfassende Planung für deutsche Pflegebedürftigkeit
+  - **Deutsche Pflegegrade** - Alle 5 Pflegegrade (1-5) mit korrekten Pflegegeld-Leistungen nach aktueller Gesetzgebung
+  - **Kosten-Nutzen-Rechnung** - Automatische Berechnung von Brutto-Pflegekosten, gesetzlichen Leistungen und Netto-Eigenanteil
+  - **Inflationsanpassung** - Konfigurierbare Inflationsrate für realistische Langzeit-Pflegekostenplanung (0-10% p.a.)
+  - **Private Pflegeversicherung** - Integration privater Pflegezusatzversicherungen mit monatlichen Leistungen
+  - **Steuerliche Absetzbarkeit** - Berücksichtigung außergewöhnlicher Belastungen nach deutschem Steuerrecht
+  - **Paar-Planung** - Separate Konfiguration für beide Partner mit individuellen Pflegegraden und Zeiträumen
+  - **Echtzeit-Kostenvorschau** - Sofortige Berechnung der erwarteten Pflegekosten mit detaillierter Aufschlüsselung
+  - **Flexible Pflegedauer** - Konfigurierbare Pflegedauer oder automatische Berechnung bis Lebensende
 
 ### Interaktive Visualisierung
 - **📈 Interaktive Charts** - Moderne interaktive Diagramme für bessere Datenvisualisierung
