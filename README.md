@@ -146,6 +146,12 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Strategievergleich** - Umfassende Vergleichsmöglichkeiten für Entnahmestrategien
 - **Historisches Backtesting** - Test mit 24 Jahren Marktdaten (DAX, S&P 500, MSCI World)
 - **Monte Carlo Analyse** - Statistische Auswertung verschiedener Rendite-Szenarien
+- **Sensitivitätsanalyse** - Analyse der Auswirkungen von Parameteränderungen
+  - **Parameter-Ranking** - Automatische Bewertung der einflussreichsten Faktoren
+  - **Interaktive Visualisierung** - Grafische Darstellung der Auswirkungen einzelner Parameter
+  - **Szenario-Vergleich** - Vergleich von niedrigsten, höchsten und Basis-Szenarien
+  - **Handlungsempfehlungen** - Praktische Tipps zur Optimierung der Finanzplanung
+  - **5 Parameter-Analysen** - Rendite, Sparrate, Steuerlast, Inflationsrate, Anlagedauer
 - **Black Swan Ereignisse** - Simulation extremer Markteinbrüche für Portfolio-Stresstests
   - **Historische Krisen** - Dotcom-Blase (2000-2003), Finanzkrise (2008-2009), COVID-19 Pandemie (2020)
   - **Detaillierte Ereignisprofile** - Jahr-für-Jahr Renditen basierend auf historischen Daten
