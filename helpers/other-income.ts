@@ -9,6 +9,29 @@
 export type IncomeType = 'rental' | 'pension' | 'business' | 'investment' | 'other'
 
 /**
+ * Real estate-specific configuration for rental income
+ */
+export interface RealEstateConfig {
+  /** Annual maintenance costs as percentage of rental income */
+  maintenanceCostPercent: number
+
+  /** Expected vacancy rate as percentage (0-100) */
+  vacancyRatePercent: number
+
+  /** Annual property value appreciation rate */
+  propertyAppreciationRate: number
+
+  /** Property purchase price (for appreciation calculation) */
+  propertyValue: number
+
+  /** Monthly mortgage payment (if financed) */
+  monthlyMortgagePayment: number
+
+  /** Whether to include property appreciation in calculations */
+  includeAppreciation: boolean
+}
+
+/**
  * Whether the income amount is gross or net
  */
 export type IncomeAmountType = 'gross' | 'net'
@@ -49,6 +72,9 @@ export interface OtherIncomeSource {
 
   /** Optional notes/description */
   notes?: string
+
+  /** Real estate-specific configuration (only for rental income) */
+  realEstateConfig?: RealEstateConfig
 }
 
 /**
@@ -75,6 +101,20 @@ export interface OtherIncomeYearResult {
 
   /** Inflation adjustment factor applied this year */
   inflationFactor: number
+
+  /** Real estate-specific calculations (only for rental income) */
+  realEstateDetails?: {
+    /** Annual maintenance costs */
+    maintenanceCosts: number
+    /** Lost income due to vacancy */
+    vacancyLoss: number
+    /** Property value this year (with appreciation) */
+    propertyValue: number
+    /** Property appreciation this year */
+    annualAppreciation: number
+    /** Net rental income after all real estate costs */
+    netRentalIncome: number
+  }
 }
 
 /**
@@ -119,8 +159,49 @@ export function calculateOtherIncomeForYear(
   const inflationFactor = Math.pow(1 + source.inflationRate / 100, yearsFromStart)
 
   // Calculate gross amounts with inflation adjustment
-  const grossMonthlyAmount = source.monthlyAmount * inflationFactor
-  const grossAnnualAmount = grossMonthlyAmount * 12
+  let grossMonthlyAmount = source.monthlyAmount * inflationFactor
+  let grossAnnualAmount = grossMonthlyAmount * 12
+
+  let realEstateDetails: OtherIncomeYearResult['realEstateDetails']
+
+  // Apply real estate-specific calculations for rental income
+  if (source.type === 'rental' && source.realEstateConfig) {
+    const config = source.realEstateConfig
+
+    // Calculate vacancy loss
+    const vacancyLoss = grossAnnualAmount * (config.vacancyRatePercent / 100)
+    const incomeAfterVacancy = grossAnnualAmount - vacancyLoss
+
+    // Calculate maintenance costs
+    const maintenanceCosts = grossAnnualAmount * (config.maintenanceCostPercent / 100)
+
+    // Calculate mortgage payment impact
+    const annualMortgagePayment = config.monthlyMortgagePayment * 12
+
+    // Net rental income after all real estate costs
+    const netRentalIncome = incomeAfterVacancy - maintenanceCosts - annualMortgagePayment
+
+    // Calculate property appreciation
+    const appreciationFactor = Math.pow(1 + config.propertyAppreciationRate / 100, yearsFromStart)
+    const currentPropertyValue = config.propertyValue * appreciationFactor
+    const annualAppreciation = config.includeAppreciation
+      ? currentPropertyValue - (yearsFromStart > 0
+        ? config.propertyValue * Math.pow(1 + config.propertyAppreciationRate / 100, yearsFromStart - 1)
+        : config.propertyValue)
+      : 0
+
+    // Update gross amounts to reflect real estate costs
+    grossAnnualAmount = Math.max(0, netRentalIncome)
+    grossMonthlyAmount = grossAnnualAmount / 12
+
+    realEstateDetails = {
+      maintenanceCosts,
+      vacancyLoss,
+      propertyValue: currentPropertyValue,
+      annualAppreciation,
+      netRentalIncome: Math.max(0, netRentalIncome),
+    }
+  }
 
   let taxAmount = 0
   let netAnnualAmount = grossAnnualAmount
@@ -133,7 +214,7 @@ export function calculateOtherIncomeForYear(
     netMonthlyAmount = netAnnualAmount / 12
   }
 
-  return {
+  const result: OtherIncomeYearResult = {
     source,
     grossAnnualAmount,
     grossMonthlyAmount,
@@ -142,6 +223,12 @@ export function calculateOtherIncomeForYear(
     netMonthlyAmount,
     inflationFactor,
   }
+
+  if (realEstateDetails) {
+    result.realEstateDetails = realEstateDetails
+  }
+
+  return result
 }
 
 /**
@@ -186,13 +273,13 @@ export function calculateOtherIncome(
 /**
  * Create a default other income source
  */
-export function createDefaultOtherIncomeSource(): OtherIncomeSource {
-  return {
+export function createDefaultOtherIncomeSource(type: IncomeType = 'rental'): OtherIncomeSource {
+  const source: OtherIncomeSource = {
     id: generateId(),
-    name: 'Mieteinnahmen',
-    type: 'rental',
+    name: getDefaultNameForType(type),
+    type,
     amountType: 'gross',
-    monthlyAmount: 1000,
+    monthlyAmount: type === 'rental' ? 1000 : 800,
     startYear: new Date().getFullYear(),
     endYear: null, // Permanent by default
     inflationRate: 2.0, // 2% inflation adjustment
@@ -200,6 +287,41 @@ export function createDefaultOtherIncomeSource(): OtherIncomeSource {
     enabled: true,
     notes: '',
   }
+
+  // Add default real estate configuration for rental income
+  if (type === 'rental') {
+    source.realEstateConfig = createDefaultRealEstateConfig()
+  }
+
+  return source
+}
+
+/**
+ * Create default real estate configuration
+ */
+export function createDefaultRealEstateConfig(): RealEstateConfig {
+  return {
+    maintenanceCostPercent: 15.0, // 15% for maintenance and repairs
+    vacancyRatePercent: 5.0, // 5% vacancy rate
+    propertyAppreciationRate: 2.5, // 2.5% annual appreciation
+    propertyValue: 300000, // 300k property value
+    monthlyMortgagePayment: 0, // No mortgage by default
+    includeAppreciation: false, // Don't include appreciation by default
+  }
+}
+
+/**
+ * Get default name for income type
+ */
+function getDefaultNameForType(type: IncomeType): string {
+  const names = {
+    rental: 'Mieteinnahmen',
+    pension: 'Private Rente',
+    business: 'Gewerbeeinkünfte',
+    investment: 'Kapitalerträge',
+    other: 'Sonstige Einkünfte',
+  }
+  return names[type] || 'Einkommen'
 }
 
 /**

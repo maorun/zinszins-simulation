@@ -38,8 +38,8 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Unterhaltszahlungen** - Berücksichtigung von Alimente oder Kindesunterhalt
 
 #### Immobilienintegration
-- **Immobilien-Cashflow** - Mieteinnahmen vs. Finanzierungskosten
-- **Immobilien-Wertsteigerung** - Historische und prognostizierte Wertentwicklung
+- ~~**Immobilien-Cashflow** - Mieteinnahmen vs. Finanzierungskosten~~ ✅ **IMPLEMENTIERT**
+- ~~**Immobilien-Wertsteigerung** - Historische und prognostizierte Wertentwicklung~~ ✅ **TEILWEISE IMPLEMENTIERT**
 - **Eigenheim vs. Miete** - Detaillierte Vergleichsrechnung über Lebensspanne
 - **Immobilien-Leverage** - Optimale Finanzierungsstrukturen
 - **Immobilien-Steueroptimierung** - AfA, Werbungskosten, etc.
@@ -150,7 +150,7 @@ Die folgenden Features sollen entsprechend der Anforderung **NICHT** entwickelt 
 
 ### Hoch (⭐⭐⭐)
 Direkte Erweiterung der bestehenden Kernfunktionalität:
-- **Immobilien-Cashflow Integration** - Ergänzt die "Andere Einkünfte" Funktionalität
+- ~~**Immobilien-Cashflow Integration** - Ergänzt die "Andere Einkünfte" Funktionalität~~ ✅ **IMPLEMENTIERT**
 
 ### Mittel (⭐⭐)
 Nützliche Ergänzungen für fortgeschrittene Nutzer:
