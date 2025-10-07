@@ -19,6 +19,7 @@ import { convertLegacyToCoupleConfig } from '../../helpers/statutory-pension'
 import { updateFreibetragForPlanningMode } from '../utils/freibetrag-calculation'
 import type { CareCostConfiguration } from '../../helpers/care-cost-simulation'
 import { createDefaultCareCostConfiguration } from '../../helpers/care-cost-simulation'
+import { mergeBlackSwanReturns } from '../../helpers/black-swan-events'
 
 export interface SimulationContextState {
   rendite: number
@@ -65,6 +66,11 @@ export interface SimulationContextState {
   setVariableReturns: (variableReturns: Record<number, number>) => void
   historicalIndex: string
   setHistoricalIndex: (historicalIndex: string) => void
+  // Black Swan event configuration
+  blackSwanReturns: Record<number, number> | null
+  setBlackSwanReturns: (blackSwanReturns: Record<number, number> | null) => void
+  blackSwanEventName: string
+  setBlackSwanEventName: (blackSwanEventName: string) => void
   // Multi-asset portfolio configuration
   multiAssetConfig: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig
   setMultiAssetConfig: (config: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig) => void
@@ -247,6 +253,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [historicalIndex, setHistoricalIndex] = useState<string>(
     (initialConfig as any).historicalIndex || defaultConfig.historicalIndex,
   )
+  // Black Swan event state
+  const [blackSwanReturns, setBlackSwanReturns] = useState<Record<number, number> | null>(null)
+  const [blackSwanEventName, setBlackSwanEventName] = useState<string>('')
   // Multi-asset portfolio state
   const [multiAssetConfig, setMultiAssetConfig] = useState(() => {
     // Create a proper fallback configuration with all asset classes
@@ -804,6 +813,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setIsLoading(true)
     try {
       let returnConfig: ReturnConfiguration
+
+      // Build base return configuration
       if (overwrite.rendite !== undefined) {
         returnConfig = { mode: 'fixed', fixedRate: overwrite.rendite / 100 }
       }
@@ -819,12 +830,13 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
           }
         }
         else if (returnMode === 'variable') {
+          const baseReturns = Object.fromEntries(
+            Object.entries(variableReturns).map(([year, rate]) => [parseInt(year), rate / 100]),
+          )
           returnConfig = {
             mode: 'variable',
             variableConfig: {
-              yearlyReturns: Object.fromEntries(
-                Object.entries(variableReturns).map(([year, rate]) => [parseInt(year), rate / 100]),
-              ),
+              yearlyReturns: baseReturns,
             },
           }
         }
@@ -847,6 +859,19 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
             mode: 'fixed',
             fixedRate: rendite / 100 || 0.05,
           }
+        }
+      }
+
+      // Apply Black Swan returns if active
+      // This works by converting to variable mode and merging the Black Swan returns
+      if (blackSwanReturns && Object.keys(blackSwanReturns).length > 0 && returnMode === 'variable') {
+        const baseReturns = (returnConfig as any).variableConfig?.yearlyReturns || {}
+        const finalReturns = mergeBlackSwanReturns(baseReturns, blackSwanReturns)
+        returnConfig = {
+          mode: 'variable',
+          variableConfig: {
+            yearlyReturns: finalReturns,
+          },
         }
       }
 
@@ -890,6 +915,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     randomSeed,
     variableReturns,
     historicalIndex,
+    blackSwanReturns,
     multiAssetConfig,
     simulationAnnual,
     sparplanElemente,
@@ -929,6 +955,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     randomSeed, setRandomSeed,
     variableReturns, setVariableReturns,
     historicalIndex, setHistoricalIndex,
+    // Black Swan event configuration
+    blackSwanReturns, setBlackSwanReturns,
+    blackSwanEventName, setBlackSwanEventName,
     // Multi-asset portfolio configuration
     multiAssetConfig, setMultiAssetConfig,
     // Multi-asset portfolio configuration for withdrawal phase
@@ -977,6 +1006,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     personalTaxRate, guenstigerPruefungAktiv,
     kirchensteuerAktiv, kirchensteuersatz,
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
+    blackSwanReturns, blackSwanEventName,
     multiAssetConfig, withdrawalMultiAssetConfig,
     inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,

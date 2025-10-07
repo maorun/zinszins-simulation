@@ -21,7 +21,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Alternative Investments** - Private Equity, Hedge Funds, Kryptowährungen
 
 #### Risikomanagement
-- **Black Swan Events** - Simulation extremer Markteinbrüche (2008, 2020, etc.)
 - **Inflationsszenarien** - Hyperinflation, Deflation, stagflation Szenarien
 - **Währungsrisiko** - Multi-Währungs-Portfolios mit Wechselkursrisiken
 - **Liquiditätsplanung** - Cash-Reserve-Strategien für Notfälle
@@ -159,7 +158,6 @@ Nützliche Ergänzungen für fortgeschrittene Nutzer:
 - **Erweiterte Risikomanagement-Tools** - VaR, Stress-Tests erweitern
 - **Machine Learning Prognosen** - Kann vorhandene Monte Carlo Analyse ergänzen
 - **Versicherungsintegration** - Lebens-, BU-, Pflegeversicherung
-- **Black Swan Event Simulation** - Erweitert vorhandene Monte Carlo Funktionalität
 
 ### Niedrig (⭐)
 Nice-to-have Features für spezielle Anwendungsfälle:

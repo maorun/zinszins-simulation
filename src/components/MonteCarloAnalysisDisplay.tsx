@@ -1,3 +1,4 @@
+import React from 'react'
 import type { RandomReturnConfig } from '../utils/random-returns'
 
 interface MonteCarloResult {
@@ -10,11 +11,39 @@ interface MonteCarloAnalysisDisplayProps {
   config: RandomReturnConfig
   title: string
   phaseTitle: string
+  blackSwanReturns?: Record<number, number> | null
+  blackSwanEventName?: string
 }
 
-const MonteCarloAnalysisDisplay = ({ config, title, phaseTitle }: MonteCarloAnalysisDisplayProps) => {
+const MonteCarloAnalysisDisplay = ({
+  config,
+  title,
+  phaseTitle,
+  blackSwanReturns,
+  blackSwanEventName,
+}: MonteCarloAnalysisDisplayProps) => {
   // Helper functions
   const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`
+
+  // Calculate Black Swan scenario if event is selected
+  const blackSwanScenario = React.useMemo(() => {
+    if (!blackSwanReturns || Object.keys(blackSwanReturns).length === 0) {
+      return null
+    }
+
+    const returns = Object.values(blackSwanReturns)
+    // Calculate cumulative return: (1 + r1) * (1 + r2) * ... - 1
+    const cumulativeReturn = returns.reduce((acc, r) => acc * (1 + r), 1) - 1
+    const years = Object.keys(blackSwanReturns).sort()
+    const yearRange = years.length > 1 ? `${years[0]}-${years[years.length - 1]}` : years[0]
+
+    return {
+      scenario: `🦢 Black Swan: ${blackSwanEventName || 'Krisenszenario'}`,
+      description: `Kumulativer Verlust über ${returns.length} Jahr${returns.length > 1 ? 'e' : ''} (${yearRange}): ${formatPercent(cumulativeReturn)}`,
+      probability: 'Historisches Extremszenario zur Stresstestung',
+      isBlackSwan: true,
+    }
+  }, [blackSwanReturns, blackSwanEventName])
 
   const createScenarios = (config: RandomReturnConfig): MonteCarloResult[] => [
     {
@@ -45,6 +74,8 @@ const MonteCarloAnalysisDisplay = ({ config, title, phaseTitle }: MonteCarloAnal
   ]
 
   const scenarios = createScenarios(config)
+  // Add Black Swan scenario at the top if available
+  const allScenarios = blackSwanScenario ? [blackSwanScenario, ...scenarios] : scenarios
 
   return (
     <div className="mb-8">
@@ -82,12 +113,21 @@ const MonteCarloAnalysisDisplay = ({ config, title, phaseTitle }: MonteCarloAnal
             (deterministische Ergebnisse)
           </p>
         )}
+        {blackSwanScenario && (
+          <p className="mb-2">
+            <strong>Black Swan Ereignis:</strong>
+            {' '}
+            {blackSwanEventName}
+            {' '}
+            wurde in die Analyse integriert
+          </p>
+        )}
       </div>
 
       <div className="block flex flex-col gap-3">
-        {scenarios.map((scenario, index) => {
+        {allScenarios.map((scenario, index) => {
           const isSuccess = scenario.scenario.includes('Best Case')
-          const isDanger = scenario.scenario.includes('Worst Case')
+          const isDanger = scenario.scenario.includes('Worst Case') || (scenario as any).isBlackSwan
           const isInfo = scenario.scenario.includes('Median')
 
           let cardClasses = 'border border-gray-200 rounded-lg p-4 bg-white shadow-sm'

@@ -1,6 +1,7 @@
 import React from 'react'
 import { useSimulation } from '../contexts/useSimulation'
 import MonteCarloAnalysisDisplay from './MonteCarloAnalysisDisplay'
+import BlackSwanEventConfiguration from './BlackSwanEventConfiguration'
 import { calculateRiskMetrics, formatRiskMetric, type PortfolioData } from '../utils/risk-metrics'
 import type { RandomReturnConfig } from '../utils/random-returns'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
@@ -11,7 +12,27 @@ interface RiskAssessmentProps {
 }
 
 const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
-  const { simulationData, averageReturn, standardDeviation, randomSeed, returnMode } = useSimulation()
+  const {
+    simulationData,
+    averageReturn,
+    standardDeviation,
+    randomSeed,
+    returnMode,
+    startEnd,
+    blackSwanReturns,
+    setBlackSwanReturns,
+    blackSwanEventName,
+    setBlackSwanEventName,
+    performSimulation,
+  } = useSimulation()
+
+  // Handle Black Swan event change
+  const handleBlackSwanChange = React.useCallback((eventReturns: Record<number, number> | null, eventName?: string) => {
+    setBlackSwanReturns(eventReturns)
+    setBlackSwanEventName(eventName || '')
+    // Trigger simulation update
+    performSimulation()
+  }, [setBlackSwanReturns, setBlackSwanEventName, performSimulation])
 
   // Use provided config or default based on phase
   const riskConfig: RandomReturnConfig = config || {
@@ -195,6 +216,12 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
             </div>
           )}
 
+          {/* Black Swan Event Configuration */}
+          <BlackSwanEventConfiguration
+            simulationStartYear={startEnd?.[0] || 2025}
+            onEventChange={handleBlackSwanChange}
+          />
+
           {/* Monte Carlo Analysis in collapsible sub-panel */}
           <CollapsibleCard className="border-l-4 border-l-blue-400">
             <CollapsibleCardHeader>🎲 Monte Carlo Analyse</CollapsibleCardHeader>
@@ -203,6 +230,8 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
                 config={riskConfig}
                 title="Monte Carlo Simulation"
                 phaseTitle={phaseTitle}
+                blackSwanReturns={blackSwanReturns}
+                blackSwanEventName={blackSwanEventName}
               />
             </CollapsibleCardContent>
           </CollapsibleCard>
