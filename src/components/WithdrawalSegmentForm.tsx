@@ -874,9 +874,10 @@ export function WithdrawalSegmentForm({
                       {segment.returnConfig.mode === 'random' && (
                         <>
                           <div className="mb-4 space-y-2">
-                            <Label>Durchschnittliche Rendite (%)</Label>
+                            <Label htmlFor={`avg-return-${segment.id}`}>Durchschnittliche Rendite (%)</Label>
                             <div className="space-y-2">
                               <Slider
+                                id={`avg-return-${segment.id}`}
                                 value={[(segment.returnConfig.randomConfig?.averageReturn || 0.05) * 100]}
                                 min={0}
                                 max={12}
@@ -886,7 +887,8 @@ export function WithdrawalSegmentForm({
                                     mode: 'random',
                                     randomConfig: {
                                       averageReturn: value[0] / 100,
-                                      standardDeviation: segment.returnConfig.randomConfig?.standardDeviation || 0.12,
+                                      standardDeviation:
+                                        segment.returnConfig.randomConfig?.standardDeviation || 0.12,
                                       seed: segment.returnConfig.randomConfig?.seed,
                                     },
                                   },
@@ -908,9 +910,10 @@ export function WithdrawalSegmentForm({
                           </div>
 
                           <div className="mb-4 space-y-2">
-                            <Label>Standardabweichung (%)</Label>
+                            <Label htmlFor={`std-dev-${segment.id}`}>Standardabweichung (%)</Label>
                             <div className="space-y-2">
                               <Slider
+                                id={`std-dev-${segment.id}`}
                                 value={[(segment.returnConfig.randomConfig?.standardDeviation || 0.12) * 100]}
                                 min={5}
                                 max={25}
@@ -943,8 +946,9 @@ export function WithdrawalSegmentForm({
                           </div>
 
                           <div className="mb-4 space-y-2">
-                            <Label>Zufalls-Seed (optional)</Label>
+                            <Label htmlFor={`random-seed-${segment.id}`}>Zufalls-Seed (optional)</Label>
                             <Input
+                              id={`random-seed-${segment.id}`}
                               type="number"
                               value={segment.returnConfig.randomConfig?.seed || ''}
                               onChange={(e) => {
@@ -954,7 +958,8 @@ export function WithdrawalSegmentForm({
                                     mode: 'random',
                                     randomConfig: {
                                       averageReturn: segment.returnConfig.randomConfig?.averageReturn || 0.05,
-                                      standardDeviation: segment.returnConfig.randomConfig?.standardDeviation || 0.12,
+                                      standardDeviation:
+                                        segment.returnConfig.randomConfig?.standardDeviation || 0.12,
                                       seed: value,
                                     },
                                   },
