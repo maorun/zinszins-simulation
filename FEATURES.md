@@ -71,7 +71,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Steuergesetz-Updates** - Automatische Updates bei Gesetzesänderungen
 
 #### Erweiterte Analysen
-- **Sensitivitätsanalyse** - Auswirkungen von Parameteränderungen
+- ~~**Sensitivitätsanalyse** - Auswirkungen von Parameteränderungen~~ ✅ **IMPLEMENTIERT**
 - **Optimierungsalgorithmen** - Automatische Optimierung der Asset Allocation
 - **Machine Learning Prognosen** - KI-basierte Renditeprognosen
 - **Behavioral Finance** - Berücksichtigung von Anlegerverhalten
