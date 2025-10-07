@@ -1,6 +1,7 @@
 import React from 'react'
 import { useSimulation } from '../contexts/useSimulation'
 import MonteCarloAnalysisDisplay from './MonteCarloAnalysisDisplay'
+import BlackSwanEventConfiguration from './BlackSwanEventConfiguration'
 import { calculateRiskMetrics, formatRiskMetric, type PortfolioData } from '../utils/risk-metrics'
 import type { RandomReturnConfig } from '../utils/random-returns'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
@@ -11,7 +12,10 @@ interface RiskAssessmentProps {
 }
 
 const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
-  const { simulationData, averageReturn, standardDeviation, randomSeed, returnMode } = useSimulation()
+  const { simulationData, averageReturn, standardDeviation, randomSeed, returnMode, startEnd } = useSimulation()
+
+  // State for Black Swan event returns (for future integration)
+  const [_blackSwanReturns, _setBlackSwanReturns] = React.useState<Record<number, number> | null>(null)
 
   // Use provided config or default based on phase
   const riskConfig: RandomReturnConfig = config || {
@@ -194,6 +198,12 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
               </div>
             </div>
           )}
+
+          {/* Black Swan Event Configuration */}
+          <BlackSwanEventConfiguration
+            simulationStartYear={startEnd?.[0] || 2025}
+            onEventChange={_setBlackSwanReturns}
+          />
 
           {/* Monte Carlo Analysis in collapsible sub-panel */}
           <CollapsibleCard className="border-l-4 border-l-blue-400">
