@@ -12,17 +12,27 @@ interface RiskAssessmentProps {
 }
 
 const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
-  const { simulationData, averageReturn, standardDeviation, randomSeed, returnMode, startEnd } = useSimulation()
-
-  // State for Black Swan event returns and event name
-  const [blackSwanReturns, setBlackSwanReturns] = React.useState<Record<number, number> | null>(null)
-  const [blackSwanEventName, setBlackSwanEventName] = React.useState<string>('')
+  const {
+    simulationData,
+    averageReturn,
+    standardDeviation,
+    randomSeed,
+    returnMode,
+    startEnd,
+    blackSwanReturns,
+    setBlackSwanReturns,
+    blackSwanEventName,
+    setBlackSwanEventName,
+    performSimulation,
+  } = useSimulation()
 
   // Handle Black Swan event change
   const handleBlackSwanChange = React.useCallback((eventReturns: Record<number, number> | null, eventName?: string) => {
     setBlackSwanReturns(eventReturns)
     setBlackSwanEventName(eventName || '')
-  }, [])
+    // Trigger simulation update
+    performSimulation()
+  }, [setBlackSwanReturns, setBlackSwanEventName, performSimulation])
 
   // Use provided config or default based on phase
   const riskConfig: RandomReturnConfig = config || {
