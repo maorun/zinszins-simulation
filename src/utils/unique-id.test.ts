@@ -7,7 +7,8 @@ import {
   registerExistingId,
   clearRegisteredIds,
   getRegisteredIds,
-  useUniqueId,
+  createUniqueId,
+  normalizeForId,
 } from './unique-id'
 
 describe('unique-id utilities', () => {
@@ -161,26 +162,56 @@ describe('unique-id utilities', () => {
     })
   })
 
-  describe('useUniqueId', () => {
+  describe('createUniqueId', () => {
     it('should generate unique IDs', () => {
-      const id1 = useUniqueId('component')
-      const id2 = useUniqueId('component')
+      const id1 = createUniqueId('component')
+      const id2 = createUniqueId('component')
       expect(id1).not.toBe(id2)
     })
 
     it('should include dependencies in ID', () => {
-      const id = useUniqueId('component', ['dep1', 'dep2'])
+      const id = createUniqueId('component', ['dep1', 'dep2'])
       expect(id).toMatch(/^component-\d+-dep1-dep2$/)
     })
 
     it('should handle different dependency types', () => {
-      const id = useUniqueId('component', ['string', 42, true])
+      const id = createUniqueId('component', ['string', 42, true])
       expect(id).toMatch(/^component-\d+-string-42-true$/)
     })
 
     it('should work without dependencies', () => {
-      const id = useUniqueId('component')
+      const id = createUniqueId('component')
       expect(id).toMatch(/^component-\d+$/)
+    })
+  })
+
+  describe('normalizeForId', () => {
+    it('should replace single spaces with hyphens', () => {
+      expect(normalizeForId('Anna Schmidt')).toBe('anna-schmidt')
+    })
+
+    it('should replace multiple spaces with single hyphens', () => {
+      expect(normalizeForId('Anna Maria Schmidt')).toBe('anna-maria-schmidt')
+    })
+
+    it('should handle multiple consecutive spaces', () => {
+      expect(normalizeForId('Anna    Maria   Schmidt')).toBe('anna-maria-schmidt')
+    })
+
+    it('should trim leading and trailing spaces', () => {
+      expect(normalizeForId('  Anna Schmidt  ')).toBe('anna-schmidt')
+    })
+
+    it('should handle tabs and newlines', () => {
+      expect(normalizeForId('Anna\tMaria\nSchmidt')).toBe('anna-maria-schmidt')
+    })
+
+    it('should handle empty string', () => {
+      expect(normalizeForId('')).toBe('')
+    })
+
+    it('should handle only whitespace', () => {
+      expect(normalizeForId('   \t\n   ')).toBe('')
     })
   })
 
@@ -208,6 +239,26 @@ describe('unique-id utilities', () => {
       }
 
       expect(ids.size).toBe(300) // All should be unique
+    })
+  })
+
+  describe('memory management', () => {
+    it('should manage memory usage with large number of IDs', () => {
+      // Clear first to get a clean state
+      clearRegisteredIds()
+
+      // Generate a large number of IDs to test memory management
+      const initialIds = []
+      for (let i = 0; i < 100; i++) {
+        initialIds.push(generateUniqueId('memory-test'))
+      }
+
+      // All IDs should be unique even with memory management
+      const uniqueIds = new Set(initialIds)
+      expect(uniqueIds.size).toBe(100)
+
+      // Should still track some IDs (memory management may prune some)
+      expect(getRegisteredIds().length).toBeGreaterThan(0)
     })
   })
 

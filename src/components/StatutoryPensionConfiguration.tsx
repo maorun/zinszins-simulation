@@ -9,7 +9,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { CollapsibleCard, CollapsibleCardHeader, CollapsibleCardContent } from './ui/collapsible-card'
 import { Info, Calculator, ChevronDown } from 'lucide-react'
 import { useNestingLevel } from '../lib/nesting-utils'
-import { generateFormId } from '../utils/unique-id'
+import { generateFormId, normalizeForId } from '../utils/unique-id'
 import {
   estimateMonthlyPensionFromTaxReturn,
   estimateTaxablePercentageFromTaxReturn,
@@ -366,7 +366,7 @@ function PersonPensionConfiguration({
   birthYear,
   personName,
 }: PersonPensionConfigurationProps) {
-  const personEnabledId = useMemo(() => generateFormId('statutory-pension', 'enabled', personName.toLowerCase().replace(' ', '-')), [personName])
+  const personEnabledId = useMemo(() => generateFormId('statutory-pension', 'enabled', normalizeForId(personName)), [personName])
 
   return (
     <div className="space-y-4">

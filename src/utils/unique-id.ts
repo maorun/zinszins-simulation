@@ -12,8 +12,14 @@ let idCounter = 0
 
 /**
  * Set to track used IDs in the current session
+ * Note: In production, consider using React's useId hook instead for better memory management
  */
 const usedIds = new Set<string>()
+
+/**
+ * Maximum number of IDs to keep in memory to prevent unbounded growth
+ */
+const MAX_STORED_IDS = 10000
 
 /**
  * Generate a unique ID with optional prefix and suffix
@@ -32,6 +38,15 @@ export function generateUniqueId(prefix?: string, suffix?: string): string {
   let counter = 1
   while (usedIds.has(uniqueId)) {
     uniqueId = `${baseId}-${counter++}`
+  }
+
+  // Add to used IDs set, but limit growth to prevent memory issues
+  if (usedIds.size >= MAX_STORED_IDS) {
+    // Clear half the set when limit is reached (simple pruning strategy)
+    const idsArray = Array.from(usedIds)
+    usedIds.clear()
+    // Keep the more recent half
+    idsArray.slice(idsArray.length / 2).forEach(id => usedIds.add(id))
   }
 
   usedIds.add(uniqueId)
@@ -107,14 +122,23 @@ export function getRegisteredIds(): string[] {
 }
 
 /**
- * Create a custom hook for generating unique IDs in React components
+ * Create a unique ID for use in React components (not a React hook)
  * @param baseId - Base ID for the component
  * @param dependencies - Optional dependencies that should trigger ID regeneration
  * @returns A stable unique ID
  */
-export function useUniqueId(baseId: string, dependencies?: Array<string | number | boolean>): string {
-  // This would typically use React.useMemo, but we're keeping this as a utility function
-  // Components should use React.useMemo with these utilities
+export function createUniqueId(baseId: string, dependencies?: Array<string | number | boolean>): string {
+  // This is a utility function, not a React hook
+  // Components should use React.useMemo with these utilities for stable IDs
   const dependencyString = dependencies ? dependencies.join('-') : ''
   return generateUniqueId(baseId, dependencyString)
+}
+
+/**
+ * Normalize a string for use in IDs by replacing all whitespace with hyphens
+ * @param str - String to normalize
+ * @returns Normalized string safe for use in HTML IDs
+ */
+export function normalizeForId(str: string): string {
+  return str.toLowerCase().trim().replace(/\s+/g, '-')
 }
