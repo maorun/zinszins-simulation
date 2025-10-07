@@ -2,9 +2,11 @@ import { describe, it, expect } from 'vitest'
 import {
   type OtherIncomeSource,
   type OtherIncomeConfiguration,
+
   calculateOtherIncomeForYear,
   calculateOtherIncome,
   createDefaultOtherIncomeSource,
+  createDefaultRealEstateConfig,
   getIncomeTypeDisplayName,
   getAmountTypeDisplayName,
 } from './other-income'
@@ -285,9 +287,159 @@ describe('Other Income Calculations', () => {
     })
   })
 
+  describe('Real Estate Calculations', () => {
+    it('should calculate rental income with real estate costs correctly', () => {
+      const source: OtherIncomeSource = {
+        id: 'test-rental',
+        name: 'Test Rental Property',
+        type: 'rental',
+        amountType: 'gross',
+        monthlyAmount: 1000,
+        startYear: 2025,
+        endYear: null,
+        inflationRate: 2.0,
+        taxRate: 30.0,
+        enabled: true,
+        realEstateConfig: {
+          maintenanceCostPercent: 15.0, // 15% maintenance
+          vacancyRatePercent: 5.0, // 5% vacancy
+          propertyAppreciationRate: 2.5,
+          propertyValue: 300000,
+          monthlyMortgagePayment: 200, // 200€/month mortgage
+          includeAppreciation: false,
+        },
+      }
+
+      const result = calculateOtherIncomeForYear(source, 2025)
+      expect(result).not.toBe(null)
+
+      // Base rental income: 1000 * 12 = 12000€
+      // Vacancy loss: 12000 * 0.05 = 600€
+      // Income after vacancy: 12000 - 600 = 11400€
+      // Maintenance costs: 12000 * 0.15 = 1800€
+      // Mortgage payment: 200 * 12 = 2400€
+      // Net rental income: 11400 - 1800 - 2400 = 7200€
+
+      expect(result!.realEstateDetails).toBeDefined()
+      expect(result!.realEstateDetails!.vacancyLoss).toBe(600)
+      expect(result!.realEstateDetails!.maintenanceCosts).toBe(1800)
+      expect(result!.realEstateDetails!.netRentalIncome).toBe(7200)
+      expect(result!.grossAnnualAmount).toBe(7200)
+
+      // Tax calculation: 7200 * 0.30 = 2160€
+      expect(result!.taxAmount).toBe(2160)
+      expect(result!.netAnnualAmount).toBe(5040) // 7200 - 2160
+    })
+
+    it('should handle property appreciation correctly', () => {
+      const source: OtherIncomeSource = {
+        id: 'test-appreciation',
+        name: 'Appreciating Property',
+        type: 'rental',
+        amountType: 'gross',
+        monthlyAmount: 1000,
+        startYear: 2025,
+        endYear: null,
+        inflationRate: 0, // No inflation for simplicity
+        taxRate: 0, // No tax for simplicity
+        enabled: true,
+        realEstateConfig: {
+          maintenanceCostPercent: 0,
+          vacancyRatePercent: 0,
+          propertyAppreciationRate: 3.0, // 3% appreciation
+          propertyValue: 200000,
+          monthlyMortgagePayment: 0,
+          includeAppreciation: true,
+        },
+      }
+
+      // Test year 2027 (2 years after start)
+      const result = calculateOtherIncomeForYear(source, 2027)
+      expect(result).not.toBe(null)
+
+      // Property value after 2 years: 200000 * (1.03)^2 = 212180
+      const expectedPropertyValue = 200000 * Math.pow(1.03, 2)
+      expect(result!.realEstateDetails!.propertyValue).toBeCloseTo(expectedPropertyValue, 2)
+
+      // Annual appreciation for year 2027
+      const previousYearValue = 200000 * Math.pow(1.03, 1)
+      const expectedAppreciation = expectedPropertyValue - previousYearValue
+      expect(result!.realEstateDetails!.annualAppreciation).toBeCloseTo(expectedAppreciation, 2)
+    })
+
+    it('should handle negative rental income gracefully', () => {
+      const source: OtherIncomeSource = {
+        id: 'test-negative',
+        name: 'High Cost Property',
+        type: 'rental',
+        amountType: 'gross',
+        monthlyAmount: 500, // Low rent
+        startYear: 2025,
+        endYear: null,
+        inflationRate: 0,
+        taxRate: 0,
+        enabled: true,
+        realEstateConfig: {
+          maintenanceCostPercent: 20.0, // High maintenance
+          vacancyRatePercent: 10.0, // High vacancy
+          propertyAppreciationRate: 0,
+          propertyValue: 100000,
+          monthlyMortgagePayment: 600, // High mortgage
+          includeAppreciation: false,
+        },
+      }
+
+      const result = calculateOtherIncomeForYear(source, 2025)
+      expect(result).not.toBe(null)
+
+      // Base income: 500 * 12 = 6000€
+      // Vacancy loss: 6000 * 0.10 = 600€
+      // Income after vacancy: 6000 - 600 = 5400€
+      // Maintenance: 6000 * 0.20 = 1200€
+      // Mortgage: 600 * 12 = 7200€
+      // Net rental income: 5400 - 1200 - 7200 = -3000€
+      // Should be clamped to 0
+
+      expect(result!.realEstateDetails!.netRentalIncome).toBe(0)
+      expect(result!.grossAnnualAmount).toBe(0)
+      expect(result!.netAnnualAmount).toBe(0)
+    })
+
+    it('should not apply real estate calculations to non-rental income', () => {
+      const source: OtherIncomeSource = {
+        id: 'test-pension',
+        name: 'Pension Income',
+        type: 'pension',
+        amountType: 'gross',
+        monthlyAmount: 1000,
+        startYear: 2025,
+        endYear: null,
+        inflationRate: 2.0,
+        taxRate: 25.0,
+        enabled: true,
+        // This should be ignored for non-rental income
+        realEstateConfig: {
+          maintenanceCostPercent: 10.0,
+          vacancyRatePercent: 5.0,
+          propertyAppreciationRate: 2.0,
+          propertyValue: 100000,
+          monthlyMortgagePayment: 100,
+          includeAppreciation: false,
+        },
+      }
+
+      const result = calculateOtherIncomeForYear(source, 2025)
+      expect(result).not.toBe(null)
+      expect(result!.realEstateDetails).toBeUndefined()
+      expect(result!.grossAnnualAmount).toBe(12000) // No real estate deductions
+      expect(result!.taxAmount).toBe(3000)
+      expect(result!.netAnnualAmount).toBe(9000)
+    })
+  })
+
   describe('createDefaultOtherIncomeSource', () => {
-    it('should create a valid default income source', () => {
-      const source = createDefaultOtherIncomeSource()
+    it('should create a valid default rental income source with real estate config', () => {
+      const source = createDefaultOtherIncomeSource('rental')
 
       expect(source.id).toBeTruthy()
       expect(source.name).toBe('Mieteinnahmen')
@@ -300,6 +452,18 @@ describe('Other Income Calculations', () => {
       expect(source.taxRate).toBe(30.0)
       expect(source.enabled).toBe(true)
       expect(source.notes).toBe('')
+      expect(source.realEstateConfig).toBeDefined()
+      expect(source.realEstateConfig!.maintenanceCostPercent).toBe(15.0)
+      expect(source.realEstateConfig!.vacancyRatePercent).toBe(5.0)
+    })
+
+    it('should create a valid default pension income source without real estate config', () => {
+      const source = createDefaultOtherIncomeSource('pension')
+
+      expect(source.name).toBe('Private Rente')
+      expect(source.type).toBe('pension')
+      expect(source.monthlyAmount).toBe(800)
+      expect(source.realEstateConfig).toBeUndefined()
     })
 
     it('should create unique IDs for multiple sources', () => {
@@ -307,6 +471,19 @@ describe('Other Income Calculations', () => {
       const source2 = createDefaultOtherIncomeSource()
 
       expect(source1.id).not.toBe(source2.id)
+    })
+  })
+
+  describe('createDefaultRealEstateConfig', () => {
+    it('should create a valid default real estate configuration', () => {
+      const config = createDefaultRealEstateConfig()
+
+      expect(config.maintenanceCostPercent).toBe(15.0)
+      expect(config.vacancyRatePercent).toBe(5.0)
+      expect(config.propertyAppreciationRate).toBe(2.5)
+      expect(config.propertyValue).toBe(300000)
+      expect(config.monthlyMortgagePayment).toBe(0)
+      expect(config.includeAppreciation).toBe(false)
     })
   })
 
