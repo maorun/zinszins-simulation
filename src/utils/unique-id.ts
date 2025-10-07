@@ -106,7 +106,30 @@ export function registerExistingId(id: string): boolean {
  * WARNING: Only use this in test environments
  */
 export function clearRegisteredIds(): void {
-  if (process.env.NODE_ENV !== 'test') {
+  // Use safe environment checking for both Vite and other environments
+  let isTest = false
+
+  try {
+    // Check for Vite environment
+    if (typeof import.meta !== 'undefined' && (import.meta as any)?.env?.MODE === 'test') {
+      isTest = true
+    }
+  }
+  catch {
+    // Fallback to process.env for other environments
+  }
+
+  try {
+    // Check for Node.js environment
+    if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') {
+      isTest = true
+    }
+  }
+  catch {
+    // Ignore if process is not available
+  }
+
+  if (!isTest) {
     console.warn('clearRegisteredIds should only be used in test environments')
   }
   usedIds.clear()
@@ -122,14 +145,14 @@ export function getRegisteredIds(): string[] {
 }
 
 /**
- * Create a unique ID for use in React components (not a React hook)
+ * Create a unique ID for use in React components (designed to be used with useMemo)
  * @param baseId - Base ID for the component
  * @param dependencies - Optional dependencies that should trigger ID regeneration
- * @returns A stable unique ID
+ * @returns A new unique ID per call - should be memoized by the caller if stability across renders is required
  */
-export function createUniqueId(baseId: string, dependencies?: Array<string | number | boolean>): string {
-  // This is a utility function, not a React hook
-  // Components should use React.useMemo with these utilities for stable IDs
+export function useUniqueId(baseId: string, dependencies?: Array<string | number | boolean>): string {
+  // This utility function generates a new unique ID each call
+  // Components should wrap this with React.useMemo for stable IDs across renders
   const dependencyString = dependencies ? dependencies.join('-') : ''
   return generateUniqueId(baseId, dependencyString)
 }

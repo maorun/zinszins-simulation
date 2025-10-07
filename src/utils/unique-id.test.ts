@@ -7,7 +7,7 @@ import {
   registerExistingId,
   clearRegisteredIds,
   getRegisteredIds,
-  createUniqueId,
+  useUniqueId,
   normalizeForId,
 } from './unique-id'
 
@@ -162,26 +162,40 @@ describe('unique-id utilities', () => {
     })
   })
 
-  describe('createUniqueId', () => {
-    it('should generate unique IDs', () => {
-      const id1 = createUniqueId('component')
-      const id2 = createUniqueId('component')
+  describe('useUniqueId', () => {
+    it('should generate unique IDs per call', () => {
+      const id1 = useUniqueId('component')
+      const id2 = useUniqueId('component')
       expect(id1).not.toBe(id2)
     })
 
     it('should include dependencies in ID', () => {
-      const id = createUniqueId('component', ['dep1', 'dep2'])
+      const id = useUniqueId('component', ['dep1', 'dep2'])
       expect(id).toMatch(/^component-\d+-dep1-dep2$/)
     })
 
     it('should handle different dependency types', () => {
-      const id = createUniqueId('component', ['string', 42, true])
+      const id = useUniqueId('component', ['string', 42, true])
       expect(id).toMatch(/^component-\d+-string-42-true$/)
     })
 
     it('should work without dependencies', () => {
-      const id = createUniqueId('component')
+      const id = useUniqueId('component')
       expect(id).toMatch(/^component-\d+$/)
+    })
+
+    it('should generate new IDs each call to require memoization by caller', () => {
+      const baseId = 'test'
+      const deps = ['same', 'deps']
+
+      const id1 = useUniqueId(baseId, deps)
+      const id2 = useUniqueId(baseId, deps)
+      const id3 = useUniqueId(baseId, deps)
+
+      // Each call should produce a different ID
+      expect(id1).not.toBe(id2)
+      expect(id2).not.toBe(id3)
+      expect(id1).not.toBe(id3)
     })
   })
 
