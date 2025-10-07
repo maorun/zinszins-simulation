@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+import { renderHook } from '@testing-library/react'
 import {
   generateUniqueId,
   generateFormId,
@@ -8,6 +9,8 @@ import {
   clearRegisteredIds,
   getRegisteredIds,
   useUniqueId,
+  useFormId,
+  useInstanceId,
   normalizeForId,
 } from './unique-id'
 
@@ -162,40 +165,101 @@ describe('unique-id utilities', () => {
     })
   })
 
-  describe('useUniqueId', () => {
-    it('should generate unique IDs per call', () => {
-      const id1 = useUniqueId('component')
-      const id2 = useUniqueId('component')
-      expect(id1).not.toBe(id2)
+  describe('useUniqueId (React Hook)', () => {
+    it('should generate stable IDs within a component', () => {
+      const { result, rerender } = renderHook(
+        ({ baseId, deps }) => useUniqueId(baseId, deps),
+        { initialProps: { baseId: 'component', deps: ['dep1', 'dep2'] } },
+      )
+
+      const firstId = result.current
+      rerender({ baseId: 'component', deps: ['dep1', 'dep2'] })
+      const secondId = result.current
+
+      // Same component should get the same stable ID
+      expect(firstId).toBe(secondId)
+      expect(firstId).toMatch(/^component-[«:r][\w\d]+[»:]-dep1-dep2$/)
     })
 
-    it('should include dependencies in ID', () => {
-      const id = useUniqueId('component', ['dep1', 'dep2'])
-      expect(id).toMatch(/^component-\d+-dep1-dep2$/)
+    it('should generate different IDs for different components', () => {
+      const { result: result1 } = renderHook(() => useUniqueId('component1'))
+      const { result: result2 } = renderHook(() => useUniqueId('component2'))
+
+      expect(result1.current).not.toBe(result2.current)
+      expect(result1.current).toMatch(/^component1-[«:r][\w\d]+[»:]$/)
+      expect(result2.current).toMatch(/^component2-[«:r][\w\d]+[»:]$/)
     })
 
     it('should handle different dependency types', () => {
-      const id = useUniqueId('component', ['string', 42, true])
-      expect(id).toMatch(/^component-\d+-string-42-true$/)
+      const { result } = renderHook(() => useUniqueId('component', ['string', 42, true]))
+      expect(result.current).toMatch(/^component-[«:r][\w\d]+[»:]-string-42-true$/)
     })
 
     it('should work without dependencies', () => {
-      const id = useUniqueId('component')
-      expect(id).toMatch(/^component-\d+$/)
+      const { result } = renderHook(() => useUniqueId('component'))
+      expect(result.current).toMatch(/^component-[«:r][\w\d]+[»:]$/)
     })
 
-    it('should generate new IDs each call to require memoization by caller', () => {
-      const baseId = 'test'
-      const deps = ['same', 'deps']
+    it('should update ID when dependencies change', () => {
+      const { result, rerender } = renderHook(
+        ({ deps }) => useUniqueId('component', deps),
+        { initialProps: { deps: ['dep1'] } },
+      )
 
-      const id1 = useUniqueId(baseId, deps)
-      const id2 = useUniqueId(baseId, deps)
-      const id3 = useUniqueId(baseId, deps)
+      const firstId = result.current
+      rerender({ deps: ['dep2'] })
+      const secondId = result.current
 
-      // Each call should produce a different ID
-      expect(id1).not.toBe(id2)
-      expect(id2).not.toBe(id3)
-      expect(id1).not.toBe(id3)
+      // Different dependencies should produce different IDs
+      expect(firstId).not.toBe(secondId)
+      expect(firstId).toMatch(/^component-[«:r][\w\d]+[»:]-dep1$/)
+      expect(secondId).toMatch(/^component-[«:r][\w\d]+[»:]-dep2$/)
+    })
+  })
+
+  describe('useFormId (React Hook)', () => {
+    it('should generate stable IDs for form fields', () => {
+      const { result, rerender } = renderHook(() => useFormId('statutory-pension', 'enabled', 'couple'))
+
+      const firstId = result.current
+      rerender()
+      const secondId = result.current
+
+      expect(firstId).toBe(secondId)
+      expect(firstId).toMatch(/^statutory-pension-couple-enabled-[«:r][\w\d]+[»:]$/)
+    })
+
+    it('should work without context', () => {
+      const { result } = renderHook(() => useFormId('other-income', 'monthly-amount'))
+      expect(result.current).toMatch(/^other-income-monthly-amount-[«:r][\w\d]+[»:]$/)
+    })
+
+    it('should normalize context with spaces', () => {
+      const { result } = renderHook(() => useFormId('pension', 'enabled', 'Anna Maria Schmidt'))
+      expect(result.current).toMatch(/^pension-anna-maria-schmidt-enabled-[«:r][\w\d]+[»:]$/)
+    })
+  })
+
+  describe('useInstanceId (React Hook)', () => {
+    it('should generate stable IDs for instances', () => {
+      const { result, rerender } = renderHook(() => useInstanceId('segment', 'abc123'))
+
+      const firstId = result.current
+      rerender()
+      const secondId = result.current
+
+      expect(firstId).toBe(secondId)
+      expect(firstId).toMatch(/^segment-abc123-[«:r][\w\d]+[»:]$/)
+    })
+
+    it('should handle numeric instance IDs', () => {
+      const { result } = renderHook(() => useInstanceId('item', 42))
+      expect(result.current).toMatch(/^item-42-[«:r][\w\d]+[»:]$/)
+    })
+
+    it('should normalize string instance IDs', () => {
+      const { result } = renderHook(() => useInstanceId('segment', 'Anna Maria Schmidt'))
+      expect(result.current).toMatch(/^segment-anna-maria-schmidt-[«:r][\w\d]+[»:]$/)
     })
   })
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { Switch } from './ui/switch'
@@ -9,7 +9,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { CollapsibleCard, CollapsibleCardHeader, CollapsibleCardContent } from './ui/collapsible-card'
 import { Info, Calculator, ChevronDown } from 'lucide-react'
 import { useNestingLevel } from '../lib/nesting-utils'
-import { generateFormId, normalizeForId } from '../utils/unique-id'
+import { useFormId } from '../utils/unique-id'
 import {
   estimateMonthlyPensionFromTaxReturn,
   estimateTaxablePercentageFromTaxReturn,
@@ -79,8 +79,8 @@ export function CoupleStatutoryPensionConfiguration({
   const nestingLevel = useNestingLevel()
 
   // Generate unique IDs for this component instance
-  const enabledSwitchId = useMemo(() => generateFormId('statutory-pension', 'enabled', 'couple'), [])
-  const mainEnabledSwitchId = useMemo(() => generateFormId('statutory-pension', 'main-enabled', 'couple'), [])
+  const enabledSwitchId = useFormId('statutory-pension', 'enabled', 'couple')
+  const mainEnabledSwitchId = useFormId('statutory-pension', 'main-enabled', 'couple')
 
   // Initialize config if it doesn't exist
   const currentConfig = config || (() => {
@@ -366,7 +366,7 @@ function PersonPensionConfiguration({
   birthYear,
   personName,
 }: PersonPensionConfigurationProps) {
-  const personEnabledId = useMemo(() => generateFormId('statutory-pension', 'enabled', normalizeForId(personName)), [personName])
+  const personEnabledId = useFormId('statutory-pension', 'enabled', personName)
 
   return (
     <div className="space-y-4">
@@ -492,9 +492,9 @@ export function StatutoryPensionConfiguration({
   const nestingLevel = useNestingLevel()
 
   // Generate unique IDs for this component instance
-  const enabledSwitchId = useMemo(() => generateFormId('statutory-pension', 'enabled', 'withdrawal'), [])
-  const mainEnabledSwitchId = useMemo(() => generateFormId('statutory-pension', 'main-enabled', 'withdrawal'), [])
-  const monthlyAmountId = useMemo(() => generateFormId('statutory-pension', 'monthly-amount', 'withdrawal'), [])
+  const enabledSwitchId = useFormId('statutory-pension', 'enabled', 'withdrawal')
+  const mainEnabledSwitchId = useFormId('statutory-pension', 'main-enabled', 'withdrawal')
+  const monthlyAmountId = useFormId('statutory-pension', 'monthly-amount', 'withdrawal')
 
   // Auto-calculate retirement start year when birth year or retirement age changes
   useEffect(() => {

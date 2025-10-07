@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState } from 'react'
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
@@ -16,7 +16,7 @@ import {
   getAmountTypeDisplayName,
 } from '../../helpers/other-income'
 import { toast } from 'sonner'
-import { generateFormId } from '../utils/unique-id'
+import { useFormId } from '../utils/unique-id'
 
 interface OtherIncomeConfigurationProps {
   config: OtherIncomeConfiguration
@@ -31,7 +31,7 @@ export function OtherIncomeConfigurationComponent({
   const [isAddingNew, setIsAddingNew] = useState(false)
 
   // Generate unique IDs for form fields
-  const monthlyAmountId = useMemo(() => generateFormId('other-income', 'monthly-amount'), [])
+  const monthlyAmountId = useFormId('other-income', 'monthly-amount')
 
   const handleConfigChange = (updates: Partial<OtherIncomeConfiguration>) => {
     onChange({ ...config, ...updates })

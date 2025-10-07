@@ -1,9 +1,11 @@
 /**
- * Utility functions for generating unique HTML IDs to prevent duplicate ID issues
+ * Utility functions and React hooks for generating unique HTML IDs to prevent duplicate ID issues
  *
- * This module provides functions to generate unique IDs and validate uniqueness
+ * This module provides functions and hooks to generate unique IDs and validate uniqueness
  * to ensure compliance with HTML standards and accessibility requirements.
  */
+
+import * as React from 'react'
 
 /**
  * Counter for generating unique IDs
@@ -145,16 +147,21 @@ export function getRegisteredIds(): string[] {
 }
 
 /**
- * Create a unique ID for use in React components (designed to be used with useMemo)
+ * React hook to generate a stable unique ID for use in components
+ * Uses React's built-in useId hook for better performance and memory management
  * @param baseId - Base ID for the component
  * @param dependencies - Optional dependencies that should trigger ID regeneration
- * @returns A new unique ID per call - should be memoized by the caller if stability across renders is required
+ * @returns A stable unique ID that persists across renders
  */
 export function useUniqueId(baseId: string, dependencies?: Array<string | number | boolean>): string {
-  // This utility function generates a new unique ID each call
-  // Components should wrap this with React.useMemo for stable IDs across renders
-  const dependencyString = dependencies ? dependencies.join('-') : ''
-  return generateUniqueId(baseId, dependencyString)
+  // Use React's built-in useId hook for better performance and memory management
+  const reactId = React.useId()
+
+  return React.useMemo(() => {
+    const dependencyString = dependencies ? dependencies.join('-') : ''
+    const suffix = dependencyString ? `-${dependencyString}` : ''
+    return `${baseId}-${reactId}${suffix}`
+  }, [baseId, reactId, dependencies])
 }
 
 /**
@@ -164,4 +171,38 @@ export function useUniqueId(baseId: string, dependencies?: Array<string | number
  */
 export function normalizeForId(str: string): string {
   return str.toLowerCase().trim().replace(/\s+/g, '-')
+}
+
+/**
+ * React hook to generate a stable unique ID for form controls
+ * @param componentName - Name of the component (e.g., 'statutory-pension', 'health-care')
+ * @param fieldName - Name of the field (e.g., 'enabled', 'amount')
+ * @param context - Optional context to ensure uniqueness (e.g., 'person1', 'savings-phase')
+ * @returns A stable unique ID string suitable for form controls
+ */
+export function useFormId(componentName: string, fieldName: string, context?: string): string {
+  const reactId = React.useId()
+
+  return React.useMemo(() => {
+    const parts = [componentName, fieldName]
+    if (context) {
+      parts.splice(1, 0, normalizeForId(context)) // Insert normalized context between component and field
+    }
+    return `${parts.join('-')}-${reactId}`
+  }, [componentName, fieldName, context, reactId])
+}
+
+/**
+ * React hook to generate a stable unique ID for components that may be rendered multiple times
+ * @param baseId - Base ID for the component
+ * @param instanceId - Unique identifier for this instance (e.g., segment ID, person ID)
+ * @returns A stable unique ID string
+ */
+export function useInstanceId(baseId: string, instanceId: string | number): string {
+  const reactId = React.useId()
+
+  return React.useMemo(() => {
+    const normalizedInstanceId = typeof instanceId === 'string' ? normalizeForId(instanceId) : instanceId
+    return `${baseId}-${normalizedInstanceId}-${reactId}`
+  }, [baseId, instanceId, reactId])
 }
