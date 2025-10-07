@@ -59,7 +59,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Berufsunfähigkeitsversicherung** - Auswirkungen von BU-Renten auf die Finanzplanung
 
 #### Pflegevorsorge
-- **Pflegekosten-Simulation** - Statistische Pflegewahrscheinlichkeiten und -kosten
 - **Pflegezusatzversicherung** - Private Pflegeversicherung vs. Eigenvorsorge
 - **Generationenvertrag** - Finanzielle Belastung durch Pflege von Angehörigen
 
@@ -152,7 +151,6 @@ Die folgenden Features sollen entsprechend der Anforderung **NICHT** entwickelt 
 ### Hoch (⭐⭐⭐)
 Direkte Erweiterung der bestehenden Kernfunktionalität:
 - **Immobilien-Cashflow Integration** - Ergänzt die "Andere Einkünfte" Funktionalität
-- **Pflegekosten-Simulation** - Wichtiger Baustein der deutschen Altersvorsorge
 
 ### Mittel (⭐⭐)
 Nützliche Ergänzungen für fortgeschrittene Nutzer:
