@@ -131,7 +131,15 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Versicherungsarten**: Gesetzliche und private Krankenversicherung mit unterschiedlichen Beitragssystemen
   - **Lebensphasen**: Unterscheidung zwischen Vorrente und Rente mit angepassten Beitragssätzen
   - **Zusatzbeiträge**: Kinderloser-Zuschlag (0,6%) individuell konfigurierbar pro Person
-- **Andere Einkünfte** - Zusätzliche Einkommensquellen wie Mieteinnahmen, private Renten oder Gewerbeeinkünfte mit Brutto-/Netto-Konfiguration, Inflationsanpassung und Steuerberechnung
+- **Andere Einkünfte** - Zusätzliche Einkommensquellen während der Entnahmephase
+  - **Immobilien-Cashflow Integration** - Umfassende Immobilienertragsberechnung mit deutschen Steuerregeln
+    - **Realistische Kostenfaktoren**: Instandhaltungskosten (0-30%), Leerstandsquote (0-20%), Finanzierungskosten
+    - **Wertsteigerungsberechnung**: Optionale Berücksichtigung der Immobilienwertsteigerung als zusätzliches Einkommen
+    - **Deutsche Immobiliensteuer**: Vollständige Integration der steuerlichen Behandlung von Mieteinnahmen
+    - **Inflationsanpassung**: Automatische Mietanpassungen über die Entnahmephase
+  - **Weitere Einkommensarten**: Private Renten, Gewerbeeinkünfte, Kapitalerträge, sonstige Einkünfte
+  - **Brutto-/Netto-Konfiguration**: Flexible Eingabe mit automatischer Steuerberechnung
+  - **Zeitraum-Flexibilität**: Konfigurierbare Start- und Endjahre für zeitlich begrenzte Einkünfte
 
 ### Analyse und Simulation
 - **Finanzübersicht** - Kompakte Übersicht aller wichtigen Kennzahlen mit Sticky Navigation
