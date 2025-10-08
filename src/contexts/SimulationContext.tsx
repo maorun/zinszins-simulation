@@ -20,6 +20,7 @@ import { updateFreibetragForPlanningMode } from '../utils/freibetrag-calculation
 import type { CareCostConfiguration } from '../../helpers/care-cost-simulation'
 import { createDefaultCareCostConfiguration } from '../../helpers/care-cost-simulation'
 import { mergeBlackSwanReturns } from '../../helpers/black-swan-events'
+import type { FinancialGoal } from '../../helpers/financial-goals'
 
 export interface SimulationContextState {
   rendite: number
@@ -135,6 +136,9 @@ export interface SimulationContextState {
   // Care cost configuration
   careCostConfiguration: CareCostConfiguration
   setCareCostConfiguration: (config: CareCostConfiguration) => void
+  // Financial goals configuration
+  financialGoals: FinancialGoal[]
+  setFinancialGoals: (goals: FinancialGoal[]) => void
 }
 
 export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {
@@ -495,6 +499,12 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     }
   })
 
+  // Financial goals configuration state
+  const [financialGoals, setFinancialGoals] = useState<FinancialGoal[]>(() => {
+    const savedGoals = (initialConfig as any).financialGoals
+    return savedGoals || []
+  })
+
   // Synchronize startEnd[1] (withdrawal end year) with endOfLife (life expectancy calculation)
   useEffect(() => {
     // Only update if endOfLife is different from current startEnd[1]
@@ -614,6 +624,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     statutoryPensionConfig: statutoryPensionConfig || undefined,
     coupleStatutoryPensionConfig: coupleStatutoryPensionConfig || undefined,
     careCostConfiguration,
+    financialGoals,
   }), [
     rendite,
     steuerlast,
@@ -651,6 +662,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     statutoryPensionConfig,
     coupleStatutoryPensionConfig,
     careCostConfiguration,
+    financialGoals,
   ])
 
   const saveCurrentConfiguration = useCallback(() => {
@@ -754,6 +766,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
           planningMode: (savedConfig as any).planningMode || 'individual',
         })
       }
+
+      // Load financial goals
+      setFinancialGoals((savedConfig as any).financialGoals || [])
     }
   }, [defaultConfig])
 
@@ -999,6 +1014,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     coupleStatutoryPensionConfig, setCoupleStatutoryPensionConfig,
     // Care cost configuration
     careCostConfiguration, setCareCostConfiguration,
+    // Financial goals configuration
+    financialGoals, setFinancialGoals,
   }), [
     rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration,
     steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase,
@@ -1015,6 +1032,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     simulationData, isLoading, withdrawalResults, performSimulation,
     getCurrentConfiguration, saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
     withdrawalConfig, statutoryPensionConfig, coupleStatutoryPensionConfig, careCostConfiguration,
+    financialGoals,
     setEndOfLifeRounded,
   ])
 
