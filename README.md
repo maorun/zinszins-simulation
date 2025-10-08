@@ -72,6 +72,15 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Bundesbank API Integration** - Automatischer Abruf aktueller Basiszinssätze über SDMX API
 - **Validierung und Fallbacks** - Intelligente Validierung mit automatischen Fallback-Mechanismen
 
+### Glossar-Integration
+- **Interaktive Begriffserklärungen** - Kontextbezogene Tooltips für komplexe Finanzfachbegriffe
+  - **15+ Fachbegriffe** - Umfassende Erklärungen deutscher Steuerbegriffe (Vorabpauschale, Günstigerprüfung, Teilfreistellung, etc.)
+  - **Detaillierte Definitionen** - Kurz- und Langdefinitionen mit praktischen Beispielen
+  - **Verknüpfte Begriffe** - Verwandte Begriffe werden automatisch verlinkt
+  - **Überall verfügbar** - Tooltips in Konfigurationen und Simulationsausgaben
+  - **Barrierearm** - Tastatur-navigierbar und screenreader-freundlich
+  - **Moderne UI** - Integration mit shadcn/ui Design System
+
 ### Globale Planung (Einzelperson/Ehepaar)
 - **Planungsmodus** - Zentrale Auswahl zwischen Individual- und Paarplanung
 - **Geschlechtskonfiguration** - Geschlechtsspezifische Einstellungen für präzise Lebenserwartungsberechnung
