@@ -66,6 +66,20 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
     example: 'Sparerpauschbetrag 1.000 €: 600 € bei Bank A, 400 € bei Bank B.',
     relatedTerms: ['sparerpauschbetrag', 'kapitalertragsteuer'],
   },
+  kindergeld: {
+    term: 'Kindergeld',
+    shortDefinition: 'Staatliche Familienleistung für Kinder',
+    detailedExplanation: 'Kindergeld ist eine steuerfreie staatliche Leistung zur Unterstützung von Familien. Ab 2024 beträgt es einheitlich 250 € pro Monat für jedes Kind. Es wird in der Regel bis zum 18. Geburtstag des Kindes gezahlt, bei Ausbildung oder Studium bis zum 25. Geburtstag. Kindergeld ist nicht steuerpflichtig und wird zusätzlich zum Einkommen gezahlt.',
+    example: 'Familie mit 2 Kindern: 2 × 250 € = 500 € monatlich (6.000 € jährlich) steuerfrei.',
+    relatedTerms: ['kinderfreibetrag'],
+  },
+  kinderfreibetrag: {
+    term: 'Kinderfreibetrag',
+    shortDefinition: 'Steuerlicher Freibetrag für Kinder',
+    detailedExplanation: 'Der Kinderfreibetrag ist ein Freibetrag bei der Einkommensteuer, der alternativ zum Kindergeld genutzt werden kann. Das Finanzamt prüft automatisch (Günstigerprüfung), ob der Kinderfreibetrag oder das Kindergeld vorteilhafter ist. Bei höherem Einkommen kann der Kinderfreibetrag günstiger sein.',
+    example: 'Kinderfreibetrag 2024: 6.384 € pro Kind und Jahr. Bei einem Grenzsteuersatz von 42% entspricht dies ca. 2.680 € Steuerersparnis.',
+    relatedTerms: ['kindergeld', 'guenstigerpruefung'],
+  },
   einkommensteuersatz: {
     term: 'Einkommensteuersatz',
     shortDefinition: 'Persönlicher Steuersatz auf das Gesamteinkommen',

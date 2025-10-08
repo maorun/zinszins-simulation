@@ -32,7 +32,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Familienplanung
 - **Kinder-Finanzplanung** - Ausbildungskosten, BAföG, Studiengebühren
 - **Elternzeit-Berücksichtigung** - Einkommensausfall und staatliche Unterstützung
-- **Kindergeld-Integration** - Automatische Berücksichtigung von Kindergeld über Zeit
 - **Generationenübergreifende Planung** - Vermögensübertragung zwischen Generationen
 - **Unterhaltszahlungen** - Berücksichtigung von Alimente oder Kindesunterhalt
 
