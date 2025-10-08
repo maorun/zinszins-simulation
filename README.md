@@ -72,6 +72,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Bundesbank API Integration** - Automatischer Abruf aktueller Basiszinssätze über SDMX API
 - **Validierung und Fallbacks** - Intelligente Validierung mit automatischen Fallback-Mechanismen
 
+### Was-wäre-wenn Szenarien
+- **Vordefinierte Finanzszenarien** - Lernszenarien zum Erkunden verschiedener Anlagestrategien
+  - **10+ Szenarien** - Konservative, ausgewogene, wachstumsorientierte und spezielle Situationen
+  - **Kategorisiert** - Szenarien nach Risikoprofil und Lebenssituation organisiert
+  - **Vollständig konfiguriert** - Jedes Szenario enthält realistische Parameter (Sparrate, Rendite, Laufzeit, Steuern)
+  - **Bildungsinhalte** - Lernpunkte, Risiken und Zielgruppen für jedes Szenario
+  - **Ein-Klick Anwendung** - Szenarien können direkt auf die aktuelle Simulation angewendet werden
+  - **Durchsuchbar** - Schnelles Finden relevanter Szenarien durch Suchfunktion
+  - **Detaillierte Beschreibungen** - Umfassende Informationen zu jedem Szenario in einem übersichtlichen Modal
+
 ### Glossar-Integration
 - **Interaktive Begriffserklärungen** - Kontextbezogene Tooltips für komplexe Finanzfachbegriffe
   - **15+ Fachbegriffe** - Umfassende Erklärungen deutscher Steuerbegriffe (Vorabpauschale, Günstigerprüfung, Teilfreistellung, etc.)

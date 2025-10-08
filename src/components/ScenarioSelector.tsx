@@ -5,6 +5,7 @@ import { Button } from './ui/button'
 import { Input } from './ui/input'
 import { Alert, AlertDescription } from './ui/alert'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from './ui/dialog'
+import { TooltipProvider } from './ui/tooltip'
 import { ChevronDown, Lightbulb, AlertTriangle, UserCheck, Play, Search, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNavigationItem } from '../hooks/useNavigationItem'
@@ -77,7 +78,7 @@ export function ScenarioSelector({ onApplyScenario }: ScenarioSelectorProps) {
   }
 
   return (
-    <>
+    <TooltipProvider>
       <Collapsible>
         <Card ref={navigationRef}>
           <CardHeader className="pb-3">
@@ -345,7 +346,7 @@ export function ScenarioSelector({ onApplyScenario }: ScenarioSelectorProps) {
           )}
         </DialogContent>
       </Dialog>
-    </>
+    </TooltipProvider>
   )
 }
 
