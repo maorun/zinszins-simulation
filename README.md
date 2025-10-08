@@ -91,6 +91,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Barrierearm** - Tastatur-navigierbar und screenreader-freundlich
   - **Moderne UI** - Integration mit shadcn/ui Design System
 
+### Finanzziele & Fortschrittsverfolgung
+- **SMART-Goals Integration** - Setzen und verfolgen Sie messbare Finanzziele
+  - **Drei Zieltypen** - Altersvorsorge, Finanzielle Unabhängigkeit, Benutzerdefinierte Ziele
+  - **Automatische Fortschrittsberechnung** - Echtzeit-Berechnung des Fortschritts basierend auf aktuellem Kapital
+  - **Meilenstein-Tracking** - Automatische Meilensteine bei 25%, 50% und 75% des Ziels
+  - **Visuelle Fortschrittsanzeige** - Intuitive Fortschrittsbalken und Prozentanzeigen
+  - **Ziel-Status** - Aktivieren/Deaktivieren einzelner Ziele nach Bedarf
+  - **Persistente Speicherung** - Ziele werden automatisch mit dem Profil gespeichert
+  - **Nächster Meilenstein** - Hervorhebung des nächsten zu erreichenden Meilensteins
+
 ### Globale Planung (Einzelperson/Ehepaar)
 - **Planungsmodus** - Zentrale Auswahl zwischen Individual- und Paarplanung
 - **Geschlechtskonfiguration** - Geschlechtsspezifische Einstellungen für präzise Lebenserwartungsberechnung
