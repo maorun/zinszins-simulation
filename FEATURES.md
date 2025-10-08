@@ -90,8 +90,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Finanzbildung
 - **Interaktive Tutorials** - Schritt-für-Schritt Anleitungen für Einsteiger
-- ~~**Glossar-Integration** - Erklärungen von Fachbegrffen direkt in der App~~ ✅ **IMPLEMENTIERT**
-- **Was-wäre-wenn Szenarien** - Vordefinierte Szenarien zum Lernen
 - **Verhaltensökonomie-Insights** - Aufklärung über häufige Anlegerfehler
 - **Marktpsychologie-Indikatoren** - Fear & Greed Index, etc.
 
