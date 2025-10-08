@@ -9,6 +9,7 @@ import type { OtherIncomeConfiguration } from '../../helpers/other-income'
 import type { HealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
 import type { CareCostConfiguration } from '../../helpers/care-cost-simulation'
 import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
+import type { FinancialGoal } from '../../helpers/financial-goals'
 
 /**
  * Return mode for withdrawal phase (includes multi-asset support)
@@ -194,6 +195,8 @@ export interface SavedConfiguration {
   otherIncome?: OtherIncomeConfiguration
   // Care cost configuration
   careCostConfiguration?: CareCostConfiguration
+  // Financial goals configuration
+  financialGoals?: FinancialGoal[]
 }
 
 const STORAGE_KEY = 'zinszins-simulation-config'

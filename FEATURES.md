@@ -94,8 +94,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Marktpsychologie-Indikatoren** - Fear & Greed Index, etc.
 
 #### Zielsetzung & Tracking
-- **SMART-Goals Integration** - Spezifische, messbare Finanzziele
-- **Milestone-Tracking** - Zwischenziele und Fortschrittsverfolgung
 - **Automatische Anpassungen** - Empfehlungen bei Zielverfehlungen
 - **Retirement-Readiness Score** - Bewertung der Rentenbereitschaft
 

@@ -10,6 +10,7 @@ import { SpecialEvents } from '../components/SpecialEvents'
 import { StickyOverview } from '../components/StickyOverview'
 import { StickyBottomOverview } from '../components/StickyBottomOverview'
 import { GlobalPlanningConfiguration } from '../components/GlobalPlanningConfiguration'
+import FinancialGoalsConfiguration from '../components/FinancialGoalsConfiguration'
 import ScenarioSelector from '../components/ScenarioSelector'
 
 import { SimulationProvider } from '../contexts/SimulationContext'
@@ -471,6 +472,9 @@ const HomePageContent = () => {
 
       {/* Global Planning Configuration - Available for all calculations including Vorabpauschale */}
       <GlobalPlanningConfiguration startOfIndependence={startEnd[0]} />
+
+      {/* Financial Goals Configuration */}
+      <FinancialGoalsConfiguration />
 
       <ProfileManagement />
 
