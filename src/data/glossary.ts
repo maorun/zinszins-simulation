@@ -115,6 +115,13 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
     example: 'Aktien-ETF mit 15% Volatilität: In 68% der Jahre liegt die Rendite zwischen -8% und +22% (bei 7% Durchschnittsrendite).',
     relatedTerms: ['montecarlo', 'risiko'],
   },
+  szenario: {
+    term: 'Was-wäre-wenn Szenario',
+    shortDefinition: 'Vordefinierte Finanzplanung zum Lernen',
+    detailedExplanation: 'Was-wäre-wenn Szenarien sind vordefinierte Beispielkonfigurationen, die realistische Finanzplanungssituationen abbilden. Sie helfen Anfängern, verschiedene Anlagestrategien und deren Auswirkungen zu verstehen, ohne selbst alle Parameter konfigurieren zu müssen.',
+    example: 'Szenario "Vorsichtiger Einsteiger": 300€/Monat über 30 Jahre mit 3,5% Rendite zeigt konservative Langzeitplanung mit geringem Risiko.',
+    relatedTerms: ['rendite', 'risiko', 'anlagestrategie'],
+  },
 }
 
 // Helper function to get a glossary term
