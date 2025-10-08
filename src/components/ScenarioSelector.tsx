@@ -8,7 +8,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogC
 import { ChevronDown, Lightbulb, AlertTriangle, UserCheck, Play, Search, X } from 'lucide-react'
 import { toast } from 'sonner'
 import { useNavigationItem } from '../hooks/useNavigationItem'
-import { useNestingLevel } from '../lib/nesting-utils'
 import { GlossaryTerm } from './GlossaryTerm'
 import {
   predefinedScenarios,
@@ -29,9 +28,13 @@ export function ScenarioSelector({ onApplyScenario }: ScenarioSelectorProps) {
   const [selectedScenario, setSelectedScenario] = useState<FinancialScenario | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)
   const [searchQuery, setSearchQuery] = useState('')
-  
-  const nestingLevel = useNestingLevel()
-  const { registerNavigationItem } = useNavigationItem('scenario-selector', nestingLevel)
+
+  const navigationRef = useNavigationItem({
+    id: 'scenario-selector',
+    title: 'Was-wäre-wenn Szenarien',
+    icon: '💡',
+    level: 0,
+  })
 
   // Filter scenarios based on search query
   const filteredScenarios = useMemo(() => {
@@ -76,7 +79,7 @@ export function ScenarioSelector({ onApplyScenario }: ScenarioSelectorProps) {
   return (
     <>
       <Collapsible>
-        <Card ref={registerNavigationItem}>
+        <Card ref={navigationRef}>
           <CardHeader className="pb-3">
             <CollapsibleTrigger asChild>
               <Button
@@ -84,7 +87,9 @@ export function ScenarioSelector({ onApplyScenario }: ScenarioSelectorProps) {
                 className="w-full justify-between p-0 hover:bg-transparent"
               >
                 <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-                  💡 Was-wäre-wenn <GlossaryTerm term="szenario" showIcon />
+                  💡 Was-wäre-wenn
+                  {' '}
+                  <GlossaryTerm term="szenario" showIcon />
                 </CardTitle>
                 <ChevronDown className="h-5 w-5 transition-transform duration-200 data-[state=open]:rotate-180" />
               </Button>
@@ -100,7 +105,8 @@ export function ScenarioSelector({ onApplyScenario }: ScenarioSelectorProps) {
                   <strong>Lernszenarien entdecken:</strong>
                   {' '}
                   Erkunden Sie vordefinierte Finanzszenarien, um verschiedene
-                  Anlagestrategien kennenzulernen. Jedes Szenario zeigt realistische Beispiele mit Lernpunkten und Risiken.
+                  Anlagestrategien kennenzulernen. Jedes Szenario zeigt realistische
+                  Beispiele mit Lernpunkten und Risiken.
                 </AlertDescription>
               </Alert>
 
@@ -110,7 +116,7 @@ export function ScenarioSelector({ onApplyScenario }: ScenarioSelectorProps) {
                 <Input
                   placeholder="Szenarien durchsuchen..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={e => setSearchQuery(e.target.value)}
                   className="pl-10 pr-10"
                 />
                 {searchQuery && (
@@ -132,7 +138,9 @@ export function ScenarioSelector({ onApplyScenario }: ScenarioSelectorProps) {
                       <span className="text-xl">{category.icon}</span>
                       {category.name}
                       <span className="text-sm font-normal text-gray-500">
-                        ({category.scenarios.length})
+                        (
+                        {category.scenarios.length}
+                        )
                       </span>
                     </h3>
 
@@ -162,7 +170,8 @@ export function ScenarioSelector({ onApplyScenario }: ScenarioSelectorProps) {
                                     : 'Einmalanlage'}
                                 </span>
                                 <span className="text-xs bg-blue-100 text-blue-700 px-2 py-1 rounded">
-                                  {scenario.config.expectedReturn}% Rendite
+                                  {scenario.config.expectedReturn}
+                                  % Rendite
                                 </span>
                                 <span className="text-xs bg-green-100 text-green-700 px-2 py-1 rounded">
                                   {scenario.config.retirementYear - scenario.config.startYear}

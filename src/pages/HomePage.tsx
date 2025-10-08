@@ -10,12 +10,14 @@ import { SpecialEvents } from '../components/SpecialEvents'
 import { StickyOverview } from '../components/StickyOverview'
 import { StickyBottomOverview } from '../components/StickyBottomOverview'
 import { GlobalPlanningConfiguration } from '../components/GlobalPlanningConfiguration'
+import ScenarioSelector from '../components/ScenarioSelector'
 
 import { SimulationProvider } from '../contexts/SimulationContext'
 import { NavigationProvider } from '../contexts/NavigationContext'
 import { useSimulation } from '../contexts/useSimulation'
 import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
-import { convertSparplanToElements } from '../utils/sparplan-utils'
+import { convertSparplanToElements, type Sparplan } from '../utils/sparplan-utils'
+import type { FinancialScenario } from '../data/scenarios'
 
 function EnhancedOverview() {
   const {
@@ -280,29 +282,106 @@ const HomePageContent = () => {
     setSparplanElemente,
     sparplanElemente,
     startEnd,
+    setStartEnd,
     simulationAnnual,
     performSimulation,
     simulationData,
     isLoading,
     endOfLife,
     steuerlast,
+    setSteuerlast,
     teilfreistellungsquote,
+    setTeilfreistellungsquote,
     freibetragPerYear,
+    setFreibetragPerYear,
     steuerReduzierenEndkapitalSparphase,
     rendite,
+    setRendite,
     returnMode,
+    setReturnMode,
     averageReturn,
+    setAverageReturn,
     standardDeviation,
+    setStandardDeviation,
     randomSeed,
     variableReturns,
     historicalIndex,
     multiAssetConfig,
     inflationAktivSparphase,
+    setInflationAktivSparphase,
     inflationsrateSparphase,
+    setInflationsrateSparphase,
     inflationAnwendungSparphase,
   } = useSimulation()
 
   const overviewRef = useRef<HTMLDivElement>(null)
+
+  // Handle scenario application
+  const handleApplyScenario = (scenario: FinancialScenario) => {
+    const config = scenario.config
+
+    // Set time range
+    setStartEnd([config.retirementYear, config.retirementYear + 30]) // Default 30 years withdrawal
+
+    // Set return configuration
+    setReturnMode(config.returnMode)
+    if (config.returnMode === 'fixed') {
+      setRendite(config.expectedReturn)
+    }
+    else if (config.returnMode === 'random' && config.volatility) {
+      setAverageReturn(config.expectedReturn)
+      setStandardDeviation(config.volatility)
+    }
+
+    // Set tax configuration
+    if (config.steuerlast !== undefined) {
+      setSteuerlast(config.steuerlast)
+    }
+    if (config.teilfreistellungsquote !== undefined) {
+      setTeilfreistellungsquote(config.teilfreistellungsquote)
+    }
+    if (config.freibetrag !== undefined) {
+      setFreibetragPerYear({ [config.startYear]: config.freibetrag })
+    }
+
+    // Set inflation
+    if (config.inflationRate !== undefined) {
+      setInflationAktivSparphase(true)
+      setInflationsrateSparphase(config.inflationRate)
+    }
+
+    // Create savings plan
+    const newSparplan: Sparplan[] = []
+
+    // Add initial investment if specified
+    if (config.initialInvestment && config.initialInvestment > 0) {
+      newSparplan.push({
+        id: Date.now(),
+        start: new Date(config.startYear, 0, 1),
+        end: new Date(config.startYear, 0, 1), // Same day for one-time payment
+        einzahlung: config.initialInvestment,
+        ter: config.ter,
+      })
+    }
+
+    // Add monthly contribution if specified
+    if (config.monthlyContribution && config.monthlyContribution > 0) {
+      newSparplan.push({
+        id: Date.now() + 1,
+        start: new Date(config.startYear, 0, 1),
+        end: new Date(config.retirementYear - 1, 11, 31),
+        einzahlung: config.monthlyContribution * 12, // Convert to annual
+        ter: config.ter,
+      })
+    }
+
+    setSparplan(newSparplan)
+
+    // Trigger recalculation
+    setTimeout(() => {
+      performSimulation()
+    }, 100)
+  }
 
   // Build ReturnConfiguration from context properties
   const returnConfig = useMemo(() => {
@@ -394,6 +473,8 @@ const HomePageContent = () => {
       <GlobalPlanningConfiguration startOfIndependence={startEnd[0]} />
 
       <ProfileManagement />
+
+      <ScenarioSelector onApplyScenario={handleApplyScenario} />
 
       <SpecialEvents
         dispatch={(updatedSparplan) => {

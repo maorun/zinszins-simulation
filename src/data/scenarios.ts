@@ -1,7 +1,6 @@
 // What-If Scenarios - Predefined financial scenarios for learning and exploration
 // Educational scenarios to help users understand different investment approaches
 
-import type { Sparplan } from '../utils/sparplan-utils'
 import type { ReturnMode } from '../utils/random-returns'
 import type { WithdrawalStrategy } from '../../helpers/withdrawal'
 
@@ -11,36 +10,36 @@ export interface FinancialScenario {
   description: string
   category: 'conservative' | 'balanced' | 'aggressive' | 'special'
   icon: string
-  
+
   // Scenario configuration
   config: {
     // Time range
     startYear: number
     retirementYear: number
-    
+
     // Savings plan
     monthlyContribution: number
     initialInvestment?: number
-    
+
     // Return configuration
     returnMode: ReturnMode
     expectedReturn: number
     volatility?: number // For random return mode
-    
+
     // Tax configuration
     steuerlast?: number
     teilfreistellungsquote?: number
     freibetrag?: number
-    
+
     // Withdrawal strategy
     withdrawalStrategy?: WithdrawalStrategy
     withdrawalRate?: number
-    
+
     // Special characteristics
     ter?: number
     inflationRate?: number
   }
-  
+
   // Educational content
   learningPoints: string[]
   risks: string[]
