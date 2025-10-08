@@ -6,7 +6,7 @@
 /**
  * Type of income source
  */
-export type IncomeType = 'rental' | 'pension' | 'business' | 'investment' | 'other'
+export type IncomeType = 'rental' | 'pension' | 'business' | 'investment' | 'kindergeld' | 'other'
 
 /**
  * Real estate-specific configuration for rental income
@@ -29,6 +29,23 @@ export interface RealEstateConfig {
 
   /** Whether to include property appreciation in calculations */
   includeAppreciation: boolean
+}
+
+/**
+ * Kindergeld-specific configuration
+ */
+export interface KindergeldConfig {
+  /** Number of children receiving Kindergeld */
+  numberOfChildren: number
+
+  /** Birth year of the child (used to calculate when Kindergeld ends) */
+  childBirthYear: number
+
+  /** Whether the child is in education/training (extends Kindergeld until age 25) */
+  inEducation: boolean
+
+  /** Child order number (1st, 2nd, 3rd, etc.) - affects the amount */
+  childOrderNumber: number
 }
 
 /**
@@ -75,6 +92,9 @@ export interface OtherIncomeSource {
 
   /** Real estate-specific configuration (only for rental income) */
   realEstateConfig?: RealEstateConfig
+
+  /** Kindergeld-specific configuration (only for kindergeld income) */
+  kindergeldConfig?: KindergeldConfig
 }
 
 /**
@@ -114,6 +134,16 @@ export interface OtherIncomeYearResult {
     annualAppreciation: number
     /** Net rental income after all real estate costs */
     netRentalIncome: number
+  }
+
+  /** Kindergeld-specific calculations (only for kindergeld income) */
+  kindergeldDetails?: {
+    /** Child's age this year */
+    childAge: number
+    /** Whether Kindergeld is still being paid */
+    isActive: boolean
+    /** Reason if Kindergeld ended */
+    endReason?: string
   }
 }
 
@@ -203,6 +233,46 @@ export function calculateOtherIncomeForYear(
     }
   }
 
+  let kindergeldDetails: OtherIncomeYearResult['kindergeldDetails']
+
+  // Apply Kindergeld-specific calculations
+  if (source.type === 'kindergeld' && source.kindergeldConfig) {
+    const config = source.kindergeldConfig
+    const childAge = year - config.childBirthYear
+
+    // Determine if Kindergeld is still being paid based on age
+    let isActive = true
+    let endReason: string | undefined
+
+    if (childAge < 0) {
+      // Child not yet born
+      isActive = false
+      endReason = 'Kind noch nicht geboren'
+    }
+    else if (childAge >= 18 && !config.inEducation) {
+      // Child is 18 or older and not in education
+      isActive = false
+      endReason = 'Kind ist 18 oder älter (nicht in Ausbildung)'
+    }
+    else if (childAge >= 25) {
+      // Child is 25 or older (even in education)
+      isActive = false
+      endReason = 'Kind ist 25 oder älter'
+    }
+
+    kindergeldDetails = {
+      childAge,
+      isActive,
+      endReason,
+    }
+
+    // If Kindergeld ended, set amounts to zero
+    if (!isActive) {
+      grossAnnualAmount = 0
+      grossMonthlyAmount = 0
+    }
+  }
+
   let taxAmount = 0
   let netAnnualAmount = grossAnnualAmount
   let netMonthlyAmount = grossMonthlyAmount
@@ -226,6 +296,10 @@ export function calculateOtherIncomeForYear(
 
   if (realEstateDetails) {
     result.realEstateDetails = realEstateDetails
+  }
+
+  if (kindergeldDetails) {
+    result.kindergeldDetails = kindergeldDetails
   }
 
   return result
@@ -274,16 +348,18 @@ export function calculateOtherIncome(
  * Create a default other income source
  */
 export function createDefaultOtherIncomeSource(type: IncomeType = 'rental'): OtherIncomeSource {
+  const currentYear = new Date().getFullYear()
+
   const source: OtherIncomeSource = {
     id: generateId(),
     name: getDefaultNameForType(type),
     type,
-    amountType: 'gross',
-    monthlyAmount: type === 'rental' ? 1000 : 800,
-    startYear: new Date().getFullYear(),
+    amountType: type === 'kindergeld' ? 'net' : 'gross', // Kindergeld is tax-free
+    monthlyAmount: type === 'rental' ? 1000 : type === 'kindergeld' ? 250 : 800,
+    startYear: currentYear,
     endYear: null, // Permanent by default
-    inflationRate: 2.0, // 2% inflation adjustment
-    taxRate: 30.0, // 30% tax rate for gross income
+    inflationRate: type === 'kindergeld' ? 0 : 2.0, // Kindergeld doesn't auto-adjust for inflation
+    taxRate: type === 'kindergeld' ? 0 : 30.0, // Kindergeld is tax-free
     enabled: true,
     notes: '',
   }
@@ -291,6 +367,11 @@ export function createDefaultOtherIncomeSource(type: IncomeType = 'rental'): Oth
   // Add default real estate configuration for rental income
   if (type === 'rental') {
     source.realEstateConfig = createDefaultRealEstateConfig()
+  }
+
+  // Add default Kindergeld configuration
+  if (type === 'kindergeld') {
+    source.kindergeldConfig = createDefaultKindergeldConfig()
   }
 
   return source
@@ -311,6 +392,31 @@ export function createDefaultRealEstateConfig(): RealEstateConfig {
 }
 
 /**
+ * Create default Kindergeld configuration
+ */
+export function createDefaultKindergeldConfig(): KindergeldConfig {
+  const currentYear = new Date().getFullYear()
+
+  return {
+    numberOfChildren: 1,
+    childBirthYear: currentYear, // Newborn by default
+    inEducation: false, // Not yet in education (but will be considered when child reaches 18)
+    childOrderNumber: 1, // First child by default
+  }
+}
+
+/**
+ * Get the monthly Kindergeld amount based on German law (as of 2024)
+ * @param _childOrderNumber - The order of the child (1st, 2nd, 3rd, etc.)
+ * @returns Monthly Kindergeld amount in EUR
+ */
+export function getKindergeldAmount(_childOrderNumber: number): number {
+  // As of 2024, all children receive 250€/month
+  // This is a simplification - historically amounts varied by child order
+  return 250
+}
+
+/**
  * Get default name for income type
  */
 function getDefaultNameForType(type: IncomeType): string {
@@ -319,6 +425,7 @@ function getDefaultNameForType(type: IncomeType): string {
     pension: 'Private Rente',
     business: 'Gewerbeeinkünfte',
     investment: 'Kapitalerträge',
+    kindergeld: 'Kindergeld',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || 'Einkommen'
@@ -340,6 +447,7 @@ export function getIncomeTypeDisplayName(type: IncomeType): string {
     pension: 'Rente/Pension',
     business: 'Gewerbeeinkünfte',
     investment: 'Kapitalerträge',
+    kindergeld: 'Kindergeld',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || type

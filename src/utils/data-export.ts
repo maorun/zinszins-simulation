@@ -474,6 +474,7 @@ export function exportDataToMarkdown(data: ExportData): string {
         pension: 'Rente/Pension',
         business: 'Gewerbeeinkünfte',
         investment: 'Kapitalerträge',
+        kindergeld: 'Kindergeld',
         other: 'Sonstige Einkünfte',
       }[source.type] || source.type
 
