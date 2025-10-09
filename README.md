@@ -1,6 +1,8 @@
 
 # Zinseszins-Rechner
 
+[![Codacy Badge](https://api.codacy.com/project/badge/Grade/454072b4539d4a8a9b0026ccd4a5061f)](https://app.codacy.com/gh/maorun/zinszins-simulation?utm_source=github.com&utm_medium=referral&utm_content=maorun/zinszins-simulation&utm_campaign=Badge_Grade)
+
 Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender Steuerberechnung und Entnahmeplanung.
 
 **Live-Version:** https://zinszins-simulation.vercel.app/
