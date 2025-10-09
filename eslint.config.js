@@ -58,6 +58,35 @@ export default [
       }],
       '@stylistic/semi': ['error', 'never'],
       '@stylistic/multiline-ternary': 'off', // Disable to avoid excessive refactoring
+
+      // Code Quality Rules (Codacy best practices)
+      'complexity': ['warn', 25], // Cyclomatic complexity
+      'max-depth': ['warn', 5], // Maximum nesting depth
+      'max-lines-per-function': ['warn', { max: 400, skipBlankLines: true, skipComments: true }],
+      
+      // Security Rules (Codacy security patterns)
+      'no-eval': 'error',
+      'no-implied-eval': 'error',
+      'no-new-func': 'error',
+      'no-script-url': 'error',
+      
+      // Best Practices (Codacy recommendations)
+      'no-debugger': 'error',
+      'no-alert': 'warn',
+      'eqeqeq': ['error', 'always', { null: 'ignore' }],
+      'no-var': 'error',
+      'prefer-const': 'error',
+      'no-throw-literal': 'error',
+      'no-duplicate-imports': 'error',
+      'no-self-compare': 'error',
+      'no-template-curly-in-string': 'warn',
+      
+      // TypeScript-specific rules (Codacy TypeScript patterns) - only rules that don't require type info
+      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/array-type': ['warn', { default: 'array-simple' }],
+      '@typescript-eslint/consistent-type-assertions': 'warn',
+      '@typescript-eslint/no-array-constructor': 'error',
+      '@typescript-eslint/no-inferrable-types': 'warn',
     },
   },
   {
@@ -78,6 +107,12 @@ export default [
     },
     rules: {
       'react-refresh/only-export-components': 'off',
+      // Relax code quality rules for test files
+      'max-lines-per-function': 'off',
+      'max-nested-callbacks': 'off',
+      'complexity': 'off',
+      '@typescript-eslint/no-explicit-any': 'off',
+      'no-console': 'off', // Allow console in tests for debugging
     },
   },
 ]

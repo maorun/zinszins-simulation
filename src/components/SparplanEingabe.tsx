@@ -1,7 +1,5 @@
-import type { SimulationAnnualType } from '../utils/simulate'
-import { SimulationAnnual } from '../utils/simulate'
-import type { Sparplan } from '../utils/sparplan-utils'
-import { initialSparplan } from '../utils/sparplan-utils'
+import { SimulationAnnual, type SimulationAnnualType } from '../utils/simulate'
+import { initialSparplan, type Sparplan } from '../utils/sparplan-utils'
 import React, { useState, useEffect } from 'react'
 
 // Simple Close icon component using modern Lucide React icons

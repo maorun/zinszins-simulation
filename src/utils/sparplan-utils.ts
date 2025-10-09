@@ -1,5 +1,4 @@
-import type { SimulationAnnualType, SimulationResult } from './simulate'
-import { SimulationAnnual } from './simulate'
+import { SimulationAnnual, type SimulationAnnualType, type SimulationResult } from './simulate'
 
 export type RelationshipType
   = | 'spouse' // Ehegatte - €500,000 exemption

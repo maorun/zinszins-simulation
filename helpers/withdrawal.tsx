@@ -1,17 +1,13 @@
 import type { SparplanElement } from '../src/utils/sparplan-utils'
 import { getBasiszinsForYear, calculateVorabpauschale, calculateSteuerOnVorabpauschale, performGuenstigerPruefung } from './steuer'
-import type { ReturnConfiguration } from '../src/utils/random-returns'
-import { generateRandomReturns } from '../src/utils/random-returns'
+import { generateRandomReturns, type ReturnConfiguration } from '../src/utils/random-returns'
 import type { SegmentedWithdrawalConfig, WithdrawalSegment } from '../src/utils/segmented-withdrawal'
 import type { WithdrawalFrequency } from '../src/utils/config-storage'
 import type { BasiszinsConfiguration } from '../src/services/bundesbank-api'
 import { calculateRMDWithdrawal } from './rmd-tables'
-import type { StatutoryPensionConfig } from './statutory-pension'
-import { calculateStatutoryPension } from './statutory-pension'
-import type { OtherIncomeConfiguration } from './other-income'
-import { calculateOtherIncome } from './other-income'
-import type { HealthCareInsuranceConfig, CoupleHealthInsuranceYearResult } from './health-care-insurance'
-import { calculateHealthCareInsuranceForYear, calculateCoupleHealthInsuranceForYear } from './health-care-insurance'
+import { calculateStatutoryPension, type StatutoryPensionConfig } from './statutory-pension'
+import { calculateOtherIncome, type OtherIncomeConfiguration } from './other-income'
+import { calculateHealthCareInsuranceForYear, calculateCoupleHealthInsuranceForYear, type HealthCareInsuranceConfig, type CoupleHealthInsuranceYearResult } from './health-care-insurance'
 
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt' | 'steueroptimiert'
 
@@ -558,7 +554,7 @@ export function calculateWithdrawal({
 
     // Bucket strategy logic: decide which bucket to use for withdrawal
     let bucketUsed: 'portfolio' | 'cash' | undefined
-    let cashCushionAtStart = cashCushion
+    const cashCushionAtStart = cashCushion
     let refillAmount = 0
 
     if (strategy === 'bucket_strategie' && bucketConfig) {
@@ -627,12 +623,12 @@ export function calculateWithdrawal({
     const yearlyFreibetrag = getFreibetragForYear(year)
     const basiszins = getBasiszinsForYear(year, basiszinsConfiguration)
     let totalPotentialVorabTax = 0
-    const vorabCalculations: {
+    const vorabCalculations: Array<{
       layer: MutableLayer
       vorabpauschaleBetrag: number
       potentialTax: number
       valueBeforeWithdrawal: number
-    }[] = []
+    }> = []
 
     mutableLayers.forEach((layer: MutableLayer) => {
       if (layer.currentValue > 0) {
@@ -716,7 +712,7 @@ export function calculateWithdrawal({
     }
 
     const freibetragUsedOnGains = Math.min(taxableGain, yearlyFreibetrag)
-    let remainingFreibetrag = yearlyFreibetrag - freibetragUsedOnGains
+    const remainingFreibetrag = yearlyFreibetrag - freibetragUsedOnGains
 
     // FOURTH: Apply remaining freibetrag to Vorabpauschale and calculate final growth
     const taxOnVorabpauschale = Math.max(0, totalPotentialVorabTax - remainingFreibetrag)
@@ -963,9 +959,9 @@ export function calculateSegmentedWithdrawal(
 export function calculateIncomeTax(
   withdrawalAmount: number,
   grundfreibetragYear: number = grundfreibetrag[2023],
-  incomeTaxRate: number = 0.18,
-  kirchensteuerAktiv: boolean = false,
-  kirchensteuersatz: number = 9,
+  incomeTaxRate = 0.18,
+  kirchensteuerAktiv = false,
+  kirchensteuersatz = 9,
 ): number {
   const taxableIncome = Math.max(0, withdrawalAmount - grundfreibetragYear)
   const baseIncomeTax = taxableIncome * incomeTaxRate

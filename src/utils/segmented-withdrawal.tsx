@@ -1,6 +1,5 @@
-import type { WithdrawalStrategy } from '../../helpers/withdrawal'
+import { type WithdrawalStrategy, type MonthlyWithdrawalConfig, type InflationConfig, type DynamicWithdrawalConfig, type BucketStrategyConfig, type RMDConfig, type SteueroptimierteEntnahmeConfig } from '../../helpers/withdrawal'
 import type { ReturnConfiguration } from '../../helpers/random-returns'
-import type { MonthlyWithdrawalConfig, InflationConfig, DynamicWithdrawalConfig, BucketStrategyConfig, RMDConfig, SteueroptimierteEntnahmeConfig } from '../../helpers/withdrawal'
 import type { WithdrawalFrequency } from './config-storage'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
 
@@ -236,7 +235,7 @@ export function createSingleSegmentConfig(
   monthlyConfig?: MonthlyWithdrawalConfig,
   inflationConfig?: InflationConfig,
   incomeTaxRate?: number,
-  steuerReduzierenEndkapital: boolean = true,
+  steuerReduzierenEndkapital = true,
 ): SegmentedWithdrawalConfig {
   const segment: WithdrawalSegment = {
     id: 'main',

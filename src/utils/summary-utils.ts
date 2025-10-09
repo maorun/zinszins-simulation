@@ -375,7 +375,7 @@ function createWithdrawalSegmentSummaries(
     )
 
     // Calculate metrics for this segment
-    let segmentStartCapital = currentCapital
+    const segmentStartCapital = currentCapital
     let segmentEndCapital = currentCapital
     let totalWithdrawn = 0
     let totalMonthlyWithdrawals = 0

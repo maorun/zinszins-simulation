@@ -5,11 +5,10 @@ import { Label } from './ui/label'
 import { Separator } from './ui/separator'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { Plus, Trash2, ChevronDown } from 'lucide-react'
-import { createDefaultWithdrawalSegment } from '../utils/segmented-withdrawal'
+import { createDefaultWithdrawalSegment, type WithdrawalSegment } from '../utils/segmented-withdrawal'
 import { WithdrawalSegmentForm } from './WithdrawalSegmentForm'
 import { useNestingLevel } from '../lib/nesting-utils'
 import type { SegmentedComparisonStrategy } from '../utils/config-storage'
-import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
 
 interface SegmentedComparisonConfigurationProps {
   segmentedComparisonStrategies: SegmentedComparisonStrategy[]

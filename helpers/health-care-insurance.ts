@@ -271,8 +271,8 @@ export function calculateHealthCareInsuranceForYear(
   config: HealthCareInsuranceConfig,
   year: number,
   withdrawalAmount: number,
-  pensionAmount: number = 0,
-  currentAge: number = 30,
+  pensionAmount = 0,
+  currentAge = 30,
 ): HealthCareInsuranceYearResult {
   if (!config.enabled) {
     return {
@@ -483,7 +483,7 @@ export function calculateCoupleHealthInsuranceForYear(
   config: HealthCareInsuranceConfig,
   year: number,
   withdrawalAmount: number,
-  pensionAmount: number = 0,
+  pensionAmount = 0,
 ): CoupleHealthInsuranceYearResult {
   if (!config.enabled || config.planningMode !== 'couple' || !config.coupleConfig) {
     throw new Error('Couple health insurance calculation requires couple planning mode and couple config')
@@ -816,7 +816,7 @@ export function calculateCoupleHealthCareInsurance(
 /**
  * Create default family insurance thresholds for the given year
  */
-export function createDefaultFamilyInsuranceThresholds(year: number = 2025): FamilyInsuranceThresholds {
+export function createDefaultFamilyInsuranceThresholds(year = 2025): FamilyInsuranceThresholds {
   return {
     regularEmploymentLimit: 505, // €505/month for 2025
     miniJobLimit: 538, // €538/month for mini-jobs in 2025

@@ -21,10 +21,11 @@ const handleNumberInputChange = (
 }
 
 // No more temporary components needed!
-import type {
-  WithdrawalSegment,
+import {
+  validateWithdrawalSegments,
+  createDefaultWithdrawalSegment,
+  type WithdrawalSegment,
 } from '../utils/segmented-withdrawal'
-import { validateWithdrawalSegments, createDefaultWithdrawalSegment } from '../utils/segmented-withdrawal'
 import type { WithdrawalStrategy } from '../../helpers/withdrawal'
 import type { ReturnConfiguration } from '../../helpers/random-returns'
 import { DynamicWithdrawalConfiguration } from './DynamicWithdrawalConfiguration'

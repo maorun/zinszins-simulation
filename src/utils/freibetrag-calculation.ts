@@ -15,7 +15,7 @@ export type PlanningMode = 'individual' | 'couple'
  */
 export function calculateFreibetragForPlanningMode(
   planningMode: PlanningMode,
-  individualFreibetrag: number = 2000,
+  individualFreibetrag = 2000,
 ): number {
   switch (planningMode) {
     case 'individual':
@@ -41,7 +41,7 @@ export function createPlanningModeAwareFreibetragPerYear(
   endYear: number,
   planningMode: PlanningMode,
   customFreibetragPerYear?: { [year: number]: number },
-  individualFreibetrag: number = 2000,
+  individualFreibetrag = 2000,
 ): { [year: number]: number } {
   const freibetragPerYear: { [year: number]: number } = {}
   const defaultAmount = calculateFreibetragForPlanningMode(planningMode, individualFreibetrag)
@@ -65,7 +65,7 @@ export function createPlanningModeAwareFreibetragPerYear(
 export function updateFreibetragForPlanningMode(
   existingFreibetragPerYear: { [year: number]: number },
   planningMode: PlanningMode,
-  individualFreibetrag: number = 2000,
+  individualFreibetrag = 2000,
 ): { [year: number]: number } {
   const updatedFreibetrag: { [year: number]: number } = { ...existingFreibetragPerYear }
   const planningModeAmount = calculateFreibetragForPlanningMode(planningMode, individualFreibetrag)

@@ -53,7 +53,7 @@ class SeededRandom {
  */
 function boxMuller(rng: SeededRandom): number {
   let u1 = rng.next()
-  let u2 = rng.next()
+  const u2 = rng.next()
 
   // Ensure u1 is not 0 to avoid log(0)
   while (u1 === 0) {
@@ -93,9 +93,9 @@ export function generateRandomReturns(
 export function generateMonteCarloReturns(
   years: number[],
   config: RandomReturnConfig,
-  runs: number = 1000,
-): Record<number, number>[] {
-  const results: Record<number, number>[] = []
+  runs = 1000,
+): Array<Record<number, number>> {
+  const results: Array<Record<number, number>> = []
 
   for (let run = 0; run < runs; run++) {
     // Use different seed for each run if base seed is provided
@@ -114,7 +114,7 @@ export function generateMonteCarloReturns(
  */
 export function calculateMonteCarloStatistics(
   results: number[],
-  confidenceLevel: number = 0.95,
+  confidenceLevel = 0.95,
 ): {
   mean: number
   median: number

@@ -1,11 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { calculateWithdrawal } from './withdrawal'
 import type { SparplanElement } from '../src/utils/sparplan-utils'
-import { createDefaultStatutoryPensionConfig } from './statutory-pension'
-import type { StatutoryPensionConfig } from './statutory-pension'
+import { createDefaultStatutoryPensionConfig, type StatutoryPensionConfig } from './statutory-pension'
 import type { OtherIncomeConfiguration, OtherIncomeSource } from './other-income'
-import type { HealthCareInsuranceConfig } from './health-care-insurance'
-import { createDefaultHealthCareInsuranceConfig } from './health-care-insurance'
+import { createDefaultHealthCareInsuranceConfig, type HealthCareInsuranceConfig } from './health-care-insurance'
 
 describe('Centralized Taxable Income Calculation', () => {
   // Helper function to create test elements

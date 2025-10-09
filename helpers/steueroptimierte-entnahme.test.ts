@@ -1,6 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { calculateWithdrawal } from './withdrawal'
-import type { SteueroptimierteEntnahmeConfig } from './withdrawal'
+import { calculateWithdrawal, type SteueroptimierteEntnahmeConfig } from './withdrawal'
 
 /**
  * Comprehensive tests for the tax-optimized withdrawal strategy

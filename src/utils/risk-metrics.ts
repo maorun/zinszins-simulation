@@ -93,7 +93,7 @@ export function calculateDrawdown(values: number[]): {
 /**
  * Calculate Sharpe Ratio
  */
-export function calculateSharpeRatio(returns: number[], riskFreeRate: number = 0.02): number {
+export function calculateSharpeRatio(returns: number[], riskFreeRate = 0.02): number {
   if (returns.length === 0) return 0
 
   const avgReturn = returns.reduce((sum, ret) => sum + ret, 0) / returns.length
@@ -111,7 +111,7 @@ export function calculateSharpeRatio(returns: number[], riskFreeRate: number = 0
 /**
  * Calculate Sortino Ratio (uses only downside volatility)
  */
-export function calculateSortinoRatio(returns: number[], riskFreeRate: number = 0.02): number {
+export function calculateSortinoRatio(returns: number[], riskFreeRate = 0.02): number {
   if (returns.length === 0) return 0
 
   const avgReturn = returns.reduce((sum, ret) => sum + ret, 0) / returns.length
