@@ -9,6 +9,8 @@ import {
   createDefaultRealEstateConfig,
   getIncomeTypeDisplayName,
   getAmountTypeDisplayName,
+  getKindergeldAmount,
+  createDefaultKindergeldConfig,
 } from './other-income'
 
 describe('Other Income Calculations', () => {
@@ -493,6 +495,7 @@ describe('Other Income Calculations', () => {
       expect(getIncomeTypeDisplayName('pension')).toBe('Rente/Pension')
       expect(getIncomeTypeDisplayName('business')).toBe('Gewerbeeinkünfte')
       expect(getIncomeTypeDisplayName('investment')).toBe('Kapitalerträge')
+      expect(getIncomeTypeDisplayName('kindergeld')).toBe('Kindergeld')
       expect(getIncomeTypeDisplayName('other')).toBe('Sonstige Einkünfte')
     })
   })
@@ -501,6 +504,222 @@ describe('Other Income Calculations', () => {
     it('should return correct display names for amount types', () => {
       expect(getAmountTypeDisplayName('gross')).toBe('Brutto')
       expect(getAmountTypeDisplayName('net')).toBe('Netto')
+    })
+  })
+
+  describe('Kindergeld Calculations', () => {
+    it('should calculate Kindergeld correctly for a newborn child', () => {
+      const source: OtherIncomeSource = {
+        id: 'kindergeld-1',
+        name: 'Kindergeld Kind 1',
+        type: 'kindergeld',
+        amountType: 'net',
+        monthlyAmount: 250,
+        startYear: 2024,
+        endYear: null,
+        inflationRate: 0,
+        taxRate: 0,
+        enabled: true,
+        kindergeldConfig: {
+          numberOfChildren: 1,
+          childBirthYear: 2024,
+          inEducation: false,
+          childOrderNumber: 1,
+        },
+      }
+
+      const result = calculateOtherIncomeForYear(source, 2024)
+      expect(result).not.toBe(null)
+      expect(result!.grossMonthlyAmount).toBe(250)
+      expect(result!.grossAnnualAmount).toBe(3000)
+      expect(result!.taxAmount).toBe(0) // Kindergeld is tax-free
+      expect(result!.netAnnualAmount).toBe(3000)
+      expect(result!.kindergeldDetails?.childAge).toBe(0)
+      expect(result!.kindergeldDetails?.isActive).toBe(true)
+    })
+
+    it('should stop Kindergeld at age 18 if not in education', () => {
+      const source: OtherIncomeSource = {
+        id: 'kindergeld-1',
+        name: 'Kindergeld Kind 1',
+        type: 'kindergeld',
+        amountType: 'net',
+        monthlyAmount: 250,
+        startYear: 2024,
+        endYear: null,
+        inflationRate: 0,
+        taxRate: 0,
+        enabled: true,
+        kindergeldConfig: {
+          numberOfChildren: 1,
+          childBirthYear: 2006, // Child born in 2006, will be 18 in 2024
+          inEducation: false,
+          childOrderNumber: 1,
+        },
+      }
+
+      const result = calculateOtherIncomeForYear(source, 2024)
+      expect(result).not.toBe(null)
+      expect(result!.grossAnnualAmount).toBe(0)
+      expect(result!.netAnnualAmount).toBe(0)
+      expect(result!.kindergeldDetails?.childAge).toBe(18)
+      expect(result!.kindergeldDetails?.isActive).toBe(false)
+      expect(result!.kindergeldDetails?.endReason).toBe('Kind ist 18 oder älter (nicht in Ausbildung)')
+    })
+
+    it('should continue Kindergeld until age 25 if in education', () => {
+      const source: OtherIncomeSource = {
+        id: 'kindergeld-1',
+        name: 'Kindergeld Kind 1',
+        type: 'kindergeld',
+        amountType: 'net',
+        monthlyAmount: 250,
+        startYear: 2024,
+        endYear: null,
+        inflationRate: 0,
+        taxRate: 0,
+        enabled: true,
+        kindergeldConfig: {
+          numberOfChildren: 1,
+          childBirthYear: 2004, // Child born in 2004, will be 20 in 2024
+          inEducation: true,
+          childOrderNumber: 1,
+        },
+      }
+
+      // At age 20, still in education - should receive Kindergeld
+      const result2024 = calculateOtherIncomeForYear(source, 2024)
+      expect(result2024).not.toBe(null)
+      expect(result2024!.grossAnnualAmount).toBe(3000)
+      expect(result2024!.kindergeldDetails?.childAge).toBe(20)
+      expect(result2024!.kindergeldDetails?.isActive).toBe(true)
+
+      // At age 24, still in education - should receive Kindergeld
+      const result2028 = calculateOtherIncomeForYear(source, 2028)
+      expect(result2028).not.toBe(null)
+      expect(result2028!.grossAnnualAmount).toBe(3000)
+      expect(result2028!.kindergeldDetails?.childAge).toBe(24)
+      expect(result2028!.kindergeldDetails?.isActive).toBe(true)
+
+      // At age 25, even in education - Kindergeld stops
+      const result2029 = calculateOtherIncomeForYear(source, 2029)
+      expect(result2029).not.toBe(null)
+      expect(result2029!.grossAnnualAmount).toBe(0)
+      expect(result2029!.kindergeldDetails?.childAge).toBe(25)
+      expect(result2029!.kindergeldDetails?.isActive).toBe(false)
+      expect(result2029!.kindergeldDetails?.endReason).toBe('Kind ist 25 oder älter')
+    })
+
+    it('should not pay Kindergeld before child is born', () => {
+      const source: OtherIncomeSource = {
+        id: 'kindergeld-1',
+        name: 'Kindergeld Kind 1',
+        type: 'kindergeld',
+        amountType: 'net',
+        monthlyAmount: 250,
+        startYear: 2023,
+        endYear: null,
+        inflationRate: 0,
+        taxRate: 0,
+        enabled: true,
+        kindergeldConfig: {
+          numberOfChildren: 1,
+          childBirthYear: 2025, // Child will be born in 2025
+          inEducation: false,
+          childOrderNumber: 1,
+        },
+      }
+
+      const result = calculateOtherIncomeForYear(source, 2024)
+      expect(result).not.toBe(null)
+      expect(result!.grossAnnualAmount).toBe(0)
+      expect(result!.netAnnualAmount).toBe(0)
+      expect(result!.kindergeldDetails?.childAge).toBe(-1)
+      expect(result!.kindergeldDetails?.isActive).toBe(false)
+      expect(result!.kindergeldDetails?.endReason).toBe('Kind noch nicht geboren')
+    })
+
+    it('should create default Kindergeld source with correct settings', () => {
+      const source = createDefaultOtherIncomeSource('kindergeld')
+
+      expect(source.type).toBe('kindergeld')
+      expect(source.amountType).toBe('net') // Kindergeld is tax-free
+      expect(source.monthlyAmount).toBe(250)
+      expect(source.inflationRate).toBe(0) // Kindergeld doesn't auto-adjust
+      expect(source.taxRate).toBe(0) // Kindergeld is tax-free
+      expect(source.kindergeldConfig).toBeDefined()
+      expect(source.kindergeldConfig?.numberOfChildren).toBe(1)
+      expect(source.kindergeldConfig?.childOrderNumber).toBe(1)
+      expect(source.kindergeldConfig?.inEducation).toBe(false)
+    })
+
+    it('should calculate total Kindergeld for multiple children over years', () => {
+      const config: OtherIncomeConfiguration = {
+        enabled: true,
+        sources: [
+          {
+            id: 'kindergeld-1',
+            name: 'Kindergeld Kind 1',
+            type: 'kindergeld',
+            amountType: 'net',
+            monthlyAmount: 250,
+            startYear: 2024,
+            endYear: null,
+            inflationRate: 0,
+            taxRate: 0,
+            enabled: true,
+            kindergeldConfig: {
+              numberOfChildren: 1,
+              childBirthYear: 2024,
+              inEducation: false,
+              childOrderNumber: 1,
+            },
+          },
+          {
+            id: 'kindergeld-2',
+            name: 'Kindergeld Kind 2',
+            type: 'kindergeld',
+            amountType: 'net',
+            monthlyAmount: 250,
+            startYear: 2026,
+            endYear: null,
+            inflationRate: 0,
+            taxRate: 0,
+            enabled: true,
+            kindergeldConfig: {
+              numberOfChildren: 1,
+              childBirthYear: 2026,
+              inEducation: false,
+              childOrderNumber: 2,
+            },
+          },
+        ],
+      }
+
+      const result = calculateOtherIncome(config, 2024, 2028)
+
+      // 2024: Only first child (newborn)
+      expect(result[2024].totalNetAnnualAmount).toBe(3000)
+
+      // 2026: Both children
+      expect(result[2026].totalNetAnnualAmount).toBe(6000)
+
+      // 2028: Both children (ages 4 and 2)
+      expect(result[2028].totalNetAnnualAmount).toBe(6000)
+    })
+
+    it('should return correct Kindergeld amount', () => {
+      expect(getKindergeldAmount(1)).toBe(250)
+      expect(getKindergeldAmount(2)).toBe(250)
+      expect(getKindergeldAmount(3)).toBe(250)
+    })
+
+    it('should create default Kindergeld config with correct values', () => {
+      const config = createDefaultKindergeldConfig()
+      expect(config.numberOfChildren).toBe(1)
+      expect(config.childOrderNumber).toBe(1)
+      expect(config.inEducation).toBe(false)
+      expect(config.childBirthYear).toBe(new Date().getFullYear())
     })
   })
 })

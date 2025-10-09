@@ -161,6 +161,12 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Lebensphasen**: Unterscheidung zwischen Vorrente und Rente mit angepassten Beitragssätzen
   - **Zusatzbeiträge**: Kinderloser-Zuschlag (0,6%) individuell konfigurierbar pro Person
 - **Andere Einkünfte** - Zusätzliche Einkommensquellen während der Entnahmephase
+  - **Kindergeld-Integration** - Automatische Berücksichtigung deutschen Kindergelds
+    - **Altersbasierte Berechnung**: Kindergeld endet automatisch mit dem 18. Geburtstag (oder 25 bei Ausbildung)
+    - **Steuerfrei**: Kindergeld ist steuerfrei und wird nicht auf das Einkommen angerechnet
+    - **Aktuelle Beträge**: 250€/Monat pro Kind (Stand 2024)
+    - **Mehrere Kinder**: Separate Konfiguration für jedes Kind mit individuellem Geburtsjahr
+    - **Ausbildungsberücksichtigung**: Option zur Verlängerung bis zum 25. Geburtstag bei Ausbildung/Studium
   - **Immobilien-Cashflow Integration** - Umfassende Immobilienertragsberechnung mit deutschen Steuerregeln
     - **Realistische Kostenfaktoren**: Instandhaltungskosten (0-30%), Leerstandsquote (0-20%), Finanzierungskosten
     - **Wertsteigerungsberechnung**: Optionale Berücksichtigung der Immobilienwertsteigerung als zusätzliches Einkommen
