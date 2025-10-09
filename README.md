@@ -194,6 +194,15 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Flexible Zeitplanung** - Wählbares Jahr für Krisensimulation innerhalb des Anlagezeitraums
   - **Erholungszeit-Anzeige** - Historische Daten zur durchschnittlichen Markterholung
   - **Widerstandsfähigkeitstest** - Bewertung der Portfolio-Robustheit in Extremszenarien
+- **Inflationsszenarien** - Simulation verschiedener Inflationsentwicklungen für Portfolioanalyse
+  - **Hyperinflation** - Anhaltend hohe Inflation (8-12% p.a.) ähnlich der 1970er Jahre
+  - **Deflation** - Negative Inflation (-2% bis 0%) ähnlich Japan in den 1990er Jahren
+  - **Stagflation** - Kombination aus hoher Inflation (6-8%) und reduzierten Renditen
+  - **Kaufkraftverlust-Berechnung** - Automatische Berechnung des realen Kaufkraftverlusts über die Szenariodauer
+  - **Kumulative Inflation** - Gesamtinflation und durchschnittliche jährliche Inflationsrate
+  - **Rendite-Anpassungen** - Bei Stagflation werden Renditen automatisch reduziert
+  - **Flexible Zeitplanung** - Wählbares Startjahr für Inflationsszenario innerhalb des Anlagezeitraums
+  - **Kombinierbar mit variablen Renditen** - Integration in bestehende Variable-Renditen-Konfiguration
 - **Erweiterte Risikobewertung** - Value-at-Risk (5% & 1% VaR), Maximum Drawdown, Sharpe Ratio, Sortino Ratio, Calmar Ratio
 - **Risiko-Zeitreihen** - Detaillierte Drawdown- und Rendite-Serien für tiefere Analyse
 - **Detaillierte Simulation** - Jahr-für-Jahr Aufschlüsselung mit Vorabpauschale-Berechnungen
