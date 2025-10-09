@@ -473,7 +473,7 @@ function applyTaxes(
   yearlyCalculations: any[],
   totalPotentialTaxThisYear: number,
   freibetragPerYear?: { [year: number]: number },
-  steuerReduzierenEndkapital: boolean = true,
+  steuerReduzierenEndkapital = true,
   _options?: SimulateOptions,
 ) {
   const getFreibetragForYear = (year: number): number => {

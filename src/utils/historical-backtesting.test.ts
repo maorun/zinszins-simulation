@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest'
-import { simulate } from './simulate'
+import { simulate, SimulationAnnual } from './simulate'
 import type { ReturnConfiguration } from './random-returns'
 import type { SparplanElement } from './sparplan-utils'
-import { SimulationAnnual } from './simulate'
 
 describe('Historical Backtesting Integration', () => {
   // Helper function to create test SparplanElement (same as in simulate.test.ts)

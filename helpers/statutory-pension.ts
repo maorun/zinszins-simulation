@@ -142,8 +142,8 @@ export interface CoupleStatutoryPensionResult {
 export function calculateStatutoryPensionForYear(
   config: StatutoryPensionConfig,
   year: number,
-  incomeTaxRate: number = 0.0, // Income tax rate for pension taxation
-  grundfreibetragAmount: number = 0, // Basic tax allowance
+  incomeTaxRate = 0.0, // Income tax rate for pension taxation
+  grundfreibetragAmount = 0, // Basic tax allowance
 ): StatutoryPensionYearResult {
   if (!config.enabled || year < config.startYear) {
     return {
@@ -191,7 +191,7 @@ export function calculateStatutoryPension(
   config: StatutoryPensionConfig,
   startYear: number,
   endYear: number,
-  incomeTaxRate: number = 0.0,
+  incomeTaxRate = 0.0,
   grundfreibetragPerYear?: { [year: number]: number },
 ): StatutoryPensionResult {
   const result: StatutoryPensionResult = {}
@@ -226,7 +226,7 @@ export function createDefaultStatutoryPensionConfig(): StatutoryPensionConfig {
 /**
  * Calculate start year from birth year and retirement age
  */
-export function calculatePensionStartYear(birthYear: number, retirementAge: number = 67): number {
+export function calculatePensionStartYear(birthYear: number, retirementAge = 67): number {
   return birthYear + retirementAge
 }
 
@@ -237,8 +237,8 @@ export function calculatePensionStartYear(birthYear: number, retirementAge: numb
 export function calculateCoupleRetirementStartYear(
   person1BirthYear: number,
   person2BirthYear: number,
-  person1RetirementAge: number = 67,
-  person2RetirementAge: number = 67,
+  person1RetirementAge = 67,
+  person2RetirementAge = 67,
 ): number {
   const person1RetirementYear = calculatePensionStartYear(person1BirthYear, person1RetirementAge)
   const person2RetirementYear = calculatePensionStartYear(person2BirthYear, person2RetirementAge)
@@ -254,8 +254,8 @@ export function calculateRetirementStartYear(
   planningMode: 'individual' | 'couple',
   birthYear?: number,
   spouseBirthYear?: number,
-  retirementAge: number = 67,
-  spouseRetirementAge: number = 67,
+  retirementAge = 67,
+  spouseRetirementAge = 67,
 ): number | null {
   if (planningMode === 'individual') {
     return birthYear ? calculatePensionStartYear(birthYear, retirementAge) : null
@@ -317,7 +317,7 @@ export function calculateCoupleStatutoryPension(
   config: CoupleStatutoryPensionConfig,
   startYear: number,
   endYear: number,
-  incomeTaxRate: number = 0.0,
+  incomeTaxRate = 0.0,
   grundfreibetragPerYear?: { [year: number]: number },
 ): CoupleStatutoryPensionResult {
   const result: CoupleStatutoryPensionResult = {}

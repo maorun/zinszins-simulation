@@ -5,8 +5,7 @@
  * This helps users understand which parameters have the most impact on their financial planning.
  */
 
-import type { SimulationAnnualType } from './simulate'
-import { simulate } from './simulate'
+import { simulate, type SimulationAnnualType } from './simulate'
 import type { SparplanElement } from './sparplan-utils'
 import type { ReturnConfiguration } from './random-returns'
 

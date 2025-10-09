@@ -764,7 +764,7 @@ function getWithdrawalStrategyLabel(strategy: string): string {
 /**
  * Helper function to handle the common DOM manipulation logic for file downloads
  */
-function downloadBlobAsFile(blob: Blob, filename: string, setCharsetAttribute: boolean = false): void {
+function downloadBlobAsFile(blob: Blob, filename: string, setCharsetAttribute = false): void {
   const url = URL.createObjectURL(blob)
 
   const link = document.createElement('a')
@@ -786,7 +786,7 @@ function downloadBlobAsFile(blob: Blob, filename: string, setCharsetAttribute: b
 /**
  * Download text content as file
  */
-export function downloadTextAsFile(content: string, filename: string, mimeType: string = 'text/plain'): void {
+export function downloadTextAsFile(content: string, filename: string, mimeType = 'text/plain'): void {
   // For CSV files, use a more robust UTF-8 encoding approach
   if (filename.endsWith('.csv')) {
     // Convert string to UTF-8 byte array and add UTF-8 BOM for CSV compatibility

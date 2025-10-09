@@ -4,8 +4,7 @@ import {
   simulateMultiAssetPortfolio,
   calculateEquivalentSingleAssetReturn,
 } from './multi-asset-calculations'
-import { createDefaultMultiAssetConfig } from './multi-asset-portfolio'
-import type { MultiAssetPortfolioConfig } from './multi-asset-portfolio'
+import { createDefaultMultiAssetConfig, type MultiAssetPortfolioConfig } from './multi-asset-portfolio'
 
 // Mock the random number generator for consistent tests
 const mockRandom = vi.fn()

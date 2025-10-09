@@ -5,14 +5,14 @@
  * including correlated return generation, rebalancing logic, and portfolio simulation.
  */
 
-import type {
-  AssetClass,
-  MultiAssetPortfolioConfig,
-  PortfolioHoldings,
-  MultiAssetYearResult,
-  MultiAssetSimulationResult,
+import {
+  ASSET_CORRELATION_MATRIX,
+  type AssetClass,
+  type MultiAssetPortfolioConfig,
+  type PortfolioHoldings,
+  type MultiAssetYearResult,
+  type MultiAssetSimulationResult,
 } from './multi-asset-portfolio'
-import { ASSET_CORRELATION_MATRIX } from './multi-asset-portfolio'
 
 /**
  * Simple Linear Congruential Generator for reproducible random numbers
@@ -36,7 +36,7 @@ class SeededRandom {
  */
 function generateNormalRandom(rng: SeededRandom): number {
   let u1 = rng.next()
-  let u2 = rng.next()
+  const u2 = rng.next()
 
   // Ensure u1 is not 0 to avoid log(0)
   while (u1 === 0) {

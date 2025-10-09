@@ -11,6 +11,7 @@ Zinseszins-Simulation is a German compound interest calculator built with Vite, 
 ## Working Effectively
 
 ### Setup and Build Process
+
 - **Install dependencies**: `npm install` -- takes 1-2 minutes. NEVER CANCEL. Set timeout to 10+ minutes.
   - Expect peer dependency warnings about React version mismatches - these are normal due to React 19 upgrade
   - Will show 7 moderate severity vulnerabilities - this is expected and doesn't block development
@@ -31,10 +32,11 @@ Zinseszins-Simulation is a German compound interest calculator built with Vite, 
   - Comprehensive test coverage including integration, component, and utility tests
 
 ### Known Issues and Workarounds
+
 - **ESLint Configuration**: Uses modern ESLint with flat config (eslint.config.js)
   - Basic configuration supports JavaScript and TypeScript files
   - Linting works correctly with max 0 warnings enforced
-- **React 19 Compatibility**: Updated to React 19 
+- **React 19 Compatibility**: Updated to React 19
   - All functionality works correctly
   - Uses standard npm package resolution
 - **TypeScript**: Well-typed application with no errors
@@ -46,6 +48,7 @@ Zinseszins-Simulation is a German compound interest calculator built with Vite, 
 ## Validation and Testing
 
 ### Manual Validation Requirements
+
 After making changes, ALWAYS test the complete user workflow:
 
 1. **Start the application**: `npm run dev`
@@ -71,11 +74,13 @@ After making changes, ALWAYS test the complete user workflow:
    - Verify sticky overview navigation shows correct metrics
 
 ### Essential Commands for Development
+
 - `npm run dev` - Start development server (never cancel, wait for startup)
 - `npm run build` - Build for production (6-7 seconds, never cancel)
 - `npm run typecheck` - Run TypeScript checks (expect errors, but useful for new code)
 
 ### Validation Scenarios
+
 - **Calculator accuracy**: Default scenario (24,000€ annual savings, 5% return, 2023-2040) should show ~596,169€ final capital
 - **Real-time updates**: Changing any input should immediately update all calculations and tables
 - **UI responsiveness**: All collapsible sections should expand/collapse smoothly
@@ -84,11 +89,13 @@ After making changes, ALWAYS test the complete user workflow:
 ## Codebase Navigation
 
 ### Key Application Files
+
 - **`src/pages/HomePage.tsx`** - Main application page with all UI components and state management
 - **`src/utils/simulate.ts`** - Core compound interest calculation logic with German tax considerations
 - **`helpers/steuer.tsx`** - German tax calculation utilities (Vorabpauschale, Freibetrag)
 
 ### UI Components
+
 - **`src/components/SparplanEingabe.tsx`** - Savings plan input forms and management
 - **`src/components/SparplanSimulationsAusgabe.tsx`** - Results display tables and summaries
 - **`src/components/EntnahmeSimulationsAusgabe.tsx`** - Withdrawal phase planning interface
@@ -98,6 +105,7 @@ After making changes, ALWAYS test the complete user workflow:
 - **`src/components/ui/`** - Modern shadcn/ui components (cards, buttons, inputs, etc.)
 
 ### Configuration Files
+
 - **`package.json`** - Dependencies and scripts with test scripts defined
   - Uses React 19, ESLint 9, Vite 5, TypeScript 5.9.2, Vitest 2
   - Migrating from RSuite to shadcn/ui components
@@ -111,20 +119,24 @@ After making changes, ALWAYS test the complete user workflow:
 ## Development Patterns
 
 ### State Management
+
 - Uses React hooks (useState, useEffect, useCallback) for local state
 - Client-side calculations with immediate updates
 - No external state management library
 
 ### HTML ID Management - CRITICAL REQUIREMENT
+
 **NEVER create duplicate HTML IDs** - this violates HTML standards and causes accessibility issues.
 
-#### Mandatory Guidelines:
+#### Mandatory Guidelines
+
 - **Use unique ID utility functions** from `src/utils/unique-id.ts` for all form elements
 - **Always import and use**: `generateFormId()`, `generateInstanceId()`, or `generateUniqueId()`
 - **Use `useMemo`** to ensure stable IDs within component lifecycle
 - **Apply context-specific prefixes** to distinguish between component instances
 
-#### Required Implementation Pattern:
+#### Required Implementation Pattern
+
 ```typescript
 import { generateFormId } from '../utils/unique-id'
 
@@ -145,13 +157,15 @@ export function MyComponent() {
 }
 ```
 
-#### For Multi-Instance Components:
+#### For Multi-Instance Components
+
 ```typescript
 // When component may be rendered multiple times
 const uniqueId = useMemo(() => generateFormId('component', 'field', instanceContext), [instanceContext])
 ```
 
-#### Validation Requirements:
+#### Validation Requirements
+
 - **Test for duplicates**: Run `find . -name "*.tsx" | xargs grep -h "id=" | grep -o 'id="[^"]*"' | sort | uniq -c | sort -nr | grep -E "^\s*[2-9]"`
 - **All tests must pass** after implementing unique IDs
 - **Manual testing required** to ensure accessibility is maintained
@@ -161,6 +175,7 @@ const uniqueId = useMemo(() => generateFormId('component', 'field', instanceCont
 **Current Status:** **MIGRATION COMPLETED** - Successfully migrated from RSuite to shadcn/ui
 
 The project has been successfully migrated from RSuite to shadcn/ui components:
+
 - **Primary UI Framework**: **shadcn/ui components** - Modern, accessible UI components built on Radix UI
   - **Component Library**: Use components from `src/components/ui/` directory
   - **Migration Status**: **COMPLETE** - All visible UI components migrated
@@ -175,11 +190,12 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
 - **Icons**: **Lucide React** icons (modern, consistent iconography)
   - Import from `lucide-react` package
   - Use semantic icon names (ChevronDown, ChevronUp, Download, etc.)
-- **Legacy Compatibility**: 
+- **Legacy Compatibility**:
   - **Migration Complete**: All RSuite components have been fully migrated to shadcn/ui
   - **All UI Components**: User-facing components use shadcn/ui exclusively
 
 ### API and Data Flow
+
 - All calculations performed client-side for real-time responsiveness
 - Form data processed directly in React components
 - No server-side calculation endpoints
@@ -187,6 +203,7 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
 ## German Financial Features
 
 ### Tax Calculations
+
 - **Vorabpauschale**: Advance lump-sum taxation on investment funds with detailed base interest calculations
 - **Freibetrag**: Configurable annual tax allowances per year (default 2,000€)
 - **Kapitalertragsteuer**: Configurable capital gains tax (default 26.375%)
@@ -194,6 +211,7 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
 - **Grundfreibetrag**: Income tax basic allowance for retirees without additional income
 
 ### Investment Types and Return Configurations
+
 - **Sparplan**: Regular savings plans with monthly/yearly contributions
 - **Einmalzahlung**: One-time lump sum investments with date and amount specification
 - **Return Modes**:
@@ -202,6 +220,7 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
   - **Variable Return**: Year-by-year configurable returns for realistic scenarios
 
 ### Withdrawal Strategies
+
 - **4% Rule**: Annual withdrawal of 4% of starting capital
 - **3% Rule**: Annual withdrawal of 3% of starting capital  
 - **Variable Percentage**: Custom withdrawal percentages
@@ -228,6 +247,7 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
    - Both comparison systems must support the new strategy
 
 **Architecture Requirements for New Strategies:**
+
 - Add strategy type to `WithdrawalStrategy` union type in `helpers/withdrawal.tsx`
 - Implement calculation logic in withdrawal helper functions
 - Add configuration components for both unified and segmented contexts
@@ -238,30 +258,36 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
 ## Common Development Tasks
 
 ### Adding New Features
+
 1. **Always run `npm run dev` first** to ensure baseline functionality
 2. **Run tests with `npm run test`** to verify existing functionality
 3. **Update both calculation logic** (helpers/ or src/utils/) and UI components
 4. **Validate with complete user scenarios** - don't just test isolated changes
 
 ### Debugging Issues
+
 1. **Check browser console** for runtime errors (ignore Vercel Analytics warnings)
 2. **Run tests** to verify calculation logic
 3. **Test with different input values** to isolate calculation vs UI issues
 4. **Use TypeScript errors** - most should be resolved in main application code
 
 ### Performance Considerations
+
 - Calculations run client-side for immediate responsiveness
 - Real-time updates on every input change - calculations are fast
 - Large year ranges render efficiently
 
 ## Deployment Information
+
 - **Production URL**: https://zinszins-simulation.vercel.app/
 - **Platform**: Vercel (configured for Vite/React deployment)
 - **Build**: Uses Vite build process (`npm run build`)
 - **Analytics**: Vercel Analytics integrated (causes expected console warnings)
 
 ## Project Context
+
 This is a personal finance tool focused on German tax law and investment planning. The application helps users:
+
 - Plan long-term investment strategies
 - Understand compound interest effects
 - Calculate German tax implications on investments
@@ -269,6 +295,7 @@ This is a personal finance tool focused on German tax law and investment plannin
 - Make informed financial planning decisions
 
 ### Current Development Status
+
 - **UI Migration: COMPLETED** - Successfully migrated from RSuite to shadcn/ui
 - **Modern Component Library**: All user-facing components use shadcn/ui
 - **Comprehensive Testing**: 578 tests across 77 files ensure reliability
@@ -286,6 +313,7 @@ This is a personal finance tool focused on German tax law and investment plannin
 When developing new features or making changes to this codebase, always use **Context7** to access up-to-date documentation and examples:
 
 ### Context7 Integration
+
 - **Library Documentation**: Use Context7 to get current documentation for any libraries or frameworks
 - **Best Practices**: Context7 provides current best practices and patterns for React 19, TypeScript, and shadcn/ui
 - **Code Examples**: Get real-world examples and implementation patterns through Context7
@@ -313,12 +341,14 @@ This project follows a **step-by-step commit approach** where development work i
 The `report_progress` tool is central to the step-by-step approach and should be used:
 
 #### Initial Planning
+
 - **Start with `report_progress`** to outline your complete plan as a detailed checklist
 - **Break down the work** into 3-8 discrete steps that can be implemented independently
 - **Use markdown checklists** with `- [ ]` for pending items and `- [x]` for completed items
 - **Include "Fixes #XXX."** as the last line of the PR description
 
 #### After Each Step
+
 - **Use `report_progress`** immediately after completing and validating each step
 - **Update the checklist** to mark the current step as completed (`- [x]`)
 - **Provide a clear commit message** describing what was accomplished
@@ -326,6 +356,7 @@ The `report_progress` tool is central to the step-by-step approach and should be
 - **Never skip this step** - every meaningful unit of work must be committed individually
 
 #### Progress Tracking Guidelines
+
 - **Maintain consistent checklist structure** between updates while being accurate
 - **Update step descriptions** if the implementation differs from the original plan
 - **Add new steps** if additional work is discovered during implementation
@@ -333,6 +364,7 @@ The `report_progress` tool is central to the step-by-step approach and should be
 - **Document any changes** in approach or scope in the progress updates
 
 #### Example Progress Flow
+
 ```markdown
 Initial Plan:
 - [ ] Step 1: Analyze current implementation and identify changes needed
@@ -358,24 +390,28 @@ After Step 2:
 When components become too large (> 500-800 lines), follow this refactoring approach:
 
 #### 1. Extract Display Components
+
 - **Extract simulation/results display** into separate components (e.g., `EntnahmeSimulationDisplay.tsx`)
 - **Keep display logic together**: Move related UI rendering, formatting, and presentation logic together
 - **Maintain component interfaces**: Ensure props are well-typed and focused on what the component needs
 - **Example pattern**: `ComponentNameDisplay.tsx` for rendering logic, `ComponentNameConfig.tsx` for configuration forms
 
 #### 2. Extract Business Logic into Custom Hooks
+
 - **Configuration management**: Extract state and config management into `useComponentConfig` hooks
 - **Calculation logic**: Extract complex calculations into `useComponentCalculations` hooks  
 - **Modal/UI state**: Extract modal and interaction state into `useComponentModals` hooks
 - **Keep simple useState**: Don't extract trivial state management - focus on complex logic
 
 #### 3. Extract Utility Functions
+
 - **Pure functions**: Extract formatting, validation, and transformation functions
 - **Currency formatting**: Use shared `formatCurrency` utility from `src/utils/currency.ts`
 - **Helper functions**: Extract helper functions that don't need React context
 - **UI Components**: Prefer shadcn/ui components from `src/components/ui/` for new extractions
 
 #### 4. Maintain Test Coverage - MANDATORY
+
 - **Test extracted components**: Each new component needs comprehensive tests
 - **Test custom hooks**: Use `renderHook` to test custom hooks in isolation
 - **Test utility functions**: Unit test pure functions thoroughly
@@ -384,13 +420,14 @@ When components become too large (> 500-800 lines), follow this refactoring appr
 - **Fix test failures**: When components are extracted, existing tests may fail due to multiple DOM elements with same text. Use `getAllByText()` instead of `getByText()` when content appears in multiple places
 
 #### 5. Refactoring Process - Testing & Linting at Every Step
+
 1. **Identify extraction boundaries**: Look for distinct UI sections or logical groupings
 2. **Extract in small steps**: Start with one component or hook at a time
-3. **Test immediately after each extraction**: 
+3. **Test immediately after each extraction**:
    - Run `npm run test` after each component extraction
    - Fix any test failures immediately before proceeding
    - Tests may fail due to duplicate content across components - update tests to handle this
-4. **Lint immediately after each extraction**: 
+4. **Lint immediately after each extraction**:
    - Run `npm run lint` to ensure code style compliance
    - Fix any linting issues before proceeding
 5. **Build verification**: Run `npm run build` to ensure TypeScript compilation works
@@ -400,6 +437,7 @@ When components become too large (> 500-800 lines), follow this refactoring appr
 **CRITICAL: Never proceed to the next extraction if tests are failing or linting issues exist. Each step must be validated before moving forward.**
 
 #### Example Refactoring (EntnahmeSimulationsAusgabe)
+
 ```typescript
 // Before: 2463 lines in one file
 export function EntnahmeSimulationsAusgabe() {
@@ -429,6 +467,7 @@ export function EntnahmeSimulationsAusgabe() {
 ```
 
 This approach resulted in:
+
 - Main component: 2463 → 1131 lines (54% reduction)
 - Better separation of concerns
 - Easier testing and maintenance
@@ -450,6 +489,7 @@ expect(screen.getByText(/📊 Basis-Strategie.*5%/)).toBeInTheDocument();
 ```
 
 **Common patterns that need `getAllByText()`**:
+
 - Currency amounts (e.g., "498.000,00 €") appearing in cards + tables
 - Percentages (e.g., "5%") in summaries + tables  
 - Duration text (e.g., "25 Jahre", "unbegrenzt") in multiple sections
@@ -462,12 +502,14 @@ expect(screen.getByText(/📊 Basis-Strategie.*5%/)).toBeInTheDocument();
 The development workflow follows a **step-by-step commit approach (Teilschritt commits)** where each discrete development step is implemented, validated, and committed individually. This ensures focused, reviewable commits and better progress tracking.
 
 #### Planning Phase
+
 1. **Analyze the requirements** thoroughly before making any changes
 2. **Break down the work** into discrete, focused steps that can be implemented independently
 3. **Create an initial plan** using `report_progress` with a checklist of all identified steps
 4. **Prioritize steps** to ensure dependencies are handled correctly
 
 #### Step-by-Step Implementation
+
 For each individual step in your plan:
 
 1. **Development Phase**
@@ -498,6 +540,7 @@ For each individual step in your plan:
    - **Take screenshots** of any UI changes to document the impact of this step
 
 #### Final Review Phase
+
 After all steps are completed:
 
 5. **Comprehensive Code Review**
@@ -515,6 +558,7 @@ After all steps are completed:
    - Ensure the full integration works as expected
 
 #### Step-by-Step Commit Benefits
+
 - **Focused changes**: Each commit addresses a single, well-defined aspect
 - **Better reviewability**: Reviewers can understand and validate individual steps
 - **Easier debugging**: Issues can be traced to specific steps
@@ -523,6 +567,7 @@ After all steps are completed:
 - **Safer development**: Smaller changes reduce the risk of introducing bugs
 
 #### Commit Message Guidelines
+
 - Use clear, descriptive commit messages for each step
 - Format: `[Step X/Y] Brief description of what was accomplished`
 - Example: `[Step 2/5] Add withdrawal calculation validation with comprehensive tests`
@@ -534,6 +579,7 @@ After all steps are completed:
 When performing code review, examine the following aspects:
 
 #### Code Quality & Standards
+
 - **Minimal Changes**: Are changes surgical and focused? Avoid unnecessary modifications
 - **TypeScript**: Are types properly defined? No `any` types without justification
 - **React Patterns**: Proper use of hooks, state management, and component structure
@@ -543,12 +589,14 @@ When performing code review, examine the following aspects:
 - **Error Handling**: Appropriate error handling for user inputs and edge cases
 
 #### German Financial Logic
+
 - **Tax Calculations**: Vorabpauschale, Freibetrag, and Kapitalertragsteuer correctly implemented
 - **Currency Formatting**: Proper Euro formatting and number handling
 - **Date Handling**: Correct German date formats and year-based calculations
 - **Investment Logic**: Accurate compound interest, withdrawal strategies, and return configurations
 
 #### User Experience
+
 - **UI Consistency**: shadcn/ui components used appropriately and consistently; avoid mixing UI frameworks
 - **Responsiveness**: Mobile and desktop layouts work correctly
 - **Real-time Updates**: Changes reflect immediately in calculations and displays
@@ -556,6 +604,7 @@ When performing code review, examine the following aspects:
 - **Navigation**: Sticky overview and section navigation work smoothly
 
 #### Testing & Documentation
+
 - **Test Coverage**: **Is there sufficient test coverage for the new functionality? This is not a suggestion, it is a requirement.**
 - **Documentation Updates**: README.md updated for new features
 - **Code Comments**: Complex German tax calculations are well documented
@@ -566,7 +615,7 @@ When performing code review, examine the following aspects:
 Before approving changes, verify:
 
 - [ ] **All tests pass (`npm run test`) - This is the most important check.**
-- [ ] Linting passes (`npm run lint`) 
+- [ ] Linting passes (`npm run lint`)
 - [ ] Build succeeds (`npm run build`)
 - [ ] Manual testing confirms functionality works
 - [ ] **Step-by-step approach followed**: Changes are broken into logical, focused commits

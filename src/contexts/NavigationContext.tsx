@@ -1,6 +1,5 @@
 import { useState, useCallback, ReactNode } from 'react'
-import { NavigationContext } from './navigationContext'
-import type { NavigationItem } from './navigationContext'
+import { NavigationContext, type NavigationItem } from './navigationContext'
 
 interface NavigationProviderProps {
   children: ReactNode

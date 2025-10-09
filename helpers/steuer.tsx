@@ -97,7 +97,7 @@ export function calculateVorabpauschale(
   startwert: number,
   endwert: number,
   basiszins: number,
-  anteilImJahr: number = 12,
+  anteilImJahr = 12,
 ): number {
   const jahresgewinn = endwert - startwert
   const vorabpauschale_prozentsatz = 0.7
@@ -128,7 +128,7 @@ export function calculateVorabpauschaleDetailed(
   startwert: number,
   endwert: number,
   basiszins: number,
-  anteilImJahr: number = 12,
+  anteilImJahr = 12,
   steuerlast: number,
   teilFreistellungsquote: number,
 ): {
@@ -202,10 +202,10 @@ export function performGuenstigerPruefung(
   abgeltungssteuer: number,
   personalTaxRate: number,
   teilfreistellungsquote: number,
-  grundfreibetrag: number = 0,
-  alreadyUsedGrundfreibetrag: number = 0,
-  kirchensteuerAktiv: boolean = false,
-  kirchensteuersatz: number = 9,
+  grundfreibetrag = 0,
+  alreadyUsedGrundfreibetrag = 0,
+  kirchensteuerAktiv = false,
+  kirchensteuersatz = 9,
 ): {
   abgeltungssteuerAmount: number
   personalTaxAmount: number

@@ -1,8 +1,7 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { WithdrawalSegmentForm } from './WithdrawalSegmentForm'
-import { createDefaultWithdrawalSegment } from '../utils/segmented-withdrawal'
-import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
+import { createDefaultWithdrawalSegment, type WithdrawalSegment } from '../utils/segmented-withdrawal'
 
 describe('WithdrawalSegmentForm', () => {
   const defaultSegments: WithdrawalSegment[] = [

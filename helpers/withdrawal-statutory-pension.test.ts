@@ -1,8 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { calculateWithdrawal, type CalculateWithdrawalParams } from './withdrawal'
 import type { SparplanElement } from '../src/utils/sparplan-utils'
-import type { StatutoryPensionConfig } from './statutory-pension'
-import { createDefaultStatutoryPensionConfig } from './statutory-pension'
+import { createDefaultStatutoryPensionConfig, type StatutoryPensionConfig } from './statutory-pension'
 
 // Helper function to create test elements
 function createTestElement(endkapital: number): SparplanElement {

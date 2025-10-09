@@ -4,8 +4,7 @@ import { TooltipProvider } from './ui/tooltip'
 import { NestingProvider } from '../lib/nesting-context'
 import { NavigationProvider } from '../contexts/NavigationContext'
 import ScenarioSelector from './ScenarioSelector'
-import { predefinedScenarios } from '../data/scenarios'
-import type { FinancialScenario } from '../data/scenarios'
+import { predefinedScenarios, type FinancialScenario } from '../data/scenarios'
 
 // Helper to render with required providers
 function renderScenarioSelector(onApplyScenario = vi.fn()) {

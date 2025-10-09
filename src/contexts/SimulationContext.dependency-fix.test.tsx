@@ -33,7 +33,7 @@ const StartEndTracker = ({ onStartEndChange }: { onStartEndChange: (startEnd: [n
 
 describe('SimulationContext Dependency Fix', () => {
   it('should not override manual startEnd changes when endOfLife synchronization runs', async () => {
-    const startEndChanges: [number, number][] = []
+    const startEndChanges: Array<[number, number]> = []
 
     const { getByTestId } = render(
       <SimulationProvider>
@@ -72,7 +72,7 @@ describe('SimulationContext Dependency Fix', () => {
   })
 
   it('should still synchronize startEnd[1] with endOfLife changes', async () => {
-    const startEndChanges: [number, number][] = []
+    const startEndChanges: Array<[number, number]> = []
 
     const TestComponent = () => {
       const { startEnd, setEndOfLife, endOfLife } = useSimulation()
