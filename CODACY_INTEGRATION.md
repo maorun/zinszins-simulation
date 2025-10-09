@@ -73,7 +73,7 @@ Zusätzlich wurde Markdown-Linting zum Lint-Job hinzugefügt:
 **Alle CI-Jobs:**
 
 1. **Build** - Vite Build-Prozess
-2. **Lint** - ESLint mit erweiterten Regeln + Markdown-Linting (NEU)
+2. **Lint** - ESLint mit erweiterten Regeln (inkl. automatisches Markdown-Linting via `postlint`)
 3. **Type Check** - TypeScript-Typenprüfung (NEU)
 4. **Test** - Vitest mit Coverage
 
@@ -109,12 +109,12 @@ Um die 31 von Codacy gefundenen Issues in Markdown-Dateien zu beheben, wurde mar
 
 ```json
 "lint": "eslint . --report-unused-disable-directives --max-warnings 200",
-"lint:md": "markdownlint-cli2 \"**/*.md\" \"#node_modules\""
+"postlint": "markdownlint-cli2 \"**/*.md\" \"#node_modules\""
 ```
 
 - Erhöhung der max-warnings von 0 auf 200 (aktuell: 178 Warnungen)
 - Ermöglicht schrittweise Verbesserung ohne CI-Blockierung
-- Neues Script für Markdown-Linting
+- `postlint` Hook: Markdown-Linting läuft automatisch nach ESLint
 
 ## Durchgeführte Code-Verbesserungen
 

@@ -252,7 +252,7 @@ Das Projekt verwendet umfassende Code-Qualitätsprüfungen, die mit Codacy-Stand
 Die GitHub Actions Workflows prüfen bei jedem Push und Pull Request:
 
 1. **Build** - Vite Build-Prozess
-2. **Lint** - ESLint mit erweiterten Codacy-kompatiblen Regeln + Markdown-Linting
+2. **Lint** - ESLint mit erweiterten Codacy-kompatiblen Regeln (inkl. automatisches Markdown-Linting)
 3. **Type Check** - TypeScript-Typenprüfung
 4. **Test** - Vitest mit Coverage (1358+ Tests)
 
@@ -262,12 +262,13 @@ Die GitHub Actions Workflows prüfen bei jedem Push und Pull Request:
 npm install       # Abhängigkeiten installieren
 npm run dev       # Entwicklungsserver starten
 npm run build     # Produktions-Build erstellen
-npm run lint      # ESLint ausführen (max. 200 Warnungen erlaubt)
-npm run lint:md   # Markdown-Linting ausführen
+npm run lint      # ESLint + Markdown-Linting ausführen (max. 200 Warnungen erlaubt)
 npm run typecheck # TypeScript-Typen prüfen
 npm run test      # Tests ausführen
 npm run test:coverage # Tests mit Coverage
 ```
+
+**Hinweis:** `npm run lint` führt automatisch auch Markdown-Linting durch (`postlint` Hook).
 
 #### Code-Qualitätsziele
 
