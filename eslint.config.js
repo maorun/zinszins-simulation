@@ -12,7 +12,6 @@ export default [
   },
   js.configs.recommended,
   stylistic.configs.recommended,
-  reactHooks.configs.recommended,
   {
     files: ['**/*.{ts,tsx}'],
     languageOptions: {
@@ -36,6 +35,7 @@ export default [
       '@stylistic': stylistic,
     },
     rules: {
+      ...reactHooks.configs.recommended.rules,
       'react-refresh/only-export-components': [
         'warn',
         { allowConstantExport: true },
