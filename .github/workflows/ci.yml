@@ -47,6 +47,9 @@ jobs:
     - name: Run ESLint
       run: npm run lint
 
+    - name: Run Markdown Lint
+      run: npm run lint:md
+
   typecheck:
     name: Type Check
     runs-on: ubuntu-latest

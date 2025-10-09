@@ -6,13 +6,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 **Live-Version:** https://zinszins-simulation.vercel.app/
 
 ---
+
 ## Implementierte Features
 
 ### Zeitspanne und Berechnungsmodus
+
 - Flexibler Zeitraum-Selektor
 - Monatliche und jährliche Berechnungen
 
 ### Rendite-Konfigurationen
+
 - **Feste Rendite** - Konstante jährliche Rendite
 - **Zufällige Rendite** - Monte Carlo Simulation mit Volatilität
 - **Variable Rendite** - Jahr-für-Jahr konfigurierbare Renditen
@@ -32,6 +35,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Entnahmephase**: Entnahmebeträge und Kapitalwerte zeigen sowohl nominale als auch reale Kaufkraft
 
 ### Sparplan, Einmalzahlungen und Sonderereignisse
+
 - **Sparpläne** - Regelmäßige monatliche oder jährliche Einzahlungen
 - **Einmalzahlungen** - Einmalige Zahlungen mit Datum und Betrag
 - **Sonderereignisse** - Besondere finanzielle Ereignisse im Lebensverlauf
@@ -45,11 +49,13 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Monatliche Ratenzahlung und Gesamtkosten-Aufstellung
 
 ### Kostenfaktoren
+
 - **TER (Total Expense Ratio)** - Jährliche Verwaltungskosten in Prozent
 - **Transaktionskosten** - Einmalige Kosten beim Kauf (prozentual oder absolut)
 - **Kostenaufschlüsselung** - Detaillierte Darstellung aller Kostenfaktoren in der Simulation
 
 ### Steuerberechnung
+
 - **Vorabpauschale** - Deutsche Steuerberechnung für Investmentfonds mit detaillierter Erklärung
 - **Interaktive Berechnungsmodals** - Schritt-für-Schritt Aufschlüsselung der Steuerberechnungen
 - **Konfigurierbare Parameter**: Kapitalertragsteuer, Teilfreistellungsquote, Freibetrag pro Jahr
@@ -73,6 +79,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Validierung und Fallbacks** - Intelligente Validierung mit automatischen Fallback-Mechanismen
 
 ### Was-wäre-wenn Szenarien
+
 - **Vordefinierte Finanzszenarien** - Lernszenarien zum Erkunden verschiedener Anlagestrategien
   - **10+ Szenarien** - Konservative, ausgewogene, wachstumsorientierte und spezielle Situationen
   - **Kategorisiert** - Szenarien nach Risikoprofil und Lebenssituation organisiert
@@ -83,6 +90,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Detaillierte Beschreibungen** - Umfassende Informationen zu jedem Szenario in einem übersichtlichen Modal
 
 ### Glossar-Integration
+
 - **Interaktive Begriffserklärungen** - Kontextbezogene Tooltips für komplexe Finanzfachbegriffe
   - **15+ Fachbegriffe** - Umfassende Erklärungen deutscher Steuerbegriffe (Vorabpauschale, Günstigerprüfung, Teilfreistellung, etc.)
   - **Detaillierte Definitionen** - Kurz- und Langdefinitionen mit praktischen Beispielen
@@ -92,6 +100,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Moderne UI** - Integration mit shadcn/ui Design System
 
 ### Finanzziele & Fortschrittsverfolgung
+
 - **SMART-Goals Integration** - Setzen und verfolgen Sie messbare Finanzziele
   - **Drei Zieltypen** - Altersvorsorge, Finanzielle Unabhängigkeit, Benutzerdefinierte Ziele
   - **Automatische Fortschrittsberechnung** - Echtzeit-Berechnung des Fortschritts basierend auf aktuellem Kapital
@@ -102,6 +111,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Nächster Meilenstein** - Hervorhebung des nächsten zu erreichenden Meilensteins
 
 ### Globale Planung (Einzelperson/Ehepaar)
+
 - **Planungsmodus** - Zentrale Auswahl zwischen Individual- und Paarplanung
 - **Geschlechtskonfiguration** - Geschlechtsspezifische Einstellungen für präzise Lebenserwartungsberechnung
 - **Lebensende-Berechnung** - Flexible Konfiguration mit manueller oder automatischer Berechnung
@@ -124,6 +134,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Flexible Pflegedauer** - Konfigurierbare Pflegedauer oder automatische Berechnung bis Lebensende
 
 ### Interaktive Visualisierung
+
 - **📈 Interaktive Charts** - Moderne interaktive Diagramme für bessere Datenvisualisierung
   - **Area Charts** - Gestapelte Flächendiagramme zeigen Kapitalentwicklung über Zeit
   - **Interaktive Kontrollen** - Toggle für inflationsbereinigte Werte, Steuer-Anzeige, Detail-/Übersichts-Modus
@@ -134,6 +145,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Professional Styling** - Integration mit shadcn/ui Design System
 
 ### Auszahlungsphase
+
 - **Standard-Strategien**: 4% Regel, 3% Regel, variable Entnahme-Strategien
 - **Dynamische Entnahmestrategie** - Renditebasierte Anpassung der Entnahme
 - **Drei-Eimer-Strategie** - Cash-Polster für negative Rendite-Phasen
@@ -177,6 +189,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Zeitraum-Flexibilität**: Konfigurierbare Start- und Endjahre für zeitlich begrenzte Einkünfte
 
 ### Analyse und Simulation
+
 - **Finanzübersicht** - Kompakte Übersicht aller wichtigen Kennzahlen mit Sticky Navigation
 - **Strategievergleich** - Umfassende Vergleichsmöglichkeiten für Entnahmestrategien
 - **Historisches Backtesting** - Test mit 24 Jahren Marktdaten (DAX, S&P 500, MSCI World)
@@ -226,6 +239,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 Das Projekt verwendet umfassende Code-Qualitätsprüfungen, die mit Codacy-Standards kompatibel sind:
 
 #### ESLint-Regeln
+
 - **Code-Komplexität**: Warnungen bei zyklomatischer Komplexität über 25
 - **Verschachtelungstiefe**: Maximale Verschachtelungstiefe von 5 Ebenen
 - **Funktionsgröße**: Warnungen bei Funktionen über 400 Zeilen (ohne Leerzeilen/Kommentare)
@@ -234,24 +248,29 @@ Das Projekt verwendet umfassende Code-Qualitätsprüfungen, die mit Codacy-Stand
 - **TypeScript**: Warnungen bei `any`-Verwendung, Konsistenz bei Typ-Assertions
 
 #### CI/CD Pipeline
+
 Die GitHub Actions Workflows prüfen bei jedem Push und Pull Request:
+
 1. **Build** - Vite Build-Prozess
-2. **Lint** - ESLint mit erweiterten Codacy-kompatiblen Regeln
+2. **Lint** - ESLint mit erweiterten Codacy-kompatiblen Regeln + Markdown-Linting
 3. **Type Check** - TypeScript-Typenprüfung
 4. **Test** - Vitest mit Coverage (1358+ Tests)
 
 #### Verfügbare Scripts
+
 ```bash
 npm install       # Abhängigkeiten installieren
 npm run dev       # Entwicklungsserver starten
 npm run build     # Produktions-Build erstellen
 npm run lint      # ESLint ausführen (max. 200 Warnungen erlaubt)
+npm run lint:md   # Markdown-Linting ausführen
 npm run typecheck # TypeScript-Typen prüfen
 npm run test      # Tests ausführen
 npm run test:coverage # Tests mit Coverage
 ```
 
 #### Code-Qualitätsziele
+
 - **0 Fehler**: Keine ESLint-Fehler erlaubt
 - **Warnungen begrenzt**: Maximal 200 Warnungen (schrittweise Reduzierung geplant)
 - **Test-Coverage**: Umfassende Test-Abdeckung mit 1358+ Tests
