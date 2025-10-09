@@ -180,6 +180,28 @@ export function mergeInflationScenario(
 }
 
 /**
+ * Merge inflation scenario rates with a base inflation rate
+ * Creates a record with the base rate for all years, then overlays the scenario
+ * @param baseRate - Base inflation rate (as decimal, e.g., 0.02 for 2%)
+ * @param scenarioInflation - Inflation scenario rates to overlay
+ * @param startYear - Start year of simulation
+ * @param endYear - End year of simulation
+ * @returns Merged inflation rates with scenario applied
+ */
+export function mergeInflationWithBaseRate(
+  baseRate: number,
+  scenarioInflation: Record<number, number>,
+  startYear: number,
+  endYear: number,
+): Record<number, number> {
+  const baseInflation: Record<number, number> = {}
+  for (let year = startYear; year <= endYear; year++) {
+    baseInflation[year] = baseRate
+  }
+  return mergeInflationScenario(baseInflation, scenarioInflation)
+}
+
+/**
  * Get all available inflation scenarios (excluding custom)
  */
 export function getAvailableInflationScenarios(): InflationScenario[] {

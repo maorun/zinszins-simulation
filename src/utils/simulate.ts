@@ -75,6 +75,8 @@ export interface SimulateOptions {
   inflationAktivSparphase?: boolean
   inflationsrateSparphase?: number
   inflationAnwendungSparphase?: 'sparplan' | 'gesamtmenge'
+  // Variable inflation rates per year (for inflation scenarios)
+  variableInflationRates?: Record<number, number>
   // Günstigerprüfung settings
   guenstigerPruefungAktiv?: boolean
   personalTaxRate?: number
@@ -98,6 +100,24 @@ function addInflationAdjustedValues(
     zinsenReal: calculateRealValue(result.zinsen, inflationRate / 100, yearsFromBase),
     endkapitalReal: calculateRealValue(result.endkapital, inflationRate / 100, yearsFromBase),
   }
+}
+
+// Helper function to get inflation rate for a specific year
+function getInflationRateForYear(
+  year: number,
+  options: SimulateOptions,
+): number {
+  // Use variable inflation rates if provided
+  if (options.variableInflationRates && options.variableInflationRates[year] !== undefined) {
+    return options.variableInflationRates[year]
+  }
+
+  // Fall back to fixed inflation rate
+  if (options.inflationAktivSparphase && options.inflationsrateSparphase) {
+    return options.inflationsrateSparphase / 100
+  }
+
+  return 0
 }
 
 function generateYearlyGrowthRates(
@@ -247,17 +267,16 @@ function calculateGrowthAndCostsForElement(
 ) {
   // Apply inflation adjustment to contributions if enabled and in Sparplan mode (default)
   let adjustedEinzahlung = element.einzahlung
-  if (options.inflationAktivSparphase
-    && options.inflationsrateSparphase
-    && options.inflationsrateSparphase > 0
+  const yearInflationRate = getInflationRateForYear(year, options)
+  if ((options.inflationAktivSparphase || options.variableInflationRates)
+    && yearInflationRate > 0
     && (!options.inflationAnwendungSparphase || options.inflationAnwendungSparphase === 'sparplan')) {
-    const inflationRate = options.inflationsrateSparphase / 100
     const baseYear = options.startYear
     adjustedEinzahlung = getInflationAdjustedContribution(
       element.einzahlung,
       baseYear,
       year,
-      inflationRate,
+      yearInflationRate,
     )
   }
 
@@ -410,12 +429,11 @@ function calculateYearlySimulation(
       let endkapital = endkapitalAfterCosts
 
       // Apply inflation reduction to total capital in "gesamtmenge" mode
-      if (options.inflationAktivSparphase
-        && options.inflationsrateSparphase
-        && options.inflationsrateSparphase > 0
+      const yearInflationRate = getInflationRateForYear(year, options)
+      if ((options.inflationAktivSparphase || options.variableInflationRates)
+        && yearInflationRate > 0
         && options.inflationAnwendungSparphase === 'gesamtmenge') {
-        const inflationRate = options.inflationsrateSparphase / 100
-        endkapital = endkapital * (1 - inflationRate)
+        endkapital = endkapital * (1 - yearInflationRate)
       }
 
       // Calculate actual interest/gain after all adjustments (including inflation)
@@ -435,12 +453,13 @@ function calculateYearlySimulation(
       }
 
       // Add inflation-adjusted values if inflation is active
-      if (options.inflationAktivSparphase && options.inflationsrateSparphase) {
+      const currentYearInflation = getInflationRateForYear(year, options)
+      if ((options.inflationAktivSparphase || options.variableInflationRates) && currentYearInflation > 0) {
         simulationResult = addInflationAdjustedValues(
           simulationResult,
           year,
           options.startYear,
-          options.inflationsrateSparphase,
+          currentYearInflation * 100, // Convert back to percentage for the helper
         )
       }
 
@@ -483,12 +502,13 @@ function applyTaxes(
       : calc.endkapitalVorSteuer
 
     // Apply inflation reduction to total capital in "gesamtmenge" mode
-    if (_options?.inflationAktivSparphase
-      && _options?.inflationsrateSparphase
-      && _options?.inflationsrateSparphase > 0
-      && _options?.inflationAnwendungSparphase === 'gesamtmenge') {
-      const inflationRate = _options.inflationsrateSparphase / 100
-      endkapital = endkapital * (1 - inflationRate)
+    if (_options) {
+      const yearInflationRate = getInflationRateForYear(year, _options)
+      if ((_options.inflationAktivSparphase || _options.variableInflationRates)
+        && yearInflationRate > 0
+        && _options.inflationAnwendungSparphase === 'gesamtmenge') {
+        endkapital = endkapital * (1 - yearInflationRate)
+      }
     }
 
     // Calculate actual interest/gain after all adjustments (including inflation and taxes)

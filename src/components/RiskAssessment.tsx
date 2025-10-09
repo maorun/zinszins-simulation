@@ -24,6 +24,9 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
     setBlackSwanReturns,
     blackSwanEventName,
     setBlackSwanEventName,
+    setInflationScenarioRates,
+    setInflationScenarioReturnModifiers,
+    setInflationScenarioName,
     performSimulation,
   } = useSimulation()
 
@@ -41,14 +44,12 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
     returnModifiers: Record<number, number> | null,
     scenarioName?: string,
   ) => {
-    // For now, just log the scenario - full integration requires simulation context updates
-    if (inflationRates) {
-      console.log('Inflation scenario selected:', scenarioName, inflationRates, returnModifiers)
-    }
-    else {
-      console.log('Inflation scenario disabled')
-    }
-  }, [])
+    setInflationScenarioRates(inflationRates)
+    setInflationScenarioReturnModifiers(returnModifiers)
+    setInflationScenarioName(scenarioName || '')
+    // Trigger simulation update
+    performSimulation()
+  }, [setInflationScenarioRates, setInflationScenarioReturnModifiers, setInflationScenarioName, performSimulation])
 
   // Use provided config or default based on phase
   const riskConfig: RandomReturnConfig = config || {
