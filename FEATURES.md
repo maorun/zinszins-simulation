@@ -21,7 +21,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Alternative Investments** - Private Equity, Hedge Funds, Kryptowährungen
 
 #### Risikomanagement
-- **Inflationsszenarien** - Hyperinflation, Deflation, stagflation Szenarien
+- ~~**Inflationsszenarien** - Hyperinflation, Deflation, Stagflation Szenarien~~ ✅ **IMPLEMENTIERT**
 - **Währungsrisiko** - Multi-Währungs-Portfolios mit Wechselkursrisiken
 - **Liquiditätsplanung** - Cash-Reserve-Strategien für Notfälle
 - **Volatilitäts-Targeting** - Dynamische Allokation basierend auf Marktvolatilität

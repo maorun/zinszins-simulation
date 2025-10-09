@@ -2,6 +2,7 @@ import React from 'react'
 import { useSimulation } from '../contexts/useSimulation'
 import MonteCarloAnalysisDisplay from './MonteCarloAnalysisDisplay'
 import BlackSwanEventConfiguration from './BlackSwanEventConfiguration'
+import InflationScenarioConfiguration from './InflationScenarioConfiguration'
 import { calculateRiskMetrics, formatRiskMetric, type PortfolioData } from '../utils/risk-metrics'
 import type { RandomReturnConfig } from '../utils/random-returns'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
@@ -23,6 +24,9 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
     setBlackSwanReturns,
     blackSwanEventName,
     setBlackSwanEventName,
+    setInflationScenarioRates,
+    setInflationScenarioReturnModifiers,
+    setInflationScenarioName,
     performSimulation,
   } = useSimulation()
 
@@ -33,6 +37,19 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
     // Trigger simulation update
     performSimulation()
   }, [setBlackSwanReturns, setBlackSwanEventName, performSimulation])
+
+  // Handle Inflation Scenario change
+  const handleInflationScenarioChange = React.useCallback((
+    inflationRates: Record<number, number> | null,
+    returnModifiers: Record<number, number> | null,
+    scenarioName?: string,
+  ) => {
+    setInflationScenarioRates(inflationRates)
+    setInflationScenarioReturnModifiers(returnModifiers)
+    setInflationScenarioName(scenarioName || '')
+    // Trigger simulation update
+    performSimulation()
+  }, [setInflationScenarioRates, setInflationScenarioReturnModifiers, setInflationScenarioName, performSimulation])
 
   // Use provided config or default based on phase
   const riskConfig: RandomReturnConfig = config || {
@@ -220,6 +237,12 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
           <BlackSwanEventConfiguration
             simulationStartYear={startEnd?.[0] || 2025}
             onEventChange={handleBlackSwanChange}
+          />
+
+          {/* Inflation Scenario Configuration */}
+          <InflationScenarioConfiguration
+            simulationStartYear={startEnd?.[0] || 2025}
+            onScenarioChange={handleInflationScenarioChange}
           />
 
           {/* Monte Carlo Analysis in collapsible sub-panel */}

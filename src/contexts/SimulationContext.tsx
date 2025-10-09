@@ -20,6 +20,7 @@ import { updateFreibetragForPlanningMode } from '../utils/freibetrag-calculation
 import type { CareCostConfiguration } from '../../helpers/care-cost-simulation'
 import { createDefaultCareCostConfiguration } from '../../helpers/care-cost-simulation'
 import { mergeBlackSwanReturns } from '../../helpers/black-swan-events'
+import { mergeInflationWithBaseRate } from '../../helpers/inflation-scenarios'
 import type { FinancialGoal } from '../../helpers/financial-goals'
 
 export interface SimulationContextState {
@@ -72,6 +73,13 @@ export interface SimulationContextState {
   setBlackSwanReturns: (blackSwanReturns: Record<number, number> | null) => void
   blackSwanEventName: string
   setBlackSwanEventName: (blackSwanEventName: string) => void
+  // Inflation scenario configuration
+  inflationScenarioRates: Record<number, number> | null
+  setInflationScenarioRates: (inflationScenarioRates: Record<number, number> | null) => void
+  inflationScenarioReturnModifiers: Record<number, number> | null
+  setInflationScenarioReturnModifiers: (inflationScenarioReturnModifiers: Record<number, number> | null) => void
+  inflationScenarioName: string
+  setInflationScenarioName: (inflationScenarioName: string) => void
   // Multi-asset portfolio configuration
   multiAssetConfig: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig
   setMultiAssetConfig: (config: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig) => void
@@ -260,6 +268,12 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   // Black Swan event state
   const [blackSwanReturns, setBlackSwanReturns] = useState<Record<number, number> | null>(null)
   const [blackSwanEventName, setBlackSwanEventName] = useState<string>('')
+  // Inflation scenario state
+  const [inflationScenarioRates, setInflationScenarioRates] = useState<Record<number, number> | null>(null)
+  const [inflationScenarioReturnModifiers, setInflationScenarioReturnModifiers] = useState<
+    Record<number, number> | null
+  >(null)
+  const [inflationScenarioName, setInflationScenarioName] = useState<string>('')
   // Multi-asset portfolio state
   const [multiAssetConfig, setMultiAssetConfig] = useState(() => {
     // Create a proper fallback configuration with all asset classes
@@ -890,6 +904,39 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
         }
       }
 
+      // Apply inflation scenario return modifiers if active (for stagflation scenario)
+      if (inflationScenarioReturnModifiers && Object.keys(inflationScenarioReturnModifiers).length > 0 && returnMode === 'variable') {
+        const baseReturns = (returnConfig as any).variableConfig?.yearlyReturns || {}
+        const modifiedReturns: Record<number, number> = { ...baseReturns }
+
+        // Apply return modifiers (subtract from base returns)
+        for (const [yearStr, modifier] of Object.entries(inflationScenarioReturnModifiers)) {
+          const year = Number(yearStr)
+          const baseReturn = modifiedReturns[year] || (rendite / 100)
+          modifiedReturns[year] = baseReturn + modifier // modifier is already negative for reductions
+        }
+
+        returnConfig = {
+          mode: 'variable',
+          variableConfig: {
+            yearlyReturns: modifiedReturns,
+          },
+        }
+      }
+
+      // Prepare variable inflation rates if inflation scenario is active
+      let variableInflationRates: Record<number, number> | undefined
+      if (inflationScenarioRates && Object.keys(inflationScenarioRates).length > 0) {
+        // Merge scenario rates with base inflation rate
+        const baseInflationRate = inflationAktivSparphase ? (inflationsrateSparphase / 100) : 0
+        variableInflationRates = mergeInflationWithBaseRate(
+          baseInflationRate,
+          inflationScenarioRates,
+          yearToday,
+          startEnd[0],
+        )
+      }
+
       const result = simulate({
         startYear: yearToday,
         endYear: startEnd[0],
@@ -905,6 +952,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
         inflationAktivSparphase,
         inflationsrateSparphase,
         inflationAnwendungSparphase,
+        // Variable inflation rates (for inflation scenarios)
+        variableInflationRates,
         // Günstigerprüfung settings
         guenstigerPruefungAktiv,
         personalTaxRate,
@@ -931,6 +980,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     variableReturns,
     historicalIndex,
     blackSwanReturns,
+    inflationScenarioRates,
+    inflationScenarioReturnModifiers,
     multiAssetConfig,
     simulationAnnual,
     sparplanElemente,
@@ -973,6 +1024,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     // Black Swan event configuration
     blackSwanReturns, setBlackSwanReturns,
     blackSwanEventName, setBlackSwanEventName,
+    // Inflation scenario configuration
+    inflationScenarioRates, setInflationScenarioRates,
+    inflationScenarioReturnModifiers, setInflationScenarioReturnModifiers,
+    inflationScenarioName, setInflationScenarioName,
     // Multi-asset portfolio configuration
     multiAssetConfig, setMultiAssetConfig,
     // Multi-asset portfolio configuration for withdrawal phase
@@ -1024,6 +1079,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     kirchensteuerAktiv, kirchensteuersatz,
     returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
     blackSwanReturns, blackSwanEventName,
+    inflationScenarioRates, inflationScenarioReturnModifiers, inflationScenarioName,
     multiAssetConfig, withdrawalMultiAssetConfig,
     inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
     startEnd, sparplan, simulationAnnual, sparplanElemente,
