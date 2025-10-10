@@ -19,7 +19,7 @@ function generateYearlyGrowthRates(
   returnConfig: ReturnConfiguration,
 ): Record<number, number> {
   const yearlyGrowthRates: Record<number, number> = {}
-  
+
   if (returnConfig.mode === 'fixed') {
     const fixedRate = returnConfig.fixedRate || 0.05
     for (const year of allYears) yearlyGrowthRates[year] = fixedRate
@@ -43,7 +43,7 @@ function generateYearlyGrowthRates(
       for (const year of allYears) yearlyGrowthRates[year] = 0.05
     }
   }
-  
+
   return yearlyGrowthRates
 }
 
