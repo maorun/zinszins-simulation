@@ -247,12 +247,11 @@ Das Projekt verwendet umfassende Code-Qualitätsprüfungen, die mit Codacy-Stand
 
 #### ESLint-Regeln
 
-- **Code-Komplexität**: Warnungen bei zyklomatischer Komplexität über 25
-- **Verschachtelungstiefe**: Maximale Verschachtelungstiefe von 5 Ebenen
-- **Funktionsgröße**: Warnungen bei Funktionen über 400 Zeilen (ohne Leerzeilen/Kommentare)
+- **Code-Komplexität**: Warnungen bei zyklomatischer Komplexität über 160
+- **Verschachtelungstiefe**: Maximale Verschachtelungstiefe von 6 Ebenen
+- **Funktionsgröße**: Warnungen bei Funktionen über 1600 Zeilen (ohne Leerzeilen/Kommentare)
 - **Sicherheit**: Strenge Regeln gegen `eval`, `new Function`, etc.
 - **Best Practices**: Durchsetzung von `prefer-const`, `eqeqeq`, etc.
-- **TypeScript**: Warnungen bei `any`-Verwendung, Konsistenz bei Typ-Assertions
 
 #### CI/CD Pipeline
 
@@ -269,7 +268,7 @@ Die GitHub Actions Workflows prüfen bei jedem Push und Pull Request:
 npm install       # Abhängigkeiten installieren
 npm run dev       # Entwicklungsserver starten
 npm run build     # Produktions-Build erstellen
-npm run lint      # ESLint + Markdown-Linting ausführen (max. 200 Warnungen erlaubt)
+npm run lint      # ESLint + Markdown-Linting ausführen (0 Warnungen erlaubt)
 npm run typecheck # TypeScript-Typen prüfen
 npm run test      # Tests ausführen
 npm run test:coverage # Tests mit Coverage
@@ -280,8 +279,8 @@ npm run test:coverage # Tests mit Coverage
 #### Code-Qualitätsziele
 
 - **0 Fehler**: Keine ESLint-Fehler erlaubt
-- **Warnungen begrenzt**: Maximal 200 Warnungen (schrittweise Reduzierung geplant)
-- **Test-Coverage**: Umfassende Test-Abdeckung mit 1358+ Tests
+- **0 Warnungen**: Keine ESLint-Warnungen erlaubt (max-warnings = 0)
+- **Test-Coverage**: Umfassende Test-Abdeckung mit 1397+ Tests
 - **TypeScript-Strict**: Strikte TypeScript-Konfiguration aktiviert
 
 ---

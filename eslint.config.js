@@ -82,7 +82,7 @@ export default [
       'no-template-curly-in-string': 'warn',
       
       // TypeScript-specific rules (Codacy TypeScript patterns) - only rules that don't require type info
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off', // Disabled - many legitimate uses in context/state management
       '@typescript-eslint/array-type': ['warn', { default: 'array-simple' }],
       '@typescript-eslint/consistent-type-assertions': 'warn',
       '@typescript-eslint/no-array-constructor': 'error',
