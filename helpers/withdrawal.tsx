@@ -396,6 +396,66 @@ function calculateVorabpauschaleForLayers(
   return { totalPotentialVorabTax, vorabCalculations, yearlyFreibetrag, basiszins }
 }
 
+/**
+ * Helper function: Calculate tax on realized gains
+ */
+function calculateRealizedGainsTax(
+  totalRealizedGain: number,
+  yearlyFreibetrag: number,
+  teilfreistellungsquote: number,
+  taxRate: number,
+  guenstigerPruefungAktiv: boolean,
+  incomeTaxRate: number | undefined,
+  kirchensteuerAktiv: boolean,
+  kirchensteuersatz: number,
+): {
+  taxOnRealizedGains: number
+  freibetragUsedOnGains: number
+  remainingFreibetrag: number
+  guenstigerPruefungResult: any | null
+} {
+  const taxableGain = totalRealizedGain > 0 ? totalRealizedGain * (1 - teilfreistellungsquote) : 0
+  let taxOnRealizedGains = 0
+  let guenstigerPruefungResult = null
+
+  if (taxableGain > 0) {
+    const gainAfterFreibetrag = Math.max(0, taxableGain - yearlyFreibetrag)
+
+    if (guenstigerPruefungAktiv && incomeTaxRate !== undefined && gainAfterFreibetrag > 0) {
+      guenstigerPruefungResult = performGuenstigerPruefung(
+        gainAfterFreibetrag,
+        taxRate,
+        incomeTaxRate,
+        teilfreistellungsquote,
+        0,
+        0,
+        kirchensteuerAktiv,
+        kirchensteuersatz,
+      )
+
+      if (guenstigerPruefungResult.isFavorable === 'personal') {
+        taxOnRealizedGains = guenstigerPruefungResult.personalTaxAmount
+      }
+      else {
+        taxOnRealizedGains = guenstigerPruefungResult.abgeltungssteuerAmount
+      }
+    }
+    else {
+      taxOnRealizedGains = gainAfterFreibetrag * taxRate
+    }
+  }
+
+  const freibetragUsedOnGains = Math.min(taxableGain, yearlyFreibetrag)
+  const remainingFreibetrag = yearlyFreibetrag - freibetragUsedOnGains
+
+  return {
+    taxOnRealizedGains,
+    freibetragUsedOnGains,
+    remainingFreibetrag,
+    guenstigerPruefungResult,
+  }
+}
+
 export type InflationConfig = {
   inflationRate?: number // Annual inflation rate for adjustment (default: 2%)
 }
@@ -855,43 +915,21 @@ export function calculateWithdrawal({
     )
 
     // THIRD: Calculate taxes on realized gains and apply freibetrag
-    const taxableGain = totalRealizedGainThisYear > 0 ? totalRealizedGainThisYear * (1 - teilfreistellungsquote) : 0
-
-    let taxOnRealizedGains = 0
-    let guenstigerPruefungResultRealizedGains = null
-
-    if (taxableGain > 0) {
-      const gainAfterFreibetrag = Math.max(0, taxableGain - yearlyFreibetrag)
-
-      if (guenstigerPruefungAktiv && incomeTaxRate !== undefined && gainAfterFreibetrag > 0) {
-        // Apply Günstigerprüfung to realized gains
-        guenstigerPruefungResultRealizedGains = performGuenstigerPruefung(
-          gainAfterFreibetrag,
-          taxRate,
-          incomeTaxRate, // Already in decimal format
-          teilfreistellungsquote,
-          0, // Grundfreibetrag not applicable to capital gains
-          0,
-          kirchensteuerAktiv,
-          kirchensteuersatz,
-        )
-
-        // Use the more favorable tax amount
-        if (guenstigerPruefungResultRealizedGains.isFavorable === 'personal') {
-          taxOnRealizedGains = guenstigerPruefungResultRealizedGains.personalTaxAmount
-        }
-        else {
-          taxOnRealizedGains = guenstigerPruefungResultRealizedGains.abgeltungssteuerAmount
-        }
-      }
-      else {
-        // Standard Abgeltungssteuer calculation
-        taxOnRealizedGains = gainAfterFreibetrag * taxRate
-      }
-    }
-
-    const freibetragUsedOnGains = Math.min(taxableGain, yearlyFreibetrag)
-    const remainingFreibetrag = yearlyFreibetrag - freibetragUsedOnGains
+    const {
+      taxOnRealizedGains,
+      freibetragUsedOnGains,
+      remainingFreibetrag,
+      guenstigerPruefungResult: guenstigerPruefungResultRealizedGains,
+    } = calculateRealizedGainsTax(
+      totalRealizedGainThisYear,
+      yearlyFreibetrag,
+      teilfreistellungsquote,
+      taxRate,
+      guenstigerPruefungAktiv,
+      incomeTaxRate,
+      kirchensteuerAktiv,
+      kirchensteuersatz,
+    )
 
     // FOURTH: Apply remaining freibetrag to Vorabpauschale and calculate final growth
     const taxOnVorabpauschale = Math.max(0, totalPotentialVorabTax - remainingFreibetrag)
