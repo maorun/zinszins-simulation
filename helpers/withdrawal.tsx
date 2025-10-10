@@ -450,7 +450,7 @@ function buildStrategySpecificFields(params: {
   steueroptimierungAnpassung: number
   cashCushionAtStart: number
   cashCushion: number
-  bucketUsed: string | undefined
+  bucketUsed: 'portfolio' | 'cash' | undefined
   refillAmount: number
 }): {
   dynamischeAnpassung?: number
@@ -458,7 +458,7 @@ function buildStrategySpecificFields(params: {
   steueroptimierungAnpassung?: number
   cashCushionStart?: number
   cashCushionEnd?: number
-  bucketUsed?: string
+  bucketUsed?: 'portfolio' | 'cash'
   refillAmount?: number
 } {
   const {
@@ -587,7 +587,7 @@ function buildYearlyResult(params: {
     availableGrundfreibetrag: number
     usedGrundfreibetrag: number
     explanation: string
-  } | undefined
+  } | undefined | null
   strategy: WithdrawalStrategy
   dynamischeAnpassung: number
   vorjahresRendite: number | undefined
@@ -595,7 +595,7 @@ function buildYearlyResult(params: {
   steueroptimierungAnpassung: number
   cashCushionAtStart: number
   cashCushion: number
-  bucketUsed: string | undefined
+  bucketUsed: 'portfolio' | 'cash' | undefined
   refillAmount: number
   totalVorabpauschale: number
   vorabpauschaleDetails: {
