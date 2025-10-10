@@ -129,6 +129,60 @@ function calculateBaseWithdrawalAmount(
   }
 }
 
+/**
+ * Helper function: Calculate dynamic withdrawal adjustments
+ */
+function calculateDynamicAdjustment(
+  strategy: WithdrawalStrategy,
+  annualWithdrawal: number,
+  year: number,
+  startYear: number,
+  yearlyGrowthRates: Record<number, number>,
+  dynamicConfig?: DynamicWithdrawalConfig,
+  bucketConfig?: BucketStrategyConfig,
+): { adjustment: number, previousReturn: number | undefined } {
+  let adjustment = 0
+  let previousReturn: number | undefined
+
+  if (strategy === 'dynamisch' && dynamicConfig) {
+    const previousYear = year - 1
+    previousReturn = yearlyGrowthRates[previousYear]
+
+    if (previousReturn !== undefined) {
+      if (previousReturn > dynamicConfig.upperThresholdReturn) {
+        adjustment = annualWithdrawal * dynamicConfig.upperThresholdAdjustment
+      }
+      else if (previousReturn < dynamicConfig.lowerThresholdReturn) {
+        adjustment = annualWithdrawal * dynamicConfig.lowerThresholdAdjustment
+      }
+    }
+  }
+  else if (strategy === 'bucket_strategie' && bucketConfig && bucketConfig.subStrategy === 'dynamisch') {
+    const previousYear = year - 1
+    previousReturn = yearlyGrowthRates[previousYear]
+
+    if (previousReturn !== undefined
+      && bucketConfig.dynamischObereSchwell !== undefined
+      && bucketConfig.dynamischUntereSchwell !== undefined
+      && bucketConfig.dynamischObereAnpassung !== undefined
+      && bucketConfig.dynamischUntereAnpassung !== undefined) {
+      const upperThreshold = bucketConfig.dynamischObereSchwell / 100
+      const lowerThreshold = bucketConfig.dynamischUntereSchwell / 100
+      const upperAdjustment = bucketConfig.dynamischObereAnpassung / 100
+      const lowerAdjustment = bucketConfig.dynamischUntereAnpassung / 100
+
+      if (previousReturn > upperThreshold) {
+        adjustment = annualWithdrawal * upperAdjustment
+      }
+      else if (previousReturn < lowerThreshold) {
+        adjustment = annualWithdrawal * lowerAdjustment
+      }
+    }
+  }
+
+  return { adjustment, previousReturn }
+}
+
 export type InflationConfig = {
   inflationRate?: number // Annual inflation rate for adjustment (default: 2%)
 }
@@ -454,53 +508,16 @@ export function calculateWithdrawal({
     }
 
     // Dynamic adjustment based on previous year's return
-    let dynamischeAnpassung = 0
-    let vorjahresRendite: number | undefined
-    if (strategy === 'dynamisch' && dynamicConfig) {
-      // Get the previous year's return rate
-      const previousYear = year - 1
-      vorjahresRendite = yearlyGrowthRates[previousYear]
-
-      if (vorjahresRendite !== undefined) {
-        // Calculate dynamic adjustment based on thresholds
-        if (vorjahresRendite > dynamicConfig.upperThresholdReturn) {
-          // Return exceeded upper threshold - increase withdrawal
-          dynamischeAnpassung = annualWithdrawal * dynamicConfig.upperThresholdAdjustment
-        }
-        else if (vorjahresRendite < dynamicConfig.lowerThresholdReturn) {
-          // Return fell below lower threshold - decrease withdrawal
-          dynamischeAnpassung = annualWithdrawal * dynamicConfig.lowerThresholdAdjustment
-        }
-        annualWithdrawal += dynamischeAnpassung
-      }
-    }
-    else if (strategy === 'bucket_strategie' && bucketConfig && bucketConfig.subStrategy === 'dynamisch') {
-      // Handle dynamic adjustments within bucket strategy
-      const previousYear = year - 1
-      vorjahresRendite = yearlyGrowthRates[previousYear]
-
-      if (vorjahresRendite !== undefined
-        && bucketConfig.dynamischObereSchwell !== undefined
-        && bucketConfig.dynamischUntereSchwell !== undefined
-        && bucketConfig.dynamischObereAnpassung !== undefined
-        && bucketConfig.dynamischUntereAnpassung !== undefined) {
-        const upperThreshold = bucketConfig.dynamischObereSchwell / 100
-        const lowerThreshold = bucketConfig.dynamischUntereSchwell / 100
-        const upperAdjustment = bucketConfig.dynamischObereAnpassung / 100
-        const lowerAdjustment = bucketConfig.dynamischUntereAnpassung / 100
-
-        if (vorjahresRendite > upperThreshold) {
-          // Return exceeded upper threshold - increase withdrawal
-          dynamischeAnpassung = annualWithdrawal * upperAdjustment
-        }
-        else if (vorjahresRendite < lowerThreshold) {
-          // Return fell below lower threshold - decrease withdrawal
-          dynamischeAnpassung = annualWithdrawal * lowerAdjustment
-        }
-
-        annualWithdrawal += dynamischeAnpassung
-      }
-    }
+    const { adjustment: dynamischeAnpassung, previousReturn: vorjahresRendite } = calculateDynamicAdjustment(
+      strategy,
+      annualWithdrawal,
+      year,
+      startYear,
+      yearlyGrowthRates,
+      dynamicConfig,
+      bucketConfig,
+    )
+    annualWithdrawal += dynamischeAnpassung
 
     // Tax-optimized withdrawal strategy: dynamically optimize withdrawal amount
     let steueroptimierungAnpassung = 0
