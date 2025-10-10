@@ -4,6 +4,16 @@ import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { Alert, AlertDescription } from './ui/alert'
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog'
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from './ui/alert-dialog'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { ChevronDown, Plus, Edit3, Copy, Trash2, UserCheck } from 'lucide-react'
@@ -43,6 +53,8 @@ export default function ProfileManagement() {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false)
   const [editingProfile, setEditingProfile] = useState<UserProfile | null>(null)
   const [formData, setFormData] = useState<ProfileFormData>({ name: '', description: '' })
+  const [deleteConfirmProfile, setDeleteConfirmProfile] = useState<UserProfile | null>(null)
+  const [isClearAllConfirmOpen, setIsClearAllConfirmOpen] = useState(false)
 
   // Load profiles and active profile on component mount
   useEffect(() => {
@@ -154,19 +166,21 @@ export default function ProfileManagement() {
       return
     }
 
-    if (!confirm(`Möchten Sie das Profil "${profile.name}" wirklich löschen?`)) {
-      return
-    }
+    setDeleteConfirmProfile(profile)
+  }
+
+  const confirmDeleteProfile = () => {
+    if (!deleteConfirmProfile) return
 
     try {
-      const success = deleteProfile(profile.id)
+      const success = deleteProfile(deleteConfirmProfile.id)
       if (success) {
         refreshProfiles()
         // If we deleted the active profile, load the new active one
-        if (profile.id === activeProfile?.id) {
+        if (deleteConfirmProfile.id === activeProfile?.id) {
           loadSavedConfiguration()
         }
-        toast.success(`Profil "${profile.name}" wurde gelöscht`)
+        toast.success(`Profil "${deleteConfirmProfile.name}" wurde gelöscht`)
       }
       else {
         toast.error('Fehler beim Löschen des Profils')
@@ -176,13 +190,16 @@ export default function ProfileManagement() {
       console.error('Failed to delete profile:', error)
       toast.error('Fehler beim Löschen des Profils')
     }
+    finally {
+      setDeleteConfirmProfile(null)
+    }
   }
 
   const handleClearAllProfiles = () => {
-    if (!confirm('Möchten Sie wirklich alle Profile löschen und zu den Standardwerten zurückkehren?')) {
-      return
-    }
+    setIsClearAllConfirmOpen(true)
+  }
 
+  const confirmClearAllProfiles = () => {
     try {
       clearAllProfiles()
       resetToDefaults()
@@ -192,6 +209,9 @@ export default function ProfileManagement() {
     catch (error) {
       console.error('Failed to clear all profiles:', error)
       toast.error('Fehler beim Löschen aller Profile')
+    }
+    finally {
+      setIsClearAllConfirmOpen(false)
     }
   }
 
@@ -468,6 +488,46 @@ export default function ProfileManagement() {
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Delete Profile Confirmation Dialog */}
+      <AlertDialog open={!!deleteConfirmProfile} onOpenChange={open => !open && setDeleteConfirmProfile(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Profil löschen</AlertDialogTitle>
+            <AlertDialogDescription>
+              Möchten Sie das Profil "
+              {deleteConfirmProfile?.name}
+              " wirklich löschen?
+              Diese Aktion kann nicht rückgängig gemacht werden.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmDeleteProfile} className="bg-red-600 hover:bg-red-700">
+              Löschen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Clear All Profiles Confirmation Dialog */}
+      <AlertDialog open={isClearAllConfirmOpen} onOpenChange={setIsClearAllConfirmOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Alle Profile löschen</AlertDialogTitle>
+            <AlertDialogDescription>
+              Möchten Sie wirklich alle Profile löschen und zu den Standardwerten zurückkehren?
+              Diese Aktion kann nicht rückgängig gemacht werden.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmClearAllProfiles} className="bg-red-600 hover:bg-red-700">
+              Alle löschen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </Card>
   )
 }

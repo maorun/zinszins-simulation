@@ -31,12 +31,6 @@ vi.mock('sonner', () => ({
   },
 }))
 
-// Mock confirm dialog
-const mockConfirm = vi.fn()
-Object.defineProperty(window, 'confirm', {
-  value: mockConfirm,
-})
-
 const TestWrapper = ({ children }: { children: React.ReactNode }) => (
   <SimulationProvider>{children}</SimulationProvider>
 )
@@ -121,7 +115,6 @@ describe('ProfileManagement', () => {
     })
     vi.mocked(profileStorage.loadProfileStorage).mockReturnValue(null)
     vi.mocked(profileStorage.saveProfileStorage).mockImplementation(() => {})
-    mockConfirm.mockReturnValue(true)
   })
 
   describe('Basic Rendering', () => {
@@ -341,24 +334,39 @@ describe('ProfileManagement', () => {
 
     it('deletes a profile after confirmation', async () => {
       const deleteButtons = screen.getAllByTitle('Profil löschen')
-      // Click the delete button for the first profile (Standard Profil)
+      // Click the delete button to open confirmation dialog
       fireEvent.click(deleteButtons[0])
 
+      // Wait for confirmation dialog to appear
       await waitFor(() => {
-        expect(mockConfirm).toHaveBeenCalledWith(expect.stringContaining('Standard Profil'))
+        expect(screen.getByText('Profil löschen')).toBeInTheDocument()
+        expect(screen.getByText(/Standard Profil.*wirklich löschen/)).toBeInTheDocument()
+      })
+
+      // Click the confirm button
+      const confirmButton = screen.getByRole('button', { name: 'Löschen' })
+      fireEvent.click(confirmButton)
+
+      await waitFor(() => {
         expect(profileStorage.deleteProfile).toHaveBeenCalled()
         expect(toast.success).toHaveBeenCalledWith(expect.stringContaining('gelöscht'))
       })
     })
 
-    it('does not delete profile when confirmation is declined', async () => {
-      mockConfirm.mockReturnValue(false)
-
+    it('does not delete profile when confirmation is cancelled', async () => {
       const deleteButtons = screen.getAllByTitle('Profil löschen')
       fireEvent.click(deleteButtons[0])
 
+      // Wait for confirmation dialog
       await waitFor(() => {
-        expect(mockConfirm).toHaveBeenCalled()
+        expect(screen.getByText('Profil löschen')).toBeInTheDocument()
+      })
+
+      // Click cancel button
+      const cancelButton = screen.getByRole('button', { name: 'Abbrechen' })
+      fireEvent.click(cancelButton)
+
+      await waitFor(() => {
         expect(profileStorage.deleteProfile).not.toHaveBeenCalled()
       })
     })
@@ -400,8 +408,17 @@ describe('ProfileManagement', () => {
       const clearButtons = screen.getAllByText('🗑️ Alle Profile löschen')
       fireEvent.click(clearButtons[0])
 
+      // Wait for confirmation dialog to appear
       await waitFor(() => {
-        expect(mockConfirm).toHaveBeenCalledWith(expect.stringContaining('alle Profile löschen'))
+        expect(screen.getByText('Alle Profile löschen')).toBeInTheDocument()
+        expect(screen.getByText(/alle Profile löschen.*Standardwerten zurückkehren/)).toBeInTheDocument()
+      })
+
+      // Click the confirm button
+      const confirmButton = screen.getByRole('button', { name: 'Alle löschen' })
+      fireEvent.click(confirmButton)
+
+      await waitFor(() => {
         expect(profileStorage.clearAllProfiles).toHaveBeenCalled()
         expect(toast.success).toHaveBeenCalledWith('Alle Profile wurden gelöscht und auf Standardwerte zurückgesetzt.')
       })
