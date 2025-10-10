@@ -1,9 +1,4 @@
 import { useEffect } from 'react'
-import {
-  createDefaultHealthCareInsuranceConfig,
-  createDefaultCoupleHealthInsuranceConfig,
-  createDefaultFamilyInsuranceThresholds,
-} from '../../helpers/health-care-insurance'
 import type {
   WithdrawalResult,
   WithdrawalStrategy,
@@ -12,6 +7,7 @@ import { useSimulation } from '../contexts/useSimulation'
 import { useWithdrawalCalculations } from '../hooks/useWithdrawalCalculations'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
 import { useWithdrawalModals } from '../hooks/useWithdrawalModals'
+import { useHealthCareInsuranceHandlers } from '../hooks/useHealthCareInsuranceHandlers'
 import type {
   ComparisonStrategy,
   WithdrawalReturnMode,
@@ -145,6 +141,12 @@ export function EntnahmeSimulationsAusgabe({
   const comparisonStrategies = currentConfig.comparisonStrategies
   const useSegmentedComparisonMode = currentConfig.useSegmentedComparisonMode
   const segmentedComparisonStrategies = currentConfig.segmentedComparisonStrategies
+
+  // Use health care insurance handlers hook (after formValue is defined)
+  const healthCareInsuranceHandlers = useHealthCareInsuranceHandlers(
+    formValue,
+    updateFormValue,
+  )
 
   // Notify parent component when withdrawal results change
   useEffect(() => {
@@ -1435,247 +1437,7 @@ export function EntnahmeSimulationsAusgabe({
               birthYear={birthYear}
               spouseBirthYear={spouse?.birthYear}
               planningMode={planningMode}
-              onChange={{
-                onEnabledChange: enabled => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    enabled,
-                  },
-                }),
-                onInsuranceTypeChange: insuranceType => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    insuranceType,
-                  },
-                }),
-                onIncludeEmployerContributionChange: includeEmployerContribution => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    includeEmployerContribution,
-                  },
-                }),
-                onStatutoryHealthInsuranceRateChange: rate => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    statutoryHealthInsuranceRate: rate,
-                  },
-                }),
-                onStatutoryCareInsuranceRateChange: rate => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    statutoryCareInsuranceRate: rate,
-                  },
-                }),
-                onStatutoryMinimumIncomeBaseChange: amount => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    statutoryMinimumIncomeBase: amount,
-                  },
-                }),
-                onStatutoryMaximumIncomeBaseChange: amount => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    statutoryMaximumIncomeBase: amount,
-                  },
-                }),
-                onPrivateHealthInsuranceMonthlyChange: amount => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    privateHealthInsuranceMonthly: amount,
-                  },
-                }),
-                onPrivateCareInsuranceMonthlyChange: amount => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    privateCareInsuranceMonthly: amount,
-                  },
-                }),
-                onPrivateInsuranceInflationRateChange: rate => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    privateInsuranceInflationRate: rate,
-                  },
-                }),
-                onRetirementStartYearChange: year => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    retirementStartYear: year,
-                  },
-                }),
-                onAdditionalCareInsuranceForChildlessChange: enabled => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    additionalCareInsuranceForChildless: enabled,
-                  },
-                }),
-                onAdditionalCareInsuranceAgeChange: age => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    additionalCareInsuranceAge: age,
-                  },
-                }),
-                // Couple-specific handlers
-                onCoupleStrategyChange: strategy => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
-                        || createDefaultCoupleHealthInsuranceConfig()),
-                      strategy,
-                    },
-                  },
-                }),
-                onFamilyInsuranceThresholdRegularChange: amount => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
-                        || createDefaultCoupleHealthInsuranceConfig()),
-                      familyInsuranceThresholds: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.familyInsuranceThresholds
-                          || createDefaultFamilyInsuranceThresholds()),
-                        regularEmploymentLimit: amount,
-                      },
-                    },
-                  },
-                }),
-                onFamilyInsuranceThresholdMiniJobChange: amount => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
-                        || createDefaultCoupleHealthInsuranceConfig()),
-                      familyInsuranceThresholds: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.familyInsuranceThresholds
-                          || createDefaultFamilyInsuranceThresholds()),
-                        miniJobLimit: amount,
-                      },
-                    },
-                  },
-                }),
-                onPerson1NameChange: name => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
-                        || createDefaultCoupleHealthInsuranceConfig()),
-                      person1: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
-                          || createDefaultCoupleHealthInsuranceConfig().person1),
-                        name,
-                      },
-                    },
-                  },
-                }),
-                onPerson1WithdrawalShareChange: share => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
-                        || createDefaultCoupleHealthInsuranceConfig()),
-                      person1: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
-                          || createDefaultCoupleHealthInsuranceConfig().person1),
-                        withdrawalShare: share,
-                      },
-                      person2: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
-                          || createDefaultCoupleHealthInsuranceConfig().person2),
-                        withdrawalShare: 1 - share,
-                      },
-                    },
-                  },
-                }),
-                onPerson1OtherIncomeAnnualChange: amount => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
-                        || createDefaultCoupleHealthInsuranceConfig()),
-                      person1: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
-                          || createDefaultCoupleHealthInsuranceConfig().person1),
-                        otherIncomeAnnual: amount,
-                      },
-                    },
-                  },
-                }),
-                onPerson1AdditionalCareInsuranceForChildlessChange: enabled => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
-                        || createDefaultCoupleHealthInsuranceConfig()),
-                      person1: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
-                          || createDefaultCoupleHealthInsuranceConfig().person1),
-                        additionalCareInsuranceForChildless: enabled,
-                      },
-                    },
-                  },
-                }),
-                onPerson2NameChange: name => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
-                        || createDefaultCoupleHealthInsuranceConfig()),
-                      person2: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
-                          || createDefaultCoupleHealthInsuranceConfig().person2),
-                        name,
-                      },
-                    },
-                  },
-                }),
-                onPerson2WithdrawalShareChange: share => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
-                        || createDefaultCoupleHealthInsuranceConfig()),
-                      person1: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
-                          || createDefaultCoupleHealthInsuranceConfig().person1),
-                        withdrawalShare: 1 - share,
-                      },
-                      person2: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
-                          || createDefaultCoupleHealthInsuranceConfig().person2),
-                        withdrawalShare: share,
-                      },
-                    },
-                  },
-                }),
-                onPerson2OtherIncomeAnnualChange: amount => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
-                        || createDefaultCoupleHealthInsuranceConfig()),
-                      person2: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
-                          || createDefaultCoupleHealthInsuranceConfig().person2),
-                        otherIncomeAnnual: amount,
-                      },
-                    },
-                  },
-                }),
-                onPerson2AdditionalCareInsuranceForChildlessChange: enabled => updateFormValue({
-                  healthCareInsuranceConfig: {
-                    ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-                    coupleConfig: {
-                      ...(formValue.healthCareInsuranceConfig?.coupleConfig
-                        || createDefaultCoupleHealthInsuranceConfig()),
-                      person2: {
-                        ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
-                          || createDefaultCoupleHealthInsuranceConfig().person2),
-                        additionalCareInsuranceForChildless: enabled,
-                      },
-                    },
-                  },
-                }),
-              }}
+              onChange={healthCareInsuranceHandlers}
               currentWithdrawalAmount={
                 withdrawalData && withdrawalData.withdrawalArray.length > 0
                   ? withdrawalData.withdrawalArray[withdrawalData.withdrawalArray.length - 1].entnahme
