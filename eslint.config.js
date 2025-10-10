@@ -60,9 +60,9 @@ export default [
       '@stylistic/multiline-ternary': 'off', // Disable to avoid excessive refactoring
 
       // Code Quality Rules (Codacy best practices)
-      'complexity': ['warn', 160], // Cyclomatic complexity (increased to accommodate current codebase)
-      'max-depth': ['warn', 6], // Maximum nesting depth (increased to accommodate current codebase)
-      'max-lines-per-function': ['warn', { max: 1600, skipBlankLines: true, skipComments: true }], // Increased to accommodate current codebase
+      'complexity': ['warn', 25], // Cyclomatic complexity
+      'max-depth': ['warn', 5], // Maximum nesting depth
+      'max-lines-per-function': ['warn', { max: 400, skipBlankLines: true, skipComments: true }],
       
       // Security Rules (Codacy security patterns)
       'no-eval': 'error',
@@ -72,7 +72,7 @@ export default [
       
       // Best Practices (Codacy recommendations)
       'no-debugger': 'error',
-      'no-alert': 'off', // Disabled - confirm() is used for legitimate user confirmations
+      'no-alert': 'warn',
       'eqeqeq': ['error', 'always', { null: 'ignore' }],
       'no-var': 'error',
       'prefer-const': 'error',
@@ -82,7 +82,7 @@ export default [
       'no-template-curly-in-string': 'warn',
       
       // TypeScript-specific rules (Codacy TypeScript patterns) - only rules that don't require type info
-      '@typescript-eslint/no-explicit-any': 'off', // Disabled - many legitimate uses in context/state management
+      '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/array-type': ['warn', { default: 'array-simple' }],
       '@typescript-eslint/consistent-type-assertions': 'warn',
       '@typescript-eslint/no-array-constructor': 'error',
