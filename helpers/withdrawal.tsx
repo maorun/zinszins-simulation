@@ -11,6 +11,42 @@ import { calculateHealthCareInsuranceForYear, calculateCoupleHealthInsuranceForY
 
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt' | 'steueroptimiert'
 
+/**
+ * Helper function: Generate yearly growth rates based on return configuration
+ */
+function generateYearlyGrowthRates(
+  allYears: number[],
+  returnConfig: ReturnConfiguration,
+): Record<number, number> {
+  const yearlyGrowthRates: Record<number, number> = {}
+  
+  if (returnConfig.mode === 'fixed') {
+    const fixedRate = returnConfig.fixedRate || 0.05
+    for (const year of allYears) yearlyGrowthRates[year] = fixedRate
+  }
+  else if (returnConfig.mode === 'random' && returnConfig.randomConfig) {
+    Object.assign(yearlyGrowthRates, generateRandomReturns(allYears, returnConfig.randomConfig))
+  }
+  else if (returnConfig.mode === 'variable' && returnConfig.variableConfig) {
+    for (const year of allYears) {
+      yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] || 0.05
+    }
+  }
+  else if (returnConfig.mode === 'multiasset' && returnConfig.multiAssetConfig) {
+    try {
+      const { generateMultiAssetReturns } = require('./multi-asset-calculations')
+      const multiAssetReturns = generateMultiAssetReturns(allYears, returnConfig.multiAssetConfig)
+      Object.assign(yearlyGrowthRates, multiAssetReturns)
+    }
+    catch (error) {
+      console.warn('Multi-asset calculations not available, falling back to 5% fixed return:', error)
+      for (const year of allYears) yearlyGrowthRates[year] = 0.05
+    }
+  }
+  
+  return yearlyGrowthRates
+}
+
 export type InflationConfig = {
   inflationRate?: number // Annual inflation rate for adjustment (default: 2%)
 }
@@ -252,28 +288,7 @@ export function calculateWithdrawal({
     ? Array.from({ length: endYear - startYear + 2 }, (_, i) => startYear - 1 + i)
     : years
 
-  const yearlyGrowthRates: Record<number, number> = {}
-  if (returnConfig.mode === 'fixed') {
-    const fixedRate = returnConfig.fixedRate || 0.05
-    for (const year of allYears) yearlyGrowthRates[year] = fixedRate
-  }
-  else if (returnConfig.mode === 'random' && returnConfig.randomConfig) {
-    Object.assign(yearlyGrowthRates, generateRandomReturns(allYears, returnConfig.randomConfig))
-  }
-  else if (returnConfig.mode === 'variable' && returnConfig.variableConfig) {
-    for (const year of allYears) yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] || 0.05
-  }
-  else if (returnConfig.mode === 'multiasset' && returnConfig.multiAssetConfig) {
-    try {
-      const { generateMultiAssetReturns } = require('./multi-asset-calculations')
-      const multiAssetReturns = generateMultiAssetReturns(allYears, returnConfig.multiAssetConfig)
-      Object.assign(yearlyGrowthRates, multiAssetReturns)
-    }
-    catch (error) {
-      console.warn('Multi-asset calculations not available, falling back to 5% fixed return:', error)
-      for (const year of allYears) yearlyGrowthRates[year] = 0.05
-    }
-  }
+  const yearlyGrowthRates = generateYearlyGrowthRates(allYears, returnConfig)
 
   const result: WithdrawalResult = {}
 
