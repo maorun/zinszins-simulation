@@ -338,6 +338,64 @@ function processCashCushionRefill(
   return { refillAmount, updatedCashCushion }
 }
 
+/**
+ * Helper function: Calculate Vorabpauschale for all layers before withdrawal
+ */
+function calculateVorabpauschaleForLayers(
+  mutableLayers: MutableLayer[],
+  returnRate: number,
+  year: number,
+  basiszinsConfiguration: BasiszinsConfiguration | undefined,
+  taxRate: number,
+  teilfreistellungsquote: number,
+  freibetragPerYear: Record<number, number> | undefined,
+): {
+  totalPotentialVorabTax: number
+  vorabCalculations: Array<{
+    layer: MutableLayer
+    vorabpauschaleBetrag: number
+    potentialTax: number
+    valueBeforeWithdrawal: number
+  }>
+  yearlyFreibetrag: number
+} {
+  const getFreibetrag = (yr: number): number => {
+    if (freibetragPerYear && freibetragPerYear[yr] !== undefined) return freibetragPerYear[yr]
+    return freibetrag[2023] || 2000
+  }
+
+  const yearlyFreibetrag = getFreibetrag(year)
+  const basiszins = getBasiszinsForYear(year, basiszinsConfiguration)
+  let totalPotentialVorabTax = 0
+  const vorabCalculations: Array<{
+    layer: MutableLayer
+    vorabpauschaleBetrag: number
+    potentialTax: number
+    valueBeforeWithdrawal: number
+  }> = []
+
+  mutableLayers.forEach((layer: MutableLayer) => {
+    if (layer.currentValue > 0) {
+      const valueBeforeWithdrawal = layer.currentValue
+      const valueAfterGrowthBeforeWithdrawal = valueBeforeWithdrawal * (1 + returnRate)
+      const vorabpauschaleBetrag = calculateVorabpauschale(
+        valueBeforeWithdrawal,
+        valueAfterGrowthBeforeWithdrawal,
+        basiszins,
+      )
+      const potentialTax = calculateSteuerOnVorabpauschale(
+        vorabpauschaleBetrag,
+        taxRate,
+        teilfreistellungsquote,
+      )
+      totalPotentialVorabTax += potentialTax
+      vorabCalculations.push({ layer, vorabpauschaleBetrag, potentialTax, valueBeforeWithdrawal })
+    }
+  })
+
+  return { totalPotentialVorabTax, vorabCalculations, yearlyFreibetrag, basiszins }
+}
+
 export type InflationConfig = {
   inflationRate?: number // Annual inflation rate for adjustment (default: 2%)
 }
@@ -773,34 +831,20 @@ export function calculateWithdrawal({
     )
 
     // FIRST: Calculate Vorabpauschale BEFORE any withdrawal, using full portfolio values at start of year
-    const yearlyFreibetrag = getFreibetragForYear(year)
-    const basiszins = getBasiszinsForYear(year, basiszinsConfiguration)
-    let totalPotentialVorabTax = 0
-    const vorabCalculations: Array<{
-      layer: MutableLayer
-      vorabpauschaleBetrag: number
-      potentialTax: number
-      valueBeforeWithdrawal: number
-    }> = []
-
-    mutableLayers.forEach((layer: MutableLayer) => {
-      if (layer.currentValue > 0) {
-        const valueBeforeWithdrawal = layer.currentValue // Full value at start of year
-        const valueAfterGrowthBeforeWithdrawal = valueBeforeWithdrawal * (1 + returnRate)
-        const vorabpauschaleBetrag = calculateVorabpauschale(
-          valueBeforeWithdrawal,
-          valueAfterGrowthBeforeWithdrawal,
-          basiszins,
-        )
-        const potentialTax = calculateSteuerOnVorabpauschale(
-          vorabpauschaleBetrag,
-          taxRate,
-          teilfreistellungsquote,
-        )
-        totalPotentialVorabTax += potentialTax
-        vorabCalculations.push({ layer, vorabpauschaleBetrag, potentialTax, valueBeforeWithdrawal })
-      }
-    })
+    const {
+      totalPotentialVorabTax,
+      vorabCalculations,
+      yearlyFreibetrag,
+      basiszins,
+    } = calculateVorabpauschaleForLayers(
+      mutableLayers,
+      returnRate,
+      year,
+      basiszinsConfiguration,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear,
+    )
 
     // SECOND: Process withdrawal and calculate realized gains
     const totalRealizedGainThisYear = processLayerWithdrawal(
