@@ -5,9 +5,9 @@ import type { SegmentedWithdrawalConfig, WithdrawalSegment } from '../src/utils/
 import type { WithdrawalFrequency } from '../src/utils/config-storage'
 import type { BasiszinsConfiguration } from '../src/services/bundesbank-api'
 import { calculateRMDWithdrawal } from './rmd-tables'
-import { calculateStatutoryPension, type StatutoryPensionConfig } from './statutory-pension'
-import { calculateOtherIncome, type OtherIncomeConfiguration } from './other-income'
-import { calculateHealthCareInsuranceForYear, calculateCoupleHealthInsuranceForYear, type HealthCareInsuranceConfig, type CoupleHealthInsuranceYearResult } from './health-care-insurance'
+import { calculateStatutoryPension, type StatutoryPensionConfig, type StatutoryPensionResult } from './statutory-pension'
+import { calculateOtherIncome, type OtherIncomeConfiguration, type OtherIncomeResult, type OtherIncomeYearResult } from './other-income'
+import { calculateHealthCareInsuranceForYear, calculateCoupleHealthInsuranceForYear, type HealthCareInsuranceConfig, type CoupleHealthInsuranceYearResult, type HealthCareInsuranceYearResult } from './health-care-insurance'
 
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt' | 'steueroptimiert'
 
@@ -446,13 +446,21 @@ function buildStrategySpecificFields(params: {
   strategy: WithdrawalStrategy
   dynamischeAnpassung: number
   vorjahresRendite: number | undefined
-  bucketConfig: any
+  bucketConfig: BucketStrategyConfig | undefined
   steueroptimierungAnpassung: number
   cashCushionAtStart: number
   cashCushion: number
   bucketUsed: string | undefined
   refillAmount: number
-}): any {
+}): {
+  dynamischeAnpassung?: number
+  vorjahresRendite?: number
+  steueroptimierungAnpassung?: number
+  cashCushionStart?: number
+  cashCushionEnd?: number
+  bucketUsed?: string
+  refillAmount?: number
+} {
   const {
     strategy,
     dynamischeAnpassung,
@@ -480,12 +488,37 @@ function buildStrategySpecificFields(params: {
  */
 function buildIncomeSourceFields(params: {
   year: number
-  statutoryPensionData: Record<number, any>
-  otherIncomeData: Record<number, any>
-  healthCareInsuranceData: any
+  statutoryPensionData: StatutoryPensionResult
+  otherIncomeData: OtherIncomeResult
+  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
   healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
   coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
-}): any {
+}): {
+  statutoryPension?: {
+    grossAnnualAmount: number
+    netAnnualAmount: number
+    incomeTax: number
+    taxableAmount: number
+  }
+  otherIncome?: {
+    totalNetAmount: number
+    totalTaxAmount: number
+    sourceCount: number
+  }
+  healthCareInsurance?: {
+    healthInsuranceAnnual: number
+    careInsuranceAnnual: number
+    totalAnnual: number
+    healthInsuranceMonthly: number
+    careInsuranceMonthly: number
+    totalMonthly: number
+    usedFixedAmounts: boolean
+    isRetirementPhase: boolean
+    effectiveHealthInsuranceRate: number
+    effectiveCareInsuranceRate: number
+    coupleDetails?: CoupleHealthInsuranceYearResult
+  }
+} {
   const {
     year,
     statutoryPensionData,
@@ -540,30 +573,46 @@ function buildYearlyResult(params: {
   freibetragUsedOnGains: number
   freibetragUsedOnVorab: number
   monthlyWithdrawalAmount: number | undefined
-  inflationConfig: any
+  inflationConfig: InflationConfig | undefined
   inflationAnpassung: number
   enableGrundfreibetrag: boolean | undefined
   einkommensteuer: number
   genutzterGrundfreibetrag: number
   taxableIncome: number
-  guenstigerPruefungResultRealizedGains: any
+  guenstigerPruefungResultRealizedGains: {
+    abgeltungssteuerAmount: number
+    personalTaxAmount: number
+    usedTaxRate: number
+    isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
+    availableGrundfreibetrag: number
+    usedGrundfreibetrag: number
+    explanation: string
+  } | undefined
   strategy: WithdrawalStrategy
   dynamischeAnpassung: number
   vorjahresRendite: number | undefined
-  bucketConfig: any
+  bucketConfig: BucketStrategyConfig | undefined
   steueroptimierungAnpassung: number
   cashCushionAtStart: number
   cashCushion: number
   bucketUsed: string | undefined
   refillAmount: number
   totalVorabpauschale: number
-  vorabpauschaleDetails: any
-  statutoryPensionData: Record<number, any>
-  otherIncomeData: Record<number, any>
-  healthCareInsuranceData: any
+  vorabpauschaleDetails: {
+    basiszins: number
+    basisertrag: number
+    vorabpauschaleAmount: number
+    steuerVorFreibetrag: number
+    jahresgewinn: number
+    anteilImJahr: number
+    startkapital: number
+  } | undefined
+  statutoryPensionData: StatutoryPensionResult
+  otherIncomeData: OtherIncomeResult
+  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
   healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
   coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
-}): any {
+}): WithdrawalResultElement {
   const {
     year,
     capitalAtStartOfYear,
@@ -690,9 +739,9 @@ function calculateYearIncomeTax(params: {
   entnahme: number
   year: number
   getGrundfreibetragForYear: (year: number) => number
-  statutoryPensionData: Record<number, any>
-  otherIncomeData: Record<number, any>
-  healthCareInsuranceData: any
+  statutoryPensionData: StatutoryPensionResult
+  otherIncomeData: OtherIncomeResult
+  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
   healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
   incomeTaxRate: number | undefined
   kirchensteuerAktiv: boolean
@@ -733,7 +782,7 @@ function calculateYearIncomeTax(params: {
     // Add taxable amount from other income sources
     if (otherIncomeData[year]?.sources) {
       const otherIncomeGrossTotal = otherIncomeData[year].sources.reduce(
-        (sum: number, source: any) => sum + (source.grossAnnualAmount || 0),
+        (sum: number, source: OtherIncomeYearResult) => sum + (source.grossAnnualAmount || 0),
         0,
       )
       totalTaxableIncome += otherIncomeGrossTotal
@@ -766,10 +815,10 @@ function calculateYearHealthCareInsurance(params: {
   healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
   year: number
   entnahme: number
-  statutoryPensionData: Record<number, any>
+  statutoryPensionData: StatutoryPensionResult
   birthYear: number | undefined
 }): {
-  healthCareInsuranceData: any
+  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
   coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
 } {
   const {
@@ -898,7 +947,15 @@ function calculateRealizedGainsTax(
   taxOnRealizedGains: number
   freibetragUsedOnGains: number
   remainingFreibetrag: number
-  guenstigerPruefungResult: any | null
+  guenstigerPruefungResult: {
+    abgeltungssteuerAmount: number
+    personalTaxAmount: number
+    usedTaxRate: number
+    isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
+    availableGrundfreibetrag: number
+    usedGrundfreibetrag: number
+    explanation: string
+  } | null
 } {
   const taxableGain = totalRealizedGain > 0 ? totalRealizedGain * (1 - teilfreistellungsquote) : 0
   let taxOnRealizedGains = 0
