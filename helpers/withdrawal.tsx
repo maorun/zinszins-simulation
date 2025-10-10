@@ -136,7 +136,6 @@ function calculateDynamicAdjustment(
   strategy: WithdrawalStrategy,
   annualWithdrawal: number,
   year: number,
-  startYear: number,
   yearlyGrowthRates: Record<number, number>,
   dynamicConfig?: DynamicWithdrawalConfig,
   bucketConfig?: BucketStrategyConfig,
@@ -358,6 +357,7 @@ function calculateVorabpauschaleForLayers(
     valueBeforeWithdrawal: number
   }>
   yearlyFreibetrag: number
+  basiszins: number
 } {
   const getFreibetrag = (yr: number): number => {
     if (freibetragPerYear && freibetragPerYear[yr] !== undefined) return freibetragPerYear[yr]
@@ -785,7 +785,6 @@ export function calculateWithdrawal({
       strategy,
       annualWithdrawal,
       year,
-      startYear,
       yearlyGrowthRates,
       dynamicConfig,
       bucketConfig,
@@ -925,7 +924,7 @@ export function calculateWithdrawal({
       yearlyFreibetrag,
       teilfreistellungsquote,
       taxRate,
-      guenstigerPruefungAktiv,
+      guenstigerPruefungAktiv || false,
       incomeTaxRate,
       kirchensteuerAktiv,
       kirchensteuersatz,
