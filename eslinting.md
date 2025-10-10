@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 178 ESLint-Warnungen  
+**Aktueller Stand:** 176 ESLint-Warnungen  
 **Ziel:** 0 Warnungen (max-warnings = 0)  
 **Status:** In Bearbeitung
 
@@ -15,7 +15,6 @@
 | `@typescript-eslint/no-explicit-any` | 137 | Verwendung von `any` Type |
 | `complexity` | 22 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
 | `max-lines-per-function` | 17 | Funktionen mit zu vielen Zeilen (>400) |
-| `no-alert` | 2 | Verwendung von `confirm()` |
 | `max-depth` | 1 | Zu tiefe Verschachtelung (>5 Ebenen) |
 
 ### Nach Dateien (Top 10)
@@ -152,21 +151,7 @@
 
 ### Phase 3: Weitere Probleme
 
-#### 3.1 `no-alert` Warnungen (2)
-
-**Dateien:**
-
-- `src/components/SparplanSimulationsAusgabe.tsx`
-- `src/components/ProfileManagement.tsx`
-
-**Lösung:**
-
-- `confirm()` durch eigene Dialog-Komponente ersetzen (z.B. mit shadcn/ui AlertDialog)
-- Oder: `eslint-disable-next-line` mit Begründung wenn legitim
-
-**Aufwand:** 0,1 Tage
-
-#### 3.2 `max-depth` Warnung (1)
+#### 3.1 `max-depth` Warnung (1)
 
 **Datei:** `src/utils/sparplan-utils.ts` (Zeile 154)
 
@@ -188,8 +173,9 @@
 | 1.2 | 10 Funktionen mittlerer Komplexität | 3,5 Tage | ⏳ |
 | 1.3 | 15 Funktionen niedriger Komplexität | 2,0 Tage | ⏳ |
 | 2 | 137 `any` Types beheben | 2,0 Tage | ⏳ |
-| 3 | no-alert + max-depth | 0,15 Tage | ⏳ |
-| **Gesamt** | **Alle Warnungen** | **10,35 Tage** | **~8% erledigt** |
+| 3 | ✅ no-alert beheben | 0,1 Tage | ✅ ERLEDIGT |
+| 3 | max-depth beheben | 0,05 Tage | ⏳ |
+| **Gesamt** | **Alle Warnungen** | **10,35 Tage** | **~9% erledigt** |
 
 ## Refactoring-Richtlinien
 
@@ -229,7 +215,8 @@
 
 1. Alle Komplexitäts- und Zeilenzahl-Warnungen beheben
 2. 80% der `any` Types ersetzen
-3. no-alert und max-depth beheben
+3. ✅ no-alert beheben
+4. max-depth beheben
 
 ### Langfristig (nächster Monat)
 
