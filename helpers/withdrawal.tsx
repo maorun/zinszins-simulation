@@ -257,6 +257,45 @@ function calculateMonthlyWithdrawal(
   return { effectiveWithdrawal, monthlyAmount }
 }
 
+/**
+ * Helper function: Process withdrawal from portfolio layers
+ */
+function processLayerWithdrawal(
+  mutableLayers: MutableLayer[],
+  effectiveWithdrawal: number,
+  strategy: WithdrawalStrategy,
+  bucketUsed: 'portfolio' | 'cash' | undefined,
+): number {
+  let amountToWithdraw = effectiveWithdrawal
+  let totalRealizedGain = 0
+
+  // For bucket strategy, only process portfolio withdrawal if using portfolio bucket
+  if (strategy === 'bucket_strategie' && bucketUsed === 'cash') {
+    return 0
+  }
+
+  for (const layer of mutableLayers) {
+    if (amountToWithdraw <= 0 || layer.currentValue <= 0) continue
+
+    const amountToSellFromLayer = Math.min(amountToWithdraw, layer.currentValue)
+    const proportionSold = amountToSellFromLayer / layer.currentValue
+    const costBasisOfSoldPart = layer.costBasis * proportionSold
+    const accumulatedVorabpauschaleOfSoldPart = layer.accumulatedVorabpauschale * proportionSold
+
+    // Calculate gain using FIFO principle - only subtract cost basis
+    const gain = amountToSellFromLayer - costBasisOfSoldPart
+    totalRealizedGain += gain
+
+    // Update layer values
+    layer.currentValue -= amountToSellFromLayer
+    layer.costBasis -= costBasisOfSoldPart
+    layer.accumulatedVorabpauschale -= accumulatedVorabpauschaleOfSoldPart
+    amountToWithdraw -= amountToSellFromLayer
+  }
+
+  return totalRealizedGain
+}
+
 export type InflationConfig = {
   inflationRate?: number // Annual inflation rate for adjustment (default: 2%)
 }
@@ -722,30 +761,12 @@ export function calculateWithdrawal({
     })
 
     // SECOND: Process withdrawal and calculate realized gains
-    let amountToWithdraw = effectiveWithdrawal
-    let totalRealizedGainThisYear = 0
-
-    // For bucket strategy, only process portfolio withdrawal if using portfolio bucket
-    if (strategy === 'bucket_strategie' && bucketUsed === 'cash') {
-      // Withdrawal comes from cash cushion, no portfolio sale needed
-      amountToWithdraw = 0
-    }
-
-    for (const layer of mutableLayers) {
-      if (amountToWithdraw <= 0 || layer.currentValue <= 0) continue
-      const amountToSellFromLayer = Math.min(amountToWithdraw, layer.currentValue)
-      const proportionSold = amountToSellFromLayer / layer.currentValue
-      const costBasisOfSoldPart = layer.costBasis * proportionSold
-      const accumulatedVorabpauschaleOfSoldPart = layer.accumulatedVorabpauschale * proportionSold
-      // Fix: Calculate gain using FIFO principle - only subtract cost basis (eingesetztes Kapital)
-      // Do NOT subtract accumulated Vorabpauschale as it was already taxed in previous years
-      const gain = amountToSellFromLayer - costBasisOfSoldPart
-      totalRealizedGainThisYear += gain
-      layer.currentValue -= amountToSellFromLayer
-      layer.costBasis -= costBasisOfSoldPart
-      layer.accumulatedVorabpauschale -= accumulatedVorabpauschaleOfSoldPart
-      amountToWithdraw -= amountToSellFromLayer
-    }
+    const totalRealizedGainThisYear = processLayerWithdrawal(
+      mutableLayers,
+      effectiveWithdrawal,
+      strategy,
+      bucketUsed,
+    )
 
     // THIRD: Calculate taxes on realized gains and apply freibetrag
     const taxableGain = totalRealizedGainThisYear > 0 ? totalRealizedGainThisYear * (1 - teilfreistellungsquote) : 0
