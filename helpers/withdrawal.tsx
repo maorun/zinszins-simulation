@@ -11,6 +11,451 @@ import { calculateHealthCareInsuranceForYear, calculateCoupleHealthInsuranceForY
 
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt' | 'steueroptimiert'
 
+/**
+ * Helper function: Generate yearly growth rates based on return configuration
+ */
+function generateYearlyGrowthRates(
+  allYears: number[],
+  returnConfig: ReturnConfiguration,
+): Record<number, number> {
+  const yearlyGrowthRates: Record<number, number> = {}
+
+  if (returnConfig.mode === 'fixed') {
+    const fixedRate = returnConfig.fixedRate || 0.05
+    for (const year of allYears) yearlyGrowthRates[year] = fixedRate
+  }
+  else if (returnConfig.mode === 'random' && returnConfig.randomConfig) {
+    Object.assign(yearlyGrowthRates, generateRandomReturns(allYears, returnConfig.randomConfig))
+  }
+  else if (returnConfig.mode === 'variable' && returnConfig.variableConfig) {
+    for (const year of allYears) {
+      yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] || 0.05
+    }
+  }
+  else if (returnConfig.mode === 'multiasset' && returnConfig.multiAssetConfig) {
+    try {
+      const { generateMultiAssetReturns } = require('./multi-asset-calculations')
+      const multiAssetReturns = generateMultiAssetReturns(allYears, returnConfig.multiAssetConfig)
+      Object.assign(yearlyGrowthRates, multiAssetReturns)
+    }
+    catch (error) {
+      console.warn('Multi-asset calculations not available, falling back to 5% fixed return:', error)
+      for (const year of allYears) yearlyGrowthRates[year] = 0.05
+    }
+  }
+
+  return yearlyGrowthRates
+}
+
+/**
+ * Helper function: Calculate base withdrawal amount based on strategy
+ */
+function calculateBaseWithdrawalAmount(
+  strategy: WithdrawalStrategy,
+  initialStartingCapital: number,
+  monthlyConfig?: MonthlyWithdrawalConfig,
+  customPercentage?: number,
+  dynamicConfig?: DynamicWithdrawalConfig,
+  bucketConfig?: BucketStrategyConfig,
+  rmdConfig?: RMDConfig,
+  kapitalerhaltConfig?: KapitalerhaltConfig,
+  steueroptimierteEntnahmeConfig?: SteueroptimierteEntnahmeConfig,
+): number {
+  if (strategy === 'monatlich_fest') {
+    if (!monthlyConfig) throw new Error('Monthly config required')
+    return monthlyConfig.monthlyAmount * 12
+  }
+  else if (strategy === 'variabel_prozent') {
+    if (customPercentage === undefined) throw new Error('Custom percentage required')
+    return initialStartingCapital * customPercentage
+  }
+  else if (strategy === 'dynamisch') {
+    if (!dynamicConfig) throw new Error('Dynamic config required')
+    return initialStartingCapital * dynamicConfig.baseWithdrawalRate
+  }
+  else if (strategy === 'bucket_strategie') {
+    if (!bucketConfig) throw new Error('Bucket strategy config required')
+
+    // Calculate base withdrawal amount based on sub-strategy
+    switch (bucketConfig.subStrategy) {
+      case '4prozent':
+        return initialStartingCapital * 0.04
+      case '3prozent':
+        return initialStartingCapital * 0.03
+      case 'variabel_prozent': {
+        const variableRate = bucketConfig.variabelProzent ? bucketConfig.variabelProzent / 100 : 0.04
+        return initialStartingCapital * variableRate
+      }
+      case 'monatlich_fest':
+        return bucketConfig.monatlicheBetrag
+          ? bucketConfig.monatlicheBetrag * 12
+          : initialStartingCapital * 0.04
+      case 'dynamisch': {
+        const dynamicBaseRate = bucketConfig.dynamischBasisrate ? bucketConfig.dynamischBasisrate / 100 : 0.04
+        return initialStartingCapital * dynamicBaseRate
+      }
+      default:
+        // Fallback to baseWithdrawalRate for backward compatibility
+        return initialStartingCapital * bucketConfig.baseWithdrawalRate
+    }
+  }
+  else if (strategy === 'rmd') {
+    if (!rmdConfig) throw new Error('RMD config required')
+    return calculateRMDWithdrawal(
+      initialStartingCapital,
+      rmdConfig.startAge,
+      rmdConfig.lifeExpectancyTable,
+      rmdConfig.customLifeExpectancy,
+    )
+  }
+  else if (strategy === 'kapitalerhalt') {
+    if (!kapitalerhaltConfig) throw new Error('Kapitalerhalt config required')
+    const realReturnRate = kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate
+    return initialStartingCapital * realReturnRate
+  }
+  else if (strategy === 'steueroptimiert') {
+    const config = steueroptimierteEntnahmeConfig || {
+      baseWithdrawalRate: 0.04,
+      targetTaxRate: 0.26375,
+      optimizationMode: 'balanced',
+      freibetragUtilizationTarget: 0.85,
+      rebalanceFrequency: 'yearly',
+    }
+    return initialStartingCapital * config.baseWithdrawalRate
+  }
+  else {
+    const withdrawalRate = strategy === '4prozent' ? 0.04 : 0.03
+    return initialStartingCapital * withdrawalRate
+  }
+}
+
+/**
+ * Helper function: Calculate dynamic withdrawal adjustments
+ */
+function calculateDynamicAdjustment(
+  strategy: WithdrawalStrategy,
+  annualWithdrawal: number,
+  year: number,
+  yearlyGrowthRates: Record<number, number>,
+  dynamicConfig?: DynamicWithdrawalConfig,
+  bucketConfig?: BucketStrategyConfig,
+): { adjustment: number, previousReturn: number | undefined } {
+  let adjustment = 0
+  let previousReturn: number | undefined
+
+  if (strategy === 'dynamisch' && dynamicConfig) {
+    const previousYear = year - 1
+    previousReturn = yearlyGrowthRates[previousYear]
+
+    if (previousReturn !== undefined) {
+      if (previousReturn > dynamicConfig.upperThresholdReturn) {
+        adjustment = annualWithdrawal * dynamicConfig.upperThresholdAdjustment
+      }
+      else if (previousReturn < dynamicConfig.lowerThresholdReturn) {
+        adjustment = annualWithdrawal * dynamicConfig.lowerThresholdAdjustment
+      }
+    }
+  }
+  else if (strategy === 'bucket_strategie' && bucketConfig && bucketConfig.subStrategy === 'dynamisch') {
+    const previousYear = year - 1
+    previousReturn = yearlyGrowthRates[previousYear]
+
+    if (previousReturn !== undefined
+      && bucketConfig.dynamischObereSchwell !== undefined
+      && bucketConfig.dynamischUntereSchwell !== undefined
+      && bucketConfig.dynamischObereAnpassung !== undefined
+      && bucketConfig.dynamischUntereAnpassung !== undefined) {
+      const upperThreshold = bucketConfig.dynamischObereSchwell / 100
+      const lowerThreshold = bucketConfig.dynamischUntereSchwell / 100
+      const upperAdjustment = bucketConfig.dynamischObereAnpassung / 100
+      const lowerAdjustment = bucketConfig.dynamischUntereAnpassung / 100
+
+      if (previousReturn > upperThreshold) {
+        adjustment = annualWithdrawal * upperAdjustment
+      }
+      else if (previousReturn < lowerThreshold) {
+        adjustment = annualWithdrawal * lowerAdjustment
+      }
+    }
+  }
+
+  return { adjustment, previousReturn }
+}
+
+/**
+ * Helper function: Handle bucket strategy withdrawal decision
+ */
+function processBucketStrategyWithdrawal(
+  strategy: WithdrawalStrategy,
+  bucketConfig: BucketStrategyConfig | undefined,
+  cashCushion: number,
+  entnahme: number,
+  returnRate: number,
+): { bucketUsed: 'portfolio' | 'cash' | undefined, updatedCashCushion: number } {
+  let bucketUsed: 'portfolio' | 'cash' | undefined
+  let updatedCashCushion = cashCushion
+
+  if (strategy === 'bucket_strategie' && bucketConfig) {
+    if (returnRate >= 0) {
+      bucketUsed = 'portfolio'
+    }
+    else {
+      if (cashCushion >= entnahme) {
+        bucketUsed = 'cash'
+        updatedCashCushion -= entnahme
+      }
+      else {
+        bucketUsed = 'portfolio'
+      }
+    }
+  }
+
+  return { bucketUsed, updatedCashCushion }
+}
+
+/**
+ * Helper function: Calculate monthly withdrawal amounts and effective withdrawal
+ */
+function calculateMonthlyWithdrawal(
+  strategy: WithdrawalStrategy,
+  withdrawalFrequency: WithdrawalFrequency,
+  entnahme: number,
+  returnRate: number,
+  monthlyConfig?: MonthlyWithdrawalConfig,
+  inflationConfig?: InflationConfig,
+  year?: number,
+  startYear?: number,
+): { effectiveWithdrawal: number, monthlyAmount: number | undefined } {
+  let effectiveWithdrawal = entnahme
+  let monthlyAmount: number | undefined
+
+  // Calculate the actual monthly withdrawal amount for display purposes
+  if (strategy === 'monatlich_fest' && monthlyConfig) {
+    let adjustedMonthlyAmount = monthlyConfig.monthlyAmount
+    if (inflationConfig?.inflationRate && year !== undefined && startYear !== undefined) {
+      const yearsPassed = year - startYear
+      adjustedMonthlyAmount = monthlyConfig.monthlyAmount * Math.pow(1 + inflationConfig.inflationRate, yearsPassed)
+    }
+    monthlyAmount = adjustedMonthlyAmount
+  }
+  else if (withdrawalFrequency === 'monthly') {
+    monthlyAmount = entnahme / 12
+  }
+
+  if (withdrawalFrequency === 'monthly') {
+    // For monthly frequency, calculate more accurate effective withdrawal
+    // by modeling gradual capital decrease throughout the year
+    const monthlyReturn = Math.pow(1 + returnRate, 1 / 12) - 1
+    let monthlyPresentValue = 0
+    for (let month = 1; month <= 12; month++) {
+      monthlyPresentValue += (entnahme / 12) / Math.pow(1 + monthlyReturn, month - 1)
+    }
+    effectiveWithdrawal = monthlyPresentValue
+  }
+
+  return { effectiveWithdrawal, monthlyAmount }
+}
+
+/**
+ * Helper function: Process withdrawal from portfolio layers
+ */
+function processLayerWithdrawal(
+  mutableLayers: MutableLayer[],
+  effectiveWithdrawal: number,
+  strategy: WithdrawalStrategy,
+  bucketUsed: 'portfolio' | 'cash' | undefined,
+): number {
+  let amountToWithdraw = effectiveWithdrawal
+  let totalRealizedGain = 0
+
+  // For bucket strategy, only process portfolio withdrawal if using portfolio bucket
+  if (strategy === 'bucket_strategie' && bucketUsed === 'cash') {
+    return 0
+  }
+
+  for (const layer of mutableLayers) {
+    if (amountToWithdraw <= 0 || layer.currentValue <= 0) continue
+
+    const amountToSellFromLayer = Math.min(amountToWithdraw, layer.currentValue)
+    const proportionSold = amountToSellFromLayer / layer.currentValue
+    const costBasisOfSoldPart = layer.costBasis * proportionSold
+    const accumulatedVorabpauschaleOfSoldPart = layer.accumulatedVorabpauschale * proportionSold
+
+    // Calculate gain using FIFO principle - only subtract cost basis
+    const gain = amountToSellFromLayer - costBasisOfSoldPart
+    totalRealizedGain += gain
+
+    // Update layer values
+    layer.currentValue -= amountToSellFromLayer
+    layer.costBasis -= costBasisOfSoldPart
+    layer.accumulatedVorabpauschale -= accumulatedVorabpauschaleOfSoldPart
+    amountToWithdraw -= amountToSellFromLayer
+  }
+
+  return totalRealizedGain
+}
+
+/**
+ * Helper function: Process bucket strategy cash cushion refill
+ */
+function processCashCushionRefill(
+  strategy: WithdrawalStrategy,
+  bucketConfig: BucketStrategyConfig | undefined,
+  returnRate: number,
+  capitalAtStartOfYear: number,
+  capitalAtEndOfYear: number,
+  bucketUsed: 'portfolio' | 'cash' | undefined,
+  entnahme: number,
+  cashCushion: number,
+  mutableLayers: MutableLayer[],
+): { refillAmount: number, updatedCashCushion: number } {
+  let refillAmount = 0
+  let updatedCashCushion = cashCushion
+
+  if (strategy === 'bucket_strategie' && bucketConfig && returnRate > 0) {
+    const capitalGain = capitalAtEndOfYear - (capitalAtStartOfYear - (bucketUsed === 'portfolio' ? entnahme : 0))
+
+    if (capitalGain > bucketConfig.refillThreshold) {
+      const excessGain = capitalGain - bucketConfig.refillThreshold
+      refillAmount = excessGain * bucketConfig.refillPercentage
+
+      if (refillAmount > 0 && capitalAtEndOfYear > refillAmount) {
+        // Proportionally reduce each layer's value
+        const totalPortfolioValue = capitalAtEndOfYear
+        mutableLayers.forEach((layer) => {
+          if (layer.currentValue > 0 && totalPortfolioValue > 0) {
+            const layerProportion = layer.currentValue / totalPortfolioValue
+            const layerReduction = refillAmount * layerProportion
+            layer.currentValue -= layerReduction
+          }
+        })
+        updatedCashCushion += refillAmount
+      }
+    }
+  }
+
+  return { refillAmount, updatedCashCushion }
+}
+
+/**
+ * Helper function: Calculate Vorabpauschale for all layers before withdrawal
+ */
+function calculateVorabpauschaleForLayers(
+  mutableLayers: MutableLayer[],
+  returnRate: number,
+  year: number,
+  basiszinsConfiguration: BasiszinsConfiguration | undefined,
+  taxRate: number,
+  teilfreistellungsquote: number,
+  freibetragPerYear: Record<number, number> | undefined,
+): {
+  totalPotentialVorabTax: number
+  vorabCalculations: Array<{
+    layer: MutableLayer
+    vorabpauschaleBetrag: number
+    potentialTax: number
+    valueBeforeWithdrawal: number
+  }>
+  yearlyFreibetrag: number
+  basiszins: number
+} {
+  const getFreibetrag = (yr: number): number => {
+    if (freibetragPerYear && freibetragPerYear[yr] !== undefined) return freibetragPerYear[yr]
+    return freibetrag[2023] || 2000
+  }
+
+  const yearlyFreibetrag = getFreibetrag(year)
+  const basiszins = getBasiszinsForYear(year, basiszinsConfiguration)
+  let totalPotentialVorabTax = 0
+  const vorabCalculations: Array<{
+    layer: MutableLayer
+    vorabpauschaleBetrag: number
+    potentialTax: number
+    valueBeforeWithdrawal: number
+  }> = []
+
+  mutableLayers.forEach((layer: MutableLayer) => {
+    if (layer.currentValue > 0) {
+      const valueBeforeWithdrawal = layer.currentValue
+      const valueAfterGrowthBeforeWithdrawal = valueBeforeWithdrawal * (1 + returnRate)
+      const vorabpauschaleBetrag = calculateVorabpauschale(
+        valueBeforeWithdrawal,
+        valueAfterGrowthBeforeWithdrawal,
+        basiszins,
+      )
+      const potentialTax = calculateSteuerOnVorabpauschale(
+        vorabpauschaleBetrag,
+        taxRate,
+        teilfreistellungsquote,
+      )
+      totalPotentialVorabTax += potentialTax
+      vorabCalculations.push({ layer, vorabpauschaleBetrag, potentialTax, valueBeforeWithdrawal })
+    }
+  })
+
+  return { totalPotentialVorabTax, vorabCalculations, yearlyFreibetrag, basiszins }
+}
+
+/**
+ * Helper function: Calculate tax on realized gains
+ */
+function calculateRealizedGainsTax(
+  totalRealizedGain: number,
+  yearlyFreibetrag: number,
+  teilfreistellungsquote: number,
+  taxRate: number,
+  guenstigerPruefungAktiv: boolean,
+  incomeTaxRate: number | undefined,
+  kirchensteuerAktiv: boolean,
+  kirchensteuersatz: number,
+): {
+  taxOnRealizedGains: number
+  freibetragUsedOnGains: number
+  remainingFreibetrag: number
+  guenstigerPruefungResult: any | null
+} {
+  const taxableGain = totalRealizedGain > 0 ? totalRealizedGain * (1 - teilfreistellungsquote) : 0
+  let taxOnRealizedGains = 0
+  let guenstigerPruefungResult = null
+
+  if (taxableGain > 0) {
+    const gainAfterFreibetrag = Math.max(0, taxableGain - yearlyFreibetrag)
+
+    if (guenstigerPruefungAktiv && incomeTaxRate !== undefined && gainAfterFreibetrag > 0) {
+      guenstigerPruefungResult = performGuenstigerPruefung(
+        gainAfterFreibetrag,
+        taxRate,
+        incomeTaxRate,
+        teilfreistellungsquote,
+        0,
+        0,
+        kirchensteuerAktiv,
+        kirchensteuersatz,
+      )
+
+      if (guenstigerPruefungResult.isFavorable === 'personal') {
+        taxOnRealizedGains = guenstigerPruefungResult.personalTaxAmount
+      }
+      else {
+        taxOnRealizedGains = guenstigerPruefungResult.abgeltungssteuerAmount
+      }
+    }
+    else {
+      taxOnRealizedGains = gainAfterFreibetrag * taxRate
+    }
+  }
+
+  const freibetragUsedOnGains = Math.min(taxableGain, yearlyFreibetrag)
+  const remainingFreibetrag = yearlyFreibetrag - freibetragUsedOnGains
+
+  return {
+    taxOnRealizedGains,
+    freibetragUsedOnGains,
+    remainingFreibetrag,
+    guenstigerPruefungResult,
+  }
+}
+
 export type InflationConfig = {
   inflationRate?: number // Annual inflation rate for adjustment (default: 2%)
 }
@@ -252,28 +697,7 @@ export function calculateWithdrawal({
     ? Array.from({ length: endYear - startYear + 2 }, (_, i) => startYear - 1 + i)
     : years
 
-  const yearlyGrowthRates: Record<number, number> = {}
-  if (returnConfig.mode === 'fixed') {
-    const fixedRate = returnConfig.fixedRate || 0.05
-    for (const year of allYears) yearlyGrowthRates[year] = fixedRate
-  }
-  else if (returnConfig.mode === 'random' && returnConfig.randomConfig) {
-    Object.assign(yearlyGrowthRates, generateRandomReturns(allYears, returnConfig.randomConfig))
-  }
-  else if (returnConfig.mode === 'variable' && returnConfig.variableConfig) {
-    for (const year of allYears) yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] || 0.05
-  }
-  else if (returnConfig.mode === 'multiasset' && returnConfig.multiAssetConfig) {
-    try {
-      const { generateMultiAssetReturns } = require('./multi-asset-calculations')
-      const multiAssetReturns = generateMultiAssetReturns(allYears, returnConfig.multiAssetConfig)
-      Object.assign(yearlyGrowthRates, multiAssetReturns)
-    }
-    catch (error) {
-      console.warn('Multi-asset calculations not available, falling back to 5% fixed return:', error)
-      for (const year of allYears) yearlyGrowthRates[year] = 0.05
-    }
-  }
+  const yearlyGrowthRates = generateYearlyGrowthRates(allYears, returnConfig)
 
   const result: WithdrawalResult = {}
 
@@ -316,90 +740,17 @@ export function calculateWithdrawal({
   })
   mutableLayers.sort((a: MutableLayer, b: MutableLayer) => new Date(a.start).getTime() - new Date(b.start).getTime())
 
-  let baseWithdrawalAmount: number
-  if (strategy === 'monatlich_fest') {
-    if (!monthlyConfig) throw new Error('Monthly config required')
-    baseWithdrawalAmount = monthlyConfig.monthlyAmount * 12
-  }
-  else if (strategy === 'variabel_prozent') {
-    if (customPercentage === undefined) throw new Error('Custom percentage required')
-    baseWithdrawalAmount = initialStartingCapital * customPercentage
-  }
-  else if (strategy === 'dynamisch') {
-    if (!dynamicConfig) throw new Error('Dynamic config required')
-    baseWithdrawalAmount = initialStartingCapital * dynamicConfig.baseWithdrawalRate
-  }
-  else if (strategy === 'bucket_strategie') {
-    if (!bucketConfig) throw new Error('Bucket strategy config required')
-
-    // Calculate base withdrawal amount based on sub-strategy
-    switch (bucketConfig.subStrategy) {
-      case '4prozent': {
-        baseWithdrawalAmount = initialStartingCapital * 0.04
-        break
-      }
-      case '3prozent': {
-        baseWithdrawalAmount = initialStartingCapital * 0.03
-        break
-      }
-      case 'variabel_prozent': {
-        const variableRate = bucketConfig.variabelProzent ? bucketConfig.variabelProzent / 100 : 0.04
-        baseWithdrawalAmount = initialStartingCapital * variableRate
-        break
-      }
-      case 'monatlich_fest': {
-        baseWithdrawalAmount = bucketConfig.monatlicheBetrag
-          ? bucketConfig.monatlicheBetrag * 12
-          : initialStartingCapital * 0.04
-        break
-      }
-      case 'dynamisch': {
-        const dynamicBaseRate = bucketConfig.dynamischBasisrate ? bucketConfig.dynamischBasisrate / 100 : 0.04
-        baseWithdrawalAmount = initialStartingCapital * dynamicBaseRate
-        break
-      }
-      default: {
-        // Fallback to baseWithdrawalRate for backward compatibility (when subStrategy is not defined)
-        baseWithdrawalAmount = initialStartingCapital * bucketConfig.baseWithdrawalRate
-      }
-    }
-  }
-  else if (strategy === 'rmd') {
-    if (!rmdConfig) throw new Error('RMD config required')
-    // For RMD, baseWithdrawalAmount will be calculated dynamically each year
-    // Set initial value based on first year calculation
-    const currentAge = rmdConfig.startAge
-    baseWithdrawalAmount = calculateRMDWithdrawal(
-      initialStartingCapital,
-      currentAge,
-      rmdConfig.lifeExpectancyTable,
-      rmdConfig.customLifeExpectancy,
-    )
-  }
-  else if (strategy === 'kapitalerhalt') {
-    if (!kapitalerhaltConfig) throw new Error('Kapitalerhalt config required')
-    // Calculate real return rate: nominal return - inflation rate
-    const realReturnRate = kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate
-    baseWithdrawalAmount = initialStartingCapital * realReturnRate
-  }
-  else if (strategy === 'steueroptimiert') {
-    if (!steueroptimierteEntnahmeConfig) {
-      // Provide default configuration if missing
-      steueroptimierteEntnahmeConfig = {
-        baseWithdrawalRate: 0.04,
-        targetTaxRate: 0.26375,
-        optimizationMode: 'balanced',
-        freibetragUtilizationTarget: 0.85,
-        rebalanceFrequency: 'yearly',
-      }
-    }
-    // Start with base withdrawal rate, optimization happens year by year
-    baseWithdrawalAmount = initialStartingCapital * steueroptimierteEntnahmeConfig.baseWithdrawalRate
-  }
-  else {
-    const withdrawalRate = strategy === '4prozent' ? 0.04 : 0.03
-    baseWithdrawalAmount = initialStartingCapital * withdrawalRate
-  }
+  const baseWithdrawalAmount = calculateBaseWithdrawalAmount(
+    strategy,
+    initialStartingCapital,
+    monthlyConfig,
+    customPercentage,
+    dynamicConfig,
+    bucketConfig,
+    rmdConfig,
+    kapitalerhaltConfig,
+    steueroptimierteEntnahmeConfig,
+  )
 
   // Initialize cash cushion for bucket strategy
   let cashCushion = strategy === 'bucket_strategie' && bucketConfig ? bucketConfig.initialCashCushion : 0
@@ -430,53 +781,15 @@ export function calculateWithdrawal({
     }
 
     // Dynamic adjustment based on previous year's return
-    let dynamischeAnpassung = 0
-    let vorjahresRendite: number | undefined
-    if (strategy === 'dynamisch' && dynamicConfig) {
-      // Get the previous year's return rate
-      const previousYear = year - 1
-      vorjahresRendite = yearlyGrowthRates[previousYear]
-
-      if (vorjahresRendite !== undefined) {
-        // Calculate dynamic adjustment based on thresholds
-        if (vorjahresRendite > dynamicConfig.upperThresholdReturn) {
-          // Return exceeded upper threshold - increase withdrawal
-          dynamischeAnpassung = annualWithdrawal * dynamicConfig.upperThresholdAdjustment
-        }
-        else if (vorjahresRendite < dynamicConfig.lowerThresholdReturn) {
-          // Return fell below lower threshold - decrease withdrawal
-          dynamischeAnpassung = annualWithdrawal * dynamicConfig.lowerThresholdAdjustment
-        }
-        annualWithdrawal += dynamischeAnpassung
-      }
-    }
-    else if (strategy === 'bucket_strategie' && bucketConfig && bucketConfig.subStrategy === 'dynamisch') {
-      // Handle dynamic adjustments within bucket strategy
-      const previousYear = year - 1
-      vorjahresRendite = yearlyGrowthRates[previousYear]
-
-      if (vorjahresRendite !== undefined
-        && bucketConfig.dynamischObereSchwell !== undefined
-        && bucketConfig.dynamischUntereSchwell !== undefined
-        && bucketConfig.dynamischObereAnpassung !== undefined
-        && bucketConfig.dynamischUntereAnpassung !== undefined) {
-        const upperThreshold = bucketConfig.dynamischObereSchwell / 100
-        const lowerThreshold = bucketConfig.dynamischUntereSchwell / 100
-        const upperAdjustment = bucketConfig.dynamischObereAnpassung / 100
-        const lowerAdjustment = bucketConfig.dynamischUntereAnpassung / 100
-
-        if (vorjahresRendite > upperThreshold) {
-          // Return exceeded upper threshold - increase withdrawal
-          dynamischeAnpassung = annualWithdrawal * upperAdjustment
-        }
-        else if (vorjahresRendite < lowerThreshold) {
-          // Return fell below lower threshold - decrease withdrawal
-          dynamischeAnpassung = annualWithdrawal * lowerAdjustment
-        }
-
-        annualWithdrawal += dynamischeAnpassung
-      }
-    }
+    const { adjustment: dynamischeAnpassung, previousReturn: vorjahresRendite } = calculateDynamicAdjustment(
+      strategy,
+      annualWithdrawal,
+      year,
+      yearlyGrowthRates,
+      dynamicConfig,
+      bucketConfig,
+    )
+    annualWithdrawal += dynamischeAnpassung
 
     // Tax-optimized withdrawal strategy: dynamically optimize withdrawal amount
     let steueroptimierungAnpassung = 0
@@ -553,166 +866,69 @@ export function calculateWithdrawal({
     const returnRate = yearlyGrowthRates[year] || 0
 
     // Bucket strategy logic: decide which bucket to use for withdrawal
-    let bucketUsed: 'portfolio' | 'cash' | undefined
     const cashCushionAtStart = cashCushion
+    const { bucketUsed, updatedCashCushion } = processBucketStrategyWithdrawal(
+      strategy,
+      bucketConfig,
+      cashCushion,
+      entnahme,
+      returnRate,
+    )
+    cashCushion = updatedCashCushion
     let refillAmount = 0
 
-    if (strategy === 'bucket_strategie' && bucketConfig) {
-      // Decide which bucket to use based on return rate
-      if (returnRate >= 0) {
-        // Positive return: use portfolio for withdrawal
-        bucketUsed = 'portfolio'
-      }
-      else {
-        // Negative return: use cash cushion if available
-        if (cashCushion >= entnahme) {
-          bucketUsed = 'cash'
-          cashCushion -= entnahme
-        }
-        else {
-          // Not enough cash, need to use portfolio anyway
-          bucketUsed = 'portfolio'
-        }
-      }
-    }
-
-    // Adjust withdrawal timing based on frequency
-    // For yearly: withdrawal happens at beginning of year (current behavior)
-    // For monthly: withdrawal happens throughout the year (portfolio grows more)
-    let effectiveWithdrawal = entnahme
-    let monthlyWithdrawalAmount = undefined
-
-    // Calculate the actual monthly withdrawal amount for display purposes
-    if (strategy === 'monatlich_fest' && monthlyConfig) {
-      // For monthly fixed strategy, use the actual configured monthly amount (with inflation adjustment)
-      let adjustedMonthlyAmount = monthlyConfig.monthlyAmount
-      if (inflationConfig?.inflationRate) {
-        const yearsPassed = year - startYear
-        adjustedMonthlyAmount = monthlyConfig.monthlyAmount * Math.pow(1 + inflationConfig.inflationRate, yearsPassed)
-      }
-      monthlyWithdrawalAmount = adjustedMonthlyAmount
-    }
-    else if (withdrawalFrequency === 'monthly') {
-      // For other strategies with monthly frequency, divide annual amount by 12
-      monthlyWithdrawalAmount = entnahme / 12
-    }
-
-    if (withdrawalFrequency === 'monthly') {
-      // For monthly frequency, we calculate a more accurate effective withdrawal.
-      //
-      // Mathematical model: Instead of withdrawing the full amount at the beginning,
-      // monthly withdrawals are spread throughout the year. This can be modeled as:
-      //
-      // For yearly: All capital available for growth except the withdrawn amount
-      // For monthly: Capital decreases gradually, with more average capital earning returns
-      //
-      // The effective impact can be calculated as the present value of monthly withdrawals
-      // versus a lump sum at the beginning of the year.
-      //
-      // Using the return rate to discount monthly withdrawals back to beginning of year:
-      const monthlyReturn = Math.pow(1 + returnRate, 1 / 12) - 1
-      let monthlyPresentValue = 0
-      for (let month = 1; month <= 12; month++) {
-        // Each monthly withdrawal discounted back to beginning of year
-        monthlyPresentValue += (entnahme / 12) / Math.pow(1 + monthlyReturn, month - 1)
-      }
-      effectiveWithdrawal = monthlyPresentValue
-    }
+    // Calculate monthly withdrawal amounts and effective withdrawal
+    const { effectiveWithdrawal, monthlyAmount: monthlyWithdrawalAmount } = calculateMonthlyWithdrawal(
+      strategy,
+      withdrawalFrequency,
+      entnahme,
+      returnRate,
+      monthlyConfig,
+      inflationConfig,
+      year,
+      startYear,
+    )
 
     // FIRST: Calculate Vorabpauschale BEFORE any withdrawal, using full portfolio values at start of year
-    const yearlyFreibetrag = getFreibetragForYear(year)
-    const basiszins = getBasiszinsForYear(year, basiszinsConfiguration)
-    let totalPotentialVorabTax = 0
-    const vorabCalculations: Array<{
-      layer: MutableLayer
-      vorabpauschaleBetrag: number
-      potentialTax: number
-      valueBeforeWithdrawal: number
-    }> = []
-
-    mutableLayers.forEach((layer: MutableLayer) => {
-      if (layer.currentValue > 0) {
-        const valueBeforeWithdrawal = layer.currentValue // Full value at start of year
-        const valueAfterGrowthBeforeWithdrawal = valueBeforeWithdrawal * (1 + returnRate)
-        const vorabpauschaleBetrag = calculateVorabpauschale(
-          valueBeforeWithdrawal,
-          valueAfterGrowthBeforeWithdrawal,
-          basiszins,
-        )
-        const potentialTax = calculateSteuerOnVorabpauschale(
-          vorabpauschaleBetrag,
-          taxRate,
-          teilfreistellungsquote,
-        )
-        totalPotentialVorabTax += potentialTax
-        vorabCalculations.push({ layer, vorabpauschaleBetrag, potentialTax, valueBeforeWithdrawal })
-      }
-    })
+    const {
+      totalPotentialVorabTax,
+      vorabCalculations,
+      yearlyFreibetrag,
+      basiszins,
+    } = calculateVorabpauschaleForLayers(
+      mutableLayers,
+      returnRate,
+      year,
+      basiszinsConfiguration,
+      taxRate,
+      teilfreistellungsquote,
+      freibetragPerYear,
+    )
 
     // SECOND: Process withdrawal and calculate realized gains
-    let amountToWithdraw = effectiveWithdrawal
-    let totalRealizedGainThisYear = 0
-
-    // For bucket strategy, only process portfolio withdrawal if using portfolio bucket
-    if (strategy === 'bucket_strategie' && bucketUsed === 'cash') {
-      // Withdrawal comes from cash cushion, no portfolio sale needed
-      amountToWithdraw = 0
-    }
-
-    for (const layer of mutableLayers) {
-      if (amountToWithdraw <= 0 || layer.currentValue <= 0) continue
-      const amountToSellFromLayer = Math.min(amountToWithdraw, layer.currentValue)
-      const proportionSold = amountToSellFromLayer / layer.currentValue
-      const costBasisOfSoldPart = layer.costBasis * proportionSold
-      const accumulatedVorabpauschaleOfSoldPart = layer.accumulatedVorabpauschale * proportionSold
-      // Fix: Calculate gain using FIFO principle - only subtract cost basis (eingesetztes Kapital)
-      // Do NOT subtract accumulated Vorabpauschale as it was already taxed in previous years
-      const gain = amountToSellFromLayer - costBasisOfSoldPart
-      totalRealizedGainThisYear += gain
-      layer.currentValue -= amountToSellFromLayer
-      layer.costBasis -= costBasisOfSoldPart
-      layer.accumulatedVorabpauschale -= accumulatedVorabpauschaleOfSoldPart
-      amountToWithdraw -= amountToSellFromLayer
-    }
+    const totalRealizedGainThisYear = processLayerWithdrawal(
+      mutableLayers,
+      effectiveWithdrawal,
+      strategy,
+      bucketUsed,
+    )
 
     // THIRD: Calculate taxes on realized gains and apply freibetrag
-    const taxableGain = totalRealizedGainThisYear > 0 ? totalRealizedGainThisYear * (1 - teilfreistellungsquote) : 0
-
-    let taxOnRealizedGains = 0
-    let guenstigerPruefungResultRealizedGains = null
-
-    if (taxableGain > 0) {
-      const gainAfterFreibetrag = Math.max(0, taxableGain - yearlyFreibetrag)
-
-      if (guenstigerPruefungAktiv && incomeTaxRate !== undefined && gainAfterFreibetrag > 0) {
-        // Apply Günstigerprüfung to realized gains
-        guenstigerPruefungResultRealizedGains = performGuenstigerPruefung(
-          gainAfterFreibetrag,
-          taxRate,
-          incomeTaxRate, // Already in decimal format
-          teilfreistellungsquote,
-          0, // Grundfreibetrag not applicable to capital gains
-          0,
-          kirchensteuerAktiv,
-          kirchensteuersatz,
-        )
-
-        // Use the more favorable tax amount
-        if (guenstigerPruefungResultRealizedGains.isFavorable === 'personal') {
-          taxOnRealizedGains = guenstigerPruefungResultRealizedGains.personalTaxAmount
-        }
-        else {
-          taxOnRealizedGains = guenstigerPruefungResultRealizedGains.abgeltungssteuerAmount
-        }
-      }
-      else {
-        // Standard Abgeltungssteuer calculation
-        taxOnRealizedGains = gainAfterFreibetrag * taxRate
-      }
-    }
-
-    const freibetragUsedOnGains = Math.min(taxableGain, yearlyFreibetrag)
-    const remainingFreibetrag = yearlyFreibetrag - freibetragUsedOnGains
+    const {
+      taxOnRealizedGains,
+      freibetragUsedOnGains,
+      remainingFreibetrag,
+      guenstigerPruefungResult: guenstigerPruefungResultRealizedGains,
+    } = calculateRealizedGainsTax(
+      totalRealizedGainThisYear,
+      yearlyFreibetrag,
+      teilfreistellungsquote,
+      taxRate,
+      guenstigerPruefungAktiv || false,
+      incomeTaxRate,
+      kirchensteuerAktiv,
+      kirchensteuersatz,
+    )
 
     // FOURTH: Apply remaining freibetrag to Vorabpauschale and calculate final growth
     const taxOnVorabpauschale = Math.max(0, totalPotentialVorabTax - remainingFreibetrag)
@@ -774,27 +990,19 @@ export function calculateWithdrawal({
     const capitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)
 
     // Bucket strategy refill logic: move gains to cash cushion if in positive return year
-    if (strategy === 'bucket_strategie' && bucketConfig && returnRate > 0) {
-      const capitalGain = capitalAtEndOfYear - (capitalAtStartOfYear - (bucketUsed === 'portfolio' ? entnahme : 0))
-      if (capitalGain > bucketConfig.refillThreshold) {
-        const excessGain = capitalGain - bucketConfig.refillThreshold
-        refillAmount = excessGain * bucketConfig.refillPercentage
-
-        // Move money from portfolio to cash cushion (by reducing portfolio value)
-        if (refillAmount > 0 && capitalAtEndOfYear > refillAmount) {
-          // Proportionally reduce each layer's value
-          const totalPortfolioValue = capitalAtEndOfYear
-          mutableLayers.forEach((layer) => {
-            if (layer.currentValue > 0 && totalPortfolioValue > 0) {
-              const layerProportion = layer.currentValue / totalPortfolioValue
-              const layerReduction = refillAmount * layerProportion
-              layer.currentValue -= layerReduction
-            }
-          })
-          cashCushion += refillAmount
-        }
-      }
-    }
+    const refillResult = processCashCushionRefill(
+      strategy,
+      bucketConfig,
+      returnRate,
+      capitalAtStartOfYear,
+      capitalAtEndOfYear,
+      bucketUsed,
+      entnahme,
+      cashCushion,
+      mutableLayers,
+    )
+    refillAmount = refillResult.refillAmount
+    cashCushion = refillResult.updatedCashCushion
 
     // Recalculate capital at end of year after potential refill
     const finalCapitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)
