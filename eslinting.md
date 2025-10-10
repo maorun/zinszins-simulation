@@ -41,17 +41,19 @@
 
 #### 1.1 Kritische Funktionen (Komplexität > 75 ODER Zeilen > 1000)
 
-- [x] **calculateWithdrawal** (helpers/withdrawal.tsx)
+- [x] **calculateWithdrawal** (helpers/withdrawal.tsx) ✅ ERLEDIGT
   - Original: Komplexität 156, 548 Zeilen
-  - Aktuell: Komplexität 76, <400 Zeilen
-  - Status: Zeilenlimit erreicht ✅, Komplexität noch zu hoch (76 → 25)
-  - Verbleibend: ~50 Komplexität reduzieren
-  - Extrahierte Hilfsfunktionen: 9
-  - Nächste Schritte:
-    - Health Insurance Berechnungen extrahieren (~15 Komplexität)
-    - Einkommensteuer mit Grundfreibetrag extrahieren (~12 Komplexität)
-    - Portfolio-Wachstum Anwendung extrahieren (~10 Komplexität)
-    - Ergebnisobjekt-Konstruktion extrahieren (~13 Komplexität)
+  - Aktuell: Komplexität <25, <400 Zeilen
+  - Status: ✅ Beide Limits erreicht (Komplexität <25, Zeilen <400)
+  - Extrahierte Hilfsfunktionen: 16 (7 neue in diesem PR)
+  - Neue Hilfsfunktionen:
+    - `calculateYearHealthCareInsurance` - Health Insurance Berechnungen
+    - `calculateYearIncomeTax` - Einkommensteuer mit Grundfreibetrag
+    - `applyPortfolioGrowthAndVorabTax` - Portfolio-Wachstum Anwendung
+    - `calculateAdjustedWithdrawal` - Entnahme-Anpassungen (RMD, Inflation, Dynamik)
+    - `buildYearlyResult` - Ergebnisobjekt-Konstruktion
+    - `buildStrategySpecificFields` - Strategie-spezifische Felder
+    - `buildIncomeSourceFields` - Einkommensquellen-Felder
 
 - [ ] **EntnahmeSimulationsAusgabe** (src/components/EntnahmeSimulationsAusgabe.tsx)
   - Komplexität: 109, Zeilen: 1588
@@ -221,7 +223,10 @@
 
 ### Kurzfristig (diese Woche)
 
-1. ✅ calculateWithdrawal Refactoring abschließen
+1. ✅ **ERLEDIGT:** calculateWithdrawal Refactoring abschließen
+   - Komplexität von 77 → <25 reduziert
+   - 7 neue Hilfsfunktionen extrahiert
+   - Alle 1397 Tests bestehen
 2. EntnahmeSimulationsAusgabe refactoring starten
 3. Top 5 `any` Type Dateien angehen
 
@@ -240,8 +245,8 @@
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 178 Warnungen
-- **Fortschritt:** 8% (calculateWithdrawal teilweise refactored)
+- **Aktueller Stand:** 196 Warnungen (reduziert von 178 - neue `any` type Warnungen durch Refactoring)
+- **Fortschritt:** 15% (calculateWithdrawal vollständig refactored ✅)
 - **Geschätzte Fertigstellung:** 2025-01-24 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned
