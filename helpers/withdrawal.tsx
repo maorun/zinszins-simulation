@@ -183,6 +183,80 @@ function calculateDynamicAdjustment(
   return { adjustment, previousReturn }
 }
 
+/**
+ * Helper function: Handle bucket strategy withdrawal decision
+ */
+function processBucketStrategyWithdrawal(
+  strategy: WithdrawalStrategy,
+  bucketConfig: BucketStrategyConfig | undefined,
+  cashCushion: number,
+  entnahme: number,
+  returnRate: number,
+): { bucketUsed: 'portfolio' | 'cash' | undefined, updatedCashCushion: number } {
+  let bucketUsed: 'portfolio' | 'cash' | undefined
+  let updatedCashCushion = cashCushion
+
+  if (strategy === 'bucket_strategie' && bucketConfig) {
+    if (returnRate >= 0) {
+      bucketUsed = 'portfolio'
+    }
+    else {
+      if (cashCushion >= entnahme) {
+        bucketUsed = 'cash'
+        updatedCashCushion -= entnahme
+      }
+      else {
+        bucketUsed = 'portfolio'
+      }
+    }
+  }
+
+  return { bucketUsed, updatedCashCushion }
+}
+
+/**
+ * Helper function: Calculate monthly withdrawal amounts and effective withdrawal
+ */
+function calculateMonthlyWithdrawal(
+  strategy: WithdrawalStrategy,
+  withdrawalFrequency: WithdrawalFrequency,
+  entnahme: number,
+  returnRate: number,
+  monthlyConfig?: MonthlyWithdrawalConfig,
+  inflationConfig?: InflationConfig,
+  year?: number,
+  startYear?: number,
+): { effectiveWithdrawal: number, monthlyAmount: number | undefined } {
+  let effectiveWithdrawal = entnahme
+  let monthlyAmount: number | undefined
+
+  // Calculate the actual monthly withdrawal amount for display purposes
+  if (strategy === 'monatlich_fest' && monthlyConfig) {
+    let adjustedMonthlyAmount = monthlyConfig.monthlyAmount
+    if (inflationConfig?.inflationRate && year !== undefined && startYear !== undefined) {
+      const yearsPassed = year - startYear
+      adjustedMonthlyAmount = monthlyConfig.monthlyAmount * Math.pow(1 + inflationConfig.inflationRate, yearsPassed)
+    }
+    monthlyAmount = adjustedMonthlyAmount
+  }
+  else if (withdrawalFrequency === 'monthly') {
+    monthlyAmount = entnahme / 12
+  }
+
+  if (withdrawalFrequency === 'monthly') {
+    // For monthly frequency, calculate more accurate effective withdrawal
+    // by modeling gradual capital decrease throughout the year
+    const monthlyReturn = Math.pow(1 + returnRate, 1 / 12) - 1
+    let monthlyPresentValue = 0
+    for (let month = 1; month <= 12; month++) {
+      monthlyPresentValue += (entnahme / 12) / Math.pow(1 + monthlyReturn, month - 1)
+    }
+    effectiveWithdrawal = monthlyPresentValue
+  }
+
+  return { effectiveWithdrawal, monthlyAmount }
+}
+
 export type InflationConfig = {
   inflationRate?: number // Annual inflation rate for adjustment (default: 2%)
 }
@@ -594,71 +668,28 @@ export function calculateWithdrawal({
     const returnRate = yearlyGrowthRates[year] || 0
 
     // Bucket strategy logic: decide which bucket to use for withdrawal
-    let bucketUsed: 'portfolio' | 'cash' | undefined
     const cashCushionAtStart = cashCushion
+    const { bucketUsed, updatedCashCushion } = processBucketStrategyWithdrawal(
+      strategy,
+      bucketConfig,
+      cashCushion,
+      entnahme,
+      returnRate,
+    )
+    cashCushion = updatedCashCushion
     let refillAmount = 0
 
-    if (strategy === 'bucket_strategie' && bucketConfig) {
-      // Decide which bucket to use based on return rate
-      if (returnRate >= 0) {
-        // Positive return: use portfolio for withdrawal
-        bucketUsed = 'portfolio'
-      }
-      else {
-        // Negative return: use cash cushion if available
-        if (cashCushion >= entnahme) {
-          bucketUsed = 'cash'
-          cashCushion -= entnahme
-        }
-        else {
-          // Not enough cash, need to use portfolio anyway
-          bucketUsed = 'portfolio'
-        }
-      }
-    }
-
-    // Adjust withdrawal timing based on frequency
-    // For yearly: withdrawal happens at beginning of year (current behavior)
-    // For monthly: withdrawal happens throughout the year (portfolio grows more)
-    let effectiveWithdrawal = entnahme
-    let monthlyWithdrawalAmount = undefined
-
-    // Calculate the actual monthly withdrawal amount for display purposes
-    if (strategy === 'monatlich_fest' && monthlyConfig) {
-      // For monthly fixed strategy, use the actual configured monthly amount (with inflation adjustment)
-      let adjustedMonthlyAmount = monthlyConfig.monthlyAmount
-      if (inflationConfig?.inflationRate) {
-        const yearsPassed = year - startYear
-        adjustedMonthlyAmount = monthlyConfig.monthlyAmount * Math.pow(1 + inflationConfig.inflationRate, yearsPassed)
-      }
-      monthlyWithdrawalAmount = adjustedMonthlyAmount
-    }
-    else if (withdrawalFrequency === 'monthly') {
-      // For other strategies with monthly frequency, divide annual amount by 12
-      monthlyWithdrawalAmount = entnahme / 12
-    }
-
-    if (withdrawalFrequency === 'monthly') {
-      // For monthly frequency, we calculate a more accurate effective withdrawal.
-      //
-      // Mathematical model: Instead of withdrawing the full amount at the beginning,
-      // monthly withdrawals are spread throughout the year. This can be modeled as:
-      //
-      // For yearly: All capital available for growth except the withdrawn amount
-      // For monthly: Capital decreases gradually, with more average capital earning returns
-      //
-      // The effective impact can be calculated as the present value of monthly withdrawals
-      // versus a lump sum at the beginning of the year.
-      //
-      // Using the return rate to discount monthly withdrawals back to beginning of year:
-      const monthlyReturn = Math.pow(1 + returnRate, 1 / 12) - 1
-      let monthlyPresentValue = 0
-      for (let month = 1; month <= 12; month++) {
-        // Each monthly withdrawal discounted back to beginning of year
-        monthlyPresentValue += (entnahme / 12) / Math.pow(1 + monthlyReturn, month - 1)
-      }
-      effectiveWithdrawal = monthlyPresentValue
-    }
+    // Calculate monthly withdrawal amounts and effective withdrawal
+    const { effectiveWithdrawal, monthlyAmount: monthlyWithdrawalAmount } = calculateMonthlyWithdrawal(
+      strategy,
+      withdrawalFrequency,
+      entnahme,
+      returnRate,
+      monthlyConfig,
+      inflationConfig,
+      year,
+      startYear,
+    )
 
     // FIRST: Calculate Vorabpauschale BEFORE any withdrawal, using full portfolio values at start of year
     const yearlyFreibetrag = getFreibetragForYear(year)
