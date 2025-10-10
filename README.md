@@ -73,6 +73,13 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Einzelperson**: 2.000€ jährlicher Sparerpauschbetrag
   - **Ehepaar/Partner**: 4.000€ jährlicher Sparerpauschbetrag (2.000€ pro Person)
   - **Automatische Aktualisierung**: Freibeträge werden automatisch angepasst beim Wechsel des Planungsmodus
+- **Freistellungsaufträge-Optimierung** - Optimale Verteilung der Freistellungsaufträge über mehrere Bankkonten
+  - **Multi-Bank-Verwaltung**: Verwaltung mehrerer Depot-/Bankkonten mit separaten Freistellungsaufträgen
+  - **Automatische Optimierung**: Intelligente Verteilung des Sparerpauschbetrags auf Konten mit höchsten erwarteten Erträgen
+  - **Echtzeit-Berechnungen**: Sofortige Berechnung der effektiven Steuersätze und eingesparten Steuern pro Konto
+  - **Validierung**: Automatische Prüfung der Freistellungsaufträge (maximale Summe darf Sparerpauschbetrag nicht überschreiten)
+  - **Empfehlungen**: Konkrete Vorschläge zur Optimierung der Freibetragsverteilung
+  - **Ein-Klick-Anwendung**: Optimale Verteilung kann mit einem Klick übernommen werden
 - **Einkommensteuer auf Renten** - Berücksichtigung der deutschen Rentenbesteuerung
 - **Basiszins-Konfiguration** - Verwaltung der offiziellen Basiszinssätze der Deutschen Bundesbank
 - **Bundesbank API Integration** - Automatischer Abruf aktueller Basiszinssätze über SDMX API
