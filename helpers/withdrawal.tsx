@@ -296,6 +296,48 @@ function processLayerWithdrawal(
   return totalRealizedGain
 }
 
+/**
+ * Helper function: Process bucket strategy cash cushion refill
+ */
+function processCashCushionRefill(
+  strategy: WithdrawalStrategy,
+  bucketConfig: BucketStrategyConfig | undefined,
+  returnRate: number,
+  capitalAtStartOfYear: number,
+  capitalAtEndOfYear: number,
+  bucketUsed: 'portfolio' | 'cash' | undefined,
+  entnahme: number,
+  cashCushion: number,
+  mutableLayers: MutableLayer[],
+): { refillAmount: number, updatedCashCushion: number } {
+  let refillAmount = 0
+  let updatedCashCushion = cashCushion
+
+  if (strategy === 'bucket_strategie' && bucketConfig && returnRate > 0) {
+    const capitalGain = capitalAtEndOfYear - (capitalAtStartOfYear - (bucketUsed === 'portfolio' ? entnahme : 0))
+
+    if (capitalGain > bucketConfig.refillThreshold) {
+      const excessGain = capitalGain - bucketConfig.refillThreshold
+      refillAmount = excessGain * bucketConfig.refillPercentage
+
+      if (refillAmount > 0 && capitalAtEndOfYear > refillAmount) {
+        // Proportionally reduce each layer's value
+        const totalPortfolioValue = capitalAtEndOfYear
+        mutableLayers.forEach((layer) => {
+          if (layer.currentValue > 0 && totalPortfolioValue > 0) {
+            const layerProportion = layer.currentValue / totalPortfolioValue
+            const layerReduction = refillAmount * layerProportion
+            layer.currentValue -= layerReduction
+          }
+        })
+        updatedCashCushion += refillAmount
+      }
+    }
+  }
+
+  return { refillAmount, updatedCashCushion }
+}
+
 export type InflationConfig = {
   inflationRate?: number // Annual inflation rate for adjustment (default: 2%)
 }
@@ -867,27 +909,19 @@ export function calculateWithdrawal({
     const capitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)
 
     // Bucket strategy refill logic: move gains to cash cushion if in positive return year
-    if (strategy === 'bucket_strategie' && bucketConfig && returnRate > 0) {
-      const capitalGain = capitalAtEndOfYear - (capitalAtStartOfYear - (bucketUsed === 'portfolio' ? entnahme : 0))
-      if (capitalGain > bucketConfig.refillThreshold) {
-        const excessGain = capitalGain - bucketConfig.refillThreshold
-        refillAmount = excessGain * bucketConfig.refillPercentage
-
-        // Move money from portfolio to cash cushion (by reducing portfolio value)
-        if (refillAmount > 0 && capitalAtEndOfYear > refillAmount) {
-          // Proportionally reduce each layer's value
-          const totalPortfolioValue = capitalAtEndOfYear
-          mutableLayers.forEach((layer) => {
-            if (layer.currentValue > 0 && totalPortfolioValue > 0) {
-              const layerProportion = layer.currentValue / totalPortfolioValue
-              const layerReduction = refillAmount * layerProportion
-              layer.currentValue -= layerReduction
-            }
-          })
-          cashCushion += refillAmount
-        }
-      }
-    }
+    const refillResult = processCashCushionRefill(
+      strategy,
+      bucketConfig,
+      returnRate,
+      capitalAtStartOfYear,
+      capitalAtEndOfYear,
+      bucketUsed,
+      entnahme,
+      cashCushion,
+      mutableLayers,
+    )
+    refillAmount = refillResult.refillAmount
+    cashCushion = refillResult.updatedCashCushion
 
     // Recalculate capital at end of year after potential refill
     const finalCapitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)
