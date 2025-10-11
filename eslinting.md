@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 144 ESLint-Warnungen
+**Aktueller Stand:** 84 ESLint-Warnungen (reduziert von 144)
 **Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
@@ -12,9 +12,9 @@
 
 | Typ | Anzahl | Beschreibung |
 |-----|--------|--------------|
-| `@typescript-eslint/no-explicit-any` | 124 | Verwendung von `any` Type |
-| `complexity` | 23 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
-| `max-lines-per-function` | 13 | Funktionen mit zu vielen Zeilen (>400) |
+| `@typescript-eslint/no-explicit-any` | 66 | Verwendung von `any` Type |
+| `complexity` | 6 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
+| `max-lines-per-function` | 12 | Funktionen mit zu vielen Zeilen (>400) |
 | `max-depth` | 0 | ✅ Zu tiefe Verschachtelung (>5 Ebenen) - ERLEDIGT |
 
 ### Nach Dateien (Top 10)
@@ -195,9 +195,23 @@
   - Warnings reduziert von 158 → 156 (2 weniger)
   - Aufwand: 0,2 Tage
 
-- [ ] **SparplanEingabe** (src/components/SparplanEingabe.tsx)
-  - Komplexität: 30, Zeilen: 759
-  - Aufwand: 0,5 Tage
+- [ ] **SparplanEingabe** (src/components/SparplanEingabe.tsx) 🔄 IN PROGRESS
+  - Original: Komplexität: 30, Zeilen: 759
+  - Aktuell: Komplexität: 30, Zeilen: 626
+  - Status: ⏳ Zeilen um 18% reduziert, Komplexität unverändert
+  - Extrahierte Hilfsfunktionen: 8
+    - `createNewSparplan` - Neuen Sparplan erstellen (komplexität <8, 23 zeilen)
+    - `createNewSinglePayment` - Einmalzahlung erstellen (komplexität <8, 14 zeilen)
+    - `isEinmalzahlung` - Prüfung auf Einmalzahlung (komplexität <8, 3 zeilen)
+    - `updateExistingSparplan` - Sparplan aktualisieren (komplexität <8, 47 zeilen)
+    - `getInitialSingleFormValue` - Initiale Formwerte (komplexität <8, 8 zeilen)
+    - `getInitialSparplanFormValue` - Initiale Formwerte (komplexität <8, 9 zeilen)
+    - `populateSingleFormFromSparplan` - Form befüllen (komplexität <8, 8 zeilen)
+    - `populateSparplanFormFromSparplan` - Form befüllen (komplexität <8, 13 zeilen)
+  - Alle Hilfsfunktionen mit Params-Objekten für >5 Parameter
+  - 16 neue Tests hinzugefügt für alle Hilfsfunktionen
+  - Alle 1470+ Tests bestehen
+  - Aufwand: 0,3 Tage (Teilweise erledigt)
 
 - [ ] **OtherIncomeConfigurationComponent** (src/components/OtherIncomeConfigurationComponent.tsx)
   - Komplexität: 27, Zeilen: 745
