@@ -3,38 +3,38 @@ import { Input } from './ui/input'
 import { RadioTileGroup, RadioTile } from './ui/radio-tile'
 
 interface LifeExpectancyTableConfigurationProps {
-  planningMode: 'individual' | 'couple'
-  gender: 'male' | 'female' | undefined
-  spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
-  lifeExpectancyTable: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
-  setLifeExpectancyTable: (table: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom') => void
-  customLifeExpectancy: number | undefined
-  setCustomLifeExpectancy: (value: number | undefined) => void
+  config: {
+    planningMode: 'individual' | 'couple'
+    gender: 'male' | 'female' | undefined
+    spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
+    lifeExpectancyTable: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
+    customLifeExpectancy: number | undefined
+  }
+  onChange: {
+    lifeExpectancyTable: (table: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom') => void
+    customLifeExpectancy: (value: number | undefined) => void
+  }
 }
 
 export function LifeExpectancyTableConfiguration({
-  planningMode,
-  gender,
-  spouse,
-  lifeExpectancyTable,
-  setLifeExpectancyTable,
-  customLifeExpectancy,
-  setCustomLifeExpectancy,
+  config,
+  onChange,
 }: LifeExpectancyTableConfigurationProps) {
+  const { planningMode, gender, spouse, lifeExpectancyTable, customLifeExpectancy } = config
   const hasGenderInfo = (planningMode === 'individual' && gender)
     || (planningMode === 'couple' && gender && spouse?.gender)
 
   const handleTableChange = (value: string) => {
     if (value === 'custom') {
-      setLifeExpectancyTable('custom')
+      onChange.lifeExpectancyTable('custom')
     }
     else {
       // Auto-select based on context
       if (planningMode === 'couple') {
-        setLifeExpectancyTable('german_2020_22')
+        onChange.lifeExpectancyTable('german_2020_22')
       }
       else {
-        setLifeExpectancyTable(gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22')
+        onChange.lifeExpectancyTable(gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22')
       }
     }
   }
@@ -78,7 +78,7 @@ export function LifeExpectancyTableConfiguration({
         // Manual mode: No gender specified
         <RadioTileGroup
           value={lifeExpectancyTable}
-          onValueChange={(value: string) => setLifeExpectancyTable(value as 'german_2020_22' | 'custom')}
+          onValueChange={(value: string) => onChange.lifeExpectancyTable(value as 'german_2020_22' | 'custom')}
         >
           <RadioTile value="german_2020_22" label="Deutsche Sterbetafel (Durchschnitt)">
             Offizielle Sterbetafel 2020-2022 vom Statistischen Bundesamt (geschlechtsneutral)
@@ -97,7 +97,7 @@ export function LifeExpectancyTableConfiguration({
             value={customLifeExpectancy || ''}
             onChange={(e) => {
               const value = e.target.value ? Number(e.target.value) : undefined
-              setCustomLifeExpectancy(value)
+              onChange.customLifeExpectancy(value)
             }}
             min={1}
             max={50}

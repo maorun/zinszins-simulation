@@ -3,26 +3,25 @@ import { Input } from './ui/input'
 import { calculateCurrentAge, getDefaultLifeExpectancy } from '../../helpers/life-expectancy'
 
 interface BirthYearConfigurationProps {
-  planningMode: 'individual' | 'couple'
-  gender: 'male' | 'female' | undefined
-  birthYear: number | undefined
-  setBirthYear: (year: number | undefined) => void
-  expectedLifespan: number | undefined
-  setExpectedLifespan: (lifespan: number | undefined) => void
-  spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
-  setSpouse: (spouse?: { gender: 'male' | 'female', birthYear?: number }) => void
+  config: {
+    planningMode: 'individual' | 'couple'
+    gender: 'male' | 'female' | undefined
+    birthYear: number | undefined
+    expectedLifespan: number | undefined
+    spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
+  }
+  onChange: {
+    birthYear: (year: number | undefined) => void
+    expectedLifespan: (lifespan: number | undefined) => void
+    spouse: (spouse?: { gender: 'male' | 'female', birthYear?: number }) => void
+  }
 }
 
 export function BirthYearConfiguration({
-  planningMode,
-  gender,
-  birthYear,
-  setBirthYear,
-  expectedLifespan,
-  setExpectedLifespan,
-  spouse,
-  setSpouse,
+  config,
+  onChange,
 }: BirthYearConfigurationProps) {
+  const { planningMode, gender, birthYear, expectedLifespan, spouse } = config
   if (planningMode === 'individual') {
     return (
       <div className="space-y-2">
@@ -36,13 +35,13 @@ export function BirthYearConfiguration({
               value={birthYear || ''}
               onChange={(e) => {
                 const year = e.target.value ? Number(e.target.value) : undefined
-                setBirthYear(year)
+                onChange.birthYear(year)
                 // Auto-suggest life expectancy based on current age and gender
                 if (year) {
                   const currentAge = calculateCurrentAge(year)
                   const suggestedLifespan = getDefaultLifeExpectancy(currentAge, gender)
                   if (!expectedLifespan) {
-                    setExpectedLifespan(suggestedLifespan)
+                    onChange.expectedLifespan(suggestedLifespan)
                   }
                 }
               }}
@@ -90,7 +89,7 @@ export function BirthYearConfiguration({
               value={birthYear || ''}
               onChange={(e) => {
                 const year = e.target.value ? Number(e.target.value) : undefined
-                setBirthYear(year)
+                onChange.birthYear(year)
               }}
               placeholder="1974"
               min={1930}
@@ -119,7 +118,7 @@ export function BirthYearConfiguration({
               value={spouse?.birthYear || ''}
               onChange={(e) => {
                 const year = e.target.value ? Number(e.target.value) : undefined
-                setSpouse({
+                onChange.spouse({
                   ...spouse,
                   gender: spouse?.gender || 'female',
                   birthYear: year,

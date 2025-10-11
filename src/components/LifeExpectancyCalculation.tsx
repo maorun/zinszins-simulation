@@ -8,40 +8,43 @@ import { AutomaticCalculationHelper } from './AutomaticCalculationHelper'
 import { LifeExpectancyTableConfiguration } from './LifeExpectancyTableConfiguration'
 
 interface LifeExpectancyCalculationProps {
-  startOfIndependence: number
-  globalEndOfLife: number
-  setEndOfLife: (year: number) => void
-  useAutomaticCalculation: boolean
-  setUseAutomaticCalculation: (value: boolean) => void
-  planningMode: 'individual' | 'couple'
-  birthYear: number | undefined
-  expectedLifespan: number | undefined
-  setExpectedLifespan: (lifespan: number | undefined) => void
-  gender: 'male' | 'female' | undefined
-  spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
-  lifeExpectancyTable: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
-  setLifeExpectancyTable: (table: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom') => void
-  customLifeExpectancy: number | undefined
-  setCustomLifeExpectancy: (value: number | undefined) => void
+  config: {
+    startOfIndependence: number
+    globalEndOfLife: number
+    useAutomaticCalculation: boolean
+    planningMode: 'individual' | 'couple'
+    birthYear: number | undefined
+    expectedLifespan: number | undefined
+    gender: 'male' | 'female' | undefined
+    spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
+    lifeExpectancyTable: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
+    customLifeExpectancy: number | undefined
+  }
+  onChange: {
+    endOfLife: (year: number) => void
+    useAutomaticCalculation: (value: boolean) => void
+    expectedLifespan: (lifespan: number | undefined) => void
+    lifeExpectancyTable: (table: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom') => void
+    customLifeExpectancy: (value: number | undefined) => void
+  }
 }
 
 export function LifeExpectancyCalculation({
-  startOfIndependence,
-  globalEndOfLife,
-  setEndOfLife,
-  useAutomaticCalculation,
-  setUseAutomaticCalculation,
-  planningMode,
-  birthYear,
-  expectedLifespan,
-  setExpectedLifespan,
-  gender,
-  spouse,
-  lifeExpectancyTable,
-  setLifeExpectancyTable,
-  customLifeExpectancy,
-  setCustomLifeExpectancy,
+  config,
+  onChange,
 }: LifeExpectancyCalculationProps) {
+  const {
+    startOfIndependence,
+    globalEndOfLife,
+    useAutomaticCalculation,
+    planningMode,
+    birthYear,
+    expectedLifespan,
+    gender,
+    spouse,
+    lifeExpectancyTable,
+    customLifeExpectancy,
+  } = config
   return (
     <Card>
       <Collapsible defaultOpen={false}>
@@ -71,7 +74,7 @@ export function LifeExpectancyCalculation({
                   <Switch
                     id="calculation-mode"
                     checked={useAutomaticCalculation}
-                    onCheckedChange={setUseAutomaticCalculation}
+                    onCheckedChange={onChange.useAutomaticCalculation}
                   />
                   <span className={`text-sm ${useAutomaticCalculation ? 'font-medium' : 'text-muted-foreground'}`}>
                     Automatisch
@@ -92,7 +95,7 @@ export function LifeExpectancyCalculation({
                   value={globalEndOfLife}
                   onChange={(e) => {
                     const value = e.target.value ? Number(e.target.value) : 2080
-                    setEndOfLife(value)
+                    onChange.endOfLife(value)
                   }}
                   min={startOfIndependence + 1}
                   max={2150}
@@ -105,25 +108,33 @@ export function LifeExpectancyCalculation({
                 {/* Automatic calculation helper */}
                 {useAutomaticCalculation && (
                   <AutomaticCalculationHelper
-                    planningMode={planningMode}
-                    birthYear={birthYear}
-                    expectedLifespan={expectedLifespan}
-                    setExpectedLifespan={setExpectedLifespan}
-                    gender={gender}
-                    spouse={spouse}
+                    config={{
+                      planningMode,
+                      birthYear,
+                      expectedLifespan,
+                      gender,
+                      spouse,
+                    }}
+                    onChange={{
+                      expectedLifespan: onChange.expectedLifespan,
+                    }}
                   />
                 )}
               </div>
 
               {/* Life Expectancy Table Configuration */}
               <LifeExpectancyTableConfiguration
-                planningMode={planningMode}
-                gender={gender}
-                spouse={spouse}
-                lifeExpectancyTable={lifeExpectancyTable}
-                setLifeExpectancyTable={setLifeExpectancyTable}
-                customLifeExpectancy={customLifeExpectancy}
-                setCustomLifeExpectancy={setCustomLifeExpectancy}
+                config={{
+                  planningMode,
+                  gender,
+                  spouse,
+                  lifeExpectancyTable,
+                  customLifeExpectancy,
+                }}
+                onChange={{
+                  lifeExpectancyTable: onChange.lifeExpectancyTable,
+                  customLifeExpectancy: onChange.customLifeExpectancy,
+                }}
               />
             </div>
           </CardContent>

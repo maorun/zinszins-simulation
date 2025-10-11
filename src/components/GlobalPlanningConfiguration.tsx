@@ -123,33 +123,41 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
 
               {/* Birth Year Configuration */}
               <BirthYearConfiguration
-                planningMode={planningMode}
-                gender={gender}
-                birthYear={birthYear}
-                setBirthYear={setBirthYear}
-                expectedLifespan={expectedLifespan}
-                setExpectedLifespan={setExpectedLifespan}
-                spouse={spouse}
-                setSpouse={setSpouse}
+                config={{
+                  planningMode,
+                  gender,
+                  birthYear,
+                  expectedLifespan,
+                  spouse,
+                }}
+                onChange={{
+                  birthYear: setBirthYear,
+                  expectedLifespan: setExpectedLifespan,
+                  spouse: setSpouse,
+                }}
               />
 
               {/* Life Expectancy Calculation Card */}
               <LifeExpectancyCalculation
-                startOfIndependence={startOfIndependence}
-                globalEndOfLife={globalEndOfLife}
-                setEndOfLife={setEndOfLife}
-                useAutomaticCalculation={useAutomaticCalculation}
-                setUseAutomaticCalculation={setUseAutomaticCalculation}
-                planningMode={planningMode}
-                birthYear={birthYear}
-                expectedLifespan={expectedLifespan}
-                setExpectedLifespan={setExpectedLifespan}
-                gender={gender}
-                spouse={spouse}
-                lifeExpectancyTable={lifeExpectancyTable}
-                setLifeExpectancyTable={setLifeExpectancyTable}
-                customLifeExpectancy={customLifeExpectancy}
-                setCustomLifeExpectancy={setCustomLifeExpectancy}
+                config={{
+                  startOfIndependence,
+                  globalEndOfLife,
+                  useAutomaticCalculation,
+                  planningMode,
+                  birthYear,
+                  expectedLifespan,
+                  gender,
+                  spouse,
+                  lifeExpectancyTable,
+                  customLifeExpectancy,
+                }}
+                onChange={{
+                  endOfLife: setEndOfLife,
+                  useAutomaticCalculation: setUseAutomaticCalculation,
+                  expectedLifespan: setExpectedLifespan,
+                  lifeExpectancyTable: setLifeExpectancyTable,
+                  customLifeExpectancy: setCustomLifeExpectancy,
+                }}
               />
 
               {/* Statutory Pension Configuration Card */}

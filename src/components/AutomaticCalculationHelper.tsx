@@ -4,22 +4,23 @@ import { calculateCurrentAge } from '../../helpers/life-expectancy'
 import { calculateJointLifeExpectancy } from '../../helpers/rmd-tables'
 
 interface AutomaticCalculationHelperProps {
-  planningMode: 'individual' | 'couple'
-  birthYear: number | undefined
-  expectedLifespan: number | undefined
-  setExpectedLifespan: (lifespan: number | undefined) => void
-  gender: 'male' | 'female' | undefined
-  spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
+  config: {
+    planningMode: 'individual' | 'couple'
+    birthYear: number | undefined
+    expectedLifespan: number | undefined
+    gender: 'male' | 'female' | undefined
+    spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
+  }
+  onChange: {
+    expectedLifespan: (lifespan: number | undefined) => void
+  }
 }
 
 export function AutomaticCalculationHelper({
-  planningMode,
-  birthYear,
-  expectedLifespan,
-  setExpectedLifespan,
-  gender,
-  spouse,
+  config,
+  onChange,
 }: AutomaticCalculationHelperProps) {
+  const { planningMode, birthYear, expectedLifespan, gender, spouse } = config
   return (
     <div className="p-3 bg-blue-50 rounded-lg space-y-3">
       <div className="text-sm font-medium text-blue-900">Lebensende automatisch berechnen</div>
@@ -33,7 +34,7 @@ export function AutomaticCalculationHelper({
               id="expected-lifespan"
               type="number"
               value={expectedLifespan || 85}
-              onChange={e => setExpectedLifespan(Number(e.target.value))}
+              onChange={e => onChange.expectedLifespan(Number(e.target.value))}
               min={50}
               max={120}
               className="w-32"
