@@ -261,10 +261,16 @@ function addYearRows(
 /**
  * Calculate the contribution amount for a specific element in a specific year
  */
-function getElementContributionForYear(element: any, year: number, isMonthly: boolean): number {
+function getElementContributionForYear(element: unknown, year: number, isMonthly: boolean): number {
+  if (typeof element !== 'object' || element === null) {
+    return 0
+  }
+
+  const elem = element as Record<string, unknown>
+
   // Check if this element was active in this year
-  const startYear = new Date(element.start).getFullYear()
-  const endYear = element.end ? new Date(element.end).getFullYear() : new Date().getFullYear() + 50
+  const startYear = new Date(elem.start as string).getFullYear()
+  const endYear = elem.end ? new Date(elem.end as string).getFullYear() : new Date().getFullYear() + 50
 
   if (year < startYear || year > endYear) {
     return 0
@@ -272,7 +278,7 @@ function getElementContributionForYear(element: any, year: number, isMonthly: bo
 
   // Return the element's annual contribution amount
   // Try different property names to handle both real data and test data
-  const yearlyAmount = element.einzahlung || element.amount || element.monthlyAmount || 0
+  const yearlyAmount = (elem.einzahlung as number) || (elem.amount as number) || (elem.monthlyAmount as number) || 0
   return isMonthly ? yearlyAmount / 12 : yearlyAmount
 }
 
@@ -509,7 +515,7 @@ function addCalculationExplanations(lines: string[]): void {
 /**
  * Add savings phase markdown section to lines
  */
-function addSavingsPhaseSection(savingsData: any, lines: string[]): void {
+function addSavingsPhaseSection(savingsData: ExportData['savingsData'], lines: string[]): void {
   if (!savingsData?.sparplanElements || savingsData.sparplanElements.length === 0) {
     lines.push('## Sparphase')
     lines.push('')
@@ -523,7 +529,9 @@ function addSavingsPhaseSection(savingsData: any, lines: string[]): void {
   lines.push('| Jahr | Startkapital | Zinsen | Einzahlungen | Endkapital | Vorabpauschale | Steuer |')
   lines.push('|------|--------------|--------|--------------|------------|----------------|--------|')
 
-  const hasSimulationProperty = savingsData.sparplanElements.some((element: any) => element.simulation)
+  const hasSimulationProperty = savingsData.sparplanElements.some((element: unknown) =>
+    typeof element === 'object' && element !== null && 'simulation' in element,
+  )
 
   if (hasSimulationProperty) {
     addSavingsPhaseSimulationData(savingsData.sparplanElements, lines)
@@ -538,11 +546,14 @@ function addSavingsPhaseSection(savingsData: any, lines: string[]): void {
 /**
  * Add savings phase data from simulation structure
  */
-function addSavingsPhaseSimulationData(sparplanElements: any[], lines: string[]): void {
+function addSavingsPhaseSimulationData(sparplanElements: unknown[], lines: string[]): void {
   const allYears = new Set<number>()
   for (const element of sparplanElements) {
-    if (element.simulation) {
-      Object.keys(element.simulation).forEach(year => allYears.add(parseInt(year)))
+    if (typeof element === 'object' && element !== null && 'simulation' in element) {
+      const simulation = (element as Record<string, unknown>).simulation
+      if (simulation && typeof simulation === 'object') {
+        Object.keys(simulation).forEach(year => allYears.add(parseInt(year)))
+      }
     }
   }
 
@@ -556,18 +567,21 @@ function addSavingsPhaseSimulationData(sparplanElements: any[], lines: string[])
     let totalVorabpauschale = 0
     let totalContributions = 0
 
-    sparplanElements.forEach((element: any) => {
-      const yearData = element.simulation?.[year]
-      if (yearData) {
-        totalStartkapital += yearData.startkapital || 0
-        totalZinsen += yearData.zinsen || 0
-        totalEndkapital += yearData.endkapital || 0
-        totalBezahlteSteuer += yearData.bezahlteSteuer || 0
-        totalVorabpauschale += yearData.vorabpauschale || 0
-      }
+    sparplanElements.forEach((element: unknown) => {
+      if (typeof element === 'object' && element !== null && 'simulation' in element) {
+        const simulation = (element as Record<string, unknown>).simulation as Record<string, unknown> | undefined
+        const yearData = simulation?.[year] as Record<string, unknown> | undefined
+        if (yearData) {
+          totalStartkapital += (yearData.startkapital as number) || 0
+          totalZinsen += (yearData.zinsen as number) || 0
+          totalEndkapital += (yearData.endkapital as number) || 0
+          totalBezahlteSteuer += (yearData.bezahlteSteuer as number) || 0
+          totalVorabpauschale += (yearData.vorabpauschale as number) || 0
+        }
 
-      const elementContribution = getElementContributionForYear(element, year, false)
-      totalContributions += elementContribution
+        const elementContribution = getElementContributionForYear(element, year, false)
+        totalContributions += elementContribution
+      }
     })
 
     lines.push(`| ${year} | ${formatCurrency(totalStartkapital)} | ${formatCurrency(totalZinsen)} | ${formatCurrency(totalContributions)} | ${formatCurrency(totalEndkapital)} | ${formatCurrency(totalVorabpauschale)} | ${formatCurrency(totalBezahlteSteuer)} |`)
@@ -577,14 +591,15 @@ function addSavingsPhaseSimulationData(sparplanElements: any[], lines: string[])
 /**
  * Add savings phase data from mock structure
  */
-function addSavingsPhaseMockData(sparplanElements: any[], lines: string[]): void {
+function addSavingsPhaseMockData(sparplanElements: unknown[], lines: string[]): void {
   for (const yearData of sparplanElements) {
-    if (!yearData) continue
+    if (!yearData || typeof yearData !== 'object') continue
 
-    const year = new Date(yearData.start).getFullYear()
-    const contribution = yearData.einzahlung || yearData.amount || yearData.monthlyAmount || 0
+    const data = yearData as Record<string, unknown>
+    const year = new Date(data.start as string).getFullYear()
+    const contribution = (data.einzahlung as number) || (data.amount as number) || (data.monthlyAmount as number) || 0
 
-    lines.push(`| ${year} | ${formatCurrency(yearData.startkapital || 0)} | ${formatCurrency(yearData.zinsen || 0)} | ${formatCurrency(contribution)} | ${formatCurrency(yearData.endkapital || 0)} | ${formatCurrency(yearData.vorabpauschale || 0)} | ${formatCurrency(yearData.bezahlteSteuer || 0)} |`)
+    lines.push(`| ${year} | ${formatCurrency((data.startkapital as number) || 0)} | ${formatCurrency((data.zinsen as number) || 0)} | ${formatCurrency(contribution)} | ${formatCurrency((data.endkapital as number) || 0)} | ${formatCurrency((data.vorabpauschale as number) || 0)} | ${formatCurrency((data.bezahlteSteuer as number) || 0)} |`)
   }
 }
 
@@ -629,10 +644,13 @@ function addWithdrawalParametersSection(context: SimulationContextState, lines: 
 
   if (hasMultipleSegments) {
     lines.push(`- **Strategie:** Segmentierte Entnahme`)
-    withdrawalConfig.withdrawalSegments.forEach((segment: any, index: number) => {
-      const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
-      const segmentInfo = `  - **Segment ${index + 1} (${segment.name}):** ${strategyLabel} (${segment.startYear}-${segment.endYear})`
-      lines.push(segmentInfo)
+    withdrawalConfig.withdrawalSegments.forEach((segment: unknown, index: number) => {
+      if (typeof segment === 'object' && segment !== null) {
+        const seg = segment as Record<string, unknown>
+        const strategyLabel = getWithdrawalStrategyLabel(seg.strategy as string)
+        const segmentInfo = `  - **Segment ${index + 1} (${seg.name}):** ${strategyLabel} (${seg.startYear}-${seg.endYear})`
+        lines.push(segmentInfo)
+      }
     })
   }
   else {
