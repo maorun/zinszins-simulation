@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 176 ESLint-Warnungen  
+**Aktueller Stand:** 166 ESLint-Warnungen  
 **Ziel:** 0 Warnungen (max-warnings = 0)  
 **Status:** In Bearbeitung
 
@@ -83,8 +83,17 @@
 
 #### 1.2 Hohe Priorität (Komplexität 45-75 ODER Zeilen 500-1000)
 
-- [ ] **GlobalPlanningConfiguration** (src/components/GlobalPlanningConfiguration.tsx)
-  - Komplexität: 54, Zeilen: 514
+- [x] **GlobalPlanningConfiguration** (src/components/GlobalPlanningConfiguration.tsx) ✅ ERLEDIGT
+  - Original: Komplexität 54, Zeilen: 514
+  - Aktuell: Komplexität <25, Zeilen: 185
+  - Status: ✅ Beide Limits erreicht (Komplexität <25, Zeilen <400)
+  - Extrahierte Komponenten: 6
+    - `PlanningModeSelector` - Auswahl zwischen Einzelperson/Ehepaar
+    - `GenderConfiguration` - Geschlechtskonfiguration für Individual/Paar
+    - `BirthYearConfiguration` - Geburtsjahr-Eingabe für Individual/Paar
+    - `LifeExpectancyCalculation` - Lebensende-Berechnung (Hauptkomponente)
+    - `AutomaticCalculationHelper` - Automatische Berechnungshilfe
+    - `LifeExpectancyTableConfiguration` - Sterbetafel-Konfiguration
   - Aufwand: 0,5 Tage
 
 - [ ] **exportWithdrawalDataToCSV** (src/utils/data-export.ts)
@@ -233,7 +242,12 @@
    - Zeilen von 945 → 402 reduziert (57% Verbesserung)
    - 9 neue fokussierte Komponenten extrahiert
    - Alle 1397 Tests bestehen
-3. Top 5 `any` Type Dateien angehen
+3. ✅ **ERLEDIGT:** GlobalPlanningConfiguration refactoring
+   - Komplexität von 54 → <25 reduziert
+   - Zeilen von 514 → 185 reduziert (64% Verbesserung)
+   - 6 neue fokussierte Komponenten extrahiert
+   - Alle 1397 Tests bestehen
+4. Top 5 `any` Type Dateien angehen
 
 ### Mittelfristig (nächste 2 Wochen)
 
@@ -251,8 +265,8 @@
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 196 Warnungen (reduziert von 178 - neue `any` type Warnungen durch Refactoring)
-- **Fortschritt:** 15% (calculateWithdrawal vollständig refactored ✅)
+- **Aktueller Stand:** 166 Warnungen (reduziert von 176)
+- **Fortschritt:** 20% (calculateWithdrawal + GlobalPlanningConfiguration vollständig refactored ✅)
 - **Geschätzte Fertigstellung:** 2025-01-24 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned
@@ -286,5 +300,5 @@
 
 ---
 
-**Letzte Aktualisierung:** 2025-01-10  
-**Nächste Review:** Nach Abschluss Phase 1.1
+**Letzte Aktualisierung:** 2025-01-11  
+**Nächste Review:** Nach Abschluss Phase 1.2
