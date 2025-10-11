@@ -254,6 +254,123 @@ describe('data-export', () => {
       expect(result).toContain('5. GRUNDFREIBETRAG (ENTNAHMEPHASE)')
       expect(result).toContain('Grundfreibetrag:') // More flexible test for amount
     })
+
+    it('should handle segmented withdrawal strategies', () => {
+      mockContext.withdrawalConfig = {
+        formValue: {
+          strategie: '4prozent',
+          endOfLife: 2080,
+          rendite: 5.0,
+          withdrawalFrequency: 'yearly',
+        },
+        useSegmentedWithdrawal: true,
+        withdrawalSegments: [
+          {
+            id: '1',
+            name: 'Aktive Phase',
+            startYear: 2041,
+            endYear: 2060,
+            strategy: '4prozent',
+            withdrawalFrequency: 'yearly',
+            returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+          },
+          {
+            id: '2',
+            name: 'Ruhephase',
+            startYear: 2061,
+            endYear: 2080,
+            strategy: '3prozent',
+            withdrawalFrequency: 'yearly',
+            returnConfig: { mode: 'fixed', fixedRate: 0.03 },
+          },
+        ],
+      } as any
+
+      const result = generateCalculationExplanations(mockContext)
+
+      expect(result).toContain('6. ENTNAHMESTRATEGIE')
+      expect(result).toContain('Strategie: Segmentierte Entnahme')
+      expect(result).toContain('Segment 1 (Aktive Phase): 4% Regel (2041-2060)')
+      expect(result).toContain('Segment 2 (Ruhephase): 3% Regel (2061-2080)')
+    })
+
+    it('should handle different withdrawal strategies', () => {
+      // Test 3% rule
+      mockContext.withdrawalConfig!.formValue.strategie = '3prozent'
+      let result = generateCalculationExplanations(mockContext)
+      expect(result).toContain('Strategie: 3% Regel')
+      expect(result).toContain('Jährliche Entnahme = 3% vom Startkapital')
+
+      // Test variable percentage
+      mockContext.withdrawalConfig!.formValue = {
+        strategie: 'variabel_prozent',
+        endOfLife: 2080,
+        rendite: 5.0,
+        withdrawalFrequency: 'yearly',
+        variabelProzent: 4.5,
+      } as any
+      result = generateCalculationExplanations(mockContext)
+      expect(result).toContain('Strategie: Variabler Prozentsatz')
+      expect(result).toContain('Jährliche Entnahme = 4.50% vom aktuellen Kapital')
+
+      // Test monthly fixed
+      mockContext.withdrawalConfig!.formValue = {
+        strategie: 'monatlich_fest',
+        endOfLife: 2080,
+        rendite: 5.0,
+        withdrawalFrequency: 'yearly',
+        monatlicheBetrag: 3000,
+        inflationAktiv: true,
+        inflationsrate: 2.5,
+      } as any
+      result = generateCalculationExplanations(mockContext)
+      expect(result).toContain('Strategie: Monatliche Entnahme')
+      expect(result).toContain('Monatliche Entnahme:') // Amount will follow
+      expect(result).toContain('Inflationsanpassung: 2.50% jährlich')
+
+      // Test dynamic strategy
+      mockContext.withdrawalConfig!.formValue = {
+        strategie: 'dynamisch',
+        endOfLife: 2080,
+        rendite: 5.0,
+        withdrawalFrequency: 'yearly',
+        dynamischBasisrate: 4.2,
+      } as any
+      result = generateCalculationExplanations(mockContext)
+      expect(result).toContain('Strategie: Dynamische Strategie')
+      expect(result).toContain('Basisrate: 4.20%')
+      expect(result).toContain('Anpassung basierend auf Vorjahres-Performance')
+    })
+
+    it('should handle bucket strategy label', () => {
+      mockContext.withdrawalConfig!.formValue.strategie = 'bucket_strategie'
+      const result = generateCalculationExplanations(mockContext)
+      expect(result).toContain('Strategie: Bucket Strategie')
+    })
+
+    it('should handle RMD strategy label', () => {
+      mockContext.withdrawalConfig!.formValue.strategie = 'rmd'
+      const result = generateCalculationExplanations(mockContext)
+      expect(result).toContain('Strategie: RMD Strategie')
+    })
+
+    it('should handle Kapitalerhalt strategy label', () => {
+      mockContext.withdrawalConfig!.formValue.strategie = 'kapitalerhalt'
+      const result = generateCalculationExplanations(mockContext)
+      expect(result).toContain('Strategie: Kapitalerhalt')
+    })
+
+    it('should handle Steueroptimiert strategy label', () => {
+      mockContext.withdrawalConfig!.formValue.strategie = 'steueroptimiert'
+      const result = generateCalculationExplanations(mockContext)
+      expect(result).toContain('Strategie: Steueroptimierte Entnahme')
+    })
+
+    it('should not include withdrawal section when no withdrawal config', () => {
+      mockContext.withdrawalConfig = null
+      const result = generateCalculationExplanations(mockContext)
+      expect(result).not.toContain('6. ENTNAHMESTRATEGIE')
+    })
   })
 
   describe('downloadTextAsFile', () => {

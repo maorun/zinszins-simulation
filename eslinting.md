@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 158 ESLint-Warnungen  
+**Aktueller Stand:** 150 ESLint-Warnungen  
 **Ziel:** 0 Warnungen (max-warnings = 0)  
 **Status:** In Bearbeitung
 
@@ -12,7 +12,7 @@
 
 | Typ | Anzahl | Beschreibung |
 |-----|--------|--------------|
-| `@typescript-eslint/no-explicit-any` | 137 | Verwendung von `any` Type |
+| `@typescript-eslint/no-explicit-any` | 127 | Verwendung von `any` Type |
 | `complexity` | 22 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
 | `max-lines-per-function` | 17 | Funktionen mit zu vielen Zeilen (>400) |
 | `max-depth` | 1 | Zu tiefe Verschachtelung (>5 Ebenen) |
@@ -22,7 +22,6 @@
 | Datei | Warnungen | Hauptprobleme |
 |-------|-----------|---------------|
 | `src/contexts/SimulationContext.tsx` | 61 | `any` Types |
-| `src/utils/data-export.ts` | 16 | `any` Types, Komplexität |
 | `src/hooks/useWithdrawalModals.ts` | 9 | `any` Types, Komplexität |
 | `helpers/multi-asset-calculations.ts` | 8 | `any` Types |
 | `src/components/WithdrawalSegmentForm.tsx` | 6 | Komplexität, Zeilenzahl |
@@ -31,6 +30,7 @@
 | `src/utils/enhanced-summary.ts` | 4 | `any` Types |
 | `src/utils/config-storage.ts` | 4 | `any` Types |
 | `src/hooks/useWithdrawalCalculations.ts` | 4 | `any` Types, Komplexität, Zeilenzahl |
+| `src/utils/data-export.ts` | 0 | ✅ ERLEDIGT - Alle `any` types behoben |
 
 ## Lösungsstrategie
 
@@ -71,15 +71,37 @@
   - Aufwand: 0,5 Tage
   - Priorität: HOCH
 
-- [ ] **Arrow function in WithdrawalSegmentForm** (src/components/WithdrawalSegmentForm.tsx)
+- [x] **Arrow function in WithdrawalSegmentForm** (src/components/WithdrawalSegmentForm.tsx) ✅ ERLEDIGT
   - Original: Komplexität: 93, Zeilen: 865 (Arrow function)
-  - Status: ⏳ Ausstehend - Erfordert sorgfältige Typ-Analyse
-  - Hinweis: Die Arrow-Function rendert die Segment-Karten und verwendet viele
-    verschachtelte Konfigurationsobjekte mit komplexen TypeScript-Typen.
-    Eine Extraktion erfordert detaillierte Anpassung an die bestehende Type-Hierarchie.
-  - Schätzung: 10-12 Hilfsfunktionen oder 1 große Komponente nötig
-  - Aufwand: 1 Tag
-  - Priorität: HOCH
+  - Aktuell: Komplexität: <8, Zeilen: 14 (Arrow function jetzt eine einfache Component-Map)
+  - Status: ✅ Beide Limits erreicht - Arrow function extrahiert in WithdrawalSegmentCard
+  - Extrahierte Komponenten: 1 Hauptkomponente + 17 Hilfskomponenten
+    - `WithdrawalSegmentCard` - Vollständige Segment-Karte (108 Zeilen, Komplexität <8) ✅ WEITER REFACTORED
+    - `SegmentCardHeader` - Segment Card Header mit Aktionen (91 Zeilen, Komplexität <8)
+    - `SegmentBasicConfig` - Basis-Konfiguration (Name, Jahre) (69 Zeilen, Komplexität <8)
+    - `SegmentTaxReductionConfig` - Steuer-Reduktion Einstellung (35 Zeilen, Komplexität <8)
+    - `SegmentStrategyConfig` - Strategie-spezifische Konfiguration Router (57 Zeilen, Komplexität <8)
+    - `SegmentDynamicStrategyWrapper` - Wrapper für dynamische Strategie (46 Zeilen, Komplexität <8)
+    - `SegmentBucketStrategyWrapper` - Wrapper für Bucket Strategie (61 Zeilen, Komplexität <8)
+    - `SegmentRMDStrategyWrapper` - Wrapper für RMD Strategie (39 Zeilen, Komplexität <8)
+    - `SegmentSteueroptimierteWrapper` - Wrapper für steueroptimierte Strategie (64 Zeilen, Komplexität <8)
+    - `VariablePercentWithdrawalConfig` - Variable Prozent Einstellungen (38 Zeilen)
+    - `MonthlyWithdrawalConfig` - Monatliche Entnahme Konfiguration (89 Zeilen)
+    - `WithdrawalFrequencyConfig` - Entnahme-Häufigkeit (37 Zeilen)
+    - `SegmentInflationConfig` - Inflations-Konfiguration (62 Zeilen)
+    - `SegmentFixedReturnConfig` - Feste Rendite (39 Zeilen)
+    - `SegmentRandomReturnConfig` - Zufällige Rendite mit Seed (135 Zeilen)
+    - `SegmentVariableReturnConfig` - Variable Renditen pro Jahr (78 Zeilen)
+    - `SegmentReturnConfiguration` - Rendite-Modus Auswahl (139 Zeilen)
+    - `SegmentStrategySelector` - Strategie-Auswahl mit Defaults (66 Zeilen)
+  - Extrahierte Hilfsfunktionen: 1
+    - `withdrawal-strategy-defaults.ts` - Strategie-Standardwerte (98 Zeilen, Komplexität ~6)
+  - WithdrawalSegmentForm reduziert: 1128 → 172 Zeilen (85% Reduktion)
+  - WithdrawalSegmentCard refactored: 1009 → 108 Zeilen (89% Reduktion)
+  - Alle 1462 Tests bestehen
+  - ESLint Warnungen reduziert: 155 → 150
+  - Aufwand: 1,5 Tage
+  - Priorität: HOCH ✅ KOMPLETT ERLEDIGT
 
 #### 1.2 Hohe Priorität (Komplexität 45-75 ODER Zeilen 500-1000)
 
@@ -154,6 +176,24 @@
   - Alle Tests bestehen (1455 Tests)
   - Keine any types eingeführt
   - Aufwand: 0,3 Tage
+
+- [x] **generateCalculationExplanations** (src/utils/data-export.ts) ✅ ERLEDIGT
+  - Original: `any` types (16 insgesamt in Datei)
+  - Aktuell: 0 `any` types in data-export.ts
+  - Status: ✅ Alle `any` types durch spezifische Types ersetzt
+  - Extrahierte Hilfsfunktionen: 3
+    - `addSegmentedWithdrawalDetails` - Segmentierte Entnahme-Details
+    - `addSingleStrategyDetails` - Einzelstrategie-Details mit Params-Objekt
+    - `addWithdrawalStrategySection` - Entnahmestrategie-Koordination
+  - Neue Types erstellt: 2
+    - `SavingsData` - Sparplan-Daten Interface
+    - `AddSingleStrategyDetailsParams` - Parameter für Strategie-Details
+    - `AddWithdrawalStrategyParams` - Parameter für Strategie-Sektion
+  - Alle `any` und `unknown` types durch `WithdrawalSegment` und `SparplanElement` ersetzt
+  - 8 neue Tests hinzugefügt für alle Entnahmestrategien
+  - Alle 1455 Tests bestehen
+  - Warnings reduziert von 158 → 156 (2 weniger)
+  - Aufwand: 0,2 Tage
 
 - [ ] **SparplanEingabe** (src/components/SparplanEingabe.tsx)
   - Komplexität: 30, Zeilen: 759
@@ -339,7 +379,12 @@
    - 24 neue Tests hinzugefügt
    - Alle `any` Types ersetzt durch spezifische Types
    - Alle Tests bestehen
-5. Top 5 `any` Type Dateien angehen
+5. ✅ **ERLEDIGT:** generateCalculationExplanations refactoring (src/utils/data-export.ts)
+   - Alle 16 `any` types in data-export.ts behoben
+   - 3 neue Hilfsfunktionen extrahiert (max complexity 8, max 50 lines)
+   - 8 neue Tests hinzugefügt
+   - Alle Tests bestehen
+6. Top 5 `any` Type Dateien angehen
 
 ### Mittelfristig (nächste 2 Wochen)
 
@@ -357,9 +402,9 @@
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 162 Warnungen (reduziert von 176)
-- **Fortschritt:** 25% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals vollständig refactored ✅)
-- **Geschätzte Fertigstellung:** 2025-01-24 (bei Vollzeit-Arbeit)
+- **Aktueller Stand:** 150 Warnungen (reduziert von 176 → 15% Reduktion)
+- **Fortschritt:** 32% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow + WithdrawalSegmentCard vollständig refactored ✅)
+- **Geschätzte Fertigstellung:** 2025-01-22 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned
 
