@@ -219,8 +219,11 @@
 1. **Logische Kohäsion:** Extrahiere zusammenhängende Logik
 2. **Single Responsibility:** Jede Funktion macht eine Sache
 3. **Klare Benennung:** Funktionsname beschreibt was sie tut
-4. **Parameter-Anzahl:** Max. 5-7 Parameter, sonst Objekt verwenden
+4. **Parameter-Anzahl:** Max. 5 Parameter, sonst Objekt verwenden mit types
 5. **Testbarkeit:** Extrahierte Funktionen sollten testbar sein
+6. Keine any-types einführen
+7. complexity max 8
+8. max-lines-per-function max 50 
 
 ### Komplexitäts-Reduktion
 
