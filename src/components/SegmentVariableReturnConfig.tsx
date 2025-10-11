@@ -1,0 +1,77 @@
+import { Input } from './ui/input'
+import { Label } from './ui/label'
+
+interface VariableConfig {
+  yearlyReturns: Record<number, number>
+}
+
+interface VariableReturnConfigProps {
+  startYear: number
+  endYear: number
+  variableConfig: VariableConfig | undefined
+  onVariableConfigChange: (config: VariableConfig) => void
+}
+
+export function SegmentVariableReturnConfig({
+  startYear,
+  endYear,
+  variableConfig,
+  onVariableConfigChange,
+}: VariableReturnConfigProps) {
+  const yearlyReturns = variableConfig?.yearlyReturns || {}
+
+  const handleYearReturnChange = (year: number, returnValue: number) => {
+    const newYearlyReturns = {
+      ...yearlyReturns,
+      [year]: returnValue,
+    }
+    onVariableConfigChange({ yearlyReturns: newYearlyReturns })
+  }
+
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>Variable Renditen pro Jahr</Label>
+      <div
+        style={{
+          maxHeight: '300px',
+          overflowY: 'auto',
+          padding: '8px',
+          border: '1px solid #e2e8f0',
+          borderRadius: '6px',
+        }}
+      >
+        {Array.from(
+          { length: endYear - startYear + 1 },
+          (_, index) => {
+            const year = startYear + index
+            const currentReturn = yearlyReturns[year] || 0.05
+            return (
+              <div key={year} className="flex items-center space-x-3 mb-2">
+                <span className="text-sm font-medium min-w-[60px]">
+                  {year}
+                  :
+                </span>
+                <Input
+                  type="number"
+                  value={(currentReturn * 100).toFixed(1)}
+                  onChange={(e) => {
+                    const newReturn = e.target.value ? Number(e.target.value) / 100 : 0.05
+                    handleYearReturnChange(year, newReturn)
+                  }}
+                  step={0.1}
+                  min={-50}
+                  max={50}
+                  className="flex-1"
+                />
+                <span className="text-sm text-gray-500">%</span>
+              </div>
+            )
+          },
+        )}
+      </div>
+      <div className="text-sm text-muted-foreground mt-1">
+        Konfiguriere die erwartete Rendite für jedes Jahr dieser Phase individuell.
+      </div>
+    </div>
+  )
+}
