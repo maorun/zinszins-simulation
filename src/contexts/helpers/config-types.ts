@@ -6,6 +6,16 @@ import type { StatutoryPensionConfig, CoupleStatutoryPensionConfig } from '../..
 import type { CareCostConfiguration } from '../../../helpers/care-cost-simulation'
 import type { FinancialGoal } from '../../../helpers/financial-goals'
 import type { WithdrawalConfiguration } from '../../utils/config-storage'
+import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-portfolio'
+
+/**
+ * Simulation result data structure
+ * The data field will contain the actual simulation results with additional fields
+ */
+export interface SimulationData {
+  sparplanElements: SparplanElement[]
+  data?: SparplanElement[] // Compatibility alias - populated with same data as sparplanElements
+}
 
 /**
  * Extended SavedConfiguration with optional fields properly typed
@@ -22,12 +32,16 @@ export interface ExtendedSavedConfiguration {
   grundfreibetragBetrag?: number
   personalTaxRate?: number
   guenstigerPruefungAktiv?: boolean
+  kirchensteuerAktiv?: boolean
+  kirchensteuersatz?: number
   returnMode: ReturnMode
   averageReturn: number
   standardDeviation: number
   randomSeed?: number
   variableReturns: Record<number, number>
   historicalIndex?: string
+  multiAssetConfig?: MultiAssetPortfolioConfig
+  withdrawalMultiAssetConfig?: MultiAssetPortfolioConfig
   inflationAktivSparphase?: boolean
   inflationsrateSparphase?: number
   inflationAnwendungSparphase?: 'sparplan' | 'gesamtmenge'
