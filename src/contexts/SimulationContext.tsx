@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
-import { SimulationAnnual, simulate, type SimulationAnnualType } from '../utils/simulate'
+import { simulate, type SimulationAnnualType } from '../utils/simulate'
 import type { ReturnMode, ReturnConfiguration } from '../utils/random-returns'
-import { convertSparplanToElements, initialSparplan, type Sparplan, type SparplanElement } from '../utils/sparplan-utils'
+import { convertSparplanToElements, type Sparplan, type SparplanElement } from '../utils/sparplan-utils'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import { SimulationContext } from './SimulationContextValue'
 import { saveConfiguration, loadConfiguration, type SavedConfiguration, type WithdrawalConfiguration } from '../utils/config-storage'
@@ -33,6 +33,9 @@ import {
   applyInflationScenarioModifiers,
   prepareVariableInflationRates,
 } from './helpers/simulation-helpers'
+import { createFallbackMultiAssetConfig, createFallbackWithdrawalConfig } from './helpers/multi-asset-defaults'
+import { createDefaultConfiguration } from './helpers/default-config'
+import { resetConfiguration } from './helpers/config-reset'
 
 export interface SimulationContextState {
   rendite: number
@@ -162,58 +165,7 @@ export interface SimulationContextState {
 
 export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {
   // Default configuration
-  const defaultConfig = useMemo(() => ({
-    rendite: 5,
-    steuerlast: 26.375,
-    teilfreistellungsquote: 30,
-    freibetragPerYear: { 2023: 2000 },
-    // Default Basiszins configuration with historical rates
-    basiszinsConfiguration: {
-      2018: { year: 2018, rate: 0.0087, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2019: { year: 2019, rate: 0.0087, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2020: { year: 2020, rate: 0.0070, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2021: { year: 2021, rate: 0.0070, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2022: { year: 2022, rate: 0.0180, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2023: { year: 2023, rate: 0.0255, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2024: { year: 2024, rate: 0.0255, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-    } as BasiszinsConfiguration,
-    // Default: taxes reduce capital for savings and withdrawal phases
-    steuerReduzierenEndkapitalSparphase: true,
-    steuerReduzierenEndkapitalEntspharphase: true,
-    // Grundfreibetrag settings (German basic tax allowance for retirees)
-    grundfreibetragAktiv: true,
-    // Updated to 2024 German basic tax allowance, default when activated will be double (23208)
-    grundfreibetragBetrag: 23208,
-    // Personal income tax rate for Günstigerprüfung (default: 25% - typical middle income tax rate)
-    personalTaxRate: 25,
-    // Günstigerprüfung settings (automatic tax optimization: Abgeltungssteuer vs personal income tax)
-    guenstigerPruefungAktiv: true,
-    returnMode: 'random' as ReturnMode,
-    averageReturn: 7,
-    standardDeviation: 15,
-    randomSeed: undefined,
-    variableReturns: {},
-    historicalIndex: 'dax',
-    // Inflation settings for savings phase (default: enabled with 2%)
-    inflationAktivSparphase: true,
-    inflationsrateSparphase: 2,
-    inflationAnwendungSparphase: 'gesamtmenge' as 'sparplan' | 'gesamtmenge',
-    startEnd: [2040, 2080] as [number, number],
-    sparplan: [initialSparplan],
-    simulationAnnual: SimulationAnnual.monthly,
-    // Global End of Life and Life Expectancy settings
-    endOfLife: 2080,
-    lifeExpectancyTable: 'german_2020_22' as 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
-    customLifeExpectancy: undefined,
-    // Gender and couple planning configuration
-    planningMode: 'couple' as 'individual' | 'couple',
-    gender: 'male' as 'male' | 'female',
-    spouse: { birthYear: 1986, gender: 'female' as 'male' | 'female' },
-    // Birth year helper for end of life calculation
-    birthYear: 1984,
-    expectedLifespan: 85,
-    useAutomaticCalculation: true,
-  }), [])
+  const defaultConfig = useMemo(() => createDefaultConfiguration(), [])
 
   // Try to load saved configuration, initialize profiles if needed
   const loadInitialConfig = () => {
@@ -288,99 +240,17 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [inflationScenarioName, setInflationScenarioName] = useState<string>('')
   // Multi-asset portfolio state
   const [multiAssetConfig, setMultiAssetConfig] = useState(() => {
-    // Create a proper fallback configuration with all asset classes
-    const fallbackConfig = {
-      enabled: false,
-      assetClasses: {
-        stocks_domestic: {
-          name: 'Deutsche/Europäische Aktien',
-          expectedReturn: 0.08,
-          volatility: 0.20,
-          targetAllocation: 0.40,
-          enabled: true,
-          description: 'DAX, EuroStoxx 50',
-          taxCategory: 'equity' as const,
-        },
-        stocks_international: {
-          name: 'Internationale Aktien',
-          expectedReturn: 0.075,
-          volatility: 0.18,
-          targetAllocation: 0.20,
-          enabled: true,
-          description: 'MSCI World ex-Europe',
-          taxCategory: 'equity' as const,
-        },
-        bonds_government: {
-          name: 'Staatsanleihen',
-          expectedReturn: 0.03,
-          volatility: 0.05,
-          targetAllocation: 0.20,
-          enabled: true,
-          description: 'Deutsche Bundesanleihen',
-          taxCategory: 'bond' as const,
-        },
-        bonds_corporate: {
-          name: 'Unternehmensanleihen',
-          expectedReturn: 0.04,
-          volatility: 0.08,
-          targetAllocation: 0.10,
-          enabled: true,
-          description: 'Europäische Unternehmensanleihen',
-          taxCategory: 'bond' as const,
-        },
-        real_estate: {
-          name: 'Immobilien (REITs)',
-          expectedReturn: 0.06,
-          volatility: 0.15,
-          targetAllocation: 0.10,
-          enabled: false,
-          description: 'Real Estate Investment Trusts',
-          taxCategory: 'reit' as const,
-        },
-        commodities: {
-          name: 'Rohstoffe',
-          expectedReturn: 0.04,
-          volatility: 0.25,
-          targetAllocation: 0.00,
-          enabled: false,
-          description: 'Gold, Öl, Rohstoffe',
-          taxCategory: 'commodity' as const,
-        },
-        cash: {
-          name: 'Liquidität',
-          expectedReturn: 0.01,
-          volatility: 0.00,
-          targetAllocation: 0.00,
-          enabled: false,
-          description: 'Tagesgeld, Geldmarktfonds',
-          taxCategory: 'cash' as const,
-        },
-      },
-      rebalancing: {
-        frequency: 'annually' as const,
-        threshold: 0.05,
-        useThreshold: false,
-      },
-      simulation: {
-        useCorrelation: true,
-        seed: undefined,
-      },
-    }
-
-    // Try to load the helper function, but fall back to our configuration
     try {
       const { createDefaultMultiAssetConfig } = require('../../helpers/multi-asset-portfolio')
       return extendedInitialConfig.multiAssetConfig || createDefaultMultiAssetConfig()
     }
     catch {
-      // Use our fallback configuration if the module fails to load
-      return extendedInitialConfig.multiAssetConfig || fallbackConfig
+      return extendedInitialConfig.multiAssetConfig || createFallbackMultiAssetConfig()
     }
   })
 
   // Multi-asset portfolio state for withdrawal phase (more conservative defaults)
   const [withdrawalMultiAssetConfig, setWithdrawalMultiAssetConfig] = useState(() => {
-    // Try to load from saved configuration or create default
     try {
       const { createDefaultMultiAssetConfig } = require('../../helpers/multi-asset-portfolio')
       const defaultConfig = createDefaultMultiAssetConfig()
@@ -391,9 +261,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
           ...defaultConfig.assetClasses,
           stocks_domestic: {
             ...defaultConfig.assetClasses.stocks_domestic,
-            targetAllocation: 0.3, // More conservative allocation
-            expectedReturn: 0.06, // Lower expected return
-            volatility: 0.18, // Lower volatility
+            targetAllocation: 0.3,
+            expectedReturn: 0.06,
+            volatility: 0.18,
           },
           stocks_international: {
             ...defaultConfig.assetClasses.stocks_international,
@@ -403,7 +273,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
           },
           bonds_government: {
             ...defaultConfig.assetClasses.bonds_government,
-            targetAllocation: 0.35, // Higher bond allocation
+            targetAllocation: 0.35,
             expectedReturn: 0.025,
             volatility: 0.04,
           },
@@ -415,25 +285,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
           },
         },
       }
-
       return extendedInitialConfig.withdrawalMultiAssetConfig || conservativeConfig
     }
     catch {
-      // Create fallback configuration if module fails to load
-      return extendedInitialConfig.withdrawalMultiAssetConfig || {
-        enabled: false,
-        assetClasses: {
-          stocks_domestic: { enabled: true, targetAllocation: 0.3, expectedReturn: 0.06, volatility: 0.18, taxCategory: 'equity' as const },
-          stocks_international: { enabled: true, targetAllocation: 0.15, expectedReturn: 0.055, volatility: 0.16, taxCategory: 'equity' as const },
-          bonds_government: { enabled: true, targetAllocation: 0.35, expectedReturn: 0.025, volatility: 0.04, taxCategory: 'bond' as const },
-          bonds_corporate: { enabled: true, targetAllocation: 0.15, expectedReturn: 0.035, volatility: 0.06, taxCategory: 'bond' as const },
-          real_estate: { enabled: false, targetAllocation: 0.0, expectedReturn: 0.05, volatility: 0.12, taxCategory: 'reit' as const },
-          commodities: { enabled: false, targetAllocation: 0.0, expectedReturn: 0.04, volatility: 0.18, taxCategory: 'commodity' as const },
-          cash: { enabled: false, targetAllocation: 0.0, expectedReturn: 0.01, volatility: 0.00, taxCategory: 'cash' as const },
-        },
-        rebalancing: { frequency: 'annually' as const, threshold: 0.05, useThreshold: false },
-        simulation: { useCorrelation: true, seed: undefined },
-      }
+      return extendedInitialConfig.withdrawalMultiAssetConfig || createFallbackWithdrawalConfig()
     }
   })
 
@@ -770,51 +625,23 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   }, [defaultConfig])
 
   const resetToDefaults = useCallback(() => {
-    setRendite(defaultConfig.rendite)
-    setSteuerlast(defaultConfig.steuerlast)
-    setTeilfreistellungsquote(defaultConfig.teilfreistellungsquote)
-    setFreibetragPerYear(defaultConfig.freibetragPerYear)
-    setBasiszinsConfiguration(defaultConfig.basiszinsConfiguration)
-    setSteuerReduzierenEndkapitalSparphase(defaultConfig.steuerReduzierenEndkapitalSparphase)
-    setSteuerReduzierenEndkapitalEntspharphase(defaultConfig.steuerReduzierenEndkapitalEntspharphase)
-    setGrundfreibetragAktiv(defaultConfig.grundfreibetragAktiv)
-    setGrundfreibetragBetrag(defaultConfig.grundfreibetragBetrag)
-    // Reset personal income tax settings
-    setPersonalTaxRate(defaultConfig.personalTaxRate)
-    setGuenstigerPruefungAktiv(defaultConfig.guenstigerPruefungAktiv)
-    setReturnMode(defaultConfig.returnMode)
-    setAverageReturn(defaultConfig.averageReturn)
-    setStandardDeviation(defaultConfig.standardDeviation)
-    setRandomSeed(defaultConfig.randomSeed)
-    setVariableReturns(defaultConfig.variableReturns)
-    setHistoricalIndex(defaultConfig.historicalIndex)
-    // Reset inflation settings for savings phase
-    setInflationAktivSparphase(defaultConfig.inflationAktivSparphase)
-    setInflationsrateSparphase(defaultConfig.inflationsrateSparphase)
-    setInflationAnwendungSparphase(defaultConfig.inflationAnwendungSparphase)
-    setStartEnd(defaultConfig.startEnd)
-    setSparplan(defaultConfig.sparplan)
-    setSimulationAnnual(defaultConfig.simulationAnnual)
-    setSparplanElemente(
-      convertSparplanToElements(defaultConfig.sparplan, defaultConfig.startEnd, defaultConfig.simulationAnnual),
-    )
-    // Reset global End of Life and Life Expectancy settings
-    setEndOfLife(defaultConfig.endOfLife)
-    setLifeExpectancyTable(defaultConfig.lifeExpectancyTable)
-    setCustomLifeExpectancy(defaultConfig.customLifeExpectancy)
-    // Reset gender and couple planning settings
-    setPlanningMode(defaultConfig.planningMode)
-    setGender(defaultConfig.gender)
-    setSpouse(defaultConfig.spouse)
-    // Reset birth year helper settings
-    setBirthYear(defaultConfig.birthYear)
-    setExpectedLifespan(defaultConfig.expectedLifespan)
-    setUseAutomaticCalculation(defaultConfig.useAutomaticCalculation)
-    setWithdrawalConfig(null) // Reset withdrawal config to null
-    setStatutoryPensionConfig(null) // Reset statutory pension config to null
-    setCoupleStatutoryPensionConfig(null) // Reset couple statutory pension config to null
-    setCareCostConfiguration(createDefaultCareCostConfiguration()) // Reset care cost config to defaults
-  }, [defaultConfig, setSparplanElemente])
+    resetConfiguration(defaultConfig, {
+      setRendite, setSteuerlast, setTeilfreistellungsquote, setFreibetragPerYear,
+      setBasiszinsConfiguration, setSteuerReduzierenEndkapitalSparphase,
+      setSteuerReduzierenEndkapitalEntspharphase, setGrundfreibetragAktiv,
+      setGrundfreibetragBetrag, setPersonalTaxRate, setGuenstigerPruefungAktiv,
+      setReturnMode, setAverageReturn, setStandardDeviation, setRandomSeed,
+      setVariableReturns, setHistoricalIndex, setInflationAktivSparphase,
+      setInflationsrateSparphase, setInflationAnwendungSparphase,
+      setStartEnd, setSparplan, setSimulationAnnual, setSparplanElemente,
+      setEndOfLife, setLifeExpectancyTable, setCustomLifeExpectancy,
+      setPlanningMode, setGender, setSpouse, setBirthYear,
+      setExpectedLifespan, setUseAutomaticCalculation,
+    }, {
+      setWithdrawalConfig, setStatutoryPensionConfig,
+      setCoupleStatutoryPensionConfig, setCareCostConfiguration, setFinancialGoals,
+    })
+  }, [defaultConfig])
 
   // Auto-save configuration whenever any config value changes
   useEffect(() => {
