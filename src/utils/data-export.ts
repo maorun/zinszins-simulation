@@ -1,13 +1,19 @@
 import type { SimulationContextState } from '../contexts/SimulationContext'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { OtherIncomeSource } from '../../helpers/other-income'
+import type { WithdrawalSegment } from './segmented-withdrawal'
+import type { SparplanElement } from './sparplan-utils'
 
 /**
  * Utility functions for exporting simulation data in CSV and Markdown formats
  */
 
+export interface SavingsData {
+  sparplanElements: SparplanElement[]
+}
+
 export interface ExportData {
-  savingsData?: any
+  savingsData?: SavingsData
   withdrawalData?: WithdrawalResult
   context: SimulationContextState
 }
@@ -621,7 +627,7 @@ function addSavingsPhaseSection(savingsData: ExportData['savingsData'], lines: s
   lines.push('| Jahr | Startkapital | Zinsen | Einzahlungen | Endkapital | Vorabpauschale | Steuer |')
   lines.push('|------|--------------|--------|--------------|------------|----------------|--------|')
 
-  const hasSimulationProperty = savingsData.sparplanElements.some((element: unknown) =>
+  const hasSimulationProperty = savingsData.sparplanElements.some(element =>
     typeof element === 'object' && element !== null && 'simulation' in element,
   )
 
@@ -638,7 +644,7 @@ function addSavingsPhaseSection(savingsData: ExportData['savingsData'], lines: s
 /**
  * Add savings phase data from simulation structure
  */
-function addSavingsPhaseSimulationData(sparplanElements: unknown[], lines: string[]): void {
+function addSavingsPhaseSimulationData(sparplanElements: SparplanElement[], lines: string[]): void {
   const allYears = new Set<number>()
   for (const element of sparplanElements) {
     if (typeof element === 'object' && element !== null && 'simulation' in element) {
@@ -683,7 +689,7 @@ function addSavingsPhaseSimulationData(sparplanElements: unknown[], lines: strin
 /**
  * Add savings phase data from mock structure
  */
-function addSavingsPhaseMockData(sparplanElements: unknown[], lines: string[]): void {
+function addSavingsPhaseMockData(sparplanElements: SparplanElement[], lines: string[]): void {
   for (const yearData of sparplanElements) {
     if (!yearData || typeof yearData !== 'object') continue
 
@@ -734,15 +740,12 @@ function addWithdrawalParametersSection(context: SimulationContextState, lines: 
     && withdrawalConfig.withdrawalSegments
     && withdrawalConfig.withdrawalSegments.length > 1
 
-  if (hasMultipleSegments) {
+  if (hasMultipleSegments && withdrawalConfig.withdrawalSegments) {
     lines.push(`- **Strategie:** Segmentierte Entnahme`)
-    withdrawalConfig.withdrawalSegments.forEach((segment: unknown, index: number) => {
-      if (typeof segment === 'object' && segment !== null) {
-        const seg = segment as Record<string, unknown>
-        const strategyLabel = getWithdrawalStrategyLabel(seg.strategy as string)
-        const segmentInfo = `  - **Segment ${index + 1} (${seg.name}):** ${strategyLabel} (${seg.startYear}-${seg.endYear})`
-        lines.push(segmentInfo)
-      }
+    withdrawalConfig.withdrawalSegments.forEach((segment, index) => {
+      const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
+      const segmentInfo = `  - **Segment ${index + 1} (${segment.name}):** ${strategyLabel} (${segment.startYear}-${segment.endYear})`
+      lines.push(segmentInfo)
     })
   }
   else {
@@ -815,6 +818,106 @@ export function exportDataToMarkdown(data: ExportData): string {
 }
 
 /**
+ * Add segmented withdrawal strategy details to explanation lines
+ */
+function addSegmentedWithdrawalDetails(
+  segments: WithdrawalSegment[],
+  lines: string[],
+): void {
+  lines.push('   Strategie: Segmentierte Entnahme')
+  segments.forEach((segment, index) => {
+    const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
+    const segmentInfo = `   Segment ${index + 1} (${segment.name}): ${strategyLabel} (${segment.startYear}-${segment.endYear})`
+    lines.push(segmentInfo)
+  })
+}
+
+interface AddSingleStrategyDetailsParams {
+  strategie: string
+  variabelProzent?: number
+  monatlicheBetrag?: number
+  inflationAktiv?: boolean
+  inflationsrate?: number
+  dynamischBasisrate?: number
+}
+
+/**
+ * Add single withdrawal strategy details to explanation lines
+ */
+function addSingleStrategyDetails(
+  params: AddSingleStrategyDetailsParams,
+  lines: string[],
+): void {
+  const { strategie, variabelProzent, monatlicheBetrag, inflationAktiv, inflationsrate, dynamischBasisrate } = params
+
+  lines.push(`   Strategie: ${getWithdrawalStrategyLabel(strategie)}`)
+
+  if (strategie === '4prozent') {
+    lines.push('   Formel: Jährliche Entnahme = 4% vom Startkapital')
+  }
+  else if (strategie === '3prozent') {
+    lines.push('   Formel: Jährliche Entnahme = 3% vom Startkapital')
+  }
+  else if (strategie === 'variabel_prozent') {
+    lines.push(`   Formel: Jährliche Entnahme = ${formatPercentage(variabelProzent || 0)} vom aktuellen Kapital`)
+  }
+  else if (strategie === 'monatlich_fest') {
+    lines.push(`   Monatliche Entnahme: ${formatCurrency(monatlicheBetrag || 0)}`)
+    if (inflationAktiv) {
+      lines.push(`   Inflationsanpassung: ${formatPercentage(inflationsrate || 2)} jährlich`)
+    }
+  }
+  else if (strategie === 'dynamisch') {
+    lines.push(`   Basisrate: ${formatPercentage(dynamischBasisrate || 4)}`)
+    lines.push('   Anpassung basierend auf Vorjahres-Performance')
+  }
+}
+
+interface AddWithdrawalStrategyParams {
+  withdrawalConfig: {
+    formValue?: {
+      strategie: string
+      variabelProzent?: number
+      monatlicheBetrag?: number
+      inflationAktiv?: boolean
+      inflationsrate?: number
+      dynamischBasisrate?: number
+    }
+    useSegmentedWithdrawal?: boolean
+    withdrawalSegments?: WithdrawalSegment[]
+  }
+}
+
+/**
+ * Add withdrawal strategy section to explanation lines
+ */
+function addWithdrawalStrategySection(
+  params: AddWithdrawalStrategyParams,
+  lines: string[],
+): void {
+  const { withdrawalConfig } = params
+
+  if (!withdrawalConfig?.formValue) {
+    return
+  }
+
+  lines.push('6. ENTNAHMESTRATEGIE')
+
+  const hasMultipleSegments = withdrawalConfig.useSegmentedWithdrawal
+    && withdrawalConfig.withdrawalSegments
+    && withdrawalConfig.withdrawalSegments.length > 1
+
+  if (hasMultipleSegments && withdrawalConfig.withdrawalSegments) {
+    addSegmentedWithdrawalDetails(withdrawalConfig.withdrawalSegments, lines)
+  }
+  else {
+    addSingleStrategyDetails(withdrawalConfig.formValue, lines)
+  }
+
+  lines.push('')
+}
+
+/**
  * Generate calculation explanations text
  */
 export function generateCalculationExplanations(context: SimulationContextState): string {
@@ -855,46 +958,8 @@ export function generateCalculationExplanations(context: SimulationContextState)
     lines.push('')
   }
 
-  const withdrawalConfig = context.withdrawalConfig
-  if (withdrawalConfig?.formValue) {
-    lines.push('6. ENTNAHMESTRATEGIE')
-
-    // Handle segmented withdrawal - multiple strategies
-    const hasMultipleSegments = withdrawalConfig.useSegmentedWithdrawal
-      && withdrawalConfig.withdrawalSegments
-      && withdrawalConfig.withdrawalSegments.length > 1
-    if (hasMultipleSegments) {
-      lines.push('   Strategie: Segmentierte Entnahme')
-      withdrawalConfig.withdrawalSegments.forEach((segment: any, index: number) => {
-        const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
-        lines.push(`   Segment ${index + 1} (${segment.name}): ${strategyLabel} (${segment.startYear}-${segment.endYear})`)
-      })
-    }
-    else {
-      // Single strategy
-      lines.push(`   Strategie: ${getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie)}`)
-
-      if (withdrawalConfig.formValue.strategie === '4prozent') {
-        lines.push('   Formel: Jährliche Entnahme = 4% vom Startkapital')
-      }
-      else if (withdrawalConfig.formValue.strategie === '3prozent') {
-        lines.push('   Formel: Jährliche Entnahme = 3% vom Startkapital')
-      }
-      else if (withdrawalConfig.formValue.strategie === 'variabel_prozent') {
-        lines.push(`   Formel: Jährliche Entnahme = ${formatPercentage(withdrawalConfig.formValue.variabelProzent || 0)} vom aktuellen Kapital`)
-      }
-      else if (withdrawalConfig.formValue.strategie === 'monatlich_fest') {
-        lines.push(`   Monatliche Entnahme: ${formatCurrency(withdrawalConfig.formValue.monatlicheBetrag || 0)}`)
-        if (withdrawalConfig.formValue.inflationAktiv) {
-          lines.push(`   Inflationsanpassung: ${formatPercentage(withdrawalConfig.formValue.inflationsrate || 2)} jährlich`)
-        }
-      }
-      else if (withdrawalConfig.formValue.strategie === 'dynamisch') {
-        lines.push(`   Basisrate: ${formatPercentage(withdrawalConfig.formValue.dynamischBasisrate || 4)}`)
-        lines.push('   Anpassung basierend auf Vorjahres-Performance')
-      }
-    }
-    lines.push('')
+  if (context.withdrawalConfig) {
+    addWithdrawalStrategySection({ withdrawalConfig: context.withdrawalConfig }, lines)
   }
 
   return lines.join('\n')
@@ -915,6 +980,14 @@ function getWithdrawalStrategyLabel(strategy: string): string {
       return 'Monatliche Entnahme'
     case 'dynamisch':
       return 'Dynamische Strategie'
+    case 'bucket_strategie':
+      return 'Bucket Strategie'
+    case 'rmd':
+      return 'RMD Strategie'
+    case 'kapitalerhalt':
+      return 'Kapitalerhalt'
+    case 'steueroptimiert':
+      return 'Steueroptimierte Entnahme'
     default:
       return strategy
   }
