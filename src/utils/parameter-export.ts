@@ -1,35 +1,35 @@
 import type { SimulationContextState } from '../contexts/SimulationContext'
 
 /**
- * Formats all simulation parameters into a human-readable German text format
- * for export to clipboard to help with development and bug reporting.
+ * Helper function to format basic financial parameters
  */
-export function formatParametersForExport(context: SimulationContextState): string {
+function formatBasicParameters(context: SimulationContextState): string[] {
   const lines: string[] = []
 
-  // Basic financial parameters
   lines.push(`Rendite: ${context.rendite.toFixed(2)} %`)
   lines.push(`Kapitalertragsteuer: ${context.steuerlast.toFixed(2)} %`)
   lines.push(`Teilfreistellungsquote: ${context.teilfreistellungsquote.toFixed(2)} %`)
-
-  // Tax phase settings
   lines.push(`Steuerreduzierung Sparphase: ${context.steuerReduzierenEndkapitalSparphase ? 'Ja' : 'Nein'}`)
   lines.push(`Steuerreduzierung Entnahmephase: ${context.steuerReduzierenEndkapitalEntspharphase ? 'Ja' : 'Nein'}`)
-
-  // Time range
   lines.push(`Zeitraum: ${context.startEnd[0]} - ${context.startEnd[1]}`)
-
-  // Simulation mode
   lines.push(`Simulationsmodus: ${context.simulationAnnual === 'yearly' ? 'Jährlich' : 'Monatlich'}`)
-
-  // Return configuration
   lines.push(`Rendite-Modus: ${getReturnModeLabel(context.returnMode)}`)
+
+  return lines
+}
+
+/**
+ * Helper function to format inflation and return settings
+ */
+function formatInflationAndReturns(context: SimulationContextState): string[] {
+  const lines: string[] = []
 
   // Inflation settings for savings phase
   lines.push(`Inflation Sparphase: ${context.inflationAktivSparphase ? 'Ja' : 'Nein'}`)
   if (context.inflationAktivSparphase) {
     lines.push(`Inflationsrate Sparphase: ${context.inflationsrateSparphase.toFixed(2)} %`)
-    lines.push(`Inflationsanwendung Sparphase: ${context.inflationAnwendungSparphase === 'sparplan' ? 'Auf Sparplan' : 'Auf Gesamtmenge'}`)
+    const anwendung = context.inflationAnwendungSparphase === 'sparplan' ? 'Auf Sparplan' : 'Auf Gesamtmenge'
+    lines.push(`Inflationsanwendung Sparphase: ${anwendung}`)
   }
 
   if (context.returnMode === 'random') {
@@ -40,257 +40,322 @@ export function formatParametersForExport(context: SimulationContextState): stri
     }
   }
 
-  // Variable returns (if any)
-  const variableReturnsEntries = Object.entries(context.variableReturns)
-  if (variableReturnsEntries.length > 0) {
+  return lines
+}
+
+/**
+ * Helper function to format variable returns
+ */
+function formatVariableReturns(variableReturns: Record<number, number>): string[] {
+  const lines: string[] = []
+  const entries = Object.entries(variableReturns)
+
+  if (entries.length > 0) {
     lines.push(`Variable Renditen:`)
-    variableReturnsEntries
+    entries
       .sort(([a], [b]) => parseInt(a) - parseInt(b))
       .forEach(([year, returnRate]) => {
         lines.push(`  ${year}: ${returnRate.toFixed(2)} %`)
       })
   }
 
-  // Tax allowances per year
-  const freibetragEntries = Object.entries(context.freibetragPerYear)
-  if (freibetragEntries.length > 0) {
+  return lines
+}
+
+/**
+ * Helper function to format tax allowances per year
+ */
+function formatTaxAllowances(freibetragPerYear: Record<number, number>): string[] {
+  const lines: string[] = []
+  const entries = Object.entries(freibetragPerYear)
+
+  if (entries.length > 0) {
     lines.push(`Freibeträge pro Jahr:`)
-    freibetragEntries
+    entries
       .sort(([a], [b]) => parseInt(a) - parseInt(b))
       .forEach(([year, amount]) => {
         lines.push(`  ${year}: ${formatCurrency(amount)}`)
       })
   }
 
+  return lines
+}
+
+/**
+ * Helper function to format withdrawal configuration
+ */
+function formatWithdrawalConfiguration(context: SimulationContextState): string[] {
+  const lines: string[] = []
+  lines.push(`Entnahme-Konfiguration:`)
+
+  if (context.withdrawalConfig && context.withdrawalConfig.formValue) {
+    lines.push(...formatWithdrawalConfigDetails(context))
+  }
+  else {
+    lines.push(...formatDefaultWithdrawalConfig(context))
+  }
+
+  return lines
+}
+
+/**
+ * Helper function to format withdrawal config details when config exists
+ */
+function formatWithdrawalConfigDetails(context: SimulationContextState): string[] {
+  const lines: string[] = []
+  const wc = context.withdrawalConfig!
+  const fv = wc.formValue
+
+  lines.push(`  Lebensende: ${context.endOfLife}`)
+  lines.push(`  Strategie: ${getWithdrawalStrategyLabel(fv.strategie)}`)
+  lines.push(`  Entnahme-Rendite: ${fv.rendite.toFixed(2)} %`)
+  lines.push(`  Entnahme-Häufigkeit: ${fv.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'}`)
+
+  lines.push(...formatWithdrawalInflation(fv))
+  lines.push(...formatWithdrawalStrategyDetails(fv))
+  lines.push(...formatGrundfreibetragConfig(context, fv))
+  lines.push(...formatWithdrawalReturnMode(wc))
+  lines.push(...formatSegmentedWithdrawal(wc))
+  lines.push(...formatComparisonMode(wc))
+
+  return lines
+}
+
+/**
+ * Helper function to format default withdrawal config
+ */
+function formatDefaultWithdrawalConfig(context: SimulationContextState): string[] {
+  const lines: string[] = []
+  const defaultEndOfLife = context.startEnd[1]
+
+  lines.push(`  Lebensende: ${defaultEndOfLife} (Standard)`)
+  lines.push(`  Strategie: 4% Regel (Standard)`)
+  lines.push(`  Entnahme-Rendite: 5.00 % (Standard)`)
+  lines.push(`  Entnahme-Häufigkeit: Jährlich (Standard)`)
+  lines.push(`  Inflation aktiv: Nein (Standard)`)
+  lines.push(`  Grundfreibetrag aktiv: ${context.grundfreibetragAktiv ? 'Ja' : 'Nein (Standard)'}`)
+  lines.push(`  Entnahme-Rendite-Modus: Fest (Standard)`)
+
+  return lines
+}
+
+/**
+ * Parameters for formatWithdrawalInflation helper function
+ */
+interface FormValue {
+  inflationAktiv: boolean
+  inflationsrate: number
+  strategie: string
+  monatlicheBetrag: number
+  guardrailsAktiv: boolean
+  guardrailsSchwelle: number
+  variabelProzent: number
+  dynamischBasisrate: number
+  dynamischObereSchwell: number
+  dynamischObereAnpassung: number
+  dynamischUntereSchwell: number
+  dynamischUntereAnpassung: number
+  rendite: number
+  withdrawalFrequency: string
+  einkommensteuersatz: number
+}
+
+/**
+ * Helper function to format withdrawal inflation settings
+ */
+function formatWithdrawalInflation(fv: FormValue): string[] {
+  const lines: string[] = []
+
+  if (fv.inflationAktiv) {
+    lines.push(`  Inflation aktiv: Ja (${fv.inflationsrate.toFixed(2)} %)`)
+  }
+  else {
+    lines.push(`  Inflation aktiv: Nein`)
+  }
+
+  return lines
+}
+
+/**
+ * Helper function to format withdrawal strategy-specific details
+ */
+function formatWithdrawalStrategyDetails(fv: FormValue): string[] {
+  const lines: string[] = []
+
+  if (fv.strategie === 'monatlich_fest') {
+    lines.push(`  Monatlicher Betrag: ${formatCurrency(fv.monatlicheBetrag)}`)
+    if (fv.guardrailsAktiv) {
+      lines.push(`  Guardrails aktiv: Ja (${fv.guardrailsSchwelle.toFixed(1)} %)`)
+    }
+    else {
+      lines.push(`  Guardrails aktiv: Nein`)
+    }
+  }
+
+  if (fv.strategie === 'variabel_prozent') {
+    lines.push(`  Variabler Prozentsatz: ${fv.variabelProzent.toFixed(2)} %`)
+  }
+
+  if (fv.strategie === 'dynamisch') {
+    lines.push(`  Dynamische Basisrate: ${fv.dynamischBasisrate.toFixed(2)} %`)
+    lines.push(`  Obere Schwelle: ${fv.dynamischObereSchwell.toFixed(2)} %`)
+    lines.push(`  Obere Anpassung: ${fv.dynamischObereAnpassung.toFixed(2)} %`)
+    lines.push(`  Untere Schwelle: ${fv.dynamischUntereSchwell.toFixed(2)} %`)
+    lines.push(`  Untere Anpassung: ${fv.dynamischUntereAnpassung.toFixed(2)} %`)
+  }
+
+  return lines
+}
+
+/**
+ * Helper function to format Grundfreibetrag configuration
+ */
+function formatGrundfreibetragConfig(context: SimulationContextState, fv: FormValue): string[] {
+  const lines: string[] = []
+
+  if (context.grundfreibetragAktiv) {
+    lines.push(`  Grundfreibetrag aktiv: Ja`)
+    lines.push(`  Grundfreibetrag: ${formatCurrency(context.grundfreibetragBetrag)}`)
+    lines.push(`  Einkommensteuersatz: ${fv.einkommensteuersatz.toFixed(2)} %`)
+  }
+  else {
+    lines.push(`  Grundfreibetrag aktiv: Nein`)
+  }
+
+  return lines
+}
+
+/**
+ * Parameters for formatWithdrawalReturnMode helper function
+ */
+interface WithdrawalConfig {
+  withdrawalReturnMode: string
+  withdrawalAverageReturn: number
+  withdrawalStandardDeviation: number
+  useSegmentedWithdrawal: boolean
+  withdrawalSegments: Array<{
+    name: string
+    startYear: number
+    endYear: number
+    strategy: string
+    withdrawalFrequency: string
+    returnConfig: {
+      mode: string
+      fixedRate?: number
+      randomConfig?: {
+        averageReturn: number
+        standardDeviation?: number
+      }
+    }
+    customPercentage?: number
+    monthlyConfig?: {
+      monthlyAmount: number
+      enableGuardrails?: boolean
+      guardrailsThreshold?: number
+    }
+    dynamicConfig?: {
+      baseWithdrawalRate: number
+      upperThresholdReturn: number
+      upperThresholdAdjustment: number
+      lowerThresholdReturn: number
+      lowerThresholdAdjustment: number
+    }
+    bucketConfig?: {
+      subStrategy?: string
+      initialCashCushion: number
+      refillThreshold: number
+      refillPercentage: number
+      variabelProzent?: number
+      monatlicheBetrag?: number
+      dynamischBasisrate?: number
+      dynamischObereSchwell?: number
+      dynamischObereAnpassung?: number
+      dynamischUntereSchwell?: number
+      dynamischUntereAnpassung?: number
+    }
+    inflationConfig?: {
+      inflationRate?: number
+    }
+    incomeTaxRate?: number
+    steuerReduzierenEndkapital?: boolean
+  }>
+  useComparisonMode: boolean
+  comparisonStrategies: unknown[]
+  formValue: FormValue
+}
+
+/**
+ * Helper function to format withdrawal return mode
+ */
+function formatWithdrawalReturnMode(wc: WithdrawalConfig): string[] {
+  const lines: string[] = []
+
+  lines.push(`  Entnahme-Rendite-Modus: ${getReturnModeLabel(wc.withdrawalReturnMode)}`)
+  if (wc.withdrawalReturnMode === 'random') {
+    lines.push(`  Entnahme-Durchschnittsrendite: ${wc.withdrawalAverageReturn.toFixed(2)} %`)
+    lines.push(`  Entnahme-Standardabweichung: ${wc.withdrawalStandardDeviation.toFixed(2)} %`)
+  }
+
+  return lines
+}
+
+/**
+ * Helper function to format segmented withdrawal configuration
+ */
+function formatSegmentedWithdrawal(wc: WithdrawalConfig): string[] {
+  const lines: string[] = []
+
+  if (wc.useSegmentedWithdrawal) {
+    lines.push(`  Segmentierte Entnahme: Ja`)
+    lines.push(`  Anzahl Segmente: ${wc.withdrawalSegments.length}`)
+
+    if (wc.withdrawalSegments.length > 0) {
+      lines.push(`  Segment-Details:`)
+      wc.withdrawalSegments.forEach((segment, index) => {
+        lines.push(...formatWithdrawalSegment({ segment, index }))
+      })
+    }
+  }
+
+  return lines
+}
+
+/**
+ * Helper function to format comparison mode
+ */
+function formatComparisonMode(wc: WithdrawalConfig): string[] {
+  const lines: string[] = []
+
+  if (wc.useComparisonMode) {
+    lines.push(`  Vergleichsmodus: Ja`)
+    lines.push(`  Anzahl Strategien: ${wc.comparisonStrategies.length}`)
+  }
+
+  return lines
+}
+
+/**
+ * Formats all simulation parameters into a human-readable German text format
+ * for export to clipboard to help with development and bug reporting.
+ */
+export function formatParametersForExport(context: SimulationContextState): string {
+  const lines: string[] = []
+
+  lines.push(...formatBasicParameters(context))
+  lines.push(...formatInflationAndReturns(context))
+  lines.push(...formatVariableReturns(context.variableReturns))
+  lines.push(...formatTaxAllowances(context.freibetragPerYear))
+
   // Savings plans and special events
   if (context.sparplan.length > 0) {
     lines.push(`Sparpläne und Sonderereignisse:`)
     context.sparplan.forEach((plan, index) => {
-      // Detect event type
-      const isSpecialEvent = plan.eventType && plan.eventType !== 'normal'
-      const isInheritance = plan.eventType === 'inheritance'
-      const isExpense = plan.eventType === 'expense'
-      const isEinmalzahlung = plan.end
-        && new Date(plan.start).getTime() === new Date(plan.end).getTime()
-        && !isSpecialEvent
-
-      let planType = 'Sparplan'
-      if (isInheritance) planType = 'Erbschaft'
-      else if (isExpense) planType = 'Ausgabe'
-      else if (isEinmalzahlung) planType = 'Einmalzahlung'
-
-      lines.push(`  ${planType} ${index + 1}:`)
-      lines.push(`    Betrag: ${formatCurrency(Math.abs(plan.einzahlung))}${isExpense ? ' (Ausgabe)' : ''}`)
-      lines.push(`    Start: ${plan.start}`)
-      if (plan.end && !isEinmalzahlung && !isSpecialEvent) {
-        lines.push(`    Ende: ${plan.end}`)
-      }
-      else if (!isEinmalzahlung && !isSpecialEvent) {
-        lines.push(`    Ende: Unbegrenzt`)
-      }
-
-      // Special event specific details
-      if (isSpecialEvent && plan.specialEventData) {
-        if (isInheritance && plan.specialEventData.relationshipType) {
-          lines.push(`    Verwandtschaftsgrad: ${plan.specialEventData.relationshipType}`)
-          if (plan.specialEventData.grossInheritanceAmount) {
-            lines.push(`    Brutto-Erbschaft: ${formatCurrency(plan.specialEventData.grossInheritanceAmount)}`)
-          }
-        }
-        if (isExpense && plan.specialEventData.expenseType) {
-          lines.push(`    Ausgabentyp: ${plan.specialEventData.expenseType}`)
-          if (plan.specialEventData.creditTerms) {
-            lines.push(`    Kredit: ${(plan.specialEventData.creditTerms.interestRate * 100).toFixed(1)}% für ${plan.specialEventData.creditTerms.termYears} Jahre`)
-            lines.push(`    Monatliche Rate: ${formatCurrency(plan.specialEventData.creditTerms.monthlyPayment || 0)}`)
-          }
-        }
-        if (plan.specialEventData.description) {
-          lines.push(`    Beschreibung: ${plan.specialEventData.description}`)
-        }
-      }
-
-      // Cost factors
-      if (plan.ter !== undefined) {
-        lines.push(`    TER: ${plan.ter.toFixed(2)} %`)
-      }
-      if (plan.transactionCostPercent !== undefined) {
-        lines.push(`    Transaktionskosten: ${plan.transactionCostPercent.toFixed(2)} %`)
-      }
-      if (plan.transactionCostAbsolute !== undefined) {
-        lines.push(`    Absolute Transaktionskosten: ${formatCurrency(plan.transactionCostAbsolute)}`)
-      }
+      lines.push(...formatSparplanItem({ plan, index }))
     })
   }
 
-  // Withdrawal configuration (always show, with defaults if not configured)
-  lines.push(`Entnahme-Konfiguration:`)
-
-  if (context.withdrawalConfig && context.withdrawalConfig.formValue) {
-    const wc = context.withdrawalConfig
-    const fv = wc.formValue
-
-    lines.push(`  Lebensende: ${context.endOfLife}`) // Use global setting
-    lines.push(`  Strategie: ${getWithdrawalStrategyLabel(fv.strategie)}`)
-    lines.push(`  Entnahme-Rendite: ${fv.rendite.toFixed(2)} %`)
-    lines.push(`  Entnahme-Häufigkeit: ${fv.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'}`)
-
-    if (fv.inflationAktiv) {
-      lines.push(`  Inflation aktiv: Ja (${fv.inflationsrate.toFixed(2)} %)`)
-    }
-    else {
-      lines.push(`  Inflation aktiv: Nein`)
-    }
-
-    if (fv.strategie === 'monatlich_fest') {
-      lines.push(`  Monatlicher Betrag: ${formatCurrency(fv.monatlicheBetrag)}`)
-      if (fv.guardrailsAktiv) {
-        lines.push(`  Guardrails aktiv: Ja (${fv.guardrailsSchwelle.toFixed(1)} %)`)
-      }
-      else {
-        lines.push(`  Guardrails aktiv: Nein`)
-      }
-    }
-
-    if (fv.strategie === 'variabel_prozent') {
-      lines.push(`  Variabler Prozentsatz: ${fv.variabelProzent.toFixed(2)} %`)
-    }
-
-    if (fv.strategie === 'dynamisch') {
-      lines.push(`  Dynamische Basisrate: ${fv.dynamischBasisrate.toFixed(2)} %`)
-      lines.push(`  Obere Schwelle: ${fv.dynamischObereSchwell.toFixed(2)} %`)
-      lines.push(`  Obere Anpassung: ${fv.dynamischObereAnpassung.toFixed(2)} %`)
-      lines.push(`  Untere Schwelle: ${fv.dynamischUntereSchwell.toFixed(2)} %`)
-      lines.push(`  Untere Anpassung: ${fv.dynamischUntereAnpassung.toFixed(2)} %`)
-    }
-
-    if (context.grundfreibetragAktiv) {
-      lines.push(`  Grundfreibetrag aktiv: Ja`)
-      lines.push(`  Grundfreibetrag: ${formatCurrency(context.grundfreibetragBetrag)}`)
-      lines.push(`  Einkommensteuersatz: ${fv.einkommensteuersatz.toFixed(2)} %`)
-    }
-    else {
-      lines.push(`  Grundfreibetrag aktiv: Nein`)
-    }
-
-    // Additional withdrawal configuration details
-    lines.push(`  Entnahme-Rendite-Modus: ${getReturnModeLabel(wc.withdrawalReturnMode)}`)
-    if (wc.withdrawalReturnMode === 'random') {
-      lines.push(`  Entnahme-Durchschnittsrendite: ${wc.withdrawalAverageReturn.toFixed(2)} %`)
-      lines.push(`  Entnahme-Standardabweichung: ${wc.withdrawalStandardDeviation.toFixed(2)} %`)
-    }
-
-    if (wc.useSegmentedWithdrawal) {
-      lines.push(`  Segmentierte Entnahme: Ja`)
-      lines.push(`  Anzahl Segmente: ${wc.withdrawalSegments.length}`)
-
-      // Export detailed segment configuration
-      if (wc.withdrawalSegments.length > 0) {
-        lines.push(`  Segment-Details:`)
-        wc.withdrawalSegments.forEach((segment, index) => {
-          lines.push(`    Segment ${index + 1} (${segment.name}):`)
-          lines.push(`      Zeitraum: ${segment.startYear} - ${segment.endYear}`)
-          lines.push(`      Strategie: ${getWithdrawalStrategyLabel(segment.strategy)}`)
-          lines.push(`      Häufigkeit: ${segment.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'}`)
-
-          // Return configuration
-          lines.push(`      Rendite-Modus: ${getReturnModeLabel(segment.returnConfig.mode)}`)
-          if (segment.returnConfig.mode === 'fixed' && segment.returnConfig.fixedRate !== undefined) {
-            lines.push(`      Rendite: ${(segment.returnConfig.fixedRate * 100).toFixed(2)} %`)
-          }
-          else if (segment.returnConfig.mode === 'random' && segment.returnConfig.randomConfig) {
-            lines.push(`      Durchschnittsrendite: ${(segment.returnConfig.randomConfig.averageReturn * 100).toFixed(2)} %`)
-            if (segment.returnConfig.randomConfig.standardDeviation !== undefined) {
-              lines.push(`      Standardabweichung: ${(segment.returnConfig.randomConfig.standardDeviation * 100).toFixed(2)} %`)
-            }
-          }
-
-          // Strategy-specific parameters
-          if (segment.strategy === 'variabel_prozent' && segment.customPercentage !== undefined) {
-            lines.push(`      Variabler Prozentsatz: ${segment.customPercentage.toFixed(2)} %`)
-          }
-
-          if (segment.strategy === 'monatlich_fest' && segment.monthlyConfig) {
-            lines.push(`      Monatlicher Betrag: ${formatCurrency(segment.monthlyConfig.monthlyAmount)}`)
-            if (segment.monthlyConfig.enableGuardrails) {
-              lines.push(`      Guardrails: ${segment.monthlyConfig.guardrailsThreshold?.toFixed(1) || 'N/A'} %`)
-            }
-          }
-
-          if (segment.strategy === 'dynamisch' && segment.dynamicConfig) {
-            lines.push(`      Dynamische Basisrate: ${segment.dynamicConfig.baseWithdrawalRate.toFixed(2)} %`)
-            lines.push(`      Obere Schwelle: ${segment.dynamicConfig.upperThresholdReturn.toFixed(2)} %`)
-            lines.push(`      Obere Anpassung: ${segment.dynamicConfig.upperThresholdAdjustment.toFixed(2)} %`)
-            lines.push(`      Untere Schwelle: ${segment.dynamicConfig.lowerThresholdReturn.toFixed(2)} %`)
-            lines.push(`      Untere Anpassung: ${segment.dynamicConfig.lowerThresholdAdjustment.toFixed(2)} %`)
-          }
-
-          if (segment.strategy === 'bucket_strategie' && segment.bucketConfig) {
-            lines.push(`      Sub-Strategie: ${getBucketSubStrategyLabel(segment.bucketConfig.subStrategy || '4prozent')}`)
-            lines.push(`      Initiales Cash-Polster: ${formatCurrency(segment.bucketConfig.initialCashCushion)}`)
-            lines.push(`      Auffüll-Schwellenwert: ${formatCurrency(segment.bucketConfig.refillThreshold)}`)
-            lines.push(`      Auffüll-Anteil: ${(segment.bucketConfig.refillPercentage * 100).toFixed(0)} %`)
-
-            // Add sub-strategy specific configuration
-            if (segment.bucketConfig.subStrategy === 'variabel_prozent' && segment.bucketConfig.variabelProzent !== undefined) {
-              lines.push(`      Variabler Prozentsatz: ${segment.bucketConfig.variabelProzent.toFixed(2)} %`)
-            }
-
-            if (segment.bucketConfig.subStrategy === 'monatlich_fest' && segment.bucketConfig.monatlicheBetrag !== undefined) {
-              lines.push(`      Monatlicher Betrag: ${formatCurrency(segment.bucketConfig.monatlicheBetrag)}`)
-            }
-
-            if (segment.bucketConfig.subStrategy === 'dynamisch') {
-              if (segment.bucketConfig.dynamischBasisrate !== undefined) {
-                lines.push(`      Dynamische Basisrate: ${segment.bucketConfig.dynamischBasisrate.toFixed(2)} %`)
-              }
-              if (segment.bucketConfig.dynamischObereSchwell !== undefined) {
-                lines.push(`      Obere Schwelle: ${segment.bucketConfig.dynamischObereSchwell.toFixed(2)} %`)
-              }
-              if (segment.bucketConfig.dynamischObereAnpassung !== undefined) {
-                lines.push(`      Obere Anpassung: ${segment.bucketConfig.dynamischObereAnpassung.toFixed(2)} %`)
-              }
-              if (segment.bucketConfig.dynamischUntereSchwell !== undefined) {
-                lines.push(`      Untere Schwelle: ${segment.bucketConfig.dynamischUntereSchwell.toFixed(2)} %`)
-              }
-              if (segment.bucketConfig.dynamischUntereAnpassung !== undefined) {
-                lines.push(`      Untere Anpassung: ${segment.bucketConfig.dynamischUntereAnpassung.toFixed(2)} %`)
-              }
-            }
-          }
-
-          // Inflation configuration
-          if (segment.inflationConfig && segment.inflationConfig.inflationRate !== undefined) {
-            lines.push(`      Inflation: ${(segment.inflationConfig.inflationRate * 100).toFixed(2)} %`)
-          }
-
-          // Tax configuration
-          if (segment.incomeTaxRate !== undefined) {
-            lines.push(`      Einkommensteuersatz: ${segment.incomeTaxRate.toFixed(2)} %`)
-          }
-
-          if (segment.steuerReduzierenEndkapital !== undefined) {
-            lines.push(`      Steuerreduzierung: ${segment.steuerReduzierenEndkapital ? 'Ja' : 'Nein'}`)
-          }
-        })
-      }
-    }
-
-    if (wc.useComparisonMode) {
-      lines.push(`  Vergleichsmodus: Ja`)
-      lines.push(`  Anzahl Strategien: ${wc.comparisonStrategies.length}`)
-    }
-  }
-  else {
-    // Show default values when no withdrawal config is set
-    const defaultEndOfLife = context.startEnd[1]
-    lines.push(`  Lebensende: ${defaultEndOfLife} (Standard)`)
-    lines.push(`  Strategie: 4% Regel (Standard)`)
-    lines.push(`  Entnahme-Rendite: 5.00 % (Standard)`)
-    lines.push(`  Entnahme-Häufigkeit: Jährlich (Standard)`)
-    lines.push(`  Inflation aktiv: Nein (Standard)`)
-    lines.push(`  Grundfreibetrag aktiv: ${context.grundfreibetragAktiv ? 'Ja' : 'Nein (Standard)'}`)
-    lines.push(`  Entnahme-Rendite-Modus: Fest (Standard)`)
-  }
+  // Withdrawal configuration
+  lines.push(...formatWithdrawalConfiguration(context))
 
   return lines.join('\n')
 }
@@ -363,6 +428,456 @@ function getBucketSubStrategyLabel(subStrategy: string): string {
     default:
       return subStrategy
   }
+}
+
+/**
+ * Parameters for formatSparplanItem helper function
+ */
+interface FormatSparplanItemParams {
+  plan: {
+    eventType?: string
+    end?: Date | string | null
+    start: Date | string
+    einzahlung: number
+    specialEventData?: {
+      relationshipType?: string
+      grossInheritanceAmount?: number
+      expenseType?: string
+      creditTerms?: {
+        interestRate: number
+        termYears: number
+        monthlyPayment?: number
+      }
+      description?: string
+    }
+    ter?: number
+    transactionCostPercent?: number
+    transactionCostAbsolute?: number
+  }
+  index: number
+}
+
+/**
+ * Helper function to format a single sparplan item
+ */
+function formatSparplanItem(params: FormatSparplanItemParams): string[] {
+  const { plan, index } = params
+  const lines: string[] = []
+
+  // Detect event type
+  const isSpecialEvent = Boolean(plan.eventType && plan.eventType !== 'normal')
+  const isInheritance = plan.eventType === 'inheritance'
+  const isExpense = plan.eventType === 'expense'
+  const isEinmalzahlung = Boolean(plan.end
+    && new Date(plan.start).getTime() === new Date(plan.end).getTime()
+    && !isSpecialEvent)
+
+  let planType = 'Sparplan'
+  if (isInheritance) planType = 'Erbschaft'
+  else if (isExpense) planType = 'Ausgabe'
+  else if (isEinmalzahlung) planType = 'Einmalzahlung'
+
+  lines.push(`  ${planType} ${index + 1}:`)
+  lines.push(...formatSparplanBasicInfo({ plan, isExpense, isEinmalzahlung, isSpecialEvent }))
+  lines.push(...formatSparplanSpecialEventData({ plan, isInheritance, isExpense }))
+  lines.push(...formatSparplanCostFactors(plan))
+
+  return lines
+}
+
+/**
+ * Parameters for formatSparplanBasicInfo helper function
+ */
+interface FormatSparplanBasicInfoParams {
+  plan: {
+    einzahlung: number
+    start: Date | string
+    end?: Date | string | null
+  }
+  isExpense: boolean
+  isEinmalzahlung: boolean
+  isSpecialEvent: boolean
+}
+
+/**
+ * Helper function to format basic sparplan information
+ */
+function formatSparplanBasicInfo(params: FormatSparplanBasicInfoParams): string[] {
+  const { plan, isExpense, isEinmalzahlung, isSpecialEvent } = params
+  const lines: string[] = []
+
+  lines.push(`    Betrag: ${formatCurrency(Math.abs(plan.einzahlung))}${isExpense ? ' (Ausgabe)' : ''}`)
+  lines.push(`    Start: ${plan.start}`)
+
+  if (plan.end && !isEinmalzahlung && !isSpecialEvent) {
+    lines.push(`    Ende: ${plan.end}`)
+  }
+  else if (!isEinmalzahlung && !isSpecialEvent) {
+    lines.push(`    Ende: Unbegrenzt`)
+  }
+
+  return lines
+}
+
+/**
+ * Parameters for formatSparplanSpecialEventData helper function
+ */
+interface FormatSparplanSpecialEventDataParams {
+  plan: {
+    eventType?: string
+    specialEventData?: {
+      relationshipType?: string
+      grossInheritanceAmount?: number
+      expenseType?: string
+      creditTerms?: {
+        interestRate: number
+        termYears: number
+        monthlyPayment?: number
+      }
+      description?: string
+    }
+  }
+  isInheritance: boolean
+  isExpense: boolean
+}
+
+/**
+ * Helper function to format special event data
+ */
+function formatSparplanSpecialEventData(params: FormatSparplanSpecialEventDataParams): string[] {
+  const { plan, isInheritance, isExpense } = params
+  const lines: string[] = []
+
+  if (!plan.eventType || plan.eventType === 'normal' || !plan.specialEventData) {
+    return lines
+  }
+
+  if (isInheritance && plan.specialEventData.relationshipType) {
+    lines.push(`    Verwandtschaftsgrad: ${plan.specialEventData.relationshipType}`)
+    if (plan.specialEventData.grossInheritanceAmount) {
+      lines.push(`    Brutto-Erbschaft: ${formatCurrency(plan.specialEventData.grossInheritanceAmount)}`)
+    }
+  }
+
+  if (isExpense && plan.specialEventData.expenseType) {
+    lines.push(`    Ausgabentyp: ${plan.specialEventData.expenseType}`)
+    if (plan.specialEventData.creditTerms) {
+      const rate = (plan.specialEventData.creditTerms.interestRate * 100).toFixed(1)
+      const years = plan.specialEventData.creditTerms.termYears
+      lines.push(`    Kredit: ${rate}% für ${years} Jahre`)
+      lines.push(`    Monatliche Rate: ${formatCurrency(plan.specialEventData.creditTerms.monthlyPayment || 0)}`)
+    }
+  }
+
+  if (plan.specialEventData.description) {
+    lines.push(`    Beschreibung: ${plan.specialEventData.description}`)
+  }
+
+  return lines
+}
+
+/**
+ * Helper function to format sparplan cost factors
+ */
+function formatSparplanCostFactors(plan: {
+  ter?: number
+  transactionCostPercent?: number
+  transactionCostAbsolute?: number
+}): string[] {
+  const lines: string[] = []
+
+  if (plan.ter !== undefined) {
+    lines.push(`    TER: ${plan.ter.toFixed(2)} %`)
+  }
+  if (plan.transactionCostPercent !== undefined) {
+    lines.push(`    Transaktionskosten: ${plan.transactionCostPercent.toFixed(2)} %`)
+  }
+  if (plan.transactionCostAbsolute !== undefined) {
+    lines.push(`    Absolute Transaktionskosten: ${formatCurrency(plan.transactionCostAbsolute)}`)
+  }
+
+  return lines
+}
+
+/**
+ * Parameters for formatWithdrawalSegment helper function
+ */
+interface FormatWithdrawalSegmentParams {
+  segment: {
+    name: string
+    startYear: number
+    endYear: number
+    strategy: string
+    withdrawalFrequency: string
+    returnConfig: {
+      mode: string
+      fixedRate?: number
+      randomConfig?: {
+        averageReturn: number
+        standardDeviation?: number
+      }
+    }
+    customPercentage?: number
+    monthlyConfig?: {
+      monthlyAmount: number
+      enableGuardrails?: boolean
+      guardrailsThreshold?: number
+    }
+    dynamicConfig?: {
+      baseWithdrawalRate: number
+      upperThresholdReturn: number
+      upperThresholdAdjustment: number
+      lowerThresholdReturn: number
+      lowerThresholdAdjustment: number
+    }
+    bucketConfig?: {
+      subStrategy?: string
+      initialCashCushion: number
+      refillThreshold: number
+      refillPercentage: number
+      variabelProzent?: number
+      monatlicheBetrag?: number
+      dynamischBasisrate?: number
+      dynamischObereSchwell?: number
+      dynamischObereAnpassung?: number
+      dynamischUntereSchwell?: number
+      dynamischUntereAnpassung?: number
+    }
+    inflationConfig?: {
+      inflationRate?: number
+    }
+    incomeTaxRate?: number
+    steuerReduzierenEndkapital?: boolean
+  }
+  index: number
+}
+
+/**
+ * Helper function to format a single withdrawal segment
+ */
+function formatWithdrawalSegment(params: FormatWithdrawalSegmentParams): string[] {
+  const { segment, index } = params
+  const lines: string[] = []
+
+  lines.push(`    Segment ${index + 1} (${segment.name}):`)
+  lines.push(`      Zeitraum: ${segment.startYear} - ${segment.endYear}`)
+  lines.push(`      Strategie: ${getWithdrawalStrategyLabel(segment.strategy)}`)
+  lines.push(`      Häufigkeit: ${segment.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'}`)
+
+  // Return configuration
+  lines.push(...formatSegmentReturnConfig(segment.returnConfig))
+
+  // Strategy-specific parameters
+  lines.push(...formatSegmentStrategyParams(segment))
+
+  // Inflation and tax configuration
+  lines.push(...formatSegmentTaxAndInflation(segment))
+
+  return lines
+}
+
+/**
+ * Helper function to format segment return configuration
+ */
+function formatSegmentReturnConfig(returnConfig: {
+  mode: string
+  fixedRate?: number
+  randomConfig?: {
+    averageReturn: number
+    standardDeviation?: number
+  }
+}): string[] {
+  const lines: string[] = []
+
+  lines.push(`      Rendite-Modus: ${getReturnModeLabel(returnConfig.mode)}`)
+
+  if (returnConfig.mode === 'fixed' && returnConfig.fixedRate !== undefined) {
+    lines.push(`      Rendite: ${(returnConfig.fixedRate * 100).toFixed(2)} %`)
+  }
+  else if (returnConfig.mode === 'random' && returnConfig.randomConfig) {
+    lines.push(`      Durchschnittsrendite: ${(returnConfig.randomConfig.averageReturn * 100).toFixed(2)} %`)
+    if (returnConfig.randomConfig.standardDeviation !== undefined) {
+      lines.push(`      Standardabweichung: ${(returnConfig.randomConfig.standardDeviation * 100).toFixed(2)} %`)
+    }
+  }
+
+  return lines
+}
+
+/**
+ * Helper function to format segment strategy-specific parameters
+ */
+function formatSegmentStrategyParams(segment: {
+  strategy: string
+  customPercentage?: number
+  monthlyConfig?: {
+    monthlyAmount: number
+    enableGuardrails?: boolean
+    guardrailsThreshold?: number
+  }
+  dynamicConfig?: {
+    baseWithdrawalRate: number
+    upperThresholdReturn: number
+    upperThresholdAdjustment: number
+    lowerThresholdReturn: number
+    lowerThresholdAdjustment: number
+  }
+  bucketConfig?: {
+    subStrategy?: string
+    initialCashCushion: number
+    refillThreshold: number
+    refillPercentage: number
+    variabelProzent?: number
+    monatlicheBetrag?: number
+    dynamischBasisrate?: number
+    dynamischObereSchwell?: number
+    dynamischObereAnpassung?: number
+    dynamischUntereSchwell?: number
+    dynamischUntereAnpassung?: number
+  }
+}): string[] {
+  const lines: string[] = []
+
+  if (segment.strategy === 'variabel_prozent' && segment.customPercentage !== undefined) {
+    lines.push(`      Variabler Prozentsatz: ${segment.customPercentage.toFixed(2)} %`)
+  }
+
+  if (segment.strategy === 'monatlich_fest' && segment.monthlyConfig) {
+    lines.push(`      Monatlicher Betrag: ${formatCurrency(segment.monthlyConfig.monthlyAmount)}`)
+    if (segment.monthlyConfig.enableGuardrails) {
+      lines.push(`      Guardrails: ${segment.monthlyConfig.guardrailsThreshold?.toFixed(1) || 'N/A'} %`)
+    }
+  }
+
+  if (segment.strategy === 'dynamisch' && segment.dynamicConfig) {
+    lines.push(...formatDynamicStrategyConfig(segment.dynamicConfig))
+  }
+
+  if (segment.strategy === 'bucket_strategie' && segment.bucketConfig) {
+    lines.push(...formatBucketStrategyConfig(segment.bucketConfig))
+  }
+
+  return lines
+}
+
+/**
+ * Helper function to format dynamic strategy configuration
+ */
+function formatDynamicStrategyConfig(config: {
+  baseWithdrawalRate: number
+  upperThresholdReturn: number
+  upperThresholdAdjustment: number
+  lowerThresholdReturn: number
+  lowerThresholdAdjustment: number
+}): string[] {
+  const lines: string[] = []
+
+  lines.push(`      Dynamische Basisrate: ${config.baseWithdrawalRate.toFixed(2)} %`)
+  lines.push(`      Obere Schwelle: ${config.upperThresholdReturn.toFixed(2)} %`)
+  lines.push(`      Obere Anpassung: ${config.upperThresholdAdjustment.toFixed(2)} %`)
+  lines.push(`      Untere Schwelle: ${config.lowerThresholdReturn.toFixed(2)} %`)
+  lines.push(`      Untere Anpassung: ${config.lowerThresholdAdjustment.toFixed(2)} %`)
+
+  return lines
+}
+
+/**
+ * Helper function to format bucket strategy configuration
+ */
+function formatBucketStrategyConfig(config: {
+  subStrategy?: string
+  initialCashCushion: number
+  refillThreshold: number
+  refillPercentage: number
+  variabelProzent?: number
+  monatlicheBetrag?: number
+  dynamischBasisrate?: number
+  dynamischObereSchwell?: number
+  dynamischObereAnpassung?: number
+  dynamischUntereSchwell?: number
+  dynamischUntereAnpassung?: number
+}): string[] {
+  const lines: string[] = []
+
+  lines.push(`      Sub-Strategie: ${getBucketSubStrategyLabel(config.subStrategy || '4prozent')}`)
+  lines.push(`      Initiales Cash-Polster: ${formatCurrency(config.initialCashCushion)}`)
+  lines.push(`      Auffüll-Schwellenwert: ${formatCurrency(config.refillThreshold)}`)
+  lines.push(`      Auffüll-Anteil: ${(config.refillPercentage * 100).toFixed(0)} %`)
+
+  // Add sub-strategy specific configuration
+  if (config.subStrategy === 'variabel_prozent' && config.variabelProzent !== undefined) {
+    lines.push(`      Variabler Prozentsatz: ${config.variabelProzent.toFixed(2)} %`)
+  }
+
+  if (config.subStrategy === 'monatlich_fest' && config.monatlicheBetrag !== undefined) {
+    lines.push(`      Monatlicher Betrag: ${formatCurrency(config.monatlicheBetrag)}`)
+  }
+
+  if (config.subStrategy === 'dynamisch') {
+    lines.push(...formatBucketDynamicSubStrategy(config))
+  }
+
+  return lines
+}
+
+/**
+ * Helper function to format bucket strategy dynamic sub-strategy config
+ */
+function formatBucketDynamicSubStrategy(config: {
+  dynamischBasisrate?: number
+  dynamischObereSchwell?: number
+  dynamischObereAnpassung?: number
+  dynamischUntereSchwell?: number
+  dynamischUntereAnpassung?: number
+}): string[] {
+  const lines: string[] = []
+
+  if (config.dynamischBasisrate !== undefined) {
+    lines.push(`      Dynamische Basisrate: ${config.dynamischBasisrate.toFixed(2)} %`)
+  }
+  if (config.dynamischObereSchwell !== undefined) {
+    lines.push(`      Obere Schwelle: ${config.dynamischObereSchwell.toFixed(2)} %`)
+  }
+  if (config.dynamischObereAnpassung !== undefined) {
+    lines.push(`      Obere Anpassung: ${config.dynamischObereAnpassung.toFixed(2)} %`)
+  }
+  if (config.dynamischUntereSchwell !== undefined) {
+    lines.push(`      Untere Schwelle: ${config.dynamischUntereSchwell.toFixed(2)} %`)
+  }
+  if (config.dynamischUntereAnpassung !== undefined) {
+    lines.push(`      Untere Anpassung: ${config.dynamischUntereAnpassung.toFixed(2)} %`)
+  }
+
+  return lines
+}
+
+/**
+ * Helper function to format segment tax and inflation configuration
+ */
+function formatSegmentTaxAndInflation(segment: {
+  inflationConfig?: {
+    inflationRate?: number
+  }
+  incomeTaxRate?: number
+  steuerReduzierenEndkapital?: boolean
+}): string[] {
+  const lines: string[] = []
+
+  // Inflation configuration
+  if (segment.inflationConfig && segment.inflationConfig.inflationRate !== undefined) {
+    lines.push(`      Inflation: ${(segment.inflationConfig.inflationRate * 100).toFixed(2)} %`)
+  }
+
+  // Tax configuration
+  if (segment.incomeTaxRate !== undefined) {
+    lines.push(`      Einkommensteuersatz: ${segment.incomeTaxRate.toFixed(2)} %`)
+  }
+
+  if (segment.steuerReduzierenEndkapital !== undefined) {
+    lines.push(`      Steuerreduzierung: ${segment.steuerReduzierenEndkapital ? 'Ja' : 'Nein'}`)
+  }
+
+  return lines
 }
 
 /**
