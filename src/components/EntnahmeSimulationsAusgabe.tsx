@@ -133,29 +133,15 @@ export function EntnahmeSimulationsAusgabe({
   // Update withdrawal segments when startOfIndependence changes (for segmented withdrawal)
   useEffect(() => {
     if (useSegmentedWithdrawal && withdrawalSegments.length > 0) {
-      // Update the start year of the first segment to match the new savings end
-      const updatedSegments = withdrawalSegments.map((segment, index) => {
-        if (index === 0) {
-          // Update the first segment to start at the new withdrawal start year
-          return {
-            ...segment,
-            startYear: startOfIndependence + 1,
-          }
-        }
-        return segment
-      })
+      const updatedSegments = withdrawalSegments.map((segment, index) =>
+        index === 0 ? { ...segment, startYear: startOfIndependence + 1 } : segment,
+      )
 
-      // Only update if there's an actual change
       if (updatedSegments[0]?.startYear !== withdrawalSegments[0]?.startYear) {
         updateConfig({ withdrawalSegments: updatedSegments })
       }
     }
-  }, [
-    startOfIndependence,
-    useSegmentedWithdrawal,
-    withdrawalSegments,
-    updateConfig,
-  ])
+  }, [startOfIndependence, useSegmentedWithdrawal, withdrawalSegments, updateConfig])
 
   return (
     <div className="space-y-4">
