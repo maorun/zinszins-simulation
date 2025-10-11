@@ -10,6 +10,8 @@ import {
   createStatutoryPensionExplanation,
 } from '../components/calculationHelpers'
 
+// Import helper functions for testing (they are not exported but we can test them through the main function)
+
 describe('calculationHelpers', () => {
   describe('createInterestExplanation', () => {
     it('should create correct interest explanation for savings phase', () => {
@@ -202,6 +204,108 @@ describe('calculationHelpers', () => {
       expect(explanation.steps).toHaveLength(4)
       expect(explanation.finalResult.values).toHaveLength(7)
       expect(explanation.finalResult.values[1].value).toBe('0,0%') // Taxable percentage should be 0
+    })
+  })
+
+  describe('createTaxableIncomeExplanation - Helper Functions Integration', () => {
+    it('should handle multiple income sources correctly with all helper functions', () => {
+      // Test all helper functions working together
+      const explanation = createTaxableIncomeExplanation(
+        20000, // entnahme
+        11000, // grundfreibetrag
+        15000, // statutory pension
+        5000, // other income
+        3000, // health care insurance
+      )
+
+      // Should have all steps: Portfolio + Pension + Other Income + Health Insurance + Total + Grundfreibetrag
+      expect(explanation.steps).toHaveLength(6)
+
+      // Verify step titles are numbered correctly
+      expect(explanation.steps[0].title).toContain('Schritt 1')
+      expect(explanation.steps[1].title).toContain('Schritt 2')
+      expect(explanation.steps[2].title).toContain('Schritt 3')
+      expect(explanation.steps[3].title).toContain('Schritt 4')
+      expect(explanation.steps[4].title).toContain('Schritt 5')
+      expect(explanation.steps[5].title).toContain('Schritt 6')
+
+      // Verify correct calculation: 20000 + 15000 + 5000 - 3000 = 37000
+      expect(explanation.steps[4].calculation).toContain('37.000,00 €')
+
+      // Verify final result has all components
+      expect(explanation.finalResult.values).toHaveLength(7)
+      expect(explanation.finalResult.values[0].label).toBe('Portfolio-Entnahme')
+      expect(explanation.finalResult.values[1].label).toBe('Gesetzliche Rente (steuerpflichtig)')
+      expect(explanation.finalResult.values[2].label).toBe('Andere Einkünfte')
+      expect(explanation.finalResult.values[3].label).toBe('Krankenversicherung (absetzbar)')
+      expect(explanation.finalResult.values[4].label).toBe('Gesamte Einkünfte')
+      expect(explanation.finalResult.values[5].label).toBe('Grundfreibetrag')
+      expect(explanation.finalResult.values[6].label).toBe('Zu versteuerndes Einkommen')
+
+      // Verify zu versteuerndes Einkommen: max(0, 37000 - 11000) = 26000
+      expect(explanation.finalResult.values[6].value).toBe('26.000,00 €')
+    })
+
+    it('should calculate total taxable income correctly when all sources are zero', () => {
+      const explanation = createTaxableIncomeExplanation(0, 10000, 0, 0, 0)
+
+      expect(explanation.steps).toHaveLength(2) // Only portfolio and Grundfreibetrag
+      // Index 3 is zu versteuerndes Einkommen (0=Portfolio, 1=Gesamte, 2=Grundfreibetrag, 3=Zu versteuerndes)
+      const zuVersteuern = explanation.finalResult.values.find(v => v.label === 'Zu versteuerndes Einkommen')
+      expect(zuVersteuern?.value).toBe('0,00 €')
+    })
+
+    it('should add statutory pension step only when amount is positive', () => {
+      const explanation = createTaxableIncomeExplanation(20000, 11000, 0)
+
+      // Should NOT have statutory pension step
+      expect(explanation.steps.length).toBeLessThan(3)
+      expect(explanation.steps.every(step => !step.title.includes('Gesetzliche Rente'))).toBe(true)
+    })
+
+    it('should add other income step only when amount is positive', () => {
+      const explanation = createTaxableIncomeExplanation(20000, 11000, 0, 0)
+
+      // Should NOT have other income step
+      expect(explanation.steps.every(step => !step.title.includes('Andere Einkünfte'))).toBe(true)
+    })
+
+    it('should add health care insurance step only when amount is positive', () => {
+      const explanation = createTaxableIncomeExplanation(20000, 11000, 0, 0, 0)
+
+      // Should NOT have health care insurance step
+      expect(explanation.steps.every(step => !step.title.includes('Krankenversicherung'))).toBe(true)
+    })
+
+    it('should build calculation text correctly for total income', () => {
+      const explanation = createTaxableIncomeExplanation(20000, 11000, 15000, 5000, 3000)
+
+      // Find the total income step
+      const totalStep = explanation.steps.find(s => s.title.includes('Gesamte Einkünfte'))
+      expect(totalStep).toBeDefined()
+      expect(totalStep?.calculation).toContain('Portfolio-Entnahme')
+      expect(totalStep?.calculation).toContain('Gesetzliche Rente')
+      expect(totalStep?.calculation).toContain('Andere Einkünfte')
+      expect(totalStep?.calculation).toContain('Krankenversicherung')
+      expect(totalStep?.calculation).toContain('20.000,00 €')
+      expect(totalStep?.calculation).toContain('15.000,00 €')
+      expect(totalStep?.calculation).toContain('5.000,00 €')
+      expect(totalStep?.calculation).toContain('3.000,00 €')
+    })
+
+    it('should not add total income step when only portfolio withdrawal exists', () => {
+      const explanation = createTaxableIncomeExplanation(20000, 11000)
+
+      // Should NOT have total income step since we only have portfolio withdrawal
+      expect(explanation.steps.every(s => !s.title.includes('Gesamte Einkünfte'))).toBe(true)
+    })
+
+    it('should handle Grundfreibetrag correctly when total income is below it', () => {
+      const explanation = createTaxableIncomeExplanation(5000, 11000)
+
+      // Zu versteuerndes Einkommen should be 0 when total < Grundfreibetrag
+      const finalValue = explanation.finalResult.values.find(v => v.label === 'Zu versteuerndes Einkommen')
+      expect(finalValue?.value).toBe('0,00 €')
     })
   })
 })

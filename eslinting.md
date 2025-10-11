@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 147 ESLint-Warnungen
+**Aktueller Stand:** 144 ESLint-Warnungen
 **Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
@@ -252,8 +252,24 @@
   - Alle Tests bestehen (1455 Tests)
   - Aufwand: 0,3 Tage
 
-- [ ] **exportDataToMarkdown** (src/utils/data-export.ts) - Komplexität: 34
-- [ ] **createTaxableIncomeExplanation** (src/components/WithdrawalSegmentForm.tsx) - Komplexität: 33
+- [ ] **exportDataToMarkdown** (src/utils/data-export.ts) - ✅ BEREITS ERLEDIGT (Komplexität bereits unter Limit)
+- [x] **createTaxableIncomeExplanation** (src/components/calculationHelpers.ts) ✅ ERLEDIGT
+  - Original: Komplexität: 33, Zeilen: 150
+  - Aktuell: Komplexität <8, Zeilen: 48
+  - Status: ✅ Beide Limits erreicht (Komplexität <8, Zeilen <50)
+  - Extrahierte Hilfsfunktionen: 6
+    - `calculateTotalTaxableIncome` - Berechnung Gesamteinkommen
+    - `addStatutoryPensionStep` - Gesetzliche Rente Step hinzufügen
+    - `addOtherIncomeStep` - Andere Einkünfte Step hinzufügen
+    - `addHealthCareInsuranceStep` - Krankenversicherung Step hinzufügen
+    - `buildTotalIncomeCalculationText` - Berechnungstext erstellen
+    - `addTotalIncomeStepIfNeeded` - Gesamteinkommen Step hinzufügen
+    - `buildTaxableIncomeFinalValues` - Finale Werte erstellen
+  - Alle Hilfsfunktionen mit Params-Objekten für >5 Parameter
+  - Neue Types: TaxableIncomeParams
+  - 8 neue Tests hinzugefügt für alle Helper-Funktionen
+  - Alle 1470 Tests bestehen
+  - Aufwand: 0,2 Tage
 - [x] **calculateCoupleHealthInsuranceForYear** (helpers/health-care-insurance.ts) ✅ ERLEDIGT
   - Original: Komplexität: 30
   - Aktuell: Komplexität: <8
@@ -269,7 +285,19 @@
   - Keine any types eingeführt - alle mit spezifischen Types
   - Alle 1462 Tests bestehen
   - Aufwand: 0,3 Tage
-- [ ] **CareCostConfiguration** (src/components/CareCostConfiguration.tsx) - Komplexität: 27, Zeilen: 456
+- [x] **CareCostConfiguration** (src/components/CareCostConfiguration.tsx) ✅ ERLEDIGT
+  - Original: Komplexität: 27, Zeilen: 478
+  - Aktuell: Komplexität <25, Zeilen: 285
+  - Status: ✅ Beide Limits erreicht (Komplexität <25, Zeilen <400)
+  - Extrahierte Komponenten: 4
+    - `CareLevelSelector` - Pflegegrad-Auswahl (56 Zeilen)
+    - `CoupleCareCostConfig` - Paar-Konfiguration (142 Zeilen)
+    - `CareCostPreview` - Kostenvorschau (111 Zeilen)
+    - `CareCostValidationErrors` - Validierungsfehler (35 Zeilen)
+  - Alle Komponenten mit spezifischen Props-Interfaces
+  - Alle 1470 Tests bestehen
+  - Keine any types eingeführt
+  - Aufwand: 0,3 Tage
 - [ ] **formatParametersForExport** (src/utils/parameter-export.ts) - Komplexität: 26
 - [ ] **Arrow functions mit Komplexität 26-34** (verschiedene Dateien) - 7 Funktionen
 - [ ] **StatutoryPensionConfiguration** (src/components/StatutoryPensionConfiguration.tsx) - Zeilen: 409
