@@ -72,8 +72,12 @@
   - Priorität: HOCH
 
 - [ ] **Arrow function in WithdrawalSegmentForm** (src/components/WithdrawalSegmentForm.tsx)
-  - Komplexität: 93, Zeilen: 865
-  - Schätzung: 10-12 Hilfsfunktionen nötig
+  - Original: Komplexität: 93, Zeilen: 865 (Arrow function)
+  - Status: ⏳ Ausstehend - Erfordert sorgfältige Typ-Analyse
+  - Hinweis: Die Arrow-Function rendert die Segment-Karten und verwendet viele
+    verschachtelte Konfigurationsobjekte mit komplexen TypeScript-Typen.
+    Eine Extraktion erfordert detaillierte Anpassung an die bestehende Type-Hierarchie.
+  - Schätzung: 10-12 Hilfsfunktionen oder 1 große Komponente nötig
   - Aufwand: 1 Tag
   - Priorität: HOCH
 
