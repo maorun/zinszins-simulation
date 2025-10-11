@@ -223,7 +223,7 @@
 5. **Testbarkeit:** Extrahierte Funktionen sollten testbar sein
 6. Keine any-types einführen
 7. complexity max 8
-8. max-lines-per-function max 50 
+8. max-lines-per-function max 50
 
 ### Komplexitäts-Reduktion
 
