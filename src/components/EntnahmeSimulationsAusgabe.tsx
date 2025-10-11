@@ -1,7 +1,6 @@
 import { useEffect } from 'react'
 import type {
   WithdrawalResult,
-  WithdrawalStrategy,
 } from '../../helpers/withdrawal'
 import { useSimulation } from '../contexts/useSimulation'
 import { useWithdrawalCalculations } from '../hooks/useWithdrawalCalculations'
@@ -10,7 +9,6 @@ import { useWithdrawalModals } from '../hooks/useWithdrawalModals'
 import { useHealthCareInsuranceHandlers } from '../hooks/useHealthCareInsuranceHandlers'
 import type {
   ComparisonStrategy,
-  WithdrawalReturnMode,
 } from '../utils/config-storage'
 import { createDefaultWithdrawalSegment } from '../utils/segmented-withdrawal'
 import type { SparplanElement } from '../utils/sparplan-utils'
@@ -20,16 +18,18 @@ import { DynamicWithdrawalConfiguration } from './DynamicWithdrawalConfiguration
 import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
 import { HealthCareInsuranceConfiguration } from './HealthCareInsuranceConfiguration'
 import { KapitalerhaltConfiguration } from './KapitalerhaltConfiguration'
-import { MultiAssetPortfolioConfiguration } from './MultiAssetPortfolioConfiguration'
 import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
 import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
 import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
+import { WithdrawalModeSelector } from './WithdrawalModeSelector'
+import { WithdrawalReturnModeConfiguration } from './WithdrawalReturnModeConfiguration'
+import { WithdrawalStrategySelector } from './WithdrawalStrategySelector'
+import { WithdrawalFrequencyConfiguration } from './WithdrawalFrequencyConfiguration'
+import { InflationConfiguration } from './InflationConfiguration'
+import { BucketStrategyConfigurationForm } from './BucketStrategyConfigurationForm'
+import { MonthlyFixedWithdrawalConfiguration } from './MonthlyFixedWithdrawalConfiguration'
+import { VariablePercentWithdrawalConfiguration } from './VariablePercentWithdrawalConfiguration'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
-import { Input } from './ui/input'
-import { Label } from './ui/label'
-import { RadioTile, RadioTileGroup } from './ui/radio-tile'
-import { Slider } from './ui/slider'
-import { Switch } from './ui/switch'
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
 import { WithdrawalSegmentForm } from './WithdrawalSegmentForm'
 
@@ -169,68 +169,37 @@ export function EntnahmeSimulationsAusgabe({
           />
 
           {/* Toggle between single, segmented, and comparison withdrawal */}
-          <div className="mb-4 space-y-2">
-            <Label>Entnahme-Modus</Label>
-            <RadioTileGroup
-              value={
-                useSegmentedComparisonMode
-                  ? 'segmented-comparison'
-                  : useComparisonMode
-                    ? 'comparison'
-                    : useSegmentedWithdrawal
-                      ? 'segmented'
-                      : 'single'
+          <WithdrawalModeSelector
+            useSegmentedWithdrawal={useSegmentedWithdrawal}
+            useComparisonMode={useComparisonMode}
+            useSegmentedComparisonMode={useSegmentedComparisonMode}
+            onModeChange={(mode) => {
+              const useComparison = mode === 'comparison'
+              const useSegmented = mode === 'segmented'
+              const useSegmentedComparison = mode === 'segmented-comparison'
+
+              updateConfig({
+                useComparisonMode: useComparison,
+                useSegmentedWithdrawal: useSegmented,
+                useSegmentedComparisonMode: useSegmentedComparison,
+              })
+
+              // Initialize segments when switching to segmented mode
+              if (useSegmented && withdrawalSegments.length === 0) {
+                // Create initial segment covering only the first 15 years, leaving room for additional segments
+                const withdrawalStartYear = startOfIndependence + 1
+                // 15 years or until end of life
+                const initialSegmentEndYear = Math.min(withdrawalStartYear + 14, globalEndOfLife)
+                const defaultSegment = createDefaultWithdrawalSegment(
+                  'main',
+                  'Frühphase',
+                  withdrawalStartYear,
+                  initialSegmentEndYear,
+                )
+                updateConfig({ withdrawalSegments: [defaultSegment] })
               }
-              onValueChange={(value: string) => {
-                const useComparison = value === 'comparison'
-                const useSegmented = value === 'segmented'
-                const useSegmentedComparison = value === 'segmented-comparison'
-
-                updateConfig({
-                  useComparisonMode: useComparison,
-                  useSegmentedWithdrawal: useSegmented,
-                  useSegmentedComparisonMode: useSegmentedComparison,
-                })
-
-                // Initialize segments when switching to segmented mode
-                if (useSegmented && withdrawalSegments.length === 0) {
-                  // Create initial segment covering only the first 15 years, leaving room for additional segments
-                  const withdrawalStartYear = startOfIndependence + 1
-                  // 15 years or until end of life
-                  const initialSegmentEndYear = Math.min(withdrawalStartYear + 14, globalEndOfLife)
-                  const defaultSegment = createDefaultWithdrawalSegment(
-                    'main',
-                    'Frühphase',
-                    withdrawalStartYear,
-                    initialSegmentEndYear,
-                  )
-                  updateConfig({ withdrawalSegments: [defaultSegment] })
-                }
-              }}
-            >
-              <RadioTile value="single" label="Einheitliche Strategie">
-                Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase
-              </RadioTile>
-              <RadioTile value="segmented" label="Geteilte Phasen">
-                Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf
-              </RadioTile>
-              <RadioTile value="comparison" label="Strategien-Vergleich">
-                Vergleiche verschiedene Entnahmestrategien miteinander
-              </RadioTile>
-              <RadioTile value="segmented-comparison" label="Geteilte Phasen Vergleich">
-                Vergleiche verschiedene geteilte Entnahme-Phasen miteinander
-              </RadioTile>
-            </RadioTileGroup>
-            <div className="text-sm text-muted-foreground mt-1">
-              {useSegmentedComparisonMode
-                ? 'Vergleiche verschiedene geteilte Entnahme-Phasen miteinander.'
-                : useComparisonMode
-                  ? 'Vergleiche verschiedene Entnahmestrategien miteinander.'
-                  : useSegmentedWithdrawal
-                    ? 'Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf.'
-                    : 'Verwende eine einheitliche Strategie für die gesamte Entnahme-Phase.'}
-            </div>
-          </div>
+            }}
+          />
 
           {useSegmentedWithdrawal ? (
           /* Segmented withdrawal configuration */
@@ -285,418 +254,98 @@ export function EntnahmeSimulationsAusgabe({
           /* Single strategy configuration (existing UI) */
             <div>
               {/* Withdrawal Return Configuration */}
-              <div className="mb-4 space-y-2">
-                <Label>Rendite-Konfiguration (Entnahme-Phase)</Label>
-                <RadioTileGroup
-                  value={withdrawalReturnMode}
-                  onValueChange={(value: string) => {
-                    updateConfig({
-                      withdrawalReturnMode: value as WithdrawalReturnMode,
-                    })
-                  }}
-                >
-                  <RadioTile value="fixed" label="Feste Rendite">
-                    Konstante jährliche Rendite für die gesamte Entnahme-Phase
-                  </RadioTile>
-                  <RadioTile value="random" label="Zufällige Rendite">
-                    Monte Carlo Simulation mit Durchschnitt und Volatilität
-                  </RadioTile>
-                  <RadioTile value="variable" label="Variable Rendite">
-                    Jahr-für-Jahr konfigurierbare Renditen
-                  </RadioTile>
-                  <RadioTile value="multiasset" label="Multi-Asset Portfolio">
-                    Diversifiziertes Portfolio mit automatischem Rebalancing
-                  </RadioTile>
-                </RadioTileGroup>
-                <div className="text-sm text-muted-foreground mt-1">
-                  Konfiguration der erwarteten Rendite während der Entnahme-Phase
-                  (unabhängig von der Sparphase-Rendite).
-                </div>
-              </div>
+              <WithdrawalReturnModeConfiguration
+                withdrawalReturnMode={withdrawalReturnMode}
+                withdrawalAverageReturn={withdrawalAverageReturn}
+                withdrawalStandardDeviation={withdrawalStandardDeviation}
+                withdrawalRandomSeed={withdrawalRandomSeed}
+                withdrawalVariableReturns={withdrawalVariableReturns}
+                formValueRendite={formValue.rendite}
+                startOfIndependence={startOfIndependence}
+                globalEndOfLife={globalEndOfLife}
+                withdrawalMultiAssetConfig={withdrawalMultiAssetConfig}
+                onWithdrawalReturnModeChange={(mode) => {
+                  updateConfig({ withdrawalReturnMode: mode })
+                }}
+                onWithdrawalAverageReturnChange={(value) => {
+                  updateConfig({ withdrawalAverageReturn: value })
+                }}
+                onWithdrawalStandardDeviationChange={(value) => {
+                  updateConfig({ withdrawalStandardDeviation: value })
+                }}
+                onWithdrawalRandomSeedChange={(value) => {
+                  updateConfig({ withdrawalRandomSeed: value })
+                }}
+                onWithdrawalVariableReturnsChange={(returns) => {
+                  updateConfig({ withdrawalVariableReturns: returns })
+                }}
+                onFormValueRenditeChange={(rendite) => {
+                  updateFormValue({ ...formValue, rendite })
+                }}
+                onWithdrawalMultiAssetConfigChange={setWithdrawalMultiAssetConfig}
+              />
 
-              {withdrawalReturnMode === 'fixed' && (
-                <div className="mb-4 space-y-2">
-                  <Label>
-                    Erwartete Rendite Entnahme-Phase (%)
-                  </Label>
-                  <div className="space-y-2">
-                    <Slider
-                      value={[formValue.rendite]}
-                      onValueChange={(values: number[]) => updateFormValue({ ...formValue, rendite: values[0] })}
-                      min={0}
-                      max={10}
-                      step={0.5}
-                      className="mt-2"
-                    />
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>0%</span>
-                      <span className="font-medium text-gray-900">
-                        {formValue.rendite}
-                        %
-                      </span>
-                      <span>10%</span>
-                    </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    Feste Rendite für die gesamte Entnahme-Phase (oft
-                    konservativer als die Sparphase-Rendite).
-                  </div>
-                </div>
-              )}
-
-              {withdrawalReturnMode === 'random' && (
-                <>
-                  <div className="mb-4 space-y-2">
-                    <Label>Durchschnittliche Rendite (%)</Label>
-                    <div className="space-y-2">
-                      <Slider
-                        value={[withdrawalAverageReturn]}
-                        min={0}
-                        max={12}
-                        step={0.5}
-                        onValueChange={value =>
-                          updateConfig({ withdrawalAverageReturn: value[0] })}
-                        className="mt-2"
-                      />
-                      <div className="flex justify-between text-sm text-gray-500">
-                        <span>0%</span>
-                        <span className="font-medium text-gray-900">
-                          {withdrawalAverageReturn}
-                          %
-                        </span>
-                        <span>12%</span>
-                      </div>
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Erwartete durchschnittliche Rendite für die Entnahme-Phase
-                      (meist konservativer als Ansparphase)
-                    </div>
-                  </div>
-
-                  <div className="mb-4 space-y-2">
-                    <Label>Standardabweichung (%)</Label>
-                    <div className="space-y-2">
-                      <Slider
-                        value={[withdrawalStandardDeviation]}
-                        min={5}
-                        max={25}
-                        step={1}
-                        onValueChange={value =>
-                          updateConfig({ withdrawalStandardDeviation: value[0] })}
-                        className="mt-2"
-                      />
-                      <div className="flex justify-between text-sm text-gray-500">
-                        <span>5%</span>
-                        <span className="font-medium text-gray-900">
-                          {withdrawalStandardDeviation}
-                          %
-                        </span>
-                        <span>25%</span>
-                      </div>
-                    </div>
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Volatilität der Renditen (meist niedriger als Ansparphase
-                      wegen konservativerer Allokation)
-                    </div>
-                  </div>
-
-                  <div className="mb-4 space-y-2">
-                    <Label>Zufalls-Seed (optional)</Label>
-                    <Input
-                      type="number"
-                      value={withdrawalRandomSeed || ''}
-                      onChange={(e) => {
-                        const value = e.target.value ? Number(e.target.value) : undefined
-                        updateConfig({
-                          withdrawalRandomSeed: value,
-                        })
-                      }}
-                      placeholder="Für reproduzierbare Ergebnisse"
-                    />
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Optionaler Seed für reproduzierbare Zufallsrenditen. Leer
-                      lassen für echte Zufälligkeit.
-                    </div>
-                  </div>
-                </>
-              )}
-
-              {withdrawalReturnMode === 'variable' && (
-                <div className="mb-4 space-y-2">
-                  <Label>Variable Renditen pro Jahr (Entnahme-Phase)</Label>
-                  <div
-                    style={{
-                      maxHeight: '300px',
-                      overflowY: 'auto',
-                      border: '1px solid #e5e5ea',
-                      borderRadius: '6px',
-                      padding: '10px',
-                    }}
-                  >
-                    {Array.from(
-                      { length: globalEndOfLife - startOfIndependence },
-                      (_, i) => {
-                        const year = startOfIndependence + 1 + i
-                        return (
-                          <div
-                            key={year}
-                            style={{
-                              display: 'flex',
-                              alignItems: 'center',
-                              marginBottom: '10px',
-                              gap: '10px',
-                            }}
-                          >
-                            <div style={{ minWidth: '60px', fontWeight: 'bold' }}>
-                              {year}
-                              :
-                            </div>
-                            <div style={{ flex: 1 }}>
-                              <Slider
-                                value={[withdrawalVariableReturns[year] || 5]}
-                                onValueChange={(values: number[]) => {
-                                  const newReturns = {
-                                    ...withdrawalVariableReturns,
-                                    [year]: values[0],
-                                  }
-                                  updateConfig({
-                                    withdrawalVariableReturns: newReturns,
-                                  })
-                                }}
-                                min={-10}
-                                max={15}
-                                step={0.5}
-                                className="mt-2"
-                              />
-                            </div>
-                            <div style={{ minWidth: '50px', textAlign: 'right' }}>
-                              {(withdrawalVariableReturns[year] || 5).toFixed(1)}
-                              %
-                            </div>
-                          </div>
-                        )
-                      },
-                    )}
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    Tipp: Verwende niedrigere Werte für konservative
-                    Portfolio-Allokation in der Rente und negative Werte für
-                    Krisen-Jahre.
-                  </div>
-                </div>
-              )}
-
-              {withdrawalReturnMode === 'multiasset' && (
-                <MultiAssetPortfolioConfiguration
-                  values={withdrawalMultiAssetConfig}
-                  onChange={setWithdrawalMultiAssetConfig}
-                  nestingLevel={0}
-                />
-              )}
-
-              <div className="mb-4 space-y-2">
-                <Label>Strategie</Label>
-                <RadioTileGroup
-                  value={formValue.strategie}
-                  onValueChange={(value) => {
-                    dispatchEnd([startOfIndependence, globalEndOfLife])
-                    updateFormValue({
-                      strategie: value as WithdrawalStrategy,
-                    })
-                  }}
-                >
-                  <RadioTile value="4prozent" label="4% Regel">
-                    4% Entnahme
-                  </RadioTile>
-                  <RadioTile value="3prozent" label="3% Regel">
-                    3% Entnahme
-                  </RadioTile>
-                  <RadioTile value="variabel_prozent" label="Variable Prozent">
-                    Anpassbare Entnahme
-                  </RadioTile>
-                  <RadioTile value="monatlich_fest" label="Monatlich fest">
-                    Fester monatlicher Betrag
-                  </RadioTile>
-                  <RadioTile value="dynamisch" label="Dynamische Strategie">
-                    Renditebasierte Anpassung
-                  </RadioTile>
-                  <RadioTile value="bucket_strategie" label="Drei-Eimer-Strategie">
-                    Cash-Polster bei negativen Renditen
-                  </RadioTile>
-                  <RadioTile value="rmd" label="RMD (Lebenserwartung)">
-                    Entnahme basierend auf Alter und Lebenserwartung
-                  </RadioTile>
-                  <RadioTile value="steueroptimiert" label="Steueroptimierte Entnahme">
-                    Automatische Optimierung zur Steuerminimierung
-                  </RadioTile>
-                </RadioTileGroup>
-              </div>
+              <WithdrawalStrategySelector
+                strategie={formValue.strategie}
+                onStrategyChange={(strategy) => {
+                  dispatchEnd([startOfIndependence, globalEndOfLife])
+                  updateFormValue({
+                    strategie: strategy,
+                  })
+                }}
+              />
 
               {/* Withdrawal frequency configuration */}
-              <div className="mb-4 space-y-2">
-                <Label>Entnahme-Häufigkeit</Label>
-                <div className="flex items-center space-x-3 mt-2">
-                  <span className="text-sm">Jährlich</span>
-                  <Switch
-                    checked={formValue.withdrawalFrequency === 'monthly'}
-                    onCheckedChange={(checked) => {
-                      updateFormValue({
-                        withdrawalFrequency: checked ? 'monthly' : 'yearly',
-                      })
-                    }}
-                  />
-                  <span className="text-sm">Monatlich</span>
-                </div>
-                <div className="text-sm text-muted-foreground mt-1">
-                  {formValue.withdrawalFrequency === 'yearly'
-                    ? 'Entnahme erfolgt einmal jährlich am Anfang des Jahres'
-                    : 'Entnahme erfolgt monatlich - Portfolio hat mehr Zeit zu wachsen'}
-                </div>
-              </div>
+              <WithdrawalFrequencyConfiguration
+                frequency={formValue.withdrawalFrequency}
+                onFrequencyChange={(frequency) => {
+                  updateFormValue({
+                    withdrawalFrequency: frequency,
+                  })
+                }}
+              />
 
               {/* General inflation controls for all strategies */}
-              <div className="mb-4 space-y-2">
-                <Label>Inflation berücksichtigen</Label>
-                <Switch
-                  checked={formValue.inflationAktiv}
-                  onCheckedChange={(checked: boolean) => updateFormValue({ ...formValue, inflationAktiv: checked })}
-                />
-                <div className="text-sm text-muted-foreground mt-1">
-                  Passt die Entnahmebeträge jährlich an die Inflation an (für alle
-                  Entnahme-Strategien)
-                </div>
-              </div>
-
-              {formValue.inflationAktiv && (
-                <div className="mb-4 space-y-2">
-                  <Label>Inflationsrate (%)</Label>
-                  <div className="space-y-2">
-                    <Slider
-                      value={[formValue.inflationsrate]}
-                      onValueChange={(values: number[]) => {
-                        dispatchEnd([startOfIndependence, globalEndOfLife])
-                        updateFormValue({
-                          inflationsrate: values[0],
-                        })
-                      }}
-                      min={0}
-                      max={5}
-                      step={0.1}
-                      className="mt-2"
-                    />
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>0%</span>
-                      <span className="font-medium text-gray-900">
-                        {formValue.inflationsrate}
-                        %
-                      </span>
-                      <span>5%</span>
-                    </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    Jährliche Inflationsrate zur Anpassung der Entnahmebeträge
-                  </div>
-                </div>
-              )}
+              <InflationConfiguration
+                inflationAktiv={formValue.inflationAktiv}
+                inflationsrate={formValue.inflationsrate}
+                onInflationActiveChange={(active) => {
+                  updateFormValue({ ...formValue, inflationAktiv: active })
+                }}
+                onInflationRateChange={(rate) => {
+                  dispatchEnd([startOfIndependence, globalEndOfLife])
+                  updateFormValue({
+                    inflationsrate: rate,
+                  })
+                }}
+              />
 
               {/* Variable percentage strategy specific controls */}
               {formValue.strategie === 'variabel_prozent' && (
-                <div className="mb-4 space-y-2">
-                  <Label>Entnahme-Prozentsatz (%)</Label>
-                  <div className="space-y-2">
-                    <Slider
-                      value={[formValue.variabelProzent]}
-                      onValueChange={(values: number[]) => {
-                        updateFormValue({
-                          variabelProzent: values[0],
-                        })
-                      }}
-                      min={2}
-                      max={7}
-                      step={0.5}
-                      className="mt-2"
-                    />
-                    <div className="flex justify-between text-sm text-gray-500">
-                      <span>2%</span>
-                      <span className="font-medium text-gray-900">
-                        {formValue.variabelProzent}
-                        %
-                      </span>
-                      <span>7%</span>
-                    </div>
-                  </div>
-                  <div className="text-sm text-muted-foreground mt-1">
-                    Wählen Sie einen Entnahme-Prozentsatz zwischen 2% und 7% in
-                    0,5%-Schritten
-                  </div>
-                </div>
+                <VariablePercentWithdrawalConfiguration
+                  variabelProzent={formValue.variabelProzent}
+                  onVariablePercentChange={(percent) => {
+                    updateFormValue({ variabelProzent: percent })
+                  }}
+                />
               )}
 
               {/* Monthly strategy specific controls */}
               {formValue.strategie === 'monatlich_fest' && (
-                <>
-                  <div className="mb-4 space-y-2">
-                    <Label>Monatlicher Betrag (€)</Label>
-                    <Input
-                      type="number"
-                      value={formValue.monatlicheBetrag}
-                      onChange={(e) => {
-                        const value = e.target.value ? Number(e.target.value) : undefined
-                        if (value) updateFormValue({ ...formValue, monatlicheBetrag: value })
-                      }}
-                      min={100}
-                      max={50000}
-                      step={100}
-                    />
-                  </div>
-                  <div className="mb-4 space-y-2">
-                    <Label>
-                      Dynamische Anpassung (Guardrails)
-                    </Label>
-                    <Switch
-                      checked={formValue.guardrailsAktiv}
-                      onCheckedChange={(checked: boolean) =>
-                        updateFormValue({ ...formValue, guardrailsAktiv: checked })}
-                    />
-                    <div className="text-sm text-muted-foreground mt-1">
-                      Passt die Entnahme basierend auf der Portfolio-Performance
-                      an
-                    </div>
-                  </div>
-                  {formValue.guardrailsAktiv && (
-                    <div className="mb-4 space-y-2">
-                      <Label>
-                        Anpassungsschwelle (%)
-                      </Label>
-                      <div className="space-y-2">
-                        <Slider
-                          value={[formValue.guardrailsSchwelle]}
-                          onValueChange={(values: number[]) => {
-                            updateFormValue({
-                              guardrailsSchwelle: values[0],
-                            })
-                          }}
-                          min={5}
-                          max={20}
-                          step={1}
-                          className="mt-2"
-                        />
-                        <div className="flex justify-between text-sm text-gray-500">
-                          <span>5%</span>
-                          <span className="font-medium text-gray-900">
-                            {formValue.guardrailsSchwelle}
-                            %
-                          </span>
-                          <span>20%</span>
-                        </div>
-                      </div>
-                      <div className="text-sm text-muted-foreground mt-1">
-                        Bei Überschreitung dieser Schwelle wird die Entnahme
-                        angepasst
-                      </div>
-                    </div>
-                  )}
-                </>
+                <MonthlyFixedWithdrawalConfiguration
+                  monatlicheBetrag={formValue.monatlicheBetrag}
+                  guardrailsAktiv={formValue.guardrailsAktiv}
+                  guardrailsSchwelle={formValue.guardrailsSchwelle}
+                  onMonthlyAmountChange={(amount) => {
+                    if (amount) updateFormValue({ ...formValue, monatlicheBetrag: amount })
+                  }}
+                  onGuardrailsActiveChange={(checked) => {
+                    updateFormValue({ ...formValue, guardrailsAktiv: checked })
+                  }}
+                  onGuardrailsThresholdChange={(threshold) => {
+                    updateFormValue({ guardrailsSchwelle: threshold })
+                  }}
+                />
               )}
 
               {/* Dynamic strategy specific controls */}
@@ -722,126 +371,15 @@ export function EntnahmeSimulationsAusgabe({
 
               {/* Bucket strategy specific controls */}
               {formValue.strategie === 'bucket_strategie' && (
-                <div className="space-y-4">
-                  <Label className="text-base font-medium">Drei-Eimer-Strategie Konfiguration</Label>
-
-                  <div className="space-y-2">
-                    <Label>Anfängliches Cash-Polster (€)</Label>
-                    <Input
-                      type="number"
-                      value={formValue.bucketConfig?.initialCashCushion ?? 20000}
-                      onChange={(e) => {
-                        const inputValue = e.target.value
-                        const value = inputValue === '' ? 0 : Number(inputValue) || 20000
-                        updateFormValue({
-                          ...formValue,
-                          bucketConfig: {
-                            initialCashCushion: value,
-                            refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
-                            refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
-                            baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04,
-                          },
-                        })
-                      }}
-                    />
-                    <p className="text-sm text-gray-600">
-                      Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Basis-Entnahmerate (%)</Label>
-                    <div className="px-3">
-                      <Slider
-                        value={[formValue.bucketConfig?.baseWithdrawalRate
-                          ? formValue.bucketConfig.baseWithdrawalRate * 100 : 4]}
-                        onValueChange={(value) => {
-                          updateFormValue({
-                            ...formValue,
-                            bucketConfig: {
-                              initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
-                              refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
-                              refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
-                              baseWithdrawalRate: value[0] / 100,
-                            },
-                          })
-                        }}
-                        max={10}
-                        min={1}
-                        step={0.1}
-                        className="w-full"
-                      />
-                      <div className="flex justify-between text-sm text-gray-500 mt-1">
-                        <span>1%</span>
-                        <span className="font-medium text-gray-900">
-                          {formValue.bucketConfig?.baseWithdrawalRate ? (formValue.bucketConfig.baseWithdrawalRate * 100).toFixed(1) : '4.0'}
-                          %
-                        </span>
-                        <span>10%</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Auffüll-Schwellenwert (€)</Label>
-                    <Input
-                      type="number"
-                      value={formValue.bucketConfig?.refillThreshold ?? 5000}
-                      onChange={(e) => {
-                        const inputValue = e.target.value
-                        const value = inputValue === '' ? 0 : Number(inputValue) || 5000
-                        updateFormValue({
-                          ...formValue,
-                          bucketConfig: {
-                            initialCashCushion: formValue.bucketConfig?.initialCashCushion ?? 20000,
-                            refillThreshold: value,
-                            refillPercentage: formValue.bucketConfig?.refillPercentage || 0.5,
-                            baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04,
-                          },
-                        })
-                      }}
-                    />
-                    <p className="text-sm text-gray-600">
-                      Überschreiten die jährlichen Gewinne diesen Betrag, wird Cash-Polster aufgefüllt
-                    </p>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>Auffüll-Anteil (%)</Label>
-                    <div className="px-3">
-                      <Slider
-                        value={[formValue.bucketConfig?.refillPercentage
-                          ? formValue.bucketConfig.refillPercentage * 100 : 50]}
-                        onValueChange={(value) => {
-                          updateFormValue({
-                            ...formValue,
-                            bucketConfig: {
-                              initialCashCushion: formValue.bucketConfig?.initialCashCushion || 20000,
-                              refillThreshold: formValue.bucketConfig?.refillThreshold || 5000,
-                              refillPercentage: value[0] / 100,
-                              baseWithdrawalRate: formValue.bucketConfig?.baseWithdrawalRate || 0.04,
-                            },
-                          })
-                        }}
-                        max={100}
-                        min={10}
-                        step={5}
-                        className="w-full"
-                      />
-                      <div className="flex justify-between text-sm text-gray-500 mt-1">
-                        <span>10%</span>
-                        <span className="font-medium text-gray-900">
-                          {formValue.bucketConfig?.refillPercentage ? (formValue.bucketConfig.refillPercentage * 100).toFixed(0) : '50'}
-                          %
-                        </span>
-                        <span>100%</span>
-                      </div>
-                    </div>
-                    <p className="text-sm text-gray-600">
-                      Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird
-                    </p>
-                  </div>
-                </div>
+                <BucketStrategyConfigurationForm
+                  bucketConfig={formValue.bucketConfig}
+                  onBucketConfigChange={(config) => {
+                    updateFormValue({
+                      ...formValue,
+                      bucketConfig: config,
+                    })
+                  }}
+                />
               )}
             </div>
           )}
