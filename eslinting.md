@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 155 ESLint-Warnungen  
+**Aktueller Stand:** 150 ESLint-Warnungen  
 **Ziel:** 0 Warnungen (max-warnings = 0)  
 **Status:** In Bearbeitung
 
@@ -75,23 +75,33 @@
   - Original: Komplexität: 93, Zeilen: 865 (Arrow function)
   - Aktuell: Komplexität: <8, Zeilen: 14 (Arrow function jetzt eine einfache Component-Map)
   - Status: ✅ Beide Limits erreicht - Arrow function extrahiert in WithdrawalSegmentCard
-  - Extrahierte Komponenten: 1 Hauptkomponente + 10 Hilfskomponenten
-    - `WithdrawalSegmentCard` - Vollständige Segment-Karte Darstellung (1009 Zeilen)
-    - `VariablePercentWithdrawalConfig` - Variable Prozent Einstellungen
-    - `MonthlyWithdrawalConfig` - Monatliche Entnahme Konfiguration
-    - `WithdrawalFrequencyConfig` - Entnahme-Häufigkeit
-    - `SegmentInflationConfig` - Inflations-Konfiguration
-    - `SegmentFixedReturnConfig` - Feste Rendite
-    - `SegmentRandomReturnConfig` - Zufällige Rendite mit Seed
-    - `SegmentVariableReturnConfig` - Variable Renditen pro Jahr
-    - `SegmentReturnConfiguration` - Rendite-Modus Auswahl
-    - `SegmentStrategySelector` - Strategie-Auswahl mit Defaults
+  - Extrahierte Komponenten: 1 Hauptkomponente + 17 Hilfskomponenten
+    - `WithdrawalSegmentCard` - Vollständige Segment-Karte (108 Zeilen, Komplexität <8) ✅ WEITER REFACTORED
+    - `SegmentCardHeader` - Segment Card Header mit Aktionen (91 Zeilen, Komplexität <8)
+    - `SegmentBasicConfig` - Basis-Konfiguration (Name, Jahre) (69 Zeilen, Komplexität <8)
+    - `SegmentTaxReductionConfig` - Steuer-Reduktion Einstellung (35 Zeilen, Komplexität <8)
+    - `SegmentStrategyConfig` - Strategie-spezifische Konfiguration Router (57 Zeilen, Komplexität <8)
+    - `SegmentDynamicStrategyWrapper` - Wrapper für dynamische Strategie (46 Zeilen, Komplexität <8)
+    - `SegmentBucketStrategyWrapper` - Wrapper für Bucket Strategie (61 Zeilen, Komplexität <8)
+    - `SegmentRMDStrategyWrapper` - Wrapper für RMD Strategie (39 Zeilen, Komplexität <8)
+    - `SegmentSteueroptimierteWrapper` - Wrapper für steueroptimierte Strategie (64 Zeilen, Komplexität <8)
+    - `VariablePercentWithdrawalConfig` - Variable Prozent Einstellungen (38 Zeilen)
+    - `MonthlyWithdrawalConfig` - Monatliche Entnahme Konfiguration (89 Zeilen)
+    - `WithdrawalFrequencyConfig` - Entnahme-Häufigkeit (37 Zeilen)
+    - `SegmentInflationConfig` - Inflations-Konfiguration (62 Zeilen)
+    - `SegmentFixedReturnConfig` - Feste Rendite (39 Zeilen)
+    - `SegmentRandomReturnConfig` - Zufällige Rendite mit Seed (135 Zeilen)
+    - `SegmentVariableReturnConfig` - Variable Renditen pro Jahr (78 Zeilen)
+    - `SegmentReturnConfiguration` - Rendite-Modus Auswahl (139 Zeilen)
+    - `SegmentStrategySelector` - Strategie-Auswahl mit Defaults (66 Zeilen)
   - Extrahierte Hilfsfunktionen: 1
     - `withdrawal-strategy-defaults.ts` - Strategie-Standardwerte (98 Zeilen, Komplexität ~6)
   - WithdrawalSegmentForm reduziert: 1128 → 172 Zeilen (85% Reduktion)
+  - WithdrawalSegmentCard refactored: 1009 → 108 Zeilen (89% Reduktion)
   - Alle 1462 Tests bestehen
-  - Aufwand: 1 Tag
-  - Priorität: HOCH
+  - ESLint Warnungen reduziert: 155 → 150
+  - Aufwand: 1,5 Tage
+  - Priorität: HOCH ✅ KOMPLETT ERLEDIGT
 
 #### 1.2 Hohe Priorität (Komplexität 45-75 ODER Zeilen 500-1000)
 
@@ -392,9 +402,9 @@
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 155 Warnungen (reduziert von 176 → 12% Reduktion)
-- **Fortschritt:** 29% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow vollständig refactored ✅)
-- **Geschätzte Fertigstellung:** 2025-01-24 (bei Vollzeit-Arbeit)
+- **Aktueller Stand:** 150 Warnungen (reduziert von 176 → 15% Reduktion)
+- **Fortschritt:** 32% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow + WithdrawalSegmentCard vollständig refactored ✅)
+- **Geschätzte Fertigstellung:** 2025-01-22 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned
 

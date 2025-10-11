@@ -2,12 +2,7 @@ import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { Slider } from './ui/slider'
 import { Switch } from './ui/switch'
-
-interface MonthlyConfig {
-  monthlyAmount?: number
-  enableGuardrails?: boolean
-  guardrailsThreshold?: number
-}
+import type { MonthlyWithdrawalConfig as MonthlyConfig } from '../../helpers/withdrawal'
 
 interface MonthlyWithdrawalConfigProps {
   monthlyConfig: MonthlyConfig | undefined

@@ -1,10 +1,7 @@
 import { Label } from './ui/label'
 import { Slider } from './ui/slider'
 import { Switch } from './ui/switch'
-
-interface InflationConfig {
-  inflationRate: number
-}
+import type { InflationConfig } from '../../helpers/withdrawal'
 
 interface SegmentInflationConfigProps {
   inflationConfig: InflationConfig | undefined
