@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 156 ESLint-Warnungen  
+**Aktueller Stand:** 155 ESLint-Warnungen  
 **Ziel:** 0 Warnungen (max-warnings = 0)  
 **Status:** In Bearbeitung
 
@@ -71,13 +71,25 @@
   - Aufwand: 0,5 Tage
   - Priorität: HOCH
 
-- [ ] **Arrow function in WithdrawalSegmentForm** (src/components/WithdrawalSegmentForm.tsx)
+- [x] **Arrow function in WithdrawalSegmentForm** (src/components/WithdrawalSegmentForm.tsx) ✅ ERLEDIGT
   - Original: Komplexität: 93, Zeilen: 865 (Arrow function)
-  - Status: ⏳ Ausstehend - Erfordert sorgfältige Typ-Analyse
-  - Hinweis: Die Arrow-Function rendert die Segment-Karten und verwendet viele
-    verschachtelte Konfigurationsobjekte mit komplexen TypeScript-Typen.
-    Eine Extraktion erfordert detaillierte Anpassung an die bestehende Type-Hierarchie.
-  - Schätzung: 10-12 Hilfsfunktionen oder 1 große Komponente nötig
+  - Aktuell: Komplexität: <8, Zeilen: 14 (Arrow function jetzt eine einfache Component-Map)
+  - Status: ✅ Beide Limits erreicht - Arrow function extrahiert in WithdrawalSegmentCard
+  - Extrahierte Komponenten: 1 Hauptkomponente + 10 Hilfskomponenten
+    - `WithdrawalSegmentCard` - Vollständige Segment-Karte Darstellung (1009 Zeilen)
+    - `VariablePercentWithdrawalConfig` - Variable Prozent Einstellungen
+    - `MonthlyWithdrawalConfig` - Monatliche Entnahme Konfiguration
+    - `WithdrawalFrequencyConfig` - Entnahme-Häufigkeit
+    - `SegmentInflationConfig` - Inflations-Konfiguration
+    - `SegmentFixedReturnConfig` - Feste Rendite
+    - `SegmentRandomReturnConfig` - Zufällige Rendite mit Seed
+    - `SegmentVariableReturnConfig` - Variable Renditen pro Jahr
+    - `SegmentReturnConfiguration` - Rendite-Modus Auswahl
+    - `SegmentStrategySelector` - Strategie-Auswahl mit Defaults
+  - Extrahierte Hilfsfunktionen: 1
+    - `withdrawal-strategy-defaults.ts` - Strategie-Standardwerte (98 Zeilen, Komplexität ~6)
+  - WithdrawalSegmentForm reduziert: 1128 → 172 Zeilen (85% Reduktion)
+  - Alle 1462 Tests bestehen
   - Aufwand: 1 Tag
   - Priorität: HOCH
 
@@ -380,8 +392,8 @@
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 156 Warnungen (reduziert von 176 → 14% Reduktion)
-- **Fortschritt:** 27% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations vollständig refactored ✅)
+- **Aktueller Stand:** 155 Warnungen (reduziert von 176 → 12% Reduktion)
+- **Fortschritt:** 29% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow vollständig refactored ✅)
 - **Geschätzte Fertigstellung:** 2025-01-24 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned

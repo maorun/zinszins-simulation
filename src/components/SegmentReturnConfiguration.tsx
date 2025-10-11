@@ -95,8 +95,7 @@ export function SegmentReturnConfiguration({
         <SegmentFixedReturnConfig
           fixedRate={returnConfig.fixedRate}
           onFixedRateChange={rate =>
-            onReturnConfigChange({ mode: 'fixed', fixedRate: rate })
-          }
+            onReturnConfigChange({ mode: 'fixed', fixedRate: rate })}
         />
       )}
 
@@ -105,8 +104,7 @@ export function SegmentReturnConfiguration({
           segmentId={segmentId}
           randomConfig={returnConfig.randomConfig}
           onRandomConfigChange={config =>
-            onReturnConfigChange({ mode: 'random', randomConfig: config })
-          }
+            onReturnConfigChange({ mode: 'random', randomConfig: config })}
         />
       )}
 
@@ -116,8 +114,7 @@ export function SegmentReturnConfiguration({
           endYear={endYear}
           variableConfig={returnConfig.variableConfig}
           onVariableConfigChange={config =>
-            onReturnConfigChange({ mode: 'variable', variableConfig: config })
-          }
+            onReturnConfigChange({ mode: 'variable', variableConfig: config })}
         />
       )}
 
@@ -129,8 +126,7 @@ export function SegmentReturnConfiguration({
               onReturnConfigChange({
                 mode: 'multiasset',
                 multiAssetConfig: newConfig,
-              })
-            }
+              })}
             nestingLevel={1}
           />
         </div>
