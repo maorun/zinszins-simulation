@@ -2,8 +2,8 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 150 ESLint-Warnungen  
-**Ziel:** 0 Warnungen (max-warnings = 0)  
+**Aktueller Stand:** 147 ESLint-Warnungen
+**Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
 ## Kategorisierung der Warnungen
@@ -12,10 +12,10 @@
 
 | Typ | Anzahl | Beschreibung |
 |-----|--------|--------------|
-| `@typescript-eslint/no-explicit-any` | 127 | Verwendung von `any` Type |
-| `complexity` | 22 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
-| `max-lines-per-function` | 17 | Funktionen mit zu vielen Zeilen (>400) |
-| `max-depth` | 1 | Zu tiefe Verschachtelung (>5 Ebenen) |
+| `@typescript-eslint/no-explicit-any` | 124 | Verwendung von `any` Type |
+| `complexity` | 23 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
+| `max-lines-per-function` | 13 | Funktionen mit zu vielen Zeilen (>400) |
+| `max-depth` | 0 | ✅ Zu tiefe Verschachtelung (>5 Ebenen) - ERLEDIGT |
 
 ### Nach Dateien (Top 10)
 
@@ -254,7 +254,21 @@
 
 - [ ] **exportDataToMarkdown** (src/utils/data-export.ts) - Komplexität: 34
 - [ ] **createTaxableIncomeExplanation** (src/components/WithdrawalSegmentForm.tsx) - Komplexität: 33
-- [ ] **calculateCoupleHealthInsuranceForYear** (helpers/withdrawal.tsx) - Komplexität: 30
+- [x] **calculateCoupleHealthInsuranceForYear** (helpers/health-care-insurance.ts) ✅ ERLEDIGT
+  - Original: Komplexität: 30
+  - Aktuell: Komplexität: <8
+  - Status: ✅ Komplexität unter Limit (Komplexität <8)
+  - Extrahierte Hilfsfunktionen: 6
+    - `createPersonResult` - Person Result Objekt erstellen
+    - `createZeroInsuranceResult` - Null-Versicherung für Familienversicherte
+    - `calculateFamilyScenarios` - Familien-Versicherungs-Szenarien
+    - `getBestFamilyOption` - Beste Familien-Option ermitteln
+    - `applyIndividualStrategy` - Individuelle Strategie anwenden mit Params-Objekt
+    - `applyFamilyStrategy` - Familien-Strategie anwenden mit Params-Objekt
+  - Alle Hilfsfunktionen mit Params-Objekten für >5 Parameter
+  - Keine any types eingeführt - alle mit spezifischen Types
+  - Alle 1462 Tests bestehen
+  - Aufwand: 0,3 Tage
 - [ ] **CareCostConfiguration** (src/components/CareCostConfiguration.tsx) - Komplexität: 27, Zeilen: 456
 - [ ] **formatParametersForExport** (src/utils/parameter-export.ts) - Komplexität: 26
 - [ ] **Arrow functions mit Komplexität 26-34** (verschiedene Dateien) - 7 Funktionen
@@ -299,15 +313,24 @@
 
 ### Phase 3: Weitere Probleme
 
-#### 3.1 `max-depth` Warnung (1)
+#### 3.1 `max-depth` Warnung ✅ ERLEDIGT
 
-**Datei:** `src/utils/sparplan-utils.ts` (Zeile 154)
-
-**Lösung:**
-
-- Verschachtelte Bedingungen in Guard Clauses umwandeln
-- Logik in separate Funktionen extrahieren
-- Early returns verwenden
+- [x] **convertSparplanToElements** (src/utils/sparplan-utils.ts) ✅ ERLEDIGT
+  - Original: max-depth: 6 (Zeile 154)
+  - Aktuell: max-depth: 3
+  - Status: ✅ max-depth warning eliminiert
+  - Extrahierte Hilfsfunktionen: 6
+    - `createSparplanElement` - Sparplan-Element erstellen mit Params-Objekt
+    - `shouldIncludeMonth` - Monat-Inklusion prüfen
+    - `processMonthlyElements` - Monatliche Elemente verarbeiten
+    - `calculateYearlyAmount` - Jährlichen Betrag berechnen
+    - `processYearlyElement` - Jährliches Element verarbeiten
+    - `processRegularSavingsPlan` - Regulären Sparplan verarbeiten
+    - `processOneTimePayment` - Einmalzahlung verarbeiten
+  - Alle Hilfsfunktionen mit complexity < 8 und lines < 50
+  - Parameter-Objekt CreateElementParams verwendet
+  - Alle 1462 Tests bestehen
+  - Aufwand: 0,2 Tage
 
 **Aufwand:** 0,05 Tage
 
@@ -384,7 +407,18 @@
    - 3 neue Hilfsfunktionen extrahiert (max complexity 8, max 50 lines)
    - 8 neue Tests hinzugefügt
    - Alle Tests bestehen
-6. Top 5 `any` Type Dateien angehen
+6. ✅ **ERLEDIGT:** convertSparplanToElements refactoring (src/utils/sparplan-utils.ts)
+   - max-depth von 6 → 3 reduziert (max-depth warning eliminated)
+   - 6 neue Hilfsfunktionen extrahiert (complexity < 8, lines < 50)
+   - Parameter-Objekt CreateElementParams verwendet
+   - Alle 1462 Tests bestehen
+7. ✅ **ERLEDIGT:** calculateCoupleHealthInsuranceForYear refactoring (helpers/health-care-insurance.ts)
+   - Komplexität von 30 → <8 reduziert (73% Verbesserung)
+   - 6 neue Hilfsfunktionen extrahiert mit Parameter-Objekten
+   - Parameter-Objekte: CreatePersonResultParams, ApplyStrategyParams
+   - Keine any types eingeführt
+   - Alle 1462 Tests bestehen
+8. Top 5 `any` Type Dateien angehen
 
 ### Mittelfristig (nächste 2 Wochen)
 
@@ -402,9 +436,9 @@
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 150 Warnungen (reduziert von 176 → 15% Reduktion)
-- **Fortschritt:** 32% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow + WithdrawalSegmentCard vollständig refactored ✅)
-- **Geschätzte Fertigstellung:** 2025-01-22 (bei Vollzeit-Arbeit)
+- **Aktueller Stand:** 147 Warnungen (reduziert von 150 → 2% Reduktion in diesem PR, 16% gesamt von ursprünglich 176)
+- **Fortschritt:** 35% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow + WithdrawalSegmentCard, convertSparplanToElements, calculateCoupleHealthInsuranceForYear vollständig refactored ✅)
+- **Geschätzte Fertigstellung:** 2025-01-25 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned
 
