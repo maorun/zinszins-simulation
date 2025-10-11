@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 158 ESLint-Warnungen  
+**Aktueller Stand:** 156 ESLint-Warnungen  
 **Ziel:** 0 Warnungen (max-warnings = 0)  
 **Status:** In Bearbeitung
 
@@ -12,7 +12,7 @@
 
 | Typ | Anzahl | Beschreibung |
 |-----|--------|--------------|
-| `@typescript-eslint/no-explicit-any` | 137 | Verwendung von `any` Type |
+| `@typescript-eslint/no-explicit-any` | 127 | Verwendung von `any` Type |
 | `complexity` | 22 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
 | `max-lines-per-function` | 17 | Funktionen mit zu vielen Zeilen (>400) |
 | `max-depth` | 1 | Zu tiefe Verschachtelung (>5 Ebenen) |
@@ -22,7 +22,6 @@
 | Datei | Warnungen | Hauptprobleme |
 |-------|-----------|---------------|
 | `src/contexts/SimulationContext.tsx` | 61 | `any` Types |
-| `src/utils/data-export.ts` | 16 | `any` Types, Komplexität |
 | `src/hooks/useWithdrawalModals.ts` | 9 | `any` Types, Komplexität |
 | `helpers/multi-asset-calculations.ts` | 8 | `any` Types |
 | `src/components/WithdrawalSegmentForm.tsx` | 6 | Komplexität, Zeilenzahl |
@@ -31,6 +30,7 @@
 | `src/utils/enhanced-summary.ts` | 4 | `any` Types |
 | `src/utils/config-storage.ts` | 4 | `any` Types |
 | `src/hooks/useWithdrawalCalculations.ts` | 4 | `any` Types, Komplexität, Zeilenzahl |
+| `src/utils/data-export.ts` | 0 | ✅ ERLEDIGT - Alle `any` types behoben |
 
 ## Lösungsstrategie
 
@@ -154,6 +154,24 @@
   - Alle Tests bestehen (1455 Tests)
   - Keine any types eingeführt
   - Aufwand: 0,3 Tage
+
+- [x] **generateCalculationExplanations** (src/utils/data-export.ts) ✅ ERLEDIGT
+  - Original: `any` types (16 insgesamt in Datei)
+  - Aktuell: 0 `any` types in data-export.ts
+  - Status: ✅ Alle `any` types durch spezifische Types ersetzt
+  - Extrahierte Hilfsfunktionen: 3
+    - `addSegmentedWithdrawalDetails` - Segmentierte Entnahme-Details
+    - `addSingleStrategyDetails` - Einzelstrategie-Details mit Params-Objekt
+    - `addWithdrawalStrategySection` - Entnahmestrategie-Koordination
+  - Neue Types erstellt: 2
+    - `SavingsData` - Sparplan-Daten Interface
+    - `AddSingleStrategyDetailsParams` - Parameter für Strategie-Details
+    - `AddWithdrawalStrategyParams` - Parameter für Strategie-Sektion
+  - Alle `any` und `unknown` types durch `WithdrawalSegment` und `SparplanElement` ersetzt
+  - 8 neue Tests hinzugefügt für alle Entnahmestrategien
+  - Alle 1455 Tests bestehen
+  - Warnings reduziert von 158 → 156 (2 weniger)
+  - Aufwand: 0,2 Tage
 
 - [ ] **SparplanEingabe** (src/components/SparplanEingabe.tsx)
   - Komplexität: 30, Zeilen: 759
@@ -339,7 +357,12 @@
    - 24 neue Tests hinzugefügt
    - Alle `any` Types ersetzt durch spezifische Types
    - Alle Tests bestehen
-5. Top 5 `any` Type Dateien angehen
+5. ✅ **ERLEDIGT:** generateCalculationExplanations refactoring (src/utils/data-export.ts)
+   - Alle 16 `any` types in data-export.ts behoben
+   - 3 neue Hilfsfunktionen extrahiert (max complexity 8, max 50 lines)
+   - 8 neue Tests hinzugefügt
+   - Alle Tests bestehen
+6. Top 5 `any` Type Dateien angehen
 
 ### Mittelfristig (nächste 2 Wochen)
 
@@ -357,8 +380,8 @@
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 162 Warnungen (reduziert von 176)
-- **Fortschritt:** 25% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals vollständig refactored ✅)
+- **Aktueller Stand:** 156 Warnungen (reduziert von 176 → 14% Reduktion)
+- **Fortschritt:** 27% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations vollständig refactored ✅)
 - **Geschätzte Fertigstellung:** 2025-01-24 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned
