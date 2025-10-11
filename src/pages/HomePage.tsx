@@ -54,7 +54,7 @@ function EnhancedOverview() {
     endOfLife,
   ])
 
-  if (!enhancedSummary) return null
+  if (!enhancedSummary || !simulationData) return null
 
   const savingsStartYear = Math.min(
     ...simulationData.sparplanElements.map((el: any) =>

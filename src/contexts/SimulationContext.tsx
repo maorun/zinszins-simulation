@@ -1,7 +1,7 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react'
-import { SimulationAnnual, simulate, type SimulationAnnualType } from '../utils/simulate'
+import { simulate, type SimulationAnnualType } from '../utils/simulate'
 import type { ReturnMode, ReturnConfiguration } from '../utils/random-returns'
-import { convertSparplanToElements, initialSparplan, type Sparplan, type SparplanElement } from '../utils/sparplan-utils'
+import { convertSparplanToElements, type Sparplan, type SparplanElement } from '../utils/sparplan-utils'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import { SimulationContext } from './SimulationContextValue'
 import { saveConfiguration, loadConfiguration, type SavedConfiguration, type WithdrawalConfiguration } from '../utils/config-storage'
@@ -15,9 +15,27 @@ import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import { convertLegacyToCoupleConfig, type StatutoryPensionConfig, type CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import { updateFreibetragForPlanningMode } from '../utils/freibetrag-calculation'
 import { createDefaultCareCostConfiguration, type CareCostConfiguration } from '../../helpers/care-cost-simulation'
-import { mergeBlackSwanReturns } from '../../helpers/black-swan-events'
-import { mergeInflationWithBaseRate } from '../../helpers/inflation-scenarios'
 import type { FinancialGoal } from '../../helpers/financial-goals'
+import type { ExtendedSavedConfiguration, DefaultConfiguration, SimulationData } from './helpers/config-types'
+import {
+  loadBasicConfig,
+  loadTaxConfig,
+  loadReturnConfig,
+  loadInflationConfig,
+  loadSparplanConfig,
+  loadLifeExpectancyConfig,
+  loadPlanningModeConfig,
+  loadWithdrawalConfig,
+} from './helpers/config-loading'
+import {
+  buildReturnConfig,
+  applyBlackSwanReturns,
+  applyInflationScenarioModifiers,
+  prepareVariableInflationRates,
+} from './helpers/simulation-helpers'
+import { createFallbackMultiAssetConfig, createFallbackWithdrawalConfig } from './helpers/multi-asset-defaults'
+import { createDefaultConfiguration } from './helpers/default-config'
+import { resetConfiguration } from './helpers/config-reset'
 
 export interface SimulationContextState {
   rendite: number
@@ -118,7 +136,7 @@ export interface SimulationContextState {
   setExpectedLifespan: (lifespan?: number) => void
   useAutomaticCalculation: boolean
   setUseAutomaticCalculation: (useAutomatic: boolean) => void
-  simulationData: any
+  simulationData: SimulationData | null
   isLoading: boolean
   withdrawalResults: WithdrawalResult | null
   setWithdrawalResults: (withdrawalResults: WithdrawalResult | null) => void
@@ -147,58 +165,7 @@ export interface SimulationContextState {
 
 export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {
   // Default configuration
-  const defaultConfig = useMemo(() => ({
-    rendite: 5,
-    steuerlast: 26.375,
-    teilfreistellungsquote: 30,
-    freibetragPerYear: { 2023: 2000 },
-    // Default Basiszins configuration with historical rates
-    basiszinsConfiguration: {
-      2018: { year: 2018, rate: 0.0087, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2019: { year: 2019, rate: 0.0087, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2020: { year: 2020, rate: 0.0070, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2021: { year: 2021, rate: 0.0070, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2022: { year: 2022, rate: 0.0180, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2023: { year: 2023, rate: 0.0255, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2024: { year: 2024, rate: 0.0255, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-    } as BasiszinsConfiguration,
-    // Default: taxes reduce capital for savings and withdrawal phases
-    steuerReduzierenEndkapitalSparphase: true,
-    steuerReduzierenEndkapitalEntspharphase: true,
-    // Grundfreibetrag settings (German basic tax allowance for retirees)
-    grundfreibetragAktiv: true,
-    // Updated to 2024 German basic tax allowance, default when activated will be double (23208)
-    grundfreibetragBetrag: 23208,
-    // Personal income tax rate for Günstigerprüfung (default: 25% - typical middle income tax rate)
-    personalTaxRate: 25,
-    // Günstigerprüfung settings (automatic tax optimization: Abgeltungssteuer vs personal income tax)
-    guenstigerPruefungAktiv: true,
-    returnMode: 'random' as ReturnMode,
-    averageReturn: 7,
-    standardDeviation: 15,
-    randomSeed: undefined,
-    variableReturns: {},
-    historicalIndex: 'dax',
-    // Inflation settings for savings phase (default: enabled with 2%)
-    inflationAktivSparphase: true,
-    inflationsrateSparphase: 2,
-    inflationAnwendungSparphase: 'gesamtmenge' as 'sparplan' | 'gesamtmenge',
-    startEnd: [2040, 2080] as [number, number],
-    sparplan: [initialSparplan],
-    simulationAnnual: SimulationAnnual.monthly,
-    // Global End of Life and Life Expectancy settings
-    endOfLife: 2080,
-    lifeExpectancyTable: 'german_2020_22' as 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
-    customLifeExpectancy: undefined,
-    // Gender and couple planning configuration
-    planningMode: 'couple' as 'individual' | 'couple',
-    gender: 'male' as 'male' | 'female',
-    spouse: { birthYear: 1986, gender: 'female' as 'male' | 'female' },
-    // Birth year helper for end of life calculation
-    birthYear: 1984,
-    expectedLifespan: 85,
-    useAutomaticCalculation: true,
-  }), [])
+  const defaultConfig = useMemo(() => createDefaultConfiguration(), [])
 
   // Try to load saved configuration, initialize profiles if needed
   const loadInitialConfig = () => {
@@ -219,6 +186,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   }
 
   const initialConfig = loadInitialConfig()
+  const extendedInitialConfig = initialConfig as ExtendedSavedConfiguration
 
   const [rendite, setRendite] = useState(initialConfig.rendite)
   const [steuerlast, setSteuerlast] = useState(initialConfig.steuerlast)
@@ -227,31 +195,31 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     initialConfig.freibetragPerYear,
   )
   const [basiszinsConfiguration, setBasiszinsConfiguration] = useState<BasiszinsConfiguration>(
-    (initialConfig as any).basiszinsConfiguration || defaultConfig.basiszinsConfiguration,
+    extendedInitialConfig.basiszinsConfiguration || defaultConfig.basiszinsConfiguration,
   )
   const [steuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalSparphase] = useState(
-    (initialConfig as any).steuerReduzierenEndkapitalSparphase ?? true,
+    extendedInitialConfig.steuerReduzierenEndkapitalSparphase ?? true,
   )
   const [steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase] = useState(
-    (initialConfig as any).steuerReduzierenEndkapitalEntspharphase ?? true,
+    extendedInitialConfig.steuerReduzierenEndkapitalEntspharphase ?? true,
   )
   const [grundfreibetragAktiv, setGrundfreibetragAktiv] = useState(
-    (initialConfig as any).grundfreibetragAktiv ?? true,
+    extendedInitialConfig.grundfreibetragAktiv ?? true,
   )
   const [grundfreibetragBetrag, setGrundfreibetragBetrag] = useState(
-    (initialConfig as any).grundfreibetragBetrag ?? 23208,
+    extendedInitialConfig.grundfreibetragBetrag ?? 23208,
   )
   const [personalTaxRate, setPersonalTaxRate] = useState(
-    (initialConfig as any).personalTaxRate ?? defaultConfig.personalTaxRate,
+    extendedInitialConfig.personalTaxRate ?? defaultConfig.personalTaxRate,
   )
   const [guenstigerPruefungAktiv, setGuenstigerPruefungAktiv] = useState(
-    (initialConfig as any).guenstigerPruefungAktiv ?? defaultConfig.guenstigerPruefungAktiv,
+    extendedInitialConfig.guenstigerPruefungAktiv ?? defaultConfig.guenstigerPruefungAktiv,
   )
   const [kirchensteuerAktiv, setKirchensteuerAktiv] = useState(
-    (initialConfig as any).kirchensteuerAktiv ?? false,
+    extendedInitialConfig.kirchensteuerAktiv ?? false,
   )
   const [kirchensteuersatz, setKirchensteuersatz] = useState(
-    (initialConfig as any).kirchensteuersatz ?? 9,
+    extendedInitialConfig.kirchensteuersatz ?? 9,
   )
   const [returnMode, setReturnMode] = useState<ReturnMode>(initialConfig.returnMode)
   const [averageReturn, setAverageReturn] = useState(initialConfig.averageReturn)
@@ -259,7 +227,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [randomSeed, setRandomSeed] = useState<number | undefined>(initialConfig.randomSeed)
   const [variableReturns, setVariableReturns] = useState<Record<number, number>>(initialConfig.variableReturns)
   const [historicalIndex, setHistoricalIndex] = useState<string>(
-    (initialConfig as any).historicalIndex || defaultConfig.historicalIndex,
+    extendedInitialConfig.historicalIndex || defaultConfig.historicalIndex,
   )
   // Black Swan event state
   const [blackSwanReturns, setBlackSwanReturns] = useState<Record<number, number> | null>(null)
@@ -272,99 +240,17 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   const [inflationScenarioName, setInflationScenarioName] = useState<string>('')
   // Multi-asset portfolio state
   const [multiAssetConfig, setMultiAssetConfig] = useState(() => {
-    // Create a proper fallback configuration with all asset classes
-    const fallbackConfig = {
-      enabled: false,
-      assetClasses: {
-        stocks_domestic: {
-          name: 'Deutsche/Europäische Aktien',
-          expectedReturn: 0.08,
-          volatility: 0.20,
-          targetAllocation: 0.40,
-          enabled: true,
-          description: 'DAX, EuroStoxx 50',
-          taxCategory: 'equity' as const,
-        },
-        stocks_international: {
-          name: 'Internationale Aktien',
-          expectedReturn: 0.075,
-          volatility: 0.18,
-          targetAllocation: 0.20,
-          enabled: true,
-          description: 'MSCI World ex-Europe',
-          taxCategory: 'equity' as const,
-        },
-        bonds_government: {
-          name: 'Staatsanleihen',
-          expectedReturn: 0.03,
-          volatility: 0.05,
-          targetAllocation: 0.20,
-          enabled: true,
-          description: 'Deutsche Bundesanleihen',
-          taxCategory: 'bond' as const,
-        },
-        bonds_corporate: {
-          name: 'Unternehmensanleihen',
-          expectedReturn: 0.04,
-          volatility: 0.08,
-          targetAllocation: 0.10,
-          enabled: true,
-          description: 'Europäische Unternehmensanleihen',
-          taxCategory: 'bond' as const,
-        },
-        real_estate: {
-          name: 'Immobilien (REITs)',
-          expectedReturn: 0.06,
-          volatility: 0.15,
-          targetAllocation: 0.10,
-          enabled: false,
-          description: 'Real Estate Investment Trusts',
-          taxCategory: 'reit' as const,
-        },
-        commodities: {
-          name: 'Rohstoffe',
-          expectedReturn: 0.04,
-          volatility: 0.25,
-          targetAllocation: 0.00,
-          enabled: false,
-          description: 'Gold, Öl, Rohstoffe',
-          taxCategory: 'commodity' as const,
-        },
-        cash: {
-          name: 'Liquidität',
-          expectedReturn: 0.01,
-          volatility: 0.00,
-          targetAllocation: 0.00,
-          enabled: false,
-          description: 'Tagesgeld, Geldmarktfonds',
-          taxCategory: 'cash' as const,
-        },
-      },
-      rebalancing: {
-        frequency: 'annually' as const,
-        threshold: 0.05,
-        useThreshold: false,
-      },
-      simulation: {
-        useCorrelation: true,
-        seed: undefined,
-      },
-    }
-
-    // Try to load the helper function, but fall back to our configuration
     try {
       const { createDefaultMultiAssetConfig } = require('../../helpers/multi-asset-portfolio')
-      return (initialConfig as any).multiAssetConfig || createDefaultMultiAssetConfig()
+      return extendedInitialConfig.multiAssetConfig || createDefaultMultiAssetConfig()
     }
     catch {
-      // Use our fallback configuration if the module fails to load
-      return (initialConfig as any).multiAssetConfig || fallbackConfig
+      return extendedInitialConfig.multiAssetConfig || createFallbackMultiAssetConfig()
     }
   })
 
   // Multi-asset portfolio state for withdrawal phase (more conservative defaults)
   const [withdrawalMultiAssetConfig, setWithdrawalMultiAssetConfig] = useState(() => {
-    // Try to load from saved configuration or create default
     try {
       const { createDefaultMultiAssetConfig } = require('../../helpers/multi-asset-portfolio')
       const defaultConfig = createDefaultMultiAssetConfig()
@@ -375,9 +261,9 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
           ...defaultConfig.assetClasses,
           stocks_domestic: {
             ...defaultConfig.assetClasses.stocks_domestic,
-            targetAllocation: 0.3, // More conservative allocation
-            expectedReturn: 0.06, // Lower expected return
-            volatility: 0.18, // Lower volatility
+            targetAllocation: 0.3,
+            expectedReturn: 0.06,
+            volatility: 0.18,
           },
           stocks_international: {
             ...defaultConfig.assetClasses.stocks_international,
@@ -387,7 +273,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
           },
           bonds_government: {
             ...defaultConfig.assetClasses.bonds_government,
-            targetAllocation: 0.35, // Higher bond allocation
+            targetAllocation: 0.35,
             expectedReturn: 0.025,
             volatility: 0.04,
           },
@@ -399,37 +285,22 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
           },
         },
       }
-
-      return (initialConfig as any).withdrawalMultiAssetConfig || conservativeConfig
+      return extendedInitialConfig.withdrawalMultiAssetConfig || conservativeConfig
     }
     catch {
-      // Create fallback configuration if module fails to load
-      return (initialConfig as any).withdrawalMultiAssetConfig || {
-        enabled: false,
-        assetClasses: {
-          stocks_domestic: { enabled: true, targetAllocation: 0.3, expectedReturn: 0.06, volatility: 0.18, taxCategory: 'equity' as const },
-          stocks_international: { enabled: true, targetAllocation: 0.15, expectedReturn: 0.055, volatility: 0.16, taxCategory: 'equity' as const },
-          bonds_government: { enabled: true, targetAllocation: 0.35, expectedReturn: 0.025, volatility: 0.04, taxCategory: 'bond' as const },
-          bonds_corporate: { enabled: true, targetAllocation: 0.15, expectedReturn: 0.035, volatility: 0.06, taxCategory: 'bond' as const },
-          real_estate: { enabled: false, targetAllocation: 0.0, expectedReturn: 0.05, volatility: 0.12, taxCategory: 'reit' as const },
-          commodities: { enabled: false, targetAllocation: 0.0, expectedReturn: 0.04, volatility: 0.18, taxCategory: 'commodity' as const },
-          cash: { enabled: false, targetAllocation: 0.0, expectedReturn: 0.01, volatility: 0.00, taxCategory: 'cash' as const },
-        },
-        rebalancing: { frequency: 'annually' as const, threshold: 0.05, useThreshold: false },
-        simulation: { useCorrelation: true, seed: undefined },
-      }
+      return extendedInitialConfig.withdrawalMultiAssetConfig || createFallbackWithdrawalConfig()
     }
   })
 
   // Inflation state for savings phase
   const [inflationAktivSparphase, setInflationAktivSparphase] = useState(
-    (initialConfig as any).inflationAktivSparphase ?? defaultConfig.inflationAktivSparphase,
+    extendedInitialConfig.inflationAktivSparphase ?? defaultConfig.inflationAktivSparphase,
   )
   const [inflationsrateSparphase, setInflationsrateSparphase] = useState(
-    (initialConfig as any).inflationsrateSparphase ?? defaultConfig.inflationsrateSparphase,
+    extendedInitialConfig.inflationsrateSparphase ?? defaultConfig.inflationsrateSparphase,
   )
   const [inflationAnwendungSparphase, setInflationAnwendungSparphase] = useState<'sparplan' | 'gesamtmenge'>(
-    (initialConfig as any).inflationAnwendungSparphase ?? defaultConfig.inflationAnwendungSparphase,
+    extendedInitialConfig.inflationAnwendungSparphase ?? defaultConfig.inflationAnwendungSparphase,
   )
   const [startEnd, setStartEnd] = useState<[number, number]>(initialConfig.startEnd)
   const [sparplan, setSparplan] = useState<Sparplan[]>(initialConfig.sparplan)
@@ -439,35 +310,35 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   )
   // Global End of Life and Life Expectancy state
   const [endOfLife, setEndOfLife] = useState(
-    (initialConfig as any).endOfLife ?? initialConfig.startEnd[1],
+    extendedInitialConfig.endOfLife ?? initialConfig.startEnd[1],
   )
   const [lifeExpectancyTable, setLifeExpectancyTable] = useState<'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'>(
-    (initialConfig as any).lifeExpectancyTable ?? defaultConfig.lifeExpectancyTable,
+    extendedInitialConfig.lifeExpectancyTable ?? defaultConfig.lifeExpectancyTable,
   )
   const [customLifeExpectancy, setCustomLifeExpectancy] = useState<number | undefined>(
-    (initialConfig as any).customLifeExpectancy,
+    extendedInitialConfig.customLifeExpectancy,
   )
   // Gender and couple planning state
   const [planningMode, setPlanningMode] = useState<'individual' | 'couple'>(
-    (initialConfig as any).planningMode ?? defaultConfig.planningMode,
+    extendedInitialConfig.planningMode ?? defaultConfig.planningMode,
   )
   const [gender, setGender] = useState<'male' | 'female' | undefined>(
-    (initialConfig as any).gender,
+    extendedInitialConfig.gender,
   )
   const [spouse, setSpouse] = useState<{ birthYear?: number, gender: 'male' | 'female' } | undefined>(
-    (initialConfig as any).spouse,
+    extendedInitialConfig.spouse,
   )
   // Birth year helper for end of life calculation
   const [birthYear, setBirthYear] = useState<number | undefined>(
-    (initialConfig as any).birthYear,
+    extendedInitialConfig.birthYear,
   )
   const [expectedLifespan, setExpectedLifespan] = useState<number | undefined>(
-    (initialConfig as any).expectedLifespan ?? defaultConfig.expectedLifespan,
+    extendedInitialConfig.expectedLifespan ?? defaultConfig.expectedLifespan,
   )
   const [useAutomaticCalculation, setUseAutomaticCalculation] = useState<boolean>(
-    (initialConfig as any).useAutomaticCalculation ?? true,
+    extendedInitialConfig.useAutomaticCalculation ?? true,
   )
-  const [simulationData, setSimulationData] = useState<any>(null)
+  const [simulationData, setSimulationData] = useState<SimulationData | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [withdrawalResults, setWithdrawalResults] = useState<WithdrawalResult | null>(null)
 
@@ -486,7 +357,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     = useState<CoupleStatutoryPensionConfig | null>(() => {
       // Convert legacy config to couple config if it exists
       const legacyConfig = (initialConfig as SavedConfiguration).statutoryPensionConfig
-      const currentPlanningMode = (initialConfig as any).planningMode || 'couple'
+      const currentPlanningMode = extendedInitialConfig.planningMode || 'couple'
 
       return legacyConfig
         ? convertLegacyToCoupleConfig(legacyConfig, currentPlanningMode)
@@ -495,23 +366,23 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
 
   // Care cost configuration state
   const [careCostConfiguration, setCareCostConfiguration] = useState<CareCostConfiguration>(() => {
-    const savedConfig = (initialConfig as any).careCostConfiguration
+    const savedConfig = extendedInitialConfig.careCostConfiguration
     if (savedConfig) {
       // Ensure the planning mode matches the global planning mode
       return {
         ...savedConfig,
-        planningMode: (initialConfig as any).planningMode || 'individual',
+        planningMode: extendedInitialConfig.planningMode || 'individual',
       }
     }
     return {
       ...createDefaultCareCostConfiguration(),
-      planningMode: (initialConfig as any).planningMode || 'individual',
+      planningMode: extendedInitialConfig.planningMode || 'individual',
     }
   })
 
   // Financial goals configuration state
   const [financialGoals, setFinancialGoals] = useState<FinancialGoal[]>(() => {
-    const savedGoals = (initialConfig as any).financialGoals
+    const savedGoals = extendedInitialConfig.financialGoals
     return savedGoals || []
   })
 
@@ -695,139 +566,82 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     }
   }, [getCurrentConfiguration])
 
-  const loadSavedConfiguration = useCallback(() => {
-    let savedConfig: SavedConfiguration | null = null
-
+  const loadConfigFromProfileOrLegacy = (): SavedConfiguration | null => {
     // Try to load from active profile first
     if (hasProfiles()) {
       const activeProfile = getActiveProfile()
       if (activeProfile) {
-        savedConfig = activeProfile.configuration
+        return activeProfile.configuration
       }
     }
+    // Fallback to legacy configuration
+    return loadConfiguration()
+  }
 
-    // Fallback to legacy configuration if no profile config found
-    if (!savedConfig) {
-      savedConfig = loadConfiguration()
-    }
+  const loadSavedConfiguration = useCallback(() => {
+    const savedConfig = loadConfigFromProfileOrLegacy()
+    if (!savedConfig) return
 
-    if (savedConfig) {
-      setRendite(savedConfig.rendite)
-      setSteuerlast(savedConfig.steuerlast)
-      setTeilfreistellungsquote(savedConfig.teilfreistellungsquote)
-      setFreibetragPerYear(savedConfig.freibetragPerYear)
-      setBasiszinsConfiguration((savedConfig as any).basiszinsConfiguration || defaultConfig.basiszinsConfiguration)
-      setSteuerReduzierenEndkapitalSparphase(savedConfig.steuerReduzierenEndkapitalSparphase ?? true)
-      setSteuerReduzierenEndkapitalEntspharphase(savedConfig.steuerReduzierenEndkapitalEntspharphase ?? true)
-      setGrundfreibetragAktiv((savedConfig as any).grundfreibetragAktiv ?? false)
-      setGrundfreibetragBetrag((savedConfig as any).grundfreibetragBetrag ?? 11604)
-      // Load personal income tax settings
-      setPersonalTaxRate((savedConfig as any).personalTaxRate ?? defaultConfig.personalTaxRate)
-      setGuenstigerPruefungAktiv((savedConfig as any).guenstigerPruefungAktiv ?? defaultConfig.guenstigerPruefungAktiv)
-      setReturnMode(savedConfig.returnMode)
-      setAverageReturn(savedConfig.averageReturn)
-      setStandardDeviation(savedConfig.standardDeviation)
-      setRandomSeed(savedConfig.randomSeed)
-      setVariableReturns(savedConfig.variableReturns)
-      setHistoricalIndex((savedConfig as any).historicalIndex || defaultConfig.historicalIndex)
-      // Load inflation settings for savings phase
-      const inflationSettings = {
-        inflationAktivSparphase: (savedConfig as any).inflationAktivSparphase ?? defaultConfig.inflationAktivSparphase,
-        inflationsrateSparphase: (savedConfig as any).inflationsrateSparphase ?? defaultConfig.inflationsrateSparphase,
-        inflationAnwendungSparphase: (savedConfig as any).inflationAnwendungSparphase
-          ?? defaultConfig.inflationAnwendungSparphase,
-      }
-      setInflationAktivSparphase(inflationSettings.inflationAktivSparphase)
-      setInflationsrateSparphase(inflationSettings.inflationsrateSparphase)
-      setInflationAnwendungSparphase(inflationSettings.inflationAnwendungSparphase)
-      setStartEnd(savedConfig.startEnd)
-      setSparplan(savedConfig.sparplan)
-      setSimulationAnnual(savedConfig.simulationAnnual)
-      setSparplanElemente(
-        convertSparplanToElements(savedConfig.sparplan, savedConfig.startEnd, savedConfig.simulationAnnual),
-      )
-      // Load global End of Life and Life Expectancy settings
-      setEndOfLife((savedConfig as any).endOfLife ?? savedConfig.startEnd[1])
-      setLifeExpectancyTable((savedConfig as any).lifeExpectancyTable ?? defaultConfig.lifeExpectancyTable)
-      setCustomLifeExpectancy((savedConfig as any).customLifeExpectancy)
-      // Load gender and couple planning settings
-      setPlanningMode((savedConfig as any).planningMode ?? defaultConfig.planningMode)
-      setGender((savedConfig as any).gender)
-      setSpouse((savedConfig as any).spouse)
-      // Load birth year helper settings
-      setBirthYear((savedConfig as any).birthYear)
-      setExpectedLifespan((savedConfig as any).expectedLifespan ?? defaultConfig.expectedLifespan)
-      setUseAutomaticCalculation((savedConfig as any).useAutomaticCalculation ?? defaultConfig.useAutomaticCalculation)
-      setWithdrawalConfig(savedConfig.withdrawal || null)
-      setStatutoryPensionConfig(savedConfig.statutoryPensionConfig || null)
+    const extendedConfig = savedConfig as ExtendedSavedConfiguration
+    const defConfig = defaultConfig as unknown as DefaultConfiguration
 
-      // Load couple statutory pension config, with fallback to converting legacy config
-      const coupleConfig = (savedConfig as any).coupleStatutoryPensionConfig
-        || (savedConfig.statutoryPensionConfig
-          ? convertLegacyToCoupleConfig(savedConfig.statutoryPensionConfig, (savedConfig as any).planningMode || 'couple')
-          : null)
-      setCoupleStatutoryPensionConfig(coupleConfig)
+    loadBasicConfig(extendedConfig, defConfig, {
+      setRendite, setSteuerlast, setTeilfreistellungsquote,
+      setFreibetragPerYear, setBasiszinsConfiguration,
+    })
 
-      // Load care cost configuration
-      const careConfig = (savedConfig as any).careCostConfiguration
-      if (careConfig) {
-        setCareCostConfiguration({
-          ...careConfig,
-          planningMode: (savedConfig as any).planningMode || 'individual',
-        })
-      }
+    loadTaxConfig(extendedConfig, defConfig, {
+      setSteuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalEntspharphase,
+      setGrundfreibetragAktiv, setGrundfreibetragBetrag,
+      setPersonalTaxRate, setGuenstigerPruefungAktiv,
+    })
 
-      // Load financial goals
-      setFinancialGoals((savedConfig as any).financialGoals || [])
-    }
+    loadReturnConfig(extendedConfig, defConfig, {
+      setReturnMode, setAverageReturn, setStandardDeviation,
+      setRandomSeed, setVariableReturns, setHistoricalIndex,
+    })
+
+    loadInflationConfig(extendedConfig, defConfig, {
+      setInflationAktivSparphase, setInflationsrateSparphase, setInflationAnwendungSparphase,
+    })
+
+    loadSparplanConfig(extendedConfig, {
+      setStartEnd, setSparplan, setSimulationAnnual, setSparplanElemente,
+    })
+
+    loadLifeExpectancyConfig(extendedConfig, defConfig, {
+      setEndOfLife, setLifeExpectancyTable, setCustomLifeExpectancy,
+    })
+
+    loadPlanningModeConfig(extendedConfig, defConfig, {
+      setPlanningMode, setGender, setSpouse,
+      setBirthYear, setExpectedLifespan, setUseAutomaticCalculation,
+    })
+
+    loadWithdrawalConfig(extendedConfig, {
+      setWithdrawalConfig, setStatutoryPensionConfig,
+      setCoupleStatutoryPensionConfig, setCareCostConfiguration, setFinancialGoals,
+    })
   }, [defaultConfig])
 
   const resetToDefaults = useCallback(() => {
-    setRendite(defaultConfig.rendite)
-    setSteuerlast(defaultConfig.steuerlast)
-    setTeilfreistellungsquote(defaultConfig.teilfreistellungsquote)
-    setFreibetragPerYear(defaultConfig.freibetragPerYear)
-    setBasiszinsConfiguration(defaultConfig.basiszinsConfiguration)
-    setSteuerReduzierenEndkapitalSparphase(defaultConfig.steuerReduzierenEndkapitalSparphase)
-    setSteuerReduzierenEndkapitalEntspharphase(defaultConfig.steuerReduzierenEndkapitalEntspharphase)
-    setGrundfreibetragAktiv(defaultConfig.grundfreibetragAktiv)
-    setGrundfreibetragBetrag(defaultConfig.grundfreibetragBetrag)
-    // Reset personal income tax settings
-    setPersonalTaxRate(defaultConfig.personalTaxRate)
-    setGuenstigerPruefungAktiv(defaultConfig.guenstigerPruefungAktiv)
-    setReturnMode(defaultConfig.returnMode)
-    setAverageReturn(defaultConfig.averageReturn)
-    setStandardDeviation(defaultConfig.standardDeviation)
-    setRandomSeed(defaultConfig.randomSeed)
-    setVariableReturns(defaultConfig.variableReturns)
-    setHistoricalIndex(defaultConfig.historicalIndex)
-    // Reset inflation settings for savings phase
-    setInflationAktivSparphase(defaultConfig.inflationAktivSparphase)
-    setInflationsrateSparphase(defaultConfig.inflationsrateSparphase)
-    setInflationAnwendungSparphase(defaultConfig.inflationAnwendungSparphase)
-    setStartEnd(defaultConfig.startEnd)
-    setSparplan(defaultConfig.sparplan)
-    setSimulationAnnual(defaultConfig.simulationAnnual)
-    setSparplanElemente(
-      convertSparplanToElements(defaultConfig.sparplan, defaultConfig.startEnd, defaultConfig.simulationAnnual),
-    )
-    // Reset global End of Life and Life Expectancy settings
-    setEndOfLife(defaultConfig.endOfLife)
-    setLifeExpectancyTable(defaultConfig.lifeExpectancyTable)
-    setCustomLifeExpectancy(defaultConfig.customLifeExpectancy)
-    // Reset gender and couple planning settings
-    setPlanningMode(defaultConfig.planningMode)
-    setGender(defaultConfig.gender)
-    setSpouse(defaultConfig.spouse)
-    // Reset birth year helper settings
-    setBirthYear(defaultConfig.birthYear)
-    setExpectedLifespan(defaultConfig.expectedLifespan)
-    setUseAutomaticCalculation(defaultConfig.useAutomaticCalculation)
-    setWithdrawalConfig(null) // Reset withdrawal config to null
-    setStatutoryPensionConfig(null) // Reset statutory pension config to null
-    setCoupleStatutoryPensionConfig(null) // Reset couple statutory pension config to null
-    setCareCostConfiguration(createDefaultCareCostConfiguration()) // Reset care cost config to defaults
-  }, [defaultConfig, setSparplanElemente])
+    resetConfiguration(defaultConfig, {
+      setRendite, setSteuerlast, setTeilfreistellungsquote, setFreibetragPerYear,
+      setBasiszinsConfiguration, setSteuerReduzierenEndkapitalSparphase,
+      setSteuerReduzierenEndkapitalEntspharphase, setGrundfreibetragAktiv,
+      setGrundfreibetragBetrag, setPersonalTaxRate, setGuenstigerPruefungAktiv,
+      setReturnMode, setAverageReturn, setStandardDeviation, setRandomSeed,
+      setVariableReturns, setHistoricalIndex, setInflationAktivSparphase,
+      setInflationsrateSparphase, setInflationAnwendungSparphase,
+      setStartEnd, setSparplan, setSimulationAnnual, setSparplanElemente,
+      setEndOfLife, setLifeExpectancyTable, setCustomLifeExpectancy,
+      setPlanningMode, setGender, setSpouse, setBirthYear,
+      setExpectedLifespan, setUseAutomaticCalculation,
+    }, {
+      setWithdrawalConfig, setStatutoryPensionConfig,
+      setCoupleStatutoryPensionConfig, setCareCostConfiguration, setFinancialGoals,
+    })
+  }, [defaultConfig])
 
   // Auto-save configuration whenever any config value changes
   useEffect(() => {
@@ -844,94 +658,25 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
         returnConfig = { mode: 'fixed', fixedRate: overwrite.rendite / 100 }
       }
       else {
-        if (returnMode === 'random') {
-          returnConfig = {
-            mode: 'random',
-            randomConfig: {
-              averageReturn: averageReturn / 100 || 0.07,
-              standardDeviation: standardDeviation / 100 || 0.15,
-              seed: randomSeed,
-            },
-          }
-        }
-        else if (returnMode === 'variable') {
-          const baseReturns = Object.fromEntries(
-            Object.entries(variableReturns).map(([year, rate]) => [parseInt(year), rate / 100]),
-          )
-          returnConfig = {
-            mode: 'variable',
-            variableConfig: {
-              yearlyReturns: baseReturns,
-            },
-          }
-        }
-        else if (returnMode === 'historical') {
-          returnConfig = {
-            mode: 'historical',
-            historicalConfig: {
-              indexId: historicalIndex,
-            },
-          }
-        }
-        else if (returnMode === 'multiasset') {
-          returnConfig = {
-            mode: 'multiasset',
-            multiAssetConfig: multiAssetConfig,
-          }
-        }
-        else {
-          returnConfig = {
-            mode: 'fixed',
-            fixedRate: rendite / 100 || 0.05,
-          }
-        }
+        returnConfig = buildReturnConfig(
+          returnMode, rendite, averageReturn, standardDeviation,
+          randomSeed, variableReturns, historicalIndex, multiAssetConfig,
+        )
       }
 
       // Apply Black Swan returns if active
-      // This works by converting to variable mode and merging the Black Swan returns
-      if (blackSwanReturns && Object.keys(blackSwanReturns).length > 0 && returnMode === 'variable') {
-        const baseReturns = (returnConfig as any).variableConfig?.yearlyReturns || {}
-        const finalReturns = mergeBlackSwanReturns(baseReturns, blackSwanReturns)
-        returnConfig = {
-          mode: 'variable',
-          variableConfig: {
-            yearlyReturns: finalReturns,
-          },
-        }
-      }
+      returnConfig = applyBlackSwanReturns(returnConfig, blackSwanReturns, returnMode)
 
-      // Apply inflation scenario return modifiers if active (for stagflation scenario)
-      if (inflationScenarioReturnModifiers && Object.keys(inflationScenarioReturnModifiers).length > 0 && returnMode === 'variable') {
-        const baseReturns = (returnConfig as any).variableConfig?.yearlyReturns || {}
-        const modifiedReturns: Record<number, number> = { ...baseReturns }
+      // Apply inflation scenario return modifiers
+      returnConfig = applyInflationScenarioModifiers(
+        returnConfig, inflationScenarioReturnModifiers, returnMode, rendite,
+      )
 
-        // Apply return modifiers (subtract from base returns)
-        for (const [yearStr, modifier] of Object.entries(inflationScenarioReturnModifiers)) {
-          const year = Number(yearStr)
-          const baseReturn = modifiedReturns[year] || (rendite / 100)
-          modifiedReturns[year] = baseReturn + modifier // modifier is already negative for reductions
-        }
-
-        returnConfig = {
-          mode: 'variable',
-          variableConfig: {
-            yearlyReturns: modifiedReturns,
-          },
-        }
-      }
-
-      // Prepare variable inflation rates if inflation scenario is active
-      let variableInflationRates: Record<number, number> | undefined
-      if (inflationScenarioRates && Object.keys(inflationScenarioRates).length > 0) {
-        // Merge scenario rates with base inflation rate
-        const baseInflationRate = inflationAktivSparphase ? (inflationsrateSparphase / 100) : 0
-        variableInflationRates = mergeInflationWithBaseRate(
-          baseInflationRate,
-          inflationScenarioRates,
-          yearToday,
-          startEnd[0],
-        )
-      }
+      // Prepare variable inflation rates
+      const variableInflationRates = prepareVariableInflationRates(
+        inflationScenarioRates, inflationAktivSparphase,
+        inflationsrateSparphase, yearToday, startEnd[0],
+      )
 
       const result = simulate({
         startYear: yearToday,
@@ -942,15 +687,12 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
         simulationAnnual,
         teilfreistellungsquote: teilfreistellungsquote / 100,
         freibetragPerYear,
-        steuerReduzierenEndkapital: steuerReduzierenEndkapitalSparphase, // Use savings phase setting
+        steuerReduzierenEndkapital: steuerReduzierenEndkapitalSparphase,
         basiszinsConfiguration,
-        // Inflation settings for savings phase
         inflationAktivSparphase,
         inflationsrateSparphase,
         inflationAnwendungSparphase,
-        // Variable inflation rates (for inflation scenarios)
         variableInflationRates,
-        // Günstigerprüfung settings
         guenstigerPruefungAktiv,
         personalTaxRate,
       })
