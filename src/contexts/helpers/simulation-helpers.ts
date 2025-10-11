@@ -26,7 +26,7 @@ export function buildReturnConfig(
       },
     }
   }
-  
+
   if (returnMode === 'variable') {
     const baseReturns = Object.fromEntries(
       Object.entries(variableReturns).map(([year, rate]) => [parseInt(year), rate / 100]),
@@ -38,7 +38,7 @@ export function buildReturnConfig(
       },
     }
   }
-  
+
   if (returnMode === 'historical') {
     return {
       mode: 'historical',
@@ -47,14 +47,14 @@ export function buildReturnConfig(
       },
     }
   }
-  
+
   if (returnMode === 'multiasset') {
     return {
       mode: 'multiasset',
       multiAssetConfig: multiAssetConfig,
     }
   }
-  
+
   return {
     mode: 'fixed',
     fixedRate: rendite / 100 || 0.05,
@@ -72,10 +72,10 @@ export function applyBlackSwanReturns(
   if (!blackSwanReturns || Object.keys(blackSwanReturns).length === 0 || returnMode !== 'variable') {
     return returnConfig
   }
-  
+
   const baseReturns = (returnConfig.mode === 'variable' && returnConfig.variableConfig?.yearlyReturns) || {}
   const finalReturns = mergeBlackSwanReturns(baseReturns, blackSwanReturns)
-  
+
   return {
     mode: 'variable',
     variableConfig: {
@@ -96,17 +96,17 @@ export function applyInflationScenarioModifiers(
   if (!inflationScenarioReturnModifiers || Object.keys(inflationScenarioReturnModifiers).length === 0 || returnMode !== 'variable') {
     return returnConfig
   }
-  
+
   const baseReturns = (returnConfig.mode === 'variable' && returnConfig.variableConfig?.yearlyReturns) || {}
   const modifiedReturns: Record<number, number> = { ...baseReturns }
-  
+
   // Apply return modifiers
   for (const [yearStr, modifier] of Object.entries(inflationScenarioReturnModifiers)) {
     const year = Number(yearStr)
     const baseReturn = modifiedReturns[year] || (rendite / 100)
     modifiedReturns[year] = baseReturn + modifier
   }
-  
+
   return {
     mode: 'variable',
     variableConfig: {
@@ -128,7 +128,7 @@ export function prepareVariableInflationRates(
   if (!inflationScenarioRates || Object.keys(inflationScenarioRates).length === 0) {
     return undefined
   }
-  
+
   const baseInflationRate = inflationAktivSparphase ? (inflationsrateSparphase / 100) : 0
   return mergeInflationWithBaseRate(
     baseInflationRate,

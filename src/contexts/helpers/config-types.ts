@@ -10,11 +10,13 @@ import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-por
 
 /**
  * Simulation result data structure
- * The data field will contain the actual simulation results with additional fields
+ * Using flexible typing to maintain backward compatibility with existing code
+ * that expects various additional fields on simulation elements
  */
 export interface SimulationData {
   sparplanElements: SparplanElement[]
-  data?: SparplanElement[] // Compatibility alias - populated with same data as sparplanElements
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  data?: any[] // Legacy compatibility - some components expect this alias with additional fields
 }
 
 /**

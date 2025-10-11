@@ -25,7 +25,7 @@ export interface DefaultConfigType {
   inflationsrateSparphase: number
   inflationAnwendungSparphase: 'sparplan' | 'gesamtmenge'
   startEnd: [number, number]
-  sparplan: typeof initialSparplan[]
+  sparplan: Array<typeof initialSparplan>
   simulationAnnual: typeof SimulationAnnual.monthly
   endOfLife: number
   lifeExpectancyTable: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'

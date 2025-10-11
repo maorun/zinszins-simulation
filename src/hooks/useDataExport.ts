@@ -241,7 +241,8 @@ export function useDataExport() {
 
     try {
       // Check if we have any data to export
-      const hasSavingsData = context.simulationData?.sparplanElements?.length > 0
+      const hasSavingsData = context.simulationData?.sparplanElements
+        && context.simulationData.sparplanElements.length > 0
       let hasWithdrawalData = context.withdrawalResults && Object.keys(context.withdrawalResults).length > 0
       const hasWithdrawalConfig = context.withdrawalConfig?.formValue
 
@@ -269,7 +270,7 @@ export function useDataExport() {
       }
 
       const exportData: ExportData = {
-        savingsData: hasSavingsData ? context.simulationData : undefined,
+        savingsData: hasSavingsData && context.simulationData ? context.simulationData : undefined,
         withdrawalData: hasWithdrawalData ? withdrawalData || undefined : undefined,
         context,
       }

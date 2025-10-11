@@ -62,7 +62,7 @@ export function loadInflationConfig(
     inflationsrateSparphase: savedConfig.inflationsrateSparphase ?? defaultConfig.inflationsrateSparphase,
     inflationAnwendungSparphase: savedConfig.inflationAnwendungSparphase ?? defaultConfig.inflationAnwendungSparphase,
   }
-  
+
   setters.setInflationAktivSparphase(inflationSettings.inflationAktivSparphase)
   setters.setInflationsrateSparphase(inflationSettings.inflationsrateSparphase)
   setters.setInflationAnwendungSparphase(inflationSettings.inflationAnwendungSparphase)
@@ -121,14 +121,14 @@ export function loadWithdrawalConfig(
 ): void {
   setters.setWithdrawalConfig(savedConfig.withdrawal || null)
   setters.setStatutoryPensionConfig(savedConfig.statutoryPensionConfig || null)
-  
+
   // Load couple statutory pension config with fallback to legacy conversion
   const coupleConfig = savedConfig.coupleStatutoryPensionConfig
     || (savedConfig.statutoryPensionConfig
       ? convertLegacyToCoupleConfig(savedConfig.statutoryPensionConfig, savedConfig.planningMode || 'couple')
       : null)
   setters.setCoupleStatutoryPensionConfig(coupleConfig)
-  
+
   // Load care cost configuration
   if (savedConfig.careCostConfiguration) {
     setters.setCareCostConfiguration({
@@ -136,7 +136,7 @@ export function loadWithdrawalConfig(
       planningMode: savedConfig.planningMode || 'individual',
     })
   }
-  
+
   // Load financial goals
   setters.setFinancialGoals(savedConfig.financialGoals || [])
 }
