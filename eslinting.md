@@ -130,8 +130,29 @@
   - Alle `any` Types durch spezifische Types ersetzt
   - Aufwand: 0,3 Tage
 
-- [ ] **BucketStrategyConfiguration** (src/components/BucketStrategyConfiguration.tsx)
-  - Komplexität: 47
+- [x] **BucketStrategyConfiguration** (src/components/BucketStrategyConfiguration.tsx) ✅ ERLEDIGT
+  - Original: Komplexität 47, Zeilen: 472
+  - Aktuell: Komplexität <8, Zeilen: 154
+  - Status: ✅ Beide Limits erreicht (Komplexität <8, Zeilen <400)
+  - Extrahierte Komponenten: 9
+    - `SubStrategySelector` - Sub-Strategie Auswahl
+    - `VariabelProzentConfig` - Variable Prozent Konfiguration
+    - `MonatlichFestConfig` - Monatlich Fest Konfiguration
+    - `DynamischConfig` - Dynamische Strategie Konfiguration
+    - `BasisrateSlider` - Basis-Entnahmerate Slider
+    - `ObereControls` - Obere Renditeschwelle und Anpassung
+    - `UntereControls` - Untere Renditeschwelle und Anpassung
+    - `InitialCashCushionConfig` - Initiales Cash-Polster
+    - `RefillThresholdConfig` - Auffüll-Schwellenwert
+    - `RefillPercentageConfig` - Auffüll-Anteil
+  - Extrahierte Hilfsfunktionen: 5
+    - `getDefaultValues` - Standardwerte
+    - `getCurrentValuesFromForm` - Aktuelle Werte aus Form
+    - `getCurrentValuesFromDirect` - Aktuelle Werte aus Direct State
+    - `createFormUpdateHandler` - Form Update Handler
+  - 39 neue Tests hinzugefügt
+  - Alle Tests bestehen (1455 Tests)
+  - Keine any types eingeführt
   - Aufwand: 0,3 Tage
 
 - [ ] **SparplanEingabe** (src/components/SparplanEingabe.tsx)
