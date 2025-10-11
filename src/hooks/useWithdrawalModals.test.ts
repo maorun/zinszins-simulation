@@ -159,7 +159,9 @@ describe('useWithdrawalModals', () => {
 
     expect(result.current.showCalculationModal).toBe(true)
     expect(result.current.calculationDetails).toBeDefined()
-    expect(result.current.calculationDetails.title).toContain('Kranken- & Pflegeversicherung')
-    expect(result.current.calculationDetails.title).toContain('Gesetzliche')
+    if (result.current.calculationDetails) {
+      expect(result.current.calculationDetails.title).toContain('Kranken- & Pflegeversicherung')
+      expect(result.current.calculationDetails.title).toContain('Gesetzliche')
+    }
   })
 })

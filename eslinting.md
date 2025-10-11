@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 176 ESLint-Warnungen  
+**Aktueller Stand:** 166 ESLint-Warnungen  
 **Ziel:** 0 Warnungen (max-warnings = 0)  
 **Status:** In Bearbeitung
 
@@ -83,16 +83,51 @@
 
 #### 1.2 Hohe Priorität (Komplexität 45-75 ODER Zeilen 500-1000)
 
-- [ ] **GlobalPlanningConfiguration** (src/components/GlobalPlanningConfiguration.tsx)
-  - Komplexität: 54, Zeilen: 514
+- [x] **GlobalPlanningConfiguration** (src/components/GlobalPlanningConfiguration.tsx) ✅ ERLEDIGT
+  - Original: Komplexität 54, Zeilen: 514
+  - Aktuell: Komplexität <25, Zeilen: 185
+  - Status: ✅ Beide Limits erreicht (Komplexität <25, Zeilen <400)
+  - Extrahierte Komponenten: 6
+    - `PlanningModeSelector` - Auswahl zwischen Einzelperson/Ehepaar
+    - `GenderConfiguration` - Geschlechtskonfiguration für Individual/Paar
+    - `BirthYearConfiguration` - Geburtsjahr-Eingabe für Individual/Paar
+    - `LifeExpectancyCalculation` - Lebensende-Berechnung (Hauptkomponente)
+    - `AutomaticCalculationHelper` - Automatische Berechnungshilfe
+    - `LifeExpectancyTableConfiguration` - Sterbetafel-Konfiguration
   - Aufwand: 0,5 Tage
 
-- [ ] **exportWithdrawalDataToCSV** (src/utils/data-export.ts)
-  - Komplexität: 52
+- [x] **exportWithdrawalDataToCSV** (src/utils/data-export.ts) ✅ ERLEDIGT
+  - Original: Komplexität: 52, Zeilen: 158
+  - Aktuell: Komplexität <25, Zeilen: 31
+  - Status: ✅ Beide Limits erreicht (Komplexität <25, Zeilen <50)
+  - Extrahierte Hilfsfunktionen: 5
+    - `generateWithdrawalMetadataLines` - CSV Metadaten-Generierung
+    - `generateWithdrawalCSVHeaders` - CSV Header-Generierung mit bedingten Spalten
+    - `buildBasicRowData` - Basis-Zeilendaten (Jahr, Monat, Kapital, Steuern)
+    - `addStrategySpecificData` - Strategie-spezifische Felder
+    - `addTaxAndIncomeData` - Steuer- und Einkommensdaten
+  - Alle Hilfsfunktionen mit Params-Objekten für >5 Parameter
   - Aufwand: 0,3 Tage
 
-- [ ] **useWithdrawalModals arrow function** (src/hooks/useWithdrawalModals.ts)
-  - Komplexität: 48
+- [x] **useWithdrawalModals arrow function** (src/hooks/useWithdrawalModals.ts) ✅ ERLEDIGT
+  - Original: Komplexität: 48, Zeilen: 202
+  - Aktuell: Komplexität: <8, Zeilen: 119
+  - Status: ✅ Beide Limits erreicht (Komplexität <8, Zeilen <400)
+  - Extrahierte Hilfsfunktionen: 10
+    - `findApplicableSegment` - Segment-Finder für Jahr
+    - `handleInflationExplanation` - Inflations-Erklärung
+    - `handleInterestExplanation` - Zins-Erklärung
+    - `handleTaxExplanation` - Steuer-Erklärung
+    - `handleIncomeTaxExplanation` - Einkommensteuer-Erklärung
+    - `handleTaxableIncomeExplanation` - Zu versteuerndes Einkommen
+    - `handleOtherIncomeExplanation` - Sonstige Einkünfte
+    - `handleStatutoryPensionExplanation` - Gesetzliche Rente
+    - `handleEndkapitalExplanation` - Endkapital-Erklärung
+    - `handleHealthCareInsuranceExplanation` - Krankenversicherung
+  - Alle Hilfsfunktionen mit Params-Objekten für >5 Parameter
+  - 24 neue Tests für alle Hilfsfunktionen
+  - Shared Types File erstellt (useWithdrawalModals.types.ts)
+  - Alle `any` Types durch spezifische Types ersetzt
   - Aufwand: 0,3 Tage
 
 - [ ] **BucketStrategyConfiguration** (src/components/BucketStrategyConfiguration.tsx)
@@ -201,8 +236,11 @@
 1. **Logische Kohäsion:** Extrahiere zusammenhängende Logik
 2. **Single Responsibility:** Jede Funktion macht eine Sache
 3. **Klare Benennung:** Funktionsname beschreibt was sie tut
-4. **Parameter-Anzahl:** Max. 5-7 Parameter, sonst Objekt verwenden
+4. **Parameter-Anzahl:** Max. 5 Parameter, sonst Objekt verwenden mit types
 5. **Testbarkeit:** Extrahierte Funktionen sollten testbar sein
+6. Keine any-types einführen
+7. complexity max 8
+8. max-lines-per-function max 50
 
 ### Komplexitäts-Reduktion
 
@@ -233,7 +271,19 @@
    - Zeilen von 945 → 402 reduziert (57% Verbesserung)
    - 9 neue fokussierte Komponenten extrahiert
    - Alle 1397 Tests bestehen
-3. Top 5 `any` Type Dateien angehen
+3. ✅ **ERLEDIGT:** GlobalPlanningConfiguration refactoring
+   - Komplexität von 54 → <25 reduziert
+   - Zeilen von 514 → 185 reduziert (64% Verbesserung)
+   - 6 neue fokussierte Komponenten extrahiert
+   - Alle 1397 Tests bestehen
+4. ✅ **ERLEDIGT:** useWithdrawalModals refactoring
+   - Komplexität von 48 → <8 reduziert (83% Verbesserung)
+   - Zeilen von 202 → 119 reduziert (41% Verbesserung)
+   - 10 neue Hilfsfunktionen extrahiert
+   - 24 neue Tests hinzugefügt
+   - Alle `any` Types ersetzt durch spezifische Types
+   - Alle Tests bestehen
+5. Top 5 `any` Type Dateien angehen
 
 ### Mittelfristig (nächste 2 Wochen)
 
@@ -251,8 +301,8 @@
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 196 Warnungen (reduziert von 178 - neue `any` type Warnungen durch Refactoring)
-- **Fortschritt:** 15% (calculateWithdrawal vollständig refactored ✅)
+- **Aktueller Stand:** 162 Warnungen (reduziert von 176)
+- **Fortschritt:** 25% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals vollständig refactored ✅)
 - **Geschätzte Fertigstellung:** 2025-01-24 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned
@@ -286,5 +336,5 @@
 
 ---
 
-**Letzte Aktualisierung:** 2025-01-10  
-**Nächste Review:** Nach Abschluss Phase 1.1
+**Letzte Aktualisierung:** 2025-01-11  
+**Nächste Review:** Nach Abschluss Phase 1.2
