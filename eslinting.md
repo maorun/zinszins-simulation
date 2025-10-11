@@ -109,8 +109,25 @@
   - Alle Hilfsfunktionen mit Params-Objekten für >5 Parameter
   - Aufwand: 0,3 Tage
 
-- [ ] **useWithdrawalModals arrow function** (src/hooks/useWithdrawalModals.ts)
-  - Komplexität: 48
+- [x] **useWithdrawalModals arrow function** (src/hooks/useWithdrawalModals.ts) ✅ ERLEDIGT
+  - Original: Komplexität: 48, Zeilen: 202
+  - Aktuell: Komplexität: <8, Zeilen: 119
+  - Status: ✅ Beide Limits erreicht (Komplexität <8, Zeilen <400)
+  - Extrahierte Hilfsfunktionen: 10
+    - `findApplicableSegment` - Segment-Finder für Jahr
+    - `handleInflationExplanation` - Inflations-Erklärung
+    - `handleInterestExplanation` - Zins-Erklärung
+    - `handleTaxExplanation` - Steuer-Erklärung
+    - `handleIncomeTaxExplanation` - Einkommensteuer-Erklärung
+    - `handleTaxableIncomeExplanation` - Zu versteuerndes Einkommen
+    - `handleOtherIncomeExplanation` - Sonstige Einkünfte
+    - `handleStatutoryPensionExplanation` - Gesetzliche Rente
+    - `handleEndkapitalExplanation` - Endkapital-Erklärung
+    - `handleHealthCareInsuranceExplanation` - Krankenversicherung
+  - Alle Hilfsfunktionen mit Params-Objekten für >5 Parameter
+  - 24 neue Tests für alle Hilfsfunktionen
+  - Shared Types File erstellt (useWithdrawalModals.types.ts)
+  - Alle `any` Types durch spezifische Types ersetzt
   - Aufwand: 0,3 Tage
 
 - [ ] **BucketStrategyConfiguration** (src/components/BucketStrategyConfiguration.tsx)
@@ -259,7 +276,14 @@
    - Zeilen von 514 → 185 reduziert (64% Verbesserung)
    - 6 neue fokussierte Komponenten extrahiert
    - Alle 1397 Tests bestehen
-4. Top 5 `any` Type Dateien angehen
+4. ✅ **ERLEDIGT:** useWithdrawalModals refactoring
+   - Komplexität von 48 → <8 reduziert (83% Verbesserung)
+   - Zeilen von 202 → 119 reduziert (41% Verbesserung)
+   - 10 neue Hilfsfunktionen extrahiert
+   - 24 neue Tests hinzugefügt
+   - Alle `any` Types ersetzt durch spezifische Types
+   - Alle Tests bestehen
+5. Top 5 `any` Type Dateien angehen
 
 ### Mittelfristig (nächste 2 Wochen)
 
@@ -277,8 +301,8 @@
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 166 Warnungen (reduziert von 176)
-- **Fortschritt:** 20% (calculateWithdrawal + GlobalPlanningConfiguration vollständig refactored ✅)
+- **Aktueller Stand:** 162 Warnungen (reduziert von 176)
+- **Fortschritt:** 25% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals vollständig refactored ✅)
 - **Geschätzte Fertigstellung:** 2025-01-24 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned
