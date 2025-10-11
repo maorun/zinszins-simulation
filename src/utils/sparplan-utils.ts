@@ -85,97 +85,177 @@ export const initialSparplan: Sparplan = {
   einzahlung: 24000, // Updated to more realistic baseline (24,000€ annually = 2,000€ monthly)
 }
 
+type CreateElementParams = {
+  el: Sparplan
+  year?: number
+  month?: number
+  yearlyAmount?: number
+}
+
+function createSparplanElement(params: CreateElementParams): SparplanElement {
+  const { el, year, month, yearlyAmount } = params
+  const monthlyPayment = month !== undefined
+
+  return {
+    start: monthlyPayment
+      ? new Date(year + '-' + (month + 1) + '-01')
+      : new Date(year + '-01-01'),
+    einzahlung: monthlyPayment ? el.einzahlung / 12 : (yearlyAmount ?? el.einzahlung),
+    type: 'sparplan',
+    simulation: {},
+    ter: el.ter,
+    transactionCostPercent: el.transactionCostPercent,
+    transactionCostAbsolute: el.transactionCostAbsolute,
+    eventType: el.eventType || 'normal',
+    specialEventData: el.specialEventData,
+  }
+}
+
+function shouldIncludeMonth(
+  el: Sparplan,
+  year: number,
+  month: number,
+): boolean {
+  const startYear = new Date(el.start).getFullYear()
+  const startMonth = new Date(el.start).getMonth()
+
+  // Skip if month is before start month in start year
+  if (startYear === year && startMonth > month) {
+    return false
+  }
+
+  // Skip if month is after end month in end year
+  if (el.end) {
+    const endYear = new Date(el.end).getFullYear()
+    const endMonth = new Date(el.end).getMonth()
+    if (endYear === year && endMonth < month) {
+      return false
+    }
+  }
+
+  return true
+}
+
+function processMonthlyElements(
+  el: Sparplan,
+  year: number,
+): SparplanElement[] {
+  const elements: SparplanElement[] = []
+
+  for (let month = 0; month < 12; month++) {
+    if (shouldIncludeMonth(el, year, month)) {
+      elements.push(createSparplanElement({ el, year, month }))
+    }
+  }
+
+  return elements
+}
+
+function calculateYearlyAmount(
+  el: Sparplan,
+  year: number,
+): number {
+  let yearlyAmount = el.einzahlung
+
+  // Handle partial years for start/end dates
+  const isStartYear = new Date(el.start).getFullYear() === year
+  const isEndYear = el.end && new Date(el.end).getFullYear() === year
+
+  if (isStartYear || isEndYear) {
+    const startMonth = isStartYear ? new Date(el.start).getMonth() : 0
+    const endMonth = isEndYear ? new Date(el.end!).getMonth() : 11
+
+    // Calculate the fraction of the year that this Sparplan is active
+    const activeMonths = Math.max(0, endMonth - startMonth + 1)
+    yearlyAmount = (el.einzahlung * activeMonths) / 12
+  }
+
+  return yearlyAmount
+}
+
+function processYearlyElement(
+  el: Sparplan,
+  year: number,
+): SparplanElement | null {
+  const yearlyAmount = calculateYearlyAmount(el, year)
+
+  // Only add if there are active months in this year
+  if (yearlyAmount <= 0) {
+    return null
+  }
+
+  return createSparplanElement({ el, year, yearlyAmount })
+}
+
+function processRegularSavingsPlan(
+  el: Sparplan,
+  startEnd: [number, number],
+  simulationAnnual: SimulationAnnualType,
+): SparplanElement[] {
+  const elements: SparplanElement[] = []
+  const currentYear = new Date().getFullYear()
+
+  for (let year = currentYear; year <= startEnd[0]; year++) {
+    const startYear = new Date(el.start).getFullYear()
+    const endYear = el.end ? new Date(el.end).getFullYear() : Infinity
+
+    // Skip years outside the savings plan range
+    if (year < startYear || year > endYear) {
+      continue
+    }
+
+    if (simulationAnnual === SimulationAnnual.yearly) {
+      const element = processYearlyElement(el, year)
+      if (element) {
+        elements.push(element)
+      }
+    }
+    else {
+      elements.push(...processMonthlyElements(el, year))
+    }
+  }
+
+  return elements
+}
+
+function processOneTimePayment(
+  el: Sparplan,
+  startEnd: [number, number],
+): SparplanElement[] {
+  const paymentYear = new Date(el.start).getFullYear()
+  const currentYear = new Date().getFullYear()
+
+  if (paymentYear < currentYear || paymentYear > startEnd[0]) {
+    return []
+  }
+
+  return [{
+    start: el.start,
+    type: 'einmalzahlung',
+    gewinn: 0,
+    einzahlung: el.einzahlung,
+    simulation: {},
+    ter: el.ter,
+    transactionCostPercent: el.transactionCostPercent,
+    transactionCostAbsolute: el.transactionCostAbsolute,
+    eventType: el.eventType || 'normal',
+    specialEventData: el.specialEventData,
+  }]
+}
+
 export function convertSparplanToElements(
   val: Sparplan[],
   startEnd: [number, number],
   simulationAnnual: SimulationAnnualType,
 ): SparplanElement[] {
-  const data: SparplanElement[] = val.flatMap((el) => {
-    const sparplanElementsToSave: SparplanElement[] = []
-
-    // Check if this is a one-time payment (start and end dates are the same)
-    const isOneTimePayment = el.end && new Date(el.start).getTime() === new Date(el.end).getTime()
+  return val.flatMap((el) => {
+    const isOneTimePayment = el.end
+      && new Date(el.start).getTime() === new Date(el.end).getTime()
 
     if (isOneTimePayment) {
-      // Handle one-time payment
-      const paymentYear = new Date(el.start).getFullYear()
-      if (paymentYear >= new Date().getFullYear() && paymentYear <= startEnd[0]) {
-        sparplanElementsToSave.push({
-          start: el.start,
-          type: 'einmalzahlung',
-          gewinn: 0, // Will be calculated during simulation
-          einzahlung: el.einzahlung,
-          simulation: {},
-          ter: el.ter,
-          transactionCostPercent: el.transactionCostPercent,
-          transactionCostAbsolute: el.transactionCostAbsolute,
-          eventType: el.eventType || 'normal',
-          specialEventData: el.specialEventData,
-        })
-      }
+      return processOneTimePayment(el, startEnd)
     }
-    else {
-      // Handle regular savings plan
-      for (let i = new Date().getFullYear(); i <= startEnd[0]; i++) {
-        if (new Date(el.start).getFullYear() <= i
-          && (!el.end || new Date(el.end).getFullYear() >= i)
-        ) {
-          if (simulationAnnual === SimulationAnnual.yearly) {
-            let yearlyAmount = el.einzahlung
 
-            // Handle partial years for start/end dates
-            if (new Date(el.start).getFullYear() === i || (el.end && new Date(el.end).getFullYear() === i)) {
-              const startMonth = new Date(el.start).getFullYear() === i ? new Date(el.start).getMonth() : 0
-              const endMonth = el.end && new Date(el.end).getFullYear() === i ? new Date(el.end).getMonth() : 11
-
-              // Calculate the fraction of the year that this Sparplan is active
-              // +1 because months are 0-indexed but we want inclusive count
-              const activeMonths = Math.max(0, endMonth - startMonth + 1)
-              yearlyAmount = (el.einzahlung * activeMonths) / 12
-            }
-
-            // Only add if there are active months in this year
-            if (yearlyAmount > 0) {
-              sparplanElementsToSave.push({
-                start: new Date(i + '-01-01'),
-                einzahlung: yearlyAmount,
-                type: 'sparplan',
-                simulation: {},
-                ter: el.ter,
-                transactionCostPercent: el.transactionCostPercent,
-                transactionCostAbsolute: el.transactionCostAbsolute,
-                eventType: el.eventType || 'normal',
-                specialEventData: el.specialEventData,
-              })
-            }
-          }
-          else {
-            for (let month = 0; month < 12; month++) {
-              if (new Date(el.start).getFullYear() === i && new Date(el.start).getMonth() > month) {
-                continue
-              }
-              else if (el.end && new Date(el.end).getFullYear() === i && new Date(el.end).getMonth() < month) {
-                continue
-              }
-              else {
-                sparplanElementsToSave.push({
-                  start: new Date(i + '-' + (month + 1) + '-01'),
-                  einzahlung: el.einzahlung / 12,
-                  type: 'sparplan',
-                  simulation: {},
-                  ter: el.ter,
-                  transactionCostPercent: el.transactionCostPercent,
-                  transactionCostAbsolute: el.transactionCostAbsolute,
-                  eventType: el.eventType || 'normal',
-                  specialEventData: el.specialEventData,
-                })
-              }
-            }
-          }
-        }
-      }
-    }
-    return sparplanElementsToSave
+    return processRegularSavingsPlan(el, startEnd, simulationAnnual)
   })
-  return data
 }
