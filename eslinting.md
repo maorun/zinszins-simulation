@@ -54,15 +54,30 @@
     - `buildStrategySpecificFields` - Strategie-spezifische Felder
     - `buildIncomeSourceFields` - Einkommensquellen-Felder
 
-- [ ] **EntnahmeSimulationsAusgabe** (src/components/EntnahmeSimulationsAusgabe.tsx)
-  - Komplexität: 109, Zeilen: 1588
-  - Schätzung: 15-20 Hilfsfunktionen nötig
-  - Aufwand: 1,5-2 Tage
+- [x] **EntnahmeSimulationsAusgabe** (src/components/EntnahmeSimulationsAusgabe.tsx) ✅ TEILWEISE ERLEDIGT
+  - Original: Komplexität: 109, Zeilen: 1588
+  - Aktuell: Komplexität: 75, Zeilen: 402
+  - Status: ✅ Zeilen unter Limit (400), Komplexität reduziert um 31%
+  - Extrahierte Komponenten: 9
+    - `WithdrawalReturnModeConfiguration` - Rendite-Konfiguration
+    - `WithdrawalStrategySelector` - Strategie-Auswahl
+    - `BucketStrategyConfigurationForm` - Bucket-Strategie Konfiguration
+    - `MonthlyFixedWithdrawalConfiguration` - Monatliche Entnahme Konfiguration
+    - `VariablePercentWithdrawalConfiguration` - Variable Prozent Konfiguration
+    - `WithdrawalFrequencyConfiguration` - Entnahme-Häufigkeit
+    - `InflationConfiguration` - Inflations-Einstellungen
+    - `WithdrawalModeSelector` - Entnahme-Modus Auswahl
+  - Verbleibende Komplexität: Mehrfach verschachtelte bedingte Rendering-Logik
+  - Aufwand: 0,5 Tage
   - Priorität: HOCH
 
 - [ ] **Arrow function in WithdrawalSegmentForm** (src/components/WithdrawalSegmentForm.tsx)
-  - Komplexität: 93, Zeilen: 865
-  - Schätzung: 10-12 Hilfsfunktionen nötig
+  - Original: Komplexität: 93, Zeilen: 865 (Arrow function)
+  - Status: ⏳ Ausstehend - Erfordert sorgfältige Typ-Analyse
+  - Hinweis: Die Arrow-Function rendert die Segment-Karten und verwendet viele
+    verschachtelte Konfigurationsobjekte mit komplexen TypeScript-Typen.
+    Eine Extraktion erfordert detaillierte Anpassung an die bestehende Type-Hierarchie.
+  - Schätzung: 10-12 Hilfsfunktionen oder 1 große Komponente nötig
   - Aufwand: 1 Tag
   - Priorität: HOCH
 
@@ -213,7 +228,11 @@
    - Komplexität von 77 → <25 reduziert
    - 7 neue Hilfsfunktionen extrahiert
    - Alle 1397 Tests bestehen
-2. EntnahmeSimulationsAusgabe refactoring starten
+2. ✅ **TEILWEISE ERLEDIGT:** EntnahmeSimulationsAusgabe refactoring
+   - Komplexität von 109 → 75 reduziert (31% Verbesserung)
+   - Zeilen von 945 → 402 reduziert (57% Verbesserung)
+   - 9 neue fokussierte Komponenten extrahiert
+   - Alle 1397 Tests bestehen
 3. Top 5 `any` Type Dateien angehen
 
 ### Mittelfristig (nächste 2 Wochen)

@@ -261,10 +261,16 @@ function addYearRows(
 /**
  * Calculate the contribution amount for a specific element in a specific year
  */
-function getElementContributionForYear(element: any, year: number, isMonthly: boolean): number {
+function getElementContributionForYear(element: unknown, year: number, isMonthly: boolean): number {
+  if (typeof element !== 'object' || element === null) {
+    return 0
+  }
+
+  const elem = element as Record<string, unknown>
+
   // Check if this element was active in this year
-  const startYear = new Date(element.start).getFullYear()
-  const endYear = element.end ? new Date(element.end).getFullYear() : new Date().getFullYear() + 50
+  const startYear = new Date(elem.start as string).getFullYear()
+  const endYear = elem.end ? new Date(elem.end as string).getFullYear() : new Date().getFullYear() + 50
 
   if (year < startYear || year > endYear) {
     return 0
@@ -272,7 +278,7 @@ function getElementContributionForYear(element: any, year: number, isMonthly: bo
 
   // Return the element's annual contribution amount
   // Try different property names to handle both real data and test data
-  const yearlyAmount = element.einzahlung || element.amount || element.monthlyAmount || 0
+  const yearlyAmount = (elem.einzahlung as number) || (elem.amount as number) || (elem.monthlyAmount as number) || 0
   return isMonthly ? yearlyAmount / 12 : yearlyAmount
 }
 
@@ -439,64 +445,48 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
 }
 
 /**
- * Export all simulation data to Markdown format
+ * Add other income sources section to markdown lines
  */
-export function exportDataToMarkdown(data: ExportData): string {
-  const { savingsData, withdrawalData, context } = data
-
-  const lines: string[] = []
-
-  // Header
-  lines.push('# Simulationsdaten Export')
-  lines.push('')
-  lines.push(`**Exportiert am:** ${new Date().toLocaleDateString('de-DE')}`)
-  lines.push('')
-
-  // Parameters section
-  lines.push('## Parameter')
-  lines.push('')
-  lines.push('### Grundparameter')
-  lines.push(`- **Zeitraum:** ${context.startEnd[0]} - ${context.startEnd[1]}`)
-  lines.push(`- **Rendite:** ${formatPercentage(context.rendite)}`)
-  lines.push(`- **Kapitalertragsteuer:** ${formatPercentage(context.steuerlast)}`)
-  lines.push(`- **Teilfreistellungsquote:** ${formatPercentage(context.teilfreistellungsquote)}`)
-  lines.push(`- **Berechnungsmodus:** ${context.simulationAnnual === 'yearly' ? 'Jährlich' : 'Monatlich'}`)
-
-  // Other income sources information if configured
+function addOtherIncomeSection(context: SimulationContextState, lines: string[]): void {
   const withdrawalConfig = context.withdrawalConfig
-  if (withdrawalConfig?.otherIncomeConfig?.enabled && withdrawalConfig.otherIncomeConfig.sources.length > 0) {
-    lines.push('')
-    lines.push('### Andere Einkünfte')
-    lines.push(`- **Anzahl Einkommensquellen:** ${withdrawalConfig.otherIncomeConfig.sources.length}`)
-    withdrawalConfig.otherIncomeConfig.sources.forEach((source: OtherIncomeSource) => {
-      const incomeType = {
-        rental: 'Mieteinnahmen',
-        pension: 'Rente/Pension',
-        business: 'Gewerbeeinkünfte',
-        investment: 'Kapitalerträge',
-        kindergeld: 'Kindergeld',
-        other: 'Sonstige Einkünfte',
-      }[source.type] || source.type
-
-      const grossNet = source.amountType === 'gross' ? 'Brutto' : 'Netto'
-      const endYear = source.endYear ? source.endYear.toString() : 'Unbegrenzt'
-
-      lines.push(`  - **${source.name}** (${incomeType})`)
-      lines.push(`    - Betrag: ${formatCurrency(source.monthlyAmount * 12)}/Jahr (${grossNet})`)
-      lines.push(`    - Zeitraum: ${source.startYear} - ${endYear}`)
-      lines.push(`    - Inflation: ${formatPercentage(source.inflationRate)}`)
-      if (source.amountType === 'gross') {
-        lines.push(`    - Steuersatz: ${formatPercentage(source.taxRate)}`)
-      }
-      if (source.notes) {
-        lines.push(`    - Notizen: ${source.notes}`)
-      }
-    })
+  if (!withdrawalConfig?.otherIncomeConfig?.enabled || withdrawalConfig.otherIncomeConfig.sources.length === 0) {
+    return
   }
 
   lines.push('')
+  lines.push('### Andere Einkünfte')
+  lines.push(`- **Anzahl Einkommensquellen:** ${withdrawalConfig.otherIncomeConfig.sources.length}`)
 
-  // Calculation explanations
+  withdrawalConfig.otherIncomeConfig.sources.forEach((source: OtherIncomeSource) => {
+    const incomeType = {
+      rental: 'Mieteinnahmen',
+      pension: 'Rente/Pension',
+      business: 'Gewerbeeinkünfte',
+      investment: 'Kapitalerträge',
+      kindergeld: 'Kindergeld',
+      other: 'Sonstige Einkünfte',
+    }[source.type] || source.type
+
+    const grossNet = source.amountType === 'gross' ? 'Brutto' : 'Netto'
+    const endYear = source.endYear ? source.endYear.toString() : 'Unbegrenzt'
+
+    lines.push(`  - **${source.name}** (${incomeType})`)
+    lines.push(`    - Betrag: ${formatCurrency(source.monthlyAmount * 12)}/Jahr (${grossNet})`)
+    lines.push(`    - Zeitraum: ${source.startYear} - ${endYear}`)
+    lines.push(`    - Inflation: ${formatPercentage(source.inflationRate)}`)
+    if (source.amountType === 'gross') {
+      lines.push(`    - Steuersatz: ${formatPercentage(source.taxRate)}`)
+    }
+    if (source.notes) {
+      lines.push(`    - Notizen: ${source.notes}`)
+    }
+  })
+}
+
+/**
+ * Add calculation explanations section to markdown lines
+ */
+function addCalculationExplanations(lines: string[]): void {
   lines.push('## Berechnungsgrundlagen')
   lines.push('')
   lines.push('### Zinseszinsrechnung')
@@ -520,137 +510,214 @@ export function exportDataToMarkdown(data: ExportData): string {
   lines.push('Bezahlte Steuer = max(0, Steuer vor Freibetrag - verfügbarer Freibetrag)')
   lines.push('```')
   lines.push('')
+}
 
-  // Savings phase data
-  if (savingsData?.sparplanElements && savingsData.sparplanElements.length > 0) {
-    lines.push('## Sparphase')
-    lines.push('')
-    lines.push('| Jahr | Startkapital | Zinsen | Einzahlungen | Endkapital | Vorabpauschale | Steuer |')
-    lines.push('|------|--------------|--------|--------------|------------|----------------|--------|')
-
-    // Detect data structure and export accordingly
-    const hasSimulationProperty = savingsData.sparplanElements.some((element: any) => element.simulation)
-
-    if (hasSimulationProperty) {
-      // Real app structure: elements have simulation property with years as keys
-      // Collect all years from all simulation elements
-      const allYears = new Set<number>()
-      for (const element of savingsData.sparplanElements) {
-        if (element.simulation) {
-          Object.keys(element.simulation).forEach(year => allYears.add(parseInt(year)))
-        }
-      }
-
-      // Sort years and process each one
-      const sortedYears = Array.from(allYears).sort((a, b) => a - b)
-
-      for (const year of sortedYears) {
-        // Aggregate data for this year across all elements
-        let totalStartkapital = 0
-        let totalZinsen = 0
-        let totalEndkapital = 0
-        let totalBezahlteSteuer = 0
-        let totalVorabpauschale = 0
-        let totalContributions = 0
-
-        // Sum up data from all elements for this year
-        savingsData.sparplanElements.forEach((element: any) => {
-          const yearData = element.simulation?.[year]
-          if (yearData) {
-            totalStartkapital += yearData.startkapital || 0
-            totalZinsen += yearData.zinsen || 0
-            totalEndkapital += yearData.endkapital || 0
-            totalBezahlteSteuer += yearData.bezahlteSteuer || 0
-            totalVorabpauschale += yearData.vorabpauschale || 0
-          }
-
-          // Calculate contribution for this element in this year
-          const elementContribution = getElementContributionForYear(element, year, false)
-          totalContributions += elementContribution
-        })
-
-        lines.push(`| ${year} | ${formatCurrency(totalStartkapital)} | ${formatCurrency(totalZinsen)} | ${formatCurrency(totalContributions)} | ${formatCurrency(totalEndkapital)} | ${formatCurrency(totalVorabpauschale)} | ${formatCurrency(totalBezahlteSteuer)} |`)
-      }
-    }
-    else {
-      // Test mock structure: each element represents a year's data
-      for (const yearData of savingsData.sparplanElements) {
-        if (!yearData) continue
-
-        const year = new Date(yearData.start).getFullYear()
-        const contribution = yearData.einzahlung || yearData.amount || yearData.monthlyAmount || 0
-
-        lines.push(`| ${year} | ${formatCurrency(yearData.startkapital || 0)} | ${formatCurrency(yearData.zinsen || 0)} | ${formatCurrency(contribution)} | ${formatCurrency(yearData.endkapital || 0)} | ${formatCurrency(yearData.vorabpauschale || 0)} | ${formatCurrency(yearData.bezahlteSteuer || 0)} |`)
-      }
-    }
-    lines.push('')
-  }
-  else {
+/**
+ * Add savings phase markdown section to lines
+ */
+function addSavingsPhaseSection(savingsData: ExportData['savingsData'], lines: string[]): void {
+  if (!savingsData?.sparplanElements || savingsData.sparplanElements.length === 0) {
     lines.push('## Sparphase')
     lines.push('')
     lines.push('> ℹ️ Keine Sparplan-Daten verfügbar. Führen Sie eine Simulation durch oder wechseln Sie zum Ansparen-Tab, um Daten zu generieren.')
     lines.push('')
+    return
   }
 
-  // Withdrawal phase data
-  if (withdrawalData && Object.keys(withdrawalData).length > 0) {
-    lines.push('## Entnahmephase')
-    lines.push('')
+  lines.push('## Sparphase')
+  lines.push('')
+  lines.push('| Jahr | Startkapital | Zinsen | Einzahlungen | Endkapital | Vorabpauschale | Steuer |')
+  lines.push('|------|--------------|--------|--------------|------------|----------------|--------|')
 
-    const withdrawalConfig = context.withdrawalConfig
-    if (withdrawalConfig?.formValue) {
-      lines.push('### Entnahme-Parameter')
+  const hasSimulationProperty = savingsData.sparplanElements.some((element: unknown) =>
+    typeof element === 'object' && element !== null && 'simulation' in element,
+  )
 
-      // Handle segmented withdrawal - multiple strategies
-      const hasMultipleSegments = withdrawalConfig.useSegmentedWithdrawal
-        && withdrawalConfig.withdrawalSegments
-        && withdrawalConfig.withdrawalSegments.length > 1
-      if (hasMultipleSegments) {
-        lines.push(`- **Strategie:** Segmentierte Entnahme`)
-        withdrawalConfig.withdrawalSegments.forEach((segment: any, index: number) => {
-          const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
-          const segmentInfo = `  - **Segment ${index + 1} (${segment.name}):** ${strategyLabel} (${segment.startYear}-${segment.endYear})`
-          lines.push(segmentInfo)
-        })
-      }
-      else {
-        // Single strategy
-        lines.push(`- **Strategie:** ${getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie)}`)
-      }
-
-      lines.push(`- **Lebensende:** ${context.endOfLife}`)
-      lines.push(`- **Entnahme-Rendite:** ${formatPercentage(withdrawalConfig.formValue.rendite)}`)
-      lines.push('')
-    }
-
-    lines.push('| Jahr | Startkapital | Entnahme | Zinsen | Endkapital | Vorabpauschale Details | Steuer |')
-    lines.push('|------|--------------|----------|--------|------------|------------------------|--------|')
-
-    const years = Object.keys(withdrawalData).map(Number).sort()
-    for (const year of years) {
-      const yearData = withdrawalData[year]
-      if (!yearData) continue
-
-      // Format Vorabpauschale details for transparency
-      let vorabDetails = 'N/A'
-      if (yearData.vorabpauschaleDetails) {
-        const details = yearData.vorabpauschaleDetails
-        vorabDetails = `Basiszins: ${formatPercentage(details.basiszins * 100)} / `
-          + `Basisertrag: ${formatCurrency(details.basisertrag)} / `
-          + `Jahresgewinn: ${formatCurrency(details.jahresgewinn)} / `
-          + `Vorabpauschale: ${formatCurrency(yearData.vorabpauschale || 0)}`
-      }
-
-      lines.push(`| ${year} | ${formatCurrency(yearData.startkapital)} | ${formatCurrency(yearData.entnahme)} | ${formatCurrency(yearData.zinsen)} | ${formatCurrency(yearData.endkapital)} | ${vorabDetails} | ${formatCurrency(yearData.bezahlteSteuer)} |`)
-    }
-    lines.push('')
+  if (hasSimulationProperty) {
+    addSavingsPhaseSimulationData(savingsData.sparplanElements, lines)
   }
   else {
+    addSavingsPhaseMockData(savingsData.sparplanElements, lines)
+  }
+
+  lines.push('')
+}
+
+/**
+ * Add savings phase data from simulation structure
+ */
+function addSavingsPhaseSimulationData(sparplanElements: unknown[], lines: string[]): void {
+  const allYears = new Set<number>()
+  for (const element of sparplanElements) {
+    if (typeof element === 'object' && element !== null && 'simulation' in element) {
+      const simulation = (element as Record<string, unknown>).simulation
+      if (simulation && typeof simulation === 'object') {
+        Object.keys(simulation).forEach(year => allYears.add(parseInt(year)))
+      }
+    }
+  }
+
+  const sortedYears = Array.from(allYears).sort((a, b) => a - b)
+
+  for (const year of sortedYears) {
+    let totalStartkapital = 0
+    let totalZinsen = 0
+    let totalEndkapital = 0
+    let totalBezahlteSteuer = 0
+    let totalVorabpauschale = 0
+    let totalContributions = 0
+
+    sparplanElements.forEach((element: unknown) => {
+      if (typeof element === 'object' && element !== null && 'simulation' in element) {
+        const simulation = (element as Record<string, unknown>).simulation as Record<string, unknown> | undefined
+        const yearData = simulation?.[year] as Record<string, unknown> | undefined
+        if (yearData) {
+          totalStartkapital += (yearData.startkapital as number) || 0
+          totalZinsen += (yearData.zinsen as number) || 0
+          totalEndkapital += (yearData.endkapital as number) || 0
+          totalBezahlteSteuer += (yearData.bezahlteSteuer as number) || 0
+          totalVorabpauschale += (yearData.vorabpauschale as number) || 0
+        }
+
+        const elementContribution = getElementContributionForYear(element, year, false)
+        totalContributions += elementContribution
+      }
+    })
+
+    lines.push(`| ${year} | ${formatCurrency(totalStartkapital)} | ${formatCurrency(totalZinsen)} | ${formatCurrency(totalContributions)} | ${formatCurrency(totalEndkapital)} | ${formatCurrency(totalVorabpauschale)} | ${formatCurrency(totalBezahlteSteuer)} |`)
+  }
+}
+
+/**
+ * Add savings phase data from mock structure
+ */
+function addSavingsPhaseMockData(sparplanElements: unknown[], lines: string[]): void {
+  for (const yearData of sparplanElements) {
+    if (!yearData || typeof yearData !== 'object') continue
+
+    const data = yearData as Record<string, unknown>
+    const year = new Date(data.start as string).getFullYear()
+    const contribution = (data.einzahlung as number) || (data.amount as number) || (data.monthlyAmount as number) || 0
+
+    lines.push(`| ${year} | ${formatCurrency((data.startkapital as number) || 0)} | ${formatCurrency((data.zinsen as number) || 0)} | ${formatCurrency(contribution)} | ${formatCurrency((data.endkapital as number) || 0)} | ${formatCurrency((data.vorabpauschale as number) || 0)} | ${formatCurrency((data.bezahlteSteuer as number) || 0)} |`)
+  }
+}
+
+/**
+ * Add withdrawal phase markdown section to lines
+ */
+function addWithdrawalPhaseSection(
+  withdrawalData: WithdrawalResult | undefined,
+  context: SimulationContextState,
+  lines: string[],
+): void {
+  if (!withdrawalData || Object.keys(withdrawalData).length === 0) {
     lines.push('## Entnahmephase')
     lines.push('')
     lines.push('> ℹ️ Keine Entnahme-Daten verfügbar. Wechseln Sie zum Entnehmen-Tab und konfigurieren Sie eine Entnahmestrategie, um Daten zu generieren.')
     lines.push('')
+    return
   }
+
+  lines.push('## Entnahmephase')
+  lines.push('')
+
+  addWithdrawalParametersSection(context, lines)
+  addWithdrawalDataTable(withdrawalData, lines)
+  lines.push('')
+}
+
+/**
+ * Add withdrawal parameters section
+ */
+function addWithdrawalParametersSection(context: SimulationContextState, lines: string[]): void {
+  const withdrawalConfig = context.withdrawalConfig
+  if (!withdrawalConfig?.formValue) {
+    return
+  }
+
+  lines.push('### Entnahme-Parameter')
+
+  const hasMultipleSegments = withdrawalConfig.useSegmentedWithdrawal
+    && withdrawalConfig.withdrawalSegments
+    && withdrawalConfig.withdrawalSegments.length > 1
+
+  if (hasMultipleSegments) {
+    lines.push(`- **Strategie:** Segmentierte Entnahme`)
+    withdrawalConfig.withdrawalSegments.forEach((segment: unknown, index: number) => {
+      if (typeof segment === 'object' && segment !== null) {
+        const seg = segment as Record<string, unknown>
+        const strategyLabel = getWithdrawalStrategyLabel(seg.strategy as string)
+        const segmentInfo = `  - **Segment ${index + 1} (${seg.name}):** ${strategyLabel} (${seg.startYear}-${seg.endYear})`
+        lines.push(segmentInfo)
+      }
+    })
+  }
+  else {
+    lines.push(`- **Strategie:** ${getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie)}`)
+  }
+
+  lines.push(`- **Lebensende:** ${context.endOfLife}`)
+  lines.push(`- **Entnahme-Rendite:** ${formatPercentage(withdrawalConfig.formValue.rendite)}`)
+  lines.push('')
+}
+
+/**
+ * Add withdrawal data table
+ */
+function addWithdrawalDataTable(withdrawalData: WithdrawalResult, lines: string[]): void {
+  lines.push('| Jahr | Startkapital | Entnahme | Zinsen | Endkapital | Vorabpauschale Details | Steuer |')
+  lines.push('|------|--------------|----------|--------|------------|------------------------|--------|')
+
+  const years = Object.keys(withdrawalData).map(Number).sort()
+  for (const year of years) {
+    const yearData = withdrawalData[year]
+    if (!yearData) continue
+
+    let vorabDetails = 'N/A'
+    if (yearData.vorabpauschaleDetails) {
+      const details = yearData.vorabpauschaleDetails
+      vorabDetails = `Basiszins: ${formatPercentage(details.basiszins * 100)} / `
+        + `Basisertrag: ${formatCurrency(details.basisertrag)} / `
+        + `Jahresgewinn: ${formatCurrency(details.jahresgewinn)} / `
+        + `Vorabpauschale: ${formatCurrency(yearData.vorabpauschale || 0)}`
+    }
+
+    lines.push(`| ${year} | ${formatCurrency(yearData.startkapital)} | ${formatCurrency(yearData.entnahme)} | ${formatCurrency(yearData.zinsen)} | ${formatCurrency(yearData.endkapital)} | ${vorabDetails} | ${formatCurrency(yearData.bezahlteSteuer)} |`)
+  }
+}
+
+/**
+ * Export all simulation data to Markdown format
+ */
+export function exportDataToMarkdown(data: ExportData): string {
+  const { savingsData, withdrawalData, context } = data
+
+  const lines: string[] = []
+
+  // Header
+  lines.push('# Simulationsdaten Export')
+  lines.push('')
+  lines.push(`**Exportiert am:** ${new Date().toLocaleDateString('de-DE')}`)
+  lines.push('')
+
+  // Parameters section
+  lines.push('## Parameter')
+  lines.push('')
+  lines.push('### Grundparameter')
+  lines.push(`- **Zeitraum:** ${context.startEnd[0]} - ${context.startEnd[1]}`)
+  lines.push(`- **Rendite:** ${formatPercentage(context.rendite)}`)
+  lines.push(`- **Kapitalertragsteuer:** ${formatPercentage(context.steuerlast)}`)
+  lines.push(`- **Teilfreistellungsquote:** ${formatPercentage(context.teilfreistellungsquote)}`)
+  lines.push(`- **Berechnungsmodus:** ${context.simulationAnnual === 'yearly' ? 'Jährlich' : 'Monatlich'}`)
+
+  addOtherIncomeSection(context, lines)
+
+  lines.push('')
+
+  addCalculationExplanations(lines)
+  addSavingsPhaseSection(savingsData, lines)
+  addWithdrawalPhaseSection(withdrawalData, context, lines)
 
   return lines.join('\n')
 }
