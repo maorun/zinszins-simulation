@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 166 ESLint-Warnungen  
+**Aktueller Stand:** 158 ESLint-Warnungen  
 **Ziel:** 0 Warnungen (max-warnings = 0)  
 **Status:** In Bearbeitung
 
@@ -176,6 +176,41 @@
   - Aufwand: 0,3 Tage
 
 #### 1.3 Mittlere Priorität (Komplexität 26-44 ODER Zeilen 401-500)
+
+- [x] **formatParametersForExport** (src/utils/parameter-export.ts) ✅ ERLEDIGT
+  - Original: Komplexität: 26, Zeilen: 154
+  - Aktuell: Komplexität: <8, Zeilen: 103
+  - Status: ✅ Beide Limits erreicht (Komplexität <8, Zeilen <400)
+  - Extrahierte Hilfsfunktionen: 18
+    - `formatBasicParameters` - Basis-Finanzparameter
+    - `formatInflationAndReturns` - Inflation und Rendite-Einstellungen
+    - `formatVariableReturns` - Variable Renditen pro Jahr
+    - `formatTaxAllowances` - Freibeträge pro Jahr
+    - `formatSparplanItem` - Einzelner Sparplan/Sonderereignis
+    - `formatSparplanBasicInfo` - Basis-Sparplan-Informationen
+    - `formatSparplanSpecialEventData` - Sonderereignis-Daten
+    - `formatSparplanCostFactors` - Kostenkomponenten
+    - `formatWithdrawalConfiguration` - Entnahme-Konfiguration
+    - `formatWithdrawalConfigDetails` - Detaillierte Entnahme-Konfiguration
+    - `formatDefaultWithdrawalConfig` - Standard Entnahme-Konfiguration
+    - `formatWithdrawalInflation` - Entnahme-Inflation
+    - `formatWithdrawalStrategyDetails` - Strategie-spezifische Details
+    - `formatGrundfreibetragConfig` - Grundfreibetrag-Konfiguration
+    - `formatWithdrawalReturnMode` - Entnahme-Rendite-Modus
+    - `formatSegmentedWithdrawal` - Segmentierte Entnahme
+    - `formatComparisonMode` - Vergleichsmodus
+    - `formatWithdrawalSegment` - Einzelnes Entnahme-Segment
+  - Zusätzliche Segment-Hilfsfunktionen: 5
+    - `formatSegmentReturnConfig` - Segment-Rendite-Konfiguration
+    - `formatSegmentStrategyParams` - Segment-Strategie-Parameter
+    - `formatDynamicStrategyConfig` - Dynamische Strategie-Konfiguration
+    - `formatBucketStrategyConfig` - Bucket-Strategie-Konfiguration
+    - `formatBucketDynamicSubStrategy` - Bucket-Dynamische-Sub-Strategie
+    - `formatSegmentTaxAndInflation` - Segment-Steuer und Inflation
+  - Alle Hilfsfunktionen mit Params-Objekten für >5 Parameter
+  - Keine any types eingeführt - alle mit spezifischen Interfaces
+  - Alle Tests bestehen (1455 Tests)
+  - Aufwand: 0,3 Tage
 
 - [ ] **exportDataToMarkdown** (src/utils/data-export.ts) - Komplexität: 34
 - [ ] **createTaxableIncomeExplanation** (src/components/WithdrawalSegmentForm.tsx) - Komplexität: 33
