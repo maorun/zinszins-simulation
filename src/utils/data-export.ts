@@ -283,46 +283,105 @@ function getElementContributionForYear(element: unknown, year: number, isMonthly
 }
 
 /**
- * Export withdrawal phase data to CSV format
+ * Build basic row data for a withdrawal year/month
  */
-export function exportWithdrawalDataToCSV(data: ExportData): string {
-  const { withdrawalData, context } = data
+interface BasicRowDataParams {
+  year: number
+  month: number
+  yearData: any
+  isMonthly: boolean
+}
 
-  if (!withdrawalData) {
-    throw new Error('Keine Entnahme-Daten verfügbar')
+function buildBasicRowData(params: BasicRowDataParams): string[] {
+  const { year, month, yearData, isMonthly } = params
+  const row: string[] = []
+
+  row.push(year.toString())
+  row.push(isMonthly ? month.toString() : '12')
+  row.push(formatCurrencyForCSV(yearData.startkapital))
+  row.push(formatCurrencyForCSV(yearData.entnahme))
+  row.push(formatCurrencyForCSV(yearData.zinsen))
+  row.push(formatCurrencyForCSV(yearData.endkapital))
+
+  // Vorabpauschale details for transparency
+  const details = yearData.vorabpauschaleDetails
+  row.push(details ? formatPercentage(details.basiszins * 100).replace('%', '') : '0,00')
+  row.push(formatCurrencyForCSV(details?.basisertrag || 0))
+  row.push(formatCurrencyForCSV(details?.jahresgewinn || 0))
+  row.push(formatCurrencyForCSV(yearData.vorabpauschale || 0))
+  row.push(formatCurrencyForCSV(details?.steuerVorFreibetrag || 0))
+  row.push(formatCurrencyForCSV(yearData.bezahlteSteuer))
+  row.push(formatCurrencyForCSV(yearData.genutzterFreibetrag))
+
+  return row
+}
+
+/**
+ * Add strategy-specific data to row
+ */
+interface StrategyRowDataParams {
+  row: string[]
+  yearData: any
+  withdrawalConfig: any
+}
+
+function addStrategySpecificData(params: StrategyRowDataParams): void {
+  const { row, yearData, withdrawalConfig } = params
+
+  if (withdrawalConfig?.formValue.strategie === 'monatlich_fest') {
+    row.push(formatCurrencyForCSV(yearData.monatlicheEntnahme || 0))
+    if (withdrawalConfig.formValue.inflationAktiv) {
+      row.push(formatCurrencyForCSV(yearData.inflationAnpassung || 0))
+    }
+    if (withdrawalConfig.formValue.guardrailsAktiv) {
+      row.push(formatCurrencyForCSV(yearData.portfolioAnpassung || 0))
+    }
   }
 
-  const lines: string[] = []
-
-  // Add header with parameter information
-  lines.push('# Entnahmephase - Simulationsdaten')
-
-  const withdrawalConfig = context.withdrawalConfig
-  if (withdrawalConfig?.formValue) {
-    lines.push('# Lebensende: ' + context.endOfLife)
-
-    // Handle segmented withdrawal - multiple strategies
-    const hasMultipleSegments = withdrawalConfig.useSegmentedWithdrawal
-      && withdrawalConfig.withdrawalSegments
-      && withdrawalConfig.withdrawalSegments.length > 1
-    if (hasMultipleSegments) {
-      lines.push('# Strategie: Segmentierte Entnahme')
-      withdrawalConfig.withdrawalSegments.forEach((segment: any, index: number) => {
-        const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
-        lines.push(`# Segment ${index + 1} (${segment.name}): ${strategyLabel} (${segment.startYear}-${segment.endYear})`)
-      })
-    }
-    else {
-      // Single strategy
-      lines.push('# Strategie: ' + getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie))
-    }
-
-    lines.push('# Entnahme-Rendite: ' + formatPercentage(withdrawalConfig.formValue.rendite))
-    lines.push('# Häufigkeit: ' + (withdrawalConfig.formValue.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'))
+  if (withdrawalConfig?.formValue.strategie === 'dynamisch') {
+    row.push(formatPercentage(yearData.vorjahresRendite || 0))
+    row.push(formatCurrencyForCSV(yearData.dynamischeAnpassung || 0))
   }
-  lines.push('')
+}
 
-  // CSV header for withdrawal phase
+/**
+ * Add tax and income data to row
+ */
+interface TaxIncomeDataParams {
+  row: string[]
+  yearData: any
+  grundfreibetragAktiv: boolean
+  hasOtherIncomeData: boolean
+}
+
+function addTaxAndIncomeData(params: TaxIncomeDataParams): void {
+  const { row, yearData, grundfreibetragAktiv, hasOtherIncomeData } = params
+
+  if (grundfreibetragAktiv) {
+    row.push(formatCurrencyForCSV(yearData.einkommensteuer || 0))
+    row.push(formatCurrencyForCSV(yearData.genutzterGrundfreibetrag || 0))
+  }
+
+  if (hasOtherIncomeData) {
+    const otherIncome = yearData.otherIncome
+    row.push(formatCurrencyForCSV(otherIncome?.totalNetAmount || 0))
+    row.push(formatCurrencyForCSV(otherIncome?.totalTaxAmount || 0))
+    row.push((otherIncome?.sourceCount || 0).toString())
+  }
+}
+
+/**
+ * Generate CSV header columns for withdrawal data export
+ */
+interface WithdrawalHeaderParams {
+  withdrawalConfig: any
+  withdrawalData: WithdrawalResult
+  grundfreibetragAktiv: boolean
+}
+
+function generateWithdrawalCSVHeaders(params: WithdrawalHeaderParams): string[] {
+  const { withdrawalConfig, withdrawalData, grundfreibetragAktiv } = params
+
   const headers = [
     'Jahr',
     'Monat',
@@ -339,7 +398,7 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
     'Genutzter Freibetrag (EUR)',
   ]
 
-  // Add conditional headers
+  // Add conditional headers based on strategy
   if (withdrawalConfig?.formValue.strategie === 'monatlich_fest') {
     headers.push('Monatliche Entnahme (EUR)')
     if (withdrawalConfig.formValue.inflationAktiv) {
@@ -355,7 +414,7 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
     headers.push('Dynamische Anpassung (EUR)')
   }
 
-  if (context.grundfreibetragAktiv) {
+  if (grundfreibetragAktiv) {
     headers.push('Einkommensteuer (EUR)')
     headers.push('Genutzter Grundfreibetrag (EUR)')
   }
@@ -371,10 +430,85 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
     headers.push('Anzahl Einkommensquellen')
   }
 
+  return headers
+}
+
+/**
+ * Generate CSV metadata lines for withdrawal configuration
+ */
+interface WithdrawalMetadataParams {
+  withdrawalConfig: any
+  endOfLife: number
+}
+
+function generateWithdrawalMetadataLines(params: WithdrawalMetadataParams): string[] {
+  const { withdrawalConfig, endOfLife } = params
+  const lines: string[] = []
+
+  lines.push('# Entnahmephase - Simulationsdaten')
+
+  if (!withdrawalConfig?.formValue) {
+    lines.push('')
+    return lines
+  }
+
+  lines.push('# Lebensende: ' + endOfLife)
+
+  // Handle segmented withdrawal - multiple strategies
+  const hasMultipleSegments = withdrawalConfig.useSegmentedWithdrawal
+    && withdrawalConfig.withdrawalSegments
+    && withdrawalConfig.withdrawalSegments.length > 1
+
+  if (hasMultipleSegments) {
+    lines.push('# Strategie: Segmentierte Entnahme')
+    withdrawalConfig.withdrawalSegments.forEach((segment: any, index: number) => {
+      const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
+      lines.push(`# Segment ${index + 1} (${segment.name}): ${strategyLabel} (${segment.startYear}-${segment.endYear})`)
+    })
+  }
+  else {
+    lines.push('# Strategie: ' + getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie))
+  }
+
+  lines.push('# Entnahme-Rendite: ' + formatPercentage(withdrawalConfig.formValue.rendite))
+  lines.push('# Häufigkeit: ' + (withdrawalConfig.formValue.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'))
+  lines.push('')
+
+  return lines
+}
+
+/**
+ * Export withdrawal phase data to CSV format
+ */
+export function exportWithdrawalDataToCSV(data: ExportData): string {
+  const { withdrawalData, context } = data
+
+  if (!withdrawalData) {
+    throw new Error('Keine Entnahme-Daten verfügbar')
+  }
+
+  const withdrawalConfig = context.withdrawalConfig
+
+  // Add header with parameter information
+  const lines = generateWithdrawalMetadataLines({
+    withdrawalConfig,
+    endOfLife: context.endOfLife,
+  })
+
+  // CSV header for withdrawal phase
+  const headers = generateWithdrawalCSVHeaders({
+    withdrawalConfig,
+    withdrawalData,
+    grundfreibetragAktiv: context.grundfreibetragAktiv,
+  })
+
   lines.push(headers.join(';'))
 
   // Process withdrawal data
   const years = Object.keys(withdrawalData).map(Number).sort()
+  const hasOtherIncomeData = Object.values(withdrawalData).some(yearData =>
+    yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
+  )
 
   for (const year of years) {
     const yearData = withdrawalData[year]
@@ -384,58 +518,16 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
     const months = isMonthly ? 12 : 1
 
     for (let month = 1; month <= months; month++) {
-      const row: string[] = []
+      const row = buildBasicRowData({ year, month, yearData, isMonthly })
 
-      // Basic data
-      row.push(year.toString())
-      row.push(isMonthly ? month.toString() : '12')
-      row.push(formatCurrencyForCSV(yearData.startkapital))
-      row.push(formatCurrencyForCSV(yearData.entnahme))
-      row.push(formatCurrencyForCSV(yearData.zinsen))
-      row.push(formatCurrencyForCSV(yearData.endkapital))
+      addStrategySpecificData({ row, yearData, withdrawalConfig })
 
-      // Vorabpauschale details for transparency
-      const details = yearData.vorabpauschaleDetails
-      row.push(details ? formatPercentage(details.basiszins * 100).replace('%', '') : '0,00') // Basiszins in %
-      row.push(formatCurrencyForCSV(details?.basisertrag || 0)) // Basisertrag
-      row.push(formatCurrencyForCSV(details?.jahresgewinn || 0)) // Tatsächlicher Gewinn
-      row.push(formatCurrencyForCSV(yearData.vorabpauschale || 0)) // Final Vorabpauschale
-      row.push(formatCurrencyForCSV(details?.steuerVorFreibetrag || 0)) // Steuerbasis vor Freibetrag
-      row.push(formatCurrencyForCSV(yearData.bezahlteSteuer)) // Bezahlte Steuer
-      row.push(formatCurrencyForCSV(yearData.genutzterFreibetrag)) // Genutzter Freibetrag
-
-      // Conditional data
-      if (withdrawalConfig?.formValue.strategie === 'monatlich_fest') {
-        row.push(formatCurrencyForCSV(yearData.monatlicheEntnahme || 0))
-        if (withdrawalConfig.formValue.inflationAktiv) {
-          row.push(formatCurrencyForCSV(yearData.inflationAnpassung || 0))
-        }
-        if (withdrawalConfig.formValue.guardrailsAktiv) {
-          row.push(formatCurrencyForCSV(yearData.portfolioAnpassung || 0))
-        }
-      }
-
-      if (withdrawalConfig?.formValue.strategie === 'dynamisch') {
-        row.push(formatPercentage(yearData.vorjahresRendite || 0))
-        row.push(formatCurrencyForCSV(yearData.dynamischeAnpassung || 0))
-      }
-
-      if (context.grundfreibetragAktiv) {
-        row.push(formatCurrencyForCSV(yearData.einkommensteuer || 0))
-        row.push(formatCurrencyForCSV(yearData.genutzterGrundfreibetrag || 0))
-      }
-
-      // Other income data if present
-      const hasOtherIncomeData = Object.values(withdrawalData).some(yearData =>
-        yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
-      )
-
-      if (hasOtherIncomeData) {
-        const otherIncome = yearData.otherIncome
-        row.push(formatCurrencyForCSV(otherIncome?.totalNetAmount || 0))
-        row.push(formatCurrencyForCSV(otherIncome?.totalTaxAmount || 0))
-        row.push((otherIncome?.sourceCount || 0).toString())
-      }
+      addTaxAndIncomeData({
+        row,
+        yearData,
+        grundfreibetragAktiv: context.grundfreibetragAktiv,
+        hasOtherIncomeData,
+      })
 
       lines.push(row.join(';'))
     }

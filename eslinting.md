@@ -96,8 +96,17 @@
     - `LifeExpectancyTableConfiguration` - Sterbetafel-Konfiguration
   - Aufwand: 0,5 Tage
 
-- [ ] **exportWithdrawalDataToCSV** (src/utils/data-export.ts)
-  - Komplexität: 52
+- [x] **exportWithdrawalDataToCSV** (src/utils/data-export.ts) ✅ ERLEDIGT
+  - Original: Komplexität: 52, Zeilen: 158
+  - Aktuell: Komplexität <25, Zeilen: 31
+  - Status: ✅ Beide Limits erreicht (Komplexität <25, Zeilen <50)
+  - Extrahierte Hilfsfunktionen: 5
+    - `generateWithdrawalMetadataLines` - CSV Metadaten-Generierung
+    - `generateWithdrawalCSVHeaders` - CSV Header-Generierung mit bedingten Spalten
+    - `buildBasicRowData` - Basis-Zeilendaten (Jahr, Monat, Kapital, Steuern)
+    - `addStrategySpecificData` - Strategie-spezifische Felder
+    - `addTaxAndIncomeData` - Steuer- und Einkommensdaten
+  - Alle Hilfsfunktionen mit Params-Objekten für >5 Parameter
   - Aufwand: 0,3 Tage
 
 - [ ] **useWithdrawalModals arrow function** (src/hooks/useWithdrawalModals.ts)
