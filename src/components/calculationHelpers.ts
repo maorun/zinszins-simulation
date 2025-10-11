@@ -317,6 +317,177 @@ export function createWithdrawalInterestExplanation(
   }
 }
 
+// Helper types for taxable income calculation
+interface TaxableIncomeParams {
+  entnahme: number
+  grundfreibetrag: number
+  statutoryPensionTaxableAmount?: number
+  otherIncomeGrossAmount?: number
+  healthCareInsuranceAnnual?: number
+}
+
+// Calculate total taxable income from all sources
+function calculateTotalTaxableIncome(params: TaxableIncomeParams): number {
+  let total = params.entnahme
+
+  if (params.statutoryPensionTaxableAmount) {
+    total += params.statutoryPensionTaxableAmount
+  }
+
+  if (params.otherIncomeGrossAmount) {
+    total += params.otherIncomeGrossAmount
+  }
+
+  if (params.healthCareInsuranceAnnual && params.healthCareInsuranceAnnual > 0) {
+    total -= params.healthCareInsuranceAnnual
+  }
+
+  return total
+}
+
+// Add statutory pension step to calculation
+function addStatutoryPensionStep(
+  steps: CalculationStep[],
+  amount: number,
+): void {
+  steps.push({
+    title: 'Schritt 2: Gesetzliche Rente (steuerpflichtiger Anteil)',
+    description: 'Der steuerpflichtige Anteil der gesetzlichen Rente wird zu den Einkünften hinzugefügt.',
+    calculation: `Steuerpflichtiger Rentenanteil = ${formatCurrency(amount)}`,
+    result: formatCurrency(amount),
+    backgroundColor: '#e3f2fd',
+    borderColor: '#90caf9',
+  })
+}
+
+// Add other income step to calculation
+function addOtherIncomeStep(
+  steps: CalculationStep[],
+  amount: number,
+): void {
+  steps.push({
+    title: `Schritt ${steps.length + 1}: Andere Einkünfte`,
+    description: 'Weitere Einkünfte (Mieteinnahmen, Nebeneinkünfte, etc.) werden zu den Einkünften hinzugefügt.',
+    calculation: `Andere Einkünfte = ${formatCurrency(amount)}`,
+    result: formatCurrency(amount),
+    backgroundColor: '#f3e5f5',
+    borderColor: '#ce93d8',
+  })
+}
+
+// Add health care insurance deduction step
+function addHealthCareInsuranceStep(
+  steps: CalculationStep[],
+  amount: number,
+): void {
+  steps.push({
+    title: `Schritt ${steps.length + 1}: Krankenversicherung abziehen`,
+    description: 'Kranken- und Pflegeversicherungsbeiträge sind in Deutschland steuerlich absetzbar und werden von den '
+      + 'Brutto-Einkünften abgezogen.',
+    calculation: `Krankenversicherungsbeiträge = ${formatCurrency(amount)} `
+      + '(steuerlich absetzbar)',
+    result: `-${formatCurrency(amount)}`,
+    backgroundColor: '#e1f5fe',
+    borderColor: '#81d4fa',
+  })
+}
+
+// Build calculation text for total income
+function buildTotalIncomeCalculationText(
+  params: TaxableIncomeParams,
+  totalIncome: number,
+): string {
+  let text = `Gesamte Einkünfte = Portfolio-Entnahme`
+
+  if (params.statutoryPensionTaxableAmount && params.statutoryPensionTaxableAmount > 0) {
+    text += ` + Gesetzliche Rente`
+  }
+  if (params.otherIncomeGrossAmount && params.otherIncomeGrossAmount > 0) {
+    text += ` + Andere Einkünfte`
+  }
+  if (params.healthCareInsuranceAnnual && params.healthCareInsuranceAnnual > 0) {
+    text += ` - Krankenversicherung`
+  }
+
+  text += `<br/>${formatCurrency(params.entnahme)}`
+
+  if (params.statutoryPensionTaxableAmount && params.statutoryPensionTaxableAmount > 0) {
+    text += ` + ${formatCurrency(params.statutoryPensionTaxableAmount)}`
+  }
+  if (params.otherIncomeGrossAmount && params.otherIncomeGrossAmount > 0) {
+    text += ` + ${formatCurrency(params.otherIncomeGrossAmount)}`
+  }
+  if (params.healthCareInsuranceAnnual && params.healthCareInsuranceAnnual > 0) {
+    text += ` - ${formatCurrency(params.healthCareInsuranceAnnual)}`
+  }
+
+  text += ` = ${formatCurrency(totalIncome)}`
+  return text
+}
+
+// Add total income step if needed
+function addTotalIncomeStepIfNeeded(
+  steps: CalculationStep[],
+  params: TaxableIncomeParams,
+  totalIncome: number,
+): void {
+  const hasMultipleSources = params.statutoryPensionTaxableAmount
+    || params.otherIncomeGrossAmount
+    || (params.healthCareInsuranceAnnual && params.healthCareInsuranceAnnual > 0)
+
+  if (!hasMultipleSources) {
+    return
+  }
+
+  const calculationText = buildTotalIncomeCalculationText(params, totalIncome)
+
+  steps.push({
+    title: `Schritt ${steps.length + 1}: Gesamte Einkünfte`,
+    description: 'Alle Einkunftsarten werden zusammengefasst und steuerlich absetzbare Beiträge abgezogen.',
+    calculation: calculationText,
+    result: formatCurrency(totalIncome),
+    backgroundColor: '#fff9c4',
+    borderColor: '#fff176',
+  })
+}
+
+// Build final result values array
+function buildTaxableIncomeFinalValues(
+  params: TaxableIncomeParams,
+  totalIncome: number,
+  steuerpflichtig: number,
+): Array<{ label: string, value: string }> {
+  const values = [
+    { label: 'Portfolio-Entnahme', value: formatCurrency(params.entnahme) },
+  ]
+
+  if (params.statutoryPensionTaxableAmount && params.statutoryPensionTaxableAmount > 0) {
+    values.push({
+      label: 'Gesetzliche Rente (steuerpflichtig)',
+      value: formatCurrency(params.statutoryPensionTaxableAmount),
+    })
+  }
+
+  if (params.otherIncomeGrossAmount && params.otherIncomeGrossAmount > 0) {
+    values.push({ label: 'Andere Einkünfte', value: formatCurrency(params.otherIncomeGrossAmount) })
+  }
+
+  if (params.healthCareInsuranceAnnual && params.healthCareInsuranceAnnual > 0) {
+    values.push({
+      label: 'Krankenversicherung (absetzbar)',
+      value: `-${formatCurrency(params.healthCareInsuranceAnnual)}`,
+    })
+  }
+
+  values.push(
+    { label: 'Gesamte Einkünfte', value: formatCurrency(totalIncome) },
+    { label: 'Grundfreibetrag', value: formatCurrency(params.grundfreibetrag) },
+    { label: 'Zu versteuerndes Einkommen', value: formatCurrency(steuerpflichtig) },
+  )
+
+  return values
+}
+
 // Taxable income calculation explanation
 export function createTaxableIncomeExplanation(
   entnahme: number,
@@ -325,25 +496,18 @@ export function createTaxableIncomeExplanation(
   otherIncomeGrossAmount?: number,
   healthCareInsuranceAnnual?: number,
 ): CalculationExplanation {
-  // Calculate total taxable income from all sources
-  let totalTaxableIncome = entnahme
-
-  if (statutoryPensionTaxableAmount) {
-    totalTaxableIncome += statutoryPensionTaxableAmount
+  const params: TaxableIncomeParams = {
+    entnahme,
+    grundfreibetrag,
+    statutoryPensionTaxableAmount,
+    otherIncomeGrossAmount,
+    healthCareInsuranceAnnual,
   }
 
-  if (otherIncomeGrossAmount) {
-    totalTaxableIncome += otherIncomeGrossAmount
-  }
-
-  // Deduct health care insurance contributions (tax-deductible in Germany)
-  if (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0) {
-    totalTaxableIncome -= healthCareInsuranceAnnual
-  }
-
+  const totalTaxableIncome = calculateTotalTaxableIncome(params)
   const steuerpflichtigesEinkommen = Math.max(0, totalTaxableIncome - grundfreibetrag)
 
-  const steps = [
+  const steps: CalculationStep[] = [
     {
       title: 'Schritt 1: Portfolio-Entnahme',
       description: 'Die Entnahme aus dem Portfolio vor Steuern.',
@@ -354,80 +518,20 @@ export function createTaxableIncomeExplanation(
     },
   ]
 
-  // Add statutory pension step if applicable
   if (statutoryPensionTaxableAmount && statutoryPensionTaxableAmount > 0) {
-    steps.push({
-      title: 'Schritt 2: Gesetzliche Rente (steuerpflichtiger Anteil)',
-      description: 'Der steuerpflichtige Anteil der gesetzlichen Rente wird zu den Einkünften hinzugefügt.',
-      calculation: `Steuerpflichtiger Rentenanteil = ${formatCurrency(statutoryPensionTaxableAmount)}`,
-      result: formatCurrency(statutoryPensionTaxableAmount),
-      backgroundColor: '#e3f2fd',
-      borderColor: '#90caf9',
-    })
+    addStatutoryPensionStep(steps, statutoryPensionTaxableAmount)
   }
 
-  // Add other income step if applicable
   if (otherIncomeGrossAmount && otherIncomeGrossAmount > 0) {
-    steps.push({
-      title: `Schritt ${steps.length + 1}: Andere Einkünfte`,
-      description: 'Weitere Einkünfte (Mieteinnahmen, Nebeneinkünfte, etc.) werden zu den Einkünften hinzugefügt.',
-      calculation: `Andere Einkünfte = ${formatCurrency(otherIncomeGrossAmount)}`,
-      result: formatCurrency(otherIncomeGrossAmount),
-      backgroundColor: '#f3e5f5',
-      borderColor: '#ce93d8',
-    })
+    addOtherIncomeStep(steps, otherIncomeGrossAmount)
   }
 
-  // Add health care insurance deduction step if applicable
   if (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0) {
-    steps.push({
-      title: `Schritt ${steps.length + 1}: Krankenversicherung abziehen`,
-      description: 'Kranken- und Pflegeversicherungsbeiträge sind in Deutschland steuerlich absetzbar und werden von den '
-        + 'Brutto-Einkünften abgezogen.',
-      calculation: `Krankenversicherungsbeiträge = ${formatCurrency(healthCareInsuranceAnnual)} `
-        + '(steuerlich absetzbar)',
-      result: `-${formatCurrency(healthCareInsuranceAnnual)}`,
-      backgroundColor: '#e1f5fe',
-      borderColor: '#81d4fa',
-    })
+    addHealthCareInsuranceStep(steps, healthCareInsuranceAnnual)
   }
 
-  // Add total income step if we have multiple sources or health care insurance
-  if (statutoryPensionTaxableAmount || otherIncomeGrossAmount
-    || (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0)) {
-    let calculationText = `Gesamte Einkünfte = Portfolio-Entnahme`
-    if (statutoryPensionTaxableAmount && statutoryPensionTaxableAmount > 0) {
-      calculationText += ` + Gesetzliche Rente`
-    }
-    if (otherIncomeGrossAmount && otherIncomeGrossAmount > 0) {
-      calculationText += ` + Andere Einkünfte`
-    }
-    if (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0) {
-      calculationText += ` - Krankenversicherung`
-    }
-    calculationText += `<br/>${formatCurrency(entnahme)}`
-    if (statutoryPensionTaxableAmount && statutoryPensionTaxableAmount > 0) {
-      calculationText += ` + ${formatCurrency(statutoryPensionTaxableAmount)}`
-    }
-    if (otherIncomeGrossAmount && otherIncomeGrossAmount > 0) {
-      calculationText += ` + ${formatCurrency(otherIncomeGrossAmount)}`
-    }
-    if (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0) {
-      calculationText += ` - ${formatCurrency(healthCareInsuranceAnnual)}`
-    }
-    calculationText += ` = ${formatCurrency(totalTaxableIncome)}`
+  addTotalIncomeStepIfNeeded(steps, params, totalTaxableIncome)
 
-    steps.push({
-      title: `Schritt ${steps.length + 1}: Gesamte Einkünfte`,
-      description: 'Alle Einkunftsarten werden zusammengefasst und steuerlich absetzbare Beiträge abgezogen.',
-      calculation: calculationText,
-      result: formatCurrency(totalTaxableIncome),
-      backgroundColor: '#fff9c4',
-      borderColor: '#fff176',
-    })
-  }
-
-  // Final step: subtract Grundfreibetrag
   steps.push({
     title: `Schritt ${steps.length + 1}: Grundfreibetrag abziehen`,
     description: `Der steuerfreie Grundfreibetrag von ${formatCurrency(grundfreibetrag)} wird von den gesamten Einkünften abgezogen.`,
@@ -437,26 +541,10 @@ export function createTaxableIncomeExplanation(
     borderColor: '#81c784',
   })
 
-  const finalResultValues = [
-    { label: 'Portfolio-Entnahme', value: formatCurrency(entnahme) },
-  ]
-
-  if (statutoryPensionTaxableAmount && statutoryPensionTaxableAmount > 0) {
-    finalResultValues.push({ label: 'Gesetzliche Rente (steuerpflichtig)', value: formatCurrency(statutoryPensionTaxableAmount) })
-  }
-
-  if (otherIncomeGrossAmount && otherIncomeGrossAmount > 0) {
-    finalResultValues.push({ label: 'Andere Einkünfte', value: formatCurrency(otherIncomeGrossAmount) })
-  }
-
-  if (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0) {
-    finalResultValues.push({ label: 'Krankenversicherung (absetzbar)', value: `-${formatCurrency(healthCareInsuranceAnnual)}` })
-  }
-
-  finalResultValues.push(
-    { label: 'Gesamte Einkünfte', value: formatCurrency(totalTaxableIncome) },
-    { label: 'Grundfreibetrag', value: formatCurrency(grundfreibetrag) },
-    { label: 'Zu versteuerndes Einkommen', value: formatCurrency(steuerpflichtigesEinkommen) },
+  const finalResultValues = buildTaxableIncomeFinalValues(
+    params,
+    totalTaxableIncome,
+    steuerpflichtigesEinkommen,
   )
 
   return {
