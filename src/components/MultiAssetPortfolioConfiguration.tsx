@@ -14,6 +14,26 @@ import {
   validateMultiAssetConfig,
 } from '../../helpers/multi-asset-portfolio'
 
+/** Information section component for multi-asset portfolio hints */
+function MultiAssetInfoSection() {
+  return (
+    <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
+      <div className="flex items-start gap-2 text-gray-700 text-sm">
+        <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
+        <div>
+          <p className="font-medium mb-1">Hinweise zum Multi-Asset Portfolio:</p>
+          <ul className="list-disc list-inside space-y-1 text-xs">
+            <li>Basiert auf historischen deutschen/europäischen Marktdaten</li>
+            <li>Berücksichtigt deutsche Steuerregeln (Teilfreistellung für Aktien/REITs)</li>
+            <li>Automatisches Rebalancing reduziert Portfoliorisiko</li>
+            <li>Korrelationen verbessern die Realitätsnähe der Simulation</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  )
+}
+
 interface MultiAssetPortfolioConfigurationProps {
   /** Current multi-asset portfolio configuration */
   values: MultiAssetPortfolioConfig
@@ -52,15 +72,12 @@ export function MultiAssetPortfolioConfiguration({
       </Card>
     )
   }
-
   // Validate configuration
   const validationErrors = validateMultiAssetConfig(safeValues)
   const hasErrors = validationErrors.length > 0
-
   // Get enabled asset classes with safety check
   const enabledAssets = Object.entries(safeValues.assetClasses || {})
     .filter(([_, config]) => config && config.enabled)
-
   // Calculate expected portfolio return and risk
   const expectedPortfolioReturn = enabledAssets.reduce(
     (sum, [_, config]) => sum + (config.expectedReturn * config.targetAllocation),
@@ -441,20 +458,7 @@ export function MultiAssetPortfolioConfiguration({
               </div>
 
               {/* Information Section */}
-              <div className="p-3 bg-gray-50 border border-gray-200 rounded-md">
-                <div className="flex items-start gap-2 text-gray-700 text-sm">
-                  <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                  <div>
-                    <p className="font-medium mb-1">Hinweise zum Multi-Asset Portfolio:</p>
-                    <ul className="list-disc list-inside space-y-1 text-xs">
-                      <li>Basiert auf historischen deutschen/europäischen Marktdaten</li>
-                      <li>Berücksichtigt deutsche Steuerregeln (Teilfreistellung für Aktien/REITs)</li>
-                      <li>Automatisches Rebalancing reduziert Portfoliorisiko</li>
-                      <li>Korrelationen verbessern die Realitätsnähe der Simulation</li>
-                    </ul>
-                  </div>
-                </div>
-              </div>
+              <MultiAssetInfoSection />
             </>
           )}
         </div>
