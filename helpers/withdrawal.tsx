@@ -137,32 +137,32 @@ function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
     if (!monthlyConfig) throw new Error('Monthly config required')
     return monthlyConfig.monthlyAmount * 12
   }
-  
+
   if (strategy === 'variabel_prozent') {
     if (customPercentage === undefined) throw new Error('Custom percentage required')
     return initialStartingCapital * customPercentage
   }
-  
+
   if (strategy === 'dynamisch') {
     if (!dynamicConfig) throw new Error('Dynamic config required')
     return initialStartingCapital * dynamicConfig.baseWithdrawalRate
   }
-  
+
   if (strategy === 'bucket_strategie') {
     if (!bucketConfig) throw new Error('Bucket strategy config required')
     return calculateBucketStrategyAmount(initialStartingCapital, bucketConfig)
   }
-  
+
   if (strategy === 'rmd') {
     if (!rmdConfig) throw new Error('RMD config required')
     return calculateRMDAmount(initialStartingCapital, rmdConfig)
   }
-  
+
   if (strategy === 'kapitalerhalt') {
     if (!kapitalerhaltConfig) throw new Error('Kapitalerhalt config required')
     return calculateKapitalerhaltAmount(initialStartingCapital, kapitalerhaltConfig)
   }
-  
+
   if (strategy === 'steueroptimiert') {
     const config = steueroptimierteEntnahmeConfig || {
       baseWithdrawalRate: 0.04,
@@ -173,7 +173,7 @@ function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
     }
     return initialStartingCapital * config.baseWithdrawalRate
   }
-  
+
   const withdrawalRate = strategy === '4prozent' ? 0.04 : 0.03
   return initialStartingCapital * withdrawalRate
 }
@@ -398,7 +398,7 @@ function applyInflationAdjustment(
   if (!inflationConfig?.inflationRate) {
     return { adjustedWithdrawal: baseWithdrawalAmount, inflationAnpassung: 0 }
   }
-  
+
   const yearsPassed = year - startYear
   const inflationAnpassung = baseWithdrawalAmount * (Math.pow(1 + inflationConfig.inflationRate, yearsPassed) - 1)
   return { adjustedWithdrawal: baseWithdrawalAmount + inflationAnpassung, inflationAnpassung }
@@ -427,11 +427,11 @@ function applyTaxOptimization(params: {
     taxRate,
     teilfreistellungsquote,
   } = params
-  
+
   if (strategy !== 'steueroptimiert' || !steueroptimierteEntnahmeConfig) {
     return { optimizedWithdrawal: annualWithdrawal, steueroptimierungAnpassung: 0 }
   }
-  
+
   const currentFreibetrag = getFreibetragForYear(year)
   const targetFreibetragUtilization = steueroptimierteEntnahmeConfig.freibetragUtilizationTarget || 0.85
 
@@ -490,7 +490,7 @@ function calculateAdjustedWithdrawal(params: {
     taxRate,
     teilfreistellungsquote,
   } = params
-  
+
   let annualWithdrawal = baseWithdrawalAmount
 
   // RMD strategy: recalculate withdrawal based on current portfolio value and age
@@ -600,7 +600,7 @@ function buildStatutoryPensionField(
   if (!statutoryPensionData[year] || statutoryPensionData[year].grossAnnualAmount <= 0) {
     return undefined
   }
-  
+
   return {
     grossAnnualAmount: statutoryPensionData[year].grossAnnualAmount,
     netAnnualAmount: statutoryPensionData[year].netAnnualAmount,
@@ -619,7 +619,7 @@ function buildOtherIncomeField(
   if (!otherIncomeData[year] || otherIncomeData[year].totalNetAnnualAmount <= 0) {
     return undefined
   }
-  
+
   return {
     totalNetAmount: otherIncomeData[year].totalNetAnnualAmount,
     totalTaxAmount: otherIncomeData[year].totalTaxAmount,
@@ -638,7 +638,7 @@ function buildHealthCareInsuranceField(
   if (!healthCareInsuranceData || !healthCareInsuranceConfig?.enabled) {
     return undefined
   }
-  
+
   return {
     healthInsuranceAnnual: healthCareInsuranceData.healthInsuranceAnnual,
     careInsuranceAnnual: healthCareInsuranceData.careInsuranceAnnual,
@@ -698,7 +698,7 @@ function buildIncomeSourceFields(params: {
     healthCareInsuranceConfig,
     coupleHealthCareInsuranceData,
   } = params
-  
+
   return {
     statutoryPension: buildStatutoryPensionField(year, statutoryPensionData),
     otherIncome: buildOtherIncomeField(year, otherIncomeData),
@@ -899,7 +899,7 @@ function calculateTotalTaxableIncome(params: {
     healthCareInsuranceData,
     healthCareInsuranceConfig,
   } = params
-  
+
   let totalTaxableIncome = entnahme
 
   // Add taxable amount from statutory pension
@@ -957,7 +957,7 @@ function calculateYearIncomeTax(params: {
     kirchensteuerAktiv,
     kirchensteuersatz,
   } = params
-  
+
   let einkommensteuer = 0
   let genutzterGrundfreibetrag = 0
   let taxableIncome = 0
@@ -1088,7 +1088,7 @@ function calculateVorabpauschaleForLayers(params: VorabpauschaleLayersParams): {
     teilfreistellungsquote,
     freibetragPerYear,
   } = params
-  
+
   const getFreibetrag = (yr: number): number => {
     if (freibetragPerYear && freibetragPerYear[yr] !== undefined) return freibetragPerYear[yr]
     return freibetrag[2023] || 2000

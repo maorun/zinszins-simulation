@@ -41,19 +41,27 @@
 
 #### 1.1 Kritische Funktionen (Komplexität > 75 ODER Zeilen > 1000)
 
-- [x] **calculateWithdrawal** (helpers/withdrawal.tsx) ✅ ERLEDIGT
+- [x] **calculateWithdrawal** (helpers/withdrawal.tsx) ✅ KOMPLETT REFAKTORIERT
   - Original: Komplexität 156, 548 Zeilen
-  - Aktuell: Komplexität <25, <400 Zeilen
-  - Status: ✅ Beide Limits erreicht (Komplexität <25, Zeilen <400)
-  - Extrahierte Hilfsfunktionen: 16 (7 neue in diesem PR)
-  - Neue Hilfsfunktionen:
-    - `calculateYearHealthCareInsurance` - Health Insurance Berechnungen
-    - `calculateYearIncomeTax` - Einkommensteuer mit Grundfreibetrag
-    - `applyPortfolioGrowthAndVorabTax` - Portfolio-Wachstum Anwendung
-    - `calculateAdjustedWithdrawal` - Entnahme-Anpassungen (RMD, Inflation, Dynamik)
-    - `buildYearlyResult` - Ergebnisobjekt-Konstruktion
-    - `buildStrategySpecificFields` - Strategie-spezifische Felder
-    - `buildIncomeSourceFields` - Einkommensquellen-Felder
+  - Aktuell: Komplexität <25, <400 Zeilen, 0 ESLint-Warnungen
+  - Status: ✅ Alle Limits erreicht (Komplexität <25, Zeilen <400)
+  - Extrahierte Hilfsfunktionen: 23 (16 vorherige + 7 neue in diesem Refactoring)
+  - Zusätzliche Refactorings in diesem PR:
+    - `calculateBaseWithdrawalAmount` - 78→57 Zeilen, 9→1 Parameter (mit BaseWithdrawalParams object)
+      - Extrahiert: `calculateBucketStrategyAmount`, `calculateRMDAmount`, `calculateKapitalerhaltAmount`
+    - `calculateYearIncomeTax` - 73→60 Zeilen
+      - Extrahiert: `calculateTotalTaxableIncome` (42 Zeilen, <8 Komplexität)
+    - `buildIncomeSourceFields` - 74→52 Zeilen
+      - Extrahiert: `buildStatutoryPensionField`, `buildOtherIncomeField`, `buildHealthCareInsuranceField`
+    - `calculateVorabpauschaleForLayers` - 7→1 Parameter (mit VorabpauschaleLayersParams object)
+    - `calculateAdjustedWithdrawal` - 98→93 Zeilen
+      - Extrahiert: `applyInflationAdjustment`, `applyTaxOptimization` (beide <8 Komplexität)
+  - Alle Hilfsfunktionen mit >5 Parametern verwenden jetzt typed parameter objects
+  - 0 `any` types im gesamten File
+  - Alle 1515 Tests bestehen
+  - Aufwand: 0,5 Tage (zusätzlich zu vorherigen 1,0 Tag)
+  - Priorität: KRITISCH ✅ KOMPLETT ERLEDIGT
+
 
 - [x] **EntnahmeSimulationsAusgabe** (src/components/EntnahmeSimulationsAusgabe.tsx) ✅ KOMPLETT ERLEDIGT
   - Original: Komplexität: 109, Zeilen: 1588
