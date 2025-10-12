@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 79 ESLint-Warnungen (reduziert von 144)
+**Aktueller Stand:** 77 ESLint-Warnungen (reduziert von 79)
 **Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
@@ -244,13 +244,21 @@
   - Komplexität: 37, Zeilen: 552
   - Aufwand: 0,4 Tage
 
-- [ ] **EntnahmeSimulationDisplay** (src/components/EntnahmeSimulationDisplay.tsx)
-  - Zeilen: 633 (533 Function)
-  - Arrow Function Komplexität: 29 (Zeile 278)
-  - Vorbereitung: ✅ 2 Hilfsfunktionen erstellt (noch nicht integriert)
-    - `calculateRealValue` - Inflationsanpassung Berechnung (Komplexität <8, 12 Zeilen, mit Params-Objekt)
-    - `formatValueWithInflation` - Formatierung mit Inflation (Komplexität <8, 18 Zeilen, mit Params-Objekt)
-  - Aufwand: 0,3 Tage (Integration ausstehend)
+- [x] **EntnahmeSimulationDisplay** (src/components/EntnahmeSimulationDisplay.tsx) ✅ ERLEDIGT
+  - Original: Zeilen: 607 (533 Function), Arrow Function Komplexität: 29 (Zeile 278)
+  - Aktuell: Zeilen: 270, Komplexität: <8
+  - Status: ✅ Beide Limits erreicht (Komplexität <8, Zeilen <400)
+  - Extrahierte Komponenten: 2
+    - `WithdrawalYearCard` - Jahres-Karte für Entnahme-Daten (komplexität <8, 302 zeilen)
+    - Extrahierte Sections (withdrawal-card-sections.tsx):
+      - `OtherIncomeSection` - Andere Einkünfte (komplexität <8, 75 zeilen)
+      - `HealthCareInsuranceSection` - Krankenversicherung (komplexität <8, 178 zeilen)
+      - `StatutoryPensionSection` - Gesetzliche Rente (komplexität <8, 93 zeilen)
+  - 15 neue Tests hinzugefügt
+    - WithdrawalYearCard.test.tsx - 7 Tests
+    - withdrawal-card-sections.test.tsx - 8 Tests
+  - Alle 1507 Tests bestehen
+  - Aufwand: 0,3 Tage (KOMPLETT ERLEDIGT)
 
 #### 1.3 Mittlere Priorität (Komplexität 26-44 ODER Zeilen 401-500)
 
