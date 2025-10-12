@@ -15,7 +15,7 @@ import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
 import { WithdrawalModeSelector } from './WithdrawalModeSelector'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
-import { SegmentedWithdrawalConfigSection } from './SegmentedWithdrawalConfigSection'
+import { WithdrawalSegmentForm } from './WithdrawalSegmentForm'
 import { ComparisonStrategyConfiguration } from './ComparisonStrategyConfiguration'
 import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
 import { SingleStrategyConfigSection } from './SingleStrategyConfigSection'
@@ -163,7 +163,7 @@ export function EntnahmeSimulationsAusgabe({
           />
 
           {useSegmentedWithdrawal ? (
-            <SegmentedWithdrawalConfigSection
+            <WithdrawalSegmentForm
               segments={withdrawalSegments}
               onSegmentsChange={segments => updateConfig({ withdrawalSegments: segments })}
               withdrawalStartYear={startOfIndependence + 1}
