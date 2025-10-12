@@ -5,7 +5,7 @@ import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
 import { SegmentCardHeader } from './SegmentCardHeader'
 import { SegmentBasicConfig } from './SegmentBasicConfig'
 import { SegmentStrategySelector } from './SegmentStrategySelector'
-import { WithdrawalFrequencyConfig } from './WithdrawalFrequencyConfig'
+import { WithdrawalFrequencyConfiguration } from './WithdrawalFrequencyConfiguration'
 import { SegmentStrategyConfig } from './SegmentStrategyConfig'
 import { SegmentReturnConfiguration } from './SegmentReturnConfiguration'
 import { SegmentInflationConfig } from './SegmentInflationConfig'
@@ -69,9 +69,9 @@ export function WithdrawalSegmentCard({
               onStrategyChange={updates => onUpdate(segment.id, updates)}
             />
 
-            <WithdrawalFrequencyConfig
-              withdrawalFrequency={segment.withdrawalFrequency}
-              onWithdrawalFrequencyChange={freq => onUpdate(segment.id, { withdrawalFrequency: freq })}
+            <WithdrawalFrequencyConfiguration
+              frequency={segment.withdrawalFrequency}
+              onFrequencyChange={freq => onUpdate(segment.id, { withdrawalFrequency: freq })}
             />
 
             <SegmentStrategyConfig segment={segment} onUpdate={onUpdate} />
