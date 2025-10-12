@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 75 ESLint-Warnungen (reduziert von 77)
+**Aktueller Stand:** 73 ESLint-Warnungen (reduziert von 77)
 **Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
@@ -12,9 +12,9 @@
 
 | Typ | Anzahl | Beschreibung |
 |-----|--------|--------------|
-| `@typescript-eslint/no-explicit-any` | 62 | Verwendung von `any` Type (reduziert von 66) |
-| `complexity` | 4 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) (reduziert von 5) |
-| `max-lines-per-function` | 11 | Funktionen mit zu vielen Zeilen (>400) (reduziert von 12) |
+| `@typescript-eslint/no-explicit-any` | 64 | Verwendung von `any` Type (reduziert von 66) |
+| `complexity` | 1 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) (reduziert von 5) |
+| `max-lines-per-function` | 8 | Funktionen mit zu vielen Zeilen (>400) (reduziert von 12) |
 | `max-depth` | 0 | ✅ Zu tiefe Verschachtelung (>5 Ebenen) - ERLEDIGT |
 
 ### Nach Dateien (Top 10)
@@ -251,8 +251,19 @@
   - ESLint Warnungen reduziert: 77 → 75
   - Aufwand: 0,4 Tage
 
-- [ ] **OtherIncomeConfigurationComponent** (src/components/OtherIncomeConfiguration.tsx)
-  - Komplexität: 27, Zeilen: 745
+- [x] **OtherIncomeConfigurationComponent** (src/components/OtherIncomeConfiguration.tsx) ✅ ERLEDIGT
+  - Original: Komplexität: 27, Zeilen: 745
+  - Aktuell: Komplexität: <8, Zeilen: 173
+  - Status: ✅ Beide Limits erreicht (Komplexität <8, Zeilen <400)
+  - Extrahierte Komponenten: 4
+    - `RealEstateConfigSection` - Immobilien-Konfiguration (190 Zeilen, Komplexität <8)
+    - `KindergeldConfigSection` - Kindergeld-Konfiguration (110 Zeilen, Komplexität <8)
+    - `OtherIncomeSourceFormEditor` - Einkommensquellen-Editor (290 Zeilen, Komplexität <8)
+    - `OtherIncomeSourceList` - Einkommensquellen-Liste (162 Zeilen, Komplexität <8)
+  - Alle Komponenten mit spezifischen Props-Interfaces
+  - Alle 1515 Tests bestehen
+  - Keine any types eingeführt
+  - ESLint Warnungen reduziert: 75 → 73
   - Aufwand: 0,5 Tage
 
 - [ ] **SpecialEvents** (src/components/SpecialEvents.tsx)
@@ -551,8 +562,8 @@
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 79 Warnungen (reduziert von 83 → 5% Reduktion, 45% gesamt von ursprünglich 144)
-- **Fortschritt:** 40% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow + WithdrawalSegmentCard, convertSparplanToElements, calculateCoupleHealthInsuranceForYear, useWithdrawalCalculations vollständig refactored ✅)
+- **Aktueller Stand:** 73 Warnungen (reduziert von 83 → 12% Reduktion, 49% gesamt von ursprünglich 144)
+- **Fortschritt:** 45% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow + WithdrawalSegmentCard, convertSparplanToElements, calculateCoupleHealthInsuranceForYear, useWithdrawalCalculations, OtherIncomeConfiguration vollständig refactored ✅)
 - **Geschätzte Fertigstellung:** 2025-01-25 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned
