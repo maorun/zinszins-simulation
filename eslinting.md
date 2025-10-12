@@ -62,7 +62,6 @@
   - Aufwand: 0,5 Tage (zusätzlich zu vorherigen 1,0 Tag)
   - Priorität: KRITISCH ✅ KOMPLETT ERLEDIGT
 
-
 - [x] **EntnahmeSimulationsAusgabe** (src/components/EntnahmeSimulationsAusgabe.tsx) ✅ KOMPLETT ERLEDIGT
   - Original: Komplexität: 109, Zeilen: 1588
   - Vorherig: Komplexität: 75, Zeilen: 402
