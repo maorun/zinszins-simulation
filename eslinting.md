@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 83 ESLint-Warnungen (reduziert von 144)
+**Aktueller Stand:** 79 ESLint-Warnungen (reduziert von 144)
 **Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
@@ -12,7 +12,7 @@
 
 | Typ | Anzahl | Beschreibung |
 |-----|--------|--------------|
-| `@typescript-eslint/no-explicit-any` | 66 | Verwendung von `any` Type |
+| `@typescript-eslint/no-explicit-any` | 62 | Verwendung von `any` Type (reduziert von 66) |
 | `complexity` | 5 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
 | `max-lines-per-function` | 12 | Funktionen mit zu vielen Zeilen (>400) |
 | `max-depth` | 0 | ✅ Zu tiefe Verschachtelung (>5 Ebenen) - ERLEDIGT |
@@ -29,7 +29,7 @@
 | `src/components/EntnahmeSimulationDisplay.tsx` | 5 | `any` Types, Zeilenzahl |
 | `src/utils/enhanced-summary.ts` | 4 | `any` Types |
 | `src/utils/config-storage.ts` | 4 | `any` Types |
-| `src/hooks/useWithdrawalCalculations.ts` | 4 | `any` Types, Komplexität, Zeilenzahl |
+| `src/hooks/useWithdrawalCalculations.ts` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
 | `src/utils/data-export.ts` | 0 | ✅ ERLEDIGT - Alle `any` types behoben |
 
 ## Lösungsstrategie
@@ -340,7 +340,30 @@
 - [ ] **StatutoryPensionConfiguration** (src/components/StatutoryPensionConfiguration.tsx) - Zeilen: 409
 - [ ] **ProfileManagement** (src/components/ProfileManagement.tsx) - Zeilen: 405
 - [ ] **MultiAssetPortfolioConfiguration** (src/components/MultiAssetPortfolioConfiguration.tsx) - Zeilen: 401
-- [ ] **useWithdrawalCalculations** (src/hooks/useWithdrawalCalculations.ts) - Zeilen: 531
+- [x] **useWithdrawalCalculations** (src/hooks/useWithdrawalCalculations.ts) ✅ ERLEDIGT
+  - Original: Zeilen: 531 (in Hauptdatei 664 Zeilen), 2 `any` types, Komplexität 33
+  - Aktuell: Zeilen: 390 Funktion (462 Hauptdatei), 0 `any` types, Komplexität <8
+  - Status: ✅ Alle Limits erreicht (Komplexität <8, Zeilen <400, keine any types)
+  - Extrahierte Dateien: 2
+    - `useWithdrawalCalculations.types.ts` - Type-Definitionen (90 Zeilen)
+    - `useWithdrawalCalculations.helpers.ts` - Helper-Funktionen (335 Zeilen)
+  - Extrahierte Hilfsfunktionen: 9
+    - `convertCoupleToLegacyConfig` - Couple-Pension zu Legacy konvertieren
+    - `buildWithdrawalReturnConfig` - Return-Konfiguration erstellen
+    - `buildGrundfreibetragPerYear` - Grundfreibetrag-Mapping erstellen
+    - `buildMonthlyConfig` - Monatliche Konfiguration
+    - `buildCustomPercentage` - Variable Prozent-Konfiguration
+    - `buildDynamicConfig` - Dynamische Strategie-Konfiguration
+    - `buildBucketConfig` - Bucket-Strategie-Konfiguration  
+    - `buildRMDConfig` - RMD-Strategie-Konfiguration
+    - `buildKapitalerhaltConfig` - Kapitalerhalt-Konfiguration
+    - `buildSteueroptimierteEntnahmeConfig` - Steueroptimierte Entnahme-Konfiguration
+    - `calculateComparisonStrategy` - Vergleichsstrategie berechnen
+  - Alle Hilfsfunktionen mit Params-Objekten für >5 Parameter
+  - Neue Types: 6 Interfaces in types Datei
+  - Alle 1486 Tests bestehen
+  - Warnings reduziert von 83 → 79 (4 weniger)
+  - Aufwand: 0,3 Tage
 
 ### Phase 2: TypeScript `any` Types Beheben
 
@@ -501,8 +524,8 @@
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 147 Warnungen (reduziert von 150 → 2% Reduktion in diesem PR, 16% gesamt von ursprünglich 176)
-- **Fortschritt:** 35% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow + WithdrawalSegmentCard, convertSparplanToElements, calculateCoupleHealthInsuranceForYear vollständig refactored ✅)
+- **Aktueller Stand:** 79 Warnungen (reduziert von 83 → 5% Reduktion, 45% gesamt von ursprünglich 144)
+- **Fortschritt:** 40% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow + WithdrawalSegmentCard, convertSparplanToElements, calculateCoupleHealthInsuranceForYear, useWithdrawalCalculations vollständig refactored ✅)
 - **Geschätzte Fertigstellung:** 2025-01-25 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned
