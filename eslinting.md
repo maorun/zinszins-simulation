@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 147 ESLint-Warnungen
+**Aktueller Stand:** 84 ESLint-Warnungen (reduziert von 144)
 **Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
@@ -12,9 +12,9 @@
 
 | Typ | Anzahl | Beschreibung |
 |-----|--------|--------------|
-| `@typescript-eslint/no-explicit-any` | 124 | Verwendung von `any` Type |
-| `complexity` | 23 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
-| `max-lines-per-function` | 13 | Funktionen mit zu vielen Zeilen (>400) |
+| `@typescript-eslint/no-explicit-any` | 66 | Verwendung von `any` Type |
+| `complexity` | 6 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
+| `max-lines-per-function` | 12 | Funktionen mit zu vielen Zeilen (>400) |
 | `max-depth` | 0 | ✅ Zu tiefe Verschachtelung (>5 Ebenen) - ERLEDIGT |
 
 ### Nach Dateien (Top 10)
@@ -195,9 +195,23 @@
   - Warnings reduziert von 158 → 156 (2 weniger)
   - Aufwand: 0,2 Tage
 
-- [ ] **SparplanEingabe** (src/components/SparplanEingabe.tsx)
-  - Komplexität: 30, Zeilen: 759
-  - Aufwand: 0,5 Tage
+- [ ] **SparplanEingabe** (src/components/SparplanEingabe.tsx) 🔄 IN PROGRESS
+  - Original: Komplexität: 30, Zeilen: 759
+  - Aktuell: Komplexität: 30, Zeilen: 626
+  - Status: ⏳ Zeilen um 18% reduziert, Komplexität unverändert
+  - Extrahierte Hilfsfunktionen: 8
+    - `createNewSparplan` - Neuen Sparplan erstellen (komplexität <8, 23 zeilen)
+    - `createNewSinglePayment` - Einmalzahlung erstellen (komplexität <8, 14 zeilen)
+    - `isEinmalzahlung` - Prüfung auf Einmalzahlung (komplexität <8, 3 zeilen)
+    - `updateExistingSparplan` - Sparplan aktualisieren (komplexität <8, 47 zeilen)
+    - `getInitialSingleFormValue` - Initiale Formwerte (komplexität <8, 8 zeilen)
+    - `getInitialSparplanFormValue` - Initiale Formwerte (komplexität <8, 9 zeilen)
+    - `populateSingleFormFromSparplan` - Form befüllen (komplexität <8, 8 zeilen)
+    - `populateSparplanFormFromSparplan` - Form befüllen (komplexität <8, 13 zeilen)
+  - Alle Hilfsfunktionen mit Params-Objekten für >5 Parameter
+  - 16 neue Tests hinzugefügt für alle Hilfsfunktionen
+  - Alle 1470+ Tests bestehen
+  - Aufwand: 0,3 Tage (Teilweise erledigt)
 
 - [ ] **OtherIncomeConfigurationComponent** (src/components/OtherIncomeConfigurationComponent.tsx)
   - Komplexität: 27, Zeilen: 745
@@ -252,8 +266,24 @@
   - Alle Tests bestehen (1455 Tests)
   - Aufwand: 0,3 Tage
 
-- [ ] **exportDataToMarkdown** (src/utils/data-export.ts) - Komplexität: 34
-- [ ] **createTaxableIncomeExplanation** (src/components/WithdrawalSegmentForm.tsx) - Komplexität: 33
+- [ ] **exportDataToMarkdown** (src/utils/data-export.ts) - ✅ BEREITS ERLEDIGT (Komplexität bereits unter Limit)
+- [x] **createTaxableIncomeExplanation** (src/components/calculationHelpers.ts) ✅ ERLEDIGT
+  - Original: Komplexität: 33, Zeilen: 150
+  - Aktuell: Komplexität <8, Zeilen: 48
+  - Status: ✅ Beide Limits erreicht (Komplexität <8, Zeilen <50)
+  - Extrahierte Hilfsfunktionen: 6
+    - `calculateTotalTaxableIncome` - Berechnung Gesamteinkommen
+    - `addStatutoryPensionStep` - Gesetzliche Rente Step hinzufügen
+    - `addOtherIncomeStep` - Andere Einkünfte Step hinzufügen
+    - `addHealthCareInsuranceStep` - Krankenversicherung Step hinzufügen
+    - `buildTotalIncomeCalculationText` - Berechnungstext erstellen
+    - `addTotalIncomeStepIfNeeded` - Gesamteinkommen Step hinzufügen
+    - `buildTaxableIncomeFinalValues` - Finale Werte erstellen
+  - Alle Hilfsfunktionen mit Params-Objekten für >5 Parameter
+  - Neue Types: TaxableIncomeParams
+  - 8 neue Tests hinzugefügt für alle Helper-Funktionen
+  - Alle 1470 Tests bestehen
+  - Aufwand: 0,2 Tage
 - [x] **calculateCoupleHealthInsuranceForYear** (helpers/health-care-insurance.ts) ✅ ERLEDIGT
   - Original: Komplexität: 30
   - Aktuell: Komplexität: <8
@@ -269,7 +299,19 @@
   - Keine any types eingeführt - alle mit spezifischen Types
   - Alle 1462 Tests bestehen
   - Aufwand: 0,3 Tage
-- [ ] **CareCostConfiguration** (src/components/CareCostConfiguration.tsx) - Komplexität: 27, Zeilen: 456
+- [x] **CareCostConfiguration** (src/components/CareCostConfiguration.tsx) ✅ ERLEDIGT
+  - Original: Komplexität: 27, Zeilen: 478
+  - Aktuell: Komplexität <25, Zeilen: 285
+  - Status: ✅ Beide Limits erreicht (Komplexität <25, Zeilen <400)
+  - Extrahierte Komponenten: 4
+    - `CareLevelSelector` - Pflegegrad-Auswahl (56 Zeilen)
+    - `CoupleCareCostConfig` - Paar-Konfiguration (142 Zeilen)
+    - `CareCostPreview` - Kostenvorschau (111 Zeilen)
+    - `CareCostValidationErrors` - Validierungsfehler (35 Zeilen)
+  - Alle Komponenten mit spezifischen Props-Interfaces
+  - Alle 1470 Tests bestehen
+  - Keine any types eingeführt
+  - Aufwand: 0,3 Tage
 - [ ] **formatParametersForExport** (src/utils/parameter-export.ts) - Komplexität: 26
 - [ ] **Arrow functions mit Komplexität 26-34** (verschiedene Dateien) - 7 Funktionen
 - [ ] **StatutoryPensionConfiguration** (src/components/StatutoryPensionConfiguration.tsx) - Zeilen: 409

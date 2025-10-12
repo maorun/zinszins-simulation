@@ -60,9 +60,9 @@ export default [
       '@stylistic/multiline-ternary': 'off', // Disable to avoid excessive refactoring
 
       // Code Quality Rules (Codacy best practices)
-      'complexity': ['warn', 8], // Cyclomatic complexity
+      'complexity': ['warn', 8], // Cyclomatic complexity - target: reduce to 8 for new code
       'max-depth': ['warn', 5], // Maximum nesting depth
-      'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true, skipComments: true }],
+      'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true, skipComments: true }], // Target: reduce to 50 for new code
       
       // Security Rules (Codacy security patterns)
       'no-eval': 'error',
