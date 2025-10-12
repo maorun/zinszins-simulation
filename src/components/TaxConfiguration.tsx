@@ -15,6 +15,118 @@ import { getGrundfreibetragForPlanningMode, isStandardGrundfreibetragValue, GERM
 import { TooltipProvider } from './ui/tooltip'
 import { GlossaryTerm } from './GlossaryTerm'
 
+/** Freibetrag per year table component */
+interface FreibetragPerYearTableProps {
+  freibetragPerYear: Record<number, number>
+  yearToday: number
+  onUpdate: (newValues: Record<number, number>) => void
+}
+
+function FreibetragPerYearTable({
+  freibetragPerYear,
+  yearToday,
+  onUpdate,
+}: FreibetragPerYearTableProps) {
+  const addYear = (year: number) => {
+    if (!freibetragPerYear[year]) {
+      onUpdate({
+        ...freibetragPerYear,
+        [year]: 2000,
+      })
+    }
+  }
+
+  const updateYear = (year: number, amount: number) => {
+    onUpdate({
+      ...freibetragPerYear,
+      [year]: amount,
+    })
+  }
+
+  const deleteYear = (year: number) => {
+    const newFreibetrag = { ...freibetragPerYear }
+    delete newFreibetrag[year]
+    onUpdate(newFreibetrag)
+  }
+
+  return (
+    <div className="space-y-2">
+      <Label>
+        Sparerpauschbetrag
+        {' '}
+        pro Jahr (€)
+      </Label>
+      <div className="flex gap-2 items-end">
+        <div className="flex-1">
+          <Input
+            type="number"
+            placeholder="Jahr"
+            min={yearToday}
+            max={2100}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                const input = e.target as HTMLInputElement
+                const year = Number(input.value)
+                if (year) {
+                  addYear(year)
+                  input.value = ''
+                }
+              }
+            }}
+          />
+        </div>
+        <Button onClick={() => addYear(yearToday)}>
+          <Plus className="h-4 w-4 mr-2" />
+          Jahr hinzufügen
+        </Button>
+      </div>
+      <div className="border rounded-md max-h-[200px] overflow-y-auto">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="text-center">Jahr</TableHead>
+              <TableHead className="text-center">Sparerpauschbetrag (€)</TableHead>
+              <TableHead className="text-center">Aktionen</TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {Object.entries(freibetragPerYear).map(([year, amount]) => (
+              <TableRow key={year}>
+                <TableCell className="text-center">{year}</TableCell>
+                <TableCell className="text-center">
+                  <Input
+                    type="number"
+                    value={amount}
+                    min={0}
+                    max={10000}
+                    step={50}
+                    onChange={(e) => {
+                      const value = Number(e.target.value)
+                      if (!isNaN(value)) {
+                        updateYear(Number(year), value)
+                      }
+                    }}
+                    className="w-24 mx-auto"
+                  />
+                </TableCell>
+                <TableCell className="text-center">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => deleteYear(Number(year))}
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
+    </div>
+  )
+}
+
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
 }
@@ -342,106 +454,14 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
                     </div>
                   </div>
 
-                  <div className="space-y-4">
-                    <Label htmlFor="freibetragConfiguration">
-                      <GlossaryTerm term="sparerpauschbetrag">
-                        Sparerpauschbetrag
-                      </GlossaryTerm>
-                      {' '}
-                      pro Jahr (€)
-                    </Label>
-                    <div className="flex gap-2 items-end">
-                      <div className="flex-1">
-                        <Input
-                          type="number"
-                          placeholder="Jahr"
-                          min={yearToday}
-                          max={2100}
-                          onKeyDown={(e) => {
-                            if (e.key === 'Enter') {
-                              const input = e.target as HTMLInputElement
-                              const year = Number(input.value)
-                              if (year && !freibetragPerYear[year]) {
-                                setFreibetragPerYear({
-                                  ...freibetragPerYear,
-                                  [year]: 2000, // Default value
-                                })
-                                performSimulation()
-                                input.value = ''
-                              }
-                            }
-                          }}
-                        />
-                      </div>
-                      <Button
-                        onClick={() => {
-                          const year = yearToday
-                          if (!freibetragPerYear[year]) {
-                            setFreibetragPerYear({
-                              ...freibetragPerYear,
-                              [year]: 2000,
-                            })
-                            performSimulation()
-                          }
-                        }}
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Jahr hinzufügen
-                      </Button>
-                    </div>
-                    <div className="border rounded-md max-h-[200px] overflow-y-auto">
-                      <Table>
-                        <TableHeader>
-                          <TableRow>
-                            <TableHead className="text-center">Jahr</TableHead>
-                            <TableHead className="text-center">Sparerpauschbetrag (€)</TableHead>
-                            <TableHead className="text-center">Aktionen</TableHead>
-                          </TableRow>
-                        </TableHeader>
-                        <TableBody>
-                          {Object.entries(freibetragPerYear).map(([year, amount]) => (
-                            <TableRow key={year}>
-                              <TableCell className="text-center">{year}</TableCell>
-                              <TableCell className="text-center">
-                                <Input
-                                  type="number"
-                                  value={amount}
-                                  min={0}
-                                  max={10000}
-                                  step={50}
-                                  onChange={(e) => {
-                                    const value = Number(e.target.value)
-                                    if (!isNaN(value)) {
-                                      setFreibetragPerYear({
-                                        ...freibetragPerYear,
-                                        [year]: value,
-                                      })
-                                      performSimulation()
-                                    }
-                                  }}
-                                  className="w-24 mx-auto"
-                                />
-                              </TableCell>
-                              <TableCell className="text-center">
-                                <Button
-                                  variant="ghost"
-                                  size="sm"
-                                  onClick={() => {
-                                    const newFreibetrag = { ...freibetragPerYear }
-                                    delete newFreibetrag[Number(year)]
-                                    setFreibetragPerYear(newFreibetrag)
-                                    performSimulation()
-                                  }}
-                                >
-                                  <Trash2 className="h-4 w-4" />
-                                </Button>
-                              </TableCell>
-                            </TableRow>
-                          ))}
-                        </TableBody>
-                      </Table>
-                    </div>
-                  </div>
+                  <FreibetragPerYearTable
+                    freibetragPerYear={freibetragPerYear}
+                    yearToday={yearToday}
+                    onUpdate={(newValues) => {
+                      setFreibetragPerYear(newValues)
+                      performSimulation()
+                    }}
+                  />
                 </CardContent>
               </CollapsibleContent>
             </Collapsible>
