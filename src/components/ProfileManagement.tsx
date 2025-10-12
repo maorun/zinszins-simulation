@@ -39,6 +39,111 @@ interface ProfileFormData {
   description: string
 }
 
+interface ProfileListProps {
+  profiles: UserProfile[]
+  activeProfileId: string | undefined
+  onSwitch: (profile: UserProfile) => void
+  onEdit: (profile: UserProfile) => void
+  onDuplicate: (profile: UserProfile) => void
+  onDelete: (profile: UserProfile) => void
+  formatDate: (dateString: string) => string
+}
+
+/** Profile list component */
+function ProfileList({
+  profiles,
+  activeProfileId,
+  onSwitch,
+  onEdit,
+  onDuplicate,
+  onDelete,
+  formatDate,
+}: ProfileListProps) {
+  if (profiles.length === 0) return null
+
+  return (
+    <div className="space-y-2">
+      <h4 className="text-sm font-medium text-gray-700">
+        Verfügbare Profile (
+        {profiles.length}
+        )
+      </h4>
+      <div className="space-y-2 max-h-64 overflow-y-auto">
+        {profiles.map(profile => (
+          <div
+            key={profile.id}
+            className={`p-3 border rounded-md ${
+              profile.id === activeProfileId
+                ? 'border-blue-300 bg-blue-50'
+                : 'border-gray-200 hover:border-gray-300'
+            }`}
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2">
+                  <span className="font-medium">{profile.name}</span>
+                  {profile.id === activeProfileId && (
+                    <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
+                      Aktiv
+                    </span>
+                  )}
+                </div>
+                {profile.description && (
+                  <div className="text-sm text-gray-600 mt-1">{profile.description}</div>
+                )}
+                <div className="text-xs text-gray-500 mt-1">
+                  Erstellt:
+                  {' '}
+                  {formatDate(profile.createdAt)}
+                </div>
+              </div>
+              <div className="flex items-center gap-1 ml-2">
+                {profile.id !== activeProfileId && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onSwitch(profile)}
+                    title="Profil aktivieren"
+                  >
+                    Aktivieren
+                  </Button>
+                )}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onEdit(profile)}
+                  title="Profil bearbeiten"
+                >
+                  <Edit3 className="h-3 w-3" />
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => onDuplicate(profile)}
+                  title="Profil duplizieren"
+                >
+                  <Copy className="h-3 w-3" />
+                </Button>
+                {profiles.length > 1 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => onDelete(profile)}
+                    title="Profil löschen"
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="h-3 w-3" />
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  )
+}
+
 /**
  * Profile Management Component
  * Provides comprehensive profile management including create, edit, switch, duplicate, and delete
@@ -289,87 +394,15 @@ export default function ProfileManagement() {
               )}
 
               {/* Profile List */}
-              {profiles.length > 0 && (
-                <div className="space-y-2">
-                  <h4 className="text-sm font-medium text-gray-700">
-                    Verfügbare Profile (
-                    {profiles.length}
-                    )
-                  </h4>
-                  <div className="space-y-2 max-h-64 overflow-y-auto">
-                    {profiles.map(profile => (
-                      <div
-                        key={profile.id}
-                        className={`p-3 border rounded-md ${
-                          profile.id === activeProfile?.id
-                            ? 'border-blue-300 bg-blue-50'
-                            : 'border-gray-200 hover:border-gray-300'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between">
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">{profile.name}</span>
-                              {profile.id === activeProfile?.id && (
-                                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-1 rounded">
-                                  Aktiv
-                                </span>
-                              )}
-                            </div>
-                            {profile.description && (
-                              <div className="text-sm text-gray-600 mt-1">{profile.description}</div>
-                            )}
-                            <div className="text-xs text-gray-500 mt-1">
-                              Erstellt:
-                              {' '}
-                              {formatDate(profile.createdAt)}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-1 ml-2">
-                            {profile.id !== activeProfile?.id && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleSwitchProfile(profile)}
-                                title="Profil aktivieren"
-                              >
-                                Aktivieren
-                              </Button>
-                            )}
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => openEditDialog(profile)}
-                              title="Profil bearbeiten"
-                            >
-                              <Edit3 className="h-3 w-3" />
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => handleDuplicateProfile(profile)}
-                              title="Profil duplizieren"
-                            >
-                              <Copy className="h-3 w-3" />
-                            </Button>
-                            {profiles.length > 1 && (
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => handleDeleteProfile(profile)}
-                                title="Profil löschen"
-                                className="text-red-600 hover:text-red-700"
-                              >
-                                <Trash2 className="h-3 w-3" />
-                              </Button>
-                            )}
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )}
+              <ProfileList
+                profiles={profiles}
+                activeProfileId={activeProfile?.id}
+                onSwitch={handleSwitchProfile}
+                onEdit={openEditDialog}
+                onDuplicate={handleDuplicateProfile}
+                onDelete={handleDeleteProfile}
+                formatDate={formatDate}
+              />
 
               {/* Action Buttons */}
               <div className="flex gap-2 pt-2">

@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 73 ESLint-Warnungen (reduziert von 77)
+**Aktueller Stand:** 69 ESLint-Warnungen (reduziert von 77)
 **Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
@@ -12,9 +12,9 @@
 
 | Typ | Anzahl | Beschreibung |
 |-----|--------|--------------|
-| `@typescript-eslint/no-explicit-any` | 64 | Verwendung von `any` Type (reduziert von 66) |
-| `complexity` | 1 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) (reduziert von 5) |
-| `max-lines-per-function` | 8 | Funktionen mit zu vielen Zeilen (>400) (reduziert von 12) |
+| `@typescript-eslint/no-explicit-any` | 63 | Verwendung von `any` Type (reduziert von 66) |
+| `complexity` | 1 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
+| `max-lines-per-function` | 5 | Funktionen mit zu vielen Zeilen (>400) (reduziert von 12) |
 | `max-depth` | 0 | ✅ Zu tiefe Verschachtelung (>5 Ebenen) - ERLEDIGT |
 
 ### Nach Dateien (Top 10)
@@ -382,9 +382,42 @@
   - Aufwand: 0,3 Tage
 - [ ] **formatParametersForExport** (src/utils/parameter-export.ts) - Komplexität: 26
 - [ ] **Arrow functions mit Komplexität 26-34** (verschiedene Dateien) - 7 Funktionen
-- [ ] **StatutoryPensionConfiguration** (src/components/StatutoryPensionConfiguration.tsx) - Zeilen: 409
-- [ ] **ProfileManagement** (src/components/ProfileManagement.tsx) - Zeilen: 405
-- [ ] **MultiAssetPortfolioConfiguration** (src/components/MultiAssetPortfolioConfiguration.tsx) - Zeilen: 401
+- [x] **StatutoryPensionConfiguration** (src/components/StatutoryPensionConfiguration.tsx) ✅ ERLEDIGT
+  - Original: Zeilen: 409
+  - Aktuell: Zeilen: 370
+  - Status: ✅ Zeilen-Limit erreicht (Zeilen <400)
+  - Extrahierte Komponenten: 1
+    - `PensionSummary` - Zusammenfassung der gesetzlichen Rente (39 Zeilen, Komplexität <8)
+  - Alle 1515 Tests bestehen
+  - Keine any types eingeführt
+  - Aufwand: 0,1 Tage
+- [x] **ProfileManagement** (src/components/ProfileManagement.tsx) ✅ ERLEDIGT
+  - Original: Zeilen: 452
+  - Aktuell: Zeilen: 372
+  - Status: ✅ Zeilen-Limit erreicht (Zeilen <400)
+  - Extrahierte Komponenten: 1
+    - `ProfileList` - Profil-Liste mit Aktionen (80 Zeilen, Komplexität <8)
+  - Alle 1515 Tests bestehen
+  - Keine any types eingeführt
+  - Aufwand: 0,1 Tage
+- [x] **MultiAssetPortfolioConfiguration** (src/components/MultiAssetPortfolioConfiguration.tsx) ✅ ERLEDIGT
+  - Original: Zeilen: 401
+  - Aktuell: Zeilen: 388
+  - Status: ✅ Zeilen-Limit erreicht (Zeilen <400)
+  - Extrahierte Komponenten: 1
+    - `MultiAssetInfoSection` - Informations-Sektion (16 Zeilen, Komplexität <8)
+  - Alle 1515 Tests bestehen
+  - Keine any types eingeführt
+  - Aufwand: 0,1 Tage
+- [x] **TaxConfiguration Arrow Function** (src/components/TaxConfiguration.tsx) ✅ ERLEDIGT
+  - Original: Zeilen: 514
+  - Aktuell: Zeilen: 422
+  - Status: ✅ Zeilen-Limit erreicht (Zeilen <400)
+  - Extrahierte Komponenten: 1
+    - `FreibetragPerYearTable` - Freibetrag-Tabelle pro Jahr (92 Zeilen, Komplexität <8)
+  - Alle 1515 Tests bestehen
+  - Keine any types eingeführt
+  - Aufwand: 0,1 Tage
 - [x] **useWithdrawalCalculations** (src/hooks/useWithdrawalCalculations.ts) ✅ ERLEDIGT
   - Original: Zeilen: 531 (in Hauptdatei 664 Zeilen), 2 `any` types, Komplexität 33
   - Aktuell: Zeilen: 390 Funktion (462 Hauptdatei), 0 `any` types, Komplexität <8
