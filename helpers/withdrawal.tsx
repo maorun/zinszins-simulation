@@ -48,85 +48,134 @@ function generateYearlyGrowthRates(
 }
 
 /**
+ * Helper function: Calculate bucket strategy withdrawal amount
+ */
+function calculateBucketStrategyAmount(
+  initialStartingCapital: number,
+  bucketConfig: BucketStrategyConfig,
+): number {
+  switch (bucketConfig.subStrategy) {
+    case '4prozent':
+      return initialStartingCapital * 0.04
+    case '3prozent':
+      return initialStartingCapital * 0.03
+    case 'variabel_prozent': {
+      const rate = bucketConfig.variabelProzent ? bucketConfig.variabelProzent / 100 : 0.04
+      return initialStartingCapital * rate
+    }
+    case 'monatlich_fest':
+      return bucketConfig.monatlicheBetrag
+        ? bucketConfig.monatlicheBetrag * 12
+        : initialStartingCapital * 0.04
+    case 'dynamisch': {
+      const rate = bucketConfig.dynamischBasisrate ? bucketConfig.dynamischBasisrate / 100 : 0.04
+      return initialStartingCapital * rate
+    }
+    default:
+      return initialStartingCapital * bucketConfig.baseWithdrawalRate
+  }
+}
+
+/**
+ * Helper function: Calculate RMD withdrawal amount
+ */
+function calculateRMDAmount(
+  initialStartingCapital: number,
+  rmdConfig: RMDConfig,
+): number {
+  return calculateRMDWithdrawal(
+    initialStartingCapital,
+    rmdConfig.startAge,
+    rmdConfig.lifeExpectancyTable,
+    rmdConfig.customLifeExpectancy,
+  )
+}
+
+/**
+ * Helper function: Calculate capital preservation withdrawal amount
+ */
+function calculateKapitalerhaltAmount(
+  initialStartingCapital: number,
+  kapitalerhaltConfig: KapitalerhaltConfig,
+): number {
+  const realReturnRate = kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate
+  return initialStartingCapital * realReturnRate
+}
+
+/**
+ * Parameters for calculating base withdrawal amount
+ */
+type BaseWithdrawalParams = {
+  strategy: WithdrawalStrategy
+  initialStartingCapital: number
+  monthlyConfig?: MonthlyWithdrawalConfig
+  customPercentage?: number
+  dynamicConfig?: DynamicWithdrawalConfig
+  bucketConfig?: BucketStrategyConfig
+  rmdConfig?: RMDConfig
+  kapitalerhaltConfig?: KapitalerhaltConfig
+  steueroptimierteEntnahmeConfig?: SteueroptimierteEntnahmeConfig
+}
+
+/**
  * Helper function: Calculate base withdrawal amount based on strategy
  */
-function calculateBaseWithdrawalAmount(
-  strategy: WithdrawalStrategy,
-  initialStartingCapital: number,
-  monthlyConfig?: MonthlyWithdrawalConfig,
-  customPercentage?: number,
-  dynamicConfig?: DynamicWithdrawalConfig,
-  bucketConfig?: BucketStrategyConfig,
-  rmdConfig?: RMDConfig,
-  kapitalerhaltConfig?: KapitalerhaltConfig,
-  steueroptimierteEntnahmeConfig?: SteueroptimierteEntnahmeConfig,
-): number {
+function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
+  const {
+    strategy,
+    initialStartingCapital,
+    monthlyConfig,
+    customPercentage,
+    dynamicConfig,
+    bucketConfig,
+    rmdConfig,
+    kapitalerhaltConfig,
+    steueroptimierteEntnahmeConfig,
+  } = params
+
   if (strategy === 'monatlich_fest') {
     if (!monthlyConfig) throw new Error('Monthly config required')
     return monthlyConfig.monthlyAmount * 12
   }
-  else if (strategy === 'variabel_prozent') {
+  
+  if (strategy === 'variabel_prozent') {
     if (customPercentage === undefined) throw new Error('Custom percentage required')
     return initialStartingCapital * customPercentage
   }
-  else if (strategy === 'dynamisch') {
+  
+  if (strategy === 'dynamisch') {
     if (!dynamicConfig) throw new Error('Dynamic config required')
     return initialStartingCapital * dynamicConfig.baseWithdrawalRate
   }
-  else if (strategy === 'bucket_strategie') {
+  
+  if (strategy === 'bucket_strategie') {
     if (!bucketConfig) throw new Error('Bucket strategy config required')
-
-    // Calculate base withdrawal amount based on sub-strategy
-    switch (bucketConfig.subStrategy) {
-      case '4prozent':
-        return initialStartingCapital * 0.04
-      case '3prozent':
-        return initialStartingCapital * 0.03
-      case 'variabel_prozent': {
-        const variableRate = bucketConfig.variabelProzent ? bucketConfig.variabelProzent / 100 : 0.04
-        return initialStartingCapital * variableRate
-      }
-      case 'monatlich_fest':
-        return bucketConfig.monatlicheBetrag
-          ? bucketConfig.monatlicheBetrag * 12
-          : initialStartingCapital * 0.04
-      case 'dynamisch': {
-        const dynamicBaseRate = bucketConfig.dynamischBasisrate ? bucketConfig.dynamischBasisrate / 100 : 0.04
-        return initialStartingCapital * dynamicBaseRate
-      }
-      default:
-        // Fallback to baseWithdrawalRate for backward compatibility
-        return initialStartingCapital * bucketConfig.baseWithdrawalRate
-    }
+    return calculateBucketStrategyAmount(initialStartingCapital, bucketConfig)
   }
-  else if (strategy === 'rmd') {
+  
+  if (strategy === 'rmd') {
     if (!rmdConfig) throw new Error('RMD config required')
-    return calculateRMDWithdrawal(
-      initialStartingCapital,
-      rmdConfig.startAge,
-      rmdConfig.lifeExpectancyTable,
-      rmdConfig.customLifeExpectancy,
-    )
+    return calculateRMDAmount(initialStartingCapital, rmdConfig)
   }
-  else if (strategy === 'kapitalerhalt') {
+  
+  if (strategy === 'kapitalerhalt') {
     if (!kapitalerhaltConfig) throw new Error('Kapitalerhalt config required')
-    const realReturnRate = kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate
-    return initialStartingCapital * realReturnRate
+    return calculateKapitalerhaltAmount(initialStartingCapital, kapitalerhaltConfig)
   }
-  else if (strategy === 'steueroptimiert') {
+  
+  if (strategy === 'steueroptimiert') {
     const config = steueroptimierteEntnahmeConfig || {
       baseWithdrawalRate: 0.04,
       targetTaxRate: 0.26375,
-      optimizationMode: 'balanced',
+      optimizationMode: 'balanced' as const,
       freibetragUtilizationTarget: 0.85,
-      rebalanceFrequency: 'yearly',
+      rebalanceFrequency: 'yearly' as const,
     }
     return initialStartingCapital * config.baseWithdrawalRate
   }
-  else {
-    const withdrawalRate = strategy === '4prozent' ? 0.04 : 0.03
-    return initialStartingCapital * withdrawalRate
-  }
+  
+  const withdrawalRate = strategy === '4prozent' ? 0.04 : 0.03
+  return initialStartingCapital * withdrawalRate
 }
 
 /**
@@ -1283,7 +1332,7 @@ export function calculateWithdrawal({
   })
   mutableLayers.sort((a: MutableLayer, b: MutableLayer) => new Date(a.start).getTime() - new Date(b.start).getTime())
 
-  const baseWithdrawalAmount = calculateBaseWithdrawalAmount(
+  const baseWithdrawalAmount = calculateBaseWithdrawalAmount({
     strategy,
     initialStartingCapital,
     monthlyConfig,
@@ -1293,7 +1342,7 @@ export function calculateWithdrawal({
     rmdConfig,
     kapitalerhaltConfig,
     steueroptimierteEntnahmeConfig,
-  )
+  })
 
   // Initialize cash cushion for bucket strategy
   let cashCushion = strategy === 'bucket_strategie' && bucketConfig ? bucketConfig.initialCashCushion : 0
