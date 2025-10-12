@@ -16,8 +16,8 @@ import { WithdrawalModeSelector } from './WithdrawalModeSelector'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
 import { SegmentedWithdrawalConfigSection } from './SegmentedWithdrawalConfigSection'
-import { ComparisonModeConfigSection } from './ComparisonModeConfigSection'
-import { SegmentedComparisonConfigSection } from './SegmentedComparisonConfigSection'
+import { ComparisonStrategyConfiguration } from './ComparisonStrategyConfiguration'
+import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
 import { SingleStrategyConfigSection } from './SingleStrategyConfigSection'
 import {
   handleWithdrawalModeChange,
@@ -170,17 +170,17 @@ export function EntnahmeSimulationsAusgabe({
               withdrawalEndYear={globalEndOfLife}
             />
           ) : useComparisonMode ? (
-            <ComparisonModeConfigSection
+            <ComparisonStrategyConfiguration
               formValue={formValue}
               comparisonStrategies={comparisonStrategies}
               onUpdateFormValue={updateFormValue}
               onUpdateComparisonStrategy={updateComparisonStrategy}
-              onAddStrategy={() =>
+              onAddComparisonStrategy={() =>
                 handleAddComparisonStrategy({
                   comparisonStrategies,
                   updateConfig,
                 })}
-              onRemoveStrategy={id =>
+              onRemoveComparisonStrategy={id =>
                 handleRemoveComparisonStrategy({
                   id,
                   comparisonStrategies,
@@ -188,7 +188,7 @@ export function EntnahmeSimulationsAusgabe({
                 })}
             />
           ) : useSegmentedComparisonMode ? (
-            <SegmentedComparisonConfigSection
+            <SegmentedComparisonConfiguration
               segmentedComparisonStrategies={segmentedComparisonStrategies}
               withdrawalStartYear={startOfIndependence + 1}
               withdrawalEndYear={globalEndOfLife}
