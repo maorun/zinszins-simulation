@@ -54,11 +54,12 @@
     - `buildStrategySpecificFields` - Strategie-spezifische Felder
     - `buildIncomeSourceFields` - Einkommensquellen-Felder
 
-- [x] **EntnahmeSimulationsAusgabe** (src/components/EntnahmeSimulationsAusgabe.tsx) ✅ TEILWEISE ERLEDIGT
+- [x] **EntnahmeSimulationsAusgabe** (src/components/EntnahmeSimulationsAusgabe.tsx) ✅ WEITER REFACTORED
   - Original: Komplexität: 109, Zeilen: 1588
-  - Aktuell: Komplexität: 75, Zeilen: 402
-  - Status: ✅ Zeilen unter Limit (400), Komplexität reduziert um 31%
-  - Extrahierte Komponenten: 9
+  - Vorherig: Komplexität: 75, Zeilen: 402
+  - Aktuell: Komplexität: 69, Zeilen: 243
+  - Status: ✅ Zeilen unter Limit (400), Komplexität weiter reduziert um 8% (gesamt 37% von Original)
+  - Extrahierte Komponenten: 13 (9 vorherige + 4 neue)
     - `WithdrawalReturnModeConfiguration` - Rendite-Konfiguration
     - `WithdrawalStrategySelector` - Strategie-Auswahl
     - `BucketStrategyConfigurationForm` - Bucket-Strategie Konfiguration
@@ -67,9 +68,17 @@
     - `WithdrawalFrequencyConfiguration` - Entnahme-Häufigkeit
     - `InflationConfiguration` - Inflations-Einstellungen
     - `WithdrawalModeSelector` - Entnahme-Modus Auswahl
-  - Verbleibende Komplexität: Mehrfach verschachtelte bedingte Rendering-Logik
-  - Aufwand: 0,5 Tage
-  - Priorität: HOCH
+    - `SegmentedWithdrawalConfigSection` - Segmentierte Entnahme Wrapper (NEU)
+    - `ComparisonModeConfigSection` - Vergleichs-Modus Wrapper (NEU)
+    - `SegmentedComparisonConfigSection` - Segmentierter Vergleich Wrapper (NEU)
+    - `SingleStrategyConfigSection` - Einzelstrategie Wrapper mit allen Sub-Strategien (NEU, 198 Zeilen)
+  - Extrahierte Hilfsfunktionen: 3
+    - `handleWithdrawalModeChange` - Modus-Wechsel Logik (Komplexität <8, mit Params-Objekt)
+    - `handleAddComparisonStrategy` - Vergleichsstrategie hinzufügen (Komplexität <8, mit Params-Objekt)
+    - `handleRemoveComparisonStrategy` - Vergleichsstrategie entfernen (Komplexität <8, mit Params-Objekt)
+  - Verbleibende Komplexität: HealthCareInsuranceConfiguration mit großem Props-Objekt
+  - Aufwand: 0,5 Tage (gesamt 1,0 Tag)
+  - Priorität: MITTEL (weitere Reduktion schwierig ohne größeres Refactoring)
 
 - [x] **Arrow function in WithdrawalSegmentForm** (src/components/WithdrawalSegmentForm.tsx) ✅ ERLEDIGT
   - Original: Komplexität: 93, Zeilen: 865 (Arrow function)
@@ -226,8 +235,12 @@
   - Aufwand: 0,4 Tage
 
 - [ ] **EntnahmeSimulationDisplay** (src/components/EntnahmeSimulationDisplay.tsx)
-  - Zeilen: 533
-  - Aufwand: 0,3 Tage
+  - Zeilen: 633 (533 Function)
+  - Arrow Function Komplexität: 29 (Zeile 278)
+  - Vorbereitung: ✅ 2 Hilfsfunktionen erstellt (noch nicht integriert)
+    - `calculateRealValue` - Inflationsanpassung Berechnung (Komplexität <8, 12 Zeilen, mit Params-Objekt)
+    - `formatValueWithInflation` - Formatierung mit Inflation (Komplexität <8, 18 Zeilen, mit Params-Objekt)
+  - Aufwand: 0,3 Tage (Integration ausstehend)
 
 #### 1.3 Mittlere Priorität (Komplexität 26-44 ODER Zeilen 401-500)
 

@@ -1,10 +1,10 @@
 import { formatCurrency } from '../utils/currency'
-import { formatInflationAdjustedValue } from '../utils/currency'
+import { formatInflationAdjustedValue } from '../utils/inflation-adjustment'
 
 interface CalculateRealValueParams {
   nominalValue: number
   currentYear: number
-  allYears: (number | null | undefined)[]
+  allYears: Array<number | null | undefined>
   inflationRate: number
 }
 
@@ -33,7 +33,7 @@ export function calculateRealValue(params: CalculateRealValueParams): number {
 interface FormatWithInflationParams {
   nominalValue: number
   currentYear: number
-  allYears: (number | null | undefined)[]
+  allYears: Array<number | null | undefined>
   inflationActive: boolean
   inflationRatePercent: number | undefined
   showIcon?: boolean
