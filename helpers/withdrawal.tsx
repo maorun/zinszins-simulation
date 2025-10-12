@@ -387,6 +387,69 @@ function processCashCushionRefill(
 }
 
 /**
+ * Helper function: Apply inflation adjustment to withdrawal
+ */
+function applyInflationAdjustment(
+  baseWithdrawalAmount: number,
+  year: number,
+  startYear: number,
+  inflationConfig: InflationConfig | undefined,
+): { adjustedWithdrawal: number, inflationAnpassung: number } {
+  if (!inflationConfig?.inflationRate) {
+    return { adjustedWithdrawal: baseWithdrawalAmount, inflationAnpassung: 0 }
+  }
+  
+  const yearsPassed = year - startYear
+  const inflationAnpassung = baseWithdrawalAmount * (Math.pow(1 + inflationConfig.inflationRate, yearsPassed) - 1)
+  return { adjustedWithdrawal: baseWithdrawalAmount + inflationAnpassung, inflationAnpassung }
+}
+
+/**
+ * Helper function: Apply tax optimization to withdrawal
+ */
+function applyTaxOptimization(params: {
+  strategy: WithdrawalStrategy
+  capitalAtStartOfYear: number
+  annualWithdrawal: number
+  steueroptimierteEntnahmeConfig: SteueroptimierteEntnahmeConfig | undefined
+  getFreibetragForYear: (year: number) => number
+  year: number
+  taxRate: number
+  teilfreistellungsquote: number
+}): { optimizedWithdrawal: number, steueroptimierungAnpassung: number } {
+  const {
+    strategy,
+    capitalAtStartOfYear,
+    annualWithdrawal,
+    steueroptimierteEntnahmeConfig,
+    getFreibetragForYear,
+    year,
+    taxRate,
+    teilfreistellungsquote,
+  } = params
+  
+  if (strategy !== 'steueroptimiert' || !steueroptimierteEntnahmeConfig) {
+    return { optimizedWithdrawal: annualWithdrawal, steueroptimierungAnpassung: 0 }
+  }
+  
+  const currentFreibetrag = getFreibetragForYear(year)
+  const targetFreibetragUtilization = steueroptimierteEntnahmeConfig.freibetragUtilizationTarget || 0.85
+
+  const taxEfficientWithdrawal = calculateTaxOptimizedWithdrawal(
+    capitalAtStartOfYear,
+    annualWithdrawal,
+    currentFreibetrag,
+    targetFreibetragUtilization,
+    taxRate,
+    teilfreistellungsquote,
+    steueroptimierteEntnahmeConfig,
+  )
+
+  const steueroptimierungAnpassung = taxEfficientWithdrawal - annualWithdrawal
+  return { optimizedWithdrawal: taxEfficientWithdrawal, steueroptimierungAnpassung }
+}
+
+/**
  * Helper function: Calculate adjusted withdrawal amount for the year
  */
 function calculateAdjustedWithdrawal(params: {
@@ -427,9 +490,8 @@ function calculateAdjustedWithdrawal(params: {
     taxRate,
     teilfreistellungsquote,
   } = params
+  
   let annualWithdrawal = baseWithdrawalAmount
-  let inflationAnpassung = 0
-  let steueroptimierungAnpassung = 0
 
   // RMD strategy: recalculate withdrawal based on current portfolio value and age
   if (strategy === 'rmd' && rmdConfig) {
@@ -443,11 +505,13 @@ function calculateAdjustedWithdrawal(params: {
     )
   }
 
-  if (inflationConfig?.inflationRate) {
-    const yearsPassed = year - startYear
-    inflationAnpassung = baseWithdrawalAmount * (Math.pow(1 + inflationConfig.inflationRate, yearsPassed) - 1)
-    annualWithdrawal += inflationAnpassung
-  }
+  const { adjustedWithdrawal: withdrawalAfterInflation, inflationAnpassung } = applyInflationAdjustment(
+    baseWithdrawalAmount,
+    year,
+    startYear,
+    inflationConfig,
+  )
+  annualWithdrawal = strategy === 'rmd' && rmdConfig ? annualWithdrawal : withdrawalAfterInflation
 
   // Dynamic adjustment based on previous year's return
   const { adjustment: dynamischeAnpassung, previousReturn: vorjahresRendite } = calculateDynamicAdjustment(
@@ -460,24 +524,18 @@ function calculateAdjustedWithdrawal(params: {
   )
   annualWithdrawal += dynamischeAnpassung
 
-  // Tax-optimized withdrawal strategy: dynamically optimize withdrawal amount
-  if (strategy === 'steueroptimiert' && steueroptimierteEntnahmeConfig) {
-    const currentFreibetrag = getFreibetragForYear(year)
-    const targetFreibetragUtilization = steueroptimierteEntnahmeConfig.freibetragUtilizationTarget || 0.85
-
-    const taxEfficientWithdrawal = calculateTaxOptimizedWithdrawal(
-      capitalAtStartOfYear,
-      annualWithdrawal,
-      currentFreibetrag,
-      targetFreibetragUtilization,
-      taxRate,
-      teilfreistellungsquote,
-      steueroptimierteEntnahmeConfig,
-    )
-
-    steueroptimierungAnpassung = taxEfficientWithdrawal - annualWithdrawal
-    annualWithdrawal = taxEfficientWithdrawal
-  }
+  // Tax-optimized withdrawal strategy
+  const { optimizedWithdrawal, steueroptimierungAnpassung } = applyTaxOptimization({
+    strategy,
+    capitalAtStartOfYear,
+    annualWithdrawal,
+    steueroptimierteEntnahmeConfig,
+    getFreibetragForYear,
+    year,
+    taxRate,
+    teilfreistellungsquote,
+  })
+  annualWithdrawal = optimizedWithdrawal
 
   return {
     annualWithdrawal,
