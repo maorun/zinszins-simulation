@@ -7,31 +7,24 @@ import { useWithdrawalCalculations } from '../hooks/useWithdrawalCalculations'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
 import { useWithdrawalModals } from '../hooks/useWithdrawalModals'
 import { useHealthCareInsuranceHandlers } from '../hooks/useHealthCareInsuranceHandlers'
-import type {
-  ComparisonStrategy,
-} from '../utils/config-storage'
-import { createDefaultWithdrawalSegment } from '../utils/segmented-withdrawal'
 import type { SparplanElement } from '../utils/sparplan-utils'
 import CalculationExplanationModal from './CalculationExplanationModal'
-import { ComparisonStrategyConfiguration } from './ComparisonStrategyConfiguration'
-import { DynamicWithdrawalConfiguration } from './DynamicWithdrawalConfiguration'
 import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
 import { HealthCareInsuranceConfiguration } from './HealthCareInsuranceConfiguration'
-import { KapitalerhaltConfiguration } from './KapitalerhaltConfiguration'
 import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
-import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
-import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
 import { WithdrawalModeSelector } from './WithdrawalModeSelector'
-import { WithdrawalReturnModeConfiguration } from './WithdrawalReturnModeConfiguration'
-import { WithdrawalStrategySelector } from './WithdrawalStrategySelector'
-import { WithdrawalFrequencyConfiguration } from './WithdrawalFrequencyConfiguration'
-import { InflationConfiguration } from './InflationConfiguration'
-import { BucketStrategyConfigurationForm } from './BucketStrategyConfigurationForm'
-import { MonthlyFixedWithdrawalConfiguration } from './MonthlyFixedWithdrawalConfiguration'
-import { VariablePercentWithdrawalConfiguration } from './VariablePercentWithdrawalConfiguration'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
-import { WithdrawalSegmentForm } from './WithdrawalSegmentForm'
+import { SegmentedWithdrawalConfigSection } from './SegmentedWithdrawalConfigSection'
+import { ComparisonModeConfigSection } from './ComparisonModeConfigSection'
+import { SegmentedComparisonConfigSection } from './SegmentedComparisonConfigSection'
+import { SingleStrategyConfigSection } from './SingleStrategyConfigSection'
+import {
+  handleWithdrawalModeChange,
+  handleAddComparisonStrategy,
+  handleRemoveComparisonStrategy,
+} from './withdrawal-mode-helpers'
+import { buildHealthCareInsuranceValues } from './health-care-insurance-values-builder'
 
 export function EntnahmeSimulationsAusgabe({
   startEnd,
@@ -159,76 +152,43 @@ export function EntnahmeSimulationsAusgabe({
             useSegmentedWithdrawal={useSegmentedWithdrawal}
             useComparisonMode={useComparisonMode}
             useSegmentedComparisonMode={useSegmentedComparisonMode}
-            onModeChange={(mode) => {
-              const useComparison = mode === 'comparison'
-              const useSegmented = mode === 'segmented'
-              const useSegmentedComparison = mode === 'segmented-comparison'
-
-              updateConfig({
-                useComparisonMode: useComparison,
-                useSegmentedWithdrawal: useSegmented,
-                useSegmentedComparisonMode: useSegmentedComparison,
-              })
-
-              // Initialize segments when switching to segmented mode
-              if (useSegmented && withdrawalSegments.length === 0) {
-                // Create initial segment covering only the first 15 years, leaving room for additional segments
-                const withdrawalStartYear = startOfIndependence + 1
-                // 15 years or until end of life
-                const initialSegmentEndYear = Math.min(withdrawalStartYear + 14, globalEndOfLife)
-                const defaultSegment = createDefaultWithdrawalSegment(
-                  'main',
-                  'Frühphase',
-                  withdrawalStartYear,
-                  initialSegmentEndYear,
-                )
-                updateConfig({ withdrawalSegments: [defaultSegment] })
-              }
-            }}
+            onModeChange={mode =>
+              handleWithdrawalModeChange({
+                mode,
+                withdrawalSegments,
+                startOfIndependence,
+                globalEndOfLife,
+                updateConfig,
+              })}
           />
 
           {useSegmentedWithdrawal ? (
-          /* Segmented withdrawal configuration */
-            <WithdrawalSegmentForm
+            <SegmentedWithdrawalConfigSection
               segments={withdrawalSegments}
-              onSegmentsChange={segments =>
-                updateConfig({ withdrawalSegments: segments })}
+              onSegmentsChange={segments => updateConfig({ withdrawalSegments: segments })}
               withdrawalStartYear={startOfIndependence + 1}
               withdrawalEndYear={globalEndOfLife}
             />
           ) : useComparisonMode ? (
-          /* Comparison mode configuration */
-            <ComparisonStrategyConfiguration
+            <ComparisonModeConfigSection
               formValue={formValue}
               comparisonStrategies={comparisonStrategies}
               onUpdateFormValue={updateFormValue}
               onUpdateComparisonStrategy={updateComparisonStrategy}
-              onRemoveComparisonStrategy={(id) => {
-                updateConfig({
-                  comparisonStrategies: comparisonStrategies.filter(
-                    (s: ComparisonStrategy) => s.id !== id,
-                  ),
-                })
-              }}
-              onAddComparisonStrategy={() => {
-                const newId = `strategy${Date.now()}`
-                const newStrategy: ComparisonStrategy = {
-                  id: newId,
-                  name: '3% Regel',
-                  strategie: '3prozent',
-                  rendite: 5,
-                }
-                updateConfig({
-                  comparisonStrategies: [
-                    ...comparisonStrategies,
-                    newStrategy,
-                  ],
-                })
-              }}
+              onAddStrategy={() =>
+                handleAddComparisonStrategy({
+                  comparisonStrategies,
+                  updateConfig,
+                })}
+              onRemoveStrategy={id =>
+                handleRemoveComparisonStrategy({
+                  id,
+                  comparisonStrategies,
+                  updateConfig,
+                })}
             />
           ) : useSegmentedComparisonMode ? (
-          /* Segmented comparison mode configuration */
-            <SegmentedComparisonConfiguration
+            <SegmentedComparisonConfigSection
               segmentedComparisonStrategies={segmentedComparisonStrategies}
               withdrawalStartYear={startOfIndependence + 1}
               withdrawalEndYear={globalEndOfLife}
@@ -237,187 +197,34 @@ export function EntnahmeSimulationsAusgabe({
               onRemoveStrategy={removeSegmentedComparisonStrategy}
             />
           ) : (
-          /* Single strategy configuration (existing UI) */
-            <div>
-              {/* Withdrawal Return Configuration */}
-              <WithdrawalReturnModeConfiguration
-                withdrawalReturnMode={withdrawalReturnMode}
-                withdrawalAverageReturn={withdrawalAverageReturn}
-                withdrawalStandardDeviation={withdrawalStandardDeviation}
-                withdrawalRandomSeed={withdrawalRandomSeed}
-                withdrawalVariableReturns={withdrawalVariableReturns}
-                formValueRendite={formValue.rendite}
-                startOfIndependence={startOfIndependence}
-                globalEndOfLife={globalEndOfLife}
-                withdrawalMultiAssetConfig={withdrawalMultiAssetConfig}
-                onWithdrawalReturnModeChange={(mode) => {
-                  updateConfig({ withdrawalReturnMode: mode })
-                }}
-                onWithdrawalAverageReturnChange={(value) => {
-                  updateConfig({ withdrawalAverageReturn: value })
-                }}
-                onWithdrawalStandardDeviationChange={(value) => {
-                  updateConfig({ withdrawalStandardDeviation: value })
-                }}
-                onWithdrawalRandomSeedChange={(value) => {
-                  updateConfig({ withdrawalRandomSeed: value })
-                }}
-                onWithdrawalVariableReturnsChange={(returns) => {
-                  updateConfig({ withdrawalVariableReturns: returns })
-                }}
-                onFormValueRenditeChange={(rendite) => {
-                  updateFormValue({ ...formValue, rendite })
-                }}
-                onWithdrawalMultiAssetConfigChange={setWithdrawalMultiAssetConfig}
-              />
-
-              <WithdrawalStrategySelector
-                strategie={formValue.strategie}
-                onStrategyChange={(strategy) => {
-                  dispatchEnd([startOfIndependence, globalEndOfLife])
-                  updateFormValue({
-                    strategie: strategy,
-                  })
-                }}
-              />
-
-              {/* Withdrawal frequency configuration */}
-              <WithdrawalFrequencyConfiguration
-                frequency={formValue.withdrawalFrequency}
-                onFrequencyChange={(frequency) => {
-                  updateFormValue({
-                    withdrawalFrequency: frequency,
-                  })
-                }}
-              />
-
-              {/* General inflation controls for all strategies */}
-              <InflationConfiguration
-                inflationAktiv={formValue.inflationAktiv}
-                inflationsrate={formValue.inflationsrate}
-                onInflationActiveChange={(active) => {
-                  updateFormValue({ ...formValue, inflationAktiv: active })
-                }}
-                onInflationRateChange={(rate) => {
-                  dispatchEnd([startOfIndependence, globalEndOfLife])
-                  updateFormValue({
-                    inflationsrate: rate,
-                  })
-                }}
-              />
-
-              {/* Variable percentage strategy specific controls */}
-              {formValue.strategie === 'variabel_prozent' && (
-                <VariablePercentWithdrawalConfiguration
-                  variabelProzent={formValue.variabelProzent}
-                  onVariablePercentChange={(percent) => {
-                    updateFormValue({ variabelProzent: percent })
-                  }}
-                />
-              )}
-
-              {/* Monthly strategy specific controls */}
-              {formValue.strategie === 'monatlich_fest' && (
-                <MonthlyFixedWithdrawalConfiguration
-                  monatlicheBetrag={formValue.monatlicheBetrag}
-                  guardrailsAktiv={formValue.guardrailsAktiv}
-                  guardrailsSchwelle={formValue.guardrailsSchwelle}
-                  onMonthlyAmountChange={(amount) => {
-                    if (amount) updateFormValue({ ...formValue, monatlicheBetrag: amount })
-                  }}
-                  onGuardrailsActiveChange={(checked) => {
-                    updateFormValue({ ...formValue, guardrailsAktiv: checked })
-                  }}
-                  onGuardrailsThresholdChange={(threshold) => {
-                    updateFormValue({ guardrailsSchwelle: threshold })
-                  }}
-                />
-              )}
-
-              {/* Dynamic strategy specific controls */}
-              {formValue.strategie === 'dynamisch' && (
-                <DynamicWithdrawalConfiguration formValue={formValue} />
-              )}
-
-              {/* RMD strategy specific controls */}
-              {formValue.strategie === 'rmd' && (
-                <RMDWithdrawalConfiguration
-                  formValue={formValue}
-                  updateFormValue={updateFormValue}
-                />
-              )}
-
-              {/* Kapitalerhalt strategy specific controls */}
-              {formValue.strategie === 'kapitalerhalt' && (
-                <KapitalerhaltConfiguration
-                  formValue={formValue}
-                  updateFormValue={updateFormValue}
-                />
-              )}
-
-              {/* Bucket strategy specific controls */}
-              {formValue.strategie === 'bucket_strategie' && (
-                <BucketStrategyConfigurationForm
-                  bucketConfig={formValue.bucketConfig}
-                  onBucketConfigChange={(config) => {
-                    updateFormValue({
-                      ...formValue,
-                      bucketConfig: config,
-                    })
-                  }}
-                />
-              )}
-            </div>
+            <SingleStrategyConfigSection
+              formValue={formValue}
+              startOfIndependence={startOfIndependence}
+              globalEndOfLife={globalEndOfLife}
+              withdrawalReturnMode={withdrawalReturnMode}
+              withdrawalAverageReturn={withdrawalAverageReturn}
+              withdrawalStandardDeviation={withdrawalStandardDeviation}
+              withdrawalRandomSeed={withdrawalRandomSeed}
+              withdrawalVariableReturns={withdrawalVariableReturns}
+              withdrawalMultiAssetConfig={withdrawalMultiAssetConfig}
+              onConfigUpdate={updateConfig}
+              onFormValueUpdate={updateFormValue}
+              onStrategyChange={() => {}}
+              onWithdrawalMultiAssetConfigChange={setWithdrawalMultiAssetConfig}
+              dispatchEnd={dispatchEnd}
+            />
           )}
 
           {/* Health Care Insurance Configuration - Available in all withdrawal modes */}
           <div className="mb-6">
             <HealthCareInsuranceConfiguration
-              values={{
-                enabled: formValue.healthCareInsuranceConfig?.enabled ?? true,
-                planningMode: planningMode,
-                insuranceType: formValue.healthCareInsuranceConfig?.insuranceType || 'statutory',
-                includeEmployerContribution: formValue.healthCareInsuranceConfig?.includeEmployerContribution
-                  ?? true,
-                statutoryHealthInsuranceRate: formValue.healthCareInsuranceConfig?.statutoryHealthInsuranceRate
-                  || 14.6,
-                statutoryCareInsuranceRate: formValue.healthCareInsuranceConfig?.statutoryCareInsuranceRate
-                  || 3.05,
-                statutoryMinimumIncomeBase: formValue.healthCareInsuranceConfig?.statutoryMinimumIncomeBase
-                  || 13230,
-                statutoryMaximumIncomeBase: formValue.healthCareInsuranceConfig?.statutoryMaximumIncomeBase
-                  || 62550,
-                privateHealthInsuranceMonthly: formValue.healthCareInsuranceConfig?.privateHealthInsuranceMonthly
-                  || 400,
-                privateCareInsuranceMonthly: formValue.healthCareInsuranceConfig?.privateCareInsuranceMonthly
-                  || 100,
-                privateInsuranceInflationRate: formValue.healthCareInsuranceConfig?.privateInsuranceInflationRate
-                  || 2,
-                retirementStartYear: formValue.healthCareInsuranceConfig?.retirementStartYear
-                  || startOfIndependence,
-                additionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig
-                  ?.additionalCareInsuranceForChildless || false,
-                additionalCareInsuranceAge: formValue.healthCareInsuranceConfig?.additionalCareInsuranceAge || 23,
-                // Couple-specific values
-                coupleStrategy: formValue.healthCareInsuranceConfig?.coupleConfig?.strategy,
-                familyInsuranceThresholdRegular: formValue.healthCareInsuranceConfig?.coupleConfig
-                  ?.familyInsuranceThresholds?.regularEmploymentLimit,
-                familyInsuranceThresholdMiniJob: formValue.healthCareInsuranceConfig?.coupleConfig
-                  ?.familyInsuranceThresholds?.miniJobLimit,
-                person1Name: formValue.healthCareInsuranceConfig?.coupleConfig?.person1?.name,
-                person1WithdrawalShare: formValue.healthCareInsuranceConfig?.coupleConfig?.person1?.withdrawalShare,
-                person1OtherIncomeAnnual: formValue.healthCareInsuranceConfig?.coupleConfig?.person1?.otherIncomeAnnual,
-                person1AdditionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig
-                  ?.coupleConfig?.person1?.additionalCareInsuranceForChildless,
-                person2Name: formValue.healthCareInsuranceConfig?.coupleConfig?.person2?.name,
-                person2WithdrawalShare: formValue.healthCareInsuranceConfig?.coupleConfig?.person2?.withdrawalShare,
-                person2OtherIncomeAnnual: formValue.healthCareInsuranceConfig?.coupleConfig?.person2?.otherIncomeAnnual,
-                person2AdditionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig
-                  ?.coupleConfig?.person2?.additionalCareInsuranceForChildless,
-              }}
-              birthYear={birthYear}
-              spouseBirthYear={spouse?.birthYear}
-              planningMode={planningMode}
+              {...buildHealthCareInsuranceValues({
+                formValue,
+                planningMode,
+                startOfIndependence,
+                birthYear,
+                spouseBirthYear: spouse?.birthYear,
+              })}
               onChange={healthCareInsuranceHandlers}
               currentWithdrawalAmount={
                 withdrawalData && withdrawalData.withdrawalArray.length > 0

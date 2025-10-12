@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 84 ESLint-Warnungen (reduziert von 144)
+**Aktueller Stand:** 83 ESLint-Warnungen (reduziert von 144)
 **Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
@@ -13,7 +13,7 @@
 | Typ | Anzahl | Beschreibung |
 |-----|--------|--------------|
 | `@typescript-eslint/no-explicit-any` | 66 | Verwendung von `any` Type |
-| `complexity` | 6 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
+| `complexity` | 5 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
 | `max-lines-per-function` | 12 | Funktionen mit zu vielen Zeilen (>400) |
 | `max-depth` | 0 | ✅ Zu tiefe Verschachtelung (>5 Ebenen) - ERLEDIGT |
 
@@ -54,11 +54,14 @@
     - `buildStrategySpecificFields` - Strategie-spezifische Felder
     - `buildIncomeSourceFields` - Einkommensquellen-Felder
 
-- [x] **EntnahmeSimulationsAusgabe** (src/components/EntnahmeSimulationsAusgabe.tsx) ✅ TEILWEISE ERLEDIGT
+- [x] **EntnahmeSimulationsAusgabe** (src/components/EntnahmeSimulationsAusgabe.tsx) ✅ KOMPLETT ERLEDIGT
   - Original: Komplexität: 109, Zeilen: 1588
-  - Aktuell: Komplexität: 75, Zeilen: 402
-  - Status: ✅ Zeilen unter Limit (400), Komplexität reduziert um 31%
-  - Extrahierte Komponenten: 9
+  - Vorherig: Komplexität: 75, Zeilen: 402
+  - Vorvorherig: Komplexität: 69, Zeilen: 243
+  - Aktuell: Komplexität: <25, Zeilen: 244
+  - Status: ✅ Komplexitäts-Warnung eliminiert! (unter 25), Zeilen unter Limit (400)
+  - Gesamtreduktion: 100% Komplexitätswarnung behoben (von 109 → <25), 85% Zeilen reduziert
+  - Extrahierte Komponenten: 13 (9 vorherige + 4 neue)
     - `WithdrawalReturnModeConfiguration` - Rendite-Konfiguration
     - `WithdrawalStrategySelector` - Strategie-Auswahl
     - `BucketStrategyConfigurationForm` - Bucket-Strategie Konfiguration
@@ -67,9 +70,25 @@
     - `WithdrawalFrequencyConfiguration` - Entnahme-Häufigkeit
     - `InflationConfiguration` - Inflations-Einstellungen
     - `WithdrawalModeSelector` - Entnahme-Modus Auswahl
-  - Verbleibende Komplexität: Mehrfach verschachtelte bedingte Rendering-Logik
-  - Aufwand: 0,5 Tage
-  - Priorität: HOCH
+    - `SegmentedWithdrawalConfigSection` - Segmentierte Entnahme Wrapper
+    - `ComparisonModeConfigSection` - Vergleichs-Modus Wrapper
+    - `SegmentedComparisonConfigSection` - Segmentierter Vergleich Wrapper
+    - `SingleStrategyConfigSection` - Einzelstrategie Wrapper mit allen Sub-Strategien (198 Zeilen)
+  - Extrahierte Hilfsfunktionen: 10 (3 vorherige + 7 neue)
+    - `handleWithdrawalModeChange` - Modus-Wechsel Logik (Komplexität <8, mit Params-Objekt)
+    - `handleAddComparisonStrategy` - Vergleichsstrategie hinzufügen (Komplexität <8, mit Params-Objekt)
+    - `handleRemoveComparisonStrategy` - Vergleichsstrategie entfernen (Komplexität <8, mit Params-Objekt)
+    - `buildHealthCareInsuranceValues` - Health Care Props Builder (Komplexität <8, mit Params-Objekt)
+    - `buildBasicInsuranceValues` - Basis-Versicherungswerte (Komplexität <8)
+    - `buildStatutoryInsuranceValues` - Gesetzliche Versicherungswerte (Komplexität <8)
+    - `buildPrivateInsuranceValues` - Private Versicherungswerte (Komplexität <8)
+    - `buildRetirementAndCareValues` - Renten- und Pflegewerte (Komplexität <8)
+    - `buildCoupleStrategyValues` - Paar-Strategie Werte (Komplexität <8)
+    - `buildPerson1Values` - Person 1 Werte (Komplexität <8)
+    - `buildPerson2Values` - Person 2 Werte (Komplexität <8)
+  - ESLint-Warnung: ✅ ELIMINIERT (Komplexität unter 25)
+  - Aufwand: 1,0 Tag (gesamt 1,5 Tage)
+  - Priorität: ✅ ERLEDIGT
 
 - [x] **Arrow function in WithdrawalSegmentForm** (src/components/WithdrawalSegmentForm.tsx) ✅ ERLEDIGT
   - Original: Komplexität: 93, Zeilen: 865 (Arrow function)
@@ -226,8 +245,12 @@
   - Aufwand: 0,4 Tage
 
 - [ ] **EntnahmeSimulationDisplay** (src/components/EntnahmeSimulationDisplay.tsx)
-  - Zeilen: 533
-  - Aufwand: 0,3 Tage
+  - Zeilen: 633 (533 Function)
+  - Arrow Function Komplexität: 29 (Zeile 278)
+  - Vorbereitung: ✅ 2 Hilfsfunktionen erstellt (noch nicht integriert)
+    - `calculateRealValue` - Inflationsanpassung Berechnung (Komplexität <8, 12 Zeilen, mit Params-Objekt)
+    - `formatValueWithInflation` - Formatierung mit Inflation (Komplexität <8, 18 Zeilen, mit Params-Objekt)
+  - Aufwand: 0,3 Tage (Integration ausstehend)
 
 #### 1.3 Mittlere Priorität (Komplexität 26-44 ODER Zeilen 401-500)
 
