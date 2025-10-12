@@ -533,6 +533,70 @@ function buildStrategySpecificFields(params: {
 }
 
 /**
+ * Helper function: Build statutory pension field if applicable
+ */
+function buildStatutoryPensionField(
+  year: number,
+  statutoryPensionData: StatutoryPensionResult,
+) {
+  if (!statutoryPensionData[year] || statutoryPensionData[year].grossAnnualAmount <= 0) {
+    return undefined
+  }
+  
+  return {
+    grossAnnualAmount: statutoryPensionData[year].grossAnnualAmount,
+    netAnnualAmount: statutoryPensionData[year].netAnnualAmount,
+    incomeTax: statutoryPensionData[year].incomeTax,
+    taxableAmount: statutoryPensionData[year].taxableAmount,
+  }
+}
+
+/**
+ * Helper function: Build other income field if applicable
+ */
+function buildOtherIncomeField(
+  year: number,
+  otherIncomeData: OtherIncomeResult,
+) {
+  if (!otherIncomeData[year] || otherIncomeData[year].totalNetAnnualAmount <= 0) {
+    return undefined
+  }
+  
+  return {
+    totalNetAmount: otherIncomeData[year].totalNetAnnualAmount,
+    totalTaxAmount: otherIncomeData[year].totalTaxAmount,
+    sourceCount: otherIncomeData[year].sources.length,
+  }
+}
+
+/**
+ * Helper function: Build health care insurance field if applicable
+ */
+function buildHealthCareInsuranceField(
+  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined,
+  healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined,
+  coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined,
+) {
+  if (!healthCareInsuranceData || !healthCareInsuranceConfig?.enabled) {
+    return undefined
+  }
+  
+  return {
+    healthInsuranceAnnual: healthCareInsuranceData.healthInsuranceAnnual,
+    careInsuranceAnnual: healthCareInsuranceData.careInsuranceAnnual,
+    totalAnnual: healthCareInsuranceData.totalAnnual,
+    healthInsuranceMonthly: healthCareInsuranceData.healthInsuranceMonthly,
+    careInsuranceMonthly: healthCareInsuranceData.careInsuranceMonthly,
+    totalMonthly: healthCareInsuranceData.totalMonthly,
+    usedFixedAmounts: healthCareInsuranceData.usedFixedAmounts || false,
+    isRetirementPhase: healthCareInsuranceData.isRetirementPhase,
+    effectiveHealthInsuranceRate: healthCareInsuranceData.effectiveHealthInsuranceRate || 0,
+    effectiveCareInsuranceRate: healthCareInsuranceData.effectiveCareInsuranceRate || 0,
+    coupleDetails: coupleHealthCareInsuranceData,
+  }
+}
+
+/**
  * Helper function: Build income source fields for result
  */
 function buildIncomeSourceFields(params: {
@@ -576,37 +640,15 @@ function buildIncomeSourceFields(params: {
     healthCareInsuranceConfig,
     coupleHealthCareInsuranceData,
   } = params
+  
   return {
-    statutoryPension: statutoryPensionData[year] && statutoryPensionData[year].grossAnnualAmount > 0
-      ? {
-          grossAnnualAmount: statutoryPensionData[year].grossAnnualAmount,
-          netAnnualAmount: statutoryPensionData[year].netAnnualAmount,
-          incomeTax: statutoryPensionData[year].incomeTax,
-          taxableAmount: statutoryPensionData[year].taxableAmount,
-        }
-      : undefined,
-    otherIncome: otherIncomeData[year] && otherIncomeData[year].totalNetAnnualAmount > 0
-      ? {
-          totalNetAmount: otherIncomeData[year].totalNetAnnualAmount,
-          totalTaxAmount: otherIncomeData[year].totalTaxAmount,
-          sourceCount: otherIncomeData[year].sources.length,
-        }
-      : undefined,
-    healthCareInsurance: healthCareInsuranceData && healthCareInsuranceConfig?.enabled
-      ? {
-          healthInsuranceAnnual: healthCareInsuranceData.healthInsuranceAnnual,
-          careInsuranceAnnual: healthCareInsuranceData.careInsuranceAnnual,
-          totalAnnual: healthCareInsuranceData.totalAnnual,
-          healthInsuranceMonthly: healthCareInsuranceData.healthInsuranceMonthly,
-          careInsuranceMonthly: healthCareInsuranceData.careInsuranceMonthly,
-          totalMonthly: healthCareInsuranceData.totalMonthly,
-          usedFixedAmounts: healthCareInsuranceData.usedFixedAmounts || false,
-          isRetirementPhase: healthCareInsuranceData.isRetirementPhase,
-          effectiveHealthInsuranceRate: healthCareInsuranceData.effectiveHealthInsuranceRate || 0,
-          effectiveCareInsuranceRate: healthCareInsuranceData.effectiveCareInsuranceRate || 0,
-          coupleDetails: coupleHealthCareInsuranceData,
-        }
-      : undefined,
+    statutoryPension: buildStatutoryPensionField(year, statutoryPensionData),
+    otherIncome: buildOtherIncomeField(year, otherIncomeData),
+    healthCareInsurance: buildHealthCareInsuranceField(
+      healthCareInsuranceData,
+      healthCareInsuranceConfig,
+      coupleHealthCareInsuranceData,
+    ),
   }
 }
 
@@ -781,6 +823,50 @@ function applyPortfolioGrowthAndVorabTax(
 }
 
 /**
+ * Helper function: Calculate total taxable income from all sources
+ */
+function calculateTotalTaxableIncome(params: {
+  entnahme: number
+  year: number
+  statutoryPensionData: StatutoryPensionResult
+  otherIncomeData: OtherIncomeResult
+  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
+  healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
+}): number {
+  const {
+    entnahme,
+    year,
+    statutoryPensionData,
+    otherIncomeData,
+    healthCareInsuranceData,
+    healthCareInsuranceConfig,
+  } = params
+  
+  let totalTaxableIncome = entnahme
+
+  // Add taxable amount from statutory pension
+  if (statutoryPensionData[year]?.taxableAmount) {
+    totalTaxableIncome += statutoryPensionData[year].taxableAmount
+  }
+
+  // Add taxable amount from other income sources
+  if (otherIncomeData[year]?.sources) {
+    const otherIncomeGrossTotal = otherIncomeData[year].sources.reduce(
+      (sum: number, source: OtherIncomeYearResult) => sum + (source.grossAnnualAmount || 0),
+      0,
+    )
+    totalTaxableIncome += otherIncomeGrossTotal
+  }
+
+  // Deduct health care insurance contributions (tax-deductible in Germany)
+  if (healthCareInsuranceData && healthCareInsuranceConfig?.enabled) {
+    totalTaxableIncome -= healthCareInsuranceData.totalAnnual
+  }
+
+  return totalTaxableIncome
+}
+
+/**
  * Helper function: Calculate income tax with Grundfreibetrag
  */
 function calculateYearIncomeTax(params: {
@@ -813,6 +899,7 @@ function calculateYearIncomeTax(params: {
     kirchensteuerAktiv,
     kirchensteuersatz,
   } = params
+  
   let einkommensteuer = 0
   let genutzterGrundfreibetrag = 0
   let taxableIncome = 0
@@ -820,27 +907,14 @@ function calculateYearIncomeTax(params: {
   if (enableGrundfreibetrag) {
     const yearlyGrundfreibetrag = getGrundfreibetragForYear(year)
 
-    // Calculate total taxable income from all sources
-    let totalTaxableIncome = entnahme
-
-    // Add taxable amount from statutory pension
-    if (statutoryPensionData[year]?.taxableAmount) {
-      totalTaxableIncome += statutoryPensionData[year].taxableAmount
-    }
-
-    // Add taxable amount from other income sources
-    if (otherIncomeData[year]?.sources) {
-      const otherIncomeGrossTotal = otherIncomeData[year].sources.reduce(
-        (sum: number, source: OtherIncomeYearResult) => sum + (source.grossAnnualAmount || 0),
-        0,
-      )
-      totalTaxableIncome += otherIncomeGrossTotal
-    }
-
-    // Deduct health care insurance contributions (tax-deductible in Germany)
-    if (healthCareInsuranceData && healthCareInsuranceConfig?.enabled) {
-      totalTaxableIncome -= healthCareInsuranceData.totalAnnual
-    }
+    const totalTaxableIncome = calculateTotalTaxableIncome({
+      entnahme,
+      year,
+      statutoryPensionData,
+      otherIncomeData,
+      healthCareInsuranceData,
+      healthCareInsuranceConfig,
+    })
 
     einkommensteuer = calculateIncomeTax(
       totalTaxableIncome,
@@ -850,7 +924,6 @@ function calculateYearIncomeTax(params: {
       kirchensteuersatz,
     )
     genutzterGrundfreibetrag = Math.min(totalTaxableIncome, yearlyGrundfreibetrag)
-    // Calculate the actual taxable income after applying Grundfreibetrag
     taxableIncome = Math.max(0, totalTaxableIncome - yearlyGrundfreibetrag)
   }
 
@@ -922,17 +995,22 @@ function calculateYearHealthCareInsurance(params: {
 }
 
 /**
+ * Parameters for calculating Vorabpauschale for layers
+ */
+type VorabpauschaleLayersParams = {
+  mutableLayers: MutableLayer[]
+  returnRate: number
+  year: number
+  basiszinsConfiguration: BasiszinsConfiguration | undefined
+  taxRate: number
+  teilfreistellungsquote: number
+  freibetragPerYear: Record<number, number> | undefined
+}
+
+/**
  * Helper function: Calculate Vorabpauschale for all layers before withdrawal
  */
-function calculateVorabpauschaleForLayers(
-  mutableLayers: MutableLayer[],
-  returnRate: number,
-  year: number,
-  basiszinsConfiguration: BasiszinsConfiguration | undefined,
-  taxRate: number,
-  teilfreistellungsquote: number,
-  freibetragPerYear: Record<number, number> | undefined,
-): {
+function calculateVorabpauschaleForLayers(params: VorabpauschaleLayersParams): {
   totalPotentialVorabTax: number
   vorabCalculations: Array<{
     layer: MutableLayer
@@ -943,6 +1021,16 @@ function calculateVorabpauschaleForLayers(
   yearlyFreibetrag: number
   basiszins: number
 } {
+  const {
+    mutableLayers,
+    returnRate,
+    year,
+    basiszinsConfiguration,
+    taxRate,
+    teilfreistellungsquote,
+    freibetragPerYear,
+  } = params
+  
   const getFreibetrag = (yr: number): number => {
     if (freibetragPerYear && freibetragPerYear[yr] !== undefined) return freibetragPerYear[yr]
     return freibetrag[2023] || 2000
@@ -1418,7 +1506,7 @@ export function calculateWithdrawal({
       vorabCalculations,
       yearlyFreibetrag,
       basiszins,
-    } = calculateVorabpauschaleForLayers(
+    } = calculateVorabpauschaleForLayers({
       mutableLayers,
       returnRate,
       year,
@@ -1426,7 +1514,7 @@ export function calculateWithdrawal({
       taxRate,
       teilfreistellungsquote,
       freibetragPerYear,
-    )
+    })
 
     // SECOND: Process withdrawal and calculate realized gains
     const totalRealizedGainThisYear = processLayerWithdrawal(
