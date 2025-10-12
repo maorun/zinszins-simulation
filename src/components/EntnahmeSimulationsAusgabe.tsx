@@ -24,6 +24,7 @@ import {
   handleAddComparisonStrategy,
   handleRemoveComparisonStrategy,
 } from './withdrawal-mode-helpers'
+import { buildHealthCareInsuranceValues } from './health-care-insurance-values-builder'
 
 export function EntnahmeSimulationsAusgabe({
   startEnd,
@@ -217,51 +218,13 @@ export function EntnahmeSimulationsAusgabe({
           {/* Health Care Insurance Configuration - Available in all withdrawal modes */}
           <div className="mb-6">
             <HealthCareInsuranceConfiguration
-              values={{
-                enabled: formValue.healthCareInsuranceConfig?.enabled ?? true,
-                planningMode: planningMode,
-                insuranceType: formValue.healthCareInsuranceConfig?.insuranceType || 'statutory',
-                includeEmployerContribution: formValue.healthCareInsuranceConfig?.includeEmployerContribution
-                  ?? true,
-                statutoryHealthInsuranceRate: formValue.healthCareInsuranceConfig?.statutoryHealthInsuranceRate
-                  || 14.6,
-                statutoryCareInsuranceRate: formValue.healthCareInsuranceConfig?.statutoryCareInsuranceRate
-                  || 3.05,
-                statutoryMinimumIncomeBase: formValue.healthCareInsuranceConfig?.statutoryMinimumIncomeBase
-                  || 13230,
-                statutoryMaximumIncomeBase: formValue.healthCareInsuranceConfig?.statutoryMaximumIncomeBase
-                  || 62550,
-                privateHealthInsuranceMonthly: formValue.healthCareInsuranceConfig?.privateHealthInsuranceMonthly
-                  || 400,
-                privateCareInsuranceMonthly: formValue.healthCareInsuranceConfig?.privateCareInsuranceMonthly
-                  || 100,
-                privateInsuranceInflationRate: formValue.healthCareInsuranceConfig?.privateInsuranceInflationRate
-                  || 2,
-                retirementStartYear: formValue.healthCareInsuranceConfig?.retirementStartYear
-                  || startOfIndependence,
-                additionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig
-                  ?.additionalCareInsuranceForChildless || false,
-                additionalCareInsuranceAge: formValue.healthCareInsuranceConfig?.additionalCareInsuranceAge || 23,
-                // Couple-specific values
-                coupleStrategy: formValue.healthCareInsuranceConfig?.coupleConfig?.strategy,
-                familyInsuranceThresholdRegular: formValue.healthCareInsuranceConfig?.coupleConfig
-                  ?.familyInsuranceThresholds?.regularEmploymentLimit,
-                familyInsuranceThresholdMiniJob: formValue.healthCareInsuranceConfig?.coupleConfig
-                  ?.familyInsuranceThresholds?.miniJobLimit,
-                person1Name: formValue.healthCareInsuranceConfig?.coupleConfig?.person1?.name,
-                person1WithdrawalShare: formValue.healthCareInsuranceConfig?.coupleConfig?.person1?.withdrawalShare,
-                person1OtherIncomeAnnual: formValue.healthCareInsuranceConfig?.coupleConfig?.person1?.otherIncomeAnnual,
-                person1AdditionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig
-                  ?.coupleConfig?.person1?.additionalCareInsuranceForChildless,
-                person2Name: formValue.healthCareInsuranceConfig?.coupleConfig?.person2?.name,
-                person2WithdrawalShare: formValue.healthCareInsuranceConfig?.coupleConfig?.person2?.withdrawalShare,
-                person2OtherIncomeAnnual: formValue.healthCareInsuranceConfig?.coupleConfig?.person2?.otherIncomeAnnual,
-                person2AdditionalCareInsuranceForChildless: formValue.healthCareInsuranceConfig
-                  ?.coupleConfig?.person2?.additionalCareInsuranceForChildless,
-              }}
-              birthYear={birthYear}
-              spouseBirthYear={spouse?.birthYear}
-              planningMode={planningMode}
+              {...buildHealthCareInsuranceValues({
+                formValue,
+                planningMode,
+                startOfIndependence,
+                birthYear,
+                spouseBirthYear: spouse?.birthYear,
+              })}
               onChange={healthCareInsuranceHandlers}
               currentWithdrawalAmount={
                 withdrawalData && withdrawalData.withdrawalArray.length > 0

@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 84 ESLint-Warnungen (reduziert von 144)
+**Aktueller Stand:** 83 ESLint-Warnungen (reduziert von 144)
 **Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
@@ -13,7 +13,7 @@
 | Typ | Anzahl | Beschreibung |
 |-----|--------|--------------|
 | `@typescript-eslint/no-explicit-any` | 66 | Verwendung von `any` Type |
-| `complexity` | 6 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
+| `complexity` | 5 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
 | `max-lines-per-function` | 12 | Funktionen mit zu vielen Zeilen (>400) |
 | `max-depth` | 0 | ✅ Zu tiefe Verschachtelung (>5 Ebenen) - ERLEDIGT |
 
@@ -54,11 +54,13 @@
     - `buildStrategySpecificFields` - Strategie-spezifische Felder
     - `buildIncomeSourceFields` - Einkommensquellen-Felder
 
-- [x] **EntnahmeSimulationsAusgabe** (src/components/EntnahmeSimulationsAusgabe.tsx) ✅ WEITER REFACTORED
+- [x] **EntnahmeSimulationsAusgabe** (src/components/EntnahmeSimulationsAusgabe.tsx) ✅ KOMPLETT ERLEDIGT
   - Original: Komplexität: 109, Zeilen: 1588
   - Vorherig: Komplexität: 75, Zeilen: 402
-  - Aktuell: Komplexität: 69, Zeilen: 243
-  - Status: ✅ Zeilen unter Limit (400), Komplexität weiter reduziert um 8% (gesamt 37% von Original)
+  - Vorvorherig: Komplexität: 69, Zeilen: 243
+  - Aktuell: Komplexität: <25, Zeilen: 244
+  - Status: ✅ Komplexitäts-Warnung eliminiert! (unter 25), Zeilen unter Limit (400)
+  - Gesamtreduktion: 100% Komplexitätswarnung behoben (von 109 → <25), 85% Zeilen reduziert
   - Extrahierte Komponenten: 13 (9 vorherige + 4 neue)
     - `WithdrawalReturnModeConfiguration` - Rendite-Konfiguration
     - `WithdrawalStrategySelector` - Strategie-Auswahl
@@ -68,17 +70,25 @@
     - `WithdrawalFrequencyConfiguration` - Entnahme-Häufigkeit
     - `InflationConfiguration` - Inflations-Einstellungen
     - `WithdrawalModeSelector` - Entnahme-Modus Auswahl
-    - `SegmentedWithdrawalConfigSection` - Segmentierte Entnahme Wrapper (NEU)
-    - `ComparisonModeConfigSection` - Vergleichs-Modus Wrapper (NEU)
-    - `SegmentedComparisonConfigSection` - Segmentierter Vergleich Wrapper (NEU)
-    - `SingleStrategyConfigSection` - Einzelstrategie Wrapper mit allen Sub-Strategien (NEU, 198 Zeilen)
-  - Extrahierte Hilfsfunktionen: 3
+    - `SegmentedWithdrawalConfigSection` - Segmentierte Entnahme Wrapper
+    - `ComparisonModeConfigSection` - Vergleichs-Modus Wrapper
+    - `SegmentedComparisonConfigSection` - Segmentierter Vergleich Wrapper
+    - `SingleStrategyConfigSection` - Einzelstrategie Wrapper mit allen Sub-Strategien (198 Zeilen)
+  - Extrahierte Hilfsfunktionen: 10 (3 vorherige + 7 neue)
     - `handleWithdrawalModeChange` - Modus-Wechsel Logik (Komplexität <8, mit Params-Objekt)
     - `handleAddComparisonStrategy` - Vergleichsstrategie hinzufügen (Komplexität <8, mit Params-Objekt)
     - `handleRemoveComparisonStrategy` - Vergleichsstrategie entfernen (Komplexität <8, mit Params-Objekt)
-  - Verbleibende Komplexität: HealthCareInsuranceConfiguration mit großem Props-Objekt
-  - Aufwand: 0,5 Tage (gesamt 1,0 Tag)
-  - Priorität: MITTEL (weitere Reduktion schwierig ohne größeres Refactoring)
+    - `buildHealthCareInsuranceValues` - Health Care Props Builder (Komplexität <8, mit Params-Objekt)
+    - `buildBasicInsuranceValues` - Basis-Versicherungswerte (Komplexität <8)
+    - `buildStatutoryInsuranceValues` - Gesetzliche Versicherungswerte (Komplexität <8)
+    - `buildPrivateInsuranceValues` - Private Versicherungswerte (Komplexität <8)
+    - `buildRetirementAndCareValues` - Renten- und Pflegewerte (Komplexität <8)
+    - `buildCoupleStrategyValues` - Paar-Strategie Werte (Komplexität <8)
+    - `buildPerson1Values` - Person 1 Werte (Komplexität <8)
+    - `buildPerson2Values` - Person 2 Werte (Komplexität <8)
+  - ESLint-Warnung: ✅ ELIMINIERT (Komplexität unter 25)
+  - Aufwand: 1,0 Tag (gesamt 1,5 Tage)
+  - Priorität: ✅ ERLEDIGT
 
 - [x] **Arrow function in WithdrawalSegmentForm** (src/components/WithdrawalSegmentForm.tsx) ✅ ERLEDIGT
   - Original: Komplexität: 93, Zeilen: 865 (Arrow function)
