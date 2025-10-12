@@ -28,55 +28,62 @@ interface SingleStrategyConfigParams {
   dispatchEnd: (val: [number, number]) => void
 }
 
-export function SingleStrategyConfigSection({
-  formValue,
-  startOfIndependence,
-  globalEndOfLife,
-  withdrawalReturnMode,
-  withdrawalAverageReturn,
-  withdrawalStandardDeviation,
-  withdrawalRandomSeed,
-  withdrawalVariableReturns,
-  withdrawalMultiAssetConfig,
-  onConfigUpdate,
-  onFormValueUpdate,
-  onStrategyChange,
-  onWithdrawalMultiAssetConfigChange,
-  dispatchEnd,
-}: SingleStrategyConfigParams) {
+function useWithdrawalReturnModeConfiguration(
+  params: SingleStrategyConfigParams,
+) {
+  const {
+    withdrawalReturnMode,
+    withdrawalAverageReturn,
+    withdrawalStandardDeviation,
+    withdrawalRandomSeed,
+    withdrawalVariableReturns,
+    formValue,
+    startOfIndependence,
+    globalEndOfLife,
+    withdrawalMultiAssetConfig,
+    onConfigUpdate,
+    onFormValueUpdate,
+    onWithdrawalMultiAssetConfigChange,
+  } = params
+
+  return {
+    withdrawalReturnMode,
+    withdrawalAverageReturn,
+    withdrawalStandardDeviation,
+    withdrawalRandomSeed,
+    withdrawalVariableReturns,
+    formValueRendite: formValue.rendite,
+    startOfIndependence,
+    globalEndOfLife,
+    withdrawalMultiAssetConfig,
+    onWithdrawalReturnModeChange: (mode: WithdrawalReturnMode) => onConfigUpdate({ withdrawalReturnMode: mode }),
+    onWithdrawalAverageReturnChange: (value: number) => onConfigUpdate({ withdrawalAverageReturn: value }),
+    onWithdrawalStandardDeviationChange: (value: number) => onConfigUpdate({ withdrawalStandardDeviation: value }),
+    onWithdrawalRandomSeedChange: (value: number | undefined) => onConfigUpdate({ withdrawalRandomSeed: value }),
+    onWithdrawalVariableReturnsChange: (
+      returns: Record<number, number>,
+    ) => onConfigUpdate({ withdrawalVariableReturns: returns }),
+    onFormValueRenditeChange: (rendite: number) => onFormValueUpdate({ ...formValue, rendite }),
+    onWithdrawalMultiAssetConfigChange,
+  }
+}
+
+export function SingleStrategyConfigSection(params: SingleStrategyConfigParams) {
+  const {
+    formValue,
+    startOfIndependence,
+    globalEndOfLife,
+    onFormValueUpdate,
+    onStrategyChange,
+    dispatchEnd,
+  } = params
+
+  const withdrawalReturnModeProps = useWithdrawalReturnModeConfiguration(params)
+
   return (
     <div>
       {/* Withdrawal Return Configuration */}
-      <WithdrawalReturnModeConfiguration
-        withdrawalReturnMode={withdrawalReturnMode}
-        withdrawalAverageReturn={withdrawalAverageReturn}
-        withdrawalStandardDeviation={withdrawalStandardDeviation}
-        withdrawalRandomSeed={withdrawalRandomSeed}
-        withdrawalVariableReturns={withdrawalVariableReturns}
-        formValueRendite={formValue.rendite}
-        startOfIndependence={startOfIndependence}
-        globalEndOfLife={globalEndOfLife}
-        withdrawalMultiAssetConfig={withdrawalMultiAssetConfig}
-        onWithdrawalReturnModeChange={(mode) => {
-          onConfigUpdate({ withdrawalReturnMode: mode })
-        }}
-        onWithdrawalAverageReturnChange={(value) => {
-          onConfigUpdate({ withdrawalAverageReturn: value })
-        }}
-        onWithdrawalStandardDeviationChange={(value) => {
-          onConfigUpdate({ withdrawalStandardDeviation: value })
-        }}
-        onWithdrawalRandomSeedChange={(value) => {
-          onConfigUpdate({ withdrawalRandomSeed: value })
-        }}
-        onWithdrawalVariableReturnsChange={(returns) => {
-          onConfigUpdate({ withdrawalVariableReturns: returns })
-        }}
-        onFormValueRenditeChange={(rendite) => {
-          onFormValueUpdate({ ...formValue, rendite })
-        }}
-        onWithdrawalMultiAssetConfigChange={onWithdrawalMultiAssetConfigChange}
-      />
+      <WithdrawalReturnModeConfiguration {...withdrawalReturnModeProps} />
 
       <WithdrawalStrategySelector
         strategie={formValue.strategie}

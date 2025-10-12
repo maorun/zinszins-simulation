@@ -2,13 +2,13 @@ import type { WithdrawalFormValue } from '../utils/config-storage'
 
 interface BuildHealthCareValuesParams {
   formValue: WithdrawalFormValue
-  planningMode: string
+  planningMode: 'individual' | 'couple'
   startOfIndependence: number
   birthYear: number | undefined
   spouseBirthYear: number | undefined
 }
 
-function buildBasicInsuranceValues(config: WithdrawalFormValue['healthCareInsuranceConfig'], planningMode: string) {
+function buildBasicInsuranceValues(config: WithdrawalFormValue['healthCareInsuranceConfig'], planningMode: 'individual' | 'couple') {
   return {
     enabled: config?.enabled ?? true,
     planningMode: planningMode,
