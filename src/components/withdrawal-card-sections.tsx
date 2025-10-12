@@ -1,29 +1,5 @@
+import { Info } from 'lucide-react'
 import { formatCurrency } from '../utils/currency'
-
-// Info icon component for calculation explanations
-const InfoIcon = ({ onClick }: { onClick: () => void }) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    style={{
-      marginLeft: '0.5rem',
-      cursor: 'pointer',
-      color: '#1976d2',
-      verticalAlign: 'middle',
-    }}
-    onClick={onClick}
-  >
-    <circle cx="12" cy="12" r="10"></circle>
-    <path d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"></path>
-    <path d="M12,17h.01"></path>
-  </svg>
-)
 
 interface OtherIncomeSectionProps {
   otherIncome?: {
@@ -53,7 +29,10 @@ export function OtherIncomeSection({
         <span className="text-sm text-gray-600 font-medium">💰 Andere Einkünfte (Netto):</span>
         <span className="font-semibold text-green-600 text-sm flex items-center">
           {formatCurrency(otherIncome.totalNetAmount)}
-          <InfoIcon onClick={() => onCalculationInfoClick('otherIncome', rowData)} />
+          <Info
+            className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+            onClick={() => onCalculationInfoClick('otherIncome', rowData)}
+          />
         </span>
       </div>
       {otherIncome.totalTaxAmount > 0 && (
@@ -159,7 +138,10 @@ export function HealthCareInsuranceSection({
             )
             {healthCareInsurance.insuranceType === 'statutory' && !healthCareInsurance.includesEmployerContribution && ' - nur AN-Anteil'}
           </span>
-          <InfoIcon onClick={() => onCalculationInfoClick('healthCareInsurance', rowData)} />
+          <Info
+            className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+            onClick={() => onCalculationInfoClick('healthCareInsurance', rowData)}
+          />
         </span>
       </div>
       <div className="flex justify-between items-center py-1">
@@ -201,7 +183,10 @@ export function StatutoryPensionSection({
         <span className="font-semibold text-green-600 text-sm flex items-center">
           +
           {formatCurrency(statutoryPension.grossAnnualAmount)}
-          <InfoIcon onClick={() => onCalculationInfoClick('statutoryPension', rowData)} />
+          <Info
+            className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+            onClick={() => onCalculationInfoClick('statutoryPension', rowData)}
+          />
         </span>
       </div>
       {statutoryPension.incomeTax > 0 && (

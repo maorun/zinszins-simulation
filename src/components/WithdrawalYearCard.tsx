@@ -1,3 +1,4 @@
+import { Info } from 'lucide-react'
 import { formatCurrency } from '../utils/currency'
 import { formatValueWithInflation } from './inflation-helpers'
 import type { WithdrawalFormValue } from '../utils/config-storage'
@@ -6,31 +7,6 @@ import {
   HealthCareInsuranceSection,
   StatutoryPensionSection,
 } from './withdrawal-card-sections'
-
-// Info icon component for calculation explanations
-const InfoIcon = ({ onClick }: { onClick: () => void }) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    style={{
-      marginLeft: '0.5rem',
-      cursor: 'pointer',
-      color: '#1976d2',
-      verticalAlign: 'middle',
-    }}
-    onClick={onClick}
-  >
-    <circle cx="12" cy="12" r="10"></circle>
-    <path d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"></path>
-    <path d="M12,17h.01"></path>
-  </svg>
-)
 
 interface WithdrawalYearCardProps {
   rowData: {
@@ -127,7 +103,10 @@ export function WithdrawalYearCard({
             formValue,
             showIcon: true,
           })}
-          <InfoIcon onClick={() => onCalculationInfoClick('endkapital', rowData)} />
+          <Info
+            className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+            onClick={() => onCalculationInfoClick('endkapital', rowData)}
+          />
         </span>
       </div>
 
@@ -177,7 +156,10 @@ export function WithdrawalYearCard({
             <span className="text-sm text-gray-600 font-medium">📈 Inflation:</span>
             <span className="font-semibold text-orange-600 text-sm flex items-center">
               {formatCurrency(rowData.inflationAnpassung)}
-              <InfoIcon onClick={() => onCalculationInfoClick('inflation', rowData)} />
+              <Info
+                className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+                onClick={() => onCalculationInfoClick('inflation', rowData)}
+              />
             </span>
           </div>
         )}
@@ -205,7 +187,10 @@ export function WithdrawalYearCard({
               formValue,
               showIcon: true,
             })}
-            <InfoIcon onClick={() => onCalculationInfoClick('interest', rowData)} />
+            <Info
+              className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+              onClick={() => onCalculationInfoClick('interest', rowData)}
+            />
           </span>
         </div>
 
@@ -214,7 +199,10 @@ export function WithdrawalYearCard({
           <span className="text-sm text-gray-600 font-medium">💸 Bezahlte Steuer:</span>
           <span className="font-semibold text-red-600 text-sm flex items-center">
             {formatCurrency(rowData.bezahlteSteuer)}
-            <InfoIcon onClick={() => onCalculationInfoClick('tax', rowData)} />
+            <Info
+              className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+              onClick={() => onCalculationInfoClick('tax', rowData)}
+            />
           </span>
         </div>
 
@@ -243,7 +231,10 @@ export function WithdrawalYearCard({
             <span className="text-sm text-gray-600 font-medium">📊 Vorabpauschale:</span>
             <span className="font-semibold text-blue-700 text-sm flex items-center">
               {formatCurrency(rowData.vorabpauschale)}
-              <InfoIcon onClick={() => onCalculationInfoClick('vorabpauschale', rowData)} />
+              <Info
+                className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+                onClick={() => onCalculationInfoClick('vorabpauschale', rowData)}
+              />
             </span>
           </div>
         )}
@@ -262,7 +253,10 @@ export function WithdrawalYearCard({
             <span className="text-sm text-gray-600 font-medium">🏛️ Einkommensteuer:</span>
             <span className="font-semibold text-pink-600 text-sm flex items-center">
               {formatCurrency(rowData.einkommensteuer)}
-              <InfoIcon onClick={() => onCalculationInfoClick('incomeTax', rowData)} />
+              <Info
+                className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+                onClick={() => onCalculationInfoClick('incomeTax', rowData)}
+              />
             </span>
           </div>
         )}
@@ -273,7 +267,10 @@ export function WithdrawalYearCard({
             <span className="text-sm text-gray-600 font-medium">🆓 Grundfreibetrag:</span>
             <span className="font-semibold text-green-600 text-sm flex items-center">
               {formatCurrency(rowData.genutzterGrundfreibetrag)}
-              <InfoIcon onClick={() => onCalculationInfoClick('incomeTax', rowData)} />
+              <Info
+                className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+                onClick={() => onCalculationInfoClick('incomeTax', rowData)}
+              />
             </span>
           </div>
         )}
