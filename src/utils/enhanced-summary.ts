@@ -1,19 +1,21 @@
-import { calculateWithdrawal } from '../../helpers/withdrawal'
+import { calculateWithdrawal, type WithdrawalResult } from '../../helpers/withdrawal'
 import { getEnhancedSummary } from './summary-utils'
+import type { SimulationData } from '../contexts/helpers/config-types'
+import type { WithdrawalConfiguration } from './config-storage'
 
 export function getEnhancedOverviewSummary(
-  simulationData: any,
+  simulationData: SimulationData | null,
   startEnd: [number, number],
-  withdrawalResults: any,
+  withdrawalResults: WithdrawalResult | null,
   rendite: number,
   steuerlast: number,
   teilfreistellungsquote: number,
-  withdrawalConfig?: any,
+  withdrawalConfig?: WithdrawalConfiguration | null,
   endOfLife?: number,
 ) {
   if (!simulationData) return null
 
-  const startDates = simulationData.sparplanElements.map((el: any) => new Date(el.start).getFullYear())
+  const startDates = simulationData.sparplanElements.map(el => new Date(el.start).getFullYear())
   const savingsStartYear = Math.min(...startDates)
   const savingsEndYear = startEnd[0]
 
