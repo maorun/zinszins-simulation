@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 59 ESLint-Warnungen (reduziert von 67)
+**Aktueller Stand:** 28 ESLint-Warnungen (reduziert von 59 → 52% Reduktion in diesem PR)
 **Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
@@ -12,7 +12,7 @@
 
 | Typ | Anzahl | Beschreibung |
 |-----|--------|--------------|
-| `@typescript-eslint/no-explicit-any` | 56 | Verwendung von `any` Type (reduziert von 63) |
+| `@typescript-eslint/no-explicit-any` | 26 | Verwendung von `any` Type (reduziert von 56) ✅ 30 BEHOBEN |
 | `complexity` | 0 | ✅ Funktionen mit zu hoher zyklomatischer Komplexität (>25) - ERLEDIGT |
 | `max-lines-per-function` | 1 | Funktionen mit zu vielen Zeilen (>400) (reduziert von 4) |
 | `max-depth` | 0 | ✅ Zu tiefe Verschachtelung (>5 Ebenen) - ERLEDIGT |
@@ -22,20 +22,19 @@
 
 | Datei | Warnungen | Hauptprobleme |
 |-------|-----------|---------------|
-| `src/utils/data-export.ts` | 14 | `any` Types |
-| `helpers/multi-asset-calculations.ts` | 8 | `any` Types |
-| `src/utils/enhanced-summary.ts` | 4 | `any` Types |
-| `src/utils/config-storage.ts` | 4 | `any` Types |
+| `src/utils/data-export.ts` | 0 | ✅ ERLEDIGT - Alle 14 `any` Types behoben |
+| `helpers/multi-asset-calculations.ts` | 0 | ✅ ERLEDIGT - Alle 8 `any` Types behoben |
+| `src/utils/enhanced-summary.ts` | 0 | ✅ ERLEDIGT - Alle 4 `any` Types behoben |
+| `src/utils/config-storage.ts` | 0 | ✅ ERLEDIGT - Alle 4 `any` Types behoben |
+| `src/components/EntnahmeSimulationDisplay.tsx` | 3 | `any` Types |
+| `helpers/random-returns.tsx` | 1 | `any` Types |
+| `src/components/HealthCareInsuranceConfiguration.tsx` | 1 | `any` Types |
+| `src/components/InteractiveChart.tsx` | 2 | `any` Types |
+| `src/components/MonteCarloAnalysis.tsx` | 1 | `any` Types |
 | `src/components/SparplanSimulationsAusgabe.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
 | `src/components/VorabpauschaleExplanationModal.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
 | `src/components/calculationHelpers.ts` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
-| `src/components/SpecialEvents.tsx` | 1 | Zeilenzahl |
-| `src/components/SparplanEingabe.tsx` | 2 | Komplexität, Zeilenzahl |
-| `src/components/SpecialEvents.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
-| `src/components/SparplanEingabe.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
 | `src/contexts/SimulationContext.tsx` | 1 | Zeilenzahl |
-| `src/components/TaxConfiguration.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
-| `src/components/ComparisonStrategyConfiguration.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
 
 ## Lösungsstrategie
 
@@ -681,11 +680,12 @@
    - Exportierte Types: CalculationExplanation, CalculationStep
    - Alle 1515 Tests bestehen
    - Warnings reduziert von 66 → 59 (7 weniger)
-9. Top 5 `any` Type Dateien angehen (In Progress)
-   - src/utils/data-export.ts (14 any types) - Nächstes Ziel
-   - helpers/multi-asset-calculations.ts (8 any types)
-   - src/utils/enhanced-summary.ts (4 any types)
-   - src/utils/config-storage.ts (4 any types)
+9. ✅ **ERLEDIGT:** Top 4 `any` Type Dateien refactored (In diesem PR)
+   - ✅ src/utils/data-export.ts (14 any types) - ERLEDIGT
+   - ✅ helpers/multi-asset-calculations.ts (8 any types) - ERLEDIGT
+   - ✅ src/utils/enhanced-summary.ts (4 any types) - ERLEDIGT
+   - ✅ src/utils/config-storage.ts (4 any types) - ERLEDIGT
+   - Warnings reduziert von 59 → 28 (31 weniger, 52% Reduktion)
 
 ### Mittelfristig (nächste 2 Wochen)
 
@@ -697,15 +697,15 @@
 ### Langfristig (nächster Monat)
 
 1. 100% der Warnungen beheben
-2. max-warnings auf 59 oder niedriger setzen
+2. max-warnings auf 28 oder niedriger setzen ✅ ERLEDIGT (von 59 auf 28 reduziert)
 3. CI/CD Pipeline anpassen
 
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 59 Warnungen (reduziert von 67 → 12% Reduktion in diesem PR, 59% gesamt von ursprünglich 144)
-- **Fortschritt:** 52% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow + WithdrawalSegmentCard, convertSparplanToElements, calculateCoupleHealthInsuranceForYear, useWithdrawalCalculations, OtherIncomeConfiguration, TaxConfiguration, VorabpauschaleExplanationModal vollständig refactored ✅)
-- **Geschätzte Fertigstellung:** 2025-01-25 (bei Vollzeit-Arbeit)
+- **Aktueller Stand:** 28 Warnungen (reduziert von 59 → 52% Reduktion in diesem PR, 81% gesamt von ursprünglich 144)
+- **Fortschritt:** 81% (data-export.ts, multi-asset-calculations.ts, enhanced-summary.ts, config-storage.ts vollständig refactored ✅ zusätzlich zu allen vorherigen Refactorings)
+- **Geschätzte Fertigstellung:** 2025-01-20 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned
 

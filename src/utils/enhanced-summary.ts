@@ -1,7 +1,6 @@
-import { calculateWithdrawal } from '../../helpers/withdrawal'
+import { calculateWithdrawal, type WithdrawalResult } from '../../helpers/withdrawal'
 import { getEnhancedSummary } from './summary-utils'
 import type { SimulationData } from '../contexts/helpers/config-types'
-import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { WithdrawalConfiguration } from './config-storage'
 
 export function getEnhancedOverviewSummary(

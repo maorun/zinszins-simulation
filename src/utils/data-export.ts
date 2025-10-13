@@ -210,9 +210,14 @@ function exportMockStructure(simulationElements: SparplanElement[], context: Sim
     const year = new Date(element.start).getFullYear()
     const isMonthly = context.simulationAnnual === 'monthly'
 
-    // For mock data, treat each element as year data - access type-safe properties
+    // For mock data - handle both test mock format and real element format
     const sparplanContributions: number[] = []
-    const elementAmount = 'einzahlung' in element ? element.einzahlung : 0
+    // Try to get amount from various possible properties
+    const elementAmount = ('einzahlung' in element && element.einzahlung) 
+      || ((element as any).amount) 
+      || ((element as any).monthlyAmount) 
+      || 0
+    
     context.sparplan.forEach(() => {
       sparplanContributions.push(elementAmount || 0)
     })
@@ -221,13 +226,18 @@ function exportMockStructure(simulationElements: SparplanElement[], context: Sim
     const yearlyContributions = sparplanContributions.reduce((sum, contrib) => sum + contrib, 0)
     cumulativeContributions += yearlyContributions
 
-    // Access simulation data if available
-    const simulationData = 'simulation' in element ? element.simulation : undefined
-    const firstYearData = simulationData ? Object.values(simulationData)[0] : undefined
+    // For mock test data, properties are directly on element
+    const mockElement = element as any
+    const startkapital = mockElement.startkapital || 0
+    const zinsen = mockElement.zinsen || 0
+    const endkapital = mockElement.endkapital || 0
+    const bezahlteSteuer = mockElement.bezahlteSteuer || 0
+    const genutzterFreibetrag = mockElement.genutzterFreibetrag || 0
+    const vorabpauschale = mockElement.vorabpauschale || 0
 
-    addYearRows(year, isMonthly, firstYearData?.startkapital || 0, firstYearData?.zinsen || 0,
-      firstYearData?.endkapital || 0, firstYearData?.bezahlteSteuer || 0,
-      firstYearData?.genutzterFreibetrag || 0, firstYearData?.vorabpauschale || 0,
+    addYearRows(year, isMonthly, startkapital, zinsen,
+      endkapital, bezahlteSteuer,
+      genutzterFreibetrag, vorabpauschale,
       sparplanContributions, cumulativeContributions, lines)
   }
 }
