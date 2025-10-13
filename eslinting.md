@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 69 ESLint-Warnungen (reduziert von 77)
+**Aktueller Stand:** 69 ESLint-Warnungen (reduziert von 70)
 **Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
@@ -13,25 +13,24 @@
 | Typ | Anzahl | Beschreibung |
 |-----|--------|--------------|
 | `@typescript-eslint/no-explicit-any` | 63 | Verwendung von `any` Type (reduziert von 66) |
-| `complexity` | 1 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) |
-| `max-lines-per-function` | 5 | Funktionen mit zu vielen Zeilen (>400) (reduziert von 12) |
+| `complexity` | 2 | Funktionen mit zu hoher zyklomatischer Komplexität (>25) (reduziert von 3) |
+| `max-lines-per-function` | 4 | Funktionen mit zu vielen Zeilen (>400) (reduziert von 5) |
 | `max-depth` | 0 | ✅ Zu tiefe Verschachtelung (>5 Ebenen) - ERLEDIGT |
 
 ### Nach Dateien (Top 10)
 
 | Datei | Warnungen | Hauptprobleme |
 |-------|-----------|---------------|
-| `src/contexts/SimulationContext.tsx` | 61 | `any` Types |
-| `src/hooks/useWithdrawalModals.ts` | 9 | `any` Types, Komplexität |
+| `src/utils/data-export.ts` | 14 | `any` Types |
 | `helpers/multi-asset-calculations.ts` | 8 | `any` Types |
-| `src/components/WithdrawalSegmentForm.tsx` | 6 | Komplexität, Zeilenzahl |
 | `src/components/SparplanSimulationsAusgabe.tsx` | 5 | `any` Types |
-| `src/components/EntnahmeSimulationDisplay.tsx` | 5 | `any` Types, Zeilenzahl |
 | `src/utils/enhanced-summary.ts` | 4 | `any` Types |
 | `src/utils/config-storage.ts` | 4 | `any` Types |
-| `src/hooks/useWithdrawalCalculations.ts` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
-| `src/utils/data-export.ts` | 0 | ✅ ERLEDIGT - Alle `any` types behoben |
-| `src/components/HealthCareInsuranceConfiguration.tsx` | 0 | ✅ ERLEDIGT - Komplexität und Zeilen-Warnungen behoben |
+| `src/components/SpecialEvents.tsx` | 1 | Zeilenzahl |
+| `src/components/SparplanEingabe.tsx` | 2 | Komplexität, Zeilenzahl |
+| `src/contexts/SimulationContext.tsx` | 1 | Zeilenzahl |
+| `src/components/TaxConfiguration.tsx` | 1 | Zeilenzahl |
+| `src/components/ComparisonStrategyConfiguration.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
 
 ## Lösungsstrategie
 
@@ -220,6 +219,17 @@
   - 8 neue Tests hinzugefügt für alle Entnahmestrategien
   - Alle 1455 Tests bestehen
   - Warnings reduziert von 158 → 156 (2 weniger)
+  - Aufwand: 0,2 Tage
+
+- [x] **ComparisonStrategyConfiguration** (src/components/ComparisonStrategyConfiguration.tsx) ✅ ERLEDIGT
+  - Original: Zeilen: 518
+  - Aktuell: Zeilen: 74
+  - Status: ✅ Zeilen-Limit erreicht (<400 Zeilen, 86% Reduktion!)
+  - Extrahierte Komponenten: 2
+    - `BaseStrategyConfiguration` - Basis-Strategie Konfiguration (192 Zeilen, Komplexität <8)
+    - `ComparisonStrategyCard` - Vergleichsstrategie-Karte (360 Zeilen, Komplexität <8)
+  - Alle 1515 Tests bestehen
+  - ESLint Warnungen reduziert: 70 → 69
   - Aufwand: 0,2 Tage
 
 - [ ] **SparplanEingabe** (src/components/SparplanEingabe.tsx) 🔄 IN PROGRESS
