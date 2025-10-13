@@ -1,8 +1,9 @@
 import type { SimulationContextState } from '../contexts/SimulationContext'
-import type { WithdrawalResult } from '../../helpers/withdrawal'
+import type { WithdrawalResult, WithdrawalResultElement } from '../../helpers/withdrawal'
 import type { OtherIncomeSource } from '../../helpers/other-income'
 import type { WithdrawalSegment } from './segmented-withdrawal'
-import type { SparplanElement } from './sparplan-utils'
+import type { SparplanElement, Sparplan } from './sparplan-utils'
+import type { WithdrawalConfiguration } from './config-storage'
 
 /**
  * Utility functions for exporting simulation data in CSV and Markdown formats
@@ -50,7 +51,7 @@ function formatPercentage(value: number): string {
 /**
  * Generate CSV header for savings phase export
  */
-function generateSavingsCSVHeader(sparplans: any[]): string {
+function generateSavingsCSVHeader(sparplans: Sparplan[]): string {
   const baseHeaders = ['Jahr', 'Monat', 'Startkapital (EUR)', 'Zinsen (EUR)']
 
   // Add headers for each configured savings plan
@@ -116,7 +117,7 @@ export function exportSavingsDataToCSV(data: ExportData): string {
   lines.push(generateSavingsCSVHeader(context.sparplan))
 
   // Detect data structure and export accordingly
-  const hasSimulationProperty = simulationElements.some((element: any) => element.simulation)
+  const hasSimulationProperty = simulationElements.some(element => 'simulation' in element)
 
   if (hasSimulationProperty) {
     // Real app structure: elements have simulation property with years as keys
@@ -133,11 +134,15 @@ export function exportSavingsDataToCSV(data: ExportData): string {
 /**
  * Export data from real simulation structure (elements with simulation property)
  */
-function exportSimulationStructure(simulationElements: any[], context: any, lines: string[]) {
+function exportSimulationStructure(
+  simulationElements: SparplanElement[],
+  context: SimulationContextState,
+  lines: string[],
+) {
   // Collect all years from all simulation elements
   const allYears = new Set<number>()
   for (const element of simulationElements) {
-    if (element.simulation) {
+    if ('simulation' in element && element.simulation) {
       Object.keys(element.simulation).forEach(year => allYears.add(parseInt(year)))
     }
   }
@@ -164,7 +169,8 @@ function exportSimulationStructure(simulationElements: any[], context: any, line
     })
 
     // Sum up data from all elements for this year
-    simulationElements.forEach((element: any, elementIndex: number) => {
+    simulationElements.forEach((element, elementIndex: number) => {
+      if (!('simulation' in element)) return
       const yearData = element.simulation?.[year]
       if (yearData) {
         totalStartkapital += yearData.startkapital || 0
@@ -195,7 +201,7 @@ function exportSimulationStructure(simulationElements: any[], context: any, line
 /**
  * Export data from test mock structure (each element represents a year)
  */
-function exportMockStructure(simulationElements: any[], context: any, lines: string[]) {
+function exportMockStructure(simulationElements: SparplanElement[], context: SimulationContextState, lines: string[]) {
   let cumulativeContributions = 0
 
   for (const element of simulationElements) {
@@ -204,19 +210,24 @@ function exportMockStructure(simulationElements: any[], context: any, lines: str
     const year = new Date(element.start).getFullYear()
     const isMonthly = context.simulationAnnual === 'monthly'
 
-    // For mock data, treat each element as year data
+    // For mock data, treat each element as year data - access type-safe properties
     const sparplanContributions: number[] = []
+    const elementAmount = 'einzahlung' in element ? element.einzahlung : 0
     context.sparplan.forEach(() => {
-      sparplanContributions.push(element.amount || 0)
+      sparplanContributions.push(elementAmount || 0)
     })
 
     // Calculate cumulative contributions
     const yearlyContributions = sparplanContributions.reduce((sum, contrib) => sum + contrib, 0)
     cumulativeContributions += yearlyContributions
 
-    addYearRows(year, isMonthly, element.startkapital || 0, element.zinsen || 0,
-      element.endkapital || 0, element.bezahlteSteuer || 0,
-      element.genutzterFreibetrag || 0, element.vorabpauschale || 0,
+    // Access simulation data if available
+    const simulationData = 'simulation' in element ? element.simulation : undefined
+    const firstYearData = simulationData ? Object.values(simulationData)[0] : undefined
+
+    addYearRows(year, isMonthly, firstYearData?.startkapital || 0, firstYearData?.zinsen || 0,
+      firstYearData?.endkapital || 0, firstYearData?.bezahlteSteuer || 0,
+      firstYearData?.genutzterFreibetrag || 0, firstYearData?.vorabpauschale || 0,
       sparplanContributions, cumulativeContributions, lines)
   }
 }
@@ -294,7 +305,7 @@ function getElementContributionForYear(element: unknown, year: number, isMonthly
 interface BasicRowDataParams {
   year: number
   month: number
-  yearData: any
+  yearData: WithdrawalResultElement
   isMonthly: boolean
 }
 
@@ -327,8 +338,8 @@ function buildBasicRowData(params: BasicRowDataParams): string[] {
  */
 interface StrategyRowDataParams {
   row: string[]
-  yearData: any
-  withdrawalConfig: any
+  yearData: WithdrawalResultElement
+  withdrawalConfig: WithdrawalConfiguration | null
 }
 
 function addStrategySpecificData(params: StrategyRowDataParams): void {
@@ -355,7 +366,7 @@ function addStrategySpecificData(params: StrategyRowDataParams): void {
  */
 interface TaxIncomeDataParams {
   row: string[]
-  yearData: any
+  yearData: WithdrawalResultElement
   grundfreibetragAktiv: boolean
   hasOtherIncomeData: boolean
 }
@@ -380,7 +391,7 @@ function addTaxAndIncomeData(params: TaxIncomeDataParams): void {
  * Generate CSV header columns for withdrawal data export
  */
 interface WithdrawalHeaderParams {
-  withdrawalConfig: any
+  withdrawalConfig: WithdrawalConfiguration | null
   withdrawalData: WithdrawalResult
   grundfreibetragAktiv: boolean
 }
@@ -443,7 +454,7 @@ function generateWithdrawalCSVHeaders(params: WithdrawalHeaderParams): string[] 
  * Generate CSV metadata lines for withdrawal configuration
  */
 interface WithdrawalMetadataParams {
-  withdrawalConfig: any
+  withdrawalConfig: WithdrawalConfiguration | null
   endOfLife: number
 }
 
@@ -467,7 +478,7 @@ function generateWithdrawalMetadataLines(params: WithdrawalMetadataParams): stri
 
   if (hasMultipleSegments) {
     lines.push('# Strategie: Segmentierte Entnahme')
-    withdrawalConfig.withdrawalSegments.forEach((segment: any, index: number) => {
+    withdrawalConfig.withdrawalSegments.forEach((segment, index: number) => {
       const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
       lines.push(`# Segment ${index + 1} (${segment.name}): ${strategyLabel} (${segment.startYear}-${segment.endYear})`)
     })
