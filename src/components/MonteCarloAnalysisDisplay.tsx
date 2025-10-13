@@ -5,6 +5,7 @@ interface MonteCarloResult {
   scenario: string
   description: string
   probability: string
+  isBlackSwan?: boolean
 }
 
 interface MonteCarloAnalysisDisplayProps {
@@ -127,7 +128,7 @@ const MonteCarloAnalysisDisplay = ({
       <div className="block flex flex-col gap-3">
         {allScenarios.map((scenario, index) => {
           const isSuccess = scenario.scenario.includes('Best Case')
-          const isDanger = scenario.scenario.includes('Worst Case') || (scenario as any).isBlackSwan
+          const isDanger = scenario.scenario.includes('Worst Case') || scenario.isBlackSwan
           const isInfo = scenario.scenario.includes('Median')
 
           let cardClasses = 'border border-gray-200 rounded-lg p-4 bg-white shadow-sm'

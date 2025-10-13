@@ -12,7 +12,7 @@ const MonteCarloAnalysis = () => {
 
   const data = unique(
     simulationData
-      ? (simulationData.sparplanElements.flatMap((v: any) =>
+      ? (simulationData.sparplanElements.flatMap(v =>
           v.simulation ? Object.keys(v.simulation) : [],
         ).map(Number).filter((v: number) => !isNaN(v)))
       : [],
