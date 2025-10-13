@@ -2,7 +2,7 @@
 
 ## Übersicht
 
-**Aktueller Stand:** 69 ESLint-Warnungen (reduziert von 70)
+**Aktueller Stand:** 68 ESLint-Warnungen (reduziert von 69)
 **Ziel:** 0 Warnungen (max-warnings = 0)
 **Status:** In Bearbeitung
 
@@ -29,7 +29,7 @@
 | `src/components/SpecialEvents.tsx` | 1 | Zeilenzahl |
 | `src/components/SparplanEingabe.tsx` | 2 | Komplexität, Zeilenzahl |
 | `src/contexts/SimulationContext.tsx` | 1 | Zeilenzahl |
-| `src/components/TaxConfiguration.tsx` | 1 | Zeilenzahl |
+| `src/components/TaxConfiguration.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
 | `src/components/ComparisonStrategyConfiguration.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
 
 ## Lösungsstrategie
@@ -286,6 +286,21 @@
 - [ ] **SpecialEvents** (src/components/SpecialEvents.tsx)
   - Zeilen: 623
   - Aufwand: 0,3 Tage
+
+- [x] **TaxConfiguration** (src/components/TaxConfiguration.tsx) ✅ ERLEDIGT
+  - Original: Zeilen: 579 (Arrow Function: 422 Zeilen)
+  - Aktuell: Zeilen: 306 (Arrow Function unter 400 Zeilen Limit)
+  - Status: ✅ Zeilen-Limit erreicht (Zeilen <400, 47% Reduktion)
+  - Extrahierte Komponenten: 6 (alle in src/components/tax-config/)
+    - `KapitalertragsteuerSection` - Kapitalertragsteuer Konfiguration (50 Zeilen, Komplexität <8)
+    - `TeilfreistellungsquoteSection` - Teilfreistellungsquote Konfiguration (42 Zeilen, Komplexität <8)
+    - `GuenstigerpruefungSection` - Günstigerprüfung Konfiguration (85 Zeilen, Komplexität <8)
+    - `KirchensteuerSection` - Kirchensteuer Konfiguration (77 Zeilen, Komplexität <8)
+    - `SteuerReduziertEndkapitalSection` - Steuer reduziert Endkapital (56 Zeilen, Komplexität <8)
+    - `GrundfreibetragConfiguration` - Grundfreibetrag Konfiguration (127 Zeilen, Komplexität <8)
+  - Alle 10 TaxConfiguration Tests bestehen ✅
+  - ESLint Warnungen reduziert: 69 → 68
+  - Aufwand: 0,2 Tage
 
 - [ ] **HealthCareInsuranceConfiguration** (src/components/HealthCareInsuranceConfiguration.tsx)
   - Komplexität: 37, Zeilen: 552
@@ -612,8 +627,8 @@
 ## Tracking
 
 - **Startdatum:** 2025-01-10
-- **Aktueller Stand:** 73 Warnungen (reduziert von 83 → 12% Reduktion, 49% gesamt von ursprünglich 144)
-- **Fortschritt:** 45% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow + WithdrawalSegmentCard, convertSparplanToElements, calculateCoupleHealthInsuranceForYear, useWithdrawalCalculations, OtherIncomeConfiguration vollständig refactored ✅)
+- **Aktueller Stand:** 68 Warnungen (reduziert von 73 → 7% Reduktion, 53% gesamt von ursprünglich 144)
+- **Fortschritt:** 50% (calculateWithdrawal, GlobalPlanningConfiguration, useWithdrawalModals, generateCalculationExplanations, WithdrawalSegmentForm Arrow + WithdrawalSegmentCard, convertSparplanToElements, calculateCoupleHealthInsuranceForYear, useWithdrawalCalculations, OtherIncomeConfiguration, TaxConfiguration vollständig refactored ✅)
 - **Geschätzte Fertigstellung:** 2025-01-25 (bei Vollzeit-Arbeit)
 
 ## Lessons Learned
