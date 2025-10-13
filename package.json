@@ -6,7 +6,7 @@
     "build": "vite build",
     "dev": "vite",
     "prelint": "npm run typecheck",
-    "lint": "eslint . --report-unused-disable-directives --max-warnings 67",
+    "lint": "eslint . --report-unused-disable-directives --max-warnings 65",
     "postlint": "markdownlint-cli2 \"**/*.md\" \"#node_modules\"",
     "preview": "vite preview",
     "typecheck": "tsc",
