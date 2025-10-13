@@ -213,11 +213,11 @@ function exportMockStructure(simulationElements: SparplanElement[], context: Sim
     // For mock data - handle both test mock format and real element format
     const sparplanContributions: number[] = []
     // Try to get amount from various possible properties
-    const elementAmount = ('einzahlung' in element && element.einzahlung) 
-      || ((element as any).amount) 
-      || ((element as any).monthlyAmount) 
+    const elementAmount = ('einzahlung' in element && element.einzahlung)
+      || ((element as any).amount)
+      || ((element as any).monthlyAmount)
       || 0
-    
+
     context.sparplan.forEach(() => {
       sparplanContributions.push(elementAmount || 0)
     })
