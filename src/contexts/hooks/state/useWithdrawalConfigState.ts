@@ -22,8 +22,8 @@ export function useWithdrawalConfigState(config: WithdrawalConfigStateConfig) {
     initialConfig.statutoryPensionConfig || null,
   )
 
-  const [coupleStatutoryPensionConfig, setCoupleStatutoryPensionConfig] =
-    useState<CoupleStatutoryPensionConfig | null>(() => {
+  const [coupleStatutoryPensionConfig, setCoupleStatutoryPensionConfig]
+    = useState<CoupleStatutoryPensionConfig | null>(() => {
       const legacyConfig = initialConfig.statutoryPensionConfig
       const currentPlanningMode = extendedInitialConfig.planningMode || defaultPlanningMode
       if (legacyConfig && !initialConfig.coupleStatutoryPensionConfig) {

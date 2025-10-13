@@ -8,7 +8,7 @@ export interface InflationParams {
   endYear: number
 }
 
-export function prepareInflationRates(params: InflationParams): Record<number, number> {
+export function prepareInflationRates(params: InflationParams): Record<number, number> | undefined {
   return prepareVariableInflationRates(
     params.inflationScenarioRates,
     params.inflationAktivSparphase,

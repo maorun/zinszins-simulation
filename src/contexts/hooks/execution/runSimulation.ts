@@ -17,7 +17,7 @@ export interface SimulationParams {
   inflationAktivSparphase: boolean
   inflationsrateSparphase: number
   inflationAnwendungSparphase: 'sparplan' | 'gesamtmenge'
-  variableInflationRates: Record<number, number>
+  variableInflationRates: Record<number, number> | undefined
   guenstigerPruefungAktiv: boolean
   personalTaxRate: number
 }

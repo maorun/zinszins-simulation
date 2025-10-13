@@ -39,7 +39,7 @@ export function useMultiAssetState(config: MultiAssetStateConfig) {
   }
 }
 
-function createConservativeConfig(defaultConfig: any) {
+function createConservativeConfig(defaultConfig: import('../../../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig) {
   return {
     ...defaultConfig,
     assetClasses: {
