@@ -220,21 +220,31 @@ export function saveConfiguration(config: SavedConfiguration): void {
 }
 
 /**
+ * Legacy withdrawal form value with properties that have been moved to global configuration
+ */
+interface LegacyWithdrawalFormValue extends WithdrawalFormValue {
+  endOfLife?: number
+  rmdLifeExpectancyTable?: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
+  rmdCustomLifeExpectancy?: number
+}
+
+/**
  * Migrate legacy endOfLife from withdrawal config to global config
  */
 function migrateEndOfLifeSettings(config: SavedConfiguration): SavedConfiguration {
   // If we have a withdrawal config with endOfLife but no global endOfLife, migrate
   if (config.withdrawal?.formValue
-    && (config.withdrawal.formValue as any).endOfLife
+    && (config.withdrawal.formValue as LegacyWithdrawalFormValue).endOfLife
     && config.endOfLife === undefined) {
-    const withdrawalEndOfLife = (config.withdrawal.formValue as any).endOfLife
-    const lifeExpectancyTable = (config.withdrawal.formValue as any).rmdLifeExpectancyTable || 'german_2020_22'
-    const customLifeExpectancy = (config.withdrawal.formValue as any).rmdCustomLifeExpectancy
+    const legacyFormValue = config.withdrawal.formValue as LegacyWithdrawalFormValue
+    const withdrawalEndOfLife = legacyFormValue.endOfLife
+    const lifeExpectancyTable = legacyFormValue.rmdLifeExpectancyTable || 'german_2020_22'
+    const customLifeExpectancy = legacyFormValue.rmdCustomLifeExpectancy
 
     return {
       ...config,
       endOfLife: withdrawalEndOfLife,
-      lifeExpectancyTable: lifeExpectancyTable as 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
+      lifeExpectancyTable,
       customLifeExpectancy,
     }
   }
