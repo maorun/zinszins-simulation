@@ -129,7 +129,12 @@ function rebalancePortfolio(
 ): PortfolioHoldings {
   const rebalancedHoldings: PortfolioHoldings = {
     totalValue: holdings.totalValue,
-    holdings: {} as any,
+    holdings: {} as Record<AssetClass, {
+      value: number
+      allocation: number
+      targetAllocation: number
+      drift: number
+    }>,
     needsRebalancing: false,
     rebalancingCost: 0, // Simplified: no transaction costs for now
   }
@@ -163,7 +168,17 @@ function applyReturns(
   config: MultiAssetPortfolioConfig,
 ): PortfolioHoldings {
   let newTotalValue = 0
-  const newHoldings: Record<string, any> = {}
+  const newHoldings: Record<AssetClass, {
+    value: number
+    allocation: number
+    targetAllocation: number
+    drift: number
+  }> = {} as Record<AssetClass, {
+    value: number
+    allocation: number
+    targetAllocation: number
+    drift: number
+  }>
 
   // Apply returns to each holding
   for (const [assetClass, holding] of Object.entries(holdings.holdings)) {
@@ -171,7 +186,7 @@ function applyReturns(
     const newValue = holding.value * (1 + assetReturn)
     newTotalValue += newValue
 
-    newHoldings[assetClass] = {
+    newHoldings[assetClass as AssetClass] = {
       value: newValue,
       allocation: 0, // Will be calculated below
       targetAllocation: holding.targetAllocation,
@@ -187,10 +202,10 @@ function applyReturns(
 
   const result: PortfolioHoldings = {
     totalValue: newTotalValue,
-    holdings: newHoldings as any,
+    holdings: newHoldings,
     needsRebalancing: needsRebalancing({
       totalValue: newTotalValue,
-      holdings: newHoldings as any,
+      holdings: newHoldings,
       needsRebalancing: false,
       rebalancingCost: 0,
     }, config),
@@ -213,7 +228,12 @@ function addContributions(
   }
 
   const newTotalValue = holdings.totalValue + contribution
-  const newHoldings: Record<string, any> = { ...holdings.holdings }
+  const newHoldings: Record<AssetClass, {
+    value: number
+    allocation: number
+    targetAllocation: number
+    drift: number
+  }> = { ...holdings.holdings }
 
   // Distribute contribution according to target allocations
   const enabledAssets = Object.keys(config.assetClasses).filter(
@@ -249,10 +269,10 @@ function addContributions(
 
   return {
     totalValue: newTotalValue,
-    holdings: newHoldings as any,
+    holdings: newHoldings,
     needsRebalancing: needsRebalancing({
       totalValue: newTotalValue,
-      holdings: newHoldings as any,
+      holdings: newHoldings,
       needsRebalancing: false,
       rebalancingCost: 0,
     }, config),
@@ -318,7 +338,12 @@ export function simulateMultiAssetPortfolio(
   const firstContribution = contributions[firstYear] || 0
   let currentHoldings: PortfolioHoldings = {
     totalValue: firstContribution,
-    holdings: {} as any,
+    holdings: {} as Record<AssetClass, {
+      value: number
+      allocation: number
+      targetAllocation: number
+      drift: number
+    }>,
     needsRebalancing: false,
     rebalancingCost: 0,
   }
