@@ -1,10 +1,11 @@
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter, DialogClose } from './ui/dialog'
 import { Button } from './ui/button'
+import type { VorabpauschaleDetails } from '../utils/simulate'
 
 interface VorabpauschaleExplanationModalProps {
   open: boolean
   onClose: () => void
-  selectedVorabDetails: any
+  selectedVorabDetails: VorabpauschaleDetails | null
 }
 
 const VorabpauschaleExplanationModal = ({
@@ -108,9 +109,7 @@ const VorabpauschaleExplanationModal = ({
                       <br />
                       =
                       {' '}
-                      {Number(selectedVorabDetails.jahresgewinn + (Number(selectedVorabDetails.vorabpauschaleDetails?.startkapital || 0))).toLocaleString('de-DE', { minimumFractionDigits: 2 })}
-                      {' '}
-                      € ×
+                      Startkapital ×
                       {' '}
                       {(selectedVorabDetails.basiszins * 100).toFixed(2)}
                       % × 70% × (

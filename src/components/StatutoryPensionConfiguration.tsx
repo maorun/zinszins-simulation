@@ -19,6 +19,62 @@ import {
   createDefaultCoupleStatutoryPensionConfig,
 } from '../../helpers/statutory-pension'
 
+/** Summary information component for statutory pension */
+interface PensionSummaryProps {
+  startYear: number
+  monthlyAmount: number
+  taxablePercentage: number
+  nestingLevel: number
+}
+
+function PensionSummary({
+  startYear,
+  monthlyAmount,
+  taxablePercentage,
+  nestingLevel,
+}: PensionSummaryProps) {
+  return (
+    <Card nestingLevel={nestingLevel + 1}>
+      <CardHeader nestingLevel={nestingLevel + 1} className="pb-3">
+        <CardTitle className="text-base flex items-center gap-2">
+          <Info className="h-4 w-4" />
+          Zusammenfassung
+        </CardTitle>
+      </CardHeader>
+      <CardContent nestingLevel={nestingLevel + 1}>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="font-medium">Rentenbeginn:</span>
+            {' '}
+            {startYear}
+          </div>
+          <div>
+            <span className="font-medium">Monatliche Rente:</span>
+            {' '}
+            {monthlyAmount.toLocaleString('de-DE')}
+            {' '}
+            €
+          </div>
+          <div>
+            <span className="font-medium">Jährliche Rente:</span>
+            {' '}
+            {(monthlyAmount * 12).toLocaleString('de-DE')}
+            {' '}
+            €
+          </div>
+          <div>
+            <span className="font-medium">Steuerpflichtiger Betrag:</span>
+            {' '}
+            {Math.round(monthlyAmount * 12 * taxablePercentage / 100).toLocaleString('de-DE')}
+            {' '}
+            €/Jahr
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
 interface StatutoryPensionFormValues {
   enabled: boolean
   startYear: number
@@ -867,44 +923,12 @@ export function StatutoryPensionConfiguration({
               </div>
 
               {/* Summary Information */}
-              <Card nestingLevel={nestingLevel + 1}>
-                <CardHeader nestingLevel={nestingLevel + 1} className="pb-3">
-                  <CardTitle className="text-base flex items-center gap-2">
-                    <Info className="h-4 w-4" />
-                    Zusammenfassung
-                  </CardTitle>
-                </CardHeader>
-                <CardContent nestingLevel={nestingLevel + 1}>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="font-medium">Rentenbeginn:</span>
-                      {' '}
-                      {values.startYear}
-                    </div>
-                    <div>
-                      <span className="font-medium">Monatliche Rente:</span>
-                      {' '}
-                      {values.monthlyAmount.toLocaleString('de-DE')}
-                      {' '}
-                      €
-                    </div>
-                    <div>
-                      <span className="font-medium">Jährliche Rente:</span>
-                      {' '}
-                      {(values.monthlyAmount * 12).toLocaleString('de-DE')}
-                      {' '}
-                      €
-                    </div>
-                    <div>
-                      <span className="font-medium">Steuerpflichtiger Betrag:</span>
-                      {' '}
-                      {Math.round(values.monthlyAmount * 12 * values.taxablePercentage / 100).toLocaleString('de-DE')}
-                      {' '}
-                      €/Jahr
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <PensionSummary
+                startYear={values.startYear}
+                monthlyAmount={values.monthlyAmount}
+                taxablePercentage={values.taxablePercentage}
+                nestingLevel={nestingLevel}
+              />
             </div>
           </CardContent>
         </CollapsibleContent>

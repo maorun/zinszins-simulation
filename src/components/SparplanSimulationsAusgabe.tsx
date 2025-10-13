@@ -8,11 +8,18 @@ import { fullSummary, getYearlyPortfolioProgression, type Summary } from '../uti
 import { formatInflationAdjustedValue } from '../utils/inflation-adjustment'
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
 import CalculationExplanationModal from './CalculationExplanationModal'
-import { createInterestExplanation, createTaxExplanation, createEndkapitalExplanation } from './calculationHelpers'
+import { createInterestExplanation, createTaxExplanation, createEndkapitalExplanation, type CalculationExplanation } from './calculationHelpers'
 import InteractiveChart from './InteractiveChart'
 import { convertSparplanElementsToSimulationResult, hasInflationAdjustedValues } from '../utils/chart-data-converter'
 import { TooltipProvider } from './ui/tooltip'
 import { GlossaryTerm } from './GlossaryTerm'
+import type { VorabpauschaleDetails } from '../utils/simulate'
+
+// Type for calculation info click data
+interface CalculationInfoData {
+  jahr: number
+  [key: string]: number | string | undefined
+}
 
 // Info icon component for calculation explanations
 const InfoIcon = ({ onClick }: { onClick: () => void }) => (
@@ -46,7 +53,7 @@ export function SparplanEnd({
   onCalculationInfoClick,
 }: {
   elemente?: SparplanElement[]
-  onCalculationInfoClick?: (explanationType: string, rowData: any) => void
+  onCalculationInfoClick?: (explanationType: string, rowData: CalculationInfoData) => void
 }) {
   const summary: Summary = fullSummary(elemente)
   return (
@@ -104,9 +111,9 @@ export function SparplanSimulationsAusgabe({
   elemente?: SparplanElement[]
 }) {
   const [showVorabpauschaleModal, setShowVorabpauschaleModal] = useState(false)
-  const [selectedVorabDetails, setSelectedVorabDetails] = useState<any>(null)
+  const [selectedVorabDetails, setSelectedVorabDetails] = useState<VorabpauschaleDetails | null>(null)
   const [showCalculationModal, setShowCalculationModal] = useState(false)
-  const [calculationDetails, setCalculationDetails] = useState<any>(null)
+  const [calculationDetails, setCalculationDetails] = useState<CalculationExplanation | null>(null)
 
   const summary: Summary = fullSummary(elemente)
 
@@ -135,12 +142,12 @@ export function SparplanSimulationsAusgabe({
       cumulativeInterestReal: progression.cumulativeInterestReal?.toFixed(2),
     }))
 
-  const handleVorabpauschaleInfoClick = (details: any) => {
+  const handleVorabpauschaleInfoClick = (details: VorabpauschaleDetails) => {
     setSelectedVorabDetails(details)
     setShowVorabpauschaleModal(true)
   }
 
-  const handleCalculationInfoClick = (explanationType: string, rowData: any) => {
+  const handleCalculationInfoClick = (explanationType: string, rowData: CalculationInfoData) => {
     // Find simulation data for this year to get detailed information
     const yearSimData = elemente?.find(el => el.simulation[rowData.jahr])
     const simData = yearSimData?.simulation[rowData.jahr]
@@ -171,7 +178,7 @@ export function SparplanSimulationsAusgabe({
       const explanation = createEndkapitalExplanation(
         simData.endkapital,
         simData.startkapital,
-        rowData.einzahlung, // Use rowData since it has the yearly contribution amount
+        typeof rowData.einzahlung === 'number' ? rowData.einzahlung : 0, // Use rowData since it has the yearly contribution amount
         simData.zinsen,
         simData.bezahlteSteuer,
         rowData.jahr,
@@ -340,7 +347,11 @@ export function SparplanSimulationsAusgabe({
                                 {thousands(vorabDetails?.vorabpauschaleAmount?.toString() || '0')}
                                 {' '}
                                 €
-                                <InfoIcon onClick={() => handleVorabpauschaleInfoClick(vorabDetails)} />
+                                {vorabDetails && (
+                                  <InfoIcon
+                                    onClick={() => handleVorabpauschaleInfoClick(vorabDetails)}
+                                  />
+                                )}
                               </span>
                             </div>
                           )

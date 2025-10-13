@@ -118,7 +118,17 @@ describe('useWithdrawalModals', () => {
     })
 
     act(() => {
-      result.current.handleCalculationInfoClick('vorabpauschale', { year: 2024, vorabpauschaleDetails: { test: 'data' } })
+      result.current.handleCalculationInfoClick('vorabpauschale', {
+        year: 2024,
+        vorabpauschaleDetails: {
+          basiszins: 0.02,
+          basisertrag: 100,
+          vorabpauschaleAmount: 100,
+          steuerVorFreibetrag: 26.38,
+          jahresgewinn: 150,
+          anteilImJahr: 12,
+        },
+      })
     })
 
     // Just verify that the function executes without throwing
