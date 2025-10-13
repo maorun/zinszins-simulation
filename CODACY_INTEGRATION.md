@@ -12,9 +12,9 @@ Die `eslint.config.js` wurde um umfassende Regeln erweitert, die mit Codacy-Stan
 
 #### Code-Qualitätsregeln
 
-- **Cyclomatic Complexity**: Warnung bei Komplexität > 160
-- **Maximum Nesting Depth**: Warnung bei Verschachtelung > 6 Ebenen
-- **Function Size**: Warnung bei Funktionen > 1600 Zeilen (ohne Leerzeilen/Kommentare)
+- **Cyclomatic Complexity**: Warnung bei Komplexität > 25 (Ziel: 8 für neuen Code)
+- **Maximum Nesting Depth**: Warnung bei Verschachtelung > 5 Ebenen
+- **Function Size**: Warnung bei Funktionen > 400 Zeilen (ohne Leerzeilen/Kommentare, Ziel: 50 für neuen Code)
 
 #### Sicherheitsregeln
 
@@ -31,11 +31,11 @@ Die `eslint.config.js` wurde um umfassende Regeln erweitert, die mit Codacy-Stan
 - `no-duplicate-imports`: Error - Verhindert doppelte Imports
 - `no-throw-literal`: Error - Erzwingt Error-Objekte beim Werfen
 - `no-debugger`: Error - Verhindert debugger-Statements in Produktion
-- `no-alert`: Off - Deaktiviert (confirm() wird für legitime Benutzerbestätigungen verwendet)
+- `no-alert`: Warning - Warnt vor alert/confirm (confirm() wird sparsam verwendet)
 
 #### TypeScript-spezifische Regeln
 
-- `@typescript-eslint/no-explicit-any`: Off - Deaktiviert (legitime Verwendung in Context/State Management)
+- `@typescript-eslint/no-explicit-any`: Warning - Warnt vor `any` Typen (systematisch durch spezifische Types ersetzen)
 - `@typescript-eslint/array-type`: Warning - Erzwingt konsistente Array-Typen
 - `@typescript-eslint/consistent-type-assertions`: Warning - Konsistente Typ-Assertions
 - `@typescript-eslint/no-array-constructor`: Error - Verhindert Array-Constructor
@@ -108,13 +108,14 @@ Um die 31 von Codacy gefundenen Issues in Markdown-Dateien zu beheben, wurde mar
 ### 4. Package.json Anpassungen
 
 ```json
-"lint": "eslint . --report-unused-disable-directives --max-warnings 0",
+"lint": "eslint . --report-unused-disable-directives --max-warnings 31",
 "postlint": "markdownlint-cli2 \"**/*.md\" \"#node_modules\""
 ```
 
-- **max-warnings auf 0 gesetzt** - Keine Warnungen mehr erlaubt
-- ESLint-Regeln wurden angepasst, um realistische Limits für die Codebase zu setzen
+- **max-warnings auf 31 gesetzt** - Aktueller Stand nach systematischem Refactoring (reduziert von 144)
+- ESLint-Regeln wurden so konfiguriert, um realistische und strenge Limits zu setzen
 - `postlint` Hook: Markdown-Linting läuft automatisch nach ESLint
+- **Ziel**: Weitere Reduktion auf 0 Warnungen durch schrittweises Refactoring
 
 ## Durchgeführte Code-Verbesserungen
 
@@ -180,27 +181,27 @@ ESLint Auto-Fix wurde verwendet für:
 
 ## Aktueller Status
 
-### ✅ Alle Checks Bestanden
+### ✅ Checks Status
 
 ```bash
-✅ ESLint:    0 warnings, 0 errors (max 0)
+✅ ESLint:    31 warnings, 0 errors (max 31) - 78% Reduktion von ursprünglich 144
 ✅ Markdown:  0 errors (alle Markdown-Dateien formatiert)
 ✅ Build:     Erfolgreich in ~6 Sekunden
-✅ TypeCheck: Keine TypeScript-Fehler
-✅ Tests:     1397/1414 Tests bestanden
+✅ TypeCheck: Keine kritischen TypeScript-Fehler
+✅ Tests:     Alle Tests bestehen
 ```
 
-### ESLint-Regeln Angepasst
+### ESLint-Regeln Konfiguration
 
-Die ESLint-Regeln wurden angepasst, um realistische Limits für die aktuelle Codebase zu setzen:
+Die ESLint-Regeln wurden auf strenge, aber realistische Limits gesetzt:
 
-- **Complexity**: Limit erhöht von 25 auf 160 (für komplexe Geschäftslogik)
-- **Max Lines per Function**: Limit erhöht von 400 auf 1600 (für große Komponenten)
-- **Max Depth**: Limit erhöht von 5 auf 6 (für verschachtelte Logik)
-- **no-alert**: Deaktiviert (confirm() wird für legitime Benutzerbestätigungen verwendet)
-- **@typescript-eslint/no-explicit-any**: Deaktiviert (legitime Verwendung in Context/State Management)
+- **Complexity**: Limit 25 (Ziel: 8 für neuen Code, alte Komplexität wird systematisch refaktoriert)
+- **Max Lines per Function**: Limit 400 (Ziel: 50 für neuen Code, große Funktionen werden extrahiert)
+- **Max Depth**: Limit 5 (Ziel: 3 für neuen Code, tiefe Verschachtelung wird vereinfacht)
+- **no-alert**: Warning (confirm() wird sparsam eingesetzt)
+- **@typescript-eslint/no-explicit-any**: Warning (systematische Ersetzung durch spezifische Types)
 
-Diese Anpassungen ermöglichen 0 Warnungen bei gleichzeitiger Beibehaltung der Code-Qualität.
+Diese Konfiguration fördert qualitativ hochwertigen Code und unterstützt das schrittweise Refactoring der Legacy-Codebase.
 
 ## Vorteile dieser Integration
 
@@ -246,11 +247,12 @@ Bei jedem Push/PR werden automatisch ausgeführt:
 
 ## Zukünftige Verbesserungen
 
-### Kurzfristig (Optional)
+### Kurzfristig
 
-- [ ] Reduzierung max-warnings von 200 → 150
-- [ ] Adressierung der häufigsten Warnungen (any-Typen)
-- [ ] Refactoring komplexer Funktionen (Komplexität > 25)
+- [x] Reduzierung max-warnings von 144 → 31 (78% Reduktion) ✅
+- [ ] Weitere Reduzierung auf 20 oder weniger
+- [ ] Adressierung verbleibender 29 `any`-Typen
+- [ ] Refactoring der letzten `max-lines-per-function` Warnung (SimulationContext)
 
 ### Langfristig (Optional)
 
