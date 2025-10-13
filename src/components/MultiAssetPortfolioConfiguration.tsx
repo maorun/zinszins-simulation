@@ -368,7 +368,7 @@ export function MultiAssetPortfolioConfiguration({
                   <RadioTileGroup
                     value={safeValues.rebalancing.frequency}
                     onValueChange={frequency =>
-                      handleRebalancingChange({ frequency: frequency as any })}
+                      handleRebalancingChange({ frequency: frequency as 'never' | 'monthly' | 'quarterly' | 'annually' })}
                   >
                     <RadioTile value="never" label="Nie">Nie</RadioTile>
                     <RadioTile value="annually" label="Jährlich">Jährlich</RadioTile>

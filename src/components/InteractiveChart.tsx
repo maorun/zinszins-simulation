@@ -79,10 +79,23 @@ function prepareChartData(simulationData: SimulationResult): ChartDataPoint[] {
   })
 }
 
+interface TooltipPayload {
+  name: string
+  value: number
+  color: string
+  payload: ChartDataPoint
+}
+
+interface TooltipProps {
+  active?: boolean
+  payload?: TooltipPayload[]
+  label?: string | number
+}
+
 /**
  * Enhanced tooltip formatter with better formatting and more information
  */
-function CustomTooltip({ active, payload, label }: any) {
+function CustomTooltip({ active, payload, label }: TooltipProps) {
   if (active && payload && payload.length) {
     const data = payload[0]?.payload
 
@@ -90,7 +103,7 @@ function CustomTooltip({ active, payload, label }: any) {
       <div className="bg-white p-4 shadow-lg rounded-lg border border-gray-200 min-w-64">
         <p className="font-semibold text-gray-800 text-base mb-2">{`📅 Jahr: ${label}`}</p>
 
-        {payload.map((entry: any, index: number) => (
+        {payload.map((entry, index: number) => (
           <div key={index} className="flex justify-between items-center mb-1">
             <span className="text-sm text-gray-600">
               {entry.name}

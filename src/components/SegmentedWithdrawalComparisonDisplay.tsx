@@ -2,6 +2,15 @@ import { formatCurrency } from '../utils/currency'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { SegmentedComparisonStrategy } from '../utils/config-storage'
 
+// Type for withdrawal array elements (year-indexed object with withdrawal result data)
+// Using a flexible type that allows dynamic properties
+type WithdrawalArrayElement = {
+  endkapital?: number
+  entnahme?: number
+  jahr?: number
+  [key: string]: unknown
+}
+
 // Type for segmented comparison results
 type SegmentedComparisonResult = {
   strategy: SegmentedComparisonStrategy
@@ -9,13 +18,13 @@ type SegmentedComparisonResult = {
   totalWithdrawal: number
   averageAnnualWithdrawal: number
   duration: number | string
-  result: any // Full withdrawal result for detailed analysis
+  result: WithdrawalResult // Full withdrawal result for detailed analysis
 }
 
 interface SegmentedWithdrawalComparisonDisplayProps {
   withdrawalData: {
     startingCapital: number
-    withdrawalArray: any[]
+    withdrawalArray: WithdrawalArrayElement[]
     withdrawalResult: WithdrawalResult
     duration: number | null
   }

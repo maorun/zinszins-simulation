@@ -74,7 +74,7 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
   }
 
   // Calculate years range
-  const startDates = simulationData.sparplanElements.map((el: any) => new Date(el.start).getFullYear())
+  const startDates = simulationData.sparplanElements.map(el => new Date(el.start).getFullYear())
   const savingsStartYear = Math.min(...startDates)
   const savingsEndYear = startEnd[0]
   const yearsRange = `${savingsStartYear} - ${savingsEndYear}`

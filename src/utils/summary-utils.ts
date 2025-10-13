@@ -330,7 +330,19 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
       cumulativeInterestReal += yearlyInterestReal
     }
 
-    const progressionEntry: any = {
+    const progressionEntry: {
+      year: number
+      totalCapital: number
+      yearlyContribution: number
+      yearlyInterest: number
+      yearlyTax: number
+      cumulativeContributions: number
+      cumulativeInterest: number
+      cumulativeTax: number
+      totalCapitalReal?: number
+      yearlyInterestReal?: number
+      cumulativeInterestReal?: number
+    } = {
       year,
       totalCapital,
       yearlyContribution,
