@@ -14,7 +14,7 @@
 |-----|--------|--------------|
 | `@typescript-eslint/no-explicit-any` | 56 | Verwendung von `any` Type (reduziert von 63) |
 | `complexity` | 0 | ✅ Funktionen mit zu hoher zyklomatischer Komplexität (>25) - ERLEDIGT |
-| `max-lines-per-function` | 4 | Funktionen mit zu vielen Zeilen (>400) (reduziert von 5) |
+| `max-lines-per-function` | 1 | Funktionen mit zu vielen Zeilen (>400) (reduziert von 4) |
 | `max-depth` | 0 | ✅ Zu tiefe Verschachtelung (>5 Ebenen) - ERLEDIGT |
 | `@stylistic/max-len` | 0 | ✅ Zeilen mit zu großer Länge (>120) - ERLEDIGT |
 
@@ -31,6 +31,8 @@
 | `src/components/calculationHelpers.ts` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
 | `src/components/SpecialEvents.tsx` | 1 | Zeilenzahl |
 | `src/components/SparplanEingabe.tsx` | 2 | Komplexität, Zeilenzahl |
+| `src/components/SpecialEvents.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
+| `src/components/SparplanEingabe.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
 | `src/contexts/SimulationContext.tsx` | 1 | Zeilenzahl |
 | `src/components/TaxConfiguration.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
 | `src/components/ComparisonStrategyConfiguration.tsx` | 0 | ✅ ERLEDIGT - Alle Warnungen behoben |
@@ -329,6 +331,21 @@
   - Keine any types eingeführt
   - ESLint Warnungen reduziert: 75 → 73
   - Aufwand: 0,5 Tage
+
+- [x] **SpecialEvents** (src/components/SpecialEvents.tsx) ✅ ERLEDIGT
+  - Original: Zeilen: 623 (Function: 623)
+  - Aktuell: Zeilen: 222 (Function: 222)
+  - Status: ✅ Zeilen-Limit erreicht (Zeilen <400, 65% Reduktion!)
+  - Extrahierte Komponenten: 3 (in src/components/special-events/)
+    - `EventFormFields` - Event-Erstellungsformular (421 Zeilen, Komplexität <8)
+    - `EventCard` - Einzelne Event-Karte (126 Zeilen, Komplexität <8)
+    - `EventsList` - Liste der Sonderereignisse (59 Zeilen, Komplexität <8)
+  - Alle extrahierten Komponenten mit spezifischen Props-Interfaces
+  - Alle Komponenten folgen max-lines-per-function (<50 zeilen) und complexity (<8) Richtlinien
+  - Keine any types eingeführt
+  - Alle 1515 Tests bestehen
+  - ESLint Warnungen reduziert: 66 → 65
+  - Aufwand: 0,3 Tage
 
 - [ ] **SpecialEvents** (src/components/SpecialEvents.tsx)
   - Zeilen: 623
