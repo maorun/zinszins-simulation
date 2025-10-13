@@ -29,10 +29,20 @@ type ComparisonResult = {
   duration: number | string
 }
 
+// Type for withdrawal array elements (year-indexed object with withdrawal result data)
+// Using a flexible type that allows dynamic properties
+type WithdrawalArrayElement = {
+  endkapital?: number
+  entnahme?: number
+  jahr?: number
+  year?: number
+  [key: string]: unknown
+}
+
 interface WithdrawalComparisonDisplayProps {
   withdrawalData: {
     startingCapital: number
-    withdrawalArray: any[]
+    withdrawalArray: WithdrawalArrayElement[]
     withdrawalResult: WithdrawalResult
     duration: number | null
   }
@@ -325,7 +335,7 @@ export function WithdrawalComparisonDisplay({
                     {(() => {
                       const totalWithdrawal
                         = withdrawalData.withdrawalArray.reduce(
-                          (sum, year) => sum + year.entnahme,
+                          (sum, year) => sum + (year.entnahme || 0),
                           0,
                         )
                       const averageAnnual

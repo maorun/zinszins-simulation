@@ -23,6 +23,17 @@ export type VorabpauschaleDetails = {
   }
 }
 
+type YearlyCalculation = {
+  element: SparplanElement
+  startkapital: number
+  endkapitalVorSteuer: number
+  jahresgewinn: number
+  vorabpauschaleBetrag: number
+  potentialTax: number
+  vorabpauschaleDetails: VorabpauschaleDetails
+  costs: { terCosts: number, transactionCosts: number, totalCosts: number }
+}
+
 export type SimulationResultElement = {
   startkapital: number
   zinsen: number
@@ -324,7 +335,7 @@ function calculateYearlySimulation(
     steuerReduzierenEndkapital = true,
     basiszinsConfiguration,
   } = options
-  const yearlyCalculations: any[] = []
+  const yearlyCalculations: YearlyCalculation[] = []
   let totalPotentialTaxThisYear = 0
 
   // If steuerlast is 0, we can skip all tax calculations
@@ -470,7 +481,7 @@ function calculateYearlySimulation(
 
 function applyTaxes(
   year: number,
-  yearlyCalculations: any[],
+  yearlyCalculations: YearlyCalculation[],
   totalPotentialTaxThisYear: number,
   freibetragPerYear?: { [year: number]: number },
   steuerReduzierenEndkapital = true,

@@ -54,9 +54,9 @@ const SimulationConfiguration = () => {
                       id="berechnungsmodus"
                       checked={simulationAnnual === 'monthly'}
                       onCheckedChange={(checked) => {
-                        const value = checked ? 'monthly' : 'yearly'
-                        setSimulationAnnual(value as any)
-                        setSparplanElemente(convertSparplanToElements(sparplan, startEnd, value as any))
+                        const value: import('../utils/simulate').SimulationAnnualType = checked ? 'monthly' : 'yearly'
+                        setSimulationAnnual(value)
+                        setSparplanElemente(convertSparplanToElements(sparplan, startEnd, value))
                       }}
                     />
                     <span className={`text-sm ${simulationAnnual === 'monthly' ? 'font-medium' : 'text-muted-foreground'}`}>

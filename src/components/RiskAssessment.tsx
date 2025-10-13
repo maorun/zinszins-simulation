@@ -74,7 +74,7 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
       .sort((a, b) => a - b)
 
     allYears.forEach((year) => {
-      const totalValue = simulationData.sparplanElements.reduce((sum: number, element: any) => {
+      const totalValue = simulationData.sparplanElements.reduce((sum: number, element) => {
         return sum + (element.simulation?.[year]?.endkapital || 0)
       }, 0)
 
