@@ -18,67 +18,71 @@ export interface SimulationStateConfig {
   defaultConfig: import('../helpers/default-config').DefaultConfigType
 }
 
-export function useSimulationState(config: SimulationStateConfig) {
+function useConfigurationStates(config: SimulationStateConfig) {
   const { initialConfig, extendedInitialConfig, defaultConfig } = config
 
-  const basicFinancial = useBasicFinancialState({
-    initialConfig,
-    extendedInitialConfig,
-    defaultConfig,
-  })
+  return {
+    basicFinancial: useBasicFinancialState({
+      initialConfig,
+      extendedInitialConfig,
+      defaultConfig,
+    }),
+    taxConfig: useTaxConfigurationState({
+      extendedInitialConfig,
+      defaultConfig,
+    }),
+    returnConfig: useReturnConfigurationState({
+      initialConfig,
+      extendedInitialConfig,
+      defaultConfig,
+    }),
+    scenario: useScenarioState(),
+    multiAsset: useMultiAssetState({ extendedInitialConfig }),
+  }
+}
 
-  const taxConfig = useTaxConfigurationState({
-    extendedInitialConfig,
-    defaultConfig,
-  })
-
-  const returnConfig = useReturnConfigurationState({
-    initialConfig,
-    extendedInitialConfig,
-    defaultConfig,
-  })
-
-  const scenario = useScenarioState()
-
-  const multiAsset = useMultiAssetState({ extendedInitialConfig })
-
-  const inflation = useInflationState({
-    extendedInitialConfig,
-    defaultConfig,
-  })
-
-  const savingsPlan = useSavingsPlanState({ initialConfig })
-
-  const lifeExpectancy = useLifeExpectancyState({
-    initialConfig,
-    extendedInitialConfig,
-    defaultConfig,
-  })
-
-  const planningMode = usePlanningModeState({
-    extendedInitialConfig,
-    defaultConfig,
-  })
-
-  const simulationData = useSimulationDataState()
-
-  const withdrawalConfig = useWithdrawalConfigState({
-    initialConfig,
-    extendedInitialConfig,
-    defaultPlanningMode: defaultConfig.planningMode,
-  })
+function useOperationalStates(config: SimulationStateConfig) {
+  const { initialConfig, extendedInitialConfig, defaultConfig } = config
 
   return {
-    ...basicFinancial,
-    ...taxConfig,
-    ...returnConfig,
-    ...scenario,
-    ...multiAsset,
-    ...inflation,
-    ...savingsPlan,
-    ...lifeExpectancy,
-    ...planningMode,
-    ...simulationData,
-    ...withdrawalConfig,
+    inflation: useInflationState({
+      extendedInitialConfig,
+      defaultConfig,
+    }),
+    savingsPlan: useSavingsPlanState({ initialConfig }),
+    lifeExpectancy: useLifeExpectancyState({
+      initialConfig,
+      extendedInitialConfig,
+      defaultConfig,
+    }),
+    planningMode: usePlanningModeState({
+      extendedInitialConfig,
+      defaultConfig,
+    }),
+    simulationData: useSimulationDataState(),
+    withdrawalConfig: useWithdrawalConfigState({
+      initialConfig,
+      extendedInitialConfig,
+      defaultPlanningMode: defaultConfig.planningMode,
+    }),
+  }
+}
+
+export function useSimulationState(config: SimulationStateConfig) {
+  const configStates = useConfigurationStates(config)
+  const operationalStates = useOperationalStates(config)
+
+  return {
+    ...configStates.basicFinancial,
+    ...configStates.taxConfig,
+    ...configStates.returnConfig,
+    ...configStates.scenario,
+    ...configStates.multiAsset,
+    ...operationalStates.inflation,
+    ...operationalStates.savingsPlan,
+    ...operationalStates.lifeExpectancy,
+    ...operationalStates.planningMode,
+    ...operationalStates.simulationData,
+    ...operationalStates.withdrawalConfig,
   }
 }

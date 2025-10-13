@@ -1,7 +1,10 @@
 import { useEffect, useCallback } from 'react'
-import { updateFreibetragForPlanningMode } from '../../utils/freibetrag-calculation'
 import type { CoupleStatutoryPensionConfig } from '../../../helpers/statutory-pension'
 import type { CareCostConfiguration } from '../../../helpers/care-cost-simulation'
+import { useEndOfLifeSync } from './effects/useEndOfLifeSync'
+import { useFreibetragSync } from './effects/useFreibetragSync'
+import { usePensionConfigSync } from './effects/usePensionConfigSync'
+import { useCareCostSync } from './effects/useCareCostSync'
 
 export interface SimulationEffectsState {
   endOfLife: number
@@ -24,81 +27,15 @@ export function useSimulationEffects(
   setters: SimulationEffectsSetters,
   saveCurrentConfiguration: () => void,
 ) {
-  // Synchronize startEnd[1] (withdrawal end year) with endOfLife (life expectancy calculation)
-  useEffect(() => {
-    // Only update if endOfLife is different from current startEnd[1]
-    // Use functional update to avoid stale closure on startEnd
-    setters.setStartEnd((currentStartEnd) => {
-      if (state.endOfLife !== currentStartEnd[1]) {
-        return [currentStartEnd[0], state.endOfLife]
-      }
-      return currentStartEnd
-    })
-  }, [state.endOfLife, setters])
+  useEndOfLifeSync(state.endOfLife, setters.setStartEnd)
+  useFreibetragSync(state.planningMode, state.freibetragPerYear, setters.setFreibetragPerYear)
+  usePensionConfigSync(state.planningMode, state.coupleStatutoryPensionConfig, setters.setCoupleStatutoryPensionConfig)
+  useCareCostSync(state.planningMode, state.careCostConfiguration, setters.setCareCostConfiguration)
 
-  // Update freibetragPerYear when planning mode changes
-  useEffect(() => {
-    const updatedFreibetrag = updateFreibetragForPlanningMode(
-      state.freibetragPerYear,
-      state.planningMode,
-    )
-
-    // Only update if there are actual changes to avoid infinite loops
-    const hasChanges = Object.keys(updatedFreibetrag).some(
-      year => updatedFreibetrag[parseInt(year)] !== state.freibetragPerYear[parseInt(year)],
-    )
-
-    if (hasChanges) {
-      setters.setFreibetragPerYear(updatedFreibetrag)
-    }
-  }, [state.planningMode, state.freibetragPerYear, setters])
-
-  // Update couple statutory pension configuration when planning mode changes
-  useEffect(() => {
-    if (state.coupleStatutoryPensionConfig && state.coupleStatutoryPensionConfig.planningMode !== state.planningMode) {
-      const updatedConfig = {
-        ...state.coupleStatutoryPensionConfig,
-        planningMode: state.planningMode,
-      }
-
-      // If switching from individual to couple mode and only individual config exists
-      if (state.planningMode === 'couple' && state.coupleStatutoryPensionConfig.individual && !state.coupleStatutoryPensionConfig.couple) {
-        updatedConfig.couple = {
-          person1: {
-            ...state.coupleStatutoryPensionConfig.individual,
-            personId: 1 as const,
-            personName: 'Person 1',
-          },
-          person2: {
-            ...state.coupleStatutoryPensionConfig.individual,
-            personId: 2 as const,
-            personName: 'Person 2',
-          },
-        }
-      }
-
-      setters.setCoupleStatutoryPensionConfig(updatedConfig)
-    }
-  }, [state.planningMode, state.coupleStatutoryPensionConfig, setters])
-
-  // Update care cost configuration when planning mode changes
-  useEffect(() => {
-    if (state.careCostConfiguration.planningMode !== state.planningMode) {
-      setters.setCareCostConfiguration(prevConfig => ({
-        ...prevConfig,
-        planningMode: state.planningMode,
-        // Reset couple configuration when switching to individual mode
-        coupleConfig: state.planningMode === 'individual' ? undefined : prevConfig.coupleConfig,
-      }))
-    }
-  }, [state.planningMode, state.careCostConfiguration.planningMode, setters])
-
-  // Auto-save configuration whenever any config value changes
   useEffect(() => {
     saveCurrentConfiguration()
   }, [saveCurrentConfiguration])
 
-  // Create a wrapper for setEndOfLife that ensures values are always rounded to whole numbers
   const setEndOfLifeRounded = useCallback((value: number) => {
     setters.setEndOfLife(Math.round(value))
   }, [setters])
