@@ -1,6 +1,6 @@
 // Helper functions to create calculation explanations for different simulation data
 
-interface CalculationStep {
+export interface CalculationStep {
   title: string
   description: string
   calculation: string
@@ -9,7 +9,7 @@ interface CalculationStep {
   borderColor: string
 }
 
-interface CalculationExplanation {
+export interface CalculationExplanation {
   title: string
   introduction: string
   steps: CalculationStep[]
@@ -563,7 +563,7 @@ export function createOtherIncomeExplanation(
   totalNetAmount: number,
   totalTaxAmount: number,
   sourceCount: number,
-  _otherIncomeData: any,
+  _otherIncomeData: unknown,
 ): CalculationExplanation {
   const totalGrossAmount = totalNetAmount + totalTaxAmount
 

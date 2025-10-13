@@ -2,6 +2,10 @@
  * Shared type definitions for useWithdrawalModals hook and helpers
  */
 
+import type { VorabpauschaleDetails } from '../utils/simulate'
+
+export type { VorabpauschaleDetails }
+
 export interface CalculationStep {
   title: string
   description: string
@@ -19,10 +23,6 @@ export interface CalculationExplanation {
     title: string
     values: Array<{ label: string, value: string }>
   }
-}
-
-export interface VorabpauschaleDetails {
-  [key: string]: unknown
 }
 
 export interface ModalWithdrawalFormValue extends Record<string, unknown> {
