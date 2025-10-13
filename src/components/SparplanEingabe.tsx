@@ -1,4 +1,4 @@
-import { SimulationAnnual, type SimulationAnnualType } from '../utils/simulate'
+import { type SimulationAnnualType } from '../utils/simulate'
 import { initialSparplan, type Sparplan } from '../utils/sparplan-utils'
 import React, { useState, useEffect } from 'react'
 import {
@@ -13,55 +13,17 @@ import {
   type SingleFormValue,
   type SparplanFormValue,
 } from './SparplanEingabe.helpers'
-
-// Simple Close icon component using modern Lucide React icons
-const CloseIcon = () => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-  >
-    <line x1="18" y1="6" x2="6" y2="18"></line>
-    <line x1="6" y1="6" x2="18" y2="18"></line>
-  </svg>
-)
-
-// Helper icon for form help
-const InfoIcon = () => (
-  <svg
-    width="14"
-    height="14"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    style={{ marginLeft: '0.25rem', opacity: 0.6 }}
-  >
-    <circle cx="12" cy="12" r="10"></circle>
-    <path d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"></path>
-    <path d="M12,17h.01"></path>
-  </svg>
-)
+import { SparplanFormFields } from './sparplan-forms/SparplanFormFields'
+import { SinglePaymentFormFields } from './sparplan-forms/SinglePaymentFormFields'
+import { CostFactorFields } from './sparplan-forms/CostFactorFields'
+import { SparplanList } from './sparplan-forms/SparplanList'
 
 // Import Button directly from shadcn/ui
 import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { ChevronDown, Edit2 } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 
-// Temporary imports - only keep what's needed
-// No more temp imports needed!
-
-// Import shadcn/ui components for form elements
-import { Label } from './ui/label'
-import { Input } from './ui/input'
 import { toast } from 'sonner'
 
 // Helper functions for date formatting and handling
@@ -266,117 +228,19 @@ export function SparplanEingabe({
                   handleSparplanSubmit()
                 }}
               >
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-                  <div className="mb-4 space-y-2">
-                    <Label>
-                      Start
-                      <InfoIcon />
-                    </Label>
-                    <Input
-                      type="month"
-                      value={formatDateForInput(sparplanFormValues.start, 'yyyy-MM')}
-                      onChange={e => handleDateChange(e, 'yyyy-MM', (date) => {
-                        if (date) setSparplanFormValues({ ...sparplanFormValues, start: date })
-                      })}
-                      placeholder="Startdatum wählen"
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="mb-4 space-y-2">
-                    <Label>
-                      Ende (optional)
-                      <InfoIcon />
-                    </Label>
-                    <Input
-                      type="month"
-                      value={formatDateForInput(sparplanFormValues.end, 'yyyy-MM')}
-                      onChange={e => handleDateChange(e, 'yyyy-MM', date => setSparplanFormValues({ ...sparplanFormValues, end: date }))}
-                      placeholder="Enddatum wählen"
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="mb-4 space-y-2">
-                    <Label>
-                      {simulationAnnual === SimulationAnnual.yearly ? 'Einzahlungen je Jahr (€)' : 'Einzahlungen je Monat (€)'}
-                      <InfoIcon />
-                    </Label>
-                    <Input
-                      type="number"
-                      value={sparplanFormValues.einzahlung || ''}
-                      onChange={e => handleNumberChange(e, value =>
-                        setSparplanFormValues({ ...sparplanFormValues, einzahlung: value }),
-                      )}
-                      placeholder="Betrag eingeben"
-                      className="w-full"
-                      min={0}
-                      step={simulationAnnual === SimulationAnnual.monthly ? 10 : 100}
-                    />
-                  </div>
-                </div>
-                <div style={{ marginBottom: '1rem' }}>
-                  <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
-                    💰 Kostenfaktoren (optional)
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                    <div className="mb-4 space-y-2">
-                      <Label>
-                        TER (% p.a.)
-                        <InfoIcon />
-                      </Label>
-                      <Input
-                        type="number"
-                        value={sparplanFormValues.ter || ''}
-                        onChange={e => handleNumberChange(e, value =>
-                          setSparplanFormValues({ ...sparplanFormValues, ter: value }),
-                        )}
-                        placeholder="z.B. 0.75"
-                        className="w-full"
-                        min={0}
-                        max={10}
-                        step={0.01}
-                      />
-                      <div className="text-sm text-muted-foreground mt-1">Total Expense Ratio in % pro Jahr</div>
-                    </div>
-                    <div className="mb-4 space-y-2">
-                      <Label>
-                        Transaktionskosten (%)
-                        <InfoIcon />
-                      </Label>
-                      <Input
-                        type="number"
-                        value={sparplanFormValues.transactionCostPercent || ''}
-                        onChange={e => handleNumberChange(e, value =>
-                          setSparplanFormValues({ ...sparplanFormValues, transactionCostPercent: value }),
-                        )}
-                        placeholder="z.B. 0.25"
-                        className="w-full"
-                        min={0}
-                        max={5}
-                        step={0.01}
-                      />
-                      <div className="text-sm text-muted-foreground mt-1">Prozentuale Transaktionskosten</div>
-                    </div>
-                    <div className="mb-4 space-y-2">
-                      <Label>
-                        Transaktionskosten (€)
-                        <InfoIcon />
-                      </Label>
-                      <Input
-                        type="number"
-                        value={sparplanFormValues.transactionCostAbsolute || ''}
-                        onChange={e => handleNumberChange(e, value =>
-                          setSparplanFormValues({ ...sparplanFormValues, transactionCostAbsolute: value }),
-                        )}
-                        placeholder="z.B. 1.50"
-                        className="w-full"
-                        min={0}
-                        max={100}
-                        step={0.01}
-                      />
-                      <div className="text-sm text-muted-foreground mt-1">Absolute Transaktionskosten in Euro</div>
-                    </div>
-                  </div>
-                </div>
+                <SparplanFormFields
+                  formValues={sparplanFormValues}
+                  simulationAnnual={simulationAnnual}
+                  onFormChange={setSparplanFormValues}
+                  formatDateForInput={formatDateForInput}
+                  handleDateChange={handleDateChange}
+                  handleNumberChange={handleNumberChange}
+                />
+                <CostFactorFields
+                  values={sparplanFormValues}
+                  onValueChange={values => setSparplanFormValues({ ...sparplanFormValues, ...values })}
+                  handleNumberChange={handleNumberChange}
+                />
                 <div className="mb-4 space-y-2">
                   <div className="flex gap-2">
                     <Button
@@ -432,102 +296,18 @@ export function SparplanEingabe({
                   handleSinglePaymentSubmit()
                 }}
               >
-                <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
-                  <div className="mb-4 space-y-2">
-                    <Label>
-                      Datum
-                      <InfoIcon />
-                    </Label>
-                    <Input
-                      type="date"
-                      value={formatDateForInput(singleFormValue.date, 'yyyy-MM-dd')}
-                      onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => setSingleFormValue({ ...singleFormValue, date: date! }))}
-                      placeholder="Datum wählen"
-                      className="w-full"
-                    />
-                  </div>
-                  <div className="mb-4 space-y-2">
-                    <Label>
-                      Einzahlung (€)
-                      <InfoIcon />
-                    </Label>
-                    <Input
-                      type="number"
-                      value={singleFormValue.einzahlung || ''}
-                      onChange={e => handleNumberChange(e, value =>
-                        setSingleFormValue({ ...singleFormValue, einzahlung: value }),
-                      )}
-                      placeholder="Betrag eingeben"
-                      className="w-full"
-                      min={0}
-                      step={100}
-                    />
-                  </div>
-                </div>
-                <div style={{ marginBottom: '1rem' }}>
-                  <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
-                    💰 Kostenfaktoren (optional)
-                  </div>
-                  <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-                    <div className="mb-4 space-y-2">
-                      <Label>
-                        TER (% p.a.)
-                        <InfoIcon />
-                      </Label>
-                      <Input
-                        type="number"
-                        value={singleFormValue.ter || ''}
-                        onChange={e => handleNumberChange(e, value =>
-                          setSingleFormValue({ ...singleFormValue, ter: value }),
-                        )}
-                        placeholder="z.B. 0.75"
-                        className="w-full"
-                        min={0}
-                        max={10}
-                        step={0.01}
-                      />
-                      <div className="text-sm text-muted-foreground mt-1">Total Expense Ratio in % pro Jahr</div>
-                    </div>
-                    <div className="mb-4 space-y-2">
-                      <Label>
-                        Transaktionskosten (%)
-                        <InfoIcon />
-                      </Label>
-                      <Input
-                        type="number"
-                        value={singleFormValue.transactionCostPercent || ''}
-                        onChange={e => handleNumberChange(e, value =>
-                          setSingleFormValue({ ...singleFormValue, transactionCostPercent: value }),
-                        )}
-                        placeholder="z.B. 0.25"
-                        className="w-full"
-                        min={0}
-                        max={5}
-                        step={0.01}
-                      />
-                      <div className="text-sm text-muted-foreground mt-1">Prozentuale Transaktionskosten</div>
-                    </div>
-                    <div className="mb-4 space-y-2">
-                      <Label>
-                        Transaktionskosten (€)
-                        <InfoIcon />
-                      </Label>
-                      <Input
-                        type="number"
-                        value={singleFormValue.transactionCostAbsolute || ''}
-                        onChange={e => handleNumberChange(e, value =>
-                          setSingleFormValue({ ...singleFormValue, transactionCostAbsolute: value }),
-                        )}
-                        placeholder="z.B. 1.50"
-                        className="w-full"
-                        min={0}
-                        max={100}
-                        step={0.01}
-                      />
-                      <div className="text-sm text-muted-foreground mt-1">Absolute Transaktionskosten in Euro</div>
-                    </div>
-                  </div>
-                </div>
+                <SinglePaymentFormFields
+                  formValues={singleFormValue}
+                  onFormChange={setSingleFormValue}
+                  formatDateForInput={formatDateForInput}
+                  handleDateChange={handleDateChange}
+                  handleNumberChange={handleNumberChange}
+                />
+                <CostFactorFields
+                  values={singleFormValue}
+                  onValueChange={values => setSingleFormValue({ ...singleFormValue, ...values })}
+                  handleNumberChange={handleNumberChange}
+                />
                 <div className="mb-4 space-y-2">
                   <div className="flex gap-2">
                     <Button
@@ -582,196 +362,22 @@ export function SparplanEingabe({
 
               {/* Card Layout for All Devices */}
               <div style={{ padding: '1rem' }}>
-                <div className="grid gap-4">
-                  {sparplans.map((sparplan) => {
-                    // Detect if this is a one-time payment (start and end dates are the same)
-                    const isOneTimePayment = isEinmalzahlung(sparplan)
-
-                    return (
-                      <div
-                        key={sparplan.id}
-                        className={`p-4 rounded-lg border-2 transition-colors ${
-                          isEditMode && editingSparplan?.id === sparplan.id
-                            ? 'bg-yellow-50 border-yellow-300 ring-2 ring-yellow-200'
-                            : isOneTimePayment
-                              ? 'bg-orange-50 border-orange-200 hover:bg-orange-100'
-                              : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
-                        }`}
-                      >
-                        <div className="flex items-center justify-between mb-3">
-                          <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-                            isOneTimePayment
-                              ? 'bg-orange-100 text-orange-800 border border-orange-200'
-                              : 'bg-blue-100 text-blue-800 border border-blue-200'
-                          }`}
-                          >
-                            {isOneTimePayment ? '💰 Einmalzahlung' : '📈 Sparplan'}
-                            <span className="text-xs opacity-75">
-                              📅
-                              {' '}
-                              {new Date(sparplan.start).toLocaleDateString('de-DE')}
-                            </span>
-                          </span>
-                          <div className="flex gap-2">
-                            <Button
-                              onClick={() => handleEditSparplan(sparplan)}
-                              variant="outline"
-                              size="sm"
-                              title={isOneTimePayment ? 'Einmalzahlung bearbeiten' : 'Sparplan bearbeiten'}
-                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                              disabled={isEditMode}
-                            >
-                              <Edit2 className="h-4 w-4" />
-                            </Button>
-                            <Button
-                              onClick={() => handleDeleteSparplan(sparplan.id)}
-                              variant="ghost"
-                              size="sm"
-                              title={isOneTimePayment ? 'Einmalzahlung löschen' : 'Sparplan löschen'}
-                              className="text-red-600 hover:text-red-700"
-                              disabled={isEditMode}
-                            >
-                              <CloseIcon />
-                            </Button>
-                          </div>
-                        </div>
-                        <div className="grid gap-2">
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium text-gray-600">📅 Start:</span>
-                            <span className="text-sm font-semibold text-green-600">
-                              {new Date(sparplan.start).toLocaleDateString('de-DE')}
-                            </span>
-                          </div>
-                          {!isOneTimePayment && (
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm font-medium text-gray-600">🏁 Ende:</span>
-                              <span className="text-sm font-semibold text-blue-600">
-                                {sparplan.end ? new Date(sparplan.end).toLocaleDateString('de-DE') : 'Unbegrenzt'}
-                              </span>
-                            </div>
-                          )}
-                          <div className="flex justify-between items-center">
-                            <span className="text-sm font-medium text-gray-600">
-                              {isOneTimePayment
-                                ? '💵 Betrag:'
-                                : (simulationAnnual === SimulationAnnual.yearly ? '💰 Jährlich:' : '💰 Monatlich:')}
-                            </span>
-                            <span className="text-sm font-bold text-cyan-600">
-                              {(() => {
-                                const displayValue = simulationAnnual === SimulationAnnual.monthly && !isOneTimePayment
-                                  ? (sparplan.einzahlung / 12).toFixed(2)
-                                  : sparplan.einzahlung.toFixed(2)
-                                return Number(displayValue).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €'
-                              })()}
-                            </span>
-                          </div>
-                        </div>
-
-                        {/* Inline Edit Form - only show when this specific item is being edited */}
-                        {isEditMode && editingSparplan?.id === sparplan.id && (
-                          <div className="mt-4 p-4 bg-yellow-25 border border-yellow-200 rounded-lg">
-                            <div className="text-sm font-semibold text-yellow-800 mb-3">✏️ Bearbeiten</div>
-                            <div className="space-y-3">
-                              {/* Date field for one-time payments */}
-                              {isOneTimePayment && (
-                                <div>
-                                  <Label className="text-sm font-medium">📅 Datum</Label>
-                                  <Input
-                                    type="date"
-                                    value={formatDateForInput(singleFormValue.date, 'yyyy-MM-dd')}
-                                    onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => setSingleFormValue({ ...singleFormValue, date: date || new Date() }))}
-                                    className="mt-1"
-                                  />
-                                </div>
-                              )}
-
-                              {/* Start and End dates for savings plans */}
-                              {!isOneTimePayment && (
-                                <>
-                                  <div>
-                                    <Label className="text-sm font-medium">📅 Start</Label>
-                                    <Input
-                                      type="month"
-                                      value={formatDateForInput(sparplanFormValues.start, 'yyyy-MM')}
-                                      onChange={e => handleDateChange(e, 'yyyy-MM', date => setSparplanFormValues({ ...sparplanFormValues, start: date || new Date() }))}
-                                      className="mt-1"
-                                    />
-                                  </div>
-                                  <div>
-                                    <Label className="text-sm font-medium">🏁 Ende (optional)</Label>
-                                    <Input
-                                      type="month"
-                                      value={formatDateForInput(sparplanFormValues.end, 'yyyy-MM')}
-                                      onChange={e => handleDateChange(e, 'yyyy-MM', date => setSparplanFormValues({ ...sparplanFormValues, end: date }))}
-                                      className="mt-1"
-                                    />
-                                  </div>
-                                </>
-                              )}
-
-                              {/* Amount field */}
-                              <div>
-                                <Label className="text-sm font-medium">
-                                  {isOneTimePayment
-                                    ? '💰 Betrag (€)'
-                                    : `💰 ${simulationAnnual === SimulationAnnual.yearly ? 'Jährlich' : 'Monatlich'} (€)`}
-                                </Label>
-                                <Input
-                                  type="number"
-                                  value={isOneTimePayment ? singleFormValue.einzahlung : sparplanFormValues.einzahlung}
-                                  onChange={(e) => {
-                                    const value = e.target.value
-                                    if (isOneTimePayment) {
-                                      setSingleFormValue({ ...singleFormValue, einzahlung: value })
-                                    }
-                                    else {
-                                      setSparplanFormValues({ ...sparplanFormValues, einzahlung: value })
-                                    }
-                                  }}
-                                  className="mt-1"
-                                  min={0}
-                                  step={100}
-                                />
-                              </div>
-
-                              {/* Action buttons */}
-                              <div className="flex gap-2 pt-2">
-                                <Button
-                                  onClick={handleSaveEdit}
-                                  size="sm"
-                                  className="flex-1"
-                                >
-                                  ✅ Speichern
-                                </Button>
-                                <Button
-                                  onClick={handleCancelEdit}
-                                  variant="outline"
-                                  size="sm"
-                                  className="flex-1"
-                                >
-                                  ❌ Abbrechen
-                                </Button>
-                              </div>
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )
-                  })}
-
-                  {sparplans.length === 0 && (
-                    <div style={{
-                      textAlign: 'center',
-                      padding: '2rem',
-                      color: '#666',
-                      fontStyle: 'italic',
-                    }}
-                    >
-                      Noch keine Sparpläne oder Einmalzahlungen erstellt. Fügen Sie oben einen Sparplan oder eine
-                      Einmalzahlung hinzu.
-                    </div>
-                  )}
-                </div>
+                <SparplanList
+                  sparplans={sparplans}
+                  simulationAnnual={simulationAnnual}
+                  isEditMode={isEditMode}
+                  editingSparplan={editingSparplan}
+                  sparplanFormValues={sparplanFormValues}
+                  singleFormValue={singleFormValue}
+                  formatDateForInput={formatDateForInput}
+                  handleDateChange={handleDateChange}
+                  onEdit={handleEditSparplan}
+                  onDelete={handleDeleteSparplan}
+                  onSaveEdit={handleSaveEdit}
+                  onCancelEdit={handleCancelEdit}
+                  onSparplanFormChange={setSparplanFormValues}
+                  onSingleFormChange={setSingleFormValue}
+                />
               </div>
 
               {/* Hidden Desktop Table Layout */}
