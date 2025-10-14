@@ -207,7 +207,7 @@ Komponenten: EventFormFields, RiskAssessment, SparplanSimulationsAusgabe, calcul
 
 Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 
-#### 3.1 SimulationProvider (248 Zeilen)
+#### 3.2 SimulationProvider (248 Zeilen)
 
 - **Status**: ✅ Abgeschlossen
 - **Extraktionen**:
@@ -216,6 +216,17 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 - **Tests**: 11 neue Tests für extrahierte Hooks (5 + 6)
 - **Endergebnis**: 178 Zeilen (von 248 → -70 Zeilen / -28%)
 - **Ziel erreicht**: ✅ Unter 200 Zeilen (178 Zeilen)
+
+#### 3.3 HealthInsuranceCostPreview (214 Zeilen)
+
+- **Status**: ✅ Abgeschlossen
+- **Extraktionen**:
+  - [x] `useHealthInsurancePreviewCalculation` - Calculation logic for preview (Hook, 138 Zeilen, 10 Tests)
+  - [x] `CouplePreviewDisplay` - Couple cost preview display component (88 Zeilen, 9 Tests)
+  - [x] `IndividualPreviewDisplay` - Individual cost preview display component (52 Zeilen, 9 Tests)
+- **Tests**: 28 neue Tests für extrahierte Komponenten und Hook (10 + 9 + 9)
+- **Endergebnis**: 33 Zeilen (von 214 → -181 Zeilen / -85%)
+- **Ziel erreicht**: ✅ Weit unter 200 Zeilen (33 Zeilen, 84% unter Ziel)
 
 ### Phase 4: ESLint-Limits Progressive Verschärfung
 
@@ -290,12 +301,13 @@ Für jedes Refactoring:
 - [ ] DataExport
 - [ ] OtherIncomeSourceFormEditor
 
-### Phase 3 - Fortschritt: 3/12 (25%)
+### Phase 3 - Fortschritt: 5/12 (42%)
 
 - [x] SimulationProvider (248 → 178 Zeilen, -28%)
 - [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
 - [x] **EnhancedOverview (255 → 68 Zeilen, -73%)** ✅
 - [x] **InteractiveChart (249 → 132 lines, -47%)** ✅
+- [x] **HealthInsuranceCostPreview (214 → 33 Zeilen, -85%)** ✅
 - [ ] EntnahmeSimulationsAusgabe
 - [ ] SegmentedWithdrawalComparisonDisplay
 - [ ] CareCostConfiguration
@@ -303,7 +315,6 @@ Für jedes Refactoring:
 - [ ] HistoricalReturnConfiguration
 - [ ] WithdrawalReturnModeConfiguration
 - [ ] WithdrawalYearCard
-- [ ] HealthInsuranceCostPreview
 
 ### Phase 4 - ESLint-Limits: 0/3 (0%)
 
