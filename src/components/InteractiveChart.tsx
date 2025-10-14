@@ -16,9 +16,9 @@ import {
   AreaChart,
   Brush,
 } from 'recharts'
-import { formatCurrency } from '../utils/currency'
 import type { SimulationResult } from '../utils/simulate'
 import { useState } from 'react'
+import { ChartTooltip } from './chart/ChartTooltip'
 
 interface ChartDataPoint {
   year: number
@@ -77,63 +77,6 @@ function prepareChartData(simulationData: SimulationResult): ChartDataPoint[] {
       zinsenReal: yearData.zinsenReal,
     }
   })
-}
-
-interface TooltipPayload {
-  name: string
-  value: number
-  color: string
-  payload: ChartDataPoint
-}
-
-interface TooltipProps {
-  active?: boolean
-  payload?: TooltipPayload[]
-  label?: string | number
-}
-
-/**
- * Enhanced tooltip formatter with better formatting and more information
- */
-function CustomTooltip({ active, payload, label }: TooltipProps) {
-  if (active && payload && payload.length) {
-    const data = payload[0]?.payload
-
-    return (
-      <div className="bg-white p-4 shadow-lg rounded-lg border border-gray-200 min-w-64">
-        <p className="font-semibold text-gray-800 text-base mb-2">{`📅 Jahr: ${label}`}</p>
-
-        {payload.map((entry, index: number) => (
-          <div key={index} className="flex justify-between items-center mb-1">
-            <span className="text-sm text-gray-600">
-              {entry.name}
-              :
-            </span>
-            <span
-              className="text-sm font-medium ml-2"
-              style={{ color: entry.color }}
-            >
-              {formatCurrency(entry.value)}
-            </span>
-          </div>
-        ))}
-
-        {data && (
-          <div className="mt-3 pt-2 border-t border-gray-100 text-xs text-gray-500">
-            <div className="flex justify-between">
-              <span>Gesamtrendite:</span>
-              <span className="font-medium">
-                {data.endkapital > data.kumulativeEinzahlungen
-                  ? `+${(((data.endkapital / data.kumulativeEinzahlungen) - 1) * 100).toFixed(1)}%`
-                  : `${(((data.endkapital / data.kumulativeEinzahlungen) - 1) * 100).toFixed(1)}%`}
-              </span>
-            </div>
-          </div>
-        )}
-      </div>
-    )
-  }
-  return null
 }
 
 /**
@@ -251,7 +194,7 @@ export function InteractiveChart({
                 className="text-xs text-gray-600"
                 tick={{ fontSize: 12 }}
               />
-              <Tooltip content={<CustomTooltip />} />
+              <Tooltip content={<ChartTooltip />} />
               <Legend />
 
               {/* Area for cumulative deposits */}
