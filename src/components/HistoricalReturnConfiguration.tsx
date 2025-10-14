@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertTriangle, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { Label } from './ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
@@ -10,6 +10,7 @@ import { useNestingLevel } from '../lib/nesting-utils'
 import { HISTORICAL_INDICES, getHistoricalReturns, isYearRangeAvailable } from '../utils/historical-data'
 import { BacktestingWarning } from './historical-return/BacktestingWarning'
 import { IndexStatistics } from './historical-return/IndexStatistics'
+import { DataAvailabilityWarning } from './historical-return/DataAvailabilityWarning'
 
 const HistoricalReturnConfiguration = () => {
   const {
@@ -109,32 +110,12 @@ const HistoricalReturnConfiguration = () => {
 
               {/* Data Availability Warning */}
               {!isAvailable && currentIndex && (
-                <Card nestingLevel={nestingLevel} className="border-orange-200 bg-orange-50">
-                  <CardContent nestingLevel={nestingLevel} className="pt-4">
-                    <div className="flex items-start gap-3">
-                      <AlertTriangle className="h-4 w-4 text-orange-600 mt-0.5 flex-shrink-0" />
-                      <div className="text-sm text-orange-700">
-                        <div className="font-medium mb-1">Begrenzte Datenabdeckung</div>
-                        <p>
-                          Für den Simulationszeitraum (
-                          {simulationStartYear}
-                          -
-                          {simulationEndYear}
-                          )
-                          sind nur teilweise historische Daten verfügbar
-                          (
-                          {currentIndex.startYear}
-                          -
-                          {currentIndex.endYear}
-                          ).
-                          Fehlende Jahre werden mit der Durchschnittsrendite (
-                          {formatPercent(currentIndex.averageReturn)}
-                          ) ersetzt.
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <DataAvailabilityWarning
+                  index={currentIndex}
+                  simulationStartYear={simulationStartYear}
+                  simulationEndYear={simulationEndYear}
+                  nestingLevel={nestingLevel}
+                />
               )}
 
               {/* Historical Data Preview */}
