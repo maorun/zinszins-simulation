@@ -194,7 +194,28 @@ Komponenten: EventFormFields, RiskAssessment, SparplanSimulationsAusgabe, calcul
 
 **Ziel**: Funktionen mit 200-300 Zeilen auf <200 Zeilen optimieren
 
+#### 3.1 EnhancedOverview (255 Zeilen)
+
+- **Status**: ✅ Abgeschlossen
+- **Extraktionen**:
+  - [x] `calculateWithdrawalEndYear` - Utility-Funktion für Berechnung des Entsparphase-Endjahres (38 Zeilen, 7 Tests)
+  - [x] `SavingsPhaseSection` - Ansparphase-Anzeige Komponente (70 Zeilen, 8 Tests)
+  - [x] `WithdrawalPhaseSection` - Entsparphase-Anzeige Komponente (171 Zeilen, 16 Tests)
+- **Tests**: 31 Tests für extrahierte Komponenten und Utilities
+- **Endergebnis**: 68 Zeilen (von 255 → -187 Zeilen / -73%)
+- **Ziel erreicht**: ✅ Weit unter 200 Zeilen (68 Zeilen, 66% unter Ziel)
+
 Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
+
+#### 3.1 SimulationProvider (248 Zeilen)
+
+- **Status**: ✅ Abgeschlossen
+- **Extraktionen**:
+  - [x] `useInitialConfiguration` - Initiale Konfiguration laden (Hook, 31 Zeilen, 5 Tests)
+  - [x] `useSimulationOrchestration` - Orchestrierung von Config Management, Simulation und Effects (Hook, 130 Zeilen, 6 Tests)
+- **Tests**: 11 neue Tests für extrahierte Hooks (5 + 6)
+- **Endergebnis**: 178 Zeilen (von 248 → -70 Zeilen / -28%)
+- **Ziel erreicht**: ✅ Unter 200 Zeilen (178 Zeilen)
 
 ### Phase 4: ESLint-Limits Progressive Verschärfung
 
@@ -269,12 +290,12 @@ Für jedes Refactoring:
 - [ ] DataExport
 - [ ] OtherIncomeSourceFormEditor
 
-### Phase 3 - Fortschritt: 0/12 (0%)
+### Phase 3 - Fortschritt: 3/12 (25%)
 
-- [ ] HomePageContent
-- [ ] EnhancedOverview
-- [ ] InteractiveChart
-- [ ] SimulationProvider
+- [x] SimulationProvider (248 → 178 Zeilen, -28%)
+- [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
+- [x] **EnhancedOverview (255 → 68 Zeilen, -73%)** ✅
+- [x] **InteractiveChart (249 → 132 lines, -47%)** ✅
 - [ ] EntnahmeSimulationsAusgabe
 - [ ] SegmentedWithdrawalComparisonDisplay
 - [ ] CareCostConfiguration
