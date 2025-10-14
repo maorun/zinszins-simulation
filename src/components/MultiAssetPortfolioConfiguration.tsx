@@ -1,9 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Switch } from './ui/switch'
 import { Label } from './ui/label'
-import { Input } from './ui/input'
-import { Slider } from './ui/slider'
-import { RadioTileGroup, RadioTile } from './ui/radio-tile'
 import { Button } from './ui/button'
 import { Info, RotateCcw, TrendingUp, PieChart } from 'lucide-react'
 import {
@@ -13,6 +10,10 @@ import {
   createDefaultMultiAssetConfig,
   validateMultiAssetConfig,
 } from '../../helpers/multi-asset-portfolio'
+import { AssetClassEditor } from './multi-asset/AssetClassEditor'
+import { AssetAllocationSummary } from './multi-asset/AssetAllocationSummary'
+import { RebalancingConfiguration } from './multi-asset/RebalancingConfiguration'
+import { AdvancedSimulationSettings } from './multi-asset/AdvancedSimulationSettings'
 
 /** Information section component for multi-asset portfolio hints */
 function MultiAssetInfoSection() {
@@ -74,7 +75,6 @@ export function MultiAssetPortfolioConfiguration({
   }
   // Validate configuration
   const validationErrors = validateMultiAssetConfig(safeValues)
-  const hasErrors = validationErrors.length > 0
   // Get enabled asset classes with safety check
   const enabledAssets = Object.entries(safeValues.assetClasses || {})
     .filter(([_, config]) => config && config.enabled)
@@ -193,45 +193,13 @@ export function MultiAssetPortfolioConfiguration({
 
           {safeValues.enabled && (
             <>
-              {/* Validation Errors */}
-              {hasErrors && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                  <div className="flex items-start gap-2 text-red-800 text-sm">
-                    <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium mb-1">Konfigurationsfehler:</p>
-                      <ul className="list-disc list-inside space-y-1">
-                        {validationErrors.map((error, index) => (
-                          <li key={index}>{error}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Portfolio Overview */}
-              {!hasErrors && enabledAssets.length > 0 && (
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-                  <h4 className="text-sm font-medium text-blue-900 mb-2">Portfolio-Übersicht</h4>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-blue-700">Erwartete Rendite:</span>
-                      <span className="font-medium ml-2">
-                        {(expectedPortfolioReturn * 100).toFixed(1)}
-                        %
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-blue-700">Portfoliorisiko:</span>
-                      <span className="font-medium ml-2">
-                        {(expectedPortfolioRisk * 100).toFixed(1)}
-                        %
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Portfolio Overview or Validation Errors */}
+              <AssetAllocationSummary
+                expectedReturn={expectedPortfolioReturn}
+                expectedRisk={expectedPortfolioRisk}
+                enabledAssetsCount={enabledAssets.length}
+                validationErrors={validationErrors}
+              />
 
               {/* Asset Classes Configuration */}
               <div className="space-y-4">
@@ -262,200 +230,31 @@ export function MultiAssetPortfolioConfiguration({
 
                 {Object.entries(DEFAULT_ASSET_CLASSES).map(([assetClass, defaultConfig]) => {
                   const currentConfig = safeValues.assetClasses[assetClass as AssetClass]
-                  const isEnabled = currentConfig.enabled
 
                   return (
-                    <div
+                    <AssetClassEditor
                       key={assetClass}
-                      className={`p-4 border rounded-md ${
-                        isEnabled ? 'border-blue-200 bg-blue-50' : 'border-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Switch
-                              checked={isEnabled}
-                              onCheckedChange={enabled =>
-                                handleAssetClassChange(assetClass as AssetClass, { enabled })}
-                            />
-                            <Label className="text-sm font-medium">
-                              {defaultConfig.name}
-                            </Label>
-                          </div>
-                          <p className="text-xs text-gray-600">
-                            {defaultConfig.description}
-                          </p>
-                        </div>
-                      </div>
-
-                      {isEnabled && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {/* Target Allocation */}
-                          <div className="space-y-2">
-                            <Label className="text-xs font-medium text-gray-700">
-                              Zielallokation:
-                              {' '}
-                              {(currentConfig.targetAllocation * 100).toFixed(1)}
-                              %
-                            </Label>
-                            <Slider
-                              value={[currentConfig.targetAllocation * 100]}
-                              onValueChange={([value]) =>
-                                handleAssetClassChange(assetClass as AssetClass, {
-                                  targetAllocation: value / 100,
-                                })}
-                              max={100}
-                              step={1}
-                              className="w-full"
-                            />
-                          </div>
-
-                          {/* Expected Return */}
-                          <div className="space-y-2">
-                            <Label className="text-xs font-medium text-gray-700">
-                              Erwartete Rendite:
-                              {' '}
-                              {(currentConfig.expectedReturn * 100).toFixed(1)}
-                              %
-                            </Label>
-                            <Slider
-                              value={[currentConfig.expectedReturn * 100]}
-                              onValueChange={([value]) =>
-                                handleAssetClassChange(assetClass as AssetClass, {
-                                  expectedReturn: value / 100,
-                                })}
-                              min={-10}
-                              max={20}
-                              step={0.5}
-                              className="w-full"
-                            />
-                          </div>
-
-                          {/* Volatility */}
-                          <div className="space-y-2">
-                            <Label className="text-xs font-medium text-gray-700">
-                              Volatilität:
-                              {' '}
-                              {(currentConfig.volatility * 100).toFixed(1)}
-                              %
-                            </Label>
-                            <Slider
-                              value={[currentConfig.volatility * 100]}
-                              onValueChange={([value]) =>
-                                handleAssetClassChange(assetClass as AssetClass, {
-                                  volatility: value / 100,
-                                })}
-                              min={0}
-                              max={50}
-                              step={1}
-                              className="w-full"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                      assetClass={assetClass as AssetClass}
+                      name={defaultConfig.name}
+                      description={defaultConfig.description}
+                      config={currentConfig}
+                      onChange={handleAssetClassChange}
+                    />
                   )
                 })}
               </div>
 
               {/* Rebalancing Configuration */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-gray-700">Rebalancing</h3>
-
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium">Rebalancing-Häufigkeit</Label>
-                  <RadioTileGroup
-                    value={safeValues.rebalancing.frequency}
-                    onValueChange={frequency =>
-                      handleRebalancingChange({ frequency: frequency as 'never' | 'monthly' | 'quarterly' | 'annually' })}
-                  >
-                    <RadioTile value="never" label="Nie">Nie</RadioTile>
-                    <RadioTile value="annually" label="Jährlich">Jährlich</RadioTile>
-                    <RadioTile value="quarterly" label="Quartalsweise">Quartalsweise</RadioTile>
-                    <RadioTile value="monthly" label="Monatlich">Monatlich</RadioTile>
-                  </RadioTileGroup>
-                </div>
-
-                {safeValues.rebalancing.frequency !== 'never' && (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        checked={values.rebalancing.useThreshold}
-                        onCheckedChange={useThreshold =>
-                          handleRebalancingChange({ useThreshold })}
-                      />
-                      <Label className="text-sm">
-                        Schwellenwert-basiertes Rebalancing
-                      </Label>
-                    </div>
-
-                    {values.rebalancing.useThreshold && (
-                      <div className="space-y-2">
-                        <Label className="text-xs font-medium text-gray-700">
-                          Drift-Schwellenwert:
-                          {' '}
-                          {(values.rebalancing.threshold * 100).toFixed(1)}
-                          %
-                        </Label>
-                        <Slider
-                          value={[values.rebalancing.threshold * 100]}
-                          onValueChange={([value]) =>
-                            handleRebalancingChange({ threshold: value / 100 })}
-                          min={1}
-                          max={20}
-                          step={0.5}
-                          className="w-full"
-                        />
-                        <p className="text-xs text-gray-600">
-                          Rebalancing erfolgt wenn eine Anlageklasse um mehr als diesen Wert
-                          von der Zielallokation abweicht
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+              <RebalancingConfiguration
+                config={safeValues.rebalancing}
+                onChange={handleRebalancingChange}
+              />
 
               {/* Advanced Simulation Settings */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-gray-700">Erweiterte Einstellungen</h3>
-
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={values.simulation.useCorrelation}
-                    onCheckedChange={useCorrelation =>
-                      handleSimulationChange({ useCorrelation })}
-                  />
-                  <Label className="text-sm">
-                    Historische Korrelationen verwenden
-                  </Label>
-                </div>
-                <p className="text-xs text-gray-600">
-                  Berücksichtigt die historischen Korrelationen zwischen den Anlageklassen
-                  für realistischere Simulationsergebnisse
-                </p>
-
-                <div className="space-y-2">
-                  <Label htmlFor="multiasset-seed" className="text-sm font-medium">
-                    Zufalls-Seed (optional)
-                  </Label>
-                  <Input
-                    id="multiasset-seed"
-                    type="number"
-                    value={values.simulation.seed || ''}
-                    onChange={(e) => {
-                      const seed = e.target.value ? parseInt(e.target.value) : undefined
-                      handleSimulationChange({ seed })
-                    }}
-                    placeholder="Für reproduzierbare Ergebnisse"
-                    className="text-sm"
-                  />
-                  <p className="text-xs text-gray-600">
-                    Optionale Zahl für reproduzierbare Zufallsrenditen
-                  </p>
-                </div>
-              </div>
+              <AdvancedSimulationSettings
+                config={safeValues.simulation}
+                onChange={handleSimulationChange}
+              />
 
               {/* Information Section */}
               <MultiAssetInfoSection />
