@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { AlertTriangle, TrendingUp, ChevronDown } from 'lucide-react'
+import { AlertTriangle, ChevronDown } from 'lucide-react'
 import { Label } from './ui/label'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
@@ -9,6 +9,7 @@ import { useSimulation } from '../contexts/useSimulation'
 import { useNestingLevel } from '../lib/nesting-utils'
 import { HISTORICAL_INDICES, getHistoricalReturns, isYearRangeAvailable } from '../utils/historical-data'
 import { BacktestingWarning } from './historical-return/BacktestingWarning'
+import { IndexStatistics } from './historical-return/IndexStatistics'
 
 const HistoricalReturnConfiguration = () => {
   const {
@@ -103,44 +104,7 @@ const HistoricalReturnConfiguration = () => {
 
               {/* Index Statistics */}
               {currentIndex && (
-                <Card nestingLevel={nestingLevel}>
-                  <CardContent nestingLevel={nestingLevel} className="pt-4">
-                    <div className="space-y-3">
-                      <div className="flex items-center gap-2">
-                        <TrendingUp className="h-4 w-4 text-blue-600" />
-                        <span className="font-medium">
-                          Statistische Kennzahlen (
-                          {currentIndex.startYear}
-                          -
-                          {currentIndex.endYear}
-                          )
-                        </span>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-muted-foreground">Ø Rendite p.a.:</span>
-                          <span className="ml-2 font-medium">{formatPercent(currentIndex.averageReturn)}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Volatilität:</span>
-                          <span className="ml-2 font-medium">{formatPercent(currentIndex.volatility)}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Währung:</span>
-                          <span className="ml-2 font-medium">{currentIndex.currency}</span>
-                        </div>
-                        <div>
-                          <span className="text-muted-foreground">Datenpunkte:</span>
-                          <span className="ml-2 font-medium">
-                            {currentIndex.data.length}
-                            {' '}
-                            Jahre
-                          </span>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                <IndexStatistics index={currentIndex} nestingLevel={nestingLevel} />
               )}
 
               {/* Data Availability Warning */}
