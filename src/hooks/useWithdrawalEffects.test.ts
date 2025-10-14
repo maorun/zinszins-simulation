@@ -11,7 +11,7 @@ interface WithdrawalData {
     [key: string]: unknown
   }>
   withdrawalResult: WithdrawalResult
-  duration: number | 'unbegrenzt'
+  duration: number | 'unbegrenzt' | null
 }
 
 describe('useWithdrawalEffects', () => {

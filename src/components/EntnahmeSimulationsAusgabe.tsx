@@ -1,11 +1,10 @@
-import { useEffect } from 'react'
-import type {
-  WithdrawalResult,
-} from '../../helpers/withdrawal'
+import type { WithdrawalResult } from '../../helpers/withdrawal'
 import { useSimulation } from '../contexts/useSimulation'
 import { useWithdrawalCalculations } from '../hooks/useWithdrawalCalculations'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
+import { useWithdrawalConfigValues } from '../hooks/useWithdrawalConfigValues'
 import { useWithdrawalModals } from '../hooks/useWithdrawalModals'
+import { useWithdrawalEffects } from '../hooks/useWithdrawalEffects'
 import { useHealthCareInsuranceHandlers } from '../hooks/useHealthCareInsuranceHandlers'
 import type { SparplanElement } from '../utils/sparplan-utils'
 import CalculationExplanationModal from './CalculationExplanationModal'
@@ -54,6 +53,23 @@ export function EntnahmeSimulationsAusgabe({
     removeSegmentedComparisonStrategy,
   } = useWithdrawalConfig()
 
+  // Extract config values for easier access
+  const {
+    formValue,
+    withdrawalReturnMode,
+    withdrawalVariableReturns,
+    withdrawalAverageReturn,
+    withdrawalStandardDeviation,
+    withdrawalRandomSeed,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
+    useComparisonMode,
+    comparisonStrategies,
+    useSegmentedComparisonMode,
+    segmentedComparisonStrategies,
+  } = useWithdrawalConfigValues(currentConfig)
+
+  // Calculate withdrawal data
   const { withdrawalData, comparisonResults, segmentedComparisonResults = [] } = useWithdrawalCalculations(
     elemente,
     startOfIndependence,
@@ -62,20 +78,19 @@ export function EntnahmeSimulationsAusgabe({
     teilfreistellungsquote,
   )
 
-  // Access global Grundfreibetrag configuration and End of Life settings
+  // Access global configuration
   const {
     grundfreibetragAktiv,
     grundfreibetragBetrag,
     endOfLife: globalEndOfLife,
-    // Birth year and planning data for automatic retirement calculation
     birthYear,
     spouse,
     planningMode,
-    // Multi-asset portfolio configuration for withdrawal phase
     withdrawalMultiAssetConfig,
     setWithdrawalMultiAssetConfig,
   } = useSimulation()
 
+  // Modal state and handlers
   const {
     showCalculationModal,
     setShowCalculationModal,
@@ -85,9 +100,9 @@ export function EntnahmeSimulationsAusgabe({
     selectedVorabDetails,
     handleCalculationInfoClick,
   } = useWithdrawalModals(
-    currentConfig.formValue,
-    currentConfig.useSegmentedWithdrawal,
-    currentConfig.withdrawalSegments,
+    formValue,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
     withdrawalData,
     startOfIndependence,
     steuerlast,
@@ -96,45 +111,21 @@ export function EntnahmeSimulationsAusgabe({
     grundfreibetragBetrag,
   )
 
-  // Extract values from config for easier access
-  const formValue = currentConfig.formValue
-  const withdrawalReturnMode = currentConfig.withdrawalReturnMode
-  const withdrawalVariableReturns = currentConfig.withdrawalVariableReturns
-  const withdrawalAverageReturn = currentConfig.withdrawalAverageReturn
-  const withdrawalStandardDeviation = currentConfig.withdrawalStandardDeviation
-  const withdrawalRandomSeed = currentConfig.withdrawalRandomSeed
-  const useSegmentedWithdrawal = currentConfig.useSegmentedWithdrawal
-  const withdrawalSegments = currentConfig.withdrawalSegments
-  const useComparisonMode = currentConfig.useComparisonMode
-  const comparisonStrategies = currentConfig.comparisonStrategies
-  const useSegmentedComparisonMode = currentConfig.useSegmentedComparisonMode
-  const segmentedComparisonStrategies = currentConfig.segmentedComparisonStrategies
-
-  // Use health care insurance handlers hook (after formValue is defined)
+  // Health care insurance handlers
   const healthCareInsuranceHandlers = useHealthCareInsuranceHandlers(
     formValue,
     updateFormValue,
   )
 
-  // Notify parent component when withdrawal results change
-  useEffect(() => {
-    if (onWithdrawalResultsChange && withdrawalData) {
-      onWithdrawalResultsChange(withdrawalData.withdrawalResult)
-    }
-  }, [withdrawalData, onWithdrawalResultsChange])
-
-  // Update withdrawal segments when startOfIndependence changes (for segmented withdrawal)
-  useEffect(() => {
-    if (useSegmentedWithdrawal && withdrawalSegments.length > 0) {
-      const updatedSegments = withdrawalSegments.map((segment, index) =>
-        index === 0 ? { ...segment, startYear: startOfIndependence + 1 } : segment,
-      )
-
-      if (updatedSegments[0]?.startYear !== withdrawalSegments[0]?.startYear) {
-        updateConfig({ withdrawalSegments: updatedSegments })
-      }
-    }
-  }, [startOfIndependence, useSegmentedWithdrawal, withdrawalSegments, updateConfig])
+  // Side effects (notify parent, update segments)
+  useWithdrawalEffects({
+    onWithdrawalResultsChange,
+    withdrawalData,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
+    startOfIndependence,
+    updateConfig,
+  })
 
   return (
     <div className="space-y-4">
