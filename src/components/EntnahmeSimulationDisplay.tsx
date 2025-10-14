@@ -14,7 +14,7 @@ type SegmentedComparisonResult = {
   totalWithdrawal: number
   averageAnnualWithdrawal: number
   duration: number | string
-  result: any // Full withdrawal result for detailed analysis
+  result: WithdrawalResult // Full withdrawal result for detailed analysis
 }
 
 // Type for comparison results
@@ -26,10 +26,22 @@ type ComparisonResult = {
   duration: number | string
 }
 
+// Type for withdrawal row data in the array
+// This is a looser type to accommodate various withdrawal configurations
+type WithdrawalRowData = Record<string, unknown> & {
+  year: number
+  startkapital: number
+  endkapital: number
+  entnahme: number
+  zinsen: number
+  bezahlteSteuer: number
+  genutzterFreibetrag: number
+}
+
 interface EntnahmeSimulationDisplayProps {
   withdrawalData: {
     startingCapital: number
-    withdrawalArray: any[]
+    withdrawalArray: WithdrawalRowData[]
     withdrawalResult: WithdrawalResult
     duration: number | null
   } | null
@@ -38,7 +50,7 @@ interface EntnahmeSimulationDisplayProps {
   comparisonResults: ComparisonResult[]
   useSegmentedComparisonMode?: boolean
   segmentedComparisonResults?: SegmentedComparisonResult[]
-  onCalculationInfoClick: (explanationType: string, rowData: any) => void
+  onCalculationInfoClick: (explanationType: string, rowData: unknown) => void
 }
 
 export function EntnahmeSimulationDisplay({

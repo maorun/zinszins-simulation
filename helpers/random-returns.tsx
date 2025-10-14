@@ -26,7 +26,7 @@ export type ReturnConfiguration = {
   randomConfig?: RandomReturnConfig // Used when mode is 'random'
   variableConfig?: VariableReturnConfig // Used when mode is 'variable'
   historicalConfig?: HistoricalReturnConfig // Used when mode is 'historical'
-  multiAssetConfig?: any // Used when mode is 'multiasset' - type defined in multi-asset-portfolio.ts
+  multiAssetConfig?: import('../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig // Used when mode is 'multiasset'
 }
 
 /**

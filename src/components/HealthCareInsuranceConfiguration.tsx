@@ -445,7 +445,7 @@ function HealthInsuranceCostPreview({
   }
   else {
     // Individual results
-    const individualResults = previewResults as any
+    const individualResults = previewResults as import('../../helpers/health-care-insurance').HealthCareInsuranceYearResult
     return (
       <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <h4 className="font-medium text-sm text-blue-900 mb-3">

@@ -213,9 +213,10 @@ function exportMockStructure(simulationElements: SparplanElement[], context: Sim
     // For mock data - handle both test mock format and real element format
     const sparplanContributions: number[] = []
     // Try to get amount from various possible properties
+    const mockData = element as Record<string, unknown>
     const elementAmount = ('einzahlung' in element && element.einzahlung)
-      || ((element as any).amount)
-      || ((element as any).monthlyAmount)
+      || (typeof mockData.amount === 'number' ? mockData.amount : 0)
+      || (typeof mockData.monthlyAmount === 'number' ? mockData.monthlyAmount : 0)
       || 0
 
     context.sparplan.forEach(() => {
@@ -227,13 +228,13 @@ function exportMockStructure(simulationElements: SparplanElement[], context: Sim
     cumulativeContributions += yearlyContributions
 
     // For mock test data, properties are directly on element
-    const mockElement = element as any
-    const startkapital = mockElement.startkapital || 0
-    const zinsen = mockElement.zinsen || 0
-    const endkapital = mockElement.endkapital || 0
-    const bezahlteSteuer = mockElement.bezahlteSteuer || 0
-    const genutzterFreibetrag = mockElement.genutzterFreibetrag || 0
-    const vorabpauschale = mockElement.vorabpauschale || 0
+    const mockElement = element as Record<string, unknown>
+    const startkapital = (typeof mockElement.startkapital === 'number' ? mockElement.startkapital : 0)
+    const zinsen = (typeof mockElement.zinsen === 'number' ? mockElement.zinsen : 0)
+    const endkapital = (typeof mockElement.endkapital === 'number' ? mockElement.endkapital : 0)
+    const bezahlteSteuer = (typeof mockElement.bezahlteSteuer === 'number' ? mockElement.bezahlteSteuer : 0)
+    const genutzterFreibetrag = (typeof mockElement.genutzterFreibetrag === 'number' ? mockElement.genutzterFreibetrag : 0)
+    const vorabpauschale = (typeof mockElement.vorabpauschale === 'number' ? mockElement.vorabpauschale : 0)
 
     addYearRows(year, isMonthly, startkapital, zinsen,
       endkapital, bezahlteSteuer,

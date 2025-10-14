@@ -1,5 +1,5 @@
 import type { SparplanElement } from '../utils/sparplan-utils'
-import type { SimulationResult } from '../utils/simulate'
+import type { SimulationResult, VorabpauschaleDetails } from '../utils/simulate'
 
 /**
  * Convert SparplanElement[] to SimulationResult format for use with InteractiveChart
@@ -96,7 +96,7 @@ export function convertSparplanElementsToSimulationResult(
  * Convert WithdrawalResult to SimulationResult format for use with InteractiveChart
  */
 export function convertWithdrawalResultToSimulationResult(
-  withdrawalResult: any, // WithdrawalResult type from helpers
+  withdrawalResult: unknown, // WithdrawalResult type from helpers
 ): SimulationResult {
   if (!withdrawalResult || typeof withdrawalResult !== 'object') {
     return {}
@@ -104,24 +104,27 @@ export function convertWithdrawalResultToSimulationResult(
 
   const result: SimulationResult = {}
 
-  Object.entries(withdrawalResult).forEach(([yearStr, data]: [string, any]) => {
+  Object.entries(withdrawalResult).forEach(([yearStr, data]) => {
     const year = parseInt(yearStr, 10)
 
     if (!data || typeof data !== 'object') return
 
+    // Type assertion for data object properties
+    const yearData = data as Record<string, unknown>
+
     result[year] = {
-      startkapital: data.startkapital || 0,
-      zinsen: data.zinsen || 0,
-      endkapital: data.endkapital || 0,
-      bezahlteSteuer: data.bezahlteSteuer || 0,
-      genutzterFreibetrag: data.genutzterFreibetrag || 0,
-      vorabpauschale: data.vorabpauschale || 0,
+      startkapital: (typeof yearData.startkapital === 'number' ? yearData.startkapital : 0),
+      zinsen: (typeof yearData.zinsen === 'number' ? yearData.zinsen : 0),
+      endkapital: (typeof yearData.endkapital === 'number' ? yearData.endkapital : 0),
+      bezahlteSteuer: (typeof yearData.bezahlteSteuer === 'number' ? yearData.bezahlteSteuer : 0),
+      genutzterFreibetrag: (typeof yearData.genutzterFreibetrag === 'number' ? yearData.genutzterFreibetrag : 0),
+      vorabpauschale: (typeof yearData.vorabpauschale === 'number' ? yearData.vorabpauschale : 0),
       vorabpauschaleAccumulated: 0, // Not typically used in withdrawal phase
     }
 
     // Copy over optional fields that might exist in withdrawal data
-    if (data.vorabpauschaleDetails) {
-      result[year].vorabpauschaleDetails = data.vorabpauschaleDetails
+    if (yearData.vorabpauschaleDetails && typeof yearData.vorabpauschaleDetails === 'object') {
+      result[year].vorabpauschaleDetails = yearData.vorabpauschaleDetails as VorabpauschaleDetails
     }
 
     // Note: einkommensteuer and genutzterGrundfreibetrag are specific to withdrawal phase
@@ -138,7 +141,7 @@ export function convertWithdrawalResultToSimulationResult(
 /**
  * Check if withdrawal result has inflation-adjusted values
  */
-export function hasWithdrawalInflationAdjustedValues(_withdrawalResult: any): boolean {
+export function hasWithdrawalInflationAdjustedValues(_withdrawalResult: unknown): boolean {
   // Withdrawal phase typically doesn't store separate real values like savings phase
   // Instead, inflation adjustments are built into the withdrawal calculations
   return false

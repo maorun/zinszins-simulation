@@ -113,7 +113,7 @@ export function clearRegisteredIds(): void {
 
   try {
     // Check for Vite environment
-    if (typeof import.meta !== 'undefined' && (import.meta as any)?.env?.MODE === 'test') {
+    if (typeof import.meta !== 'undefined' && (import.meta as { env?: { MODE?: string } })?.env?.MODE === 'test') {
       isTest = true
     }
   }

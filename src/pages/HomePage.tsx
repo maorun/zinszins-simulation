@@ -57,7 +57,7 @@ function EnhancedOverview() {
   if (!enhancedSummary || !simulationData) return null
 
   const savingsStartYear = Math.min(
-    ...simulationData.sparplanElements.map((el: any) =>
+    ...simulationData.sparplanElements.map(el =>
       new Date(el.start).getFullYear(),
     ),
   )
@@ -386,7 +386,7 @@ const HomePageContent = () => {
 
   // Build ReturnConfiguration from context properties
   const returnConfig = useMemo(() => {
-    const config: any = { mode: returnMode }
+    const config: import('../utils/random-returns').ReturnConfiguration = { mode: returnMode }
 
     switch (returnMode) {
       case 'fixed':

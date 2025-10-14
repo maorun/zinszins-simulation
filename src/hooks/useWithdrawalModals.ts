@@ -45,12 +45,17 @@ export function useWithdrawalModals(
   const [selectedVorabDetails, setSelectedVorabDetails] = useState<VorabpauschaleDetails | null>(null)
 
   // Handle calculation explanation clicks
-  const handleCalculationInfoClick = (explanationType: string, rowData: RowData) => {
+  const handleCalculationInfoClick = (explanationType: string, rowData: unknown) => {
+    // Type guard to ensure rowData has the expected shape
+    if (!rowData || typeof rowData !== 'object' || !('year' in rowData)) {
+      return
+    }
+    const data = rowData as RowData
     // Find applicable segment for this year
     const applicableSegment = findApplicableSegment(
       useSegmentedWithdrawal,
       withdrawalSegments,
-      rowData.year,
+      data.year,
     )
 
     // Create context for handlers
@@ -68,34 +73,34 @@ export function useWithdrawalModals(
     let explanation = null
 
     if (explanationType === 'inflation') {
-      explanation = handleInflationExplanation({ rowData, context, applicableSegment })
+      explanation = handleInflationExplanation({ rowData: data, context, applicableSegment })
     }
     else if (explanationType === 'interest') {
-      explanation = handleInterestExplanation({ rowData, context, applicableSegment })
+      explanation = handleInterestExplanation({ rowData: data, context, applicableSegment })
     }
     else if (explanationType === 'tax') {
-      explanation = handleTaxExplanation({ rowData, context })
+      explanation = handleTaxExplanation({ rowData: data, context })
     }
     else if (explanationType === 'incomeTax') {
-      explanation = handleIncomeTaxExplanation({ rowData, context, applicableSegment })
+      explanation = handleIncomeTaxExplanation({ rowData: data, context, applicableSegment })
     }
     else if (explanationType === 'taxableIncome') {
-      explanation = handleTaxableIncomeExplanation({ rowData, context })
+      explanation = handleTaxableIncomeExplanation({ rowData: data, context })
     }
     else if (explanationType === 'otherIncome') {
-      explanation = handleOtherIncomeExplanation({ rowData })
+      explanation = handleOtherIncomeExplanation({ rowData: data })
     }
     else if (explanationType === 'statutoryPension') {
-      explanation = handleStatutoryPensionExplanation({ rowData })
+      explanation = handleStatutoryPensionExplanation({ rowData: data })
     }
     else if (explanationType === 'endkapital') {
-      explanation = handleEndkapitalExplanation({ rowData })
+      explanation = handleEndkapitalExplanation({ rowData: data })
     }
     else if (explanationType === 'healthCareInsurance') {
-      explanation = handleHealthCareInsuranceExplanation({ rowData })
+      explanation = handleHealthCareInsuranceExplanation({ rowData: data })
     }
-    else if (explanationType === 'vorabpauschale' && rowData.vorabpauschaleDetails) {
-      setSelectedVorabDetails(rowData.vorabpauschaleDetails)
+    else if (explanationType === 'vorabpauschale' && data.vorabpauschaleDetails) {
+      setSelectedVorabDetails(data.vorabpauschaleDetails)
       setShowVorabpauschaleModal(true)
       return
     }
