@@ -12,10 +12,8 @@ import type { FinancialGoal } from '../../helpers/financial-goals'
 import type { ExtendedSavedConfiguration, SimulationData } from './helpers/config-types'
 import { createDefaultConfiguration } from './helpers/default-config'
 import { useSimulationState } from './hooks/useSimulationState'
-import { useConfigurationManagement } from './hooks/useConfigurationManagement'
-import { useSimulationExecution } from './hooks/useSimulationExecution'
-import { useSimulationEffects } from './hooks/useSimulationEffects'
 import { useInitialConfiguration } from './hooks/useInitialConfiguration'
+import { useSimulationOrchestration } from './hooks/useSimulationOrchestration'
 
 export interface SimulationContextState {
   rendite: number
@@ -193,7 +191,7 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     sparplan, setSparplan,
     simulationAnnual, setSimulationAnnual,
     sparplanElemente, setSparplanElemente,
-    endOfLife, setEndOfLife,
+    endOfLife,
     lifeExpectancyTable, setLifeExpectancyTable,
     customLifeExpectancy, setCustomLifeExpectancy,
     planningMode, setPlanningMode,
@@ -202,8 +200,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     birthYear, setBirthYear,
     expectedLifespan, setExpectedLifespan,
     useAutomaticCalculation, setUseAutomaticCalculation,
-    simulationData, setSimulationData,
-    isLoading, setIsLoading,
+    simulationData,
+    isLoading,
     withdrawalResults, setWithdrawalResults,
     withdrawalConfig, setWithdrawalConfig,
     statutoryPensionConfig, setStatutoryPensionConfig,
@@ -212,68 +210,19 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     financialGoals, setFinancialGoals,
   } = state
 
-  // Configuration management using custom hook
-  const configState = {
-    rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration,
-    steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv, grundfreibetragBetrag, personalTaxRate, guenstigerPruefungAktiv,
-    kirchensteuerAktiv, kirchensteuersatz, returnMode, averageReturn, standardDeviation,
-    randomSeed, variableReturns, historicalIndex, inflationAktivSparphase, inflationsrateSparphase,
-    inflationAnwendungSparphase, startEnd, sparplan, simulationAnnual, endOfLife, lifeExpectancyTable,
-    customLifeExpectancy, planningMode, gender, spouse, birthYear, expectedLifespan,
-    useAutomaticCalculation, withdrawalConfig, statutoryPensionConfig, coupleStatutoryPensionConfig,
-    careCostConfiguration, financialGoals,
-  }
-
-  const configSetters = {
-    setRendite, setSteuerlast, setTeilfreistellungsquote, setFreibetragPerYear,
-    setBasiszinsConfiguration, setSteuerReduzierenEndkapitalSparphase,
-    setSteuerReduzierenEndkapitalEntspharphase, setGrundfreibetragAktiv,
-    setGrundfreibetragBetrag, setPersonalTaxRate, setGuenstigerPruefungAktiv,
-    setKirchensteuerAktiv, setKirchensteuersatz, setReturnMode, setAverageReturn,
-    setStandardDeviation, setRandomSeed, setVariableReturns, setHistoricalIndex,
-    setInflationAktivSparphase, setInflationsrateSparphase, setInflationAnwendungSparphase,
-    setStartEnd, setSparplan, setSimulationAnnual, setSparplanElemente, setEndOfLife,
-    setLifeExpectancyTable, setCustomLifeExpectancy, setPlanningMode, setGender,
-    setSpouse, setBirthYear, setExpectedLifespan, setUseAutomaticCalculation,
-    setWithdrawalConfig, setStatutoryPensionConfig, setCoupleStatutoryPensionConfig,
-    setCareCostConfiguration, setFinancialGoals,
-  }
+  // Use orchestration hook to manage configuration, simulation, and effects
+  const {
+    configManagement,
+    performSimulation,
+    setEndOfLifeRounded,
+  } = useSimulationOrchestration(defaultConfig, state)
 
   const {
     getCurrentConfiguration,
     saveCurrentConfiguration,
     loadSavedConfiguration,
     resetToDefaults,
-  } = useConfigurationManagement(
-    defaultConfig,
-    configState,
-    configSetters,
-  )
-
-  // Simulation execution using custom hook
-  const simulationState = {
-    rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns,
-    historicalIndex, blackSwanReturns, inflationScenarioRates, inflationScenarioReturnModifiers,
-    multiAssetConfig, simulationAnnual, sparplanElemente, startEnd, steuerlast,
-    teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration,
-    steuerReduzierenEndkapitalSparphase, inflationAktivSparphase, inflationsrateSparphase,
-    inflationAnwendungSparphase, guenstigerPruefungAktiv, personalTaxRate,
-  }
-
-  const { performSimulation } = useSimulationExecution(simulationState, setIsLoading, setSimulationData)
-
-  // Side effects using custom hook
-  const effectsState = {
-    endOfLife, planningMode, freibetragPerYear, coupleStatutoryPensionConfig, careCostConfiguration,
-  }
-
-  const effectsSetters = {
-    setStartEnd, setFreibetragPerYear, setCoupleStatutoryPensionConfig,
-    setCareCostConfiguration, setEndOfLife,
-  }
-
-  const { setEndOfLifeRounded } = useSimulationEffects(effectsState, effectsSetters, saveCurrentConfiguration)
+  } = configManagement
 
   const value = useMemo(() => ({
     rendite, setRendite,
