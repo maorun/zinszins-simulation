@@ -9,21 +9,9 @@ import { useHealthCareInsuranceHandlers } from '../hooks/useHealthCareInsuranceH
 import type { SparplanElement } from '../utils/sparplan-utils'
 import CalculationExplanationModal from './CalculationExplanationModal'
 import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
-import { HealthCareInsuranceConfiguration } from './HealthCareInsuranceConfiguration'
-import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
-import { WithdrawalModeSelector } from './WithdrawalModeSelector'
+import { WithdrawalVariablesCard } from './WithdrawalVariablesCard'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
-import { WithdrawalSegmentForm } from './WithdrawalSegmentForm'
-import { ComparisonStrategyConfiguration } from './ComparisonStrategyConfiguration'
-import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
-import { SingleStrategyConfigSection } from './SingleStrategyConfigSection'
-import {
-  handleWithdrawalModeChange,
-  handleAddComparisonStrategy,
-  handleRemoveComparisonStrategy,
-} from './withdrawal-mode-helpers'
-import { buildHealthCareInsuranceValues } from './health-care-insurance-values-builder'
 
 export function EntnahmeSimulationsAusgabe({
   startEnd,
@@ -129,104 +117,62 @@ export function EntnahmeSimulationsAusgabe({
 
   return (
     <div className="space-y-4">
-      <CollapsibleCard>
-        <CollapsibleCardHeader>Variablen</CollapsibleCardHeader>
-        <CollapsibleCardContent>
-          {/* Other Income Sources Configuration */}
-          <OtherIncomeConfigurationComponent
-            config={currentConfig.otherIncomeConfig || { enabled: false, sources: [] }}
-            onChange={otherIncomeConfig => updateConfig({ otherIncomeConfig })}
-          />
-
-          {/* Toggle between single, segmented, and comparison withdrawal */}
-          <WithdrawalModeSelector
-            useSegmentedWithdrawal={useSegmentedWithdrawal}
-            useComparisonMode={useComparisonMode}
-            useSegmentedComparisonMode={useSegmentedComparisonMode}
-            onModeChange={mode =>
-              handleWithdrawalModeChange({
-                mode,
-                withdrawalSegments,
-                startOfIndependence,
-                globalEndOfLife,
-                updateConfig,
-              })}
-          />
-
-          {useSegmentedWithdrawal ? (
-            <WithdrawalSegmentForm
-              segments={withdrawalSegments}
-              onSegmentsChange={segments => updateConfig({ withdrawalSegments: segments })}
-              withdrawalStartYear={startOfIndependence + 1}
-              withdrawalEndYear={globalEndOfLife}
-            />
-          ) : useComparisonMode ? (
-            <ComparisonStrategyConfiguration
-              formValue={formValue}
-              comparisonStrategies={comparisonStrategies}
-              onUpdateFormValue={updateFormValue}
-              onUpdateComparisonStrategy={updateComparisonStrategy}
-              onAddComparisonStrategy={() =>
-                handleAddComparisonStrategy({
-                  comparisonStrategies,
-                  updateConfig,
-                })}
-              onRemoveComparisonStrategy={id =>
-                handleRemoveComparisonStrategy({
-                  id,
-                  comparisonStrategies,
-                  updateConfig,
-                })}
-            />
-          ) : useSegmentedComparisonMode ? (
-            <SegmentedComparisonConfiguration
-              segmentedComparisonStrategies={segmentedComparisonStrategies}
-              withdrawalStartYear={startOfIndependence + 1}
-              withdrawalEndYear={globalEndOfLife}
-              onAddStrategy={addSegmentedComparisonStrategy}
-              onUpdateStrategy={updateSegmentedComparisonStrategy}
-              onRemoveStrategy={removeSegmentedComparisonStrategy}
-            />
-          ) : (
-            <SingleStrategyConfigSection
-              formValue={formValue}
-              startOfIndependence={startOfIndependence}
-              globalEndOfLife={globalEndOfLife}
-              withdrawalReturnMode={withdrawalReturnMode}
-              withdrawalAverageReturn={withdrawalAverageReturn}
-              withdrawalStandardDeviation={withdrawalStandardDeviation}
-              withdrawalRandomSeed={withdrawalRandomSeed}
-              withdrawalVariableReturns={withdrawalVariableReturns}
-              withdrawalMultiAssetConfig={withdrawalMultiAssetConfig}
-              onConfigUpdate={updateConfig}
-              onFormValueUpdate={updateFormValue}
-              onStrategyChange={() => {}}
-              onWithdrawalMultiAssetConfigChange={setWithdrawalMultiAssetConfig}
-              dispatchEnd={dispatchEnd}
-            />
-          )}
-
-          {/* Health Care Insurance Configuration - Available in all withdrawal modes */}
-          <div className="mb-6">
-            <HealthCareInsuranceConfiguration
-              {...buildHealthCareInsuranceValues({
-                formValue,
-                planningMode,
-                startOfIndependence,
-                birthYear,
-                spouseBirthYear: spouse?.birthYear,
-              })}
-              onChange={healthCareInsuranceHandlers}
-              currentWithdrawalAmount={
-                withdrawalData && withdrawalData.withdrawalArray.length > 0
-                  ? withdrawalData.withdrawalArray[withdrawalData.withdrawalArray.length - 1].entnahme
-                  : undefined
-              }
-            />
-          </div>
-
-        </CollapsibleCardContent>
-      </CollapsibleCard>
+      <WithdrawalVariablesCard
+        otherIncomeConfig={currentConfig.otherIncomeConfig}
+        onOtherIncomeConfigChange={otherIncomeConfig => updateConfig({ otherIncomeConfig })}
+        useSegmentedWithdrawal={useSegmentedWithdrawal}
+        useComparisonMode={useComparisonMode}
+        useSegmentedComparisonMode={useSegmentedComparisonMode}
+        withdrawalSegments={withdrawalSegments}
+        onWithdrawalSegmentsChange={segments => updateConfig({ withdrawalSegments: segments })}
+        formValue={formValue}
+        comparisonStrategies={comparisonStrategies}
+        onFormValueUpdate={updateFormValue}
+        onComparisonStrategyUpdate={updateComparisonStrategy}
+        onComparisonStrategyAdd={() => {
+          const newId = `strategy${comparisonStrategies.length + 1}`
+          updateConfig({
+            comparisonStrategies: [
+              ...comparisonStrategies,
+              {
+                id: newId,
+                name: `Strategy ${comparisonStrategies.length + 1}`,
+                strategie: '4prozent' as const,
+                rendite: 5,
+              },
+            ],
+          })
+        }}
+        onComparisonStrategyRemove={(id) => {
+          updateConfig({
+            comparisonStrategies: comparisonStrategies.filter(s => s.id !== id),
+          })
+        }}
+        segmentedComparisonStrategies={segmentedComparisonStrategies}
+        onSegmentedComparisonStrategyAdd={addSegmentedComparisonStrategy}
+        onSegmentedComparisonStrategyUpdate={updateSegmentedComparisonStrategy}
+        onSegmentedComparisonStrategyRemove={removeSegmentedComparisonStrategy}
+        withdrawalReturnMode={withdrawalReturnMode}
+        withdrawalAverageReturn={withdrawalAverageReturn}
+        withdrawalStandardDeviation={withdrawalStandardDeviation}
+        withdrawalRandomSeed={withdrawalRandomSeed}
+        withdrawalVariableReturns={withdrawalVariableReturns}
+        withdrawalMultiAssetConfig={withdrawalMultiAssetConfig}
+        onWithdrawalMultiAssetConfigChange={config => setWithdrawalMultiAssetConfig(config!)}
+        onConfigUpdate={updateConfig}
+        dispatchEnd={dispatchEnd}
+        startOfIndependence={startOfIndependence}
+        globalEndOfLife={globalEndOfLife}
+        planningMode={planningMode}
+        birthYear={birthYear}
+        spouseBirthYear={spouse?.birthYear}
+        currentWithdrawalAmount={
+          withdrawalData && withdrawalData.withdrawalArray.length > 0
+            ? withdrawalData.withdrawalArray[withdrawalData.withdrawalArray.length - 1].entnahme
+            : undefined
+        }
+        onHealthCareInsuranceChange={healthCareInsuranceHandlers}
+      />
       <CollapsibleCard>
         <CollapsibleCardHeader className="text-left">Simulation</CollapsibleCardHeader>
         <CollapsibleCardContent>
