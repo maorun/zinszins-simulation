@@ -17,17 +17,17 @@ describe('BasicCareCostFields', () => {
   describe('Start Year Field', () => {
     it('should render start year input with current value', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       const input = screen.getByLabelText('Startjahr der Pflegebedürftigkeit')
       expect(input).toHaveValue(defaultProps.values.startYear)
     })
 
     it('should call onChange when start year changes', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       const input = screen.getByLabelText('Startjahr der Pflegebedürftigkeit')
       fireEvent.change(input, { target: { value: '2030' } })
-      
+
       expect(defaultProps.onChange).toHaveBeenCalledWith({
         ...defaultProps.values,
         startYear: 2030,
@@ -36,7 +36,7 @@ describe('BasicCareCostFields', () => {
 
     it('should show help text for start year', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       expect(screen.getByText('Jahr, in dem Pflegebedürftigkeit erwartet wird')).toBeInTheDocument()
     })
   })
@@ -44,24 +44,24 @@ describe('BasicCareCostFields', () => {
   describe('Custom Monthly Costs Field', () => {
     it('should render custom monthly costs input', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       const input = screen.getByLabelText('Individuelle monatliche Pflegekosten (optional)')
       expect(input).toBeInTheDocument()
     })
 
     it('should show empty value when no custom costs set', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       const input = screen.getByLabelText('Individuelle monatliche Pflegekosten (optional)')
       expect(input).toHaveValue(null)
     })
 
     it('should call onChange when custom costs change', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       const input = screen.getByLabelText('Individuelle monatliche Pflegekosten (optional)')
       fireEvent.change(input, { target: { value: '1500' } })
-      
+
       expect(defaultProps.onChange).toHaveBeenCalledWith({
         ...defaultProps.values,
         customMonthlyCosts: 1500,
@@ -74,10 +74,10 @@ describe('BasicCareCostFields', () => {
         values: { ...defaultProps.values, customMonthlyCosts: 1500 },
       }
       render(<BasicCareCostFields {...propsWithCustomCosts} />)
-      
+
       const input = screen.getByLabelText('Individuelle monatliche Pflegekosten (optional)')
       fireEvent.change(input, { target: { value: '' } })
-      
+
       expect(defaultProps.onChange).toHaveBeenCalledWith({
         ...defaultProps.values,
         customMonthlyCosts: undefined,
@@ -86,14 +86,14 @@ describe('BasicCareCostFields', () => {
 
     it('should show placeholder with standard cost', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       const input = screen.getByLabelText('Individuelle monatliche Pflegekosten (optional)')
       expect(input).toHaveAttribute('placeholder', expect.stringContaining('Standard:'))
     })
 
     it('should show help text with care level name', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       expect(screen.getByText(/Überschreibt die typischen Kosten für/)).toBeInTheDocument()
     })
   })
@@ -101,17 +101,17 @@ describe('BasicCareCostFields', () => {
   describe('Care Duration Field', () => {
     it('should render care duration input with current value', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       const input = screen.getByLabelText('Pflegedauer (Jahre, 0 = bis Lebensende)')
       expect(input).toHaveValue(defaultProps.values.careDurationYears)
     })
 
     it('should call onChange when care duration changes', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       const input = screen.getByLabelText('Pflegedauer (Jahre, 0 = bis Lebensende)')
       fireEvent.change(input, { target: { value: '5' } })
-      
+
       expect(defaultProps.onChange).toHaveBeenCalledWith({
         ...defaultProps.values,
         careDurationYears: 5,
@@ -120,7 +120,7 @@ describe('BasicCareCostFields', () => {
 
     it('should show "bis Lebensende" text when duration is 0', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       expect(screen.getByText('Pflegebedürftigkeit bis zum Lebensende')).toBeInTheDocument()
     })
 
@@ -130,7 +130,7 @@ describe('BasicCareCostFields', () => {
         values: { ...defaultProps.values, careDurationYears: 5 },
       }
       render(<BasicCareCostFields {...propsWithDuration} />)
-      
+
       expect(screen.getByText('Pflegebedürftigkeit für 5 Jahre')).toBeInTheDocument()
     })
   })
@@ -138,7 +138,7 @@ describe('BasicCareCostFields', () => {
   describe('Integration', () => {
     it('should render all three fields together', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       expect(screen.getByLabelText('Startjahr der Pflegebedürftigkeit')).toBeInTheDocument()
       expect(screen.getByLabelText('Individuelle monatliche Pflegekosten (optional)')).toBeInTheDocument()
       expect(screen.getByLabelText('Pflegedauer (Jahre, 0 = bis Lebensende)')).toBeInTheDocument()
@@ -146,10 +146,10 @@ describe('BasicCareCostFields', () => {
 
     it('should handle multiple onChange calls correctly', () => {
       render(<BasicCareCostFields {...defaultProps} />)
-      
+
       fireEvent.change(screen.getByLabelText('Startjahr der Pflegebedürftigkeit'), { target: { value: '2030' } })
       fireEvent.change(screen.getByLabelText('Pflegedauer (Jahre, 0 = bis Lebensende)'), { target: { value: '10' } })
-      
+
       expect(defaultProps.onChange).toHaveBeenCalledTimes(2)
     })
   })
