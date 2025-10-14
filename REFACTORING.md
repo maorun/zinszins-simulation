@@ -163,12 +163,15 @@ export function formatAssetAllocation(assets: AssetClass[]) {
 
 #### 1.2 StatutoryPensionConfiguration (398 Zeilen)
 
-- **Status**: 📋 Geplant
+- **Status**: ✅ Abgeschlossen
 - **Extraktionen**:
-  - [ ] `PensionInputForm` - Eingabeformular
-  - [ ] `PensionPreview` - Vorschau der Rentenberechnung
-  - [ ] `usePensionCalculations` - Berechnungslogik
-  - [ ] Validierungs-Utilities
+  - [x] `PensionInputForm` - Eingabeformular (320 Zeilen, 10 Tests)
+  - [x] `usePensionCalculations` - Berechnungslogik (72 Zeilen, 7 Tests)
+  - [x] `PensionSummary` - Vorschau (bereits vorhanden, 47 Zeilen)
+- **Tests**: 32 Tests für Pension Configuration (17 neue Tests)
+- **Endergebnis**: 673 Zeilen gesamt (von 938 → -265 Zeilen / -28%)
+  - StatutoryPensionConfiguration function: ~140 Zeilen (von 399 → -259 Zeilen / -65%)
+- **Ziel erreicht**: ✅ Weit unter 300 Zeilen (140 Zeilen)
 
 #### 1.3 WithdrawalComparisonDisplay (365 Zeilen)
 
@@ -241,10 +244,10 @@ Für jedes Refactoring:
 
 ## Fortschritt-Tracking
 
-### Phase 1 - Fortschritt: 1/3 (33%)
+### Phase 1 - Fortschritt: 2/3 (67%)
 
 - [x] MultiAssetPortfolioConfiguration (422 → 270 Zeilen, -36%)
-- [ ] StatutoryPensionConfiguration  
+- [x] StatutoryPensionConfiguration (938 → 673 Zeilen, -28%; Hauptfunktion 399 → 140 Zeilen, -65%)
 - [ ] WithdrawalComparisonDisplay
 
 ### Phase 2 - Fortschritt: 0/13 (0%)
