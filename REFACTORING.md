@@ -196,6 +196,16 @@ Komponenten: EventFormFields, RiskAssessment, SparplanSimulationsAusgabe, calcul
 
 Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 
+#### 3.1 SimulationProvider (248 Zeilen)
+
+- **Status**: ✅ Abgeschlossen
+- **Extraktionen**:
+  - [x] `useInitialConfiguration` - Initiale Konfiguration laden (Hook, 31 Zeilen, 5 Tests)
+  - [x] `useSimulationOrchestration` - Orchestrierung von Config Management, Simulation und Effects (Hook, 130 Zeilen, 6 Tests)
+- **Tests**: 11 neue Tests für extrahierte Hooks (5 + 6)
+- **Endergebnis**: 178 Zeilen (von 248 → -70 Zeilen / -28%)
+- **Ziel erreicht**: ✅ Unter 200 Zeilen (178 Zeilen)
+
 ### Phase 4: ESLint-Limits Progressive Verschärfung
 
 Nach Abschluss der Refactorings:
@@ -269,12 +279,12 @@ Für jedes Refactoring:
 - [ ] DataExport
 - [ ] OtherIncomeSourceFormEditor
 
-### Phase 3 - Fortschritt: 0/12 (0%)
+### Phase 3 - Fortschritt: 1/12 (8%)
 
+- [x] SimulationProvider (248 → 178 Zeilen, -28%)
 - [ ] HomePageContent
 - [ ] EnhancedOverview
 - [ ] InteractiveChart
-- [ ] SimulationProvider
 - [ ] EntnahmeSimulationsAusgabe
 - [ ] SegmentedWithdrawalComparisonDisplay
 - [ ] CareCostConfiguration
