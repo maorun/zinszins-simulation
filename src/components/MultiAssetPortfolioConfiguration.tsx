@@ -13,6 +13,7 @@ import {
   createDefaultMultiAssetConfig,
   validateMultiAssetConfig,
 } from '../../helpers/multi-asset-portfolio'
+import { AssetClassEditor } from './multi-asset/AssetClassEditor'
 
 /** Information section component for multi-asset portfolio hints */
 function MultiAssetInfoSection() {
@@ -262,99 +263,16 @@ export function MultiAssetPortfolioConfiguration({
 
                 {Object.entries(DEFAULT_ASSET_CLASSES).map(([assetClass, defaultConfig]) => {
                   const currentConfig = safeValues.assetClasses[assetClass as AssetClass]
-                  const isEnabled = currentConfig.enabled
 
                   return (
-                    <div
+                    <AssetClassEditor
                       key={assetClass}
-                      className={`p-4 border rounded-md ${
-                        isEnabled ? 'border-blue-200 bg-blue-50' : 'border-gray-200'
-                      }`}
-                    >
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex-1">
-                          <div className="flex items-center gap-2 mb-1">
-                            <Switch
-                              checked={isEnabled}
-                              onCheckedChange={enabled =>
-                                handleAssetClassChange(assetClass as AssetClass, { enabled })}
-                            />
-                            <Label className="text-sm font-medium">
-                              {defaultConfig.name}
-                            </Label>
-                          </div>
-                          <p className="text-xs text-gray-600">
-                            {defaultConfig.description}
-                          </p>
-                        </div>
-                      </div>
-
-                      {isEnabled && (
-                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                          {/* Target Allocation */}
-                          <div className="space-y-2">
-                            <Label className="text-xs font-medium text-gray-700">
-                              Zielallokation:
-                              {' '}
-                              {(currentConfig.targetAllocation * 100).toFixed(1)}
-                              %
-                            </Label>
-                            <Slider
-                              value={[currentConfig.targetAllocation * 100]}
-                              onValueChange={([value]) =>
-                                handleAssetClassChange(assetClass as AssetClass, {
-                                  targetAllocation: value / 100,
-                                })}
-                              max={100}
-                              step={1}
-                              className="w-full"
-                            />
-                          </div>
-
-                          {/* Expected Return */}
-                          <div className="space-y-2">
-                            <Label className="text-xs font-medium text-gray-700">
-                              Erwartete Rendite:
-                              {' '}
-                              {(currentConfig.expectedReturn * 100).toFixed(1)}
-                              %
-                            </Label>
-                            <Slider
-                              value={[currentConfig.expectedReturn * 100]}
-                              onValueChange={([value]) =>
-                                handleAssetClassChange(assetClass as AssetClass, {
-                                  expectedReturn: value / 100,
-                                })}
-                              min={-10}
-                              max={20}
-                              step={0.5}
-                              className="w-full"
-                            />
-                          </div>
-
-                          {/* Volatility */}
-                          <div className="space-y-2">
-                            <Label className="text-xs font-medium text-gray-700">
-                              Volatilität:
-                              {' '}
-                              {(currentConfig.volatility * 100).toFixed(1)}
-                              %
-                            </Label>
-                            <Slider
-                              value={[currentConfig.volatility * 100]}
-                              onValueChange={([value]) =>
-                                handleAssetClassChange(assetClass as AssetClass, {
-                                  volatility: value / 100,
-                                })}
-                              min={0}
-                              max={50}
-                              step={1}
-                              className="w-full"
-                            />
-                          </div>
-                        </div>
-                      )}
-                    </div>
+                      assetClass={assetClass as AssetClass}
+                      name={defaultConfig.name}
+                      description={defaultConfig.description}
+                      config={currentConfig}
+                      onChange={handleAssetClassChange}
+                    />
                   )
                 })}
               </div>

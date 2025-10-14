@@ -3,6 +3,7 @@
 ## Zielsetzung
 
 Die ESLint-Konfiguration definiert aktuell folgende Warngrenzen:
+
 - **complexity**: 25 (Ziel: 8 für neuen Code)
 - **max-lines-per-function**: 400 Zeilen (Ziel: 50 für neuen Code)
 - **max-depth**: 5 Verschachtelungsebenen
@@ -16,6 +17,7 @@ Dieses Dokument beschreibt den schrittweisen Plan, um die Codequalität zu verbe
 Die Analyse hat 28 Funktionen identifiziert, die mehr als 200 Zeilen haben:
 
 #### Hohe Priorität (>300 Zeilen) - 16 Funktionen
+
 1. `src/components/MultiAssetPortfolioConfiguration.tsx:46` - 422 Zeilen
 2. `src/components/StatutoryPensionConfiguration.tsx:540` - 398 Zeilen
 3. `src/components/WithdrawalComparisonDisplay.tsx:53` - 365 Zeilen
@@ -34,6 +36,7 @@ Die Analyse hat 28 Funktionen identifiziert, die mehr als 200 Zeilen haben:
 16. `src/components/other-income/OtherIncomeSourceFormEditor.tsx:27` - 263 Zeilen
 
 #### Mittlere Priorität (200-300 Zeilen) - 12 Funktionen
+
 17. `src/pages/HomePage.tsx:279` - 258 Zeilen
 18. `src/pages/HomePage.tsx:23` - 254 Zeilen
 19. `src/components/InteractiveChart.tsx:152` - 249 Zeilen
@@ -82,6 +85,7 @@ Gemäß `.github/copilot-instructions.md`:
 **Wann anwenden**: Komponenten mit >300 Zeilen
 
 **Vorgehensweise**:
+
 ```typescript
 // Vorher: Große Komponente mit allem gemischt
 export function LargeComponent() {
@@ -108,6 +112,7 @@ export function LargeComponent() {
 **Wann anwenden**: Komplexe State-Verwaltung oder Berechnungslogik
 
 **Beispiel**:
+
 ```typescript
 // useComponentConfig.ts
 export function useComponentConfig(initialConfig) {
@@ -126,6 +131,7 @@ export function useComponentConfig(initialConfig) {
 **Wann anwenden**: Wiederholte Formatierungs- oder Validierungslogik
 
 **Beispiel**:
+
 ```typescript
 // utils/formatting.ts
 export function formatAssetAllocation(assets: AssetClass[]) {
@@ -143,17 +149,20 @@ export function formatAssetAllocation(assets: AssetClass[]) {
 **Ziel**: Komponenten mit >400 Zeilen auf <300 Zeilen reduzieren
 
 #### 1.1 MultiAssetPortfolioConfiguration (422 Zeilen)
+
 - **Status**: ⏳ In Arbeit
 - **Extraktionen**:
-  - [ ] `MultiAssetInfoSection` (bereits extrahiert)
-  - [ ] `AssetClassEditor` - Editor für einzelne Asset-Klassen
+  - [x] `MultiAssetInfoSection` (bereits extrahiert)
+  - [x] `AssetClassEditor` - Editor für einzelne Asset-Klassen (119 Zeilen, 4 Tests)
   - [ ] `AssetAllocationSummary` - Zusammenfassung der Allokation
-  - [ ] `useMultiAssetConfig` - Hook für Konfigurationsmanagement
-  - [ ] `validateAllocation` - Utility für Allokationsvalidierung
+  - [ ] `RebalancingConfiguration` - Rebalancing-Konfiguration
+  - [ ] `AdvancedSimulationSettings` - Erweiterte Simulations-Einstellungen
 - **Tests**: Nach jeder Extraktion ausführen
-- **Ziel**: <200 Zeilen pro Komponente/Hook
+- **Aktueller Stand**: 379 Zeilen (von 422 → -43 Zeilen / -10%)
+- **Ziel**: <200 Zeilen für Hauptkomponente
 
 #### 1.2 StatutoryPensionConfiguration (398 Zeilen)
+
 - **Status**: 📋 Geplant
 - **Extraktionen**:
   - [ ] `PensionInputForm` - Eingabeformular
@@ -162,6 +171,7 @@ export function formatAssetAllocation(assets: AssetClass[]) {
   - [ ] Validierungs-Utilities
 
 #### 1.3 WithdrawalComparisonDisplay (365 Zeilen)
+
 - **Status**: 📋 Geplant
 - **Extraktionen**:
   - [ ] `ComparisonTable` - Vergleichstabelle
@@ -185,18 +195,21 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 Nach Abschluss der Refactorings:
 
 **Schritt 4.1**: Limits auf 300/20 setzen
+
 ```javascript
 'complexity': ['warn', 20],
 'max-lines-per-function': ['warn', { max: 300, skipBlankLines: true, skipComments: true }]
 ```
 
 **Schritt 4.2**: Limits auf 200/15 setzen
+
 ```javascript
 'complexity': ['warn', 15],
 'max-lines-per-function': ['warn', { max: 200, skipBlankLines: true, skipComments: true }]
 ```
 
 **Schritt 4.3**: Zielmarke erreichen
+
 ```javascript
 'complexity': ['warn', 8],
 'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true, skipComments: true }]
@@ -229,11 +242,13 @@ Für jedes Refactoring:
 ## Fortschritt-Tracking
 
 ### Phase 1 - Fortschritt: 0/3 (0%)
+
 - [ ] MultiAssetPortfolioConfiguration
 - [ ] StatutoryPensionConfiguration  
 - [ ] WithdrawalComparisonDisplay
 
 ### Phase 2 - Fortschritt: 0/13 (0%)
+
 - [ ] EventFormFields
 - [ ] RiskAssessment
 - [ ] SparplanSimulationsAusgabe
@@ -249,6 +264,7 @@ Für jedes Refactoring:
 - [ ] OtherIncomeSourceFormEditor
 
 ### Phase 3 - Fortschritt: 0/12 (0%)
+
 - [ ] HomePageContent
 - [ ] EnhancedOverview
 - [ ] InteractiveChart
@@ -263,6 +279,7 @@ Für jedes Refactoring:
 - [ ] HealthInsuranceCostPreview
 
 ### Phase 4 - ESLint-Limits: 0/3 (0%)
+
 - [ ] Limits auf 300/20
 - [ ] Limits auf 200/15
 - [ ] Limits auf 50/8 (Zielmarke)
