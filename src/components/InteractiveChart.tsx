@@ -1,9 +1,4 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { Button } from './ui/button'
-import { Switch } from './ui/switch'
-import { Label } from './ui/label'
-import { ChevronDown } from 'lucide-react'
 import {
   Line,
   XAxis,
@@ -19,6 +14,7 @@ import {
 import type { SimulationResult } from '../utils/simulate'
 import { useState } from 'react'
 import { ChartTooltip } from './chart/ChartTooltip'
+import { ChartControls, type ChartView } from './chart/ChartControls'
 
 interface ChartDataPoint {
   year: number
@@ -38,8 +34,6 @@ interface InteractiveChartProps {
   showRealValues?: boolean
   className?: string
 }
-
-type ChartView = 'overview' | 'detailed'
 
 /**
  * Convert simulation result to chart data format
@@ -117,56 +111,14 @@ export function InteractiveChart({
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Interactive Controls in Collapsible Section */}
-        <Collapsible>
-          <CollapsibleTrigger asChild>
-            <Button variant="outline" className="w-full justify-between">
-              🎛️ Chart-Einstellungen
-              <ChevronDown className="h-4 w-4" />
-            </Button>
-          </CollapsibleTrigger>
-          <CollapsibleContent className="space-y-4 pt-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="inflation-adjusted"
-                  checked={showInflationAdjusted}
-                  onCheckedChange={setShowInflationAdjusted}
-                />
-                <Label htmlFor="inflation-adjusted" className="text-sm">
-                  Real (inflationsbereinigt)
-                </Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Switch
-                  id="show-taxes"
-                  checked={showTaxes}
-                  onCheckedChange={setShowTaxes}
-                />
-                <Label htmlFor="show-taxes" className="text-sm">
-                  Steuern anzeigen
-                </Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Button
-                  variant={chartView === 'overview' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setChartView('overview')}
-                >
-                  Übersicht
-                </Button>
-                <Button
-                  variant={chartView === 'detailed' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setChartView('detailed')}
-                >
-                  Detail
-                </Button>
-              </div>
-            </div>
-          </CollapsibleContent>
-        </Collapsible>
+        <ChartControls
+          showInflationAdjusted={showInflationAdjusted}
+          onShowInflationAdjustedChange={setShowInflationAdjusted}
+          showTaxes={showTaxes}
+          onShowTaxesChange={setShowTaxes}
+          chartView={chartView}
+          onChartViewChange={setChartView}
+        />
 
         {/* Chart Container */}
         <div className={`w-full ${chartView === 'detailed' ? 'h-[500px]' : 'h-96'}`}>
