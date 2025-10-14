@@ -17,6 +17,7 @@ import { SimulationProvider } from '../contexts/SimulationContext'
 import { NavigationProvider } from '../contexts/NavigationContext'
 import { useSimulation } from '../contexts/useSimulation'
 import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
+import { calculateWithdrawalEndYear } from '../utils/overview-calculations'
 import { convertSparplanToElements, type Sparplan } from '../utils/sparplan-utils'
 import type { FinancialScenario } from '../data/scenarios'
 
@@ -63,22 +64,12 @@ function EnhancedOverview() {
   )
   const savingsEndYear = startEnd[0]
 
-  // Calculate proper withdrawal end year (same logic as StickyBottomOverview)
-  let withdrawalEndYear = endOfLife || startEnd[1] // Use global end of life or fall back to startEnd[1]
-
-  // If we have segmented withdrawal, use the actual end year from segments
-  if (enhancedSummary.isSegmentedWithdrawal
-    && enhancedSummary.withdrawalSegments
-    && enhancedSummary.withdrawalSegments.length > 0) {
-    // Find the latest end year from all segments
-    const segmentEndYears = enhancedSummary.withdrawalSegments
-      .map(segment => segment.endYear)
-      .filter(year => typeof year === 'number' && !isNaN(year))
-
-    if (segmentEndYears.length > 0) {
-      withdrawalEndYear = Math.max(...segmentEndYears)
-    }
-  }
+  // Calculate proper withdrawal end year using utility function
+  const withdrawalEndYear = calculateWithdrawalEndYear(
+    enhancedSummary,
+    endOfLife,
+    startEnd[1],
+  )
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
