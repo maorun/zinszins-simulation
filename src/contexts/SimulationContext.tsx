@@ -4,11 +4,7 @@ import type { Sparplan, SparplanElement } from '../utils/sparplan-utils'
 import type { SimulationAnnualType } from '../utils/simulate'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import { SimulationContext } from './SimulationContextValue'
-import { loadConfiguration, type SavedConfiguration, type WithdrawalConfiguration } from '../utils/config-storage'
-import {
-  initializeProfileStorage,
-  getActiveProfile,
-} from '../utils/profile-storage'
+import type { SavedConfiguration, WithdrawalConfiguration } from '../utils/config-storage'
 import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import type { StatutoryPensionConfig, CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import type { CareCostConfiguration } from '../../helpers/care-cost-simulation'
@@ -19,6 +15,7 @@ import { useSimulationState } from './hooks/useSimulationState'
 import { useConfigurationManagement } from './hooks/useConfigurationManagement'
 import { useSimulationExecution } from './hooks/useSimulationExecution'
 import { useSimulationEffects } from './hooks/useSimulationEffects'
+import { useInitialConfiguration } from './hooks/useInitialConfiguration'
 
 export interface SimulationContextState {
   rendite: number
@@ -150,25 +147,8 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   // Default configuration
   const defaultConfig = useMemo(() => createDefaultConfiguration(), [])
 
-  // Try to load saved configuration, initialize profiles if needed
-  const loadInitialConfig = () => {
-    // Try legacy configuration first
-    const legacyConfig = loadConfiguration()
-
-    // Initialize profile storage with legacy config if it exists
-    initializeProfileStorage(legacyConfig || undefined)
-
-    // Get active profile config if available
-    const activeProfile = getActiveProfile()
-    if (activeProfile) {
-      return activeProfile.configuration
-    }
-
-    // Fallback to legacy config or defaults
-    return legacyConfig || defaultConfig
-  }
-
-  const initialConfig = loadInitialConfig()
+  // Load initial configuration from storage or profiles
+  const initialConfig = useInitialConfiguration(defaultConfig)
   const extendedInitialConfig = initialConfig as ExtendedSavedConfiguration
 
   // Initialize all state using custom hook
