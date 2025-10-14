@@ -154,11 +154,11 @@ export function formatAssetAllocation(assets: AssetClass[]) {
 - **Extraktionen**:
   - [x] `MultiAssetInfoSection` (bereits extrahiert)
   - [x] `AssetClassEditor` - Editor für einzelne Asset-Klassen (119 Zeilen, 4 Tests)
-  - [ ] `AssetAllocationSummary` - Zusammenfassung der Allokation
+  - [x] `AssetAllocationSummary` - Portfolio-Übersicht und Validierung (70 Zeilen, 4 Tests)
   - [ ] `RebalancingConfiguration` - Rebalancing-Konfiguration
   - [ ] `AdvancedSimulationSettings` - Erweiterte Simulations-Einstellungen
 - **Tests**: Nach jeder Extraktion ausführen
-- **Aktueller Stand**: 379 Zeilen (von 422 → -43 Zeilen / -10%)
+- **Aktueller Stand**: 344 Zeilen (von 422 → -78 Zeilen / -18%)
 - **Ziel**: <200 Zeilen für Hauptkomponente
 
 #### 1.2 StatutoryPensionConfiguration (398 Zeilen)

@@ -14,6 +14,7 @@ import {
   validateMultiAssetConfig,
 } from '../../helpers/multi-asset-portfolio'
 import { AssetClassEditor } from './multi-asset/AssetClassEditor'
+import { AssetAllocationSummary } from './multi-asset/AssetAllocationSummary'
 
 /** Information section component for multi-asset portfolio hints */
 function MultiAssetInfoSection() {
@@ -75,7 +76,6 @@ export function MultiAssetPortfolioConfiguration({
   }
   // Validate configuration
   const validationErrors = validateMultiAssetConfig(safeValues)
-  const hasErrors = validationErrors.length > 0
   // Get enabled asset classes with safety check
   const enabledAssets = Object.entries(safeValues.assetClasses || {})
     .filter(([_, config]) => config && config.enabled)
@@ -194,45 +194,13 @@ export function MultiAssetPortfolioConfiguration({
 
           {safeValues.enabled && (
             <>
-              {/* Validation Errors */}
-              {hasErrors && (
-                <div className="p-3 bg-red-50 border border-red-200 rounded-md">
-                  <div className="flex items-start gap-2 text-red-800 text-sm">
-                    <Info className="h-4 w-4 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-medium mb-1">Konfigurationsfehler:</p>
-                      <ul className="list-disc list-inside space-y-1">
-                        {validationErrors.map((error, index) => (
-                          <li key={index}>{error}</li>
-                        ))}
-                      </ul>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* Portfolio Overview */}
-              {!hasErrors && enabledAssets.length > 0 && (
-                <div className="p-4 bg-blue-50 border border-blue-200 rounded-md">
-                  <h4 className="text-sm font-medium text-blue-900 mb-2">Portfolio-Übersicht</h4>
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div>
-                      <span className="text-blue-700">Erwartete Rendite:</span>
-                      <span className="font-medium ml-2">
-                        {(expectedPortfolioReturn * 100).toFixed(1)}
-                        %
-                      </span>
-                    </div>
-                    <div>
-                      <span className="text-blue-700">Portfoliorisiko:</span>
-                      <span className="font-medium ml-2">
-                        {(expectedPortfolioRisk * 100).toFixed(1)}
-                        %
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
+              {/* Portfolio Overview or Validation Errors */}
+              <AssetAllocationSummary
+                expectedReturn={expectedPortfolioReturn}
+                expectedRisk={expectedPortfolioRisk}
+                enabledAssetsCount={enabledAssets.length}
+                validationErrors={validationErrors}
+              />
 
               {/* Asset Classes Configuration */}
               <div className="space-y-4">
