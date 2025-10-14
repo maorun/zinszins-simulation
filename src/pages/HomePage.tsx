@@ -19,6 +19,7 @@ import { useSimulation } from '../contexts/useSimulation'
 import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
 import { convertSparplanToElements } from '../utils/sparplan-utils'
 import { useScenarioApplication } from '../hooks/useScenarioApplication'
+import { useReturnConfiguration } from '../hooks/useReturnConfiguration'
 
 function EnhancedOverview() {
   const {
@@ -333,38 +334,8 @@ const HomePageContent = () => {
     performSimulation,
   })
 
-  // Build ReturnConfiguration from context properties
-  const returnConfig = useMemo(() => {
-    const config: import('../utils/random-returns').ReturnConfiguration = { mode: returnMode }
-
-    switch (returnMode) {
-      case 'fixed':
-        config.fixedRate = rendite / 100
-        break
-      case 'random':
-        config.randomConfig = {
-          averageReturn: averageReturn / 100,
-          standardDeviation: standardDeviation / 100,
-          seed: randomSeed,
-        }
-        break
-      case 'variable':
-        config.variableConfig = {
-          yearlyReturns: variableReturns,
-        }
-        break
-      case 'historical':
-        config.historicalConfig = {
-          indexId: historicalIndex,
-        }
-        break
-      case 'multiasset':
-        config.multiAssetConfig = multiAssetConfig
-        break
-    }
-
-    return config
-  }, [
+  // Build ReturnConfiguration using custom hook
+  const returnConfig = useReturnConfiguration({
     returnMode,
     rendite,
     averageReturn,
@@ -373,7 +344,7 @@ const HomePageContent = () => {
     variableReturns,
     historicalIndex,
     multiAssetConfig,
-  ])
+  })
 
   useEffect(() => {
     performSimulation()
