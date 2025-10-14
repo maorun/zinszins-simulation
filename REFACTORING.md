@@ -290,14 +290,21 @@ Für jedes Refactoring:
 - [ ] DataExport
 - [ ] OtherIncomeSourceFormEditor
 
-### Phase 3 - Fortschritt: 3/12 (25%)
+### Phase 3 - Fortschritt: 4/12 (33%)
 
 - [x] SimulationProvider (248 → 178 Zeilen, -28%)
 - [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
 - [x] **EnhancedOverview (255 → 68 Zeilen, -73%)** ✅
 - [x] **InteractiveChart (249 → 132 lines, -47%)** ✅
+- [x] **SegmentedWithdrawalComparisonDisplay (298 → 76 Zeilen, -74.5%)** ✅
+  - **Ziel weit übertroffen!** (Ziel <200, erreicht 76 Zeilen)
+  - Extrahierte Komponenten:
+    - SegmentedComparisonBaseMetrics (51 Zeilen, 7 Tests)
+    - SegmentedComparisonCard (121 Zeilen, 11 Tests)
+    - SegmentedComparisonTable (88 Zeilen, 10 Tests)
+    - withdrawal-strategy-utils.ts (30 Zeilen, 10 Tests)
+  - **49 Tests total** (11 bestehend + 38 neue)
 - [ ] EntnahmeSimulationsAusgabe
-- [ ] SegmentedWithdrawalComparisonDisplay
 - [ ] CareCostConfiguration
 - [ ] EntnahmeSimulationDisplay
 - [ ] HistoricalReturnConfiguration
