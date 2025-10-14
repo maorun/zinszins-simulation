@@ -282,7 +282,7 @@ Für jedes Refactoring:
 ### Phase 3 - Fortschritt: 1/12 (8%)
 
 - [x] SimulationProvider (248 → 178 Zeilen, -28%)
-- [ ] HomePageContent
+- [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
 - [ ] EnhancedOverview
 - [ ] InteractiveChart
 - [ ] EntnahmeSimulationsAusgabe
