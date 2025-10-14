@@ -7,6 +7,8 @@ import { useWithdrawalCalculations } from '../hooks/useWithdrawalCalculations'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
 import { useWithdrawalModals } from '../hooks/useWithdrawalModals'
 import { useHealthCareInsuranceHandlers } from '../hooks/useHealthCareInsuranceHandlers'
+import { useWithdrawalEffects } from '../hooks/useWithdrawalEffects'
+import { extractWithdrawalConfigValues } from '../utils/withdrawal-config-helpers'
 import type { SparplanElement } from '../utils/sparplan-utils'
 import CalculationExplanationModal from './CalculationExplanationModal'
 import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
@@ -97,18 +99,20 @@ export function EntnahmeSimulationsAusgabe({
   )
 
   // Extract values from config for easier access
-  const formValue = currentConfig.formValue
-  const withdrawalReturnMode = currentConfig.withdrawalReturnMode
-  const withdrawalVariableReturns = currentConfig.withdrawalVariableReturns
-  const withdrawalAverageReturn = currentConfig.withdrawalAverageReturn
-  const withdrawalStandardDeviation = currentConfig.withdrawalStandardDeviation
-  const withdrawalRandomSeed = currentConfig.withdrawalRandomSeed
-  const useSegmentedWithdrawal = currentConfig.useSegmentedWithdrawal
-  const withdrawalSegments = currentConfig.withdrawalSegments
-  const useComparisonMode = currentConfig.useComparisonMode
-  const comparisonStrategies = currentConfig.comparisonStrategies
-  const useSegmentedComparisonMode = currentConfig.useSegmentedComparisonMode
-  const segmentedComparisonStrategies = currentConfig.segmentedComparisonStrategies
+  const {
+    formValue,
+    withdrawalReturnMode,
+    withdrawalVariableReturns,
+    withdrawalAverageReturn,
+    withdrawalStandardDeviation,
+    withdrawalRandomSeed,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
+    useComparisonMode,
+    comparisonStrategies,
+    useSegmentedComparisonMode,
+    segmentedComparisonStrategies,
+  } = extractWithdrawalConfigValues(currentConfig)
 
   // Use health care insurance handlers hook (after formValue is defined)
   const healthCareInsuranceHandlers = useHealthCareInsuranceHandlers(
@@ -116,25 +120,15 @@ export function EntnahmeSimulationsAusgabe({
     updateFormValue,
   )
 
-  // Notify parent component when withdrawal results change
-  useEffect(() => {
-    if (onWithdrawalResultsChange && withdrawalData) {
-      onWithdrawalResultsChange(withdrawalData.withdrawalResult)
-    }
-  }, [withdrawalData, onWithdrawalResultsChange])
-
-  // Update withdrawal segments when startOfIndependence changes (for segmented withdrawal)
-  useEffect(() => {
-    if (useSegmentedWithdrawal && withdrawalSegments.length > 0) {
-      const updatedSegments = withdrawalSegments.map((segment, index) =>
-        index === 0 ? { ...segment, startYear: startOfIndependence + 1 } : segment,
-      )
-
-      if (updatedSegments[0]?.startYear !== withdrawalSegments[0]?.startYear) {
-        updateConfig({ withdrawalSegments: updatedSegments })
-      }
-    }
-  }, [startOfIndependence, useSegmentedWithdrawal, withdrawalSegments, updateConfig])
+  // Handle side effects (notifications and segment updates)
+  useWithdrawalEffects({
+    onWithdrawalResultsChange,
+    withdrawalData,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
+    startOfIndependence,
+    updateConfig,
+  })
 
   return (
     <div className="space-y-4">
