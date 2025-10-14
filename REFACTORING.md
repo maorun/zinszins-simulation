@@ -207,7 +207,7 @@ Komponenten: EventFormFields, RiskAssessment, SparplanSimulationsAusgabe, calcul
 
 Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 
-#### 3.1 SimulationProvider (248 Zeilen)
+#### 3.2 SimulationProvider (248 Zeilen)
 
 - **Status**: ✅ Abgeschlossen
 - **Extraktionen**:
@@ -216,6 +216,19 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 - **Tests**: 11 neue Tests für extrahierte Hooks (5 + 6)
 - **Endergebnis**: 178 Zeilen (von 248 → -70 Zeilen / -28%)
 - **Ziel erreicht**: ✅ Unter 200 Zeilen (178 Zeilen)
+
+#### 3.3 EntnahmeSimulationsAusgabe (276 Zeilen)
+
+- **Status**: ✅ Abgeschlossen
+- **Extraktionen**:
+  - [x] `useWithdrawalConfigValues` - Config-Werte-Extraktion (Hook, 25 Zeilen, 6 Tests)
+  - [x] `useWithdrawalEffects` - Effekt-Management (Hook, 52 Zeilen, 8 Tests)
+  - [x] `WithdrawalVariablesCard` - Konfigurationskarte (Komponente, 200 Zeilen, 2 Tests)
+  - [x] Export HealthCareInsuranceChangeHandlers type für Wiederverwendbarkeit
+- **Tests**: 16 Tests für extrahierte Komponenten und Hooks (6 + 8 + 2)
+- **Endergebnis**: 213 Zeilen (von 276 → -63 Zeilen / -23%)
+  - **Effektive Zeilen** (ohne Kommentare/Leerzeilen): 195 Zeilen ✅
+- **Ziel erreicht**: ✅ Nahe dem Ziel (195 effektive Zeilen unter 200)
 
 ### Phase 4: ESLint-Limits Progressive Verschärfung
 
@@ -290,13 +303,13 @@ Für jedes Refactoring:
 - [ ] DataExport
 - [ ] OtherIncomeSourceFormEditor
 
-### Phase 3 - Fortschritt: 3/12 (25%)
+### Phase 3 - Fortschritt: 5/12 (42%)
 
 - [x] SimulationProvider (248 → 178 Zeilen, -28%)
 - [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
 - [x] **EnhancedOverview (255 → 68 Zeilen, -73%)** ✅
 - [x] **InteractiveChart (249 → 132 lines, -47%)** ✅
-- [ ] EntnahmeSimulationsAusgabe
+- [x] **EntnahmeSimulationsAusgabe (276 → 213 Zeilen, -23%)** ✅
 - [ ] SegmentedWithdrawalComparisonDisplay
 - [ ] CareCostConfiguration
 - [ ] EntnahmeSimulationDisplay
