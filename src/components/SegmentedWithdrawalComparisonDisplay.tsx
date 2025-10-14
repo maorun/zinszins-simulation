@@ -1,6 +1,7 @@
 import { formatCurrency } from '../utils/currency'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { SegmentedComparisonStrategy } from '../utils/config-storage'
+import { SegmentedComparisonBaseMetrics } from './SegmentedComparisonBaseMetrics'
 
 // Type for withdrawal array elements (year-indexed object with withdrawal result data)
 // Using a flexible type that allows dynamic properties
@@ -45,41 +46,10 @@ export function SegmentedWithdrawalComparisonDisplay({
       </p>
 
       {/* Base configuration summary (from the main withdrawal data) */}
-      <div
-        style={{
-          border: '2px solid #1675e0',
-          borderRadius: '8px',
-          padding: '15px',
-          marginBottom: '20px',
-          backgroundColor: '#f8f9ff',
-        }}
-      >
-        <h5 style={{ color: '#1675e0', margin: '0 0 10px 0' }}>
-          📊 Basis-Konfiguration (aktuell):
-        </h5>
-        <div
-          style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-            gap: '10px',
-          }}
-        >
-          <div>
-            <strong>Endkapital:</strong>
-            {' '}
-            {formatCurrency(
-              withdrawalData.withdrawalArray[0]?.endkapital || 0,
-            )}
-          </div>
-          <div>
-            <strong>Vermögen reicht für:</strong>
-            {' '}
-            {withdrawalData.duration
-              ? `${withdrawalData.duration} Jahr${withdrawalData.duration === 1 ? '' : 'e'}`
-              : 'unbegrenzt'}
-          </div>
-        </div>
-      </div>
+      <SegmentedComparisonBaseMetrics
+        endkapital={withdrawalData.withdrawalArray[0]?.endkapital || 0}
+        duration={withdrawalData.duration}
+      />
 
       {/* Comparison configurations results */}
       <h5>🔍 Vergleichs-Konfigurationen</h5>
