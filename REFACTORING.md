@@ -280,11 +280,11 @@ Für jedes Refactoring:
 - [ ] DataExport
 - [ ] OtherIncomeSourceFormEditor
 
-### Phase 3 - Fortschritt: 1/12 (8%)
+### Phase 3 - Fortschritt: 3/12 (25%)
 
-- [ ] HomePageContent
+- [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
 - [x] **EnhancedOverview (255 → 68 Zeilen, -73%)** ✅
-- [ ] InteractiveChart
+- [x] **InteractiveChart (249 → 132 lines, -47%)** ✅
 - [ ] SimulationProvider
 - [ ] EntnahmeSimulationsAusgabe
 - [ ] SegmentedWithdrawalComparisonDisplay

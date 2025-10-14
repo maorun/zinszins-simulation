@@ -20,8 +20,10 @@ import { NavigationProvider } from '../contexts/NavigationContext'
 import { useSimulation } from '../contexts/useSimulation'
 import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
 import { calculateWithdrawalEndYear } from '../utils/overview-calculations'
-import { convertSparplanToElements, type Sparplan } from '../utils/sparplan-utils'
-import type { FinancialScenario } from '../data/scenarios'
+import { convertSparplanToElements } from '../utils/sparplan-utils'
+import { useScenarioApplication } from '../hooks/useScenarioApplication'
+import { useReturnConfiguration } from '../hooks/useReturnConfiguration'
+import { calculatePhaseDateRanges } from '../utils/phase-date-ranges'
 
 function EnhancedOverview() {
   const {
@@ -133,105 +135,24 @@ const HomePageContent = () => {
 
   const overviewRef = useRef<HTMLDivElement>(null)
 
-  // Handle scenario application
-  const handleApplyScenario = (scenario: FinancialScenario) => {
-    const config = scenario.config
+  // Handle scenario application using custom hook
+  const { handleApplyScenario } = useScenarioApplication({
+    setStartEnd,
+    setReturnMode,
+    setRendite,
+    setAverageReturn,
+    setStandardDeviation,
+    setSteuerlast,
+    setTeilfreistellungsquote,
+    setFreibetragPerYear,
+    setInflationAktivSparphase,
+    setInflationsrateSparphase,
+    setSparplan,
+    performSimulation,
+  })
 
-    // Set time range
-    setStartEnd([config.retirementYear, config.retirementYear + 30]) // Default 30 years withdrawal
-
-    // Set return configuration
-    setReturnMode(config.returnMode)
-    if (config.returnMode === 'fixed') {
-      setRendite(config.expectedReturn)
-    }
-    else if (config.returnMode === 'random' && config.volatility) {
-      setAverageReturn(config.expectedReturn)
-      setStandardDeviation(config.volatility)
-    }
-
-    // Set tax configuration
-    if (config.steuerlast !== undefined) {
-      setSteuerlast(config.steuerlast)
-    }
-    if (config.teilfreistellungsquote !== undefined) {
-      setTeilfreistellungsquote(config.teilfreistellungsquote)
-    }
-    if (config.freibetrag !== undefined) {
-      setFreibetragPerYear({ [config.startYear]: config.freibetrag })
-    }
-
-    // Set inflation
-    if (config.inflationRate !== undefined) {
-      setInflationAktivSparphase(true)
-      setInflationsrateSparphase(config.inflationRate)
-    }
-
-    // Create savings plan
-    const newSparplan: Sparplan[] = []
-
-    // Add initial investment if specified
-    if (config.initialInvestment && config.initialInvestment > 0) {
-      newSparplan.push({
-        id: Date.now(),
-        start: new Date(config.startYear, 0, 1),
-        end: new Date(config.startYear, 0, 1), // Same day for one-time payment
-        einzahlung: config.initialInvestment,
-        ter: config.ter,
-      })
-    }
-
-    // Add monthly contribution if specified
-    if (config.monthlyContribution && config.monthlyContribution > 0) {
-      newSparplan.push({
-        id: Date.now() + 1,
-        start: new Date(config.startYear, 0, 1),
-        end: new Date(config.retirementYear - 1, 11, 31),
-        einzahlung: config.monthlyContribution * 12, // Convert to annual
-        ter: config.ter,
-      })
-    }
-
-    setSparplan(newSparplan)
-
-    // Trigger recalculation
-    setTimeout(() => {
-      performSimulation()
-    }, 100)
-  }
-
-  // Build ReturnConfiguration from context properties
-  const returnConfig = useMemo(() => {
-    const config: import('../utils/random-returns').ReturnConfiguration = { mode: returnMode }
-
-    switch (returnMode) {
-      case 'fixed':
-        config.fixedRate = rendite / 100
-        break
-      case 'random':
-        config.randomConfig = {
-          averageReturn: averageReturn / 100,
-          standardDeviation: standardDeviation / 100,
-          seed: randomSeed,
-        }
-        break
-      case 'variable':
-        config.variableConfig = {
-          yearlyReturns: variableReturns,
-        }
-        break
-      case 'historical':
-        config.historicalConfig = {
-          indexId: historicalIndex,
-        }
-        break
-      case 'multiasset':
-        config.multiAssetConfig = multiAssetConfig
-        break
-    }
-
-    return config
-  }, [
+  // Build ReturnConfiguration using custom hook
+  const returnConfig = useReturnConfiguration({
     returnMode,
     rendite,
     averageReturn,
@@ -240,19 +161,15 @@ const HomePageContent = () => {
     variableReturns,
     historicalIndex,
     multiAssetConfig,
-  ])
+  })
 
   useEffect(() => {
     performSimulation()
   }, [performSimulation])
 
   // Calculate phase date ranges for special events
-  const savingsStartYear = sparplan.length > 0
-    ? Math.min(...sparplan.map(p => new Date(p.start).getFullYear()))
-    : new Date().getFullYear()
-  const savingsEndYear = startEnd[0]
-  const withdrawalStartYear = startEnd[0] + 1
-  const withdrawalEndYear = endOfLife
+  const { savingsStartYear, savingsEndYear, withdrawalStartYear, withdrawalEndYear }
+    = calculatePhaseDateRanges(sparplan, startEnd, endOfLife)
 
   useEffect(() => {
     performSimulation()
