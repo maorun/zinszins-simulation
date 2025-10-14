@@ -175,11 +175,14 @@ export function formatAssetAllocation(assets: AssetClass[]) {
 
 #### 1.3 WithdrawalComparisonDisplay (365 Zeilen)
 
-- **Status**: 📋 Geplant
+- **Status**: ✅ Abgeschlossen
 - **Extraktionen**:
-  - [ ] `ComparisonTable` - Vergleichstabelle
-  - [ ] `ComparisonMetrics` - Metriken-Anzeige
-  - [ ] `useComparisonData` - Datenaufbereitung
+  - [x] `useComparisonData` - Datenaufbereitung (Hook, 97 Zeilen, 14 Tests)
+  - [x] `ComparisonMetrics` - Basis-Strategie Metriken-Anzeige (73 Zeilen, 7 Tests)
+  - [x] `ComparisonTable` - Vergleichstabelle (220 Zeilen, 5 Tests)
+- **Tests**: 26 Tests (14 + 7 + 5 neue Tests, 11 bestehende Tests)
+- **Endergebnis**: 144 Zeilen (von 418 → -274 Zeilen / -65.6%)
+- **Ziel erreicht**: ✅ Weit unter 300 Zeilen (144 Zeilen)
 
 ### Phase 2: Hohe Priorität (300-400 Zeilen)
 
@@ -244,11 +247,11 @@ Für jedes Refactoring:
 
 ## Fortschritt-Tracking
 
-### Phase 1 - Fortschritt: 2/3 (67%)
+### Phase 1 - Fortschritt: 3/3 (100%)
 
 - [x] MultiAssetPortfolioConfiguration (422 → 270 Zeilen, -36%)
 - [x] StatutoryPensionConfiguration (938 → 673 Zeilen, -28%; Hauptfunktion 399 → 140 Zeilen, -65%)
-- [ ] WithdrawalComparisonDisplay
+- [x] WithdrawalComparisonDisplay (418 → 144 Zeilen, -65.6%)
 
 ### Phase 2 - Fortschritt: 0/13 (0%)
 
