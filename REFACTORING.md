@@ -217,6 +217,18 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 - **Endergebnis**: 178 Zeilen (von 248 → -70 Zeilen / -28%)
 - **Ziel erreicht**: ✅ Unter 200 Zeilen (178 Zeilen)
 
+#### 3.2 WithdrawalReturnModeConfiguration (251 Zeilen)
+
+- **Status**: ✅ Abgeschlossen
+- **Extraktionen**:
+  - [x] `FixedReturnConfig` - Feste Rendite Konfiguration (41 Zeilen, 4 Tests)
+  - [x] `RandomReturnConfig` - Zufällige Rendite Konfiguration (95 Zeilen, 10 Tests)
+  - [x] `VariableReturnConfig` - Variable Rendite Konfiguration (82 Zeilen, 8 Tests)
+  - [x] `ReturnModeSelector` - Rendite-Modus Auswahl (43 Zeilen, 7 Tests)
+- **Tests**: 29 neue Tests für extrahierte Komponenten (4 + 10 + 8 + 7)
+- **Endergebnis**: 91 Zeilen (von 251 → -160 Zeilen / -64%)
+- **Ziel erreicht**: ✅ Weit unter 200 Zeilen (91 Zeilen, 54% unter Ziel)
+
 ### Phase 4: ESLint-Limits Progressive Verschärfung
 
 Nach Abschluss der Refactorings:
@@ -290,18 +302,18 @@ Für jedes Refactoring:
 - [ ] DataExport
 - [ ] OtherIncomeSourceFormEditor
 
-### Phase 3 - Fortschritt: 3/12 (25%)
+### Phase 3 - Fortschritt: 5/12 (42%)
 
 - [x] SimulationProvider (248 → 178 Zeilen, -28%)
 - [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
 - [x] **EnhancedOverview (255 → 68 Zeilen, -73%)** ✅
 - [x] **InteractiveChart (249 → 132 lines, -47%)** ✅
+- [x] **WithdrawalReturnModeConfiguration (251 → 91 Zeilen, -64%)** ✅
 - [ ] EntnahmeSimulationsAusgabe
 - [ ] SegmentedWithdrawalComparisonDisplay
 - [ ] CareCostConfiguration
 - [ ] EntnahmeSimulationDisplay
 - [ ] HistoricalReturnConfiguration
-- [ ] WithdrawalReturnModeConfiguration
 - [ ] WithdrawalYearCard
 - [ ] HealthInsuranceCostPreview
 
