@@ -247,11 +247,12 @@ Das Projekt verwendet umfassende Code-Qualitätsprüfungen, die mit Codacy-Stand
 
 #### ESLint-Regeln
 
-- **Code-Komplexität**: Warnungen bei zyklomatischer Komplexität über 160
-- **Verschachtelungstiefe**: Maximale Verschachtelungstiefe von 6 Ebenen
-- **Funktionsgröße**: Warnungen bei Funktionen über 1600 Zeilen (ohne Leerzeilen/Kommentare)
+- **Code-Komplexität**: Warnungen bei zyklomatischer Komplexität über 25 (Ziel: 8 für neuen Code)
+- **Verschachtelungstiefe**: Maximale Verschachtelungstiefe von 5 Ebenen
+- **Funktionsgröße**: Warnungen bei Funktionen über 400 Zeilen (Ziel: 50 für neuen Code)
 - **Sicherheit**: Strenge Regeln gegen `eval`, `new Function`, etc.
 - **Best Practices**: Durchsetzung von `prefer-const`, `eqeqeq`, etc.
+- **Kontinuierliche Verbesserung**: Siehe `REFACTORING.md` für den schrittweisen Refactoring-Plan
 
 #### CI/CD Pipeline
 
@@ -280,8 +281,9 @@ npm run test:coverage # Tests mit Coverage
 
 - **0 Fehler**: Keine ESLint-Fehler erlaubt
 - **0 Warnungen**: Keine ESLint-Warnungen erlaubt (max-warnings = 0)
-- **Test-Coverage**: Umfassende Test-Abdeckung mit 1397+ Tests
+- **Test-Coverage**: Umfassende Test-Abdeckung mit 1523+ Tests
 - **TypeScript-Strict**: Strikte TypeScript-Konfiguration aktiviert
+- **Code-Refactoring**: Aktives Refactoring zur Verbesserung der Codequalität (siehe `REFACTORING.md`)
 
 ---
 
