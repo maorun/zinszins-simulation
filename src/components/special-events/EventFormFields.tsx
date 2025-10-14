@@ -1,9 +1,9 @@
 import type { ChangeEvent } from 'react'
 import type { RelationshipType, ExpenseType } from '../../utils/sparplan-utils'
-import { calculateInheritanceTax } from '../../../helpers/inheritance-tax'
-import { getDefaultCreditTerms } from '../../../helpers/credit-calculation'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
+import { InheritanceFields } from './InheritanceFields'
+import { ExpenseFields } from './ExpenseFields'
 
 type EventPhase = 'sparphase' | 'entsparphase'
 
@@ -92,10 +92,6 @@ export function EventFormFields({
   }
 
   const currentPhaseRange = getPhaseYearRange(formValues.phase)
-
-  const inheritanceTaxCalc = formValues.grossAmount
-    ? calculateInheritanceTax(Number(formValues.grossAmount), formValues.relationshipType)
-    : null
 
   return (
     <form>
@@ -194,217 +190,12 @@ export function EventFormFields({
 
       {/* Inheritance-specific fields */}
       {formValues.eventType === 'inheritance' && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1rem',
-          marginBottom: '1.5rem',
-        }}
-        >
-          <div className="mb-4 space-y-2">
-            <Label>
-              Verwandtschaftsgrad
-              <InfoIcon />
-            </Label>
-            <select
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={formValues.relationshipType}
-              onChange={e => onFormChange({
-                ...formValues,
-                relationshipType: e.target.value as RelationshipType,
-              })}
-            >
-              <option value="child">Kind</option>
-              <option value="grandchild">Enkelkind</option>
-              <option value="spouse">Ehepartner</option>
-              <option value="sibling">Geschwister</option>
-              <option value="other">Sonstige</option>
-            </select>
-          </div>
-
-          <div className="mb-4 space-y-2">
-            <Label>
-              Brutto-Erbschaft (€)
-              <InfoIcon />
-            </Label>
-            <Input
-              type="number"
-              value={formValues.grossAmount}
-              onChange={e => onFormChange({
-                ...formValues,
-                grossAmount: e.target.value,
-              })}
-              placeholder="100000"
-              min="0"
-              step="1000"
-            />
-            <div className="text-sm text-muted-foreground mt-1">Bruttobetrag vor Erbschaftsteuer</div>
-          </div>
-        </div>
+        <InheritanceFields formValues={formValues} onFormChange={onFormChange} />
       )}
 
       {/* Expense-specific fields */}
       {formValues.eventType === 'expense' && (
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1rem',
-          marginBottom: '1.5rem',
-        }}
-        >
-          <div className="mb-4 space-y-2">
-            <Label>
-              Ausgabentyp
-              <InfoIcon />
-            </Label>
-            <select
-              className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              value={formValues.expenseType}
-              onChange={e => onFormChange({
-                ...formValues,
-                expenseType: e.target.value as ExpenseType,
-              })}
-            >
-              <option value="car">Auto</option>
-              <option value="house">Haus/Wohnung</option>
-              <option value="renovation">Renovierung</option>
-              <option value="vacation">Urlaub</option>
-              <option value="other">Sonstiges</option>
-            </select>
-          </div>
-
-          <div className="mb-4 space-y-2">
-            <Label>
-              Ausgabenbetrag (€)
-              <InfoIcon />
-            </Label>
-            <Input
-              type="number"
-              value={formValues.expenseAmount}
-              onChange={e => onFormChange({
-                ...formValues,
-                expenseAmount: e.target.value,
-              })}
-              placeholder="25000"
-              min="0"
-              step="1000"
-            />
-          </div>
-
-          <div className="mb-4 space-y-2 col-span-full">
-            <div className="flex items-center gap-2">
-              <input
-                type="checkbox"
-                id="useCredit"
-                checked={formValues.useCredit}
-                onChange={e => onFormChange({
-                  ...formValues,
-                  useCredit: e.target.checked,
-                })}
-                className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
-              />
-              <Label htmlFor="useCredit">
-                Finanzierung über Kredit
-                <InfoIcon />
-              </Label>
-            </div>
-          </div>
-
-          {formValues.useCredit && (
-            <>
-              <div className="mb-4 space-y-2">
-                <Label>
-                  Zinssatz (%)
-                  <InfoIcon />
-                </Label>
-                <Input
-                  type="number"
-                  value={formValues.interestRate}
-                  onChange={e => onFormChange({
-                    ...formValues,
-                    interestRate: e.target.value,
-                  })}
-                  placeholder={
-                    formValues.expenseAmount
-                      ? (
-                          getDefaultCreditTerms(
-                            formValues.expenseType,
-                            Number(formValues.expenseAmount),
-                          ).interestRate * 100
-                        ).toFixed(1)
-                      : '3.5'
-                  }
-                  min="0"
-                  max="20"
-                  step="0.1"
-                />
-              </div>
-
-              <div className="mb-4 space-y-2">
-                <Label>
-                  Laufzeit (Jahre)
-                  <InfoIcon />
-                </Label>
-                <Input
-                  type="number"
-                  value={formValues.termYears}
-                  onChange={e => onFormChange({
-                    ...formValues,
-                    termYears: e.target.value,
-                  })}
-                  placeholder={
-                    formValues.expenseAmount
-                      ? getDefaultCreditTerms(
-                          formValues.expenseType,
-                          Number(formValues.expenseAmount),
-                        ).termYears.toString()
-                      : '5'
-                  }
-                  min="1"
-                  max="30"
-                  step="1"
-                />
-              </div>
-            </>
-          )}
-        </div>
-      )}
-
-      {/* Tax calculation display for inheritance */}
-      {formValues.eventType === 'inheritance' && inheritanceTaxCalc && (
-        <div className="mb-4 p-4 bg-green-50 border border-green-200 rounded-lg">
-          <div className="text-sm font-semibold text-green-800 mb-2">📊 Steuerberechnung:</div>
-          <div className="text-sm text-green-700 space-y-1">
-            <div>
-              Brutto-Erbschaft:
-              {' '}
-              <span className="font-semibold">
-                {inheritanceTaxCalc.grossAmount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-              </span>
-            </div>
-            <div>
-              Freibetrag:
-              {' '}
-              <span className="font-semibold">
-                {inheritanceTaxCalc.exemption.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-              </span>
-            </div>
-            <div>
-              Steuerpflichtiger Betrag:
-              {' '}
-              <span className="font-semibold">
-                {inheritanceTaxCalc.taxableAmount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-              </span>
-            </div>
-            <div className="font-semibold border-t pt-1 mt-2">
-              Netto-Erbschaft:
-              {' '}
-              <span className="text-green-900">
-                {inheritanceTaxCalc.netAmount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-              </span>
-            </div>
-          </div>
-        </div>
+        <ExpenseFields formValues={formValues} onFormChange={onFormChange} />
       )}
 
       {/* Description */}
