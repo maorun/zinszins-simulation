@@ -8,6 +8,7 @@ import { RadioTileGroup, RadioTile } from './ui/radio-tile'
 import { useSimulation } from '../contexts/useSimulation'
 import { useNestingLevel } from '../lib/nesting-utils'
 import { HISTORICAL_INDICES, getHistoricalReturns, isYearRangeAvailable } from '../utils/historical-data'
+import { BacktestingWarning } from './historical-return/BacktestingWarning'
 
 const HistoricalReturnConfiguration = () => {
   const {
@@ -71,28 +72,7 @@ const HistoricalReturnConfiguration = () => {
           <CardContent nestingLevel={nestingLevel}>
             <div className="space-y-6">
               {/* Important Warning */}
-              <Card nestingLevel={nestingLevel} className="border-amber-200 bg-amber-50">
-                <CardContent nestingLevel={nestingLevel} className="pt-4">
-                  <div className="flex items-start gap-3">
-                    <AlertTriangle className="h-5 w-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                    <div className="space-y-2">
-                      <div className="font-semibold text-amber-800">
-                        Wichtiger Hinweis zum Backtesting
-                      </div>
-                      <div className="text-sm text-amber-700 space-y-1">
-                        <p>
-                          <strong>Die Vergangenheit lässt keine Rückschlüsse auf die Zukunft zu.</strong>
-                          Historische Daten dienen nur zu Bildungs- und Testzwecken.
-                        </p>
-                        <p>
-                          Vergangene Wertentwicklungen sind kein verlässlicher Indikator für künftige Ergebnisse.
-                          Märkte können sich fundamental ändern.
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              <BacktestingWarning nestingLevel={nestingLevel} />
 
               {/* Index Selection */}
               <div className="space-y-3">
