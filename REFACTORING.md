@@ -203,6 +203,18 @@ Komponenten: EventFormFields, RiskAssessment, SparplanSimulationsAusgabe, calcul
   - [x] `WithdrawalPhaseSection` - Entsparphase-Anzeige Komponente (171 Zeilen, 16 Tests)
 - **Tests**: 31 Tests für extrahierte Komponenten und Utilities
 - **Endergebnis**: 68 Zeilen (von 255 → -187 Zeilen / -73%)
+
+#### 3.2 WithdrawalYearCard (301 Zeilen)
+
+- **Status**: ✅ Abgeschlossen
+- **Extraktionen**:
+  - [x] `YearHeader` - Jahr-Header mit Endkapital (51 Zeilen, 4 Tests)
+  - [x] `FinancialDetailsSection` - Finanzdetails Sektion (103 Zeilen, 8 Tests)
+  - [x] `TaxSection` - Steuer-Sektion (116 Zeilen, 10 Tests)
+  - [x] `IncomeTaxSection` - Einkommensteuer-Sektion (54 Zeilen, 6 Tests)
+  - [x] `formatWithInflation` - Utility-Funktion (22 Zeilen, 6 Tests)
+- **Tests**: 34 Tests für extrahierte Komponenten und Utilities
+- **Endergebnis**: 147 Zeilen (von 301 → -154 Zeilen / -51%)
 - **Ziel erreicht**: ✅ Weit unter 200 Zeilen (68 Zeilen, 66% unter Ziel)
 
 Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
@@ -290,19 +302,19 @@ Für jedes Refactoring:
 - [ ] DataExport
 - [ ] OtherIncomeSourceFormEditor
 
-### Phase 3 - Fortschritt: 3/12 (25%)
+### Phase 3 - Fortschritt: 4/12 (33%)
 
 - [x] SimulationProvider (248 → 178 Zeilen, -28%)
 - [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
 - [x] **EnhancedOverview (255 → 68 Zeilen, -73%)** ✅
 - [x] **InteractiveChart (249 → 132 lines, -47%)** ✅
+- [x] **WithdrawalYearCard (301 → 147 Zeilen, -51%)** ✅
 - [ ] EntnahmeSimulationsAusgabe
 - [ ] SegmentedWithdrawalComparisonDisplay
 - [ ] CareCostConfiguration
 - [ ] EntnahmeSimulationDisplay
 - [ ] HistoricalReturnConfiguration
 - [ ] WithdrawalReturnModeConfiguration
-- [ ] WithdrawalYearCard
 - [ ] HealthInsuranceCostPreview
 
 ### Phase 4 - ESLint-Limits: 0/3 (0%)

@@ -1,12 +1,14 @@
-import { Info } from 'lucide-react'
-import { formatCurrency } from '../utils/currency'
-import { formatValueWithInflation } from './inflation-helpers'
+import { formatWithInflation } from '../utils/format-with-inflation'
 import type { WithdrawalFormValue } from '../utils/config-storage'
 import {
   OtherIncomeSection,
   HealthCareInsuranceSection,
   StatutoryPensionSection,
 } from './withdrawal-card-sections'
+import { YearHeader } from './withdrawal-card/YearHeader'
+import { FinancialDetailsSection } from './withdrawal-card/FinancialDetailsSection'
+import { TaxSection } from './withdrawal-card/TaxSection'
+import { IncomeTaxSection } from './withdrawal-card/IncomeTaxSection'
 
 interface WithdrawalYearCardProps {
   rowData: {
@@ -56,26 +58,6 @@ interface WithdrawalYearCardProps {
 }
 
 /**
- * Format value with inflation adjustment
- */
-function formatWithInflation(params: {
-  value: number
-  year: number
-  allYears: Array<number | null | undefined>
-  formValue: WithdrawalFormValue
-  showIcon?: boolean
-}): string {
-  return formatValueWithInflation({
-    nominalValue: params.value,
-    currentYear: params.year,
-    allYears: params.allYears,
-    inflationActive: params.formValue.inflationAktiv || false,
-    inflationRatePercent: params.formValue.inflationsrate,
-    showIcon: params.showIcon,
-  })
-}
-
-/**
  * Card component for displaying withdrawal data for a single year
  */
 export function WithdrawalYearCard({
@@ -84,196 +66,60 @@ export function WithdrawalYearCard({
   allYears,
   onCalculationInfoClick,
 }: WithdrawalYearCardProps) {
-  const isGrundfreibetragEnabled = formValue.grundfreibetragAktiv
+  const isGrundfreibetragEnabled = formValue.grundfreibetragAktiv || false
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-shadow hover:shadow-md">
-      {/* Year Header */}
-      <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">
-        <span className="font-semibold text-gray-800 text-base">
-          {`📅 ${rowData.year}`}
-        </span>
-        <span className="font-bold text-blue-600 text-lg flex items-center">
-          🎯
-          {' '}
-          {formatWithInflation({
-            value: rowData.endkapital,
-            year: rowData.year,
-            allYears,
-            formValue,
-            showIcon: true,
-          })}
-          <Info
-            className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-            onClick={() => onCalculationInfoClick('endkapital', rowData)}
-          />
-        </span>
-      </div>
+      <YearHeader
+        year={rowData.year}
+        endkapital={rowData.endkapital}
+        allYears={allYears}
+        formValue={formValue}
+        onCalculationInfoClick={onCalculationInfoClick}
+        rowData={rowData}
+        formatWithInflation={formatWithInflation}
+      />
 
       {/* Card Details */}
       <div className="flex flex-col gap-2">
-        {/* Startkapital */}
-        <div className="flex justify-between items-center py-1">
-          <span className="text-sm text-gray-600 font-medium">💰 Startkapital:</span>
-          <span className="font-semibold text-green-600 text-sm">
-            {formatWithInflation({
-              value: rowData.startkapital,
-              year: rowData.year,
-              allYears,
-              formValue,
-              showIcon: true,
-            })}
-          </span>
-        </div>
+        <FinancialDetailsSection
+          rowData={{
+            startkapital: rowData.startkapital,
+            entnahme: rowData.entnahme,
+            monatlicheEntnahme: rowData.monatlicheEntnahme,
+            inflationAnpassung: rowData.inflationAnpassung,
+            portfolioAnpassung: rowData.portfolioAnpassung,
+            year: rowData.year,
+          }}
+          formValue={formValue}
+          allYears={allYears}
+          onCalculationInfoClick={onCalculationInfoClick}
+          formatWithInflation={formatWithInflation}
+        />
 
-        {/* Entnahme */}
-        <div className="flex justify-between items-center py-1">
-          <span className="text-sm text-gray-600 font-medium">💸 Entnahme:</span>
-          <span className="font-semibold text-red-600 text-sm">
-            {formatWithInflation({
-              value: rowData.entnahme,
-              year: rowData.year,
-              allYears,
-              formValue,
-              showIcon: true,
-            })}
-          </span>
-        </div>
+        <TaxSection
+          rowData={{
+            year: rowData.year,
+            zinsen: rowData.zinsen,
+            bezahlteSteuer: rowData.bezahlteSteuer,
+            vorabpauschale: rowData.vorabpauschale,
+            genutzterFreibetrag: rowData.genutzterFreibetrag,
+            guenstigerPruefungResultRealizedGains: rowData.guenstigerPruefungResultRealizedGains,
+          }}
+          formValue={formValue}
+          allYears={allYears}
+          onCalculationInfoClick={onCalculationInfoClick}
+          formatWithInflation={formatWithInflation}
+        />
 
-        {/* Monthly withdrawal (monatlich_fest strategy) */}
-        {formValue.strategie === 'monatlich_fest' && rowData.monatlicheEntnahme && (
-          <div className="flex justify-between items-center py-1">
-            <span className="text-sm text-gray-600 font-medium">📅 Monatlich:</span>
-            <span className="font-semibold text-purple-600 text-sm">
-              {formatCurrency(rowData.monatlicheEntnahme)}
-            </span>
-          </div>
-        )}
-
-        {/* Inflation adjustment */}
-        {formValue.inflationAktiv && rowData.inflationAnpassung !== undefined && (
-          <div className="flex justify-between items-center py-1">
-            <span className="text-sm text-gray-600 font-medium">📈 Inflation:</span>
-            <span className="font-semibold text-orange-600 text-sm flex items-center">
-              {formatCurrency(rowData.inflationAnpassung)}
-              <Info
-                className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-                onClick={() => onCalculationInfoClick('inflation', rowData)}
-              />
-            </span>
-          </div>
-        )}
-
-        {/* Guardrails adjustment */}
-        {formValue.strategie === 'monatlich_fest'
-          && formValue.guardrailsAktiv
-          && rowData.portfolioAnpassung !== undefined && (
-          <div className="flex justify-between items-center py-1">
-            <span className="text-sm text-gray-600 font-medium">🛡️ Guardrails:</span>
-            <span className="font-semibold text-teal-600 text-sm">
-              {formatCurrency(rowData.portfolioAnpassung)}
-            </span>
-          </div>
-        )}
-
-        {/* Interest */}
-        <div className="flex justify-between items-center py-1">
-          <span className="text-sm text-gray-600 font-medium">📈 Zinsen:</span>
-          <span className="font-semibold text-cyan-600 text-sm flex items-center">
-            {formatWithInflation({
-              value: rowData.zinsen,
-              year: rowData.year,
-              allYears,
-              formValue,
-              showIcon: true,
-            })}
-            <Info
-              className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-              onClick={() => onCalculationInfoClick('interest', rowData)}
-            />
-          </span>
-        </div>
-
-        {/* Tax paid */}
-        <div className="flex justify-between items-center py-1">
-          <span className="text-sm text-gray-600 font-medium">💸 Bezahlte Steuer:</span>
-          <span className="font-semibold text-red-600 text-sm flex items-center">
-            {formatCurrency(rowData.bezahlteSteuer)}
-            <Info
-              className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-              onClick={() => onCalculationInfoClick('tax', rowData)}
-            />
-          </span>
-        </div>
-
-        {/* Günstigerprüfung (realized gains) */}
-        {rowData.guenstigerPruefungResultRealizedGains && (
-          <div className="bg-blue-50 px-2 py-1 rounded space-y-1">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-blue-600 font-medium">🔍 Günstigerprüfung (Veräußerung):</span>
-              <span className="font-semibold text-blue-700 text-sm">
-                {rowData.guenstigerPruefungResultRealizedGains.isFavorable === 'personal' ? 'Persönlicher Steuersatz' : 'Abgeltungssteuer'}
-                {' '}
-                (
-                {(rowData.guenstigerPruefungResultRealizedGains.usedTaxRate * 100).toFixed(2)}
-                %)
-              </span>
-            </div>
-            <div className="text-xs text-blue-600 italic">
-              {rowData.guenstigerPruefungResultRealizedGains.explanation}
-            </div>
-          </div>
-        )}
-
-        {/* Vorabpauschale */}
-        {rowData.vorabpauschale !== undefined && rowData.vorabpauschale > 0 && (
-          <div className="flex justify-between items-center py-1">
-            <span className="text-sm text-gray-600 font-medium">📊 Vorabpauschale:</span>
-            <span className="font-semibold text-blue-700 text-sm flex items-center">
-              {formatCurrency(rowData.vorabpauschale)}
-              <Info
-                className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-                onClick={() => onCalculationInfoClick('vorabpauschale', rowData)}
-              />
-            </span>
-          </div>
-        )}
-
-        {/* Tax allowance used */}
-        <div className="flex justify-between items-center py-1">
-          <span className="text-sm text-gray-600 font-medium">🎯 Genutzter Freibetrag:</span>
-          <span className="font-semibold text-green-600 text-sm">
-            {formatCurrency(rowData.genutzterFreibetrag)}
-          </span>
-        </div>
-
-        {/* Income tax */}
-        {isGrundfreibetragEnabled && rowData.einkommensteuer !== undefined && (
-          <div className="flex justify-between items-center py-1">
-            <span className="text-sm text-gray-600 font-medium">🏛️ Einkommensteuer:</span>
-            <span className="font-semibold text-pink-600 text-sm flex items-center">
-              {formatCurrency(rowData.einkommensteuer)}
-              <Info
-                className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-                onClick={() => onCalculationInfoClick('incomeTax', rowData)}
-              />
-            </span>
-          </div>
-        )}
-
-        {/* Grundfreibetrag */}
-        {isGrundfreibetragEnabled && rowData.genutzterGrundfreibetrag !== undefined && (
-          <div className="flex justify-between items-center py-1">
-            <span className="text-sm text-gray-600 font-medium">🆓 Grundfreibetrag:</span>
-            <span className="font-semibold text-green-600 text-sm flex items-center">
-              {formatCurrency(rowData.genutzterGrundfreibetrag)}
-              <Info
-                className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-                onClick={() => onCalculationInfoClick('incomeTax', rowData)}
-              />
-            </span>
-          </div>
-        )}
+        <IncomeTaxSection
+          rowData={{
+            einkommensteuer: rowData.einkommensteuer,
+            genutzterGrundfreibetrag: rowData.genutzterGrundfreibetrag,
+          }}
+          isGrundfreibetragEnabled={isGrundfreibetragEnabled}
+          onCalculationInfoClick={onCalculationInfoClick}
+        />
 
         {/* Other Income Sources */}
         <OtherIncomeSection
