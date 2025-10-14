@@ -269,13 +269,13 @@ Für jedes Refactoring:
 - [ ] DataExport
 - [ ] OtherIncomeSourceFormEditor
 
-### Phase 3 - Fortschritt: 0/12 (0%)
+### Phase 3 - Fortschritt: 5/12 (42%)
 
-- [ ] HomePageContent
-- [ ] EnhancedOverview
-- [ ] InteractiveChart
-- [ ] SimulationProvider
-- [ ] EntnahmeSimulationsAusgabe
+- [x] HomePageContent (269 → 186 Zeilen, -31%)
+- [x] EnhancedOverview (255 → 86 Zeilen, -66%)
+- [x] InteractiveChart (403 → 162 Zeilen, -60%)
+- [x] SimulationProvider (249 → 114 Zeilen, -54%)
+- [x] EntnahmeSimulationsAusgabe (248 → ~198 Zeilen, -20%)
 - [ ] SegmentedWithdrawalComparisonDisplay
 - [ ] CareCostConfiguration
 - [ ] EntnahmeSimulationDisplay
