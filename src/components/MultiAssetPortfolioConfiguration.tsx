@@ -1,9 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Switch } from './ui/switch'
 import { Label } from './ui/label'
-import { Input } from './ui/input'
-import { Slider } from './ui/slider'
-import { RadioTileGroup, RadioTile } from './ui/radio-tile'
 import { Button } from './ui/button'
 import { Info, RotateCcw, TrendingUp, PieChart } from 'lucide-react'
 import {
@@ -15,6 +12,8 @@ import {
 } from '../../helpers/multi-asset-portfolio'
 import { AssetClassEditor } from './multi-asset/AssetClassEditor'
 import { AssetAllocationSummary } from './multi-asset/AssetAllocationSummary'
+import { RebalancingConfiguration } from './multi-asset/RebalancingConfiguration'
+import { AdvancedSimulationSettings } from './multi-asset/AdvancedSimulationSettings'
 
 /** Information section component for multi-asset portfolio hints */
 function MultiAssetInfoSection() {
@@ -246,102 +245,16 @@ export function MultiAssetPortfolioConfiguration({
               </div>
 
               {/* Rebalancing Configuration */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-gray-700">Rebalancing</h3>
-
-                <div className="space-y-3">
-                  <Label className="text-sm font-medium">Rebalancing-Häufigkeit</Label>
-                  <RadioTileGroup
-                    value={safeValues.rebalancing.frequency}
-                    onValueChange={frequency =>
-                      handleRebalancingChange({ frequency: frequency as 'never' | 'monthly' | 'quarterly' | 'annually' })}
-                  >
-                    <RadioTile value="never" label="Nie">Nie</RadioTile>
-                    <RadioTile value="annually" label="Jährlich">Jährlich</RadioTile>
-                    <RadioTile value="quarterly" label="Quartalsweise">Quartalsweise</RadioTile>
-                    <RadioTile value="monthly" label="Monatlich">Monatlich</RadioTile>
-                  </RadioTileGroup>
-                </div>
-
-                {safeValues.rebalancing.frequency !== 'never' && (
-                  <div className="space-y-3">
-                    <div className="flex items-center gap-2">
-                      <Switch
-                        checked={values.rebalancing.useThreshold}
-                        onCheckedChange={useThreshold =>
-                          handleRebalancingChange({ useThreshold })}
-                      />
-                      <Label className="text-sm">
-                        Schwellenwert-basiertes Rebalancing
-                      </Label>
-                    </div>
-
-                    {values.rebalancing.useThreshold && (
-                      <div className="space-y-2">
-                        <Label className="text-xs font-medium text-gray-700">
-                          Drift-Schwellenwert:
-                          {' '}
-                          {(values.rebalancing.threshold * 100).toFixed(1)}
-                          %
-                        </Label>
-                        <Slider
-                          value={[values.rebalancing.threshold * 100]}
-                          onValueChange={([value]) =>
-                            handleRebalancingChange({ threshold: value / 100 })}
-                          min={1}
-                          max={20}
-                          step={0.5}
-                          className="w-full"
-                        />
-                        <p className="text-xs text-gray-600">
-                          Rebalancing erfolgt wenn eine Anlageklasse um mehr als diesen Wert
-                          von der Zielallokation abweicht
-                        </p>
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+              <RebalancingConfiguration
+                config={safeValues.rebalancing}
+                onChange={handleRebalancingChange}
+              />
 
               {/* Advanced Simulation Settings */}
-              <div className="space-y-3">
-                <h3 className="text-sm font-semibold text-gray-700">Erweiterte Einstellungen</h3>
-
-                <div className="flex items-center gap-2">
-                  <Switch
-                    checked={values.simulation.useCorrelation}
-                    onCheckedChange={useCorrelation =>
-                      handleSimulationChange({ useCorrelation })}
-                  />
-                  <Label className="text-sm">
-                    Historische Korrelationen verwenden
-                  </Label>
-                </div>
-                <p className="text-xs text-gray-600">
-                  Berücksichtigt die historischen Korrelationen zwischen den Anlageklassen
-                  für realistischere Simulationsergebnisse
-                </p>
-
-                <div className="space-y-2">
-                  <Label htmlFor="multiasset-seed" className="text-sm font-medium">
-                    Zufalls-Seed (optional)
-                  </Label>
-                  <Input
-                    id="multiasset-seed"
-                    type="number"
-                    value={values.simulation.seed || ''}
-                    onChange={(e) => {
-                      const seed = e.target.value ? parseInt(e.target.value) : undefined
-                      handleSimulationChange({ seed })
-                    }}
-                    placeholder="Für reproduzierbare Ergebnisse"
-                    className="text-sm"
-                  />
-                  <p className="text-xs text-gray-600">
-                    Optionale Zahl für reproduzierbare Zufallsrenditen
-                  </p>
-                </div>
-              </div>
+              <AdvancedSimulationSettings
+                config={safeValues.simulation}
+                onChange={handleSimulationChange}
+              />
 
               {/* Information Section */}
               <MultiAssetInfoSection />
