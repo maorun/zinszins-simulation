@@ -515,12 +515,22 @@ export function getCareLevelDescription(level: CareLevel): string {
 /**
  * Validate basic care cost configuration fields
  */
-function validateBasicCareCostFields(config: CareCostConfiguration): string[] {
+/**
+ * Validate year-related fields
+ */
+function validateCareCostYearFields(config: CareCostConfiguration): string[] {
   const errors: string[] = []
-
   if (config.startYear < new Date().getFullYear()) {
     errors.push('Startjahr für Pflegebedürftigkeit kann nicht in der Vergangenheit liegen.')
   }
+  return errors
+}
+
+/**
+ * Validate numeric range fields
+ */
+function validateCareCostNumericFields(config: CareCostConfiguration): string[] {
+  const errors: string[] = []
 
   if (config.careInflationRate < 0 || config.careInflationRate > 20) {
     errors.push('Inflationsrate für Pflegekosten muss zwischen 0% und 20% liegen.')
@@ -543,6 +553,13 @@ function validateBasicCareCostFields(config: CareCostConfiguration): string[] {
   }
 
   return errors
+}
+
+function validateBasicCareCostFields(config: CareCostConfiguration): string[] {
+  return [
+    ...validateCareCostYearFields(config),
+    ...validateCareCostNumericFields(config),
+  ]
 }
 
 /**
