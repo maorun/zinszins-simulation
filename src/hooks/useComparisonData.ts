@@ -20,21 +20,16 @@ interface UseComparisonDataProps {
 }
 
 // Helper function for strategy display names
+const STRATEGY_NAMES: Record<string, string> = {
+  '4prozent': '4% Regel',
+  '3prozent': '3% Regel',
+  'variabel_prozent': 'Variable Prozent',
+  'monatlich_fest': 'Monatlich fest',
+  'dynamisch': 'Dynamische Strategie',
+}
+
 export function getStrategyDisplayName(strategy: string): string {
-  switch (strategy) {
-    case '4prozent':
-      return '4% Regel'
-    case '3prozent':
-      return '3% Regel'
-    case 'variabel_prozent':
-      return 'Variable Prozent'
-    case 'monatlich_fest':
-      return 'Monatlich fest'
-    case 'dynamisch':
-      return 'Dynamische Strategie'
-    default:
-      return strategy
-  }
+  return STRATEGY_NAMES[strategy] || strategy
 }
 
 /**

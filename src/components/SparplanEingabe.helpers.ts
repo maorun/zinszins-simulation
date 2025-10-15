@@ -99,6 +99,54 @@ export function isEinmalzahlung(sparplan: Sparplan): boolean {
 }
 
 /**
+ * Parse optional number value
+ */
+function parseOptionalNumber(value: string | number | undefined): number | undefined {
+  return value ? Number(value) : undefined
+}
+
+/**
+ * Create one-time payment sparplan update
+ */
+function createOneTimePaymentUpdate(
+  editingSparplan: Sparplan,
+  singleFormValues: SingleFormValue,
+): Sparplan {
+  return {
+    ...editingSparplan,
+    start: singleFormValues.date,
+    end: singleFormValues.date,
+    einzahlung: Number(singleFormValues.einzahlung),
+    ter: parseOptionalNumber(singleFormValues.ter),
+    transactionCostPercent: parseOptionalNumber(singleFormValues.transactionCostPercent),
+    transactionCostAbsolute: parseOptionalNumber(singleFormValues.transactionCostAbsolute),
+  }
+}
+
+/**
+ * Create regular sparplan update
+ */
+function createRegularSparplanUpdate(
+  editingSparplan: Sparplan,
+  sparplanFormValues: SparplanFormValue,
+  simulationAnnual: SimulationAnnual,
+): Sparplan {
+  const yearlyAmount = simulationAnnual === SimulationAnnual.monthly
+    ? Number(sparplanFormValues.einzahlung) * 12
+    : Number(sparplanFormValues.einzahlung)
+
+  return {
+    ...editingSparplan,
+    start: sparplanFormValues.start,
+    end: sparplanFormValues.end,
+    einzahlung: yearlyAmount,
+    ter: parseOptionalNumber(sparplanFormValues.ter),
+    transactionCostPercent: parseOptionalNumber(sparplanFormValues.transactionCostPercent),
+    transactionCostAbsolute: parseOptionalNumber(sparplanFormValues.transactionCostAbsolute),
+  }
+}
+
+/**
  * Updates an existing sparplan with new values
  * Complexity: <8, Lines: <50
  */
@@ -113,38 +161,9 @@ export function updateExistingSparplan(params: UpdateSparplanParams): Sparplan[]
 
   const isOneTimePayment = isEinmalzahlung(editingSparplan)
 
-  let updatedSparplan: Sparplan
-
-  if (isOneTimePayment) {
-    updatedSparplan = {
-      ...editingSparplan,
-      start: singleFormValues.date,
-      end: singleFormValues.date,
-      einzahlung: Number(singleFormValues.einzahlung),
-      ter: singleFormValues.ter ? Number(singleFormValues.ter) : undefined,
-      transactionCostPercent: singleFormValues.transactionCostPercent
-        ? Number(singleFormValues.transactionCostPercent) : undefined,
-      transactionCostAbsolute: singleFormValues.transactionCostAbsolute
-        ? Number(singleFormValues.transactionCostAbsolute) : undefined,
-    }
-  }
-  else {
-    const yearlyAmount = simulationAnnual === SimulationAnnual.monthly
-      ? Number(sparplanFormValues.einzahlung) * 12
-      : Number(sparplanFormValues.einzahlung)
-
-    updatedSparplan = {
-      ...editingSparplan,
-      start: sparplanFormValues.start,
-      end: sparplanFormValues.end,
-      einzahlung: yearlyAmount,
-      ter: sparplanFormValues.ter ? Number(sparplanFormValues.ter) : undefined,
-      transactionCostPercent: sparplanFormValues.transactionCostPercent
-        ? Number(sparplanFormValues.transactionCostPercent) : undefined,
-      transactionCostAbsolute: sparplanFormValues.transactionCostAbsolute
-        ? Number(sparplanFormValues.transactionCostAbsolute) : undefined,
-    }
-  }
+  const updatedSparplan = isOneTimePayment
+    ? createOneTimePaymentUpdate(editingSparplan, singleFormValues)
+    : createRegularSparplanUpdate(editingSparplan, sparplanFormValues, simulationAnnual)
 
   return existingSparplans.map(sp =>
     sp.id === editingSparplan.id ? updatedSparplan : sp,
@@ -195,6 +214,27 @@ export function populateSingleFormFromSparplan(sparplan: Sparplan): SingleFormVa
 }
 
 /**
+ * Calculate display amount for sparplan based on simulation type
+ */
+function calculateDisplayAmount(
+  sparplan: Sparplan,
+  simulationAnnual: SimulationAnnualType,
+  isOneTime: boolean,
+): string {
+  if (simulationAnnual === SimulationAnnual.monthly && !isOneTime) {
+    return (sparplan.einzahlung / 12).toString()
+  }
+  return sparplan.einzahlung.toString()
+}
+
+/**
+ * Convert optional number to string with fallback
+ */
+function optionalNumberToString(value: number | undefined): string {
+  return value?.toString() || ''
+}
+
+/**
  * Populates sparplan form with values from a sparplan
  * Complexity: <8, Lines: <50
  */
@@ -203,16 +243,14 @@ export function populateSparplanFormFromSparplan(
   simulationAnnual: SimulationAnnualType,
 ): SparplanFormValue {
   const isOneTime = isEinmalzahlung(sparplan)
-  const displayAmount = simulationAnnual === SimulationAnnual.monthly && !isOneTime
-    ? (sparplan.einzahlung / 12).toString()
-    : sparplan.einzahlung.toString()
+  const displayAmount = calculateDisplayAmount(sparplan, simulationAnnual, isOneTime)
 
   return {
     start: new Date(sparplan.start),
     end: sparplan.end ? new Date(sparplan.end) : null,
     einzahlung: displayAmount,
-    ter: sparplan.ter?.toString() || '',
-    transactionCostPercent: sparplan.transactionCostPercent?.toString() || '',
-    transactionCostAbsolute: sparplan.transactionCostAbsolute?.toString() || '',
+    ter: optionalNumberToString(sparplan.ter),
+    transactionCostPercent: optionalNumberToString(sparplan.transactionCostPercent),
+    transactionCostAbsolute: optionalNumberToString(sparplan.transactionCostAbsolute),
   }
 }

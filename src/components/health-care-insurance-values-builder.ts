@@ -17,12 +17,20 @@ function buildBasicInsuranceValues(config: WithdrawalFormValue['healthCareInsura
   }
 }
 
+const DEFAULT_STATUTORY_INSURANCE_VALUES = {
+  rate: 14.6,
+  careRate: 3.05,
+  minBase: 13230,
+  maxBase: 62550,
+}
+
 function buildStatutoryInsuranceValues(config: WithdrawalFormValue['healthCareInsuranceConfig']) {
+  const defaults = DEFAULT_STATUTORY_INSURANCE_VALUES
   return {
-    statutoryHealthInsuranceRate: config?.statutoryHealthInsuranceRate || 14.6,
-    statutoryCareInsuranceRate: config?.statutoryCareInsuranceRate || 3.05,
-    statutoryMinimumIncomeBase: config?.statutoryMinimumIncomeBase || 13230,
-    statutoryMaximumIncomeBase: config?.statutoryMaximumIncomeBase || 62550,
+    statutoryHealthInsuranceRate: config?.statutoryHealthInsuranceRate ?? defaults.rate,
+    statutoryCareInsuranceRate: config?.statutoryCareInsuranceRate ?? defaults.careRate,
+    statutoryMinimumIncomeBase: config?.statutoryMinimumIncomeBase ?? defaults.minBase,
+    statutoryMaximumIncomeBase: config?.statutoryMaximumIncomeBase ?? defaults.maxBase,
   }
 }
 

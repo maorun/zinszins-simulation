@@ -143,6 +143,47 @@ export function extractWithdrawalMetrics(withdrawalResult: WithdrawalResult): {
 }
 
 /**
+ * Calculate savings phase return rate
+ */
+function calculateSavingsPhaseReturn(
+  startkapital: number,
+  endkapital: number,
+  totalYears: number,
+): number {
+  if (startkapital <= 0 || totalYears <= 0) {
+    return 0
+  }
+  const totalReturn = endkapital / startkapital
+  return (Math.pow(totalReturn, 1 / totalYears) - 1) * 100
+}
+
+/**
+ * Add withdrawal metrics to summary
+ */
+function addWithdrawalMetrics(
+  summary: EnhancedSummary,
+  withdrawalResult: WithdrawalResult,
+  isSegmentedWithdrawal: boolean | undefined,
+  withdrawalSegments: WithdrawalSegment[] | undefined,
+  savingsEndCapital: number,
+): void {
+  const withdrawalData = extractWithdrawalMetrics(withdrawalResult)
+
+  summary.endkapitalEntspharphase = withdrawalData.finalCapital
+  summary.monatlicheAuszahlung = withdrawalData.averageMonthlyWithdrawal
+  summary.jahreEntspharphase = withdrawalData.totalYears
+
+  // Handle segmented withdrawal summaries
+  if (isSegmentedWithdrawal && withdrawalSegments && withdrawalSegments.length > 0) {
+    summary.withdrawalSegments = createWithdrawalSegmentSummaries(
+      withdrawalSegments,
+      withdrawalResult,
+      savingsEndCapital,
+    )
+  }
+}
+
+/**
  * Calculate enhanced summary including withdrawal phase metrics
  */
 export function getEnhancedSummary(
@@ -156,15 +197,12 @@ export function getEnhancedSummary(
   const baseSummary = fullSummary(elemente)
 
   // Calculate savings phase return rate
-  // Formula: ((endkapital / startkapital) ^ (1/years)) - 1
   const totalYearsSavings = endYear && startYear ? endYear - startYear : 0
-  let renditeAnsparphase = 0
-
-  if (baseSummary.startkapital > 0 && totalYearsSavings > 0) {
-    // Calculate annualized return rate
-    const totalReturn = baseSummary.endkapital / baseSummary.startkapital
-    renditeAnsparphase = (Math.pow(totalReturn, 1 / totalYearsSavings) - 1) * 100
-  }
+  const renditeAnsparphase = calculateSavingsPhaseReturn(
+    baseSummary.startkapital,
+    baseSummary.endkapital,
+    totalYearsSavings,
+  )
 
   const enhancedSummary: EnhancedSummary = {
     ...baseSummary,
@@ -174,20 +212,13 @@ export function getEnhancedSummary(
 
   // Add withdrawal phase metrics if provided
   if (withdrawalResult) {
-    const withdrawalData = extractWithdrawalMetrics(withdrawalResult)
-
-    enhancedSummary.endkapitalEntspharphase = withdrawalData.finalCapital
-    enhancedSummary.monatlicheAuszahlung = withdrawalData.averageMonthlyWithdrawal
-    enhancedSummary.jahreEntspharphase = withdrawalData.totalYears
-
-    // Handle segmented withdrawal summaries
-    if (isSegmentedWithdrawal && withdrawalSegments && withdrawalSegments.length > 0) {
-      enhancedSummary.withdrawalSegments = createWithdrawalSegmentSummaries(
-        withdrawalSegments,
-        withdrawalResult,
-        baseSummary.endkapital,
-      )
-    }
+    addWithdrawalMetrics(
+      enhancedSummary,
+      withdrawalResult,
+      isSegmentedWithdrawal,
+      withdrawalSegments,
+      baseSummary.endkapital,
+    )
   }
 
   return enhancedSummary

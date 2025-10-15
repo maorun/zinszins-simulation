@@ -340,6 +340,28 @@ function addYearRows(
 /**
  * Calculate the contribution amount for a specific element in a specific year
  */
+/**
+ * Check if element is active in given year
+ */
+function isElementActiveInYear(element: Record<string, unknown>, year: number): boolean {
+  const startYear = new Date(element.start as string).getFullYear()
+  const endYear = element.end
+    ? new Date(element.end as string).getFullYear()
+    : new Date().getFullYear() + 50
+
+  return year >= startYear && year <= endYear
+}
+
+/**
+ * Get yearly amount from element with multiple fallback properties
+ */
+function getYearlyAmountFromElement(element: Record<string, unknown>): number {
+  return (element.einzahlung as number)
+    || (element.amount as number)
+    || (element.monthlyAmount as number)
+    || 0
+}
+
 function getElementContributionForYear(element: unknown, year: number, isMonthly: boolean): number {
   if (typeof element !== 'object' || element === null) {
     return 0
@@ -347,18 +369,22 @@ function getElementContributionForYear(element: unknown, year: number, isMonthly
 
   const elem = element as Record<string, unknown>
 
-  // Check if this element was active in this year
-  const startYear = new Date(elem.start as string).getFullYear()
-  const endYear = elem.end ? new Date(elem.end as string).getFullYear() : new Date().getFullYear() + 50
-
-  if (year < startYear || year > endYear) {
+  if (!isElementActiveInYear(elem, year)) {
     return 0
   }
 
-  // Return the element's annual contribution amount
-  // Try different property names to handle both real data and test data
-  const yearlyAmount = (elem.einzahlung as number) || (elem.amount as number) || (elem.monthlyAmount as number) || 0
+  const yearlyAmount = getYearlyAmountFromElement(elem)
   return isMonthly ? yearlyAmount / 12 : yearlyAmount
+}
+
+/**
+ * Format Vorabpauschale basiszins for CSV
+ */
+function formatBasiszins(details: WithdrawalResultElement['vorabpauschaleDetails']): string {
+  if (!details) {
+    return '0,00'
+  }
+  return formatPercentage(details.basiszins * 100).replace('%', '')
 }
 
 /**
@@ -373,26 +399,23 @@ interface BasicRowDataParams {
 
 function buildBasicRowData(params: BasicRowDataParams): string[] {
   const { year, month, yearData, isMonthly } = params
-  const row: string[] = []
-
-  row.push(year.toString())
-  row.push(isMonthly ? month.toString() : '12')
-  row.push(formatCurrencyForCSV(yearData.startkapital))
-  row.push(formatCurrencyForCSV(yearData.entnahme))
-  row.push(formatCurrencyForCSV(yearData.zinsen))
-  row.push(formatCurrencyForCSV(yearData.endkapital))
-
-  // Vorabpauschale details for transparency
   const details = yearData.vorabpauschaleDetails
-  row.push(details ? formatPercentage(details.basiszins * 100).replace('%', '') : '0,00')
-  row.push(formatCurrencyForCSV(details?.basisertrag || 0))
-  row.push(formatCurrencyForCSV(details?.jahresgewinn || 0))
-  row.push(formatCurrencyForCSV(yearData.vorabpauschale || 0))
-  row.push(formatCurrencyForCSV(details?.steuerVorFreibetrag || 0))
-  row.push(formatCurrencyForCSV(yearData.bezahlteSteuer))
-  row.push(formatCurrencyForCSV(yearData.genutzterFreibetrag))
 
-  return row
+  return [
+    year.toString(),
+    isMonthly ? month.toString() : '12',
+    formatCurrencyForCSV(yearData.startkapital),
+    formatCurrencyForCSV(yearData.entnahme),
+    formatCurrencyForCSV(yearData.zinsen),
+    formatCurrencyForCSV(yearData.endkapital),
+    formatBasiszins(details),
+    formatCurrencyForCSV(details?.basisertrag || 0),
+    formatCurrencyForCSV(details?.jahresgewinn || 0),
+    formatCurrencyForCSV(yearData.vorabpauschale || 0),
+    formatCurrencyForCSV(details?.steuerVorFreibetrag || 0),
+    formatCurrencyForCSV(yearData.bezahlteSteuer),
+    formatCurrencyForCSV(yearData.genutzterFreibetrag),
+  ]
 }
 
 /**

@@ -946,9 +946,11 @@ export function getHealthCareInsuranceDisplayInfo(config: HealthCareInsuranceCon
   let details
   if (config.useFixedAmounts) {
     details = getFixedAmountsDisplayDetails(config)
-  } else if (config.insuranceType === 'statutory') {
+  }
+  else if (config.insuranceType === 'statutory') {
     details = getStatutoryInsuranceDisplayDetails(config)
-  } else {
+  }
+  else {
     details = getPrivateInsuranceDisplayDetails(config)
   }
 
