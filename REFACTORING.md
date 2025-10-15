@@ -423,9 +423,9 @@ Für jedes Refactoring:
     - Net Reduction: 4 warnings gesamt (von 321 auf 317)
     - Tests: 1948 → 1967 (+19 neue Tests) ✅
     - Alle Tests bestehen ✅
-- [x] **Phase 4.3**: Utility-Funktionen und Restkomponenten (4 warnings behoben)
-  - **Status**: 310 warnings (reduziert von 313)
-  - **Refaktorierte Utility-Funktionen**:
+- [x] **Phase 4.3**: Utility-Funktionen und Restkomponenten (Phase 4.3 - Iteration 2: 5 weitere warnings behoben)
+  - **Status**: 305 warnings (reduziert von 310)
+  - **Refaktorierte Funktionen (Iteration 1 - 4 warnings behoben)**:
     - ✅ **clearRegisteredIds** (unique-id.ts): Complexity 11→8
       - Extrahierte `isTestEnvironment()` helper function
       - Reduzierte Komplexität durch Funktionsextraktion
@@ -443,18 +443,33 @@ Für jedes Refactoring:
         - `validateSegmentBoundaries()`
         - `validateContinuousSegments()`
       - Verbesserte Lesbarkeit und Wartbarkeit
+  - **Refaktorierte Funktionen (Iteration 2 - 5 weitere warnings behoben)**:
+    - ✅ **isTestEnvironment** (unique-id.ts): Complexity 10→8
+      - Extrahierte `isViteTestMode()` und `isNodeTestMode()` helper functions
+      - Vereinfachte Logik durch Funktionsaufteilung
+    - ✅ **validateBasicCareCostFields** (care-cost-simulation.ts): Complexity 9→8
+      - Extrahierte `validateCareCostYearFields()` und `validateCareCostNumericFields()`
+      - Bessere Trennung der Validierungslogik
+    - ✅ **validateFreistellungsauftragConfig** (freistellungsauftrag-optimization.ts): Complexity 9→8
+      - Extrahierte `validateTotalFreibetrag()` und `validateAccountAssignments()`
+      - Verbesserte Wartbarkeit durch Funktionsaufteilung
+    - ✅ **calculateBucketStrategyAmount** (withdrawal.tsx): Complexity 9→8
+      - Extrahierte `getBucketStrategyRate()` helper function
+      - Vereinfachte switch-Statement-Logik
+    - ✅ **Arrow function in exportSimulationStructure** (data-export.ts): Complexity 11→8
+      - Extrahierte `processSimulationElement()` und `accumulateYearData()` functions
+      - Bessere Trennung von Datenverarbeitung und Akkumulation
   - **Erreichte Verbesserungen**:
-    - 4 Utility-Funktionen vollständig behoben
-    - Net Reduction: 3 warnings gesamt (von 313 auf 310)
-    - Keine neuen Tests erforderlich (bestehende Tests weiterhin gültig)
+    - 9 Funktionen vollständig behoben (4 in Iteration 1, 5 in Iteration 2)
+    - Net Reduction: 8 warnings gesamt (von 313 auf 305)
+    - Alle bestehenden Tests weiterhin gültig (keine neuen Tests erforderlich)
     - Alle 1981 Tests bestehen ✅
     - Build erfolgreich ✅
     - Manuelle Validierung erfolgreich ✅
   - **Nächste Schritte**:
     - HomePageContent benötigt weitere JSX-Extraktion für <50 Zeilen
     - Weitere Komponenten mit >50 Zeilen können bei Bedarf refaktoriert werden
-
-    - Komplexität: 18 → <15 durch Verwendung berechneter Konstanten
+    - Weitere Funktionen mit Complexity 9-12 können in zukünftigen Iterationen behoben werden
 - [ ] **Phase 4.4**: Weitere Komponenten bei Bedarf (Zielmarke: <300 warnings)
 
 ## Referenzen

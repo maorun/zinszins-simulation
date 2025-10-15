@@ -159,16 +159,25 @@ function calculateTotalTaxSaved(
  * @param config - Configuration to validate
  * @returns Array of validation error messages (empty if valid)
  */
-export function validateFreistellungsauftragConfig(config: FreistellungsauftragConfig): string[] {
+/**
+ * Validate total Freibetrag amount
+ */
+function validateTotalFreibetrag(totalFreibetrag: number): string[] {
   const errors: string[] = []
-
-  if (config.totalFreibetrag < 0) {
+  if (totalFreibetrag < 0) {
     errors.push('Gesamt-Freibetrag muss positiv sein')
   }
-
-  if (config.totalFreibetrag > 2000) {
+  if (totalFreibetrag > 2000) {
     errors.push('Gesamt-Freibetrag darf 2.000 € nicht überschreiten (max. für Ehepaare)')
   }
+  return errors
+}
+
+/**
+ * Validate account assignments
+ */
+function validateAccountAssignments(config: FreistellungsauftragConfig): string[] {
+  const errors: string[] = []
 
   if (config.accounts.length === 0) {
     errors.push('Mindestens ein Konto muss vorhanden sein')
@@ -199,6 +208,13 @@ export function validateFreistellungsauftragConfig(config: FreistellungsauftragC
   }
 
   return errors
+}
+
+export function validateFreistellungsauftragConfig(config: FreistellungsauftragConfig): string[] {
+  return [
+    ...validateTotalFreibetrag(config.totalFreibetrag),
+    ...validateAccountAssignments(config),
+  ]
 }
 
 /**

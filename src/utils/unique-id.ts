@@ -104,31 +104,37 @@ export function registerExistingId(id: string): boolean {
 }
 
 /**
+ * Check if running in Vite test environment
+ * @returns True if running in Vite test mode, false otherwise
+ */
+function isViteTestMode(): boolean {
+  try {
+    return typeof import.meta !== 'undefined' && (import.meta as { env?: { MODE?: string } })?.env?.MODE === 'test'
+  }
+  catch {
+    return false
+  }
+}
+
+/**
+ * Check if running in Node.js test environment
+ * @returns True if running in Node.js test mode, false otherwise
+ */
+function isNodeTestMode(): boolean {
+  try {
+    return typeof process !== 'undefined' && process.env?.NODE_ENV === 'test'
+  }
+  catch {
+    return false
+  }
+}
+
+/**
  * Check if running in test environment
  * @returns True if running in test environment, false otherwise
  */
 function isTestEnvironment(): boolean {
-  // Check for Vite test environment
-  try {
-    if (typeof import.meta !== 'undefined' && (import.meta as { env?: { MODE?: string } })?.env?.MODE === 'test') {
-      return true
-    }
-  }
-  catch {
-    // Ignore if import.meta is not available
-  }
-
-  // Check for Node.js test environment
-  try {
-    if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') {
-      return true
-    }
-  }
-  catch {
-    // Ignore if process is not available
-  }
-
-  return false
+  return isViteTestMode() || isNodeTestMode()
 }
 
 /**

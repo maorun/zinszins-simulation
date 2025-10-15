@@ -50,30 +50,36 @@ function generateYearlyGrowthRates(
 /**
  * Helper function: Calculate bucket strategy withdrawal amount
  */
+/**
+ * Calculate withdrawal rate for bucket strategy
+ */
+function getBucketStrategyRate(bucketConfig: BucketStrategyConfig): number {
+  switch (bucketConfig.subStrategy) {
+    case '4prozent':
+      return 0.04
+    case '3prozent':
+      return 0.03
+    case 'variabel_prozent':
+      return bucketConfig.variabelProzent ? bucketConfig.variabelProzent / 100 : 0.04
+    case 'dynamisch':
+      return bucketConfig.dynamischBasisrate ? bucketConfig.dynamischBasisrate / 100 : 0.04
+    default:
+      return bucketConfig.baseWithdrawalRate
+  }
+}
+
 function calculateBucketStrategyAmount(
   initialStartingCapital: number,
   bucketConfig: BucketStrategyConfig,
 ): number {
-  switch (bucketConfig.subStrategy) {
-    case '4prozent':
-      return initialStartingCapital * 0.04
-    case '3prozent':
-      return initialStartingCapital * 0.03
-    case 'variabel_prozent': {
-      const rate = bucketConfig.variabelProzent ? bucketConfig.variabelProzent / 100 : 0.04
-      return initialStartingCapital * rate
-    }
-    case 'monatlich_fest':
-      return bucketConfig.monatlicheBetrag
-        ? bucketConfig.monatlicheBetrag * 12
-        : initialStartingCapital * 0.04
-    case 'dynamisch': {
-      const rate = bucketConfig.dynamischBasisrate ? bucketConfig.dynamischBasisrate / 100 : 0.04
-      return initialStartingCapital * rate
-    }
-    default:
-      return initialStartingCapital * bucketConfig.baseWithdrawalRate
+  if (bucketConfig.subStrategy === 'monatlich_fest') {
+    return bucketConfig.monatlicheBetrag
+      ? bucketConfig.monatlicheBetrag * 12
+      : initialStartingCapital * 0.04
   }
+
+  const rate = getBucketStrategyRate(bucketConfig)
+  return initialStartingCapital * rate
 }
 
 /**
