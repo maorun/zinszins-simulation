@@ -389,14 +389,14 @@ Für jedes Refactoring:
   - **InteractiveChart Refactoring**:
     - Extrahierte `chartConfig` als useMemo (reduziert Komplexität)
     - Extrahierte `displayLabels` als useMemo (reduziert Komplexität)
-- [x] **Phase 4.3**: Limits auf 50/8 - Partielle Implementierung (3 von 4 Zielkomponenten behoben)
-  - **Aktueller Status**: 319 warnings (reduziert von 321)
+- [x] **Phase 4.3**: Limits auf 50/8 - Erweiterte Implementierung (5 von 6 Zielkomponenten behoben)
+  - **Aktueller Status**: 317 warnings (reduziert von 319)
   - **Limits gesetzt**: `max-lines-per-function: 50`, `complexity: 8`
-  - **Zielkomponenten**:
+  - **Zielkomponenten (vorherige Iteration)**:
     - ✅ **SimulationProvider** (SimulationContext.tsx): 2 warnings → 0 warnings
       - Extrahierte `useSimulationContextValue` hook (154 Zeilen useMemo-Logik)
       - Reduzierte Provider-Funktion von 154 auf <50 Zeilen
-    - ✅ **EnhancedOverview** (HomePage.tsx): 1 warning → 0 warnings  
+    - ✅ **EnhancedOverview** (HomePage.tsx): 1 warning → 0 warnings
       - Extrahierte `useOverviewYearRanges` hook (enhanced summary + Jahresberechnungen)
       - Reduzierte Funktion von 62 auf <50 Zeilen
     - ⚠️ **HomePageContent** (HomePage.tsx): Verbessert aber nicht vollständig behoben
@@ -407,16 +407,28 @@ Für jedes Refactoring:
         - `HomePageAnalysisSection` component (Analyse, Export, Sensitivität)
       - **Verbleibendes Problem**: Hauptsächlich JSX-Layout, weitere Reduktion erfordert tiefgreifende Umstrukturierung
     - ✅ **SegmentedWithdrawalComparisonDisplay**: Bereits in Phase 3 behoben (0 warnings)
+  - **Neue Zielkomponenten (aktuelle Iteration)**:
+    - ✅ **InteractiveChart**: 2 warnings → 0 warnings
+      - Extrahierte `useChartConfig` hook (Komplexität reduziert von 9 auf <8)
+      - Extrahierte `ChartVisualization` component (94 Zeilen Chart-Rendering)
+      - Reduzierte InteractiveChart: 242→117 Zeilen, Funktion: 136→48 Zeilen
+      - Tests: 11 neue Tests (5 useChartConfig + 6 ChartVisualization)
+    - ✅ **useHealthInsurancePreviewCalculation**: 2 warnings → 0 warnings
+      - Extrahierte `createCouplePreviewConfig` function (33 Zeilen Config-Erstellung)
+      - Extrahierte `createIndividualPreviewConfig` function (18 Zeilen Config-Erstellung)
+      - Reduzierte Hook: 139→98 Zeilen, Funktion: 87→50 Zeilen, useMemo: 63→24 Zeilen
+      - Tests: 8 neue Tests für Config-Builder-Funktionen
   - **Erreichte Verbesserungen**:
-    - 3 von 4 Zielkomponenten vollständig behoben
-    - Net Reduction: 2 warnings (von 321 auf 319)
-    - Alle Tests bestehen (1934 Tests) ✅
+    - 5 von 6 Zielkomponenten vollständig behoben
+    - Net Reduction: 4 warnings gesamt (von 321 auf 317)
+    - Tests: 1948 → 1967 (+19 neue Tests) ✅
+    - Alle Tests bestehen ✅
   - **Nächste Schritte**:
     - HomePageContent benötigt weitere JSX-Extraktion für <50 Zeilen
-    - Andere Komponenten mit >50 Zeilen sollten bei Bedarf refaktoriert werden
+    - Weitere Komponenten mit >50 Zeilen können bei Bedarf refaktoriert werden
 
     - Komplexität: 18 → <15 durch Verwendung berechneter Konstanten
-- [ ] **Phase 4.3**: Limits auf 50/8 (Zielmarke)
+- [ ] **Phase 4.4**: Weitere Komponenten bei Bedarf (Zielmarke: <300 warnings)
 
 ## Referenzen
 
@@ -427,6 +439,6 @@ Für jedes Refactoring:
 
 ---
 
-**Erstellt**: Dezember 2024  
-**Letzte Aktualisierung**: Januar 2025  
-**Status**: Phase 4.2 abgeschlossen
+**Erstellt**: Dezember 2024
+**Letzte Aktualisierung**: Januar 2025
+**Status**: Phase 4.3 erweitert - 2 weitere Komponenten behoben (InteractiveChart, useHealthInsurancePreviewCalculation)
