@@ -51,7 +51,7 @@ describe('ChartVisualization', () => {
     // Check that the chart container exists
     const chartContainer = container.querySelector('.h-96')
     expect(chartContainer).toBeInTheDocument()
-    
+
     // Verify ResponsiveContainer is rendered
     const responsiveContainer = container.querySelector('.recharts-responsive-container')
     expect(responsiveContainer).toBeInTheDocument()

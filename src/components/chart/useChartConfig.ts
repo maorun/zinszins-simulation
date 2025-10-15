@@ -20,7 +20,7 @@ interface ChartConfig {
 export function useChartConfig(chartView: ChartView, dataLength: number): ChartConfig {
   return useMemo(() => {
     const isDetailed = chartView === 'detailed'
-    
+
     return {
       isDetailedView: isDetailed,
       containerHeight: isDetailed ? 'h-[500px]' : 'h-96',

@@ -68,7 +68,7 @@ export function ChartVisualization({
 }: ChartVisualizationProps) {
   const endkapitalKey = showInflationAdjusted ? 'endkapitalReal' : 'endkapital'
   const zinsenKey = showInflationAdjusted ? 'zinsenReal' : 'zinsen'
-  
+
   const zinsenLabel = showInflationAdjusted ? 'Zinsen/Gewinne (real)' : 'Zinsen/Gewinne'
   const endkapitalLabel = showInflationAdjusted ? 'Endkapital (real)' : 'Endkapital'
 

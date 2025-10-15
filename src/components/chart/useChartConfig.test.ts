@@ -50,11 +50,11 @@ describe('useChartConfig', () => {
     )
 
     const firstResult = result.current
-    
+
     // Rerender with same props should return same object reference
     rerender({ view: 'overview', length: 10 })
     expect(result.current).toBe(firstResult)
-    
+
     // Rerender with different view should return new object
     rerender({ view: 'detailed', length: 10 })
     expect(result.current).not.toBe(firstResult)

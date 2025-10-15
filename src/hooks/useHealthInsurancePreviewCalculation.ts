@@ -2,10 +2,13 @@ import { useMemo } from 'react'
 import {
   calculateHealthCareInsuranceForYear,
   calculateCoupleHealthInsuranceForYear,
-  createDefaultHealthCareInsuranceConfig,
   type HealthCareInsuranceYearResult,
   type CoupleHealthInsuranceYearResult,
 } from '../../helpers/health-care-insurance'
+import {
+  createCouplePreviewConfig,
+  createIndividualPreviewConfig,
+} from './health-insurance-config-builders'
 
 interface HealthCareInsuranceFormValues {
   enabled: boolean
@@ -60,55 +63,11 @@ export function useHealthInsurancePreviewCalculation({
 
     try {
       if (planningMode === 'couple') {
-        // Create couple config from form values
-        const coupleConfig = {
-          ...createDefaultHealthCareInsuranceConfig(),
-          planningMode: 'couple' as const,
-          insuranceType: values.insuranceType,
-          statutoryHealthInsuranceRate: values.statutoryHealthInsuranceRate,
-          statutoryCareInsuranceRate: values.statutoryCareInsuranceRate,
-          statutoryMinimumIncomeBase: values.statutoryMinimumIncomeBase,
-          statutoryMaximumIncomeBase: values.statutoryMaximumIncomeBase,
-          coupleConfig: {
-            strategy: values.coupleStrategy || 'optimize',
-            familyInsuranceThresholds: {
-              regularEmploymentLimit: values.familyInsuranceThresholdRegular || 505,
-              miniJobLimit: values.familyInsuranceThresholdMiniJob || 538,
-              year: 2025,
-            },
-            person1: {
-              name: values.person1Name || 'Person 1',
-              birthYear: birthYear || 1980,
-              withdrawalShare: values.person1WithdrawalShare || 0.5,
-              otherIncomeAnnual: values.person1OtherIncomeAnnual || 0,
-              additionalCareInsuranceForChildless: values.person1AdditionalCareInsuranceForChildless || false,
-            },
-            person2: {
-              name: values.person2Name || 'Person 2',
-              birthYear: spouseBirthYear || 1980,
-              withdrawalShare: values.person2WithdrawalShare || 0.5,
-              otherIncomeAnnual: values.person2OtherIncomeAnnual || 0,
-              additionalCareInsuranceForChildless: values.person2AdditionalCareInsuranceForChildless || false,
-            },
-          },
-        }
-
+        const coupleConfig = createCouplePreviewConfig(values, birthYear, spouseBirthYear)
         return calculateCoupleHealthInsuranceForYear(coupleConfig, currentYear + 16, withdrawalAmount, 0)
       }
       else {
-        // Individual calculation
-        const individualConfig = {
-          ...createDefaultHealthCareInsuranceConfig(),
-          planningMode: 'individual' as const,
-          insuranceType: values.insuranceType,
-          statutoryHealthInsuranceRate: values.statutoryHealthInsuranceRate,
-          statutoryCareInsuranceRate: values.statutoryCareInsuranceRate,
-          statutoryMinimumIncomeBase: values.statutoryMinimumIncomeBase,
-          statutoryMaximumIncomeBase: values.statutoryMaximumIncomeBase,
-          additionalCareInsuranceForChildless: values.additionalCareInsuranceForChildless,
-          additionalCareInsuranceAge: values.additionalCareInsuranceAge,
-        }
-
+        const individualConfig = createIndividualPreviewConfig(values)
         return calculateHealthCareInsuranceForYear(
           individualConfig,
           currentYear + 16,
