@@ -59,6 +59,90 @@ export type SegmentedWithdrawalConfig = {
 }
 
 /**
+ * Validate segment date ranges
+ */
+function validateSegmentDateRanges(segments: WithdrawalSegment[]): string[] {
+  const errors: string[] = []
+  for (const segment of segments) {
+    if (Math.round(segment.endYear) < Math.round(segment.startYear)) {
+      errors.push(`Segment "${segment.name}": Endjahr kann nicht vor Startjahr liegen`)
+    }
+  }
+  return errors
+}
+
+/**
+ * Validate no overlaps between segments
+ */
+function validateNoOverlaps(sortedSegments: WithdrawalSegment[]): string[] {
+  const errors: string[] = []
+  for (let i = 0; i < sortedSegments.length - 1; i++) {
+    const currentSegment = sortedSegments[i]
+    const nextSegment = sortedSegments[i + 1]
+    const currentEndYear = Math.round(currentSegment.endYear)
+    const nextStartYear = Math.round(nextSegment.startYear)
+
+    if (currentEndYear >= nextStartYear) {
+      errors.push(`Überlappung zwischen Segment "${currentSegment.name}" und "${nextSegment.name}"`)
+    }
+  }
+  return errors
+}
+
+/**
+ * Validate segment IDs are unique
+ */
+function validateUniqueIds(segments: WithdrawalSegment[]): string[] {
+  const ids = segments.map(s => s.id)
+  const uniqueIds = new Set(ids)
+  if (ids.length !== uniqueIds.size) {
+    return ['Segment-IDs müssen eindeutig sein']
+  }
+  return []
+}
+
+/**
+ * Validate segment boundaries match withdrawal period
+ */
+function validateSegmentBoundaries(
+  sortedSegments: WithdrawalSegment[],
+  startYear: number,
+  endYear: number,
+): string[] {
+  const errors: string[] = []
+  const firstSegment = sortedSegments[0]
+  const lastSegment = sortedSegments[sortedSegments.length - 1]
+
+  if (Math.round(firstSegment.startYear) !== Math.round(startYear)) {
+    errors.push(`Die erste Phase muss am Entsparzeitpunkt (${startYear}) beginnen. Aktuelle erste Phase beginnt ${Math.round(firstSegment.startYear)}.`)
+  }
+
+  if (Math.round(lastSegment.endYear) !== Math.round(endYear)) {
+    errors.push(`Die letzte Phase muss am Lebensende (${endYear}) enden. Aktuelle letzte Phase endet ${Math.round(lastSegment.endYear)}.`)
+  }
+
+  return errors
+}
+
+/**
+ * Validate no gaps between consecutive segments
+ */
+function validateContinuousSegments(sortedSegments: WithdrawalSegment[]): string[] {
+  const errors: string[] = []
+  for (let i = 0; i < sortedSegments.length - 1; i++) {
+    const currentSegment = sortedSegments[i]
+    const nextSegment = sortedSegments[i + 1]
+    const currentEndYear = Math.round(currentSegment.endYear)
+    const nextStartYear = Math.round(nextSegment.startYear)
+
+    if (currentEndYear + 1 !== nextStartYear) {
+      errors.push(`Lücke zwischen Segment "${currentSegment.name}" (endet ${currentEndYear}) und "${nextSegment.name}" (beginnt ${nextStartYear}). Die Zeiträume müssen durchgängig sein.`)
+    }
+  }
+  return errors
+}
+
+/**
  * Validate that withdrawal segments are properly configured without overlaps
  * @param segments - Array of withdrawal segments
  * @param startYear - First year of withdrawal phase (Entsparzeitpunkt)
@@ -70,74 +154,19 @@ export function validateWithdrawalSegments(
   startYear: number,
   endYear: number,
 ): string[] {
-  const errors: string[] = []
-
   if (segments.length === 0) {
-    errors.push('Mindestens ein Segment ist erforderlich')
-    return errors
+    return ['Mindestens ein Segment ist erforderlich']
   }
 
-  // Sort segments by start year for validation
   const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
 
-  // Check each segment individually
-  for (const segment of sortedSegments) {
-    // Check if segment end year is before start year
-    if (Math.round(segment.endYear) < Math.round(segment.startYear)) {
-      errors.push(`Segment "${segment.name}": Endjahr kann nicht vor Startjahr liegen`)
-    }
-  }
-
-  // Check for overlaps only (gaps are allowed)
-  for (let i = 0; i < sortedSegments.length - 1; i++) {
-    const currentSegment = sortedSegments[i]
-    const nextSegment = sortedSegments[i + 1]
-
-    const currentEndYear = Math.round(currentSegment.endYear)
-    const nextStartYear = Math.round(nextSegment.startYear)
-
-    // Check for overlaps only - gaps are now allowed for flexible phase positioning
-    if (currentEndYear >= nextStartYear) {
-      errors.push(`Überlappung zwischen Segment "${currentSegment.name}" und "${nextSegment.name}"`)
-    }
-  }
-
-  // Check for duplicate IDs
-  const ids = segments.map(s => s.id)
-  const uniqueIds = new Set(ids)
-  if (ids.length !== uniqueIds.size) {
-    errors.push('Segment-IDs müssen eindeutig sein')
-  }
-
-  // Enhanced validation for segmented phases (geteilte Phasen)
-  const firstSegment = sortedSegments[0]
-  const lastSegment = sortedSegments[sortedSegments.length - 1]
-
-  // 1. Check if the start time of the first phase is identical to the withdrawal start time
-  if (Math.round(firstSegment.startYear) !== Math.round(startYear)) {
-    errors.push(`Die erste Phase muss am Entsparzeitpunkt (${startYear}) beginnen. Aktuelle erste Phase beginnt ${Math.round(firstSegment.startYear)}.`)
-  }
-
-  // 2. Check if the end time of the last phase is identical to the end of life
-  if (Math.round(lastSegment.endYear) !== Math.round(endYear)) {
-    errors.push(`Die letzte Phase muss am Lebensende (${endYear}) enden. Aktuelle letzte Phase endet ${Math.round(lastSegment.endYear)}.`)
-  }
-
-  // 3. Check if the time periods are continuous (no gaps between phases)
-  for (let i = 0; i < sortedSegments.length - 1; i++) {
-    const currentSegment = sortedSegments[i]
-    const nextSegment = sortedSegments[i + 1]
-
-    const currentEndYear = Math.round(currentSegment.endYear)
-    const nextStartYear = Math.round(nextSegment.startYear)
-
-    // Check for gaps between consecutive segments
-    if (currentEndYear + 1 !== nextStartYear) {
-      errors.push(`Lücke zwischen Segment "${currentSegment.name}" (endet ${currentEndYear}) und "${nextSegment.name}" (beginnt ${nextStartYear}). Die Zeiträume müssen durchgängig sein.`)
-    }
-  }
-
-  return errors
+  return [
+    ...validateSegmentDateRanges(sortedSegments),
+    ...validateNoOverlaps(sortedSegments),
+    ...validateUniqueIds(segments),
+    ...validateSegmentBoundaries(sortedSegments, startYear, endYear),
+    ...validateContinuousSegments(sortedSegments),
+  ]
 }
 
 /**
