@@ -370,11 +370,19 @@ Für jedes Refactoring:
 - [ ] CareCostConfiguration
 - [ ] HistoricalReturnConfiguration
 
-### Phase 4 - ESLint-Limits: 1/3 (33%)
+### Phase 4 - ESLint-Limits: 2/3 (67%)
 
-- [x] Limits auf 300/20 (19 warnings identified for future refactoring)
-- [ ] Limits auf 200/15
-- [ ] Limits auf 50/8 (Zielmarke)
+- [x] **Phase 4.1**: Limits auf 300/20 (19 warnings identified for future refactoring)
+- [x] **Phase 4.2**: Limits auf 200/15 (53 warnings, 0 in Zielkomponenten)
+  - **Zielkomponenten behoben**:
+    - HomePageContent (174 Zeilen, Komplexität 6) ✅
+    - EnhancedOverview (68 Zeilen, Komplexität 3) ✅
+    - InteractiveChart (132 Zeilen, Komplexität reduziert von 18→<15) ✅
+  - **InteractiveChart Refactoring**:
+    - Extrahierte `chartConfig` als useMemo (reduziert Komplexität)
+    - Extrahierte `displayLabels` als useMemo (reduziert Komplexität)
+    - Komplexität: 18 → <15 durch Verwendung berechneter Konstanten
+- [ ] **Phase 4.3**: Limits auf 50/8 (Zielmarke)
 
 ## Referenzen
 
@@ -386,5 +394,5 @@ Für jedes Refactoring:
 ---
 
 **Erstellt**: Dezember 2024  
-**Letzte Aktualisierung**: Dezember 2024  
-**Status**: Phase 1.1 in Arbeit
+**Letzte Aktualisierung**: Januar 2025  
+**Status**: Phase 4.2 abgeschlossen
