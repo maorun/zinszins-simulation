@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef } from 'react'
+import { useEffect, useRef } from 'react'
 import { Button } from '../components/ui/button'
 import ProfileManagement from '../components/ProfileManagement'
 import DataExport from '../components/DataExport'
@@ -18,11 +18,10 @@ import { WithdrawalPhaseSection } from '../components/overview/WithdrawalPhaseSe
 import { SimulationProvider } from '../contexts/SimulationContext'
 import { NavigationProvider } from '../contexts/NavigationContext'
 import { useSimulation } from '../contexts/useSimulation'
-import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
-import { calculateWithdrawalEndYear } from '../utils/overview-calculations'
 import { convertSparplanToElements } from '../utils/sparplan-utils'
 import { useScenarioApplication } from '../hooks/useScenarioApplication'
 import { useReturnConfiguration } from '../hooks/useReturnConfiguration'
+import { useOverviewYearRanges } from '../hooks/useOverviewYearRanges'
 import { calculatePhaseDateRanges } from '../utils/phase-date-ranges'
 
 function EnhancedOverview() {
@@ -37,8 +36,8 @@ function EnhancedOverview() {
     endOfLife,
   } = useSimulation()
 
-  const enhancedSummary = useMemo(() => {
-    return getEnhancedOverviewSummary(
+  const { enhancedSummary, savingsStartYear, savingsEndYear, withdrawalEndYear }
+    = useOverviewYearRanges(
       simulationData,
       startEnd,
       withdrawalResults,
@@ -48,32 +47,8 @@ function EnhancedOverview() {
       withdrawalConfig,
       endOfLife,
     )
-  }, [
-    simulationData,
-    startEnd,
-    withdrawalResults,
-    rendite,
-    steuerlast,
-    teilfreistellungsquote,
-    withdrawalConfig,
-    endOfLife,
-  ])
 
   if (!enhancedSummary || !simulationData) return null
-
-  const savingsStartYear = Math.min(
-    ...simulationData.sparplanElements.map(el =>
-      new Date(el.start).getFullYear(),
-    ),
-  )
-  const savingsEndYear = startEnd[0]
-
-  // Calculate proper withdrawal end year using utility function
-  const withdrawalEndYear = calculateWithdrawalEndYear(
-    enhancedSummary,
-    endOfLife,
-    startEnd[1],
-  )
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
