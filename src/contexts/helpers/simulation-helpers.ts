@@ -85,6 +85,39 @@ export function applyBlackSwanReturns(
 }
 
 /**
+ * Check if inflation scenario modifiers should be applied
+ */
+function shouldApplyModifiers(
+  inflationScenarioReturnModifiers: Record<number, number> | null,
+  returnMode: ReturnMode,
+): boolean {
+  return !!(
+    inflationScenarioReturnModifiers
+    && Object.keys(inflationScenarioReturnModifiers).length > 0
+    && returnMode === 'variable'
+  )
+}
+
+/**
+ * Apply modifiers to yearly returns
+ */
+function applyModifiersToReturns(
+  baseReturns: Record<number, number>,
+  inflationScenarioReturnModifiers: Record<number, number>,
+  rendite: number,
+): Record<number, number> {
+  const modifiedReturns: Record<number, number> = { ...baseReturns }
+
+  for (const [yearStr, modifier] of Object.entries(inflationScenarioReturnModifiers)) {
+    const year = Number(yearStr)
+    const baseReturn = modifiedReturns[year] || (rendite / 100)
+    modifiedReturns[year] = baseReturn + modifier
+  }
+
+  return modifiedReturns
+}
+
+/**
  * Apply inflation scenario return modifiers
  */
 export function applyInflationScenarioModifiers(
@@ -93,19 +126,12 @@ export function applyInflationScenarioModifiers(
   returnMode: ReturnMode,
   rendite: number,
 ): ReturnConfiguration {
-  if (!inflationScenarioReturnModifiers || Object.keys(inflationScenarioReturnModifiers).length === 0 || returnMode !== 'variable') {
+  if (!shouldApplyModifiers(inflationScenarioReturnModifiers, returnMode)) {
     return returnConfig
   }
 
   const baseReturns = (returnConfig.mode === 'variable' && returnConfig.variableConfig?.yearlyReturns) || {}
-  const modifiedReturns: Record<number, number> = { ...baseReturns }
-
-  // Apply return modifiers
-  for (const [yearStr, modifier] of Object.entries(inflationScenarioReturnModifiers)) {
-    const year = Number(yearStr)
-    const baseReturn = modifiedReturns[year] || (rendite / 100)
-    modifiedReturns[year] = baseReturn + modifier
-  }
+  const modifiedReturns = applyModifiersToReturns(baseReturns, inflationScenarioReturnModifiers!, rendite)
 
   return {
     mode: 'variable',

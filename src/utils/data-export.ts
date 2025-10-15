@@ -458,6 +458,56 @@ interface WithdrawalHeaderParams {
   grundfreibetragAktiv: boolean
 }
 
+/**
+ * Add strategy-specific headers for monthly fixed withdrawal
+ */
+function addMonthlyFixedHeaders(
+  headers: string[],
+  withdrawalConfig: WithdrawalConfiguration,
+): void {
+  headers.push('Monatliche Entnahme (EUR)')
+  if (withdrawalConfig.formValue.inflationAktiv) {
+    headers.push('Inflationsanpassung (EUR)')
+  }
+  if (withdrawalConfig.formValue.guardrailsAktiv) {
+    headers.push('Portfolio-Anpassung (EUR)')
+  }
+}
+
+/**
+ * Add strategy-specific headers for dynamic withdrawal
+ */
+function addDynamicHeaders(headers: string[]): void {
+  headers.push('Vorjahres-Rendite (%)')
+  headers.push('Dynamische Anpassung (EUR)')
+}
+
+/**
+ * Add income tax headers
+ */
+function addIncomeTaxHeaders(headers: string[]): void {
+  headers.push('Einkommensteuer (EUR)')
+  headers.push('Genutzter Grundfreibetrag (EUR)')
+}
+
+/**
+ * Check if withdrawal data has other income
+ */
+function hasOtherIncome(withdrawalData: WithdrawalResult): boolean {
+  return Object.values(withdrawalData).some(yearData =>
+    yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
+  )
+}
+
+/**
+ * Add other income headers
+ */
+function addOtherIncomeHeaders(headers: string[]): void {
+  headers.push('Andere Einkünfte Netto (EUR)')
+  headers.push('Steuern auf andere Einkünfte (EUR)')
+  headers.push('Anzahl Einkommensquellen')
+}
+
 function generateWithdrawalCSVHeaders(params: WithdrawalHeaderParams): string[] {
   const { withdrawalConfig, withdrawalData, grundfreibetragAktiv } = params
 
@@ -479,34 +529,19 @@ function generateWithdrawalCSVHeaders(params: WithdrawalHeaderParams): string[] 
 
   // Add conditional headers based on strategy
   if (withdrawalConfig?.formValue.strategie === 'monatlich_fest') {
-    headers.push('Monatliche Entnahme (EUR)')
-    if (withdrawalConfig.formValue.inflationAktiv) {
-      headers.push('Inflationsanpassung (EUR)')
-    }
-    if (withdrawalConfig.formValue.guardrailsAktiv) {
-      headers.push('Portfolio-Anpassung (EUR)')
-    }
+    addMonthlyFixedHeaders(headers, withdrawalConfig)
   }
 
   if (withdrawalConfig?.formValue.strategie === 'dynamisch') {
-    headers.push('Vorjahres-Rendite (%)')
-    headers.push('Dynamische Anpassung (EUR)')
+    addDynamicHeaders(headers)
   }
 
   if (grundfreibetragAktiv) {
-    headers.push('Einkommensteuer (EUR)')
-    headers.push('Genutzter Grundfreibetrag (EUR)')
+    addIncomeTaxHeaders(headers)
   }
 
-  // Check if any withdrawal data contains other income
-  const hasOtherIncomeData = Object.values(withdrawalData).some(yearData =>
-    yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
-  )
-
-  if (hasOtherIncomeData) {
-    headers.push('Andere Einkünfte Netto (EUR)')
-    headers.push('Steuern auf andere Einkünfte (EUR)')
-    headers.push('Anzahl Einkommensquellen')
+  if (hasOtherIncome(withdrawalData)) {
+    addOtherIncomeHeaders(headers)
   }
 
   return headers

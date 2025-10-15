@@ -1,5 +1,5 @@
 import { convertSparplanToElements } from '../../utils/sparplan-utils'
-import { convertLegacyToCoupleConfig } from '../../../helpers/statutory-pension'
+import { convertLegacyToCoupleConfig, type CoupleStatutoryPensionConfig } from '../../../helpers/statutory-pension'
 import type { ExtendedSavedConfiguration, DefaultConfiguration, ConfigurationSetters } from './config-types'
 
 /**
@@ -113,6 +113,41 @@ export function loadPlanningModeConfig(
 }
 
 /**
+ * Get couple statutory pension configuration with fallback
+ */
+function getCoupleStatutoryPensionConfig(
+  savedConfig: ExtendedSavedConfiguration,
+): CoupleStatutoryPensionConfig | null {
+  if (savedConfig.coupleStatutoryPensionConfig) {
+    return savedConfig.coupleStatutoryPensionConfig
+  }
+
+  if (savedConfig.statutoryPensionConfig) {
+    return convertLegacyToCoupleConfig(
+      savedConfig.statutoryPensionConfig,
+      savedConfig.planningMode || 'couple',
+    )
+  }
+
+  return null
+}
+
+/**
+ * Load care cost configuration with planning mode
+ */
+function loadCareCostConfig(
+  savedConfig: ExtendedSavedConfiguration,
+  setCareCostConfiguration: ConfigurationSetters['setCareCostConfiguration'],
+): void {
+  if (savedConfig.careCostConfiguration) {
+    setCareCostConfiguration({
+      ...savedConfig.careCostConfiguration,
+      planningMode: savedConfig.planningMode || 'individual',
+    })
+  }
+}
+
+/**
  * Load withdrawal and pension configuration
  */
 export function loadWithdrawalConfig(
@@ -122,21 +157,10 @@ export function loadWithdrawalConfig(
   setters.setWithdrawalConfig(savedConfig.withdrawal || null)
   setters.setStatutoryPensionConfig(savedConfig.statutoryPensionConfig || null)
 
-  // Load couple statutory pension config with fallback to legacy conversion
-  const coupleConfig = savedConfig.coupleStatutoryPensionConfig
-    || (savedConfig.statutoryPensionConfig
-      ? convertLegacyToCoupleConfig(savedConfig.statutoryPensionConfig, savedConfig.planningMode || 'couple')
-      : null)
+  const coupleConfig = getCoupleStatutoryPensionConfig(savedConfig)
   setters.setCoupleStatutoryPensionConfig(coupleConfig)
 
-  // Load care cost configuration
-  if (savedConfig.careCostConfiguration) {
-    setters.setCareCostConfiguration({
-      ...savedConfig.careCostConfiguration,
-      planningMode: savedConfig.planningMode || 'individual',
-    })
-  }
+  loadCareCostConfig(savedConfig, setters.setCareCostConfiguration)
 
-  // Load financial goals
   setters.setFinancialGoals(savedConfig.financialGoals || [])
 }
