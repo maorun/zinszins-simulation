@@ -12,39 +12,78 @@ import { calculateHealthCareInsuranceForYear, calculateCoupleHealthInsuranceForY
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt' | 'steueroptimiert'
 
 /**
+ * Generate fixed rate growth for all years
+ */
+function generateFixedGrowthRates(
+  allYears: number[],
+  fixedRate: number,
+): Record<number, number> {
+  const yearlyGrowthRates: Record<number, number> = {}
+  for (const year of allYears) {
+    yearlyGrowthRates[year] = fixedRate
+  }
+  return yearlyGrowthRates
+}
+
+/**
+ * Generate variable growth rates from config
+ */
+function generateVariableGrowthRates(
+  allYears: number[],
+  variableConfig: { yearlyReturns: Record<number, number> },
+): Record<number, number> {
+  const yearlyGrowthRates: Record<number, number> = {}
+  for (const year of allYears) {
+    yearlyGrowthRates[year] = variableConfig.yearlyReturns[year] || 0.05
+  }
+  return yearlyGrowthRates
+}
+
+/**
+ * Generate multi-asset growth rates with fallback
+ */
+function generateMultiAssetGrowthRates(
+  allYears: number[],
+  multiAssetConfig: unknown,
+): Record<number, number> {
+  try {
+    const { generateMultiAssetReturns } = require('./multi-asset-calculations')
+    return generateMultiAssetReturns(allYears, multiAssetConfig)
+  }
+  catch (error) {
+    console.warn('Multi-asset calculations not available, falling back to 5% fixed return:', error)
+    return generateFixedGrowthRates(allYears, 0.05)
+  }
+}
+
+/**
+ * Generate growth rates for each return mode
+ */
+const GROWTH_RATE_GENERATORS: Record<
+  string,
+  (allYears: number[], returnConfig: ReturnConfiguration) => Record<number, number>
+> = {
+  fixed: (allYears, config) => generateFixedGrowthRates(allYears, config.fixedRate || 0.05),
+  random: (allYears, config) => config.randomConfig
+    ? generateRandomReturns(allYears, config.randomConfig)
+    : {},
+  variable: (allYears, config) => config.variableConfig
+    ? generateVariableGrowthRates(allYears, config.variableConfig)
+    : {},
+  multiasset: (allYears, config) => config.multiAssetConfig
+    ? generateMultiAssetGrowthRates(allYears, config.multiAssetConfig)
+    : {},
+}
+
+/**
  * Helper function: Generate yearly growth rates based on return configuration
  */
 function generateYearlyGrowthRates(
   allYears: number[],
   returnConfig: ReturnConfiguration,
 ): Record<number, number> {
-  const yearlyGrowthRates: Record<number, number> = {}
-
-  if (returnConfig.mode === 'fixed') {
-    const fixedRate = returnConfig.fixedRate || 0.05
-    for (const year of allYears) yearlyGrowthRates[year] = fixedRate
-  }
-  else if (returnConfig.mode === 'random' && returnConfig.randomConfig) {
-    Object.assign(yearlyGrowthRates, generateRandomReturns(allYears, returnConfig.randomConfig))
-  }
-  else if (returnConfig.mode === 'variable' && returnConfig.variableConfig) {
-    for (const year of allYears) {
-      yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] || 0.05
-    }
-  }
-  else if (returnConfig.mode === 'multiasset' && returnConfig.multiAssetConfig) {
-    try {
-      const { generateMultiAssetReturns } = require('./multi-asset-calculations')
-      const multiAssetReturns = generateMultiAssetReturns(allYears, returnConfig.multiAssetConfig)
-      Object.assign(yearlyGrowthRates, multiAssetReturns)
-    }
-    catch (error) {
-      console.warn('Multi-asset calculations not available, falling back to 5% fixed return:', error)
-      for (const year of allYears) yearlyGrowthRates[year] = 0.05
-    }
-  }
-
-  return yearlyGrowthRates
+  const generator = GROWTH_RATE_GENERATORS[returnConfig.mode]
+  return generator ? generator(allYears, returnConfig) : {}
 }
 
 /**
@@ -1953,27 +1992,25 @@ function generateTestWithdrawalAmounts(
 }
 
 /**
- * Find optimal withdrawal amount that maximizes after-tax income
- * This is a simplified implementation - real optimization would use more sophisticated algorithms
+ * Validate withdrawal optimization inputs
  */
-function findOptimalAfterTaxWithdrawal(
+function areWithdrawalInputsValid(
   capitalAtStartOfYear: number,
   baseWithdrawalAmount: number,
-  availableFreibetrag: number,
+): boolean {
+  return baseWithdrawalAmount > 0 && capitalAtStartOfYear > 0
+}
+
+/**
+ * Find best amount from test amounts
+ */
+function findBestWithdrawalAmount(
+  testAmounts: number[],
+  baseWithdrawalAmount: number,
   taxRate: number,
   teilfreistellungsquote: number,
+  availableFreibetrag: number,
 ): number {
-  // Validate inputs
-  if (!baseWithdrawalAmount || baseWithdrawalAmount <= 0 || !capitalAtStartOfYear || capitalAtStartOfYear <= 0) {
-    return baseWithdrawalAmount || 0
-  }
-
-  const testAmounts = generateTestWithdrawalAmounts(baseWithdrawalAmount, capitalAtStartOfYear)
-
-  if (testAmounts.length === 0) {
-    return Math.min(capitalAtStartOfYear, baseWithdrawalAmount)
-  }
-
   let bestAmount = baseWithdrawalAmount
   let bestAfterTax = 0
 
@@ -1985,6 +2022,39 @@ function findOptimalAfterTaxWithdrawal(
       bestAmount = amount
     }
   }
+
+  return bestAmount
+}
+
+/**
+ * Find optimal withdrawal amount that maximizes after-tax income
+ * This is a simplified implementation - real optimization would use more sophisticated algorithms
+ */
+function findOptimalAfterTaxWithdrawal(
+  capitalAtStartOfYear: number,
+  baseWithdrawalAmount: number,
+  availableFreibetrag: number,
+  taxRate: number,
+  teilfreistellungsquote: number,
+): number {
+  // Validate inputs
+  if (!areWithdrawalInputsValid(capitalAtStartOfYear, baseWithdrawalAmount)) {
+    return baseWithdrawalAmount || 0
+  }
+
+  const testAmounts = generateTestWithdrawalAmounts(baseWithdrawalAmount, capitalAtStartOfYear)
+
+  if (testAmounts.length === 0) {
+    return Math.min(capitalAtStartOfYear, baseWithdrawalAmount)
+  }
+
+  const bestAmount = findBestWithdrawalAmount(
+    testAmounts,
+    baseWithdrawalAmount,
+    taxRate,
+    teilfreistellungsquote,
+    availableFreibetrag,
+  )
 
   return isNaN(bestAmount) ? baseWithdrawalAmount : bestAmount
 }

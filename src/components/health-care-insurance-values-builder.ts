@@ -62,20 +62,22 @@ function buildCoupleStrategyValues(config: WithdrawalFormValue['healthCareInsura
 }
 
 function buildPerson1Values(config: WithdrawalFormValue['healthCareInsuranceConfig']) {
+  const person1 = config?.coupleConfig?.person1
   return {
-    person1Name: config?.coupleConfig?.person1?.name,
-    person1WithdrawalShare: config?.coupleConfig?.person1?.withdrawalShare,
-    person1OtherIncomeAnnual: config?.coupleConfig?.person1?.otherIncomeAnnual,
-    person1AdditionalCareInsuranceForChildless: config?.coupleConfig?.person1?.additionalCareInsuranceForChildless,
+    person1Name: person1?.name,
+    person1WithdrawalShare: person1?.withdrawalShare,
+    person1OtherIncomeAnnual: person1?.otherIncomeAnnual,
+    person1AdditionalCareInsuranceForChildless: person1?.additionalCareInsuranceForChildless,
   }
 }
 
 function buildPerson2Values(config: WithdrawalFormValue['healthCareInsuranceConfig']) {
+  const person2 = config?.coupleConfig?.person2
   return {
-    person2Name: config?.coupleConfig?.person2?.name,
-    person2WithdrawalShare: config?.coupleConfig?.person2?.withdrawalShare,
-    person2OtherIncomeAnnual: config?.coupleConfig?.person2?.otherIncomeAnnual,
-    person2AdditionalCareInsuranceForChildless: config?.coupleConfig?.person2?.additionalCareInsuranceForChildless,
+    person2Name: person2?.name,
+    person2WithdrawalShare: person2?.withdrawalShare,
+    person2OtherIncomeAnnual: person2?.otherIncomeAnnual,
+    person2AdditionalCareInsuranceForChildless: person2?.additionalCareInsuranceForChildless,
   }
 }
 

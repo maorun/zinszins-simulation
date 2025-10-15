@@ -671,6 +671,67 @@ function applyFamilyStrategy(params: ApplyStrategyParams) {
 }
 
 /**
+ * Calculate individual person income
+ */
+function calculatePersonIncome(
+  totalWithdrawal: number,
+  withdrawalShare: number,
+  otherIncomeAnnual: number,
+): number {
+  return totalWithdrawal * withdrawalShare + otherIncomeAnnual
+}
+
+/**
+ * Calculate person age
+ */
+function calculatePersonAge(birthYear: number | undefined, year: number): number {
+  return birthYear ? year - birthYear : 30
+}
+
+/**
+ * Create person data for couple health insurance
+ */
+function createPersonData(
+  personConfig: unknown,
+  totalWithdrawal: number,
+  income: number,
+  qualifiesForFamily: boolean,
+  individualResult: HealthCareInsuranceYearResult,
+): PersonData {
+  return {
+    config: personConfig,
+    income,
+    qualifiesForFamily,
+    individualResult,
+    totalWithdrawal,
+  }
+}
+
+/**
+ * Determine best strategy and apply it
+ */
+function applyBestStrategy(params: ApplyStrategyParams) {
+  const { strategy, bestFamilyOption, individualTotalAnnual } = params
+
+  if (strategy === 'individual') {
+    return applyIndividualStrategy(params)
+  }
+
+  if (strategy === 'family' && bestFamilyOption.viable) {
+    return applyFamilyStrategy(params)
+  }
+
+  // Auto-optimize strategy
+  const bestStrategy = bestFamilyOption.viable && bestFamilyOption.totalCost < individualTotalAnnual
+    ? 'family'
+    : 'individual'
+
+  return bestStrategy === 'family'
+    ? applyFamilyStrategy({ ...params, strategy: 'family' })
+    : applyIndividualStrategy({ ...params, strategy: 'individual' })
+}
+
+/**
  * Calculate optimal health insurance strategy for couples
  */
 export function calculateCoupleHealthInsuranceForYear(
@@ -686,11 +747,19 @@ export function calculateCoupleHealthInsuranceForYear(
   const coupleConfig = config.coupleConfig
   const totalWithdrawal = withdrawalAmount + pensionAmount
 
-  const person1Income = totalWithdrawal * coupleConfig.person1.withdrawalShare + coupleConfig.person1.otherIncomeAnnual
-  const person2Income = totalWithdrawal * coupleConfig.person2.withdrawalShare + coupleConfig.person2.otherIncomeAnnual
+  const person1Income = calculatePersonIncome(
+    totalWithdrawal,
+    coupleConfig.person1.withdrawalShare,
+    coupleConfig.person1.otherIncomeAnnual,
+  )
+  const person2Income = calculatePersonIncome(
+    totalWithdrawal,
+    coupleConfig.person2.withdrawalShare,
+    coupleConfig.person2.otherIncomeAnnual,
+  )
 
-  const person1Age = coupleConfig.person1.birthYear ? year - coupleConfig.person1.birthYear : 30
-  const person2Age = coupleConfig.person2.birthYear ? year - coupleConfig.person2.birthYear : 30
+  const person1Age = calculatePersonAge(coupleConfig.person1.birthYear, year)
+  const person2Age = calculatePersonAge(coupleConfig.person2.birthYear, year)
 
   const person1QualifiesForFamily = qualifiesForFamilyInsurance(
     person1Income / 12,
@@ -730,21 +799,21 @@ export function calculateCoupleHealthInsuranceForYear(
 
   const bestFamilyOption = getBestFamilyOption(familyScenarios)
 
-  const person1Data: PersonData = {
-    config: coupleConfig.person1,
-    income: person1Income,
-    qualifiesForFamily: person1QualifiesForFamily,
-    individualResult: person1IndividualResult,
+  const person1Data = createPersonData(
+    coupleConfig.person1,
     totalWithdrawal,
-  }
+    person1Income,
+    person1QualifiesForFamily,
+    person1IndividualResult,
+  )
 
-  const person2Data: PersonData = {
-    config: coupleConfig.person2,
-    income: person2Income,
-    qualifiesForFamily: person2QualifiesForFamily,
-    individualResult: person2IndividualResult,
+  const person2Data = createPersonData(
+    coupleConfig.person2,
     totalWithdrawal,
-  }
+    person2Income,
+    person2QualifiesForFamily,
+    person2IndividualResult,
+  )
 
   const strategyParams: ApplyStrategyParams = {
     strategy: coupleConfig.strategy,
@@ -754,23 +823,7 @@ export function calculateCoupleHealthInsuranceForYear(
     individualTotalAnnual,
   }
 
-  let result
-  if (coupleConfig.strategy === 'individual') {
-    result = applyIndividualStrategy(strategyParams)
-  }
-  else if (coupleConfig.strategy === 'family' && bestFamilyOption.viable) {
-    result = applyFamilyStrategy(strategyParams)
-  }
-  else {
-    const bestStrategy = bestFamilyOption.viable
-      && bestFamilyOption.totalCost < individualTotalAnnual
-      ? 'family'
-      : 'individual'
-
-    result = bestStrategy === 'family'
-      ? applyFamilyStrategy({ ...strategyParams, strategy: 'family' })
-      : applyIndividualStrategy({ ...strategyParams, strategy: 'individual' })
-  }
+  const result = applyBestStrategy(strategyParams)
 
   return {
     strategyUsed: result.strategyUsed,
