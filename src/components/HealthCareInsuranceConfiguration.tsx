@@ -43,7 +43,7 @@ interface HealthCareInsuranceFormValues {
   person2AdditionalCareInsuranceForChildless?: boolean
 }
 
-interface HealthCareInsuranceChangeHandlers {
+export interface HealthCareInsuranceChangeHandlers {
   onEnabledChange: (enabled: boolean) => void
   onInsuranceTypeChange: (type: 'statutory' | 'private') => void
   onIncludeEmployerContributionChange: (include: boolean) => void

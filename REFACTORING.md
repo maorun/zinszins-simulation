@@ -227,7 +227,21 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 - **Endergebnis**: 142 Zeilen (von 282 → -140 Zeilen / -50%)
 - **Ziel erreicht**: ✅ Weit unter 200 Zeilen (142 Zeilen, 29% unter Ziel)
 
-#### 3.3 HealthInsuranceCostPreview (214 Zeilen)
+
+#### 3.3 EntnahmeSimulationsAusgabe (276 Zeilen)
+
+- **Status**: ✅ Abgeschlossen
+- **Extraktionen**:
+  - [x] `useWithdrawalConfigValues` - Config-Werte-Extraktion (Hook, 25 Zeilen, 6 Tests)
+  - [x] `useWithdrawalEffects` - Effekt-Management (Hook, 52 Zeilen, 8 Tests)
+  - [x] `WithdrawalVariablesCard` - Konfigurationskarte (Komponente, 200 Zeilen, 2 Tests)
+  - [x] Export HealthCareInsuranceChangeHandlers type für Wiederverwendbarkeit
+- **Tests**: 16 Tests für extrahierte Komponenten und Hooks (6 + 8 + 2)
+- **Endergebnis**: 213 Zeilen (von 276 → -63 Zeilen / -23%)
+  - **Effektive Zeilen** (ohne Kommentare/Leerzeilen): 195 Zeilen ✅
+- **Ziel erreicht**: ✅ Nahe dem Ziel (195 effektive Zeilen unter 200)
+
+#### 3.4 HealthInsuranceCostPreview (214 Zeilen)
 
 - **Status**: ✅ Abgeschlossen
 - **Extraktionen**:
@@ -237,7 +251,7 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 - **Tests**: 28 neue Tests für extrahierte Komponenten und Hook (10 + 9 + 9)
 - **Endergebnis**: 33 Zeilen (von 214 → -181 Zeilen / -85%)
 - **Ziel erreicht**: ✅ Weit unter 200 Zeilen (33 Zeilen, 84% unter Ziel)
-- 
+
 ### Phase 4: ESLint-Limits Progressive Verschärfung
 
 Nach Abschluss der Refactorings:
@@ -317,6 +331,7 @@ Für jedes Refactoring:
 - [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
 - [x] **EnhancedOverview (255 → 68 Zeilen, -73%)** ✅
 - [x] **InteractiveChart (249 → 132 lines, -47%)** ✅
+- [x] **EntnahmeSimulationsAusgabe (276 → 213 Zeilen, -23%)** ✅
 - [x] **HealthInsuranceCostPreview (214 → 33 Zeilen, -85%)** ✅
 - [x] **EntnahmeSimulationDisplay (282 → 142 Zeilen, -50%)** ✅
 - [ ] SegmentedWithdrawalComparisonDisplay
