@@ -217,6 +217,16 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 - **Endergebnis**: 178 Zeilen (von 248 → -70 Zeilen / -28%)
 - **Ziel erreicht**: ✅ Unter 200 Zeilen (178 Zeilen)
 
+#### 3.2 EntnahmeSimulationDisplay (282 Zeilen)
+
+- **Status**: ✅ Abgeschlossen
+- **Extraktionen**:
+  - [x] `WithdrawalStrategySummary` - Zusammenfassung der Entnahmestrategie-Details (153 Zeilen, 19 Tests)
+  - [x] `formatDuration` - Utility-Funktion für Dauer-Formatierung (11 Zeilen, 5 Tests)
+- **Tests**: 24 neue Tests für extrahierte Komponenten und Utilities (19 + 5)
+- **Endergebnis**: 142 Zeilen (von 282 → -140 Zeilen / -50%)
+- **Ziel erreicht**: ✅ Weit unter 200 Zeilen (142 Zeilen, 29% unter Ziel)
+
 ### Phase 4: ESLint-Limits Progressive Verschärfung
 
 Nach Abschluss der Refactorings:
@@ -290,16 +300,16 @@ Für jedes Refactoring:
 - [ ] DataExport
 - [ ] OtherIncomeSourceFormEditor
 
-### Phase 3 - Fortschritt: 3/12 (25%)
+### Phase 3 - Fortschritt: 5/12 (42%)
 
 - [x] SimulationProvider (248 → 178 Zeilen, -28%)
 - [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
 - [x] **EnhancedOverview (255 → 68 Zeilen, -73%)** ✅
 - [x] **InteractiveChart (249 → 132 lines, -47%)** ✅
+- [x] **EntnahmeSimulationDisplay (282 → 142 Zeilen, -50%)** ✅
 - [ ] EntnahmeSimulationsAusgabe
 - [ ] SegmentedWithdrawalComparisonDisplay
 - [ ] CareCostConfiguration
-- [ ] EntnahmeSimulationDisplay
 - [ ] HistoricalReturnConfiguration
 - [ ] WithdrawalReturnModeConfiguration
 - [ ] WithdrawalYearCard
