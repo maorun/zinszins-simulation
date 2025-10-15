@@ -1,28 +1,19 @@
-import { useEffect, useMemo, useRef } from 'react'
-import { Button } from '../components/ui/button'
-import ProfileManagement from '../components/ProfileManagement'
-import DataExport from '../components/DataExport'
-import SensitivityAnalysisDisplay from '../components/SensitivityAnalysisDisplay'
-import Header from '../components/Header'
-import SimulationModeSelector from '../components/SimulationModeSelector'
-import SimulationParameters from '../components/SimulationParameters'
+import { useRef } from 'react'
 import { SpecialEvents } from '../components/SpecialEvents'
 import { StickyOverview } from '../components/StickyOverview'
 import { StickyBottomOverview } from '../components/StickyBottomOverview'
-import { GlobalPlanningConfiguration } from '../components/GlobalPlanningConfiguration'
-import FinancialGoalsConfiguration from '../components/FinancialGoalsConfiguration'
-import ScenarioSelector from '../components/ScenarioSelector'
+import { HomePageHeaderSection } from '../components/HomePageHeaderSection'
+import { HomePageAnalysisSection } from '../components/HomePageAnalysisSection'
 import { SavingsPhaseSection } from '../components/overview/SavingsPhaseSection'
 import { WithdrawalPhaseSection } from '../components/overview/WithdrawalPhaseSection'
 
 import { SimulationProvider } from '../contexts/SimulationContext'
 import { NavigationProvider } from '../contexts/NavigationContext'
 import { useSimulation } from '../contexts/useSimulation'
-import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
-import { calculateWithdrawalEndYear } from '../utils/overview-calculations'
-import { convertSparplanToElements } from '../utils/sparplan-utils'
 import { useScenarioApplication } from '../hooks/useScenarioApplication'
 import { useReturnConfiguration } from '../hooks/useReturnConfiguration'
+import { useOverviewYearRanges } from '../hooks/useOverviewYearRanges'
+import { useHomePageRecalculation } from '../hooks/useHomePageRecalculation'
 import { calculatePhaseDateRanges } from '../utils/phase-date-ranges'
 
 function EnhancedOverview() {
@@ -37,8 +28,8 @@ function EnhancedOverview() {
     endOfLife,
   } = useSimulation()
 
-  const enhancedSummary = useMemo(() => {
-    return getEnhancedOverviewSummary(
+  const { enhancedSummary, savingsStartYear, savingsEndYear, withdrawalEndYear }
+    = useOverviewYearRanges(
       simulationData,
       startEnd,
       withdrawalResults,
@@ -48,32 +39,8 @@ function EnhancedOverview() {
       withdrawalConfig,
       endOfLife,
     )
-  }, [
-    simulationData,
-    startEnd,
-    withdrawalResults,
-    rendite,
-    steuerlast,
-    teilfreistellungsquote,
-    withdrawalConfig,
-    endOfLife,
-  ])
 
   if (!enhancedSummary || !simulationData) return null
-
-  const savingsStartYear = Math.min(
-    ...simulationData.sparplanElements.map(el =>
-      new Date(el.start).getFullYear(),
-    ),
-  )
-  const savingsEndYear = startEnd[0]
-
-  // Calculate proper withdrawal end year using utility function
-  const withdrawalEndYear = calculateWithdrawalEndYear(
-    enhancedSummary,
-    endOfLife,
-    startEnd[1],
-  )
 
   return (
     <div className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200">
@@ -163,34 +130,27 @@ const HomePageContent = () => {
     multiAssetConfig,
   })
 
-  useEffect(() => {
-    performSimulation()
-  }, [performSimulation])
+  // Handle recalculation logic
+  const { handleRecalculate, handleSpecialEventsDispatch }
+    = useHomePageRecalculation(
+      sparplan,
+      startEnd,
+      simulationAnnual,
+      setSparplanElemente,
+      performSimulation,
+    )
 
   // Calculate phase date ranges for special events
   const { savingsStartYear, savingsEndYear, withdrawalStartYear, withdrawalEndYear }
     = calculatePhaseDateRanges(sparplan, startEnd, endOfLife)
 
-  useEffect(() => {
-    performSimulation()
-  }, [performSimulation])
-
   return (
     <div className="px-2 sm:px-3 mx-auto max-w-full md:px-4 md:max-w-3xl lg:px-6 lg:max-w-5xl xl:max-w-7xl space-y-4">
-      <Header />
-
-      <Button
-        onClick={() => {
-          setSparplanElemente(
-            convertSparplanToElements(sparplan, startEnd, simulationAnnual),
-          )
-          performSimulation()
-        }}
-        className="mb-3 sm:mb-4 w-full"
-        variant="default"
-      >
-        🔄 Neu berechnen
-      </Button>
+      <HomePageHeaderSection
+        handleRecalculate={handleRecalculate}
+        handleApplyScenario={handleApplyScenario}
+        startOfIndependence={startEnd[0]}
+      />
 
       {simulationData && (
         <div
@@ -201,22 +161,10 @@ const HomePageContent = () => {
         </div>
       )}
 
-      <SimulationParameters />
-
-      {/* Global Planning Configuration - Available for all calculations including Vorabpauschale */}
-      <GlobalPlanningConfiguration startOfIndependence={startEnd[0]} />
-
-      {/* Financial Goals Configuration */}
-      <FinancialGoalsConfiguration />
-
-      <ProfileManagement />
-
-      <ScenarioSelector onApplyScenario={handleApplyScenario} />
-
       <SpecialEvents
         dispatch={(updatedSparplan) => {
           setSparplan(updatedSparplan)
-          setSparplanElemente(convertSparplanToElements(updatedSparplan, startEnd, simulationAnnual))
+          handleSpecialEventsDispatch(updatedSparplan)
         }}
         simulationAnnual={simulationAnnual}
         currentSparplans={sparplan}
@@ -226,29 +174,20 @@ const HomePageContent = () => {
         withdrawalEndYear={withdrawalEndYear}
       />
 
-      <SimulationModeSelector />
-
-      <DataExport />
-
-      {/* Sensitivity Analysis */}
-      {simulationData && sparplanElemente && sparplanElemente.length > 0 && (
-        <SensitivityAnalysisDisplay
-          config={{
-            startYear: startEnd[0],
-            endYear: startEnd[1],
-            elements: sparplanElemente,
-            steuerlast: steuerlast / 100,
-            teilfreistellungsquote: teilfreistellungsquote / 100,
-            simulationAnnual,
-            freibetragPerYear,
-            steuerReduzierenEndkapital: steuerReduzierenEndkapitalSparphase,
-            inflationAktivSparphase,
-            inflationsrateSparphase,
-            inflationAnwendungSparphase,
-          }}
-          returnConfig={returnConfig}
-        />
-      )}
+      <HomePageAnalysisSection
+        simulationData={simulationData}
+        sparplanElemente={sparplanElemente}
+        startEnd={startEnd}
+        steuerlast={steuerlast}
+        teilfreistellungsquote={teilfreistellungsquote}
+        simulationAnnual={simulationAnnual}
+        freibetragPerYear={freibetragPerYear}
+        steuerReduzierenEndkapitalSparphase={steuerReduzierenEndkapitalSparphase}
+        inflationAktivSparphase={inflationAktivSparphase}
+        inflationsrateSparphase={inflationsrateSparphase}
+        inflationAnwendungSparphase={inflationAnwendungSparphase}
+        returnConfig={returnConfig}
+      />
 
       {/* Sticky Overviews */}
       <StickyOverview
