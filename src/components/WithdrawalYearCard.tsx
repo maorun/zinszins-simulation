@@ -57,6 +57,90 @@ interface WithdrawalYearCardProps {
   onCalculationInfoClick: (explanationType: string, rowData: unknown) => void
 }
 
+function TaxAndIncomeSections({
+  rowData,
+  formValue,
+  allYears,
+  onCalculationInfoClick,
+  isGrundfreibetragEnabled,
+}: WithdrawalYearCardProps & { isGrundfreibetragEnabled: boolean }) {
+  return (
+    <>
+      <TaxSection
+        rowData={{
+          year: rowData.year,
+          zinsen: rowData.zinsen,
+          bezahlteSteuer: rowData.bezahlteSteuer,
+          vorabpauschale: rowData.vorabpauschale,
+          genutzterFreibetrag: rowData.genutzterFreibetrag,
+          guenstigerPruefungResultRealizedGains: rowData.guenstigerPruefungResultRealizedGains,
+        }}
+        formValue={formValue}
+        allYears={allYears}
+        onCalculationInfoClick={onCalculationInfoClick}
+        formatWithInflation={formatWithInflation}
+      />
+      <IncomeTaxSection
+        rowData={{
+          einkommensteuer: rowData.einkommensteuer,
+          genutzterGrundfreibetrag: rowData.genutzterGrundfreibetrag,
+        }}
+        isGrundfreibetragEnabled={isGrundfreibetragEnabled}
+        onCalculationInfoClick={onCalculationInfoClick}
+      />
+      <OtherIncomeSection
+        otherIncome={rowData.otherIncome}
+        onCalculationInfoClick={onCalculationInfoClick}
+        rowData={rowData}
+      />
+      <HealthCareInsuranceSection
+        healthCareInsurance={rowData.healthCareInsurance}
+        onCalculationInfoClick={onCalculationInfoClick}
+        rowData={rowData}
+      />
+      <StatutoryPensionSection
+        statutoryPension={rowData.statutoryPension}
+        onCalculationInfoClick={onCalculationInfoClick}
+        rowData={rowData}
+      />
+    </>
+  )
+}
+
+function CardSections({
+  rowData,
+  formValue,
+  allYears,
+  onCalculationInfoClick,
+  isGrundfreibetragEnabled,
+}: WithdrawalYearCardProps & { isGrundfreibetragEnabled: boolean }) {
+  return (
+    <div className="flex flex-col gap-2">
+      <FinancialDetailsSection
+        rowData={{
+          startkapital: rowData.startkapital,
+          entnahme: rowData.entnahme,
+          monatlicheEntnahme: rowData.monatlicheEntnahme,
+          inflationAnpassung: rowData.inflationAnpassung,
+          portfolioAnpassung: rowData.portfolioAnpassung,
+          year: rowData.year,
+        }}
+        formValue={formValue}
+        allYears={allYears}
+        onCalculationInfoClick={onCalculationInfoClick}
+        formatWithInflation={formatWithInflation}
+      />
+      <TaxAndIncomeSections
+        rowData={rowData}
+        formValue={formValue}
+        allYears={allYears}
+        onCalculationInfoClick={onCalculationInfoClick}
+        isGrundfreibetragEnabled={isGrundfreibetragEnabled}
+      />
+    </div>
+  )
+}
+
 /**
  * Card component for displaying withdrawal data for a single year
  */
@@ -79,69 +163,13 @@ export function WithdrawalYearCard({
         rowData={rowData}
         formatWithInflation={formatWithInflation}
       />
-
-      {/* Card Details */}
-      <div className="flex flex-col gap-2">
-        <FinancialDetailsSection
-          rowData={{
-            startkapital: rowData.startkapital,
-            entnahme: rowData.entnahme,
-            monatlicheEntnahme: rowData.monatlicheEntnahme,
-            inflationAnpassung: rowData.inflationAnpassung,
-            portfolioAnpassung: rowData.portfolioAnpassung,
-            year: rowData.year,
-          }}
-          formValue={formValue}
-          allYears={allYears}
-          onCalculationInfoClick={onCalculationInfoClick}
-          formatWithInflation={formatWithInflation}
-        />
-
-        <TaxSection
-          rowData={{
-            year: rowData.year,
-            zinsen: rowData.zinsen,
-            bezahlteSteuer: rowData.bezahlteSteuer,
-            vorabpauschale: rowData.vorabpauschale,
-            genutzterFreibetrag: rowData.genutzterFreibetrag,
-            guenstigerPruefungResultRealizedGains: rowData.guenstigerPruefungResultRealizedGains,
-          }}
-          formValue={formValue}
-          allYears={allYears}
-          onCalculationInfoClick={onCalculationInfoClick}
-          formatWithInflation={formatWithInflation}
-        />
-
-        <IncomeTaxSection
-          rowData={{
-            einkommensteuer: rowData.einkommensteuer,
-            genutzterGrundfreibetrag: rowData.genutzterGrundfreibetrag,
-          }}
-          isGrundfreibetragEnabled={isGrundfreibetragEnabled}
-          onCalculationInfoClick={onCalculationInfoClick}
-        />
-
-        {/* Other Income Sources */}
-        <OtherIncomeSection
-          otherIncome={rowData.otherIncome}
-          onCalculationInfoClick={onCalculationInfoClick}
-          rowData={rowData}
-        />
-
-        {/* Health Care Insurance */}
-        <HealthCareInsuranceSection
-          healthCareInsurance={rowData.healthCareInsurance}
-          onCalculationInfoClick={onCalculationInfoClick}
-          rowData={rowData}
-        />
-
-        {/* Statutory Pension */}
-        <StatutoryPensionSection
-          statutoryPension={rowData.statutoryPension}
-          onCalculationInfoClick={onCalculationInfoClick}
-          rowData={rowData}
-        />
-      </div>
+      <CardSections
+        rowData={rowData}
+        formValue={formValue}
+        allYears={allYears}
+        onCalculationInfoClick={onCalculationInfoClick}
+        isGrundfreibetragEnabled={isGrundfreibetragEnabled}
+      />
     </div>
   )
 }
