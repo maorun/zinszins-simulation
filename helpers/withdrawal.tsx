@@ -271,6 +271,55 @@ function processBucketStrategyWithdrawal(
 /**
  * Helper function: Calculate monthly withdrawal amounts and effective withdrawal
  */
+/**
+ * Calculate adjusted monthly amount with inflation
+ */
+function calculateAdjustedMonthlyAmount(
+  monthlyConfig: MonthlyWithdrawalConfig,
+  inflationConfig: InflationConfig | undefined,
+  year: number | undefined,
+  startYear: number | undefined,
+): number {
+  if (!inflationConfig?.inflationRate || year === undefined || startYear === undefined) {
+    return monthlyConfig.monthlyAmount
+  }
+  const yearsPassed = year - startYear
+  return monthlyConfig.monthlyAmount * Math.pow(1 + inflationConfig.inflationRate, yearsPassed)
+}
+
+/**
+ * Calculate monthly withdrawal amount
+ */
+function getMonthlyAmount(
+  strategy: WithdrawalStrategy,
+  withdrawalFrequency: WithdrawalFrequency,
+  entnahme: number,
+  monthlyConfig: MonthlyWithdrawalConfig | undefined,
+  inflationConfig: InflationConfig | undefined,
+  year: number | undefined,
+  startYear: number | undefined,
+): number | undefined {
+  if (strategy === 'monatlich_fest' && monthlyConfig) {
+    return calculateAdjustedMonthlyAmount(monthlyConfig, inflationConfig, year, startYear)
+  }
+  if (withdrawalFrequency === 'monthly') {
+    return entnahme / 12
+  }
+  return undefined
+}
+
+/**
+ * Calculate effective withdrawal for monthly frequency
+ */
+function calculateMonthlyEffectiveWithdrawal(entnahme: number, returnRate: number): number {
+  const monthlyReturn = Math.pow(1 + returnRate, 1 / 12) - 1
+  let monthlyPresentValue = 0
+  for (let month = 1; month <= 12; month++) {
+    monthlyPresentValue += (entnahme / 12) / Math.pow(1 + monthlyReturn, month - 1)
+  }
+  return monthlyPresentValue
+}
+
 function calculateMonthlyWithdrawal(
   strategy: WithdrawalStrategy,
   withdrawalFrequency: WithdrawalFrequency,
@@ -281,32 +330,19 @@ function calculateMonthlyWithdrawal(
   year?: number,
   startYear?: number,
 ): { effectiveWithdrawal: number, monthlyAmount: number | undefined } {
-  let effectiveWithdrawal = entnahme
-  let monthlyAmount: number | undefined
+  const monthlyAmount = getMonthlyAmount(
+    strategy,
+    withdrawalFrequency,
+    entnahme,
+    monthlyConfig,
+    inflationConfig,
+    year,
+    startYear,
+  )
 
-  // Calculate the actual monthly withdrawal amount for display purposes
-  if (strategy === 'monatlich_fest' && monthlyConfig) {
-    let adjustedMonthlyAmount = monthlyConfig.monthlyAmount
-    if (inflationConfig?.inflationRate && year !== undefined && startYear !== undefined) {
-      const yearsPassed = year - startYear
-      adjustedMonthlyAmount = monthlyConfig.monthlyAmount * Math.pow(1 + inflationConfig.inflationRate, yearsPassed)
-    }
-    monthlyAmount = adjustedMonthlyAmount
-  }
-  else if (withdrawalFrequency === 'monthly') {
-    monthlyAmount = entnahme / 12
-  }
-
-  if (withdrawalFrequency === 'monthly') {
-    // For monthly frequency, calculate more accurate effective withdrawal
-    // by modeling gradual capital decrease throughout the year
-    const monthlyReturn = Math.pow(1 + returnRate, 1 / 12) - 1
-    let monthlyPresentValue = 0
-    for (let month = 1; month <= 12; month++) {
-      monthlyPresentValue += (entnahme / 12) / Math.pow(1 + monthlyReturn, month - 1)
-    }
-    effectiveWithdrawal = monthlyPresentValue
-  }
+  const effectiveWithdrawal = withdrawalFrequency === 'monthly'
+    ? calculateMonthlyEffectiveWithdrawal(entnahme, returnRate)
+    : entnahme
 
   return { effectiveWithdrawal, monthlyAmount }
 }
@@ -1887,6 +1923,36 @@ function calculateTaxOptimizedWithdrawal(
 }
 
 /**
+ * Calculate after-tax amount for a given withdrawal
+ */
+function calculateAfterTaxAmount(
+  amount: number,
+  taxRate: number,
+  teilfreistellungsquote: number,
+  availableFreibetrag: number,
+): number {
+  const taxableAmount = Math.max(0, amount * (1 - teilfreistellungsquote) - availableFreibetrag)
+  const tax = taxableAmount * taxRate
+  return amount - tax
+}
+
+/**
+ * Generate test withdrawal amounts
+ */
+function generateTestWithdrawalAmounts(
+  baseWithdrawalAmount: number,
+  capitalAtStartOfYear: number,
+): number[] {
+  return [
+    baseWithdrawalAmount * 0.8,
+    baseWithdrawalAmount * 0.9,
+    baseWithdrawalAmount,
+    baseWithdrawalAmount * 1.1,
+    baseWithdrawalAmount * 1.2,
+  ].filter(amount => amount > 0 && amount <= capitalAtStartOfYear)
+}
+
+/**
  * Find optimal withdrawal amount that maximizes after-tax income
  * This is a simplified implementation - real optimization would use more sophisticated algorithms
  */
@@ -1902,14 +1968,7 @@ function findOptimalAfterTaxWithdrawal(
     return baseWithdrawalAmount || 0
   }
 
-  // Test different withdrawal amounts to find the one with highest after-tax value
-  const testAmounts = [
-    baseWithdrawalAmount * 0.8,
-    baseWithdrawalAmount * 0.9,
-    baseWithdrawalAmount,
-    baseWithdrawalAmount * 1.1,
-    baseWithdrawalAmount * 1.2,
-  ].filter(amount => amount > 0 && amount <= capitalAtStartOfYear)
+  const testAmounts = generateTestWithdrawalAmounts(baseWithdrawalAmount, capitalAtStartOfYear)
 
   if (testAmounts.length === 0) {
     return Math.min(capitalAtStartOfYear, baseWithdrawalAmount)
@@ -1919,10 +1978,7 @@ function findOptimalAfterTaxWithdrawal(
   let bestAfterTax = 0
 
   for (const amount of testAmounts) {
-    // Simplified tax calculation - real implementation would consider Vorabpauschale
-    const taxableAmount = Math.max(0, amount * (1 - teilfreistellungsquote) - availableFreibetrag)
-    const tax = taxableAmount * taxRate
-    const afterTaxAmount = amount - tax
+    const afterTaxAmount = calculateAfterTaxAmount(amount, taxRate, teilfreistellungsquote, availableFreibetrag)
 
     if (afterTaxAmount > bestAfterTax) {
       bestAfterTax = afterTaxAmount
