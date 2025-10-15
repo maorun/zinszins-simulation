@@ -165,6 +165,76 @@ type BaseWithdrawalParams = {
 /**
  * Helper function: Calculate base withdrawal amount based on strategy
  */
+/**
+ * Calculate monthly fixed withdrawal amount (helper for base calculation)
+ */
+function calculateMonthlyFixedAmount(
+  strategy: WithdrawalStrategy,
+  monthlyConfig?: MonthlyWithdrawalConfig,
+): number {
+  if (strategy === 'monatlich_fest' && monthlyConfig) {
+    return monthlyConfig.monthlyAmount * 12
+  }
+  return 0
+}
+
+/**
+ * Calculate percentage-based withdrawal amount
+ */
+function calculatePercentageWithdrawal(
+  initialStartingCapital: number,
+  customPercentage?: number,
+): number {
+  if (customPercentage === undefined) throw new Error('Custom percentage required')
+  return initialStartingCapital * customPercentage
+}
+
+/**
+ * Calculate dynamic withdrawal amount
+ */
+function calculateDynamicWithdrawal(
+  initialStartingCapital: number,
+  dynamicConfig?: DynamicWithdrawalConfig,
+): number {
+  if (!dynamicConfig) throw new Error('Dynamic config required')
+  return initialStartingCapital * dynamicConfig.baseWithdrawalRate
+}
+
+/**
+ * Get default steueroptimiert config
+ */
+function getDefaultSteueroptimierteConfig(): SteueroptimierteEntnahmeConfig {
+  return {
+    baseWithdrawalRate: 0.04,
+    targetTaxRate: 0.26375,
+    optimizationMode: 'balanced' as const,
+    freibetragUtilizationTarget: 0.85,
+    rebalanceFrequency: 'yearly' as const,
+  }
+}
+
+/**
+ * Calculate steueroptimiert withdrawal amount
+ */
+function calculateSteueroptimierteWithdrawal(
+  initialStartingCapital: number,
+  steueroptimierteEntnahmeConfig?: SteueroptimierteEntnahmeConfig,
+): number {
+  const config = steueroptimierteEntnahmeConfig || getDefaultSteueroptimierteConfig()
+  return initialStartingCapital * config.baseWithdrawalRate
+}
+
+/**
+ * Calculate standard 3% or 4% rule withdrawal
+ */
+function calculateStandardRuleWithdrawal(
+  strategy: WithdrawalStrategy,
+  initialStartingCapital: number,
+): number {
+  const withdrawalRate = strategy === '4prozent' ? 0.04 : 0.03
+  return initialStartingCapital * withdrawalRate
+}
+
 function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
   const {
     strategy,
@@ -180,17 +250,15 @@ function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
 
   if (strategy === 'monatlich_fest') {
     if (!monthlyConfig) throw new Error('Monthly config required')
-    return monthlyConfig.monthlyAmount * 12
+    return calculateMonthlyFixedAmount(strategy, monthlyConfig)
   }
 
   if (strategy === 'variabel_prozent') {
-    if (customPercentage === undefined) throw new Error('Custom percentage required')
-    return initialStartingCapital * customPercentage
+    return calculatePercentageWithdrawal(initialStartingCapital, customPercentage)
   }
 
   if (strategy === 'dynamisch') {
-    if (!dynamicConfig) throw new Error('Dynamic config required')
-    return initialStartingCapital * dynamicConfig.baseWithdrawalRate
+    return calculateDynamicWithdrawal(initialStartingCapital, dynamicConfig)
   }
 
   if (strategy === 'bucket_strategie') {
@@ -209,18 +277,63 @@ function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
   }
 
   if (strategy === 'steueroptimiert') {
-    const config = steueroptimierteEntnahmeConfig || {
-      baseWithdrawalRate: 0.04,
-      targetTaxRate: 0.26375,
-      optimizationMode: 'balanced' as const,
-      freibetragUtilizationTarget: 0.85,
-      rebalanceFrequency: 'yearly' as const,
-    }
-    return initialStartingCapital * config.baseWithdrawalRate
+    return calculateSteueroptimierteWithdrawal(initialStartingCapital, steueroptimierteEntnahmeConfig)
   }
 
-  const withdrawalRate = strategy === '4prozent' ? 0.04 : 0.03
-  return initialStartingCapital * withdrawalRate
+  return calculateStandardRuleWithdrawal(strategy, initialStartingCapital)
+}
+
+/**
+ * Calculate dynamic strategy adjustment
+ */
+function calculateDynamicStrategyAdjustment(
+  annualWithdrawal: number,
+  previousReturn: number,
+  dynamicConfig: DynamicWithdrawalConfig,
+): number {
+  if (previousReturn > dynamicConfig.upperThresholdReturn) {
+    return annualWithdrawal * dynamicConfig.upperThresholdAdjustment
+  }
+  if (previousReturn < dynamicConfig.lowerThresholdReturn) {
+    return annualWithdrawal * dynamicConfig.lowerThresholdAdjustment
+  }
+  return 0
+}
+
+/**
+ * Check if bucket dynamic config is valid
+ */
+function hasBucketDynamicConfig(bucketConfig: BucketStrategyConfig): boolean {
+  return bucketConfig.dynamischObereSchwell !== undefined
+    && bucketConfig.dynamischUntereSchwell !== undefined
+    && bucketConfig.dynamischObereAnpassung !== undefined
+    && bucketConfig.dynamischUntereAnpassung !== undefined
+}
+
+/**
+ * Calculate bucket dynamic adjustment
+ */
+function calculateBucketDynamicAdjustment(
+  annualWithdrawal: number,
+  previousReturn: number,
+  bucketConfig: BucketStrategyConfig,
+): number {
+  if (!hasBucketDynamicConfig(bucketConfig)) {
+    return 0
+  }
+
+  const upperThreshold = bucketConfig.dynamischObereSchwell! / 100
+  const lowerThreshold = bucketConfig.dynamischUntereSchwell! / 100
+  const upperAdjustment = bucketConfig.dynamischObereAnpassung! / 100
+  const lowerAdjustment = bucketConfig.dynamischUntereAnpassung! / 100
+
+  if (previousReturn > upperThreshold) {
+    return annualWithdrawal * upperAdjustment
+  }
+  if (previousReturn < lowerThreshold) {
+    return annualWithdrawal * lowerAdjustment
+  }
+  return 0
 }
 
 /**
@@ -234,46 +347,24 @@ function calculateDynamicAdjustment(
   dynamicConfig?: DynamicWithdrawalConfig,
   bucketConfig?: BucketStrategyConfig,
 ): { adjustment: number, previousReturn: number | undefined } {
-  let adjustment = 0
-  let previousReturn: number | undefined
+  const previousYear = year - 1
+  const previousReturn = yearlyGrowthRates[previousYear]
+
+  if (previousReturn === undefined) {
+    return { adjustment: 0, previousReturn: undefined }
+  }
 
   if (strategy === 'dynamisch' && dynamicConfig) {
-    const previousYear = year - 1
-    previousReturn = yearlyGrowthRates[previousYear]
-
-    if (previousReturn !== undefined) {
-      if (previousReturn > dynamicConfig.upperThresholdReturn) {
-        adjustment = annualWithdrawal * dynamicConfig.upperThresholdAdjustment
-      }
-      else if (previousReturn < dynamicConfig.lowerThresholdReturn) {
-        adjustment = annualWithdrawal * dynamicConfig.lowerThresholdAdjustment
-      }
-    }
-  }
-  else if (strategy === 'bucket_strategie' && bucketConfig && bucketConfig.subStrategy === 'dynamisch') {
-    const previousYear = year - 1
-    previousReturn = yearlyGrowthRates[previousYear]
-
-    if (previousReturn !== undefined
-      && bucketConfig.dynamischObereSchwell !== undefined
-      && bucketConfig.dynamischUntereSchwell !== undefined
-      && bucketConfig.dynamischObereAnpassung !== undefined
-      && bucketConfig.dynamischUntereAnpassung !== undefined) {
-      const upperThreshold = bucketConfig.dynamischObereSchwell / 100
-      const lowerThreshold = bucketConfig.dynamischUntereSchwell / 100
-      const upperAdjustment = bucketConfig.dynamischObereAnpassung / 100
-      const lowerAdjustment = bucketConfig.dynamischUntereAnpassung / 100
-
-      if (previousReturn > upperThreshold) {
-        adjustment = annualWithdrawal * upperAdjustment
-      }
-      else if (previousReturn < lowerThreshold) {
-        adjustment = annualWithdrawal * lowerAdjustment
-      }
-    }
+    const adjustment = calculateDynamicStrategyAdjustment(annualWithdrawal, previousReturn, dynamicConfig)
+    return { adjustment, previousReturn }
   }
 
-  return { adjustment, previousReturn }
+  if (strategy === 'bucket_strategie' && bucketConfig && bucketConfig.subStrategy === 'dynamisch') {
+    const adjustment = calculateBucketDynamicAdjustment(annualWithdrawal, previousReturn, bucketConfig)
+    return { adjustment, previousReturn }
+  }
+
+  return { adjustment: 0, previousReturn }
 }
 
 /**
