@@ -207,7 +207,7 @@ Komponenten: EventFormFields, RiskAssessment, SparplanSimulationsAusgabe, calcul
 
 Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 
-#### 3.2 SimulationProvider (248 Zeilen)
+#### 3.3 SimulationProvider (248 Zeilen)
 
 - **Status**: ✅ Abgeschlossen
 - **Extraktionen**:
@@ -217,7 +217,7 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 - **Endergebnis**: 178 Zeilen (von 248 → -70 Zeilen / -28%)
 - **Ziel erreicht**: ✅ Unter 200 Zeilen (178 Zeilen)
 
-#### 3.2 EntnahmeSimulationDisplay (282 Zeilen)
+#### 3.4 EntnahmeSimulationDisplay (282 Zeilen)
 
 - **Status**: ✅ Abgeschlossen
 - **Extraktionen**:
@@ -227,7 +227,7 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 - **Endergebnis**: 142 Zeilen (von 282 → -140 Zeilen / -50%)
 - **Ziel erreicht**: ✅ Weit unter 200 Zeilen (142 Zeilen, 29% unter Ziel)
 
-#### 3.3 EntnahmeSimulationsAusgabe (276 Zeilen)
+#### 3.5 EntnahmeSimulationsAusgabe (276 Zeilen)
 
 - **Status**: ✅ Abgeschlossen
 - **Extraktionen**:
@@ -240,7 +240,7 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
   - **Effektive Zeilen** (ohne Kommentare/Leerzeilen): 195 Zeilen ✅
 - **Ziel erreicht**: ✅ Nahe dem Ziel (195 effektive Zeilen unter 200)
 
-#### 3.4 HealthInsuranceCostPreview (214 Zeilen)
+#### 3.6 HealthInsuranceCostPreview (214 Zeilen)
 
 - **Status**: ✅ Abgeschlossen
 - **Extraktionen**:
@@ -250,6 +250,18 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 - **Tests**: 28 neue Tests für extrahierte Komponenten und Hook (10 + 9 + 9)
 - **Endergebnis**: 33 Zeilen (von 214 → -181 Zeilen / -85%)
 - **Ziel erreicht**: ✅ Weit unter 200 Zeilen (33 Zeilen, 84% unter Ziel)
+
+#### 3.7 WithdrawalReturnModeConfiguration (251 Zeilen)
+
+- **Status**: ✅ Abgeschlossen
+- **Extraktionen**:
+  - [x] `FixedReturnConfig` - Feste Rendite Konfiguration (41 Zeilen, 4 Tests)
+  - [x] `RandomReturnConfig` - Zufällige Rendite Konfiguration (95 Zeilen, 10 Tests)
+  - [x] `VariableReturnConfig` - Variable Rendite Konfiguration (82 Zeilen, 8 Tests)
+  - [x] `ReturnModeSelector` - Rendite-Modus Auswahl (43 Zeilen, 7 Tests)
+- **Tests**: 29 neue Tests für extrahierte Komponenten (4 + 10 + 8 + 7)
+- **Endergebnis**: 91 Zeilen (von 251 → -160 Zeilen / -64%)
+- **Ziel erreicht**: ✅ Weit unter 200 Zeilen (91 Zeilen, 54% unter Ziel)
 
 ### Phase 4: ESLint-Limits Progressive Verschärfung
 
@@ -324,12 +336,13 @@ Für jedes Refactoring:
 - [ ] DataExport
 - [ ] OtherIncomeSourceFormEditor
 
-### Phase 3 - Fortschritt: 8/13 (42%)
+### Phase 3 - Fortschritt: 9/13 (42%)
 
 - [x] SimulationProvider (248 → 178 Zeilen, -28%)
 - [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
 - [x] **EnhancedOverview (255 → 68 Zeilen, -73%)** ✅
 - [x] **InteractiveChart (249 → 132 lines, -47%)** ✅
+- [x] **WithdrawalReturnModeConfiguration (251 → 91 Zeilen, -64%)** ✅
 - [x] **SegmentedWithdrawalComparisonDisplay (298 → 76 Zeilen, -74.5%)** ✅
   - **Ziel weit übertroffen!** (Ziel <200, erreicht 76 Zeilen)
   - Extrahierte Komponenten:
@@ -344,7 +357,6 @@ Für jedes Refactoring:
 - [ ] SegmentedWithdrawalComparisonDisplay
 - [ ] CareCostConfiguration
 - [ ] HistoricalReturnConfiguration
-- [ ] WithdrawalReturnModeConfiguration
 - [ ] WithdrawalYearCard
 
 ### Phase 4 - ESLint-Limits: 0/3 (0%)
