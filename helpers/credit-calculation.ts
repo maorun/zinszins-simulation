@@ -38,6 +38,74 @@ export function calculateTotalInterest(
 }
 
 /**
+ * Type definition for amortization schedule entry
+ */
+export type AmortizationEntry = {
+  year: number
+  beginningBalance: number
+  payment: number
+  principal: number
+  interest: number
+  endingBalance: number
+}
+
+/**
+ * Type definition for yearly amortization calculation result
+ */
+type YearlyAmortizationResult = {
+  yearlyInterest: number
+  yearlyPrincipal: number
+  endingBalance: number
+}
+
+/**
+ * Generate zero-interest amortization schedule
+ * Used when loan has 0% interest rate
+ */
+function generateZeroInterestSchedule(
+  principal: number,
+  termYears: number,
+): AmortizationEntry[] {
+  const yearlyPayment = principal / termYears
+  return Array.from({ length: termYears }, (_, index) => ({
+    year: index + 1,
+    beginningBalance: principal - (yearlyPayment * index),
+    payment: yearlyPayment,
+    principal: yearlyPayment,
+    interest: 0,
+    endingBalance: principal - (yearlyPayment * (index + 1)),
+  }))
+}
+
+/**
+ * Calculate yearly amortization data from monthly payments
+ */
+function calculateYearlyAmortization(
+  balance: number,
+  monthlyPayment: number,
+  monthlyRate: number,
+): YearlyAmortizationResult {
+  let yearlyInterest = 0
+  let yearlyPrincipal = 0
+  let currentBalance = balance
+
+  // Calculate 12 months for this year
+  for (let month = 1; month <= 12; month++) {
+    const interestPayment = currentBalance * monthlyRate
+    const principalPayment = monthlyPayment - interestPayment
+
+    yearlyInterest += interestPayment
+    yearlyPrincipal += principalPayment
+    currentBalance -= principalPayment
+
+    // Prevent negative balance due to floating point precision
+    if (currentBalance < 0.01) currentBalance = 0
+  }
+
+  return { yearlyInterest, yearlyPrincipal, endingBalance: currentBalance }
+}
+
+/**
  * Generate amortization schedule for a loan
  * Returns array of yearly payment breakdowns
  */
@@ -45,57 +113,23 @@ export function generateAmortizationSchedule(
   principal: number,
   annualInterestRate: number,
   termYears: number,
-): Array<{
-  year: number
-  beginningBalance: number
-  payment: number
-  principal: number
-  interest: number
-  endingBalance: number
-}> {
+): AmortizationEntry[] {
   if (annualInterestRate === 0) {
-    // Handle zero interest case
-    const yearlyPayment = principal / termYears
-    return Array.from({ length: termYears }, (_, index) => ({
-      year: index + 1,
-      beginningBalance: principal - (yearlyPayment * index),
-      payment: yearlyPayment,
-      principal: yearlyPayment,
-      interest: 0,
-      endingBalance: principal - (yearlyPayment * (index + 1)),
-    }))
+    return generateZeroInterestSchedule(principal, termYears)
   }
 
   const monthlyPayment = calculateMonthlyPayment(principal, annualInterestRate, termYears)
   const monthlyRate = annualInterestRate / 12
-  const schedule: Array<{
-    year: number
-    beginningBalance: number
-    payment: number
-    principal: number
-    interest: number
-    endingBalance: number
-  }> = []
-
+  const schedule: AmortizationEntry[] = []
   let balance = principal
 
   for (let year = 1; year <= termYears; year++) {
-    let yearlyInterest = 0
-    let yearlyPrincipal = 0
     const beginningBalance = balance
-
-    // Calculate 12 months for this year
-    for (let month = 1; month <= 12; month++) {
-      const interestPayment = balance * monthlyRate
-      const principalPayment = monthlyPayment - interestPayment
-
-      yearlyInterest += interestPayment
-      yearlyPrincipal += principalPayment
-      balance -= principalPayment
-
-      // Prevent negative balance due to floating point precision
-      if (balance < 0.01) balance = 0
-    }
+    const { yearlyInterest, yearlyPrincipal, endingBalance } = calculateYearlyAmortization(
+      balance,
+      monthlyPayment,
+      monthlyRate,
+    )
 
     schedule.push({
       year,
@@ -103,8 +137,10 @@ export function generateAmortizationSchedule(
       payment: monthlyPayment * 12,
       principal: yearlyPrincipal,
       interest: yearlyInterest,
-      endingBalance: balance,
+      endingBalance,
     })
+
+    balance = endingBalance
   }
 
   return schedule
