@@ -4,6 +4,7 @@ import type { OtherIncomeSource } from '../../helpers/other-income'
 import type { WithdrawalSegment } from './segmented-withdrawal'
 import type { SparplanElement, Sparplan } from './sparplan-utils'
 import type { WithdrawalConfiguration } from './config-storage'
+import type { SimulationResultElement } from './simulate'
 
 /**
  * Utility functions for exporting simulation data in CSV and Markdown formats
@@ -132,6 +133,60 @@ export function exportSavingsDataToCSV(data: ExportData): string {
 }
 
 /**
+ * Accumulate year data into totals
+ */
+function accumulateYearData(
+  yearData: SimulationResultElement | undefined,
+  accumulators: {
+    totalStartkapital: number
+    totalZinsen: number
+    totalEndkapital: number
+    totalBezahlteSteuer: number
+    totalGenutzterFreibetrag: number
+    totalVorabpauschale: number
+  },
+): void {
+  if (!yearData) return
+
+  accumulators.totalStartkapital += yearData.startkapital || 0
+  accumulators.totalZinsen += yearData.zinsen || 0
+  accumulators.totalEndkapital += yearData.endkapital || 0
+  accumulators.totalBezahlteSteuer += yearData.bezahlteSteuer || 0
+  accumulators.totalGenutzterFreibetrag += yearData.genutzterFreibetrag || 0
+  accumulators.totalVorabpauschale += yearData.vorabpauschale || 0
+}
+
+/**
+ * Process simulation element for a given year
+ */
+function processSimulationElement(
+  element: SparplanElement,
+  elementIndex: number,
+  year: number,
+  isMonthly: boolean,
+  sparplanContributions: number[],
+  accumulators: {
+    totalStartkapital: number
+    totalZinsen: number
+    totalEndkapital: number
+    totalBezahlteSteuer: number
+    totalGenutzterFreibetrag: number
+    totalVorabpauschale: number
+  },
+): void {
+  if (!('simulation' in element)) return
+
+  const yearData = element.simulation?.[year]
+  accumulateYearData(yearData, accumulators)
+
+  // Calculate contribution for this element in this year
+  const elementContribution = getElementContributionForYear(element, year, isMonthly)
+  if (elementIndex < sparplanContributions.length) {
+    sparplanContributions[elementIndex] = elementContribution
+  }
+}
+
+/**
  * Export data from real simulation structure (elements with simulation property)
  */
 function exportSimulationStructure(
@@ -154,13 +209,6 @@ function exportSimulationStructure(
   for (const year of sortedYears) {
     const isMonthly = context.simulationAnnual === 'monthly'
 
-    // Aggregate data for this year across all elements
-    let totalStartkapital = 0
-    let totalZinsen = 0
-    let totalEndkapital = 0
-    let totalBezahlteSteuer = 0
-    let totalGenutzterFreibetrag = 0
-    let totalVorabpauschale = 0
     const sparplanContributions: number[] = []
 
     // Initialize contributions array for each configured savings plan
@@ -168,32 +216,35 @@ function exportSimulationStructure(
       sparplanContributions.push(0)
     })
 
+    // Initialize accumulators
+    const accumulators = {
+      totalStartkapital: 0,
+      totalZinsen: 0,
+      totalEndkapital: 0,
+      totalBezahlteSteuer: 0,
+      totalGenutzterFreibetrag: 0,
+      totalVorabpauschale: 0,
+    }
+
     // Sum up data from all elements for this year
     simulationElements.forEach((element, elementIndex: number) => {
-      if (!('simulation' in element)) return
-      const yearData = element.simulation?.[year]
-      if (yearData) {
-        totalStartkapital += yearData.startkapital || 0
-        totalZinsen += yearData.zinsen || 0
-        totalEndkapital += yearData.endkapital || 0
-        totalBezahlteSteuer += yearData.bezahlteSteuer || 0
-        totalGenutzterFreibetrag += yearData.genutzterFreibetrag || 0
-        totalVorabpauschale += yearData.vorabpauschale || 0
-
-        // Calculate contribution for this element in this year
-        const elementContribution = getElementContributionForYear(element, year, isMonthly)
-        if (elementIndex < sparplanContributions.length) {
-          sparplanContributions[elementIndex] = elementContribution
-        }
-      }
+      processSimulationElement(
+        element,
+        elementIndex,
+        year,
+        isMonthly,
+        sparplanContributions,
+        accumulators,
+      )
     })
 
     // Calculate cumulative contributions
     const yearlyContributions = sparplanContributions.reduce((sum, contrib) => sum + contrib, 0)
     cumulativeContributions += yearlyContributions
 
-    addYearRows(year, isMonthly, totalStartkapital, totalZinsen, totalEndkapital,
-      totalBezahlteSteuer, totalGenutzterFreibetrag, totalVorabpauschale,
+    addYearRows(year, isMonthly, accumulators.totalStartkapital, accumulators.totalZinsen,
+      accumulators.totalEndkapital, accumulators.totalBezahlteSteuer,
+      accumulators.totalGenutzterFreibetrag, accumulators.totalVorabpauschale,
       sparplanContributions, cumulativeContributions, lines)
   }
 }
