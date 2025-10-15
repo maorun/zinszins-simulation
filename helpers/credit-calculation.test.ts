@@ -214,5 +214,36 @@ describe('credit-calculation', () => {
       const finalBalance = calculateRemainingBalance(principal, rate, term, term * 12)
       expect(finalBalance).toBeCloseTo(0, 2)
     })
+
+    it('should handle edge case with very small principal', () => {
+      const schedule = generateAmortizationSchedule(100, 0.05, 1)
+
+      expect(schedule).toHaveLength(1)
+      expect(schedule[0].endingBalance).toBeCloseTo(0, 2)
+      expect(schedule[0].payment).toBeGreaterThan(100) // Should include interest
+    })
+
+    it('should handle edge case with very long term', () => {
+      const schedule = generateAmortizationSchedule(100000, 0.04, 30)
+
+      expect(schedule).toHaveLength(30)
+      // First year should be mostly interest
+      expect(schedule[0].interest).toBeGreaterThan(schedule[0].principal)
+      // Last year should be mostly principal
+      expect(schedule[29].principal).toBeGreaterThan(schedule[29].interest)
+    })
+
+    it('should maintain balance consistency for zero interest loans', () => {
+      const schedule = generateAmortizationSchedule(10000, 0, 5)
+
+      // Each year should reduce balance by exactly 1/5
+      for (let i = 0; i < schedule.length; i++) {
+        expect(schedule[i].principal).toBe(2000)
+        expect(schedule[i].interest).toBe(0)
+        if (i > 0) {
+          expect(schedule[i].beginningBalance).toBe(schedule[i - 1].endingBalance)
+        }
+      }
+    })
   })
 })
