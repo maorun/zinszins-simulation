@@ -370,9 +370,9 @@ Für jedes Refactoring:
 - [ ] CareCostConfiguration
 - [ ] HistoricalReturnConfiguration
 
-### Phase 4 - ESLint-Limits: 0/3 (0%)
+### Phase 4 - ESLint-Limits: 1/3 (33%)
 
-- [ ] Limits auf 300/20
+- [x] Limits auf 300/20 (19 warnings identified for future refactoring)
 - [ ] Limits auf 200/15
 - [ ] Limits auf 50/8 (Zielmarke)
 
