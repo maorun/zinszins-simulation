@@ -27,65 +27,57 @@ interface WithdrawalReturnModeConfigurationProps {
   onWithdrawalMultiAssetConfigChange: (config: MultiAssetPortfolioConfig) => void
 }
 
-export function WithdrawalReturnModeConfiguration({
-  withdrawalReturnMode,
-  withdrawalAverageReturn,
-  withdrawalStandardDeviation,
-  withdrawalRandomSeed,
-  withdrawalVariableReturns,
-  formValueRendite,
-  startOfIndependence,
-  globalEndOfLife,
-  withdrawalMultiAssetConfig,
-  onWithdrawalReturnModeChange,
-  onWithdrawalAverageReturnChange,
-  onWithdrawalStandardDeviationChange,
-  onWithdrawalRandomSeedChange,
-  onWithdrawalVariableReturnsChange,
-  onFormValueRenditeChange,
-  onWithdrawalMultiAssetConfigChange,
-}: WithdrawalReturnModeConfigurationProps) {
+function ReturnModeContent({ withdrawalReturnMode, ...props }: WithdrawalReturnModeConfigurationProps) {
+  if (withdrawalReturnMode === 'fixed') {
+    return (
+      <FixedReturnConfig
+        formValueRendite={props.formValueRendite}
+        onFormValueRenditeChange={props.onFormValueRenditeChange}
+      />
+    )
+  }
+  if (withdrawalReturnMode === 'random') {
+    return (
+      <RandomReturnConfig
+        withdrawalAverageReturn={props.withdrawalAverageReturn}
+        withdrawalStandardDeviation={props.withdrawalStandardDeviation}
+        withdrawalRandomSeed={props.withdrawalRandomSeed}
+        onWithdrawalAverageReturnChange={props.onWithdrawalAverageReturnChange}
+        onWithdrawalStandardDeviationChange={props.onWithdrawalStandardDeviationChange}
+        onWithdrawalRandomSeedChange={props.onWithdrawalRandomSeedChange}
+      />
+    )
+  }
+  if (withdrawalReturnMode === 'variable') {
+    return (
+      <VariableReturnConfig
+        withdrawalVariableReturns={props.withdrawalVariableReturns}
+        startOfIndependence={props.startOfIndependence}
+        globalEndOfLife={props.globalEndOfLife}
+        onWithdrawalVariableReturnsChange={props.onWithdrawalVariableReturnsChange}
+      />
+    )
+  }
+  if (withdrawalReturnMode === 'multiasset') {
+    return (
+      <MultiAssetPortfolioConfiguration
+        values={props.withdrawalMultiAssetConfig}
+        onChange={props.onWithdrawalMultiAssetConfigChange}
+        nestingLevel={0}
+      />
+    )
+  }
+  return null
+}
+
+export function WithdrawalReturnModeConfiguration(props: WithdrawalReturnModeConfigurationProps) {
   return (
     <>
       <ReturnModeSelector
-        withdrawalReturnMode={withdrawalReturnMode}
-        onWithdrawalReturnModeChange={onWithdrawalReturnModeChange}
+        withdrawalReturnMode={props.withdrawalReturnMode}
+        onWithdrawalReturnModeChange={props.onWithdrawalReturnModeChange}
       />
-
-      {withdrawalReturnMode === 'fixed' && (
-        <FixedReturnConfig
-          formValueRendite={formValueRendite}
-          onFormValueRenditeChange={onFormValueRenditeChange}
-        />
-      )}
-
-      {withdrawalReturnMode === 'random' && (
-        <RandomReturnConfig
-          withdrawalAverageReturn={withdrawalAverageReturn}
-          withdrawalStandardDeviation={withdrawalStandardDeviation}
-          withdrawalRandomSeed={withdrawalRandomSeed}
-          onWithdrawalAverageReturnChange={onWithdrawalAverageReturnChange}
-          onWithdrawalStandardDeviationChange={onWithdrawalStandardDeviationChange}
-          onWithdrawalRandomSeedChange={onWithdrawalRandomSeedChange}
-        />
-      )}
-
-      {withdrawalReturnMode === 'variable' && (
-        <VariableReturnConfig
-          withdrawalVariableReturns={withdrawalVariableReturns}
-          startOfIndependence={startOfIndependence}
-          globalEndOfLife={globalEndOfLife}
-          onWithdrawalVariableReturnsChange={onWithdrawalVariableReturnsChange}
-        />
-      )}
-
-      {withdrawalReturnMode === 'multiasset' && (
-        <MultiAssetPortfolioConfiguration
-          values={withdrawalMultiAssetConfig}
-          onChange={onWithdrawalMultiAssetConfigChange}
-          nestingLevel={0}
-        />
-      )}
+      <ReturnModeContent {...props} />
     </>
   )
 }
