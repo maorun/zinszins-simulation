@@ -104,34 +104,39 @@ export function registerExistingId(id: string): boolean {
 }
 
 /**
- * Clear all registered IDs (useful for testing)
- * WARNING: Only use this in test environments
+ * Check if running in test environment
+ * @returns True if running in test environment, false otherwise
  */
-export function clearRegisteredIds(): void {
-  // Use safe environment checking for both Vite and other environments
-  let isTest = false
-
+function isTestEnvironment(): boolean {
+  // Check for Vite test environment
   try {
-    // Check for Vite environment
     if (typeof import.meta !== 'undefined' && (import.meta as { env?: { MODE?: string } })?.env?.MODE === 'test') {
-      isTest = true
+      return true
     }
   }
   catch {
-    // Fallback to process.env for other environments
+    // Ignore if import.meta is not available
   }
 
+  // Check for Node.js test environment
   try {
-    // Check for Node.js environment
     if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') {
-      isTest = true
+      return true
     }
   }
   catch {
     // Ignore if process is not available
   }
 
-  if (!isTest) {
+  return false
+}
+
+/**
+ * Clear all registered IDs (useful for testing)
+ * WARNING: Only use this in test environments
+ */
+export function clearRegisteredIds(): void {
+  if (!isTestEnvironment()) {
     console.warn('clearRegisteredIds should only be used in test environments')
   }
   usedIds.clear()
