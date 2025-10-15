@@ -12,7 +12,7 @@ import {
   Brush,
 } from 'recharts'
 import type { SimulationResult } from '../utils/simulate'
-import { useState } from 'react'
+import { useState, useMemo } from 'react'
 import { ChartTooltip } from './chart/ChartTooltip'
 import { ChartControls, type ChartView } from './chart/ChartControls'
 import { ChartInterpretationGuide } from './chart/ChartInterpretationGuide'
@@ -102,6 +102,25 @@ export function InteractiveChart({
   // Determine which values to show based on showInflationAdjusted state
   const endkapitalKey = showInflationAdjusted ? 'endkapitalReal' : 'endkapital'
   const zinsenKey = showInflationAdjusted ? 'zinsenReal' : 'zinsen'
+
+  // Compute chart configuration to reduce complexity
+  const chartConfig = useMemo(() => ({
+    isDetailedView: chartView === 'detailed',
+    containerHeight: chartView === 'detailed' ? 'h-[500px]' : 'h-96',
+    marginBottom: chartView === 'detailed' ? 60 : 20,
+    xAxisAngle: chartView === 'detailed' ? -45 : 0,
+    xAxisTextAnchor: (chartView === 'detailed' ? 'end' : 'middle') as 'end' | 'middle',
+    xAxisHeight: chartView === 'detailed' ? 60 : 30,
+    endkapitalDot: chartView === 'detailed' ? { fill: '#ef4444', strokeWidth: 2, r: 4 } : false,
+    taxDot: chartView === 'detailed' ? { fill: '#f59e0b', strokeWidth: 1, r: 2 } : false,
+    showBrush: chartView === 'detailed' && chartData.length > 5,
+  }), [chartView, chartData.length])
+
+  // Compute display labels to reduce complexity
+  const displayLabels = useMemo(() => ({
+    zinsen: showInflationAdjusted ? 'Zinsen/Gewinne (real)' : 'Zinsen/Gewinne',
+    endkapital: showInflationAdjusted ? 'Endkapital (real)' : 'Endkapital',
+  }), [showInflationAdjusted])
   return (
     <Card className={className}>
       <CardHeader>
@@ -122,7 +141,7 @@ export function InteractiveChart({
         />
 
         {/* Chart Container */}
-        <div className={`w-full ${chartView === 'detailed' ? 'h-[500px]' : 'h-96'}`}>
+        <div className={`w-full ${chartConfig.containerHeight}`}>
           <ResponsiveContainer width="100%" height="100%">
             <AreaChart
               data={chartData}
@@ -130,7 +149,7 @@ export function InteractiveChart({
                 top: 20,
                 right: 30,
                 left: 20,
-                bottom: chartView === 'detailed' ? 60 : 20,
+                bottom: chartConfig.marginBottom,
               }}
             >
               <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
@@ -138,9 +157,9 @@ export function InteractiveChart({
                 dataKey="year"
                 className="text-xs text-gray-600"
                 tick={{ fontSize: 12 }}
-                angle={chartView === 'detailed' ? -45 : 0}
-                textAnchor={chartView === 'detailed' ? 'end' : 'middle'}
-                height={chartView === 'detailed' ? 60 : 30}
+                angle={chartConfig.xAxisAngle}
+                textAnchor={chartConfig.xAxisTextAnchor}
+                height={chartConfig.xAxisHeight}
               />
               <YAxis
                 tickFormatter={formatYAxisTick}
@@ -169,7 +188,7 @@ export function InteractiveChart({
                 stroke="#10b981"
                 fill="#10b981"
                 fillOpacity={0.6}
-                name={showInflationAdjusted ? 'Zinsen/Gewinne (real)' : 'Zinsen/Gewinne'}
+                name={displayLabels.zinsen}
               />
 
               {/* Line for end capital */}
@@ -178,8 +197,8 @@ export function InteractiveChart({
                 dataKey={endkapitalKey}
                 stroke="#ef4444"
                 strokeWidth={3}
-                dot={chartView === 'detailed' ? { fill: '#ef4444', strokeWidth: 2, r: 4 } : false}
-                name={showInflationAdjusted ? 'Endkapital (real)' : 'Endkapital'}
+                dot={chartConfig.endkapitalDot}
+                name={displayLabels.endkapital}
               />
 
               {/* Line for taxes paid - conditional */}
@@ -190,13 +209,13 @@ export function InteractiveChart({
                   stroke="#f59e0b"
                   strokeWidth={2}
                   strokeDasharray="5 5"
-                  dot={chartView === 'detailed' ? { fill: '#f59e0b', strokeWidth: 1, r: 2 } : false}
+                  dot={chartConfig.taxDot}
                   name="Bezahlte Steuern"
                 />
               )}
 
               {/* Add zoom/brush functionality for detailed view */}
-              {chartView === 'detailed' && chartData.length > 5 && (
+              {chartConfig.showBrush && (
                 <Brush
                   dataKey="year"
                   height={30}
