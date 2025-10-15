@@ -348,7 +348,7 @@ Für jedes Refactoring:
 - [ ] DataExport
 - [ ] OtherIncomeSourceFormEditor
 
-### Phase 3 - Fortschritt: 9/12 (42%)
+### Phase 3 - Fortschritt: 11/12 (92%)
 
 - [x] SimulationProvider (248 → 178 Zeilen, -28%)
 - [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
@@ -367,8 +367,16 @@ Für jedes Refactoring:
 - [x] **EntnahmeSimulationsAusgabe (276 → 213 Zeilen, -23%)** ✅
 - [x] **HealthInsuranceCostPreview (214 → 33 Zeilen, -85%)** ✅
 - [x] **EntnahmeSimulationDisplay (282 → 142 Zeilen, -50%)** ✅
-- [ ] CareCostConfiguration
-- [ ] HistoricalReturnConfiguration
+- [x] **CareCostConfiguration (130 Zeilen)** ✅
+  - **Helper functions refactored** in `helpers/care-cost-simulation.ts`:
+    - Extracted `validateBasicCareCostFields` - validates basic configuration fields (complexity reduced from 19 to <15)
+    - Extracted `validateCoupleCareConfiguration` - validates couple-specific fields
+    - Extracted `calculateNetMonthlyCosts` - calculates net costs after benefits (complexity reduced from 18 to <15)
+    - Extracted `calculatePerson1CareCosts` - handles person 1 care calculations
+    - Extracted `calculatePerson2CareCosts` - handles person 2 care calculations
+  - **Tests**: All 31 existing tests pass ✅
+- [x] **HistoricalReturnConfiguration (135 Zeilen)** ✅
+  - Already under target, no refactoring needed
 
 ### Phase 4 - ESLint-Limits: 2/3 (67%)
 
