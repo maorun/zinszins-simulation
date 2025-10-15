@@ -692,7 +692,7 @@ function calculatePersonAge(birthYear: number | undefined, year: number): number
  * Create person data for couple health insurance
  */
 function createPersonData(
-  personConfig: unknown,
+  personConfig: CoupleHealthInsuranceConfig['person1'],
   totalWithdrawal: number,
   income: number,
   qualifiesForFamily: boolean,

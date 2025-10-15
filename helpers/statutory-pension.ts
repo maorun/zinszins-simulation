@@ -374,9 +374,9 @@ function calculateIndividualPensionResults(
  */
 function createPersonResult(
   personYear: StatutoryPensionYearResult,
-  personId: number,
+  personId: 1 | 2,
   personName: string,
-) {
+): IndividualStatutoryPensionYearResult | undefined {
   if (personYear.grossAnnualAmount <= 0) {
     return undefined
   }
@@ -424,12 +424,12 @@ function calculateCouplePensionResults(
       person1: createPersonResult(
         person1Year,
         1,
-        coupleConfig.person1.personName || 'Person 1',
+        'Person 1',
       ),
       person2: createPersonResult(
         person2Year,
         2,
-        coupleConfig.person2.personName || 'Person 2',
+        'Person 2',
       ),
       combined: {
         grossAnnualAmount: person1Year.grossAnnualAmount + person2Year.grossAnnualAmount,

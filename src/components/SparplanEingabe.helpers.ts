@@ -129,7 +129,7 @@ function createOneTimePaymentUpdate(
 function createRegularSparplanUpdate(
   editingSparplan: Sparplan,
   sparplanFormValues: SparplanFormValue,
-  simulationAnnual: SimulationAnnual,
+  simulationAnnual: SimulationAnnualType,
 ): Sparplan {
   const yearlyAmount = simulationAnnual === SimulationAnnual.monthly
     ? Number(sparplanFormValues.einzahlung) * 12

@@ -167,6 +167,7 @@ export function SparplanSimulationsAusgabe({
    */
   const createTaxCalculationExplanation = (
     simData: SimulationResultElement,
+    jahr: number,
   ): CalculationExplanation => {
     return createTaxExplanation(
       simData.bezahlteSteuer,
@@ -174,7 +175,7 @@ export function SparplanSimulationsAusgabe({
       0.26375, // Default tax rate - would need to get from actual config
       0.3, // Default Teilfreistellungsquote - would need to get from actual config
       simData.genutzterFreibetrag || 2000, // Default freibetrag
-      simData.jahr,
+      jahr,
     )
   }
 
@@ -210,7 +211,7 @@ export function SparplanSimulationsAusgabe({
       explanation = createInterestCalculationExplanation(simData, rowData)
     }
     else if (explanationType === 'tax' && simData.vorabpauschaleDetails) {
-      explanation = createTaxCalculationExplanation(simData)
+      explanation = createTaxCalculationExplanation(simData, rowData.jahr)
     }
     else if (explanationType === 'endkapital') {
       explanation = createEndkapitalCalculationExplanation(simData, rowData)
