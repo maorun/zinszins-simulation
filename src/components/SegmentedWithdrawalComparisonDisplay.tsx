@@ -45,7 +45,7 @@ export function SegmentedWithdrawalComparisonDisplay({
       {/* Comparison configurations results */}
       <h5>🔍 Vergleichs-Konfigurationen</h5>
       {segmentedComparisonResults.length > 0 ? (
-        <div style={{ display: 'grid', gap: '15px' }}>
+        <div className="grid gap-4">
           {segmentedComparisonResults.map(
             (result: SegmentedComparisonResult, _index: number) => (
               <SegmentedComparisonCard key={result.strategy.id} result={result} />
@@ -53,17 +53,9 @@ export function SegmentedWithdrawalComparisonDisplay({
           )}
         </div>
       ) : (
-        <div style={{
-          padding: '20px',
-          textAlign: 'center' as const,
-          color: '#666',
-          backgroundColor: '#f5f5f5',
-          borderRadius: '8px',
-          border: '1px dashed #ccc',
-        }}
-        >
+        <div className="p-5 text-center text-[#666] bg-[#f5f5f5] rounded-lg border border-dashed border-[#ccc]">
           <p>Keine Vergleichs-Konfigurationen definiert.</p>
-          <p style={{ fontSize: '14px', margin: '5px 0 0 0' }}>
+          <p className="text-sm mt-1.5">
             Erstelle Vergleichs-Konfigurationen in den Variablen-Einstellungen.
           </p>
         </div>

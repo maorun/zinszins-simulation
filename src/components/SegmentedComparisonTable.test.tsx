@@ -156,9 +156,9 @@ describe('SegmentedComparisonTable', () => {
     const rows = container.querySelectorAll('tbody tr')
     expect(rows).toHaveLength(2)
 
-    // First row should have white background
-    expect(rows[0]).toHaveStyle({ backgroundColor: '#ffffff' })
-    // Second row should have gray background
-    expect(rows[1]).toHaveStyle({ backgroundColor: '#f8f9fa' })
+    // First row should have white background class
+    expect(rows[0]).toHaveClass('bg-white')
+    // Second row should have gray background class
+    expect(rows[1]).toHaveClass('bg-[#f8f9fa]')
   })
 })

@@ -25,15 +25,8 @@ export function SegmentedComparisonCard({
   result,
 }: SegmentedComparisonCardProps) {
   return (
-    <div
-      style={{
-        border: '1px solid #e5e5ea',
-        borderRadius: '6px',
-        padding: '15px',
-        backgroundColor: '#f8f9fa',
-      }}
-    >
-      <h6 style={{ margin: '0 0 10px 0', color: '#666' }}>
+    <div className="border border-[#e5e5ea] rounded-md p-4 bg-[#f8f9fa]">
+      <h6 className="m-0 mb-2.5 text-[#666]">
         {result.strategy.name}
         {' '}
         (
@@ -45,23 +38,12 @@ export function SegmentedComparisonCard({
       </h6>
 
       {/* Strategy segments overview */}
-      <div style={{ marginBottom: '15px' }}>
-        <div style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))',
-          gap: '8px',
-          fontSize: '14px',
-        }}
-        >
+      <div className="mb-4">
+        <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-2 text-sm">
           {result.strategy.segments.map((segment, _segIndex) => (
             <div
               key={segment.id}
-              style={{
-                padding: '8px',
-                backgroundColor: '#e8f4f8',
-                borderRadius: '4px',
-                border: '1px solid #d1ecf1',
-              }}
+              className="p-2 bg-[#e8f4f8] rounded border border-[#d1ecf1]"
             >
               <strong>{segment.name}</strong>
               {' '}
@@ -72,7 +54,7 @@ export function SegmentedComparisonCard({
               {segment.endYear}
               )
               <br />
-              <span style={{ color: '#666' }}>
+              <span className="text-[#666]">
                 {getStrategyDisplayName(segment.strategy)}
                 {' '}
                 -
@@ -85,14 +67,7 @@ export function SegmentedComparisonCard({
       </div>
 
       {/* Results summary */}
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
-          gap: '10px',
-          fontSize: '14px',
-        }}
-      >
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2.5 text-sm">
         <div>
           <strong>Endkapital:</strong>
           {' '}

@@ -14,25 +14,11 @@ export function SegmentedComparisonBaseMetrics({
   duration,
 }: SegmentedComparisonBaseMetricsProps) {
   return (
-    <div
-      style={{
-        border: '2px solid #1675e0',
-        borderRadius: '8px',
-        padding: '15px',
-        marginBottom: '20px',
-        backgroundColor: '#f8f9ff',
-      }}
-    >
-      <h5 style={{ color: '#1675e0', margin: '0 0 10px 0' }}>
+    <div className="border-2 border-[#1675e0] rounded-lg p-4 mb-5 bg-[#f8f9ff]">
+      <h5 className="text-[#1675e0] m-0 mb-2.5">
         📊 Basis-Konfiguration (aktuell):
       </h5>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '10px',
-        }}
-      >
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-2.5">
         <div>
           <strong>Endkapital:</strong>
           {' '}
