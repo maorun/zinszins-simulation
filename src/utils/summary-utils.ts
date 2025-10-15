@@ -1,4 +1,4 @@
-import type { SimulationResult, SimulationResultElement } from './simulate'
+import type { SimulationResult } from './simulate'
 import type { SparplanElement } from '../utils/sparplan-utils'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
@@ -37,19 +37,41 @@ export type WithdrawalSegmentSummary = {
 }
 
 export function getSparplanSummary(element?: SimulationResult): Summary {
-  const first: SimulationResultElement | undefined = element && Object.values(element).shift()
-  const last: SimulationResultElement | undefined = element && Object.values(element).pop()
+  /**
+   * Calculate total tax paid across all years
+   */
+  const calculateTotalTax = (element: SimulationResult | undefined): number => {
+    if (!element) {
+      return 0
+    }
+    return Object.values(element).reduce(
+      (previousValue, currentValue) =>
+        previousValue + currentValue.bezahlteSteuer,
+      0,
+    )
+  }
+
+  /**
+   * Get first simulation element
+   */
+  const getFirstElement = (element: SimulationResult | undefined) => {
+    return element && Object.values(element).shift()
+  }
+
+  /**
+   * Get last simulation element
+   */
+  const getLastElement = (element: SimulationResult | undefined) => {
+    return element && Object.values(element).pop()
+  }
+
+  const first = getFirstElement(element)
+  const last = getLastElement(element)
 
   return {
     startkapital: first?.startkapital || 0,
     zinsen: Number(last?.endkapital) - Number(first?.startkapital),
-    bezahlteSteuer: element
-      ? Object.values(element).reduce(
-          (previousValue, currentValue) =>
-            previousValue + currentValue.bezahlteSteuer,
-          0,
-        )
-      : 0,
+    bezahlteSteuer: calculateTotalTax(element),
     endkapital: last?.endkapital || 0,
   }
 }

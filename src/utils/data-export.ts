@@ -773,6 +773,52 @@ function addSavingsPhaseSection(savingsData: ExportData['savingsData'], lines: s
 }
 
 /**
+ * Extract year data from element
+ */
+function extractYearDataFromElement(
+  element: unknown,
+  year: number,
+): Record<string, unknown> | null {
+  if (typeof element !== 'object' || element === null || !('simulation' in element)) {
+    return null
+  }
+
+  const simulation = (element as Record<string, unknown>).simulation as Record<string, unknown> | undefined
+  const yearData = simulation?.[year] as Record<string, unknown> | undefined
+
+  return yearData || null
+}
+
+/**
+ * Process element for yearly summary
+ */
+function processElementForYearlySummary(
+  element: unknown,
+  year: number,
+  totals: {
+    startkapital: number
+    zinsen: number
+    endkapital: number
+    bezahlteSteuer: number
+    vorabpauschale: number
+    contributions: number
+  },
+): void {
+  const yearData = extractYearDataFromElement(element, year)
+
+  if (yearData) {
+    totals.startkapital += (yearData.startkapital as number) || 0
+    totals.zinsen += (yearData.zinsen as number) || 0
+    totals.endkapital += (yearData.endkapital as number) || 0
+    totals.bezahlteSteuer += (yearData.bezahlteSteuer as number) || 0
+    totals.vorabpauschale += (yearData.vorabpauschale as number) || 0
+  }
+
+  const elementContribution = getElementContributionForYear(element, year, false)
+  totals.contributions += elementContribution
+}
+
+/**
  * Add savings phase data from simulation structure
  */
 function addSavingsPhaseSimulationData(sparplanElements: SparplanElement[], lines: string[]): void {
@@ -789,31 +835,20 @@ function addSavingsPhaseSimulationData(sparplanElements: SparplanElement[], line
   const sortedYears = Array.from(allYears).sort((a, b) => a - b)
 
   for (const year of sortedYears) {
-    let totalStartkapital = 0
-    let totalZinsen = 0
-    let totalEndkapital = 0
-    let totalBezahlteSteuer = 0
-    let totalVorabpauschale = 0
-    let totalContributions = 0
+    const totals = {
+      startkapital: 0,
+      zinsen: 0,
+      endkapital: 0,
+      bezahlteSteuer: 0,
+      vorabpauschale: 0,
+      contributions: 0,
+    }
 
     sparplanElements.forEach((element: unknown) => {
-      if (typeof element === 'object' && element !== null && 'simulation' in element) {
-        const simulation = (element as Record<string, unknown>).simulation as Record<string, unknown> | undefined
-        const yearData = simulation?.[year] as Record<string, unknown> | undefined
-        if (yearData) {
-          totalStartkapital += (yearData.startkapital as number) || 0
-          totalZinsen += (yearData.zinsen as number) || 0
-          totalEndkapital += (yearData.endkapital as number) || 0
-          totalBezahlteSteuer += (yearData.bezahlteSteuer as number) || 0
-          totalVorabpauschale += (yearData.vorabpauschale as number) || 0
-        }
-
-        const elementContribution = getElementContributionForYear(element, year, false)
-        totalContributions += elementContribution
-      }
+      processElementForYearlySummary(element, year, totals)
     })
 
-    lines.push(`| ${year} | ${formatCurrency(totalStartkapital)} | ${formatCurrency(totalZinsen)} | ${formatCurrency(totalContributions)} | ${formatCurrency(totalEndkapital)} | ${formatCurrency(totalVorabpauschale)} | ${formatCurrency(totalBezahlteSteuer)} |`)
+    lines.push(`| ${year} | ${formatCurrency(totals.startkapital)} | ${formatCurrency(totals.zinsen)} | ${formatCurrency(totals.contributions)} | ${formatCurrency(totals.endkapital)} | ${formatCurrency(totals.vorabpauschale)} | ${formatCurrency(totals.bezahlteSteuer)} |`)
   }
 }
 
@@ -1099,29 +1134,20 @@ export function generateCalculationExplanations(context: SimulationContextState)
 /**
  * Helper function to get German label for withdrawal strategy
  */
+const WITHDRAWAL_STRATEGY_LABELS: Record<string, string> = {
+  '4prozent': '4% Regel',
+  '3prozent': '3% Regel',
+  'variabel_prozent': 'Variabler Prozentsatz',
+  'monatlich_fest': 'Monatliche Entnahme',
+  'dynamisch': 'Dynamische Strategie',
+  'bucket_strategie': 'Bucket Strategie',
+  'rmd': 'RMD Strategie',
+  'kapitalerhalt': 'Kapitalerhalt',
+  'steueroptimiert': 'Steueroptimierte Entnahme',
+}
+
 function getWithdrawalStrategyLabel(strategy: string): string {
-  switch (strategy) {
-    case '4prozent':
-      return '4% Regel'
-    case '3prozent':
-      return '3% Regel'
-    case 'variabel_prozent':
-      return 'Variabler Prozentsatz'
-    case 'monatlich_fest':
-      return 'Monatliche Entnahme'
-    case 'dynamisch':
-      return 'Dynamische Strategie'
-    case 'bucket_strategie':
-      return 'Bucket Strategie'
-    case 'rmd':
-      return 'RMD Strategie'
-    case 'kapitalerhalt':
-      return 'Kapitalerhalt'
-    case 'steueroptimiert':
-      return 'Steueroptimierte Entnahme'
-    default:
-      return strategy
-  }
+  return WITHDRAWAL_STRATEGY_LABELS[strategy] || strategy
 }
 
 /**

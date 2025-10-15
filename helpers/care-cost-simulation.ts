@@ -247,6 +247,55 @@ function hasCareEnded(config: CareCostConfiguration, year: number): boolean {
 }
 
 /**
+ * Calculate inflation adjustment factor
+ */
+function calculateInflationFactor(
+  config: CareCostConfiguration,
+  year: number,
+): number {
+  const yearsFromStart = Math.max(0, year - config.startYear)
+  return Math.pow(1 + config.careInflationRate / 100, yearsFromStart)
+}
+
+/**
+ * Calculate monthly gross costs with inflation
+ */
+function calculateMonthlyGrossCosts(
+  config: CareCostConfiguration,
+  inflationFactor: number,
+): number {
+  const careLevelInfo = DEFAULT_CARE_LEVELS[config.careLevel]
+  const baseMonthlyCost = config.customMonthlyCosts ?? careLevelInfo.typicalMonthlyCost
+  return baseMonthlyCost * inflationFactor
+}
+
+/**
+ * Calculate statutory benefits
+ */
+function calculateStatutoryBenefits(
+  config: CareCostConfiguration,
+): number {
+  if (!config.includeStatutoryBenefits) {
+    return 0
+  }
+  const careLevelInfo = DEFAULT_CARE_LEVELS[config.careLevel]
+  return careLevelInfo.careAllowance
+}
+
+/**
+ * Calculate tax deduction
+ */
+function calculateTaxDeduction(
+  config: CareCostConfiguration,
+  annualCostsNet: number,
+): number {
+  if (!config.taxDeductible || annualCostsNet <= 0) {
+    return 0
+  }
+  return Math.min(annualCostsNet, config.maxAnnualTaxDeduction)
+}
+
+/**
  * Calculate care costs for a specific year
  */
 export function calculateCareCostsForYear(
@@ -263,25 +312,13 @@ export function calculateCareCostsForYear(
   }
 
   // Calculate inflation adjustment
-  const yearsFromStart = Math.max(0, year - config.startYear)
-  const inflationAdjustmentFactor = Math.pow(1 + config.careInflationRate / 100, yearsFromStart)
+  const inflationAdjustmentFactor = calculateInflationFactor(config, year)
 
-  // Get care level info
-  const careLevelInfo = DEFAULT_CARE_LEVELS[config.careLevel]
+  // Calculate gross monthly costs
+  const monthlyCostsGross = calculateMonthlyGrossCosts(config, inflationAdjustmentFactor)
 
-  // Calculate gross monthly costs (either custom or typical costs adjusted for inflation)
-  const baseMonthlyCost = config.customMonthlyCosts ?? careLevelInfo.typicalMonthlyCost
-  const monthlyCostsGross = baseMonthlyCost * inflationAdjustmentFactor
-
-  // Calculate statutory benefits (if enabled)
-  let monthlyStatutoryBenefits = 0
-  if (config.includeStatutoryBenefits) {
-    // Use care allowance as the primary statutory benefit
-    // In practice, people often choose between care allowance and care services
-    monthlyStatutoryBenefits = careLevelInfo.careAllowance
-  }
-
-  // Private care insurance benefits
+  // Calculate benefits
+  const monthlyStatutoryBenefits = calculateStatutoryBenefits(config)
   const monthlyPrivateBenefits = config.privateCareInsuranceMonthlyBenefit * inflationAdjustmentFactor
 
   // Calculate net costs
@@ -289,12 +326,7 @@ export function calculateCareCostsForYear(
   const annualCostsNet = monthlyCostsNet * 12
 
   // Calculate tax deduction
-  let taxDeductionAmount = 0
-  if (config.taxDeductible && annualCostsNet > 0) {
-    // In Germany, extraordinary burdens (außergewöhnliche Belastungen) are tax deductible
-    // above a certain threshold, but we simplify here
-    taxDeductionAmount = Math.min(annualCostsNet, config.maxAnnualTaxDeduction)
-  }
+  const taxDeductionAmount = calculateTaxDeduction(config, annualCostsNet)
 
   const result: CareCostYearResult = {
     year,
