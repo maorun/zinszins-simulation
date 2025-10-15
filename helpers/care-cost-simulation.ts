@@ -218,6 +218,35 @@ export function createDefaultCareCostConfiguration(): CareCostConfiguration {
 }
 
 /**
+ * Create empty care cost result for a year
+ */
+function createEmptyCareCostResult(year: number, careLevel: CareLevel): CareCostYearResult {
+  return {
+    year,
+    careNeeded: false,
+    monthlyCostsGross: 0,
+    monthlyStatutoryBenefits: 0,
+    monthlyPrivateBenefits: 0,
+    monthlyCostsNet: 0,
+    annualCostsNet: 0,
+    taxDeductionAmount: 0,
+    careLevel,
+    inflationAdjustmentFactor: 1,
+  }
+}
+
+/**
+ * Check if care has ended based on duration
+ */
+function hasCareEnded(config: CareCostConfiguration, year: number): boolean {
+  if (config.careDurationYears <= 0) {
+    return false
+  }
+  const careEndYear = config.startYear + config.careDurationYears
+  return year >= careEndYear
+}
+
+/**
  * Calculate care costs for a specific year
  */
 export function calculateCareCostsForYear(
@@ -229,38 +258,8 @@ export function calculateCareCostsForYear(
   // Check if care is needed this year
   const careNeeded = config.enabled && year >= config.startYear
 
-  if (!careNeeded) {
-    return {
-      year,
-      careNeeded: false,
-      monthlyCostsGross: 0,
-      monthlyStatutoryBenefits: 0,
-      monthlyPrivateBenefits: 0,
-      monthlyCostsNet: 0,
-      annualCostsNet: 0,
-      taxDeductionAmount: 0,
-      careLevel: config.careLevel,
-      inflationAdjustmentFactor: 1,
-    }
-  }
-
-  // Check if care duration has ended
-  if (config.careDurationYears > 0) {
-    const careEndYear = config.startYear + config.careDurationYears
-    if (year >= careEndYear) {
-      return {
-        year,
-        careNeeded: false,
-        monthlyCostsGross: 0,
-        monthlyStatutoryBenefits: 0,
-        monthlyPrivateBenefits: 0,
-        monthlyCostsNet: 0,
-        annualCostsNet: 0,
-        taxDeductionAmount: 0,
-        careLevel: config.careLevel,
-        inflationAdjustmentFactor: 1,
-      }
-    }
+  if (!careNeeded || hasCareEnded(config, year)) {
+    return createEmptyCareCostResult(year, config.careLevel)
   }
 
   // Calculate inflation adjustment
@@ -398,6 +397,37 @@ function calculatePerson1CareCosts(
 }
 
 /**
+ * Create empty care cost result for person
+ */
+function createEmptyPersonCareResult(personId: 1 | 2): CareCostPersonResult {
+  return {
+    personId,
+    needsCare: false,
+    monthlyCostsNet: 0,
+    annualCostsNet: 0,
+  }
+}
+
+/**
+ * Check if person 2 needs care in the given year
+ */
+function isPerson2CareNeeded(
+  coupleConfig: NonNullable<CareCostConfiguration['coupleConfig']>,
+  year: number,
+): boolean {
+  if (!coupleConfig.person2NeedsCare || !coupleConfig.person2StartYear) {
+    return false
+  }
+
+  const careNeeded = year >= coupleConfig.person2StartYear
+  const careEndYear = coupleConfig.person2StartYear + (coupleConfig.person2CareDurationYears || 0)
+  const hasDuration = coupleConfig.person2CareDurationYears && coupleConfig.person2CareDurationYears > 0
+  const careEnded = hasDuration && year >= careEndYear
+
+  return careNeeded && !careEnded
+}
+
+/**
  * Calculate care costs for person 2 (couple configuration)
  */
 function calculatePerson2CareCosts(
@@ -407,27 +437,8 @@ function calculatePerson2CareCosts(
 ): CareCostPersonResult {
   const coupleConfig = config.coupleConfig
 
-  if (!coupleConfig || !coupleConfig.person2NeedsCare || !coupleConfig.person2StartYear) {
-    return {
-      personId: 2,
-      needsCare: false,
-      monthlyCostsNet: 0,
-      annualCostsNet: 0,
-    }
-  }
-
-  const careNeeded = year >= coupleConfig.person2StartYear
-  const careEndYear = coupleConfig.person2StartYear + (coupleConfig.person2CareDurationYears || 0)
-  const hasDuration = coupleConfig.person2CareDurationYears && coupleConfig.person2CareDurationYears > 0
-  const careEnded = hasDuration && year >= careEndYear
-
-  if (!careNeeded || careEnded) {
-    return {
-      personId: 2,
-      needsCare: false,
-      monthlyCostsNet: 0,
-      annualCostsNet: 0,
-    }
+  if (!coupleConfig || !isPerson2CareNeeded(coupleConfig, year)) {
+    return createEmptyPersonCareResult(2)
   }
 
   const careLevel = coupleConfig.person2CareLevel ?? config.careLevel
@@ -563,29 +574,52 @@ function validateBasicCareCostFields(config: CareCostConfiguration): string[] {
 }
 
 /**
+ * Validate person 2 start year
+ */
+function validatePerson2StartYear(person2StartYear: number | undefined): string[] {
+  const errors: string[] = []
+  if (!person2StartYear) {
+    errors.push('Startjahr für Person 2 muss angegeben werden.')
+  }
+  else if (person2StartYear < new Date().getFullYear()) {
+    errors.push('Startjahr für Person 2 kann nicht in der Vergangenheit liegen.')
+  }
+  return errors
+}
+
+/**
+ * Validate person 2 care duration
+ */
+function validatePerson2CareDuration(person2CareDurationYears: number | undefined): string[] {
+  if (person2CareDurationYears && person2CareDurationYears < 0) {
+    return ['Pflegedauer für Person 2 kann nicht negativ sein.']
+  }
+  return []
+}
+
+/**
+ * Validate person 2 monthly costs
+ */
+function validatePerson2MonthlyCosts(person2CustomMonthlyCosts: number | undefined): string[] {
+  if (person2CustomMonthlyCosts && person2CustomMonthlyCosts < 0) {
+    return ['Monatliche Pflegekosten für Person 2 können nicht negativ sein.']
+  }
+  return []
+}
+
+/**
  * Validate couple-specific care cost configuration
  */
 function validateCoupleCareConfiguration(config: CareCostConfiguration): string[] {
-  const errors: string[] = []
-
-  if (config.planningMode === 'couple' && config.coupleConfig?.person2NeedsCare) {
-    if (!config.coupleConfig.person2StartYear) {
-      errors.push('Startjahr für Person 2 muss angegeben werden.')
-    }
-    else if (config.coupleConfig.person2StartYear < new Date().getFullYear()) {
-      errors.push('Startjahr für Person 2 kann nicht in der Vergangenheit liegen.')
-    }
-
-    if (config.coupleConfig.person2CareDurationYears && config.coupleConfig.person2CareDurationYears < 0) {
-      errors.push('Pflegedauer für Person 2 kann nicht negativ sein.')
-    }
-
-    if (config.coupleConfig.person2CustomMonthlyCosts && config.coupleConfig.person2CustomMonthlyCosts < 0) {
-      errors.push('Monatliche Pflegekosten für Person 2 können nicht negativ sein.')
-    }
+  if (!(config.planningMode === 'couple' && config.coupleConfig?.person2NeedsCare)) {
+    return []
   }
 
-  return errors
+  return [
+    ...validatePerson2StartYear(config.coupleConfig.person2StartYear),
+    ...validatePerson2CareDuration(config.coupleConfig.person2CareDurationYears),
+    ...validatePerson2MonthlyCosts(config.coupleConfig.person2CustomMonthlyCosts),
+  ]
 }
 
 /**
