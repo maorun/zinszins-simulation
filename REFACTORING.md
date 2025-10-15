@@ -207,7 +207,7 @@ Komponenten: EventFormFields, RiskAssessment, SparplanSimulationsAusgabe, calcul
 
 Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 
-#### 3.1 SimulationProvider (248 Zeilen)
+#### 3.2 SimulationProvider (248 Zeilen)
 
 - **Status**: ✅ Abgeschlossen
 - **Extraktionen**:
@@ -216,7 +216,7 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 - **Tests**: 11 neue Tests für extrahierte Hooks (5 + 6)
 - **Endergebnis**: 178 Zeilen (von 248 → -70 Zeilen / -28%)
 - **Ziel erreicht**: ✅ Unter 200 Zeilen (178 Zeilen)
-
+- 
 #### 3.2 EntnahmeSimulationDisplay (282 Zeilen)
 
 - **Status**: ✅ Abgeschlossen
@@ -227,6 +227,17 @@ Komponenten: HomePage, InteractiveChart, SimulationContext, etc.
 - **Endergebnis**: 142 Zeilen (von 282 → -140 Zeilen / -50%)
 - **Ziel erreicht**: ✅ Weit unter 200 Zeilen (142 Zeilen, 29% unter Ziel)
 
+#### 3.3 HealthInsuranceCostPreview (214 Zeilen)
+
+- **Status**: ✅ Abgeschlossen
+- **Extraktionen**:
+  - [x] `useHealthInsurancePreviewCalculation` - Calculation logic for preview (Hook, 138 Zeilen, 10 Tests)
+  - [x] `CouplePreviewDisplay` - Couple cost preview display component (88 Zeilen, 9 Tests)
+  - [x] `IndividualPreviewDisplay` - Individual cost preview display component (52 Zeilen, 9 Tests)
+- **Tests**: 28 neue Tests für extrahierte Komponenten und Hook (10 + 9 + 9)
+- **Endergebnis**: 33 Zeilen (von 214 → -181 Zeilen / -85%)
+- **Ziel erreicht**: ✅ Weit unter 200 Zeilen (33 Zeilen, 84% unter Ziel)
+- 
 ### Phase 4: ESLint-Limits Progressive Verschärfung
 
 Nach Abschluss der Refactorings:
@@ -306,14 +317,13 @@ Für jedes Refactoring:
 - [x] HomePageContent (259 → 175 lines, -84 lines, 32% reduction) ✅
 - [x] **EnhancedOverview (255 → 68 Zeilen, -73%)** ✅
 - [x] **InteractiveChart (249 → 132 lines, -47%)** ✅
+- [x] **HealthInsuranceCostPreview (214 → 33 Zeilen, -85%)** ✅
 - [x] **EntnahmeSimulationDisplay (282 → 142 Zeilen, -50%)** ✅
-- [ ] EntnahmeSimulationsAusgabe
 - [ ] SegmentedWithdrawalComparisonDisplay
 - [ ] CareCostConfiguration
 - [ ] HistoricalReturnConfiguration
 - [ ] WithdrawalReturnModeConfiguration
 - [ ] WithdrawalYearCard
-- [ ] HealthInsuranceCostPreview
 
 ### Phase 4 - ESLint-Limits: 0/3 (0%)
 

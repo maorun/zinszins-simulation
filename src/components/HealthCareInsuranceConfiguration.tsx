@@ -1,11 +1,5 @@
-import { useEffect, useMemo } from 'react'
+import { useEffect } from 'react'
 import { calculateRetirementStartYear } from '../../helpers/statutory-pension'
-import { formatCurrency } from '../utils/currency'
-import {
-  calculateHealthCareInsuranceForYear,
-  calculateCoupleHealthInsuranceForYear,
-  createDefaultHealthCareInsuranceConfig,
-} from '../../helpers/health-care-insurance'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import { Label } from './ui/label'
 import { Switch } from './ui/switch'
@@ -15,6 +9,10 @@ import { PrivateInsuranceConfig } from './health-insurance/PrivateInsuranceConfi
 import { RetirementStartYearDisplay } from './health-insurance/RetirementStartYearDisplay'
 import { CoupleConfiguration } from './health-insurance/CoupleConfiguration'
 import { AdditionalCareInsurance } from './health-insurance/AdditionalCareInsurance'
+import { useHealthInsurancePreviewCalculation } from '../hooks/useHealthInsurancePreviewCalculation'
+import { CouplePreviewDisplay } from './health-insurance/CouplePreviewDisplay'
+import { IndividualPreviewDisplay } from './health-insurance/IndividualPreviewDisplay'
+import type { HealthCareInsuranceYearResult } from '../../helpers/health-care-insurance'
 
 interface HealthCareInsuranceFormValues {
   enabled: boolean
@@ -283,204 +281,23 @@ function HealthInsuranceCostPreview({
   spouseBirthYear?: number
   currentWithdrawalAmount?: number
 }) {
-  const currentYear = new Date().getFullYear()
-  // Use actual withdrawal amount from simulation, fallback to 30k if not available
-  const withdrawalAmount = currentWithdrawalAmount || 30000
-
-  const previewResults = useMemo(() => {
-    if (!values.enabled) return null
-
-    try {
-      if (planningMode === 'couple') {
-        // Create couple config from form values
-        const coupleConfig = {
-          ...createDefaultHealthCareInsuranceConfig(),
-          planningMode: 'couple' as const,
-          insuranceType: values.insuranceType,
-          statutoryHealthInsuranceRate: values.statutoryHealthInsuranceRate,
-          statutoryCareInsuranceRate: values.statutoryCareInsuranceRate,
-          statutoryMinimumIncomeBase: values.statutoryMinimumIncomeBase,
-          statutoryMaximumIncomeBase: values.statutoryMaximumIncomeBase,
-          coupleConfig: {
-            strategy: values.coupleStrategy || 'optimize',
-            familyInsuranceThresholds: {
-              regularEmploymentLimit: values.familyInsuranceThresholdRegular || 505,
-              miniJobLimit: values.familyInsuranceThresholdMiniJob || 538,
-              year: 2025,
-            },
-            person1: {
-              name: values.person1Name || 'Person 1',
-              birthYear: birthYear || 1980,
-              withdrawalShare: values.person1WithdrawalShare || 0.5,
-              otherIncomeAnnual: values.person1OtherIncomeAnnual || 0,
-              additionalCareInsuranceForChildless: values.person1AdditionalCareInsuranceForChildless || false,
-            },
-            person2: {
-              name: values.person2Name || 'Person 2',
-              birthYear: spouseBirthYear || 1980,
-              withdrawalShare: values.person2WithdrawalShare || 0.5,
-              otherIncomeAnnual: values.person2OtherIncomeAnnual || 0,
-              additionalCareInsuranceForChildless: values.person2AdditionalCareInsuranceForChildless || false,
-            },
-          },
-        }
-
-        return calculateCoupleHealthInsuranceForYear(coupleConfig, currentYear + 16, withdrawalAmount, 0)
-      }
-      else {
-        // Individual calculation
-        const individualConfig = {
-          ...createDefaultHealthCareInsuranceConfig(),
-          planningMode: 'individual' as const,
-          insuranceType: values.insuranceType,
-          statutoryHealthInsuranceRate: values.statutoryHealthInsuranceRate,
-          statutoryCareInsuranceRate: values.statutoryCareInsuranceRate,
-          statutoryMinimumIncomeBase: values.statutoryMinimumIncomeBase,
-          statutoryMaximumIncomeBase: values.statutoryMaximumIncomeBase,
-          additionalCareInsuranceForChildless: values.additionalCareInsuranceForChildless,
-          additionalCareInsuranceAge: values.additionalCareInsuranceAge,
-        }
-
-        return calculateHealthCareInsuranceForYear(
-          individualConfig,
-          currentYear + 16,
-          withdrawalAmount,
-          0,
-          (birthYear || 1980) + 16,
-        )
-      }
-    }
-    catch (error) {
-      console.error('Error calculating health insurance preview:', error)
-      return null
-    }
-  }, [
+  const { previewResults, withdrawalAmount } = useHealthInsurancePreviewCalculation({
     values,
     planningMode,
     birthYear,
     spouseBirthYear,
-    currentYear,
-    withdrawalAmount,
-  ])
+    currentWithdrawalAmount,
+  })
 
   if (!previewResults) return null
 
+  // Check if results are for couple or individual
   if (planningMode === 'couple' && 'person1' in previewResults) {
-    const coupleResults = previewResults
-    return (
-      <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
-        <h4 className="font-medium text-sm text-green-900 mb-3 flex items-center gap-2">
-          💰 Kostenvorschau (bei
-          {' '}
-          {formatCurrency(withdrawalAmount)}
-          {' '}
-          Entnahme)
-        </h4>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-          <div className="space-y-2">
-            <div className="text-sm font-medium text-blue-700">
-              👤
-              {' '}
-              {coupleResults.person1.name}
-            </div>
-            <div className="text-xs space-y-1">
-              <div>
-                Jährlich:
-                {formatCurrency(coupleResults.person1.healthInsuranceResult.totalAnnual)}
-              </div>
-              <div>
-                Monatlich:
-                {formatCurrency(coupleResults.person1.healthInsuranceResult.totalMonthly)}
-              </div>
-              <div className="text-blue-600">
-                {coupleResults.person1.coveredByFamilyInsurance ? '👨‍👩‍👧‍👦 Familienversichert' : '💳 Eigenversichert'}
-              </div>
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <div className="text-sm font-medium text-purple-700">
-              👤
-              {' '}
-              {coupleResults.person2.name}
-            </div>
-            <div className="text-xs space-y-1">
-              <div>
-                Jährlich:
-                {formatCurrency(coupleResults.person2.healthInsuranceResult.totalAnnual)}
-              </div>
-              <div>
-                Monatlich:
-                {formatCurrency(coupleResults.person2.healthInsuranceResult.totalMonthly)}
-              </div>
-              <div className="text-purple-600">
-                {coupleResults.person2.coveredByFamilyInsurance ? '👨‍👩‍👧‍👦 Familienversichert' : '💳 Eigenversichert'}
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="pt-3 border-t border-green-300">
-          <div className="text-sm font-medium text-green-900">
-            Gesamt:
-            {' '}
-            {formatCurrency(coupleResults.totalAnnual)}
-            {' '}
-            / Jahr •
-            {' '}
-            {formatCurrency(coupleResults.totalMonthly)}
-            {' '}
-            / Monat
-          </div>
-          <div className="text-xs text-green-700 mt-1">
-            Strategie:
-            {' '}
-            {coupleResults.strategyUsed === 'family' ? '👨‍👩‍👧‍👦 Familienversicherung'
-              : coupleResults.strategyUsed === 'individual' ? '💳 Einzelversicherung' : '🎯 Optimiert'}
-          </div>
-        </div>
-      </div>
-    )
+    return <CouplePreviewDisplay coupleResults={previewResults} withdrawalAmount={withdrawalAmount} />
   }
   else {
     // Individual results
-    const individualResults = previewResults as import('../../helpers/health-care-insurance').HealthCareInsuranceYearResult
-    return (
-      <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-        <h4 className="font-medium text-sm text-blue-900 mb-3">
-          💰 Kostenvorschau (bei
-          {' '}
-          {formatCurrency(withdrawalAmount)}
-          {' '}
-          Entnahme)
-        </h4>
-
-        <div className="space-y-2">
-          <div className="text-sm">
-            <span className="font-medium">Jährlich:</span>
-            {' '}
-            {formatCurrency(individualResults.totalAnnual)}
-          </div>
-          <div className="text-sm">
-            <span className="font-medium">Monatlich:</span>
-            {' '}
-            {formatCurrency(individualResults.totalMonthly)}
-          </div>
-          <div className="text-xs text-blue-700">
-            Krankenversicherung:
-            {' '}
-            {formatCurrency(individualResults.healthInsuranceAnnual)}
-            {' '}
-            / Jahr •
-            Pflegeversicherung:
-            {' '}
-            {formatCurrency(individualResults.careInsuranceAnnual)}
-            {' '}
-            / Jahr
-          </div>
-        </div>
-      </div>
-    )
+    const individualResults = previewResults as HealthCareInsuranceYearResult
+    return <IndividualPreviewDisplay individualResults={individualResults} withdrawalAmount={withdrawalAmount} />
   }
 }
