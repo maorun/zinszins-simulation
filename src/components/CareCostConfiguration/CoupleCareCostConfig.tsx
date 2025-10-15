@@ -16,6 +16,79 @@ interface CoupleCareCostConfigProps {
   nestingLevel: number
 }
 
+/**
+ * Update person2NeedsCare configuration
+ */
+function updatePerson2NeedsCare(
+  values: CareCostConfiguration,
+  person2NeedsCare: boolean,
+): CareCostConfiguration {
+  return {
+    ...values,
+    coupleConfig: {
+      ...values.coupleConfig,
+      person2NeedsCare,
+      person2StartYear: person2NeedsCare
+        ? (values.coupleConfig?.person2StartYear || values.startYear + 2)
+        : undefined,
+      person2CareLevel: person2NeedsCare
+        ? (values.coupleConfig?.person2CareLevel || values.careLevel)
+        : undefined,
+    },
+  }
+}
+
+/**
+ * Update person2 start year
+ */
+function updatePerson2StartYear(
+  values: CareCostConfiguration,
+  person2StartYear: number,
+): CareCostConfiguration {
+  return {
+    ...values,
+    coupleConfig: {
+      ...values.coupleConfig,
+      person2NeedsCare: true,
+      person2StartYear,
+    },
+  }
+}
+
+/**
+ * Update person2 care level
+ */
+function updatePerson2CareLevel(
+  values: CareCostConfiguration,
+  person2CareLevel: CareLevel,
+): CareCostConfiguration {
+  return {
+    ...values,
+    coupleConfig: {
+      ...values.coupleConfig,
+      person2NeedsCare: true,
+      person2CareLevel,
+    },
+  }
+}
+
+/**
+ * Update person2 care duration
+ */
+function updatePerson2CareDuration(
+  values: CareCostConfiguration,
+  person2CareDurationYears: number,
+): CareCostConfiguration {
+  return {
+    ...values,
+    coupleConfig: {
+      ...values.coupleConfig,
+      person2NeedsCare: true,
+      person2CareDurationYears,
+    },
+  }
+}
+
 export function CoupleCareCostConfig({
   values,
   onChange,
@@ -33,19 +106,7 @@ export function CoupleCareCostConfig({
         <div className="flex items-center space-x-2">
           <Switch
             checked={values.coupleConfig?.person2NeedsCare || false}
-            onCheckedChange={person2NeedsCare => onChange({
-              ...values,
-              coupleConfig: {
-                ...values.coupleConfig,
-                person2NeedsCare,
-                person2StartYear: person2NeedsCare
-                  ? (values.coupleConfig?.person2StartYear || values.startYear + 2)
-                  : undefined,
-                person2CareLevel: person2NeedsCare
-                  ? (values.coupleConfig?.person2CareLevel || values.careLevel)
-                  : undefined,
-              },
-            })}
+            onCheckedChange={person2NeedsCare => onChange(updatePerson2NeedsCare(values, person2NeedsCare))}
             id="person2-needs-care"
           />
           <Label htmlFor="person2-needs-care" className="text-sm">
@@ -63,14 +124,7 @@ export function CoupleCareCostConfig({
                 id="person2-start-year"
                 type="number"
                 value={values.coupleConfig?.person2StartYear || ''}
-                onChange={e => onChange({
-                  ...values,
-                  coupleConfig: {
-                    ...values.coupleConfig,
-                    person2NeedsCare: true,
-                    person2StartYear: Number(e.target.value),
-                  },
-                })}
+                onChange={e => onChange(updatePerson2StartYear(values, Number(e.target.value)))}
                 min={currentYear}
                 max={currentYear + 50}
                 step={1}
@@ -82,14 +136,7 @@ export function CoupleCareCostConfig({
               <Label>Pflegegrad für Person 2</Label>
               <RadioTileGroup
                 value={(values.coupleConfig?.person2CareLevel || values.careLevel).toString()}
-                onValueChange={value => onChange({
-                  ...values,
-                  coupleConfig: {
-                    ...values.coupleConfig,
-                    person2NeedsCare: true,
-                    person2CareLevel: Number(value) as CareLevel,
-                  },
-                })}
+                onValueChange={value => onChange(updatePerson2CareLevel(values, Number(value) as CareLevel))}
               >
                 {[1, 2, 3, 4, 5].map(level => (
                   <RadioTile
@@ -113,14 +160,7 @@ export function CoupleCareCostConfig({
                 id="person2-duration"
                 type="number"
                 value={values.coupleConfig?.person2CareDurationYears || 0}
-                onChange={e => onChange({
-                  ...values,
-                  coupleConfig: {
-                    ...values.coupleConfig,
-                    person2NeedsCare: true,
-                    person2CareDurationYears: Number(e.target.value),
-                  },
-                })}
+                onChange={e => onChange(updatePerson2CareDuration(values, Number(e.target.value)))}
                 min={0}
                 max={50}
                 step={1}
