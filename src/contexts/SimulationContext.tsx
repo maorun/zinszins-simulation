@@ -14,6 +14,7 @@ import { createDefaultConfiguration } from './helpers/default-config'
 import { useSimulationState } from './hooks/useSimulationState'
 import { useInitialConfiguration } from './hooks/useInitialConfiguration'
 import { useSimulationOrchestration } from './hooks/useSimulationOrchestration'
+import { useSimulationContextValue } from './hooks/useSimulationContextValue'
 
 export interface SimulationContextState {
   rendite: number
@@ -156,60 +157,6 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     defaultConfig,
   })
 
-  // Extract state and setters for easier access
-  const {
-    rendite, setRendite,
-    steuerlast, setSteuerlast,
-    teilfreistellungsquote, setTeilfreistellungsquote,
-    freibetragPerYear, setFreibetragPerYear,
-    basiszinsConfiguration, setBasiszinsConfiguration,
-    steuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalSparphase,
-    steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv, setGrundfreibetragAktiv,
-    grundfreibetragBetrag, setGrundfreibetragBetrag,
-    personalTaxRate, setPersonalTaxRate,
-    guenstigerPruefungAktiv, setGuenstigerPruefungAktiv,
-    kirchensteuerAktiv, setKirchensteuerAktiv,
-    kirchensteuersatz, setKirchensteuersatz,
-    returnMode, setReturnMode,
-    averageReturn, setAverageReturn,
-    standardDeviation, setStandardDeviation,
-    randomSeed, setRandomSeed,
-    variableReturns, setVariableReturns,
-    historicalIndex, setHistoricalIndex,
-    blackSwanReturns, setBlackSwanReturns,
-    blackSwanEventName, setBlackSwanEventName,
-    inflationScenarioRates, setInflationScenarioRates,
-    inflationScenarioReturnModifiers, setInflationScenarioReturnModifiers,
-    inflationScenarioName, setInflationScenarioName,
-    multiAssetConfig, setMultiAssetConfig,
-    withdrawalMultiAssetConfig, setWithdrawalMultiAssetConfig,
-    inflationAktivSparphase, setInflationAktivSparphase,
-    inflationsrateSparphase, setInflationsrateSparphase,
-    inflationAnwendungSparphase, setInflationAnwendungSparphase,
-    startEnd, setStartEnd,
-    sparplan, setSparplan,
-    simulationAnnual, setSimulationAnnual,
-    sparplanElemente, setSparplanElemente,
-    endOfLife,
-    lifeExpectancyTable, setLifeExpectancyTable,
-    customLifeExpectancy, setCustomLifeExpectancy,
-    planningMode, setPlanningMode,
-    gender, setGender,
-    spouse, setSpouse,
-    birthYear, setBirthYear,
-    expectedLifespan, setExpectedLifespan,
-    useAutomaticCalculation, setUseAutomaticCalculation,
-    simulationData,
-    isLoading,
-    withdrawalResults, setWithdrawalResults,
-    withdrawalConfig, setWithdrawalConfig,
-    statutoryPensionConfig, setStatutoryPensionConfig,
-    coupleStatutoryPensionConfig, setCoupleStatutoryPensionConfig,
-    careCostConfiguration, setCareCostConfiguration,
-    financialGoals, setFinancialGoals,
-  } = state
-
   // Use orchestration hook to manage configuration, simulation, and effects
   const {
     configManagement,
@@ -217,106 +164,13 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
     setEndOfLifeRounded,
   } = useSimulationOrchestration(defaultConfig, state)
 
-  const {
-    getCurrentConfiguration,
-    saveCurrentConfiguration,
-    loadSavedConfiguration,
-    resetToDefaults,
-  } = configManagement
-
-  const value = useMemo(() => ({
-    rendite, setRendite,
-    steuerlast, setSteuerlast,
-    teilfreistellungsquote, setTeilfreistellungsquote,
-    freibetragPerYear, setFreibetragPerYear,
-    basiszinsConfiguration, setBasiszinsConfiguration,
-    steuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalSparphase,
-    steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv, setGrundfreibetragAktiv,
-    grundfreibetragBetrag, setGrundfreibetragBetrag,
-    // Personal income tax settings
-    personalTaxRate, setPersonalTaxRate,
-    guenstigerPruefungAktiv, setGuenstigerPruefungAktiv,
-    // Church tax (Kirchensteuer) settings
-    kirchensteuerAktiv, setKirchensteuerAktiv,
-    kirchensteuersatz, setKirchensteuersatz,
-    returnMode, setReturnMode,
-    averageReturn, setAverageReturn,
-    standardDeviation, setStandardDeviation,
-    randomSeed, setRandomSeed,
-    variableReturns, setVariableReturns,
-    historicalIndex, setHistoricalIndex,
-    // Black Swan event configuration
-    blackSwanReturns, setBlackSwanReturns,
-    blackSwanEventName, setBlackSwanEventName,
-    // Inflation scenario configuration
-    inflationScenarioRates, setInflationScenarioRates,
-    inflationScenarioReturnModifiers, setInflationScenarioReturnModifiers,
-    inflationScenarioName, setInflationScenarioName,
-    // Multi-asset portfolio configuration
-    multiAssetConfig, setMultiAssetConfig,
-    // Multi-asset portfolio configuration for withdrawal phase
-    withdrawalMultiAssetConfig, setWithdrawalMultiAssetConfig,
-    // Inflation for savings phase
-    inflationAktivSparphase, setInflationAktivSparphase,
-    inflationsrateSparphase, setInflationsrateSparphase,
-    inflationAnwendungSparphase, setInflationAnwendungSparphase,
-    startEnd, setStartEnd,
-    sparplan, setSparplan,
-    simulationAnnual, setSimulationAnnual,
-    sparplanElemente, setSparplanElemente,
-    // Global End of Life and Life Expectancy settings
-    endOfLife, setEndOfLife: setEndOfLifeRounded,
-    lifeExpectancyTable, setLifeExpectancyTable,
-    customLifeExpectancy, setCustomLifeExpectancy,
-    // Gender and couple planning settings
-    planningMode, setPlanningMode,
-    gender, setGender,
-    spouse, setSpouse,
-    // Birth year helper for end of life calculation
-    birthYear, setBirthYear,
-    expectedLifespan, setExpectedLifespan,
-    useAutomaticCalculation, setUseAutomaticCalculation,
-    simulationData,
-    isLoading,
-    withdrawalResults, setWithdrawalResults,
+  // Build context value using custom hook
+  const value = useSimulationContextValue(
+    state,
+    configManagement,
     performSimulation,
-    // Configuration management
-    getCurrentConfiguration,
-    saveCurrentConfiguration,
-    loadSavedConfiguration,
-    resetToDefaults,
-    // Withdrawal configuration
-    withdrawalConfig, setWithdrawalConfig,
-    // Statutory pension configuration
-    statutoryPensionConfig, setStatutoryPensionConfig,
-    // Couple statutory pension configuration (new)
-    coupleStatutoryPensionConfig, setCoupleStatutoryPensionConfig,
-    // Care cost configuration
-    careCostConfiguration, setCareCostConfiguration,
-    // Financial goals configuration
-    financialGoals, setFinancialGoals,
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Setter functions are stable
-  }), [
-    rendite, steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration,
-    steuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv, grundfreibetragBetrag,
-    personalTaxRate, guenstigerPruefungAktiv,
-    kirchensteuerAktiv, kirchensteuersatz,
-    returnMode, averageReturn, standardDeviation, randomSeed, variableReturns, historicalIndex,
-    blackSwanReturns, blackSwanEventName,
-    inflationScenarioRates, inflationScenarioReturnModifiers, inflationScenarioName,
-    multiAssetConfig, withdrawalMultiAssetConfig,
-    inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
-    startEnd, sparplan, simulationAnnual, sparplanElemente,
-    endOfLife, lifeExpectancyTable, customLifeExpectancy, planningMode, gender, spouse,
-    birthYear, expectedLifespan, useAutomaticCalculation,
-    simulationData, isLoading, withdrawalResults, performSimulation,
-    getCurrentConfiguration, saveCurrentConfiguration, loadSavedConfiguration, resetToDefaults,
-    withdrawalConfig, statutoryPensionConfig, coupleStatutoryPensionConfig, careCostConfiguration,
-    financialGoals,
     setEndOfLifeRounded,
-  ])
+  )
 
   return (
     <SimulationContext.Provider value={value}>
