@@ -137,6 +137,66 @@ describe('multi-asset-portfolio helpers', () => {
       expect(errors.length).toBeGreaterThan(0)
       expect(errors.some(error => error.includes('Rebalancing-Schwellenwert muss zwischen 0% und 50% liegen'))).toBe(true)
     })
+
+    it('validates multiple validation errors at once', () => {
+      // Set allocation to 100% initially for single asset
+      validConfig.assetClasses.stocks_domestic.targetAllocation = 1.0
+      validConfig.assetClasses.stocks_domestic.enabled = true
+      Object.keys(validConfig.assetClasses).forEach((key) => {
+        if (key !== 'stocks_domestic') {
+          validConfig.assetClasses[key as AssetClass].enabled = false
+        }
+      })
+
+      // Now introduce multiple errors (but keep total allocation valid)
+      validConfig.assetClasses.stocks_domestic.expectedReturn = 0.8 // Invalid return (> 0.5)
+      validConfig.assetClasses.stocks_domestic.volatility = -0.1 // Invalid volatility (< 0)
+      validConfig.rebalancing.threshold = 0.6 // Invalid threshold (> 0.5)
+
+      const errors = validateMultiAssetConfig(validConfig)
+
+      // Should have 3 errors (return, volatility, threshold)
+      expect(errors.length).toBe(3)
+      expect(errors.some(error => error.includes('Erwartete Rendite muss zwischen -50% und 50% liegen'))).toBe(true)
+      expect(errors.some(error => error.includes('Volatilität muss zwischen 0% und 100% liegen'))).toBe(true)
+      expect(errors.some(error => error.includes('Rebalancing-Schwellenwert muss zwischen 0% und 50% liegen'))).toBe(true)
+    })
+
+    it('returns no errors for valid 100% allocation config', () => {
+      // Configure to 100% allocation with valid values
+      validConfig.assetClasses.stocks_domestic.targetAllocation = 1.0
+      validConfig.assetClasses.stocks_domestic.enabled = true
+      validConfig.assetClasses.stocks_domestic.expectedReturn = 0.08 // Valid
+      validConfig.assetClasses.stocks_domestic.volatility = 0.20 // Valid
+      validConfig.rebalancing.threshold = 0.05 // Valid
+      Object.keys(validConfig.assetClasses).forEach((key) => {
+        if (key !== 'stocks_domestic') {
+          validConfig.assetClasses[key as AssetClass].enabled = false
+        }
+      })
+
+      const errors = validateMultiAssetConfig(validConfig)
+
+      expect(errors).toHaveLength(0)
+    })
+
+    it('validates invalid allocation and total allocation', () => {
+      // Set allocation > 1.0 for a single enabled asset
+      validConfig.assetClasses.stocks_domestic.targetAllocation = 1.5
+      validConfig.assetClasses.stocks_domestic.enabled = true
+      Object.keys(validConfig.assetClasses).forEach((key) => {
+        if (key !== 'stocks_domestic') {
+          validConfig.assetClasses[key as AssetClass].enabled = false
+        }
+      })
+
+      const errors = validateMultiAssetConfig(validConfig)
+
+      // Should have 2 errors: total allocation wrong AND individual allocation out of range
+      expect(errors.length).toBe(2)
+      expect(errors.some(error => error.includes('Die Gesamtallokation muss 100% betragen'))).toBe(true)
+      expect(errors.some(error => error.includes('Allokation muss zwischen 0% und 100% liegen'))).toBe(true)
+    })
   })
 
   describe('getAssetClassLabel', () => {

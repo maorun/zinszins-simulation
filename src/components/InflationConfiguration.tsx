@@ -9,6 +9,47 @@ interface InflationConfigurationProps {
   onInflationRateChange: (rate: number) => void
 }
 
+/**
+ * Inflation rate slider component
+ * Displays slider for configuring the inflation rate percentage
+ */
+function InflationRateSlider({
+  inflationsrate,
+  onInflationRateChange,
+}: {
+  inflationsrate: number
+  onInflationRateChange: (rate: number) => void
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>Inflationsrate (%)</Label>
+      <div className="space-y-2">
+        <Slider
+          value={[inflationsrate]}
+          onValueChange={(values: number[]) => {
+            onInflationRateChange(values[0])
+          }}
+          min={0}
+          max={5}
+          step={0.1}
+          className="mt-2"
+        />
+        <div className="flex justify-between text-sm text-gray-500">
+          <span>0%</span>
+          <span className="font-medium text-gray-900">
+            {inflationsrate}
+            %
+          </span>
+          <span>5%</span>
+        </div>
+      </div>
+      <div className="text-sm text-muted-foreground mt-1">
+        Jährliche Inflationsrate zur Anpassung der Entnahmebeträge
+      </div>
+    </div>
+  )
+}
+
 export function InflationConfiguration({
   inflationAktiv,
   inflationsrate,
@@ -31,32 +72,10 @@ export function InflationConfiguration({
       </div>
 
       {inflationAktiv && (
-        <div className="mb-4 space-y-2">
-          <Label>Inflationsrate (%)</Label>
-          <div className="space-y-2">
-            <Slider
-              value={[inflationsrate]}
-              onValueChange={(values: number[]) => {
-                onInflationRateChange(values[0])
-              }}
-              min={0}
-              max={5}
-              step={0.1}
-              className="mt-2"
-            />
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>0%</span>
-              <span className="font-medium text-gray-900">
-                {inflationsrate}
-                %
-              </span>
-              <span>5%</span>
-            </div>
-          </div>
-          <div className="text-sm text-muted-foreground mt-1">
-            Jährliche Inflationsrate zur Anpassung der Entnahmebeträge
-          </div>
-        </div>
+        <InflationRateSlider
+          inflationsrate={inflationsrate}
+          onInflationRateChange={onInflationRateChange}
+        />
       )}
     </>
   )
