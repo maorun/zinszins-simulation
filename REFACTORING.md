@@ -423,6 +423,33 @@ Für jedes Refactoring:
     - Net Reduction: 4 warnings gesamt (von 321 auf 317)
     - Tests: 1948 → 1967 (+19 neue Tests) ✅
     - Alle Tests bestehen ✅
+- [x] **Phase 4.3**: Utility-Funktionen und Restkomponenten (4 warnings behoben)
+  - **Status**: 310 warnings (reduziert von 313)
+  - **Refaktorierte Utility-Funktionen**:
+    - ✅ **clearRegisteredIds** (unique-id.ts): Complexity 11→8
+      - Extrahierte `isTestEnvironment()` helper function
+      - Reduzierte Komplexität durch Funktionsextraktion
+    - ✅ **getStrategyDefaults** (withdrawal-strategy-defaults.ts): Complexity 11→8
+      - Ersetzt multiple if-Statements mit Strategy Map Pattern
+      - Verbesserte Wartbarkeit und Erweiterbarkeit
+    - ✅ **getStrategyDisplayName** (withdrawal-strategy-utils.ts): Complexity 9→8
+      - Ersetzt switch statement mit lookup map
+      - Reduzierte cyclomatic complexity
+    - ✅ **validateWithdrawalSegments** (segmented-withdrawal.tsx): Complexity 11→8
+      - Extrahierte 5 spezialisierte Validierungs-Funktionen:
+        - `validateSegmentDateRanges()`
+        - `validateNoOverlaps()`
+        - `validateUniqueIds()`
+        - `validateSegmentBoundaries()`
+        - `validateContinuousSegments()`
+      - Verbesserte Lesbarkeit und Wartbarkeit
+  - **Erreichte Verbesserungen**:
+    - 4 Utility-Funktionen vollständig behoben
+    - Net Reduction: 3 warnings gesamt (von 313 auf 310)
+    - Keine neuen Tests erforderlich (bestehende Tests weiterhin gültig)
+    - Alle 1981 Tests bestehen ✅
+    - Build erfolgreich ✅
+    - Manuelle Validierung erfolgreich ✅
   - **Nächste Schritte**:
     - HomePageContent benötigt weitere JSX-Extraktion für <50 Zeilen
     - Weitere Komponenten mit >50 Zeilen können bei Bedarf refaktoriert werden
