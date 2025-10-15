@@ -1,4 +1,3 @@
-import { formatCurrency } from '../utils/currency'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { WithdrawalFormValue, ComparisonStrategy, SegmentedComparisonStrategy } from '../utils/config-storage'
 import { WithdrawalComparisonDisplay } from './WithdrawalComparisonDisplay'
@@ -6,6 +5,8 @@ import { SegmentedWithdrawalComparisonDisplay } from './SegmentedWithdrawalCompa
 import InteractiveChart from './InteractiveChart'
 import { convertWithdrawalResultToSimulationResult, hasWithdrawalInflationAdjustedValues } from '../utils/chart-data-converter'
 import { WithdrawalYearCard } from './WithdrawalYearCard'
+import { WithdrawalStrategySummary } from './WithdrawalStrategySummary'
+import { formatDuration } from '../utils/duration-formatter'
 
 // Type for segmented comparison results
 type SegmentedComparisonResult = {
@@ -97,155 +98,14 @@ export function EntnahmeSimulationDisplay({
     <div>
       <div style={{ marginBottom: '20px' }}>
         <h4>Entnahme-Simulation</h4>
-        <p>
-          <strong>Startkapital bei Entnahme:</strong>
-          {' '}
-          {formatCurrency(withdrawalData.startingCapital)}
-        </p>
-        {formValue.strategie === 'monatlich_fest'
-          ? (
-              <>
-                <p>
-                  <strong>Monatliche Entnahme (Basis):</strong>
-                  {' '}
-                  {formatCurrency(formValue.monatlicheBetrag)}
-                </p>
-                <p>
-                  <strong>Jährliche Entnahme (Jahr 1):</strong>
-                  {' '}
-                  {formatCurrency(formValue.monatlicheBetrag * 12)}
-                </p>
-                {formValue.guardrailsAktiv && (
-                  <p>
-                    <strong>Dynamische Anpassung:</strong>
-                    {' '}
-                    Aktiviert
-                    (Schwelle:
-                    {formValue.guardrailsSchwelle}
-                    %)
-                  </p>
-                )}
-              </>
-            )
-          : formValue.strategie === 'variabel_prozent'
-            ? (
-                <p>
-                  <strong>
-                    Jährliche Entnahme (
-                    {formValue.variabelProzent}
-                    {' '}
-                    Prozent
-                    Regel):
-                  </strong>
-                  {' '}
-                  {formatCurrency(
-                    withdrawalData.startingCapital
-                    * (formValue.variabelProzent / 100),
-                  )}
-                </p>
-              )
-            : formValue.strategie === 'dynamisch'
-              ? (
-                  <>
-                    <p>
-                      <strong>Basis-Entnahmerate:</strong>
-                      {' '}
-                      {formValue.dynamischBasisrate}
-                      %
-                    </p>
-                    <p>
-                      <strong>Jährliche Basis-Entnahme:</strong>
-                      {' '}
-                      {formatCurrency(
-                        withdrawalData.startingCapital
-                        * (formValue.dynamischBasisrate / 100),
-                      )}
-                    </p>
-                    <p>
-                      <strong>Obere Schwelle:</strong>
-                      {' '}
-                      {formValue.dynamischObereSchwell}
-                      % Rendite →
-                      {' '}
-                      {formValue.dynamischObereAnpassung > 0 ? '+' : ''}
-                      {formValue.dynamischObereAnpassung}
-                      % Anpassung
-                    </p>
-                    <p>
-                      <strong>Untere Schwelle:</strong>
-                      {' '}
-                      {formValue.dynamischUntereSchwell}
-                      % Rendite →
-                      {' '}
-                      {formValue.dynamischUntereAnpassung}
-                      % Anpassung
-                    </p>
-                  </>
-                )
-              : (
-                  <p>
-                    <strong>
-                      Jährliche Entnahme (
-                      {formValue.strategie === '4prozent'
-                        ? '4 Prozent'
-                        : '3 Prozent'}
-                      {' '}
-                      Regel):
-                    </strong>
-                    {' '}
-                    {formatCurrency(
-                      withdrawalData.startingCapital
-                      * (formValue.strategie === '4prozent' ? 0.04 : 0.03),
-                    )}
-                  </p>
-                )}
-        {formValue.inflationAktiv && (
-          <p>
-            <strong>Inflationsrate:</strong>
-            {' '}
-            {formValue.inflationsrate}
-            % p.a. (Entnahmebeträge werden
-            jährlich angepasst)
-          </p>
-        )}
-        <p>
-          <strong>Erwartete Rendite:</strong>
-          {' '}
-          {formValue.rendite}
-          {' '}
-          Prozent p.a.
-        </p>
-        {(() => {
-          // Show Grundfreibetrag information (now global for all strategies)
-          if (formValue.grundfreibetragAktiv && formValue.grundfreibetragBetrag) {
-            return (
-              <p>
-                <strong>Grundfreibetrag:</strong>
-                {' '}
-                {formatCurrency(formValue.grundfreibetragBetrag)}
-                {' '}
-                pro Jahr
-                {formValue.einkommensteuersatz && (
-                  <>
-                    {' '}
-                    (Einkommensteuersatz:
-                    {' '}
-                    {formValue.einkommensteuersatz}
-                    %)
-                  </>
-                )}
-              </p>
-            )
-          }
-          return null
-        })()}
-
+        <WithdrawalStrategySummary
+          startingCapital={withdrawalData.startingCapital}
+          formValue={formValue}
+        />
         <p>
           <strong>Vermögen reicht für:</strong>
           {' '}
-          {withdrawalData.duration
-            ? `${withdrawalData.duration} Jahr${withdrawalData.duration === 1 ? '' : 'e'}`
-            : 'unbegrenzt (Vermögen wächst weiter)'}
+          {formatDuration(withdrawalData.duration)}
         </p>
       </div>
 
