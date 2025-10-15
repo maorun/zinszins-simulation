@@ -6,12 +6,12 @@ import { useWithdrawalConfigValues } from '../hooks/useWithdrawalConfigValues'
 import { useWithdrawalModals } from '../hooks/useWithdrawalModals'
 import { useWithdrawalEffects } from '../hooks/useWithdrawalEffects'
 import { useHealthCareInsuranceHandlers } from '../hooks/useHealthCareInsuranceHandlers'
+import { useWithdrawalVariablesProps } from '../hooks/useWithdrawalVariablesProps'
 import type { SparplanElement } from '../utils/sparplan-utils'
-import CalculationExplanationModal from './CalculationExplanationModal'
 import { EntnahmeSimulationDisplay } from './EntnahmeSimulationDisplay'
 import { WithdrawalVariablesCard } from './WithdrawalVariablesCard'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
-import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
+import { EntnahmeSimulationModals } from './EntnahmeSimulationModals'
 
 export function EntnahmeSimulationsAusgabe({
   startEnd,
@@ -52,9 +52,7 @@ export function EntnahmeSimulationsAusgabe({
     useSegmentedWithdrawal,
     withdrawalSegments,
     useComparisonMode,
-    comparisonStrategies,
     useSegmentedComparisonMode,
-    segmentedComparisonStrategies,
   } = useWithdrawalConfigValues(currentConfig)
 
   // Calculate withdrawal data
@@ -115,64 +113,39 @@ export function EntnahmeSimulationsAusgabe({
     updateConfig,
   })
 
+  // Prepare props for WithdrawalVariablesCard
+  const withdrawalVariablesProps = useWithdrawalVariablesProps({
+    currentConfig,
+    updateConfig,
+    updateFormValue,
+    updateComparisonStrategy,
+    addSegmentedComparisonStrategy,
+    updateSegmentedComparisonStrategy,
+    removeSegmentedComparisonStrategy,
+    formValue,
+    withdrawalReturnMode,
+    withdrawalAverageReturn,
+    withdrawalStandardDeviation,
+    withdrawalRandomSeed,
+    withdrawalVariableReturns,
+    withdrawalMultiAssetConfig,
+    setWithdrawalMultiAssetConfig,
+    useSegmentedWithdrawal,
+    useComparisonMode,
+    useSegmentedComparisonMode,
+    dispatchEnd,
+    startOfIndependence,
+    globalEndOfLife,
+    planningMode,
+    birthYear,
+    spouseBirthYear: spouse?.birthYear,
+    withdrawalData,
+    healthCareInsuranceHandlers,
+  })
+
   return (
     <div className="space-y-4">
-      <WithdrawalVariablesCard
-        otherIncomeConfig={currentConfig.otherIncomeConfig}
-        onOtherIncomeConfigChange={otherIncomeConfig => updateConfig({ otherIncomeConfig })}
-        useSegmentedWithdrawal={useSegmentedWithdrawal}
-        useComparisonMode={useComparisonMode}
-        useSegmentedComparisonMode={useSegmentedComparisonMode}
-        withdrawalSegments={withdrawalSegments}
-        onWithdrawalSegmentsChange={segments => updateConfig({ withdrawalSegments: segments })}
-        formValue={formValue}
-        comparisonStrategies={comparisonStrategies}
-        onFormValueUpdate={updateFormValue}
-        onComparisonStrategyUpdate={updateComparisonStrategy}
-        onComparisonStrategyAdd={() => {
-          const newId = `strategy${comparisonStrategies.length + 1}`
-          updateConfig({
-            comparisonStrategies: [
-              ...comparisonStrategies,
-              {
-                id: newId,
-                name: `Strategy ${comparisonStrategies.length + 1}`,
-                strategie: '4prozent' as const,
-                rendite: 5,
-              },
-            ],
-          })
-        }}
-        onComparisonStrategyRemove={(id) => {
-          updateConfig({
-            comparisonStrategies: comparisonStrategies.filter(s => s.id !== id),
-          })
-        }}
-        segmentedComparisonStrategies={segmentedComparisonStrategies}
-        onSegmentedComparisonStrategyAdd={addSegmentedComparisonStrategy}
-        onSegmentedComparisonStrategyUpdate={updateSegmentedComparisonStrategy}
-        onSegmentedComparisonStrategyRemove={removeSegmentedComparisonStrategy}
-        withdrawalReturnMode={withdrawalReturnMode}
-        withdrawalAverageReturn={withdrawalAverageReturn}
-        withdrawalStandardDeviation={withdrawalStandardDeviation}
-        withdrawalRandomSeed={withdrawalRandomSeed}
-        withdrawalVariableReturns={withdrawalVariableReturns}
-        withdrawalMultiAssetConfig={withdrawalMultiAssetConfig}
-        onWithdrawalMultiAssetConfigChange={config => setWithdrawalMultiAssetConfig(config!)}
-        onConfigUpdate={updateConfig}
-        dispatchEnd={dispatchEnd}
-        startOfIndependence={startOfIndependence}
-        globalEndOfLife={globalEndOfLife}
-        planningMode={planningMode}
-        birthYear={birthYear}
-        spouseBirthYear={spouse?.birthYear}
-        currentWithdrawalAmount={
-          withdrawalData && withdrawalData.withdrawalArray.length > 0
-            ? withdrawalData.withdrawalArray[withdrawalData.withdrawalArray.length - 1].entnahme
-            : undefined
-        }
-        onHealthCareInsuranceChange={healthCareInsuranceHandlers}
-      />
+      <WithdrawalVariablesCard {...withdrawalVariablesProps} />
       <CollapsibleCard>
         <CollapsibleCardHeader className="text-left">Simulation</CollapsibleCardHeader>
         <CollapsibleCardContent>
@@ -188,26 +161,14 @@ export function EntnahmeSimulationsAusgabe({
         </CollapsibleCardContent>
       </CollapsibleCard>
 
-      {/* Calculation Explanation Modal */}
-      {calculationDetails && (
-        <CalculationExplanationModal
-          open={showCalculationModal}
-          onClose={() => setShowCalculationModal(false)}
-          title={calculationDetails.title}
-          introduction={calculationDetails.introduction}
-          steps={calculationDetails.steps}
-          finalResult={calculationDetails.finalResult}
-        />
-      )}
-
-      {/* Vorabpauschale Explanation Modal */}
-      {selectedVorabDetails && (
-        <VorabpauschaleExplanationModal
-          open={showVorabpauschaleModal}
-          onClose={() => setShowVorabpauschaleModal(false)}
-          selectedVorabDetails={selectedVorabDetails}
-        />
-      )}
+      <EntnahmeSimulationModals
+        showCalculationModal={showCalculationModal}
+        setShowCalculationModal={setShowCalculationModal}
+        calculationDetails={calculationDetails}
+        showVorabpauschaleModal={showVorabpauschaleModal}
+        setShowVorabpauschaleModal={setShowVorabpauschaleModal}
+        selectedVorabDetails={selectedVorabDetails}
+      />
     </div>
   )
 }
