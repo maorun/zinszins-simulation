@@ -900,6 +900,37 @@ export function createDefaultHealthCareInsuranceConfig(): HealthCareInsuranceCon
 }
 
 /**
+ * Get fixed amounts display details
+ */
+function getFixedAmountsDisplayDetails(config: HealthCareInsuranceConfig) {
+  return {
+    displayText: 'Feste monatliche Beiträge',
+    detailText: `Feste Beiträge: ${config.fixedHealthInsuranceMonthly || 0}€ KV, ${config.fixedCareInsuranceMonthly || 0}€ PV monatlich`,
+  }
+}
+
+/**
+ * Get statutory insurance display details
+ */
+function getStatutoryInsuranceDisplayDetails(config: HealthCareInsuranceConfig) {
+  const employerText = config.includeEmployerContribution ? 'mit Arbeitgeberanteil' : 'nur Arbeitnehmeranteil'
+  return {
+    displayText: 'Prozentuale Beiträge basierend auf Einkommen',
+    detailText: `Beitragssätze: ${config.statutoryHealthInsuranceRate}% KV, ${config.statutoryCareInsuranceRate}% PV (${employerText})`,
+  }
+}
+
+/**
+ * Get private insurance display details
+ */
+function getPrivateInsuranceDisplayDetails(config: HealthCareInsuranceConfig) {
+  return {
+    displayText: 'Private Krankenversicherung',
+    detailText: `Monatliche Beiträge mit ${config.privateInsuranceInflationRate}% jährlicher Anpassung`,
+  }
+}
+
+/**
  * Get display name for health and care insurance configuration
  */
 export function getHealthCareInsuranceDisplayInfo(config: HealthCareInsuranceConfig): {
@@ -912,31 +943,18 @@ export function getHealthCareInsuranceDisplayInfo(config: HealthCareInsuranceCon
   const healthInsuranceType = config.useFixedAmounts && config.fixedHealthInsuranceMonthly ? 'fixed' : 'percentage'
   const careInsuranceType = config.useFixedAmounts && config.fixedCareInsuranceMonthly ? 'fixed' : 'percentage'
 
+  let details
   if (config.useFixedAmounts) {
-    return {
-      insuranceType: config.insuranceType,
-      displayText: 'Feste monatliche Beiträge',
-      detailText: `Feste Beiträge: ${config.fixedHealthInsuranceMonthly || 0}€ KV, ${config.fixedCareInsuranceMonthly || 0}€ PV monatlich`,
-      healthInsuranceType,
-      careInsuranceType,
-    }
-  }
-
-  if (config.insuranceType === 'statutory') {
-    const employerText = config.includeEmployerContribution ? 'mit Arbeitgeberanteil' : 'nur Arbeitnehmeranteil'
-    return {
-      insuranceType: 'statutory',
-      displayText: 'Prozentuale Beiträge basierend auf Einkommen',
-      detailText: `Beitragssätze: ${config.statutoryHealthInsuranceRate}% KV, ${config.statutoryCareInsuranceRate}% PV (${employerText})`,
-      healthInsuranceType,
-      careInsuranceType,
-    }
+    details = getFixedAmountsDisplayDetails(config)
+  } else if (config.insuranceType === 'statutory') {
+    details = getStatutoryInsuranceDisplayDetails(config)
+  } else {
+    details = getPrivateInsuranceDisplayDetails(config)
   }
 
   return {
-    insuranceType: 'private',
-    displayText: 'Private Krankenversicherung',
-    detailText: `Monatliche Beiträge mit ${config.privateInsuranceInflationRate}% jährlicher Anpassung`,
+    insuranceType: config.insuranceType,
+    ...details,
     healthInsuranceType,
     careInsuranceType,
   }

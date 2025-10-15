@@ -345,6 +345,36 @@ export function calculateOtherIncome(
 }
 
 /**
+ * Get default monthly amount for income type
+ */
+function getDefaultMonthlyAmount(type: IncomeType): number {
+  if (type === 'rental') return 1000
+  if (type === 'kindergeld') return 250
+  return 800
+}
+
+/**
+ * Get default amount type for income type
+ */
+function getDefaultAmountType(type: IncomeType): 'gross' | 'net' {
+  return type === 'kindergeld' ? 'net' : 'gross'
+}
+
+/**
+ * Get default inflation rate for income type
+ */
+function getDefaultInflationRate(type: IncomeType): number {
+  return type === 'kindergeld' ? 0 : 2.0
+}
+
+/**
+ * Get default tax rate for income type
+ */
+function getDefaultTaxRate(type: IncomeType): number {
+  return type === 'kindergeld' ? 0 : 30.0
+}
+
+/**
  * Create a default other income source
  */
 export function createDefaultOtherIncomeSource(type: IncomeType = 'rental'): OtherIncomeSource {
@@ -354,12 +384,12 @@ export function createDefaultOtherIncomeSource(type: IncomeType = 'rental'): Oth
     id: generateId(),
     name: getDefaultNameForType(type),
     type,
-    amountType: type === 'kindergeld' ? 'net' : 'gross', // Kindergeld is tax-free
-    monthlyAmount: type === 'rental' ? 1000 : type === 'kindergeld' ? 250 : 800,
+    amountType: getDefaultAmountType(type),
+    monthlyAmount: getDefaultMonthlyAmount(type),
     startYear: currentYear,
     endYear: null, // Permanent by default
-    inflationRate: type === 'kindergeld' ? 0 : 2.0, // Kindergeld doesn't auto-adjust for inflation
-    taxRate: type === 'kindergeld' ? 0 : 30.0, // Kindergeld is tax-free
+    inflationRate: getDefaultInflationRate(type),
+    taxRate: getDefaultTaxRate(type),
     enabled: true,
     notes: '',
   }
