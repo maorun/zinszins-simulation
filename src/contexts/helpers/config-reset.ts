@@ -6,47 +6,64 @@ import type { WithdrawalConfiguration } from '../../utils/config-storage'
 import type { DefaultConfigType } from './default-config'
 import type { ConfigurationSetters } from './config-types'
 
+type MainSetters = Omit<ConfigurationSetters, 'setWithdrawalConfig' | 'setStatutoryPensionConfig' | 'setCoupleStatutoryPensionConfig' | 'setCareCostConfiguration' | 'setFinancialGoals'>
+
+type AdditionalSetters = {
+  setWithdrawalConfig: (value: WithdrawalConfiguration | null) => void
+  setStatutoryPensionConfig: (value: StatutoryPensionConfig | null) => void
+  setCoupleStatutoryPensionConfig: (value: CoupleStatutoryPensionConfig | null) => void
+  setCareCostConfiguration: (value: CareCostConfiguration) => void
+  setFinancialGoals: (value: FinancialGoal[]) => void
+}
+
 /**
- * Reset all configuration to defaults
+ * Reset basic financial and tax configuration
  */
-export function resetConfiguration(
+function resetFinancialAndTaxConfig(
   defaultConfig: DefaultConfigType,
-  setters: Omit<ConfigurationSetters, 'setWithdrawalConfig' | 'setStatutoryPensionConfig' | 'setCoupleStatutoryPensionConfig' | 'setCareCostConfiguration' | 'setFinancialGoals'>,
-  additionalSetters: {
-    setWithdrawalConfig: (value: WithdrawalConfiguration | null) => void
-    setStatutoryPensionConfig: (value: StatutoryPensionConfig | null) => void
-    setCoupleStatutoryPensionConfig: (value: CoupleStatutoryPensionConfig | null) => void
-    setCareCostConfiguration: (value: CareCostConfiguration) => void
-    setFinancialGoals: (value: FinancialGoal[]) => void
-  },
+  setters: MainSetters,
 ) {
-  // Reset basic financial config
   setters.setRendite(defaultConfig.rendite)
   setters.setSteuerlast(defaultConfig.steuerlast)
   setters.setTeilfreistellungsquote(defaultConfig.teilfreistellungsquote)
   setters.setFreibetragPerYear(defaultConfig.freibetragPerYear)
   setters.setBasiszinsConfiguration(defaultConfig.basiszinsConfiguration)
-
-  // Reset tax config
   setters.setSteuerReduzierenEndkapitalSparphase(defaultConfig.steuerReduzierenEndkapitalSparphase)
   setters.setSteuerReduzierenEndkapitalEntspharphase(defaultConfig.steuerReduzierenEndkapitalEntspharphase)
   setters.setGrundfreibetragAktiv(defaultConfig.grundfreibetragAktiv)
   setters.setGrundfreibetragBetrag(defaultConfig.grundfreibetragBetrag)
   setters.setPersonalTaxRate(defaultConfig.personalTaxRate)
   setters.setGuenstigerPruefungAktiv(defaultConfig.guenstigerPruefungAktiv)
+}
 
-  // Reset return config
+/**
+ * Reset return and inflation configuration
+ */
+function resetReturnAndInflationConfig(
+  defaultConfig: DefaultConfigType,
+  setters: MainSetters,
+) {
   setters.setReturnMode(defaultConfig.returnMode)
   setters.setAverageReturn(defaultConfig.averageReturn)
   setters.setStandardDeviation(defaultConfig.standardDeviation)
   setters.setRandomSeed(defaultConfig.randomSeed)
   setters.setVariableReturns(defaultConfig.variableReturns)
   setters.setHistoricalIndex(defaultConfig.historicalIndex)
-
-  // Reset inflation config
   setters.setInflationAktivSparphase(defaultConfig.inflationAktivSparphase)
   setters.setInflationsrateSparphase(defaultConfig.inflationsrateSparphase)
   setters.setInflationAnwendungSparphase(defaultConfig.inflationAnwendungSparphase)
+}
+
+/**
+ * Reset all configuration to defaults
+ */
+export function resetConfiguration(
+  defaultConfig: DefaultConfigType,
+  setters: MainSetters,
+  additionalSetters: AdditionalSetters,
+) {
+  resetFinancialAndTaxConfig(defaultConfig, setters)
+  resetReturnAndInflationConfig(defaultConfig, setters)
 
   // Reset savings plan config
   setters.setStartEnd(defaultConfig.startEnd)
