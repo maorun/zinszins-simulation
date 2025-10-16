@@ -17,6 +17,54 @@ interface RebalancingConfigurationProps {
 }
 
 /**
+ * Threshold-based rebalancing configuration
+ */
+function ThresholdConfiguration({
+  useThreshold,
+  threshold,
+  onChange,
+}: {
+  useThreshold: boolean
+  threshold: number
+  onChange: (updates: Partial<RebalancingConfig>) => void
+}) {
+  return (
+    <div className="space-y-3">
+      <div className="flex items-center gap-2">
+        <Switch
+          checked={useThreshold}
+          onCheckedChange={useThreshold => onChange({ useThreshold })}
+        />
+        <Label className="text-sm">Schwellenwert-basiertes Rebalancing</Label>
+      </div>
+
+      {useThreshold && (
+        <div className="space-y-2">
+          <Label className="text-xs font-medium text-gray-700">
+            Drift-Schwellenwert:
+            {' '}
+            {(threshold * 100).toFixed(1)}
+            %
+          </Label>
+          <Slider
+            value={[threshold * 100]}
+            onValueChange={([value]) => onChange({ threshold: value / 100 })}
+            min={1}
+            max={20}
+            step={0.5}
+            className="w-full"
+          />
+          <p className="text-xs text-gray-600">
+            Rebalancing erfolgt wenn eine Anlageklasse um mehr als diesen Wert von der
+            Zielallokation abweicht
+          </p>
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
  * Configuration component for portfolio rebalancing settings.
  * Allows users to set rebalancing frequency and optional threshold-based rebalancing.
  */
@@ -35,54 +83,19 @@ export function RebalancingConfiguration({
           onValueChange={frequency =>
             onChange({ frequency: frequency as typeof config.frequency })}
         >
-          <RadioTile value="never" label="Nie">
-            Nie
-          </RadioTile>
-          <RadioTile value="annually" label="Jährlich">
-            Jährlich
-          </RadioTile>
-          <RadioTile value="quarterly" label="Quartalsweise">
-            Quartalsweise
-          </RadioTile>
-          <RadioTile value="monthly" label="Monatlich">
-            Monatlich
-          </RadioTile>
+          <RadioTile value="never" label="Nie">Nie</RadioTile>
+          <RadioTile value="annually" label="Jährlich">Jährlich</RadioTile>
+          <RadioTile value="quarterly" label="Quartalsweise">Quartalsweise</RadioTile>
+          <RadioTile value="monthly" label="Monatlich">Monatlich</RadioTile>
         </RadioTileGroup>
       </div>
 
       {config.frequency !== 'never' && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <Switch
-              checked={config.useThreshold}
-              onCheckedChange={useThreshold => onChange({ useThreshold })}
-            />
-            <Label className="text-sm">Schwellenwert-basiertes Rebalancing</Label>
-          </div>
-
-          {config.useThreshold && (
-            <div className="space-y-2">
-              <Label className="text-xs font-medium text-gray-700">
-                Drift-Schwellenwert:
-                {' '}
-                {(config.threshold * 100).toFixed(1)}
-                %
-              </Label>
-              <Slider
-                value={[config.threshold * 100]}
-                onValueChange={([value]) => onChange({ threshold: value / 100 })}
-                min={1}
-                max={20}
-                step={0.5}
-                className="w-full"
-              />
-              <p className="text-xs text-gray-600">
-                Rebalancing erfolgt wenn eine Anlageklasse um mehr als diesen Wert von der
-                Zielallokation abweicht
-              </p>
-            </div>
-          )}
-        </div>
+        <ThresholdConfiguration
+          useThreshold={config.useThreshold}
+          threshold={config.threshold}
+          onChange={onChange}
+        />
       )}
     </div>
   )
