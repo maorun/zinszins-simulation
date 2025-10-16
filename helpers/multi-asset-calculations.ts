@@ -121,6 +121,15 @@ function needsRebalancing(
 }
 
 /**
+ * Get enabled asset classes from config
+ */
+function getEnabledAssets(config: MultiAssetPortfolioConfig): AssetClass[] {
+  return Object.keys(config.assetClasses).filter(
+    assetClass => config.assetClasses[assetClass as AssetClass].enabled,
+  ) as AssetClass[]
+}
+
+/**
  * Rebalance portfolio to target allocations
  */
 function rebalancePortfolio(
@@ -140,9 +149,7 @@ function rebalancePortfolio(
   }
 
   // Redistribute according to target allocations
-  const enabledAssets = Object.keys(config.assetClasses).filter(
-    assetClass => config.assetClasses[assetClass as AssetClass].enabled,
-  ) as AssetClass[]
+  const enabledAssets = getEnabledAssets(config)
 
   for (const assetClass of enabledAssets) {
     const assetConfig = config.assetClasses[assetClass]
@@ -216,6 +223,24 @@ function applyReturns(
 }
 
 /**
+ * Calculate new allocations and drift for holdings
+ */
+function calculateAllocationsAndDrift(
+  holdings: Record<AssetClass, {
+    value: number
+    allocation: number
+    targetAllocation: number
+    drift: number
+  }>,
+  totalValue: number,
+): void {
+  for (const [, holding] of Object.entries(holdings)) {
+    holding.allocation = totalValue > 0 ? holding.value / totalValue : 0
+    holding.drift = holding.allocation - holding.targetAllocation
+  }
+}
+
+/**
  * Add contributions to portfolio maintaining target allocations
  */
 function addContributions(
@@ -236,9 +261,7 @@ function addContributions(
   }> = { ...holdings.holdings }
 
   // Distribute contribution according to target allocations
-  const enabledAssets = Object.keys(config.assetClasses).filter(
-    assetClass => config.assetClasses[assetClass as AssetClass].enabled,
-  ) as AssetClass[]
+  const enabledAssets = getEnabledAssets(config)
 
   for (const assetClass of enabledAssets) {
     const assetConfig = config.assetClasses[assetClass]
@@ -262,10 +285,7 @@ function addContributions(
   }
 
   // Recalculate allocations
-  for (const [, holding] of Object.entries(newHoldings)) {
-    holding.allocation = newTotalValue > 0 ? holding.value / newTotalValue : 0
-    holding.drift = holding.allocation - holding.targetAllocation
-  }
+  calculateAllocationsAndDrift(newHoldings, newTotalValue)
 
   return {
     totalValue: newTotalValue,
@@ -303,6 +323,167 @@ function shouldRebalanceByFrequency(
 }
 
 /**
+ * Initialize portfolio holdings with target allocations
+ */
+function initializePortfolioHoldings(
+  enabledAssets: AssetClass[],
+  config: MultiAssetPortfolioConfig,
+  initialContribution: number,
+): PortfolioHoldings {
+  const holdings: PortfolioHoldings = {
+    totalValue: initialContribution,
+    holdings: {} as Record<AssetClass, {
+      value: number
+      allocation: number
+      targetAllocation: number
+      drift: number
+    }>,
+    needsRebalancing: false,
+    rebalancingCost: 0,
+  }
+
+  for (const assetClass of enabledAssets) {
+    const assetConfig = config.assetClasses[assetClass]
+    const initialValue = initialContribution * assetConfig.targetAllocation
+
+    holdings.holdings[assetClass] = {
+      value: initialValue,
+      allocation: assetConfig.targetAllocation,
+      targetAllocation: assetConfig.targetAllocation,
+      drift: 0,
+    }
+  }
+
+  return holdings
+}
+
+/**
+ * Process a single year in the simulation
+ */
+function processSimulationYear(
+  year: number,
+  yearIndex: number,
+  currentHoldings: PortfolioHoldings,
+  contribution: number,
+  enabledAssets: AssetClass[],
+  config: MultiAssetPortfolioConfig,
+  rng: SeededRandom,
+): { yearResult: MultiAssetYearResult, endHoldings: PortfolioHoldings } {
+  const startHoldings = { ...currentHoldings }
+
+  // Generate returns for this year
+  const assetReturns = generateCorrelatedReturns(enabledAssets, config, rng)
+
+  // Apply returns
+  let endHoldings = applyReturns(currentHoldings, assetReturns, config)
+
+  // Add contributions (except for first year, already added)
+  if (yearIndex > 0 && contribution > 0) {
+    endHoldings = addContributions(endHoldings, contribution, config)
+  }
+
+  // Check if rebalancing is needed
+  let rebalanced = false
+  if (shouldRebalanceByFrequency(year, 0, config.rebalancing.frequency)
+    || (config.rebalancing.useThreshold && endHoldings.needsRebalancing)) {
+    endHoldings = rebalancePortfolio(endHoldings, config)
+    rebalanced = true
+  }
+
+  // Calculate total return for this year
+  const startValue = startHoldings.totalValue
+  const endValue = endHoldings.totalValue - (yearIndex > 0 ? contribution : 0)
+  const totalReturn = startValue > 0 ? (endValue - startValue) / startValue : 0
+
+  const yearResult: MultiAssetYearResult = {
+    year,
+    startHoldings,
+    endHoldings,
+    assetReturns,
+    rebalanced,
+    totalReturn,
+    contributions: contribution,
+  }
+
+  return { yearResult, endHoldings }
+}
+
+/**
+ * Calculate summary statistics from annual returns
+ */
+function calculateSummaryStatistics(
+  finalValue: number,
+  totalContributions: number,
+  annualReturns: number[],
+  yearsCount: number,
+): { totalReturn: number, annualizedReturn: number, volatility: number } {
+  const totalReturn = finalValue - totalContributions
+  const annualizedReturn = yearsCount > 1
+    ? Math.pow(finalValue / totalContributions, 1 / yearsCount) - 1
+    : totalReturn / totalContributions
+
+  // Calculate volatility (standard deviation of annual returns)
+  const meanReturn = annualReturns.reduce((sum, ret) => sum + ret, 0) / annualReturns.length
+  const variance = annualReturns.reduce((sum, ret) => sum + Math.pow(ret - meanReturn, 2), 0)
+    / Math.max(1, annualReturns.length - 1)
+  const volatility = Math.sqrt(variance)
+
+  return { totalReturn, annualizedReturn, volatility }
+}
+
+/**
+ * Run the portfolio simulation for all years
+ */
+function runPortfolioSimulation(
+  years: number[],
+  contributions: Record<number, number>,
+  enabledAssets: AssetClass[],
+  config: MultiAssetPortfolioConfig,
+  initialHoldings: PortfolioHoldings,
+  rng: SeededRandom,
+): {
+  yearResults: Record<number, MultiAssetYearResult>
+  finalHoldings: PortfolioHoldings
+  totalContributions: number
+  annualReturns: number[]
+} {
+  const yearResults: Record<number, MultiAssetYearResult> = {}
+  const annualReturns: number[] = []
+  let currentHoldings = initialHoldings
+  let totalContributions = contributions[years[0]] || 0
+
+  for (let i = 0; i < years.length; i++) {
+    const year = years[i]
+    const contribution = i === 0 ? totalContributions : (contributions[year] || 0)
+
+    if (i > 0) {
+      totalContributions += contribution
+    }
+
+    const { yearResult, endHoldings } = processSimulationYear(
+      year,
+      i,
+      currentHoldings,
+      contribution,
+      enabledAssets,
+      config,
+      rng,
+    )
+
+    annualReturns.push(yearResult.totalReturn)
+    yearResults[year] = yearResult
+    currentHoldings = endHoldings
+  }
+
+  return {
+    yearResults,
+    finalHoldings: currentHoldings,
+    totalContributions,
+    annualReturns,
+  }
+}
+
+/**
  * Simulate multi-asset portfolio for a range of years
  */
 export function simulateMultiAssetPortfolio(
@@ -321,113 +502,32 @@ export function simulateMultiAssetPortfolio(
     }
   }
 
-  const rng = new SeededRandom(config.simulation.seed)
-  const yearResults: Record<number, MultiAssetYearResult> = {}
-
-  // Get enabled asset classes
-  const enabledAssets = Object.keys(config.assetClasses).filter(
-    assetClass => config.assetClasses[assetClass as AssetClass].enabled,
-  ) as AssetClass[]
+  const enabledAssets = getEnabledAssets(config)
 
   if (enabledAssets.length === 0) {
     throw new Error('No asset classes enabled in multi-asset portfolio')
   }
 
-  // Initialize portfolio with first year contribution
-  const firstYear = years[0]
-  const firstContribution = contributions[firstYear] || 0
-  let currentHoldings: PortfolioHoldings = {
-    totalValue: firstContribution,
-    holdings: {} as Record<AssetClass, {
-      value: number
-      allocation: number
-      targetAllocation: number
-      drift: number
-    }>,
-    needsRebalancing: false,
-    rebalancingCost: 0,
-  }
+  const rng = new SeededRandom(config.simulation.seed)
+  const firstContribution = contributions[years[0]] || 0
+  const initialHoldings = initializePortfolioHoldings(enabledAssets, config, firstContribution)
 
-  // Initialize holdings with target allocations
-  for (const assetClass of enabledAssets) {
-    const assetConfig = config.assetClasses[assetClass]
-    const initialValue = firstContribution * assetConfig.targetAllocation
+  const { yearResults, finalHoldings, totalContributions, annualReturns } = runPortfolioSimulation(
+    years,
+    contributions,
+    enabledAssets,
+    config,
+    initialHoldings,
+    rng,
+  )
 
-    currentHoldings.holdings[assetClass] = {
-      value: initialValue,
-      allocation: assetConfig.targetAllocation,
-      targetAllocation: assetConfig.targetAllocation,
-      drift: 0,
-    }
-  }
-
-  // Track annual returns for volatility calculation
-  const annualReturns: number[] = []
-  let totalContributions = firstContribution
-
-  // Simulate each year
-  for (let i = 0; i < years.length; i++) {
-    const year = years[i]
-    const contribution = i === 0 ? firstContribution : (contributions[year] || 0)
-
-    if (i > 0) {
-      totalContributions += contribution
-    }
-
-    const startHoldings = { ...currentHoldings }
-
-    // Generate returns for this year
-    const assetReturns = generateCorrelatedReturns(enabledAssets, config, rng)
-
-    // Apply returns
-    let endHoldings = applyReturns(currentHoldings, assetReturns, config)
-
-    // Add contributions (except for first year, already added)
-    if (i > 0 && contribution > 0) {
-      endHoldings = addContributions(endHoldings, contribution, config)
-    }
-
-    // Check if rebalancing is needed
-    let rebalanced = false
-    if (shouldRebalanceByFrequency(year, 0, config.rebalancing.frequency)
-      || (config.rebalancing.useThreshold && endHoldings.needsRebalancing)) {
-      endHoldings = rebalancePortfolio(endHoldings, config)
-      rebalanced = true
-    }
-
-    // Calculate total return for this year
-    const startValue = startHoldings.totalValue
-    const endValue = endHoldings.totalValue - (i > 0 ? contribution : 0) // contributions excluded
-    const totalReturn = startValue > 0 ? (endValue - startValue) / startValue : 0
-
-    annualReturns.push(totalReturn)
-
-    yearResults[year] = {
-      year,
-      startHoldings,
-      endHoldings,
-      assetReturns,
-      rebalanced,
-      totalReturn,
-      contributions: contribution,
-    }
-
-    currentHoldings = endHoldings
-  }
-
-  // Calculate summary statistics
-  const finalValue = currentHoldings.totalValue
-  const totalReturn = finalValue - totalContributions
-  const yearsCount = years.length
-  const annualizedReturn = yearsCount > 1
-    ? Math.pow(finalValue / totalContributions, 1 / yearsCount) - 1
-    : totalReturn / totalContributions
-
-  // Calculate volatility (standard deviation of annual returns)
-  const meanReturn = annualReturns.reduce((sum, ret) => sum + ret, 0) / annualReturns.length
-  const variance = annualReturns.reduce((sum, ret) => sum + Math.pow(ret - meanReturn, 2), 0)
-    / Math.max(1, annualReturns.length - 1)
-  const volatility = Math.sqrt(variance)
+  const finalValue = finalHoldings.totalValue
+  const { totalReturn, annualizedReturn, volatility } = calculateSummaryStatistics(
+    finalValue,
+    totalContributions,
+    annualReturns,
+    years.length,
+  )
 
   return {
     yearResults,
@@ -453,9 +553,7 @@ export function calculateEquivalentSingleAssetReturn(
   }
 
   const rng = new SeededRandom(seed || (year * 12345))
-  const enabledAssets = Object.keys(config.assetClasses).filter(
-    assetClass => config.assetClasses[assetClass as AssetClass].enabled,
-  ) as AssetClass[]
+  const enabledAssets = getEnabledAssets(config)
 
   if (enabledAssets.length === 0) {
     return 0
