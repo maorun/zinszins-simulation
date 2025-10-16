@@ -14,32 +14,69 @@ interface DynamischConfigProps {
   onUntereAnpassung: (value: number) => void
 }
 
-function BasisrateSlider({ value, onChange }: { value: number, onChange: (v: number) => void }) {
+/**
+ * Reusable slider component with label and value display
+ */
+function LabeledSlider({
+  label,
+  value,
+  onChange,
+  min,
+  max,
+  step,
+  helpText,
+}: {
+  label: string
+  value: number
+  onChange: (v: number) => void
+  min: number
+  max: number
+  step: number
+  helpText?: string
+}) {
   return (
     <div className="space-y-2">
-      <Label>Basis-Entnahmerate (%)</Label>
+      <Label>{label}</Label>
       <div className="space-y-2">
         <Slider
           value={[value]}
           onValueChange={(values: number[]) => onChange(values[0])}
-          min={1}
-          max={10}
-          step={0.5}
+          min={min}
+          max={max}
+          step={step}
           className="mt-2"
         />
         <div className="flex justify-between text-sm text-gray-500">
-          <span>1%</span>
+          <span>
+            {min}
+            %
+          </span>
           <span className="font-medium text-gray-900">
             {value}
             %
           </span>
-          <span>10%</span>
+          <span>
+            {max}
+            %
+          </span>
         </div>
       </div>
-      <div className="text-sm text-muted-foreground mt-1">
-        Basis-Entnahmerate für die dynamische Anpassung
-      </div>
+      {helpText && <div className="text-sm text-muted-foreground mt-1">{helpText}</div>}
     </div>
+  )
+}
+
+function BasisrateSlider({ value, onChange }: { value: number, onChange: (v: number) => void }) {
+  return (
+    <LabeledSlider
+      label="Basis-Entnahmerate (%)"
+      value={value}
+      onChange={onChange}
+      min={1}
+      max={10}
+      step={0.5}
+      helpText="Basis-Entnahmerate für die dynamische Anpassung"
+    />
   )
 }
 
@@ -51,49 +88,22 @@ function ObereControls(props: {
 }) {
   return (
     <>
-      <div className="space-y-2">
-        <Label>Obere Renditeschwelle (%)</Label>
-        <div className="space-y-2">
-          <Slider
-            value={[props.schwell]}
-            onValueChange={(values: number[]) => props.onSchwell(values[0])}
-            min={5}
-            max={15}
-            step={0.5}
-            className="mt-2"
-          />
-          <div className="flex justify-between text-sm text-gray-500">
-            <span>5%</span>
-            <span className="font-medium text-gray-900">
-              {props.schwell}
-              %
-            </span>
-            <span>15%</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Obere Anpassung (%)</Label>
-        <div className="space-y-2">
-          <Slider
-            value={[props.anpassung]}
-            onValueChange={(values: number[]) => props.onAnpassung(values[0])}
-            min={0}
-            max={20}
-            step={1}
-            className="mt-2"
-          />
-          <div className="flex justify-between text-sm text-gray-500">
-            <span>0%</span>
-            <span className="font-medium text-gray-900">
-              {props.anpassung}
-              %
-            </span>
-            <span>20%</span>
-          </div>
-        </div>
-      </div>
+      <LabeledSlider
+        label="Obere Renditeschwelle (%)"
+        value={props.schwell}
+        onChange={props.onSchwell}
+        min={5}
+        max={15}
+        step={0.5}
+      />
+      <LabeledSlider
+        label="Obere Anpassung (%)"
+        value={props.anpassung}
+        onChange={props.onAnpassung}
+        min={0}
+        max={20}
+        step={1}
+      />
     </>
   )
 }
@@ -106,49 +116,22 @@ function UntereControls(props: {
 }) {
   return (
     <>
-      <div className="space-y-2">
-        <Label>Untere Renditeschwelle (%)</Label>
-        <div className="space-y-2">
-          <Slider
-            value={[props.schwell]}
-            onValueChange={(values: number[]) => props.onSchwell(values[0])}
-            min={-5}
-            max={5}
-            step={0.5}
-            className="mt-2"
-          />
-          <div className="flex justify-between text-sm text-gray-500">
-            <span>-5%</span>
-            <span className="font-medium text-gray-900">
-              {props.schwell}
-              %
-            </span>
-            <span>5%</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Untere Anpassung (%)</Label>
-        <div className="space-y-2">
-          <Slider
-            value={[props.anpassung]}
-            onValueChange={(values: number[]) => props.onAnpassung(values[0])}
-            min={-20}
-            max={0}
-            step={1}
-            className="mt-2"
-          />
-          <div className="flex justify-between text-sm text-gray-500">
-            <span>-20%</span>
-            <span className="font-medium text-gray-900">
-              {props.anpassung}
-              %
-            </span>
-            <span>0%</span>
-          </div>
-        </div>
-      </div>
+      <LabeledSlider
+        label="Untere Renditeschwelle (%)"
+        value={props.schwell}
+        onChange={props.onSchwell}
+        min={-10}
+        max={0}
+        step={0.5}
+      />
+      <LabeledSlider
+        label="Untere Anpassung (%)"
+        value={props.anpassung}
+        onChange={props.onAnpassung}
+        min={0}
+        max={20}
+        step={1}
+      />
     </>
   )
 }
