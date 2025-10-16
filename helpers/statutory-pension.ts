@@ -311,6 +311,140 @@ export function createDefaultCoupleStatutoryPensionConfig(): CoupleStatutoryPens
 }
 
 /**
+ * Create empty pension results for all years
+ */
+function createEmptyPensionResults(
+  startYear: number,
+  endYear: number,
+): CoupleStatutoryPensionResult {
+  const result: CoupleStatutoryPensionResult = {}
+
+  for (let year = startYear; year <= endYear; year++) {
+    result[year] = {
+      combined: {
+        grossAnnualAmount: 0,
+        grossMonthlyAmount: 0,
+        taxableAmount: 0,
+        incomeTax: 0,
+        netAnnualAmount: 0,
+      },
+    }
+  }
+
+  return result
+}
+
+/**
+ * Calculate individual pension results
+ */
+function calculateIndividualPensionResults(
+  individualConfig: StatutoryPensionConfig,
+  startYear: number,
+  endYear: number,
+  incomeTaxRate: number,
+  grundfreibetragPerYear?: { [year: number]: number },
+): CoupleStatutoryPensionResult {
+  const result: CoupleStatutoryPensionResult = {}
+  const individualResult = calculateStatutoryPension(
+    individualConfig,
+    startYear,
+    endYear,
+    incomeTaxRate,
+    grundfreibetragPerYear,
+  )
+
+  for (let year = startYear; year <= endYear; year++) {
+    const yearResult = individualResult[year]
+    result[year] = {
+      combined: {
+        grossAnnualAmount: yearResult.grossAnnualAmount,
+        grossMonthlyAmount: yearResult.grossMonthlyAmount,
+        taxableAmount: yearResult.taxableAmount,
+        incomeTax: yearResult.incomeTax,
+        netAnnualAmount: yearResult.netAnnualAmount,
+      },
+    }
+  }
+
+  return result
+}
+
+/**
+ * Create person result if they have pension income
+ */
+function createPersonResult(
+  personYear: StatutoryPensionYearResult,
+  personId: 1 | 2,
+  personName: string,
+): IndividualStatutoryPensionYearResult | undefined {
+  if (personYear.grossAnnualAmount <= 0) {
+    return undefined
+  }
+
+  return {
+    ...personYear,
+    personId,
+    personName,
+  }
+}
+
+/**
+ * Calculate couple pension results
+ */
+function calculateCouplePensionResults(
+  coupleConfig: { person1: StatutoryPensionConfig, person2: StatutoryPensionConfig },
+  startYear: number,
+  endYear: number,
+  incomeTaxRate: number,
+  grundfreibetragPerYear?: { [year: number]: number },
+): CoupleStatutoryPensionResult {
+  const result: CoupleStatutoryPensionResult = {}
+
+  const person1Result = calculateStatutoryPension(
+    coupleConfig.person1,
+    startYear,
+    endYear,
+    incomeTaxRate,
+    grundfreibetragPerYear,
+  )
+
+  const person2Result = calculateStatutoryPension(
+    coupleConfig.person2,
+    startYear,
+    endYear,
+    incomeTaxRate,
+    grundfreibetragPerYear,
+  )
+
+  for (let year = startYear; year <= endYear; year++) {
+    const person1Year = person1Result[year]
+    const person2Year = person2Result[year]
+
+    result[year] = {
+      person1: createPersonResult(
+        person1Year,
+        1,
+        'Person 1',
+      ),
+      person2: createPersonResult(
+        person2Year,
+        2,
+        'Person 2',
+      ),
+      combined: {
+        grossAnnualAmount: person1Year.grossAnnualAmount + person2Year.grossAnnualAmount,
+        grossMonthlyAmount: person1Year.grossMonthlyAmount + person2Year.grossMonthlyAmount,
+        taxableAmount: person1Year.taxableAmount + person2Year.taxableAmount,
+        incomeTax: person1Year.incomeTax + person2Year.incomeTax,
+        netAnnualAmount: person1Year.netAnnualAmount + person2Year.netAnnualAmount,
+      },
+    }
+  }
+
+  return result
+}
+
+/**
  * Calculate statutory pension for couples with individual configurations
  */
 export function calculateCoupleStatutoryPension(
@@ -320,93 +454,31 @@ export function calculateCoupleStatutoryPension(
   incomeTaxRate = 0.0,
   grundfreibetragPerYear?: { [year: number]: number },
 ): CoupleStatutoryPensionResult {
-  const result: CoupleStatutoryPensionResult = {}
-
   if (!config.enabled) {
-    // Return empty results for all years
-    for (let year = startYear; year <= endYear; year++) {
-      result[year] = {
-        combined: {
-          grossAnnualAmount: 0,
-          grossMonthlyAmount: 0,
-          taxableAmount: 0,
-          incomeTax: 0,
-          netAnnualAmount: 0,
-        },
-      }
-    }
-    return result
+    return createEmptyPensionResults(startYear, endYear)
   }
 
-  // Handle different planning modes
   if (config.planningMode === 'individual' && config.individual) {
-    // For individual mode, calculate single pension
-    const individualResult = calculateStatutoryPension(
+    return calculateIndividualPensionResults(
       config.individual,
       startYear,
       endYear,
       incomeTaxRate,
       grundfreibetragPerYear,
     )
-
-    for (let year = startYear; year <= endYear; year++) {
-      const yearResult = individualResult[year]
-      result[year] = {
-        combined: {
-          grossAnnualAmount: yearResult.grossAnnualAmount,
-          grossMonthlyAmount: yearResult.grossMonthlyAmount,
-          taxableAmount: yearResult.taxableAmount,
-          incomeTax: yearResult.incomeTax,
-          netAnnualAmount: yearResult.netAnnualAmount,
-        },
-      }
-    }
   }
-  else if (config.planningMode === 'couple' && config.couple) {
-    // For couple mode, calculate both pensions and combine
-    const person1Result = calculateStatutoryPension(
-      config.couple.person1,
+
+  if (config.planningMode === 'couple' && config.couple) {
+    return calculateCouplePensionResults(
+      config.couple,
       startYear,
       endYear,
       incomeTaxRate,
       grundfreibetragPerYear,
     )
-
-    const person2Result = calculateStatutoryPension(
-      config.couple.person2,
-      startYear,
-      endYear,
-      incomeTaxRate,
-      grundfreibetragPerYear,
-    )
-
-    for (let year = startYear; year <= endYear; year++) {
-      const person1Year = person1Result[year]
-      const person2Year = person2Result[year]
-
-      result[year] = {
-        person1: person1Year.grossAnnualAmount > 0 ? {
-          ...person1Year,
-          personId: 1,
-          personName: config.couple.person1.personName || 'Person 1',
-        } : undefined,
-        person2: person2Year.grossAnnualAmount > 0 ? {
-          ...person2Year,
-          personId: 2,
-          personName: config.couple.person2.personName || 'Person 2',
-        } : undefined,
-        combined: {
-          grossAnnualAmount: person1Year.grossAnnualAmount + person2Year.grossAnnualAmount,
-          grossMonthlyAmount: person1Year.grossMonthlyAmount + person2Year.grossMonthlyAmount,
-          taxableAmount: person1Year.taxableAmount + person2Year.taxableAmount,
-          incomeTax: person1Year.incomeTax + person2Year.incomeTax,
-          netAnnualAmount: person1Year.netAnnualAmount + person2Year.netAnnualAmount,
-        },
-      }
-    }
   }
 
-  return result
+  return {}
 }
 
 /**

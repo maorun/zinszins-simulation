@@ -186,6 +186,43 @@ export function calculateSteuerOnVorabpauschale(
 }
 
 /**
+ * Determine which tax option is more favorable and create explanation
+ */
+function determineFavorableTaxOption(
+  personalTaxAmount: number,
+  abgeltungssteuerAmount: number,
+  vorabpauschale: number,
+  teilfreistellungsquote: number,
+  abgeltungssteuer: number,
+  personalTaxRate: number,
+  kirchensteuerAktiv: boolean,
+  kirchensteuersatz: number,
+): {
+  isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
+  usedTaxRate: number
+  explanation: string
+} {
+  const kirchensteuerText = kirchensteuerAktiv ? ` (inkl. ${kirchensteuersatz}% Kirchensteuer)` : ''
+
+  if (personalTaxAmount < abgeltungssteuerAmount) {
+    // Avoid division by zero
+    const usedTaxRate = personalTaxAmount / Math.max(vorabpauschale * (1 - teilfreistellungsquote), 0.01)
+    const explanation = `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText}) ist günstiger als `
+      + `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
+    return { isFavorable: 'personal', usedTaxRate, explanation }
+  }
+
+  if (personalTaxAmount > abgeltungssteuerAmount) {
+    const explanation = `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als `
+      + `persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText})`
+    return { isFavorable: 'abgeltungssteuer', usedTaxRate: abgeltungssteuer, explanation }
+  }
+
+  const explanation = `Abgeltungssteuer und persönlicher Steuersatz${kirchensteuerText} führen zum gleichen Ergebnis (${(abgeltungssteuer * 100).toFixed(2)}%)`
+  return { isFavorable: 'equal', usedTaxRate: abgeltungssteuer, explanation }
+}
+
+/**
  * Performs Günstigerprüfung (tax optimization check) to determine whether
  * Abgeltungssteuer (capital gains tax) or personal income tax is more favorable.
  *
@@ -245,30 +282,16 @@ export function performGuenstigerPruefung(
   const usedGrundfreibetrag = Math.min(availableGrundfreibetrag, vorabpauschale * (1 - teilfreistellungsquote))
 
   // Determine which is more favorable
-  let isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
-  let usedTaxRate: number
-  let explanation: string
-
-  const kirchensteuerText = kirchensteuerAktiv ? ` (inkl. ${kirchensteuersatz}% Kirchensteuer)` : ''
-
-  if (personalTaxAmount < abgeltungssteuerAmount) {
-    isFavorable = 'personal'
-    // Avoid division by zero
-    usedTaxRate = personalTaxAmount / Math.max(vorabpauschale * (1 - teilfreistellungsquote), 0.01)
-    explanation = `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText}) ist günstiger als `
-      + `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
-  }
-  else if (personalTaxAmount > abgeltungssteuerAmount) {
-    isFavorable = 'abgeltungssteuer'
-    usedTaxRate = abgeltungssteuer
-    explanation = `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als `
-      + `persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText})`
-  }
-  else {
-    isFavorable = 'equal'
-    usedTaxRate = abgeltungssteuer
-    explanation = `Abgeltungssteuer und persönlicher Steuersatz${kirchensteuerText} führen zum gleichen Ergebnis (${(abgeltungssteuer * 100).toFixed(2)}%)`
-  }
+  const { isFavorable, usedTaxRate, explanation } = determineFavorableTaxOption(
+    personalTaxAmount,
+    abgeltungssteuerAmount,
+    vorabpauschale,
+    teilfreistellungsquote,
+    abgeltungssteuer,
+    personalTaxRate,
+    kirchensteuerAktiv,
+    kirchensteuersatz,
+  )
 
   return {
     abgeltungssteuerAmount,

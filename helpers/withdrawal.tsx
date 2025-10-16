@@ -12,39 +12,78 @@ import { calculateHealthCareInsuranceForYear, calculateCoupleHealthInsuranceForY
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt' | 'steueroptimiert'
 
 /**
+ * Generate fixed rate growth for all years
+ */
+function generateFixedGrowthRates(
+  allYears: number[],
+  fixedRate: number,
+): Record<number, number> {
+  const yearlyGrowthRates: Record<number, number> = {}
+  for (const year of allYears) {
+    yearlyGrowthRates[year] = fixedRate
+  }
+  return yearlyGrowthRates
+}
+
+/**
+ * Generate variable growth rates from config
+ */
+function generateVariableGrowthRates(
+  allYears: number[],
+  variableConfig: { yearlyReturns: Record<number, number> },
+): Record<number, number> {
+  const yearlyGrowthRates: Record<number, number> = {}
+  for (const year of allYears) {
+    yearlyGrowthRates[year] = variableConfig.yearlyReturns[year] || 0.05
+  }
+  return yearlyGrowthRates
+}
+
+/**
+ * Generate multi-asset growth rates with fallback
+ */
+function generateMultiAssetGrowthRates(
+  allYears: number[],
+  multiAssetConfig: unknown,
+): Record<number, number> {
+  try {
+    const { generateMultiAssetReturns } = require('./multi-asset-calculations')
+    return generateMultiAssetReturns(allYears, multiAssetConfig)
+  }
+  catch (error) {
+    console.warn('Multi-asset calculations not available, falling back to 5% fixed return:', error)
+    return generateFixedGrowthRates(allYears, 0.05)
+  }
+}
+
+/**
+ * Generate growth rates for each return mode
+ */
+const GROWTH_RATE_GENERATORS: Record<
+  string,
+  (allYears: number[], returnConfig: ReturnConfiguration) => Record<number, number>
+> = {
+  fixed: (allYears, config) => generateFixedGrowthRates(allYears, config.fixedRate || 0.05),
+  random: (allYears, config) => config.randomConfig
+    ? generateRandomReturns(allYears, config.randomConfig)
+    : {},
+  variable: (allYears, config) => config.variableConfig
+    ? generateVariableGrowthRates(allYears, config.variableConfig)
+    : {},
+  multiasset: (allYears, config) => config.multiAssetConfig
+    ? generateMultiAssetGrowthRates(allYears, config.multiAssetConfig)
+    : {},
+}
+
+/**
  * Helper function: Generate yearly growth rates based on return configuration
  */
 function generateYearlyGrowthRates(
   allYears: number[],
   returnConfig: ReturnConfiguration,
 ): Record<number, number> {
-  const yearlyGrowthRates: Record<number, number> = {}
-
-  if (returnConfig.mode === 'fixed') {
-    const fixedRate = returnConfig.fixedRate || 0.05
-    for (const year of allYears) yearlyGrowthRates[year] = fixedRate
-  }
-  else if (returnConfig.mode === 'random' && returnConfig.randomConfig) {
-    Object.assign(yearlyGrowthRates, generateRandomReturns(allYears, returnConfig.randomConfig))
-  }
-  else if (returnConfig.mode === 'variable' && returnConfig.variableConfig) {
-    for (const year of allYears) {
-      yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] || 0.05
-    }
-  }
-  else if (returnConfig.mode === 'multiasset' && returnConfig.multiAssetConfig) {
-    try {
-      const { generateMultiAssetReturns } = require('./multi-asset-calculations')
-      const multiAssetReturns = generateMultiAssetReturns(allYears, returnConfig.multiAssetConfig)
-      Object.assign(yearlyGrowthRates, multiAssetReturns)
-    }
-    catch (error) {
-      console.warn('Multi-asset calculations not available, falling back to 5% fixed return:', error)
-      for (const year of allYears) yearlyGrowthRates[year] = 0.05
-    }
-  }
-
-  return yearlyGrowthRates
+  const generator = GROWTH_RATE_GENERATORS[returnConfig.mode]
+  return generator ? generator(allYears, returnConfig) : {}
 }
 
 /**
@@ -126,6 +165,76 @@ type BaseWithdrawalParams = {
 /**
  * Helper function: Calculate base withdrawal amount based on strategy
  */
+/**
+ * Calculate monthly fixed withdrawal amount (helper for base calculation)
+ */
+function calculateMonthlyFixedAmount(
+  strategy: WithdrawalStrategy,
+  monthlyConfig?: MonthlyWithdrawalConfig,
+): number {
+  if (strategy === 'monatlich_fest' && monthlyConfig) {
+    return monthlyConfig.monthlyAmount * 12
+  }
+  return 0
+}
+
+/**
+ * Calculate percentage-based withdrawal amount
+ */
+function calculatePercentageWithdrawal(
+  initialStartingCapital: number,
+  customPercentage?: number,
+): number {
+  if (customPercentage === undefined) throw new Error('Custom percentage required')
+  return initialStartingCapital * customPercentage
+}
+
+/**
+ * Calculate dynamic withdrawal amount
+ */
+function calculateDynamicWithdrawal(
+  initialStartingCapital: number,
+  dynamicConfig?: DynamicWithdrawalConfig,
+): number {
+  if (!dynamicConfig) throw new Error('Dynamic config required')
+  return initialStartingCapital * dynamicConfig.baseWithdrawalRate
+}
+
+/**
+ * Get default steueroptimiert config
+ */
+function getDefaultSteueroptimierteConfig(): SteueroptimierteEntnahmeConfig {
+  return {
+    baseWithdrawalRate: 0.04,
+    targetTaxRate: 0.26375,
+    optimizationMode: 'balanced' as const,
+    freibetragUtilizationTarget: 0.85,
+    rebalanceFrequency: 'yearly' as const,
+  }
+}
+
+/**
+ * Calculate steueroptimiert withdrawal amount
+ */
+function calculateSteueroptimierteWithdrawal(
+  initialStartingCapital: number,
+  steueroptimierteEntnahmeConfig?: SteueroptimierteEntnahmeConfig,
+): number {
+  const config = steueroptimierteEntnahmeConfig || getDefaultSteueroptimierteConfig()
+  return initialStartingCapital * config.baseWithdrawalRate
+}
+
+/**
+ * Calculate standard 3% or 4% rule withdrawal
+ */
+function calculateStandardRuleWithdrawal(
+  strategy: WithdrawalStrategy,
+  initialStartingCapital: number,
+): number {
+  const withdrawalRate = strategy === '4prozent' ? 0.04 : 0.03
+  return initialStartingCapital * withdrawalRate
+}
+
 function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
   const {
     strategy,
@@ -141,17 +250,15 @@ function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
 
   if (strategy === 'monatlich_fest') {
     if (!monthlyConfig) throw new Error('Monthly config required')
-    return monthlyConfig.monthlyAmount * 12
+    return calculateMonthlyFixedAmount(strategy, monthlyConfig)
   }
 
   if (strategy === 'variabel_prozent') {
-    if (customPercentage === undefined) throw new Error('Custom percentage required')
-    return initialStartingCapital * customPercentage
+    return calculatePercentageWithdrawal(initialStartingCapital, customPercentage)
   }
 
   if (strategy === 'dynamisch') {
-    if (!dynamicConfig) throw new Error('Dynamic config required')
-    return initialStartingCapital * dynamicConfig.baseWithdrawalRate
+    return calculateDynamicWithdrawal(initialStartingCapital, dynamicConfig)
   }
 
   if (strategy === 'bucket_strategie') {
@@ -170,18 +277,63 @@ function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
   }
 
   if (strategy === 'steueroptimiert') {
-    const config = steueroptimierteEntnahmeConfig || {
-      baseWithdrawalRate: 0.04,
-      targetTaxRate: 0.26375,
-      optimizationMode: 'balanced' as const,
-      freibetragUtilizationTarget: 0.85,
-      rebalanceFrequency: 'yearly' as const,
-    }
-    return initialStartingCapital * config.baseWithdrawalRate
+    return calculateSteueroptimierteWithdrawal(initialStartingCapital, steueroptimierteEntnahmeConfig)
   }
 
-  const withdrawalRate = strategy === '4prozent' ? 0.04 : 0.03
-  return initialStartingCapital * withdrawalRate
+  return calculateStandardRuleWithdrawal(strategy, initialStartingCapital)
+}
+
+/**
+ * Calculate dynamic strategy adjustment
+ */
+function calculateDynamicStrategyAdjustment(
+  annualWithdrawal: number,
+  previousReturn: number,
+  dynamicConfig: DynamicWithdrawalConfig,
+): number {
+  if (previousReturn > dynamicConfig.upperThresholdReturn) {
+    return annualWithdrawal * dynamicConfig.upperThresholdAdjustment
+  }
+  if (previousReturn < dynamicConfig.lowerThresholdReturn) {
+    return annualWithdrawal * dynamicConfig.lowerThresholdAdjustment
+  }
+  return 0
+}
+
+/**
+ * Check if bucket dynamic config is valid
+ */
+function hasBucketDynamicConfig(bucketConfig: BucketStrategyConfig): boolean {
+  return bucketConfig.dynamischObereSchwell !== undefined
+    && bucketConfig.dynamischUntereSchwell !== undefined
+    && bucketConfig.dynamischObereAnpassung !== undefined
+    && bucketConfig.dynamischUntereAnpassung !== undefined
+}
+
+/**
+ * Calculate bucket dynamic adjustment
+ */
+function calculateBucketDynamicAdjustment(
+  annualWithdrawal: number,
+  previousReturn: number,
+  bucketConfig: BucketStrategyConfig,
+): number {
+  if (!hasBucketDynamicConfig(bucketConfig)) {
+    return 0
+  }
+
+  const upperThreshold = bucketConfig.dynamischObereSchwell! / 100
+  const lowerThreshold = bucketConfig.dynamischUntereSchwell! / 100
+  const upperAdjustment = bucketConfig.dynamischObereAnpassung! / 100
+  const lowerAdjustment = bucketConfig.dynamischUntereAnpassung! / 100
+
+  if (previousReturn > upperThreshold) {
+    return annualWithdrawal * upperAdjustment
+  }
+  if (previousReturn < lowerThreshold) {
+    return annualWithdrawal * lowerAdjustment
+  }
+  return 0
 }
 
 /**
@@ -195,46 +347,24 @@ function calculateDynamicAdjustment(
   dynamicConfig?: DynamicWithdrawalConfig,
   bucketConfig?: BucketStrategyConfig,
 ): { adjustment: number, previousReturn: number | undefined } {
-  let adjustment = 0
-  let previousReturn: number | undefined
+  const previousYear = year - 1
+  const previousReturn = yearlyGrowthRates[previousYear]
+
+  if (previousReturn === undefined) {
+    return { adjustment: 0, previousReturn: undefined }
+  }
 
   if (strategy === 'dynamisch' && dynamicConfig) {
-    const previousYear = year - 1
-    previousReturn = yearlyGrowthRates[previousYear]
-
-    if (previousReturn !== undefined) {
-      if (previousReturn > dynamicConfig.upperThresholdReturn) {
-        adjustment = annualWithdrawal * dynamicConfig.upperThresholdAdjustment
-      }
-      else if (previousReturn < dynamicConfig.lowerThresholdReturn) {
-        adjustment = annualWithdrawal * dynamicConfig.lowerThresholdAdjustment
-      }
-    }
-  }
-  else if (strategy === 'bucket_strategie' && bucketConfig && bucketConfig.subStrategy === 'dynamisch') {
-    const previousYear = year - 1
-    previousReturn = yearlyGrowthRates[previousYear]
-
-    if (previousReturn !== undefined
-      && bucketConfig.dynamischObereSchwell !== undefined
-      && bucketConfig.dynamischUntereSchwell !== undefined
-      && bucketConfig.dynamischObereAnpassung !== undefined
-      && bucketConfig.dynamischUntereAnpassung !== undefined) {
-      const upperThreshold = bucketConfig.dynamischObereSchwell / 100
-      const lowerThreshold = bucketConfig.dynamischUntereSchwell / 100
-      const upperAdjustment = bucketConfig.dynamischObereAnpassung / 100
-      const lowerAdjustment = bucketConfig.dynamischUntereAnpassung / 100
-
-      if (previousReturn > upperThreshold) {
-        adjustment = annualWithdrawal * upperAdjustment
-      }
-      else if (previousReturn < lowerThreshold) {
-        adjustment = annualWithdrawal * lowerAdjustment
-      }
-    }
+    const adjustment = calculateDynamicStrategyAdjustment(annualWithdrawal, previousReturn, dynamicConfig)
+    return { adjustment, previousReturn }
   }
 
-  return { adjustment, previousReturn }
+  if (strategy === 'bucket_strategie' && bucketConfig && bucketConfig.subStrategy === 'dynamisch') {
+    const adjustment = calculateBucketDynamicAdjustment(annualWithdrawal, previousReturn, bucketConfig)
+    return { adjustment, previousReturn }
+  }
+
+  return { adjustment: 0, previousReturn }
 }
 
 /**
@@ -271,6 +401,55 @@ function processBucketStrategyWithdrawal(
 /**
  * Helper function: Calculate monthly withdrawal amounts and effective withdrawal
  */
+/**
+ * Calculate adjusted monthly amount with inflation
+ */
+function calculateAdjustedMonthlyAmount(
+  monthlyConfig: MonthlyWithdrawalConfig,
+  inflationConfig: InflationConfig | undefined,
+  year: number | undefined,
+  startYear: number | undefined,
+): number {
+  if (!inflationConfig?.inflationRate || year === undefined || startYear === undefined) {
+    return monthlyConfig.monthlyAmount
+  }
+  const yearsPassed = year - startYear
+  return monthlyConfig.monthlyAmount * Math.pow(1 + inflationConfig.inflationRate, yearsPassed)
+}
+
+/**
+ * Calculate monthly withdrawal amount
+ */
+function getMonthlyAmount(
+  strategy: WithdrawalStrategy,
+  withdrawalFrequency: WithdrawalFrequency,
+  entnahme: number,
+  monthlyConfig: MonthlyWithdrawalConfig | undefined,
+  inflationConfig: InflationConfig | undefined,
+  year: number | undefined,
+  startYear: number | undefined,
+): number | undefined {
+  if (strategy === 'monatlich_fest' && monthlyConfig) {
+    return calculateAdjustedMonthlyAmount(monthlyConfig, inflationConfig, year, startYear)
+  }
+  if (withdrawalFrequency === 'monthly') {
+    return entnahme / 12
+  }
+  return undefined
+}
+
+/**
+ * Calculate effective withdrawal for monthly frequency
+ */
+function calculateMonthlyEffectiveWithdrawal(entnahme: number, returnRate: number): number {
+  const monthlyReturn = Math.pow(1 + returnRate, 1 / 12) - 1
+  let monthlyPresentValue = 0
+  for (let month = 1; month <= 12; month++) {
+    monthlyPresentValue += (entnahme / 12) / Math.pow(1 + monthlyReturn, month - 1)
+  }
+  return monthlyPresentValue
+}
+
 function calculateMonthlyWithdrawal(
   strategy: WithdrawalStrategy,
   withdrawalFrequency: WithdrawalFrequency,
@@ -281,32 +460,19 @@ function calculateMonthlyWithdrawal(
   year?: number,
   startYear?: number,
 ): { effectiveWithdrawal: number, monthlyAmount: number | undefined } {
-  let effectiveWithdrawal = entnahme
-  let monthlyAmount: number | undefined
+  const monthlyAmount = getMonthlyAmount(
+    strategy,
+    withdrawalFrequency,
+    entnahme,
+    monthlyConfig,
+    inflationConfig,
+    year,
+    startYear,
+  )
 
-  // Calculate the actual monthly withdrawal amount for display purposes
-  if (strategy === 'monatlich_fest' && monthlyConfig) {
-    let adjustedMonthlyAmount = monthlyConfig.monthlyAmount
-    if (inflationConfig?.inflationRate && year !== undefined && startYear !== undefined) {
-      const yearsPassed = year - startYear
-      adjustedMonthlyAmount = monthlyConfig.monthlyAmount * Math.pow(1 + inflationConfig.inflationRate, yearsPassed)
-    }
-    monthlyAmount = adjustedMonthlyAmount
-  }
-  else if (withdrawalFrequency === 'monthly') {
-    monthlyAmount = entnahme / 12
-  }
-
-  if (withdrawalFrequency === 'monthly') {
-    // For monthly frequency, calculate more accurate effective withdrawal
-    // by modeling gradual capital decrease throughout the year
-    const monthlyReturn = Math.pow(1 + returnRate, 1 / 12) - 1
-    let monthlyPresentValue = 0
-    for (let month = 1; month <= 12; month++) {
-      monthlyPresentValue += (entnahme / 12) / Math.pow(1 + monthlyReturn, month - 1)
-    }
-    effectiveWithdrawal = monthlyPresentValue
-  }
+  const effectiveWithdrawal = withdrawalFrequency === 'monthly'
+    ? calculateMonthlyEffectiveWithdrawal(entnahme, returnRate)
+    : entnahme
 
   return { effectiveWithdrawal, monthlyAmount }
 }
@@ -555,6 +721,11 @@ function calculateAdjustedWithdrawal(params: {
 /**
  * Helper function: Build strategy-specific fields for result
  */
+// Helper: Check if strategy needs dynamic fields
+function needsDynamicFields(strategy: WithdrawalStrategy, bucketConfig?: BucketStrategyConfig): boolean {
+  return strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')
+}
+
 function buildStrategySpecificFields(params: {
   strategy: WithdrawalStrategy
   dynamischeAnpassung: number
@@ -585,9 +756,12 @@ function buildStrategySpecificFields(params: {
     bucketUsed,
     refillAmount,
   } = params
+
+  const hasDynamicFields = needsDynamicFields(strategy, bucketConfig)
+
   return {
-    dynamischeAnpassung: (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')) ? dynamischeAnpassung : undefined,
-    vorjahresRendite: (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')) ? vorjahresRendite : undefined,
+    dynamischeAnpassung: hasDynamicFields ? dynamischeAnpassung : undefined,
+    vorjahresRendite: hasDynamicFields ? vorjahresRendite : undefined,
     steueroptimierungAnpassung: strategy === 'steueroptimiert' ? steueroptimierungAnpassung : undefined,
     cashCushionStart: strategy === 'bucket_strategie' ? cashCushionAtStart : undefined,
     cashCushionEnd: strategy === 'bucket_strategie' ? cashCushion : undefined,
@@ -1810,6 +1984,70 @@ export function calculateWithdrawalDuration(
   return null
 }
 
+// Helper: Validate tax optimization inputs
+function areOptimizationInputsValid(capitalAtStartOfYear: number, baseWithdrawalAmount: number): boolean {
+  return capitalAtStartOfYear > 0 && baseWithdrawalAmount > 0
+}
+
+// Helper: Calculate withdrawal for minimize_taxes mode
+function calculateMinimizeTaxesWithdrawal(
+  capitalAtStartOfYear: number,
+  baseWithdrawalAmount: number,
+  targetFreibetragUsage: number,
+  taxRate: number,
+  teilfreistellungsquote: number,
+): number {
+  const taxableRate = 1 - teilfreistellungsquote
+
+  if (taxableRate <= 0 || taxRate <= 0) {
+    return Math.min(capitalAtStartOfYear, baseWithdrawalAmount)
+  }
+
+  const maxTaxFreeWithdrawal = targetFreibetragUsage / (taxableRate * taxRate)
+  const minWithdrawal = baseWithdrawalAmount * 0.8
+  const maxWithdrawal = Math.min(capitalAtStartOfYear, baseWithdrawalAmount * 1.2)
+
+  const result = Math.max(minWithdrawal, Math.min(maxWithdrawal, maxTaxFreeWithdrawal || baseWithdrawalAmount))
+  return isNaN(result) ? baseWithdrawalAmount : result
+}
+
+// Helper: Calculate withdrawal for maximize_after_tax mode
+function calculateMaximizeAfterTaxWithdrawal(
+  capitalAtStartOfYear: number,
+  baseWithdrawalAmount: number,
+  availableFreibetrag: number,
+  taxRate: number,
+  teilfreistellungsquote: number,
+): number {
+  const optimalWithdrawal = findOptimalAfterTaxWithdrawal(
+    capitalAtStartOfYear,
+    baseWithdrawalAmount,
+    availableFreibetrag,
+    taxRate,
+    teilfreistellungsquote,
+  )
+
+  const result = Math.max(baseWithdrawalAmount * 0.8, Math.min(capitalAtStartOfYear, optimalWithdrawal))
+  return isNaN(result) ? baseWithdrawalAmount : result
+}
+
+// Helper: Calculate withdrawal for balanced mode
+function calculateBalancedWithdrawal(
+  capitalAtStartOfYear: number,
+  baseWithdrawalAmount: number,
+  availableFreibetrag: number,
+  targetFreibetragUsage: number,
+): number {
+  const taxEfficientAdjustment = availableFreibetrag > 0
+    ? (targetFreibetragUsage - availableFreibetrag * 0.5) / availableFreibetrag
+    : 0
+  const adjustmentFactor = 1 + (taxEfficientAdjustment * 0.1)
+
+  const adjustedWithdrawal = baseWithdrawalAmount * Math.max(0.9, Math.min(1.1, adjustmentFactor))
+  const result = Math.min(capitalAtStartOfYear, adjustedWithdrawal)
+  return isNaN(result) ? baseWithdrawalAmount : result
+}
+
 /**
  * Calculate tax-optimized withdrawal amount for a given year
  * This function attempts to minimize taxes by optimizing the withdrawal amount
@@ -1824,41 +2062,24 @@ function calculateTaxOptimizedWithdrawal(
   teilfreistellungsquote: number,
   config: SteueroptimierteEntnahmeConfig,
 ): number {
-  // Validate inputs to prevent NaN
-  if (!capitalAtStartOfYear || capitalAtStartOfYear <= 0 || !baseWithdrawalAmount || baseWithdrawalAmount <= 0) {
+  if (!areOptimizationInputsValid(capitalAtStartOfYear, baseWithdrawalAmount)) {
     return baseWithdrawalAmount || 0
   }
 
-  // Calculate target Freibetrag usage
   const targetFreibetragUsage = availableFreibetrag * targetFreibetragUtilization
 
   switch (config.optimizationMode) {
-    case 'minimize_taxes': {
-      // Try to use exactly the target amount of Freibetrag to minimize taxes
-      // This is a simplified calculation - real optimization would consider Vorabpauschale
-      const taxableRate = 1 - teilfreistellungsquote
+    case 'minimize_taxes':
+      return calculateMinimizeTaxesWithdrawal(
+        capitalAtStartOfYear,
+        baseWithdrawalAmount,
+        targetFreibetragUsage,
+        taxRate,
+        teilfreistellungsquote,
+      )
 
-      // Avoid division by zero
-      if (taxableRate <= 0 || taxRate <= 0) {
-        return Math.min(capitalAtStartOfYear, baseWithdrawalAmount)
-      }
-
-      const maxTaxFreeWithdrawal = targetFreibetragUsage / (taxableRate * taxRate)
-
-      // Choose the minimum of base withdrawal and tax-optimized amount
-      // but don't go below 80% of base withdrawal to maintain income consistency
-      const minWithdrawal = baseWithdrawalAmount * 0.8
-      const maxWithdrawal = Math.min(capitalAtStartOfYear, baseWithdrawalAmount * 1.2)
-
-      // Ensure we return a valid number
-      const result = Math.max(minWithdrawal, Math.min(maxWithdrawal, maxTaxFreeWithdrawal || baseWithdrawalAmount))
-      return isNaN(result) ? baseWithdrawalAmount : result
-    }
-
-    case 'maximize_after_tax': {
-      // Try to maximize after-tax income by finding optimal withdrawal amount
-      // Consider that higher withdrawals might push into higher tax brackets
-      const optimalWithdrawal = findOptimalAfterTaxWithdrawal(
+    case 'maximize_after_tax':
+      return calculateMaximizeAfterTaxWithdrawal(
         capitalAtStartOfYear,
         baseWithdrawalAmount,
         availableFreibetrag,
@@ -1866,24 +2087,80 @@ function calculateTaxOptimizedWithdrawal(
         teilfreistellungsquote,
       )
 
-      const result = Math.max(baseWithdrawalAmount * 0.8, Math.min(capitalAtStartOfYear, optimalWithdrawal))
-      return isNaN(result) ? baseWithdrawalAmount : result
-    }
-
     case 'balanced':
-    default: {
-      // Balance between tax minimization and income consistency
-      // Use base withdrawal as starting point and adjust slightly for tax efficiency
-      const taxEfficientAdjustment = availableFreibetrag > 0
-        ? (targetFreibetragUsage - availableFreibetrag * 0.5) / availableFreibetrag
-        : 0
-      const adjustmentFactor = 1 + (taxEfficientAdjustment * 0.1) // Max 10% adjustment
+    default:
+      return calculateBalancedWithdrawal(
+        capitalAtStartOfYear,
+        baseWithdrawalAmount,
+        availableFreibetrag,
+        targetFreibetragUsage,
+      )
+  }
+}
 
-      const adjustedWithdrawal = baseWithdrawalAmount * Math.max(0.9, Math.min(1.1, adjustmentFactor))
-      const result = Math.min(capitalAtStartOfYear, adjustedWithdrawal)
-      return isNaN(result) ? baseWithdrawalAmount : result
+/**
+ * Calculate after-tax amount for a given withdrawal
+ */
+function calculateAfterTaxAmount(
+  amount: number,
+  taxRate: number,
+  teilfreistellungsquote: number,
+  availableFreibetrag: number,
+): number {
+  const taxableAmount = Math.max(0, amount * (1 - teilfreistellungsquote) - availableFreibetrag)
+  const tax = taxableAmount * taxRate
+  return amount - tax
+}
+
+/**
+ * Generate test withdrawal amounts
+ */
+function generateTestWithdrawalAmounts(
+  baseWithdrawalAmount: number,
+  capitalAtStartOfYear: number,
+): number[] {
+  return [
+    baseWithdrawalAmount * 0.8,
+    baseWithdrawalAmount * 0.9,
+    baseWithdrawalAmount,
+    baseWithdrawalAmount * 1.1,
+    baseWithdrawalAmount * 1.2,
+  ].filter(amount => amount > 0 && amount <= capitalAtStartOfYear)
+}
+
+/**
+ * Validate withdrawal optimization inputs
+ */
+function areWithdrawalInputsValid(
+  capitalAtStartOfYear: number,
+  baseWithdrawalAmount: number,
+): boolean {
+  return baseWithdrawalAmount > 0 && capitalAtStartOfYear > 0
+}
+
+/**
+ * Find best amount from test amounts
+ */
+function findBestWithdrawalAmount(
+  testAmounts: number[],
+  baseWithdrawalAmount: number,
+  taxRate: number,
+  teilfreistellungsquote: number,
+  availableFreibetrag: number,
+): number {
+  let bestAmount = baseWithdrawalAmount
+  let bestAfterTax = 0
+
+  for (const amount of testAmounts) {
+    const afterTaxAmount = calculateAfterTaxAmount(amount, taxRate, teilfreistellungsquote, availableFreibetrag)
+
+    if (afterTaxAmount > bestAfterTax) {
+      bestAfterTax = afterTaxAmount
+      bestAmount = amount
     }
   }
+
+  return bestAmount
 }
 
 /**
@@ -1898,37 +2175,23 @@ function findOptimalAfterTaxWithdrawal(
   teilfreistellungsquote: number,
 ): number {
   // Validate inputs
-  if (!baseWithdrawalAmount || baseWithdrawalAmount <= 0 || !capitalAtStartOfYear || capitalAtStartOfYear <= 0) {
+  if (!areWithdrawalInputsValid(capitalAtStartOfYear, baseWithdrawalAmount)) {
     return baseWithdrawalAmount || 0
   }
 
-  // Test different withdrawal amounts to find the one with highest after-tax value
-  const testAmounts = [
-    baseWithdrawalAmount * 0.8,
-    baseWithdrawalAmount * 0.9,
-    baseWithdrawalAmount,
-    baseWithdrawalAmount * 1.1,
-    baseWithdrawalAmount * 1.2,
-  ].filter(amount => amount > 0 && amount <= capitalAtStartOfYear)
+  const testAmounts = generateTestWithdrawalAmounts(baseWithdrawalAmount, capitalAtStartOfYear)
 
   if (testAmounts.length === 0) {
     return Math.min(capitalAtStartOfYear, baseWithdrawalAmount)
   }
 
-  let bestAmount = baseWithdrawalAmount
-  let bestAfterTax = 0
-
-  for (const amount of testAmounts) {
-    // Simplified tax calculation - real implementation would consider Vorabpauschale
-    const taxableAmount = Math.max(0, amount * (1 - teilfreistellungsquote) - availableFreibetrag)
-    const tax = taxableAmount * taxRate
-    const afterTaxAmount = amount - tax
-
-    if (afterTaxAmount > bestAfterTax) {
-      bestAfterTax = afterTaxAmount
-      bestAmount = amount
-    }
-  }
+  const bestAmount = findBestWithdrawalAmount(
+    testAmounts,
+    baseWithdrawalAmount,
+    taxRate,
+    teilfreistellungsquote,
+    availableFreibetrag,
+  )
 
   return isNaN(bestAmount) ? baseWithdrawalAmount : bestAmount
 }

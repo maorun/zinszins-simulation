@@ -1,4 +1,4 @@
-import type { SimulationResult, SimulationResultElement } from './simulate'
+import type { SimulationResult } from './simulate'
 import type { SparplanElement } from '../utils/sparplan-utils'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
@@ -37,19 +37,41 @@ export type WithdrawalSegmentSummary = {
 }
 
 export function getSparplanSummary(element?: SimulationResult): Summary {
-  const first: SimulationResultElement | undefined = element && Object.values(element).shift()
-  const last: SimulationResultElement | undefined = element && Object.values(element).pop()
+  /**
+   * Calculate total tax paid across all years
+   */
+  const calculateTotalTax = (element: SimulationResult | undefined): number => {
+    if (!element) {
+      return 0
+    }
+    return Object.values(element).reduce(
+      (previousValue, currentValue) =>
+        previousValue + currentValue.bezahlteSteuer,
+      0,
+    )
+  }
+
+  /**
+   * Get first simulation element
+   */
+  const getFirstElement = (element: SimulationResult | undefined) => {
+    return element && Object.values(element).shift()
+  }
+
+  /**
+   * Get last simulation element
+   */
+  const getLastElement = (element: SimulationResult | undefined) => {
+    return element && Object.values(element).pop()
+  }
+
+  const first = getFirstElement(element)
+  const last = getLastElement(element)
 
   return {
     startkapital: first?.startkapital || 0,
     zinsen: Number(last?.endkapital) - Number(first?.startkapital),
-    bezahlteSteuer: element
-      ? Object.values(element).reduce(
-          (previousValue, currentValue) =>
-            previousValue + currentValue.bezahlteSteuer,
-          0,
-        )
-      : 0,
+    bezahlteSteuer: calculateTotalTax(element),
     endkapital: last?.endkapital || 0,
   }
 }
@@ -143,6 +165,47 @@ export function extractWithdrawalMetrics(withdrawalResult: WithdrawalResult): {
 }
 
 /**
+ * Calculate savings phase return rate
+ */
+function calculateSavingsPhaseReturn(
+  startkapital: number,
+  endkapital: number,
+  totalYears: number,
+): number {
+  if (startkapital <= 0 || totalYears <= 0) {
+    return 0
+  }
+  const totalReturn = endkapital / startkapital
+  return (Math.pow(totalReturn, 1 / totalYears) - 1) * 100
+}
+
+/**
+ * Add withdrawal metrics to summary
+ */
+function addWithdrawalMetrics(
+  summary: EnhancedSummary,
+  withdrawalResult: WithdrawalResult,
+  isSegmentedWithdrawal: boolean | undefined,
+  withdrawalSegments: WithdrawalSegment[] | undefined,
+  savingsEndCapital: number,
+): void {
+  const withdrawalData = extractWithdrawalMetrics(withdrawalResult)
+
+  summary.endkapitalEntspharphase = withdrawalData.finalCapital
+  summary.monatlicheAuszahlung = withdrawalData.averageMonthlyWithdrawal
+  summary.jahreEntspharphase = withdrawalData.totalYears
+
+  // Handle segmented withdrawal summaries
+  if (isSegmentedWithdrawal && withdrawalSegments && withdrawalSegments.length > 0) {
+    summary.withdrawalSegments = createWithdrawalSegmentSummaries(
+      withdrawalSegments,
+      withdrawalResult,
+      savingsEndCapital,
+    )
+  }
+}
+
+/**
  * Calculate enhanced summary including withdrawal phase metrics
  */
 export function getEnhancedSummary(
@@ -156,15 +219,12 @@ export function getEnhancedSummary(
   const baseSummary = fullSummary(elemente)
 
   // Calculate savings phase return rate
-  // Formula: ((endkapital / startkapital) ^ (1/years)) - 1
   const totalYearsSavings = endYear && startYear ? endYear - startYear : 0
-  let renditeAnsparphase = 0
-
-  if (baseSummary.startkapital > 0 && totalYearsSavings > 0) {
-    // Calculate annualized return rate
-    const totalReturn = baseSummary.endkapital / baseSummary.startkapital
-    renditeAnsparphase = (Math.pow(totalReturn, 1 / totalYearsSavings) - 1) * 100
-  }
+  const renditeAnsparphase = calculateSavingsPhaseReturn(
+    baseSummary.startkapital,
+    baseSummary.endkapital,
+    totalYearsSavings,
+  )
 
   const enhancedSummary: EnhancedSummary = {
     ...baseSummary,
@@ -174,20 +234,13 @@ export function getEnhancedSummary(
 
   // Add withdrawal phase metrics if provided
   if (withdrawalResult) {
-    const withdrawalData = extractWithdrawalMetrics(withdrawalResult)
-
-    enhancedSummary.endkapitalEntspharphase = withdrawalData.finalCapital
-    enhancedSummary.monatlicheAuszahlung = withdrawalData.averageMonthlyWithdrawal
-    enhancedSummary.jahreEntspharphase = withdrawalData.totalYears
-
-    // Handle segmented withdrawal summaries
-    if (isSegmentedWithdrawal && withdrawalSegments && withdrawalSegments.length > 0) {
-      enhancedSummary.withdrawalSegments = createWithdrawalSegmentSummaries(
-        withdrawalSegments,
-        withdrawalResult,
-        baseSummary.endkapital,
-      )
-    }
+    addWithdrawalMetrics(
+      enhancedSummary,
+      withdrawalResult,
+      isSegmentedWithdrawal,
+      withdrawalSegments,
+      baseSummary.endkapital,
+    )
   }
 
   return enhancedSummary
@@ -439,27 +492,21 @@ function createWithdrawalSegmentSummaries(
 /**
  * Get display name for withdrawal strategy
  */
+/**
+ * Strategy display name mapping
+ */
+const STRATEGY_DISPLAY_NAMES: Record<string, string> = {
+  '4prozent': '4% Regel',
+  '3prozent': '3% Regel',
+  'variabel_prozent': 'Variable Prozent',
+  'monatlich_fest': 'Monatlich fest',
+  'dynamisch': 'Dynamische Strategie',
+  'bucket_strategie': 'Drei-Eimer-Strategie',
+  'rmd': 'RMD (Lebenserwartung)',
+  'kapitalerhalt': 'Kapitalerhalt / Ewige Rente',
+  'steueroptimiert': 'Steueroptimierte Entnahme',
+}
+
 function getStrategyDisplayName(strategy: string): string {
-  switch (strategy) {
-    case '4prozent':
-      return '4% Regel'
-    case '3prozent':
-      return '3% Regel'
-    case 'variabel_prozent':
-      return 'Variable Prozent'
-    case 'monatlich_fest':
-      return 'Monatlich fest'
-    case 'dynamisch':
-      return 'Dynamische Strategie'
-    case 'bucket_strategie':
-      return 'Drei-Eimer-Strategie'
-    case 'rmd':
-      return 'RMD (Lebenserwartung)'
-    case 'kapitalerhalt':
-      return 'Kapitalerhalt / Ewige Rente'
-    case 'steueroptimiert':
-      return 'Steueroptimierte Entnahme'
-    default:
-      return strategy
-  }
+  return STRATEGY_DISPLAY_NAMES[strategy] || strategy
 }

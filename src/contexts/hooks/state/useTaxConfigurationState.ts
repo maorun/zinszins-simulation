@@ -9,32 +9,52 @@ export interface TaxConfigurationStateConfig {
   }
 }
 
+/**
+ * Get tax configuration default values
+ */
+function getTaxConfigDefaults(
+  extendedInitialConfig: ExtendedSavedConfiguration,
+  defaultConfig: TaxConfigurationStateConfig['defaultConfig'],
+) {
+  return {
+    steuerReduzierenEndkapitalSparphase: extendedInitialConfig.steuerReduzierenEndkapitalSparphase ?? true,
+    steuerReduzierenEndkapitalEntspharphase: extendedInitialConfig.steuerReduzierenEndkapitalEntspharphase ?? true,
+    grundfreibetragAktiv: extendedInitialConfig.grundfreibetragAktiv ?? true,
+    grundfreibetragBetrag: extendedInitialConfig.grundfreibetragBetrag ?? 23208,
+    personalTaxRate: extendedInitialConfig.personalTaxRate ?? defaultConfig.personalTaxRate,
+    guenstigerPruefungAktiv: extendedInitialConfig.guenstigerPruefungAktiv ?? defaultConfig.guenstigerPruefungAktiv,
+    kirchensteuerAktiv: extendedInitialConfig.kirchensteuerAktiv ?? false,
+    kirchensteuersatz: extendedInitialConfig.kirchensteuersatz ?? 9,
+  }
+}
+
 export function useTaxConfigurationState(config: TaxConfigurationStateConfig) {
   const { extendedInitialConfig, defaultConfig } = config
+  const defaults = getTaxConfigDefaults(extendedInitialConfig, defaultConfig)
 
   const [steuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalSparphase] = useState(
-    extendedInitialConfig.steuerReduzierenEndkapitalSparphase ?? true,
+    defaults.steuerReduzierenEndkapitalSparphase,
   )
   const [steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase] = useState(
-    extendedInitialConfig.steuerReduzierenEndkapitalEntspharphase ?? true,
+    defaults.steuerReduzierenEndkapitalEntspharphase,
   )
   const [grundfreibetragAktiv, setGrundfreibetragAktiv] = useState(
-    extendedInitialConfig.grundfreibetragAktiv ?? true,
+    defaults.grundfreibetragAktiv,
   )
   const [grundfreibetragBetrag, setGrundfreibetragBetrag] = useState(
-    extendedInitialConfig.grundfreibetragBetrag ?? 23208,
+    defaults.grundfreibetragBetrag,
   )
   const [personalTaxRate, setPersonalTaxRate] = useState(
-    extendedInitialConfig.personalTaxRate ?? defaultConfig.personalTaxRate,
+    defaults.personalTaxRate,
   )
   const [guenstigerPruefungAktiv, setGuenstigerPruefungAktiv] = useState(
-    extendedInitialConfig.guenstigerPruefungAktiv ?? defaultConfig.guenstigerPruefungAktiv,
+    defaults.guenstigerPruefungAktiv,
   )
   const [kirchensteuerAktiv, setKirchensteuerAktiv] = useState(
-    extendedInitialConfig.kirchensteuerAktiv ?? false,
+    defaults.kirchensteuerAktiv,
   )
   const [kirchensteuersatz, setKirchensteuersatz] = useState(
-    extendedInitialConfig.kirchensteuersatz ?? 9,
+    defaults.kirchensteuersatz,
   )
 
   return {

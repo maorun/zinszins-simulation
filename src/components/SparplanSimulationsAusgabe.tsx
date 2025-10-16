@@ -13,7 +13,7 @@ import InteractiveChart from './InteractiveChart'
 import { convertSparplanElementsToSimulationResult, hasInflationAdjustedValues } from '../utils/chart-data-converter'
 import { TooltipProvider } from './ui/tooltip'
 import { GlossaryTerm } from './GlossaryTerm'
-import type { VorabpauschaleDetails } from '../utils/simulate'
+import type { VorabpauschaleDetails, SimulationResultElement } from '../utils/simulate'
 
 // Type for calculation info click data
 interface CalculationInfoData {
@@ -147,42 +147,77 @@ export function SparplanSimulationsAusgabe({
     setShowVorabpauschaleModal(true)
   }
 
+  /**
+   * Create interest explanation
+   */
+  const createInterestCalculationExplanation = (
+    simData: SimulationResultElement,
+    rowData: CalculationInfoData,
+  ): CalculationExplanation => {
+    return createInterestExplanation(
+      simData.startkapital,
+      simData.zinsen,
+      5, // Default rendite - would need to get from actual config
+      rowData.jahr,
+    )
+  }
+
+  /**
+   * Create tax explanation
+   */
+  const createTaxCalculationExplanation = (
+    simData: SimulationResultElement,
+    jahr: number,
+  ): CalculationExplanation => {
+    return createTaxExplanation(
+      simData.bezahlteSteuer,
+      simData.vorabpauschaleDetails!.vorabpauschaleAmount,
+      0.26375, // Default tax rate - would need to get from actual config
+      0.3, // Default Teilfreistellungsquote - would need to get from actual config
+      simData.genutzterFreibetrag || 2000, // Default freibetrag
+      jahr,
+    )
+  }
+
+  /**
+   * Create end capital explanation
+   */
+  const createEndkapitalCalculationExplanation = (
+    simData: SimulationResultElement,
+    rowData: CalculationInfoData,
+  ): CalculationExplanation => {
+    return createEndkapitalExplanation(
+      simData.endkapital,
+      simData.startkapital,
+      typeof rowData.einzahlung === 'number' ? rowData.einzahlung : 0,
+      simData.zinsen,
+      simData.bezahlteSteuer,
+      rowData.jahr,
+    )
+  }
+
   const handleCalculationInfoClick = (explanationType: string, rowData: CalculationInfoData) => {
     // Find simulation data for this year to get detailed information
     const yearSimData = elemente?.find(el => el.simulation[rowData.jahr])
     const simData = yearSimData?.simulation[rowData.jahr]
 
-    if (explanationType === 'interest' && simData) {
-      const explanation = createInterestExplanation(
-        simData.startkapital,
-        simData.zinsen,
-        5, // Default rendite - would need to get from actual config
-        rowData.jahr,
-      )
-      setCalculationDetails(explanation)
-      setShowCalculationModal(true)
+    if (!simData) {
+      return
     }
-    else if (explanationType === 'tax' && simData?.vorabpauschaleDetails) {
-      const explanation = createTaxExplanation(
-        simData.bezahlteSteuer,
-        simData.vorabpauschaleDetails.vorabpauschaleAmount,
-        0.26375, // Default tax rate - would need to get from actual config
-        0.3, // Default Teilfreistellungsquote - would need to get from actual config
-        simData.genutzterFreibetrag || 2000, // Default freibetrag
-        rowData.jahr,
-      )
-      setCalculationDetails(explanation)
-      setShowCalculationModal(true)
+
+    let explanation: CalculationExplanation | null = null
+
+    if (explanationType === 'interest') {
+      explanation = createInterestCalculationExplanation(simData, rowData)
     }
-    else if (explanationType === 'endkapital' && simData) {
-      const explanation = createEndkapitalExplanation(
-        simData.endkapital,
-        simData.startkapital,
-        typeof rowData.einzahlung === 'number' ? rowData.einzahlung : 0, // Use rowData since it has the yearly contribution amount
-        simData.zinsen,
-        simData.bezahlteSteuer,
-        rowData.jahr,
-      )
+    else if (explanationType === 'tax' && simData.vorabpauschaleDetails) {
+      explanation = createTaxCalculationExplanation(simData, rowData.jahr)
+    }
+    else if (explanationType === 'endkapital') {
+      explanation = createEndkapitalCalculationExplanation(simData, rowData)
+    }
+
+    if (explanation) {
       setCalculationDetails(explanation)
       setShowCalculationModal(true)
     }

@@ -33,6 +33,16 @@ interface CareCostConfigurationProps {
   nestingLevel?: number
 }
 
+/**
+ * Check if preview should be shown
+ */
+function shouldShowPreview(
+  previewResult: ReturnType<typeof calculateCareCostsForYear> | null,
+  validationErrors: string[],
+): boolean {
+  return !!(previewResult && previewResult.careNeeded && validationErrors.length === 0)
+}
+
 export function CareCostConfiguration({
   values,
   onChange,
@@ -47,6 +57,7 @@ export function CareCostConfiguration({
   const previewResult = values.enabled
     ? calculateCareCostsForYear(values, previewYear, birthYear, spouseBirthYear)
     : null
+  const showPreview = shouldShowPreview(previewResult, validationErrors)
 
   return (
     <Card nestingLevel={nestingLevel} className="mb-4">
@@ -105,7 +116,7 @@ export function CareCostConfiguration({
               nestingLevel={nestingLevel}
             />
 
-            {previewResult && previewResult.careNeeded && validationErrors.length === 0 && (
+            {showPreview && previewResult && (
               <CareCostPreview
                 previewYear={previewYear}
                 previewResult={previewResult}

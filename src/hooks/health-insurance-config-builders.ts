@@ -27,6 +27,49 @@ interface HealthCareInsuranceFormValues {
 }
 
 /**
+ * Create person 1 config with defaults
+ */
+function createPerson1Config(
+  values: HealthCareInsuranceFormValues,
+  birthYear?: number,
+) {
+  return {
+    name: values.person1Name || 'Person 1',
+    birthYear: birthYear || 1980,
+    withdrawalShare: values.person1WithdrawalShare || 0.5,
+    otherIncomeAnnual: values.person1OtherIncomeAnnual || 0,
+    additionalCareInsuranceForChildless: values.person1AdditionalCareInsuranceForChildless || false,
+  }
+}
+
+/**
+ * Create person 2 config with defaults
+ */
+function createPerson2Config(
+  values: HealthCareInsuranceFormValues,
+  spouseBirthYear?: number,
+) {
+  return {
+    name: values.person2Name || 'Person 2',
+    birthYear: spouseBirthYear || 1980,
+    withdrawalShare: values.person2WithdrawalShare || 0.5,
+    otherIncomeAnnual: values.person2OtherIncomeAnnual || 0,
+    additionalCareInsuranceForChildless: values.person2AdditionalCareInsuranceForChildless || false,
+  }
+}
+
+/**
+ * Create family insurance thresholds with defaults
+ */
+function createFamilyInsuranceThresholds(values: HealthCareInsuranceFormValues) {
+  return {
+    regularEmploymentLimit: values.familyInsuranceThresholdRegular || 505,
+    miniJobLimit: values.familyInsuranceThresholdMiniJob || 538,
+    year: 2025,
+  }
+}
+
+/**
  * Create health insurance config for couple planning mode
  * Extracted to reduce complexity in useHealthInsurancePreviewCalculation
  */
@@ -45,25 +88,9 @@ export function createCouplePreviewConfig(
     statutoryMaximumIncomeBase: values.statutoryMaximumIncomeBase,
     coupleConfig: {
       strategy: values.coupleStrategy || 'optimize',
-      familyInsuranceThresholds: {
-        regularEmploymentLimit: values.familyInsuranceThresholdRegular || 505,
-        miniJobLimit: values.familyInsuranceThresholdMiniJob || 538,
-        year: 2025,
-      },
-      person1: {
-        name: values.person1Name || 'Person 1',
-        birthYear: birthYear || 1980,
-        withdrawalShare: values.person1WithdrawalShare || 0.5,
-        otherIncomeAnnual: values.person1OtherIncomeAnnual || 0,
-        additionalCareInsuranceForChildless: values.person1AdditionalCareInsuranceForChildless || false,
-      },
-      person2: {
-        name: values.person2Name || 'Person 2',
-        birthYear: spouseBirthYear || 1980,
-        withdrawalShare: values.person2WithdrawalShare || 0.5,
-        otherIncomeAnnual: values.person2OtherIncomeAnnual || 0,
-        additionalCareInsuranceForChildless: values.person2AdditionalCareInsuranceForChildless || false,
-      },
+      familyInsuranceThresholds: createFamilyInsuranceThresholds(values),
+      person1: createPerson1Config(values, birthYear),
+      person2: createPerson2Config(values, spouseBirthYear),
     },
   }
 }

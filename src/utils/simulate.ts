@@ -218,6 +218,49 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
   return elements
 }
 
+/**
+ * Calculate TER costs for the year
+ */
+function calculateTERCosts(
+  element: SparplanElement,
+  startkapital: number,
+  endkapitalVorKosten: number,
+  anteilImJahr: number,
+): number {
+  if (!element.ter || element.ter <= 0) {
+    return 0
+  }
+  const averageCapital = (startkapital + endkapitalVorKosten) / 2
+  return (averageCapital * (element.ter / 100)) * (anteilImJahr / 12)
+}
+
+/**
+ * Calculate transaction costs for first year
+ */
+function calculateTransactionCosts(
+  element: SparplanElement,
+  isFirstYear: boolean,
+): number {
+  if (!isFirstYear) {
+    return 0
+  }
+
+  const investmentAmount = element.einzahlung
+  let costs = 0
+
+  // Percentage-based transaction costs
+  if (element.transactionCostPercent && element.transactionCostPercent > 0) {
+    costs += investmentAmount * (element.transactionCostPercent / 100)
+  }
+
+  // Absolute transaction costs
+  if (element.transactionCostAbsolute && element.transactionCostAbsolute > 0) {
+    costs += element.transactionCostAbsolute
+  }
+
+  return costs
+}
+
 function calculateCosts(
   element: SparplanElement,
   startkapital: number,
@@ -227,31 +270,10 @@ function calculateCosts(
 ): { terCosts: number, transactionCosts: number, totalCosts: number } {
   const isFirstYear = !element.simulation?.[year - 1]?.endkapital
 
-  // TER costs: annual percentage of average capital during year
-  let terCosts = 0
-  if (element.ter && element.ter > 0) {
-    // A more accurate average capital for the year
-    const averageCapital = (startkapital + endkapitalVorKosten) / 2
-    terCosts = (averageCapital * (element.ter / 100)) * (anteilImJahr / 12)
-  }
-
-  // Transaction costs: only applied in first year when investment is made
-  let transactionCosts = 0
-  if (isFirstYear) {
-    const investmentAmount = element.einzahlung
-
-    // Percentage-based transaction costs
-    if (element.transactionCostPercent && element.transactionCostPercent > 0) {
-      transactionCosts += investmentAmount * (element.transactionCostPercent / 100)
-    }
-
-    // Absolute transaction costs
-    if (element.transactionCostAbsolute && element.transactionCostAbsolute > 0) {
-      transactionCosts += element.transactionCostAbsolute
-    }
-  }
-
+  const terCosts = calculateTERCosts(element, startkapital, endkapitalVorKosten, anteilImJahr)
+  const transactionCosts = calculateTransactionCosts(element, isFirstYear)
   const totalCosts = terCosts + transactionCosts
+
   return { terCosts, transactionCosts, totalCosts }
 }
 
