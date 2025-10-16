@@ -49,6 +49,23 @@ interface SparplanCardProps {
  * Displays a single sparplan or single payment card with edit functionality
  * Complexity: <8, Lines: <50
  */
+/**
+ * Get card styling classes based on edit state and payment type
+ */
+function getCardClasses(isEditMode: boolean, editingSparplanId: number | undefined, sparplanId: number, isOneTimePayment: boolean): string {
+  const baseClasses = 'p-4 rounded-lg border-2 transition-colors'
+
+  if (isEditMode && editingSparplanId === sparplanId) {
+    return `${baseClasses} bg-yellow-50 border-yellow-300 ring-2 ring-yellow-200`
+  }
+
+  if (isOneTimePayment) {
+    return `${baseClasses} bg-orange-50 border-orange-200 hover:bg-orange-100`
+  }
+
+  return `${baseClasses} bg-blue-50 border-blue-200 hover:bg-blue-100`
+}
+
 export function SparplanCard(props: SparplanCardProps) {
   const {
     sparplan,
@@ -70,15 +87,7 @@ export function SparplanCard(props: SparplanCardProps) {
   const isOneTimePayment = isEinmalzahlung(sparplan)
 
   return (
-    <div
-      className={`p-4 rounded-lg border-2 transition-colors ${
-        isEditMode && editingSparplan?.id === sparplan.id
-          ? 'bg-yellow-50 border-yellow-300 ring-2 ring-yellow-200'
-          : isOneTimePayment
-            ? 'bg-orange-50 border-orange-200 hover:bg-orange-100'
-            : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
-      }`}
-    >
+    <div className={getCardClasses(isEditMode, editingSparplan?.id, sparplan.id, isOneTimePayment)}>
       <SparplanCardHeader
         sparplan={sparplan}
         isOneTimePayment={isOneTimePayment}
