@@ -136,6 +136,40 @@ function InflationRateSlider({
   )
 }
 
+/**
+ * Real return display component
+ */
+function RealReturnDisplay({
+  nominalReturn,
+  inflationRate,
+}: {
+  nominalReturn: number
+  inflationRate: number
+}) {
+  const realReturn = nominalReturn - inflationRate
+
+  return (
+    <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
+      <div className="text-sm">
+        <div className="font-medium text-blue-900 mb-1">Berechnete reale Entnahmerate:</div>
+        <div className="text-blue-800">
+          {nominalReturn.toFixed(1)}
+          % -
+          {inflationRate.toFixed(1)}
+          % =
+          <strong>
+            {realReturn.toFixed(1)}
+            %
+          </strong>
+        </div>
+        <div className="text-blue-700 mt-1 text-xs">
+          Diese Rate wird jährlich vom Portfoliowert entnommen, um das reale Kapital zu erhalten.
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function KapitalerhaltConfiguration({
   formValue,
   updateFormValue,
@@ -158,8 +192,6 @@ export function KapitalerhaltConfiguration({
       }
     : values!
 
-  const realReturn = currentValues.nominalReturn - currentValues.inflationRate
-
   return (
     <div className="space-y-4">
       <NominalReturnSlider
@@ -178,24 +210,10 @@ export function KapitalerhaltConfiguration({
         onChange={onChange}
       />
 
-      <div className="bg-blue-50 border border-blue-200 rounded-md p-3">
-        <div className="text-sm">
-          <div className="font-medium text-blue-900 mb-1">Berechnete reale Entnahmerate:</div>
-          <div className="text-blue-800">
-            {currentValues.nominalReturn.toFixed(1)}
-            % -
-            {currentValues.inflationRate.toFixed(1)}
-            % =
-            <strong>
-              {realReturn.toFixed(1)}
-              %
-            </strong>
-          </div>
-          <div className="text-blue-700 mt-1 text-xs">
-            Diese Rate wird jährlich vom Portfoliowert entnommen, um das reale Kapital zu erhalten.
-          </div>
-        </div>
-      </div>
+      <RealReturnDisplay
+        nominalReturn={currentValues.nominalReturn}
+        inflationRate={currentValues.inflationRate}
+      />
     </div>
   )
 }
