@@ -4,6 +4,7 @@ import { Label } from './ui/label'
 import { Button } from './ui/button'
 import {
   type CareCostConfiguration,
+  type CareCostYearResult,
   createDefaultCareCostConfiguration,
   calculateCareCostsForYear,
   validateCareCostConfiguration,

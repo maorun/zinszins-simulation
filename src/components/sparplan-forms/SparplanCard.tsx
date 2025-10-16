@@ -52,7 +52,12 @@ interface SparplanCardProps {
 /**
  * Get card styling classes based on edit state and payment type
  */
-function getCardClasses(isEditMode: boolean, editingSparplanId: number | undefined, sparplanId: number, isOneTimePayment: boolean): string {
+function getCardClasses(
+  isEditMode: boolean,
+  editingSparplanId: number | undefined,
+  sparplanId: number,
+  isOneTimePayment: boolean,
+): string {
   const baseClasses = 'p-4 rounded-lg border-2 transition-colors'
 
   if (isEditMode && editingSparplanId === sparplanId) {

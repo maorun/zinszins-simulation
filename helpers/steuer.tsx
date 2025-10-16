@@ -53,7 +53,8 @@ const basiszinsen: {
  * Falls back to the latest available year if the requested year is not found
  *
  * @param year - The year to get the basiszins for
- * @param basiszinsConfig - Optional configurable basiszins configuration (from Deutsche Bundesbank)
+ * @param basiszinsConfig - Optional configurable basiszins configuration
+ * (from Deutsche Bundesbank)
  */
 export function getBasiszinsForYear(year: number, basiszinsConfig?: BasiszinsConfiguration): number {
   // First, try to use the configurable basiszins if provided

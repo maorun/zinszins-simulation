@@ -139,7 +139,7 @@ function VariablePercentConfig({
   return (
     <VariablePercentWithdrawalConfiguration
       variabelProzent={formValue.variabelProzent}
-      onVariablePercentChange={(percent) => onFormValueUpdate({ variabelProzent: percent })}
+      onVariablePercentChange={percent => onFormValueUpdate({ variabelProzent: percent })}
     />
   )
 }
@@ -159,8 +159,8 @@ function MonthlyFixedConfig({
       onMonthlyAmountChange={(amount) => {
         if (amount) onFormValueUpdate({ ...formValue, monatlicheBetrag: amount })
       }}
-      onGuardrailsActiveChange={(checked) => onFormValueUpdate({ ...formValue, guardrailsAktiv: checked })}
-      onGuardrailsThresholdChange={(threshold) => onFormValueUpdate({ guardrailsSchwelle: threshold })}
+      onGuardrailsActiveChange={checked => onFormValueUpdate({ ...formValue, guardrailsAktiv: checked })}
+      onGuardrailsThresholdChange={threshold => onFormValueUpdate({ guardrailsSchwelle: threshold })}
     />
   )
 }
@@ -186,7 +186,7 @@ function StrategySpecificConfigs({
       return (
         <BucketStrategyConfigurationForm
           bucketConfig={formValue.bucketConfig}
-          onBucketConfigChange={(config) => onFormValueUpdate({ ...formValue, bucketConfig: config })}
+          onBucketConfigChange={config => onFormValueUpdate({ ...formValue, bucketConfig: config })}
         />
       )
     default:

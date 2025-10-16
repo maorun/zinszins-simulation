@@ -35,7 +35,7 @@ function NavigationItemButton({
   item,
   onClick,
 }: {
-  item: { id: string; title: string; icon?: string; level: number }
+  item: { id: string, title: string, icon?: string, level: number }
   onClick: (id: string) => void
 }) {
   return (

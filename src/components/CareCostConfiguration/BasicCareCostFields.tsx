@@ -3,6 +3,7 @@ import { Input } from '../ui/input'
 import { formatCurrency } from '../../utils/currency'
 import {
   type CareCostConfiguration,
+  type CareLevel,
   DEFAULT_CARE_LEVELS,
   getCareLevelDisplayName,
 } from '../../../helpers/care-cost-simulation'
@@ -56,7 +57,7 @@ function CustomMonthlyCostsField({
   onChange,
 }: {
   value: number | undefined
-  careLevel: string
+  careLevel: CareLevel
   onChange: (value: number | undefined) => void
 }) {
   return (

@@ -109,7 +109,7 @@ export function fullSummary(elemente?: SparplanElement[]): Summary {
 function calculateWithdrawalTotals(
   withdrawalResult: WithdrawalResult,
   years: number[],
-): { totalWithdrawn: number; totalMonthlyWithdrawals: number; monthsWithData: number } {
+): { totalWithdrawn: number, totalMonthlyWithdrawals: number, monthsWithData: number } {
   let totalWithdrawn = 0
   let totalMonthlyWithdrawals = 0
   let monthsWithData = 0

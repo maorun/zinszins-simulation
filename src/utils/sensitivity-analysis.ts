@@ -118,7 +118,7 @@ function applyParameterModification(
   value: number,
   baseConfig: SensitivityAnalysisConfig,
   returnConfig: ReturnConfiguration,
-): { config: SensitivityAnalysisConfig; returnConfig: ReturnConfiguration } {
+): { config: SensitivityAnalysisConfig, returnConfig: ReturnConfiguration } {
   const config = { ...baseConfig }
   let modifiedReturnConfig = { ...returnConfig }
 
