@@ -835,16 +835,9 @@ function buildHealthCareInsuranceField(
 }
 
 /**
- * Helper function: Build income source fields for result
+ * Income source fields result type
  */
-function buildIncomeSourceFields(params: {
-  year: number
-  statutoryPensionData: StatutoryPensionResult
-  otherIncomeData: OtherIncomeResult
-  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
-  healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
-  coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
-}): {
+interface IncomeSourceFields {
   statutoryPension?: {
     grossAnnualAmount: number
     netAnnualAmount: number
@@ -869,7 +862,19 @@ function buildIncomeSourceFields(params: {
     effectiveCareInsuranceRate: number
     coupleDetails?: CoupleHealthInsuranceYearResult
   }
-} {
+}
+
+/**
+ * Helper function: Build income source fields for result
+ */
+function buildIncomeSourceFields(params: {
+  year: number
+  statutoryPensionData: StatutoryPensionResult
+  otherIncomeData: OtherIncomeResult
+  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
+  healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
+  coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
+}): IncomeSourceFields {
   const {
     year,
     statutoryPensionData,
@@ -1169,6 +1174,36 @@ function calculateYearIncomeTax(params: {
 }
 
 /**
+ * Health care insurance calculation result
+ */
+interface YearHealthCareInsuranceResult {
+  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
+  coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
+}
+
+/**
+ * Build health care insurance data for couple mode
+ */
+function buildCoupleHealthCareData(
+  coupleData: CoupleHealthInsuranceYearResult,
+  config: HealthCareInsuranceConfig,
+  year: number,
+): HealthCareInsuranceYearResult {
+  return {
+    healthInsuranceAnnual: coupleData.totalAnnual,
+    careInsuranceAnnual: 0,
+    totalAnnual: coupleData.totalAnnual,
+    healthInsuranceMonthly: coupleData.totalMonthly,
+    careInsuranceMonthly: 0,
+    totalMonthly: coupleData.totalMonthly,
+    insuranceType: config.insuranceType,
+    isRetirementPhase: year >= config.retirementStartYear,
+    appliedAdditionalCareInsurance: false,
+    usedFixedAmounts: false,
+  }
+}
+
+/**
  * Helper function: Calculate health care insurance for a year
  */
 function calculateYearHealthCareInsurance(params: {
@@ -1177,10 +1212,7 @@ function calculateYearHealthCareInsurance(params: {
   entnahme: number
   statutoryPensionData: StatutoryPensionResult
   birthYear: number | undefined
-}): {
-  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
-  coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
-} {
+}): YearHealthCareInsuranceResult {
   const {
     healthCareInsuranceConfig,
     year,
@@ -1204,18 +1236,11 @@ function calculateYearHealthCareInsurance(params: {
         pensionAmount,
       )
       // For compatibility with existing logic, use the total from couple calculation
-      healthCareInsuranceData = {
-        healthInsuranceAnnual: coupleHealthCareInsuranceData.totalAnnual,
-        careInsuranceAnnual: 0, // Included in total
-        totalAnnual: coupleHealthCareInsuranceData.totalAnnual,
-        healthInsuranceMonthly: coupleHealthCareInsuranceData.totalMonthly,
-        careInsuranceMonthly: 0, // Included in total
-        totalMonthly: coupleHealthCareInsuranceData.totalMonthly,
-        insuranceType: healthCareInsuranceConfig.insuranceType,
-        isRetirementPhase: year >= healthCareInsuranceConfig.retirementStartYear,
-        appliedAdditionalCareInsurance: false,
-        usedFixedAmounts: false,
-      }
+      healthCareInsuranceData = buildCoupleHealthCareData(
+        coupleHealthCareInsuranceData,
+        healthCareInsuranceConfig,
+        year,
+      )
     }
     else {
       // Use individual health insurance calculation
@@ -1246,9 +1271,9 @@ type VorabpauschaleLayersParams = {
 }
 
 /**
- * Helper function: Calculate Vorabpauschale for all layers before withdrawal
+ * Vorabpauschale calculation result for layers
  */
-function calculateVorabpauschaleForLayers(params: VorabpauschaleLayersParams): {
+interface VorabpauschaleLayersResult {
   totalPotentialVorabTax: number
   vorabCalculations: Array<{
     layer: MutableLayer
@@ -1258,7 +1283,12 @@ function calculateVorabpauschaleForLayers(params: VorabpauschaleLayersParams): {
   }>
   yearlyFreibetrag: number
   basiszins: number
-} {
+}
+
+/**
+ * Helper function: Calculate Vorabpauschale for all layers before withdrawal
+ */
+function calculateVorabpauschaleForLayers(params: VorabpauschaleLayersParams): VorabpauschaleLayersResult {
   const {
     mutableLayers,
     returnRate,
