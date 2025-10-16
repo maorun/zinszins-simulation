@@ -1112,7 +1112,10 @@ function calculateTotalTaxableIncome(params: {
 /**
  * Helper function: Calculate income tax with Grundfreibetrag
  */
-function calculateYearIncomeTax(params: {
+/**
+ * Parameters for calculating year income tax
+ */
+interface YearIncomeTaxParams {
   enableGrundfreibetrag: boolean | undefined
   entnahme: number
   year: number
@@ -1124,11 +1127,18 @@ function calculateYearIncomeTax(params: {
   incomeTaxRate: number | undefined
   kirchensteuerAktiv: boolean
   kirchensteuersatz: number
-}): {
+}
+
+/**
+ * Year income tax result
+ */
+interface YearIncomeTaxResult {
   einkommensteuer: number
   genutzterGrundfreibetrag: number
   taxableIncome: number
-} {
+}
+
+function calculateYearIncomeTax(params: YearIncomeTaxParams): YearIncomeTaxResult {
   const {
     enableGrundfreibetrag,
     entnahme,
@@ -1337,18 +1347,9 @@ function calculateVorabpauschaleForLayers(params: VorabpauschaleLayersParams): V
 }
 
 /**
- * Helper function: Calculate tax on realized gains
+ * Result of realized gains tax calculation
  */
-function calculateRealizedGainsTax(
-  totalRealizedGain: number,
-  yearlyFreibetrag: number,
-  teilfreistellungsquote: number,
-  taxRate: number,
-  guenstigerPruefungAktiv: boolean,
-  incomeTaxRate: number | undefined,
-  kirchensteuerAktiv: boolean,
-  kirchensteuersatz: number,
-): {
+interface RealizedGainsTaxResult {
   taxOnRealizedGains: number
   freibetragUsedOnGains: number
   remainingFreibetrag: number
@@ -1361,7 +1362,21 @@ function calculateRealizedGainsTax(
     usedGrundfreibetrag: number
     explanation: string
   } | null
-} {
+}
+
+/**
+ * Helper function: Calculate tax on realized gains
+ */
+function calculateRealizedGainsTax(
+  totalRealizedGain: number,
+  yearlyFreibetrag: number,
+  teilfreistellungsquote: number,
+  taxRate: number,
+  guenstigerPruefungAktiv: boolean,
+  incomeTaxRate: number | undefined,
+  kirchensteuerAktiv: boolean,
+  kirchensteuersatz: number,
+): RealizedGainsTaxResult {
   const taxableGain = totalRealizedGain > 0 ? totalRealizedGain * (1 - teilfreistellungsquote) : 0
   let taxOnRealizedGains = 0
   let guenstigerPruefungResult = null
