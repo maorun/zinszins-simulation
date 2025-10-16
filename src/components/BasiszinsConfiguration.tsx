@@ -15,6 +15,95 @@ import { Label } from './ui/label'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
 
 /**
+ * Renders the action buttons for fetching data from the API
+ */
+function ApiActionsSection({
+  handleFetchFromApi,
+  isLoading,
+  lastApiUpdate,
+}: {
+  handleFetchFromApi: () => void
+  isLoading: boolean
+  lastApiUpdate: string | null
+}) {
+  return (
+    <div className="flex gap-2">
+      <Button
+        onClick={handleFetchFromApi}
+        disabled={isLoading}
+      >
+        {isLoading
+          ? (
+              <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
+            )
+          : (
+              <Download className="h-4 w-4 mr-2" />
+            )}
+        Von Bundesbank aktualisieren
+      </Button>
+
+      {lastApiUpdate && (
+        <div className="text-sm text-muted-foreground self-center">
+          Zuletzt aktualisiert:
+          {' '}
+          {new Date(lastApiUpdate).toLocaleDateString('de-DE')}
+        </div>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Renders the manual entry form for adding new rates
+ */
+function ManualEntryForm({
+  newYear,
+  setNewYear,
+  newRate,
+  setNewRate,
+  handleAddManualEntry,
+  getSuggestedRate,
+  currentYear,
+}: {
+  newYear: string
+  setNewYear: (year: string) => void
+  newRate: string
+  setNewRate: (rate: string) => void
+  handleAddManualEntry: () => void
+  getSuggestedRate: () => string
+  currentYear: number
+}) {
+  return (
+    <div className="space-y-4">
+      <Label>Manueller Eintrag für zukünftige Jahre</Label>
+      <div className="flex gap-2">
+        <Input
+          type="number"
+          placeholder="Jahr"
+          value={newYear}
+          min={currentYear}
+          max={2050}
+          onChange={e => setNewYear(e.target.value)}
+        />
+        <Input
+          type="number"
+          placeholder={`Zinssatz (%) - Vorschlag: ${getSuggestedRate()}%`}
+          value={newRate}
+          min={-2}
+          max={10}
+          step={0.01}
+          onChange={e => setNewRate(e.target.value)}
+        />
+        <Button onClick={handleAddManualEntry}>
+          <Plus className="h-4 w-4 mr-2" />
+          Hinzufügen
+        </Button>
+      </div>
+    </div>
+  )
+}
+
+/**
  * Basiszins Configuration Component
  * Manages interest rates from Deutsche Bundesbank for Vorabpauschale calculation
  */
@@ -159,29 +248,11 @@ export default function BasiszinsConfiguration() {
         </Alert>
 
         {/* API Actions */}
-        <div className="flex gap-2">
-          <Button
-            onClick={handleFetchFromApi}
-            disabled={isLoading}
-          >
-            {isLoading
-              ? (
-                  <RefreshCw className="h-4 w-4 mr-2 animate-spin" />
-                )
-              : (
-                  <Download className="h-4 w-4 mr-2" />
-                )}
-            Von Bundesbank aktualisieren
-          </Button>
-
-          {lastApiUpdate && (
-            <div className="text-sm text-muted-foreground self-center">
-              Zuletzt aktualisiert:
-              {' '}
-              {new Date(lastApiUpdate).toLocaleDateString('de-DE')}
-            </div>
-          )}
-        </div>
+        <ApiActionsSection
+          handleFetchFromApi={handleFetchFromApi}
+          isLoading={isLoading}
+          lastApiUpdate={lastApiUpdate}
+        />
 
         {/* Error Display */}
         {error && (
@@ -191,32 +262,15 @@ export default function BasiszinsConfiguration() {
         )}
 
         {/* Manual Entry Form */}
-        <div className="space-y-4">
-          <Label>Manueller Eintrag für zukünftige Jahre</Label>
-          <div className="flex gap-2">
-            <Input
-              type="number"
-              placeholder="Jahr"
-              value={newYear}
-              min={currentYear}
-              max={2050}
-              onChange={e => setNewYear(e.target.value)}
-            />
-            <Input
-              type="number"
-              placeholder={`Zinssatz (%) - Vorschlag: ${getSuggestedRate()}%`}
-              value={newRate}
-              min={-2}
-              max={10}
-              step={0.01}
-              onChange={e => setNewRate(e.target.value)}
-            />
-            <Button onClick={handleAddManualEntry}>
-              <Plus className="h-4 w-4 mr-2" />
-              Hinzufügen
-            </Button>
-          </div>
-        </div>
+        <ManualEntryForm
+          newYear={newYear}
+          setNewYear={setNewYear}
+          newRate={newRate}
+          setNewRate={setNewRate}
+          handleAddManualEntry={handleAddManualEntry}
+          getSuggestedRate={getSuggestedRate}
+          currentYear={currentYear}
+        />
 
         {/* Rates Table */}
         <div className="border rounded-md max-h-[400px] overflow-y-auto">
