@@ -104,6 +104,48 @@ export function fullSummary(elemente?: SparplanElement[]): Summary {
 }
 
 /**
+ * Calculate withdrawal totals from yearly data
+ */
+function calculateWithdrawalTotals(
+  withdrawalResult: WithdrawalResult,
+  years: number[],
+): { totalWithdrawn: number; totalMonthlyWithdrawals: number; monthsWithData: number } {
+  let totalWithdrawn = 0
+  let totalMonthlyWithdrawals = 0
+  let monthsWithData = 0
+
+  for (const year of years) {
+    const yearData = withdrawalResult[year]
+    totalWithdrawn += yearData.entnahme
+
+    if (yearData.monatlicheEntnahme !== undefined) {
+      totalMonthlyWithdrawals += yearData.monatlicheEntnahme
+      monthsWithData += 1
+    }
+  }
+
+  return { totalWithdrawn, totalMonthlyWithdrawals, monthsWithData }
+}
+
+/**
+ * Calculate average monthly withdrawal
+ */
+function calculateAverageMonthlyWithdrawal(
+  totalMonthlyWithdrawals: number,
+  monthsWithData: number,
+  totalWithdrawn: number,
+  yearCount: number,
+): number {
+  if (monthsWithData > 0) {
+    return totalMonthlyWithdrawals / monthsWithData
+  }
+  else if (totalWithdrawn > 0) {
+    return totalWithdrawn / yearCount / 12
+  }
+  return 0
+}
+
+/**
  * Extract withdrawal phase metrics from WithdrawalResult
  */
 export function extractWithdrawalMetrics(withdrawalResult: WithdrawalResult): {
@@ -126,35 +168,17 @@ export function extractWithdrawalMetrics(withdrawalResult: WithdrawalResult): {
   const firstYear = years[0]
   const lastYear = years[years.length - 1]
   const totalYears = lastYear - firstYear + 1
-
   const finalCapital = withdrawalResult[lastYear].endkapital
 
-  // Calculate total withdrawn and average monthly withdrawal
-  let totalWithdrawn = 0
-  let totalMonthlyWithdrawals = 0
-  let monthsWithData = 0
+  const { totalWithdrawn, totalMonthlyWithdrawals, monthsWithData }
+    = calculateWithdrawalTotals(withdrawalResult, years)
 
-  for (const year of years) {
-    const yearData = withdrawalResult[year]
-    totalWithdrawn += yearData.entnahme
-
-    if (yearData.monatlicheEntnahme !== undefined) {
-      totalMonthlyWithdrawals += yearData.monatlicheEntnahme
-      monthsWithData += 1
-    }
-  }
-
-  // Calculate average monthly withdrawal
-  let averageMonthlyWithdrawal = 0
-  if (monthsWithData > 0) {
-    // Calculate time-weighted average of monthly withdrawals across all years
-    // This is more accurate for segmented withdrawal strategies with varying amounts
-    averageMonthlyWithdrawal = totalMonthlyWithdrawals / monthsWithData
-  }
-  else if (totalWithdrawn > 0) {
-    // Fallback: divide total annual withdrawals by 12
-    averageMonthlyWithdrawal = totalWithdrawn / years.length / 12
-  }
+  const averageMonthlyWithdrawal = calculateAverageMonthlyWithdrawal(
+    totalMonthlyWithdrawals,
+    monthsWithData,
+    totalWithdrawn,
+    years.length,
+  )
 
   return {
     totalYears,
