@@ -9,34 +9,54 @@ interface MonthlyWithdrawalConfigProps {
   onMonthlyConfigChange: (config: MonthlyConfig) => void
 }
 
-export function MonthlyWithdrawalConfig({
+/**
+ * Monthly amount input field
+ */
+function MonthlyAmountInput({
+  monthlyAmount,
+  onMonthlyConfigChange,
+  monthlyConfig,
+}: {
+  monthlyAmount: number
+  onMonthlyConfigChange: (config: MonthlyConfig) => void
+  monthlyConfig: MonthlyConfig | undefined
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>Monatlicher Betrag (€)</Label>
+      <Input
+        type="number"
+        value={monthlyAmount}
+        onChange={(e) => {
+          const value = e.target.value ? Number(e.target.value) : 2000
+          onMonthlyConfigChange({ ...monthlyConfig, monthlyAmount: value })
+        }}
+        min={100}
+        max={50000}
+        step={100}
+      />
+    </div>
+  )
+}
+
+/**
+ * Guardrails configuration section
+ */
+function GuardrailsConfig({
+  enableGuardrails,
+  guardrailsThreshold,
+  monthlyAmount,
   monthlyConfig,
   onMonthlyConfigChange,
-}: MonthlyWithdrawalConfigProps) {
-  const monthlyAmount = monthlyConfig?.monthlyAmount || 2000
-  const enableGuardrails = monthlyConfig?.enableGuardrails || false
-  const guardrailsThreshold = monthlyConfig?.guardrailsThreshold || 0.10
-
+}: {
+  enableGuardrails: boolean
+  guardrailsThreshold: number
+  monthlyAmount: number
+  monthlyConfig: MonthlyConfig | undefined
+  onMonthlyConfigChange: (config: MonthlyConfig) => void
+}) {
   return (
     <>
-      <div className="mb-4 space-y-2">
-        <Label>Monatlicher Betrag (€)</Label>
-        <Input
-          type="number"
-          value={monthlyAmount}
-          onChange={(e) => {
-            const value = e.target.value ? Number(e.target.value) : 2000
-            onMonthlyConfigChange({
-              ...monthlyConfig,
-              monthlyAmount: value,
-            })
-          }}
-          min={100}
-          max={50000}
-          step={100}
-        />
-      </div>
-
       <div className="mb-4 space-y-2">
         <Label>Dynamische Anpassung (Guardrails)</Label>
         <Switch
@@ -76,6 +96,32 @@ export function MonthlyWithdrawalConfig({
           </div>
         </div>
       )}
+    </>
+  )
+}
+
+export function MonthlyWithdrawalConfig({
+  monthlyConfig,
+  onMonthlyConfigChange,
+}: MonthlyWithdrawalConfigProps) {
+  const monthlyAmount = monthlyConfig?.monthlyAmount || 2000
+  const enableGuardrails = monthlyConfig?.enableGuardrails || false
+  const guardrailsThreshold = monthlyConfig?.guardrailsThreshold || 0.10
+
+  return (
+    <>
+      <MonthlyAmountInput
+        monthlyAmount={monthlyAmount}
+        onMonthlyConfigChange={onMonthlyConfigChange}
+        monthlyConfig={monthlyConfig}
+      />
+      <GuardrailsConfig
+        enableGuardrails={enableGuardrails}
+        guardrailsThreshold={guardrailsThreshold}
+        monthlyAmount={monthlyAmount}
+        monthlyConfig={monthlyConfig}
+        onMonthlyConfigChange={onMonthlyConfigChange}
+      />
     </>
   )
 }
