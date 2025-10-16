@@ -721,6 +721,11 @@ function calculateAdjustedWithdrawal(params: {
 /**
  * Helper function: Build strategy-specific fields for result
  */
+// Helper: Check if strategy needs dynamic fields
+function needsDynamicFields(strategy: WithdrawalStrategy, bucketConfig?: BucketStrategyConfig): boolean {
+  return strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')
+}
+
 function buildStrategySpecificFields(params: {
   strategy: WithdrawalStrategy
   dynamischeAnpassung: number
@@ -751,9 +756,12 @@ function buildStrategySpecificFields(params: {
     bucketUsed,
     refillAmount,
   } = params
+
+  const hasDynamicFields = needsDynamicFields(strategy, bucketConfig)
+
   return {
-    dynamischeAnpassung: (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')) ? dynamischeAnpassung : undefined,
-    vorjahresRendite: (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')) ? vorjahresRendite : undefined,
+    dynamischeAnpassung: hasDynamicFields ? dynamischeAnpassung : undefined,
+    vorjahresRendite: hasDynamicFields ? vorjahresRendite : undefined,
     steueroptimierungAnpassung: strategy === 'steueroptimiert' ? steueroptimierungAnpassung : undefined,
     cashCushionStart: strategy === 'bucket_strategie' ? cashCushionAtStart : undefined,
     cashCushionEnd: strategy === 'bucket_strategie' ? cashCushion : undefined,
@@ -1976,6 +1984,70 @@ export function calculateWithdrawalDuration(
   return null
 }
 
+// Helper: Validate tax optimization inputs
+function areOptimizationInputsValid(capitalAtStartOfYear: number, baseWithdrawalAmount: number): boolean {
+  return capitalAtStartOfYear > 0 && baseWithdrawalAmount > 0
+}
+
+// Helper: Calculate withdrawal for minimize_taxes mode
+function calculateMinimizeTaxesWithdrawal(
+  capitalAtStartOfYear: number,
+  baseWithdrawalAmount: number,
+  targetFreibetragUsage: number,
+  taxRate: number,
+  teilfreistellungsquote: number,
+): number {
+  const taxableRate = 1 - teilfreistellungsquote
+
+  if (taxableRate <= 0 || taxRate <= 0) {
+    return Math.min(capitalAtStartOfYear, baseWithdrawalAmount)
+  }
+
+  const maxTaxFreeWithdrawal = targetFreibetragUsage / (taxableRate * taxRate)
+  const minWithdrawal = baseWithdrawalAmount * 0.8
+  const maxWithdrawal = Math.min(capitalAtStartOfYear, baseWithdrawalAmount * 1.2)
+
+  const result = Math.max(minWithdrawal, Math.min(maxWithdrawal, maxTaxFreeWithdrawal || baseWithdrawalAmount))
+  return isNaN(result) ? baseWithdrawalAmount : result
+}
+
+// Helper: Calculate withdrawal for maximize_after_tax mode
+function calculateMaximizeAfterTaxWithdrawal(
+  capitalAtStartOfYear: number,
+  baseWithdrawalAmount: number,
+  availableFreibetrag: number,
+  taxRate: number,
+  teilfreistellungsquote: number,
+): number {
+  const optimalWithdrawal = findOptimalAfterTaxWithdrawal(
+    capitalAtStartOfYear,
+    baseWithdrawalAmount,
+    availableFreibetrag,
+    taxRate,
+    teilfreistellungsquote,
+  )
+
+  const result = Math.max(baseWithdrawalAmount * 0.8, Math.min(capitalAtStartOfYear, optimalWithdrawal))
+  return isNaN(result) ? baseWithdrawalAmount : result
+}
+
+// Helper: Calculate withdrawal for balanced mode
+function calculateBalancedWithdrawal(
+  capitalAtStartOfYear: number,
+  baseWithdrawalAmount: number,
+  availableFreibetrag: number,
+  targetFreibetragUsage: number,
+): number {
+  const taxEfficientAdjustment = availableFreibetrag > 0
+    ? (targetFreibetragUsage - availableFreibetrag * 0.5) / availableFreibetrag
+    : 0
+  const adjustmentFactor = 1 + (taxEfficientAdjustment * 0.1)
+
+  const adjustedWithdrawal = baseWithdrawalAmount * Math.max(0.9, Math.min(1.1, adjustmentFactor))
+  const result = Math.min(capitalAtStartOfYear, adjustedWithdrawal)
+  return isNaN(result) ? baseWithdrawalAmount : result
+}
+
 /**
  * Calculate tax-optimized withdrawal amount for a given year
  * This function attempts to minimize taxes by optimizing the withdrawal amount
@@ -1990,41 +2062,24 @@ function calculateTaxOptimizedWithdrawal(
   teilfreistellungsquote: number,
   config: SteueroptimierteEntnahmeConfig,
 ): number {
-  // Validate inputs to prevent NaN
-  if (!capitalAtStartOfYear || capitalAtStartOfYear <= 0 || !baseWithdrawalAmount || baseWithdrawalAmount <= 0) {
+  if (!areOptimizationInputsValid(capitalAtStartOfYear, baseWithdrawalAmount)) {
     return baseWithdrawalAmount || 0
   }
 
-  // Calculate target Freibetrag usage
   const targetFreibetragUsage = availableFreibetrag * targetFreibetragUtilization
 
   switch (config.optimizationMode) {
-    case 'minimize_taxes': {
-      // Try to use exactly the target amount of Freibetrag to minimize taxes
-      // This is a simplified calculation - real optimization would consider Vorabpauschale
-      const taxableRate = 1 - teilfreistellungsquote
+    case 'minimize_taxes':
+      return calculateMinimizeTaxesWithdrawal(
+        capitalAtStartOfYear,
+        baseWithdrawalAmount,
+        targetFreibetragUsage,
+        taxRate,
+        teilfreistellungsquote,
+      )
 
-      // Avoid division by zero
-      if (taxableRate <= 0 || taxRate <= 0) {
-        return Math.min(capitalAtStartOfYear, baseWithdrawalAmount)
-      }
-
-      const maxTaxFreeWithdrawal = targetFreibetragUsage / (taxableRate * taxRate)
-
-      // Choose the minimum of base withdrawal and tax-optimized amount
-      // but don't go below 80% of base withdrawal to maintain income consistency
-      const minWithdrawal = baseWithdrawalAmount * 0.8
-      const maxWithdrawal = Math.min(capitalAtStartOfYear, baseWithdrawalAmount * 1.2)
-
-      // Ensure we return a valid number
-      const result = Math.max(minWithdrawal, Math.min(maxWithdrawal, maxTaxFreeWithdrawal || baseWithdrawalAmount))
-      return isNaN(result) ? baseWithdrawalAmount : result
-    }
-
-    case 'maximize_after_tax': {
-      // Try to maximize after-tax income by finding optimal withdrawal amount
-      // Consider that higher withdrawals might push into higher tax brackets
-      const optimalWithdrawal = findOptimalAfterTaxWithdrawal(
+    case 'maximize_after_tax':
+      return calculateMaximizeAfterTaxWithdrawal(
         capitalAtStartOfYear,
         baseWithdrawalAmount,
         availableFreibetrag,
@@ -2032,23 +2087,14 @@ function calculateTaxOptimizedWithdrawal(
         teilfreistellungsquote,
       )
 
-      const result = Math.max(baseWithdrawalAmount * 0.8, Math.min(capitalAtStartOfYear, optimalWithdrawal))
-      return isNaN(result) ? baseWithdrawalAmount : result
-    }
-
     case 'balanced':
-    default: {
-      // Balance between tax minimization and income consistency
-      // Use base withdrawal as starting point and adjust slightly for tax efficiency
-      const taxEfficientAdjustment = availableFreibetrag > 0
-        ? (targetFreibetragUsage - availableFreibetrag * 0.5) / availableFreibetrag
-        : 0
-      const adjustmentFactor = 1 + (taxEfficientAdjustment * 0.1) // Max 10% adjustment
-
-      const adjustedWithdrawal = baseWithdrawalAmount * Math.max(0.9, Math.min(1.1, adjustmentFactor))
-      const result = Math.min(capitalAtStartOfYear, adjustedWithdrawal)
-      return isNaN(result) ? baseWithdrawalAmount : result
-    }
+    default:
+      return calculateBalancedWithdrawal(
+        capitalAtStartOfYear,
+        baseWithdrawalAmount,
+        availableFreibetrag,
+        targetFreibetragUsage,
+      )
   }
 }
 
