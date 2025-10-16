@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from 
 import { Menu, ExternalLink } from 'lucide-react'
 import { cn } from '../lib/utils'
 import { useNavigationOptional } from '../hooks/useNavigation'
-import type { NavigationItem } from '../hooks/useNavigation'
+import type { NavigationItem } from '../contexts/navigationContext'
 
 /**
  * Navigation trigger button with item count
