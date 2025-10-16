@@ -177,34 +177,50 @@ function formatWithdrawalInflation(fv: FormValue): string[] {
 }
 
 /**
+ * Format monthly fixed withdrawal details
+ */
+function formatMonthlyFixedDetails(fv: FormValue): string[] {
+  const lines: string[] = []
+  lines.push(`  Monatlicher Betrag: ${formatCurrency(fv.monatlicheBetrag)}`)
+  if (fv.guardrailsAktiv) {
+    lines.push(`  Guardrails aktiv: Ja (${fv.guardrailsSchwelle.toFixed(1)} %)`)
+  }
+  else {
+    lines.push(`  Guardrails aktiv: Nein`)
+  }
+  return lines
+}
+
+/**
+ * Format dynamic withdrawal details
+ */
+function formatDynamicWithdrawalDetails(fv: FormValue): string[] {
+  return [
+    `  Dynamische Basisrate: ${fv.dynamischBasisrate.toFixed(2)} %`,
+    `  Obere Schwelle: ${fv.dynamischObereSchwell.toFixed(2)} %`,
+    `  Obere Anpassung: ${fv.dynamischObereAnpassung.toFixed(2)} %`,
+    `  Untere Schwelle: ${fv.dynamischUntereSchwell.toFixed(2)} %`,
+    `  Untere Anpassung: ${fv.dynamischUntereAnpassung.toFixed(2)} %`,
+  ]
+}
+
+/**
  * Helper function to format withdrawal strategy-specific details
  */
 function formatWithdrawalStrategyDetails(fv: FormValue): string[] {
-  const lines: string[] = []
-
   if (fv.strategie === 'monatlich_fest') {
-    lines.push(`  Monatlicher Betrag: ${formatCurrency(fv.monatlicheBetrag)}`)
-    if (fv.guardrailsAktiv) {
-      lines.push(`  Guardrails aktiv: Ja (${fv.guardrailsSchwelle.toFixed(1)} %)`)
-    }
-    else {
-      lines.push(`  Guardrails aktiv: Nein`)
-    }
+    return formatMonthlyFixedDetails(fv)
   }
 
   if (fv.strategie === 'variabel_prozent') {
-    lines.push(`  Variabler Prozentsatz: ${fv.variabelProzent.toFixed(2)} %`)
+    return [`  Variabler Prozentsatz: ${fv.variabelProzent.toFixed(2)} %`]
   }
 
   if (fv.strategie === 'dynamisch') {
-    lines.push(`  Dynamische Basisrate: ${fv.dynamischBasisrate.toFixed(2)} %`)
-    lines.push(`  Obere Schwelle: ${fv.dynamischObereSchwell.toFixed(2)} %`)
-    lines.push(`  Obere Anpassung: ${fv.dynamischObereAnpassung.toFixed(2)} %`)
-    lines.push(`  Untere Schwelle: ${fv.dynamischUntereSchwell.toFixed(2)} %`)
-    lines.push(`  Untere Anpassung: ${fv.dynamischUntereAnpassung.toFixed(2)} %`)
+    return formatDynamicWithdrawalDetails(fv)
   }
 
-  return lines
+  return []
 }
 
 /**
