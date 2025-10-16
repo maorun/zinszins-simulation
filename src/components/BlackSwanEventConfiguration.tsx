@@ -22,6 +22,40 @@ interface BlackSwanEventConfigurationProps {
 /**
  * Component to display detailed event information
  */
+/**
+ * Renders yearly returns list for an event
+ */
+function YearlyReturnsList({
+  years,
+  eventYear,
+  yearlyReturns,
+  formatPercent,
+}: {
+  years: number[]
+  eventYear: number
+  yearlyReturns: Record<number, number>
+  formatPercent: (value: number) => string
+}) {
+  return (
+    <ul className="list-disc list-inside ml-4">
+      {years.map((offset) => {
+        const year = eventYear + offset
+        const returnRate = yearlyReturns[offset]
+        return (
+          <li key={offset} className={returnRate < 0 ? 'text-red-700 font-medium' : 'text-green-700'}>
+            Jahr
+            {' '}
+            {year}
+            :
+            {' '}
+            {formatPercent(returnRate)}
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
 function EventDetails({
   event,
   eventYear,
@@ -54,22 +88,12 @@ function EventDetails({
         <p>
           <strong>Jährliche Renditen:</strong>
         </p>
-        <ul className="list-disc list-inside ml-4">
-          {years.map((offset) => {
-            const year = eventYear + offset
-            const returnRate = event.yearlyReturns[offset]
-            return (
-              <li key={offset} className={returnRate < 0 ? 'text-red-700 font-medium' : 'text-green-700'}>
-                Jahr
-                {' '}
-                {year}
-                :
-                {' '}
-                {formatPercent(returnRate)}
-              </li>
-            )
-          })}
-        </ul>
+        <YearlyReturnsList
+          years={years}
+          eventYear={eventYear}
+          yearlyReturns={event.yearlyReturns}
+          formatPercent={formatPercent}
+        />
         {cumulativeImpact !== null && (
           <p className="mt-2 pt-2 border-t border-red-300">
             <strong>Kumulativer Verlust:</strong>
