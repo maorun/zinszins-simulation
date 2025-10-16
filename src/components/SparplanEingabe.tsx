@@ -13,13 +13,10 @@ import {
   type SingleFormValue,
   type SparplanFormValue,
 } from './SparplanEingabe.helpers'
-import { SparplanFormFields } from './sparplan-forms/SparplanFormFields'
-import { SinglePaymentFormFields } from './sparplan-forms/SinglePaymentFormFields'
-import { CostFactorFields } from './sparplan-forms/CostFactorFields'
 import { SparplanList } from './sparplan-forms/SparplanList'
+import { SparplanFormCard } from './SparplanFormCard'
+import { SinglePaymentFormCard } from './SinglePaymentFormCard'
 
-// Import Button directly from shadcn/ui
-import { Button } from './ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { ChevronDown } from 'lucide-react'
@@ -62,6 +59,24 @@ const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (v
   onChange(value ? value : '')
 }
 
+// Helper to check if sparplan is an Einmalzahlung (single payment)
+const isSinglePaymentSparplan = (sparplan: Sparplan): boolean => {
+  if (!sparplan.end) return false
+  return new Date(sparplan.start).getTime() === new Date(sparplan.end).getTime()
+}
+
+// Helper to check if we're editing a Sparplan (not a single payment)
+const isEditingSparplan = (editingSparplan: Sparplan | null): boolean => {
+  if (!editingSparplan) return false
+  return !isSinglePaymentSparplan(editingSparplan)
+}
+
+// Helper to check if we're editing a single payment
+const isEditingSinglePayment = (editingSparplan: Sparplan | null): boolean => {
+  if (!editingSparplan) return false
+  return isSinglePaymentSparplan(editingSparplan)
+}
+
 export function SparplanEingabe({
   dispatch,
   simulationAnnual,
@@ -90,48 +105,46 @@ export function SparplanEingabe({
   const [sparplanFormValues, setSparplanFormValues] = useState<SparplanFormValue>(getInitialSparplanFormValue())
 
   const handleSparplanSubmit = () => {
-    if (sparplanFormValues.start && sparplanFormValues.einzahlung && sparplanFormValues.einzahlung) {
-      if (isEditMode) {
-        // In edit mode, call save edit
-        handleSaveEdit()
-      }
-      else {
-        // In create mode, add new sparplan
-        const changedSparplans = createNewSparplan({
-          formValues: sparplanFormValues,
-          simulationAnnual,
-          existingSparplans: sparplans,
-        })
+    if (!sparplanFormValues.start || !sparplanFormValues.einzahlung) return
 
-        setSparplans(changedSparplans)
-        dispatch(changedSparplans)
-        setSparplanFormValues(getInitialSparplanFormValue())
-
-        toast.success('Sparplan erfolgreich hinzugefügt!')
-      }
+    if (isEditMode) {
+      handleSaveEdit()
+      return
     }
+
+    // In create mode, add new sparplan
+    const changedSparplans = createNewSparplan({
+      formValues: sparplanFormValues,
+      simulationAnnual,
+      existingSparplans: sparplans,
+    })
+
+    setSparplans(changedSparplans)
+    dispatch(changedSparplans)
+    setSparplanFormValues(getInitialSparplanFormValue())
+
+    toast.success('Sparplan erfolgreich hinzugefügt!')
   }
 
   const handleSinglePaymentSubmit = () => {
-    if (singleFormValue.einzahlung) {
-      if (isEditMode) {
-        // In edit mode, call save edit
-        handleSaveEdit()
-      }
-      else {
-        // In create mode, add new single payment
-        const changedSparplans = createNewSinglePayment({
-          formValues: singleFormValue,
-          existingSparplans: sparplans,
-        })
+    if (!singleFormValue.einzahlung) return
 
-        setSparplans(changedSparplans)
-        dispatch(changedSparplans)
-        setSingleFormValue(getInitialSingleFormValue())
-
-        toast.success('Einmalzahlung erfolgreich hinzugefügt!')
-      }
+    if (isEditMode) {
+      handleSaveEdit()
+      return
     }
+
+    // In create mode, add new single payment
+    const changedSparplans = createNewSinglePayment({
+      formValues: singleFormValue,
+      existingSparplans: sparplans,
+    })
+
+    setSparplans(changedSparplans)
+    dispatch(changedSparplans)
+    setSingleFormValue(getInitialSingleFormValue())
+
+    toast.success('Einmalzahlung erfolgreich hinzugefügt!')
   }
 
   const handleDeleteSparplan = (id: number) => {
@@ -147,18 +160,12 @@ export function SparplanEingabe({
     setEditingSparplan(sparplan)
     setIsEditMode(true)
 
-    // Check if this is a one-time payment
-    const isOneTimePayment = isEinmalzahlung(sparplan)
-
-    if (isOneTimePayment) {
-      // Pre-fill single payment form
+    // Check if this is a one-time payment and populate appropriate form
+    if (isEinmalzahlung(sparplan)) {
       setSingleFormValue(populateSingleFormFromSparplan(sparplan))
-      // NO auto-expansion for better mobile UX - inline editing instead
     }
     else {
-      // Pre-fill savings plan form
       setSparplanFormValues(populateSparplanFormFromSparplan(sparplan, simulationAnnual))
-      // NO auto-expansion for better mobile UX - inline editing instead
     }
   }
 
@@ -176,17 +183,11 @@ export function SparplanEingabe({
     setSparplans(changedSparplans)
     dispatch(changedSparplans)
 
-    // Reset edit state
+    // Reset edit state and forms
     setEditingSparplan(null)
     setIsEditMode(false)
-
-    // Reset forms
     setSparplanFormValues(getInitialSparplanFormValue())
     setSingleFormValue(getInitialSingleFormValue())
-
-    // Close the expanded form sections - removed for better mobile UX
-    // setIsSparplanFormOpen(false)
-    // setIsSingleFormOpen(false)
 
     const itemType = isEinmalzahlung(editingSparplan) ? 'Einmalzahlung' : 'Sparplan'
     toast.success(`${itemType} erfolgreich aktualisiert!`)
@@ -195,150 +196,40 @@ export function SparplanEingabe({
   const handleCancelEdit = () => {
     setEditingSparplan(null)
     setIsEditMode(false)
-
-    // Reset forms
     setSparplanFormValues(getInitialSparplanFormValue())
     setSingleFormValue(getInitialSingleFormValue())
-
-    // Close the expanded form sections - removed for better mobile UX
-    // setIsSparplanFormOpen(false)
-    // setIsSingleFormOpen(false)
   }
 
   return (
     <div className="space-y-4">
-      <Card className="mb-6">
-        <Collapsible open={isSparplanFormOpen} onOpenChange={setIsSparplanFormOpen}>
-          <CardHeader className="pb-4">
-            <CollapsibleTrigger asChild>
-              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-                <CardTitle className="text-left text-lg">💰 Sparpläne erstellen</CardTitle>
-                <ChevronDown className="h-5 w-5 text-gray-500" />
-              </div>
-            </CollapsibleTrigger>
-          </CardHeader>
-          <CollapsibleContent>
-            <CardContent className="pt-0">
-              <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
-                Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum
-              </div>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  handleSparplanSubmit()
-                }}
-              >
-                <SparplanFormFields
-                  formValues={sparplanFormValues}
-                  simulationAnnual={simulationAnnual}
-                  onFormChange={setSparplanFormValues}
-                  formatDateForInput={formatDateForInput}
-                  handleDateChange={handleDateChange}
-                  handleNumberChange={handleNumberChange}
-                />
-                <CostFactorFields
-                  values={sparplanFormValues}
-                  onValueChange={values => setSparplanFormValues({ ...sparplanFormValues, ...values })}
-                  handleNumberChange={handleNumberChange}
-                />
-                <div className="mb-4 space-y-2">
-                  <div className="flex gap-2">
-                    <Button
-                      variant="default"
-                      type="submit"
-                      size="lg"
-                      disabled={!sparplanFormValues.start || !sparplanFormValues.einzahlung}
-                    >
-                      {isEditMode && editingSparplan
-                        && !(editingSparplan.end
-                          && new Date(editingSparplan.start).getTime() === new Date(editingSparplan.end).getTime())
-                        ? '✏️ Sparplan aktualisieren'
-                        : '💾 Sparplan hinzufügen'}
-                    </Button>
-                    {isEditMode && editingSparplan
-                      && !(editingSparplan.end
-                        && new Date(editingSparplan.start).getTime() === new Date(editingSparplan.end).getTime()) && (
-                      <Button
-                        onClick={handleCancelEdit}
-                        variant="outline"
-                        size="lg"
-                        type="button"
-                      >
-                        Abbrechen
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </form>
-            </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
+      <SparplanFormCard
+        isOpen={isSparplanFormOpen}
+        onOpenChange={setIsSparplanFormOpen}
+        formValues={sparplanFormValues}
+        simulationAnnual={simulationAnnual}
+        onFormChange={setSparplanFormValues}
+        formatDateForInput={formatDateForInput}
+        handleDateChange={handleDateChange}
+        handleNumberChange={handleNumberChange}
+        onSubmit={handleSparplanSubmit}
+        isEditMode={isEditMode && isEditingSparplan(editingSparplan)}
+        showCancelButton={isEditMode && isEditingSparplan(editingSparplan)}
+        onCancel={handleCancelEdit}
+      />
 
-      <Card className="mb-6">
-        <Collapsible open={isSingleFormOpen} onOpenChange={setIsSingleFormOpen}>
-          <CardHeader className="pb-4">
-            <CollapsibleTrigger asChild>
-              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-                <CardTitle className="text-left text-lg">💵 Einmalzahlungen erstellen</CardTitle>
-                <ChevronDown className="h-5 w-5 text-gray-500" />
-              </div>
-            </CollapsibleTrigger>
-          </CardHeader>
-          <CollapsibleContent>
-            <CardContent className="pt-0">
-              <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
-                Fügen Sie einmalige Zahlungen zu einem bestimmten Zeitpunkt hinzu
-              </div>
-              <form
-                onSubmit={(e) => {
-                  e.preventDefault()
-                  handleSinglePaymentSubmit()
-                }}
-              >
-                <SinglePaymentFormFields
-                  formValues={singleFormValue}
-                  onFormChange={setSingleFormValue}
-                  formatDateForInput={formatDateForInput}
-                  handleDateChange={handleDateChange}
-                  handleNumberChange={handleNumberChange}
-                />
-                <CostFactorFields
-                  values={singleFormValue}
-                  onValueChange={values => setSingleFormValue({ ...singleFormValue, ...values })}
-                  handleNumberChange={handleNumberChange}
-                />
-                <div className="mb-4 space-y-2">
-                  <div className="flex gap-2">
-                    <Button
-                      variant="default"
-                      type="submit"
-                      size="lg"
-                      disabled={!singleFormValue.einzahlung}
-                    >
-                      {isEditMode && editingSparplan && editingSparplan.end
-                        && new Date(editingSparplan.start).getTime() === new Date(editingSparplan.end).getTime()
-                        ? '✏️ Einmalzahlung aktualisieren'
-                        : '💰 Einmalzahlung hinzufügen'}
-                    </Button>
-                    {isEditMode && editingSparplan && editingSparplan.end
-                      && new Date(editingSparplan.start).getTime() === new Date(editingSparplan.end).getTime() && (
-                      <Button
-                        onClick={handleCancelEdit}
-                        variant="outline"
-                        size="lg"
-                        type="button"
-                      >
-                        Abbrechen
-                      </Button>
-                    )}
-                  </div>
-                </div>
-              </form>
-            </CardContent>
-          </CollapsibleContent>
-        </Collapsible>
-      </Card>
+      <SinglePaymentFormCard
+        isOpen={isSingleFormOpen}
+        onOpenChange={setIsSingleFormOpen}
+        formValues={singleFormValue}
+        onFormChange={setSingleFormValue}
+        formatDateForInput={formatDateForInput}
+        handleDateChange={handleDateChange}
+        handleNumberChange={handleNumberChange}
+        onSubmit={handleSinglePaymentSubmit}
+        isEditMode={isEditMode && isEditingSinglePayment(editingSparplan)}
+        showCancelButton={isEditMode && isEditingSinglePayment(editingSparplan)}
+        onCancel={handleCancelEdit}
+      />
 
       <Card className="mb-6">
         <Collapsible defaultOpen={true}>
