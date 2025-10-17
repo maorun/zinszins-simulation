@@ -12,24 +12,68 @@ Zinseszins-Simulation is a German compound interest calculator built with Vite, 
 
 ### Setup and Build Process
 
+**⚠️ CRITICAL: Always run `npm install` first!**
+
+Before running any other commands (linting, testing, building, or starting the dev server), you **MUST** install dependencies first. Running commands without installing dependencies will result in errors.
+
+**Correct command sequence:**
+```bash
+# 1. FIRST: Install dependencies (always required in a fresh clone)
+npm install
+
+# 2. THEN: Run other commands as needed
+npm run lint
+npm run test
+npm run build
+npm run dev
+```
+
+**❌ INCORRECT - Will fail with errors:**
+```bash
+npm run lint    # ERROR: Dependencies not installed
+npm run test    # ERROR: Dependencies not installed
+```
+
+#### Installation Details
+
 - **Install dependencies**: `npm install` -- takes 1-2 minutes. NEVER CANCEL. Set timeout to 10+ minutes.
   - Expect peer dependency warnings about React version mismatches - these are normal due to React 19 upgrade
   - Will show 7 moderate severity vulnerabilities - this is expected and doesn't block development
   - Uses standard npm package resolution
+  - **This command MUST be run first** before any other npm commands
+#### Other Commands (require npm install first)
+
 - **Build the application**: `npm run build` -- takes 3-5 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
   - Will show Vite build output - expected behavior
   - Uses Vite for fast bundling and optimization
+  - **Requires**: `npm install` must be run first
 - **Type checking**: `npm run typecheck` -- takes 10-15 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
   - Expect no TypeScript errors - application functions correctly
   - Main application code is well-typed
+  - **Requires**: `npm install` must be run first
+- **Linting**: `npm run lint` -- lints code and checks markdown files
+  - Automatically runs `npm run typecheck` first (prelint hook)
+  - Should pass with max 319 warnings
+  - **Requires**: `npm install` must be run first
 - **Development server**: `npm run dev` -- starts in 5-6 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
   - Runs on http://localhost:5173 (Vite default port)
   - Hot module reloading works correctly
   - Will show Vite development server output
+  - **Requires**: `npm install` must be run first
 - **Testing**: `npm run test` -- runs 578 tests across 77 files in ~32 seconds
+  - Automatically runs `npm run lint` first (pretest hook), which runs `npm run typecheck`
   - All tests should pass
   - Uses Vitest for testing
   - Comprehensive test coverage including integration, component, and utility tests
+  - **Requires**: `npm install` must be run first
+
+#### Command Dependencies
+
+Understanding the automatic command chains:
+- `npm run test` → automatically runs `npm run lint` (pretest hook) → automatically runs `npm run typecheck` (prelint hook)
+- `npm run lint` → automatically runs `npm run typecheck` (prelint hook)
+
+This means running `npm run test` will execute typecheck, lint, and then test - all of which require `npm install` to have been run first.
 
 ### Known Issues and Workarounds
 
@@ -75,9 +119,14 @@ After making changes, ALWAYS test the complete user workflow:
 
 ### Essential Commands for Development
 
+**⚠️ PREREQUISITE: Always run `npm install` first in a fresh clone or after pulling changes that modify package.json**
+
+- `npm install` - **MUST BE RUN FIRST** - Install all dependencies (1-2 minutes)
 - `npm run dev` - Start development server (never cancel, wait for startup)
 - `npm run build` - Build for production (6-7 seconds, never cancel)
 - `npm run typecheck` - Run TypeScript checks (expect errors, but useful for new code)
+- `npm run lint` - Run linting (automatically runs typecheck first via prelint hook)
+- `npm run test` - Run all tests (automatically runs lint and typecheck first via hooks)
 
 ### Validation Scenarios
 
@@ -259,10 +308,11 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
 
 ### Adding New Features
 
-1. **Always run `npm run dev` first** to ensure baseline functionality
-2. **Run tests with `npm run test`** to verify existing functionality
-3. **Update both calculation logic** (helpers/ or src/utils/) and UI components
-4. **Validate with complete user scenarios** - don't just test isolated changes
+1. **Ensure dependencies are installed** with `npm install` (if in a fresh clone)
+2. **Always run `npm run dev` first** to ensure baseline functionality
+3. **Run tests with `npm run test`** to verify existing functionality
+4. **Update both calculation logic** (helpers/ or src/utils/) and UI components
+5. **Validate with complete user scenarios** - don't just test isolated changes
 
 ### Debugging Issues
 
@@ -508,6 +558,16 @@ The development workflow follows a **step-by-step commit approach (Teilschritt c
 3. **Create an initial plan** using `report_progress` with a checklist of all identified steps
 4. **Prioritize steps** to ensure dependencies are handled correctly
 
+#### Initial Setup (Fresh Clone)
+
+**⚠️ CRITICAL:** Before starting development work in a fresh clone:
+
+1. **Install dependencies FIRST**: `npm install` (takes 1-2 minutes, NEVER CANCEL)
+2. **Verify installation**: Check that `node_modules/` directory exists
+3. **Only then proceed** with other commands like lint, test, build, or dev
+
+**Without running `npm install` first, all other commands will fail with errors.**
+
 #### Step-by-Step Implementation
 
 For each individual step in your plan:
@@ -519,9 +579,10 @@ For each individual step in your plan:
    - Update documentation (README.md) when implementing new features that affect user-facing functionality
 
 2. **Testing and Linting Phase - MANDATORY**
+   - **PREREQUISITE**: Ensure `npm install` has been run (check for `node_modules/` directory)
    - **No Exceptions:** For **every single change or addition** of a feature, corresponding tests **must** be added or adapted. This is a mandatory requirement for every step.
    - **Run all tests:** `npm run test` (should pass all 578+ tests across 77 files). If you add new features, add new tests. If you change features, adapt existing tests.
-   - **Run linting:** `npm run lint` (should pass with max 10 warnings)
+   - **Run linting:** `npm run lint` (should pass with max 319 warnings)
    - **Run type checking:** `npm run typecheck` (expect minimal errors)
    - **Run build:** `npm run build` (should complete successfully)
    - **If any errors are found**: Fix them and return to Development Phase. Do not proceed if tests are failing.
@@ -614,6 +675,7 @@ When performing code review, examine the following aspects:
 
 Before approving changes, verify:
 
+- [ ] **Dependencies installed (`npm install` completed successfully)**
 - [ ] **All tests pass (`npm run test`) - This is the most important check.**
 - [ ] Linting passes (`npm run lint`)
 - [ ] Build succeeds (`npm run build`)
