@@ -393,33 +393,51 @@ function addHealthCareInsuranceStep(
 }
 
 // Build calculation text for total income
+interface IncomeComponent {
+  condition: boolean
+  labelText: string
+  amount: number
+  operator: '+' | '-'
+}
+
+function getIncomeComponents(params: TaxableIncomeParams): IncomeComponent[] {
+  return [
+    {
+      condition: !!(params.statutoryPensionTaxableAmount && params.statutoryPensionTaxableAmount > 0),
+      labelText: 'Gesetzliche Rente',
+      amount: params.statutoryPensionTaxableAmount || 0,
+      operator: '+' as const,
+    },
+    {
+      condition: !!(params.otherIncomeGrossAmount && params.otherIncomeGrossAmount > 0),
+      labelText: 'Andere Einkünfte',
+      amount: params.otherIncomeGrossAmount || 0,
+      operator: '+' as const,
+    },
+    {
+      condition: !!(params.healthCareInsuranceAnnual && params.healthCareInsuranceAnnual > 0),
+      labelText: 'Krankenversicherung',
+      amount: params.healthCareInsuranceAnnual || 0,
+      operator: '-' as const,
+    },
+  ].filter(component => component.condition)
+}
+
 function buildTotalIncomeCalculationText(
   params: TaxableIncomeParams,
   totalIncome: number,
 ): string {
-  let text = `Gesamte Einkünfte = Portfolio-Entnahme`
+  const components = getIncomeComponents(params)
 
-  if (params.statutoryPensionTaxableAmount && params.statutoryPensionTaxableAmount > 0) {
-    text += ` + Gesetzliche Rente`
-  }
-  if (params.otherIncomeGrossAmount && params.otherIncomeGrossAmount > 0) {
-    text += ` + Andere Einkünfte`
-  }
-  if (params.healthCareInsuranceAnnual && params.healthCareInsuranceAnnual > 0) {
-    text += ` - Krankenversicherung`
-  }
+  let text = `Gesamte Einkünfte = Portfolio-Entnahme`
+  components.forEach((comp) => {
+    text += ` ${comp.operator} ${comp.labelText}`
+  })
 
   text += `<br/>${formatCurrency(params.entnahme)}`
-
-  if (params.statutoryPensionTaxableAmount && params.statutoryPensionTaxableAmount > 0) {
-    text += ` + ${formatCurrency(params.statutoryPensionTaxableAmount)}`
-  }
-  if (params.otherIncomeGrossAmount && params.otherIncomeGrossAmount > 0) {
-    text += ` + ${formatCurrency(params.otherIncomeGrossAmount)}`
-  }
-  if (params.healthCareInsuranceAnnual && params.healthCareInsuranceAnnual > 0) {
-    text += ` - ${formatCurrency(params.healthCareInsuranceAnnual)}`
-  }
+  components.forEach((comp) => {
+    text += ` ${comp.operator} ${formatCurrency(comp.amount)}`
+  })
 
   text += ` = ${formatCurrency(totalIncome)}`
   return text
