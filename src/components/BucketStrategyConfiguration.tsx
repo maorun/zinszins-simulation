@@ -72,6 +72,56 @@ function createValueChangeHandler(
   }
 }
 
+function SubStrategyConfigSection({
+  subStrategy,
+  currentValues,
+  handleValueChange,
+}: {
+  subStrategy: string
+  currentValues: BucketStrategyConfigValues
+  handleValueChange: <K extends keyof BucketStrategyConfigValues>(
+    key: K,
+    value: BucketStrategyConfigValues[K],
+  ) => void
+}) {
+  if (subStrategy === 'variabel_prozent') {
+    return (
+      <VariabelProzentConfig
+        value={currentValues.variabelProzent}
+        onChange={v => handleValueChange('variabelProzent', v)}
+      />
+    )
+  }
+
+  if (subStrategy === 'monatlich_fest') {
+    return (
+      <MonatlichFestConfig
+        value={currentValues.monatlicheBetrag}
+        onChange={v => handleValueChange('monatlicheBetrag', v)}
+      />
+    )
+  }
+
+  if (subStrategy === 'dynamisch') {
+    return (
+      <DynamischConfig
+        basisrate={currentValues.dynamischBasisrate}
+        obereSchwell={currentValues.dynamischObereSchwell}
+        obereAnpassung={currentValues.dynamischObereAnpassung}
+        untereSchwell={currentValues.dynamischUntereSchwell}
+        untereAnpassung={currentValues.dynamischUntereAnpassung}
+        onBasisrateChange={v => handleValueChange('dynamischBasisrate', v)}
+        onObereSchwell={v => handleValueChange('dynamischObereSchwell', v)}
+        onObereAnpassung={v => handleValueChange('dynamischObereAnpassung', v)}
+        onUntereSchwell={v => handleValueChange('dynamischUntereSchwell', v)}
+        onUntereAnpassung={v => handleValueChange('dynamischUntereAnpassung', v)}
+      />
+    )
+  }
+
+  return null
+}
+
 export function BucketStrategyConfiguration({
   formValue,
   updateFormValue,
@@ -119,34 +169,11 @@ export function BucketStrategyConfiguration({
       />
 
       {/* Sub-strategy specific configuration */}
-      {currentValues.subStrategy === 'variabel_prozent' && (
-        <VariabelProzentConfig
-          value={currentValues.variabelProzent}
-          onChange={v => handleValueChange('variabelProzent', v)}
-        />
-      )}
-
-      {currentValues.subStrategy === 'monatlich_fest' && (
-        <MonatlichFestConfig
-          value={currentValues.monatlicheBetrag}
-          onChange={v => handleValueChange('monatlicheBetrag', v)}
-        />
-      )}
-
-      {currentValues.subStrategy === 'dynamisch' && (
-        <DynamischConfig
-          basisrate={currentValues.dynamischBasisrate}
-          obereSchwell={currentValues.dynamischObereSchwell}
-          obereAnpassung={currentValues.dynamischObereAnpassung}
-          untereSchwell={currentValues.dynamischUntereSchwell}
-          untereAnpassung={currentValues.dynamischUntereAnpassung}
-          onBasisrateChange={v => handleValueChange('dynamischBasisrate', v)}
-          onObereSchwell={v => handleValueChange('dynamischObereSchwell', v)}
-          onObereAnpassung={v => handleValueChange('dynamischObereAnpassung', v)}
-          onUntereSchwell={v => handleValueChange('dynamischUntereSchwell', v)}
-          onUntereAnpassung={v => handleValueChange('dynamischUntereAnpassung', v)}
-        />
-      )}
+      <SubStrategyConfigSection
+        subStrategy={currentValues.subStrategy}
+        currentValues={currentValues}
+        handleValueChange={handleValueChange}
+      />
 
       {/* Initial Cash Cushion */}
       <InitialCashCushionConfig
