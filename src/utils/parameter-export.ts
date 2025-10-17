@@ -560,6 +560,31 @@ interface FormatSparplanSpecialEventDataParams {
 /**
  * Helper function to format special event data
  */
+function formatInheritanceData(specialEventData: any): string[] {
+  const lines: string[] = []
+  if (specialEventData.relationshipType) {
+    lines.push(`    Verwandtschaftsgrad: ${specialEventData.relationshipType}`)
+    if (specialEventData.grossInheritanceAmount) {
+      lines.push(`    Brutto-Erbschaft: ${formatCurrency(specialEventData.grossInheritanceAmount)}`)
+    }
+  }
+  return lines
+}
+
+function formatExpenseData(specialEventData: any): string[] {
+  const lines: string[] = []
+  if (specialEventData.expenseType) {
+    lines.push(`    Ausgabentyp: ${specialEventData.expenseType}`)
+    if (specialEventData.creditTerms) {
+      const rate = (specialEventData.creditTerms.interestRate * 100).toFixed(1)
+      const years = specialEventData.creditTerms.termYears
+      lines.push(`    Kredit: ${rate}% für ${years} Jahre`)
+      lines.push(`    Monatliche Rate: ${formatCurrency(specialEventData.creditTerms.monthlyPayment || 0)}`)
+    }
+  }
+  return lines
+}
+
 function formatSparplanSpecialEventData(params: FormatSparplanSpecialEventDataParams): string[] {
   const { plan, isInheritance, isExpense } = params
   const lines: string[] = []
@@ -568,21 +593,12 @@ function formatSparplanSpecialEventData(params: FormatSparplanSpecialEventDataPa
     return lines
   }
 
-  if (isInheritance && plan.specialEventData.relationshipType) {
-    lines.push(`    Verwandtschaftsgrad: ${plan.specialEventData.relationshipType}`)
-    if (plan.specialEventData.grossInheritanceAmount) {
-      lines.push(`    Brutto-Erbschaft: ${formatCurrency(plan.specialEventData.grossInheritanceAmount)}`)
-    }
+  if (isInheritance) {
+    lines.push(...formatInheritanceData(plan.specialEventData))
   }
 
-  if (isExpense && plan.specialEventData.expenseType) {
-    lines.push(`    Ausgabentyp: ${plan.specialEventData.expenseType}`)
-    if (plan.specialEventData.creditTerms) {
-      const rate = (plan.specialEventData.creditTerms.interestRate * 100).toFixed(1)
-      const years = plan.specialEventData.creditTerms.termYears
-      lines.push(`    Kredit: ${rate}% für ${years} Jahre`)
-      lines.push(`    Monatliche Rate: ${formatCurrency(plan.specialEventData.creditTerms.monthlyPayment || 0)}`)
-    }
+  if (isExpense) {
+    lines.push(...formatExpenseData(plan.specialEventData))
   }
 
   if (plan.specialEventData.description) {
@@ -720,6 +736,28 @@ function formatSegmentReturnConfig(returnConfig: {
   return lines
 }
 
+function formatVariabelProzentStrategy(segment: { customPercentage?: number }): string[] {
+  if (segment.customPercentage !== undefined) {
+    return [`      Variabler Prozentsatz: ${segment.customPercentage.toFixed(2)} %`]
+  }
+  return []
+}
+
+function formatMonatlichFestStrategy(segment: { monthlyConfig?: {
+  monthlyAmount: number
+  enableGuardrails?: boolean
+  guardrailsThreshold?: number
+} }): string[] {
+  const lines: string[] = []
+  if (segment.monthlyConfig) {
+    lines.push(`      Monatlicher Betrag: ${formatCurrency(segment.monthlyConfig.monthlyAmount)}`)
+    if (segment.monthlyConfig.enableGuardrails) {
+      lines.push(`      Guardrails: ${segment.monthlyConfig.guardrailsThreshold?.toFixed(1) || 'N/A'} %`)
+    }
+  }
+  return lines
+}
+
 /**
  * Helper function to format segment strategy-specific parameters
  */
@@ -752,28 +790,15 @@ function formatSegmentStrategyParams(segment: {
     dynamischUntereAnpassung?: number
   }
 }): string[] {
-  const lines: string[] = []
-
-  if (segment.strategy === 'variabel_prozent' && segment.customPercentage !== undefined) {
-    lines.push(`      Variabler Prozentsatz: ${segment.customPercentage.toFixed(2)} %`)
+  const strategyFormatters: Record<string, () => string[]> = {
+    variabel_prozent: () => formatVariabelProzentStrategy(segment),
+    monatlich_fest: () => formatMonatlichFestStrategy(segment),
+    dynamisch: () => segment.dynamicConfig ? formatDynamicStrategyConfig(segment.dynamicConfig) : [],
+    bucket_strategie: () => segment.bucketConfig ? formatBucketStrategyConfig(segment.bucketConfig) : [],
   }
 
-  if (segment.strategy === 'monatlich_fest' && segment.monthlyConfig) {
-    lines.push(`      Monatlicher Betrag: ${formatCurrency(segment.monthlyConfig.monthlyAmount)}`)
-    if (segment.monthlyConfig.enableGuardrails) {
-      lines.push(`      Guardrails: ${segment.monthlyConfig.guardrailsThreshold?.toFixed(1) || 'N/A'} %`)
-    }
-  }
-
-  if (segment.strategy === 'dynamisch' && segment.dynamicConfig) {
-    lines.push(...formatDynamicStrategyConfig(segment.dynamicConfig))
-  }
-
-  if (segment.strategy === 'bucket_strategie' && segment.bucketConfig) {
-    lines.push(...formatBucketStrategyConfig(segment.bucketConfig))
-  }
-
-  return lines
+  const formatter = strategyFormatters[segment.strategy]
+  return formatter ? formatter() : []
 }
 
 /**
