@@ -427,22 +427,33 @@ interface StrategyRowDataParams {
   withdrawalConfig: WithdrawalConfiguration | null
 }
 
+function addMonthlyFixedStrategyData(
+  row: string[],
+  yearData: WithdrawalResultElement,
+  formValue: { inflationAktiv?: boolean, guardrailsAktiv?: boolean },
+): void {
+  row.push(formatCurrencyForCSV(yearData.monatlicheEntnahme || 0))
+  if (formValue.inflationAktiv) {
+    row.push(formatCurrencyForCSV(yearData.inflationAnpassung || 0))
+  }
+  if (formValue.guardrailsAktiv) {
+    row.push(formatCurrencyForCSV(yearData.portfolioAnpassung || 0))
+  }
+}
+
+function addDynamicStrategyData(row: string[], yearData: WithdrawalResultElement): void {
+  row.push(formatPercentage(yearData.vorjahresRendite || 0))
+  row.push(formatCurrencyForCSV(yearData.dynamischeAnpassung || 0))
+}
+
 function addStrategySpecificData(params: StrategyRowDataParams): void {
   const { row, yearData, withdrawalConfig } = params
 
   if (withdrawalConfig?.formValue.strategie === 'monatlich_fest') {
-    row.push(formatCurrencyForCSV(yearData.monatlicheEntnahme || 0))
-    if (withdrawalConfig.formValue.inflationAktiv) {
-      row.push(formatCurrencyForCSV(yearData.inflationAnpassung || 0))
-    }
-    if (withdrawalConfig.formValue.guardrailsAktiv) {
-      row.push(formatCurrencyForCSV(yearData.portfolioAnpassung || 0))
-    }
+    addMonthlyFixedStrategyData(row, yearData, withdrawalConfig.formValue)
   }
-
-  if (withdrawalConfig?.formValue.strategie === 'dynamisch') {
-    row.push(formatPercentage(yearData.vorjahresRendite || 0))
-    row.push(formatCurrencyForCSV(yearData.dynamischeAnpassung || 0))
+  else if (withdrawalConfig?.formValue.strategie === 'dynamisch') {
+    addDynamicStrategyData(row, yearData)
   }
 }
 
