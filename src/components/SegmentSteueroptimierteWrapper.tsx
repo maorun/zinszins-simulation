@@ -14,50 +14,59 @@ interface FormValue {
   steueroptimierteEntnahmeRebalanceFrequency: 'yearly' | 'quarterly' | 'as_needed'
 }
 
-export function SegmentSteueroptimierteWrapper({ segment, onUpdate }: Props) {
-  const updateFormValue = (updates: Partial<FormValue>) => {
+const DEFAULT_CONFIG = {
+  baseWithdrawalRate: 0.04,
+  targetTaxRate: 0.26375,
+  optimizationMode: 'balanced' as const,
+  freibetragUtilizationTarget: 0.85,
+  rebalanceFrequency: 'yearly' as const,
+}
+
+function getConfigValues(steuerOptimierteConfig: WithdrawalSegment['steuerOptimierteConfig']) {
+  return {
+    ...DEFAULT_CONFIG,
+    ...steuerOptimierteConfig,
+  }
+}
+
+function buildFormValue(config: ReturnType<typeof getConfigValues>): FormValue {
+  return {
+    steueroptimierteEntnahmeBaseWithdrawalRate: config.baseWithdrawalRate,
+    steueroptimierteEntnahmeTargetTaxRate: config.targetTaxRate,
+    steueroptimierteEntnahmeOptimizationMode: config.optimizationMode,
+    steueroptimierteEntnahmeFreibetragUtilizationTarget: config.freibetragUtilizationTarget,
+    steueroptimierteEntnahmeRebalanceFrequency: config.rebalanceFrequency,
+  }
+}
+
+function createUpdateHandler(
+  segment: WithdrawalSegment,
+  onUpdate: (segmentId: string, updates: Partial<WithdrawalSegment>) => void,
+) {
+  return (updates: Partial<FormValue>) => {
+    const currentConfig = getConfigValues(segment.steuerOptimierteConfig)
+
     onUpdate(segment.id, {
       steuerOptimierteConfig: {
-        baseWithdrawalRate:
-          updates.steueroptimierteEntnahmeBaseWithdrawalRate
-          || segment.steuerOptimierteConfig?.baseWithdrawalRate
-          || 0.04,
-        targetTaxRate:
-          updates.steueroptimierteEntnahmeTargetTaxRate
-          || segment.steuerOptimierteConfig?.targetTaxRate
-          || 0.26375,
-        optimizationMode:
-          updates.steueroptimierteEntnahmeOptimizationMode
-          || segment.steuerOptimierteConfig?.optimizationMode
-          || 'balanced',
+        baseWithdrawalRate: updates.steueroptimierteEntnahmeBaseWithdrawalRate || currentConfig.baseWithdrawalRate,
+        targetTaxRate: updates.steueroptimierteEntnahmeTargetTaxRate || currentConfig.targetTaxRate,
+        optimizationMode: updates.steueroptimierteEntnahmeOptimizationMode || currentConfig.optimizationMode,
         freibetragUtilizationTarget:
-          updates.steueroptimierteEntnahmeFreibetragUtilizationTarget
-          || segment.steuerOptimierteConfig?.freibetragUtilizationTarget
-          || 0.85,
-        rebalanceFrequency:
-          updates.steueroptimierteEntnahmeRebalanceFrequency
-          || segment.steuerOptimierteConfig?.rebalanceFrequency
-          || 'yearly',
+          updates.steueroptimierteEntnahmeFreibetragUtilizationTarget || currentConfig.freibetragUtilizationTarget,
+        rebalanceFrequency: updates.steueroptimierteEntnahmeRebalanceFrequency || currentConfig.rebalanceFrequency,
       },
     })
   }
+}
+
+export function SegmentSteueroptimierteWrapper({ segment, onUpdate }: Props) {
+  const config = getConfigValues(segment.steuerOptimierteConfig)
 
   return (
     <div className="space-y-4">
       <SteueroptimierteEntnahmeConfiguration
-        formValue={{
-          steueroptimierteEntnahmeBaseWithdrawalRate:
-            segment.steuerOptimierteConfig?.baseWithdrawalRate || 0.04,
-          steueroptimierteEntnahmeTargetTaxRate:
-            segment.steuerOptimierteConfig?.targetTaxRate || 0.26375,
-          steueroptimierteEntnahmeOptimizationMode:
-            segment.steuerOptimierteConfig?.optimizationMode || 'balanced',
-          steueroptimierteEntnahmeFreibetragUtilizationTarget:
-            segment.steuerOptimierteConfig?.freibetragUtilizationTarget || 0.85,
-          steueroptimierteEntnahmeRebalanceFrequency:
-            segment.steuerOptimierteConfig?.rebalanceFrequency || 'yearly',
-        }}
-        updateFormValue={updateFormValue}
+        formValue={buildFormValue(config)}
+        updateFormValue={createUpdateHandler(segment, onUpdate)}
       />
     </div>
   )
