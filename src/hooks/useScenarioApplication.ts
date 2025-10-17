@@ -19,6 +19,37 @@ interface ScenarioApplicationHandlers {
 }
 
 /**
+ * Create savings plan from scenario configuration
+ */
+function createSavingsPlans(config: FinancialScenario['config']): Sparplan[] {
+  const newSparplan: Sparplan[] = []
+
+  // Add initial investment if specified
+  if (config.initialInvestment && config.initialInvestment > 0) {
+    newSparplan.push({
+      id: Date.now(),
+      start: new Date(config.startYear, 0, 1),
+      end: new Date(config.startYear, 0, 1),
+      einzahlung: config.initialInvestment,
+      ter: config.ter,
+    })
+  }
+
+  // Add monthly contribution if specified
+  if (config.monthlyContribution && config.monthlyContribution > 0) {
+    newSparplan.push({
+      id: Date.now() + 1,
+      start: new Date(config.startYear, 0, 1),
+      end: new Date(config.retirementYear - 1, 11, 31),
+      einzahlung: config.monthlyContribution * 12,
+      ter: config.ter,
+    })
+  }
+
+  return newSparplan
+}
+
+/**
  * Hook to handle financial scenario application
  * Extracted from HomePageContent to reduce complexity
  */
@@ -27,7 +58,7 @@ export function useScenarioApplication(handlers: ScenarioApplicationHandlers) {
     const config = scenario.config
 
     // Set time range
-    handlers.setStartEnd([config.retirementYear, config.retirementYear + 30]) // Default 30 years withdrawal
+    handlers.setStartEnd([config.retirementYear, config.retirementYear + 30])
 
     // Set return configuration
     handlers.setReturnMode(config.returnMode)
@@ -40,15 +71,9 @@ export function useScenarioApplication(handlers: ScenarioApplicationHandlers) {
     }
 
     // Set tax configuration
-    if (config.steuerlast !== undefined) {
-      handlers.setSteuerlast(config.steuerlast)
-    }
-    if (config.teilfreistellungsquote !== undefined) {
-      handlers.setTeilfreistellungsquote(config.teilfreistellungsquote)
-    }
-    if (config.freibetrag !== undefined) {
-      handlers.setFreibetragPerYear({ [config.startYear]: config.freibetrag })
-    }
+    if (config.steuerlast !== undefined) handlers.setSteuerlast(config.steuerlast)
+    if (config.teilfreistellungsquote !== undefined) handlers.setTeilfreistellungsquote(config.teilfreistellungsquote)
+    if (config.freibetrag !== undefined) handlers.setFreibetragPerYear({ [config.startYear]: config.freibetrag })
 
     // Set inflation
     if (config.inflationRate !== undefined) {
@@ -56,37 +81,11 @@ export function useScenarioApplication(handlers: ScenarioApplicationHandlers) {
       handlers.setInflationsrateSparphase(config.inflationRate)
     }
 
-    // Create savings plan
-    const newSparplan: Sparplan[] = []
-
-    // Add initial investment if specified
-    if (config.initialInvestment && config.initialInvestment > 0) {
-      newSparplan.push({
-        id: Date.now(),
-        start: new Date(config.startYear, 0, 1),
-        end: new Date(config.startYear, 0, 1), // Same day for one-time payment
-        einzahlung: config.initialInvestment,
-        ter: config.ter,
-      })
-    }
-
-    // Add monthly contribution if specified
-    if (config.monthlyContribution && config.monthlyContribution > 0) {
-      newSparplan.push({
-        id: Date.now() + 1,
-        start: new Date(config.startYear, 0, 1),
-        end: new Date(config.retirementYear - 1, 11, 31),
-        einzahlung: config.monthlyContribution * 12, // Convert to annual
-        ter: config.ter,
-      })
-    }
-
-    handlers.setSparplan(newSparplan)
+    // Create and set savings plans
+    handlers.setSparplan(createSavingsPlans(config))
 
     // Trigger recalculation
-    setTimeout(() => {
-      handlers.performSimulation()
-    }, 100)
+    setTimeout(() => handlers.performSimulation(), 100)
   }, [handlers])
 
   return { handleApplyScenario }

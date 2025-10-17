@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { CollapsibleNavigation } from './CollapsibleNavigation'
 import { NavigationProvider } from '../contexts/NavigationContext'
@@ -58,7 +58,7 @@ describe('CollapsibleNavigation', () => {
     expect(screen.queryByText('Test Section 2')).not.toBeInTheDocument()
   })
 
-  it('expands when clicked and shows navigation items', () => {
+  it('expands when clicked and shows navigation items', async () => {
     render(
       <NavigationProvider>
         <CollapsibleNavigation />
@@ -69,13 +69,15 @@ describe('CollapsibleNavigation', () => {
     const navigationHeader = screen.getByText('🧭 Navigation')
     fireEvent.click(navigationHeader)
 
-    // Navigation items should now be visible
-    expect(screen.getByText('Test Section 1')).toBeInTheDocument()
+    // Navigation items should now be visible (wait for collapsible to open)
+    await waitFor(() => {
+      expect(screen.getByText('Test Section 1')).toBeInTheDocument()
+    })
     expect(screen.getByText('Test Section 2')).toBeInTheDocument()
     expect(screen.getByText('Klicke auf einen Bereich, um dorthin zu springen und ihn aufzuklappen:')).toBeInTheDocument()
   })
 
-  it('calls scrollToItem when navigation item is clicked', () => {
+  it('calls scrollToItem when navigation item is clicked', async () => {
     render(
       <NavigationProvider>
         <CollapsibleNavigation />
@@ -86,7 +88,11 @@ describe('CollapsibleNavigation', () => {
     const navigationHeader = screen.getByText('🧭 Navigation')
     fireEvent.click(navigationHeader)
 
-    // Click on a navigation item (icon and text are in separate spans)
+    // Click on a navigation item (icon and text are in separate spans) - wait for it to appear
+    await waitFor(() => {
+      expect(screen.getByText('Test Section 1')).toBeInTheDocument()
+    })
+    
     const navigationItem = screen.getByText('Test Section 1')
     fireEvent.click(navigationItem)
 

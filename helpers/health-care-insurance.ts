@@ -614,60 +614,50 @@ function applyIndividualStrategy(params: ApplyStrategyParams) {
   }
 }
 
-function applyFamilyStrategy(params: ApplyStrategyParams) {
-  const { person1Data, person2Data, bestFamilyOption } = params
-
-  if (bestFamilyOption.primaryPerson === 1) {
-    return {
-      strategyUsed: 'family' as const,
-      person1: createPersonResult({
-        personId: 1,
-        name: person1Data.config.name || 'Person 1',
-        healthInsuranceResult: person1Data.individualResult,
-        allocatedIncome: person1Data.totalWithdrawal * person1Data.config.withdrawalShare,
-        otherIncome: person1Data.config.otherIncomeAnnual,
-        totalIncome: person1Data.income,
-        coveredByFamilyInsurance: false,
-        qualifiesForFamilyInsurance: person1Data.qualifiesForFamily,
-      }),
-      person2: createPersonResult({
-        personId: 2,
-        name: person2Data.config.name || 'Person 2',
-        healthInsuranceResult: createZeroInsuranceResult(person2Data.individualResult),
-        allocatedIncome: person2Data.totalWithdrawal * person2Data.config.withdrawalShare,
-        otherIncome: person2Data.config.otherIncomeAnnual,
-        totalIncome: person2Data.income,
-        coveredByFamilyInsurance: true,
-        qualifiesForFamilyInsurance: person2Data.qualifiesForFamily,
-      }),
-      totalAnnual: bestFamilyOption.totalCost,
-    }
-  }
+/**
+ * Create family strategy result with primary and covered person
+ */
+function createFamilyResult(
+  person1Data: PersonData,
+  person2Data: PersonData,
+  primaryPerson: 1 | 2,
+  totalCost: number,
+) {
+  const isPerson1Primary = primaryPerson === 1
 
   return {
     strategyUsed: 'family' as const,
     person1: createPersonResult({
       personId: 1,
       name: person1Data.config.name || 'Person 1',
-      healthInsuranceResult: createZeroInsuranceResult(person1Data.individualResult),
+      healthInsuranceResult: isPerson1Primary
+        ? person1Data.individualResult
+        : createZeroInsuranceResult(person1Data.individualResult),
       allocatedIncome: person1Data.totalWithdrawal * person1Data.config.withdrawalShare,
       otherIncome: person1Data.config.otherIncomeAnnual,
       totalIncome: person1Data.income,
-      coveredByFamilyInsurance: true,
+      coveredByFamilyInsurance: !isPerson1Primary,
       qualifiesForFamilyInsurance: person1Data.qualifiesForFamily,
     }),
     person2: createPersonResult({
       personId: 2,
       name: person2Data.config.name || 'Person 2',
-      healthInsuranceResult: person2Data.individualResult,
+      healthInsuranceResult: isPerson1Primary
+        ? createZeroInsuranceResult(person2Data.individualResult)
+        : person2Data.individualResult,
       allocatedIncome: person2Data.totalWithdrawal * person2Data.config.withdrawalShare,
       otherIncome: person2Data.config.otherIncomeAnnual,
       totalIncome: person2Data.income,
-      coveredByFamilyInsurance: false,
+      coveredByFamilyInsurance: isPerson1Primary,
       qualifiesForFamilyInsurance: person2Data.qualifiesForFamily,
     }),
-    totalAnnual: bestFamilyOption.totalCost,
+    totalAnnual: totalCost,
   }
+}
+
+function applyFamilyStrategy(params: ApplyStrategyParams) {
+  const { person1Data, person2Data, bestFamilyOption } = params
+  return createFamilyResult(person1Data, person2Data, bestFamilyOption.primaryPerson, bestFamilyOption.totalCost)
 }
 
 /**

@@ -48,6 +48,64 @@ const InfoIcon = ({ onClick }: { onClick: () => void }) => (
 
 // Using shadcn/ui table components instead of legacy table
 
+/**
+ * Styles for capital display component
+ */
+const CAPITAL_DISPLAY_STYLES = {
+  container: {
+    textAlign: 'center' as const,
+    padding: '1.5rem',
+    background: 'linear-gradient(135deg, #28a745, #20c997)',
+    color: 'white',
+    borderRadius: '12px',
+    margin: '1rem 0',
+    boxShadow: '0 4px 12px rgba(40, 167, 69, 0.3)',
+  },
+  title: { fontSize: '1.2rem', marginBottom: '0.5rem', opacity: 0.9 },
+  amount: {
+    fontSize: '2.5rem',
+    fontWeight: 700,
+    letterSpacing: '-1px',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '0.5rem',
+  },
+}
+
+/**
+ * Display component for total capital with gradient background
+ */
+function CapitalDisplay({
+  amount,
+  onInfoClick,
+}: {
+  amount: number
+  onInfoClick?: (explanationType: string, rowData: CalculationInfoData) => void
+}) {
+  return (
+    <div style={CAPITAL_DISPLAY_STYLES.container}>
+      <div style={CAPITAL_DISPLAY_STYLES.title}>Ihr Gesamtkapital</div>
+      <div style={CAPITAL_DISPLAY_STYLES.amount}>
+        <span>
+          {thousands(amount.toFixed(2))}
+          {' '}
+          €
+        </span>
+        {onInfoClick && (
+          <InfoIcon
+            onClick={() => onInfoClick('endkapital', {
+              jahr: new Date().getFullYear(),
+              endkapital: amount.toFixed(2),
+              einzahlung: 0,
+            })}
+          />
+        )}
+      </div>
+    </div>
+  )
+}
+
 export function SparplanEnd({
   elemente,
   onCalculationInfoClick,
@@ -69,35 +127,7 @@ export function SparplanEnd({
         </CardHeader>
         <CollapsibleContent>
           <CardContent>
-            <div style={{
-              textAlign: 'center',
-              padding: '1.5rem',
-              background: 'linear-gradient(135deg, #28a745, #20c997)',
-              color: 'white',
-              borderRadius: '12px',
-              margin: '1rem 0',
-              boxShadow: '0 4px 12px rgba(40, 167, 69, 0.3)',
-            }}
-            >
-              <div style={{ fontSize: '1.2rem', marginBottom: '0.5rem', opacity: 0.9 }}>
-                Ihr Gesamtkapital
-              </div>
-              <div style={{ fontSize: '2.5rem', fontWeight: 700, letterSpacing: '-1px', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
-                <span>
-                  {thousands(summary.endkapital.toFixed(2))}
-                  {' '}
-                  €
-                </span>
-                {onCalculationInfoClick && (
-                  <InfoIcon onClick={() => onCalculationInfoClick('endkapital', {
-                    jahr: new Date().getFullYear(),
-                    endkapital: summary.endkapital.toFixed(2),
-                    einzahlung: summary.startkapital || 0,
-                  })}
-                  />
-                )}
-              </div>
-            </div>
+            <CapitalDisplay amount={summary.endkapital} onInfoClick={onCalculationInfoClick} />
           </CardContent>
         </CollapsibleContent>
       </Collapsible>

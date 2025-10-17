@@ -131,6 +131,31 @@ function getInflationRateForYear(
   return 0
 }
 
+/**
+ * Apply fixed rate to all years
+ */
+function applyFixedRate(years: number[], fixedRate: number): Record<number, number> {
+  const rates: Record<number, number> = {}
+  for (const year of years) {
+    rates[year] = fixedRate
+  }
+  return rates
+}
+
+/**
+ * Apply variable returns to years
+ */
+function applyVariableReturns(
+  years: number[],
+  yearlyReturns: Record<number, number>,
+): Record<number, number> {
+  const rates: Record<number, number> = {}
+  for (const year of years) {
+    rates[year] = yearlyReturns[year] ?? 0.05
+  }
+  return rates
+}
+
 function generateYearlyGrowthRates(
   startYear: number,
   endYear: number,
@@ -142,23 +167,17 @@ function generateYearlyGrowthRates(
   switch (returnConfig.mode) {
     case 'fixed': {
       const fixedRate = returnConfig.fixedRate ?? 0.05
-      for (const year of years) {
-        yearlyGrowthRates[year] = fixedRate
-      }
-      break
+      return applyFixedRate(years, fixedRate)
     }
     case 'random': {
       if (returnConfig.randomConfig) {
-        const randomReturns = generateRandomReturns(years, returnConfig.randomConfig)
-        Object.assign(yearlyGrowthRates, randomReturns)
+        return generateRandomReturns(years, returnConfig.randomConfig)
       }
       break
     }
     case 'variable': {
       if (returnConfig.variableConfig) {
-        for (const year of years) {
-          yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] ?? 0.05
-        }
+        return applyVariableReturns(years, returnConfig.variableConfig.yearlyReturns)
       }
       break
     }
@@ -170,29 +189,16 @@ function generateYearlyGrowthRates(
           endYear,
         )
         if (historicalReturns) {
-          Object.assign(yearlyGrowthRates, historicalReturns)
-        }
-        else {
-          // Fallback to 5% if historical data is not available
-          for (const year of years) {
-            yearlyGrowthRates[year] = 0.05
-          }
+          return historicalReturns
         }
       }
-      break
+      return applyFixedRate(years, 0.05)
     }
     case 'multiasset': {
       if (returnConfig.multiAssetConfig) {
-        const multiAssetReturns = generateMultiAssetReturns(years, returnConfig.multiAssetConfig)
-        Object.assign(yearlyGrowthRates, multiAssetReturns)
+        return generateMultiAssetReturns(years, returnConfig.multiAssetConfig)
       }
-      else {
-        // Fallback to 5% if multiasset config is not available
-        for (const year of years) {
-          yearlyGrowthRates[year] = 0.05
-        }
-      }
-      break
+      return applyFixedRate(years, 0.05)
     }
   }
 

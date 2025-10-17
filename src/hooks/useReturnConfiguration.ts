@@ -14,10 +14,9 @@ interface ReturnConfigurationParams {
 }
 
 /**
- * Hook to build return configuration from context properties
- * Extracted from HomePageContent to reduce complexity
+ * Build return configuration based on mode and parameters
  */
-export function useReturnConfiguration(params: ReturnConfigurationParams): ReturnConfiguration {
+function buildReturnConfig(params: ReturnConfigurationParams): ReturnConfiguration {
   const {
     returnMode,
     rendite,
@@ -29,46 +28,39 @@ export function useReturnConfiguration(params: ReturnConfigurationParams): Retur
     multiAssetConfig,
   } = params
 
-  const returnConfig = useMemo(() => {
-    const config: ReturnConfiguration = { mode: returnMode }
+  const config: ReturnConfiguration = { mode: returnMode }
 
-    switch (returnMode) {
-      case 'fixed':
-        config.fixedRate = rendite / 100
-        break
-      case 'random':
-        config.randomConfig = {
-          averageReturn: averageReturn / 100,
-          standardDeviation: standardDeviation / 100,
-          seed: randomSeed,
-        }
-        break
-      case 'variable':
-        config.variableConfig = {
-          yearlyReturns: variableReturns,
-        }
-        break
-      case 'historical':
-        config.historicalConfig = {
-          indexId: historicalIndex,
-        }
-        break
-      case 'multiasset':
-        config.multiAssetConfig = multiAssetConfig
-        break
-    }
+  switch (returnMode) {
+    case 'fixed':
+      config.fixedRate = rendite / 100
+      break
+    case 'random':
+      config.randomConfig = {
+        averageReturn: averageReturn / 100,
+        standardDeviation: standardDeviation / 100,
+        seed: randomSeed,
+      }
+      break
+    case 'variable':
+      config.variableConfig = { yearlyReturns: variableReturns }
+      break
+    case 'historical':
+      config.historicalConfig = { indexId: historicalIndex }
+      break
+    case 'multiasset':
+      config.multiAssetConfig = multiAssetConfig
+      break
+  }
 
-    return config
-  }, [
-    returnMode,
-    rendite,
-    averageReturn,
-    standardDeviation,
-    randomSeed,
-    variableReturns,
-    historicalIndex,
-    multiAssetConfig,
-  ])
+  return config
+}
 
-  return returnConfig
+/**
+ * Hook to build return configuration from context properties
+ * Extracted from HomePageContent to reduce complexity
+ */
+export function useReturnConfiguration(params: ReturnConfigurationParams): ReturnConfiguration {
+  const deps = Object.values(params)
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  return useMemo(() => buildReturnConfig(params), deps)
 }

@@ -104,6 +104,48 @@ export function fullSummary(elemente?: SparplanElement[]): Summary {
 }
 
 /**
+ * Calculate withdrawal totals from yearly data
+ */
+function calculateWithdrawalTotals(
+  withdrawalResult: WithdrawalResult,
+  years: number[],
+): { totalWithdrawn: number, totalMonthlyWithdrawals: number, monthsWithData: number } {
+  let totalWithdrawn = 0
+  let totalMonthlyWithdrawals = 0
+  let monthsWithData = 0
+
+  for (const year of years) {
+    const yearData = withdrawalResult[year]
+    totalWithdrawn += yearData.entnahme
+
+    if (yearData.monatlicheEntnahme !== undefined) {
+      totalMonthlyWithdrawals += yearData.monatlicheEntnahme
+      monthsWithData += 1
+    }
+  }
+
+  return { totalWithdrawn, totalMonthlyWithdrawals, monthsWithData }
+}
+
+/**
+ * Calculate average monthly withdrawal
+ */
+function calculateAverageMonthlyWithdrawal(
+  totalMonthlyWithdrawals: number,
+  monthsWithData: number,
+  totalWithdrawn: number,
+  yearCount: number,
+): number {
+  if (monthsWithData > 0) {
+    return totalMonthlyWithdrawals / monthsWithData
+  }
+  else if (totalWithdrawn > 0) {
+    return totalWithdrawn / yearCount / 12
+  }
+  return 0
+}
+
+/**
  * Extract withdrawal phase metrics from WithdrawalResult
  */
 export function extractWithdrawalMetrics(withdrawalResult: WithdrawalResult): {
@@ -126,35 +168,17 @@ export function extractWithdrawalMetrics(withdrawalResult: WithdrawalResult): {
   const firstYear = years[0]
   const lastYear = years[years.length - 1]
   const totalYears = lastYear - firstYear + 1
-
   const finalCapital = withdrawalResult[lastYear].endkapital
 
-  // Calculate total withdrawn and average monthly withdrawal
-  let totalWithdrawn = 0
-  let totalMonthlyWithdrawals = 0
-  let monthsWithData = 0
+  const { totalWithdrawn, totalMonthlyWithdrawals, monthsWithData }
+    = calculateWithdrawalTotals(withdrawalResult, years)
 
-  for (const year of years) {
-    const yearData = withdrawalResult[year]
-    totalWithdrawn += yearData.entnahme
-
-    if (yearData.monatlicheEntnahme !== undefined) {
-      totalMonthlyWithdrawals += yearData.monatlicheEntnahme
-      monthsWithData += 1
-    }
-  }
-
-  // Calculate average monthly withdrawal
-  let averageMonthlyWithdrawal = 0
-  if (monthsWithData > 0) {
-    // Calculate time-weighted average of monthly withdrawals across all years
-    // This is more accurate for segmented withdrawal strategies with varying amounts
-    averageMonthlyWithdrawal = totalMonthlyWithdrawals / monthsWithData
-  }
-  else if (totalWithdrawn > 0) {
-    // Fallback: divide total annual withdrawals by 12
-    averageMonthlyWithdrawal = totalWithdrawn / years.length / 12
-  }
+  const averageMonthlyWithdrawal = calculateAverageMonthlyWithdrawal(
+    totalMonthlyWithdrawals,
+    monthsWithData,
+    totalWithdrawn,
+    years.length,
+  )
 
   return {
     totalYears,
@@ -422,6 +446,53 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
 /**
  * Create summaries for each withdrawal segment
  */
+/**
+ * Calculate metrics for a withdrawal segment
+ */
+function calculateSegmentMetrics(
+  segment: WithdrawalSegment,
+  withdrawalResult: WithdrawalResult,
+  startCapital: number,
+): {
+  endCapital: number
+  totalWithdrawn: number
+  averageMonthlyWithdrawal: number
+} {
+  const segmentYears = Array.from(
+    { length: segment.endYear - segment.startYear + 1 },
+    (_, i) => segment.startYear + i,
+  )
+
+  let endCapital = startCapital
+  let totalWithdrawn = 0
+  let totalMonthlyWithdrawals = 0
+  let monthsWithData = 0
+
+  for (const year of segmentYears) {
+    const yearData = withdrawalResult[year]
+    if (yearData) {
+      endCapital = yearData.endkapital
+      totalWithdrawn += yearData.entnahme
+
+      if (yearData.monatlicheEntnahme !== undefined) {
+        totalMonthlyWithdrawals += yearData.monatlicheEntnahme
+        monthsWithData += 1
+      }
+    }
+  }
+
+  // Calculate average monthly withdrawal
+  let averageMonthlyWithdrawal = 0
+  if (monthsWithData > 0) {
+    averageMonthlyWithdrawal = totalMonthlyWithdrawals / monthsWithData
+  }
+  else if (totalWithdrawn > 0) {
+    averageMonthlyWithdrawal = totalWithdrawn / segmentYears.length / 12
+  }
+
+  return { endCapital, totalWithdrawn, averageMonthlyWithdrawal }
+}
+
 function createWithdrawalSegmentSummaries(
   segments: WithdrawalSegment[],
   withdrawalResult: WithdrawalResult,
@@ -434,41 +505,8 @@ function createWithdrawalSegmentSummaries(
   const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
 
   for (const segment of sortedSegments) {
-    const segmentYears = Array.from(
-      { length: segment.endYear - segment.startYear + 1 },
-      (_, i) => segment.startYear + i,
-    )
-
-    // Calculate metrics for this segment
     const segmentStartCapital = currentCapital
-    let segmentEndCapital = currentCapital
-    let totalWithdrawn = 0
-    let totalMonthlyWithdrawals = 0
-    let monthsWithData = 0
-
-    for (const year of segmentYears) {
-      const yearData = withdrawalResult[year]
-      if (yearData) {
-        segmentEndCapital = yearData.endkapital
-        totalWithdrawn += yearData.entnahme
-
-        if (yearData.monatlicheEntnahme !== undefined) {
-          totalMonthlyWithdrawals += yearData.monatlicheEntnahme
-          monthsWithData += 1
-        }
-      }
-    }
-
-    // Calculate average monthly withdrawal for this segment
-    let averageMonthlyWithdrawal = 0
-    if (monthsWithData > 0) {
-      // Calculate time-weighted average of monthly withdrawals for this segment
-      averageMonthlyWithdrawal = totalMonthlyWithdrawals / monthsWithData
-    }
-    else if (totalWithdrawn > 0) {
-      // Fallback: divide total annual withdrawals by 12
-      averageMonthlyWithdrawal = totalWithdrawn / segmentYears.length / 12
-    }
+    const metrics = calculateSegmentMetrics(segment, withdrawalResult, currentCapital)
 
     summaries.push({
       id: segment.id,
@@ -477,13 +515,13 @@ function createWithdrawalSegmentSummaries(
       endYear: segment.endYear,
       strategy: getStrategyDisplayName(segment.strategy),
       startkapital: segmentStartCapital,
-      endkapital: segmentEndCapital,
-      totalWithdrawn,
-      averageMonthlyWithdrawal,
+      endkapital: metrics.endCapital,
+      totalWithdrawn: metrics.totalWithdrawn,
+      averageMonthlyWithdrawal: metrics.averageMonthlyWithdrawal,
     })
 
     // Update current capital for next segment
-    currentCapital = segmentEndCapital
+    currentCapital = metrics.endCapital
   }
 
   return summaries

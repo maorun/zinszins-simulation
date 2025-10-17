@@ -19,55 +19,23 @@ interface MonteCarloResult {
   probability: string
 }
 
-export function MonteCarloResults({
-  years: _years,
-  accumulationConfig,
-  withdrawalConfig,
-  runs: _runs = 500,
-}: MonteCarloResultsProps) {
-  const nestingLevel = useNestingLevel()
-  const formatPercent = (value: number) => (value * 100).toFixed(1) + '%'
-
-  // Create statistical scenarios based on normal distribution
-  const createScenarios = (config: RandomReturnConfig): MonteCarloResult[] => [
-    {
-      scenario: 'Worst Case (5% Perzentil)',
-      description: `Bei sehr ungünstiger Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn - 1.645 * (config.standardDeviation || 0.15))}`,
-      probability: '5% Wahrscheinlichkeit, dass das Ergebnis schlechter ausfällt',
-    },
-    {
-      scenario: 'Pessimistisches Szenario (25% Perzentil)',
-      description: `Bei unterdurchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn - 0.674 * (config.standardDeviation || 0.15))}`,
-      probability: '25% Wahrscheinlichkeit, dass das Ergebnis schlechter ausfällt',
-    },
-    {
-      scenario: 'Median-Szenario (50% Perzentil)',
-      description: `Bei durchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn)}`,
-      probability: '50% Wahrscheinlichkeit für bessere/schlechtere Ergebnisse',
-    },
-    {
-      scenario: 'Optimistisches Szenario (75% Perzentil)',
-      description: `Bei überdurchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn + 0.674 * (config.standardDeviation || 0.15))}`,
-      probability: '25% Wahrscheinlichkeit für bessere Ergebnisse',
-    },
-    {
-      scenario: 'Best Case (95% Perzentil)',
-      description: `Bei sehr günstiger Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn + 1.645 * (config.standardDeviation || 0.15))}`,
-      probability: '5% Wahrscheinlichkeit für bessere Ergebnisse',
-    },
-  ]
-
-  const accumulationScenarios = createScenarios(accumulationConfig)
-  const withdrawalScenarios = withdrawalConfig ? createScenarios(withdrawalConfig) : null
-
-  const getRowClassName = (scenario: string) => {
-    if (scenario.includes('Best Case')) return 'success-row'
-    if (scenario.includes('Worst Case')) return 'danger-row'
-    if (scenario.includes('Median')) return 'info-row'
-    return ''
-  }
-
-  const renderAnalysisTable = (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => (
+/**
+ * Component to display Monte Carlo analysis table with scenarios
+ */
+function AnalysisTableSection({
+  scenarios,
+  config,
+  title,
+  formatPercent,
+  getRowClassName,
+}: {
+  scenarios: MonteCarloResult[]
+  config: RandomReturnConfig
+  title: string
+  formatPercent: (value: number) => string
+  getRowClassName: (scenario: string) => string
+}) {
+  return (
     <div style={{ marginBottom: '30px' }}>
       <h4 style={{ color: '#1976d2', marginBottom: '15px' }}>
         📊
@@ -137,6 +105,65 @@ export function MonteCarloResults({
         </Table>
       </div>
     </div>
+  )
+}
+
+export function MonteCarloResults({
+  years: _years,
+  accumulationConfig,
+  withdrawalConfig,
+  runs: _runs = 500,
+}: MonteCarloResultsProps) {
+  const nestingLevel = useNestingLevel()
+  const formatPercent = (value: number) => (value * 100).toFixed(1) + '%'
+
+  // Create statistical scenarios based on normal distribution
+  const createScenarios = (config: RandomReturnConfig): MonteCarloResult[] => [
+    {
+      scenario: 'Worst Case (5% Perzentil)',
+      description: `Bei sehr ungünstiger Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn - 1.645 * (config.standardDeviation || 0.15))}`,
+      probability: '5% Wahrscheinlichkeit, dass das Ergebnis schlechter ausfällt',
+    },
+    {
+      scenario: 'Pessimistisches Szenario (25% Perzentil)',
+      description: `Bei unterdurchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn - 0.674 * (config.standardDeviation || 0.15))}`,
+      probability: '25% Wahrscheinlichkeit, dass das Ergebnis schlechter ausfällt',
+    },
+    {
+      scenario: 'Median-Szenario (50% Perzentil)',
+      description: `Bei durchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn)}`,
+      probability: '50% Wahrscheinlichkeit für bessere/schlechtere Ergebnisse',
+    },
+    {
+      scenario: 'Optimistisches Szenario (75% Perzentil)',
+      description: `Bei überdurchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn + 0.674 * (config.standardDeviation || 0.15))}`,
+      probability: '25% Wahrscheinlichkeit für bessere Ergebnisse',
+    },
+    {
+      scenario: 'Best Case (95% Perzentil)',
+      description: `Bei sehr günstiger Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn + 1.645 * (config.standardDeviation || 0.15))}`,
+      probability: '5% Wahrscheinlichkeit für bessere Ergebnisse',
+    },
+  ]
+
+  const accumulationScenarios = createScenarios(accumulationConfig)
+  const withdrawalScenarios = withdrawalConfig ? createScenarios(withdrawalConfig) : null
+
+  const getRowClassName = (scenario: string) => {
+    if (scenario.includes('Best Case')) return 'success-row'
+    if (scenario.includes('Worst Case')) return 'danger-row'
+    if (scenario.includes('Median')) return 'info-row'
+    return ''
+  }
+
+  const renderAnalysisTable = (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => (
+    <AnalysisTableSection
+      scenarios={scenarios}
+      config={config}
+      title={title}
+      formatPercent={formatPercent}
+      getRowClassName={getRowClassName}
+    />
   )
 
   return (
