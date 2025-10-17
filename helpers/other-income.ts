@@ -236,17 +236,16 @@ function calculateKindergeldStatus(
   return { isActive, childAge, endReason }
 }
 
-export function calculateOtherIncomeForYear(
+function calculateGrossAmounts(
   source: OtherIncomeSource,
-  year: number,
-): OtherIncomeYearResult | null {
-  if (!isIncomeActiveForYear(source, year)) {
-    return null
-  }
-
-  const yearsFromStart = year - source.startYear
-  const inflationFactor = Math.pow(1 + source.inflationRate / 100, yearsFromStart)
-
+  yearsFromStart: number,
+  inflationFactor: number,
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  realEstateDetails?: OtherIncomeYearResult['realEstateDetails']
+  kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
+} {
   let grossMonthlyAmount = source.monthlyAmount * inflationFactor
   let grossAnnualAmount = grossMonthlyAmount * 12
   let realEstateDetails: OtherIncomeYearResult['realEstateDetails']
@@ -259,24 +258,84 @@ export function calculateOtherIncomeForYear(
     realEstateDetails = result.details
   }
 
-  if (source.type === 'kindergeld' && source.kindergeldConfig) {
-    const status = calculateKindergeldStatus(source.kindergeldConfig, year)
-    kindergeldDetails = status
-    if (!status.isActive) {
-      grossAnnualAmount = 0
-      grossMonthlyAmount = 0
+  return { grossMonthlyAmount, grossAnnualAmount, realEstateDetails, kindergeldDetails }
+}
+
+function applyKindergeldLogic(
+  source: OtherIncomeSource,
+  year: number,
+  amounts: { grossMonthlyAmount: number, grossAnnualAmount: number },
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
+} {
+  if (source.type !== 'kindergeld' || !source.kindergeldConfig) {
+    return amounts
+  }
+
+  const status = calculateKindergeldStatus(source.kindergeldConfig, year)
+  if (!status.isActive) {
+    return {
+      grossMonthlyAmount: 0,
+      grossAnnualAmount: 0,
+      kindergeldDetails: status,
     }
   }
 
-  let taxAmount = 0
-  let netAnnualAmount = grossAnnualAmount
-  let netMonthlyAmount = grossMonthlyAmount
-
-  if (source.amountType === 'gross') {
-    taxAmount = grossAnnualAmount * (source.taxRate / 100)
-    netAnnualAmount = grossAnnualAmount - taxAmount
-    netMonthlyAmount = netAnnualAmount / 12
+  return {
+    ...amounts,
+    kindergeldDetails: status,
   }
+}
+
+function calculateTaxAndNet(
+  source: OtherIncomeSource,
+  grossAnnualAmount: number,
+): { taxAmount: number, netAnnualAmount: number, netMonthlyAmount: number } {
+  if (source.amountType !== 'gross') {
+    return {
+      taxAmount: 0,
+      netAnnualAmount: grossAnnualAmount,
+      netMonthlyAmount: grossAnnualAmount / 12,
+    }
+  }
+
+  const taxAmount = grossAnnualAmount * (source.taxRate / 100)
+  const netAnnualAmount = grossAnnualAmount - taxAmount
+  return {
+    taxAmount,
+    netAnnualAmount,
+    netMonthlyAmount: netAnnualAmount / 12,
+  }
+}
+
+export function calculateOtherIncomeForYear(
+  source: OtherIncomeSource,
+  year: number,
+): OtherIncomeYearResult | null {
+  if (!isIncomeActiveForYear(source, year)) {
+    return null
+  }
+
+  const yearsFromStart = year - source.startYear
+  const inflationFactor = Math.pow(1 + source.inflationRate / 100, yearsFromStart)
+
+  const {
+    grossMonthlyAmount: initialGrossMonthly,
+    grossAnnualAmount: initialGrossAnnual,
+    realEstateDetails,
+  } = calculateGrossAmounts(source, yearsFromStart, inflationFactor)
+
+  const kindergeldResult = applyKindergeldLogic(source, year, {
+    grossMonthlyAmount: initialGrossMonthly,
+    grossAnnualAmount: initialGrossAnnual,
+  })
+  const grossMonthlyAmount = kindergeldResult.grossMonthlyAmount
+  const grossAnnualAmount = kindergeldResult.grossAnnualAmount
+  const kindergeldDetails = kindergeldResult.kindergeldDetails
+
+  const { taxAmount, netAnnualAmount, netMonthlyAmount } = calculateTaxAndNet(source, grossAnnualAmount)
 
   const result: OtherIncomeYearResult = {
     source,
