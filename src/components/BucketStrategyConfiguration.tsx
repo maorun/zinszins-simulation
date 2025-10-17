@@ -29,6 +29,99 @@ interface BucketStrategyConfigurationProps {
   idPrefix?: string
 }
 
+const HANDLER_MAP: Record<string, keyof BucketStrategyChangeHandlers> = {
+  initialCashCushion: 'onInitialCashCushionChange',
+  refillThreshold: 'onRefillThresholdChange',
+  refillPercentage: 'onRefillPercentageChange',
+  baseWithdrawalRate: 'onBaseWithdrawalRateChange',
+  subStrategy: 'onSubStrategyChange',
+  variabelProzent: 'onVariabelProzentChange',
+  monatlicheBetrag: 'onMonatlicheBetragChange',
+  dynamischBasisrate: 'onDynamischBasisrateChange',
+  dynamischObereSchwell: 'onDynamischObereSchwell',
+  dynamischObereAnpassung: 'onDynamischObereAnpassung',
+  dynamischUntereSchwell: 'onDynamischUntereSchwell',
+  dynamischUntereAnpassung: 'onDynamischUntereAnpassung',
+}
+
+function validateModeProps(isFormMode: boolean, isDirectMode: boolean) {
+  if (!isFormMode && !isDirectMode) {
+    throw new Error('BucketStrategyConfiguration requires either (formValue + updateFormValue) or (values + onChange)')
+  }
+}
+
+function createValueChangeHandler(
+  isFormMode: boolean,
+  isDirectMode: boolean,
+  updateFormBucketConfig: ((updates: Partial<BucketStrategyConfigValues>) => void) | undefined,
+  onChange: BucketStrategyChangeHandlers | undefined,
+) {
+  return <K extends keyof BucketStrategyConfigValues>(
+    key: K,
+    value: BucketStrategyConfigValues[K],
+  ) => {
+    if (isFormMode && updateFormBucketConfig) {
+      updateFormBucketConfig({ [key]: value })
+    }
+    else if (isDirectMode && onChange) {
+      const handlerKey = HANDLER_MAP[key]
+      if (handlerKey && onChange[handlerKey]) {
+        (onChange[handlerKey] as (v: unknown) => void)(value)
+      }
+    }
+  }
+}
+
+function SubStrategyConfigSection({
+  subStrategy,
+  currentValues,
+  handleValueChange,
+}: {
+  subStrategy: string
+  currentValues: BucketStrategyConfigValues
+  handleValueChange: <K extends keyof BucketStrategyConfigValues>(
+    key: K,
+    value: BucketStrategyConfigValues[K],
+  ) => void
+}) {
+  if (subStrategy === 'variabel_prozent') {
+    return (
+      <VariabelProzentConfig
+        value={currentValues.variabelProzent}
+        onChange={v => handleValueChange('variabelProzent', v)}
+      />
+    )
+  }
+
+  if (subStrategy === 'monatlich_fest') {
+    return (
+      <MonatlichFestConfig
+        value={currentValues.monatlicheBetrag}
+        onChange={v => handleValueChange('monatlicheBetrag', v)}
+      />
+    )
+  }
+
+  if (subStrategy === 'dynamisch') {
+    return (
+      <DynamischConfig
+        basisrate={currentValues.dynamischBasisrate}
+        obereSchwell={currentValues.dynamischObereSchwell}
+        obereAnpassung={currentValues.dynamischObereAnpassung}
+        untereSchwell={currentValues.dynamischUntereSchwell}
+        untereAnpassung={currentValues.dynamischUntereAnpassung}
+        onBasisrateChange={v => handleValueChange('dynamischBasisrate', v)}
+        onObereSchwell={v => handleValueChange('dynamischObereSchwell', v)}
+        onObereAnpassung={v => handleValueChange('dynamischObereAnpassung', v)}
+        onUntereSchwell={v => handleValueChange('dynamischUntereSchwell', v)}
+        onUntereAnpassung={v => handleValueChange('dynamischUntereAnpassung', v)}
+      />
+    )
+  }
+
+  return null
+}
+
 export function BucketStrategyConfiguration({
   formValue,
   updateFormValue,
@@ -40,9 +133,7 @@ export function BucketStrategyConfiguration({
   const isFormMode = formValue !== undefined && updateFormValue !== undefined
   const isDirectMode = values !== undefined && onChange !== undefined
 
-  if (!isFormMode && !isDirectMode) {
-    throw new Error('BucketStrategyConfiguration requires either (formValue + updateFormValue) or (values + onChange)')
-  }
+  validateModeProps(isFormMode, isDirectMode)
 
   // Get current values based on mode
   const currentValues = isFormMode
@@ -59,34 +150,12 @@ export function BucketStrategyConfiguration({
     : undefined
 
   // Helper to handle value changes in either mode
-  const handleValueChange = <K extends keyof BucketStrategyConfigValues>(
-    key: K,
-    value: BucketStrategyConfigValues[K],
-  ) => {
-    if (isFormMode && updateFormBucketConfig) {
-      updateFormBucketConfig({ [key]: value })
-    }
-    else if (isDirectMode && onChange) {
-      const handlerMap: Record<string, keyof BucketStrategyChangeHandlers> = {
-        initialCashCushion: 'onInitialCashCushionChange',
-        refillThreshold: 'onRefillThresholdChange',
-        refillPercentage: 'onRefillPercentageChange',
-        baseWithdrawalRate: 'onBaseWithdrawalRateChange',
-        subStrategy: 'onSubStrategyChange',
-        variabelProzent: 'onVariabelProzentChange',
-        monatlicheBetrag: 'onMonatlicheBetragChange',
-        dynamischBasisrate: 'onDynamischBasisrateChange',
-        dynamischObereSchwell: 'onDynamischObereSchwell',
-        dynamischObereAnpassung: 'onDynamischObereAnpassung',
-        dynamischUntereSchwell: 'onDynamischUntereSchwell',
-        dynamischUntereAnpassung: 'onDynamischUntereAnpassung',
-      }
-      const handlerKey = handlerMap[key]
-      if (handlerKey && onChange[handlerKey]) {
-        (onChange[handlerKey] as (v: unknown) => void)(value)
-      }
-    }
-  }
+  const handleValueChange = createValueChangeHandler(
+    isFormMode,
+    isDirectMode,
+    updateFormBucketConfig,
+    onChange,
+  )
 
   return (
     <div className="space-y-4">
@@ -100,34 +169,11 @@ export function BucketStrategyConfiguration({
       />
 
       {/* Sub-strategy specific configuration */}
-      {currentValues.subStrategy === 'variabel_prozent' && (
-        <VariabelProzentConfig
-          value={currentValues.variabelProzent}
-          onChange={v => handleValueChange('variabelProzent', v)}
-        />
-      )}
-
-      {currentValues.subStrategy === 'monatlich_fest' && (
-        <MonatlichFestConfig
-          value={currentValues.monatlicheBetrag}
-          onChange={v => handleValueChange('monatlicheBetrag', v)}
-        />
-      )}
-
-      {currentValues.subStrategy === 'dynamisch' && (
-        <DynamischConfig
-          basisrate={currentValues.dynamischBasisrate}
-          obereSchwell={currentValues.dynamischObereSchwell}
-          obereAnpassung={currentValues.dynamischObereAnpassung}
-          untereSchwell={currentValues.dynamischUntereSchwell}
-          untereAnpassung={currentValues.dynamischUntereAnpassung}
-          onBasisrateChange={v => handleValueChange('dynamischBasisrate', v)}
-          onObereSchwell={v => handleValueChange('dynamischObereSchwell', v)}
-          onObereAnpassung={v => handleValueChange('dynamischObereAnpassung', v)}
-          onUntereSchwell={v => handleValueChange('dynamischUntereSchwell', v)}
-          onUntereAnpassung={v => handleValueChange('dynamischUntereAnpassung', v)}
-        />
-      )}
+      <SubStrategyConfigSection
+        subStrategy={currentValues.subStrategy}
+        currentValues={currentValues}
+        handleValueChange={handleValueChange}
+      />
 
       {/* Initial Cash Cushion */}
       <InitialCashCushionConfig

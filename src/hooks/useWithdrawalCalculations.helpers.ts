@@ -20,6 +20,41 @@ import type {
  * Convert couple statutory pension config to legacy single config for backward compatibility
  * Combines both pensions into a single equivalent pension
  */
+function getCombinedPensionConfig(
+  person1: StatutoryPensionConfig,
+  person2: StatutoryPensionConfig,
+): StatutoryPensionConfig {
+  const earlierStartYear = Math.min(person1.startYear, person2.startYear)
+
+  return {
+    enabled: true,
+    startYear: earlierStartYear,
+    monthlyAmount: person1.monthlyAmount + person2.monthlyAmount,
+    annualIncreaseRate: (person1.annualIncreaseRate + person2.annualIncreaseRate) / 2,
+    taxablePercentage: (person1.taxablePercentage + person2.taxablePercentage) / 2,
+    retirementAge: Math.min(person1.retirementAge || 67, person2.retirementAge || 67),
+  }
+}
+
+function getCouplePensionConfig(
+  person1: StatutoryPensionConfig,
+  person2: StatutoryPensionConfig,
+): StatutoryPensionConfig | null {
+  // If neither person has pension enabled, return null
+  if (!person1.enabled && !person2.enabled) return null
+
+  // If only one person has pension, return that config
+  if (person1.enabled && !person2.enabled) return person1
+  if (!person1.enabled && person2.enabled) return person2
+
+  // If both have pensions, combine them
+  if (person1.enabled && person2.enabled) {
+    return getCombinedPensionConfig(person1, person2)
+  }
+
+  return null
+}
+
 export function convertCoupleToLegacyConfig(
   params: ConvertCoupleToLegacyConfigParams,
 ): StatutoryPensionConfig | null {
@@ -33,31 +68,7 @@ export function convertCoupleToLegacyConfig(
 
   if (planningMode === 'couple' && coupleConfig.couple) {
     const { person1, person2 } = coupleConfig.couple
-
-    // If neither person has pension enabled, return null
-    if (!person1.enabled && !person2.enabled) return null
-
-    // If only one person has pension, return that config
-    if (person1.enabled && !person2.enabled) return person1
-    if (!person1.enabled && person2.enabled) return person2
-
-    // If both have pensions, combine them
-    if (person1.enabled && person2.enabled) {
-      // Use the earlier start year
-      const earlierStartYear = Math.min(person1.startYear, person2.startYear)
-
-      // For simplicity, we'll create a combined pension that starts at the earlier date
-      // and has the sum of both monthly amounts when both are active
-      return {
-        enabled: true,
-        startYear: earlierStartYear,
-        monthlyAmount: person1.monthlyAmount + person2.monthlyAmount,
-        // Use average of both rates for combined pension
-        annualIncreaseRate: (person1.annualIncreaseRate + person2.annualIncreaseRate) / 2,
-        taxablePercentage: (person1.taxablePercentage + person2.taxablePercentage) / 2,
-        retirementAge: Math.min(person1.retirementAge || 67, person2.retirementAge || 67),
-      }
-    }
+    return getCouplePensionConfig(person1, person2)
   }
 
   return null
