@@ -1,3 +1,4 @@
+import type React from 'react'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { Slider } from './ui/slider'
@@ -14,17 +15,51 @@ interface BucketStrategyConfigurationFormProps {
   onBucketConfigChange: (config: BucketConfig) => void
 }
 
-export function BucketStrategyConfigurationForm({
-  bucketConfig,
-  onBucketConfigChange,
-}: BucketStrategyConfigurationFormProps) {
-  const getDefaultConfig = (): BucketConfig => ({
+function getDefaultConfig(bucketConfig: BucketConfig | undefined): BucketConfig {
+  return {
     initialCashCushion: bucketConfig?.initialCashCushion ?? 20000,
     refillThreshold: bucketConfig?.refillThreshold ?? 5000,
     refillPercentage: bucketConfig?.refillPercentage ?? 0.5,
     baseWithdrawalRate: bucketConfig?.baseWithdrawalRate ?? 0.04,
-  })
+  }
+}
 
+function createNumberInputHandler(
+  bucketConfig: BucketConfig | undefined,
+  onBucketConfigChange: (config: BucketConfig) => void,
+  field: keyof BucketConfig,
+  defaultValue: number,
+) {
+  return (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value
+    const value = inputValue === '' ? 0 : Number(inputValue) || defaultValue
+    const config = getDefaultConfig(bucketConfig)
+    onBucketConfigChange({
+      ...config,
+      [field]: value,
+    })
+  }
+}
+
+function createSliderHandler(
+  bucketConfig: BucketConfig | undefined,
+  onBucketConfigChange: (config: BucketConfig) => void,
+  field: keyof BucketConfig,
+  divisor: number,
+) {
+  return (value: number[]) => {
+    const config = getDefaultConfig(bucketConfig)
+    onBucketConfigChange({
+      ...config,
+      [field]: value[0] / divisor,
+    })
+  }
+}
+
+export function BucketStrategyConfigurationForm({
+  bucketConfig,
+  onBucketConfigChange,
+}: BucketStrategyConfigurationFormProps) {
   return (
     <div className="space-y-4">
       <Label className="text-base font-medium">Drei-Eimer-Strategie Konfiguration</Label>
@@ -34,15 +69,7 @@ export function BucketStrategyConfigurationForm({
         <Input
           type="number"
           value={bucketConfig?.initialCashCushion ?? 20000}
-          onChange={(e) => {
-            const inputValue = e.target.value
-            const value = inputValue === '' ? 0 : Number(inputValue) || 20000
-            const config = getDefaultConfig()
-            onBucketConfigChange({
-              ...config,
-              initialCashCushion: value,
-            })
-          }}
+          onChange={createNumberInputHandler(bucketConfig, onBucketConfigChange, 'initialCashCushion', 20000)}
         />
         <p className="text-sm text-gray-600">
           Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen
@@ -55,13 +82,7 @@ export function BucketStrategyConfigurationForm({
           <Slider
             value={[bucketConfig?.baseWithdrawalRate
               ? bucketConfig.baseWithdrawalRate * 100 : 4]}
-            onValueChange={(value) => {
-              const config = getDefaultConfig()
-              onBucketConfigChange({
-                ...config,
-                baseWithdrawalRate: value[0] / 100,
-              })
-            }}
+            onValueChange={createSliderHandler(bucketConfig, onBucketConfigChange, 'baseWithdrawalRate', 100)}
             max={10}
             min={1}
             step={0.1}
@@ -83,15 +104,7 @@ export function BucketStrategyConfigurationForm({
         <Input
           type="number"
           value={bucketConfig?.refillThreshold ?? 5000}
-          onChange={(e) => {
-            const inputValue = e.target.value
-            const value = inputValue === '' ? 0 : Number(inputValue) || 5000
-            const config = getDefaultConfig()
-            onBucketConfigChange({
-              ...config,
-              refillThreshold: value,
-            })
-          }}
+          onChange={createNumberInputHandler(bucketConfig, onBucketConfigChange, 'refillThreshold', 5000)}
         />
         <p className="text-sm text-gray-600">
           Überschreiten die jährlichen Gewinne diesen Betrag, wird Cash-Polster aufgefüllt
@@ -104,13 +117,7 @@ export function BucketStrategyConfigurationForm({
           <Slider
             value={[bucketConfig?.refillPercentage
               ? bucketConfig.refillPercentage * 100 : 50]}
-            onValueChange={(value) => {
-              const config = getDefaultConfig()
-              onBucketConfigChange({
-                ...config,
-                refillPercentage: value[0] / 100,
-              })
-            }}
+            onValueChange={createSliderHandler(bucketConfig, onBucketConfigChange, 'refillPercentage', 100)}
             max={100}
             min={10}
             step={5}

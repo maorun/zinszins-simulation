@@ -29,6 +29,49 @@ interface BucketStrategyConfigurationProps {
   idPrefix?: string
 }
 
+const HANDLER_MAP: Record<string, keyof BucketStrategyChangeHandlers> = {
+  initialCashCushion: 'onInitialCashCushionChange',
+  refillThreshold: 'onRefillThresholdChange',
+  refillPercentage: 'onRefillPercentageChange',
+  baseWithdrawalRate: 'onBaseWithdrawalRateChange',
+  subStrategy: 'onSubStrategyChange',
+  variabelProzent: 'onVariabelProzentChange',
+  monatlicheBetrag: 'onMonatlicheBetragChange',
+  dynamischBasisrate: 'onDynamischBasisrateChange',
+  dynamischObereSchwell: 'onDynamischObereSchwell',
+  dynamischObereAnpassung: 'onDynamischObereAnpassung',
+  dynamischUntereSchwell: 'onDynamischUntereSchwell',
+  dynamischUntereAnpassung: 'onDynamischUntereAnpassung',
+}
+
+function validateModeProps(isFormMode: boolean, isDirectMode: boolean) {
+  if (!isFormMode && !isDirectMode) {
+    throw new Error('BucketStrategyConfiguration requires either (formValue + updateFormValue) or (values + onChange)')
+  }
+}
+
+function createValueChangeHandler(
+  isFormMode: boolean,
+  isDirectMode: boolean,
+  updateFormBucketConfig: ((updates: Partial<BucketStrategyConfigValues>) => void) | undefined,
+  onChange: BucketStrategyChangeHandlers | undefined,
+) {
+  return <K extends keyof BucketStrategyConfigValues>(
+    key: K,
+    value: BucketStrategyConfigValues[K],
+  ) => {
+    if (isFormMode && updateFormBucketConfig) {
+      updateFormBucketConfig({ [key]: value })
+    }
+    else if (isDirectMode && onChange) {
+      const handlerKey = HANDLER_MAP[key]
+      if (handlerKey && onChange[handlerKey]) {
+        (onChange[handlerKey] as (v: unknown) => void)(value)
+      }
+    }
+  }
+}
+
 export function BucketStrategyConfiguration({
   formValue,
   updateFormValue,
@@ -40,9 +83,7 @@ export function BucketStrategyConfiguration({
   const isFormMode = formValue !== undefined && updateFormValue !== undefined
   const isDirectMode = values !== undefined && onChange !== undefined
 
-  if (!isFormMode && !isDirectMode) {
-    throw new Error('BucketStrategyConfiguration requires either (formValue + updateFormValue) or (values + onChange)')
-  }
+  validateModeProps(isFormMode, isDirectMode)
 
   // Get current values based on mode
   const currentValues = isFormMode
@@ -59,34 +100,12 @@ export function BucketStrategyConfiguration({
     : undefined
 
   // Helper to handle value changes in either mode
-  const handleValueChange = <K extends keyof BucketStrategyConfigValues>(
-    key: K,
-    value: BucketStrategyConfigValues[K],
-  ) => {
-    if (isFormMode && updateFormBucketConfig) {
-      updateFormBucketConfig({ [key]: value })
-    }
-    else if (isDirectMode && onChange) {
-      const handlerMap: Record<string, keyof BucketStrategyChangeHandlers> = {
-        initialCashCushion: 'onInitialCashCushionChange',
-        refillThreshold: 'onRefillThresholdChange',
-        refillPercentage: 'onRefillPercentageChange',
-        baseWithdrawalRate: 'onBaseWithdrawalRateChange',
-        subStrategy: 'onSubStrategyChange',
-        variabelProzent: 'onVariabelProzentChange',
-        monatlicheBetrag: 'onMonatlicheBetragChange',
-        dynamischBasisrate: 'onDynamischBasisrateChange',
-        dynamischObereSchwell: 'onDynamischObereSchwell',
-        dynamischObereAnpassung: 'onDynamischObereAnpassung',
-        dynamischUntereSchwell: 'onDynamischUntereSchwell',
-        dynamischUntereAnpassung: 'onDynamischUntereAnpassung',
-      }
-      const handlerKey = handlerMap[key]
-      if (handlerKey && onChange[handlerKey]) {
-        (onChange[handlerKey] as (v: unknown) => void)(value)
-      }
-    }
-  }
+  const handleValueChange = createValueChangeHandler(
+    isFormMode,
+    isDirectMode,
+    updateFormBucketConfig,
+    onChange,
+  )
 
   return (
     <div className="space-y-4">
