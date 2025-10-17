@@ -70,19 +70,16 @@ export function getCurrentValuesFromForm(
   formValue: BucketStrategyFormValues,
 ): BucketStrategyConfigValues {
   const config = formValue.bucketConfig
+
+  // If no config provided, return defaults
+  if (!config) {
+    return { ...DEFAULT_VALUES }
+  }
+
+  // Merge config with defaults for any missing values
   return {
-    initialCashCushion: config?.initialCashCushion ?? DEFAULT_VALUES.initialCashCushion,
-    refillThreshold: config?.refillThreshold ?? DEFAULT_VALUES.refillThreshold,
-    refillPercentage: config?.refillPercentage ?? DEFAULT_VALUES.refillPercentage,
-    baseWithdrawalRate: config?.baseWithdrawalRate ?? DEFAULT_VALUES.baseWithdrawalRate,
-    subStrategy: config?.subStrategy ?? DEFAULT_VALUES.subStrategy,
-    variabelProzent: config?.variabelProzent ?? DEFAULT_VALUES.variabelProzent,
-    monatlicheBetrag: config?.monatlicheBetrag ?? DEFAULT_VALUES.monatlicheBetrag,
-    dynamischBasisrate: config?.dynamischBasisrate ?? DEFAULT_VALUES.dynamischBasisrate,
-    dynamischObereSchwell: config?.dynamischObereSchwell ?? DEFAULT_VALUES.dynamischObereSchwell,
-    dynamischObereAnpassung: config?.dynamischObereAnpassung ?? DEFAULT_VALUES.dynamischObereAnpassung,
-    dynamischUntereSchwell: config?.dynamischUntereSchwell ?? DEFAULT_VALUES.dynamischUntereSchwell,
-    dynamischUntereAnpassung: config?.dynamischUntereAnpassung ?? DEFAULT_VALUES.dynamischUntereAnpassung,
+    ...DEFAULT_VALUES,
+    ...config,
   }
 }
 
