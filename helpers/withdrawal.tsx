@@ -235,52 +235,39 @@ function calculateStandardRuleWithdrawal(
   return initialStartingCapital * withdrawalRate
 }
 
+function getWithdrawalCalculator(strategy: WithdrawalStrategy, params: BaseWithdrawalParams) {
+  const strategies = {
+    monatlich_fest: () => {
+      if (!params.monthlyConfig) throw new Error('Monthly config required')
+      return calculateMonthlyFixedAmount(strategy, params.monthlyConfig)
+    },
+    variabel_prozent: () => calculatePercentageWithdrawal(params.initialStartingCapital, params.customPercentage),
+    dynamisch: () => calculateDynamicWithdrawal(params.initialStartingCapital, params.dynamicConfig),
+    bucket_strategie: () => {
+      if (!params.bucketConfig) throw new Error('Bucket strategy config required')
+      return calculateBucketStrategyAmount(params.initialStartingCapital, params.bucketConfig)
+    },
+    rmd: () => {
+      if (!params.rmdConfig) throw new Error('RMD config required')
+      return calculateRMDAmount(params.initialStartingCapital, params.rmdConfig)
+    },
+    kapitalerhalt: () => {
+      if (!params.kapitalerhaltConfig) throw new Error('Kapitalerhalt config required')
+      return calculateKapitalerhaltAmount(params.initialStartingCapital, params.kapitalerhaltConfig)
+    },
+    steueroptimiert: () => calculateSteueroptimierteWithdrawal(
+      params.initialStartingCapital,
+      params.steueroptimierteEntnahmeConfig,
+    ),
+  }
+
+  return strategies[strategy as keyof typeof strategies]
+    || (() => calculateStandardRuleWithdrawal(strategy, params.initialStartingCapital))
+}
+
 function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
-  const {
-    strategy,
-    initialStartingCapital,
-    monthlyConfig,
-    customPercentage,
-    dynamicConfig,
-    bucketConfig,
-    rmdConfig,
-    kapitalerhaltConfig,
-    steueroptimierteEntnahmeConfig,
-  } = params
-
-  if (strategy === 'monatlich_fest') {
-    if (!monthlyConfig) throw new Error('Monthly config required')
-    return calculateMonthlyFixedAmount(strategy, monthlyConfig)
-  }
-
-  if (strategy === 'variabel_prozent') {
-    return calculatePercentageWithdrawal(initialStartingCapital, customPercentage)
-  }
-
-  if (strategy === 'dynamisch') {
-    return calculateDynamicWithdrawal(initialStartingCapital, dynamicConfig)
-  }
-
-  if (strategy === 'bucket_strategie') {
-    if (!bucketConfig) throw new Error('Bucket strategy config required')
-    return calculateBucketStrategyAmount(initialStartingCapital, bucketConfig)
-  }
-
-  if (strategy === 'rmd') {
-    if (!rmdConfig) throw new Error('RMD config required')
-    return calculateRMDAmount(initialStartingCapital, rmdConfig)
-  }
-
-  if (strategy === 'kapitalerhalt') {
-    if (!kapitalerhaltConfig) throw new Error('Kapitalerhalt config required')
-    return calculateKapitalerhaltAmount(initialStartingCapital, kapitalerhaltConfig)
-  }
-
-  if (strategy === 'steueroptimiert') {
-    return calculateSteueroptimierteWithdrawal(initialStartingCapital, steueroptimierteEntnahmeConfig)
-  }
-
-  return calculateStandardRuleWithdrawal(strategy, initialStartingCapital)
+  const calculator = getWithdrawalCalculator(params.strategy, params)
+  return calculator()
 }
 
 /**
