@@ -17,6 +17,7 @@ Zinseszins-Simulation is a German compound interest calculator built with Vite, 
 Before running any other commands (linting, testing, building, or starting the dev server), you **MUST** install dependencies first. Running commands without installing dependencies will result in errors.
 
 **Correct command sequence:**
+
 ```bash
 # 1. FIRST: Install dependencies (always required in a fresh clone)
 npm install
@@ -29,6 +30,7 @@ npm run dev
 ```
 
 **❌ INCORRECT - Will fail with errors:**
+
 ```bash
 npm run lint    # ERROR: Dependencies not installed
 npm run test    # ERROR: Dependencies not installed
@@ -41,6 +43,7 @@ npm run test    # ERROR: Dependencies not installed
   - Will show 7 moderate severity vulnerabilities - this is expected and doesn't block development
   - Uses standard npm package resolution
   - **This command MUST be run first** before any other npm commands
+
 #### Other Commands (require npm install first)
 
 - **Build the application**: `npm run build` -- takes 3-5 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
@@ -70,6 +73,7 @@ npm run test    # ERROR: Dependencies not installed
 #### Command Dependencies
 
 Understanding the automatic command chains:
+
 - `npm run test` → automatically runs `npm run lint` (pretest hook) → automatically runs `npm run typecheck` (prelint hook)
 - `npm run lint` → automatically runs `npm run typecheck` (prelint hook)
 
