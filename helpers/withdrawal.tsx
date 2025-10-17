@@ -713,6 +713,36 @@ function needsDynamicFields(strategy: WithdrawalStrategy, bucketConfig?: BucketS
   return strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')
 }
 
+function buildDynamicFields(
+  hasDynamicFields: boolean,
+  dynamischeAnpassung: number,
+  vorjahresRendite: number | undefined,
+) {
+  if (!hasDynamicFields) return {}
+
+  return {
+    dynamischeAnpassung,
+    vorjahresRendite,
+  }
+}
+
+function buildBucketFields(
+  strategy: WithdrawalStrategy,
+  cashCushionAtStart: number,
+  cashCushion: number,
+  bucketUsed: 'portfolio' | 'cash' | undefined,
+  refillAmount: number,
+) {
+  if (strategy !== 'bucket_strategie') return {}
+
+  return {
+    cashCushionStart: cashCushionAtStart,
+    cashCushionEnd: cashCushion,
+    bucketUsed,
+    refillAmount: refillAmount > 0 ? refillAmount : undefined,
+  }
+}
+
 function buildStrategySpecificFields(params: {
   strategy: WithdrawalStrategy
   dynamischeAnpassung: number
@@ -747,13 +777,9 @@ function buildStrategySpecificFields(params: {
   const hasDynamicFields = needsDynamicFields(strategy, bucketConfig)
 
   return {
-    dynamischeAnpassung: hasDynamicFields ? dynamischeAnpassung : undefined,
-    vorjahresRendite: hasDynamicFields ? vorjahresRendite : undefined,
+    ...buildDynamicFields(hasDynamicFields, dynamischeAnpassung, vorjahresRendite),
     steueroptimierungAnpassung: strategy === 'steueroptimiert' ? steueroptimierungAnpassung : undefined,
-    cashCushionStart: strategy === 'bucket_strategie' ? cashCushionAtStart : undefined,
-    cashCushionEnd: strategy === 'bucket_strategie' ? cashCushion : undefined,
-    bucketUsed: strategy === 'bucket_strategie' ? bucketUsed : undefined,
-    refillAmount: strategy === 'bucket_strategie' && refillAmount > 0 ? refillAmount : undefined,
+    ...buildBucketFields(strategy, cashCushionAtStart, cashCushion, bucketUsed, refillAmount),
   }
 }
 
