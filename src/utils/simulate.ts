@@ -156,53 +156,42 @@ function applyVariableReturns(
   return rates
 }
 
+type ReturnGenerator = (years: number[]) => Record<number, number>
+
+function getReturnGenerator(returnConfig: ReturnConfiguration): ReturnGenerator {
+  const generators: Record<string, ReturnGenerator | undefined> = {
+    fixed: years => applyFixedRate(years, returnConfig.fixedRate ?? 0.05),
+    random: years => returnConfig.randomConfig
+      ? generateRandomReturns(years, returnConfig.randomConfig)
+      : {},
+    variable: years => returnConfig.variableConfig
+      ? applyVariableReturns(years, returnConfig.variableConfig.yearlyReturns)
+      : {},
+    historical: (years) => {
+      if (!returnConfig.historicalConfig) return applyFixedRate(years, 0.05)
+      const historicalReturns = getHistoricalReturns(
+        returnConfig.historicalConfig.indexId,
+        years[0],
+        years[years.length - 1],
+      )
+      return historicalReturns || applyFixedRate(years, 0.05)
+    },
+    multiasset: years => returnConfig.multiAssetConfig
+      ? generateMultiAssetReturns(years, returnConfig.multiAssetConfig)
+      : applyFixedRate(years, 0.05),
+  }
+
+  return generators[returnConfig.mode] || (years => applyFixedRate(years, 0.05))
+}
+
 function generateYearlyGrowthRates(
   startYear: number,
   endYear: number,
   returnConfig: ReturnConfiguration,
 ): Record<number, number> {
   const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i)
-  const yearlyGrowthRates: Record<number, number> = {}
-
-  switch (returnConfig.mode) {
-    case 'fixed': {
-      const fixedRate = returnConfig.fixedRate ?? 0.05
-      return applyFixedRate(years, fixedRate)
-    }
-    case 'random': {
-      if (returnConfig.randomConfig) {
-        return generateRandomReturns(years, returnConfig.randomConfig)
-      }
-      break
-    }
-    case 'variable': {
-      if (returnConfig.variableConfig) {
-        return applyVariableReturns(years, returnConfig.variableConfig.yearlyReturns)
-      }
-      break
-    }
-    case 'historical': {
-      if (returnConfig.historicalConfig) {
-        const historicalReturns = getHistoricalReturns(
-          returnConfig.historicalConfig.indexId,
-          startYear,
-          endYear,
-        )
-        if (historicalReturns) {
-          return historicalReturns
-        }
-      }
-      return applyFixedRate(years, 0.05)
-    }
-    case 'multiasset': {
-      if (returnConfig.multiAssetConfig) {
-        return generateMultiAssetReturns(years, returnConfig.multiAssetConfig)
-      }
-      return applyFixedRate(years, 0.05)
-    }
-  }
-
-  return yearlyGrowthRates
+  const generator = getReturnGenerator(returnConfig)
+  return generator(years)
 }
 
 // Implementation
