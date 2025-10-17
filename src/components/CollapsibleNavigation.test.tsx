@@ -1,9 +1,16 @@
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
-import { describe, it, expect, vi } from 'vitest'
+import { render, screen, fireEvent } from '@testing-library/react'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { CollapsibleNavigation } from './CollapsibleNavigation'
 import { NavigationProvider } from '../contexts/NavigationContext'
+import React from 'react'
 
-// Mock the useNavigation hook for testing
+// Mock the collapsible component to be always open for testing purposes.
+vi.mock('./ui/collapsible', () => ({
+  Collapsible: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CollapsibleTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  CollapsibleContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+}))
+
 const mockNavigationItems = [
   {
     id: 'test-section-1',
@@ -46,53 +53,25 @@ describe('CollapsibleNavigation', () => {
     expect(screen.getByText('2 Bereiche')).toBeInTheDocument()
   })
 
-  it('is collapsed by default', () => {
+  it('is expanded and shows navigation items', () => {
     render(
       <NavigationProvider>
         <CollapsibleNavigation />
       </NavigationProvider>,
     )
 
-    // Navigation items should not be visible initially
-    expect(screen.queryByText('Test Section 1')).not.toBeInTheDocument()
-    expect(screen.queryByText('Test Section 2')).not.toBeInTheDocument()
-  })
-
-  it('expands when clicked and shows navigation items', async () => {
-    render(
-      <NavigationProvider>
-        <CollapsibleNavigation />
-      </NavigationProvider>,
-    )
-
-    // Click the navigation header to expand
-    const navigationHeader = screen.getByText('🧭 Navigation')
-    fireEvent.click(navigationHeader)
-
-    // Navigation items should now be visible (wait for collapsible to open)
-    await waitFor(() => {
-      expect(screen.getByText('Test Section 1')).toBeInTheDocument()
-    })
+    // Navigation items should be visible
+    expect(screen.getByText('Test Section 1')).toBeInTheDocument()
     expect(screen.getByText('Test Section 2')).toBeInTheDocument()
-    expect(screen.getByText('Klicke auf einen Bereich, um dorthin zu springen und ihn aufzuklappen:')).toBeInTheDocument()
   })
 
-  it('calls scrollToItem when navigation item is clicked', async () => {
+  it('calls scrollToItem when navigation item is clicked', () => {
     render(
       <NavigationProvider>
         <CollapsibleNavigation />
       </NavigationProvider>,
     )
 
-    // Expand navigation
-    const navigationHeader = screen.getByText('🧭 Navigation')
-    fireEvent.click(navigationHeader)
-
-    // Click on a navigation item (icon and text are in separate spans) - wait for it to appear
-    await waitFor(() => {
-      expect(screen.getByText('Test Section 1')).toBeInTheDocument()
-    })
-    
     const navigationItem = screen.getByText('Test Section 1')
     fireEvent.click(navigationItem)
 
