@@ -286,6 +286,51 @@ function getInflationAdjustedContribution(
 }
 
 // Helper function to calculate growth and costs for a single element in a year
+function getAdjustedEinzahlung(
+  element: SparplanElement,
+  year: number,
+  options: SimulateOptions,
+): number {
+  const yearInflationRate = getInflationRateForYear(year, options)
+  const shouldApplyInflation = (options.inflationAktivSparphase || options.variableInflationRates)
+    && yearInflationRate > 0
+    && (!options.inflationAnwendungSparphase || options.inflationAnwendungSparphase === 'sparplan')
+
+  if (!shouldApplyInflation) {
+    return element.einzahlung
+  }
+
+  return getInflationAdjustedContribution(
+    element.einzahlung,
+    options.startYear,
+    year,
+    yearInflationRate,
+  )
+}
+
+function calculateEndkapital(
+  startkapital: number,
+  wachstumsrate: number,
+  element: SparplanElement,
+  year: number,
+  simulationAnnual: SimulationAnnualType,
+): { endkapitalVorSteuer: number, anteilImJahr: number } {
+  const isFirstYear = new Date(element.start).getFullYear() === year
+
+  if (simulationAnnual === 'monthly' && isFirstYear) {
+    const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1
+    const startMonth = new Date(element.start).getMonth()
+    const anteilImJahr = 12 - startMonth
+    const endkapitalVorSteuer = startkapital * Math.pow(1 + wachstumsrateMonth, anteilImJahr)
+    return { endkapitalVorSteuer, anteilImJahr }
+  }
+
+  return {
+    endkapitalVorSteuer: startkapital * (1 + wachstumsrate),
+    anteilImJahr: 12,
+  }
+}
+
 function calculateGrowthAndCostsForElement(
   element: SparplanElement,
   year: number,
@@ -294,36 +339,19 @@ function calculateGrowthAndCostsForElement(
   options: SimulateOptions,
 ) {
   // Apply inflation adjustment to contributions if enabled and in Sparplan mode (default)
-  let adjustedEinzahlung = element.einzahlung
-  const yearInflationRate = getInflationRateForYear(year, options)
-  if ((options.inflationAktivSparphase || options.variableInflationRates)
-    && yearInflationRate > 0
-    && (!options.inflationAnwendungSparphase || options.inflationAnwendungSparphase === 'sparplan')) {
-    const baseYear = options.startYear
-    adjustedEinzahlung = getInflationAdjustedContribution(
-      element.einzahlung,
-      baseYear,
-      year,
-      yearInflationRate,
-    )
-  }
+  const adjustedEinzahlung = getAdjustedEinzahlung(element, year, options)
 
   const startkapital
     = element.simulation?.[year - 1]?.endkapital
       || adjustedEinzahlung + (element.type === 'einmalzahlung' ? element.gewinn : 0)
 
-  let endkapitalVorSteuer: number
-  let anteilImJahr = 12
-
-  if (simulationAnnual === 'monthly' && new Date(element.start).getFullYear() === year) {
-    const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1
-    const startMonth = new Date(element.start).getMonth()
-    anteilImJahr = 12 - startMonth
-    endkapitalVorSteuer = startkapital * Math.pow(1 + wachstumsrateMonth, anteilImJahr)
-  }
-  else {
-    endkapitalVorSteuer = startkapital * (1 + wachstumsrate)
-  }
+  const { endkapitalVorSteuer, anteilImJahr } = calculateEndkapital(
+    startkapital,
+    wachstumsrate,
+    element,
+    year,
+    simulationAnnual,
+  )
 
   const costs = calculateCosts(element, startkapital, endkapitalVorSteuer, year, anteilImJahr)
   const endkapitalAfterCosts = endkapitalVorSteuer - costs.totalCosts
