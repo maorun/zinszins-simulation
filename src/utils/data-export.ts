@@ -427,9 +427,27 @@ interface BasicRowDataParams {
   isMonthly: boolean
 }
 
+/**
+ * Extract Vorabpauschale details for CSV formatting
+ */
+function extractVorabpauschaleDetails(yearData: WithdrawalResultElement): {
+  basiszins: string
+  basisertrag: string
+  jahresgewinn: string
+  steuerVorFreibetrag: string
+} {
+  const details = yearData.vorabpauschaleDetails
+  return {
+    basiszins: formatBasiszins(details),
+    basisertrag: formatCurrencyForCSV(details?.basisertrag || 0),
+    jahresgewinn: formatCurrencyForCSV(details?.jahresgewinn || 0),
+    steuerVorFreibetrag: formatCurrencyForCSV(details?.steuerVorFreibetrag || 0),
+  }
+}
+
 function buildBasicRowData(params: BasicRowDataParams): string[] {
   const { year, month, yearData, isMonthly } = params
-  const details = yearData.vorabpauschaleDetails
+  const vDetails = extractVorabpauschaleDetails(yearData)
 
   return [
     year.toString(),
@@ -438,11 +456,11 @@ function buildBasicRowData(params: BasicRowDataParams): string[] {
     formatCurrencyForCSV(yearData.entnahme),
     formatCurrencyForCSV(yearData.zinsen),
     formatCurrencyForCSV(yearData.endkapital),
-    formatBasiszins(details),
-    formatCurrencyForCSV(details?.basisertrag || 0),
-    formatCurrencyForCSV(details?.jahresgewinn || 0),
+    vDetails.basiszins,
+    vDetails.basisertrag,
+    vDetails.jahresgewinn,
     formatCurrencyForCSV(yearData.vorabpauschale || 0),
-    formatCurrencyForCSV(details?.steuerVorFreibetrag || 0),
+    vDetails.steuerVorFreibetrag,
     formatCurrencyForCSV(yearData.bezahlteSteuer),
     formatCurrencyForCSV(yearData.genutzterFreibetrag),
   ]

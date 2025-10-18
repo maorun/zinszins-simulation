@@ -38,6 +38,18 @@ function getCombinedPensionConfig(
   }
 }
 
+/**
+ * Determine which person's pension config to use
+ */
+function selectSinglePensionConfig(
+  person1: StatutoryPensionConfig,
+  person2: StatutoryPensionConfig,
+): StatutoryPensionConfig | null {
+  if (person1.enabled && !person2.enabled) return person1
+  if (!person1.enabled && person2.enabled) return person2
+  return null
+}
+
 function getCouplePensionConfig(
   person1: StatutoryPensionConfig,
   person2: StatutoryPensionConfig,
@@ -46,15 +58,11 @@ function getCouplePensionConfig(
   if (!person1.enabled && !person2.enabled) return null
 
   // If only one person has pension, return that config
-  if (person1.enabled && !person2.enabled) return person1
-  if (!person1.enabled && person2.enabled) return person2
+  const singleConfig = selectSinglePensionConfig(person1, person2)
+  if (singleConfig) return singleConfig
 
   // If both have pensions, combine them
-  if (person1.enabled && person2.enabled) {
-    return getCombinedPensionConfig(person1, person2)
-  }
-
-  return null
+  return getCombinedPensionConfig(person1, person2)
 }
 
 export function convertCoupleToLegacyConfig(
