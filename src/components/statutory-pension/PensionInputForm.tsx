@@ -7,36 +7,291 @@ import { Button } from '../ui/button'
 import { Calculator } from 'lucide-react'
 import { useFormId } from '../../utils/unique-id'
 
-interface PensionInputFormProps {
-  values: {
-    monthlyAmount: number
-    annualIncreaseRate: number
-    taxablePercentage: number
-    retirementAge?: number
-    startYear: number
+type PensionFormValues = {
+  monthlyAmount: number
+  annualIncreaseRate: number
+  taxablePercentage: number
+  retirementAge?: number
+  startYear: number
+  hasTaxReturnData: boolean
+  taxYear: number
+  annualPensionReceived: number
+  taxablePortion: number
+}
+
+type PensionFormHandlers = {
+  onMonthlyAmountChange: (amount: number) => void
+  onAnnualIncreaseRateChange: (rate: number) => void
+  onTaxablePercentageChange: (percentage: number) => void
+  onRetirementAgeChange: (age: number) => void
+  onTaxReturnDataChange: (data: {
     hasTaxReturnData: boolean
     taxYear: number
     annualPensionReceived: number
     taxablePortion: number
-  }
-  onChange: {
-    onMonthlyAmountChange: (amount: number) => void
-    onAnnualIncreaseRateChange: (rate: number) => void
-    onTaxablePercentageChange: (percentage: number) => void
-    onRetirementAgeChange: (age: number) => void
-    onTaxReturnDataChange: (data: {
-      hasTaxReturnData: boolean
-      taxYear: number
-      annualPensionReceived: number
-      taxablePortion: number
-    }) => void
-  }
+  }) => void
+}
+
+interface PensionInputFormProps {
+  values: PensionFormValues
+  onChange: PensionFormHandlers
   nestingLevel: number
   birthYear?: number
   spouseBirthYear?: number
   currentYear: number
   planningMode: 'individual' | 'couple'
   onImportFromTaxReturn: () => void
+}
+
+/**
+ * Tax return data import section
+ */
+function TaxReturnDataImport({
+  values,
+  onChange,
+  nestingLevel,
+  currentYear,
+  onImportFromTaxReturn,
+}: {
+  values: PensionFormValues
+  onChange: PensionFormHandlers
+  nestingLevel: number
+  currentYear: number
+  onImportFromTaxReturn: () => void
+}) {
+  return (
+    <Card nestingLevel={nestingLevel + 1}>
+      <CardHeader nestingLevel={nestingLevel + 1} className="pb-3">
+        <CardTitle className="text-base flex items-center gap-2">
+          <Calculator className="h-4 w-4" />
+          Daten aus Rentenbescheid importieren
+        </CardTitle>
+      </CardHeader>
+      <CardContent nestingLevel={nestingLevel + 1} className="space-y-4">
+        <div className="flex items-center space-x-2">
+          <Switch
+            checked={values.hasTaxReturnData}
+            onCheckedChange={hasTaxReturnData =>
+              onChange.onTaxReturnDataChange({
+                hasTaxReturnData,
+                taxYear: values.taxYear,
+                annualPensionReceived: values.annualPensionReceived,
+                taxablePortion: values.taxablePortion,
+              })}
+            id="has-tax-return-data"
+          />
+          <Label htmlFor="has-tax-return-data">
+            Daten aus Rentenbescheid verfügbar
+          </Label>
+        </div>
+
+        {values.hasTaxReturnData && (
+          <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="tax-year">Steuerjahr</Label>
+                <Input
+                  id="tax-year"
+                  type="number"
+                  value={values.taxYear}
+                  onChange={e => onChange.onTaxReturnDataChange({
+                    hasTaxReturnData: values.hasTaxReturnData,
+                    taxYear: Number(e.target.value),
+                    annualPensionReceived: values.annualPensionReceived,
+                    taxablePortion: values.taxablePortion,
+                  })}
+                  min={2000}
+                  max={currentYear}
+                  step={1}
+                  className="w-32"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="annual-pension-received">Jahresrente (brutto) €</Label>
+                <Input
+                  id="annual-pension-received"
+                  type="number"
+                  value={values.annualPensionReceived}
+                  onChange={e => onChange.onTaxReturnDataChange({
+                    hasTaxReturnData: values.hasTaxReturnData,
+                    taxYear: values.taxYear,
+                    annualPensionReceived: Number(e.target.value),
+                    taxablePortion: values.taxablePortion,
+                  })}
+                  min={0}
+                  step={100}
+                  className="w-40"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="taxable-portion">Steuerpflichtiger Anteil €</Label>
+                <Input
+                  id="taxable-portion"
+                  type="number"
+                  value={values.taxablePortion}
+                  onChange={e => onChange.onTaxReturnDataChange({
+                    hasTaxReturnData: values.hasTaxReturnData,
+                    taxYear: values.taxYear,
+                    annualPensionReceived: values.annualPensionReceived,
+                    taxablePortion: Number(e.target.value),
+                  })}
+                  min={0}
+                  step={100}
+                  className="w-40"
+                />
+              </div>
+            </div>
+
+            <Button
+              onClick={onImportFromTaxReturn}
+              disabled={values.annualPensionReceived === 0}
+              className="w-full md:w-auto"
+            >
+              <Calculator className="h-4 w-4 mr-2" />
+              Werte automatisch berechnen
+            </Button>
+          </div>
+        )}
+      </CardContent>
+    </Card>
+  )
+}
+
+/**
+ * Individual planning mode display
+ */
+function IndividualPlanningDisplay({
+  birthYear,
+  values,
+}: {
+  birthYear?: number
+  values: PensionFormValues
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        <div>
+          <span className="text-gray-600">Geburtsjahr:</span>
+          <div className="font-medium">{birthYear || 'Nicht festgelegt'}</div>
+        </div>
+        <div>
+          <span className="text-gray-600">Renteneintrittsalter:</span>
+          <div className="font-medium">
+            {values.retirementAge || 67}
+            {' '}
+            Jahre
+          </div>
+        </div>
+      </div>
+      <div className="pt-2 border-t border-green-200">
+        <span className="text-gray-600">Berechneter Rentenbeginn:</span>
+        <div className="text-lg font-bold text-green-800">
+          {birthYear ? values.startYear : '—'}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Couple planning mode display
+ */
+function CouplePlanningDisplay({
+  birthYear,
+  spouseBirthYear,
+  values,
+}: {
+  birthYear?: number
+  spouseBirthYear?: number
+  values: PensionFormValues
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="grid grid-cols-2 gap-2 text-sm">
+        <div>
+          <span className="text-gray-600">Person 1 (Geburtsjahr):</span>
+          <div className="font-medium">{birthYear || 'Nicht festgelegt'}</div>
+        </div>
+        <div>
+          <span className="text-gray-600">Person 2 (Geburtsjahr):</span>
+          <div className="font-medium">{spouseBirthYear || 'Nicht festgelegt'}</div>
+        </div>
+      </div>
+      <div className="text-sm">
+        <span className="text-gray-600">Renteneintrittsalter:</span>
+        <span className="font-medium ml-1">
+          {values.retirementAge || 67}
+          {' '}
+          Jahre (beide Partner)
+        </span>
+      </div>
+      <div className="pt-2 border-t border-green-200">
+        <span className="text-gray-600">Berechneter Rentenbeginn (frühester Partner):</span>
+        <div className="text-lg font-bold text-green-800">
+          {(birthYear && spouseBirthYear) ? values.startYear : '—'}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Automatic retirement start year display section
+ */
+function RetirementStartDisplay({
+  planningMode,
+  birthYear,
+  spouseBirthYear,
+  values,
+  onChange,
+}: {
+  planningMode: 'individual' | 'couple'
+  birthYear?: number
+  spouseBirthYear?: number
+  values: PensionFormValues
+  onChange: PensionFormHandlers
+}) {
+  const missingBirthYear = !birthYear || (planningMode === 'couple' && !spouseBirthYear)
+
+  return (
+    <div className="space-y-4">
+      <div className="p-3 bg-green-50 rounded-lg space-y-3">
+        <div className="text-sm font-medium text-green-900">Automatischer Rentenbeginn</div>
+
+        {planningMode === 'individual' ? (
+          <IndividualPlanningDisplay birthYear={birthYear} values={values} />
+        ) : (
+          <CouplePlanningDisplay birthYear={birthYear} spouseBirthYear={spouseBirthYear} values={values} />
+        )}
+
+        {missingBirthYear && (
+          <div className="text-xs text-orange-600 bg-orange-50 p-2 rounded border border-orange-200">
+            Bitte Geburtsjahr(e) in der Globalen Planung festlegen
+          </div>
+        )}
+      </div>
+
+      {/* Retirement Age Configuration */}
+      <div className="space-y-2">
+        <Label htmlFor="retirement-age">Renteneintrittsalter</Label>
+        <Input
+          id="retirement-age"
+          type="number"
+          value={values.retirementAge || 67}
+          onChange={e => onChange.onRetirementAgeChange(Number(e.target.value))}
+          min={60}
+          max={75}
+          className="w-32"
+        />
+        <div className="text-sm text-muted-foreground">
+          Geplantes Alter für den Renteneintritt.
+          Wird automatisch zur Berechnung des Rentenbeginns verwendet.
+        </div>
+      </div>
+    </div>
+  )
 }
 
 export function PensionInputForm({
@@ -54,188 +309,25 @@ export function PensionInputForm({
   return (
     <>
       {/* Tax Return Data Import */}
-      <Card nestingLevel={nestingLevel + 1}>
-        <CardHeader nestingLevel={nestingLevel + 1} className="pb-3">
-          <CardTitle className="text-base flex items-center gap-2">
-            <Calculator className="h-4 w-4" />
-            Daten aus Rentenbescheid importieren
-          </CardTitle>
-        </CardHeader>
-        <CardContent nestingLevel={nestingLevel + 1} className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <Switch
-              checked={values.hasTaxReturnData}
-              onCheckedChange={hasTaxReturnData =>
-                onChange.onTaxReturnDataChange({
-                  hasTaxReturnData,
-                  taxYear: values.taxYear,
-                  annualPensionReceived: values.annualPensionReceived,
-                  taxablePortion: values.taxablePortion,
-                })}
-              id="has-tax-return-data"
-            />
-            <Label htmlFor="has-tax-return-data">
-              Daten aus Rentenbescheid verfügbar
-            </Label>
-          </div>
-
-          {values.hasTaxReturnData && (
-            <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="tax-year">Steuerjahr</Label>
-                  <Input
-                    id="tax-year"
-                    type="number"
-                    value={values.taxYear}
-                    onChange={e => onChange.onTaxReturnDataChange({
-                      hasTaxReturnData: values.hasTaxReturnData,
-                      taxYear: Number(e.target.value),
-                      annualPensionReceived: values.annualPensionReceived,
-                      taxablePortion: values.taxablePortion,
-                    })}
-                    min={2000}
-                    max={currentYear}
-                    step={1}
-                    className="w-32"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="annual-pension-received">Jahresrente (brutto) €</Label>
-                  <Input
-                    id="annual-pension-received"
-                    type="number"
-                    value={values.annualPensionReceived}
-                    onChange={e => onChange.onTaxReturnDataChange({
-                      hasTaxReturnData: values.hasTaxReturnData,
-                      taxYear: values.taxYear,
-                      annualPensionReceived: Number(e.target.value),
-                      taxablePortion: values.taxablePortion,
-                    })}
-                    min={0}
-                    step={100}
-                    className="w-40"
-                  />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="taxable-portion">Steuerpflichtiger Anteil €</Label>
-                  <Input
-                    id="taxable-portion"
-                    type="number"
-                    value={values.taxablePortion}
-                    onChange={e => onChange.onTaxReturnDataChange({
-                      hasTaxReturnData: values.hasTaxReturnData,
-                      taxYear: values.taxYear,
-                      annualPensionReceived: values.annualPensionReceived,
-                      taxablePortion: Number(e.target.value),
-                    })}
-                    min={0}
-                    step={100}
-                    className="w-40"
-                  />
-                </div>
-              </div>
-
-              <Button
-                onClick={onImportFromTaxReturn}
-                disabled={values.annualPensionReceived === 0}
-                className="w-full md:w-auto"
-              >
-                <Calculator className="h-4 w-4 mr-2" />
-                Werte automatisch berechnen
-              </Button>
-            </div>
-          )}
-        </CardContent>
-      </Card>
+      <TaxReturnDataImport
+        values={values}
+        onChange={onChange}
+        nestingLevel={nestingLevel}
+        currentYear={currentYear}
+        onImportFromTaxReturn={onImportFromTaxReturn}
+      />
 
       {/* Basic Pension Configuration */}
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           {/* Automatic Retirement Start Year Display */}
-          <div className="space-y-4">
-            <div className="p-3 bg-green-50 rounded-lg space-y-3">
-              <div className="text-sm font-medium text-green-900">Automatischer Rentenbeginn</div>
-
-              {planningMode === 'individual' ? (
-                <div className="space-y-2">
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <span className="text-gray-600">Geburtsjahr:</span>
-                      <div className="font-medium">{birthYear || 'Nicht festgelegt'}</div>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Renteneintrittsalter:</span>
-                      <div className="font-medium">
-                        {values.retirementAge || 67}
-                        {' '}
-                        Jahre
-                      </div>
-                    </div>
-                  </div>
-                  <div className="pt-2 border-t border-green-200">
-                    <span className="text-gray-600">Berechneter Rentenbeginn:</span>
-                    <div className="text-lg font-bold text-green-800">
-                      {birthYear ? values.startYear : '—'}
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="space-y-2">
-                  <div className="grid grid-cols-2 gap-2 text-sm">
-                    <div>
-                      <span className="text-gray-600">Person 1 (Geburtsjahr):</span>
-                      <div className="font-medium">{birthYear || 'Nicht festgelegt'}</div>
-                    </div>
-                    <div>
-                      <span className="text-gray-600">Person 2 (Geburtsjahr):</span>
-                      <div className="font-medium">{spouseBirthYear || 'Nicht festgelegt'}</div>
-                    </div>
-                  </div>
-                  <div className="text-sm">
-                    <span className="text-gray-600">Renteneintrittsalter:</span>
-                    <span className="font-medium ml-1">
-                      {values.retirementAge || 67}
-                      {' '}
-                      Jahre (beide Partner)
-                    </span>
-                  </div>
-                  <div className="pt-2 border-t border-green-200">
-                    <span className="text-gray-600">Berechneter Rentenbeginn (frühester Partner):</span>
-                    <div className="text-lg font-bold text-green-800">
-                      {(birthYear && spouseBirthYear) ? values.startYear : '—'}
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {!birthYear || (planningMode === 'couple' && !spouseBirthYear) ? (
-                <div className="text-xs text-orange-600 bg-orange-50 p-2 rounded border border-orange-200">
-                  Bitte Geburtsjahr(e) in der Globalen Planung festlegen
-                </div>
-              ) : null}
-            </div>
-
-            {/* Retirement Age Configuration */}
-            <div className="space-y-2">
-              <Label htmlFor="retirement-age">Renteneintrittsalter</Label>
-              <Input
-                id="retirement-age"
-                type="number"
-                value={values.retirementAge || 67}
-                onChange={e => onChange.onRetirementAgeChange(Number(e.target.value))}
-                min={60}
-                max={75}
-                className="w-32"
-              />
-              <div className="text-sm text-muted-foreground">
-                Geplantes Alter für den Renteneintritt.
-                Wird automatisch zur Berechnung des Rentenbeginns verwendet.
-              </div>
-            </div>
-          </div>
+          <RetirementStartDisplay
+            planningMode={planningMode}
+            birthYear={birthYear}
+            spouseBirthYear={spouseBirthYear}
+            values={values}
+            onChange={onChange}
+          />
 
           {/* Monthly Amount Configuration */}
           <div className="space-y-2">

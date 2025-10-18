@@ -524,6 +524,94 @@ function calculateYearlySimulation(
   }
 }
 
+/**
+ * Calculate proportional tax distribution for an element
+ */
+function calculateProportionalTax(
+  elementPotentialTax: number,
+  totalPotentialTax: number,
+  totalTaxPaid: number,
+): number {
+  if (totalPotentialTax === 0) return 0
+  return (elementPotentialTax / totalPotentialTax) * totalTaxPaid
+}
+
+/**
+ * Calculate proportional Freibetrag usage for an element
+ */
+function calculateProportionalFreibetrag(
+  elementPotentialTax: number,
+  totalPotentialTax: number,
+  totalFreibetragUsed: number,
+): number {
+  if (totalPotentialTax === 0) return 0
+  return (elementPotentialTax / totalPotentialTax) * totalFreibetragUsed
+}
+
+/**
+ * Apply inflation reduction to capital in "gesamtmenge" mode
+ */
+function applyInflationReduction(
+  endkapital: number,
+  year: number,
+  options?: SimulateOptions,
+): number {
+  if (!options) return endkapital
+
+  const yearInflationRate = getInflationRateForYear(year, options)
+  const shouldApplyInflation = (options.inflationAktivSparphase || options.variableInflationRates)
+    && yearInflationRate > 0
+    && options.inflationAnwendungSparphase === 'gesamtmenge'
+
+  if (shouldApplyInflation) {
+    return endkapital * (1 - yearInflationRate)
+  }
+  return endkapital
+}
+
+/**
+ * Create simulation result element with all calculated values
+ */
+function createSimulationResult(
+  calc: YearlyCalculation,
+  endkapital: number,
+  taxForElement: number,
+  genutzterFreibetragForElement: number,
+  year: number,
+  options?: SimulateOptions,
+): SimulationResultElement {
+  const actualZinsen = endkapital - calc.startkapital
+  const vorabpauschaleAccumulated
+    = (calc.element.simulation[year - 1]?.vorabpauschaleAccumulated || 0)
+      + calc.vorabpauschaleBetrag
+
+  let simulationResult: SimulationResultElement = {
+    startkapital: calc.startkapital,
+    endkapital,
+    zinsen: actualZinsen,
+    bezahlteSteuer: taxForElement,
+    genutzterFreibetrag: genutzterFreibetragForElement,
+    vorabpauschale: calc.vorabpauschaleBetrag,
+    vorabpauschaleAccumulated,
+    vorabpauschaleDetails: calc.vorabpauschaleDetails,
+    terCosts: calc.costs.terCosts,
+    transactionCosts: calc.costs.transactionCosts,
+    totalCosts: calc.costs.totalCosts,
+  }
+
+  // Add inflation-adjusted values if inflation is active
+  if (options?.inflationAktivSparphase && options?.inflationsrateSparphase) {
+    simulationResult = addInflationAdjustedValues(
+      simulationResult,
+      year,
+      options.startYear,
+      options.inflationsrateSparphase,
+    )
+  }
+
+  return simulationResult
+}
+
 function applyTaxes(
   year: number,
   yearlyCalculations: YearlyCalculation[],
@@ -544,59 +632,32 @@ function applyTaxes(
   const genutzterFreibetragTotal = Math.min(totalPotentialTaxThisYear, freibetragInYear)
 
   for (const calc of yearlyCalculations) {
-    const taxForElement
-      = totalPotentialTaxThisYear > 0
-        ? (calc.potentialTax / totalPotentialTaxThisYear) * totalTaxPaid
-        : 0
-    const genutzterFreibetragForElement
-      = totalPotentialTaxThisYear > 0
-        ? (calc.potentialTax / totalPotentialTaxThisYear) * genutzterFreibetragTotal
-        : 0
+    const taxForElement = calculateProportionalTax(
+      calc.potentialTax,
+      totalPotentialTaxThisYear,
+      totalTaxPaid,
+    )
+    const genutzterFreibetragForElement = calculateProportionalFreibetrag(
+      calc.potentialTax,
+      totalPotentialTaxThisYear,
+      genutzterFreibetragTotal,
+    )
 
     let endkapital = steuerReduzierenEndkapital
       ? calc.endkapitalVorSteuer - taxForElement
       : calc.endkapitalVorSteuer
 
     // Apply inflation reduction to total capital in "gesamtmenge" mode
-    if (_options) {
-      const yearInflationRate = getInflationRateForYear(year, _options)
-      if ((_options.inflationAktivSparphase || _options.variableInflationRates)
-        && yearInflationRate > 0
-        && _options.inflationAnwendungSparphase === 'gesamtmenge') {
-        endkapital = endkapital * (1 - yearInflationRate)
-      }
-    }
+    endkapital = applyInflationReduction(endkapital, year, _options)
 
-    // Calculate actual interest/gain after all adjustments (including inflation and taxes)
-    const actualZinsen = endkapital - calc.startkapital
-
-    const vorabpauschaleAccumulated
-      = (calc.element.simulation[year - 1]?.vorabpauschaleAccumulated || 0)
-        + calc.vorabpauschaleBetrag
-
-    let simulationResult: SimulationResultElement = {
-      startkapital: calc.startkapital,
+    const simulationResult = createSimulationResult(
+      calc,
       endkapital,
-      zinsen: actualZinsen,
-      bezahlteSteuer: taxForElement,
-      genutzterFreibetrag: genutzterFreibetragForElement,
-      vorabpauschale: calc.vorabpauschaleBetrag,
-      vorabpauschaleAccumulated,
-      vorabpauschaleDetails: calc.vorabpauschaleDetails,
-      terCosts: calc.costs.terCosts,
-      transactionCosts: calc.costs.transactionCosts,
-      totalCosts: calc.costs.totalCosts,
-    }
-
-    // Add inflation-adjusted values if inflation is active
-    if (_options?.inflationAktivSparphase && _options?.inflationsrateSparphase) {
-      simulationResult = addInflationAdjustedValues(
-        simulationResult,
-        year,
-        _options.startYear,
-        _options.inflationsrateSparphase,
-      )
-    }
+      taxForElement,
+      genutzterFreibetragForElement,
+      year,
+      _options,
+    )
 
     calc.element.simulation[year] = simulationResult
   }

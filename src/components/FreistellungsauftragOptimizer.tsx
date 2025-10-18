@@ -11,6 +11,7 @@ import {
   calculateEffectiveTaxRates,
   type BankAccount,
   type FreistellungsauftragConfig,
+  type OptimizationResult,
 } from '../../helpers/freistellungsauftrag-optimization'
 import { formatCurrency } from '../utils/currency'
 
@@ -20,6 +21,116 @@ interface FreistellungsauftragOptimizerProps {
   onAccountsChange: (accounts: BankAccount[]) => void
   steuerlast: number // As percentage (e.g., 26.375)
   teilfreistellungsquote: number // As percentage (e.g., 30)
+}
+
+function AccountCard({
+  account,
+  optimizationResult,
+  effectiveTaxRates,
+  onRemove,
+  onChange,
+}: {
+  account: BankAccount
+  optimizationResult: OptimizationResult | null
+  effectiveTaxRates: Array<{ accountId: string, accountName: string, effectiveTaxRate: number, taxAmount: number }>
+  onRemove: (id: string) => void
+  onChange: (id: string, field: keyof BankAccount, value: string | number) => void
+}) {
+  const accountNameId = generateFormId('freistellungsauftrag', 'account-name', account.id)
+  const accountGainsId = generateFormId('freistellungsauftrag', 'account-gains', account.id)
+  const accountFreibetragId = generateFormId('freistellungsauftrag', 'account-freibetrag', account.id)
+
+  const optimizedAccount = optimizationResult?.accounts.find((a: BankAccount) => a.id === account.id)
+  const taxRate = effectiveTaxRates.find(r => r.accountId === account.id)
+
+  const hasOptimization = optimizedAccount && optimizedAccount.assignedFreibetrag !== account.assignedFreibetrag
+
+  return (
+    <Card key={account.id} className="relative">
+      <CardContent className="pt-6">
+        <div className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div className="flex-1 mr-4">
+              <Label htmlFor={accountNameId}>Kontoname</Label>
+              <Input
+                id={accountNameId}
+                type="text"
+                value={account.name}
+                onChange={e => onChange(account.id, 'name', e.target.value)}
+                placeholder="z.B. DKB, Trade Republic, ING"
+              />
+            </div>
+            <Button
+              onClick={() => onRemove(account.id)}
+              size="sm"
+              variant="ghost"
+              className="text-destructive hover:text-destructive"
+            >
+              <Trash2 className="h-4 w-4" />
+            </Button>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <Label htmlFor={accountGainsId}>Erwartete Kapitalerträge (€/Jahr)</Label>
+              <Input
+                id={accountGainsId}
+                type="number"
+                min="0"
+                step="100"
+                value={account.expectedCapitalGains}
+                onChange={e =>
+                  onChange(account.id, 'expectedCapitalGains', Number(e.target.value))}
+                placeholder="z.B. 2000"
+              />
+            </div>
+
+            <div>
+              <Label htmlFor={accountFreibetragId}>
+                Zugewiesener Freibetrag (€)
+                {hasOptimization && (
+                  <span className="ml-2 text-xs text-green-600 font-normal">
+                    Optimal:
+                    {' '}
+                    {formatCurrency(optimizedAccount.assignedFreibetrag)}
+                  </span>
+                )}
+              </Label>
+              <Input
+                id={accountFreibetragId}
+                type="number"
+                min="0"
+                step="10"
+                value={account.assignedFreibetrag}
+                onChange={e =>
+                  onChange(account.id, 'assignedFreibetrag', Number(e.target.value))}
+                placeholder="0"
+              />
+            </div>
+          </div>
+
+          {/* Tax Information */}
+          {taxRate && account.expectedCapitalGains > 0 && (
+            <div className="pt-2 border-t">
+              <div className="text-sm space-y-1">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Steuer:</span>
+                  <span className="font-medium">{formatCurrency(taxRate.taxAmount)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Effektiver Steuersatz:</span>
+                  <span className="font-medium">
+                    {(taxRate.effectiveTaxRate * 100).toFixed(2)}
+                    %
+                  </span>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </CardContent>
+    </Card>
+  )
 }
 
 export function FreistellungsauftragOptimizer({
@@ -139,102 +250,16 @@ export function FreistellungsauftragOptimizer({
             </div>
           )}
 
-          {accounts.map((account) => {
-            const accountNameId = generateFormId('freistellungsauftrag', 'account-name', account.id)
-            const accountGainsId = generateFormId('freistellungsauftrag', 'account-gains', account.id)
-            const accountFreibetragId = generateFormId('freistellungsauftrag', 'account-freibetrag', account.id)
-
-            const optimizedAccount = optimizationResult?.accounts.find(a => a.id === account.id)
-            const taxRate = effectiveTaxRates.find(r => r.accountId === account.id)
-
-            return (
-              <Card key={account.id} className="relative">
-                <CardContent className="pt-6">
-                  <div className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <div className="flex-1 mr-4">
-                        <Label htmlFor={accountNameId}>Kontoname</Label>
-                        <Input
-                          id={accountNameId}
-                          type="text"
-                          value={account.name}
-                          onChange={e => handleAccountChange(account.id, 'name', e.target.value)}
-                          placeholder="z.B. DKB, Trade Republic, ING"
-                        />
-                      </div>
-                      <Button
-                        onClick={() => handleRemoveAccount(account.id)}
-                        size="sm"
-                        variant="ghost"
-                        className="text-destructive hover:text-destructive"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor={accountGainsId}>Erwartete Kapitalerträge (€/Jahr)</Label>
-                        <Input
-                          id={accountGainsId}
-                          type="number"
-                          min="0"
-                          step="100"
-                          value={account.expectedCapitalGains}
-                          onChange={e =>
-                            handleAccountChange(account.id, 'expectedCapitalGains', Number(e.target.value))}
-                          placeholder="z.B. 2000"
-                        />
-                      </div>
-
-                      <div>
-                        <Label htmlFor={accountFreibetragId}>
-                          Zugewiesener Freibetrag (€)
-                          {optimizedAccount && optimizedAccount.assignedFreibetrag !== account.assignedFreibetrag && (
-                            <span className="ml-2 text-xs text-green-600 font-normal">
-                              Optimal:
-                              {' '}
-                              {formatCurrency(optimizedAccount.assignedFreibetrag)}
-                            </span>
-                          )}
-                        </Label>
-                        <Input
-                          id={accountFreibetragId}
-                          type="number"
-                          min="0"
-                          max={totalFreibetrag}
-                          step="10"
-                          value={account.assignedFreibetrag}
-                          onChange={e =>
-                            handleAccountChange(account.id, 'assignedFreibetrag', Number(e.target.value))}
-                          placeholder="0"
-                        />
-                      </div>
-                    </div>
-
-                    {/* Tax Information */}
-                    {taxRate && account.expectedCapitalGains > 0 && (
-                      <div className="pt-2 border-t">
-                        <div className="text-sm space-y-1">
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Steuer:</span>
-                            <span className="font-medium">{formatCurrency(taxRate.taxAmount)}</span>
-                          </div>
-                          <div className="flex justify-between">
-                            <span className="text-muted-foreground">Effektiver Steuersatz:</span>
-                            <span className="font-medium">
-                              {(taxRate.effectiveTaxRate * 100).toFixed(2)}
-                              %
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                </CardContent>
-              </Card>
-            )
-          })}
+          {accounts.map(account => (
+            <AccountCard
+              key={account.id}
+              account={account}
+              optimizationResult={optimizationResult}
+              effectiveTaxRates={effectiveTaxRates}
+              onRemove={handleRemoveAccount}
+              onChange={handleAccountChange}
+            />
+          ))}
         </div>
 
         {/* Validation Errors */}

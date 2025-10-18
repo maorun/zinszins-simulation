@@ -264,6 +264,53 @@ function isValidDataPoint(year: number, rate: number): boolean {
   return !isNaN(year) && !isNaN(rate) && year >= 1900 && year <= 2100
 }
 
+/**
+ * Validate and parse a CSV row
+ */
+interface ParsedRowData {
+  year: number
+  rate: number
+  isValid: boolean
+}
+
+function parseCSVRow(
+  line: string,
+  timeIndex: number,
+  valueIndex: number,
+): ParsedRowData | null {
+  const trimmedLine = line.trim()
+  if (!trimmedLine) return null
+
+  const columns = trimmedLine.split(',').map(col => col.trim().replace(/['"]/g, ''))
+  if (columns.length <= Math.max(timeIndex, valueIndex)) return null
+
+  const datePart = columns[timeIndex]
+  const valuePart = columns[valueIndex]
+
+  if (!datePart || !valuePart) return null
+
+  // Extract year from various date formats
+  const year = extractYearFromDateString(datePart)
+  if (year === null) return null
+
+  const rate = parseFloat(valuePart) / 100 // Convert percentage to decimal
+
+  if (!isValidDataPoint(year, rate)) return null
+
+  return {
+    year,
+    rate: Math.max(0, Math.min(0.15, rate)), // Clamp to reasonable bounds
+    isValid: true,
+  }
+}
+
+/**
+ * Check if year already exists in results
+ */
+function yearExists(results: BasiszinsData[], year: number): boolean {
+  return results.some(r => r.year === year)
+}
+
 function parseSDMXCSVData(csvData: string, source: 'api' | 'manual' | 'fallback'): BasiszinsData[] {
   const lines = csvData.split('\n')
   const results: BasiszinsData[] = []
@@ -277,30 +324,14 @@ function parseSDMXCSVData(csvData: string, source: 'api' | 'manual' | 'fallback'
 
   // Parse data rows
   for (let i = 1; i < lines.length; i++) {
-    const line = lines[i].trim()
-    if (!line) continue
-
-    const columns = line.split(',').map(col => col.trim().replace(/['"]/g, ''))
-    if (columns.length <= Math.max(timeIndex, valueIndex)) continue
-
-    const datePart = columns[timeIndex]
-    const valuePart = columns[valueIndex]
-
-    if (!datePart || !valuePart) continue
-
-    // Extract year from various date formats
-    const year = extractYearFromDateString(datePart)
-    if (year === null) continue
-
-    const rate = parseFloat(valuePart) / 100 // Convert percentage to decimal
-
-    if (!isValidDataPoint(year, rate)) continue
+    const parsed = parseCSVRow(lines[i], timeIndex, valueIndex)
+    if (!parsed) continue
 
     // Only include if we don't already have this year
-    if (!results.find(r => r.year === year)) {
+    if (!yearExists(results, parsed.year)) {
       results.push({
-        year,
-        rate: Math.max(0, Math.min(0.15, rate)), // Clamp to reasonable bounds
+        year: parsed.year,
+        rate: parsed.rate,
         source,
         lastUpdated: new Date().toISOString(),
       })

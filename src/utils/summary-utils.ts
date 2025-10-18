@@ -271,6 +271,106 @@ export function getEnhancedSummary(
 }
 
 /**
+ * Calculate yearly contribution for a specific year
+ */
+function calculateYearlyContribution(
+  year: number,
+  elemente: SparplanElement[],
+): number {
+  // ONLY count contributions from elements that actually start in this year
+  const elementsStartingThisYear = elemente.filter(el =>
+    el.type === 'sparplan' && new Date(el.start).getFullYear() === year,
+  )
+
+  if (elementsStartingThisYear.length === 0) {
+    // No new contributions this year - only compound growth of existing capital
+    return 0
+  }
+
+  if (elementsStartingThisYear.length === 1) {
+    // Single yearly element for this year
+    return elementsStartingThisYear[0].einzahlung
+  }
+
+  // Multiple elements starting this year
+  const firstAmount = elementsStartingThisYear[0].einzahlung
+  const allSameAmount = elementsStartingThisYear.every(el => el.einzahlung === firstAmount)
+
+  if (allSameAmount && elementsStartingThisYear.length === 12) {
+    // 12 elements with same amount = monthly elements from one Sparplan
+    return firstAmount * 12
+  }
+
+  // Multiple different Sparpläne starting in the same year - sum them up
+  return elementsStartingThisYear.reduce((sum, el) => sum + el.einzahlung, 0)
+}
+
+/**
+ * Calculate one-time payment contributions for a specific year
+ */
+function calculateEinmalzahlungContribution(
+  year: number,
+  elemente: SparplanElement[],
+): number {
+  let contribution = 0
+
+  elemente.forEach((element) => {
+    const yearData = element.simulation[year]
+    if (yearData && element.type === 'einmalzahlung') {
+      const elementStartYear = new Date(element.start).getFullYear()
+      if (elementStartYear === year) {
+        contribution += element.einzahlung
+      }
+    }
+  })
+
+  return contribution
+}
+
+/**
+ * Aggregate simulation data for all elements in a specific year
+ */
+interface YearAggregateData {
+  totalCapital: number
+  yearlyInterest: number
+  yearlyTax: number
+  totalCapitalReal?: number
+  yearlyInterestReal: number
+  hasInflationData: boolean
+}
+
+function aggregateYearData(
+  year: number,
+  elemente: SparplanElement[],
+): YearAggregateData {
+  const data: YearAggregateData = {
+    totalCapital: 0,
+    yearlyInterest: 0,
+    yearlyTax: 0,
+    totalCapitalReal: undefined,
+    yearlyInterestReal: 0,
+    hasInflationData: false,
+  }
+
+  elemente.forEach((element) => {
+    const yearData = element.simulation[year]
+    if (yearData) {
+      data.totalCapital += yearData.endkapital
+      data.yearlyInterest += yearData.zinsen
+      data.yearlyTax += yearData.bezahlteSteuer
+
+      if (yearData.endkapitalReal !== undefined) {
+        data.hasInflationData = true
+        data.totalCapitalReal = (data.totalCapitalReal || 0) + yearData.endkapitalReal
+        data.yearlyInterestReal += yearData.zinsenReal || 0
+      }
+    }
+  })
+
+  return data
+}
+
+/**
  * Calculate year-by-year portfolio progression (cumulative capital for each year)
  */
 export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Array<{
@@ -309,7 +409,6 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
     cumulativeContributions: number
     cumulativeInterest: number
     cumulativeTax: number
-    // Inflation-adjusted values (real purchasing power)
     totalCapitalReal?: number
     yearlyInterestReal?: number
     cumulativeInterestReal?: number
@@ -321,90 +420,21 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
   let cumulativeInterestReal = 0
 
   for (const year of sortedYears) {
-    let yearlyContribution = 0
-    let yearlyInterest = 0
-    let yearlyTax = 0
-    let totalCapital = 0
+    // Calculate contributions for this year
+    const sparplanContribution = calculateYearlyContribution(year, elemente)
+    const einmalzahlungContribution = calculateEinmalzahlungContribution(year, elemente)
+    const yearlyContribution = sparplanContribution + einmalzahlungContribution
 
-    // Calculate yearly contribution for this year
-    // ONLY count contributions from elements that actually start in this year
-    const elementsStartingThisYear = elemente.filter(el =>
-      el.type === 'sparplan' && new Date(el.start).getFullYear() === year,
-    )
-
-    if (elementsStartingThisYear.length > 0) {
-      // Check if we have monthly elements (multiple elements per year) or yearly elements (one element per year)
-      if (elementsStartingThisYear.length === 1) {
-        // Single yearly element for this year
-        yearlyContribution += elementsStartingThisYear[0].einzahlung
-      }
-      else if (elementsStartingThisYear.length > 1) {
-        // Multiple elements starting this year - could be multiple Sparpläne or monthly elements
-        // Check if they have the same einzahlung amount (indicating monthly elements from same Sparplan)
-        const firstAmount = elementsStartingThisYear[0].einzahlung
-        const allSameAmount = elementsStartingThisYear.every(el => el.einzahlung === firstAmount)
-
-        if (allSameAmount && elementsStartingThisYear.length === 12) {
-          // 12 elements with same amount = monthly elements from one Sparplan
-          yearlyContribution += firstAmount * 12
-        }
-        else {
-          // Multiple different Sparpläne starting in the same year - sum them up
-          yearlyContribution += elementsStartingThisYear.reduce((sum, el) => sum + el.einzahlung, 0)
-        }
-      }
-    }
-
-    // Note: We removed the problematic "else if" branch that incorrectly assumed
-    // contributions from simulation data alone. If no elements start this year,
-    // there are NO NEW CONTRIBUTIONS - only compound growth of existing capital.
-
-    // Handle one-time payments (Einmalzahlungen)
-    elemente.forEach((element) => {
-      const yearData = element.simulation[year]
-      if (yearData && element.type === 'einmalzahlung') {
-        const elementStartYear = new Date(element.start).getFullYear()
-        if (elementStartYear === year) {
-          yearlyContribution += element.einzahlung
-        }
-      }
-    })
-
-    // Initialize real values for this year
-    let totalCapitalReal: number | undefined
-    let yearlyInterestReal = 0
-    let hasInflationData = false
-
-    // Sum up all elements for this year (capital, interest, tax)
-    elemente.forEach((element) => {
-      const yearData = element.simulation[year]
-      if (yearData) {
-        // Add the end capital from this element for this year
-        totalCapital += yearData.endkapital
-
-        // Add the interest from this element for this year
-        yearlyInterest += yearData.zinsen
-
-        // Add the tax paid by this element for this year
-        yearlyTax += yearData.bezahlteSteuer
-
-        // Add inflation-adjusted values if available
-        if (yearData.endkapitalReal !== undefined) {
-          hasInflationData = true
-          totalCapitalReal = (totalCapitalReal || 0) + yearData.endkapitalReal
-          yearlyInterestReal += yearData.zinsenReal || 0
-        }
-      }
-    })
+    // Aggregate simulation data for this year
+    const aggregated = aggregateYearData(year, elemente)
 
     // Update cumulative totals
     cumulativeContributions += yearlyContribution
-    cumulativeInterest += yearlyInterest
-    cumulativeTax += yearlyTax
+    cumulativeInterest += aggregated.yearlyInterest
+    cumulativeTax += aggregated.yearlyTax
 
-    // Update cumulative real interest if we have inflation data
-    if (hasInflationData) {
-      cumulativeInterestReal += yearlyInterestReal
+    if (aggregated.hasInflationData) {
+      cumulativeInterestReal += aggregated.yearlyInterestReal
     }
 
     const progressionEntry: {
@@ -421,19 +451,19 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
       cumulativeInterestReal?: number
     } = {
       year,
-      totalCapital,
+      totalCapital: aggregated.totalCapital,
       yearlyContribution,
-      yearlyInterest,
-      yearlyTax,
+      yearlyInterest: aggregated.yearlyInterest,
+      yearlyTax: aggregated.yearlyTax,
       cumulativeContributions,
       cumulativeInterest,
       cumulativeTax,
     }
 
     // Add inflation-adjusted values only if available
-    if (hasInflationData) {
-      progressionEntry.totalCapitalReal = totalCapitalReal
-      progressionEntry.yearlyInterestReal = yearlyInterestReal
+    if (aggregated.hasInflationData) {
+      progressionEntry.totalCapitalReal = aggregated.totalCapitalReal
+      progressionEntry.yearlyInterestReal = aggregated.yearlyInterestReal
       progressionEntry.cumulativeInterestReal = cumulativeInterestReal
     }
 

@@ -50,6 +50,75 @@ function getPhaseInfo(phase: string) {
   }
 }
 
+/**
+ * Render inheritance-specific fields
+ */
+function InheritanceFields({ sparplan }: { sparplan: Sparplan }) {
+  const relationshipType = sparplan.specialEventData?.relationshipType
+  if (!relationshipType) return null
+
+  return (
+    <div className="flex justify-between items-center">
+      <span className="text-sm font-medium text-gray-600">👥 Verwandtschaft:</span>
+      <span className="text-sm font-semibold text-green-600">
+        {getRelationshipTypeLabel(relationshipType as any)}
+      </span>
+    </div>
+  )
+}
+
+/**
+ * Render expense type field
+ */
+function ExpenseTypeField({ sparplan }: { sparplan: Sparplan }) {
+  const expenseType = sparplan.specialEventData?.expenseType
+  if (!expenseType) return null
+
+  return (
+    <div className="flex justify-between items-center">
+      <span className="text-sm font-medium text-gray-600">🏷️ Typ:</span>
+      <span className="text-sm font-semibold text-red-600">
+        {getExpenseTypeLabel(expenseType as any)}
+      </span>
+    </div>
+  )
+}
+
+/**
+ * Render credit terms field
+ */
+function CreditTermsField({ creditTerms }: { creditTerms?: { interestRate: number, termYears: number } }) {
+  if (!creditTerms) return null
+
+  return (
+    <div className="flex justify-between items-center">
+      <span className="text-sm font-medium text-gray-600">💳 Kredit:</span>
+      <span className="text-sm font-semibold text-red-600">
+        {(creditTerms.interestRate * 100).toFixed(1)}
+        % /
+        {creditTerms.termYears}
+        J
+      </span>
+    </div>
+  )
+}
+
+/**
+ * Render description field
+ */
+function DescriptionField({ description }: { description?: string }) {
+  if (!description) return null
+
+  return (
+    <div className="flex justify-between items-center">
+      <span className="text-sm font-medium text-gray-600">📝 Beschreibung:</span>
+      <span className="text-sm font-semibold text-gray-700">
+        {description}
+      </span>
+    </div>
+  )
+}
+
 export function EventCard({ sparplan, onDelete }: EventCardProps) {
   const isInheritance = sparplan.eventType === 'inheritance'
   const isExpense = sparplan.eventType === 'expense'
@@ -94,43 +163,14 @@ export function EventCard({ sparplan, onDelete }: EventCardProps) {
               </span>
             </div>
 
-            {isInheritance && sparplan.specialEventData?.relationshipType && (
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-600">👥 Verwandtschaft:</span>
-                <span className="text-sm font-semibold text-green-600">
-                  {getRelationshipTypeLabel(sparplan.specialEventData.relationshipType)}
-                </span>
-              </div>
-            )}
+            {isInheritance && <InheritanceFields sparplan={sparplan} />}
 
-            {isExpense && sparplan.specialEventData?.expenseType && (
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-600">🏷️ Typ:</span>
-                <span className="text-sm font-semibold text-red-600">
-                  {getExpenseTypeLabel(sparplan.specialEventData.expenseType)}
-                </span>
-              </div>
-            )}
+            {isExpense && <ExpenseTypeField sparplan={sparplan} />}
 
-            {sparplan.specialEventData?.description && (
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-600">📝 Beschreibung:</span>
-                <span className="text-sm font-semibold text-gray-700">
-                  {sparplan.specialEventData.description}
-                </span>
-              </div>
-            )}
+            <DescriptionField description={sparplan.specialEventData?.description} />
 
-            {isExpense && sparplan.specialEventData?.creditTerms && (
-              <div className="flex justify-between items-center">
-                <span className="text-sm font-medium text-gray-600">💳 Kredit:</span>
-                <span className="text-sm font-semibold text-red-600">
-                  {(sparplan.specialEventData.creditTerms.interestRate * 100).toFixed(1)}
-                  % /
-                  {sparplan.specialEventData.creditTerms.termYears}
-                  J
-                </span>
-              </div>
+            {isExpense && (
+              <CreditTermsField creditTerms={sparplan.specialEventData?.creditTerms} />
             )}
           </div>
         </div>

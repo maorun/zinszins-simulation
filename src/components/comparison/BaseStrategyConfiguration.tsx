@@ -17,6 +17,104 @@ interface BaseStrategyConfigurationProps {
 }
 
 /**
+ * Strategy-specific configuration sections
+ */
+function StrategySpecificConfigurations({
+  formValue,
+  onUpdateFormValue,
+}: {
+  formValue: WithdrawalFormValue
+  onUpdateFormValue: (updates: Partial<WithdrawalFormValue>) => void
+}) {
+  if (formValue.strategie === 'variabel_prozent') {
+    return (
+      <div className="mb-4 space-y-2">
+        <Label>
+          Entnahme-Prozentsatz (%)
+        </Label>
+        <div className="space-y-2">
+          <Slider
+            value={[formValue.variabelProzent]}
+            onValueChange={(values: number[]) =>
+              onUpdateFormValue({ ...formValue, variabelProzent: values[0] })}
+            min={1}
+            max={10}
+            step={0.5}
+            className="mt-2"
+          />
+          <div className="flex justify-between text-sm text-gray-500">
+            <span>1%</span>
+            <span className="font-medium text-gray-900">
+              {formValue.variabelProzent}
+              %
+            </span>
+            <span>10%</span>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  if (formValue.strategie === 'monatlich_fest') {
+    return (
+      <div className="mb-4 space-y-2">
+        <Label>Monatlicher Betrag (€)</Label>
+        <Input
+          type="number"
+          value={formValue.monatlicheBetrag}
+          onChange={(e) => {
+            const value = e.target.value ? Number(e.target.value) : undefined
+            if (value) onUpdateFormValue({ ...formValue, monatlicheBetrag: value })
+          }}
+        />
+      </div>
+    )
+  }
+
+  if (formValue.strategie === 'dynamisch') {
+    return <DynamicWithdrawalConfiguration formValue={formValue} />
+  }
+
+  if (formValue.strategie === 'rmd') {
+    return (
+      <RMDWithdrawalConfiguration
+        formValue={formValue}
+        updateFormValue={onUpdateFormValue}
+      />
+    )
+  }
+
+  if (formValue.strategie === 'kapitalerhalt') {
+    return (
+      <KapitalerhaltConfiguration
+        formValue={formValue}
+        updateFormValue={onUpdateFormValue}
+      />
+    )
+  }
+
+  if (formValue.strategie === 'bucket_strategie') {
+    return (
+      <BucketStrategyConfiguration
+        formValue={formValue}
+        updateFormValue={onUpdateFormValue}
+      />
+    )
+  }
+
+  if (formValue.strategie === 'steueroptimiert') {
+    return (
+      <SteueroptimierteEntnahmeConfiguration
+        formValue={formValue}
+        updateFormValue={onUpdateFormValue}
+      />
+    )
+  }
+
+  return null
+}
+
+/**
  * Base strategy configuration component
  * Extracted from ComparisonStrategyConfiguration to reduce complexity
  */
@@ -114,78 +212,10 @@ export function BaseStrategyConfiguration({
         </div>
 
         {/* Strategy-specific configuration for base strategy */}
-        {formValue.strategie === 'variabel_prozent' && (
-          <div className="mb-4 space-y-2">
-            <Label>
-              Entnahme-Prozentsatz (%)
-            </Label>
-            <div className="space-y-2">
-              <Slider
-                value={[formValue.variabelProzent]}
-                onValueChange={(values: number[]) =>
-                  onUpdateFormValue({ ...formValue, variabelProzent: values[0] })}
-                min={1}
-                max={10}
-                step={0.5}
-                className="mt-2"
-              />
-              <div className="flex justify-between text-sm text-gray-500">
-                <span>1%</span>
-                <span className="font-medium text-gray-900">
-                  {formValue.variabelProzent}
-                  %
-                </span>
-                <span>10%</span>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {formValue.strategie === 'monatlich_fest' && (
-          <div className="mb-4 space-y-2">
-            <Label>Monatlicher Betrag (€)</Label>
-            <Input
-              type="number"
-              value={formValue.monatlicheBetrag}
-              onChange={(e) => {
-                const value = e.target.value ? Number(e.target.value) : undefined
-                if (value) onUpdateFormValue({ ...formValue, monatlicheBetrag: value })
-              }}
-            />
-          </div>
-        )}
-
-        {formValue.strategie === 'dynamisch' && (
-          <DynamicWithdrawalConfiguration formValue={formValue} />
-        )}
-
-        {formValue.strategie === 'rmd' && (
-          <RMDWithdrawalConfiguration
-            formValue={formValue}
-            updateFormValue={onUpdateFormValue}
-          />
-        )}
-
-        {formValue.strategie === 'kapitalerhalt' && (
-          <KapitalerhaltConfiguration
-            formValue={formValue}
-            updateFormValue={onUpdateFormValue}
-          />
-        )}
-
-        {formValue.strategie === 'bucket_strategie' && (
-          <BucketStrategyConfiguration
-            formValue={formValue}
-            updateFormValue={onUpdateFormValue}
-          />
-        )}
-
-        {formValue.strategie === 'steueroptimiert' && (
-          <SteueroptimierteEntnahmeConfiguration
-            formValue={formValue}
-            updateFormValue={onUpdateFormValue}
-          />
-        )}
+        <StrategySpecificConfigurations
+          formValue={formValue}
+          onUpdateFormValue={onUpdateFormValue}
+        />
       </div>
     </div>
   )

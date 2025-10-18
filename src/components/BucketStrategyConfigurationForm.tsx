@@ -15,12 +15,29 @@ interface BucketStrategyConfigurationFormProps {
   onBucketConfigChange: (config: BucketConfig) => void
 }
 
+/**
+ * Default values for bucket configuration
+ */
+const DEFAULT_BUCKET_VALUES = {
+  initialCashCushion: 20000,
+  refillThreshold: 5000,
+  refillPercentage: 0.5,
+  baseWithdrawalRate: 0.04,
+} as const
+
+/**
+ * Get value with fallback to default
+ */
+function getValueOrDefault<T>(value: T | undefined, defaultValue: T): T {
+  return value ?? defaultValue
+}
+
 function getDefaultConfig(bucketConfig: BucketConfig | undefined): BucketConfig {
   return {
-    initialCashCushion: bucketConfig?.initialCashCushion ?? 20000,
-    refillThreshold: bucketConfig?.refillThreshold ?? 5000,
-    refillPercentage: bucketConfig?.refillPercentage ?? 0.5,
-    baseWithdrawalRate: bucketConfig?.baseWithdrawalRate ?? 0.04,
+    initialCashCushion: getValueOrDefault(bucketConfig?.initialCashCushion, DEFAULT_BUCKET_VALUES.initialCashCushion),
+    refillThreshold: getValueOrDefault(bucketConfig?.refillThreshold, DEFAULT_BUCKET_VALUES.refillThreshold),
+    refillPercentage: getValueOrDefault(bucketConfig?.refillPercentage, DEFAULT_BUCKET_VALUES.refillPercentage),
+    baseWithdrawalRate: getValueOrDefault(bucketConfig?.baseWithdrawalRate, DEFAULT_BUCKET_VALUES.baseWithdrawalRate),
   }
 }
 

@@ -26,6 +26,87 @@ function formatEuro(amount: number): string {
   })
 }
 
+// Get goal type label
+function getGoalTypeLabel(type: FinancialGoalType): string {
+  const labels = {
+    retirement: 'Altersvorsorge',
+    independence: 'Finanzielle Unabhängigkeit',
+    custom: 'Benutzerdefiniert',
+  }
+  return labels[type]
+}
+
+// Goal progress bar component
+function GoalProgressBar({ progress, achieved }: { progress: number; achieved: boolean }) {
+  return (
+    <div className="mb-3">
+      <div className="flex justify-between items-center mb-1">
+        <span className="text-sm font-medium text-gray-700">Fortschritt</span>
+        <span className="text-sm font-bold text-blue-600">
+          {progress.toFixed(1)}
+          %
+        </span>
+      </div>
+      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
+        <div
+          className={`h-full transition-all duration-500 ${achieved ? 'bg-green-500' : 'bg-blue-500'}`}
+          style={{ width: `${Math.min(100, progress)}%` }}
+        />
+      </div>
+    </div>
+  )
+}
+
+// Goal milestones component
+function GoalMilestones({ 
+  goal, 
+  currentCapital 
+}: { 
+  goal: ReturnType<typeof updateMilestoneAchievements>
+  currentCapital: number 
+}) {
+  const nextMilestone = getNextMilestone(currentCapital, goal)
+
+  if (!goal.milestones || goal.milestones.length === 0) {
+    return null
+  }
+
+  return (
+    <div className="mt-3 pt-3 border-t border-gray-300">
+      <h6 className="text-sm font-semibold text-gray-700 mb-2">Meilensteine</h6>
+      <div className="space-y-1">
+        {goal.milestones.map((milestone, idx) => (
+          <div
+            key={idx}
+            className="flex justify-between items-center text-sm"
+          >
+            <span className={milestone.achieved ? 'text-green-600 font-medium' : 'text-gray-600'}>
+              {milestone.achieved && '✓ '}
+              {milestone.label}
+            </span>
+            <span className={milestone.achieved ? 'text-green-600 font-medium' : 'text-gray-500'}>
+              {formatEuro(milestone.targetAmount)}
+            </span>
+          </div>
+        ))}
+      </div>
+
+      {nextMilestone && (
+        <div className="mt-2 p-2 bg-blue-100 rounded text-sm">
+          <span className="font-semibold">Nächster Meilenstein: </span>
+          <span>
+            {nextMilestone.label}
+            {' '}
+            (
+            {formatEuro(nextMilestone.targetAmount)}
+            )
+          </span>
+        </div>
+      )}
+    </div>
+  )
+}
+
 /**
  * Financial Goals Configuration Component
  * Allows users to set and track financial goals with milestones
@@ -194,7 +275,6 @@ export default function FinancialGoalsConfiguration() {
               {goalsWithUpdatedMilestones.map((goal) => {
                 const progress = calculateGoalProgress(currentCapital, goal)
                 const achieved = isGoalAchieved(currentCapital, goal)
-                const nextMilestone = getNextMilestone(currentCapital, goal)
 
                 return (
                   <div
@@ -212,9 +292,7 @@ export default function FinancialGoalsConfiguration() {
                           )}
                         </div>
                         <p className="text-sm text-gray-600">
-                          {goal.type === 'retirement' && 'Altersvorsorge'}
-                          {goal.type === 'independence' && 'Finanzielle Unabhängigkeit'}
-                          {goal.type === 'custom' && 'Benutzerdefiniert'}
+                          {getGoalTypeLabel(goal.type)}
                           {' '}
                           •
                           {' '}
@@ -244,58 +322,8 @@ export default function FinancialGoalsConfiguration() {
                       </div>
                     </div>
 
-                    {/* Progress bar */}
-                    <div className="mb-3">
-                      <div className="flex justify-between items-center mb-1">
-                        <span className="text-sm font-medium text-gray-700">Fortschritt</span>
-                        <span className="text-sm font-bold text-blue-600">
-                          {progress.toFixed(1)}
-                          %
-                        </span>
-                      </div>
-                      <div className="w-full bg-gray-200 rounded-full h-3 overflow-hidden">
-                        <div
-                          className={`h-full transition-all duration-500 ${achieved ? 'bg-green-500' : 'bg-blue-500'}`}
-                          style={{ width: `${Math.min(100, progress)}%` }}
-                        />
-                      </div>
-                    </div>
-
-                    {/* Milestones */}
-                    {goal.milestones && goal.milestones.length > 0 && (
-                      <div className="mt-3 pt-3 border-t border-gray-300">
-                        <h6 className="text-sm font-semibold text-gray-700 mb-2">Meilensteine</h6>
-                        <div className="space-y-1">
-                          {goal.milestones.map((milestone, idx) => (
-                            <div
-                              key={idx}
-                              className="flex justify-between items-center text-sm"
-                            >
-                              <span className={milestone.achieved ? 'text-green-600 font-medium' : 'text-gray-600'}>
-                                {milestone.achieved && '✓ '}
-                                {milestone.label}
-                              </span>
-                              <span className={milestone.achieved ? 'text-green-600 font-medium' : 'text-gray-500'}>
-                                {formatEuro(milestone.targetAmount)}
-                              </span>
-                            </div>
-                          ))}
-                        </div>
-
-                        {nextMilestone && (
-                          <div className="mt-2 p-2 bg-blue-100 rounded text-sm">
-                            <span className="font-semibold">Nächster Meilenstein: </span>
-                            <span>
-                              {nextMilestone.label}
-                              {' '}
-                              (
-                              {formatEuro(nextMilestone.targetAmount)}
-                              )
-                            </span>
-                          </div>
-                        )}
-                      </div>
-                    )}
+                    <GoalProgressBar progress={progress} achieved={achieved} />
+                    <GoalMilestones goal={goal} currentCapital={currentCapital} />
                   </div>
                 )
               })}
