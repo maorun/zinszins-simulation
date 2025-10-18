@@ -109,25 +109,20 @@ const InflationScenarioConfiguration = ({
     return `${sign}${(value * 100).toFixed(1)}%`
   }
 
+  // Scenario color configuration
+  const SCENARIO_COLORS: Record<string, { bg: string, text: string }> = {
+    hyperinflation: { bg: 'bg-red-50 border-red-200', text: 'text-red-900' },
+    deflation: { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-900' },
+  }
+  const DEFAULT_COLORS = { bg: 'bg-orange-50 border-orange-200', text: 'text-orange-900' }
+
   const renderScenarioDetails = (scenario: InflationScenario) => {
     const years = Object.keys(scenario.yearlyInflationRates).map(Number).sort((a, b) => a - b)
-
-    // Determine background color based on scenario type
-    const bgColor = scenario.id === 'hyperinflation'
-      ? 'bg-red-50 border-red-200'
-      : scenario.id === 'deflation'
-        ? 'bg-blue-50 border-blue-200'
-        : 'bg-orange-50 border-orange-200'
-
-    const textColor = scenario.id === 'hyperinflation'
-      ? 'text-red-900'
-      : scenario.id === 'deflation'
-        ? 'text-blue-900'
-        : 'text-orange-900'
+    const colors = SCENARIO_COLORS[scenario.id] || DEFAULT_COLORS
 
     return (
-      <div className={`mt-4 p-4 ${bgColor} border rounded-lg`}>
-        <h5 className={`font-semibold ${textColor} mb-2`}>📊 Szenario-Details</h5>
+      <div className={`mt-4 p-4 ${colors.bg} border rounded-lg`}>
+        <h5 className={`font-semibold ${colors.text} mb-2`}>📊 Szenario-Details</h5>
         <div className="space-y-2 text-sm">
           <p>
             <strong>Beschreibung:</strong>
