@@ -4,9 +4,11 @@
 
 import type { ReturnConfiguration } from '../../helpers/random-returns'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
+import type { ComparisonStrategy } from '../utils/config-storage'
 import {
   calculateWithdrawal,
   calculateWithdrawalDuration,
+  type WithdrawalResult,
 } from '../../helpers/withdrawal'
 import { createPlanningModeAwareFreibetragPerYear } from '../utils/freibetrag-calculation'
 import type {
@@ -235,13 +237,14 @@ function buildSteueroptimierteEntnahmeConfig(strategy: CalculateComparisonStrate
 }
 
 /**
- * Calculate a single comparison strategy and return its results
+ * Build withdrawal calculation parameters from comparison strategy
  */
-export function calculateComparisonStrategy(
+function buildWithdrawalParams(
   params: CalculateComparisonStrategyParams,
-): ComparisonStrategyResult {
+  strategy: ComparisonStrategy,
+  returnConfig: ReturnConfiguration,
+): Parameters<typeof calculateWithdrawal>[0] {
   const {
-    strategy,
     elements,
     startOfIndependence,
     endOfLife,
@@ -262,6 +265,94 @@ export function calculateComparisonStrategy(
     getEffectiveLifeExpectancyTable,
   } = params
 
+  const grundfreibetragPerYear = grundfreibetragAktiv
+    ? buildGrundfreibetragPerYear(startOfIndependence, endOfLife, grundfreibetragBetrag)
+    : undefined
+
+  const incomeTaxRate = grundfreibetragAktiv
+    ? einkommensteuersatz / 100
+    : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined)
+
+  const effectiveHealthCareInsuranceConfig = healthCareInsuranceConfig
+    ? {
+        ...healthCareInsuranceConfig,
+        insuranceType: healthCareInsuranceConfig.insuranceType || 'statutory' as const,
+      }
+    : undefined
+
+  return {
+    elements,
+    startYear: startOfIndependence + 1,
+    endYear: endOfLife,
+    strategy: strategy.strategie,
+    returnConfig,
+    taxRate: steuerlast,
+    teilfreistellungsquote,
+    freibetragPerYear: createPlanningModeAwareFreibetragPerYear(
+      startOfIndependence + 1,
+      endOfLife,
+      planningMode,
+    ),
+    monthlyConfig: buildMonthlyConfig(strategy),
+    customPercentage: buildCustomPercentage(strategy),
+    dynamicConfig: buildDynamicConfig(strategy),
+    bucketConfig: buildBucketConfig(strategy),
+    rmdConfig: buildRMDConfig(strategy, getEffectiveLifeExpectancyTable, customLifeExpectancy),
+    kapitalerhaltConfig: buildKapitalerhaltConfig(strategy),
+    steueroptimierteEntnahmeConfig: buildSteueroptimierteEntnahmeConfig(strategy),
+    enableGrundfreibetrag: grundfreibetragAktiv,
+    grundfreibetragPerYear,
+    incomeTaxRate,
+    steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
+    statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
+    otherIncomeConfig,
+    healthCareInsuranceConfig: effectiveHealthCareInsuranceConfig,
+    birthYear,
+    guenstigerPruefungAktiv,
+  }
+}
+
+/**
+ * Calculate metrics from withdrawal result
+ */
+function calculateWithdrawalMetrics(
+  result: WithdrawalResult,
+  startOfIndependence: number,
+): {
+  finalCapital: number
+  totalWithdrawal: number
+  averageAnnualWithdrawal: number
+  duration: number | 'unbegrenzt'
+} {
+  const finalYear = Math.max(...Object.keys(result).map(Number))
+  const finalCapital = result[finalYear]?.endkapital || 0
+
+  const totalWithdrawal = Object.values(result).reduce(
+    (sum, year) => sum + year.entnahme,
+    0,
+  )
+  const totalYears = Object.keys(result).length
+  const averageAnnualWithdrawal = totalWithdrawal / totalYears
+
+  const calculatedDuration = calculateWithdrawalDuration(result, startOfIndependence + 1)
+  const duration: number | 'unbegrenzt' = calculatedDuration ?? 'unbegrenzt'
+
+  return {
+    finalCapital,
+    totalWithdrawal,
+    averageAnnualWithdrawal,
+    duration,
+  }
+}
+
+/**
+ * Calculate a single comparison strategy and return its results
+ */
+export function calculateComparisonStrategy(
+  params: CalculateComparisonStrategyParams,
+): ComparisonStrategyResult {
+  const { strategy, startOfIndependence } = params
+
   // Build return configuration for this strategy
   const returnConfig: ReturnConfiguration = {
     mode: 'fixed',
@@ -270,67 +361,15 @@ export function calculateComparisonStrategy(
 
   try {
     // Calculate withdrawal for this comparison strategy
-    const { result } = calculateWithdrawal({
-      elements,
-      startYear: startOfIndependence + 1,
-      endYear: endOfLife,
-      strategy: strategy.strategie,
-      returnConfig,
-      taxRate: steuerlast,
-      teilfreistellungsquote,
-      freibetragPerYear: createPlanningModeAwareFreibetragPerYear(
-        startOfIndependence + 1,
-        endOfLife,
-        planningMode,
-      ),
-      monthlyConfig: buildMonthlyConfig(strategy),
-      customPercentage: buildCustomPercentage(strategy),
-      dynamicConfig: buildDynamicConfig(strategy),
-      bucketConfig: buildBucketConfig(strategy),
-      rmdConfig: buildRMDConfig(strategy, getEffectiveLifeExpectancyTable, customLifeExpectancy),
-      kapitalerhaltConfig: buildKapitalerhaltConfig(strategy),
-      steueroptimierteEntnahmeConfig: buildSteueroptimierteEntnahmeConfig(strategy),
-      enableGrundfreibetrag: grundfreibetragAktiv,
-      grundfreibetragPerYear: grundfreibetragAktiv
-        ? buildGrundfreibetragPerYear(startOfIndependence, endOfLife, grundfreibetragBetrag)
-        : undefined,
-      incomeTaxRate: grundfreibetragAktiv
-        ? einkommensteuersatz / 100
-        : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined),
-      steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
-      statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
-      otherIncomeConfig,
-      healthCareInsuranceConfig: healthCareInsuranceConfig
-        ? {
-            ...healthCareInsuranceConfig,
-            insuranceType: healthCareInsuranceConfig.insuranceType || 'statutory',
-          }
-        : undefined,
-      birthYear,
-      guenstigerPruefungAktiv,
-    })
+    const withdrawalParams = buildWithdrawalParams(params, strategy, returnConfig)
+    const { result } = calculateWithdrawal(withdrawalParams)
 
-    // Get final year capital and total withdrawal
-    const finalYear = Math.max(...Object.keys(result).map(Number))
-    const finalCapital = result[finalYear]?.endkapital || 0
-
-    // Calculate total withdrawal
-    const totalWithdrawal = Object.values(result).reduce(
-      (sum, year) => sum + year.entnahme,
-      0,
-    )
-    const totalYears = Object.keys(result).length
-    const averageAnnualWithdrawal = totalWithdrawal / totalYears
-
-    // Calculate withdrawal duration
-    const duration = calculateWithdrawalDuration(result, startOfIndependence + 1)
+    // Calculate metrics from result
+    const metrics = calculateWithdrawalMetrics(result, startOfIndependence)
 
     return {
       strategy,
-      finalCapital,
-      totalWithdrawal,
-      averageAnnualWithdrawal,
-      duration: duration ? duration : 'unbegrenzt',
+      ...metrics,
     }
   }
   catch (error) {
