@@ -3,8 +3,32 @@ import {
   createDefaultHealthCareInsuranceConfig,
   createDefaultCoupleHealthInsuranceConfig,
   createDefaultFamilyInsuranceThresholds,
+  type CoupleHealthInsuranceConfig,
 } from '../../helpers/health-care-insurance'
 import type { WithdrawalFormValue } from '../utils/config-storage'
+
+/**
+ * Helper to get or create couple config with defaults
+ */
+function getCoupleConfigOrDefault(formValue: WithdrawalFormValue): CoupleHealthInsuranceConfig {
+  return formValue.healthCareInsuranceConfig?.coupleConfig
+    || createDefaultCoupleHealthInsuranceConfig()
+}
+
+/**
+ * Helper to build health care insurance config update with couple data
+ */
+function buildHealthCareConfigUpdate(
+  formValue: WithdrawalFormValue,
+  coupleConfig: CoupleHealthInsuranceConfig,
+): Partial<WithdrawalFormValue> {
+  return {
+    healthCareInsuranceConfig: {
+      ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
+      coupleConfig,
+    },
+  }
+}
 
 /**
  * Custom hook to manage health care insurance configuration handlers
@@ -251,27 +275,24 @@ export function useHealthCareInsuranceHandlers(
 
   const handlePerson1WithdrawalShareChange = useCallback(
     (share: number) => {
-      updateFormValue({
-        healthCareInsuranceConfig: {
-          ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-          coupleConfig: {
-            ...(formValue.healthCareInsuranceConfig?.coupleConfig
-              || createDefaultCoupleHealthInsuranceConfig()),
-            person1: {
-              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
-                || createDefaultCoupleHealthInsuranceConfig().person1),
-              withdrawalShare: share,
-            },
-            person2: {
-              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
-                || createDefaultCoupleHealthInsuranceConfig().person2),
-              withdrawalShare: 1 - share,
-            },
-          },
+      const coupleConfig = getCoupleConfigOrDefault(formValue)
+      const defaults = createDefaultCoupleHealthInsuranceConfig()
+
+      const updatedCoupleConfig: CoupleHealthInsuranceConfig = {
+        ...coupleConfig,
+        person1: {
+          ...(coupleConfig.person1 || defaults.person1),
+          withdrawalShare: share,
         },
-      })
+        person2: {
+          ...(coupleConfig.person2 || defaults.person2),
+          withdrawalShare: 1 - share,
+        },
+      }
+
+      updateFormValue(buildHealthCareConfigUpdate(formValue, updatedCoupleConfig))
     },
-    [formValue.healthCareInsuranceConfig, updateFormValue],
+    [formValue, updateFormValue],
   )
 
   const handlePerson1OtherIncomeAnnualChange = useCallback(
@@ -336,27 +357,24 @@ export function useHealthCareInsuranceHandlers(
 
   const handlePerson2WithdrawalShareChange = useCallback(
     (share: number) => {
-      updateFormValue({
-        healthCareInsuranceConfig: {
-          ...(formValue.healthCareInsuranceConfig || createDefaultHealthCareInsuranceConfig()),
-          coupleConfig: {
-            ...(formValue.healthCareInsuranceConfig?.coupleConfig
-              || createDefaultCoupleHealthInsuranceConfig()),
-            person1: {
-              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
-                || createDefaultCoupleHealthInsuranceConfig().person1),
-              withdrawalShare: 1 - share,
-            },
-            person2: {
-              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
-                || createDefaultCoupleHealthInsuranceConfig().person2),
-              withdrawalShare: share,
-            },
-          },
+      const coupleConfig = getCoupleConfigOrDefault(formValue)
+      const defaults = createDefaultCoupleHealthInsuranceConfig()
+
+      const updatedCoupleConfig: CoupleHealthInsuranceConfig = {
+        ...coupleConfig,
+        person1: {
+          ...(coupleConfig.person1 || defaults.person1),
+          withdrawalShare: 1 - share,
         },
-      })
+        person2: {
+          ...(coupleConfig.person2 || defaults.person2),
+          withdrawalShare: share,
+        },
+      }
+
+      updateFormValue(buildHealthCareConfigUpdate(formValue, updatedCoupleConfig))
     },
-    [formValue.healthCareInsuranceConfig, updateFormValue],
+    [formValue, updateFormValue],
   )
 
   const handlePerson2OtherIncomeAnnualChange = useCallback(
