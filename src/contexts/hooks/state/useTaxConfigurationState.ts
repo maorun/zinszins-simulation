@@ -10,6 +10,13 @@ export interface TaxConfigurationStateConfig {
 }
 
 /**
+ * Get value with fallback to default
+ */
+function getValueOrDefault<T>(value: T | undefined, defaultValue: T): T {
+  return value ?? defaultValue
+}
+
+/**
  * Get tax configuration default values
  */
 function getTaxConfigDefaults(
@@ -17,14 +24,23 @@ function getTaxConfigDefaults(
   defaultConfig: TaxConfigurationStateConfig['defaultConfig'],
 ) {
   return {
-    steuerReduzierenEndkapitalSparphase: extendedInitialConfig.steuerReduzierenEndkapitalSparphase ?? true,
-    steuerReduzierenEndkapitalEntspharphase: extendedInitialConfig.steuerReduzierenEndkapitalEntspharphase ?? true,
-    grundfreibetragAktiv: extendedInitialConfig.grundfreibetragAktiv ?? true,
-    grundfreibetragBetrag: extendedInitialConfig.grundfreibetragBetrag ?? 23208,
-    personalTaxRate: extendedInitialConfig.personalTaxRate ?? defaultConfig.personalTaxRate,
-    guenstigerPruefungAktiv: extendedInitialConfig.guenstigerPruefungAktiv ?? defaultConfig.guenstigerPruefungAktiv,
-    kirchensteuerAktiv: extendedInitialConfig.kirchensteuerAktiv ?? false,
-    kirchensteuersatz: extendedInitialConfig.kirchensteuersatz ?? 9,
+    steuerReduzierenEndkapitalSparphase: getValueOrDefault(
+      extendedInitialConfig.steuerReduzierenEndkapitalSparphase,
+      true,
+    ),
+    steuerReduzierenEndkapitalEntspharphase: getValueOrDefault(
+      extendedInitialConfig.steuerReduzierenEndkapitalEntspharphase,
+      true,
+    ),
+    grundfreibetragAktiv: getValueOrDefault(extendedInitialConfig.grundfreibetragAktiv, true),
+    grundfreibetragBetrag: getValueOrDefault(extendedInitialConfig.grundfreibetragBetrag, 23208),
+    personalTaxRate: getValueOrDefault(extendedInitialConfig.personalTaxRate, defaultConfig.personalTaxRate),
+    guenstigerPruefungAktiv: getValueOrDefault(
+      extendedInitialConfig.guenstigerPruefungAktiv,
+      defaultConfig.guenstigerPruefungAktiv,
+    ),
+    kirchensteuerAktiv: getValueOrDefault(extendedInitialConfig.kirchensteuerAktiv, false),
+    kirchensteuersatz: getValueOrDefault(extendedInitialConfig.kirchensteuersatz, 9),
   }
 }
 
