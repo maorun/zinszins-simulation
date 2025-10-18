@@ -733,6 +733,46 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
 }
 
 /**
+ * Get income type label for display
+ */
+function getIncomeTypeLabel(type: string): string {
+  const incomeTypes: Record<string, string> = {
+    rental: 'Mieteinnahmen',
+    pension: 'Rente/Pension',
+    business: 'Gewerbeeinkünfte',
+    investment: 'Kapitalerträge',
+    kindergeld: 'Kindergeld',
+    other: 'Sonstige Einkünfte',
+  }
+  return incomeTypes[type] || type
+}
+
+/**
+ * Format income source details for markdown
+ */
+function formatIncomeSourceDetails(source: OtherIncomeSource): string[] {
+  const incomeType = getIncomeTypeLabel(source.type)
+  const grossNet = source.amountType === 'gross' ? 'Brutto' : 'Netto'
+  const endYear = source.endYear ? source.endYear.toString() : 'Unbegrenzt'
+
+  const details: string[] = [
+    `  - **${source.name}** (${incomeType})`,
+    `    - Betrag: ${formatCurrency(source.monthlyAmount * 12)}/Jahr (${grossNet})`,
+    `    - Zeitraum: ${source.startYear} - ${endYear}`,
+    `    - Inflation: ${formatPercentage(source.inflationRate)}`,
+  ]
+
+  if (source.amountType === 'gross') {
+    details.push(`    - Steuersatz: ${formatPercentage(source.taxRate)}`)
+  }
+  if (source.notes) {
+    details.push(`    - Notizen: ${source.notes}`)
+  }
+
+  return details
+}
+
+/**
  * Add other income sources section to markdown lines
  */
 function addOtherIncomeSection(context: SimulationContextState, lines: string[]): void {
@@ -746,28 +786,8 @@ function addOtherIncomeSection(context: SimulationContextState, lines: string[])
   lines.push(`- **Anzahl Einkommensquellen:** ${withdrawalConfig.otherIncomeConfig.sources.length}`)
 
   withdrawalConfig.otherIncomeConfig.sources.forEach((source: OtherIncomeSource) => {
-    const incomeType = {
-      rental: 'Mieteinnahmen',
-      pension: 'Rente/Pension',
-      business: 'Gewerbeeinkünfte',
-      investment: 'Kapitalerträge',
-      kindergeld: 'Kindergeld',
-      other: 'Sonstige Einkünfte',
-    }[source.type] || source.type
-
-    const grossNet = source.amountType === 'gross' ? 'Brutto' : 'Netto'
-    const endYear = source.endYear ? source.endYear.toString() : 'Unbegrenzt'
-
-    lines.push(`  - **${source.name}** (${incomeType})`)
-    lines.push(`    - Betrag: ${formatCurrency(source.monthlyAmount * 12)}/Jahr (${grossNet})`)
-    lines.push(`    - Zeitraum: ${source.startYear} - ${endYear}`)
-    lines.push(`    - Inflation: ${formatPercentage(source.inflationRate)}`)
-    if (source.amountType === 'gross') {
-      lines.push(`    - Steuersatz: ${formatPercentage(source.taxRate)}`)
-    }
-    if (source.notes) {
-      lines.push(`    - Notizen: ${source.notes}`)
-    }
+    const sourceDetails = formatIncomeSourceDetails(source)
+    lines.push(...sourceDetails)
   })
 }
 
