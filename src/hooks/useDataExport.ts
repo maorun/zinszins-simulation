@@ -18,6 +18,117 @@ export interface DataExportState {
 }
 
 /**
+ * Helper function to get or generate withdrawal data for export
+ */
+function getWithdrawalDataForExport(savingsData: any, context: any) {
+  let withdrawalData = context.withdrawalResults
+
+  // If no withdrawal results exist but we have a withdrawal config, generate them
+  if (!withdrawalData && context.withdrawalConfig?.formValue && savingsData?.sparplanElements) {
+    const { result } = calculateWithdrawal({
+      elements: savingsData.sparplanElements,
+      startYear: context.startEnd[0],
+      endYear: context.endOfLife,
+      strategy: context.withdrawalConfig.formValue.strategie,
+      returnConfig: { mode: 'fixed', fixedRate: context.withdrawalConfig.formValue.rendite / 100 },
+      taxRate: context.steuerlast / 100,
+      teilfreistellungsquote: context.teilfreistellungsquote / 100,
+      freibetragPerYear: context.freibetragPerYear,
+      withdrawalFrequency: context.withdrawalConfig.formValue.withdrawalFrequency,
+    })
+    withdrawalData = result
+  }
+
+  // Fallback: If still no withdrawal data but we have savings data, generate with default strategy
+  if (!withdrawalData && savingsData?.sparplanElements && context.withdrawalConfig) {
+    const { result } = calculateWithdrawal({
+      elements: savingsData.sparplanElements,
+      startYear: context.startEnd[0],
+      endYear: context.startEnd[1],
+      strategy: '4prozent',
+      returnConfig: { mode: 'fixed', fixedRate: 0.05 },
+      taxRate: context.steuerlast / 100,
+      teilfreistellungsquote: context.teilfreistellungsquote / 100,
+      freibetragPerYear: context.freibetragPerYear,
+      withdrawalFrequency: 'yearly',
+    })
+    withdrawalData = result
+  }
+
+  return withdrawalData
+}
+
+/**
+ * Helper function to validate export data availability
+ */
+function validateExportData(savingsData: any, withdrawalData: any, context: any) {
+  if (!savingsData?.sparplanElements && !withdrawalData && !context.withdrawalConfig?.formValue) {
+    throw new Error('Keine Simulationsdaten verfügbar')
+  }
+}
+
+/**
+ * Helper function to build combined CSV content
+ */
+function buildCombinedCSVContent(savingsData: any, withdrawalData: any, context: any): string {
+  const parts: string[] = []
+
+  // Export savings phase if available
+  if (savingsData?.sparplanElements) {
+    const exportData: ExportData = { savingsData, context }
+    parts.push(exportSavingsDataToCSV(exportData))
+  }
+
+  // Add separator
+  if (savingsData?.sparplanElements && (withdrawalData || context.withdrawalConfig?.formValue)) {
+    parts.push('\n\n# ========================================\n')
+  }
+
+  // Export withdrawal phase if available
+  if (withdrawalData) {
+    const exportData: ExportData = { withdrawalData, context }
+    parts.push(exportWithdrawalDataToCSV(exportData))
+  }
+
+  return parts.join('\n')
+}
+
+/**
+ * Helper function to prepare data for markdown export
+ */
+function prepareMarkdownExportData(context: any) {
+  const hasSavingsData = context.simulationData?.sparplanElements
+    && context.simulationData.sparplanElements.length > 0
+  let hasWithdrawalData = context.withdrawalResults && Object.keys(context.withdrawalResults).length > 0
+  const hasWithdrawalConfig = context.withdrawalConfig?.formValue
+
+  let withdrawalData = context.withdrawalResults
+
+  // If no withdrawal results exist but we have a withdrawal config, generate them
+  if (!hasWithdrawalData && hasWithdrawalConfig && context.simulationData?.sparplanElements) {
+    const { result } = calculateWithdrawal({
+      elements: context.simulationData.sparplanElements,
+      startYear: context.startEnd[0],
+      endYear: context.endOfLife,
+      strategy: context.withdrawalConfig!.formValue.strategie,
+      returnConfig: { mode: 'fixed', fixedRate: context.withdrawalConfig!.formValue.rendite / 100 },
+      taxRate: context.steuerlast / 100,
+      teilfreistellungsquote: context.teilfreistellungsquote / 100,
+      freibetragPerYear: context.freibetragPerYear,
+      withdrawalFrequency: context.withdrawalConfig!.formValue.withdrawalFrequency,
+    })
+    withdrawalData = result
+    hasWithdrawalData = true
+  }
+
+  if (!hasSavingsData && !hasWithdrawalData && !hasWithdrawalConfig) {
+    throw new Error('Keine Simulationsdaten verfügbar. Bitte führen Sie zuerst eine Simulation durch.')
+  }
+
+  return { withdrawalData, hasSavingsData, hasWithdrawalData }
+}
+
+/**
  * Custom hook for exporting simulation data in various formats
  */
 export function useDataExport() {
@@ -160,69 +271,11 @@ export function useDataExport() {
 
     try {
       const savingsData = context.simulationData
-      let withdrawalData = context.withdrawalResults
+      const withdrawalData = getWithdrawalDataForExport(savingsData, context)
 
-      // If no withdrawal results exist but we have a withdrawal config, generate them
-      if (!withdrawalData && context.withdrawalConfig?.formValue && savingsData?.sparplanElements) {
-        const { result } = calculateWithdrawal({
-          elements: savingsData.sparplanElements,
-          startYear: context.startEnd[0],
-          endYear: context.endOfLife,
-          strategy: context.withdrawalConfig.formValue.strategie,
-          returnConfig: { mode: 'fixed', fixedRate: context.withdrawalConfig.formValue.rendite / 100 },
-          taxRate: context.steuerlast / 100,
-          teilfreistellungsquote: context.teilfreistellungsquote / 100,
-          freibetragPerYear: context.freibetragPerYear,
-          withdrawalFrequency: context.withdrawalConfig.formValue.withdrawalFrequency,
-        })
-        withdrawalData = result
-      }
+      validateExportData(savingsData, withdrawalData, context)
 
-      // Fallback: If still no withdrawal data but we have savings data, generate with default strategy
-      if (!withdrawalData && savingsData?.sparplanElements && context.withdrawalConfig) {
-        // Use default withdrawal strategy if formValue is incomplete but some config exists
-        const defaultStrategy = '4prozent'
-        const defaultEndYear = context.startEnd[1] // Use end year from context
-        const defaultReturn = 5 // 5% default return for withdrawal phase
-
-        const { result } = calculateWithdrawal({
-          elements: savingsData.sparplanElements,
-          startYear: context.startEnd[0],
-          endYear: defaultEndYear,
-          strategy: defaultStrategy,
-          returnConfig: { mode: 'fixed', fixedRate: defaultReturn / 100 },
-          taxRate: context.steuerlast / 100,
-          teilfreistellungsquote: context.teilfreistellungsquote / 100,
-          freibetragPerYear: context.freibetragPerYear,
-          withdrawalFrequency: 'yearly',
-        })
-        withdrawalData = result
-      }
-
-      if (!savingsData?.sparplanElements && !withdrawalData && !context.withdrawalConfig?.formValue) {
-        throw new Error('Keine Simulationsdaten verfügbar')
-      }
-
-      const parts: string[] = []
-
-      // Export savings phase if available
-      if (savingsData?.sparplanElements) {
-        const exportData: ExportData = { savingsData, context }
-        parts.push(exportSavingsDataToCSV(exportData))
-      }
-
-      // Add separator
-      if (savingsData?.sparplanElements && (withdrawalData || context.withdrawalConfig?.formValue)) {
-        parts.push('\n\n# ========================================\n')
-      }
-
-      // Export withdrawal phase if available
-      if (withdrawalData) {
-        const exportData: ExportData = { withdrawalData, context }
-        parts.push(exportWithdrawalDataToCSV(exportData))
-      }
-
-      const csvContent = parts.join('\n')
+      const csvContent = buildCombinedCSVContent(savingsData, withdrawalData, context)
       const filename = `simulation_komplett_${context.startEnd[0]}-${context.endOfLife}_${new Date().toISOString().slice(0, 10)}.csv`
 
       downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8')
@@ -240,34 +293,7 @@ export function useDataExport() {
     setExportingState('markdown')
 
     try {
-      // Check if we have any data to export
-      const hasSavingsData = context.simulationData?.sparplanElements
-        && context.simulationData.sparplanElements.length > 0
-      let hasWithdrawalData = context.withdrawalResults && Object.keys(context.withdrawalResults).length > 0
-      const hasWithdrawalConfig = context.withdrawalConfig?.formValue
-
-      let withdrawalData = context.withdrawalResults
-
-      // If no withdrawal results exist but we have a withdrawal config, generate them
-      if (!hasWithdrawalData && hasWithdrawalConfig && context.simulationData?.sparplanElements) {
-        const { result } = calculateWithdrawal({
-          elements: context.simulationData.sparplanElements,
-          startYear: context.startEnd[0], // Start of withdrawal phase (corrected from context.startEnd[1] + 1)
-          endYear: context.endOfLife,
-          strategy: context.withdrawalConfig!.formValue.strategie,
-          returnConfig: { mode: 'fixed', fixedRate: context.withdrawalConfig!.formValue.rendite / 100 },
-          taxRate: context.steuerlast / 100,
-          teilfreistellungsquote: context.teilfreistellungsquote / 100,
-          freibetragPerYear: context.freibetragPerYear,
-          withdrawalFrequency: context.withdrawalConfig!.formValue.withdrawalFrequency,
-        })
-        withdrawalData = result
-        hasWithdrawalData = true
-      }
-
-      if (!hasSavingsData && !hasWithdrawalData && !hasWithdrawalConfig) {
-        throw new Error('Keine Simulationsdaten verfügbar. Bitte führen Sie zuerst eine Simulation durch.')
-      }
+      const { withdrawalData, hasSavingsData, hasWithdrawalData } = prepareMarkdownExportData(context)
 
       const exportData: ExportData = {
         savingsData: hasSavingsData && context.simulationData ? context.simulationData : undefined,
