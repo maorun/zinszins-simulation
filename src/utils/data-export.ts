@@ -515,19 +515,31 @@ interface TaxIncomeDataParams {
   hasOtherIncomeData: boolean
 }
 
+/**
+ * Helper to safely get other income value
+ */
+function getOtherIncomeValue(otherIncome: any | undefined, field: 'totalNetAmount' | 'totalTaxAmount' | 'sourceCount'): number {
+  if (!otherIncome) {
+    return 0
+  }
+  return otherIncome[field] ?? 0
+}
+
 function addTaxAndIncomeData(params: TaxIncomeDataParams): void {
   const { row, yearData, grundfreibetragAktiv, hasOtherIncomeData } = params
 
   if (grundfreibetragAktiv) {
-    row.push(formatCurrencyForCSV(yearData.einkommensteuer || 0))
-    row.push(formatCurrencyForCSV(yearData.genutzterGrundfreibetrag || 0))
+    const einkommensteuer = yearData.einkommensteuer ?? 0
+    const grundfreibetrag = yearData.genutzterGrundfreibetrag ?? 0
+    row.push(formatCurrencyForCSV(einkommensteuer))
+    row.push(formatCurrencyForCSV(grundfreibetrag))
   }
 
   if (hasOtherIncomeData) {
     const otherIncome = yearData.otherIncome
-    row.push(formatCurrencyForCSV(otherIncome?.totalNetAmount || 0))
-    row.push(formatCurrencyForCSV(otherIncome?.totalTaxAmount || 0))
-    row.push((otherIncome?.sourceCount || 0).toString())
+    row.push(formatCurrencyForCSV(getOtherIncomeValue(otherIncome, 'totalNetAmount')))
+    row.push(formatCurrencyForCSV(getOtherIncomeValue(otherIncome, 'totalTaxAmount')))
+    row.push(getOtherIncomeValue(otherIncome, 'sourceCount').toString())
   }
 }
 
