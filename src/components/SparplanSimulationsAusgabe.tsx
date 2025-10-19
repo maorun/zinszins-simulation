@@ -235,18 +235,19 @@ export function SparplanSimulationsAusgabe({
       return
     }
 
-    let explanation: CalculationExplanation | null = null
-
-    if (explanationType === 'interest') {
-      explanation = createInterestCalculationExplanation(simData, rowData)
-    }
-    else if (explanationType === 'tax' && simData.vorabpauschaleDetails) {
-      explanation = createTaxCalculationExplanation(simData, rowData.jahr)
-    }
-    else if (explanationType === 'endkapital') {
-      explanation = createEndkapitalCalculationExplanation(simData, rowData)
+    // Map explanation types to their creation functions
+    const explanationCreators: Record<string, () => CalculationExplanation | null> = {
+      interest: () => createInterestCalculationExplanation(simData, rowData),
+      tax: () => simData.vorabpauschaleDetails ? createTaxCalculationExplanation(simData, rowData.jahr) : null,
+      endkapital: () => createEndkapitalCalculationExplanation(simData, rowData),
     }
 
+    const creator = explanationCreators[explanationType]
+    if (!creator) {
+      return
+    }
+
+    const explanation = creator()
     if (explanation) {
       setCalculationDetails(explanation)
       setShowCalculationModal(true)
