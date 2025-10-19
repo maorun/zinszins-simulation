@@ -87,6 +87,115 @@ function generateYearlyGrowthRates(
 }
 
 /**
+ * Helper function: Initialize statutory pension data if configured
+ */
+function initializeStatutoryPensionData(
+  statutoryPensionConfig: StatutoryPensionConfig | undefined,
+  startYear: number,
+  endYear: number,
+): StatutoryPensionResult {
+  return statutoryPensionConfig?.enabled
+    ? calculateStatutoryPension(
+        statutoryPensionConfig,
+        startYear,
+        endYear,
+        0, // Income tax calculated centrally, not per source
+        {}, // No Grundfreibetrag per source, applied centrally
+      )
+    : {}
+}
+
+/**
+ * Helper function: Initialize other income data if configured
+ */
+function initializeOtherIncomeData(
+  otherIncomeConfig: OtherIncomeConfiguration | undefined,
+  startYear: number,
+  endYear: number,
+): OtherIncomeResult {
+  return otherIncomeConfig?.enabled
+    ? calculateOtherIncome(otherIncomeConfig, startYear, endYear)
+    : {}
+}
+
+/**
+ * Helper function: Initialize mutable layers from elements
+ */
+function initializeMutableLayers(
+  elements: SparplanElement[],
+  startYear: number,
+): MutableLayer[] {
+  const mutableLayers: MutableLayer[] = JSON.parse(JSON.stringify(elements)).map((el: SparplanElement) => {
+    const lastSimData = el.simulation?.[startYear - 1]
+    const initialCost = el.type === 'einmalzahlung' ? el.einzahlung + (el.gewinn || 0) : el.einzahlung
+    return {
+      ...el,
+      currentValue: lastSimData?.endkapital || 0,
+      costBasis: initialCost,
+      accumulatedVorabpauschale: lastSimData?.vorabpauschaleAccumulated || 0,
+    }
+  })
+  mutableLayers.sort((a: MutableLayer, b: MutableLayer) => new Date(a.start).getTime() - new Date(b.start).getTime())
+  return mutableLayers
+}
+
+/**
+ * Helper function: Create Vorabpauschale details object
+ */
+function createVorabpauschaleDetails(
+  totalVorabpauschale: number,
+  vorabCalculations: Array<{
+    layer: MutableLayer
+    vorabpauschaleBetrag: number
+    potentialTax: number
+    valueBeforeWithdrawal: number
+  }>,
+  basiszins: number,
+  totalPotentialVorabTax: number,
+  returnRate: number,
+  capitalAtStartOfYear: number,
+) {
+  if (totalVorabpauschale <= 0) return undefined
+
+  return {
+    basiszins,
+    basisertrag: vorabCalculations.reduce((sum, calc) => {
+      const valueBeforeWithdrawal = calc.valueBeforeWithdrawal
+      return sum + (valueBeforeWithdrawal * basiszins * 0.7)
+    }, 0),
+    vorabpauschaleAmount: totalVorabpauschale,
+    steuerVorFreibetrag: totalPotentialVorabTax,
+    jahresgewinn: vorabCalculations.reduce((sum, calc) => {
+      const valueBeforeWithdrawal = calc.valueBeforeWithdrawal
+      const valueAfterGrowthBeforeWithdrawal = valueBeforeWithdrawal * (1 + returnRate)
+      return sum + (valueAfterGrowthBeforeWithdrawal - valueBeforeWithdrawal)
+    }, 0),
+    anteilImJahr: 12,
+    startkapital: capitalAtStartOfYear,
+  }
+}
+
+/**
+ * Helper function: Update final layers with simulation data
+ */
+function updateFinalLayers(
+  mutableLayers: MutableLayer[],
+  endYear: number,
+): MutableLayer[] {
+  return mutableLayers.map((l: MutableLayer) => {
+    // For finalLayers, we should set the simulation data at endYear, not the last existing year
+    // This ensures proper handoff between segments
+    l.simulation = l.simulation || {}
+    l.simulation[endYear] = {
+      ...(l.simulation[endYear] || {}),
+      endkapital: l.currentValue,
+      vorabpauschaleAccumulated: l.accumulatedVorabpauschale,
+    }
+    return l
+  })
+}
+
+/**
  * Helper function: Calculate bucket strategy withdrawal amount
  */
 /**
@@ -1677,44 +1786,16 @@ export function calculateWithdrawal({
 
   const result: WithdrawalResult = {}
 
-  // Calculate statutory pension for all years if configured
-  // Note: We pass 0 for incomeTaxRate because income tax is now calculated centrally
-  // combining all income sources (portfolio withdrawal + pension + other income)
-  const statutoryPensionData = statutoryPensionConfig?.enabled
-    ? calculateStatutoryPension(
-        statutoryPensionConfig,
-        startYear,
-        endYear,
-        0, // Income tax calculated centrally, not per source
-        {}, // No Grundfreibetrag per source, applied centrally
-      )
-    : {}
-
-  // Calculate other income for all years if configured
-  const otherIncomeData = otherIncomeConfig?.enabled
-    ? calculateOtherIncome(
-        otherIncomeConfig,
-        startYear,
-        endYear,
-      )
-    : {}
+  // Initialize data sources
+  const statutoryPensionData = initializeStatutoryPensionData(statutoryPensionConfig, startYear, endYear)
+  const otherIncomeData = initializeOtherIncomeData(otherIncomeConfig, startYear, endYear)
 
   const initialStartingCapital = elements.reduce((sum: number, el: SparplanElement) => {
     const simYear = el.simulation?.[startYear - 1]
     return sum + (simYear?.endkapital || 0)
   }, 0)
 
-  const mutableLayers: MutableLayer[] = JSON.parse(JSON.stringify(elements)).map((el: SparplanElement) => {
-    const lastSimData = el.simulation?.[startYear - 1]
-    const initialCost = el.type === 'einmalzahlung' ? el.einzahlung + (el.gewinn || 0) : el.einzahlung
-    return {
-      ...el,
-      currentValue: lastSimData?.endkapital || 0,
-      costBasis: initialCost,
-      accumulatedVorabpauschale: lastSimData?.vorabpauschaleAccumulated || 0,
-    }
-  })
-  mutableLayers.sort((a: MutableLayer, b: MutableLayer) => new Date(a.start).getTime() - new Date(b.start).getTime())
+  const mutableLayers = initializeMutableLayers(elements, startYear)
 
   const baseWithdrawalAmount = calculateBaseWithdrawalAmount({
     strategy,
@@ -1886,24 +1967,14 @@ export function calculateWithdrawal({
     const totalVorabpauschale = vorabCalculations.reduce((sum, calc) => sum + calc.vorabpauschaleBetrag, 0)
 
     // Create detailed Vorabpauschale information for explanation
-    const vorabpauschaleDetails = totalVorabpauschale > 0
-      ? {
-          basiszins,
-          basisertrag: vorabCalculations.reduce((sum, calc) => {
-            const valueBeforeWithdrawal = calc.valueBeforeWithdrawal
-            return sum + (valueBeforeWithdrawal * basiszins * 0.7)
-          }, 0),
-          vorabpauschaleAmount: totalVorabpauschale,
-          steuerVorFreibetrag: totalPotentialVorabTax,
-          jahresgewinn: vorabCalculations.reduce((sum, calc) => {
-            const valueBeforeWithdrawal = calc.valueBeforeWithdrawal
-            const valueAfterGrowthBeforeWithdrawal = valueBeforeWithdrawal * (1 + returnRate)
-            return sum + (valueAfterGrowthBeforeWithdrawal - valueBeforeWithdrawal)
-          }, 0),
-          anteilImJahr: 12,
-          startkapital: capitalAtStartOfYear,
-        }
-      : undefined
+    const vorabpauschaleDetails = createVorabpauschaleDetails(
+      totalVorabpauschale,
+      vorabCalculations,
+      basiszins,
+      totalPotentialVorabTax,
+      returnRate,
+      capitalAtStartOfYear,
+    )
 
     result[year] = buildYearlyResult({
       year,
@@ -1940,17 +2011,7 @@ export function calculateWithdrawal({
     })
   }
 
-  const finalLayers = mutableLayers.map((l: MutableLayer) => {
-    // For finalLayers, we should set the simulation data at endYear, not the last existing year
-    // This ensures proper handoff between segments
-    l.simulation = l.simulation || {}
-    l.simulation[endYear] = {
-      ...(l.simulation[endYear] || {}),
-      endkapital: l.currentValue,
-      vorabpauschaleAccumulated: l.accumulatedVorabpauschale,
-    }
-    return l
-  })
+  const finalLayers = updateFinalLayers(mutableLayers, endYear)
 
   return { result, finalLayers }
 }

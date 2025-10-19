@@ -34,32 +34,37 @@ export function OtherIncomeSourceFormEditor({
   const monthlyAmountId = useFormId('other-income', 'monthly-amount')
   const currentYear = new Date().getFullYear()
 
+  // Helper to configure real estate settings based on income type
+  const configureRealEstateSettings = (source: OtherIncomeSource, newType: IncomeType) => {
+    if (newType === 'rental' && !source.realEstateConfig) {
+      source.realEstateConfig = createDefaultRealEstateConfig()
+    }
+    else if (newType !== 'rental' && source.realEstateConfig) {
+      delete source.realEstateConfig
+    }
+  }
+
+  // Helper to configure Kindergeld settings based on income type
+  const configureKindergeldSettings = (source: OtherIncomeSource, newType: IncomeType) => {
+    if (newType === 'kindergeld' && !source.kindergeldConfig) {
+      source.kindergeldConfig = createDefaultKindergeldConfig()
+      // Set appropriate defaults for Kindergeld
+      source.amountType = 'net' // Kindergeld is tax-free
+      source.taxRate = 0
+      source.inflationRate = 0
+      source.monthlyAmount = 250
+    }
+    else if (newType !== 'kindergeld' && source.kindergeldConfig) {
+      delete source.kindergeldConfig
+    }
+  }
+
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const newType = e.target.value as IncomeType
     const updatedSource = { ...editingSource, type: newType }
 
-    // Add real estate config when switching to rental
-    if (newType === 'rental' && !updatedSource.realEstateConfig) {
-      updatedSource.realEstateConfig = createDefaultRealEstateConfig()
-    }
-    // Remove real estate config when switching away from rental
-    else if (newType !== 'rental' && updatedSource.realEstateConfig) {
-      delete updatedSource.realEstateConfig
-    }
-
-    // Add Kindergeld config when switching to kindergeld
-    if (newType === 'kindergeld' && !updatedSource.kindergeldConfig) {
-      updatedSource.kindergeldConfig = createDefaultKindergeldConfig()
-      // Set appropriate defaults for Kindergeld
-      updatedSource.amountType = 'net' // Kindergeld is tax-free
-      updatedSource.taxRate = 0
-      updatedSource.inflationRate = 0
-      updatedSource.monthlyAmount = 250
-    }
-    // Remove Kindergeld config when switching away from kindergeld
-    else if (newType !== 'kindergeld' && updatedSource.kindergeldConfig) {
-      delete updatedSource.kindergeldConfig
-    }
+    configureRealEstateSettings(updatedSource, newType)
+    configureKindergeldSettings(updatedSource, newType)
 
     onUpdate(updatedSource)
   }

@@ -1,7 +1,6 @@
 import { useMemo } from 'react'
 import type { SparplanElement } from '../utils/sparplan-utils'
 import {
-  calculateWithdrawal,
   calculateSegmentedWithdrawal,
   getTotalCapitalAtYear,
   calculateWithdrawalDuration,
@@ -12,9 +11,9 @@ import { useSimulation } from '../contexts/useSimulation'
 import { createPlanningModeAwareFreibetragPerYear } from '../utils/freibetrag-calculation'
 import {
   convertCoupleToLegacyConfig,
-  buildWithdrawalReturnConfig,
-  buildGrundfreibetragPerYear,
   calculateComparisonStrategy,
+  buildSegmentedWithdrawalResult,
+  buildSingleStrategyWithdrawalResult,
 } from './useWithdrawalCalculations.helpers'
 
 /**
@@ -106,128 +105,41 @@ export function useWithdrawalCalculations(
     let withdrawalResult
 
     if (useSegmentedWithdrawal) {
-      // Use segmented withdrawal calculation
-      const segmentedConfig: SegmentedWithdrawalConfig = {
-        segments: withdrawalSegments,
-        taxRate: 0.26375,
-        freibetragPerYear: undefined, // Use default
-        statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
-      }
-
-      withdrawalResult = calculateSegmentedWithdrawal(
+      withdrawalResult = buildSegmentedWithdrawalResult({
         elemente,
-        segmentedConfig,
-      )
+        withdrawalSegments,
+        effectiveStatutoryPensionConfig,
+      })
     }
     else {
-      // Use single-strategy withdrawal calculation (backward compatibility)
-      // Build return configuration for withdrawal phase
-      const withdrawalReturnConfig = buildWithdrawalReturnConfig({
+      withdrawalResult = buildSingleStrategyWithdrawalResult({
+        elemente,
+        startOfIndependence,
+        endOfLife,
+        formValue,
         withdrawalReturnMode,
         withdrawalVariableReturns,
         withdrawalAverageReturn,
         withdrawalStandardDeviation,
         withdrawalRandomSeed,
         withdrawalMultiAssetConfig,
-        formValueRendite: formValue.rendite,
-      })
-
-      // Calculate withdrawal projections
-      const withdrawalCalculation = calculateWithdrawal({
-        elements: elemente,
-        startYear: startOfIndependence + 1, // Start withdrawals the year after accumulation ends
-        endYear: endOfLife,
-        strategy: formValue.strategie,
-        withdrawalFrequency: formValue.withdrawalFrequency,
-        returnConfig: withdrawalReturnConfig,
-        taxRate: steuerlast,
-        teilfreistellungsquote: teilfreistellungsquote,
-        freibetragPerYear: undefined, // freibetragPerYear
-        monthlyConfig:
-          formValue.strategie === 'monatlich_fest'
-            ? {
-                monthlyAmount: formValue.monatlicheBetrag,
-                enableGuardrails: formValue.guardrailsAktiv,
-                guardrailsThreshold: formValue.guardrailsSchwelle / 100,
-              }
-            : undefined,
-        customPercentage:
-          formValue.strategie === 'variabel_prozent'
-            ? formValue.variabelProzent / 100
-            : undefined,
-        dynamicConfig:
-          formValue.strategie === 'dynamisch'
-            ? {
-                baseWithdrawalRate: formValue.dynamischBasisrate / 100,
-                upperThresholdReturn: formValue.dynamischObereSchwell / 100,
-                upperThresholdAdjustment:
-                  formValue.dynamischObereAnpassung / 100,
-                lowerThresholdReturn: formValue.dynamischUntereSchwell / 100,
-                lowerThresholdAdjustment:
-                  formValue.dynamischUntereAnpassung / 100,
-              }
-            : undefined,
-        bucketConfig:
-          formValue.strategie === 'bucket_strategie' && formValue.bucketConfig
-            ? {
-                initialCashCushion: formValue.bucketConfig.initialCashCushion,
-                refillThreshold: formValue.bucketConfig.refillThreshold,
-                refillPercentage: formValue.bucketConfig.refillPercentage,
-                baseWithdrawalRate: formValue.bucketConfig.baseWithdrawalRate,
-              }
-            : undefined,
-        rmdConfig:
-          formValue.strategie === 'rmd'
-            ? {
-                startAge: formValue.rmdStartAge,
-                lifeExpectancyTable: getEffectiveLifeExpectancyTable(), // Use gender-aware setting
-                ...(customLifeExpectancy !== undefined && { customLifeExpectancy }),
-              }
-            : undefined,
-        kapitalerhaltConfig:
-          formValue.strategie === 'kapitalerhalt'
-            ? {
-                nominalReturn: formValue.kapitalerhaltNominalReturn / 100,
-                inflationRate: formValue.kapitalerhaltInflationRate / 100,
-              }
-            : undefined,
-        steueroptimierteEntnahmeConfig:
-          formValue.strategie === 'steueroptimiert'
-            ? {
-                baseWithdrawalRate: formValue.steueroptimierteEntnahmeBaseWithdrawalRate,
-                targetTaxRate: formValue.steueroptimierteEntnahmeTargetTaxRate,
-                optimizationMode: formValue.steueroptimierteEntnahmeOptimizationMode,
-                freibetragUtilizationTarget: formValue.steueroptimierteEntnahmeFreibetragUtilizationTarget,
-                rebalanceFrequency: formValue.steueroptimierteEntnahmeRebalanceFrequency,
-              }
-            : undefined,
-        enableGrundfreibetrag: grundfreibetragAktiv,
-        grundfreibetragPerYear: grundfreibetragAktiv
-          ? buildGrundfreibetragPerYear(startOfIndependence, endOfLife, grundfreibetragBetrag)
-          : undefined,
-        incomeTaxRate: grundfreibetragAktiv
-          ? formValue.einkommensteuersatz / 100
-          : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined),
-        inflationConfig: formValue.inflationAktiv
-          ? { inflationRate: formValue.inflationsrate / 100 }
-          : undefined,
-        steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
-        statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
-        otherIncomeConfig,
-        healthCareInsuranceConfig: formValue.healthCareInsuranceConfig ? {
-          ...formValue.healthCareInsuranceConfig,
-          // Ensure the insurance type is explicitly set from the form value
-          insuranceType: formValue.healthCareInsuranceConfig.insuranceType || 'statutory',
-        } : undefined,
-        birthYear: birthYear, // Use birth year from global context
-        // Günstigerprüfung settings
+        steuerlast,
+        teilfreistellungsquote,
+        grundfreibetragAktiv,
+        grundfreibetragBetrag,
         guenstigerPruefungAktiv,
+        personalTaxRate,
+        steuerReduzierenEndkapitalEntspharphase,
+        effectiveStatutoryPensionConfig,
+        otherIncomeConfig,
+        birthYear: birthYear || 1990,
+        getEffectiveLifeExpectancyTable,
+        customLifeExpectancy,
       })
-      withdrawalResult = withdrawalCalculation.result
     }
 
     // Convert to array for table display, sorted by year descending
-    const withdrawalArray = Object.entries(withdrawalResult)
+    const withdrawalArray = Object.entries(withdrawalResult as Record<string, any>)
       .map(([year, data]) => ({
         year: parseInt(year),
         ...data,

@@ -17,6 +17,13 @@ function buildBasicInsuranceValues(config: WithdrawalFormValue['healthCareInsura
   }
 }
 
+/**
+ * Get value with fallback to default
+ */
+function getValueOrDefault<T>(value: T | undefined, defaultValue: T): T {
+  return value ?? defaultValue
+}
+
 const DEFAULT_STATUTORY_INSURANCE_VALUES = {
   rate: 14.6,
   careRate: 3.05,
@@ -27,10 +34,10 @@ const DEFAULT_STATUTORY_INSURANCE_VALUES = {
 function buildStatutoryInsuranceValues(config: WithdrawalFormValue['healthCareInsuranceConfig']) {
   const defaults = DEFAULT_STATUTORY_INSURANCE_VALUES
   return {
-    statutoryHealthInsuranceRate: config?.statutoryHealthInsuranceRate ?? defaults.rate,
-    statutoryCareInsuranceRate: config?.statutoryCareInsuranceRate ?? defaults.careRate,
-    statutoryMinimumIncomeBase: config?.statutoryMinimumIncomeBase ?? defaults.minBase,
-    statutoryMaximumIncomeBase: config?.statutoryMaximumIncomeBase ?? defaults.maxBase,
+    statutoryHealthInsuranceRate: getValueOrDefault(config?.statutoryHealthInsuranceRate, defaults.rate),
+    statutoryCareInsuranceRate: getValueOrDefault(config?.statutoryCareInsuranceRate, defaults.careRate),
+    statutoryMinimumIncomeBase: getValueOrDefault(config?.statutoryMinimumIncomeBase, defaults.minBase),
+    statutoryMaximumIncomeBase: getValueOrDefault(config?.statutoryMaximumIncomeBase, defaults.maxBase),
   }
 }
 
@@ -54,10 +61,13 @@ function buildRetirementAndCareValues(
 }
 
 function buildCoupleStrategyValues(config: WithdrawalFormValue['healthCareInsuranceConfig']) {
+  const coupleConfig = config?.coupleConfig
+  const thresholds = coupleConfig?.familyInsuranceThresholds
+
   return {
-    coupleStrategy: config?.coupleConfig?.strategy,
-    familyInsuranceThresholdRegular: config?.coupleConfig?.familyInsuranceThresholds?.regularEmploymentLimit,
-    familyInsuranceThresholdMiniJob: config?.coupleConfig?.familyInsuranceThresholds?.miniJobLimit,
+    coupleStrategy: coupleConfig?.strategy,
+    familyInsuranceThresholdRegular: thresholds?.regularEmploymentLimit,
+    familyInsuranceThresholdMiniJob: thresholds?.miniJobLimit,
   }
 }
 

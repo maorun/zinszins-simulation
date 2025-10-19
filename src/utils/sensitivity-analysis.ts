@@ -153,6 +153,34 @@ function applyParameterModification(
 }
 
 /**
+ * Calculate contributions for a sparplan element
+ */
+function calculateSparplanContributions(element: SparplanElement, years: number[]): number {
+  if (element.type === 'sparplan' && 'einzahlung' in element) {
+    return element.einzahlung * years.length
+  }
+  return 0
+}
+
+/**
+ * Calculate contributions for an einmalzahlung element
+ */
+function calculateEinmalzahlungContributions(element: SparplanElement): number {
+  if (element.type === 'einmalzahlung' && 'gewinn' in element) {
+    return element.gewinn
+  }
+  return 0
+}
+
+/**
+ * Calculate total contributions for an element
+ */
+function calculateElementContributions(element: SparplanElement, years: number[]): number {
+  return calculateSparplanContributions(element, years)
+    + calculateEinmalzahlungContributions(element)
+}
+
+/**
  * Calculate final metrics from simulation result
  */
 function calculateSimulationMetrics(simulationResult: SparplanElement[]): {
@@ -171,12 +199,7 @@ function calculateSimulationMetrics(simulationResult: SparplanElement[]): {
       const lastYearData = element.simulation[lastYear]
       finalCapital += lastYearData.endkapital || 0
 
-      if (element.type === 'sparplan' && 'einzahlung' in element) {
-        totalContributions += element.einzahlung * years.length
-      }
-      else if (element.type === 'einmalzahlung' && 'gewinn' in element) {
-        totalContributions += element.gewinn
-      }
+      totalContributions += calculateElementContributions(element, years)
     }
   }
 
