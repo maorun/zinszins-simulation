@@ -391,3 +391,211 @@ export function calculateComparisonStrategy(
     }
   }
 }
+
+/**
+ * Build segmented withdrawal result
+ */
+export function buildSegmentedWithdrawalResult(params: {
+  elemente: any[]
+  withdrawalSegments: any[]
+  effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined
+}) {
+  const { elemente, withdrawalSegments, effectiveStatutoryPensionConfig } = params
+
+  const { calculateSegmentedWithdrawal } = require('../../helpers/withdrawal')
+
+  const segmentedConfig: any = {
+    segments: withdrawalSegments,
+    taxRate: 0.26375,
+    freibetragPerYear: undefined,
+    statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
+  }
+
+  return calculateSegmentedWithdrawal(elemente, segmentedConfig)
+}
+
+/**
+ * Build single strategy withdrawal result
+ */
+export function buildSingleStrategyWithdrawalResult(params: {
+  elemente: any[]
+  startOfIndependence: number
+  endOfLife: number
+  formValue: any
+  withdrawalReturnMode: any
+  withdrawalVariableReturns: any
+  withdrawalAverageReturn: number
+  withdrawalStandardDeviation: number
+  withdrawalRandomSeed: number | undefined
+  withdrawalMultiAssetConfig: any
+  steuerlast: number
+  teilfreistellungsquote: number
+  grundfreibetragAktiv: boolean
+  grundfreibetragBetrag: number
+  guenstigerPruefungAktiv: boolean
+  personalTaxRate: number
+  steuerReduzierenEndkapitalEntspharphase: boolean
+  effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined
+  otherIncomeConfig: any
+  birthYear: number
+  getEffectiveLifeExpectancyTable: () => 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
+  customLifeExpectancy: number | undefined
+}) {
+  const withdrawalReturnConfig = buildWithdrawalReturnConfig({
+    withdrawalReturnMode: params.withdrawalReturnMode,
+    withdrawalVariableReturns: params.withdrawalVariableReturns,
+    withdrawalAverageReturn: params.withdrawalAverageReturn,
+    withdrawalStandardDeviation: params.withdrawalStandardDeviation,
+    withdrawalRandomSeed: params.withdrawalRandomSeed,
+    withdrawalMultiAssetConfig: params.withdrawalMultiAssetConfig,
+    formValueRendite: params.formValue.rendite,
+  })
+
+  const withdrawalCalculation = calculateWithdrawal({
+    elements: params.elemente,
+    startYear: params.startOfIndependence + 1,
+    endYear: params.endOfLife,
+    strategy: params.formValue.strategie,
+    withdrawalFrequency: params.formValue.withdrawalFrequency,
+    returnConfig: withdrawalReturnConfig,
+    taxRate: params.steuerlast,
+    teilfreistellungsquote: params.teilfreistellungsquote,
+    freibetragPerYear: undefined,
+    monthlyConfig: buildMonthlyConfigFromFormValue(params.formValue),
+    customPercentage: buildCustomPercentageFromFormValue(params.formValue),
+    dynamicConfig: buildDynamicConfigFromFormValue(params.formValue),
+    bucketConfig: buildBucketConfigFromFormValue(params.formValue),
+    rmdConfig: buildRMDConfigFromFormValue(
+      params.formValue,
+      params.getEffectiveLifeExpectancyTable,
+      params.customLifeExpectancy,
+    ),
+    kapitalerhaltConfig: buildKapitalerhaltConfigFromFormValue(params.formValue),
+    steueroptimierteEntnahmeConfig: buildSteueroptimierteEntnahmeConfigFromFormValue(params.formValue),
+    enableGrundfreibetrag: params.grundfreibetragAktiv,
+    grundfreibetragPerYear: params.grundfreibetragAktiv
+      ? buildGrundfreibetragPerYear(params.startOfIndependence, params.endOfLife, params.grundfreibetragBetrag)
+      : undefined,
+    incomeTaxRate: params.grundfreibetragAktiv
+      ? params.formValue.einkommensteuersatz / 100
+      : (params.guenstigerPruefungAktiv ? params.personalTaxRate / 100 : undefined),
+    inflationConfig: params.formValue.inflationAktiv
+      ? { inflationRate: params.formValue.inflationsrate / 100 }
+      : undefined,
+    steuerReduzierenEndkapital: params.steuerReduzierenEndkapitalEntspharphase,
+    statutoryPensionConfig: params.effectiveStatutoryPensionConfig || undefined,
+    otherIncomeConfig: params.otherIncomeConfig,
+    healthCareInsuranceConfig: buildHealthCareInsuranceConfig(params.formValue),
+    birthYear: params.birthYear,
+    guenstigerPruefungAktiv: params.guenstigerPruefungAktiv,
+  })
+
+  return withdrawalCalculation.result
+}
+
+/**
+ * Build monthly config from form value
+ */
+function buildMonthlyConfigFromFormValue(formValue: any) {
+  return formValue.strategie === 'monatlich_fest'
+    ? {
+        monthlyAmount: formValue.monatlicheBetrag,
+        enableGuardrails: formValue.guardrailsAktiv,
+        guardrailsThreshold: formValue.guardrailsSchwelle / 100,
+      }
+    : undefined
+}
+
+/**
+ * Build custom percentage from form value
+ */
+function buildCustomPercentageFromFormValue(formValue: any) {
+  return formValue.strategie === 'variabel_prozent'
+    ? formValue.variabelProzent / 100
+    : undefined
+}
+
+/**
+ * Build dynamic config from form value
+ */
+function buildDynamicConfigFromFormValue(formValue: any) {
+  return formValue.strategie === 'dynamisch'
+    ? {
+        baseWithdrawalRate: formValue.dynamischBasisrate / 100,
+        upperThresholdReturn: formValue.dynamischObereSchwell / 100,
+        upperThresholdAdjustment: formValue.dynamischObereAnpassung / 100,
+        lowerThresholdReturn: formValue.dynamischUntereSchwell / 100,
+        lowerThresholdAdjustment: formValue.dynamischUntereAnpassung / 100,
+      }
+    : undefined
+}
+
+/**
+ * Build bucket config from form value
+ */
+function buildBucketConfigFromFormValue(formValue: any) {
+  return formValue.strategie === 'bucket_strategie' && formValue.bucketConfig
+    ? {
+        initialCashCushion: formValue.bucketConfig.initialCashCushion,
+        refillThreshold: formValue.bucketConfig.refillThreshold,
+        refillPercentage: formValue.bucketConfig.refillPercentage,
+        baseWithdrawalRate: formValue.bucketConfig.baseWithdrawalRate,
+      }
+    : undefined
+}
+
+/**
+ * Build RMD config for single strategy from form value
+ */
+function buildRMDConfigFromFormValue(
+  formValue: any,
+  getEffectiveLifeExpectancyTable: () => 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
+  customLifeExpectancy: number | undefined,
+) {
+  return formValue.strategie === 'rmd'
+    ? {
+        startAge: formValue.rmdStartAge,
+        lifeExpectancyTable: getEffectiveLifeExpectancyTable(),
+        ...(customLifeExpectancy !== undefined && { customLifeExpectancy }),
+      }
+    : undefined
+}
+
+/**
+ * Build kapitalerhalt config for single strategy from form value
+ */
+function buildKapitalerhaltConfigFromFormValue(formValue: any) {
+  return formValue.strategie === 'kapitalerhalt'
+    ? {
+        nominalReturn: formValue.kapitalerhaltNominalReturn / 100,
+        inflationRate: formValue.kapitalerhaltInflationRate / 100,
+      }
+    : undefined
+}
+
+/**
+ * Build steueroptimierte entnahme config for single strategy from form value
+ */
+function buildSteueroptimierteEntnahmeConfigFromFormValue(formValue: any) {
+  return formValue.strategie === 'steueroptimiert'
+    ? {
+        baseWithdrawalRate: formValue.steueroptimierteEntnahmeBaseWithdrawalRate,
+        targetTaxRate: formValue.steueroptimierteEntnahmeTargetTaxRate,
+        optimizationMode: formValue.steueroptimierteEntnahmeOptimizationMode,
+        freibetragUtilizationTarget: formValue.steueroptimierteEntnahmeFreibetragUtilizationTarget,
+        rebalanceFrequency: formValue.steueroptimierteEntnahmeRebalanceFrequency,
+      }
+    : undefined
+}
+
+/**
+ * Build health care insurance config from form value
+ */
+function buildHealthCareInsuranceConfig(formValue: any) {
+  return formValue.healthCareInsuranceConfig
+    ? {
+        ...formValue.healthCareInsuranceConfig,
+        insuranceType: formValue.healthCareInsuranceConfig.insuranceType || 'statutory',
+      }
+    : undefined
+}

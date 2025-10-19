@@ -37,7 +37,7 @@ function getGoalTypeLabel(type: FinancialGoalType): string {
 }
 
 // Goal progress bar component
-function GoalProgressBar({ progress, achieved }: { progress: number; achieved: boolean }) {
+function GoalProgressBar({ progress, achieved }: { progress: number, achieved: boolean }) {
   return (
     <div className="mb-3">
       <div className="flex justify-between items-center mb-1">
@@ -58,12 +58,12 @@ function GoalProgressBar({ progress, achieved }: { progress: number; achieved: b
 }
 
 // Goal milestones component
-function GoalMilestones({ 
-  goal, 
-  currentCapital 
-}: { 
+function GoalMilestones({
+  goal,
+  currentCapital,
+}: {
   goal: ReturnType<typeof updateMilestoneAchievements>
-  currentCapital: number 
+  currentCapital: number
 }) {
   const nextMilestone = getNextMilestone(currentCapital, goal)
 
