@@ -69,43 +69,34 @@ export function useWithdrawalModals(
       grundfreibetragBetrag,
     }
 
-    // Handle different explanation types
-    let explanation = null
-
-    if (explanationType === 'inflation') {
-      explanation = handleInflationExplanation({ rowData: data, context, applicableSegment })
-    }
-    else if (explanationType === 'interest') {
-      explanation = handleInterestExplanation({ rowData: data, context, applicableSegment })
-    }
-    else if (explanationType === 'tax') {
-      explanation = handleTaxExplanation({ rowData: data, context })
-    }
-    else if (explanationType === 'incomeTax') {
-      explanation = handleIncomeTaxExplanation({ rowData: data, context, applicableSegment })
-    }
-    else if (explanationType === 'taxableIncome') {
-      explanation = handleTaxableIncomeExplanation({ rowData: data, context })
-    }
-    else if (explanationType === 'otherIncome') {
-      explanation = handleOtherIncomeExplanation({ rowData: data })
-    }
-    else if (explanationType === 'statutoryPension') {
-      explanation = handleStatutoryPensionExplanation({ rowData: data })
-    }
-    else if (explanationType === 'endkapital') {
-      explanation = handleEndkapitalExplanation({ rowData: data })
-    }
-    else if (explanationType === 'healthCareInsurance') {
-      explanation = handleHealthCareInsuranceExplanation({ rowData: data })
-    }
-    else if (explanationType === 'vorabpauschale' && data.vorabpauschaleDetails) {
+    // Special case: Vorabpauschale opens a different modal
+    if (explanationType === 'vorabpauschale' && data.vorabpauschaleDetails) {
       setSelectedVorabDetails(data.vorabpauschaleDetails)
       setShowVorabpauschaleModal(true)
       return
     }
 
-    // Show modal if explanation was generated
+    // Map explanation types to their handlers
+    const explanationHandlers: Record<string, () => CalculationExplanation | null> = {
+      inflation: () => handleInflationExplanation({ rowData: data, context, applicableSegment }),
+      interest: () => handleInterestExplanation({ rowData: data, context, applicableSegment }),
+      tax: () => handleTaxExplanation({ rowData: data, context }),
+      incomeTax: () => handleIncomeTaxExplanation({ rowData: data, context, applicableSegment }),
+      taxableIncome: () => handleTaxableIncomeExplanation({ rowData: data, context }),
+      otherIncome: () => handleOtherIncomeExplanation({ rowData: data }),
+      statutoryPension: () => handleStatutoryPensionExplanation({ rowData: data }),
+      endkapital: () => handleEndkapitalExplanation({ rowData: data }),
+      healthCareInsurance: () => handleHealthCareInsuranceExplanation({ rowData: data }),
+    }
+
+    // Get handler for the explanation type
+    const handler = explanationHandlers[explanationType]
+    if (!handler) {
+      return
+    }
+
+    // Generate and show explanation
+    const explanation = handler()
     if (explanation) {
       setCalculationDetails(explanation)
       setShowCalculationModal(true)
