@@ -33,6 +33,60 @@ export function getStrategyDisplayName(strategy: string): string {
 }
 
 /**
+ * Calculate strategy-specific withdrawal details
+ */
+interface WithdrawalDetails {
+  amount: number | null
+  label: string
+}
+
+function calculateWithdrawalDetails(
+  strategy: string,
+  startingCapital: number,
+  formValue: any,
+): WithdrawalDetails {
+  if (strategy === '4prozent') {
+    return {
+      amount: startingCapital * 0.04,
+      label: 'Jährliche Entnahme:',
+    }
+  }
+
+  if (strategy === '3prozent') {
+    return {
+      amount: startingCapital * 0.03,
+      label: 'Jährliche Entnahme:',
+    }
+  }
+
+  if (strategy === 'variabel_prozent') {
+    return {
+      amount: startingCapital * (formValue.variabelProzent / 100),
+      label: 'Jährliche Entnahme:',
+    }
+  }
+
+  if (strategy === 'monatlich_fest') {
+    return {
+      amount: formValue.monatlicheBetrag,
+      label: 'Monatliche Entnahme:',
+    }
+  }
+
+  if (strategy === 'dynamisch') {
+    return {
+      amount: startingCapital * (formValue.dynamischBasisrate / 100),
+      label: 'Basis-Entnahme:',
+    }
+  }
+
+  return {
+    amount: null,
+    label: '',
+  }
+}
+
+/**
  * Custom hook for preparing comparison data
  * Handles base strategy calculations and data transformations
  */
@@ -46,26 +100,11 @@ export function useComparisonData({ withdrawalData, formValue }: UseComparisonDa
     const averageAnnualWithdrawal = totalWithdrawal / withdrawalData.withdrawalArray.length
 
     // Calculate strategy-specific withdrawal amount
-    let withdrawalAmount: number | null = null
-    let withdrawalLabel = ''
-
-    if (formValue.strategie === '4prozent' || formValue.strategie === '3prozent') {
-      const rate = formValue.strategie === '4prozent' ? 0.04 : 0.03
-      withdrawalAmount = withdrawalData.startingCapital * rate
-      withdrawalLabel = 'Jährliche Entnahme:'
-    }
-    else if (formValue.strategie === 'variabel_prozent') {
-      withdrawalAmount = withdrawalData.startingCapital * (formValue.variabelProzent / 100)
-      withdrawalLabel = 'Jährliche Entnahme:'
-    }
-    else if (formValue.strategie === 'monatlich_fest') {
-      withdrawalAmount = formValue.monatlicheBetrag
-      withdrawalLabel = 'Monatliche Entnahme:'
-    }
-    else if (formValue.strategie === 'dynamisch') {
-      withdrawalAmount = withdrawalData.startingCapital * (formValue.dynamischBasisrate / 100)
-      withdrawalLabel = 'Basis-Entnahme:'
-    }
+    const { amount: withdrawalAmount, label: withdrawalLabel } = calculateWithdrawalDetails(
+      formValue.strategie,
+      withdrawalData.startingCapital,
+      formValue,
+    )
 
     return {
       displayName: getStrategyDisplayName(formValue.strategie),
