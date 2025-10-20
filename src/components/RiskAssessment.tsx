@@ -114,7 +114,18 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
 
   if (!simulationData) return null
 
-  const phaseTitle = phase === 'savings' ? 'Ansparphase' : 'Entnahmephase'
+  // Helper to get phase title
+  const getPhaseTitle = (phaseType: 'savings' | 'withdrawal'): string => {
+    return phaseType === 'savings' ? 'Ansparphase' : 'Entnahmephase'
+  }
+
+  // Helper to get simulation start year
+  const getSimulationStartYear = (): number => {
+    return startEnd?.[0] ?? 2025
+  }
+
+  const phaseTitle = getPhaseTitle(phase)
+  const simulationStartYear = getSimulationStartYear()
 
   return (
     <CollapsibleCard>
@@ -141,13 +152,13 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
 
           {/* Black Swan Event Configuration */}
           <BlackSwanEventConfiguration
-            simulationStartYear={startEnd?.[0] || 2025}
+            simulationStartYear={simulationStartYear}
             onEventChange={handleBlackSwanChange}
           />
 
           {/* Inflation Scenario Configuration */}
           <InflationScenarioConfiguration
-            simulationStartYear={startEnd?.[0] || 2025}
+            simulationStartYear={simulationStartYear}
             onScenarioChange={handleInflationScenarioChange}
           />
 
