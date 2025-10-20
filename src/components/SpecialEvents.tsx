@@ -61,74 +61,85 @@ export function SpecialEvents({
     })
   }
 
+  // Helper to generate next ID for sparplan
+  const getNextSparplanId = () => Math.max(0, ...currentSparplans.map(p => p.id)) + 1
+
+  const handleInheritanceSubmit = () => {
+    if (!specialEventFormValues.grossAmount) return
+
+    const grossAmount = Number(specialEventFormValues.grossAmount)
+    const taxCalc = calculateInheritanceTax(grossAmount, specialEventFormValues.relationshipType)
+
+    const newSparplan: Sparplan = {
+      id: getNextSparplanId(),
+      start: specialEventFormValues.date,
+      end: specialEventFormValues.date,
+      einzahlung: taxCalc.netAmount,
+      eventType: 'inheritance',
+      specialEventData: {
+        relationshipType: specialEventFormValues.relationshipType,
+        grossInheritanceAmount: grossAmount,
+        description: specialEventFormValues.description,
+        phase: specialEventFormValues.phase,
+      },
+    }
+
+    dispatch([...currentSparplans, newSparplan])
+    toast.success('Erbschaft erfolgreich hinzugefügt!')
+    resetForm()
+  }
+
+  const handleExpenseSubmit = () => {
+    if (!specialEventFormValues.expenseAmount) return
+
+    const expenseAmount = Number(specialEventFormValues.expenseAmount)
+    let creditTerms = undefined
+
+    if (specialEventFormValues.useCredit) {
+      const defaultTerms = getDefaultCreditTerms(specialEventFormValues.expenseType, expenseAmount)
+      const interestRate = specialEventFormValues.interestRate
+        ? Number(specialEventFormValues.interestRate) / 100
+        : defaultTerms.interestRate
+      const termYears = specialEventFormValues.termYears
+        ? Number(specialEventFormValues.termYears)
+        : defaultTerms.termYears
+
+      creditTerms = {
+        interestRate,
+        termYears,
+        monthlyPayment:
+          interestRate === 0
+            ? expenseAmount / (termYears * 12)
+            : (expenseAmount * (interestRate / 12) * Math.pow(1 + interestRate / 12, termYears * 12))
+              / (Math.pow(1 + interestRate / 12, termYears * 12) - 1),
+      }
+    }
+
+    const newSparplan: Sparplan = {
+      id: getNextSparplanId(),
+      start: specialEventFormValues.date,
+      end: specialEventFormValues.date,
+      einzahlung: -expenseAmount,
+      eventType: 'expense',
+      specialEventData: {
+        expenseType: specialEventFormValues.expenseType,
+        description: specialEventFormValues.description,
+        creditTerms,
+        phase: specialEventFormValues.phase,
+      },
+    }
+
+    dispatch([...currentSparplans, newSparplan])
+    toast.success('Ausgabe erfolgreich hinzugefügt!')
+    resetForm()
+  }
+
   const handleSubmit = () => {
     if (specialEventFormValues.eventType === 'inheritance') {
-      if (!specialEventFormValues.grossAmount) return
-
-      const grossAmount = Number(specialEventFormValues.grossAmount)
-      const taxCalc = calculateInheritanceTax(grossAmount, specialEventFormValues.relationshipType)
-
-      const newSparplan: Sparplan = {
-        id: Math.max(0, ...currentSparplans.map(p => p.id)) + 1,
-        start: specialEventFormValues.date,
-        end: specialEventFormValues.date,
-        einzahlung: taxCalc.netAmount,
-        eventType: 'inheritance',
-        specialEventData: {
-          relationshipType: specialEventFormValues.relationshipType,
-          grossInheritanceAmount: grossAmount,
-          description: specialEventFormValues.description,
-          phase: specialEventFormValues.phase,
-        },
-      }
-
-      dispatch([...currentSparplans, newSparplan])
-      toast.success('Erbschaft erfolgreich hinzugefügt!')
-      resetForm()
+      handleInheritanceSubmit()
     }
     else if (specialEventFormValues.eventType === 'expense') {
-      if (!specialEventFormValues.expenseAmount) return
-
-      const expenseAmount = Number(specialEventFormValues.expenseAmount)
-      let creditTerms = undefined
-
-      if (specialEventFormValues.useCredit) {
-        const defaultTerms = getDefaultCreditTerms(specialEventFormValues.expenseType, expenseAmount)
-        const interestRate = specialEventFormValues.interestRate
-          ? Number(specialEventFormValues.interestRate) / 100
-          : defaultTerms.interestRate
-        const termYears = specialEventFormValues.termYears
-          ? Number(specialEventFormValues.termYears)
-          : defaultTerms.termYears
-
-        creditTerms = {
-          interestRate,
-          termYears,
-          monthlyPayment:
-            interestRate === 0
-              ? expenseAmount / (termYears * 12)
-              : (expenseAmount * (interestRate / 12) * Math.pow(1 + interestRate / 12, termYears * 12))
-                / (Math.pow(1 + interestRate / 12, termYears * 12) - 1),
-        }
-      }
-
-      const newSparplan: Sparplan = {
-        id: Math.max(0, ...currentSparplans.map(p => p.id)) + 1,
-        start: specialEventFormValues.date,
-        end: specialEventFormValues.date,
-        einzahlung: -expenseAmount,
-        eventType: 'expense',
-        specialEventData: {
-          expenseType: specialEventFormValues.expenseType,
-          description: specialEventFormValues.description,
-          creditTerms,
-          phase: specialEventFormValues.phase,
-        },
-      }
-
-      dispatch([...currentSparplans, newSparplan])
-      toast.success('Ausgabe erfolgreich hinzugefügt!')
-      resetForm()
+      handleExpenseSubmit()
     }
   }
 
