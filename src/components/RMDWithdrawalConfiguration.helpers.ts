@@ -29,12 +29,12 @@ export function getDefaultValues(): RMDConfigValues {
 export function getCurrentValuesFromForm(
   formValue: WithdrawalFormValue,
   lifeExpectancyTable: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
-  customLifeExpectancy: number,
+  customLifeExpectancy: number | undefined,
 ): RMDConfigValues {
   return {
     startAge: formValue.rmdStartAge,
     lifeExpectancyTable,
-    customLifeExpectancy,
+    customLifeExpectancy: customLifeExpectancy ?? DEFAULT_VALUES.customLifeExpectancy,
   }
 }
 

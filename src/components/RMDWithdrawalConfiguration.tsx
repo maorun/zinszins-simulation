@@ -4,6 +4,7 @@ import { RMDStartAgeConfig } from './RMDStartAgeConfig'
 import { RMDLifeExpectancyTableConfig } from './RMDLifeExpectancyTableConfig'
 import { RMDCustomLifeExpectancyConfig } from './RMDCustomLifeExpectancyConfig'
 import { RMDCalculationInfo } from './RMDCalculationInfo'
+import { useRMDHandlers } from './RMDWithdrawalConfiguration.hooks'
 import {
   validateModeProps,
   getCurrentValuesFromForm,
@@ -30,46 +31,23 @@ export function RMDWithdrawalConfiguration({
   values,
   onChange,
 }: RMDWithdrawalConfigurationProps) {
-  // Use global life expectancy settings
-  const { lifeExpectancyTable, customLifeExpectancy, setLifeExpectancyTable, setCustomLifeExpectancy } = useSimulation()
+  const { lifeExpectancyTable, customLifeExpectancy } = useSimulation()
 
-  // Determine which mode we're in
   const isFormMode = formValue !== undefined && updateFormValue !== undefined
   const isDirectMode = values !== undefined && onChange !== undefined
 
   validateModeProps(isFormMode, isDirectMode)
 
-  // Get current values based on mode
   const currentValues = isFormMode
     ? getCurrentValuesFromForm(formValue!, lifeExpectancyTable, customLifeExpectancy)
     : getCurrentValuesFromDirect(values!)
 
-  const handleAgeChange = (age: number) => {
-    if (isFormMode) {
-      updateFormValue!({ ...formValue!, rmdStartAge: age })
-    }
-    else {
-      onChange!.onStartAgeChange(age)
-    }
-  }
-
-  const handleTableChange = (table: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom') => {
-    if (isFormMode) {
-      setLifeExpectancyTable(table)
-    }
-    else {
-      onChange!.onLifeExpectancyTableChange(table)
-    }
-  }
-
-  const handleCustomLifeExpectancyChange = (years: number) => {
-    if (isFormMode) {
-      setCustomLifeExpectancy(years)
-    }
-    else {
-      onChange!.onCustomLifeExpectancyChange(years)
-    }
-  }
+  const { handleAgeChange, handleTableChange, handleCustomLifeExpectancyChange } = useRMDHandlers({
+    isFormMode,
+    formValue,
+    updateFormValue,
+    onChange,
+  })
 
   return (
     <div className="space-y-4 p-4 bg-gray-50 rounded-lg">

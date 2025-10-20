@@ -1,11 +1,12 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent } from '@testing-library/react'
+import { render, screen, fireEvent, renderHook } from '@testing-library/react'
 import { SimulationProvider } from '../contexts/SimulationContext'
 import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
 import { RMDStartAgeConfig } from './RMDStartAgeConfig'
 import { RMDLifeExpectancyTableConfig } from './RMDLifeExpectancyTableConfig'
 import { RMDCustomLifeExpectancyConfig } from './RMDCustomLifeExpectancyConfig'
 import { RMDCalculationInfo } from './RMDCalculationInfo'
+import { useRMDHandlers } from './RMDWithdrawalConfiguration.hooks'
 import {
   validateModeProps,
   getCurrentValuesFromForm,
@@ -336,6 +337,20 @@ describe('RMDWithdrawalConfiguration Helpers', () => {
         customLifeExpectancy: 20,
       })
     })
+
+    it('should use default custom life expectancy when undefined', () => {
+      const formValue = {
+        rmdStartAge: 67,
+      } as any
+
+      const result = getCurrentValuesFromForm(formValue, 'german_2020_22', undefined)
+
+      expect(result).toEqual({
+        startAge: 67,
+        lifeExpectancyTable: 'german_2020_22',
+        customLifeExpectancy: 20,
+      })
+    })
   })
 
   describe('getCurrentValuesFromDirect', () => {
@@ -365,5 +380,85 @@ describe('RMDWithdrawalConfiguration Helpers', () => {
 
       expect(result.customLifeExpectancy).toBe(20)
     })
+  })
+})
+
+describe('useRMDHandlers', () => {
+  it('should handle age change in form mode', () => {
+    const formValue = {
+      rmdStartAge: 65,
+    } as any
+    const updateFormValue = vi.fn()
+
+    const { result } = renderHook(() => useRMDHandlers({
+      isFormMode: true,
+      formValue,
+      updateFormValue,
+      onChange: undefined,
+    }), { wrapper: SimulationProvider })
+
+    result.current.handleAgeChange(70)
+
+    expect(updateFormValue).toHaveBeenCalledWith({
+      ...formValue,
+      rmdStartAge: 70,
+    })
+  })
+
+  it('should handle age change in direct mode', () => {
+    const onChange = {
+      onStartAgeChange: vi.fn(),
+      onLifeExpectancyTableChange: vi.fn(),
+      onCustomLifeExpectancyChange: vi.fn(),
+    }
+
+    const { result } = renderHook(() => useRMDHandlers({
+      isFormMode: false,
+      formValue: undefined,
+      updateFormValue: undefined,
+      onChange,
+    }), { wrapper: SimulationProvider })
+
+    result.current.handleAgeChange(72)
+
+    expect(onChange.onStartAgeChange).toHaveBeenCalledWith(72)
+  })
+
+  it('should handle table change in direct mode', () => {
+    const onChange = {
+      onStartAgeChange: vi.fn(),
+      onLifeExpectancyTableChange: vi.fn(),
+      onCustomLifeExpectancyChange: vi.fn(),
+    }
+
+    const { result } = renderHook(() => useRMDHandlers({
+      isFormMode: false,
+      formValue: undefined,
+      updateFormValue: undefined,
+      onChange,
+    }), { wrapper: SimulationProvider })
+
+    result.current.handleTableChange('custom')
+
+    expect(onChange.onLifeExpectancyTableChange).toHaveBeenCalledWith('custom')
+  })
+
+  it('should handle custom life expectancy change in direct mode', () => {
+    const onChange = {
+      onStartAgeChange: vi.fn(),
+      onLifeExpectancyTableChange: vi.fn(),
+      onCustomLifeExpectancyChange: vi.fn(),
+    }
+
+    const { result } = renderHook(() => useRMDHandlers({
+      isFormMode: false,
+      formValue: undefined,
+      updateFormValue: undefined,
+      onChange,
+    }), { wrapper: SimulationProvider })
+
+    result.current.handleCustomLifeExpectancyChange(25)
+
+    expect(onChange.onCustomLifeExpectancyChange).toHaveBeenCalledWith(25)
   })
 })
