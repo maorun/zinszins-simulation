@@ -290,18 +290,32 @@ export function handleHealthCareInsuranceExplanation(params: {
   }
 
   const insuranceData = rowData.healthCareInsurance
+  const defaults = {
+    healthInsuranceAnnual: 0,
+    careInsuranceAnnual: 0,
+    totalAnnual: 0,
+    insuranceType: 'statutory' as const,
+    effectiveHealthInsuranceRate: 0,
+    effectiveCareInsuranceRate: 0,
+    baseIncomeForCalculation: 0,
+    isRetirementPhase: false,
+    includesEmployerContribution: false,
+    inflationAdjustmentFactor: 1,
+  }
+
+  const values = { ...defaults, ...insuranceData }
 
   return createHealthCareInsuranceExplanation(
-    insuranceData.healthInsuranceAnnual || 0,
-    insuranceData.careInsuranceAnnual || 0,
-    insuranceData.totalAnnual || 0,
-    insuranceData.insuranceType || 'statutory',
-    insuranceData.effectiveHealthInsuranceRate || 0,
-    insuranceData.effectiveCareInsuranceRate || 0,
-    insuranceData.baseIncomeForCalculation || 0,
-    insuranceData.isRetirementPhase || false,
-    insuranceData.includesEmployerContribution || false,
-    insuranceData.inflationAdjustmentFactor || 1,
+    values.healthInsuranceAnnual,
+    values.careInsuranceAnnual,
+    values.totalAnnual,
+    values.insuranceType,
+    values.effectiveHealthInsuranceRate,
+    values.effectiveCareInsuranceRate,
+    values.baseIncomeForCalculation,
+    values.isRetirementPhase,
+    values.includesEmployerContribution,
+    values.inflationAdjustmentFactor,
     rowData.year,
   )
 }

@@ -174,6 +174,13 @@ export function FreistellungsauftragOptimizer({
     )
   }, [optimizationResult, steuerlastDecimal, teilfreistellungsquoteDecimal])
 
+  // Helper to get Freibetrag description text
+  const getFreibetragDescription = (amount: number): string => {
+    if (amount === 1000) return 'Einzelperson: 1.000 € pro Jahr'
+    if (amount === 2000) return 'Ehepaar: 2.000 € pro Jahr'
+    return `${formatCurrency(amount)} pro Jahr`
+  }
+
   const handleAddAccount = () => {
     const newAccount: BankAccount = {
       id: `account-${Date.now()}`,
@@ -225,11 +232,7 @@ export function FreistellungsauftragOptimizer({
             className="bg-gray-50"
           />
           <p className="text-sm text-muted-foreground">
-            {totalFreibetrag === 1000
-              ? 'Einzelperson: 1.000 € pro Jahr'
-              : totalFreibetrag === 2000
-                ? 'Ehepaar: 2.000 € pro Jahr'
-                : `${formatCurrency(totalFreibetrag)} pro Jahr`}
+            {getFreibetragDescription(totalFreibetrag)}
           </p>
         </div>
 
