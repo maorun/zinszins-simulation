@@ -234,35 +234,60 @@ export function useDataExport() {
     }
   }, [context, setExportingState, setResultState])
 
+  // Helper to generate withdrawal data from configuration
+  const generateFromConfig = useCallback((ctx: typeof context) => {
+    if (!ctx.withdrawalConfig?.formValue || !ctx.simulationData?.sparplanElements) {
+      return null
+    }
+
+    return generateWithdrawalFromConfig(
+      ctx.simulationData.sparplanElements,
+      ctx,
+      ctx.withdrawalConfig.formValue.strategie,
+      ctx.withdrawalConfig.formValue.rendite / 100,
+      ctx.endOfLife,
+      ctx.withdrawalConfig.formValue.withdrawalFrequency,
+    )
+  }, [])
+
+  // Helper to generate withdrawal data with default strategy
+  const generateWithDefaultStrategy = useCallback((ctx: typeof context) => {
+    if (!ctx.simulationData?.sparplanElements || !ctx.withdrawalConfig) {
+      return null
+    }
+
+    return generateWithdrawalFromConfig(
+      ctx.simulationData.sparplanElements,
+      ctx,
+      '4prozent',
+      0.05,
+      ctx.startEnd[1],
+      'yearly',
+    )
+  }, [])
+
+  // Helper to get or generate withdrawal data for export
+  const getWithdrawalData = useCallback((ctx: typeof context) => {
+    // Return existing withdrawal results if available
+    if (ctx.withdrawalResults) {
+      return ctx.withdrawalResults
+    }
+
+    // Try to generate from config
+    const dataFromConfig = generateFromConfig(ctx)
+    if (dataFromConfig) {
+      return dataFromConfig
+    }
+
+    // Fallback to default strategy
+    return generateWithDefaultStrategy(ctx)
+  }, [generateFromConfig, generateWithDefaultStrategy])
+
   const exportWithdrawalDataCSV = useCallback(async () => {
     setExportingState('csv')
 
     try {
-      let withdrawalData = context.withdrawalResults
-
-      // Try to generate withdrawal data if not available
-      if (!withdrawalData && context.withdrawalConfig?.formValue && context.simulationData?.sparplanElements) {
-        withdrawalData = generateWithdrawalFromConfig(
-          context.simulationData.sparplanElements,
-          context,
-          context.withdrawalConfig.formValue.strategie,
-          context.withdrawalConfig.formValue.rendite / 100,
-          context.endOfLife,
-          context.withdrawalConfig.formValue.withdrawalFrequency,
-        )
-      }
-
-      // Fallback to default strategy if still no data
-      if (!withdrawalData && context.simulationData?.sparplanElements && context.withdrawalConfig) {
-        withdrawalData = generateWithdrawalFromConfig(
-          context.simulationData.sparplanElements,
-          context,
-          '4prozent',
-          0.05,
-          context.startEnd[1],
-          'yearly',
-        )
-      }
+      const withdrawalData = getWithdrawalData(context)
 
       if (!withdrawalData) {
         throw new Error('Keine Entnahme-Daten verfügbar. Bitte konfigurieren Sie eine Entnahmestrategie.')
@@ -287,7 +312,7 @@ export function useDataExport() {
       setResultState(false, 'csv')
       return false
     }
-  }, [context, setExportingState, setResultState])
+  }, [context, setExportingState, setResultState, getWithdrawalData])
 
   const exportAllDataCSV = useCallback(async () => {
     setExportingState('csv')
