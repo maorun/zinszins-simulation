@@ -44,15 +44,19 @@ export function OtherIncomeSourceFormEditor({
     }
   }
 
+  // Helper to apply Kindergeld defaults
+  const applyKindergeldDefaults = (source: OtherIncomeSource) => {
+    source.kindergeldConfig = createDefaultKindergeldConfig()
+    source.amountType = 'net' // Kindergeld is tax-free
+    source.taxRate = 0
+    source.inflationRate = 0
+    source.monthlyAmount = 250
+  }
+
   // Helper to configure Kindergeld settings based on income type
   const configureKindergeldSettings = (source: OtherIncomeSource, newType: IncomeType) => {
     if (newType === 'kindergeld' && !source.kindergeldConfig) {
-      source.kindergeldConfig = createDefaultKindergeldConfig()
-      // Set appropriate defaults for Kindergeld
-      source.amountType = 'net' // Kindergeld is tax-free
-      source.taxRate = 0
-      source.inflationRate = 0
-      source.monthlyAmount = 250
+      applyKindergeldDefaults(source)
     }
     else if (newType !== 'kindergeld' && source.kindergeldConfig) {
       delete source.kindergeldConfig
