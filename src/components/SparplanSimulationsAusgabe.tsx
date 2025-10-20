@@ -21,6 +21,46 @@ interface CalculationInfoData {
   [key: string]: number | string | undefined
 }
 
+// Helper to convert yearly progression to table row format
+function convertProgressionToTableRow(progression: ReturnType<typeof getYearlyPortfolioProgression>[number]) {
+  return {
+    zeitpunkt: `1.1.${progression.year}`,
+    jahr: progression.year,
+    einzahlung: progression.yearlyContribution,
+    zinsen: progression.yearlyInterest.toFixed(2),
+    bezahlteSteuer: progression.yearlyTax.toFixed(2),
+    endkapital: progression.totalCapital.toFixed(2),
+    cumulativeContributions: progression.cumulativeContributions,
+    cumulativeInterest: progression.cumulativeInterest,
+    cumulativeTax: progression.cumulativeTax,
+    // Inflation-adjusted values
+    endkapitalReal: progression.totalCapitalReal?.toFixed(2),
+    zinsenReal: progression.yearlyInterestReal?.toFixed(2),
+    cumulativeInterestReal: progression.cumulativeInterestReal?.toFixed(2),
+  }
+}
+
+// Helper to create explanation based on type (outside component to reduce complexity)
+function createExplanationByType(
+  explanationType: string,
+  simData: SimulationResultElement,
+  rowData: CalculationInfoData,
+  createInterestFn: (simData: SimulationResultElement, rowData: CalculationInfoData) => CalculationExplanation,
+  createTaxFn: (simData: SimulationResultElement, jahr: number) => CalculationExplanation,
+  createEndkapitalFn: (simData: SimulationResultElement, rowData: CalculationInfoData) => CalculationExplanation,
+): CalculationExplanation | null {
+  switch (explanationType) {
+    case 'interest':
+      return createInterestFn(simData, rowData)
+    case 'tax':
+      return simData.vorabpauschaleDetails ? createTaxFn(simData, rowData.jahr) : null
+    case 'endkapital':
+      return createEndkapitalFn(simData, rowData)
+    default:
+      return null
+  }
+}
+
 // Info icon component for calculation explanations
 const InfoIcon = ({ onClick }: { onClick: () => void }) => (
   <svg
@@ -202,23 +242,9 @@ export function SparplanSimulationsAusgabe({
   // Convert progression to table data format (reverse order to show newest first)
   const tableData = yearlyProgression
     .sort((a, b) => b.year - a.year)
-    .map(progression => ({
-      zeitpunkt: `1.1.${progression.year}`,
-      jahr: progression.year,
-      einzahlung: progression.yearlyContribution,
-      zinsen: progression.yearlyInterest.toFixed(2),
-      bezahlteSteuer: progression.yearlyTax.toFixed(2),
-      endkapital: progression.totalCapital.toFixed(2),
-      cumulativeContributions: progression.cumulativeContributions,
-      cumulativeInterest: progression.cumulativeInterest,
-      cumulativeTax: progression.cumulativeTax,
-      // Inflation-adjusted values
-      endkapitalReal: progression.totalCapitalReal?.toFixed(2),
-      zinsenReal: progression.yearlyInterestReal?.toFixed(2),
-      cumulativeInterestReal: progression.cumulativeInterestReal?.toFixed(2),
-    }))
+    .map(convertProgressionToTableRow)
 
-  const handleVorabpauschaleInfoClick = (details: VorabpauschaleDetails) => {
+  const showVorabpauschaleInfo = (details: VorabpauschaleDetails) => {
     setSelectedVorabDetails(details)
     setShowVorabpauschaleModal(true)
   }
@@ -272,28 +298,27 @@ export function SparplanSimulationsAusgabe({
     )
   }
 
-  const handleCalculationInfoClick = (explanationType: string, rowData: CalculationInfoData) => {
-    // Find simulation data for this year to get detailed information
-    const yearSimData = elemente?.find(el => el.simulation[rowData.jahr])
-    const simData = yearSimData?.simulation[rowData.jahr]
+  // Helper to find simulation data for a given year
+  const findSimulationDataForYear = (jahr: number) => {
+    const yearSimData = elemente?.find(el => el.simulation[jahr])
+    return yearSimData?.simulation[jahr]
+  }
+
+  const showCalculationInfo = (explanationType: string, rowData: CalculationInfoData) => {
+    const simData = findSimulationDataForYear(rowData.jahr)
 
     if (!simData) {
       return
     }
 
-    // Map explanation types to their creation functions
-    const explanationCreators: Record<string, () => CalculationExplanation | null> = {
-      interest: () => createInterestCalculationExplanation(simData, rowData),
-      tax: () => simData.vorabpauschaleDetails ? createTaxCalculationExplanation(simData, rowData.jahr) : null,
-      endkapital: () => createEndkapitalCalculationExplanation(simData, rowData),
-    }
-
-    const creator = explanationCreators[explanationType]
-    if (!creator) {
-      return
-    }
-
-    const explanation = creator()
+    const explanation = createExplanationByType(
+      explanationType,
+      simData,
+      rowData,
+      createInterestCalculationExplanation,
+      createTaxCalculationExplanation,
+      createEndkapitalCalculationExplanation,
+    )
     if (explanation) {
       setCalculationDetails(explanation)
       setShowCalculationModal(true)
@@ -348,7 +373,7 @@ export function SparplanSimulationsAusgabe({
                               true,
                             )
                           : `${thousands(row.endkapital)} €`}
-                        <InfoIcon onClick={() => handleCalculationInfoClick('endkapital', row)} />
+                        <InfoIcon onClick={() => showCalculationInfo('endkapital', row)} />
                       </span>
                     </div>
                     <div className="flex flex-col gap-2">
@@ -370,7 +395,7 @@ export function SparplanSimulationsAusgabe({
                                 true,
                               )
                             : `${thousands(row.zinsen)} €`}
-                          <InfoIcon onClick={() => handleCalculationInfoClick('interest', row)} />
+                          <InfoIcon onClick={() => showCalculationInfo('interest', row)} />
                         </span>
                       </div>
                       <div className="flex justify-between items-center py-1">
@@ -379,7 +404,7 @@ export function SparplanSimulationsAusgabe({
                           {thousands(row.bezahlteSteuer)}
                           {' '}
                           €
-                          <InfoIcon onClick={() => handleCalculationInfoClick('tax', row)} />
+                          <InfoIcon onClick={() => showCalculationInfo('tax', row)} />
                         </span>
                       </div>
 
@@ -439,7 +464,7 @@ export function SparplanSimulationsAusgabe({
                       <VorabpauschaleDisplay
                         elemente={elemente}
                         jahr={row.jahr}
-                        onInfoClick={handleVorabpauschaleInfoClick}
+                        onInfoClick={showVorabpauschaleInfo}
                       />
                     </div>
                   </div>
@@ -495,7 +520,7 @@ export function SparplanSimulationsAusgabe({
                           }
                           return `${thousands(summary.endkapital?.toFixed(2) || '0')} €`
                         })()}
-                        <InfoIcon onClick={() => handleCalculationInfoClick('endkapital', {
+                        <InfoIcon onClick={() => showCalculationInfo('endkapital', {
                           jahr: tableData?.[0]?.jahr || new Date().getFullYear(),
                           endkapital: summary.endkapital?.toFixed(2) || '0',
                           einzahlung: summary.startkapital || 0,
