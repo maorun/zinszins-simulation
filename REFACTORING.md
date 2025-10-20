@@ -470,7 +470,20 @@ Für jedes Refactoring:
     - HomePageContent benötigt weitere JSX-Extraktion für <50 Zeilen
     - Weitere Komponenten mit >50 Zeilen können bei Bedarf refaktoriert werden
     - Weitere Funktionen mit Complexity 9-12 können in zukünftigen Iterationen behoben werden
-- [ ] **Phase 4.4**: Weitere Komponenten bei Bedarf (Zielmarke: <300 warnings)
+- [x] **Phase 4.4**: RMDWithdrawalConfiguration (Zielmarke: Complexity ≤ 8, Lines ≤ 50)
+  - **Status**: ✅ Abgeschlossen (Januar 2025)
+  - **Ziel**: Cyclomatic Complexity von 22 auf ≤ 8 reduzieren, Zeilen von 128 auf ≤ 50 reduzieren
+  - **Extraktionen**:
+    - [x] `RMDStartAgeConfig` - Alter-zu-Beginn-Eingabe (45 Zeilen, 4 Tests)
+    - [x] `RMDLifeExpectancyTableConfig` - Sterbetabellen-Auswahl (39 Zeilen, 4 Tests)
+    - [x] `RMDCustomLifeExpectancyConfig` - Benutzerdefinierte Lebenserwartung (47 Zeilen, 4 Tests)
+    - [x] `RMDCalculationInfo` - Berechnungs-Info-Anzeige (26 Zeilen, 2 Tests)
+    - [x] `useRMDHandlers` - Event-Handler-Logik (Hook, 52 Zeilen, 4 Tests)
+    - [x] `RMDWithdrawalConfiguration.helpers.ts` - Typen, Validierung, Datenextraktion (54 Zeilen, 7 Tests)
+  - **Tests**: 30 Tests für alle extrahierten Komponenten, Hooks und Helpers (25 neue Tests)
+  - **Endergebnis**: 45 effektive Zeilen (von 128 → -83 Zeilen / -65%), Complexity ≤ 8 (von 22 → -14 / -64%)
+  - **Ziel erreicht**: ✅ Complexity ≤ 8, Zeilen = 45 (unter 50 Ziel)
+  - **Warnings behoben**: 2 warnings (max-lines-per-function, complexity) → 0 warnings ✅
 
 ## Referenzen
 
@@ -483,4 +496,4 @@ Für jedes Refactoring:
 
 **Erstellt**: Dezember 2024
 **Letzte Aktualisierung**: Januar 2025
-**Status**: Phase 4.3 erweitert - 2 weitere Komponenten behoben (InteractiveChart, useHealthInsurancePreviewCalculation)
+**Status**: Phase 4.4 abgeschlossen - RMDWithdrawalConfiguration vollständig refaktoriert (Complexity 22→≤8, Zeilen 128→45)
