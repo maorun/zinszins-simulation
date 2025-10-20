@@ -1,17 +1,15 @@
 import { useEffect } from 'react'
 import { calculateRetirementStartYear } from '../../helpers/statutory-pension'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
-import { Label } from './ui/label'
-import { Switch } from './ui/switch'
 import { InsuranceTypeSelection } from './health-insurance/InsuranceTypeSelection'
-import { StatutoryInsuranceConfig } from './health-insurance/StatutoryInsuranceConfig'
-import { PrivateInsuranceConfig } from './health-insurance/PrivateInsuranceConfig'
 import { RetirementStartYearDisplay } from './health-insurance/RetirementStartYearDisplay'
-import { CoupleConfiguration } from './health-insurance/CoupleConfiguration'
-import { AdditionalCareInsurance } from './health-insurance/AdditionalCareInsurance'
 import { useHealthInsurancePreviewCalculation } from '../hooks/useHealthInsurancePreviewCalculation'
 import { CouplePreviewDisplay } from './health-insurance/CouplePreviewDisplay'
 import { IndividualPreviewDisplay } from './health-insurance/IndividualPreviewDisplay'
+import { EnabledToggle } from './health-insurance/EnabledToggle'
+import { DisabledStateView } from './health-insurance/DisabledStateView'
+import { CoupleModeBanner } from './health-insurance/CoupleModeBanner'
+import { ConfigurationSections } from './health-insurance/ConfigurationSections'
 import type { HealthCareInsuranceYearResult } from '../../helpers/health-care-insurance'
 
 interface HealthCareInsuranceFormValues {
@@ -108,32 +106,7 @@ export function HealthCareInsuranceConfiguration({
   }, [birthYear, spouseBirthYear, planningMode, values.retirementStartYear, onChange])
 
   if (!values.enabled) {
-    return (
-      <CollapsibleCard>
-        <CollapsibleCardHeader>
-          🏥 Kranken- und Pflegeversicherung
-        </CollapsibleCardHeader>
-        <CollapsibleCardContent>
-          <div className="space-y-4">
-            <div className="flex items-center space-x-2">
-              <Switch
-                checked={values.enabled}
-                onCheckedChange={onChange.onEnabledChange}
-                id="health-care-insurance-enabled"
-              />
-              <Label htmlFor="health-care-insurance-enabled">
-                Kranken- und Pflegeversicherung berücksichtigen
-              </Label>
-            </div>
-            <div className="text-sm text-muted-foreground">
-              Aktivieren Sie diese Option, um Kranken- und Pflegeversicherungsbeiträge in die
-              Entnahmeplanung einzubeziehen. Berücksichtigt unterschiedliche Versicherungsarten und
-              Beitragssätze.
-            </div>
-          </div>
-        </CollapsibleCardContent>
-      </CollapsibleCard>
-    )
+    return <DisabledStateView onEnabledChange={onChange.onEnabledChange} />
   }
 
   return (
@@ -147,37 +120,15 @@ export function HealthCareInsuranceConfiguration({
         </span>
       </CollapsibleCardHeader>
       <CollapsibleCardContent>
-        {/* Enable/Disable Toggle */}
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={values.enabled}
-            onCheckedChange={onChange.onEnabledChange}
-            id="health-care-insurance-enabled-full"
-          />
-          <Label htmlFor="health-care-insurance-enabled-full">
-            Kranken- und Pflegeversicherung berücksichtigen
-          </Label>
-        </div>
+        <EnabledToggle enabled={values.enabled} onEnabledChange={onChange.onEnabledChange} idPrefix="health-care-insurance-enabled-full" />
 
-        {/* Planning Mode Info (derived from global planning) */}
-        {planningMode === 'couple' && (
-          <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
-            <div className="text-sm font-medium text-blue-900">
-              💑 Paarplanung aktiviert
-            </div>
-            <div className="text-xs text-blue-700 mt-1">
-              Planungsmodus wird aus der globalen Planung übernommen
-            </div>
-          </div>
-        )}
+        <CoupleModeBanner planningMode={planningMode} />
 
-        {/* Insurance Type Selection */}
         <InsuranceTypeSelection
           insuranceType={values.insuranceType}
           onInsuranceTypeChange={onChange.onInsuranceTypeChange}
         />
 
-        {/* Automatic Retirement Start Year Display */}
         <RetirementStartYearDisplay
           planningMode={planningMode}
           birthYear={birthYear}
@@ -185,84 +136,62 @@ export function HealthCareInsuranceConfiguration({
           retirementStartYear={values.retirementStartYear}
         />
 
-        {/* Statutory Insurance Configuration */}
-        {values.insuranceType === 'statutory' && (
-          <StatutoryInsuranceConfig
-            includeEmployerContribution={values.includeEmployerContribution}
-            statutoryHealthInsuranceRate={values.statutoryHealthInsuranceRate}
-            statutoryCareInsuranceRate={values.statutoryCareInsuranceRate}
-            statutoryMinimumIncomeBase={values.statutoryMinimumIncomeBase}
-            statutoryMaximumIncomeBase={values.statutoryMaximumIncomeBase}
-            onIncludeEmployerContributionChange={onChange.onIncludeEmployerContributionChange}
-            onStatutoryMinimumIncomeBaseChange={onChange.onStatutoryMinimumIncomeBaseChange}
-            onStatutoryMaximumIncomeBaseChange={onChange.onStatutoryMaximumIncomeBaseChange}
-          />
-        )}
+        <ConfigurationSections
+          planningMode={planningMode}
+          insuranceType={values.insuranceType}
+          includeEmployerContribution={values.includeEmployerContribution}
+          statutoryHealthInsuranceRate={values.statutoryHealthInsuranceRate}
+          statutoryCareInsuranceRate={values.statutoryCareInsuranceRate}
+          statutoryMinimumIncomeBase={values.statutoryMinimumIncomeBase}
+          statutoryMaximumIncomeBase={values.statutoryMaximumIncomeBase}
+          onIncludeEmployerContributionChange={onChange.onIncludeEmployerContributionChange}
+          onStatutoryMinimumIncomeBaseChange={onChange.onStatutoryMinimumIncomeBaseChange}
+          onStatutoryMaximumIncomeBaseChange={onChange.onStatutoryMaximumIncomeBaseChange}
+          privateHealthInsuranceMonthly={values.privateHealthInsuranceMonthly}
+          privateCareInsuranceMonthly={values.privateCareInsuranceMonthly}
+          privateInsuranceInflationRate={values.privateInsuranceInflationRate}
+          onPrivateHealthInsuranceMonthlyChange={onChange.onPrivateHealthInsuranceMonthlyChange}
+          onPrivateCareInsuranceMonthlyChange={onChange.onPrivateCareInsuranceMonthlyChange}
+          onPrivateInsuranceInflationRateChange={onChange.onPrivateInsuranceInflationRateChange}
+          coupleStrategy={values.coupleStrategy}
+          familyInsuranceThresholdRegular={values.familyInsuranceThresholdRegular}
+          familyInsuranceThresholdMiniJob={values.familyInsuranceThresholdMiniJob}
+          person1Name={values.person1Name}
+          person1WithdrawalShare={values.person1WithdrawalShare}
+          person1OtherIncomeAnnual={values.person1OtherIncomeAnnual}
+          person1AdditionalCareInsuranceForChildless={values.person1AdditionalCareInsuranceForChildless}
+          person2Name={values.person2Name}
+          person2WithdrawalShare={values.person2WithdrawalShare}
+          person2OtherIncomeAnnual={values.person2OtherIncomeAnnual}
+          person2AdditionalCareInsuranceForChildless={values.person2AdditionalCareInsuranceForChildless}
+          onCoupleStrategyChange={onChange.onCoupleStrategyChange}
+          onFamilyInsuranceThresholdRegularChange={onChange.onFamilyInsuranceThresholdRegularChange}
+          onFamilyInsuranceThresholdMiniJobChange={onChange.onFamilyInsuranceThresholdMiniJobChange}
+          onPerson1NameChange={onChange.onPerson1NameChange}
+          onPerson1WithdrawalShareChange={onChange.onPerson1WithdrawalShareChange}
+          onPerson1OtherIncomeAnnualChange={onChange.onPerson1OtherIncomeAnnualChange}
+          onPerson1AdditionalCareInsuranceForChildlessChange={
+            onChange.onPerson1AdditionalCareInsuranceForChildlessChange
+          }
+          onPerson2NameChange={onChange.onPerson2NameChange}
+          onPerson2WithdrawalShareChange={onChange.onPerson2WithdrawalShareChange}
+          onPerson2OtherIncomeAnnualChange={onChange.onPerson2OtherIncomeAnnualChange}
+          onPerson2AdditionalCareInsuranceForChildlessChange={
+            onChange.onPerson2AdditionalCareInsuranceForChildlessChange
+          }
+          additionalCareInsuranceForChildless={values.additionalCareInsuranceForChildless}
+          additionalCareInsuranceAge={values.additionalCareInsuranceAge}
+          onAdditionalCareInsuranceForChildlessChange={onChange.onAdditionalCareInsuranceForChildlessChange}
+          onAdditionalCareInsuranceAgeChange={onChange.onAdditionalCareInsuranceAgeChange}
+        />
 
-        {/* Private Insurance Configuration */}
-        {values.insuranceType === 'private' && (
-          <PrivateInsuranceConfig
-            privateHealthInsuranceMonthly={values.privateHealthInsuranceMonthly}
-            privateCareInsuranceMonthly={values.privateCareInsuranceMonthly}
-            privateInsuranceInflationRate={values.privateInsuranceInflationRate}
-            onPrivateHealthInsuranceMonthlyChange={onChange.onPrivateHealthInsuranceMonthlyChange}
-            onPrivateCareInsuranceMonthlyChange={onChange.onPrivateCareInsuranceMonthlyChange}
-            onPrivateInsuranceInflationRateChange={onChange.onPrivateInsuranceInflationRateChange}
-          />
-        )}
-
-        {/* Couple Configuration */}
-        {planningMode === 'couple' && values.insuranceType === 'statutory' && (
-          <CoupleConfiguration
-            coupleStrategy={values.coupleStrategy || 'optimize'}
-            familyInsuranceThresholdRegular={values.familyInsuranceThresholdRegular || 505}
-            familyInsuranceThresholdMiniJob={values.familyInsuranceThresholdMiniJob || 538}
-            person1Name={values.person1Name || ''}
-            person1WithdrawalShare={values.person1WithdrawalShare ?? 0.5}
-            person1OtherIncomeAnnual={values.person1OtherIncomeAnnual || 0}
-            person1AdditionalCareInsuranceForChildless={values.person1AdditionalCareInsuranceForChildless || false}
-            person2Name={values.person2Name || ''}
-            person2WithdrawalShare={values.person2WithdrawalShare ?? 0.5}
-            person2OtherIncomeAnnual={values.person2OtherIncomeAnnual || 0}
-            person2AdditionalCareInsuranceForChildless={values.person2AdditionalCareInsuranceForChildless || false}
-            onCoupleStrategyChange={onChange.onCoupleStrategyChange!}
-            onFamilyInsuranceThresholdRegularChange={onChange.onFamilyInsuranceThresholdRegularChange!}
-            onFamilyInsuranceThresholdMiniJobChange={onChange.onFamilyInsuranceThresholdMiniJobChange!}
-            onPerson1NameChange={onChange.onPerson1NameChange!}
-            onPerson1WithdrawalShareChange={onChange.onPerson1WithdrawalShareChange!}
-            onPerson1OtherIncomeAnnualChange={onChange.onPerson1OtherIncomeAnnualChange!}
-            onPerson1AdditionalCareInsuranceForChildlessChange={
-              onChange.onPerson1AdditionalCareInsuranceForChildlessChange!
-            }
-            onPerson2NameChange={onChange.onPerson2NameChange!}
-            onPerson2WithdrawalShareChange={onChange.onPerson2WithdrawalShareChange!}
-            onPerson2OtherIncomeAnnualChange={onChange.onPerson2OtherIncomeAnnualChange!}
-            onPerson2AdditionalCareInsuranceForChildlessChange={
-              onChange.onPerson2AdditionalCareInsuranceForChildlessChange!
-            }
-          />
-        )}
-
-        {/* Additional Care Insurance for Childless (Individual Mode Only) */}
-        {planningMode === 'individual' && (
-          <AdditionalCareInsurance
-            additionalCareInsuranceForChildless={values.additionalCareInsuranceForChildless}
-            additionalCareInsuranceAge={values.additionalCareInsuranceAge}
-            onAdditionalCareInsuranceForChildlessChange={onChange.onAdditionalCareInsuranceForChildlessChange}
-            onAdditionalCareInsuranceAgeChange={onChange.onAdditionalCareInsuranceAgeChange}
-          />
-        )}
-
-        {/* Health Insurance Cost Preview */}
-        {values.enabled && (
-          <HealthInsuranceCostPreview
-            values={values}
-            planningMode={planningMode}
-            birthYear={birthYear}
-            spouseBirthYear={spouseBirthYear}
-            currentWithdrawalAmount={currentWithdrawalAmount}
-          />
-        )}
+        <HealthInsuranceCostPreview
+          values={values}
+          planningMode={planningMode}
+          birthYear={birthYear}
+          spouseBirthYear={spouseBirthYear}
+          currentWithdrawalAmount={currentWithdrawalAmount}
+        />
       </CollapsibleCardContent>
     </CollapsibleCard>
   )
@@ -291,13 +220,12 @@ function HealthInsuranceCostPreview({
 
   if (!previewResults) return null
 
-  // Check if results are for couple or individual
-  if (planningMode === 'couple' && 'person1' in previewResults) {
+  const isCouple = planningMode === 'couple' && 'person1' in previewResults
+
+  if (isCouple) {
     return <CouplePreviewDisplay coupleResults={previewResults} withdrawalAmount={withdrawalAmount} />
   }
-  else {
-    // Individual results
-    const individualResults = previewResults as HealthCareInsuranceYearResult
-    return <IndividualPreviewDisplay individualResults={individualResults} withdrawalAmount={withdrawalAmount} />
-  }
+
+  const individualResults = previewResults as HealthCareInsuranceYearResult
+  return <IndividualPreviewDisplay individualResults={individualResults} withdrawalAmount={withdrawalAmount} />
 }
