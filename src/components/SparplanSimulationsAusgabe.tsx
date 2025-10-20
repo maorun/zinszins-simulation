@@ -74,6 +74,52 @@ const CAPITAL_DISPLAY_STYLES = {
 }
 
 /**
+ * Component to display Vorabpauschale details for a specific year
+ */
+function VorabpauschaleDisplay({
+  elemente,
+  jahr,
+  onInfoClick,
+}: {
+  elemente?: SparplanElement[]
+  jahr: number
+  onInfoClick: (details: VorabpauschaleDetails) => void
+}) {
+  // Find any element that has vorabpauschale details for this year
+  const elementWithVorab = elemente?.find(el =>
+    el.simulation[jahr]?.vorabpauschaleDetails,
+  )
+
+  const vorabDetails = elementWithVorab?.simulation[jahr]?.vorabpauschaleDetails
+
+  if (!vorabDetails) {
+    return null
+  }
+
+  return (
+    <div className="flex justify-between items-center py-1">
+      <span className="text-sm text-gray-600 font-medium">
+        📊
+        {' '}
+        <GlossaryTerm term="vorabpauschale">
+          Vorabpauschale
+        </GlossaryTerm>
+        {' '}
+        (Beispiel):
+      </span>
+      <span className="font-semibold text-blue-700 text-sm flex items-center">
+        {thousands(vorabDetails.vorabpauschaleAmount?.toString() || '0')}
+        {' '}
+        €
+        <InfoIcon
+          onClick={() => onInfoClick(vorabDetails)}
+        />
+      </span>
+    </div>
+  )
+}
+
+/**
  * Display component for total capital with gradient background
  */
 function CapitalDisplay({
@@ -390,40 +436,11 @@ export function SparplanSimulationsAusgabe({
                       </div>
 
                       {/* Find Vorabpauschale details for this year */}
-                      {(() => {
-                      // Find any element that has vorabpauschale details for this year
-                        const elementWithVorab = elemente?.find(el =>
-                          el.simulation[row.jahr]?.vorabpauschaleDetails,
-                        )
-
-                        if (elementWithVorab?.simulation[row.jahr]?.vorabpauschaleDetails) {
-                          const vorabDetails = elementWithVorab.simulation[row.jahr].vorabpauschaleDetails
-                          return (
-                            <div className="flex justify-between items-center py-1">
-                              <span className="text-sm text-gray-600 font-medium">
-                                📊
-                                {' '}
-                                <GlossaryTerm term="vorabpauschale">
-                                  Vorabpauschale
-                                </GlossaryTerm>
-                                {' '}
-                                (Beispiel):
-                              </span>
-                              <span className="font-semibold text-blue-700 text-sm flex items-center">
-                                {thousands(vorabDetails?.vorabpauschaleAmount?.toString() || '0')}
-                                {' '}
-                                €
-                                {vorabDetails && (
-                                  <InfoIcon
-                                    onClick={() => handleVorabpauschaleInfoClick(vorabDetails)}
-                                  />
-                                )}
-                              </span>
-                            </div>
-                          )
-                        }
-                        return null
-                      })()}
+                      <VorabpauschaleDisplay
+                        elemente={elemente}
+                        jahr={row.jahr}
+                        onInfoClick={handleVorabpauschaleInfoClick}
+                      />
                     </div>
                   </div>
                 ))}
