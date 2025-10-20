@@ -7,7 +7,7 @@ import { calculateEndOfLifeYear, calculateCurrentAge } from '../../helpers/life-
 import { calculateJointLifeExpectancy } from '../../helpers/rmd-tables'
 import { CoupleStatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
 import { CareCostConfiguration } from './CareCostConfiguration'
-import { useEffect } from 'react'
+import { useCallback, useEffect } from 'react'
 import { PlanningModeSelector } from './PlanningModeSelector'
 import { GenderConfiguration } from './GenderConfiguration'
 import { BirthYearConfiguration } from './BirthYearConfiguration'
@@ -46,43 +46,52 @@ export function GlobalPlanningConfiguration({ startOfIndependence }: GlobalPlann
     setCareCostConfiguration,
   } = useSimulation()
 
+  // Helper to calculate end of life for individual planning
+  const calculateIndividualEndOfLife = useCallback(() => {
+    if (birthYear && expectedLifespan) {
+      const calculatedYear = calculateEndOfLifeYear(birthYear, expectedLifespan)
+      setEndOfLife(Math.round(calculatedYear))
+    }
+  }, [birthYear, expectedLifespan, setEndOfLife])
+
+  // Helper to calculate end of life for couple planning
+  const calculateCoupleEndOfLife = useCallback(() => {
+    if (!birthYear || !spouse?.birthYear || !gender || !spouse?.gender) {
+      return
+    }
+
+    const age1 = calculateCurrentAge(birthYear)
+    const age2 = calculateCurrentAge(spouse.birthYear)
+    const jointLifeExpectancy = calculateJointLifeExpectancy(
+      age1, age2, gender, spouse.gender,
+    )
+
+    // Use the older person's birth year + joint life expectancy
+    const olderBirthYear = Math.min(birthYear, spouse.birthYear)
+    const calculatedYear = calculateEndOfLifeYear(
+      olderBirthYear,
+      jointLifeExpectancy + calculateCurrentAge(olderBirthYear),
+    )
+    setEndOfLife(Math.round(calculatedYear))
+  }, [birthYear, spouse, gender, setEndOfLife])
+
   // Automatic calculation effect - triggers when automatic mode is enabled and relevant data changes
   useEffect(() => {
-    if (useAutomaticCalculation) {
-      if (planningMode === 'individual') {
-        // Individual planning: calculate when birth year and expected lifespan are available
-        if (birthYear && expectedLifespan) {
-          const calculatedYear = calculateEndOfLifeYear(birthYear, expectedLifespan)
-          setEndOfLife(Math.round(calculatedYear))
-        }
-      }
-      else if (planningMode === 'couple') {
-        // Couple planning: calculate when both birth years and genders are available
-        if (birthYear && spouse?.birthYear && gender && spouse?.gender) {
-          const age1 = calculateCurrentAge(birthYear)
-          const age2 = calculateCurrentAge(spouse.birthYear)
-          const jointLifeExpectancy = calculateJointLifeExpectancy(
-            age1, age2, gender, spouse.gender,
-          )
+    if (!useAutomaticCalculation) {
+      return
+    }
 
-          // Use the older person's birth year + joint life expectancy
-          const olderBirthYear = Math.min(birthYear, spouse.birthYear)
-          const calculatedYear = calculateEndOfLifeYear(
-            olderBirthYear,
-            jointLifeExpectancy + calculateCurrentAge(olderBirthYear),
-          )
-          setEndOfLife(Math.round(calculatedYear))
-        }
-      }
+    if (planningMode === 'individual') {
+      calculateIndividualEndOfLife()
+    }
+    else if (planningMode === 'couple') {
+      calculateCoupleEndOfLife()
     }
   }, [
     useAutomaticCalculation,
     planningMode,
-    birthYear,
-    spouse,
-    gender,
-    expectedLifespan,
-    setEndOfLife,
+    calculateIndividualEndOfLife,
+    calculateCoupleEndOfLife,
   ])
 
   const navigationRef = useNavigationItem({
