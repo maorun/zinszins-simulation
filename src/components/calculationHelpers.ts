@@ -516,6 +516,48 @@ function buildTaxableIncomeFinalValues(
   return values
 }
 
+function buildTaxableIncomeSteps(
+  params: TaxableIncomeParams,
+  totalTaxableIncome: number,
+  steuerpflichtigesEinkommen: number,
+): CalculationStep[] {
+  const steps: CalculationStep[] = [
+    {
+      title: 'Schritt 1: Portfolio-Entnahme',
+      description: 'Die Entnahme aus dem Portfolio vor Steuern.',
+      calculation: `Portfolio-Entnahme = ${formatCurrency(params.entnahme)}`,
+      result: formatCurrency(params.entnahme),
+      backgroundColor: '#fff3e0',
+      borderColor: '#ffcc80',
+    },
+  ]
+
+  if (params.statutoryPensionTaxableAmount && params.statutoryPensionTaxableAmount > 0) {
+    addStatutoryPensionStep(steps, params.statutoryPensionTaxableAmount)
+  }
+
+  if (params.otherIncomeGrossAmount && params.otherIncomeGrossAmount > 0) {
+    addOtherIncomeStep(steps, params.otherIncomeGrossAmount)
+  }
+
+  if (params.healthCareInsuranceAnnual && params.healthCareInsuranceAnnual > 0) {
+    addHealthCareInsuranceStep(steps, params.healthCareInsuranceAnnual)
+  }
+
+  addTotalIncomeStepIfNeeded(steps, params, totalTaxableIncome)
+
+  steps.push({
+    title: `Schritt ${steps.length + 1}: Grundfreibetrag abziehen`,
+    description: `Der steuerfreie Grundfreibetrag von ${formatCurrency(params.grundfreibetrag)} wird von den gesamten Einkünften abgezogen.`,
+    calculation: `Zu versteuerndes Einkommen = max(0, Gesamte Einkünfte - Grundfreibetrag)<br/>max(0, ${formatCurrency(totalTaxableIncome)} - ${formatCurrency(params.grundfreibetrag)})`,
+    result: formatCurrency(steuerpflichtigesEinkommen),
+    backgroundColor: '#e8f5e8',
+    borderColor: '#81c784',
+  })
+
+  return steps
+}
+
 // Taxable income calculation explanation
 export function createTaxableIncomeExplanation(
   entnahme: number,
@@ -534,46 +576,8 @@ export function createTaxableIncomeExplanation(
 
   const totalTaxableIncome = calculateTotalTaxableIncome(params)
   const steuerpflichtigesEinkommen = Math.max(0, totalTaxableIncome - grundfreibetrag)
-
-  const steps: CalculationStep[] = [
-    {
-      title: 'Schritt 1: Portfolio-Entnahme',
-      description: 'Die Entnahme aus dem Portfolio vor Steuern.',
-      calculation: `Portfolio-Entnahme = ${formatCurrency(entnahme)}`,
-      result: formatCurrency(entnahme),
-      backgroundColor: '#fff3e0',
-      borderColor: '#ffcc80',
-    },
-  ]
-
-  if (statutoryPensionTaxableAmount && statutoryPensionTaxableAmount > 0) {
-    addStatutoryPensionStep(steps, statutoryPensionTaxableAmount)
-  }
-
-  if (otherIncomeGrossAmount && otherIncomeGrossAmount > 0) {
-    addOtherIncomeStep(steps, otherIncomeGrossAmount)
-  }
-
-  if (healthCareInsuranceAnnual && healthCareInsuranceAnnual > 0) {
-    addHealthCareInsuranceStep(steps, healthCareInsuranceAnnual)
-  }
-
-  addTotalIncomeStepIfNeeded(steps, params, totalTaxableIncome)
-
-  steps.push({
-    title: `Schritt ${steps.length + 1}: Grundfreibetrag abziehen`,
-    description: `Der steuerfreie Grundfreibetrag von ${formatCurrency(grundfreibetrag)} wird von den gesamten Einkünften abgezogen.`,
-    calculation: `Zu versteuerndes Einkommen = max(0, Gesamte Einkünfte - Grundfreibetrag)<br/>max(0, ${formatCurrency(totalTaxableIncome)} - ${formatCurrency(grundfreibetrag)})`,
-    result: formatCurrency(steuerpflichtigesEinkommen),
-    backgroundColor: '#e8f5e8',
-    borderColor: '#81c784',
-  })
-
-  const finalResultValues = buildTaxableIncomeFinalValues(
-    params,
-    totalTaxableIncome,
-    steuerpflichtigesEinkommen,
-  )
+  const steps = buildTaxableIncomeSteps(params, totalTaxableIncome, steuerpflichtigesEinkommen)
+  const finalResultValues = buildTaxableIncomeFinalValues(params, totalTaxableIncome, steuerpflichtigesEinkommen)
 
   return {
     title: '💰 Zu versteuerndes Einkommen Schritt für Schritt',
@@ -637,6 +641,49 @@ export function createOtherIncomeExplanation(
   }
 }
 
+function buildStatutoryPensionSteps(
+  grossAnnualAmount: number,
+  taxableAmount: number,
+  incomeTax: number,
+  netAnnualAmount: number,
+  taxablePercentage: number,
+): CalculationStep[] {
+  return [
+    {
+      title: 'Schritt 1: Brutto-Renteneinkommen',
+      description: 'Die jährliche Brutto-Rente, die Sie von der Deutschen Rentenversicherung erhalten.',
+      calculation: `Brutto-Rente (jährlich) = ${formatCurrency(grossAnnualAmount)}`,
+      result: formatCurrency(grossAnnualAmount),
+      backgroundColor: '#e8f5e8',
+      borderColor: '#4caf50',
+    },
+    {
+      title: 'Schritt 2: Steuerpflichtiger Anteil',
+      description: `Der steuerpflichtige Anteil der Rente beträgt ${taxablePercentage.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}% der Brutto-Rente.`,
+      calculation: `Steuerpflichtiger Anteil = ${formatCurrency(grossAnnualAmount)} × ${taxablePercentage.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`,
+      result: formatCurrency(taxableAmount),
+      backgroundColor: '#fff3e0',
+      borderColor: '#ffcc80',
+    },
+    {
+      title: 'Schritt 3: Einkommensteuer auf Rente',
+      description: 'Auf den steuerpflichtigen Anteil wird die Einkommensteuer erhoben.',
+      calculation: `Einkommensteuer = ${formatCurrency(taxableAmount)} - Grundfreibetrag, dann Steuersatz anwenden`,
+      result: formatCurrency(incomeTax),
+      backgroundColor: '#ffebee',
+      borderColor: '#ef5350',
+    },
+    {
+      title: 'Schritt 4: Netto-Renteneinkommen',
+      description: 'Das verfügbare Netto-Einkommen aus der gesetzlichen Rente nach Abzug der Steuern.',
+      calculation: `Netto-Rente = ${formatCurrency(grossAnnualAmount)} - ${formatCurrency(incomeTax)}`,
+      result: formatCurrency(netAnnualAmount),
+      backgroundColor: '#e8f5e8',
+      borderColor: '#4caf50',
+    },
+  ]
+}
+
 // Statutory pension calculation explanation
 export function createStatutoryPensionExplanation(
   grossAnnualAmount: number,
@@ -651,40 +698,7 @@ export function createStatutoryPensionExplanation(
   return {
     title: '🏛️ Gesetzliche Rente - Berechnung Schritt für Schritt',
     introduction: `Die gesetzliche Rente wird mit dem steuerpflichtigen Anteil versteuert. Hier sehen Sie die Berechnung für das Jahr ${year}.`,
-    steps: [
-      {
-        title: 'Schritt 1: Brutto-Renteneinkommen',
-        description: 'Die jährliche Brutto-Rente, die Sie von der Deutschen Rentenversicherung erhalten.',
-        calculation: `Brutto-Rente (jährlich) = ${formatCurrency(grossAnnualAmount)}`,
-        result: formatCurrency(grossAnnualAmount),
-        backgroundColor: '#e8f5e8',
-        borderColor: '#4caf50',
-      },
-      {
-        title: 'Schritt 2: Steuerpflichtiger Anteil',
-        description: `Der steuerpflichtige Anteil der Rente beträgt ${taxablePercentage.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}% der Brutto-Rente.`,
-        calculation: `Steuerpflichtiger Anteil = ${formatCurrency(grossAnnualAmount)} × ${taxablePercentage.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`,
-        result: formatCurrency(taxableAmount),
-        backgroundColor: '#fff3e0',
-        borderColor: '#ffcc80',
-      },
-      {
-        title: 'Schritt 3: Einkommensteuer auf Rente',
-        description: 'Auf den steuerpflichtigen Anteil wird die Einkommensteuer erhoben.',
-        calculation: `Einkommensteuer = ${formatCurrency(taxableAmount)} - Grundfreibetrag, dann Steuersatz anwenden`,
-        result: formatCurrency(incomeTax),
-        backgroundColor: '#ffebee',
-        borderColor: '#ef5350',
-      },
-      {
-        title: 'Schritt 4: Netto-Renteneinkommen',
-        description: 'Das verfügbare Netto-Einkommen aus der gesetzlichen Rente nach Abzug der Steuern.',
-        calculation: `Netto-Rente = ${formatCurrency(grossAnnualAmount)} - ${formatCurrency(incomeTax)}`,
-        result: formatCurrency(netAnnualAmount),
-        backgroundColor: '#e8f5e8',
-        borderColor: '#4caf50',
-      },
-    ],
+    steps: buildStatutoryPensionSteps(grossAnnualAmount, taxableAmount, incomeTax, netAnnualAmount, taxablePercentage),
     finalResult: {
       title: 'Zusammenfassung der gesetzlichen Rente',
       values: [
@@ -881,6 +895,39 @@ function buildSummaryValues(
   return baseValues
 }
 
+function buildHealthCareInsuranceSteps(
+  insuranceType: 'statutory' | 'private',
+  healthInsuranceAnnual: number,
+  careInsuranceAnnual: number,
+  totalAnnual: number,
+  effectiveHealthInsuranceRate?: number,
+  effectiveCareInsuranceRate?: number,
+  baseIncomeForCalculation?: number,
+  includesEmployerContribution?: boolean,
+  monthlyHealthInsurance?: number,
+  monthlyCareInsurance?: number,
+  inflationAdjustmentFactor?: number,
+): CalculationStep[] {
+  return insuranceType === 'statutory'
+    ? getStatutorySteps(
+        healthInsuranceAnnual,
+        careInsuranceAnnual,
+        totalAnnual,
+        effectiveHealthInsuranceRate,
+        effectiveCareInsuranceRate,
+        baseIncomeForCalculation,
+        includesEmployerContribution,
+      )
+    : buildPrivateInsuranceSteps(
+        healthInsuranceAnnual,
+        careInsuranceAnnual,
+        totalAnnual,
+        monthlyHealthInsurance!,
+        monthlyCareInsurance!,
+        inflationAdjustmentFactor,
+      )
+}
+
 export function createHealthCareInsuranceExplanation(
   healthInsuranceAnnual: number,
   careInsuranceAnnual: number,
@@ -897,36 +944,27 @@ export function createHealthCareInsuranceExplanation(
   const monthlyHealthInsurance = healthInsuranceAnnual / 12
   const monthlyCareInsurance = careInsuranceAnnual / 12
   const monthlyTotal = totalAnnual / 12
-
   const title = buildInsuranceTitle(insuranceType)
-
   const introduction = insuranceType === 'statutory'
     ? buildStatutoryIntroduction(isRetirementPhase)
     : buildPrivateIntroduction(inflationAdjustmentFactor)
 
-  const steps = insuranceType === 'statutory'
-    ? getStatutorySteps(
-        healthInsuranceAnnual,
-        careInsuranceAnnual,
-        totalAnnual,
-        effectiveHealthInsuranceRate,
-        effectiveCareInsuranceRate,
-        baseIncomeForCalculation,
-        includesEmployerContribution,
-      )
-    : buildPrivateInsuranceSteps(
-        healthInsuranceAnnual,
-        careInsuranceAnnual,
-        totalAnnual,
-        monthlyHealthInsurance,
-        monthlyCareInsurance,
-        inflationAdjustmentFactor,
-      )
-
   return {
     title,
     introduction,
-    steps,
+    steps: buildHealthCareInsuranceSteps(
+      insuranceType,
+      healthInsuranceAnnual,
+      careInsuranceAnnual,
+      totalAnnual,
+      effectiveHealthInsuranceRate,
+      effectiveCareInsuranceRate,
+      baseIncomeForCalculation,
+      includesEmployerContribution,
+      monthlyHealthInsurance,
+      monthlyCareInsurance,
+      inflationAdjustmentFactor,
+    ),
     finalResult: {
       title: 'Zusammenfassung der Kranken- & Pflegeversicherung',
       values: buildSummaryValues(
