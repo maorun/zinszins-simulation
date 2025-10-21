@@ -8,6 +8,43 @@ import { Zeitspanne } from './Zeitspanne'
 import { convertSparplanToElements } from '../utils/sparplan-utils'
 import { useCallback } from 'react'
 
+/**
+ * Year adjustment controls for incrementing/decrementing the start year
+ */
+function YearAdjustmentControls({
+  startYear,
+  onAdjustment,
+}: {
+  startYear: number
+  onAdjustment: (adjustment: number) => void
+}) {
+  return (
+    <div className="flex items-center gap-2">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onAdjustment(-1)}
+        disabled={startYear <= 2023}
+      >
+        <Minus className="h-4 w-4" />
+      </Button>
+      <span className="text-sm text-muted-foreground min-w-[80px] text-center">
+        Jahr
+        {' '}
+        {startYear}
+      </span>
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onAdjustment(1)}
+        disabled={startYear >= 2100}
+      >
+        <Plus className="h-4 w-4" />
+      </Button>
+    </div>
+  )
+}
+
 const TimeRangeConfiguration = () => {
   const { startEnd, setStartEnd, sparplan, simulationAnnual, setSparplanElemente } = useSimulation()
   const nestingLevel = useNestingLevel()
@@ -38,29 +75,10 @@ const TimeRangeConfiguration = () => {
           <CardContent nestingLevel={nestingLevel}>
             <div className="space-y-4">
               <Zeitspanne startEnd={startEnd} dispatch={handleStartEndChange} />
-              <div className="flex items-center gap-2">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleYearAdjustment(-1)}
-                  disabled={startEnd[0] <= 2023}
-                >
-                  <Minus className="h-4 w-4" />
-                </Button>
-                <span className="text-sm text-muted-foreground min-w-[80px] text-center">
-                  Jahr
-                  {' '}
-                  {startEnd[0]}
-                </span>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => handleYearAdjustment(1)}
-                  disabled={startEnd[0] >= 2100}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
+              <YearAdjustmentControls
+                startYear={startEnd[0]}
+                onAdjustment={handleYearAdjustment}
+              />
             </div>
           </CardContent>
         </CollapsibleContent>

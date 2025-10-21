@@ -17,12 +17,27 @@ function buildBasicInsuranceValues(config: WithdrawalFormValue['healthCareInsura
   }
 }
 
+/**
+ * Get value with fallback to default
+ */
+function getValueOrDefault<T>(value: T | undefined, defaultValue: T): T {
+  return value ?? defaultValue
+}
+
+const DEFAULT_STATUTORY_INSURANCE_VALUES = {
+  rate: 14.6,
+  careRate: 3.05,
+  minBase: 13230,
+  maxBase: 62550,
+}
+
 function buildStatutoryInsuranceValues(config: WithdrawalFormValue['healthCareInsuranceConfig']) {
+  const defaults = DEFAULT_STATUTORY_INSURANCE_VALUES
   return {
-    statutoryHealthInsuranceRate: config?.statutoryHealthInsuranceRate || 14.6,
-    statutoryCareInsuranceRate: config?.statutoryCareInsuranceRate || 3.05,
-    statutoryMinimumIncomeBase: config?.statutoryMinimumIncomeBase || 13230,
-    statutoryMaximumIncomeBase: config?.statutoryMaximumIncomeBase || 62550,
+    statutoryHealthInsuranceRate: getValueOrDefault(config?.statutoryHealthInsuranceRate, defaults.rate),
+    statutoryCareInsuranceRate: getValueOrDefault(config?.statutoryCareInsuranceRate, defaults.careRate),
+    statutoryMinimumIncomeBase: getValueOrDefault(config?.statutoryMinimumIncomeBase, defaults.minBase),
+    statutoryMaximumIncomeBase: getValueOrDefault(config?.statutoryMaximumIncomeBase, defaults.maxBase),
   }
 }
 
@@ -46,28 +61,33 @@ function buildRetirementAndCareValues(
 }
 
 function buildCoupleStrategyValues(config: WithdrawalFormValue['healthCareInsuranceConfig']) {
+  const coupleConfig = config?.coupleConfig
+  const thresholds = coupleConfig?.familyInsuranceThresholds
+
   return {
-    coupleStrategy: config?.coupleConfig?.strategy,
-    familyInsuranceThresholdRegular: config?.coupleConfig?.familyInsuranceThresholds?.regularEmploymentLimit,
-    familyInsuranceThresholdMiniJob: config?.coupleConfig?.familyInsuranceThresholds?.miniJobLimit,
+    coupleStrategy: coupleConfig?.strategy,
+    familyInsuranceThresholdRegular: thresholds?.regularEmploymentLimit,
+    familyInsuranceThresholdMiniJob: thresholds?.miniJobLimit,
   }
 }
 
 function buildPerson1Values(config: WithdrawalFormValue['healthCareInsuranceConfig']) {
+  const person1 = config?.coupleConfig?.person1
   return {
-    person1Name: config?.coupleConfig?.person1?.name,
-    person1WithdrawalShare: config?.coupleConfig?.person1?.withdrawalShare,
-    person1OtherIncomeAnnual: config?.coupleConfig?.person1?.otherIncomeAnnual,
-    person1AdditionalCareInsuranceForChildless: config?.coupleConfig?.person1?.additionalCareInsuranceForChildless,
+    person1Name: person1?.name,
+    person1WithdrawalShare: person1?.withdrawalShare,
+    person1OtherIncomeAnnual: person1?.otherIncomeAnnual,
+    person1AdditionalCareInsuranceForChildless: person1?.additionalCareInsuranceForChildless,
   }
 }
 
 function buildPerson2Values(config: WithdrawalFormValue['healthCareInsuranceConfig']) {
+  const person2 = config?.coupleConfig?.person2
   return {
-    person2Name: config?.coupleConfig?.person2?.name,
-    person2WithdrawalShare: config?.coupleConfig?.person2?.withdrawalShare,
-    person2OtherIncomeAnnual: config?.coupleConfig?.person2?.otherIncomeAnnual,
-    person2AdditionalCareInsuranceForChildless: config?.coupleConfig?.person2?.additionalCareInsuranceForChildless,
+    person2Name: person2?.name,
+    person2WithdrawalShare: person2?.withdrawalShare,
+    person2OtherIncomeAnnual: person2?.otherIncomeAnnual,
+    person2AdditionalCareInsuranceForChildless: person2?.additionalCareInsuranceForChildless,
   }
 }
 

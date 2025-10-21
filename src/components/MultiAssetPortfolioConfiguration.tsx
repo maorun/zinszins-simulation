@@ -44,11 +44,13 @@ interface MultiAssetPortfolioConfigurationProps {
   nestingLevel?: number
 }
 
-export function MultiAssetPortfolioConfiguration({
-  values,
-  onChange,
-  nestingLevel = 0,
-}: MultiAssetPortfolioConfigurationProps) {
+/**
+ * Validate and get safe configuration values
+ */
+function getSafeMultiAssetConfig(
+  values: MultiAssetPortfolioConfig | undefined,
+  onChange: (config: MultiAssetPortfolioConfig) => void,
+): MultiAssetPortfolioConfig | null {
   // Ensure we have a valid configuration object
   const safeValues = values || createDefaultMultiAssetConfig()
 
@@ -57,6 +59,21 @@ export function MultiAssetPortfolioConfiguration({
     console.warn('MultiAssetPortfolioConfiguration received invalid values, using default config')
     const fallbackConfig = createDefaultMultiAssetConfig()
     onChange?.(fallbackConfig)
+    return null // Signal that fallback UI should be shown
+  }
+
+  return safeValues
+}
+
+export function MultiAssetPortfolioConfiguration({
+  values,
+  onChange,
+  nestingLevel = 0,
+}: MultiAssetPortfolioConfigurationProps) {
+  const safeValues = getSafeMultiAssetConfig(values, onChange)
+
+  // Show loading state if configuration is being initialized
+  if (!safeValues) {
     return (
       <Card nestingLevel={nestingLevel} className="mb-4">
         <CardHeader nestingLevel={nestingLevel}>

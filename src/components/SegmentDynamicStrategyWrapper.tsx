@@ -6,41 +6,49 @@ interface Props {
   onUpdate: (segmentId: string, updates: Partial<WithdrawalSegment>) => void
 }
 
-export function SegmentDynamicStrategyWrapper({ segment, onUpdate }: Props) {
-  const updateDynamicConfig = (field: string, value: number) => {
-    const defaultConfig = {
-      baseWithdrawalRate: 0.04,
-      upperThresholdReturn: 0.08,
-      upperThresholdAdjustment: 0.05,
-      lowerThresholdReturn: 0.02,
-      lowerThresholdAdjustment: -0.05,
-    }
+const DEFAULT_DYNAMIC_CONFIG = {
+  baseWithdrawalRate: 0.04,
+  upperThresholdReturn: 0.08,
+  upperThresholdAdjustment: 0.05,
+  lowerThresholdReturn: 0.02,
+  lowerThresholdAdjustment: -0.05,
+}
 
+function getConfigValues(dynamicConfig: WithdrawalSegment['dynamicConfig']) {
+  return {
+    ...DEFAULT_DYNAMIC_CONFIG,
+    ...dynamicConfig,
+  }
+}
+
+function createChangeHandlers(
+  segment: WithdrawalSegment,
+  onUpdate: (segmentId: string, updates: Partial<WithdrawalSegment>) => void,
+) {
+  const updateDynamicConfig = (field: string, value: number) => {
     onUpdate(segment.id, {
       dynamicConfig: {
-        ...defaultConfig,
+        ...DEFAULT_DYNAMIC_CONFIG,
         ...segment.dynamicConfig,
         [field]: value,
       },
     })
   }
 
+  return {
+    onBaseWithdrawalRateChange: (v: number) => updateDynamicConfig('baseWithdrawalRate', v),
+    onUpperThresholdReturnChange: (v: number) => updateDynamicConfig('upperThresholdReturn', v),
+    onUpperThresholdAdjustmentChange: (v: number) => updateDynamicConfig('upperThresholdAdjustment', v),
+    onLowerThresholdReturnChange: (v: number) => updateDynamicConfig('lowerThresholdReturn', v),
+    onLowerThresholdAdjustmentChange: (v: number) => updateDynamicConfig('lowerThresholdAdjustment', v),
+  }
+}
+
+export function SegmentDynamicStrategyWrapper({ segment, onUpdate }: Props) {
   return (
     <DynamicWithdrawalConfiguration
-      values={{
-        baseWithdrawalRate: segment.dynamicConfig?.baseWithdrawalRate || 0.04,
-        upperThresholdReturn: segment.dynamicConfig?.upperThresholdReturn || 0.08,
-        upperThresholdAdjustment: segment.dynamicConfig?.upperThresholdAdjustment || 0.05,
-        lowerThresholdReturn: segment.dynamicConfig?.lowerThresholdReturn || 0.02,
-        lowerThresholdAdjustment: segment.dynamicConfig?.lowerThresholdAdjustment || -0.05,
-      }}
-      onChange={{
-        onBaseWithdrawalRateChange: v => updateDynamicConfig('baseWithdrawalRate', v),
-        onUpperThresholdReturnChange: v => updateDynamicConfig('upperThresholdReturn', v),
-        onUpperThresholdAdjustmentChange: v => updateDynamicConfig('upperThresholdAdjustment', v),
-        onLowerThresholdReturnChange: v => updateDynamicConfig('lowerThresholdReturn', v),
-        onLowerThresholdAdjustmentChange: v => updateDynamicConfig('lowerThresholdAdjustment', v),
-      }}
+      values={getConfigValues(segment.dynamicConfig)}
+      onChange={createChangeHandlers(segment, onUpdate)}
     />
   )
 }

@@ -100,6 +100,118 @@ export const SENSITIVITY_PARAMETERS: { [key: string]: SensitivityParameter } = {
 }
 
 /**
+ * Generate range of values to test for a parameter
+ */
+function generateParameterValues(parameter: SensitivityParameter): number[] {
+  const values: number[] = []
+  for (let value = parameter.min; value <= parameter.max; value += parameter.step) {
+    values.push(value)
+  }
+  return values
+}
+
+/**
+ * Apply parameter modification to configuration
+ */
+function applyParameterModification(
+  parameterName: string,
+  value: number,
+  baseConfig: SensitivityAnalysisConfig,
+  returnConfig: ReturnConfiguration,
+): { config: SensitivityAnalysisConfig, returnConfig: ReturnConfiguration } {
+  const config = { ...baseConfig }
+  let modifiedReturnConfig = { ...returnConfig }
+
+  switch (parameterName) {
+    case 'returnRate':
+      modifiedReturnConfig = { mode: 'fixed', fixedRate: value / 100 }
+      break
+
+    case 'savingsAmount':
+      config.elements = baseConfig.elements.map(el => ({
+        ...el,
+        einzahlung: value,
+      }))
+      break
+
+    case 'taxRate':
+      config.steuerlast = value / 100
+      break
+
+    case 'inflationRate':
+      config.inflationAktivSparphase = true
+      config.inflationsrateSparphase = value
+      config.inflationAnwendungSparphase = 'gesamtmenge'
+      break
+
+    case 'investmentPeriod':
+      config.endYear = config.startYear + value - 1
+      break
+  }
+
+  return { config, returnConfig: modifiedReturnConfig }
+}
+
+/**
+ * Calculate contributions for a sparplan element
+ */
+function calculateSparplanContributions(element: SparplanElement, years: number[]): number {
+  if (element.type === 'sparplan' && 'einzahlung' in element) {
+    return element.einzahlung * years.length
+  }
+  return 0
+}
+
+/**
+ * Calculate contributions for an einmalzahlung element
+ */
+function calculateEinmalzahlungContributions(element: SparplanElement): number {
+  if (element.type === 'einmalzahlung' && 'gewinn' in element) {
+    return element.gewinn
+  }
+  return 0
+}
+
+/**
+ * Calculate total contributions for an element
+ */
+function calculateElementContributions(element: SparplanElement, years: number[]): number {
+  return calculateSparplanContributions(element, years)
+    + calculateEinmalzahlungContributions(element)
+}
+
+/**
+ * Calculate final metrics from simulation result
+ */
+function calculateSimulationMetrics(simulationResult: SparplanElement[]): {
+  finalCapital: number
+  totalContributions: number
+  totalGains: number
+  effectiveReturn: number
+} {
+  let finalCapital = 0
+  let totalContributions = 0
+
+  for (const element of simulationResult) {
+    const years = Object.keys(element.simulation).map(Number)
+    if (years.length > 0) {
+      const lastYear = Math.max(...years)
+      const lastYearData = element.simulation[lastYear]
+      finalCapital += lastYearData.endkapital || 0
+
+      totalContributions += calculateElementContributions(element, years)
+    }
+  }
+
+  const totalGains = finalCapital - totalContributions
+  const effectiveReturn = totalContributions > 0
+    ? ((finalCapital / totalContributions) - 1) * 100
+    : 0
+
+  return { finalCapital, totalContributions, totalGains, effectiveReturn }
+}
+
+/**
  * Run sensitivity analysis for a single parameter
  */
 export function runSensitivityAnalysis(
@@ -108,88 +220,27 @@ export function runSensitivityAnalysis(
   returnConfig: ReturnConfiguration,
 ): SensitivityResult[] {
   const results: SensitivityResult[] = []
-
-  // Generate range of values to test
-  const values: number[] = []
-  for (let value = parameter.min; value <= parameter.max; value += parameter.step) {
-    values.push(value)
-  }
+  const values = generateParameterValues(parameter)
 
   for (const value of values) {
-    const config = { ...baseConfig }
-    let modifiedReturnConfig = { ...returnConfig }
+    const { config, returnConfig: modifiedReturnConfig } = applyParameterModification(
+      parameter.name,
+      value,
+      baseConfig,
+      returnConfig,
+    )
 
-    // Modify the appropriate parameter
-    switch (parameter.name) {
-      case 'returnRate':
-        modifiedReturnConfig = { mode: 'fixed', fixedRate: value / 100 }
-        break
-
-      case 'savingsAmount':
-        // Modify savings plan elements
-        config.elements = baseConfig.elements.map(el => ({
-          ...el,
-          einzahlung: value,
-        }))
-        break
-
-      case 'taxRate':
-        config.steuerlast = value / 100
-        break
-
-      case 'inflationRate':
-        config.inflationAktivSparphase = true
-        config.inflationsrateSparphase = value
-        config.inflationAnwendungSparphase = 'gesamtmenge'
-        break
-
-      case 'investmentPeriod':
-        // Adjust end year based on investment period
-        config.endYear = config.startYear + value - 1
-        break
-    }
-
-    // Run simulation with modified parameter
     const simulationResult = simulate({
       ...config,
       returnConfig: modifiedReturnConfig,
     })
 
-    // Calculate final values from simulation results
-    let finalCapital = 0
-    let totalContributions = 0
-
-    for (const element of simulationResult) {
-      const years = Object.keys(element.simulation).map(Number)
-      if (years.length > 0) {
-        const lastYear = Math.max(...years)
-        const lastYearData = element.simulation[lastYear]
-        finalCapital += lastYearData.endkapital || 0
-
-        // Sum all contributions - need to calculate from element type
-        if (element.type === 'sparplan' && 'einzahlung' in element) {
-          // For savings plans, multiply yearly contribution by number of years
-          totalContributions += element.einzahlung * years.length
-        }
-        else if (element.type === 'einmalzahlung' && 'gewinn' in element) {
-          // For one-time payments, just add the amount
-          totalContributions += element.gewinn
-        }
-      }
-    }
-
-    const totalGains = finalCapital - totalContributions
-    const effectiveReturn = totalContributions > 0
-      ? ((finalCapital / totalContributions) - 1) * 100
-      : 0
+    const metrics = calculateSimulationMetrics(simulationResult)
 
     results.push({
       parameterName: parameter.name,
       parameterValue: value,
-      finalCapital,
-      totalContributions,
-      totalGains,
-      effectiveReturn,
+      ...metrics,
     })
   }
 

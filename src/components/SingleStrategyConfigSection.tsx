@@ -129,74 +129,67 @@ interface StrategySpecificConfigsProps {
   onFormValueUpdate: (updates: Partial<WithdrawalFormValue>) => void
 }
 
+/**
+ * Render configuration for variabel_prozent strategy
+ */
+function VariablePercentConfig({
+  formValue,
+  onFormValueUpdate,
+}: StrategySpecificConfigsProps) {
+  return (
+    <VariablePercentWithdrawalConfiguration
+      variabelProzent={formValue.variabelProzent}
+      onVariablePercentChange={percent => onFormValueUpdate({ variabelProzent: percent })}
+    />
+  )
+}
+
+/**
+ * Render configuration for monatlich_fest strategy
+ */
+function MonthlyFixedConfig({
+  formValue,
+  onFormValueUpdate,
+}: StrategySpecificConfigsProps) {
+  return (
+    <MonthlyFixedWithdrawalConfiguration
+      monatlicheBetrag={formValue.monatlicheBetrag}
+      guardrailsAktiv={formValue.guardrailsAktiv}
+      guardrailsSchwelle={formValue.guardrailsSchwelle}
+      onMonthlyAmountChange={(amount) => {
+        if (amount) onFormValueUpdate({ ...formValue, monatlicheBetrag: amount })
+      }}
+      onGuardrailsActiveChange={checked => onFormValueUpdate({ ...formValue, guardrailsAktiv: checked })}
+      onGuardrailsThresholdChange={threshold => onFormValueUpdate({ guardrailsSchwelle: threshold })}
+    />
+  )
+}
+
 function StrategySpecificConfigs({
   formValue,
   onFormValueUpdate,
 }: StrategySpecificConfigsProps) {
   const strategy = formValue.strategie
 
-  if (strategy === 'variabel_prozent') {
-    return (
-      <VariablePercentWithdrawalConfiguration
-        variabelProzent={formValue.variabelProzent}
-        onVariablePercentChange={(percent) => {
-          onFormValueUpdate({ variabelProzent: percent })
-        }}
-      />
-    )
+  switch (strategy) {
+    case 'variabel_prozent':
+      return <VariablePercentConfig formValue={formValue} onFormValueUpdate={onFormValueUpdate} />
+    case 'monatlich_fest':
+      return <MonthlyFixedConfig formValue={formValue} onFormValueUpdate={onFormValueUpdate} />
+    case 'dynamisch':
+      return <DynamicWithdrawalConfiguration formValue={formValue} />
+    case 'rmd':
+      return <RMDWithdrawalConfiguration formValue={formValue} updateFormValue={onFormValueUpdate} />
+    case 'kapitalerhalt':
+      return <KapitalerhaltConfiguration formValue={formValue} updateFormValue={onFormValueUpdate} />
+    case 'bucket_strategie':
+      return (
+        <BucketStrategyConfigurationForm
+          bucketConfig={formValue.bucketConfig}
+          onBucketConfigChange={config => onFormValueUpdate({ ...formValue, bucketConfig: config })}
+        />
+      )
+    default:
+      return null
   }
-
-  if (strategy === 'monatlich_fest') {
-    return (
-      <MonthlyFixedWithdrawalConfiguration
-        monatlicheBetrag={formValue.monatlicheBetrag}
-        guardrailsAktiv={formValue.guardrailsAktiv}
-        guardrailsSchwelle={formValue.guardrailsSchwelle}
-        onMonthlyAmountChange={(amount) => {
-          if (amount) onFormValueUpdate({ ...formValue, monatlicheBetrag: amount })
-        }}
-        onGuardrailsActiveChange={(checked) => {
-          onFormValueUpdate({ ...formValue, guardrailsAktiv: checked })
-        }}
-        onGuardrailsThresholdChange={(threshold) => {
-          onFormValueUpdate({ guardrailsSchwelle: threshold })
-        }}
-      />
-    )
-  }
-
-  if (strategy === 'dynamisch') {
-    return <DynamicWithdrawalConfiguration formValue={formValue} />
-  }
-
-  if (strategy === 'rmd') {
-    return (
-      <RMDWithdrawalConfiguration
-        formValue={formValue}
-        updateFormValue={onFormValueUpdate}
-      />
-    )
-  }
-
-  if (strategy === 'kapitalerhalt') {
-    return (
-      <KapitalerhaltConfiguration
-        formValue={formValue}
-        updateFormValue={onFormValueUpdate}
-      />
-    )
-  }
-
-  if (strategy === 'bucket_strategie') {
-    return (
-      <BucketStrategyConfigurationForm
-        bucketConfig={formValue.bucketConfig}
-        onBucketConfigChange={(config) => {
-          onFormValueUpdate({ ...formValue, bucketConfig: config })
-        }}
-      />
-    )
-  }
-
-  return null
 }

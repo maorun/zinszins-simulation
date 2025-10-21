@@ -12,9 +12,27 @@ const defaults = {
   refillThreshold: 5000,
   refillPercentage: 0.5,
   baseWithdrawalRate: 0.04,
+  subStrategy: '4prozent' as BucketSubStrategy,
+  variabelProzent: 4,
+  monatlicheBetrag: 2000,
+  dynamischBasisrate: 4,
+  dynamischObereSchwell: 8,
+  dynamischObereAnpassung: 5,
+  dynamischUntereSchwell: 2,
+  dynamischUntereAnpassung: -5,
 }
 
-export function SegmentBucketStrategyWrapper({ segment, onUpdate }: Props) {
+function getConfigValues(bucketConfig: WithdrawalSegment['bucketConfig']) {
+  return {
+    ...defaults,
+    ...bucketConfig,
+  }
+}
+
+function createChangeHandlers(
+  segment: WithdrawalSegment,
+  onUpdate: (segmentId: string, updates: Partial<WithdrawalSegment>) => void,
+) {
   const updateBucketConfig = (field: string, value: number | BucketSubStrategy) => {
     onUpdate(segment.id, {
       bucketConfig: {
@@ -25,37 +43,28 @@ export function SegmentBucketStrategyWrapper({ segment, onUpdate }: Props) {
     })
   }
 
+  return {
+    onInitialCashCushionChange: (v: number) => updateBucketConfig('initialCashCushion', v),
+    onRefillThresholdChange: (v: number) => updateBucketConfig('refillThreshold', v),
+    onRefillPercentageChange: (v: number) => updateBucketConfig('refillPercentage', v),
+    onBaseWithdrawalRateChange: (v: number) => updateBucketConfig('baseWithdrawalRate', v),
+    onSubStrategyChange: (v: BucketSubStrategy) => updateBucketConfig('subStrategy', v),
+    onVariabelProzentChange: (v: number) => updateBucketConfig('variabelProzent', v),
+    onMonatlicheBetragChange: (v: number) => updateBucketConfig('monatlicheBetrag', v),
+    onDynamischBasisrateChange: (v: number) => updateBucketConfig('dynamischBasisrate', v),
+    onDynamischObereSchwell: (v: number) => updateBucketConfig('dynamischObereSchwell', v),
+    onDynamischObereAnpassung: (v: number) => updateBucketConfig('dynamischObereAnpassung', v),
+    onDynamischUntereSchwell: (v: number) => updateBucketConfig('dynamischUntereSchwell', v),
+    onDynamischUntereAnpassung: (v: number) => updateBucketConfig('dynamischUntereAnpassung', v),
+  }
+}
+
+export function SegmentBucketStrategyWrapper({ segment, onUpdate }: Props) {
   return (
     <BucketStrategyConfiguration
       idPrefix={`bucket-sub-strategy-${segment.id}`}
-      values={{
-        initialCashCushion: segment.bucketConfig?.initialCashCushion || defaults.initialCashCushion,
-        refillThreshold: segment.bucketConfig?.refillThreshold || defaults.refillThreshold,
-        refillPercentage: segment.bucketConfig?.refillPercentage || defaults.refillPercentage,
-        baseWithdrawalRate: segment.bucketConfig?.baseWithdrawalRate || defaults.baseWithdrawalRate,
-        subStrategy: segment.bucketConfig?.subStrategy || '4prozent',
-        variabelProzent: segment.bucketConfig?.variabelProzent || 4,
-        monatlicheBetrag: segment.bucketConfig?.monatlicheBetrag || 2000,
-        dynamischBasisrate: segment.bucketConfig?.dynamischBasisrate || 4,
-        dynamischObereSchwell: segment.bucketConfig?.dynamischObereSchwell || 8,
-        dynamischObereAnpassung: segment.bucketConfig?.dynamischObereAnpassung || 5,
-        dynamischUntereSchwell: segment.bucketConfig?.dynamischUntereSchwell || 2,
-        dynamischUntereAnpassung: segment.bucketConfig?.dynamischUntereAnpassung || -5,
-      }}
-      onChange={{
-        onInitialCashCushionChange: v => updateBucketConfig('initialCashCushion', v),
-        onRefillThresholdChange: v => updateBucketConfig('refillThreshold', v),
-        onRefillPercentageChange: v => updateBucketConfig('refillPercentage', v),
-        onBaseWithdrawalRateChange: v => updateBucketConfig('baseWithdrawalRate', v),
-        onSubStrategyChange: v => updateBucketConfig('subStrategy', v),
-        onVariabelProzentChange: v => updateBucketConfig('variabelProzent', v),
-        onMonatlicheBetragChange: v => updateBucketConfig('monatlicheBetrag', v),
-        onDynamischBasisrateChange: v => updateBucketConfig('dynamischBasisrate', v),
-        onDynamischObereSchwell: v => updateBucketConfig('dynamischObereSchwell', v),
-        onDynamischObereAnpassung: v => updateBucketConfig('dynamischObereAnpassung', v),
-        onDynamischUntereSchwell: v => updateBucketConfig('dynamischUntereSchwell', v),
-        onDynamischUntereAnpassung: v => updateBucketConfig('dynamischUntereAnpassung', v),
-      }}
+      values={getConfigValues(segment.bucketConfig)}
+      onChange={createChangeHandlers(segment, onUpdate)}
     />
   )
 }

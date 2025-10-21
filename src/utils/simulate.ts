@@ -131,72 +131,67 @@ function getInflationRateForYear(
   return 0
 }
 
+/**
+ * Apply fixed rate to all years
+ */
+function applyFixedRate(years: number[], fixedRate: number): Record<number, number> {
+  const rates: Record<number, number> = {}
+  for (const year of years) {
+    rates[year] = fixedRate
+  }
+  return rates
+}
+
+/**
+ * Apply variable returns to years
+ */
+function applyVariableReturns(
+  years: number[],
+  yearlyReturns: Record<number, number>,
+): Record<number, number> {
+  const rates: Record<number, number> = {}
+  for (const year of years) {
+    rates[year] = yearlyReturns[year] ?? 0.05
+  }
+  return rates
+}
+
+type ReturnGenerator = (years: number[]) => Record<number, number>
+
+function getReturnGenerator(returnConfig: ReturnConfiguration): ReturnGenerator {
+  const generators: Record<string, ReturnGenerator | undefined> = {
+    fixed: years => applyFixedRate(years, returnConfig.fixedRate ?? 0.05),
+    random: years => returnConfig.randomConfig
+      ? generateRandomReturns(years, returnConfig.randomConfig)
+      : {},
+    variable: years => returnConfig.variableConfig
+      ? applyVariableReturns(years, returnConfig.variableConfig.yearlyReturns)
+      : {},
+    historical: (years) => {
+      if (!returnConfig.historicalConfig) return applyFixedRate(years, 0.05)
+      const historicalReturns = getHistoricalReturns(
+        returnConfig.historicalConfig.indexId,
+        years[0],
+        years[years.length - 1],
+      )
+      return historicalReturns || applyFixedRate(years, 0.05)
+    },
+    multiasset: years => returnConfig.multiAssetConfig
+      ? generateMultiAssetReturns(years, returnConfig.multiAssetConfig)
+      : applyFixedRate(years, 0.05),
+  }
+
+  return generators[returnConfig.mode] || (years => applyFixedRate(years, 0.05))
+}
+
 function generateYearlyGrowthRates(
   startYear: number,
   endYear: number,
   returnConfig: ReturnConfiguration,
 ): Record<number, number> {
   const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i)
-  const yearlyGrowthRates: Record<number, number> = {}
-
-  switch (returnConfig.mode) {
-    case 'fixed': {
-      const fixedRate = returnConfig.fixedRate ?? 0.05
-      for (const year of years) {
-        yearlyGrowthRates[year] = fixedRate
-      }
-      break
-    }
-    case 'random': {
-      if (returnConfig.randomConfig) {
-        const randomReturns = generateRandomReturns(years, returnConfig.randomConfig)
-        Object.assign(yearlyGrowthRates, randomReturns)
-      }
-      break
-    }
-    case 'variable': {
-      if (returnConfig.variableConfig) {
-        for (const year of years) {
-          yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] ?? 0.05
-        }
-      }
-      break
-    }
-    case 'historical': {
-      if (returnConfig.historicalConfig) {
-        const historicalReturns = getHistoricalReturns(
-          returnConfig.historicalConfig.indexId,
-          startYear,
-          endYear,
-        )
-        if (historicalReturns) {
-          Object.assign(yearlyGrowthRates, historicalReturns)
-        }
-        else {
-          // Fallback to 5% if historical data is not available
-          for (const year of years) {
-            yearlyGrowthRates[year] = 0.05
-          }
-        }
-      }
-      break
-    }
-    case 'multiasset': {
-      if (returnConfig.multiAssetConfig) {
-        const multiAssetReturns = generateMultiAssetReturns(years, returnConfig.multiAssetConfig)
-        Object.assign(yearlyGrowthRates, multiAssetReturns)
-      }
-      else {
-        // Fallback to 5% if multiasset config is not available
-        for (const year of years) {
-          yearlyGrowthRates[year] = 0.05
-        }
-      }
-      break
-    }
-  }
-
-  return yearlyGrowthRates
+  const generator = getReturnGenerator(returnConfig)
+  return generator(years)
 }
 
 // Implementation
@@ -218,6 +213,49 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
   return elements
 }
 
+/**
+ * Calculate TER costs for the year
+ */
+function calculateTERCosts(
+  element: SparplanElement,
+  startkapital: number,
+  endkapitalVorKosten: number,
+  anteilImJahr: number,
+): number {
+  if (!element.ter || element.ter <= 0) {
+    return 0
+  }
+  const averageCapital = (startkapital + endkapitalVorKosten) / 2
+  return (averageCapital * (element.ter / 100)) * (anteilImJahr / 12)
+}
+
+/**
+ * Calculate transaction costs for first year
+ */
+function calculateTransactionCosts(
+  element: SparplanElement,
+  isFirstYear: boolean,
+): number {
+  if (!isFirstYear) {
+    return 0
+  }
+
+  const investmentAmount = element.einzahlung
+  let costs = 0
+
+  // Percentage-based transaction costs
+  if (element.transactionCostPercent && element.transactionCostPercent > 0) {
+    costs += investmentAmount * (element.transactionCostPercent / 100)
+  }
+
+  // Absolute transaction costs
+  if (element.transactionCostAbsolute && element.transactionCostAbsolute > 0) {
+    costs += element.transactionCostAbsolute
+  }
+
+  return costs
+}
+
 function calculateCosts(
   element: SparplanElement,
   startkapital: number,
@@ -227,31 +265,10 @@ function calculateCosts(
 ): { terCosts: number, transactionCosts: number, totalCosts: number } {
   const isFirstYear = !element.simulation?.[year - 1]?.endkapital
 
-  // TER costs: annual percentage of average capital during year
-  let terCosts = 0
-  if (element.ter && element.ter > 0) {
-    // A more accurate average capital for the year
-    const averageCapital = (startkapital + endkapitalVorKosten) / 2
-    terCosts = (averageCapital * (element.ter / 100)) * (anteilImJahr / 12)
-  }
-
-  // Transaction costs: only applied in first year when investment is made
-  let transactionCosts = 0
-  if (isFirstYear) {
-    const investmentAmount = element.einzahlung
-
-    // Percentage-based transaction costs
-    if (element.transactionCostPercent && element.transactionCostPercent > 0) {
-      transactionCosts += investmentAmount * (element.transactionCostPercent / 100)
-    }
-
-    // Absolute transaction costs
-    if (element.transactionCostAbsolute && element.transactionCostAbsolute > 0) {
-      transactionCosts += element.transactionCostAbsolute
-    }
-  }
-
+  const terCosts = calculateTERCosts(element, startkapital, endkapitalVorKosten, anteilImJahr)
+  const transactionCosts = calculateTransactionCosts(element, isFirstYear)
   const totalCosts = terCosts + transactionCosts
+
   return { terCosts, transactionCosts, totalCosts }
 }
 
@@ -269,6 +286,51 @@ function getInflationAdjustedContribution(
 }
 
 // Helper function to calculate growth and costs for a single element in a year
+function getAdjustedEinzahlung(
+  element: SparplanElement,
+  year: number,
+  options: SimulateOptions,
+): number {
+  const yearInflationRate = getInflationRateForYear(year, options)
+  const shouldApplyInflation = (options.inflationAktivSparphase || options.variableInflationRates)
+    && yearInflationRate > 0
+    && (!options.inflationAnwendungSparphase || options.inflationAnwendungSparphase === 'sparplan')
+
+  if (!shouldApplyInflation) {
+    return element.einzahlung
+  }
+
+  return getInflationAdjustedContribution(
+    element.einzahlung,
+    options.startYear,
+    year,
+    yearInflationRate,
+  )
+}
+
+function calculateEndkapital(
+  startkapital: number,
+  wachstumsrate: number,
+  element: SparplanElement,
+  year: number,
+  simulationAnnual: SimulationAnnualType,
+): { endkapitalVorSteuer: number, anteilImJahr: number } {
+  const isFirstYear = new Date(element.start).getFullYear() === year
+
+  if (simulationAnnual === 'monthly' && isFirstYear) {
+    const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1
+    const startMonth = new Date(element.start).getMonth()
+    const anteilImJahr = 12 - startMonth
+    const endkapitalVorSteuer = startkapital * Math.pow(1 + wachstumsrateMonth, anteilImJahr)
+    return { endkapitalVorSteuer, anteilImJahr }
+  }
+
+  return {
+    endkapitalVorSteuer: startkapital * (1 + wachstumsrate),
+    anteilImJahr: 12,
+  }
+}
+
 function calculateGrowthAndCostsForElement(
   element: SparplanElement,
   year: number,
@@ -277,36 +339,19 @@ function calculateGrowthAndCostsForElement(
   options: SimulateOptions,
 ) {
   // Apply inflation adjustment to contributions if enabled and in Sparplan mode (default)
-  let adjustedEinzahlung = element.einzahlung
-  const yearInflationRate = getInflationRateForYear(year, options)
-  if ((options.inflationAktivSparphase || options.variableInflationRates)
-    && yearInflationRate > 0
-    && (!options.inflationAnwendungSparphase || options.inflationAnwendungSparphase === 'sparplan')) {
-    const baseYear = options.startYear
-    adjustedEinzahlung = getInflationAdjustedContribution(
-      element.einzahlung,
-      baseYear,
-      year,
-      yearInflationRate,
-    )
-  }
+  const adjustedEinzahlung = getAdjustedEinzahlung(element, year, options)
 
   const startkapital
     = element.simulation?.[year - 1]?.endkapital
       || adjustedEinzahlung + (element.type === 'einmalzahlung' ? element.gewinn : 0)
 
-  let endkapitalVorSteuer: number
-  let anteilImJahr = 12
-
-  if (simulationAnnual === 'monthly' && new Date(element.start).getFullYear() === year) {
-    const wachstumsrateMonth = Math.pow(1 + wachstumsrate, 1 / 12) - 1
-    const startMonth = new Date(element.start).getMonth()
-    anteilImJahr = 12 - startMonth
-    endkapitalVorSteuer = startkapital * Math.pow(1 + wachstumsrateMonth, anteilImJahr)
-  }
-  else {
-    endkapitalVorSteuer = startkapital * (1 + wachstumsrate)
-  }
+  const { endkapitalVorSteuer, anteilImJahr } = calculateEndkapital(
+    startkapital,
+    wachstumsrate,
+    element,
+    year,
+    simulationAnnual,
+  )
 
   const costs = calculateCosts(element, startkapital, endkapitalVorSteuer, year, anteilImJahr)
   const endkapitalAfterCosts = endkapitalVorSteuer - costs.totalCosts
@@ -321,30 +366,44 @@ function calculateGrowthAndCostsForElement(
   }
 }
 
-function calculateYearlySimulation(
-  year: number,
-  elements: SparplanElement[],
-  wachstumsrate: number,
-  options: SimulateOptions,
-) {
-  const {
-    simulationAnnual,
-    steuerlast,
-    teilfreistellungsquote = 0.3,
-    freibetragPerYear,
-    steuerReduzierenEndkapital = true,
-    basiszinsConfiguration,
-  } = options
-  const yearlyCalculations: YearlyCalculation[] = []
-  let totalPotentialTaxThisYear = 0
+/**
+ * Strategy interface for different simulation paths
+ */
+interface YearlySimulationStrategy {
+  calculateForYear(
+    year: number,
+    elements: SparplanElement[],
+    wachstumsrate: number,
+    options: SimulateOptions,
+  ): void
+}
 
-  // If steuerlast is 0, we can skip all tax calculations
-  if (steuerlast > 0) {
+/**
+ * Strategy for simulations with tax calculations
+ */
+class TaxSimulationStrategy implements YearlySimulationStrategy {
+  calculateForYear(
+    year: number,
+    elements: SparplanElement[],
+    wachstumsrate: number,
+    options: SimulateOptions,
+  ): void {
+    const {
+      simulationAnnual,
+      steuerlast,
+      teilfreistellungsquote = 0.3,
+      freibetragPerYear,
+      steuerReduzierenEndkapital = true,
+      basiszinsConfiguration,
+    } = options
+
     const basiszins = getBasiszinsForYear(year, basiszinsConfiguration)
+    const yearlyCalculations: YearlyCalculation[] = []
+    let totalPotentialTaxThisYear = 0
 
     // Pass 1: Calculate growth and potential tax for each element
     for (const element of elements) {
-      if (new Date(element.start).getFullYear() > year) continue
+      if (!shouldProcessElement(element, year)) continue
 
       const {
         startkapital,
@@ -354,10 +413,9 @@ function calculateYearlySimulation(
         costs,
       } = calculateGrowthAndCostsForElement(element, year, wachstumsrate, simulationAnnual, options)
 
-      // Calculate detailed Vorabpauschale breakdown for transparency
       const vorabpauschaleDetails = calculateVorabpauschaleDetailed(
         startkapital,
-        endkapitalAfterCosts, // Use capital after costs for tax calculation
+        endkapitalAfterCosts,
         basiszins,
         anteilImJahr,
         steuerlast,
@@ -365,52 +423,24 @@ function calculateYearlySimulation(
       )
 
       const vorabpauschaleBetrag = vorabpauschaleDetails.vorabpauschaleAmount
-
-      // Apply Günstigerprüfung if enabled
-      let potentialTax = vorabpauschaleDetails.steuerVorFreibetrag
-      let guenstigerPruefungResult = null
-
-      if (options.guenstigerPruefungAktiv && options.personalTaxRate !== undefined) {
-        guenstigerPruefungResult = performGuenstigerPruefung(
-          vorabpauschaleBetrag,
-          steuerlast,
-          options.personalTaxRate / 100, // Convert percentage to decimal
-          teilfreistellungsquote,
-          0, // No Grundfreibetrag at element level - handled at aggregated level
-          0,
-        )
-
-        // Use the more favorable tax amount
-        if (guenstigerPruefungResult.isFavorable === 'personal') {
-          potentialTax = guenstigerPruefungResult.personalTaxAmount
-        }
-        else {
-          potentialTax = guenstigerPruefungResult.abgeltungssteuerAmount
-        }
-      }
-
-      // Store Günstigerprüfung result in details for display
-      const enhancedVorabpauschaleDetails = {
-        ...vorabpauschaleDetails,
-        guenstigerPruefungResult: guenstigerPruefungResult ? {
-          abgeltungssteuerAmount: guenstigerPruefungResult.abgeltungssteuerAmount,
-          personalTaxAmount: guenstigerPruefungResult.personalTaxAmount,
-          usedTaxRate: guenstigerPruefungResult.usedTaxRate,
-          isFavorable: guenstigerPruefungResult.isFavorable,
-          explanation: guenstigerPruefungResult.explanation,
-        } : undefined,
-      }
+      const { potentialTax, enhancedDetails } = calculateGuenstigerPruefung(
+        vorabpauschaleDetails,
+        vorabpauschaleBetrag,
+        options,
+        steuerlast,
+        teilfreistellungsquote,
+      )
 
       totalPotentialTaxThisYear += potentialTax
       yearlyCalculations.push({
         element,
         startkapital,
-        endkapitalVorSteuer: endkapitalAfterCosts, // Use capital after costs
+        endkapitalVorSteuer: endkapitalAfterCosts,
         jahresgewinn,
         vorabpauschaleBetrag,
         potentialTax,
-        vorabpauschaleDetails: enhancedVorabpauschaleDetails,
-        costs, // Store cost information
+        vorabpauschaleDetails: enhancedDetails,
+        costs,
       })
     }
 
@@ -424,10 +454,22 @@ function calculateYearlySimulation(
       options,
     )
   }
-  else {
-    // No taxes to be calculated, just calculate growth and costs
+}
+
+/**
+ * Strategy for simulations without tax calculations
+ */
+class NoTaxSimulationStrategy implements YearlySimulationStrategy {
+  calculateForYear(
+    year: number,
+    elements: SparplanElement[],
+    wachstumsrate: number,
+    options: SimulateOptions,
+  ): void {
+    const { simulationAnnual } = options
+
     for (const element of elements) {
-      if (new Date(element.start).getFullYear() > year) continue
+      if (!shouldProcessElement(element, year)) continue
 
       const {
         startkapital,
@@ -436,18 +478,13 @@ function calculateYearlySimulation(
       } = calculateGrowthAndCostsForElement(element, year, wachstumsrate, simulationAnnual, options)
 
       const vorabpauschaleAccumulated = (element.simulation[year - 1]?.vorabpauschaleAccumulated || 0)
+      const yearInflationRate = getInflationRateForYear(year, options)
 
       let endkapital = endkapitalAfterCosts
-
-      // Apply inflation reduction to total capital in "gesamtmenge" mode
-      const yearInflationRate = getInflationRateForYear(year, options)
-      if ((options.inflationAktivSparphase || options.variableInflationRates)
-        && yearInflationRate > 0
-        && options.inflationAnwendungSparphase === 'gesamtmenge') {
+      if (shouldApplyInflationReduction(yearInflationRate, options)) {
         endkapital = endkapital * (1 - yearInflationRate)
       }
 
-      // Calculate actual interest/gain after all adjustments (including inflation)
       const actualZinsen = endkapital - startkapital
 
       let simulationResult: SimulationResultElement = {
@@ -463,20 +500,196 @@ function calculateYearlySimulation(
         totalCosts: costs.totalCosts,
       }
 
-      // Add inflation-adjusted values if inflation is active
-      const currentYearInflation = getInflationRateForYear(year, options)
-      if ((options.inflationAktivSparphase || options.variableInflationRates) && currentYearInflation > 0) {
+      if (shouldAddInflationAdjustedValues(yearInflationRate, options)) {
         simulationResult = addInflationAdjustedValues(
           simulationResult,
           year,
           options.startYear,
-          currentYearInflation * 100, // Convert back to percentage for the helper
+          yearInflationRate * 100,
         )
       }
 
       element.simulation[year] = simulationResult
     }
   }
+}
+
+/**
+ * Factory function to get the appropriate simulation strategy
+ */
+function getSimulationStrategy(steuerlast: number): YearlySimulationStrategy {
+  return steuerlast > 0 ? new TaxSimulationStrategy() : new NoTaxSimulationStrategy()
+}
+
+function calculateYearlySimulation(
+  year: number,
+  elements: SparplanElement[],
+  wachstumsrate: number,
+  options: SimulateOptions,
+) {
+  const strategy = getSimulationStrategy(options.steuerlast)
+  strategy.calculateForYear(year, elements, wachstumsrate, options)
+}
+
+/**
+ * Check if an element should be processed for a given year
+ */
+function shouldProcessElement(element: SparplanElement, year: number): boolean {
+  return new Date(element.start).getFullYear() <= year
+}
+
+/**
+ * Calculate and enhance Günstigerprüfung details if enabled
+ */
+function calculateGuenstigerPruefung(
+  vorabpauschaleDetails: VorabpauschaleDetails,
+  vorabpauschaleBetrag: number,
+  options: SimulateOptions,
+  steuerlast: number,
+  teilfreistellungsquote: number,
+): { potentialTax: number, enhancedDetails: VorabpauschaleDetails } {
+  let potentialTax = vorabpauschaleDetails.steuerVorFreibetrag
+  let guenstigerPruefungResult = null
+
+  if (options.guenstigerPruefungAktiv && options.personalTaxRate !== undefined) {
+    guenstigerPruefungResult = performGuenstigerPruefung(
+      vorabpauschaleBetrag,
+      steuerlast,
+      options.personalTaxRate / 100,
+      teilfreistellungsquote,
+      0,
+      0,
+    )
+
+    // Use the more favorable tax amount
+    if (guenstigerPruefungResult.isFavorable === 'personal') {
+      potentialTax = guenstigerPruefungResult.personalTaxAmount
+    }
+    else {
+      potentialTax = guenstigerPruefungResult.abgeltungssteuerAmount
+    }
+  }
+
+  const enhancedDetails = {
+    ...vorabpauschaleDetails,
+    guenstigerPruefungResult: guenstigerPruefungResult ? {
+      abgeltungssteuerAmount: guenstigerPruefungResult.abgeltungssteuerAmount,
+      personalTaxAmount: guenstigerPruefungResult.personalTaxAmount,
+      usedTaxRate: guenstigerPruefungResult.usedTaxRate,
+      isFavorable: guenstigerPruefungResult.isFavorable,
+      explanation: guenstigerPruefungResult.explanation,
+    } : undefined,
+  }
+
+  return { potentialTax, enhancedDetails }
+}
+
+/**
+ * Calculate proportional tax distribution for an element
+ */
+function calculateProportionalTax(
+  elementPotentialTax: number,
+  totalPotentialTax: number,
+  totalTaxPaid: number,
+): number {
+  if (totalPotentialTax === 0) return 0
+  return (elementPotentialTax / totalPotentialTax) * totalTaxPaid
+}
+
+/**
+ * Calculate proportional Freibetrag usage for an element
+ */
+function calculateProportionalFreibetrag(
+  elementPotentialTax: number,
+  totalPotentialTax: number,
+  totalFreibetragUsed: number,
+): number {
+  if (totalPotentialTax === 0) return 0
+  return (elementPotentialTax / totalPotentialTax) * totalFreibetragUsed
+}
+
+/**
+ * Check if inflation should be applied in "gesamtmenge" mode
+ */
+function shouldApplyInflationReduction(
+  yearInflationRate: number,
+  options?: SimulateOptions,
+): boolean {
+  if (!options) return false
+  return !!(options.inflationAktivSparphase || options.variableInflationRates)
+    && yearInflationRate > 0
+    && options.inflationAnwendungSparphase === 'gesamtmenge'
+}
+
+/**
+ * Check if inflation-adjusted values should be added to result
+ */
+function shouldAddInflationAdjustedValues(
+  yearInflationRate: number,
+  options?: SimulateOptions,
+): boolean {
+  if (!options) return false
+  return !!(options.inflationAktivSparphase || options.variableInflationRates) && yearInflationRate > 0
+}
+
+/**
+ * Apply inflation reduction to capital in "gesamtmenge" mode
+ */
+function applyInflationReduction(
+  endkapital: number,
+  year: number,
+  options?: SimulateOptions,
+): number {
+  if (!options) return endkapital
+
+  const yearInflationRate = getInflationRateForYear(year, options)
+  if (shouldApplyInflationReduction(yearInflationRate, options)) {
+    return endkapital * (1 - yearInflationRate)
+  }
+  return endkapital
+}
+
+/**
+ * Create simulation result element with all calculated values
+ */
+function createSimulationResult(
+  calc: YearlyCalculation,
+  endkapital: number,
+  taxForElement: number,
+  genutzterFreibetragForElement: number,
+  year: number,
+  options?: SimulateOptions,
+): SimulationResultElement {
+  const actualZinsen = endkapital - calc.startkapital
+  const vorabpauschaleAccumulated
+    = (calc.element.simulation[year - 1]?.vorabpauschaleAccumulated || 0)
+      + calc.vorabpauschaleBetrag
+
+  let simulationResult: SimulationResultElement = {
+    startkapital: calc.startkapital,
+    endkapital,
+    zinsen: actualZinsen,
+    bezahlteSteuer: taxForElement,
+    genutzterFreibetrag: genutzterFreibetragForElement,
+    vorabpauschale: calc.vorabpauschaleBetrag,
+    vorabpauschaleAccumulated,
+    vorabpauschaleDetails: calc.vorabpauschaleDetails,
+    terCosts: calc.costs.terCosts,
+    transactionCosts: calc.costs.transactionCosts,
+    totalCosts: calc.costs.totalCosts,
+  }
+
+  // Add inflation-adjusted values if inflation is active
+  if (options?.inflationAktivSparphase && options?.inflationsrateSparphase) {
+    simulationResult = addInflationAdjustedValues(
+      simulationResult,
+      year,
+      options.startYear,
+      options.inflationsrateSparphase,
+    )
+  }
+
+  return simulationResult
 }
 
 function applyTaxes(
@@ -499,59 +712,32 @@ function applyTaxes(
   const genutzterFreibetragTotal = Math.min(totalPotentialTaxThisYear, freibetragInYear)
 
   for (const calc of yearlyCalculations) {
-    const taxForElement
-      = totalPotentialTaxThisYear > 0
-        ? (calc.potentialTax / totalPotentialTaxThisYear) * totalTaxPaid
-        : 0
-    const genutzterFreibetragForElement
-      = totalPotentialTaxThisYear > 0
-        ? (calc.potentialTax / totalPotentialTaxThisYear) * genutzterFreibetragTotal
-        : 0
+    const taxForElement = calculateProportionalTax(
+      calc.potentialTax,
+      totalPotentialTaxThisYear,
+      totalTaxPaid,
+    )
+    const genutzterFreibetragForElement = calculateProportionalFreibetrag(
+      calc.potentialTax,
+      totalPotentialTaxThisYear,
+      genutzterFreibetragTotal,
+    )
 
     let endkapital = steuerReduzierenEndkapital
       ? calc.endkapitalVorSteuer - taxForElement
       : calc.endkapitalVorSteuer
 
     // Apply inflation reduction to total capital in "gesamtmenge" mode
-    if (_options) {
-      const yearInflationRate = getInflationRateForYear(year, _options)
-      if ((_options.inflationAktivSparphase || _options.variableInflationRates)
-        && yearInflationRate > 0
-        && _options.inflationAnwendungSparphase === 'gesamtmenge') {
-        endkapital = endkapital * (1 - yearInflationRate)
-      }
-    }
+    endkapital = applyInflationReduction(endkapital, year, _options)
 
-    // Calculate actual interest/gain after all adjustments (including inflation and taxes)
-    const actualZinsen = endkapital - calc.startkapital
-
-    const vorabpauschaleAccumulated
-      = (calc.element.simulation[year - 1]?.vorabpauschaleAccumulated || 0)
-        + calc.vorabpauschaleBetrag
-
-    let simulationResult: SimulationResultElement = {
-      startkapital: calc.startkapital,
+    const simulationResult = createSimulationResult(
+      calc,
       endkapital,
-      zinsen: actualZinsen,
-      bezahlteSteuer: taxForElement,
-      genutzterFreibetrag: genutzterFreibetragForElement,
-      vorabpauschale: calc.vorabpauschaleBetrag,
-      vorabpauschaleAccumulated,
-      vorabpauschaleDetails: calc.vorabpauschaleDetails,
-      terCosts: calc.costs.terCosts,
-      transactionCosts: calc.costs.transactionCosts,
-      totalCosts: calc.costs.totalCosts,
-    }
-
-    // Add inflation-adjusted values if inflation is active
-    if (_options?.inflationAktivSparphase && _options?.inflationsrateSparphase) {
-      simulationResult = addInflationAdjustedValues(
-        simulationResult,
-        year,
-        _options.startYear,
-        _options.inflationsrateSparphase,
-      )
-    }
+      taxForElement,
+      genutzterFreibetragForElement,
+      year,
+      _options,
+    )
 
     calc.element.simulation[year] = simulationResult
   }

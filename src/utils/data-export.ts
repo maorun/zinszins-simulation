@@ -4,6 +4,7 @@ import type { OtherIncomeSource } from '../../helpers/other-income'
 import type { WithdrawalSegment } from './segmented-withdrawal'
 import type { SparplanElement, Sparplan } from './sparplan-utils'
 import type { WithdrawalConfiguration } from './config-storage'
+import type { SimulationResultElement } from './simulate'
 
 /**
  * Utility functions for exporting simulation data in CSV and Markdown formats
@@ -132,6 +133,60 @@ export function exportSavingsDataToCSV(data: ExportData): string {
 }
 
 /**
+ * Accumulate year data into totals
+ */
+function accumulateYearData(
+  yearData: SimulationResultElement | undefined,
+  accumulators: {
+    totalStartkapital: number
+    totalZinsen: number
+    totalEndkapital: number
+    totalBezahlteSteuer: number
+    totalGenutzterFreibetrag: number
+    totalVorabpauschale: number
+  },
+): void {
+  if (!yearData) return
+
+  accumulators.totalStartkapital += yearData.startkapital || 0
+  accumulators.totalZinsen += yearData.zinsen || 0
+  accumulators.totalEndkapital += yearData.endkapital || 0
+  accumulators.totalBezahlteSteuer += yearData.bezahlteSteuer || 0
+  accumulators.totalGenutzterFreibetrag += yearData.genutzterFreibetrag || 0
+  accumulators.totalVorabpauschale += yearData.vorabpauschale || 0
+}
+
+/**
+ * Process simulation element for a given year
+ */
+function processSimulationElement(
+  element: SparplanElement,
+  elementIndex: number,
+  year: number,
+  isMonthly: boolean,
+  sparplanContributions: number[],
+  accumulators: {
+    totalStartkapital: number
+    totalZinsen: number
+    totalEndkapital: number
+    totalBezahlteSteuer: number
+    totalGenutzterFreibetrag: number
+    totalVorabpauschale: number
+  },
+): void {
+  if (!('simulation' in element)) return
+
+  const yearData = element.simulation?.[year]
+  accumulateYearData(yearData, accumulators)
+
+  // Calculate contribution for this element in this year
+  const elementContribution = getElementContributionForYear(element, year, isMonthly)
+  if (elementIndex < sparplanContributions.length) {
+    sparplanContributions[elementIndex] = elementContribution
+  }
+}
+
+/**
  * Export data from real simulation structure (elements with simulation property)
  */
 function exportSimulationStructure(
@@ -154,13 +209,6 @@ function exportSimulationStructure(
   for (const year of sortedYears) {
     const isMonthly = context.simulationAnnual === 'monthly'
 
-    // Aggregate data for this year across all elements
-    let totalStartkapital = 0
-    let totalZinsen = 0
-    let totalEndkapital = 0
-    let totalBezahlteSteuer = 0
-    let totalGenutzterFreibetrag = 0
-    let totalVorabpauschale = 0
     const sparplanContributions: number[] = []
 
     // Initialize contributions array for each configured savings plan
@@ -168,33 +216,78 @@ function exportSimulationStructure(
       sparplanContributions.push(0)
     })
 
+    // Initialize accumulators
+    const accumulators = {
+      totalStartkapital: 0,
+      totalZinsen: 0,
+      totalEndkapital: 0,
+      totalBezahlteSteuer: 0,
+      totalGenutzterFreibetrag: 0,
+      totalVorabpauschale: 0,
+    }
+
     // Sum up data from all elements for this year
     simulationElements.forEach((element, elementIndex: number) => {
-      if (!('simulation' in element)) return
-      const yearData = element.simulation?.[year]
-      if (yearData) {
-        totalStartkapital += yearData.startkapital || 0
-        totalZinsen += yearData.zinsen || 0
-        totalEndkapital += yearData.endkapital || 0
-        totalBezahlteSteuer += yearData.bezahlteSteuer || 0
-        totalGenutzterFreibetrag += yearData.genutzterFreibetrag || 0
-        totalVorabpauschale += yearData.vorabpauschale || 0
-
-        // Calculate contribution for this element in this year
-        const elementContribution = getElementContributionForYear(element, year, isMonthly)
-        if (elementIndex < sparplanContributions.length) {
-          sparplanContributions[elementIndex] = elementContribution
-        }
-      }
+      processSimulationElement(
+        element,
+        elementIndex,
+        year,
+        isMonthly,
+        sparplanContributions,
+        accumulators,
+      )
     })
 
     // Calculate cumulative contributions
     const yearlyContributions = sparplanContributions.reduce((sum, contrib) => sum + contrib, 0)
     cumulativeContributions += yearlyContributions
 
-    addYearRows(year, isMonthly, totalStartkapital, totalZinsen, totalEndkapital,
-      totalBezahlteSteuer, totalGenutzterFreibetrag, totalVorabpauschale,
+    addYearRows(year, isMonthly, accumulators.totalStartkapital, accumulators.totalZinsen,
+      accumulators.totalEndkapital, accumulators.totalBezahlteSteuer,
+      accumulators.totalGenutzterFreibetrag, accumulators.totalVorabpauschale,
       sparplanContributions, cumulativeContributions, lines)
+  }
+}
+
+/**
+ * Extract element amount from various possible mock data properties
+ */
+function extractElementAmount(element: SparplanElement): number {
+  const mockData = element as Record<string, unknown>
+  return ('einzahlung' in element && element.einzahlung)
+    || (typeof mockData.amount === 'number' ? mockData.amount : 0)
+    || (typeof mockData.monthlyAmount === 'number' ? mockData.monthlyAmount : 0)
+    || 0
+}
+
+/**
+ * Extract numeric property from mock element with fallback to 0
+ */
+function extractMockNumericProperty(element: SparplanElement, property: string): number {
+  const mockElement = element as Record<string, unknown>
+  return typeof mockElement[property] === 'number' ? mockElement[property] as number : 0
+}
+
+/**
+ * Extract financial data from mock element
+ */
+interface MockFinancialData {
+  startkapital: number
+  zinsen: number
+  endkapital: number
+  bezahlteSteuer: number
+  genutzterFreibetrag: number
+  vorabpauschale: number
+}
+
+function extractMockFinancialData(element: SparplanElement): MockFinancialData {
+  return {
+    startkapital: extractMockNumericProperty(element, 'startkapital'),
+    zinsen: extractMockNumericProperty(element, 'zinsen'),
+    endkapital: extractMockNumericProperty(element, 'endkapital'),
+    bezahlteSteuer: extractMockNumericProperty(element, 'bezahlteSteuer'),
+    genutzterFreibetrag: extractMockNumericProperty(element, 'genutzterFreibetrag'),
+    vorabpauschale: extractMockNumericProperty(element, 'vorabpauschale'),
   }
 }
 
@@ -210,15 +303,9 @@ function exportMockStructure(simulationElements: SparplanElement[], context: Sim
     const year = new Date(element.start).getFullYear()
     const isMonthly = context.simulationAnnual === 'monthly'
 
-    // For mock data - handle both test mock format and real element format
+    // Build sparplan contributions array
+    const elementAmount = extractElementAmount(element)
     const sparplanContributions: number[] = []
-    // Try to get amount from various possible properties
-    const mockData = element as Record<string, unknown>
-    const elementAmount = ('einzahlung' in element && element.einzahlung)
-      || (typeof mockData.amount === 'number' ? mockData.amount : 0)
-      || (typeof mockData.monthlyAmount === 'number' ? mockData.monthlyAmount : 0)
-      || 0
-
     context.sparplan.forEach(() => {
       sparplanContributions.push(elementAmount || 0)
     })
@@ -227,18 +314,12 @@ function exportMockStructure(simulationElements: SparplanElement[], context: Sim
     const yearlyContributions = sparplanContributions.reduce((sum, contrib) => sum + contrib, 0)
     cumulativeContributions += yearlyContributions
 
-    // For mock test data, properties are directly on element
-    const mockElement = element as Record<string, unknown>
-    const startkapital = (typeof mockElement.startkapital === 'number' ? mockElement.startkapital : 0)
-    const zinsen = (typeof mockElement.zinsen === 'number' ? mockElement.zinsen : 0)
-    const endkapital = (typeof mockElement.endkapital === 'number' ? mockElement.endkapital : 0)
-    const bezahlteSteuer = (typeof mockElement.bezahlteSteuer === 'number' ? mockElement.bezahlteSteuer : 0)
-    const genutzterFreibetrag = (typeof mockElement.genutzterFreibetrag === 'number' ? mockElement.genutzterFreibetrag : 0)
-    const vorabpauschale = (typeof mockElement.vorabpauschale === 'number' ? mockElement.vorabpauschale : 0)
+    // Extract financial data
+    const financialData = extractMockFinancialData(element)
 
-    addYearRows(year, isMonthly, startkapital, zinsen,
-      endkapital, bezahlteSteuer,
-      genutzterFreibetrag, vorabpauschale,
+    addYearRows(year, isMonthly, financialData.startkapital, financialData.zinsen,
+      financialData.endkapital, financialData.bezahlteSteuer,
+      financialData.genutzterFreibetrag, financialData.vorabpauschale,
       sparplanContributions, cumulativeContributions, lines)
   }
 }
@@ -289,6 +370,28 @@ function addYearRows(
 /**
  * Calculate the contribution amount for a specific element in a specific year
  */
+/**
+ * Check if element is active in given year
+ */
+function isElementActiveInYear(element: Record<string, unknown>, year: number): boolean {
+  const startYear = new Date(element.start as string).getFullYear()
+  const endYear = element.end
+    ? new Date(element.end as string).getFullYear()
+    : new Date().getFullYear() + 50
+
+  return year >= startYear && year <= endYear
+}
+
+/**
+ * Get yearly amount from element with multiple fallback properties
+ */
+function getYearlyAmountFromElement(element: Record<string, unknown>): number {
+  return (element.einzahlung as number)
+    || (element.amount as number)
+    || (element.monthlyAmount as number)
+    || 0
+}
+
 function getElementContributionForYear(element: unknown, year: number, isMonthly: boolean): number {
   if (typeof element !== 'object' || element === null) {
     return 0
@@ -296,18 +399,22 @@ function getElementContributionForYear(element: unknown, year: number, isMonthly
 
   const elem = element as Record<string, unknown>
 
-  // Check if this element was active in this year
-  const startYear = new Date(elem.start as string).getFullYear()
-  const endYear = elem.end ? new Date(elem.end as string).getFullYear() : new Date().getFullYear() + 50
-
-  if (year < startYear || year > endYear) {
+  if (!isElementActiveInYear(elem, year)) {
     return 0
   }
 
-  // Return the element's annual contribution amount
-  // Try different property names to handle both real data and test data
-  const yearlyAmount = (elem.einzahlung as number) || (elem.amount as number) || (elem.monthlyAmount as number) || 0
+  const yearlyAmount = getYearlyAmountFromElement(elem)
   return isMonthly ? yearlyAmount / 12 : yearlyAmount
+}
+
+/**
+ * Format Vorabpauschale basiszins for CSV
+ */
+function formatBasiszins(details: WithdrawalResultElement['vorabpauschaleDetails']): string {
+  if (!details) {
+    return '0,00'
+  }
+  return formatPercentage(details.basiszins * 100).replace('%', '')
 }
 
 /**
@@ -320,28 +427,43 @@ interface BasicRowDataParams {
   isMonthly: boolean
 }
 
+/**
+ * Extract Vorabpauschale details for CSV formatting
+ */
+function extractVorabpauschaleDetails(yearData: WithdrawalResultElement): {
+  basiszins: string
+  basisertrag: string
+  jahresgewinn: string
+  steuerVorFreibetrag: string
+} {
+  const details = yearData.vorabpauschaleDetails
+  return {
+    basiszins: formatBasiszins(details),
+    basisertrag: formatCurrencyForCSV(details?.basisertrag || 0),
+    jahresgewinn: formatCurrencyForCSV(details?.jahresgewinn || 0),
+    steuerVorFreibetrag: formatCurrencyForCSV(details?.steuerVorFreibetrag || 0),
+  }
+}
+
 function buildBasicRowData(params: BasicRowDataParams): string[] {
   const { year, month, yearData, isMonthly } = params
-  const row: string[] = []
+  const vDetails = extractVorabpauschaleDetails(yearData)
 
-  row.push(year.toString())
-  row.push(isMonthly ? month.toString() : '12')
-  row.push(formatCurrencyForCSV(yearData.startkapital))
-  row.push(formatCurrencyForCSV(yearData.entnahme))
-  row.push(formatCurrencyForCSV(yearData.zinsen))
-  row.push(formatCurrencyForCSV(yearData.endkapital))
-
-  // Vorabpauschale details for transparency
-  const details = yearData.vorabpauschaleDetails
-  row.push(details ? formatPercentage(details.basiszins * 100).replace('%', '') : '0,00')
-  row.push(formatCurrencyForCSV(details?.basisertrag || 0))
-  row.push(formatCurrencyForCSV(details?.jahresgewinn || 0))
-  row.push(formatCurrencyForCSV(yearData.vorabpauschale || 0))
-  row.push(formatCurrencyForCSV(details?.steuerVorFreibetrag || 0))
-  row.push(formatCurrencyForCSV(yearData.bezahlteSteuer))
-  row.push(formatCurrencyForCSV(yearData.genutzterFreibetrag))
-
-  return row
+  return [
+    year.toString(),
+    isMonthly ? month.toString() : '12',
+    formatCurrencyForCSV(yearData.startkapital),
+    formatCurrencyForCSV(yearData.entnahme),
+    formatCurrencyForCSV(yearData.zinsen),
+    formatCurrencyForCSV(yearData.endkapital),
+    vDetails.basiszins,
+    vDetails.basisertrag,
+    vDetails.jahresgewinn,
+    formatCurrencyForCSV(yearData.vorabpauschale || 0),
+    vDetails.steuerVorFreibetrag,
+    formatCurrencyForCSV(yearData.bezahlteSteuer),
+    formatCurrencyForCSV(yearData.genutzterFreibetrag),
+  ]
 }
 
 /**
@@ -353,22 +475,33 @@ interface StrategyRowDataParams {
   withdrawalConfig: WithdrawalConfiguration | null
 }
 
+function addMonthlyFixedStrategyData(
+  row: string[],
+  yearData: WithdrawalResultElement,
+  formValue: { inflationAktiv?: boolean, guardrailsAktiv?: boolean },
+): void {
+  row.push(formatCurrencyForCSV(yearData.monatlicheEntnahme || 0))
+  if (formValue.inflationAktiv) {
+    row.push(formatCurrencyForCSV(yearData.inflationAnpassung || 0))
+  }
+  if (formValue.guardrailsAktiv) {
+    row.push(formatCurrencyForCSV(yearData.portfolioAnpassung || 0))
+  }
+}
+
+function addDynamicStrategyData(row: string[], yearData: WithdrawalResultElement): void {
+  row.push(formatPercentage(yearData.vorjahresRendite || 0))
+  row.push(formatCurrencyForCSV(yearData.dynamischeAnpassung || 0))
+}
+
 function addStrategySpecificData(params: StrategyRowDataParams): void {
   const { row, yearData, withdrawalConfig } = params
 
   if (withdrawalConfig?.formValue.strategie === 'monatlich_fest') {
-    row.push(formatCurrencyForCSV(yearData.monatlicheEntnahme || 0))
-    if (withdrawalConfig.formValue.inflationAktiv) {
-      row.push(formatCurrencyForCSV(yearData.inflationAnpassung || 0))
-    }
-    if (withdrawalConfig.formValue.guardrailsAktiv) {
-      row.push(formatCurrencyForCSV(yearData.portfolioAnpassung || 0))
-    }
+    addMonthlyFixedStrategyData(row, yearData, withdrawalConfig.formValue)
   }
-
-  if (withdrawalConfig?.formValue.strategie === 'dynamisch') {
-    row.push(formatPercentage(yearData.vorjahresRendite || 0))
-    row.push(formatCurrencyForCSV(yearData.dynamischeAnpassung || 0))
+  else if (withdrawalConfig?.formValue.strategie === 'dynamisch') {
+    addDynamicStrategyData(row, yearData)
   }
 }
 
@@ -382,19 +515,31 @@ interface TaxIncomeDataParams {
   hasOtherIncomeData: boolean
 }
 
+/**
+ * Helper to safely get other income value
+ */
+function getOtherIncomeValue(otherIncome: any | undefined, field: 'totalNetAmount' | 'totalTaxAmount' | 'sourceCount'): number {
+  if (!otherIncome) {
+    return 0
+  }
+  return otherIncome[field] ?? 0
+}
+
 function addTaxAndIncomeData(params: TaxIncomeDataParams): void {
   const { row, yearData, grundfreibetragAktiv, hasOtherIncomeData } = params
 
   if (grundfreibetragAktiv) {
-    row.push(formatCurrencyForCSV(yearData.einkommensteuer || 0))
-    row.push(formatCurrencyForCSV(yearData.genutzterGrundfreibetrag || 0))
+    const einkommensteuer = yearData.einkommensteuer ?? 0
+    const grundfreibetrag = yearData.genutzterGrundfreibetrag ?? 0
+    row.push(formatCurrencyForCSV(einkommensteuer))
+    row.push(formatCurrencyForCSV(grundfreibetrag))
   }
 
   if (hasOtherIncomeData) {
     const otherIncome = yearData.otherIncome
-    row.push(formatCurrencyForCSV(otherIncome?.totalNetAmount || 0))
-    row.push(formatCurrencyForCSV(otherIncome?.totalTaxAmount || 0))
-    row.push((otherIncome?.sourceCount || 0).toString())
+    row.push(formatCurrencyForCSV(getOtherIncomeValue(otherIncome, 'totalNetAmount')))
+    row.push(formatCurrencyForCSV(getOtherIncomeValue(otherIncome, 'totalTaxAmount')))
+    row.push(getOtherIncomeValue(otherIncome, 'sourceCount').toString())
   }
 }
 
@@ -405,6 +550,56 @@ interface WithdrawalHeaderParams {
   withdrawalConfig: WithdrawalConfiguration | null
   withdrawalData: WithdrawalResult
   grundfreibetragAktiv: boolean
+}
+
+/**
+ * Add strategy-specific headers for monthly fixed withdrawal
+ */
+function addMonthlyFixedHeaders(
+  headers: string[],
+  withdrawalConfig: WithdrawalConfiguration,
+): void {
+  headers.push('Monatliche Entnahme (EUR)')
+  if (withdrawalConfig.formValue.inflationAktiv) {
+    headers.push('Inflationsanpassung (EUR)')
+  }
+  if (withdrawalConfig.formValue.guardrailsAktiv) {
+    headers.push('Portfolio-Anpassung (EUR)')
+  }
+}
+
+/**
+ * Add strategy-specific headers for dynamic withdrawal
+ */
+function addDynamicHeaders(headers: string[]): void {
+  headers.push('Vorjahres-Rendite (%)')
+  headers.push('Dynamische Anpassung (EUR)')
+}
+
+/**
+ * Add income tax headers
+ */
+function addIncomeTaxHeaders(headers: string[]): void {
+  headers.push('Einkommensteuer (EUR)')
+  headers.push('Genutzter Grundfreibetrag (EUR)')
+}
+
+/**
+ * Check if withdrawal data has other income
+ */
+function hasOtherIncome(withdrawalData: WithdrawalResult): boolean {
+  return Object.values(withdrawalData).some(yearData =>
+    yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
+  )
+}
+
+/**
+ * Add other income headers
+ */
+function addOtherIncomeHeaders(headers: string[]): void {
+  headers.push('Andere Einkünfte Netto (EUR)')
+  headers.push('Steuern auf andere Einkünfte (EUR)')
+  headers.push('Anzahl Einkommensquellen')
 }
 
 function generateWithdrawalCSVHeaders(params: WithdrawalHeaderParams): string[] {
@@ -428,34 +623,19 @@ function generateWithdrawalCSVHeaders(params: WithdrawalHeaderParams): string[] 
 
   // Add conditional headers based on strategy
   if (withdrawalConfig?.formValue.strategie === 'monatlich_fest') {
-    headers.push('Monatliche Entnahme (EUR)')
-    if (withdrawalConfig.formValue.inflationAktiv) {
-      headers.push('Inflationsanpassung (EUR)')
-    }
-    if (withdrawalConfig.formValue.guardrailsAktiv) {
-      headers.push('Portfolio-Anpassung (EUR)')
-    }
+    addMonthlyFixedHeaders(headers, withdrawalConfig)
   }
 
   if (withdrawalConfig?.formValue.strategie === 'dynamisch') {
-    headers.push('Vorjahres-Rendite (%)')
-    headers.push('Dynamische Anpassung (EUR)')
+    addDynamicHeaders(headers)
   }
 
   if (grundfreibetragAktiv) {
-    headers.push('Einkommensteuer (EUR)')
-    headers.push('Genutzter Grundfreibetrag (EUR)')
+    addIncomeTaxHeaders(headers)
   }
 
-  // Check if any withdrawal data contains other income
-  const hasOtherIncomeData = Object.values(withdrawalData).some(yearData =>
-    yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
-  )
-
-  if (hasOtherIncomeData) {
-    headers.push('Andere Einkünfte Netto (EUR)')
-    headers.push('Steuern auf andere Einkünfte (EUR)')
-    headers.push('Anzahl Einkommensquellen')
+  if (hasOtherIncome(withdrawalData)) {
+    addOtherIncomeHeaders(headers)
   }
 
   return headers
@@ -565,6 +745,46 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
 }
 
 /**
+ * Get income type label for display
+ */
+function getIncomeTypeLabel(type: string): string {
+  const incomeTypes: Record<string, string> = {
+    rental: 'Mieteinnahmen',
+    pension: 'Rente/Pension',
+    business: 'Gewerbeeinkünfte',
+    investment: 'Kapitalerträge',
+    kindergeld: 'Kindergeld',
+    other: 'Sonstige Einkünfte',
+  }
+  return incomeTypes[type] || type
+}
+
+/**
+ * Format income source details for markdown
+ */
+function formatIncomeSourceDetails(source: OtherIncomeSource): string[] {
+  const incomeType = getIncomeTypeLabel(source.type)
+  const grossNet = source.amountType === 'gross' ? 'Brutto' : 'Netto'
+  const endYear = source.endYear ? source.endYear.toString() : 'Unbegrenzt'
+
+  const details: string[] = [
+    `  - **${source.name}** (${incomeType})`,
+    `    - Betrag: ${formatCurrency(source.monthlyAmount * 12)}/Jahr (${grossNet})`,
+    `    - Zeitraum: ${source.startYear} - ${endYear}`,
+    `    - Inflation: ${formatPercentage(source.inflationRate)}`,
+  ]
+
+  if (source.amountType === 'gross') {
+    details.push(`    - Steuersatz: ${formatPercentage(source.taxRate)}`)
+  }
+  if (source.notes) {
+    details.push(`    - Notizen: ${source.notes}`)
+  }
+
+  return details
+}
+
+/**
  * Add other income sources section to markdown lines
  */
 function addOtherIncomeSection(context: SimulationContextState, lines: string[]): void {
@@ -578,28 +798,8 @@ function addOtherIncomeSection(context: SimulationContextState, lines: string[])
   lines.push(`- **Anzahl Einkommensquellen:** ${withdrawalConfig.otherIncomeConfig.sources.length}`)
 
   withdrawalConfig.otherIncomeConfig.sources.forEach((source: OtherIncomeSource) => {
-    const incomeType = {
-      rental: 'Mieteinnahmen',
-      pension: 'Rente/Pension',
-      business: 'Gewerbeeinkünfte',
-      investment: 'Kapitalerträge',
-      kindergeld: 'Kindergeld',
-      other: 'Sonstige Einkünfte',
-    }[source.type] || source.type
-
-    const grossNet = source.amountType === 'gross' ? 'Brutto' : 'Netto'
-    const endYear = source.endYear ? source.endYear.toString() : 'Unbegrenzt'
-
-    lines.push(`  - **${source.name}** (${incomeType})`)
-    lines.push(`    - Betrag: ${formatCurrency(source.monthlyAmount * 12)}/Jahr (${grossNet})`)
-    lines.push(`    - Zeitraum: ${source.startYear} - ${endYear}`)
-    lines.push(`    - Inflation: ${formatPercentage(source.inflationRate)}`)
-    if (source.amountType === 'gross') {
-      lines.push(`    - Steuersatz: ${formatPercentage(source.taxRate)}`)
-    }
-    if (source.notes) {
-      lines.push(`    - Notizen: ${source.notes}`)
-    }
+    const sourceDetails = formatIncomeSourceDetails(source)
+    lines.push(...sourceDetails)
   })
 }
 
@@ -664,6 +864,52 @@ function addSavingsPhaseSection(savingsData: ExportData['savingsData'], lines: s
 }
 
 /**
+ * Extract year data from element
+ */
+function extractYearDataFromElement(
+  element: unknown,
+  year: number,
+): Record<string, unknown> | null {
+  if (typeof element !== 'object' || element === null || !('simulation' in element)) {
+    return null
+  }
+
+  const simulation = (element as Record<string, unknown>).simulation as Record<string, unknown> | undefined
+  const yearData = simulation?.[year] as Record<string, unknown> | undefined
+
+  return yearData || null
+}
+
+/**
+ * Process element for yearly summary
+ */
+function processElementForYearlySummary(
+  element: unknown,
+  year: number,
+  totals: {
+    startkapital: number
+    zinsen: number
+    endkapital: number
+    bezahlteSteuer: number
+    vorabpauschale: number
+    contributions: number
+  },
+): void {
+  const yearData = extractYearDataFromElement(element, year)
+
+  if (yearData) {
+    totals.startkapital += (yearData.startkapital as number) || 0
+    totals.zinsen += (yearData.zinsen as number) || 0
+    totals.endkapital += (yearData.endkapital as number) || 0
+    totals.bezahlteSteuer += (yearData.bezahlteSteuer as number) || 0
+    totals.vorabpauschale += (yearData.vorabpauschale as number) || 0
+  }
+
+  const elementContribution = getElementContributionForYear(element, year, false)
+  totals.contributions += elementContribution
+}
+
+/**
  * Add savings phase data from simulation structure
  */
 function addSavingsPhaseSimulationData(sparplanElements: SparplanElement[], lines: string[]): void {
@@ -680,32 +926,35 @@ function addSavingsPhaseSimulationData(sparplanElements: SparplanElement[], line
   const sortedYears = Array.from(allYears).sort((a, b) => a - b)
 
   for (const year of sortedYears) {
-    let totalStartkapital = 0
-    let totalZinsen = 0
-    let totalEndkapital = 0
-    let totalBezahlteSteuer = 0
-    let totalVorabpauschale = 0
-    let totalContributions = 0
+    const totals = {
+      startkapital: 0,
+      zinsen: 0,
+      endkapital: 0,
+      bezahlteSteuer: 0,
+      vorabpauschale: 0,
+      contributions: 0,
+    }
 
     sparplanElements.forEach((element: unknown) => {
-      if (typeof element === 'object' && element !== null && 'simulation' in element) {
-        const simulation = (element as Record<string, unknown>).simulation as Record<string, unknown> | undefined
-        const yearData = simulation?.[year] as Record<string, unknown> | undefined
-        if (yearData) {
-          totalStartkapital += (yearData.startkapital as number) || 0
-          totalZinsen += (yearData.zinsen as number) || 0
-          totalEndkapital += (yearData.endkapital as number) || 0
-          totalBezahlteSteuer += (yearData.bezahlteSteuer as number) || 0
-          totalVorabpauschale += (yearData.vorabpauschale as number) || 0
-        }
-
-        const elementContribution = getElementContributionForYear(element, year, false)
-        totalContributions += elementContribution
-      }
+      processElementForYearlySummary(element, year, totals)
     })
 
-    lines.push(`| ${year} | ${formatCurrency(totalStartkapital)} | ${formatCurrency(totalZinsen)} | ${formatCurrency(totalContributions)} | ${formatCurrency(totalEndkapital)} | ${formatCurrency(totalVorabpauschale)} | ${formatCurrency(totalBezahlteSteuer)} |`)
+    lines.push(`| ${year} | ${formatCurrency(totals.startkapital)} | ${formatCurrency(totals.zinsen)} | ${formatCurrency(totals.contributions)} | ${formatCurrency(totals.endkapital)} | ${formatCurrency(totals.vorabpauschale)} | ${formatCurrency(totals.bezahlteSteuer)} |`)
   }
+}
+
+/**
+ * Extract contribution amount from mock data element
+ */
+function extractContributionAmount(data: Record<string, unknown>): number {
+  return (data.einzahlung as number) || (data.amount as number) || (data.monthlyAmount as number) || 0
+}
+
+/**
+ * Format savings phase row for markdown export
+ */
+function formatSavingsPhaseRow(year: number, data: Record<string, unknown>, contribution: number): string {
+  return `| ${year} | ${formatCurrency((data.startkapital as number) || 0)} | ${formatCurrency((data.zinsen as number) || 0)} | ${formatCurrency(contribution)} | ${formatCurrency((data.endkapital as number) || 0)} | ${formatCurrency((data.vorabpauschale as number) || 0)} | ${formatCurrency((data.bezahlteSteuer as number) || 0)} |`
 }
 
 /**
@@ -717,9 +966,9 @@ function addSavingsPhaseMockData(sparplanElements: SparplanElement[], lines: str
 
     const data = yearData as Record<string, unknown>
     const year = new Date(data.start as string).getFullYear()
-    const contribution = (data.einzahlung as number) || (data.amount as number) || (data.monthlyAmount as number) || 0
+    const contribution = extractContributionAmount(data)
 
-    lines.push(`| ${year} | ${formatCurrency((data.startkapital as number) || 0)} | ${formatCurrency((data.zinsen as number) || 0)} | ${formatCurrency(contribution)} | ${formatCurrency((data.endkapital as number) || 0)} | ${formatCurrency((data.vorabpauschale as number) || 0)} | ${formatCurrency((data.bezahlteSteuer as number) || 0)} |`)
+    lines.push(formatSavingsPhaseRow(year, data, contribution))
   }
 }
 
@@ -864,34 +1113,42 @@ interface AddSingleStrategyDetailsParams {
 }
 
 /**
+ * Strategy detail formatters for single withdrawal strategies
+ */
+const strategyDetailFormatters: Record<string, (params: AddSingleStrategyDetailsParams) => string[]> = {
+  '4prozent': () => ['   Formel: Jährliche Entnahme = 4% vom Startkapital'],
+  '3prozent': () => ['   Formel: Jährliche Entnahme = 3% vom Startkapital'],
+  'variabel_prozent': params => [
+    `   Formel: Jährliche Entnahme = ${formatPercentage(params.variabelProzent || 0)} vom aktuellen Kapital`,
+  ],
+  'monatlich_fest': (params) => {
+    const details = [`   Monatliche Entnahme: ${formatCurrency(params.monatlicheBetrag || 0)}`]
+    if (params.inflationAktiv) {
+      details.push(`   Inflationsanpassung: ${formatPercentage(params.inflationsrate || 2)} jährlich`)
+    }
+    return details
+  },
+  'dynamisch': params => [
+    `   Basisrate: ${formatPercentage(params.dynamischBasisrate || 4)}`,
+    '   Anpassung basierend auf Vorjahres-Performance',
+  ],
+}
+
+/**
  * Add single withdrawal strategy details to explanation lines
  */
 function addSingleStrategyDetails(
   params: AddSingleStrategyDetailsParams,
   lines: string[],
 ): void {
-  const { strategie, variabelProzent, monatlicheBetrag, inflationAktiv, inflationsrate, dynamischBasisrate } = params
+  const { strategie } = params
 
   lines.push(`   Strategie: ${getWithdrawalStrategyLabel(strategie)}`)
 
-  if (strategie === '4prozent') {
-    lines.push('   Formel: Jährliche Entnahme = 4% vom Startkapital')
-  }
-  else if (strategie === '3prozent') {
-    lines.push('   Formel: Jährliche Entnahme = 3% vom Startkapital')
-  }
-  else if (strategie === 'variabel_prozent') {
-    lines.push(`   Formel: Jährliche Entnahme = ${formatPercentage(variabelProzent || 0)} vom aktuellen Kapital`)
-  }
-  else if (strategie === 'monatlich_fest') {
-    lines.push(`   Monatliche Entnahme: ${formatCurrency(monatlicheBetrag || 0)}`)
-    if (inflationAktiv) {
-      lines.push(`   Inflationsanpassung: ${formatPercentage(inflationsrate || 2)} jährlich`)
-    }
-  }
-  else if (strategie === 'dynamisch') {
-    lines.push(`   Basisrate: ${formatPercentage(dynamischBasisrate || 4)}`)
-    lines.push('   Anpassung basierend auf Vorjahres-Performance')
+  const formatter = strategyDetailFormatters[strategie]
+  if (formatter) {
+    const details = formatter(params)
+    details.forEach(detail => lines.push(detail))
   }
 }
 
@@ -990,29 +1247,20 @@ export function generateCalculationExplanations(context: SimulationContextState)
 /**
  * Helper function to get German label for withdrawal strategy
  */
+const WITHDRAWAL_STRATEGY_LABELS: Record<string, string> = {
+  '4prozent': '4% Regel',
+  '3prozent': '3% Regel',
+  'variabel_prozent': 'Variabler Prozentsatz',
+  'monatlich_fest': 'Monatliche Entnahme',
+  'dynamisch': 'Dynamische Strategie',
+  'bucket_strategie': 'Bucket Strategie',
+  'rmd': 'RMD Strategie',
+  'kapitalerhalt': 'Kapitalerhalt',
+  'steueroptimiert': 'Steueroptimierte Entnahme',
+}
+
 function getWithdrawalStrategyLabel(strategy: string): string {
-  switch (strategy) {
-    case '4prozent':
-      return '4% Regel'
-    case '3prozent':
-      return '3% Regel'
-    case 'variabel_prozent':
-      return 'Variabler Prozentsatz'
-    case 'monatlich_fest':
-      return 'Monatliche Entnahme'
-    case 'dynamisch':
-      return 'Dynamische Strategie'
-    case 'bucket_strategie':
-      return 'Bucket Strategie'
-    case 'rmd':
-      return 'RMD Strategie'
-    case 'kapitalerhalt':
-      return 'Kapitalerhalt'
-    case 'steueroptimiert':
-      return 'Steueroptimierte Entnahme'
-    default:
-      return strategy
-  }
+  return WITHDRAWAL_STRATEGY_LABELS[strategy] || strategy
 }
 
 /**

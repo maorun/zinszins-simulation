@@ -104,34 +104,45 @@ export function registerExistingId(id: string): boolean {
 }
 
 /**
+ * Check if running in Vite test environment
+ * @returns True if running in Vite test mode, false otherwise
+ */
+function isViteTestMode(): boolean {
+  try {
+    return typeof import.meta !== 'undefined' && (import.meta as { env?: { MODE?: string } })?.env?.MODE === 'test'
+  }
+  catch {
+    return false
+  }
+}
+
+/**
+ * Check if running in Node.js test environment
+ * @returns True if running in Node.js test mode, false otherwise
+ */
+function isNodeTestMode(): boolean {
+  try {
+    return typeof process !== 'undefined' && process.env?.NODE_ENV === 'test'
+  }
+  catch {
+    return false
+  }
+}
+
+/**
+ * Check if running in test environment
+ * @returns True if running in test environment, false otherwise
+ */
+function isTestEnvironment(): boolean {
+  return isViteTestMode() || isNodeTestMode()
+}
+
+/**
  * Clear all registered IDs (useful for testing)
  * WARNING: Only use this in test environments
  */
 export function clearRegisteredIds(): void {
-  // Use safe environment checking for both Vite and other environments
-  let isTest = false
-
-  try {
-    // Check for Vite environment
-    if (typeof import.meta !== 'undefined' && (import.meta as { env?: { MODE?: string } })?.env?.MODE === 'test') {
-      isTest = true
-    }
-  }
-  catch {
-    // Fallback to process.env for other environments
-  }
-
-  try {
-    // Check for Node.js environment
-    if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'test') {
-      isTest = true
-    }
-  }
-  catch {
-    // Ignore if process is not available
-  }
-
-  if (!isTest) {
+  if (!isTestEnvironment()) {
     console.warn('clearRegisteredIds should only be used in test environments')
   }
   usedIds.clear()

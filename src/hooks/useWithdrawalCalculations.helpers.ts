@@ -4,9 +4,11 @@
 
 import type { ReturnConfiguration } from '../../helpers/random-returns'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
+import type { ComparisonStrategy } from '../utils/config-storage'
 import {
   calculateWithdrawal,
   calculateWithdrawalDuration,
+  type WithdrawalResult,
 } from '../../helpers/withdrawal'
 import { createPlanningModeAwareFreibetragPerYear } from '../utils/freibetrag-calculation'
 import type {
@@ -20,6 +22,49 @@ import type {
  * Convert couple statutory pension config to legacy single config for backward compatibility
  * Combines both pensions into a single equivalent pension
  */
+function getCombinedPensionConfig(
+  person1: StatutoryPensionConfig,
+  person2: StatutoryPensionConfig,
+): StatutoryPensionConfig {
+  const earlierStartYear = Math.min(person1.startYear, person2.startYear)
+
+  return {
+    enabled: true,
+    startYear: earlierStartYear,
+    monthlyAmount: person1.monthlyAmount + person2.monthlyAmount,
+    annualIncreaseRate: (person1.annualIncreaseRate + person2.annualIncreaseRate) / 2,
+    taxablePercentage: (person1.taxablePercentage + person2.taxablePercentage) / 2,
+    retirementAge: Math.min(person1.retirementAge || 67, person2.retirementAge || 67),
+  }
+}
+
+/**
+ * Determine which person's pension config to use
+ */
+function selectSinglePensionConfig(
+  person1: StatutoryPensionConfig,
+  person2: StatutoryPensionConfig,
+): StatutoryPensionConfig | null {
+  if (person1.enabled && !person2.enabled) return person1
+  if (!person1.enabled && person2.enabled) return person2
+  return null
+}
+
+function getCouplePensionConfig(
+  person1: StatutoryPensionConfig,
+  person2: StatutoryPensionConfig,
+): StatutoryPensionConfig | null {
+  // If neither person has pension enabled, return null
+  if (!person1.enabled && !person2.enabled) return null
+
+  // If only one person has pension, return that config
+  const singleConfig = selectSinglePensionConfig(person1, person2)
+  if (singleConfig) return singleConfig
+
+  // If both have pensions, combine them
+  return getCombinedPensionConfig(person1, person2)
+}
+
 export function convertCoupleToLegacyConfig(
   params: ConvertCoupleToLegacyConfigParams,
 ): StatutoryPensionConfig | null {
@@ -33,31 +78,7 @@ export function convertCoupleToLegacyConfig(
 
   if (planningMode === 'couple' && coupleConfig.couple) {
     const { person1, person2 } = coupleConfig.couple
-
-    // If neither person has pension enabled, return null
-    if (!person1.enabled && !person2.enabled) return null
-
-    // If only one person has pension, return that config
-    if (person1.enabled && !person2.enabled) return person1
-    if (!person1.enabled && person2.enabled) return person2
-
-    // If both have pensions, combine them
-    if (person1.enabled && person2.enabled) {
-      // Use the earlier start year
-      const earlierStartYear = Math.min(person1.startYear, person2.startYear)
-
-      // For simplicity, we'll create a combined pension that starts at the earlier date
-      // and has the sum of both monthly amounts when both are active
-      return {
-        enabled: true,
-        startYear: earlierStartYear,
-        monthlyAmount: person1.monthlyAmount + person2.monthlyAmount,
-        // Use average of both rates for combined pension
-        annualIncreaseRate: (person1.annualIncreaseRate + person2.annualIncreaseRate) / 2,
-        taxablePercentage: (person1.taxablePercentage + person2.taxablePercentage) / 2,
-        retirementAge: Math.min(person1.retirementAge || 67, person2.retirementAge || 67),
-      }
-    }
+    return getCouplePensionConfig(person1, person2)
   }
 
   return null
@@ -224,13 +245,14 @@ function buildSteueroptimierteEntnahmeConfig(strategy: CalculateComparisonStrate
 }
 
 /**
- * Calculate a single comparison strategy and return its results
+ * Build withdrawal calculation parameters from comparison strategy
  */
-export function calculateComparisonStrategy(
+function buildWithdrawalParams(
   params: CalculateComparisonStrategyParams,
-): ComparisonStrategyResult {
+  strategy: ComparisonStrategy,
+  returnConfig: ReturnConfiguration,
+): Parameters<typeof calculateWithdrawal>[0] {
   const {
-    strategy,
     elements,
     startOfIndependence,
     endOfLife,
@@ -251,6 +273,94 @@ export function calculateComparisonStrategy(
     getEffectiveLifeExpectancyTable,
   } = params
 
+  const grundfreibetragPerYear = grundfreibetragAktiv
+    ? buildGrundfreibetragPerYear(startOfIndependence, endOfLife, grundfreibetragBetrag)
+    : undefined
+
+  const incomeTaxRate = grundfreibetragAktiv
+    ? einkommensteuersatz / 100
+    : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined)
+
+  const effectiveHealthCareInsuranceConfig = healthCareInsuranceConfig
+    ? {
+        ...healthCareInsuranceConfig,
+        insuranceType: healthCareInsuranceConfig.insuranceType || 'statutory' as const,
+      }
+    : undefined
+
+  return {
+    elements,
+    startYear: startOfIndependence + 1,
+    endYear: endOfLife,
+    strategy: strategy.strategie,
+    returnConfig,
+    taxRate: steuerlast,
+    teilfreistellungsquote,
+    freibetragPerYear: createPlanningModeAwareFreibetragPerYear(
+      startOfIndependence + 1,
+      endOfLife,
+      planningMode,
+    ),
+    monthlyConfig: buildMonthlyConfig(strategy),
+    customPercentage: buildCustomPercentage(strategy),
+    dynamicConfig: buildDynamicConfig(strategy),
+    bucketConfig: buildBucketConfig(strategy),
+    rmdConfig: buildRMDConfig(strategy, getEffectiveLifeExpectancyTable, customLifeExpectancy),
+    kapitalerhaltConfig: buildKapitalerhaltConfig(strategy),
+    steueroptimierteEntnahmeConfig: buildSteueroptimierteEntnahmeConfig(strategy),
+    enableGrundfreibetrag: grundfreibetragAktiv,
+    grundfreibetragPerYear,
+    incomeTaxRate,
+    steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
+    statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
+    otherIncomeConfig,
+    healthCareInsuranceConfig: effectiveHealthCareInsuranceConfig,
+    birthYear,
+    guenstigerPruefungAktiv,
+  }
+}
+
+/**
+ * Calculate metrics from withdrawal result
+ */
+function calculateWithdrawalMetrics(
+  result: WithdrawalResult,
+  startOfIndependence: number,
+): {
+  finalCapital: number
+  totalWithdrawal: number
+  averageAnnualWithdrawal: number
+  duration: number | 'unbegrenzt'
+} {
+  const finalYear = Math.max(...Object.keys(result).map(Number))
+  const finalCapital = result[finalYear]?.endkapital || 0
+
+  const totalWithdrawal = Object.values(result).reduce(
+    (sum, year) => sum + year.entnahme,
+    0,
+  )
+  const totalYears = Object.keys(result).length
+  const averageAnnualWithdrawal = totalWithdrawal / totalYears
+
+  const calculatedDuration = calculateWithdrawalDuration(result, startOfIndependence + 1)
+  const duration: number | 'unbegrenzt' = calculatedDuration ?? 'unbegrenzt'
+
+  return {
+    finalCapital,
+    totalWithdrawal,
+    averageAnnualWithdrawal,
+    duration,
+  }
+}
+
+/**
+ * Calculate a single comparison strategy and return its results
+ */
+export function calculateComparisonStrategy(
+  params: CalculateComparisonStrategyParams,
+): ComparisonStrategyResult {
+  const { strategy, startOfIndependence } = params
+
   // Build return configuration for this strategy
   const returnConfig: ReturnConfiguration = {
     mode: 'fixed',
@@ -259,67 +369,15 @@ export function calculateComparisonStrategy(
 
   try {
     // Calculate withdrawal for this comparison strategy
-    const { result } = calculateWithdrawal({
-      elements,
-      startYear: startOfIndependence + 1,
-      endYear: endOfLife,
-      strategy: strategy.strategie,
-      returnConfig,
-      taxRate: steuerlast,
-      teilfreistellungsquote,
-      freibetragPerYear: createPlanningModeAwareFreibetragPerYear(
-        startOfIndependence + 1,
-        endOfLife,
-        planningMode,
-      ),
-      monthlyConfig: buildMonthlyConfig(strategy),
-      customPercentage: buildCustomPercentage(strategy),
-      dynamicConfig: buildDynamicConfig(strategy),
-      bucketConfig: buildBucketConfig(strategy),
-      rmdConfig: buildRMDConfig(strategy, getEffectiveLifeExpectancyTable, customLifeExpectancy),
-      kapitalerhaltConfig: buildKapitalerhaltConfig(strategy),
-      steueroptimierteEntnahmeConfig: buildSteueroptimierteEntnahmeConfig(strategy),
-      enableGrundfreibetrag: grundfreibetragAktiv,
-      grundfreibetragPerYear: grundfreibetragAktiv
-        ? buildGrundfreibetragPerYear(startOfIndependence, endOfLife, grundfreibetragBetrag)
-        : undefined,
-      incomeTaxRate: grundfreibetragAktiv
-        ? einkommensteuersatz / 100
-        : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined),
-      steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
-      statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
-      otherIncomeConfig,
-      healthCareInsuranceConfig: healthCareInsuranceConfig
-        ? {
-            ...healthCareInsuranceConfig,
-            insuranceType: healthCareInsuranceConfig.insuranceType || 'statutory',
-          }
-        : undefined,
-      birthYear,
-      guenstigerPruefungAktiv,
-    })
+    const withdrawalParams = buildWithdrawalParams(params, strategy, returnConfig)
+    const { result } = calculateWithdrawal(withdrawalParams)
 
-    // Get final year capital and total withdrawal
-    const finalYear = Math.max(...Object.keys(result).map(Number))
-    const finalCapital = result[finalYear]?.endkapital || 0
-
-    // Calculate total withdrawal
-    const totalWithdrawal = Object.values(result).reduce(
-      (sum, year) => sum + year.entnahme,
-      0,
-    )
-    const totalYears = Object.keys(result).length
-    const averageAnnualWithdrawal = totalWithdrawal / totalYears
-
-    // Calculate withdrawal duration
-    const duration = calculateWithdrawalDuration(result, startOfIndependence + 1)
+    // Calculate metrics from result
+    const metrics = calculateWithdrawalMetrics(result, startOfIndependence)
 
     return {
       strategy,
-      finalCapital,
-      totalWithdrawal,
-      averageAnnualWithdrawal,
-      duration: duration ? duration : 'unbegrenzt',
+      ...metrics,
     }
   }
   catch (error) {
@@ -332,4 +390,212 @@ export function calculateComparisonStrategy(
       duration: 'Fehler',
     }
   }
+}
+
+/**
+ * Build segmented withdrawal result
+ */
+export function buildSegmentedWithdrawalResult(params: {
+  elemente: any[]
+  withdrawalSegments: any[]
+  effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined
+}) {
+  const { elemente, withdrawalSegments, effectiveStatutoryPensionConfig } = params
+
+  const { calculateSegmentedWithdrawal } = require('../../helpers/withdrawal')
+
+  const segmentedConfig: any = {
+    segments: withdrawalSegments,
+    taxRate: 0.26375,
+    freibetragPerYear: undefined,
+    statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
+  }
+
+  return calculateSegmentedWithdrawal(elemente, segmentedConfig)
+}
+
+/**
+ * Build single strategy withdrawal result
+ */
+export function buildSingleStrategyWithdrawalResult(params: {
+  elemente: any[]
+  startOfIndependence: number
+  endOfLife: number
+  formValue: any
+  withdrawalReturnMode: any
+  withdrawalVariableReturns: any
+  withdrawalAverageReturn: number
+  withdrawalStandardDeviation: number
+  withdrawalRandomSeed: number | undefined
+  withdrawalMultiAssetConfig: any
+  steuerlast: number
+  teilfreistellungsquote: number
+  grundfreibetragAktiv: boolean
+  grundfreibetragBetrag: number
+  guenstigerPruefungAktiv: boolean
+  personalTaxRate: number
+  steuerReduzierenEndkapitalEntspharphase: boolean
+  effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined
+  otherIncomeConfig: any
+  birthYear: number
+  getEffectiveLifeExpectancyTable: () => 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
+  customLifeExpectancy: number | undefined
+}) {
+  const withdrawalReturnConfig = buildWithdrawalReturnConfig({
+    withdrawalReturnMode: params.withdrawalReturnMode,
+    withdrawalVariableReturns: params.withdrawalVariableReturns,
+    withdrawalAverageReturn: params.withdrawalAverageReturn,
+    withdrawalStandardDeviation: params.withdrawalStandardDeviation,
+    withdrawalRandomSeed: params.withdrawalRandomSeed,
+    withdrawalMultiAssetConfig: params.withdrawalMultiAssetConfig,
+    formValueRendite: params.formValue.rendite,
+  })
+
+  const withdrawalCalculation = calculateWithdrawal({
+    elements: params.elemente,
+    startYear: params.startOfIndependence + 1,
+    endYear: params.endOfLife,
+    strategy: params.formValue.strategie,
+    withdrawalFrequency: params.formValue.withdrawalFrequency,
+    returnConfig: withdrawalReturnConfig,
+    taxRate: params.steuerlast,
+    teilfreistellungsquote: params.teilfreistellungsquote,
+    freibetragPerYear: undefined,
+    monthlyConfig: buildMonthlyConfigFromFormValue(params.formValue),
+    customPercentage: buildCustomPercentageFromFormValue(params.formValue),
+    dynamicConfig: buildDynamicConfigFromFormValue(params.formValue),
+    bucketConfig: buildBucketConfigFromFormValue(params.formValue),
+    rmdConfig: buildRMDConfigFromFormValue(
+      params.formValue,
+      params.getEffectiveLifeExpectancyTable,
+      params.customLifeExpectancy,
+    ),
+    kapitalerhaltConfig: buildKapitalerhaltConfigFromFormValue(params.formValue),
+    steueroptimierteEntnahmeConfig: buildSteueroptimierteEntnahmeConfigFromFormValue(params.formValue),
+    enableGrundfreibetrag: params.grundfreibetragAktiv,
+    grundfreibetragPerYear: params.grundfreibetragAktiv
+      ? buildGrundfreibetragPerYear(params.startOfIndependence, params.endOfLife, params.grundfreibetragBetrag)
+      : undefined,
+    incomeTaxRate: params.grundfreibetragAktiv
+      ? params.formValue.einkommensteuersatz / 100
+      : (params.guenstigerPruefungAktiv ? params.personalTaxRate / 100 : undefined),
+    inflationConfig: params.formValue.inflationAktiv
+      ? { inflationRate: params.formValue.inflationsrate / 100 }
+      : undefined,
+    steuerReduzierenEndkapital: params.steuerReduzierenEndkapitalEntspharphase,
+    statutoryPensionConfig: params.effectiveStatutoryPensionConfig || undefined,
+    otherIncomeConfig: params.otherIncomeConfig,
+    healthCareInsuranceConfig: buildHealthCareInsuranceConfig(params.formValue),
+    birthYear: params.birthYear,
+    guenstigerPruefungAktiv: params.guenstigerPruefungAktiv,
+  })
+
+  return withdrawalCalculation.result
+}
+
+/**
+ * Build monthly config from form value
+ */
+function buildMonthlyConfigFromFormValue(formValue: any) {
+  return formValue.strategie === 'monatlich_fest'
+    ? {
+        monthlyAmount: formValue.monatlicheBetrag,
+        enableGuardrails: formValue.guardrailsAktiv,
+        guardrailsThreshold: formValue.guardrailsSchwelle / 100,
+      }
+    : undefined
+}
+
+/**
+ * Build custom percentage from form value
+ */
+function buildCustomPercentageFromFormValue(formValue: any) {
+  return formValue.strategie === 'variabel_prozent'
+    ? formValue.variabelProzent / 100
+    : undefined
+}
+
+/**
+ * Build dynamic config from form value
+ */
+function buildDynamicConfigFromFormValue(formValue: any) {
+  return formValue.strategie === 'dynamisch'
+    ? {
+        baseWithdrawalRate: formValue.dynamischBasisrate / 100,
+        upperThresholdReturn: formValue.dynamischObereSchwell / 100,
+        upperThresholdAdjustment: formValue.dynamischObereAnpassung / 100,
+        lowerThresholdReturn: formValue.dynamischUntereSchwell / 100,
+        lowerThresholdAdjustment: formValue.dynamischUntereAnpassung / 100,
+      }
+    : undefined
+}
+
+/**
+ * Build bucket config from form value
+ */
+function buildBucketConfigFromFormValue(formValue: any) {
+  return formValue.strategie === 'bucket_strategie' && formValue.bucketConfig
+    ? {
+        initialCashCushion: formValue.bucketConfig.initialCashCushion,
+        refillThreshold: formValue.bucketConfig.refillThreshold,
+        refillPercentage: formValue.bucketConfig.refillPercentage,
+        baseWithdrawalRate: formValue.bucketConfig.baseWithdrawalRate,
+      }
+    : undefined
+}
+
+/**
+ * Build RMD config for single strategy from form value
+ */
+function buildRMDConfigFromFormValue(
+  formValue: any,
+  getEffectiveLifeExpectancyTable: () => 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
+  customLifeExpectancy: number | undefined,
+) {
+  return formValue.strategie === 'rmd'
+    ? {
+        startAge: formValue.rmdStartAge,
+        lifeExpectancyTable: getEffectiveLifeExpectancyTable(),
+        ...(customLifeExpectancy !== undefined && { customLifeExpectancy }),
+      }
+    : undefined
+}
+
+/**
+ * Build kapitalerhalt config for single strategy from form value
+ */
+function buildKapitalerhaltConfigFromFormValue(formValue: any) {
+  return formValue.strategie === 'kapitalerhalt'
+    ? {
+        nominalReturn: formValue.kapitalerhaltNominalReturn / 100,
+        inflationRate: formValue.kapitalerhaltInflationRate / 100,
+      }
+    : undefined
+}
+
+/**
+ * Build steueroptimierte entnahme config for single strategy from form value
+ */
+function buildSteueroptimierteEntnahmeConfigFromFormValue(formValue: any) {
+  return formValue.strategie === 'steueroptimiert'
+    ? {
+        baseWithdrawalRate: formValue.steueroptimierteEntnahmeBaseWithdrawalRate,
+        targetTaxRate: formValue.steueroptimierteEntnahmeTargetTaxRate,
+        optimizationMode: formValue.steueroptimierteEntnahmeOptimizationMode,
+        freibetragUtilizationTarget: formValue.steueroptimierteEntnahmeFreibetragUtilizationTarget,
+        rebalanceFrequency: formValue.steueroptimierteEntnahmeRebalanceFrequency,
+      }
+    : undefined
+}
+
+/**
+ * Build health care insurance config from form value
+ */
+function buildHealthCareInsuranceConfig(formValue: any) {
+  return formValue.healthCareInsuranceConfig
+    ? {
+        ...formValue.healthCareInsuranceConfig,
+        insuranceType: formValue.healthCareInsuranceConfig.insuranceType || 'statutory',
+      }
+    : undefined
 }

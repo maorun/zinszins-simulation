@@ -7,6 +7,39 @@ interface SavingsPhaseSectionProps {
 }
 
 /**
+ * Stat card component for displaying a metric with icon and value
+ */
+function StatCard({
+  icon,
+  label,
+  value,
+  highlighted = false,
+}: {
+  icon: string
+  label: string
+  value: string
+  highlighted?: boolean
+}) {
+  const baseClasses = 'flex justify-between items-center p-2.5 sm:p-3 bg-gray-50 rounded-lg border-l-4 transition-all hover:bg-gray-100 hover:translate-x-1'
+  const highlightClasses = highlighted
+    ? 'bg-gradient-to-r from-red-50 to-blue-50 border-l-blue-400 shadow-sm shadow-blue-400/20'
+    : 'border-gray-300'
+
+  return (
+    <div className={`${baseClasses} ${highlightClasses}`}>
+      <span className="font-medium text-gray-700 text-sm">
+        {icon}
+        {' '}
+        {label}
+      </span>
+      <span className={`font-bold text-right text-sm sm:text-base ${highlighted ? 'text-green-600 text-base sm:text-lg' : 'text-slate-700'}`}>
+        {value}
+      </span>
+    </div>
+  )
+}
+
+/**
  * Displays the savings phase (Ansparphase) section in the enhanced overview
  * Shows total contributions, end capital, total interest, and return rate
  */
@@ -27,40 +60,28 @@ export function SavingsPhaseSection({
         )
       </h4>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-        <div className="flex justify-between items-center p-2.5 sm:p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300 transition-all hover:bg-gray-100 hover:translate-x-1 bg-gradient-to-r from-red-50 to-blue-50 border-l-blue-400 shadow-sm shadow-blue-400/20">
-          <span className="font-medium text-gray-700 text-sm">💰 Gesamte Einzahlungen</span>
-          <span className="font-bold text-slate-700 text-right text-sm sm:text-base">
-            {enhancedSummary.startkapital.toLocaleString('de-DE', {
-              style: 'currency',
-              currency: 'EUR',
-            })}
-          </span>
-        </div>
-        <div className="flex justify-between items-center p-2.5 sm:p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300 transition-all hover:bg-gray-100 hover:translate-x-1 bg-gradient-to-r from-red-50 to-blue-50 border-l-blue-400 shadow-sm shadow-blue-400/20">
-          <span className="font-medium text-gray-700 text-sm">🎯 Endkapital Ansparphase</span>
-          <span className="font-bold text-green-600 text-base sm:text-lg text-right">
-            {enhancedSummary.endkapital.toLocaleString('de-DE', {
-              style: 'currency',
-              currency: 'EUR',
-            })}
-          </span>
-        </div>
-        <div className="flex justify-between items-center p-2.5 sm:p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300 transition-all hover:bg-gray-100 hover:translate-x-1">
-          <span className="font-medium text-gray-700 text-sm">📊 Gesamtzinsen Ansparphase</span>
-          <span className="font-bold text-slate-700 text-right text-sm sm:text-base">
-            {enhancedSummary.zinsen.toLocaleString('de-DE', {
-              style: 'currency',
-              currency: 'EUR',
-            })}
-          </span>
-        </div>
-        <div className="flex justify-between items-center p-2.5 sm:p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300 transition-all hover:bg-gray-100 hover:translate-x-1">
-          <span className="font-medium text-gray-700 text-sm">📈 Rendite Ansparphase</span>
-          <span className="font-bold text-slate-700 text-right text-sm sm:text-base">
-            {enhancedSummary.renditeAnsparphase.toFixed(2)}
-            % p.a.
-          </span>
-        </div>
+        <StatCard
+          icon="💰"
+          label="Gesamte Einzahlungen"
+          value={enhancedSummary.startkapital.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+          highlighted
+        />
+        <StatCard
+          icon="🎯"
+          label="Endkapital Ansparphase"
+          value={enhancedSummary.endkapital.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+          highlighted
+        />
+        <StatCard
+          icon="📊"
+          label="Gesamtzinsen Ansparphase"
+          value={enhancedSummary.zinsen.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+        />
+        <StatCard
+          icon="📈"
+          label="Rendite Ansparphase"
+          value={`${enhancedSummary.renditeAnsparphase.toFixed(2)}% p.a.`}
+        />
       </div>
     </div>
   )

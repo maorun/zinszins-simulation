@@ -16,15 +16,35 @@ interface LifeExpectancyTableConfigurationProps {
   }
 }
 
-export function LifeExpectancyTableConfiguration({
-  config,
-  onChange,
-}: LifeExpectancyTableConfigurationProps) {
-  const { planningMode, gender, spouse, lifeExpectancyTable, customLifeExpectancy } = config
-  const hasGenderInfo = (planningMode === 'individual' && gender)
-    || (planningMode === 'couple' && gender && spouse?.gender)
+function hasCompleteGenderInfo(
+  planningMode: 'individual' | 'couple',
+  gender: 'male' | 'female' | undefined,
+  spouse: { gender: 'male' | 'female', birthYear?: number } | undefined,
+): boolean {
+  return (planningMode === 'individual' && !!gender)
+    || (planningMode === 'couple' && !!gender && !!spouse?.gender)
+}
 
-  const handleTableChange = (value: string) => {
+function getGenderInfoMessage(
+  planningMode: 'individual' | 'couple',
+  gender: 'male' | 'female' | undefined,
+  spouse: { gender: 'male' | 'female', birthYear?: number } | undefined,
+): string {
+  if (planningMode === 'couple') {
+    const person1Gender = gender === 'male' ? 'Männlich' : 'Weiblich'
+    const person2Gender = spouse?.gender === 'male' ? 'Männlich' : 'Weiblich'
+    return `Basierend auf den gewählten Geschlechtern (${person1Gender} und ${person2Gender}) werden automatisch die entsprechenden deutschen Sterbetafeln (2020-2022) verwendet.`
+  }
+  const genderLabel = gender === 'male' ? 'Männlich' : 'Weiblich'
+  return `Basierend auf dem gewählten Geschlecht (${genderLabel}) wird automatisch die entsprechende deutsche Sterbetafel (2020-2022) verwendet.`
+}
+
+function createTableChangeHandler(
+  planningMode: 'individual' | 'couple',
+  gender: 'male' | 'female' | undefined,
+  onChange: LifeExpectancyTableConfigurationProps['onChange'],
+) {
+  return (value: string) => {
     if (value === 'custom') {
       onChange.lifeExpectancyTable('custom')
     }
@@ -38,13 +58,17 @@ export function LifeExpectancyTableConfiguration({
       }
     }
   }
+}
 
-  const getInfoMessage = () => {
-    if (planningMode === 'couple') {
-      return `Basierend auf den gewählten Geschlechtern (${gender === 'male' ? 'Männlich' : 'Weiblich'} und ${spouse?.gender === 'male' ? 'Männlich' : 'Weiblich'}) werden automatisch die entsprechenden deutschen Sterbetafeln (2020-2022) verwendet.`
-    }
-    return `Basierend auf dem gewählten Geschlecht (${gender === 'male' ? 'Männlich' : 'Weiblich'}) wird automatisch die entsprechende deutsche Sterbetafel (2020-2022) verwendet.`
-  }
+export function LifeExpectancyTableConfiguration({
+  config,
+  onChange,
+}: LifeExpectancyTableConfigurationProps) {
+  const { planningMode, gender, spouse, lifeExpectancyTable, customLifeExpectancy } = config
+  const hasGenderInfo = hasCompleteGenderInfo(planningMode, gender, spouse)
+
+  const handleTableChange = createTableChangeHandler(planningMode, gender, onChange)
+  const infoMessage = getGenderInfoMessage(planningMode, gender, spouse)
 
   return (
     <div className="space-y-2">
@@ -70,7 +94,7 @@ export function LifeExpectancyTableConfiguration({
               ℹ️ Automatische Sterbetafel-Auswahl
             </div>
             <div className="text-sm text-muted-foreground mt-1">
-              {getInfoMessage()}
+              {infoMessage}
             </div>
           </div>
         </>

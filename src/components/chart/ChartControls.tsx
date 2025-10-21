@@ -16,6 +16,50 @@ export interface ChartControlsProps {
 }
 
 /**
+ * Switch control with label
+ */
+function SwitchControl({ id, checked, onCheckedChange, label }: {
+  id: string
+  checked: boolean
+  onCheckedChange: (checked: boolean) => void
+  label: string
+}) {
+  return (
+    <div className="flex items-center space-x-2">
+      <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} />
+      <Label htmlFor={id} className="text-sm">{label}</Label>
+    </div>
+  )
+}
+
+/**
+ * View toggle buttons
+ */
+function ViewToggle({ chartView, onChartViewChange }: {
+  chartView: ChartView
+  onChartViewChange: (view: ChartView) => void
+}) {
+  return (
+    <div className="flex items-center space-x-2">
+      <Button
+        variant={chartView === 'overview' ? 'default' : 'outline'}
+        size="sm"
+        onClick={() => onChartViewChange('overview')}
+      >
+        Übersicht
+      </Button>
+      <Button
+        variant={chartView === 'detailed' ? 'default' : 'outline'}
+        size="sm"
+        onClick={() => onChartViewChange('detailed')}
+      >
+        Detail
+      </Button>
+    </div>
+  )
+}
+
+/**
  * Interactive controls for the chart component
  */
 export function ChartControls({
@@ -36,44 +80,19 @@ export function ChartControls({
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-4 pt-4">
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="inflation-adjusted"
-              checked={showInflationAdjusted}
-              onCheckedChange={onShowInflationAdjustedChange}
-            />
-            <Label htmlFor="inflation-adjusted" className="text-sm">
-              Real (inflationsbereinigt)
-            </Label>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Switch
-              id="show-taxes"
-              checked={showTaxes}
-              onCheckedChange={onShowTaxesChange}
-            />
-            <Label htmlFor="show-taxes" className="text-sm">
-              Steuern anzeigen
-            </Label>
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Button
-              variant={chartView === 'overview' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => onChartViewChange('overview')}
-            >
-              Übersicht
-            </Button>
-            <Button
-              variant={chartView === 'detailed' ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => onChartViewChange('detailed')}
-            >
-              Detail
-            </Button>
-          </div>
+          <SwitchControl
+            id="inflation-adjusted"
+            checked={showInflationAdjusted}
+            onCheckedChange={onShowInflationAdjustedChange}
+            label="Real (inflationsbereinigt)"
+          />
+          <SwitchControl
+            id="show-taxes"
+            checked={showTaxes}
+            onCheckedChange={onShowTaxesChange}
+            label="Steuern anzeigen"
+          />
+          <ViewToggle chartView={chartView} onChartViewChange={onChartViewChange} />
         </div>
       </CollapsibleContent>
     </Collapsible>

@@ -42,6 +42,43 @@ export interface OptimizationResult {
 }
 
 /**
+ * Distribute Freibetrag to accounts with highest expected gains first
+ */
+function distributeFreibetrag(
+  sortedAccounts: BankAccount[],
+  totalFreibetrag: number,
+  teilfreistellungsquote: number,
+): { optimizedAccounts: BankAccount[], remainingFreibetrag: number, recommendations: string[] } {
+  let remainingFreibetrag = totalFreibetrag
+  const optimizedAccounts: BankAccount[] = []
+  const recommendations: string[] = []
+
+  for (const account of sortedAccounts) {
+    const taxableGains = account.expectedCapitalGains * (1 - teilfreistellungsquote)
+    const assignedAmount = Math.min(taxableGains, remainingFreibetrag)
+
+    optimizedAccounts.push({ ...account, assignedFreibetrag: assignedAmount })
+    remainingFreibetrag -= assignedAmount
+
+    if (taxableGains > assignedAmount && assignedAmount > 0) {
+      recommendations.push(
+        `${account.name}: Erwartete Gewinne (${taxableGains.toFixed(2)} €) `
+        + `übersteigen zugewiesenen Freibetrag (${assignedAmount.toFixed(2)} €)`,
+      )
+    }
+
+    if (remainingFreibetrag <= 0) break
+  }
+
+  // Add remaining accounts with no Freibetrag assignment
+  for (const account of sortedAccounts.slice(optimizedAccounts.length)) {
+    optimizedAccounts.push({ ...account, assignedFreibetrag: 0 })
+  }
+
+  return { optimizedAccounts, remainingFreibetrag, recommendations }
+}
+
+/**
  * Calculate the optimal distribution of Freistellungsauftrag across multiple accounts.
  *
  * Strategy: Prioritize accounts with highest expected capital gains to maximize tax savings.
@@ -61,46 +98,11 @@ export function optimizeFreistellungsauftrag(
   // Sort accounts by expected capital gains (descending) to prioritize high-gain accounts
   const sortedAccounts = [...accounts].sort((a, b) => b.expectedCapitalGains - a.expectedCapitalGains)
 
-  let remainingFreibetrag = totalFreibetrag
-  const optimizedAccounts: BankAccount[] = []
-  const recommendations: string[] = []
-
-  // Distribute Freibetrag to accounts with highest expected gains first
-  for (const account of sortedAccounts) {
-    // Calculate taxable amount after Teilfreistellung
-    const taxableGains = account.expectedCapitalGains * (1 - teilfreistellungsquote)
-
-    // Assign as much Freibetrag as beneficial (up to taxable gains or remaining Freibetrag)
-    const assignedAmount = Math.min(taxableGains, remainingFreibetrag)
-
-    optimizedAccounts.push({
-      ...account,
-      assignedFreibetrag: assignedAmount,
-    })
-
-    remainingFreibetrag -= assignedAmount
-
-    // Add recommendation if account has gains but couldn't get full coverage
-    if (taxableGains > assignedAmount && assignedAmount > 0) {
-      recommendations.push(
-        `${account.name}: Erwartete Gewinne (${taxableGains.toFixed(2)} €) `
-        + `übersteigen zugewiesenen Freibetrag (${assignedAmount.toFixed(2)} €)`,
-      )
-    }
-
-    // Stop if we've used all Freibetrag
-    if (remainingFreibetrag <= 0) {
-      break
-    }
-  }
-
-  // Add remaining accounts with no Freibetrag assignment
-  for (const account of sortedAccounts.slice(optimizedAccounts.length)) {
-    optimizedAccounts.push({
-      ...account,
-      assignedFreibetrag: 0,
-    })
-  }
+  const { optimizedAccounts, remainingFreibetrag, recommendations } = distributeFreibetrag(
+    sortedAccounts,
+    totalFreibetrag,
+    teilfreistellungsquote,
+  )
 
   // Calculate total tax saved
   const totalTaxSaved = calculateTotalTaxSaved(optimizedAccounts, steuerlast, teilfreistellungsquote)
@@ -159,16 +161,25 @@ function calculateTotalTaxSaved(
  * @param config - Configuration to validate
  * @returns Array of validation error messages (empty if valid)
  */
-export function validateFreistellungsauftragConfig(config: FreistellungsauftragConfig): string[] {
+/**
+ * Validate total Freibetrag amount
+ */
+function validateTotalFreibetrag(totalFreibetrag: number): string[] {
   const errors: string[] = []
-
-  if (config.totalFreibetrag < 0) {
+  if (totalFreibetrag < 0) {
     errors.push('Gesamt-Freibetrag muss positiv sein')
   }
-
-  if (config.totalFreibetrag > 2000) {
+  if (totalFreibetrag > 2000) {
     errors.push('Gesamt-Freibetrag darf 2.000 € nicht überschreiten (max. für Ehepaare)')
   }
+  return errors
+}
+
+/**
+ * Validate account assignments
+ */
+function validateAccountAssignments(config: FreistellungsauftragConfig): string[] {
+  const errors: string[] = []
 
   if (config.accounts.length === 0) {
     errors.push('Mindestens ein Konto muss vorhanden sein')
@@ -199,6 +210,13 @@ export function validateFreistellungsauftragConfig(config: FreistellungsauftragC
   }
 
   return errors
+}
+
+export function validateFreistellungsauftragConfig(config: FreistellungsauftragConfig): string[] {
+  return [
+    ...validateTotalFreibetrag(config.totalFreibetrag),
+    ...validateAccountAssignments(config),
+  ]
 }
 
 /**

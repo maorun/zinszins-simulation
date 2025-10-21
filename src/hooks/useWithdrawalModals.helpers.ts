@@ -39,6 +39,22 @@ export function findApplicableSegment(
 }
 
 /**
+ * Get inflation rate from segment or form value
+ */
+function getInflationRate(
+  applicableSegment: WithdrawalSegment | null,
+  formValue: HandlerContext['formValue'],
+): number {
+  if (applicableSegment?.inflationConfig?.inflationRate) {
+    return applicableSegment.inflationConfig.inflationRate
+  }
+  if (formValue.inflationsrate) {
+    return formValue.inflationsrate / 100
+  }
+  return 0.02
+}
+
+/**
  * Handle inflation explanation
  */
 export function handleInflationExplanation(params: {
@@ -54,9 +70,7 @@ export function handleInflationExplanation(params: {
 
   const yearsPassed = rowData.year - context.startOfIndependence - 1
   const baseAmount = (context.withdrawalData?.startingCapital || 0) * 0.04
-  const inflationRate = applicableSegment?.inflationConfig?.inflationRate
-    || (context.formValue.inflationsrate ? context.formValue.inflationsrate / 100 : 0)
-    || 0.02
+  const inflationRate = getInflationRate(applicableSegment, context.formValue)
 
   return createInflationExplanation(
     baseAmount,
@@ -150,6 +164,29 @@ export function handleIncomeTaxExplanation(params: {
 }
 
 /**
+ * Get Grundfreibetrag amount
+ */
+function getGrundfreibetragAmount(
+  grundfreibetragAktiv: boolean,
+  grundfreibetragBetrag: number,
+): number {
+  return grundfreibetragAktiv ? grundfreibetragBetrag : 0
+}
+
+/**
+ * Calculate total gross amount from other income sources
+ */
+function calculateOtherIncomeGross(rowData: RowData): number {
+  if (!rowData.otherIncome?.sources) {
+    return 0
+  }
+  return rowData.otherIncome.sources.reduce(
+    (sum: number, source) => sum + (source.grossAnnualAmount || 0),
+    0,
+  )
+}
+
+/**
  * Handle taxable income explanation
  */
 export function handleTaxableIncomeExplanation(params: {
@@ -158,17 +195,13 @@ export function handleTaxableIncomeExplanation(params: {
 }): CalculationExplanation {
   const { rowData, context } = params
 
-  const grundfreibetragAmount = context.grundfreibetragAktiv
-    ? context.grundfreibetragBetrag
-    : 0
+  const grundfreibetragAmount = getGrundfreibetragAmount(
+    context.grundfreibetragAktiv,
+    context.grundfreibetragBetrag,
+  )
 
   const statutoryPensionTaxableAmount = rowData.statutoryPension?.taxableAmount || 0
-
-  const otherIncomeGrossAmount = rowData.otherIncome?.sources?.reduce(
-    (sum: number, source) => sum + (source.grossAnnualAmount || 0),
-    0,
-  ) || 0
-
+  const otherIncomeGrossAmount = calculateOtherIncomeGross(rowData)
   const healthCareInsuranceAnnual = rowData.healthCareInsurance?.totalAnnual || 0
 
   return createTaxableIncomeExplanation(
@@ -257,18 +290,32 @@ export function handleHealthCareInsuranceExplanation(params: {
   }
 
   const insuranceData = rowData.healthCareInsurance
+  const defaults = {
+    healthInsuranceAnnual: 0,
+    careInsuranceAnnual: 0,
+    totalAnnual: 0,
+    insuranceType: 'statutory' as const,
+    effectiveHealthInsuranceRate: 0,
+    effectiveCareInsuranceRate: 0,
+    baseIncomeForCalculation: 0,
+    isRetirementPhase: false,
+    includesEmployerContribution: false,
+    inflationAdjustmentFactor: 1,
+  }
+
+  const values = { ...defaults, ...insuranceData }
 
   return createHealthCareInsuranceExplanation(
-    insuranceData.healthInsuranceAnnual || 0,
-    insuranceData.careInsuranceAnnual || 0,
-    insuranceData.totalAnnual || 0,
-    insuranceData.insuranceType || 'statutory',
-    insuranceData.effectiveHealthInsuranceRate || 0,
-    insuranceData.effectiveCareInsuranceRate || 0,
-    insuranceData.baseIncomeForCalculation || 0,
-    insuranceData.isRetirementPhase || false,
-    insuranceData.includesEmployerContribution || false,
-    insuranceData.inflationAdjustmentFactor || 1,
+    values.healthInsuranceAnnual,
+    values.careInsuranceAnnual,
+    values.totalAnnual,
+    values.insuranceType,
+    values.effectiveHealthInsuranceRate,
+    values.effectiveCareInsuranceRate,
+    values.baseIncomeForCalculation,
+    values.isRetirementPhase,
+    values.includesEmployerContribution,
+    values.inflationAdjustmentFactor,
     rowData.year,
   )
 }

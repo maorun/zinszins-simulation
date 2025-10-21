@@ -20,6 +20,106 @@ interface BlackSwanEventConfigurationProps {
 }
 
 /**
+ * Component to display detailed event information
+ */
+/**
+ * Renders yearly returns list for an event
+ */
+function YearlyReturnsList({
+  years,
+  eventYear,
+  yearlyReturns,
+  formatPercent,
+}: {
+  years: number[]
+  eventYear: number
+  yearlyReturns: Record<number, number>
+  formatPercent: (value: number) => string
+}) {
+  return (
+    <ul className="list-disc list-inside ml-4">
+      {years.map((offset) => {
+        const year = eventYear + offset
+        const returnRate = yearlyReturns[offset]
+        return (
+          <li key={offset} className={returnRate < 0 ? 'text-red-700 font-medium' : 'text-green-700'}>
+            Jahr
+            {' '}
+            {year}
+            :
+            {' '}
+            {formatPercent(returnRate)}
+          </li>
+        )
+      })}
+    </ul>
+  )
+}
+
+function EventDetails({
+  event,
+  eventYear,
+  cumulativeImpact,
+  formatPercent,
+}: {
+  event: BlackSwanEvent
+  eventYear: number
+  cumulativeImpact: number | null
+  formatPercent: (value: number) => string
+}) {
+  const years = Object.keys(event.yearlyReturns).map(Number).sort((a, b) => a - b)
+
+  return (
+    <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+      <h5 className="font-semibold text-red-900 mb-2">📉 Ereignis-Details</h5>
+      <div className="space-y-2 text-sm">
+        <p>
+          <strong>Beschreibung:</strong>
+          {' '}
+          {event.description}
+        </p>
+        <p>
+          <strong>Dauer:</strong>
+          {' '}
+          {event.duration}
+          {' '}
+          {event.duration === 1 ? 'Jahr' : 'Jahre'}
+        </p>
+        <p>
+          <strong>Jährliche Renditen:</strong>
+        </p>
+        <YearlyReturnsList
+          years={years}
+          eventYear={eventYear}
+          yearlyReturns={event.yearlyReturns}
+          formatPercent={formatPercent}
+        />
+        {cumulativeImpact !== null && (
+          <p className="mt-2 pt-2 border-t border-red-300">
+            <strong>Kumulativer Verlust:</strong>
+            {' '}
+            <span className="text-red-700 font-semibold">
+              {formatPercent(cumulativeImpact)}
+            </span>
+          </p>
+        )}
+        {event.recoveryYears && (
+          <p className="text-gray-600">
+            <strong>Historische Erholungszeit:</strong>
+            {' '}
+            ca.
+            {' '}
+            {event.recoveryYears}
+            {' '}
+            Jahre
+          </p>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/**
  * Black Swan Event Configuration Component
  * Allows users to simulate extreme market events (crashes) in their portfolio
  */
@@ -84,68 +184,14 @@ const BlackSwanEventConfiguration = ({
 
   const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`
 
-  const renderEventDetails = (event: BlackSwanEvent) => {
-    const years = Object.keys(event.yearlyReturns).map(Number).sort((a, b) => a - b)
-
-    return (
-      <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-        <h5 className="font-semibold text-red-900 mb-2">📉 Ereignis-Details</h5>
-        <div className="space-y-2 text-sm">
-          <p>
-            <strong>Beschreibung:</strong>
-            {' '}
-            {event.description}
-          </p>
-          <p>
-            <strong>Dauer:</strong>
-            {' '}
-            {event.duration}
-            {' '}
-            {event.duration === 1 ? 'Jahr' : 'Jahre'}
-          </p>
-          <p>
-            <strong>Jährliche Renditen:</strong>
-          </p>
-          <ul className="list-disc list-inside ml-4">
-            {years.map((offset) => {
-              const year = eventYear + offset
-              const returnRate = event.yearlyReturns[offset]
-              return (
-                <li key={offset} className={returnRate < 0 ? 'text-red-700 font-medium' : 'text-green-700'}>
-                  Jahr
-                  {' '}
-                  {year}
-                  :
-                  {' '}
-                  {formatPercent(returnRate)}
-                </li>
-              )
-            })}
-          </ul>
-          {cumulativeImpact !== null && (
-            <p className="mt-2 pt-2 border-t border-red-300">
-              <strong>Kumulativer Verlust:</strong>
-              {' '}
-              <span className="text-red-700 font-semibold">
-                {formatPercent(cumulativeImpact)}
-              </span>
-            </p>
-          )}
-          {event.recoveryYears && (
-            <p className="text-gray-600">
-              <strong>Historische Erholungszeit:</strong>
-              {' '}
-              ca.
-              {' '}
-              {event.recoveryYears}
-              {' '}
-              Jahre
-            </p>
-          )}
-        </div>
-      </div>
-    )
-  }
+  const renderEventDetails = (event: BlackSwanEvent) => (
+    <EventDetails
+      event={event}
+      eventYear={eventYear}
+      cumulativeImpact={cumulativeImpact}
+      formatPercent={formatPercent}
+    />
+  )
 
   return (
     <Card className="mb-4">

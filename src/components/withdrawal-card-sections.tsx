@@ -72,6 +72,37 @@ interface HealthCareInsuranceSectionProps {
 /**
  * Display section for health care insurance
  */
+function InsuranceRateDisplay({ rate }: { rate?: number }) {
+  if (!rate) return null
+  return (
+    <span className="text-xs text-gray-500 ml-1">
+      (
+      {rate.toFixed(2)}
+      %)
+    </span>
+  )
+}
+
+function InflationAdjustmentDisplay({ factor }: { factor?: number }) {
+  if (!factor) return null
+  return (
+    <span className="text-xs text-gray-500 ml-1">
+      (Inflationsanpassung:
+      {' '}
+      {(factor * 100 - 100).toFixed(1)}
+      %)
+    </span>
+  )
+}
+
+function EmployerContributionNote({ insuranceType, includesEmployerContribution }: {
+  insuranceType: 'statutory' | 'private'
+  includesEmployerContribution?: boolean
+}) {
+  if (insuranceType !== 'statutory' || includesEmployerContribution) return null
+  return <> - nur AN-Anteil</>
+}
+
 export function HealthCareInsuranceSection({
   healthCareInsurance,
   onCalculationInfoClick,
@@ -81,32 +112,23 @@ export function HealthCareInsuranceSection({
     return null
   }
 
+  const isStatutory = healthCareInsurance.insuranceType === 'statutory'
+
   return (
     <>
       <div className="flex justify-between items-center py-1">
         <span className="text-sm text-gray-600 font-medium">
           🏥 Krankenversicherung (
-          {healthCareInsurance.insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat'}
+          {isStatutory ? 'Gesetzlich' : 'Privat'}
           ):
         </span>
         <span className="font-semibold text-red-600 text-sm">
           -
           {formatCurrency(healthCareInsurance.healthInsuranceAnnual)}
-          {healthCareInsurance.insuranceType === 'statutory' && healthCareInsurance.effectiveHealthInsuranceRate && (
-            <span className="text-xs text-gray-500 ml-1">
-              (
-              {healthCareInsurance.effectiveHealthInsuranceRate.toFixed(2)}
-              %)
-            </span>
+          {isStatutory && (
+            <InsuranceRateDisplay rate={healthCareInsurance.effectiveHealthInsuranceRate} />
           )}
-          {healthCareInsurance.inflationAdjustmentFactor && (
-            <span className="text-xs text-gray-500 ml-1">
-              (Inflationsanpassung:
-              {' '}
-              {(healthCareInsurance.inflationAdjustmentFactor * 100 - 100).toFixed(1)}
-              %)
-            </span>
-          )}
+          <InflationAdjustmentDisplay factor={healthCareInsurance.inflationAdjustmentFactor} />
         </span>
       </div>
       <div className="flex justify-between items-center py-1">
@@ -116,12 +138,8 @@ export function HealthCareInsuranceSection({
         <span className="font-semibold text-red-600 text-sm">
           -
           {formatCurrency(healthCareInsurance.careInsuranceAnnual)}
-          {healthCareInsurance.insuranceType === 'statutory' && healthCareInsurance.effectiveCareInsuranceRate && (
-            <span className="text-xs text-gray-500 ml-1">
-              (
-              {healthCareInsurance.effectiveCareInsuranceRate.toFixed(2)}
-              %)
-            </span>
+          {isStatutory && (
+            <InsuranceRateDisplay rate={healthCareInsurance.effectiveCareInsuranceRate} />
           )}
         </span>
       </div>
@@ -134,9 +152,12 @@ export function HealthCareInsuranceSection({
           {formatCurrency(healthCareInsurance.totalAnnual)}
           <span className="text-xs text-gray-500 ml-1">
             (
-            {healthCareInsurance.insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat'}
+            {isStatutory ? 'Gesetzlich' : 'Privat'}
             )
-            {healthCareInsurance.insuranceType === 'statutory' && !healthCareInsurance.includesEmployerContribution && ' - nur AN-Anteil'}
+            <EmployerContributionNote
+              insuranceType={healthCareInsurance.insuranceType}
+              includesEmployerContribution={healthCareInsurance.includesEmployerContribution}
+            />
           </span>
           <Info
             className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"

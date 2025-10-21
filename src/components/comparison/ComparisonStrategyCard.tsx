@@ -8,30 +8,360 @@ interface ComparisonStrategyCardProps {
   onRemove: (id: string) => void
 }
 
+// Strategy display name mapping
+const STRATEGY_DISPLAY_NAMES: Record<WithdrawalStrategy, string> = {
+  '4prozent': '4% Regel',
+  '3prozent': '3% Regel',
+  'variabel_prozent': 'Variable Prozent',
+  'monatlich_fest': 'Monatlich fest',
+  'dynamisch': 'Dynamische Strategie',
+  'bucket_strategie': 'Drei-Eimer-Strategie',
+  'rmd': 'RMD (Lebenserwartung)',
+  'kapitalerhalt': 'Kapitalerhalt / Ewige Rente',
+  'steueroptimiert': 'Steueroptimierte Entnahme',
+}
+
 // Helper function for strategy display names
 function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
-  switch (strategy) {
-    case '4prozent':
-      return '4% Regel'
-    case '3prozent':
-      return '3% Regel'
-    case 'variabel_prozent':
-      return 'Variable Prozent'
-    case 'monatlich_fest':
-      return 'Monatlich fest'
-    case 'dynamisch':
-      return 'Dynamische Strategie'
-    case 'bucket_strategie':
-      return 'Drei-Eimer-Strategie'
-    case 'rmd':
-      return 'RMD (Lebenserwartung)'
-    case 'kapitalerhalt':
-      return 'Kapitalerhalt / Ewige Rente'
-    case 'steueroptimiert':
-      return 'Steueroptimierte Entnahme'
-    default:
-      return strategy
+  return STRATEGY_DISPLAY_NAMES[strategy] || strategy
+}
+
+/**
+ * Variable percentage field for variable withdrawal strategy
+ */
+function VariablePercentageField({
+  strategyId,
+  value,
+  onUpdate,
+}: {
+  strategyId: string
+  value: number | undefined
+  onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
+}) {
+  return (
+    <div style={{ gridColumn: 'span 2' }}>
+      <label
+        style={{
+          display: 'block',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          marginBottom: '5px',
+        }}
+      >
+        Entnahme-Prozentsatz (%)
+      </label>
+      <input
+        type="number"
+        min="1"
+        max="10"
+        step="0.5"
+        value={value || 4}
+        onChange={(e) => {
+          onUpdate(strategyId, {
+            variabelProzent: parseFloat(e.target.value) || 5,
+          })
+        }}
+        style={{
+          width: '50%',
+          padding: '6px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+        }}
+      />
+    </div>
+  )
+}
+
+/**
+ * Monthly amount field for fixed monthly withdrawal strategy
+ */
+function MonthlyAmountField({
+  strategyId,
+  value,
+  onUpdate,
+}: {
+  strategyId: string
+  value: number | undefined
+  onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
+}) {
+  return (
+    <div style={{ gridColumn: 'span 2' }}>
+      <label
+        style={{
+          display: 'block',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          marginBottom: '5px',
+        }}
+      >
+        Monatlicher Betrag (€)
+      </label>
+      <input
+        type="number"
+        min="0"
+        step="100"
+        value={value || 2000}
+        onChange={(e) => {
+          onUpdate(strategyId, {
+            monatlicheBetrag: parseFloat(e.target.value) || 2000,
+          })
+        }}
+        style={{
+          width: '50%',
+          padding: '6px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+        }}
+      />
+    </div>
+  )
+}
+
+/**
+ * Dynamic strategy fields for dynamic withdrawal strategy
+ */
+function DynamicStrategyFields({
+  strategyId,
+  basisrate,
+  obereSchwell,
+  untereSchwell,
+  onUpdate,
+}: {
+  strategyId: string
+  basisrate: number | undefined
+  obereSchwell: number | undefined
+  untereSchwell: number | undefined
+  onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
+}) {
+  return (
+    <>
+      <div>
+        <label
+          style={{
+            display: 'block',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            marginBottom: '5px',
+          }}
+        >
+          Basis-Rate (%)
+        </label>
+        <input
+          type="number"
+          min="1"
+          max="10"
+          step="0.5"
+          value={basisrate || 4}
+          onChange={(e) => {
+            onUpdate(strategyId, {
+              dynamischBasisrate: parseFloat(e.target.value) || 4,
+            })
+          }}
+          style={{
+            width: '100%',
+            padding: '6px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+          }}
+        />
+      </div>
+      <div>
+        <label
+          style={{
+            display: 'block',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            marginBottom: '5px',
+          }}
+        >
+          Obere Schwelle (%)
+        </label>
+        <input
+          type="number"
+          min="0"
+          max="20"
+          step="0.5"
+          value={obereSchwell || 8}
+          onChange={(e) => {
+            onUpdate(strategyId, {
+              dynamischObereSchwell: parseFloat(e.target.value) || 8,
+            })
+          }}
+          style={{
+            width: '100%',
+            padding: '6px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+          }}
+        />
+      </div>
+      <div>
+        <label
+          style={{
+            display: 'block',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            marginBottom: '5px',
+          }}
+        >
+          Untere Schwelle (%)
+        </label>
+        <input
+          type="number"
+          min="-20"
+          max="0"
+          step="0.5"
+          value={untereSchwell || -8}
+          onChange={(e) => {
+            onUpdate(strategyId, {
+              dynamischUntereSchwell: parseFloat(e.target.value) || -8,
+            })
+          }}
+          style={{
+            width: '100%',
+            padding: '6px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+          }}
+        />
+      </div>
+    </>
+  )
+}
+
+/**
+ * Bucket strategy fields for bucket withdrawal strategy
+ */
+function BucketStrategyFields({
+  strategyId,
+  initialCash,
+  baseRate,
+  onUpdate,
+}: {
+  strategyId: string
+  initialCash: number | undefined
+  baseRate: number | undefined
+  onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
+}) {
+  return (
+    <>
+      <div>
+        <label
+          style={{
+            display: 'block',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            marginBottom: '5px',
+          }}
+        >
+          Cash-Polster (€)
+        </label>
+        <input
+          type="number"
+          min="1000"
+          step="1000"
+          value={initialCash || 20000}
+          onChange={(e) => {
+            onUpdate(strategyId, {
+              bucketInitialCash: parseFloat(e.target.value) || 20000,
+            })
+          }}
+          style={{
+            width: '100%',
+            padding: '6px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+          }}
+        />
+      </div>
+      <div>
+        <label
+          style={{
+            display: 'block',
+            fontSize: '12px',
+            fontWeight: 'bold',
+            marginBottom: '5px',
+          }}
+        >
+          Basis-Rate (%)
+        </label>
+        <input
+          type="number"
+          min="1"
+          max="10"
+          step="0.1"
+          value={baseRate || 4}
+          onChange={(e) => {
+            onUpdate(strategyId, {
+              bucketBaseRate: parseFloat(e.target.value) || 4,
+            })
+          }}
+          style={{
+            width: '100%',
+            padding: '6px',
+            border: '1px solid #ccc',
+            borderRadius: '4px',
+          }}
+        />
+      </div>
+    </>
+  )
+}
+
+/**
+ * Render strategy-specific fields based on strategy type
+ */
+function StrategySpecificFields({
+  strategy,
+  onUpdate,
+}: {
+  strategy: ComparisonStrategy
+  onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
+}) {
+  if (strategy.strategie === 'variabel_prozent') {
+    return (
+      <VariablePercentageField
+        strategyId={strategy.id}
+        value={strategy.variabelProzent}
+        onUpdate={onUpdate}
+      />
+    )
   }
+
+  if (strategy.strategie === 'monatlich_fest') {
+    return (
+      <MonthlyAmountField
+        strategyId={strategy.id}
+        value={strategy.monatlicheBetrag}
+        onUpdate={onUpdate}
+      />
+    )
+  }
+
+  if (strategy.strategie === 'dynamisch') {
+    return (
+      <DynamicStrategyFields
+        strategyId={strategy.id}
+        basisrate={strategy.dynamischBasisrate}
+        obereSchwell={strategy.dynamischObereSchwell}
+        untereSchwell={strategy.dynamischUntereSchwell}
+        onUpdate={onUpdate}
+      />
+    )
+  }
+
+  if (strategy.strategie === 'bucket_strategie') {
+    return (
+      <BucketStrategyFields
+        strategyId={strategy.id}
+        initialCash={strategy.bucketInitialCash}
+        baseRate={strategy.bucketBaseRate}
+        onUpdate={onUpdate}
+      />
+    )
+  }
+
+  return null
 }
 
 /**
@@ -161,199 +491,7 @@ export function ComparisonStrategyCard({
           />
         </div>
 
-        {strategy.strategie === 'variabel_prozent' && (
-          <div style={{ gridColumn: 'span 2' }}>
-            <label
-              style={{
-                display: 'block',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                marginBottom: '5px',
-              }}
-            >
-              Entnahme-Prozentsatz (%)
-            </label>
-            <input
-              type="number"
-              min="1"
-              max="10"
-              step="0.5"
-              value={strategy.variabelProzent || 4}
-              onChange={(e) => {
-                onUpdate(strategy.id, {
-                  variabelProzent: parseFloat(e.target.value) || 5,
-                })
-              }}
-              style={{
-                width: '50%',
-                padding: '6px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-              }}
-            />
-          </div>
-        )}
-
-        {strategy.strategie === 'monatlich_fest' && (
-          <div style={{ gridColumn: 'span 2' }}>
-            <label
-              style={{
-                display: 'block',
-                fontSize: '12px',
-                fontWeight: 'bold',
-                marginBottom: '5px',
-              }}
-            >
-              Monatlicher Betrag (€)
-            </label>
-            <input
-              type="number"
-              min="0"
-              step="100"
-              value={strategy.monatlicheBetrag || 2000}
-              onChange={(e) => {
-                onUpdate(strategy.id, {
-                  monatlicheBetrag: parseFloat(e.target.value) || 2000,
-                })
-              }}
-              style={{
-                width: '50%',
-                padding: '6px',
-                border: '1px solid #ccc',
-                borderRadius: '4px',
-              }}
-            />
-          </div>
-        )}
-
-        {strategy.strategie === 'dynamisch' && (
-          <>
-            <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  marginBottom: '5px',
-                }}
-              >
-                Basis-Rate (%)
-              </label>
-              <input
-                type="number"
-                min="1"
-                max="10"
-                step="0.5"
-                value={strategy.dynamischBasisrate || 4}
-                onChange={(e) => {
-                  onUpdate(strategy.id, {
-                    dynamischBasisrate: parseFloat(e.target.value) || 4,
-                  })
-                }}
-                style={{
-                  width: '100%',
-                  padding: '6px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                }}
-              />
-            </div>
-            <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  marginBottom: '5px',
-                }}
-              >
-                Obere Schwelle (%)
-              </label>
-              <input
-                type="number"
-                min="0"
-                max="20"
-                step="0.5"
-                value={strategy.dynamischObereSchwell || 8}
-                onChange={(e) => {
-                  onUpdate(strategy.id, {
-                    dynamischObereSchwell: parseFloat(e.target.value) || 8,
-                  })
-                }}
-                style={{
-                  width: '100%',
-                  padding: '6px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                }}
-              />
-            </div>
-          </>
-        )}
-
-        {strategy.strategie === 'bucket_strategie' && (
-          <>
-            <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  marginBottom: '5px',
-                }}
-              >
-                Cash-Polster (€)
-              </label>
-              <input
-                type="number"
-                min="1000"
-                step="1000"
-                value={strategy.bucketInitialCash || 20000}
-                onChange={(e) => {
-                  onUpdate(strategy.id, {
-                    bucketInitialCash: parseFloat(e.target.value) || 20000,
-                  })
-                }}
-                style={{
-                  width: '100%',
-                  padding: '6px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                }}
-              />
-            </div>
-            <div>
-              <label
-                style={{
-                  display: 'block',
-                  fontSize: '12px',
-                  fontWeight: 'bold',
-                  marginBottom: '5px',
-                }}
-              >
-                Basis-Rate (%)
-              </label>
-              <input
-                type="number"
-                min="1"
-                max="10"
-                step="0.1"
-                value={strategy.bucketBaseRate || 4}
-                onChange={(e) => {
-                  onUpdate(strategy.id, {
-                    bucketBaseRate: parseFloat(e.target.value) || 4,
-                  })
-                }}
-                style={{
-                  width: '100%',
-                  padding: '6px',
-                  border: '1px solid #ccc',
-                  borderRadius: '4px',
-                }}
-              />
-            </div>
-          </>
-        )}
+        <StrategySpecificFields strategy={strategy} onUpdate={onUpdate} />
       </div>
     </div>
   )

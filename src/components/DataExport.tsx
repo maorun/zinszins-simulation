@@ -8,6 +8,47 @@ import { useSimulation } from '../contexts/useSimulation'
 import { useNestingLevel } from '../lib/nesting-utils'
 import { useNavigationItem } from '../hooks/useNavigationItem'
 
+function hasWithdrawalCapability(
+  hasWithdrawalData: boolean,
+  hasWithdrawalConfig: boolean,
+  hasWithdrawalConfigFromStorage: boolean,
+  hasSavingsData: boolean,
+  withdrawalConfig: any,
+): boolean {
+  return hasWithdrawalData
+    || hasWithdrawalConfig
+    || hasWithdrawalConfigFromStorage
+    || (hasSavingsData && !!withdrawalConfig)
+}
+
+function getExportButtonState(
+  isExporting: boolean,
+  exportResult: string | null,
+  exportType: string | null,
+  buttonType: string,
+) {
+  if (isExporting && exportType === buttonType) {
+    return { text: 'Exportiere...', variant: 'default' as const }
+  }
+  if (exportResult === 'success' && exportType === buttonType) {
+    return { text: '✓ Erfolg!', variant: 'secondary' as const }
+  }
+  if (exportResult === 'error' && exportType === buttonType) {
+    return { text: '✗ Fehler', variant: 'destructive' as const }
+  }
+
+  const defaultTexts = {
+    csv: 'CSV herunterladen',
+    markdown: 'Markdown herunterladen',
+    clipboard: 'Formeln kopieren',
+  }
+
+  return {
+    text: defaultTexts[buttonType as keyof typeof defaultTexts] || 'Export',
+    variant: 'default' as const,
+  }
+}
+
 const DataExport = () => {
   const {
     exportParameters,
@@ -52,49 +93,33 @@ const DataExport = () => {
   }
 
   const getDataExportButtonText = (buttonType: 'csv' | 'markdown' | 'clipboard') => {
-    if (isDataExporting && exportType === buttonType) {
-      return 'Exportiere...'
-    }
-    if (dataExportResult === 'success' && exportType === buttonType) {
-      return '✓ Erfolg!'
-    }
-    if (dataExportResult === 'error' && exportType === buttonType) {
-      return '✗ Fehler'
-    }
-
-    switch (buttonType) {
-      case 'csv':
-        return 'CSV herunterladen'
-      case 'markdown':
-        return 'Markdown herunterladen'
-      case 'clipboard':
-        return 'Formeln kopieren'
-      default:
-        return 'Export'
-    }
+    const state = getExportButtonState(isDataExporting, dataExportResult, exportType, buttonType)
+    return state.text
   }
 
   const getDataExportButtonVariant = (buttonType: 'csv' | 'markdown' | 'clipboard') => {
-    if (dataExportResult === 'success' && exportType === buttonType) return 'secondary'
-    if (dataExportResult === 'error' && exportType === buttonType) return 'destructive'
-    return 'default'
+    const state = getExportButtonState(isDataExporting, dataExportResult, exportType, buttonType)
+    return state.variant
   }
 
-  const hasSavingsData = simulationData?.sparplanElements && simulationData.sparplanElements.length > 0
-  const hasWithdrawalData = withdrawalResults && Object.keys(withdrawalResults).length > 0
-  const hasWithdrawalConfig = withdrawalConfig && withdrawalConfig.formValue
+  const hasSavingsData = !!(simulationData?.sparplanElements && simulationData.sparplanElements.length > 0)
+  const hasWithdrawalData = !!(withdrawalResults && Object.keys(withdrawalResults).length > 0)
+  const hasWithdrawalConfig = !!(withdrawalConfig && withdrawalConfig.formValue)
   // Enhanced detection: check for withdrawal configuration that might be loaded from localStorage
-  const hasWithdrawalConfigFromStorage = withdrawalConfig && (
+  const hasWithdrawalConfigFromStorage = !!(withdrawalConfig && (
     withdrawalConfig.formValue
     || withdrawalConfig.useSegmentedWithdrawal
     || withdrawalConfig.withdrawalSegments?.length > 0
-  )
+  ))
   // More robust detection: withdrawal capability exists if we have either results,
   // config, or both savings data and basic setup
-  const hasWithdrawalCapability = hasWithdrawalData
-    || hasWithdrawalConfig
-    || hasWithdrawalConfigFromStorage
-    || (hasSavingsData && withdrawalConfig)
+  const hasWithdrawalCapabilityValue = hasWithdrawalCapability(
+    hasWithdrawalData,
+    hasWithdrawalConfig,
+    hasWithdrawalConfigFromStorage,
+    hasSavingsData,
+    withdrawalConfig,
+  )
   const hasAnyData = hasSavingsData
     || hasWithdrawalData
     || hasWithdrawalConfig
@@ -181,7 +206,7 @@ const DataExport = () => {
                         </Button>
                       )}
 
-                      {hasWithdrawalCapability && (
+                      {hasWithdrawalCapabilityValue && (
                         <Button
                           variant={getDataExportButtonVariant('csv')}
                           size="sm"
@@ -194,7 +219,7 @@ const DataExport = () => {
                         </Button>
                       )}
 
-                      {hasSavingsData && hasWithdrawalCapability && (
+                      {hasSavingsData && hasWithdrawalCapabilityValue && (
                         <Button
                           variant={getDataExportButtonVariant('csv')}
                           size="sm"

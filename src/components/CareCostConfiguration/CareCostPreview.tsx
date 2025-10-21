@@ -9,6 +9,96 @@ interface CareCostPreviewProps {
   nestingLevel: number
 }
 
+/**
+ * Cost details grid component
+ */
+function CostDetailsGrid({ previewResult }: { previewResult: CareCostYearResult }) {
+  return (
+    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
+      <div>
+        <span className="font-medium">Brutto-Pflegekosten:</span>
+        <br />
+        {formatCurrency(previewResult.monthlyCostsGross)}
+        /Monat
+      </div>
+      <div>
+        <span className="font-medium">Gesetzliche Leistungen:</span>
+        <br />
+        {formatCurrency(previewResult.monthlyStatutoryBenefits)}
+        /Monat
+      </div>
+      <div>
+        <span className="font-medium">Private Leistungen:</span>
+        <br />
+        {formatCurrency(previewResult.monthlyPrivateBenefits)}
+        /Monat
+      </div>
+      <div>
+        <span className="font-medium">Netto-Eigenanteil:</span>
+        <br />
+        <span className="text-lg font-semibold text-green-800">
+          {formatCurrency(previewResult.monthlyCostsNet)}
+          /Monat
+        </span>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Annual costs summary component
+ */
+function AnnualCostsSummary({ previewResult }: { previewResult: CareCostYearResult }) {
+  return (
+    <div className="md:col-span-2 pt-2 border-t border-green-300">
+      <span className="font-medium">Jährliche Netto-Kosten:</span>
+      <br />
+      <span className="text-lg font-semibold text-green-800">
+        {formatCurrency(previewResult.annualCostsNet)}
+      </span>
+      {previewResult.taxDeductionAmount > 0 && (
+        <>
+          <br />
+          <span className="text-sm text-muted-foreground">
+            Steuerabzug:
+            {' '}
+            {formatCurrency(previewResult.taxDeductionAmount)}
+          </span>
+        </>
+      )}
+    </div>
+  )
+}
+
+/**
+ * Couple results breakdown component
+ */
+function CoupleResultsBreakdown({ coupleResults }: { coupleResults: CareCostYearResult['coupleResults'] }) {
+  if (!coupleResults) return null
+
+  return (
+    <div className="md:col-span-2 pt-2 border-t border-green-300">
+      <div className="font-medium mb-2">Paar-Aufschlüsselung:</div>
+      <div className="grid grid-cols-2 gap-4 text-sm">
+        <div>
+          <span className="font-medium">Person 1:</span>
+          <br />
+          {coupleResults.person1.needsCare
+            ? `${formatCurrency(coupleResults.person1.monthlyCostsNet)}/Monat`
+            : 'Keine Pflege benötigt'}
+        </div>
+        <div>
+          <span className="font-medium">Person 2:</span>
+          <br />
+          {coupleResults.person2.needsCare
+            ? `${formatCurrency(coupleResults.person2.monthlyCostsNet)}/Monat`
+            : 'Keine Pflege benötigt'}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export function CareCostPreview({
   previewYear,
   previewResult,
@@ -30,71 +120,9 @@ export function CareCostPreview({
       </CardHeader>
       <CardContent nestingLevel={nestingLevel + 1}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-          <div>
-            <span className="font-medium">Brutto-Pflegekosten:</span>
-            <br />
-            {formatCurrency(previewResult.monthlyCostsGross)}
-            /Monat
-          </div>
-          <div>
-            <span className="font-medium">Gesetzliche Leistungen:</span>
-            <br />
-            {formatCurrency(previewResult.monthlyStatutoryBenefits)}
-            /Monat
-          </div>
-          <div>
-            <span className="font-medium">Private Leistungen:</span>
-            <br />
-            {formatCurrency(previewResult.monthlyPrivateBenefits)}
-            /Monat
-          </div>
-          <div>
-            <span className="font-medium">Netto-Eigenanteil:</span>
-            <br />
-            <span className="text-lg font-semibold text-green-800">
-              {formatCurrency(previewResult.monthlyCostsNet)}
-              /Monat
-            </span>
-          </div>
-          <div className="md:col-span-2 pt-2 border-t border-green-300">
-            <span className="font-medium">Jährliche Netto-Kosten:</span>
-            <br />
-            <span className="text-lg font-semibold text-green-800">
-              {formatCurrency(previewResult.annualCostsNet)}
-            </span>
-            {previewResult.taxDeductionAmount > 0 && (
-              <>
-                <br />
-                <span className="text-sm text-muted-foreground">
-                  Steuerabzug:
-                  {' '}
-                  {formatCurrency(previewResult.taxDeductionAmount)}
-                </span>
-              </>
-            )}
-          </div>
-
-          {previewResult.coupleResults && (
-            <div className="md:col-span-2 pt-2 border-t border-green-300">
-              <div className="font-medium mb-2">Paar-Aufschlüsselung:</div>
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div>
-                  <span className="font-medium">Person 1:</span>
-                  <br />
-                  {previewResult.coupleResults.person1.needsCare
-                    ? `${formatCurrency(previewResult.coupleResults.person1.monthlyCostsNet)}/Monat`
-                    : 'Keine Pflege benötigt'}
-                </div>
-                <div>
-                  <span className="font-medium">Person 2:</span>
-                  <br />
-                  {previewResult.coupleResults.person2.needsCare
-                    ? `${formatCurrency(previewResult.coupleResults.person2.monthlyCostsNet)}/Monat`
-                    : 'Keine Pflege benötigt'}
-                </div>
-              </div>
-            </div>
-          )}
+          <CostDetailsGrid previewResult={previewResult} />
+          <AnnualCostsSummary previewResult={previewResult} />
+          <CoupleResultsBreakdown coupleResults={previewResult.coupleResults} />
         </div>
       </CardContent>
     </Card>

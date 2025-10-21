@@ -4,6 +4,7 @@ import { Label } from './ui/label'
 import { Button } from './ui/button'
 import {
   type CareCostConfiguration,
+  type CareCostYearResult,
   createDefaultCareCostConfiguration,
   calculateCareCostsForYear,
   validateCareCostConfiguration,
@@ -33,6 +34,98 @@ interface CareCostConfigurationProps {
   nestingLevel?: number
 }
 
+/**
+ * Check if preview should be shown
+ */
+function shouldShowPreview(
+  previewResult: ReturnType<typeof calculateCareCostsForYear> | null,
+  validationErrors: string[],
+): boolean {
+  return !!(previewResult && previewResult.careNeeded && validationErrors.length === 0)
+}
+
+/**
+ * Care cost configuration fields
+ */
+function CareCostConfigFields({
+  values,
+  onChange,
+  currentYear,
+  planningMode,
+  nestingLevel,
+  validationErrors,
+  showPreview,
+  previewResult,
+  previewYear,
+}: {
+  values: CareCostConfiguration
+  onChange: (config: CareCostConfiguration) => void
+  currentYear: number
+  planningMode: 'individual' | 'couple'
+  nestingLevel: number
+  validationErrors: string[]
+  showPreview: boolean
+  previewResult: CareCostYearResult | null
+  previewYear: number
+}) {
+  return (
+    <>
+      <BasicCareCostFields
+        values={values}
+        onChange={onChange}
+        currentYear={currentYear}
+      />
+
+      <CareLevelSelector
+        careLevel={values.careLevel}
+        onChange={careLevel => onChange({ ...values, careLevel })}
+      />
+
+      <InflationRateSlider
+        value={values.careInflationRate}
+        onChange={careInflationRate => onChange({ ...values, careInflationRate })}
+      />
+
+      <InsuranceAndBenefitsFields
+        values={values}
+        onChange={onChange}
+      />
+
+      {planningMode === 'couple' && (
+        <CoupleCareCostConfig
+          values={values}
+          onChange={onChange}
+          currentYear={currentYear}
+          nestingLevel={nestingLevel}
+        />
+      )}
+
+      <CareCostValidationErrors
+        errors={validationErrors}
+        nestingLevel={nestingLevel}
+      />
+
+      {showPreview && previewResult && (
+        <CareCostPreview
+          previewYear={previewYear}
+          previewResult={previewResult}
+          nestingLevel={nestingLevel}
+        />
+      )}
+
+      <div className="pt-4 border-t">
+        <Button
+          variant="outline"
+          size="sm"
+          onClick={() => onChange(createDefaultCareCostConfiguration())}
+        >
+          Auf Standardwerte zurücksetzen
+        </Button>
+      </div>
+    </>
+  )
+}
+
 export function CareCostConfiguration({
   values,
   onChange,
@@ -47,6 +140,7 @@ export function CareCostConfiguration({
   const previewResult = values.enabled
     ? calculateCareCostsForYear(values, previewYear, birthYear, spouseBirthYear)
     : null
+  const showPreview = shouldShowPreview(previewResult, validationErrors)
 
   return (
     <Card nestingLevel={nestingLevel} className="mb-4">
@@ -69,60 +163,17 @@ export function CareCostConfiguration({
         </div>
 
         {values.enabled && (
-          <>
-            <BasicCareCostFields
-              values={values}
-              onChange={onChange}
-              currentYear={currentYear}
-            />
-
-            <CareLevelSelector
-              careLevel={values.careLevel}
-              onChange={careLevel => onChange({ ...values, careLevel })}
-            />
-
-            <InflationRateSlider
-              value={values.careInflationRate}
-              onChange={careInflationRate => onChange({ ...values, careInflationRate })}
-            />
-
-            <InsuranceAndBenefitsFields
-              values={values}
-              onChange={onChange}
-            />
-
-            {planningMode === 'couple' && (
-              <CoupleCareCostConfig
-                values={values}
-                onChange={onChange}
-                currentYear={currentYear}
-                nestingLevel={nestingLevel}
-              />
-            )}
-
-            <CareCostValidationErrors
-              errors={validationErrors}
-              nestingLevel={nestingLevel}
-            />
-
-            {previewResult && previewResult.careNeeded && validationErrors.length === 0 && (
-              <CareCostPreview
-                previewYear={previewYear}
-                previewResult={previewResult}
-                nestingLevel={nestingLevel}
-              />
-            )}
-
-            <div className="pt-4 border-t">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={() => onChange(createDefaultCareCostConfiguration())}
-              >
-                Auf Standardwerte zurücksetzen
-              </Button>
-            </div>
-          </>
+          <CareCostConfigFields
+            values={values}
+            onChange={onChange}
+            currentYear={currentYear}
+            planningMode={planningMode}
+            nestingLevel={nestingLevel}
+            validationErrors={validationErrors}
+            showPreview={showPreview}
+            previewResult={previewResult}
+            previewYear={previewYear}
+          />
         )}
       </CardContent>
     </Card>

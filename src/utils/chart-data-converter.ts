@@ -1,5 +1,38 @@
 import type { SparplanElement } from '../utils/sparplan-utils'
-import type { SimulationResult, VorabpauschaleDetails } from '../utils/simulate'
+import type { SimulationResult, SimulationResultElement, VorabpauschaleDetails } from '../utils/simulate'
+
+/**
+ * Accumulate an optional numeric field from data into result for a given year
+ * Only works for numeric fields, not complex objects
+ */
+function accumulateOptionalField(
+  result: SimulationResult,
+  year: number,
+  fieldName: 'startkapitalReal' | 'zinsenReal' | 'endkapitalReal' | 'terCosts' | 'transactionCosts' | 'totalCosts',
+  value: number | undefined,
+): void {
+  if (value === undefined) return
+
+  const currentValue = result[year][fieldName] as number | undefined
+  result[year][fieldName] = (currentValue ?? 0) + value
+}
+
+/**
+ * Initialize year data in result if it doesn't exist
+ */
+function initializeYearData(result: SimulationResult, year: number): void {
+  if (!result[year]) {
+    result[year] = {
+      startkapital: 0,
+      zinsen: 0,
+      endkapital: 0,
+      bezahlteSteuer: 0,
+      genutzterFreibetrag: 0,
+      vorabpauschale: 0,
+      vorabpauschaleAccumulated: 0,
+    }
+  }
+}
 
 /**
  * Convert SparplanElement[] to SimulationResult format for use with InteractiveChart
@@ -18,17 +51,7 @@ export function convertSparplanElementsToSimulationResult(
     Object.entries(element.simulation).forEach(([yearStr, data]) => {
       const year = parseInt(yearStr, 10)
 
-      if (!result[year]) {
-        result[year] = {
-          startkapital: 0,
-          zinsen: 0,
-          endkapital: 0,
-          bezahlteSteuer: 0,
-          genutzterFreibetrag: 0,
-          vorabpauschale: 0,
-          vorabpauschaleAccumulated: 0,
-        }
-      }
+      initializeYearData(result, year)
 
       // Accumulate values from all elements for this year
       result[year].startkapital += data.startkapital
@@ -39,55 +62,50 @@ export function convertSparplanElementsToSimulationResult(
       result[year].vorabpauschale += data.vorabpauschale
       result[year].vorabpauschaleAccumulated += data.vorabpauschaleAccumulated
 
-      // Copy over optional values if they exist
-      if (data.startkapitalReal !== undefined) {
-        if (result[year].startkapitalReal === undefined) {
-          result[year].startkapitalReal = 0
-        }
-        result[year].startkapitalReal! += data.startkapitalReal
-      }
+      // Accumulate optional values if they exist
+      accumulateOptionalField(result, year, 'startkapitalReal', data.startkapitalReal)
+      accumulateOptionalField(result, year, 'zinsenReal', data.zinsenReal)
+      accumulateOptionalField(result, year, 'endkapitalReal', data.endkapitalReal)
+      accumulateOptionalField(result, year, 'terCosts', data.terCosts)
+      accumulateOptionalField(result, year, 'transactionCosts', data.transactionCosts)
+      accumulateOptionalField(result, year, 'totalCosts', data.totalCosts)
 
-      if (data.zinsenReal !== undefined) {
-        if (result[year].zinsenReal === undefined) {
-          result[year].zinsenReal = 0
-        }
-        result[year].zinsenReal! += data.zinsenReal
-      }
-
-      if (data.endkapitalReal !== undefined) {
-        if (result[year].endkapitalReal === undefined) {
-          result[year].endkapitalReal = 0
-        }
-        result[year].endkapitalReal! += data.endkapitalReal
-      }
-
-      // Copy over other optional fields
+      // Copy over Vorabpauschale details (not accumulated, just copied)
       if (data.vorabpauschaleDetails) {
         result[year].vorabpauschaleDetails = data.vorabpauschaleDetails
       }
-
-      if (data.terCosts !== undefined) {
-        if (result[year].terCosts === undefined) {
-          result[year].terCosts = 0
-        }
-        result[year].terCosts! += data.terCosts
-      }
-
-      if (data.transactionCosts !== undefined) {
-        if (result[year].transactionCosts === undefined) {
-          result[year].transactionCosts = 0
-        }
-        result[year].transactionCosts! += data.transactionCosts
-      }
-
-      if (data.totalCosts !== undefined) {
-        if (result[year].totalCosts === undefined) {
-          result[year].totalCosts = 0
-        }
-        result[year].totalCosts! += data.totalCosts
-      }
     })
   })
+
+  return result
+}
+
+/**
+ * Safely extract a numeric value from an object
+ */
+function safeNumericValue(obj: Record<string, unknown>, key: string): number {
+  const value = obj[key]
+  return typeof value === 'number' ? value : 0
+}
+
+/**
+ * Convert a single year's withdrawal data to simulation result format
+ */
+function convertYearData(yearData: Record<string, unknown>): SimulationResultElement {
+  const result: SimulationResultElement = {
+    startkapital: safeNumericValue(yearData, 'startkapital'),
+    zinsen: safeNumericValue(yearData, 'zinsen'),
+    endkapital: safeNumericValue(yearData, 'endkapital'),
+    bezahlteSteuer: safeNumericValue(yearData, 'bezahlteSteuer'),
+    genutzterFreibetrag: safeNumericValue(yearData, 'genutzterFreibetrag'),
+    vorabpauschale: safeNumericValue(yearData, 'vorabpauschale'),
+    vorabpauschaleAccumulated: 0, // Not typically used in withdrawal phase
+  }
+
+  // Copy over optional vorabpauschale details if present
+  if (yearData.vorabpauschaleDetails && typeof yearData.vorabpauschaleDetails === 'object') {
+    result.vorabpauschaleDetails = yearData.vorabpauschaleDetails as VorabpauschaleDetails
+  }
 
   return result
 }
@@ -111,28 +129,7 @@ export function convertWithdrawalResultToSimulationResult(
 
     // Type assertion for data object properties
     const yearData = data as Record<string, unknown>
-
-    result[year] = {
-      startkapital: (typeof yearData.startkapital === 'number' ? yearData.startkapital : 0),
-      zinsen: (typeof yearData.zinsen === 'number' ? yearData.zinsen : 0),
-      endkapital: (typeof yearData.endkapital === 'number' ? yearData.endkapital : 0),
-      bezahlteSteuer: (typeof yearData.bezahlteSteuer === 'number' ? yearData.bezahlteSteuer : 0),
-      genutzterFreibetrag: (typeof yearData.genutzterFreibetrag === 'number' ? yearData.genutzterFreibetrag : 0),
-      vorabpauschale: (typeof yearData.vorabpauschale === 'number' ? yearData.vorabpauschale : 0),
-      vorabpauschaleAccumulated: 0, // Not typically used in withdrawal phase
-    }
-
-    // Copy over optional fields that might exist in withdrawal data
-    if (yearData.vorabpauschaleDetails && typeof yearData.vorabpauschaleDetails === 'object') {
-      result[year].vorabpauschaleDetails = yearData.vorabpauschaleDetails as VorabpauschaleDetails
-    }
-
-    // Note: einkommensteuer and genutzterGrundfreibetrag are specific to withdrawal phase
-    // and don't exist in SimulationResultElement, so we don't copy them
-    // The chart will display the standard fields: capital, interest, taxes, etc.
-
-    // Note: Withdrawal phase typically doesn't have real values like savings phase
-    // since inflation adjustments are handled differently in withdrawal calculations
+    result[year] = convertYearData(yearData)
   })
 
   return result

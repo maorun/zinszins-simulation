@@ -285,6 +285,43 @@ export interface MultiAssetSimulationResult {
 }
 
 /**
+ * Validate individual asset class configuration
+ */
+function validateAssetClass(assetConfig: AssetClassConfig): string[] {
+  const errors: string[] = []
+
+  if (assetConfig.targetAllocation < 0 || assetConfig.targetAllocation > 1) {
+    errors.push(`${assetConfig.name}: Allokation muss zwischen 0% und 100% liegen`)
+  }
+
+  if (assetConfig.expectedReturn < -0.5 || assetConfig.expectedReturn > 0.5) {
+    errors.push(`${assetConfig.name}: Erwartete Rendite muss zwischen -50% und 50% liegen`)
+  }
+
+  if (assetConfig.volatility < 0 || assetConfig.volatility > 1) {
+    errors.push(`${assetConfig.name}: Volatilität muss zwischen 0% und 100% liegen`)
+  }
+
+  return errors
+}
+
+/**
+ * Validate total allocation sums to 100%
+ */
+function validateTotalAllocation(
+  enabledAssets: Array<[string, AssetClassConfig]>,
+): string[] {
+  const totalAllocation = enabledAssets
+    .reduce((sum, [_, assetConfig]) => sum + assetConfig.targetAllocation, 0)
+
+  if (Math.abs(totalAllocation - 1.0) > 0.001) {
+    return [`Die Gesamtallokation muss 100% betragen (aktuell: ${(totalAllocation * 100).toFixed(1)}%)`]
+  }
+
+  return []
+}
+
+/**
  * Validate multi-asset portfolio configuration
  */
 export function validateMultiAssetConfig(config: MultiAssetPortfolioConfig): string[] {
@@ -303,26 +340,12 @@ export function validateMultiAssetConfig(config: MultiAssetPortfolioConfig): str
     return errors
   }
 
-  const totalAllocation = enabledAssets
-    .reduce((sum, [_, assetConfig]) => sum + assetConfig.targetAllocation, 0)
-
-  if (Math.abs(totalAllocation - 1.0) > 0.001) {
-    errors.push(`Die Gesamtallokation muss 100% betragen (aktuell: ${(totalAllocation * 100).toFixed(1)}%)`)
-  }
+  // Validate total allocation
+  errors.push(...validateTotalAllocation(enabledAssets))
 
   // Validate individual asset configurations
   for (const [, assetConfig] of enabledAssets) {
-    if (assetConfig.targetAllocation < 0 || assetConfig.targetAllocation > 1) {
-      errors.push(`${assetConfig.name}: Allokation muss zwischen 0% und 100% liegen`)
-    }
-
-    if (assetConfig.expectedReturn < -0.5 || assetConfig.expectedReturn > 0.5) {
-      errors.push(`${assetConfig.name}: Erwartete Rendite muss zwischen -50% und 50% liegen`)
-    }
-
-    if (assetConfig.volatility < 0 || assetConfig.volatility > 1) {
-      errors.push(`${assetConfig.name}: Volatilität muss zwischen 0% und 100% liegen`)
-    }
+    errors.push(...validateAssetClass(assetConfig))
   }
 
   // Validate rebalancing configuration

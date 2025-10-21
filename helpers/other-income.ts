@@ -175,114 +175,167 @@ export interface OtherIncomeConfiguration {
 /**
  * Calculate other income for a specific source and year
  */
-export function calculateOtherIncomeForYear(
-  source: OtherIncomeSource,
-  year: number,
-): OtherIncomeYearResult | null {
-  // Check if this income source is active for this year
-  if (!source.enabled || year < source.startYear || (source.endYear && year > source.endYear)) {
-    return null
-  }
+// Helper: Check if income source is active for year
+function isIncomeActiveForYear(source: OtherIncomeSource, year: number): boolean {
+  return source.enabled && year >= source.startYear && (!source.endYear || year <= source.endYear)
+}
 
-  // Calculate inflation adjustment
-  const yearsFromStart = year - source.startYear
-  const inflationFactor = Math.pow(1 + source.inflationRate / 100, yearsFromStart)
+// Helper: Calculate rental income details
+function calculateRealEstateIncome(
+  config: RealEstateConfig,
+  grossAnnualAmount: number,
+  yearsFromStart: number,
+): { netIncome: number, details: OtherIncomeYearResult['realEstateDetails'] } {
+  const vacancyLoss = grossAnnualAmount * (config.vacancyRatePercent / 100)
+  const incomeAfterVacancy = grossAnnualAmount - vacancyLoss
+  const maintenanceCosts = grossAnnualAmount * (config.maintenanceCostPercent / 100)
+  const annualMortgagePayment = config.monthlyMortgagePayment * 12
+  const netRentalIncome = incomeAfterVacancy - maintenanceCosts - annualMortgagePayment
 
-  // Calculate gross amounts with inflation adjustment
-  let grossMonthlyAmount = source.monthlyAmount * inflationFactor
-  let grossAnnualAmount = grossMonthlyAmount * 12
+  const appreciationFactor = Math.pow(1 + config.propertyAppreciationRate / 100, yearsFromStart)
+  const currentPropertyValue = config.propertyValue * appreciationFactor
+  const previousValue = yearsFromStart > 0
+    ? config.propertyValue * Math.pow(1 + config.propertyAppreciationRate / 100, yearsFromStart - 1)
+    : config.propertyValue
+  const annualAppreciation = config.includeAppreciation ? currentPropertyValue - previousValue : 0
 
-  let realEstateDetails: OtherIncomeYearResult['realEstateDetails']
-
-  // Apply real estate-specific calculations for rental income
-  if (source.type === 'rental' && source.realEstateConfig) {
-    const config = source.realEstateConfig
-
-    // Calculate vacancy loss
-    const vacancyLoss = grossAnnualAmount * (config.vacancyRatePercent / 100)
-    const incomeAfterVacancy = grossAnnualAmount - vacancyLoss
-
-    // Calculate maintenance costs
-    const maintenanceCosts = grossAnnualAmount * (config.maintenanceCostPercent / 100)
-
-    // Calculate mortgage payment impact
-    const annualMortgagePayment = config.monthlyMortgagePayment * 12
-
-    // Net rental income after all real estate costs
-    const netRentalIncome = incomeAfterVacancy - maintenanceCosts - annualMortgagePayment
-
-    // Calculate property appreciation
-    const appreciationFactor = Math.pow(1 + config.propertyAppreciationRate / 100, yearsFromStart)
-    const currentPropertyValue = config.propertyValue * appreciationFactor
-    const annualAppreciation = config.includeAppreciation
-      ? currentPropertyValue - (yearsFromStart > 0
-        ? config.propertyValue * Math.pow(1 + config.propertyAppreciationRate / 100, yearsFromStart - 1)
-        : config.propertyValue)
-      : 0
-
-    // Update gross amounts to reflect real estate costs
-    grossAnnualAmount = Math.max(0, netRentalIncome)
-    grossMonthlyAmount = grossAnnualAmount / 12
-
-    realEstateDetails = {
+  return {
+    netIncome: Math.max(0, netRentalIncome),
+    details: {
       maintenanceCosts,
       vacancyLoss,
       propertyValue: currentPropertyValue,
       annualAppreciation,
       netRentalIncome: Math.max(0, netRentalIncome),
-    }
+    },
+  }
+}
+
+// Helper: Calculate Kindergeld status
+function calculateKindergeldStatus(
+  config: KindergeldConfig,
+  year: number,
+): { isActive: boolean, childAge: number, endReason?: string } {
+  const childAge = year - config.childBirthYear
+  let isActive = true
+  let endReason: string | undefined
+
+  if (childAge < 0) {
+    isActive = false
+    endReason = 'Kind noch nicht geboren'
+  }
+  else if (childAge >= 18 && !config.inEducation) {
+    isActive = false
+    endReason = 'Kind ist 18 oder älter (nicht in Ausbildung)'
+  }
+  else if (childAge >= 25) {
+    isActive = false
+    endReason = 'Kind ist 25 oder älter'
   }
 
+  return { isActive, childAge, endReason }
+}
+
+function calculateGrossAmounts(
+  source: OtherIncomeSource,
+  yearsFromStart: number,
+  inflationFactor: number,
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  realEstateDetails?: OtherIncomeYearResult['realEstateDetails']
+  kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
+} {
+  let grossMonthlyAmount = source.monthlyAmount * inflationFactor
+  let grossAnnualAmount = grossMonthlyAmount * 12
+  let realEstateDetails: OtherIncomeYearResult['realEstateDetails']
   let kindergeldDetails: OtherIncomeYearResult['kindergeldDetails']
 
-  // Apply Kindergeld-specific calculations
-  if (source.type === 'kindergeld' && source.kindergeldConfig) {
-    const config = source.kindergeldConfig
-    const childAge = year - config.childBirthYear
+  if (source.type === 'rental' && source.realEstateConfig) {
+    const result = calculateRealEstateIncome(source.realEstateConfig, grossAnnualAmount, yearsFromStart)
+    grossAnnualAmount = result.netIncome
+    grossMonthlyAmount = grossAnnualAmount / 12
+    realEstateDetails = result.details
+  }
 
-    // Determine if Kindergeld is still being paid based on age
-    let isActive = true
-    let endReason: string | undefined
+  return { grossMonthlyAmount, grossAnnualAmount, realEstateDetails, kindergeldDetails }
+}
 
-    if (childAge < 0) {
-      // Child not yet born
-      isActive = false
-      endReason = 'Kind noch nicht geboren'
-    }
-    else if (childAge >= 18 && !config.inEducation) {
-      // Child is 18 or older and not in education
-      isActive = false
-      endReason = 'Kind ist 18 oder älter (nicht in Ausbildung)'
-    }
-    else if (childAge >= 25) {
-      // Child is 25 or older (even in education)
-      isActive = false
-      endReason = 'Kind ist 25 oder älter'
-    }
+function applyKindergeldLogic(
+  source: OtherIncomeSource,
+  year: number,
+  amounts: { grossMonthlyAmount: number, grossAnnualAmount: number },
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
+} {
+  if (source.type !== 'kindergeld' || !source.kindergeldConfig) {
+    return amounts
+  }
 
-    kindergeldDetails = {
-      childAge,
-      isActive,
-      endReason,
-    }
-
-    // If Kindergeld ended, set amounts to zero
-    if (!isActive) {
-      grossAnnualAmount = 0
-      grossMonthlyAmount = 0
+  const status = calculateKindergeldStatus(source.kindergeldConfig, year)
+  if (!status.isActive) {
+    return {
+      grossMonthlyAmount: 0,
+      grossAnnualAmount: 0,
+      kindergeldDetails: status,
     }
   }
 
-  let taxAmount = 0
-  let netAnnualAmount = grossAnnualAmount
-  let netMonthlyAmount = grossMonthlyAmount
-
-  // Apply taxes if this is gross income
-  if (source.amountType === 'gross') {
-    taxAmount = grossAnnualAmount * (source.taxRate / 100)
-    netAnnualAmount = grossAnnualAmount - taxAmount
-    netMonthlyAmount = netAnnualAmount / 12
+  return {
+    ...amounts,
+    kindergeldDetails: status,
   }
+}
+
+function calculateTaxAndNet(
+  source: OtherIncomeSource,
+  grossAnnualAmount: number,
+): { taxAmount: number, netAnnualAmount: number, netMonthlyAmount: number } {
+  if (source.amountType !== 'gross') {
+    return {
+      taxAmount: 0,
+      netAnnualAmount: grossAnnualAmount,
+      netMonthlyAmount: grossAnnualAmount / 12,
+    }
+  }
+
+  const taxAmount = grossAnnualAmount * (source.taxRate / 100)
+  const netAnnualAmount = grossAnnualAmount - taxAmount
+  return {
+    taxAmount,
+    netAnnualAmount,
+    netMonthlyAmount: netAnnualAmount / 12,
+  }
+}
+
+export function calculateOtherIncomeForYear(
+  source: OtherIncomeSource,
+  year: number,
+): OtherIncomeYearResult | null {
+  if (!isIncomeActiveForYear(source, year)) {
+    return null
+  }
+
+  const yearsFromStart = year - source.startYear
+  const inflationFactor = Math.pow(1 + source.inflationRate / 100, yearsFromStart)
+
+  const {
+    grossMonthlyAmount: initialGrossMonthly,
+    grossAnnualAmount: initialGrossAnnual,
+    realEstateDetails,
+  } = calculateGrossAmounts(source, yearsFromStart, inflationFactor)
+
+  const kindergeldResult = applyKindergeldLogic(source, year, {
+    grossMonthlyAmount: initialGrossMonthly,
+    grossAnnualAmount: initialGrossAnnual,
+  })
+  const grossMonthlyAmount = kindergeldResult.grossMonthlyAmount
+  const grossAnnualAmount = kindergeldResult.grossAnnualAmount
+  const kindergeldDetails = kindergeldResult.kindergeldDetails
+
+  const { taxAmount, netAnnualAmount, netMonthlyAmount } = calculateTaxAndNet(source, grossAnnualAmount)
 
   const result: OtherIncomeYearResult = {
     source,
@@ -294,13 +347,8 @@ export function calculateOtherIncomeForYear(
     inflationFactor,
   }
 
-  if (realEstateDetails) {
-    result.realEstateDetails = realEstateDetails
-  }
-
-  if (kindergeldDetails) {
-    result.kindergeldDetails = kindergeldDetails
-  }
+  if (realEstateDetails) result.realEstateDetails = realEstateDetails
+  if (kindergeldDetails) result.kindergeldDetails = kindergeldDetails
 
   return result
 }
@@ -345,6 +393,36 @@ export function calculateOtherIncome(
 }
 
 /**
+ * Get default monthly amount for income type
+ */
+function getDefaultMonthlyAmount(type: IncomeType): number {
+  if (type === 'rental') return 1000
+  if (type === 'kindergeld') return 250
+  return 800
+}
+
+/**
+ * Get default amount type for income type
+ */
+function getDefaultAmountType(type: IncomeType): 'gross' | 'net' {
+  return type === 'kindergeld' ? 'net' : 'gross'
+}
+
+/**
+ * Get default inflation rate for income type
+ */
+function getDefaultInflationRate(type: IncomeType): number {
+  return type === 'kindergeld' ? 0 : 2.0
+}
+
+/**
+ * Get default tax rate for income type
+ */
+function getDefaultTaxRate(type: IncomeType): number {
+  return type === 'kindergeld' ? 0 : 30.0
+}
+
+/**
  * Create a default other income source
  */
 export function createDefaultOtherIncomeSource(type: IncomeType = 'rental'): OtherIncomeSource {
@@ -354,12 +432,12 @@ export function createDefaultOtherIncomeSource(type: IncomeType = 'rental'): Oth
     id: generateId(),
     name: getDefaultNameForType(type),
     type,
-    amountType: type === 'kindergeld' ? 'net' : 'gross', // Kindergeld is tax-free
-    monthlyAmount: type === 'rental' ? 1000 : type === 'kindergeld' ? 250 : 800,
+    amountType: getDefaultAmountType(type),
+    monthlyAmount: getDefaultMonthlyAmount(type),
     startYear: currentYear,
     endYear: null, // Permanent by default
-    inflationRate: type === 'kindergeld' ? 0 : 2.0, // Kindergeld doesn't auto-adjust for inflation
-    taxRate: type === 'kindergeld' ? 0 : 30.0, // Kindergeld is tax-free
+    inflationRate: getDefaultInflationRate(type),
+    taxRate: getDefaultTaxRate(type),
     enabled: true,
     notes: '',
   }

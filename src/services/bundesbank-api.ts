@@ -18,6 +18,47 @@ export interface BasiszinsConfiguration {
  * Fetches the latest Basiszins data from Deutsche Bundesbank API
  * The API provides access to official interest rates used for tax calculations
  */
+async function tryFetchFromAPI(
+  fetcher: () => Promise<BasiszinsData[]>,
+  source: string,
+): Promise<BasiszinsData[] | null> {
+  try {
+    const data = await fetcher()
+    if (data.length > 0) {
+      console.log(`✅ Successfully fetched ${data.length} rates from ${source}`)
+      return data
+    }
+    return null
+  }
+  catch (error) {
+    console.warn(`🔄 ${source} not available:`, error instanceof Error ? error.message : error)
+    return null
+  }
+}
+
+function getFallbackRates(fromYear: number, toYear: number): BasiszinsData[] {
+  console.info('📋 Using local historical Basiszins data as final fallback')
+  const fallbackRates: BasiszinsData[] = []
+
+  for (let year = fromYear; year <= toYear; year++) {
+    const rate = getHistoricalBasiszinsFallback(year)
+    if (rate !== null) {
+      fallbackRates.push({
+        year,
+        rate,
+        source: 'fallback',
+        lastUpdated: new Date().toISOString(),
+      })
+    }
+  }
+
+  if (fallbackRates.length > 0) {
+    console.log(`✅ Returning ${fallbackRates.length} historical rates as fallback`)
+  }
+
+  return fallbackRates
+}
+
 export async function fetchBasiszinsFromBundesbank(startYear?: number, endYear?: number): Promise<BasiszinsData[]> {
   try {
     const currentYear = new Date().getFullYear()
@@ -27,61 +68,28 @@ export async function fetchBasiszinsFromBundesbank(startYear?: number, endYear?:
     console.log(`Fetching Basiszins data for years ${fromYear}-${toYear}...`)
 
     // Try to fetch from real Bundesbank API first
-    try {
-      const apiData = await fetchFromBundesbankSDMX(fromYear, toYear)
-      if (apiData.length > 0) {
-        console.log(`✅ Successfully fetched ${apiData.length} rates from Deutsche Bundesbank API`)
-        return apiData
-      }
-    }
-    catch (apiError) {
-      console.warn('🔄 Bundesbank API not available, trying alternatives:', apiError instanceof Error ? apiError.message : apiError)
-    }
+    const apiData = await tryFetchFromAPI(
+      () => fetchFromBundesbankSDMX(fromYear, toYear),
+      'Deutsche Bundesbank API',
+    )
+    if (apiData) return apiData
 
     // Try to fetch from ECB API as alternative
-    try {
-      const ecbData = await fetchFromECBAPI(fromYear, toYear)
-      if (ecbData.length > 0) {
-        console.log(`✅ Successfully fetched ${ecbData.length} rates from ECB API`)
-        return ecbData
-      }
-    }
-    catch (ecbError) {
-      console.warn('🔄 ECB API not available, trying Ministry of Finance:', ecbError instanceof Error ? ecbError.message : ecbError)
-    }
+    const ecbData = await tryFetchFromAPI(
+      () => fetchFromECBAPI(fromYear, toYear),
+      'ECB API',
+    )
+    if (ecbData) return ecbData
 
     // Try to fetch from Ministry of Finance data source
-    try {
-      const bmfData = await fetchFromMinistryOfFinance(fromYear, toYear)
-      if (bmfData.length > 0) {
-        console.log(`✅ Successfully fetched ${bmfData.length} rates from enhanced fallback data`)
-        return bmfData
-      }
-    }
-    catch (bmfError) {
-      console.warn('🔄 Ministry of Finance data not available, using local fallback:', bmfError instanceof Error ? bmfError.message : bmfError)
-    }
+    const bmfData = await tryFetchFromAPI(
+      () => fetchFromMinistryOfFinance(fromYear, toYear),
+      'Ministry of Finance',
+    )
+    if (bmfData) return bmfData
 
     // Fallback to local historical data
-    console.info('📋 Using local historical Basiszins data as final fallback')
-    const fallbackRates: BasiszinsData[] = []
-    for (let year = fromYear; year <= toYear; year++) {
-      const rate = getHistoricalBasiszinsFallback(year)
-      if (rate !== null) {
-        fallbackRates.push({
-          year,
-          rate,
-          source: 'fallback',
-          lastUpdated: new Date().toISOString(),
-        })
-      }
-    }
-
-    if (fallbackRates.length > 0) {
-      console.log(`✅ Returning ${fallbackRates.length} historical rates as fallback`)
-    }
-
-    return fallbackRates
+    return getFallbackRates(fromYear, toYear)
   }
   catch (error) {
     console.error('❌ Failed to fetch Basiszins data from any source:', error)
@@ -219,6 +227,90 @@ function getEnhancedFallbackData(fromYear: number, toYear: number): BasiszinsDat
 /**
  * Parses CSV data from SDMX APIs (Bundesbank, ECB)
  */
+function findColumnIndices(headerLine: string): { timeIndex: number, valueIndex: number } {
+  const timeHeaders = ['time_period', 'ref_date', 'date', 'period']
+  const valueHeaders = ['obs_value', 'value', 'rate', 'obs_val']
+
+  const headers = headerLine.split(',').map(h => h.trim().replace(/['"]/g, ''))
+  let timeIndex = -1
+  let valueIndex = -1
+
+  for (let i = 0; i < headers.length; i++) {
+    const header = headers[i].toLowerCase()
+    if (timeHeaders.some(th => header.includes(th))) timeIndex = i
+    if (valueHeaders.some(vh => header.includes(vh))) valueIndex = i
+  }
+
+  // Try default positions if not found
+  if (timeIndex === -1 || valueIndex === -1) {
+    console.warn('Could not identify time and value columns in CSV:', headerLine)
+    return { timeIndex: 0, valueIndex: 1 }
+  }
+
+  return { timeIndex, valueIndex }
+}
+
+function extractYearFromDateString(datePart: string): number | null {
+  if (datePart.includes('-')) {
+    return parseInt(datePart.split('-')[0])
+  }
+  if (datePart.length === 4 && !isNaN(parseInt(datePart))) {
+    return parseInt(datePart)
+  }
+  return null
+}
+
+function isValidDataPoint(year: number, rate: number): boolean {
+  return !isNaN(year) && !isNaN(rate) && year >= 1900 && year <= 2100
+}
+
+/**
+ * Validate and parse a CSV row
+ */
+interface ParsedRowData {
+  year: number
+  rate: number
+  isValid: boolean
+}
+
+function parseCSVRow(
+  line: string,
+  timeIndex: number,
+  valueIndex: number,
+): ParsedRowData | null {
+  const trimmedLine = line.trim()
+  if (!trimmedLine) return null
+
+  const columns = trimmedLine.split(',').map(col => col.trim().replace(/['"]/g, ''))
+  if (columns.length <= Math.max(timeIndex, valueIndex)) return null
+
+  const datePart = columns[timeIndex]
+  const valuePart = columns[valueIndex]
+
+  if (!datePart || !valuePart) return null
+
+  // Extract year from various date formats
+  const year = extractYearFromDateString(datePart)
+  if (year === null) return null
+
+  const rate = parseFloat(valuePart) / 100 // Convert percentage to decimal
+
+  if (!isValidDataPoint(year, rate)) return null
+
+  return {
+    year,
+    rate: Math.max(0, Math.min(0.15, rate)), // Clamp to reasonable bounds
+    isValid: true,
+  }
+}
+
+/**
+ * Check if year already exists in results
+ */
+function yearExists(results: BasiszinsData[], year: number): boolean {
+  return results.some(r => r.year === year)
+}
+
 function parseSDMXCSVData(csvData: string, source: 'api' | 'manual' | 'fallback'): BasiszinsData[] {
   const lines = csvData.split('\n')
   const results: BasiszinsData[] = []
@@ -228,63 +320,18 @@ function parseSDMXCSVData(csvData: string, source: 'api' | 'manual' | 'fallback'
   }
 
   // Find header to understand column structure
-  const headerLine = lines[0].toLowerCase()
-  let timeIndex = -1
-  let valueIndex = -1
-
-  // Common SDMX CSV headers
-  const timeHeaders = ['time_period', 'ref_date', 'date', 'period']
-  const valueHeaders = ['obs_value', 'value', 'rate', 'obs_val']
-
-  const headers = headerLine.split(',').map(h => h.trim().replace(/['"]/g, ''))
-
-  for (let i = 0; i < headers.length; i++) {
-    const header = headers[i].toLowerCase()
-    if (timeHeaders.some(th => header.includes(th))) timeIndex = i
-    if (valueHeaders.some(vh => header.includes(vh))) valueIndex = i
-  }
-
-  if (timeIndex === -1 || valueIndex === -1) {
-    console.warn('Could not identify time and value columns in CSV:', headerLine)
-    // Try default positions
-    timeIndex = 0
-    valueIndex = 1
-  }
+  const { timeIndex, valueIndex } = findColumnIndices(lines[0].toLowerCase())
 
   // Parse data rows
   for (let i = 1; i < lines.length; i++) {
-    const line = lines[i].trim()
-    if (!line) continue
-
-    const columns = line.split(',').map(col => col.trim().replace(/['"]/g, ''))
-    if (columns.length <= Math.max(timeIndex, valueIndex)) continue
-
-    const datePart = columns[timeIndex]
-    const valuePart = columns[valueIndex]
-
-    if (!datePart || !valuePart) continue
-
-    // Extract year from various date formats
-    let year: number
-    if (datePart.includes('-')) {
-      year = parseInt(datePart.split('-')[0])
-    }
-    else if (datePart.length === 4 && !isNaN(parseInt(datePart))) {
-      year = parseInt(datePart)
-    }
-    else {
-      continue // Skip if date format is unrecognizable
-    }
-
-    const rate = parseFloat(valuePart) / 100 // Convert percentage to decimal
-
-    if (isNaN(year) || isNaN(rate) || year < 1900 || year > 2100) continue
+    const parsed = parseCSVRow(lines[i], timeIndex, valueIndex)
+    if (!parsed) continue
 
     // Only include if we don't already have this year
-    if (!results.find(r => r.year === year)) {
+    if (!yearExists(results, parsed.year)) {
       results.push({
-        year,
-        rate: Math.max(0, Math.min(0.15, rate)), // Clamp to reasonable bounds
+        year: parsed.year,
+        rate: parsed.rate,
         source,
         lastUpdated: new Date().toISOString(),
       })

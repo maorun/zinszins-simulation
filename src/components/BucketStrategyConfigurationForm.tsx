@@ -1,3 +1,4 @@
+import type React from 'react'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { Slider } from './ui/slider'
@@ -14,16 +15,69 @@ interface BucketStrategyConfigurationFormProps {
   onBucketConfigChange: (config: BucketConfig) => void
 }
 
+/**
+ * Default values for bucket configuration
+ */
+const DEFAULT_BUCKET_VALUES = {
+  initialCashCushion: 20000,
+  refillThreshold: 5000,
+  refillPercentage: 0.5,
+  baseWithdrawalRate: 0.04,
+} as const
+
+/**
+ * Get value with fallback to default
+ */
+function getValueOrDefault<T>(value: T | undefined, defaultValue: T): T {
+  return value ?? defaultValue
+}
+
+function getDefaultConfig(bucketConfig: BucketConfig | undefined): BucketConfig {
+  return {
+    initialCashCushion: getValueOrDefault(bucketConfig?.initialCashCushion, DEFAULT_BUCKET_VALUES.initialCashCushion),
+    refillThreshold: getValueOrDefault(bucketConfig?.refillThreshold, DEFAULT_BUCKET_VALUES.refillThreshold),
+    refillPercentage: getValueOrDefault(bucketConfig?.refillPercentage, DEFAULT_BUCKET_VALUES.refillPercentage),
+    baseWithdrawalRate: getValueOrDefault(bucketConfig?.baseWithdrawalRate, DEFAULT_BUCKET_VALUES.baseWithdrawalRate),
+  }
+}
+
+function createNumberInputHandler(
+  bucketConfig: BucketConfig | undefined,
+  onBucketConfigChange: (config: BucketConfig) => void,
+  field: keyof BucketConfig,
+  defaultValue: number,
+) {
+  return (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value
+    const value = inputValue === '' ? 0 : Number(inputValue) || defaultValue
+    const config = getDefaultConfig(bucketConfig)
+    onBucketConfigChange({
+      ...config,
+      [field]: value,
+    })
+  }
+}
+
+function createSliderHandler(
+  bucketConfig: BucketConfig | undefined,
+  onBucketConfigChange: (config: BucketConfig) => void,
+  field: keyof BucketConfig,
+  divisor: number,
+) {
+  return (value: number[]) => {
+    const config = getDefaultConfig(bucketConfig)
+    onBucketConfigChange({
+      ...config,
+      [field]: value[0] / divisor,
+    })
+  }
+}
+
 export function BucketStrategyConfigurationForm({
   bucketConfig,
   onBucketConfigChange,
 }: BucketStrategyConfigurationFormProps) {
-  const getDefaultConfig = (): BucketConfig => ({
-    initialCashCushion: bucketConfig?.initialCashCushion ?? 20000,
-    refillThreshold: bucketConfig?.refillThreshold ?? 5000,
-    refillPercentage: bucketConfig?.refillPercentage ?? 0.5,
-    baseWithdrawalRate: bucketConfig?.baseWithdrawalRate ?? 0.04,
-  })
+  const config = getDefaultConfig(bucketConfig)
 
   return (
     <div className="space-y-4">
@@ -33,16 +87,8 @@ export function BucketStrategyConfigurationForm({
         <Label>Anfängliches Cash-Polster (€)</Label>
         <Input
           type="number"
-          value={bucketConfig?.initialCashCushion ?? 20000}
-          onChange={(e) => {
-            const inputValue = e.target.value
-            const value = inputValue === '' ? 0 : Number(inputValue) || 20000
-            const config = getDefaultConfig()
-            onBucketConfigChange({
-              ...config,
-              initialCashCushion: value,
-            })
-          }}
+          value={config.initialCashCushion}
+          onChange={createNumberInputHandler(bucketConfig, onBucketConfigChange, 'initialCashCushion', 20000)}
         />
         <p className="text-sm text-gray-600">
           Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen
@@ -53,15 +99,8 @@ export function BucketStrategyConfigurationForm({
         <Label>Basis-Entnahmerate (%)</Label>
         <div className="px-3">
           <Slider
-            value={[bucketConfig?.baseWithdrawalRate
-              ? bucketConfig.baseWithdrawalRate * 100 : 4]}
-            onValueChange={(value) => {
-              const config = getDefaultConfig()
-              onBucketConfigChange({
-                ...config,
-                baseWithdrawalRate: value[0] / 100,
-              })
-            }}
+            value={[config.baseWithdrawalRate * 100]}
+            onValueChange={createSliderHandler(bucketConfig, onBucketConfigChange, 'baseWithdrawalRate', 100)}
             max={10}
             min={1}
             step={0.1}
@@ -70,7 +109,7 @@ export function BucketStrategyConfigurationForm({
           <div className="flex justify-between text-sm text-gray-500 mt-1">
             <span>1%</span>
             <span className="font-medium text-gray-900">
-              {bucketConfig?.baseWithdrawalRate ? (bucketConfig.baseWithdrawalRate * 100).toFixed(1) : '4.0'}
+              {(config.baseWithdrawalRate * 100).toFixed(1)}
               %
             </span>
             <span>10%</span>
@@ -82,16 +121,8 @@ export function BucketStrategyConfigurationForm({
         <Label>Auffüll-Schwellenwert (€)</Label>
         <Input
           type="number"
-          value={bucketConfig?.refillThreshold ?? 5000}
-          onChange={(e) => {
-            const inputValue = e.target.value
-            const value = inputValue === '' ? 0 : Number(inputValue) || 5000
-            const config = getDefaultConfig()
-            onBucketConfigChange({
-              ...config,
-              refillThreshold: value,
-            })
-          }}
+          value={config.refillThreshold}
+          onChange={createNumberInputHandler(bucketConfig, onBucketConfigChange, 'refillThreshold', 5000)}
         />
         <p className="text-sm text-gray-600">
           Überschreiten die jährlichen Gewinne diesen Betrag, wird Cash-Polster aufgefüllt
@@ -102,15 +133,8 @@ export function BucketStrategyConfigurationForm({
         <Label>Auffüll-Anteil (%)</Label>
         <div className="px-3">
           <Slider
-            value={[bucketConfig?.refillPercentage
-              ? bucketConfig.refillPercentage * 100 : 50]}
-            onValueChange={(value) => {
-              const config = getDefaultConfig()
-              onBucketConfigChange({
-                ...config,
-                refillPercentage: value[0] / 100,
-              })
-            }}
+            value={[config.refillPercentage * 100]}
+            onValueChange={createSliderHandler(bucketConfig, onBucketConfigChange, 'refillPercentage', 100)}
             max={100}
             min={10}
             step={5}
@@ -119,7 +143,7 @@ export function BucketStrategyConfigurationForm({
           <div className="flex justify-between text-sm text-gray-500 mt-1">
             <span>10%</span>
             <span className="font-medium text-gray-900">
-              {bucketConfig?.refillPercentage ? (bucketConfig.refillPercentage * 100).toFixed(0) : '50'}
+              {(config.refillPercentage * 100).toFixed(0)}
               %
             </span>
             <span>100%</span>

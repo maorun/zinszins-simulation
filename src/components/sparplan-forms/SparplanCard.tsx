@@ -49,6 +49,28 @@ interface SparplanCardProps {
  * Displays a single sparplan or single payment card with edit functionality
  * Complexity: <8, Lines: <50
  */
+/**
+ * Get card styling classes based on edit state and payment type
+ */
+function getCardClasses(
+  isEditMode: boolean,
+  editingSparplanId: number | undefined,
+  sparplanId: number,
+  isOneTimePayment: boolean,
+): string {
+  const baseClasses = 'p-4 rounded-lg border-2 transition-colors'
+
+  if (isEditMode && editingSparplanId === sparplanId) {
+    return `${baseClasses} bg-yellow-50 border-yellow-300 ring-2 ring-yellow-200`
+  }
+
+  if (isOneTimePayment) {
+    return `${baseClasses} bg-orange-50 border-orange-200 hover:bg-orange-100`
+  }
+
+  return `${baseClasses} bg-blue-50 border-blue-200 hover:bg-blue-100`
+}
+
 export function SparplanCard(props: SparplanCardProps) {
   const {
     sparplan,
@@ -70,15 +92,7 @@ export function SparplanCard(props: SparplanCardProps) {
   const isOneTimePayment = isEinmalzahlung(sparplan)
 
   return (
-    <div
-      className={`p-4 rounded-lg border-2 transition-colors ${
-        isEditMode && editingSparplan?.id === sparplan.id
-          ? 'bg-yellow-50 border-yellow-300 ring-2 ring-yellow-200'
-          : isOneTimePayment
-            ? 'bg-orange-50 border-orange-200 hover:bg-orange-100'
-            : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
-      }`}
-    >
+    <div className={getCardClasses(isEditMode, editingSparplan?.id, sparplan.id, isOneTimePayment)}>
       <SparplanCardHeader
         sparplan={sparplan}
         isOneTimePayment={isOneTimePayment}
@@ -114,6 +128,69 @@ export function SparplanCard(props: SparplanCardProps) {
  * Card header with type label and action buttons
  * Complexity: <8, Lines: <50
  */
+/**
+ * Badge showing sparplan type and start date
+ */
+function SparplanTypeBadge({ sparplan, isOneTimePayment }: { sparplan: Sparplan, isOneTimePayment: boolean }) {
+  return (
+    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+      isOneTimePayment
+        ? 'bg-orange-100 text-orange-800 border border-orange-200'
+        : 'bg-blue-100 text-blue-800 border border-blue-200'
+    }`}
+    >
+      {isOneTimePayment ? '💰 Einmalzahlung' : '📈 Sparplan'}
+      <span className="text-xs opacity-75">
+        📅
+        {' '}
+        {new Date(sparplan.start).toLocaleDateString('de-DE')}
+      </span>
+    </span>
+  )
+}
+
+/**
+ * Action buttons for editing and deleting sparplan
+ */
+function SparplanActionButtons({
+  sparplan,
+  isOneTimePayment,
+  isEditMode,
+  onEdit,
+  onDelete,
+}: {
+  sparplan: Sparplan
+  isOneTimePayment: boolean
+  isEditMode: boolean
+  onEdit: (sparplan: Sparplan) => void
+  onDelete: (id: number) => void
+}) {
+  return (
+    <div className="flex gap-2">
+      <Button
+        onClick={() => onEdit(sparplan)}
+        variant="outline"
+        size="sm"
+        title={isOneTimePayment ? 'Einmalzahlung bearbeiten' : 'Sparplan bearbeiten'}
+        className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+        disabled={isEditMode}
+      >
+        <Edit2 className="h-4 w-4" />
+      </Button>
+      <Button
+        onClick={() => onDelete(sparplan.id)}
+        variant="ghost"
+        size="sm"
+        title={isOneTimePayment ? 'Einmalzahlung löschen' : 'Sparplan löschen'}
+        className="text-red-600 hover:text-red-700"
+        disabled={isEditMode}
+      >
+        <CloseIcon />
+      </Button>
+    </div>
+  )
+}
+
 function SparplanCardHeader({
   sparplan,
   isOneTimePayment,
@@ -129,41 +206,14 @@ function SparplanCardHeader({
 }) {
   return (
     <div className="flex items-center justify-between mb-3">
-      <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-        isOneTimePayment
-          ? 'bg-orange-100 text-orange-800 border border-orange-200'
-          : 'bg-blue-100 text-blue-800 border border-blue-200'
-      }`}
-      >
-        {isOneTimePayment ? '💰 Einmalzahlung' : '📈 Sparplan'}
-        <span className="text-xs opacity-75">
-          📅
-          {' '}
-          {new Date(sparplan.start).toLocaleDateString('de-DE')}
-        </span>
-      </span>
-      <div className="flex gap-2">
-        <Button
-          onClick={() => onEdit(sparplan)}
-          variant="outline"
-          size="sm"
-          title={isOneTimePayment ? 'Einmalzahlung bearbeiten' : 'Sparplan bearbeiten'}
-          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-          disabled={isEditMode}
-        >
-          <Edit2 className="h-4 w-4" />
-        </Button>
-        <Button
-          onClick={() => onDelete(sparplan.id)}
-          variant="ghost"
-          size="sm"
-          title={isOneTimePayment ? 'Einmalzahlung löschen' : 'Sparplan löschen'}
-          className="text-red-600 hover:text-red-700"
-          disabled={isEditMode}
-        >
-          <CloseIcon />
-        </Button>
-      </div>
+      <SparplanTypeBadge sparplan={sparplan} isOneTimePayment={isOneTimePayment} />
+      <SparplanActionButtons
+        sparplan={sparplan}
+        isOneTimePayment={isOneTimePayment}
+        isEditMode={isEditMode}
+        onEdit={onEdit}
+        onDelete={onDelete}
+      />
     </div>
   )
 }

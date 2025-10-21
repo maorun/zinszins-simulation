@@ -10,6 +10,19 @@ interface ComparisonMetricsProps {
 }
 
 /**
+ * Individual metric display component
+ */
+function MetricItem({ label, value }: { label: string, value: string | number }) {
+  return (
+    <div>
+      <strong>{label}</strong>
+      {' '}
+      {value}
+    </div>
+  )
+}
+
+/**
  * Component for displaying base strategy metrics
  * Shows key performance indicators for the base withdrawal strategy
  */
@@ -43,28 +56,11 @@ export function ComparisonMetrics({
           gap: '10px',
         }}
       >
-        <div>
-          <strong>Rendite:</strong>
-          {' '}
-          {rendite}
-          %
-        </div>
-        <div>
-          <strong>Endkapital:</strong>
-          {' '}
-          {formatCurrency(endkapital)}
-        </div>
-        <div>
-          <strong>Vermögen reicht für:</strong>
-          {' '}
-          {duration}
-        </div>
+        <MetricItem label="Rendite:" value={`${rendite}%`} />
+        <MetricItem label="Endkapital:" value={formatCurrency(endkapital)} />
+        <MetricItem label="Vermögen reicht für:" value={duration} />
         {withdrawalAmount !== null && (
-          <div>
-            <strong>{withdrawalLabel}</strong>
-            {' '}
-            {formatCurrency(withdrawalAmount)}
-          </div>
+          <MetricItem label={`${withdrawalLabel}`} value={formatCurrency(withdrawalAmount)} />
         )}
       </div>
     </div>

@@ -12,68 +12,293 @@ import { calculateHealthCareInsuranceForYear, calculateCoupleHealthInsuranceForY
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt' | 'steueroptimiert'
 
 /**
+ * Generate fixed rate growth for all years
+ */
+function generateFixedGrowthRates(
+  allYears: number[],
+  fixedRate: number,
+): Record<number, number> {
+  const yearlyGrowthRates: Record<number, number> = {}
+  for (const year of allYears) {
+    yearlyGrowthRates[year] = fixedRate
+  }
+  return yearlyGrowthRates
+}
+
+/**
+ * Generate variable growth rates from config
+ */
+function generateVariableGrowthRates(
+  allYears: number[],
+  variableConfig: { yearlyReturns: Record<number, number> },
+): Record<number, number> {
+  const yearlyGrowthRates: Record<number, number> = {}
+  for (const year of allYears) {
+    yearlyGrowthRates[year] = variableConfig.yearlyReturns[year] || 0.05
+  }
+  return yearlyGrowthRates
+}
+
+/**
+ * Generate multi-asset growth rates with fallback
+ */
+function generateMultiAssetGrowthRates(
+  allYears: number[],
+  multiAssetConfig: unknown,
+): Record<number, number> {
+  try {
+    const { generateMultiAssetReturns } = require('./multi-asset-calculations')
+    return generateMultiAssetReturns(allYears, multiAssetConfig)
+  }
+  catch (error) {
+    console.warn('Multi-asset calculations not available, falling back to 5% fixed return:', error)
+    return generateFixedGrowthRates(allYears, 0.05)
+  }
+}
+
+/**
+ * Generate growth rates for each return mode
+ */
+const GROWTH_RATE_GENERATORS: Record<
+  string,
+  (allYears: number[], returnConfig: ReturnConfiguration) => Record<number, number>
+> = {
+  fixed: (allYears, config) => generateFixedGrowthRates(allYears, config.fixedRate || 0.05),
+  random: (allYears, config) => config.randomConfig
+    ? generateRandomReturns(allYears, config.randomConfig)
+    : {},
+  variable: (allYears, config) => config.variableConfig
+    ? generateVariableGrowthRates(allYears, config.variableConfig)
+    : {},
+  multiasset: (allYears, config) => config.multiAssetConfig
+    ? generateMultiAssetGrowthRates(allYears, config.multiAssetConfig)
+    : {},
+}
+
+/**
  * Helper function: Generate yearly growth rates based on return configuration
  */
 function generateYearlyGrowthRates(
   allYears: number[],
   returnConfig: ReturnConfiguration,
 ): Record<number, number> {
-  const yearlyGrowthRates: Record<number, number> = {}
+  const generator = GROWTH_RATE_GENERATORS[returnConfig.mode]
+  return generator ? generator(allYears, returnConfig) : {}
+}
 
-  if (returnConfig.mode === 'fixed') {
-    const fixedRate = returnConfig.fixedRate || 0.05
-    for (const year of allYears) yearlyGrowthRates[year] = fixedRate
-  }
-  else if (returnConfig.mode === 'random' && returnConfig.randomConfig) {
-    Object.assign(yearlyGrowthRates, generateRandomReturns(allYears, returnConfig.randomConfig))
-  }
-  else if (returnConfig.mode === 'variable' && returnConfig.variableConfig) {
-    for (const year of allYears) {
-      yearlyGrowthRates[year] = returnConfig.variableConfig.yearlyReturns[year] || 0.05
-    }
-  }
-  else if (returnConfig.mode === 'multiasset' && returnConfig.multiAssetConfig) {
-    try {
-      const { generateMultiAssetReturns } = require('./multi-asset-calculations')
-      const multiAssetReturns = generateMultiAssetReturns(allYears, returnConfig.multiAssetConfig)
-      Object.assign(yearlyGrowthRates, multiAssetReturns)
-    }
-    catch (error) {
-      console.warn('Multi-asset calculations not available, falling back to 5% fixed return:', error)
-      for (const year of allYears) yearlyGrowthRates[year] = 0.05
-    }
-  }
+/**
+ * Helper function: Determine years for growth rate generation
+ */
+function determineYearsForGrowthRates(
+  startYear: number,
+  endYear: number,
+  strategy: WithdrawalStrategy,
+  bucketConfig?: BucketStrategyConfig,
+): number[] {
+  const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i)
 
-  return yearlyGrowthRates
+  // For dynamic strategy or bucket strategy with dynamic sub-strategy, include previous year
+  const needsPreviousYear = strategy === 'dynamisch'
+    || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')
+
+  return needsPreviousYear
+    ? Array.from({ length: endYear - startYear + 2 }, (_, i) => startYear - 1 + i)
+    : years
+}
+
+/**
+ * Helper function: Initialize statutory pension data if configured
+ */
+function initializeStatutoryPensionData(
+  statutoryPensionConfig: StatutoryPensionConfig | undefined,
+  startYear: number,
+  endYear: number,
+): StatutoryPensionResult {
+  return statutoryPensionConfig?.enabled
+    ? calculateStatutoryPension(
+        statutoryPensionConfig,
+        startYear,
+        endYear,
+        0, // Income tax calculated centrally, not per source
+        {}, // No Grundfreibetrag per source, applied centrally
+      )
+    : {}
+}
+
+/**
+ * Helper function: Initialize other income data if configured
+ */
+function initializeOtherIncomeData(
+  otherIncomeConfig: OtherIncomeConfiguration | undefined,
+  startYear: number,
+  endYear: number,
+): OtherIncomeResult {
+  return otherIncomeConfig?.enabled
+    ? calculateOtherIncome(otherIncomeConfig, startYear, endYear)
+    : {}
+}
+
+/**
+ * Helper function: Create Freibetrag accessor function
+ */
+function createFreibetragAccessor(
+  freibetragPerYear?: { [year: number]: number },
+): (year: number) => number {
+  return (year: number): number => {
+    if (freibetragPerYear && freibetragPerYear[year] !== undefined) {
+      return freibetragPerYear[year]
+    }
+    return freibetrag[2023] || 2000
+  }
+}
+
+/**
+ * Helper function: Create Grundfreibetrag accessor function
+ */
+function createGrundfreibetragAccessor(
+  grundfreibetragPerYear?: { [year: number]: number },
+): (year: number) => number {
+  return (year: number): number => {
+    if (grundfreibetragPerYear && grundfreibetragPerYear[year] !== undefined) {
+      return grundfreibetragPerYear[year]
+    }
+    return grundfreibetrag[2023] || 10908
+  }
+}
+
+/**
+ * Helper function: Calculate initial starting capital
+ */
+function calculateInitialStartingCapital(
+  elements: SparplanElement[],
+  startYear: number,
+): number {
+  return elements.reduce((sum: number, el: SparplanElement) => {
+    const simYear = el.simulation?.[startYear - 1]
+    return sum + (simYear?.endkapital || 0)
+  }, 0)
+}
+
+/**
+ * Helper function: Initialize cash cushion for bucket strategy
+ */
+function initializeCashCushion(
+  strategy: WithdrawalStrategy,
+  bucketConfig?: BucketStrategyConfig,
+): number {
+  return strategy === 'bucket_strategie' && bucketConfig ? bucketConfig.initialCashCushion : 0
+}
+
+/**
+ * Helper function: Initialize mutable layers from elements
+ */
+function initializeMutableLayers(
+  elements: SparplanElement[],
+  startYear: number,
+): MutableLayer[] {
+  const mutableLayers: MutableLayer[] = JSON.parse(JSON.stringify(elements)).map((el: SparplanElement) => {
+    const lastSimData = el.simulation?.[startYear - 1]
+    const initialCost = el.type === 'einmalzahlung' ? el.einzahlung + (el.gewinn || 0) : el.einzahlung
+    return {
+      ...el,
+      currentValue: lastSimData?.endkapital || 0,
+      costBasis: initialCost,
+      accumulatedVorabpauschale: lastSimData?.vorabpauschaleAccumulated || 0,
+    }
+  })
+  mutableLayers.sort((a: MutableLayer, b: MutableLayer) => new Date(a.start).getTime() - new Date(b.start).getTime())
+  return mutableLayers
+}
+
+/**
+ * Helper function: Create Vorabpauschale details object
+ */
+function createVorabpauschaleDetails(
+  totalVorabpauschale: number,
+  vorabCalculations: Array<{
+    layer: MutableLayer
+    vorabpauschaleBetrag: number
+    potentialTax: number
+    valueBeforeWithdrawal: number
+  }>,
+  basiszins: number,
+  totalPotentialVorabTax: number,
+  returnRate: number,
+  capitalAtStartOfYear: number,
+) {
+  if (totalVorabpauschale <= 0) return undefined
+
+  return {
+    basiszins,
+    basisertrag: vorabCalculations.reduce((sum, calc) => {
+      const valueBeforeWithdrawal = calc.valueBeforeWithdrawal
+      return sum + (valueBeforeWithdrawal * basiszins * 0.7)
+    }, 0),
+    vorabpauschaleAmount: totalVorabpauschale,
+    steuerVorFreibetrag: totalPotentialVorabTax,
+    jahresgewinn: vorabCalculations.reduce((sum, calc) => {
+      const valueBeforeWithdrawal = calc.valueBeforeWithdrawal
+      const valueAfterGrowthBeforeWithdrawal = valueBeforeWithdrawal * (1 + returnRate)
+      return sum + (valueAfterGrowthBeforeWithdrawal - valueBeforeWithdrawal)
+    }, 0),
+    anteilImJahr: 12,
+    startkapital: capitalAtStartOfYear,
+  }
+}
+
+/**
+ * Helper function: Update final layers with simulation data
+ */
+function updateFinalLayers(
+  mutableLayers: MutableLayer[],
+  endYear: number,
+): MutableLayer[] {
+  return mutableLayers.map((l: MutableLayer) => {
+    // For finalLayers, we should set the simulation data at endYear, not the last existing year
+    // This ensures proper handoff between segments
+    l.simulation = l.simulation || {}
+    l.simulation[endYear] = {
+      ...(l.simulation[endYear] || {}),
+      endkapital: l.currentValue,
+      vorabpauschaleAccumulated: l.accumulatedVorabpauschale,
+    }
+    return l
+  })
 }
 
 /**
  * Helper function: Calculate bucket strategy withdrawal amount
  */
+/**
+ * Calculate withdrawal rate for bucket strategy
+ */
+function getBucketStrategyRate(bucketConfig: BucketStrategyConfig): number {
+  switch (bucketConfig.subStrategy) {
+    case '4prozent':
+      return 0.04
+    case '3prozent':
+      return 0.03
+    case 'variabel_prozent':
+      return bucketConfig.variabelProzent ? bucketConfig.variabelProzent / 100 : 0.04
+    case 'dynamisch':
+      return bucketConfig.dynamischBasisrate ? bucketConfig.dynamischBasisrate / 100 : 0.04
+    default:
+      return bucketConfig.baseWithdrawalRate
+  }
+}
+
 function calculateBucketStrategyAmount(
   initialStartingCapital: number,
   bucketConfig: BucketStrategyConfig,
 ): number {
-  switch (bucketConfig.subStrategy) {
-    case '4prozent':
-      return initialStartingCapital * 0.04
-    case '3prozent':
-      return initialStartingCapital * 0.03
-    case 'variabel_prozent': {
-      const rate = bucketConfig.variabelProzent ? bucketConfig.variabelProzent / 100 : 0.04
-      return initialStartingCapital * rate
-    }
-    case 'monatlich_fest':
-      return bucketConfig.monatlicheBetrag
-        ? bucketConfig.monatlicheBetrag * 12
-        : initialStartingCapital * 0.04
-    case 'dynamisch': {
-      const rate = bucketConfig.dynamischBasisrate ? bucketConfig.dynamischBasisrate / 100 : 0.04
-      return initialStartingCapital * rate
-    }
-    default:
-      return initialStartingCapital * bucketConfig.baseWithdrawalRate
+  if (bucketConfig.subStrategy === 'monatlich_fest') {
+    return bucketConfig.monatlicheBetrag
+      ? bucketConfig.monatlicheBetrag * 12
+      : initialStartingCapital * 0.04
   }
+
+  const rate = getBucketStrategyRate(bucketConfig)
+  return initialStartingCapital * rate
 }
 
 /**
@@ -120,62 +345,162 @@ type BaseWithdrawalParams = {
 /**
  * Helper function: Calculate base withdrawal amount based on strategy
  */
-function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
-  const {
-    strategy,
-    initialStartingCapital,
-    monthlyConfig,
-    customPercentage,
-    dynamicConfig,
-    bucketConfig,
-    rmdConfig,
-    kapitalerhaltConfig,
-    steueroptimierteEntnahmeConfig,
-  } = params
-
-  if (strategy === 'monatlich_fest') {
-    if (!monthlyConfig) throw new Error('Monthly config required')
+/**
+ * Calculate monthly fixed withdrawal amount (helper for base calculation)
+ */
+function calculateMonthlyFixedAmount(
+  strategy: WithdrawalStrategy,
+  monthlyConfig?: MonthlyWithdrawalConfig,
+): number {
+  if (strategy === 'monatlich_fest' && monthlyConfig) {
     return monthlyConfig.monthlyAmount * 12
   }
+  return 0
+}
 
-  if (strategy === 'variabel_prozent') {
-    if (customPercentage === undefined) throw new Error('Custom percentage required')
-    return initialStartingCapital * customPercentage
+/**
+ * Calculate percentage-based withdrawal amount
+ */
+function calculatePercentageWithdrawal(
+  initialStartingCapital: number,
+  customPercentage?: number,
+): number {
+  if (customPercentage === undefined) throw new Error('Custom percentage required')
+  return initialStartingCapital * customPercentage
+}
+
+/**
+ * Calculate dynamic withdrawal amount
+ */
+function calculateDynamicWithdrawal(
+  initialStartingCapital: number,
+  dynamicConfig?: DynamicWithdrawalConfig,
+): number {
+  if (!dynamicConfig) throw new Error('Dynamic config required')
+  return initialStartingCapital * dynamicConfig.baseWithdrawalRate
+}
+
+/**
+ * Get default steueroptimiert config
+ */
+function getDefaultSteueroptimierteConfig(): SteueroptimierteEntnahmeConfig {
+  return {
+    baseWithdrawalRate: 0.04,
+    targetTaxRate: 0.26375,
+    optimizationMode: 'balanced' as const,
+    freibetragUtilizationTarget: 0.85,
+    rebalanceFrequency: 'yearly' as const,
   }
+}
 
-  if (strategy === 'dynamisch') {
-    if (!dynamicConfig) throw new Error('Dynamic config required')
-    return initialStartingCapital * dynamicConfig.baseWithdrawalRate
-  }
+/**
+ * Calculate steueroptimiert withdrawal amount
+ */
+function calculateSteueroptimierteWithdrawal(
+  initialStartingCapital: number,
+  steueroptimierteEntnahmeConfig?: SteueroptimierteEntnahmeConfig,
+): number {
+  const config = steueroptimierteEntnahmeConfig || getDefaultSteueroptimierteConfig()
+  return initialStartingCapital * config.baseWithdrawalRate
+}
 
-  if (strategy === 'bucket_strategie') {
-    if (!bucketConfig) throw new Error('Bucket strategy config required')
-    return calculateBucketStrategyAmount(initialStartingCapital, bucketConfig)
-  }
-
-  if (strategy === 'rmd') {
-    if (!rmdConfig) throw new Error('RMD config required')
-    return calculateRMDAmount(initialStartingCapital, rmdConfig)
-  }
-
-  if (strategy === 'kapitalerhalt') {
-    if (!kapitalerhaltConfig) throw new Error('Kapitalerhalt config required')
-    return calculateKapitalerhaltAmount(initialStartingCapital, kapitalerhaltConfig)
-  }
-
-  if (strategy === 'steueroptimiert') {
-    const config = steueroptimierteEntnahmeConfig || {
-      baseWithdrawalRate: 0.04,
-      targetTaxRate: 0.26375,
-      optimizationMode: 'balanced' as const,
-      freibetragUtilizationTarget: 0.85,
-      rebalanceFrequency: 'yearly' as const,
-    }
-    return initialStartingCapital * config.baseWithdrawalRate
-  }
-
+/**
+ * Calculate standard 3% or 4% rule withdrawal
+ */
+function calculateStandardRuleWithdrawal(
+  strategy: WithdrawalStrategy,
+  initialStartingCapital: number,
+): number {
   const withdrawalRate = strategy === '4prozent' ? 0.04 : 0.03
   return initialStartingCapital * withdrawalRate
+}
+
+function getWithdrawalCalculator(strategy: WithdrawalStrategy, params: BaseWithdrawalParams) {
+  const strategies = {
+    monatlich_fest: () => {
+      if (!params.monthlyConfig) throw new Error('Monthly config required')
+      return calculateMonthlyFixedAmount(strategy, params.monthlyConfig)
+    },
+    variabel_prozent: () => calculatePercentageWithdrawal(params.initialStartingCapital, params.customPercentage),
+    dynamisch: () => calculateDynamicWithdrawal(params.initialStartingCapital, params.dynamicConfig),
+    bucket_strategie: () => {
+      if (!params.bucketConfig) throw new Error('Bucket strategy config required')
+      return calculateBucketStrategyAmount(params.initialStartingCapital, params.bucketConfig)
+    },
+    rmd: () => {
+      if (!params.rmdConfig) throw new Error('RMD config required')
+      return calculateRMDAmount(params.initialStartingCapital, params.rmdConfig)
+    },
+    kapitalerhalt: () => {
+      if (!params.kapitalerhaltConfig) throw new Error('Kapitalerhalt config required')
+      return calculateKapitalerhaltAmount(params.initialStartingCapital, params.kapitalerhaltConfig)
+    },
+    steueroptimiert: () => calculateSteueroptimierteWithdrawal(
+      params.initialStartingCapital,
+      params.steueroptimierteEntnahmeConfig,
+    ),
+  }
+
+  return strategies[strategy as keyof typeof strategies]
+    || (() => calculateStandardRuleWithdrawal(strategy, params.initialStartingCapital))
+}
+
+function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
+  const calculator = getWithdrawalCalculator(params.strategy, params)
+  return calculator()
+}
+
+/**
+ * Calculate dynamic strategy adjustment
+ */
+function calculateDynamicStrategyAdjustment(
+  annualWithdrawal: number,
+  previousReturn: number,
+  dynamicConfig: DynamicWithdrawalConfig,
+): number {
+  if (previousReturn > dynamicConfig.upperThresholdReturn) {
+    return annualWithdrawal * dynamicConfig.upperThresholdAdjustment
+  }
+  if (previousReturn < dynamicConfig.lowerThresholdReturn) {
+    return annualWithdrawal * dynamicConfig.lowerThresholdAdjustment
+  }
+  return 0
+}
+
+/**
+ * Check if bucket dynamic config is valid
+ */
+function hasBucketDynamicConfig(bucketConfig: BucketStrategyConfig): boolean {
+  return bucketConfig.dynamischObereSchwell !== undefined
+    && bucketConfig.dynamischUntereSchwell !== undefined
+    && bucketConfig.dynamischObereAnpassung !== undefined
+    && bucketConfig.dynamischUntereAnpassung !== undefined
+}
+
+/**
+ * Calculate bucket dynamic adjustment
+ */
+function calculateBucketDynamicAdjustment(
+  annualWithdrawal: number,
+  previousReturn: number,
+  bucketConfig: BucketStrategyConfig,
+): number {
+  if (!hasBucketDynamicConfig(bucketConfig)) {
+    return 0
+  }
+
+  const upperThreshold = bucketConfig.dynamischObereSchwell! / 100
+  const lowerThreshold = bucketConfig.dynamischUntereSchwell! / 100
+  const upperAdjustment = bucketConfig.dynamischObereAnpassung! / 100
+  const lowerAdjustment = bucketConfig.dynamischUntereAnpassung! / 100
+
+  if (previousReturn > upperThreshold) {
+    return annualWithdrawal * upperAdjustment
+  }
+  if (previousReturn < lowerThreshold) {
+    return annualWithdrawal * lowerAdjustment
+  }
+  return 0
 }
 
 /**
@@ -189,46 +514,24 @@ function calculateDynamicAdjustment(
   dynamicConfig?: DynamicWithdrawalConfig,
   bucketConfig?: BucketStrategyConfig,
 ): { adjustment: number, previousReturn: number | undefined } {
-  let adjustment = 0
-  let previousReturn: number | undefined
+  const previousYear = year - 1
+  const previousReturn = yearlyGrowthRates[previousYear]
+
+  if (previousReturn === undefined) {
+    return { adjustment: 0, previousReturn: undefined }
+  }
 
   if (strategy === 'dynamisch' && dynamicConfig) {
-    const previousYear = year - 1
-    previousReturn = yearlyGrowthRates[previousYear]
-
-    if (previousReturn !== undefined) {
-      if (previousReturn > dynamicConfig.upperThresholdReturn) {
-        adjustment = annualWithdrawal * dynamicConfig.upperThresholdAdjustment
-      }
-      else if (previousReturn < dynamicConfig.lowerThresholdReturn) {
-        adjustment = annualWithdrawal * dynamicConfig.lowerThresholdAdjustment
-      }
-    }
-  }
-  else if (strategy === 'bucket_strategie' && bucketConfig && bucketConfig.subStrategy === 'dynamisch') {
-    const previousYear = year - 1
-    previousReturn = yearlyGrowthRates[previousYear]
-
-    if (previousReturn !== undefined
-      && bucketConfig.dynamischObereSchwell !== undefined
-      && bucketConfig.dynamischUntereSchwell !== undefined
-      && bucketConfig.dynamischObereAnpassung !== undefined
-      && bucketConfig.dynamischUntereAnpassung !== undefined) {
-      const upperThreshold = bucketConfig.dynamischObereSchwell / 100
-      const lowerThreshold = bucketConfig.dynamischUntereSchwell / 100
-      const upperAdjustment = bucketConfig.dynamischObereAnpassung / 100
-      const lowerAdjustment = bucketConfig.dynamischUntereAnpassung / 100
-
-      if (previousReturn > upperThreshold) {
-        adjustment = annualWithdrawal * upperAdjustment
-      }
-      else if (previousReturn < lowerThreshold) {
-        adjustment = annualWithdrawal * lowerAdjustment
-      }
-    }
+    const adjustment = calculateDynamicStrategyAdjustment(annualWithdrawal, previousReturn, dynamicConfig)
+    return { adjustment, previousReturn }
   }
 
-  return { adjustment, previousReturn }
+  if (strategy === 'bucket_strategie' && bucketConfig && bucketConfig.subStrategy === 'dynamisch') {
+    const adjustment = calculateBucketDynamicAdjustment(annualWithdrawal, previousReturn, bucketConfig)
+    return { adjustment, previousReturn }
+  }
+
+  return { adjustment: 0, previousReturn }
 }
 
 /**
@@ -265,6 +568,55 @@ function processBucketStrategyWithdrawal(
 /**
  * Helper function: Calculate monthly withdrawal amounts and effective withdrawal
  */
+/**
+ * Calculate adjusted monthly amount with inflation
+ */
+function calculateAdjustedMonthlyAmount(
+  monthlyConfig: MonthlyWithdrawalConfig,
+  inflationConfig: InflationConfig | undefined,
+  year: number | undefined,
+  startYear: number | undefined,
+): number {
+  if (!inflationConfig?.inflationRate || year === undefined || startYear === undefined) {
+    return monthlyConfig.monthlyAmount
+  }
+  const yearsPassed = year - startYear
+  return monthlyConfig.monthlyAmount * Math.pow(1 + inflationConfig.inflationRate, yearsPassed)
+}
+
+/**
+ * Calculate monthly withdrawal amount
+ */
+function getMonthlyAmount(
+  strategy: WithdrawalStrategy,
+  withdrawalFrequency: WithdrawalFrequency,
+  entnahme: number,
+  monthlyConfig: MonthlyWithdrawalConfig | undefined,
+  inflationConfig: InflationConfig | undefined,
+  year: number | undefined,
+  startYear: number | undefined,
+): number | undefined {
+  if (strategy === 'monatlich_fest' && monthlyConfig) {
+    return calculateAdjustedMonthlyAmount(monthlyConfig, inflationConfig, year, startYear)
+  }
+  if (withdrawalFrequency === 'monthly') {
+    return entnahme / 12
+  }
+  return undefined
+}
+
+/**
+ * Calculate effective withdrawal for monthly frequency
+ */
+function calculateMonthlyEffectiveWithdrawal(entnahme: number, returnRate: number): number {
+  const monthlyReturn = Math.pow(1 + returnRate, 1 / 12) - 1
+  let monthlyPresentValue = 0
+  for (let month = 1; month <= 12; month++) {
+    monthlyPresentValue += (entnahme / 12) / Math.pow(1 + monthlyReturn, month - 1)
+  }
+  return monthlyPresentValue
+}
+
 function calculateMonthlyWithdrawal(
   strategy: WithdrawalStrategy,
   withdrawalFrequency: WithdrawalFrequency,
@@ -275,32 +627,19 @@ function calculateMonthlyWithdrawal(
   year?: number,
   startYear?: number,
 ): { effectiveWithdrawal: number, monthlyAmount: number | undefined } {
-  let effectiveWithdrawal = entnahme
-  let monthlyAmount: number | undefined
+  const monthlyAmount = getMonthlyAmount(
+    strategy,
+    withdrawalFrequency,
+    entnahme,
+    monthlyConfig,
+    inflationConfig,
+    year,
+    startYear,
+  )
 
-  // Calculate the actual monthly withdrawal amount for display purposes
-  if (strategy === 'monatlich_fest' && monthlyConfig) {
-    let adjustedMonthlyAmount = monthlyConfig.monthlyAmount
-    if (inflationConfig?.inflationRate && year !== undefined && startYear !== undefined) {
-      const yearsPassed = year - startYear
-      adjustedMonthlyAmount = monthlyConfig.monthlyAmount * Math.pow(1 + inflationConfig.inflationRate, yearsPassed)
-    }
-    monthlyAmount = adjustedMonthlyAmount
-  }
-  else if (withdrawalFrequency === 'monthly') {
-    monthlyAmount = entnahme / 12
-  }
-
-  if (withdrawalFrequency === 'monthly') {
-    // For monthly frequency, calculate more accurate effective withdrawal
-    // by modeling gradual capital decrease throughout the year
-    const monthlyReturn = Math.pow(1 + returnRate, 1 / 12) - 1
-    let monthlyPresentValue = 0
-    for (let month = 1; month <= 12; month++) {
-      monthlyPresentValue += (entnahme / 12) / Math.pow(1 + monthlyReturn, month - 1)
-    }
-    effectiveWithdrawal = monthlyPresentValue
-  }
+  const effectiveWithdrawal = withdrawalFrequency === 'monthly'
+    ? calculateMonthlyEffectiveWithdrawal(entnahme, returnRate)
+    : entnahme
 
   return { effectiveWithdrawal, monthlyAmount }
 }
@@ -549,6 +888,41 @@ function calculateAdjustedWithdrawal(params: {
 /**
  * Helper function: Build strategy-specific fields for result
  */
+// Helper: Check if strategy needs dynamic fields
+function needsDynamicFields(strategy: WithdrawalStrategy, bucketConfig?: BucketStrategyConfig): boolean {
+  return strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')
+}
+
+function buildDynamicFields(
+  hasDynamicFields: boolean,
+  dynamischeAnpassung: number,
+  vorjahresRendite: number | undefined,
+) {
+  if (!hasDynamicFields) return {}
+
+  return {
+    dynamischeAnpassung,
+    vorjahresRendite,
+  }
+}
+
+function buildBucketFields(
+  strategy: WithdrawalStrategy,
+  cashCushionAtStart: number,
+  cashCushion: number,
+  bucketUsed: 'portfolio' | 'cash' | undefined,
+  refillAmount: number,
+) {
+  if (strategy !== 'bucket_strategie') return {}
+
+  return {
+    cashCushionStart: cashCushionAtStart,
+    cashCushionEnd: cashCushion,
+    bucketUsed,
+    refillAmount: refillAmount > 0 ? refillAmount : undefined,
+  }
+}
+
 function buildStrategySpecificFields(params: {
   strategy: WithdrawalStrategy
   dynamischeAnpassung: number
@@ -579,14 +953,13 @@ function buildStrategySpecificFields(params: {
     bucketUsed,
     refillAmount,
   } = params
+
+  const hasDynamicFields = needsDynamicFields(strategy, bucketConfig)
+
   return {
-    dynamischeAnpassung: (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')) ? dynamischeAnpassung : undefined,
-    vorjahresRendite: (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch')) ? vorjahresRendite : undefined,
+    ...buildDynamicFields(hasDynamicFields, dynamischeAnpassung, vorjahresRendite),
     steueroptimierungAnpassung: strategy === 'steueroptimiert' ? steueroptimierungAnpassung : undefined,
-    cashCushionStart: strategy === 'bucket_strategie' ? cashCushionAtStart : undefined,
-    cashCushionEnd: strategy === 'bucket_strategie' ? cashCushion : undefined,
-    bucketUsed: strategy === 'bucket_strategie' ? bucketUsed : undefined,
-    refillAmount: strategy === 'bucket_strategie' && refillAmount > 0 ? refillAmount : undefined,
+    ...buildBucketFields(strategy, cashCushionAtStart, cashCushion, bucketUsed, refillAmount),
   }
 }
 
@@ -655,16 +1028,9 @@ function buildHealthCareInsuranceField(
 }
 
 /**
- * Helper function: Build income source fields for result
+ * Income source fields result type
  */
-function buildIncomeSourceFields(params: {
-  year: number
-  statutoryPensionData: StatutoryPensionResult
-  otherIncomeData: OtherIncomeResult
-  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
-  healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
-  coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
-}): {
+interface IncomeSourceFields {
   statutoryPension?: {
     grossAnnualAmount: number
     netAnnualAmount: number
@@ -689,7 +1055,19 @@ function buildIncomeSourceFields(params: {
     effectiveCareInsuranceRate: number
     coupleDetails?: CoupleHealthInsuranceYearResult
   }
-} {
+}
+
+/**
+ * Helper function: Build income source fields for result
+ */
+function buildIncomeSourceFields(params: {
+  year: number
+  statutoryPensionData: StatutoryPensionResult
+  otherIncomeData: OtherIncomeResult
+  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
+  healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
+  coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
+}): IncomeSourceFields {
   const {
     year,
     statutoryPensionData,
@@ -708,6 +1086,352 @@ function buildIncomeSourceFields(params: {
       coupleHealthCareInsuranceData,
     ),
   }
+}
+
+/**
+ * Process all years of withdrawal using the yearly processor
+ */
+function processAllWithdrawalYears(
+  startYear: number,
+  endYear: number,
+  mutableLayers: MutableLayer[],
+  yearlyGrowthRates: Record<number, number>,
+  baseWithdrawalAmount: number,
+  initialCashCushion: number,
+  strategy: WithdrawalStrategy,
+  withdrawalFrequency: WithdrawalFrequency,
+  monthlyConfig: MonthlyWithdrawalConfig | undefined,
+  inflationConfig: InflationConfig | undefined,
+  dynamicConfig: DynamicWithdrawalConfig | undefined,
+  bucketConfig: BucketStrategyConfig | undefined,
+  rmdConfig: RMDConfig | undefined,
+  steueroptimierteEntnahmeConfig: SteueroptimierteEntnahmeConfig | undefined,
+  basiszinsConfiguration: BasiszinsConfiguration | undefined,
+  healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined,
+  taxRate: number,
+  teilfreistellungsquote: number,
+  steuerReduzierenEndkapital: boolean,
+  enableGrundfreibetrag: boolean | undefined,
+  guenstigerPruefungAktiv: boolean,
+  incomeTaxRate: number | undefined,
+  kirchensteuerAktiv: boolean,
+  kirchensteuersatz: number,
+  freibetragPerYear: { [year: number]: number } | undefined,
+  statutoryPensionData: StatutoryPensionResult,
+  otherIncomeData: OtherIncomeResult,
+  birthYear: number | undefined,
+  getFreibetragForYear: (year: number) => number,
+  getGrundfreibetragForYear: (year: number) => number,
+): WithdrawalResult {
+  const result: WithdrawalResult = {}
+  let cashCushion = initialCashCushion
+
+  for (let year = startYear; year <= endYear; year++) {
+    const { yearResult, updatedCashCushion, shouldContinue } = processYearlyWithdrawal({
+      year,
+      startYear,
+      mutableLayers,
+      yearlyGrowthRates,
+      baseWithdrawalAmount,
+      cashCushion,
+      strategy,
+      withdrawalFrequency,
+      monthlyConfig,
+      inflationConfig,
+      dynamicConfig,
+      bucketConfig,
+      rmdConfig,
+      steueroptimierteEntnahmeConfig,
+      basiszinsConfiguration,
+      healthCareInsuranceConfig,
+      taxRate,
+      teilfreistellungsquote,
+      steuerReduzierenEndkapital,
+      enableGrundfreibetrag,
+      guenstigerPruefungAktiv,
+      incomeTaxRate,
+      kirchensteuerAktiv,
+      kirchensteuersatz,
+      freibetragPerYear,
+      statutoryPensionData,
+      otherIncomeData,
+      birthYear,
+      getFreibetragForYear,
+      getGrundfreibetragForYear,
+    })
+
+    if (!shouldContinue) break
+
+    cashCushion = updatedCashCushion
+    if (yearResult) {
+      result[year] = yearResult
+    }
+  }
+
+  return result
+}
+
+/**
+ * Process a single year of withdrawal calculation
+ * This is the main orchestrator for yearly withdrawal logic
+ */
+function processYearlyWithdrawal(params: {
+  year: number
+  startYear: number
+  mutableLayers: MutableLayer[]
+  yearlyGrowthRates: Record<number, number>
+  baseWithdrawalAmount: number
+  cashCushion: number
+  strategy: WithdrawalStrategy
+  withdrawalFrequency: WithdrawalFrequency
+  monthlyConfig?: MonthlyWithdrawalConfig
+  inflationConfig?: InflationConfig
+  dynamicConfig?: DynamicWithdrawalConfig
+  bucketConfig?: BucketStrategyConfig
+  rmdConfig?: RMDConfig
+  steueroptimierteEntnahmeConfig?: SteueroptimierteEntnahmeConfig
+  basiszinsConfiguration?: BasiszinsConfiguration
+  healthCareInsuranceConfig?: HealthCareInsuranceConfig
+  taxRate: number
+  teilfreistellungsquote: number
+  steuerReduzierenEndkapital: boolean
+  enableGrundfreibetrag?: boolean
+  guenstigerPruefungAktiv: boolean
+  incomeTaxRate?: number
+  kirchensteuerAktiv: boolean
+  kirchensteuersatz: number
+  freibetragPerYear?: { [year: number]: number }
+  statutoryPensionData: StatutoryPensionResult
+  otherIncomeData: OtherIncomeResult
+  birthYear?: number
+  getFreibetragForYear: (year: number) => number
+  getGrundfreibetragForYear: (year: number) => number
+}): {
+  yearResult: WithdrawalResultElement | null
+  updatedCashCushion: number
+  shouldContinue: boolean
+} {
+  const {
+    year,
+    startYear,
+    mutableLayers,
+    yearlyGrowthRates,
+    baseWithdrawalAmount,
+    cashCushion,
+    strategy,
+    withdrawalFrequency,
+    monthlyConfig,
+    inflationConfig,
+    dynamicConfig,
+    bucketConfig,
+    rmdConfig,
+    steueroptimierteEntnahmeConfig,
+    basiszinsConfiguration,
+    healthCareInsuranceConfig,
+    taxRate,
+    teilfreistellungsquote,
+    steuerReduzierenEndkapital,
+    enableGrundfreibetrag,
+    guenstigerPruefungAktiv,
+    incomeTaxRate,
+    kirchensteuerAktiv,
+    kirchensteuersatz,
+    freibetragPerYear,
+    statutoryPensionData,
+    otherIncomeData,
+    birthYear,
+    getFreibetragForYear,
+    getGrundfreibetragForYear,
+  } = params
+
+  const capitalAtStartOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)
+  if (capitalAtStartOfYear <= 0) {
+    return { yearResult: null, updatedCashCushion: cashCushion, shouldContinue: false }
+  }
+
+  const {
+    annualWithdrawal,
+    inflationAnpassung,
+    dynamischeAnpassung,
+    vorjahresRendite,
+    steueroptimierungAnpassung,
+  } = calculateAdjustedWithdrawal({
+    strategy,
+    baseWithdrawalAmount,
+    capitalAtStartOfYear,
+    year,
+    startYear,
+    yearlyGrowthRates,
+    rmdConfig,
+    inflationConfig,
+    dynamicConfig,
+    bucketConfig,
+    steueroptimierteEntnahmeConfig,
+    getFreibetragForYear,
+    taxRate,
+    teilfreistellungsquote,
+  })
+
+  const entnahme = Math.min(annualWithdrawal, capitalAtStartOfYear)
+
+  const { healthCareInsuranceData, coupleHealthCareInsuranceData } = calculateYearHealthCareInsurance({
+    healthCareInsuranceConfig,
+    year,
+    entnahme,
+    statutoryPensionData,
+    birthYear,
+  })
+
+  const returnRate = yearlyGrowthRates[year] || 0
+
+  const cashCushionAtStart = cashCushion
+  const { bucketUsed, updatedCashCushion } = processBucketStrategyWithdrawal(
+    strategy,
+    bucketConfig,
+    cashCushion,
+    entnahme,
+    returnRate,
+  )
+  let currentCashCushion = updatedCashCushion
+  let refillAmount = 0
+
+  const { effectiveWithdrawal, monthlyAmount: monthlyWithdrawalAmount } = calculateMonthlyWithdrawal(
+    strategy,
+    withdrawalFrequency,
+    entnahme,
+    returnRate,
+    monthlyConfig,
+    inflationConfig,
+    year,
+    startYear,
+  )
+
+  const {
+    totalPotentialVorabTax,
+    vorabCalculations,
+    yearlyFreibetrag,
+    basiszins,
+  } = calculateVorabpauschaleForLayers({
+    mutableLayers,
+    returnRate,
+    year,
+    basiszinsConfiguration,
+    taxRate,
+    teilfreistellungsquote,
+    freibetragPerYear,
+  })
+
+  const totalRealizedGainThisYear = processLayerWithdrawal(
+    mutableLayers,
+    effectiveWithdrawal,
+    strategy,
+    bucketUsed,
+  )
+
+  const {
+    taxOnRealizedGains,
+    freibetragUsedOnGains,
+    remainingFreibetrag,
+    guenstigerPruefungResult: guenstigerPruefungResultRealizedGains,
+  } = calculateRealizedGainsTax(
+    totalRealizedGainThisYear,
+    yearlyFreibetrag,
+    teilfreistellungsquote,
+    taxRate,
+    guenstigerPruefungAktiv,
+    incomeTaxRate,
+    kirchensteuerAktiv,
+    kirchensteuersatz,
+  )
+
+  const { taxOnVorabpauschale, freibetragUsedOnVorab } = applyPortfolioGrowthAndVorabTax(
+    vorabCalculations,
+    totalPotentialVorabTax,
+    remainingFreibetrag,
+    returnRate,
+    steuerReduzierenEndkapital,
+  )
+
+  const { einkommensteuer, genutzterGrundfreibetrag, taxableIncome } = calculateYearIncomeTax({
+    enableGrundfreibetrag,
+    entnahme,
+    year,
+    getGrundfreibetragForYear,
+    statutoryPensionData,
+    otherIncomeData,
+    healthCareInsuranceData,
+    healthCareInsuranceConfig,
+    incomeTaxRate,
+    kirchensteuerAktiv,
+    kirchensteuersatz,
+  })
+
+  const capitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)
+
+  const refillResult = processCashCushionRefill(
+    strategy,
+    bucketConfig,
+    returnRate,
+    capitalAtStartOfYear,
+    capitalAtEndOfYear,
+    bucketUsed,
+    entnahme,
+    currentCashCushion,
+    mutableLayers,
+  )
+  refillAmount = refillResult.refillAmount
+  currentCashCushion = refillResult.updatedCashCushion
+
+  const finalCapitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)
+
+  const totalTaxForYear = taxOnRealizedGains + taxOnVorabpauschale + einkommensteuer
+
+  const totalVorabpauschale = vorabCalculations.reduce((sum, calc) => sum + calc.vorabpauschaleBetrag, 0)
+
+  const vorabpauschaleDetails = createVorabpauschaleDetails(
+    totalVorabpauschale,
+    vorabCalculations,
+    basiszins,
+    totalPotentialVorabTax,
+    returnRate,
+    capitalAtStartOfYear,
+  )
+
+  const yearResult = buildYearlyResult({
+    year,
+    capitalAtStartOfYear,
+    entnahme,
+    finalCapitalAtEndOfYear,
+    totalTaxForYear,
+    freibetragUsedOnGains,
+    freibetragUsedOnVorab,
+    monthlyWithdrawalAmount,
+    inflationConfig,
+    inflationAnpassung,
+    enableGrundfreibetrag,
+    einkommensteuer,
+    genutzterGrundfreibetrag,
+    taxableIncome,
+    guenstigerPruefungResultRealizedGains,
+    strategy,
+    dynamischeAnpassung,
+    vorjahresRendite,
+    bucketConfig,
+    steueroptimierungAnpassung,
+    cashCushionAtStart,
+    cashCushion: currentCashCushion,
+    bucketUsed,
+    refillAmount,
+    totalVorabpauschale,
+    vorabpauschaleDetails,
+    statutoryPensionData,
+    otherIncomeData,
+    healthCareInsuranceData,
+    healthCareInsuranceConfig,
+    coupleHealthCareInsuranceData,
+  })
+
+  return { yearResult, updatedCashCushion: currentCashCushion, shouldContinue: true }
 }
 
 /**
@@ -927,7 +1651,10 @@ function calculateTotalTaxableIncome(params: {
 /**
  * Helper function: Calculate income tax with Grundfreibetrag
  */
-function calculateYearIncomeTax(params: {
+/**
+ * Parameters for calculating year income tax
+ */
+interface YearIncomeTaxParams {
   enableGrundfreibetrag: boolean | undefined
   entnahme: number
   year: number
@@ -939,11 +1666,18 @@ function calculateYearIncomeTax(params: {
   incomeTaxRate: number | undefined
   kirchensteuerAktiv: boolean
   kirchensteuersatz: number
-}): {
+}
+
+/**
+ * Year income tax result
+ */
+interface YearIncomeTaxResult {
   einkommensteuer: number
   genutzterGrundfreibetrag: number
   taxableIncome: number
-} {
+}
+
+function calculateYearIncomeTax(params: YearIncomeTaxParams): YearIncomeTaxResult {
   const {
     enableGrundfreibetrag,
     entnahme,
@@ -989,6 +1723,36 @@ function calculateYearIncomeTax(params: {
 }
 
 /**
+ * Health care insurance calculation result
+ */
+interface YearHealthCareInsuranceResult {
+  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
+  coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
+}
+
+/**
+ * Build health care insurance data for couple mode
+ */
+function buildCoupleHealthCareData(
+  coupleData: CoupleHealthInsuranceYearResult,
+  config: HealthCareInsuranceConfig,
+  year: number,
+): HealthCareInsuranceYearResult {
+  return {
+    healthInsuranceAnnual: coupleData.totalAnnual,
+    careInsuranceAnnual: 0,
+    totalAnnual: coupleData.totalAnnual,
+    healthInsuranceMonthly: coupleData.totalMonthly,
+    careInsuranceMonthly: 0,
+    totalMonthly: coupleData.totalMonthly,
+    insuranceType: config.insuranceType,
+    isRetirementPhase: year >= config.retirementStartYear,
+    appliedAdditionalCareInsurance: false,
+    usedFixedAmounts: false,
+  }
+}
+
+/**
  * Helper function: Calculate health care insurance for a year
  */
 function calculateYearHealthCareInsurance(params: {
@@ -997,10 +1761,7 @@ function calculateYearHealthCareInsurance(params: {
   entnahme: number
   statutoryPensionData: StatutoryPensionResult
   birthYear: number | undefined
-}): {
-  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
-  coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
-} {
+}): YearHealthCareInsuranceResult {
   const {
     healthCareInsuranceConfig,
     year,
@@ -1024,18 +1785,11 @@ function calculateYearHealthCareInsurance(params: {
         pensionAmount,
       )
       // For compatibility with existing logic, use the total from couple calculation
-      healthCareInsuranceData = {
-        healthInsuranceAnnual: coupleHealthCareInsuranceData.totalAnnual,
-        careInsuranceAnnual: 0, // Included in total
-        totalAnnual: coupleHealthCareInsuranceData.totalAnnual,
-        healthInsuranceMonthly: coupleHealthCareInsuranceData.totalMonthly,
-        careInsuranceMonthly: 0, // Included in total
-        totalMonthly: coupleHealthCareInsuranceData.totalMonthly,
-        insuranceType: healthCareInsuranceConfig.insuranceType,
-        isRetirementPhase: year >= healthCareInsuranceConfig.retirementStartYear,
-        appliedAdditionalCareInsurance: false,
-        usedFixedAmounts: false,
-      }
+      healthCareInsuranceData = buildCoupleHealthCareData(
+        coupleHealthCareInsuranceData,
+        healthCareInsuranceConfig,
+        year,
+      )
     }
     else {
       // Use individual health insurance calculation
@@ -1066,9 +1820,9 @@ type VorabpauschaleLayersParams = {
 }
 
 /**
- * Helper function: Calculate Vorabpauschale for all layers before withdrawal
+ * Vorabpauschale calculation result for layers
  */
-function calculateVorabpauschaleForLayers(params: VorabpauschaleLayersParams): {
+interface VorabpauschaleLayersResult {
   totalPotentialVorabTax: number
   vorabCalculations: Array<{
     layer: MutableLayer
@@ -1078,7 +1832,12 @@ function calculateVorabpauschaleForLayers(params: VorabpauschaleLayersParams): {
   }>
   yearlyFreibetrag: number
   basiszins: number
-} {
+}
+
+/**
+ * Helper function: Calculate Vorabpauschale for all layers before withdrawal
+ */
+function calculateVorabpauschaleForLayers(params: VorabpauschaleLayersParams): VorabpauschaleLayersResult {
   const {
     mutableLayers,
     returnRate,
@@ -1127,18 +1886,9 @@ function calculateVorabpauschaleForLayers(params: VorabpauschaleLayersParams): {
 }
 
 /**
- * Helper function: Calculate tax on realized gains
+ * Result of realized gains tax calculation
  */
-function calculateRealizedGainsTax(
-  totalRealizedGain: number,
-  yearlyFreibetrag: number,
-  teilfreistellungsquote: number,
-  taxRate: number,
-  guenstigerPruefungAktiv: boolean,
-  incomeTaxRate: number | undefined,
-  kirchensteuerAktiv: boolean,
-  kirchensteuersatz: number,
-): {
+interface RealizedGainsTaxResult {
   taxOnRealizedGains: number
   freibetragUsedOnGains: number
   remainingFreibetrag: number
@@ -1151,7 +1901,21 @@ function calculateRealizedGainsTax(
     usedGrundfreibetrag: number
     explanation: string
   } | null
-} {
+}
+
+/**
+ * Helper function: Calculate tax on realized gains
+ */
+function calculateRealizedGainsTax(
+  totalRealizedGain: number,
+  yearlyFreibetrag: number,
+  teilfreistellungsquote: number,
+  taxRate: number,
+  guenstigerPruefungAktiv: boolean,
+  incomeTaxRate: number | undefined,
+  kirchensteuerAktiv: boolean,
+  kirchensteuersatz: number,
+): RealizedGainsTaxResult {
   const taxableGain = totalRealizedGain > 0 ? totalRealizedGain * (1 - teilfreistellungsquote) : 0
   let taxOnRealizedGains = 0
   let guenstigerPruefungResult = null
@@ -1417,66 +2181,20 @@ export function calculateWithdrawal({
   healthCareInsuranceConfig,
   birthYear,
 }: CalculateWithdrawalParams): { result: WithdrawalResult, finalLayers: MutableLayer[] } {
-  // Helper functions
-  const getFreibetragForYear = (year: number): number => {
-    if (freibetragPerYear && freibetragPerYear[year] !== undefined) return freibetragPerYear[year]
-    return freibetrag[2023] || 2000
-  }
-  const getGrundfreibetragForYear = (year: number): number => {
-    if (grundfreibetragPerYear && grundfreibetragPerYear[year] !== undefined) return grundfreibetragPerYear[year]
-    return grundfreibetrag[2023] || 10908
-  }
+  // Create accessor functions
+  const getFreibetragForYear = createFreibetragAccessor(freibetragPerYear)
+  const getGrundfreibetragForYear = createGrundfreibetragAccessor(grundfreibetragPerYear)
 
   // Generate year-specific growth rates
-  const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => startYear + i)
-
-  // For dynamic strategy or bucket strategy with dynamic sub-strategy, we also need the previous year's return rate
-  const allYears = (strategy === 'dynamisch' || (strategy === 'bucket_strategie' && bucketConfig?.subStrategy === 'dynamisch'))
-    ? Array.from({ length: endYear - startYear + 2 }, (_, i) => startYear - 1 + i)
-    : years
-
+  const allYears = determineYearsForGrowthRates(startYear, endYear, strategy, bucketConfig)
   const yearlyGrowthRates = generateYearlyGrowthRates(allYears, returnConfig)
 
-  const result: WithdrawalResult = {}
+  // Initialize data sources
+  const statutoryPensionData = initializeStatutoryPensionData(statutoryPensionConfig, startYear, endYear)
+  const otherIncomeData = initializeOtherIncomeData(otherIncomeConfig, startYear, endYear)
 
-  // Calculate statutory pension for all years if configured
-  // Note: We pass 0 for incomeTaxRate because income tax is now calculated centrally
-  // combining all income sources (portfolio withdrawal + pension + other income)
-  const statutoryPensionData = statutoryPensionConfig?.enabled
-    ? calculateStatutoryPension(
-        statutoryPensionConfig,
-        startYear,
-        endYear,
-        0, // Income tax calculated centrally, not per source
-        {}, // No Grundfreibetrag per source, applied centrally
-      )
-    : {}
-
-  // Calculate other income for all years if configured
-  const otherIncomeData = otherIncomeConfig?.enabled
-    ? calculateOtherIncome(
-        otherIncomeConfig,
-        startYear,
-        endYear,
-      )
-    : {}
-
-  const initialStartingCapital = elements.reduce((sum: number, el: SparplanElement) => {
-    const simYear = el.simulation?.[startYear - 1]
-    return sum + (simYear?.endkapital || 0)
-  }, 0)
-
-  const mutableLayers: MutableLayer[] = JSON.parse(JSON.stringify(elements)).map((el: SparplanElement) => {
-    const lastSimData = el.simulation?.[startYear - 1]
-    const initialCost = el.type === 'einmalzahlung' ? el.einzahlung + (el.gewinn || 0) : el.einzahlung
-    return {
-      ...el,
-      currentValue: lastSimData?.endkapital || 0,
-      costBasis: initialCost,
-      accumulatedVorabpauschale: lastSimData?.vorabpauschaleAccumulated || 0,
-    }
-  })
-  mutableLayers.sort((a: MutableLayer, b: MutableLayer) => new Date(a.start).getTime() - new Date(b.start).getTime())
+  const initialStartingCapital = calculateInitialStartingCapital(elements, startYear)
+  const mutableLayers = initializeMutableLayers(elements, startYear)
 
   const baseWithdrawalAmount = calculateBaseWithdrawalAmount({
     strategy,
@@ -1491,228 +2209,43 @@ export function calculateWithdrawal({
   })
 
   // Initialize cash cushion for bucket strategy
-  let cashCushion = strategy === 'bucket_strategie' && bucketConfig ? bucketConfig.initialCashCushion : 0
+  const initialCashCushion = initializeCashCushion(strategy, bucketConfig)
 
-  for (let year = startYear; year <= endYear; year++) {
-    const capitalAtStartOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)
-    if (capitalAtStartOfYear <= 0) break
+  // Process all withdrawal years
+  const result = processAllWithdrawalYears(
+    startYear,
+    endYear,
+    mutableLayers,
+    yearlyGrowthRates,
+    baseWithdrawalAmount,
+    initialCashCushion,
+    strategy,
+    withdrawalFrequency,
+    monthlyConfig,
+    inflationConfig,
+    dynamicConfig,
+    bucketConfig,
+    rmdConfig,
+    steueroptimierteEntnahmeConfig,
+    basiszinsConfiguration,
+    healthCareInsuranceConfig,
+    taxRate,
+    teilfreistellungsquote,
+    steuerReduzierenEndkapital,
+    enableGrundfreibetrag,
+    guenstigerPruefungAktiv || false,
+    incomeTaxRate,
+    kirchensteuerAktiv,
+    kirchensteuersatz,
+    freibetragPerYear,
+    statutoryPensionData,
+    otherIncomeData,
+    birthYear,
+    getFreibetragForYear,
+    getGrundfreibetragForYear,
+  )
 
-    const {
-      annualWithdrawal,
-      inflationAnpassung,
-      dynamischeAnpassung,
-      vorjahresRendite,
-      steueroptimierungAnpassung,
-    } = calculateAdjustedWithdrawal({
-      strategy,
-      baseWithdrawalAmount,
-      capitalAtStartOfYear,
-      year,
-      startYear,
-      yearlyGrowthRates,
-      rmdConfig,
-      inflationConfig,
-      dynamicConfig,
-      bucketConfig,
-      steueroptimierteEntnahmeConfig,
-      getFreibetragForYear,
-      taxRate: taxRate || 0.26375,
-      teilfreistellungsquote: teilfreistellungsquote || 0.3,
-    })
-
-    const entnahme = Math.min(annualWithdrawal, capitalAtStartOfYear)
-
-    // Calculate health care insurance contributions for this year
-    const { healthCareInsuranceData, coupleHealthCareInsuranceData } = calculateYearHealthCareInsurance({
-      healthCareInsuranceConfig,
-      year,
-      entnahme,
-      statutoryPensionData,
-      birthYear,
-    })
-
-    // Get the return rate for this year (needed for monthly withdrawal calculations)
-    const returnRate = yearlyGrowthRates[year] || 0
-
-    // Bucket strategy logic: decide which bucket to use for withdrawal
-    const cashCushionAtStart = cashCushion
-    const { bucketUsed, updatedCashCushion } = processBucketStrategyWithdrawal(
-      strategy,
-      bucketConfig,
-      cashCushion,
-      entnahme,
-      returnRate,
-    )
-    cashCushion = updatedCashCushion
-    let refillAmount = 0
-
-    // Calculate monthly withdrawal amounts and effective withdrawal
-    const { effectiveWithdrawal, monthlyAmount: monthlyWithdrawalAmount } = calculateMonthlyWithdrawal(
-      strategy,
-      withdrawalFrequency,
-      entnahme,
-      returnRate,
-      monthlyConfig,
-      inflationConfig,
-      year,
-      startYear,
-    )
-
-    // FIRST: Calculate Vorabpauschale BEFORE any withdrawal, using full portfolio values at start of year
-    const {
-      totalPotentialVorabTax,
-      vorabCalculations,
-      yearlyFreibetrag,
-      basiszins,
-    } = calculateVorabpauschaleForLayers({
-      mutableLayers,
-      returnRate,
-      year,
-      basiszinsConfiguration,
-      taxRate,
-      teilfreistellungsquote,
-      freibetragPerYear,
-    })
-
-    // SECOND: Process withdrawal and calculate realized gains
-    const totalRealizedGainThisYear = processLayerWithdrawal(
-      mutableLayers,
-      effectiveWithdrawal,
-      strategy,
-      bucketUsed,
-    )
-
-    // THIRD: Calculate taxes on realized gains and apply freibetrag
-    const {
-      taxOnRealizedGains,
-      freibetragUsedOnGains,
-      remainingFreibetrag,
-      guenstigerPruefungResult: guenstigerPruefungResultRealizedGains,
-    } = calculateRealizedGainsTax(
-      totalRealizedGainThisYear,
-      yearlyFreibetrag,
-      teilfreistellungsquote,
-      taxRate,
-      guenstigerPruefungAktiv || false,
-      incomeTaxRate,
-      kirchensteuerAktiv,
-      kirchensteuersatz,
-    )
-
-    // FOURTH: Apply remaining freibetrag to Vorabpauschale and calculate final growth
-    const { taxOnVorabpauschale, freibetragUsedOnVorab } = applyPortfolioGrowthAndVorabTax(
-      vorabCalculations,
-      totalPotentialVorabTax,
-      remainingFreibetrag,
-      returnRate,
-      steuerReduzierenEndkapital,
-    )
-
-    const { einkommensteuer, genutzterGrundfreibetrag, taxableIncome } = calculateYearIncomeTax({
-      enableGrundfreibetrag,
-      entnahme,
-      year,
-      getGrundfreibetragForYear,
-      statutoryPensionData,
-      otherIncomeData,
-      healthCareInsuranceData,
-      healthCareInsuranceConfig,
-      incomeTaxRate,
-      kirchensteuerAktiv,
-      kirchensteuersatz,
-    })
-
-    const capitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)
-
-    // Bucket strategy refill logic: move gains to cash cushion if in positive return year
-    const refillResult = processCashCushionRefill(
-      strategy,
-      bucketConfig,
-      returnRate,
-      capitalAtStartOfYear,
-      capitalAtEndOfYear,
-      bucketUsed,
-      entnahme,
-      cashCushion,
-      mutableLayers,
-    )
-    refillAmount = refillResult.refillAmount
-    cashCushion = refillResult.updatedCashCushion
-
-    // Recalculate capital at end of year after potential refill
-    const finalCapitalAtEndOfYear = mutableLayers.reduce((sum: number, l: MutableLayer) => sum + l.currentValue, 0)
-
-    const totalTaxForYear = taxOnRealizedGains + taxOnVorabpauschale + einkommensteuer
-
-    // Calculate total Vorabpauschale amount for this year
-    const totalVorabpauschale = vorabCalculations.reduce((sum, calc) => sum + calc.vorabpauschaleBetrag, 0)
-
-    // Create detailed Vorabpauschale information for explanation
-    const vorabpauschaleDetails = totalVorabpauschale > 0
-      ? {
-          basiszins,
-          basisertrag: vorabCalculations.reduce((sum, calc) => {
-            const valueBeforeWithdrawal = calc.valueBeforeWithdrawal
-            return sum + (valueBeforeWithdrawal * basiszins * 0.7)
-          }, 0),
-          vorabpauschaleAmount: totalVorabpauschale,
-          steuerVorFreibetrag: totalPotentialVorabTax,
-          jahresgewinn: vorabCalculations.reduce((sum, calc) => {
-            const valueBeforeWithdrawal = calc.valueBeforeWithdrawal
-            const valueAfterGrowthBeforeWithdrawal = valueBeforeWithdrawal * (1 + returnRate)
-            return sum + (valueAfterGrowthBeforeWithdrawal - valueBeforeWithdrawal)
-          }, 0),
-          anteilImJahr: 12,
-          startkapital: capitalAtStartOfYear,
-        }
-      : undefined
-
-    result[year] = buildYearlyResult({
-      year,
-      capitalAtStartOfYear,
-      entnahme,
-      finalCapitalAtEndOfYear,
-      totalTaxForYear,
-      freibetragUsedOnGains,
-      freibetragUsedOnVorab,
-      monthlyWithdrawalAmount,
-      inflationConfig,
-      inflationAnpassung,
-      enableGrundfreibetrag,
-      einkommensteuer,
-      genutzterGrundfreibetrag,
-      taxableIncome,
-      guenstigerPruefungResultRealizedGains,
-      strategy,
-      dynamischeAnpassung,
-      vorjahresRendite,
-      bucketConfig,
-      steueroptimierungAnpassung,
-      cashCushionAtStart,
-      cashCushion,
-      bucketUsed,
-      refillAmount,
-      totalVorabpauschale,
-      vorabpauschaleDetails,
-      statutoryPensionData,
-      otherIncomeData,
-      healthCareInsuranceData,
-      healthCareInsuranceConfig,
-      coupleHealthCareInsuranceData,
-    })
-  }
-
-  const finalLayers = mutableLayers.map((l: MutableLayer) => {
-    // For finalLayers, we should set the simulation data at endYear, not the last existing year
-    // This ensures proper handoff between segments
-    l.simulation = l.simulation || {}
-    l.simulation[endYear] = {
-      ...(l.simulation[endYear] || {}),
-      endkapital: l.currentValue,
-      vorabpauschaleAccumulated: l.accumulatedVorabpauschale,
-    }
-    return l
-  })
+  const finalLayers = updateFinalLayers(mutableLayers, endYear)
 
   return { result, finalLayers }
 }
@@ -1804,6 +2337,70 @@ export function calculateWithdrawalDuration(
   return null
 }
 
+// Helper: Validate tax optimization inputs
+function areOptimizationInputsValid(capitalAtStartOfYear: number, baseWithdrawalAmount: number): boolean {
+  return capitalAtStartOfYear > 0 && baseWithdrawalAmount > 0
+}
+
+// Helper: Calculate withdrawal for minimize_taxes mode
+function calculateMinimizeTaxesWithdrawal(
+  capitalAtStartOfYear: number,
+  baseWithdrawalAmount: number,
+  targetFreibetragUsage: number,
+  taxRate: number,
+  teilfreistellungsquote: number,
+): number {
+  const taxableRate = 1 - teilfreistellungsquote
+
+  if (taxableRate <= 0 || taxRate <= 0) {
+    return Math.min(capitalAtStartOfYear, baseWithdrawalAmount)
+  }
+
+  const maxTaxFreeWithdrawal = targetFreibetragUsage / (taxableRate * taxRate)
+  const minWithdrawal = baseWithdrawalAmount * 0.8
+  const maxWithdrawal = Math.min(capitalAtStartOfYear, baseWithdrawalAmount * 1.2)
+
+  const result = Math.max(minWithdrawal, Math.min(maxWithdrawal, maxTaxFreeWithdrawal || baseWithdrawalAmount))
+  return isNaN(result) ? baseWithdrawalAmount : result
+}
+
+// Helper: Calculate withdrawal for maximize_after_tax mode
+function calculateMaximizeAfterTaxWithdrawal(
+  capitalAtStartOfYear: number,
+  baseWithdrawalAmount: number,
+  availableFreibetrag: number,
+  taxRate: number,
+  teilfreistellungsquote: number,
+): number {
+  const optimalWithdrawal = findOptimalAfterTaxWithdrawal(
+    capitalAtStartOfYear,
+    baseWithdrawalAmount,
+    availableFreibetrag,
+    taxRate,
+    teilfreistellungsquote,
+  )
+
+  const result = Math.max(baseWithdrawalAmount * 0.8, Math.min(capitalAtStartOfYear, optimalWithdrawal))
+  return isNaN(result) ? baseWithdrawalAmount : result
+}
+
+// Helper: Calculate withdrawal for balanced mode
+function calculateBalancedWithdrawal(
+  capitalAtStartOfYear: number,
+  baseWithdrawalAmount: number,
+  availableFreibetrag: number,
+  targetFreibetragUsage: number,
+): number {
+  const taxEfficientAdjustment = availableFreibetrag > 0
+    ? (targetFreibetragUsage - availableFreibetrag * 0.5) / availableFreibetrag
+    : 0
+  const adjustmentFactor = 1 + (taxEfficientAdjustment * 0.1)
+
+  const adjustedWithdrawal = baseWithdrawalAmount * Math.max(0.9, Math.min(1.1, adjustmentFactor))
+  const result = Math.min(capitalAtStartOfYear, adjustedWithdrawal)
+  return isNaN(result) ? baseWithdrawalAmount : result
+}
+
 /**
  * Calculate tax-optimized withdrawal amount for a given year
  * This function attempts to minimize taxes by optimizing the withdrawal amount
@@ -1818,41 +2415,24 @@ function calculateTaxOptimizedWithdrawal(
   teilfreistellungsquote: number,
   config: SteueroptimierteEntnahmeConfig,
 ): number {
-  // Validate inputs to prevent NaN
-  if (!capitalAtStartOfYear || capitalAtStartOfYear <= 0 || !baseWithdrawalAmount || baseWithdrawalAmount <= 0) {
+  if (!areOptimizationInputsValid(capitalAtStartOfYear, baseWithdrawalAmount)) {
     return baseWithdrawalAmount || 0
   }
 
-  // Calculate target Freibetrag usage
   const targetFreibetragUsage = availableFreibetrag * targetFreibetragUtilization
 
   switch (config.optimizationMode) {
-    case 'minimize_taxes': {
-      // Try to use exactly the target amount of Freibetrag to minimize taxes
-      // This is a simplified calculation - real optimization would consider Vorabpauschale
-      const taxableRate = 1 - teilfreistellungsquote
+    case 'minimize_taxes':
+      return calculateMinimizeTaxesWithdrawal(
+        capitalAtStartOfYear,
+        baseWithdrawalAmount,
+        targetFreibetragUsage,
+        taxRate,
+        teilfreistellungsquote,
+      )
 
-      // Avoid division by zero
-      if (taxableRate <= 0 || taxRate <= 0) {
-        return Math.min(capitalAtStartOfYear, baseWithdrawalAmount)
-      }
-
-      const maxTaxFreeWithdrawal = targetFreibetragUsage / (taxableRate * taxRate)
-
-      // Choose the minimum of base withdrawal and tax-optimized amount
-      // but don't go below 80% of base withdrawal to maintain income consistency
-      const minWithdrawal = baseWithdrawalAmount * 0.8
-      const maxWithdrawal = Math.min(capitalAtStartOfYear, baseWithdrawalAmount * 1.2)
-
-      // Ensure we return a valid number
-      const result = Math.max(minWithdrawal, Math.min(maxWithdrawal, maxTaxFreeWithdrawal || baseWithdrawalAmount))
-      return isNaN(result) ? baseWithdrawalAmount : result
-    }
-
-    case 'maximize_after_tax': {
-      // Try to maximize after-tax income by finding optimal withdrawal amount
-      // Consider that higher withdrawals might push into higher tax brackets
-      const optimalWithdrawal = findOptimalAfterTaxWithdrawal(
+    case 'maximize_after_tax':
+      return calculateMaximizeAfterTaxWithdrawal(
         capitalAtStartOfYear,
         baseWithdrawalAmount,
         availableFreibetrag,
@@ -1860,24 +2440,80 @@ function calculateTaxOptimizedWithdrawal(
         teilfreistellungsquote,
       )
 
-      const result = Math.max(baseWithdrawalAmount * 0.8, Math.min(capitalAtStartOfYear, optimalWithdrawal))
-      return isNaN(result) ? baseWithdrawalAmount : result
-    }
-
     case 'balanced':
-    default: {
-      // Balance between tax minimization and income consistency
-      // Use base withdrawal as starting point and adjust slightly for tax efficiency
-      const taxEfficientAdjustment = availableFreibetrag > 0
-        ? (targetFreibetragUsage - availableFreibetrag * 0.5) / availableFreibetrag
-        : 0
-      const adjustmentFactor = 1 + (taxEfficientAdjustment * 0.1) // Max 10% adjustment
+    default:
+      return calculateBalancedWithdrawal(
+        capitalAtStartOfYear,
+        baseWithdrawalAmount,
+        availableFreibetrag,
+        targetFreibetragUsage,
+      )
+  }
+}
 
-      const adjustedWithdrawal = baseWithdrawalAmount * Math.max(0.9, Math.min(1.1, adjustmentFactor))
-      const result = Math.min(capitalAtStartOfYear, adjustedWithdrawal)
-      return isNaN(result) ? baseWithdrawalAmount : result
+/**
+ * Calculate after-tax amount for a given withdrawal
+ */
+function calculateAfterTaxAmount(
+  amount: number,
+  taxRate: number,
+  teilfreistellungsquote: number,
+  availableFreibetrag: number,
+): number {
+  const taxableAmount = Math.max(0, amount * (1 - teilfreistellungsquote) - availableFreibetrag)
+  const tax = taxableAmount * taxRate
+  return amount - tax
+}
+
+/**
+ * Generate test withdrawal amounts
+ */
+function generateTestWithdrawalAmounts(
+  baseWithdrawalAmount: number,
+  capitalAtStartOfYear: number,
+): number[] {
+  return [
+    baseWithdrawalAmount * 0.8,
+    baseWithdrawalAmount * 0.9,
+    baseWithdrawalAmount,
+    baseWithdrawalAmount * 1.1,
+    baseWithdrawalAmount * 1.2,
+  ].filter(amount => amount > 0 && amount <= capitalAtStartOfYear)
+}
+
+/**
+ * Validate withdrawal optimization inputs
+ */
+function areWithdrawalInputsValid(
+  capitalAtStartOfYear: number,
+  baseWithdrawalAmount: number,
+): boolean {
+  return baseWithdrawalAmount > 0 && capitalAtStartOfYear > 0
+}
+
+/**
+ * Find best amount from test amounts
+ */
+function findBestWithdrawalAmount(
+  testAmounts: number[],
+  baseWithdrawalAmount: number,
+  taxRate: number,
+  teilfreistellungsquote: number,
+  availableFreibetrag: number,
+): number {
+  let bestAmount = baseWithdrawalAmount
+  let bestAfterTax = 0
+
+  for (const amount of testAmounts) {
+    const afterTaxAmount = calculateAfterTaxAmount(amount, taxRate, teilfreistellungsquote, availableFreibetrag)
+
+    if (afterTaxAmount > bestAfterTax) {
+      bestAfterTax = afterTaxAmount
+      bestAmount = amount
     }
   }
+
+  return bestAmount
 }
 
 /**
@@ -1892,37 +2528,23 @@ function findOptimalAfterTaxWithdrawal(
   teilfreistellungsquote: number,
 ): number {
   // Validate inputs
-  if (!baseWithdrawalAmount || baseWithdrawalAmount <= 0 || !capitalAtStartOfYear || capitalAtStartOfYear <= 0) {
+  if (!areWithdrawalInputsValid(capitalAtStartOfYear, baseWithdrawalAmount)) {
     return baseWithdrawalAmount || 0
   }
 
-  // Test different withdrawal amounts to find the one with highest after-tax value
-  const testAmounts = [
-    baseWithdrawalAmount * 0.8,
-    baseWithdrawalAmount * 0.9,
-    baseWithdrawalAmount,
-    baseWithdrawalAmount * 1.1,
-    baseWithdrawalAmount * 1.2,
-  ].filter(amount => amount > 0 && amount <= capitalAtStartOfYear)
+  const testAmounts = generateTestWithdrawalAmounts(baseWithdrawalAmount, capitalAtStartOfYear)
 
   if (testAmounts.length === 0) {
     return Math.min(capitalAtStartOfYear, baseWithdrawalAmount)
   }
 
-  let bestAmount = baseWithdrawalAmount
-  let bestAfterTax = 0
-
-  for (const amount of testAmounts) {
-    // Simplified tax calculation - real implementation would consider Vorabpauschale
-    const taxableAmount = Math.max(0, amount * (1 - teilfreistellungsquote) - availableFreibetrag)
-    const tax = taxableAmount * taxRate
-    const afterTaxAmount = amount - tax
-
-    if (afterTaxAmount > bestAfterTax) {
-      bestAfterTax = afterTaxAmount
-      bestAmount = amount
-    }
-  }
+  const bestAmount = findBestWithdrawalAmount(
+    testAmounts,
+    baseWithdrawalAmount,
+    taxRate,
+    teilfreistellungsquote,
+    availableFreibetrag,
+  )
 
   return isNaN(bestAmount) ? baseWithdrawalAmount : bestAmount
 }
