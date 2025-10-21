@@ -17,6 +17,7 @@ import {
 } from '../../helpers/statutory-pension'
 import { PensionInputForm } from './statutory-pension/PensionInputForm'
 import { usePensionCalculations } from '../hooks/usePensionCalculations'
+import { PersonSummaryDisplay } from './statutory-pension/PersonSummaryDisplay'
 
 /** Summary information component for statutory pension */
 interface PensionSummaryProps {
@@ -285,40 +286,20 @@ export function CoupleStatutoryPensionConfiguration({
           </CardHeader>
           <CardContent nestingLevel={nestingLevel + 1}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
-              <div className="space-y-2">
-                <div className="font-medium text-blue-900">Person 1</div>
-                <div>
-                  <span className="text-gray-600">Geburtsjahr:</span>
-                  <span className="font-medium ml-1">{birthYear || 'Nicht festgelegt'}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Rentenbeginn:</span>
-                  <span className="font-medium ml-1">{person1.enabled ? person1.startYear : '—'}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Monatliche Rente:</span>
-                  <span className="font-medium ml-1">
-                    {person1.enabled ? `${person1.monthlyAmount.toLocaleString('de-DE')} €` : '—'}
-                  </span>
-                </div>
-              </div>
-              <div className="space-y-2">
-                <div className="font-medium text-blue-900">Person 2</div>
-                <div>
-                  <span className="text-gray-600">Geburtsjahr:</span>
-                  <span className="font-medium ml-1">{spouseBirthYear || 'Nicht festgelegt'}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Rentenbeginn:</span>
-                  <span className="font-medium ml-1">{person2.enabled ? person2.startYear : '—'}</span>
-                </div>
-                <div>
-                  <span className="text-gray-600">Monatliche Rente:</span>
-                  <span className="font-medium ml-1">
-                    {person2.enabled ? `${person2.monthlyAmount.toLocaleString('de-DE')} €` : '—'}
-                  </span>
-                </div>
-              </div>
+              <PersonSummaryDisplay
+                personName="Person 1"
+                birthYear={birthYear}
+                enabled={person1.enabled}
+                startYear={person1.startYear}
+                monthlyAmount={person1.monthlyAmount}
+              />
+              <PersonSummaryDisplay
+                personName="Person 2"
+                birthYear={spouseBirthYear}
+                enabled={person2.enabled}
+                startYear={person2.startYear}
+                monthlyAmount={person2.monthlyAmount}
+              />
             </div>
             {(!birthYear || !spouseBirthYear) && (
               <div className="mt-4 text-xs text-orange-600 bg-orange-50 p-2 rounded border border-orange-200">

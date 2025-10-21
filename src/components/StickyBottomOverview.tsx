@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useMemo } from 'react'
 import { useSimulation } from '../contexts/useSimulation'
 import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
+import type { EnhancedSummary } from '../utils/summary-utils'
 
 interface StickyBottomOverviewProps {
   overviewElementRef: React.RefObject<HTMLElement | null>
@@ -86,104 +87,133 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
     return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
   }
 
-  const renderEntnahmenContent = () => {
-    if (!enhancedSummary.endkapitalEntspharphase) {
-      return null
-    }
+  // Render mobile view of withdrawal summary
+  const renderMobileWithdrawalView = (
+    withdrawalYearsRange: string,
+    hasSegments: boolean,
+    summary: EnhancedSummary,
+  ) => {
+    const segmentCount = hasSegments && summary.withdrawalSegments ? summary.withdrawalSegments.length : 0
+    return (
+      <div className="flex justify-around items-center gap-4">
+        <div className="flex flex-col items-center text-center">
+          <span className="text-xl mb-1">⏱️</span>
+          <span className="text-xs font-semibold text-slate-800">
+            {withdrawalYearsRange}
+            {hasSegments && ` (${segmentCount})`}
+          </span>
+        </div>
+        <div className="flex flex-col items-center text-center">
+          <span className="text-xl mb-1">🏁</span>
+          <span className="text-sm font-semibold text-slate-800">{formatCompactCurrency(summary.endkapital)}</span>
+        </div>
+        <div className="flex flex-col items-center text-center">
+          <span className="text-xl mb-1">💰</span>
+          <span className="text-sm font-semibold text-green-600">
+            {formatCompactCurrency(summary.endkapitalEntspharphase ?? 0)}
+          </span>
+        </div>
+      </div>
+    )
+  }
 
-    const withdrawalStartYear = startEnd[0] + 1
+  // Render desktop view of withdrawal summary
+  const renderDesktopWithdrawalView = (
+    withdrawalYearsRange: string,
+    hasSegments: boolean,
+    summary: EnhancedSummary,
+  ) => {
+    const segmentCount = hasSegments && summary.withdrawalSegments ? summary.withdrawalSegments.length : 0
+    return (
+      <div className="w-full">
+        <div className="w-full">
+          <h4 className="m-0 mb-3 text-slate-800 text-sm font-semibold">
+            💸 Entsparphase (
+            {withdrawalYearsRange}
+            )
+            {hasSegments && (
+              <span className="text-sm text-teal-600 font-normal">
+                {' '}
+                -
+                {segmentCount}
+                {' '}
+                Phasen
+              </span>
+            )}
+          </h4>
+          <div className="grid grid-cols-3 gap-3">
+            <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
+              <span className="text-xs text-gray-600 mb-1">🏁 Startkapital</span>
+              <span className="font-semibold text-sm text-slate-800">
+                {summary.endkapital.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+              </span>
+            </div>
+            <div className="flex flex-col p-2 bg-gradient-to-br from-green-50 to-green-100 rounded-md border border-green-300">
+              <span className="text-xs text-gray-600 mb-1">💰 Endkapital</span>
+              <span className="font-semibold text-sm text-green-600">
+                {(summary.endkapitalEntspharphase ?? 0).toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+              </span>
+            </div>
+            {summary.monatlicheAuszahlung && (
+              <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
+                <span className="text-xs text-gray-600 mb-1">💶 Monatliche Auszahlung</span>
+                <span className="font-semibold text-sm text-slate-800">
+                  {summary.monatlicheAuszahlung.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
+                </span>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+    )
+  }
 
-    // Calculate proper withdrawal end year
-    let withdrawalEndYear = endOfLife || startEnd[1] // Use global end of life or fall back to startEnd[1]
+  // Helper to calculate withdrawal end year
+  const calculateWithdrawalEndYear = (
+    summary: EnhancedSummary,
+    endOfLife: number | undefined,
+    fallbackEndYear: number,
+  ): number => {
+    let withdrawalEndYear = endOfLife || fallbackEndYear
 
     // If we have segmented withdrawal, use the actual end year from segments
-    if (enhancedSummary.isSegmentedWithdrawal
-      && enhancedSummary.withdrawalSegments
-      && enhancedSummary.withdrawalSegments.length > 0) {
-      // Find the latest end year from all segments
-      const segmentEndYears = enhancedSummary.withdrawalSegments
-        .map(segment => segment.endYear)
-        .filter(year => typeof year === 'number' && !isNaN(year))
+    const hasSegments = summary.isSegmentedWithdrawal
+      && summary.withdrawalSegments
+      && summary.withdrawalSegments.length > 0
+
+    if (hasSegments) {
+      const segmentEndYears = summary.withdrawalSegments!
+        .map((segment: { endYear: number | null }) => segment.endYear)
+        .filter((year: number | null): year is number => typeof year === 'number' && !isNaN(year))
 
       if (segmentEndYears.length > 0) {
         withdrawalEndYear = Math.max(...segmentEndYears)
       }
     }
 
+    return withdrawalEndYear
+  }
+
+  // Helper to check if we have multiple withdrawal segments
+  const hasMultipleSegments = (summary: EnhancedSummary): boolean => {
+    return summary.isSegmentedWithdrawal === true
+      && summary.withdrawalSegments !== undefined
+      && summary.withdrawalSegments.length > 1
+  }
+
+  const renderEntnahmenContent = () => {
+    if (!enhancedSummary.endkapitalEntspharphase) {
+      return null
+    }
+
+    const withdrawalStartYear = startEnd[0] + 1
+    const withdrawalEndYear = calculateWithdrawalEndYear(enhancedSummary, endOfLife, startEnd[1])
     const withdrawalYearsRange = `${withdrawalStartYear} - ${withdrawalEndYear}`
+    const hasSegments = hasMultipleSegments(enhancedSummary)
 
-    // Check if we have segmented withdrawal
-    const hasSegments = enhancedSummary.isSegmentedWithdrawal
-      && enhancedSummary.withdrawalSegments
-      && enhancedSummary.withdrawalSegments.length > 1
-
-    if (isMobile) {
-      // Mobile: Zeit / Startkapital / Endkapital (symbols and numbers only)
-      return (
-        <div className="flex justify-around items-center gap-4">
-          <div className="flex flex-col items-center text-center">
-            <span className="text-xl mb-1">⏱️</span>
-            <span className="text-xs font-semibold text-slate-800">
-              {withdrawalYearsRange}
-              {hasSegments && ` (${enhancedSummary.withdrawalSegments!.length})`}
-            </span>
-          </div>
-          <div className="flex flex-col items-center text-center">
-            <span className="text-xl mb-1">🏁</span>
-            <span className="text-sm font-semibold text-slate-800">{formatCompactCurrency(enhancedSummary.endkapital)}</span>
-          </div>
-          <div className="flex flex-col items-center text-center">
-            <span className="text-xl mb-1">💰</span>
-            <span className="text-sm font-semibold text-green-600">{formatCompactCurrency(enhancedSummary.endkapitalEntspharphase)}</span>
-          </div>
-        </div>
-      )
-    }
-    else {
-      // Desktop: Zeit / Startkapital / Endkapital
-      return (
-        <div className="w-full">
-          <div className="w-full">
-            <h4 className="m-0 mb-3 text-slate-800 text-sm font-semibold">
-              💸 Entsparphase (
-              {withdrawalYearsRange}
-              )
-              {hasSegments && (
-                <span className="text-sm text-teal-600 font-normal">
-                  {' '}
-                  -
-                  {enhancedSummary.withdrawalSegments!.length}
-                  {' '}
-                  Phasen
-                </span>
-              )}
-            </h4>
-            <div className="grid grid-cols-3 gap-3">
-              <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
-                <span className="text-xs text-gray-600 mb-1">🏁 Startkapital</span>
-                <span className="font-semibold text-sm text-slate-800">
-                  {enhancedSummary.endkapital.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                </span>
-              </div>
-              <div className="flex flex-col p-2 bg-gradient-to-br from-green-50 to-green-100 rounded-md border border-green-300">
-                <span className="text-xs text-gray-600 mb-1">💰 Endkapital</span>
-                <span className="font-semibold text-sm text-green-600">
-                  {enhancedSummary.endkapitalEntspharphase.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                </span>
-              </div>
-              {enhancedSummary.monatlicheAuszahlung && (
-                <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
-                  <span className="text-xs text-gray-600 mb-1">💶 Monatliche Auszahlung</span>
-                  <span className="font-semibold text-sm text-slate-800">
-                    {enhancedSummary.monatlicheAuszahlung.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}
-                  </span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )
-    }
+    return isMobile
+      ? renderMobileWithdrawalView(withdrawalYearsRange, hasSegments, enhancedSummary)
+      : renderDesktopWithdrawalView(withdrawalYearsRange, hasSegments, enhancedSummary)
   }
 
   const renderContent = () => {

@@ -21,6 +21,96 @@ interface CalculationInfoData {
   [key: string]: number | string | undefined
 }
 
+// Helper to convert yearly progression to table row format
+function convertProgressionToTableRow(progression: ReturnType<typeof getYearlyPortfolioProgression>[number]) {
+  return {
+    zeitpunkt: `1.1.${progression.year}`,
+    jahr: progression.year,
+    einzahlung: progression.yearlyContribution,
+    zinsen: progression.yearlyInterest.toFixed(2),
+    bezahlteSteuer: progression.yearlyTax.toFixed(2),
+    endkapital: progression.totalCapital.toFixed(2),
+    cumulativeContributions: progression.cumulativeContributions,
+    cumulativeInterest: progression.cumulativeInterest,
+    cumulativeTax: progression.cumulativeTax,
+    // Inflation-adjusted values
+    endkapitalReal: progression.totalCapitalReal?.toFixed(2),
+    zinsenReal: progression.yearlyInterestReal?.toFixed(2),
+    cumulativeInterestReal: progression.cumulativeInterestReal?.toFixed(2),
+  }
+}
+
+// Helper component to render Günstigerprüfung information
+function GuenstigerpruefungDisplay({
+  elemente,
+  jahr,
+}: {
+  elemente?: SparplanElement[]
+  jahr: number
+}) {
+  const elementWithGuenstigerPruefung = elemente?.find(el =>
+    el.simulation[jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult,
+  )
+
+  const pruefungResult = elementWithGuenstigerPruefung
+    ?.simulation[jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult
+
+  if (!pruefungResult) {
+    return null
+  }
+
+  const favorableText = pruefungResult.isFavorable === 'personal'
+    ? 'Persönlicher Steuersatz'
+    : 'Abgeltungssteuer'
+  const usedRate = `${(pruefungResult.usedTaxRate * 100).toFixed(2)}%`
+
+  return (
+    <div className="bg-blue-50 px-2 py-1 rounded space-y-1">
+      <div className="flex justify-between items-center">
+        <span className="text-sm text-blue-600 font-medium">
+          🔍
+          {' '}
+          <GlossaryTerm term="guenstigerpruefung">
+            Günstigerprüfung
+          </GlossaryTerm>
+          :
+        </span>
+        <span className="font-semibold text-blue-700 text-sm">
+          {favorableText}
+          {' '}
+          (
+          {usedRate}
+          )
+        </span>
+      </div>
+      <div className="text-xs text-blue-600 italic">
+        {pruefungResult.explanation}
+      </div>
+    </div>
+  )
+}
+
+// Helper to create explanation based on type (outside component to reduce complexity)
+function createExplanationByType(
+  explanationType: string,
+  simData: SimulationResultElement,
+  rowData: CalculationInfoData,
+  createInterestFn: (simData: SimulationResultElement, rowData: CalculationInfoData) => CalculationExplanation,
+  createTaxFn: (simData: SimulationResultElement, jahr: number) => CalculationExplanation,
+  createEndkapitalFn: (simData: SimulationResultElement, rowData: CalculationInfoData) => CalculationExplanation,
+): CalculationExplanation | null {
+  switch (explanationType) {
+    case 'interest':
+      return createInterestFn(simData, rowData)
+    case 'tax':
+      return simData.vorabpauschaleDetails ? createTaxFn(simData, rowData.jahr) : null
+    case 'endkapital':
+      return createEndkapitalFn(simData, rowData)
+    default:
+      return null
+  }
+}
+
 // Info icon component for calculation explanations
 const InfoIcon = ({ onClick }: { onClick: () => void }) => (
   <svg
@@ -181,6 +271,40 @@ export function SparplanEnd({
   )
 }
 
+// Helper to format interest with optional inflation adjustment
+function formatInterestDisplay(
+  summary: Summary,
+  hasInflationData: boolean,
+  yearlyProgression: ReturnType<typeof getYearlyPortfolioProgression>,
+): string {
+  const latestProgression = yearlyProgression[yearlyProgression.length - 1]
+  if (hasInflationData && latestProgression?.cumulativeInterestReal !== undefined) {
+    return formatInflationAdjustedValue(
+      summary.zinsen || 0,
+      latestProgression.cumulativeInterestReal,
+      true,
+    )
+  }
+  return `${thousands(summary.zinsen?.toFixed(2) || '0')} €`
+}
+
+// Helper to format end capital with optional inflation adjustment
+function formatEndCapitalDisplay(
+  summary: Summary,
+  hasInflationData: boolean,
+  yearlyProgression: ReturnType<typeof getYearlyPortfolioProgression>,
+): string {
+  const latestProgression = yearlyProgression[yearlyProgression.length - 1]
+  if (hasInflationData && latestProgression?.totalCapitalReal !== undefined) {
+    return formatInflationAdjustedValue(
+      summary.endkapital || 0,
+      latestProgression.totalCapitalReal,
+      true,
+    )
+  }
+  return `${thousands(summary.endkapital?.toFixed(2) || '0')} €`
+}
+
 export function SparplanSimulationsAusgabe({
   elemente,
 }: {
@@ -202,23 +326,9 @@ export function SparplanSimulationsAusgabe({
   // Convert progression to table data format (reverse order to show newest first)
   const tableData = yearlyProgression
     .sort((a, b) => b.year - a.year)
-    .map(progression => ({
-      zeitpunkt: `1.1.${progression.year}`,
-      jahr: progression.year,
-      einzahlung: progression.yearlyContribution,
-      zinsen: progression.yearlyInterest.toFixed(2),
-      bezahlteSteuer: progression.yearlyTax.toFixed(2),
-      endkapital: progression.totalCapital.toFixed(2),
-      cumulativeContributions: progression.cumulativeContributions,
-      cumulativeInterest: progression.cumulativeInterest,
-      cumulativeTax: progression.cumulativeTax,
-      // Inflation-adjusted values
-      endkapitalReal: progression.totalCapitalReal?.toFixed(2),
-      zinsenReal: progression.yearlyInterestReal?.toFixed(2),
-      cumulativeInterestReal: progression.cumulativeInterestReal?.toFixed(2),
-    }))
+    .map(convertProgressionToTableRow)
 
-  const handleVorabpauschaleInfoClick = (details: VorabpauschaleDetails) => {
+  const showVorabpauschaleInfo = (details: VorabpauschaleDetails) => {
     setSelectedVorabDetails(details)
     setShowVorabpauschaleModal(true)
   }
@@ -272,28 +382,27 @@ export function SparplanSimulationsAusgabe({
     )
   }
 
-  const handleCalculationInfoClick = (explanationType: string, rowData: CalculationInfoData) => {
-    // Find simulation data for this year to get detailed information
-    const yearSimData = elemente?.find(el => el.simulation[rowData.jahr])
-    const simData = yearSimData?.simulation[rowData.jahr]
+  // Helper to find simulation data for a given year
+  const findSimulationDataForYear = (jahr: number) => {
+    const yearSimData = elemente?.find(el => el.simulation[jahr])
+    return yearSimData?.simulation[jahr]
+  }
+
+  const showCalculationInfo = (explanationType: string, rowData: CalculationInfoData) => {
+    const simData = findSimulationDataForYear(rowData.jahr)
 
     if (!simData) {
       return
     }
 
-    // Map explanation types to their creation functions
-    const explanationCreators: Record<string, () => CalculationExplanation | null> = {
-      interest: () => createInterestCalculationExplanation(simData, rowData),
-      tax: () => simData.vorabpauschaleDetails ? createTaxCalculationExplanation(simData, rowData.jahr) : null,
-      endkapital: () => createEndkapitalCalculationExplanation(simData, rowData),
-    }
-
-    const creator = explanationCreators[explanationType]
-    if (!creator) {
-      return
-    }
-
-    const explanation = creator()
+    const explanation = createExplanationByType(
+      explanationType,
+      simData,
+      rowData,
+      createInterestCalculationExplanation,
+      createTaxCalculationExplanation,
+      createEndkapitalCalculationExplanation,
+    )
     if (explanation) {
       setCalculationDetails(explanation)
       setShowCalculationModal(true)
@@ -348,7 +457,7 @@ export function SparplanSimulationsAusgabe({
                               true,
                             )
                           : `${thousands(row.endkapital)} €`}
-                        <InfoIcon onClick={() => handleCalculationInfoClick('endkapital', row)} />
+                        <InfoIcon onClick={() => showCalculationInfo('endkapital', row)} />
                       </span>
                     </div>
                     <div className="flex flex-col gap-2">
@@ -370,7 +479,7 @@ export function SparplanSimulationsAusgabe({
                                 true,
                               )
                             : `${thousands(row.zinsen)} €`}
-                          <InfoIcon onClick={() => handleCalculationInfoClick('interest', row)} />
+                          <InfoIcon onClick={() => showCalculationInfo('interest', row)} />
                         </span>
                       </div>
                       <div className="flex justify-between items-center py-1">
@@ -379,53 +488,12 @@ export function SparplanSimulationsAusgabe({
                           {thousands(row.bezahlteSteuer)}
                           {' '}
                           €
-                          <InfoIcon onClick={() => handleCalculationInfoClick('tax', row)} />
+                          <InfoIcon onClick={() => showCalculationInfo('tax', row)} />
                         </span>
                       </div>
 
                       {/* Show Günstigerprüfung information if available */}
-                      {(() => {
-                      // Find any element that has Günstigerprüfung results for this year
-                        const elementWithGuenstigerPruefung = elemente?.find(el =>
-                          el.simulation[row.jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult,
-                        )
-
-                        const pruefungResult = elementWithGuenstigerPruefung
-                          ?.simulation[row.jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult
-
-                        if (pruefungResult) {
-                          const favorableText = pruefungResult.isFavorable === 'personal'
-                            ? 'Persönlicher Steuersatz'
-                            : 'Abgeltungssteuer'
-                          const usedRate = `${(pruefungResult.usedTaxRate * 100).toFixed(2)}%`
-
-                          return (
-                            <div className="bg-blue-50 px-2 py-1 rounded space-y-1">
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-blue-600 font-medium">
-                                  🔍
-                                  {' '}
-                                  <GlossaryTerm term="guenstigerpruefung">
-                                    Günstigerprüfung
-                                  </GlossaryTerm>
-                                  :
-                                </span>
-                                <span className="font-semibold text-blue-700 text-sm">
-                                  {favorableText}
-                                  {' '}
-                                  (
-                                  {usedRate}
-                                  )
-                                </span>
-                              </div>
-                              <div className="text-xs text-blue-600 italic">
-                                {pruefungResult.explanation}
-                              </div>
-                            </div>
-                          )
-                        }
-                        return null
-                      })()}
+                      <GuenstigerpruefungDisplay elemente={elemente} jahr={row.jahr} />
                       <div className="flex justify-between items-center py-1">
                         <span className="text-sm text-gray-600 font-medium">💼 Kumulierte Einzahlungen:</span>
                         <span className="font-semibold text-gray-600 text-sm">
@@ -439,7 +507,7 @@ export function SparplanSimulationsAusgabe({
                       <VorabpauschaleDisplay
                         elemente={elemente}
                         jahr={row.jahr}
-                        onInfoClick={handleVorabpauschaleInfoClick}
+                        onInfoClick={showVorabpauschaleInfo}
                       />
                     </div>
                   </div>
@@ -460,17 +528,7 @@ export function SparplanSimulationsAusgabe({
                     <div className="flex flex-col text-center p-2 bg-white rounded border border-gray-300">
                       <span className="text-xs mb-1 opacity-80">📈 Zinsen</span>
                       <span className="font-bold text-sm">
-                        {(() => {
-                          const latestProgression = yearlyProgression[yearlyProgression.length - 1]
-                          if (hasInflationData && latestProgression?.cumulativeInterestReal !== undefined) {
-                            return formatInflationAdjustedValue(
-                              summary.zinsen || 0,
-                              latestProgression.cumulativeInterestReal,
-                              true,
-                            )
-                          }
-                          return `${thousands(summary.zinsen?.toFixed(2) || '0')} €`
-                        })()}
+                        {formatInterestDisplay(summary, hasInflationData, yearlyProgression)}
                       </span>
                     </div>
                     <div className="flex flex-col text-center p-2 bg-white rounded border border-gray-300">
@@ -484,18 +542,8 @@ export function SparplanSimulationsAusgabe({
                     <div className="flex flex-col text-center p-2 bg-gradient-to-br from-green-500 to-teal-500 text-white rounded border border-green-500">
                       <span className="text-xs mb-1 opacity-90">🎯 Endkapital</span>
                       <span className="font-bold text-sm flex items-center justify-center">
-                        {(() => {
-                          const latestProgression = yearlyProgression[yearlyProgression.length - 1]
-                          if (hasInflationData && latestProgression?.totalCapitalReal !== undefined) {
-                            return formatInflationAdjustedValue(
-                              summary.endkapital || 0,
-                              latestProgression.totalCapitalReal,
-                              true,
-                            )
-                          }
-                          return `${thousands(summary.endkapital?.toFixed(2) || '0')} €`
-                        })()}
-                        <InfoIcon onClick={() => handleCalculationInfoClick('endkapital', {
+                        {formatEndCapitalDisplay(summary, hasInflationData, yearlyProgression)}
+                        <InfoIcon onClick={() => showCalculationInfo('endkapital', {
                           jahr: tableData?.[0]?.jahr || new Date().getFullYear(),
                           endkapital: summary.endkapital?.toFixed(2) || '0',
                           einzahlung: summary.startkapital || 0,
