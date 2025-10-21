@@ -79,7 +79,12 @@ function StrategyCardContent({
         <Separator />
         <div>
           <Label className="text-sm font-medium">
-            Phasen konfigurieren ({strategy.segments.length} Phase{strategy.segments.length !== 1 ? 'n' : ''})
+            Phasen konfigurieren (
+            {strategy.segments.length}
+            {' '}
+            Phase
+            {strategy.segments.length !== 1 ? 'n' : ''}
+            )
           </Label>
           <div className="mt-2">
             <WithdrawalSegmentForm
@@ -114,7 +119,12 @@ function StrategyCard({
 }) {
   return (
     <Card key={strategy.id} nestingLevel={nestingLevel + 1} className="border-2">
-      <StrategyCardHeader strategy={strategy} nestingLevel={nestingLevel} onUpdateName={onUpdateName} onRemove={onRemove} />
+      <StrategyCardHeader
+        strategy={strategy}
+        nestingLevel={nestingLevel}
+        onUpdateName={onUpdateName}
+        onRemove={onRemove}
+      />
       <StrategyCardContent
         strategy={strategy}
         nestingLevel={nestingLevel}

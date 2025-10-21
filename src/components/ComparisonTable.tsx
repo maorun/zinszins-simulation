@@ -161,7 +161,10 @@ export function ComparisonTable({
               return (
                 <tr key={result.strategy.id}>
                   <td style={tdStyle}>{result.strategy.name}</td>
-                  <td style={tdRightStyle}>{result.strategy.rendite}%</td>
+                  <td style={tdRightStyle}>
+                    {result.strategy.rendite}
+                    %
+                  </td>
                   <td style={tdRightStyle}>{formatCurrency(result.finalCapital)}</td>
                   <td style={tdRightStyle}>{formatCurrency(result.averageAnnualWithdrawal)}</td>
                   <td style={tdRightStyle}>

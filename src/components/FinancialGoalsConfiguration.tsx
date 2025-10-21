@@ -287,7 +287,10 @@ export default function FinancialGoalsConfiguration() {
                           {achieved && <span className="text-green-600 text-xl">✅</span>}
                         </div>
                         <p className="text-sm text-gray-600">
-                          {getGoalTypeLabel(goal.type)} • Ziel: {formatEuro(goal.targetAmount)}
+                          {getGoalTypeLabel(goal.type)}
+                          {' '}
+                          • Ziel:
+                          {formatEuro(goal.targetAmount)}
                         </p>
                       </div>
                       <div className="flex gap-2">

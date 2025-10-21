@@ -82,7 +82,12 @@ export function SinglePaymentFormCard({
             <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
               Fügen Sie einmalige Zahlungen zu einem bestimmten Zeitpunkt hinzu
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); onSubmit() }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                onSubmit()
+              }}
+            >
               <SinglePaymentFormFields
                 formValues={formValues}
                 onFormChange={onFormChange}

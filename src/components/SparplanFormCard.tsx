@@ -85,7 +85,12 @@ export function SparplanFormCard({
             <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
               Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum
             </div>
-            <form onSubmit={(e) => { e.preventDefault(); onSubmit() }}>
+            <form
+              onSubmit={(e) => {
+                e.preventDefault()
+                onSubmit()
+              }}
+            >
               <SparplanFormFields
                 formValues={formValues}
                 simulationAnnual={simulationAnnual}

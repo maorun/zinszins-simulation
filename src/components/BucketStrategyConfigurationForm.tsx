@@ -104,7 +104,10 @@ function BaseWithdrawalRateSlider({ config, bucketConfig, onBucketConfigChange }
         />
         <div className="flex justify-between text-sm text-gray-500 mt-1">
           <span>1%</span>
-          <span className="font-medium text-gray-900">{(config.baseWithdrawalRate * 100).toFixed(1)}%</span>
+          <span className="font-medium text-gray-900">
+            {(config.baseWithdrawalRate * 100).toFixed(1)}
+            %
+          </span>
           <span>10%</span>
         </div>
       </div>
@@ -143,7 +146,10 @@ function RefillPercentageSlider({ config, bucketConfig, onBucketConfigChange }: 
         />
         <div className="flex justify-between text-sm text-gray-500 mt-1">
           <span>10%</span>
-          <span className="font-medium text-gray-900">{(config.refillPercentage * 100).toFixed(0)}%</span>
+          <span className="font-medium text-gray-900">
+            {(config.refillPercentage * 100).toFixed(0)}
+            %
+          </span>
           <span>100%</span>
         </div>
       </div>
@@ -155,9 +161,9 @@ function RefillPercentageSlider({ config, bucketConfig, onBucketConfigChange }: 
 }
 
 type ConfigFieldProps = {
-  config: BucketStrategyConfig
-  bucketConfig: BucketStrategyConfig | undefined
-  onBucketConfigChange: (config: BucketStrategyConfig) => void
+  config: BucketConfig
+  bucketConfig: BucketConfig | undefined
+  onBucketConfigChange: (config: BucketConfig) => void
 }
 
 export function BucketStrategyConfigurationForm({
@@ -169,10 +175,26 @@ export function BucketStrategyConfigurationForm({
   return (
     <div className="space-y-4">
       <Label className="text-base font-medium">Drei-Eimer-Strategie Konfiguration</Label>
-      <CashCushionField config={config} bucketConfig={bucketConfig} onBucketConfigChange={onBucketConfigChange} />
-      <BaseWithdrawalRateSlider config={config} bucketConfig={bucketConfig} onBucketConfigChange={onBucketConfigChange} />
-      <RefillThresholdField config={config} bucketConfig={bucketConfig} onBucketConfigChange={onBucketConfigChange} />
-      <RefillPercentageSlider config={config} bucketConfig={bucketConfig} onBucketConfigChange={onBucketConfigChange} />
+      <CashCushionField
+        config={config}
+        bucketConfig={bucketConfig}
+        onBucketConfigChange={onBucketConfigChange}
+      />
+      <BaseWithdrawalRateSlider
+        config={config}
+        bucketConfig={bucketConfig}
+        onBucketConfigChange={onBucketConfigChange}
+      />
+      <RefillThresholdField
+        config={config}
+        bucketConfig={bucketConfig}
+        onBucketConfigChange={onBucketConfigChange}
+      />
+      <RefillPercentageSlider
+        config={config}
+        bucketConfig={bucketConfig}
+        onBucketConfigChange={onBucketConfigChange}
+      />
     </div>
   )
 }
