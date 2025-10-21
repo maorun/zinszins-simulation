@@ -42,24 +42,23 @@ function NominalReturnSlider({
   updateFormValue?: (value: KapitalerhaltFormValues) => void
   onChange?: KapitalerhaltChangeHandlers
 }) {
+  const handleValueChange = (values: number[]) => {
+    const newValue = values[0]
+    if (isFormMode) {
+      updateFormValue!({ ...formValue!, kapitalerhaltNominalReturn: newValue })
+    }
+    else {
+      onChange!.onNominalReturnChange(newValue)
+    }
+  }
+
   return (
     <div className="space-y-2">
       <Label>Erwartete nominale Rendite (%)</Label>
       <div className="space-y-2">
         <Slider
           value={[value]}
-          onValueChange={(values: number[]) => {
-            const newValue = values[0]
-            if (isFormMode) {
-              updateFormValue!({
-                ...formValue!,
-                kapitalerhaltNominalReturn: newValue,
-              })
-            }
-            else {
-              onChange!.onNominalReturnChange(newValue)
-            }
-          }}
+          onValueChange={handleValueChange}
           min={0}
           max={15}
           step={0.1}
@@ -97,24 +96,23 @@ function InflationRateSlider({
   updateFormValue?: (value: KapitalerhaltFormValues) => void
   onChange?: KapitalerhaltChangeHandlers
 }) {
+  const handleValueChange = (values: number[]) => {
+    const newValue = values[0]
+    if (isFormMode) {
+      updateFormValue!({ ...formValue!, kapitalerhaltInflationRate: newValue })
+    }
+    else {
+      onChange!.onInflationRateChange(newValue)
+    }
+  }
+
   return (
     <div className="space-y-2">
       <Label>Erwartete Inflationsrate (%)</Label>
       <div className="space-y-2">
         <Slider
           value={[value]}
-          onValueChange={(values: number[]) => {
-            const newValue = values[0]
-            if (isFormMode) {
-              updateFormValue!({
-                ...formValue!,
-                kapitalerhaltInflationRate: newValue,
-              })
-            }
-            else {
-              onChange!.onInflationRateChange(newValue)
-            }
-          }}
+          onValueChange={handleValueChange}
           min={0}
           max={8}
           step={0.1}
