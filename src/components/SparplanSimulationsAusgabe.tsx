@@ -40,6 +40,56 @@ function convertProgressionToTableRow(progression: ReturnType<typeof getYearlyPo
   }
 }
 
+// Helper component to render Günstigerprüfung information
+function GuenstigerpruefungDisplay({
+  elemente,
+  jahr,
+}: {
+  elemente?: SparplanElement[]
+  jahr: number
+}) {
+  const elementWithGuenstigerPruefung = elemente?.find(el =>
+    el.simulation[jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult,
+  )
+
+  const pruefungResult = elementWithGuenstigerPruefung
+    ?.simulation[jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult
+
+  if (!pruefungResult) {
+    return null
+  }
+
+  const favorableText = pruefungResult.isFavorable === 'personal'
+    ? 'Persönlicher Steuersatz'
+    : 'Abgeltungssteuer'
+  const usedRate = `${(pruefungResult.usedTaxRate * 100).toFixed(2)}%`
+
+  return (
+    <div className="bg-blue-50 px-2 py-1 rounded space-y-1">
+      <div className="flex justify-between items-center">
+        <span className="text-sm text-blue-600 font-medium">
+          🔍
+          {' '}
+          <GlossaryTerm term="guenstigerpruefung">
+            Günstigerprüfung
+          </GlossaryTerm>
+          :
+        </span>
+        <span className="font-semibold text-blue-700 text-sm">
+          {favorableText}
+          {' '}
+          (
+          {usedRate}
+          )
+        </span>
+      </div>
+      <div className="text-xs text-blue-600 italic">
+        {pruefungResult.explanation}
+      </div>
+    </div>
+  )
+}
+
 // Helper to create explanation based on type (outside component to reduce complexity)
 function createExplanationByType(
   explanationType: string,
@@ -219,6 +269,40 @@ export function SparplanEnd({
       </Collapsible>
     </Card>
   )
+}
+
+// Helper to format interest with optional inflation adjustment
+function formatInterestDisplay(
+  summary: Summary,
+  hasInflationData: boolean,
+  yearlyProgression: ReturnType<typeof getYearlyPortfolioProgression>,
+): string {
+  const latestProgression = yearlyProgression[yearlyProgression.length - 1]
+  if (hasInflationData && latestProgression?.cumulativeInterestReal !== undefined) {
+    return formatInflationAdjustedValue(
+      summary.zinsen || 0,
+      latestProgression.cumulativeInterestReal,
+      true,
+    )
+  }
+  return `${thousands(summary.zinsen?.toFixed(2) || '0')} €`
+}
+
+// Helper to format end capital with optional inflation adjustment
+function formatEndCapitalDisplay(
+  summary: Summary,
+  hasInflationData: boolean,
+  yearlyProgression: ReturnType<typeof getYearlyPortfolioProgression>,
+): string {
+  const latestProgression = yearlyProgression[yearlyProgression.length - 1]
+  if (hasInflationData && latestProgression?.totalCapitalReal !== undefined) {
+    return formatInflationAdjustedValue(
+      summary.endkapital || 0,
+      latestProgression.totalCapitalReal,
+      true,
+    )
+  }
+  return `${thousands(summary.endkapital?.toFixed(2) || '0')} €`
 }
 
 export function SparplanSimulationsAusgabe({
@@ -409,48 +493,7 @@ export function SparplanSimulationsAusgabe({
                       </div>
 
                       {/* Show Günstigerprüfung information if available */}
-                      {(() => {
-                      // Find any element that has Günstigerprüfung results for this year
-                        const elementWithGuenstigerPruefung = elemente?.find(el =>
-                          el.simulation[row.jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult,
-                        )
-
-                        const pruefungResult = elementWithGuenstigerPruefung
-                          ?.simulation[row.jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult
-
-                        if (pruefungResult) {
-                          const favorableText = pruefungResult.isFavorable === 'personal'
-                            ? 'Persönlicher Steuersatz'
-                            : 'Abgeltungssteuer'
-                          const usedRate = `${(pruefungResult.usedTaxRate * 100).toFixed(2)}%`
-
-                          return (
-                            <div className="bg-blue-50 px-2 py-1 rounded space-y-1">
-                              <div className="flex justify-between items-center">
-                                <span className="text-sm text-blue-600 font-medium">
-                                  🔍
-                                  {' '}
-                                  <GlossaryTerm term="guenstigerpruefung">
-                                    Günstigerprüfung
-                                  </GlossaryTerm>
-                                  :
-                                </span>
-                                <span className="font-semibold text-blue-700 text-sm">
-                                  {favorableText}
-                                  {' '}
-                                  (
-                                  {usedRate}
-                                  )
-                                </span>
-                              </div>
-                              <div className="text-xs text-blue-600 italic">
-                                {pruefungResult.explanation}
-                              </div>
-                            </div>
-                          )
-                        }
-                        return null
-                      })()}
+                      <GuenstigerpruefungDisplay elemente={elemente} jahr={row.jahr} />
                       <div className="flex justify-between items-center py-1">
                         <span className="text-sm text-gray-600 font-medium">💼 Kumulierte Einzahlungen:</span>
                         <span className="font-semibold text-gray-600 text-sm">
@@ -485,17 +528,7 @@ export function SparplanSimulationsAusgabe({
                     <div className="flex flex-col text-center p-2 bg-white rounded border border-gray-300">
                       <span className="text-xs mb-1 opacity-80">📈 Zinsen</span>
                       <span className="font-bold text-sm">
-                        {(() => {
-                          const latestProgression = yearlyProgression[yearlyProgression.length - 1]
-                          if (hasInflationData && latestProgression?.cumulativeInterestReal !== undefined) {
-                            return formatInflationAdjustedValue(
-                              summary.zinsen || 0,
-                              latestProgression.cumulativeInterestReal,
-                              true,
-                            )
-                          }
-                          return `${thousands(summary.zinsen?.toFixed(2) || '0')} €`
-                        })()}
+                        {formatInterestDisplay(summary, hasInflationData, yearlyProgression)}
                       </span>
                     </div>
                     <div className="flex flex-col text-center p-2 bg-white rounded border border-gray-300">
@@ -509,17 +542,7 @@ export function SparplanSimulationsAusgabe({
                     <div className="flex flex-col text-center p-2 bg-gradient-to-br from-green-500 to-teal-500 text-white rounded border border-green-500">
                       <span className="text-xs mb-1 opacity-90">🎯 Endkapital</span>
                       <span className="font-bold text-sm flex items-center justify-center">
-                        {(() => {
-                          const latestProgression = yearlyProgression[yearlyProgression.length - 1]
-                          if (hasInflationData && latestProgression?.totalCapitalReal !== undefined) {
-                            return formatInflationAdjustedValue(
-                              summary.endkapital || 0,
-                              latestProgression.totalCapitalReal,
-                              true,
-                            )
-                          }
-                          return `${thousands(summary.endkapital?.toFixed(2) || '0')} €`
-                        })()}
+                        {formatEndCapitalDisplay(summary, hasInflationData, yearlyProgression)}
                         <InfoIcon onClick={() => showCalculationInfo('endkapital', {
                           jahr: tableData?.[0]?.jahr || new Date().getFullYear(),
                           endkapital: summary.endkapital?.toFixed(2) || '0',
