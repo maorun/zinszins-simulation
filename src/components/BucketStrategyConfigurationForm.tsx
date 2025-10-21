@@ -73,6 +73,93 @@ function createSliderHandler(
   }
 }
 
+function CashCushionField({ config, bucketConfig, onBucketConfigChange }: ConfigFieldProps) {
+  return (
+    <div className="space-y-2">
+      <Label>Anfängliches Cash-Polster (€)</Label>
+      <Input
+        type="number"
+        value={config.initialCashCushion}
+        onChange={createNumberInputHandler(bucketConfig, onBucketConfigChange, 'initialCashCushion', 20000)}
+      />
+      <p className="text-sm text-gray-600">
+        Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen
+      </p>
+    </div>
+  )
+}
+
+function BaseWithdrawalRateSlider({ config, bucketConfig, onBucketConfigChange }: ConfigFieldProps) {
+  return (
+    <div className="space-y-2">
+      <Label>Basis-Entnahmerate (%)</Label>
+      <div className="px-3">
+        <Slider
+          value={[config.baseWithdrawalRate * 100]}
+          onValueChange={createSliderHandler(bucketConfig, onBucketConfigChange, 'baseWithdrawalRate', 100)}
+          max={10}
+          min={1}
+          step={0.1}
+          className="w-full"
+        />
+        <div className="flex justify-between text-sm text-gray-500 mt-1">
+          <span>1%</span>
+          <span className="font-medium text-gray-900">{(config.baseWithdrawalRate * 100).toFixed(1)}%</span>
+          <span>10%</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function RefillThresholdField({ config, bucketConfig, onBucketConfigChange }: ConfigFieldProps) {
+  return (
+    <div className="space-y-2">
+      <Label>Auffüll-Schwellenwert (€)</Label>
+      <Input
+        type="number"
+        value={config.refillThreshold}
+        onChange={createNumberInputHandler(bucketConfig, onBucketConfigChange, 'refillThreshold', 5000)}
+      />
+      <p className="text-sm text-gray-600">
+        Überschreiten die jährlichen Gewinne diesen Betrag, wird Cash-Polster aufgefüllt
+      </p>
+    </div>
+  )
+}
+
+function RefillPercentageSlider({ config, bucketConfig, onBucketConfigChange }: ConfigFieldProps) {
+  return (
+    <div className="space-y-2">
+      <Label>Auffüll-Anteil (%)</Label>
+      <div className="px-3">
+        <Slider
+          value={[config.refillPercentage * 100]}
+          onValueChange={createSliderHandler(bucketConfig, onBucketConfigChange, 'refillPercentage', 100)}
+          max={100}
+          min={10}
+          step={5}
+          className="w-full"
+        />
+        <div className="flex justify-between text-sm text-gray-500 mt-1">
+          <span>10%</span>
+          <span className="font-medium text-gray-900">{(config.refillPercentage * 100).toFixed(0)}%</span>
+          <span>100%</span>
+        </div>
+      </div>
+      <p className="text-sm text-gray-600">
+        Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird
+      </p>
+    </div>
+  )
+}
+
+type ConfigFieldProps = {
+  config: BucketStrategyConfig
+  bucketConfig: BucketStrategyConfig | undefined
+  onBucketConfigChange: (config: BucketStrategyConfig) => void
+}
+
 export function BucketStrategyConfigurationForm({
   bucketConfig,
   onBucketConfigChange,
@@ -82,77 +169,10 @@ export function BucketStrategyConfigurationForm({
   return (
     <div className="space-y-4">
       <Label className="text-base font-medium">Drei-Eimer-Strategie Konfiguration</Label>
-
-      <div className="space-y-2">
-        <Label>Anfängliches Cash-Polster (€)</Label>
-        <Input
-          type="number"
-          value={config.initialCashCushion}
-          onChange={createNumberInputHandler(bucketConfig, onBucketConfigChange, 'initialCashCushion', 20000)}
-        />
-        <p className="text-sm text-gray-600">
-          Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen
-        </p>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Basis-Entnahmerate (%)</Label>
-        <div className="px-3">
-          <Slider
-            value={[config.baseWithdrawalRate * 100]}
-            onValueChange={createSliderHandler(bucketConfig, onBucketConfigChange, 'baseWithdrawalRate', 100)}
-            max={10}
-            min={1}
-            step={0.1}
-            className="w-full"
-          />
-          <div className="flex justify-between text-sm text-gray-500 mt-1">
-            <span>1%</span>
-            <span className="font-medium text-gray-900">
-              {(config.baseWithdrawalRate * 100).toFixed(1)}
-              %
-            </span>
-            <span>10%</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Auffüll-Schwellenwert (€)</Label>
-        <Input
-          type="number"
-          value={config.refillThreshold}
-          onChange={createNumberInputHandler(bucketConfig, onBucketConfigChange, 'refillThreshold', 5000)}
-        />
-        <p className="text-sm text-gray-600">
-          Überschreiten die jährlichen Gewinne diesen Betrag, wird Cash-Polster aufgefüllt
-        </p>
-      </div>
-
-      <div className="space-y-2">
-        <Label>Auffüll-Anteil (%)</Label>
-        <div className="px-3">
-          <Slider
-            value={[config.refillPercentage * 100]}
-            onValueChange={createSliderHandler(bucketConfig, onBucketConfigChange, 'refillPercentage', 100)}
-            max={100}
-            min={10}
-            step={5}
-            className="w-full"
-          />
-          <div className="flex justify-between text-sm text-gray-500 mt-1">
-            <span>10%</span>
-            <span className="font-medium text-gray-900">
-              {(config.refillPercentage * 100).toFixed(0)}
-              %
-            </span>
-            <span>100%</span>
-          </div>
-        </div>
-        <p className="text-sm text-gray-600">
-          Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird
-        </p>
-      </div>
+      <CashCushionField config={config} bucketConfig={bucketConfig} onBucketConfigChange={onBucketConfigChange} />
+      <BaseWithdrawalRateSlider config={config} bucketConfig={bucketConfig} onBucketConfigChange={onBucketConfigChange} />
+      <RefillThresholdField config={config} bucketConfig={bucketConfig} onBucketConfigChange={onBucketConfigChange} />
+      <RefillPercentageSlider config={config} bucketConfig={bucketConfig} onBucketConfigChange={onBucketConfigChange} />
     </div>
   )
 }
