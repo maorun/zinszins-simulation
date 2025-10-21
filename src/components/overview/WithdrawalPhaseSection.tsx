@@ -1,9 +1,70 @@
-import type { EnhancedSummary } from '../../utils/summary-utils'
+import type { EnhancedSummary, WithdrawalSegmentSummary } from '../../utils/summary-utils'
 
 interface WithdrawalPhaseSectionProps {
   withdrawalStartYear: number
   withdrawalEndYear: number
   enhancedSummary: EnhancedSummary
+}
+
+function MetricCard({ icon, label, value }: { icon: string, label: string, value: string }) {
+  return (
+    <div className="flex justify-between items-center p-2.5 sm:p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300 transition-all hover:bg-gray-100 hover:translate-x-1">
+      <span className="font-medium text-gray-700 text-sm">
+        {icon}
+        {' '}
+        {label}
+      </span>
+      <span className="font-bold text-slate-700 text-right text-sm sm:text-base">{value}</span>
+    </div>
+  )
+}
+
+function formatEuro(value: number): string {
+  return value.toLocaleString('de-DE', {
+    style: 'currency',
+    currency: 'EUR',
+  })
+}
+
+function SegmentCardHeader({ segment }: { segment: WithdrawalSegmentSummary }) {
+  return (
+    <h5 className="m-0 mb-2.5 sm:mb-3 text-slate-700 text-sm sm:text-base font-semibold">
+      {segment.name}
+      {' '}
+      (
+      {segment.startYear}
+      {' '}
+      -
+      {' '}
+      {segment.endYear}
+      ) -
+      {' '}
+      {segment.strategy}
+    </h5>
+  )
+}
+
+function SegmentCard({ segment }: { segment: WithdrawalSegmentSummary }) {
+  return (
+    <div
+      key={segment.id}
+      className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4 border-l-4 border-l-cyan-600"
+    >
+      <SegmentCardHeader segment={segment} />
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
+        <MetricCard icon="🏁" label="Startkapital" value={formatEuro(segment.startkapital)} />
+        <MetricCard icon="💰" label="Endkapital" value={formatEuro(segment.endkapital)} />
+        <MetricCard icon="💸" label="Entnahme gesamt" value={formatEuro(segment.totalWithdrawn)} />
+        {segment.averageMonthlyWithdrawal > 0 && (
+          <MetricCard
+            icon="💶"
+            label="Monatlich Ø"
+            value={formatEuro(segment.averageMonthlyWithdrawal)}
+          />
+        )}
+      </div>
+    </div>
+  )
 }
 
 /**
@@ -47,65 +108,9 @@ export function WithdrawalPhaseSection({
 
       {hasSegmentedWithdrawal
         ? (
-            // Display segmented withdrawal phases
             <div className="flex flex-col gap-3 sm:gap-4">
               {enhancedSummary.withdrawalSegments!.map(segment => (
-                <div
-                  key={segment.id}
-                  className="bg-gray-50 border border-gray-200 rounded-lg p-3 sm:p-4 border-l-4 border-l-cyan-600"
-                >
-                  <h5 className="m-0 mb-2.5 sm:mb-3 text-slate-700 text-sm sm:text-base font-semibold">
-                    {segment.name}
-                    {' '}
-                    (
-                    {segment.startYear}
-                    {' '}
-                    -
-                    {segment.endYear}
-                    ) -
-                    {segment.strategy}
-                  </h5>
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3 sm:gap-4">
-                    <div className="flex justify-between items-center p-2.5 sm:p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300 transition-all hover:bg-gray-100 hover:translate-x-1">
-                      <span className="font-medium text-gray-700 text-sm">🏁 Startkapital</span>
-                      <span className="font-bold text-slate-700 text-right text-sm sm:text-base">
-                        {segment.startkapital.toLocaleString('de-DE', {
-                          style: 'currency',
-                          currency: 'EUR',
-                        })}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300 transition-all hover:bg-gray-100 hover:translate-x-1">
-                      <span className="font-medium text-gray-700 text-sm">💰 Endkapital</span>
-                      <span className="font-bold text-slate-700 text-right">
-                        {segment.endkapital.toLocaleString('de-DE', {
-                          style: 'currency',
-                          currency: 'EUR',
-                        })}
-                      </span>
-                    </div>
-                    <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300 transition-all hover:bg-gray-100 hover:translate-x-1">
-                      <span className="font-medium text-gray-700 text-sm">💸 Entnahme gesamt</span>
-                      <span className="font-bold text-slate-700 text-right">
-                        {segment.totalWithdrawn.toLocaleString('de-DE', {
-                          style: 'currency',
-                          currency: 'EUR',
-                        })}
-                      </span>
-                    </div>
-                    {segment.averageMonthlyWithdrawal > 0 && (
-                      <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300 transition-all hover:bg-gray-100 hover:translate-x-1">
-                        <span className="font-medium text-gray-700 text-sm">💶 Monatlich Ø</span>
-                        <span className="font-bold text-slate-700 text-right">
-                          {segment.averageMonthlyWithdrawal.toLocaleString('de-DE', {
-                            style: 'currency',
-                            currency: 'EUR',
-                          })}
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
+                <SegmentCard key={segment.id} segment={segment} />
               ))}
 
               {/* Overall withdrawal summary */}

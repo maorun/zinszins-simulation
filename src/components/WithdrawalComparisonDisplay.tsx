@@ -35,24 +35,115 @@ interface WithdrawalComparisonDisplayProps {
   comparisonResults: ComparisonResult[]
 }
 
+function StrategyCardHeader({ result }: { result: ComparisonResult }) {
+  return (
+    <h6 style={{ margin: '0 0 10px 0', color: '#666' }}>
+      {result.strategy.name}
+      {' '}
+      (
+      {result.strategy.rendite}
+      % Rendite)
+    </h6>
+  )
+}
+
+function StrategyCardMetrics({ result }: { result: ComparisonResult }) {
+  return (
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(150px, 1fr))',
+        gap: '10px',
+        fontSize: '14px',
+      }}
+    >
+      <div>
+        <strong>Endkapital:</strong>
+        {' '}
+        {formatCurrency(result.finalCapital)}
+      </div>
+      <div>
+        <strong>Gesamt-Entnahme:</strong>
+        {' '}
+        {formatCurrency(result.totalWithdrawal)}
+      </div>
+      <div>
+        <strong>Ø Jährlich:</strong>
+        {' '}
+        {formatCurrency(result.averageAnnualWithdrawal)}
+      </div>
+      <div>
+        <strong>Dauer:</strong>
+        {' '}
+        {typeof result.duration === 'number' ? `${result.duration} Jahre` : result.duration}
+      </div>
+    </div>
+  )
+}
+
+function ComparisonStrategyCard({ result }: { result: ComparisonResult }) {
+  return (
+    <div
+      key={result.strategy.id}
+      style={{
+        border: '1px solid #e5e5ea',
+        borderRadius: '6px',
+        padding: '15px',
+        backgroundColor: '#f8f9fa',
+      }}
+    >
+      <StrategyCardHeader result={result} />
+      <StrategyCardMetrics result={result} />
+    </div>
+  )
+}
+
+function ComparisonHeader({ startingCapital }: { startingCapital: number }) {
+  return (
+    <>
+      <h4>Strategien-Vergleich</h4>
+      <p>
+        <strong>Startkapital bei Entnahme:</strong>
+        {' '}
+        {formatCurrency(startingCapital)}
+      </p>
+    </>
+  )
+}
+
+function ComparisonStrategiesList({ comparisonResults }: { comparisonResults: ComparisonResult[] }) {
+  return (
+    <>
+      <h5>🔍 Vergleichs-Strategien</h5>
+      {comparisonResults.length > 0
+        ? (
+            <div style={{ display: 'grid', gap: '15px' }}>
+              {comparisonResults.map((result: ComparisonResult) => (
+                <ComparisonStrategyCard key={result.strategy.id} result={result} />
+              ))}
+            </div>
+          )
+        : (
+            <p style={{ color: '#666', fontStyle: 'italic' }}>
+              Keine Vergleichs-Strategien konfiguriert. Fügen Sie
+              Strategien über den Konfigurationsbereich hinzu.
+            </p>
+          )}
+    </>
+  )
+}
+
 export function WithdrawalComparisonDisplay({
   withdrawalData,
   formValue,
   comparisonResults,
 }: WithdrawalComparisonDisplayProps) {
-  // Use custom hook for data preparation
   const { baseStrategyData } = useComparisonData({ withdrawalData, formValue })
 
   return (
     <div>
-      <h4>Strategien-Vergleich</h4>
-      <p>
-        <strong>Startkapital bei Entnahme:</strong>
-        {' '}
-        {formatCurrency(withdrawalData.startingCapital)}
-      </p>
+      <ComparisonHeader startingCapital={withdrawalData.startingCapital} />
 
-      {/* Base strategy summary */}
       <ComparisonMetrics
         displayName={baseStrategyData.displayName}
         rendite={baseStrategyData.rendite}
@@ -62,75 +153,8 @@ export function WithdrawalComparisonDisplay({
         withdrawalLabel={baseStrategyData.withdrawalLabel}
       />
 
-      {/* Comparison strategies results */}
-      <h5>🔍 Vergleichs-Strategien</h5>
-      {comparisonResults.length > 0
-        ? (
-            <div style={{ display: 'grid', gap: '15px' }}>
-              {comparisonResults.map(
-                (result: ComparisonResult, _index: number) => (
-                  <div
-                    key={result.strategy.id}
-                    style={{
-                      border: '1px solid #e5e5ea',
-                      borderRadius: '6px',
-                      padding: '15px',
-                      backgroundColor: '#f8f9fa',
-                    }}
-                  >
-                    <h6 style={{ margin: '0 0 10px 0', color: '#666' }}>
-                      {result.strategy.name}
-                      {' '}
-                      (
-                      {result.strategy.rendite}
-                      %
-                      Rendite)
-                    </h6>
-                    <div
-                      style={{
-                        display: 'grid',
-                        gridTemplateColumns:
-                      'repeat(auto-fit, minmax(150px, 1fr))',
-                        gap: '10px',
-                        fontSize: '14px',
-                      }}
-                    >
-                      <div>
-                        <strong>Endkapital:</strong>
-                        {' '}
-                        {formatCurrency(result.finalCapital)}
-                      </div>
-                      <div>
-                        <strong>Gesamt-Entnahme:</strong>
-                        {' '}
-                        {formatCurrency(result.totalWithdrawal)}
-                      </div>
-                      <div>
-                        <strong>Ø Jährlich:</strong>
-                        {' '}
-                        {formatCurrency(result.averageAnnualWithdrawal)}
-                      </div>
-                      <div>
-                        <strong>Dauer:</strong>
-                        {' '}
-                        {typeof result.duration === 'number'
-                          ? `${result.duration} Jahre`
-                          : result.duration}
-                      </div>
-                    </div>
-                  </div>
-                ),
-              )}
-            </div>
-          )
-        : (
-            <p style={{ color: '#666', fontStyle: 'italic' }}>
-              Keine Vergleichs-Strategien konfiguriert. Fügen Sie
-              Strategien über den Konfigurationsbereich hinzu.
-            </p>
-          )}
+      <ComparisonStrategiesList comparisonResults={comparisonResults} />
 
-      {/* Comparison summary table */}
       <ComparisonTable
         baseStrategyName={baseStrategyData.displayName}
         baseStrategyRendite={baseStrategyData.rendite}
