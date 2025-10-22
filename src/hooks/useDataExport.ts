@@ -45,30 +45,42 @@ function generateWithdrawalFromConfig(
 }
 
 /**
+ * Helper to check if we can generate withdrawal data from config
+ */
+function canGenerateWithdrawalData(
+  savingsData: SavingsData | undefined,
+  context: SimulationContextState,
+): boolean {
+  return !!(savingsData?.sparplanElements && context.withdrawalConfig?.formValue)
+}
+
+/**
  * Helper function to get or generate withdrawal data for export
  */
 function getWithdrawalDataForExport(savingsData: SavingsData | undefined, context: SimulationContextState) {
+  // Return existing results if available
   if (context.withdrawalResults) {
     return context.withdrawalResults
   }
 
   const hasSavings = savingsData?.sparplanElements
-  const hasConfig = context.withdrawalConfig?.formValue
 
-  if (hasConfig && hasSavings && context.withdrawalConfig?.formValue) {
+  // Generate withdrawal data from explicit config
+  if (canGenerateWithdrawalData(savingsData, context)) {
     return generateWithdrawalFromConfig(
-      savingsData.sparplanElements,
+      savingsData!.sparplanElements,
       context,
-      context.withdrawalConfig.formValue.strategie,
-      context.withdrawalConfig.formValue.rendite / 100,
+      context.withdrawalConfig!.formValue.strategie,
+      context.withdrawalConfig!.formValue.rendite / 100,
       context.endOfLife,
-      context.withdrawalConfig.formValue.withdrawalFrequency,
+      context.withdrawalConfig!.formValue.withdrawalFrequency,
     )
   }
 
+  // Generate default withdrawal data if we have savings and basic config
   if (hasSavings && context.withdrawalConfig) {
     return generateWithdrawalFromConfig(
-      savingsData.sparplanElements,
+      savingsData!.sparplanElements,
       context,
       '4prozent',
       0.05,
