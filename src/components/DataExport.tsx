@@ -255,6 +255,48 @@ function NoDataWarning() {
   )
 }
 
+function ExportOptionsGrid({
+  hasSavingsData,
+  hasWithdrawalCapability,
+  isExporting,
+  exportResult,
+  exportType,
+  onExportSavings,
+  onExportWithdrawal,
+  onExportAll,
+  onExportMarkdown,
+  onCopyCalculations,
+}: Omit<DataExportSectionProps, 'hasAnyData'>) {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+      <CSVExportSection
+        hasSavingsData={hasSavingsData}
+        hasWithdrawalCapability={hasWithdrawalCapability}
+        isExporting={isExporting}
+        exportResult={exportResult}
+        exportType={exportType}
+        onExportSavings={onExportSavings}
+        onExportWithdrawal={onExportWithdrawal}
+        onExportAll={onExportAll}
+      />
+
+      <MarkdownExportSection
+        isExporting={isExporting}
+        exportResult={exportResult}
+        exportType={exportType}
+        onExport={onExportMarkdown}
+      />
+
+      <CalculationsExportSection
+        isExporting={isExporting}
+        exportResult={exportResult}
+        exportType={exportType}
+        onExport={onCopyCalculations}
+      />
+    </div>
+  )
+}
+
 function DataExportSection({
   hasAnyData,
   hasSavingsData,
@@ -281,32 +323,18 @@ function DataExportSection({
       {!hasAnyData && <NoDataWarning />}
 
       {hasAnyData && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-          <CSVExportSection
-            hasSavingsData={hasSavingsData}
-            hasWithdrawalCapability={hasWithdrawalCapability}
-            isExporting={isExporting}
-            exportResult={exportResult}
-            exportType={exportType}
-            onExportSavings={onExportSavings}
-            onExportWithdrawal={onExportWithdrawal}
-            onExportAll={onExportAll}
-          />
-
-          <MarkdownExportSection
-            isExporting={isExporting}
-            exportResult={exportResult}
-            exportType={exportType}
-            onExport={onExportMarkdown}
-          />
-
-          <CalculationsExportSection
-            isExporting={isExporting}
-            exportResult={exportResult}
-            exportType={exportType}
-            onExport={onCopyCalculations}
-          />
-        </div>
+        <ExportOptionsGrid
+          hasSavingsData={hasSavingsData}
+          hasWithdrawalCapability={hasWithdrawalCapability}
+          isExporting={isExporting}
+          exportResult={exportResult}
+          exportType={exportType}
+          onExportSavings={onExportSavings}
+          onExportWithdrawal={onExportWithdrawal}
+          onExportAll={onExportAll}
+          onExportMarkdown={onExportMarkdown}
+          onCopyCalculations={onCopyCalculations}
+        />
       )}
     </div>
   )
