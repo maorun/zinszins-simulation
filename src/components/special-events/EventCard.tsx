@@ -61,7 +61,7 @@ function InheritanceFields({ sparplan }: { sparplan: Sparplan }) {
     <div className="flex justify-between items-center">
       <span className="text-sm font-medium text-gray-600">👥 Verwandtschaft:</span>
       <span className="text-sm font-semibold text-green-600">
-        {getRelationshipTypeLabel(relationshipType as any)}
+        {getRelationshipTypeLabel(relationshipType)}
       </span>
     </div>
   )
@@ -78,7 +78,7 @@ function ExpenseTypeField({ sparplan }: { sparplan: Sparplan }) {
     <div className="flex justify-between items-center">
       <span className="text-sm font-medium text-gray-600">🏷️ Typ:</span>
       <span className="text-sm font-semibold text-red-600">
-        {getExpenseTypeLabel(expenseType as any)}
+        {getExpenseTypeLabel(expenseType)}
       </span>
     </div>
   )
