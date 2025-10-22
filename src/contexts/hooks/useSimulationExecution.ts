@@ -35,6 +35,35 @@ export interface SimulationExecutionState {
   personalTaxRate: number
 }
 
+function buildSimulationConfig(
+  state: SimulationExecutionState,
+  overwrite: { rendite?: number },
+  yearToday: number,
+) {
+  const returnConfig = buildFinalReturnConfig(overwrite, {
+    returnMode: state.returnMode,
+    rendite: state.rendite,
+    averageReturn: state.averageReturn,
+    standardDeviation: state.standardDeviation,
+    randomSeed: state.randomSeed,
+    variableReturns: state.variableReturns,
+    historicalIndex: state.historicalIndex,
+    multiAssetConfig: state.multiAssetConfig,
+    blackSwanReturns: state.blackSwanReturns,
+    inflationScenarioReturnModifiers: state.inflationScenarioReturnModifiers,
+  })
+
+  const variableInflationRates = prepareInflationRates({
+    inflationScenarioRates: state.inflationScenarioRates,
+    inflationAktivSparphase: state.inflationAktivSparphase,
+    inflationsrateSparphase: state.inflationsrateSparphase,
+    yearToday,
+    endYear: state.startEnd[0],
+  })
+
+  return { returnConfig, variableInflationRates }
+}
+
 export function useSimulationExecution(
   state: SimulationExecutionState,
   setIsLoading: (loading: boolean) => void,
@@ -45,26 +74,7 @@ export function useSimulationExecution(
   const performSimulation = useCallback(async (overwrite: { rendite?: number } = {}) => {
     setIsLoading(true)
     try {
-      const returnConfig = buildFinalReturnConfig(overwrite, {
-        returnMode: state.returnMode,
-        rendite: state.rendite,
-        averageReturn: state.averageReturn,
-        standardDeviation: state.standardDeviation,
-        randomSeed: state.randomSeed,
-        variableReturns: state.variableReturns,
-        historicalIndex: state.historicalIndex,
-        multiAssetConfig: state.multiAssetConfig,
-        blackSwanReturns: state.blackSwanReturns,
-        inflationScenarioReturnModifiers: state.inflationScenarioReturnModifiers,
-      })
-
-      const variableInflationRates = prepareInflationRates({
-        inflationScenarioRates: state.inflationScenarioRates,
-        inflationAktivSparphase: state.inflationAktivSparphase,
-        inflationsrateSparphase: state.inflationsrateSparphase,
-        yearToday,
-        endYear: state.startEnd[0],
-      })
+      const { returnConfig, variableInflationRates } = buildSimulationConfig(state, overwrite, yearToday)
 
       const result = runSimulation({
         yearToday,
