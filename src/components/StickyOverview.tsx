@@ -20,7 +20,7 @@ function MobileAnsparenView({
   formatCompactCurrency: (amount: number) => string
 }) {
   if (!enhancedSummary) return null
-  
+
   return (
     <div className="flex justify-around items-center gap-4">
       <div className="flex flex-col items-center text-center">
@@ -55,7 +55,7 @@ function DesktopAnsparenView({
   enhancedSummary: ReturnType<typeof getEnhancedOverviewSummary> | null
 }) {
   if (!enhancedSummary) return null
-  
+
   return (
     <div className="w-full">
       <div className="w-full">
@@ -180,7 +180,13 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
   }
 
   const renderAnsparenContent = () => (isMobile
-    ? <MobileAnsparenView yearsRange={yearsRange} enhancedSummary={enhancedSummary} formatCompactCurrency={formatCompactCurrency} />
+    ? (
+        <MobileAnsparenView
+          yearsRange={yearsRange}
+          enhancedSummary={enhancedSummary}
+          formatCompactCurrency={formatCompactCurrency}
+        />
+      )
     : <DesktopAnsparenView yearsRange={yearsRange} enhancedSummary={enhancedSummary} />
   )
 
