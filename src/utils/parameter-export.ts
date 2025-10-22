@@ -1,4 +1,5 @@
 import type { SimulationContextState } from '../contexts/SimulationContext'
+import type { SpecialEventData, Sparplan } from './sparplan-utils'
 
 /**
  * Helper function to format basic financial parameters
@@ -450,26 +451,7 @@ function getBucketSubStrategyLabel(subStrategy: string): string {
  * Parameters for formatSparplanItem helper function
  */
 interface FormatSparplanItemParams {
-  plan: {
-    eventType?: string
-    end?: Date | string | null
-    start: Date | string
-    einzahlung: number
-    specialEventData?: {
-      relationshipType?: string
-      grossInheritanceAmount?: number
-      expenseType?: string
-      creditTerms?: {
-        interestRate: number
-        termYears: number
-        monthlyPayment?: number
-      }
-      description?: string
-    }
-    ter?: number
-    transactionCostPercent?: number
-    transactionCostAbsolute?: number
-  }
+  plan: Sparplan
   index: number
 }
 
@@ -539,20 +521,7 @@ function formatSparplanBasicInfo(params: FormatSparplanBasicInfoParams): string[
  * Parameters for formatSparplanSpecialEventData helper function
  */
 interface FormatSparplanSpecialEventDataParams {
-  plan: {
-    eventType?: string
-    specialEventData?: {
-      relationshipType?: string
-      grossInheritanceAmount?: number
-      expenseType?: string
-      creditTerms?: {
-        interestRate: number
-        termYears: number
-        monthlyPayment?: number
-      }
-      description?: string
-    }
-  }
+  plan: Sparplan
   isInheritance: boolean
   isExpense: boolean
 }
@@ -560,7 +529,7 @@ interface FormatSparplanSpecialEventDataParams {
 /**
  * Helper function to format special event data
  */
-function formatInheritanceData(specialEventData: any): string[] {
+function formatInheritanceData(specialEventData: SpecialEventData): string[] {
   const lines: string[] = []
   if (specialEventData.relationshipType) {
     lines.push(`    Verwandtschaftsgrad: ${specialEventData.relationshipType}`)
@@ -571,7 +540,7 @@ function formatInheritanceData(specialEventData: any): string[] {
   return lines
 }
 
-function formatExpenseData(specialEventData: any): string[] {
+function formatExpenseData(specialEventData: SpecialEventData): string[] {
   const lines: string[] = []
   if (specialEventData.expenseType) {
     lines.push(`    Ausgabentyp: ${specialEventData.expenseType}`)

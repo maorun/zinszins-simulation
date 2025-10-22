@@ -13,7 +13,7 @@ function hasWithdrawalCapability(
   hasWithdrawalConfig: boolean,
   hasWithdrawalConfigFromStorage: boolean,
   hasSavingsData: boolean,
-  withdrawalConfig: any,
+  withdrawalConfig: { formValue?: unknown } | null,
 ): boolean {
   return hasWithdrawalData
     || hasWithdrawalConfig

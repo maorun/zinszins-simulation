@@ -62,9 +62,10 @@ function SparplanFormButtons({ isEditMode, showCancelButton, onCancel, disabled 
   )
 }
 
-export function SparplanFormCard({
-  isOpen,
-  onOpenChange,
+/**
+ * Form content for sparplan
+ */
+function SparplanForm({
   formValues,
   simulationAnnual,
   onFormChange,
@@ -75,6 +76,41 @@ export function SparplanFormCard({
   isEditMode,
   showCancelButton,
   onCancel,
+}: Omit<SparplanFormCardProps, 'isOpen' | 'onOpenChange'>) {
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSubmit()
+      }}
+    >
+      <SparplanFormFields
+        formValues={formValues}
+        simulationAnnual={simulationAnnual}
+        onFormChange={onFormChange}
+        formatDateForInput={formatDateForInput}
+        handleDateChange={handleDateChange}
+        handleNumberChange={handleNumberChange}
+      />
+      <CostFactorFields
+        values={formValues}
+        onValueChange={values => onFormChange({ ...formValues, ...values })}
+        handleNumberChange={handleNumberChange}
+      />
+      <SparplanFormButtons
+        isEditMode={isEditMode}
+        showCancelButton={showCancelButton}
+        onCancel={onCancel}
+        disabled={!formValues.start || !formValues.einzahlung}
+      />
+    </form>
+  )
+}
+
+export function SparplanFormCard({
+  isOpen,
+  onOpenChange,
+  ...formProps
 }: SparplanFormCardProps) {
   return (
     <Card className="mb-6">
@@ -85,32 +121,7 @@ export function SparplanFormCard({
             <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
               Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum
             </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                onSubmit()
-              }}
-            >
-              <SparplanFormFields
-                formValues={formValues}
-                simulationAnnual={simulationAnnual}
-                onFormChange={onFormChange}
-                formatDateForInput={formatDateForInput}
-                handleDateChange={handleDateChange}
-                handleNumberChange={handleNumberChange}
-              />
-              <CostFactorFields
-                values={formValues}
-                onValueChange={values => onFormChange({ ...formValues, ...values })}
-                handleNumberChange={handleNumberChange}
-              />
-              <SparplanFormButtons
-                isEditMode={isEditMode}
-                showCancelButton={showCancelButton}
-                onCancel={onCancel}
-                disabled={!formValues.start || !formValues.einzahlung}
-              />
-            </form>
+            <SparplanForm {...formProps} />
           </CardContent>
         </CollapsibleContent>
       </Collapsible>

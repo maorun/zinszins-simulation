@@ -516,9 +516,21 @@ interface TaxIncomeDataParams {
 }
 
 /**
+ * Type for other income field in withdrawal result
+ */
+interface OtherIncomeField {
+  totalNetAmount: number
+  totalTaxAmount: number
+  sourceCount: number
+}
+
+/**
  * Helper to safely get other income value
  */
-function getOtherIncomeValue(otherIncome: any | undefined, field: 'totalNetAmount' | 'totalTaxAmount' | 'sourceCount'): number {
+function getOtherIncomeValue(
+  otherIncome: OtherIncomeField | undefined,
+  field: 'totalNetAmount' | 'totalTaxAmount' | 'sourceCount',
+): number {
   if (!otherIncome) {
     return 0
   }

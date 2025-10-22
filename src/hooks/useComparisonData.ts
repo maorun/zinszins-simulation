@@ -43,7 +43,7 @@ interface WithdrawalDetails {
 function calculateWithdrawalDetails(
   strategy: string,
   startingCapital: number,
-  formValue: any,
+  formValue: WithdrawalFormValue,
 ): WithdrawalDetails {
   if (strategy === '4prozent') {
     return {

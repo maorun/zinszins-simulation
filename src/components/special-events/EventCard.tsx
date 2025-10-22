@@ -61,7 +61,7 @@ function InheritanceFields({ sparplan }: { sparplan: Sparplan }) {
     <div className="flex justify-between items-center">
       <span className="text-sm font-medium text-gray-600">👥 Verwandtschaft:</span>
       <span className="text-sm font-semibold text-green-600">
-        {getRelationshipTypeLabel(relationshipType as any)}
+        {getRelationshipTypeLabel(relationshipType)}
       </span>
     </div>
   )
@@ -78,7 +78,7 @@ function ExpenseTypeField({ sparplan }: { sparplan: Sparplan }) {
     <div className="flex justify-between items-center">
       <span className="text-sm font-medium text-gray-600">🏷️ Typ:</span>
       <span className="text-sm font-semibold text-red-600">
-        {getExpenseTypeLabel(expenseType as any)}
+        {getExpenseTypeLabel(expenseType)}
       </span>
     </div>
   )
@@ -119,6 +119,51 @@ function DescriptionField({ description }: { description?: string }) {
   )
 }
 
+/**
+ * Event details section
+ */
+function EventDetails({
+  isInheritance,
+  isExpense,
+  style,
+  formattedDate,
+  formattedAmount,
+  sparplan,
+}: {
+  isInheritance: boolean
+  isExpense: boolean
+  style: ReturnType<typeof getEventStyle>
+  formattedDate: string
+  formattedAmount: string
+  sparplan: Sparplan
+}) {
+  return (
+    <div className="space-y-1 text-sm">
+      <div className="flex justify-between items-center">
+        <span className="text-sm font-medium text-gray-600">📅 Datum:</span>
+        <span className="text-sm font-semibold text-blue-600">{formattedDate}</span>
+      </div>
+
+      <div className="flex justify-between items-center">
+        <span className="text-sm font-medium text-gray-600">{style.amountLabel}</span>
+        <span className={`text-sm font-semibold ${style.amountColor}`}>
+          {formattedAmount}
+        </span>
+      </div>
+
+      {isInheritance && <InheritanceFields sparplan={sparplan} />}
+
+      {isExpense && <ExpenseTypeField sparplan={sparplan} />}
+
+      <DescriptionField description={sparplan.specialEventData?.description} />
+
+      {isExpense && (
+        <CreditTermsField creditTerms={sparplan.specialEventData?.creditTerms} />
+      )}
+    </div>
+  )
+}
+
 export function EventCard({ sparplan, onDelete }: EventCardProps) {
   const isInheritance = sparplan.eventType === 'inheritance'
   const isExpense = sparplan.eventType === 'expense'
@@ -150,29 +195,14 @@ export function EventCard({ sparplan, onDelete }: EventCardProps) {
             </span>
           </div>
 
-          <div className="space-y-1 text-sm">
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-600">📅 Datum:</span>
-              <span className="text-sm font-semibold text-blue-600">{formattedDate}</span>
-            </div>
-
-            <div className="flex justify-between items-center">
-              <span className="text-sm font-medium text-gray-600">{style.amountLabel}</span>
-              <span className={`text-sm font-semibold ${style.amountColor}`}>
-                {formattedAmount}
-              </span>
-            </div>
-
-            {isInheritance && <InheritanceFields sparplan={sparplan} />}
-
-            {isExpense && <ExpenseTypeField sparplan={sparplan} />}
-
-            <DescriptionField description={sparplan.specialEventData?.description} />
-
-            {isExpense && (
-              <CreditTermsField creditTerms={sparplan.specialEventData?.creditTerms} />
-            )}
-          </div>
+          <EventDetails
+            isInheritance={isInheritance}
+            isExpense={isExpense}
+            style={style}
+            formattedDate={formattedDate}
+            formattedAmount={formattedAmount}
+            sparplan={sparplan}
+          />
         </div>
 
         <div className="flex gap-2 ml-4">
