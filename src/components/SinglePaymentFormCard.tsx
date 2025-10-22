@@ -60,9 +60,10 @@ function FormButtons({ isEditMode, showCancelButton, onCancel, disabled }: {
   )
 }
 
-export function SinglePaymentFormCard({
-  isOpen,
-  onOpenChange,
+/**
+ * Form content for single payment
+ */
+function SinglePaymentForm({
   formValues,
   onFormChange,
   formatDateForInput,
@@ -72,6 +73,40 @@ export function SinglePaymentFormCard({
   isEditMode,
   showCancelButton,
   onCancel,
+}: Omit<SinglePaymentFormCardProps, 'isOpen' | 'onOpenChange'>) {
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSubmit()
+      }}
+    >
+      <SinglePaymentFormFields
+        formValues={formValues}
+        onFormChange={onFormChange}
+        formatDateForInput={formatDateForInput}
+        handleDateChange={handleDateChange}
+        handleNumberChange={handleNumberChange}
+      />
+      <CostFactorFields
+        values={formValues}
+        onValueChange={values => onFormChange({ ...formValues, ...values })}
+        handleNumberChange={handleNumberChange}
+      />
+      <FormButtons
+        isEditMode={isEditMode}
+        showCancelButton={showCancelButton}
+        onCancel={onCancel}
+        disabled={!formValues.einzahlung}
+      />
+    </form>
+  )
+}
+
+export function SinglePaymentFormCard({
+  isOpen,
+  onOpenChange,
+  ...formProps
 }: SinglePaymentFormCardProps) {
   return (
     <Card className="mb-6">
@@ -82,31 +117,7 @@ export function SinglePaymentFormCard({
             <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
               Fügen Sie einmalige Zahlungen zu einem bestimmten Zeitpunkt hinzu
             </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                onSubmit()
-              }}
-            >
-              <SinglePaymentFormFields
-                formValues={formValues}
-                onFormChange={onFormChange}
-                formatDateForInput={formatDateForInput}
-                handleDateChange={handleDateChange}
-                handleNumberChange={handleNumberChange}
-              />
-              <CostFactorFields
-                values={formValues}
-                onValueChange={values => onFormChange({ ...formValues, ...values })}
-                handleNumberChange={handleNumberChange}
-              />
-              <FormButtons
-                isEditMode={isEditMode}
-                showCancelButton={showCancelButton}
-                onCancel={onCancel}
-                disabled={!formValues.einzahlung}
-              />
-            </form>
+            <SinglePaymentForm {...formProps} />
           </CardContent>
         </CollapsibleContent>
       </Collapsible>
