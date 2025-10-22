@@ -47,6 +47,20 @@ function shouldShowPreview(
 /**
  * Care cost configuration fields
  */
+function ResetButton({ onChange }: { onChange: (config: CareCostConfiguration) => void }) {
+  return (
+    <div className="pt-4 border-t">
+      <Button
+        variant="outline"
+        size="sm"
+        onClick={() => onChange(createDefaultCareCostConfiguration())}
+      >
+        Auf Standardwerte zurücksetzen
+      </Button>
+    </div>
+  )
+}
+
 function CareCostConfigFields({
   values,
   onChange,
@@ -70,27 +84,13 @@ function CareCostConfigFields({
 }) {
   return (
     <>
-      <BasicCareCostFields
-        values={values}
-        onChange={onChange}
-        currentYear={currentYear}
-      />
-
-      <CareLevelSelector
-        careLevel={values.careLevel}
-        onChange={careLevel => onChange({ ...values, careLevel })}
-      />
-
+      <BasicCareCostFields values={values} onChange={onChange} currentYear={currentYear} />
+      <CareLevelSelector careLevel={values.careLevel} onChange={careLevel => onChange({ ...values, careLevel })} />
       <InflationRateSlider
         value={values.careInflationRate}
         onChange={careInflationRate => onChange({ ...values, careInflationRate })}
       />
-
-      <InsuranceAndBenefitsFields
-        values={values}
-        onChange={onChange}
-      />
-
+      <InsuranceAndBenefitsFields values={values} onChange={onChange} />
       {planningMode === 'couple' && (
         <CoupleCareCostConfig
           values={values}
@@ -99,29 +99,11 @@ function CareCostConfigFields({
           nestingLevel={nestingLevel}
         />
       )}
-
-      <CareCostValidationErrors
-        errors={validationErrors}
-        nestingLevel={nestingLevel}
-      />
-
+      <CareCostValidationErrors errors={validationErrors} nestingLevel={nestingLevel} />
       {showPreview && previewResult && (
-        <CareCostPreview
-          previewYear={previewYear}
-          previewResult={previewResult}
-          nestingLevel={nestingLevel}
-        />
+        <CareCostPreview previewYear={previewYear} previewResult={previewResult} nestingLevel={nestingLevel} />
       )}
-
-      <div className="pt-4 border-t">
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onChange(createDefaultCareCostConfiguration())}
-        >
-          Auf Standardwerte zurücksetzen
-        </Button>
-      </div>
+      <ResetButton onChange={onChange} />
     </>
   )
 }

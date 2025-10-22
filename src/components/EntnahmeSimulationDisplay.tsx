@@ -54,6 +54,75 @@ interface EntnahmeSimulationDisplayProps {
   onCalculationInfoClick: (explanationType: string, rowData: unknown) => void
 }
 
+function NoDataMessage() {
+  return (
+    <div>
+      <p>
+        Keine Daten verfügbar. Bitte stelle sicher, dass Sparpläne
+        definiert sind und eine Simulation durchgeführt wurde.
+      </p>
+    </div>
+  )
+}
+
+function SimulationHeader({ withdrawalData, formValue }: {
+  withdrawalData: EntnahmeSimulationDisplayProps['withdrawalData']
+  formValue: WithdrawalFormValue
+}) {
+  if (!withdrawalData) return null
+
+  return (
+    <div style={{ marginBottom: '20px' }}>
+      <h4>Entnahme-Simulation</h4>
+      <WithdrawalStrategySummary
+        startingCapital={withdrawalData.startingCapital}
+        formValue={formValue}
+      />
+      <p>
+        <strong>Vermögen reicht für:</strong>
+        {' '}
+        {formatDuration(withdrawalData.duration)}
+      </p>
+    </div>
+  )
+}
+
+function SimulationChart({ withdrawalResult }: { withdrawalResult: WithdrawalResult }) {
+  if (!withdrawalResult || Object.keys(withdrawalResult).length === 0) return null
+
+  return (
+    <div className="mb-6">
+      <InteractiveChart
+        simulationData={convertWithdrawalResultToSimulationResult(withdrawalResult)}
+        showRealValues={hasWithdrawalInflationAdjustedValues(withdrawalResult)}
+        className="mb-4"
+      />
+    </div>
+  )
+}
+
+function WithdrawalYearCards({ withdrawalData, formValue, onCalculationInfoClick }: {
+  withdrawalData: NonNullable<EntnahmeSimulationDisplayProps['withdrawalData']>
+  formValue: WithdrawalFormValue
+  onCalculationInfoClick: (explanationType: string, rowData: unknown) => void
+}) {
+  const allYears = withdrawalData.withdrawalArray.map(row => row.year).filter(year => year != null)
+
+  return (
+    <div className="flex flex-col gap-4">
+      {withdrawalData.withdrawalArray.map((rowData, index) => (
+        <WithdrawalYearCard
+          key={index}
+          rowData={rowData}
+          formValue={formValue}
+          allYears={allYears}
+          onCalculationInfoClick={onCalculationInfoClick}
+        />
+      ))}
+    </div>
+  )
+}
+
 export function EntnahmeSimulationDisplay({
   withdrawalData,
   formValue,
@@ -64,14 +133,7 @@ export function EntnahmeSimulationDisplay({
   onCalculationInfoClick,
 }: EntnahmeSimulationDisplayProps) {
   if (!withdrawalData) {
-    return (
-      <div>
-        <p>
-          Keine Daten verfügbar. Bitte stelle sicher, dass Sparpläne
-          definiert sind und eine Simulation durchgeführt wurde.
-        </p>
-      </div>
-    )
+    return <NoDataMessage />
   }
 
   if (useSegmentedComparisonMode) {
@@ -93,50 +155,15 @@ export function EntnahmeSimulationDisplay({
     )
   }
 
-  // Regular single strategy simulation results
   return (
     <div>
-      <div style={{ marginBottom: '20px' }}>
-        <h4>Entnahme-Simulation</h4>
-        <WithdrawalStrategySummary
-          startingCapital={withdrawalData.startingCapital}
-          formValue={formValue}
-        />
-        <p>
-          <strong>Vermögen reicht für:</strong>
-          {' '}
-          {formatDuration(withdrawalData.duration)}
-        </p>
-      </div>
-
-      {/* Interactive Chart for Withdrawal Phase */}
-      {withdrawalData.withdrawalResult && Object.keys(withdrawalData.withdrawalResult).length > 0 && (
-        <div className="mb-6">
-          <InteractiveChart
-            simulationData={convertWithdrawalResultToSimulationResult(withdrawalData.withdrawalResult)}
-            showRealValues={hasWithdrawalInflationAdjustedValues(withdrawalData.withdrawalResult)}
-            className="mb-4"
-          />
-        </div>
-      )}
-
-      {/* Card Layout for All Devices */}
-      <div className="flex flex-col gap-4">
-        {withdrawalData.withdrawalArray.map((rowData, index) => {
-          const allYears = withdrawalData.withdrawalArray.map(row => row.year).filter(year => year != null)
-
-          return (
-            <WithdrawalYearCard
-              key={index}
-              rowData={rowData}
-              formValue={formValue}
-              allYears={allYears}
-              onCalculationInfoClick={onCalculationInfoClick}
-            />
-          )
-        })}
-      </div>
-
+      <SimulationHeader withdrawalData={withdrawalData} formValue={formValue} />
+      <SimulationChart withdrawalResult={withdrawalData.withdrawalResult} />
+      <WithdrawalYearCards
+        withdrawalData={withdrawalData}
+        formValue={formValue}
+        onCalculationInfoClick={onCalculationInfoClick}
+      />
     </div>
   )
 }

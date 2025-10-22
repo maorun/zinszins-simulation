@@ -92,6 +92,82 @@ function updatePerson2CareDuration(
 /**
  * Person 2 configuration fields
  */
+function Person2StartYearField({
+  values,
+  onChange,
+  currentYear,
+}: {
+  values: CareCostConfiguration
+  onChange: (config: CareCostConfiguration) => void
+  currentYear: number
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="person2-start-year">Startjahr für Person 2</Label>
+      <Input
+        id="person2-start-year"
+        type="number"
+        value={values.coupleConfig?.person2StartYear || ''}
+        onChange={e => onChange(updatePerson2StartYear(values, Number(e.target.value)))}
+        min={currentYear}
+        max={currentYear + 50}
+        step={1}
+        className="w-32"
+      />
+    </div>
+  )
+}
+
+function Person2CareLevelSelector({
+  values,
+  onChange,
+}: {
+  values: CareCostConfiguration
+  onChange: (config: CareCostConfiguration) => void
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>Pflegegrad für Person 2</Label>
+      <RadioTileGroup
+        value={(values.coupleConfig?.person2CareLevel || values.careLevel).toString()}
+        onValueChange={value => onChange(updatePerson2CareLevel(values, Number(value) as CareLevel))}
+      >
+        {[1, 2, 3, 4, 5].map(level => (
+          <RadioTile key={level} value={level.toString()} label={`Pflegegrad ${level}`}>
+            <div className="text-xs text-muted-foreground">
+              {DEFAULT_CARE_LEVELS[level as CareLevel].description}
+            </div>
+          </RadioTile>
+        ))}
+      </RadioTileGroup>
+    </div>
+  )
+}
+
+function Person2DurationField({
+  values,
+  onChange,
+}: {
+  values: CareCostConfiguration
+  onChange: (config: CareCostConfiguration) => void
+}) {
+  return (
+    <div className="space-y-2">
+      <Label htmlFor="person2-duration">Pflegedauer für Person 2 (Jahre, 0 = bis Lebensende)</Label>
+      <Input
+        id="person2-duration"
+        type="number"
+        value={values.coupleConfig?.person2CareDurationYears || 0}
+        onChange={e => onChange(updatePerson2CareDuration(values, Number(e.target.value)))}
+        min={0}
+        max={50}
+        step={1}
+        className="w-32"
+      />
+    </div>
+  )
+}
+
 function Person2ConfigFields({
   values,
   onChange,
@@ -103,57 +179,9 @@ function Person2ConfigFields({
 }) {
   return (
     <div className="space-y-4 ml-6">
-      <div className="space-y-2">
-        <Label htmlFor="person2-start-year">
-          Startjahr für Person 2
-        </Label>
-        <Input
-          id="person2-start-year"
-          type="number"
-          value={values.coupleConfig?.person2StartYear || ''}
-          onChange={e => onChange(updatePerson2StartYear(values, Number(e.target.value)))}
-          min={currentYear}
-          max={currentYear + 50}
-          step={1}
-          className="w-32"
-        />
-      </div>
-
-      <div className="space-y-2">
-        <Label>Pflegegrad für Person 2</Label>
-        <RadioTileGroup
-          value={(values.coupleConfig?.person2CareLevel || values.careLevel).toString()}
-          onValueChange={value => onChange(updatePerson2CareLevel(values, Number(value) as CareLevel))}
-        >
-          {[1, 2, 3, 4, 5].map(level => (
-            <RadioTile
-              key={level}
-              value={level.toString()}
-              label={`Pflegegrad ${level}`}
-            >
-              <div className="text-xs text-muted-foreground">
-                {DEFAULT_CARE_LEVELS[level as CareLevel].description}
-              </div>
-            </RadioTile>
-          ))}
-        </RadioTileGroup>
-      </div>
-
-      <div className="space-y-2">
-        <Label htmlFor="person2-duration">
-          Pflegedauer für Person 2 (Jahre, 0 = bis Lebensende)
-        </Label>
-        <Input
-          id="person2-duration"
-          type="number"
-          value={values.coupleConfig?.person2CareDurationYears || 0}
-          onChange={e => onChange(updatePerson2CareDuration(values, Number(e.target.value)))}
-          min={0}
-          max={50}
-          step={1}
-          className="w-32"
-        />
-      </div>
+      <Person2StartYearField values={values} onChange={onChange} currentYear={currentYear} />
+      <Person2CareLevelSelector values={values} onChange={onChange} />
+      <Person2DurationField values={values} onChange={onChange} />
     </div>
   )
 }

@@ -18,6 +18,84 @@ interface MonthlyFixedWithdrawalConfigurationProps {
   onGuardrailsThresholdChange: (threshold: number) => void
 }
 
+function MonthlyAmountField({
+  monatlicheBetrag,
+  onMonthlyAmountChange,
+}: {
+  monatlicheBetrag: number | undefined
+  onMonthlyAmountChange: (value: number | undefined) => void
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>Monatlicher Betrag (€)</Label>
+      <Input
+        type="number"
+        value={monatlicheBetrag}
+        onChange={(e) => {
+          const value = e.target.value ? Number(e.target.value) : undefined
+          onMonthlyAmountChange(value)
+        }}
+        min={100}
+        max={50000}
+        step={100}
+      />
+    </div>
+  )
+}
+
+function GuardrailsToggle({
+  guardrailsAktiv,
+  onGuardrailsActiveChange,
+}: {
+  guardrailsAktiv: boolean
+  onGuardrailsActiveChange: (value: boolean) => void
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>Dynamische Anpassung (Guardrails)</Label>
+      <Switch checked={guardrailsAktiv} onCheckedChange={onGuardrailsActiveChange} />
+      <div className="text-sm text-muted-foreground mt-1">
+        Passt die Entnahme basierend auf der Portfolio-Performance an
+      </div>
+    </div>
+  )
+}
+
+function GuardrailsThresholdSlider({
+  guardrailsSchwelle,
+  onGuardrailsThresholdChange,
+}: {
+  guardrailsSchwelle: number
+  onGuardrailsThresholdChange: (value: number) => void
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>Anpassungsschwelle (%)</Label>
+      <div className="space-y-2">
+        <Slider
+          value={[guardrailsSchwelle]}
+          onValueChange={(values: number[]) => onGuardrailsThresholdChange(values[0])}
+          min={5}
+          max={20}
+          step={1}
+          className="mt-2"
+        />
+        <div className="flex justify-between text-sm text-gray-500">
+          <span>5%</span>
+          <span className="font-medium text-gray-900">
+            {guardrailsSchwelle}
+            %
+          </span>
+          <span>20%</span>
+        </div>
+      </div>
+      <div className="text-sm text-muted-foreground mt-1">
+        Bei Überschreitung dieser Schwelle wird die Entnahme angepasst
+      </div>
+    </div>
+  )
+}
+
 export function MonthlyFixedWithdrawalConfiguration({
   monatlicheBetrag,
   guardrailsAktiv,
@@ -28,63 +106,13 @@ export function MonthlyFixedWithdrawalConfiguration({
 }: MonthlyFixedWithdrawalConfigurationProps) {
   return (
     <>
-      <div className="mb-4 space-y-2">
-        <Label>Monatlicher Betrag (€)</Label>
-        <Input
-          type="number"
-          value={monatlicheBetrag}
-          onChange={(e) => {
-            const value = e.target.value ? Number(e.target.value) : undefined
-            onMonthlyAmountChange(value)
-          }}
-          min={100}
-          max={50000}
-          step={100}
-        />
-      </div>
-      <div className="mb-4 space-y-2">
-        <Label>
-          Dynamische Anpassung (Guardrails)
-        </Label>
-        <Switch
-          checked={guardrailsAktiv}
-          onCheckedChange={onGuardrailsActiveChange}
-        />
-        <div className="text-sm text-muted-foreground mt-1">
-          Passt die Entnahme basierend auf der Portfolio-Performance
-          an
-        </div>
-      </div>
+      <MonthlyAmountField monatlicheBetrag={monatlicheBetrag} onMonthlyAmountChange={onMonthlyAmountChange} />
+      <GuardrailsToggle guardrailsAktiv={guardrailsAktiv} onGuardrailsActiveChange={onGuardrailsActiveChange} />
       {guardrailsAktiv && (
-        <div className="mb-4 space-y-2">
-          <Label>
-            Anpassungsschwelle (%)
-          </Label>
-          <div className="space-y-2">
-            <Slider
-              value={[guardrailsSchwelle]}
-              onValueChange={(values: number[]) => {
-                onGuardrailsThresholdChange(values[0])
-              }}
-              min={5}
-              max={20}
-              step={1}
-              className="mt-2"
-            />
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>5%</span>
-              <span className="font-medium text-gray-900">
-                {guardrailsSchwelle}
-                %
-              </span>
-              <span>20%</span>
-            </div>
-          </div>
-          <div className="text-sm text-muted-foreground mt-1">
-            Bei Überschreitung dieser Schwelle wird die Entnahme
-            angepasst
-          </div>
-        </div>
+        <GuardrailsThresholdSlider
+          guardrailsSchwelle={guardrailsSchwelle}
+          onGuardrailsThresholdChange={onGuardrailsThresholdChange}
+        />
       )}
     </>
   )

@@ -56,6 +56,66 @@ function YearlyReturnsList({
   )
 }
 
+function EventDescription({ description }: { description: string }) {
+  return (
+    <p>
+      <strong>Beschreibung:</strong>
+      {' '}
+      {description}
+    </p>
+  )
+}
+
+function EventDuration({ duration }: { duration: number }) {
+  return (
+    <p>
+      <strong>Dauer:</strong>
+      {' '}
+      {duration}
+      {' '}
+      {duration === 1 ? 'Jahr' : 'Jahre'}
+    </p>
+  )
+}
+
+function CumulativeImpactDisplay({
+  cumulativeImpact,
+  formatPercent,
+}: {
+  cumulativeImpact: number | null
+  formatPercent: (value: number) => string
+}) {
+  if (cumulativeImpact === null) {
+    return null
+  }
+
+  return (
+    <p className="mt-2 pt-2 border-t border-red-300">
+      <strong>Kumulativer Verlust:</strong>
+      {' '}
+      <span className="text-red-700 font-semibold">{formatPercent(cumulativeImpact)}</span>
+    </p>
+  )
+}
+
+function RecoveryTimeDisplay({ recoveryYears }: { recoveryYears?: number }) {
+  if (!recoveryYears) {
+    return null
+  }
+
+  return (
+    <p className="text-gray-600">
+      <strong>Historische Erholungszeit:</strong>
+      {' '}
+      ca.
+      {' '}
+      {recoveryYears}
+      {' '}
+      Jahre
+    </p>
+  )
+}
+
 function EventDetails({
   event,
   eventYear,
@@ -73,47 +133,17 @@ function EventDetails({
     <div className="mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
       <h5 className="font-semibold text-red-900 mb-2">📉 Ereignis-Details</h5>
       <div className="space-y-2 text-sm">
-        <p>
-          <strong>Beschreibung:</strong>
-          {' '}
-          {event.description}
-        </p>
-        <p>
-          <strong>Dauer:</strong>
-          {' '}
-          {event.duration}
-          {' '}
-          {event.duration === 1 ? 'Jahr' : 'Jahre'}
-        </p>
-        <p>
-          <strong>Jährliche Renditen:</strong>
-        </p>
+        <EventDescription description={event.description} />
+        <EventDuration duration={event.duration} />
+        <p><strong>Jährliche Renditen:</strong></p>
         <YearlyReturnsList
           years={years}
           eventYear={eventYear}
           yearlyReturns={event.yearlyReturns}
           formatPercent={formatPercent}
         />
-        {cumulativeImpact !== null && (
-          <p className="mt-2 pt-2 border-t border-red-300">
-            <strong>Kumulativer Verlust:</strong>
-            {' '}
-            <span className="text-red-700 font-semibold">
-              {formatPercent(cumulativeImpact)}
-            </span>
-          </p>
-        )}
-        {event.recoveryYears && (
-          <p className="text-gray-600">
-            <strong>Historische Erholungszeit:</strong>
-            {' '}
-            ca.
-            {' '}
-            {event.recoveryYears}
-            {' '}
-            Jahre
-          </p>
-        )}
+        <CumulativeImpactDisplay cumulativeImpact={cumulativeImpact} formatPercent={formatPercent} />
+        <RecoveryTimeDisplay recoveryYears={event.recoveryYears} />
       </div>
     </div>
   )

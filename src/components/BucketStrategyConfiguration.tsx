@@ -122,6 +122,30 @@ function SubStrategyConfigSection({
   return null
 }
 
+function useBucketConfigMode({
+  formValue,
+  updateFormValue,
+  values,
+  onChange,
+}: Pick<BucketStrategyConfigurationProps, 'formValue' | 'updateFormValue' | 'values' | 'onChange'>) {
+  const isFormMode = formValue !== undefined && updateFormValue !== undefined
+  const isDirectMode = values !== undefined && onChange !== undefined
+
+  validateModeProps(isFormMode, isDirectMode)
+
+  const currentValues = isFormMode
+    ? getCurrentValuesFromForm(formValue!)
+    : getCurrentValuesFromDirect(values!)
+
+  const updateFormBucketConfig = isFormMode
+    ? createFormUpdateHandler({ formValue: formValue!, updateFormValue: updateFormValue!, currentValues })
+    : undefined
+
+  const handleValueChange = createValueChangeHandler(isFormMode, isDirectMode, updateFormBucketConfig, onChange)
+
+  return { isFormMode, currentValues, handleValueChange }
+}
+
 export function BucketStrategyConfiguration({
   formValue,
   updateFormValue,
@@ -129,68 +153,37 @@ export function BucketStrategyConfiguration({
   onChange,
   idPrefix = 'bucket-sub-strategy',
 }: BucketStrategyConfigurationProps) {
-  // Determine which mode we're in
-  const isFormMode = formValue !== undefined && updateFormValue !== undefined
-  const isDirectMode = values !== undefined && onChange !== undefined
-
-  validateModeProps(isFormMode, isDirectMode)
-
-  // Get current values based on mode
-  const currentValues = isFormMode
-    ? getCurrentValuesFromForm(formValue!)
-    : getCurrentValuesFromDirect(values!)
-
-  // Helper for form mode updates
-  const updateFormBucketConfig = isFormMode
-    ? createFormUpdateHandler({
-        formValue: formValue!,
-        updateFormValue: updateFormValue!,
-        currentValues,
-      })
-    : undefined
-
-  // Helper to handle value changes in either mode
-  const handleValueChange = createValueChangeHandler(
-    isFormMode,
-    isDirectMode,
-    updateFormBucketConfig,
+  const { isFormMode, currentValues, handleValueChange } = useBucketConfigMode({
+    formValue,
+    updateFormValue,
+    values,
     onChange,
-  )
+  })
 
   return (
     <div className="space-y-4">
       <Label className="text-base font-medium">Drei-Eimer-Strategie Konfiguration</Label>
-
-      {/* Sub-strategy Selection */}
       <SubStrategySelector
         value={currentValues.subStrategy}
         onChange={subStrategy => handleValueChange('subStrategy', subStrategy)}
         idPrefix={idPrefix}
       />
-
-      {/* Sub-strategy specific configuration */}
       <SubStrategyConfigSection
         subStrategy={currentValues.subStrategy}
         currentValues={currentValues}
         handleValueChange={handleValueChange}
       />
-
-      {/* Initial Cash Cushion */}
       <InitialCashCushionConfig
         value={currentValues.initialCashCushion}
         onChange={v => handleValueChange('initialCashCushion', v)}
         inputId={isFormMode ? 'initialCashCushion' : 'bucket-initial-cash'}
         isFormMode={isFormMode}
       />
-
-      {/* Refill Threshold */}
       <RefillThresholdConfig
         value={currentValues.refillThreshold}
         onChange={v => handleValueChange('refillThreshold', v)}
         inputId={isFormMode ? 'refillThreshold' : 'bucket-refill-threshold'}
       />
-
-      {/* Refill Percentage */}
       <RefillPercentageConfig
         value={currentValues.refillPercentage}
         onChange={v => handleValueChange('refillPercentage', v)}
