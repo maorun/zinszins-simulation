@@ -103,6 +103,106 @@ function EmployerContributionNote({ insuranceType, includesEmployerContribution 
   return <> - nur AN-Anteil</>
 }
 
+function HealthInsuranceRow({
+  insuranceType,
+  amount,
+  effectiveRate,
+  inflationFactor,
+}: {
+  insuranceType: 'statutory' | 'private'
+  amount: number
+  effectiveRate?: number
+  inflationFactor?: number
+}) {
+  const isStatutory = insuranceType === 'statutory'
+
+  return (
+    <div className="flex justify-between items-center py-1">
+      <span className="text-sm text-gray-600 font-medium">
+        🏥 Krankenversicherung (
+        {isStatutory ? 'Gesetzlich' : 'Privat'}
+        ):
+      </span>
+      <span className="font-semibold text-red-600 text-sm">
+        -
+        {formatCurrency(amount)}
+        {isStatutory && effectiveRate && (
+          <InsuranceRateDisplay rate={effectiveRate} />
+        )}
+        {inflationFactor && <InflationAdjustmentDisplay factor={inflationFactor} />}
+      </span>
+    </div>
+  )
+}
+
+function CareInsuranceRow({
+  insuranceType,
+  amount,
+  effectiveRate,
+}: {
+  insuranceType: 'statutory' | 'private'
+  amount: number
+  effectiveRate?: number
+}) {
+  const isStatutory = insuranceType === 'statutory'
+
+  return (
+    <div className="flex justify-between items-center py-1">
+      <span className="text-sm text-gray-600 font-medium">
+        🩺 Pflegeversicherung:
+      </span>
+      <span className="font-semibold text-red-600 text-sm">
+        -
+        {formatCurrency(amount)}
+        {isStatutory && effectiveRate && (
+          <InsuranceRateDisplay rate={effectiveRate} />
+        )}
+      </span>
+    </div>
+  )
+}
+
+function TotalInsuranceRow({
+  insuranceType,
+  totalAnnual,
+  includesEmployerContribution,
+  onCalculationInfoClick,
+  rowData,
+}: {
+  insuranceType: 'statutory' | 'private'
+  totalAnnual: number
+  includesEmployerContribution?: boolean
+  onCalculationInfoClick: (explanationType: string, rowData: unknown) => void
+  rowData: unknown
+}) {
+  const isStatutory = insuranceType === 'statutory'
+
+  return (
+    <div className="flex justify-between items-center py-1 border-t border-gray-200 pt-1">
+      <span className="text-sm text-gray-600 font-medium">
+        🏥 Gesamt Kranken- & Pflegeversicherung:
+      </span>
+      <span className="font-semibold text-red-600 text-sm flex items-center">
+        -
+        {formatCurrency(totalAnnual)}
+        <span className="text-xs text-gray-500 ml-1">
+          (
+          {isStatutory ? 'Gesetzlich' : 'Privat'}
+          )
+          <EmployerContributionNote
+            insuranceType={insuranceType}
+            includesEmployerContribution={includesEmployerContribution}
+          />
+        </span>
+        <Info
+          className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+          onClick={() => onCalculationInfoClick('healthCareInsurance', rowData)}
+        />
+      </span>
+    </div>
+  )
+}
+
 export function HealthCareInsuranceSection({
   healthCareInsurance,
   onCalculationInfoClick,
@@ -112,59 +212,29 @@ export function HealthCareInsuranceSection({
     return null
   }
 
-  const isStatutory = healthCareInsurance.insuranceType === 'statutory'
-
   return (
     <>
-      <div className="flex justify-between items-center py-1">
-        <span className="text-sm text-gray-600 font-medium">
-          🏥 Krankenversicherung (
-          {isStatutory ? 'Gesetzlich' : 'Privat'}
-          ):
-        </span>
-        <span className="font-semibold text-red-600 text-sm">
-          -
-          {formatCurrency(healthCareInsurance.healthInsuranceAnnual)}
-          {isStatutory && (
-            <InsuranceRateDisplay rate={healthCareInsurance.effectiveHealthInsuranceRate} />
-          )}
-          <InflationAdjustmentDisplay factor={healthCareInsurance.inflationAdjustmentFactor} />
-        </span>
-      </div>
-      <div className="flex justify-between items-center py-1">
-        <span className="text-sm text-gray-600 font-medium">
-          🩺 Pflegeversicherung:
-        </span>
-        <span className="font-semibold text-red-600 text-sm">
-          -
-          {formatCurrency(healthCareInsurance.careInsuranceAnnual)}
-          {isStatutory && (
-            <InsuranceRateDisplay rate={healthCareInsurance.effectiveCareInsuranceRate} />
-          )}
-        </span>
-      </div>
-      <div className="flex justify-between items-center py-1 border-t border-gray-200 pt-1">
-        <span className="text-sm text-gray-600 font-medium">
-          🏥 Gesamt Kranken- & Pflegeversicherung:
-        </span>
-        <span className="font-semibold text-red-600 text-sm flex items-center">
-          -
-          {formatCurrency(healthCareInsurance.totalAnnual)}
-          <span className="text-xs text-gray-500 ml-1">
-            (
-            {isStatutory ? 'Gesetzlich' : 'Privat'}
-            )
-            <EmployerContributionNote
-              insuranceType={healthCareInsurance.insuranceType}
-              includesEmployerContribution={healthCareInsurance.includesEmployerContribution}
-            />
-          </span>
-          <Info
-            className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-            onClick={() => onCalculationInfoClick('healthCareInsurance', rowData)}
-          />
-        </span>
-      </div>
+      <HealthInsuranceRow
+        insuranceType={healthCareInsurance.insuranceType}
+        amount={healthCareInsurance.healthInsuranceAnnual}
+        effectiveRate={healthCareInsurance.effectiveHealthInsuranceRate}
+        inflationFactor={healthCareInsurance.inflationAdjustmentFactor}
+      />
+
+      <CareInsuranceRow
+        insuranceType={healthCareInsurance.insuranceType}
+        amount={healthCareInsurance.careInsuranceAnnual}
+        effectiveRate={healthCareInsurance.effectiveCareInsuranceRate}
+      />
+
+      <TotalInsuranceRow
+        insuranceType={healthCareInsurance.insuranceType}
+        totalAnnual={healthCareInsurance.totalAnnual}
+        includesEmployerContribution={healthCareInsurance.includesEmployerContribution}
+        onCalculationInfoClick={onCalculationInfoClick}
+        rowData={rowData}
+      />
+
       <div className="flex justify-between items-center py-1">
         <span className="text-sm text-gray-600 font-medium">📅 Monatliche Beiträge:</span>
         <span className="font-semibold text-blue-600 text-sm">
