@@ -247,6 +247,28 @@ function buildSteueroptimierteEntnahmeConfig(strategy: CalculateComparisonStrate
 /**
  * Build withdrawal calculation parameters from comparison strategy
  */
+function buildTaxConfig(params: CalculateComparisonStrategyParams) {
+  const {
+    startOfIndependence,
+    endOfLife,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    einkommensteuersatz,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
+  } = params
+
+  const grundfreibetragPerYear = grundfreibetragAktiv
+    ? buildGrundfreibetragPerYear(startOfIndependence, endOfLife, grundfreibetragBetrag)
+    : undefined
+
+  const incomeTaxRate = grundfreibetragAktiv
+    ? einkommensteuersatz / 100
+    : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined)
+
+  return { grundfreibetragPerYear, incomeTaxRate }
+}
+
 function buildWithdrawalParams(
   params: CalculateComparisonStrategyParams,
   strategy: ComparisonStrategy,
@@ -260,8 +282,6 @@ function buildWithdrawalParams(
     teilfreistellungsquote,
     planningMode,
     grundfreibetragAktiv,
-    grundfreibetragBetrag,
-    einkommensteuersatz,
     steuerReduzierenEndkapitalEntspharphase,
     effectiveStatutoryPensionConfig,
     otherIncomeConfig,
@@ -269,17 +289,10 @@ function buildWithdrawalParams(
     birthYear,
     customLifeExpectancy,
     guenstigerPruefungAktiv,
-    personalTaxRate,
     getEffectiveLifeExpectancyTable,
   } = params
 
-  const grundfreibetragPerYear = grundfreibetragAktiv
-    ? buildGrundfreibetragPerYear(startOfIndependence, endOfLife, grundfreibetragBetrag)
-    : undefined
-
-  const incomeTaxRate = grundfreibetragAktiv
-    ? einkommensteuersatz / 100
-    : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined)
+  const { grundfreibetragPerYear, incomeTaxRate } = buildTaxConfig(params)
 
   const effectiveHealthCareInsuranceConfig = healthCareInsuranceConfig
     ? {

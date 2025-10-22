@@ -88,67 +88,63 @@ function StrategySpecificConfigurations({
 }) {
   const { strategie } = formValue
 
-  if (strategie === 'variabel_prozent') {
-    return (
-      <VariablePercentConfig
-        variabelProzent={formValue.variabelProzent}
-        onUpdate={variabelProzent =>
-          onUpdateFormValue({ ...formValue, variabelProzent })}
-      />
-    )
-  }
+  switch (strategie) {
+    case 'variabel_prozent':
+      return (
+        <VariablePercentConfig
+          variabelProzent={formValue.variabelProzent}
+          onUpdate={variabelProzent =>
+            onUpdateFormValue({ ...formValue, variabelProzent })}
+        />
+      )
 
-  if (strategie === 'monatlich_fest') {
-    return (
-      <MonthlyFixedConfig
-        monatlicheBetrag={formValue.monatlicheBetrag}
-        onUpdate={monatlicheBetrag =>
-          onUpdateFormValue({ ...formValue, monatlicheBetrag })}
-      />
-    )
-  }
+    case 'monatlich_fest':
+      return (
+        <MonthlyFixedConfig
+          monatlicheBetrag={formValue.monatlicheBetrag}
+          onUpdate={monatlicheBetrag =>
+            onUpdateFormValue({ ...formValue, monatlicheBetrag })}
+        />
+      )
 
-  if (strategie === 'dynamisch') {
-    return <DynamicWithdrawalConfiguration formValue={formValue} />
-  }
+    case 'dynamisch':
+      return <DynamicWithdrawalConfiguration formValue={formValue} />
 
-  if (strategie === 'rmd') {
-    return (
-      <RMDWithdrawalConfiguration
-        formValue={formValue}
-        updateFormValue={onUpdateFormValue}
-      />
-    )
-  }
+    case 'rmd':
+      return (
+        <RMDWithdrawalConfiguration
+          formValue={formValue}
+          updateFormValue={onUpdateFormValue}
+        />
+      )
 
-  if (strategie === 'kapitalerhalt') {
-    return (
-      <KapitalerhaltConfiguration
-        formValue={formValue}
-        updateFormValue={onUpdateFormValue}
-      />
-    )
-  }
+    case 'kapitalerhalt':
+      return (
+        <KapitalerhaltConfiguration
+          formValue={formValue}
+          updateFormValue={onUpdateFormValue}
+        />
+      )
 
-  if (strategie === 'bucket_strategie') {
-    return (
-      <BucketStrategyConfiguration
-        formValue={formValue}
-        updateFormValue={onUpdateFormValue}
-      />
-    )
-  }
+    case 'bucket_strategie':
+      return (
+        <BucketStrategyConfiguration
+          formValue={formValue}
+          updateFormValue={onUpdateFormValue}
+        />
+      )
 
-  if (strategie === 'steueroptimiert') {
-    return (
-      <SteueroptimierteEntnahmeConfiguration
-        formValue={formValue}
-        updateFormValue={onUpdateFormValue}
-      />
-    )
-  }
+    case 'steueroptimiert':
+      return (
+        <SteueroptimierteEntnahmeConfiguration
+          formValue={formValue}
+          updateFormValue={onUpdateFormValue}
+        />
+      )
 
-  return null
+    default:
+      return null
+  }
 }
 
 /**
