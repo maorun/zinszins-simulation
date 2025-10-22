@@ -66,6 +66,29 @@ interface CSVExportSectionProps {
   onExportAll: () => void
 }
 
+interface CSVExportButtonProps {
+  label: string
+  onClick: () => void
+  isExporting: boolean
+  variant: ButtonVariant
+  isBold?: boolean
+}
+
+function CSVExportButton({ label, onClick, isExporting, variant, isBold = false }: CSVExportButtonProps) {
+  return (
+    <Button
+      variant={variant}
+      size="sm"
+      onClick={onClick}
+      disabled={isExporting}
+      className={`w-full text-xs ${isBold ? 'font-medium' : ''}`}
+    >
+      <Download className="h-3 w-3 mr-1" />
+      {label}
+    </Button>
+  )
+}
+
 function CSVExportSection({
   hasSavingsData,
   hasWithdrawalCapability,
@@ -76,52 +99,38 @@ function CSVExportSection({
   onExportWithdrawal,
   onExportAll,
 }: CSVExportSectionProps) {
-  const getButtonVariant = (): ButtonVariant => {
-    const state = getExportButtonState(isExporting, exportResult, exportType, 'csv')
-    return state.variant
-  }
+  const buttonVariant = getExportButtonState(isExporting, exportResult, exportType, 'csv').variant
 
   return (
     <div className="space-y-2">
       <h4 className="text-xs font-medium text-gray-600 uppercase tracking-wide">CSV Format</h4>
 
       {hasSavingsData && (
-        <Button
-          variant={getButtonVariant()}
-          size="sm"
+        <CSVExportButton
+          label="Sparphase"
           onClick={onExportSavings}
-          disabled={isExporting}
-          className="w-full text-xs"
-        >
-          <Download className="h-3 w-3 mr-1" />
-          Sparphase
-        </Button>
+          isExporting={isExporting}
+          variant={buttonVariant}
+        />
       )}
 
       {hasWithdrawalCapability && (
-        <Button
-          variant={getButtonVariant()}
-          size="sm"
+        <CSVExportButton
+          label="Entnahmephase"
           onClick={onExportWithdrawal}
-          disabled={isExporting}
-          className="w-full text-xs"
-        >
-          <Download className="h-3 w-3 mr-1" />
-          Entnahmephase
-        </Button>
+          isExporting={isExporting}
+          variant={buttonVariant}
+        />
       )}
 
       {hasSavingsData && hasWithdrawalCapability && (
-        <Button
-          variant={getButtonVariant()}
-          size="sm"
+        <CSVExportButton
+          label="Komplett"
           onClick={onExportAll}
-          disabled={isExporting}
-          className="w-full text-xs font-medium"
-        >
-          <Download className="h-3 w-3 mr-1" />
-          Komplett
-        </Button>
+          isExporting={isExporting}
+          variant={buttonVariant}
+          isBold
+        />
       )}
     </div>
   )
@@ -233,6 +242,19 @@ interface DataExportSectionProps {
   onCopyCalculations: () => void
 }
 
+function NoDataWarning() {
+  return (
+    <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
+      <div className="flex items-center gap-2 text-yellow-800 text-sm">
+        <Info className="h-4 w-4 flex-shrink-0" />
+        <span>
+          Keine Simulationsdaten verfügbar. Führen Sie zuerst eine Simulation durch.
+        </span>
+      </div>
+    </div>
+  )
+}
+
 function DataExportSection({
   hasAnyData,
   hasSavingsData,
@@ -256,16 +278,7 @@ function DataExportSection({
         Exportiert Simulationsdaten in verschiedenen Formaten mit Jahr-für-Jahr Aufschlüsselung.
       </p>
 
-      {!hasAnyData && (
-        <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
-          <div className="flex items-center gap-2 text-yellow-800 text-sm">
-            <Info className="h-4 w-4 flex-shrink-0" />
-            <span>
-              Keine Simulationsdaten verfügbar. Führen Sie zuerst eine Simulation durch.
-            </span>
-          </div>
-        </div>
-      )}
+      {!hasAnyData && <NoDataWarning />}
 
       {hasAnyData && (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">

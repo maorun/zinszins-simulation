@@ -164,6 +164,32 @@ function EventDetails({
   )
 }
 
+/**
+ * Event header with title, date, and phase badge
+ */
+function EventHeader({
+  style,
+  formattedDate,
+  phase,
+}: {
+  style: EventStyle
+  formattedDate: string
+  phase: ReturnType<typeof getPhaseInfo>
+}) {
+  return (
+    <div className="flex items-center gap-2 mb-2">
+      <span className="text-base font-bold">{style.title}</span>
+      <span className="text-sm text-gray-600">
+        📅
+        {formattedDate}
+      </span>
+      <span className={`text-xs px-2 py-1 rounded-full bg-${phase.color}-100 text-${phase.color}-700 font-medium`}>
+        {phase.label}
+      </span>
+    </div>
+  )
+}
+
 export function EventCard({ sparplan, onDelete }: EventCardProps) {
   const isInheritance = sparplan.eventType === 'inheritance'
   const isExpense = sparplan.eventType === 'expense'
@@ -178,22 +204,10 @@ export function EventCard({ sparplan, onDelete }: EventCardProps) {
   })
 
   return (
-    <Card
-      nestingLevel={2}
-      className={`p-4 ${style.cardClasses}`}
-    >
+    <Card nestingLevel={2} className={`p-4 ${style.cardClasses}`}>
       <div className="flex justify-between items-start">
         <div className="flex-1">
-          <div className="flex items-center gap-2 mb-2">
-            <span className="text-base font-bold">{style.title}</span>
-            <span className="text-sm text-gray-600">
-              📅
-              {formattedDate}
-            </span>
-            <span className={`text-xs px-2 py-1 rounded-full bg-${phase.color}-100 text-${phase.color}-700 font-medium`}>
-              {phase.label}
-            </span>
-          </div>
+          <EventHeader style={style} formattedDate={formattedDate} phase={phase} />
 
           <EventDetails
             isInheritance={isInheritance}
