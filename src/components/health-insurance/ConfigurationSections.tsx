@@ -101,10 +101,16 @@ export function ConfigurationSections(props: ConfigurationSectionsProps) {
     onAdditionalCareInsuranceAgeChange,
   } = props
 
+  const isStatutory = insuranceType === 'statutory'
+  const isPrivate = insuranceType === 'private'
+  const isCouple = planningMode === 'couple'
+  const isIndividual = planningMode === 'individual'
+  const showCoupleConfig = isCouple && isStatutory && onCoupleStrategyChange
+  const showIndividualCare = isIndividual
+
   return (
     <>
-      {/* Statutory Insurance Configuration */}
-      {insuranceType === 'statutory' && (
+      {isStatutory && (
         <StatutoryInsuranceConfig
           includeEmployerContribution={includeEmployerContribution}
           statutoryHealthInsuranceRate={statutoryHealthInsuranceRate}
@@ -117,8 +123,7 @@ export function ConfigurationSections(props: ConfigurationSectionsProps) {
         />
       )}
 
-      {/* Private Insurance Configuration */}
-      {insuranceType === 'private' && (
+      {isPrivate && (
         <PrivateInsuranceConfig
           privateHealthInsuranceMonthly={privateHealthInsuranceMonthly}
           privateCareInsuranceMonthly={privateCareInsuranceMonthly}
@@ -129,8 +134,7 @@ export function ConfigurationSections(props: ConfigurationSectionsProps) {
         />
       )}
 
-      {/* Couple Configuration */}
-      {planningMode === 'couple' && insuranceType === 'statutory' && onCoupleStrategyChange && (
+      {showCoupleConfig && (
         <CoupleConfiguration
           coupleStrategy={coupleStrategy}
           familyInsuranceThresholdRegular={familyInsuranceThresholdRegular}
@@ -161,8 +165,7 @@ export function ConfigurationSections(props: ConfigurationSectionsProps) {
         />
       )}
 
-      {/* Additional Care Insurance for Childless (Individual Mode Only) */}
-      {planningMode === 'individual' && (
+      {showIndividualCare && (
         <AdditionalCareInsurance
           additionalCareInsuranceForChildless={additionalCareInsuranceForChildless}
           additionalCareInsuranceAge={additionalCareInsuranceAge}
