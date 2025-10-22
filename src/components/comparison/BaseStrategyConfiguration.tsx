@@ -17,6 +17,66 @@ interface BaseStrategyConfigurationProps {
 }
 
 /**
+ * Variable percentage strategy configuration
+ */
+function VariablePercentConfig({
+  variabelProzent,
+  onUpdate,
+}: {
+  variabelProzent: number
+  onUpdate: (variabelProzent: number) => void
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>Entnahme-Prozentsatz (%)</Label>
+      <div className="space-y-2">
+        <Slider
+          value={[variabelProzent]}
+          onValueChange={(values: number[]) => onUpdate(values[0])}
+          min={1}
+          max={10}
+          step={0.5}
+          className="mt-2"
+        />
+        <div className="flex justify-between text-sm text-gray-500">
+          <span>1%</span>
+          <span className="font-medium text-gray-900">
+            {variabelProzent}
+            %
+          </span>
+          <span>10%</span>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Monthly fixed amount strategy configuration
+ */
+function MonthlyFixedConfig({
+  monatlicheBetrag,
+  onUpdate,
+}: {
+  monatlicheBetrag?: number
+  onUpdate: (monatlicheBetrag: number) => void
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>Monatlicher Betrag (€)</Label>
+      <Input
+        type="number"
+        value={monatlicheBetrag}
+        onChange={(e) => {
+          const value = e.target.value ? Number(e.target.value) : undefined
+          if (value) onUpdate(value)
+        }}
+      />
+    </div>
+  )
+}
+
+/**
  * Strategy-specific configuration sections
  */
 function StrategySpecificConfigurations({
@@ -26,56 +86,33 @@ function StrategySpecificConfigurations({
   formValue: WithdrawalFormValue
   onUpdateFormValue: (updates: Partial<WithdrawalFormValue>) => void
 }) {
-  if (formValue.strategie === 'variabel_prozent') {
+  const { strategie } = formValue
+
+  if (strategie === 'variabel_prozent') {
     return (
-      <div className="mb-4 space-y-2">
-        <Label>
-          Entnahme-Prozentsatz (%)
-        </Label>
-        <div className="space-y-2">
-          <Slider
-            value={[formValue.variabelProzent]}
-            onValueChange={(values: number[]) =>
-              onUpdateFormValue({ ...formValue, variabelProzent: values[0] })}
-            min={1}
-            max={10}
-            step={0.5}
-            className="mt-2"
-          />
-          <div className="flex justify-between text-sm text-gray-500">
-            <span>1%</span>
-            <span className="font-medium text-gray-900">
-              {formValue.variabelProzent}
-              %
-            </span>
-            <span>10%</span>
-          </div>
-        </div>
-      </div>
+      <VariablePercentConfig
+        variabelProzent={formValue.variabelProzent}
+        onUpdate={variabelProzent =>
+          onUpdateFormValue({ ...formValue, variabelProzent })}
+      />
     )
   }
 
-  if (formValue.strategie === 'monatlich_fest') {
+  if (strategie === 'monatlich_fest') {
     return (
-      <div className="mb-4 space-y-2">
-        <Label>Monatlicher Betrag (€)</Label>
-        <Input
-          type="number"
-          value={formValue.monatlicheBetrag}
-          onChange={(e) => {
-            const value = e.target.value ? Number(e.target.value) : undefined
-            if (value) onUpdateFormValue({ ...formValue, monatlicheBetrag: value })
-          }}
-        />
-      </div>
+      <MonthlyFixedConfig
+        monatlicheBetrag={formValue.monatlicheBetrag}
+        onUpdate={monatlicheBetrag =>
+          onUpdateFormValue({ ...formValue, monatlicheBetrag })}
+      />
     )
   }
 
-  if (formValue.strategie === 'dynamisch') {
+  if (strategie === 'dynamisch') {
     return <DynamicWithdrawalConfiguration formValue={formValue} />
   }
 
-  if (formValue.strategie === 'rmd') {
+  if (strategie === 'rmd') {
     return (
       <RMDWithdrawalConfiguration
         formValue={formValue}
@@ -84,7 +121,7 @@ function StrategySpecificConfigurations({
     )
   }
 
-  if (formValue.strategie === 'kapitalerhalt') {
+  if (strategie === 'kapitalerhalt') {
     return (
       <KapitalerhaltConfiguration
         formValue={formValue}
@@ -93,7 +130,7 @@ function StrategySpecificConfigurations({
     )
   }
 
-  if (formValue.strategie === 'bucket_strategie') {
+  if (strategie === 'bucket_strategie') {
     return (
       <BucketStrategyConfiguration
         formValue={formValue}
@@ -102,7 +139,7 @@ function StrategySpecificConfigurations({
     )
   }
 
-  if (formValue.strategie === 'steueroptimiert') {
+  if (strategie === 'steueroptimiert') {
     return (
       <SteueroptimierteEntnahmeConfiguration
         formValue={formValue}
@@ -112,6 +149,122 @@ function StrategySpecificConfigurations({
   }
 
   return null
+}
+
+/**
+ * Strategy selector component
+ */
+function StrategySelector({
+  strategy,
+  onStrategyChange,
+}: {
+  strategy: WithdrawalStrategy
+  onStrategyChange: (strategy: WithdrawalStrategy) => void
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>Basis-Strategie</Label>
+      <RadioTileGroup
+        value={strategy}
+        onValueChange={value => onStrategyChange(value as WithdrawalStrategy)}
+      >
+        <RadioTile value="4prozent" label="4% Regel">
+          4% Entnahme
+        </RadioTile>
+        <RadioTile value="3prozent" label="3% Regel">
+          3% Entnahme
+        </RadioTile>
+        <RadioTile value="variabel_prozent" label="Variable Prozent">
+          Anpassbare Entnahme
+        </RadioTile>
+        <RadioTile value="monatlich_fest" label="Monatlich fest">
+          Fester monatlicher Betrag
+        </RadioTile>
+        <RadioTile value="dynamisch" label="Dynamische Strategie">
+          Renditebasierte Anpassung
+        </RadioTile>
+        <RadioTile value="bucket_strategie" label="Drei-Eimer-Strategie">
+          Cash-Polster bei negativen Renditen
+        </RadioTile>
+        <RadioTile value="rmd" label="RMD (Lebenserwartung)">
+          Entnahme basierend auf Alter und Lebenserwartung
+        </RadioTile>
+        <RadioTile value="kapitalerhalt" label="Kapitalerhalt / Ewige Rente">
+          Reale Rendite für Kapitalerhalt
+        </RadioTile>
+        <RadioTile value="steueroptimiert" label="Steueroptimierte Entnahme">
+          Automatische Optimierung zur Steuerminimierung
+        </RadioTile>
+      </RadioTileGroup>
+    </div>
+  )
+}
+
+/**
+ * Withdrawal frequency configuration component
+ */
+function WithdrawalFrequencyConfig({
+  frequency,
+  onFrequencyChange,
+}: {
+  frequency: 'yearly' | 'monthly'
+  onFrequencyChange: (frequency: 'yearly' | 'monthly') => void
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>Entnahme-Häufigkeit</Label>
+      <div className="flex items-center space-x-3 mt-2">
+        <span className="text-sm">Jährlich</span>
+        <Switch
+          checked={frequency === 'monthly'}
+          onCheckedChange={(checked) => {
+            onFrequencyChange(checked ? 'monthly' : 'yearly')
+          }}
+        />
+        <span className="text-sm">Monatlich</span>
+      </div>
+      <div className="text-sm text-muted-foreground mt-1">
+        {frequency === 'yearly'
+          ? 'Entnahme erfolgt einmal jährlich am Anfang des Jahres'
+          : 'Entnahme erfolgt monatlich - Portfolio hat mehr Zeit zu wachsen'}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Return rate slider component
+ */
+function ReturnRateSlider({
+  rendite,
+  onRenditeChange,
+}: {
+  rendite: number
+  onRenditeChange: (rendite: number) => void
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>Rendite Basis-Strategie (%)</Label>
+      <div className="space-y-2">
+        <Slider
+          value={[rendite]}
+          onValueChange={(values: number[]) => onRenditeChange(values[0])}
+          min={0}
+          max={10}
+          step={0.5}
+          className="mt-2"
+        />
+        <div className="flex justify-between text-sm text-gray-500">
+          <span>0%</span>
+          <span className="font-medium text-gray-900">
+            {rendite}
+            %
+          </span>
+          <span>10%</span>
+        </div>
+      </div>
+    </div>
+  )
 }
 
 /**
@@ -126,92 +279,23 @@ export function BaseStrategyConfiguration({
     <div>
       <h4>Basis-Strategie (mit vollständigen Details)</h4>
       <div>
-        {/* Strategy selector - for base strategy only */}
-        <div className="mb-4 space-y-2">
-          <Label>Basis-Strategie</Label>
-          <RadioTileGroup
-            value={formValue.strategie}
-            onValueChange={value =>
-              onUpdateFormValue({ ...formValue, strategie: value as WithdrawalStrategy })}
-          >
-            <RadioTile value="4prozent" label="4% Regel">
-              4% Entnahme
-            </RadioTile>
-            <RadioTile value="3prozent" label="3% Regel">
-              3% Entnahme
-            </RadioTile>
-            <RadioTile value="variabel_prozent" label="Variable Prozent">
-              Anpassbare Entnahme
-            </RadioTile>
-            <RadioTile value="monatlich_fest" label="Monatlich fest">
-              Fester monatlicher Betrag
-            </RadioTile>
-            <RadioTile value="dynamisch" label="Dynamische Strategie">
-              Renditebasierte Anpassung
-            </RadioTile>
-            <RadioTile value="bucket_strategie" label="Drei-Eimer-Strategie">
-              Cash-Polster bei negativen Renditen
-            </RadioTile>
-            <RadioTile value="rmd" label="RMD (Lebenserwartung)">
-              Entnahme basierend auf Alter und Lebenserwartung
-            </RadioTile>
-            <RadioTile value="kapitalerhalt" label="Kapitalerhalt / Ewige Rente">
-              Reale Rendite für Kapitalerhalt
-            </RadioTile>
-            <RadioTile value="steueroptimiert" label="Steueroptimierte Entnahme">
-              Automatische Optimierung zur Steuerminimierung
-            </RadioTile>
-          </RadioTileGroup>
-        </div>
+        <StrategySelector
+          strategy={formValue.strategie}
+          onStrategyChange={strategy =>
+            onUpdateFormValue({ ...formValue, strategie: strategy })}
+        />
 
-        {/* Withdrawal frequency configuration */}
-        <div className="mb-4 space-y-2">
-          <Label>Entnahme-Häufigkeit</Label>
-          <div className="flex items-center space-x-3 mt-2">
-            <span className="text-sm">Jährlich</span>
-            <Switch
-              checked={formValue.withdrawalFrequency === 'monthly'}
-              onCheckedChange={(checked) => {
-                onUpdateFormValue({
-                  withdrawalFrequency: checked ? 'monthly' : 'yearly',
-                })
-              }}
-            />
-            <span className="text-sm">Monatlich</span>
-          </div>
-          <div className="text-sm text-muted-foreground mt-1">
-            {formValue.withdrawalFrequency === 'yearly'
-              ? 'Entnahme erfolgt einmal jährlich am Anfang des Jahres'
-              : 'Entnahme erfolgt monatlich - Portfolio hat mehr Zeit zu wachsen'}
-          </div>
-        </div>
+        <WithdrawalFrequencyConfig
+          frequency={formValue.withdrawalFrequency || 'yearly'}
+          onFrequencyChange={frequency =>
+            onUpdateFormValue({ withdrawalFrequency: frequency })}
+        />
 
-        {/* Fixed return rate for base strategy */}
-        <div className="mb-4 space-y-2">
-          <Label>
-            Rendite Basis-Strategie (%)
-          </Label>
-          <div className="space-y-2">
-            <Slider
-              value={[formValue.rendite]}
-              onValueChange={(values: number[]) => onUpdateFormValue({ ...formValue, rendite: values[0] })}
-              min={0}
-              max={10}
-              step={0.5}
-              className="mt-2"
-            />
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>0%</span>
-              <span className="font-medium text-gray-900">
-                {formValue.rendite}
-                %
-              </span>
-              <span>10%</span>
-            </div>
-          </div>
-        </div>
+        <ReturnRateSlider
+          rendite={formValue.rendite}
+          onRenditeChange={rendite => onUpdateFormValue({ ...formValue, rendite })}
+        />
 
-        {/* Strategy-specific configuration for base strategy */}
         <StrategySpecificConfigurations
           formValue={formValue}
           onUpdateFormValue={onUpdateFormValue}
