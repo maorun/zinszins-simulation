@@ -285,6 +285,15 @@ function buildStrategyConfigs(
   }
 }
 
+function buildEffectiveHealthCareInsuranceConfig(healthCareInsuranceConfig: any) {
+  return healthCareInsuranceConfig
+    ? {
+        ...healthCareInsuranceConfig,
+        insuranceType: healthCareInsuranceConfig.insuranceType || 'statutory' as const,
+      }
+    : undefined
+}
+
 function buildWithdrawalParams(
   params: CalculateComparisonStrategyParams,
   strategy: ComparisonStrategy,
@@ -310,13 +319,7 @@ function buildWithdrawalParams(
 
   const { grundfreibetragPerYear, incomeTaxRate } = buildTaxConfig(params)
   const strategyConfigs = buildStrategyConfigs(strategy, getEffectiveLifeExpectancyTable, customLifeExpectancy)
-
-  const effectiveHealthCareInsuranceConfig = healthCareInsuranceConfig
-    ? {
-        ...healthCareInsuranceConfig,
-        insuranceType: healthCareInsuranceConfig.insuranceType || 'statutory' as const,
-      }
-    : undefined
+  const effectiveHealthCareInsuranceConfig = buildEffectiveHealthCareInsuranceConfig(healthCareInsuranceConfig)
 
   return {
     elements,
