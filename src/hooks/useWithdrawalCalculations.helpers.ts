@@ -452,6 +452,7 @@ export function buildSegmentedWithdrawalResult(params: {
 /**
  * Build withdrawal calculation parameters from form value and context
  */
+// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 function buildWithdrawalCalculationParams(params: {
   elemente: SparplanElement[]
   startOfIndependence: number

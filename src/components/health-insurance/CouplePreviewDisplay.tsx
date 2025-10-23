@@ -9,6 +9,7 @@ interface CouplePreviewDisplayProps {
 /**
  * Display component for couple health insurance cost preview
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function CouplePreviewDisplay({ coupleResults, withdrawalAmount }: CouplePreviewDisplayProps) {
   return (
     <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">

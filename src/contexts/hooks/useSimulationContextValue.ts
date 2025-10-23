@@ -5,6 +5,7 @@ import type { SimulationContextState } from '../SimulationContext'
  * Custom hook to build the SimulationContext value object
  * Extracted from SimulationProvider to reduce complexity
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function useSimulationContextValue(
   state: Record<string, unknown>,
   configManagement: {
@@ -76,6 +77,7 @@ export function useSimulationContextValue(
     resetToDefaults,
   } = configManagement
 
+  // eslint-disable-next-line max-lines-per-function -- Large component render function
   return useMemo(() => ({
     rendite, setRendite,
     steuerlast, setSteuerlast,

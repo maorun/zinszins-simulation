@@ -76,6 +76,7 @@ const handleDateChange = (
   }
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function EventFormFields({
   formValues,
   onFormChange,

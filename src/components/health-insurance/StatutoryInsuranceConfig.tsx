@@ -14,6 +14,7 @@ interface StatutoryInsuranceConfigProps {
   onStatutoryMaximumIncomeBaseChange: (amount: number) => void
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function StatutoryInsuranceConfig({
   includeEmployerContribution,
   statutoryHealthInsuranceRate,

@@ -96,6 +96,7 @@ function calculateSegmentedStrategyResult(
     result, // Include full result for detailed analysis
   }
 }
+// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 export function useWithdrawalCalculations(
   elemente: SparplanElement[],
   startOfIndependence: number,
@@ -151,6 +152,7 @@ export function useWithdrawalCalculations(
   }, [coupleStatutoryPensionConfig, statutoryPensionConfig, planningMode])
 
   // Calculate withdrawal projections
+  // eslint-disable-next-line max-lines-per-function -- Large component render function
   const withdrawalData = useMemo(() => {
     if (!elemente || elemente.length === 0) {
       return null

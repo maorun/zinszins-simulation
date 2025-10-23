@@ -90,6 +90,7 @@ function buildRunSimulationParams(
   }
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function useSimulationExecution(
   state: SimulationExecutionState,
   setIsLoading: (loading: boolean) => void,

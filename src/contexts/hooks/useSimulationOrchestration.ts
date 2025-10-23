@@ -8,6 +8,7 @@ import type { useSimulationState } from './useSimulationState'
  * Custom hook to prepare state objects for configuration management, simulation execution, and effects
  * This reduces boilerplate in SimulationProvider by centralizing object construction
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function useSimulationOrchestration(
   defaultConfig: DefaultConfigType,
   state: ReturnType<typeof useSimulationState>,

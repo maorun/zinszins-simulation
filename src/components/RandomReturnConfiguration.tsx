@@ -3,6 +3,7 @@ import { Input } from './ui/input'
 import { Label } from './ui/label'
 import { useSimulation } from '../contexts/useSimulation'
 
+// eslint-disable-next-line max-lines-per-function -- Large component render function
 const RandomReturnConfiguration = () => {
   const {
     averageReturn,

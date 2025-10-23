@@ -9,6 +9,7 @@ export interface ChartInterpretationGuideProps {
 /**
  * Displays interpretation guide for the chart
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function ChartInterpretationGuide({
   showInflationAdjusted,
   showTaxes,

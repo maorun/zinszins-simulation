@@ -29,6 +29,7 @@ interface CoupleConfigurationProps {
   onPerson2AdditionalCareInsuranceForChildlessChange: (enabled: boolean) => void
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function CoupleConfiguration({
   coupleStrategy,
   familyInsuranceThresholdRegular,
@@ -193,6 +194,7 @@ interface PersonConfigurationProps {
   onAdditionalCareInsuranceForChildlessChange: (enabled: boolean) => void
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 function PersonConfiguration({
   personNumber,
   name,

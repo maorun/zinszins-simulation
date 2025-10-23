@@ -111,6 +111,7 @@ function GoalMilestones({
  * Financial Goals Configuration Component
  * Allows users to set and track financial goals with milestones
  */
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export default function FinancialGoalsConfiguration() {
   const {
     financialGoals = [],

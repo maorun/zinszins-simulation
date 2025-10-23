@@ -57,6 +57,7 @@ function TaxDetailRow({
 /**
  * Section displaying tax-related information: interest, tax paid, Günstigerprüfung, Vorabpauschale, and tax allowance
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function TaxSection({
   rowData,
   formValue,

@@ -70,6 +70,7 @@ interface WithdrawalVariablesCardProps {
  * Withdrawal configuration variables card
  * Displays all configurable withdrawal parameters including modes, strategies, and health insurance
  */
+// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 export function WithdrawalVariablesCard({
   otherIncomeConfig,
   onOtherIncomeConfigChange,

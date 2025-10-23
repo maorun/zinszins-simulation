@@ -44,6 +44,7 @@ function DetailRow({
 /**
  * Section displaying financial details: start capital, withdrawal, monthly amount, inflation and guardrails adjustments
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function FinancialDetailsSection({
   rowData,
   formValue,

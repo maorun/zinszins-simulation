@@ -65,6 +65,7 @@ function getSafeMultiAssetConfig(
   return safeValues
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function MultiAssetPortfolioConfiguration({
   values,
   onChange,

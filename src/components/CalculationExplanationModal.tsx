@@ -22,6 +22,7 @@ interface CalculationExplanationModalProps {
   }
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component render function
 const CalculationExplanationModal = ({
   open,
   onClose,

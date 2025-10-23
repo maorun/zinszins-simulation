@@ -63,6 +63,7 @@ const AdditionalRiskMetrics: React.FC<AdditionalRiskMetricsProps> = ({ riskMetri
   </div>
 )
 
+// eslint-disable-next-line max-lines-per-function -- Large component render function
 const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
   const {
     simulationData,

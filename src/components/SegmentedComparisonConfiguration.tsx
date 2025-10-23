@@ -136,6 +136,7 @@ function StrategyCard({
   )
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function SegmentedComparisonConfiguration({
   segmentedComparisonStrategies = [],
   withdrawalStartYear,

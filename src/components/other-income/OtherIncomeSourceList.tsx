@@ -16,6 +16,7 @@ interface OtherIncomeSourceListProps {
   editingSource: OtherIncomeSource | null
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function OtherIncomeSourceList({
   sources,
   onSourceChange,
@@ -30,7 +31,7 @@ export function OtherIncomeSourceList({
   return (
     <div className="space-y-4">
       <h3 className="text-base font-semibold">Konfigurierte Einkommensquellen</h3>
-      {/* eslint-disable-next-line complexity -- UI rendering with multiple conditional displays per source */}
+      {/* eslint-disable-next-line complexity, max-lines-per-function -- UI rendering with multiple conditionals */}
       {sources.map(source => (
         <Card key={source.id} className="border-gray-200">
           <CardContent className="p-4">

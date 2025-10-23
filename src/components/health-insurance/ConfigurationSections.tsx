@@ -55,7 +55,7 @@ interface ConfigurationSectionsProps {
 /**
  * Groups all insurance configuration sections based on insurance type and planning mode
  */
-// eslint-disable-next-line complexity -- UI routing logic requires multiple conditional section renders
+// eslint-disable-next-line complexity, max-lines-per-function -- UI routing logic with multiple conditional sections
 export function ConfigurationSections(props: ConfigurationSectionsProps) {
   const {
     planningMode,

@@ -120,6 +120,7 @@ function MonthlyAmountField({
 /**
  * Dynamic strategy fields for dynamic withdrawal strategy
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 function DynamicStrategyFields({
   strategyId,
   basisrate,
@@ -232,6 +233,7 @@ function DynamicStrategyFields({
 /**
  * Bucket strategy fields for bucket withdrawal strategy
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 function BucketStrategyFields({
   strategyId,
   initialCash,
@@ -368,6 +370,7 @@ function StrategySpecificFields({
  * Card component for a single comparison strategy
  * Extracted from ComparisonStrategyConfiguration to reduce complexity
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function ComparisonStrategyCard({
   strategy,
   index,

@@ -13,6 +13,7 @@ import { IndexStatistics } from './historical-return/IndexStatistics'
 import { DataAvailabilityWarning } from './historical-return/DataAvailabilityWarning'
 import { HistoricalDataPreview } from './historical-return/HistoricalDataPreview'
 
+// eslint-disable-next-line max-lines-per-function -- Large component render function
 const HistoricalReturnConfiguration = () => {
   const {
     historicalIndex,

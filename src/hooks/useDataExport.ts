@@ -189,6 +189,7 @@ function prepareMarkdownExportData(context: SimulationContextState) {
 /**
  * Custom hook for exporting simulation data in various formats
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function useDataExport() {
   const context = useSimulation()
   const [state, setState] = useState<DataExportState>({

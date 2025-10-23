@@ -23,6 +23,7 @@ interface FreistellungsauftragOptimizerProps {
   teilfreistellungsquote: number // As percentage (e.g., 30)
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 function AccountCard({
   account,
   optimizationResult,
@@ -133,6 +134,7 @@ function AccountCard({
   )
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function FreistellungsauftragOptimizer({
   totalFreibetrag,
   accounts,

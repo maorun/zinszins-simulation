@@ -46,6 +46,7 @@ interface PensionInputFormProps {
 /**
  * Tax return data import section
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 function TaxReturnDataImport({
   values,
   onChange,
@@ -294,6 +295,7 @@ function RetirementStartDisplay({
   )
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function PensionInputForm({
   values,
   onChange,
