@@ -354,6 +354,7 @@ function createEndkapitalCalculation(
   )
 }
 
+// eslint-disable-next-line complexity -- UI component with multiple conditional renders for table display
 export function SparplanSimulationsAusgabe({
   elemente,
 }: {

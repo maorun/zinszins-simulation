@@ -30,6 +30,7 @@ export function OtherIncomeSourceList({
   return (
     <div className="space-y-4">
       <h3 className="text-base font-semibold">Konfigurierte Einkommensquellen</h3>
+      {/* eslint-disable-next-line complexity -- UI rendering with multiple conditional displays per source */}
       {sources.map(source => (
         <Card key={source.id} className="border-gray-200">
           <CardContent className="p-4">
