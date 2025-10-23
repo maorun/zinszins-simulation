@@ -113,6 +113,7 @@ export function useSimulationExecution(
         setIsLoading(false)
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Using individual state properties
     [
       state.rendite,
       state.returnMode,

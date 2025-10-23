@@ -220,6 +220,7 @@ export function useWithdrawalCalculations(
       withdrawalResult,
       duration,
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Using individual formValue properties
   }, [
     elemente,
     startOfIndependence,
