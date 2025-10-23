@@ -373,7 +373,10 @@ function aggregateYearData(
 /**
  * Calculate year-by-year portfolio progression (cumulative capital for each year)
  */
-export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Array<{
+/**
+ * Yearly portfolio progression entry with cumulative values
+ */
+export type PortfolioProgressionEntry = {
   year: number
   totalCapital: number
   yearlyContribution: number
@@ -386,7 +389,11 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
   totalCapitalReal?: number
   yearlyInterestReal?: number
   cumulativeInterestReal?: number
-}> {
+}
+
+export function getYearlyPortfolioProgression(
+  elemente?: SparplanElement[],
+): PortfolioProgressionEntry[] {
   if (!elemente || elemente.length === 0) {
     return []
   }
@@ -400,19 +407,7 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
   })
 
   const sortedYears = Array.from(allYears).sort((a, b) => a - b)
-  const progression: Array<{
-    year: number
-    totalCapital: number
-    yearlyContribution: number
-    yearlyInterest: number
-    yearlyTax: number
-    cumulativeContributions: number
-    cumulativeInterest: number
-    cumulativeTax: number
-    totalCapitalReal?: number
-    yearlyInterestReal?: number
-    cumulativeInterestReal?: number
-  }> = []
+  const progression: PortfolioProgressionEntry[] = []
 
   let cumulativeContributions = 0
   let cumulativeInterest = 0
@@ -437,19 +432,7 @@ export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): Arr
       cumulativeInterestReal += aggregated.yearlyInterestReal
     }
 
-    const progressionEntry: {
-      year: number
-      totalCapital: number
-      yearlyContribution: number
-      yearlyInterest: number
-      yearlyTax: number
-      cumulativeContributions: number
-      cumulativeInterest: number
-      cumulativeTax: number
-      totalCapitalReal?: number
-      yearlyInterestReal?: number
-      cumulativeInterestReal?: number
-    } = {
+    const progressionEntry: PortfolioProgressionEntry = {
       year,
       totalCapital: aggregated.totalCapital,
       yearlyContribution,
