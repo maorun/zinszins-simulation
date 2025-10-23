@@ -269,6 +269,22 @@ function buildTaxConfig(params: CalculateComparisonStrategyParams) {
   return { grundfreibetragPerYear, incomeTaxRate }
 }
 
+function buildStrategyConfigs(
+  strategy: ComparisonStrategy,
+  getEffectiveLifeExpectancyTable: () => 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
+  customLifeExpectancy?: number,
+) {
+  return {
+    monthlyConfig: buildMonthlyConfig(strategy),
+    customPercentage: buildCustomPercentage(strategy),
+    dynamicConfig: buildDynamicConfig(strategy),
+    bucketConfig: buildBucketConfig(strategy),
+    rmdConfig: buildRMDConfig(strategy, getEffectiveLifeExpectancyTable, customLifeExpectancy),
+    kapitalerhaltConfig: buildKapitalerhaltConfig(strategy),
+    steueroptimierteEntnahmeConfig: buildSteueroptimierteEntnahmeConfig(strategy),
+  }
+}
+
 function buildWithdrawalParams(
   params: CalculateComparisonStrategyParams,
   strategy: ComparisonStrategy,
@@ -293,6 +309,7 @@ function buildWithdrawalParams(
   } = params
 
   const { grundfreibetragPerYear, incomeTaxRate } = buildTaxConfig(params)
+  const strategyConfigs = buildStrategyConfigs(strategy, getEffectiveLifeExpectancyTable, customLifeExpectancy)
 
   const effectiveHealthCareInsuranceConfig = healthCareInsuranceConfig
     ? {
@@ -314,13 +331,7 @@ function buildWithdrawalParams(
       endOfLife,
       planningMode,
     ),
-    monthlyConfig: buildMonthlyConfig(strategy),
-    customPercentage: buildCustomPercentage(strategy),
-    dynamicConfig: buildDynamicConfig(strategy),
-    bucketConfig: buildBucketConfig(strategy),
-    rmdConfig: buildRMDConfig(strategy, getEffectiveLifeExpectancyTable, customLifeExpectancy),
-    kapitalerhaltConfig: buildKapitalerhaltConfig(strategy),
-    steueroptimierteEntnahmeConfig: buildSteueroptimierteEntnahmeConfig(strategy),
+    ...strategyConfigs,
     enableGrundfreibetrag: grundfreibetragAktiv,
     grundfreibetragPerYear,
     incomeTaxRate,

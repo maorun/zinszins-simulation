@@ -1,6 +1,6 @@
 import { useCallback } from 'react'
 import type { SimulationAnnualType } from '../../utils/simulate'
-import type { ReturnMode } from '../../utils/random-returns'
+import type { ReturnMode, ReturnConfiguration } from '../../utils/random-returns'
 import type { SparplanElement } from '../../utils/sparplan-utils'
 import type { BasiszinsConfiguration } from '../../services/bundesbank-api'
 import type { SimulationData } from '../helpers/config-types'
@@ -64,6 +64,32 @@ function buildSimulationConfig(
   return { returnConfig, variableInflationRates }
 }
 
+function buildRunSimulationParams(
+  state: SimulationExecutionState,
+  yearToday: number,
+  returnConfig: ReturnConfiguration,
+  variableInflationRates: Record<number, number> | undefined,
+) {
+  return {
+    yearToday,
+    endYear: state.startEnd[0],
+    elements: state.sparplanElemente,
+    returnConfig,
+    simulationAnnual: state.simulationAnnual,
+    steuerlast: state.steuerlast,
+    teilfreistellungsquote: state.teilfreistellungsquote,
+    freibetragPerYear: state.freibetragPerYear,
+    basiszinsConfiguration: state.basiszinsConfiguration,
+    steuerReduzierenEndkapitalSparphase: state.steuerReduzierenEndkapitalSparphase,
+    inflationAktivSparphase: state.inflationAktivSparphase,
+    inflationsrateSparphase: state.inflationsrateSparphase,
+    inflationAnwendungSparphase: state.inflationAnwendungSparphase,
+    variableInflationRates: variableInflationRates || {},
+    guenstigerPruefungAktiv: state.guenstigerPruefungAktiv,
+    personalTaxRate: state.personalTaxRate,
+  }
+}
+
 export function useSimulationExecution(
   state: SimulationExecutionState,
   setIsLoading: (loading: boolean) => void,
@@ -75,25 +101,8 @@ export function useSimulationExecution(
     setIsLoading(true)
     try {
       const { returnConfig, variableInflationRates } = buildSimulationConfig(state, overwrite, yearToday)
-
-      const result = runSimulation({
-        yearToday,
-        endYear: state.startEnd[0],
-        elements: state.sparplanElemente,
-        returnConfig,
-        simulationAnnual: state.simulationAnnual,
-        steuerlast: state.steuerlast,
-        teilfreistellungsquote: state.teilfreistellungsquote,
-        freibetragPerYear: state.freibetragPerYear,
-        basiszinsConfiguration: state.basiszinsConfiguration,
-        steuerReduzierenEndkapitalSparphase: state.steuerReduzierenEndkapitalSparphase,
-        inflationAktivSparphase: state.inflationAktivSparphase,
-        inflationsrateSparphase: state.inflationsrateSparphase,
-        inflationAnwendungSparphase: state.inflationAnwendungSparphase,
-        variableInflationRates,
-        guenstigerPruefungAktiv: state.guenstigerPruefungAktiv,
-        personalTaxRate: state.personalTaxRate,
-      })
+      const simulationParams = buildRunSimulationParams(state, yearToday, returnConfig, variableInflationRates)
+      const result = runSimulation(simulationParams)
 
       setSimulationData({
         sparplanElements: result.map(element => ({

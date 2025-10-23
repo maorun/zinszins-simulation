@@ -87,14 +87,15 @@ function StrategySpecificConfigurations({
   onUpdateFormValue: (updates: Partial<WithdrawalFormValue>) => void
 }) {
   const { strategie } = formValue
+  const updateValue = (updates: Partial<WithdrawalFormValue>) =>
+    onUpdateFormValue({ ...formValue, ...updates })
 
   switch (strategie) {
     case 'variabel_prozent':
       return (
         <VariablePercentConfig
           variabelProzent={formValue.variabelProzent}
-          onUpdate={variabelProzent =>
-            onUpdateFormValue({ ...formValue, variabelProzent })}
+          onUpdate={variabelProzent => updateValue({ variabelProzent })}
         />
       )
 
@@ -102,8 +103,7 @@ function StrategySpecificConfigurations({
       return (
         <MonthlyFixedConfig
           monatlicheBetrag={formValue.monatlicheBetrag}
-          onUpdate={monatlicheBetrag =>
-            onUpdateFormValue({ ...formValue, monatlicheBetrag })}
+          onUpdate={monatlicheBetrag => updateValue({ monatlicheBetrag })}
         />
       )
 
@@ -111,36 +111,16 @@ function StrategySpecificConfigurations({
       return <DynamicWithdrawalConfiguration formValue={formValue} />
 
     case 'rmd':
-      return (
-        <RMDWithdrawalConfiguration
-          formValue={formValue}
-          updateFormValue={onUpdateFormValue}
-        />
-      )
+      return <RMDWithdrawalConfiguration formValue={formValue} updateFormValue={onUpdateFormValue} />
 
     case 'kapitalerhalt':
-      return (
-        <KapitalerhaltConfiguration
-          formValue={formValue}
-          updateFormValue={onUpdateFormValue}
-        />
-      )
+      return <KapitalerhaltConfiguration formValue={formValue} updateFormValue={onUpdateFormValue} />
 
     case 'bucket_strategie':
-      return (
-        <BucketStrategyConfiguration
-          formValue={formValue}
-          updateFormValue={onUpdateFormValue}
-        />
-      )
+      return <BucketStrategyConfiguration formValue={formValue} updateFormValue={onUpdateFormValue} />
 
     case 'steueroptimiert':
-      return (
-        <SteueroptimierteEntnahmeConfiguration
-          formValue={formValue}
-          updateFormValue={onUpdateFormValue}
-        />
-      )
+      return <SteueroptimierteEntnahmeConfiguration formValue={formValue} updateFormValue={onUpdateFormValue} />
 
     default:
       return null
