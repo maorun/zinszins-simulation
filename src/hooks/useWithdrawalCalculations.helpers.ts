@@ -444,6 +444,68 @@ export function buildSegmentedWithdrawalResult(params: {
 /**
  * Build single strategy withdrawal result
  */
+/**
+ * Build withdrawal calculation parameters from form value and context
+ */
+function buildWithdrawalCalculationParams(params: {
+  elemente: any[]
+  startOfIndependence: number
+  endOfLife: number
+  formValue: any
+  withdrawalReturnConfig: any
+  steuerlast: number
+  teilfreistellungsquote: number
+  grundfreibetragAktiv: boolean
+  grundfreibetragBetrag: number
+  guenstigerPruefungAktiv: boolean
+  personalTaxRate: number
+  steuerReduzierenEndkapitalEntspharphase: boolean
+  effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined
+  otherIncomeConfig: any
+  birthYear: number
+  getEffectiveLifeExpectancyTable: () => 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
+  customLifeExpectancy: number | undefined
+}) {
+  return {
+    elements: params.elemente,
+    startYear: params.startOfIndependence + 1,
+    endYear: params.endOfLife,
+    strategy: params.formValue.strategie,
+    withdrawalFrequency: params.formValue.withdrawalFrequency,
+    returnConfig: params.withdrawalReturnConfig,
+    taxRate: params.steuerlast,
+    teilfreistellungsquote: params.teilfreistellungsquote,
+    freibetragPerYear: undefined,
+    monthlyConfig: buildMonthlyConfigFromFormValue(params.formValue),
+    customPercentage: buildCustomPercentageFromFormValue(params.formValue),
+    dynamicConfig: buildDynamicConfigFromFormValue(params.formValue),
+    bucketConfig: buildBucketConfigFromFormValue(params.formValue),
+    rmdConfig: buildRMDConfigFromFormValue(
+      params.formValue,
+      params.getEffectiveLifeExpectancyTable,
+      params.customLifeExpectancy,
+    ),
+    kapitalerhaltConfig: buildKapitalerhaltConfigFromFormValue(params.formValue),
+    steueroptimierteEntnahmeConfig: buildSteueroptimierteEntnahmeConfigFromFormValue(params.formValue),
+    enableGrundfreibetrag: params.grundfreibetragAktiv,
+    grundfreibetragPerYear: params.grundfreibetragAktiv
+      ? buildGrundfreibetragPerYear(params.startOfIndependence, params.endOfLife, params.grundfreibetragBetrag)
+      : undefined,
+    incomeTaxRate: params.grundfreibetragAktiv
+      ? params.formValue.einkommensteuersatz / 100
+      : (params.guenstigerPruefungAktiv ? params.personalTaxRate / 100 : undefined),
+    inflationConfig: params.formValue.inflationAktiv
+      ? { inflationRate: params.formValue.inflationsrate / 100 }
+      : undefined,
+    steuerReduzierenEndkapital: params.steuerReduzierenEndkapitalEntspharphase,
+    statutoryPensionConfig: params.effectiveStatutoryPensionConfig || undefined,
+    otherIncomeConfig: params.otherIncomeConfig,
+    healthCareInsuranceConfig: buildHealthCareInsuranceConfig(params.formValue),
+    birthYear: params.birthYear,
+    guenstigerPruefungAktiv: params.guenstigerPruefungAktiv,
+  }
+}
+
 export function buildSingleStrategyWithdrawalResult(params: {
   elemente: any[]
   startOfIndependence: number
@@ -478,44 +540,12 @@ export function buildSingleStrategyWithdrawalResult(params: {
     formValueRendite: params.formValue.rendite,
   })
 
-  const withdrawalCalculation = calculateWithdrawal({
-    elements: params.elemente,
-    startYear: params.startOfIndependence + 1,
-    endYear: params.endOfLife,
-    strategy: params.formValue.strategie,
-    withdrawalFrequency: params.formValue.withdrawalFrequency,
-    returnConfig: withdrawalReturnConfig,
-    taxRate: params.steuerlast,
-    teilfreistellungsquote: params.teilfreistellungsquote,
-    freibetragPerYear: undefined,
-    monthlyConfig: buildMonthlyConfigFromFormValue(params.formValue),
-    customPercentage: buildCustomPercentageFromFormValue(params.formValue),
-    dynamicConfig: buildDynamicConfigFromFormValue(params.formValue),
-    bucketConfig: buildBucketConfigFromFormValue(params.formValue),
-    rmdConfig: buildRMDConfigFromFormValue(
-      params.formValue,
-      params.getEffectiveLifeExpectancyTable,
-      params.customLifeExpectancy,
-    ),
-    kapitalerhaltConfig: buildKapitalerhaltConfigFromFormValue(params.formValue),
-    steueroptimierteEntnahmeConfig: buildSteueroptimierteEntnahmeConfigFromFormValue(params.formValue),
-    enableGrundfreibetrag: params.grundfreibetragAktiv,
-    grundfreibetragPerYear: params.grundfreibetragAktiv
-      ? buildGrundfreibetragPerYear(params.startOfIndependence, params.endOfLife, params.grundfreibetragBetrag)
-      : undefined,
-    incomeTaxRate: params.grundfreibetragAktiv
-      ? params.formValue.einkommensteuersatz / 100
-      : (params.guenstigerPruefungAktiv ? params.personalTaxRate / 100 : undefined),
-    inflationConfig: params.formValue.inflationAktiv
-      ? { inflationRate: params.formValue.inflationsrate / 100 }
-      : undefined,
-    steuerReduzierenEndkapital: params.steuerReduzierenEndkapitalEntspharphase,
-    statutoryPensionConfig: params.effectiveStatutoryPensionConfig || undefined,
-    otherIncomeConfig: params.otherIncomeConfig,
-    healthCareInsuranceConfig: buildHealthCareInsuranceConfig(params.formValue),
-    birthYear: params.birthYear,
-    guenstigerPruefungAktiv: params.guenstigerPruefungAktiv,
+  const calculationParams = buildWithdrawalCalculationParams({
+    ...params,
+    withdrawalReturnConfig,
   })
+
+  const withdrawalCalculation = calculateWithdrawal(calculationParams)
 
   return withdrawalCalculation.result
 }
