@@ -7,6 +7,28 @@ interface RetirementStartYearDisplayProps {
   retirementStartYear: number
 }
 
+/**
+ * Warning message when birth years are missing
+ */
+function MissingBirthYearWarning({
+  planningMode,
+  birthYear,
+  spouseBirthYear,
+}: {
+  planningMode: 'individual' | 'couple'
+  birthYear?: number
+  spouseBirthYear?: number
+}) {
+  if (!birthYear || (planningMode === 'couple' && !spouseBirthYear)) {
+    return (
+      <div className="text-xs text-orange-600 bg-orange-50 p-2 rounded border border-orange-200 mt-2">
+        Bitte Geburtsjahr(e) in der Globalen Planung festlegen
+      </div>
+    )
+  }
+  return null
+}
+
 export function RetirementStartYearDisplay({
   planningMode,
   birthYear,
@@ -32,11 +54,11 @@ export function RetirementStartYearDisplay({
         <div className="text-xs text-muted-foreground mt-2">
           Jahr ab dem die Rentnerregelungen gelten (berechnet mit Renteneintrittsalter 67)
         </div>
-        {!birthYear || (planningMode === 'couple' && !spouseBirthYear) ? (
-          <div className="text-xs text-orange-600 bg-orange-50 p-2 rounded border border-orange-200 mt-2">
-            Bitte Geburtsjahr(e) in der Globalen Planung festlegen
-          </div>
-        ) : null}
+        <MissingBirthYearWarning
+          planningMode={planningMode}
+          birthYear={birthYear}
+          spouseBirthYear={spouseBirthYear}
+        />
       </div>
     </div>
   )

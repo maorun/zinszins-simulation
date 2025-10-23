@@ -8,12 +8,58 @@ interface VariableReturnConfigProps {
   onWithdrawalVariableReturnsChange: (returns: Record<number, number>) => void
 }
 
+interface YearReturnRowProps {
+  year: number
+  returnValue: number
+  onValueChange: (year: number, value: number) => void
+}
+
+function YearReturnRow({ year, returnValue, onValueChange }: YearReturnRowProps) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        alignItems: 'center',
+        marginBottom: '10px',
+        gap: '10px',
+      }}
+    >
+      <div style={{ minWidth: '60px', fontWeight: 'bold' }}>
+        {year}
+        :
+      </div>
+      <div style={{ flex: 1 }}>
+        <Slider
+          value={[returnValue]}
+          onValueChange={(values: number[]) => onValueChange(year, values[0])}
+          min={-10}
+          max={15}
+          step={0.5}
+          className="mt-2"
+        />
+      </div>
+      <div style={{ minWidth: '50px', textAlign: 'right' }}>
+        {returnValue.toFixed(1)}
+        %
+      </div>
+    </div>
+  )
+}
+
 export function VariableReturnConfig({
   withdrawalVariableReturns,
   startOfIndependence,
   globalEndOfLife,
   onWithdrawalVariableReturnsChange,
 }: VariableReturnConfigProps) {
+  const handleValueChange = (year: number, value: number) => {
+    const newReturns = {
+      ...withdrawalVariableReturns,
+      [year]: value,
+    }
+    onWithdrawalVariableReturnsChange(newReturns)
+  }
+
   return (
     <div className="mb-4 space-y-2">
       <Label>Variable Renditen pro Jahr (Entnahme-Phase)</Label>
@@ -31,40 +77,12 @@ export function VariableReturnConfig({
           (_, i) => {
             const year = startOfIndependence + 1 + i
             return (
-              <div
+              <YearReturnRow
                 key={year}
-                style={{
-                  display: 'flex',
-                  alignItems: 'center',
-                  marginBottom: '10px',
-                  gap: '10px',
-                }}
-              >
-                <div style={{ minWidth: '60px', fontWeight: 'bold' }}>
-                  {year}
-                  :
-                </div>
-                <div style={{ flex: 1 }}>
-                  <Slider
-                    value={[withdrawalVariableReturns[year] || 5]}
-                    onValueChange={(values: number[]) => {
-                      const newReturns = {
-                        ...withdrawalVariableReturns,
-                        [year]: values[0],
-                      }
-                      onWithdrawalVariableReturnsChange(newReturns)
-                    }}
-                    min={-10}
-                    max={15}
-                    step={0.5}
-                    className="mt-2"
-                  />
-                </div>
-                <div style={{ minWidth: '50px', textAlign: 'right' }}>
-                  {(withdrawalVariableReturns[year] || 5).toFixed(1)}
-                  %
-                </div>
-              </div>
+                year={year}
+                returnValue={withdrawalVariableReturns[year] || 5}
+                onValueChange={handleValueChange}
+              />
             )
           },
         )}
