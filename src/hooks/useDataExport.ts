@@ -95,7 +95,11 @@ function getWithdrawalDataForExport(savingsData: SavingsData | undefined, contex
 /**
  * Helper function to validate export data availability
  */
-function validateExportData(savingsData: any, withdrawalData: any, context: any) {
+function validateExportData(
+  savingsData: SavingsData | undefined,
+  withdrawalData: ExportData['withdrawalData'] | undefined,
+  context: SimulationContextState,
+) {
   if (!savingsData?.sparplanElements && !withdrawalData && !context.withdrawalConfig?.formValue) {
     throw new Error('Keine Simulationsdaten verfügbar')
   }
@@ -111,7 +115,11 @@ function shouldAddPhaseSeparator(hasSavings: boolean, hasWithdrawal: boolean): b
 /**
  * Helper function to build combined CSV content
  */
-function buildCombinedCSVContent(savingsData: any, withdrawalData: any, context: any): string {
+function buildCombinedCSVContent(
+  savingsData: SavingsData | undefined,
+  withdrawalData: ExportData['withdrawalData'] | undefined,
+  context: SimulationContextState,
+): string {
   const parts: string[] = []
   const hasSavings = Boolean(savingsData?.sparplanElements)
   const hasWithdrawal = Boolean(withdrawalData || context.withdrawalConfig?.formValue)

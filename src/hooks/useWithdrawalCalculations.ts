@@ -4,11 +4,13 @@ import {
   calculateSegmentedWithdrawal,
   getTotalCapitalAtYear,
   calculateWithdrawalDuration,
+  type WithdrawalResult,
 } from '../../helpers/withdrawal'
 import type { SegmentedWithdrawalConfig } from '../utils/segmented-withdrawal'
 import type { SegmentedComparisonStrategy, WithdrawalConfiguration } from '../utils/config-storage'
 import { useSimulation } from '../contexts/useSimulation'
 import { createPlanningModeAwareFreibetragPerYear } from '../utils/freibetrag-calculation'
+import type { CoupleStatutoryPensionConfig, StatutoryPensionConfig } from '../../helpers/statutory-pension'
 import {
   convertCoupleToLegacyConfig,
   calculateComparisonStrategy,
@@ -47,7 +49,7 @@ function calculateSegmentedStrategyResult(
   startOfIndependence: number,
   endOfLife: number,
   planningMode: 'individual' | 'couple',
-  effectiveStatutoryPensionConfig: any,
+  effectiveStatutoryPensionConfig: CoupleStatutoryPensionConfig | StatutoryPensionConfig | null | undefined,
 ) {
   // Create segmented configuration for this comparison strategy
   const segmentedConfig: SegmentedWithdrawalConfig = {
@@ -58,7 +60,7 @@ function calculateSegmentedStrategyResult(
       endOfLife,
       planningMode || 'individual',
     ),
-    statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
+    statutoryPensionConfig: (effectiveStatutoryPensionConfig as StatutoryPensionConfig) || undefined,
   }
 
   // Calculate segmented withdrawal for this comparison strategy
@@ -201,7 +203,7 @@ export function useWithdrawalCalculations(
     }
 
     // Convert to array for table display, sorted by year descending
-    const withdrawalArray = Object.entries(withdrawalResult as Record<string, any>)
+    const withdrawalArray = Object.entries(withdrawalResult as WithdrawalResult)
       .map(([year, data]) => ({
         year: parseInt(year),
         ...data,
