@@ -97,50 +97,52 @@ export function useSimulationExecution(
 ) {
   const yearToday = new Date().getFullYear()
 
-  const performSimulation = useCallback(async (overwrite: { rendite?: number } = {}) => {
-    setIsLoading(true)
-    try {
-      const { returnConfig, variableInflationRates } = buildSimulationConfig(state, overwrite, yearToday)
-      const simulationParams = buildRunSimulationParams(state, yearToday, returnConfig, variableInflationRates)
-      const result = runSimulation(simulationParams)
-
-      setSimulationData({ sparplanElements: result })
-    }
-    catch (error) {
-      console.error('Simulation error:', error)
-    }
-    finally {
-      setIsLoading(false)
-    }
-  }, [
-    state.rendite,
-    state.returnMode,
-    state.averageReturn,
-    state.standardDeviation,
-    state.randomSeed,
-    state.variableReturns,
-    state.historicalIndex,
-    state.blackSwanReturns,
-    state.inflationScenarioRates,
-    state.inflationScenarioReturnModifiers,
-    state.multiAssetConfig,
-    state.simulationAnnual,
-    state.sparplanElemente,
-    state.startEnd,
-    yearToday,
-    state.steuerlast,
-    state.teilfreistellungsquote,
-    state.freibetragPerYear,
-    state.basiszinsConfiguration,
-    state.steuerReduzierenEndkapitalSparphase,
-    state.inflationAktivSparphase,
-    state.inflationsrateSparphase,
-    state.inflationAnwendungSparphase,
-    state.guenstigerPruefungAktiv,
-    state.personalTaxRate,
-    setIsLoading,
-    setSimulationData,
-  ])
+  const performSimulation = useCallback(
+    async (overwrite: { rendite?: number } = {}) => {
+      setIsLoading(true)
+      try {
+        const { returnConfig, variableInflationRates } = buildSimulationConfig(state, overwrite, yearToday)
+        const simulationParams = buildRunSimulationParams(state, yearToday, returnConfig, variableInflationRates)
+        const result = runSimulation(simulationParams)
+        setSimulationData({ sparplanElements: result })
+      }
+      catch (error) {
+        console.error('Simulation error:', error)
+      }
+      finally {
+        setIsLoading(false)
+      }
+    },
+    [
+      state.rendite,
+      state.returnMode,
+      state.averageReturn,
+      state.standardDeviation,
+      state.randomSeed,
+      state.variableReturns,
+      state.historicalIndex,
+      state.blackSwanReturns,
+      state.inflationScenarioRates,
+      state.inflationScenarioReturnModifiers,
+      state.multiAssetConfig,
+      state.simulationAnnual,
+      state.sparplanElemente,
+      state.startEnd,
+      yearToday,
+      state.steuerlast,
+      state.teilfreistellungsquote,
+      state.freibetragPerYear,
+      state.basiszinsConfiguration,
+      state.steuerReduzierenEndkapitalSparphase,
+      state.inflationAktivSparphase,
+      state.inflationsrateSparphase,
+      state.inflationAnwendungSparphase,
+      state.guenstigerPruefungAktiv,
+      state.personalTaxRate,
+      setIsLoading,
+      setSimulationData,
+    ],
+  )
 
   return { performSimulation }
 }

@@ -1,3 +1,4 @@
+import type { ReactNode } from 'react'
 import { Info } from 'lucide-react'
 import { formatCurrency } from '../../utils/currency'
 import type { WithdrawalFormValue } from '../../utils/config-storage'
@@ -23,6 +24,23 @@ interface FinancialDetailsSectionProps {
   }) => string
 }
 
+function DetailRow({
+  label,
+  value,
+  className,
+}: {
+  label: string
+  value: string | ReactNode
+  className?: string
+}) {
+  return (
+    <div className="flex justify-between items-center py-1">
+      <span className="text-sm text-gray-600 font-medium">{label}</span>
+      <span className={`font-semibold text-sm ${className || ''}`}>{value}</span>
+    </div>
+  )
+}
+
 /**
  * Section displaying financial details: start capital, withdrawal, monthly amount, inflation and guardrails adjustments
  */
@@ -35,68 +53,62 @@ export function FinancialDetailsSection({
 }: FinancialDetailsSectionProps) {
   return (
     <>
-      {/* Startkapital */}
-      <div className="flex justify-between items-center py-1">
-        <span className="text-sm text-gray-600 font-medium">💰 Startkapital:</span>
-        <span className="font-semibold text-green-600 text-sm">
-          {formatWithInflation({
-            value: rowData.startkapital,
-            year: rowData.year,
-            allYears,
-            formValue,
-            showIcon: true,
-          })}
-        </span>
-      </div>
+      <DetailRow
+        label="💰 Startkapital:"
+        value={formatWithInflation({
+          value: rowData.startkapital,
+          year: rowData.year,
+          allYears,
+          formValue,
+          showIcon: true,
+        })}
+        className="text-green-600"
+      />
 
-      {/* Entnahme */}
-      <div className="flex justify-between items-center py-1">
-        <span className="text-sm text-gray-600 font-medium">💸 Entnahme:</span>
-        <span className="font-semibold text-red-600 text-sm">
-          {formatWithInflation({
-            value: rowData.entnahme,
-            year: rowData.year,
-            allYears,
-            formValue,
-            showIcon: true,
-          })}
-        </span>
-      </div>
+      <DetailRow
+        label="💸 Entnahme:"
+        value={formatWithInflation({
+          value: rowData.entnahme,
+          year: rowData.year,
+          allYears,
+          formValue,
+          showIcon: true,
+        })}
+        className="text-red-600"
+      />
 
-      {/* Monthly withdrawal (monatlich_fest strategy) */}
       {formValue.strategie === 'monatlich_fest' && rowData.monatlicheEntnahme && (
-        <div className="flex justify-between items-center py-1">
-          <span className="text-sm text-gray-600 font-medium">📅 Monatlich:</span>
-          <span className="font-semibold text-purple-600 text-sm">
-            {formatCurrency(rowData.monatlicheEntnahme)}
-          </span>
-        </div>
+        <DetailRow
+          label="📅 Monatlich:"
+          value={formatCurrency(rowData.monatlicheEntnahme)}
+          className="text-purple-600"
+        />
       )}
 
-      {/* Inflation adjustment */}
       {formValue.inflationAktiv && rowData.inflationAnpassung !== undefined && (
-        <div className="flex justify-between items-center py-1">
-          <span className="text-sm text-gray-600 font-medium">📈 Inflation:</span>
-          <span className="font-semibold text-orange-600 text-sm flex items-center">
-            {formatCurrency(rowData.inflationAnpassung)}
-            <Info
-              className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-              onClick={() => onCalculationInfoClick('inflation', rowData)}
-            />
-          </span>
-        </div>
+        <DetailRow
+          label="📈 Inflation:"
+          value={(
+            <span className="flex items-center">
+              {formatCurrency(rowData.inflationAnpassung)}
+              <Info
+                className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+                onClick={() => onCalculationInfoClick('inflation', rowData)}
+              />
+            </span>
+          )}
+          className="text-orange-600"
+        />
       )}
 
-      {/* Guardrails adjustment */}
       {formValue.strategie === 'monatlich_fest'
         && formValue.guardrailsAktiv
         && rowData.portfolioAnpassung !== undefined && (
-        <div className="flex justify-between items-center py-1">
-          <span className="text-sm text-gray-600 font-medium">🛡️ Guardrails:</span>
-          <span className="font-semibold text-teal-600 text-sm">
-            {formatCurrency(rowData.portfolioAnpassung)}
-          </span>
-        </div>
+        <DetailRow
+          label="🛡️ Guardrails:"
+          value={formatCurrency(rowData.portfolioAnpassung)}
+          className="text-teal-600"
+        />
       )}
     </>
   )
