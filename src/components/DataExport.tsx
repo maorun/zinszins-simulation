@@ -4,7 +4,7 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collap
 import { ChevronDown, Download, FileText, Copy, Info } from 'lucide-react'
 import { useParameterExport } from '../hooks/useParameterExport'
 import { useDataExport } from '../hooks/useDataExport'
-import { useSimulation } from '../contexts/useSimulation'
+import { useDataAvailability } from '../hooks/useDataAvailability'
 import { useNestingLevel } from '../lib/nesting-utils'
 import { useNavigationItem } from '../hooks/useNavigationItem'
 
@@ -340,19 +340,6 @@ function DataExportSection({
   )
 }
 
-function hasWithdrawalCapability(
-  hasWithdrawalData: boolean,
-  hasWithdrawalConfig: boolean,
-  hasWithdrawalConfigFromStorage: boolean,
-  hasSavingsData: boolean,
-  withdrawalConfig: { formValue?: unknown } | null,
-): boolean {
-  return hasWithdrawalData
-    || hasWithdrawalConfig
-    || hasWithdrawalConfigFromStorage
-    || (hasSavingsData && !!withdrawalConfig)
-}
-
 function getExportButtonState(
   isExporting: boolean,
   exportResult: string | null,
@@ -398,7 +385,12 @@ const DataExport = () => {
     exportType,
   } = useDataExport()
 
-  const { simulationData, withdrawalResults, withdrawalConfig } = useSimulation()
+  const {
+    hasSavingsData,
+    hasWithdrawalCapability,
+    hasAnyData,
+  } = useDataAvailability()
+
   const nestingLevel = useNestingLevel()
   const navigationRef = useNavigationItem({
     id: 'data-export',
@@ -406,26 +398,6 @@ const DataExport = () => {
     icon: '📤',
     level: 0,
   })
-
-  const hasSavingsData = !!(simulationData?.sparplanElements && simulationData.sparplanElements.length > 0)
-  const hasWithdrawalData = !!(withdrawalResults && Object.keys(withdrawalResults).length > 0)
-  const hasWithdrawalConfig = !!(withdrawalConfig && withdrawalConfig.formValue)
-  const hasWithdrawalConfigFromStorage = !!(withdrawalConfig && (
-    withdrawalConfig.formValue
-    || withdrawalConfig.useSegmentedWithdrawal
-    || withdrawalConfig.withdrawalSegments?.length > 0
-  ))
-  const hasWithdrawalCapabilityValue = hasWithdrawalCapability(
-    hasWithdrawalData,
-    hasWithdrawalConfig,
-    hasWithdrawalConfigFromStorage,
-    hasSavingsData,
-    withdrawalConfig,
-  )
-  const hasAnyData = hasSavingsData
-    || hasWithdrawalData
-    || hasWithdrawalConfig
-    || hasWithdrawalConfigFromStorage
 
   return (
     <Card nestingLevel={nestingLevel} className="mb-4" ref={navigationRef}>
@@ -452,7 +424,7 @@ const DataExport = () => {
               <DataExportSection
                 hasAnyData={hasAnyData}
                 hasSavingsData={hasSavingsData}
-                hasWithdrawalCapability={hasWithdrawalCapabilityValue}
+                hasWithdrawalCapability={hasWithdrawalCapability}
                 isExporting={isDataExporting}
                 exportResult={dataExportResult}
                 exportType={exportType}
