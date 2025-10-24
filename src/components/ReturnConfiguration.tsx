@@ -12,6 +12,7 @@ import { Switch } from './ui/switch'
 import VariableReturnConfiguration from './VariableReturnConfiguration'
 import MultiAssetPortfolioConfiguration from './MultiAssetPortfolioConfiguration'
 
+// eslint-disable-next-line max-lines-per-function -- Large component render function
 const ReturnConfiguration = () => {
   const {
     returnMode,

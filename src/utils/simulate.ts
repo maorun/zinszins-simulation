@@ -379,6 +379,62 @@ interface YearlySimulationStrategy {
 }
 
 /**
+ * Process a single element for yearly tax calculation
+ */
+function processElementForTaxCalculation(
+  element: SparplanElement,
+  year: number,
+  wachstumsrate: number,
+  basiszins: number,
+  options: SimulateOptions,
+): YearlyCalculation | null {
+  if (!shouldProcessElement(element, year)) return null
+
+  const {
+    simulationAnnual,
+    steuerlast,
+    teilfreistellungsquote = 0.3,
+  } = options
+
+  const {
+    startkapital,
+    endkapitalAfterCosts,
+    jahresgewinn,
+    anteilImJahr,
+    costs,
+  } = calculateGrowthAndCostsForElement(element, year, wachstumsrate, simulationAnnual, options)
+
+  const vorabpauschaleDetails = calculateVorabpauschaleDetailed(
+    startkapital,
+    endkapitalAfterCosts,
+    basiszins,
+    anteilImJahr,
+    steuerlast,
+    teilfreistellungsquote,
+  )
+
+  const vorabpauschaleBetrag = vorabpauschaleDetails.vorabpauschaleAmount
+  const { potentialTax, enhancedDetails } = calculateGuenstigerPruefung(
+    vorabpauschaleDetails,
+    vorabpauschaleBetrag,
+    options,
+    steuerlast,
+    teilfreistellungsquote,
+  )
+
+  return {
+    element,
+    startkapital,
+    endkapitalVorSteuer: endkapitalAfterCosts,
+    jahresgewinn,
+    vorabpauschaleBetrag,
+    potentialTax,
+    vorabpauschaleDetails: enhancedDetails,
+    costs,
+  }
+}
+
+/**
  * Strategy for simulations with tax calculations
  */
 class TaxSimulationStrategy implements YearlySimulationStrategy {
@@ -389,9 +445,6 @@ class TaxSimulationStrategy implements YearlySimulationStrategy {
     options: SimulateOptions,
   ): void {
     const {
-      simulationAnnual,
-      steuerlast,
-      teilfreistellungsquote = 0.3,
       freibetragPerYear,
       steuerReduzierenEndkapital = true,
       basiszinsConfiguration,
@@ -403,45 +456,18 @@ class TaxSimulationStrategy implements YearlySimulationStrategy {
 
     // Pass 1: Calculate growth and potential tax for each element
     for (const element of elements) {
-      if (!shouldProcessElement(element, year)) continue
-
-      const {
-        startkapital,
-        endkapitalAfterCosts,
-        jahresgewinn,
-        anteilImJahr,
-        costs,
-      } = calculateGrowthAndCostsForElement(element, year, wachstumsrate, simulationAnnual, options)
-
-      const vorabpauschaleDetails = calculateVorabpauschaleDetailed(
-        startkapital,
-        endkapitalAfterCosts,
-        basiszins,
-        anteilImJahr,
-        steuerlast,
-        teilfreistellungsquote,
-      )
-
-      const vorabpauschaleBetrag = vorabpauschaleDetails.vorabpauschaleAmount
-      const { potentialTax, enhancedDetails } = calculateGuenstigerPruefung(
-        vorabpauschaleDetails,
-        vorabpauschaleBetrag,
-        options,
-        steuerlast,
-        teilfreistellungsquote,
-      )
-
-      totalPotentialTaxThisYear += potentialTax
-      yearlyCalculations.push({
+      const calculation = processElementForTaxCalculation(
         element,
-        startkapital,
-        endkapitalVorSteuer: endkapitalAfterCosts,
-        jahresgewinn,
-        vorabpauschaleBetrag,
-        potentialTax,
-        vorabpauschaleDetails: enhancedDetails,
-        costs,
-      })
+        year,
+        wachstumsrate,
+        basiszins,
+        options,
+      )
+
+      if (calculation) {
+        totalPotentialTaxThisYear += calculation.potentialTax
+        yearlyCalculations.push(calculation)
+      }
     }
 
     // Pass 2: Apply taxes

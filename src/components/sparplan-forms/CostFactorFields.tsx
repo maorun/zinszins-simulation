@@ -35,6 +35,42 @@ interface CostFactorFieldsProps {
   ) => void
 }
 
+function CostInputField({
+  label,
+  value,
+  placeholder,
+  max,
+  description,
+  onChange,
+}: {
+  label: string
+  value: string
+  placeholder: string
+  max: number
+  description: string
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>
+        {label}
+        <InfoIcon />
+      </Label>
+      <Input
+        type="number"
+        value={value || ''}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full"
+        min={0}
+        max={max}
+        step={0.01}
+      />
+      <div className="text-sm text-muted-foreground mt-1">{description}</div>
+    </div>
+  )
+}
+
 /**
  * Cost factor input fields (TER, Transaction Costs)
  * Complexity: <8, Lines: <50
@@ -50,63 +86,30 @@ export function CostFactorFields({
         💰 Kostenfaktoren (optional)
       </div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
-        <div className="mb-4 space-y-2">
-          <Label>
-            TER (% p.a.)
-            <InfoIcon />
-          </Label>
-          <Input
-            type="number"
-            value={values.ter || ''}
-            onChange={e => handleNumberChange(e, value =>
-              onValueChange({ ...values, ter: value }),
-            )}
-            placeholder="z.B. 0.75"
-            className="w-full"
-            min={0}
-            max={10}
-            step={0.01}
-          />
-          <div className="text-sm text-muted-foreground mt-1">Total Expense Ratio in % pro Jahr</div>
-        </div>
-        <div className="mb-4 space-y-2">
-          <Label>
-            Transaktionskosten (%)
-            <InfoIcon />
-          </Label>
-          <Input
-            type="number"
-            value={values.transactionCostPercent || ''}
-            onChange={e => handleNumberChange(e, value =>
-              onValueChange({ ...values, transactionCostPercent: value }),
-            )}
-            placeholder="z.B. 0.25"
-            className="w-full"
-            min={0}
-            max={5}
-            step={0.01}
-          />
-          <div className="text-sm text-muted-foreground mt-1">Prozentuale Transaktionskosten</div>
-        </div>
-        <div className="mb-4 space-y-2">
-          <Label>
-            Transaktionskosten (€)
-            <InfoIcon />
-          </Label>
-          <Input
-            type="number"
-            value={values.transactionCostAbsolute || ''}
-            onChange={e => handleNumberChange(e, value =>
-              onValueChange({ ...values, transactionCostAbsolute: value }),
-            )}
-            placeholder="z.B. 1.50"
-            className="w-full"
-            min={0}
-            max={100}
-            step={0.01}
-          />
-          <div className="text-sm text-muted-foreground mt-1">Absolute Transaktionskosten in Euro</div>
-        </div>
+        <CostInputField
+          label="TER (% p.a.)"
+          value={values.ter}
+          placeholder="z.B. 0.75"
+          max={10}
+          description="Total Expense Ratio in % pro Jahr"
+          onChange={e => handleNumberChange(e, value => onValueChange({ ...values, ter: value }))}
+        />
+        <CostInputField
+          label="Transaktionskosten (%)"
+          value={values.transactionCostPercent}
+          placeholder="z.B. 0.25"
+          max={5}
+          description="Prozentuale Transaktionskosten"
+          onChange={e => handleNumberChange(e, value => onValueChange({ ...values, transactionCostPercent: value }))}
+        />
+        <CostInputField
+          label="Transaktionskosten (€)"
+          value={values.transactionCostAbsolute}
+          placeholder="z.B. 1.50"
+          max={100}
+          description="Absolute Transaktionskosten in Euro"
+          onChange={e => handleNumberChange(e, value => onValueChange({ ...values, transactionCostAbsolute: value }))}
+        />
       </div>
     </div>
   )

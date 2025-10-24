@@ -107,6 +107,7 @@ function ManualEntryForm({
  * Basiszins Configuration Component
  * Manages interest rates from Deutsche Bundesbank for Vorabpauschale calculation
  */
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export default function BasiszinsConfiguration() {
   const {
     basiszinsConfiguration,

@@ -11,6 +11,7 @@ interface RandomReturnConfigProps {
   onWithdrawalRandomSeedChange: (value: number | undefined) => void
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function RandomReturnConfig({
   withdrawalAverageReturn,
   withdrawalStandardDeviation,

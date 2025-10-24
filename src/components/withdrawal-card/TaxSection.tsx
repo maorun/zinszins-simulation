@@ -27,9 +27,37 @@ interface TaxSectionProps {
   }) => string
 }
 
+function TaxDetailRow({
+  label,
+  value,
+  className,
+  onInfoClick,
+}: {
+  label: string
+  value: string
+  className: string
+  onInfoClick?: () => void
+}) {
+  return (
+    <div className="flex justify-between items-center py-1">
+      <span className="text-sm text-gray-600 font-medium">{label}</span>
+      <span className={`font-semibold text-sm flex items-center ${className}`}>
+        {value}
+        {onInfoClick && (
+          <Info
+            className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
+            onClick={onInfoClick}
+          />
+        )}
+      </span>
+    </div>
+  )
+}
+
 /**
  * Section displaying tax-related information: interest, tax paid, Günstigerprüfung, Vorabpauschale, and tax allowance
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function TaxSection({
   rowData,
   formValue,
@@ -39,45 +67,35 @@ export function TaxSection({
 }: TaxSectionProps) {
   return (
     <>
-      {/* Interest */}
-      <div className="flex justify-between items-center py-1">
-        <span className="text-sm text-gray-600 font-medium">📈 Zinsen:</span>
-        <span className="font-semibold text-cyan-600 text-sm flex items-center">
-          {formatWithInflation({
-            value: rowData.zinsen,
-            year: rowData.year,
-            allYears,
-            formValue,
-            showIcon: true,
-          })}
-          <Info
-            className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-            onClick={() => onCalculationInfoClick('interest', rowData)}
-          />
-        </span>
-      </div>
+      <TaxDetailRow
+        label="📈 Zinsen:"
+        value={formatWithInflation({
+          value: rowData.zinsen,
+          year: rowData.year,
+          allYears,
+          formValue,
+          showIcon: true,
+        })}
+        className="text-cyan-600"
+        onInfoClick={() => onCalculationInfoClick('interest', rowData)}
+      />
 
-      {/* Tax paid */}
-      <div className="flex justify-between items-center py-1">
-        <span className="text-sm text-gray-600 font-medium">💸 Bezahlte Steuer:</span>
-        <span className="font-semibold text-red-600 text-sm flex items-center">
-          {formatCurrency(rowData.bezahlteSteuer)}
-          <Info
-            className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-            onClick={() => onCalculationInfoClick('tax', rowData)}
-          />
-        </span>
-      </div>
+      <TaxDetailRow
+        label="💸 Bezahlte Steuer:"
+        value={formatCurrency(rowData.bezahlteSteuer)}
+        className="text-red-600"
+        onInfoClick={() => onCalculationInfoClick('tax', rowData)}
+      />
 
-      {/* Günstigerprüfung (realized gains) */}
       {rowData.guenstigerPruefungResultRealizedGains && (
         <div className="bg-blue-50 px-2 py-1 rounded space-y-1">
           <div className="flex justify-between items-center">
             <span className="text-sm text-blue-600 font-medium">🔍 Günstigerprüfung (Veräußerung):</span>
             <span className="font-semibold text-blue-700 text-sm">
-              {rowData.guenstigerPruefungResultRealizedGains.isFavorable === 'personal' ? 'Persönlicher Steuersatz' : 'Abgeltungssteuer'}
-              {' '}
-              (
+              {rowData.guenstigerPruefungResultRealizedGains.isFavorable === 'personal'
+                ? 'Persönlicher Steuersatz'
+                : 'Abgeltungssteuer'}
+              {' ('}
               {(rowData.guenstigerPruefungResultRealizedGains.usedTaxRate * 100).toFixed(2)}
               %)
             </span>
@@ -88,27 +106,21 @@ export function TaxSection({
         </div>
       )}
 
-      {/* Vorabpauschale */}
-      {rowData.vorabpauschale !== undefined && rowData.vorabpauschale > 0 && (
-        <div className="flex justify-between items-center py-1">
-          <span className="text-sm text-gray-600 font-medium">📊 Vorabpauschale:</span>
-          <span className="font-semibold text-blue-700 text-sm flex items-center">
-            {formatCurrency(rowData.vorabpauschale)}
-            <Info
-              className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-              onClick={() => onCalculationInfoClick('vorabpauschale', rowData)}
-            />
-          </span>
-        </div>
+      {rowData.vorabpauschale !== undefined
+        && rowData.vorabpauschale > 0 && (
+        <TaxDetailRow
+          label="📊 Vorabpauschale:"
+          value={formatCurrency(rowData.vorabpauschale)}
+          className="text-blue-700"
+          onInfoClick={() => onCalculationInfoClick('vorabpauschale', rowData)}
+        />
       )}
 
-      {/* Tax allowance used */}
-      <div className="flex justify-between items-center py-1">
-        <span className="text-sm text-gray-600 font-medium">🎯 Genutzter Freibetrag:</span>
-        <span className="font-semibold text-green-600 text-sm">
-          {formatCurrency(rowData.genutzterFreibetrag)}
-        </span>
-      </div>
+      <TaxDetailRow
+        label="🎯 Genutzter Freibetrag:"
+        value={formatCurrency(rowData.genutzterFreibetrag)}
+        className="text-green-600"
+      />
     </>
   )
 }

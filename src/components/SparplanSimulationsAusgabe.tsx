@@ -305,6 +305,56 @@ function formatEndCapitalDisplay(
   return `${thousands(summary.endkapital?.toFixed(2) || '0')} €`
 }
 
+/**
+ * Create interest explanation helper
+ */
+function createInterestCalculation(
+  simData: SimulationResultElement,
+  rowData: CalculationInfoData,
+): CalculationExplanation {
+  return createInterestExplanation(
+    simData.startkapital,
+    simData.zinsen,
+    5, // Default rendite - would need to get from actual config
+    rowData.jahr,
+  )
+}
+
+/**
+ * Create tax explanation helper
+ */
+function createTaxCalculation(
+  simData: SimulationResultElement,
+  jahr: number,
+): CalculationExplanation {
+  return createTaxExplanation(
+    simData.bezahlteSteuer,
+    simData.vorabpauschaleDetails!.vorabpauschaleAmount,
+    0.26375, // Default tax rate - would need to get from actual config
+    0.3, // Default Teilfreistellungsquote - would need to get from actual config
+    simData.genutzterFreibetrag || 2000, // Default freibetrag
+    jahr,
+  )
+}
+
+/**
+ * Create end capital explanation helper
+ */
+function createEndkapitalCalculation(
+  simData: SimulationResultElement,
+  rowData: CalculationInfoData,
+): CalculationExplanation {
+  return createEndkapitalExplanation(
+    simData.endkapital,
+    simData.startkapital,
+    typeof rowData.einzahlung === 'number' ? rowData.einzahlung : 0,
+    simData.zinsen,
+    simData.bezahlteSteuer,
+    rowData.jahr,
+  )
+}
+
+// eslint-disable-next-line complexity, max-lines-per-function -- UI component with multiple conditional renders
 export function SparplanSimulationsAusgabe({
   elemente,
 }: {
@@ -333,55 +383,6 @@ export function SparplanSimulationsAusgabe({
     setShowVorabpauschaleModal(true)
   }
 
-  /**
-   * Create interest explanation
-   */
-  const createInterestCalculationExplanation = (
-    simData: SimulationResultElement,
-    rowData: CalculationInfoData,
-  ): CalculationExplanation => {
-    return createInterestExplanation(
-      simData.startkapital,
-      simData.zinsen,
-      5, // Default rendite - would need to get from actual config
-      rowData.jahr,
-    )
-  }
-
-  /**
-   * Create tax explanation
-   */
-  const createTaxCalculationExplanation = (
-    simData: SimulationResultElement,
-    jahr: number,
-  ): CalculationExplanation => {
-    return createTaxExplanation(
-      simData.bezahlteSteuer,
-      simData.vorabpauschaleDetails!.vorabpauschaleAmount,
-      0.26375, // Default tax rate - would need to get from actual config
-      0.3, // Default Teilfreistellungsquote - would need to get from actual config
-      simData.genutzterFreibetrag || 2000, // Default freibetrag
-      jahr,
-    )
-  }
-
-  /**
-   * Create end capital explanation
-   */
-  const createEndkapitalCalculationExplanation = (
-    simData: SimulationResultElement,
-    rowData: CalculationInfoData,
-  ): CalculationExplanation => {
-    return createEndkapitalExplanation(
-      simData.endkapital,
-      simData.startkapital,
-      typeof rowData.einzahlung === 'number' ? rowData.einzahlung : 0,
-      simData.zinsen,
-      simData.bezahlteSteuer,
-      rowData.jahr,
-    )
-  }
-
   // Helper to find simulation data for a given year
   const findSimulationDataForYear = (jahr: number) => {
     const yearSimData = elemente?.find(el => el.simulation[jahr])
@@ -399,9 +400,9 @@ export function SparplanSimulationsAusgabe({
       explanationType,
       simData,
       rowData,
-      createInterestCalculationExplanation,
-      createTaxCalculationExplanation,
-      createEndkapitalCalculationExplanation,
+      createInterestCalculation,
+      createTaxCalculation,
+      createEndkapitalCalculation,
     )
     if (explanation) {
       setCalculationDetails(explanation)
@@ -440,6 +441,7 @@ export function SparplanSimulationsAusgabe({
 
               {/* Card Layout for All Devices */}
               <div className="flex flex-col gap-4">
+                {/* eslint-disable-next-line max-lines-per-function -- Large component render function */}
                 {tableData?.map((row, index) => (
                   <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-shadow hover:shadow-md">
                     <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">

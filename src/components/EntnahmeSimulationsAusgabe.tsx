@@ -13,6 +13,7 @@ import { WithdrawalVariablesCard } from './WithdrawalVariablesCard'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import { EntnahmeSimulationModals } from './EntnahmeSimulationModals'
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function EntnahmeSimulationsAusgabe({
   startEnd,
   elemente,

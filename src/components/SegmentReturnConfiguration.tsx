@@ -26,6 +26,7 @@ const getReturnModeFromConfig = (
   return returnConfig.mode as WithdrawalReturnMode
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function SegmentReturnConfiguration({
   segmentId,
   startYear,

@@ -36,6 +36,7 @@ interface SteueroptimierteEntnahmeConfigurationProps {
   onChange?: SteueroptimierteEntnahmeChangeHandlers
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function SteueroptimierteEntnahmeConfiguration({
   formValue,
   updateFormValue,

@@ -22,6 +22,84 @@ interface SegmentedComparisonConfigurationProps {
 /**
  * Component to render individual strategy card
  */
+function StrategyCardHeader({
+  strategy,
+  nestingLevel,
+  onUpdateName,
+  onRemove,
+}: {
+  strategy: SegmentedComparisonStrategy
+  nestingLevel: number
+  onUpdateName: (id: string, name: string) => void
+  onRemove: (id: string) => void
+}) {
+  return (
+    <CardHeader nestingLevel={nestingLevel + 1}>
+      <div className="flex items-center justify-between">
+        <div className="flex-1">
+          <Label htmlFor={`strategy-name-${strategy.id}`}>Konfigurationsname</Label>
+          <Input
+            id={`strategy-name-${strategy.id}`}
+            value={strategy.name}
+            onChange={e => onUpdateName(strategy.id, e.target.value)}
+            className="mt-1"
+            placeholder="z.B. Konservativ-Aggressiv"
+          />
+        </div>
+        <Button
+          onClick={() => onRemove(strategy.id)}
+          variant="ghost"
+          size="sm"
+          className="ml-4 text-red-600 hover:text-red-700 hover:bg-red-50"
+          aria-label="Konfiguration löschen"
+        >
+          <Trash2 className="h-4 w-4" />
+        </Button>
+      </div>
+    </CardHeader>
+  )
+}
+
+function StrategyCardContent({
+  strategy,
+  nestingLevel,
+  withdrawalStartYear,
+  withdrawalEndYear,
+  onUpdateSegments,
+}: {
+  strategy: SegmentedComparisonStrategy
+  nestingLevel: number
+  withdrawalStartYear: number
+  withdrawalEndYear: number
+  onUpdateSegments: (id: string, segments: WithdrawalSegment[]) => void
+}) {
+  return (
+    <CardContent nestingLevel={nestingLevel + 1}>
+      <div className="space-y-4">
+        <Separator />
+        <div>
+          <Label className="text-sm font-medium">
+            Phasen konfigurieren (
+            {strategy.segments.length}
+            {' '}
+            Phase
+            {strategy.segments.length !== 1 ? 'n' : ''}
+            )
+          </Label>
+          <div className="mt-2">
+            <WithdrawalSegmentForm
+              segments={strategy.segments}
+              onSegmentsChange={segments => onUpdateSegments(strategy.id, segments)}
+              withdrawalStartYear={withdrawalStartYear}
+              withdrawalEndYear={withdrawalEndYear}
+            />
+          </div>
+        </div>
+      </div>
+    </CardContent>
+  )
+}
+
 function StrategyCard({
   strategy,
   nestingLevel,
@@ -41,58 +119,24 @@ function StrategyCard({
 }) {
   return (
     <Card key={strategy.id} nestingLevel={nestingLevel + 1} className="border-2">
-      <CardHeader nestingLevel={nestingLevel + 1}>
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <Label htmlFor={`strategy-name-${strategy.id}`}>
-              Konfigurationsname
-            </Label>
-            <Input
-              id={`strategy-name-${strategy.id}`}
-              value={strategy.name}
-              onChange={e => onUpdateName(strategy.id, e.target.value)}
-              className="mt-1"
-              placeholder="z.B. Konservativ-Aggressiv"
-            />
-          </div>
-          <Button
-            onClick={() => onRemove(strategy.id)}
-            variant="ghost"
-            size="sm"
-            className="ml-4 text-red-600 hover:text-red-700 hover:bg-red-50"
-            aria-label="Konfiguration löschen"
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
-        </div>
-      </CardHeader>
-      <CardContent nestingLevel={nestingLevel + 1}>
-        <div className="space-y-4">
-          <Separator />
-          <div>
-            <Label className="text-sm font-medium">
-              Phasen konfigurieren (
-              {strategy.segments.length}
-              {' '}
-              Phase
-              {strategy.segments.length !== 1 ? 'n' : ''}
-              )
-            </Label>
-            <div className="mt-2">
-              <WithdrawalSegmentForm
-                segments={strategy.segments}
-                onSegmentsChange={segments => onUpdateSegments(strategy.id, segments)}
-                withdrawalStartYear={withdrawalStartYear}
-                withdrawalEndYear={withdrawalEndYear}
-              />
-            </div>
-          </div>
-        </div>
-      </CardContent>
+      <StrategyCardHeader
+        strategy={strategy}
+        nestingLevel={nestingLevel}
+        onUpdateName={onUpdateName}
+        onRemove={onRemove}
+      />
+      <StrategyCardContent
+        strategy={strategy}
+        nestingLevel={nestingLevel}
+        withdrawalStartYear={withdrawalStartYear}
+        withdrawalEndYear={withdrawalEndYear}
+        onUpdateSegments={onUpdateSegments}
+      />
     </Card>
   )
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function SegmentedComparisonConfiguration({
   segmentedComparisonStrategies = [],
   withdrawalStartYear,

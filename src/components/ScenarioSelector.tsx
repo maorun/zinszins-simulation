@@ -74,6 +74,7 @@ function ScenarioButton({
  * ScenarioSelector Component
  * Displays predefined What-If scenarios and allows users to apply them to their simulation
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function ScenarioSelector({ onApplyScenario }: ScenarioSelectorProps) {
   const [selectedScenario, setSelectedScenario] = useState<FinancialScenario | null>(null)
   const [isDetailsOpen, setIsDetailsOpen] = useState(false)

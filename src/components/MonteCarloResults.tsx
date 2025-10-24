@@ -22,6 +22,87 @@ interface MonteCarloResult {
 /**
  * Component to display Monte Carlo analysis table with scenarios
  */
+function SimulationParameters({ config, formatPercent }: {
+  config: RandomReturnConfig
+  formatPercent: (value: number) => string
+}) {
+  return (
+    <div style={{ marginBottom: '20px' }}>
+      <p>
+        <strong>Simulationsparameter:</strong>
+        {' '}
+        Durchschnittliche Rendite
+        {formatPercent(config.averageReturn)}
+        ,
+        Volatilität
+        {formatPercent(config.standardDeviation || 0.15)}
+      </p>
+      <p>
+        <strong>Annahme:</strong>
+        {' '}
+        Die jährlichen Renditen folgen einer Normalverteilung.
+        Reale Märkte können von dieser Annahme abweichen.
+      </p>
+      {config.seed && (
+        <p>
+          <strong>Zufallsseed:</strong>
+          {' '}
+          {config.seed}
+          {' '}
+          (deterministische Ergebnisse)
+        </p>
+      )}
+    </div>
+  )
+}
+
+function MobileScenarioCards({ scenarios, getRowClassName }: {
+  scenarios: MonteCarloResult[]
+  getRowClassName: (scenario: string) => string
+}) {
+  return (
+    <div className="mobile-only monte-carlo-mobile">
+      {scenarios.map((scenario, index) => (
+        <div key={index} className={`monte-carlo-card ${getRowClassName(scenario.scenario)}`}>
+          <div className="monte-carlo-header">
+            <span className="scenario-name">{scenario.scenario}</span>
+            <span className="probability">{scenario.probability}</span>
+          </div>
+          <div className="scenario-description">{scenario.description}</div>
+        </div>
+      ))}
+    </div>
+  )
+}
+
+function DesktopScenarioTable({ scenarios, getRowClassName }: {
+  scenarios: MonteCarloResult[]
+  getRowClassName: (scenario: string) => string
+}) {
+  return (
+    <div className="desktop-only table-container">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead>Szenario</TableHead>
+            <TableHead>Beschreibung</TableHead>
+            <TableHead>Wahrscheinlichkeit</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {scenarios.map((scenario, index) => (
+            <TableRow key={index} className={getRowClassName(scenario.scenario)}>
+              <TableCell>{scenario.scenario}</TableCell>
+              <TableCell>{scenario.description}</TableCell>
+              <TableCell>{scenario.probability}</TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
+      </Table>
+    </div>
+  )
+}
+
 function AnalysisTableSection({
   scenarios,
   config,
@@ -41,73 +122,14 @@ function AnalysisTableSection({
         📊
         {title}
       </h4>
-      <div style={{ marginBottom: '20px' }}>
-        <p>
-          <strong>Simulationsparameter:</strong>
-          {' '}
-          Durchschnittliche Rendite
-          {formatPercent(config.averageReturn)}
-          ,
-          Volatilität
-          {formatPercent(config.standardDeviation || 0.15)}
-        </p>
-        <p>
-          <strong>Annahme:</strong>
-          {' '}
-          Die jährlichen Renditen folgen einer Normalverteilung.
-          Reale Märkte können von dieser Annahme abweichen.
-        </p>
-        {config.seed && (
-          <p>
-            <strong>Zufallsseed:</strong>
-            {' '}
-            {config.seed}
-            {' '}
-            (deterministische Ergebnisse)
-          </p>
-        )}
-      </div>
-
-      {/* Mobile Card Layout */}
-      <div className="mobile-only monte-carlo-mobile">
-        {scenarios.map((scenario, index) => (
-          <div key={index} className={`monte-carlo-card ${getRowClassName(scenario.scenario)}`}>
-            <div className="monte-carlo-header">
-              <span className="scenario-name">{scenario.scenario}</span>
-              <span className="probability">{scenario.probability}</span>
-            </div>
-            <div className="scenario-description">
-              {scenario.description}
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Desktop Table Layout */}
-      <div className="desktop-only table-container">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Szenario</TableHead>
-              <TableHead>Beschreibung</TableHead>
-              <TableHead>Wahrscheinlichkeit</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {scenarios.map((scenario, index) => (
-              <TableRow key={index} className={getRowClassName(scenario.scenario)}>
-                <TableCell>{scenario.scenario}</TableCell>
-                <TableCell>{scenario.description}</TableCell>
-                <TableCell>{scenario.probability}</TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <SimulationParameters config={config} formatPercent={formatPercent} />
+      <MobileScenarioCards scenarios={scenarios} getRowClassName={getRowClassName} />
+      <DesktopScenarioTable scenarios={scenarios} getRowClassName={getRowClassName} />
     </div>
   )
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function MonteCarloResults({
   years: _years,
   accumulationConfig,

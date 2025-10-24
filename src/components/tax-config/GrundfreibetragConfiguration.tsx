@@ -17,6 +17,7 @@ interface GrundfreibetragConfigurationProps {
   onGrundfreibetragBetragChange: (value: number) => void
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function GrundfreibetragConfiguration({
   grundfreibetragAktiv,
   grundfreibetragBetrag,

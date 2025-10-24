@@ -4,11 +4,13 @@ import {
   calculateSegmentedWithdrawal,
   getTotalCapitalAtYear,
   calculateWithdrawalDuration,
+  type WithdrawalResult,
 } from '../../helpers/withdrawal'
 import type { SegmentedWithdrawalConfig } from '../utils/segmented-withdrawal'
 import type { SegmentedComparisonStrategy, WithdrawalConfiguration } from '../utils/config-storage'
 import { useSimulation } from '../contexts/useSimulation'
 import { createPlanningModeAwareFreibetragPerYear } from '../utils/freibetrag-calculation'
+import type { CoupleStatutoryPensionConfig, StatutoryPensionConfig } from '../../helpers/statutory-pension'
 import {
   convertCoupleToLegacyConfig,
   calculateComparisonStrategy,
@@ -17,8 +19,84 @@ import {
 } from './useWithdrawalCalculations.helpers'
 
 /**
- * Custom hook for withdrawal calculations
+ * Helper to determine the effective life expectancy table based on planning mode and gender
  */
+function getEffectiveLifeExpectancyTable(
+  lifeExpectancyTable: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
+  planningMode: 'individual' | 'couple',
+  gender?: 'male' | 'female',
+): 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom' {
+  if (lifeExpectancyTable === 'custom') {
+    return 'custom'
+  }
+
+  // For individual planning with gender selection, use gender-specific table
+  if (planningMode === 'individual' && gender) {
+    return gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22'
+  }
+
+  // For couple planning or when no gender is selected, use the selected table
+  return lifeExpectancyTable
+}
+
+/**
+ * Calculate segmented withdrawal for a single comparison strategy
+ */
+function calculateSegmentedStrategyResult(
+  strategy: SegmentedComparisonStrategy,
+  elemente: SparplanElement[],
+  steuerlast: number,
+  startOfIndependence: number,
+  endOfLife: number,
+  planningMode: 'individual' | 'couple',
+  effectiveStatutoryPensionConfig: CoupleStatutoryPensionConfig | StatutoryPensionConfig | null | undefined,
+) {
+  // Create segmented configuration for this comparison strategy
+  const segmentedConfig: SegmentedWithdrawalConfig = {
+    segments: strategy.segments,
+    taxRate: steuerlast,
+    freibetragPerYear: createPlanningModeAwareFreibetragPerYear(
+      startOfIndependence + 1,
+      endOfLife,
+      planningMode || 'individual',
+    ),
+    statutoryPensionConfig: (effectiveStatutoryPensionConfig as StatutoryPensionConfig) || undefined,
+  }
+
+  // Calculate segmented withdrawal for this comparison strategy
+  const result = calculateSegmentedWithdrawal(
+    elemente,
+    segmentedConfig,
+  )
+
+  // Get final year capital and total withdrawal
+  const finalYear = Math.max(...Object.keys(result).map(Number))
+  const finalCapital = result[finalYear]?.endkapital || 0
+
+  // Calculate total withdrawal
+  const totalWithdrawal = Object.values(result).reduce(
+    (sum, year) => sum + year.entnahme,
+    0,
+  )
+  const totalYears = Object.keys(result).length
+  const averageAnnualWithdrawal = totalWithdrawal / totalYears
+
+  // Calculate withdrawal duration
+  const duration = calculateWithdrawalDuration(
+    result,
+    startOfIndependence + 1,
+  )
+
+  return {
+    strategy,
+    finalCapital,
+    totalWithdrawal,
+    averageAnnualWithdrawal,
+    duration: duration ? duration : 'unbegrenzt',
+    result, // Include full result for detailed analysis
+  }
+}
+// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 export function useWithdrawalCalculations(
   elemente: SparplanElement[],
   startOfIndependence: number,
@@ -74,22 +152,8 @@ export function useWithdrawalCalculations(
   }, [coupleStatutoryPensionConfig, statutoryPensionConfig, planningMode])
 
   // Calculate withdrawal projections
+  // eslint-disable-next-line max-lines-per-function -- Large component render function
   const withdrawalData = useMemo(() => {
-    // Helper function to determine the effective life expectancy table based on planning mode and gender
-    const getEffectiveLifeExpectancyTable = (): 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom' => {
-      if (lifeExpectancyTable === 'custom') {
-        return 'custom'
-      }
-
-      // For individual planning with gender selection, use gender-specific table
-      if (planningMode === 'individual' && gender) {
-        return gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22'
-      }
-
-      // For couple planning or when no gender is selected, use the selected table
-      return lifeExpectancyTable
-    }
-
     if (!elemente || elemente.length === 0) {
       return null
     }
@@ -101,6 +165,8 @@ export function useWithdrawalCalculations(
     if (startingCapital <= 0) {
       return null
     }
+
+    const effectiveTable = getEffectiveLifeExpectancyTable(lifeExpectancyTable, planningMode, gender)
 
     let withdrawalResult
 
@@ -133,13 +199,13 @@ export function useWithdrawalCalculations(
         effectiveStatutoryPensionConfig,
         otherIncomeConfig,
         birthYear: birthYear || 1990,
-        getEffectiveLifeExpectancyTable,
+        getEffectiveLifeExpectancyTable: () => effectiveTable,
         customLifeExpectancy,
       })
     }
 
     // Convert to array for table display, sorted by year descending
-    const withdrawalArray = Object.entries(withdrawalResult as Record<string, any>)
+    const withdrawalArray = Object.entries(withdrawalResult as WithdrawalResult)
       .map(([year, data]) => ({
         year: parseInt(year),
         ...data,
@@ -158,6 +224,7 @@ export function useWithdrawalCalculations(
       withdrawalResult,
       duration,
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Using individual formValue properties
   }, [
     elemente,
     startOfIndependence,
@@ -292,50 +359,15 @@ export function useWithdrawalCalculations(
 
     const results = (segmentedComparisonStrategies || []).map((strategy: SegmentedComparisonStrategy) => {
       try {
-        // Create segmented configuration for this comparison strategy
-        const segmentedConfig: SegmentedWithdrawalConfig = {
-          segments: strategy.segments,
-          taxRate: steuerlast,
-          freibetragPerYear: createPlanningModeAwareFreibetragPerYear(
-            startOfIndependence + 1,
-            endOfLife,
-            planningMode || 'individual', // Use planningMode from global config, fallback to individual
-          ),
-          statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
-        }
-
-        // Calculate segmented withdrawal for this comparison strategy
-        const result = calculateSegmentedWithdrawal(
-          elemente,
-          segmentedConfig,
-        )
-
-        // Get final year capital and total withdrawal
-        const finalYear = Math.max(...Object.keys(result).map(Number))
-        const finalCapital = result[finalYear]?.endkapital || 0
-
-        // Calculate total withdrawal
-        const totalWithdrawal = Object.values(result).reduce(
-          (sum, year) => sum + year.entnahme,
-          0,
-        )
-        const totalYears = Object.keys(result).length
-        const averageAnnualWithdrawal = totalWithdrawal / totalYears
-
-        // Calculate withdrawal duration
-        const duration = calculateWithdrawalDuration(
-          result,
-          startOfIndependence + 1,
-        )
-
-        return {
+        return calculateSegmentedStrategyResult(
           strategy,
-          finalCapital,
-          totalWithdrawal,
-          averageAnnualWithdrawal,
-          duration: duration ? duration : 'unbegrenzt',
-          result, // Include full result for detailed analysis
-        }
+          elemente,
+          steuerlast,
+          startOfIndependence,
+          endOfLife,
+          planningMode || 'individual',
+          effectiveStatutoryPensionConfig,
+        )
       }
       catch (error) {
         console.error(

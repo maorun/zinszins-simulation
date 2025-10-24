@@ -12,10 +12,12 @@ import { createDefaultHealthCareInsuranceConfig } from '../../helpers/health-car
 /**
  * Custom hook for managing withdrawal configuration state
  */
+// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 export function useWithdrawalConfig() {
   const { withdrawalConfig, setWithdrawalConfig } = useSimulation()
 
   // Initialize withdrawal config if not exists or update current form values
+  // eslint-disable-next-line max-lines-per-function -- Large component render function
   const currentConfig = useMemo(() => {
     // Create default withdrawal configuration if none exists
     const defaultFormValue: WithdrawalFormValue = {

@@ -25,6 +25,53 @@ interface WithdrawalSegmentCardProps {
   onMoveDown: (segmentId: string) => void
 }
 
+function SegmentConfigSections({ segment, withdrawalStartYear, withdrawalEndYear, onUpdate }: {
+  segment: WithdrawalSegment
+  withdrawalStartYear: number
+  withdrawalEndYear: number
+  onUpdate: (id: string, updates: Partial<WithdrawalSegment>) => void
+}) {
+  return (
+    <>
+      <SegmentBasicConfig
+        name={segment.name}
+        startYear={segment.startYear}
+        endYear={segment.endYear}
+        withdrawalStartYear={withdrawalStartYear}
+        withdrawalEndYear={withdrawalEndYear}
+        onNameChange={name => onUpdate(segment.id, { name })}
+        onStartYearChange={startYear => onUpdate(segment.id, { startYear })}
+        onEndYearChange={endYear => onUpdate(segment.id, { endYear })}
+      />
+      <Separator />
+      <SegmentStrategySelector segment={segment} onStrategyChange={updates => onUpdate(segment.id, updates)} />
+      <WithdrawalFrequencyConfiguration
+        frequency={segment.withdrawalFrequency}
+        onFrequencyChange={freq => onUpdate(segment.id, { withdrawalFrequency: freq })}
+      />
+      <SegmentStrategyConfig segment={segment} onUpdate={onUpdate} />
+      <Separator />
+      <SegmentReturnConfiguration
+        segmentId={segment.id}
+        startYear={segment.startYear}
+        endYear={segment.endYear}
+        returnConfig={segment.returnConfig}
+        onReturnConfigChange={config => onUpdate(segment.id, { returnConfig: config })}
+      />
+      <Separator />
+      <SegmentInflationConfig
+        inflationConfig={segment.inflationConfig}
+        onInflationConfigChange={config => onUpdate(segment.id, { inflationConfig: config })}
+      />
+      <Separator />
+      <SegmentTaxReductionConfig
+        steuerReduzierenEndkapital={segment.steuerReduzierenEndkapital}
+        onSteuerReduzierenEndkapitalChange={value => onUpdate(segment.id, { steuerReduzierenEndkapital: value })}
+      />
+    </>
+  )
+}
+
 export function WithdrawalSegmentCard({
   segment,
   index,
@@ -51,54 +98,11 @@ export function WithdrawalSegmentCard({
         />
         <CollapsibleContent>
           <CardContent>
-            <SegmentBasicConfig
-              name={segment.name}
-              startYear={segment.startYear}
-              endYear={segment.endYear}
+            <SegmentConfigSections
+              segment={segment}
               withdrawalStartYear={withdrawalStartYear}
               withdrawalEndYear={withdrawalEndYear}
-              onNameChange={name => onUpdate(segment.id, { name })}
-              onStartYearChange={startYear => onUpdate(segment.id, { startYear })}
-              onEndYearChange={endYear => onUpdate(segment.id, { endYear })}
-            />
-
-            <Separator />
-
-            <SegmentStrategySelector
-              segment={segment}
-              onStrategyChange={updates => onUpdate(segment.id, updates)}
-            />
-
-            <WithdrawalFrequencyConfiguration
-              frequency={segment.withdrawalFrequency}
-              onFrequencyChange={freq => onUpdate(segment.id, { withdrawalFrequency: freq })}
-            />
-
-            <SegmentStrategyConfig segment={segment} onUpdate={onUpdate} />
-
-            <Separator />
-
-            <SegmentReturnConfiguration
-              segmentId={segment.id}
-              startYear={segment.startYear}
-              endYear={segment.endYear}
-              returnConfig={segment.returnConfig}
-              onReturnConfigChange={config => onUpdate(segment.id, { returnConfig: config })}
-            />
-
-            <Separator />
-
-            <SegmentInflationConfig
-              inflationConfig={segment.inflationConfig}
-              onInflationConfigChange={config => onUpdate(segment.id, { inflationConfig: config })}
-            />
-
-            <Separator />
-
-            <SegmentTaxReductionConfig
-              steuerReduzierenEndkapital={segment.steuerReduzierenEndkapital}
-              onSteuerReduzierenEndkapitalChange={value =>
-                onUpdate(segment.id, { steuerReduzierenEndkapital: value })}
+              onUpdate={onUpdate}
             />
           </CardContent>
         </CollapsibleContent>

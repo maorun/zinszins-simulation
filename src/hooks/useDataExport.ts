@@ -1,5 +1,6 @@
 import { useCallback, useState } from 'react'
 import { useSimulation } from '../contexts/useSimulation'
+import type { SimulationContextState } from '../contexts/SimulationContext'
 import { calculateWithdrawal, type WithdrawalStrategy } from '../../helpers/withdrawal'
 import {
   exportSavingsDataToCSV,
@@ -9,6 +10,7 @@ import {
   downloadTextAsFile,
   copyTextToClipboard,
   type ExportData,
+  type SavingsData,
 } from '../utils/data-export'
 
 export interface DataExportState {
@@ -21,8 +23,8 @@ export interface DataExportState {
  * Helper to generate withdrawal data from config
  */
 function generateWithdrawalFromConfig(
-  elements: any[],
-  context: any,
+  elements: SavingsData['sparplanElements'],
+  context: SimulationContextState,
   strategy: WithdrawalStrategy,
   returnRate: number,
   endYear: number,
@@ -43,30 +45,42 @@ function generateWithdrawalFromConfig(
 }
 
 /**
+ * Helper to check if we can generate withdrawal data from config
+ */
+function canGenerateWithdrawalData(
+  savingsData: SavingsData | undefined,
+  context: SimulationContextState,
+): boolean {
+  return !!(savingsData?.sparplanElements && context.withdrawalConfig?.formValue)
+}
+
+/**
  * Helper function to get or generate withdrawal data for export
  */
-function getWithdrawalDataForExport(savingsData: any, context: any) {
+function getWithdrawalDataForExport(savingsData: SavingsData | undefined, context: SimulationContextState) {
+  // Return existing results if available
   if (context.withdrawalResults) {
     return context.withdrawalResults
   }
 
   const hasSavings = savingsData?.sparplanElements
-  const hasConfig = context.withdrawalConfig?.formValue
 
-  if (hasConfig && hasSavings) {
+  // Generate withdrawal data from explicit config
+  if (canGenerateWithdrawalData(savingsData, context)) {
     return generateWithdrawalFromConfig(
-      savingsData.sparplanElements,
+      savingsData!.sparplanElements,
       context,
-      context.withdrawalConfig.formValue.strategie,
-      context.withdrawalConfig.formValue.rendite / 100,
+      context.withdrawalConfig!.formValue.strategie,
+      context.withdrawalConfig!.formValue.rendite / 100,
       context.endOfLife,
-      context.withdrawalConfig.formValue.withdrawalFrequency,
+      context.withdrawalConfig!.formValue.withdrawalFrequency,
     )
   }
 
+  // Generate default withdrawal data if we have savings and basic config
   if (hasSavings && context.withdrawalConfig) {
     return generateWithdrawalFromConfig(
-      savingsData.sparplanElements,
+      savingsData!.sparplanElements,
       context,
       '4prozent',
       0.05,
@@ -81,7 +95,11 @@ function getWithdrawalDataForExport(savingsData: any, context: any) {
 /**
  * Helper function to validate export data availability
  */
-function validateExportData(savingsData: any, withdrawalData: any, context: any) {
+function validateExportData(
+  savingsData: SavingsData | undefined,
+  withdrawalData: ExportData['withdrawalData'] | undefined,
+  context: SimulationContextState,
+) {
   if (!savingsData?.sparplanElements && !withdrawalData && !context.withdrawalConfig?.formValue) {
     throw new Error('Keine Simulationsdaten verfügbar')
   }
@@ -97,7 +115,11 @@ function shouldAddPhaseSeparator(hasSavings: boolean, hasWithdrawal: boolean): b
 /**
  * Helper function to build combined CSV content
  */
-function buildCombinedCSVContent(savingsData: any, withdrawalData: any, context: any): string {
+function buildCombinedCSVContent(
+  savingsData: SavingsData | undefined,
+  withdrawalData: ExportData['withdrawalData'] | undefined,
+  context: SimulationContextState,
+): string {
   const parts: string[] = []
   const hasSavings = Boolean(savingsData?.sparplanElements)
   const hasWithdrawal = Boolean(withdrawalData || context.withdrawalConfig?.formValue)
@@ -125,9 +147,9 @@ function buildCombinedCSVContent(savingsData: any, withdrawalData: any, context:
 /**
  * Helper to check data availability
  */
-function checkDataAvailability(context: any) {
+function checkDataAvailability(context: SimulationContextState) {
   return {
-    hasSavingsData: context.simulationData?.sparplanElements?.length > 0,
+    hasSavingsData: (context.simulationData?.sparplanElements?.length ?? 0) > 0,
     hasWithdrawalData: context.withdrawalResults && Object.keys(context.withdrawalResults).length > 0,
     hasWithdrawalConfig: Boolean(context.withdrawalConfig?.formValue),
   }
@@ -136,7 +158,7 @@ function checkDataAvailability(context: any) {
 /**
  * Helper function to prepare data for markdown export
  */
-function prepareMarkdownExportData(context: any) {
+function prepareMarkdownExportData(context: SimulationContextState) {
   const { hasSavingsData, hasWithdrawalData: initialWithdrawalData, hasWithdrawalConfig }
     = checkDataAvailability(context)
 
@@ -167,6 +189,7 @@ function prepareMarkdownExportData(context: any) {
 /**
  * Custom hook for exporting simulation data in various formats
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function useDataExport() {
   const context = useSimulation()
   const [state, setState] = useState<DataExportState>({
@@ -318,7 +341,7 @@ export function useDataExport() {
     setExportingState('csv')
 
     try {
-      const savingsData = context.simulationData
+      const savingsData = context.simulationData ?? undefined
       const withdrawalData = getWithdrawalDataForExport(savingsData, context)
 
       validateExportData(savingsData, withdrawalData, context)

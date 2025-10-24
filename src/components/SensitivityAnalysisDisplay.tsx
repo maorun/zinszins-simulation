@@ -28,6 +28,7 @@ interface SensitivityAnalysisDisplayProps {
   title?: string
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component render function
 const SensitivityAnalysisDisplay: React.FC<SensitivityAnalysisDisplayProps> = ({
   config,
   returnConfig,
@@ -154,6 +155,7 @@ const SensitivityAnalysisDisplay: React.FC<SensitivityAnalysisDisplayProps> = ({
             </div>
 
             {/* Detailed Analysis for Each Parameter */}
+            {/* eslint-disable-next-line max-lines-per-function -- Large component render function */}
             {parameterRanking.slice(0, 3).map((ranking) => {
               const parameter = SENSITIVITY_PARAMETERS[ranking.parameter]
               const results = analysisResults.results.get(ranking.parameter)

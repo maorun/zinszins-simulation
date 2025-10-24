@@ -27,9 +27,45 @@ interface SparplanFormCardProps {
   onCancel: () => void
 }
 
-export function SparplanFormCard({
-  isOpen,
-  onOpenChange,
+function SparplanFormHeader() {
+  return (
+    <CardHeader className="pb-4">
+      <CollapsibleTrigger asChild>
+        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
+          <CardTitle className="text-left text-lg">💰 Sparpläne erstellen</CardTitle>
+          <ChevronDown className="h-5 w-5 text-gray-500" />
+        </div>
+      </CollapsibleTrigger>
+    </CardHeader>
+  )
+}
+
+function SparplanFormButtons({ isEditMode, showCancelButton, onCancel, disabled }: {
+  isEditMode: boolean
+  showCancelButton: boolean
+  onCancel?: () => void
+  disabled: boolean
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <div className="flex gap-2">
+        <Button variant="default" type="submit" size="lg" disabled={disabled}>
+          {isEditMode ? '✏️ Sparplan aktualisieren' : '💾 Sparplan hinzufügen'}
+        </Button>
+        {showCancelButton && (
+          <Button onClick={onCancel} variant="outline" size="lg" type="button">
+            Abbrechen
+          </Button>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/**
+ * Form content for sparplan
+ */
+function SparplanForm({
   formValues,
   simulationAnnual,
   onFormChange,
@@ -40,65 +76,52 @@ export function SparplanFormCard({
   isEditMode,
   showCancelButton,
   onCancel,
+}: Omit<SparplanFormCardProps, 'isOpen' | 'onOpenChange'>) {
+  return (
+    <form
+      onSubmit={(e) => {
+        e.preventDefault()
+        onSubmit()
+      }}
+    >
+      <SparplanFormFields
+        formValues={formValues}
+        simulationAnnual={simulationAnnual}
+        onFormChange={onFormChange}
+        formatDateForInput={formatDateForInput}
+        handleDateChange={handleDateChange}
+        handleNumberChange={handleNumberChange}
+      />
+      <CostFactorFields
+        values={formValues}
+        onValueChange={values => onFormChange({ ...formValues, ...values })}
+        handleNumberChange={handleNumberChange}
+      />
+      <SparplanFormButtons
+        isEditMode={isEditMode}
+        showCancelButton={showCancelButton}
+        onCancel={onCancel}
+        disabled={!formValues.start || !formValues.einzahlung}
+      />
+    </form>
+  )
+}
+
+export function SparplanFormCard({
+  isOpen,
+  onOpenChange,
+  ...formProps
 }: SparplanFormCardProps) {
   return (
     <Card className="mb-6">
       <Collapsible open={isOpen} onOpenChange={onOpenChange}>
-        <CardHeader className="pb-4">
-          <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-              <CardTitle className="text-left text-lg">💰 Sparpläne erstellen</CardTitle>
-              <ChevronDown className="h-5 w-5 text-gray-500" />
-            </div>
-          </CollapsibleTrigger>
-        </CardHeader>
+        <SparplanFormHeader />
         <CollapsibleContent>
           <CardContent className="pt-0">
             <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
               Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum
             </div>
-            <form
-              onSubmit={(e) => {
-                e.preventDefault()
-                onSubmit()
-              }}
-            >
-              <SparplanFormFields
-                formValues={formValues}
-                simulationAnnual={simulationAnnual}
-                onFormChange={onFormChange}
-                formatDateForInput={formatDateForInput}
-                handleDateChange={handleDateChange}
-                handleNumberChange={handleNumberChange}
-              />
-              <CostFactorFields
-                values={formValues}
-                onValueChange={values => onFormChange({ ...formValues, ...values })}
-                handleNumberChange={handleNumberChange}
-              />
-              <div className="mb-4 space-y-2">
-                <div className="flex gap-2">
-                  <Button
-                    variant="default"
-                    type="submit"
-                    size="lg"
-                    disabled={!formValues.start || !formValues.einzahlung}
-                  >
-                    {isEditMode ? '✏️ Sparplan aktualisieren' : '💾 Sparplan hinzufügen'}
-                  </Button>
-                  {showCancelButton && (
-                    <Button
-                      onClick={onCancel}
-                      variant="outline"
-                      size="lg"
-                      type="button"
-                    >
-                      Abbrechen
-                    </Button>
-                  )}
-                </div>
-              </div>
-            </form>
+            <SparplanForm {...formProps} />
           </CardContent>
         </CollapsibleContent>
       </Collapsible>

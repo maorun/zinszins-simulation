@@ -5,15 +5,33 @@ interface NavigationProviderProps {
   children: ReactNode
 }
 
-export function NavigationProvider({ children }: NavigationProviderProps) {
+function expandCollapsible(element: HTMLElement) {
+  const collapsible = element.closest('[data-state]')
+  if (!collapsible) return
+
+  const trigger = collapsible.querySelector('[data-state]')
+  if (trigger && collapsible.getAttribute('data-state') === 'closed') {
+    const clickEvent = new MouseEvent('click', {
+      view: window,
+      bubbles: true,
+      cancelable: true,
+    })
+    trigger.dispatchEvent(clickEvent)
+  }
+}
+
+function sortNavigationItems(itemsArray: NavigationItem[]): NavigationItem[] {
+  return itemsArray.sort((a, b) => {
+    if (a.level !== b.level) return a.level - b.level
+    return a.title.localeCompare(b.title)
+  })
+}
+
+function useNavigationItems() {
   const [items, setItems] = useState<Map<string, NavigationItem>>(new Map())
 
   const registerItem = useCallback((item: NavigationItem) => {
-    setItems((prev) => {
-      const newItems = new Map(prev)
-      newItems.set(item.id, item)
-      return newItems
-    })
+    setItems(prev => new Map(prev).set(item.id, item))
   }, [])
 
   const unregisterItem = useCallback((id: string) => {
@@ -24,26 +42,18 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     })
   }, [])
 
+  return { items, registerItem, unregisterItem }
+}
+
+export function NavigationProvider({ children }: NavigationProviderProps) {
+  const { items, registerItem, unregisterItem } = useNavigationItems()
+
   const expandItem = useCallback((id: string) => {
     const item = items.get(id)
     if (!item?.element) return
 
-    // Find the collapsible component and expand it
-    const collapsible = item.element.closest('[data-state]')
-    if (collapsible) {
-      const trigger = collapsible.querySelector('[data-state]')
-      if (trigger && collapsible.getAttribute('data-state') === 'closed') {
-        // Simulate click to expand
-        const clickEvent = new MouseEvent('click', {
-          view: window,
-          bubbles: true,
-          cancelable: true,
-        })
-        trigger.dispatchEvent(clickEvent)
-      }
-    }
+    expandCollapsible(item.element)
 
-    // If this item has a parent, expand the parent first
     if (item.parentId) {
       expandItem(item.parentId)
     }
@@ -53,10 +63,8 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
     const item = items.get(id)
     if (!item?.element) return
 
-    // First expand the item and its parents
     expandItem(id)
 
-    // Wait a bit for the expansion animation, then scroll
     setTimeout(() => {
       item.element?.scrollIntoView({
         behavior: 'smooth',
@@ -68,12 +76,7 @@ export function NavigationProvider({ children }: NavigationProviderProps) {
 
   const getNavigationTree = useCallback((): NavigationItem[] => {
     const itemsArray = Array.from(items.values())
-
-    // Sort by level and then by order they were registered
-    return itemsArray.sort((a, b) => {
-      if (a.level !== b.level) return a.level - b.level
-      return a.title.localeCompare(b.title)
-    })
+    return sortNavigationItems(itemsArray)
   }, [items])
 
   return (
