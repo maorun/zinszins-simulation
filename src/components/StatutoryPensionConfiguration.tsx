@@ -124,6 +124,7 @@ interface CoupleStatutoryPensionConfigurationProps {
   planningMode: 'individual' | 'couple'
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function CoupleStatutoryPensionConfiguration({
   config,
   onChange,
@@ -269,6 +270,7 @@ export function CoupleStatutoryPensionConfiguration({
     )
   }
 
+  // eslint-disable-next-line max-lines-per-function -- Large component render function
   const renderCoupleMode = () => {
     if (!currentConfig.couple) return null
 
@@ -395,6 +397,7 @@ interface PersonPensionConfigurationProps {
   personName: string
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 function PersonPensionConfiguration({
   config,
   onChange,
@@ -517,6 +520,7 @@ function PersonPensionConfiguration({
   )
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function StatutoryPensionConfiguration({
   values,
   onChange,

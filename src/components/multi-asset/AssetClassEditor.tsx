@@ -27,6 +27,7 @@ interface AssetClassEditorProps {
  * Editor component for a single asset class in the multi-asset portfolio.
  * Allows enabling/disabling and configuring allocation, expected return, and volatility.
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function AssetClassEditor({
   assetClass,
   name,

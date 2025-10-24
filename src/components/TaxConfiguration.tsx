@@ -25,6 +25,7 @@ interface FreibetragPerYearTableProps {
   onUpdate: (newValues: Record<number, number>) => void
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 function FreibetragPerYearTable({
   freibetragPerYear,
   yearToday,
@@ -134,6 +135,7 @@ interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component render function
 const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps) => {
   const {
     performSimulation,

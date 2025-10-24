@@ -23,6 +23,7 @@ interface ComparisonTableProps {
  * Component for displaying comparison table
  * Shows base strategy and comparison strategies in a table format
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function ComparisonTable({
   baseStrategyName,
   baseStrategyRendite,

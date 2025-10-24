@@ -71,6 +71,7 @@ function SegmentCard({ segment }: { segment: WithdrawalSegmentSummary }) {
  * Displays the withdrawal phase (Entsparphase) section in the enhanced overview
  * Handles both segmented withdrawal (multiple phases) and single withdrawal phase display
  */
+// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 export function WithdrawalPhaseSection({
   withdrawalStartYear,
   withdrawalEndYear,

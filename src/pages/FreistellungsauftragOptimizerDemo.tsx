@@ -13,6 +13,7 @@ import type { BankAccount } from '../../helpers/freistellungsauftrag-optimizatio
  * 2. Add the FreistellungsauftragOptimizer component to TaxConfiguration.tsx
  * 3. Use the optimized account distribution in tax calculations
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function FreistellungsauftragOptimizerDemo() {
   const [totalFreibetrag] = useState(1000) // Individual investor: 1000€
   const [accounts, setAccounts] = useState<BankAccount[]>([

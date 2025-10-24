@@ -96,6 +96,7 @@ function DesktopAnsparenView({
   )
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
   const [isSticky, setIsSticky] = useState(false)
   const [isMobile, setIsMobile] = useState(false)

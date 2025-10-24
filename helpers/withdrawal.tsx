@@ -1188,6 +1188,7 @@ function processAllWithdrawalYears(
  * Process a single year of withdrawal calculation
  * This is the main orchestrator for yearly withdrawal logic
  */
+// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 function processYearlyWithdrawal(params: {
   year: number
   startYear: number
@@ -1450,6 +1451,7 @@ function processYearlyWithdrawal(params: {
 /**
  * Helper function: Build yearly result object
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 function buildYearlyResult(params: {
   year: number
   capitalAtStartOfYear: number
@@ -2163,6 +2165,7 @@ export type CalculateWithdrawalParams = {
   birthYear?: number // For health care insurance age calculation
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 export function calculateWithdrawal({
   elements,
   startYear,

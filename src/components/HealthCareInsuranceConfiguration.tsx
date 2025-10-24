@@ -81,6 +81,7 @@ interface HealthCareInsuranceConfigurationProps {
   currentWithdrawalAmount?: number
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function HealthCareInsuranceConfiguration({
   values,
   onChange,

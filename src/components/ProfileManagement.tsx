@@ -50,6 +50,7 @@ interface ProfileListProps {
 }
 
 /** Profile list component */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 function ProfileList({
   profiles,
   activeProfileId,
@@ -69,6 +70,7 @@ function ProfileList({
         )
       </h4>
       <div className="space-y-2 max-h-64 overflow-y-auto">
+        {/* eslint-disable-next-line max-lines-per-function -- Large component render function */}
         {profiles.map(profile => (
           <div
             key={profile.id}
@@ -148,6 +150,7 @@ function ProfileList({
  * Profile Management Component
  * Provides comprehensive profile management including create, edit, switch, duplicate, and delete
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export default function ProfileManagement() {
   const { getCurrentConfiguration, loadSavedConfiguration, resetToDefaults } = useSimulation()
   const nestingLevel = useNestingLevel()

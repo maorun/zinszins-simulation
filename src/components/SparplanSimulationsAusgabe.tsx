@@ -354,6 +354,7 @@ function createEndkapitalCalculation(
   )
 }
 
+// eslint-disable-next-line complexity, max-lines-per-function -- UI component with multiple conditional renders
 export function SparplanSimulationsAusgabe({
   elemente,
 }: {
@@ -440,6 +441,7 @@ export function SparplanSimulationsAusgabe({
 
               {/* Card Layout for All Devices */}
               <div className="flex flex-col gap-4">
+                {/* eslint-disable-next-line max-lines-per-function -- Large component render function */}
                 {tableData?.map((row, index) => (
                   <div key={index} className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-shadow hover:shadow-md">
                     <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">

@@ -4,11 +4,13 @@ import {
   calculateSegmentedWithdrawal,
   getTotalCapitalAtYear,
   calculateWithdrawalDuration,
+  type WithdrawalResult,
 } from '../../helpers/withdrawal'
 import type { SegmentedWithdrawalConfig } from '../utils/segmented-withdrawal'
 import type { SegmentedComparisonStrategy, WithdrawalConfiguration } from '../utils/config-storage'
 import { useSimulation } from '../contexts/useSimulation'
 import { createPlanningModeAwareFreibetragPerYear } from '../utils/freibetrag-calculation'
+import type { CoupleStatutoryPensionConfig, StatutoryPensionConfig } from '../../helpers/statutory-pension'
 import {
   convertCoupleToLegacyConfig,
   calculateComparisonStrategy,
@@ -47,7 +49,7 @@ function calculateSegmentedStrategyResult(
   startOfIndependence: number,
   endOfLife: number,
   planningMode: 'individual' | 'couple',
-  effectiveStatutoryPensionConfig: any,
+  effectiveStatutoryPensionConfig: CoupleStatutoryPensionConfig | StatutoryPensionConfig | null | undefined,
 ) {
   // Create segmented configuration for this comparison strategy
   const segmentedConfig: SegmentedWithdrawalConfig = {
@@ -58,7 +60,7 @@ function calculateSegmentedStrategyResult(
       endOfLife,
       planningMode || 'individual',
     ),
-    statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
+    statutoryPensionConfig: (effectiveStatutoryPensionConfig as StatutoryPensionConfig) || undefined,
   }
 
   // Calculate segmented withdrawal for this comparison strategy
@@ -94,6 +96,7 @@ function calculateSegmentedStrategyResult(
     result, // Include full result for detailed analysis
   }
 }
+// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 export function useWithdrawalCalculations(
   elemente: SparplanElement[],
   startOfIndependence: number,
@@ -149,6 +152,7 @@ export function useWithdrawalCalculations(
   }, [coupleStatutoryPensionConfig, statutoryPensionConfig, planningMode])
 
   // Calculate withdrawal projections
+  // eslint-disable-next-line max-lines-per-function -- Large component render function
   const withdrawalData = useMemo(() => {
     if (!elemente || elemente.length === 0) {
       return null
@@ -201,7 +205,7 @@ export function useWithdrawalCalculations(
     }
 
     // Convert to array for table display, sorted by year descending
-    const withdrawalArray = Object.entries(withdrawalResult as Record<string, any>)
+    const withdrawalArray = Object.entries(withdrawalResult as WithdrawalResult)
       .map(([year, data]) => ({
         year: parseInt(year),
         ...data,
@@ -220,6 +224,7 @@ export function useWithdrawalCalculations(
       withdrawalResult,
       duration,
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Using individual formValue properties
   }, [
     elemente,
     startOfIndependence,

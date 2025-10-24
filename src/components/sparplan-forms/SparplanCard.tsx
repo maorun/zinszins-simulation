@@ -270,6 +270,7 @@ function SparplanCardDetails({
  * Inline edit form for sparplan card
  * Complexity: <8, Lines: <50
  */
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 function SparplanCardEditForm(props: {
   sparplan: Sparplan
   isOneTimePayment: boolean

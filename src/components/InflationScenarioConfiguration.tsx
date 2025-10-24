@@ -30,6 +30,7 @@ interface InflationScenarioConfigurationProps {
  * Inflation Scenario Configuration Component
  * Allows users to simulate different inflation scenarios (hyperinflation, deflation, stagflation)
  */
+// eslint-disable-next-line max-lines-per-function -- Large component render function
 const InflationScenarioConfiguration = ({
   onScenarioChange,
   simulationStartYear,
@@ -116,6 +117,7 @@ const InflationScenarioConfiguration = ({
   }
   const DEFAULT_COLORS = { bg: 'bg-orange-50 border-orange-200', text: 'text-orange-900' }
 
+  // eslint-disable-next-line max-lines-per-function -- Large component render function
   const renderScenarioDetails = (scenario: InflationScenario) => {
     const years = Object.keys(scenario.yearlyInflationRates).map(Number).sort((a, b) => a - b)
     const colors = SCENARIO_COLORS[scenario.id] || DEFAULT_COLORS

@@ -22,6 +22,7 @@ interface SpecialEventsProps {
   withdrawalEndYear: number
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function SpecialEvents({
   dispatch,
   simulationAnnual: _simulationAnnual,

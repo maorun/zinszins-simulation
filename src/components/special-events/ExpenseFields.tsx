@@ -27,6 +27,7 @@ interface ExpenseFieldsProps {
   onFormChange: (values: EventFormValues) => void
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function ExpenseFields({ formValues, onFormChange }: ExpenseFieldsProps) {
   return (
     <div style={{

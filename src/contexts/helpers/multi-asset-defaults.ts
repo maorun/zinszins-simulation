@@ -3,6 +3,7 @@ import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-por
 /**
  * Create fallback multi-asset configuration for savings phase
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function createFallbackMultiAssetConfig(): MultiAssetPortfolioConfig {
   return {
     enabled: false,
@@ -86,6 +87,7 @@ export function createFallbackMultiAssetConfig(): MultiAssetPortfolioConfig {
 /**
  * Create fallback multi-asset configuration for withdrawal phase (conservative)
  */
+// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 export function createFallbackWithdrawalConfig(): MultiAssetPortfolioConfig {
   return {
     enabled: false,

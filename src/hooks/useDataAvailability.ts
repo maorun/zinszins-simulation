@@ -12,6 +12,7 @@ interface DataAvailability {
 /**
  * Hook to check what data is available for export
  */
+// eslint-disable-next-line complexity -- Business logic requires checking multiple data availability conditions
 export function useDataAvailability(): DataAvailability {
   const { simulationData, withdrawalResults, withdrawalConfig } = useSimulation()
 

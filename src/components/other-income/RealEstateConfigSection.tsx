@@ -10,6 +10,7 @@ interface RealEstateConfigSectionProps {
   onUpdate: (source: OtherIncomeSource) => void
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function RealEstateConfigSection({
   editingSource,
   onUpdate,

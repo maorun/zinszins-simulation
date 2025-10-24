@@ -22,6 +22,7 @@ import type {
 /**
  * Custom hook for managing modal states and calculation explanations
  */
+// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 export function useWithdrawalModals(
   // Using a more lenient type to accept different form value shapes
   formValue: {

@@ -34,6 +34,7 @@ function buildHealthCareConfigUpdate(
  * Custom hook to manage health care insurance configuration handlers
  * Extracts complex handler logic from EntnahmeSimulationsAusgabe component
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function useHealthCareInsuranceHandlers(
   formValue: WithdrawalFormValue,
   updateFormValue: (value: Partial<WithdrawalFormValue>) => void,

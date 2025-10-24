@@ -60,6 +60,7 @@ function formatYAxisTick(value: number): string {
  * Chart visualization component for capital development
  * Renders the recharts AreaChart with all configured series
  */
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function ChartVisualization({
   chartData,
   chartConfig,

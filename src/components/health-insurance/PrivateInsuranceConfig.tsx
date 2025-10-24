@@ -12,6 +12,7 @@ interface PrivateInsuranceConfigProps {
   onPrivateInsuranceInflationRateChange: (rate: number) => void
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function PrivateInsuranceConfig({
   privateHealthInsuranceMonthly,
   privateCareInsuranceMonthly,

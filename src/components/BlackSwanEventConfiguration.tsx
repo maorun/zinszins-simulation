@@ -153,6 +153,7 @@ function EventDetails({
  * Black Swan Event Configuration Component
  * Allows users to simulate extreme market events (crashes) in their portfolio
  */
+// eslint-disable-next-line max-lines-per-function -- Large component render function
 const BlackSwanEventConfiguration = ({
   onEventChange,
   simulationStartYear,

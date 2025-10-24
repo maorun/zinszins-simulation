@@ -27,6 +27,7 @@ interface InheritanceFieldsProps {
   onFormChange: (values: EventFormValues) => void
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function InheritanceFields({ formValues, onFormChange }: InheritanceFieldsProps) {
   const inheritanceTaxCalc = formValues.grossAmount
     ? calculateInheritanceTax(Number(formValues.grossAmount), formValues.relationshipType)

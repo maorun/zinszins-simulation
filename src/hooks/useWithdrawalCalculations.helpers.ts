@@ -4,7 +4,7 @@
 
 import type { ReturnConfiguration } from '../../helpers/random-returns'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
-import type { ComparisonStrategy } from '../utils/config-storage'
+import type { ComparisonStrategy, WithdrawalConfiguration } from '../utils/config-storage'
 import {
   calculateWithdrawal,
   calculateWithdrawalDuration,
@@ -17,6 +17,11 @@ import type {
   ComparisonStrategyResult,
   ConvertCoupleToLegacyConfigParams,
 } from './useWithdrawalCalculations.types'
+import type { SparplanElement } from '../utils/sparplan-utils'
+import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
+import type { HealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
+import type { OtherIncomeConfiguration } from '../../helpers/other-income'
+import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
 
 /**
  * Convert couple statutory pension config to legacy single config for backward compatibility
@@ -285,7 +290,7 @@ function buildStrategyConfigs(
   }
 }
 
-function buildEffectiveHealthCareInsuranceConfig(healthCareInsuranceConfig: any) {
+function buildEffectiveHealthCareInsuranceConfig(healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined) {
   return healthCareInsuranceConfig
     ? {
         ...healthCareInsuranceConfig,
@@ -423,15 +428,15 @@ export function calculateComparisonStrategy(
  * Build segmented withdrawal result
  */
 export function buildSegmentedWithdrawalResult(params: {
-  elemente: any[]
-  withdrawalSegments: any[]
+  elemente: SparplanElement[]
+  withdrawalSegments: WithdrawalSegment[]
   effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined
-}) {
+}): WithdrawalResult {
   const { elemente, withdrawalSegments, effectiveStatutoryPensionConfig } = params
 
   const { calculateSegmentedWithdrawal } = require('../../helpers/withdrawal')
 
-  const segmentedConfig: any = {
+  const segmentedConfig = {
     segments: withdrawalSegments,
     taxRate: 0.26375,
     freibetragPerYear: undefined,
@@ -447,12 +452,13 @@ export function buildSegmentedWithdrawalResult(params: {
 /**
  * Build withdrawal calculation parameters from form value and context
  */
+// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 function buildWithdrawalCalculationParams(params: {
-  elemente: any[]
+  elemente: SparplanElement[]
   startOfIndependence: number
   endOfLife: number
-  formValue: any
-  withdrawalReturnConfig: any
+  formValue: WithdrawalConfiguration['formValue']
+  withdrawalReturnConfig: ReturnConfiguration
   steuerlast: number
   teilfreistellungsquote: number
   grundfreibetragAktiv: boolean
@@ -461,7 +467,7 @@ function buildWithdrawalCalculationParams(params: {
   personalTaxRate: number
   steuerReduzierenEndkapitalEntspharphase: boolean
   effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined
-  otherIncomeConfig: any
+  otherIncomeConfig: OtherIncomeConfiguration | undefined
   birthYear: number
   getEffectiveLifeExpectancyTable: () => 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
   customLifeExpectancy: number | undefined
@@ -507,16 +513,16 @@ function buildWithdrawalCalculationParams(params: {
 }
 
 export function buildSingleStrategyWithdrawalResult(params: {
-  elemente: any[]
+  elemente: SparplanElement[]
   startOfIndependence: number
   endOfLife: number
-  formValue: any
-  withdrawalReturnMode: any
-  withdrawalVariableReturns: any
+  formValue: WithdrawalConfiguration['formValue']
+  withdrawalReturnMode: WithdrawalConfiguration['withdrawalReturnMode']
+  withdrawalVariableReturns: WithdrawalConfiguration['withdrawalVariableReturns']
   withdrawalAverageReturn: number
   withdrawalStandardDeviation: number
   withdrawalRandomSeed: number | undefined
-  withdrawalMultiAssetConfig: any
+  withdrawalMultiAssetConfig: MultiAssetPortfolioConfig | undefined
   steuerlast: number
   teilfreistellungsquote: number
   grundfreibetragAktiv: boolean
@@ -525,11 +531,11 @@ export function buildSingleStrategyWithdrawalResult(params: {
   personalTaxRate: number
   steuerReduzierenEndkapitalEntspharphase: boolean
   effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined
-  otherIncomeConfig: any
+  otherIncomeConfig: OtherIncomeConfiguration | undefined
   birthYear: number
   getEffectiveLifeExpectancyTable: () => 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
   customLifeExpectancy: number | undefined
-}) {
+}): WithdrawalResult {
   const withdrawalReturnConfig = buildWithdrawalReturnConfig({
     withdrawalReturnMode: params.withdrawalReturnMode,
     withdrawalVariableReturns: params.withdrawalVariableReturns,
@@ -553,7 +559,7 @@ export function buildSingleStrategyWithdrawalResult(params: {
 /**
  * Build monthly config from form value
  */
-function buildMonthlyConfigFromFormValue(formValue: any) {
+function buildMonthlyConfigFromFormValue(formValue: WithdrawalConfiguration['formValue']) {
   return formValue.strategie === 'monatlich_fest'
     ? {
         monthlyAmount: formValue.monatlicheBetrag,
@@ -566,7 +572,7 @@ function buildMonthlyConfigFromFormValue(formValue: any) {
 /**
  * Build custom percentage from form value
  */
-function buildCustomPercentageFromFormValue(formValue: any) {
+function buildCustomPercentageFromFormValue(formValue: WithdrawalConfiguration['formValue']) {
   return formValue.strategie === 'variabel_prozent'
     ? formValue.variabelProzent / 100
     : undefined
@@ -575,7 +581,7 @@ function buildCustomPercentageFromFormValue(formValue: any) {
 /**
  * Build dynamic config from form value
  */
-function buildDynamicConfigFromFormValue(formValue: any) {
+function buildDynamicConfigFromFormValue(formValue: WithdrawalConfiguration['formValue']) {
   return formValue.strategie === 'dynamisch'
     ? {
         baseWithdrawalRate: formValue.dynamischBasisrate / 100,
@@ -590,7 +596,7 @@ function buildDynamicConfigFromFormValue(formValue: any) {
 /**
  * Build bucket config from form value
  */
-function buildBucketConfigFromFormValue(formValue: any) {
+function buildBucketConfigFromFormValue(formValue: WithdrawalConfiguration['formValue']) {
   return formValue.strategie === 'bucket_strategie' && formValue.bucketConfig
     ? {
         initialCashCushion: formValue.bucketConfig.initialCashCushion,
@@ -605,7 +611,7 @@ function buildBucketConfigFromFormValue(formValue: any) {
  * Build RMD config for single strategy from form value
  */
 function buildRMDConfigFromFormValue(
-  formValue: any,
+  formValue: WithdrawalConfiguration['formValue'],
   getEffectiveLifeExpectancyTable: () => 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
   customLifeExpectancy: number | undefined,
 ) {
@@ -621,7 +627,7 @@ function buildRMDConfigFromFormValue(
 /**
  * Build kapitalerhalt config for single strategy from form value
  */
-function buildKapitalerhaltConfigFromFormValue(formValue: any) {
+function buildKapitalerhaltConfigFromFormValue(formValue: WithdrawalConfiguration['formValue']) {
   return formValue.strategie === 'kapitalerhalt'
     ? {
         nominalReturn: formValue.kapitalerhaltNominalReturn / 100,
@@ -633,7 +639,7 @@ function buildKapitalerhaltConfigFromFormValue(formValue: any) {
 /**
  * Build steueroptimierte entnahme config for single strategy from form value
  */
-function buildSteueroptimierteEntnahmeConfigFromFormValue(formValue: any) {
+function buildSteueroptimierteEntnahmeConfigFromFormValue(formValue: WithdrawalConfiguration['formValue']) {
   return formValue.strategie === 'steueroptimiert'
     ? {
         baseWithdrawalRate: formValue.steueroptimierteEntnahmeBaseWithdrawalRate,
@@ -648,7 +654,7 @@ function buildSteueroptimierteEntnahmeConfigFromFormValue(formValue: any) {
 /**
  * Build health care insurance config from form value
  */
-function buildHealthCareInsuranceConfig(formValue: any) {
+function buildHealthCareInsuranceConfig(formValue: WithdrawalConfiguration['formValue']) {
   return formValue.healthCareInsuranceConfig
     ? {
         ...formValue.healthCareInsuranceConfig,

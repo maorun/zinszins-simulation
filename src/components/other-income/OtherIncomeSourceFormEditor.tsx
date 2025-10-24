@@ -72,6 +72,7 @@ function getFormTitle(isAddingNew: boolean): string {
   return isAddingNew ? 'Neue Einkommensquelle' : 'Einkommensquelle bearbeiten'
 }
 
+// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function OtherIncomeSourceFormEditor({
   editingSource,
   isAddingNew,

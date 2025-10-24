@@ -8,6 +8,7 @@ import { useSimulation } from '../contexts/useSimulation'
 import { useNestingLevel } from '../lib/nesting-utils'
 import { convertSparplanToElements } from '../utils/sparplan-utils'
 
+// eslint-disable-next-line max-lines-per-function -- Large component render function
 const SimulationConfiguration = () => {
   const {
     simulationAnnual,

@@ -90,6 +90,7 @@ function buildRunSimulationParams(
   }
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function useSimulationExecution(
   state: SimulationExecutionState,
   setIsLoading: (loading: boolean) => void,
@@ -113,6 +114,7 @@ export function useSimulationExecution(
         setIsLoading(false)
       }
     },
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Using individual state properties
     [
       state.rendite,
       state.returnMode,
