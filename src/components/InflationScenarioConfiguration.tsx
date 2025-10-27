@@ -21,7 +21,7 @@ interface InflationScenarioConfigurationProps {
   onScenarioChange?: (
     inflationRates: Record<number, number> | null,
     returnModifiers: Record<number, number> | null,
-    scenarioName?: string
+    scenarioName?: string,
   ) => void
   simulationStartYear: number
 }
