@@ -17,99 +17,93 @@ interface SegmentReturnConfigurationProps {
   onReturnConfigChange: (config: ReturnConfiguration) => void
 }
 
-const getReturnModeFromConfig = (
-  returnConfig: ReturnConfiguration,
-): WithdrawalReturnMode => {
-  if (returnConfig.mode === 'multiasset') {
-    return 'multiasset'
-  }
+const getReturnModeFromConfig = (returnConfig: ReturnConfiguration): WithdrawalReturnMode => {
   return returnConfig.mode as WithdrawalReturnMode
 }
 
-// eslint-disable-next-line max-lines-per-function -- Complex configuration component
-export function SegmentReturnConfiguration({
-  segmentId,
-  startYear,
-  endYear,
-  returnConfig,
-  onReturnConfigChange,
-}: SegmentReturnConfigurationProps) {
-  const currentMode = getReturnModeFromConfig(returnConfig)
-
-  const handleModeChange = (mode: WithdrawalReturnMode) => {
-    switch (mode) {
-      case 'fixed':
-        onReturnConfigChange({ mode: 'fixed', fixedRate: 0.05 })
-        break
-      case 'random':
-        onReturnConfigChange({
-          mode: 'random',
-          randomConfig: {
-            averageReturn: 0.05,
-            standardDeviation: 0.12,
-            seed: undefined,
-          },
-        })
-        break
-      case 'variable':
-        onReturnConfigChange({
-          mode: 'variable',
-          variableConfig: { yearlyReturns: {} },
-        })
-        break
-      case 'multiasset':
-        onReturnConfigChange({
-          mode: 'multiasset',
-          multiAssetConfig:
-            returnConfig.mode === 'multiasset'
-              ? returnConfig.multiAssetConfig
-              : createDefaultMultiAssetConfig(),
-        })
-        break
-    }
+const handleModeChange = (
+  mode: WithdrawalReturnMode,
+  returnConfig: ReturnConfiguration,
+  onReturnConfigChange: (config: ReturnConfiguration) => void,
+) => {
+  switch (mode) {
+    case 'fixed':
+      onReturnConfigChange({ mode: 'fixed', fixedRate: 0.05 })
+      break
+    case 'random':
+      onReturnConfigChange({
+        mode: 'random',
+        randomConfig: { averageReturn: 0.05, standardDeviation: 0.12, seed: undefined },
+      })
+      break
+    case 'variable':
+      onReturnConfigChange({ mode: 'variable', variableConfig: { yearlyReturns: {} } })
+      break
+    case 'multiasset':
+      onReturnConfigChange({
+        mode: 'multiasset',
+        multiAssetConfig:
+          returnConfig.mode === 'multiasset'
+            ? returnConfig.multiAssetConfig
+            : createDefaultMultiAssetConfig(),
+      })
+      break
   }
+}
 
+function ReturnModeSelector({
+  currentMode,
+  onModeChange,
+}: {
+  currentMode: WithdrawalReturnMode
+  onModeChange: (mode: WithdrawalReturnMode) => void
+}) {
   return (
-    <>
-      <div className="mb-4 space-y-2">
-        <Label>Rendite-Modus</Label>
-        <RadioTileGroup
-          value={currentMode}
-          onValueChange={value => handleModeChange(value as WithdrawalReturnMode)}
-        >
-          <RadioTile value="fixed" label="Feste Rendite">
-            Konstante jährliche Rendite für diese Phase
-          </RadioTile>
-          <RadioTile value="random" label="Zufällige Rendite">
-            Monte Carlo Simulation mit Volatilität
-          </RadioTile>
-          <RadioTile value="variable" label="Variable Rendite">
-            Jahr-für-Jahr konfigurierbare Renditen
-          </RadioTile>
-          <RadioTile value="multiasset" label="Multi-Asset Portfolio">
-            Diversifiziertes Portfolio mit automatischem Rebalancing
-          </RadioTile>
-        </RadioTileGroup>
-      </div>
+    <div className="mb-4 space-y-2">
+      <Label>Rendite-Modus</Label>
+      <RadioTileGroup
+        value={currentMode}
+        onValueChange={value => onModeChange(value as WithdrawalReturnMode)}
+      >
+        <RadioTile value="fixed" label="Feste Rendite">
+          Konstante jährliche Rendite für diese Phase
+        </RadioTile>
+        <RadioTile value="random" label="Zufällige Rendite">
+          Monte Carlo Simulation mit Volatilität
+        </RadioTile>
+        <RadioTile value="variable" label="Variable Rendite">
+          Jahr-für-Jahr konfigurierbare Renditen
+        </RadioTile>
+        <RadioTile value="multiasset" label="Multi-Asset Portfolio">
+          Diversifiziertes Portfolio mit automatischem Rebalancing
+        </RadioTile>
+      </RadioTileGroup>
+    </div>
+  )
+}
 
-      {returnConfig.mode === 'fixed' && (
+function renderReturnConfig(props: SegmentReturnConfigurationProps) {
+  const { segmentId, startYear, endYear, returnConfig, onReturnConfigChange } = props
+
+  switch (returnConfig.mode) {
+    case 'fixed':
+      return (
         <SegmentFixedReturnConfig
           fixedRate={returnConfig.fixedRate}
-          onFixedRateChange={rate =>
-            onReturnConfigChange({ mode: 'fixed', fixedRate: rate })}
+          onFixedRateChange={rate => onReturnConfigChange({ mode: 'fixed', fixedRate: rate })}
         />
-      )}
-
-      {returnConfig.mode === 'random' && (
+      )
+    case 'random':
+      return (
         <SegmentRandomReturnConfig
           segmentId={segmentId}
           randomConfig={returnConfig.randomConfig}
           onRandomConfigChange={config =>
             onReturnConfigChange({ mode: 'random', randomConfig: config })}
         />
-      )}
-
-      {returnConfig.mode === 'variable' && (
+      )
+    case 'variable':
+      return (
         <SegmentVariableReturnConfig
           startYear={startYear}
           endYear={endYear}
@@ -117,9 +111,9 @@ export function SegmentReturnConfiguration({
           onVariableConfigChange={config =>
             onReturnConfigChange({ mode: 'variable', variableConfig: config })}
         />
-      )}
-
-      {returnConfig.mode === 'multiasset' && (
+      )
+    case 'multiasset':
+      return (
         <div className="mb-4">
           <MultiAssetPortfolioConfiguration
             values={returnConfig.multiAssetConfig || createDefaultMultiAssetConfig()}
@@ -131,7 +125,22 @@ export function SegmentReturnConfiguration({
             nestingLevel={1}
           />
         </div>
-      )}
+      )
+    default:
+      return null
+  }
+}
+
+export function SegmentReturnConfiguration(props: SegmentReturnConfigurationProps) {
+  const { returnConfig, onReturnConfigChange } = props
+  const currentMode = getReturnModeFromConfig(returnConfig)
+  const onModeChange = (mode: WithdrawalReturnMode) =>
+    handleModeChange(mode, returnConfig, onReturnConfigChange)
+
+  return (
+    <>
+      <ReturnModeSelector currentMode={currentMode} onModeChange={onModeChange} />
+      {renderReturnConfig(props)}
     </>
   )
 }
