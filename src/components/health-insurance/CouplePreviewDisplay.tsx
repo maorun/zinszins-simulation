@@ -6,10 +6,41 @@ interface CouplePreviewDisplayProps {
   withdrawalAmount: number
 }
 
+interface PersonDisplayProps {
+  person: CoupleHealthInsuranceYearResult['person1']
+  color: 'blue' | 'purple'
+}
+
+function PersonDisplay({ person, color }: PersonDisplayProps) {
+  return (
+    <div className="space-y-2">
+      <div className={`text-sm font-medium text-${color}-700`}>
+        👤
+        {' '}
+        {person.name}
+      </div>
+      <div className="text-xs space-y-1">
+        <div>
+          Jährlich:
+          {' '}
+          {formatCurrency(person.healthInsuranceResult.totalAnnual)}
+        </div>
+        <div>
+          Monatlich:
+          {' '}
+          {formatCurrency(person.healthInsuranceResult.totalMonthly)}
+        </div>
+        <div className={`text-${color}-600`}>
+          {person.coveredByFamilyInsurance ? '👨‍👩‍👧‍👦 Familienversichert' : '💳 Eigenversichert'}
+        </div>
+      </div>
+    </div>
+  )
+}
+
 /**
  * Display component for couple health insurance cost preview
  */
-// eslint-disable-next-line max-lines-per-function -- Large component function
 export function CouplePreviewDisplay({ coupleResults, withdrawalAmount }: CouplePreviewDisplayProps) {
   return (
     <div className="mt-6 p-4 bg-green-50 rounded-lg border border-green-200">
@@ -22,47 +53,8 @@ export function CouplePreviewDisplay({ coupleResults, withdrawalAmount }: Couple
       </h4>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3">
-        <div className="space-y-2">
-          <div className="text-sm font-medium text-blue-700">
-            👤
-            {' '}
-            {coupleResults.person1.name}
-          </div>
-          <div className="text-xs space-y-1">
-            <div>
-              Jährlich:
-              {formatCurrency(coupleResults.person1.healthInsuranceResult.totalAnnual)}
-            </div>
-            <div>
-              Monatlich:
-              {formatCurrency(coupleResults.person1.healthInsuranceResult.totalMonthly)}
-            </div>
-            <div className="text-blue-600">
-              {coupleResults.person1.coveredByFamilyInsurance ? '👨‍👩‍👧‍👦 Familienversichert' : '💳 Eigenversichert'}
-            </div>
-          </div>
-        </div>
-
-        <div className="space-y-2">
-          <div className="text-sm font-medium text-purple-700">
-            👤
-            {' '}
-            {coupleResults.person2.name}
-          </div>
-          <div className="text-xs space-y-1">
-            <div>
-              Jährlich:
-              {formatCurrency(coupleResults.person2.healthInsuranceResult.totalAnnual)}
-            </div>
-            <div>
-              Monatlich:
-              {formatCurrency(coupleResults.person2.healthInsuranceResult.totalMonthly)}
-            </div>
-            <div className="text-purple-600">
-              {coupleResults.person2.coveredByFamilyInsurance ? '👨‍👩‍👧‍👦 Familienversichert' : '💳 Eigenversichert'}
-            </div>
-          </div>
-        </div>
+        <PersonDisplay person={coupleResults.person1} color="blue" />
+        <PersonDisplay person={coupleResults.person2} color="purple" />
       </div>
 
       <div className="pt-3 border-t border-green-300">
@@ -80,8 +72,11 @@ export function CouplePreviewDisplay({ coupleResults, withdrawalAmount }: Couple
         <div className="text-xs text-green-700 mt-1">
           Strategie:
           {' '}
-          {coupleResults.strategyUsed === 'family' ? '👨‍👩‍👧‍👦 Familienversicherung'
-            : coupleResults.strategyUsed === 'individual' ? '💳 Einzelversicherung' : '🎯 Optimiert'}
+          {coupleResults.strategyUsed === 'family'
+            ? '👨‍👩‍👧‍👦 Familienversicherung'
+            : coupleResults.strategyUsed === 'individual'
+              ? '💳 Einzelversicherung'
+              : '🎯 Optimiert'}
         </div>
       </div>
     </div>
