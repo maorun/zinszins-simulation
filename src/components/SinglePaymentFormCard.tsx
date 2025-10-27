@@ -16,7 +16,7 @@ interface SinglePaymentFormCardProps {
   handleDateChange: (
     e: React.ChangeEvent<HTMLInputElement>,
     format: string,
-    onChange: (date: Date | null) => void
+    onChange: (date: Date | null) => void,
   ) => void
   handleNumberChange: (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => void
   onSubmit: () => void
