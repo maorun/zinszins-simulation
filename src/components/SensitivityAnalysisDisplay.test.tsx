@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import React from 'react'
 import SensitivityAnalysisDisplay from './SensitivityAnalysisDisplay'
 import type { SensitivityAnalysisConfig } from '../utils/sensitivity-analysis'
@@ -31,7 +31,7 @@ describe('SensitivityAnalysisDisplay', () => {
       },
     ],
     steuerlast: 0.26375,
-    teilfreistellungsquote: 0.3,
+    teilfreistellungsquote: 0.30,
     simulationAnnual: 'yearly',
     freibetragPerYear: { 2025: 2000 },
     steuerReduzierenEndkapital: true,
@@ -67,7 +67,7 @@ describe('SensitivityAnalysisDisplay', () => {
     expect(screen.queryByText(/Was ist Sensitivitätsanalyse/)).not.toBeInTheDocument()
   })
 
-  it('expands when clicked', async () => {
+  it('expands when clicked', () => {
     render(<SensitivityAnalysisDisplay config={baseConfig} returnConfig={returnConfig} />)
 
     // Click to expand
@@ -75,24 +75,20 @@ describe('SensitivityAnalysisDisplay', () => {
     fireEvent.click(header)
 
     // Content should now be visible
-    await waitFor(() => expect(screen.getByText(/Was ist Sensitivitätsanalyse/)).toBeInTheDocument(), {
-      timeout: 5000,
-    })
+    expect(screen.getByText(/Was ist Sensitivitätsanalyse/)).toBeInTheDocument()
   })
 
-  it('displays parameter ranking section when expanded', async () => {
+  it('displays parameter ranking section when expanded', () => {
     render(<SensitivityAnalysisDisplay config={baseConfig} returnConfig={returnConfig} />)
 
     // Expand the component
     const header = screen.getByText('📊 Sensitivitätsanalyse')
     fireEvent.click(header)
 
-    await waitFor(() => expect(screen.getByText('🎯 Einflussreichste Parameter')).toBeInTheDocument(), {
-      timeout: 5000,
-    })
+    expect(screen.getByText('🎯 Einflussreichste Parameter')).toBeInTheDocument()
   })
 
-  it('displays all parameter names in ranking', async () => {
+  it('displays all parameter names in ranking', () => {
     render(<SensitivityAnalysisDisplay config={baseConfig} returnConfig={returnConfig} />)
 
     // Expand the component
@@ -100,19 +96,14 @@ describe('SensitivityAnalysisDisplay', () => {
     fireEvent.click(header)
 
     // Check for parameter names
-    await waitFor(
-      () => {
-        expect(screen.getByText('Rendite')).toBeInTheDocument()
-        expect(screen.getByText('Jährliche Sparrate')).toBeInTheDocument()
-        expect(screen.getByText('Steuerlast')).toBeInTheDocument()
-        expect(screen.getByText('Inflationsrate')).toBeInTheDocument()
-        expect(screen.getByText('Anlagedauer')).toBeInTheDocument()
-      },
-      { timeout: 5000 },
-    )
+    expect(screen.getByText('Rendite')).toBeInTheDocument()
+    expect(screen.getByText('Jährliche Sparrate')).toBeInTheDocument()
+    expect(screen.getByText('Steuerlast')).toBeInTheDocument()
+    expect(screen.getByText('Inflationsrate')).toBeInTheDocument()
+    expect(screen.getByText('Anlagedauer')).toBeInTheDocument()
   })
 
-  it('displays charts for top parameters', async () => {
+  it('displays charts for top parameters', () => {
     render(<SensitivityAnalysisDisplay config={baseConfig} returnConfig={returnConfig} />)
 
     // Expand the component
@@ -120,28 +111,23 @@ describe('SensitivityAnalysisDisplay', () => {
     fireEvent.click(header)
 
     // Should have at least one chart (top 3 parameters get charts)
-    const charts = await screen.findAllByTestId('line-chart')
+    const charts = screen.getAllByTestId('line-chart')
     expect(charts.length).toBeGreaterThan(0)
     expect(charts.length).toBeLessThanOrEqual(3)
   })
 
-  it('displays action items section', async () => {
+  it('displays action items section', () => {
     render(<SensitivityAnalysisDisplay config={baseConfig} returnConfig={returnConfig} />)
 
     // Expand the component
     const header = screen.getByText('📊 Sensitivitätsanalyse')
     fireEvent.click(header)
 
-    await waitFor(() => expect(screen.getByText('✅ Handlungsempfehlungen')).toBeInTheDocument(), {
-      timeout: 5000,
-    })
-    await waitFor(
-      () => expect(screen.getByText(/Fokussieren Sie sich auf die einflussreichsten Parameter/)).toBeInTheDocument(),
-      { timeout: 5000 },
-    )
+    expect(screen.getByText('✅ Handlungsempfehlungen')).toBeInTheDocument()
+    expect(screen.getByText(/Fokussieren Sie sich auf die einflussreichsten Parameter/)).toBeInTheDocument()
   })
 
-  it('collapses when clicked again', async () => {
+  it('collapses when clicked again', () => {
     render(<SensitivityAnalysisDisplay config={baseConfig} returnConfig={returnConfig} />)
 
     // Expand
@@ -149,20 +135,16 @@ describe('SensitivityAnalysisDisplay', () => {
     fireEvent.click(header)
 
     // Verify expanded
-    await waitFor(() => expect(screen.getByText(/Was ist Sensitivitätsanalyse/)).toBeInTheDocument(), {
-      timeout: 5000,
-    })
+    expect(screen.getByText(/Was ist Sensitivitätsanalyse/)).toBeInTheDocument()
 
     // Collapse
     fireEvent.click(header)
 
     // Verify collapsed
-    await waitFor(() => expect(screen.queryByText(/Was ist Sensitivitätsanalyse/)).not.toBeInTheDocument(), {
-      timeout: 5000,
-    })
+    expect(screen.queryByText(/Was ist Sensitivitätsanalyse/)).not.toBeInTheDocument()
   })
 
-  it('handles different return configurations', async () => {
+  it('handles different return configurations', () => {
     const randomReturnConfig = {
       mode: 'random' as const,
       randomConfig: {
@@ -177,12 +159,10 @@ describe('SensitivityAnalysisDisplay', () => {
     fireEvent.click(header)
 
     // Should still render properly with random return config
-    await waitFor(() => expect(screen.getByText('🎯 Einflussreichste Parameter')).toBeInTheDocument(), {
-      timeout: 5000,
-    })
+    expect(screen.getByText('🎯 Einflussreichste Parameter')).toBeInTheDocument()
   })
 
-  it('displays sensitivity scores for parameters', async () => {
+  it('displays sensitivity scores for parameters', () => {
     render(<SensitivityAnalysisDisplay config={baseConfig} returnConfig={returnConfig} />)
 
     // Expand the component
@@ -190,7 +170,7 @@ describe('SensitivityAnalysisDisplay', () => {
     fireEvent.click(header)
 
     // Check that sensitivity label is displayed
-    const sensitivityLabels = await screen.findAllByText('Sensitivität')
+    const sensitivityLabels = screen.getAllByText('Sensitivität')
     expect(sensitivityLabels.length).toBeGreaterThan(0)
   })
 })

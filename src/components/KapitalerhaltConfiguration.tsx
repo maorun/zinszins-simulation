@@ -4,7 +4,6 @@ import { Label } from './ui/label'
 interface KapitalerhaltFormValues {
   kapitalerhaltNominalReturn: number
   kapitalerhaltInflationRate: number
-  [key: string]: unknown
 }
 
 interface KapitalerhaltConfigValues {

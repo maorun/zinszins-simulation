@@ -1,7 +1,6 @@
 import type { BucketSubStrategy } from '../../helpers/withdrawal'
 
 export interface BucketStrategyFormValues {
-  [key: string]: unknown
   bucketConfig?: {
     initialCashCushion: number
     refillThreshold: number

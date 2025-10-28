@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen, fireEvent, waitFor } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import InflationScenarioConfiguration from './InflationScenarioConfiguration'
 
 describe('InflationScenarioConfiguration', () => {
@@ -19,30 +19,30 @@ describe('InflationScenarioConfiguration', () => {
     expect(screen.getByText('🌡️ Inflationsszenarien')).toBeInTheDocument()
   })
 
-  it('should display information panel when expanded', async () => {
+  it('should display information panel when expanded', () => {
     render(<InflationScenarioConfiguration {...defaultProps} />)
 
     // Click to expand
     const trigger = screen.getByText('🌡️ Inflationsszenarien')
     fireEvent.click(trigger)
 
-    await waitFor(() => expect(screen.getByText('ℹ️ Was sind Inflationsszenarien?')).toBeInTheDocument())
-    await waitFor(() => expect(screen.getByText(/Inflationsszenarien helfen Ihnen/)).toBeInTheDocument())
+    expect(screen.getByText('ℹ️ Was sind Inflationsszenarien?')).toBeInTheDocument()
+    expect(screen.getByText(/Inflationsszenarien helfen Ihnen/)).toBeInTheDocument()
   })
 
-  it('should show enable/disable radio buttons when expanded', async () => {
+  it('should show enable/disable radio buttons when expanded', () => {
     render(<InflationScenarioConfiguration {...defaultProps} />)
 
     // Click to expand
     const trigger = screen.getByText('🌡️ Inflationsszenarien')
     fireEvent.click(trigger)
 
-    await waitFor(() => expect(screen.getByText('Inflationsszenario aktivieren')).toBeInTheDocument())
-    await waitFor(() => expect(screen.getByText('Aktiviert')).toBeInTheDocument())
-    await waitFor(() => expect(screen.getByText('Deaktiviert')).toBeInTheDocument())
+    expect(screen.getByText('Inflationsszenario aktivieren')).toBeInTheDocument()
+    expect(screen.getByText('Aktiviert')).toBeInTheDocument()
+    expect(screen.getByText('Deaktiviert')).toBeInTheDocument()
   })
 
-  it('should show scenario selection when enabled', async () => {
+  it('should show scenario selection when enabled', () => {
     render(<InflationScenarioConfiguration {...defaultProps} />)
 
     // Click to expand
@@ -50,17 +50,17 @@ describe('InflationScenarioConfiguration', () => {
     fireEvent.click(trigger)
 
     // Enable the feature
-    const enabledRadio = await screen.findByLabelText('Aktiviert')
+    const enabledRadio = screen.getByLabelText('Aktiviert')
     fireEvent.click(enabledRadio)
 
     // Should show scenario options
-    await waitFor(() => expect(screen.getByText('Szenario auswählen')).toBeInTheDocument())
-    await waitFor(() => expect(screen.getAllByText(/Hyperinflation/).length).toBeGreaterThan(0))
-    await waitFor(() => expect(screen.getAllByText(/Deflation/).length).toBeGreaterThan(0))
-    await waitFor(() => expect(screen.getAllByText(/Stagflation/).length).toBeGreaterThan(0))
+    expect(screen.getByText('Szenario auswählen')).toBeInTheDocument()
+    expect(screen.getAllByText(/Hyperinflation/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Deflation/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Stagflation/).length).toBeGreaterThan(0)
   })
 
-  it('should call onScenarioChange with null when disabled', async () => {
+  it('should call onScenarioChange with null when disabled', () => {
     render(<InflationScenarioConfiguration {...defaultProps} />)
 
     // Click to expand
@@ -68,19 +68,19 @@ describe('InflationScenarioConfiguration', () => {
     fireEvent.click(trigger)
 
     // Enable first
-    const enabledRadio = await screen.findByLabelText('Aktiviert')
+    const enabledRadio = screen.getByLabelText('Aktiviert')
     fireEvent.click(enabledRadio)
 
     mockOnScenarioChange.mockClear()
 
     // Then disable
-    const disabledRadio = await screen.findByLabelText('Deaktiviert')
+    const disabledRadio = screen.getByLabelText('Deaktiviert')
     fireEvent.click(disabledRadio)
 
     expect(mockOnScenarioChange).toHaveBeenCalledWith(null, null, '')
   })
 
-  it('should show scenario details when a scenario is selected', async () => {
+  it('should show scenario details when a scenario is selected', () => {
     render(<InflationScenarioConfiguration {...defaultProps} />)
 
     // Click to expand
@@ -88,21 +88,21 @@ describe('InflationScenarioConfiguration', () => {
     fireEvent.click(trigger)
 
     // Enable the feature
-    const enabledRadio = await screen.findByLabelText('Aktiviert')
+    const enabledRadio = screen.getByLabelText('Aktiviert')
     fireEvent.click(enabledRadio)
 
     // Select hyperinflation scenario using label text
-    const hyperinflationOption = await screen.findByText('Hyperinflation (Hohes Inflationsszenario)')
+    const hyperinflationOption = screen.getByText('Hyperinflation (Hohes Inflationsszenario)')
     fireEvent.click(hyperinflationOption)
 
     // Should show scenario details
-    await waitFor(() => expect(screen.getByText('📊 Szenario-Details')).toBeInTheDocument())
-    await waitFor(() => expect(screen.getByText(/Beschreibung:/)).toBeInTheDocument())
-    await waitFor(() => expect(screen.getByText(/Dauer:/)).toBeInTheDocument())
-    await waitFor(() => expect(screen.getByText(/Jährliche Inflationsraten:/)).toBeInTheDocument())
+    expect(screen.getByText('📊 Szenario-Details')).toBeInTheDocument()
+    expect(screen.getByText(/Beschreibung:/)).toBeInTheDocument()
+    expect(screen.getByText(/Dauer:/)).toBeInTheDocument()
+    expect(screen.getByText(/Jährliche Inflationsraten:/)).toBeInTheDocument()
   })
 
-  it('should show year slider when scenario is selected', async () => {
+  it('should show year slider when scenario is selected', () => {
     render(<InflationScenarioConfiguration {...defaultProps} />)
 
     // Click to expand
@@ -110,29 +110,29 @@ describe('InflationScenarioConfiguration', () => {
     fireEvent.click(trigger)
 
     // Enable the feature
-    const enabledRadio = await screen.findByLabelText('Aktiviert')
+    const enabledRadio = screen.getByLabelText('Aktiviert')
     fireEvent.click(enabledRadio)
 
     // Select deflation scenario using label text
-    const deflationOption = await screen.findByText('Deflation (Negatives Inflationsszenario)')
+    const deflationOption = screen.getByText('Deflation (Negatives Inflationsszenario)')
     fireEvent.click(deflationOption)
 
     // Should show year slider
-    await waitFor(() => expect(screen.getByText(/Startjahr des Szenarios:/)).toBeInTheDocument())
+    expect(screen.getByText(/Startyear des Szenarios:/)).toBeInTheDocument()
   })
 
-  it('should display warning message', async () => {
+  it('should display warning message', () => {
     render(<InflationScenarioConfiguration {...defaultProps} />)
 
     // Click to expand
     const trigger = screen.getByText('🌡️ Inflationsszenarien')
     fireEvent.click(trigger)
 
-    await waitFor(() => expect(screen.getByText('⚠️ Wichtiger Hinweis')).toBeInTheDocument())
-    await waitFor(() => expect(screen.getByText(/Inflationsszenarien sind Extremszenarien/)).toBeInTheDocument())
+    expect(screen.getByText('⚠️ Wichtiger Hinweis')).toBeInTheDocument()
+    expect(screen.getByText(/Inflationsszenarien sind Extremszenarien/)).toBeInTheDocument()
   })
 
-  it('should call onScenarioChange when scenario is selected', async () => {
+  it('should call onScenarioChange when scenario is selected', () => {
     render(<InflationScenarioConfiguration {...defaultProps} />)
 
     // Click to expand
@@ -140,13 +140,13 @@ describe('InflationScenarioConfiguration', () => {
     fireEvent.click(trigger)
 
     // Enable the feature
-    const enabledRadio = await screen.findByLabelText('Aktiviert')
+    const enabledRadio = screen.getByLabelText('Aktiviert')
     fireEvent.click(enabledRadio)
 
     mockOnScenarioChange.mockClear()
 
     // Select stagflation scenario using label text
-    const stagflationOption = await screen.findByText('Stagflation (Inflation + niedrige Renditen)')
+    const stagflationOption = screen.getByText('Stagflation (Inflation + niedrige Renditen)')
     fireEvent.click(stagflationOption)
 
     // Should have been called with inflation rates and return modifiers
@@ -159,7 +159,7 @@ describe('InflationScenarioConfiguration', () => {
     expect(scenarioName).toContain('Stagflation')
   })
 
-  it('should work without onScenarioChange callback', async () => {
+  it('should work without onScenarioChange callback', () => {
     render(<InflationScenarioConfiguration simulationStartYear={2025} />)
 
     // Should render without errors
@@ -168,11 +168,11 @@ describe('InflationScenarioConfiguration', () => {
 
     // Should be able to interact
     fireEvent.click(trigger)
-    const enabledRadio = await screen.findByLabelText('Aktiviert')
+    const enabledRadio = screen.getByLabelText('Aktiviert')
     fireEvent.click(enabledRadio)
 
     // No errors should occur - check for scenario selection label
-    await waitFor(() => expect(screen.getByText('Szenario auswählen')).toBeInTheDocument())
-    await waitFor(() => expect(screen.getAllByText(/Hyperinflation/).length).toBeGreaterThan(0))
+    expect(screen.getByText('Szenario auswählen')).toBeInTheDocument()
+    expect(screen.getAllByText(/Hyperinflation/).length).toBeGreaterThan(0)
   })
 })
