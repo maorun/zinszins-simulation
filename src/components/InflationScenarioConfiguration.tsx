@@ -17,6 +17,8 @@ import {
 } from '../../helpers/inflation-scenarios'
 import { generateFormId } from '../utils/unique-id'
 
+// All sub-components remain the same...
+
 const InformationPanel = () => (
   <div className="p-4 bg-blue-50 border border-blue-200 rounded-lg">
     <h5 className="font-semibold text-blue-900 mb-2">ℹ️ Was sind Inflationsszenarien?</h5>
@@ -127,7 +129,7 @@ const formatPercent = (value: number) => {
   return `${sign}${(value * 100).toFixed(1)}%`
 }
 
-const SCENARIO_COLORS: Record<string, { bg: string, text: string }> = {
+const SCENARIO_COLORS: Record<string, { bg: string; text: string }> = {
   hyperinflation: { bg: 'bg-red-50 border-red-200', text: 'text-red-900' },
   deflation: { bg: 'bg-blue-50 border-blue-200', text: 'text-blue-900' },
 }
@@ -136,16 +138,10 @@ const DEFAULT_COLORS = { bg: 'bg-orange-50 border-orange-200', text: 'text-orang
 const ScenarioDescription = ({ scenario }: { scenario: InflationScenario }) => (
   <>
     <p>
-      <strong>Beschreibung:</strong>
-      {' '}
-      {scenario.description}
+      <strong>Beschreibung:</strong> {scenario.description}
     </p>
     <p>
-      <strong>Dauer:</strong>
-      {' '}
-      {scenario.duration}
-      {' '}
-      {scenario.duration === 1 ? 'Jahr' : 'Jahre'}
+      <strong>Dauer:</strong> {scenario.duration} {scenario.duration === 1 ? 'Jahr' : 'Jahre'}
     </p>
   </>
 )
@@ -156,16 +152,11 @@ const InflationRates = ({ scenario }: { scenario: InflationScenario }) => {
     <div>
       <strong>Jährliche Inflationsraten:</strong>
       <div className="mt-1 grid grid-cols-2 gap-2">
-        {years.map((yearOffset) => {
+        {years.map(yearOffset => {
           const inflationRate = scenario.yearlyInflationRates[yearOffset]
           return (
             <div key={yearOffset} className="text-xs">
-              Jahr
-              {' '}
-              {yearOffset + 1}
-              :
-              {' '}
-              {formatPercent(inflationRate ?? 0)}
+              Jahr {yearOffset + 1}: {formatPercent(inflationRate ?? 0)}
             </div>
           )
         })}
@@ -182,14 +173,7 @@ const ReturnModifiers = ({ scenario }: { scenario: InflationScenario }) => {
       <div className="mt-1 grid grid-cols-2 gap-2">
         {Object.entries(scenario.yearlyReturnModifiers).map(([yearOffset, modifier]) => (
           <div key={yearOffset} className="text-xs">
-            Jahr
-            {' '}
-            {Number(yearOffset) + 1}
-            :
-            {' '}
-            {formatPercent(modifier as number)}
-            {' '}
-            Rendite
+            Jahr {Number(yearOffset) + 1}: {formatPercent(modifier as number)} Rendite
           </div>
         ))}
       </div>
@@ -211,32 +195,21 @@ const InflationImpact = ({
   <>
     {cumulativeInflation !== null && (
       <p>
-        <strong>Kumulative Inflation:</strong>
-        {' '}
-        {formatPercent(cumulativeInflation)}
+        <strong>Kumulative Inflation:</strong> {formatPercent(cumulativeInflation)}
       </p>
     )}
     {averageInflation !== null && (
       <p>
-        <strong>Durchschnittliche jährliche Inflation:</strong>
-        {' '}
-        {formatPercent(averageInflation)}
+        <strong>Durchschnittliche jährliche Inflation:</strong> {formatPercent(averageInflation)}
       </p>
     )}
     {purchasingPowerImpact !== null && (
       <p>
-        <strong>Kaufkraftverlust:</strong>
-        {' '}
-        100.000 € haben nach
-        {scenario.duration}
-        {' '}
-        Jahren eine reale Kaufkraft von ca.
-        {' '}
+        <strong>Kaufkraftverlust:</strong> 100.000 € haben nach {scenario.duration} Jahren eine reale Kaufkraft von ca.{' '}
         {purchasingPowerImpact.toLocaleString('de-DE', {
           minimumFractionDigits: 0,
           maximumFractionDigits: 0,
-        })}
-        {' '}
+        })}{' '}
         €
       </p>
     )}
@@ -275,6 +248,37 @@ const ScenarioDetails = ({
   )
 }
 
+const ScenarioYearSlider = ({
+  scenarioYear,
+  onYearChange,
+  simulationStartYear,
+  scenarioYearSliderId,
+}: {
+  scenarioYear: number
+  onYearChange: (year: number) => void
+  simulationStartYear: number
+  scenarioYearSliderId: string
+}) => (
+  <div>
+    <Label htmlFor={scenarioYearSliderId} className="text-sm font-medium">
+      Startjahr des Szenarios: {scenarioYear}
+    </Label>
+    <Slider
+      id={scenarioYearSliderId}
+      value={[scenarioYear]}
+      onValueChange={([value]) => onYearChange(value)}
+      min={simulationStartYear}
+      max={simulationStartYear + 30}
+      step={1}
+      className="w-full"
+    />
+    <div className="flex justify-between text-sm text-muted-foreground">
+      <span>{simulationStartYear}</span>
+      <span>{simulationStartYear + 30}</span>
+    </div>
+  </div>
+)
+
 interface ScenarioControlsProps {
   availableScenarios: InflationScenario[]
   selectedScenarioId: InflationScenarioId | 'none'
@@ -309,26 +313,12 @@ const ScenarioControls = ({
       onScenarioChange={onScenarioChange}
     />
     {selectedScenario && (
-      <div>
-        <Label htmlFor={scenarioYearSliderId} className="text-sm font-medium">
-          Startjahr des Szenarios:
-          {' '}
-          {scenarioYear}
-        </Label>
-        <Slider
-          id={scenarioYearSliderId}
-          value={[scenarioYear]}
-          onValueChange={([value]) => onYearChange(value)}
-          min={simulationStartYear}
-          max={simulationStartYear + 30}
-          step={1}
-          className="w-full"
-        />
-        <div className="flex justify-between text-sm text-muted-foreground">
-          <span>{simulationStartYear}</span>
-          <span>{simulationStartYear + 30}</span>
-        </div>
-      </div>
+      <ScenarioYearSlider
+        scenarioYear={scenarioYear}
+        onYearChange={onYearChange}
+        simulationStartYear={simulationStartYear}
+        scenarioYearSliderId={scenarioYearSliderId}
+      />
     )}
     {selectedScenario && (
       <ScenarioDetails
@@ -354,14 +344,11 @@ const useInflationScenarioState = (simulationStartYear: number) => {
   const [isEnabled, setIsEnabled] = useState(false)
   const [selectedScenarioId, setSelectedScenarioId] = useState<InflationScenarioId | 'none'>('none')
   const [scenarioYear, setScenarioYear] = useState(simulationStartYear + 5)
-
   const availableScenarios = useMemo(() => getAvailableInflationScenarios(), [])
-
-  const selectedScenario = useMemo(() => {
-    if (selectedScenarioId === 'none') return null
-    return availableScenarios.find(s => s.id === selectedScenarioId) || null
-  }, [selectedScenarioId, availableScenarios])
-
+  const selectedScenario = useMemo(
+    () => (selectedScenarioId === 'none' ? null : availableScenarios.find(s => s.id === selectedScenarioId) || null),
+    [selectedScenarioId, availableScenarios],
+  )
   return {
     isEnabled,
     setIsEnabled,
@@ -375,76 +362,68 @@ const useInflationScenarioState = (simulationStartYear: number) => {
 }
 
 const useInflationCalculations = (selectedScenario: InflationScenario | null) => {
-  const cumulativeInflation = useMemo(() => {
-    if (!selectedScenario) return null
-    return calculateCumulativeInflation(selectedScenario)
-  }, [selectedScenario])
-
-  const averageInflation = useMemo(() => {
-    if (!selectedScenario) return null
-    return calculateAverageInflation(selectedScenario)
-  }, [selectedScenario])
-
-  const purchasingPowerImpact = useMemo(() => {
-    if (!selectedScenario) return null
-    return calculatePurchasingPowerImpact(selectedScenario, 100000)
-  }, [selectedScenario])
-
+  const cumulativeInflation = useMemo(
+    () => (selectedScenario ? calculateCumulativeInflation(selectedScenario) : null),
+    [selectedScenario],
+  )
+  const averageInflation = useMemo(
+    () => (selectedScenario ? calculateAverageInflation(selectedScenario) : null),
+    [selectedScenario],
+  )
+  const purchasingPowerImpact = useMemo(
+    () => (selectedScenario ? calculatePurchasingPowerImpact(selectedScenario, 100000) : null),
+    [selectedScenario],
+  )
   return { cumulativeInflation, averageInflation, purchasingPowerImpact }
+}
+
+const createScenarioHandlers = (
+  state: ReturnType<typeof useInflationScenarioState>,
+  onScenarioChange: InflationScenarioConfigurationProps['onScenarioChange'],
+) => {
+  const handleEnabledChange = (value: string) => {
+    const enabled = value === 'enabled'
+    state.setIsEnabled(enabled)
+    if (!enabled) {
+      onScenarioChange?.(null, null, '')
+    } else if (state.selectedScenario) {
+      const inflationRates = applyInflationScenario(state.scenarioYear, state.selectedScenario)
+      const returnModifiers = applyReturnModifiers(state.scenarioYear, state.selectedScenario)
+      onScenarioChange?.(inflationRates, returnModifiers, state.selectedScenario.name)
+    }
+  }
+
+  const handleScenarioChange = (scenarioId: InflationScenarioId) => {
+    state.setSelectedScenarioId(scenarioId)
+    const scenario = state.availableScenarios.find(s => s.id === scenarioId)
+    if (scenario && state.isEnabled) {
+      const inflationRates = applyInflationScenario(state.scenarioYear, scenario)
+      const returnModifiers = applyReturnModifiers(state.scenarioYear, scenario)
+      onScenarioChange?.(inflationRates, returnModifiers, scenario.name)
+    }
+  }
+
+  const handleYearChange = (year: number) => {
+    state.setScenarioYear(year)
+    if (state.selectedScenario && state.isEnabled) {
+      const inflationRates = applyInflationScenario(year, state.selectedScenario)
+      const returnModifiers = applyReturnModifiers(year, state.selectedScenario)
+      onScenarioChange?.(inflationRates, returnModifiers, state.selectedScenario.name)
+    }
+  }
+  return { handleEnabledChange, handleScenarioChange, handleYearChange }
 }
 
 const InflationScenarioConfiguration = ({
   onScenarioChange,
   simulationStartYear,
 }: InflationScenarioConfigurationProps) => {
-  const {
-    isEnabled,
-    setIsEnabled,
-    selectedScenarioId,
-    setSelectedScenarioId,
-    scenarioYear,
-    setScenarioYear,
-    availableScenarios,
-    selectedScenario,
-  } = useInflationScenarioState(simulationStartYear)
-
-  const { cumulativeInflation, averageInflation, purchasingPowerImpact } = useInflationCalculations(selectedScenario)
-
+  const state = useInflationScenarioState(simulationStartYear)
+  const { cumulativeInflation, averageInflation, purchasingPowerImpact } = useInflationCalculations(state.selectedScenario)
+  const { handleEnabledChange, handleScenarioChange, handleYearChange } = createScenarioHandlers(state, onScenarioChange)
   const enabledRadioId = useMemo(() => generateFormId('inflation-scenario', 'enabled'), [])
   const disabledRadioId = useMemo(() => generateFormId('inflation-scenario', 'disabled'), [])
   const scenarioYearSliderId = useMemo(() => generateFormId('inflation-scenario', 'year'), [])
-
-  const handleEnabledChange = (value: string) => {
-    const enabled = value === 'enabled'
-    setIsEnabled(enabled)
-    if (!enabled) {
-      onScenarioChange?.(null, null, '')
-    }
-    else if (selectedScenario) {
-      const inflationRates = applyInflationScenario(scenarioYear, selectedScenario)
-      const returnModifiers = applyReturnModifiers(scenarioYear, selectedScenario)
-      onScenarioChange?.(inflationRates, returnModifiers, selectedScenario.name)
-    }
-  }
-
-  const handleScenarioChange = (scenarioId: InflationScenarioId) => {
-    setSelectedScenarioId(scenarioId)
-    const scenario = availableScenarios.find(s => s.id === scenarioId)
-    if (scenario && isEnabled) {
-      const inflationRates = applyInflationScenario(scenarioYear, scenario)
-      const returnModifiers = applyReturnModifiers(scenarioYear, scenario)
-      onScenarioChange?.(inflationRates, returnModifiers, scenario.name)
-    }
-  }
-
-  const handleYearChange = (year: number) => {
-    setScenarioYear(year)
-    if (selectedScenario && isEnabled) {
-      const inflationRates = applyInflationScenario(year, selectedScenario)
-      const returnModifiers = applyReturnModifiers(year, selectedScenario)
-      onScenarioChange?.(inflationRates, returnModifiers, selectedScenario.name)
-    }
-  }
 
   return (
     <Collapsible>
@@ -461,19 +440,19 @@ const InflationScenarioConfiguration = ({
           <CardContent className="space-y-4">
             <InformationPanel />
             <EnableDisableRadioGroup
-              isEnabled={isEnabled}
+              isEnabled={state.isEnabled}
               onEnabledChange={handleEnabledChange}
               enabledRadioId={enabledRadioId}
               disabledRadioId={disabledRadioId}
             />
-            {isEnabled && (
+            {state.isEnabled && (
               <ScenarioControls
-                availableScenarios={availableScenarios}
-                selectedScenarioId={selectedScenarioId}
+                availableScenarios={state.availableScenarios}
+                selectedScenarioId={state.selectedScenarioId}
                 onScenarioChange={handleScenarioChange}
-                selectedScenario={selectedScenario}
+                selectedScenario={state.selectedScenario}
                 scenarioYearSliderId={scenarioYearSliderId}
-                scenarioYear={scenarioYear}
+                scenarioYear={state.scenarioYear}
                 onYearChange={handleYearChange}
                 simulationStartYear={simulationStartYear}
                 cumulativeInflation={cumulativeInflation}
