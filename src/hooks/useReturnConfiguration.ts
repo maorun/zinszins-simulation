@@ -59,8 +59,37 @@ function buildReturnConfig(params: ReturnConfigurationParams): ReturnConfigurati
  * Hook to build return configuration from context properties
  * Extracted from HomePageContent to reduce complexity
  */
-export function useReturnConfiguration(params: ReturnConfigurationParams): ReturnConfiguration {
-  const deps = Object.values(params)
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  return useMemo(() => buildReturnConfig(params), deps)
+export function useReturnConfiguration({
+  returnMode,
+  rendite,
+  averageReturn,
+  standardDeviation,
+  randomSeed,
+  variableReturns,
+  historicalIndex,
+  multiAssetConfig,
+}: ReturnConfigurationParams): ReturnConfiguration {
+  return useMemo(
+    () =>
+      buildReturnConfig({
+        returnMode,
+        rendite,
+        averageReturn,
+        standardDeviation,
+        randomSeed,
+        variableReturns,
+        historicalIndex,
+        multiAssetConfig,
+      }),
+    [
+      returnMode,
+      rendite,
+      averageReturn,
+      standardDeviation,
+      randomSeed,
+      variableReturns,
+      historicalIndex,
+      multiAssetConfig,
+    ],
+  )
 }
