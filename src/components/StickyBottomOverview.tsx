@@ -151,20 +151,19 @@ const useEnhancedSummary = () => {
   )
 }
 
-export function StickyBottomOverview({
-  overviewElementRef,
-}: {
-  overviewElementRef: React.RefObject<HTMLElement | null>
-}) {
-  const isSticky = useStickyState(overviewElementRef)
-  const isMobile = useMobileView()
-  const enhancedSummary = useEnhancedSummary()
-  const { simulationData, startEnd, endOfLife } = useSimulation()
+interface WithdrawalOverviewContentProps {
+  enhancedSummary: EnhancedSummary
+  startEnd: [number, number]
+  endOfLife: number | undefined
+  isMobile: boolean
+}
 
-  if (!isSticky || !enhancedSummary || !simulationData || !enhancedSummary.endkapitalEntspharphase) {
-    return null
-  }
-
+const WithdrawalOverviewContent = ({
+  enhancedSummary,
+  startEnd,
+  endOfLife,
+  isMobile,
+}: WithdrawalOverviewContentProps) => {
   const withdrawalStartYear = startEnd[0] + 1
   const withdrawalEndYear = endOfLife || startEnd[1]
   const withdrawalYearsRange = `${withdrawalStartYear} - ${withdrawalEndYear}`
@@ -176,22 +175,48 @@ export function StickyBottomOverview({
     )
 
   return (
+    <div className="max-w-6xl mx-auto px-4 py-2 md:px-6">
+      {isMobile ? (
+        <MobileWithdrawalView
+          withdrawalYearsRange={withdrawalYearsRange}
+          hasSegments={hasSegments}
+          summary={enhancedSummary}
+        />
+      ) : (
+        <DesktopWithdrawalView
+          withdrawalYearsRange={withdrawalYearsRange}
+          hasSegments={hasSegments}
+          summary={enhancedSummary}
+        />
+      )}
+    </div>
+  )
+}
+
+export function StickyBottomOverview({
+  overviewElementRef,
+}: {
+  overviewElementRef: React.RefObject<HTMLElement | null>
+}) {
+  const isSticky = useStickyState(overviewElementRef)
+  const isMobile = useMobileView()
+  const enhancedSummary = useEnhancedSummary()
+  const { simulationData, startEnd, endOfLife } = useSimulation()
+
+  const shouldRender = isSticky && enhancedSummary && simulationData && enhancedSummary.endkapitalEntspharphase
+
+  if (!shouldRender) {
+    return null
+  }
+
+  return (
     <div className="fixed bottom-0 left-0 right-0 z-[999] bg-white/95 backdrop-blur-sm border-t border-gray-200 shadow-lg animate-slide-up">
-      <div className="max-w-6xl mx-auto px-4 py-2 md:px-6">
-        {isMobile ? (
-          <MobileWithdrawalView
-            withdrawalYearsRange={withdrawalYearsRange}
-            hasSegments={hasSegments}
-            summary={enhancedSummary}
-          />
-        ) : (
-          <DesktopWithdrawalView
-            withdrawalYearsRange={withdrawalYearsRange}
-            hasSegments={hasSegments}
-            summary={enhancedSummary}
-          />
-        )}
-      </div>
+      <WithdrawalOverviewContent
+        enhancedSummary={enhancedSummary}
+        startEnd={startEnd}
+        endOfLife={endOfLife}
+        isMobile={isMobile}
+      />
     </div>
   )
 }

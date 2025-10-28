@@ -34,7 +34,10 @@ interface PrivateInsuranceInflationSliderProps {
   onInflationRateChange: (rate: number) => void
 }
 
-function PrivateInsuranceInflationSlider({ inflationRate, onInflationRateChange }: PrivateInsuranceInflationSliderProps) {
+function PrivateInsuranceInflationSlider({
+  inflationRate,
+  onInflationRateChange,
+}: PrivateInsuranceInflationSliderProps) {
   return (
     <div className="space-y-2">
       <Label htmlFor="private-inflation-rate">

@@ -78,66 +78,41 @@ function PrivateSection(props: ConfigurationSectionsProps) {
   )
 }
 
-const getCoupleConfigProps = (props: ConfigurationSectionsProps) => {
-  const {
-    coupleStrategy = 'optimize',
-    familyInsuranceThresholdRegular = 505,
-    familyInsuranceThresholdMiniJob = 538,
-    person1Name = '',
-    person1WithdrawalShare = 0.5,
-    person1OtherIncomeAnnual = 0,
-    person1AdditionalCareInsuranceForChildless = false,
-    person2Name = '',
-    person2WithdrawalShare = 0.5,
-    person2OtherIncomeAnnual = 0,
-    person2AdditionalCareInsuranceForChildless = false,
-    onCoupleStrategyChange,
-    onFamilyInsuranceThresholdRegularChange,
-    onFamilyInsuranceThresholdMiniJobChange,
-    onPerson1NameChange,
-    onPerson1WithdrawalShareChange,
-    onPerson1OtherIncomeAnnualChange,
-    onPerson1AdditionalCareInsuranceForChildlessChange,
-    onPerson2NameChange,
-    onPerson2WithdrawalShareChange,
-    onPerson2OtherIncomeAnnualChange,
-    onPerson2AdditionalCareInsuranceForChildlessChange,
-  } = props
+const getPerson1ConfigProps = (props: ConfigurationSectionsProps) => ({
+  person1Name: props.person1Name ?? '',
+  person1WithdrawalShare: props.person1WithdrawalShare ?? 0.5,
+  person1OtherIncomeAnnual: props.person1OtherIncomeAnnual ?? 0,
+  person1AdditionalCareInsuranceForChildless: props.person1AdditionalCareInsuranceForChildless ?? false,
+  onPerson1NameChange: props.onPerson1NameChange!,
+  onPerson1WithdrawalShareChange: props.onPerson1WithdrawalShareChange!,
+  onPerson1OtherIncomeAnnualChange: props.onPerson1OtherIncomeAnnualChange!,
+  onPerson1AdditionalCareInsuranceForChildlessChange: props.onPerson1AdditionalCareInsuranceForChildlessChange!,
+})
 
-  return {
-    coupleStrategy,
-    familyInsuranceThresholdRegular,
-    familyInsuranceThresholdMiniJob,
-    person1Name,
-    person1WithdrawalShare,
-    person1OtherIncomeAnnual,
-    person1AdditionalCareInsuranceForChildless,
-    person2Name,
-    person2WithdrawalShare,
-    person2OtherIncomeAnnual,
-    person2AdditionalCareInsuranceForChildless,
-    onCoupleStrategyChange: onCoupleStrategyChange!,
-    onFamilyInsuranceThresholdRegularChange: onFamilyInsuranceThresholdRegularChange!,
-    onFamilyInsuranceThresholdMiniJobChange: onFamilyInsuranceThresholdMiniJobChange!,
-    onPerson1NameChange: onPerson1NameChange!,
-    onPerson1WithdrawalShareChange: onPerson1WithdrawalShareChange!,
-    onPerson1OtherIncomeAnnualChange: onPerson1OtherIncomeAnnualChange!,
-    onPerson1AdditionalCareInsuranceForChildlessChange:
-      onPerson1AdditionalCareInsuranceForChildlessChange!,
-    onPerson2NameChange: onPerson2NameChange!,
-    onPerson2WithdrawalShareChange: onPerson2WithdrawalShareChange!,
-    onPerson2OtherIncomeAnnualChange: onPerson2OtherIncomeAnnualChange!,
-    onPerson2AdditionalCareInsuranceForChildlessChange:
-      onPerson2AdditionalCareInsuranceForChildlessChange!,
-  }
-}
+const getPerson2ConfigProps = (props: ConfigurationSectionsProps) => ({
+  person2Name: props.person2Name ?? '',
+  person2WithdrawalShare: props.person2WithdrawalShare ?? 0.5,
+  person2OtherIncomeAnnual: props.person2OtherIncomeAnnual ?? 0,
+  person2AdditionalCareInsuranceForChildless: props.person2AdditionalCareInsuranceForChildless ?? false,
+  onPerson2NameChange: props.onPerson2NameChange!,
+  onPerson2WithdrawalShareChange: props.onPerson2WithdrawalShareChange!,
+  onPerson2OtherIncomeAnnualChange: props.onPerson2OtherIncomeAnnualChange!,
+  onPerson2AdditionalCareInsuranceForChildlessChange: props.onPerson2AdditionalCareInsuranceForChildlessChange!,
+})
+
+const getCoupleConfigProps = (props: ConfigurationSectionsProps) => ({
+  coupleStrategy: props.coupleStrategy ?? 'optimize',
+  familyInsuranceThresholdRegular: props.familyInsuranceThresholdRegular ?? 505,
+  familyInsuranceThresholdMiniJob: props.familyInsuranceThresholdMiniJob ?? 538,
+  ...getPerson1ConfigProps(props),
+  ...getPerson2ConfigProps(props),
+  onCoupleStrategyChange: props.onCoupleStrategyChange!,
+  onFamilyInsuranceThresholdRegularChange: props.onFamilyInsuranceThresholdRegularChange!,
+  onFamilyInsuranceThresholdMiniJobChange: props.onFamilyInsuranceThresholdMiniJobChange!,
+})
 
 function CoupleSection(props: ConfigurationSectionsProps) {
-  if (
-    props.planningMode !== 'couple'
-    || props.insuranceType !== 'statutory'
-    || !props.onCoupleStrategyChange
-  ) {
+  if (props.planningMode !== 'couple' || props.insuranceType !== 'statutory' || !props.onCoupleStrategyChange) {
     return null
   }
   return <CoupleConfiguration {...getCoupleConfigProps(props)} />

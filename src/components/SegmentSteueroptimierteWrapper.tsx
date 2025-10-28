@@ -12,6 +12,7 @@ interface FormValue {
   steueroptimierteEntnahmeOptimizationMode: 'minimize_taxes' | 'maximize_after_tax' | 'balanced'
   steueroptimierteEntnahmeFreibetragUtilizationTarget: number
   steueroptimierteEntnahmeRebalanceFrequency: 'yearly' | 'quarterly' | 'as_needed'
+  [key: string]: unknown
 }
 
 const DEFAULT_CONFIG = {

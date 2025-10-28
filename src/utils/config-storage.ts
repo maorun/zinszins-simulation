@@ -67,6 +67,7 @@ export interface WithdrawalFormValue {
   grundfreibetragAktiv?: boolean
   grundfreibetragBetrag?: number
   einkommensteuersatz: number
+  [key: string]: unknown
 }
 
 /**

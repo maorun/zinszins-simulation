@@ -2,6 +2,26 @@ import { Slider } from './ui/slider'
 import { Label } from './ui/label'
 import { RadioTileGroup, RadioTile } from './ui/radio-tile'
 
+type OptimizationMode = 'minimize_taxes' | 'maximize_after_tax' | 'balanced'
+
+interface SteueroptimierteEntnahmeDirectValues {
+  baseWithdrawalRate: number
+  targetTaxRate: number
+  optimizationMode: OptimizationMode
+  freibetragUtilizationTarget: number
+}
+
+interface ChangeHandlers {
+  [key: string]: (value: number | OptimizationMode) => void
+}
+interface SteueroptimierteEntnahmeFormValue {
+  steueroptimierteEntnahmeBaseWithdrawalRate: number
+  steueroptimierteEntnahmeTargetTaxRate: number
+  steueroptimierteEntnahmeOptimizationMode: OptimizationMode
+  steueroptimierteEntnahmeFreibetragUtilizationTarget: number
+  [key: string]: unknown
+}
+
 interface SliderProps {
   value: number
   onChange: (value: number) => void
@@ -47,8 +67,8 @@ function WithdrawalRateSlider({ value, onChange, min, max, step, label }: Slider
 }
 
 interface OptimizationStrategyRadioGroupProps {
-  value: 'minimize_taxes' | 'maximize_after_tax' | 'balanced'
-  onChange: (value: 'minimize_taxes' | 'maximize_after_tax' | 'balanced') => void
+  value: OptimizationMode
+  onChange: (value: OptimizationMode) => void
 }
 
 function OptimizationStrategyRadioGroup({ value, onChange }: OptimizationStrategyRadioGroupProps) {
@@ -57,7 +77,7 @@ function OptimizationStrategyRadioGroup({ value, onChange }: OptimizationStrateg
       <Label>Optimierungsstrategie</Label>
       <RadioTileGroup
         value={value}
-        onValueChange={val => onChange(val as 'minimize_taxes' | 'maximize_after_tax' | 'balanced')}
+        onValueChange={val => onChange(val as OptimizationMode)}
       >
         <RadioTile value="minimize_taxes" label="Steuerminimierung">
           Minimiere die Gesamtsteuerlast
@@ -145,11 +165,73 @@ function TargetTaxRateSlider({ value, onChange, min, max, step, label }: SliderP
 }
 
 interface SteueroptimierteEntnahmeConfigurationProps {
-  formValue?: any
-  updateFormValue?: any
-  values?: any
-  onChange?: any
+  formValue?: SteueroptimierteEntnahmeFormValue
+  updateFormValue?: (formValue: SteueroptimierteEntnahmeFormValue) => void
+  values?: SteueroptimierteEntnahmeDirectValues
+  onChange?: ChangeHandlers
 }
+
+const ConfigurationHeader = () => (
+  <div className="mb-4">
+    <Label className="text-base font-semibold text-green-800">🎯 Steueroptimierte Entnahme-Konfiguration</Label>
+    <p className="text-sm text-green-700 mt-1">
+      Optimiert automatisch die Entnahmebeträge zur Minimierung der Steuerlast unter Berücksichtigung deutscher
+      Steuerregeln.
+    </p>
+  </div>
+)
+
+interface ConfigurationControlsProps {
+  currentValues: SteueroptimierteEntnahmeDirectValues
+  handleChange: (field: string, newValue: number | OptimizationMode) => void
+}
+
+const ConfigurationControls = ({ currentValues, handleChange }: ConfigurationControlsProps) => (
+  <>
+    <WithdrawalRateSlider
+      value={currentValues.baseWithdrawalRate}
+      onChange={val => handleChange('steueroptimierteEntnahmeBaseWithdrawalRate', val)}
+      min={1}
+      max={8}
+      step={0.1}
+      label="Basis-Entnahmerate (%)"
+    />
+    <OptimizationStrategyRadioGroup
+      value={currentValues.optimizationMode}
+      onChange={val => handleChange('steueroptimierteEntnahmeOptimizationMode', val)}
+    />
+    <FreibetragSlider
+      value={currentValues.freibetragUtilizationTarget}
+      onChange={val => handleChange('steueroptimierteEntnahmeFreibetragUtilizationTarget', val)}
+      min={50}
+      max={100}
+      step={5}
+      label="Freibetrag-Nutzungsziel (%)"
+    />
+    <TargetTaxRateSlider
+      value={currentValues.targetTaxRate}
+      onChange={val => handleChange('steueroptimierteEntnahmeTargetTaxRate', val)}
+      min={20}
+      max={35}
+      step={0.5}
+      label="Ziel-Steuersatz (%)"
+    />
+  </>
+)
+
+const OptimizationInfoPanel = () => (
+  <div className="bg-green-100 border border-green-300 rounded-md p-3">
+    <div className="text-sm">
+      <div className="font-medium text-green-900 mb-1">💡 Steueroptimierung:</div>
+      <div className="text-green-800 text-xs space-y-1">
+        <div>• Berücksichtigt Vorabpauschale und Basiszins</div>
+        <div>• Nutzt Sparerpauschbetrag (Freibetrag) optimal</div>
+        <div>• Passt Entnahmebeträge dynamisch an</div>
+        <div>• Berücksichtigt Günstigerprüfung bei hohen Einkommen</div>
+      </div>
+    </div>
+  </div>
+)
 
 export function SteueroptimierteEntnahmeConfiguration({
   formValue,
@@ -158,18 +240,21 @@ export function SteueroptimierteEntnahmeConfiguration({
   onChange,
 }: SteueroptimierteEntnahmeConfigurationProps) {
   const isFormMode = formValue !== undefined && updateFormValue !== undefined
-  const currentValues = isFormMode
-    ? {
-        baseWithdrawalRate: formValue!.steueroptimierteEntnahmeBaseWithdrawalRate,
-        targetTaxRate: formValue!.steueroptimierteEntnahmeTargetTaxRate,
-        optimizationMode: formValue!.steueroptimierteEntnahmeOptimizationMode,
-        freibetragUtilizationTarget: formValue!.steueroptimierteEntnahmeFreibetragUtilizationTarget,
-      }
-    : values!
+  const currentValues = (
+    isFormMode
+      ? {
+          baseWithdrawalRate: formValue.steueroptimierteEntnahmeBaseWithdrawalRate,
+          targetTaxRate: formValue.steueroptimierteEntnahmeTargetTaxRate,
+          optimizationMode: formValue.steueroptimierteEntnahmeOptimizationMode,
+          freibetragUtilizationTarget: formValue.steueroptimierteEntnahmeFreibetragUtilizationTarget,
+        }
+      : values
+  )!
 
-  const handleChange = (field: string, newValue: any) => {
+  const handleChange = (field: string, newValue: number | OptimizationMode) => {
     if (isFormMode) {
-      updateFormValue!({ ...formValue!, [field]: newValue })
+      const currentFormValue = formValue as SteueroptimierteEntnahmeFormValue
+      updateFormValue!({ ...currentFormValue, [field]: newValue })
     }
     else {
       const handlerName = `on${field.charAt(0).toUpperCase()}${field.slice(1)}Change`.replace(
@@ -182,56 +267,9 @@ export function SteueroptimierteEntnahmeConfiguration({
 
   return (
     <div className="space-y-4 p-4 border rounded-lg bg-green-50 border-green-200">
-      <div className="mb-4">
-        <Label className="text-base font-semibold text-green-800">
-          🎯 Steueroptimierte Entnahme-Konfiguration
-        </Label>
-        <p className="text-sm text-green-700 mt-1">
-          Optimiert automatisch die Entnahmebeträge zur Minimierung der Steuerlast unter Berücksichtigung
-          deutscher Steuerregeln.
-        </p>
-      </div>
-
-      <WithdrawalRateSlider
-        value={currentValues.baseWithdrawalRate}
-        onChange={val => handleChange('steueroptimierteEntnahmeBaseWithdrawalRate', val)}
-        min={1}
-        max={8}
-        step={0.1}
-        label="Basis-Entnahmerate (%)"
-      />
-      <OptimizationStrategyRadioGroup
-        value={currentValues.optimizationMode}
-        onChange={val => handleChange('steueroptimierteEntnahmeOptimizationMode', val)}
-      />
-      <FreibetragSlider
-        value={currentValues.freibetragUtilizationTarget}
-        onChange={val => handleChange('steueroptimierteEntnahmeFreibetragUtilizationTarget', val)}
-        min={50}
-        max={100}
-        step={5}
-        label="Freibetrag-Nutzungsziel (%)"
-      />
-      <TargetTaxRateSlider
-        value={currentValues.targetTaxRate}
-        onChange={val => handleChange('steueroptimierteEntnahmeTargetTaxRate', val)}
-        min={20}
-        max={35}
-        step={0.5}
-        label="Ziel-Steuersatz (%)"
-      />
-
-      <div className="bg-green-100 border border-green-300 rounded-md p-3">
-        <div className="text-sm">
-          <div className="font-medium text-green-900 mb-1">💡 Steueroptimierung:</div>
-          <div className="text-green-800 text-xs space-y-1">
-            <div>• Berücksichtigt Vorabpauschale und Basiszins</div>
-            <div>• Nutzt Sparerpauschbetrag (Freibetrag) optimal</div>
-            <div>• Passt Entnahmebeträge dynamisch an</div>
-            <div>• Berücksichtigt Günstigerprüfung bei hohen Einkommen</div>
-          </div>
-        </div>
-      </div>
+      <ConfigurationHeader />
+      <ConfigurationControls currentValues={currentValues} handleChange={handleChange} />
+      <OptimizationInfoPanel />
     </div>
   )
 }
