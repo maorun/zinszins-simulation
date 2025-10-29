@@ -224,41 +224,17 @@ export function useWithdrawalCalculations(
       withdrawalResult,
       duration,
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- Using individual formValue properties
   }, [
     elemente,
     startOfIndependence,
     endOfLife,
-    formValue.strategie,
-    formValue.withdrawalFrequency,
-    formValue.rendite,
-    formValue.inflationAktiv,
-    formValue.inflationsrate,
-    formValue.monatlicheBetrag,
-    formValue.guardrailsAktiv,
-    formValue.guardrailsSchwelle,
-    formValue.variabelProzent,
-    formValue.dynamischBasisrate,
-    formValue.dynamischObereSchwell,
-    formValue.dynamischObereAnpassung,
-    formValue.dynamischUntereSchwell,
-    formValue.dynamischUntereAnpassung,
-    formValue.bucketConfig,
-    formValue.rmdStartAge,
+    formValue,
     effectiveStatutoryPensionConfig, // Use effective statutory pension config
     birthYear, // Use global birth year
     lifeExpectancyTable, // Use global setting
     customLifeExpectancy, // Use global setting
-    formValue.kapitalerhaltNominalReturn,
-    formValue.kapitalerhaltInflationRate,
-    formValue.steueroptimierteEntnahmeBaseWithdrawalRate,
-    formValue.steueroptimierteEntnahmeTargetTaxRate,
-    formValue.steueroptimierteEntnahmeOptimizationMode,
-    formValue.steueroptimierteEntnahmeFreibetragUtilizationTarget,
-    formValue.steueroptimierteEntnahmeRebalanceFrequency,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
-    formValue.einkommensteuersatz,
     withdrawalReturnMode,
     withdrawalVariableReturns,
     withdrawalAverageReturn,
@@ -273,7 +249,6 @@ export function useWithdrawalCalculations(
     planningMode,
     gender,
     otherIncomeConfig,
-    formValue.healthCareInsuranceConfig,
     guenstigerPruefungAktiv,
     personalTaxRate,
   ])
