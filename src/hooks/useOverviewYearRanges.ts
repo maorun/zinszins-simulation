@@ -31,17 +31,6 @@ export function useOverviewYearRanges(
   withdrawalConfig: WithdrawalConfiguration | null | undefined,
   endOfLife: number,
 ) {
-  const deps = [
-    simulationData,
-    startEnd,
-    withdrawalResults,
-    rendite,
-    steuerlast,
-    teilfreistellungsquote,
-    withdrawalConfig,
-    endOfLife,
-  ]
-
   const enhancedSummary = useMemo(() => {
     return getEnhancedOverviewSummary(
       simulationData,
@@ -53,8 +42,16 @@ export function useOverviewYearRanges(
       withdrawalConfig,
       endOfLife,
     )
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, deps)
+  }, [
+    simulationData,
+    startEnd,
+    withdrawalResults,
+    rendite,
+    steuerlast,
+    teilfreistellungsquote,
+    withdrawalConfig,
+    endOfLife,
+  ])
 
   const savingsStartYear = useMemo(
     () => calculateSavingsStartYear(simulationData),
