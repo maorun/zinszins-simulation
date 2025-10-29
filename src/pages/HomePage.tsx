@@ -167,7 +167,6 @@ const HomePageContent = () => {
           setSparplan(updatedSparplan)
           handleSpecialEventsDispatch(updatedSparplan)
         }}
-        simulationAnnual={simulationAnnual}
         currentSparplans={sparplan}
         savingsStartYear={savingsStartYear}
         savingsEndYear={savingsEndYear}
