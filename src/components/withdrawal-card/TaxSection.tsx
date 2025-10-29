@@ -54,10 +54,55 @@ function TaxDetailRow({
   )
 }
 
+function GuenstigerpruefungInfo({
+  guenstigerPruefungResultRealizedGains,
+}: {
+  guenstigerPruefungResultRealizedGains: NonNullable<TaxSectionProps['rowData']['guenstigerPruefungResultRealizedGains']>
+}) {
+  return (
+    <div className="bg-blue-50 px-2 py-1 rounded space-y-1">
+      <div className="flex justify-between items-center">
+        <span className="text-sm text-blue-600 font-medium">🔍 Günstigerprüfung (Veräußerung):</span>
+        <span className="font-semibold text-blue-700 text-sm">
+          {guenstigerPruefungResultRealizedGains.isFavorable === 'personal'
+            ? 'Persönlicher Steuersatz'
+            : 'Abgeltungssteuer'}
+          {' ('}
+          {(guenstigerPruefungResultRealizedGains.usedTaxRate * 100).toFixed(2)}
+          %)
+        </span>
+      </div>
+      <div className="text-xs text-blue-600 italic">{guenstigerPruefungResultRealizedGains.explanation}</div>
+    </div>
+  )
+}
+
+function VorabpauschaleInfo({
+  vorabpauschale,
+  onCalculationInfoClick,
+  rowData,
+}: {
+  vorabpauschale: number
+  onCalculationInfoClick: TaxSectionProps['onCalculationInfoClick']
+  rowData: TaxSectionProps['rowData']
+}) {
+  if (vorabpauschale <= 0) {
+    return null
+  }
+
+  return (
+    <TaxDetailRow
+      label="📊 Vorabpauschale:"
+      value={formatCurrency(vorabpauschale)}
+      className="text-blue-700"
+      onInfoClick={() => onCalculationInfoClick('vorabpauschale', rowData)}
+    />
+  )
+}
+
 /**
  * Section displaying tax-related information: interest, tax paid, Günstigerprüfung, Vorabpauschale, and tax allowance
  */
-// eslint-disable-next-line max-lines-per-function -- Large component function
 export function TaxSection({
   rowData,
   formValue,
@@ -88,31 +133,14 @@ export function TaxSection({
       />
 
       {rowData.guenstigerPruefungResultRealizedGains && (
-        <div className="bg-blue-50 px-2 py-1 rounded space-y-1">
-          <div className="flex justify-between items-center">
-            <span className="text-sm text-blue-600 font-medium">🔍 Günstigerprüfung (Veräußerung):</span>
-            <span className="font-semibold text-blue-700 text-sm">
-              {rowData.guenstigerPruefungResultRealizedGains.isFavorable === 'personal'
-                ? 'Persönlicher Steuersatz'
-                : 'Abgeltungssteuer'}
-              {' ('}
-              {(rowData.guenstigerPruefungResultRealizedGains.usedTaxRate * 100).toFixed(2)}
-              %)
-            </span>
-          </div>
-          <div className="text-xs text-blue-600 italic">
-            {rowData.guenstigerPruefungResultRealizedGains.explanation}
-          </div>
-        </div>
+        <GuenstigerpruefungInfo guenstigerPruefungResultRealizedGains={rowData.guenstigerPruefungResultRealizedGains} />
       )}
 
-      {rowData.vorabpauschale !== undefined
-        && rowData.vorabpauschale > 0 && (
-        <TaxDetailRow
-          label="📊 Vorabpauschale:"
-          value={formatCurrency(rowData.vorabpauschale)}
-          className="text-blue-700"
-          onInfoClick={() => onCalculationInfoClick('vorabpauschale', rowData)}
+      {rowData.vorabpauschale !== undefined && (
+        <VorabpauschaleInfo
+          vorabpauschale={rowData.vorabpauschale}
+          onCalculationInfoClick={onCalculationInfoClick}
+          rowData={rowData}
         />
       )}
 
