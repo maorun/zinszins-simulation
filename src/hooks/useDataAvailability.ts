@@ -1,4 +1,7 @@
 import { useSimulation } from '../contexts/useSimulation'
+import { SimulationData } from '../contexts/helpers/config-types'
+import { WithdrawalConfiguration } from '../utils/config-storage'
+import { WithdrawalResult } from '../../helpers/withdrawal'
 
 interface DataAvailability {
   hasSavingsData: boolean
@@ -9,50 +12,45 @@ interface DataAvailability {
   hasAnyData: boolean
 }
 
+const checkSavingsData = (simulationData?: SimulationData | null): boolean => {
+  return !!(simulationData?.sparplanElements && simulationData.sparplanElements.length > 0)
+}
+
+const checkWithdrawalData = (withdrawalResults?: WithdrawalResult | null): boolean => {
+  return !!(withdrawalResults && Object.keys(withdrawalResults).length > 0)
+}
+
+const checkWithdrawalConfig = (withdrawalConfig?: WithdrawalConfiguration | null): boolean => {
+  return !!(withdrawalConfig && withdrawalConfig.formValue)
+}
+
+const checkWithdrawalConfigFromStorage = (withdrawalConfig?: WithdrawalConfiguration | null): boolean => {
+  return !!(
+    withdrawalConfig
+    && (withdrawalConfig.formValue
+      || withdrawalConfig.useSegmentedWithdrawal
+      || withdrawalConfig.withdrawalSegments?.length > 0)
+  )
+}
+
 /**
  * Hook to check what data is available for export
  */
-// eslint-disable-next-line complexity -- Business logic requires checking multiple data availability conditions
 export function useDataAvailability(): DataAvailability {
   const { simulationData, withdrawalResults, withdrawalConfig } = useSimulation()
 
-  const hasSavingsData = !!(
-    simulationData?.sparplanElements
-    && simulationData.sparplanElements.length > 0
-  )
+  const hasSavingsData = checkSavingsData(simulationData)
+  const hasWithdrawalData = checkWithdrawalData(withdrawalResults)
+  const hasWithdrawalConfig = checkWithdrawalConfig(withdrawalConfig)
+  const hasWithdrawalConfigFromStorage = checkWithdrawalConfigFromStorage(withdrawalConfig)
 
-  const hasWithdrawalData = !!(
-    withdrawalResults
-    && Object.keys(withdrawalResults).length > 0
-  )
+  const hasWithdrawalCapability
+    = hasWithdrawalData
+      || hasWithdrawalConfig
+      || hasWithdrawalConfigFromStorage
+      || (hasSavingsData && !!withdrawalConfig)
 
-  const hasWithdrawalConfig = !!(
-    withdrawalConfig
-    && withdrawalConfig.formValue
-  )
-
-  const hasWithdrawalConfigFromStorage = !!(
-    withdrawalConfig
-    && (
-      withdrawalConfig.formValue
-      || withdrawalConfig.useSegmentedWithdrawal
-      || withdrawalConfig.withdrawalSegments?.length > 0
-    )
-  )
-
-  const hasWithdrawalCapability = (
-    hasWithdrawalData
-    || hasWithdrawalConfig
-    || hasWithdrawalConfigFromStorage
-    || (hasSavingsData && !!withdrawalConfig)
-  )
-
-  const hasAnyData = (
-    hasSavingsData
-    || hasWithdrawalData
-    || hasWithdrawalConfig
-    || hasWithdrawalConfigFromStorage
-  )
+  const hasAnyData = hasSavingsData || hasWithdrawalData || hasWithdrawalConfig || hasWithdrawalConfigFromStorage
 
   return {
     hasSavingsData,
