@@ -1,3 +1,4 @@
+import React from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
 import { Button } from './ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
@@ -53,6 +54,73 @@ function SimulationParameters({ config, formatPercent }: {
         </p>
       )}
     </div>
+  )
+}
+
+function MonteCarloNistHinweis() {
+  return (
+    <div
+      style={{
+        marginTop: '15px',
+        padding: '10px',
+        backgroundColor: '#f8f9fa',
+        border: '1px solid #dee2e6',
+        borderRadius: '4px',
+      }}
+    >
+      <h6>💡 Hinweis zu Monte Carlo Simulationen:</h6>
+      <p style={{ margin: 0, fontSize: '14px' }}>
+        Diese Szenarien basieren auf statistischen Modellen und historischen Annahmen.
+        Tatsächliche Marktrenditen können stark abweichen. Die Simulation dient nur zur
+        groben Orientierung und ersetzt keine professionelle Finanzberatung.
+      </p>
+    </div>
+  )
+}
+
+function MonteCarloResultsContent({
+  accumulationScenarios,
+  accumulationConfig,
+  withdrawalScenarios,
+  withdrawalConfig,
+  renderAnalysisTable,
+}: {
+  accumulationScenarios: MonteCarloResult[]
+  accumulationConfig: RandomReturnConfig
+  withdrawalScenarios: MonteCarloResult[] | null
+  withdrawalConfig: RandomReturnConfig | undefined
+  renderAnalysisTable: (
+    scenarios: MonteCarloResult[],
+    config: RandomReturnConfig,
+    title: string,
+  ) => React.ReactNode
+}) {
+  const nestingLevel = useNestingLevel()
+
+  return (
+    <CardContent nestingLevel={nestingLevel}>
+      {renderAnalysisTable(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
+
+      {withdrawalScenarios && withdrawalConfig && (
+        renderAnalysisTable(withdrawalScenarios, withdrawalConfig, 'Entnahmephase (Entsparphase)')
+      )}
+
+      <MonteCarloNistHinweis />
+
+      <style>
+        {`
+          .success-row {
+              background-color: #d4edda !important;
+          }
+          .danger-row {
+              background-color: #f8d7da !important;
+          }
+          .info-row {
+              background-color: #d1ecf1 !important;
+          }
+      `}
+      </style>
+    </CardContent>
   )
 }
 
@@ -129,7 +197,51 @@ function AnalysisTableSection({
   )
 }
 
-// eslint-disable-next-line max-lines-per-function -- Large component function
+const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`
+
+const createScenarios = (config: RandomReturnConfig): MonteCarloResult[] => [
+  {
+    scenario: 'Worst Case (5% Perzentil)',
+    description: `Bei sehr ungünstiger Marktentwicklung. Erwartete Rendite: ${formatPercent(
+      config.averageReturn - 1.645 * (config.standardDeviation || 0.15),
+    )}`,
+    probability: '5% Wahrscheinlichkeit, dass das Ergebnis schlechter ausfällt',
+  },
+  {
+    scenario: 'Pessimistisches Szenario (25% Perzentil)',
+    description: `Bei unterdurchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(
+      config.averageReturn - 0.674 * (config.standardDeviation || 0.15),
+    )}`,
+    probability: '25% Wahrscheinlichkeit, dass das Ergebnis schlechter ausfällt',
+  },
+  {
+    scenario: 'Median-Szenario (50% Perzentil)',
+    description: `Bei durchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn)}`,
+    probability: '50% Wahrscheinlichkeit für bessere/schlechtere Ergebnisse',
+  },
+  {
+    scenario: 'Optimistisches Szenario (75% Perzentil)',
+    description: `Bei überdurchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(
+      config.averageReturn + 0.674 * (config.standardDeviation || 0.15),
+    )}`,
+    probability: '25% Wahrscheinlichkeit für bessere Ergebnisse',
+  },
+  {
+    scenario: 'Best Case (95% Perzentil)',
+    description: `Bei sehr günstiger Marktentwicklung. Erwartete Rendite: ${formatPercent(
+      config.averageReturn + 1.645 * (config.standardDeviation || 0.15),
+    )}`,
+    probability: '5% Wahrscheinlichkeit für bessere Ergebnisse',
+  },
+]
+
+const getRowClassName = (scenario: string) => {
+  if (scenario.includes('Best Case')) return 'success-row'
+  if (scenario.includes('Worst Case')) return 'danger-row'
+  if (scenario.includes('Median')) return 'info-row'
+  return ''
+}
+
 export function MonteCarloResults({
   years: _years,
   accumulationConfig,
@@ -137,46 +249,9 @@ export function MonteCarloResults({
   runs: _runs = 500,
 }: MonteCarloResultsProps) {
   const nestingLevel = useNestingLevel()
-  const formatPercent = (value: number) => (value * 100).toFixed(1) + '%'
-
-  // Create statistical scenarios based on normal distribution
-  const createScenarios = (config: RandomReturnConfig): MonteCarloResult[] => [
-    {
-      scenario: 'Worst Case (5% Perzentil)',
-      description: `Bei sehr ungünstiger Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn - 1.645 * (config.standardDeviation || 0.15))}`,
-      probability: '5% Wahrscheinlichkeit, dass das Ergebnis schlechter ausfällt',
-    },
-    {
-      scenario: 'Pessimistisches Szenario (25% Perzentil)',
-      description: `Bei unterdurchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn - 0.674 * (config.standardDeviation || 0.15))}`,
-      probability: '25% Wahrscheinlichkeit, dass das Ergebnis schlechter ausfällt',
-    },
-    {
-      scenario: 'Median-Szenario (50% Perzentil)',
-      description: `Bei durchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn)}`,
-      probability: '50% Wahrscheinlichkeit für bessere/schlechtere Ergebnisse',
-    },
-    {
-      scenario: 'Optimistisches Szenario (75% Perzentil)',
-      description: `Bei überdurchschnittlicher Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn + 0.674 * (config.standardDeviation || 0.15))}`,
-      probability: '25% Wahrscheinlichkeit für bessere Ergebnisse',
-    },
-    {
-      scenario: 'Best Case (95% Perzentil)',
-      description: `Bei sehr günstiger Marktentwicklung. Erwartete Rendite: ${formatPercent(config.averageReturn + 1.645 * (config.standardDeviation || 0.15))}`,
-      probability: '5% Wahrscheinlichkeit für bessere Ergebnisse',
-    },
-  ]
 
   const accumulationScenarios = createScenarios(accumulationConfig)
   const withdrawalScenarios = withdrawalConfig ? createScenarios(withdrawalConfig) : null
-
-  const getRowClassName = (scenario: string) => {
-    if (scenario.includes('Best Case')) return 'success-row'
-    if (scenario.includes('Worst Case')) return 'danger-row'
-    if (scenario.includes('Median')) return 'info-row'
-    return ''
-  }
 
   const renderAnalysisTable = (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => (
     <AnalysisTableSection
@@ -206,36 +281,13 @@ export function MonteCarloResults({
           </Button>
         </CollapsibleTrigger>
         <CollapsibleContent>
-          <CardContent nestingLevel={nestingLevel}>
-            {renderAnalysisTable(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
-
-            {withdrawalScenarios && withdrawalConfig && (
-              renderAnalysisTable(withdrawalScenarios, withdrawalConfig, 'Entnahmephase (Entsparphase)')
-            )}
-
-            <div style={{ marginTop: '15px', padding: '10px', backgroundColor: '#f8f9fa', border: '1px solid #dee2e6', borderRadius: '4px' }}>
-              <h6>💡 Hinweis zu Monte Carlo Simulationen:</h6>
-              <p style={{ margin: 0, fontSize: '14px' }}>
-                Diese Szenarien basieren auf statistischen Modellen und historischen Annahmen.
-                Tatsächliche Marktrenditen können stark abweichen. Die Simulation dient nur zur
-                groben Orientierung und ersetzt keine professionelle Finanzberatung.
-              </p>
-            </div>
-
-            <style>
-              {`
-                .success-row {
-                    background-color: #d4edda !important;
-                }
-                .danger-row {
-                    background-color: #f8d7da !important;
-                }
-                .info-row {
-                    background-color: #d1ecf1 !important;
-                }
-            `}
-            </style>
-          </CardContent>
+          <MonteCarloResultsContent
+            accumulationScenarios={accumulationScenarios}
+            accumulationConfig={accumulationConfig}
+            withdrawalScenarios={withdrawalScenarios}
+            withdrawalConfig={withdrawalConfig}
+            renderAnalysisTable={renderAnalysisTable}
+          />
         </CollapsibleContent>
       </Card>
     </Collapsible>
