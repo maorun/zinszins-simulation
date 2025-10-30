@@ -20,31 +20,10 @@ const mockUseDataExport = {
   exportType: null as 'csv' | 'markdown' | 'clipboard' | null,
 }
 
-const mockUseSimulation = {
-  simulationData: {
-    sparplanElements: [
-      {
-        start: new Date('2023-01-01'),
-        startkapital: 0,
-        zinsen: 100,
-        endkapital: 2100,
-        amount: 2000,
-      },
-    ],
-  } as any,
-  withdrawalResults: {
-    2041: {
-      startkapital: 500000,
-      entnahme: 20000,
-      zinsen: 24000,
-      endkapital: 504000,
-      bezahlteSteuer: 1000,
-      genutzterFreibetrag: 800,
-    },
-  } as any,
-  withdrawalConfig: {
-    formValue: { strategy: '4_percent' },
-  } as any,
+const mockUseDataAvailability = {
+  hasSavingsData: true,
+  hasWithdrawalCapability: true,
+  hasAnyData: true,
 }
 
 vi.mock('../hooks/useParameterExport', () => ({
@@ -55,8 +34,8 @@ vi.mock('../hooks/useDataExport', () => ({
   useDataExport: () => mockUseDataExport,
 }))
 
-vi.mock('../contexts/useSimulation', () => ({
-  useSimulation: () => mockUseSimulation,
+vi.mock('../hooks/useDataAvailability', () => ({
+  useDataAvailability: () => mockUseDataAvailability,
 }))
 
 describe('DataExport', () => {
@@ -67,32 +46,9 @@ describe('DataExport', () => {
     mockUseDataExport.isExporting = false
     mockUseDataExport.lastExportResult = null
     mockUseDataExport.exportType = null
-
-    // Reset simulation data to default values
-    mockUseSimulation.simulationData = {
-      sparplanElements: [
-        {
-          start: new Date('2023-01-01'),
-          startkapital: 0,
-          zinsen: 100,
-          endkapital: 2100,
-          amount: 2000,
-        },
-      ],
-    } as any
-    mockUseSimulation.withdrawalResults = {
-      2041: {
-        startkapital: 500000,
-        entnahme: 20000,
-        zinsen: 24000,
-        endkapital: 504000,
-        bezahlteSteuer: 1000,
-        genutzterFreibetrag: 800,
-      },
-    } as any
-    mockUseSimulation.withdrawalConfig = {
-      formValue: { strategy: '4_percent' },
-    } as any
+    mockUseDataAvailability.hasSavingsData = true
+    mockUseDataAvailability.hasWithdrawalCapability = true
+    mockUseDataAvailability.hasAnyData = true
   })
 
   it('should render the export panel collapsed by default', () => {
@@ -157,9 +113,7 @@ describe('DataExport', () => {
   })
 
   it('should show warning when no simulation data is available', async () => {
-    mockUseSimulation.simulationData = null as any
-    mockUseSimulation.withdrawalResults = null as any
-    mockUseSimulation.withdrawalConfig = null as any
+    mockUseDataAvailability.hasAnyData = false
 
     render(<DataExport />)
 
