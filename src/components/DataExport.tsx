@@ -368,8 +368,7 @@ function getExportButtonState(
   }
 }
 
-// eslint-disable-next-line max-lines-per-function -- Large component render function
-const DataExport = () => {
+function useDataExportHooks() {
   const {
     exportParameters,
     isExporting: isParameterExporting,
@@ -386,12 +385,7 @@ const DataExport = () => {
     exportType,
   } = useDataExport()
 
-  const {
-    hasSavingsData,
-    hasWithdrawalCapability,
-    hasAnyData,
-  } = useDataAvailability()
-
+  const dataAvailability = useDataAvailability()
   const nestingLevel = useNestingLevel()
   const navigationRef = useNavigationItem({
     id: 'data-export',
@@ -400,10 +394,97 @@ const DataExport = () => {
     level: 0,
   })
 
+  return {
+    exportParameters,
+    isParameterExporting,
+    parameterExportResult,
+    exportSavingsDataCSV,
+    exportWithdrawalDataCSV,
+    exportAllDataCSV,
+    exportDataMarkdown,
+    copyCalculationExplanations,
+    isDataExporting,
+    dataExportResult,
+    exportType,
+    ...dataAvailability,
+    nestingLevel,
+    navigationRef,
+  }
+}
+
+interface DataExportContentProps {
+  isParameterExporting: boolean
+  parameterExportResult: 'success' | 'error' | null
+  exportParameters: () => Promise<boolean>
+  hasAnyData: boolean
+  hasSavingsData: boolean
+  hasWithdrawalCapability: boolean
+  isDataExporting: boolean
+  dataExportResult: string | null
+  exportType: string | null
+  exportSavingsDataCSV: () => void
+  exportWithdrawalDataCSV: () => void
+  exportAllDataCSV: () => void
+  exportDataMarkdown: () => void
+  copyCalculationExplanations: () => void
+  nestingLevel: number
+}
+
+function DataExportContent({
+  isParameterExporting,
+  parameterExportResult,
+  exportParameters,
+  hasAnyData,
+  hasSavingsData,
+  hasWithdrawalCapability,
+  isDataExporting,
+  dataExportResult,
+  exportType,
+  exportSavingsDataCSV,
+  exportWithdrawalDataCSV,
+  exportAllDataCSV,
+  exportDataMarkdown,
+  copyCalculationExplanations,
+  nestingLevel,
+}: DataExportContentProps) {
   return (
-    <Card nestingLevel={nestingLevel} className="mb-4" ref={navigationRef}>
+    <CollapsibleContent>
+      <CardContent nestingLevel={nestingLevel}>
+        <div className="space-y-6">
+          <ParameterExportSection
+            isExporting={isParameterExporting}
+            lastExportResult={parameterExportResult}
+            onExport={exportParameters}
+          />
+
+          <DataExportSection
+            hasAnyData={hasAnyData}
+            hasSavingsData={hasSavingsData}
+            hasWithdrawalCapability={hasWithdrawalCapability}
+            isExporting={isDataExporting}
+            exportResult={dataExportResult}
+            exportType={exportType}
+            onExportSavings={exportSavingsDataCSV}
+            onExportWithdrawal={exportWithdrawalDataCSV}
+            onExportAll={exportAllDataCSV}
+            onExportMarkdown={exportDataMarkdown}
+            onCopyCalculations={copyCalculationExplanations}
+          />
+
+          <FormatInformationSection />
+        </div>
+      </CardContent>
+    </CollapsibleContent>
+  )
+}
+
+const DataExport = () => {
+  const hooks = useDataExportHooks()
+
+  return (
+    <Card nestingLevel={hooks.nestingLevel} className="mb-4" ref={hooks.navigationRef}>
       <Collapsible defaultOpen={false}>
-        <CardHeader nestingLevel={nestingLevel}>
+        <CardHeader nestingLevel={hooks.nestingLevel}>
           <CollapsibleTrigger asChild>
             <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
               <CardTitle className="text-left">📤 Export</CardTitle>
@@ -413,33 +494,7 @@ const DataExport = () => {
             </div>
           </CollapsibleTrigger>
         </CardHeader>
-        <CollapsibleContent>
-          <CardContent nestingLevel={nestingLevel}>
-            <div className="space-y-6">
-              <ParameterExportSection
-                isExporting={isParameterExporting}
-                lastExportResult={parameterExportResult}
-                onExport={exportParameters}
-              />
-
-              <DataExportSection
-                hasAnyData={hasAnyData}
-                hasSavingsData={hasSavingsData}
-                hasWithdrawalCapability={hasWithdrawalCapability}
-                isExporting={isDataExporting}
-                exportResult={dataExportResult}
-                exportType={exportType}
-                onExportSavings={exportSavingsDataCSV}
-                onExportWithdrawal={exportWithdrawalDataCSV}
-                onExportAll={exportAllDataCSV}
-                onExportMarkdown={exportDataMarkdown}
-                onCopyCalculations={copyCalculationExplanations}
-              />
-
-              <FormatInformationSection />
-            </div>
-          </CardContent>
-        </CollapsibleContent>
+        <DataExportContent {...hooks} />
       </Collapsible>
     </Card>
   )
