@@ -90,6 +90,7 @@ function buildRunSimulationParams(
   }
 }
 
+// eslint-disable-next-line max-lines-per-function -- Large component function
 export function useSimulationExecution(
   state: SimulationExecutionState,
   setIsLoading: (loading: boolean) => void,
@@ -113,7 +114,36 @@ export function useSimulationExecution(
         setIsLoading(false)
       }
     },
-    [state, yearToday, setIsLoading, setSimulationData],
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- Using individual state properties
+    [
+      state.rendite,
+      state.returnMode,
+      state.averageReturn,
+      state.standardDeviation,
+      state.randomSeed,
+      state.variableReturns,
+      state.historicalIndex,
+      state.blackSwanReturns,
+      state.inflationScenarioRates,
+      state.inflationScenarioReturnModifiers,
+      state.multiAssetConfig,
+      state.simulationAnnual,
+      state.sparplanElemente,
+      state.startEnd,
+      yearToday,
+      state.steuerlast,
+      state.teilfreistellungsquote,
+      state.freibetragPerYear,
+      state.basiszinsConfiguration,
+      state.steuerReduzierenEndkapitalSparphase,
+      state.inflationAktivSparphase,
+      state.inflationsrateSparphase,
+      state.inflationAnwendungSparphase,
+      state.guenstigerPruefungAktiv,
+      state.personalTaxRate,
+      setIsLoading,
+      setSimulationData,
+    ],
   )
 
   return { performSimulation }
