@@ -4,11 +4,13 @@
 
 import type { ReturnConfiguration } from '../../helpers/random-returns'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
-import type { ComparisonStrategy, WithdrawalConfiguration } from '../utils/config-storage'
+import type { ComparisonStrategy, SegmentedComparisonStrategy, WithdrawalConfiguration } from '../utils/config-storage'
 import {
+  calculateSegmentedWithdrawal,
   calculateWithdrawal,
   calculateWithdrawalDuration,
   type WithdrawalResult,
+  type WithdrawalResultElement,
 } from '../../helpers/withdrawal'
 import { createPlanningModeAwareFreibetragPerYear } from '../utils/freibetrag-calculation'
 import type {
@@ -18,7 +20,7 @@ import type {
   ConvertCoupleToLegacyConfigParams,
 } from './useWithdrawalCalculations.types'
 import type { SparplanElement } from '../utils/sparplan-utils'
-import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
+import type { SegmentedWithdrawalConfig, WithdrawalSegment } from '../utils/segmented-withdrawal'
 import type { HealthCareInsuranceConfig } from '../../helpers/health-care-insurance'
 import type { OtherIncomeConfiguration } from '../../helpers/other-income'
 import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
@@ -189,6 +191,64 @@ function buildDynamicConfig(strategy: CalculateComparisonStrategyParams['strateg
         lowerThresholdAdjustment: (strategy.dynamischUntereAnpassung || -5) / 100,
       }
     : undefined
+}
+
+/**
+ * Calculate segmented withdrawal for a single comparison strategy
+ */
+export function calculateSegmentedStrategyResult(
+  strategy: SegmentedComparisonStrategy,
+  elemente: SparplanElement[],
+  steuerlast: number,
+  startOfIndependence: number,
+  endOfLife: number,
+  planningMode: 'individual' | 'couple',
+  effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined,
+) {
+  // Create segmented configuration for this comparison strategy
+  const segmentedConfig: SegmentedWithdrawalConfig = {
+    segments: strategy.segments,
+    taxRate: steuerlast,
+    freibetragPerYear: createPlanningModeAwareFreibetragPerYear(
+      startOfIndependence + 1,
+      endOfLife,
+      planningMode || 'individual',
+    ),
+    statutoryPensionConfig: (effectiveStatutoryPensionConfig as StatutoryPensionConfig) || undefined,
+  }
+
+  // Calculate segmented withdrawal for this comparison strategy
+  const result = calculateSegmentedWithdrawal(
+    elemente,
+    segmentedConfig,
+  )
+
+  // Get final year capital and total withdrawal
+  const finalYear = Math.max(...Object.keys(result).map(Number))
+  const finalCapital = result[finalYear]?.endkapital || 0
+
+  // Calculate total withdrawal
+  const totalWithdrawal = Object.values(result).reduce(
+    (sum: number, year: WithdrawalResultElement) => sum + year.entnahme,
+    0,
+  )
+  const totalYears = Object.keys(result).length
+  const averageAnnualWithdrawal = totalWithdrawal / totalYears
+
+  // Calculate withdrawal duration
+  const duration = calculateWithdrawalDuration(
+    result,
+    startOfIndependence + 1,
+  )
+
+  return {
+    strategy,
+    finalCapital,
+    totalWithdrawal,
+    averageAnnualWithdrawal,
+    duration: duration ? duration : 'unbegrenzt',
+    result, // Include full result for detailed analysis
+  }
 }
 
 /**

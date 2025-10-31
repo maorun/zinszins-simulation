@@ -81,9 +81,5 @@ export function useWithdrawalCalculations(
     withdrawalData,
   )
 
-  return {
-    withdrawalData,
-    comparisonResults,
-    segmentedComparisonResults,
-  }
+  return { withdrawalData, comparisonResults, segmentedComparisonResults }
 }

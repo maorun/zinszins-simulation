@@ -14,6 +14,7 @@ import {
 } from './useWithdrawalCalculations.helpers'
 import { getEffectiveLifeExpectancyTable } from './useWithdrawalCalculations'
 
+// eslint-disable-next-line max-lines-per-function -- Hook is complex, further splitting harms readability.
 export function useWithdrawalData(
   elemente: SparplanElement[],
   startOfIndependence: number,
@@ -49,6 +50,7 @@ export function useWithdrawalData(
     otherIncomeConfig,
   } = currentConfig
 
+  // eslint-disable-next-line max-lines-per-function -- Calculation logic is complex and self-contained.
   const withdrawalData = useMemo(() => {
     if (!elemente || elemente.length === 0) {
       return null
