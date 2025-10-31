@@ -9,14 +9,20 @@ import type { WithdrawalConfiguration } from '../../utils/config-storage'
 import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-portfolio'
 
 /**
+ * Extended SparplanElement with additional fields for simulation results
+ */
+export type ExtendedSparplanElement = SparplanElement & {
+  gesamtkapitalNachSteuern: number
+}
+
+/**
  * Simulation result data structure
  * Using flexible typing to maintain backward compatibility with existing code
  * that expects various additional fields on simulation elements
  */
 export interface SimulationData {
   sparplanElements: SparplanElement[]
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  data?: any[] // Legacy compatibility - some components expect this alias with additional fields
+  data?: ExtendedSparplanElement[] // Legacy compatibility - some components expect this alias with additional fields
 }
 
 /**
