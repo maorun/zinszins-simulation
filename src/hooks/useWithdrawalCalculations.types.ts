@@ -88,3 +88,13 @@ export interface SegmentedComparisonResult {
   duration: number | 'unbegrenzt' | 'Fehler'
   result: Record<number, unknown>
 }
+
+/**
+ * Type definition for the return value of useWithdrawalData hook
+ */
+export type WithdrawalData = {
+  startingCapital: number
+  withdrawalArray: Array<import('../../helpers/withdrawal').WithdrawalResultElement & { year: number }>
+  withdrawalResult: import('../../helpers/withdrawal').WithdrawalResult | null
+  duration: number | null | string
+} | null
