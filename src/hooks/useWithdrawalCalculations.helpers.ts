@@ -507,12 +507,57 @@ export function buildSegmentedWithdrawalResult(params: {
 }
 
 /**
+ * Build tax-related parameters for withdrawal calculation
+ */
+function buildWithdrawalTaxParams(params: {
+  grundfreibetragAktiv: boolean
+  grundfreibetragBetrag: number
+  startOfIndependence: number
+  endOfLife: number
+  formValue: WithdrawalConfiguration['formValue']
+  guenstigerPruefungAktiv: boolean
+  personalTaxRate: number
+}) {
+  const { grundfreibetragAktiv, grundfreibetragBetrag, startOfIndependence, endOfLife } = params
+  const { formValue, guenstigerPruefungAktiv, personalTaxRate } = params
+
+  return {
+    enableGrundfreibetrag: grundfreibetragAktiv,
+    grundfreibetragPerYear: grundfreibetragAktiv
+      ? buildGrundfreibetragPerYear(startOfIndependence, endOfLife, grundfreibetragBetrag)
+      : undefined,
+    incomeTaxRate: grundfreibetragAktiv
+      ? formValue.einkommensteuersatz / 100
+      : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined),
+    guenstigerPruefungAktiv,
+  }
+}
+
+/**
+ * Build all strategy-specific configurations from form value
+ */
+function buildAllStrategyConfigs(
+  formValue: WithdrawalConfiguration['formValue'],
+  getEffectiveLifeExpectancyTable: () => 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
+  customLifeExpectancy: number | undefined,
+) {
+  return {
+    monthlyConfig: buildMonthlyConfigFromFormValue(formValue),
+    customPercentage: buildCustomPercentageFromFormValue(formValue),
+    dynamicConfig: buildDynamicConfigFromFormValue(formValue),
+    bucketConfig: buildBucketConfigFromFormValue(formValue),
+    rmdConfig: buildRMDConfigFromFormValue(formValue, getEffectiveLifeExpectancyTable, customLifeExpectancy),
+    kapitalerhaltConfig: buildKapitalerhaltConfigFromFormValue(formValue),
+    steueroptimierteEntnahmeConfig: buildSteueroptimierteEntnahmeConfigFromFormValue(formValue),
+  }
+}
+
+/**
  * Build single strategy withdrawal result
  */
 /**
  * Build withdrawal calculation parameters from form value and context
  */
-// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 function buildWithdrawalCalculationParams(params: {
   elemente: SparplanElement[]
   startOfIndependence: number
@@ -532,6 +577,13 @@ function buildWithdrawalCalculationParams(params: {
   getEffectiveLifeExpectancyTable: () => 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
   customLifeExpectancy: number | undefined
 }) {
+  const taxParams = buildWithdrawalTaxParams(params)
+  const strategyConfigs = buildAllStrategyConfigs(
+    params.formValue,
+    params.getEffectiveLifeExpectancyTable,
+    params.customLifeExpectancy,
+  )
+
   return {
     elements: params.elemente,
     startYear: params.startOfIndependence + 1,
@@ -542,24 +594,8 @@ function buildWithdrawalCalculationParams(params: {
     taxRate: params.steuerlast,
     teilfreistellungsquote: params.teilfreistellungsquote,
     freibetragPerYear: undefined,
-    monthlyConfig: buildMonthlyConfigFromFormValue(params.formValue),
-    customPercentage: buildCustomPercentageFromFormValue(params.formValue),
-    dynamicConfig: buildDynamicConfigFromFormValue(params.formValue),
-    bucketConfig: buildBucketConfigFromFormValue(params.formValue),
-    rmdConfig: buildRMDConfigFromFormValue(
-      params.formValue,
-      params.getEffectiveLifeExpectancyTable,
-      params.customLifeExpectancy,
-    ),
-    kapitalerhaltConfig: buildKapitalerhaltConfigFromFormValue(params.formValue),
-    steueroptimierteEntnahmeConfig: buildSteueroptimierteEntnahmeConfigFromFormValue(params.formValue),
-    enableGrundfreibetrag: params.grundfreibetragAktiv,
-    grundfreibetragPerYear: params.grundfreibetragAktiv
-      ? buildGrundfreibetragPerYear(params.startOfIndependence, params.endOfLife, params.grundfreibetragBetrag)
-      : undefined,
-    incomeTaxRate: params.grundfreibetragAktiv
-      ? params.formValue.einkommensteuersatz / 100
-      : (params.guenstigerPruefungAktiv ? params.personalTaxRate / 100 : undefined),
+    ...strategyConfigs,
+    ...taxParams,
     inflationConfig: params.formValue.inflationAktiv
       ? { inflationRate: params.formValue.inflationsrate / 100 }
       : undefined,
@@ -568,7 +604,6 @@ function buildWithdrawalCalculationParams(params: {
     otherIncomeConfig: params.otherIncomeConfig,
     healthCareInsuranceConfig: buildHealthCareInsuranceConfig(params.formValue),
     birthYear: params.birthYear,
-    guenstigerPruefungAktiv: params.guenstigerPruefungAktiv,
   }
 }
 
