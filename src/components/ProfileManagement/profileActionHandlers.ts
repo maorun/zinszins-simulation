@@ -19,6 +19,7 @@ interface ProfileActionHandlersParams {
 }
 
 /** Profile action handlers */
+// eslint-disable-next-line max-lines-per-function -- Handler collection function
 export function createProfileActionHandlers(params: ProfileActionHandlersParams) {
   const {
     loadSavedConfiguration,

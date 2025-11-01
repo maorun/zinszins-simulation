@@ -7,6 +7,7 @@ interface ProfileFormData {
 }
 
 interface UseProfileSetupParams {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Configuration object type from SimulationContext
   getCurrentConfiguration: () => any
   loadSavedConfiguration: () => void
   resetToDefaults: () => void

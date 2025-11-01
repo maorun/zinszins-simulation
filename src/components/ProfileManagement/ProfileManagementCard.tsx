@@ -28,6 +28,7 @@ interface ProfileCardProps {
   onCreateProfile: () => void
   onClearAllProfiles: () => void
   ProfileList: FC<ProfileListProps>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Component type from parent
   ProfileContentArea: FC<any>
 }
 

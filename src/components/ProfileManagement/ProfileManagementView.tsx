@@ -49,6 +49,7 @@ interface ProfileManagementViewProps {
     confirmClearAllProfiles: () => void
   }
   ProfileList: FC<ProfileListProps>
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Component type from parent
   ProfileContentArea: FC<any>
 }
 

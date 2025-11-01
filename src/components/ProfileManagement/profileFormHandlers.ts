@@ -12,6 +12,7 @@ interface ProfileFormData {
 }
 
 interface ProfileFormHandlersParams {
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Configuration object type from SimulationContext
   getCurrentConfiguration: () => any
   formData: ProfileFormData
   editingProfile: UserProfile | null
@@ -23,6 +24,7 @@ interface ProfileFormHandlersParams {
 }
 
 /** Profile form handlers */
+// eslint-disable-next-line max-lines-per-function -- Handler collection function
 export function createProfileFormHandlers(params: ProfileFormHandlersParams) {
   const {
     getCurrentConfiguration,
