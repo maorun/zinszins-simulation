@@ -295,7 +295,107 @@ function RetirementStartDisplay({
   )
 }
 
-// eslint-disable-next-line max-lines-per-function -- Complex configuration component
+function MonthlyPensionField({
+  values,
+  onChange,
+}: {
+  values: PensionFormValues
+  onChange: PensionFormHandlers
+}) {
+  const monthlyAmountId = useFormId('statutory-pension', 'monthly-amount', 'input-form')
+  return (
+    <div className="space-y-2">
+      <Label htmlFor={monthlyAmountId}>Monatliche Rente (brutto) €</Label>
+      <Input
+        id={monthlyAmountId}
+        type="number"
+        value={values.monthlyAmount}
+        onChange={e => onChange.onMonthlyAmountChange(Number(e.target.value))}
+        min={0}
+        step={50}
+        className="w-40"
+      />
+      <div className="text-sm text-muted-foreground">
+        Jährliche Rente:
+        {' '}
+        {(values.monthlyAmount * 12).toLocaleString('de-DE')}
+        {' '}
+        €
+      </div>
+    </div>
+  )
+}
+
+function AnnualIncreaseRateField({
+  values,
+  onChange,
+}: {
+  values: PensionFormValues
+  onChange: PensionFormHandlers
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>Jährliche Rentenanpassung (%)</Label>
+      <div className="space-y-2">
+        <Slider
+          value={[values.annualIncreaseRate]}
+          onValueChange={vals => onChange.onAnnualIncreaseRateChange(vals[0])}
+          min={0}
+          max={5}
+          step={0.1}
+          className="mt-2"
+        />
+        <div className="flex justify-between text-sm text-gray-500">
+          <span>0%</span>
+          <span className="font-medium text-gray-900">
+            {values.annualIncreaseRate.toFixed(1)}
+            %
+          </span>
+          <span>5%</span>
+        </div>
+      </div>
+      <div className="text-sm text-muted-foreground">
+        Historisch schwanken Rentenerhöhungen zwischen 0-4% pro Jahr.
+      </div>
+    </div>
+  )
+}
+
+function TaxablePercentageField({
+  values,
+  onChange,
+}: {
+  values: PensionFormValues
+  onChange: PensionFormHandlers
+}) {
+  return (
+    <div className="space-y-2">
+      <Label>Steuerpflichtiger Anteil (%)</Label>
+      <div className="space-y-2">
+        <Slider
+          value={[values.taxablePercentage]}
+          onValueChange={vals => onChange.onTaxablePercentageChange(vals[0])}
+          min={50}
+          max={100}
+          step={1}
+          className="mt-2"
+        />
+        <div className="flex justify-between text-sm text-gray-500">
+          <span>50%</span>
+          <span className="font-medium text-gray-900">
+            {values.taxablePercentage.toFixed(0)}
+            %
+          </span>
+          <span>100%</span>
+        </div>
+      </div>
+      <div className="text-sm text-muted-foreground">
+        Der steuerpflichtige Anteil hängt vom Rentenbeginn ab. Aktuelle Werte: ~80%.
+      </div>
+    </div>
+  )
+}
+
 export function PensionInputForm({
   values,
   onChange,
@@ -306,8 +406,6 @@ export function PensionInputForm({
   planningMode,
   onImportFromTaxReturn,
 }: PensionInputFormProps) {
-  const monthlyAmountId = useFormId('statutory-pension', 'monthly-amount', 'input-form')
-
   return (
     <>
       {/* Tax Return Data Import */}
@@ -322,7 +420,6 @@ export function PensionInputForm({
       {/* Basic Pension Configuration */}
       <div className="space-y-4">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          {/* Automatic Retirement Start Year Display */}
           <RetirementStartDisplay
             planningMode={planningMode}
             birthYear={birthYear}
@@ -330,80 +427,11 @@ export function PensionInputForm({
             values={values}
             onChange={onChange}
           />
-
-          {/* Monthly Amount Configuration */}
-          <div className="space-y-2">
-            <Label htmlFor={monthlyAmountId}>Monatliche Rente (brutto) €</Label>
-            <Input
-              id={monthlyAmountId}
-              type="number"
-              value={values.monthlyAmount}
-              onChange={e => onChange.onMonthlyAmountChange(Number(e.target.value))}
-              min={0}
-              step={50}
-              className="w-40"
-            />
-            <div className="text-sm text-muted-foreground">
-              Jährliche Rente:
-              {' '}
-              {(values.monthlyAmount * 12).toLocaleString('de-DE')}
-              {' '}
-              €
-            </div>
-          </div>
+          <MonthlyPensionField values={values} onChange={onChange} />
         </div>
 
-        {/* Annual Increase Rate */}
-        <div className="space-y-2">
-          <Label>Jährliche Rentenanpassung (%)</Label>
-          <div className="space-y-2">
-            <Slider
-              value={[values.annualIncreaseRate]}
-              onValueChange={vals => onChange.onAnnualIncreaseRateChange(vals[0])}
-              min={0}
-              max={5}
-              step={0.1}
-              className="mt-2"
-            />
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>0%</span>
-              <span className="font-medium text-gray-900">
-                {values.annualIncreaseRate.toFixed(1)}
-                %
-              </span>
-              <span>5%</span>
-            </div>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Historisch schwanken Rentenerhöhungen zwischen 0-4% pro Jahr.
-          </div>
-        </div>
-
-        {/* Taxable Percentage */}
-        <div className="space-y-2">
-          <Label>Steuerpflichtiger Anteil (%)</Label>
-          <div className="space-y-2">
-            <Slider
-              value={[values.taxablePercentage]}
-              onValueChange={vals => onChange.onTaxablePercentageChange(vals[0])}
-              min={50}
-              max={100}
-              step={1}
-              className="mt-2"
-            />
-            <div className="flex justify-between text-sm text-gray-500">
-              <span>50%</span>
-              <span className="font-medium text-gray-900">
-                {values.taxablePercentage.toFixed(0)}
-                %
-              </span>
-              <span>100%</span>
-            </div>
-          </div>
-          <div className="text-sm text-muted-foreground">
-            Der steuerpflichtige Anteil hängt vom Rentenbeginn ab. Aktuelle Werte: ~80%.
-          </div>
-        </div>
+        <AnnualIncreaseRateField values={values} onChange={onChange} />
+        <TaxablePercentageField values={values} onChange={onChange} />
       </div>
     </>
   )
