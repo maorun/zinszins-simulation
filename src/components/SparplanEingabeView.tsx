@@ -76,25 +76,31 @@ export function SparplanEingabeView({
   return (
     <div className="space-y-4">
       <SparplanForms
-        isSparplanFormOpen={isSparplanFormOpen}
-        setIsSparplanFormOpen={setIsSparplanFormOpen}
-        sparplanFormValues={sparplanFormValues}
-        setSparplanFormValues={setSparplanFormValues}
-        handleSparplanSubmit={handleSparplanSubmit}
-        isSparplanEditMode={isEditMode && isEditingSparplan(editingSparplan)}
-        showSparplanCancelButton={isEditMode && isEditingSparplan(editingSparplan)}
-        isSingleFormOpen={isSingleFormOpen}
-        setIsSingleFormOpen={setIsSingleFormOpen}
-        singleFormValue={singleFormValue}
-        setSingleFormValue={setSingleFormValue}
-        handleSinglePaymentSubmit={handleSinglePaymentSubmit}
-        isSingleEditMode={isEditMode && isEditingSinglePayment(editingSparplan)}
-        showSingleCancelButton={isEditMode && isEditingSinglePayment(editingSparplan)}
-        simulationAnnual={simulationAnnual}
-        formatDateForInput={formatDateForInput}
-        handleDateChange={handleDateChange}
-        handleNumberChange={handleNumberChange}
-        handleCancelEdit={handleCancelEdit}
+        sparplanForm={{
+          isOpen: isSparplanFormOpen,
+          setIsOpen: setIsSparplanFormOpen,
+          formValues: sparplanFormValues,
+          setFormValues: setSparplanFormValues,
+          handleSubmit: handleSparplanSubmit,
+          isEditMode: isEditMode && isEditingSparplan(editingSparplan),
+          showCancelButton: isEditMode && isEditingSparplan(editingSparplan),
+        }}
+        singlePaymentForm={{
+          isOpen: isSingleFormOpen,
+          setIsOpen: setIsSingleFormOpen,
+          formValues: singleFormValue,
+          setFormValues: setSingleFormValue,
+          handleSubmit: handleSinglePaymentSubmit,
+          isEditMode: isEditMode && isEditingSinglePayment(editingSparplan),
+          showCancelButton: isEditMode && isEditingSinglePayment(editingSparplan),
+        }}
+        sharedUtilities={{
+          simulationAnnual,
+          formatDateForInput,
+          handleDateChange,
+          handleNumberChange,
+          handleCancelEdit,
+        }}
       />
 
       <SavedSparplansList
