@@ -4,26 +4,27 @@ import type { SingleFormValue, SparplanFormValue } from './SparplanEingabe.helpe
 import { SparplanFormCard } from './SparplanFormCard'
 import { SinglePaymentFormCard } from './SinglePaymentFormCard'
 
-interface SparplanFormsProps {
-  // Sparplan form props
-  isSparplanFormOpen: boolean
-  setIsSparplanFormOpen: (open: boolean) => void
-  sparplanFormValues: SparplanFormValue
-  setSparplanFormValues: (values: SparplanFormValue) => void
-  handleSparplanSubmit: () => void
-  isSparplanEditMode: boolean
-  showSparplanCancelButton: boolean
+interface SparplanFormProps {
+  isOpen: boolean
+  setIsOpen: (open: boolean) => void
+  formValues: SparplanFormValue
+  setFormValues: (values: SparplanFormValue) => void
+  handleSubmit: () => void
+  isEditMode: boolean
+  showCancelButton: boolean
+}
 
-  // Single payment form props
-  isSingleFormOpen: boolean
-  setIsSingleFormOpen: (open: boolean) => void
-  singleFormValue: SingleFormValue
-  setSingleFormValue: (value: SingleFormValue) => void
-  handleSinglePaymentSubmit: () => void
-  isSingleEditMode: boolean
-  showSingleCancelButton: boolean
+interface SinglePaymentFormProps {
+  isOpen: boolean
+  setIsOpen: (open: boolean) => void
+  formValues: SingleFormValue
+  setFormValues: (value: SingleFormValue) => void
+  handleSubmit: () => void
+  isEditMode: boolean
+  showCancelButton: boolean
+}
 
-  // Shared props
+interface SharedFormUtilities {
   simulationAnnual: SimulationAnnualType
   formatDateForInput: (date: Date | string | null, format: string) => string
   handleDateChange: (
@@ -38,57 +39,46 @@ interface SparplanFormsProps {
   handleCancelEdit: () => void
 }
 
-// eslint-disable-next-line max-lines-per-function -- Form wrapper component with multiple form props
+interface SparplanFormsProps {
+  sparplanForm: SparplanFormProps
+  singlePaymentForm: SinglePaymentFormProps
+  sharedUtilities: SharedFormUtilities
+}
+
 export function SparplanForms({
-  isSparplanFormOpen,
-  setIsSparplanFormOpen,
-  sparplanFormValues,
-  setSparplanFormValues,
-  handleSparplanSubmit,
-  isSparplanEditMode,
-  showSparplanCancelButton,
-  isSingleFormOpen,
-  setIsSingleFormOpen,
-  singleFormValue,
-  setSingleFormValue,
-  handleSinglePaymentSubmit,
-  isSingleEditMode,
-  showSingleCancelButton,
-  simulationAnnual,
-  formatDateForInput,
-  handleDateChange,
-  handleNumberChange,
-  handleCancelEdit,
+  sparplanForm,
+  singlePaymentForm,
+  sharedUtilities,
 }: SparplanFormsProps) {
   return (
     <>
       <SparplanFormCard
-        isOpen={isSparplanFormOpen}
-        onOpenChange={setIsSparplanFormOpen}
-        formValues={sparplanFormValues}
-        simulationAnnual={simulationAnnual}
-        onFormChange={setSparplanFormValues}
-        formatDateForInput={formatDateForInput}
-        handleDateChange={handleDateChange}
-        handleNumberChange={handleNumberChange}
-        onSubmit={handleSparplanSubmit}
-        isEditMode={isSparplanEditMode}
-        showCancelButton={showSparplanCancelButton}
-        onCancel={handleCancelEdit}
+        isOpen={sparplanForm.isOpen}
+        onOpenChange={sparplanForm.setIsOpen}
+        formValues={sparplanForm.formValues}
+        simulationAnnual={sharedUtilities.simulationAnnual}
+        onFormChange={sparplanForm.setFormValues}
+        formatDateForInput={sharedUtilities.formatDateForInput}
+        handleDateChange={sharedUtilities.handleDateChange}
+        handleNumberChange={sharedUtilities.handleNumberChange}
+        onSubmit={sparplanForm.handleSubmit}
+        isEditMode={sparplanForm.isEditMode}
+        showCancelButton={sparplanForm.showCancelButton}
+        onCancel={sharedUtilities.handleCancelEdit}
       />
 
       <SinglePaymentFormCard
-        isOpen={isSingleFormOpen}
-        onOpenChange={setIsSingleFormOpen}
-        formValues={singleFormValue}
-        onFormChange={setSingleFormValue}
-        formatDateForInput={formatDateForInput}
-        handleDateChange={handleDateChange}
-        handleNumberChange={handleNumberChange}
-        onSubmit={handleSinglePaymentSubmit}
-        isEditMode={isSingleEditMode}
-        showCancelButton={showSingleCancelButton}
-        onCancel={handleCancelEdit}
+        isOpen={singlePaymentForm.isOpen}
+        onOpenChange={singlePaymentForm.setIsOpen}
+        formValues={singlePaymentForm.formValues}
+        onFormChange={singlePaymentForm.setFormValues}
+        formatDateForInput={sharedUtilities.formatDateForInput}
+        handleDateChange={sharedUtilities.handleDateChange}
+        handleNumberChange={sharedUtilities.handleNumberChange}
+        onSubmit={singlePaymentForm.handleSubmit}
+        isEditMode={singlePaymentForm.isEditMode}
+        showCancelButton={singlePaymentForm.showCancelButton}
+        onCancel={sharedUtilities.handleCancelEdit}
       />
     </>
   )
