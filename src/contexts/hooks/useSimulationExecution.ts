@@ -57,15 +57,10 @@ export function useSimulationExecution(
         setIsLoading(false)
       }
     },
-    // Using individual state properties to avoid unnecessary re-renders
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [state.rendite, state.returnMode, state.averageReturn, state.standardDeviation, state.randomSeed,
-      state.variableReturns, state.historicalIndex, state.blackSwanReturns, state.inflationScenarioRates,
-      state.inflationScenarioReturnModifiers, state.multiAssetConfig, state.simulationAnnual,
-      state.sparplanElemente, state.startEnd, yearToday, state.steuerlast, state.teilfreistellungsquote,
-      state.freibetragPerYear, state.basiszinsConfiguration, state.steuerReduzierenEndkapitalSparphase,
-      state.inflationAktivSparphase, state.inflationsrateSparphase, state.inflationAnwendungSparphase,
-      state.guenstigerPruefungAktiv, state.personalTaxRate, setIsLoading, setSimulationData],
+    // Note: Using state object as dependency will cause re-renders when any property changes,
+    // but ensures proper dependency tracking. setIsLoading and setSimulationData are React
+    // state setters which are guaranteed to be stable between renders.
+    [state, yearToday, setIsLoading, setSimulationData],
   )
 
   return { performSimulation }
