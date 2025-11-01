@@ -5,6 +5,7 @@ import {
   setActiveProfile,
   type UserProfile,
 } from '../../utils/profile-storage'
+import type { SavedConfiguration } from '../../utils/config-storage'
 
 interface ProfileFormData {
   name: string
@@ -12,8 +13,7 @@ interface ProfileFormData {
 }
 
 interface ProfileFormHandlersParams {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Configuration object type from SimulationContext
-  getCurrentConfiguration: () => any
+  getCurrentConfiguration: () => SavedConfiguration
   formData: ProfileFormData
   editingProfile: UserProfile | null
   refreshProfiles: () => void

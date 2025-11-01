@@ -1,4 +1,5 @@
 import type { UserProfile } from '../../utils/profile-storage'
+import type { SavedConfiguration } from '../../utils/config-storage'
 import { createProfileFormHandlers } from './profileFormHandlers'
 import { createProfileActionHandlers } from './profileActionHandlers'
 
@@ -8,8 +9,7 @@ interface ProfileFormData {
 }
 
 interface ProfileHandlersParams {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Configuration object type from SimulationContext
-  getCurrentConfiguration: () => any
+  getCurrentConfiguration: () => SavedConfiguration
   loadSavedConfiguration: () => void
   resetToDefaults: () => void
   refreshProfiles: () => void
