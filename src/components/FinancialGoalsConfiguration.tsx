@@ -187,10 +187,10 @@ export default function FinancialGoalsConfiguration() {
   return (
     <CollapsibleCard>
       <CollapsibleCardHeader>
-        <h3 className="text-lg sm:text-xl font-bold flex items-center gap-2">
+        <div className="text-lg sm:text-xl font-bold flex items-center gap-2">
           <Target className="w-5 h-5 sm:w-6 sm:h-6" />
           Finanzziele
-        </h3>
+        </div>
         <p className="text-sm text-gray-600 mt-1">
           Setzen Sie SMART-Ziele und verfolgen Sie Ihren Fortschritt
         </p>
