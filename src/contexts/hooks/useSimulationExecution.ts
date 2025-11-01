@@ -57,7 +57,15 @@ export function useSimulationExecution(
         setIsLoading(false)
       }
     },
-    [state, yearToday, setIsLoading, setSimulationData],
+    // Using individual state properties to avoid unnecessary re-renders
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state.rendite, state.returnMode, state.averageReturn, state.standardDeviation, state.randomSeed,
+      state.variableReturns, state.historicalIndex, state.blackSwanReturns, state.inflationScenarioRates,
+      state.inflationScenarioReturnModifiers, state.multiAssetConfig, state.simulationAnnual,
+      state.sparplanElemente, state.startEnd, yearToday, state.steuerlast, state.teilfreistellungsquote,
+      state.freibetragPerYear, state.basiszinsConfiguration, state.steuerReduzierenEndkapitalSparphase,
+      state.inflationAktivSparphase, state.inflationsrateSparphase, state.inflationAnwendungSparphase,
+      state.guenstigerPruefungAktiv, state.personalTaxRate, setIsLoading, setSimulationData],
   )
 
   return { performSimulation }
