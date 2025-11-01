@@ -156,6 +156,231 @@ function checkDataAvailability(context: SimulationContextState) {
 }
 
 /**
+ * Helper to calculate savings phase filename
+ */
+function getSavingsPhaseFilename(context: SimulationContextState): string {
+  const currentYear = new Date().getFullYear()
+  const savingsStartYear = Math.min(currentYear,
+    ...context.sparplanElemente.map(plan => new Date(plan.start).getFullYear()),
+  )
+  const savingsEndYear = context.startEnd[0] // End of savings phase = start of withdrawal
+  const dateStr = new Date().toISOString().slice(0, 10)
+  return `sparphase_${savingsStartYear}-${savingsEndYear}_${dateStr}.csv`
+}
+
+/**
+ * Export savings data to CSV
+ */
+async function performSavingsCSVExport(
+  context: SimulationContextState,
+  updateState: StateUpdater,
+): Promise<boolean> {
+  setExportingStateHelper(updateState, 'csv')
+
+  try {
+    // Ensure we have savings data available
+    if (!context.simulationData?.sparplanElements) {
+      throw new Error('Keine Sparplan-Daten verfügbar. Bitte führen Sie zuerst eine Simulation durch.')
+    }
+
+    const exportData: ExportData = {
+      savingsData: context.simulationData,
+      context,
+    }
+
+    const csvContent = exportSavingsDataToCSV(exportData)
+    const filename = getSavingsPhaseFilename(context)
+
+    downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8')
+    setResultStateHelper(updateState, true, 'csv')
+    return true
+  }
+  catch (error) {
+    console.error('Failed to export savings data as CSV:', error)
+    setResultStateHelper(updateState, false, 'csv')
+    return false
+  }
+}
+
+/**
+ * Helper to generate withdrawal data from config
+ */
+function generateWithdrawalDataFromConfig(context: SimulationContextState) {
+  if (!context.withdrawalConfig?.formValue || !context.simulationData?.sparplanElements) {
+    return null
+  }
+
+  return generateWithdrawalFromConfig(
+    context.simulationData.sparplanElements,
+    context,
+    context.withdrawalConfig.formValue.strategie,
+    context.withdrawalConfig.formValue.rendite / 100,
+    context.endOfLife,
+    context.withdrawalConfig.formValue.withdrawalFrequency,
+  )
+}
+
+/**
+ * Helper to generate withdrawal data with default strategy
+ */
+function generateWithdrawalDataWithDefault(context: SimulationContextState) {
+  if (!context.simulationData?.sparplanElements || !context.withdrawalConfig) {
+    return null
+  }
+
+  return generateWithdrawalFromConfig(
+    context.simulationData.sparplanElements,
+    context,
+    '4prozent',
+    0.05,
+    context.startEnd[1],
+    'yearly',
+  )
+}
+
+/**
+ * Helper to get or generate withdrawal data for export
+ */
+function getWithdrawalDataHelper(context: SimulationContextState) {
+  // Return existing withdrawal results if available
+  if (context.withdrawalResults) {
+    return context.withdrawalResults
+  }
+
+  // Try to generate from config
+  const dataFromConfig = generateWithdrawalDataFromConfig(context)
+  if (dataFromConfig) {
+    return dataFromConfig
+  }
+
+  // Fallback to default strategy
+  return generateWithdrawalDataWithDefault(context)
+}
+
+/**
+ * Export withdrawal data to CSV
+ */
+async function performWithdrawalCSVExport(
+  context: SimulationContextState,
+  updateState: StateUpdater,
+): Promise<boolean> {
+  setExportingStateHelper(updateState, 'csv')
+
+  try {
+    const withdrawalData = getWithdrawalDataHelper(context)
+
+    if (!withdrawalData) {
+      throw new Error('Keine Entnahme-Daten verfügbar. Bitte konfigurieren Sie eine Entnahmestrategie.')
+    }
+
+    const exportData: ExportData = {
+      withdrawalData,
+      context,
+    }
+
+    const csvContent = exportWithdrawalDataToCSV(exportData)
+    const startYear = context.startEnd[0]
+    const endYear = context.endOfLife
+    const dateStr = new Date().toISOString().slice(0, 10)
+    const filename = `entnahmephase_${startYear}-${endYear}_${dateStr}.csv`
+
+    downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8')
+    setResultStateHelper(updateState, true, 'csv')
+    return true
+  }
+  catch (error) {
+    console.error('Failed to export withdrawal data as CSV:', error)
+    setResultStateHelper(updateState, false, 'csv')
+    return false
+  }
+}
+
+/**
+ * Export all data (savings + withdrawal) to CSV
+ */
+async function performAllDataCSVExport(
+  context: SimulationContextState,
+  updateState: StateUpdater,
+): Promise<boolean> {
+  setExportingStateHelper(updateState, 'csv')
+
+  try {
+    const savingsData = context.simulationData ?? undefined
+    const withdrawalData = getWithdrawalDataForExport(savingsData, context)
+
+    validateExportData(savingsData, withdrawalData, context)
+
+    const csvContent = buildCombinedCSVContent(savingsData, withdrawalData, context)
+    const dateStr = new Date().toISOString().slice(0, 10)
+    const filename = `simulation_komplett_${context.startEnd[0]}-${context.endOfLife}_${dateStr}.csv`
+
+    downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8')
+    setResultStateHelper(updateState, true, 'csv')
+    return true
+  }
+  catch (error) {
+    console.error('Failed to export all data as CSV:', error)
+    setResultStateHelper(updateState, false, 'csv')
+    return false
+  }
+}
+
+/**
+ * Export data to Markdown format
+ */
+async function performMarkdownExport(
+  context: SimulationContextState,
+  updateState: StateUpdater,
+): Promise<boolean> {
+  setExportingStateHelper(updateState, 'markdown')
+
+  try {
+    const { withdrawalData, hasSavingsData, hasWithdrawalData } = prepareMarkdownExportData(context)
+
+    const exportData: ExportData = {
+      savingsData: hasSavingsData && context.simulationData ? context.simulationData : undefined,
+      withdrawalData: hasWithdrawalData ? withdrawalData || undefined : undefined,
+      context,
+    }
+
+    const markdownContent = exportDataToMarkdown(exportData)
+    const dateStr = new Date().toISOString().slice(0, 10)
+    const filename = `simulation_${context.startEnd[0]}-${context.endOfLife}_${dateStr}.md`
+
+    downloadTextAsFile(markdownContent, filename, 'text/markdown;charset=utf-8')
+    setResultStateHelper(updateState, true, 'markdown')
+    return true
+  }
+  catch (error) {
+    console.error('Failed to export data as Markdown:', error)
+    setResultStateHelper(updateState, false, 'markdown')
+    return false
+  }
+}
+
+/**
+ * Copy calculation explanations to clipboard
+ */
+async function performClipboardCopy(
+  context: SimulationContextState,
+  updateState: StateUpdater,
+): Promise<boolean> {
+  setExportingStateHelper(updateState, 'clipboard')
+
+  try {
+    const explanations = generateCalculationExplanations(context)
+    const success = await copyTextToClipboard(explanations)
+    setResultStateHelper(updateState, success, 'clipboard')
+    return success
+  }
+  catch (error) {
+    console.error('Failed to copy calculation explanations:', error)
+    setResultStateHelper(updateState, false, 'clipboard')
+    return false
+  }
+}
+
+/**
  * Helper function to prepare data for markdown export
  */
 function prepareMarkdownExportData(context: SimulationContextState) {
@@ -187,9 +412,47 @@ function prepareMarkdownExportData(context: SimulationContextState) {
 }
 
 /**
+ * Type for state setter function
+ */
+type StateUpdater = (state: Partial<DataExportState>) => void
+
+/**
+ * Helper to set exporting state
+ */
+function setExportingStateHelper(
+  setState: StateUpdater,
+  exportType: 'csv' | 'markdown' | 'clipboard',
+) {
+  setState({
+    isExporting: true,
+    lastExportResult: null,
+    exportType,
+  })
+}
+
+/**
+ * Helper to set result state and schedule clearing
+ */
+function setResultStateHelper(
+  setState: StateUpdater,
+  success: boolean,
+  exportType: 'csv' | 'markdown' | 'clipboard',
+) {
+  setState({
+    isExporting: false,
+    lastExportResult: success ? 'success' : 'error',
+    exportType,
+  })
+
+  // Clear result after delay
+  setTimeout(() => {
+    setState({ lastExportResult: null, exportType: null })
+  }, 3000)
+}
+
+/**
  * Custom hook for exporting simulation data in various formats
  */
-// eslint-disable-next-line max-lines-per-function -- Large component function
 export function useDataExport() {
   const context = useSimulation()
   const [state, setState] = useState<DataExportState>({
@@ -198,209 +461,35 @@ export function useDataExport() {
     exportType: null,
   })
 
-  const clearResultAfterDelay = useCallback(() => {
-    setTimeout(() => {
-      setState(prev => ({ ...prev, lastExportResult: null, exportType: null }))
-    }, 3000)
+  // State updater that merges with previous state
+  const updateState = useCallback((updates: Partial<DataExportState>) => {
+    setState(prev => ({ ...prev, ...updates }))
   }, [])
 
-  const setExportingState = useCallback((exportType: 'csv' | 'markdown' | 'clipboard') => {
-    setState(prev => ({
-      ...prev,
-      isExporting: true,
-      lastExportResult: null,
-      exportType,
-    }))
-  }, [])
+  const exportSavingsDataCSV = useCallback(
+    async () => performSavingsCSVExport(context, updateState),
+    [context, updateState],
+  )
 
-  const setResultState = useCallback((success: boolean, exportType: 'csv' | 'markdown' | 'clipboard') => {
-    setState({
-      isExporting: false,
-      lastExportResult: success ? 'success' : 'error',
-      exportType,
-    })
-    clearResultAfterDelay()
-  }, [clearResultAfterDelay])
+  const exportWithdrawalDataCSV = useCallback(
+    async () => performWithdrawalCSVExport(context, updateState),
+    [context, updateState],
+  )
 
-  const exportSavingsDataCSV = useCallback(async () => {
-    setExportingState('csv')
+  const exportAllDataCSV = useCallback(
+    async () => performAllDataCSVExport(context, updateState),
+    [context, updateState],
+  )
 
-    try {
-      // Ensure we have savings data available
-      if (!context.simulationData?.sparplanElements) {
-        throw new Error('Keine Sparplan-Daten verfügbar. Bitte führen Sie zuerst eine Simulation durch.')
-      }
+  const exportDataMarkdown = useCallback(
+    async () => performMarkdownExport(context, updateState),
+    [context, updateState],
+  )
 
-      const exportData: ExportData = {
-        savingsData: context.simulationData,
-        context,
-      }
-
-      const csvContent = exportSavingsDataToCSV(exportData)
-
-      // Calculate correct savings phase period for filename
-      const currentYear = new Date().getFullYear()
-      const savingsStartYear = Math.min(currentYear,
-        ...context.sparplanElemente.map(plan => new Date(plan.start).getFullYear()),
-      )
-      const savingsEndYear = context.startEnd[0] // End of savings phase = start of withdrawal
-      const filename = `sparphase_${savingsStartYear}-${savingsEndYear}_${new Date().toISOString().slice(0, 10)}.csv`
-
-      downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8')
-      setResultState(true, 'csv')
-      return true
-    }
-    catch (error) {
-      console.error('Failed to export savings data as CSV:', error)
-      setResultState(false, 'csv')
-      return false
-    }
-  }, [context, setExportingState, setResultState])
-
-  // Helper to generate withdrawal data from configuration
-  const generateFromConfig = useCallback((ctx: typeof context) => {
-    if (!ctx.withdrawalConfig?.formValue || !ctx.simulationData?.sparplanElements) {
-      return null
-    }
-
-    return generateWithdrawalFromConfig(
-      ctx.simulationData.sparplanElements,
-      ctx,
-      ctx.withdrawalConfig.formValue.strategie,
-      ctx.withdrawalConfig.formValue.rendite / 100,
-      ctx.endOfLife,
-      ctx.withdrawalConfig.formValue.withdrawalFrequency,
-    )
-  }, [])
-
-  // Helper to generate withdrawal data with default strategy
-  const generateWithDefaultStrategy = useCallback((ctx: typeof context) => {
-    if (!ctx.simulationData?.sparplanElements || !ctx.withdrawalConfig) {
-      return null
-    }
-
-    return generateWithdrawalFromConfig(
-      ctx.simulationData.sparplanElements,
-      ctx,
-      '4prozent',
-      0.05,
-      ctx.startEnd[1],
-      'yearly',
-    )
-  }, [])
-
-  // Helper to get or generate withdrawal data for export
-  const getWithdrawalData = useCallback((ctx: typeof context) => {
-    // Return existing withdrawal results if available
-    if (ctx.withdrawalResults) {
-      return ctx.withdrawalResults
-    }
-
-    // Try to generate from config
-    const dataFromConfig = generateFromConfig(ctx)
-    if (dataFromConfig) {
-      return dataFromConfig
-    }
-
-    // Fallback to default strategy
-    return generateWithDefaultStrategy(ctx)
-  }, [generateFromConfig, generateWithDefaultStrategy])
-
-  const exportWithdrawalDataCSV = useCallback(async () => {
-    setExportingState('csv')
-
-    try {
-      const withdrawalData = getWithdrawalData(context)
-
-      if (!withdrawalData) {
-        throw new Error('Keine Entnahme-Daten verfügbar. Bitte konfigurieren Sie eine Entnahmestrategie.')
-      }
-
-      const exportData: ExportData = {
-        withdrawalData,
-        context,
-      }
-
-      const csvContent = exportWithdrawalDataToCSV(exportData)
-      const startYear = context.startEnd[0]
-      const endYear = context.endOfLife
-      const filename = `entnahmephase_${startYear}-${endYear}_${new Date().toISOString().slice(0, 10)}.csv`
-
-      downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8')
-      setResultState(true, 'csv')
-      return true
-    }
-    catch (error) {
-      console.error('Failed to export withdrawal data as CSV:', error)
-      setResultState(false, 'csv')
-      return false
-    }
-  }, [context, setExportingState, setResultState, getWithdrawalData])
-
-  const exportAllDataCSV = useCallback(async () => {
-    setExportingState('csv')
-
-    try {
-      const savingsData = context.simulationData ?? undefined
-      const withdrawalData = getWithdrawalDataForExport(savingsData, context)
-
-      validateExportData(savingsData, withdrawalData, context)
-
-      const csvContent = buildCombinedCSVContent(savingsData, withdrawalData, context)
-      const filename = `simulation_komplett_${context.startEnd[0]}-${context.endOfLife}_${new Date().toISOString().slice(0, 10)}.csv`
-
-      downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8')
-      setResultState(true, 'csv')
-      return true
-    }
-    catch (error) {
-      console.error('Failed to export all data as CSV:', error)
-      setResultState(false, 'csv')
-      return false
-    }
-  }, [context, setExportingState, setResultState])
-
-  const exportDataMarkdown = useCallback(async () => {
-    setExportingState('markdown')
-
-    try {
-      const { withdrawalData, hasSavingsData, hasWithdrawalData } = prepareMarkdownExportData(context)
-
-      const exportData: ExportData = {
-        savingsData: hasSavingsData && context.simulationData ? context.simulationData : undefined,
-        withdrawalData: hasWithdrawalData ? withdrawalData || undefined : undefined,
-        context,
-      }
-
-      const markdownContent = exportDataToMarkdown(exportData)
-      const filename = `simulation_${context.startEnd[0]}-${context.endOfLife}_${new Date().toISOString().slice(0, 10)}.md`
-
-      downloadTextAsFile(markdownContent, filename, 'text/markdown;charset=utf-8')
-      setResultState(true, 'markdown')
-      return true
-    }
-    catch (error) {
-      console.error('Failed to export data as Markdown:', error)
-      setResultState(false, 'markdown')
-      return false
-    }
-  }, [context, setExportingState, setResultState])
-
-  const copyCalculationExplanations = useCallback(async () => {
-    setExportingState('clipboard')
-
-    try {
-      const explanations = generateCalculationExplanations(context)
-      const success = await copyTextToClipboard(explanations)
-      setResultState(success, 'clipboard')
-      return success
-    }
-    catch (error) {
-      console.error('Failed to copy calculation explanations:', error)
-      setResultState(false, 'clipboard')
-      return false
-    }
-  }, [context, setExportingState, setResultState])
+  const copyCalculationExplanations = useCallback(
+    async () => performClipboardCopy(context, updateState),
+    [context, updateState],
+  )
 
   return {
     exportSavingsDataCSV,
