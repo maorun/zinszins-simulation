@@ -1,4 +1,7 @@
-import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-portfolio'
+import type {
+  MultiAssetPortfolioConfig,
+  AssetClassConfig,
+} from '../../../helpers/multi-asset-portfolio'
 
 /**
  * Create fallback multi-asset configuration for savings phase
@@ -85,85 +88,70 @@ export function createFallbackMultiAssetConfig(): MultiAssetPortfolioConfig {
 }
 
 /**
+ * Helper function to create a minimal asset class configuration for withdrawal phase
+ */
+function createWithdrawalAssetClass(
+  enabled: boolean,
+  targetAllocation: number,
+  expectedReturn: number,
+  volatility: number,
+  taxCategory: 'equity' | 'bond' | 'reit' | 'commodity' | 'cash',
+): AssetClassConfig {
+  return {
+    enabled,
+    targetAllocation,
+    expectedReturn,
+    volatility,
+    taxCategory,
+    name: '',
+    description: '',
+  }
+}
+
+/**
+ * Helper function to create asset classes for withdrawal phase
+ */
+function createWithdrawalAssetClasses(): MultiAssetPortfolioConfig['assetClasses'] {
+  return {
+    stocks_domestic: createWithdrawalAssetClass(true, 0.3, 0.06, 0.18, 'equity'),
+    stocks_international: createWithdrawalAssetClass(true, 0.15, 0.055, 0.16, 'equity'),
+    bonds_government: createWithdrawalAssetClass(true, 0.35, 0.025, 0.04, 'bond'),
+    bonds_corporate: createWithdrawalAssetClass(true, 0.15, 0.035, 0.06, 'bond'),
+    real_estate: createWithdrawalAssetClass(false, 0.0, 0.05, 0.12, 'reit'),
+    commodities: createWithdrawalAssetClass(false, 0.0, 0.04, 0.18, 'commodity'),
+    cash: createWithdrawalAssetClass(false, 0.0, 0.01, 0.00, 'cash'),
+  }
+}
+
+/**
+ * Helper function to create rebalancing configuration
+ */
+function createRebalancingConfig(): MultiAssetPortfolioConfig['rebalancing'] {
+  return {
+    frequency: 'annually' as const,
+    threshold: 0.05,
+    useThreshold: false,
+  }
+}
+
+/**
+ * Helper function to create simulation configuration
+ */
+function createSimulationConfig(): MultiAssetPortfolioConfig['simulation'] {
+  return {
+    useCorrelation: true,
+    seed: undefined,
+  }
+}
+
+/**
  * Create fallback multi-asset configuration for withdrawal phase (conservative)
  */
-// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 export function createFallbackWithdrawalConfig(): MultiAssetPortfolioConfig {
   return {
     enabled: false,
-    assetClasses: {
-      stocks_domestic: {
-        enabled: true,
-        targetAllocation: 0.3,
-        expectedReturn: 0.06,
-        volatility: 0.18,
-        taxCategory: 'equity' as const,
-        name: '',
-        description: '',
-      },
-      stocks_international: {
-        enabled: true,
-        targetAllocation: 0.15,
-        expectedReturn: 0.055,
-        volatility: 0.16,
-        taxCategory: 'equity' as const,
-        name: '',
-        description: '',
-      },
-      bonds_government: {
-        enabled: true,
-        targetAllocation: 0.35,
-        expectedReturn: 0.025,
-        volatility: 0.04,
-        taxCategory: 'bond' as const,
-        name: '',
-        description: '',
-      },
-      bonds_corporate: {
-        enabled: true,
-        targetAllocation: 0.15,
-        expectedReturn: 0.035,
-        volatility: 0.06,
-        taxCategory: 'bond' as const,
-        name: '',
-        description: '',
-      },
-      real_estate: {
-        enabled: false,
-        targetAllocation: 0.0,
-        expectedReturn: 0.05,
-        volatility: 0.12,
-        taxCategory: 'reit' as const,
-        name: '',
-        description: '',
-      },
-      commodities: {
-        enabled: false,
-        targetAllocation: 0.0,
-        expectedReturn: 0.04,
-        volatility: 0.18,
-        taxCategory: 'commodity' as const,
-        name: '',
-        description: '',
-      },
-      cash: {
-        enabled: false,
-        targetAllocation: 0.0,
-        expectedReturn: 0.01,
-        volatility: 0.00,
-        taxCategory: 'cash' as const,
-        name: '',
-        description: '',
-      },
-    },
-    rebalancing: {
-      frequency: 'annually' as const,
-      threshold: 0.05,
-      useThreshold: false,
-    },
-    simulation: {
-      useCorrelation: true,
-      seed: undefined,
-    },
+    assetClasses: createWithdrawalAssetClasses(),
+    rebalancing: createRebalancingConfig(),
+    simulation: createSimulationConfig(),
   }
 }
