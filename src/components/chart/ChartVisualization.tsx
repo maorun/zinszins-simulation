@@ -1,16 +1,8 @@
-import {
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  Legend,
-  ResponsiveContainer,
-  Area,
-  AreaChart,
-  Brush,
-} from 'recharts'
-import { ChartTooltip } from './ChartTooltip'
+import { ResponsiveContainer, AreaChart } from 'recharts'
+import { ChartAxesAndGrid } from './ChartAxesAndGrid'
+import { ChartAreas } from './ChartAreas'
+import { ChartLines } from './ChartLines'
+import { ChartBrush } from './ChartBrush'
 
 interface ChartDataPoint {
   year: number
@@ -60,7 +52,6 @@ function formatYAxisTick(value: number): string {
  * Chart visualization component for capital development
  * Renders the recharts AreaChart with all configured series
  */
-// eslint-disable-next-line max-lines-per-function -- Large component function
 export function ChartVisualization({
   chartData,
   chartConfig,
@@ -85,78 +76,24 @@ export function ChartVisualization({
             bottom: chartConfig.marginBottom,
           }}
         >
-          <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
-          <XAxis
-            dataKey="year"
-            className="text-xs text-gray-600"
-            tick={{ fontSize: 12 }}
-            angle={chartConfig.xAxisAngle}
-            textAnchor={chartConfig.xAxisTextAnchor}
-            height={chartConfig.xAxisHeight}
-          />
-          <YAxis
-            tickFormatter={formatYAxisTick}
-            className="text-xs text-gray-600"
-            tick={{ fontSize: 12 }}
-          />
-          <Tooltip content={<ChartTooltip />} />
-          <Legend />
-
-          {/* Area for cumulative deposits */}
-          <Area
-            type="monotone"
-            dataKey="kumulativeEinzahlungen"
-            stackId="1"
-            stroke="#3b82f6"
-            fill="#3b82f6"
-            fillOpacity={0.6}
-            name="Kumulierte Einzahlungen"
+          <ChartAxesAndGrid
+            xAxisAngle={chartConfig.xAxisAngle}
+            xAxisTextAnchor={chartConfig.xAxisTextAnchor}
+            xAxisHeight={chartConfig.xAxisHeight}
+            formatYAxisTick={formatYAxisTick}
           />
 
-          {/* Area for total gains/interest */}
-          <Area
-            type="monotone"
-            dataKey={zinsenKey}
-            stackId="1"
-            stroke="#10b981"
-            fill="#10b981"
-            fillOpacity={0.6}
-            name={zinsenLabel}
+          <ChartAreas zinsenKey={zinsenKey} zinsenLabel={zinsenLabel} />
+
+          <ChartLines
+            endkapitalKey={endkapitalKey}
+            endkapitalLabel={endkapitalLabel}
+            endkapitalDot={chartConfig.endkapitalDot}
+            showTaxes={showTaxes}
+            taxDot={chartConfig.taxDot}
           />
 
-          {/* Line for end capital */}
-          <Line
-            type="monotone"
-            dataKey={endkapitalKey}
-            stroke="#ef4444"
-            strokeWidth={3}
-            dot={chartConfig.endkapitalDot}
-            name={endkapitalLabel}
-          />
-
-          {/* Line for taxes paid - conditional */}
-          {showTaxes && (
-            <Line
-              type="monotone"
-              dataKey="bezahlteSteuer"
-              stroke="#f59e0b"
-              strokeWidth={2}
-              strokeDasharray="5 5"
-              dot={chartConfig.taxDot}
-              name="Bezahlte Steuern"
-            />
-          )}
-
-          {/* Add zoom/brush functionality for detailed view */}
-          {chartConfig.showBrush && (
-            <Brush
-              dataKey="year"
-              height={30}
-              stroke="#8884d8"
-              startIndex={Math.max(0, chartData.length - 10)}
-              endIndex={chartData.length - 1}
-            />
-          )}
+          <ChartBrush showBrush={chartConfig.showBrush} chartDataLength={chartData.length} />
         </AreaChart>
       </ResponsiveContainer>
     </div>
