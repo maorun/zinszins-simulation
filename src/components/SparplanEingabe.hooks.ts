@@ -79,26 +79,24 @@ interface SparplanHandlersParams {
 }
 
 /**
- * Hook for managing sparplan event handlers
+ * Creates a handler for saving edits to an existing sparplan
  */
-// eslint-disable-next-line max-lines-per-function -- Event handler hook with multiple handlers
-export function useSparplanHandlers(params: SparplanHandlersParams) {
+function createSaveEditHandler(params: SparplanHandlersParams) {
   const {
+    editingSparplan,
+    sparplanFormValues,
+    singleFormValue,
+    simulationAnnual,
     sparplans,
     setSparplans,
     dispatch,
-    sparplanFormValues,
-    setSparplanFormValues,
-    singleFormValue,
-    setSingleFormValue,
-    editingSparplan,
     setEditingSparplan,
-    isEditMode,
     setIsEditMode,
-    simulationAnnual,
+    setSparplanFormValues,
+    setSingleFormValue,
   } = params
 
-  const handleSaveEdit = () => {
+  return () => {
     if (!editingSparplan) return
 
     const changedSparplans = updateExistingSparplan({
@@ -121,8 +119,23 @@ export function useSparplanHandlers(params: SparplanHandlersParams) {
     const itemType = isEinmalzahlung(editingSparplan) ? 'Einmalzahlung' : 'Sparplan'
     toast.success(`${itemType} erfolgreich aktualisiert!`)
   }
+}
 
-  const handleSparplanSubmit = () => {
+/**
+ * Creates a handler for submitting a new sparplan
+ */
+function createSparplanSubmitHandler(params: SparplanHandlersParams, handleSaveEdit: () => void) {
+  const {
+    sparplanFormValues,
+    isEditMode,
+    simulationAnnual,
+    sparplans,
+    setSparplans,
+    dispatch,
+    setSparplanFormValues,
+  } = params
+
+  return () => {
     if (!sparplanFormValues.start || !sparplanFormValues.einzahlung) return
 
     if (isEditMode) {
@@ -143,8 +156,22 @@ export function useSparplanHandlers(params: SparplanHandlersParams) {
 
     toast.success('Sparplan erfolgreich hinzugefügt!')
   }
+}
 
-  const handleSinglePaymentSubmit = () => {
+/**
+ * Creates a handler for submitting a single payment
+ */
+function createSinglePaymentSubmitHandler(params: SparplanHandlersParams, handleSaveEdit: () => void) {
+  const {
+    singleFormValue,
+    isEditMode,
+    sparplans,
+    setSparplans,
+    dispatch,
+    setSingleFormValue,
+  } = params
+
+  return () => {
     if (!singleFormValue.einzahlung) return
 
     if (isEditMode) {
@@ -164,16 +191,36 @@ export function useSparplanHandlers(params: SparplanHandlersParams) {
 
     toast.success('Einmalzahlung erfolgreich hinzugefügt!')
   }
+}
 
-  const handleDeleteSparplan = (id: number) => {
+/**
+ * Creates a handler for deleting a sparplan
+ */
+function createDeleteSparplanHandler(params: SparplanHandlersParams) {
+  const { sparplans, setSparplans, dispatch } = params
+
+  return (id: number) => {
     const changedSparplans = sparplans.filter(el => el.id !== id)
     setSparplans(changedSparplans)
     dispatch(changedSparplans)
 
     toast.info('Sparplan entfernt')
   }
+}
 
-  const handleEditSparplan = (sparplan: Sparplan) => {
+/**
+ * Creates a handler for editing a sparplan
+ */
+function createEditSparplanHandler(params: SparplanHandlersParams) {
+  const {
+    setEditingSparplan,
+    setIsEditMode,
+    setSingleFormValue,
+    setSparplanFormValues,
+    simulationAnnual,
+  } = params
+
+  return (sparplan: Sparplan) => {
     setEditingSparplan(sparplan)
     setIsEditMode(true)
 
@@ -185,13 +232,37 @@ export function useSparplanHandlers(params: SparplanHandlersParams) {
       setSparplanFormValues(populateSparplanFormFromSparplan(sparplan, simulationAnnual))
     }
   }
+}
 
-  const handleCancelEdit = () => {
+/**
+ * Creates a handler for canceling edit mode
+ */
+function createCancelEditHandler(params: SparplanHandlersParams) {
+  const {
+    setEditingSparplan,
+    setIsEditMode,
+    setSparplanFormValues,
+    setSingleFormValue,
+  } = params
+
+  return () => {
     setEditingSparplan(null)
     setIsEditMode(false)
     setSparplanFormValues(getInitialSparplanFormValue())
     setSingleFormValue(getInitialSingleFormValue())
   }
+}
+
+/**
+ * Hook for managing sparplan event handlers
+ */
+export function useSparplanHandlers(params: SparplanHandlersParams) {
+  const handleSaveEdit = createSaveEditHandler(params)
+  const handleSparplanSubmit = createSparplanSubmitHandler(params, handleSaveEdit)
+  const handleSinglePaymentSubmit = createSinglePaymentSubmitHandler(params, handleSaveEdit)
+  const handleDeleteSparplan = createDeleteSparplanHandler(params)
+  const handleEditSparplan = createEditSparplanHandler(params)
+  const handleCancelEdit = createCancelEditHandler(params)
 
   return {
     handleSparplanSubmit,
