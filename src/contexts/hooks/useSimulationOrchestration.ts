@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import type { DefaultConfigType } from '../helpers/default-config'
 import { useConfigurationManagement } from './useConfigurationManagement'
 import { useSimulationExecution } from './useSimulationExecution'
@@ -97,15 +98,61 @@ export function useSimulationOrchestration(
     configSetters,
   )
 
-  // Simulation execution state
-  const simulationState = {
-    rendite, returnMode, averageReturn, standardDeviation, randomSeed, variableReturns,
-    historicalIndex, blackSwanReturns, inflationScenarioRates, inflationScenarioReturnModifiers,
-    multiAssetConfig, simulationAnnual, sparplanElemente, startEnd, steuerlast,
-    teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration,
-    steuerReduzierenEndkapitalSparphase, inflationAktivSparphase, inflationsrateSparphase,
-    inflationAnwendungSparphase, guenstigerPruefungAktiv, personalTaxRate,
-  }
+  // Simulation execution state - memoized to prevent unnecessary re-creation
+  const simulationState = useMemo(
+    () => ({
+      rendite,
+      returnMode,
+      averageReturn,
+      standardDeviation,
+      randomSeed,
+      variableReturns,
+      historicalIndex,
+      blackSwanReturns,
+      inflationScenarioRates,
+      inflationScenarioReturnModifiers,
+      multiAssetConfig,
+      simulationAnnual,
+      sparplanElemente,
+      startEnd,
+      steuerlast,
+      teilfreistellungsquote,
+      freibetragPerYear,
+      basiszinsConfiguration,
+      steuerReduzierenEndkapitalSparphase,
+      inflationAktivSparphase,
+      inflationsrateSparphase,
+      inflationAnwendungSparphase,
+      guenstigerPruefungAktiv,
+      personalTaxRate,
+    }),
+    [
+      rendite,
+      returnMode,
+      averageReturn,
+      standardDeviation,
+      randomSeed,
+      variableReturns,
+      historicalIndex,
+      blackSwanReturns,
+      inflationScenarioRates,
+      inflationScenarioReturnModifiers,
+      multiAssetConfig,
+      simulationAnnual,
+      sparplanElemente,
+      startEnd,
+      steuerlast,
+      teilfreistellungsquote,
+      freibetragPerYear,
+      basiszinsConfiguration,
+      steuerReduzierenEndkapitalSparphase,
+      inflationAktivSparphase,
+      inflationsrateSparphase,
+      inflationAnwendungSparphase,
+      guenstigerPruefungAktiv,
+      personalTaxRate,
+    ],
+  )
 
   const { performSimulation } = useSimulationExecution(simulationState, setIsLoading, setSimulationData)
 
