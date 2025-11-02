@@ -161,7 +161,91 @@ function ProgressionDetailRow({
   )
 }
 
-// eslint-disable-next-line max-lines-per-function
+/**
+ * Component to display the card header with year and total capital
+ */
+function CardHeader({
+  year,
+  totalCapital,
+  totalCapitalReal,
+  formatValue,
+  onInfoClick,
+}: {
+  year: number
+  totalCapital: number
+  totalCapitalReal?: number
+  formatValue: (value: number, realValue?: number) => string
+  onInfoClick: () => void
+}) {
+  return (
+    <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">
+      <span className="font-semibold text-gray-800 text-base">
+        📅
+        1.1.
+        {year}
+      </span>
+      <span className="font-bold text-blue-600 text-lg flex items-center">
+        🎯
+        {' '}
+        {formatValue(totalCapital, totalCapitalReal)}
+        <InfoIcon onClick={onInfoClick} />
+      </span>
+    </div>
+  )
+}
+
+/**
+ * Component to display the detailed progression information
+ */
+function ProgressionDetails({
+  row,
+  formatValue,
+  calculationInfoData,
+  showCalculationInfo,
+  elemente,
+  showVorabpauschaleInfo,
+}: {
+  row: PortfolioProgressionEntry
+  formatValue: (value: number, realValue?: number) => string
+  calculationInfoData: CalculationInfoData
+  showCalculationInfo: (explanationType: string, rowData: CalculationInfoData) => void
+  elemente?: SparplanElement[]
+  showVorabpauschaleInfo: (details: VorabpauschaleDetails) => void
+}) {
+  return (
+    <div className="flex flex-col gap-2">
+      <ProgressionDetailRow
+        label="💰 Neue Einzahlung:"
+        value={`${thousands(row.yearlyContribution)} €`}
+        valueClassName="text-green-600"
+      />
+      <ProgressionDetailRow
+        label="📈 Zinsen (Jahr):"
+        value={formatValue(row.yearlyInterest, row.yearlyInterestReal)}
+        valueClassName="text-cyan-600"
+        onInfoClick={() => showCalculationInfo('interest', calculationInfoData)}
+      />
+      <ProgressionDetailRow
+        label="💸 Bezahlte Steuer (Jahr):"
+        value={`${thousands(row.yearlyTax)} €`}
+        valueClassName="text-red-600"
+        onInfoClick={() => showCalculationInfo('tax', calculationInfoData)}
+      />
+      <GuenstigerpruefungDisplay elemente={elemente} jahr={row.year} />
+      <ProgressionDetailRow
+        label="💼 Kumulierte Einzahlungen:"
+        value={`${thousands(row.cumulativeContributions)} €`}
+        valueClassName="text-gray-600"
+      />
+      <VorabpauschaleDisplay
+        elemente={elemente}
+        jahr={row.year}
+        onInfoClick={showVorabpauschaleInfo}
+      />
+    </div>
+  )
+}
+
 export function YearlyProgressionCard({
   row,
   hasInflationData,
@@ -190,49 +274,21 @@ export function YearlyProgressionCard({
 
   return (
     <div className="bg-white border border-gray-200 rounded-lg p-4 shadow-sm transition-shadow hover:shadow-md">
-      <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">
-        <span className="font-semibold text-gray-800 text-base">
-          📅
-          1.1.
-          {row.year}
-        </span>
-        <span className="font-bold text-blue-600 text-lg flex items-center">
-          🎯
-          {' '}
-          {formatValue(row.totalCapital, row.totalCapitalReal)}
-          <InfoIcon onClick={() => showCalculationInfo('endkapital', calculationInfoData)} />
-        </span>
-      </div>
-      <div className="flex flex-col gap-2">
-        <ProgressionDetailRow
-          label="💰 Neue Einzahlung:"
-          value={`${thousands(row.yearlyContribution)} €`}
-          valueClassName="text-green-600"
-        />
-        <ProgressionDetailRow
-          label="📈 Zinsen (Jahr):"
-          value={formatValue(row.yearlyInterest, row.yearlyInterestReal)}
-          valueClassName="text-cyan-600"
-          onInfoClick={() => showCalculationInfo('interest', calculationInfoData)}
-        />
-        <ProgressionDetailRow
-          label="💸 Bezahlte Steuer (Jahr):"
-          value={`${thousands(row.yearlyTax)} €`}
-          valueClassName="text-red-600"
-          onInfoClick={() => showCalculationInfo('tax', calculationInfoData)}
-        />
-        <GuenstigerpruefungDisplay elemente={elemente} jahr={row.year} />
-        <ProgressionDetailRow
-          label="💼 Kumulierte Einzahlungen:"
-          value={`${thousands(row.cumulativeContributions)} €`}
-          valueClassName="text-gray-600"
-        />
-        <VorabpauschaleDisplay
-          elemente={elemente}
-          jahr={row.year}
-          onInfoClick={showVorabpauschaleInfo}
-        />
-      </div>
+      <CardHeader
+        year={row.year}
+        totalCapital={row.totalCapital}
+        totalCapitalReal={row.totalCapitalReal}
+        formatValue={formatValue}
+        onInfoClick={() => showCalculationInfo('endkapital', calculationInfoData)}
+      />
+      <ProgressionDetails
+        row={row}
+        formatValue={formatValue}
+        calculationInfoData={calculationInfoData}
+        showCalculationInfo={showCalculationInfo}
+        elemente={elemente}
+        showVorabpauschaleInfo={showVorabpauschaleInfo}
+      />
     </div>
   )
 }
