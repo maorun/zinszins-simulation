@@ -14,7 +14,7 @@ import type { SimulationResultElement, VorabpauschaleDetails } from '../utils/si
 import { YearlyProgressionCard } from './sparplan/YearlyProgressionCard'
 import { SummaryCard } from './sparplan/SummaryCard'
 import { useSimulationModals } from '../hooks/useSimulationModals'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
 
 // Type for calculation info click data
 interface CalculationInfoData {
@@ -236,10 +236,13 @@ function useCalculationInfoHandler(
 
 // Custom hook to prepare summary data
 function useSummaryData(elemente: SparplanElement[] | undefined) {
-  const summary: Summary = fullSummary(elemente)
-  const yearlyProgression = getYearlyPortfolioProgression(elemente)
-  const hasInflationData = yearlyProgression.some(p => p.totalCapitalReal !== undefined)
-  const tableData = yearlyProgression.sort((a, b) => b.year - a.year)
+  const summary: Summary = useMemo(() => fullSummary(elemente), [elemente])
+  const yearlyProgression = useMemo(() => getYearlyPortfolioProgression(elemente), [elemente])
+  const hasInflationData = useMemo(
+    () => yearlyProgression.some(p => p.totalCapitalReal !== undefined),
+    [yearlyProgression],
+  )
+  const tableData = useMemo(() => yearlyProgression.sort((a, b) => b.year - a.year), [yearlyProgression])
 
   return { summary, yearlyProgression, hasInflationData, tableData }
 }
@@ -313,7 +316,7 @@ interface ModalsProps {
 }
 
 // Type for card content props
-type SparplanCardContentProps = ProgressionCardsProps & ModalsProps & { elemente?: SparplanElement[] }
+type SparplanCardContentProps = ProgressionCardsProps & ModalsProps
 
 // Component for progression cards section
 function ProgressionCardsSection(props: ProgressionCardsProps) {
