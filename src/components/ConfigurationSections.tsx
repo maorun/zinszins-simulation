@@ -1,9 +1,7 @@
-import { Card } from './ui/card'
-import { Collapsible, CollapsibleContent } from './ui/collapsible'
-import { LifeExpectancyCalculationHeader } from './LifeExpectancyCalculationHeader'
-import { LifeExpectancyCalculationContent } from './LifeExpectancyCalculationContent'
+import { CalculationModeToggle } from './CalculationModeToggle'
+import { LifeExpectancyInputs } from './LifeExpectancyInputs'
 
-interface LifeExpectancyCalculationProps {
+interface ConfigurationSectionsProps {
   config: {
     startOfIndependence: number
     globalEndOfLife: number
@@ -25,18 +23,19 @@ interface LifeExpectancyCalculationProps {
   }
 }
 
-export function LifeExpectancyCalculation({
+export function ConfigurationSections({
   config,
   onChange,
-}: LifeExpectancyCalculationProps) {
+}: ConfigurationSectionsProps) {
   return (
-    <Card>
-      <Collapsible defaultOpen={false}>
-        <LifeExpectancyCalculationHeader />
-        <CollapsibleContent>
-          <LifeExpectancyCalculationContent config={config} onChange={onChange} />
-        </CollapsibleContent>
-      </Collapsible>
-    </Card>
+    <>
+      {/* Toggle between manual and automatic calculation */}
+      <CalculationModeToggle
+        useAutomaticCalculation={config.useAutomaticCalculation}
+        onChange={onChange.useAutomaticCalculation}
+      />
+
+      <LifeExpectancyInputs config={config} onChange={onChange} />
+    </>
   )
 }
