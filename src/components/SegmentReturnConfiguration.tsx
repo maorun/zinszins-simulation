@@ -1,10 +1,9 @@
-import { Label } from './ui/label'
-import { RadioTileGroup, RadioTile } from './ui/radio-tile'
-import { SegmentFixedReturnConfig } from './SegmentFixedReturnConfig'
-import { SegmentRandomReturnConfig } from './SegmentRandomReturnConfig'
-import { SegmentVariableReturnConfig } from './SegmentVariableReturnConfig'
-import { MultiAssetPortfolioConfiguration } from './MultiAssetPortfolioConfiguration'
-import { createDefaultMultiAssetConfig } from '../../helpers/multi-asset-portfolio'
+import { SegmentReturnModeSelector } from './SegmentReturnModeSelector'
+import { SegmentReturnConfigRenderer } from './SegmentReturnConfigRenderer'
+import {
+  createReturnConfigForMode,
+  getReturnModeFromConfig,
+} from './segment-return-config-helpers'
 import type { ReturnConfiguration } from '../../helpers/random-returns'
 
 export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable' | 'multiasset'
@@ -17,16 +16,6 @@ interface SegmentReturnConfigurationProps {
   onReturnConfigChange: (config: ReturnConfiguration) => void
 }
 
-const getReturnModeFromConfig = (
-  returnConfig: ReturnConfiguration,
-): WithdrawalReturnMode => {
-  if (returnConfig.mode === 'multiasset') {
-    return 'multiasset'
-  }
-  return returnConfig.mode as WithdrawalReturnMode
-}
-
-// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function SegmentReturnConfiguration({
   segmentId,
   startYear,
@@ -37,101 +26,23 @@ export function SegmentReturnConfiguration({
   const currentMode = getReturnModeFromConfig(returnConfig)
 
   const handleModeChange = (mode: WithdrawalReturnMode) => {
-    switch (mode) {
-      case 'fixed':
-        onReturnConfigChange({ mode: 'fixed', fixedRate: 0.05 })
-        break
-      case 'random':
-        onReturnConfigChange({
-          mode: 'random',
-          randomConfig: {
-            averageReturn: 0.05,
-            standardDeviation: 0.12,
-            seed: undefined,
-          },
-        })
-        break
-      case 'variable':
-        onReturnConfigChange({
-          mode: 'variable',
-          variableConfig: { yearlyReturns: {} },
-        })
-        break
-      case 'multiasset':
-        onReturnConfigChange({
-          mode: 'multiasset',
-          multiAssetConfig:
-            returnConfig.mode === 'multiasset'
-              ? returnConfig.multiAssetConfig
-              : createDefaultMultiAssetConfig(),
-        })
-        break
-    }
+    const newConfig = createReturnConfigForMode(mode, returnConfig)
+    onReturnConfigChange(newConfig)
   }
 
   return (
     <>
-      <div className="mb-4 space-y-2">
-        <Label>Rendite-Modus</Label>
-        <RadioTileGroup
-          value={currentMode}
-          onValueChange={value => handleModeChange(value as WithdrawalReturnMode)}
-        >
-          <RadioTile value="fixed" label="Feste Rendite">
-            Konstante jährliche Rendite für diese Phase
-          </RadioTile>
-          <RadioTile value="random" label="Zufällige Rendite">
-            Monte Carlo Simulation mit Volatilität
-          </RadioTile>
-          <RadioTile value="variable" label="Variable Rendite">
-            Jahr-für-Jahr konfigurierbare Renditen
-          </RadioTile>
-          <RadioTile value="multiasset" label="Multi-Asset Portfolio">
-            Diversifiziertes Portfolio mit automatischem Rebalancing
-          </RadioTile>
-        </RadioTileGroup>
-      </div>
-
-      {returnConfig.mode === 'fixed' && (
-        <SegmentFixedReturnConfig
-          fixedRate={returnConfig.fixedRate}
-          onFixedRateChange={rate =>
-            onReturnConfigChange({ mode: 'fixed', fixedRate: rate })}
-        />
-      )}
-
-      {returnConfig.mode === 'random' && (
-        <SegmentRandomReturnConfig
-          segmentId={segmentId}
-          randomConfig={returnConfig.randomConfig}
-          onRandomConfigChange={config =>
-            onReturnConfigChange({ mode: 'random', randomConfig: config })}
-        />
-      )}
-
-      {returnConfig.mode === 'variable' && (
-        <SegmentVariableReturnConfig
-          startYear={startYear}
-          endYear={endYear}
-          variableConfig={returnConfig.variableConfig}
-          onVariableConfigChange={config =>
-            onReturnConfigChange({ mode: 'variable', variableConfig: config })}
-        />
-      )}
-
-      {returnConfig.mode === 'multiasset' && (
-        <div className="mb-4">
-          <MultiAssetPortfolioConfiguration
-            values={returnConfig.multiAssetConfig || createDefaultMultiAssetConfig()}
-            onChange={newConfig =>
-              onReturnConfigChange({
-                mode: 'multiasset',
-                multiAssetConfig: newConfig,
-              })}
-            nestingLevel={1}
-          />
-        </div>
-      )}
+      <SegmentReturnModeSelector
+        currentMode={currentMode}
+        onModeChange={handleModeChange}
+      />
+      <SegmentReturnConfigRenderer
+        segmentId={segmentId}
+        startYear={startYear}
+        endYear={endYear}
+        returnConfig={returnConfig}
+        onReturnConfigChange={onReturnConfigChange}
+      />
     </>
   )
 }
