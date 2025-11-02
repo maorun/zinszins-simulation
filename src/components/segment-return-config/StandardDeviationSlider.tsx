@@ -1,7 +1,6 @@
-import { useMemo } from 'react'
 import { Label } from '../ui/label'
 import { Slider } from '../ui/slider'
-import { generateInstanceId } from '../../utils/unique-id'
+import { useInstanceId } from '../../utils/unique-id'
 
 interface StandardDeviationSliderProps {
   segmentId: string
@@ -14,7 +13,7 @@ export function StandardDeviationSlider({
   standardDeviation,
   onStandardDeviationChange,
 }: StandardDeviationSliderProps) {
-  const sliderId = useMemo(() => generateInstanceId('std-dev', segmentId), [segmentId])
+  const sliderId = useInstanceId('std-dev', segmentId)
 
   return (
     <div className="mb-4 space-y-2">

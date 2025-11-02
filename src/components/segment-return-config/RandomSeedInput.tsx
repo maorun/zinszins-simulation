@@ -1,7 +1,6 @@
-import { useMemo } from 'react'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
-import { generateInstanceId } from '../../utils/unique-id'
+import { useInstanceId } from '../../utils/unique-id'
 
 interface RandomSeedInputProps {
   segmentId: string
@@ -14,7 +13,7 @@ export function RandomSeedInput({
   seed,
   onSeedChange,
 }: RandomSeedInputProps) {
-  const inputId = useMemo(() => generateInstanceId('random-seed', segmentId), [segmentId])
+  const inputId = useInstanceId('random-seed', segmentId)
 
   return (
     <div className="mb-4 space-y-2">
