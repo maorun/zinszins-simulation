@@ -1,0 +1,36 @@
+import { Input } from '../ui/input'
+import { Label } from '../ui/label'
+import { generateInstanceId } from '../../utils/unique-id'
+
+interface RandomSeedInputProps {
+  segmentId: string
+  seed: number | undefined
+  onSeedChange: (value: number | undefined) => void
+}
+
+export function RandomSeedInput({
+  segmentId,
+  seed,
+  onSeedChange,
+}: RandomSeedInputProps) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label htmlFor={generateInstanceId('random-seed', segmentId)}>
+        Zufalls-Seed (optional)
+      </Label>
+      <Input
+        id={generateInstanceId('random-seed', segmentId)}
+        type="number"
+        value={seed || ''}
+        onChange={(e) => {
+          const value = e.target.value ? Number(e.target.value) : undefined
+          onSeedChange(value)
+        }}
+        placeholder="Für reproduzierbare Ergebnisse"
+      />
+      <div className="text-sm text-muted-foreground mt-1">
+        Optionaler Seed für reproduzierbare Zufallsrenditen. Leer lassen für echte Zufälligkeit.
+      </div>
+    </div>
+  )
+}
