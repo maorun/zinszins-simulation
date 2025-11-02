@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { generateInstanceId } from '../../utils/unique-id'
@@ -13,13 +14,15 @@ export function RandomSeedInput({
   seed,
   onSeedChange,
 }: RandomSeedInputProps) {
+  const inputId = useMemo(() => generateInstanceId('random-seed', segmentId), [segmentId])
+
   return (
     <div className="mb-4 space-y-2">
-      <Label htmlFor={generateInstanceId('random-seed', segmentId)}>
+      <Label htmlFor={inputId}>
         Zufalls-Seed (optional)
       </Label>
       <Input
-        id={generateInstanceId('random-seed', segmentId)}
+        id={inputId}
         type="number"
         value={seed || ''}
         onChange={(e) => {

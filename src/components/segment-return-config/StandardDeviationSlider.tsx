@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Label } from '../ui/label'
 import { Slider } from '../ui/slider'
 import { generateInstanceId } from '../../utils/unique-id'
@@ -13,14 +14,16 @@ export function StandardDeviationSlider({
   standardDeviation,
   onStandardDeviationChange,
 }: StandardDeviationSliderProps) {
+  const sliderId = useMemo(() => generateInstanceId('std-dev', segmentId), [segmentId])
+
   return (
     <div className="mb-4 space-y-2">
-      <Label htmlFor={generateInstanceId('std-dev', segmentId)}>
+      <Label htmlFor={sliderId}>
         Standardabweichung (%)
       </Label>
       <div className="space-y-2">
         <Slider
-          id={generateInstanceId('std-dev', segmentId)}
+          id={sliderId}
           value={[standardDeviation * 100]}
           min={5}
           max={25}

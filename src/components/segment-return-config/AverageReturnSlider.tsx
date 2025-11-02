@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { Label } from '../ui/label'
 import { Slider } from '../ui/slider'
 import { generateInstanceId } from '../../utils/unique-id'
@@ -13,14 +14,16 @@ export function AverageReturnSlider({
   averageReturn,
   onAverageReturnChange,
 }: AverageReturnSliderProps) {
+  const sliderId = useMemo(() => generateInstanceId('avg-return', segmentId), [segmentId])
+
   return (
     <div className="mb-4 space-y-2">
-      <Label htmlFor={generateInstanceId('avg-return', segmentId)}>
+      <Label htmlFor={sliderId}>
         Durchschnittliche Rendite (%)
       </Label>
       <div className="space-y-2">
         <Slider
-          id={generateInstanceId('avg-return', segmentId)}
+          id={sliderId}
           value={[averageReturn * 100]}
           min={0}
           max={12}
