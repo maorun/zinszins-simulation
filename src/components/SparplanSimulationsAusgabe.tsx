@@ -10,10 +10,11 @@ import { createInterestExplanation, createTaxExplanation, createEndkapitalExplan
 import InteractiveChart from './InteractiveChart'
 import { convertSparplanElementsToSimulationResult, hasInflationAdjustedValues } from '../utils/chart-data-converter'
 import { TooltipProvider } from './ui/tooltip'
-import type { SimulationResultElement } from '../utils/simulate'
+import type { SimulationResultElement, VorabpauschaleDetails } from '../utils/simulate'
 import { YearlyProgressionCard } from './sparplan/YearlyProgressionCard'
 import { SummaryCard } from './sparplan/SummaryCard'
 import { useSimulationModals } from '../hooks/useSimulationModals'
+import { useCallback } from 'react'
 
 // Type for calculation info click data
 interface CalculationInfoData {
@@ -205,7 +206,207 @@ function createEndkapitalCalculation(
   )
 }
 
-// eslint-disable-next-line max-lines-per-function
+// Custom hook to handle calculation info modal logic
+function useCalculationInfoHandler(
+  elemente: SparplanElement[] | undefined,
+  showCalculationInfoModal: (explanation: CalculationExplanation | null) => void,
+) {
+  const findSimulationDataForYear = useCallback((jahr: number) => {
+    const yearSimData = elemente?.find(el => el.simulation[jahr])
+    return yearSimData?.simulation[jahr]
+  }, [elemente])
+
+  const handleShowCalculationInfo = useCallback((explanationType: string, rowData: CalculationInfoData) => {
+    const simData = findSimulationDataForYear(rowData.jahr)
+    if (!simData) return
+
+    const explanation = createExplanationByType(
+      explanationType,
+      simData,
+      rowData,
+      createInterestCalculation,
+      createTaxCalculation,
+      createEndkapitalCalculation,
+    )
+    showCalculationInfoModal(explanation)
+  }, [findSimulationDataForYear, showCalculationInfoModal])
+
+  return handleShowCalculationInfo
+}
+
+// Custom hook to prepare summary data
+function useSummaryData(elemente: SparplanElement[] | undefined) {
+  const summary: Summary = fullSummary(elemente)
+  const yearlyProgression = getYearlyPortfolioProgression(elemente)
+  const hasInflationData = yearlyProgression.some(p => p.totalCapitalReal !== undefined)
+  const tableData = yearlyProgression.sort((a, b) => b.year - a.year)
+
+  return { summary, yearlyProgression, hasInflationData, tableData }
+}
+
+// Component for chart section
+function ChartSection({ elemente }: { elemente?: SparplanElement[] }) {
+  if (!elemente || elemente.length === 0) return null
+
+  const simulationData = convertSparplanElementsToSimulationResult(elemente)
+  return (
+    <div className="mb-6">
+      <InteractiveChart
+        simulationData={simulationData}
+        showRealValues={hasInflationAdjustedValues(simulationData)}
+        className="mb-4"
+      />
+    </div>
+  )
+}
+
+// Component for modals section
+function ModalsSection(props: ModalsProps) {
+  const {
+    showVorabpauschaleModal,
+    hideVorabpauschaleInfo,
+    selectedVorabDetails,
+    showCalculationModal,
+    hideCalculationInfo,
+    calculationDetails,
+  } = props
+  return (
+    <>
+      <VorabpauschaleExplanationModal
+        open={showVorabpauschaleModal}
+        onClose={hideVorabpauschaleInfo}
+        selectedVorabDetails={selectedVorabDetails}
+      />
+      {calculationDetails && (
+        <CalculationExplanationModal
+          open={showCalculationModal}
+          onClose={hideCalculationInfo}
+          title={calculationDetails.title}
+          introduction={calculationDetails.introduction}
+          steps={calculationDetails.steps}
+          finalResult={calculationDetails.finalResult}
+        />
+      )}
+    </>
+  )
+}
+
+// Type for progression cards props
+interface ProgressionCardsProps {
+  tableData: ReturnType<typeof getYearlyPortfolioProgression>
+  hasInflationData: boolean
+  handleShowCalculationInfo: (explanationType: string, rowData: CalculationInfoData) => void
+  elemente?: SparplanElement[]
+  showVorabpauschaleInfo: (details: VorabpauschaleDetails) => void
+  summary: Summary
+  yearlyProgression: ReturnType<typeof getYearlyPortfolioProgression>
+}
+
+// Type for modals props
+interface ModalsProps {
+  showVorabpauschaleModal: boolean
+  hideVorabpauschaleInfo: () => void
+  selectedVorabDetails: VorabpauschaleDetails | null
+  showCalculationModal: boolean
+  hideCalculationInfo: () => void
+  calculationDetails: CalculationExplanation | null
+}
+
+// Type for card content props
+type SparplanCardContentProps = ProgressionCardsProps & ModalsProps & { elemente?: SparplanElement[] }
+
+// Component for progression cards section
+function ProgressionCardsSection(props: ProgressionCardsProps) {
+  const {
+    tableData,
+    hasInflationData,
+    handleShowCalculationInfo,
+    elemente,
+    showVorabpauschaleInfo,
+    summary,
+    yearlyProgression,
+  } = props
+  return (
+    <div className="flex flex-col gap-4">
+      {tableData?.map((row, index) => (
+        <YearlyProgressionCard
+          key={index}
+          row={row}
+          hasInflationData={hasInflationData}
+          showCalculationInfo={handleShowCalculationInfo}
+          elemente={elemente}
+          showVorabpauschaleInfo={showVorabpauschaleInfo}
+        />
+      ))}
+      <SummaryCard
+        summary={summary}
+        hasInflationData={hasInflationData}
+        yearlyProgression={yearlyProgression}
+        showCalculationInfo={handleShowCalculationInfo}
+        tableData={tableData}
+      />
+    </div>
+  )
+}
+
+// Component for the card content
+function SparplanCardContent(props: SparplanCardContentProps) {
+  const {
+    elemente,
+    tableData,
+    hasInflationData,
+    handleShowCalculationInfo,
+    showVorabpauschaleInfo,
+    summary,
+    yearlyProgression,
+    showVorabpauschaleModal,
+    hideVorabpauschaleInfo,
+    selectedVorabDetails,
+    showCalculationModal,
+    hideCalculationInfo,
+    calculationDetails,
+  } = props
+  return (
+    <CardContent>
+      <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
+        Jahr-für-Jahr Progression Ihres Portfolios - zeigt die kumulierte Kapitalentwicklung über die Zeit
+      </div>
+      <ChartSection elemente={elemente} />
+      <ProgressionCardsSection
+        tableData={tableData}
+        hasInflationData={hasInflationData}
+        handleShowCalculationInfo={handleShowCalculationInfo}
+        elemente={elemente}
+        showVorabpauschaleInfo={showVorabpauschaleInfo}
+        summary={summary}
+        yearlyProgression={yearlyProgression}
+      />
+      <ModalsSection
+        showVorabpauschaleModal={showVorabpauschaleModal}
+        hideVorabpauschaleInfo={hideVorabpauschaleInfo}
+        selectedVorabDetails={selectedVorabDetails}
+        showCalculationModal={showCalculationModal}
+        hideCalculationInfo={hideCalculationInfo}
+        calculationDetails={calculationDetails}
+      />
+    </CardContent>
+  )
+}
+
+// Component for card header
+function SparplanCardHeader() {
+  return (
+    <CardHeader>
+      <CollapsibleTrigger asChild>
+        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+          <CardTitle className="text-left">📈 Sparplan-Verlauf</CardTitle>
+          <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+        </div>
+      </CollapsibleTrigger>
+    </CardHeader>
+  )
+}
+
 export function SparplanSimulationsAusgabe({
   elemente,
 }: {
@@ -222,92 +423,30 @@ export function SparplanSimulationsAusgabe({
     hideCalculationInfo,
   } = useSimulationModals()
 
-  const summary: Summary = fullSummary(elemente)
-  const yearlyProgression = getYearlyPortfolioProgression(elemente)
-  const hasInflationData = yearlyProgression.some(p => p.totalCapitalReal !== undefined)
-  const tableData = yearlyProgression.sort((a, b) => b.year - a.year)
-
-  const findSimulationDataForYear = (jahr: number) => {
-    const yearSimData = elemente?.find(el => el.simulation[jahr])
-    return yearSimData?.simulation[jahr]
-  }
-
-  const handleShowCalculationInfo = (explanationType: string, rowData: CalculationInfoData) => {
-    const simData = findSimulationDataForYear(rowData.jahr)
-    if (!simData) return
-
-    const explanation = createExplanationByType(
-      explanationType,
-      simData,
-      rowData,
-      createInterestCalculation,
-      createTaxCalculation,
-      createEndkapitalCalculation,
-    )
-    showCalculationInfoModal(explanation)
-  }
+  const { summary, yearlyProgression, hasInflationData, tableData } = useSummaryData(elemente)
+  const handleShowCalculationInfo = useCalculationInfoHandler(elemente, showCalculationInfoModal)
 
   return (
     <TooltipProvider>
       <Card className="mb-4">
         <Collapsible defaultOpen={false}>
-          <CardHeader>
-            <CollapsibleTrigger asChild>
-              <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
-                <CardTitle className="text-left">📈 Sparplan-Verlauf</CardTitle>
-                <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-              </div>
-            </CollapsibleTrigger>
-          </CardHeader>
+          <SparplanCardHeader />
           <CollapsibleContent>
-            <CardContent>
-              <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
-                Jahr-für-Jahr Progression Ihres Portfolios - zeigt die kumulierte Kapitalentwicklung über die Zeit
-              </div>
-              {elemente && elemente.length > 0 && (
-                <div className="mb-6">
-                  <InteractiveChart
-                    simulationData={convertSparplanElementsToSimulationResult(elemente)}
-                    showRealValues={hasInflationAdjustedValues(convertSparplanElementsToSimulationResult(elemente))}
-                    className="mb-4"
-                  />
-                </div>
-              )}
-              <div className="flex flex-col gap-4">
-                {tableData?.map((row, index) => (
-                  <YearlyProgressionCard
-                    key={index}
-                    row={row}
-                    hasInflationData={hasInflationData}
-                    showCalculationInfo={handleShowCalculationInfo}
-                    elemente={elemente}
-                    showVorabpauschaleInfo={showVorabpauschaleInfo}
-                  />
-                ))}
-                <SummaryCard
-                  summary={summary}
-                  hasInflationData={hasInflationData}
-                  yearlyProgression={yearlyProgression}
-                  showCalculationInfo={handleShowCalculationInfo}
-                  tableData={tableData}
-                />
-              </div>
-              <VorabpauschaleExplanationModal
-                open={showVorabpauschaleModal}
-                onClose={hideVorabpauschaleInfo}
-                selectedVorabDetails={selectedVorabDetails}
-              />
-              {calculationDetails && (
-                <CalculationExplanationModal
-                  open={showCalculationModal}
-                  onClose={hideCalculationInfo}
-                  title={calculationDetails.title}
-                  introduction={calculationDetails.introduction}
-                  steps={calculationDetails.steps}
-                  finalResult={calculationDetails.finalResult}
-                />
-              )}
-            </CardContent>
+            <SparplanCardContent
+              elemente={elemente}
+              tableData={tableData}
+              hasInflationData={hasInflationData}
+              handleShowCalculationInfo={handleShowCalculationInfo}
+              showVorabpauschaleInfo={showVorabpauschaleInfo}
+              summary={summary}
+              yearlyProgression={yearlyProgression}
+              showVorabpauschaleModal={showVorabpauschaleModal}
+              hideVorabpauschaleInfo={hideVorabpauschaleInfo}
+              selectedVorabDetails={selectedVorabDetails}
+              showCalculationModal={showCalculationModal}
+              hideCalculationInfo={hideCalculationInfo}
+              calculationDetails={calculationDetails}
+            />
           </CollapsibleContent>
         </Collapsible>
       </Card>
