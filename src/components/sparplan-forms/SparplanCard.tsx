@@ -267,11 +267,158 @@ function SparplanCardDetails({
 }
 
 /**
- * Inline edit form for sparplan card
- * Complexity: <8, Lines: <50
+ * Date field for one-time payment
  */
-// eslint-disable-next-line max-lines-per-function -- Complex configuration component
-function SparplanCardEditForm(props: {
+function SinglePaymentDateField({
+  singleFormValue,
+  formatDateForInput,
+  handleDateChange,
+  onSingleFormChange,
+}: {
+  singleFormValue: SingleFormValue
+  formatDateForInput: (date: Date | string | null, format: string) => string
+  handleDateChange: (
+    e: React.ChangeEvent<HTMLInputElement>,
+    format: string,
+    callback: (date: Date | null) => void,
+  ) => void
+  onSingleFormChange: (values: SingleFormValue) => void
+}) {
+  return (
+    <div>
+      <Label className="text-sm font-medium">📅 Datum</Label>
+      <Input
+        type="date"
+        value={formatDateForInput(singleFormValue.date, 'yyyy-MM-dd')}
+        onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => onSingleFormChange({ ...singleFormValue, date: date || new Date() }))}
+        className="mt-1"
+      />
+    </div>
+  )
+}
+
+/**
+ * Start and end date fields for savings plans
+ */
+function SparplanDateFields({
+  sparplanFormValues,
+  formatDateForInput,
+  handleDateChange,
+  onSparplanFormChange,
+}: {
+  sparplanFormValues: SparplanFormValue
+  formatDateForInput: (date: Date | string | null, format: string) => string
+  handleDateChange: (
+    e: React.ChangeEvent<HTMLInputElement>,
+    format: string,
+    callback: (date: Date | null) => void,
+  ) => void
+  onSparplanFormChange: (values: SparplanFormValue) => void
+}) {
+  return (
+    <>
+      <div>
+        <Label className="text-sm font-medium">📅 Start</Label>
+        <Input
+          type="month"
+          value={formatDateForInput(sparplanFormValues.start, 'yyyy-MM')}
+          onChange={e => handleDateChange(e, 'yyyy-MM', date => onSparplanFormChange({ ...sparplanFormValues, start: date || new Date() }))}
+          className="mt-1"
+        />
+      </div>
+      <div>
+        <Label className="text-sm font-medium">🏁 Ende (optional)</Label>
+        <Input
+          type="month"
+          value={formatDateForInput(sparplanFormValues.end, 'yyyy-MM')}
+          onChange={e => handleDateChange(e, 'yyyy-MM', date => onSparplanFormChange({ ...sparplanFormValues, end: date }))}
+          className="mt-1"
+        />
+      </div>
+    </>
+  )
+}
+
+/**
+ * Amount field for both one-time payment and savings plan
+ */
+function AmountField({
+  isOneTimePayment,
+  simulationAnnual,
+  sparplanFormValues,
+  singleFormValue,
+  onSparplanFormChange,
+  onSingleFormChange,
+}: {
+  isOneTimePayment: boolean
+  simulationAnnual: SimulationAnnualType
+  sparplanFormValues: SparplanFormValue
+  singleFormValue: SingleFormValue
+  onSparplanFormChange: (values: SparplanFormValue) => void
+  onSingleFormChange: (values: SingleFormValue) => void
+}) {
+  return (
+    <div>
+      <Label className="text-sm font-medium">
+        {isOneTimePayment
+          ? '💰 Betrag (€)'
+          : `💰 ${simulationAnnual === SimulationAnnual.yearly ? 'Jährlich' : 'Monatlich'} (€)`}
+      </Label>
+      <Input
+        type="number"
+        value={isOneTimePayment ? singleFormValue.einzahlung : sparplanFormValues.einzahlung}
+        onChange={(e) => {
+          const value = e.target.value
+          if (isOneTimePayment) {
+            onSingleFormChange({ ...singleFormValue, einzahlung: value })
+          }
+          else {
+            onSparplanFormChange({ ...sparplanFormValues, einzahlung: value })
+          }
+        }}
+        className="mt-1"
+        min={0}
+        step={100}
+      />
+    </div>
+  )
+}
+
+/**
+ * Action buttons for edit form
+ */
+function EditFormActionButtons({
+  onSaveEdit,
+  onCancelEdit,
+}: {
+  onSaveEdit: () => void
+  onCancelEdit: () => void
+}) {
+  return (
+    <div className="flex gap-2 pt-2">
+      <Button
+        onClick={onSaveEdit}
+        size="sm"
+        className="flex-1"
+      >
+        ✅ Speichern
+      </Button>
+      <Button
+        onClick={onCancelEdit}
+        variant="outline"
+        size="sm"
+        className="flex-1"
+      >
+        ❌ Abbrechen
+      </Button>
+    </div>
+  )
+}
+
+/**
+ * Props for edit form components
+ */
+interface EditFormProps {
   sparplan: Sparplan
   isOneTimePayment: boolean
   simulationAnnual: SimulationAnnualType
@@ -287,105 +434,72 @@ function SparplanCardEditForm(props: {
   onCancelEdit: () => void
   onSparplanFormChange: (values: SparplanFormValue) => void
   onSingleFormChange: (values: SingleFormValue) => void
-}) {
-  const {
-    isOneTimePayment,
-    simulationAnnual,
-    sparplanFormValues,
-    singleFormValue,
-    formatDateForInput,
-    handleDateChange,
-    onSaveEdit,
-    onCancelEdit,
-    onSparplanFormChange,
-    onSingleFormChange,
-  } = props
+}
 
+/**
+ * Edit form fields container
+ */
+function EditFormFields({
+  isOneTimePayment,
+  simulationAnnual,
+  sparplanFormValues,
+  singleFormValue,
+  formatDateForInput,
+  handleDateChange,
+  onSparplanFormChange,
+  onSingleFormChange,
+}: Omit<EditFormProps, 'sparplan' | 'onSaveEdit' | 'onCancelEdit'>) {
+  return (
+    <div className="space-y-3">
+      {isOneTimePayment && (
+        <SinglePaymentDateField
+          singleFormValue={singleFormValue}
+          formatDateForInput={formatDateForInput}
+          handleDateChange={handleDateChange}
+          onSingleFormChange={onSingleFormChange}
+        />
+      )}
+      {!isOneTimePayment && (
+        <SparplanDateFields
+          sparplanFormValues={sparplanFormValues}
+          formatDateForInput={formatDateForInput}
+          handleDateChange={handleDateChange}
+          onSparplanFormChange={onSparplanFormChange}
+        />
+      )}
+      <AmountField
+        isOneTimePayment={isOneTimePayment}
+        simulationAnnual={simulationAnnual}
+        sparplanFormValues={sparplanFormValues}
+        singleFormValue={singleFormValue}
+        onSparplanFormChange={onSparplanFormChange}
+        onSingleFormChange={onSingleFormChange}
+      />
+    </div>
+  )
+}
+
+/**
+ * Inline edit form for sparplan card
+ */
+function SparplanCardEditForm(props: EditFormProps) {
   return (
     <div className="mt-4 p-4 bg-yellow-25 border border-yellow-200 rounded-lg">
       <div className="text-sm font-semibold text-yellow-800 mb-3">✏️ Bearbeiten</div>
-      <div className="space-y-3">
-        {/* Date field for one-time payments */}
-        {isOneTimePayment && (
-          <div>
-            <Label className="text-sm font-medium">📅 Datum</Label>
-            <Input
-              type="date"
-              value={formatDateForInput(singleFormValue.date, 'yyyy-MM-dd')}
-              onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => onSingleFormChange({ ...singleFormValue, date: date || new Date() }))}
-              className="mt-1"
-            />
-          </div>
-        )}
-
-        {/* Start and End dates for savings plans */}
-        {!isOneTimePayment && (
-          <>
-            <div>
-              <Label className="text-sm font-medium">📅 Start</Label>
-              <Input
-                type="month"
-                value={formatDateForInput(sparplanFormValues.start, 'yyyy-MM')}
-                onChange={e => handleDateChange(e, 'yyyy-MM', date => onSparplanFormChange({ ...sparplanFormValues, start: date || new Date() }))}
-                className="mt-1"
-              />
-            </div>
-            <div>
-              <Label className="text-sm font-medium">🏁 Ende (optional)</Label>
-              <Input
-                type="month"
-                value={formatDateForInput(sparplanFormValues.end, 'yyyy-MM')}
-                onChange={e => handleDateChange(e, 'yyyy-MM', date => onSparplanFormChange({ ...sparplanFormValues, end: date }))}
-                className="mt-1"
-              />
-            </div>
-          </>
-        )}
-
-        {/* Amount field */}
-        <div>
-          <Label className="text-sm font-medium">
-            {isOneTimePayment
-              ? '💰 Betrag (€)'
-              : `💰 ${simulationAnnual === SimulationAnnual.yearly ? 'Jährlich' : 'Monatlich'} (€)`}
-          </Label>
-          <Input
-            type="number"
-            value={isOneTimePayment ? singleFormValue.einzahlung : sparplanFormValues.einzahlung}
-            onChange={(e) => {
-              const value = e.target.value
-              if (isOneTimePayment) {
-                onSingleFormChange({ ...singleFormValue, einzahlung: value })
-              }
-              else {
-                onSparplanFormChange({ ...sparplanFormValues, einzahlung: value })
-              }
-            }}
-            className="mt-1"
-            min={0}
-            step={100}
-          />
-        </div>
-
-        {/* Action buttons */}
-        <div className="flex gap-2 pt-2">
-          <Button
-            onClick={onSaveEdit}
-            size="sm"
-            className="flex-1"
-          >
-            ✅ Speichern
-          </Button>
-          <Button
-            onClick={onCancelEdit}
-            variant="outline"
-            size="sm"
-            className="flex-1"
-          >
-            ❌ Abbrechen
-          </Button>
-        </div>
-      </div>
+      <EditFormFields
+        isOneTimePayment={props.isOneTimePayment}
+        simulationAnnual={props.simulationAnnual}
+        sparplanFormValues={props.sparplanFormValues}
+        singleFormValue={props.singleFormValue}
+        formatDateForInput={props.formatDateForInput}
+        handleDateChange={props.handleDateChange}
+        onSparplanFormChange={props.onSparplanFormChange}
+        onSingleFormChange={props.onSingleFormChange}
+      />
+      <EditFormActionButtons
+        onSaveEdit={props.onSaveEdit}
+        onCancelEdit={props.onCancelEdit}
+      />
     </div>
   )
 }
