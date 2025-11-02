@@ -1,6 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useMemo } from 'react'
 import { useSimulation } from '../contexts/useSimulation'
 import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
+import { formatCompactCurrency } from '../utils/currency'
+import { getYearsRange } from '../utils/years-range'
+import { useMobileDetection } from '../hooks/useMobileDetection'
+import { useStickyBehavior } from '../hooks/useStickyBehavior'
 import { BurgerNavigation } from './BurgerNavigation'
 
 interface StickyOverviewProps {
@@ -96,11 +100,32 @@ function DesktopAnsparenView({
   )
 }
 
-// eslint-disable-next-line max-lines-per-function -- Large component function
-export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
-  const [isSticky, setIsSticky] = useState(false)
-  const [isMobile, setIsMobile] = useState(false)
+/**
+ * Content display component that handles mobile vs desktop rendering
+ */
+function AnsparenContent({
+  isMobile,
+  yearsRange,
+  enhancedSummary,
+}: {
+  isMobile: boolean
+  yearsRange: string
+  enhancedSummary: ReturnType<typeof getEnhancedOverviewSummary> | null
+}) {
+  return isMobile
+    ? (
+        <MobileAnsparenView
+          yearsRange={yearsRange}
+          enhancedSummary={enhancedSummary}
+          formatCompactCurrency={formatCompactCurrency}
+        />
+      )
+    : <DesktopAnsparenView yearsRange={yearsRange} enhancedSummary={enhancedSummary} />
+}
 
+export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
+  const isMobile = useMobileDetection()
+  const isSticky = useStickyBehavior(overviewElementRef)
   const {
     simulationData,
     startEnd,
@@ -111,85 +136,20 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
     endOfLife,
   } = useSimulation()
 
-  const enhancedSummary = useMemo(() => {
-    return getEnhancedOverviewSummary(
-      simulationData,
-      startEnd,
-      withdrawalResults,
-      rendite,
-      steuerlast,
-      teilfreistellungsquote,
-      undefined, // withdrawalConfig - not available in this component
-      endOfLife,
-    )
-  }, [
+  const enhancedSummary = useMemo(() => getEnhancedOverviewSummary(
     simulationData,
     startEnd,
     withdrawalResults,
     rendite,
     steuerlast,
     teilfreistellungsquote,
+    undefined,
     endOfLife,
-  ])
+  ), [simulationData, startEnd, withdrawalResults, rendite, steuerlast, teilfreistellungsquote, endOfLife])
 
-  // Check if we're on mobile
-  useEffect(() => {
-    const checkMobile = () => {
-      setIsMobile(window.innerWidth < 768)
-    }
+  if (!isSticky || !enhancedSummary || !simulationData) return null
 
-    checkMobile()
-    window.addEventListener('resize', checkMobile)
-    return () => window.removeEventListener('resize', checkMobile)
-  }, [])
-
-  // Track scroll position to show/hide sticky header
-  useEffect(() => {
-    const handleScroll = () => {
-      if (!overviewElementRef.current) return
-
-      const overviewRect = overviewElementRef.current.getBoundingClientRect()
-      const shouldBeSticky = overviewRect.bottom < 0
-      setIsSticky(shouldBeSticky)
-    }
-
-    window.addEventListener('scroll', handleScroll)
-    handleScroll() // Check initial state
-
-    return () => window.removeEventListener('scroll', handleScroll)
-  }, [overviewElementRef])
-
-  if (!isSticky || !enhancedSummary || !simulationData) {
-    return null
-  }
-
-  // Calculate years range
-  const startDates = simulationData.sparplanElements.map(el => new Date(el.start).getFullYear())
-  const savingsStartYear = Math.min(...startDates)
-  const savingsEndYear = startEnd[0]
-  const yearsRange = `${savingsStartYear} - ${savingsEndYear}`
-
-  // Helper function to format currency in compact form for mobile
-  const formatCompactCurrency = (amount: number) => {
-    if (amount >= 1000000) {
-      return `${(amount / 1000000).toFixed(1)}M €`
-    }
-    else if (amount >= 1000) {
-      return `${(amount / 1000).toFixed(0)}k €`
-    }
-    return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
-  }
-
-  const renderAnsparenContent = () => (isMobile
-    ? (
-        <MobileAnsparenView
-          yearsRange={yearsRange}
-          enhancedSummary={enhancedSummary}
-          formatCompactCurrency={formatCompactCurrency}
-        />
-      )
-    : <DesktopAnsparenView yearsRange={yearsRange} enhancedSummary={enhancedSummary} />
-  )
+  const yearsRange = getYearsRange(simulationData, startEnd[0])
 
   return (
     <div className="fixed top-0 left-0 right-0 z-[1000] bg-white/95 backdrop-blur-sm border-b border-gray-200 shadow-lg animate-slide-down">
@@ -197,7 +157,11 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
         <div className="absolute top-3 right-4 md:right-6">
           <BurgerNavigation />
         </div>
-        {renderAnsparenContent()}
+        <AnsparenContent
+          isMobile={isMobile}
+          yearsRange={yearsRange}
+          enhancedSummary={enhancedSummary}
+        />
       </div>
     </div>
   )
