@@ -1,30 +1,89 @@
 import { useState } from 'react'
-import {
-  findApplicableSegment,
-  handleInflationExplanation,
-  handleInterestExplanation,
-  handleTaxExplanation,
-  handleIncomeTaxExplanation,
-  handleTaxableIncomeExplanation,
-  handleOtherIncomeExplanation,
-  handleStatutoryPensionExplanation,
-  handleEndkapitalExplanation,
-  handleHealthCareInsuranceExplanation,
-} from './useWithdrawalModals.helpers'
+import { createHandlerContext, processCalculationInfoClick } from './useWithdrawalModals.handlers'
 import type {
   CalculationExplanation,
   VorabpauschaleDetails,
   WithdrawalSegment,
   WithdrawalData,
-  RowData,
 } from './useWithdrawalModals.types'
+
+/**
+ * Initialize modal states
+ */
+function useModalStates() {
+  const [showCalculationModal, setShowCalculationModal] = useState(false)
+  const [calculationDetails, setCalculationDetails] = useState<CalculationExplanation | null>(null)
+  const [showVorabpauschaleModal, setShowVorabpauschaleModal] = useState(false)
+  const [selectedVorabDetails, setSelectedVorabDetails] = useState<VorabpauschaleDetails | null>(null)
+
+  return {
+    showCalculationModal,
+    setShowCalculationModal,
+    calculationDetails,
+    setCalculationDetails,
+    showVorabpauschaleModal,
+    setShowVorabpauschaleModal,
+    selectedVorabDetails,
+    setSelectedVorabDetails,
+  }
+}
+
+/**
+ * Create the handleCalculationInfoClick callback
+ */
+function createCalculationInfoClickHandler(
+  formValue: {
+    inflationsrate?: number
+    rendite?: number
+    einkommensteuersatz?: number
+  },
+  withdrawalData: WithdrawalData | null,
+  startOfIndependence: number,
+  steuerlast: number,
+  teilfreistellungsquote: number,
+  grundfreibetragAktiv: boolean,
+  grundfreibetragBetrag: number,
+  useSegmentedWithdrawal: boolean,
+  withdrawalSegments: WithdrawalSegment[],
+  setCalculationDetails: (details: CalculationExplanation | null) => void,
+  setShowCalculationModal: (show: boolean) => void,
+  setSelectedVorabDetails: (details: VorabpauschaleDetails | null) => void,
+  setShowVorabpauschaleModal: (show: boolean) => void,
+) {
+  return (explanationType: string, rowData: unknown) => {
+    const context = createHandlerContext(
+      formValue,
+      withdrawalData,
+      startOfIndependence,
+      steuerlast,
+      teilfreistellungsquote,
+      grundfreibetragAktiv,
+      grundfreibetragBetrag,
+    )
+
+    const result = processCalculationInfoClick(
+      explanationType,
+      rowData,
+      useSegmentedWithdrawal,
+      withdrawalSegments,
+      context,
+    )
+
+    if (result.showCalculation) {
+      setCalculationDetails(result.calculationDetails)
+      setShowCalculationModal(true)
+    }
+    if (result.showVorabpauschale) {
+      setSelectedVorabDetails(result.vorabDetails)
+      setShowVorabpauschaleModal(true)
+    }
+  }
+}
 
 /**
  * Custom hook for managing modal states and calculation explanations
  */
-// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
 export function useWithdrawalModals(
-  // Using a more lenient type to accept different form value shapes
   formValue: {
     inflationsrate?: number
     rendite?: number
@@ -39,78 +98,31 @@ export function useWithdrawalModals(
   grundfreibetragAktiv: boolean,
   grundfreibetragBetrag: number,
 ) {
-  // State for calculation explanation modals
-  const [showCalculationModal, setShowCalculationModal] = useState(false)
-  const [calculationDetails, setCalculationDetails] = useState<CalculationExplanation | null>(null)
-  const [showVorabpauschaleModal, setShowVorabpauschaleModal] = useState(false)
-  const [selectedVorabDetails, setSelectedVorabDetails] = useState<VorabpauschaleDetails | null>(null)
+  const modalStates = useModalStates()
 
-  // Handle calculation explanation clicks
-  const handleCalculationInfoClick = (explanationType: string, rowData: unknown) => {
-    // Type guard to ensure rowData has the expected shape
-    if (!rowData || typeof rowData !== 'object' || !('year' in rowData)) {
-      return
-    }
-    const data = rowData as RowData
-    // Find applicable segment for this year
-    const applicableSegment = findApplicableSegment(
-      useSegmentedWithdrawal,
-      withdrawalSegments,
-      data.year,
-    )
-
-    // Create context for handlers
-    const context = {
-      formValue,
-      withdrawalData,
-      startOfIndependence,
-      steuerlast,
-      teilfreistellungsquote,
-      grundfreibetragAktiv,
-      grundfreibetragBetrag,
-    }
-
-    // Special case: Vorabpauschale opens a different modal
-    if (explanationType === 'vorabpauschale' && data.vorabpauschaleDetails) {
-      setSelectedVorabDetails(data.vorabpauschaleDetails)
-      setShowVorabpauschaleModal(true)
-      return
-    }
-
-    // Map explanation types to their handlers
-    const explanationHandlers: Record<string, () => CalculationExplanation | null> = {
-      inflation: () => handleInflationExplanation({ rowData: data, context, applicableSegment }),
-      interest: () => handleInterestExplanation({ rowData: data, context, applicableSegment }),
-      tax: () => handleTaxExplanation({ rowData: data, context }),
-      incomeTax: () => handleIncomeTaxExplanation({ rowData: data, context, applicableSegment }),
-      taxableIncome: () => handleTaxableIncomeExplanation({ rowData: data, context }),
-      otherIncome: () => handleOtherIncomeExplanation({ rowData: data }),
-      statutoryPension: () => handleStatutoryPensionExplanation({ rowData: data }),
-      endkapital: () => handleEndkapitalExplanation({ rowData: data }),
-      healthCareInsurance: () => handleHealthCareInsuranceExplanation({ rowData: data }),
-    }
-
-    // Get handler for the explanation type
-    const handler = explanationHandlers[explanationType]
-    if (!handler) {
-      return
-    }
-
-    // Generate and show explanation
-    const explanation = handler()
-    if (explanation) {
-      setCalculationDetails(explanation)
-      setShowCalculationModal(true)
-    }
-  }
+  const handleCalculationInfoClick = createCalculationInfoClickHandler(
+    formValue,
+    withdrawalData,
+    startOfIndependence,
+    steuerlast,
+    teilfreistellungsquote,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
+    modalStates.setCalculationDetails,
+    modalStates.setShowCalculationModal,
+    modalStates.setSelectedVorabDetails,
+    modalStates.setShowVorabpauschaleModal,
+  )
 
   return {
-    showCalculationModal,
-    setShowCalculationModal,
-    calculationDetails,
-    showVorabpauschaleModal,
-    setShowVorabpauschaleModal,
-    selectedVorabDetails,
+    showCalculationModal: modalStates.showCalculationModal,
+    setShowCalculationModal: modalStates.setShowCalculationModal,
+    calculationDetails: modalStates.calculationDetails,
+    showVorabpauschaleModal: modalStates.showVorabpauschaleModal,
+    setShowVorabpauschaleModal: modalStates.setShowVorabpauschaleModal,
+    selectedVorabDetails: modalStates.selectedVorabDetails,
     handleCalculationInfoClick,
   }
 }
