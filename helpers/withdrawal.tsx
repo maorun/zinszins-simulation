@@ -1425,10 +1425,9 @@ type ProcessYearlyWithdrawalParams = {
 }
 
 /**
- * Process withdrawal amounts and bucket strategy
+ * Parameters for processWithdrawalAmounts function
  */
-// eslint-disable-next-line max-lines-per-function -- Consolidates multiple withdrawal calculations
-function processWithdrawalAmounts(params: {
+type ProcessWithdrawalAmountsParams = {
   strategy: WithdrawalStrategy
   baseWithdrawalAmount: number
   capitalAtStartOfYear: number
@@ -1449,7 +1448,12 @@ function processWithdrawalAmounts(params: {
   healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
   statutoryPensionData: StatutoryPensionResult
   birthYear: number | undefined
-}): {
+}
+
+/**
+ * Return type for processWithdrawalAmounts function
+ */
+type ProcessWithdrawalAmountsResult = {
   annualWithdrawal: number
   inflationAnpassung: number
   dynamischeAnpassung: number
@@ -1464,14 +1468,27 @@ function processWithdrawalAmounts(params: {
   currentCashCushion: number
   effectiveWithdrawal: number
   monthlyWithdrawalAmount: number | undefined
-} {
-  const {
-    annualWithdrawal,
-    inflationAnpassung,
-    dynamischeAnpassung,
-    vorjahresRendite,
-    steueroptimierungAnpassung,
-  } = calculateAdjustedWithdrawal({
+}
+
+/**
+ * Calculate withdrawal context data (return rate and cash cushion)
+ */
+function calculateWithdrawalContext(
+  yearlyGrowthRates: Record<number, number>,
+  year: number,
+  cashCushion: number,
+): { returnRate: number, cashCushionAtStart: number } {
+  return {
+    returnRate: yearlyGrowthRates[year] || 0,
+    cashCushionAtStart: cashCushion,
+  }
+}
+
+/**
+ * Get adjusted withdrawal data for the year
+ */
+function getAdjustedWithdrawalData(params: ProcessWithdrawalAmountsParams): AdjustedWithdrawalResult {
+  return calculateAdjustedWithdrawal({
     strategy: params.strategy,
     baseWithdrawalAmount: params.baseWithdrawalAmount,
     capitalAtStartOfYear: params.capitalAtStartOfYear,
@@ -1487,10 +1504,16 @@ function processWithdrawalAmounts(params: {
     taxRate: params.taxRate,
     teilfreistellungsquote: params.teilfreistellungsquote,
   })
+}
 
-  const entnahme = Math.min(annualWithdrawal, params.capitalAtStartOfYear)
+/**
+ * Process withdrawal amounts and bucket strategy
+ */
+function processWithdrawalAmounts(params: ProcessWithdrawalAmountsParams): ProcessWithdrawalAmountsResult {
+  const adjustedWithdrawalData = getAdjustedWithdrawalData(params)
+  const entnahme = Math.min(adjustedWithdrawalData.annualWithdrawal, params.capitalAtStartOfYear)
 
-  const { healthCareInsuranceData, coupleHealthCareInsuranceData } = calculateYearHealthCareInsurance({
+  const insuranceData = calculateYearHealthCareInsurance({
     healthCareInsuranceConfig: params.healthCareInsuranceConfig,
     year: params.year,
     entnahme,
@@ -1498,10 +1521,13 @@ function processWithdrawalAmounts(params: {
     birthYear: params.birthYear,
   })
 
-  const returnRate = params.yearlyGrowthRates[params.year] || 0
-  const cashCushionAtStart = params.cashCushion
+  const { returnRate, cashCushionAtStart } = calculateWithdrawalContext(
+    params.yearlyGrowthRates,
+    params.year,
+    params.cashCushion,
+  )
 
-  const { bucketUsed, updatedCashCushion } = processBucketStrategyWithdrawal(
+  const bucketData = processBucketStrategyWithdrawal(
     params.strategy,
     params.bucketConfig,
     params.cashCushion,
@@ -1509,7 +1535,7 @@ function processWithdrawalAmounts(params: {
     returnRate,
   )
 
-  const { effectiveWithdrawal, monthlyAmount: monthlyWithdrawalAmount } = calculateMonthlyWithdrawal(
+  const monthlyData = calculateMonthlyWithdrawal(
     params.strategy,
     params.withdrawalFrequency,
     entnahme,
@@ -1521,20 +1547,15 @@ function processWithdrawalAmounts(params: {
   )
 
   return {
-    annualWithdrawal,
-    inflationAnpassung,
-    dynamischeAnpassung,
-    vorjahresRendite,
-    steueroptimierungAnpassung,
+    ...adjustedWithdrawalData,
     entnahme,
-    healthCareInsuranceData,
-    coupleHealthCareInsuranceData,
+    ...insuranceData,
     returnRate,
     cashCushionAtStart,
-    bucketUsed,
-    currentCashCushion: updatedCashCushion,
-    effectiveWithdrawal,
-    monthlyWithdrawalAmount,
+    bucketUsed: bucketData.bucketUsed,
+    currentCashCushion: bucketData.updatedCashCushion,
+    effectiveWithdrawal: monthlyData.effectiveWithdrawal,
+    monthlyWithdrawalAmount: monthlyData.monthlyAmount,
   }
 }
 
