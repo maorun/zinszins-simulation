@@ -178,7 +178,7 @@ describe('unique-id utilities', () => {
 
       // Same component should get the same stable ID
       expect(firstId).toBe(secondId)
-      expect(firstId).toMatch(/^component-[«:r][\w\d]+[»:]-dep1-dep2$/)
+      expect(firstId).toMatch(/^component-_r_\w+_-dep1-dep2$/)
     })
 
     it('should generate different IDs for different components', () => {
@@ -186,18 +186,18 @@ describe('unique-id utilities', () => {
       const { result: result2 } = renderHook(() => useUniqueId('component2'))
 
       expect(result1.current).not.toBe(result2.current)
-      expect(result1.current).toMatch(/^component1-[«:r][\w\d]+[»:]$/)
-      expect(result2.current).toMatch(/^component2-[«:r][\w\d]+[»:]$/)
+      expect(result1.current).toMatch(/^component1-_r_\w+_$/)
+      expect(result2.current).toMatch(/^component2-_r_\w+_$/)
     })
 
     it('should handle different dependency types', () => {
       const { result } = renderHook(() => useUniqueId('component', ['string', 42, true]))
-      expect(result.current).toMatch(/^component-[«:r][\w\d]+[»:]-string-42-true$/)
+      expect(result.current).toMatch(/^component-_r_\w+_-string-42-true$/)
     })
 
     it('should work without dependencies', () => {
       const { result } = renderHook(() => useUniqueId('component'))
-      expect(result.current).toMatch(/^component-[«:r][\w\d]+[»:]$/)
+      expect(result.current).toMatch(/^component-_r_\w+_$/)
     })
 
     it('should update ID when dependencies change', () => {
@@ -212,8 +212,8 @@ describe('unique-id utilities', () => {
 
       // Different dependencies should produce different IDs
       expect(firstId).not.toBe(secondId)
-      expect(firstId).toMatch(/^component-[«:r][\w\d]+[»:]-dep1$/)
-      expect(secondId).toMatch(/^component-[«:r][\w\d]+[»:]-dep2$/)
+      expect(firstId).toMatch(/^component-_r_\w+_-dep1$/)
+      expect(secondId).toMatch(/^component-_r_\w+_-dep2$/)
     })
   })
 
@@ -226,17 +226,17 @@ describe('unique-id utilities', () => {
       const secondId = result.current
 
       expect(firstId).toBe(secondId)
-      expect(firstId).toMatch(/^statutory-pension-couple-enabled-[«:r][\w\d]+[»:]$/)
+      expect(firstId).toMatch(/^statutory-pension-couple-enabled-_r_\w+_$/)
     })
 
     it('should work without context', () => {
       const { result } = renderHook(() => useFormId('other-income', 'monthly-amount'))
-      expect(result.current).toMatch(/^other-income-monthly-amount-[«:r][\w\d]+[»:]$/)
+      expect(result.current).toMatch(/^other-income-monthly-amount-_r_\w+_$/)
     })
 
     it('should normalize context with spaces', () => {
       const { result } = renderHook(() => useFormId('pension', 'enabled', 'Anna Maria Schmidt'))
-      expect(result.current).toMatch(/^pension-anna-maria-schmidt-enabled-[«:r][\w\d]+[»:]$/)
+      expect(result.current).toMatch(/^pension-anna-maria-schmidt-enabled-_r_\w+_$/)
     })
   })
 
@@ -249,17 +249,17 @@ describe('unique-id utilities', () => {
       const secondId = result.current
 
       expect(firstId).toBe(secondId)
-      expect(firstId).toMatch(/^segment-abc123-[«:r][\w\d]+[»:]$/)
+      expect(firstId).toMatch(/^segment-abc123-_r_\w+_$/)
     })
 
     it('should handle numeric instance IDs', () => {
       const { result } = renderHook(() => useInstanceId('item', 42))
-      expect(result.current).toMatch(/^item-42-[«:r][\w\d]+[»:]$/)
+      expect(result.current).toMatch(/^item-42-_r_\w+_$/)
     })
 
     it('should normalize string instance IDs', () => {
       const { result } = renderHook(() => useInstanceId('segment', 'Anna Maria Schmidt'))
-      expect(result.current).toMatch(/^segment-anna-maria-schmidt-[«:r][\w\d]+[»:]$/)
+      expect(result.current).toMatch(/^segment-anna-maria-schmidt-_r_\w+_$/)
     })
   })
 
