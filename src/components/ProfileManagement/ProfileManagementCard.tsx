@@ -1,8 +1,9 @@
-import type { FC, RefObject } from 'react'
+import type { FC, RefObject, ComponentProps } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
 import { ChevronDown } from 'lucide-react'
 import type { UserProfile } from '../../utils/profile-storage'
+import { ProfileContentArea as ProfileContentAreaComponent } from './ProfileContentArea'
 
 interface ProfileListProps {
   profiles: UserProfile[]
@@ -28,8 +29,7 @@ interface ProfileCardProps {
   onCreateProfile: () => void
   onClearAllProfiles: () => void
   ProfileList: FC<ProfileListProps>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Component type from parent
-  ProfileContentArea: FC<any>
+  ProfileContentArea: FC<ComponentProps<typeof ProfileContentAreaComponent>>
 }
 
 /** Card header with collapsible trigger */
