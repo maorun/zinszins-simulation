@@ -1201,6 +1201,7 @@ function calculateInitialCapitalAndValidate(
 /**
  * Calculate all tax-related values for the year
  */
+// eslint-disable-next-line max-lines-per-function -- Complex tax calculation logic
 function calculateYearlyTaxes(params: {
   mutableLayers: MutableLayer[]
   returnRate: number
@@ -1426,6 +1427,7 @@ type ProcessYearlyWithdrawalParams = {
 /**
  * Process withdrawal amounts and bucket strategy
  */
+// eslint-disable-next-line max-lines-per-function -- Consolidates multiple withdrawal calculations
 function processWithdrawalAmounts(params: {
   strategy: WithdrawalStrategy
   baseWithdrawalAmount: number
@@ -1539,6 +1541,7 @@ function processWithdrawalAmounts(params: {
 /**
  * Build the final year result with all collected data
  */
+// eslint-disable-next-line max-lines-per-function -- Result builder with many fields
 function buildFinalYearResult(params: {
   year: number
   capitalAtStartOfYear: number
@@ -1632,6 +1635,7 @@ function buildFinalYearResult(params: {
 /**
  * Orchestrate the complete withdrawal calculation for a year
  */
+// eslint-disable-next-line max-lines-per-function -- Orchestrates multiple calculation steps
 function orchestrateYearlyWithdrawalCalculation(params: {
   capitalAtStartOfYear: number
   yearParams: ProcessYearlyWithdrawalParams
