@@ -4,16 +4,11 @@ import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfo
 import type { OtherIncomeConfiguration } from '../../helpers/other-income'
 import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
 import { WithdrawalModeSelector } from './WithdrawalModeSelector'
-import { WithdrawalSegmentForm } from './WithdrawalSegmentForm'
-import { ComparisonStrategyConfiguration } from './ComparisonStrategyConfiguration'
-import { SegmentedComparisonConfiguration } from './SegmentedComparisonConfiguration'
-import { SingleStrategyConfigSection } from './SingleStrategyConfigSection'
-import { HealthCareInsuranceConfiguration, type HealthCareInsuranceChangeHandlers } from './HealthCareInsuranceConfiguration'
+import { WithdrawalModeContent } from './WithdrawalModeContent'
+import { HealthCareInsuranceContent } from './HealthCareInsuranceContent'
+import type { HealthCareInsuranceChangeHandlers } from './HealthCareInsuranceConfiguration'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
-import {
-  handleWithdrawalModeChange,
-} from './withdrawal-mode-helpers'
-import { buildHealthCareInsuranceValues } from './health-care-insurance-values-builder'
+import { handleWithdrawalModeChange } from './withdrawal-mode-helpers'
 
 interface WithdrawalVariablesCardProps {
   // Other income config
@@ -70,53 +65,28 @@ interface WithdrawalVariablesCardProps {
  * Withdrawal configuration variables card
  * Displays all configurable withdrawal parameters including modes, strategies, and health insurance
  */
-// eslint-disable-next-line max-lines-per-function -- Complex business logic calculation
-export function WithdrawalVariablesCard({
-  otherIncomeConfig,
-  onOtherIncomeConfigChange,
-  useSegmentedWithdrawal,
-  useComparisonMode,
-  useSegmentedComparisonMode,
-  withdrawalSegments,
-  onWithdrawalSegmentsChange,
-  formValue,
-  comparisonStrategies,
-  onFormValueUpdate,
-  onComparisonStrategyUpdate,
-  onComparisonStrategyAdd,
-  onComparisonStrategyRemove,
-  segmentedComparisonStrategies,
-  onSegmentedComparisonStrategyAdd,
-  onSegmentedComparisonStrategyUpdate,
-  onSegmentedComparisonStrategyRemove,
-  withdrawalReturnMode,
-  withdrawalAverageReturn,
-  withdrawalStandardDeviation,
-  withdrawalRandomSeed,
-  withdrawalVariableReturns,
-  withdrawalMultiAssetConfig,
-  onWithdrawalMultiAssetConfigChange,
-  onConfigUpdate,
-  dispatchEnd,
-  startOfIndependence,
-  globalEndOfLife,
-  planningMode,
-  birthYear,
-  spouseBirthYear,
-  currentWithdrawalAmount,
-  onHealthCareInsuranceChange,
-}: WithdrawalVariablesCardProps) {
+export function WithdrawalVariablesCard(props: WithdrawalVariablesCardProps) {
+  const {
+    otherIncomeConfig,
+    onOtherIncomeConfigChange,
+    useSegmentedWithdrawal,
+    useComparisonMode,
+    useSegmentedComparisonMode,
+    withdrawalSegments,
+    onConfigUpdate,
+    startOfIndependence,
+    globalEndOfLife,
+  } = props
+
   return (
     <CollapsibleCard>
       <CollapsibleCardHeader>Variablen</CollapsibleCardHeader>
       <CollapsibleCardContent>
-        {/* Other Income Sources Configuration */}
         <OtherIncomeConfigurationComponent
           config={otherIncomeConfig || { enabled: false, sources: [] }}
           onChange={onOtherIncomeConfigChange}
         />
 
-        {/* Toggle between single, segmented, and comparison withdrawal */}
         <WithdrawalModeSelector
           useSegmentedWithdrawal={useSegmentedWithdrawal}
           useComparisonMode={useComparisonMode}
@@ -131,64 +101,9 @@ export function WithdrawalVariablesCard({
             })}
         />
 
-        {useSegmentedWithdrawal ? (
-          <WithdrawalSegmentForm
-            segments={withdrawalSegments}
-            onSegmentsChange={onWithdrawalSegmentsChange}
-            withdrawalStartYear={startOfIndependence + 1}
-            withdrawalEndYear={globalEndOfLife}
-          />
-        ) : useComparisonMode ? (
-          <ComparisonStrategyConfiguration
-            formValue={formValue}
-            comparisonStrategies={comparisonStrategies}
-            onUpdateFormValue={onFormValueUpdate}
-            onUpdateComparisonStrategy={onComparisonStrategyUpdate}
-            onAddComparisonStrategy={onComparisonStrategyAdd}
-            onRemoveComparisonStrategy={onComparisonStrategyRemove}
-          />
-        ) : useSegmentedComparisonMode ? (
-          <SegmentedComparisonConfiguration
-            segmentedComparisonStrategies={segmentedComparisonStrategies}
-            withdrawalStartYear={startOfIndependence + 1}
-            withdrawalEndYear={globalEndOfLife}
-            onAddStrategy={onSegmentedComparisonStrategyAdd}
-            onUpdateStrategy={onSegmentedComparisonStrategyUpdate}
-            onRemoveStrategy={onSegmentedComparisonStrategyRemove}
-          />
-        ) : (
-          <SingleStrategyConfigSection
-            formValue={formValue}
-            startOfIndependence={startOfIndependence}
-            globalEndOfLife={globalEndOfLife}
-            withdrawalReturnMode={withdrawalReturnMode}
-            withdrawalAverageReturn={withdrawalAverageReturn}
-            withdrawalStandardDeviation={withdrawalStandardDeviation}
-            withdrawalRandomSeed={withdrawalRandomSeed}
-            withdrawalVariableReturns={withdrawalVariableReturns}
-            withdrawalMultiAssetConfig={withdrawalMultiAssetConfig!}
-            onConfigUpdate={onConfigUpdate}
-            onFormValueUpdate={onFormValueUpdate}
-            onStrategyChange={() => {}}
-            onWithdrawalMultiAssetConfigChange={onWithdrawalMultiAssetConfigChange}
-            dispatchEnd={dispatchEnd}
-          />
-        )}
+        <WithdrawalModeContent {...props} />
 
-        {/* Health Care Insurance Configuration - Available in all withdrawal modes */}
-        <div className="mb-6">
-          <HealthCareInsuranceConfiguration
-            {...buildHealthCareInsuranceValues({
-              formValue,
-              planningMode,
-              startOfIndependence,
-              birthYear,
-              spouseBirthYear,
-            })}
-            onChange={onHealthCareInsuranceChange}
-            currentWithdrawalAmount={currentWithdrawalAmount}
-          />
-        </div>
+        <HealthCareInsuranceContent {...props} />
 
       </CollapsibleCardContent>
     </CollapsibleCard>
