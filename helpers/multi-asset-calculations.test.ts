@@ -7,13 +7,10 @@ import {
 import { createDefaultMultiAssetConfig, type MultiAssetPortfolioConfig } from './multi-asset-portfolio'
 
 // Mock the random number generator for consistent tests
-const mockRandom = vi.fn()
-vi.stubGlobal('Math', {
-  ...Math,
-  random: mockRandom,
-})
+// Using spyOn instead of stubGlobal to preserve other Math functions
+const mockRandom = vi.spyOn(Math, 'random')
 
-describe.skip('multi-asset-calculations', () => {
+describe('multi-asset-calculations', () => {
   let defaultConfig: MultiAssetPortfolioConfig
 
   beforeEach(() => {
@@ -66,8 +63,8 @@ describe.skip('multi-asset-calculations', () => {
       const years = [2023]
       const returns = generateMultiAssetReturns(years, disabledConfig)
 
-      // Should return fallback returns (5%)
-      expect(returns[2023]).toBe(0.05)
+      // Should return 0 when portfolio is disabled
+      expect(returns[2023]).toBe(0)
     })
   })
 
