@@ -136,7 +136,218 @@ function StrategyCard({
   )
 }
 
-// eslint-disable-next-line max-lines-per-function -- Complex configuration component
+/**
+ * Header section with description and add button
+ */
+function ComparisonHeader({ onAddStrategy }: { onAddStrategy: () => void }) {
+  return (
+    <div>
+      <h4 className="text-lg font-medium mb-2">Geteilte Phasen Vergleich</h4>
+      <p className="text-sm text-muted-foreground mb-4">
+        Erstelle und vergleiche verschiedene Konfigurationen von geteilten Entnahme-Phasen.
+        Jede Konfiguration kann mehrere Phasen mit unterschiedlichen Strategien enthalten.
+      </p>
+
+      <Button
+        onClick={onAddStrategy}
+        className="mb-4"
+        variant="outline"
+      >
+        <Plus className="h-4 w-4 mr-2" />
+        Neue Konfiguration hinzufügen
+      </Button>
+    </div>
+  )
+}
+
+/**
+ * Empty state display when no strategies exist
+ */
+function EmptyStrategyState({ nestingLevel }: { nestingLevel: number }) {
+  return (
+    <Card nestingLevel={nestingLevel + 1}>
+      <CardContent nestingLevel={nestingLevel + 1} className="pt-6">
+        <p className="text-center text-muted-foreground">
+          Noch keine Vergleichskonfigurationen erstellt.
+          Klicke auf "Neue Konfiguration hinzufügen", um zu beginnen.
+        </p>
+      </CardContent>
+    </Card>
+  )
+}
+
+/**
+ * List of strategy cards
+ */
+function StrategyList({
+  strategies,
+  nestingLevel,
+  withdrawalStartYear,
+  withdrawalEndYear,
+  onUpdateName,
+  onUpdateSegments,
+  onRemove,
+}: {
+  strategies: SegmentedComparisonStrategy[]
+  nestingLevel: number
+  withdrawalStartYear: number
+  withdrawalEndYear: number
+  onUpdateName: (id: string, name: string) => void
+  onUpdateSegments: (id: string, segments: WithdrawalSegment[]) => void
+  onRemove: (id: string) => void
+}) {
+  return (
+    <div className="space-y-4">
+      {strategies.map(strategy => (
+        <StrategyCard
+          key={strategy.id}
+          strategy={strategy}
+          nestingLevel={nestingLevel}
+          withdrawalStartYear={withdrawalStartYear}
+          withdrawalEndYear={withdrawalEndYear}
+          onUpdateName={onUpdateName}
+          onUpdateSegments={onUpdateSegments}
+          onRemove={onRemove}
+        />
+      ))}
+    </div>
+  )
+}
+
+/**
+ * Helpful hints section displayed when strategies exist
+ */
+function ComparisonHints() {
+  return (
+    <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+      <h5 className="font-medium text-blue-900 mb-2">💡 Hinweise zum Vergleich</h5>
+      <ul className="text-sm text-blue-800 space-y-1">
+        <li>• Jede Konfiguration kann verschiedene Phasen mit unterschiedlichen Strategien haben</li>
+        <li>• Der Vergleich zeigt Endkapital, Gesamtentnahme und Laufzeit für jede Konfiguration</li>
+        <li>• Alle Konfigurationen verwenden das gleiche Startkapital aus der Ansparphase</li>
+      </ul>
+    </div>
+  )
+}
+
+/**
+ * Helper function to create a new comparison strategy
+ */
+function createNewComparisonStrategy(
+  existingStrategiesCount: number,
+  withdrawalStartYear: number,
+  withdrawalEndYear: number,
+): SegmentedComparisonStrategy {
+  const newId = `segmented_strategy_${Date.now()}`
+  const defaultSegment = createDefaultWithdrawalSegment(
+    'main',
+    'Hauptphase',
+    withdrawalStartYear,
+    withdrawalEndYear,
+  )
+
+  return {
+    id: newId,
+    name: `Konfiguration ${existingStrategiesCount + 1}`,
+    segments: [defaultSegment],
+  }
+}
+
+/**
+ * Main content area showing either strategies list or empty state
+ */
+function ComparisonMainContent({
+  hasStrategies,
+  strategies,
+  nestingLevel,
+  withdrawalStartYear,
+  withdrawalEndYear,
+  onUpdateName,
+  onUpdateSegments,
+  onRemove,
+}: {
+  hasStrategies: boolean
+  strategies: SegmentedComparisonStrategy[]
+  nestingLevel: number
+  withdrawalStartYear: number
+  withdrawalEndYear: number
+  onUpdateName: (id: string, name: string) => void
+  onUpdateSegments: (id: string, segments: WithdrawalSegment[]) => void
+  onRemove: (id: string) => void
+}) {
+  if (hasStrategies) {
+    return (
+      <StrategyList
+        strategies={strategies}
+        nestingLevel={nestingLevel}
+        withdrawalStartYear={withdrawalStartYear}
+        withdrawalEndYear={withdrawalEndYear}
+        onUpdateName={onUpdateName}
+        onUpdateSegments={onUpdateSegments}
+        onRemove={onRemove}
+      />
+    )
+  }
+  return <EmptyStrategyState nestingLevel={nestingLevel} />
+}
+
+/**
+ * Content section of the comparison configuration
+ */
+function ComparisonContent({
+  segmentedComparisonStrategies,
+  nestingLevel,
+  withdrawalStartYear,
+  withdrawalEndYear,
+  onAddStrategy,
+  onUpdateStrategy,
+  onRemoveStrategy,
+}: {
+  segmentedComparisonStrategies: SegmentedComparisonStrategy[]
+  nestingLevel: number
+  withdrawalStartYear: number
+  withdrawalEndYear: number
+  onAddStrategy: (strategy: SegmentedComparisonStrategy) => void
+  onUpdateStrategy: (strategyId: string, updates: Partial<SegmentedComparisonStrategy>) => void
+  onRemoveStrategy: (strategyId: string) => void
+}) {
+  const handleAddStrategy = () => {
+    const newStrategy = createNewComparisonStrategy(
+      segmentedComparisonStrategies.length,
+      withdrawalStartYear,
+      withdrawalEndYear,
+    )
+    onAddStrategy(newStrategy)
+  }
+
+  const handleUpdateStrategyName = (strategyId: string, name: string) => {
+    onUpdateStrategy(strategyId, { name })
+  }
+
+  const handleUpdateStrategySegments = (strategyId: string, segments: WithdrawalSegment[]) => {
+    onUpdateStrategy(strategyId, { segments })
+  }
+
+  const hasStrategies = segmentedComparisonStrategies.length > 0
+
+  return (
+    <div className="space-y-6">
+      <ComparisonHeader onAddStrategy={handleAddStrategy} />
+      <ComparisonMainContent
+        hasStrategies={hasStrategies}
+        strategies={segmentedComparisonStrategies}
+        nestingLevel={nestingLevel}
+        withdrawalStartYear={withdrawalStartYear}
+        withdrawalEndYear={withdrawalEndYear}
+        onUpdateName={handleUpdateStrategyName}
+        onUpdateSegments={handleUpdateStrategySegments}
+        onRemove={onRemoveStrategy}
+      />
+      {hasStrategies && <ComparisonHints />}
+    </div>
+  )
+}
+
 export function SegmentedComparisonConfiguration({
   segmentedComparisonStrategies = [],
   withdrawalStartYear,
@@ -146,35 +357,6 @@ export function SegmentedComparisonConfiguration({
   onRemoveStrategy,
 }: SegmentedComparisonConfigurationProps) {
   const nestingLevel = useNestingLevel()
-
-  // Add a new segmented comparison strategy
-  const handleAddStrategy = () => {
-    const newId = `segmented_strategy_${Date.now()}`
-    const defaultSegment = createDefaultWithdrawalSegment(
-      'main',
-      'Hauptphase',
-      withdrawalStartYear,
-      withdrawalEndYear,
-    )
-
-    const newStrategy: SegmentedComparisonStrategy = {
-      id: newId,
-      name: `Konfiguration ${segmentedComparisonStrategies.length + 1}`,
-      segments: [defaultSegment],
-    }
-
-    onAddStrategy(newStrategy)
-  }
-
-  // Update strategy name
-  const handleUpdateStrategyName = (strategyId: string, name: string) => {
-    onUpdateStrategy(strategyId, { name })
-  }
-
-  // Update strategy segments
-  const handleUpdateStrategySegments = (strategyId: string, segments: WithdrawalSegment[]) => {
-    onUpdateStrategy(strategyId, { segments })
-  }
 
   return (
     <Collapsible defaultOpen={false}>
@@ -197,63 +379,15 @@ export function SegmentedComparisonConfiguration({
         </CollapsibleTrigger>
         <CollapsibleContent>
           <CardContent nestingLevel={nestingLevel}>
-            <div className="space-y-6">
-              <div>
-                <h4 className="text-lg font-medium mb-2">Geteilte Phasen Vergleich</h4>
-                <p className="text-sm text-muted-foreground mb-4">
-                  Erstelle und vergleiche verschiedene Konfigurationen von geteilten Entnahme-Phasen.
-                  Jede Konfiguration kann mehrere Phasen mit unterschiedlichen Strategien enthalten.
-                </p>
-
-                <Button
-                  onClick={handleAddStrategy}
-                  className="mb-4"
-                  variant="outline"
-                >
-                  <Plus className="h-4 w-4 mr-2" />
-                  Neue Konfiguration hinzufügen
-                </Button>
-              </div>
-
-              {segmentedComparisonStrategies.length === 0
-                ? (
-                    <Card nestingLevel={nestingLevel + 1}>
-                      <CardContent nestingLevel={nestingLevel + 1} className="pt-6">
-                        <p className="text-center text-muted-foreground">
-                          Noch keine Vergleichskonfigurationen erstellt.
-                          Klicke auf "Neue Konfiguration hinzufügen", um zu beginnen.
-                        </p>
-                      </CardContent>
-                    </Card>
-                  )
-                : (
-                    <div className="space-y-4">
-                      {segmentedComparisonStrategies.map(strategy => (
-                        <StrategyCard
-                          key={strategy.id}
-                          strategy={strategy}
-                          nestingLevel={nestingLevel}
-                          withdrawalStartYear={withdrawalStartYear}
-                          withdrawalEndYear={withdrawalEndYear}
-                          onUpdateName={handleUpdateStrategyName}
-                          onUpdateSegments={handleUpdateStrategySegments}
-                          onRemove={onRemoveStrategy}
-                        />
-                      ))}
-                    </div>
-                  )}
-
-              {segmentedComparisonStrategies.length > 0 && (
-                <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-                  <h5 className="font-medium text-blue-900 mb-2">💡 Hinweise zum Vergleich</h5>
-                  <ul className="text-sm text-blue-800 space-y-1">
-                    <li>• Jede Konfiguration kann verschiedene Phasen mit unterschiedlichen Strategien haben</li>
-                    <li>• Der Vergleich zeigt Endkapital, Gesamtentnahme und Laufzeit für jede Konfiguration</li>
-                    <li>• Alle Konfigurationen verwenden das gleiche Startkapital aus der Ansparphase</li>
-                  </ul>
-                </div>
-              )}
-            </div>
+            <ComparisonContent
+              segmentedComparisonStrategies={segmentedComparisonStrategies}
+              nestingLevel={nestingLevel}
+              withdrawalStartYear={withdrawalStartYear}
+              withdrawalEndYear={withdrawalEndYear}
+              onAddStrategy={onAddStrategy}
+              onUpdateStrategy={onUpdateStrategy}
+              onRemoveStrategy={onRemoveStrategy}
+            />
           </CardContent>
         </CollapsibleContent>
       </Card>
