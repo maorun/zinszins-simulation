@@ -1,239 +1,61 @@
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { Label } from './ui/label'
-import { ChevronDown } from 'lucide-react'
 import { useSimulation } from '../contexts/useSimulation'
 import { NestingProvider } from '../lib/nesting-context'
 import BasiszinsConfiguration from './BasiszinsConfiguration'
 import { useEffect } from 'react'
 import { getGrundfreibetragForPlanningMode, isStandardGrundfreibetragValue } from '../../helpers/steuer'
 import { TooltipProvider } from './ui/tooltip'
-import { KapitalertragsteuerSection } from './tax-config/KapitalertragsteuerSection'
-import { TeilfreistellungsquoteSection } from './tax-config/TeilfreistellungsquoteSection'
-import { GuenstigerpruefungSection } from './tax-config/GuenstigerpruefungSection'
-import { KirchensteuerSection } from './tax-config/KirchensteuerSection'
-import { SteuerReduziertEndkapitalSection } from './tax-config/SteuerReduziertEndkapitalSection'
 import { GrundfreibetragConfiguration } from './tax-config/GrundfreibetragConfiguration'
-import { FreibetragYearInput } from './freibetrag-table/FreibetragYearInput'
-import { FreibetragTableContent } from './freibetrag-table/FreibetragTableContent'
-
-/** Freibetrag per year table component */
-interface FreibetragPerYearTableProps {
-  freibetragPerYear: Record<number, number>
-  yearToday: number
-  onUpdate: (newValues: Record<number, number>) => void
-}
-
-function FreibetragPerYearTable({
-  freibetragPerYear,
-  yearToday,
-  onUpdate,
-}: FreibetragPerYearTableProps) {
-  const addYear = (year: number) => {
-    if (!freibetragPerYear[year]) {
-      onUpdate({
-        ...freibetragPerYear,
-        [year]: 2000,
-      })
-    }
-  }
-
-  const updateYear = (year: number, amount: number) => {
-    onUpdate({
-      ...freibetragPerYear,
-      [year]: amount,
-    })
-  }
-
-  const deleteYear = (year: number) => {
-    const newFreibetrag = { ...freibetragPerYear }
-    delete newFreibetrag[year]
-    onUpdate(newFreibetrag)
-  }
-
-  return (
-    <div className="space-y-2">
-      <Label>
-        Sparerpauschbetrag
-        {' '}
-        pro Jahr (€)
-      </Label>
-      <FreibetragYearInput yearToday={yearToday} onAddYear={addYear} />
-      <FreibetragTableContent
-        freibetragPerYear={freibetragPerYear}
-        onUpdateYear={updateYear}
-        onDeleteYear={deleteYear}
-      />
-    </div>
-  )
-}
+import { TaxConfigurationCard } from './tax-config/TaxConfigurationCard'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
 }
 
-// eslint-disable-next-line max-lines-per-function -- Large component render function
 const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps) => {
-  const {
-    performSimulation,
-    steuerlast,
-    setSteuerlast,
-    teilfreistellungsquote,
-    setTeilfreistellungsquote,
-    freibetragPerYear,
-    setFreibetragPerYear,
-    steuerReduzierenEndkapitalSparphase,
-    setSteuerReduzierenEndkapitalSparphase,
-    steuerReduzierenEndkapitalEntspharphase,
-    setSteuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv,
-    setGrundfreibetragAktiv,
-    grundfreibetragBetrag,
-    setGrundfreibetragBetrag,
-    // Personal income tax settings for Günstigerprüfung
-    personalTaxRate,
-    setPersonalTaxRate,
-    guenstigerPruefungAktiv,
-    setGuenstigerPruefungAktiv,
-    // Church tax (Kirchensteuer) settings
-    kirchensteuerAktiv,
-    setKirchensteuerAktiv,
-    kirchensteuersatz,
-    setKirchensteuersatz,
-  } = useSimulation()
-
+  const simulation = useSimulation()
   const yearToday = new Date().getFullYear()
-
-  // Calculate recommended Grundfreibetrag based on planning mode using constants
   const recommendedGrundfreibetrag = getGrundfreibetragForPlanningMode(planningMode)
   const planningModeLabel = planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'
 
-  // Automatically update Grundfreibetrag when planning mode changes
-  // Only update if current value is a standard value to preserve custom user values
   useEffect(() => {
-    if (grundfreibetragAktiv && isStandardGrundfreibetragValue(grundfreibetragBetrag)) {
-      if (grundfreibetragBetrag !== recommendedGrundfreibetrag) {
-        setGrundfreibetragBetrag(recommendedGrundfreibetrag)
-        performSimulation()
-      }
+    const {
+      grundfreibetragAktiv,
+      grundfreibetragBetrag,
+      setGrundfreibetragBetrag,
+      performSimulation,
+    } = simulation
+    if (
+      grundfreibetragAktiv
+      && isStandardGrundfreibetragValue(grundfreibetragBetrag)
+      && grundfreibetragBetrag !== recommendedGrundfreibetrag
+    ) {
+      setGrundfreibetragBetrag(recommendedGrundfreibetrag)
+      performSimulation()
     }
-  }, [
-    planningMode,
-    recommendedGrundfreibetrag,
-    grundfreibetragAktiv,
-    grundfreibetragBetrag,
-    setGrundfreibetragBetrag,
-    performSimulation,
-  ])
+  }, [planningMode, recommendedGrundfreibetrag, simulation])
 
   return (
     <TooltipProvider>
       <NestingProvider level={1}>
         <div className="space-y-4">
-          <Card nestingLevel={1}>
-            <Collapsible defaultOpen={false}>
-              <CardHeader nestingLevel={1}>
-                <CollapsibleTrigger asChild>
-                  <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-                    <CardTitle className="text-left">💰 Steuer-Konfiguration</CardTitle>
-                    <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-                  </div>
-                </CollapsibleTrigger>
-              </CardHeader>
-              <CollapsibleContent>
-                <CardContent nestingLevel={1} className="space-y-6">
-                  {/* ... existing tax configuration content ... */}
-                  <KapitalertragsteuerSection
-                    steuerlast={steuerlast}
-                    onSteuerlastChange={(value) => {
-                      setSteuerlast(value)
-                      performSimulation()
-                    }}
-                  />
+          <TaxConfigurationCard simulation={simulation} yearToday={yearToday} />
 
-                  <TeilfreistellungsquoteSection
-                    teilfreistellungsquote={teilfreistellungsquote}
-                    onTeilfreistellungsquoteChange={(value) => {
-                      setTeilfreistellungsquote(value)
-                      performSimulation()
-                    }}
-                  />
-
-                  {/* Günstigerprüfung Configuration */}
-                  <GuenstigerpruefungSection
-                    guenstigerPruefungAktiv={guenstigerPruefungAktiv}
-                    personalTaxRate={personalTaxRate}
-                    onGuenstigerPruefungAktivChange={(checked) => {
-                      setGuenstigerPruefungAktiv(checked)
-                      performSimulation()
-                    }}
-                    onPersonalTaxRateChange={(value) => {
-                      setPersonalTaxRate(value)
-                      performSimulation()
-                    }}
-                  />
-
-                  {/* Kirchensteuer Configuration */}
-                  <KirchensteuerSection
-                    kirchensteuerAktiv={kirchensteuerAktiv}
-                    kirchensteuersatz={kirchensteuersatz}
-                    onKirchensteuerAktivChange={(checked) => {
-                      setKirchensteuerAktiv(checked)
-                      performSimulation()
-                    }}
-                    onKirchensteuersatzChange={(value) => {
-                      setKirchensteuersatz(value)
-                      performSimulation()
-                    }}
-                  />
-
-                  <SteuerReduziertEndkapitalSection
-                    steuerReduzierenEndkapitalSparphase={steuerReduzierenEndkapitalSparphase}
-                    steuerReduzierenEndkapitalEntspharphase={steuerReduzierenEndkapitalEntspharphase}
-                    onSteuerReduzierenSparphaseChange={(checked) => {
-                      setSteuerReduzierenEndkapitalSparphase(checked)
-                      performSimulation()
-                    }}
-                    onSteuerReduzierenEntspharphaseChange={(checked) => {
-                      setSteuerReduzierenEndkapitalEntspharphase(checked)
-                      performSimulation()
-                    }}
-                  />
-
-                  <FreibetragPerYearTable
-                    freibetragPerYear={freibetragPerYear}
-                    yearToday={yearToday}
-                    onUpdate={(newValues) => {
-                      setFreibetragPerYear(newValues)
-                      performSimulation()
-                    }}
-                  />
-                </CardContent>
-              </CollapsibleContent>
-            </Collapsible>
-          </Card>
-
-          {/* Grundfreibetrag Configuration */}
           <GrundfreibetragConfiguration
-            grundfreibetragAktiv={grundfreibetragAktiv}
-            grundfreibetragBetrag={grundfreibetragBetrag}
+            grundfreibetragAktiv={simulation.grundfreibetragAktiv}
+            grundfreibetragBetrag={simulation.grundfreibetragBetrag}
             recommendedGrundfreibetrag={recommendedGrundfreibetrag}
             planningModeLabel={planningModeLabel}
             onGrundfreibetragAktivChange={(checked) => {
-              setGrundfreibetragAktiv(checked)
-              // When activating, automatically set the correct value based on planning mode
-              if (checked) {
-                setGrundfreibetragBetrag(recommendedGrundfreibetrag)
-              }
-              performSimulation()
+              simulation.setGrundfreibetragAktiv(checked)
+              if (checked) simulation.setGrundfreibetragBetrag(recommendedGrundfreibetrag)
+              simulation.performSimulation()
             }}
             onGrundfreibetragBetragChange={(value) => {
-              setGrundfreibetragBetrag(value)
-              performSimulation()
+              simulation.setGrundfreibetragBetrag(value)
+              simulation.performSimulation()
             }}
           />
 
-          {/* Basiszins Configuration - wrapped in nesting provider */}
           <NestingProvider>
             <BasiszinsConfiguration />
           </NestingProvider>
