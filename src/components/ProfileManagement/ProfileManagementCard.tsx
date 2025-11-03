@@ -1,8 +1,9 @@
-import type { FC, RefObject } from 'react'
+import type { FC, RefObject, ComponentProps } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
 import { ChevronDown } from 'lucide-react'
 import type { UserProfile } from '../../utils/profile-storage'
+import { ProfileContentArea as ProfileContentAreaComponent } from './ProfileContentArea'
 
 interface ProfileListProps {
   profiles: UserProfile[]
@@ -28,8 +29,19 @@ interface ProfileCardProps {
   onCreateProfile: () => void
   onClearAllProfiles: () => void
   ProfileList: FC<ProfileListProps>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Component type from parent
-  ProfileContentArea: FC<any>
+  ProfileContentArea: FC<ComponentProps<typeof ProfileContentAreaComponent>>
+}
+
+/** Card header with collapsible trigger */
+function CardHeaderTrigger() {
+  return (
+    <CollapsibleTrigger asChild>
+      <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+        <CardTitle className="text-left">👤 Profile verwalten</CardTitle>
+        <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+      </div>
+    </CollapsibleTrigger>
+  )
 }
 
 /** Profile Management Card Component */
@@ -53,12 +65,7 @@ export function ProfileManagementCard({
     <Card nestingLevel={nestingLevel} className="mb-4" ref={navigationRef}>
       <Collapsible defaultOpen={false}>
         <CardHeader nestingLevel={nestingLevel}>
-          <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
-              <CardTitle className="text-left">👤 Profile verwalten</CardTitle>
-              <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-            </div>
-          </CollapsibleTrigger>
+          <CardHeaderTrigger />
         </CardHeader>
         <CollapsibleContent>
           <CardContent nestingLevel={nestingLevel}>
