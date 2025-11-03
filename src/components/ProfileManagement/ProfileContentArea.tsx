@@ -15,7 +15,7 @@ interface ProfileListProps {
   formatDate: (dateString: string) => string
 }
 
-interface ProfileContentAreaProps {
+export interface ProfileContentAreaProps {
   activeProfile: UserProfile | null
   profiles: UserProfile[]
   hasStoredProfiles: boolean

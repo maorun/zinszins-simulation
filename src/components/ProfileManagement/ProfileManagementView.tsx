@@ -2,6 +2,7 @@ import type { FC, RefObject } from 'react'
 import type { UserProfile } from '../../utils/profile-storage'
 import { ProfileManagementCard } from './ProfileManagementCard'
 import { ProfileDialogs } from './ProfileDialogs'
+import type { ProfileContentAreaProps } from './ProfileContentArea'
 
 interface ProfileFormData {
   name: string
@@ -49,8 +50,7 @@ interface ProfileManagementViewProps {
     confirmClearAllProfiles: () => void
   }
   ProfileList: FC<ProfileListProps>
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Component type from parent
-  ProfileContentArea: FC<any>
+  ProfileContentArea: FC<ProfileContentAreaProps>
 }
 
 /** Profile Management View Component */
