@@ -1,32 +1,28 @@
 import { useSimulation } from '../contexts/useSimulation'
-import { NestingProvider } from '../lib/nesting-context'
-import type { ReturnMode } from '../utils/random-returns'
-import FixedReturnConfiguration from './FixedReturnConfiguration'
-import HistoricalReturnConfiguration from './HistoricalReturnConfiguration'
-import RandomReturnConfiguration from './RandomReturnConfiguration'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
-import { Label } from './ui/label'
-import { RadioTile, RadioTileGroup } from './ui/radio-tile'
-import { Slider } from './ui/slider'
-import { Switch } from './ui/switch'
-import VariableReturnConfiguration from './VariableReturnConfiguration'
-import MultiAssetPortfolioConfiguration from './MultiAssetPortfolioConfiguration'
+import ReturnModeSelector from './return-configuration/ReturnModeSelector'
+import InflationConfiguration from './return-configuration/InflationConfiguration'
+import ReturnModeContent from './return-configuration/ReturnModeContent'
+import { useReturnConfigurationHandlers } from './return-configuration/useReturnConfigurationHandlers'
 
-// eslint-disable-next-line max-lines-per-function -- Large component render function
 const ReturnConfiguration = () => {
+  const simulation = useSimulation()
   const {
     returnMode,
-    setReturnMode,
     inflationAktivSparphase,
-    setInflationAktivSparphase,
     inflationsrateSparphase,
-    setInflationsrateSparphase,
     inflationAnwendungSparphase,
-    setInflationAnwendungSparphase,
     multiAssetConfig,
-    setMultiAssetConfig,
-    performSimulation,
-  } = useSimulation()
+  } = simulation
+
+  const handlers = useReturnConfigurationHandlers({
+    setReturnMode: simulation.setReturnMode,
+    setInflationAktivSparphase: simulation.setInflationAktivSparphase,
+    setInflationsrateSparphase: simulation.setInflationsrateSparphase,
+    setInflationAnwendungSparphase: simulation.setInflationAnwendungSparphase,
+    setMultiAssetConfig: simulation.setMultiAssetConfig,
+    performSimulation: simulation.performSimulation,
+  })
 
   return (
     <CollapsibleCard
@@ -36,118 +32,20 @@ const ReturnConfiguration = () => {
     >
       <CollapsibleCardHeader>📈 Rendite-Konfiguration (Sparphase)</CollapsibleCardHeader>
       <CollapsibleCardContent>
-        <div className="space-y-3">
-          <Label>Rendite-Modus für Sparphase</Label>
-          <RadioTileGroup
-            value={returnMode}
-            onValueChange={(value: string) => {
-              const mode = value as ReturnMode
-              setReturnMode(mode)
-              performSimulation()
-            }}
-          >
-            <RadioTile value="fixed" label="Feste Rendite">
-              Konstante jährliche Rendite für die gesamte Sparphase
-            </RadioTile>
-            <RadioTile value="random" label="Zufällige Rendite">
-              Monte Carlo Simulation mit Durchschnitt und Volatilität
-            </RadioTile>
-            <RadioTile value="variable" label="Variable Rendite">
-              Jahr-für-Jahr konfigurierbare Renditen für realistische Szenarien
-            </RadioTile>
-            <RadioTile value="historical" label="Historische Daten">
-              Backtesting mit echten historischen Marktdaten (Vergangenheit ≠ Zukunft!)
-            </RadioTile>
-            <RadioTile value="multiasset" label="Multi-Asset Portfolio">
-              Diversifiziertes Portfolio mit automatischem Rebalancing
-            </RadioTile>
-          </RadioTileGroup>
-          <p className="text-sm text-muted-foreground">
-            Konfiguration der erwarteten Rendite während der Ansparphase (bis zum Beginn der Entnahme).
-          </p>
-        </div>
-
-        {/* Inflation configuration for savings phase */}
-        <div className="space-y-3 border-t pt-4">
-          <div className="flex items-center justify-between">
-            <Label htmlFor="inflation-sparphase" className="text-base font-medium">
-              💰 Inflation berücksichtigen (Sparphase)
-            </Label>
-            <Switch
-              id="inflation-sparphase"
-              checked={inflationAktivSparphase}
-              onCheckedChange={(checked: boolean) => {
-                setInflationAktivSparphase(checked)
-                performSimulation()
-              }}
-            />
-          </div>
-          {inflationAktivSparphase && (
-            <div className="space-y-2">
-              <Label className="text-sm font-medium">
-                Inflationsrate:
-                {' '}
-                <span className="font-medium text-gray-900">
-                  {inflationsrateSparphase.toFixed(1)}
-                  %
-                </span>
-              </Label>
-              <Slider
-                value={[inflationsrateSparphase]}
-                onValueChange={(values: number[]) => {
-                  setInflationsrateSparphase(values[0])
-                  performSimulation()
-                }}
-                max={10}
-                min={0}
-                step={0.1}
-                className="w-full"
-              />
-              <p className="text-xs text-muted-foreground">
-                Die reale Kaufkraft der Einzahlungen wird durch die Inflation gemindert.
-                Ihre Sparbeträge behalten nicht ihre volle Kaufkraft über die Zeit.
-              </p>
-
-              {/* Toggle for inflation application mode */}
-              <div className="mt-4 space-y-2">
-                <Label className="text-sm font-medium">Anwendung der Inflation:</Label>
-                <RadioTileGroup
-                  value={inflationAnwendungSparphase}
-                  onValueChange={(value: string) => {
-                    const mode = value as 'sparplan' | 'gesamtmenge'
-                    setInflationAnwendungSparphase(mode)
-                    performSimulation()
-                  }}
-                >
-                  <RadioTile value="sparplan" label="Auf Sparplan">
-                    Inflation wird auf einzelne Beiträge angewendet
-                    (realistische Anpassung zukünftiger Einzahlungen)
-                  </RadioTile>
-                  <RadioTile value="gesamtmenge" label="Auf Gesamtmenge">
-                    Inflation wird auf die gesamte Sparsumme in der Sparphase angewendet
-                  </RadioTile>
-                </RadioTileGroup>
-              </div>
-            </div>
-          )}
-        </div>
-
-        <NestingProvider>
-          {returnMode === 'fixed' && <FixedReturnConfiguration />}
-          {returnMode === 'random' && <RandomReturnConfiguration />}
-          {returnMode === 'variable' && <VariableReturnConfiguration />}
-          {returnMode === 'historical' && <HistoricalReturnConfiguration />}
-          {returnMode === 'multiasset' && (
-            <MultiAssetPortfolioConfiguration
-              values={multiAssetConfig}
-              onChange={(config) => {
-                setMultiAssetConfig(config)
-                performSimulation()
-              }}
-              nestingLevel={1}
-            />
-          )}
-        </NestingProvider>
+        <ReturnModeSelector returnMode={returnMode} onReturnModeChange={handlers.handleReturnModeChange} />
+        <InflationConfiguration
+          inflationAktivSparphase={inflationAktivSparphase}
+          inflationsrateSparphase={inflationsrateSparphase}
+          inflationAnwendungSparphase={inflationAnwendungSparphase}
+          onInflationAktivChange={handlers.handleInflationAktivChange}
+          onInflationsrateChange={handlers.handleInflationsrateChange}
+          onInflationAnwendungChange={handlers.handleInflationAnwendungChange}
+        />
+        <ReturnModeContent
+          returnMode={returnMode}
+          multiAssetConfig={multiAssetConfig}
+          onMultiAssetConfigChange={handlers.handleMultiAssetConfigChange}
+        />
       </CollapsibleCardContent>
     </CollapsibleCard>
   )
