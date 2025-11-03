@@ -1,10 +1,7 @@
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { Button } from './ui/button'
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
-import { Input } from './ui/input'
 import { Label } from './ui/label'
-import { Trash2, Plus, ChevronDown } from 'lucide-react'
+import { ChevronDown } from 'lucide-react'
 import { useSimulation } from '../contexts/useSimulation'
 import { NestingProvider } from '../lib/nesting-context'
 import BasiszinsConfiguration from './BasiszinsConfiguration'
@@ -17,6 +14,8 @@ import { GuenstigerpruefungSection } from './tax-config/GuenstigerpruefungSectio
 import { KirchensteuerSection } from './tax-config/KirchensteuerSection'
 import { SteuerReduziertEndkapitalSection } from './tax-config/SteuerReduziertEndkapitalSection'
 import { GrundfreibetragConfiguration } from './tax-config/GrundfreibetragConfiguration'
+import { FreibetragYearInput } from './freibetrag-table/FreibetragYearInput'
+import { FreibetragTableContent } from './freibetrag-table/FreibetragTableContent'
 
 /** Freibetrag per year table component */
 interface FreibetragPerYearTableProps {
@@ -25,7 +24,6 @@ interface FreibetragPerYearTableProps {
   onUpdate: (newValues: Record<number, number>) => void
 }
 
-// eslint-disable-next-line max-lines-per-function -- Large component function
 function FreibetragPerYearTable({
   freibetragPerYear,
   yearToday,
@@ -60,73 +58,12 @@ function FreibetragPerYearTable({
         {' '}
         pro Jahr (€)
       </Label>
-      <div className="flex gap-2 items-end">
-        <div className="flex-1">
-          <Input
-            type="number"
-            placeholder="Jahr"
-            min={yearToday}
-            max={2100}
-            onKeyDown={(e) => {
-              if (e.key === 'Enter') {
-                const input = e.target as HTMLInputElement
-                const year = Number(input.value)
-                if (year) {
-                  addYear(year)
-                  input.value = ''
-                }
-              }
-            }}
-          />
-        </div>
-        <Button onClick={() => addYear(yearToday)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Jahr hinzufügen
-        </Button>
-      </div>
-      <div className="border rounded-md max-h-[200px] overflow-y-auto">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead className="text-center">Jahr</TableHead>
-              <TableHead className="text-center">Sparerpauschbetrag (€)</TableHead>
-              <TableHead className="text-center">Aktionen</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {Object.entries(freibetragPerYear).map(([year, amount]) => (
-              <TableRow key={year}>
-                <TableCell className="text-center">{year}</TableCell>
-                <TableCell className="text-center">
-                  <Input
-                    type="number"
-                    value={amount}
-                    min={0}
-                    max={10000}
-                    step={50}
-                    onChange={(e) => {
-                      const value = Number(e.target.value)
-                      if (!isNaN(value)) {
-                        updateYear(Number(year), value)
-                      }
-                    }}
-                    className="w-24 mx-auto"
-                  />
-                </TableCell>
-                <TableCell className="text-center">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => deleteYear(Number(year))}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </div>
+      <FreibetragYearInput yearToday={yearToday} onAddYear={addYear} />
+      <FreibetragTableContent
+        freibetragPerYear={freibetragPerYear}
+        onUpdateYear={updateYear}
+        onDeleteYear={deleteYear}
+      />
     </div>
   )
 }
