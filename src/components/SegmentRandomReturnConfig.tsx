@@ -2,6 +2,7 @@ import type { RandomReturnConfig } from '../../helpers/random-returns'
 import { AverageReturnSlider } from './segment-return-config/AverageReturnSlider'
 import { StandardDeviationSlider } from './segment-return-config/StandardDeviationSlider'
 import { RandomSeedInput } from './segment-return-config/RandomSeedInput'
+import { useSegmentRandomReturnHandlers } from './hooks/useSegmentRandomReturnHandlers'
 
 interface RandomReturnConfigProps {
   segmentId: string
@@ -14,33 +15,14 @@ export function SegmentRandomReturnConfig({
   randomConfig,
   onRandomConfigChange,
 }: RandomReturnConfigProps) {
-  const averageReturn = randomConfig?.averageReturn || 0.05
-  const standardDeviation = randomConfig?.standardDeviation ?? 0.12
-  const seed = randomConfig?.seed
-
-  const handleAverageReturnChange = (value: number) => {
-    onRandomConfigChange({
-      averageReturn: value,
-      standardDeviation,
-      seed,
-    })
-  }
-
-  const handleStdDevChange = (value: number) => {
-    onRandomConfigChange({
-      averageReturn,
-      standardDeviation: value,
-      seed,
-    })
-  }
-
-  const handleSeedChange = (value: number | undefined) => {
-    onRandomConfigChange({
-      averageReturn,
-      standardDeviation,
-      seed: value,
-    })
-  }
+  const {
+    averageReturn,
+    standardDeviation,
+    seed,
+    handleAverageReturnChange,
+    handleStdDevChange,
+    handleSeedChange,
+  } = useSegmentRandomReturnHandlers({ randomConfig, onRandomConfigChange })
 
   return (
     <>
