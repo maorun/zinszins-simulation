@@ -32,6 +32,18 @@ interface ProfileCardProps {
   ProfileContentArea: FC<any>
 }
 
+/** Card header with collapsible trigger */
+function CardHeaderTrigger() {
+  return (
+    <CollapsibleTrigger asChild>
+      <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
+        <CardTitle className="text-left">👤 Profile verwalten</CardTitle>
+        <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+      </div>
+    </CollapsibleTrigger>
+  )
+}
+
 /** Profile Management Card Component */
 export function ProfileManagementCard({
   nestingLevel,
@@ -53,12 +65,7 @@ export function ProfileManagementCard({
     <Card nestingLevel={nestingLevel} className="mb-4" ref={navigationRef}>
       <Collapsible defaultOpen={false}>
         <CardHeader nestingLevel={nestingLevel}>
-          <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
-              <CardTitle className="text-left">👤 Profile verwalten</CardTitle>
-              <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-            </div>
-          </CollapsibleTrigger>
+          <CardHeaderTrigger />
         </CardHeader>
         <CollapsibleContent>
           <CardContent nestingLevel={nestingLevel}>
