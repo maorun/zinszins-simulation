@@ -18,20 +18,13 @@ interface ProfileActionHandlersParams {
   setIsClearAllConfirmOpen: (open: boolean) => void
 }
 
-/** Profile action handlers */
-// eslint-disable-next-line max-lines-per-function -- Handler collection function
-export function createProfileActionHandlers(params: ProfileActionHandlersParams) {
-  const {
-    loadSavedConfiguration,
-    resetToDefaults,
-    refreshProfiles,
-    activeProfile,
-    deleteConfirmProfile,
-    setDeleteConfirmProfile,
-    setIsClearAllConfirmOpen,
-  } = params
-
-  const handleSwitchProfile = (profile: UserProfile) => {
+/** Handle switching to a different profile */
+function createSwitchProfileHandler(
+  activeProfile: UserProfile | null,
+  refreshProfiles: () => void,
+  loadSavedConfiguration: () => void,
+) {
+  return (profile: UserProfile) => {
     if (profile.id === activeProfile?.id) {
       return
     }
@@ -52,8 +45,11 @@ export function createProfileActionHandlers(params: ProfileActionHandlersParams)
       toast.error('Fehler beim Wechseln des Profils')
     }
   }
+}
 
-  const handleDuplicateProfile = (profile: UserProfile) => {
+/** Handle duplicating a profile */
+function createDuplicateProfileHandler(refreshProfiles: () => void) {
+  return (profile: UserProfile) => {
     try {
       const duplicatedProfile = duplicateProfile(profile.id, `${profile.name} (Kopie)`)
       if (duplicatedProfile) {
@@ -69,8 +65,11 @@ export function createProfileActionHandlers(params: ProfileActionHandlersParams)
       toast.error('Fehler beim Duplizieren des Profils')
     }
   }
+}
 
-  const handleDeleteProfile = (profile: UserProfile) => {
+/** Handle initiating profile deletion */
+function createDeleteProfileHandler(setDeleteConfirmProfile: (profile: UserProfile | null) => void) {
+  return (profile: UserProfile) => {
     const profileCount = getProfileCount()
     if (profileCount <= 1) {
       toast.error('Das letzte Profil kann nicht gelöscht werden')
@@ -79,8 +78,17 @@ export function createProfileActionHandlers(params: ProfileActionHandlersParams)
 
     setDeleteConfirmProfile(profile)
   }
+}
 
-  const confirmDeleteProfile = () => {
+/** Handle confirming profile deletion */
+function createConfirmDeleteProfileHandler(
+  deleteConfirmProfile: UserProfile | null,
+  activeProfile: UserProfile | null,
+  refreshProfiles: () => void,
+  loadSavedConfiguration: () => void,
+  setDeleteConfirmProfile: (profile: UserProfile | null) => void,
+) {
+  return () => {
     if (!deleteConfirmProfile) return
 
     try {
@@ -104,12 +112,22 @@ export function createProfileActionHandlers(params: ProfileActionHandlersParams)
       setDeleteConfirmProfile(null)
     }
   }
+}
 
-  const handleClearAllProfiles = () => {
+/** Handle initiating clearing all profiles */
+function createClearAllProfilesHandler(setIsClearAllConfirmOpen: (open: boolean) => void) {
+  return () => {
     setIsClearAllConfirmOpen(true)
   }
+}
 
-  const confirmClearAllProfiles = () => {
+/** Handle confirming clearing all profiles */
+function createConfirmClearAllProfilesHandler(
+  resetToDefaults: () => void,
+  refreshProfiles: () => void,
+  setIsClearAllConfirmOpen: (open: boolean) => void,
+) {
+  return () => {
     try {
       clearAllProfiles()
       resetToDefaults()
@@ -124,13 +142,40 @@ export function createProfileActionHandlers(params: ProfileActionHandlersParams)
       setIsClearAllConfirmOpen(false)
     }
   }
+}
+
+/** Profile action handlers */
+export function createProfileActionHandlers(params: ProfileActionHandlersParams) {
+  const {
+    loadSavedConfiguration,
+    resetToDefaults,
+    refreshProfiles,
+    activeProfile,
+    deleteConfirmProfile,
+    setDeleteConfirmProfile,
+    setIsClearAllConfirmOpen,
+  } = params
 
   return {
-    handleSwitchProfile,
-    handleDuplicateProfile,
-    handleDeleteProfile,
-    confirmDeleteProfile,
-    handleClearAllProfiles,
-    confirmClearAllProfiles,
+    handleSwitchProfile: createSwitchProfileHandler(
+      activeProfile,
+      refreshProfiles,
+      loadSavedConfiguration,
+    ),
+    handleDuplicateProfile: createDuplicateProfileHandler(refreshProfiles),
+    handleDeleteProfile: createDeleteProfileHandler(setDeleteConfirmProfile),
+    confirmDeleteProfile: createConfirmDeleteProfileHandler(
+      deleteConfirmProfile,
+      activeProfile,
+      refreshProfiles,
+      loadSavedConfiguration,
+      setDeleteConfirmProfile,
+    ),
+    handleClearAllProfiles: createClearAllProfilesHandler(setIsClearAllConfirmOpen),
+    confirmClearAllProfiles: createConfirmClearAllProfilesHandler(
+      resetToDefaults,
+      refreshProfiles,
+      setIsClearAllConfirmOpen,
+    ),
   }
 }
