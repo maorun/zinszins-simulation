@@ -94,20 +94,15 @@ function executeProfileEdit(
   }
 }
 
-/** Profile form handlers */
-export function createProfileFormHandlers(params: ProfileFormHandlersParams) {
-  const {
-    getCurrentConfiguration,
-    formData,
-    editingProfile,
-    refreshProfiles,
-    setIsCreateDialogOpen,
-    setIsEditDialogOpen,
-    setEditingProfile,
-    setFormData,
-  } = params
-
-  const handleCreateProfile = async () => {
+/** Helper function to create profile creation handler */
+function createHandleCreateProfile(
+  formData: ProfileFormData,
+  getCurrentConfiguration: () => SavedConfiguration,
+  refreshProfiles: () => void,
+  setIsCreateDialogOpen: (open: boolean) => void,
+  setFormData: (data: ProfileFormData) => void,
+) {
+  return async () => {
     executeProfileCreation(
       formData,
       getCurrentConfiguration,
@@ -116,8 +111,18 @@ export function createProfileFormHandlers(params: ProfileFormHandlersParams) {
       setFormData,
     )
   }
+}
 
-  const handleEditProfile = async () => {
+/** Helper function to create profile edit handler */
+function createHandleEditProfile(
+  formData: ProfileFormData,
+  editingProfile: UserProfile | null,
+  refreshProfiles: () => void,
+  setIsEditDialogOpen: (open: boolean) => void,
+  setEditingProfile: (profile: UserProfile | null) => void,
+  setFormData: (data: ProfileFormData) => void,
+) {
+  return async () => {
     if (!editingProfile) {
       toast.error('Profilname ist erforderlich')
       return
@@ -132,22 +137,62 @@ export function createProfileFormHandlers(params: ProfileFormHandlersParams) {
       setFormData,
     )
   }
+}
 
-  const openCreateDialog = () => {
+/** Helper function to create dialog opener for creating profiles */
+function createOpenCreateDialog(
+  setFormData: (data: ProfileFormData) => void,
+  setIsCreateDialogOpen: (open: boolean) => void,
+) {
+  return () => {
     setFormData({ name: '', description: '' })
     setIsCreateDialogOpen(true)
   }
+}
 
-  const openEditDialog = (profile: UserProfile) => {
+/** Helper function to create dialog opener for editing profiles */
+function createOpenEditDialog(
+  setEditingProfile: (profile: UserProfile | null) => void,
+  setFormData: (data: ProfileFormData) => void,
+  setIsEditDialogOpen: (open: boolean) => void,
+) {
+  return (profile: UserProfile) => {
     setEditingProfile(profile)
     setFormData({ name: profile.name, description: profile.description || '' })
     setIsEditDialogOpen(true)
   }
+}
+
+/** Profile form handlers */
+export function createProfileFormHandlers(params: ProfileFormHandlersParams) {
+  const {
+    getCurrentConfiguration,
+    formData,
+    editingProfile,
+    refreshProfiles,
+    setIsCreateDialogOpen,
+    setIsEditDialogOpen,
+    setEditingProfile,
+    setFormData,
+  } = params
 
   return {
-    handleCreateProfile,
-    handleEditProfile,
-    openCreateDialog,
-    openEditDialog,
+    handleCreateProfile: createHandleCreateProfile(
+      formData,
+      getCurrentConfiguration,
+      refreshProfiles,
+      setIsCreateDialogOpen,
+      setFormData,
+    ),
+    handleEditProfile: createHandleEditProfile(
+      formData,
+      editingProfile,
+      refreshProfiles,
+      setIsEditDialogOpen,
+      setEditingProfile,
+      setFormData,
+    ),
+    openCreateDialog: createOpenCreateDialog(setFormData, setIsCreateDialogOpen),
+    openEditDialog: createOpenEditDialog(setEditingProfile, setFormData, setIsEditDialogOpen),
   }
 }
