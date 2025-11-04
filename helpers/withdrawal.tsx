@@ -1199,10 +1199,9 @@ function calculateInitialCapitalAndValidate(
 }
 
 /**
- * Calculate all tax-related values for the year
+ * Parameters for yearly tax calculation
  */
-// eslint-disable-next-line max-lines-per-function -- Complex tax calculation logic
-function calculateYearlyTaxes(params: {
+type YearlyTaxesParams = {
   mutableLayers: MutableLayer[]
   returnRate: number
   year: number
@@ -1225,7 +1224,38 @@ function calculateYearlyTaxes(params: {
   otherIncomeData: OtherIncomeResult
   healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
   healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
-}): {
+}
+
+/**
+ * Günstigerprüfung result for realized gains
+ */
+type GuenstigerPruefungResultType = {
+  abgeltungssteuerAmount: number
+  personalTaxAmount: number
+  usedTaxRate: number
+  isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
+  availableGrundfreibetrag: number
+  usedGrundfreibetrag: number
+  explanation: string
+}
+
+/**
+ * Vorabpauschale details for a year
+ */
+type VorabpauschaleDetailsType = {
+  basiszins: number
+  basisertrag: number
+  vorabpauschaleAmount: number
+  steuerVorFreibetrag: number
+  jahresgewinn: number
+  anteilImJahr: number
+  startkapital: number
+}
+
+/**
+ * Result of yearly tax calculation
+ */
+type YearlyTaxesResult = {
   taxOnRealizedGains: number
   freibetragUsedOnGains: number
   taxOnVorabpauschale: number
@@ -1233,38 +1263,17 @@ function calculateYearlyTaxes(params: {
   einkommensteuer: number
   genutzterGrundfreibetrag: number
   taxableIncome: number
-  guenstigerPruefungResultRealizedGains: {
-    abgeltungssteuerAmount: number
-    personalTaxAmount: number
-    usedTaxRate: number
-    isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
-    availableGrundfreibetrag: number
-    usedGrundfreibetrag: number
-    explanation: string
-  } | null
+  guenstigerPruefungResultRealizedGains: GuenstigerPruefungResultType | null
   totalVorabpauschale: number
-  vorabpauschaleDetails: {
-    basiszins: number
-    basisertrag: number
-    vorabpauschaleAmount: number
-    steuerVorFreibetrag: number
-    jahresgewinn: number
-    anteilImJahr: number
-    startkapital: number
-  } | undefined
+  vorabpauschaleDetails: VorabpauschaleDetailsType | undefined
   capitalAtStartOfYear: number
-} {
-  const capitalAtStartOfYear = params.mutableLayers.reduce(
-    (sum: number, l: MutableLayer) => sum + l.currentValue,
-    0,
-  )
+}
 
-  const {
-    totalPotentialVorabTax,
-    vorabCalculations,
-    yearlyFreibetrag,
-    basiszins,
-  } = calculateVorabpauschaleForLayers({
+/**
+ * Calculate Vorabpauschale for the year
+ */
+function getYearVorabpauschaleData(params: YearlyTaxesParams) {
+  return calculateVorabpauschaleForLayers({
     mutableLayers: params.mutableLayers,
     returnRate: params.returnRate,
     year: params.year,
@@ -1273,6 +1282,58 @@ function calculateYearlyTaxes(params: {
     teilfreistellungsquote: params.teilfreistellungsquote,
     freibetragPerYear: params.freibetragPerYear,
   })
+}
+
+/**
+ * Calculate realized gains tax for the year
+ */
+function getYearRealizedGainsTax(
+  params: YearlyTaxesParams,
+  totalRealizedGain: number,
+  yearlyFreibetrag: number,
+) {
+  return calculateRealizedGainsTax(
+    totalRealizedGain,
+    yearlyFreibetrag,
+    params.teilfreistellungsquote,
+    params.taxRate,
+    params.guenstigerPruefungAktiv,
+    params.incomeTaxRate,
+    params.kirchensteuerAktiv,
+    params.kirchensteuersatz,
+  )
+}
+
+/**
+ * Calculate income tax for the year
+ */
+function getYearIncomeTax(params: YearlyTaxesParams) {
+  return calculateYearIncomeTax({
+    enableGrundfreibetrag: params.enableGrundfreibetrag,
+    entnahme: params.entnahme,
+    year: params.year,
+    getGrundfreibetragForYear: params.getGrundfreibetragForYear,
+    statutoryPensionData: params.statutoryPensionData,
+    otherIncomeData: params.otherIncomeData,
+    healthCareInsuranceData: params.healthCareInsuranceData,
+    healthCareInsuranceConfig: params.healthCareInsuranceConfig,
+    incomeTaxRate: params.incomeTaxRate,
+    kirchensteuerAktiv: params.kirchensteuerAktiv,
+    kirchensteuersatz: params.kirchensteuersatz,
+  })
+}
+
+/**
+ * Calculate all tax-related values for the year
+ */
+function calculateYearlyTaxes(params: YearlyTaxesParams): YearlyTaxesResult {
+  const capitalAtStartOfYear = params.mutableLayers.reduce(
+    (sum: number, l: MutableLayer) => sum + l.currentValue,
+    0,
+  )
+
+  const { totalPotentialVorabTax, vorabCalculations, yearlyFreibetrag, basiszins }
+    = getYearVorabpauschaleData(params)
 
   const totalRealizedGainThisYear = processLayerWithdrawal(
     params.mutableLayers,
@@ -1286,16 +1347,7 @@ function calculateYearlyTaxes(params: {
     freibetragUsedOnGains,
     remainingFreibetrag,
     guenstigerPruefungResult: guenstigerPruefungResultRealizedGains,
-  } = calculateRealizedGainsTax(
-    totalRealizedGainThisYear,
-    yearlyFreibetrag,
-    params.teilfreistellungsquote,
-    params.taxRate,
-    params.guenstigerPruefungAktiv,
-    params.incomeTaxRate,
-    params.kirchensteuerAktiv,
-    params.kirchensteuersatz,
-  )
+  } = getYearRealizedGainsTax(params, totalRealizedGainThisYear, yearlyFreibetrag)
 
   const { taxOnVorabpauschale, freibetragUsedOnVorab } = applyPortfolioGrowthAndVorabTax(
     vorabCalculations,
@@ -1305,19 +1357,7 @@ function calculateYearlyTaxes(params: {
     params.steuerReduzierenEndkapital,
   )
 
-  const { einkommensteuer, genutzterGrundfreibetrag, taxableIncome } = calculateYearIncomeTax({
-    enableGrundfreibetrag: params.enableGrundfreibetrag,
-    entnahme: params.entnahme,
-    year: params.year,
-    getGrundfreibetragForYear: params.getGrundfreibetragForYear,
-    statutoryPensionData: params.statutoryPensionData,
-    otherIncomeData: params.otherIncomeData,
-    healthCareInsuranceData: params.healthCareInsuranceData,
-    healthCareInsuranceConfig: params.healthCareInsuranceConfig,
-    incomeTaxRate: params.incomeTaxRate,
-    kirchensteuerAktiv: params.kirchensteuerAktiv,
-    kirchensteuersatz: params.kirchensteuersatz,
-  })
+  const { einkommensteuer, genutzterGrundfreibetrag, taxableIncome } = getYearIncomeTax(params)
 
   const totalVorabpauschale = vorabCalculations.reduce((sum, calc) => sum + calc.vorabpauschaleBetrag, 0)
 
@@ -1560,55 +1600,53 @@ function processWithdrawalAmounts(params: ProcessWithdrawalAmountsParams): Proce
 }
 
 /**
- * Build the final year result with all collected data
+ * Withdrawal data for a year
  */
-// eslint-disable-next-line max-lines-per-function -- Result builder with many fields
-function buildFinalYearResult(params: {
+type YearWithdrawalData = {
+  entnahme: number
+  monthlyWithdrawalAmount: number | undefined
+  inflationAnpassung: number
+  dynamischeAnpassung: number
+  vorjahresRendite: number | undefined
+  steueroptimierungAnpassung: number
+  cashCushionAtStart: number
+  bucketUsed: 'portfolio' | 'cash' | undefined
+  healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
+  coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
+}
+
+/**
+ * Tax results for a year
+ */
+type YearTaxResults = {
+  freibetragUsedOnGains: number
+  freibetragUsedOnVorab: number
+  einkommensteuer: number
+  genutzterGrundfreibetrag: number
+  taxableIncome: number
+  guenstigerPruefungResultRealizedGains: GuenstigerPruefungResultType | null
+  totalVorabpauschale: number
+  vorabpauschaleDetails: VorabpauschaleDetailsType | undefined
+}
+
+/**
+ * Refill data for bucket strategy
+ */
+type RefillData = {
+  refillAmount: number
+  finalCashCushion: number
+  finalCapitalAtEndOfYear: number
+}
+
+/**
+ * Parameters for building final year result
+ */
+type BuildFinalYearResultParams = {
   year: number
   capitalAtStartOfYear: number
-  withdrawalData: {
-    entnahme: number
-    monthlyWithdrawalAmount: number | undefined
-    inflationAnpassung: number
-    dynamischeAnpassung: number
-    vorjahresRendite: number | undefined
-    steueroptimierungAnpassung: number
-    cashCushionAtStart: number
-    bucketUsed: 'portfolio' | 'cash' | undefined
-    healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
-    coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
-  }
-  taxResults: {
-    freibetragUsedOnGains: number
-    freibetragUsedOnVorab: number
-    einkommensteuer: number
-    genutzterGrundfreibetrag: number
-    taxableIncome: number
-    guenstigerPruefungResultRealizedGains: {
-      abgeltungssteuerAmount: number
-      personalTaxAmount: number
-      usedTaxRate: number
-      isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
-      availableGrundfreibetrag: number
-      usedGrundfreibetrag: number
-      explanation: string
-    } | null
-    totalVorabpauschale: number
-    vorabpauschaleDetails: {
-      basiszins: number
-      basisertrag: number
-      vorabpauschaleAmount: number
-      steuerVorFreibetrag: number
-      jahresgewinn: number
-      anteilImJahr: number
-      startkapital: number
-    } | undefined
-  }
-  refillData: {
-    refillAmount: number
-    finalCashCushion: number
-    finalCapitalAtEndOfYear: number
-  }
+  withdrawalData: YearWithdrawalData
+  taxResults: YearTaxResults
+  refillData: RefillData
   totalTaxForYear: number
   inflationConfig: InflationConfig | undefined
   enableGrundfreibetrag: boolean | undefined
@@ -1617,7 +1655,12 @@ function buildFinalYearResult(params: {
   statutoryPensionData: StatutoryPensionResult
   otherIncomeData: OtherIncomeResult
   healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
-}): WithdrawalResultElement {
+}
+
+/**
+ * Build the final year result with all collected data
+ */
+function buildFinalYearResult(params: BuildFinalYearResultParams): WithdrawalResultElement {
   return buildYearlyResult({
     year: params.year,
     capitalAtStartOfYear: params.capitalAtStartOfYear,
@@ -1654,19 +1697,30 @@ function buildFinalYearResult(params: {
 }
 
 /**
- * Orchestrate the complete withdrawal calculation for a year
+ * Parameters for orchestrating yearly withdrawal calculation
  */
-// eslint-disable-next-line max-lines-per-function -- Orchestrates multiple calculation steps
-function orchestrateYearlyWithdrawalCalculation(params: {
+type OrchestrateYearlyWithdrawalParams = {
   capitalAtStartOfYear: number
   yearParams: ProcessYearlyWithdrawalParams
-}): {
+}
+
+/**
+ * Result of orchestrating yearly withdrawal calculation
+ */
+type OrchestrateYearlyWithdrawalResult = {
   withdrawalData: ReturnType<typeof processWithdrawalAmounts>
   taxResults: ReturnType<typeof calculateYearlyTaxes>
   refillData: ReturnType<typeof processBucketRefillAndFinalCapital>
   totalTaxForYear: number
-} {
-  const withdrawalData = processWithdrawalAmounts({
+}
+
+/**
+ * Process withdrawal amounts for orchestration
+ */
+function getOrchestratedWithdrawalData(
+  params: OrchestrateYearlyWithdrawalParams,
+) {
+  return processWithdrawalAmounts({
     strategy: params.yearParams.strategy,
     baseWithdrawalAmount: params.yearParams.baseWithdrawalAmount,
     capitalAtStartOfYear: params.capitalAtStartOfYear,
@@ -1688,8 +1742,16 @@ function orchestrateYearlyWithdrawalCalculation(params: {
     statutoryPensionData: params.yearParams.statutoryPensionData,
     birthYear: params.yearParams.birthYear,
   })
+}
 
-  const taxResults = calculateYearlyTaxes({
+/**
+ * Calculate tax results for orchestration
+ */
+function getOrchestratedTaxResults(
+  params: OrchestrateYearlyWithdrawalParams,
+  withdrawalData: ReturnType<typeof processWithdrawalAmounts>,
+) {
+  return calculateYearlyTaxes({
     mutableLayers: params.yearParams.mutableLayers,
     returnRate: withdrawalData.returnRate,
     year: params.yearParams.year,
@@ -1713,8 +1775,17 @@ function orchestrateYearlyWithdrawalCalculation(params: {
     healthCareInsuranceData: withdrawalData.healthCareInsuranceData,
     healthCareInsuranceConfig: params.yearParams.healthCareInsuranceConfig,
   })
+}
 
-  const refillData = processBucketRefillAndFinalCapital({
+/**
+ * Calculate refill data for orchestration
+ */
+function getOrchestratedRefillData(
+  params: OrchestrateYearlyWithdrawalParams,
+  withdrawalData: ReturnType<typeof processWithdrawalAmounts>,
+  taxResults: YearlyTaxesResult,
+) {
+  return processBucketRefillAndFinalCapital({
     strategy: params.yearParams.strategy,
     bucketConfig: params.yearParams.bucketConfig,
     returnRate: withdrawalData.returnRate,
@@ -1724,7 +1795,17 @@ function orchestrateYearlyWithdrawalCalculation(params: {
     entnahme: withdrawalData.entnahme,
     currentCashCushion: withdrawalData.currentCashCushion,
   })
+}
 
+/**
+ * Orchestrate the complete withdrawal calculation for a year
+ */
+function orchestrateYearlyWithdrawalCalculation(
+  params: OrchestrateYearlyWithdrawalParams,
+): OrchestrateYearlyWithdrawalResult {
+  const withdrawalData = getOrchestratedWithdrawalData(params)
+  const taxResults = getOrchestratedTaxResults(params, withdrawalData)
+  const refillData = getOrchestratedRefillData(params, withdrawalData, taxResults)
   const totalTaxForYear = taxResults.taxOnRealizedGains + taxResults.taxOnVorabpauschale + taxResults.einkommensteuer
 
   return { withdrawalData, taxResults, refillData, totalTaxForYear }
@@ -1771,10 +1852,9 @@ function processYearlyWithdrawal(params: ProcessYearlyWithdrawalParams): {
 }
 
 /**
- * Helper function: Build yearly result object
+ * Parameters for building yearly result
  */
-// eslint-disable-next-line max-lines-per-function -- Large component function
-function buildYearlyResult(params: {
+type BuildYearlyResultParams = {
   year: number
   capitalAtStartOfYear: number
   entnahme: number
@@ -1789,15 +1869,7 @@ function buildYearlyResult(params: {
   einkommensteuer: number
   genutzterGrundfreibetrag: number
   taxableIncome: number
-  guenstigerPruefungResultRealizedGains: {
-    abgeltungssteuerAmount: number
-    personalTaxAmount: number
-    usedTaxRate: number
-    isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
-    availableGrundfreibetrag: number
-    usedGrundfreibetrag: number
-    explanation: string
-  } | undefined | null
+  guenstigerPruefungResultRealizedGains: GuenstigerPruefungResultType | undefined | null
   strategy: WithdrawalStrategy
   dynamischeAnpassung: number
   vorjahresRendite: number | undefined
@@ -1808,97 +1880,100 @@ function buildYearlyResult(params: {
   bucketUsed: 'portfolio' | 'cash' | undefined
   refillAmount: number
   totalVorabpauschale: number
-  vorabpauschaleDetails: {
-    basiszins: number
-    basisertrag: number
-    vorabpauschaleAmount: number
-    steuerVorFreibetrag: number
-    jahresgewinn: number
-    anteilImJahr: number
-    startkapital: number
-  } | undefined
+  vorabpauschaleDetails: VorabpauschaleDetailsType | undefined
   statutoryPensionData: StatutoryPensionResult
   otherIncomeData: OtherIncomeResult
   healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
   healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
   coupleHealthCareInsuranceData: CoupleHealthInsuranceYearResult | undefined
-}): WithdrawalResultElement {
-  const {
-    year,
-    capitalAtStartOfYear,
-    entnahme,
-    finalCapitalAtEndOfYear,
-    totalTaxForYear,
-    freibetragUsedOnGains,
-    freibetragUsedOnVorab,
-    monthlyWithdrawalAmount,
-    inflationConfig,
-    inflationAnpassung,
-    enableGrundfreibetrag,
-    einkommensteuer,
-    genutzterGrundfreibetrag,
-    taxableIncome,
-    guenstigerPruefungResultRealizedGains,
-    strategy,
-    dynamischeAnpassung,
-    vorjahresRendite,
-    bucketConfig,
-    steueroptimierungAnpassung,
-    cashCushionAtStart,
-    cashCushion,
-    bucketUsed,
-    refillAmount,
-    totalVorabpauschale,
-    vorabpauschaleDetails,
-    statutoryPensionData,
-    otherIncomeData,
-    healthCareInsuranceData,
-    healthCareInsuranceConfig,
-    coupleHealthCareInsuranceData,
-  } = params
+}
 
+/**
+ * Build base result fields
+ */
+function buildBaseResultFields(params: BuildYearlyResultParams) {
+  return {
+    startkapital: params.capitalAtStartOfYear,
+    entnahme: params.entnahme,
+    endkapital: params.finalCapitalAtEndOfYear,
+    bezahlteSteuer: params.totalTaxForYear,
+    genutzterFreibetrag: params.freibetragUsedOnGains + params.freibetragUsedOnVorab,
+    zinsen: params.finalCapitalAtEndOfYear - (params.capitalAtStartOfYear - params.entnahme),
+    monatlicheEntnahme: params.monthlyWithdrawalAmount,
+  }
+}
+
+/**
+ * Build conditional tax fields
+ */
+function buildConditionalTaxFields(params: BuildYearlyResultParams) {
+  return {
+    inflationAnpassung: params.inflationConfig?.inflationRate ? params.inflationAnpassung : undefined,
+    einkommensteuer: params.enableGrundfreibetrag ? params.einkommensteuer : undefined,
+    genutzterGrundfreibetrag: params.enableGrundfreibetrag ? params.genutzterGrundfreibetrag : undefined,
+    taxableIncome: params.enableGrundfreibetrag ? params.taxableIncome : undefined,
+  }
+}
+
+/**
+ * Build Günstigerprüfung result field
+ */
+function buildGuenstigerPruefungField(
+  guenstigerPruefungResult: GuenstigerPruefungResultType | undefined | null,
+) {
+  if (!guenstigerPruefungResult) return undefined
+
+  return {
+    abgeltungssteuerAmount: guenstigerPruefungResult.abgeltungssteuerAmount,
+    personalTaxAmount: guenstigerPruefungResult.personalTaxAmount,
+    usedTaxRate: guenstigerPruefungResult.usedTaxRate,
+    isFavorable: guenstigerPruefungResult.isFavorable,
+    explanation: guenstigerPruefungResult.explanation,
+  }
+}
+
+/**
+ * Build Vorabpauschale fields
+ */
+function buildVorabpauschaleFields(params: BuildYearlyResultParams) {
+  return {
+    vorabpauschale: params.totalVorabpauschale > 0 ? params.totalVorabpauschale : undefined,
+    vorabpauschaleDetails: params.vorabpauschaleDetails,
+  }
+}
+
+/**
+ * Helper function: Build yearly result object
+ */
+function buildYearlyResult(params: BuildYearlyResultParams): WithdrawalResultElement {
   const strategyFields = buildStrategySpecificFields({
-    strategy,
-    dynamischeAnpassung,
-    vorjahresRendite,
-    bucketConfig,
-    steueroptimierungAnpassung,
-    cashCushionAtStart,
-    cashCushion,
-    bucketUsed,
-    refillAmount,
+    strategy: params.strategy,
+    dynamischeAnpassung: params.dynamischeAnpassung,
+    vorjahresRendite: params.vorjahresRendite,
+    bucketConfig: params.bucketConfig,
+    steueroptimierungAnpassung: params.steueroptimierungAnpassung,
+    cashCushionAtStart: params.cashCushionAtStart,
+    cashCushion: params.cashCushion,
+    bucketUsed: params.bucketUsed,
+    refillAmount: params.refillAmount,
   })
 
   const incomeSourceFields = buildIncomeSourceFields({
-    year,
-    statutoryPensionData,
-    otherIncomeData,
-    healthCareInsuranceData,
-    healthCareInsuranceConfig,
-    coupleHealthCareInsuranceData,
+    year: params.year,
+    statutoryPensionData: params.statutoryPensionData,
+    otherIncomeData: params.otherIncomeData,
+    healthCareInsuranceData: params.healthCareInsuranceData,
+    healthCareInsuranceConfig: params.healthCareInsuranceConfig,
+    coupleHealthCareInsuranceData: params.coupleHealthCareInsuranceData,
   })
 
   return {
-    startkapital: capitalAtStartOfYear,
-    entnahme,
-    endkapital: finalCapitalAtEndOfYear,
-    bezahlteSteuer: totalTaxForYear,
-    genutzterFreibetrag: freibetragUsedOnGains + freibetragUsedOnVorab,
-    zinsen: finalCapitalAtEndOfYear - (capitalAtStartOfYear - entnahme),
-    monatlicheEntnahme: monthlyWithdrawalAmount,
-    inflationAnpassung: inflationConfig?.inflationRate ? inflationAnpassung : undefined,
-    einkommensteuer: enableGrundfreibetrag ? einkommensteuer : undefined,
-    genutzterGrundfreibetrag: enableGrundfreibetrag ? genutzterGrundfreibetrag : undefined,
-    taxableIncome: enableGrundfreibetrag ? taxableIncome : undefined,
-    guenstigerPruefungResultRealizedGains: guenstigerPruefungResultRealizedGains ? {
-      abgeltungssteuerAmount: guenstigerPruefungResultRealizedGains.abgeltungssteuerAmount,
-      personalTaxAmount: guenstigerPruefungResultRealizedGains.personalTaxAmount,
-      usedTaxRate: guenstigerPruefungResultRealizedGains.usedTaxRate,
-      isFavorable: guenstigerPruefungResultRealizedGains.isFavorable,
-      explanation: guenstigerPruefungResultRealizedGains.explanation,
-    } : undefined,
-    vorabpauschale: totalVorabpauschale > 0 ? totalVorabpauschale : undefined,
-    vorabpauschaleDetails: vorabpauschaleDetails,
+    ...buildBaseResultFields(params),
+    ...buildConditionalTaxFields(params),
+    guenstigerPruefungResultRealizedGains: buildGuenstigerPruefungField(
+      params.guenstigerPruefungResultRealizedGains,
+    ),
+    ...buildVorabpauschaleFields(params),
     ...strategyFields,
     ...incomeSourceFields,
   }
