@@ -293,9 +293,99 @@ function DynamicStrategyFields({
 }
 
 /**
+ * Cash cushion field for bucket strategy
+ */
+function BucketCashCushionField({
+  strategyId,
+  value,
+  onUpdate,
+}: {
+  strategyId: string
+  value: number | undefined
+  onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
+}) {
+  return (
+    <div>
+      <label
+        style={{
+          display: 'block',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          marginBottom: '5px',
+        }}
+      >
+        Cash-Polster (€)
+      </label>
+      <input
+        type="number"
+        min="1000"
+        step="1000"
+        value={value || 20000}
+        onChange={(e) => {
+          onUpdate(strategyId, {
+            bucketInitialCash: parseFloat(e.target.value) || 20000,
+          })
+        }}
+        style={{
+          width: '100%',
+          padding: '6px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+        }}
+      />
+    </div>
+  )
+}
+
+/**
+ * Base rate field for bucket strategy
+ */
+function BucketBaseRateField({
+  strategyId,
+  value,
+  onUpdate,
+}: {
+  strategyId: string
+  value: number | undefined
+  onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
+}) {
+  return (
+    <div>
+      <label
+        style={{
+          display: 'block',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          marginBottom: '5px',
+        }}
+      >
+        Basis-Rate (%)
+      </label>
+      <input
+        type="number"
+        min="1"
+        max="10"
+        step="0.1"
+        value={value || 4}
+        onChange={(e) => {
+          onUpdate(strategyId, {
+            bucketBaseRate: parseFloat(e.target.value) || 4,
+          })
+        }}
+        style={{
+          width: '100%',
+          padding: '6px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+        }}
+      />
+    </div>
+  )
+}
+
+/**
  * Bucket strategy fields for bucket withdrawal strategy
  */
-// eslint-disable-next-line max-lines-per-function -- Large component function
 function BucketStrategyFields({
   strategyId,
   initialCash,
@@ -309,65 +399,16 @@ function BucketStrategyFields({
 }) {
   return (
     <>
-      <div>
-        <label
-          style={{
-            display: 'block',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            marginBottom: '5px',
-          }}
-        >
-          Cash-Polster (€)
-        </label>
-        <input
-          type="number"
-          min="1000"
-          step="1000"
-          value={initialCash || 20000}
-          onChange={(e) => {
-            onUpdate(strategyId, {
-              bucketInitialCash: parseFloat(e.target.value) || 20000,
-            })
-          }}
-          style={{
-            width: '100%',
-            padding: '6px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-          }}
-        />
-      </div>
-      <div>
-        <label
-          style={{
-            display: 'block',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            marginBottom: '5px',
-          }}
-        >
-          Basis-Rate (%)
-        </label>
-        <input
-          type="number"
-          min="1"
-          max="10"
-          step="0.1"
-          value={baseRate || 4}
-          onChange={(e) => {
-            onUpdate(strategyId, {
-              bucketBaseRate: parseFloat(e.target.value) || 4,
-            })
-          }}
-          style={{
-            width: '100%',
-            padding: '6px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-          }}
-        />
-      </div>
+      <BucketCashCushionField
+        strategyId={strategyId}
+        value={initialCash}
+        onUpdate={onUpdate}
+      />
+      <BucketBaseRateField
+        strategyId={strategyId}
+        value={baseRate}
+        onUpdate={onUpdate}
+      />
     </>
   )
 }
