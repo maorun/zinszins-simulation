@@ -1,4 +1,4 @@
-import type { FC } from 'react'
+import type { ComponentType } from 'react'
 import { Alert, AlertDescription } from '../ui/alert'
 import type { UserProfile } from '../../utils/profile-storage'
 import { ActiveProfileDisplay } from './ActiveProfileDisplay'
@@ -26,7 +26,7 @@ export interface ProfileContentAreaProps {
   onDeleteProfile: (profile: UserProfile) => void
   onCreateProfile: () => void
   onClearAllProfiles: () => void
-  ProfileList: FC<ProfileListProps>
+  ProfileList: ComponentType<ProfileListProps>
 }
 
 /** Profile Content Area Component */
