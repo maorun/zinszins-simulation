@@ -470,10 +470,155 @@ function StrategySpecificFields({
 }
 
 /**
+ * Card header with title and remove button
+ */
+function StrategyCardHeader({
+  index,
+  name,
+  strategyId,
+  onRemove,
+}: {
+  index: number
+  name: string
+  strategyId: string
+  onRemove: (id: string) => void
+}) {
+  return (
+    <div
+      style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'center',
+        marginBottom: '10px',
+      }}
+    >
+      <h5 style={{ margin: 0 }}>
+        Strategie
+        {' '}
+        {index + 1}
+        :
+        {' '}
+        {name}
+      </h5>
+      <button
+        type="button"
+        onClick={() => onRemove(strategyId)}
+        style={{
+          background: 'none',
+          border: 'none',
+          color: '#999',
+          cursor: 'pointer',
+          fontSize: '18px',
+        }}
+      >
+        ×
+      </button>
+    </div>
+  )
+}
+
+/**
+ * Strategy type selector field
+ */
+function StrategyTypeSelector({
+  strategyId,
+  value,
+  onUpdate,
+}: {
+  strategyId: string
+  value: WithdrawalStrategy
+  onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
+}) {
+  return (
+    <div>
+      <label
+        style={{
+          display: 'block',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          marginBottom: '5px',
+        }}
+      >
+        Strategie-Typ
+      </label>
+      <select
+        value={value}
+        onChange={(e) => {
+          const newStrategie = e.target.value as WithdrawalStrategy
+          onUpdate(strategyId, {
+            strategie: newStrategie,
+            name: getStrategyDisplayName(newStrategie),
+          })
+        }}
+        style={{
+          width: '100%',
+          padding: '6px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+        }}
+      >
+        <option value="4prozent">4% Regel</option>
+        <option value="3prozent">3% Regel</option>
+        <option value="variabel_prozent">Variable Prozent</option>
+        <option value="monatlich_fest">Monatlich fest</option>
+        <option value="dynamisch">Dynamische Strategie</option>
+        <option value="bucket_strategie">Drei-Eimer-Strategie</option>
+        <option value="rmd">RMD (Lebenserwartung)</option>
+      </select>
+    </div>
+  )
+}
+
+/**
+ * Return rate field
+ */
+function ReturnRateField({
+  strategyId,
+  value,
+  onUpdate,
+}: {
+  strategyId: string
+  value: number
+  onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
+}) {
+  return (
+    <div>
+      <label
+        style={{
+          display: 'block',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          marginBottom: '5px',
+        }}
+      >
+        Rendite (%)
+      </label>
+      <input
+        type="number"
+        min="0"
+        max="15"
+        step="0.5"
+        value={value}
+        onChange={(e) => {
+          onUpdate(strategyId, {
+            rendite: parseFloat(e.target.value) || 5,
+          })
+        }}
+        style={{
+          width: '100%',
+          padding: '6px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+        }}
+      />
+    </div>
+  )
+}
+
+/**
  * Card component for a single comparison strategy
  * Extracted from ComparisonStrategyConfiguration to reduce complexity
  */
-// eslint-disable-next-line max-lines-per-function -- Large component function
 export function ComparisonStrategyCard({
   strategy,
   index,
@@ -490,36 +635,12 @@ export function ComparisonStrategyCard({
         backgroundColor: '#f8f9fa',
       }}
     >
-      <div
-        style={{
-          display: 'flex',
-          justifyContent: 'space-between',
-          alignItems: 'center',
-          marginBottom: '10px',
-        }}
-      >
-        <h5 style={{ margin: 0 }}>
-          Strategie
-          {' '}
-          {index + 1}
-          :
-          {' '}
-          {strategy.name}
-        </h5>
-        <button
-          type="button"
-          onClick={() => onRemove(strategy.id)}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#999',
-            cursor: 'pointer',
-            fontSize: '18px',
-          }}
-        >
-          ×
-        </button>
-      </div>
+      <StrategyCardHeader
+        index={index}
+        name={strategy.name}
+        strategyId={strategy.id}
+        onRemove={onRemove}
+      />
 
       <div
         style={{
@@ -529,73 +650,17 @@ export function ComparisonStrategyCard({
           alignItems: 'end',
         }}
       >
-        <div>
-          <label
-            style={{
-              display: 'block',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              marginBottom: '5px',
-            }}
-          >
-            Strategie-Typ
-          </label>
-          <select
-            value={strategy.strategie}
-            onChange={(e) => {
-              const newStrategie = e.target.value as WithdrawalStrategy
-              onUpdate(strategy.id, {
-                strategie: newStrategie,
-                name: getStrategyDisplayName(newStrategie),
-              })
-            }}
-            style={{
-              width: '100%',
-              padding: '6px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
-          >
-            <option value="4prozent">4% Regel</option>
-            <option value="3prozent">3% Regel</option>
-            <option value="variabel_prozent">Variable Prozent</option>
-            <option value="monatlich_fest">Monatlich fest</option>
-            <option value="dynamisch">Dynamische Strategie</option>
-            <option value="bucket_strategie">Drei-Eimer-Strategie</option>
-            <option value="rmd">RMD (Lebenserwartung)</option>
-          </select>
-        </div>
+        <StrategyTypeSelector
+          strategyId={strategy.id}
+          value={strategy.strategie}
+          onUpdate={onUpdate}
+        />
 
-        <div>
-          <label
-            style={{
-              display: 'block',
-              fontSize: '12px',
-              fontWeight: 'bold',
-              marginBottom: '5px',
-            }}
-          >
-            Rendite (%)
-          </label>
-          <input
-            type="number"
-            min="0"
-            max="15"
-            step="0.5"
-            value={strategy.rendite}
-            onChange={(e) => {
-              onUpdate(strategy.id, {
-                rendite: parseFloat(e.target.value) || 5,
-              })
-            }}
-            style={{
-              width: '100%',
-              padding: '6px',
-              border: '1px solid #ccc',
-              borderRadius: '4px',
-            }}
-          />
-        </div>
+        <ReturnRateField
+          strategyId={strategy.id}
+          value={strategy.rendite}
+          onUpdate={onUpdate}
+        />
 
         <StrategySpecificFields strategy={strategy} onUpdate={onUpdate} />
       </div>
