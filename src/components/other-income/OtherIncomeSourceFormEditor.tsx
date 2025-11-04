@@ -1,9 +1,5 @@
 import React from 'react'
-import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Input } from '../ui/input'
-import { Label } from '../ui/label'
-import { Calculator } from 'lucide-react'
 import {
   type OtherIncomeSource,
   type IncomeType,
@@ -18,6 +14,10 @@ import { TaxRateSection } from './TaxRateSection'
 import { InflationRateSection } from './InflationRateSection'
 import { MonthlyAmountSection } from './MonthlyAmountSection'
 import { TimePeriodSection } from './TimePeriodSection'
+import { NameInputSection } from './NameInputSection'
+import { TypeSelectSection } from './TypeSelectSection'
+import { NotesSection } from './NotesSection'
+import { ActionButtonsSection } from './ActionButtonsSection'
 
 interface OtherIncomeSourceFormEditorProps {
   editingSource: OtherIncomeSource
@@ -72,7 +72,6 @@ function getFormTitle(isAddingNew: boolean): string {
   return isAddingNew ? 'Neue Einkommensquelle' : 'Einkommensquelle bearbeiten'
 }
 
-// eslint-disable-next-line max-lines-per-function -- Complex configuration component
 export function OtherIncomeSourceFormEditor({
   editingSource,
   isAddingNew,
@@ -98,41 +97,13 @@ export function OtherIncomeSourceFormEditor({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
-        {/* Name */}
-        <div className="space-y-2">
-          <Label htmlFor="source-name">Bezeichnung</Label>
-          <Input
-            id="source-name"
-            value={editingSource.name}
-            onChange={e => onUpdate({ ...editingSource, name: e.target.value })}
-            placeholder="z.B. Mieteinnahmen Wohnung 1"
-          />
-        </div>
+        <NameInputSection editingSource={editingSource} onUpdate={onUpdate} />
+        <TypeSelectSection editingSource={editingSource} onTypeChange={handleTypeChange} />
 
-        {/* Type */}
-        <div className="space-y-2">
-          <Label htmlFor="source-type">Art der Einkünfte</Label>
-          <select
-            id="source-type"
-            value={editingSource.type}
-            onChange={handleTypeChange}
-            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          >
-            <option value="rental">Mieteinnahmen</option>
-            <option value="pension">Rente/Pension</option>
-            <option value="business">Gewerbeeinkünfte</option>
-            <option value="investment">Kapitalerträge</option>
-            <option value="kindergeld">Kindergeld</option>
-            <option value="other">Sonstige Einkünfte</option>
-          </select>
-        </div>
-
-        {/* Amount Type (Gross/Net) Slider - Hide for Kindergeld */}
         {!isKindergeld && (
           <AmountTypeSection editingSource={editingSource} onUpdate={onUpdate} />
         )}
 
-        {/* Monthly Amount - Disabled for Kindergeld */}
         <MonthlyAmountSection
           editingSource={editingSource}
           monthlyAmountId={monthlyAmountId}
@@ -141,24 +112,20 @@ export function OtherIncomeSourceFormEditor({
           onUpdate={onUpdate}
         />
 
-        {/* Tax Rate (only for gross income) */}
         {isGrossIncome && (
           <TaxRateSection editingSource={editingSource} onUpdate={onUpdate} />
         )}
 
-        {/* Time Period */}
         <TimePeriodSection
           editingSource={editingSource}
           currentYear={currentYear}
           onUpdate={onUpdate}
         />
 
-        {/* Inflation Rate - Hide for Kindergeld */}
         {!isKindergeld && (
           <InflationRateSection editingSource={editingSource} onUpdate={onUpdate} />
         )}
 
-        {/* Real Estate Configuration - only for rental income */}
         {isRental && (
           <RealEstateConfigSection
             editingSource={editingSource}
@@ -166,7 +133,6 @@ export function OtherIncomeSourceFormEditor({
           />
         )}
 
-        {/* Kindergeld Configuration - only for kindergeld income */}
         {isKindergeld && (
           <KindergeldConfigSection
             editingSource={editingSource}
@@ -174,32 +140,8 @@ export function OtherIncomeSourceFormEditor({
           />
         )}
 
-        {/* Notes */}
-        <div className="space-y-2">
-          <Label htmlFor="notes">Notizen (optional)</Label>
-          <textarea
-            id="notes"
-            value={editingSource.notes || ''}
-            onChange={e => onUpdate({
-              ...editingSource,
-              notes: e.target.value,
-            })}
-            placeholder="Zusätzliche Informationen zu dieser Einkommensquelle"
-            rows={2}
-            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-          />
-        </div>
-
-        {/* Action Buttons */}
-        <div className="flex flex-col sm:flex-row gap-2 pt-4">
-          <Button onClick={onSave} size="lg" className="flex-1 w-full sm:w-auto">
-            <Calculator className="h-4 w-4 mr-2" />
-            {isAddingNew ? 'Hinzufügen' : 'Aktualisieren'}
-          </Button>
-          <Button onClick={onCancel} variant="outline" size="lg" className="w-full sm:w-auto">
-            Abbrechen
-          </Button>
-        </div>
+        <NotesSection editingSource={editingSource} onUpdate={onUpdate} />
+        <ActionButtonsSection isAddingNew={isAddingNew} onSave={onSave} onCancel={onCancel} />
       </CardContent>
     </Card>
   )
