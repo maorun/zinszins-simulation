@@ -104,11 +104,9 @@ function ManualEntryForm({
 }
 
 /**
- * Basiszins Configuration Component
- * Manages interest rates from Deutsche Bundesbank for Vorabpauschale calculation
+ * Custom hook to manage the state and logic for Basiszins configuration
  */
-// eslint-disable-next-line max-lines-per-function -- Complex configuration component
-export default function BasiszinsConfiguration() {
+function useBasiszins() {
   const {
     basiszinsConfiguration,
     setBasiszinsConfiguration,
@@ -131,14 +129,12 @@ export default function BasiszinsConfiguration() {
     setError(null)
 
     try {
-      // Use the new refresh function that properly handles merging
       const updatedConfig = await refreshBasiszinsFromAPI(basiszinsConfiguration)
 
       setBasiszinsConfiguration(updatedConfig)
       setLastApiUpdate(new Date().toISOString())
       performSimulation()
 
-      // Show success message
       console.log('✅ Basiszins-Daten erfolgreich von der API aktualisiert')
     }
     catch (err) {
@@ -156,7 +152,7 @@ export default function BasiszinsConfiguration() {
    */
   const handleAddManualEntry = useCallback(() => {
     const year = parseInt(newYear)
-    const rate = parseFloat(newRate) / 100 // Convert percentage to decimal
+    const rate = parseFloat(newRate) / 100
 
     if (isNaN(year) || year < 2018 || year > 2050) {
       setError('Bitte geben Sie ein gültiges Jahr zwischen 2018 und 2050 ein.')
@@ -200,16 +196,16 @@ export default function BasiszinsConfiguration() {
    * Update rate for existing year
    */
   const handleUpdateRate = useCallback((year: number, newRateValue: string) => {
-    const rate = parseFloat(newRateValue) / 100 // Convert percentage to decimal
+    const rate = parseFloat(newRateValue) / 100
 
     if (isNaN(rate) || !validateBasiszinsRate(rate)) {
-      return // Invalid rate, don't update
+      return
     }
 
     const updatedEntry: BasiszinsData = {
       ...basiszinsConfiguration[year],
       rate,
-      source: 'manual', // Mark as manually edited
+      source: 'manual',
       lastUpdated: new Date().toISOString(),
     }
 
@@ -226,13 +222,138 @@ export default function BasiszinsConfiguration() {
    */
   const getSuggestedRate = useCallback(() => {
     const estimate = estimateFutureBasiszins(basiszinsConfiguration)
-    return (estimate * 100).toFixed(2) // Convert to percentage
+    return (estimate * 100).toFixed(2)
   }, [basiszinsConfiguration])
 
-  // Sort years for display
   const sortedYears = Object.keys(basiszinsConfiguration)
     .map(Number)
-    .sort((a, b) => b - a) // Newest first
+    .sort((a, b) => b - a)
+
+  return {
+    basiszinsConfiguration,
+    isLoading,
+    lastApiUpdate,
+    newYear,
+    setNewYear,
+    newRate,
+    setNewRate,
+    error,
+    currentYear,
+    handleFetchFromApi,
+    handleAddManualEntry,
+    handleRemoveYear,
+    handleUpdateRate,
+    getSuggestedRate,
+    sortedYears,
+  }
+}
+
+/**
+ * Renders the table of interest rates
+ */
+function RatesTable({
+  sortedYears,
+  basiszinsConfiguration,
+  handleUpdateRate,
+  handleRemoveYear,
+  currentYear,
+}: {
+  sortedYears: Array<number>
+  basiszinsConfiguration: Record<number, BasiszinsData>
+  handleUpdateRate: (year: number, newRateValue: string) => void
+  handleRemoveYear: (year: number) => void
+  currentYear: number
+}) {
+  return (
+    <div className="border rounded-md max-h-[400px] overflow-y-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            <TableHead className="text-center">Jahr</TableHead>
+            <TableHead className="text-center">Basiszins (%)</TableHead>
+            <TableHead className="text-center">Quelle</TableHead>
+            <TableHead className="text-center">Zuletzt aktualisiert</TableHead>
+            <TableHead className="text-center">Aktionen</TableHead>
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {sortedYears.map((year) => {
+            const data = basiszinsConfiguration[year]
+            return (
+              <TableRow key={year}>
+                <TableCell className="text-center font-medium">{year}</TableCell>
+                <TableCell className="text-center">
+                  <Input
+                    type="number"
+                    value={(data.rate * 100).toFixed(2)}
+                    min={-2}
+                    max={10}
+                    step={0.01}
+                    onChange={e => handleUpdateRate(year, e.target.value)}
+                    className="w-20 mx-auto text-center"
+                  />
+                </TableCell>
+                <TableCell className="text-center">
+                  <span
+                    className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                      data.source === 'api'
+                        ? 'bg-green-100 text-green-800'
+                        : data.source === 'manual'
+                          ? 'bg-blue-100 text-blue-800'
+                          : 'bg-gray-100 text-gray-800'
+                    }`}
+                  >
+                    {data.source === 'api'
+                      ? '🏛️ API'
+                      : data.source === 'manual' ? '✏️ Manuell' : '📋 Standard'}
+                  </span>
+                </TableCell>
+                <TableCell className="text-center text-sm text-muted-foreground">
+                  {data.lastUpdated
+                    ? new Date(data.lastUpdated).toLocaleDateString('de-DE')
+                    : 'N/A'}
+                </TableCell>
+                <TableCell className="text-center">
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => handleRemoveYear(year)}
+                    disabled={year <= currentYear - 1} // Prevent deletion of historical data
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                </TableCell>
+              </TableRow>
+            )
+          })}
+        </TableBody>
+      </Table>
+    </div>
+  )
+}
+
+/**
+ * Basiszins Configuration Component
+ * Manages interest rates from Deutsche Bundesbank for Vorabpauschale calculation
+ */
+export default function BasiszinsConfiguration() {
+  const {
+    basiszinsConfiguration,
+    isLoading,
+    lastApiUpdate,
+    newYear,
+    setNewYear,
+    newRate,
+    setNewRate,
+    error,
+    currentYear,
+    handleFetchFromApi,
+    handleAddManualEntry,
+    handleRemoveYear,
+    handleUpdateRate,
+    getSuggestedRate,
+    sortedYears,
+  } = useBasiszins()
 
   return (
     <CollapsibleCard>
@@ -274,69 +395,13 @@ export default function BasiszinsConfiguration() {
         />
 
         {/* Rates Table */}
-        <div className="border rounded-md max-h-[400px] overflow-y-auto">
-          <Table>
-            <TableHeader>
-              <TableRow>
-                <TableHead className="text-center">Jahr</TableHead>
-                <TableHead className="text-center">Basiszins (%)</TableHead>
-                <TableHead className="text-center">Quelle</TableHead>
-                <TableHead className="text-center">Zuletzt aktualisiert</TableHead>
-                <TableHead className="text-center">Aktionen</TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {sortedYears.map((year) => {
-                const data = basiszinsConfiguration[year]
-                return (
-                  <TableRow key={year}>
-                    <TableCell className="text-center font-medium">{year}</TableCell>
-                    <TableCell className="text-center">
-                      <Input
-                        type="number"
-                        value={(data.rate * 100).toFixed(2)}
-                        min={-2}
-                        max={10}
-                        step={0.01}
-                        onChange={e => handleUpdateRate(year, e.target.value)}
-                        className="w-20 mx-auto text-center"
-                      />
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                        data.source === 'api'
-                          ? 'bg-green-100 text-green-800'
-                          : data.source === 'manual'
-                            ? 'bg-blue-100 text-blue-800'
-                            : 'bg-gray-100 text-gray-800'
-                      }`}
-                      >
-                        {data.source === 'api'
-                          ? '🏛️ API'
-                          : data.source === 'manual' ? '✏️ Manuell' : '📋 Standard'}
-                      </span>
-                    </TableCell>
-                    <TableCell className="text-center text-sm text-muted-foreground">
-                      {data.lastUpdated
-                        ? new Date(data.lastUpdated).toLocaleDateString('de-DE')
-                        : 'N/A'}
-                    </TableCell>
-                    <TableCell className="text-center">
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => handleRemoveYear(year)}
-                        disabled={year <= currentYear - 1} // Prevent deletion of historical data
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </Button>
-                    </TableCell>
-                  </TableRow>
-                )
-              })}
-            </TableBody>
-          </Table>
-        </div>
+        <RatesTable
+          sortedYears={sortedYears}
+          basiszinsConfiguration={basiszinsConfiguration}
+          handleUpdateRate={handleUpdateRate}
+          handleRemoveYear={handleRemoveYear}
+          currentYear={currentYear}
+        />
 
         {/* Summary Info */}
         <div className="text-sm text-muted-foreground">
