@@ -4,7 +4,7 @@ import {
   type AssetClass,
   DEFAULT_ASSET_CLASSES,
   type MultiAssetPortfolioConfig,
-} from '../../helpers/multi-asset-portfolio'
+} from '../../../helpers/multi-asset-portfolio'
 import { AssetClassEditor } from './AssetClassEditor'
 
 interface AssetClassesConfigurationProps {
@@ -15,7 +15,7 @@ interface AssetClassesConfigurationProps {
   /** Callback when an asset class configuration changes */
   onAssetClassChange: (
     assetClass: AssetClass,
-    updates: Partial<typeof config.assetClasses[AssetClass]>,
+    updates: Partial<MultiAssetPortfolioConfig['assetClasses'][AssetClass]>,
   ) => void
   /** Callback to normalize allocations to sum to 100% */
   onNormalizeAllocations: () => void
@@ -57,11 +57,12 @@ export function AssetClassesConfiguration({
 
       {Object.entries(DEFAULT_ASSET_CLASSES).map(([assetClass, defaultConfig]) => {
         const currentConfig = config.assetClasses[assetClass as AssetClass]
+        const assetClassKey = assetClass as AssetClass
 
         return (
           <AssetClassEditor
             key={assetClass}
-            assetClass={assetClass as AssetClass}
+            assetClass={assetClassKey}
             name={defaultConfig.name}
             description={defaultConfig.description}
             config={currentConfig}
