@@ -53,127 +53,179 @@ interface ConfigurationSectionsProps {
 }
 
 /**
- * Groups all insurance configuration sections based on insurance type and planning mode
+ * Renders statutory insurance configuration section
  */
-// eslint-disable-next-line complexity, max-lines-per-function -- UI routing logic with multiple conditional sections
-export function ConfigurationSections(props: ConfigurationSectionsProps) {
-  const {
-    planningMode,
-    insuranceType,
-    includeEmployerContribution,
-    statutoryHealthInsuranceRate,
-    statutoryCareInsuranceRate,
-    statutoryMinimumIncomeBase,
-    statutoryMaximumIncomeBase,
-    onIncludeEmployerContributionChange,
-    onStatutoryMinimumIncomeBaseChange,
-    onStatutoryMaximumIncomeBaseChange,
-    privateHealthInsuranceMonthly,
-    privateCareInsuranceMonthly,
-    privateInsuranceInflationRate,
-    onPrivateHealthInsuranceMonthlyChange,
-    onPrivateCareInsuranceMonthlyChange,
-    onPrivateInsuranceInflationRateChange,
-    coupleStrategy = 'optimize',
-    familyInsuranceThresholdRegular = 505,
-    familyInsuranceThresholdMiniJob = 538,
-    person1Name = '',
-    person1WithdrawalShare = 0.5,
-    person1OtherIncomeAnnual = 0,
-    person1AdditionalCareInsuranceForChildless = false,
-    person2Name = '',
-    person2WithdrawalShare = 0.5,
-    person2OtherIncomeAnnual = 0,
-    person2AdditionalCareInsuranceForChildless = false,
-    onCoupleStrategyChange,
-    onFamilyInsuranceThresholdRegularChange,
-    onFamilyInsuranceThresholdMiniJobChange,
-    onPerson1NameChange,
-    onPerson1WithdrawalShareChange,
-    onPerson1OtherIncomeAnnualChange,
-    onPerson1AdditionalCareInsuranceForChildlessChange,
-    onPerson2NameChange,
-    onPerson2WithdrawalShareChange,
-    onPerson2OtherIncomeAnnualChange,
-    onPerson2AdditionalCareInsuranceForChildlessChange,
-    additionalCareInsuranceForChildless,
-    additionalCareInsuranceAge,
-    onAdditionalCareInsuranceForChildlessChange,
-    onAdditionalCareInsuranceAgeChange,
-  } = props
-
-  const isStatutory = insuranceType === 'statutory'
-  const isPrivate = insuranceType === 'private'
-  const isCouple = planningMode === 'couple'
-  const isIndividual = planningMode === 'individual'
-  const showCoupleConfig = isCouple && isStatutory && onCoupleStrategyChange
-  const showIndividualCare = isIndividual
+function renderStatutorySection(props: ConfigurationSectionsProps) {
+  if (props.insuranceType !== 'statutory') {
+    return null
+  }
 
   return (
+    <StatutoryInsuranceConfig
+      includeEmployerContribution={props.includeEmployerContribution}
+      statutoryHealthInsuranceRate={props.statutoryHealthInsuranceRate}
+      statutoryCareInsuranceRate={props.statutoryCareInsuranceRate}
+      statutoryMinimumIncomeBase={props.statutoryMinimumIncomeBase}
+      statutoryMaximumIncomeBase={props.statutoryMaximumIncomeBase}
+      onIncludeEmployerContributionChange={props.onIncludeEmployerContributionChange}
+      onStatutoryMinimumIncomeBaseChange={props.onStatutoryMinimumIncomeBaseChange}
+      onStatutoryMaximumIncomeBaseChange={props.onStatutoryMaximumIncomeBaseChange}
+    />
+  )
+}
+
+/**
+ * Renders private insurance configuration section
+ */
+function renderPrivateSection(props: ConfigurationSectionsProps) {
+  if (props.insuranceType !== 'private') {
+    return null
+  }
+
+  return (
+    <PrivateInsuranceConfig
+      privateHealthInsuranceMonthly={props.privateHealthInsuranceMonthly}
+      privateCareInsuranceMonthly={props.privateCareInsuranceMonthly}
+      privateInsuranceInflationRate={props.privateInsuranceInflationRate}
+      onPrivateHealthInsuranceMonthlyChange={props.onPrivateHealthInsuranceMonthlyChange}
+      onPrivateCareInsuranceMonthlyChange={props.onPrivateCareInsuranceMonthlyChange}
+      onPrivateInsuranceInflationRateChange={props.onPrivateInsuranceInflationRateChange}
+    />
+  )
+}
+
+/**
+ * Default values for couple configuration
+ */
+const COUPLE_CONFIG_DEFAULTS = {
+  coupleStrategy: 'optimize' as const,
+  familyInsuranceThresholdRegular: 505,
+  familyInsuranceThresholdMiniJob: 538,
+  person1Name: '',
+  person1WithdrawalShare: 0.5,
+  person1OtherIncomeAnnual: 0,
+  person1AdditionalCareInsuranceForChildless: false,
+  person2Name: '',
+  person2WithdrawalShare: 0.5,
+  person2OtherIncomeAnnual: 0,
+  person2AdditionalCareInsuranceForChildless: false,
+}
+
+/**
+ * Applies default values for person 1 configuration
+ */
+function applyPerson1Defaults(props: ConfigurationSectionsProps) {
+  return {
+    person1Name: props.person1Name ?? COUPLE_CONFIG_DEFAULTS.person1Name,
+    person1WithdrawalShare: props.person1WithdrawalShare ?? COUPLE_CONFIG_DEFAULTS.person1WithdrawalShare,
+    person1OtherIncomeAnnual: props.person1OtherIncomeAnnual ?? COUPLE_CONFIG_DEFAULTS.person1OtherIncomeAnnual,
+    person1AdditionalCareInsuranceForChildless: props.person1AdditionalCareInsuranceForChildless
+      ?? COUPLE_CONFIG_DEFAULTS.person1AdditionalCareInsuranceForChildless,
+  }
+}
+
+/**
+ * Applies default values for person 2 configuration
+ */
+function applyPerson2Defaults(props: ConfigurationSectionsProps) {
+  return {
+    person2Name: props.person2Name ?? COUPLE_CONFIG_DEFAULTS.person2Name,
+    person2WithdrawalShare: props.person2WithdrawalShare ?? COUPLE_CONFIG_DEFAULTS.person2WithdrawalShare,
+    person2OtherIncomeAnnual: props.person2OtherIncomeAnnual ?? COUPLE_CONFIG_DEFAULTS.person2OtherIncomeAnnual,
+    person2AdditionalCareInsuranceForChildless: props.person2AdditionalCareInsuranceForChildless
+      ?? COUPLE_CONFIG_DEFAULTS.person2AdditionalCareInsuranceForChildless,
+  }
+}
+
+/**
+ * Applies default values for general couple configuration
+ */
+function applyGeneralCoupleDefaults(props: ConfigurationSectionsProps) {
+  return {
+    coupleStrategy: props.coupleStrategy ?? COUPLE_CONFIG_DEFAULTS.coupleStrategy,
+    familyInsuranceThresholdRegular: props.familyInsuranceThresholdRegular
+      ?? COUPLE_CONFIG_DEFAULTS.familyInsuranceThresholdRegular,
+    familyInsuranceThresholdMiniJob: props.familyInsuranceThresholdMiniJob
+      ?? COUPLE_CONFIG_DEFAULTS.familyInsuranceThresholdMiniJob,
+  }
+}
+
+/**
+ * Renders couple configuration section (only for statutory insurance in couple mode)
+ */
+function renderCoupleSection(props: ConfigurationSectionsProps) {
+  const shouldShow = props.planningMode === 'couple'
+    && props.insuranceType === 'statutory'
+    && props.onCoupleStrategyChange
+
+  if (!shouldShow) {
+    return null
+  }
+
+  const generalDefaults = applyGeneralCoupleDefaults(props)
+  const person1Defaults = applyPerson1Defaults(props)
+  const person2Defaults = applyPerson2Defaults(props)
+
+  return (
+    <CoupleConfiguration
+      coupleStrategy={generalDefaults.coupleStrategy}
+      familyInsuranceThresholdRegular={generalDefaults.familyInsuranceThresholdRegular}
+      familyInsuranceThresholdMiniJob={generalDefaults.familyInsuranceThresholdMiniJob}
+      person1Name={person1Defaults.person1Name}
+      person1WithdrawalShare={person1Defaults.person1WithdrawalShare}
+      person1OtherIncomeAnnual={person1Defaults.person1OtherIncomeAnnual}
+      person1AdditionalCareInsuranceForChildless={person1Defaults.person1AdditionalCareInsuranceForChildless}
+      person2Name={person2Defaults.person2Name}
+      person2WithdrawalShare={person2Defaults.person2WithdrawalShare}
+      person2OtherIncomeAnnual={person2Defaults.person2OtherIncomeAnnual}
+      person2AdditionalCareInsuranceForChildless={person2Defaults.person2AdditionalCareInsuranceForChildless}
+      onCoupleStrategyChange={props.onCoupleStrategyChange!}
+      onFamilyInsuranceThresholdRegularChange={props.onFamilyInsuranceThresholdRegularChange!}
+      onFamilyInsuranceThresholdMiniJobChange={props.onFamilyInsuranceThresholdMiniJobChange!}
+      onPerson1NameChange={props.onPerson1NameChange!}
+      onPerson1WithdrawalShareChange={props.onPerson1WithdrawalShareChange!}
+      onPerson1OtherIncomeAnnualChange={props.onPerson1OtherIncomeAnnualChange!}
+      onPerson1AdditionalCareInsuranceForChildlessChange={
+        props.onPerson1AdditionalCareInsuranceForChildlessChange!
+      }
+      onPerson2NameChange={props.onPerson2NameChange!}
+      onPerson2WithdrawalShareChange={props.onPerson2WithdrawalShareChange!}
+      onPerson2OtherIncomeAnnualChange={props.onPerson2OtherIncomeAnnualChange!}
+      onPerson2AdditionalCareInsuranceForChildlessChange={
+        props.onPerson2AdditionalCareInsuranceForChildlessChange!
+      }
+    />
+  )
+}
+
+/**
+ * Renders additional care insurance section (only for individual mode)
+ */
+function renderIndividualCareSection(props: ConfigurationSectionsProps) {
+  if (props.planningMode !== 'individual') {
+    return null
+  }
+
+  return (
+    <AdditionalCareInsurance
+      additionalCareInsuranceForChildless={props.additionalCareInsuranceForChildless}
+      additionalCareInsuranceAge={props.additionalCareInsuranceAge}
+      onAdditionalCareInsuranceForChildlessChange={props.onAdditionalCareInsuranceForChildlessChange}
+      onAdditionalCareInsuranceAgeChange={props.onAdditionalCareInsuranceAgeChange}
+    />
+  )
+}
+
+/**
+ * Groups all insurance configuration sections based on insurance type and planning mode
+ */
+export function ConfigurationSections(props: ConfigurationSectionsProps) {
+  return (
     <>
-      {isStatutory && (
-        <StatutoryInsuranceConfig
-          includeEmployerContribution={includeEmployerContribution}
-          statutoryHealthInsuranceRate={statutoryHealthInsuranceRate}
-          statutoryCareInsuranceRate={statutoryCareInsuranceRate}
-          statutoryMinimumIncomeBase={statutoryMinimumIncomeBase}
-          statutoryMaximumIncomeBase={statutoryMaximumIncomeBase}
-          onIncludeEmployerContributionChange={onIncludeEmployerContributionChange}
-          onStatutoryMinimumIncomeBaseChange={onStatutoryMinimumIncomeBaseChange}
-          onStatutoryMaximumIncomeBaseChange={onStatutoryMaximumIncomeBaseChange}
-        />
-      )}
-
-      {isPrivate && (
-        <PrivateInsuranceConfig
-          privateHealthInsuranceMonthly={privateHealthInsuranceMonthly}
-          privateCareInsuranceMonthly={privateCareInsuranceMonthly}
-          privateInsuranceInflationRate={privateInsuranceInflationRate}
-          onPrivateHealthInsuranceMonthlyChange={onPrivateHealthInsuranceMonthlyChange}
-          onPrivateCareInsuranceMonthlyChange={onPrivateCareInsuranceMonthlyChange}
-          onPrivateInsuranceInflationRateChange={onPrivateInsuranceInflationRateChange}
-        />
-      )}
-
-      {showCoupleConfig && (
-        <CoupleConfiguration
-          coupleStrategy={coupleStrategy}
-          familyInsuranceThresholdRegular={familyInsuranceThresholdRegular}
-          familyInsuranceThresholdMiniJob={familyInsuranceThresholdMiniJob}
-          person1Name={person1Name}
-          person1WithdrawalShare={person1WithdrawalShare}
-          person1OtherIncomeAnnual={person1OtherIncomeAnnual}
-          person1AdditionalCareInsuranceForChildless={person1AdditionalCareInsuranceForChildless}
-          person2Name={person2Name}
-          person2WithdrawalShare={person2WithdrawalShare}
-          person2OtherIncomeAnnual={person2OtherIncomeAnnual}
-          person2AdditionalCareInsuranceForChildless={person2AdditionalCareInsuranceForChildless}
-          onCoupleStrategyChange={onCoupleStrategyChange}
-          onFamilyInsuranceThresholdRegularChange={onFamilyInsuranceThresholdRegularChange!}
-          onFamilyInsuranceThresholdMiniJobChange={onFamilyInsuranceThresholdMiniJobChange!}
-          onPerson1NameChange={onPerson1NameChange!}
-          onPerson1WithdrawalShareChange={onPerson1WithdrawalShareChange!}
-          onPerson1OtherIncomeAnnualChange={onPerson1OtherIncomeAnnualChange!}
-          onPerson1AdditionalCareInsuranceForChildlessChange={
-            onPerson1AdditionalCareInsuranceForChildlessChange!
-          }
-          onPerson2NameChange={onPerson2NameChange!}
-          onPerson2WithdrawalShareChange={onPerson2WithdrawalShareChange!}
-          onPerson2OtherIncomeAnnualChange={onPerson2OtherIncomeAnnualChange!}
-          onPerson2AdditionalCareInsuranceForChildlessChange={
-            onPerson2AdditionalCareInsuranceForChildlessChange!
-          }
-        />
-      )}
-
-      {showIndividualCare && (
-        <AdditionalCareInsurance
-          additionalCareInsuranceForChildless={additionalCareInsuranceForChildless}
-          additionalCareInsuranceAge={additionalCareInsuranceAge}
-          onAdditionalCareInsuranceForChildlessChange={onAdditionalCareInsuranceForChildlessChange}
-          onAdditionalCareInsuranceAgeChange={onAdditionalCareInsuranceAgeChange}
-        />
-      )}
+      {renderStatutorySection(props)}
+      {renderPrivateSection(props)}
+      {renderCoupleSection(props)}
+      {renderIndividualCareSection(props)}
     </>
   )
 }
