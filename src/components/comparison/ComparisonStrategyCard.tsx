@@ -118,9 +118,146 @@ function MonthlyAmountField({
 }
 
 /**
+ * Base rate field for dynamic withdrawal strategy
+ */
+function DynamicBasisRateField({
+  strategyId,
+  value,
+  onUpdate,
+}: {
+  strategyId: string
+  value: number | undefined
+  onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
+}) {
+  return (
+    <div>
+      <label
+        style={{
+          display: 'block',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          marginBottom: '5px',
+        }}
+      >
+        Basis-Rate (%)
+      </label>
+      <input
+        type="number"
+        min="1"
+        max="10"
+        step="0.5"
+        value={value || 4}
+        onChange={(e) => {
+          onUpdate(strategyId, {
+            dynamischBasisrate: parseFloat(e.target.value) || 4,
+          })
+        }}
+        style={{
+          width: '100%',
+          padding: '6px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+        }}
+      />
+    </div>
+  )
+}
+
+/**
+ * Upper threshold field for dynamic withdrawal strategy
+ */
+function DynamicUpperThresholdField({
+  strategyId,
+  value,
+  onUpdate,
+}: {
+  strategyId: string
+  value: number | undefined
+  onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
+}) {
+  return (
+    <div>
+      <label
+        style={{
+          display: 'block',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          marginBottom: '5px',
+        }}
+      >
+        Obere Schwelle (%)
+      </label>
+      <input
+        type="number"
+        min="0"
+        max="20"
+        step="0.5"
+        value={value || 8}
+        onChange={(e) => {
+          onUpdate(strategyId, {
+            dynamischObereSchwell: parseFloat(e.target.value) || 8,
+          })
+        }}
+        style={{
+          width: '100%',
+          padding: '6px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+        }}
+      />
+    </div>
+  )
+}
+
+/**
+ * Lower threshold field for dynamic withdrawal strategy
+ */
+function DynamicLowerThresholdField({
+  strategyId,
+  value,
+  onUpdate,
+}: {
+  strategyId: string
+  value: number | undefined
+  onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
+}) {
+  return (
+    <div>
+      <label
+        style={{
+          display: 'block',
+          fontSize: '12px',
+          fontWeight: 'bold',
+          marginBottom: '5px',
+        }}
+      >
+        Untere Schwelle (%)
+      </label>
+      <input
+        type="number"
+        min="-20"
+        max="0"
+        step="0.5"
+        value={value || -8}
+        onChange={(e) => {
+          onUpdate(strategyId, {
+            dynamischUntereSchwell: parseFloat(e.target.value) || -8,
+          })
+        }}
+        style={{
+          width: '100%',
+          padding: '6px',
+          border: '1px solid #ccc',
+          borderRadius: '4px',
+        }}
+      />
+    </div>
+  )
+}
+
+/**
  * Dynamic strategy fields for dynamic withdrawal strategy
  */
-// eslint-disable-next-line max-lines-per-function -- Large component function
 function DynamicStrategyFields({
   strategyId,
   basisrate,
@@ -136,96 +273,21 @@ function DynamicStrategyFields({
 }) {
   return (
     <>
-      <div>
-        <label
-          style={{
-            display: 'block',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            marginBottom: '5px',
-          }}
-        >
-          Basis-Rate (%)
-        </label>
-        <input
-          type="number"
-          min="1"
-          max="10"
-          step="0.5"
-          value={basisrate || 4}
-          onChange={(e) => {
-            onUpdate(strategyId, {
-              dynamischBasisrate: parseFloat(e.target.value) || 4,
-            })
-          }}
-          style={{
-            width: '100%',
-            padding: '6px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-          }}
-        />
-      </div>
-      <div>
-        <label
-          style={{
-            display: 'block',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            marginBottom: '5px',
-          }}
-        >
-          Obere Schwelle (%)
-        </label>
-        <input
-          type="number"
-          min="0"
-          max="20"
-          step="0.5"
-          value={obereSchwell || 8}
-          onChange={(e) => {
-            onUpdate(strategyId, {
-              dynamischObereSchwell: parseFloat(e.target.value) || 8,
-            })
-          }}
-          style={{
-            width: '100%',
-            padding: '6px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-          }}
-        />
-      </div>
-      <div>
-        <label
-          style={{
-            display: 'block',
-            fontSize: '12px',
-            fontWeight: 'bold',
-            marginBottom: '5px',
-          }}
-        >
-          Untere Schwelle (%)
-        </label>
-        <input
-          type="number"
-          min="-20"
-          max="0"
-          step="0.5"
-          value={untereSchwell || -8}
-          onChange={(e) => {
-            onUpdate(strategyId, {
-              dynamischUntereSchwell: parseFloat(e.target.value) || -8,
-            })
-          }}
-          style={{
-            width: '100%',
-            padding: '6px',
-            border: '1px solid #ccc',
-            borderRadius: '4px',
-          }}
-        />
-      </div>
+      <DynamicBasisRateField
+        strategyId={strategyId}
+        value={basisrate}
+        onUpdate={onUpdate}
+      />
+      <DynamicUpperThresholdField
+        strategyId={strategyId}
+        value={obereSchwell}
+        onUpdate={onUpdate}
+      />
+      <DynamicLowerThresholdField
+        strategyId={strategyId}
+        value={untereSchwell}
+        onUpdate={onUpdate}
+      />
     </>
   )
 }
