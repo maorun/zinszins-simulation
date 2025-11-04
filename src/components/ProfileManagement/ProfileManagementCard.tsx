@@ -1,4 +1,4 @@
-import type { FC, RefObject } from 'react'
+import type { ComponentType, RefObject } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
 import { ChevronDown } from 'lucide-react'
@@ -28,8 +28,8 @@ interface ProfileCardProps {
   onDeleteProfile: (profile: UserProfile) => void
   onCreateProfile: () => void
   onClearAllProfiles: () => void
-  ProfileList: FC<ProfileListProps>
-  ProfileContentArea: FC<ProfileContentAreaProps>
+  ProfileList: ComponentType<ProfileListProps>
+  ProfileContentArea: ComponentType<ProfileContentAreaProps>
 }
 
 /** Card header with collapsible trigger */

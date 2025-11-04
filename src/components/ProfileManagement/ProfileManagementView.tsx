@@ -1,4 +1,4 @@
-import type { FC, RefObject } from 'react'
+import type { ComponentType, RefObject } from 'react'
 import type { UserProfile } from '../../utils/profile-storage'
 import { ProfileManagementCard } from './ProfileManagementCard'
 import { ProfileDialogs } from './ProfileDialogs'
@@ -49,8 +49,8 @@ interface ProfileManagementViewProps {
     confirmDeleteProfile: () => void
     confirmClearAllProfiles: () => void
   }
-  ProfileList: FC<ProfileListProps>
-  ProfileContentArea: FC<ProfileContentAreaProps>
+  ProfileList: ComponentType<ProfileListProps>
+  ProfileContentArea: ComponentType<ProfileContentAreaProps>
 }
 
 /** Profile Management View Component */
