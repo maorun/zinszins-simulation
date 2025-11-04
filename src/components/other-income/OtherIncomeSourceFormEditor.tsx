@@ -7,17 +7,11 @@ import {
   createDefaultKindergeldConfig,
 } from '../../../helpers/other-income'
 import { useFormId } from '../../utils/unique-id'
-import { RealEstateConfigSection } from './RealEstateConfigSection'
-import { KindergeldConfigSection } from './KindergeldConfigSection'
-import { AmountTypeSection } from './AmountTypeSection'
-import { TaxRateSection } from './TaxRateSection'
-import { InflationRateSection } from './InflationRateSection'
-import { MonthlyAmountSection } from './MonthlyAmountSection'
-import { TimePeriodSection } from './TimePeriodSection'
 import { NameInputSection } from './NameInputSection'
 import { TypeSelectSection } from './TypeSelectSection'
 import { NotesSection } from './NotesSection'
 import { ActionButtonsSection } from './ActionButtonsSection'
+import { FormConfigurationSections } from './FormConfigurationSections'
 
 interface OtherIncomeSourceFormEditorProps {
   editingSource: OtherIncomeSource
@@ -99,47 +93,15 @@ export function OtherIncomeSourceFormEditor({
       <CardContent className="space-y-4">
         <NameInputSection editingSource={editingSource} onUpdate={onUpdate} />
         <TypeSelectSection editingSource={editingSource} onTypeChange={handleTypeChange} />
-
-        {!isKindergeld && (
-          <AmountTypeSection editingSource={editingSource} onUpdate={onUpdate} />
-        )}
-
-        <MonthlyAmountSection
+        <FormConfigurationSections
           editingSource={editingSource}
           monthlyAmountId={monthlyAmountId}
+          currentYear={currentYear}
           isKindergeld={isKindergeld}
+          isRental={isRental}
           isGrossIncome={isGrossIncome}
           onUpdate={onUpdate}
         />
-
-        {isGrossIncome && (
-          <TaxRateSection editingSource={editingSource} onUpdate={onUpdate} />
-        )}
-
-        <TimePeriodSection
-          editingSource={editingSource}
-          currentYear={currentYear}
-          onUpdate={onUpdate}
-        />
-
-        {!isKindergeld && (
-          <InflationRateSection editingSource={editingSource} onUpdate={onUpdate} />
-        )}
-
-        {isRental && (
-          <RealEstateConfigSection
-            editingSource={editingSource}
-            onUpdate={onUpdate}
-          />
-        )}
-
-        {isKindergeld && (
-          <KindergeldConfigSection
-            editingSource={editingSource}
-            onUpdate={onUpdate}
-          />
-        )}
-
         <NotesSection editingSource={editingSource} onUpdate={onUpdate} />
         <ActionButtonsSection isAddingNew={isAddingNew} onSave={onSave} onCancel={onCancel} />
       </CardContent>

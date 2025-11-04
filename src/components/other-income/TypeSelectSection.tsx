@@ -1,6 +1,6 @@
-import React from 'react'
+import type React from 'react'
 import { Label } from '../ui/label'
-import type { OtherIncomeSource, IncomeType } from '../../../helpers/other-income'
+import type { OtherIncomeSource } from '../../../helpers/other-income'
 
 interface TypeSelectSectionProps {
   editingSource: OtherIncomeSource
