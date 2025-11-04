@@ -1,11 +1,10 @@
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
-import { Switch } from '../ui/switch'
 import { Slider } from '../ui/slider'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
-import { Button } from '../ui/button'
 import { Calculator } from 'lucide-react'
 import { useFormId } from '../../utils/unique-id'
+import { TaxReturnDataForm } from './TaxReturnDataForm'
 
 type PensionFormValues = {
   monthlyAmount: number
@@ -46,7 +45,6 @@ interface PensionInputFormProps {
 /**
  * Tax return data import section
  */
-// eslint-disable-next-line max-lines-per-function -- Large component function
 function TaxReturnDataImport({
   values,
   onChange,
@@ -69,92 +67,12 @@ function TaxReturnDataImport({
         </CardTitle>
       </CardHeader>
       <CardContent nestingLevel={nestingLevel + 1} className="space-y-4">
-        <div className="flex items-center space-x-2">
-          <Switch
-            checked={values.hasTaxReturnData}
-            onCheckedChange={hasTaxReturnData =>
-              onChange.onTaxReturnDataChange({
-                hasTaxReturnData,
-                taxYear: values.taxYear,
-                annualPensionReceived: values.annualPensionReceived,
-                taxablePortion: values.taxablePortion,
-              })}
-            id="has-tax-return-data"
-          />
-          <Label htmlFor="has-tax-return-data">
-            Daten aus Rentenbescheid verfügbar
-          </Label>
-        </div>
-
-        {values.hasTaxReturnData && (
-          <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="tax-year">Steuerjahr</Label>
-                <Input
-                  id="tax-year"
-                  type="number"
-                  value={values.taxYear}
-                  onChange={e => onChange.onTaxReturnDataChange({
-                    hasTaxReturnData: values.hasTaxReturnData,
-                    taxYear: Number(e.target.value),
-                    annualPensionReceived: values.annualPensionReceived,
-                    taxablePortion: values.taxablePortion,
-                  })}
-                  min={2000}
-                  max={currentYear}
-                  step={1}
-                  className="w-32"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="annual-pension-received">Jahresrente (brutto) €</Label>
-                <Input
-                  id="annual-pension-received"
-                  type="number"
-                  value={values.annualPensionReceived}
-                  onChange={e => onChange.onTaxReturnDataChange({
-                    hasTaxReturnData: values.hasTaxReturnData,
-                    taxYear: values.taxYear,
-                    annualPensionReceived: Number(e.target.value),
-                    taxablePortion: values.taxablePortion,
-                  })}
-                  min={0}
-                  step={100}
-                  className="w-40"
-                />
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="taxable-portion">Steuerpflichtiger Anteil €</Label>
-                <Input
-                  id="taxable-portion"
-                  type="number"
-                  value={values.taxablePortion}
-                  onChange={e => onChange.onTaxReturnDataChange({
-                    hasTaxReturnData: values.hasTaxReturnData,
-                    taxYear: values.taxYear,
-                    annualPensionReceived: values.annualPensionReceived,
-                    taxablePortion: Number(e.target.value),
-                  })}
-                  min={0}
-                  step={100}
-                  className="w-40"
-                />
-              </div>
-            </div>
-
-            <Button
-              onClick={onImportFromTaxReturn}
-              disabled={values.annualPensionReceived === 0}
-              className="w-full md:w-auto"
-            >
-              <Calculator className="h-4 w-4 mr-2" />
-              Werte automatisch berechnen
-            </Button>
-          </div>
-        )}
+        <TaxReturnDataForm
+          values={values}
+          onChange={onChange.onTaxReturnDataChange}
+          currentYear={currentYear}
+          onImportFromTaxReturn={onImportFromTaxReturn}
+        />
       </CardContent>
     </Card>
   )
