@@ -72,7 +72,7 @@ function SimulationHeader({ withdrawalData, formValue }: {
   if (!withdrawalData) return null
 
   return (
-    <div style={{ marginBottom: '20px' }}>
+    <div className="mb-5">
       <h4>Entnahme-Simulation</h4>
       <WithdrawalStrategySummary
         startingCapital={withdrawalData.startingCapital}

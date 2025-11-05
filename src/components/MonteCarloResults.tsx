@@ -28,7 +28,7 @@ function SimulationParameters({ config, formatPercent }: {
   formatPercent: (value: number) => string
 }) {
   return (
-    <div style={{ marginBottom: '20px' }}>
+    <div className="mb-5">
       <p>
         <strong>Simulationsparameter:</strong>
         {' '}
@@ -59,17 +59,9 @@ function SimulationParameters({ config, formatPercent }: {
 
 function MonteCarloNistHinweis() {
   return (
-    <div
-      style={{
-        marginTop: '15px',
-        padding: '10px',
-        backgroundColor: '#f8f9fa',
-        border: '1px solid #dee2e6',
-        borderRadius: '4px',
-      }}
-    >
+    <div className="mt-[15px] p-[10px] bg-[#f8f9fa] border border-[#dee2e6] rounded">
       <h6>💡 Hinweis zu Monte Carlo Simulationen:</h6>
-      <p style={{ margin: 0, fontSize: '14px' }}>
+      <p className="m-0 text-sm">
         Diese Szenarien basieren auf statistischen Modellen und historischen Annahmen.
         Tatsächliche Marktrenditen können stark abweichen. Die Simulation dient nur zur
         groben Orientierung und ersetzt keine professionelle Finanzberatung.
@@ -185,8 +177,8 @@ function AnalysisTableSection({
   getRowClassName: (scenario: string) => string
 }) {
   return (
-    <div style={{ marginBottom: '30px' }}>
-      <h4 style={{ color: '#1976d2', marginBottom: '15px' }}>
+    <div className="mb-[30px]">
+      <h4 className="text-[#1976d2] mb-[15px]">
         📊
         {title}
       </h4>

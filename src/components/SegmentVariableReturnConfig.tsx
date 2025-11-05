@@ -63,15 +63,7 @@ export function SegmentVariableReturnConfig({
   return (
     <div className="mb-4 space-y-2">
       <Label>Variable Renditen pro Jahr</Label>
-      <div
-        style={{
-          maxHeight: '300px',
-          overflowY: 'auto',
-          padding: '8px',
-          border: '1px solid #e2e8f0',
-          borderRadius: '6px',
-        }}
-      >
+      <div className="max-h-[300px] overflow-y-auto p-2 border border-[#e2e8f0] rounded-md">
         {Array.from({ length: endYear - startYear + 1 }, (_, index) => {
           const year = startYear + index
           const currentReturn = yearlyReturns[year] || 0.05

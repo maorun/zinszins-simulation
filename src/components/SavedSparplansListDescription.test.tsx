@@ -10,15 +10,15 @@ describe('SavedSparplansListDescription', () => {
     expect(screen.getByText('Ihre konfigurierten Sparpläne und Einmalzahlungen')).toBeInTheDocument()
   })
 
-  it('should apply correct inline styles', () => {
+  it('should apply correct styling classes', () => {
     const { container } = render(<SavedSparplansListDescription />)
 
     const descriptionDiv = container.querySelector('div')
-    expect(descriptionDiv).toHaveStyle({
-      padding: '1rem 1.5rem 0.5rem',
-      color: '#666',
-      fontSize: '0.9rem',
-      borderBottom: '1px solid #f0f0f0',
-    })
+    expect(descriptionDiv).toHaveClass('pt-4')
+    expect(descriptionDiv).toHaveClass('px-6')
+    expect(descriptionDiv).toHaveClass('pb-2')
+    expect(descriptionDiv).toHaveClass('text-[#666]')
+    expect(descriptionDiv).toHaveClass('text-sm')
+    expect(descriptionDiv).toHaveClass('border-b')
   })
 })
