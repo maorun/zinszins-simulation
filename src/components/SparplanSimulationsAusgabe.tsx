@@ -54,12 +54,7 @@ const InfoIcon = ({ onClick }: { onClick: () => void }) => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    style={{
-      marginLeft: '0.5rem',
-      cursor: 'pointer',
-      color: '#1976d2',
-      verticalAlign: 'middle',
-    }}
+    className="ml-2 cursor-pointer text-[#1976d2] align-middle"
     onClick={onClick}
   >
     <circle cx="12" cy="12" r="10"></circle>
@@ -69,31 +64,6 @@ const InfoIcon = ({ onClick }: { onClick: () => void }) => (
 )
 
 // Using shadcn/ui table components instead of legacy table
-
-/**
- * Styles for capital display component
- */
-const CAPITAL_DISPLAY_STYLES = {
-  container: {
-    textAlign: 'center' as const,
-    padding: '1.5rem',
-    background: 'linear-gradient(135deg, #28a745, #20c997)',
-    color: 'white',
-    borderRadius: '12px',
-    margin: '1rem 0',
-    boxShadow: '0 4px 12px rgba(40, 167, 69, 0.3)',
-  },
-  title: { fontSize: '1.2rem', marginBottom: '0.5rem', opacity: 0.9 },
-  amount: {
-    fontSize: '2.5rem',
-    fontWeight: 700,
-    letterSpacing: '-1px',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    gap: '0.5rem',
-  },
-}
 
 /**
  * Display component for total capital with gradient background
@@ -106,9 +76,9 @@ function CapitalDisplay({
   onInfoClick?: (explanationType: string, rowData: CalculationInfoData) => void
 }) {
   return (
-    <div style={CAPITAL_DISPLAY_STYLES.container}>
-      <div style={CAPITAL_DISPLAY_STYLES.title}>Ihr Gesamtkapital</div>
-      <div style={CAPITAL_DISPLAY_STYLES.amount}>
+    <div className="text-center p-6 bg-gradient-to-br from-[#28a745] to-[#20c997] text-white rounded-xl my-4 shadow-[0_4px_12px_rgba(40,167,69,0.3)]">
+      <div className="text-xl mb-2 opacity-90">Ihr Gesamtkapital</div>
+      <div className="text-[2.5rem] font-bold tracking-[-1px] flex items-center justify-center gap-2">
         <span>
           {thousands(amount.toFixed(2))}
           {' '}
@@ -371,7 +341,7 @@ function SparplanCardContent(props: SparplanCardContentProps) {
   } = props
   return (
     <CardContent>
-      <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
+      <div className="mb-4 text-[#666] text-sm">
         Jahr-für-Jahr Progression Ihres Portfolios - zeigt die kumulierte Kapitalentwicklung über die Zeit
       </div>
       <ChartSection elemente={elemente} />
