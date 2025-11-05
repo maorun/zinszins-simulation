@@ -7,18 +7,12 @@ interface FinalResultSectionProps {
 
 const FinalResultSection = ({ finalResult }: FinalResultSectionProps) => {
   return (
-    <div style={{
-      background: '#e8f5e8',
-      padding: '16px',
-      borderRadius: '8px',
-      border: '1px solid #81c784',
-    }}
-    >
-      <h5 style={{ color: '#2e7d32', marginBottom: '12px' }}>
+    <div className="bg-[#e8f5e8] p-4 rounded-lg border border-[#81c784]">
+      <h5 className="text-[#2e7d32] mb-3">
         ✅
         {finalResult.title}
       </h5>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px' }}>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-3">
         {finalResult.values.map((item, index) => (
           <div key={index}>
             <strong>

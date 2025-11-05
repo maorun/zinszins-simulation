@@ -6,27 +6,12 @@ interface StepVorabpauschaleProps {
 
 const StepVorabpauschale = ({ selectedVorabDetails }: StepVorabpauschaleProps) => {
   return (
-    <div
-      style={{
-        background: '#f3e5f5',
-        padding: '12px',
-        borderRadius: '6px',
-        border: '1px solid #ba68c8',
-      }}
-    >
+    <div className="bg-[#f3e5f5] p-3 rounded-md border border-[#ba68c8]">
       <strong>Schritt 4: Vorabpauschale bestimmen</strong>
-      <div style={{ marginTop: '8px', fontSize: '0.9rem' }}>
+      <div className="mt-2 text-sm">
         Das Minimum aus Basisertrag und tatsächlichem Gewinn (nie negativ).
       </div>
-      <div
-        style={{
-          marginTop: '8px',
-          padding: '8px',
-          background: '#fff',
-          borderRadius: '4px',
-          fontFamily: 'monospace',
-        }}
-      >
+      <div className="mt-2 p-2 bg-white rounded font-mono">
         Vorabpauschale = min(
         {Number(selectedVorabDetails.basisertrag).toLocaleString('de-DE', {
           minimumFractionDigits: 2,

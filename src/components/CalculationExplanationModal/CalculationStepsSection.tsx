@@ -13,38 +13,24 @@ interface CalculationStepsSectionProps {
 
 const CalculationStepsSection = ({ steps }: CalculationStepsSectionProps) => {
   return (
-    <div style={{ marginBottom: '24px' }}>
-      <h5 style={{ color: '#1976d2', marginBottom: '16px' }}>🧮 Schritt-für-Schritt Berechnung</h5>
+    <div className="mb-6">
+      <h5 className="text-[#1976d2] mb-4">🧮 Schritt-für-Schritt Berechnung</h5>
 
-      <div style={{
-        display: 'grid',
-        gap: '16px',
-        gridTemplateColumns: '1fr',
-        maxWidth: '100%',
-      }}
-      >
+      <div className="grid gap-4 grid-cols-1 max-w-full">
         {steps.map((step, index) => (
           <div
             key={index}
+            className="p-3 rounded-md"
             style={{
               background: step.backgroundColor,
-              padding: '12px',
-              borderRadius: '6px',
               border: `1px solid ${step.borderColor}`,
             }}
           >
             <strong>{step.title}</strong>
-            <div style={{ marginTop: '8px', fontSize: '0.9rem' }}>
+            <div className="mt-2 text-sm">
               {step.description}
             </div>
-            <div style={{
-              marginTop: '8px',
-              padding: '8px',
-              background: '#fff',
-              borderRadius: '4px',
-              fontFamily: 'monospace',
-            }}
-            >
+            <div className="mt-2 p-2 bg-white rounded font-mono">
               <div dangerouslySetInnerHTML={{ __html: step.calculation }} />
               =
               {' '}

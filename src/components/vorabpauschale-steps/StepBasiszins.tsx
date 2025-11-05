@@ -6,27 +6,12 @@ interface StepBasiszinsProps {
 
 const StepBasiszins = ({ selectedVorabDetails }: StepBasiszinsProps) => {
   return (
-    <div
-      style={{
-        background: '#fff3e0',
-        padding: '12px',
-        borderRadius: '6px',
-        border: '1px solid #ffcc80',
-      }}
-    >
+    <div className="bg-[#fff3e0] p-3 rounded-md border border-[#ffcc80]">
       <strong>Schritt 1: Basiszins ermitteln</strong>
-      <div style={{ marginTop: '8px', fontSize: '0.9rem' }}>
+      <div className="mt-2 text-sm">
         Der jährliche Basiszins wird vom Bundesfinanzministerium festgelegt.
       </div>
-      <div
-        style={{
-          marginTop: '8px',
-          padding: '8px',
-          background: '#fff',
-          borderRadius: '4px',
-          fontFamily: 'monospace',
-        }}
-      >
+      <div className="mt-2 p-2 bg-white rounded font-mono">
         Basiszins =
         {' '}
         {(selectedVorabDetails.basiszins * 100).toFixed(2)}
