@@ -4,26 +4,44 @@ import { useHealthCareInsuranceHandlers } from './useHealthCareInsuranceHandlers
 import { useWithdrawalVariablesProps } from './useWithdrawalVariablesProps'
 import { useWithdrawalEffects } from './useWithdrawalEffects'
 import type { WithdrawalData } from './useWithdrawalCalculations.types'
+import type {
+  WithdrawalConfiguration,
+  WithdrawalFormValue,
+  ComparisonStrategy,
+  SegmentedComparisonStrategy,
+  WithdrawalReturnMode,
+} from '../utils/config-storage'
+import type { SimulationContextState } from '../contexts/SimulationContext'
+import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
+
+/**
+ * Configuration values returned by useWithdrawalConfigValues
+ */
+interface ConfigValues {
+  formValue: WithdrawalFormValue
+  withdrawalReturnMode: WithdrawalReturnMode
+  withdrawalVariableReturns: Record<number, number>
+  withdrawalAverageReturn: number
+  withdrawalStandardDeviation: number
+  withdrawalRandomSeed: number | undefined
+  useSegmentedWithdrawal: boolean
+  withdrawalSegments: WithdrawalSegment[]
+  useComparisonMode: boolean
+  comparisonStrategies: ComparisonStrategy[]
+  useSegmentedComparisonMode: boolean
+  segmentedComparisonStrategies: SegmentedComparisonStrategy[]
+}
 
 interface UseEntnahmeModalsAndPropsParams {
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  configValues: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  simulationContext: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  currentConfig: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updateConfig: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updateFormValue: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updateComparisonStrategy: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  addSegmentedComparisonStrategy: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  updateSegmentedComparisonStrategy: any
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  removeSegmentedComparisonStrategy: any
+  configValues: ConfigValues
+  simulationContext: SimulationContextState
+  currentConfig: WithdrawalConfiguration
+  updateConfig: (updates: Partial<WithdrawalConfiguration>) => void
+  updateFormValue: (updates: Partial<WithdrawalFormValue>) => void
+  updateComparisonStrategy: (id: string, updates: Partial<ComparisonStrategy>) => void
+  addSegmentedComparisonStrategy: (strategy: SegmentedComparisonStrategy) => void
+  updateSegmentedComparisonStrategy: (id: string, updates: Partial<SegmentedComparisonStrategy>) => void
+  removeSegmentedComparisonStrategy: (id: string) => void
   withdrawalData: WithdrawalData
   startOfIndependence: number
   steuerlast: number
@@ -33,9 +51,13 @@ interface UseEntnahmeModalsAndPropsParams {
 }
 
 export function useEntnahmeModalsAndProps(params: UseEntnahmeModalsAndPropsParams) {
+  // Type assertion needed: useWithdrawalCalculations.types.WithdrawalData is incompatible with
+  // useWithdrawalModals.types.WithdrawalData due to withdrawalResult being WithdrawalResult | null
+  // vs WithdrawalResult. The types are structurally compatible in practice
   const modals = useWithdrawalModals(
     params.configValues.formValue, params.configValues.useSegmentedWithdrawal,
-    params.configValues.withdrawalSegments, params.withdrawalData,
+    params.configValues.withdrawalSegments,
+    params.withdrawalData as Parameters<typeof useWithdrawalModals>[3],
     params.startOfIndependence, params.steuerlast, params.teilfreistellungsquote,
     params.simulationContext.grundfreibetragAktiv, params.simulationContext.grundfreibetragBetrag,
   )
@@ -46,15 +68,20 @@ export function useEntnahmeModalsAndProps(params: UseEntnahmeModalsAndPropsParam
 
   useWithdrawalEffects({
     onWithdrawalResultsChange: params.onWithdrawalResultsChange,
-    withdrawalData: params.withdrawalData as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    // Type assertion needed: useWithdrawalCalculations.types.WithdrawalData has
+    // withdrawalResult: WithdrawalResult | null, but useWithdrawalEffects expects
+    // WithdrawalData with withdrawalResult: WithdrawalResult. Structurally compatible.
+    withdrawalData: params.withdrawalData as Parameters<typeof useWithdrawalEffects>[0]['withdrawalData'],
     useSegmentedWithdrawal: params.configValues.useSegmentedWithdrawal,
     withdrawalSegments: params.configValues.withdrawalSegments,
     startOfIndependence: params.startOfIndependence,
     updateConfig: params.updateConfig,
   })
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const withdrawalVariablesProps: any = useWithdrawalVariablesProps({
+  // Type assertion needed: useWithdrawalCalculations.types.WithdrawalData is incompatible
+  // with useWithdrawalVariablesProps expected type due to withdrawalResult being
+  // WithdrawalResult | null vs WithdrawalResult. Structurally compatible in practice.
+  const withdrawalVariablesProps = useWithdrawalVariablesProps({
     currentConfig: params.currentConfig,
     updateConfig: params.updateConfig,
     updateFormValue: params.updateFormValue,
@@ -79,7 +106,7 @@ export function useEntnahmeModalsAndProps(params: UseEntnahmeModalsAndPropsParam
     planningMode: params.simulationContext.planningMode,
     birthYear: params.simulationContext.birthYear,
     spouseBirthYear: params.simulationContext.spouse?.birthYear,
-    withdrawalData: params.withdrawalData as any, // eslint-disable-line @typescript-eslint/no-explicit-any
+    withdrawalData: params.withdrawalData as Parameters<typeof useWithdrawalVariablesProps>[0]['withdrawalData'],
     healthCareInsuranceHandlers,
   })
 
