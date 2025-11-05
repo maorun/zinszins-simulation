@@ -35,27 +35,13 @@ export function ComparisonMetrics({
   withdrawalLabel,
 }: ComparisonMetricsProps) {
   return (
-    <div
-      style={{
-        border: '2px solid #1675e0',
-        borderRadius: '8px',
-        padding: '15px',
-        marginBottom: '20px',
-        backgroundColor: '#f8f9ff',
-      }}
-    >
-      <h5 style={{ color: '#1675e0', margin: '0 0 10px 0' }}>
+    <div className="border-2 border-[#1675e0] rounded-lg p-[15px] mb-5 bg-[#f8f9ff]">
+      <h5 className="text-[#1675e0] m-0 mb-[10px]">
         📊 Basis-Strategie:
         {' '}
         {displayName}
       </h5>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '10px',
-        }}
-      >
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-[10px]">
         <MetricItem label="Rendite:" value={`${rendite}%`} />
         <MetricItem label="Endkapital:" value={formatCurrency(endkapital)} />
         <MetricItem label="Vermögen reicht für:" value={duration} />

@@ -49,14 +49,14 @@ describe('SavedSparplansListContent', () => {
   it('should render wrapper div with correct padding', () => {
     const { container } = render(<SavedSparplansListContent {...mockProps} />)
 
-    const wrapperDiv = container.querySelector('div[style*="padding: 1rem"]')
+    const wrapperDiv = container.querySelector('div.p-4')
     expect(wrapperDiv).toBeInTheDocument()
   })
 
   it('should render hidden desktop table layout', () => {
     const { container } = render(<SavedSparplansListContent {...mockProps} />)
 
-    const hiddenDiv = container.querySelector('div[style*="display: none"]')
+    const hiddenDiv = container.querySelector('div.hidden')
     expect(hiddenDiv).toBeInTheDocument()
   })
 
