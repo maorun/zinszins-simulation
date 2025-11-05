@@ -1,4 +1,4 @@
-import { getRMDDescription } from '../../helpers/rmd-tables'
+import { getRMDDescription } from '../../../helpers/rmd-tables'
 
 interface RMDCalculationInfoProps {
   startAge: number

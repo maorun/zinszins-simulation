@@ -1,7 +1,7 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { BucketStrategyConfiguration } from './BucketStrategyConfiguration'
-import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
+import { BucketStrategyConfiguration } from './bucket-strategy/BucketStrategyConfiguration'
+import { RMDWithdrawalConfiguration } from './rmd-withdrawal/RMDWithdrawalConfiguration'
 import { SimulationProvider } from '../contexts/SimulationContext'
 
 describe('Unified Strategy Configurations', () => {

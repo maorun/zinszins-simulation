@@ -1,6 +1,6 @@
-import { Slider } from './ui/slider'
-import { Label } from './ui/label'
-import { Input } from './ui/input'
+import { Slider } from '../ui/slider'
+import { Label } from '../ui/label'
+import { Input } from '../ui/input'
 
 interface VariabelProzentConfigProps {
   value: number
