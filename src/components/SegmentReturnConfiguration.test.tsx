@@ -3,7 +3,7 @@ import { describe, it, expect, vi } from 'vitest'
 import userEvent from '@testing-library/user-event'
 import { SegmentReturnConfiguration } from './SegmentReturnConfiguration'
 import { createDefaultMultiAssetConfig } from '../../helpers/multi-asset-portfolio'
-import type { ReturnConfiguration } from '../../helpers/random-returns'
+import type { ReturnConfiguration } from '../utils/random-returns'
 
 // Mock child components to keep tests focused
 vi.mock('./SegmentFixedReturnConfig', () => ({

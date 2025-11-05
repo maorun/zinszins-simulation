@@ -1,5 +1,5 @@
 import { createDefaultMultiAssetConfig } from '../../helpers/multi-asset-portfolio'
-import type { ReturnConfiguration } from '../../helpers/random-returns'
+import type { ReturnConfiguration } from '../utils/random-returns'
 import type { WithdrawalReturnMode } from './SegmentReturnConfiguration'
 
 export function createReturnConfigForMode(

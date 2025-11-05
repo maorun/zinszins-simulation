@@ -1,4 +1,4 @@
-import type { RandomReturnConfig } from '../../../helpers/random-returns'
+import type { RandomReturnConfig } from '../../utils/random-returns'
 
 interface UseSegmentRandomReturnHandlersProps {
   randomConfig: RandomReturnConfig | undefined

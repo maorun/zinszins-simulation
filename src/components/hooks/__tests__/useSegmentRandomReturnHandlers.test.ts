@@ -1,7 +1,7 @@
 import { describe, test, expect, vi } from 'vitest'
 import { renderHook, act } from '@testing-library/react'
 import { useSegmentRandomReturnHandlers } from '../useSegmentRandomReturnHandlers'
-import type { RandomReturnConfig } from '../../../../helpers/random-returns'
+import type { RandomReturnConfig } from '../../../utils/random-returns'
 
 describe('useSegmentRandomReturnHandlers', () => {
   test('should return default values when randomConfig is undefined', () => {

@@ -4,7 +4,7 @@ import {
   getReturnModeFromConfig,
 } from './segment-return-config-helpers'
 import { createDefaultMultiAssetConfig } from '../../helpers/multi-asset-portfolio'
-import type { ReturnConfiguration } from '../../helpers/random-returns'
+import type { ReturnConfiguration } from '../utils/random-returns'
 
 describe('segment-return-config-helpers', () => {
   describe('getReturnModeFromConfig', () => {

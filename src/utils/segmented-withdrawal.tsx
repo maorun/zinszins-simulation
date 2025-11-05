@@ -1,5 +1,5 @@
 import { type WithdrawalStrategy, type MonthlyWithdrawalConfig, type InflationConfig, type DynamicWithdrawalConfig, type BucketStrategyConfig, type RMDConfig, type SteueroptimierteEntnahmeConfig } from '../../helpers/withdrawal'
-import type { ReturnConfiguration } from '../../helpers/random-returns'
+import type { ReturnConfiguration } from './random-returns'
 import type { WithdrawalFrequency } from './config-storage'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
 
