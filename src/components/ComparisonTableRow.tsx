@@ -18,19 +18,16 @@ interface ComparisonTableRowProps {
  * Comparison strategy row component for comparison table
  */
 export function ComparisonTableRow({ result }: ComparisonTableRowProps) {
-  const tdStyle = { padding: '10px', borderBottom: '1px solid #e5e5ea' }
-  const tdRightStyle = { ...tdStyle, textAlign: 'right' as const }
-
   return (
     <tr key={result.strategy.id}>
-      <td style={tdStyle}>{result.strategy.name}</td>
-      <td style={tdRightStyle}>
+      <td className="p-[10px] border-b border-[#e5e5ea]">{result.strategy.name}</td>
+      <td className="p-[10px] border-b border-[#e5e5ea] text-right">
         {result.strategy.rendite}
         %
       </td>
-      <td style={tdRightStyle}>{formatCurrency(result.finalCapital)}</td>
-      <td style={tdRightStyle}>{formatCurrency(result.averageAnnualWithdrawal)}</td>
-      <td style={tdRightStyle}>
+      <td className="p-[10px] border-b border-[#e5e5ea] text-right">{formatCurrency(result.finalCapital)}</td>
+      <td className="p-[10px] border-b border-[#e5e5ea] text-right">{formatCurrency(result.averageAnnualWithdrawal)}</td>
+      <td className="p-[10px] border-b border-[#e5e5ea] text-right">
         {typeof result.duration === 'number' ? `${result.duration} Jahre` : result.duration}
       </td>
     </tr>

@@ -27,7 +27,7 @@ describe('ComparisonTableHeader', () => {
     )
 
     const headerRow = container.querySelector('tr')
-    expect(headerRow).toHaveStyle({ backgroundColor: '#f8f9fa' })
+    expect(headerRow).toHaveClass('bg-[#f8f9fa]')
   })
 
   it('applies correct styling to header cells', () => {
@@ -40,19 +40,15 @@ describe('ComparisonTableHeader', () => {
     const headers = container.querySelectorAll('th')
 
     // First header should be left-aligned
-    expect(headers[0]).toHaveStyle({
-      textAlign: 'left',
-      padding: '10px',
-      borderBottom: '1px solid #e5e5ea',
-    })
+    expect(headers[0]).toHaveClass('text-left')
+    expect(headers[0]).toHaveClass('p-[10px]')
+    expect(headers[0]).toHaveClass('border-b')
 
     // Other headers should be right-aligned
     for (let i = 1; i < headers.length; i++) {
-      expect(headers[i]).toHaveStyle({
-        textAlign: 'right',
-        padding: '10px',
-        borderBottom: '1px solid #e5e5ea',
-      })
+      expect(headers[i]).toHaveClass('text-right')
+      expect(headers[i]).toHaveClass('p-[10px]')
+      expect(headers[i]).toHaveClass('border-b')
     }
   })
 })

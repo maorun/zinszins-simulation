@@ -53,10 +53,8 @@ describe('ComparisonTableBaseRow', () => {
     )
 
     const row = container.querySelector('tr')
-    expect(row).toHaveStyle({
-      backgroundColor: '#f8f9ff',
-      fontWeight: 'bold',
-    })
+    expect(row).toHaveClass('bg-[#f8f9ff]')
+    expect(row).toHaveClass('font-bold')
   })
 
   it('formats currency values correctly', () => {
