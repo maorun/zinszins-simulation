@@ -56,14 +56,14 @@ npm run test    # ERROR: Dependencies not installed
   - **Requires**: `npm install` must be run first
 - **Linting**: `npm run lint` -- lints code and checks markdown files
   - Automatically runs `npm run typecheck` first (prelint hook)
-  - Should pass with max 319 warnings
+  - Should pass with 0 warnings (max-warnings 0 enforced)
   - **Requires**: `npm install` must be run first
 - **Development server**: `npm run dev` -- starts in 5-6 seconds. NEVER CANCEL. Set timeout to 2+ minutes.
   - Runs on http://localhost:5173 (Vite default port)
   - Hot module reloading works correctly
   - Will show Vite development server output
   - **Requires**: `npm install` must be run first
-- **Testing**: `npm run test` -- runs 578 tests across 77 files in ~32 seconds
+- **Testing**: `npm run test` -- runs 2519 tests across 297 files in ~126 seconds
   - Automatically runs `npm run lint` first (pretest hook), which runs `npm run typecheck`
   - All tests should pass
   - Uses Vitest for testing
@@ -585,8 +585,8 @@ For each individual step in your plan:
 2. **Testing and Linting Phase - MANDATORY**
    - **PREREQUISITE**: Ensure `npm install` has been run (check for `node_modules/` directory)
    - **No Exceptions:** For **every single change or addition** of a feature, corresponding tests **must** be added or adapted. This is a mandatory requirement for every step.
-   - **Run all tests:** `npm run test` (should pass all 578+ tests across 77 files). If you add new features, add new tests. If you change features, adapt existing tests.
-   - **Run linting:** `npm run lint` (should pass with max 319 warnings)
+   - **Run all tests:** `npm run test` (should pass all 2519+ tests across 297 files). If you add new features, add new tests. If you change features, adapt existing tests.
+   - **Run linting:** `npm run lint` (should pass with 0 warnings)
    - **Run type checking:** `npm run typecheck` (expect minimal errors)
    - **Run build:** `npm run build` (should complete successfully)
    - **If any errors are found**: Fix them and return to Development Phase. Do not proceed if tests are failing.
