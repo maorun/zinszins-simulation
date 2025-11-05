@@ -38,17 +38,10 @@ export function ComparisonTable({
   }
 
   return (
-    <div style={{ marginTop: '30px' }}>
+    <div className="mt-[30px]">
       <h5>📋 Vergleichstabelle</h5>
-      <div style={{ overflowX: 'auto' }}>
-        <table
-          style={{
-            width: '100%',
-            borderCollapse: 'collapse',
-            border: '1px solid #e5e5ea',
-            fontSize: '14px',
-          }}
-        >
+      <div className="overflow-x-auto">
+        <table className="w-full border-collapse border border-[#e5e5ea] text-sm">
           <ComparisonTableHeader />
           <tbody>
             <ComparisonTableBaseRow

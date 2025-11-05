@@ -32,9 +32,9 @@ class ErrorBoundary extends Component<Props, State> {
     if (this.state.hasError) {
       // You can render any custom fallback UI
       return (
-        <div style={{ padding: '20px', backgroundColor: '#fff1f0', border: '1px solid #ffccc7' }}>
-          <h1 style={{ color: '#cf1322' }}>Something went wrong.</h1>
-          <details style={{ whiteSpace: 'pre-wrap' }}>
+        <div className="p-5 bg-[#fff1f0] border border-[#ffccc7]">
+          <h1 className="text-[#cf1322]">Something went wrong.</h1>
+          <details className="whitespace-pre-wrap">
             <summary>Error Details</summary>
             {this.state.error && this.state.error.toString()}
             <br />

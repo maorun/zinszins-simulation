@@ -47,7 +47,7 @@ export function SavedSparplansListContent({
 }: SavedSparplansListContentProps) {
   return (
     <>
-      <div style={{ padding: '1rem' }}>
+      <div className="p-4">
         <SparplanList
           sparplans={sparplans}
           simulationAnnual={simulationAnnual}
@@ -67,7 +67,7 @@ export function SavedSparplansListContent({
       </div>
 
       {/* Hidden Desktop Table Layout */}
-      <div style={{ display: 'none' }}>
+      <div className="hidden">
         {/* Table functionality has been replaced with card layout above */}
       </div>
     </>

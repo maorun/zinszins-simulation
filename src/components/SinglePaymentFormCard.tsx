@@ -114,7 +114,7 @@ export function SinglePaymentFormCard({
         <FormHeader />
         <CollapsibleContent>
           <CardContent className="pt-0">
-            <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
+            <div className="mb-4 text-[#666] text-sm">
               Fügen Sie einmalige Zahlungen zu einem bestimmten Zeitpunkt hinzu
             </div>
             <SinglePaymentForm {...formProps} />

@@ -8,17 +8,6 @@ interface ComparisonTableBaseRowProps {
   baseStrategyDuration: string
 }
 
-// Common styles for table cells
-const tdStyles = {
-  padding: '10px',
-  borderBottom: '1px solid #e5e5ea',
-}
-
-const tdRightStyle = {
-  ...tdStyles,
-  textAlign: 'right' as const,
-}
-
 /**
  * Base strategy row component for comparison table
  */
@@ -30,21 +19,21 @@ export function ComparisonTableBaseRow({
   baseStrategyDuration,
 }: ComparisonTableBaseRowProps) {
   return (
-    <tr style={{ backgroundColor: '#f8f9ff', fontWeight: 'bold' }}>
-      <td style={tdStyles}>
+    <tr className="bg-[#f8f9ff] font-bold">
+      <td className="p-[10px] border-b border-[#e5e5ea]">
         📊
         {' '}
         {baseStrategyName}
         {' '}
         (Basis)
       </td>
-      <td style={tdRightStyle}>
+      <td className="p-[10px] border-b border-[#e5e5ea] text-right">
         {baseStrategyRendite}
         %
       </td>
-      <td style={tdRightStyle}>{formatCurrency(baseStrategyEndkapital)}</td>
-      <td style={tdRightStyle}>{formatCurrency(baseStrategyAverageWithdrawal)}</td>
-      <td style={tdRightStyle}>{baseStrategyDuration}</td>
+      <td className="p-[10px] border-b border-[#e5e5ea] text-right">{formatCurrency(baseStrategyEndkapital)}</td>
+      <td className="p-[10px] border-b border-[#e5e5ea] text-right">{formatCurrency(baseStrategyAverageWithdrawal)}</td>
+      <td className="p-[10px] border-b border-[#e5e5ea] text-right">{baseStrategyDuration}</td>
     </tr>
   )
 }

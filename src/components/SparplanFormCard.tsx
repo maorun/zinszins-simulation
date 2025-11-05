@@ -118,7 +118,7 @@ export function SparplanFormCard({
         <SparplanFormHeader />
         <CollapsibleContent>
           <CardContent className="pt-0">
-            <div style={{ marginBottom: '1rem', color: '#666', fontSize: '0.9rem' }}>
+            <div className="mb-4 text-[#666] text-sm">
               Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum
             </div>
             <SparplanForm {...formProps} />

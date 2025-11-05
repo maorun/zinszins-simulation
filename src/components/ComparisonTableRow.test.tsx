@@ -150,12 +150,12 @@ describe('ComparisonTableRow', () => {
 
     const cells = container.querySelectorAll('td')
 
-    // First cell (strategy name) should not have textAlign (default left)
-    expect(cells[0]).not.toHaveStyle({ textAlign: 'right' })
+    // First cell (strategy name) should not have text-right class
+    expect(cells[0]).not.toHaveClass('text-right')
 
     // Other cells should be right-aligned
     for (let i = 1; i < cells.length; i++) {
-      expect(cells[i]).toHaveStyle({ textAlign: 'right' })
+      expect(cells[i]).toHaveClass('text-right')
     }
   })
 })

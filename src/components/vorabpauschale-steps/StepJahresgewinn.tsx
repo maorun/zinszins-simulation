@@ -6,27 +6,12 @@ interface StepJahresgewinnProps {
 
 const StepJahresgewinn = ({ selectedVorabDetails }: StepJahresgewinnProps) => {
   return (
-    <div
-      style={{
-        background: '#e3f2fd',
-        padding: '12px',
-        borderRadius: '6px',
-        border: '1px solid #64b5f6',
-      }}
-    >
+    <div className="bg-[#e3f2fd] p-3 rounded-md border border-[#64b5f6]">
       <strong>Schritt 3: Tatsächlichen Gewinn ermitteln</strong>
-      <div style={{ marginTop: '8px', fontSize: '0.9rem' }}>
+      <div className="mt-2 text-sm">
         Der reale Wertzuwachs der Anlage im betrachteten Jahr.
       </div>
-      <div
-        style={{
-          marginTop: '8px',
-          padding: '8px',
-          background: '#fff',
-          borderRadius: '4px',
-          fontFamily: 'monospace',
-        }}
-      >
+      <div className="mt-2 p-2 bg-white rounded font-mono">
         Tatsächlicher Gewinn =
         {' '}
         {Number(selectedVorabDetails.jahresgewinn).toLocaleString('de-DE', {

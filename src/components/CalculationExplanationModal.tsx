@@ -40,7 +40,7 @@ const CalculationExplanationModal = ({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <div>
-          <div style={{ fontSize: '0.95rem', lineHeight: '1.6' }}>
+          <div className="text-[0.95rem] leading-[1.6]">
             <IntroductionSection introduction={introduction} />
             <CalculationStepsSection steps={steps} />
             <FinalResultSection finalResult={finalResult} />
