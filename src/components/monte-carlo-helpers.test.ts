@@ -1,10 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import {
-  formatPercent,
   createScenarios,
   calculateBlackSwanScenario,
 } from './monte-carlo-helpers'
 import type { RandomReturnConfig } from '../utils/random-returns'
+import { formatPercent } from '../utils/currency'
 
 describe('monte-carlo-helpers', () => {
   describe('formatPercent', () => {
