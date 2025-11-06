@@ -1,11 +1,28 @@
+import { lazy, Suspense } from 'react'
 import { Button } from './ui/button'
 import Header from './Header'
 import SimulationParameters from './SimulationParameters'
-import { GlobalPlanningConfiguration } from './GlobalPlanningConfiguration'
-import FinancialGoalsConfiguration from './FinancialGoalsConfiguration'
-import ProfileManagement from './ProfileManagement'
-import ScenarioSelector from './ScenarioSelector'
 import type { FinancialScenario } from '../data/scenarios'
+import { Card, CardContent } from './ui/card'
+
+// Lazy load large configuration components
+const GlobalPlanningConfiguration = lazy(() => import('./GlobalPlanningConfiguration').then(m => ({ default: m.GlobalPlanningConfiguration })))
+const FinancialGoalsConfiguration = lazy(() => import('./FinancialGoalsConfiguration'))
+const ProfileManagement = lazy(() => import('./ProfileManagement'))
+const ScenarioSelector = lazy(() => import('./ScenarioSelector'))
+
+/**
+ * Loading fallback component
+ */
+function LoadingCard() {
+  return (
+    <Card className="mb-3 sm:mb-4">
+      <CardContent className="py-4 text-center text-gray-500 text-sm">
+        Lädt Konfiguration...
+      </CardContent>
+    </Card>
+  )
+}
 
 interface HomePageHeaderSectionProps {
   handleRecalculate: () => void
@@ -37,14 +54,22 @@ export function HomePageHeaderSection({
       <SimulationParameters />
 
       {/* Global Planning Configuration - Available for all calculations including Vorabpauschale */}
-      <GlobalPlanningConfiguration startOfIndependence={startOfIndependence} />
+      <Suspense fallback={<LoadingCard />}>
+        <GlobalPlanningConfiguration startOfIndependence={startOfIndependence} />
+      </Suspense>
 
       {/* Financial Goals Configuration */}
-      <FinancialGoalsConfiguration />
+      <Suspense fallback={<LoadingCard />}>
+        <FinancialGoalsConfiguration />
+      </Suspense>
 
-      <ProfileManagement />
+      <Suspense fallback={<LoadingCard />}>
+        <ProfileManagement />
+      </Suspense>
 
-      <ScenarioSelector onApplyScenario={handleApplyScenario} />
+      <Suspense fallback={<LoadingCard />}>
+        <ScenarioSelector onApplyScenario={handleApplyScenario} />
+      </Suspense>
     </>
   )
 }
