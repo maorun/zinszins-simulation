@@ -26,13 +26,7 @@ function ComparisonTableHeader() {
 /**
  * Table row for a single comparison result
  */
-function ComparisonTableRow({
-  result,
-  index,
-}: {
-  result: SegmentedComparisonResult
-  index: number
-}) {
+function ComparisonTableRow({ result, index }: { result: SegmentedComparisonResult; index: number }) {
   return (
     <tr
       key={result.strategy.id}
@@ -54,9 +48,7 @@ function ComparisonTableRow({
  * Component for displaying detailed comparison table for segmented withdrawal strategies
  * Shows all comparison strategies in a tabular format when there are multiple strategies
  */
-export function SegmentedComparisonTable({
-  segmentedComparisonResults,
-}: SegmentedComparisonTableProps) {
+export function SegmentedComparisonTable({ segmentedComparisonResults }: SegmentedComparisonTableProps) {
   // Only show table if there are multiple strategies to compare
   if (segmentedComparisonResults.length <= 1) {
     return null

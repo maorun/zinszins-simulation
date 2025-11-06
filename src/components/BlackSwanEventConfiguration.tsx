@@ -13,10 +13,7 @@ interface BlackSwanEventConfigurationProps {
  * Black Swan Event Configuration Component
  * Allows users to simulate extreme market events (crashes) in their portfolio
  */
-const BlackSwanEventConfiguration = ({
-  onEventChange,
-  simulationStartYear,
-}: BlackSwanEventConfigurationProps) => {
+const BlackSwanEventConfiguration = ({ onEventChange, simulationStartYear }: BlackSwanEventConfigurationProps) => {
   const config = useBlackSwanConfig({ simulationStartYear, onEventChange })
 
   return (

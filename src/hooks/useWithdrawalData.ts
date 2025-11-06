@@ -1,10 +1,6 @@
 import { useMemo } from 'react'
 import type { SparplanElement } from '../utils/sparplan-utils'
-import {
-  getTotalCapitalAtYear,
-  calculateWithdrawalDuration,
-  type WithdrawalResult,
-} from '../../helpers/withdrawal'
+import { getTotalCapitalAtYear, calculateWithdrawalDuration, type WithdrawalResult } from '../../helpers/withdrawal'
 import type { WithdrawalConfiguration } from '../utils/config-storage'
 import { useSimulation } from '../contexts/useSimulation'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
@@ -18,10 +14,7 @@ import { getEffectiveLifeExpectancyTable } from './useWithdrawalCalculations'
 /**
  * Calculate starting capital and return null if invalid
  */
-function getStartingCapital(
-  elemente: SparplanElement[],
-  startOfIndependence: number,
-): number | null {
+function getStartingCapital(elemente: SparplanElement[], startOfIndependence: number): number | null {
   if (!elemente || elemente.length === 0) {
     return null
   }
@@ -242,11 +235,7 @@ export function useWithdrawalData(
     const withdrawalResultParams = buildWithdrawalResultParams(params, effectiveTable)
     const withdrawalResult = buildWithdrawalResult(withdrawalResultParams)
 
-    return computeWithdrawalData(
-      withdrawalResult,
-      startingCapital,
-      params.startOfIndependence,
-    )
+    return computeWithdrawalData(withdrawalResult, startingCapital, params.startOfIndependence)
   }, [params])
 
   return withdrawalData

@@ -77,15 +77,7 @@ describe('useWithdrawalModals.handlers', () => {
 
   describe('createHandlerContext', () => {
     it('creates a handler context with all parameters', () => {
-      const context = createHandlerContext(
-        mockFormValue,
-        mockWithdrawalData,
-        2023,
-        0.26375,
-        0.3,
-        true,
-        23208,
-      )
+      const context = createHandlerContext(mockFormValue, mockWithdrawalData, 2023, 0.26375, 0.3, true, 23208)
 
       expect(context).toEqual({
         formValue: mockFormValue,
@@ -146,13 +138,7 @@ describe('useWithdrawalModals.handlers', () => {
     }
 
     it('returns empty result for invalid rowData', () => {
-      const result = processCalculationInfoClick(
-        'inflation',
-        null,
-        false,
-        [],
-        mockContext,
-      )
+      const result = processCalculationInfoClick('inflation', null, false, [], mockContext)
 
       expect(result).toEqual({
         showCalculation: false,
@@ -163,13 +149,7 @@ describe('useWithdrawalModals.handlers', () => {
     })
 
     it('returns empty result for rowData without year property', () => {
-      const result = processCalculationInfoClick(
-        'inflation',
-        { notYear: 2024 },
-        false,
-        [],
-        mockContext,
-      )
+      const result = processCalculationInfoClick('inflation', { notYear: 2024 }, false, [], mockContext)
 
       expect(result).toEqual({
         showCalculation: false,
@@ -193,13 +173,7 @@ describe('useWithdrawalModals.handlers', () => {
         vorabpauschaleDetails: vorabDetails,
       }
 
-      const result = processCalculationInfoClick(
-        'vorabpauschale',
-        rowData,
-        false,
-        [],
-        mockContext,
-      )
+      const result = processCalculationInfoClick('vorabpauschale', rowData, false, [], mockContext)
 
       expect(result).toEqual({
         showCalculation: false,
@@ -215,13 +189,7 @@ describe('useWithdrawalModals.handlers', () => {
         inflationAnpassung: 100,
       }
 
-      const result = processCalculationInfoClick(
-        'inflation',
-        rowData,
-        false,
-        [],
-        mockContext,
-      )
+      const result = processCalculationInfoClick('inflation', rowData, false, [], mockContext)
 
       expect(result.showCalculation).toBe(true)
       expect(result.calculationDetails).toBeDefined()
@@ -234,13 +202,7 @@ describe('useWithdrawalModals.handlers', () => {
         year: 2024,
       }
 
-      const result = processCalculationInfoClick(
-        'unknown',
-        rowData,
-        false,
-        [],
-        mockContext,
-      )
+      const result = processCalculationInfoClick('unknown', rowData, false, [], mockContext)
 
       expect(result).toEqual({
         showCalculation: false,
@@ -264,13 +226,7 @@ describe('useWithdrawalModals.handlers', () => {
         inflationAnpassung: 100,
       }
 
-      const result = processCalculationInfoClick(
-        'inflation',
-        rowData,
-        true,
-        segments,
-        mockContext,
-      )
+      const result = processCalculationInfoClick('inflation', rowData, true, segments, mockContext)
 
       expect(result.showCalculation).toBe(true)
       expect(result.calculationDetails).toBeDefined()

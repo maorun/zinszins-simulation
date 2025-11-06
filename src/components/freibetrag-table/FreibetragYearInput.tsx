@@ -16,7 +16,7 @@ export function FreibetragYearInput({ yearToday, onAddYear }: FreibetragYearInpu
           placeholder="Jahr"
           min={yearToday}
           max={2100}
-          onKeyDown={(e) => {
+          onKeyDown={e => {
             if (e.key === 'Enter') {
               const input = e.target as HTMLInputElement
               const year = Number(input.value)

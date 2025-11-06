@@ -18,13 +18,7 @@ export function BlackSwanHeader({ isEnabled, selectedEvent, eventYear }: BlackSw
         🦢 Black Swan Ereignisse
         {isEnabled && selectedEvent && (
           <span className="text-sm font-normal text-red-600">
-            (
-            {selectedEvent.name}
-            {' '}
-            ab
-            {' '}
-            {eventYear}
-            )
+            ({selectedEvent.name} ab {eventYear})
           </span>
         )}
       </CardTitle>

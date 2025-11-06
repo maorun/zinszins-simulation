@@ -33,9 +33,7 @@ const VorabpauschaleExplanationModal = ({
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button>
-              Verstanden
-            </Button>
+            <Button>Verstanden</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

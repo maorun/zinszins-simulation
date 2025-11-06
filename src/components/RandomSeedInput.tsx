@@ -7,11 +7,7 @@ interface RandomSeedInputProps {
   performSimulation: () => void
 }
 
-const RandomSeedInput = ({
-  randomSeed,
-  setRandomSeed,
-  performSimulation,
-}: RandomSeedInputProps) => {
+const RandomSeedInput = ({ randomSeed, setRandomSeed, performSimulation }: RandomSeedInputProps) => {
   return (
     <div className="space-y-2">
       <Label htmlFor="randomSeed">Zufallsseed (optional für reproduzierbare Ergebnisse)</Label>
@@ -20,7 +16,7 @@ const RandomSeedInput = ({
         type="number"
         placeholder="Leer lassen für echte Zufälligkeit"
         value={randomSeed || ''}
-        onChange={(e) => {
+        onChange={e => {
           const value = e.target.value ? parseInt(e.target.value) : undefined
           setRandomSeed(value)
           performSimulation()

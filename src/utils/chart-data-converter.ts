@@ -37,9 +37,7 @@ function initializeYearData(result: SimulationResult, year: number): void {
 /**
  * Convert SparplanElement[] to SimulationResult format for use with InteractiveChart
  */
-export function convertSparplanElementsToSimulationResult(
-  elements?: SparplanElement[],
-): SimulationResult {
+export function convertSparplanElementsToSimulationResult(elements?: SparplanElement[]): SimulationResult {
   if (!elements || elements.length === 0) {
     return {}
   }
@@ -47,7 +45,7 @@ export function convertSparplanElementsToSimulationResult(
   const result: SimulationResult = {}
 
   // Combine all simulation data from all elements
-  elements.forEach((element) => {
+  elements.forEach(element => {
     Object.entries(element.simulation).forEach(([yearStr, data]) => {
       const year = parseInt(yearStr, 10)
 

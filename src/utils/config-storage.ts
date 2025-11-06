@@ -213,8 +213,7 @@ export function saveConfiguration(config: SavedConfiguration): void {
       config,
     }
     localStorage.setItem(STORAGE_KEY, JSON.stringify(dataToSave))
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to save configuration to localStorage:', error)
   }
 }
@@ -233,9 +232,11 @@ interface LegacyWithdrawalFormValue extends WithdrawalFormValue {
  */
 function migrateEndOfLifeSettings(config: SavedConfiguration): SavedConfiguration {
   // If we have a withdrawal config with endOfLife but no global endOfLife, migrate
-  if (config.withdrawal?.formValue
-    && (config.withdrawal.formValue as LegacyWithdrawalFormValue).endOfLife
-    && config.endOfLife === undefined) {
+  if (
+    config.withdrawal?.formValue &&
+    (config.withdrawal.formValue as LegacyWithdrawalFormValue).endOfLife &&
+    config.endOfLife === undefined
+  ) {
     const legacyFormValue = config.withdrawal.formValue as LegacyWithdrawalFormValue
     const withdrawalEndOfLife = legacyFormValue.endOfLife
     const lifeExpectancyTable = legacyFormValue.rmdLifeExpectancyTable || 'german_2020_22'
@@ -262,9 +263,11 @@ function migrateEndOfLifeSettings(config: SavedConfiguration): SavedConfiguratio
  */
 function migrateTaxSettings(config: SavedConfiguration): SavedConfiguration {
   // If we have the legacy setting but not the new ones, migrate
-  if (config.steuerReduzierenEndkapital !== undefined
-    && config.steuerReduzierenEndkapitalSparphase === undefined
-    && config.steuerReduzierenEndkapitalEntspharphase === undefined) {
+  if (
+    config.steuerReduzierenEndkapital !== undefined &&
+    config.steuerReduzierenEndkapitalSparphase === undefined &&
+    config.steuerReduzierenEndkapitalEntspharphase === undefined
+  ) {
     const legacyValue = config.steuerReduzierenEndkapital
     return {
       ...config,
@@ -304,8 +307,7 @@ export function loadConfiguration(): SavedConfiguration | null {
     let migratedConfig = migrateTaxSettings(parsedData.config)
     migratedConfig = migrateEndOfLifeSettings(migratedConfig)
     return migratedConfig
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to load configuration from localStorage:', error)
     return null
   }
@@ -317,8 +319,7 @@ export function loadConfiguration(): SavedConfiguration | null {
 export function clearConfiguration(): void {
   try {
     localStorage.removeItem(STORAGE_KEY)
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to clear configuration from localStorage:', error)
   }
 }
@@ -329,8 +330,7 @@ export function clearConfiguration(): void {
 export function hasConfiguration(): boolean {
   try {
     return localStorage.getItem(STORAGE_KEY) !== null
-  }
-  catch (_error) {
+  } catch (_error) {
     return false
   }
 }

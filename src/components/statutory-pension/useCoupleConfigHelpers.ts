@@ -11,21 +11,24 @@ export function useInitialConfig(
   birthYear?: number,
   spouseBirthYear?: number,
 ): CoupleStatutoryPensionConfig {
-  return config || (() => {
-    const defaultConfig = createDefaultCoupleStatutoryPensionConfig()
-    defaultConfig.planningMode = planningMode
-    if (planningMode === 'individual') {
-      defaultConfig.individual = {
-        enabled: false,
-        startYear: calculateRetirementStartYear(planningMode, birthYear, spouseBirthYear) || 2041,
-        monthlyAmount: 1500,
-        annualIncreaseRate: 1.0,
-        taxablePercentage: 80,
-        retirementAge: 67,
+  return (
+    config ||
+    (() => {
+      const defaultConfig = createDefaultCoupleStatutoryPensionConfig()
+      defaultConfig.planningMode = planningMode
+      if (planningMode === 'individual') {
+        defaultConfig.individual = {
+          enabled: false,
+          startYear: calculateRetirementStartYear(planningMode, birthYear, spouseBirthYear) || 2041,
+          monthlyAmount: 1500,
+          annualIncreaseRate: 1.0,
+          taxablePercentage: 80,
+          retirementAge: 67,
+        }
       }
-    }
-    return defaultConfig
-  })()
+      return defaultConfig
+    })()
+  )
 }
 
 export function createUpdatePersonConfig(

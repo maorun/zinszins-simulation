@@ -22,8 +22,7 @@ export function useScenarioSelection(onApplyScenario: (scenario: FinancialScenar
       onApplyScenario(selectedScenario)
       setIsDetailsOpen(false)
       toast.success(`Szenario "${selectedScenario.name}" wurde angewendet`)
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Failed to apply scenario:', error)
       toast.error('Fehler beim Anwenden des Szenarios')
     }

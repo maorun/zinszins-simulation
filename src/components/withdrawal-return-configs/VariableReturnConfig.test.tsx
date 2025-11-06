@@ -50,9 +50,7 @@ describe('VariableReturnConfig', () => {
   it('displays helper text', () => {
     render(<VariableReturnConfig {...defaultProps} />)
 
-    expect(
-      screen.getByText(/Tipp: Verwende niedrigere Werte für konservative/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Tipp: Verwende niedrigere Werte für konservative/)).toBeInTheDocument()
   })
 
   it('renders sliders with correct default value', () => {

@@ -12,12 +12,7 @@ describe('ConfigurationSliders', () => {
   }
 
   it('should render all three sliders with correct labels', () => {
-    render(
-      <ConfigurationSliders
-        config={defaultConfig}
-        onConfigChange={mockOnConfigChange}
-      />,
-    )
+    render(<ConfigurationSliders config={defaultConfig} onConfigChange={mockOnConfigChange} />)
 
     // Check all three slider labels are present
     expect(screen.getByText(/Zielallokation:.*60\.0%/)).toBeInTheDocument()
@@ -26,12 +21,7 @@ describe('ConfigurationSliders', () => {
   })
 
   it('should render all sliders in a grid layout', () => {
-    const { container } = render(
-      <ConfigurationSliders
-        config={defaultConfig}
-        onConfigChange={mockOnConfigChange}
-      />,
-    )
+    const { container } = render(<ConfigurationSliders config={defaultConfig} onConfigChange={mockOnConfigChange} />)
 
     // Check for grid layout class
     const gridContainer = container.querySelector('.grid')
@@ -40,12 +30,7 @@ describe('ConfigurationSliders', () => {
   })
 
   it('should render sliders with correct values', () => {
-    render(
-      <ConfigurationSliders
-        config={defaultConfig}
-        onConfigChange={mockOnConfigChange}
-      />,
-    )
+    render(<ConfigurationSliders config={defaultConfig} onConfigChange={mockOnConfigChange} />)
 
     const sliders = screen.getAllByRole('slider')
     expect(sliders).toHaveLength(3)
@@ -68,12 +53,7 @@ describe('ConfigurationSliders', () => {
       volatility: 0.2,
     }
 
-    render(
-      <ConfigurationSliders
-        config={customConfig}
-        onConfigChange={mockOnConfigChange}
-      />,
-    )
+    render(<ConfigurationSliders config={customConfig} onConfigChange={mockOnConfigChange} />)
 
     expect(screen.getByText(/Zielallokation:.*30\.0%/)).toBeInTheDocument()
     expect(screen.getByText(/Erwartete Rendite:.*5\.0%/)).toBeInTheDocument()

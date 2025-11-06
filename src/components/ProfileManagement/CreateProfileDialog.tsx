@@ -55,9 +55,7 @@ export function CreateProfileDialog({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Abbrechen
             </Button>
-            <Button onClick={onSubmit}>
-              Profil erstellen
-            </Button>
+            <Button onClick={onSubmit}>Profil erstellen</Button>
           </div>
         </div>
       </DialogContent>

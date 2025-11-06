@@ -130,7 +130,7 @@ describe('useWithdrawalConfig', () => {
       })
 
       // Mock that we have an existing strategy
-      mockSetWithdrawalConfig.mockImplementation((_newConfig) => {
+      mockSetWithdrawalConfig.mockImplementation(_newConfig => {
         // For testing purposes, we don't actually update the state
         // but we can verify the call was made correctly
       })

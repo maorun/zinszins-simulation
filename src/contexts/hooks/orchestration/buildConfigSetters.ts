@@ -5,9 +5,7 @@ import type { ConfigurationStateSetters } from '../useConfigurationManagement'
  * Builds configuration setters object from simulation state
  * Extracts only the setter functions needed for configuration management
  */
-export function buildConfigSetters(
-  state: ReturnType<typeof useSimulationState>,
-): ConfigurationStateSetters {
+export function buildConfigSetters(state: ReturnType<typeof useSimulationState>): ConfigurationStateSetters {
   return {
     setRendite: state.setRendite,
     setSteuerlast: state.setSteuerlast,

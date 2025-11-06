@@ -32,7 +32,7 @@ export interface DefaultConfigType {
   customLifeExpectancy: undefined
   planningMode: 'individual' | 'couple'
   gender: 'male' | 'female'
-  spouse: { birthYear: number, gender: 'male' | 'female' }
+  spouse: { birthYear: number; gender: 'male' | 'female' }
   birthYear: number
   expectedLifespan: number
   useAutomaticCalculation: boolean
@@ -51,9 +51,9 @@ export function createDefaultConfiguration(): DefaultConfigType {
     basiszinsConfiguration: {
       2018: { year: 2018, rate: 0.0087, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
       2019: { year: 2019, rate: 0.0087, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2020: { year: 2020, rate: 0.0070, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2021: { year: 2021, rate: 0.0070, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
-      2022: { year: 2022, rate: 0.0180, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
+      2020: { year: 2020, rate: 0.007, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
+      2021: { year: 2021, rate: 0.007, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
+      2022: { year: 2022, rate: 0.018, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
       2023: { year: 2023, rate: 0.0255, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
       2024: { year: 2024, rate: 0.0255, source: 'fallback' as const, lastUpdated: new Date().toISOString() },
     } as BasiszinsConfiguration,
@@ -83,7 +83,11 @@ export function createDefaultConfiguration(): DefaultConfigType {
     simulationAnnual: SimulationAnnual.monthly,
     // Global End of Life and Life Expectancy settings
     endOfLife: 2080,
-    lifeExpectancyTable: 'german_2020_22' as 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
+    lifeExpectancyTable: 'german_2020_22' as
+      | 'german_2020_22'
+      | 'german_male_2020_22'
+      | 'german_female_2020_22'
+      | 'custom',
     customLifeExpectancy: undefined,
     // Gender and couple planning configuration
     planningMode: 'couple' as 'individual' | 'couple',

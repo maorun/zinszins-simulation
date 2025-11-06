@@ -32,10 +32,7 @@ interface SharedFormUtilities {
     format: string,
     onChange: (date: Date | null) => void,
   ) => void
-  handleNumberChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
-    onChange: (value: string) => void,
-  ) => void
+  handleNumberChange: (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => void
   handleCancelEdit: () => void
 }
 
@@ -45,11 +42,7 @@ interface SparplanFormsProps {
   sharedUtilities: SharedFormUtilities
 }
 
-export function SparplanForms({
-  sparplanForm,
-  singlePaymentForm,
-  sharedUtilities,
-}: SparplanFormsProps) {
+export function SparplanForms({ sparplanForm, singlePaymentForm, sharedUtilities }: SparplanFormsProps) {
   return (
     <>
       <SparplanFormCard

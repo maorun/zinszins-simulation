@@ -10,11 +10,7 @@ import { calculateWithdrawalEndYear } from '../utils/overview-calculations'
  */
 function calculateSavingsStartYear(simulationData: SimulationData | null): number {
   if (!simulationData) return 0
-  return Math.min(
-    ...simulationData.sparplanElements.map(el =>
-      new Date(el.start).getFullYear(),
-    ),
-  )
+  return Math.min(...simulationData.sparplanElements.map(el => new Date(el.start).getFullYear()))
 }
 
 /**
@@ -53,10 +49,7 @@ export function useOverviewYearRanges(
     endOfLife,
   ])
 
-  const savingsStartYear = useMemo(
-    () => calculateSavingsStartYear(simulationData),
-    [simulationData],
-  )
+  const savingsStartYear = useMemo(() => calculateSavingsStartYear(simulationData), [simulationData])
 
   const savingsEndYear = startEnd[0]
 

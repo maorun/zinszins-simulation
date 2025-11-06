@@ -239,7 +239,7 @@ describe('Centralized Taxable Income Calculation', () => {
       { grundfreibetrag: 20000, expectedTax: 0 }, // No tax
     ]
 
-    scenarios.forEach((scenario) => {
+    scenarios.forEach(scenario => {
       const { result } = calculateWithdrawal({
         ...baseParams,
         statutoryPensionConfig,
@@ -258,11 +258,9 @@ describe('Centralized Taxable Income Calculation', () => {
 
       if (scenario.expectedTax !== undefined) {
         expect(result[2041].einkommensteuer).toBe(scenario.expectedTax)
-      }
-      else if (scenario.expectedMinTax !== undefined) {
+      } else if (scenario.expectedMinTax !== undefined) {
         expect(result[2041].einkommensteuer).toBeGreaterThan(scenario.expectedMinTax)
-      }
-      else if (scenario.expectedMaxTax !== undefined) {
+      } else if (scenario.expectedMaxTax !== undefined) {
         expect(result[2041].einkommensteuer).toBeLessThan(scenario.expectedMaxTax)
       }
     })

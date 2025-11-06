@@ -7,11 +7,7 @@ interface IncomeSourceActionsProps {
   editingDisabled: boolean
 }
 
-export function IncomeSourceActions({
-  onEdit,
-  onDelete,
-  editingDisabled,
-}: IncomeSourceActionsProps) {
+export function IncomeSourceActions({ onEdit, onDelete, editingDisabled }: IncomeSourceActionsProps) {
   return (
     <div className="flex flex-row sm:flex-col gap-2 sm:ml-4 sm:min-w-0">
       <Button

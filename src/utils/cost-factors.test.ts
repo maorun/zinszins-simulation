@@ -58,7 +58,7 @@ describe('Cost Factors', () => {
 
     // First year should have transaction costs
     const firstYear = result[0].simulation[2025]
-    const expectedTransactionCosts = (12000 * 0.0025) + 5 // 30 + 5 = 35€
+    const expectedTransactionCosts = 12000 * 0.0025 + 5 // 30 + 5 = 35€
     expect(firstYear.transactionCosts).toBeCloseTo(expectedTransactionCosts)
     expect(firstYear.totalCosts).toBeCloseTo(expectedTransactionCosts)
 
@@ -95,7 +95,7 @@ describe('Cost Factors', () => {
     const expectedTerCosts = ((10000 + 10000 * 1.05) / 2) * 0.01 // 102.5€
     expect(firstYear.terCosts).toBeCloseTo(expectedTerCosts)
 
-    const expectedTransactionCosts = (10000 * 0.005) + 10 // 60€
+    const expectedTransactionCosts = 10000 * 0.005 + 10 // 60€
     expect(firstYear.transactionCosts).toBeCloseTo(expectedTransactionCosts)
 
     const expectedTotalCosts = expectedTerCosts + expectedTransactionCosts // 162.5€
@@ -130,7 +130,7 @@ describe('Cost Factors', () => {
     const expectedTerCosts = ((50000 + 50000 * 1.06) / 2) * 0.0075 // 386.25€
     expect(firstYear.terCosts).toBeCloseTo(expectedTerCosts)
 
-    const expectedTransactionCosts = (50000 * 0.01) + 25 // 525€
+    const expectedTransactionCosts = 50000 * 0.01 + 25 // 525€
     expect(firstYear.transactionCosts).toBeCloseTo(expectedTransactionCosts)
 
     const expectedTotalCosts = expectedTerCosts + expectedTransactionCosts // 911.25€

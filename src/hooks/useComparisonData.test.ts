@@ -98,9 +98,7 @@ describe('useComparisonData', () => {
 
   it('calculates base strategy data correctly for 3% rule', () => {
     const formValue = { ...mockFormValue, strategie: '3prozent' as const }
-    const { result } = renderHook(() =>
-      useComparisonData({ withdrawalData: mockWithdrawalData, formValue }),
-    )
+    const { result } = renderHook(() => useComparisonData({ withdrawalData: mockWithdrawalData, formValue }))
 
     expect(result.current.baseStrategyData.displayName).toBe('3% Regel')
     expect(result.current.baseStrategyData.withdrawalAmount).toBe(15000) // 3% of 500000
@@ -109,9 +107,7 @@ describe('useComparisonData', () => {
 
   it('calculates base strategy data correctly for variable percent', () => {
     const formValue = { ...mockFormValue, strategie: 'variabel_prozent' as const, variabelProzent: 3.5 }
-    const { result } = renderHook(() =>
-      useComparisonData({ withdrawalData: mockWithdrawalData, formValue }),
-    )
+    const { result } = renderHook(() => useComparisonData({ withdrawalData: mockWithdrawalData, formValue }))
 
     expect(result.current.baseStrategyData.displayName).toBe('Variable Prozent')
     expect(result.current.baseStrategyData.withdrawalAmount).toBe(17500) // 3.5% of 500000
@@ -120,9 +116,7 @@ describe('useComparisonData', () => {
 
   it('calculates base strategy data correctly for monthly fixed', () => {
     const formValue = { ...mockFormValue, strategie: 'monatlich_fest' as const, monatlicheBetrag: 2000 }
-    const { result } = renderHook(() =>
-      useComparisonData({ withdrawalData: mockWithdrawalData, formValue }),
-    )
+    const { result } = renderHook(() => useComparisonData({ withdrawalData: mockWithdrawalData, formValue }))
 
     expect(result.current.baseStrategyData.displayName).toBe('Monatlich fest')
     expect(result.current.baseStrategyData.withdrawalAmount).toBe(2000)
@@ -131,9 +125,7 @@ describe('useComparisonData', () => {
 
   it('calculates base strategy data correctly for dynamic strategy', () => {
     const formValue = { ...mockFormValue, strategie: 'dynamisch' as const, dynamischBasisrate: 3.8 }
-    const { result } = renderHook(() =>
-      useComparisonData({ withdrawalData: mockWithdrawalData, formValue }),
-    )
+    const { result } = renderHook(() => useComparisonData({ withdrawalData: mockWithdrawalData, formValue }))
 
     expect(result.current.baseStrategyData.displayName).toBe('Dynamische Strategie')
     expect(result.current.baseStrategyData.withdrawalAmount).toBe(19000) // 3.8% of 500000
@@ -152,9 +144,7 @@ describe('useComparisonData', () => {
 
   it('handles single year duration correctly', () => {
     const singleYearData = { ...mockWithdrawalData, duration: 1 }
-    const { result } = renderHook(() =>
-      useComparisonData({ withdrawalData: singleYearData, formValue: mockFormValue }),
-    )
+    const { result } = renderHook(() => useComparisonData({ withdrawalData: singleYearData, formValue: mockFormValue }))
 
     expect(result.current.baseStrategyData.duration).toBe('1 Jahr')
     expect(result.current.baseStrategyData.durationYears).toBe('1 Jahre')

@@ -4,11 +4,7 @@
  * Supports Hyperinflation, Deflation, and Stagflation scenarios
  */
 
-export type InflationScenarioId
-  = 'hyperinflation'
-    | 'deflation'
-    | 'stagflation'
-    | 'custom'
+export type InflationScenarioId = 'hyperinflation' | 'deflation' | 'stagflation' | 'custom'
 
 export interface InflationScenario {
   id: InflationScenarioId
@@ -34,9 +30,9 @@ export const INFLATION_SCENARIOS: Record<InflationScenarioId, InflationScenario>
     duration: 5,
     yearlyInflationRates: {
       0: 0.08, // Jahr 1: 8%
-      1: 0.10, // Jahr 2: 10%
+      1: 0.1, // Jahr 2: 10%
       2: 0.12, // Jahr 3: 12%
-      3: 0.10, // Jahr 4: 10%
+      3: 0.1, // Jahr 4: 10%
       4: 0.08, // Jahr 5: 8%
     },
     recoveryYears: 3,
@@ -51,7 +47,7 @@ export const INFLATION_SCENARIOS: Record<InflationScenarioId, InflationScenario>
       0: -0.01, // Jahr 1: -1%
       1: -0.02, // Jahr 2: -2%
       2: -0.01, // Jahr 3: -1%
-      3: 0.00, // Jahr 4: 0%
+      3: 0.0, // Jahr 4: 0%
     },
     recoveryYears: 2,
   },
@@ -95,10 +91,7 @@ export const INFLATION_SCENARIOS: Record<InflationScenarioId, InflationScenario>
  * @param scenario - The inflation scenario to apply
  * @returns Map of year to inflation rate for the scenario period
  */
-export function applyInflationScenario(
-  baseYear: number,
-  scenario: InflationScenario,
-): Record<number, number> {
+export function applyInflationScenario(baseYear: number, scenario: InflationScenario): Record<number, number> {
   const inflationRates: Record<number, number> = {}
 
   for (let offset = 0; offset < scenario.duration; offset++) {
@@ -115,10 +108,7 @@ export function applyInflationScenario(
  * @param scenario - The inflation scenario to apply
  * @returns Map of year to return rate modifier (to be subtracted from base return)
  */
-export function applyReturnModifiers(
-  baseYear: number,
-  scenario: InflationScenario,
-): Record<number, number> {
+export function applyReturnModifiers(baseYear: number, scenario: InflationScenario): Record<number, number> {
   if (!scenario.yearlyReturnModifiers) {
     return {}
   }
@@ -146,7 +136,7 @@ export function calculateCumulativeInflation(scenario: InflationScenario): numbe
 
   for (let offset = 0; offset < scenario.duration; offset++) {
     const yearInflation = scenario.yearlyInflationRates[offset] ?? 0
-    cumulativeInflation *= (1 + yearInflation)
+    cumulativeInflation *= 1 + yearInflation
   }
 
   return cumulativeInflation - 1 // Convert back to inflation rate
@@ -221,15 +211,12 @@ export function getInflationScenario(id: InflationScenarioId): InflationScenario
  * @param initialAmount - Initial amount in euros
  * @returns Final purchasing power relative to initial amount
  */
-export function calculatePurchasingPowerImpact(
-  scenario: InflationScenario,
-  initialAmount: number,
-): number {
+export function calculatePurchasingPowerImpact(scenario: InflationScenario, initialAmount: number): number {
   let purchasingPower = initialAmount
 
   for (let offset = 0; offset < scenario.duration; offset++) {
     const yearInflation = scenario.yearlyInflationRates[offset] ?? 0
-    purchasingPower /= (1 + yearInflation)
+    purchasingPower /= 1 + yearInflation
   }
 
   return purchasingPower

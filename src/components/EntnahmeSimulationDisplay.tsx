@@ -3,7 +3,10 @@ import type { WithdrawalFormValue, ComparisonStrategy, SegmentedComparisonStrate
 import { WithdrawalComparisonDisplay } from './WithdrawalComparisonDisplay'
 import { SegmentedWithdrawalComparisonDisplay } from './SegmentedWithdrawalComparisonDisplay'
 import InteractiveChart from './InteractiveChart'
-import { convertWithdrawalResultToSimulationResult, hasWithdrawalInflationAdjustedValues } from '../utils/chart-data-converter'
+import {
+  convertWithdrawalResultToSimulationResult,
+  hasWithdrawalInflationAdjustedValues,
+} from '../utils/chart-data-converter'
 import { WithdrawalYearCard } from './WithdrawalYearCard'
 import { WithdrawalStrategySummary } from './WithdrawalStrategySummary'
 import { formatDuration } from '../utils/duration-formatter'
@@ -58,14 +61,17 @@ function NoDataMessage() {
   return (
     <div>
       <p>
-        Keine Daten verfügbar. Bitte stelle sicher, dass Sparpläne
-        definiert sind und eine Simulation durchgeführt wurde.
+        Keine Daten verfügbar. Bitte stelle sicher, dass Sparpläne definiert sind und eine Simulation durchgeführt
+        wurde.
       </p>
     </div>
   )
 }
 
-function SimulationHeader({ withdrawalData, formValue }: {
+function SimulationHeader({
+  withdrawalData,
+  formValue,
+}: {
   withdrawalData: EntnahmeSimulationDisplayProps['withdrawalData']
   formValue: WithdrawalFormValue
 }) {
@@ -74,14 +80,9 @@ function SimulationHeader({ withdrawalData, formValue }: {
   return (
     <div className="mb-5">
       <h4>Entnahme-Simulation</h4>
-      <WithdrawalStrategySummary
-        startingCapital={withdrawalData.startingCapital}
-        formValue={formValue}
-      />
+      <WithdrawalStrategySummary startingCapital={withdrawalData.startingCapital} formValue={formValue} />
       <p>
-        <strong>Vermögen reicht für:</strong>
-        {' '}
-        {formatDuration(withdrawalData.duration)}
+        <strong>Vermögen reicht für:</strong> {formatDuration(withdrawalData.duration)}
       </p>
     </div>
   )
@@ -101,7 +102,11 @@ function SimulationChart({ withdrawalResult }: { withdrawalResult: WithdrawalRes
   )
 }
 
-function WithdrawalYearCards({ withdrawalData, formValue, onCalculationInfoClick }: {
+function WithdrawalYearCards({
+  withdrawalData,
+  formValue,
+  onCalculationInfoClick,
+}: {
   withdrawalData: NonNullable<EntnahmeSimulationDisplayProps['withdrawalData']>
   formValue: WithdrawalFormValue
   onCalculationInfoClick: (explanationType: string, rowData: unknown) => void

@@ -35,12 +35,10 @@ function createSwitchProfileHandler(
         refreshProfiles()
         loadSavedConfiguration()
         toast.success(`Zu Profil "${profile.name}" gewechselt`)
-      }
-      else {
+      } else {
         toast.error('Fehler beim Wechseln des Profils')
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Failed to switch profile:', error)
       toast.error('Fehler beim Wechseln des Profils')
     }
@@ -55,12 +53,10 @@ function createDuplicateProfileHandler(refreshProfiles: () => void) {
       if (duplicatedProfile) {
         refreshProfiles()
         toast.success(`Profil "${duplicatedProfile.name}" wurde erstellt`)
-      }
-      else {
+      } else {
         toast.error('Fehler beim Duplizieren des Profils')
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Failed to duplicate profile:', error)
       toast.error('Fehler beim Duplizieren des Profils')
     }
@@ -99,16 +95,13 @@ function createConfirmDeleteProfileHandler(
           loadSavedConfiguration()
         }
         toast.success(`Profil "${deleteConfirmProfile.name}" wurde gelöscht`)
-      }
-      else {
+      } else {
         toast.error('Fehler beim Löschen des Profils')
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Failed to delete profile:', error)
       toast.error('Fehler beim Löschen des Profils')
-    }
-    finally {
+    } finally {
       setDeleteConfirmProfile(null)
     }
   }
@@ -133,12 +126,10 @@ function createConfirmClearAllProfilesHandler(
       resetToDefaults()
       refreshProfiles()
       toast.success('Alle Profile wurden gelöscht und auf Standardwerte zurückgesetzt.')
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Failed to clear all profiles:', error)
       toast.error('Fehler beim Löschen aller Profile')
-    }
-    finally {
+    } finally {
       setIsClearAllConfirmOpen(false)
     }
   }
@@ -157,11 +148,7 @@ export function createProfileActionHandlers(params: ProfileActionHandlersParams)
   } = params
 
   return {
-    handleSwitchProfile: createSwitchProfileHandler(
-      activeProfile,
-      refreshProfiles,
-      loadSavedConfiguration,
-    ),
+    handleSwitchProfile: createSwitchProfileHandler(activeProfile, refreshProfiles, loadSavedConfiguration),
     handleDuplicateProfile: createDuplicateProfileHandler(refreshProfiles),
     handleDeleteProfile: createDeleteProfileHandler(setDeleteConfirmProfile),
     confirmDeleteProfile: createConfirmDeleteProfileHandler(

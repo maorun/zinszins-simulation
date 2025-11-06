@@ -22,12 +22,7 @@ describe('SparplanEingabe localStorage sync', () => {
   })
 
   it('should initialize with default sparplan when no currentSparplans provided', () => {
-    render(
-      <SparplanEingabe
-        dispatch={mockDispatch}
-        simulationAnnual={SimulationAnnual.yearly}
-      />,
-    )
+    render(<SparplanEingabe dispatch={mockDispatch} simulationAnnual={SimulationAnnual.yearly} />)
 
     // Should show the initial default sparplan (updated to 24,000€)
     expect(screen.getByText(/24\.000,00 €/)).toBeInTheDocument()
@@ -64,13 +59,7 @@ describe('SparplanEingabe localStorage sync', () => {
   })
 
   it('should show empty state when empty sparplans array provided', () => {
-    render(
-      <SparplanEingabe
-        dispatch={mockDispatch}
-        simulationAnnual={SimulationAnnual.yearly}
-        currentSparplans={[]}
-      />,
-    )
+    render(<SparplanEingabe dispatch={mockDispatch} simulationAnnual={SimulationAnnual.yearly} currentSparplans={[]} />)
 
     // Should show empty state message
     expect(screen.getByText(/Noch keine Sparpläne oder Einmalzahlungen erstellt/)).toBeInTheDocument()

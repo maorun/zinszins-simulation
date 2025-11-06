@@ -18,12 +18,7 @@ const InflationDetails = ({
   return (
     <div className="space-y-2">
       <Label className="text-sm font-medium">
-        Inflationsrate:
-        {' '}
-        <span className="font-medium text-gray-900">
-          {inflationsrateSparphase.toFixed(1)}
-          %
-        </span>
+        Inflationsrate: <span className="font-medium text-gray-900">{inflationsrateSparphase.toFixed(1)}%</span>
       </Label>
       <Slider
         value={[inflationsrateSparphase]}
@@ -36,8 +31,8 @@ const InflationDetails = ({
         className="w-full"
       />
       <p className="text-xs text-muted-foreground">
-        Die reale Kaufkraft der Einzahlungen wird durch die Inflation gemindert.
-        Ihre Sparbeträge behalten nicht ihre volle Kaufkraft über die Zeit.
+        Die reale Kaufkraft der Einzahlungen wird durch die Inflation gemindert. Ihre Sparbeträge behalten nicht ihre
+        volle Kaufkraft über die Zeit.
       </p>
 
       <InflationApplicationMode

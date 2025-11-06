@@ -6,8 +6,7 @@ import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfo
  */
 export function usePortfolioMetrics(config: MultiAssetPortfolioConfig) {
   const enabledAssets = useMemo(
-    () =>
-      Object.entries(config.assetClasses || {}).filter(([_, assetConfig]) => assetConfig?.enabled),
+    () => Object.entries(config.assetClasses || {}).filter(([_, assetConfig]) => assetConfig?.enabled),
     [config.assetClasses],
   )
 
@@ -24,8 +23,7 @@ export function usePortfolioMetrics(config: MultiAssetPortfolioConfig) {
     () =>
       Math.sqrt(
         enabledAssets.reduce(
-          (sum, [_, assetConfig]) =>
-            sum + Math.pow(assetConfig.volatility * assetConfig.targetAllocation, 2),
+          (sum, [_, assetConfig]) => sum + Math.pow(assetConfig.volatility * assetConfig.targetAllocation, 2),
           0,
         ),
       ),

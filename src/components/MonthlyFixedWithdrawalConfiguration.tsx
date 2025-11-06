@@ -31,7 +31,7 @@ function MonthlyAmountField({
       <Input
         type="number"
         value={monatlicheBetrag}
-        onChange={(e) => {
+        onChange={e => {
           const value = e.target.value ? Number(e.target.value) : undefined
           onMonthlyAmountChange(value)
         }}
@@ -82,10 +82,7 @@ function GuardrailsThresholdSlider({
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>5%</span>
-          <span className="font-medium text-gray-900">
-            {guardrailsSchwelle}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{guardrailsSchwelle}%</span>
           <span>20%</span>
         </div>
       </div>

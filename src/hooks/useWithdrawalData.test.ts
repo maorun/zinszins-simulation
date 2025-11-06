@@ -89,17 +89,13 @@ describe('useWithdrawalData', () => {
   }
 
   it('returns null when elements array is empty', () => {
-    const { result } = renderHook(() =>
-      useWithdrawalData([], 2040, mockConfig, 0.26375, 0.3, null),
-    )
+    const { result } = renderHook(() => useWithdrawalData([], 2040, mockConfig, 0.26375, 0.3, null))
 
     expect(result.current).toBeNull()
   })
 
   it('returns null when starting capital is zero or negative', () => {
-    const elementsWithZeroCapital: SparplanElement[] = [
-      createMockElement(2050, 1000, 1000, 2049),
-    ]
+    const elementsWithZeroCapital: SparplanElement[] = [createMockElement(2050, 1000, 1000, 2049)]
 
     const { result } = renderHook(() =>
       useWithdrawalData(elementsWithZeroCapital, 2040, mockConfig, 0.26375, 0.3, null),
@@ -109,13 +105,9 @@ describe('useWithdrawalData', () => {
   })
 
   it('returns withdrawal data when elements are valid', () => {
-    const mockElements: SparplanElement[] = [
-      createMockElement(2023, 10000, 50000, 2040),
-    ]
+    const mockElements: SparplanElement[] = [createMockElement(2023, 10000, 50000, 2040)]
 
-    const { result } = renderHook(() =>
-      useWithdrawalData(mockElements, 2040, mockConfig, 0.26375, 0.3, null),
-    )
+    const { result } = renderHook(() => useWithdrawalData(mockElements, 2040, mockConfig, 0.26375, 0.3, null))
 
     expect(result.current).not.toBeNull()
     if (result.current) {
@@ -129,13 +121,9 @@ describe('useWithdrawalData', () => {
   })
 
   it('returns sorted withdrawal array in descending order by year', () => {
-    const mockElements: SparplanElement[] = [
-      createMockElement(2023, 10000, 50000, 2040),
-    ]
+    const mockElements: SparplanElement[] = [createMockElement(2023, 10000, 50000, 2040)]
 
-    const { result } = renderHook(() =>
-      useWithdrawalData(mockElements, 2040, mockConfig, 0.26375, 0.3, null),
-    )
+    const { result } = renderHook(() => useWithdrawalData(mockElements, 2040, mockConfig, 0.26375, 0.3, null))
 
     if (result.current && result.current.withdrawalArray.length > 1) {
       const years = result.current.withdrawalArray.map(item => item.year)
@@ -145,9 +133,7 @@ describe('useWithdrawalData', () => {
   })
 
   it('recalculates when elements change', () => {
-    const initialElements: SparplanElement[] = [
-      createMockElement(2023, 10000, 50000, 2040),
-    ]
+    const initialElements: SparplanElement[] = [createMockElement(2023, 10000, 50000, 2040)]
 
     const { result, rerender } = renderHook(
       ({ elements }) => useWithdrawalData(elements, 2040, mockConfig, 0.26375, 0.3, null),
@@ -156,9 +142,7 @@ describe('useWithdrawalData', () => {
 
     const firstResult = result.current
 
-    const newElements: SparplanElement[] = [
-      createMockElement(2023, 20000, 100000, 2040),
-    ]
+    const newElements: SparplanElement[] = [createMockElement(2023, 20000, 100000, 2040)]
 
     rerender({ elements: newElements })
 

@@ -8,26 +8,14 @@ interface KapitalertragsteuerSectionProps {
   onSteuerlastChange: (value: number) => void
 }
 
-export function KapitalertragsteuerSection({
-  steuerlast,
-  onSteuerlastChange,
-}: KapitalertragsteuerSectionProps) {
+export function KapitalertragsteuerSection({ steuerlast, onSteuerlastChange }: KapitalertragsteuerSectionProps) {
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <Label htmlFor="steuerlast">
-          <GlossaryTerm term="kapitalertragsteuer">
-            Kapitalertragsteuer
-          </GlossaryTerm>
-          {' '}
-          (%)
+          <GlossaryTerm term="kapitalertragsteuer">Kapitalertragsteuer</GlossaryTerm> (%)
         </Label>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onSteuerlastChange(26.375)}
-          className="text-xs"
-        >
+        <Button variant="outline" size="sm" onClick={() => onSteuerlastChange(26.375)} className="text-xs">
           Reset
         </Button>
       </div>
@@ -42,10 +30,7 @@ export function KapitalertragsteuerSection({
       />
       <div className="flex justify-between text-sm text-muted-foreground">
         <span>20%</span>
-        <span className="font-medium">
-          {steuerlast}
-          %
-        </span>
+        <span className="font-medium">{steuerlast}%</span>
         <span>35%</span>
       </div>
     </div>

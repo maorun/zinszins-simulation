@@ -10,12 +10,7 @@ interface FreibetragTableRowProps {
   onDeleteYear: (year: number) => void
 }
 
-export function FreibetragTableRow({
-  year,
-  amount,
-  onUpdateYear,
-  onDeleteYear,
-}: FreibetragTableRowProps) {
+export function FreibetragTableRow({ year, amount, onUpdateYear, onDeleteYear }: FreibetragTableRowProps) {
   return (
     <TableRow key={year}>
       <TableCell className="text-center">{year}</TableCell>
@@ -26,7 +21,7 @@ export function FreibetragTableRow({
           min={0}
           max={10000}
           step={50}
-          onChange={(e) => {
+          onChange={e => {
             const value = Number(e.target.value)
             if (!isNaN(value)) {
               onUpdateYear(Number(year), value)
@@ -36,11 +31,7 @@ export function FreibetragTableRow({
         />
       </TableCell>
       <TableCell className="text-center">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onDeleteYear(Number(year))}
-        >
+        <Button variant="ghost" size="sm" onClick={() => onDeleteYear(Number(year))}>
           <Trash2 className="h-4 w-4" />
         </Button>
       </TableCell>

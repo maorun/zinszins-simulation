@@ -65,7 +65,7 @@ describe('ComparisonTableBaseRow', () => {
             baseStrategyName="Test"
             baseStrategyRendite={6.5}
             baseStrategyEndkapital={1234567.89}
-            baseStrategyAverageWithdrawal={45678.90}
+            baseStrategyAverageWithdrawal={45678.9}
             baseStrategyDuration="15 Jahre"
           />
         </tbody>

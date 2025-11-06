@@ -10,16 +10,8 @@ export default defineConfig({
     hookTimeout: 1000, // Maximum 1 second for hooks - much shorter
     coverage: {
       provider: 'v8',
-      include: [
-        'helpers/**/*.{ts,tsx}',
-        'app/**/*.{ts,tsx}',
-      ],
-      exclude: [
-        'app/**/*.d.ts',
-        '**/*.config.{ts,js}',
-        '**/node_modules/**',
-        'coverage/**',
-      ],
+      include: ['helpers/**/*.{ts,tsx}', 'app/**/*.{ts,tsx}'],
+      exclude: ['app/**/*.d.ts', '**/*.config.{ts,js}', '**/node_modules/**', 'coverage/**'],
       reporter: ['text', 'lcov', 'html'],
     },
   },

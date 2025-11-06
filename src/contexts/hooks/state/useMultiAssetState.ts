@@ -13,8 +13,7 @@ export function useMultiAssetState(config: MultiAssetStateConfig) {
     try {
       const { createDefaultMultiAssetConfig } = require('../../../../helpers/multi-asset-portfolio')
       return extendedInitialConfig.multiAssetConfig || createDefaultMultiAssetConfig()
-    }
-    catch {
+    } catch {
       return extendedInitialConfig.multiAssetConfig || createFallbackMultiAssetConfig()
     }
   })
@@ -25,8 +24,7 @@ export function useMultiAssetState(config: MultiAssetStateConfig) {
       const defaultCfg = createDefaultMultiAssetConfig()
       const conservativeConfig = createConservativeConfig(defaultCfg)
       return extendedInitialConfig.withdrawalMultiAssetConfig || conservativeConfig
-    }
-    catch {
+    } catch {
       return extendedInitialConfig.withdrawalMultiAssetConfig || createFallbackWithdrawalConfig()
     }
   })
@@ -39,7 +37,9 @@ export function useMultiAssetState(config: MultiAssetStateConfig) {
   }
 }
 
-function createConservativeConfig(defaultConfig: import('../../../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig) {
+function createConservativeConfig(
+  defaultConfig: import('../../../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig,
+) {
   return {
     ...defaultConfig,
     assetClasses: {

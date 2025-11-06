@@ -7,10 +7,7 @@ interface IndexSelectionRadioGroupProps {
   onIndexChange: (indexId: string) => void
 }
 
-export const IndexSelectionRadioGroup = ({
-  selectedIndexId,
-  onIndexChange,
-}: IndexSelectionRadioGroupProps) => (
+export const IndexSelectionRadioGroup = ({ selectedIndexId, onIndexChange }: IndexSelectionRadioGroupProps) => (
   <div className="space-y-3">
     <Label>Historischer Index für Backtesting</Label>
     <RadioTileGroup value={selectedIndexId} onValueChange={onIndexChange}>
@@ -19,17 +16,7 @@ export const IndexSelectionRadioGroup = ({
           <div className="space-y-1">
             <div className="text-xs">{index.description}</div>
             <div className="text-xs text-muted-foreground">
-              {index.startYear}
-              -
-              {index.endYear}
-              {' '}
-              •
-              {index.currency}
-              {' '}
-              •
-              Ø
-              {(index.averageReturn * 100).toFixed(1)}
-              % p.a.
+              {index.startYear}-{index.endYear} •{index.currency} • Ø{(index.averageReturn * 100).toFixed(1)}% p.a.
             </div>
           </div>
         </RadioTile>

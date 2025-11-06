@@ -11,14 +11,16 @@ describe('useRiskEventHandlers', () => {
     const setInflationScenarioName = vi.fn()
     const performSimulation = vi.fn()
 
-    const { result } = renderHook(() => useRiskEventHandlers({
-      setBlackSwanReturns,
-      setBlackSwanEventName,
-      setInflationScenarioRates,
-      setInflationScenarioReturnModifiers,
-      setInflationScenarioName,
-      performSimulation,
-    }))
+    const { result } = renderHook(() =>
+      useRiskEventHandlers({
+        setBlackSwanReturns,
+        setBlackSwanEventName,
+        setInflationScenarioRates,
+        setInflationScenarioReturnModifiers,
+        setInflationScenarioName,
+        performSimulation,
+      }),
+    )
 
     const eventReturns = { 2020: -0.3, 2021: -0.2 }
     result.current.handleBlackSwanChange(eventReturns, 'Test Event')
@@ -33,14 +35,16 @@ describe('useRiskEventHandlers', () => {
     const setBlackSwanEventName = vi.fn()
     const performSimulation = vi.fn()
 
-    const { result } = renderHook(() => useRiskEventHandlers({
-      setBlackSwanReturns,
-      setBlackSwanEventName,
-      setInflationScenarioRates: vi.fn(),
-      setInflationScenarioReturnModifiers: vi.fn(),
-      setInflationScenarioName: vi.fn(),
-      performSimulation,
-    }))
+    const { result } = renderHook(() =>
+      useRiskEventHandlers({
+        setBlackSwanReturns,
+        setBlackSwanEventName,
+        setInflationScenarioRates: vi.fn(),
+        setInflationScenarioReturnModifiers: vi.fn(),
+        setInflationScenarioName: vi.fn(),
+        performSimulation,
+      }),
+    )
 
     result.current.handleBlackSwanChange(null)
 
@@ -57,14 +61,16 @@ describe('useRiskEventHandlers', () => {
     const setInflationScenarioName = vi.fn()
     const performSimulation = vi.fn()
 
-    const { result } = renderHook(() => useRiskEventHandlers({
-      setBlackSwanReturns,
-      setBlackSwanEventName,
-      setInflationScenarioRates,
-      setInflationScenarioReturnModifiers,
-      setInflationScenarioName,
-      performSimulation,
-    }))
+    const { result } = renderHook(() =>
+      useRiskEventHandlers({
+        setBlackSwanReturns,
+        setBlackSwanEventName,
+        setInflationScenarioRates,
+        setInflationScenarioReturnModifiers,
+        setInflationScenarioName,
+        performSimulation,
+      }),
+    )
 
     const inflationRates = { 2020: 0.05, 2021: 0.06 }
     const returnModifiers = { 2020: -0.02, 2021: -0.03 }
@@ -82,14 +88,16 @@ describe('useRiskEventHandlers', () => {
     const setInflationScenarioName = vi.fn()
     const performSimulation = vi.fn()
 
-    const { result } = renderHook(() => useRiskEventHandlers({
-      setBlackSwanReturns: vi.fn(),
-      setBlackSwanEventName: vi.fn(),
-      setInflationScenarioRates,
-      setInflationScenarioReturnModifiers,
-      setInflationScenarioName,
-      performSimulation,
-    }))
+    const { result } = renderHook(() =>
+      useRiskEventHandlers({
+        setBlackSwanReturns: vi.fn(),
+        setBlackSwanEventName: vi.fn(),
+        setInflationScenarioRates,
+        setInflationScenarioReturnModifiers,
+        setInflationScenarioName,
+        performSimulation,
+      }),
+    )
 
     result.current.handleInflationScenarioChange(null, null)
 

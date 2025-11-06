@@ -18,9 +18,7 @@ function NavigationTriggerButton({ itemCount }: { itemCount: number }) {
     >
       <Menu className="h-4 w-4" />
       <span className="hidden sm:inline">Navigation</span>
-      <span className="text-xs bg-blue-200 text-blue-800 px-1.5 py-0.5 rounded-full">
-        {itemCount}
-      </span>
+      <span className="text-xs bg-blue-200 text-blue-800 px-1.5 py-0.5 rounded-full">{itemCount}</span>
     </Button>
   )
 }
@@ -28,13 +26,7 @@ function NavigationTriggerButton({ itemCount }: { itemCount: number }) {
 /**
  * Single navigation item button
  */
-function NavigationItemButton({
-  item,
-  onClick,
-}: {
-  item: NavigationItem
-  onClick: (id: string) => void
-}) {
+function NavigationItemButton({ item, onClick }: { item: NavigationItem; onClick: (id: string) => void }) {
   return (
     <Button
       key={item.id}

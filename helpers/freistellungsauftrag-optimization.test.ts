@@ -66,9 +66,7 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should account for Teilfreistellungsquote correctly', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 1000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: 0 }],
       }
 
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
@@ -82,9 +80,7 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should calculate tax savings correctly', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 1000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: 0 }],
       }
 
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
@@ -97,9 +93,7 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should provide recommendations for unused Freibetrag', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 2000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 500, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 500, assignedFreibetrag: 0 }],
       }
 
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
@@ -127,9 +121,7 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should handle zero capital gains gracefully', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 1000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 0, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 0, assignedFreibetrag: 0 }],
       }
 
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
@@ -142,9 +134,7 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should mark distribution as optimal when fully utilized', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 1000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 5000, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 5000, assignedFreibetrag: 0 }],
       }
 
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
@@ -171,9 +161,7 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should reject negative total Freibetrag', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: -100,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: 0 }],
       }
 
       const errors = validateFreistellungsauftragConfig(config)
@@ -183,9 +171,7 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should reject Freibetrag exceeding legal limit', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 2500, // More than couple limit of 2000€
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 5000, assignedFreibetrag: 2500 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 5000, assignedFreibetrag: 2500 }],
       }
 
       const errors = validateFreistellungsauftragConfig(config)
@@ -218,9 +204,7 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should reject negative expected capital gains', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 1000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: -500, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: -500, assignedFreibetrag: 0 }],
       }
 
       const errors = validateFreistellungsauftragConfig(config)
@@ -230,9 +214,7 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should reject negative assigned Freibetrag', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 1000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: -100 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: -100 }],
       }
 
       const errors = validateFreistellungsauftragConfig(config)
@@ -287,9 +269,7 @@ describe('Freistellungsauftrag Optimization', () => {
     })
 
     it('should handle zero capital gains', () => {
-      const accounts: BankAccount[] = [
-        { id: '1', name: 'Bank A', expectedCapitalGains: 0, assignedFreibetrag: 0 },
-      ]
+      const accounts: BankAccount[] = [{ id: '1', name: 'Bank A', expectedCapitalGains: 0, assignedFreibetrag: 0 }]
 
       const rates = calculateEffectiveTaxRates(accounts, defaultSteuerlast, defaultTeilfreistellung)
 
@@ -298,9 +278,7 @@ describe('Freistellungsauftrag Optimization', () => {
     })
 
     it('should handle full Freibetrag coverage', () => {
-      const accounts: BankAccount[] = [
-        { id: '1', name: 'Bank A', expectedCapitalGains: 1000, assignedFreibetrag: 700 },
-      ]
+      const accounts: BankAccount[] = [{ id: '1', name: 'Bank A', expectedCapitalGains: 1000, assignedFreibetrag: 700 }]
 
       const rates = calculateEffectiveTaxRates(accounts, defaultSteuerlast, defaultTeilfreistellung)
 

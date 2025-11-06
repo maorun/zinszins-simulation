@@ -10,22 +10,14 @@ function MonthlyFixedStrategy({ formValue }: { formValue: WithdrawalFormValue })
   return (
     <>
       <p>
-        <strong>Monatliche Entnahme (Basis):</strong>
-        {' '}
-        {formatCurrency(formValue.monatlicheBetrag)}
+        <strong>Monatliche Entnahme (Basis):</strong> {formatCurrency(formValue.monatlicheBetrag)}
       </p>
       <p>
-        <strong>Jährliche Entnahme (Jahr 1):</strong>
-        {' '}
-        {formatCurrency(formValue.monatlicheBetrag * 12)}
+        <strong>Jährliche Entnahme (Jahr 1):</strong> {formatCurrency(formValue.monatlicheBetrag * 12)}
       </p>
       {formValue.guardrailsAktiv && (
         <p>
-          <strong>Dynamische Anpassung:</strong>
-          {' '}
-          Aktiviert (Schwelle:
-          {' '}
-          {formValue.guardrailsSchwelle}
+          <strong>Dynamische Anpassung:</strong> Aktiviert (Schwelle: {formValue.guardrailsSchwelle}
           %)
         </p>
       )}
@@ -42,56 +34,30 @@ function VariablePercentageStrategy({
 }) {
   return (
     <p>
-      <strong>
-        Jährliche Entnahme (
-        {formValue.variabelProzent}
-        {' '}
-        Prozent Regel):
-      </strong>
-      {' '}
+      <strong>Jährliche Entnahme ({formValue.variabelProzent} Prozent Regel):</strong>{' '}
       {formatCurrency(startingCapital * (formValue.variabelProzent / 100))}
     </p>
   )
 }
 
-function DynamicStrategy({
-  startingCapital,
-  formValue,
-}: {
-  startingCapital: number
-  formValue: WithdrawalFormValue
-}) {
+function DynamicStrategy({ startingCapital, formValue }: { startingCapital: number; formValue: WithdrawalFormValue }) {
   return (
     <>
       <p>
-        <strong>Basis-Entnahmerate:</strong>
-        {' '}
-        {formValue.dynamischBasisrate}
-        %
+        <strong>Basis-Entnahmerate:</strong> {formValue.dynamischBasisrate}%
       </p>
       <p>
-        <strong>Jährliche Basis-Entnahme:</strong>
-        {' '}
+        <strong>Jährliche Basis-Entnahme:</strong>{' '}
         {formatCurrency(startingCapital * (formValue.dynamischBasisrate / 100))}
       </p>
       <p>
-        <strong>Obere Schwelle:</strong>
-        {' '}
-        {formValue.dynamischObereSchwell}
-        % Rendite →
-        {' '}
+        <strong>Obere Schwelle:</strong> {formValue.dynamischObereSchwell}% Rendite →{' '}
         {formValue.dynamischObereAnpassung > 0 ? '+' : ''}
-        {formValue.dynamischObereAnpassung}
-        % Anpassung
+        {formValue.dynamischObereAnpassung}% Anpassung
       </p>
       <p>
-        <strong>Untere Schwelle:</strong>
-        {' '}
-        {formValue.dynamischUntereSchwell}
-        % Rendite →
-        {' '}
-        {formValue.dynamischUntereAnpassung}
-        % Anpassung
+        <strong>Untere Schwelle:</strong> {formValue.dynamischUntereSchwell}% Rendite →{' '}
+        {formValue.dynamischUntereAnpassung}% Anpassung
       </p>
     </>
   )
@@ -110,25 +76,12 @@ function StandardRuleStrategy({
 
   return (
     <p>
-      <strong>
-        Jährliche Entnahme (
-        {ruleName}
-        {' '}
-        Regel):
-      </strong>
-      {' '}
-      {formatCurrency(startingCapital * rate)}
+      <strong>Jährliche Entnahme ({ruleName} Regel):</strong> {formatCurrency(startingCapital * rate)}
     </p>
   )
 }
 
-function StrategyDetails({
-  startingCapital,
-  formValue,
-}: {
-  startingCapital: number
-  formValue: WithdrawalFormValue
-}) {
+function StrategyDetails({ startingCapital, formValue }: { startingCapital: number; formValue: WithdrawalFormValue }) {
   if (formValue.strategie === 'monatlich_fest') {
     return <MonthlyFixedStrategy formValue={formValue} />
   }
@@ -144,50 +97,32 @@ function StrategyDetails({
   return <StandardRuleStrategy startingCapital={startingCapital} formValue={formValue} />
 }
 
-export function WithdrawalStrategySummary({
-  startingCapital,
-  formValue,
-}: WithdrawalStrategySummaryProps) {
+export function WithdrawalStrategySummary({ startingCapital, formValue }: WithdrawalStrategySummaryProps) {
   return (
     <>
       <p>
-        <strong>Startkapital bei Entnahme:</strong>
-        {' '}
-        {formatCurrency(startingCapital)}
+        <strong>Startkapital bei Entnahme:</strong> {formatCurrency(startingCapital)}
       </p>
 
       <StrategyDetails startingCapital={startingCapital} formValue={formValue} />
 
       {formValue.inflationAktiv && (
         <p>
-          <strong>Inflationsrate:</strong>
-          {' '}
-          {formValue.inflationsrate}
-          % p.a. (Entnahmebeträge werden jährlich angepasst)
+          <strong>Inflationsrate:</strong> {formValue.inflationsrate}% p.a. (Entnahmebeträge werden jährlich angepasst)
         </p>
       )}
 
       <p>
-        <strong>Erwartete Rendite:</strong>
-        {' '}
-        {formValue.rendite}
-        {' '}
-        Prozent p.a.
+        <strong>Erwartete Rendite:</strong> {formValue.rendite} Prozent p.a.
       </p>
 
       {formValue.grundfreibetragAktiv && formValue.grundfreibetragBetrag && (
         <p>
-          <strong>Grundfreibetrag:</strong>
-          {' '}
-          {formatCurrency(formValue.grundfreibetragBetrag)}
-          {' '}
-          pro Jahr
+          <strong>Grundfreibetrag:</strong> {formatCurrency(formValue.grundfreibetragBetrag)} pro Jahr
           {formValue.einkommensteuersatz && (
             <>
               {' '}
-              (Einkommensteuersatz:
-              {' '}
-              {formValue.einkommensteuersatz}
+              (Einkommensteuersatz: {formValue.einkommensteuersatz}
               %)
             </>
           )}

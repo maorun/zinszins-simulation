@@ -33,40 +33,34 @@ function TaxDeductibleConfig({
 
       {values.taxDeductible && (
         <div className="space-y-2 ml-6">
-          <Label htmlFor="max-tax-deduction">
-            Maximaler jährlicher Steuerabzug
-          </Label>
+          <Label htmlFor="max-tax-deduction">Maximaler jährlicher Steuerabzug</Label>
           <Input
             id="max-tax-deduction"
             type="number"
             value={values.maxAnnualTaxDeduction}
-            onChange={e => onChange({
-              ...values,
-              maxAnnualTaxDeduction: Number(e.target.value),
-            })}
+            onChange={e =>
+              onChange({
+                ...values,
+                maxAnnualTaxDeduction: Number(e.target.value),
+              })
+            }
             min={0}
             step={1000}
           />
-          <div className="text-sm text-muted-foreground">
-            Außergewöhnliche Belastungen nach deutschem Steuerrecht
-          </div>
+          <div className="text-sm text-muted-foreground">Außergewöhnliche Belastungen nach deutschem Steuerrecht</div>
         </div>
       )}
     </div>
   )
 }
 
-export function InsuranceAndBenefitsFields({
-  values,
-  onChange,
-}: InsuranceAndBenefitsFieldsProps) {
+export function InsuranceAndBenefitsFields({ values, onChange }: InsuranceAndBenefitsFieldsProps) {
   return (
     <>
       <div className="flex items-center space-x-2">
         <Switch
           checked={values.includeStatutoryBenefits}
-          onCheckedChange={includeStatutoryBenefits =>
-            onChange({ ...values, includeStatutoryBenefits })}
+          onCheckedChange={includeStatutoryBenefits => onChange({ ...values, includeStatutoryBenefits })}
           id="include-statutory-benefits"
         />
         <Label htmlFor="include-statutory-benefits" className="text-sm">
@@ -75,17 +69,17 @@ export function InsuranceAndBenefitsFields({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="private-care-benefit">
-          Private Pflegeversicherung (monatlich)
-        </Label>
+        <Label htmlFor="private-care-benefit">Private Pflegeversicherung (monatlich)</Label>
         <Input
           id="private-care-benefit"
           type="number"
           value={values.privateCareInsuranceMonthlyBenefit}
-          onChange={e => onChange({
-            ...values,
-            privateCareInsuranceMonthlyBenefit: Number(e.target.value),
-          })}
+          onChange={e =>
+            onChange({
+              ...values,
+              privateCareInsuranceMonthlyBenefit: Number(e.target.value),
+            })
+          }
           min={0}
           step={50}
           placeholder="z.B. 500"

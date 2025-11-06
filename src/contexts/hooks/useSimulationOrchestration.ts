@@ -24,11 +24,7 @@ export function useSimulationOrchestration(
 
   // Build simulation execution state - memoized to prevent unnecessary re-creation
   const simulationState = useBuildSimulationState(state)
-  const { performSimulation } = useSimulationExecution(
-    simulationState,
-    state.setIsLoading,
-    state.setSimulationData,
-  )
+  const { performSimulation } = useSimulationExecution(simulationState, state.setIsLoading, state.setSimulationData)
 
   // Build side effects state and setters
   const effectsState = buildEffectsState(state)

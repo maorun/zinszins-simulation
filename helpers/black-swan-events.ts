@@ -3,11 +3,7 @@
  * Historical extreme market events for stress testing portfolios
  */
 
-export type BlackSwanEventId
-  = 'dotcom-crash-2000'
-    | 'financial-crisis-2008'
-    | 'covid-crash-2020'
-    | 'custom'
+export type BlackSwanEventId = 'dotcom-crash-2000' | 'financial-crisis-2008' | 'covid-crash-2020' | 'custom'
 
 export interface BlackSwanEvent {
   id: BlackSwanEventId
@@ -44,7 +40,7 @@ export const BLACK_SWAN_EVENTS: Record<BlackSwanEventId, BlackSwanEvent> = {
     startYear: 2008,
     duration: 2,
     yearlyReturns: {
-      0: -0.40, // 2008: -40%
+      0: -0.4, // 2008: -40%
       1: -0.25, // 2009: -25% (Märkte begannen sich zu erholen, aber noch negativ)
     },
     recoveryYears: 4,
@@ -60,14 +56,14 @@ export const BLACK_SWAN_EVENTS: Record<BlackSwanEventId, BlackSwanEvent> = {
     },
     recoveryYears: 1,
   },
-  'custom': {
+  custom: {
     id: 'custom',
     name: 'Benutzerdefiniertes Szenario',
     description: 'Erstellen Sie Ihr eigenes Black Swan Szenario',
     startYear: 2024,
     duration: 1,
     yearlyReturns: {
-      0: -0.30, // Default: -30%
+      0: -0.3, // Default: -30%
     },
   },
 }
@@ -78,15 +74,12 @@ export const BLACK_SWAN_EVENTS: Record<BlackSwanEventId, BlackSwanEvent> = {
  * @param event - The Black Swan event to apply
  * @returns Map of year to return rate for the event period
  */
-export function applyBlackSwanEvent(
-  baseYear: number,
-  event: BlackSwanEvent,
-): Record<number, number> {
+export function applyBlackSwanEvent(baseYear: number, event: BlackSwanEvent): Record<number, number> {
   const returns: Record<number, number> = {}
 
   for (let offset = 0; offset < event.duration; offset++) {
     const year = baseYear + offset
-    returns[year] = event.yearlyReturns[offset] ?? -0.20 // Fallback to -20% if not defined
+    returns[year] = event.yearlyReturns[offset] ?? -0.2 // Fallback to -20% if not defined
   }
 
   return returns
@@ -102,7 +95,7 @@ export function calculateCumulativeImpact(event: BlackSwanEvent): number {
 
   for (let offset = 0; offset < event.duration; offset++) {
     const yearReturn = event.yearlyReturns[offset] ?? 0
-    cumulativeReturn *= (1 + yearReturn)
+    cumulativeReturn *= 1 + yearReturn
   }
 
   return cumulativeReturn - 1 // Convert back to return rate

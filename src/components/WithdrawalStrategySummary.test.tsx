@@ -33,24 +33,14 @@ const baseFormValue: WithdrawalFormValue = {
 
 describe('WithdrawalStrategySummary', () => {
   it('displays starting capital', () => {
-    render(
-      <WithdrawalStrategySummary
-        startingCapital={500000}
-        formValue={baseFormValue}
-      />,
-    )
+    render(<WithdrawalStrategySummary startingCapital={500000} formValue={baseFormValue} />)
 
     expect(screen.getByText(/Startkapital bei Entnahme/)).toBeInTheDocument()
     expect(screen.getByText('500.000,00 €')).toBeInTheDocument()
   })
 
   it('displays expected return rate', () => {
-    render(
-      <WithdrawalStrategySummary
-        startingCapital={500000}
-        formValue={baseFormValue}
-      />,
-    )
+    render(<WithdrawalStrategySummary startingCapital={500000} formValue={baseFormValue} />)
 
     expect(screen.getByText(/Erwartete Rendite/)).toBeInTheDocument()
     expect(screen.getByText(/5.*Prozent p\.a\./)).toBeInTheDocument()
@@ -60,12 +50,7 @@ describe('WithdrawalStrategySummary', () => {
     it('displays 4% rule withdrawal amount', () => {
       const formValue = { ...baseFormValue, strategie: '4prozent' as const }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.getByText(/Jährliche Entnahme.*4 Prozent.*Regel/)).toBeInTheDocument()
       expect(screen.getByText('20.000,00 €')).toBeInTheDocument()
@@ -76,12 +61,7 @@ describe('WithdrawalStrategySummary', () => {
     it('displays 3% rule withdrawal amount', () => {
       const formValue = { ...baseFormValue, strategie: '3prozent' as const }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.getByText(/Jährliche Entnahme.*3 Prozent.*Regel/)).toBeInTheDocument()
       expect(screen.getByText('15.000,00 €')).toBeInTheDocument()
@@ -96,12 +76,7 @@ describe('WithdrawalStrategySummary', () => {
         variabelProzent: 5,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.getByText(/Jährliche Entnahme.*5.*Prozent.*Regel/)).toBeInTheDocument()
       expect(screen.getByText('25.000,00 €')).toBeInTheDocument()
@@ -116,12 +91,7 @@ describe('WithdrawalStrategySummary', () => {
         monatlicheBetrag: 2000,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.getByText(/Monatliche Entnahme.*Basis/)).toBeInTheDocument()
       expect(screen.getByText('2.000,00 €')).toBeInTheDocument()
@@ -138,12 +108,7 @@ describe('WithdrawalStrategySummary', () => {
         guardrailsSchwelle: 15,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.getByText(/Dynamische Anpassung/)).toBeInTheDocument()
       expect(screen.getByText(/Aktiviert/)).toBeInTheDocument()
@@ -158,12 +123,7 @@ describe('WithdrawalStrategySummary', () => {
         guardrailsAktiv: false,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.queryByText(/Dynamische Anpassung/)).not.toBeInTheDocument()
     })
@@ -177,12 +137,7 @@ describe('WithdrawalStrategySummary', () => {
         dynamischBasisrate: 4,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.getByText(/Basis-Entnahmerate/)).toBeInTheDocument()
       expect(screen.getByText(/4%/)).toBeInTheDocument()
@@ -198,12 +153,7 @@ describe('WithdrawalStrategySummary', () => {
         dynamischObereAnpassung: 5,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.getByText(/Obere Schwelle/)).toBeInTheDocument()
       expect(screen.getByText(/8% Rendite/)).toBeInTheDocument()
@@ -218,12 +168,7 @@ describe('WithdrawalStrategySummary', () => {
         dynamischUntereAnpassung: -5,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.getByText(/Untere Schwelle/)).toBeInTheDocument()
       expect(screen.getByText(/2% Rendite/)).toBeInTheDocument()
@@ -239,12 +184,7 @@ describe('WithdrawalStrategySummary', () => {
         inflationsrate: 2.5,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.getByText(/Inflationsrate/)).toBeInTheDocument()
       expect(screen.getByText(/2\.5% p\.a\./)).toBeInTheDocument()
@@ -257,12 +197,7 @@ describe('WithdrawalStrategySummary', () => {
         inflationAktiv: false,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.queryByText(/Inflationsrate/)).not.toBeInTheDocument()
     })
@@ -277,12 +212,7 @@ describe('WithdrawalStrategySummary', () => {
         einkommensteuersatz: 20,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.getByText(/Grundfreibetrag/)).toBeInTheDocument()
       expect(screen.getByText(/11\.604,00 €/)).toBeInTheDocument()
@@ -298,12 +228,7 @@ describe('WithdrawalStrategySummary', () => {
         einkommensteuersatz: 0,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.getByText(/Grundfreibetrag/)).toBeInTheDocument()
       expect(screen.getByText(/11\.604,00 €/)).toBeInTheDocument()
@@ -316,12 +241,7 @@ describe('WithdrawalStrategySummary', () => {
         grundfreibetragAktiv: false,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.queryByText(/Grundfreibetrag/)).not.toBeInTheDocument()
     })
@@ -329,23 +249,13 @@ describe('WithdrawalStrategySummary', () => {
 
   describe('Edge Cases', () => {
     it('handles zero starting capital', () => {
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={0}
-          formValue={baseFormValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={0} formValue={baseFormValue} />)
 
       expect(screen.getAllByText('0,00 €')).toHaveLength(2) // Both starting capital and withdrawal amount
     })
 
     it('handles large starting capital', () => {
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={10000000}
-          formValue={baseFormValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={10000000} formValue={baseFormValue} />)
 
       expect(screen.getByText(/10\.000\.000,00 €/)).toBeInTheDocument()
     })
@@ -357,12 +267,7 @@ describe('WithdrawalStrategySummary', () => {
         dynamischObereAnpassung: -3,
       }
 
-      render(
-        <WithdrawalStrategySummary
-          startingCapital={500000}
-          formValue={formValue}
-        />,
-      )
+      render(<WithdrawalStrategySummary startingCapital={500000} formValue={formValue} />)
 
       expect(screen.getByText(/-3% Anpassung/)).toBeInTheDocument()
     })

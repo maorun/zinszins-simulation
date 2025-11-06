@@ -4,9 +4,7 @@ interface VorabpauschaleResultSummaryProps {
   selectedVorabDetails: VorabpauschaleDetails
 }
 
-const VorabpauschaleResultSummary = ({
-  selectedVorabDetails,
-}: VorabpauschaleResultSummaryProps) => {
+const VorabpauschaleResultSummary = ({ selectedVorabDetails }: VorabpauschaleResultSummaryProps) => {
   return (
     <div
       style={{
@@ -29,8 +27,7 @@ const VorabpauschaleResultSummary = ({
           <br />
           {Number(selectedVorabDetails.vorabpauschaleAmount).toLocaleString('de-DE', {
             minimumFractionDigits: 2,
-          })}
-          {' '}
+          })}{' '}
           €
         </div>
         <div>
@@ -38,17 +35,12 @@ const VorabpauschaleResultSummary = ({
           <br />
           {Number(selectedVorabDetails.steuerVorFreibetrag).toLocaleString('de-DE', {
             minimumFractionDigits: 2,
-          })}
-          {' '}
+          })}{' '}
           €
         </div>
       </div>
       <div style={{ marginTop: '12px', fontSize: '0.9rem', fontStyle: 'italic' }}>
-        💡
-        {' '}
-        <strong>Hinweis:</strong>
-        {' '}
-        Der jährliche Sparerpauschfreibetrag reduziert die tatsächlich zu zahlende Steuer.
+        💡 <strong>Hinweis:</strong> Der jährliche Sparerpauschfreibetrag reduziert die tatsächlich zu zahlende Steuer.
       </div>
     </div>
   )

@@ -13,9 +13,7 @@ const SensitivityAnalysisDisplay = lazy(() => import('./SensitivityAnalysisDispl
 function LoadingCard() {
   return (
     <Card className="mb-4">
-      <CardContent className="py-8 text-center text-gray-500">
-        Lädt...
-      </CardContent>
+      <CardContent className="py-8 text-center text-gray-500">Lädt...</CardContent>
     </Card>
   )
 }

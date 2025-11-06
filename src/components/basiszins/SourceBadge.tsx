@@ -22,10 +22,6 @@ export function SourceBadge({ source }: SourceBadgeProps) {
   const label = labels[source] || labels.fallback
 
   return (
-    <span
-      className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${styleClass}`}
-    >
-      {label}
-    </span>
+    <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${styleClass}`}>{label}</span>
   )
 }

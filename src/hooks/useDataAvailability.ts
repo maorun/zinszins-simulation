@@ -26,10 +26,10 @@ const checkWithdrawalConfig = (withdrawalConfig?: WithdrawalConfiguration | null
 
 const checkWithdrawalConfigFromStorage = (withdrawalConfig?: WithdrawalConfiguration | null): boolean => {
   return !!(
-    withdrawalConfig
-    && (withdrawalConfig.formValue
-      || withdrawalConfig.useSegmentedWithdrawal
-      || withdrawalConfig.withdrawalSegments?.length > 0)
+    withdrawalConfig &&
+    (withdrawalConfig.formValue ||
+      withdrawalConfig.useSegmentedWithdrawal ||
+      withdrawalConfig.withdrawalSegments?.length > 0)
   )
 }
 
@@ -44,11 +44,8 @@ export function useDataAvailability(): DataAvailability {
   const hasWithdrawalConfig = checkWithdrawalConfig(withdrawalConfig)
   const hasWithdrawalConfigFromStorage = checkWithdrawalConfigFromStorage(withdrawalConfig)
 
-  const hasWithdrawalCapability
-    = hasWithdrawalData
-      || hasWithdrawalConfig
-      || hasWithdrawalConfigFromStorage
-      || (hasSavingsData && !!withdrawalConfig)
+  const hasWithdrawalCapability =
+    hasWithdrawalData || hasWithdrawalConfig || hasWithdrawalConfigFromStorage || (hasSavingsData && !!withdrawalConfig)
 
   const hasAnyData = hasSavingsData || hasWithdrawalData || hasWithdrawalConfig || hasWithdrawalConfigFromStorage
 

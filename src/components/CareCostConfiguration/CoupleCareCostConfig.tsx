@@ -3,11 +3,7 @@ import { Switch } from '../ui/switch'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import { RadioTileGroup, RadioTile } from '../ui/radio-tile'
-import {
-  type CareCostConfiguration,
-  type CareLevel,
-  DEFAULT_CARE_LEVELS,
-} from '../../../helpers/care-cost-simulation'
+import { type CareCostConfiguration, type CareLevel, DEFAULT_CARE_LEVELS } from '../../../helpers/care-cost-simulation'
 
 interface CoupleCareCostConfigProps {
   values: CareCostConfiguration
@@ -19,21 +15,14 @@ interface CoupleCareCostConfigProps {
 /**
  * Update person2NeedsCare configuration
  */
-function updatePerson2NeedsCare(
-  values: CareCostConfiguration,
-  person2NeedsCare: boolean,
-): CareCostConfiguration {
+function updatePerson2NeedsCare(values: CareCostConfiguration, person2NeedsCare: boolean): CareCostConfiguration {
   return {
     ...values,
     coupleConfig: {
       ...values.coupleConfig,
       person2NeedsCare,
-      person2StartYear: person2NeedsCare
-        ? (values.coupleConfig?.person2StartYear || values.startYear + 2)
-        : undefined,
-      person2CareLevel: person2NeedsCare
-        ? (values.coupleConfig?.person2CareLevel || values.careLevel)
-        : undefined,
+      person2StartYear: person2NeedsCare ? values.coupleConfig?.person2StartYear || values.startYear + 2 : undefined,
+      person2CareLevel: person2NeedsCare ? values.coupleConfig?.person2CareLevel || values.careLevel : undefined,
     },
   }
 }
@@ -41,10 +30,7 @@ function updatePerson2NeedsCare(
 /**
  * Update person2 start year
  */
-function updatePerson2StartYear(
-  values: CareCostConfiguration,
-  person2StartYear: number,
-): CareCostConfiguration {
+function updatePerson2StartYear(values: CareCostConfiguration, person2StartYear: number): CareCostConfiguration {
   return {
     ...values,
     coupleConfig: {
@@ -58,10 +44,7 @@ function updatePerson2StartYear(
 /**
  * Update person2 care level
  */
-function updatePerson2CareLevel(
-  values: CareCostConfiguration,
-  person2CareLevel: CareLevel,
-): CareCostConfiguration {
+function updatePerson2CareLevel(values: CareCostConfiguration, person2CareLevel: CareLevel): CareCostConfiguration {
   return {
     ...values,
     coupleConfig: {
@@ -134,9 +117,7 @@ function Person2CareLevelSelector({
       >
         {[1, 2, 3, 4, 5].map(level => (
           <RadioTile key={level} value={level.toString()} label={`Pflegegrad ${level}`}>
-            <div className="text-xs text-muted-foreground">
-              {DEFAULT_CARE_LEVELS[level as CareLevel].description}
-            </div>
+            <div className="text-xs text-muted-foreground">{DEFAULT_CARE_LEVELS[level as CareLevel].description}</div>
           </RadioTile>
         ))}
       </RadioTileGroup>
@@ -186,18 +167,11 @@ function Person2ConfigFields({
   )
 }
 
-export function CoupleCareCostConfig({
-  values,
-  onChange,
-  currentYear,
-  nestingLevel,
-}: CoupleCareCostConfigProps) {
+export function CoupleCareCostConfig({ values, onChange, currentYear, nestingLevel }: CoupleCareCostConfigProps) {
   return (
     <Card nestingLevel={nestingLevel + 1} className="bg-blue-50 border-blue-200">
       <CardHeader nestingLevel={nestingLevel + 1} className="pb-3">
-        <CardTitle className="text-base flex items-center gap-2">
-          👫 Paar-Konfiguration
-        </CardTitle>
+        <CardTitle className="text-base flex items-center gap-2">👫 Paar-Konfiguration</CardTitle>
       </CardHeader>
       <CardContent nestingLevel={nestingLevel + 1} className="space-y-4">
         <div className="flex items-center space-x-2">
@@ -212,11 +186,7 @@ export function CoupleCareCostConfig({
         </div>
 
         {values.coupleConfig?.person2NeedsCare && (
-          <Person2ConfigFields
-            values={values}
-            onChange={onChange}
-            currentYear={currentYear}
-          />
+          <Person2ConfigFields values={values} onChange={onChange} currentYear={currentYear} />
         )}
       </CardContent>
     </Card>

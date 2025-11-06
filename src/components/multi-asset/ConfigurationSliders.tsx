@@ -17,10 +17,7 @@ interface ConfigurationSlidersProps {
  * Group of configuration sliders for an asset class.
  * Displays and allows editing of target allocation, expected return, and volatility.
  */
-export function ConfigurationSliders({
-  config,
-  onConfigChange,
-}: ConfigurationSlidersProps) {
+export function ConfigurationSliders({ config, onConfigChange }: ConfigurationSlidersProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <SliderField

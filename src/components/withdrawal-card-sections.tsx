@@ -14,11 +14,7 @@ interface OtherIncomeSectionProps {
 /**
  * Display section for other income sources
  */
-export function OtherIncomeSection({
-  otherIncome,
-  onCalculationInfoClick,
-  rowData,
-}: OtherIncomeSectionProps) {
+export function OtherIncomeSection({ otherIncome, onCalculationInfoClick, rowData }: OtherIncomeSectionProps) {
   if (!otherIncome || otherIncome.totalNetAmount <= 0) {
     return null
   }
@@ -38,16 +34,12 @@ export function OtherIncomeSection({
       {otherIncome.totalTaxAmount > 0 && (
         <div className="flex justify-between items-center py-1">
           <span className="text-sm text-gray-600 font-medium">💸 Steuern auf andere Einkünfte:</span>
-          <span className="font-semibold text-red-600 text-sm">
-            {formatCurrency(otherIncome.totalTaxAmount)}
-          </span>
+          <span className="font-semibold text-red-600 text-sm">{formatCurrency(otherIncome.totalTaxAmount)}</span>
         </div>
       )}
       <div className="flex justify-between items-center py-1">
         <span className="text-sm text-gray-600 font-medium">📊 Anzahl Einkommensquellen:</span>
-        <span className="font-semibold text-blue-600 text-sm">
-          {otherIncome.sourceCount}
-        </span>
+        <span className="font-semibold text-blue-600 text-sm">{otherIncome.sourceCount}</span>
       </div>
     </>
   )
@@ -76,8 +68,7 @@ function InsuranceRateDisplay({ rate }: { rate?: number }) {
   if (!rate) return null
   return (
     <span className="text-xs text-gray-500 ml-1">
-      (
-      {rate.toFixed(2)}
+      ({rate.toFixed(2)}
       %)
     </span>
   )
@@ -87,15 +78,16 @@ function InflationAdjustmentDisplay({ factor }: { factor?: number }) {
   if (!factor) return null
   return (
     <span className="text-xs text-gray-500 ml-1">
-      (Inflationsanpassung:
-      {' '}
-      {(factor * 100 - 100).toFixed(1)}
+      (Inflationsanpassung: {(factor * 100 - 100).toFixed(1)}
       %)
     </span>
   )
 }
 
-function EmployerContributionNote({ insuranceType, includesEmployerContribution }: {
+function EmployerContributionNote({
+  insuranceType,
+  includesEmployerContribution,
+}: {
   insuranceType: 'statutory' | 'private'
   includesEmployerContribution?: boolean
 }) {
@@ -119,16 +111,12 @@ function HealthInsuranceRow({
   return (
     <div className="flex justify-between items-center py-1">
       <span className="text-sm text-gray-600 font-medium">
-        🏥 Krankenversicherung (
-        {isStatutory ? 'Gesetzlich' : 'Privat'}
+        🏥 Krankenversicherung ({isStatutory ? 'Gesetzlich' : 'Privat'}
         ):
       </span>
       <span className="font-semibold text-red-600 text-sm">
-        -
-        {formatCurrency(amount)}
-        {isStatutory && effectiveRate && (
-          <InsuranceRateDisplay rate={effectiveRate} />
-        )}
+        -{formatCurrency(amount)}
+        {isStatutory && effectiveRate && <InsuranceRateDisplay rate={effectiveRate} />}
         {inflationFactor && <InflationAdjustmentDisplay factor={inflationFactor} />}
       </span>
     </div>
@@ -148,15 +136,10 @@ function CareInsuranceRow({
 
   return (
     <div className="flex justify-between items-center py-1">
-      <span className="text-sm text-gray-600 font-medium">
-        🩺 Pflegeversicherung:
-      </span>
+      <span className="text-sm text-gray-600 font-medium">🩺 Pflegeversicherung:</span>
       <span className="font-semibold text-red-600 text-sm">
-        -
-        {formatCurrency(amount)}
-        {isStatutory && effectiveRate && (
-          <InsuranceRateDisplay rate={effectiveRate} />
-        )}
+        -{formatCurrency(amount)}
+        {isStatutory && effectiveRate && <InsuranceRateDisplay rate={effectiveRate} />}
       </span>
     </div>
   )
@@ -179,15 +162,11 @@ function TotalInsuranceRow({
 
   return (
     <div className="flex justify-between items-center py-1 border-t border-gray-200 pt-1">
-      <span className="text-sm text-gray-600 font-medium">
-        🏥 Gesamt Kranken- & Pflegeversicherung:
-      </span>
+      <span className="text-sm text-gray-600 font-medium">🏥 Gesamt Kranken- & Pflegeversicherung:</span>
       <span className="font-semibold text-red-600 text-sm flex items-center">
-        -
-        {formatCurrency(totalAnnual)}
+        -{formatCurrency(totalAnnual)}
         <span className="text-xs text-gray-500 ml-1">
-          (
-          {isStatutory ? 'Gesetzlich' : 'Privat'}
+          ({isStatutory ? 'Gesetzlich' : 'Privat'}
           )
           <EmployerContributionNote
             insuranceType={insuranceType}
@@ -237,9 +216,7 @@ export function HealthCareInsuranceSection({
 
       <div className="flex justify-between items-center py-1">
         <span className="text-sm text-gray-600 font-medium">📅 Monatliche Beiträge:</span>
-        <span className="font-semibold text-blue-600 text-sm">
-          {formatCurrency(healthCareInsurance.totalMonthly)}
-        </span>
+        <span className="font-semibold text-blue-600 text-sm">{formatCurrency(healthCareInsurance.totalMonthly)}</span>
       </div>
     </>
   )
@@ -272,8 +249,7 @@ export function StatutoryPensionSection({
       <div className="flex justify-between items-center py-1">
         <span className="text-sm text-gray-600 font-medium">🏛️ Gesetzliche Rente (Brutto):</span>
         <span className="font-semibold text-green-600 text-sm flex items-center">
-          +
-          {formatCurrency(statutoryPension.grossAnnualAmount)}
+          +{formatCurrency(statutoryPension.grossAnnualAmount)}
           <Info
             className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
             onClick={() => onCalculationInfoClick('statutoryPension', rowData)}
@@ -283,26 +259,19 @@ export function StatutoryPensionSection({
       {statutoryPension.incomeTax > 0 && (
         <div className="flex justify-between items-center py-1">
           <span className="text-sm text-gray-600 font-medium">💸 Einkommensteuer auf Rente:</span>
-          <span className="font-semibold text-red-600 text-sm">
-            -
-            {formatCurrency(statutoryPension.incomeTax)}
-          </span>
+          <span className="font-semibold text-red-600 text-sm">-{formatCurrency(statutoryPension.incomeTax)}</span>
         </div>
       )}
       <div className="flex justify-between items-center py-1 border-t border-gray-200 pt-1">
-        <span className="text-sm text-gray-600 font-medium">
-          🏛️ Gesetzliche Rente (Netto):
-        </span>
+        <span className="text-sm text-gray-600 font-medium">🏛️ Gesetzliche Rente (Netto):</span>
         <span className="font-semibold text-green-600 text-sm">
-          +
-          {formatCurrency(statutoryPension.netAnnualAmount)}
+          +{formatCurrency(statutoryPension.netAnnualAmount)}
         </span>
       </div>
       <div className="flex justify-between items-center py-1">
         <span className="text-sm text-gray-600 font-medium">📅 Monatliche Rente (Netto):</span>
         <span className="font-semibold text-green-600 text-sm">
-          +
-          {formatCurrency(statutoryPension.netAnnualAmount / 12)}
+          +{formatCurrency(statutoryPension.netAnnualAmount / 12)}
         </span>
       </div>
     </>

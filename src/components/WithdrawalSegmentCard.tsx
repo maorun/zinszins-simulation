@@ -25,7 +25,12 @@ interface WithdrawalSegmentCardProps {
   onMoveDown: (segmentId: string) => void
 }
 
-function SegmentConfigSections({ segment, withdrawalStartYear, withdrawalEndYear, onUpdate }: {
+function SegmentConfigSections({
+  segment,
+  withdrawalStartYear,
+  withdrawalEndYear,
+  onUpdate,
+}: {
   segment: WithdrawalSegment
   withdrawalStartYear: number
   withdrawalEndYear: number

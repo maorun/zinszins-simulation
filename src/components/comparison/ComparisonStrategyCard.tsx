@@ -12,13 +12,13 @@ interface ComparisonStrategyCardProps {
 const STRATEGY_DISPLAY_NAMES: Record<WithdrawalStrategy, string> = {
   '4prozent': '4% Regel',
   '3prozent': '3% Regel',
-  'variabel_prozent': 'Variable Prozent',
-  'monatlich_fest': 'Monatlich fest',
-  'dynamisch': 'Dynamische Strategie',
-  'bucket_strategie': 'Drei-Eimer-Strategie',
-  'rmd': 'RMD (Lebenserwartung)',
-  'kapitalerhalt': 'Kapitalerhalt / Ewige Rente',
-  'steueroptimiert': 'Steueroptimierte Entnahme',
+  variabel_prozent: 'Variable Prozent',
+  monatlich_fest: 'Monatlich fest',
+  dynamisch: 'Dynamische Strategie',
+  bucket_strategie: 'Drei-Eimer-Strategie',
+  rmd: 'RMD (Lebenserwartung)',
+  kapitalerhalt: 'Kapitalerhalt / Ewige Rente',
+  steueroptimiert: 'Steueroptimierte Entnahme',
 }
 
 // Helper function for strategy display names
@@ -56,7 +56,7 @@ function VariablePercentageField({
         max="10"
         step="0.5"
         value={value || 4}
-        onChange={(e) => {
+        onChange={e => {
           onUpdate(strategyId, {
             variabelProzent: parseFloat(e.target.value) || 5,
           })
@@ -101,7 +101,7 @@ function MonthlyAmountField({
         min="0"
         step="100"
         value={value || 2000}
-        onChange={(e) => {
+        onChange={e => {
           onUpdate(strategyId, {
             monatlicheBetrag: parseFloat(e.target.value) || 2000,
           })
@@ -147,7 +147,7 @@ function DynamicBasisRateField({
         max="10"
         step="0.5"
         value={value || 4}
-        onChange={(e) => {
+        onChange={e => {
           onUpdate(strategyId, {
             dynamischBasisrate: parseFloat(e.target.value) || 4,
           })
@@ -193,7 +193,7 @@ function DynamicUpperThresholdField({
         max="20"
         step="0.5"
         value={value || 8}
-        onChange={(e) => {
+        onChange={e => {
           onUpdate(strategyId, {
             dynamischObereSchwell: parseFloat(e.target.value) || 8,
           })
@@ -239,7 +239,7 @@ function DynamicLowerThresholdField({
         max="0"
         step="0.5"
         value={value || -8}
-        onChange={(e) => {
+        onChange={e => {
           onUpdate(strategyId, {
             dynamischUntereSchwell: parseFloat(e.target.value) || -8,
           })
@@ -273,21 +273,9 @@ function DynamicStrategyFields({
 }) {
   return (
     <>
-      <DynamicBasisRateField
-        strategyId={strategyId}
-        value={basisrate}
-        onUpdate={onUpdate}
-      />
-      <DynamicUpperThresholdField
-        strategyId={strategyId}
-        value={obereSchwell}
-        onUpdate={onUpdate}
-      />
-      <DynamicLowerThresholdField
-        strategyId={strategyId}
-        value={untereSchwell}
-        onUpdate={onUpdate}
-      />
+      <DynamicBasisRateField strategyId={strategyId} value={basisrate} onUpdate={onUpdate} />
+      <DynamicUpperThresholdField strategyId={strategyId} value={obereSchwell} onUpdate={onUpdate} />
+      <DynamicLowerThresholdField strategyId={strategyId} value={untereSchwell} onUpdate={onUpdate} />
     </>
   )
 }
@@ -321,7 +309,7 @@ function BucketCashCushionField({
         min="1000"
         step="1000"
         value={value || 20000}
-        onChange={(e) => {
+        onChange={e => {
           onUpdate(strategyId, {
             bucketInitialCash: parseFloat(e.target.value) || 20000,
           })
@@ -367,7 +355,7 @@ function BucketBaseRateField({
         max="10"
         step="0.1"
         value={value || 4}
-        onChange={(e) => {
+        onChange={e => {
           onUpdate(strategyId, {
             bucketBaseRate: parseFloat(e.target.value) || 4,
           })
@@ -399,16 +387,8 @@ function BucketStrategyFields({
 }) {
   return (
     <>
-      <BucketCashCushionField
-        strategyId={strategyId}
-        value={initialCash}
-        onUpdate={onUpdate}
-      />
-      <BucketBaseRateField
-        strategyId={strategyId}
-        value={baseRate}
-        onUpdate={onUpdate}
-      />
+      <BucketCashCushionField strategyId={strategyId} value={initialCash} onUpdate={onUpdate} />
+      <BucketBaseRateField strategyId={strategyId} value={baseRate} onUpdate={onUpdate} />
     </>
   )
 }
@@ -424,23 +404,11 @@ function StrategySpecificFields({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   if (strategy.strategie === 'variabel_prozent') {
-    return (
-      <VariablePercentageField
-        strategyId={strategy.id}
-        value={strategy.variabelProzent}
-        onUpdate={onUpdate}
-      />
-    )
+    return <VariablePercentageField strategyId={strategy.id} value={strategy.variabelProzent} onUpdate={onUpdate} />
   }
 
   if (strategy.strategie === 'monatlich_fest') {
-    return (
-      <MonthlyAmountField
-        strategyId={strategy.id}
-        value={strategy.monatlicheBetrag}
-        onUpdate={onUpdate}
-      />
-    )
+    return <MonthlyAmountField strategyId={strategy.id} value={strategy.monatlicheBetrag} onUpdate={onUpdate} />
   }
 
   if (strategy.strategie === 'dynamisch') {
@@ -493,12 +461,7 @@ function StrategyCardHeader({
       }}
     >
       <h5 style={{ margin: 0 }}>
-        Strategie
-        {' '}
-        {index + 1}
-        :
-        {' '}
-        {name}
+        Strategie {index + 1}: {name}
       </h5>
       <button
         type="button"
@@ -543,7 +506,7 @@ function StrategyTypeSelector({
       </label>
       <select
         value={value}
-        onChange={(e) => {
+        onChange={e => {
           const newStrategie = e.target.value as WithdrawalStrategy
           onUpdate(strategyId, {
             strategie: newStrategie,
@@ -599,7 +562,7 @@ function ReturnRateField({
         max="15"
         step="0.5"
         value={value}
-        onChange={(e) => {
+        onChange={e => {
           onUpdate(strategyId, {
             rendite: parseFloat(e.target.value) || 5,
           })
@@ -619,12 +582,7 @@ function ReturnRateField({
  * Card component for a single comparison strategy
  * Extracted from ComparisonStrategyConfiguration to reduce complexity
  */
-export function ComparisonStrategyCard({
-  strategy,
-  index,
-  onUpdate,
-  onRemove,
-}: ComparisonStrategyCardProps) {
+export function ComparisonStrategyCard({ strategy, index, onUpdate, onRemove }: ComparisonStrategyCardProps) {
   return (
     <div
       style={{
@@ -635,12 +593,7 @@ export function ComparisonStrategyCard({
         backgroundColor: '#f8f9fa',
       }}
     >
-      <StrategyCardHeader
-        index={index}
-        name={strategy.name}
-        strategyId={strategy.id}
-        onRemove={onRemove}
-      />
+      <StrategyCardHeader index={index} name={strategy.name} strategyId={strategy.id} onRemove={onRemove} />
 
       <div
         style={{
@@ -650,17 +603,9 @@ export function ComparisonStrategyCard({
           alignItems: 'end',
         }}
       >
-        <StrategyTypeSelector
-          strategyId={strategy.id}
-          value={strategy.strategie}
-          onUpdate={onUpdate}
-        />
+        <StrategyTypeSelector strategyId={strategy.id} value={strategy.strategie} onUpdate={onUpdate} />
 
-        <ReturnRateField
-          strategyId={strategy.id}
-          value={strategy.rendite}
-          onUpdate={onUpdate}
-        />
+        <ReturnRateField strategyId={strategy.id} value={strategy.rendite} onUpdate={onUpdate} />
 
         <StrategySpecificFields strategy={strategy} onUpdate={onUpdate} />
       </div>

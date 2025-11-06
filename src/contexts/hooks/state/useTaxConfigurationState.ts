@@ -54,24 +54,12 @@ export function useTaxConfigurationState(config: TaxConfigurationStateConfig) {
   const [steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase] = useState(
     defaults.steuerReduzierenEndkapitalEntspharphase,
   )
-  const [grundfreibetragAktiv, setGrundfreibetragAktiv] = useState(
-    defaults.grundfreibetragAktiv,
-  )
-  const [grundfreibetragBetrag, setGrundfreibetragBetrag] = useState(
-    defaults.grundfreibetragBetrag,
-  )
-  const [personalTaxRate, setPersonalTaxRate] = useState(
-    defaults.personalTaxRate,
-  )
-  const [guenstigerPruefungAktiv, setGuenstigerPruefungAktiv] = useState(
-    defaults.guenstigerPruefungAktiv,
-  )
-  const [kirchensteuerAktiv, setKirchensteuerAktiv] = useState(
-    defaults.kirchensteuerAktiv,
-  )
-  const [kirchensteuersatz, setKirchensteuersatz] = useState(
-    defaults.kirchensteuersatz,
-  )
+  const [grundfreibetragAktiv, setGrundfreibetragAktiv] = useState(defaults.grundfreibetragAktiv)
+  const [grundfreibetragBetrag, setGrundfreibetragBetrag] = useState(defaults.grundfreibetragBetrag)
+  const [personalTaxRate, setPersonalTaxRate] = useState(defaults.personalTaxRate)
+  const [guenstigerPruefungAktiv, setGuenstigerPruefungAktiv] = useState(defaults.guenstigerPruefungAktiv)
+  const [kirchensteuerAktiv, setKirchensteuerAktiv] = useState(defaults.kirchensteuerAktiv)
+  const [kirchensteuersatz, setKirchensteuersatz] = useState(defaults.kirchensteuersatz)
 
   return {
     steuerReduzierenEndkapitalSparphase,

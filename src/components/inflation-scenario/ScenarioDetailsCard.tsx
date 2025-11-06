@@ -9,7 +9,7 @@ interface ScenarioDetailsCardProps {
   averageInflation: number | null
   purchasingPowerImpact: number | null
   formatPercent: (value: number) => string
-  colors: { bg: string, text: string }
+  colors: { bg: string; text: string }
 }
 
 /**
@@ -28,16 +28,10 @@ export const ScenarioDetailsCard = ({
       <h5 className={`font-semibold ${colors.text} mb-2`}>📊 Szenario-Details</h5>
       <div className="space-y-2 text-sm">
         <p>
-          <strong>Beschreibung:</strong>
-          {' '}
-          {scenario.description}
+          <strong>Beschreibung:</strong> {scenario.description}
         </p>
         <p>
-          <strong>Dauer:</strong>
-          {' '}
-          {scenario.duration}
-          {' '}
-          {scenario.duration === 1 ? 'Jahr' : 'Jahre'}
+          <strong>Dauer:</strong> {scenario.duration} {scenario.duration === 1 ? 'Jahr' : 'Jahre'}
         </p>
 
         <YearlyRatesDisplay

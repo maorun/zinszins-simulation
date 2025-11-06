@@ -31,13 +31,7 @@ const MonteCarloAnalysisDisplay = ({
   return (
     <div className="mb-8">
       <h4 className="text-blue-700 mb-4 text-lg font-semibold">
-        📊
-        {' '}
-        {title}
-        {' '}
-        -
-        {' '}
-        {phaseTitle}
+        📊 {title} - {phaseTitle}
       </h4>
       <SimulationParametersInfo
         config={config}

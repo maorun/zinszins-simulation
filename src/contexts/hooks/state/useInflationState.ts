@@ -19,9 +19,9 @@ export function useInflationState(config: InflationStateConfig) {
   const [inflationsrateSparphase, setInflationsrateSparphase] = useState(
     extendedInitialConfig.inflationsrateSparphase ?? defaultConfig.inflationsrateSparphase,
   )
-  const [inflationAnwendungSparphase, setInflationAnwendungSparphase] = useState<
-    'sparplan' | 'gesamtmenge'
-  >(extendedInitialConfig.inflationAnwendungSparphase ?? defaultConfig.inflationAnwendungSparphase)
+  const [inflationAnwendungSparphase, setInflationAnwendungSparphase] = useState<'sparplan' | 'gesamtmenge'>(
+    extendedInitialConfig.inflationAnwendungSparphase ?? defaultConfig.inflationAnwendungSparphase,
+  )
 
   return {
     inflationAktivSparphase,

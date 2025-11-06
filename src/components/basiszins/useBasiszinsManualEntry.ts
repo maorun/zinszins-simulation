@@ -1,9 +1,5 @@
 import { useCallback } from 'react'
-import {
-  validateBasiszinsRate,
-  type BasiszinsConfiguration,
-  type BasiszinsData,
-} from '../../services/bundesbank-api'
+import { validateBasiszinsRate, type BasiszinsConfiguration, type BasiszinsData } from '../../services/bundesbank-api'
 
 /**
  * Custom hook for manual entry operations

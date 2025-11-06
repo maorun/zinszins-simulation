@@ -13,10 +13,7 @@ interface AnalysisResults {
   baseResults: Map<string, SensitivityResult>
 }
 
-export function useSensitivityAnalysis(
-  config: SensitivityAnalysisConfig,
-  returnConfig: ReturnConfiguration,
-) {
+export function useSensitivityAnalysis(config: SensitivityAnalysisConfig, returnConfig: ReturnConfiguration) {
   // Run sensitivity analysis for all parameters
   const analysisResults = useMemo<AnalysisResults>(() => {
     const results = new Map<string, SensitivityResult[]>()
@@ -30,8 +27,7 @@ export function useSensitivityAnalysis(
 
         // Find the base result (closest to parameter's base value)
         const baseResult = paramResults.reduce((prev, curr) =>
-          Math.abs(curr.parameterValue - parameter.baseValue)
-          < Math.abs(prev.parameterValue - parameter.baseValue)
+          Math.abs(curr.parameterValue - parameter.baseValue) < Math.abs(prev.parameterValue - parameter.baseValue)
             ? curr
             : prev,
         )

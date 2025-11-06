@@ -119,9 +119,12 @@ describe('RiskAssessment', () => {
     await user.click(monteCarloHeading)
 
     // Wait for the Monte Carlo content to become visible
-    await waitFor(() => {
-      expect(screen.getByTestId('monte-carlo-display')).toBeInTheDocument()
-    }, { timeout: 1000 })
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('monte-carlo-display')).toBeInTheDocument()
+      },
+      { timeout: 1000 },
+    )
   })
 
   test('shows risk metrics with inline explanations', async () => {
@@ -154,7 +157,7 @@ describe('RiskAssessment', () => {
   test('uses custom config when provided', () => {
     const customConfig = {
       averageReturn: 0.08,
-      standardDeviation: 0.20,
+      standardDeviation: 0.2,
       seed: 54321,
     }
 

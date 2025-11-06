@@ -16,11 +16,7 @@ const SavingsPlanSimulation = () => {
     <Collapsible defaultOpen={false}>
       <Card nestingLevel={nestingLevel}>
         <CollapsibleTrigger asChild>
-          <Button
-            variant="ghost"
-            className="w-full justify-between p-0"
-            asChild
-          >
+          <Button variant="ghost" className="w-full justify-between p-0" asChild>
             <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
               <div className="flex items-center justify-between w-full">
                 <CardTitle>📊 Sparplan-Simulation</CardTitle>
@@ -31,9 +27,7 @@ const SavingsPlanSimulation = () => {
         </CollapsibleTrigger>
         <CollapsibleContent>
           <CardContent nestingLevel={nestingLevel}>
-            <SparplanSimulationsAusgabe
-              elemente={simulationData.sparplanElements}
-            />
+            <SparplanSimulationsAusgabe elemente={simulationData.sparplanElements} />
           </CardContent>
         </CollapsibleContent>
       </Card>

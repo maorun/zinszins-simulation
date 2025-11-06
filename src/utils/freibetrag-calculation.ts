@@ -13,10 +13,7 @@ export type PlanningMode = 'individual' | 'couple'
  * @param individualFreibetrag - Base freibetrag per person (default: 2000€)
  * @returns Total freibetrag amount for the planning scenario
  */
-export function calculateFreibetragForPlanningMode(
-  planningMode: PlanningMode,
-  individualFreibetrag = 2000,
-): number {
+export function calculateFreibetragForPlanningMode(planningMode: PlanningMode, individualFreibetrag = 2000): number {
   switch (planningMode) {
     case 'individual':
       return individualFreibetrag
@@ -72,7 +69,7 @@ export function updateFreibetragForPlanningMode(
 
   // Update years that are using the old default individual amount (2000€)
   // Leave custom amounts unchanged
-  Object.keys(updatedFreibetrag).forEach((yearStr) => {
+  Object.keys(updatedFreibetrag).forEach(yearStr => {
     const year = parseInt(yearStr)
     const currentAmount = updatedFreibetrag[year]
 

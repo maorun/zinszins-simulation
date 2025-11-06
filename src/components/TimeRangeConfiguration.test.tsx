@@ -51,10 +51,11 @@ describe('TimeRangeConfiguration', () => {
 
     // Find the plus button to increase the year
     const plusButtons = screen.getAllByRole('button')
-    const plusButton = plusButtons.find(button =>
-      button.querySelector('svg')
-      && !(button as HTMLButtonElement).disabled
-      && button.getAttribute('aria-expanded') !== 'false',
+    const plusButton = plusButtons.find(
+      button =>
+        button.querySelector('svg') &&
+        !(button as HTMLButtonElement).disabled &&
+        button.getAttribute('aria-expanded') !== 'false',
     )
 
     expect(plusButton).toBeTruthy()

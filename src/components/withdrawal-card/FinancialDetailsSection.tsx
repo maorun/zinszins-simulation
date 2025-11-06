@@ -24,15 +24,7 @@ interface FinancialDetailsSectionProps {
   }) => string
 }
 
-function DetailRow({
-  label,
-  value,
-  className,
-}: {
-  label: string
-  value: string | ReactNode
-  className?: string
-}) {
+function DetailRow({ label, value, className }: { label: string; value: string | ReactNode; className?: string }) {
   return (
     <div className="flex justify-between items-center py-1">
       <span className="text-sm text-gray-600 font-medium">{label}</span>
@@ -82,25 +74,17 @@ function MonthlyWithdrawalRow({ rowData, formValue }: DetailComponentProps) {
   if (formValue.strategie !== 'monatlich_fest' || !rowData.monatlicheEntnahme) return null
 
   return (
-    <DetailRow
-      label="📅 Monatlich:"
-      value={formatCurrency(rowData.monatlicheEntnahme)}
-      className="text-purple-600"
-    />
+    <DetailRow label="📅 Monatlich:" value={formatCurrency(rowData.monatlicheEntnahme)} className="text-purple-600" />
   )
 }
 
-function InflationAdjustmentRow({
-  rowData,
-  formValue,
-  onCalculationInfoClick,
-}: DetailComponentProps) {
+function InflationAdjustmentRow({ rowData, formValue, onCalculationInfoClick }: DetailComponentProps) {
   if (!formValue.inflationAktiv || rowData.inflationAnpassung === undefined) return null
 
   return (
     <DetailRow
       label="📈 Inflation:"
-      value={(
+      value={
         <span className="flex items-center">
           {formatCurrency(rowData.inflationAnpassung)}
           <Info
@@ -108,7 +92,7 @@ function InflationAdjustmentRow({
             onClick={() => onCalculationInfoClick('inflation', rowData)}
           />
         </span>
-      )}
+      }
       className="text-orange-600"
     />
   )
@@ -116,19 +100,15 @@ function InflationAdjustmentRow({
 
 function GuardrailsAdjustmentRow({ rowData, formValue }: DetailComponentProps) {
   if (
-    formValue.strategie !== 'monatlich_fest'
-    || !formValue.guardrailsAktiv
-    || rowData.portfolioAnpassung === undefined
+    formValue.strategie !== 'monatlich_fest' ||
+    !formValue.guardrailsAktiv ||
+    rowData.portfolioAnpassung === undefined
   ) {
     return null
   }
 
   return (
-    <DetailRow
-      label="🛡️ Guardrails:"
-      value={formatCurrency(rowData.portfolioAnpassung)}
-      className="text-teal-600"
-    />
+    <DetailRow label="🛡️ Guardrails:" value={formatCurrency(rowData.portfolioAnpassung)} className="text-teal-600" />
   )
 }
 /**

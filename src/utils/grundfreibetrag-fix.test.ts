@@ -44,7 +44,7 @@ describe('Grundfreibetrag Calculation Fix', () => {
 
       // When disabled, no income tax should be calculated
       const yearResults = Object.values(result.result)
-      yearResults.forEach((yearResult) => {
+      yearResults.forEach(yearResult => {
         expect(yearResult.einkommensteuer).toBeUndefined()
         expect(yearResult.genutzterGrundfreibetrag).toBeUndefined()
       })
@@ -72,7 +72,7 @@ describe('Grundfreibetrag Calculation Fix', () => {
 
       // When enabled, income tax should be calculated with the custom Grundfreibetrag
       const yearResults = Object.values(result.result)
-      yearResults.forEach((yearResult) => {
+      yearResults.forEach(yearResult => {
         expect(yearResult.einkommensteuer).toBeDefined()
         expect(yearResult.genutzterGrundfreibetrag).toBeDefined()
 
@@ -106,7 +106,7 @@ describe('Grundfreibetrag Calculation Fix', () => {
 
       // Should use the default value of 11604 (2024 German basic tax allowance)
       const yearResults = Object.values(result.result)
-      yearResults.forEach((yearResult) => {
+      yearResults.forEach(yearResult => {
         expect(yearResult.einkommensteuer).toBeDefined()
         expect(yearResult.genutzterGrundfreibetrag).toBeDefined()
         expect(yearResult.genutzterGrundfreibetrag!).toBeLessThanOrEqual(11604) // Updated to 2024 value

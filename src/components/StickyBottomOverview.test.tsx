@@ -18,12 +18,12 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
   }
 
   const mockEnhancedSummary = {
-    endkapital: 561391.60,
+    endkapital: 561391.6,
     startkapital: 369057.85,
     zinsen: 192333.75,
     renditeAnsparphase: 2.84,
-    endkapitalEntspharphase: 450000.00,
-    monatlicheAuszahlung: 2500.00,
+    endkapitalEntspharphase: 450000.0,
+    monatlicheAuszahlung: 2500.0,
     jahreEntspharphase: 30,
   }
 
@@ -63,11 +63,7 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
         teilfreistellungsquote: 30,
       } as any)
 
-      render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       expect(screen.queryByText('💸 Entsparphase')).not.toBeInTheDocument()
     })
@@ -75,11 +71,7 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
     it('should not render when enhancedSummary is not available', () => {
       mockGetEnhancedOverviewSummary.mockReturnValue(null as any)
 
-      render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       expect(screen.queryByText('💸 Entsparphase')).not.toBeInTheDocument()
     })
@@ -90,36 +82,31 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
         endkapitalEntspharphase: undefined,
       } as any)
 
-      render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       expect(screen.queryByText('💸 Entsparphase')).not.toBeInTheDocument()
     })
 
     it('should not render when overview element is still visible (bottom >= 0)', () => {
       // Mock getBoundingClientRect to simulate overview still visible
-      const mockGetBoundingClientRect = vi.fn(() => ({
-        top: -100,
-        bottom: 50, // Still visible
-        height: 400,
-        width: 800,
-        left: 0,
-        right: 800,
-        x: 0,
-        y: -100,
-        toJSON: () => ({}),
-      } as DOMRect))
+      const mockGetBoundingClientRect = vi.fn(
+        () =>
+          ({
+            top: -100,
+            bottom: 50, // Still visible
+            height: 400,
+            width: 800,
+            left: 0,
+            right: 800,
+            x: 0,
+            y: -100,
+            toJSON: () => ({}),
+          }) as DOMRect,
+      )
 
       mockOverviewRef.current!.getBoundingClientRect = mockGetBoundingClientRect
 
-      render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       expect(screen.queryByText('💸 Entsparphase')).not.toBeInTheDocument()
     })
@@ -128,28 +115,27 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
   describe('desktop rendering when sticky', () => {
     beforeEach(() => {
       // Mock getBoundingClientRect to simulate overview out of view
-      const mockGetBoundingClientRect = vi.fn(() => ({
-        top: -400,
-        bottom: -50, // Out of view
-        height: 400,
-        width: 800,
-        left: 0,
-        right: 800,
-        x: 0,
-        y: -400,
-        toJSON: () => ({}),
-      } as DOMRect))
+      const mockGetBoundingClientRect = vi.fn(
+        () =>
+          ({
+            top: -400,
+            bottom: -50, // Out of view
+            height: 400,
+            width: 800,
+            left: 0,
+            right: 800,
+            x: 0,
+            y: -400,
+            toJSON: () => ({}),
+          }) as DOMRect,
+      )
 
       mockOverviewRef.current!.getBoundingClientRect = mockGetBoundingClientRect
       Object.defineProperty(window, 'innerWidth', { value: 1024 }) // Desktop
     })
 
     it('should render desktop withdrawal phase layout when all conditions are met', () => {
-      render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       // Check title
       expect(screen.getByText('💸 Entsparphase (2041 - 2080)')).toBeInTheDocument()
@@ -173,11 +159,7 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
         monatlicheAuszahlung: undefined,
       } as any)
 
-      render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       // Should still render the main elements
       expect(screen.getByText('💸 Entsparphase (2041 - 2080)')).toBeInTheDocument()
@@ -192,27 +174,21 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
       mockGetEnhancedOverviewSummary.mockReturnValue({
         ...mockEnhancedSummary,
         isSegmentedWithdrawal: true,
-        withdrawalSegments: [
-          { name: 'Phase 1' },
-          { name: 'Phase 2' },
-          { name: 'Phase 3' },
-        ],
+        withdrawalSegments: [{ name: 'Phase 1' }, { name: 'Phase 2' }, { name: 'Phase 3' }],
       } as any)
 
-      render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       // Should show segment count in title
       expect(screen.getByText('💸 Entsparphase (2041 - 2080)')).toBeInTheDocument()
       // Check that the span contains the segment information (text is split by whitespace)
       const segmentSpan = screen.getByText((content, element) => {
-        return element?.tagName.toLowerCase() === 'span'
-          && element?.className.includes('text-teal-600')
-          && content.includes('3')
-          && content.includes('Phasen')
+        return (
+          element?.tagName.toLowerCase() === 'span' &&
+          element?.className.includes('text-teal-600') &&
+          content.includes('3') &&
+          content.includes('Phasen')
+        )
       })
       expect(segmentSpan).toBeInTheDocument()
     })
@@ -221,28 +197,27 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
   describe('mobile rendering when sticky', () => {
     beforeEach(() => {
       // Mock getBoundingClientRect to simulate overview out of view
-      const mockGetBoundingClientRect = vi.fn(() => ({
-        top: -400,
-        bottom: -50, // Out of view
-        height: 400,
-        width: 800,
-        left: 0,
-        right: 800,
-        x: 0,
-        y: -400,
-        toJSON: () => ({}),
-      } as DOMRect))
+      const mockGetBoundingClientRect = vi.fn(
+        () =>
+          ({
+            top: -400,
+            bottom: -50, // Out of view
+            height: 400,
+            width: 800,
+            left: 0,
+            right: 800,
+            x: 0,
+            y: -400,
+            toJSON: () => ({}),
+          }) as DOMRect,
+      )
 
       mockOverviewRef.current!.getBoundingClientRect = mockGetBoundingClientRect
       Object.defineProperty(window, 'innerWidth', { value: 600 }) // Mobile
     })
 
     it('should render mobile withdrawal phase layout with compact formatting', () => {
-      render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       // Check for mobile icons and compact currency formatting
       expect(screen.getByText('⏱️')).toBeInTheDocument()
@@ -261,17 +236,10 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
       mockGetEnhancedOverviewSummary.mockReturnValue({
         ...mockEnhancedSummary,
         isSegmentedWithdrawal: true,
-        withdrawalSegments: [
-          { name: 'Phase 1' },
-          { name: 'Phase 2' },
-        ],
+        withdrawalSegments: [{ name: 'Phase 1' }, { name: 'Phase 2' }],
       } as any)
 
-      render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       // Should show segment count with year range
       expect(screen.getByText('2041 - 2080 (2)')).toBeInTheDocument()
@@ -281,17 +249,20 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
   describe('currency formatting edge cases', () => {
     beforeEach(() => {
       // Mock getBoundingClientRect to simulate overview out of view
-      const mockGetBoundingClientRect = vi.fn(() => ({
-        top: -400,
-        bottom: -50, // Out of view
-        height: 400,
-        width: 800,
-        left: 0,
-        right: 800,
-        x: 0,
-        y: -400,
-        toJSON: () => ({}),
-      } as DOMRect))
+      const mockGetBoundingClientRect = vi.fn(
+        () =>
+          ({
+            top: -400,
+            bottom: -50, // Out of view
+            height: 400,
+            width: 800,
+            left: 0,
+            right: 800,
+            x: 0,
+            y: -400,
+            toJSON: () => ({}),
+          }) as DOMRect,
+      )
 
       mockOverviewRef.current!.getBoundingClientRect = mockGetBoundingClientRect
       Object.defineProperty(window, 'innerWidth', { value: 600 }) // Mobile for compact formatting
@@ -304,11 +275,7 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
         endkapitalEntspharphase: 2300000, // 2.3M
       } as any)
 
-      render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       expect(screen.getByText('1.5M €')).toBeInTheDocument()
       expect(screen.getByText('2.3M €')).toBeInTheDocument()
@@ -321,11 +288,7 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
         endkapitalEntspharphase: 123000, // 123k
       } as any)
 
-      render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       expect(screen.getByText('85k €')).toBeInTheDocument()
       expect(screen.getByText('123k €')).toBeInTheDocument()
@@ -338,11 +301,7 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
         endkapitalEntspharphase: 750, // Small amount
       } as any)
 
-      render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       expect(screen.getByText('500,00 €')).toBeInTheDocument()
       expect(screen.getByText('750,00 €')).toBeInTheDocument()
@@ -351,11 +310,7 @@ describe('StickyBottomOverview - Withdrawal Phase Display', () => {
 
   describe('event listener management', () => {
     it('should add and remove scroll event listener properly', () => {
-      const { unmount } = render(
-        <StickyBottomOverview
-          overviewElementRef={mockOverviewRef}
-        />,
-      )
+      const { unmount } = render(<StickyBottomOverview overviewElementRef={mockOverviewRef} />)
 
       // Should add event listeners
       expect(window.addEventListener).toHaveBeenCalledWith('scroll', expect.any(Function))

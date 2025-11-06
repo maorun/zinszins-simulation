@@ -12,15 +12,9 @@ export function useSavingsPlanState(config: SavingsPlanStateConfig) {
 
   const [startEnd, setStartEnd] = useState<[number, number]>(initialConfig.startEnd)
   const [sparplan, setSparplan] = useState<Sparplan[]>(initialConfig.sparplan)
-  const [simulationAnnual, setSimulationAnnual] = useState<SimulationAnnualType>(
-    initialConfig.simulationAnnual,
-  )
+  const [simulationAnnual, setSimulationAnnual] = useState<SimulationAnnualType>(initialConfig.simulationAnnual)
   const [sparplanElemente, setSparplanElemente] = useState<SparplanElement[]>(
-    convertSparplanToElements(
-      initialConfig.sparplan,
-      initialConfig.startEnd,
-      initialConfig.simulationAnnual,
-    ),
+    convertSparplanToElements(initialConfig.sparplan, initialConfig.startEnd, initialConfig.simulationAnnual),
   )
 
   return {

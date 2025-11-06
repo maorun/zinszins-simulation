@@ -24,9 +24,7 @@ export function EventYearSlider({
   return (
     <div className="space-y-3">
       <Label htmlFor={eventYearSliderId}>
-        Jahr des Ereignisses:
-        {' '}
-        <strong>{eventYear}</strong>
+        Jahr des Ereignisses: <strong>{eventYear}</strong>
       </Label>
       <Slider
         id={eventYearSliderId}

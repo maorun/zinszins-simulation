@@ -249,10 +249,7 @@ function hasCareEnded(config: CareCostConfiguration, year: number): boolean {
 /**
  * Calculate inflation adjustment factor
  */
-function calculateInflationFactor(
-  config: CareCostConfiguration,
-  year: number,
-): number {
+function calculateInflationFactor(config: CareCostConfiguration, year: number): number {
   const yearsFromStart = Math.max(0, year - config.startYear)
   return Math.pow(1 + config.careInflationRate / 100, yearsFromStart)
 }
@@ -260,10 +257,7 @@ function calculateInflationFactor(
 /**
  * Calculate monthly gross costs with inflation
  */
-function calculateMonthlyGrossCosts(
-  config: CareCostConfiguration,
-  inflationFactor: number,
-): number {
+function calculateMonthlyGrossCosts(config: CareCostConfiguration, inflationFactor: number): number {
   const careLevelInfo = DEFAULT_CARE_LEVELS[config.careLevel]
   const baseMonthlyCost = config.customMonthlyCosts ?? careLevelInfo.typicalMonthlyCost
   return baseMonthlyCost * inflationFactor
@@ -272,9 +266,7 @@ function calculateMonthlyGrossCosts(
 /**
  * Calculate statutory benefits
  */
-function calculateStatutoryBenefits(
-  config: CareCostConfiguration,
-): number {
+function calculateStatutoryBenefits(config: CareCostConfiguration): number {
   if (!config.includeStatutoryBenefits) {
     return 0
   }
@@ -285,10 +277,7 @@ function calculateStatutoryBenefits(
 /**
  * Calculate tax deduction
  */
-function calculateTaxDeduction(
-  config: CareCostConfiguration,
-  annualCostsNet: number,
-): number {
+function calculateTaxDeduction(config: CareCostConfiguration, annualCostsNet: number): number {
   if (!config.taxDeductible || annualCostsNet <= 0) {
     return 0
   }
@@ -412,12 +401,7 @@ function calculatePerson1CareCosts(
 
   const careLevelInfo = DEFAULT_CARE_LEVELS[config.careLevel]
   const baseMonthlyCost = config.customMonthlyCosts ?? careLevelInfo.typicalMonthlyCost
-  const monthlyCostsNet = calculateNetMonthlyCosts(
-    config,
-    baseMonthlyCost,
-    config.careLevel,
-    inflationAdjustmentFactor,
-  )
+  const monthlyCostsNet = calculateNetMonthlyCosts(config, baseMonthlyCost, config.careLevel, inflationAdjustmentFactor)
 
   return {
     personId: 1,
@@ -443,10 +427,7 @@ function createEmptyPersonCareResult(personId: 1 | 2): CareCostPersonResult {
 /**
  * Check if person 2 needs care in the given year
  */
-function isPerson2CareNeeded(
-  coupleConfig: NonNullable<CareCostConfiguration['coupleConfig']>,
-  year: number,
-): boolean {
+function isPerson2CareNeeded(coupleConfig: NonNullable<CareCostConfiguration['coupleConfig']>, year: number): boolean {
   if (!coupleConfig.person2NeedsCare || !coupleConfig.person2StartYear) {
     return false
   }
@@ -476,12 +457,7 @@ function calculatePerson2CareCosts(
   const careLevel = coupleConfig.person2CareLevel ?? config.careLevel
   const careLevelInfo = DEFAULT_CARE_LEVELS[careLevel]
   const baseMonthlyCost = coupleConfig.person2CustomMonthlyCosts ?? careLevelInfo.typicalMonthlyCost
-  const monthlyCostsNet = calculateNetMonthlyCosts(
-    config,
-    baseMonthlyCost,
-    careLevel,
-    inflationAdjustmentFactor,
-  )
+  const monthlyCostsNet = calculateNetMonthlyCosts(config, baseMonthlyCost, careLevel, inflationAdjustmentFactor)
 
   return {
     personId: 2,
@@ -503,8 +479,7 @@ function calculatePersonCareCosts(
 ): CareCostPersonResult {
   if (personId === 1) {
     return calculatePerson1CareCosts(config, year, inflationAdjustmentFactor)
-  }
-  else {
+  } else {
     return calculatePerson2CareCosts(config, year, inflationAdjustmentFactor)
   }
 }
@@ -599,10 +574,7 @@ function validateCareCostNumericFields(config: CareCostConfiguration): string[] 
 }
 
 function validateBasicCareCostFields(config: CareCostConfiguration): string[] {
-  return [
-    ...validateCareCostYearFields(config),
-    ...validateCareCostNumericFields(config),
-  ]
+  return [...validateCareCostYearFields(config), ...validateCareCostNumericFields(config)]
 }
 
 /**
@@ -612,8 +584,7 @@ function validatePerson2StartYear(person2StartYear: number | undefined): string[
   const errors: string[] = []
   if (!person2StartYear) {
     errors.push('Startjahr für Person 2 muss angegeben werden.')
-  }
-  else if (person2StartYear < new Date().getFullYear()) {
+  } else if (person2StartYear < new Date().getFullYear()) {
     errors.push('Startjahr für Person 2 kann nicht in der Vergangenheit liegen.')
   }
   return errors
@@ -662,8 +633,5 @@ export function validateCareCostConfiguration(config: CareCostConfiguration): st
     return []
   }
 
-  return [
-    ...validateBasicCareCostFields(config),
-    ...validateCoupleCareConfiguration(config),
-  ]
+  return [...validateBasicCareCostFields(config), ...validateCoupleCareConfiguration(config)]
 }

@@ -48,8 +48,9 @@ export function MultiAssetPortfolioConfiguration({
   const safeValues = getSafeMultiAssetConfig(values, onChange)
 
   // Use custom hooks for metrics and handlers - must be called unconditionally
-  const { enabledAssets, expectedPortfolioReturn, expectedPortfolioRisk }
-    = usePortfolioMetrics(safeValues || createDefaultMultiAssetConfig())
+  const { enabledAssets, expectedPortfolioReturn, expectedPortfolioRisk } = usePortfolioMetrics(
+    safeValues || createDefaultMultiAssetConfig(),
+  )
 
   const {
     handleConfigChange,

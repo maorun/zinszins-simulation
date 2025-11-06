@@ -13,15 +13,11 @@ const SavingsPlan = () => {
     <div className="space-y-4">
       <ReturnConfiguration />
 
-      <CollapsibleCard
-        navigationId="savings-plans"
-        navigationTitle="Sparpläne erstellen"
-        navigationIcon="💼"
-      >
+      <CollapsibleCard navigationId="savings-plans" navigationTitle="Sparpläne erstellen" navigationIcon="💼">
         <CollapsibleCardHeader>💼 Sparpläne erstellen</CollapsibleCardHeader>
         <CollapsibleCardContent>
           <SparplanEingabe
-            dispatch={(sparplan) => {
+            dispatch={sparplan => {
               setSparplan(sparplan)
               setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual))
             }}
@@ -32,16 +28,10 @@ const SavingsPlan = () => {
       </CollapsibleCard>
 
       {simulationData && (
-        <CollapsibleCard
-          navigationId="savings-history"
-          navigationTitle="Sparplan-Verlauf"
-          navigationIcon="📊"
-        >
+        <CollapsibleCard navigationId="savings-history" navigationTitle="Sparplan-Verlauf" navigationIcon="📊">
           <CollapsibleCardHeader>📊 Sparplan-Verlauf</CollapsibleCardHeader>
           <CollapsibleCardContent>
-            <SparplanSimulationsAusgabe
-              elemente={simulationData.sparplanElements}
-            />
+            <SparplanSimulationsAusgabe elemente={simulationData.sparplanElements} />
 
             {/* Risk Assessment with Monte Carlo Analysis moved to collapsible panel */}
             <RiskAssessment phase="savings" />

@@ -16,8 +16,7 @@ export function formatCurrency(amount: number): string {
 export function formatCompactCurrency(amount: number): string {
   if (amount >= 1000000) {
     return `${(amount / 1000000).toFixed(1)}M €`
-  }
-  else if (amount >= 1000) {
+  } else if (amount >= 1000) {
     return `${(amount / 1000).toFixed(0)}k €`
   }
   return new Intl.NumberFormat('de-DE', {

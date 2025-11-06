@@ -64,10 +64,7 @@ export function getSharedUtilitiesProps(
     format: string,
     onChange: (date: Date | null) => void,
   ) => void,
-  handleNumberChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
-    onChange: (value: string) => void,
-  ) => void,
+  handleNumberChange: (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => void,
   handleCancelEdit: () => void,
 ) {
   return {
@@ -155,10 +152,7 @@ export interface SparplanEingabeViewProps {
     format: string,
     onChange: (date: Date | null) => void,
   ) => void
-  handleNumberChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
-    onChange: (value: string) => void,
-  ) => void
+  handleNumberChange: (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => void
   isEditingSparplan: (editingSparplan: Sparplan | null) => boolean
   isEditingSinglePayment: (editingSparplan: Sparplan | null) => boolean
 }

@@ -5,11 +5,7 @@ import type { CreditTerms } from '../src/utils/sparplan-utils'
  * PMT = P * [r(1+r)^n] / [(1+r)^n - 1]
  * Where: P = principal, r = monthly interest rate, n = number of payments
  */
-export function calculateMonthlyPayment(
-  principal: number,
-  annualInterestRate: number,
-  termYears: number,
-): number {
+export function calculateMonthlyPayment(principal: number, annualInterestRate: number, termYears: number): number {
   if (annualInterestRate === 0) {
     // If no interest, just divide evenly
     return principal / (termYears * 12)
@@ -18,8 +14,9 @@ export function calculateMonthlyPayment(
   const monthlyRate = annualInterestRate / 12
   const numberOfPayments = termYears * 12
 
-  const monthlyPayment = principal * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments))
-    / (Math.pow(1 + monthlyRate, numberOfPayments) - 1)
+  const monthlyPayment =
+    (principal * (monthlyRate * Math.pow(1 + monthlyRate, numberOfPayments))) /
+    (Math.pow(1 + monthlyRate, numberOfPayments) - 1)
 
   return monthlyPayment
 }
@@ -27,11 +24,7 @@ export function calculateMonthlyPayment(
 /**
  * Calculate total interest paid over the life of a loan
  */
-export function calculateTotalInterest(
-  principal: number,
-  annualInterestRate: number,
-  termYears: number,
-): number {
+export function calculateTotalInterest(principal: number, annualInterestRate: number, termYears: number): number {
   const monthlyPayment = calculateMonthlyPayment(principal, annualInterestRate, termYears)
   const totalPayments = monthlyPayment * termYears * 12
   return totalPayments - principal
@@ -62,18 +55,15 @@ type YearlyAmortizationResult = {
  * Generate zero-interest amortization schedule
  * Used when loan has 0% interest rate
  */
-function generateZeroInterestSchedule(
-  principal: number,
-  termYears: number,
-): AmortizationEntry[] {
+function generateZeroInterestSchedule(principal: number, termYears: number): AmortizationEntry[] {
   const yearlyPayment = principal / termYears
   return Array.from({ length: termYears }, (_, index) => ({
     year: index + 1,
-    beginningBalance: principal - (yearlyPayment * index),
+    beginningBalance: principal - yearlyPayment * index,
     payment: yearlyPayment,
     principal: yearlyPayment,
     interest: 0,
-    endingBalance: principal - (yearlyPayment * (index + 1)),
+    endingBalance: principal - yearlyPayment * (index + 1),
   }))
 }
 
@@ -170,10 +160,10 @@ export function calculateRemainingBalance(
   // Calculate remaining balance using the formula:
   // B = P * [(1+r)^n - (1+r)^p] / [(1+r)^n - 1]
   // Where B = balance, P = principal, r = monthly rate, n = total payments, p = payments made
-  const remainingBalance = principal * (
-    (Math.pow(1 + monthlyRate, numberOfPayments) - Math.pow(1 + monthlyRate, paymentsMode))
-    / (Math.pow(1 + monthlyRate, numberOfPayments) - 1)
-  )
+  const remainingBalance =
+    principal *
+    ((Math.pow(1 + monthlyRate, numberOfPayments) - Math.pow(1 + monthlyRate, paymentsMode)) /
+      (Math.pow(1 + monthlyRate, numberOfPayments) - 1))
 
   return Math.max(0, remainingBalance)
 }
@@ -186,16 +176,12 @@ export function getDefaultCreditTerms(expenseType: string, amount: number): Cred
     car: { interestRate: 0.045, termYears: 5 }, // 4.5% for 5 years
     real_estate: { interestRate: 0.035, termYears: 20 }, // 3.5% for 20 years
     education: { interestRate: 0.025, termYears: 10 }, // 2.5% for 10 years
-    medical: { interestRate: 0.040, termYears: 3 }, // 4.0% for 3 years
-    other: { interestRate: 0.050, termYears: 5 }, // 5.0% for 5 years
+    medical: { interestRate: 0.04, termYears: 3 }, // 4.0% for 3 years
+    other: { interestRate: 0.05, termYears: 5 }, // 5.0% for 5 years
   }
 
   const defaultTerms = defaults[expenseType] || defaults.other
-  const monthlyPayment = calculateMonthlyPayment(
-    amount,
-    defaultTerms.interestRate!,
-    defaultTerms.termYears!,
-  )
+  const monthlyPayment = calculateMonthlyPayment(amount, defaultTerms.interestRate!, defaultTerms.termYears!)
 
   return {
     interestRate: defaultTerms.interestRate!,

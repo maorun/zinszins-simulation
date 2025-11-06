@@ -31,10 +31,7 @@ export function OtherIncomeContent({
 }: OtherIncomeContentProps) {
   return (
     <>
-      <OtherIncomeAddButton
-        onAdd={onAddSource}
-        disabled={editingSource !== null}
-      />
+      <OtherIncomeAddButton onAdd={onAddSource} disabled={editingSource !== null} />
 
       {editingSource && (
         <OtherIncomeSourceFormEditor
@@ -54,9 +51,7 @@ export function OtherIncomeContent({
         editingSource={editingSource}
       />
 
-      <OtherIncomeEmptyState
-        show={sources.length === 0 && !editingSource}
-      />
+      <OtherIncomeEmptyState show={sources.length === 0 && !editingSource} />
     </>
   )
 }

@@ -31,9 +31,7 @@ export function PersonConfigurationCard({
 }: PersonConfigurationCardProps) {
   return (
     <CollapsibleCard>
-      <CollapsibleCardHeader>
-        {personLabel}
-      </CollapsibleCardHeader>
+      <CollapsibleCardHeader>{personLabel}</CollapsibleCardHeader>
       <CollapsibleCardContent>
         <PersonConfigComponent
           config={person}

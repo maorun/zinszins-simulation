@@ -83,9 +83,7 @@ describe('useWithdrawalEffects', () => {
   it('should update withdrawal segments when startOfIndependence changes', () => {
     const mockUpdateConfig = vi.fn()
     // Create segment that starts at 2041 (which is 2040 + 1, so it's already correct)
-    const mockSegments = [
-      createDefaultWithdrawalSegment('segment1', 'Segment 1', 2041, 2050),
-    ]
+    const mockSegments = [createDefaultWithdrawalSegment('segment1', 'Segment 1', 2041, 2050)]
 
     const { rerender } = renderHook(
       ({ startYear }) =>
@@ -119,9 +117,7 @@ describe('useWithdrawalEffects', () => {
 
   it('should not update segments when segmented withdrawal is disabled', () => {
     const mockUpdateConfig = vi.fn()
-    const mockSegments = [
-      createDefaultWithdrawalSegment('segment1', 'Segment 1', 2040, 2050),
-    ]
+    const mockSegments = [createDefaultWithdrawalSegment('segment1', 'Segment 1', 2040, 2050)]
 
     const { rerender } = renderHook(
       ({ startYear }) =>
@@ -203,9 +199,7 @@ describe('useWithdrawalEffects', () => {
 
   it('should not trigger update if start year has not changed', () => {
     const mockUpdateConfig = vi.fn()
-    const mockSegments = [
-      createDefaultWithdrawalSegment('segment1', 'Segment 1', 2041, 2050),
-    ]
+    const mockSegments = [createDefaultWithdrawalSegment('segment1', 'Segment 1', 2041, 2050)]
 
     renderHook(() =>
       useWithdrawalEffects({

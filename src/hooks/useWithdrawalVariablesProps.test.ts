@@ -113,11 +113,7 @@ describe('useWithdrawalVariablesProps', () => {
     const params = {
       ...defaultParams,
       withdrawalData: {
-        withdrawalArray: [
-          { entnahme: 1000 },
-          { entnahme: 2000 },
-          { entnahme: 3000 },
-        ],
+        withdrawalArray: [{ entnahme: 1000 }, { entnahme: 2000 }, { entnahme: 3000 }],
       },
     }
 

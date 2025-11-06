@@ -64,9 +64,7 @@ describe('useWithdrawalConfigValues', () => {
   })
 
   it('should handle segmented withdrawal configuration', () => {
-    const mockSegments = [
-      createDefaultWithdrawalSegment('1', 'Test Segment', 2040, 2050),
-    ]
+    const mockSegments = [createDefaultWithdrawalSegment('1', 'Test Segment', 2040, 2050)]
     const mockConfig = createMockConfig({
       useSegmentedWithdrawal: true,
       withdrawalSegments: mockSegments,
@@ -79,9 +77,7 @@ describe('useWithdrawalConfigValues', () => {
   })
 
   it('should handle comparison mode configuration', () => {
-    const mockStrategies = [
-      { id: '1', name: 'Strategy 1', strategie: '4prozent' as const, rendite: 5 },
-    ]
+    const mockStrategies = [{ id: '1', name: 'Strategy 1', strategie: '4prozent' as const, rendite: 5 }]
     const mockConfig = createMockConfig({
       useComparisonMode: true,
       comparisonStrategies: mockStrategies,
@@ -121,10 +117,9 @@ describe('useWithdrawalConfigValues', () => {
 
   it('should update when config changes', () => {
     const mockConfig = createMockConfig({ withdrawalAverageReturn: 5 })
-    const { result, rerender } = renderHook(
-      ({ config }) => useWithdrawalConfigValues(config),
-      { initialProps: { config: mockConfig } },
-    )
+    const { result, rerender } = renderHook(({ config }) => useWithdrawalConfigValues(config), {
+      initialProps: { config: mockConfig },
+    })
 
     expect(result.current.withdrawalAverageReturn).toBe(5)
 

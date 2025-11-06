@@ -8,7 +8,7 @@ export default defineConfig({
   resolve: {
     alias: {
       '~': path.resolve(__dirname, './src'),
-      'helpers': path.resolve(__dirname, './helpers'),
+      helpers: path.resolve(__dirname, './helpers'),
     },
   },
   build: {
@@ -30,11 +30,11 @@ export default defineConfig({
             '@radix-ui/react-tooltip',
           ],
           // Chart library
-          'charts': ['recharts'],
+          charts: ['recharts'],
           // Form libraries
-          'forms': ['react-hook-form', '@hookform/resolvers', 'zod'],
+          forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
           // Icons
-          'icons': ['lucide-react'],
+          icons: ['lucide-react'],
         },
       },
     },

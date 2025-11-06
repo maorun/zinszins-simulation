@@ -44,9 +44,7 @@ function ProfileCard({
   return (
     <div
       className={`p-3 border rounded-md ${
-        isActive
-          ? 'border-blue-300 bg-blue-50'
-          : 'border-gray-200 hover:border-gray-300'
+        isActive ? 'border-blue-300 bg-blue-50' : 'border-gray-200 hover:border-gray-300'
       }`}
     >
       <div className="flex items-center justify-between">
@@ -78,11 +76,7 @@ function ProfileList({
 
   return (
     <div className="space-y-2">
-      <h4 className="text-sm font-medium text-gray-700">
-        Verfügbare Profile (
-        {profiles.length}
-        )
-      </h4>
+      <h4 className="text-sm font-medium text-gray-700">Verfügbare Profile ({profiles.length})</h4>
       <div className="space-y-2 max-h-64 overflow-y-auto">
         {profiles.map(profile => (
           <ProfileCard

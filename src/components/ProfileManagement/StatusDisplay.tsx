@@ -11,11 +11,7 @@ export function StatusDisplay({ hasStoredProfiles, profileCount }: StatusDisplay
     return (
       <Alert variant="success">
         <AlertDescription>
-          ✅
-          {' '}
-          {profileCount}
-          {' '}
-          Profile gespeichert - Einstellungen werden automatisch im aktiven Profil gespeichert
+          ✅ {profileCount} Profile gespeichert - Einstellungen werden automatisch im aktiven Profil gespeichert
         </AlertDescription>
       </Alert>
     )

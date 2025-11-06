@@ -8,24 +8,14 @@ import { convertSparplanToElements } from '../utils/sparplan-utils'
 import CalculationModeSwitch from './CalculationModeSwitch'
 
 const SimulationConfiguration = () => {
-  const {
-    simulationAnnual,
-    setSimulationAnnual,
-    setSparplanElemente,
-    sparplan,
-    startEnd,
-  } = useSimulation()
+  const { simulationAnnual, setSimulationAnnual, setSparplanElemente, sparplan, startEnd } = useSimulation()
   const nestingLevel = useNestingLevel()
 
   return (
     <Collapsible defaultOpen={false}>
       <Card nestingLevel={nestingLevel} className="mb-4">
         <CollapsibleTrigger asChild>
-          <Button
-            variant="ghost"
-            className="w-full justify-between p-0"
-            asChild
-          >
+          <Button variant="ghost" className="w-full justify-between p-0" asChild>
             <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
               <div className="flex items-center justify-between w-full">
                 <CardTitle>⚙️ Simulation-Konfiguration</CardTitle>
@@ -39,7 +29,7 @@ const SimulationConfiguration = () => {
             <div className="space-y-4">
               <CalculationModeSwitch
                 simulationAnnual={simulationAnnual}
-                onToggle={(checked) => {
+                onToggle={checked => {
                   const value: import('../utils/simulate').SimulationAnnualType = checked ? 'monthly' : 'yearly'
                   setSimulationAnnual(value)
                   setSparplanElemente(convertSparplanToElements(sparplan, startEnd, value))

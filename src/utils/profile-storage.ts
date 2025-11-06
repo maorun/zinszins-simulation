@@ -78,8 +78,7 @@ export function loadProfileStorage(): ProfileStorage | null {
     }
 
     return parsedData as ProfileStorage
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to load profile storage from localStorage:', error)
     return null
   }
@@ -92,8 +91,7 @@ export function saveProfileStorage(storage: ProfileStorage): void {
   try {
     storage.updatedAt = new Date().toISOString()
     localStorage.setItem(PROFILE_STORAGE_KEY, JSON.stringify(storage))
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to save profile storage to localStorage:', error)
   }
 }
@@ -171,11 +169,7 @@ export function setActiveProfile(profileId: string): boolean {
 /**
  * Create a new profile
  */
-export function createProfile(
-  name: string,
-  configuration: SavedConfiguration,
-  description?: string,
-): UserProfile {
+export function createProfile(name: string, configuration: SavedConfiguration, description?: string): UserProfile {
   const storage = loadProfileStorage() || initializeProfileStorage()
 
   const profileId = generateProfileId()
@@ -239,9 +233,7 @@ export function deleteProfile(profileId: string): boolean {
   // If we deleted the active profile, switch to another one
   if (storage.activeProfileId === profileId) {
     const remainingProfiles = Object.keys(storage.profiles)
-    storage.activeProfileId = remainingProfiles.includes(DEFAULT_PROFILE_ID)
-      ? DEFAULT_PROFILE_ID
-      : remainingProfiles[0]
+    storage.activeProfileId = remainingProfiles.includes(DEFAULT_PROFILE_ID) ? DEFAULT_PROFILE_ID : remainingProfiles[0]
   }
 
   saveProfileStorage(storage)
@@ -258,11 +250,7 @@ export function duplicateProfile(profileId: string, newName: string): UserProfil
   }
 
   const sourceProfile = storage.profiles[profileId]
-  return createProfile(
-    newName,
-    sourceProfile.configuration,
-    `Kopie von "${sourceProfile.name}"`,
-  )
+  return createProfile(newName, sourceProfile.configuration, `Kopie von "${sourceProfile.name}"`)
 }
 
 /**
@@ -271,8 +259,7 @@ export function duplicateProfile(profileId: string, newName: string): UserProfil
 export function clearAllProfiles(): void {
   try {
     localStorage.removeItem(PROFILE_STORAGE_KEY)
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to clear profile storage from localStorage:', error)
   }
 }

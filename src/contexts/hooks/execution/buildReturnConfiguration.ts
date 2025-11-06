@@ -1,5 +1,9 @@
 import type { ReturnMode, ReturnConfiguration } from '../../../utils/random-returns'
-import { buildReturnConfig, applyBlackSwanReturns, applyInflationScenarioModifiers } from '../../helpers/simulation-helpers'
+import {
+  buildReturnConfig,
+  applyBlackSwanReturns,
+  applyInflationScenarioModifiers,
+} from '../../helpers/simulation-helpers'
 
 export interface ReturnConfigParams {
   returnMode: ReturnMode
@@ -22,8 +26,7 @@ export function buildFinalReturnConfig(
 
   if (overwrite.rendite !== undefined) {
     returnConfig = { mode: 'fixed', fixedRate: overwrite.rendite / 100 }
-  }
-  else {
+  } else {
     returnConfig = buildReturnConfig(
       params.returnMode,
       params.rendite,

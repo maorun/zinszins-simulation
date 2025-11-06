@@ -44,12 +44,7 @@ function initializeWithdrawalSegments(params: InitializeSegmentsParams): void {
   const withdrawalStartYear = startOfIndependence + 1
   // 15 years or until end of life
   const initialSegmentEndYear = Math.min(withdrawalStartYear + 14, globalEndOfLife)
-  const defaultSegment = createDefaultWithdrawalSegment(
-    'main',
-    'Frühphase',
-    withdrawalStartYear,
-    initialSegmentEndYear,
-  )
+  const defaultSegment = createDefaultWithdrawalSegment('main', 'Frühphase', withdrawalStartYear, initialSegmentEndYear)
   updateConfig({ withdrawalSegments: [defaultSegment] })
 }
 

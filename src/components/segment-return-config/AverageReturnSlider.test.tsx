@@ -38,8 +38,6 @@ describe('AverageReturnSlider', () => {
   it('displays helper text', () => {
     render(<AverageReturnSlider {...defaultProps} />)
 
-    expect(
-      screen.getByText(/Erwartete durchschnittliche Rendite für diese Phase/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Erwartete durchschnittliche Rendite für diese Phase/)).toBeInTheDocument()
   })
 })

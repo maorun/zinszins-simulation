@@ -37,9 +37,7 @@ function TestNavigationComponent() {
       <div data-testid="item-count">{navigationItems.length}</div>
       {navigationItems.map(item => (
         <div key={item.id} data-testid={`item-${item.id}`}>
-          {item.icon}
-          {' '}
-          {item.title}
+          {item.icon} {item.title}
         </div>
       ))}
     </div>
@@ -146,12 +144,7 @@ describe('NavigationContext', () => {
           <button onClick={handleRegisterItems}>Register Items</button>
           {navigationItems.map((item, index) => (
             <div key={item.id} data-testid={`sorted-item-${index}`}>
-              Level
-              {' '}
-              {item.level}
-              :
-              {' '}
-              {item.title}
+              Level {item.level}: {item.title}
             </div>
           ))}
         </div>

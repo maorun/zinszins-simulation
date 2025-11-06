@@ -151,7 +151,6 @@ describe('HistoricalReturnContent', () => {
       />,
     )
 
-    expect(screen.getByText(/Die Vergangenheit lässt keine Rückschlüsse auf die Zukunft zu/))
-      .toBeInTheDocument()
+    expect(screen.getByText(/Die Vergangenheit lässt keine Rückschlüsse auf die Zukunft zu/)).toBeInTheDocument()
   })
 })

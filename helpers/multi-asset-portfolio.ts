@@ -9,14 +9,14 @@
 /**
  * Supported asset classes for multi-asset portfolios
  */
-export type AssetClass
-  = 'stocks_domestic' // German/European stocks (DAX, EuroStoxx)
-    | 'stocks_international' // International stocks (MSCI World ex-Europe)
-    | 'bonds_government' // German government bonds (Bunds)
-    | 'bonds_corporate' // European corporate bonds
-    | 'real_estate' // REITs (Real Estate Investment Trusts)
-    | 'commodities' // Commodities (Gold, Energy, Materials)
-    | 'cash' // Cash and cash equivalents
+export type AssetClass =
+  | 'stocks_domestic' // German/European stocks (DAX, EuroStoxx)
+  | 'stocks_international' // International stocks (MSCI World ex-Europe)
+  | 'bonds_government' // German government bonds (Bunds)
+  | 'bonds_corporate' // European corporate bonds
+  | 'real_estate' // REITs (Real Estate Investment Trusts)
+  | 'commodities' // Commodities (Gold, Energy, Materials)
+  | 'cash' // Cash and cash equivalents
 
 /**
  * Asset class configuration with historical parameters
@@ -45,8 +45,8 @@ export const DEFAULT_ASSET_CLASSES: Record<AssetClass, AssetClassConfig> = {
   stocks_domestic: {
     name: 'Deutsche/Europäische Aktien',
     expectedReturn: 0.08, // 8% historical average
-    volatility: 0.20, // 20% volatility
-    targetAllocation: 0.40, // 40% allocation
+    volatility: 0.2, // 20% volatility
+    targetAllocation: 0.4, // 40% allocation
     enabled: true,
     description: 'DAX, EuroStoxx 50, deutsche und europäische Einzelaktien',
     taxCategory: 'equity',
@@ -55,7 +55,7 @@ export const DEFAULT_ASSET_CLASSES: Record<AssetClass, AssetClassConfig> = {
     name: 'Internationale Aktien',
     expectedReturn: 0.075, // 7.5% historical average
     volatility: 0.18, // 18% volatility
-    targetAllocation: 0.20, // 20% allocation
+    targetAllocation: 0.2, // 20% allocation
     enabled: true,
     description: 'MSCI World ex-Europe, US-Aktien, Emerging Markets',
     taxCategory: 'equity',
@@ -64,7 +64,7 @@ export const DEFAULT_ASSET_CLASSES: Record<AssetClass, AssetClassConfig> = {
     name: 'Staatsanleihen',
     expectedReturn: 0.03, // 3% historical average
     volatility: 0.05, // 5% volatility
-    targetAllocation: 0.20, // 20% allocation
+    targetAllocation: 0.2, // 20% allocation
     enabled: true,
     description: 'Deutsche Bundesanleihen, europäische Staatsanleihen',
     taxCategory: 'bond',
@@ -73,7 +73,7 @@ export const DEFAULT_ASSET_CLASSES: Record<AssetClass, AssetClassConfig> = {
     name: 'Unternehmensanleihen',
     expectedReturn: 0.04, // 4% historical average
     volatility: 0.08, // 8% volatility
-    targetAllocation: 0.10, // 10% allocation
+    targetAllocation: 0.1, // 10% allocation
     enabled: true,
     description: 'Europäische Unternehmensanleihen (Investment Grade)',
     taxCategory: 'bond',
@@ -82,7 +82,7 @@ export const DEFAULT_ASSET_CLASSES: Record<AssetClass, AssetClassConfig> = {
     name: 'Immobilien (REITs)',
     expectedReturn: 0.06, // 6% historical average
     volatility: 0.15, // 15% volatility
-    targetAllocation: 0.10, // 10% allocation
+    targetAllocation: 0.1, // 10% allocation
     enabled: false, // Disabled by default
     description: 'Real Estate Investment Trusts, Immobilienfonds',
     taxCategory: 'reit',
@@ -91,7 +91,7 @@ export const DEFAULT_ASSET_CLASSES: Record<AssetClass, AssetClassConfig> = {
     name: 'Rohstoffe',
     expectedReturn: 0.04, // 4% historical average
     volatility: 0.25, // 25% volatility (high volatility)
-    targetAllocation: 0.00, // 0% allocation (disabled by default)
+    targetAllocation: 0.0, // 0% allocation (disabled by default)
     enabled: false, // Disabled by default
     description: 'Gold, Öl, Agrarrohstoffe, Industriemetalle',
     taxCategory: 'commodity',
@@ -99,8 +99,8 @@ export const DEFAULT_ASSET_CLASSES: Record<AssetClass, AssetClassConfig> = {
   cash: {
     name: 'Liquidität',
     expectedReturn: 0.01, // 1% (risk-free rate)
-    volatility: 0.00, // 0% volatility
-    targetAllocation: 0.00, // 0% allocation (automatically calculated)
+    volatility: 0.0, // 0% volatility
+    targetAllocation: 0.0, // 0% allocation (automatically calculated)
     enabled: false, // Managed automatically
     description: 'Tagesgeld, Geldmarktfonds, kurzfristige Staatsanleihen',
     taxCategory: 'cash',
@@ -113,67 +113,67 @@ export const DEFAULT_ASSET_CLASSES: Record<AssetClass, AssetClassConfig> = {
  */
 export const ASSET_CORRELATION_MATRIX: Record<AssetClass, Record<AssetClass, number>> = {
   stocks_domestic: {
-    stocks_domestic: 1.00,
+    stocks_domestic: 1.0,
     stocks_international: 0.85, // High correlation with international stocks
     bonds_government: -0.15, // Slightly negative correlation with bonds
     bonds_corporate: 0.25, // Low positive correlation with corporate bonds
-    real_estate: 0.70, // High correlation with REITs
+    real_estate: 0.7, // High correlation with REITs
     commodities: 0.35, // Moderate correlation with commodities
-    cash: 0.00, // No correlation with cash
+    cash: 0.0, // No correlation with cash
   },
   stocks_international: {
     stocks_domestic: 0.85,
-    stocks_international: 1.00,
-    bonds_government: -0.10,
-    bonds_corporate: 0.30,
+    stocks_international: 1.0,
+    bonds_government: -0.1,
+    bonds_corporate: 0.3,
     real_estate: 0.65,
-    commodities: 0.40,
-    cash: 0.00,
+    commodities: 0.4,
+    cash: 0.0,
   },
   bonds_government: {
     stocks_domestic: -0.15,
-    stocks_international: -0.10,
-    bonds_government: 1.00,
-    bonds_corporate: 0.80, // High correlation with corporate bonds
+    stocks_international: -0.1,
+    bonds_government: 1.0,
+    bonds_corporate: 0.8, // High correlation with corporate bonds
     real_estate: 0.05,
     commodities: -0.05,
-    cash: 0.20,
+    cash: 0.2,
   },
   bonds_corporate: {
     stocks_domestic: 0.25,
-    stocks_international: 0.30,
-    bonds_government: 0.80,
-    bonds_corporate: 1.00,
+    stocks_international: 0.3,
+    bonds_government: 0.8,
+    bonds_corporate: 1.0,
     real_estate: 0.15,
-    commodities: 0.10,
+    commodities: 0.1,
     cash: 0.15,
   },
   real_estate: {
-    stocks_domestic: 0.70,
+    stocks_domestic: 0.7,
     stocks_international: 0.65,
     bonds_government: 0.05,
     bonds_corporate: 0.15,
-    real_estate: 1.00,
-    commodities: 0.30,
-    cash: 0.00,
+    real_estate: 1.0,
+    commodities: 0.3,
+    cash: 0.0,
   },
   commodities: {
     stocks_domestic: 0.35,
-    stocks_international: 0.40,
+    stocks_international: 0.4,
     bonds_government: -0.05,
-    bonds_corporate: 0.10,
-    real_estate: 0.30,
-    commodities: 1.00,
-    cash: 0.00,
+    bonds_corporate: 0.1,
+    real_estate: 0.3,
+    commodities: 1.0,
+    cash: 0.0,
   },
   cash: {
-    stocks_domestic: 0.00,
-    stocks_international: 0.00,
-    bonds_government: 0.20,
+    stocks_domestic: 0.0,
+    stocks_international: 0.0,
+    bonds_government: 0.2,
     bonds_corporate: 0.15,
-    real_estate: 0.00,
-    commodities: 0.00,
-    cash: 1.00,
+    real_estate: 0.0,
+    commodities: 0.0,
+    cash: 1.0,
   },
 }
 
@@ -232,12 +232,15 @@ export interface PortfolioHoldings {
   /** Total portfolio value */
   totalValue: number
   /** Holdings by asset class */
-  holdings: Record<AssetClass, {
-    value: number
-    allocation: number // Current allocation percentage (0-1)
-    targetAllocation: number // Target allocation percentage (0-1)
-    drift: number // Drift from target allocation
-  }>
+  holdings: Record<
+    AssetClass,
+    {
+      value: number
+      allocation: number // Current allocation percentage (0-1)
+      targetAllocation: number // Target allocation percentage (0-1)
+      drift: number // Drift from target allocation
+    }
+  >
   /** Whether rebalancing is needed */
   needsRebalancing: boolean
   /** Rebalancing cost (if any) */
@@ -308,11 +311,8 @@ function validateAssetClass(assetConfig: AssetClassConfig): string[] {
 /**
  * Validate total allocation sums to 100%
  */
-function validateTotalAllocation(
-  enabledAssets: Array<[string, AssetClassConfig]>,
-): string[] {
-  const totalAllocation = enabledAssets
-    .reduce((sum, [_, assetConfig]) => sum + assetConfig.targetAllocation, 0)
+function validateTotalAllocation(enabledAssets: Array<[string, AssetClassConfig]>): string[] {
+  const totalAllocation = enabledAssets.reduce((sum, [_, assetConfig]) => sum + assetConfig.targetAllocation, 0)
 
   if (Math.abs(totalAllocation - 1.0) > 0.001) {
     return [`Die Gesamtallokation muss 100% betragen (aktuell: ${(totalAllocation * 100).toFixed(1)}%)`]
@@ -332,8 +332,7 @@ export function validateMultiAssetConfig(config: MultiAssetPortfolioConfig): str
   }
 
   // Check that enabled asset classes have allocations that sum to 1
-  const enabledAssets = Object.entries(config.assetClasses)
-    .filter(([_, assetConfig]) => assetConfig.enabled)
+  const enabledAssets = Object.entries(config.assetClasses).filter(([_, assetConfig]) => assetConfig.enabled)
 
   if (enabledAssets.length === 0) {
     errors.push('Mindestens eine Anlageklasse muss aktiviert sein')
@@ -368,10 +367,15 @@ export function getAssetClassLabel(assetClass: AssetClass): string {
  */
 export function getRebalancingFrequencyLabel(frequency: 'never' | 'monthly' | 'quarterly' | 'annually'): string {
   switch (frequency) {
-    case 'never': return 'Nie'
-    case 'monthly': return 'Monatlich'
-    case 'quarterly': return 'Quartalsweise'
-    case 'annually': return 'Jährlich'
-    default: return frequency
+    case 'never':
+      return 'Nie'
+    case 'monthly':
+      return 'Monatlich'
+    case 'quarterly':
+      return 'Quartalsweise'
+    case 'annually':
+      return 'Jährlich'
+    default:
+      return frequency
   }
 }

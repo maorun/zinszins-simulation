@@ -88,9 +88,7 @@ describe('InteractiveChart', () => {
   })
 
   it('applies custom className when provided', () => {
-    const { container } = render(
-      <InteractiveChart simulationData={mockSimulationData} className="test-class" />,
-    )
+    const { container } = render(<InteractiveChart simulationData={mockSimulationData} className="test-class" />)
 
     expect(container.firstChild).toHaveClass('test-class')
   })

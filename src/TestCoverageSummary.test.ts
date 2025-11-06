@@ -143,11 +143,7 @@ describe('Comprehensive Test Coverage Summary', () => {
       ],
       'Context Integration': ['src/contexts/SimulationContext.integration.test.tsx'],
       'Scenario Testing': ['src/RealisticScenarios.integration.test.tsx'],
-      'Unit Tests': [
-        'Various component unit tests',
-        'Utility function tests',
-        'Helper function tests',
-      ],
+      'Unit Tests': ['Various component unit tests', 'Utility function tests', 'Helper function tests'],
     }
 
     // Verify organized test structure

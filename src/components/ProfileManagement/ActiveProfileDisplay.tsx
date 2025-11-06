@@ -16,14 +16,8 @@ export function ActiveProfileDisplay({ profile, formatDate }: ActiveProfileDispl
       </div>
       <div className="text-sm">
         <div className="font-medium">{profile.name}</div>
-        {profile.description && (
-          <div className="text-gray-600 mt-1">{profile.description}</div>
-        )}
-        <div className="text-gray-500 mt-1">
-          Zuletzt aktualisiert:
-          {' '}
-          {formatDate(profile.updatedAt)}
-        </div>
+        {profile.description && <div className="text-gray-600 mt-1">{profile.description}</div>}
+        <div className="text-gray-500 mt-1">Zuletzt aktualisiert: {formatDate(profile.updatedAt)}</div>
       </div>
     </div>
   )

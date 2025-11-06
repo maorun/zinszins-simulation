@@ -5,12 +5,7 @@ import userEvent from '@testing-library/user-event'
 
 describe('InsuranceTypeSelection', () => {
   test('renders statutory insurance selection', () => {
-    render(
-      <InsuranceTypeSelection
-        insuranceType="statutory"
-        onInsuranceTypeChange={() => {}}
-      />,
-    )
+    render(<InsuranceTypeSelection insuranceType="statutory" onInsuranceTypeChange={() => {}} />)
 
     expect(screen.getByText('Versicherungsart')).toBeInTheDocument()
     expect(screen.getByText('Gesetzliche Krankenversicherung')).toBeInTheDocument()
@@ -24,12 +19,7 @@ describe('InsuranceTypeSelection', () => {
       selectedType = type
     }
 
-    render(
-      <InsuranceTypeSelection
-        insuranceType={selectedType}
-        onInsuranceTypeChange={handleChange}
-      />,
-    )
+    render(<InsuranceTypeSelection insuranceType={selectedType} onInsuranceTypeChange={handleChange} />)
 
     // Change to private insurance
     const privateOption = screen.getByLabelText(/Private Krankenversicherung/i)

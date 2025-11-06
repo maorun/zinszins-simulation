@@ -46,7 +46,9 @@ describe('calculationHelpers', () => {
 
       expect(explanation.title).toBe('🎯 Endkapital-Berechnung Schritt für Schritt')
       expect(explanation.introduction).toContain('Die Endkapital-Berechnung für das Jahr 2023')
-      expect(explanation.introduction).toContain('wie sich Ihr Portfolio durch Einzahlungen, Zinserträge und Steuern entwickelt')
+      expect(explanation.introduction).toContain(
+        'wie sich Ihr Portfolio durch Einzahlungen, Zinserträge und Steuern entwickelt',
+      )
       expect(explanation.steps).toHaveLength(4)
       expect(explanation.steps[0].title).toBe('Schritt 1: Startkapital zu Jahresbeginn')
       expect(explanation.steps[1].title).toBe('Schritt 2: Neue Einzahlungen addieren')

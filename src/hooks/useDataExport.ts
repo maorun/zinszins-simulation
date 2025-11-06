@@ -47,10 +47,7 @@ function generateWithdrawalFromConfig(
 /**
  * Helper to check if we can generate withdrawal data from config
  */
-function canGenerateWithdrawalData(
-  savingsData: SavingsData | undefined,
-  context: SimulationContextState,
-): boolean {
+function canGenerateWithdrawalData(savingsData: SavingsData | undefined, context: SimulationContextState): boolean {
   return !!(savingsData?.sparplanElements && context.withdrawalConfig?.formValue)
 }
 
@@ -160,7 +157,8 @@ function checkDataAvailability(context: SimulationContextState) {
  */
 function getSavingsPhaseFilename(context: SimulationContextState): string {
   const currentYear = new Date().getFullYear()
-  const savingsStartYear = Math.min(currentYear,
+  const savingsStartYear = Math.min(
+    currentYear,
     ...context.sparplanElemente.map(plan => new Date(plan.start).getFullYear()),
   )
   const savingsEndYear = context.startEnd[0] // End of savings phase = start of withdrawal
@@ -171,10 +169,7 @@ function getSavingsPhaseFilename(context: SimulationContextState): string {
 /**
  * Export savings data to CSV
  */
-async function performSavingsCSVExport(
-  context: SimulationContextState,
-  updateState: StateUpdater,
-): Promise<boolean> {
+async function performSavingsCSVExport(context: SimulationContextState, updateState: StateUpdater): Promise<boolean> {
   setExportingStateHelper(updateState, 'csv')
 
   try {
@@ -194,8 +189,7 @@ async function performSavingsCSVExport(
     downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8')
     setResultStateHelper(updateState, true, 'csv')
     return true
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to export savings data as CSV:', error)
     setResultStateHelper(updateState, false, 'csv')
     return false
@@ -287,8 +281,7 @@ async function performWithdrawalCSVExport(
     downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8')
     setResultStateHelper(updateState, true, 'csv')
     return true
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to export withdrawal data as CSV:', error)
     setResultStateHelper(updateState, false, 'csv')
     return false
@@ -298,10 +291,7 @@ async function performWithdrawalCSVExport(
 /**
  * Export all data (savings + withdrawal) to CSV
  */
-async function performAllDataCSVExport(
-  context: SimulationContextState,
-  updateState: StateUpdater,
-): Promise<boolean> {
+async function performAllDataCSVExport(context: SimulationContextState, updateState: StateUpdater): Promise<boolean> {
   setExportingStateHelper(updateState, 'csv')
 
   try {
@@ -317,8 +307,7 @@ async function performAllDataCSVExport(
     downloadTextAsFile(csvContent, filename, 'text/csv;charset=utf-8')
     setResultStateHelper(updateState, true, 'csv')
     return true
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to export all data as CSV:', error)
     setResultStateHelper(updateState, false, 'csv')
     return false
@@ -328,10 +317,7 @@ async function performAllDataCSVExport(
 /**
  * Export data to Markdown format
  */
-async function performMarkdownExport(
-  context: SimulationContextState,
-  updateState: StateUpdater,
-): Promise<boolean> {
+async function performMarkdownExport(context: SimulationContextState, updateState: StateUpdater): Promise<boolean> {
   setExportingStateHelper(updateState, 'markdown')
 
   try {
@@ -350,8 +336,7 @@ async function performMarkdownExport(
     downloadTextAsFile(markdownContent, filename, 'text/markdown;charset=utf-8')
     setResultStateHelper(updateState, true, 'markdown')
     return true
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to export data as Markdown:', error)
     setResultStateHelper(updateState, false, 'markdown')
     return false
@@ -361,10 +346,7 @@ async function performMarkdownExport(
 /**
  * Copy calculation explanations to clipboard
  */
-async function performClipboardCopy(
-  context: SimulationContextState,
-  updateState: StateUpdater,
-): Promise<boolean> {
+async function performClipboardCopy(context: SimulationContextState, updateState: StateUpdater): Promise<boolean> {
   setExportingStateHelper(updateState, 'clipboard')
 
   try {
@@ -372,8 +354,7 @@ async function performClipboardCopy(
     const success = await copyTextToClipboard(explanations)
     setResultStateHelper(updateState, success, 'clipboard')
     return success
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to copy calculation explanations:', error)
     setResultStateHelper(updateState, false, 'clipboard')
     return false
@@ -384,8 +365,11 @@ async function performClipboardCopy(
  * Helper function to prepare data for markdown export
  */
 function prepareMarkdownExportData(context: SimulationContextState) {
-  const { hasSavingsData, hasWithdrawalData: initialWithdrawalData, hasWithdrawalConfig }
-    = checkDataAvailability(context)
+  const {
+    hasSavingsData,
+    hasWithdrawalData: initialWithdrawalData,
+    hasWithdrawalConfig,
+  } = checkDataAvailability(context)
 
   let withdrawalData = context.withdrawalResults
   let hasWithdrawalData = initialWithdrawalData
@@ -419,10 +403,7 @@ type StateUpdater = (state: Partial<DataExportState>) => void
 /**
  * Helper to set exporting state
  */
-function setExportingStateHelper(
-  setState: StateUpdater,
-  exportType: 'csv' | 'markdown' | 'clipboard',
-) {
+function setExportingStateHelper(setState: StateUpdater, exportType: 'csv' | 'markdown' | 'clipboard') {
   setState({
     isExporting: true,
     lastExportResult: null,
@@ -433,11 +414,7 @@ function setExportingStateHelper(
 /**
  * Helper to set result state and schedule clearing
  */
-function setResultStateHelper(
-  setState: StateUpdater,
-  success: boolean,
-  exportType: 'csv' | 'markdown' | 'clipboard',
-) {
+function setResultStateHelper(setState: StateUpdater, success: boolean, exportType: 'csv' | 'markdown' | 'clipboard') {
   setState({
     isExporting: false,
     lastExportResult: success ? 'success' : 'error',

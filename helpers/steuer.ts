@@ -6,8 +6,12 @@ export const GERMAN_TAX_CONSTANTS = {
   GRUNDFREIBETRAG_2024: 11604, // €11,604 per person in 2024
 
   // Calculated values for different planning modes
-  get GRUNDFREIBETRAG_INDIVIDUAL() { return this.GRUNDFREIBETRAG_2024 },
-  get GRUNDFREIBETRAG_COUPLE() { return this.GRUNDFREIBETRAG_2024 * 2 }, // €23,208 for couples
+  get GRUNDFREIBETRAG_INDIVIDUAL() {
+    return this.GRUNDFREIBETRAG_2024
+  },
+  get GRUNDFREIBETRAG_COUPLE() {
+    return this.GRUNDFREIBETRAG_2024 * 2
+  }, // €23,208 for couples
 } as const
 
 /**
@@ -28,8 +32,9 @@ export function getGrundfreibetragForPlanningMode(planningMode: 'individual' | '
  * @returns true if the amount matches a standard Grundfreibetrag value
  */
 export function isStandardGrundfreibetragValue(amount: number): boolean {
-  return amount === GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_INDIVIDUAL
-    || amount === GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_COUPLE
+  return (
+    amount === GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_INDIVIDUAL || amount === GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_COUPLE
+  )
 }
 
 // Historical and projected German Basiszins (base interest rate) values for Vorabpauschale calculation
@@ -40,9 +45,9 @@ const basiszinsen: {
 } = {
   2018: 0.0087, // 0.87%
   2019: 0.0087, // 0.87%
-  2020: 0.0070, // 0.70%
-  2021: 0.0070, // 0.70%
-  2022: 0.0180, // 1.80%
+  2020: 0.007, // 0.70%
+  2021: 0.007, // 0.70%
+  2022: 0.018, // 1.80%
   2023: 0.0255, // 2.55%
   2024: 0.0255, // 2.55% (estimated - to be updated when official)
   2025: 0.0255, // 2.55% (projected - to be updated when official)
@@ -69,7 +74,9 @@ export function getBasiszinsForYear(year: number, basiszinsConfig?: BasiszinsCon
 
   // If using configurable basiszins, find the most recent rate
   if (basiszinsConfig) {
-    const availableYears = Object.keys(basiszinsConfig).map(Number).sort((a, b) => b - a)
+    const availableYears = Object.keys(basiszinsConfig)
+      .map(Number)
+      .sort((a, b) => b - a)
     if (availableYears.length > 0) {
       const latestYear = availableYears[0]
       return basiszinsConfig[latestYear].rate
@@ -77,7 +84,9 @@ export function getBasiszinsForYear(year: number, basiszinsConfig?: BasiszinsCon
   }
 
   // Final fallback to the latest available year from hardcoded data
-  const availableYears = Object.keys(basiszinsen).map(Number).sort((a, b) => b - a)
+  const availableYears = Object.keys(basiszinsen)
+    .map(Number)
+    .sort((a, b) => b - a)
   const latestYear = availableYears[0]
 
   return basiszinsen[latestYear] || 0.0255 // Ultimate fallback to 2023 rate
@@ -151,11 +160,7 @@ export function calculateVorabpauschaleDetailed(
   const vorabpauschaleAmount = Math.max(0, Math.min(basisertrag, jahresgewinn))
 
   // Step 3: Calculate tax on Vorabpauschale before allowance deduction
-  const steuerVorFreibetrag = calculateSteuerOnVorabpauschale(
-    vorabpauschaleAmount,
-    steuerlast,
-    teilFreistellungsquote,
-  )
+  const steuerVorFreibetrag = calculateSteuerOnVorabpauschale(vorabpauschaleAmount, steuerlast, teilFreistellungsquote)
 
   return {
     basiszins,
@@ -196,7 +201,7 @@ function calculatePersonalIncomeTax(
   availableGrundfreibetrag: number,
   kirchensteuerAktiv: boolean,
   kirchensteuersatz: number,
-): { personalTaxAmount: number, usedGrundfreibetrag: number } {
+): { personalTaxAmount: number; usedGrundfreibetrag: number } {
   const taxableIncome = Math.max(0, vorabpauschale * (1 - teilfreistellungsquote) - availableGrundfreibetrag)
   const basePersonalTax = taxableIncome * personalTaxRate
   const kirchensteuer = kirchensteuerAktiv ? basePersonalTax * (kirchensteuersatz / 100) : 0
@@ -228,14 +233,16 @@ function determineFavorableTaxOption(
   if (personalTaxAmount < abgeltungssteuerAmount) {
     // Avoid division by zero
     const usedTaxRate = personalTaxAmount / Math.max(vorabpauschale * (1 - teilfreistellungsquote), 0.01)
-    const explanation = `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText}) ist günstiger als `
-      + `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
+    const explanation =
+      `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText}) ist günstiger als ` +
+      `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
     return { isFavorable: 'personal', usedTaxRate, explanation }
   }
 
   if (personalTaxAmount > abgeltungssteuerAmount) {
-    const explanation = `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als `
-      + `persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText})`
+    const explanation =
+      `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als ` +
+      `persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText})`
     return { isFavorable: 'abgeltungssteuer', usedTaxRate: abgeltungssteuer, explanation }
   }
 

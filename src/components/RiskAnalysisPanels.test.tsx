@@ -4,19 +4,12 @@ import { RiskAnalysisPanels } from './RiskAnalysisPanels'
 
 // Mock the sub-components
 vi.mock('./MonteCarloAnalysisDisplay', () => ({
-  default: ({ phaseTitle }: any) => (
-    <div data-testid="monte-carlo-display">
-      Monte Carlo Analysis -
-      {' '}
-      {phaseTitle}
-    </div>
-  ),
+  default: ({ phaseTitle }: any) => <div data-testid="monte-carlo-display">Monte Carlo Analysis - {phaseTitle}</div>,
 }))
 
 vi.mock('./DrawdownAnalysis', () => ({
-  DrawdownAnalysis: ({ hasRiskData }: any) => (
-    hasRiskData ? <div data-testid="drawdown-analysis">Drawdown Analysis</div> : null
-  ),
+  DrawdownAnalysis: ({ hasRiskData }: any) =>
+    hasRiskData ? <div data-testid="drawdown-analysis">Drawdown Analysis</div> : null,
 }))
 
 const mockRiskConfig = {
@@ -28,7 +21,7 @@ const mockRiskConfig = {
 const mockRiskMetrics = {
   valueAtRisk5: 0.15,
   valueAtRisk1: 0.25,
-  maxDrawdown: 0.20,
+  maxDrawdown: 0.2,
   sharpeRatio: 1.5,
   volatility: 0.12,
   sortinoRatio: 2.0,

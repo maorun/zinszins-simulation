@@ -10,7 +10,8 @@ function createTestElement(endkapital: number): SparplanElement {
     start: '2023-01-01',
     einzahlung: 1000,
     simulation: {
-      2040: { // Last year before withdrawal
+      2040: {
+        // Last year before withdrawal
         startkapital: endkapital,
         endkapital,
         zinsen: 0,
@@ -242,16 +243,18 @@ describe('withdrawal-statutory-pension integration', () => {
     // Total tax should be HIGHER with pension due to additional income tax on pension income
     // Without pension: only portfolio withdrawal income tax
     // With pension: portfolio withdrawal + pension income tax (calculated centrally)
-    expect(resultWithPension.result[2041].bezahlteSteuer)
-      .toBeGreaterThan(resultWithoutPension.result[2041].bezahlteSteuer)
+    expect(resultWithPension.result[2041].bezahlteSteuer).toBeGreaterThan(
+      resultWithoutPension.result[2041].bezahlteSteuer,
+    )
 
     // Only difference should be the statutory pension data and higher income tax
     expect(resultWithPension.result[2041].statutoryPension).toBeDefined()
     expect(resultWithoutPension.result[2041].statutoryPension).toBeUndefined()
 
     // Check that the income tax includes pension taxation
-    expect(resultWithPension.result[2041].einkommensteuer)
-      .toBeGreaterThan(resultWithoutPension.result[2041].einkommensteuer || 0)
+    expect(resultWithPension.result[2041].einkommensteuer).toBeGreaterThan(
+      resultWithoutPension.result[2041].einkommensteuer || 0,
+    )
   })
 
   it('should work with different withdrawal strategies', () => {
@@ -282,7 +285,8 @@ describe('withdrawal-statutory-pension integration', () => {
     expect(resultVariable.result[2041].statutoryPension).toBeDefined()
 
     // Pension amounts should be identical regardless of withdrawal strategy
-    expect(result3Percent.result[2041].statutoryPension!.grossAnnualAmount)
-      .toBe(resultVariable.result[2041].statutoryPension!.grossAnnualAmount)
+    expect(result3Percent.result[2041].statutoryPension!.grossAnnualAmount).toBe(
+      resultVariable.result[2041].statutoryPension!.grossAnnualAmount,
+    )
   })
 })

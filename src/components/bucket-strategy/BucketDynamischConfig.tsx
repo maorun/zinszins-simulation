@@ -47,18 +47,9 @@ function LabeledSlider({
           className="mt-2"
         />
         <div className="flex justify-between text-sm text-gray-500">
-          <span>
-            {min}
-            %
-          </span>
-          <span className="font-medium text-gray-900">
-            {value}
-            %
-          </span>
-          <span>
-            {max}
-            %
-          </span>
+          <span>{min}%</span>
+          <span className="font-medium text-gray-900">{value}%</span>
+          <span>{max}%</span>
         </div>
       </div>
       {helpText && <div className="text-sm text-muted-foreground mt-1">{helpText}</div>}
@@ -66,7 +57,7 @@ function LabeledSlider({
   )
 }
 
-function BasisrateSlider({ value, onChange }: { value: number, onChange: (v: number) => void }) {
+function BasisrateSlider({ value, onChange }: { value: number; onChange: (v: number) => void }) {
   return (
     <LabeledSlider
       label="Basis-Entnahmerate (%)"

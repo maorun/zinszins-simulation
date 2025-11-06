@@ -201,13 +201,7 @@ describe('Health Care Insurance Calculations', () => {
         2042: 50000,
       }
 
-      const result = calculateHealthCareInsurance(
-        config,
-        2040,
-        2042,
-        withdrawalAmounts,
-        {},
-      )
+      const result = calculateHealthCareInsurance(config, 2040, 2042, withdrawalAmounts, {})
 
       expect(result[2040].baseIncomeForCalculation).toBe(40000)
       expect(result[2041].baseIncomeForCalculation).toBe(13230) // Minimum income base applied when no withdrawal
@@ -592,18 +586,14 @@ describe('Health Care Insurance Calculations', () => {
         )
 
         expect(result.strategyComparison.family.totalAnnual).toBeGreaterThan(0)
-        expect(result.strategyComparison.family.totalMonthly).toBe(
-          result.strategyComparison.family.totalAnnual / 12,
-        )
+        expect(result.strategyComparison.family.totalMonthly).toBe(result.strategyComparison.family.totalAnnual / 12)
 
         expect(result.strategyComparison.optimized.totalAnnual).toBe(result.totalAnnual)
         expect(result.strategyComparison.optimized.totalMonthly).toBe(result.totalMonthly)
         expect(result.strategyComparison.optimized.recommendedStrategy).toBe(result.strategyUsed)
 
         // Savings should be calculated correctly
-        const expectedSavings = Math.max(0,
-          result.strategyComparison.individual.totalAnnual - result.totalAnnual,
-        )
+        const expectedSavings = Math.max(0, result.strategyComparison.individual.totalAnnual - result.totalAnnual)
         expect(result.strategyComparison.optimized.savings).toBe(expectedSavings)
       })
     })
@@ -677,9 +667,7 @@ describe('Health Care Insurance Calculations', () => {
         expect(result[2041].person1.coveredByFamilyInsurance).toBe(true) // Alice is covered by family insurance
         expect(result[2041].person2.coveredByFamilyInsurance).toBe(false) // Bob pays insurance
         expect(result[2041].totalAnnual).toBeGreaterThan(0)
-        expect(result[2041].totalAnnual).toBeLessThan(
-          result[2041].strategyComparison.individual.totalAnnual,
-        ) // Should be cheaper than individual
+        expect(result[2041].totalAnnual).toBeLessThan(result[2041].strategyComparison.individual.totalAnnual) // Should be cheaper than individual
 
         // Verify family insurance eligibility
         expect(result[2041].familyInsuranceDetails.person1QualifiesForFamily).toBe(true) // 333/month < 505

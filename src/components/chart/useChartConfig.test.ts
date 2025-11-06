@@ -45,7 +45,7 @@ describe('useChartConfig', () => {
 
   it('should memoize config based on chartView and dataLength', () => {
     const { result, rerender } = renderHook(
-      ({ view, length }: { view: 'overview' | 'detailed', length: number }) => useChartConfig(view, length),
+      ({ view, length }: { view: 'overview' | 'detailed'; length: number }) => useChartConfig(view, length),
       { initialProps: { view: 'overview' as 'overview' | 'detailed', length: 10 } },
     )
 

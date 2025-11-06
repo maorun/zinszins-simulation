@@ -17,14 +17,12 @@ export function InitialCashCushionConfig({
 }: InitialCashCushionConfigProps) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={inputId}>
-        Initiales Cash-Polster (€)
-      </Label>
+      <Label htmlFor={inputId}>Initiales Cash-Polster (€)</Label>
       <Input
         id={inputId}
         type="number"
         value={value}
-        onChange={(e) => {
+        onChange={e => {
           const inputValue = e.target.value
           const newValue = inputValue === '' ? 0 : Number(inputValue) || 20000
           onChange(newValue)
@@ -55,14 +53,12 @@ export function RefillThresholdConfig({
 }: RefillThresholdConfigProps) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={inputId}>
-        Auffüll-Schwellenwert (€)
-      </Label>
+      <Label htmlFor={inputId}>Auffüll-Schwellenwert (€)</Label>
       <Input
         id={inputId}
         type="number"
         value={value}
-        onChange={(e) => {
+        onChange={e => {
           const inputValue = e.target.value
           const newValue = inputValue === '' ? 0 : Number(inputValue) || 5000
           onChange(newValue)
@@ -83,17 +79,14 @@ interface RefillPercentageConfigProps {
   onChange: (value: number) => void
 }
 
-export function RefillPercentageConfig({
-  value,
-  onChange,
-}: RefillPercentageConfigProps) {
+export function RefillPercentageConfig({ value, onChange }: RefillPercentageConfigProps) {
   return (
     <div className="space-y-2">
       <Label>Auffüll-Anteil (%)</Label>
       <div className="px-3">
         <Slider
           value={[value * 100]}
-          onValueChange={(values) => {
+          onValueChange={values => {
             const percentage = values[0] / 100
             onChange(percentage)
           }}
@@ -104,16 +97,11 @@ export function RefillPercentageConfig({
         />
         <div className="flex justify-between text-sm text-gray-500 mt-1">
           <span>10%</span>
-          <span className="font-medium text-gray-900">
-            {(value * 100).toFixed(0)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{(value * 100).toFixed(0)}%</span>
           <span>100%</span>
         </div>
       </div>
-      <p className="text-sm text-gray-600">
-        Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird
-      </p>
+      <p className="text-sm text-gray-600">Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird</p>
     </div>
   )
 }

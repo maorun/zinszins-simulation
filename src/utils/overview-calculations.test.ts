@@ -12,11 +12,7 @@ describe('calculateWithdrawalEndYear', () => {
     const enhancedSummary: Partial<EnhancedSummary> = {
       isSegmentedWithdrawal: false,
     }
-    const result = calculateWithdrawalEndYear(
-      enhancedSummary as EnhancedSummary,
-      2075,
-      2080,
-    )
+    const result = calculateWithdrawalEndYear(enhancedSummary as EnhancedSummary, 2075, 2080)
     expect(result).toBe(2075)
   })
 
@@ -24,11 +20,7 @@ describe('calculateWithdrawalEndYear', () => {
     const enhancedSummary: Partial<EnhancedSummary> = {
       isSegmentedWithdrawal: false,
     }
-    const result = calculateWithdrawalEndYear(
-      enhancedSummary as EnhancedSummary,
-      undefined,
-      2080,
-    )
+    const result = calculateWithdrawalEndYear(enhancedSummary as EnhancedSummary, undefined, 2080)
     expect(result).toBe(2080)
   })
 
@@ -60,11 +52,7 @@ describe('calculateWithdrawalEndYear', () => {
         },
       ],
     }
-    const result = calculateWithdrawalEndYear(
-      enhancedSummary as EnhancedSummary,
-      2070,
-      2080,
-    )
+    const result = calculateWithdrawalEndYear(enhancedSummary as EnhancedSummary, 2070, 2080)
     // Should use the latest segment end year (2075) instead of endOfLife (2070)
     expect(result).toBe(2075)
   })
@@ -74,11 +62,7 @@ describe('calculateWithdrawalEndYear', () => {
       isSegmentedWithdrawal: true,
       withdrawalSegments: [],
     }
-    const result = calculateWithdrawalEndYear(
-      enhancedSummary as EnhancedSummary,
-      2070,
-      2080,
-    )
+    const result = calculateWithdrawalEndYear(enhancedSummary as EnhancedSummary, 2070, 2080)
     expect(result).toBe(2070)
   })
 
@@ -110,11 +94,7 @@ describe('calculateWithdrawalEndYear', () => {
         },
       ],
     }
-    const result = calculateWithdrawalEndYear(
-      enhancedSummary as EnhancedSummary,
-      2070,
-      2080,
-    )
+    const result = calculateWithdrawalEndYear(enhancedSummary as EnhancedSummary, 2070, 2080)
     // Should use the valid segment end year (2075)
     expect(result).toBe(2075)
   })
@@ -136,11 +116,7 @@ describe('calculateWithdrawalEndYear', () => {
         },
       ],
     }
-    const result = calculateWithdrawalEndYear(
-      enhancedSummary as EnhancedSummary,
-      2070,
-      2080,
-    )
+    const result = calculateWithdrawalEndYear(enhancedSummary as EnhancedSummary, 2070, 2080)
     // Should fall back to endOfLife when all segment years are invalid
     expect(result).toBe(2070)
   })

@@ -11,9 +11,7 @@ describe('WithdrawalPlan without simulation data', () => {
       simulationData: null,
     } as any)
 
-    const { container } = render(
-      <WithdrawalPlan />,
-    )
+    const { container } = render(<WithdrawalPlan />)
     expect(container).toBeEmptyDOMElement()
     useSimulationSpy.mockRestore()
   })

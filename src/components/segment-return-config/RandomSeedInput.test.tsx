@@ -51,8 +51,6 @@ describe('RandomSeedInput', () => {
   it('displays helper text', () => {
     render(<RandomSeedInput {...defaultProps} />)
 
-    expect(
-      screen.getByText(/Optionaler Seed für reproduzierbare Zufallsrenditen/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Optionaler Seed für reproduzierbare Zufallsrenditen/)).toBeInTheDocument()
   })
 })

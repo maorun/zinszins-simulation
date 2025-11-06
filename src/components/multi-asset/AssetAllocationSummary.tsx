@@ -53,17 +53,11 @@ export function AssetAllocationSummary({
       <div className="grid grid-cols-2 gap-4 text-sm">
         <div>
           <span className="text-blue-700">Erwartete Rendite:</span>
-          <span className="font-medium ml-2">
-            {(expectedReturn * 100).toFixed(1)}
-            %
-          </span>
+          <span className="font-medium ml-2">{(expectedReturn * 100).toFixed(1)}%</span>
         </div>
         <div>
           <span className="text-blue-700">Portfoliorisiko:</span>
-          <span className="font-medium ml-2">
-            {(expectedRisk * 100).toFixed(1)}
-            %
-          </span>
+          <span className="font-medium ml-2">{(expectedRisk * 100).toFixed(1)}%</span>
         </div>
       </div>
     </div>

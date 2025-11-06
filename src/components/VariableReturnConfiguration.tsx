@@ -3,12 +3,7 @@ import { Label } from './ui/label'
 import { useSimulation } from '../contexts/useSimulation'
 
 const VariableReturnConfiguration = () => {
-  const {
-    variableReturns,
-    setVariableReturns,
-    startEnd,
-    performSimulation,
-  } = useSimulation()
+  const { variableReturns, setVariableReturns, startEnd, performSimulation } = useSimulation()
 
   const yearToday = new Date().getFullYear()
 
@@ -20,10 +15,7 @@ const VariableReturnConfiguration = () => {
           const year = yearToday + i
           return (
             <div key={year} className="flex items-center gap-4">
-              <div className="min-w-[60px] font-semibold">
-                {year}
-                :
-              </div>
+              <div className="min-w-[60px] font-semibold">{year}:</div>
               <div className="flex-1">
                 <Slider
                   value={[variableReturns[year] || 5]}
@@ -39,8 +31,7 @@ const VariableReturnConfiguration = () => {
                 />
               </div>
               <div className="min-w-[50px] text-right text-sm font-medium">
-                {(variableReturns[year] || 5).toFixed(1)}
-                %
+                {(variableReturns[year] || 5).toFixed(1)}%
               </div>
             </div>
           )

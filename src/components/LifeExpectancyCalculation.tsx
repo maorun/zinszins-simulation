@@ -12,7 +12,7 @@ interface LifeExpectancyCalculationProps {
     birthYear: number | undefined
     expectedLifespan: number | undefined
     gender: 'male' | 'female' | undefined
-    spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
+    spouse: { gender: 'male' | 'female'; birthYear?: number } | undefined
     lifeExpectancyTable: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
     customLifeExpectancy: number | undefined
   }
@@ -25,10 +25,7 @@ interface LifeExpectancyCalculationProps {
   }
 }
 
-export function LifeExpectancyCalculation({
-  config,
-  onChange,
-}: LifeExpectancyCalculationProps) {
+export function LifeExpectancyCalculation({ config, onChange }: LifeExpectancyCalculationProps) {
   return (
     <Card>
       <Collapsible defaultOpen={false}>

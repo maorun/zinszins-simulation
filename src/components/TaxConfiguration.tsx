@@ -18,16 +18,11 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
   const planningModeLabel = planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'
 
   useEffect(() => {
-    const {
-      grundfreibetragAktiv,
-      grundfreibetragBetrag,
-      setGrundfreibetragBetrag,
-      performSimulation,
-    } = simulation
+    const { grundfreibetragAktiv, grundfreibetragBetrag, setGrundfreibetragBetrag, performSimulation } = simulation
     if (
-      grundfreibetragAktiv
-      && isStandardGrundfreibetragValue(grundfreibetragBetrag)
-      && grundfreibetragBetrag !== recommendedGrundfreibetrag
+      grundfreibetragAktiv &&
+      isStandardGrundfreibetragValue(grundfreibetragBetrag) &&
+      grundfreibetragBetrag !== recommendedGrundfreibetrag
     ) {
       setGrundfreibetragBetrag(recommendedGrundfreibetrag)
       performSimulation()
@@ -45,12 +40,12 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
             grundfreibetragBetrag={simulation.grundfreibetragBetrag}
             recommendedGrundfreibetrag={recommendedGrundfreibetrag}
             planningModeLabel={planningModeLabel}
-            onGrundfreibetragAktivChange={(checked) => {
+            onGrundfreibetragAktivChange={checked => {
               simulation.setGrundfreibetragAktiv(checked)
               if (checked) simulation.setGrundfreibetragBetrag(recommendedGrundfreibetrag)
               simulation.performSimulation()
             }}
-            onGrundfreibetragBetragChange={(value) => {
+            onGrundfreibetragBetragChange={value => {
               simulation.setGrundfreibetragBetrag(value)
               simulation.performSimulation()
             }}

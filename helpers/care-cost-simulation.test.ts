@@ -158,7 +158,7 @@ describe('care-cost-simulation', () => {
 
     it('should handle different care levels correctly', () => {
       type CareCostResult = ReturnType<typeof calculateCareCostsForYear>
-      const results: Array<{ level: CareLevel, result: CareCostResult }> = []
+      const results: Array<{ level: CareLevel; result: CareCostResult }> = []
 
       for (let level = 1; level <= 5; level++) {
         const config = { ...baseConfig, careLevel: level as CareLevel }
@@ -168,9 +168,7 @@ describe('care-cost-simulation', () => {
 
       // Check that costs generally increase with care level
       for (let i = 1; i < results.length; i++) {
-        expect(results[i].result.monthlyCostsGross).toBeGreaterThan(
-          results[i - 1].result.monthlyCostsGross,
-        )
+        expect(results[i].result.monthlyCostsGross).toBeGreaterThan(results[i - 1].result.monthlyCostsGross)
       }
     })
   })
@@ -211,8 +209,8 @@ describe('care-cost-simulation', () => {
       expect(result2032.coupleResults?.person2.careLevel).toBe(3)
 
       // Combined costs should be sum of individual costs
-      const expectedCombinedMonthly = result2032.coupleResults!.person1.monthlyCostsNet
-        + result2032.coupleResults!.person2.monthlyCostsNet
+      const expectedCombinedMonthly =
+        result2032.coupleResults!.person1.monthlyCostsNet + result2032.coupleResults!.person2.monthlyCostsNet
       expect(result2032.coupleResults?.combined.monthlyCostsNet).toBe(expectedCombinedMonthly)
     })
 
@@ -254,9 +252,7 @@ describe('care-cost-simulation', () => {
       expect(result.totalTaxDeductions).toBeGreaterThan(0)
 
       // Check that costs increase due to inflation
-      expect(result.yearlyResults[1].monthlyCostsGross).toBeGreaterThan(
-        result.yearlyResults[0].monthlyCostsGross,
-      )
+      expect(result.yearlyResults[1].monthlyCostsGross).toBeGreaterThan(result.yearlyResults[0].monthlyCostsGross)
     })
 
     it('should handle periods before care starts', () => {
@@ -264,7 +260,7 @@ describe('care-cost-simulation', () => {
 
       expect(result.totalCosts).toBe(0)
       expect(result.totalTaxDeductions).toBe(0)
-      result.yearlyResults.forEach((yearResult) => {
+      result.yearlyResults.forEach(yearResult => {
         expect(yearResult.careNeeded).toBe(false)
       })
     })

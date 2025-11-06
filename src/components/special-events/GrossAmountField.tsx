@@ -18,10 +18,12 @@ export function GrossAmountField({ formValues, onFormChange }: GrossAmountFieldP
       <Input
         type="number"
         value={formValues.grossAmount}
-        onChange={e => onFormChange({
-          ...formValues,
-          grossAmount: e.target.value,
-        })}
+        onChange={e =>
+          onFormChange({
+            ...formValues,
+            grossAmount: e.target.value,
+          })
+        }
         placeholder="100000"
         min="0"
         step="1000"

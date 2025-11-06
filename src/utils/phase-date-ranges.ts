@@ -24,9 +24,8 @@ export function calculatePhaseDateRanges(
   startEnd: [number, number],
   endOfLife: number,
 ): PhaseDateRanges {
-  const savingsStartYear = sparplan.length > 0
-    ? Math.min(...sparplan.map(p => new Date(p.start).getFullYear()))
-    : new Date().getFullYear()
+  const savingsStartYear =
+    sparplan.length > 0 ? Math.min(...sparplan.map(p => new Date(p.start).getFullYear())) : new Date().getFullYear()
   const savingsEndYear = startEnd[0]
   const withdrawalStartYear = startEnd[0] + 1
   const withdrawalEndYear = endOfLife

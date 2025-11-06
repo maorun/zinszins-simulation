@@ -4,9 +4,7 @@ import React from 'react'
 import { GlobalPlanningConfiguration } from './GlobalPlanningConfiguration'
 import { SimulationProvider } from '../contexts/SimulationContext'
 
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <SimulationProvider>{children}</SimulationProvider>
-)
+const TestWrapper = ({ children }: { children: React.ReactNode }) => <SimulationProvider>{children}</SimulationProvider>
 
 describe('GlobalPlanningConfiguration', () => {
   const defaultProps = {
@@ -80,7 +78,9 @@ describe('GlobalPlanningConfiguration', () => {
       expect(screen.getByText('Einzelperson')).toBeInTheDocument()
       expect(screen.getByText('Planung für eine Person mit individueller Lebenserwartung')).toBeInTheDocument()
       expect(screen.getByText('Ehepaar/Partner')).toBeInTheDocument()
-      expect(screen.getByText('Planung für zwei Personen mit gemeinsamer Lebenserwartung (längerer überlebender Partner)')).toBeInTheDocument()
+      expect(
+        screen.getByText('Planung für zwei Personen mit gemeinsamer Lebenserwartung (längerer überlebender Partner)'),
+      ).toBeInTheDocument()
     })
 
     it('shows gender configuration for individual planning', () => {

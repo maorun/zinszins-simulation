@@ -22,29 +22,14 @@ export function ProfileCardActions({
   return (
     <div className="flex items-center gap-1 ml-2">
       {!isActive && (
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onSwitch}
-          title="Profil aktivieren"
-        >
+        <Button variant="outline" size="sm" onClick={onSwitch} title="Profil aktivieren">
           Aktivieren
         </Button>
       )}
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onEdit}
-        title="Profil bearbeiten"
-      >
+      <Button variant="outline" size="sm" onClick={onEdit} title="Profil bearbeiten">
         <Edit3 className="h-3 w-3" />
       </Button>
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={onDuplicate}
-        title="Profil duplizieren"
-      >
+      <Button variant="outline" size="sm" onClick={onDuplicate} title="Profil duplizieren">
         <Copy className="h-3 w-3" />
       </Button>
       {canDelete && (

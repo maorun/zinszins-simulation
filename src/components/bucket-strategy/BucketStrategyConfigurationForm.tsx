@@ -82,9 +82,7 @@ function CashCushionField({ config, bucketConfig, onBucketConfigChange }: Config
         value={config.initialCashCushion}
         onChange={createNumberInputHandler(bucketConfig, onBucketConfigChange, 'initialCashCushion', 20000)}
       />
-      <p className="text-sm text-gray-600">
-        Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen
-      </p>
+      <p className="text-sm text-gray-600">Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen</p>
     </div>
   )
 }
@@ -104,10 +102,7 @@ function BaseWithdrawalRateSlider({ config, bucketConfig, onBucketConfigChange }
         />
         <div className="flex justify-between text-sm text-gray-500 mt-1">
           <span>1%</span>
-          <span className="font-medium text-gray-900">
-            {(config.baseWithdrawalRate * 100).toFixed(1)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{(config.baseWithdrawalRate * 100).toFixed(1)}%</span>
           <span>10%</span>
         </div>
       </div>
@@ -146,16 +141,11 @@ function RefillPercentageSlider({ config, bucketConfig, onBucketConfigChange }: 
         />
         <div className="flex justify-between text-sm text-gray-500 mt-1">
           <span>10%</span>
-          <span className="font-medium text-gray-900">
-            {(config.refillPercentage * 100).toFixed(0)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{(config.refillPercentage * 100).toFixed(0)}%</span>
           <span>100%</span>
         </div>
       </div>
-      <p className="text-sm text-gray-600">
-        Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird
-      </p>
+      <p className="text-sm text-gray-600">Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird</p>
     </div>
   )
 }
@@ -175,26 +165,14 @@ export function BucketStrategyConfigurationForm({
   return (
     <div className="space-y-4">
       <Label className="text-base font-medium">Drei-Eimer-Strategie Konfiguration</Label>
-      <CashCushionField
-        config={config}
-        bucketConfig={bucketConfig}
-        onBucketConfigChange={onBucketConfigChange}
-      />
+      <CashCushionField config={config} bucketConfig={bucketConfig} onBucketConfigChange={onBucketConfigChange} />
       <BaseWithdrawalRateSlider
         config={config}
         bucketConfig={bucketConfig}
         onBucketConfigChange={onBucketConfigChange}
       />
-      <RefillThresholdField
-        config={config}
-        bucketConfig={bucketConfig}
-        onBucketConfigChange={onBucketConfigChange}
-      />
-      <RefillPercentageSlider
-        config={config}
-        bucketConfig={bucketConfig}
-        onBucketConfigChange={onBucketConfigChange}
-      />
+      <RefillThresholdField config={config} bucketConfig={bucketConfig} onBucketConfigChange={onBucketConfigChange} />
+      <RefillPercentageSlider config={config} bucketConfig={bucketConfig} onBucketConfigChange={onBucketConfigChange} />
     </div>
   )
 }

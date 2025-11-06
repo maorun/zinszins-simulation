@@ -16,15 +16,10 @@ const StartEndTracker = ({ onStartEndChange }: { onStartEndChange: (startEnd: [n
   return (
     <div>
       <div data-testid="start-end">
-        {startEnd[0]}
-        -
-        {startEnd[1]}
+        {startEnd[0]}-{startEnd[1]}
       </div>
       <div data-testid="end-of-life">{endOfLife}</div>
-      <button
-        data-testid="change-start-end"
-        onClick={() => setStartEnd([startEnd[0] + 1, startEnd[1]])}
-      >
+      <button data-testid="change-start-end" onClick={() => setStartEnd([startEnd[0] + 1, startEnd[1]])}>
         Change Start End
       </button>
     </div>
@@ -84,15 +79,10 @@ describe('SimulationContext Dependency Fix', () => {
       return (
         <div>
           <div data-testid="start-end">
-            {startEnd[0]}
-            -
-            {startEnd[1]}
+            {startEnd[0]}-{startEnd[1]}
           </div>
           <div data-testid="end-of-life">{endOfLife}</div>
-          <button
-            data-testid="change-end-of-life"
-            onClick={() => setEndOfLife(endOfLife + 5)}
-          >
+          <button data-testid="change-end-of-life" onClick={() => setEndOfLife(endOfLife + 5)}>
             Change End Of Life
           </button>
         </div>

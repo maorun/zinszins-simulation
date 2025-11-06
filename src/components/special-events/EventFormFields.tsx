@@ -41,12 +41,13 @@ export function EventFormFields({
 }: EventFormFieldsProps) {
   return (
     <form>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '1rem',
-        marginBottom: '1.5rem',
-      }}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '1rem',
+          marginBottom: '1.5rem',
+        }}
       >
         <PhaseSelectionField
           formValues={formValues}
@@ -73,9 +74,7 @@ export function EventFormFields({
       )}
 
       {/* Expense-specific fields */}
-      {formValues.eventType === 'expense' && (
-        <ExpenseFields formValues={formValues} onFormChange={onFormChange} />
-      )}
+      {formValues.eventType === 'expense' && <ExpenseFields formValues={formValues} onFormChange={onFormChange} />}
 
       <DescriptionField formValues={formValues} onFormChange={onFormChange} />
     </form>

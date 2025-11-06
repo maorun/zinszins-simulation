@@ -6,11 +6,31 @@ import type { SparplanElement } from '../utils/sparplan-utils'
 
 // Mock the calculation helpers
 vi.mock('./calculationHelpers', () => ({
-  createInflationExplanation: vi.fn(() => ({ title: 'Inflation', introduction: 'Test', steps: [], finalResult: 'Test' })),
-  createWithdrawalInterestExplanation: vi.fn(() => ({ title: 'Interest', introduction: 'Test', steps: [], finalResult: 'Test' })),
+  createInflationExplanation: vi.fn(() => ({
+    title: 'Inflation',
+    introduction: 'Test',
+    steps: [],
+    finalResult: 'Test',
+  })),
+  createWithdrawalInterestExplanation: vi.fn(() => ({
+    title: 'Interest',
+    introduction: 'Test',
+    steps: [],
+    finalResult: 'Test',
+  })),
   createTaxExplanation: vi.fn(() => ({ title: 'Tax', introduction: 'Test', steps: [], finalResult: 'Test' })),
-  createIncomeTaxExplanation: vi.fn(() => ({ title: 'Income Tax', introduction: 'Test', steps: [], finalResult: 'Test' })),
-  createTaxableIncomeExplanation: vi.fn(() => ({ title: 'Taxable Income', introduction: 'Test', steps: [], finalResult: 'Test' })),
+  createIncomeTaxExplanation: vi.fn(() => ({
+    title: 'Income Tax',
+    introduction: 'Test',
+    steps: [],
+    finalResult: 'Test',
+  })),
+  createTaxableIncomeExplanation: vi.fn(() => ({
+    title: 'Taxable Income',
+    introduction: 'Test',
+    steps: [],
+    finalResult: 'Test',
+  })),
 }))
 
 describe('EntnahmeSimulationsAusgabe - Segmented Withdrawal Tax Display', () => {
@@ -22,8 +42,13 @@ describe('EntnahmeSimulationsAusgabe - Segmented Withdrawal Tax Display', () => 
       einzahlung: 100000,
       simulation: {
         2040: {
-          startkapital: 100000, endkapital: 100000, bezahlteSteuer: 0, genutzterFreibetrag: 0,
-          zinsen: 0, vorabpauschale: 0, vorabpauschaleAccumulated: 0,
+          startkapital: 100000,
+          endkapital: 100000,
+          bezahlteSteuer: 0,
+          genutzterFreibetrag: 0,
+          zinsen: 0,
+          vorabpauschale: 0,
+          vorabpauschaleAccumulated: 0,
         },
       },
     },

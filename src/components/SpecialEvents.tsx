@@ -24,14 +24,17 @@ export function SpecialEvents({
   withdrawalStartYear,
   withdrawalEndYear,
 }: SpecialEventsProps) {
-  const {
-    specialEventFormValues,
-    setSpecialEventFormValues,
-    handleSubmit,
-    handleDeleteSparplan,
-  } = useSpecialEvents(currentSparplans, dispatch)
+  const { specialEventFormValues, setSpecialEventFormValues, handleSubmit, handleDeleteSparplan } = useSpecialEvents(
+    currentSparplans,
+    dispatch,
+  )
 
-  const navigationRef = useNavigationItem({ id: 'special-events', title: 'Sonderereignisse verwalten', icon: '🎯', level: 0 })
+  const navigationRef = useNavigationItem({
+    id: 'special-events',
+    title: 'Sonderereignisse verwalten',
+    icon: '🎯',
+    level: 0,
+  })
 
   return (
     <Card nestingLevel={0} className="mb-6" ref={navigationRef}>

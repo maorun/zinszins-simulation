@@ -15,11 +15,7 @@ export function ActionButtons({ hasStoredProfiles, onCreateProfile, onClearAllPr
         <Plus className="h-4 w-4" />
         Neues Profil
       </Button>
-      <Button
-        variant="destructive"
-        disabled={!hasStoredProfiles}
-        onClick={onClearAllProfiles}
-      >
+      <Button variant="destructive" disabled={!hasStoredProfiles} onClick={onClearAllProfiles}>
         🗑️ Alle Profile löschen
       </Button>
     </div>

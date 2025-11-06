@@ -22,8 +22,7 @@ export function getEnhancedOverviewSummary(
   let withdrawalResult
   if (withdrawalResults) {
     withdrawalResult = withdrawalResults
-  }
-  else {
+  } else {
     // Use endOfLife if provided, otherwise fall back to startEnd[1]
     const withdrawalEndYear = endOfLife || startEnd[1]
     const { result } = calculateWithdrawal({

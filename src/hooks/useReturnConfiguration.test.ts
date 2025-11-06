@@ -131,10 +131,7 @@ describe('useReturnConfiguration', () => {
       multiAssetConfig: defaultMultiAssetConfig,
     }
 
-    const { result, rerender } = renderHook(
-      props => useReturnConfiguration(props),
-      { initialProps: initialParams },
-    )
+    const { result, rerender } = renderHook(props => useReturnConfiguration(props), { initialProps: initialParams })
 
     expect(result.current.fixedRate).toBe(0.05)
 

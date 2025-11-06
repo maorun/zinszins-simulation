@@ -22,7 +22,7 @@ describe('Variable Returns per Year', () => {
       variableConfig: {
         yearlyReturns: {
           2023: 0.05, // 5%
-          2024: 0.10, // 10%
+          2024: 0.1, // 10%
           2025: 0.03, // 3%
         },
       },
@@ -86,7 +86,7 @@ describe('Variable Returns per Year', () => {
       mode: 'variable',
       variableConfig: {
         yearlyReturns: {
-          2023: -0.20, // -20% (market crash scenario)
+          2023: -0.2, // -20% (market crash scenario)
         },
       },
     }

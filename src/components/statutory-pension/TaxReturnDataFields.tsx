@@ -43,13 +43,7 @@ function TaxYearField({
   )
 }
 
-function AnnualPensionField({
-  value,
-  onChange,
-}: {
-  value: number
-  onChange: (amount: number) => void
-}) {
+function AnnualPensionField({ value, onChange }: { value: number; onChange: (amount: number) => void }) {
   return (
     <div className="space-y-2">
       <Label htmlFor="annual-pension-received">Jahresrente (brutto) €</Label>
@@ -66,13 +60,7 @@ function AnnualPensionField({
   )
 }
 
-function TaxablePortionField({
-  value,
-  onChange,
-}: {
-  value: number
-  onChange: (amount: number) => void
-}) {
+function TaxablePortionField({ value, onChange }: { value: number; onChange: (amount: number) => void }) {
   return (
     <div className="space-y-2">
       <Label htmlFor="taxable-portion">Steuerpflichtiger Anteil €</Label>
@@ -89,11 +77,7 @@ function TaxablePortionField({
   )
 }
 
-export function TaxReturnDataFields({
-  values,
-  onChange,
-  currentYear,
-}: TaxReturnDataFieldsProps) {
+export function TaxReturnDataFields({ values, onChange, currentYear }: TaxReturnDataFieldsProps) {
   const updateField = (field: Partial<typeof values>) => {
     onChange({
       hasTaxReturnData: values.hasTaxReturnData,
@@ -106,19 +90,12 @@ export function TaxReturnDataFields({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <TaxYearField
-        value={values.taxYear}
-        onChange={taxYear => updateField({ taxYear })}
-        currentYear={currentYear}
-      />
+      <TaxYearField value={values.taxYear} onChange={taxYear => updateField({ taxYear })} currentYear={currentYear} />
       <AnnualPensionField
         value={values.annualPensionReceived}
         onChange={annualPensionReceived => updateField({ annualPensionReceived })}
       />
-      <TaxablePortionField
-        value={values.taxablePortion}
-        onChange={taxablePortion => updateField({ taxablePortion })}
-      />
+      <TaxablePortionField value={values.taxablePortion} onChange={taxablePortion => updateField({ taxablePortion })} />
     </div>
   )
 }

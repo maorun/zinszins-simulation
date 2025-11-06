@@ -13,11 +13,7 @@ export function OtherIncomeEnableToggle({ enabled, onToggle }: OtherIncomeEnable
         <Label htmlFor="other-income-enabled" className="text-base font-medium">
           Andere Einkünfte aktivieren
         </Label>
-        <Switch
-          id="other-income-enabled"
-          checked={enabled}
-          onCheckedChange={onToggle}
-        />
+        <Switch id="other-income-enabled" checked={enabled} onCheckedChange={onToggle} />
       </div>
       <p className="text-sm text-gray-600">
         Aktivieren Sie diese Option, um zusätzliche Einkommensquellen zu berücksichtigen.

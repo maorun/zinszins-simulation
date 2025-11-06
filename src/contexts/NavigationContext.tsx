@@ -35,7 +35,7 @@ function useNavigationItems() {
   }, [])
 
   const unregisterItem = useCallback((id: string) => {
-    setItems((prev) => {
+    setItems(prev => {
       const newItems = new Map(prev)
       newItems.delete(id)
       return newItems
@@ -48,31 +48,37 @@ function useNavigationItems() {
 export function NavigationProvider({ children }: NavigationProviderProps) {
   const { items, registerItem, unregisterItem } = useNavigationItems()
 
-  const expandItem = useCallback((id: string) => {
-    const item = items.get(id)
-    if (!item?.element) return
+  const expandItem = useCallback(
+    (id: string) => {
+      const item = items.get(id)
+      if (!item?.element) return
 
-    expandCollapsible(item.element)
+      expandCollapsible(item.element)
 
-    if (item.parentId) {
-      expandItem(item.parentId)
-    }
-  }, [items])
+      if (item.parentId) {
+        expandItem(item.parentId)
+      }
+    },
+    [items],
+  )
 
-  const scrollToItem = useCallback((id: string) => {
-    const item = items.get(id)
-    if (!item?.element) return
+  const scrollToItem = useCallback(
+    (id: string) => {
+      const item = items.get(id)
+      if (!item?.element) return
 
-    expandItem(id)
+      expandItem(id)
 
-    setTimeout(() => {
-      item.element?.scrollIntoView({
-        behavior: 'smooth',
-        block: 'start',
-        inline: 'nearest',
-      })
-    }, 200)
-  }, [items, expandItem])
+      setTimeout(() => {
+        item.element?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'start',
+          inline: 'nearest',
+        })
+      }, 200)
+    },
+    [items, expandItem],
+  )
 
   const getNavigationTree = useCallback((): NavigationItem[] => {
     const itemsArray = Array.from(items.values())

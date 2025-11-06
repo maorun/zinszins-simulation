@@ -9,19 +9,13 @@ interface UseRMDHandlersParams {
   onChange?: RMDChangeHandlers
 }
 
-export function useRMDHandlers({
-  isFormMode,
-  formValue,
-  updateFormValue,
-  onChange,
-}: UseRMDHandlersParams) {
+export function useRMDHandlers({ isFormMode, formValue, updateFormValue, onChange }: UseRMDHandlersParams) {
   const { setLifeExpectancyTable, setCustomLifeExpectancy } = useSimulation()
 
   const handleAgeChange = (age: number) => {
     if (isFormMode && updateFormValue && formValue) {
       updateFormValue({ ...formValue, rmdStartAge: age })
-    }
-    else if (onChange) {
+    } else if (onChange) {
       onChange.onStartAgeChange(age)
     }
   }
@@ -29,8 +23,7 @@ export function useRMDHandlers({
   const handleTableChange = (table: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom') => {
     if (isFormMode) {
       setLifeExpectancyTable(table)
-    }
-    else if (onChange) {
+    } else if (onChange) {
       onChange.onLifeExpectancyTableChange(table)
     }
   }
@@ -38,8 +31,7 @@ export function useRMDHandlers({
   const handleCustomLifeExpectancyChange = (years: number) => {
     if (isFormMode) {
       setCustomLifeExpectancy(years)
-    }
-    else if (onChange) {
+    } else if (onChange) {
       onChange.onCustomLifeExpectancyChange(years)
     }
   }

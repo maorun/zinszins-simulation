@@ -32,7 +32,9 @@ const createMockFormValue = (): WithdrawalFormValue => ({
 })
 
 describe('TaxSection', () => {
-  const mockFormatWithInflation = vi.fn(params => `${params.value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`)
+  const mockFormatWithInflation = vi.fn(
+    params => `${params.value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`,
+  )
   const mockOnCalculationInfoClick = vi.fn()
 
   const defaultRowData = {

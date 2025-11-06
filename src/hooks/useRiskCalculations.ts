@@ -18,7 +18,7 @@ export function useRiskCalculations(simulationData: SimulationData | null) {
       .filter(year => !isNaN(year))
       .sort((a, b) => a - b)
 
-    allYears.forEach((year) => {
+    allYears.forEach(year => {
       const totalValue = simulationData.sparplanElements.reduce(
         (sum: number, element: { simulation?: Record<number, { endkapital?: number }> }) => {
           return sum + (element.simulation?.[year]?.endkapital || 0)

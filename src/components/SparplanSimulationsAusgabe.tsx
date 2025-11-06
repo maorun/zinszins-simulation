@@ -6,7 +6,12 @@ import type { SparplanElement } from '../utils/sparplan-utils'
 import { fullSummary, getYearlyPortfolioProgression, type Summary } from '../utils/summary-utils'
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
 import CalculationExplanationModal from './CalculationExplanationModal'
-import { createInterestExplanation, createTaxExplanation, createEndkapitalExplanation, type CalculationExplanation } from './calculationHelpers'
+import {
+  createInterestExplanation,
+  createTaxExplanation,
+  createEndkapitalExplanation,
+  type CalculationExplanation,
+} from './calculationHelpers'
 import InteractiveChart from './InteractiveChart'
 import { convertSparplanElementsToSimulationResult, hasInflationAdjustedValues } from '../utils/chart-data-converter'
 import { TooltipProvider } from './ui/tooltip'
@@ -79,18 +84,16 @@ function CapitalDisplay({
     <div className="text-center p-6 bg-gradient-to-br from-[#28a745] to-[#20c997] text-white rounded-xl my-4 shadow-[0_4px_12px_rgba(40,167,69,0.3)]">
       <div className="text-xl mb-2 opacity-90">Ihr Gesamtkapital</div>
       <div className="text-[2.5rem] font-bold tracking-[-1px] flex items-center justify-center gap-2">
-        <span>
-          {thousands(amount.toFixed(2))}
-          {' '}
-          €
-        </span>
+        <span>{thousands(amount.toFixed(2))} €</span>
         {onInfoClick && (
           <InfoIcon
-            onClick={() => onInfoClick('endkapital', {
-              jahr: new Date().getFullYear(),
-              endkapital: amount.toFixed(2),
-              einzahlung: 0,
-            })}
+            onClick={() =>
+              onInfoClick('endkapital', {
+                jahr: new Date().getFullYear(),
+                endkapital: amount.toFixed(2),
+                einzahlung: 0,
+              })
+            }
           />
         )}
       </div>
@@ -140,10 +143,7 @@ function createInterestCalculation(
 /**
  * Create tax explanation helper
  */
-function createTaxCalculation(
-  simData: SimulationResultElement,
-  jahr: number,
-): CalculationExplanation {
+function createTaxCalculation(simData: SimulationResultElement, jahr: number): CalculationExplanation {
   return createTaxExplanation(
     simData.bezahlteSteuer,
     simData.vorabpauschaleDetails!.vorabpauschaleAmount,
@@ -176,25 +176,31 @@ function useCalculationInfoHandler(
   elemente: SparplanElement[] | undefined,
   showCalculationInfoModal: (explanation: CalculationExplanation | null) => void,
 ) {
-  const findSimulationDataForYear = useCallback((jahr: number) => {
-    const yearSimData = elemente?.find(el => el.simulation[jahr])
-    return yearSimData?.simulation[jahr]
-  }, [elemente])
+  const findSimulationDataForYear = useCallback(
+    (jahr: number) => {
+      const yearSimData = elemente?.find(el => el.simulation[jahr])
+      return yearSimData?.simulation[jahr]
+    },
+    [elemente],
+  )
 
-  const handleShowCalculationInfo = useCallback((explanationType: string, rowData: CalculationInfoData) => {
-    const simData = findSimulationDataForYear(rowData.jahr)
-    if (!simData) return
+  const handleShowCalculationInfo = useCallback(
+    (explanationType: string, rowData: CalculationInfoData) => {
+      const simData = findSimulationDataForYear(rowData.jahr)
+      if (!simData) return
 
-    const explanation = createExplanationByType(
-      explanationType,
-      simData,
-      rowData,
-      createInterestCalculation,
-      createTaxCalculation,
-      createEndkapitalCalculation,
-    )
-    showCalculationInfoModal(explanation)
-  }, [findSimulationDataForYear, showCalculationInfoModal])
+      const explanation = createExplanationByType(
+        explanationType,
+        simData,
+        rowData,
+        createInterestCalculation,
+        createTaxCalculation,
+        createEndkapitalCalculation,
+      )
+      showCalculationInfoModal(explanation)
+    },
+    [findSimulationDataForYear, showCalculationInfoModal],
+  )
 
   return handleShowCalculationInfo
 }
@@ -370,11 +376,7 @@ function SparplanCardHeader() {
   )
 }
 
-export function SparplanSimulationsAusgabe({
-  elemente,
-}: {
-  elemente?: SparplanElement[]
-}) {
+export function SparplanSimulationsAusgabe({ elemente }: { elemente?: SparplanElement[] }) {
   const {
     showVorabpauschaleModal,
     selectedVorabDetails,

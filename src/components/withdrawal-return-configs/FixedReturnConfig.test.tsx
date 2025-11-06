@@ -20,9 +20,7 @@ describe('FixedReturnConfig', () => {
   it('displays helper text', () => {
     render(<FixedReturnConfig formValueRendite={5} onFormValueRenditeChange={vi.fn()} />)
 
-    expect(
-      screen.getByText(/Feste Rendite für die gesamte Entnahme-Phase/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Feste Rendite für die gesamte Entnahme-Phase/)).toBeInTheDocument()
   })
 
   it('displays correct min and max labels', () => {

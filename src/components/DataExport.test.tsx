@@ -283,13 +283,14 @@ describe('DataExport', () => {
 
     await waitFor(() => {
       const buttons = screen.getAllByRole('button')
-      const dataExportButtons = buttons.filter(button =>
-        button.textContent?.includes('CSV')
-        || button.textContent?.includes('Markdown')
-        || button.textContent?.includes('Formeln'),
+      const dataExportButtons = buttons.filter(
+        button =>
+          button.textContent?.includes('CSV') ||
+          button.textContent?.includes('Markdown') ||
+          button.textContent?.includes('Formeln'),
       )
 
-      dataExportButtons.forEach((button) => {
+      dataExportButtons.forEach(button => {
         expect(button).toBeDisabled()
       })
     })

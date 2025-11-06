@@ -6,9 +6,7 @@ import { SimulationProvider } from '../contexts/SimulationContext'
 import HistoricalReturnConfiguration from './HistoricalReturnConfiguration'
 
 // Helper component to wrap the component with providers
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <SimulationProvider>{children}</SimulationProvider>
-)
+const TestWrapper = ({ children }: { children: React.ReactNode }) => <SimulationProvider>{children}</SimulationProvider>
 
 // Helper function to expand the collapsible component
 const expandHistoricalReturnConfiguration = async () => {
@@ -90,7 +88,9 @@ describe('HistoricalReturnConfiguration', () => {
 
     // Should show historical returns section
     expect(screen.getByText(/Historische Renditen/)).toBeInTheDocument()
-    expect(screen.getByText(/Die Simulation verwendet die tatsächlichen historischen Jahresrenditen/)).toBeInTheDocument()
+    expect(
+      screen.getByText(/Die Simulation verwendet die tatsächlichen historischen Jahresrenditen/),
+    ).toBeInTheDocument()
   })
 
   it('should allow index selection via radio tiles', async () => {

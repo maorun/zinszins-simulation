@@ -33,15 +33,10 @@ export const HistoricalReturnContent = ({
       <BacktestingWarning nestingLevel={nestingLevel} />
 
       {/* Index Selection */}
-      <IndexSelectionRadioGroup
-        selectedIndexId={selectedIndexId}
-        onIndexChange={onIndexChange}
-      />
+      <IndexSelectionRadioGroup selectedIndexId={selectedIndexId} onIndexChange={onIndexChange} />
 
       {/* Index Statistics */}
-      {currentIndex && (
-        <IndexStatistics index={currentIndex} nestingLevel={nestingLevel} />
-      )}
+      {currentIndex && <IndexStatistics index={currentIndex} nestingLevel={nestingLevel} />}
 
       {/* Data Availability Warning */}
       {!isAvailable && currentIndex && (
@@ -54,12 +49,7 @@ export const HistoricalReturnContent = ({
       )}
 
       {/* Historical Data Preview */}
-      {historicalReturns && (
-        <HistoricalDataPreview
-          historicalReturns={historicalReturns}
-          nestingLevel={nestingLevel}
-        />
-      )}
+      {historicalReturns && <HistoricalDataPreview historicalReturns={historicalReturns} nestingLevel={nestingLevel} />}
     </div>
   </CardContent>
 )

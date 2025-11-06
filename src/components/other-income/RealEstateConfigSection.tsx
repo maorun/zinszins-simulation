@@ -12,10 +12,7 @@ interface RealEstateConfigSectionProps {
   onUpdate: (source: OtherIncomeSource) => void
 }
 
-export function RealEstateConfigSection({
-  editingSource,
-  onUpdate,
-}: RealEstateConfigSectionProps) {
+export function RealEstateConfigSection({ editingSource, onUpdate }: RealEstateConfigSectionProps) {
   const propertyValueId = useFormId('other-income-real-estate', 'property-value')
   const mortgagePaymentId = useFormId('other-income-real-estate', 'mortgage-payment')
 
@@ -29,37 +26,17 @@ export function RealEstateConfigSection({
         🏠 Immobilien-spezifische Einstellungen
       </h4>
 
-      <PropertyValueInput
-        editingSource={editingSource}
-        propertyValueId={propertyValueId}
-        onUpdate={onUpdate}
-      />
+      <PropertyValueInput editingSource={editingSource} propertyValueId={propertyValueId} onUpdate={onUpdate} />
 
-      <MaintenanceCostSlider
-        editingSource={editingSource}
-        onUpdate={onUpdate}
-      />
+      <MaintenanceCostSlider editingSource={editingSource} onUpdate={onUpdate} />
 
-      <VacancyRateSlider
-        editingSource={editingSource}
-        onUpdate={onUpdate}
-      />
+      <VacancyRateSlider editingSource={editingSource} onUpdate={onUpdate} />
 
-      <MortgagePaymentInput
-        editingSource={editingSource}
-        mortgagePaymentId={mortgagePaymentId}
-        onUpdate={onUpdate}
-      />
+      <MortgagePaymentInput editingSource={editingSource} mortgagePaymentId={mortgagePaymentId} onUpdate={onUpdate} />
 
-      <PropertyAppreciationSlider
-        editingSource={editingSource}
-        onUpdate={onUpdate}
-      />
+      <PropertyAppreciationSlider editingSource={editingSource} onUpdate={onUpdate} />
 
-      <AppreciationToggle
-        editingSource={editingSource}
-        onUpdate={onUpdate}
-      />
+      <AppreciationToggle editingSource={editingSource} onUpdate={onUpdate} />
     </div>
   )
 }

@@ -16,7 +16,7 @@ export function usePlanningModeState(config: PlanningModeStateConfig) {
     extendedInitialConfig.planningMode ?? defaultConfig.planningMode,
   )
   const [gender, setGender] = useState<'male' | 'female' | undefined>(extendedInitialConfig.gender)
-  const [spouse, setSpouse] = useState<{ birthYear?: number, gender: 'male' | 'female' } | undefined>(
+  const [spouse, setSpouse] = useState<{ birthYear?: number; gender: 'male' | 'female' } | undefined>(
     extendedInitialConfig.spouse,
   )
   const [birthYear, setBirthYear] = useState<number | undefined>(extendedInitialConfig.birthYear)

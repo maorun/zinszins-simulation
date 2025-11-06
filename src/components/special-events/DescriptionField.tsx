@@ -18,10 +18,12 @@ export function DescriptionField({ formValues, onFormChange }: DescriptionFieldP
       <Input
         type="text"
         value={formValues.description}
-        onChange={e => onFormChange({
-          ...formValues,
-          description: e.target.value,
-        })}
+        onChange={e =>
+          onFormChange({
+            ...formValues,
+            description: e.target.value,
+          })
+        }
         placeholder="z.B. Erbschaft Großeltern, Neuwagenkauf"
       />
     </div>

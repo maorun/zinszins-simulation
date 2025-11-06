@@ -7,10 +7,7 @@ interface AppreciationToggleProps {
   onUpdate: (source: OtherIncomeSource) => void
 }
 
-export function AppreciationToggle({
-  editingSource,
-  onUpdate,
-}: AppreciationToggleProps) {
+export function AppreciationToggle({ editingSource, onUpdate }: AppreciationToggleProps) {
   if (!editingSource.realEstateConfig) {
     return null
   }
@@ -24,13 +21,15 @@ export function AppreciationToggle({
         <Switch
           id="include-appreciation"
           checked={editingSource.realEstateConfig.includeAppreciation}
-          onCheckedChange={includeAppreciation => onUpdate({
-            ...editingSource,
-            realEstateConfig: {
-              ...editingSource.realEstateConfig!,
-              includeAppreciation,
-            },
-          })}
+          onCheckedChange={includeAppreciation =>
+            onUpdate({
+              ...editingSource,
+              realEstateConfig: {
+                ...editingSource.realEstateConfig!,
+                includeAppreciation,
+              },
+            })
+          }
         />
       </div>
       <p className="text-xs text-gray-600">

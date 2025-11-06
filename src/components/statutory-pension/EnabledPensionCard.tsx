@@ -13,13 +13,7 @@ interface EnabledPensionCardProps {
   children: React.ReactNode
 }
 
-export function EnabledPensionCard({
-  enabled,
-  onToggle,
-  switchId,
-  nestingLevel,
-  children,
-}: EnabledPensionCardProps) {
+export function EnabledPensionCard({ enabled, onToggle, switchId, nestingLevel, children }: EnabledPensionCardProps) {
   return (
     <Collapsible defaultOpen={false}>
       <Card nestingLevel={nestingLevel}>
@@ -28,11 +22,7 @@ export function EnabledPensionCard({
           <CardContent nestingLevel={nestingLevel}>
             <div className="space-y-6">
               <div className="flex items-center space-x-2">
-                <Switch
-                  checked={enabled}
-                  onCheckedChange={onToggle}
-                  id={switchId}
-                />
+                <Switch checked={enabled} onCheckedChange={onToggle} id={switchId} />
                 <Label htmlFor={switchId} className="font-medium">
                   Gesetzliche Rente berücksichtigen
                 </Label>

@@ -8,11 +8,7 @@ interface PropertyValueInputProps {
   onUpdate: (source: OtherIncomeSource) => void
 }
 
-export function PropertyValueInput({
-  editingSource,
-  propertyValueId,
-  onUpdate,
-}: PropertyValueInputProps) {
+export function PropertyValueInput({ editingSource, propertyValueId, onUpdate }: PropertyValueInputProps) {
   if (!editingSource.realEstateConfig) {
     return null
   }
@@ -24,19 +20,19 @@ export function PropertyValueInput({
         id={propertyValueId}
         type="number"
         value={editingSource.realEstateConfig.propertyValue}
-        onChange={e => onUpdate({
-          ...editingSource,
-          realEstateConfig: {
-            ...editingSource.realEstateConfig!,
-            propertyValue: Number(e.target.value) || 0,
-          },
-        })}
+        onChange={e =>
+          onUpdate({
+            ...editingSource,
+            realEstateConfig: {
+              ...editingSource.realEstateConfig!,
+              propertyValue: Number(e.target.value) || 0,
+            },
+          })
+        }
         min={0}
         step={10000}
       />
-      <p className="text-xs text-gray-600">
-        Aktueller Marktwert der Immobilie für Wertsteigerungsberechnungen
-      </p>
+      <p className="text-xs text-gray-600">Aktueller Marktwert der Immobilie für Wertsteigerungsberechnungen</p>
     </div>
   )
 }

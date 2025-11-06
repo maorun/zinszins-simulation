@@ -8,9 +8,7 @@ import { SimulationProvider } from '../contexts/SimulationContext'
 vi.mock('./TaxConfiguration', () => ({
   default: ({ planningMode }: { planningMode?: 'individual' | 'couple' }) => (
     <div data-testid="tax-configuration" data-planning-mode={planningMode}>
-      TaxConfiguration with planningMode:
-      {' '}
-      {planningMode}
+      TaxConfiguration with planningMode: {planningMode}
     </div>
   ),
 }))

@@ -35,20 +35,14 @@ export function SegmentBasicConfig({
     <div className="form-grid">
       <div className="mb-4 space-y-2">
         <Label>Name der Phase</Label>
-        <Input
-          value={name}
-          onChange={e => onNameChange(e.target.value)}
-          placeholder="z.B. Frühe Rente"
-        />
+        <Input value={name} onChange={e => onNameChange(e.target.value)} placeholder="z.B. Frühe Rente" />
       </div>
       <div className="mb-4 space-y-2">
         <Label>Startjahr</Label>
         <Input
           type="number"
           value={startYear}
-          onChange={e => handleNumberInputChange(e, value =>
-            onStartYearChange(Number(value) || withdrawalStartYear),
-          )}
+          onChange={e => handleNumberInputChange(e, value => onStartYearChange(Number(value) || withdrawalStartYear))}
           min={2020}
           max={2100}
         />
@@ -58,9 +52,7 @@ export function SegmentBasicConfig({
         <Input
           type="number"
           value={endYear}
-          onChange={e => handleNumberInputChange(e, value =>
-            onEndYearChange(Number(value) || withdrawalEndYear),
-          )}
+          onChange={e => handleNumberInputChange(e, value => onEndYearChange(Number(value) || withdrawalEndYear))}
           min={2020}
           max={2100}
         />

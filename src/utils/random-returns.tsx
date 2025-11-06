@@ -67,10 +67,7 @@ function boxMuller(rng: SeededRandom): number {
 /**
  * Generate random returns for multiple years using normal distribution
  */
-export function generateRandomReturns(
-  years: number[],
-  config: RandomReturnConfig,
-): Record<number, number> {
+export function generateRandomReturns(years: number[], config: RandomReturnConfig): Record<number, number> {
   const { averageReturn, standardDeviation = 0.15, seed } = config
   const rng = new SeededRandom(seed)
   const returns: Record<number, number> = {}
@@ -78,7 +75,7 @@ export function generateRandomReturns(
   for (const year of years) {
     // Generate normally distributed return
     const randomValue = boxMuller(rng)
-    const yearReturn = averageReturn + (randomValue * standardDeviation)
+    const yearReturn = averageReturn + randomValue * standardDeviation
 
     // Clamp to reasonable bounds (prevent extreme negative returns)
     returns[year] = Math.max(yearReturn, -0.5) // Minimum -50% return
@@ -99,9 +96,7 @@ export function generateMonteCarloReturns(
 
   for (let run = 0; run < runs; run++) {
     // Use different seed for each run if base seed is provided
-    const runConfig = config.seed
-      ? { ...config, seed: config.seed + run }
-      : config
+    const runConfig = config.seed ? { ...config, seed: config.seed + run } : config
 
     results.push(generateRandomReturns(years, runConfig))
   }
@@ -127,16 +122,14 @@ export function calculateMonteCarloStatistics(
   const n = sorted.length
 
   const mean = results.reduce((sum, val) => sum + val, 0) / n
-  const median = n % 2 === 0
-    ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2
-    : sorted[Math.floor(n / 2)]
+  const median = n % 2 === 0 ? (sorted[n / 2 - 1] + sorted[n / 2]) / 2 : sorted[Math.floor(n / 2)]
 
   const variance = results.reduce((sum, val) => sum + Math.pow(val - mean, 2), 0) / n
   const standardDeviation = Math.sqrt(variance)
 
   // Confidence interval calculation
   const alpha = 1 - confidenceLevel
-  const lowerIndex = Math.floor(alpha / 2 * n)
+  const lowerIndex = Math.floor((alpha / 2) * n)
   const upperIndex = Math.ceil((1 - alpha / 2) * n) - 1
 
   return {

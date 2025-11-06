@@ -1,0 +1,24 @@
+# Dependencies
+node_modules
+package-lock.json
+
+# Build outputs
+dist
+build
+public/build
+.vite
+coverage
+
+# Cache directories
+.cache
+.eslintcache
+.turbo
+
+# Misc
+*.log
+.DS_Store
+.env.local
+.env.*.local
+
+# Generated files
+vite.config.ts.timestamp-*

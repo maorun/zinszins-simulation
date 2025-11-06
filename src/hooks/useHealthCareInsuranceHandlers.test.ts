@@ -36,9 +36,7 @@ describe('useHealthCareInsuranceHandlers', () => {
     const formValue = createMockFormValue()
     const updateFormValue = vi.fn()
 
-    const { result } = renderHook(() =>
-      useHealthCareInsuranceHandlers(formValue, updateFormValue),
-    )
+    const { result } = renderHook(() => useHealthCareInsuranceHandlers(formValue, updateFormValue))
 
     // Base handlers
     expect(typeof result.current.onEnabledChange).toBe('function')
@@ -79,9 +77,7 @@ describe('useHealthCareInsuranceHandlers', () => {
     const formValue = createMockFormValue()
     const updateFormValue = vi.fn()
 
-    const { result } = renderHook(() =>
-      useHealthCareInsuranceHandlers(formValue, updateFormValue),
-    )
+    const { result } = renderHook(() => useHealthCareInsuranceHandlers(formValue, updateFormValue))
 
     act(() => {
       result.current.onEnabledChange(true)
@@ -96,9 +92,7 @@ describe('useHealthCareInsuranceHandlers', () => {
     const formValue = createMockFormValue()
     const updateFormValue = vi.fn()
 
-    const { result } = renderHook(() =>
-      useHealthCareInsuranceHandlers(formValue, updateFormValue),
-    )
+    const { result } = renderHook(() => useHealthCareInsuranceHandlers(formValue, updateFormValue))
 
     act(() => {
       result.current.onInsuranceTypeChange('private')
@@ -113,9 +107,7 @@ describe('useHealthCareInsuranceHandlers', () => {
     const formValue = createMockFormValue()
     const updateFormValue = vi.fn()
 
-    const { result } = renderHook(() =>
-      useHealthCareInsuranceHandlers(formValue, updateFormValue),
-    )
+    const { result } = renderHook(() => useHealthCareInsuranceHandlers(formValue, updateFormValue))
 
     act(() => {
       result.current.onStatutoryHealthInsuranceRateChange(15.5)
@@ -130,9 +122,7 @@ describe('useHealthCareInsuranceHandlers', () => {
     const formValue = createMockFormValue()
     const updateFormValue = vi.fn()
 
-    const { result } = renderHook(() =>
-      useHealthCareInsuranceHandlers(formValue, updateFormValue),
-    )
+    const { result } = renderHook(() => useHealthCareInsuranceHandlers(formValue, updateFormValue))
 
     act(() => {
       result.current.onPrivateHealthInsuranceMonthlyChange(500)
@@ -147,9 +137,7 @@ describe('useHealthCareInsuranceHandlers', () => {
     const formValue = createMockFormValue()
     const updateFormValue = vi.fn()
 
-    const { result } = renderHook(() =>
-      useHealthCareInsuranceHandlers(formValue, updateFormValue),
-    )
+    const { result } = renderHook(() => useHealthCareInsuranceHandlers(formValue, updateFormValue))
 
     act(() => {
       result.current.onCoupleStrategyChange('family')
@@ -164,9 +152,7 @@ describe('useHealthCareInsuranceHandlers', () => {
     const formValue = createMockFormValue()
     const updateFormValue = vi.fn()
 
-    const { result } = renderHook(() =>
-      useHealthCareInsuranceHandlers(formValue, updateFormValue),
-    )
+    const { result } = renderHook(() => useHealthCareInsuranceHandlers(formValue, updateFormValue))
 
     act(() => {
       result.current.onPerson1NameChange('Alice')
@@ -181,9 +167,7 @@ describe('useHealthCareInsuranceHandlers', () => {
     const formValue = createMockFormValue()
     const updateFormValue = vi.fn()
 
-    const { result } = renderHook(() =>
-      useHealthCareInsuranceHandlers(formValue, updateFormValue),
-    )
+    const { result } = renderHook(() => useHealthCareInsuranceHandlers(formValue, updateFormValue))
 
     act(() => {
       result.current.onPerson1WithdrawalShareChange(0.6)
@@ -199,9 +183,7 @@ describe('useHealthCareInsuranceHandlers', () => {
     const formValue = createMockFormValue()
     const updateFormValue = vi.fn()
 
-    const { result } = renderHook(() =>
-      useHealthCareInsuranceHandlers(formValue, updateFormValue),
-    )
+    const { result } = renderHook(() => useHealthCareInsuranceHandlers(formValue, updateFormValue))
 
     act(() => {
       result.current.onPerson2WithdrawalShareChange(0.7)

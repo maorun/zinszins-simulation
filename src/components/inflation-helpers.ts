@@ -43,14 +43,7 @@ interface FormatWithInflationParams {
  * Format value with inflation adjustment if active
  */
 export function formatValueWithInflation(params: FormatWithInflationParams): string {
-  const {
-    nominalValue,
-    currentYear,
-    allYears,
-    inflationActive,
-    inflationRatePercent,
-    showIcon = false,
-  } = params
+  const { nominalValue, currentYear, allYears, inflationActive, inflationRatePercent, showIcon = false } = params
 
   // If inflation is not active, just format the nominal value
   if (!inflationActive || !inflationRatePercent) {

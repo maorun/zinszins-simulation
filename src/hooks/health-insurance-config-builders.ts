@@ -29,10 +29,7 @@ interface HealthCareInsuranceFormValues {
 /**
  * Create person 1 config with defaults
  */
-function createPerson1Config(
-  values: HealthCareInsuranceFormValues,
-  birthYear?: number,
-) {
+function createPerson1Config(values: HealthCareInsuranceFormValues, birthYear?: number) {
   return {
     name: values.person1Name || 'Person 1',
     birthYear: birthYear || 1980,
@@ -45,10 +42,7 @@ function createPerson1Config(
 /**
  * Create person 2 config with defaults
  */
-function createPerson2Config(
-  values: HealthCareInsuranceFormValues,
-  spouseBirthYear?: number,
-) {
+function createPerson2Config(values: HealthCareInsuranceFormValues, spouseBirthYear?: number) {
   return {
     name: values.person2Name || 'Person 2',
     birthYear: spouseBirthYear || 1980,
@@ -99,9 +93,7 @@ export function createCouplePreviewConfig(
  * Create health insurance config for individual planning mode
  * Extracted to reduce complexity in useHealthInsurancePreviewCalculation
  */
-export function createIndividualPreviewConfig(
-  values: HealthCareInsuranceFormValues,
-): HealthCareInsuranceConfig {
+export function createIndividualPreviewConfig(values: HealthCareInsuranceFormValues): HealthCareInsuranceConfig {
   return {
     ...createDefaultHealthCareInsuranceConfig(),
     planningMode: 'individual' as const,

@@ -40,10 +40,7 @@ function VariablePercentConfig({
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>1%</span>
-          <span className="font-medium text-gray-900">
-            {variabelProzent}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{variabelProzent}%</span>
           <span>10%</span>
         </div>
       </div>
@@ -67,7 +64,7 @@ function MonthlyFixedConfig({
       <Input
         type="number"
         value={monatlicheBetrag}
-        onChange={(e) => {
+        onChange={e => {
           const value = e.target.value ? Number(e.target.value) : undefined
           if (value) onUpdate(value)
         }}
@@ -87,8 +84,7 @@ function StrategySpecificConfigurations({
   onUpdateFormValue: (updates: Partial<WithdrawalFormValue>) => void
 }) {
   const { strategie } = formValue
-  const updateValue = (updates: Partial<WithdrawalFormValue>) =>
-    onUpdateFormValue({ ...formValue, ...updates })
+  const updateValue = (updates: Partial<WithdrawalFormValue>) => onUpdateFormValue({ ...formValue, ...updates })
 
   switch (strategie) {
     case 'variabel_prozent':
@@ -140,10 +136,7 @@ function StrategySelector({
   return (
     <div className="mb-4 space-y-2">
       <Label>Basis-Strategie</Label>
-      <RadioTileGroup
-        value={strategy}
-        onValueChange={value => onStrategyChange(value as WithdrawalStrategy)}
-      >
+      <RadioTileGroup value={strategy} onValueChange={value => onStrategyChange(value as WithdrawalStrategy)}>
         <RadioTile value="4prozent" label="4% Regel">
           4% Entnahme
         </RadioTile>
@@ -193,7 +186,7 @@ function WithdrawalFrequencyConfig({
         <span className="text-sm">Jährlich</span>
         <Switch
           checked={frequency === 'monthly'}
-          onCheckedChange={(checked) => {
+          onCheckedChange={checked => {
             onFrequencyChange(checked ? 'monthly' : 'yearly')
           }}
         />
@@ -232,10 +225,7 @@ function ReturnRateSlider({
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>0%</span>
-          <span className="font-medium text-gray-900">
-            {rendite}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{rendite}%</span>
           <span>10%</span>
         </div>
       </div>
@@ -247,24 +237,19 @@ function ReturnRateSlider({
  * Base strategy configuration component
  * Extracted from ComparisonStrategyConfiguration to reduce complexity
  */
-export function BaseStrategyConfiguration({
-  formValue,
-  onUpdateFormValue,
-}: BaseStrategyConfigurationProps) {
+export function BaseStrategyConfiguration({ formValue, onUpdateFormValue }: BaseStrategyConfigurationProps) {
   return (
     <div>
       <h4>Basis-Strategie (mit vollständigen Details)</h4>
       <div>
         <StrategySelector
           strategy={formValue.strategie}
-          onStrategyChange={strategy =>
-            onUpdateFormValue({ ...formValue, strategie: strategy })}
+          onStrategyChange={strategy => onUpdateFormValue({ ...formValue, strategie: strategy })}
         />
 
         <WithdrawalFrequencyConfig
           frequency={formValue.withdrawalFrequency || 'yearly'}
-          onFrequencyChange={frequency =>
-            onUpdateFormValue({ withdrawalFrequency: frequency })}
+          onFrequencyChange={frequency => onUpdateFormValue({ withdrawalFrequency: frequency })}
         />
 
         <ReturnRateSlider
@@ -272,10 +257,7 @@ export function BaseStrategyConfiguration({
           onRenditeChange={rendite => onUpdateFormValue({ ...formValue, rendite })}
         />
 
-        <StrategySpecificConfigurations
-          formValue={formValue}
-          onUpdateFormValue={onUpdateFormValue}
-        />
+        <StrategySpecificConfigurations formValue={formValue} onUpdateFormValue={onUpdateFormValue} />
       </div>
     </div>
   )

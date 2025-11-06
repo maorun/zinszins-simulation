@@ -5,10 +5,7 @@ import {
   type HealthCareInsuranceYearResult,
   type CoupleHealthInsuranceYearResult,
 } from '../../helpers/health-care-insurance'
-import {
-  createCouplePreviewConfig,
-  createIndividualPreviewConfig,
-} from './health-insurance-config-builders'
+import { createCouplePreviewConfig, createIndividualPreviewConfig } from './health-insurance-config-builders'
 
 interface HealthCareInsuranceFormValues {
   enabled: boolean
@@ -65,8 +62,7 @@ export function useHealthInsurancePreviewCalculation({
       if (planningMode === 'couple') {
         const coupleConfig = createCouplePreviewConfig(values, birthYear, spouseBirthYear)
         return calculateCoupleHealthInsuranceForYear(coupleConfig, currentYear + 16, withdrawalAmount, 0)
-      }
-      else {
+      } else {
         const individualConfig = createIndividualPreviewConfig(values)
         return calculateHealthCareInsuranceForYear(
           individualConfig,
@@ -76,19 +72,11 @@ export function useHealthInsurancePreviewCalculation({
           (birthYear || 1980) + 16,
         )
       }
-    }
-    catch (error) {
+    } catch (error) {
       console.error('Error calculating health insurance preview:', error)
       return null
     }
-  }, [
-    values,
-    planningMode,
-    birthYear,
-    spouseBirthYear,
-    currentYear,
-    withdrawalAmount,
-  ])
+  }, [values, planningMode, birthYear, spouseBirthYear, currentYear, withdrawalAmount])
 
   return {
     previewResults,

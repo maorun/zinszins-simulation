@@ -13,19 +13,20 @@ function App() {
         <Routes>
           <Route
             path="/"
-            element={(
-              <Suspense fallback={(
-                <div className="flex items-center justify-center min-h-screen">
-                  <div className="text-center">
-                    <div className="text-lg font-semibold mb-2">Zinseszins-Simulation</div>
-                    <div className="text-gray-600">Lädt Anwendung...</div>
+            element={
+              <Suspense
+                fallback={
+                  <div className="flex items-center justify-center min-h-screen">
+                    <div className="text-center">
+                      <div className="text-lg font-semibold mb-2">Zinseszins-Simulation</div>
+                      <div className="text-gray-600">Lädt Anwendung...</div>
+                    </div>
                   </div>
-                </div>
-              )}
+                }
               >
                 <HomePage />
               </Suspense>
-            )}
+            }
           />
         </Routes>
         <Analytics />

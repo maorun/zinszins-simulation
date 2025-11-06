@@ -12,8 +12,7 @@ function getNewSegmentYears(segments: WithdrawalSegment[], withdrawalStartYear: 
   if (segments.length === 0) {
     startYear = Math.round(withdrawalStartYear) - 1
     endYear = startYear + 4
-  }
-  else {
+  } else {
     const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
     const lastSegment = sortedSegments[sortedSegments.length - 1]
     startYear = Math.round(lastSegment.endYear) + 1
@@ -45,11 +44,14 @@ export function useWithdrawalSegments(
 ) {
   const [errors, setErrors] = useState<string[]>([])
 
-  const validateAndUpdateSegments = useCallback((newSegments: WithdrawalSegment[]) => {
-    const validationErrors = validateWithdrawalSegments(newSegments, withdrawalStartYear, withdrawalEndYear)
-    setErrors(validationErrors)
-    onSegmentsChange(newSegments)
-  }, [withdrawalStartYear, withdrawalEndYear, onSegmentsChange])
+  const validateAndUpdateSegments = useCallback(
+    (newSegments: WithdrawalSegment[]) => {
+      const validationErrors = validateWithdrawalSegments(newSegments, withdrawalStartYear, withdrawalEndYear)
+      setErrors(validationErrors)
+      onSegmentsChange(newSegments)
+    },
+    [withdrawalStartYear, withdrawalEndYear, onSegmentsChange],
+  )
 
   const addSegment = () => {
     const newId = `segment_${Date.now()}`

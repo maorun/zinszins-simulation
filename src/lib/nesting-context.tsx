@@ -14,9 +14,5 @@ export function NestingProvider({ children, level }: NestingProviderProps) {
   const currentLevel = React.useContext(NestingContext)
   const nextLevel = level !== undefined ? level : currentLevel + 1
 
-  return (
-    <NestingContext.Provider value={nextLevel}>
-      {children}
-    </NestingContext.Provider>
-  )
+  return <NestingContext.Provider value={nextLevel}>{children}</NestingContext.Provider>
 }

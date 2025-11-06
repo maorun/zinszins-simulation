@@ -15,17 +15,16 @@ export function EnhancedOverview() {
     endOfLife,
   } = useSimulation()
 
-  const { enhancedSummary, savingsStartYear, savingsEndYear, withdrawalEndYear }
-    = useOverviewYearRanges(
-      simulationData,
-      startEnd,
-      withdrawalResults,
-      rendite,
-      steuerlast,
-      teilfreistellungsquote,
-      withdrawalConfig,
-      endOfLife,
-    )
+  const { enhancedSummary, savingsStartYear, savingsEndYear, withdrawalEndYear } = useOverviewYearRanges(
+    simulationData,
+    startEnd,
+    withdrawalResults,
+    rendite,
+    steuerlast,
+    teilfreistellungsquote,
+    withdrawalConfig,
+    endOfLife,
+  )
 
   if (!enhancedSummary || !simulationData) return null
 

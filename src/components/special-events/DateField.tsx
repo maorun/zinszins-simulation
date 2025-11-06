@@ -26,11 +26,7 @@ const formatDateForInput = (date: Date | string | null, format: string): string 
   return d.toISOString().substring(0, 10)
 }
 
-const handleDateChange = (
-  e: ChangeEvent<HTMLInputElement>,
-  format: string,
-  onChange: (date: Date | null) => void,
-) => {
+const handleDateChange = (e: ChangeEvent<HTMLInputElement>, format: string, onChange: (date: Date | null) => void) => {
   const inputValue = e.target.value
   if (!inputValue) {
     onChange(null)
@@ -81,22 +77,20 @@ export function DateField({
       <Input
         type="date"
         value={formatDateForInput(formValues.date, 'yyyy-MM-dd')}
-        onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => onFormChange({
-          ...formValues,
-          date: date || new Date(),
-        }))}
+        onChange={e =>
+          handleDateChange(e, 'yyyy-MM-dd', date =>
+            onFormChange({
+              ...formValues,
+              date: date || new Date(),
+            }),
+          )
+        }
         min={`${currentPhaseRange.start}-01-01`}
         max={`${currentPhaseRange.end}-12-31`}
         placeholder="Datum wählen"
       />
       <div className="text-sm text-muted-foreground mt-1">
-        Datum zwischen
-        {' '}
-        {currentPhaseRange.start}
-        {' '}
-        und
-        {' '}
-        {currentPhaseRange.end}
+        Datum zwischen {currentPhaseRange.start} und {currentPhaseRange.end}
       </div>
     </div>
   )

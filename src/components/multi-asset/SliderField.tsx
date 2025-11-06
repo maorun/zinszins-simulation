@@ -20,22 +20,11 @@ interface SliderFieldProps {
  * Reusable slider field component with label and percentage display.
  * Used for asset class configuration sliders.
  */
-export function SliderField({
-  label,
-  value,
-  onChange,
-  min = 0,
-  max = 100,
-  step = 1,
-}: SliderFieldProps) {
+export function SliderField({ label, value, onChange, min = 0, max = 100, step = 1 }: SliderFieldProps) {
   return (
     <div className="space-y-2">
       <Label className="text-xs font-medium text-gray-700">
-        {label}
-        :
-        {' '}
-        {(value * 100).toFixed(1)}
-        %
+        {label}: {(value * 100).toFixed(1)}%
       </Label>
       <Slider
         value={[value * 100]}

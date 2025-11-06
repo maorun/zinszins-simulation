@@ -20,12 +20,8 @@ import {
  */
 export function useSparplanState(currentSparplans: Sparplan[]) {
   const [sparplans, setSparplans] = useState<Sparplan[]>(currentSparplans)
-  const [singleFormValue, setSingleFormValue] = useState<SingleFormValue>(
-    getInitialSingleFormValue(),
-  )
-  const [sparplanFormValues, setSparplanFormValues] = useState<SparplanFormValue>(
-    getInitialSparplanFormValue(),
-  )
+  const [singleFormValue, setSingleFormValue] = useState<SingleFormValue>(getInitialSingleFormValue())
+  const [sparplanFormValues, setSparplanFormValues] = useState<SparplanFormValue>(getInitialSparplanFormValue())
 
   // Synchronize local state with prop changes
   useEffect(() => {
@@ -125,15 +121,8 @@ function createSaveEditHandler(params: SparplanHandlersParams) {
  * Creates a handler for submitting a new sparplan
  */
 function createSparplanSubmitHandler(params: SparplanHandlersParams, handleSaveEdit: () => void) {
-  const {
-    sparplanFormValues,
-    isEditMode,
-    simulationAnnual,
-    sparplans,
-    setSparplans,
-    dispatch,
-    setSparplanFormValues,
-  } = params
+  const { sparplanFormValues, isEditMode, simulationAnnual, sparplans, setSparplans, dispatch, setSparplanFormValues } =
+    params
 
   return () => {
     if (!sparplanFormValues.start || !sparplanFormValues.einzahlung) return
@@ -162,14 +151,7 @@ function createSparplanSubmitHandler(params: SparplanHandlersParams, handleSaveE
  * Creates a handler for submitting a single payment
  */
 function createSinglePaymentSubmitHandler(params: SparplanHandlersParams, handleSaveEdit: () => void) {
-  const {
-    singleFormValue,
-    isEditMode,
-    sparplans,
-    setSparplans,
-    dispatch,
-    setSingleFormValue,
-  } = params
+  const { singleFormValue, isEditMode, sparplans, setSparplans, dispatch, setSingleFormValue } = params
 
   return () => {
     if (!singleFormValue.einzahlung) return
@@ -212,13 +194,7 @@ function createDeleteSparplanHandler(params: SparplanHandlersParams) {
  * Creates a handler for editing a sparplan
  */
 function createEditSparplanHandler(params: SparplanHandlersParams) {
-  const {
-    setEditingSparplan,
-    setIsEditMode,
-    setSingleFormValue,
-    setSparplanFormValues,
-    simulationAnnual,
-  } = params
+  const { setEditingSparplan, setIsEditMode, setSingleFormValue, setSparplanFormValues, simulationAnnual } = params
 
   return (sparplan: Sparplan) => {
     setEditingSparplan(sparplan)
@@ -227,8 +203,7 @@ function createEditSparplanHandler(params: SparplanHandlersParams) {
     // Check if this is a one-time payment and populate appropriate form
     if (isEinmalzahlung(sparplan)) {
       setSingleFormValue(populateSingleFormFromSparplan(sparplan))
-    }
-    else {
+    } else {
       setSparplanFormValues(populateSparplanFormFromSparplan(sparplan, simulationAnnual))
     }
   }
@@ -238,12 +213,7 @@ function createEditSparplanHandler(params: SparplanHandlersParams) {
  * Creates a handler for canceling edit mode
  */
 function createCancelEditHandler(params: SparplanHandlersParams) {
-  const {
-    setEditingSparplan,
-    setIsEditMode,
-    setSparplanFormValues,
-    setSingleFormValue,
-  } = params
+  const { setEditingSparplan, setIsEditMode, setSparplanFormValues, setSingleFormValue } = params
 
   return () => {
     setEditingSparplan(null)

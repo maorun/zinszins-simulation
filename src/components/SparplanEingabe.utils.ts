@@ -32,10 +32,7 @@ export const handleDateChange = (
 }
 
 // Helper function for number input handling
-export const handleNumberChange = (
-  e: React.ChangeEvent<HTMLInputElement>,
-  onChange: (value: string) => void,
-) => {
+export const handleNumberChange = (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => {
   const value = e.target.value
   onChange(value ? value : '')
 }

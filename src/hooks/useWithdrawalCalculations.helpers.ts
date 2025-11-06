@@ -72,9 +72,7 @@ function getCouplePensionConfig(
   return getCombinedPensionConfig(person1, person2)
 }
 
-export function convertCoupleToLegacyConfig(
-  params: ConvertCoupleToLegacyConfigParams,
-): StatutoryPensionConfig | null {
+export function convertCoupleToLegacyConfig(params: ConvertCoupleToLegacyConfigParams): StatutoryPensionConfig | null {
   const { coupleConfig, planningMode } = params
 
   if (!coupleConfig || !coupleConfig.enabled) return null
@@ -94,9 +92,7 @@ export function convertCoupleToLegacyConfig(
 /**
  * Build return configuration for withdrawal phase based on selected mode
  */
-export function buildWithdrawalReturnConfig(
-  params: BuildWithdrawalReturnConfigParams,
-): ReturnConfiguration {
+export function buildWithdrawalReturnConfig(params: BuildWithdrawalReturnConfigParams): ReturnConfiguration {
   const {
     withdrawalReturnMode,
     withdrawalVariableReturns,
@@ -123,10 +119,7 @@ export function buildWithdrawalReturnConfig(
       mode: 'variable',
       variableConfig: {
         yearlyReturns: Object.fromEntries(
-          Object.entries(withdrawalVariableReturns).map(([year, rate]) => [
-            parseInt(year),
-            (rate as number) / 100,
-          ]),
+          Object.entries(withdrawalVariableReturns).map(([year, rate]) => [parseInt(year), (rate as number) / 100]),
         ),
       },
     }
@@ -164,18 +157,14 @@ export function buildGrundfreibetragPerYear(
  * Build monthly config for a comparison strategy
  */
 function buildMonthlyConfig(strategy: CalculateComparisonStrategyParams['strategy']) {
-  return strategy.strategie === 'monatlich_fest'
-    ? { monthlyAmount: strategy.monatlicheBetrag || 2000 }
-    : undefined
+  return strategy.strategie === 'monatlich_fest' ? { monthlyAmount: strategy.monatlicheBetrag || 2000 } : undefined
 }
 
 /**
  * Build custom percentage for a comparison strategy
  */
 function buildCustomPercentage(strategy: CalculateComparisonStrategyParams['strategy']) {
-  return strategy.strategie === 'variabel_prozent'
-    ? (strategy.variabelProzent || 5) / 100
-    : undefined
+  return strategy.strategie === 'variabel_prozent' ? (strategy.variabelProzent || 5) / 100 : undefined
 }
 
 /**
@@ -218,10 +207,7 @@ export function calculateSegmentedStrategyResult(
   }
 
   // Calculate segmented withdrawal for this comparison strategy
-  const result = calculateSegmentedWithdrawal(
-    elemente,
-    segmentedConfig,
-  )
+  const result = calculateSegmentedWithdrawal(elemente, segmentedConfig)
 
   // Get final year capital and total withdrawal
   const finalYear = Math.max(...Object.keys(result).map(Number))
@@ -236,10 +222,7 @@ export function calculateSegmentedStrategyResult(
   const averageAnnualWithdrawal = totalWithdrawal / totalYears
 
   // Calculate withdrawal duration
-  const duration = calculateWithdrawalDuration(
-    result,
-    startOfIndependence + 1,
-  )
+  const duration = calculateWithdrawalDuration(result, startOfIndependence + 1)
 
   return {
     strategy,
@@ -329,7 +312,9 @@ function buildTaxConfig(params: CalculateComparisonStrategyParams) {
 
   const incomeTaxRate = grundfreibetragAktiv
     ? einkommensteuersatz / 100
-    : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined)
+    : guenstigerPruefungAktiv
+      ? personalTaxRate / 100
+      : undefined
 
   return { grundfreibetragPerYear, incomeTaxRate }
 }
@@ -354,7 +339,7 @@ function buildEffectiveHealthCareInsuranceConfig(healthCareInsuranceConfig: Heal
   return healthCareInsuranceConfig
     ? {
         ...healthCareInsuranceConfig,
-        insuranceType: healthCareInsuranceConfig.insuranceType || 'statutory' as const,
+        insuranceType: healthCareInsuranceConfig.insuranceType || ('statutory' as const),
       }
     : undefined
 }
@@ -394,11 +379,7 @@ function buildWithdrawalParams(
     returnConfig,
     taxRate: steuerlast,
     teilfreistellungsquote,
-    freibetragPerYear: createPlanningModeAwareFreibetragPerYear(
-      startOfIndependence + 1,
-      endOfLife,
-      planningMode,
-    ),
+    freibetragPerYear: createPlanningModeAwareFreibetragPerYear(startOfIndependence + 1, endOfLife, planningMode),
     ...strategyConfigs,
     enableGrundfreibetrag: grundfreibetragAktiv,
     grundfreibetragPerYear,
@@ -427,10 +408,7 @@ function calculateWithdrawalMetrics(
   const finalYear = Math.max(...Object.keys(result).map(Number))
   const finalCapital = result[finalYear]?.endkapital || 0
 
-  const totalWithdrawal = Object.values(result).reduce(
-    (sum, year) => sum + year.entnahme,
-    0,
-  )
+  const totalWithdrawal = Object.values(result).reduce((sum, year) => sum + year.entnahme, 0)
   const totalYears = Object.keys(result).length
   const averageAnnualWithdrawal = totalWithdrawal / totalYears
 
@@ -448,9 +426,7 @@ function calculateWithdrawalMetrics(
 /**
  * Calculate a single comparison strategy and return its results
  */
-export function calculateComparisonStrategy(
-  params: CalculateComparisonStrategyParams,
-): ComparisonStrategyResult {
+export function calculateComparisonStrategy(params: CalculateComparisonStrategyParams): ComparisonStrategyResult {
   const { strategy, startOfIndependence } = params
 
   // Build return configuration for this strategy
@@ -471,8 +447,7 @@ export function calculateComparisonStrategy(
       strategy,
       ...metrics,
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.error(`Error calculating withdrawal for strategy ${strategy.name}:`, error)
     return {
       strategy,
@@ -528,7 +503,9 @@ function buildWithdrawalTaxParams(params: {
       : undefined,
     incomeTaxRate: grundfreibetragAktiv
       ? formValue.einkommensteuersatz / 100
-      : (guenstigerPruefungAktiv ? personalTaxRate / 100 : undefined),
+      : guenstigerPruefungAktiv
+        ? personalTaxRate / 100
+        : undefined,
     guenstigerPruefungAktiv,
   }
 }
@@ -668,9 +645,7 @@ function buildMonthlyConfigFromFormValue(formValue: WithdrawalConfiguration['for
  * Build custom percentage from form value
  */
 function buildCustomPercentageFromFormValue(formValue: WithdrawalConfiguration['formValue']) {
-  return formValue.strategie === 'variabel_prozent'
-    ? formValue.variabelProzent / 100
-    : undefined
+  return formValue.strategie === 'variabel_prozent' ? formValue.variabelProzent / 100 : undefined
 }
 
 /**

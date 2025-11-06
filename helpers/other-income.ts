@@ -185,7 +185,7 @@ function calculateRealEstateIncome(
   config: RealEstateConfig,
   grossAnnualAmount: number,
   yearsFromStart: number,
-): { netIncome: number, details: OtherIncomeYearResult['realEstateDetails'] } {
+): { netIncome: number; details: OtherIncomeYearResult['realEstateDetails'] } {
   const vacancyLoss = grossAnnualAmount * (config.vacancyRatePercent / 100)
   const incomeAfterVacancy = grossAnnualAmount - vacancyLoss
   const maintenanceCosts = grossAnnualAmount * (config.maintenanceCostPercent / 100)
@@ -194,9 +194,10 @@ function calculateRealEstateIncome(
 
   const appreciationFactor = Math.pow(1 + config.propertyAppreciationRate / 100, yearsFromStart)
   const currentPropertyValue = config.propertyValue * appreciationFactor
-  const previousValue = yearsFromStart > 0
-    ? config.propertyValue * Math.pow(1 + config.propertyAppreciationRate / 100, yearsFromStart - 1)
-    : config.propertyValue
+  const previousValue =
+    yearsFromStart > 0
+      ? config.propertyValue * Math.pow(1 + config.propertyAppreciationRate / 100, yearsFromStart - 1)
+      : config.propertyValue
   const annualAppreciation = config.includeAppreciation ? currentPropertyValue - previousValue : 0
 
   return {
@@ -215,7 +216,7 @@ function calculateRealEstateIncome(
 function calculateKindergeldStatus(
   config: KindergeldConfig,
   year: number,
-): { isActive: boolean, childAge: number, endReason?: string } {
+): { isActive: boolean; childAge: number; endReason?: string } {
   const childAge = year - config.childBirthYear
   let isActive = true
   let endReason: string | undefined
@@ -223,12 +224,10 @@ function calculateKindergeldStatus(
   if (childAge < 0) {
     isActive = false
     endReason = 'Kind noch nicht geboren'
-  }
-  else if (childAge >= 18 && !config.inEducation) {
+  } else if (childAge >= 18 && !config.inEducation) {
     isActive = false
     endReason = 'Kind ist 18 oder älter (nicht in Ausbildung)'
-  }
-  else if (childAge >= 25) {
+  } else if (childAge >= 25) {
     isActive = false
     endReason = 'Kind ist 25 oder älter'
   }
@@ -264,7 +263,7 @@ function calculateGrossAmounts(
 function applyKindergeldLogic(
   source: OtherIncomeSource,
   year: number,
-  amounts: { grossMonthlyAmount: number, grossAnnualAmount: number },
+  amounts: { grossMonthlyAmount: number; grossAnnualAmount: number },
 ): {
   grossMonthlyAmount: number
   grossAnnualAmount: number
@@ -292,7 +291,7 @@ function applyKindergeldLogic(
 function calculateTaxAndNet(
   source: OtherIncomeSource,
   grossAnnualAmount: number,
-): { taxAmount: number, netAnnualAmount: number, netMonthlyAmount: number } {
+): { taxAmount: number; netAnnualAmount: number; netMonthlyAmount: number } {
   if (source.amountType !== 'gross') {
     return {
       taxAmount: 0,
@@ -310,10 +309,7 @@ function calculateTaxAndNet(
   }
 }
 
-export function calculateOtherIncomeForYear(
-  source: OtherIncomeSource,
-  year: number,
-): OtherIncomeYearResult | null {
+export function calculateOtherIncomeForYear(source: OtherIncomeSource, year: number): OtherIncomeYearResult | null {
   if (!isIncomeActiveForYear(source, year)) {
     return null
   }

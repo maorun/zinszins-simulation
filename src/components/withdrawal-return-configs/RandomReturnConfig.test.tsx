@@ -44,15 +44,9 @@ describe('RandomReturnConfig', () => {
   it('displays helper texts', () => {
     render(<RandomReturnConfig {...defaultProps} />)
 
-    expect(
-      screen.getByText(/Erwartete durchschnittliche Rendite für die Entnahme-Phase/),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText(/Volatilität der Renditen/),
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText(/Optionaler Seed für reproduzierbare Zufallsrenditen/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Erwartete durchschnittliche Rendite für die Entnahme-Phase/)).toBeInTheDocument()
+    expect(screen.getByText(/Volatilität der Renditen/)).toBeInTheDocument()
+    expect(screen.getByText(/Optionaler Seed für reproduzierbare Zufallsrenditen/)).toBeInTheDocument()
   })
 
   it('displays seed input value', () => {
@@ -63,9 +57,7 @@ describe('RandomReturnConfig', () => {
 
   it('calls onChange when seed changes', () => {
     const onSeedChange = vi.fn()
-    render(
-      <RandomReturnConfig {...defaultProps} onWithdrawalRandomSeedChange={onSeedChange} />,
-    )
+    render(<RandomReturnConfig {...defaultProps} onWithdrawalRandomSeedChange={onSeedChange} />)
 
     const input = screen.getByPlaceholderText('Für reproduzierbare Ergebnisse')
     fireEvent.change(input, { target: { value: '123' } })
@@ -76,11 +68,7 @@ describe('RandomReturnConfig', () => {
   it('handles empty seed input', () => {
     const onSeedChange = vi.fn()
     render(
-      <RandomReturnConfig
-        {...defaultProps}
-        withdrawalRandomSeed={42}
-        onWithdrawalRandomSeedChange={onSeedChange}
-      />,
+      <RandomReturnConfig {...defaultProps} withdrawalRandomSeed={42} onWithdrawalRandomSeedChange={onSeedChange} />,
     )
 
     const input = screen.getByDisplayValue('42')

@@ -12,11 +12,7 @@ interface SavedSparplansListContentProps {
   sparplanFormValues: SparplanFormValue
   singleFormValue: SingleFormValue
   formatDateForInput: (date: Date | string | null, format: string) => string
-  handleDateChange: (
-    e: ChangeEvent<HTMLInputElement>,
-    format: string,
-    onChange: (date: Date | null) => void,
-  ) => void
+  handleDateChange: (e: ChangeEvent<HTMLInputElement>, format: string, onChange: (date: Date | null) => void) => void
   onEdit: (sparplan: Sparplan) => void
   onDelete: (id: number) => void
   onSaveEdit: () => void
@@ -67,9 +63,7 @@ export function SavedSparplansListContent({
       </div>
 
       {/* Hidden Desktop Table Layout */}
-      <div className="hidden">
-        {/* Table functionality has been replaced with card layout above */}
-      </div>
+      <div className="hidden">{/* Table functionality has been replaced with card layout above */}</div>
     </>
   )
 }

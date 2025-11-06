@@ -15,11 +15,10 @@ export function usePerson1BasicHandlers(
       updateFormValue(
         createHealthCareConfigUpdate(formValue, {
           coupleConfig: {
-            ...(formValue.healthCareInsuranceConfig?.coupleConfig
-              || createDefaultCoupleHealthInsuranceConfig()),
+            ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
             person1: {
-              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
-                || createDefaultCoupleHealthInsuranceConfig().person1),
+              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1 ||
+                createDefaultCoupleHealthInsuranceConfig().person1),
               name,
             },
           },
@@ -34,11 +33,10 @@ export function usePerson1BasicHandlers(
       updateFormValue(
         createHealthCareConfigUpdate(formValue, {
           coupleConfig: {
-            ...(formValue.healthCareInsuranceConfig?.coupleConfig
-              || createDefaultCoupleHealthInsuranceConfig()),
+            ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
             person1: {
-              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1
-                || createDefaultCoupleHealthInsuranceConfig().person1),
+              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person1 ||
+                createDefaultCoupleHealthInsuranceConfig().person1),
               otherIncomeAnnual: amount,
             },
           },

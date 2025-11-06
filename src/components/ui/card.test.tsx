@@ -22,12 +22,8 @@ describe('Enhanced Card Components', () => {
           <CardHeader nestingLevel={2}>
             <h1>Header</h1>
           </CardHeader>
-          <CardContent nestingLevel={2}>
-            Content
-          </CardContent>
-          <CardFooter nestingLevel={2}>
-            Footer
-          </CardFooter>
+          <CardContent nestingLevel={2}>Content</CardContent>
+          <CardFooter nestingLevel={2}>Footer</CardFooter>
         </Card>
       </NestingProvider>,
     )
@@ -44,9 +40,7 @@ describe('Enhanced Card Components', () => {
         <CardHeader nestingLevel={4}>
           <h1>Deep Header</h1>
         </CardHeader>
-        <CardContent nestingLevel={4}>
-          Deep Content
-        </CardContent>
+        <CardContent nestingLevel={4}>Deep Content</CardContent>
       </Card>,
     )
 
