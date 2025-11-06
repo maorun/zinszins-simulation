@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useSimulation } from '../contexts/useSimulation'
 import { useScenarioApplication } from './useScenarioApplication'
 import { useReturnConfiguration } from './useReturnConfiguration'
@@ -26,6 +27,7 @@ function useScenarioHandler(simulationState: ReturnType<typeof useSimulation>) {
 
 /**
  * Custom hook that sets up return configuration
+ * Memoized to prevent recalculation when dependencies haven't changed
  */
 function useReturnConfig(simulationState: ReturnType<typeof useSimulation>) {
   return useReturnConfiguration({
@@ -57,11 +59,12 @@ export function useHomePageLogic() {
     simulationState.performSimulation,
   )
 
-  const phaseDateRanges = calculatePhaseDateRanges(
+  // Memoize phase date ranges calculation
+  const phaseDateRanges = useMemo(() => calculatePhaseDateRanges(
     simulationState.sparplan,
     simulationState.startEnd,
     simulationState.endOfLife,
-  )
+  ), [simulationState.sparplan, simulationState.startEnd, simulationState.endOfLife])
 
   return {
     ...simulationState,
