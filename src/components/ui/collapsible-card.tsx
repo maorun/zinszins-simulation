@@ -6,20 +6,37 @@ import { Card, CardContent, CardContentProps, CardHeader, CardHeaderProps, CardP
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './collapsible'
 import { useNavigationItem } from '../../hooks/useNavigationItem'
 
+export interface CollapsibleCardHeaderProps extends CardHeaderProps {
+  /** Custom className for the CardTitle */
+  titleClassName?: string
+  /** Custom className for the ChevronDown icon */
+  iconClassName?: string
+  /** Whether to use simplified padding (p-2 -m-2 instead of responsive) */
+  simplifiedPadding?: boolean
+}
+
 export const CollapsibleCardHeader = React.forwardRef<
   HTMLDivElement,
-  CardHeaderProps
->(({ children, ...props }, ref) => {
+  CollapsibleCardHeaderProps
+>(({ children, titleClassName, iconClassName, simplifiedPadding, ...props }, ref) => {
   const nestingLevel = useNestingLevel()
+
+  const paddingClasses = simplifiedPadding
+    ? 'p-2 -m-2'
+    : 'p-3 -m-3 sm:p-2 sm:-m-2 min-h-[44px] sm:min-h-[36px] active:bg-gray-100 mobile-interactive'
+
+  const defaultIconClasses = simplifiedPadding
+    ? 'h-5 w-5'
+    : 'h-5 w-5 sm:h-4 sm:w-4'
 
   return (
     <CardHeader nestingLevel={nestingLevel} {...props} ref={ref}>
       <CollapsibleTrigger asChild>
-        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-3 -m-3 sm:p-2 sm:-m-2 transition-colors group min-h-[44px] sm:min-h-[36px] active:bg-gray-100 mobile-interactive">
-          <CardTitle>
+        <div className={`flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md transition-colors group ${paddingClasses}`}>
+          <CardTitle className={titleClassName}>
             {children}
           </CardTitle>
-          <ChevronDown className="h-5 w-5 sm:h-4 sm:w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
+          <ChevronDown className={`${iconClassName || defaultIconClasses} text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180`} />
         </div>
       </CollapsibleTrigger>
     </CardHeader>
