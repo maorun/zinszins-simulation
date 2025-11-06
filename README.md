@@ -241,6 +241,31 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 
 ## Entwicklung
 
+### State Management
+
+Das Projekt verwendet ein zentralisiertes State Management mit React Context API:
+
+#### SimulationContext
+
+- **Zentrale Zustandsverwaltung**: Alle Simulationsparameter, Steuereinstellungen, und Berechnungsergebnisse werden im `SimulationContext` verwaltet
+- **Custom Hook `useSimulation()`**: Zugriff auf den globalen State ohne Prop Drilling
+- **52+ Komponenten**: Über 52 Komponenten nutzen bereits den Context direkt
+- **Reduziertes Prop Drilling**: HomePage-Hierarchie wurde optimiert - von 20+ Props auf 1-2 Props pro Ebene reduziert
+
+#### Spezialisierte Hooks
+
+- **`useHomePageLogic`**: Aggregiert Logik und Handler für die HomePage
+- **`useAnalysisConfig`**: Stellt Konfigurationen für Sensitivitätsanalyse bereit
+- **`useReturnConfiguration`**: Verwaltet Rendite-Konfigurationen
+- **Weitere Custom Hooks**: Über 80 spezialisierte Hooks für verschiedene Features (Entnahme, Gesundheitsversicherung, Renten, etc.)
+
+#### Vorteile
+
+- **Wartbarkeit**: Geringere Kopplung zwischen Komponenten
+- **Wiederverwendbarkeit**: Logik in Custom Hooks gekapselt
+- **Testbarkeit**: Hooks und Komponenten können isoliert getestet werden
+- **Performance**: Effiziente Updates durch React Context
+
 ### Code-Qualitätsstandards
 
 Das Projekt verwendet umfassende Code-Qualitätsprüfungen, die mit Codacy-Standards kompatibel sind:
