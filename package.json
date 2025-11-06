@@ -5,6 +5,8 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prelint": "npm run typecheck",
     "lint": "eslint . --report-unused-disable-directives --max-warnings 0",
     "postlint": "markdownlint-cli2 \"**/*.md\" \"#node_modules\"",
