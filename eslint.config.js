@@ -5,6 +5,7 @@ import reactRefresh from 'eslint-plugin-react-refresh'
 import tseslint from '@typescript-eslint/eslint-plugin'
 import tsParser from '@typescript-eslint/parser'
 import stylistic from '@stylistic/eslint-plugin'
+import prettierConfig from 'eslint-config-prettier'
 
 export default [
   {
@@ -115,4 +116,6 @@ export default [
       'no-console': 'off', // Allow console in tests for debugging
     },
   },
+  // Prettier integration - must be last to override conflicting rules
+  prettierConfig,
 ]
