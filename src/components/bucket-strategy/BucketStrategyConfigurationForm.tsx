@@ -1,7 +1,7 @@
 import type React from 'react'
-import { Label } from './ui/label'
-import { Input } from './ui/input'
-import { Slider } from './ui/slider'
+import { Label } from '../ui/label'
+import { Input } from '../ui/input'
+import { Slider } from '../ui/slider'
 
 export interface BucketConfig {
   initialCashCushion: number

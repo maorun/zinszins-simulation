@@ -1,4 +1,5 @@
 import type { RandomReturnConfig } from '../utils/random-returns'
+import { formatPercent } from '../utils/currency'
 
 export interface MonteCarloResult {
   scenario: string
@@ -6,8 +7,6 @@ export interface MonteCarloResult {
   probability: string
   isBlackSwan?: boolean
 }
-
-export const formatPercent = (value: number): string => `${(value * 100).toFixed(1)}%`
 
 export const createScenarios = (config: RandomReturnConfig): MonteCarloResult[] => [
   {

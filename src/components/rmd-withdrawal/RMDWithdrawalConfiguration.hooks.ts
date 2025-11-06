@@ -1,5 +1,5 @@
-import { useSimulation } from '../contexts/useSimulation'
-import type { WithdrawalFormValue } from '../utils/config-storage'
+import { useSimulation } from '../../contexts/useSimulation'
+import type { WithdrawalFormValue } from '../../utils/config-storage'
 import type { RMDChangeHandlers } from './RMDWithdrawalConfiguration.helpers'
 
 interface UseRMDHandlersParams {

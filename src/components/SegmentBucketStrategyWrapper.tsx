@@ -1,5 +1,5 @@
 import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
-import { BucketStrategyConfiguration } from './BucketStrategyConfiguration'
+import { BucketStrategyConfiguration } from './bucket-strategy/BucketStrategyConfiguration'
 import type { BucketSubStrategy } from '../../helpers/withdrawal'
 
 interface Props {

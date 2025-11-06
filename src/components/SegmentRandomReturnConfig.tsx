@@ -1,4 +1,4 @@
-import type { RandomReturnConfig } from '../../helpers/random-returns'
+import type { RandomReturnConfig } from '../utils/random-returns'
 import { AverageReturnSlider } from './segment-return-config/AverageReturnSlider'
 import { StandardDeviationSlider } from './segment-return-config/StandardDeviationSlider'
 import { RandomSeedInput } from './segment-return-config/RandomSeedInput'

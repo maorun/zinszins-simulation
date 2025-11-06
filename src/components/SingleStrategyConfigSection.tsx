@@ -7,9 +7,9 @@ import { InflationConfiguration } from './InflationConfiguration'
 import { VariablePercentWithdrawalConfiguration } from './VariablePercentWithdrawalConfiguration'
 import { MonthlyFixedWithdrawalConfiguration } from './MonthlyFixedWithdrawalConfiguration'
 import { DynamicWithdrawalConfiguration } from './DynamicWithdrawalConfiguration'
-import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
+import { RMDWithdrawalConfiguration } from './rmd-withdrawal/RMDWithdrawalConfiguration'
 import { KapitalerhaltConfiguration } from './KapitalerhaltConfiguration'
-import { BucketStrategyConfigurationForm } from './BucketStrategyConfigurationForm'
+import { BucketStrategyConfigurationForm } from './bucket-strategy/BucketStrategyConfigurationForm'
 
 interface SingleStrategyConfigParams {
   formValue: WithdrawalFormValue

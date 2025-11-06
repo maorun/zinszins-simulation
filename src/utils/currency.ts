@@ -25,3 +25,11 @@ export function formatCompactCurrency(amount: number): string {
     currency: 'EUR',
   }).format(amount)
 }
+
+/**
+ * Format a number as a percentage with optional sign
+ */
+export function formatPercent(value: number, options?: { showSign?: boolean }): string {
+  const sign = options?.showSign && value >= 0 ? '+' : ''
+  return `${sign}${(value * 100).toFixed(1)}%`
+}

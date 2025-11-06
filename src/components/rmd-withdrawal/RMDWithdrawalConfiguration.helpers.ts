@@ -1,4 +1,4 @@
-import type { WithdrawalFormValue } from '../utils/config-storage'
+import type { WithdrawalFormValue } from '../../utils/config-storage'
 
 export interface RMDConfigValues {
   startAge: number

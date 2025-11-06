@@ -1,5 +1,5 @@
 import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
-import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
+import { RMDWithdrawalConfiguration } from './rmd-withdrawal/RMDWithdrawalConfiguration'
 import type { RMDConfig } from '../../helpers/withdrawal'
 
 interface Props {

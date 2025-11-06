@@ -4,7 +4,7 @@ import {
   createReturnConfigForMode,
   getReturnModeFromConfig,
 } from './segment-return-config-helpers'
-import type { ReturnConfiguration } from '../../helpers/random-returns'
+import type { ReturnConfiguration } from '../utils/random-returns'
 
 export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable' | 'multiasset'
 

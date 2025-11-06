@@ -1,4 +1,4 @@
-import type { BucketSubStrategy } from '../../helpers/withdrawal'
+import type { BucketSubStrategy } from '../../../helpers/withdrawal'
 
 export interface BucketStrategyFormValues {
   bucketConfig?: {

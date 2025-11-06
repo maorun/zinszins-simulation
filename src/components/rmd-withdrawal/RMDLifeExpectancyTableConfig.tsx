@@ -1,5 +1,5 @@
-import { Label } from './ui/label'
-import { RadioTileGroup, RadioTile } from './ui/radio-tile'
+import { Label } from '../ui/label'
+import { RadioTileGroup, RadioTile } from '../ui/radio-tile'
 
 interface RMDLifeExpectancyTableConfigProps {
   value: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'

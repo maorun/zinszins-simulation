@@ -3,7 +3,7 @@ import { SegmentRandomReturnConfig } from './SegmentRandomReturnConfig'
 import { SegmentVariableReturnConfig } from './SegmentVariableReturnConfig'
 import { MultiAssetPortfolioConfiguration } from './MultiAssetPortfolioConfiguration'
 import { createDefaultMultiAssetConfig } from '../../helpers/multi-asset-portfolio'
-import type { ReturnConfiguration } from '../../helpers/random-returns'
+import type { ReturnConfiguration } from '../utils/random-returns'
 
 interface SegmentReturnConfigRendererProps {
   segmentId: string

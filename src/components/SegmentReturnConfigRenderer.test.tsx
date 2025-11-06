@@ -2,7 +2,7 @@ import { render, screen } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
 import { SegmentReturnConfigRenderer } from './SegmentReturnConfigRenderer'
 import { createDefaultMultiAssetConfig } from '../../helpers/multi-asset-portfolio'
-import type { ReturnConfiguration } from '../../helpers/random-returns'
+import type { ReturnConfiguration } from '../utils/random-returns'
 
 // Mock child components
 vi.mock('./SegmentFixedReturnConfig', () => ({

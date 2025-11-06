@@ -1,5 +1,5 @@
 import type { RandomReturnConfig } from '../utils/random-returns'
-import { formatPercent } from './monte-carlo-helpers'
+import { formatPercent } from '../utils/currency'
 
 interface SimulationParametersInfoProps {
   config: RandomReturnConfig

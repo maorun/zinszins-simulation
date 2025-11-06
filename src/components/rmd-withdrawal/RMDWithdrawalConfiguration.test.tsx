@@ -1,6 +1,6 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent, renderHook } from '@testing-library/react'
-import { SimulationProvider } from '../contexts/SimulationContext'
+import { SimulationProvider } from '../../contexts/SimulationContext'
 import { RMDWithdrawalConfiguration } from './RMDWithdrawalConfiguration'
 import { RMDStartAgeConfig } from './RMDStartAgeConfig'
 import { RMDLifeExpectancyTableConfig } from './RMDLifeExpectancyTableConfig'

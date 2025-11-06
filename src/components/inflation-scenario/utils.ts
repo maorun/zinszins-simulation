@@ -1,11 +1,11 @@
 import type { InflationScenario } from '../../../helpers/inflation-scenarios'
+import { formatPercent as formatPercentUtil } from '../../utils/currency'
 
 /**
- * Formats a number as a percentage with sign
+ * Format percent with sign for inflation scenarios
  */
 export const formatPercent = (value: number): string => {
-  const sign = value >= 0 ? '+' : ''
-  return `${sign}${(value * 100).toFixed(1)}%`
+  return formatPercentUtil(value, { showSign: true })
 }
 
 // Scenario color configuration

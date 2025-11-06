@@ -2,7 +2,7 @@
  * Helper functions for useWithdrawalCalculations hook
  */
 
-import type { ReturnConfiguration } from '../../helpers/random-returns'
+import type { ReturnConfiguration } from '../utils/random-returns'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
 import type { ComparisonStrategy, SegmentedComparisonStrategy, WithdrawalConfiguration } from '../utils/config-storage'
 import {

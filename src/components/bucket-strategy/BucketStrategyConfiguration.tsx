@@ -1,5 +1,5 @@
-import { Label } from './ui/label'
-import { SubStrategySelector } from './SubStrategySelector'
+import { Label } from '../ui/label'
+import { SubStrategySelector } from '../SubStrategySelector'
 import { VariabelProzentConfig, MonatlichFestConfig } from './BucketSubStrategyConfigs'
 import { DynamischConfig } from './BucketDynamischConfig'
 import {
