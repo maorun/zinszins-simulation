@@ -66,7 +66,7 @@ export default [
       // Code Quality Rules (Codacy best practices)
       complexity: ['warn', 8], // Cyclomatic complexity - Phase 4.3: 8 (final target)
       'max-depth': ['warn', 5], // Maximum nesting depth
-      'max-lines-per-function': ['warn', { max: 85, skipBlankLines: true, skipComments: true }], // Adjusted from 50 to 85 to accommodate Prettier formatting while maintaining quality standards
+      'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true, skipComments: true }], // Phase 4.3: 50 (final target)
 
       // Security Rules (Codacy security patterns)
       'no-eval': 'error',
