@@ -1,6 +1,6 @@
-import { Card, CardHeader, CardTitle, CardContent } from '../ui/card'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '../ui/collapsible'
-import { ChevronDown } from 'lucide-react'
+import { Card, CardContent } from '../ui/card'
+import { Collapsible, CollapsibleContent } from '../ui/collapsible'
+import { CollapsibleCardHeader } from '../ui/collapsible-card'
 import { TaxSectionsContent } from './TaxSectionsContent'
 
 interface SimulationContext {
@@ -37,14 +37,9 @@ export function TaxConfigurationCard({
   return (
     <Card nestingLevel={1}>
       <Collapsible defaultOpen={false}>
-        <CardHeader nestingLevel={1}>
-          <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-              <CardTitle className="text-left">💰 Steuer-Konfiguration</CardTitle>
-              <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-            </div>
-          </CollapsibleTrigger>
-        </CardHeader>
+        <CollapsibleCardHeader titleClassName="text-left" simplifiedPadding>
+          💰 Steuer-Konfiguration
+        </CollapsibleCardHeader>
         <CollapsibleContent>
           <CardContent nestingLevel={1}>
             <TaxSectionsContent simulation={simulation} yearToday={yearToday} />

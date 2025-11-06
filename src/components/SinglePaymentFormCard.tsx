@@ -3,9 +3,9 @@ import { type SingleFormValue } from './SparplanEingabe.helpers'
 import { SinglePaymentFormFields } from './sparplan-forms/SinglePaymentFormFields'
 import { CostFactorFields } from './sparplan-forms/CostFactorFields'
 import { Button } from './ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { ChevronDown } from 'lucide-react'
+import { Card, CardContent } from './ui/card'
+import { Collapsible, CollapsibleContent } from './ui/collapsible'
+import { CollapsibleCardHeader } from './ui/collapsible-card'
 
 interface SinglePaymentFormCardProps {
   isOpen: boolean
@@ -27,14 +27,14 @@ interface SinglePaymentFormCardProps {
 
 function FormHeader() {
   return (
-    <CardHeader className="pb-4">
-      <CollapsibleTrigger asChild>
-        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors">
-          <CardTitle className="text-left text-lg">💵 Einmalzahlungen erstellen</CardTitle>
-          <ChevronDown className="h-5 w-5 text-gray-500" />
-        </div>
-      </CollapsibleTrigger>
-    </CardHeader>
+    <CollapsibleCardHeader
+      className="pb-4"
+      titleClassName="text-left text-lg"
+      iconClassName="h-5 w-5"
+      simplifiedPadding
+    >
+      💵 Einmalzahlungen erstellen
+    </CollapsibleCardHeader>
   )
 }
 

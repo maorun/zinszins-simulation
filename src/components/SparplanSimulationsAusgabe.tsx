@@ -1,7 +1,7 @@
 // Modern shadcn/ui component implementation
-import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
-import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { ChevronDown } from 'lucide-react'
+import { Card, CardContent } from './ui/card'
+import { Collapsible, CollapsibleContent } from './ui/collapsible'
+import { CollapsibleCardHeader } from './ui/collapsible-card'
 import type { SparplanElement } from '../utils/sparplan-utils'
 import { fullSummary, getYearlyPortfolioProgression, type Summary } from '../utils/summary-utils'
 import VorabpauschaleExplanationModal from './VorabpauschaleExplanationModal'
@@ -109,14 +109,9 @@ export function SparplanEnd({
   return (
     <Card className="mb-4">
       <Collapsible defaultOpen={false}>
-        <CardHeader>
-          <CollapsibleTrigger asChild>
-            <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
-              <CardTitle className="text-left">🎯 Endkapital</CardTitle>
-              <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-            </div>
-          </CollapsibleTrigger>
-        </CardHeader>
+        <CollapsibleCardHeader titleClassName="text-left" simplifiedPadding>
+          🎯 Endkapital
+        </CollapsibleCardHeader>
         <CollapsibleContent>
           <CardContent>
             <CapitalDisplay amount={summary.endkapital} onInfoClick={onCalculationInfoClick} />
@@ -369,14 +364,9 @@ function SparplanCardContent(props: SparplanCardContentProps) {
 // Component for card header
 function SparplanCardHeader() {
   return (
-    <CardHeader>
-      <CollapsibleTrigger asChild>
-        <div className="flex items-center justify-between w-full cursor-pointer hover:bg-gray-50 rounded-md p-2 -m-2 transition-colors group">
-          <CardTitle className="text-left">📈 Sparplan-Verlauf</CardTitle>
-          <ChevronDown className="h-5 w-5 text-gray-500 transition-transform duration-200 group-data-[state=open]:rotate-180" />
-        </div>
-      </CollapsibleTrigger>
-    </CardHeader>
+    <CollapsibleCardHeader titleClassName="text-left" simplifiedPadding>
+      📈 Sparplan-Verlauf
+    </CollapsibleCardHeader>
   )
 }
 
