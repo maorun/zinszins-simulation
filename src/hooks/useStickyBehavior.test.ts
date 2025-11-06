@@ -1,15 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { useStickyBehavior } from './useStickyBehavior'
+import type { ScrollListener } from '../test-utils/types'
 
 describe('useStickyBehavior', () => {
-  let scrollListeners: any[] = []
+  let scrollListeners: ScrollListener[] = []
 
   beforeEach(() => {
     scrollListeners = []
     vi.spyOn(window, 'addEventListener').mockImplementation((event, listener) => {
       if (event === 'scroll' && typeof listener === 'function') {
-        scrollListeners.push(listener)
+        scrollListeners.push(listener as ScrollListener)
       }
     })
     vi.spyOn(window, 'removeEventListener')

@@ -10,6 +10,8 @@ import {
 } from './data-export'
 import type { SimulationContextState } from '../contexts/SimulationContext'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
+import type { MockSavingsData } from '../test-utils/types'
+import type { WithdrawalFormValue } from './config-storage'
 
 // Mock the clipboard API
 Object.assign(navigator, {
@@ -24,7 +26,7 @@ global.URL.revokeObjectURL = vi.fn()
 
 describe('data-export', () => {
   let mockContext: SimulationContextState
-  let mockSavingsData: any
+  let mockSavingsData: MockSavingsData
   let mockWithdrawalData: WithdrawalResult
 
   beforeEach(() => {
@@ -61,8 +63,8 @@ describe('data-export', () => {
           rendite: 5.0,
           withdrawalFrequency: 'yearly' as const,
         },
-      } as any,
-    } as any
+      } as unknown as Partial<SimulationContextState['withdrawalConfig']>,
+    } as unknown as Partial<SimulationContextState> as SimulationContextState
 
     mockSavingsData = {
       sparplanElements: [
@@ -116,7 +118,7 @@ describe('data-export', () => {
   describe('exportSavingsDataToCSV', () => {
     it('should export savings phase data to CSV format', () => {
       const exportData: ExportData = {
-        savingsData: mockSavingsData,
+        savingsData: mockSavingsData as unknown as ExportData['savingsData'],
         context: mockContext,
       }
 
@@ -134,7 +136,7 @@ describe('data-export', () => {
     it('should handle monthly calculation mode', () => {
       mockContext.simulationAnnual = 'monthly'
       const exportData: ExportData = {
-        savingsData: mockSavingsData,
+        savingsData: mockSavingsData as unknown as ExportData['savingsData'],
         context: mockContext,
       }
 
@@ -194,7 +196,7 @@ describe('data-export', () => {
   describe('exportDataToMarkdown', () => {
     it('should export data to Markdown format', () => {
       const exportData: ExportData = {
-        savingsData: mockSavingsData,
+        savingsData: mockSavingsData as unknown as ExportData['savingsData'],
         withdrawalData: mockWithdrawalData,
         context: mockContext,
       }
@@ -213,7 +215,7 @@ describe('data-export', () => {
 
     it('should handle only savings data', () => {
       const exportData: ExportData = {
-        savingsData: mockSavingsData,
+        savingsData: mockSavingsData as unknown as ExportData['savingsData'],
         context: mockContext,
       }
 
@@ -284,7 +286,7 @@ describe('data-export', () => {
             returnConfig: { mode: 'fixed', fixedRate: 0.03 },
           },
         ],
-      } as any
+      } as unknown as SimulationContextState['withdrawalConfig']
 
       const result = generateCalculationExplanations(mockContext)
 
@@ -308,7 +310,7 @@ describe('data-export', () => {
         rendite: 5.0,
         withdrawalFrequency: 'yearly',
         variabelProzent: 4.5,
-      } as any
+      } as Partial<WithdrawalFormValue> as WithdrawalFormValue
       result = generateCalculationExplanations(mockContext)
       expect(result).toContain('Strategie: Variabler Prozentsatz')
       expect(result).toContain('Jährliche Entnahme = 4.50% vom aktuellen Kapital')
@@ -322,7 +324,7 @@ describe('data-export', () => {
         monatlicheBetrag: 3000,
         inflationAktiv: true,
         inflationsrate: 2.5,
-      } as any
+      } as Partial<WithdrawalFormValue> as WithdrawalFormValue
       result = generateCalculationExplanations(mockContext)
       expect(result).toContain('Strategie: Monatliche Entnahme')
       expect(result).toContain('Monatliche Entnahme:') // Amount will follow
@@ -335,7 +337,7 @@ describe('data-export', () => {
         rendite: 5.0,
         withdrawalFrequency: 'yearly',
         dynamischBasisrate: 4.2,
-      } as any
+      } as Partial<WithdrawalFormValue> as WithdrawalFormValue
       result = generateCalculationExplanations(mockContext)
       expect(result).toContain('Strategie: Dynamische Strategie')
       expect(result).toContain('Basisrate: 4.20%')
@@ -385,19 +387,19 @@ describe('data-export', () => {
         download: '',
         click: vi.fn(),
       }
-      const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as any)
-      const removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as any)
-      const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockLink as any)
+      const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as unknown as Node)
+      const removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as unknown as Node)
+      const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockLink as unknown as HTMLElement)
 
       // Mock Blob constructor to capture the content and options
       const originalBlob = global.Blob
-      let blobContent: any
-      let blobOptions: any
+      let blobContent: Array<string | ArrayBuffer | ArrayBufferView | Blob> | undefined
+      let blobOptions: { type?: string, endings?: 'transparent' | 'native' } | undefined
       global.Blob = vi.fn().mockImplementation((content, options) => {
         blobContent = content
         blobOptions = options
         return new originalBlob(content, options)
-      }) as any
+      }) as unknown as typeof Blob
 
       downloadTextAsFile('test content with äöü and €', 'test.txt')
 
@@ -408,29 +410,29 @@ describe('data-export', () => {
       expect(removeChildSpy).toHaveBeenCalledWith(mockLink)
 
       // Verify BOM is added
-      expect(blobContent[0]).toBe('\uFEFFtest content with äöü and €')
+      expect(blobContent?.[0]).toBe('\uFEFFtest content with äöü and €')
       // Verify charset is added to MIME type
-      expect(blobOptions.type).toBe('text/plain;charset=utf-8')
+      expect(blobOptions?.type).toBe('text/plain;charset=utf-8')
 
       global.Blob = originalBlob
     })
 
     it('should preserve existing charset in MIME type', () => {
       const mockLink = { href: '', download: '', click: vi.fn() }
-      vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as any)
-      vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as any)
-      vi.spyOn(document, 'createElement').mockReturnValue(mockLink as any)
+      vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as unknown as Node)
+      vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as unknown as Node)
+      vi.spyOn(document, 'createElement').mockReturnValue(mockLink as unknown as HTMLElement)
 
       const originalBlob = global.Blob
-      let blobOptions: any
+      let blobOptions: { type?: string, endings?: 'transparent' | 'native' } | undefined
       global.Blob = vi.fn().mockImplementation((content, options) => {
         blobOptions = options
         return new originalBlob(content, options)
-      }) as any
+      }) as unknown as typeof Blob
 
       downloadTextAsFile('test', 'test.md', 'text/markdown;charset=utf-8')
 
-      expect(blobOptions.type).toBe('text/markdown;charset=utf-8')
+      expect(blobOptions?.type).toBe('text/markdown;charset=utf-8')
 
       global.Blob = originalBlob
     })
@@ -438,7 +440,7 @@ describe('data-export', () => {
 
   describe('copyTextToClipboard', () => {
     it('should copy text to clipboard successfully', async () => {
-      (navigator.clipboard.writeText as any).mockResolvedValue(undefined)
+      vi.mocked(navigator.clipboard.writeText).mockResolvedValue(undefined)
 
       const result = await copyTextToClipboard('test content')
 
@@ -447,7 +449,7 @@ describe('data-export', () => {
     })
 
     it('should handle clipboard errors', async () => {
-      (navigator.clipboard.writeText as any).mockRejectedValue(new Error('Clipboard error'))
+      vi.mocked(navigator.clipboard.writeText).mockRejectedValue(new Error('Clipboard error'))
 
       const result = await copyTextToClipboard('test content')
 

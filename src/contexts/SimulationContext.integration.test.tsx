@@ -4,6 +4,7 @@ import { describe, it, expect, beforeEach } from 'vitest'
 import { SimulationProvider } from '../contexts/SimulationContext'
 import { useSimulation } from '../contexts/useSimulation'
 import { useEffect } from 'react'
+import type { SimulationContextTestData } from '../test-utils/types'
 
 // Mock Vercel Analytics
 vi.mock('@vercel/analytics/react', () => ({
@@ -11,7 +12,7 @@ vi.mock('@vercel/analytics/react', () => ({
 }))
 
 // Test component to access simulation context
-const TestContextComponent = ({ onContextData }: { onContextData: (data: any) => void }) => {
+const TestContextComponent = ({ onContextData }: { onContextData: (data: unknown) => void }) => {
   const simulationContext = useSimulation()
 
   useEffect(() => {
@@ -36,7 +37,7 @@ describe('Cross-Component State Management Integration Tests', () => {
   })
 
   it('provides consistent simulation context across components', async () => {
-    let contextData: any = null
+    let contextData: unknown = null
 
     render(
       <SimulationProvider>
@@ -46,22 +47,23 @@ describe('Cross-Component State Management Integration Tests', () => {
 
     await waitFor(() => {
       expect(contextData).toBeTruthy()
-      expect(contextData.startEnd).toBeDefined()
-      expect(contextData.rendite).toBeDefined()
-      expect(contextData.steuerlast).toBeDefined()
-      expect(contextData.simulationAnnual).toBeDefined()
+      expect((contextData as SimulationContextTestData).startEnd).toBeDefined()
+      expect((contextData as SimulationContextTestData).rendite).toBeDefined()
+      expect((contextData as SimulationContextTestData).steuerlast).toBeDefined()
+      expect((contextData as SimulationContextTestData).simulationAnnual).toBeDefined()
     }, { timeout: 2000 })
 
     // Check default values are reasonable
-    expect(contextData.startEnd).toHaveLength(2)
-    expect(contextData.startEnd[0]).toBeGreaterThan(2020)
-    expect(contextData.startEnd[1]).toBeGreaterThan(contextData.startEnd[0])
-    expect(contextData.rendite).toBeGreaterThan(0)
-    expect(contextData.steuerlast).toBeGreaterThan(0)
+    const data = contextData as SimulationContextTestData
+    expect(data.startEnd).toHaveLength(2)
+    expect(data.startEnd[0]).toBeGreaterThan(2020)
+    expect(data.startEnd[1]).toBeGreaterThan(data.startEnd[0])
+    expect(data.rendite).toBeGreaterThan(0)
+    expect(data.steuerlast).toBeGreaterThan(0)
   })
 
   it('maintains state consistency across context updates', async () => {
-    let contextData: any = null
+    let contextData: unknown = null
 
     render(
       <SimulationProvider>
@@ -73,9 +75,10 @@ describe('Cross-Component State Management Integration Tests', () => {
       expect(contextData).toBeTruthy()
     }, { timeout: 2000 })
 
-    const initialStartYear = contextData.startEnd[0]
-    const initialEndYear = contextData.startEnd[1]
-    const initialRendite = contextData.rendite
+    const data = contextData as SimulationContextTestData
+    const initialStartYear = data.startEnd[0]
+    const initialEndYear = data.startEnd[1]
+    const initialRendite = data.rendite
 
     // Values should be stable and meaningful
     expect(initialStartYear).toBeGreaterThan(2020)
@@ -85,7 +88,7 @@ describe('Cross-Component State Management Integration Tests', () => {
   })
 
   it('handles simulation data updates correctly', async () => {
-    let contextData: any = null
+    let contextData: unknown = null
 
     render(
       <SimulationProvider>
@@ -99,9 +102,13 @@ describe('Cross-Component State Management Integration Tests', () => {
 
     // Should have simulation data structure (might be null initially)
     expect(contextData).toHaveProperty('simulationData')
-    if (contextData.simulationData) {
-      expect(contextData.simulationData).toHaveProperty('sparplanElements')
-      expect(Array.isArray(contextData.simulationData.sparplanElements)).toBe(true)
+    const data = contextData as SimulationContextTestData
+    if (data.simulationData && typeof data.simulationData === 'object') {
+      expect(data.simulationData).toHaveProperty('sparplanElements')
+      const simData = data.simulationData as { sparplanElements?: unknown[] }
+      if (simData.sparplanElements) {
+        expect(Array.isArray(simData.sparplanElements)).toBe(true)
+      }
     }
   })
 
@@ -163,7 +170,7 @@ describe('Cross-Component State Management Integration Tests', () => {
   })
 
   it('provides required simulation methods and data', async () => {
-    let contextData: any = null
+    let contextData: unknown = null
 
     render(
       <SimulationProvider>
@@ -175,9 +182,10 @@ describe('Cross-Component State Management Integration Tests', () => {
       expect(contextData).toBeTruthy()
     }, { timeout: 2000 })
 
+    const data = contextData as SimulationContextTestData
     // Check that required methods exist
-    expect(typeof contextData.performSimulation).toBe('function')
-    expect(typeof contextData.setSparplanElemente).toBe('function')
+    expect(typeof data.performSimulation).toBe('function')
+    expect(typeof data.setSparplanElemente).toBe('function')
 
     // Check that required data properties exist
     expect(contextData).toHaveProperty('startEnd')
@@ -189,7 +197,7 @@ describe('Cross-Component State Management Integration Tests', () => {
   })
 
   it('handles default configuration loading', async () => {
-    let contextData: any = null
+    let contextData: unknown = null
 
     render(
       <SimulationProvider>
@@ -201,20 +209,21 @@ describe('Cross-Component State Management Integration Tests', () => {
       expect(contextData).toBeTruthy()
     }, { timeout: 2000 })
 
+    const data = contextData as SimulationContextTestData
     // Should load with reasonable defaults
     // Default: startEnd [2040, 2080], 5% return, 26.375% tax
-    expect(contextData.startEnd[0]).toBeGreaterThanOrEqual(2040)
-    expect(contextData.startEnd[1]).toBeGreaterThan(contextData.startEnd[0])
+    expect(data.startEnd[0]).toBeGreaterThanOrEqual(2040)
+    expect(data.startEnd[1]).toBeGreaterThan(data.startEnd[0])
 
     // Default return should be around 5% (in percentage form)
-    expect(contextData.rendite).toBeCloseTo(5, 1)
+    expect(data.rendite).toBeCloseTo(5, 1)
 
     // Default tax rate should be around 26.375%
-    expect(contextData.steuerlast).toBeCloseTo(26.375, 1)
+    expect(data.steuerlast).toBeCloseTo(26.375, 1)
   })
 
   it('maintains context consistency during component lifecycle', async () => {
-    let contextData: any = null
+    let contextData: unknown = null
 
     const { rerender } = render(
       <SimulationProvider>
@@ -226,7 +235,7 @@ describe('Cross-Component State Management Integration Tests', () => {
       expect(contextData).toBeTruthy()
     }, { timeout: 2000 })
 
-    const initialData = { ...contextData }
+    const initialData = { ...(contextData as SimulationContextTestData) }
 
     // Rerender component
     rerender(
@@ -239,10 +248,11 @@ describe('Cross-Component State Management Integration Tests', () => {
       expect(contextData).toBeTruthy()
     }, { timeout: 1000 })
 
+    const currentData = contextData as SimulationContextTestData
     // Core values should remain consistent across rerenders
-    expect(contextData.startEnd[0]).toBe(initialData.startEnd[0])
-    expect(contextData.startEnd[1]).toBe(initialData.startEnd[1])
-    expect(contextData.rendite).toBe(initialData.rendite)
-    expect(contextData.steuerlast).toBe(initialData.steuerlast)
+    expect(currentData.startEnd[0]).toBe(initialData.startEnd[0])
+    expect(currentData.startEnd[1]).toBe(initialData.startEnd[1])
+    expect(currentData.rendite).toBe(initialData.rendite)
+    expect(currentData.steuerlast).toBe(initialData.steuerlast)
   })
 })
