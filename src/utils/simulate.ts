@@ -1,5 +1,5 @@
 import type { SparplanElement } from '../utils/sparplan-utils'
-import { getBasiszinsForYear, calculateVorabpauschaleDetailed, performGuenstigerPruefung } from '../../helpers/steuer.tsx'
+import { getBasiszinsForYear, calculateVorabpauschaleDetailed, performGuenstigerPruefung } from '../../helpers/steuer'
 import { type ReturnConfiguration, generateRandomReturns } from './random-returns'
 import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import { getHistoricalReturns } from './historical-data'
