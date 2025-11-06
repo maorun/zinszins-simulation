@@ -1,3 +1,4 @@
+import { memo } from 'react'
 import type { EnhancedSummary, WithdrawalSegmentSummary } from '../../utils/summary-utils'
 
 interface WithdrawalPhaseSectionProps {
@@ -6,7 +7,7 @@ interface WithdrawalPhaseSectionProps {
   enhancedSummary: EnhancedSummary
 }
 
-function MetricCard({ icon, label, value }: { icon: string; label: string; value: string }) {
+const MetricCard = memo(({ icon, label, value }: { icon: string; label: string; value: string }) => {
   return (
     <div className="flex justify-between items-center p-2.5 sm:p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300 transition-all hover:bg-gray-100 hover:translate-x-1">
       <span className="font-medium text-gray-700 text-sm">
@@ -15,9 +16,11 @@ function MetricCard({ icon, label, value }: { icon: string; label: string; value
       <span className="font-bold text-slate-700 text-right text-sm sm:text-base">{value}</span>
     </div>
   )
-}
+})
 
-function SingleWithdrawalView({ enhancedSummary }: { enhancedSummary: EnhancedSummary }) {
+MetricCard.displayName = 'MetricCard'
+
+const SingleWithdrawalView = memo(({ enhancedSummary }: { enhancedSummary: EnhancedSummary }) => {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div className="flex justify-between items-center p-3 bg-gray-50 rounded-lg border-l-4 border-gray-300 transition-all hover:bg-gray-100 hover:translate-x-1">
@@ -34,9 +37,11 @@ function SingleWithdrawalView({ enhancedSummary }: { enhancedSummary: EnhancedSu
       </div>
     </div>
   )
-}
+})
 
-function SegmentedWithdrawalView({ enhancedSummary }: { enhancedSummary: EnhancedSummary }) {
+SingleWithdrawalView.displayName = 'SingleWithdrawalView'
+
+const SegmentedWithdrawalView = memo(({ enhancedSummary }: { enhancedSummary: EnhancedSummary }) => {
   return (
     <div className="flex flex-col gap-3 sm:gap-4">
       {enhancedSummary.withdrawalSegments!.map((segment) => (
@@ -65,7 +70,9 @@ function SegmentedWithdrawalView({ enhancedSummary }: { enhancedSummary: Enhance
       </div>
     </div>
   )
-}
+})
+
+SegmentedWithdrawalView.displayName = 'SegmentedWithdrawalView'
 
 function formatEuro(value: number): string {
   return value.toLocaleString('de-DE', {
@@ -74,15 +81,17 @@ function formatEuro(value: number): string {
   })
 }
 
-function SegmentCardHeader({ segment }: { segment: WithdrawalSegmentSummary }) {
+const SegmentCardHeader = memo(({ segment }: { segment: WithdrawalSegmentSummary }) => {
   return (
     <h5 className="m-0 mb-2.5 sm:mb-3 text-slate-700 text-sm sm:text-base font-semibold">
       {segment.name} ({segment.startYear} - {segment.endYear}) - {segment.strategy}
     </h5>
   )
-}
+})
 
-function SegmentCard({ segment }: { segment: WithdrawalSegmentSummary }) {
+SegmentCardHeader.displayName = 'SegmentCardHeader'
+
+const SegmentCard = memo(({ segment }: { segment: WithdrawalSegmentSummary }) => {
   return (
     <div
       key={segment.id}
@@ -99,44 +108,47 @@ function SegmentCard({ segment }: { segment: WithdrawalSegmentSummary }) {
       </div>
     </div>
   )
-}
+})
+
+SegmentCard.displayName = 'SegmentCard'
 
 /**
  * Displays the withdrawal phase (Entsparphase) section in the enhanced overview
  * Handles both segmented withdrawal (multiple phases) and single withdrawal phase display
+ * Memoized to prevent unnecessary re-renders when props haven't changed
  */
-export function WithdrawalPhaseSection({
-  withdrawalStartYear,
-  withdrawalEndYear,
-  enhancedSummary,
-}: WithdrawalPhaseSectionProps) {
-  // Only render if withdrawal data exists
-  if (enhancedSummary.endkapitalEntspharphase === undefined) {
-    return null
-  }
+export const WithdrawalPhaseSection = memo(
+  ({ withdrawalStartYear, withdrawalEndYear, enhancedSummary }: WithdrawalPhaseSectionProps) => {
+    // Only render if withdrawal data exists
+    if (enhancedSummary.endkapitalEntspharphase === undefined) {
+      return null
+    }
 
-  const hasSegmentedWithdrawal =
-    enhancedSummary.isSegmentedWithdrawal &&
-    enhancedSummary.withdrawalSegments &&
-    enhancedSummary.withdrawalSegments.length > 1
+    const hasSegmentedWithdrawal =
+      enhancedSummary.isSegmentedWithdrawal &&
+      enhancedSummary.withdrawalSegments &&
+      enhancedSummary.withdrawalSegments.length > 1
 
-  return (
-    <div className="p-4 sm:p-6 border-b border-gray-200">
-      <h4 className="m-0 mb-3 sm:mb-4 text-slate-700 text-base sm:text-lg font-semibold flex items-center gap-1.5 sm:gap-2">
-        💸 Entsparphase ({withdrawalStartYear} - {withdrawalEndYear})
-        {hasSegmentedWithdrawal && (
-          <span className="text-sm text-cyan-600 font-normal">
-            {' '}
-            -{enhancedSummary.withdrawalSegments!.length} Phasen
-          </span>
+    return (
+      <div className="p-4 sm:p-6 border-b border-gray-200">
+        <h4 className="m-0 mb-3 sm:mb-4 text-slate-700 text-base sm:text-lg font-semibold flex items-center gap-1.5 sm:gap-2">
+          💸 Entsparphase ({withdrawalStartYear} - {withdrawalEndYear})
+          {hasSegmentedWithdrawal && (
+            <span className="text-sm text-cyan-600 font-normal">
+              {' '}
+              -{enhancedSummary.withdrawalSegments!.length} Phasen
+            </span>
+          )}
+        </h4>
+
+        {hasSegmentedWithdrawal ? (
+          <SegmentedWithdrawalView enhancedSummary={enhancedSummary} />
+        ) : (
+          <SingleWithdrawalView enhancedSummary={enhancedSummary} />
         )}
-      </h4>
+      </div>
+    )
+  },
+)
 
-      {hasSegmentedWithdrawal ? (
-        <SegmentedWithdrawalView enhancedSummary={enhancedSummary} />
-      ) : (
-        <SingleWithdrawalView enhancedSummary={enhancedSummary} />
-      )}
-    </div>
-  )
-}
+WithdrawalPhaseSection.displayName = 'WithdrawalPhaseSection'

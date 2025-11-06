@@ -36,20 +36,34 @@ describe('HomePage Integration Tests - Optimized', () => {
     localStorage.clear()
   })
 
-  it('renders the main calculator interface', () => {
+  it('renders the main calculator interface', async () => {
     render(<HomePage />)
 
-    // Check main tabs
-    expect(screen.getByText('Ansparen')).toBeInTheDocument()
-    expect(screen.getByText('Entnehmen')).toBeInTheDocument()
+    // Wait for lazy-loaded components to render
+    await waitFor(
+      () => {
+        expect(screen.getByText('Ansparen')).toBeInTheDocument()
+        expect(screen.getByText('Entnehmen')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
 
     // Check that we have the enhanced overview section
     const finanzuebersicht = screen.queryByText(/Finanzübersicht/)
     expect(finanzuebersicht).toBeInTheDocument()
   })
 
-  it('has working tab navigation between Ansparen and Entnehmen', () => {
+  it('has working tab navigation between Ansparen and Entnehmen', async () => {
     render(<HomePage />)
+
+    // Wait for lazy-loaded components
+    await waitFor(
+      () => {
+        expect(screen.getByText('Ansparen')).toBeInTheDocument()
+        expect(screen.getByText('Entnehmen')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
 
     const ansparenTab = screen.getByText('Ansparen')
     const entnehmenTab = screen.getByText('Entnehmen')

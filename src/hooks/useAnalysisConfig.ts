@@ -1,3 +1,4 @@
+import { useMemo } from 'react'
 import { useSimulation } from '../contexts/useSimulation'
 import { useReturnConfiguration } from './useReturnConfiguration'
 import type { SensitivityAnalysisConfig } from '../utils/sensitivity-analysis'
@@ -20,19 +21,34 @@ export function useAnalysisConfig() {
     multiAssetConfig: simulationState.multiAssetConfig,
   })
 
-  const sensitivityConfig: SensitivityAnalysisConfig = {
-    startYear: simulationState.startEnd[0],
-    endYear: simulationState.startEnd[1],
-    elements: simulationState.sparplanElemente,
-    steuerlast: simulationState.steuerlast / 100,
-    teilfreistellungsquote: simulationState.teilfreistellungsquote / 100,
-    simulationAnnual: simulationState.simulationAnnual,
-    freibetragPerYear: simulationState.freibetragPerYear,
-    steuerReduzierenEndkapital: simulationState.steuerReduzierenEndkapitalSparphase,
-    inflationAktivSparphase: simulationState.inflationAktivSparphase,
-    inflationsrateSparphase: simulationState.inflationsrateSparphase,
-    inflationAnwendungSparphase: simulationState.inflationAnwendungSparphase,
-  }
+  // Memoize sensitivity config to prevent recreating on every render
+  const sensitivityConfig: SensitivityAnalysisConfig = useMemo(
+    () => ({
+      startYear: simulationState.startEnd[0],
+      endYear: simulationState.startEnd[1],
+      elements: simulationState.sparplanElemente,
+      steuerlast: simulationState.steuerlast / 100,
+      teilfreistellungsquote: simulationState.teilfreistellungsquote / 100,
+      simulationAnnual: simulationState.simulationAnnual,
+      freibetragPerYear: simulationState.freibetragPerYear,
+      steuerReduzierenEndkapital: simulationState.steuerReduzierenEndkapitalSparphase,
+      inflationAktivSparphase: simulationState.inflationAktivSparphase,
+      inflationsrateSparphase: simulationState.inflationsrateSparphase,
+      inflationAnwendungSparphase: simulationState.inflationAnwendungSparphase,
+    }),
+    [
+      simulationState.startEnd,
+      simulationState.sparplanElemente,
+      simulationState.steuerlast,
+      simulationState.teilfreistellungsquote,
+      simulationState.simulationAnnual,
+      simulationState.freibetragPerYear,
+      simulationState.steuerReduzierenEndkapitalSparphase,
+      simulationState.inflationAktivSparphase,
+      simulationState.inflationsrateSparphase,
+      simulationState.inflationAnwendungSparphase,
+    ],
+  )
 
   return {
     simulationData: simulationState.simulationData,

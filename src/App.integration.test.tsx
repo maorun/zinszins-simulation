@@ -1,5 +1,5 @@
 /// <reference types="@testing-library/jest-dom" />
-import { render, screen } from '@testing-library/react'
+import { render, screen, waitFor } from '@testing-library/react'
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import App from './App'
 
@@ -29,20 +29,37 @@ describe('App Integration Tests - Optimized', () => {
     localStorage.clear()
   })
 
-  it('loads the application with basic UI elements', () => {
+  it('loads the application with basic UI elements', async () => {
     render(<App />)
 
-    // Check that the main page structure loads
-    expect(screen.getByText('💼 Zinseszins-Simulation')).toBeInTheDocument()
-    expect(screen.getByText('🔄 Neu berechnen')).toBeInTheDocument()
+    // Wait for lazy-loaded components to render
+    await waitFor(
+      () => {
+        expect(screen.getByText('💼 Zinseszins-Simulation')).toBeInTheDocument()
+        expect(screen.getByText('🔄 Neu berechnen')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
+
+    // Wait for Profile Management to load
+    await waitFor(
+      () => {
+        expect(screen.getByText('👤 Profile verwalten')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
 
     // Check that main sections are present
     expect(screen.getByText('⚙️ Konfiguration')).toBeInTheDocument()
-    expect(screen.getByText('👤 Profile verwalten')).toBeInTheDocument()
 
-    // Check tabs are present
-    expect(screen.getByText('Ansparen')).toBeInTheDocument()
-    expect(screen.getByText('Entnehmen')).toBeInTheDocument()
+    // Wait for tabs to load
+    await waitFor(
+      () => {
+        expect(screen.getByText('Ansparen')).toBeInTheDocument()
+        expect(screen.getByText('Entnehmen')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
   })
 
   it('renders the complete application structure without errors', () => {
@@ -56,12 +73,17 @@ describe('App Integration Tests - Optimized', () => {
     expect(mainContent).toBeInTheDocument()
   })
 
-  it('has proper navigation and UI components', () => {
+  it('has proper navigation and UI components', async () => {
     render(<App />)
 
-    // Check footer elements exist
-    expect(screen.getByText('📧 by Marco')).toBeInTheDocument()
-    expect(screen.getByText('🚀 Erstellt mit React, TypeScript & shadcn/ui')).toBeInTheDocument()
+    // Wait for lazy-loaded components to render
+    await waitFor(
+      () => {
+        expect(screen.getByText('📧 by Marco')).toBeInTheDocument()
+        expect(screen.getByText('🚀 Erstellt mit React, TypeScript & shadcn/ui')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
 
     // Check that configuration sections exist
     const configElements = screen.getAllByText(/Konfiguration/)
