@@ -55,36 +55,3 @@ export function extractSimulationBasics(state: ReturnType<typeof useSimulationSt
     startEnd: state.startEnd,
   }
 }
-
-/**
- * Extracts all dependencies needed for memoization
- * Returns an array of all state properties used in simulation execution
- */
-export function extractDependencies(state: ReturnType<typeof useSimulationState>) {
-  return [
-    state.rendite,
-    state.returnMode,
-    state.averageReturn,
-    state.standardDeviation,
-    state.randomSeed,
-    state.variableReturns,
-    state.historicalIndex,
-    state.blackSwanReturns,
-    state.inflationScenarioRates,
-    state.inflationScenarioReturnModifiers,
-    state.multiAssetConfig,
-    state.simulationAnnual,
-    state.sparplanElemente,
-    state.startEnd,
-    state.steuerlast,
-    state.teilfreistellungsquote,
-    state.freibetragPerYear,
-    state.basiszinsConfiguration,
-    state.steuerReduzierenEndkapitalSparphase,
-    state.inflationAktivSparphase,
-    state.inflationsrateSparphase,
-    state.inflationAnwendungSparphase,
-    state.guenstigerPruefungAktiv,
-    state.personalTaxRate,
-  ]
-}

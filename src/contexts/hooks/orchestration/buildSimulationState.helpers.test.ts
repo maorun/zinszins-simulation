@@ -5,7 +5,6 @@ import {
   extractTaxConfig,
   extractInflationConfig,
   extractSimulationBasics,
-  extractDependencies,
 } from './buildSimulationState.helpers'
 import { createDefaultMultiAssetConfig } from '../../../../helpers/multi-asset-portfolio'
 
@@ -185,46 +184,6 @@ describe('buildSimulationState.helpers', () => {
     })
   })
 
-  describe('extractDependencies', () => {
-    it('returns array with all state properties', () => {
-      const mockState = createMockState()
-      const result = extractDependencies(mockState)
-
-      expect(Array.isArray(result)).toBe(true)
-      expect(result).toHaveLength(24)
-    })
-
-    it('includes all properties in correct order', () => {
-      const mockState = createMockState()
-      const result = extractDependencies(mockState)
-
-      // Check first few properties
-      expect(result[0]).toBe(5) // rendite
-      expect(result[1]).toBe('fixed') // returnMode
-      expect(result[2]).toBe(7) // averageReturn
-      expect(result[3]).toBe(15) // standardDeviation
-
-      // Check last few properties
-      expect(result[20]).toBe(2.5) // inflationsrateSparphase
-      expect(result[21]).toBe('sparplan') // inflationAnwendungSparphase
-      expect(result[22]).toBe(true) // guenstigerPruefungAktiv
-      expect(result[23]).toBe(42) // personalTaxRate
-    })
-
-    it('reflects state changes in dependency array', () => {
-      const mockState = createMockState()
-      const result1 = extractDependencies(mockState)
-
-      mockState.rendite = 10
-      mockState.steuerlast = 30
-
-      const result2 = extractDependencies(mockState)
-
-      expect(result2[0]).toBe(10)
-      expect(result2[0]).not.toBe(result1[0])
-    })
-  })
-
   describe('integration - all extractors work together', () => {
     it('extracts all properties exactly once when combined', () => {
       const mockState = createMockState()
@@ -253,29 +212,6 @@ describe('buildSimulationState.helpers', () => {
       ]
       const uniqueKeys = new Set(allKeys)
       expect(allKeys.length).toBe(uniqueKeys.size)
-    })
-
-    it('combined result matches dependency array values', () => {
-      const mockState = createMockState()
-
-      const returnConfig = extractReturnConfig(mockState)
-      const taxConfig = extractTaxConfig(mockState)
-      const inflationConfig = extractInflationConfig(mockState)
-      const simulationBasics = extractSimulationBasics(mockState)
-
-      const combined = {
-        ...returnConfig,
-        ...taxConfig,
-        ...inflationConfig,
-        ...simulationBasics,
-      }
-
-      const dependencies = extractDependencies(mockState)
-
-      // Verify key properties match
-      expect(combined.rendite).toBe(dependencies[0])
-      expect(combined.returnMode).toBe(dependencies[1])
-      expect(combined.personalTaxRate).toBe(dependencies[23])
     })
   })
 })
