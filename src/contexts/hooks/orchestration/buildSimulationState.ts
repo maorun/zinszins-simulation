@@ -30,4 +30,3 @@ export function useBuildSimulationState(state: ReturnType<typeof useSimulationSt
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, extractDependencies(state))
 }
-

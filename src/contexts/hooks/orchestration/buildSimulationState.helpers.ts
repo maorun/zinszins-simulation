@@ -88,4 +88,3 @@ export function extractDependencies(state: ReturnType<typeof useSimulationState>
     state.personalTaxRate,
   ]
 }
-
