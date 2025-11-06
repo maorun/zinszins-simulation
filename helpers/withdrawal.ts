@@ -8,6 +8,8 @@ import { calculateRMDWithdrawal } from './rmd-tables'
 import { calculateStatutoryPension, type StatutoryPensionConfig, type StatutoryPensionResult } from './statutory-pension'
 import { calculateOtherIncome, type OtherIncomeConfiguration, type OtherIncomeResult, type OtherIncomeYearResult } from './other-income'
 import { calculateHealthCareInsuranceForYear, calculateCoupleHealthInsuranceForYear, type HealthCareInsuranceConfig, type CoupleHealthInsuranceYearResult, type HealthCareInsuranceYearResult } from './health-care-insurance'
+import { generateMultiAssetReturns } from './multi-asset-calculations'
+import type { MultiAssetPortfolioConfig } from './multi-asset-portfolio'
 
 export type WithdrawalStrategy = '4prozent' | '3prozent' | 'monatlich_fest' | 'variabel_prozent' | 'dynamisch' | 'bucket_strategie' | 'rmd' | 'kapitalerhalt' | 'steueroptimiert'
 
@@ -40,20 +42,13 @@ function generateVariableGrowthRates(
 }
 
 /**
- * Generate multi-asset growth rates with fallback
+ * Generate multi-asset growth rates
  */
 function generateMultiAssetGrowthRates(
   allYears: number[],
-  multiAssetConfig: unknown,
+  multiAssetConfig: MultiAssetPortfolioConfig,
 ): Record<number, number> {
-  try {
-    const { generateMultiAssetReturns } = require('./multi-asset-calculations')
-    return generateMultiAssetReturns(allYears, multiAssetConfig)
-  }
-  catch (error) {
-    console.warn('Multi-asset calculations not available, falling back to 5% fixed return:', error)
-    return generateFixedGrowthRates(allYears, 0.05)
-  }
+  return generateMultiAssetReturns(allYears, multiAssetConfig)
 }
 
 /**
