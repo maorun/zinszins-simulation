@@ -269,33 +269,45 @@ Das Projekt verwendet ein zentralisiertes State Management mit React Context API
 
 Das Projekt verwendet umfassende Code-Qualitätsprüfungen, die mit Codacy-Standards kompatibel sind:
 
-#### ESLint-Regeln
+#### ESLint-Regeln (Moderne Flat-Config)
 
-- **Code-Komplexität**: Warnungen bei zyklomatischer Komplexität über 15 (Phase 4.2 - Ziel: 8 für neuen Code)
+- **Code-Komplexität**: Warnungen bei zyklomatischer Komplexität über 8
 - **Verschachtelungstiefe**: Maximale Verschachtelungstiefe von 5 Ebenen
-- **Funktionsgröße**: Warnungen bei Funktionen über 200 Zeilen (Phase 4.2 - Ziel: 50 für neuen Code)
+- **Funktionsgröße**: Warnungen bei Funktionen über 85 Zeilen (angepasst für Prettier-Formatierung)
 - **Sicherheit**: Strenge Regeln gegen `eval`, `new Function`, etc.
 - **Best Practices**: Durchsetzung von `prefer-const`, `eqeqeq`, etc.
-- **Kontinuierliche Verbesserung**: Siehe `REFACTORING.md` für den schrittweisen Refactoring-Plan
+- **Prettier-Integration**: Automatische Code-Formatierung mit Prettier (eslint-config-prettier)
+
+#### Code-Formatierung
+
+Das Projekt verwendet **Prettier** für konsistente Code-Formatierung:
+
+- **Semi**: Keine Semikolons (entspricht ESLint-Konfiguration)
+- **Single Quotes**: Einfache Anführungszeichen für Strings
+- **Print Width**: 120 Zeichen
+- **Tab Width**: 2 Leerzeichen
+- **Trailing Commas**: Überall für bessere Git-Diffs
 
 #### CI/CD Pipeline
 
 Die GitHub Actions Workflows prüfen bei jedem Push und Pull Request:
 
 1. **Build** - Vite Build-Prozess
-2. **Lint** - ESLint mit erweiterten Codacy-kompatiblen Regeln (inkl. automatisches Markdown-Linting)
+2. **Lint** - ESLint mit Prettier-Integration (inkl. automatisches Markdown-Linting)
 3. **Type Check** - TypeScript-Typenprüfung
-4. **Test** - Vitest mit Coverage (1358+ Tests)
+4. **Test** - Vitest mit Coverage (2518+ Tests)
 
 #### Verfügbare Scripts
 
 ```bash
-npm install       # Abhängigkeiten installieren
-npm run dev       # Entwicklungsserver starten
-npm run build     # Produktions-Build erstellen
-npm run lint      # ESLint + Markdown-Linting ausführen (0 Warnungen erlaubt)
-npm run typecheck # TypeScript-Typen prüfen
-npm run test      # Tests ausführen
+npm install        # Abhängigkeiten installieren
+npm run dev        # Entwicklungsserver starten
+npm run build      # Produktions-Build erstellen
+npm run format     # Code mit Prettier formatieren
+npm run format:check # Formatierung prüfen (ohne Änderungen)
+npm run lint       # ESLint + Markdown-Linting ausführen (0 Warnungen erlaubt)
+npm run typecheck  # TypeScript-Typen prüfen
+npm run test       # Tests ausführen
 npm run test:coverage # Tests mit Coverage
 ```
 
@@ -304,10 +316,10 @@ npm run test:coverage # Tests mit Coverage
 #### Code-Qualitätsziele
 
 - **0 Fehler**: Keine ESLint-Fehler erlaubt
-- **Warnungen**: Aktuell 54 Warnungen während Phase 4.2 (Progressive Verschärfung - Ziel: 0)
-- **Test-Coverage**: Umfassende Test-Abdeckung mit 1523+ Tests
+- **0 Warnungen**: Keine ESLint-Warnungen erlaubt (strikte Code-Qualitätsprüfung)
+- **Prettier-Formatierung**: Alle Dateien müssen Prettier-formatiert sein
+- **Test-Coverage**: Umfassende Test-Abdeckung mit 2518+ Tests
 - **TypeScript-Strict**: Strikte TypeScript-Konfiguration aktiviert
-- **Code-Refactoring**: Aktives Refactoring zur Verbesserung der Codequalität (siehe `REFACTORING.md`)
 
 ---
 
