@@ -3,57 +3,14 @@ import { HomePageLayout } from '../components/HomePageLayout'
 
 import { SimulationProvider } from '../contexts/SimulationContext'
 import { NavigationProvider } from '../contexts/NavigationContext'
-import { useHomePageLogic } from '../hooks/useHomePageLogic'
+import { useSimulation } from '../contexts/useSimulation'
 
 const HomePageContent = () => {
   const overviewRef = useRef<HTMLDivElement>(null)
-
-  const {
-    sparplan,
-    setSparplan,
-    sparplanElemente,
-    startEnd,
-    simulationData,
-    isLoading,
-    steuerlast,
-    teilfreistellungsquote,
-    simulationAnnual,
-    freibetragPerYear,
-    steuerReduzierenEndkapitalSparphase,
-    inflationAktivSparphase,
-    inflationsrateSparphase,
-    inflationAnwendungSparphase,
-    handleApplyScenario,
-    returnConfig,
-    handleRecalculate,
-    handleSpecialEventsDispatch,
-    phaseDateRanges,
-  } = useHomePageLogic()
+  const { isLoading } = useSimulation()
 
   return (
-    <HomePageLayout
-      overviewRef={overviewRef}
-      handleRecalculate={handleRecalculate}
-      handleApplyScenario={handleApplyScenario}
-      startOfIndependence={startEnd[0]}
-      simulationData={simulationData}
-      sparplan={sparplan}
-      setSparplan={setSparplan}
-      handleSpecialEventsDispatch={handleSpecialEventsDispatch}
-      {...phaseDateRanges}
-      sparplanElemente={sparplanElemente}
-      startEnd={startEnd}
-      steuerlast={steuerlast}
-      teilfreistellungsquote={teilfreistellungsquote}
-      simulationAnnual={simulationAnnual}
-      freibetragPerYear={freibetragPerYear}
-      steuerReduzierenEndkapitalSparphase={steuerReduzierenEndkapitalSparphase}
-      inflationAktivSparphase={inflationAktivSparphase}
-      inflationsrateSparphase={inflationsrateSparphase}
-      inflationAnwendungSparphase={inflationAnwendungSparphase}
-      returnConfig={returnConfig}
-      isLoading={isLoading}
-    />
+    <HomePageLayout overviewRef={overviewRef} isLoading={isLoading} />
   )
 }
 

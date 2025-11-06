@@ -1,16 +1,14 @@
 import { RefObject } from 'react'
 import { EnhancedOverview } from './EnhancedOverview'
-import type { SimulationData } from '../contexts/helpers/config-types'
+import { useSimulation } from '../contexts/useSimulation'
 
 interface HomePageOverviewSectionProps {
-  simulationData: SimulationData | null
   overviewRef: RefObject<HTMLDivElement | null>
 }
 
-export function HomePageOverviewSection({
-  simulationData,
-  overviewRef,
-}: HomePageOverviewSectionProps) {
+export function HomePageOverviewSection({ overviewRef }: HomePageOverviewSectionProps) {
+  const { simulationData } = useSimulation()
+
   if (!simulationData) return null
 
   return (

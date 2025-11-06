@@ -1,25 +1,29 @@
 import { SpecialEvents } from './SpecialEvents'
-import type { Sparplan } from '../utils/sparplan-utils'
+import { useSimulation } from '../contexts/useSimulation'
+import { useHomePageRecalculation } from '../hooks/useHomePageRecalculation'
+import { calculatePhaseDateRanges } from '../utils/phase-date-ranges'
 
-interface HomePageSpecialEventsProps {
-  sparplan: Sparplan[]
-  setSparplan: (sparplan: Sparplan[]) => void
-  handleSpecialEventsDispatch: (sparplan: Sparplan[]) => void
-  savingsStartYear: number
-  savingsEndYear: number
-  withdrawalStartYear: number
-  withdrawalEndYear: number
-}
+export function HomePageSpecialEvents() {
+  const {
+    sparplan,
+    setSparplan,
+    startEnd,
+    simulationAnnual,
+    setSparplanElemente,
+    performSimulation,
+    endOfLife,
+  } = useSimulation()
 
-export function HomePageSpecialEvents({
-  sparplan,
-  setSparplan,
-  handleSpecialEventsDispatch,
-  savingsStartYear,
-  savingsEndYear,
-  withdrawalStartYear,
-  withdrawalEndYear,
-}: HomePageSpecialEventsProps) {
+  const { handleSpecialEventsDispatch } = useHomePageRecalculation(
+    sparplan,
+    startEnd,
+    simulationAnnual,
+    setSparplanElemente,
+    performSimulation,
+  )
+
+  const phaseDateRanges = calculatePhaseDateRanges(sparplan, startEnd, endOfLife)
+
   return (
     <SpecialEvents
       dispatch={(updatedSparplan) => {
@@ -27,10 +31,10 @@ export function HomePageSpecialEvents({
         handleSpecialEventsDispatch(updatedSparplan)
       }}
       currentSparplans={sparplan}
-      savingsStartYear={savingsStartYear}
-      savingsEndYear={savingsEndYear}
-      withdrawalStartYear={withdrawalStartYear}
-      withdrawalEndYear={withdrawalEndYear}
+      savingsStartYear={phaseDateRanges.savingsStartYear}
+      savingsEndYear={phaseDateRanges.savingsEndYear}
+      withdrawalStartYear={phaseDateRanges.withdrawalStartYear}
+      withdrawalEndYear={phaseDateRanges.withdrawalEndYear}
     />
   )
 }
