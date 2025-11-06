@@ -157,7 +157,8 @@ describe('care-cost-simulation', () => {
     })
 
     it('should handle different care levels correctly', () => {
-      const results: Array<{ level: CareLevel, result: any }> = []
+      type CareCostResult = ReturnType<typeof calculateCareCostsForYear>
+      const results: Array<{ level: CareLevel, result: CareCostResult }> = []
 
       for (let level = 1; level <= 5; level++) {
         const config = { ...baseConfig, careLevel: level as CareLevel }

@@ -23,7 +23,7 @@ export type ScrollListener = EventListenerCallback<Event>
  * Blob content type for file download tests
  * Represents content that can be passed to the Blob constructor
  */
-export type BlobContent = BlobPart[]
+export type BlobContent = Array<string | ArrayBuffer | ArrayBufferView | Blob>
 
 /**
  * Blob options type for file download tests
@@ -46,8 +46,8 @@ export type MockHandlers<T = Record<string, unknown>> = {
  * Component mock props type
  * Generic type for mocked component props
  */
-export type MockComponentProps<T = Record<string, unknown>> = T & {
-  children?: React.ReactNode
+export interface MockComponentProps {
+  children?: unknown
 }
 
 /**
@@ -75,4 +75,26 @@ export interface SimulationContextTestData {
 export interface CareLevelTestResult<T = unknown> {
   level: string
   result: T
+}
+
+/**
+ * Mock savings data element for export tests
+ * Simplified structure used in data-export tests
+ */
+export interface MockSavingsDataElement {
+  start: Date
+  startkapital: number
+  zinsen: number
+  endkapital: number
+  bezahlteSteuer: number
+  genutzterFreibetrag: number
+  vorabpauschale: number
+  amount: number
+}
+
+/**
+ * Mock savings data structure for export tests
+ */
+export interface MockSavingsData {
+  sparplanElements: MockSavingsDataElement[]
 }

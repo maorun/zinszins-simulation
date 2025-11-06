@@ -1,15 +1,16 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { useMobileDetection } from './useMobileDetection'
+import type { ResizeListener } from '../test-utils/types'
 
 describe('useMobileDetection', () => {
-  let resizeListeners: any[] = []
+  let resizeListeners: ResizeListener[] = []
 
   beforeEach(() => {
     resizeListeners = []
     vi.spyOn(window, 'addEventListener').mockImplementation((event, listener) => {
       if (event === 'resize' && typeof listener === 'function') {
-        resizeListeners.push(listener)
+        resizeListeners.push(listener as ResizeListener)
       }
     })
     vi.spyOn(window, 'removeEventListener')
@@ -57,7 +58,7 @@ describe('useMobileDetection', () => {
       configurable: true,
       value: 500,
     })
-    resizeListeners.forEach(listener => listener(new Event('resize')))
+    resizeListeners.forEach(listener => listener(new UIEvent('resize')))
     rerender()
 
     expect(result.current).toBe(true)

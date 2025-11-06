@@ -3,9 +3,27 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { renderHook } from '@testing-library/react'
 import { useScenarioApplication } from './useScenarioApplication'
 import type { FinancialScenario } from '../data/scenarios'
+import type { MockHandlers } from '../test-utils/types'
+import type { Sparplan } from '../utils/sparplan-utils'
+import type { ReturnMode } from '../utils/random-returns'
+
+interface ScenarioApplicationHandlers {
+  setStartEnd: (value: [number, number]) => void
+  setReturnMode: (mode: ReturnMode) => void
+  setRendite: (value: number) => void
+  setAverageReturn: (value: number) => void
+  setStandardDeviation: (value: number) => void
+  setSteuerlast: (value: number) => void
+  setTeilfreistellungsquote: (value: number) => void
+  setFreibetragPerYear: (value: Record<number, number>) => void
+  setInflationAktivSparphase: (value: boolean) => void
+  setInflationsrateSparphase: (value: number) => void
+  setSparplan: (value: Sparplan[]) => void
+  performSimulation: () => void
+}
 
 describe('useScenarioApplication', () => {
-  let mockHandlers: any
+  let mockHandlers: MockHandlers<ScenarioApplicationHandlers>
 
   beforeEach(() => {
     vi.clearAllTimers()
@@ -74,7 +92,7 @@ describe('useScenarioApplication', () => {
 
     // Check savings plan
     expect(mockHandlers.setSparplan).toHaveBeenCalled()
-    const sparplan = mockHandlers.setSparplan.mock.calls[0][0]
+    const sparplan = vi.mocked(mockHandlers.setSparplan).mock.calls[0][0]
     expect(sparplan).toHaveLength(2)
     expect(sparplan[0].einzahlung).toBe(10000) // Initial investment
     expect(sparplan[1].einzahlung).toBe(6000) // Monthly contribution * 12
@@ -139,7 +157,7 @@ describe('useScenarioApplication', () => {
 
     result.current.handleApplyScenario(scenario)
 
-    const sparplan = mockHandlers.setSparplan.mock.calls[0][0]
+    const sparplan = vi.mocked(mockHandlers.setSparplan).mock.calls[0][0]
     expect(sparplan).toHaveLength(1)
     expect(sparplan[0].einzahlung).toBe(50000)
   })
@@ -168,7 +186,7 @@ describe('useScenarioApplication', () => {
 
     result.current.handleApplyScenario(scenario)
 
-    const sparplan = mockHandlers.setSparplan.mock.calls[0][0]
+    const sparplan = vi.mocked(mockHandlers.setSparplan).mock.calls[0][0]
     expect(sparplan).toHaveLength(1)
     expect(sparplan[0].einzahlung).toBe(12000) // 1000 * 12
   })
