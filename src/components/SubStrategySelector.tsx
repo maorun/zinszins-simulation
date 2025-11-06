@@ -8,11 +8,7 @@ interface SubStrategySelectorProps {
   idPrefix?: string
 }
 
-export function SubStrategySelector({
-  value,
-  onChange,
-  idPrefix = 'bucket-sub-strategy',
-}: SubStrategySelectorProps) {
+export function SubStrategySelector({ value, onChange, idPrefix = 'bucket-sub-strategy' }: SubStrategySelectorProps) {
   return (
     <div className="space-y-2">
       <Label>Entnahme-Strategie</Label>

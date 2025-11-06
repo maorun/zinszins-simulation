@@ -1,9 +1,5 @@
 import { Check, Trash2, X } from 'lucide-react'
-import {
-  calculateGoalProgress,
-  isGoalAchieved,
-  updateMilestoneAchievements,
-} from '../../../helpers/financial-goals'
+import { calculateGoalProgress, isGoalAchieved, updateMilestoneAchievements } from '../../../helpers/financial-goals'
 import { Button } from '../ui/button'
 import { GoalProgressBar } from './GoalProgressBar'
 import { GoalMilestones } from './GoalMilestones'
@@ -34,9 +30,7 @@ export function GoalItem({ goal, currentCapital, onToggleActive, onRemove }: Goa
             {achieved && <span className="text-green-600 text-xl">✅</span>}
           </div>
           <p className="text-sm text-gray-600">
-            {getGoalTypeLabel(goal.type)}
-            {' '}
-            • Ziel:
+            {getGoalTypeLabel(goal.type)} • Ziel:
             {formatEuro(goal.targetAmount)}
           </p>
         </div>

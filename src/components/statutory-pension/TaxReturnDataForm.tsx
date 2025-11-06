@@ -21,12 +21,7 @@ interface TaxReturnDataFormProps {
   onImportFromTaxReturn: () => void
 }
 
-export function TaxReturnDataForm({
-  values,
-  onChange,
-  currentYear,
-  onImportFromTaxReturn,
-}: TaxReturnDataFormProps) {
+export function TaxReturnDataForm({ values, onChange, currentYear, onImportFromTaxReturn }: TaxReturnDataFormProps) {
   return (
     <>
       <div className="flex items-center space-x-2">
@@ -38,21 +33,16 @@ export function TaxReturnDataForm({
               taxYear: values.taxYear,
               annualPensionReceived: values.annualPensionReceived,
               taxablePortion: values.taxablePortion,
-            })}
+            })
+          }
           id="has-tax-return-data"
         />
-        <Label htmlFor="has-tax-return-data">
-          Daten aus Rentenbescheid verfügbar
-        </Label>
+        <Label htmlFor="has-tax-return-data">Daten aus Rentenbescheid verfügbar</Label>
       </div>
 
       {values.hasTaxReturnData && (
         <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
-          <TaxReturnDataFields
-            values={values}
-            onChange={onChange}
-            currentYear={currentYear}
-          />
+          <TaxReturnDataFields values={values} onChange={onChange} currentYear={currentYear} />
 
           <Button
             onClick={onImportFromTaxReturn}

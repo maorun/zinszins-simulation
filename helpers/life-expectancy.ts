@@ -49,8 +49,7 @@ export function getDefaultLifeExpectancy(currentAge: number, gender?: 'male' | '
 
   if (currentAge >= 65) {
     adjustedLifeExpectancy += 2
-  }
-  else if (currentAge >= 50) {
+  } else if (currentAge >= 50) {
     adjustedLifeExpectancy += 1
   }
 

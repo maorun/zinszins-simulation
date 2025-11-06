@@ -19,16 +19,15 @@ export function TermYearsInput({ formValues, onFormChange }: TermYearsInputProps
       <Input
         type="number"
         value={formValues.termYears}
-        onChange={e => onFormChange({
-          ...formValues,
-          termYears: e.target.value,
-        })}
+        onChange={e =>
+          onFormChange({
+            ...formValues,
+            termYears: e.target.value,
+          })
+        }
         placeholder={
           formValues.expenseAmount
-            ? getDefaultCreditTerms(
-                formValues.expenseType,
-                Number(formValues.expenseAmount),
-              ).termYears.toString()
+            ? getDefaultCreditTerms(formValues.expenseType, Number(formValues.expenseAmount)).termYears.toString()
             : '5'
         }
         min="1"

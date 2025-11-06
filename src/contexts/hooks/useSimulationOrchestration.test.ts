@@ -130,9 +130,7 @@ describe('useSimulationOrchestration', () => {
   })
 
   it('returns configuration management methods', () => {
-    const { result } = renderHook(() =>
-      useSimulationOrchestration(mockDefaultConfig as any, mockState as any),
-    )
+    const { result } = renderHook(() => useSimulationOrchestration(mockDefaultConfig as any, mockState as any))
 
     expect(result.current.configManagement).toBe(mockConfigManagement)
     expect(result.current.configManagement.getCurrentConfiguration).toBe(mockConfigManagement.getCurrentConfiguration)
@@ -142,25 +140,19 @@ describe('useSimulationOrchestration', () => {
   })
 
   it('returns performSimulation method', () => {
-    const { result } = renderHook(() =>
-      useSimulationOrchestration(mockDefaultConfig as any, mockState as any),
-    )
+    const { result } = renderHook(() => useSimulationOrchestration(mockDefaultConfig as any, mockState as any))
 
     expect(result.current.performSimulation).toBe(mockPerformSimulation)
   })
 
   it('returns setEndOfLifeRounded method', () => {
-    const { result } = renderHook(() =>
-      useSimulationOrchestration(mockDefaultConfig as any, mockState as any),
-    )
+    const { result } = renderHook(() => useSimulationOrchestration(mockDefaultConfig as any, mockState as any))
 
     expect(result.current.setEndOfLifeRounded).toBe(mockSetEndOfLifeRounded)
   })
 
   it('calls useConfigurationManagement with correct state and setters', () => {
-    renderHook(() =>
-      useSimulationOrchestration(mockDefaultConfig as any, mockState as any),
-    )
+    renderHook(() => useSimulationOrchestration(mockDefaultConfig as any, mockState as any))
 
     expect(configManagement.useConfigurationManagement).toHaveBeenCalledWith(
       mockDefaultConfig,
@@ -179,9 +171,7 @@ describe('useSimulationOrchestration', () => {
   })
 
   it('calls useSimulationExecution with correct simulation state', () => {
-    renderHook(() =>
-      useSimulationOrchestration(mockDefaultConfig as any, mockState as any),
-    )
+    renderHook(() => useSimulationOrchestration(mockDefaultConfig as any, mockState as any))
 
     expect(simulationExecution.useSimulationExecution).toHaveBeenCalledWith(
       expect.objectContaining({
@@ -196,9 +186,7 @@ describe('useSimulationOrchestration', () => {
   })
 
   it('calls useSimulationEffects with correct effects state and setters', () => {
-    renderHook(() =>
-      useSimulationOrchestration(mockDefaultConfig as any, mockState as any),
-    )
+    renderHook(() => useSimulationOrchestration(mockDefaultConfig as any, mockState as any))
 
     expect(simulationEffects.useSimulationEffects).toHaveBeenCalledWith(
       expect.objectContaining({

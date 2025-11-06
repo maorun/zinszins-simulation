@@ -28,9 +28,7 @@ function StartYearField({
 }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor="care-start-year">
-        Startjahr der Pflegebedürftigkeit
-      </Label>
+      <Label htmlFor="care-start-year">Startjahr der Pflegebedürftigkeit</Label>
       <Input
         id="care-start-year"
         type="number"
@@ -41,9 +39,7 @@ function StartYearField({
         step={1}
         className="w-32"
       />
-      <div className="text-sm text-muted-foreground">
-        Jahr, in dem Pflegebedürftigkeit erwartet wird
-      </div>
+      <div className="text-sm text-muted-foreground">Jahr, in dem Pflegebedürftigkeit erwartet wird</div>
     </div>
   )
 }
@@ -62,9 +58,7 @@ function CustomMonthlyCostsField({
 }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor="custom-monthly-costs">
-        Individuelle monatliche Pflegekosten (optional)
-      </Label>
+      <Label htmlFor="custom-monthly-costs">Individuelle monatliche Pflegekosten (optional)</Label>
       <Input
         id="custom-monthly-costs"
         type="number"
@@ -75,19 +69,13 @@ function CustomMonthlyCostsField({
         placeholder={`Standard: ${formatCurrency(DEFAULT_CARE_LEVELS[careLevel].typicalMonthlyCost)}`}
       />
       <div className="text-sm text-muted-foreground">
-        Überschreibt die typischen Kosten für
-        {' '}
-        {getCareLevelDisplayName(careLevel)}
+        Überschreibt die typischen Kosten für {getCareLevelDisplayName(careLevel)}
       </div>
     </div>
   )
 }
 
-export function BasicCareCostFields({
-  values,
-  onChange,
-  currentYear,
-}: BasicCareCostFieldsProps) {
+export function BasicCareCostFields({ values, onChange, currentYear }: BasicCareCostFieldsProps) {
   return (
     <>
       <StartYearField
@@ -103,9 +91,7 @@ export function BasicCareCostFields({
       />
 
       <div className="space-y-2">
-        <Label htmlFor="care-duration">
-          Pflegedauer (Jahre, 0 = bis Lebensende)
-        </Label>
+        <Label htmlFor="care-duration">Pflegedauer (Jahre, 0 = bis Lebensende)</Label>
         <Input
           id="care-duration"
           type="number"

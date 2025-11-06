@@ -30,10 +30,7 @@ interface SinglePaymentFormFieldsProps {
     format: string,
     callback: (date: Date | null) => void,
   ) => void
-  handleNumberChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
-    callback: (value: string) => void,
-  ) => void
+  handleNumberChange: (e: React.ChangeEvent<HTMLInputElement>, callback: (value: string) => void) => void
 }
 
 /**
@@ -48,7 +45,14 @@ export function SinglePaymentFormFields({
   handleNumberChange,
 }: SinglePaymentFormFieldsProps) {
   return (
-    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '1rem',
+        marginBottom: '1.5rem',
+      }}
+    >
       <div className="mb-4 space-y-2">
         <Label>
           Datum
@@ -70,9 +74,7 @@ export function SinglePaymentFormFields({
         <Input
           type="number"
           value={formValues.einzahlung || ''}
-          onChange={e => handleNumberChange(e, value =>
-            onFormChange({ ...formValues, einzahlung: value }),
-          )}
+          onChange={e => handleNumberChange(e, value => onFormChange({ ...formValues, einzahlung: value }))}
           placeholder="Betrag eingeben"
           className="w-full"
           min={0}

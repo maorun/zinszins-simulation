@@ -7,8 +7,6 @@ describe('IntroductionSection', () => {
     render(<IntroductionSection />)
 
     expect(screen.getByText('Was ist Sensitivitätsanalyse?')).toBeInTheDocument()
-    expect(
-      screen.getByText(/Diese Analyse zeigt Ihnen, wie sich Änderungen einzelner Parameter/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Diese Analyse zeigt Ihnen, wie sich Änderungen einzelner Parameter/)).toBeInTheDocument()
   })
 })

@@ -49,7 +49,7 @@ describe('Kirchensteuer Integration', () => {
     it('should calculate income tax with 8% Kirchensteuer (Bayern/Baden-Württemberg)', () => {
       const withdrawalAmount = 30000
       const grundfreibetrag = 11604
-      const incomeTaxRate = 0.30 // 30%
+      const incomeTaxRate = 0.3 // 30%
       const kirchensteuersatz = 8 // 8%
 
       const taxableIncome = withdrawalAmount - grundfreibetrag
@@ -57,13 +57,7 @@ describe('Kirchensteuer Integration', () => {
       const kirchensteuer = baseIncomeTax * (kirchensteuersatz / 100)
       const expectedTotal = baseIncomeTax + kirchensteuer
 
-      const result = calculateIncomeTax(
-        withdrawalAmount,
-        grundfreibetrag,
-        incomeTaxRate,
-        true,
-        kirchensteuersatz,
-      )
+      const result = calculateIncomeTax(withdrawalAmount, grundfreibetrag, incomeTaxRate, true, kirchensteuersatz)
 
       expect(result).toBe(expectedTotal)
       expect(result).toBe(5960.304) // (30000-11604)*0.30 + (5518.8*0.08)
@@ -75,13 +69,7 @@ describe('Kirchensteuer Integration', () => {
       const incomeTaxRate = 0.25
       const kirchensteuersatz = 9
 
-      const result = calculateIncomeTax(
-        withdrawalAmount,
-        grundfreibetrag,
-        incomeTaxRate,
-        true,
-        kirchensteuersatz,
-      )
+      const result = calculateIncomeTax(withdrawalAmount, grundfreibetrag, incomeTaxRate, true, kirchensteuersatz)
 
       expect(result).toBe(0)
     })
@@ -92,13 +80,7 @@ describe('Kirchensteuer Integration', () => {
       const incomeTaxRate = 0.25
       const kirchensteuersatz = 9
 
-      const result = calculateIncomeTax(
-        withdrawalAmount,
-        grundfreibetrag,
-        incomeTaxRate,
-        true,
-        kirchensteuersatz,
-      )
+      const result = calculateIncomeTax(withdrawalAmount, grundfreibetrag, incomeTaxRate, true, kirchensteuersatz)
 
       expect(result).toBe(0)
     })
@@ -112,7 +94,7 @@ describe('Kirchensteuer Integration', () => {
     const alreadyUsedGrundfreibetrag = 0
 
     it('should favor Abgeltungssteuer when personal tax rate + Kirchensteuer is higher', () => {
-      const personalTaxRate = 0.30 // 30%
+      const personalTaxRate = 0.3 // 30%
       const kirchensteuersatz = 9 // 9%
       const testVorabpauschale = 5000 // Higher amount to avoid Grundfreibetrag
       const noGrundfreibetrag = 0 // No Grundfreibetrag to ensure tax is paid
@@ -157,7 +139,7 @@ describe('Kirchensteuer Integration', () => {
     })
 
     it('should calculate correct Kirchensteuer amounts with 8% rate', () => {
-      const personalTaxRate = 0.20 // 20%
+      const personalTaxRate = 0.2 // 20%
       const kirchensteuersatz = 8 // 8%
 
       const result = performGuenstigerPruefung(
@@ -182,7 +164,7 @@ describe('Kirchensteuer Integration', () => {
     })
 
     it('should not include Kirchensteuer text when disabled', () => {
-      const personalTaxRate = 0.20 // 20%
+      const personalTaxRate = 0.2 // 20%
       const kirchensteuersatz = 9
 
       const result = performGuenstigerPruefung(
@@ -229,13 +211,7 @@ describe('Kirchensteuer Integration', () => {
       const incomeTaxRate = 0.42 // High tax bracket
       const kirchensteuersatz = 9
 
-      const result = calculateIncomeTax(
-        withdrawalAmount,
-        grundfreibetrag,
-        incomeTaxRate,
-        true,
-        kirchensteuersatz,
-      )
+      const result = calculateIncomeTax(withdrawalAmount, grundfreibetrag, incomeTaxRate, true, kirchensteuersatz)
 
       const taxableIncome = withdrawalAmount - grundfreibetrag
       const baseIncomeTax = taxableIncome * incomeTaxRate
@@ -252,13 +228,7 @@ describe('Kirchensteuer Integration', () => {
       const incomeTaxRate = 0.14 // Minimum tax rate
       const kirchensteuersatz = 8
 
-      const result = calculateIncomeTax(
-        withdrawalAmount,
-        grundfreibetrag,
-        incomeTaxRate,
-        true,
-        kirchensteuersatz,
-      )
+      const result = calculateIncomeTax(withdrawalAmount, grundfreibetrag, incomeTaxRate, true, kirchensteuersatz)
 
       // Should be very small but non-zero
       expect(result).toBeGreaterThan(0)

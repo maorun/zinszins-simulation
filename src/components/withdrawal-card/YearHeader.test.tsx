@@ -32,7 +32,9 @@ const createMockFormValue = (): WithdrawalFormValue => ({
 })
 
 describe('YearHeader', () => {
-  const mockFormatWithInflation = vi.fn(params => `${params.value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`)
+  const mockFormatWithInflation = vi.fn(
+    params => `${params.value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`,
+  )
   const mockOnCalculationInfoClick = vi.fn()
   const mockRowData = { year: 2024, endkapital: 105000 }
 

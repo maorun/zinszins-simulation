@@ -156,9 +156,7 @@ describe('CouplePreviewDisplay', () => {
   })
 
   it('renders with proper CSS classes for styling', () => {
-    const { container } = render(
-      <CouplePreviewDisplay coupleResults={mockCoupleResults} withdrawalAmount={30000} />,
-    )
+    const { container } = render(<CouplePreviewDisplay coupleResults={mockCoupleResults} withdrawalAmount={30000} />)
 
     expect(container.querySelector('.bg-green-50')).toBeInTheDocument()
     expect(container.querySelector('.border-green-200')).toBeInTheDocument()

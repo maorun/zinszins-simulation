@@ -26,9 +26,7 @@ export function GrundfreibetragInput({
           onClick={() => onGrundfreibetragBetragChange(recommendedGrundfreibetrag)}
           className="text-xs"
         >
-          Reset (
-          {planningModeLabel}
-          )
+          Reset ({planningModeLabel})
         </Button>
       </div>
       <Input
@@ -38,7 +36,7 @@ export function GrundfreibetragInput({
         min={0}
         max={50000}
         step={100}
-        onChange={(e) => {
+        onChange={e => {
           const value = Number(e.target.value)
           if (!isNaN(value)) {
             onGrundfreibetragBetragChange(value)

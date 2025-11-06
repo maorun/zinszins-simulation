@@ -37,9 +37,7 @@ function AccountCardHeader({
   return (
     <div className="flex items-center justify-between">
       <div className="flex-1 mr-4">
-        <Label htmlFor={accountNameId}>
-          Kontoname
-        </Label>
+        <Label htmlFor={accountNameId}>Kontoname</Label>
         <Input
           id={accountNameId}
           type="text"
@@ -48,12 +46,7 @@ function AccountCardHeader({
           placeholder="z.B. DKB, Trade Republic, ING"
         />
       </div>
-      <Button
-        onClick={onRemoveAccount}
-        size="sm"
-        variant="ghost"
-        className="text-destructive hover:text-destructive"
-      >
+      <Button onClick={onRemoveAccount} size="sm" variant="ghost" className="text-destructive hover:text-destructive">
         <Trash2 className="h-4 w-4" />
       </Button>
     </div>
@@ -71,9 +64,7 @@ function AccountCardGainsInput({
 }) {
   return (
     <div>
-      <Label htmlFor={accountGainsId}>
-        Erwartete Kapitalerträge (€/Jahr)
-      </Label>
+      <Label htmlFor={accountGainsId}>Erwartete Kapitalerträge (€/Jahr)</Label>
       <Input
         id={accountGainsId}
         type="number"
@@ -106,9 +97,7 @@ function AccountCardFreibetragInput({
         Zugewiesener Freibetrag (€)
         {hasOptimization && (
           <span className="ml-2 text-xs text-green-600 font-normal">
-            Optimal:
-            {' '}
-            {formatCurrency(optimizedFreibetrag)}
+            Optimal: {formatCurrency(optimizedFreibetrag)}
           </span>
         )}
       </Label>
@@ -166,7 +155,7 @@ function AccountCardFooter({
   taxRate,
   expectedCapitalGains,
 }: {
-  taxRate: { effectiveTaxRate: number, taxAmount: number } | undefined
+  taxRate: { effectiveTaxRate: number; taxAmount: number } | undefined
   expectedCapitalGains: number
 }) {
   if (!taxRate || expectedCapitalGains <= 0) {
@@ -177,33 +166,28 @@ function AccountCardFooter({
     <div className="pt-2 border-t">
       <div className="text-sm space-y-1">
         <div className="flex justify-between">
-          <span className="text-muted-foreground">
-            Steuer:
-          </span>
-          <span className="font-medium">
-            {formatCurrency(taxRate.taxAmount)}
-          </span>
+          <span className="text-muted-foreground">Steuer:</span>
+          <span className="font-medium">{formatCurrency(taxRate.taxAmount)}</span>
         </div>
         <div className="flex justify-between">
-          <span className="text-muted-foreground">
-            Effektiver Steuersatz:
-          </span>
-          <span className="font-medium">
-            {(taxRate.effectiveTaxRate * 100).toFixed(2)}
-            %
-          </span>
+          <span className="text-muted-foreground">Effektiver Steuersatz:</span>
+          <span className="font-medium">{(taxRate.effectiveTaxRate * 100).toFixed(2)}%</span>
         </div>
       </div>
     </div>
   )
 }
 
-function useAccountCard(account: BankAccount, optimizationResult: OptimizationResult | null, effectiveTaxRates: Array<{
-  accountId: string
-  accountName: string
-  effectiveTaxRate: number
-  taxAmount: number
-}>) {
+function useAccountCard(
+  account: BankAccount,
+  optimizationResult: OptimizationResult | null,
+  effectiveTaxRates: Array<{
+    accountId: string
+    accountName: string
+    effectiveTaxRate: number
+    taxAmount: number
+  }>,
+) {
   const accountNameId = generateFormId('freistellungsauftrag', 'account-name', account.id)
   const accountGainsId = generateFormId('freistellungsauftrag', 'account-gains', account.id)
   const accountFreibetragId = generateFormId('freistellungsauftrag', 'account-freibetrag', account.id)
@@ -211,8 +195,7 @@ function useAccountCard(account: BankAccount, optimizationResult: OptimizationRe
   const optimizedAccount = optimizationResult?.accounts.find(a => a.id === account.id)
   const taxRate = effectiveTaxRates.find(r => r.accountId === account.id)
 
-  const hasOptimization
-    = optimizedAccount && optimizedAccount.assignedFreibetrag !== account.assignedFreibetrag
+  const hasOptimization = optimizedAccount && optimizedAccount.assignedFreibetrag !== account.assignedFreibetrag
 
   return {
     accountNameId,
@@ -237,21 +220,9 @@ interface AccountCardProps {
   onChange: (id: string, field: keyof BankAccount, value: string | number) => void
 }
 
-function AccountCard({
-  account,
-  optimizationResult,
-  effectiveTaxRates,
-  onRemove,
-  onChange,
-}: AccountCardProps) {
-  const {
-    accountNameId,
-    accountGainsId,
-    accountFreibetragId,
-    optimizedAccount,
-    taxRate,
-    hasOptimization,
-  } = useAccountCard(account, optimizationResult, effectiveTaxRates)
+function AccountCard({ account, optimizationResult, effectiveTaxRates, onRemove, onChange }: AccountCardProps) {
+  const { accountNameId, accountGainsId, accountFreibetragId, optimizedAccount, taxRate, hasOptimization } =
+    useAccountCard(account, optimizationResult, effectiveTaxRates)
 
   return (
     <Card key={account.id} className="relative">
@@ -260,18 +231,22 @@ function AccountCard({
           <AccountCardHeader
             accountNameId={accountNameId}
             accountName={account.name}
-            onAccountNameChange={(e: React.ChangeEvent<HTMLInputElement>) => onChange(account.id, 'name', e.target.value)}
+            onAccountNameChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+              onChange(account.id, 'name', e.target.value)
+            }
             onRemoveAccount={() => onRemove(account.id)}
           />
           <AccountCardBody
             accountGainsId={accountGainsId}
             expectedCapitalGains={account.expectedCapitalGains}
             onExpectedCapitalGainsChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              onChange(account.id, 'expectedCapitalGains', Number(e.target.value))}
+              onChange(account.id, 'expectedCapitalGains', Number(e.target.value))
+            }
             accountFreibetragId={accountFreibetragId}
             assignedFreibetrag={account.assignedFreibetrag}
             onAssignedFreibetragChange={(e: React.ChangeEvent<HTMLInputElement>) =>
-              onChange(account.id, 'assignedFreibetrag', Number(e.target.value))}
+              onChange(account.id, 'assignedFreibetrag', Number(e.target.value))
+            }
             hasOptimization={!!hasOptimization}
             optimizedFreibetrag={optimizedAccount?.assignedFreibetrag ?? 0}
           />
@@ -283,10 +258,7 @@ function AccountCard({
 }
 
 function TotalFreibetragDisplay({ totalFreibetrag }: { totalFreibetrag: number }) {
-  const totalFreibetragId = useMemo(
-    () => generateFormId('freistellungsauftrag', 'total-freibetrag'),
-    [],
-  )
+  const totalFreibetragId = useMemo(() => generateFormId('freistellungsauftrag', 'total-freibetrag'), [])
 
   const getFreibetragDescription = (amount: number): string => {
     if (amount === 1000) return 'Einzelperson: 1.000 € pro Jahr'
@@ -374,13 +346,10 @@ function ValidationErrors({ errors }: { errors: string[] }) {
   )
 }
 
-function OptimizationResultRow({ label, value }: { label: string, value: string }) {
+function OptimizationResultRow({ label, value }: { label: string; value: string }) {
   return (
     <div className="flex justify-between">
-      <span className="text-green-700">
-        {label}
-        :
-      </span>
+      <span className="text-green-700">{label}:</span>
       <span className="font-semibold text-green-900">{value}</span>
     </div>
   )
@@ -390,11 +359,7 @@ function OptimizationResultStatus({ isOptimal }: { isOptimal: boolean }) {
   return (
     <div className="flex justify-between">
       <span className="text-green-700">Status:</span>
-      <span
-        className={`font-semibold ${
-          isOptimal ? 'text-green-900' : 'text-orange-700'
-        }`}
-      >
+      <span className={`font-semibold ${isOptimal ? 'text-green-900' : 'text-orange-700'}`}>
         {isOptimal ? '✓ Optimal' : '⚠ Optimierbar'}
       </span>
     </div>
@@ -420,13 +385,7 @@ function OptimizationResultRecommendations({ recommendations }: { recommendation
   )
 }
 
-function OptimizationResults({
-  result,
-  onApply,
-}: {
-  result: OptimizationResult
-  onApply: () => void
-}) {
+function OptimizationResults({ result, onApply }: { result: OptimizationResult; onApply: () => void }) {
   return (
     <div className="space-y-4">
       <div className="bg-green-50 border border-green-200 rounded-lg p-4">
@@ -436,14 +395,8 @@ function OptimizationResults({
             label="Zugewiesener Freibetrag"
             value={formatCurrency(result.totalAssignedFreibetrag)}
           />
-          <OptimizationResultRow
-            label="Verbleibender Freibetrag"
-            value={formatCurrency(result.remainingFreibetrag)}
-          />
-          <OptimizationResultRow
-            label="Eingesparte Steuern"
-            value={formatCurrency(result.totalTaxSaved)}
-          />
+          <OptimizationResultRow label="Verbleibender Freibetrag" value={formatCurrency(result.remainingFreibetrag)} />
+          <OptimizationResultRow label="Eingesparte Steuern" value={formatCurrency(result.totalTaxSaved)} />
           <OptimizationResultStatus isOptimal={result.isOptimal} />
         </div>
         <OptimizationResultRecommendations recommendations={result.recommendations} />
@@ -461,22 +414,18 @@ function HelpText() {
   return (
     <div className="text-sm text-muted-foreground space-y-2">
       <p>
-        <strong>Hinweis:</strong>
-        {' '}
-        Die Optimierung verteilt Ihren Sparerpauschbetrag automatisch auf
-        die Konten mit den höchsten erwarteten Kapitalerträgen, um die Steuerlast zu minimieren.
+        <strong>Hinweis:</strong> Die Optimierung verteilt Ihren Sparerpauschbetrag automatisch auf die Konten mit den
+        höchsten erwarteten Kapitalerträgen, um die Steuerlast zu minimieren.
       </p>
       <p>
-        Tragen Sie für jedes Konto die erwarteten jährlichen Kapitalerträge ein. Die Optimierung
-        berücksichtigt automatisch die Teilfreistellung für Aktienfonds.
+        Tragen Sie für jedes Konto die erwarteten jährlichen Kapitalerträge ein. Die Optimierung berücksichtigt
+        automatisch die Teilfreistellung für Aktienfonds.
       </p>
     </div>
   )
 }
 
-function useFreistellungsauftragCalculations(
-  props: FreistellungsauftragOptimizerProps,
-) {
+function useFreistellungsauftragCalculations(props: FreistellungsauftragOptimizerProps) {
   const { totalFreibetrag, accounts, steuerlast, teilfreistellungsquote } = props
   const steuerlastDecimal = steuerlast / 100
   const teilfreistellungsquoteDecimal = teilfreistellungsquote / 100
@@ -497,11 +446,7 @@ function useFreistellungsauftragCalculations(
 
   const effectiveTaxRates = useMemo(() => {
     if (!optimizationResult) return []
-    return calculateEffectiveTaxRates(
-      optimizationResult.accounts,
-      steuerlastDecimal,
-      teilfreistellungsquoteDecimal,
-    )
+    return calculateEffectiveTaxRates(optimizationResult.accounts, steuerlastDecimal, teilfreistellungsquoteDecimal)
   }, [optimizationResult, steuerlastDecimal, teilfreistellungsquoteDecimal])
 
   return { validationErrors, optimizationResult, effectiveTaxRates }
@@ -545,8 +490,7 @@ function useFreistellungsauftragHandlers(
 }
 
 function useFreistellungsauftragOptimizer(props: FreistellungsauftragOptimizerProps) {
-  const { validationErrors, optimizationResult, effectiveTaxRates }
-    = useFreistellungsauftragCalculations(props)
+  const { validationErrors, optimizationResult, effectiveTaxRates } = useFreistellungsauftragCalculations(props)
   const handlers = useFreistellungsauftragHandlers(props, optimizationResult)
 
   return {
@@ -576,8 +520,7 @@ export function FreistellungsauftragOptimizer(props: FreistellungsauftragOptimiz
           Freistellungsaufträge-Optimierung
         </CardTitle>
         <CardDescription>
-          Optimale Verteilung der Freistellungsaufträge auf mehrere Bankkonten zur Minimierung der
-          Steuerlast
+          Optimale Verteilung der Freistellungsaufträge auf mehrere Bankkonten zur Minimierung der Steuerlast
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">

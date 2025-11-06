@@ -1,9 +1,6 @@
 import { useMemo } from 'react'
 import { loadConfiguration } from '../../utils/config-storage'
-import {
-  initializeProfileStorage,
-  getActiveProfile,
-} from '../../utils/profile-storage'
+import { initializeProfileStorage, getActiveProfile } from '../../utils/profile-storage'
 import type { DefaultConfigType } from '../helpers/default-config'
 
 /**

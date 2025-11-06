@@ -107,10 +107,7 @@ describe('Variable Tax Allowance (Freibetrag) Tests', () => {
     })
 
     test('should handle multiple elements with different year-specific freibetrag', () => {
-      const elements = [
-        createTestElement('2023', 30000),
-        createTestElement('2024', 35000),
-      ]
+      const elements = [createTestElement('2023', 30000), createTestElement('2024', 35000)]
       const freibetragPerYear = {
         2023: 2000,
         2024: 4000,
@@ -159,7 +156,7 @@ describe('Variable Tax Allowance (Freibetrag) Tests', () => {
       expect(result).toHaveLength(1)
 
       // All used freibetrag values should be non-negative
-      Object.values(result[0].simulation).forEach((sim) => {
+      Object.values(result[0].simulation).forEach(sim => {
         expect(sim.genutzterFreibetrag).toBeGreaterThanOrEqual(0)
         expect(sim.bezahlteSteuer).toBeGreaterThanOrEqual(0)
       })

@@ -13,13 +13,7 @@ const WithdrawalPhaseMonteCarloAnalysis = () => {
     seed: randomSeed,
   }
 
-  return (
-    <MonteCarloAnalysisDisplay
-      config={config}
-      title="Monte Carlo Analyse"
-      phaseTitle="Entnahmephase"
-    />
-  )
+  return <MonteCarloAnalysisDisplay config={config} title="Monte Carlo Analyse" phaseTitle="Entnahmephase" />
 }
 
 export default WithdrawalPhaseMonteCarloAnalysis

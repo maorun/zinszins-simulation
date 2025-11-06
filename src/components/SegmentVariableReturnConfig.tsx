@@ -26,14 +26,11 @@ function YearReturnInput({
 }) {
   return (
     <div key={year} className="flex items-center space-x-3 mb-2">
-      <span className="text-sm font-medium min-w-[60px]">
-        {year}
-        :
-      </span>
+      <span className="text-sm font-medium min-w-[60px]">{year}:</span>
       <Input
         type="number"
         value={(currentReturn * 100).toFixed(1)}
-        onChange={(e) => {
+        onChange={e => {
           const newReturn = e.target.value ? Number(e.target.value) / 100 : 0.05
           onChange(year, newReturn)
         }}
@@ -68,12 +65,7 @@ export function SegmentVariableReturnConfig({
           const year = startYear + index
           const currentReturn = yearlyReturns[year] || 0.05
           return (
-            <YearReturnInput
-              key={year}
-              year={year}
-              currentReturn={currentReturn}
-              onChange={handleYearReturnChange}
-            />
+            <YearReturnInput key={year} year={year} currentReturn={currentReturn} onChange={handleYearReturnChange} />
           )
         })}
       </div>

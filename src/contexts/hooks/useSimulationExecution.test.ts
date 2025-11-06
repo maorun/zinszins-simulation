@@ -75,28 +75,20 @@ describe('useSimulationExecution', () => {
   })
 
   it('returns performSimulation function', () => {
-    const { result } = renderHook(() =>
-      useSimulationExecution(mockState, mockSetIsLoading, mockSetSimulationData),
-    )
+    const { result } = renderHook(() => useSimulationExecution(mockState, mockSetIsLoading, mockSetSimulationData))
 
     expect(result.current.performSimulation).toBeDefined()
     expect(typeof result.current.performSimulation).toBe('function')
   })
 
   it('executes simulation with default parameters', async () => {
-    const { result } = renderHook(() =>
-      useSimulationExecution(mockState, mockSetIsLoading, mockSetSimulationData),
-    )
+    const { result } = renderHook(() => useSimulationExecution(mockState, mockSetIsLoading, mockSetSimulationData))
 
     await result.current.performSimulation()
 
     await waitFor(() => {
       expect(mockSetIsLoading).toHaveBeenCalledWith(true)
-      expect(buildSimulationParams.buildSimulationConfig).toHaveBeenCalledWith(
-        mockState,
-        {},
-        expect.any(Number),
-      )
+      expect(buildSimulationParams.buildSimulationConfig).toHaveBeenCalledWith(mockState, {}, expect.any(Number))
       expect(buildSimulationParams.buildRunSimulationParams).toHaveBeenCalledWith(
         mockState,
         expect.any(Number),
@@ -112,26 +104,18 @@ describe('useSimulationExecution', () => {
   })
 
   it('executes simulation with overridden rendite', async () => {
-    const { result } = renderHook(() =>
-      useSimulationExecution(mockState, mockSetIsLoading, mockSetSimulationData),
-    )
+    const { result } = renderHook(() => useSimulationExecution(mockState, mockSetIsLoading, mockSetSimulationData))
 
     const overwrite = { rendite: 8 }
     await result.current.performSimulation(overwrite)
 
     await waitFor(() => {
-      expect(buildSimulationParams.buildSimulationConfig).toHaveBeenCalledWith(
-        mockState,
-        overwrite,
-        expect.any(Number),
-      )
+      expect(buildSimulationParams.buildSimulationConfig).toHaveBeenCalledWith(mockState, overwrite, expect.any(Number))
     })
   })
 
   it('sets loading state correctly during simulation', async () => {
-    const { result } = renderHook(() =>
-      useSimulationExecution(mockState, mockSetIsLoading, mockSetSimulationData),
-    )
+    const { result } = renderHook(() => useSimulationExecution(mockState, mockSetIsLoading, mockSetSimulationData))
 
     await result.current.performSimulation()
 
@@ -150,9 +134,7 @@ describe('useSimulationExecution', () => {
       throw error
     })
 
-    const { result } = renderHook(() =>
-      useSimulationExecution(mockState, mockSetIsLoading, mockSetSimulationData),
-    )
+    const { result } = renderHook(() => useSimulationExecution(mockState, mockSetIsLoading, mockSetSimulationData))
 
     await result.current.performSimulation()
 
@@ -203,9 +185,7 @@ describe('useSimulationExecution', () => {
       averageReturn: 9,
     }
 
-    const { result } = renderHook(() =>
-      useSimulationExecution(updatedState, mockSetIsLoading, mockSetSimulationData),
-    )
+    const { result } = renderHook(() => useSimulationExecution(updatedState, mockSetIsLoading, mockSetSimulationData))
 
     await result.current.performSimulation()
 

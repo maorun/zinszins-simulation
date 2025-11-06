@@ -47,14 +47,14 @@ describe('multi-asset-portfolio helpers', () => {
 
       // German stocks should have higher expected return and volatility
       expect(config.assetClasses.stocks_domestic.expectedReturn).toBe(0.08)
-      expect(config.assetClasses.stocks_domestic.volatility).toBe(0.20)
+      expect(config.assetClasses.stocks_domestic.volatility).toBe(0.2)
 
       // Bonds should have lower expected return and volatility
       expect(config.assetClasses.bonds_government.expectedReturn).toBe(0.03)
       expect(config.assetClasses.bonds_government.volatility).toBe(0.05)
 
       // Cash should have lowest volatility
-      expect(config.assetClasses.cash.volatility).toBe(0.00)
+      expect(config.assetClasses.cash.volatility).toBe(0.0)
     })
 
     it('sets correct default rebalancing settings', () => {
@@ -89,7 +89,7 @@ describe('multi-asset-portfolio helpers', () => {
 
     it('detects no enabled asset classes', () => {
       const noAssetsConfig = { ...validConfig }
-      Object.keys(noAssetsConfig.assetClasses).forEach((key) => {
+      Object.keys(noAssetsConfig.assetClasses).forEach(key => {
         noAssetsConfig.assetClasses[key as AssetClass].enabled = false
       })
 
@@ -135,14 +135,16 @@ describe('multi-asset-portfolio helpers', () => {
 
       console.log('Rebalancing errors:', errors)
       expect(errors.length).toBeGreaterThan(0)
-      expect(errors.some(error => error.includes('Rebalancing-Schwellenwert muss zwischen 0% und 50% liegen'))).toBe(true)
+      expect(errors.some(error => error.includes('Rebalancing-Schwellenwert muss zwischen 0% und 50% liegen'))).toBe(
+        true,
+      )
     })
 
     it('validates multiple validation errors at once', () => {
       // Set allocation to 100% initially for single asset
       validConfig.assetClasses.stocks_domestic.targetAllocation = 1.0
       validConfig.assetClasses.stocks_domestic.enabled = true
-      Object.keys(validConfig.assetClasses).forEach((key) => {
+      Object.keys(validConfig.assetClasses).forEach(key => {
         if (key !== 'stocks_domestic') {
           validConfig.assetClasses[key as AssetClass].enabled = false
         }
@@ -159,7 +161,9 @@ describe('multi-asset-portfolio helpers', () => {
       expect(errors.length).toBe(3)
       expect(errors.some(error => error.includes('Erwartete Rendite muss zwischen -50% und 50% liegen'))).toBe(true)
       expect(errors.some(error => error.includes('Volatilität muss zwischen 0% und 100% liegen'))).toBe(true)
-      expect(errors.some(error => error.includes('Rebalancing-Schwellenwert muss zwischen 0% und 50% liegen'))).toBe(true)
+      expect(errors.some(error => error.includes('Rebalancing-Schwellenwert muss zwischen 0% und 50% liegen'))).toBe(
+        true,
+      )
     })
 
     it('returns no errors for valid 100% allocation config', () => {
@@ -167,9 +171,9 @@ describe('multi-asset-portfolio helpers', () => {
       validConfig.assetClasses.stocks_domestic.targetAllocation = 1.0
       validConfig.assetClasses.stocks_domestic.enabled = true
       validConfig.assetClasses.stocks_domestic.expectedReturn = 0.08 // Valid
-      validConfig.assetClasses.stocks_domestic.volatility = 0.20 // Valid
+      validConfig.assetClasses.stocks_domestic.volatility = 0.2 // Valid
       validConfig.rebalancing.threshold = 0.05 // Valid
-      Object.keys(validConfig.assetClasses).forEach((key) => {
+      Object.keys(validConfig.assetClasses).forEach(key => {
         if (key !== 'stocks_domestic') {
           validConfig.assetClasses[key as AssetClass].enabled = false
         }
@@ -184,7 +188,7 @@ describe('multi-asset-portfolio helpers', () => {
       // Set allocation > 1.0 for a single enabled asset
       validConfig.assetClasses.stocks_domestic.targetAllocation = 1.5
       validConfig.assetClasses.stocks_domestic.enabled = true
-      Object.keys(validConfig.assetClasses).forEach((key) => {
+      Object.keys(validConfig.assetClasses).forEach(key => {
         if (key !== 'stocks_domestic') {
           validConfig.assetClasses[key as AssetClass].enabled = false
         }
@@ -250,14 +254,14 @@ describe('multi-asset-portfolio helpers', () => {
       const assetClasses = Object.keys(ASSET_CORRELATION_MATRIX) as AssetClass[]
 
       expect(assetClasses).toHaveLength(7)
-      assetClasses.forEach((assetClass) => {
+      assetClasses.forEach(assetClass => {
         expect(ASSET_CORRELATION_MATRIX[assetClass]).toBeDefined()
         expect(typeof ASSET_CORRELATION_MATRIX[assetClass]).toBe('object')
       })
     })
 
     it('has self-correlation of 1.0 for all assets', () => {
-      Object.keys(ASSET_CORRELATION_MATRIX).forEach((assetClass) => {
+      Object.keys(ASSET_CORRELATION_MATRIX).forEach(assetClass => {
         const correlations = ASSET_CORRELATION_MATRIX[assetClass as AssetClass]
         expect(correlations[assetClass as AssetClass]).toBe(1.0)
       })
@@ -265,8 +269,8 @@ describe('multi-asset-portfolio helpers', () => {
 
     it('has realistic correlation values', () => {
       // Correlations should be between -1 and 1
-      Object.values(ASSET_CORRELATION_MATRIX).forEach((correlations) => {
-        Object.values(correlations).forEach((correlation) => {
+      Object.values(ASSET_CORRELATION_MATRIX).forEach(correlations => {
+        Object.values(correlations).forEach(correlation => {
           if (correlation !== undefined) {
             expect(correlation).toBeGreaterThanOrEqual(-1)
             expect(correlation).toBeLessThanOrEqual(1)

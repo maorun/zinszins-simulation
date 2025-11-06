@@ -12,7 +12,7 @@ export function OptimizationModeRadioGroup({ value, onChange }: OptimizationMode
       <Label>Optimierungsstrategie</Label>
       <RadioTileGroup
         value={value}
-        onValueChange={(newValue) => {
+        onValueChange={newValue => {
           onChange(newValue as 'minimize_taxes' | 'maximize_after_tax' | 'balanced')
         }}
       >
@@ -26,9 +26,7 @@ export function OptimizationModeRadioGroup({ value, onChange }: OptimizationMode
           Balance zwischen Steueroptimierung und stabilen Entnahmen
         </RadioTile>
       </RadioTileGroup>
-      <div className="text-sm text-muted-foreground">
-        Bestimmt das Hauptziel der Steueroptimierung.
-      </div>
+      <div className="text-sm text-muted-foreground">Bestimmt das Hauptziel der Steueroptimierung.</div>
     </div>
   )
 }

@@ -83,7 +83,7 @@ describe('sparplan-utils', () => {
       expect(elements).toHaveLength(37)
 
       // Each monthly payment should be yearly amount / 12
-      elements.forEach((element) => {
+      elements.forEach(element => {
         expect(element.einzahlung).toBeCloseTo(24000 / 12, 2)
       })
 
@@ -204,11 +204,7 @@ describe('sparplan-utils', () => {
         end: new Date('2028-09-01'),
       }
 
-      const elementsWithEnd = convertSparplanToElements(
-        [sparplanWithEnd],
-        [2040, 2080],
-        SimulationAnnual.yearly,
-      )
+      const elementsWithEnd = convertSparplanToElements([sparplanWithEnd], [2040, 2080], SimulationAnnual.yearly)
 
       // Should stop at 2028, not continue to 2040
       const yearsWithEnd = elementsWithEnd.map(el => new Date(el.start).getFullYear())
@@ -271,7 +267,7 @@ describe('sparplan-utils', () => {
 
       // Group elements by year to check totals
       const byYear: { [key: number]: number } = {}
-      elements.forEach((el) => {
+      elements.forEach(el => {
         const year = new Date(el.start).getFullYear()
         if (!byYear[year]) byYear[year] = 0
         byYear[year] += el.einzahlung

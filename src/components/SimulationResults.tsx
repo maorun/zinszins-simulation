@@ -1,9 +1,7 @@
 import MonteCarloAnalysis from './MonteCarloAnalysis'
 
 const SimulationResults = () => {
-  return (
-    <MonteCarloAnalysis />
-  )
+  return <MonteCarloAnalysis />
 }
 
 export default SimulationResults

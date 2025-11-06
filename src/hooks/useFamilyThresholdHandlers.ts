@@ -18,11 +18,10 @@ export function useFamilyThresholdHandlers(
       updateFormValue(
         createHealthCareConfigUpdate(formValue, {
           coupleConfig: {
-            ...(formValue.healthCareInsuranceConfig?.coupleConfig
-              || createDefaultCoupleHealthInsuranceConfig()),
+            ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
             familyInsuranceThresholds: {
-              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.familyInsuranceThresholds
-                || createDefaultFamilyInsuranceThresholds()),
+              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.familyInsuranceThresholds ||
+                createDefaultFamilyInsuranceThresholds()),
               regularEmploymentLimit: amount,
             },
           },
@@ -37,11 +36,10 @@ export function useFamilyThresholdHandlers(
       updateFormValue(
         createHealthCareConfigUpdate(formValue, {
           coupleConfig: {
-            ...(formValue.healthCareInsuranceConfig?.coupleConfig
-              || createDefaultCoupleHealthInsuranceConfig()),
+            ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
             familyInsuranceThresholds: {
-              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.familyInsuranceThresholds
-                || createDefaultFamilyInsuranceThresholds()),
+              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.familyInsuranceThresholds ||
+                createDefaultFamilyInsuranceThresholds()),
               miniJobLimit: amount,
             },
           },

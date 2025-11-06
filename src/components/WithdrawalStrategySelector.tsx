@@ -7,16 +7,13 @@ interface WithdrawalStrategySelectorProps {
   onStrategyChange: (strategy: WithdrawalStrategy) => void
 }
 
-export function WithdrawalStrategySelector({
-  strategie,
-  onStrategyChange,
-}: WithdrawalStrategySelectorProps) {
+export function WithdrawalStrategySelector({ strategie, onStrategyChange }: WithdrawalStrategySelectorProps) {
   return (
     <div className="mb-4 space-y-2">
       <Label>Strategie</Label>
       <RadioTileGroup
         value={strategie}
-        onValueChange={(value) => {
+        onValueChange={value => {
           onStrategyChange(value as WithdrawalStrategy)
         }}
       >

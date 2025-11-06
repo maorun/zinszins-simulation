@@ -7,10 +7,7 @@ interface ReturnModeSelectorProps {
   onWithdrawalReturnModeChange: (mode: WithdrawalReturnMode) => void
 }
 
-export function ReturnModeSelector({
-  withdrawalReturnMode,
-  onWithdrawalReturnModeChange,
-}: ReturnModeSelectorProps) {
+export function ReturnModeSelector({ withdrawalReturnMode, onWithdrawalReturnModeChange }: ReturnModeSelectorProps) {
   return (
     <div className="mb-4 space-y-2">
       <Label>Rendite-Konfiguration (Entnahme-Phase)</Label>
@@ -34,8 +31,7 @@ export function ReturnModeSelector({
         </RadioTile>
       </RadioTileGroup>
       <div className="text-sm text-muted-foreground mt-1">
-        Konfiguration der erwarteten Rendite während der Entnahme-Phase
-        (unabhängig von der Sparphase-Rendite).
+        Konfiguration der erwarteten Rendite während der Entnahme-Phase (unabhängig von der Sparphase-Rendite).
       </div>
     </div>
   )

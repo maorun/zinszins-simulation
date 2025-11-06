@@ -25,8 +25,7 @@ interface OtherIncomeSourceFormEditorProps {
 function configureRealEstateSettings(source: OtherIncomeSource, newType: IncomeType): void {
   if (newType === 'rental' && !source.realEstateConfig) {
     source.realEstateConfig = createDefaultRealEstateConfig()
-  }
-  else if (newType !== 'rental' && source.realEstateConfig) {
+  } else if (newType !== 'rental' && source.realEstateConfig) {
     delete source.realEstateConfig
   }
 }
@@ -44,8 +43,7 @@ function applyKindergeldDefaults(source: OtherIncomeSource): void {
 function configureKindergeldSettings(source: OtherIncomeSource, newType: IncomeType): void {
   if (newType === 'kindergeld' && !source.kindergeldConfig) {
     applyKindergeldDefaults(source)
-  }
-  else if (newType !== 'kindergeld' && source.kindergeldConfig) {
+  } else if (newType !== 'kindergeld' && source.kindergeldConfig) {
     delete source.kindergeldConfig
   }
 }
@@ -86,9 +84,7 @@ export function OtherIncomeSourceFormEditor({
   return (
     <Card className="mb-6 border-2 border-blue-200">
       <CardHeader>
-        <CardTitle className="text-base">
-          {getFormTitle(isAddingNew)}
-        </CardTitle>
+        <CardTitle className="text-base">{getFormTitle(isAddingNew)}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-4">
         <NameInputSection editingSource={editingSource} onUpdate={onUpdate} />

@@ -6,10 +6,7 @@ interface FixedReturnConfigProps {
   onFixedRateChange: (rate: number) => void
 }
 
-export function SegmentFixedReturnConfig({
-  fixedRate,
-  onFixedRateChange,
-}: FixedReturnConfigProps) {
+export function SegmentFixedReturnConfig({ fixedRate, onFixedRateChange }: FixedReturnConfigProps) {
   const rate = fixedRate || 0.05
 
   return (
@@ -26,10 +23,7 @@ export function SegmentFixedReturnConfig({
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>0%</span>
-          <span className="font-medium text-gray-900">
-            {(rate * 100).toFixed(1)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{(rate * 100).toFixed(1)}%</span>
           <span>10%</span>
         </div>
       </div>

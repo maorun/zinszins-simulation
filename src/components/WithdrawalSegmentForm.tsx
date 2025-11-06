@@ -60,9 +60,9 @@ function WithdrawalSegmentFormContent({
       <CardContent>
         <div className="mb-5">
           <p className="mb-4">
-            Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf.
-            Phasen können flexibel positioniert werden - sie müssen nicht am Ende der Sparphase beginnen
-            und können Lücken zwischen ihnen haben. Verwende die Pfeil-Buttons, um die Reihenfolge zu ändern.
+            Teile die Entnahme-Phase in verschiedene Zeiträume mit unterschiedlichen Strategien auf. Phasen können
+            flexibel positioniert werden - sie müssen nicht am Ende der Sparphase beginnen und können Lücken zwischen
+            ihnen haben. Verwende die Pfeil-Buttons, um die Reihenfolge zu ändern.
           </p>
           <ErrorDisplay errors={errors} />
           <Button onClick={addSegment} className="mb-4">

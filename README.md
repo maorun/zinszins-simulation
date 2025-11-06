@@ -1,4 +1,3 @@
-
 # Zinseszins-Rechner
 
 Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender Steuerberechnung und Entnahmeplanung.

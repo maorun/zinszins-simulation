@@ -8,7 +8,9 @@ export interface RMDConfigValues {
 
 export interface RMDChangeHandlers {
   onStartAgeChange: (age: number) => void
-  onLifeExpectancyTableChange: (table: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom') => void
+  onLifeExpectancyTableChange: (
+    table: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom',
+  ) => void
   onCustomLifeExpectancyChange: (years: number) => void
 }
 
@@ -38,9 +40,7 @@ export function getCurrentValuesFromForm(
   }
 }
 
-export function getCurrentValuesFromDirect(
-  values: RMDConfigValues,
-): RMDConfigValues {
+export function getCurrentValuesFromDirect(values: RMDConfigValues): RMDConfigValues {
   return {
     ...DEFAULT_VALUES,
     ...values,

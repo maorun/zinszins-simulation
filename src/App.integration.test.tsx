@@ -33,24 +33,33 @@ describe('App Integration Tests - Optimized', () => {
     render(<App />)
 
     // Wait for lazy-loaded components to render
-    await waitFor(() => {
-      expect(screen.getByText('💼 Zinseszins-Simulation')).toBeInTheDocument()
-      expect(screen.getByText('🔄 Neu berechnen')).toBeInTheDocument()
-    }, { timeout: 5000 })
+    await waitFor(
+      () => {
+        expect(screen.getByText('💼 Zinseszins-Simulation')).toBeInTheDocument()
+        expect(screen.getByText('🔄 Neu berechnen')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
 
     // Wait for Profile Management to load
-    await waitFor(() => {
-      expect(screen.getByText('👤 Profile verwalten')).toBeInTheDocument()
-    }, { timeout: 5000 })
+    await waitFor(
+      () => {
+        expect(screen.getByText('👤 Profile verwalten')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
 
     // Check that main sections are present
     expect(screen.getByText('⚙️ Konfiguration')).toBeInTheDocument()
 
     // Wait for tabs to load
-    await waitFor(() => {
-      expect(screen.getByText('Ansparen')).toBeInTheDocument()
-      expect(screen.getByText('Entnehmen')).toBeInTheDocument()
-    }, { timeout: 5000 })
+    await waitFor(
+      () => {
+        expect(screen.getByText('Ansparen')).toBeInTheDocument()
+        expect(screen.getByText('Entnehmen')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
   })
 
   it('renders the complete application structure without errors', () => {
@@ -68,10 +77,13 @@ describe('App Integration Tests - Optimized', () => {
     render(<App />)
 
     // Wait for lazy-loaded components to render
-    await waitFor(() => {
-      expect(screen.getByText('📧 by Marco')).toBeInTheDocument()
-      expect(screen.getByText('🚀 Erstellt mit React, TypeScript & shadcn/ui')).toBeInTheDocument()
-    }, { timeout: 5000 })
+    await waitFor(
+      () => {
+        expect(screen.getByText('📧 by Marco')).toBeInTheDocument()
+        expect(screen.getByText('🚀 Erstellt mit React, TypeScript & shadcn/ui')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
 
     // Check that configuration sections exist
     const configElements = screen.getAllByText(/Konfiguration/)

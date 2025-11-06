@@ -67,7 +67,7 @@ import type { RequiredProps, Callback, Result } from '~/types'
 ### Making Specific Properties Required
 
 ```typescript
-type User = { name?: string, age?: number, id?: string }
+type User = { name?: string; age?: number; id?: string }
 type UserWithId = RequiredProps<User, 'id'>
 // Result: { name?: string, age?: number, id: string }
 ```
@@ -87,8 +87,7 @@ async function fetchData(): Promise<Result<Data, Error>> {
   try {
     const data = await api.getData()
     return { success: true, data }
-  }
-  catch (error) {
+  } catch (error) {
     return { success: false, error: error as Error }
   }
 }

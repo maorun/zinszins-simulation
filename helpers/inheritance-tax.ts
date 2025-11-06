@@ -44,25 +44,25 @@ export const INHERITANCE_TAX_RATES = {
     { upTo: 6000000, rate: 0.19 }, // 19%
     { upTo: 13000000, rate: 0.23 }, // 23%
     { upTo: 26000000, rate: 0.27 }, // 27%
-    { upTo: Infinity, rate: 0.30 }, // 30%
+    { upTo: Infinity, rate: 0.3 }, // 30%
   ],
   II: [
     { upTo: 75000, rate: 0.15 }, // 15%
-    { upTo: 300000, rate: 0.20 }, // 20%
+    { upTo: 300000, rate: 0.2 }, // 20%
     { upTo: 600000, rate: 0.25 }, // 25%
-    { upTo: 6000000, rate: 0.30 }, // 30%
+    { upTo: 6000000, rate: 0.3 }, // 30%
     { upTo: 13000000, rate: 0.35 }, // 35%
-    { upTo: 26000000, rate: 0.40 }, // 40%
+    { upTo: 26000000, rate: 0.4 }, // 40%
     { upTo: Infinity, rate: 0.43 }, // 43%
   ],
   III: [
-    { upTo: 75000, rate: 0.30 }, // 30%
+    { upTo: 75000, rate: 0.3 }, // 30%
     { upTo: 300000, rate: 0.35 }, // 35%
-    { upTo: 600000, rate: 0.40 }, // 40%
+    { upTo: 600000, rate: 0.4 }, // 40%
     { upTo: 6000000, rate: 0.43 }, // 43%
     { upTo: 13000000, rate: 0.45 }, // 45%
     { upTo: 26000000, rate: 0.48 }, // 48%
-    { upTo: Infinity, rate: 0.50 }, // 50%
+    { upTo: Infinity, rate: 0.5 }, // 50%
   ],
 }
 

@@ -23,34 +23,27 @@ interface MonteCarloResult {
 /**
  * Component to display Monte Carlo analysis table with scenarios
  */
-function SimulationParameters({ config, formatPercent }: {
+function SimulationParameters({
+  config,
+  formatPercent,
+}: {
   config: RandomReturnConfig
   formatPercent: (value: number) => string
 }) {
   return (
     <div className="mb-5">
       <p>
-        <strong>Simulationsparameter:</strong>
-        {' '}
-        Durchschnittliche Rendite
-        {formatPercent(config.averageReturn)}
-        ,
-        Volatilität
+        <strong>Simulationsparameter:</strong> Durchschnittliche Rendite
+        {formatPercent(config.averageReturn)}, Volatilität
         {formatPercent(config.standardDeviation || 0.15)}
       </p>
       <p>
-        <strong>Annahme:</strong>
-        {' '}
-        Die jährlichen Renditen folgen einer Normalverteilung.
-        Reale Märkte können von dieser Annahme abweichen.
+        <strong>Annahme:</strong> Die jährlichen Renditen folgen einer Normalverteilung. Reale Märkte können von dieser
+        Annahme abweichen.
       </p>
       {config.seed && (
         <p>
-          <strong>Zufallsseed:</strong>
-          {' '}
-          {config.seed}
-          {' '}
-          (deterministische Ergebnisse)
+          <strong>Zufallsseed:</strong> {config.seed} (deterministische Ergebnisse)
         </p>
       )}
     </div>
@@ -62,9 +55,9 @@ function MonteCarloNistHinweis() {
     <div className="mt-[15px] p-[10px] bg-[#f8f9fa] border border-[#dee2e6] rounded">
       <h6>💡 Hinweis zu Monte Carlo Simulationen:</h6>
       <p className="m-0 text-sm">
-        Diese Szenarien basieren auf statistischen Modellen und historischen Annahmen.
-        Tatsächliche Marktrenditen können stark abweichen. Die Simulation dient nur zur
-        groben Orientierung und ersetzt keine professionelle Finanzberatung.
+        Diese Szenarien basieren auf statistischen Modellen und historischen Annahmen. Tatsächliche Marktrenditen können
+        stark abweichen. Die Simulation dient nur zur groben Orientierung und ersetzt keine professionelle
+        Finanzberatung.
       </p>
     </div>
   )
@@ -81,11 +74,7 @@ function MonteCarloResultsContent({
   accumulationConfig: RandomReturnConfig
   withdrawalScenarios: MonteCarloResult[] | null
   withdrawalConfig: RandomReturnConfig | undefined
-  renderAnalysisTable: (
-    scenarios: MonteCarloResult[],
-    config: RandomReturnConfig,
-    title: string,
-  ) => React.ReactNode
+  renderAnalysisTable: (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => React.ReactNode
 }) {
   const nestingLevel = useNestingLevel()
 
@@ -93,9 +82,9 @@ function MonteCarloResultsContent({
     <CardContent nestingLevel={nestingLevel}>
       {renderAnalysisTable(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
 
-      {withdrawalScenarios && withdrawalConfig && (
-        renderAnalysisTable(withdrawalScenarios, withdrawalConfig, 'Entnahmephase (Entsparphase)')
-      )}
+      {withdrawalScenarios &&
+        withdrawalConfig &&
+        renderAnalysisTable(withdrawalScenarios, withdrawalConfig, 'Entnahmephase (Entsparphase)')}
 
       <MonteCarloNistHinweis />
 
@@ -116,7 +105,10 @@ function MonteCarloResultsContent({
   )
 }
 
-function MobileScenarioCards({ scenarios, getRowClassName }: {
+function MobileScenarioCards({
+  scenarios,
+  getRowClassName,
+}: {
   scenarios: MonteCarloResult[]
   getRowClassName: (scenario: string) => string
 }) {
@@ -135,7 +127,10 @@ function MobileScenarioCards({ scenarios, getRowClassName }: {
   )
 }
 
-function DesktopScenarioTable({ scenarios, getRowClassName }: {
+function DesktopScenarioTable({
+  scenarios,
+  getRowClassName,
+}: {
   scenarios: MonteCarloResult[]
   getRowClassName: (scenario: string) => string
 }) {
@@ -259,11 +254,7 @@ export function MonteCarloResults({
     <Collapsible defaultOpen={false}>
       <Card nestingLevel={nestingLevel}>
         <CollapsibleTrigger asChild>
-          <Button
-            variant="ghost"
-            className="w-full justify-between p-0"
-            asChild
-          >
+          <Button variant="ghost" className="w-full justify-between p-0" asChild>
             <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
               <div className="flex items-center justify-between w-full">
                 <CardTitle>📊 Statistische Szenarien (Monte Carlo)</CardTitle>

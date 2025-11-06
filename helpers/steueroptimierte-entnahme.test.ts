@@ -76,7 +76,9 @@ describe('Steueroptimierte Entnahme Strategy', () => {
   })
 
   describe('Optimization Modes', () => {
-    const testConfig = (mode: 'minimize_taxes' | 'maximize_after_tax' | 'balanced'): SteueroptimierteEntnahmeConfig => ({
+    const testConfig = (
+      mode: 'minimize_taxes' | 'maximize_after_tax' | 'balanced',
+    ): SteueroptimierteEntnahmeConfig => ({
       baseWithdrawalRate: 0.04,
       targetTaxRate: 0.26375,
       optimizationMode: mode,
@@ -158,7 +160,7 @@ describe('Steueroptimierte Entnahme Strategy', () => {
         baseWithdrawalRate: 0.04,
         targetTaxRate: 0.26375,
         optimizationMode: 'minimize_taxes',
-        freibetragUtilizationTarget: 0.50, // 50% utilization
+        freibetragUtilizationTarget: 0.5, // 50% utilization
         rebalanceFrequency: 'yearly',
       }
 

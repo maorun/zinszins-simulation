@@ -49,11 +49,9 @@ export function useSimulationExecution(
         const simulationParams = buildRunSimulationParams(state, yearToday, returnConfig, variableInflationRates)
         const result = runSimulation(simulationParams)
         setSimulationData({ sparplanElements: result })
-      }
-      catch (error) {
+      } catch (error) {
         console.error('Simulation error:', error)
-      }
-      finally {
+      } finally {
         setIsLoading(false)
       }
     },

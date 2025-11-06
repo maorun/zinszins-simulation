@@ -42,11 +42,7 @@ function formatInterestDisplay(
 ): string {
   const latestProgression = yearlyProgression[yearlyProgression.length - 1]
   if (hasInflationData && latestProgression?.cumulativeInterestReal !== undefined) {
-    return formatInflationAdjustedValue(
-      summary.zinsen || 0,
-      latestProgression.cumulativeInterestReal,
-      true,
-    )
+    return formatInflationAdjustedValue(summary.zinsen || 0, latestProgression.cumulativeInterestReal, true)
   }
   return `${thousands(summary.zinsen?.toFixed(2) || '0')} €`
 }
@@ -59,11 +55,7 @@ function formatEndCapitalDisplay(
 ): string {
   const latestProgression = yearlyProgression[yearlyProgression.length - 1]
   if (hasInflationData && latestProgression?.totalCapitalReal !== undefined) {
-    return formatInflationAdjustedValue(
-      summary.endkapital || 0,
-      latestProgression.totalCapitalReal,
-      true,
-    )
+    return formatInflationAdjustedValue(summary.endkapital || 0, latestProgression.totalCapitalReal, true)
   }
   return `${thousands(summary.endkapital?.toFixed(2) || '0')} €`
 }
@@ -102,7 +94,7 @@ export function SummaryCard({
   yearlyProgression: PortfolioProgressionEntry[]
   showCalculationInfo: (
     explanationType: string,
-    rowData: { jahr: number, endkapital: string, einzahlung: number },
+    rowData: { jahr: number; endkapital: string; einzahlung: number },
   ) => void
   tableData: PortfolioProgressionEntry[]
 }) {
@@ -129,11 +121,13 @@ export function SummaryCard({
           label="🎯 Endkapital"
           value={formatEndCapitalDisplay(summary, hasInflationData, yearlyProgression)}
           containerClassName="bg-gradient-to-br from-green-500 to-teal-500 text-white border-green-500"
-          onInfoClick={() => showCalculationInfo('endkapital', {
-            jahr: tableData?.[0]?.year || new Date().getFullYear(),
-            endkapital: summary.endkapital?.toFixed(2) || '0',
-            einzahlung: summary.startkapital || 0,
-          })}
+          onInfoClick={() =>
+            showCalculationInfo('endkapital', {
+              jahr: tableData?.[0]?.year || new Date().getFullYear(),
+              endkapital: summary.endkapital?.toFixed(2) || '0',
+              einzahlung: summary.startkapital || 0,
+            })
+          }
         />
       </div>
     </div>

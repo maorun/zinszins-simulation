@@ -22,10 +22,7 @@ export function RiskEventConfiguration({
   return (
     <>
       {/* Black Swan Event Configuration */}
-      <BlackSwanEventConfiguration
-        simulationStartYear={simulationStartYear}
-        onEventChange={onBlackSwanChange}
-      />
+      <BlackSwanEventConfiguration simulationStartYear={simulationStartYear} onEventChange={onBlackSwanChange} />
 
       {/* Inflation Scenario Configuration */}
       <InflationScenarioConfiguration

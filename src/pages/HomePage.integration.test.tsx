@@ -40,10 +40,13 @@ describe('HomePage Integration Tests - Optimized', () => {
     render(<HomePage />)
 
     // Wait for lazy-loaded components to render
-    await waitFor(() => {
-      expect(screen.getByText('Ansparen')).toBeInTheDocument()
-      expect(screen.getByText('Entnehmen')).toBeInTheDocument()
-    }, { timeout: 5000 })
+    await waitFor(
+      () => {
+        expect(screen.getByText('Ansparen')).toBeInTheDocument()
+        expect(screen.getByText('Entnehmen')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
 
     // Check that we have the enhanced overview section
     const finanzuebersicht = screen.queryByText(/Finanzübersicht/)
@@ -54,10 +57,13 @@ describe('HomePage Integration Tests - Optimized', () => {
     render(<HomePage />)
 
     // Wait for lazy-loaded components
-    await waitFor(() => {
-      expect(screen.getByText('Ansparen')).toBeInTheDocument()
-      expect(screen.getByText('Entnehmen')).toBeInTheDocument()
-    }, { timeout: 5000 })
+    await waitFor(
+      () => {
+        expect(screen.getByText('Ansparen')).toBeInTheDocument()
+        expect(screen.getByText('Entnehmen')).toBeInTheDocument()
+      },
+      { timeout: 5000 },
+    )
 
     const ansparenTab = screen.getByText('Ansparen')
     const entnehmenTab = screen.getByText('Entnehmen')
@@ -104,10 +110,13 @@ describe('HomePage Integration Tests - Optimized', () => {
     render(<HomePage />)
 
     // The configuration section should always be present
-    await waitFor(() => {
-      const configHeading = screen.getByText(/⚙️ Konfiguration/)
-      expect(configHeading).toBeInTheDocument()
-    }, { timeout: 1000 })
+    await waitFor(
+      () => {
+        const configHeading = screen.getByText(/⚙️ Konfiguration/)
+        expect(configHeading).toBeInTheDocument()
+      },
+      { timeout: 1000 },
+    )
 
     // Simply verify that the collapsible mechanism works by checking it has data-state
     const configSection = screen.getByText(/⚙️ Konfiguration/).closest('[data-state]')
@@ -123,10 +132,13 @@ describe('HomePage Integration Tests - Optimized', () => {
     const { container } = render(<HomePage />)
 
     // First ensure we're on the correct tab (Ansparen)
-    await waitFor(() => {
-      const ansparenTab = screen.getByText('Ansparen')
-      expect(ansparenTab).toBeInTheDocument()
-    }, { timeout: 1000 })
+    await waitFor(
+      () => {
+        const ansparenTab = screen.getByText('Ansparen')
+        expect(ansparenTab).toBeInTheDocument()
+      },
+      { timeout: 1000 },
+    )
 
     // Click the Ansparen tab to make sure it's active
     const ansparenTab = screen.getByText('Ansparen')
@@ -134,30 +146,39 @@ describe('HomePage Integration Tests - Optimized', () => {
     await new Promise(resolve => setTimeout(resolve, 200))
 
     // Find and expand the outer "💼 Sparpläne erstellen" section
-    await waitFor(() => {
-      const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/)
-      expect(sparplanHeading).toBeInTheDocument()
-    }, { timeout: 1000 })
+    await waitFor(
+      () => {
+        const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/)
+        expect(sparplanHeading).toBeInTheDocument()
+      },
+      { timeout: 1000 },
+    )
 
     const sparplanHeading = screen.getByText(/💼 Sparpläne erstellen/)
     await user.click(sparplanHeading)
     await new Promise(resolve => setTimeout(resolve, 500))
 
     // Now find and expand the inner "💰 Sparpläne erstellen" section (the actual form)
-    await waitFor(() => {
-      const innerSparplanHeading = screen.getByText(/💰 Sparpläne erstellen/)
-      expect(innerSparplanHeading).toBeInTheDocument()
-    }, { timeout: 1000 })
+    await waitFor(
+      () => {
+        const innerSparplanHeading = screen.getByText(/💰 Sparpläne erstellen/)
+        expect(innerSparplanHeading).toBeInTheDocument()
+      },
+      { timeout: 1000 },
+    )
 
     const innerSparplanHeading = screen.getByText(/💰 Sparpläne erstellen/)
     await user.click(innerSparplanHeading)
     await new Promise(resolve => setTimeout(resolve, 500))
 
     // Now the input elements should be visible
-    await waitFor(() => {
-      const inputElements = container.querySelectorAll('input')
-      expect(inputElements.length).toBeGreaterThan(0)
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        const inputElements = container.querySelectorAll('input')
+        expect(inputElements.length).toBeGreaterThan(0)
+      },
+      { timeout: 2000 },
+    )
   })
 
   it('renders without performance issues', () => {

@@ -18,9 +18,9 @@ export function calculateWithdrawalEndYear(
 
   // If we have segmented withdrawal, use the actual end year from segments
   if (
-    enhancedSummary?.isSegmentedWithdrawal
-    && enhancedSummary.withdrawalSegments
-    && enhancedSummary.withdrawalSegments.length > 0
+    enhancedSummary?.isSegmentedWithdrawal &&
+    enhancedSummary.withdrawalSegments &&
+    enhancedSummary.withdrawalSegments.length > 0
   ) {
     // Find the latest end year from all segments
     const segmentEndYears = enhancedSummary.withdrawalSegments

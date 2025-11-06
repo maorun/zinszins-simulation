@@ -28,11 +28,7 @@ const RandomReturnConfiguration = () => {
         performSimulation={performSimulation}
       />
 
-      <RandomSeedInput
-        randomSeed={randomSeed}
-        setRandomSeed={setRandomSeed}
-        performSimulation={performSimulation}
-      />
+      <RandomSeedInput randomSeed={randomSeed} setRandomSeed={setRandomSeed} performSimulation={performSimulation} />
     </div>
   )
 }

@@ -8,13 +8,13 @@
 const strategyDisplayNames: Record<string, string> = {
   '4prozent': '4% Regel',
   '3prozent': '3% Regel',
-  'variabel_prozent': 'Variable Prozent',
-  'monatlich_fest': 'Monatlich fest',
-  'dynamisch': 'Dynamische Strategie',
-  'bucket_strategie': 'Drei-Eimer-Strategie',
-  'rmd': 'RMD (Lebenserwartung)',
-  'kapitalerhalt': 'Kapitalerhalt / Ewige Rente',
-  'steueroptimiert': 'Steueroptimiert',
+  variabel_prozent: 'Variable Prozent',
+  monatlich_fest: 'Monatlich fest',
+  dynamisch: 'Dynamische Strategie',
+  bucket_strategie: 'Drei-Eimer-Strategie',
+  rmd: 'RMD (Lebenserwartung)',
+  kapitalerhalt: 'Kapitalerhalt / Ewige Rente',
+  steueroptimiert: 'Steueroptimiert',
 }
 
 /**

@@ -61,7 +61,7 @@ export interface ExtendedSavedConfiguration {
   customLifeExpectancy?: number
   planningMode?: 'individual' | 'couple'
   gender?: 'male' | 'female'
-  spouse?: { birthYear?: number, gender: 'male' | 'female' }
+  spouse?: { birthYear?: number; gender: 'male' | 'female' }
   birthYear?: number
   expectedLifespan?: number
   useAutomaticCalculation?: boolean
@@ -121,7 +121,7 @@ export interface ConfigurationSetters {
   setCustomLifeExpectancy: (value: number | undefined) => void
   setPlanningMode: (value: 'individual' | 'couple') => void
   setGender: (value: 'male' | 'female' | undefined) => void
-  setSpouse: (value: { birthYear?: number, gender: 'male' | 'female' } | undefined) => void
+  setSpouse: (value: { birthYear?: number; gender: 'male' | 'female' } | undefined) => void
   setBirthYear: (value: number | undefined) => void
   setExpectedLifespan: (value: number | undefined) => void
   setUseAutomaticCalculation: (value: boolean) => void

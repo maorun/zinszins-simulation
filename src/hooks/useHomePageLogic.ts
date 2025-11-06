@@ -60,11 +60,10 @@ export function useHomePageLogic() {
   )
 
   // Memoize phase date ranges calculation
-  const phaseDateRanges = useMemo(() => calculatePhaseDateRanges(
-    simulationState.sparplan,
-    simulationState.startEnd,
-    simulationState.endOfLife,
-  ), [simulationState.sparplan, simulationState.startEnd, simulationState.endOfLife])
+  const phaseDateRanges = useMemo(
+    () => calculatePhaseDateRanges(simulationState.sparplan, simulationState.startEnd, simulationState.endOfLife),
+    [simulationState.sparplan, simulationState.startEnd, simulationState.endOfLife],
+  )
 
   return {
     ...simulationState,

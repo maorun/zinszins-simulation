@@ -21,9 +21,7 @@ interface MockInflationScenarioProps {
 vi.mock('./BlackSwanEventConfiguration', () => ({
   default: ({ simulationStartYear, onEventChange }: MockBlackSwanProps) => (
     <div data-testid="black-swan-config">
-      Black Swan Config - Start Year:
-      {' '}
-      {simulationStartYear}
+      Black Swan Config - Start Year: {simulationStartYear}
       <button onClick={() => onEventChange?.({ 2020: -0.3 }, 'Test Event')}>Trigger Event</button>
     </div>
   ),
@@ -32,9 +30,7 @@ vi.mock('./BlackSwanEventConfiguration', () => ({
 vi.mock('./InflationScenarioConfiguration', () => ({
   default: ({ simulationStartYear, onScenarioChange }: MockInflationScenarioProps) => (
     <div data-testid="inflation-config">
-      Inflation Config - Start Year:
-      {' '}
-      {simulationStartYear}
+      Inflation Config - Start Year: {simulationStartYear}
       <button onClick={() => onScenarioChange?.({ 2020: 0.05 }, { 2020: -0.02 }, 'High Inflation')}>
         Trigger Scenario
       </button>

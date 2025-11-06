@@ -2,9 +2,7 @@ import { useMemo } from 'react'
 import type { SparplanElement } from '../utils/sparplan-utils'
 import type { WithdrawalConfiguration } from '../utils/config-storage'
 import { useSimulation } from '../contexts/useSimulation'
-import {
-  convertCoupleToLegacyConfig,
-} from './useWithdrawalCalculations.helpers'
+import { convertCoupleToLegacyConfig } from './useWithdrawalCalculations.helpers'
 import { useWithdrawalData } from './useWithdrawalData'
 import { useComparisonResults } from './useComparisonResults'
 import { useSegmentedComparisonResults } from './useSegmentedComparisonResults'

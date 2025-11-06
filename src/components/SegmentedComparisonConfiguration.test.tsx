@@ -45,8 +45,7 @@ describe('SegmentedComparisonConfiguration', () => {
     const trigger = screen.getByText(/🔄 Geteilte Phasen Vergleich/).closest('button')
     if (trigger) {
       fireEvent.click(trigger)
-    }
-    else {
+    } else {
       // Fallback to find by heading and click its parent
       const heading = screen.getByText(/🔄 Geteilte Phasen Vergleich/)
       const button = heading.closest('[type="button"]')
@@ -93,12 +92,7 @@ describe('SegmentedComparisonConfiguration', () => {
 
   it('renders existing strategies correctly', () => {
     const strategies = [mockStrategy]
-    render(
-      <SegmentedComparisonConfiguration
-        {...defaultProps}
-        segmentedComparisonStrategies={strategies}
-      />,
-    )
+    render(<SegmentedComparisonConfiguration {...defaultProps} segmentedComparisonStrategies={strategies} />)
 
     // First expand to access content
     expandCollapsible()
@@ -175,12 +169,7 @@ describe('SegmentedComparisonConfiguration', () => {
       },
     ]
 
-    render(
-      <SegmentedComparisonConfiguration
-        {...defaultProps}
-        segmentedComparisonStrategies={strategies}
-      />,
-    )
+    render(<SegmentedComparisonConfiguration {...defaultProps} segmentedComparisonStrategies={strategies} />)
 
     // First expand to access content
     expandCollapsible()
@@ -193,12 +182,7 @@ describe('SegmentedComparisonConfiguration', () => {
 
   it('displays helpful information section', () => {
     const strategies = [mockStrategy]
-    render(
-      <SegmentedComparisonConfiguration
-        {...defaultProps}
-        segmentedComparisonStrategies={strategies}
-      />,
-    )
+    render(<SegmentedComparisonConfiguration {...defaultProps} segmentedComparisonStrategies={strategies} />)
 
     // First expand to access content
     expandCollapsible()

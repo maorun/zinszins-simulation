@@ -39,10 +39,11 @@ interface ChildOrderFieldProps {
 }
 
 function ChildOrderField({ childOrderNumber, onChange }: ChildOrderFieldProps) {
-  const selectClasses = 'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm '
-    + 'ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium '
-    + 'placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 '
-    + 'focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
+  const selectClasses =
+    'flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ' +
+    'ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium ' +
+    'placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 ' +
+    'focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50'
 
   return (
     <div className="space-y-2">
@@ -58,9 +59,7 @@ function ChildOrderField({ childOrderNumber, onChange }: ChildOrderFieldProps) {
         <option value={3}>3. Kind</option>
         <option value={4}>4. Kind oder höher</option>
       </select>
-      <p className="text-xs text-gray-600">
-        Aktuell: 250€/Monat für alle Kinder (Stand 2024)
-      </p>
+      <p className="text-xs text-gray-600">Aktuell: 250€/Monat für alle Kinder (Stand 2024)</p>
     </div>
   )
 }
@@ -77,16 +76,10 @@ function EducationStatusField({ inEducation, onChange }: EducationStatusFieldPro
         <Label htmlFor="in-education" className="text-sm font-medium">
           Kind in Ausbildung/Studium (ab 18)
         </Label>
-        <Switch
-          id="in-education"
-          checked={inEducation}
-          onCheckedChange={onChange}
-        />
+        <Switch id="in-education" checked={inEducation} onCheckedChange={onChange} />
       </div>
       <p className="text-xs text-gray-600">
-        {inEducation
-          ? 'Kindergeld wird bis zum 25. Geburtstag gezahlt'
-          : 'Kindergeld endet mit dem 18. Geburtstag'}
+        {inEducation ? 'Kindergeld wird bis zum 25. Geburtstag gezahlt' : 'Kindergeld endet mit dem 18. Geburtstag'}
       </p>
     </div>
   )
@@ -96,20 +89,14 @@ function KindergeldInfoBox() {
   return (
     <div className="p-3 bg-blue-50 rounded border border-blue-200">
       <p className="text-xs text-blue-800">
-        <strong>ℹ️ Hinweis:</strong>
-        {' '}
-        Kindergeld ist steuerfrei und wird automatisch
-        berücksichtigt. Der monatliche Betrag wird automatisch auf 250€ gesetzt
-        (Stand 2024).
+        <strong>ℹ️ Hinweis:</strong> Kindergeld ist steuerfrei und wird automatisch berücksichtigt. Der monatliche
+        Betrag wird automatisch auf 250€ gesetzt (Stand 2024).
       </p>
     </div>
   )
 }
 
-function createKindergeldHandlers(
-  editingSource: OtherIncomeSource,
-  onUpdate: (source: OtherIncomeSource) => void,
-) {
+function createKindergeldHandlers(editingSource: OtherIncomeSource, onUpdate: (source: OtherIncomeSource) => void) {
   const handleBirthYearChange = (childBirthYear: number) => {
     onUpdate({
       ...editingSource,
@@ -143,16 +130,15 @@ function createKindergeldHandlers(
   return { handleBirthYearChange, handleOrderChange, handleEducationChange }
 }
 
-export function KindergeldConfigSection({
-  editingSource,
-  onUpdate,
-}: KindergeldConfigSectionProps) {
+export function KindergeldConfigSection({ editingSource, onUpdate }: KindergeldConfigSectionProps) {
   if (!editingSource.kindergeldConfig) {
     return null
   }
 
-  const { handleBirthYearChange, handleOrderChange, handleEducationChange }
-    = createKindergeldHandlers(editingSource, onUpdate)
+  const { handleBirthYearChange, handleOrderChange, handleEducationChange } = createKindergeldHandlers(
+    editingSource,
+    onUpdate,
+  )
 
   return (
     <div className="space-y-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
@@ -170,10 +156,7 @@ export function KindergeldConfigSection({
         onChange={handleOrderChange}
       />
 
-      <EducationStatusField
-        inEducation={editingSource.kindergeldConfig.inEducation}
-        onChange={handleEducationChange}
-      />
+      <EducationStatusField inEducation={editingSource.kindergeldConfig.inEducation} onChange={handleEducationChange} />
 
       <KindergeldInfoBox />
     </div>

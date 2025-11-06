@@ -12,12 +12,7 @@ interface RatesTableProps {
 /**
  * Renders the table of basiszins rates with edit and delete functionality
  */
-export function RatesTable({
-  basiszinsConfiguration,
-  currentYear,
-  onUpdateRate,
-  onRemoveYear,
-}: RatesTableProps) {
+export function RatesTable({ basiszinsConfiguration, currentYear, onUpdateRate, onRemoveYear }: RatesTableProps) {
   // Sort years for display
   const sortedYears = Object.keys(basiszinsConfiguration)
     .map(Number)

@@ -50,11 +50,7 @@ function shouldShowPreview(
 function ResetButton({ onChange }: { onChange: (config: CareCostConfiguration) => void }) {
   return (
     <div className="pt-4 border-t">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => onChange(createDefaultCareCostConfiguration())}
-      >
+      <Button variant="outline" size="sm" onClick={() => onChange(createDefaultCareCostConfiguration())}>
         Auf Standardwerte zurücksetzen
       </Button>
     </div>

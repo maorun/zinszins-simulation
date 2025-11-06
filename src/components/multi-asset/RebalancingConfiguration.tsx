@@ -31,20 +31,14 @@ function ThresholdConfiguration({
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <Switch
-          checked={useThreshold}
-          onCheckedChange={useThreshold => onChange({ useThreshold })}
-        />
+        <Switch checked={useThreshold} onCheckedChange={useThreshold => onChange({ useThreshold })} />
         <Label className="text-sm">Schwellenwert-basiertes Rebalancing</Label>
       </div>
 
       {useThreshold && (
         <div className="space-y-2">
           <Label className="text-xs font-medium text-gray-700">
-            Drift-Schwellenwert:
-            {' '}
-            {(threshold * 100).toFixed(1)}
-            %
+            Drift-Schwellenwert: {(threshold * 100).toFixed(1)}%
           </Label>
           <Slider
             value={[threshold * 100]}
@@ -55,8 +49,7 @@ function ThresholdConfiguration({
             className="w-full"
           />
           <p className="text-xs text-gray-600">
-            Rebalancing erfolgt wenn eine Anlageklasse um mehr als diesen Wert von der
-            Zielallokation abweicht
+            Rebalancing erfolgt wenn eine Anlageklasse um mehr als diesen Wert von der Zielallokation abweicht
           </p>
         </div>
       )}
@@ -68,10 +61,7 @@ function ThresholdConfiguration({
  * Configuration component for portfolio rebalancing settings.
  * Allows users to set rebalancing frequency and optional threshold-based rebalancing.
  */
-export function RebalancingConfiguration({
-  config,
-  onChange,
-}: RebalancingConfigurationProps) {
+export function RebalancingConfiguration({ config, onChange }: RebalancingConfigurationProps) {
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-gray-700">Rebalancing</h3>
@@ -80,22 +70,25 @@ export function RebalancingConfiguration({
         <Label className="text-sm font-medium">Rebalancing-Häufigkeit</Label>
         <RadioTileGroup
           value={config.frequency}
-          onValueChange={frequency =>
-            onChange({ frequency: frequency as typeof config.frequency })}
+          onValueChange={frequency => onChange({ frequency: frequency as typeof config.frequency })}
         >
-          <RadioTile value="never" label="Nie">Nie</RadioTile>
-          <RadioTile value="annually" label="Jährlich">Jährlich</RadioTile>
-          <RadioTile value="quarterly" label="Quartalsweise">Quartalsweise</RadioTile>
-          <RadioTile value="monthly" label="Monatlich">Monatlich</RadioTile>
+          <RadioTile value="never" label="Nie">
+            Nie
+          </RadioTile>
+          <RadioTile value="annually" label="Jährlich">
+            Jährlich
+          </RadioTile>
+          <RadioTile value="quarterly" label="Quartalsweise">
+            Quartalsweise
+          </RadioTile>
+          <RadioTile value="monthly" label="Monatlich">
+            Monatlich
+          </RadioTile>
         </RadioTileGroup>
       </div>
 
       {config.frequency !== 'never' && (
-        <ThresholdConfiguration
-          useThreshold={config.useThreshold}
-          threshold={config.threshold}
-          onChange={onChange}
-        />
+        <ThresholdConfiguration useThreshold={config.useThreshold} threshold={config.threshold} onChange={onChange} />
       )}
     </div>
   )

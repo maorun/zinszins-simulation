@@ -24,10 +24,8 @@ export function DeleteProfileDialog({ profile, onOpenChange, onConfirm }: Delete
         <AlertDialogHeader>
           <AlertDialogTitle>Profil löschen</AlertDialogTitle>
           <AlertDialogDescription>
-            Möchten Sie das Profil "
-            {profile?.name}
-            " wirklich löschen?
-            Diese Aktion kann nicht rückgängig gemacht werden.
+            Möchten Sie das Profil "{profile?.name}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht
+            werden.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

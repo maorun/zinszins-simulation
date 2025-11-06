@@ -9,13 +9,7 @@ interface UseNavigationItemProps {
   level?: number
 }
 
-export function useNavigationItem({
-  id,
-  title,
-  icon,
-  parentId,
-  level = 0,
-}: UseNavigationItemProps) {
+export function useNavigationItem({ id, title, icon, parentId, level = 0 }: UseNavigationItemProps) {
   const elementRef = useRef<HTMLDivElement>(null)
 
   // Only use navigation if it's available (optional)

@@ -266,10 +266,7 @@ describe('Simulate (Compound Interest) Calculations', () => {
     // - Parameter export includes inflation settings
 
     test('should include inflation-adjusted values when inflation is active', () => {
-      const elements = [
-        createSparplanElement('2023-01-01', 24000),
-        createSparplanElement('2024-01-01', 24000),
-      ]
+      const elements = [createSparplanElement('2023-01-01', 24000), createSparplanElement('2024-01-01', 24000)]
 
       const result = simulate({
         startYear: 2023,
@@ -319,10 +316,7 @@ describe('Simulate (Compound Interest) Calculations', () => {
     })
 
     test('should not apply inflation when disabled', () => {
-      const elements = [
-        createSparplanElement('2023-01-01', 24000),
-        createSparplanElement('2024-01-01', 24000),
-      ]
+      const elements = [createSparplanElement('2023-01-01', 24000), createSparplanElement('2024-01-01', 24000)]
 
       const result = simulate({
         startYear: 2023,
@@ -341,10 +335,7 @@ describe('Simulate (Compound Interest) Calculations', () => {
     })
 
     test('should handle zero inflation rate', () => {
-      const elements = [
-        createSparplanElement('2023-01-01', 24000),
-        createSparplanElement('2024-01-01', 24000),
-      ]
+      const elements = [createSparplanElement('2023-01-01', 24000), createSparplanElement('2024-01-01', 24000)]
 
       const result = simulate({
         startYear: 2023,
@@ -387,10 +378,7 @@ describe('Simulate (Compound Interest) Calculations', () => {
     })
 
     test('should work with random returns and inflation', () => {
-      const elements = [
-        createSparplanElement('2023-01-01', 24000),
-        createSparplanElement('2024-01-01', 24000),
-      ]
+      const elements = [createSparplanElement('2023-01-01', 24000), createSparplanElement('2024-01-01', 24000)]
 
       const result = simulate({
         startYear: 2023,
@@ -416,10 +404,7 @@ describe('Simulate (Compound Interest) Calculations', () => {
     })
 
     test('should work with variable returns and inflation', () => {
-      const elements = [
-        createSparplanElement('2023-01-01', 24000),
-        createSparplanElement('2024-01-01', 24000),
-      ]
+      const elements = [createSparplanElement('2023-01-01', 24000), createSparplanElement('2024-01-01', 24000)]
 
       const result = simulate({
         startYear: 2023,
@@ -448,10 +433,7 @@ describe('Simulate (Compound Interest) Calculations', () => {
 
   describe('Inflation application modes for savings phase', () => {
     test('should apply sparplan mode correctly (default behavior)', () => {
-      const elements = [
-        createSparplanElement('2023-01-01', 10000),
-        createSparplanElement('2024-01-01', 10000),
-      ]
+      const elements = [createSparplanElement('2023-01-01', 10000), createSparplanElement('2024-01-01', 10000)]
 
       const result = simulate({
         startYear: 2023,
@@ -473,10 +455,7 @@ describe('Simulate (Compound Interest) Calculations', () => {
     })
 
     test('should apply gesamtmenge mode correctly', () => {
-      const elements = [
-        createSparplanElement('2023-01-01', 10000),
-        createSparplanElement('2024-01-01', 10000),
-      ]
+      const elements = [createSparplanElement('2023-01-01', 10000), createSparplanElement('2024-01-01', 10000)]
 
       const result = simulate({
         startYear: 2023,
@@ -502,10 +481,7 @@ describe('Simulate (Compound Interest) Calculations', () => {
     })
 
     test('should default to sparplan mode when not specified', () => {
-      const elements = [
-        createSparplanElement('2023-01-01', 10000),
-        createSparplanElement('2024-01-01', 10000),
-      ]
+      const elements = [createSparplanElement('2023-01-01', 10000), createSparplanElement('2024-01-01', 10000)]
 
       // Test without inflationAnwendungSparphase specified
       const resultDefault = simulate({
@@ -539,9 +515,7 @@ describe('Simulate (Compound Interest) Calculations', () => {
     })
 
     test('should work with gesamtmenge mode and taxes', () => {
-      const elements = [
-        createSparplanElement('2023-01-01', 10000),
-      ]
+      const elements = [createSparplanElement('2023-01-01', 10000)]
 
       const result = simulate({
         startYear: 2023,
@@ -567,9 +541,7 @@ describe('Simulate (Compound Interest) Calculations', () => {
     test('should not produce negative returns over long periods', () => {
       // This test addresses the reported issue where long simulation periods
       // with gesamtmenge inflation mode produced negative returns
-      const elements = [
-        createSparplanElement('2025-01-01', 10000),
-      ]
+      const elements = [createSparplanElement('2025-01-01', 10000)]
 
       const result = simulate({
         startYear: 2025,
@@ -597,9 +569,7 @@ describe('Simulate (Compound Interest) Calculations', () => {
     })
 
     test('should not apply gesamtmenge mode when inflation is disabled', () => {
-      const elements = [
-        createSparplanElement('2023-01-01', 10000),
-      ]
+      const elements = [createSparplanElement('2023-01-01', 10000)]
 
       const result = simulate({
         startYear: 2023,

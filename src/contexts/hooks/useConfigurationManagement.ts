@@ -1,10 +1,6 @@
 import { useCallback } from 'react'
 import { saveConfiguration, loadConfiguration, type SavedConfiguration } from '../../utils/config-storage'
-import {
-  getActiveProfile,
-  updateProfile,
-  hasProfiles,
-} from '../../utils/profile-storage'
+import { getActiveProfile, updateProfile, hasProfiles } from '../../utils/profile-storage'
 import type { ExtendedSavedConfiguration, DefaultConfiguration } from '../helpers/config-types'
 import { loadAllConfigurations } from './config/loadConfigurationHelpers'
 import { resetAllConfigurations } from './config/resetConfigurationHelpers'
@@ -49,14 +45,16 @@ export interface ConfigurationStateSetters {
   // Planning mode config setters
   setPlanningMode: (value: 'individual' | 'couple') => void
   setGender: (value: 'male' | 'female' | undefined) => void
-  setSpouse: (value: { birthYear?: number, gender: 'male' | 'female' } | undefined) => void
+  setSpouse: (value: { birthYear?: number; gender: 'male' | 'female' } | undefined) => void
   setBirthYear: (value: number | undefined) => void
   setExpectedLifespan: (value: number | undefined) => void
   setUseAutomaticCalculation: (value: boolean) => void
   // Withdrawal config setters
   setWithdrawalConfig: (value: import('../../utils/config-storage').WithdrawalConfiguration | null) => void
   setStatutoryPensionConfig: (value: import('../../../helpers/statutory-pension').StatutoryPensionConfig | null) => void
-  setCoupleStatutoryPensionConfig: (value: import('../../../helpers/statutory-pension').CoupleStatutoryPensionConfig | null) => void
+  setCoupleStatutoryPensionConfig: (
+    value: import('../../../helpers/statutory-pension').CoupleStatutoryPensionConfig | null,
+  ) => void
   setCareCostConfiguration: (value: import('../../../helpers/care-cost-simulation').CareCostConfiguration) => void
   setFinancialGoals: (value: Array<import('../../../helpers/financial-goals').FinancialGoal>) => void
 }
@@ -93,7 +91,7 @@ export interface ConfigurationState {
   customLifeExpectancy: number | undefined
   planningMode: 'individual' | 'couple'
   gender: 'male' | 'female' | undefined
-  spouse: { birthYear?: number, gender: 'male' | 'female' } | undefined
+  spouse: { birthYear?: number; gender: 'male' | 'female' } | undefined
   birthYear: number | undefined
   expectedLifespan: number | undefined
   useAutomaticCalculation: boolean
@@ -109,10 +107,7 @@ export function useConfigurationManagement(
   state: ConfigurationState,
   setters: ConfigurationStateSetters,
 ) {
-  const getCurrentConfiguration = useCallback(
-    (): SavedConfiguration => buildCompleteConfiguration(state),
-    [state],
-  )
+  const getCurrentConfiguration = useCallback((): SavedConfiguration => buildCompleteConfiguration(state), [state])
 
   const saveCurrentConfiguration = useCallback(() => {
     const config = getCurrentConfiguration()
@@ -121,12 +116,10 @@ export function useConfigurationManagement(
       const activeProfile = getActiveProfile()
       if (activeProfile) {
         updateProfile(activeProfile.id, { configuration: config })
-      }
-      else {
+      } else {
         saveConfiguration(config)
       }
-    }
-    else {
+    } else {
       saveConfiguration(config)
     }
   }, [getCurrentConfiguration])

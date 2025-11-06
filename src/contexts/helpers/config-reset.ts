@@ -6,7 +6,14 @@ import type { WithdrawalConfiguration } from '../../utils/config-storage'
 import type { DefaultConfigType } from './default-config'
 import type { ConfigurationSetters } from './config-types'
 
-type MainSetters = Omit<ConfigurationSetters, 'setWithdrawalConfig' | 'setStatutoryPensionConfig' | 'setCoupleStatutoryPensionConfig' | 'setCareCostConfiguration' | 'setFinancialGoals'>
+type MainSetters = Omit<
+  ConfigurationSetters,
+  | 'setWithdrawalConfig'
+  | 'setStatutoryPensionConfig'
+  | 'setCoupleStatutoryPensionConfig'
+  | 'setCareCostConfiguration'
+  | 'setFinancialGoals'
+>
 
 type AdditionalSetters = {
   setWithdrawalConfig: (value: WithdrawalConfiguration | null) => void
@@ -19,10 +26,7 @@ type AdditionalSetters = {
 /**
  * Reset basic financial and tax configuration
  */
-function resetFinancialAndTaxConfig(
-  defaultConfig: DefaultConfigType,
-  setters: MainSetters,
-) {
+function resetFinancialAndTaxConfig(defaultConfig: DefaultConfigType, setters: MainSetters) {
   setters.setRendite(defaultConfig.rendite)
   setters.setSteuerlast(defaultConfig.steuerlast)
   setters.setTeilfreistellungsquote(defaultConfig.teilfreistellungsquote)
@@ -39,10 +43,7 @@ function resetFinancialAndTaxConfig(
 /**
  * Reset return and inflation configuration
  */
-function resetReturnAndInflationConfig(
-  defaultConfig: DefaultConfigType,
-  setters: MainSetters,
-) {
+function resetReturnAndInflationConfig(defaultConfig: DefaultConfigType, setters: MainSetters) {
   setters.setReturnMode(defaultConfig.returnMode)
   setters.setAverageReturn(defaultConfig.averageReturn)
   setters.setStandardDeviation(defaultConfig.standardDeviation)

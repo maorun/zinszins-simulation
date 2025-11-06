@@ -36,8 +36,7 @@ describe('StatutoryPensionConfiguration', () => {
     const trigger = screen.getByText(/🏛️ Gesetzliche Renten-Konfiguration/).closest('button')
     if (trigger) {
       fireEvent.click(trigger)
-    }
-    else {
+    } else {
       // Fallback to find by heading and click its parent
       const heading = screen.getByText(/🏛️ Gesetzliche Renten-Konfiguration/)
       const button = heading.closest('[type="button"]')

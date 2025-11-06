@@ -58,9 +58,9 @@ const DAX_HISTORICAL: HistoricalDataPoint[] = [
  * Based on annual performance data
  */
 const SP500_HISTORICAL: HistoricalDataPoint[] = [
-  { year: 2000, return: -0.0910 }, // -9.10%
+  { year: 2000, return: -0.091 }, // -9.10%
   { year: 2001, return: -0.1189 }, // -11.89%
-  { year: 2002, return: -0.2210 }, // -22.10%
+  { year: 2002, return: -0.221 }, // -22.10%
   { year: 2003, return: 0.2868 }, // 28.68%
   { year: 2004, return: 0.1088 }, // 10.88%
   { year: 2005, return: 0.0491 }, // 4.91%
@@ -70,7 +70,7 @@ const SP500_HISTORICAL: HistoricalDataPoint[] = [
   { year: 2009, return: 0.2646 }, // 26.46%
   { year: 2010, return: 0.1506 }, // 15.06%
   { year: 2011, return: 0.0211 }, // 2.11%
-  { year: 2012, return: 0.1600 }, // 16.00%
+  { year: 2012, return: 0.16 }, // 16.00%
   { year: 2013, return: 0.3239 }, // 32.39%
   { year: 2014, return: 0.1369 }, // 13.69%
   { year: 2015, return: 0.0138 }, // 1.38%
@@ -78,7 +78,7 @@ const SP500_HISTORICAL: HistoricalDataPoint[] = [
   { year: 2017, return: 0.2183 }, // 21.83%
   { year: 2018, return: -0.0438 }, // -4.38%
   { year: 2019, return: 0.3156 }, // 31.56%
-  { year: 2020, return: 0.1840 }, // 18.40%
+  { year: 2020, return: 0.184 }, // 18.40%
   { year: 2021, return: 0.2689 }, // 26.89%
   { year: 2022, return: -0.1811 }, // -18.11%
   { year: 2023, return: 0.2641 }, // 26.41%
@@ -102,7 +102,7 @@ const MSCI_WORLD_HISTORICAL: HistoricalDataPoint[] = [
   { year: 2010, return: 0.1193 }, // 11.93%
   { year: 2011, return: -0.0512 }, // -5.12%
   { year: 2012, return: 0.1601 }, // 16.01%
-  { year: 2013, return: 0.2670 }, // 26.70%
+  { year: 2013, return: 0.267 }, // 26.70%
   { year: 2014, return: 0.0452 }, // 4.52%
   { year: 2015, return: -0.0087 }, // -0.87%
   { year: 2016, return: 0.0754 }, // 7.54%
@@ -118,7 +118,7 @@ const MSCI_WORLD_HISTORICAL: HistoricalDataPoint[] = [
 /**
  * Calculate statistics for historical data
  */
-function calculateStats(data: HistoricalDataPoint[]): { average: number, volatility: number } {
+function calculateStats(data: HistoricalDataPoint[]): { average: number; volatility: number } {
   const returns = data.map(d => d.return)
   const average = returns.reduce((sum, r) => sum + r, 0) / returns.length
   const variance = returns.reduce((sum, r) => sum + Math.pow(r - average, 2), 0) / returns.length
@@ -150,7 +150,7 @@ export const HISTORICAL_INDICES: HistoricalIndex[] = [
   {
     id: 'sp500',
     name: 'S&P 500',
-    description: 'Standard & Poor\'s 500 - Die 500 größten US-amerikanischen Unternehmen',
+    description: "Standard & Poor's 500 - Die 500 größten US-amerikanischen Unternehmen",
     currency: 'USD',
     data: SP500_HISTORICAL,
     startYear: 2000,
@@ -195,8 +195,7 @@ export function getHistoricalReturns(
     const dataPoint = index.data.find(d => d.year === year)
     if (dataPoint) {
       returns[year] = dataPoint.return
-    }
-    else {
+    } else {
       // If no data for this year, use the index average as fallback
       returns[year] = index.averageReturn
     }
@@ -218,11 +217,7 @@ export function getAvailableYears(indexId: string): number[] {
 /**
  * Check if a year range is available for an index
  */
-export function isYearRangeAvailable(
-  indexId: string,
-  startYear: number,
-  endYear: number,
-): boolean {
+export function isYearRangeAvailable(indexId: string, startYear: number, endYear: number): boolean {
   const index = getHistoricalIndex(indexId)
   if (!index) return false
 

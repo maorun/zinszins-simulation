@@ -28,9 +28,7 @@ export function FormConfigurationSections({
 }: FormConfigurationSectionsProps) {
   return (
     <>
-      {!isKindergeld && (
-        <AmountTypeSection editingSource={editingSource} onUpdate={onUpdate} />
-      )}
+      {!isKindergeld && <AmountTypeSection editingSource={editingSource} onUpdate={onUpdate} />}
 
       <MonthlyAmountSection
         editingSource={editingSource}
@@ -40,33 +38,15 @@ export function FormConfigurationSections({
         onUpdate={onUpdate}
       />
 
-      {isGrossIncome && (
-        <TaxRateSection editingSource={editingSource} onUpdate={onUpdate} />
-      )}
+      {isGrossIncome && <TaxRateSection editingSource={editingSource} onUpdate={onUpdate} />}
 
-      <TimePeriodSection
-        editingSource={editingSource}
-        currentYear={currentYear}
-        onUpdate={onUpdate}
-      />
+      <TimePeriodSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />
 
-      {!isKindergeld && (
-        <InflationRateSection editingSource={editingSource} onUpdate={onUpdate} />
-      )}
+      {!isKindergeld && <InflationRateSection editingSource={editingSource} onUpdate={onUpdate} />}
 
-      {isRental && (
-        <RealEstateConfigSection
-          editingSource={editingSource}
-          onUpdate={onUpdate}
-        />
-      )}
+      {isRental && <RealEstateConfigSection editingSource={editingSource} onUpdate={onUpdate} />}
 
-      {isKindergeld && (
-        <KindergeldConfigSection
-          editingSource={editingSource}
-          onUpdate={onUpdate}
-        />
-      )}
+      {isKindergeld && <KindergeldConfigSection editingSource={editingSource} onUpdate={onUpdate} />}
     </>
   )
 }

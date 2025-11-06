@@ -5,7 +5,7 @@ export function useEndOfLifeSync(
   setStartEnd: (updater: (current: [number, number]) => [number, number]) => void,
 ) {
   useEffect(() => {
-    setStartEnd((currentStartEnd) => {
+    setStartEnd(currentStartEnd => {
       if (endOfLife !== currentStartEnd[1]) {
         return [currentStartEnd[0], endOfLife]
       }

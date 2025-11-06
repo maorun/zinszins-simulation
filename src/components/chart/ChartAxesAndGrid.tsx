@@ -12,12 +12,7 @@ interface ChartAxesAndGridProps {
  * Chart axes, grid, tooltip and legend component
  * Renders the structural elements of the chart
  */
-export function ChartAxesAndGrid({
-  xAxisAngle,
-  xAxisTextAnchor,
-  xAxisHeight,
-  formatYAxisTick,
-}: ChartAxesAndGridProps) {
+export function ChartAxesAndGrid({ xAxisAngle, xAxisTextAnchor, xAxisHeight, formatYAxisTick }: ChartAxesAndGridProps) {
   return (
     <>
       <CartesianGrid strokeDasharray="3 3" className="opacity-30" />
@@ -29,11 +24,7 @@ export function ChartAxesAndGrid({
         textAnchor={xAxisTextAnchor}
         height={xAxisHeight}
       />
-      <YAxis
-        tickFormatter={formatYAxisTick}
-        className="text-xs text-gray-600"
-        tick={{ fontSize: 12 }}
-      />
+      <YAxis tickFormatter={formatYAxisTick} className="text-xs text-gray-600" tick={{ fontSize: 12 }} />
       <Tooltip content={<ChartTooltip />} />
       <Legend />
     </>

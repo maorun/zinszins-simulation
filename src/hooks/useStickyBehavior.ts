@@ -5,9 +5,7 @@ import React, { useState, useEffect } from 'react'
  * @param elementRef - Reference to the element to track
  * @returns boolean indicating if the sticky header should be shown
  */
-export function useStickyBehavior(
-  elementRef: React.RefObject<HTMLElement | null>,
-): boolean {
+export function useStickyBehavior(elementRef: React.RefObject<HTMLElement | null>): boolean {
   const [isSticky, setIsSticky] = useState(false)
 
   useEffect(() => {

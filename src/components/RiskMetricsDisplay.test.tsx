@@ -7,7 +7,7 @@ describe('RiskMetricsDisplay', () => {
   const mockRiskMetrics: RiskMetrics = {
     valueAtRisk5: 0.15,
     valueAtRisk1: 0.25,
-    maxDrawdown: 0.20,
+    maxDrawdown: 0.2,
     sharpeRatio: 1.5,
     sortinoRatio: 2.0,
     calmarRatio: 0.8,

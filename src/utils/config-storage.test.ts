@@ -1,14 +1,20 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { saveConfiguration, loadConfiguration, clearConfiguration, hasConfiguration, type SavedConfiguration } from './config-storage'
+import {
+  saveConfiguration,
+  loadConfiguration,
+  clearConfiguration,
+  hasConfiguration,
+  type SavedConfiguration,
+} from './config-storage'
 
 // Mock localStorage
 const localStorageMock = (() => {
   let store: Record<string, string> = {}
   return {
     getItem: (key: string) => store[key] || null,
-    setItem: (key: string, value: string) => store[key] = value,
+    setItem: (key: string, value: string) => (store[key] = value),
     removeItem: (key: string) => delete store[key],
-    clear: () => store = {},
+    clear: () => (store = {}),
   }
 })()
 
@@ -34,12 +40,14 @@ describe('config-storage', () => {
     randomSeed: 123,
     variableReturns: { 2024: 6 },
     startEnd: [2045, 2080],
-    sparplan: [{
-      id: 1,
-      start: '2023-01-01',
-      end: '2045-01-01',
-      einzahlung: 12000,
-    }],
+    sparplan: [
+      {
+        id: 1,
+        start: '2023-01-01',
+        end: '2045-01-01',
+        einzahlung: 12000,
+      },
+    ],
     simulationAnnual: 'monthly',
     // Global End of Life and life expectancy settings
     endOfLife: 2080,

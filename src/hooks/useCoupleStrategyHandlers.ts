@@ -18,8 +18,7 @@ export function useCoupleStrategyHandlers(
       updateFormValue(
         createHealthCareConfigUpdate(formValue, {
           coupleConfig: {
-            ...(formValue.healthCareInsuranceConfig?.coupleConfig
-              || createDefaultCoupleHealthInsuranceConfig()),
+            ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
             strategy,
           },
         }),

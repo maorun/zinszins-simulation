@@ -13,7 +13,7 @@ interface InflationScenarioCardProps {
   cumulativeInflation: number | null
   averageInflation: number | null
   purchasingPowerImpact: number | null
-  scenarioColors: { bg: string, text: string }
+  scenarioColors: { bg: string; text: string }
   enabledRadioId: string
   disabledRadioId: string
   scenarioYearSliderId: string
@@ -33,9 +33,7 @@ export const InflationScenarioCard = (props: InflationScenarioCardProps) => {
         <CollapsibleTrigger className="w-full">
           <CardHeader className="cursor-pointer hover:bg-accent/50 transition-colors">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-base sm:text-lg">
-                🌡️ Inflationsszenarien
-              </CardTitle>
+              <CardTitle className="text-base sm:text-lg">🌡️ Inflationsszenarien</CardTitle>
               <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
             </div>
           </CardHeader>

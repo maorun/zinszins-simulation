@@ -29,7 +29,7 @@ describe('Inflation Scenarios - Comprehensive Testing', () => {
     })
 
     // Real return should be approximately (1.07 / 1.02) - 1 = 4.9%
-    const expectedRealReturn = (1.07 / 1.02) - 1
+    const expectedRealReturn = 1.07 / 1.02 - 1
 
     for (const element of result) {
       for (const year in element.simulation) {
@@ -44,7 +44,7 @@ describe('Inflation Scenarios - Comprehensive Testing', () => {
 
         // The effective return rate should be close to the real return
         if (yearInt > 2025) {
-          const effectiveReturn = (yearData.endkapital / yearData.startkapital) - 1
+          const effectiveReturn = yearData.endkapital / yearData.startkapital - 1
           expect(effectiveReturn).toBeCloseTo(expectedRealReturn, 1) // Within 0.1 percentage points
         }
       }
@@ -77,7 +77,7 @@ describe('Inflation Scenarios - Comprehensive Testing', () => {
 
         // With single element (no ongoing contributions), should be close to 5% growth
         if (parseInt(year) === 2025) {
-          const growth = (yearData.endkapital / yearData.startkapital) - 1
+          const growth = yearData.endkapital / yearData.startkapital - 1
           expect(growth).toBeCloseTo(0.05, 2) // Should be ~5%
         }
       }
@@ -91,7 +91,7 @@ describe('Inflation Scenarios - Comprehensive Testing', () => {
       startYear: 2025,
       endYear: 2025,
       elements,
-      returnConfig: { mode: 'fixed', fixedRate: -0.30 }, // -30% market crash
+      returnConfig: { mode: 'fixed', fixedRate: -0.3 }, // -30% market crash
       steuerlast: 0.0,
       simulationAnnual: 'yearly',
       inflationAktivSparphase: true,
@@ -107,8 +107,8 @@ describe('Inflation Scenarios - Comprehensive Testing', () => {
 
     // The total loss should be market loss + inflation effect
     // -30% market + 2% inflation reduction = approximately -32% total
-    const totalLoss = (yearData.endkapital / yearData.startkapital) - 1
-    expect(totalLoss).toBeLessThan(-0.30) // Should be worse than -30%
+    const totalLoss = yearData.endkapital / yearData.startkapital - 1
+    expect(totalLoss).toBeLessThan(-0.3) // Should be worse than -30%
     expect(totalLoss).toBeGreaterThan(-0.35) // But not worse than -35%
   })
 
@@ -172,8 +172,7 @@ describe('Inflation Scenarios - Comprehensive Testing', () => {
 
         if (yearData.zinsen > 0) {
           positiveYears++
-        }
-        else {
+        } else {
           negativeYears++
         }
       }
@@ -194,7 +193,7 @@ describe('Inflation Scenarios - Comprehensive Testing', () => {
       returnConfig: { mode: 'fixed', fixedRate: 0.08 }, // 8% return
       steuerlast: 0.26375, // 26.375% tax
       simulationAnnual: 'yearly',
-      teilfreistellungsquote: 0.30, // 30% partial exemption
+      teilfreistellungsquote: 0.3, // 30% partial exemption
       steuerReduzierenEndkapital: true,
       freibetragPerYear: { 2025: 2000, 2026: 2000, 2027: 2000 },
       inflationAktivSparphase: true,

@@ -55,15 +55,20 @@ export function useEntnahmeModalsAndProps(params: UseEntnahmeModalsAndPropsParam
   // useWithdrawalModals.types.WithdrawalData due to withdrawalResult being WithdrawalResult | null
   // vs WithdrawalResult. The types are structurally compatible in practice
   const modals = useWithdrawalModals(
-    params.configValues.formValue, params.configValues.useSegmentedWithdrawal,
+    params.configValues.formValue,
+    params.configValues.useSegmentedWithdrawal,
     params.configValues.withdrawalSegments,
     params.withdrawalData as Parameters<typeof useWithdrawalModals>[3],
-    params.startOfIndependence, params.steuerlast, params.teilfreistellungsquote,
-    params.simulationContext.grundfreibetragAktiv, params.simulationContext.grundfreibetragBetrag,
+    params.startOfIndependence,
+    params.steuerlast,
+    params.teilfreistellungsquote,
+    params.simulationContext.grundfreibetragAktiv,
+    params.simulationContext.grundfreibetragBetrag,
   )
 
   const healthCareInsuranceHandlers = useHealthCareInsuranceHandlers(
-    params.configValues.formValue, params.updateFormValue,
+    params.configValues.formValue,
+    params.updateFormValue,
   )
 
   useWithdrawalEffects({

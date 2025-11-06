@@ -30,10 +30,7 @@ interface TaxConfigurationCardProps {
   yearToday: number
 }
 
-export function TaxConfigurationCard({
-  simulation,
-  yearToday,
-}: TaxConfigurationCardProps) {
+export function TaxConfigurationCard({ simulation, yearToday }: TaxConfigurationCardProps) {
   return (
     <Card nestingLevel={1}>
       <Collapsible defaultOpen={false}>

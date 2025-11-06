@@ -151,8 +151,8 @@ describe('useDataExport', () => {
   })
 
   it('should handle export errors', async () => {
-    const { exportSavingsDataToCSV } = await import('../utils/data-export');
-    (exportSavingsDataToCSV as any).mockImplementationOnce(() => {
+    const { exportSavingsDataToCSV } = await import('../utils/data-export')
+    ;(exportSavingsDataToCSV as any).mockImplementationOnce(() => {
       throw new Error('Export failed')
     })
 

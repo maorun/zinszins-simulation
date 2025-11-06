@@ -21,7 +21,7 @@ export interface CalculationExplanation {
   steps: CalculationStep[]
   finalResult: {
     title: string
-    values: Array<{ label: string, value: string }>
+    values: Array<{ label: string; value: string }>
   }
 }
 

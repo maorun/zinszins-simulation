@@ -55,9 +55,7 @@ export function EditProfileDialog({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Abbrechen
             </Button>
-            <Button onClick={onSubmit}>
-              Änderungen speichern
-            </Button>
+            <Button onClick={onSubmit}>Änderungen speichern</Button>
           </div>
         </div>
       </DialogContent>

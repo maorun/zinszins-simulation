@@ -19,7 +19,7 @@ export function WithdrawalFrequencyConfiguration({
         <span className="text-sm">Jährlich</span>
         <Switch
           checked={frequency === 'monthly'}
-          onCheckedChange={(checked) => {
+          onCheckedChange={checked => {
             onFrequencyChange(checked ? 'monthly' : 'yearly')
           }}
         />

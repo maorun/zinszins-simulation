@@ -33,9 +33,7 @@ export function MonthlyAmountSection({
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={monthlyAmountId}>
-        {getAmountLabel(isKindergeld, isGrossIncome)}
-      </Label>
+      <Label htmlFor={monthlyAmountId}>{getAmountLabel(isKindergeld, isGrossIncome)}</Label>
       <Input
         id={monthlyAmountId}
         type="number"
@@ -46,9 +44,7 @@ export function MonthlyAmountSection({
         disabled={isKindergeld}
       />
       {isKindergeld && (
-        <p className="text-xs text-gray-600">
-          Kindergeld-Betrag ist festgelegt (250€/Monat, Stand 2024)
-        </p>
+        <p className="text-xs text-gray-600">Kindergeld-Betrag ist festgelegt (250€/Monat, Stand 2024)</p>
       )}
     </div>
   )

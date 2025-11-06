@@ -4,15 +4,8 @@ import { useHomePageRecalculation } from '../hooks/useHomePageRecalculation'
 import { calculatePhaseDateRanges } from '../utils/phase-date-ranges'
 
 export function HomePageSpecialEvents() {
-  const {
-    sparplan,
-    setSparplan,
-    startEnd,
-    simulationAnnual,
-    setSparplanElemente,
-    performSimulation,
-    endOfLife,
-  } = useSimulation()
+  const { sparplan, setSparplan, startEnd, simulationAnnual, setSparplanElemente, performSimulation, endOfLife } =
+    useSimulation()
 
   const { handleSpecialEventsDispatch } = useHomePageRecalculation(
     sparplan,
@@ -26,7 +19,7 @@ export function HomePageSpecialEvents() {
 
   return (
     <SpecialEvents
-      dispatch={(updatedSparplan) => {
+      dispatch={updatedSparplan => {
         setSparplan(updatedSparplan)
         handleSpecialEventsDispatch(updatedSparplan)
       }}

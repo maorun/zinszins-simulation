@@ -9,13 +9,8 @@ import { HistoricalReturnContent } from './historical-return/HistoricalReturnCon
 const HistoricalReturnConfiguration = () => {
   const nestingLevel = useNestingLevel()
   const { selectedIndexId, handleIndexChange } = useHistoricalIndexSelection()
-  const {
-    currentIndex,
-    simulationStartYear,
-    simulationEndYear,
-    isAvailable,
-    historicalReturns,
-  } = useHistoricalDataPreparation(selectedIndexId)
+  const { currentIndex, simulationStartYear, simulationEndYear, isAvailable, historicalReturns } =
+    useHistoricalDataPreparation(selectedIndexId)
 
   return (
     <Collapsible defaultOpen={false}>

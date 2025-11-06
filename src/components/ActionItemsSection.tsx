@@ -7,9 +7,7 @@ const ActionItemsSection: React.FC = () => {
       <ul className="text-sm text-gray-700 space-y-1">
         <li>• Fokussieren Sie sich auf die einflussreichsten Parameter in Ihrer Planung</li>
         <li>• Nutzen Sie diese Erkenntnisse, um realistische Szenarien zu entwickeln</li>
-        <li>
-          • Bedenken Sie, dass Sie manche Parameter (z.B. Rendite) nicht direkt kontrollieren können
-        </li>
+        <li>• Bedenken Sie, dass Sie manche Parameter (z.B. Rendite) nicht direkt kontrollieren können</li>
         <li>• Andere Parameter (z.B. Sparrate, Anlagedauer) können Sie aktiv steuern</li>
       </ul>
     </div>

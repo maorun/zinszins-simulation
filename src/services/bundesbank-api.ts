@@ -29,8 +29,7 @@ async function tryFetchFromAPI(
       return data
     }
     return null
-  }
-  catch (error) {
+  } catch (error) {
     console.warn(`🔄 ${source} not available:`, error instanceof Error ? error.message : error)
     return null
   }
@@ -68,30 +67,20 @@ export async function fetchBasiszinsFromBundesbank(startYear?: number, endYear?:
     console.log(`Fetching Basiszins data for years ${fromYear}-${toYear}...`)
 
     // Try to fetch from real Bundesbank API first
-    const apiData = await tryFetchFromAPI(
-      () => fetchFromBundesbankSDMX(fromYear, toYear),
-      'Deutsche Bundesbank API',
-    )
+    const apiData = await tryFetchFromAPI(() => fetchFromBundesbankSDMX(fromYear, toYear), 'Deutsche Bundesbank API')
     if (apiData) return apiData
 
     // Try to fetch from ECB API as alternative
-    const ecbData = await tryFetchFromAPI(
-      () => fetchFromECBAPI(fromYear, toYear),
-      'ECB API',
-    )
+    const ecbData = await tryFetchFromAPI(() => fetchFromECBAPI(fromYear, toYear), 'ECB API')
     if (ecbData) return ecbData
 
     // Try to fetch from Ministry of Finance data source
-    const bmfData = await tryFetchFromAPI(
-      () => fetchFromMinistryOfFinance(fromYear, toYear),
-      'Ministry of Finance',
-    )
+    const bmfData = await tryFetchFromAPI(() => fetchFromMinistryOfFinance(fromYear, toYear), 'Ministry of Finance')
     if (bmfData) return bmfData
 
     // Fallback to local historical data
     return getFallbackRates(fromYear, toYear)
-  }
-  catch (error) {
+  } catch (error) {
     console.error('❌ Failed to fetch Basiszins data from any source:', error)
     throw new Error('Basiszins data could not be retrieved from any available source')
   }
@@ -121,7 +110,7 @@ async function fetchFromBundesbankSDMX(fromYear: number, toYear: number): Promis
 
   const response = await fetch(url, {
     headers: {
-      'Accept': 'text/csv',
+      Accept: 'text/csv',
       'User-Agent': 'Zinszins-Simulation/1.0 (contacts: GitHub @maorun)',
     },
     // Add timeout to prevent hanging (only if AbortSignal.timeout is available)
@@ -160,7 +149,7 @@ async function fetchFromECBAPI(fromYear: number, toYear: number): Promise<Basisz
 
   const response = await fetch(url, {
     headers: {
-      'Accept': 'text/csv',
+      Accept: 'text/csv',
       'User-Agent': 'Zinszins-Simulation/1.0 (German Tax Calculator)',
     },
     ...(typeof AbortSignal !== 'undefined' && AbortSignal.timeout ? { signal: AbortSignal.timeout(10000) } : {}),
@@ -227,7 +216,7 @@ function getEnhancedFallbackData(fromYear: number, toYear: number): BasiszinsDat
 /**
  * Parses CSV data from SDMX APIs (Bundesbank, ECB)
  */
-function findColumnIndices(headerLine: string): { timeIndex: number, valueIndex: number } {
+function findColumnIndices(headerLine: string): { timeIndex: number; valueIndex: number } {
   const timeHeaders = ['time_period', 'ref_date', 'date', 'period']
   const valueHeaders = ['obs_value', 'value', 'rate', 'obs_val']
 
@@ -273,11 +262,7 @@ interface ParsedRowData {
   isValid: boolean
 }
 
-function parseCSVRow(
-  line: string,
-  timeIndex: number,
-  valueIndex: number,
-): ParsedRowData | null {
+function parseCSVRow(line: string, timeIndex: number, valueIndex: number): ParsedRowData | null {
   const trimmedLine = line.trim()
   if (!trimmedLine) return null
 
@@ -354,9 +339,9 @@ function getHistoricalBasiszinsFallback(year: number): number | null {
   const historicalRates: { [year: number]: number } = {
     2018: 0.0087, // 0.87%
     2019: 0.0087, // 0.87%
-    2020: 0.0070, // 0.70%
-    2021: 0.0070, // 0.70%
-    2022: 0.0180, // 1.80%
+    2020: 0.007, // 0.70%
+    2021: 0.007, // 0.70%
+    2022: 0.018, // 1.80%
     2023: 0.0255, // 2.55%
     2024: 0.0255, // 2.55% (current rate)
   }
@@ -377,10 +362,7 @@ export async function refreshBasiszinsFromAPI(config: BasiszinsConfiguration): P
 
     // Always include historical data from 2018, but extend based on existing config
     const fromYear = 2018 // Always start from 2018 to get historical data
-    const toYear = Math.max(
-      currentYear + 5,
-      existingYears.length > 0 ? Math.max(...existingYears) : currentYear,
-    )
+    const toYear = Math.max(currentYear + 5, existingYears.length > 0 ? Math.max(...existingYears) : currentYear)
 
     // Fetch fresh data from APIs
     const freshData = await fetchBasiszinsFromBundesbank(fromYear, toYear)
@@ -394,11 +376,11 @@ export async function refreshBasiszinsFromAPI(config: BasiszinsConfiguration): P
       // 2. It's from an API source
       // 3. We don't have manual data for this year, or it's historical
       const existingEntry = updatedConfig[item.year]
-      const shouldUpdate
-        = item.year <= currentYear // Historical or current year
-          || !existingEntry // No existing data
-          || existingEntry.source !== 'manual' // Not manually entered
-          || item.source === 'api' // High-quality API data
+      const shouldUpdate =
+        item.year <= currentYear || // Historical or current year
+        !existingEntry || // No existing data
+        existingEntry.source !== 'manual' || // Not manually entered
+        item.source === 'api' // High-quality API data
 
       if (shouldUpdate) {
         updatedConfig[item.year] = item
@@ -406,8 +388,7 @@ export async function refreshBasiszinsFromAPI(config: BasiszinsConfiguration): P
     })
 
     return updatedConfig
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to refresh Basiszins data:', error)
     throw new Error('Aktualisierung der Basiszins-Daten fehlgeschlagen. Bitte versuchen Sie es später erneut.')
   }
@@ -418,7 +399,7 @@ export async function refreshBasiszinsFromAPI(config: BasiszinsConfiguration): P
  */
 export function validateBasiszinsRate(rate: number): boolean {
   // Reasonable bounds: between -2% and 10%
-  return rate >= -0.02 && rate <= 0.10
+  return rate >= -0.02 && rate <= 0.1
 }
 
 /**
@@ -433,7 +414,9 @@ export function formatBasiszinsRate(rate: number): string {
  * This is used as a default for manual entry suggestions
  */
 export function estimateFutureBasiszins(historicalRates: BasiszinsConfiguration): number {
-  const years = Object.keys(historicalRates).map(Number).sort((a, b) => b - a)
+  const years = Object.keys(historicalRates)
+    .map(Number)
+    .sort((a, b) => b - a)
 
   if (years.length === 0) {
     return 0.0255 // Default to 2023 rate

@@ -14,7 +14,11 @@ export function useEntnahmeSimulationData(
 ) {
   const [startOfIndependence] = startEnd
   const configs = useEntnahmeConfigHooks()
-  const { withdrawalData, comparisonResults, segmentedComparisonResults = [] } = useWithdrawalCalculations(
+  const {
+    withdrawalData,
+    comparisonResults,
+    segmentedComparisonResults = [],
+  } = useWithdrawalCalculations(
     elemente,
     startOfIndependence,
     configs.currentConfig,

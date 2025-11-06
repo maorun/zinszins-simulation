@@ -14,8 +14,8 @@ export interface RiskMetrics {
   volatility: number // Standard deviation of returns
 
   // Time series data for detailed analysis
-  drawdownSeries?: Array<{ year: number, drawdown: number, value: number }>
-  returnSeries?: Array<{ year: number, return: number }>
+  drawdownSeries?: Array<{ year: number; drawdown: number; value: number }>
+  returnSeries?: Array<{ year: number; return: number }>
 }
 
 export interface PortfolioData {
@@ -35,11 +35,9 @@ export function calculateReturns(values: number[]): number[] {
     const currentValue = values[i]
     if (previousValue > 0) {
       returns.push((currentValue - previousValue) / previousValue)
-    }
-    else if (previousValue === 0 && currentValue > 0) {
+    } else if (previousValue === 0 && currentValue > 0) {
       returns.push(Infinity) // Handle division by zero case
-    }
-    else {
+    } else {
       returns.push(0)
     }
   }
@@ -62,7 +60,7 @@ export function calculateVaR(returns: number[], confidenceLevel: number): number
  */
 export function calculateDrawdown(values: number[]): {
   maxDrawdown: number
-  drawdownSeries: Array<{ year: number, drawdown: number, value: number }>
+  drawdownSeries: Array<{ year: number; drawdown: number; value: number }>
 } {
   if (values.length === 0) {
     return { maxDrawdown: 0, drawdownSeries: [] }
@@ -70,7 +68,7 @@ export function calculateDrawdown(values: number[]): {
 
   let maxValue = values[0]
   let maxDrawdown = 0
-  const drawdownSeries: Array<{ year: number, drawdown: number, value: number }> = []
+  const drawdownSeries: Array<{ year: number; drawdown: number; value: number }> = []
 
   values.forEach((value, index) => {
     maxValue = Math.max(maxValue, value)
@@ -124,8 +122,8 @@ export function calculateSortinoRatio(returns: number[], riskFreeRate = 0.02): n
     return excessReturn > 0 ? 999.999 : 0
   }
 
-  const downsideVariance = negativeReturns.reduce((sum, ret) =>
-    sum + Math.pow(ret - riskFreeRate, 2), 0) / returns.length
+  const downsideVariance =
+    negativeReturns.reduce((sum, ret) => sum + Math.pow(ret - riskFreeRate, 2), 0) / returns.length
   const downsideDeviation = Math.sqrt(downsideVariance)
 
   return downsideDeviation > 0 ? excessReturn / downsideDeviation : 0

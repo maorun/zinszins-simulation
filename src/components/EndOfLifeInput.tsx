@@ -12,7 +12,7 @@ interface EndOfLifeInputProps {
     birthYear: number | undefined
     expectedLifespan: number | undefined
     gender: 'male' | 'female' | undefined
-    spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
+    spouse: { gender: 'male' | 'female'; birthYear?: number } | undefined
   }
   onExpectedLifespanChange?: (lifespan: number | undefined) => void
 }
@@ -31,7 +31,7 @@ export function EndOfLifeInput({
       <Input
         type="number"
         value={globalEndOfLife}
-        onChange={(e) => {
+        onChange={e => {
           const value = e.target.value ? Number(e.target.value) : 2080
           onChange(value)
         }}
@@ -39,9 +39,7 @@ export function EndOfLifeInput({
         max={2150}
         disabled={useAutomaticCalculation}
       />
-      <div className="text-sm text-muted-foreground">
-        Das Jahr, in dem die Entnahmephase enden soll (z.B. 2080)
-      </div>
+      <div className="text-sm text-muted-foreground">Das Jahr, in dem die Entnahmephase enden soll (z.B. 2080)</div>
 
       {/* Automatic calculation helper */}
       {useAutomaticCalculation && automaticCalculationConfig && onExpectedLifespanChange && (

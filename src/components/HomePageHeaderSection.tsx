@@ -6,7 +6,9 @@ import type { FinancialScenario } from '../data/scenarios'
 import { Card, CardContent } from './ui/card'
 
 // Lazy load large configuration components
-const GlobalPlanningConfiguration = lazy(() => import('./GlobalPlanningConfiguration').then(m => ({ default: m.GlobalPlanningConfiguration })))
+const GlobalPlanningConfiguration = lazy(() =>
+  import('./GlobalPlanningConfiguration').then(m => ({ default: m.GlobalPlanningConfiguration })),
+)
 const FinancialGoalsConfiguration = lazy(() => import('./FinancialGoalsConfiguration'))
 const ProfileManagement = lazy(() => import('./ProfileManagement'))
 const ScenarioSelector = lazy(() => import('./ScenarioSelector'))
@@ -17,9 +19,7 @@ const ScenarioSelector = lazy(() => import('./ScenarioSelector'))
 function LoadingCard() {
   return (
     <Card className="mb-3 sm:mb-4">
-      <CardContent className="py-4 text-center text-gray-500 text-sm">
-        Lädt Konfiguration...
-      </CardContent>
+      <CardContent className="py-4 text-center text-gray-500 text-sm">Lädt Konfiguration...</CardContent>
     </Card>
   )
 }
@@ -43,11 +43,7 @@ export function HomePageHeaderSection({
     <>
       <Header />
 
-      <Button
-        onClick={handleRecalculate}
-        className="mb-3 sm:mb-4 w-full"
-        variant="default"
-      >
+      <Button onClick={handleRecalculate} className="mb-3 sm:mb-4 w-full" variant="default">
         🔄 Neu berechnen
       </Button>
 

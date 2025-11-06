@@ -15,15 +15,11 @@ vi.mock('./SegmentRandomReturnConfig', () => ({
 }))
 
 vi.mock('./SegmentVariableReturnConfig', () => ({
-  SegmentVariableReturnConfig: () => (
-    <div data-testid="variable-config">Variable Config</div>
-  ),
+  SegmentVariableReturnConfig: () => <div data-testid="variable-config">Variable Config</div>,
 }))
 
 vi.mock('./MultiAssetPortfolioConfiguration', () => ({
-  MultiAssetPortfolioConfiguration: () => (
-    <div data-testid="multiasset-config">MultiAsset Config</div>
-  ),
+  MultiAssetPortfolioConfiguration: () => <div data-testid="multiasset-config">MultiAsset Config</div>,
 }))
 
 describe('SegmentReturnConfiguration', () => {

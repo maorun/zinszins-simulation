@@ -43,10 +43,7 @@ function StrategyRadioTiles() {
   )
 }
 
-export function SegmentStrategySelector({
-  segment,
-  onStrategyChange,
-}: SegmentStrategySelectorProps) {
+export function SegmentStrategySelector({ segment, onStrategyChange }: SegmentStrategySelectorProps) {
   const handleStrategyChange = (value: string) => {
     const newStrategy = value as WithdrawalStrategy
     const defaults = getStrategyDefaults({

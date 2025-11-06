@@ -29,10 +29,7 @@ interface CostValues {
 interface CostFactorFieldsProps {
   values: CostValues
   onValueChange: (values: CostValues) => void
-  handleNumberChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
-    callback: (value: string) => void,
-  ) => void
+  handleNumberChange: (e: React.ChangeEvent<HTMLInputElement>, callback: (value: string) => void) => void
 }
 
 function CostInputField({
@@ -75,16 +72,10 @@ function CostInputField({
  * Cost factor input fields (TER, Transaction Costs)
  * Complexity: <8, Lines: <50
  */
-export function CostFactorFields({
-  values,
-  onValueChange,
-  handleNumberChange,
-}: CostFactorFieldsProps) {
+export function CostFactorFields({ values, onValueChange, handleNumberChange }: CostFactorFieldsProps) {
   return (
     <div style={{ marginBottom: '1rem' }}>
-      <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>
-        💰 Kostenfaktoren (optional)
-      </div>
+      <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>💰 Kostenfaktoren (optional)</div>
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
         <CostInputField
           label="TER (% p.a.)"

@@ -31,9 +31,7 @@ vi.mock('sonner', () => ({
   },
 }))
 
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <SimulationProvider>{children}</SimulationProvider>
-)
+const TestWrapper = ({ children }: { children: React.ReactNode }) => <SimulationProvider>{children}</SimulationProvider>
 
 // Test configuration
 const mockConfiguration = {

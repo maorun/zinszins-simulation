@@ -132,11 +132,7 @@ export function processCalculationInfoClick(
   }
 
   // Find applicable segment for this year
-  const applicableSegment = findApplicableSegment(
-    useSegmentedWithdrawal,
-    withdrawalSegments,
-    data.year,
-  )
+  const applicableSegment = findApplicableSegment(useSegmentedWithdrawal, withdrawalSegments, data.year)
 
   // Get handler for the explanation type
   const handler = getExplanationHandler(explanationType, data, context, applicableSegment)

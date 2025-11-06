@@ -53,16 +53,12 @@ function AnnualCostsSummary({ previewResult }: { previewResult: CareCostYearResu
     <div className="md:col-span-2 pt-2 border-t border-green-300">
       <span className="font-medium">Jährliche Netto-Kosten:</span>
       <br />
-      <span className="text-lg font-semibold text-green-800">
-        {formatCurrency(previewResult.annualCostsNet)}
-      </span>
+      <span className="text-lg font-semibold text-green-800">{formatCurrency(previewResult.annualCostsNet)}</span>
       {previewResult.taxDeductionAmount > 0 && (
         <>
           <br />
           <span className="text-sm text-muted-foreground">
-            Steuerabzug:
-            {' '}
-            {formatCurrency(previewResult.taxDeductionAmount)}
+            Steuerabzug: {formatCurrency(previewResult.taxDeductionAmount)}
           </span>
         </>
       )}
@@ -99,11 +95,7 @@ function CoupleResultsBreakdown({ coupleResults }: { coupleResults: CareCostYear
   )
 }
 
-export function CareCostPreview({
-  previewYear,
-  previewResult,
-  nestingLevel,
-}: CareCostPreviewProps) {
+export function CareCostPreview({ previewYear, previewResult, nestingLevel }: CareCostPreviewProps) {
   if (!previewResult.careNeeded) {
     return null
   }
@@ -113,9 +105,7 @@ export function CareCostPreview({
       <CardHeader nestingLevel={nestingLevel + 1} className="pb-3">
         <CardTitle className="text-base flex items-center gap-2">
           <Info className="h-4 w-4" />
-          Kostenvorschau für
-          {' '}
-          {previewYear}
+          Kostenvorschau für {previewYear}
         </CardTitle>
       </CardHeader>
       <CardContent nestingLevel={nestingLevel + 1}>

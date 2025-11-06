@@ -6,39 +6,20 @@ describe('SliderField', () => {
   const mockOnChange = vi.fn()
 
   it('should render label with percentage value', () => {
-    render(
-      <SliderField
-        label="Test Label"
-        value={0.5}
-        onChange={mockOnChange}
-      />,
-    )
+    render(<SliderField label="Test Label" value={0.5} onChange={mockOnChange} />)
 
     // Should display label with percentage
     expect(screen.getByText(/Test Label:.*50\.0%/)).toBeInTheDocument()
   })
 
   it('should display correct percentage for decimal values', () => {
-    render(
-      <SliderField
-        label="Allocation"
-        value={0.75}
-        onChange={mockOnChange}
-      />,
-    )
+    render(<SliderField label="Allocation" value={0.75} onChange={mockOnChange} />)
 
     expect(screen.getByText(/Allocation:.*75\.0%/)).toBeInTheDocument()
   })
 
   it('should render slider with correct value', () => {
-    render(
-      <SliderField
-        label="Test"
-        value={0.6}
-        onChange={mockOnChange}
-        max={100}
-      />,
-    )
+    render(<SliderField label="Test" value={0.6} onChange={mockOnChange} max={100} />)
 
     const slider = screen.getByRole('slider')
     expect(slider).toBeInTheDocument()
@@ -48,13 +29,7 @@ describe('SliderField', () => {
   it('should have onChange handler attached to slider', () => {
     mockOnChange.mockClear()
 
-    render(
-      <SliderField
-        label="Test"
-        value={0.5}
-        onChange={mockOnChange}
-      />,
-    )
+    render(<SliderField label="Test" value={0.5} onChange={mockOnChange} />)
 
     const slider = screen.getByRole('slider')
     expect(slider).toBeInTheDocument()
@@ -64,16 +39,7 @@ describe('SliderField', () => {
   })
 
   it('should apply custom min, max, and step values', () => {
-    render(
-      <SliderField
-        label="Return Rate"
-        value={0.05}
-        onChange={mockOnChange}
-        min={-10}
-        max={20}
-        step={0.5}
-      />,
-    )
+    render(<SliderField label="Return Rate" value={0.05} onChange={mockOnChange} min={-10} max={20} step={0.5} />)
 
     const slider = screen.getByRole('slider')
     expect(slider).toHaveAttribute('aria-valuemin', '-10')

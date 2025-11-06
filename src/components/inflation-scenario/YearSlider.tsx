@@ -20,9 +20,7 @@ export const YearSlider = ({
   return (
     <div>
       <Label htmlFor={scenarioYearSliderId} className="text-sm font-medium">
-        Startyear des Szenarios:
-        {' '}
-        {scenarioYear}
+        Startyear des Szenarios: {scenarioYear}
       </Label>
       <Slider
         id={scenarioYearSliderId}

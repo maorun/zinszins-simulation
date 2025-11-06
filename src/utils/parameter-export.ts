@@ -91,8 +91,7 @@ function formatWithdrawalConfiguration(context: SimulationContextState): string[
 
   if (context.withdrawalConfig && context.withdrawalConfig.formValue) {
     lines.push(...formatWithdrawalConfigDetails(context))
-  }
-  else {
+  } else {
     lines.push(...formatDefaultWithdrawalConfig(context))
   }
 
@@ -169,8 +168,7 @@ function formatWithdrawalInflation(fv: FormValue): string[] {
 
   if (fv.inflationAktiv) {
     lines.push(`  Inflation aktiv: Ja (${fv.inflationsrate.toFixed(2)} %)`)
-  }
-  else {
+  } else {
     lines.push(`  Inflation aktiv: Nein`)
   }
 
@@ -185,8 +183,7 @@ function formatMonthlyFixedDetails(fv: FormValue): string[] {
   lines.push(`  Monatlicher Betrag: ${formatCurrency(fv.monatlicheBetrag)}`)
   if (fv.guardrailsAktiv) {
     lines.push(`  Guardrails aktiv: Ja (${fv.guardrailsSchwelle.toFixed(1)} %)`)
-  }
-  else {
+  } else {
     lines.push(`  Guardrails aktiv: Nein`)
   }
   return lines
@@ -234,8 +231,7 @@ function formatGrundfreibetragConfig(context: SimulationContextState, fv: FormVa
     lines.push(`  Grundfreibetrag aktiv: Ja`)
     lines.push(`  Grundfreibetrag: ${formatCurrency(context.grundfreibetragBetrag)}`)
     lines.push(`  Einkommensteuersatz: ${fv.einkommensteuersatz.toFixed(2)} %`)
-  }
-  else {
+  } else {
     lines.push(`  Grundfreibetrag aktiv: Nein`)
   }
 
@@ -466,9 +462,9 @@ function formatSparplanItem(params: FormatSparplanItemParams): string[] {
   const isSpecialEvent = Boolean(plan.eventType && plan.eventType !== 'normal')
   const isInheritance = plan.eventType === 'inheritance'
   const isExpense = plan.eventType === 'expense'
-  const isEinmalzahlung = Boolean(plan.end
-    && new Date(plan.start).getTime() === new Date(plan.end).getTime()
-    && !isSpecialEvent)
+  const isEinmalzahlung = Boolean(
+    plan.end && new Date(plan.start).getTime() === new Date(plan.end).getTime() && !isSpecialEvent,
+  )
 
   let planType = 'Sparplan'
   if (isInheritance) planType = 'Erbschaft'
@@ -509,8 +505,7 @@ function formatSparplanBasicInfo(params: FormatSparplanBasicInfoParams): string[
 
   if (plan.end && !isEinmalzahlung && !isSpecialEvent) {
     lines.push(`    Ende: ${plan.end}`)
-  }
-  else if (!isEinmalzahlung && !isSpecialEvent) {
+  } else if (!isEinmalzahlung && !isSpecialEvent) {
     lines.push(`    Ende: Unbegrenzt`)
   }
 
@@ -694,8 +689,7 @@ function formatSegmentReturnConfig(returnConfig: {
 
   if (returnConfig.mode === 'fixed' && returnConfig.fixedRate !== undefined) {
     lines.push(`      Rendite: ${(returnConfig.fixedRate * 100).toFixed(2)} %`)
-  }
-  else if (returnConfig.mode === 'random' && returnConfig.randomConfig) {
+  } else if (returnConfig.mode === 'random' && returnConfig.randomConfig) {
     lines.push(`      Durchschnittsrendite: ${(returnConfig.randomConfig.averageReturn * 100).toFixed(2)} %`)
     if (returnConfig.randomConfig.standardDeviation !== undefined) {
       lines.push(`      Standardabweichung: ${(returnConfig.randomConfig.standardDeviation * 100).toFixed(2)} %`)
@@ -712,11 +706,13 @@ function formatVariabelProzentStrategy(segment: { customPercentage?: number }): 
   return []
 }
 
-function formatMonatlichFestStrategy(segment: { monthlyConfig?: {
-  monthlyAmount: number
-  enableGuardrails?: boolean
-  guardrailsThreshold?: number
-} }): string[] {
+function formatMonatlichFestStrategy(segment: {
+  monthlyConfig?: {
+    monthlyAmount: number
+    enableGuardrails?: boolean
+    guardrailsThreshold?: number
+  }
+}): string[] {
   const lines: string[] = []
   if (segment.monthlyConfig) {
     lines.push(`      Monatlicher Betrag: ${formatCurrency(segment.monthlyConfig.monthlyAmount)}`)
@@ -762,8 +758,8 @@ function formatSegmentStrategyParams(segment: {
   const strategyFormatters: Record<string, () => string[]> = {
     variabel_prozent: () => formatVariabelProzentStrategy(segment),
     monatlich_fest: () => formatMonatlichFestStrategy(segment),
-    dynamisch: () => segment.dynamicConfig ? formatDynamicStrategyConfig(segment.dynamicConfig) : [],
-    bucket_strategie: () => segment.bucketConfig ? formatBucketStrategyConfig(segment.bucketConfig) : [],
+    dynamisch: () => (segment.dynamicConfig ? formatDynamicStrategyConfig(segment.dynamicConfig) : []),
+    bucket_strategie: () => (segment.bucketConfig ? formatBucketStrategyConfig(segment.bucketConfig) : []),
   }
 
   const formatter = strategyFormatters[segment.strategy]
@@ -899,8 +895,7 @@ export async function copyParametersToClipboard(context: SimulationContextState)
     const formattedText = formatParametersForExport(context)
     await navigator.clipboard.writeText(formattedText)
     return true
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to copy parameters to clipboard:', error)
     return false
   }

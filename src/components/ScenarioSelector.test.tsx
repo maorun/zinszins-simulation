@@ -285,7 +285,9 @@ describe('ScenarioSelector', () => {
       // Each scenario should show monthly contribution, return rate, and duration
       const firstScenario = predefinedScenarios[0]
       if (firstScenario.config.monthlyContribution > 0) {
-        expect(screen.getByText(new RegExp(`${firstScenario.config.monthlyContribution}€/Monat`, 'i'))).toBeInTheDocument()
+        expect(
+          screen.getByText(new RegExp(`${firstScenario.config.monthlyContribution}€/Monat`, 'i')),
+        ).toBeInTheDocument()
       }
       expect(screen.getByText(new RegExp(`${firstScenario.config.expectedReturn}% Rendite`, 'i'))).toBeInTheDocument()
     })

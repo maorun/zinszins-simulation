@@ -29,10 +29,7 @@ const StandardDeviationSlider = ({
       />
       <div className="flex justify-between text-sm text-muted-foreground">
         <span>5%</span>
-        <span className="font-medium">
-          {standardDeviation}
-          %
-        </span>
+        <span className="font-medium">{standardDeviation}%</span>
         <span>30%</span>
       </div>
     </div>

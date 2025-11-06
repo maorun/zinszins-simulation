@@ -22,9 +22,7 @@ const ScenarioCard = ({ scenario }: ScenarioCardProps) => {
           {scenario.probability}
         </span>
       </div>
-      <div className="text-sm text-gray-600 leading-relaxed">
-        {scenario.description}
-      </div>
+      <div className="text-sm text-gray-600 leading-relaxed">{scenario.description}</div>
     </div>
   )
 }

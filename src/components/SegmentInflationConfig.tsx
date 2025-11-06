@@ -8,10 +8,7 @@ interface SegmentInflationConfigProps {
   onInflationConfigChange: (config: InflationConfig | undefined) => void
 }
 
-export function SegmentInflationConfig({
-  inflationConfig,
-  onInflationConfigChange,
-}: SegmentInflationConfigProps) {
+export function SegmentInflationConfig({ inflationConfig, onInflationConfigChange }: SegmentInflationConfigProps) {
   const isEnabled = inflationConfig !== undefined
   const inflationRate = inflationConfig?.inflationRate || 0.02
 
@@ -36,17 +33,16 @@ export function SegmentInflationConfig({
               min={0}
               max={5}
               step={0.1}
-              onValueChange={value => onInflationConfigChange({
-                inflationRate: value[0] / 100,
-              })}
+              onValueChange={value =>
+                onInflationConfigChange({
+                  inflationRate: value[0] / 100,
+                })
+              }
               className="mt-2"
             />
             <div className="flex justify-between text-sm text-gray-500">
               <span>0%</span>
-              <span className="font-medium text-gray-900">
-                {(inflationRate * 100).toFixed(1)}
-                %
-              </span>
+              <span className="font-medium text-gray-900">{(inflationRate * 100).toFixed(1)}%</span>
               <span>5%</span>
             </div>
           </div>

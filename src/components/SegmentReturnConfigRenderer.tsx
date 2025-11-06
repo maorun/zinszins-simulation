@@ -21,8 +21,7 @@ function renderFixedConfig(
   return (
     <SegmentFixedReturnConfig
       fixedRate={returnConfig.fixedRate}
-      onFixedRateChange={rate =>
-        onReturnConfigChange({ mode: 'fixed', fixedRate: rate })}
+      onFixedRateChange={rate => onReturnConfigChange({ mode: 'fixed', fixedRate: rate })}
     />
   )
 }
@@ -37,8 +36,7 @@ function renderRandomConfig(
     <SegmentRandomReturnConfig
       segmentId={segmentId}
       randomConfig={returnConfig.randomConfig}
-      onRandomConfigChange={config =>
-        onReturnConfigChange({ mode: 'random', randomConfig: config })}
+      onRandomConfigChange={config => onReturnConfigChange({ mode: 'random', randomConfig: config })}
     />
   )
 }
@@ -55,8 +53,7 @@ function renderVariableConfig(
       startYear={startYear}
       endYear={endYear}
       variableConfig={returnConfig.variableConfig}
-      onVariableConfigChange={config =>
-        onReturnConfigChange({ mode: 'variable', variableConfig: config })}
+      onVariableConfigChange={config => onReturnConfigChange({ mode: 'variable', variableConfig: config })}
     />
   )
 }
@@ -74,7 +71,8 @@ function renderMultiAssetConfig(
           onReturnConfigChange({
             mode: 'multiasset',
             multiAssetConfig: newConfig,
-          })}
+          })
+        }
         nestingLevel={1}
       />
     </div>

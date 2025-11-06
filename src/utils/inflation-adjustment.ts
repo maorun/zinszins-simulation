@@ -10,11 +10,7 @@
  * @param years - Number of years from base year to the value's year
  * @returns The real value in base year purchasing power
  */
-export function calculateRealValue(
-  nominalValue: number,
-  inflationRate: number,
-  years: number,
-): number {
+export function calculateRealValue(nominalValue: number, inflationRate: number, years: number): number {
   if (inflationRate <= 0 || years <= 0) {
     return nominalValue
   }
@@ -32,8 +28,8 @@ export function calculateYearlyInflationAdjustedValues(
   yearlyData: Record<number, number>,
   baseYear: number,
   inflationRate: number,
-): Record<number, { nominal: number, real: number }> {
-  const result: Record<number, { nominal: number, real: number }> = {}
+): Record<number, { nominal: number; real: number }> {
+  const result: Record<number, { nominal: number; real: number }> = {}
 
   for (const [yearStr, nominalValue] of Object.entries(yearlyData)) {
     const year = parseInt(yearStr)
@@ -55,10 +51,7 @@ export function calculateYearlyInflationAdjustedValues(
  * @param years - Number of years from base year
  * @returns The cumulative inflation factor (1.0 = no inflation)
  */
-export function getCumulativeInflationFactor(
-  inflationRate: number,
-  years: number,
-): number {
+export function getCumulativeInflationFactor(inflationRate: number, years: number): number {
   if (inflationRate <= 0 || years <= 0) {
     return 1.0
   }
@@ -72,11 +65,7 @@ export function getCumulativeInflationFactor(
  * @param showInflationAdjusted - Whether to show the real value
  * @returns Formatted string for display
  */
-export function formatInflationAdjustedValue(
-  nominal: number,
-  real: number,
-  showInflationAdjusted: boolean,
-): string {
+export function formatInflationAdjustedValue(nominal: number, real: number, showInflationAdjusted: boolean): string {
   const nominalFormatted = nominal.toLocaleString('de-DE', {
     style: 'currency',
     currency: 'EUR',

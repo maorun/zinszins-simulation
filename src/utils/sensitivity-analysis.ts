@@ -118,7 +118,7 @@ function applyParameterModification(
   value: number,
   baseConfig: SensitivityAnalysisConfig,
   returnConfig: ReturnConfiguration,
-): { config: SensitivityAnalysisConfig, returnConfig: ReturnConfiguration } {
+): { config: SensitivityAnalysisConfig; returnConfig: ReturnConfiguration } {
   const config = { ...baseConfig }
   let modifiedReturnConfig = { ...returnConfig }
 
@@ -176,8 +176,7 @@ function calculateEinmalzahlungContributions(element: SparplanElement): number {
  * Calculate total contributions for an element
  */
 function calculateElementContributions(element: SparplanElement, years: number[]): number {
-  return calculateSparplanContributions(element, years)
-    + calculateEinmalzahlungContributions(element)
+  return calculateSparplanContributions(element, years) + calculateEinmalzahlungContributions(element)
 }
 
 /**
@@ -204,9 +203,7 @@ function calculateSimulationMetrics(simulationResult: SparplanElement[]): {
   }
 
   const totalGains = finalCapital - totalContributions
-  const effectiveReturn = totalContributions > 0
-    ? ((finalCapital / totalContributions) - 1) * 100
-    : 0
+  const effectiveReturn = totalContributions > 0 ? (finalCapital / totalContributions - 1) * 100 : 0
 
   return { finalCapital, totalContributions, totalGains, effectiveReturn }
 }
@@ -251,10 +248,7 @@ export function runSensitivityAnalysis(
  * Calculate the impact (sensitivity) of each parameter
  * Returns the percentage change in final capital per unit change in parameter
  */
-export function calculateParameterImpact(
-  results: SensitivityResult[],
-  baseResult: SensitivityResult,
-): number {
+export function calculateParameterImpact(results: SensitivityResult[], baseResult: SensitivityResult): number {
   if (results.length < 2) return 0
 
   // Calculate the slope of the relationship
@@ -267,7 +261,7 @@ export function calculateParameterImpact(
   if (parameterChange === 0 || baseResult.finalCapital === 0) return 0
 
   // Return the percentage change in capital per unit change in parameter
-  return (capitalChange / parameterChange) / baseResult.finalCapital * 100
+  return (capitalChange / parameterChange / baseResult.finalCapital) * 100
 }
 
 /**
@@ -276,8 +270,8 @@ export function calculateParameterImpact(
 export function getMostImpactfulParameters(
   parameterResults: Map<string, SensitivityResult[]>,
   baseResults: Map<string, SensitivityResult>,
-): Array<{ parameter: string, impact: number }> {
-  const impacts: Array<{ parameter: string, impact: number }> = []
+): Array<{ parameter: string; impact: number }> {
+  const impacts: Array<{ parameter: string; impact: number }> = []
 
   for (const [paramName, results] of parameterResults.entries()) {
     const baseResult = baseResults.get(paramName)

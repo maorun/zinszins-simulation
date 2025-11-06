@@ -22,13 +22,7 @@ const InflationScenarioConfiguration = ({
   const logic = useInflationScenarioLogic({ simulationStartYear, onScenarioChange })
   const scenarioColors = getScenarioColors(logic.selectedScenario)
 
-  return (
-    <InflationScenarioCard
-      {...logic}
-      scenarioColors={scenarioColors}
-      simulationStartYear={simulationStartYear}
-    />
-  )
+  return <InflationScenarioCard {...logic} scenarioColors={scenarioColors} simulationStartYear={simulationStartYear} />
 }
 
 export default InflationScenarioConfiguration

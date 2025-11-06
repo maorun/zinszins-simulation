@@ -25,12 +25,7 @@ function PersonalTaxRateSlider({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <Label htmlFor="personalTaxRate">Persönlicher Steuersatz (%)</Label>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onPersonalTaxRateChange(25)}
-          className="text-xs"
-        >
+        <Button variant="outline" size="sm" onClick={() => onPersonalTaxRateChange(25)} className="text-xs">
           Reset
         </Button>
       </div>
@@ -45,15 +40,12 @@ function PersonalTaxRateSlider({
       />
       <div className="flex justify-between text-sm text-muted-foreground">
         <span>0%</span>
-        <span className="font-medium">
-          {personalTaxRate}
-          %
-        </span>
+        <span className="font-medium">{personalTaxRate}%</span>
         <span>45%</span>
       </div>
       <p className="text-xs text-muted-foreground">
-        Ihr persönlicher Einkommensteuersatz. Bei aktivierter Günstigerprüfung wird automatisch
-        der günstigere Steuersatz (Abgeltungssteuer vs. persönlicher Steuersatz) verwendet.
+        Ihr persönlicher Einkommensteuersatz. Bei aktivierter Günstigerprüfung wird automatisch der günstigere
+        Steuersatz (Abgeltungssteuer vs. persönlicher Steuersatz) verwendet.
       </p>
     </div>
   )
@@ -70,11 +62,7 @@ export function GuenstigerpruefungSection({
       <div className="flex items-center justify-between">
         <div className="space-y-1">
           <Label className="text-base font-medium">
-            🔍
-            {' '}
-            <GlossaryTerm term="guenstigerpruefung">
-              Günstigerprüfung
-            </GlossaryTerm>
+            🔍 <GlossaryTerm term="guenstigerpruefung">Günstigerprüfung</GlossaryTerm>
           </Label>
           <p className="text-sm text-muted-foreground">
             Automatische Wahl zwischen Abgeltungssteuer und persönlichem Steuersatz
@@ -88,10 +76,7 @@ export function GuenstigerpruefungSection({
       </div>
 
       {guenstigerPruefungAktiv && (
-        <PersonalTaxRateSlider
-          personalTaxRate={personalTaxRate}
-          onPersonalTaxRateChange={onPersonalTaxRateChange}
-        />
+        <PersonalTaxRateSlider personalTaxRate={personalTaxRate} onPersonalTaxRateChange={onPersonalTaxRateChange} />
       )}
     </div>
   )

@@ -9,11 +9,7 @@ interface IndividualModePensionConfigProps {
   nestingLevel: number
 }
 
-export function IndividualModePensionConfig({
-  config,
-  onChange,
-  nestingLevel,
-}: IndividualModePensionConfigProps) {
+export function IndividualModePensionConfig({ config, onChange, nestingLevel }: IndividualModePensionConfigProps) {
   if (!config.individual) return null
 
   return (
@@ -29,7 +25,7 @@ export function IndividualModePensionConfig({
               <Input
                 type="number"
                 value={config.individual.monthlyAmount}
-                onChange={(e) => {
+                onChange={e => {
                   const updatedConfig = {
                     ...config,
                     individual: {

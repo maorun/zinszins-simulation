@@ -20,16 +20,17 @@ export function useHomePageRecalculation(
 
   // Handler for manual recalculation button
   const handleRecalculate = useCallback(() => {
-    setSparplanElemente(
-      convertSparplanToElements(sparplan, startEnd, simulationAnnual),
-    )
+    setSparplanElemente(convertSparplanToElements(sparplan, startEnd, simulationAnnual))
     performSimulation()
   }, [sparplan, startEnd, simulationAnnual, setSparplanElemente, performSimulation])
 
   // Handler for SpecialEvents dispatch
-  const handleSpecialEventsDispatch = useCallback((updatedSparplan: Sparplan[]) => {
-    setSparplanElemente(convertSparplanToElements(updatedSparplan, startEnd, simulationAnnual))
-  }, [startEnd, simulationAnnual, setSparplanElemente])
+  const handleSpecialEventsDispatch = useCallback(
+    (updatedSparplan: Sparplan[]) => {
+      setSparplanElemente(convertSparplanToElements(updatedSparplan, startEnd, simulationAnnual))
+    },
+    [startEnd, simulationAnnual, setSparplanElemente],
+  )
 
   return {
     handleRecalculate,

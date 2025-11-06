@@ -5,11 +5,7 @@ import { useSimulation } from '../../contexts/useSimulation'
  * Custom hook that manages basiszins state
  */
 export function useBasiszinsState() {
-  const {
-    basiszinsConfiguration,
-    setBasiszinsConfiguration,
-    performSimulation,
-  } = useSimulation()
+  const { basiszinsConfiguration, setBasiszinsConfiguration, performSimulation } = useSimulation()
 
   const [isLoading, setIsLoading] = useState(false)
   const [lastApiUpdate, setLastApiUpdate] = useState<string | null>(null)

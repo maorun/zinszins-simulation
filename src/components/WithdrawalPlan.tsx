@@ -3,15 +3,8 @@ import { EntnahmeSimulationsAusgabe } from './EntnahmeSimulationsAusgabe'
 import RiskAssessment from './RiskAssessment'
 
 const WithdrawalPlan = () => {
-  const {
-    startEnd,
-    simulationData,
-    setStartEnd,
-    setWithdrawalResults,
-    steuerlast,
-    teilfreistellungsquote,
-    endOfLife,
-  } = useSimulation()
+  const { startEnd, simulationData, setStartEnd, setWithdrawalResults, steuerlast, teilfreistellungsquote, endOfLife } =
+    useSimulation()
 
   if (!simulationData) return null
 

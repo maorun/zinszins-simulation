@@ -97,10 +97,9 @@ describe('useInitialConfiguration', () => {
     vi.mocked(configStorage.loadConfiguration).mockReturnValue(null)
     vi.mocked(profileStorage.getActiveProfile).mockReturnValue(null)
 
-    const { result, rerender } = renderHook(
-      ({ config }) => useInitialConfiguration(config),
-      { initialProps: { config: mockDefaultConfig as any } },
-    )
+    const { result, rerender } = renderHook(({ config }) => useInitialConfiguration(config), {
+      initialProps: { config: mockDefaultConfig as any },
+    })
 
     const firstResult = result.current
 

@@ -43,13 +43,7 @@ describe('FreibetragTableContent', () => {
   })
 
   it('renders empty table body when no years provided', () => {
-    render(
-      <FreibetragTableContent
-        freibetragPerYear={{}}
-        onUpdateYear={vi.fn()}
-        onDeleteYear={vi.fn()}
-      />,
-    )
+    render(<FreibetragTableContent freibetragPerYear={{}} onUpdateYear={vi.fn()} onDeleteYear={vi.fn()} />)
 
     expect(screen.getByText('Jahr')).toBeInTheDocument()
     expect(screen.queryByRole('button')).not.toBeInTheDocument()

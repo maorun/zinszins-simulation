@@ -38,8 +38,8 @@ describe('risk-assessment-helpers', () => {
     test('converts percentage values correctly for savings phase', () => {
       const result = getRiskConfig('savings', undefined, 10, 20, 99999)
 
-      expect(result.averageReturn).toBe(0.10)
-      expect(result.standardDeviation).toBe(0.20)
+      expect(result.averageReturn).toBe(0.1)
+      expect(result.standardDeviation).toBe(0.2)
       expect(result.seed).toBe(99999)
     })
   })

@@ -28,11 +28,7 @@ function MonthlyPensionField({
         className="w-40"
       />
       <div className="text-sm text-muted-foreground">
-        Jährliche Rente:
-        {' '}
-        {(config.monthlyAmount * 12).toLocaleString('de-DE')}
-        {' '}
-        €
+        Jährliche Rente: {(config.monthlyAmount * 12).toLocaleString('de-DE')} €
       </div>
     </div>
   )
@@ -53,7 +49,7 @@ function RetirementAgeField({
       <Input
         type="number"
         value={config.retirementAge || 67}
-        onChange={(e) => {
+        onChange={e => {
           const retirementAge = Number(e.target.value)
           const startYear = birthYear ? birthYear + retirementAge : config.startYear
           onChange({
@@ -66,39 +62,21 @@ function RetirementAgeField({
         className="w-32"
       />
       <div className="text-sm text-muted-foreground">
-        Rentenbeginn:
-        {' '}
-        {birthYear ? birthYear + (config.retirementAge || 67) : config.startYear}
+        Rentenbeginn: {birthYear ? birthYear + (config.retirementAge || 67) : config.startYear}
       </div>
     </div>
   )
 }
 
-function AnnualIncreaseRateSlider({
-  value,
-  onChange,
-}: {
-  value: number
-  onChange: (rate: number) => void
-}) {
+function AnnualIncreaseRateSlider({ value, onChange }: { value: number; onChange: (rate: number) => void }) {
   return (
     <div className="space-y-2">
       <Label>Jährliche Rentenanpassung (%)</Label>
       <div className="space-y-2">
-        <Slider
-          value={[value]}
-          onValueChange={vals => onChange(vals[0])}
-          min={0}
-          max={5}
-          step={0.1}
-          className="mt-2"
-        />
+        <Slider value={[value]} onValueChange={vals => onChange(vals[0])} min={0} max={5} step={0.1} className="mt-2" />
         <div className="flex justify-between text-sm text-gray-500">
           <span>0%</span>
-          <span className="font-medium text-gray-900">
-            {value.toFixed(1)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{value.toFixed(1)}%</span>
           <span>5%</span>
         </div>
       </div>
@@ -106,13 +84,7 @@ function AnnualIncreaseRateSlider({
   )
 }
 
-function TaxablePercentageSlider({
-  value,
-  onChange,
-}: {
-  value: number
-  onChange: (percentage: number) => void
-}) {
+function TaxablePercentageSlider({ value, onChange }: { value: number; onChange: (percentage: number) => void }) {
   return (
     <div className="space-y-2">
       <Label>Steuerpflichtiger Anteil (%)</Label>
@@ -127,10 +99,7 @@ function TaxablePercentageSlider({
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>50%</span>
-          <span className="font-medium text-gray-900">
-            {value.toFixed(0)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{value.toFixed(0)}%</span>
           <span>100%</span>
         </div>
       </div>
@@ -138,11 +107,7 @@ function TaxablePercentageSlider({
   )
 }
 
-export function PersonPensionFields({
-  config,
-  onChange,
-  birthYear,
-}: PersonPensionFieldsProps) {
+export function PersonPensionFields({ config, onChange, birthYear }: PersonPensionFieldsProps) {
   return (
     <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">

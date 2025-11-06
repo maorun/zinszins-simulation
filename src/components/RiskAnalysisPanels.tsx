@@ -43,11 +43,7 @@ export function RiskAnalysisPanels({
       </CollapsibleCard>
 
       {/* Drawdown Analysis in collapsible sub-panel if there's detailed data */}
-      <DrawdownAnalysis
-        riskMetrics={riskMetrics}
-        portfolioData={portfolioData}
-        hasRiskData={hasRiskData}
-      />
+      <DrawdownAnalysis riskMetrics={riskMetrics} portfolioData={portfolioData} hasRiskData={hasRiskData} />
     </>
   )
 }

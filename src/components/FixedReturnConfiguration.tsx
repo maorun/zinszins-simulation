@@ -3,11 +3,7 @@ import { Label } from './ui/label'
 import { useSimulation } from '../contexts/useSimulation'
 
 const FixedReturnConfiguration = () => {
-  const {
-    rendite,
-    setRendite,
-    performSimulation,
-  } = useSimulation()
+  const { rendite, setRendite, performSimulation } = useSimulation()
 
   return (
     <div className="space-y-2">
@@ -27,10 +23,7 @@ const FixedReturnConfiguration = () => {
         />
         <div className="flex justify-between text-sm text-muted-foreground">
           <span>0%</span>
-          <span className="font-medium">
-            {rendite}
-            %
-          </span>
+          <span className="font-medium">{rendite}%</span>
           <span>15%</span>
         </div>
       </div>

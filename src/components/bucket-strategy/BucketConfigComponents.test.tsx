@@ -1,10 +1,6 @@
 import { render, screen, fireEvent } from '@testing-library/react'
 import { describe, it, expect, vi } from 'vitest'
-import {
-  InitialCashCushionConfig,
-  RefillThresholdConfig,
-  RefillPercentageConfig,
-} from './BucketConfigComponents'
+import { InitialCashCushionConfig, RefillThresholdConfig, RefillPercentageConfig } from './BucketConfigComponents'
 
 describe('BucketConfigComponents', () => {
   describe('InitialCashCushionConfig', () => {
@@ -38,27 +34,17 @@ describe('BucketConfigComponents', () => {
     it('displays form mode helper text when isFormMode=true', () => {
       render(<InitialCashCushionConfig value={20000} onChange={vi.fn()} isFormMode={true} />)
 
-      expect(
-        screen.getByText(/Anfänglicher Betrag im Cash-Polster für Entnahmen/),
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Anfänglicher Betrag im Cash-Polster für Entnahmen/)).toBeInTheDocument()
     })
 
     it('displays direct mode helper text when isFormMode=false', () => {
       render(<InitialCashCushionConfig value={20000} onChange={vi.fn()} isFormMode={false} />)
 
-      expect(
-        screen.getByText(/Anfänglicher Cash-Puffer für negative Rendite-Jahre/),
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Anfänglicher Cash-Puffer für negative Rendite-Jahre/)).toBeInTheDocument()
     })
 
     it('uses custom inputId when provided', () => {
-      render(
-        <InitialCashCushionConfig
-          value={20000}
-          onChange={vi.fn()}
-          inputId="custom-id"
-        />,
-      )
+      render(<InitialCashCushionConfig value={20000} onChange={vi.fn()} inputId="custom-id" />)
 
       expect(screen.getByLabelText('Initiales Cash-Polster (€)')).toHaveAttribute('id', 'custom-id')
     })
@@ -95,19 +81,11 @@ describe('BucketConfigComponents', () => {
     it('displays helper text', () => {
       render(<RefillThresholdConfig value={5000} onChange={vi.fn()} />)
 
-      expect(
-        screen.getByText(/Überschreiten die jährlichen Gewinne diesen Betrag/),
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Überschreiten die jährlichen Gewinne diesen Betrag/)).toBeInTheDocument()
     })
 
     it('uses custom inputId when provided', () => {
-      render(
-        <RefillThresholdConfig
-          value={5000}
-          onChange={vi.fn()}
-          inputId="custom-threshold-id"
-        />,
-      )
+      render(<RefillThresholdConfig value={5000} onChange={vi.fn()} inputId="custom-threshold-id" />)
 
       expect(screen.getByLabelText('Auffüll-Schwellenwert (€)')).toHaveAttribute('id', 'custom-threshold-id')
     })
@@ -138,9 +116,7 @@ describe('BucketConfigComponents', () => {
     it('displays helper text', () => {
       render(<RefillPercentageConfig value={0.5} onChange={vi.fn()} />)
 
-      expect(
-        screen.getByText(/Anteil der Überschussgewinne/),
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Anteil der Überschussgewinne/)).toBeInTheDocument()
     })
 
     it('displays correct min and max labels', () => {

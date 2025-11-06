@@ -25,20 +25,9 @@ export function DataAvailabilityWarning({
           <div className="text-sm text-orange-700">
             <div className="font-medium mb-1">Begrenzte Datenabdeckung</div>
             <p>
-              Für den Simulationszeitraum (
-              {simulationStartYear}
-              -
-              {simulationEndYear}
-              )
-              sind nur teilweise historische Daten verfügbar
-              (
-              {index.startYear}
-              -
-              {index.endYear}
-              ).
-              Fehlende Jahre werden mit der Durchschnittsrendite (
-              {formatPercent(index.averageReturn)}
-              ) ersetzt.
+              Für den Simulationszeitraum ({simulationStartYear}-{simulationEndYear}) sind nur teilweise historische
+              Daten verfügbar ({index.startYear}-{index.endYear}
+              ). Fehlende Jahre werden mit der Durchschnittsrendite ({formatPercent(index.averageReturn)}) ersetzt.
             </p>
           </div>
         </div>

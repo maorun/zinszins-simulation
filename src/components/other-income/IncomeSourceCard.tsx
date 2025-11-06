@@ -27,10 +27,7 @@ export function IncomeSourceCard({
             {/* Title and badges - stacked on mobile, inline on desktop */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
               <h4 className="font-medium text-base">{source.name}</h4>
-              <IncomeSourceBadges
-                source={source}
-                onEnabledChange={enabled => onSourceChange(source.id, { enabled })}
-              />
+              <IncomeSourceBadges source={source} onEnabledChange={enabled => onSourceChange(source.id, { enabled })} />
             </div>
             <IncomeSourceDetails source={source} />
           </div>

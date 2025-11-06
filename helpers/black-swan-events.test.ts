@@ -33,7 +33,7 @@ describe('Black Swan Events', () => {
       expect(event.name).toBe('Finanzkrise (2008-2009)')
       expect(event.startYear).toBe(2008)
       expect(event.duration).toBe(2)
-      expect(event.yearlyReturns[0]).toBe(-0.40)
+      expect(event.yearlyReturns[0]).toBe(-0.4)
       expect(event.yearlyReturns[1]).toBe(-0.25)
       expect(event.recoveryYears).toBe(4)
     })
@@ -53,7 +53,7 @@ describe('Black Swan Events', () => {
       const event = BLACK_SWAN_EVENTS['financial-crisis-2008']
       const returns = applyBlackSwanEvent(2030, event)
 
-      expect(returns[2030]).toBe(-0.40)
+      expect(returns[2030]).toBe(-0.4)
       expect(returns[2031]).toBe(-0.25)
       expect(Object.keys(returns)).toHaveLength(2)
     })
@@ -81,16 +81,16 @@ describe('Black Swan Events', () => {
         ...BLACK_SWAN_EVENTS.custom,
         duration: 3,
         yearlyReturns: {
-          0: -0.30,
+          0: -0.3,
           // Missing entries for years 1 and 2
         },
       }
 
       const returns = applyBlackSwanEvent(2040, customEvent)
 
-      expect(returns[2040]).toBe(-0.30)
-      expect(returns[2041]).toBe(-0.20) // Fallback
-      expect(returns[2042]).toBe(-0.20) // Fallback
+      expect(returns[2040]).toBe(-0.3)
+      expect(returns[2041]).toBe(-0.2) // Fallback
+      expect(returns[2042]).toBe(-0.2) // Fallback
     })
   })
 
@@ -126,8 +126,8 @@ describe('Black Swan Events', () => {
         ...BLACK_SWAN_EVENTS.custom,
         duration: 2,
         yearlyReturns: {
-          0: -0.30,
-          1: 0.20, // Recovery year
+          0: -0.3,
+          1: 0.2, // Recovery year
         },
       }
 
@@ -149,14 +149,14 @@ describe('Black Swan Events', () => {
       }
 
       const blackSwanReturns = {
-        2031: -0.40,
+        2031: -0.4,
         2032: -0.25,
       }
 
       const merged = mergeBlackSwanReturns(existingReturns, blackSwanReturns)
 
       expect(merged[2030]).toBe(0.07) // Unchanged
-      expect(merged[2031]).toBe(-0.40) // Overridden
+      expect(merged[2031]).toBe(-0.4) // Overridden
       expect(merged[2032]).toBe(-0.25) // Overridden
       expect(merged[2033]).toBe(0.07) // Unchanged
     })
@@ -168,27 +168,27 @@ describe('Black Swan Events', () => {
       }
 
       const blackSwanReturns = {
-        2030: -0.30,
+        2030: -0.3,
       }
 
       const merged = mergeBlackSwanReturns(existingReturns, blackSwanReturns)
 
       expect(merged[2025]).toBe(0.05)
       expect(merged[2026]).toBe(0.06)
-      expect(merged[2030]).toBe(-0.30)
+      expect(merged[2030]).toBe(-0.3)
       expect(Object.keys(merged)).toHaveLength(3)
     })
 
     it('should handle empty existing returns', () => {
       const existingReturns = {}
       const blackSwanReturns = {
-        2030: -0.40,
+        2030: -0.4,
         2031: -0.25,
       }
 
       const merged = mergeBlackSwanReturns(existingReturns, blackSwanReturns)
 
-      expect(merged[2030]).toBe(-0.40)
+      expect(merged[2030]).toBe(-0.4)
       expect(merged[2031]).toBe(-0.25)
       expect(Object.keys(merged)).toHaveLength(2)
     })
@@ -208,7 +208,7 @@ describe('Black Swan Events', () => {
     it('should return events with all required properties', () => {
       const events = getAvailableBlackSwanEvents()
 
-      events.forEach((event) => {
+      events.forEach(event => {
         expect(event.id).toBeDefined()
         expect(event.name).toBeDefined()
         expect(event.description).toBeDefined()
@@ -248,11 +248,11 @@ describe('Black Swan Events', () => {
     it('should have realistic return values for all events', () => {
       const events = Object.values(BLACK_SWAN_EVENTS)
 
-      events.forEach((event) => {
-        Object.values(event.yearlyReturns).forEach((returnRate) => {
+      events.forEach(event => {
+        Object.values(event.yearlyReturns).forEach(returnRate => {
           // Returns should be between -50% and +50% (extreme but realistic)
-          expect(returnRate).toBeGreaterThanOrEqual(-0.50)
-          expect(returnRate).toBeLessThanOrEqual(0.50)
+          expect(returnRate).toBeGreaterThanOrEqual(-0.5)
+          expect(returnRate).toBeLessThanOrEqual(0.5)
         })
       })
     })

@@ -10,9 +10,7 @@ describe('getYearsRange', () => {
 
   it('calculates year range correctly with single savings plan', () => {
     const simulationData: SimulationData = {
-      sparplanElements: [
-        { start: '2023-01-01', einzahlung: 1000 },
-      ],
+      sparplanElements: [{ start: '2023-01-01', einzahlung: 1000 }],
     } as SimulationData
 
     const result = getYearsRange(simulationData, 2040)
@@ -34,9 +32,7 @@ describe('getYearsRange', () => {
 
   it('handles same start and end year', () => {
     const simulationData: SimulationData = {
-      sparplanElements: [
-        { start: '2040-01-01', einzahlung: 1000 },
-      ],
+      sparplanElements: [{ start: '2040-01-01', einzahlung: 1000 }],
     } as SimulationData
 
     const result = getYearsRange(simulationData, 2040)

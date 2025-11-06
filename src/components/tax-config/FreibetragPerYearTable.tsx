@@ -8,11 +8,7 @@ interface FreibetragPerYearTableProps {
   onUpdate: (newValues: Record<number, number>) => void
 }
 
-export function FreibetragPerYearTable({
-  freibetragPerYear,
-  yearToday,
-  onUpdate,
-}: FreibetragPerYearTableProps) {
+export function FreibetragPerYearTable({ freibetragPerYear, yearToday, onUpdate }: FreibetragPerYearTableProps) {
   const addYear = (year: number) => {
     if (!freibetragPerYear[year]) {
       onUpdate({
@@ -37,11 +33,7 @@ export function FreibetragPerYearTable({
 
   return (
     <div className="space-y-2">
-      <Label>
-        Sparerpauschbetrag
-        {' '}
-        pro Jahr (€)
-      </Label>
+      <Label>Sparerpauschbetrag pro Jahr (€)</Label>
       <FreibetragYearInput yearToday={yearToday} onAddYear={addYear} />
       <FreibetragTableContent
         freibetragPerYear={freibetragPerYear}

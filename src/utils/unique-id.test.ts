@@ -167,10 +167,9 @@ describe('unique-id utilities', () => {
 
   describe('useUniqueId (React Hook)', () => {
     it('should generate stable IDs within a component', () => {
-      const { result, rerender } = renderHook(
-        ({ baseId, deps }) => useUniqueId(baseId, deps),
-        { initialProps: { baseId: 'component', deps: ['dep1', 'dep2'] } },
-      )
+      const { result, rerender } = renderHook(({ baseId, deps }) => useUniqueId(baseId, deps), {
+        initialProps: { baseId: 'component', deps: ['dep1', 'dep2'] },
+      })
 
       const firstId = result.current
       rerender({ baseId: 'component', deps: ['dep1', 'dep2'] })
@@ -201,10 +200,9 @@ describe('unique-id utilities', () => {
     })
 
     it('should update ID when dependencies change', () => {
-      const { result, rerender } = renderHook(
-        ({ deps }) => useUniqueId('component', deps),
-        { initialProps: { deps: ['dep1'] } },
-      )
+      const { result, rerender } = renderHook(({ deps }) => useUniqueId('component', deps), {
+        initialProps: { deps: ['dep1'] },
+      })
 
       const firstId = result.current
       rerender({ deps: ['dep2'] })

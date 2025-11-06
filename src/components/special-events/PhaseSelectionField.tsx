@@ -30,33 +30,21 @@ export function PhaseSelectionField({
       <select
         className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         value={formValues.phase}
-        onChange={e => onFormChange({
-          ...formValues,
-          phase: e.target.value as EventPhase,
-        })}
+        onChange={e =>
+          onFormChange({
+            ...formValues,
+            phase: e.target.value as EventPhase,
+          })
+        }
       >
         <option value="sparphase">
-          💰 Sparphase (
-          {savingsStartYear}
-          {' '}
-          -
-          {' '}
-          {savingsEndYear}
-          )
+          💰 Sparphase ({savingsStartYear} - {savingsEndYear})
         </option>
         <option value="entsparphase">
-          💸 Entsparphase (
-          {withdrawalStartYear}
-          {' '}
-          -
-          {' '}
-          {withdrawalEndYear}
-          )
+          💸 Entsparphase ({withdrawalStartYear} - {withdrawalEndYear})
         </option>
       </select>
-      <div className="text-sm text-muted-foreground mt-1">
-        Wählen Sie die Lebensphase für das Ereignis
-      </div>
+      <div className="text-sm text-muted-foreground mt-1">Wählen Sie die Lebensphase für das Ereignis</div>
     </div>
   )
 }

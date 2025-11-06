@@ -71,9 +71,7 @@ describe('SegmentedComparisonTable', () => {
   })
 
   it('renders nothing when only one comparison result', () => {
-    const { container } = render(
-      <SegmentedComparisonTable segmentedComparisonResults={[mockResult1]} />,
-    )
+    const { container } = render(<SegmentedComparisonTable segmentedComparisonResults={[mockResult1]} />)
 
     expect(container.firstChild).toBeNull()
   })
@@ -131,9 +129,7 @@ describe('SegmentedComparisonTable', () => {
       duration: 'unbegrenzt',
     }
 
-    render(
-      <SegmentedComparisonTable segmentedComparisonResults={[unlimitedResult, mockResult2]} />,
-    )
+    render(<SegmentedComparisonTable segmentedComparisonResults={[unlimitedResult, mockResult2]} />)
 
     expect(screen.getByText('unbegrenzt')).toBeInTheDocument()
   })
@@ -149,9 +145,7 @@ describe('SegmentedComparisonTable', () => {
   })
 
   it('renders alternating row backgrounds', () => {
-    const { container } = render(
-      <SegmentedComparisonTable segmentedComparisonResults={[mockResult1, mockResult2]} />,
-    )
+    const { container } = render(<SegmentedComparisonTable segmentedComparisonResults={[mockResult1, mockResult2]} />)
 
     const rows = container.querySelectorAll('tbody tr')
     expect(rows).toHaveLength(2)

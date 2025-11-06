@@ -2,11 +2,7 @@ import { Label } from '../ui/label'
 import { SubStrategySelector } from '../SubStrategySelector'
 import { VariabelProzentConfig, MonatlichFestConfig } from './BucketSubStrategyConfigs'
 import { DynamischConfig } from './BucketDynamischConfig'
-import {
-  InitialCashCushionConfig,
-  RefillThresholdConfig,
-  RefillPercentageConfig,
-} from './BucketConfigComponents'
+import { InitialCashCushionConfig, RefillThresholdConfig, RefillPercentageConfig } from './BucketConfigComponents'
 import {
   getCurrentValuesFromForm,
   getCurrentValuesFromDirect,
@@ -56,17 +52,13 @@ function createValueChangeHandler(
   updateFormBucketConfig: ((updates: Partial<BucketStrategyConfigValues>) => void) | undefined,
   onChange: BucketStrategyChangeHandlers | undefined,
 ) {
-  return <K extends keyof BucketStrategyConfigValues>(
-    key: K,
-    value: BucketStrategyConfigValues[K],
-  ) => {
+  return <K extends keyof BucketStrategyConfigValues>(key: K, value: BucketStrategyConfigValues[K]) => {
     if (isFormMode && updateFormBucketConfig) {
       updateFormBucketConfig({ [key]: value })
-    }
-    else if (isDirectMode && onChange) {
+    } else if (isDirectMode && onChange) {
       const handlerKey = HANDLER_MAP[key]
       if (handlerKey && onChange[handlerKey]) {
-        (onChange[handlerKey] as (v: unknown) => void)(value)
+        ;(onChange[handlerKey] as (v: unknown) => void)(value)
       }
     }
   }
@@ -79,10 +71,7 @@ function SubStrategyConfigSection({
 }: {
   subStrategy: string
   currentValues: BucketStrategyConfigValues
-  handleValueChange: <K extends keyof BucketStrategyConfigValues>(
-    key: K,
-    value: BucketStrategyConfigValues[K],
-  ) => void
+  handleValueChange: <K extends keyof BucketStrategyConfigValues>(key: K, value: BucketStrategyConfigValues[K]) => void
 }) {
   if (subStrategy === 'variabel_prozent') {
     return (
@@ -133,9 +122,7 @@ function useBucketConfigMode({
 
   validateModeProps(isFormMode, isDirectMode)
 
-  const currentValues = isFormMode
-    ? getCurrentValuesFromForm(formValue!)
-    : getCurrentValuesFromDirect(values!)
+  const currentValues = isFormMode ? getCurrentValuesFromForm(formValue!) : getCurrentValuesFromDirect(values!)
 
   const updateFormBucketConfig = isFormMode
     ? createFormUpdateHandler({ formValue: formValue!, updateFormValue: updateFormValue!, currentValues })

@@ -6,7 +6,7 @@ import type { CareCostConfiguration as CareCostConfig } from '../../helpers/care
 
 type PlanningMode = 'individual' | 'couple'
 type Gender = 'male' | 'female'
-type SpouseConfig = { birthYear?: number, gender: Gender, expectedLifespan?: number }
+type SpouseConfig = { birthYear?: number; gender: Gender; expectedLifespan?: number }
 type LifeExpectancyTable = 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
 
 interface GlobalPlanningContentSectionsProps {

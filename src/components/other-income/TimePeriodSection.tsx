@@ -8,11 +8,7 @@ interface TimePeriodSectionProps {
   onUpdate: (source: OtherIncomeSource) => void
 }
 
-export function TimePeriodSection({
-  editingSource,
-  currentYear,
-  onUpdate,
-}: TimePeriodSectionProps) {
+export function TimePeriodSection({ editingSource, currentYear, onUpdate }: TimePeriodSectionProps) {
   const handleStartYearChange = (value: string) => {
     onUpdate({
       ...editingSource,

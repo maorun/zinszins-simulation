@@ -48,9 +48,7 @@ function ParameterExportSection({ isExporting, lastExportResult, onExport }: Par
       >
         {getButtonText()}
       </Button>
-      <div className="block sm:hidden text-xs text-gray-500">
-        💡 Kopiert alle Parameter in die Zwischenablage
-      </div>
+      <div className="block sm:hidden text-xs text-gray-500">💡 Kopiert alle Parameter in die Zwischenablage</div>
     </div>
   )
 }
@@ -149,13 +147,7 @@ function MarkdownExportSection({ isExporting, exportResult, exportType, onExport
   return (
     <div className="space-y-2">
       <h4 className="text-xs font-medium text-gray-600 uppercase tracking-wide">Markdown</h4>
-      <Button
-        variant={state.variant}
-        size="sm"
-        onClick={onExport}
-        disabled={isExporting}
-        className="w-full text-xs"
-      >
+      <Button variant={state.variant} size="sm" onClick={onExport} disabled={isExporting} className="w-full text-xs">
         <FileText className="h-3 w-3 mr-1" />
         {state.text}
       </Button>
@@ -181,13 +173,7 @@ function CalculationsExportSection({
   return (
     <div className="space-y-2">
       <h4 className="text-xs font-medium text-gray-600 uppercase tracking-wide">Berechnungen</h4>
-      <Button
-        variant={state.variant}
-        size="sm"
-        onClick={onExport}
-        disabled={isExporting}
-        className="w-full text-xs"
-      >
+      <Button variant={state.variant} size="sm" onClick={onExport} disabled={isExporting} className="w-full text-xs">
         <Copy className="h-3 w-3 mr-1" />
         {state.text}
       </Button>
@@ -247,9 +233,7 @@ function NoDataWarning() {
     <div className="p-3 bg-yellow-50 border border-yellow-200 rounded-md">
       <div className="flex items-center gap-2 text-yellow-800 text-sm">
         <Info className="h-4 w-4 flex-shrink-0" />
-        <span>
-          Keine Simulationsdaten verfügbar. Führen Sie zuerst eine Simulation durch.
-        </span>
+        <span>Keine Simulationsdaten verfügbar. Führen Sie zuerst eine Simulation durch.</span>
       </div>
     </div>
   )
@@ -345,7 +329,7 @@ function getExportButtonState(
   exportResult: string | null,
   exportType: string | null,
   buttonType: string,
-): { text: string, variant: ButtonVariant } {
+): { text: string; variant: ButtonVariant } {
   if (isExporting && exportType === buttonType) {
     return { text: 'Exportiere...', variant: 'default' }
   }

@@ -91,8 +91,9 @@ describe('Withdrawal with Health Care Insurance Integration', () => {
     expect(result[2041].healthCareInsurance!.effectiveCareInsuranceRate).toBe(3.05)
 
     // Pre-retirement should have higher health insurance than retirement
-    expect(result[2040].healthCareInsurance!.healthInsuranceAnnual)
-      .toBeGreaterThan(result[2041].healthCareInsurance!.healthInsuranceAnnual)
+    expect(result[2040].healthCareInsurance!.healthInsuranceAnnual).toBeGreaterThan(
+      result[2041].healthCareInsurance!.healthInsuranceAnnual,
+    )
   })
 
   it('should use fixed amounts when configured', () => {

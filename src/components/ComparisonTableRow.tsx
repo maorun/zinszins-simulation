@@ -21,12 +21,11 @@ export function ComparisonTableRow({ result }: ComparisonTableRowProps) {
   return (
     <tr key={result.strategy.id}>
       <td className="p-[10px] border-b border-[#e5e5ea]">{result.strategy.name}</td>
-      <td className="p-[10px] border-b border-[#e5e5ea] text-right">
-        {result.strategy.rendite}
-        %
-      </td>
+      <td className="p-[10px] border-b border-[#e5e5ea] text-right">{result.strategy.rendite}%</td>
       <td className="p-[10px] border-b border-[#e5e5ea] text-right">{formatCurrency(result.finalCapital)}</td>
-      <td className="p-[10px] border-b border-[#e5e5ea] text-right">{formatCurrency(result.averageAnnualWithdrawal)}</td>
+      <td className="p-[10px] border-b border-[#e5e5ea] text-right">
+        {formatCurrency(result.averageAnnualWithdrawal)}
+      </td>
       <td className="p-[10px] border-b border-[#e5e5ea] text-right">
         {typeof result.duration === 'number' ? `${result.duration} Jahre` : result.duration}
       </td>

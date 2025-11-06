@@ -10,9 +10,7 @@ interface EventsListProps {
 }
 
 export function EventsList({ sparplans, onDelete }: EventsListProps) {
-  const specialEvents = sparplans.filter(
-    sparplan => sparplan.eventType && sparplan.eventType !== 'normal',
-  )
+  const specialEvents = sparplans.filter(sparplan => sparplan.eventType && sparplan.eventType !== 'normal')
 
   if (specialEvents.length === 0) {
     return null
@@ -31,23 +29,20 @@ export function EventsList({ sparplans, onDelete }: EventsListProps) {
         </CardHeader>
         <CollapsibleContent>
           <CardContent nestingLevel={1} className="pt-0">
-            <div style={{
-              padding: '1rem 1.5rem 0.5rem',
-              color: '#666',
-              fontSize: '0.9rem',
-              borderBottom: '1px solid #f0f0f0',
-            }}
+            <div
+              style={{
+                padding: '1rem 1.5rem 0.5rem',
+                color: '#666',
+                fontSize: '0.9rem',
+                borderBottom: '1px solid #f0f0f0',
+              }}
             >
               Ihre konfigurierten Sonderereignisse für beide Lebensphasen
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: '1.5rem' }}>
               {specialEvents.map(sparplan => (
-                <EventCard
-                  key={sparplan.id}
-                  sparplan={sparplan}
-                  onDelete={onDelete}
-                />
+                <EventCard key={sparplan.id} sparplan={sparplan} onDelete={onDelete} />
               ))}
             </div>
           </CardContent>

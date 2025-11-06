@@ -23,8 +23,8 @@ export function ClearAllProfilesDialog({ isOpen, onOpenChange, onConfirm }: Clea
         <AlertDialogHeader>
           <AlertDialogTitle>Alle Profile löschen</AlertDialogTitle>
           <AlertDialogDescription>
-            Möchten Sie wirklich alle Profile löschen und zu den Standardwerten zurückkehren?
-            Diese Aktion kann nicht rückgängig gemacht werden.
+            Möchten Sie wirklich alle Profile löschen und zu den Standardwerten zurückkehren? Diese Aktion kann nicht
+            rückgängig gemacht werden.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

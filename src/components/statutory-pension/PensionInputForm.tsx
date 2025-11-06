@@ -81,13 +81,7 @@ function TaxReturnDataImport({
 /**
  * Individual planning mode display
  */
-function IndividualPlanningDisplay({
-  birthYear,
-  values,
-}: {
-  birthYear?: number
-  values: PensionFormValues
-}) {
+function IndividualPlanningDisplay({ birthYear, values }: { birthYear?: number; values: PensionFormValues }) {
   return (
     <div className="space-y-2">
       <div className="grid grid-cols-2 gap-2 text-sm">
@@ -97,18 +91,12 @@ function IndividualPlanningDisplay({
         </div>
         <div>
           <span className="text-gray-600">Renteneintrittsalter:</span>
-          <div className="font-medium">
-            {values.retirementAge || 67}
-            {' '}
-            Jahre
-          </div>
+          <div className="font-medium">{values.retirementAge || 67} Jahre</div>
         </div>
       </div>
       <div className="pt-2 border-t border-green-200">
         <span className="text-gray-600">Berechneter Rentenbeginn:</span>
-        <div className="text-lg font-bold text-green-800">
-          {birthYear ? values.startYear : '—'}
-        </div>
+        <div className="text-lg font-bold text-green-800">{birthYear ? values.startYear : '—'}</div>
       </div>
     </div>
   )
@@ -140,17 +128,11 @@ function CouplePlanningDisplay({
       </div>
       <div className="text-sm">
         <span className="text-gray-600">Renteneintrittsalter:</span>
-        <span className="font-medium ml-1">
-          {values.retirementAge || 67}
-          {' '}
-          Jahre (beide Partner)
-        </span>
+        <span className="font-medium ml-1">{values.retirementAge || 67} Jahre (beide Partner)</span>
       </div>
       <div className="pt-2 border-t border-green-200">
         <span className="text-gray-600">Berechneter Rentenbeginn (frühester Partner):</span>
-        <div className="text-lg font-bold text-green-800">
-          {(birthYear && spouseBirthYear) ? values.startYear : '—'}
-        </div>
+        <div className="text-lg font-bold text-green-800">{birthYear && spouseBirthYear ? values.startYear : '—'}</div>
       </div>
     </div>
   )
@@ -205,21 +187,14 @@ function RetirementStartDisplay({
           className="w-32"
         />
         <div className="text-sm text-muted-foreground">
-          Geplantes Alter für den Renteneintritt.
-          Wird automatisch zur Berechnung des Rentenbeginns verwendet.
+          Geplantes Alter für den Renteneintritt. Wird automatisch zur Berechnung des Rentenbeginns verwendet.
         </div>
       </div>
     </div>
   )
 }
 
-function MonthlyPensionField({
-  values,
-  onChange,
-}: {
-  values: PensionFormValues
-  onChange: PensionFormHandlers
-}) {
+function MonthlyPensionField({ values, onChange }: { values: PensionFormValues; onChange: PensionFormHandlers }) {
   const monthlyAmountId = useFormId('statutory-pension', 'monthly-amount', 'input-form')
   return (
     <div className="space-y-2">
@@ -234,23 +209,13 @@ function MonthlyPensionField({
         className="w-40"
       />
       <div className="text-sm text-muted-foreground">
-        Jährliche Rente:
-        {' '}
-        {(values.monthlyAmount * 12).toLocaleString('de-DE')}
-        {' '}
-        €
+        Jährliche Rente: {(values.monthlyAmount * 12).toLocaleString('de-DE')} €
       </div>
     </div>
   )
 }
 
-function AnnualIncreaseRateField({
-  values,
-  onChange,
-}: {
-  values: PensionFormValues
-  onChange: PensionFormHandlers
-}) {
+function AnnualIncreaseRateField({ values, onChange }: { values: PensionFormValues; onChange: PensionFormHandlers }) {
   return (
     <div className="space-y-2">
       <Label>Jährliche Rentenanpassung (%)</Label>
@@ -265,27 +230,16 @@ function AnnualIncreaseRateField({
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>0%</span>
-          <span className="font-medium text-gray-900">
-            {values.annualIncreaseRate.toFixed(1)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{values.annualIncreaseRate.toFixed(1)}%</span>
           <span>5%</span>
         </div>
       </div>
-      <div className="text-sm text-muted-foreground">
-        Historisch schwanken Rentenerhöhungen zwischen 0-4% pro Jahr.
-      </div>
+      <div className="text-sm text-muted-foreground">Historisch schwanken Rentenerhöhungen zwischen 0-4% pro Jahr.</div>
     </div>
   )
 }
 
-function TaxablePercentageField({
-  values,
-  onChange,
-}: {
-  values: PensionFormValues
-  onChange: PensionFormHandlers
-}) {
+function TaxablePercentageField({ values, onChange }: { values: PensionFormValues; onChange: PensionFormHandlers }) {
   return (
     <div className="space-y-2">
       <Label>Steuerpflichtiger Anteil (%)</Label>
@@ -300,10 +254,7 @@ function TaxablePercentageField({
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>50%</span>
-          <span className="font-medium text-gray-900">
-            {values.taxablePercentage.toFixed(0)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{values.taxablePercentage.toFixed(0)}%</span>
           <span>100%</span>
         </div>
       </div>

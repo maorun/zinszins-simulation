@@ -45,8 +45,7 @@ export function getSparplanSummary(element?: SimulationResult): Summary {
       return 0
     }
     return Object.values(element).reduce(
-      (previousValue, currentValue) =>
-        previousValue + currentValue.bezahlteSteuer,
+      (previousValue, currentValue) => previousValue + currentValue.bezahlteSteuer,
       0,
     )
   }
@@ -78,15 +77,15 @@ export function getSparplanSummary(element?: SimulationResult): Summary {
 
 export function fullSummary(elemente?: SparplanElement[]): Summary {
   return elemente
-    ? elemente.map(element => element.simulation)
+    ? elemente
+        .map(element => element.simulation)
         .map(getSparplanSummary)
         .reduce(
           (previousValue, currentValue) => ({
             startkapital: Number(previousValue.startkapital) + Number(currentValue.startkapital),
             zinsen: previousValue.zinsen + currentValue.zinsen,
             bezahlteSteuer: previousValue.bezahlteSteuer + currentValue.bezahlteSteuer,
-            endkapital:
-                    Number(previousValue.endkapital) + Number(currentValue.endkapital),
+            endkapital: Number(previousValue.endkapital) + Number(currentValue.endkapital),
           }),
           {
             startkapital: 0,
@@ -109,7 +108,7 @@ export function fullSummary(elemente?: SparplanElement[]): Summary {
 function calculateWithdrawalTotals(
   withdrawalResult: WithdrawalResult,
   years: number[],
-): { totalWithdrawn: number, totalMonthlyWithdrawals: number, monthsWithData: number } {
+): { totalWithdrawn: number; totalMonthlyWithdrawals: number; monthsWithData: number } {
   let totalWithdrawn = 0
   let totalMonthlyWithdrawals = 0
   let monthsWithData = 0
@@ -138,8 +137,7 @@ function calculateAverageMonthlyWithdrawal(
 ): number {
   if (monthsWithData > 0) {
     return totalMonthlyWithdrawals / monthsWithData
-  }
-  else if (totalWithdrawn > 0) {
+  } else if (totalWithdrawn > 0) {
     return totalWithdrawn / yearCount / 12
   }
   return 0
@@ -154,7 +152,9 @@ export function extractWithdrawalMetrics(withdrawalResult: WithdrawalResult): {
   averageMonthlyWithdrawal: number
   totalWithdrawn: number
 } {
-  const years = Object.keys(withdrawalResult).map(Number).sort((a, b) => a - b)
+  const years = Object.keys(withdrawalResult)
+    .map(Number)
+    .sort((a, b) => a - b)
 
   if (years.length === 0) {
     return {
@@ -170,8 +170,7 @@ export function extractWithdrawalMetrics(withdrawalResult: WithdrawalResult): {
   const totalYears = lastYear - firstYear + 1
   const finalCapital = withdrawalResult[lastYear].endkapital
 
-  const { totalWithdrawn, totalMonthlyWithdrawals, monthsWithData }
-    = calculateWithdrawalTotals(withdrawalResult, years)
+  const { totalWithdrawn, totalMonthlyWithdrawals, monthsWithData } = calculateWithdrawalTotals(withdrawalResult, years)
 
   const averageMonthlyWithdrawal = calculateAverageMonthlyWithdrawal(
     totalMonthlyWithdrawals,
@@ -191,11 +190,7 @@ export function extractWithdrawalMetrics(withdrawalResult: WithdrawalResult): {
 /**
  * Calculate savings phase return rate
  */
-function calculateSavingsPhaseReturn(
-  startkapital: number,
-  endkapital: number,
-  totalYears: number,
-): number {
+function calculateSavingsPhaseReturn(startkapital: number, endkapital: number, totalYears: number): number {
   if (startkapital <= 0 || totalYears <= 0) {
     return 0
   }
@@ -273,13 +268,10 @@ export function getEnhancedSummary(
 /**
  * Calculate yearly contribution for a specific year
  */
-function calculateYearlyContribution(
-  year: number,
-  elemente: SparplanElement[],
-): number {
+function calculateYearlyContribution(year: number, elemente: SparplanElement[]): number {
   // ONLY count contributions from elements that actually start in this year
-  const elementsStartingThisYear = elemente.filter(el =>
-    el.type === 'sparplan' && new Date(el.start).getFullYear() === year,
+  const elementsStartingThisYear = elemente.filter(
+    el => el.type === 'sparplan' && new Date(el.start).getFullYear() === year,
   )
 
   if (elementsStartingThisYear.length === 0) {
@@ -308,13 +300,10 @@ function calculateYearlyContribution(
 /**
  * Calculate one-time payment contributions for a specific year
  */
-function calculateEinmalzahlungContribution(
-  year: number,
-  elemente: SparplanElement[],
-): number {
+function calculateEinmalzahlungContribution(year: number, elemente: SparplanElement[]): number {
   let contribution = 0
 
-  elemente.forEach((element) => {
+  elemente.forEach(element => {
     const yearData = element.simulation[year]
     if (yearData && element.type === 'einmalzahlung') {
       const elementStartYear = new Date(element.start).getFullYear()
@@ -339,10 +328,7 @@ interface YearAggregateData {
   hasInflationData: boolean
 }
 
-function aggregateYearData(
-  year: number,
-  elemente: SparplanElement[],
-): YearAggregateData {
+function aggregateYearData(year: number, elemente: SparplanElement[]): YearAggregateData {
   const data: YearAggregateData = {
     totalCapital: 0,
     yearlyInterest: 0,
@@ -352,7 +338,7 @@ function aggregateYearData(
     hasInflationData: false,
   }
 
-  elemente.forEach((element) => {
+  elemente.forEach(element => {
     const yearData = element.simulation[year]
     if (yearData) {
       data.totalCapital += yearData.endkapital
@@ -391,17 +377,15 @@ export type PortfolioProgressionEntry = {
   cumulativeInterestReal?: number
 }
 
-export function getYearlyPortfolioProgression(
-  elemente?: SparplanElement[],
-): PortfolioProgressionEntry[] {
+export function getYearlyPortfolioProgression(elemente?: SparplanElement[]): PortfolioProgressionEntry[] {
   if (!elemente || elemente.length === 0) {
     return []
   }
 
   // Get all years from all simulation results
   const allYears = new Set<number>()
-  elemente.forEach((element) => {
-    Object.keys(element.simulation).forEach((year) => {
+  elemente.forEach(element => {
+    Object.keys(element.simulation).forEach(year => {
       allYears.add(parseInt(year))
     })
   })
@@ -471,10 +455,7 @@ function calculateSegmentMetrics(
   totalWithdrawn: number
   averageMonthlyWithdrawal: number
 } {
-  const segmentYears = Array.from(
-    { length: segment.endYear - segment.startYear + 1 },
-    (_, i) => segment.startYear + i,
-  )
+  const segmentYears = Array.from({ length: segment.endYear - segment.startYear + 1 }, (_, i) => segment.startYear + i)
 
   let endCapital = startCapital
   let totalWithdrawn = 0
@@ -498,8 +479,7 @@ function calculateSegmentMetrics(
   let averageMonthlyWithdrawal = 0
   if (monthsWithData > 0) {
     averageMonthlyWithdrawal = totalMonthlyWithdrawals / monthsWithData
-  }
-  else if (totalWithdrawn > 0) {
+  } else if (totalWithdrawn > 0) {
     averageMonthlyWithdrawal = totalWithdrawn / segmentYears.length / 12
   }
 
@@ -549,13 +529,13 @@ function createWithdrawalSegmentSummaries(
 const STRATEGY_DISPLAY_NAMES: Record<string, string> = {
   '4prozent': '4% Regel',
   '3prozent': '3% Regel',
-  'variabel_prozent': 'Variable Prozent',
-  'monatlich_fest': 'Monatlich fest',
-  'dynamisch': 'Dynamische Strategie',
-  'bucket_strategie': 'Drei-Eimer-Strategie',
-  'rmd': 'RMD (Lebenserwartung)',
-  'kapitalerhalt': 'Kapitalerhalt / Ewige Rente',
-  'steueroptimiert': 'Steueroptimierte Entnahme',
+  variabel_prozent: 'Variable Prozent',
+  monatlich_fest: 'Monatlich fest',
+  dynamisch: 'Dynamische Strategie',
+  bucket_strategie: 'Drei-Eimer-Strategie',
+  rmd: 'RMD (Lebenserwartung)',
+  kapitalerhalt: 'Kapitalerhalt / Ewige Rente',
+  steueroptimiert: 'Steueroptimierte Entnahme',
 }
 
 function getStrategyDisplayName(strategy: string): string {

@@ -19,19 +19,17 @@ export function RMDLifeExpectancyTableConfig({
   return (
     <div className="space-y-2">
       <Label>{isFormMode ? 'Datengrundlage für Lebenserwartung' : 'Sterbetabelle'}</Label>
-      <RadioTileGroup
-        value={value}
-        onValueChange={handleChange}
-      >
-        <RadioTile value="german_2020_22" label={isFormMode ? 'Deutsche Sterbetafel' : 'Deutsche Sterbetabelle 2020/22'}>
+      <RadioTileGroup value={value} onValueChange={handleChange}>
+        <RadioTile
+          value="german_2020_22"
+          label={isFormMode ? 'Deutsche Sterbetafel' : 'Deutsche Sterbetabelle 2020/22'}
+        >
           {isFormMode
             ? 'Offizielle Sterbetafel 2020-2022 vom Statistischen Bundesamt'
             : 'Offizielle deutsche Sterbetabelle (aktuarisch)'}
         </RadioTile>
         <RadioTile value="custom" label="Benutzerdefiniert">
-          {isFormMode
-            ? 'Eigene Lebenserwartung festlegen'
-            : 'Eigene Lebenserwartung festlegen'}
+          {isFormMode ? 'Eigene Lebenserwartung festlegen' : 'Eigene Lebenserwartung festlegen'}
         </RadioTile>
       </RadioTileGroup>
     </div>

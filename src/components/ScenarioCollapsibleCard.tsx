@@ -30,14 +30,9 @@ export function ScenarioCollapsibleCard({
       <Card ref={navigationRef}>
         <CardHeader className="pb-3">
           <CollapsibleTrigger asChild>
-            <Button
-              variant="ghost"
-              className="w-full justify-between p-0 hover:bg-transparent"
-            >
+            <Button variant="ghost" className="w-full justify-between p-0 hover:bg-transparent">
               <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-                💡 Was-wäre-wenn
-                {' '}
-                <GlossaryTerm term="szenario" showIcon />
+                💡 Was-wäre-wenn <GlossaryTerm term="szenario" showIcon />
               </CardTitle>
               <ChevronDown className="h-5 w-5 transition-transform duration-200 data-[state=open]:rotate-180" />
             </Button>

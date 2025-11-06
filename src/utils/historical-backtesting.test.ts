@@ -267,7 +267,7 @@ describe('Historical Backtesting Integration', () => {
 
       expect(Object.keys(sim1)).toEqual(Object.keys(sim2))
 
-      Object.keys(sim1).forEach((yearKey) => {
+      Object.keys(sim1).forEach(yearKey => {
         const year = parseInt(yearKey)
         expect(sim1[year].endkapital).toBeCloseTo(sim2[year].endkapital, 2)
         expect(sim1[year].bezahlteSteuer).toBeCloseTo(sim2[year].bezahlteSteuer, 2)

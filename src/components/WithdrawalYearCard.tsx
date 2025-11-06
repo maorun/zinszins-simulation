@@ -1,10 +1,6 @@
 import { formatWithInflation } from '../utils/format-with-inflation'
 import type { WithdrawalFormValue } from '../utils/config-storage'
-import {
-  OtherIncomeSection,
-  HealthCareInsuranceSection,
-  StatutoryPensionSection,
-} from './withdrawal-card-sections'
+import { OtherIncomeSection, HealthCareInsuranceSection, StatutoryPensionSection } from './withdrawal-card-sections'
 import { YearHeader } from './withdrawal-card/YearHeader'
 import { FinancialDetailsSection } from './withdrawal-card/FinancialDetailsSection'
 import { TaxSection } from './withdrawal-card/TaxSection'
@@ -144,12 +140,7 @@ function CardSections({
 /**
  * Card component for displaying withdrawal data for a single year
  */
-export function WithdrawalYearCard({
-  rowData,
-  formValue,
-  allYears,
-  onCalculationInfoClick,
-}: WithdrawalYearCardProps) {
+export function WithdrawalYearCard({ rowData, formValue, allYears, onCalculationInfoClick }: WithdrawalYearCardProps) {
   const isGrundfreibetragEnabled = formValue.grundfreibetragAktiv || false
 
   return (

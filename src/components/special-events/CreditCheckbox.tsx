@@ -15,10 +15,12 @@ export function CreditCheckbox({ formValues, onFormChange }: CreditCheckboxProps
           type="checkbox"
           id="useCredit"
           checked={formValues.useCredit}
-          onChange={e => onFormChange({
-            ...formValues,
-            useCredit: e.target.checked,
-          })}
+          onChange={e =>
+            onFormChange({
+              ...formValues,
+              useCredit: e.target.checked,
+            })
+          }
           className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
         />
         <Label htmlFor="useCredit">

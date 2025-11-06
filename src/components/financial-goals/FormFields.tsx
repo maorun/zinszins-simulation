@@ -4,8 +4,8 @@ import { Label } from '../ui/label'
 import { GoalTypeSelect } from './GoalTypeSelect'
 
 interface FormFieldsProps {
-  ids: { type: string, name: string, amount: string }
-  values: { type: FinancialGoalType, name: string, amount: string }
+  ids: { type: string; name: string; amount: string }
+  values: { type: FinancialGoalType; name: string; amount: string }
   onChange: {
     type: (v: FinancialGoalType) => void
     name: (v: string) => void

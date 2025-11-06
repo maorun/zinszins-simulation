@@ -11,11 +11,7 @@ interface EventSelectorProps {
 /**
  * Selector for choosing which Black Swan event to simulate
  */
-export function EventSelector({
-  selectedEventId,
-  availableEvents,
-  onEventChange,
-}: EventSelectorProps) {
+export function EventSelector({ selectedEventId, availableEvents, onEventChange }: EventSelectorProps) {
   const handleValueChange = (value: string) => {
     onEventChange(value as BlackSwanEventId)
   }

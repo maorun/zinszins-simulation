@@ -30,28 +30,31 @@ export function useRiskEventHandlers({
   performSimulation,
 }: UseRiskEventHandlersParams): UseRiskEventHandlersReturn {
   // Handle Black Swan event change
-  const handleBlackSwanChange = useCallback((
-    eventReturns: Record<number, number> | null,
-    eventName?: string,
-  ) => {
-    setBlackSwanReturns(eventReturns)
-    setBlackSwanEventName(eventName || '')
-    // Trigger simulation update
-    performSimulation()
-  }, [setBlackSwanReturns, setBlackSwanEventName, performSimulation])
+  const handleBlackSwanChange = useCallback(
+    (eventReturns: Record<number, number> | null, eventName?: string) => {
+      setBlackSwanReturns(eventReturns)
+      setBlackSwanEventName(eventName || '')
+      // Trigger simulation update
+      performSimulation()
+    },
+    [setBlackSwanReturns, setBlackSwanEventName, performSimulation],
+  )
 
   // Handle Inflation Scenario change
-  const handleInflationScenarioChange = useCallback((
-    inflationRates: Record<number, number> | null,
-    returnModifiers: Record<number, number> | null,
-    scenarioName?: string,
-  ) => {
-    setInflationScenarioRates(inflationRates)
-    setInflationScenarioReturnModifiers(returnModifiers)
-    setInflationScenarioName(scenarioName || '')
-    // Trigger simulation update
-    performSimulation()
-  }, [setInflationScenarioRates, setInflationScenarioReturnModifiers, setInflationScenarioName, performSimulation])
+  const handleInflationScenarioChange = useCallback(
+    (
+      inflationRates: Record<number, number> | null,
+      returnModifiers: Record<number, number> | null,
+      scenarioName?: string,
+    ) => {
+      setInflationScenarioRates(inflationRates)
+      setInflationScenarioReturnModifiers(returnModifiers)
+      setInflationScenarioName(scenarioName || '')
+      // Trigger simulation update
+      performSimulation()
+    },
+    [setInflationScenarioRates, setInflationScenarioReturnModifiers, setInflationScenarioName, performSimulation],
+  )
 
   return {
     handleBlackSwanChange,

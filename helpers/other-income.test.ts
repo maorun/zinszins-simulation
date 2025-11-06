@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 import {
   type OtherIncomeSource,
   type OtherIncomeConfiguration,
-
   calculateOtherIncomeForYear,
   calculateOtherIncome,
   createDefaultOtherIncomeSource,

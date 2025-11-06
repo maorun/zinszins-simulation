@@ -33,13 +33,7 @@ export function CoupleConfigurationContent({
   PersonConfigComponent,
 }: CoupleConfigurationContentProps) {
   if (planningMode === 'individual') {
-    return (
-      <IndividualModePensionConfig
-        config={currentConfig}
-        onChange={onChange}
-        nestingLevel={nestingLevel}
-      />
-    )
+    return <IndividualModePensionConfig config={currentConfig} onChange={onChange} nestingLevel={nestingLevel} />
   }
 
   return currentConfig.couple ? (

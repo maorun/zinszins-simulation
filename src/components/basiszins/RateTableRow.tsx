@@ -16,13 +16,7 @@ interface RateTableRowProps {
 /**
  * Renders a single row in the rates table
  */
-export function RateTableRow({
-  year,
-  data,
-  currentYear,
-  onUpdateRate,
-  onRemoveYear,
-}: RateTableRowProps) {
+export function RateTableRow({ year, data, currentYear, onUpdateRate, onRemoveYear }: RateTableRowProps) {
   return (
     <TableRow key={year}>
       <TableCell className="text-center font-medium">{year}</TableCell>
@@ -41,17 +35,10 @@ export function RateTableRow({
         <SourceBadge source={data.source} />
       </TableCell>
       <TableCell className="text-center text-sm text-muted-foreground">
-        {data.lastUpdated
-          ? new Date(data.lastUpdated).toLocaleDateString('de-DE')
-          : 'N/A'}
+        {data.lastUpdated ? new Date(data.lastUpdated).toLocaleDateString('de-DE') : 'N/A'}
       </TableCell>
       <TableCell className="text-center">
-        <Button
-          variant="ghost"
-          size="sm"
-          onClick={() => onRemoveYear(year)}
-          disabled={year <= currentYear - 1}
-        >
+        <Button variant="ghost" size="sm" onClick={() => onRemoveYear(year)} disabled={year <= currentYear - 1}>
           <Trash2 className="h-4 w-4" />
         </Button>
       </TableCell>

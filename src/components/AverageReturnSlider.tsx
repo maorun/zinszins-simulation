@@ -7,11 +7,7 @@ interface AverageReturnSliderProps {
   performSimulation: () => void
 }
 
-const AverageReturnSlider = ({
-  averageReturn,
-  setAverageReturn,
-  performSimulation,
-}: AverageReturnSliderProps) => {
+const AverageReturnSlider = ({ averageReturn, setAverageReturn, performSimulation }: AverageReturnSliderProps) => {
   return (
     <div className="space-y-2">
       <Label htmlFor="averageReturn">Durchschnittliche Rendite</Label>
@@ -29,10 +25,7 @@ const AverageReturnSlider = ({
       />
       <div className="flex justify-between text-sm text-muted-foreground">
         <span>0%</span>
-        <span className="font-medium">
-          {averageReturn}
-          %
-        </span>
+        <span className="font-medium">{averageReturn}%</span>
         <span>15%</span>
       </div>
     </div>

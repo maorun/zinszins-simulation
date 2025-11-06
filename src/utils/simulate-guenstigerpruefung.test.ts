@@ -49,7 +49,9 @@ describe('simulate with Günstigerprüfung', () => {
     expect(simulationData).toBeDefined()
     expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult).toBeDefined()
     expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.isFavorable).toBe('personal')
-    expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.explanation).toContain('Persönlicher Steuersatz')
+    expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.explanation).toContain(
+      'Persönlicher Steuersatz',
+    )
   })
 
   it('should not perform Günstigerprüfung when disabled', () => {

@@ -23,20 +23,12 @@ export function AdditionalCareInsurance({
           onCheckedChange={onAdditionalCareInsuranceForChildlessChange}
           id="additional-care-insurance"
         />
-        <Label htmlFor="additional-care-insurance">
-          Zusätzlicher Pflegeversicherungsbeitrag für Kinderlose
-        </Label>
+        <Label htmlFor="additional-care-insurance">Zusätzlicher Pflegeversicherungsbeitrag für Kinderlose</Label>
       </div>
 
       {additionalCareInsuranceForChildless && (
         <div className="ml-6 space-y-2">
-          <Label htmlFor="additional-care-age">
-            Ab Alter:
-            {' '}
-            {additionalCareInsuranceAge}
-            {' '}
-            Jahre
-          </Label>
+          <Label htmlFor="additional-care-age">Ab Alter: {additionalCareInsuranceAge} Jahre</Label>
           <Slider
             id="additional-care-age"
             min={18}
@@ -46,9 +38,7 @@ export function AdditionalCareInsurance({
             onValueChange={([value]) => onAdditionalCareInsuranceAgeChange(value)}
             className="w-32"
           />
-          <div className="text-xs text-muted-foreground">
-            Zusätzlich 0,6% Pflegeversicherung ab diesem Alter
-          </div>
+          <div className="text-xs text-muted-foreground">Zusätzlich 0,6% Pflegeversicherung ab diesem Alter</div>
         </div>
       )}
     </div>

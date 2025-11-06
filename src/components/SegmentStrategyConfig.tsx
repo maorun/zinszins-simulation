@@ -11,18 +11,14 @@ interface SegmentStrategyConfigProps {
   onUpdate: (segmentId: string, updates: Partial<WithdrawalSegment>) => void
 }
 
-export function SegmentStrategyConfig({
-  segment,
-  onUpdate,
-}: SegmentStrategyConfigProps) {
+export function SegmentStrategyConfig({ segment, onUpdate }: SegmentStrategyConfigProps) {
   const { strategy } = segment
 
   if (strategy === 'variabel_prozent') {
     return (
       <VariablePercentWithdrawalConfig
         customPercentage={segment.customPercentage}
-        onCustomPercentageChange={value =>
-          onUpdate(segment.id, { customPercentage: value })}
+        onCustomPercentageChange={value => onUpdate(segment.id, { customPercentage: value })}
       />
     )
   }
@@ -31,8 +27,7 @@ export function SegmentStrategyConfig({
     return (
       <MonthlyWithdrawalConfig
         monthlyConfig={segment.monthlyConfig}
-        onMonthlyConfigChange={config =>
-          onUpdate(segment.id, { monthlyConfig: config })}
+        onMonthlyConfigChange={config => onUpdate(segment.id, { monthlyConfig: config })}
       />
     )
   }

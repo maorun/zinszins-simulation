@@ -14,10 +14,12 @@ const TestComponent = () => {
       <div data-testid="care-cost-planning-mode">{careCostConfiguration.planningMode}</div>
       <button
         data-testid="toggle-care-cost"
-        onClick={() => setCareCostConfiguration({
-          ...careCostConfiguration,
-          enabled: !careCostConfiguration.enabled,
-        })}
+        onClick={() =>
+          setCareCostConfiguration({
+            ...careCostConfiguration,
+            enabled: !careCostConfiguration.enabled,
+          })
+        }
       >
         Toggle Care Cost
       </button>

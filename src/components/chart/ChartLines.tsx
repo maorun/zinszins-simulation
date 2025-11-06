@@ -3,22 +3,16 @@ import { Line } from 'recharts'
 interface ChartLinesProps {
   endkapitalKey: string
   endkapitalLabel: string
-  endkapitalDot: { fill: string, strokeWidth: number, r: number } | false
+  endkapitalDot: { fill: string; strokeWidth: number; r: number } | false
   showTaxes: boolean
-  taxDot: { fill: string, strokeWidth: number, r: number } | false
+  taxDot: { fill: string; strokeWidth: number; r: number } | false
 }
 
 /**
  * Chart line components for overlaid visualization
  * Renders the end capital and tax lines
  */
-export function ChartLines({
-  endkapitalKey,
-  endkapitalLabel,
-  endkapitalDot,
-  showTaxes,
-  taxDot,
-}: ChartLinesProps) {
+export function ChartLines({ endkapitalKey, endkapitalLabel, endkapitalDot, showTaxes, taxDot }: ChartLinesProps) {
   return (
     <>
       {/* Line for end capital */}

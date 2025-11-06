@@ -23,8 +23,9 @@ export function SpecialEventForm({
   withdrawalStartYear,
   withdrawalEndYear,
 }: SpecialEventFormProps) {
-  const isSubmitDisabled = (formValues.eventType === 'inheritance' && !formValues.grossAmount)
-    || (formValues.eventType === 'expense' && !formValues.expenseAmount)
+  const isSubmitDisabled =
+    (formValues.eventType === 'inheritance' && !formValues.grossAmount) ||
+    (formValues.eventType === 'expense' && !formValues.expenseAmount)
   const submitButtonText = formValues.eventType === 'inheritance' ? '💰 Erbschaft hinzufügen' : '💸 Ausgabe hinzufügen'
 
   return (
@@ -41,7 +42,7 @@ export function SpecialEventForm({
         <CollapsibleContent>
           <CardContent nestingLevel={1} className="pt-0">
             <form
-              onSubmit={(e) => {
+              onSubmit={e => {
                 e.preventDefault()
                 onSubmit()
               }}

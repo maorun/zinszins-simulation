@@ -99,7 +99,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
         elemente={[]}
         dispatchEnd={vi.fn()}
         steuerlast={0.26375}
-        teilfreistellungsquote={0.30}
+        teilfreistellungsquote={0.3}
       />,
     )
 
@@ -144,7 +144,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
         elemente={[]}
         dispatchEnd={vi.fn()}
         steuerlast={0.26375}
-        teilfreistellungsquote={0.30}
+        teilfreistellungsquote={0.3}
       />,
     )
 
@@ -208,7 +208,7 @@ describe('EntnahmeSimulationsAusgabe - Other Income Integration', () => {
         elemente={[]}
         dispatchEnd={vi.fn()}
         steuerlast={0.26375}
-        teilfreistellungsquote={0.30}
+        teilfreistellungsquote={0.3}
       />,
     )
 

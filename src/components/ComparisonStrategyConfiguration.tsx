@@ -52,17 +52,14 @@ export function ComparisonStrategyConfiguration({
 }: ComparisonStrategyConfigurationProps) {
   return (
     <div>
-      <BaseStrategyConfiguration
-        formValue={formValue}
-        onUpdateFormValue={onUpdateFormValue}
-      />
+      <BaseStrategyConfiguration formValue={formValue} onUpdateFormValue={onUpdateFormValue} />
 
       {/* Comparison strategies configuration */}
       <div style={{ marginTop: '30px' }}>
         <h4>Vergleichs-Strategien</h4>
         <p style={{ fontSize: '14px', color: '#666', marginBottom: '20px' }}>
-          Konfiguriere zusätzliche Strategien zum Vergleich. Diese zeigen
-          nur die wichtigsten Parameter und Endergebnisse.
+          Konfiguriere zusätzliche Strategien zum Vergleich. Diese zeigen nur die wichtigsten Parameter und
+          Endergebnisse.
         </p>
 
         <ComparisonStrategyList

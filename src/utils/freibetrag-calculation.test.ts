@@ -60,9 +60,7 @@ describe('freibetrag-calculation', () => {
         2025: 3000, // Custom amount for 2025
       }
 
-      const result = createPlanningModeAwareFreibetragPerYear(
-        2023, 2025, 'couple', customFreibetrag,
-      )
+      const result = createPlanningModeAwareFreibetragPerYear(2023, 2025, 'couple', customFreibetrag)
 
       expect(result).toEqual({
         2023: 4000, // Uses planning mode default (couple = 4000€)
@@ -80,9 +78,7 @@ describe('freibetrag-calculation', () => {
     })
 
     test('should use custom individual freibetrag base amount', () => {
-      const result = createPlanningModeAwareFreibetragPerYear(
-        2023, 2024, 'couple', undefined, 2500,
-      )
+      const result = createPlanningModeAwareFreibetragPerYear(2023, 2024, 'couple', undefined, 2500)
 
       expect(result).toEqual({
         2023: 5000, // 2500 * 2 for couple

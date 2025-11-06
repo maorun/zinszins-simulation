@@ -5,8 +5,8 @@ interface GenderConfigurationProps {
   planningMode: 'individual' | 'couple'
   gender: 'male' | 'female' | undefined
   setGender: (gender?: 'male' | 'female') => void
-  spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
-  setSpouse: (spouse?: { gender: 'male' | 'female', birthYear?: number }) => void
+  spouse: { gender: 'male' | 'female'; birthYear?: number } | undefined
+  setSpouse: (spouse?: { gender: 'male' | 'female'; birthYear?: number }) => void
 }
 
 /**
@@ -35,9 +35,7 @@ function IndividualGenderSelection({
       </RadioTileGroup>
       {gender && (
         <div className="p-3 bg-blue-50 rounded-lg">
-          <div className="text-sm text-blue-800 font-medium">
-            ℹ️ Automatische Sterbetafel-Auswahl
-          </div>
+          <div className="text-sm text-blue-800 font-medium">ℹ️ Automatische Sterbetafel-Auswahl</div>
           <div className="text-sm text-muted-foreground mt-1">
             {gender === 'male'
               ? 'Es wird automatisch die deutsche Sterbetafel für Männer (2020-2022) verwendet. Die männliche Lebenserwartung liegt im Durchschnitt ca. 5 Jahre unter der weiblichen.'
@@ -81,14 +79,10 @@ function PersonGenderSelector({
 function CoupleInfoBanner() {
   return (
     <div className="p-3 bg-blue-50 rounded-lg">
-      <div className="text-sm text-blue-800 font-medium">
-        ℹ️ Automatische Sterbetafel-Auswahl für Paare
-      </div>
+      <div className="text-sm text-blue-800 font-medium">ℹ️ Automatische Sterbetafel-Auswahl für Paare</div>
       <div className="text-sm text-muted-foreground mt-1">
-        Es werden automatisch geschlechtsspezifische deutsche Sterbetafeln (2020-2022) für
-        beide Partner verwendet.
-        Die gemeinsame Lebenserwartung wird nach aktuariellen Methoden als "Joint Life
-        Expectancy" berechnet.
+        Es werden automatisch geschlechtsspezifische deutsche Sterbetafeln (2020-2022) für beide Partner verwendet. Die
+        gemeinsame Lebenserwartung wird nach aktuariellen Methoden als "Joint Life Expectancy" berechnet.
       </div>
     </div>
   )
@@ -102,8 +96,8 @@ function CoupleGenderSelection({
 }: {
   gender: 'male' | 'female' | undefined
   setGender: (gender?: 'male' | 'female') => void
-  spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
-  setSpouse: (spouse?: { gender: 'male' | 'female', birthYear?: number }) => void
+  spouse: { gender: 'male' | 'female'; birthYear?: number } | undefined
+  setSpouse: (spouse?: { gender: 'male' | 'female'; birthYear?: number }) => void
 }) {
   return (
     <div className="space-y-4 p-3 bg-blue-50 rounded-lg border border-blue-200">
@@ -127,23 +121,10 @@ function CoupleGenderSelection({
   )
 }
 
-export function GenderConfiguration({
-  planningMode,
-  gender,
-  setGender,
-  spouse,
-  setSpouse,
-}: GenderConfigurationProps) {
+export function GenderConfiguration({ planningMode, gender, setGender, spouse, setSpouse }: GenderConfigurationProps) {
   if (planningMode === 'individual') {
     return <IndividualGenderSelection gender={gender} setGender={setGender} />
   }
 
-  return (
-    <CoupleGenderSelection
-      gender={gender}
-      setGender={setGender}
-      spouse={spouse}
-      setSpouse={setSpouse}
-    />
-  )
+  return <CoupleGenderSelection gender={gender} setGender={setGender} spouse={spouse} setSpouse={setSpouse} />
 }

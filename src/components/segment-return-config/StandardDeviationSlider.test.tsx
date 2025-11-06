@@ -38,8 +38,6 @@ describe('StandardDeviationSlider', () => {
   it('displays helper text', () => {
     render(<StandardDeviationSlider {...defaultProps} />)
 
-    expect(
-      screen.getByText(/Volatilität der Renditen/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Volatilität der Renditen/)).toBeInTheDocument()
   })
 })

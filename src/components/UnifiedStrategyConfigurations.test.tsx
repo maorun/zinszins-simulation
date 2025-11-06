@@ -20,12 +20,7 @@ describe('Unified Strategy Configurations', () => {
 
       const updateFormValue = vi.fn()
 
-      render(
-        <BucketStrategyConfiguration
-          formValue={formValue}
-          updateFormValue={updateFormValue}
-        />,
-      )
+      render(<BucketStrategyConfiguration formValue={formValue} updateFormValue={updateFormValue} />)
 
       // Check that form values are displayed
       expect(screen.getByDisplayValue('25000')).toBeInTheDocument()
@@ -37,7 +32,9 @@ describe('Unified Strategy Configurations', () => {
       expect(screen.getByRole('radio', { name: /Variable Prozent/ })).toBeChecked()
 
       // Check form mode specific text
-      expect(screen.getByText('Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen')).toBeInTheDocument()
+      expect(
+        screen.getByText('Anfänglicher Betrag im Cash-Polster für Entnahmen bei negativen Renditen'),
+      ).toBeInTheDocument()
     })
 
     it('should work in direct mode (segmented strategy)', async () => {
@@ -65,12 +62,7 @@ describe('Unified Strategy Configurations', () => {
         onDynamischUntereAnpassung: vi.fn(),
       }
 
-      render(
-        <BucketStrategyConfiguration
-          values={values}
-          onChange={onChange}
-        />,
-      )
+      render(<BucketStrategyConfiguration values={values} onChange={onChange} />)
 
       // Check that direct values are displayed
       expect(screen.getByDisplayValue('15000')).toBeInTheDocument()
@@ -172,10 +164,7 @@ describe('Unified Strategy Configurations', () => {
 
       render(
         <SimulationProvider>
-          <RMDWithdrawalConfiguration
-            formValue={formValue}
-            updateFormValue={updateFormValue}
-          />
+          <RMDWithdrawalConfiguration formValue={formValue} updateFormValue={updateFormValue} />
         </SimulationProvider>,
       )
 
@@ -203,10 +192,7 @@ describe('Unified Strategy Configurations', () => {
 
       render(
         <SimulationProvider>
-          <RMDWithdrawalConfiguration
-            values={values}
-            onChange={onChange}
-          />
+          <RMDWithdrawalConfiguration values={values} onChange={onChange} />
         </SimulationProvider>,
       )
 
@@ -214,7 +200,11 @@ describe('Unified Strategy Configurations', () => {
       expect(screen.getByDisplayValue('70')).toBeInTheDocument()
 
       // Check direct mode specific text
-      expect(screen.getByText('Das Alter zu Beginn dieser Entnahme-Phase (wird für die Berechnung der Lebenserwartung verwendet)')).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          'Das Alter zu Beginn dieser Entnahme-Phase (wird für die Berechnung der Lebenserwartung verwendet)',
+        ),
+      ).toBeInTheDocument()
       expect(screen.getByText('Sterbetabelle')).toBeInTheDocument()
     })
 
@@ -256,10 +246,7 @@ describe('Unified Strategy Configurations', () => {
 
         render(
           <SimulationProvider>
-            <RMDWithdrawalConfiguration
-              formValue={formValue}
-              updateFormValue={() => {}}
-            />
+            <RMDWithdrawalConfiguration formValue={formValue} updateFormValue={() => {}} />
           </SimulationProvider>,
         )
       }).not.toThrow()

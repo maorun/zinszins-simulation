@@ -160,7 +160,7 @@ describe('Random Returns Utility', () => {
       const years = [2025]
       const config: RandomReturnConfig = {
         averageReturn: 0.07,
-        standardDeviation: 0.10, // Smaller std dev to avoid too much clamping
+        standardDeviation: 0.1, // Smaller std dev to avoid too much clamping
         seed: 42,
       }
 
@@ -176,7 +176,7 @@ describe('Random Returns Utility', () => {
 
       // Standard deviation should be reasonably close (allowing for clamping effects)
       expect(stats.standardDeviation).toBeGreaterThan(0.05)
-      expect(stats.standardDeviation).toBeLessThan(0.20)
+      expect(stats.standardDeviation).toBeLessThan(0.2)
     })
   })
 })

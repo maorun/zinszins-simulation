@@ -1,4 +1,12 @@
-import { type WithdrawalStrategy, type MonthlyWithdrawalConfig, type InflationConfig, type DynamicWithdrawalConfig, type BucketStrategyConfig, type RMDConfig, type SteueroptimierteEntnahmeConfig } from '../../helpers/withdrawal'
+import {
+  type WithdrawalStrategy,
+  type MonthlyWithdrawalConfig,
+  type InflationConfig,
+  type DynamicWithdrawalConfig,
+  type BucketStrategyConfig,
+  type RMDConfig,
+  type SteueroptimierteEntnahmeConfig,
+} from '../../helpers/withdrawal'
 import type { ReturnConfiguration } from './random-returns'
 import type { WithdrawalFrequency } from './config-storage'
 import type { StatutoryPensionConfig } from '../../helpers/statutory-pension'
@@ -104,21 +112,21 @@ function validateUniqueIds(segments: WithdrawalSegment[]): string[] {
 /**
  * Validate segment boundaries match withdrawal period
  */
-function validateSegmentBoundaries(
-  sortedSegments: WithdrawalSegment[],
-  startYear: number,
-  endYear: number,
-): string[] {
+function validateSegmentBoundaries(sortedSegments: WithdrawalSegment[], startYear: number, endYear: number): string[] {
   const errors: string[] = []
   const firstSegment = sortedSegments[0]
   const lastSegment = sortedSegments[sortedSegments.length - 1]
 
   if (Math.round(firstSegment.startYear) !== Math.round(startYear)) {
-    errors.push(`Die erste Phase muss am Entsparzeitpunkt (${startYear}) beginnen. Aktuelle erste Phase beginnt ${Math.round(firstSegment.startYear)}.`)
+    errors.push(
+      `Die erste Phase muss am Entsparzeitpunkt (${startYear}) beginnen. Aktuelle erste Phase beginnt ${Math.round(firstSegment.startYear)}.`,
+    )
   }
 
   if (Math.round(lastSegment.endYear) !== Math.round(endYear)) {
-    errors.push(`Die letzte Phase muss am Lebensende (${endYear}) enden. Aktuelle letzte Phase endet ${Math.round(lastSegment.endYear)}.`)
+    errors.push(
+      `Die letzte Phase muss am Lebensende (${endYear}) enden. Aktuelle letzte Phase endet ${Math.round(lastSegment.endYear)}.`,
+    )
   }
 
   return errors
@@ -136,7 +144,9 @@ function validateContinuousSegments(sortedSegments: WithdrawalSegment[]): string
     const nextStartYear = Math.round(nextSegment.startYear)
 
     if (currentEndYear + 1 !== nextStartYear) {
-      errors.push(`Lücke zwischen Segment "${currentSegment.name}" (endet ${currentEndYear}) und "${nextSegment.name}" (beginnt ${nextStartYear}). Die Zeiträume müssen durchgängig sein.`)
+      errors.push(
+        `Lücke zwischen Segment "${currentSegment.name}" (endet ${currentEndYear}) und "${nextSegment.name}" (beginnt ${nextStartYear}). Die Zeiträume müssen durchgängig sein.`,
+      )
     }
   }
   return errors
@@ -229,7 +239,7 @@ export function synchronizeWithdrawalSegmentsEndYear(
   }
 
   // Update only the last segment to end at the new global end year
-  return segments.map((segment) => {
+  return segments.map(segment => {
     if (segment.id === lastSegment.id) {
       return {
         ...segment,

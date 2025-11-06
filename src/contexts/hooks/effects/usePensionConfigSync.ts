@@ -1,9 +1,7 @@
 import { useEffect } from 'react'
 import type { CoupleStatutoryPensionConfig } from '../../../../helpers/statutory-pension'
 
-function createCoupleConfig(
-  config: CoupleStatutoryPensionConfig,
-): CoupleStatutoryPensionConfig {
+function createCoupleConfig(config: CoupleStatutoryPensionConfig): CoupleStatutoryPensionConfig {
   return {
     ...config,
     couple: {
@@ -33,8 +31,7 @@ export function usePensionConfigSync(
 
     if (planningMode === 'couple' && config.individual && !config.couple) {
       setConfig(createCoupleConfig(updatedConfig))
-    }
-    else {
+    } else {
       setConfig(updatedConfig)
     }
   }, [planningMode, config, setConfig])

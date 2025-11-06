@@ -9,7 +9,7 @@ interface AutomaticCalculationHelperProps {
     birthYear: number | undefined
     expectedLifespan: number | undefined
     gender: 'male' | 'female' | undefined
-    spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
+    spouse: { gender: 'male' | 'female'; birthYear?: number } | undefined
   }
   onChange: {
     expectedLifespan: (lifespan: number | undefined) => void
@@ -33,7 +33,9 @@ function IndividualModeDisplay({
   return (
     <>
       <div className="space-y-2">
-        <Label htmlFor="expected-lifespan" className="text-sm">Lebenserwartung (Alter)</Label>
+        <Label htmlFor="expected-lifespan" className="text-sm">
+          Lebenserwartung (Alter)
+        </Label>
         <Input
           id="expected-lifespan"
           type="number"
@@ -46,13 +48,7 @@ function IndividualModeDisplay({
       </div>
       {birthYear && (
         <div className="text-sm text-muted-foreground space-y-1">
-          <div>
-            Aktuelles Alter:
-            {' '}
-            {calculateCurrentAge(birthYear)}
-            {' '}
-            Jahre
-          </div>
+          <div>Aktuelles Alter: {calculateCurrentAge(birthYear)} Jahre</div>
           {gender && (
             <div>
               Geschlechts-spezifische Lebenserwartung:
@@ -75,7 +71,7 @@ function CoupleModeDisplay({
 }: {
   birthYear: number | undefined
   gender: 'male' | 'female' | undefined
-  spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
+  spouse: { gender: 'male' | 'female'; birthYear?: number } | undefined
 }) {
   if (!birthYear || !spouse?.birthYear || !gender || !spouse?.gender) {
     return null
@@ -84,28 +80,23 @@ function CoupleModeDisplay({
   return (
     <div className="text-sm text-muted-foreground space-y-1">
       <div>
-        Gemeinsame Lebenserwartung:
-        {' '}
-        {Math.round(calculateJointLifeExpectancy(
-          calculateCurrentAge(birthYear),
-          calculateCurrentAge(spouse.birthYear),
-          gender,
-          spouse.gender,
-        ))}
-        {' '}
+        Gemeinsame Lebenserwartung:{' '}
+        {Math.round(
+          calculateJointLifeExpectancy(
+            calculateCurrentAge(birthYear),
+            calculateCurrentAge(spouse.birthYear),
+            gender,
+            spouse.gender,
+          ),
+        )}{' '}
         Jahre (längerer überlebender Partner)
       </div>
-      <div>
-        Dies entspricht der Wahrscheinlichkeit, dass mindestens eine Person noch am Leben ist.
-      </div>
+      <div>Dies entspricht der Wahrscheinlichkeit, dass mindestens eine Person noch am Leben ist.</div>
     </div>
   )
 }
 
-export function AutomaticCalculationHelper({
-  config,
-  onChange,
-}: AutomaticCalculationHelperProps) {
+export function AutomaticCalculationHelper({ config, onChange }: AutomaticCalculationHelperProps) {
   const { planningMode, birthYear, expectedLifespan, gender, spouse } = config
   return (
     <div className="p-3 bg-blue-50 rounded-lg space-y-3">

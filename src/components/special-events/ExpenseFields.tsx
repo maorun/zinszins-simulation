@@ -11,19 +11,18 @@ interface ExpenseFieldsProps {
 
 export function ExpenseFields({ formValues, onFormChange }: ExpenseFieldsProps) {
   return (
-    <div style={{
-      display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-      gap: '1rem',
-      marginBottom: '1.5rem',
-    }}
+    <div
+      style={{
+        display: 'grid',
+        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+        gap: '1rem',
+        marginBottom: '1.5rem',
+      }}
     >
       <ExpenseTypeSelect formValues={formValues} onFormChange={onFormChange} />
       <ExpenseAmountInput formValues={formValues} onFormChange={onFormChange} />
       <CreditCheckbox formValues={formValues} onFormChange={onFormChange} />
-      {formValues.useCredit && (
-        <CreditFields formValues={formValues} onFormChange={onFormChange} />
-      )}
+      {formValues.useCredit && <CreditFields formValues={formValues} onFormChange={onFormChange} />}
     </div>
   )
 }

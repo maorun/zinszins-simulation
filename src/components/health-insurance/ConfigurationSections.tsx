@@ -119,8 +119,9 @@ function applyPerson1Defaults(props: ConfigurationSectionsProps) {
     person1Name: props.person1Name ?? COUPLE_CONFIG_DEFAULTS.person1Name,
     person1WithdrawalShare: props.person1WithdrawalShare ?? COUPLE_CONFIG_DEFAULTS.person1WithdrawalShare,
     person1OtherIncomeAnnual: props.person1OtherIncomeAnnual ?? COUPLE_CONFIG_DEFAULTS.person1OtherIncomeAnnual,
-    person1AdditionalCareInsuranceForChildless: props.person1AdditionalCareInsuranceForChildless
-      ?? COUPLE_CONFIG_DEFAULTS.person1AdditionalCareInsuranceForChildless,
+    person1AdditionalCareInsuranceForChildless:
+      props.person1AdditionalCareInsuranceForChildless ??
+      COUPLE_CONFIG_DEFAULTS.person1AdditionalCareInsuranceForChildless,
   }
 }
 
@@ -132,8 +133,9 @@ function applyPerson2Defaults(props: ConfigurationSectionsProps) {
     person2Name: props.person2Name ?? COUPLE_CONFIG_DEFAULTS.person2Name,
     person2WithdrawalShare: props.person2WithdrawalShare ?? COUPLE_CONFIG_DEFAULTS.person2WithdrawalShare,
     person2OtherIncomeAnnual: props.person2OtherIncomeAnnual ?? COUPLE_CONFIG_DEFAULTS.person2OtherIncomeAnnual,
-    person2AdditionalCareInsuranceForChildless: props.person2AdditionalCareInsuranceForChildless
-      ?? COUPLE_CONFIG_DEFAULTS.person2AdditionalCareInsuranceForChildless,
+    person2AdditionalCareInsuranceForChildless:
+      props.person2AdditionalCareInsuranceForChildless ??
+      COUPLE_CONFIG_DEFAULTS.person2AdditionalCareInsuranceForChildless,
   }
 }
 
@@ -143,10 +145,10 @@ function applyPerson2Defaults(props: ConfigurationSectionsProps) {
 function applyGeneralCoupleDefaults(props: ConfigurationSectionsProps) {
   return {
     coupleStrategy: props.coupleStrategy ?? COUPLE_CONFIG_DEFAULTS.coupleStrategy,
-    familyInsuranceThresholdRegular: props.familyInsuranceThresholdRegular
-      ?? COUPLE_CONFIG_DEFAULTS.familyInsuranceThresholdRegular,
-    familyInsuranceThresholdMiniJob: props.familyInsuranceThresholdMiniJob
-      ?? COUPLE_CONFIG_DEFAULTS.familyInsuranceThresholdMiniJob,
+    familyInsuranceThresholdRegular:
+      props.familyInsuranceThresholdRegular ?? COUPLE_CONFIG_DEFAULTS.familyInsuranceThresholdRegular,
+    familyInsuranceThresholdMiniJob:
+      props.familyInsuranceThresholdMiniJob ?? COUPLE_CONFIG_DEFAULTS.familyInsuranceThresholdMiniJob,
   }
 }
 
@@ -154,9 +156,8 @@ function applyGeneralCoupleDefaults(props: ConfigurationSectionsProps) {
  * Renders couple configuration section (only for statutory insurance in couple mode)
  */
 function renderCoupleSection(props: ConfigurationSectionsProps) {
-  const shouldShow = props.planningMode === 'couple'
-    && props.insuranceType === 'statutory'
-    && props.onCoupleStrategyChange
+  const shouldShow =
+    props.planningMode === 'couple' && props.insuranceType === 'statutory' && props.onCoupleStrategyChange
 
   if (!shouldShow) {
     return null
@@ -185,15 +186,11 @@ function renderCoupleSection(props: ConfigurationSectionsProps) {
       onPerson1NameChange={props.onPerson1NameChange!}
       onPerson1WithdrawalShareChange={props.onPerson1WithdrawalShareChange!}
       onPerson1OtherIncomeAnnualChange={props.onPerson1OtherIncomeAnnualChange!}
-      onPerson1AdditionalCareInsuranceForChildlessChange={
-        props.onPerson1AdditionalCareInsuranceForChildlessChange!
-      }
+      onPerson1AdditionalCareInsuranceForChildlessChange={props.onPerson1AdditionalCareInsuranceForChildlessChange!}
       onPerson2NameChange={props.onPerson2NameChange!}
       onPerson2WithdrawalShareChange={props.onPerson2WithdrawalShareChange!}
       onPerson2OtherIncomeAnnualChange={props.onPerson2OtherIncomeAnnualChange!}
-      onPerson2AdditionalCareInsuranceForChildlessChange={
-        props.onPerson2AdditionalCareInsuranceForChildlessChange!
-      }
+      onPerson2AdditionalCareInsuranceForChildlessChange={props.onPerson2AdditionalCareInsuranceForChildlessChange!}
     />
   )
 }

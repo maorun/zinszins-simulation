@@ -11,13 +11,7 @@ describe('MonteCarloAnalysisDisplay', () => {
   }
 
   it('renders the Monte Carlo analysis with provided configuration', () => {
-    render(
-      <MonteCarloAnalysisDisplay
-        config={mockConfig}
-        title="Monte Carlo Analyse"
-        phaseTitle="Testphase"
-      />,
-    )
+    render(<MonteCarloAnalysisDisplay config={mockConfig} title="Monte Carlo Analyse" phaseTitle="Testphase" />)
 
     expect(screen.getByText('📊 Monte Carlo Analyse - Testphase')).toBeInTheDocument()
     expect(screen.getByText(/Durchschnittliche Rendite 7.0%, Volatilität 15.0%/)).toBeInTheDocument()
@@ -33,13 +27,7 @@ describe('MonteCarloAnalysisDisplay', () => {
       standardDeviation: 0.12,
     }
 
-    render(
-      <MonteCarloAnalysisDisplay
-        config={configWithoutSeed}
-        title="Test Analysis"
-        phaseTitle="No Seed Phase"
-      />,
-    )
+    render(<MonteCarloAnalysisDisplay config={configWithoutSeed} title="Test Analysis" phaseTitle="No Seed Phase" />)
 
     expect(screen.getByText('📊 Test Analysis - No Seed Phase')).toBeInTheDocument()
     expect(screen.getByText(/Durchschnittliche Rendite 5.0%, Volatilität 12.0%/)).toBeInTheDocument()
@@ -47,13 +35,7 @@ describe('MonteCarloAnalysisDisplay', () => {
   })
 
   it('renders all scenario types', () => {
-    render(
-      <MonteCarloAnalysisDisplay
-        config={mockConfig}
-        title="Monte Carlo Analyse"
-        phaseTitle="Testphase"
-      />,
-    )
+    render(<MonteCarloAnalysisDisplay config={mockConfig} title="Monte Carlo Analyse" phaseTitle="Testphase" />)
 
     expect(screen.getAllByText(/Worst Case \(5% Perzentil\)/).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Pessimistisches Szenario \(25% Perzentil\)/).length).toBeGreaterThan(0)
@@ -63,13 +45,7 @@ describe('MonteCarloAnalysisDisplay', () => {
   })
 
   it('renders the disclaimer text', () => {
-    render(
-      <MonteCarloAnalysisDisplay
-        config={mockConfig}
-        title="Monte Carlo Analyse"
-        phaseTitle="Testphase"
-      />,
-    )
+    render(<MonteCarloAnalysisDisplay config={mockConfig} title="Monte Carlo Analyse" phaseTitle="Testphase" />)
 
     expect(screen.getByText('💡 Hinweis zu Monte Carlo Simulationen:')).toBeInTheDocument()
     expect(screen.getByText(/Diese Szenarien basieren auf statistischen Modellen/)).toBeInTheDocument()

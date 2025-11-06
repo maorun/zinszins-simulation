@@ -91,10 +91,13 @@ describe('summary-utils - getYearlyPortfolioProgression', () => {
     expect(progression).toHaveLength(4)
 
     // Check contributions by year
-    const contributionsByYear = progression.reduce((acc, p) => {
-      acc[p.year] = p.yearlyContribution
-      return acc
-    }, {} as Record<number, number>)
+    const contributionsByYear = progression.reduce(
+      (acc, p) => {
+        acc[p.year] = p.yearlyContribution
+        return acc
+      },
+      {} as Record<number, number>,
+    )
 
     // 2026-2028: Should show contributions (12000 each year)
     expect(contributionsByYear[2026]).toBe(12000)
@@ -135,7 +138,7 @@ describe('summary-utils - getYearlyPortfolioProgression', () => {
     expect(elements).toHaveLength(2)
 
     // Add simulation data
-    elements.forEach((element) => {
+    elements.forEach(element => {
       element.simulation = {
         2026: {
           startkapital: 0,
@@ -185,7 +188,7 @@ describe('summary-utils - getYearlyPortfolioProgression', () => {
     expect(elements).toHaveLength(4)
 
     // Add simulation data
-    elements.forEach((element) => {
+    elements.forEach(element => {
       const year = new Date(element.start).getFullYear()
       element.simulation = {
         [year]: {
@@ -202,10 +205,13 @@ describe('summary-utils - getYearlyPortfolioProgression', () => {
 
     const progression = getYearlyPortfolioProgression(elements)
 
-    const contributionsByYear = progression.reduce((acc, p) => {
-      acc[p.year] = p.yearlyContribution
-      return acc
-    }, {} as Record<number, number>)
+    const contributionsByYear = progression.reduce(
+      (acc, p) => {
+        acc[p.year] = p.yearlyContribution
+        return acc
+      },
+      {} as Record<number, number>,
+    )
 
     // 2026: Only first Sparplan active
     expect(contributionsByYear[2026]).toBe(10000)
@@ -244,7 +250,7 @@ describe('summary-utils - getYearlyPortfolioProgression', () => {
     expect(elements).toHaveLength(2)
 
     // Add simulation data
-    elements.forEach((element) => {
+    elements.forEach(element => {
       element.simulation = {
         2026: {
           startkapital: element.type === 'einmalzahlung' ? element.einzahlung : 0,

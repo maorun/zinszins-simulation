@@ -22,9 +22,7 @@ describe('GlossaryTerm', () => {
     })
 
     it('should apply custom className', () => {
-      const { container } = renderWithTooltip(
-        <GlossaryTerm term="vorabpauschale" className="custom-class" />,
-      )
+      const { container } = renderWithTooltip(<GlossaryTerm term="vorabpauschale" className="custom-class" />)
       const element = container.querySelector('.custom-class')
       expect(element).toBeInTheDocument()
     })
@@ -131,11 +129,7 @@ describe('GlossaryTerm', () => {
     it('should render multiple glossary terms correctly', () => {
       renderWithTooltip(
         <div>
-          <GlossaryTerm term="vorabpauschale" />
-          {' '}
-          und
-          {' '}
-          <GlossaryTerm term="basiszins" />
+          <GlossaryTerm term="vorabpauschale" /> und <GlossaryTerm term="basiszins" />
         </div>,
       )
 

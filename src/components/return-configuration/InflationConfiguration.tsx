@@ -25,11 +25,7 @@ const InflationConfiguration = ({
         <Label htmlFor="inflation-sparphase" className="text-base font-medium">
           💰 Inflation berücksichtigen (Sparphase)
         </Label>
-        <Switch
-          id="inflation-sparphase"
-          checked={inflationAktivSparphase}
-          onCheckedChange={onInflationAktivChange}
-        />
+        <Switch id="inflation-sparphase" checked={inflationAktivSparphase} onCheckedChange={onInflationAktivChange} />
       </div>
       {inflationAktivSparphase && (
         <InflationDetails

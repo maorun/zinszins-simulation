@@ -87,9 +87,7 @@ function calculateAllComparisonResults(
     personalTaxRate: number
   },
 ) {
-  return strategies.map(strategy =>
-    calculateComparisonStrategy(buildComparisonStrategyParams(strategy, params)),
-  )
+  return strategies.map(strategy => calculateComparisonStrategy(buildComparisonStrategyParams(strategy, params)))
 }
 
 /**
@@ -142,33 +140,57 @@ export function useComparisonResults(
     personalTaxRate,
   } = useSimulation()
 
-  const {
-    formValue,
-    useComparisonMode,
-    comparisonStrategies,
-    otherIncomeConfig,
-  } = currentConfig
+  const { formValue, useComparisonMode, comparisonStrategies, otherIncomeConfig } = currentConfig
 
   const comparisonResults = useMemo(() => {
     if (!useComparisonMode || !withdrawalData) return []
 
     const params = buildParams({
-      elemente, startOfIndependence, endOfLife, steuerlast, teilfreistellungsquote,
-      planningMode: planningMode || 'individual', grundfreibetragAktiv, grundfreibetragBetrag,
-      einkommensteuersatz: formValue.einkommensteuersatz, steuerReduzierenEndkapitalEntspharphase,
+      elemente,
+      startOfIndependence,
+      endOfLife,
+      steuerlast,
+      teilfreistellungsquote,
+      planningMode: planningMode || 'individual',
+      grundfreibetragAktiv,
+      grundfreibetragBetrag,
+      einkommensteuersatz: formValue.einkommensteuersatz,
+      steuerReduzierenEndkapitalEntspharphase,
       effectiveStatutoryPensionConfig: effectiveStatutoryPensionConfig || null,
-      otherIncomeConfig, healthCareInsuranceConfig: formValue.healthCareInsuranceConfig,
-      birthYear, customLifeExpectancy, lifeExpectancyTable, gender,
-      guenstigerPruefungAktiv, personalTaxRate,
+      otherIncomeConfig,
+      healthCareInsuranceConfig: formValue.healthCareInsuranceConfig,
+      birthYear,
+      customLifeExpectancy,
+      lifeExpectancyTable,
+      gender,
+      guenstigerPruefungAktiv,
+      personalTaxRate,
     })
 
     return calculateAllComparisonResults(comparisonStrategies, params)
   }, [
-    useComparisonMode, withdrawalData, comparisonStrategies, elemente, startOfIndependence,
-    endOfLife, steuerlast, teilfreistellungsquote, grundfreibetragAktiv, grundfreibetragBetrag,
-    formValue.einkommensteuersatz, effectiveStatutoryPensionConfig, birthYear, customLifeExpectancy,
-    lifeExpectancyTable, steuerReduzierenEndkapitalEntspharphase, planningMode, gender,
-    otherIncomeConfig, formValue.healthCareInsuranceConfig, guenstigerPruefungAktiv, personalTaxRate,
+    useComparisonMode,
+    withdrawalData,
+    comparisonStrategies,
+    elemente,
+    startOfIndependence,
+    endOfLife,
+    steuerlast,
+    teilfreistellungsquote,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    formValue.einkommensteuersatz,
+    effectiveStatutoryPensionConfig,
+    birthYear,
+    customLifeExpectancy,
+    lifeExpectancyTable,
+    steuerReduzierenEndkapitalEntspharphase,
+    planningMode,
+    gender,
+    otherIncomeConfig,
+    formValue.healthCareInsuranceConfig,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
   ])
 
   return comparisonResults

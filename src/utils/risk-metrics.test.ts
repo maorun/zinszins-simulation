@@ -42,7 +42,7 @@ describe('Risk Metrics Calculations', () => {
 
   describe('calculateVaR', () => {
     test('calculates 95% VaR correctly', () => {
-      const returns = [-0.15, -0.10, -0.05, 0.05, 0.10, 0.15, 0.20]
+      const returns = [-0.15, -0.1, -0.05, 0.05, 0.1, 0.15, 0.2]
       const var95 = calculateVaR(returns, 0.95)
 
       // 5% of 7 values = 0.35, so index 0 (worst case)
@@ -50,7 +50,7 @@ describe('Risk Metrics Calculations', () => {
     })
 
     test('calculates 99% VaR correctly', () => {
-      const returns = [-0.15, -0.10, -0.05, 0.05, 0.10, 0.15, 0.20]
+      const returns = [-0.15, -0.1, -0.05, 0.05, 0.1, 0.15, 0.2]
       const var99 = calculateVaR(returns, 0.99)
 
       // 1% of 7 values = 0.07, so index 0 (worst case)

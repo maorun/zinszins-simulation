@@ -47,7 +47,7 @@ const SensitivityAnalysisDisplay: React.FC<SensitivityAnalysisDisplayProps> = ({
             <ParameterRankingSection rankings={parameterRanking} />
 
             {/* Detailed Analysis for Each Parameter */}
-            {parameterRanking.slice(0, 3).map((ranking) => {
+            {parameterRanking.slice(0, 3).map(ranking => {
               const results = analysisResults.results.get(ranking.parameter)
               const baseResult = analysisResults.baseResults.get(ranking.parameter)
 

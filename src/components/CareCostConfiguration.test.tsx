@@ -294,7 +294,9 @@ describe('CareCostConfiguration', () => {
       render(<CareCostConfiguration {...defaultProps} values={invalidConfig} />)
 
       expect(screen.getByText('Konfigurationsfehler:')).toBeInTheDocument()
-      expect(screen.getByText(/Startjahr für Pflegebedürftigkeit kann nicht in der Vergangenheit liegen/)).toBeInTheDocument()
+      expect(
+        screen.getByText(/Startjahr für Pflegebedürftigkeit kann nicht in der Vergangenheit liegen/),
+      ).toBeInTheDocument()
       expect(screen.getByText(/Inflationsrate für Pflegekosten muss zwischen 0% und 20% liegen/)).toBeInTheDocument()
     })
 

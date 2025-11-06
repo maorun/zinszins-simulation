@@ -10,8 +10,7 @@ import { createHealthCareConfigUpdate } from './health-care-config-helpers'
  * Helper to get or create couple config with defaults
  */
 function getCoupleConfigOrDefault(formValue: WithdrawalFormValue): CoupleHealthInsuranceConfig {
-  return formValue.healthCareInsuranceConfig?.coupleConfig
-    || createDefaultCoupleHealthInsuranceConfig()
+  return formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()
 }
 
 /**
@@ -48,11 +47,10 @@ export function usePerson2AdvancedHandlers(
       updateFormValue(
         createHealthCareConfigUpdate(formValue, {
           coupleConfig: {
-            ...(formValue.healthCareInsuranceConfig?.coupleConfig
-              || createDefaultCoupleHealthInsuranceConfig()),
+            ...(formValue.healthCareInsuranceConfig?.coupleConfig || createDefaultCoupleHealthInsuranceConfig()),
             person2: {
-              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2
-                || createDefaultCoupleHealthInsuranceConfig().person2),
+              ...(formValue.healthCareInsuranceConfig?.coupleConfig?.person2 ||
+                createDefaultCoupleHealthInsuranceConfig().person2),
               additionalCareInsuranceForChildless: enabled,
             },
           },
@@ -64,7 +62,6 @@ export function usePerson2AdvancedHandlers(
 
   return {
     onPerson2WithdrawalShareChange: handlePerson2WithdrawalShareChange,
-    onPerson2AdditionalCareInsuranceForChildlessChange:
-      handlePerson2AdditionalCareInsuranceForChildlessChange,
+    onPerson2AdditionalCareInsuranceForChildlessChange: handlePerson2AdditionalCareInsuranceForChildlessChange,
   }
 }

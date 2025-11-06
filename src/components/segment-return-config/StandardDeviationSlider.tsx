@@ -17,9 +17,7 @@ export function StandardDeviationSlider({
 
   return (
     <div className="mb-4 space-y-2">
-      <Label htmlFor={sliderId}>
-        Standardabweichung (%)
-      </Label>
+      <Label htmlFor={sliderId}>Standardabweichung (%)</Label>
       <div className="space-y-2">
         <Slider
           id={sliderId}
@@ -32,10 +30,7 @@ export function StandardDeviationSlider({
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>5%</span>
-          <span className="font-medium text-gray-900">
-            {(standardDeviation * 100).toFixed(0)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{(standardDeviation * 100).toFixed(0)}%</span>
           <span>25%</span>
         </div>
       </div>

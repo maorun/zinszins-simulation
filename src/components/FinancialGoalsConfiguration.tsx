@@ -20,17 +20,26 @@ export default function FinancialGoalsConfiguration() {
     return lastEntry?.gesamtkapitalNachSteuern || 0
   }, [simulationData])
 
-  const handleAddGoal = useCallback((newGoal: ReturnType<typeof createDefaultGoal>) => {
-    setFinancialGoals([...financialGoals, newGoal])
-  }, [financialGoals, setFinancialGoals])
+  const handleAddGoal = useCallback(
+    (newGoal: ReturnType<typeof createDefaultGoal>) => {
+      setFinancialGoals([...financialGoals, newGoal])
+    },
+    [financialGoals, setFinancialGoals],
+  )
 
-  const handleRemoveGoal = useCallback((goalId: string) => {
-    setFinancialGoals(financialGoals.filter(g => g.id !== goalId))
-  }, [financialGoals, setFinancialGoals])
+  const handleRemoveGoal = useCallback(
+    (goalId: string) => {
+      setFinancialGoals(financialGoals.filter(g => g.id !== goalId))
+    },
+    [financialGoals, setFinancialGoals],
+  )
 
-  const handleToggleActive = useCallback((goalId: string) => {
-    setFinancialGoals(financialGoals.map(g => (g.id === goalId ? { ...g, active: !g.active } : g)))
-  }, [financialGoals, setFinancialGoals])
+  const handleToggleActive = useCallback(
+    (goalId: string) => {
+      setFinancialGoals(financialGoals.map(g => (g.id === goalId ? { ...g, active: !g.active } : g)))
+    },
+    [financialGoals, setFinancialGoals],
+  )
 
   const goalsWithUpdatedMilestones = useMemo(
     () => financialGoals.map(goal => updateMilestoneAchievements(currentCapital, goal)),
@@ -44,9 +53,7 @@ export default function FinancialGoalsConfiguration() {
           <Target className="w-5 h-5 sm:w-6 sm:h-6" />
           Finanzziele
         </h3>
-        <p className="text-sm text-gray-600 mt-1">
-          Setzen Sie SMART-Ziele und verfolgen Sie Ihren Fortschritt
-        </p>
+        <p className="text-sm text-gray-600 mt-1">Setzen Sie SMART-Ziele und verfolgen Sie Ihren Fortschritt</p>
       </CollapsibleCardHeader>
       <CollapsibleCardContent>
         <div className="space-y-6">

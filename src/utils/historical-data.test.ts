@@ -19,7 +19,7 @@ describe('historical-data', () => {
     })
 
     it('should have properly calculated statistics', () => {
-      HISTORICAL_INDICES.forEach((index) => {
+      HISTORICAL_INDICES.forEach(index => {
         expect(index.averageReturn).toBeTypeOf('number')
         expect(index.volatility).toBeTypeOf('number')
         expect(index.volatility).toBeGreaterThan(0)
@@ -29,7 +29,7 @@ describe('historical-data', () => {
     })
 
     it('should have reasonable statistical ranges', () => {
-      HISTORICAL_INDICES.forEach((index) => {
+      HISTORICAL_INDICES.forEach(index => {
         // Average returns should be between -50% and +50% annually
         expect(index.averageReturn).toBeGreaterThan(-0.5)
         expect(index.averageReturn).toBeLessThan(0.5)
@@ -80,7 +80,7 @@ describe('historical-data', () => {
       expect(returns).toBeDefined()
 
       const dax = getHistoricalIndex('dax')!
-      Object.values(returns!).forEach((returnValue) => {
+      Object.values(returns!).forEach(returnValue => {
         expect(returnValue).toBe(dax.averageReturn)
       })
     })
@@ -119,7 +119,7 @@ describe('historical-data', () => {
     })
 
     it('should include expected years for all indices', () => {
-      ['dax', 'sp500', 'msci-world'].forEach((indexId) => {
+      ;['dax', 'sp500', 'msci-world'].forEach(indexId => {
         const years = getAvailableYears(indexId)
         expect(years).toContain(2000)
         expect(years).toContain(2023)
@@ -154,14 +154,14 @@ describe('historical-data', () => {
 
   describe('data integrity', () => {
     it('should have consistent data structure across indices', () => {
-      HISTORICAL_INDICES.forEach((index) => {
+      HISTORICAL_INDICES.forEach(index => {
         expect(index.id).toBeTypeOf('string')
         expect(index.name).toBeTypeOf('string')
         expect(index.description).toBeTypeOf('string')
         expect(index.currency).toBeTypeOf('string')
         expect(Array.isArray(index.data)).toBe(true)
 
-        index.data.forEach((dataPoint) => {
+        index.data.forEach(dataPoint => {
           expect(dataPoint.year).toBeTypeOf('number')
           expect(dataPoint.return).toBeTypeOf('number')
           expect(dataPoint.year).toBeGreaterThan(1990)
@@ -173,7 +173,7 @@ describe('historical-data', () => {
     })
 
     it('should have realistic return ranges', () => {
-      HISTORICAL_INDICES.forEach((index) => {
+      HISTORICAL_INDICES.forEach(index => {
         const returns = index.data.map(d => d.return)
         const minReturn = Math.min(...returns)
         const maxReturn = Math.max(...returns)
@@ -186,7 +186,7 @@ describe('historical-data', () => {
     })
 
     it('should have data for expected time period', () => {
-      HISTORICAL_INDICES.forEach((index) => {
+      HISTORICAL_INDICES.forEach(index => {
         const years = index.data.map(d => d.year)
         const minYear = Math.min(...years)
         const maxYear = Math.max(...years)

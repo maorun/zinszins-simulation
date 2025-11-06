@@ -31,7 +31,7 @@ describe('SensitivityAnalysisDisplay', () => {
       },
     ],
     steuerlast: 0.26375,
-    teilfreistellungsquote: 0.30,
+    teilfreistellungsquote: 0.3,
     simulationAnnual: 'yearly',
     freibetragPerYear: { 2025: 2000 },
     steuerReduzierenEndkapital: true,

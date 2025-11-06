@@ -1,9 +1,6 @@
 import { SegmentReturnModeSelector } from './SegmentReturnModeSelector'
 import { SegmentReturnConfigRenderer } from './SegmentReturnConfigRenderer'
-import {
-  createReturnConfigForMode,
-  getReturnModeFromConfig,
-} from './segment-return-config-helpers'
+import { createReturnConfigForMode, getReturnModeFromConfig } from './segment-return-config-helpers'
 import type { ReturnConfiguration } from '../utils/random-returns'
 
 export type WithdrawalReturnMode = 'fixed' | 'random' | 'variable' | 'multiasset'
@@ -32,10 +29,7 @@ export function SegmentReturnConfiguration({
 
   return (
     <>
-      <SegmentReturnModeSelector
-        currentMode={currentMode}
-        onModeChange={handleModeChange}
-      />
+      <SegmentReturnModeSelector currentMode={currentMode} onModeChange={handleModeChange} />
       <SegmentReturnConfigRenderer
         segmentId={segmentId}
         startYear={startYear}

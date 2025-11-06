@@ -6,10 +6,7 @@ interface InsuranceTypeSelectionProps {
   onInsuranceTypeChange: (type: 'statutory' | 'private') => void
 }
 
-export function InsuranceTypeSelection({
-  insuranceType,
-  onInsuranceTypeChange,
-}: InsuranceTypeSelectionProps) {
+export function InsuranceTypeSelection({ insuranceType, onInsuranceTypeChange }: InsuranceTypeSelectionProps) {
   return (
     <div className="space-y-3">
       <Label className="text-sm font-medium">Versicherungsart</Label>

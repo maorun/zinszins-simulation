@@ -6,12 +6,11 @@ export function useScenarioState() {
   const [blackSwanEventName, setBlackSwanEventName] = useState<string>('')
 
   // Inflation scenario state
-  const [inflationScenarioRates, setInflationScenarioRates] = useState<Record<number, number> | null>(
-    null,
-  )
-  const [inflationScenarioReturnModifiers, setInflationScenarioReturnModifiers] = useState<
-    Record<number, number> | null
-  >(null)
+  const [inflationScenarioRates, setInflationScenarioRates] = useState<Record<number, number> | null>(null)
+  const [inflationScenarioReturnModifiers, setInflationScenarioReturnModifiers] = useState<Record<
+    number,
+    number
+  > | null>(null)
   const [inflationScenarioName, setInflationScenarioName] = useState<string>('')
 
   return {

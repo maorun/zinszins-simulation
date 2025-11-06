@@ -29,10 +29,12 @@ interface InteractiveChartProps {
  * Convert simulation result to chart data format
  */
 function prepareChartData(simulationData: SimulationResult): ChartDataPoint[] {
-  const years = Object.keys(simulationData).map(Number).sort((a, b) => a - b)
+  const years = Object.keys(simulationData)
+    .map(Number)
+    .sort((a, b) => a - b)
   let kumulativeEinzahlungen = 0
 
-  return years.map((year) => {
+  return years.map(year => {
     const yearData = simulationData[year]
 
     // Calculate cumulative deposits (approximation based on capital progression)
@@ -43,8 +45,7 @@ function prepareChartData(simulationData: SimulationResult): ChartDataPoint[] {
       // Estimate new deposits as the difference in starting capital minus previous year's interest
       const newDeposits = yearData.startkapital - (previousData.endkapital || 0)
       kumulativeEinzahlungen += Math.max(0, newDeposits)
-    }
-    else {
+    } else {
       // First year - starting capital is the first deposit
       kumulativeEinzahlungen = yearData.startkapital
     }
@@ -63,11 +64,7 @@ function prepareChartData(simulationData: SimulationResult): ChartDataPoint[] {
   })
 }
 
-export function InteractiveChart({
-  simulationData,
-  showRealValues = false,
-  className = '',
-}: InteractiveChartProps) {
+export function InteractiveChart({ simulationData, showRealValues = false, className = '' }: InteractiveChartProps) {
   const chartData = prepareChartData(simulationData)
 
   // Interactive state

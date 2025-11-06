@@ -198,12 +198,7 @@ export function calculateStatutoryPension(
 
   for (let year = startYear; year <= endYear; year++) {
     const grundfreibetrag = grundfreibetragPerYear?.[year] || 0
-    result[year] = calculateStatutoryPensionForYear(
-      config,
-      year,
-      incomeTaxRate,
-      grundfreibetrag,
-    )
+    result[year] = calculateStatutoryPensionForYear(config, year, incomeTaxRate, grundfreibetrag)
   }
 
   return result
@@ -259,9 +254,8 @@ export function calculateRetirementStartYear(
 ): number | null {
   if (planningMode === 'individual') {
     return birthYear ? calculatePensionStartYear(birthYear, retirementAge) : null
-  }
-  else {
-    return (birthYear && spouseBirthYear)
+  } else {
+    return birthYear && spouseBirthYear
       ? calculateCoupleRetirementStartYear(birthYear, spouseBirthYear, retirementAge, spouseRetirementAge)
       : null
   }
@@ -313,10 +307,7 @@ export function createDefaultCoupleStatutoryPensionConfig(): CoupleStatutoryPens
 /**
  * Create empty pension results for all years
  */
-function createEmptyPensionResults(
-  startYear: number,
-  endYear: number,
-): CoupleStatutoryPensionResult {
+function createEmptyPensionResults(startYear: number, endYear: number): CoupleStatutoryPensionResult {
   const result: CoupleStatutoryPensionResult = {}
 
   for (let year = startYear; year <= endYear; year++) {
@@ -392,7 +383,7 @@ function createPersonResult(
  * Calculate couple pension results
  */
 function calculateCouplePensionResults(
-  coupleConfig: { person1: StatutoryPensionConfig, person2: StatutoryPensionConfig },
+  coupleConfig: { person1: StatutoryPensionConfig; person2: StatutoryPensionConfig },
   startYear: number,
   endYear: number,
   incomeTaxRate: number,
@@ -421,16 +412,8 @@ function calculateCouplePensionResults(
     const person2Year = person2Result[year]
 
     result[year] = {
-      person1: createPersonResult(
-        person1Year,
-        1,
-        'Person 1',
-      ),
-      person2: createPersonResult(
-        person2Year,
-        2,
-        'Person 2',
-      ),
+      person1: createPersonResult(person1Year, 1, 'Person 1'),
+      person2: createPersonResult(person2Year, 2, 'Person 2'),
       combined: {
         grossAnnualAmount: person1Year.grossAnnualAmount + person2Year.grossAnnualAmount,
         grossMonthlyAmount: person1Year.grossMonthlyAmount + person2Year.grossMonthlyAmount,
@@ -469,13 +452,7 @@ export function calculateCoupleStatutoryPension(
   }
 
   if (config.planningMode === 'couple' && config.couple) {
-    return calculateCouplePensionResults(
-      config.couple,
-      startYear,
-      endYear,
-      incomeTaxRate,
-      grundfreibetragPerYear,
-    )
+    return calculateCouplePensionResults(config.couple, startYear, endYear, incomeTaxRate, grundfreibetragPerYear)
   }
 
   return {}
@@ -501,8 +478,7 @@ export function convertLegacyToCoupleConfig(
       planningMode: 'individual',
       individual: legacyConfig,
     }
-  }
-  else {
+  } else {
     // For couple mode, apply the legacy config to both persons as a starting point
     return {
       enabled: legacyConfig.enabled,
