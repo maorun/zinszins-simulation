@@ -4,7 +4,7 @@ import { BirthYearConfiguration } from './BirthYearConfiguration'
 
 type PlanningMode = 'individual' | 'couple'
 type Gender = 'male' | 'female'
-type SpouseConfig = { birthYear?: number, gender: Gender, expectedLifespan?: number }
+type SpouseConfig = { birthYear?: number; gender: Gender; expectedLifespan?: number }
 
 interface CorePlanningConfigSectionsProps {
   planningMode: PlanningMode
@@ -22,10 +22,7 @@ interface CorePlanningConfigSectionsProps {
 export function CorePlanningConfigSections(props: CorePlanningConfigSectionsProps) {
   return (
     <>
-      <PlanningModeSelector
-        planningMode={props.planningMode}
-        onChange={props.setPlanningMode}
-      />
+      <PlanningModeSelector planningMode={props.planningMode} onChange={props.setPlanningMode} />
 
       <GenderConfiguration
         planningMode={props.planningMode}

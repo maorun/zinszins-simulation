@@ -57,10 +57,7 @@ describe('Deutsche Bundesbank API Service', () => {
       expect(result[0].source).toBe('fallback') // Falls back when APIs return insufficient data
 
       // Should have attempted multiple API calls
-      expect(mockFetch).toHaveBeenCalledWith(
-        expect.stringContaining('api.bundesbank.de'),
-        expect.any(Object),
-      )
+      expect(mockFetch).toHaveBeenCalledWith(expect.stringContaining('api.bundesbank.de'), expect.any(Object))
     })
 
     it('should handle custom year ranges', async () => {
@@ -154,7 +151,7 @@ describe('Deutsche Bundesbank API Service', () => {
 
     it('should handle edge cases at boundaries', () => {
       expect(validateBasiszinsRate(-0.02)).toBe(true) // Exactly -2%
-      expect(validateBasiszinsRate(0.10)).toBe(true) // Exactly 10%
+      expect(validateBasiszinsRate(0.1)).toBe(true) // Exactly 10%
       expect(validateBasiszinsRate(-0.020001)).toBe(false) // Just below -2%
       expect(validateBasiszinsRate(0.100001)).toBe(false) // Just above 10%
     })

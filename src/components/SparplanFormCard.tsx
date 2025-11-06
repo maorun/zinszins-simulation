@@ -40,7 +40,12 @@ function SparplanFormHeader() {
   )
 }
 
-function SparplanFormButtons({ isEditMode, showCancelButton, onCancel, disabled }: {
+function SparplanFormButtons({
+  isEditMode,
+  showCancelButton,
+  onCancel,
+  disabled,
+}: {
   isEditMode: boolean
   showCancelButton: boolean
   onCancel?: () => void
@@ -94,7 +99,7 @@ function SparplanForm({
       />
       <CostFactorFields
         values={formValues}
-        onValueChange={values => onFormChange({ ...formValues, ...values })}
+        onValueChange={(values) => onFormChange({ ...formValues, ...values })}
         handleNumberChange={handleNumberChange}
       />
       <SparplanFormButtons
@@ -107,20 +112,14 @@ function SparplanForm({
   )
 }
 
-export function SparplanFormCard({
-  isOpen,
-  onOpenChange,
-  ...formProps
-}: SparplanFormCardProps) {
+export function SparplanFormCard({ isOpen, onOpenChange, ...formProps }: SparplanFormCardProps) {
   return (
     <Card className="mb-6">
       <Collapsible open={isOpen} onOpenChange={onOpenChange}>
         <SparplanFormHeader />
         <CollapsibleContent>
           <CardContent className="pt-0">
-            <div className="mb-4 text-[#666] text-sm">
-              Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum
-            </div>
+            <div className="mb-4 text-[#666] text-sm">Erstellen Sie regelmäßige Sparpläne mit Start- und Enddatum</div>
             <SparplanForm {...formProps} />
           </CardContent>
         </CollapsibleContent>

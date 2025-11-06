@@ -19,7 +19,7 @@ describe('DrawdownAnalysis', () => {
   const mockRiskMetrics: RiskMetrics = {
     valueAtRisk5: 0.15,
     valueAtRisk1: 0.25,
-    maxDrawdown: 0.20,
+    maxDrawdown: 0.2,
     sharpeRatio: 1.5,
     sortinoRatio: 2.0,
     calmarRatio: 0.8,
@@ -36,11 +36,7 @@ describe('DrawdownAnalysis', () => {
   it('returns null when no drawdown series', () => {
     const metricsNoSeries = { ...mockRiskMetrics, drawdownSeries: undefined }
     const { container } = render(
-      <DrawdownAnalysis
-        riskMetrics={metricsNoSeries}
-        portfolioData={mockPortfolioData}
-        hasRiskData={true}
-      />,
+      <DrawdownAnalysis riskMetrics={metricsNoSeries} portfolioData={mockPortfolioData} hasRiskData={true} />,
     )
 
     expect(container.firstChild).toBeNull()
@@ -49,11 +45,7 @@ describe('DrawdownAnalysis', () => {
   it('returns null when drawdown series is too short', () => {
     const metricsShortSeries = { ...mockRiskMetrics, drawdownSeries: [{ year: 0, value: 10000, drawdown: 0 }] }
     const { container } = render(
-      <DrawdownAnalysis
-        riskMetrics={metricsShortSeries}
-        portfolioData={mockPortfolioData}
-        hasRiskData={true}
-      />,
+      <DrawdownAnalysis riskMetrics={metricsShortSeries} portfolioData={mockPortfolioData} hasRiskData={true} />,
     )
 
     expect(container.firstChild).toBeNull()
@@ -61,11 +53,7 @@ describe('DrawdownAnalysis', () => {
 
   it('returns null when no risk data', () => {
     const { container } = render(
-      <DrawdownAnalysis
-        riskMetrics={mockRiskMetrics}
-        portfolioData={mockPortfolioData}
-        hasRiskData={false}
-      />,
+      <DrawdownAnalysis riskMetrics={mockRiskMetrics} portfolioData={mockPortfolioData} hasRiskData={false} />,
     )
 
     expect(container.firstChild).toBeNull()
@@ -73,13 +61,7 @@ describe('DrawdownAnalysis', () => {
 
   it('renders drawdown analysis when data is available', async () => {
     const { user } = setupTest()
-    render(
-      <DrawdownAnalysis
-        riskMetrics={mockRiskMetrics}
-        portfolioData={mockPortfolioData}
-        hasRiskData={true}
-      />,
-    )
+    render(<DrawdownAnalysis riskMetrics={mockRiskMetrics} portfolioData={mockPortfolioData} hasRiskData={true} />)
 
     expect(screen.getByText('📈 Drawdown-Analyse')).toBeInTheDocument()
 
@@ -92,13 +74,7 @@ describe('DrawdownAnalysis', () => {
 
   it('shows statistics for significant drawdowns', async () => {
     const { user } = setupTest()
-    render(
-      <DrawdownAnalysis
-        riskMetrics={mockRiskMetrics}
-        portfolioData={mockPortfolioData}
-        hasRiskData={true}
-      />,
-    )
+    render(<DrawdownAnalysis riskMetrics={mockRiskMetrics} portfolioData={mockPortfolioData} hasRiskData={true} />)
 
     // Expand the card first
     const header = screen.getByText('📈 Drawdown-Analyse')
@@ -111,13 +87,7 @@ describe('DrawdownAnalysis', () => {
 
   it('shows table with drawdown details', async () => {
     const { user } = setupTest()
-    render(
-      <DrawdownAnalysis
-        riskMetrics={mockRiskMetrics}
-        portfolioData={mockPortfolioData}
-        hasRiskData={true}
-      />,
-    )
+    render(<DrawdownAnalysis riskMetrics={mockRiskMetrics} portfolioData={mockPortfolioData} hasRiskData={true} />)
 
     // Expand the card first
     const header = screen.getByText('📈 Drawdown-Analyse')
@@ -140,13 +110,7 @@ describe('DrawdownAnalysis', () => {
       ],
     }
 
-    render(
-      <DrawdownAnalysis
-        riskMetrics={metricsNoDrawdowns}
-        portfolioData={mockPortfolioData}
-        hasRiskData={true}
-      />,
-    )
+    render(<DrawdownAnalysis riskMetrics={metricsNoDrawdowns} portfolioData={mockPortfolioData} hasRiskData={true} />)
 
     // Expand the card first
     const header = screen.getByText('📈 Drawdown-Analyse')
@@ -167,13 +131,7 @@ describe('DrawdownAnalysis', () => {
       })),
     }
 
-    render(
-      <DrawdownAnalysis
-        riskMetrics={manyDrawdowns}
-        portfolioData={mockPortfolioData}
-        hasRiskData={true}
-      />,
-    )
+    render(<DrawdownAnalysis riskMetrics={manyDrawdowns} portfolioData={mockPortfolioData} hasRiskData={true} />)
 
     // Expand the card first
     const header = screen.getByText('📈 Drawdown-Analyse')

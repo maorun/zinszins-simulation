@@ -36,9 +36,12 @@ export function useSimulationEffects(
     saveCurrentConfiguration()
   }, [saveCurrentConfiguration])
 
-  const setEndOfLifeRounded = useCallback((value: number) => {
-    setters.setEndOfLife(Math.round(value))
-  }, [setters])
+  const setEndOfLifeRounded = useCallback(
+    (value: number) => {
+      setters.setEndOfLife(Math.round(value))
+    },
+    [setters],
+  )
 
   return { setEndOfLifeRounded }
 }

@@ -31,11 +31,7 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
 
   return (
     <CollapsibleCard>
-      <CollapsibleCardHeader>
-        🎯 Risikobewertung -
-        {' '}
-        {phaseTitle}
-      </CollapsibleCardHeader>
+      <CollapsibleCardHeader>🎯 Risikobewertung - {phaseTitle}</CollapsibleCardHeader>
       <CollapsibleCardContent>
         <div className="space-y-4">
           <RiskMetricsContainer

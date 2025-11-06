@@ -15,17 +15,14 @@ interface UseBlackSwanConfigProps {
 /**
  * Custom hook to manage Black Swan event configuration state and logic
  */
-export function useBlackSwanConfig({
-  simulationStartYear,
-  onEventChange,
-}: UseBlackSwanConfigProps) {
+export function useBlackSwanConfig({ simulationStartYear, onEventChange }: UseBlackSwanConfigProps) {
   const [isEnabled, setIsEnabled] = useState(false)
   const [selectedEventId, setSelectedEventId] = useState<BlackSwanEventId | 'none'>('none')
   const [eventYear, setEventYear] = useState(simulationStartYear + 5)
 
   const availableEvents = useMemo(() => getAvailableBlackSwanEvents(), [])
   const selectedEvent = useMemo(
-    () => (selectedEventId === 'none' ? null : availableEvents.find(e => e.id === selectedEventId) || null),
+    () => (selectedEventId === 'none' ? null : availableEvents.find((e) => e.id === selectedEventId) || null),
     [selectedEventId, availableEvents],
   )
   const cumulativeImpact = useMemo(
@@ -44,11 +41,14 @@ export function useBlackSwanConfig({
     onEventChange,
   })
 
-  const formIds = useMemo(() => ({
-    enabledRadioId: generateFormId('black-swan', 'enabled'),
-    disabledRadioId: generateFormId('black-swan', 'disabled'),
-    eventYearSliderId: generateFormId('black-swan', 'event-year'),
-  }), [])
+  const formIds = useMemo(
+    () => ({
+      enabledRadioId: generateFormId('black-swan', 'enabled'),
+      disabledRadioId: generateFormId('black-swan', 'disabled'),
+      eventYearSliderId: generateFormId('black-swan', 'event-year'),
+    }),
+    [],
+  )
 
   return {
     isEnabled,

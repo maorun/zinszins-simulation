@@ -1,6 +1,9 @@
 import { describe, it, expect } from 'vitest'
 import { calculateWithdrawal } from './withdrawal'
-import { createDefaultHealthCareInsuranceConfig, createDefaultCoupleHealthInsuranceConfig } from './health-care-insurance'
+import {
+  createDefaultHealthCareInsuranceConfig,
+  createDefaultCoupleHealthInsuranceConfig,
+} from './health-care-insurance'
 import type { SparplanElement } from '../src/utils/sparplan-utils'
 
 describe('Withdrawal - Couple Health Insurance Integration', () => {

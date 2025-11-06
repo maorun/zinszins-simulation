@@ -8,11 +8,7 @@ interface MortgagePaymentInputProps {
   onUpdate: (source: OtherIncomeSource) => void
 }
 
-export function MortgagePaymentInput({
-  editingSource,
-  mortgagePaymentId,
-  onUpdate,
-}: MortgagePaymentInputProps) {
+export function MortgagePaymentInput({ editingSource, mortgagePaymentId, onUpdate }: MortgagePaymentInputProps) {
   if (!editingSource.realEstateConfig) {
     return null
   }
@@ -24,19 +20,19 @@ export function MortgagePaymentInput({
         id={mortgagePaymentId}
         type="number"
         value={editingSource.realEstateConfig.monthlyMortgagePayment}
-        onChange={e => onUpdate({
-          ...editingSource,
-          realEstateConfig: {
-            ...editingSource.realEstateConfig!,
-            monthlyMortgagePayment: Number(e.target.value) || 0,
-          },
-        })}
+        onChange={(e) =>
+          onUpdate({
+            ...editingSource,
+            realEstateConfig: {
+              ...editingSource.realEstateConfig!,
+              monthlyMortgagePayment: Number(e.target.value) || 0,
+            },
+          })
+        }
         min={0}
         step={50}
       />
-      <p className="text-xs text-gray-600">
-        Monatliche Rate für Immobilienfinanzierung (0 = keine Finanzierung)
-      </p>
+      <p className="text-xs text-gray-600">Monatliche Rate für Immobilienfinanzierung (0 = keine Finanzierung)</p>
     </div>
   )
 }

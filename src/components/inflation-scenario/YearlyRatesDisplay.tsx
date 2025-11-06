@@ -7,12 +7,10 @@ interface YearlyRatesDisplayProps {
 /**
  * Component to display yearly rates (inflation or return modifiers) in a grid
  */
-export const YearlyRatesDisplay = ({
-  yearlyRates,
-  formatPercent,
-  label,
-}: YearlyRatesDisplayProps) => {
-  const years = Object.keys(yearlyRates).map(Number).sort((a, b) => a - b)
+export const YearlyRatesDisplay = ({ yearlyRates, formatPercent, label }: YearlyRatesDisplayProps) => {
+  const years = Object.keys(yearlyRates)
+    .map(Number)
+    .sort((a, b) => a - b)
 
   return (
     <div>
@@ -22,12 +20,7 @@ export const YearlyRatesDisplay = ({
           const rate = yearlyRates[yearOffset]
           return (
             <div key={yearOffset} className="text-xs">
-              Jahr
-              {' '}
-              {yearOffset + 1}
-              :
-              {' '}
-              {formatPercent(rate ?? 0)}
+              Jahr {yearOffset + 1}: {formatPercent(rate ?? 0)}
             </div>
           )
         })}

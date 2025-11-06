@@ -18,10 +18,7 @@ export function ChartInterpretationGuide({
 }: ChartInterpretationGuideProps) {
   return (
     <div className="mt-4 text-xs text-gray-600 space-y-2">
-      <ChartLegend
-        showInflationAdjusted={showInflationAdjusted}
-        showTaxes={showTaxes}
-      />
+      <ChartLegend showInflationAdjusted={showInflationAdjusted} showTaxes={showTaxes} />
       <InteractiveFeaturesGuide chartView={chartView} />
     </div>
   )

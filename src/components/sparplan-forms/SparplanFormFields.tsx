@@ -32,10 +32,7 @@ interface SparplanFormFieldsProps {
     format: string,
     callback: (date: Date | null) => void,
   ) => void
-  handleNumberChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
-    callback: (value: string) => void,
-  ) => void
+  handleNumberChange: (e: React.ChangeEvent<HTMLInputElement>, callback: (value: string) => void) => void
 }
 
 /**
@@ -58,13 +55,7 @@ function DateField({
         {label}
         <InfoIcon />
       </Label>
-      <Input
-        type="month"
-        value={value}
-        onChange={onChange}
-        placeholder={placeholder}
-        className="w-full"
-      />
+      <Input type="month" value={value} onChange={onChange} placeholder={placeholder} className="w-full" />
     </div>
   )
 }
@@ -83,19 +74,28 @@ export function SparplanFormFields({
 }: SparplanFormFieldsProps) {
   return (
     <>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem', marginBottom: '1.5rem' }}>
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '1rem',
+          marginBottom: '1.5rem',
+        }}
+      >
         <DateField
           label="Start"
           value={formatDateForInput(formValues.start, 'yyyy-MM')}
-          onChange={e => handleDateChange(e, 'yyyy-MM', (date) => {
-            if (date) onFormChange({ ...formValues, start: date })
-          })}
+          onChange={(e) =>
+            handleDateChange(e, 'yyyy-MM', (date) => {
+              if (date) onFormChange({ ...formValues, start: date })
+            })
+          }
           placeholder="Startdatum wählen"
         />
         <DateField
           label="Ende (optional)"
           value={formatDateForInput(formValues.end, 'yyyy-MM')}
-          onChange={e => handleDateChange(e, 'yyyy-MM', date => onFormChange({ ...formValues, end: date }))}
+          onChange={(e) => handleDateChange(e, 'yyyy-MM', (date) => onFormChange({ ...formValues, end: date }))}
           placeholder="Enddatum wählen"
         />
         <div className="mb-4 space-y-2">
@@ -106,9 +106,7 @@ export function SparplanFormFields({
           <Input
             type="number"
             value={formValues.einzahlung || ''}
-            onChange={e => handleNumberChange(e, value =>
-              onFormChange({ ...formValues, einzahlung: value }),
-            )}
+            onChange={(e) => handleNumberChange(e, (value) => onFormChange({ ...formValues, einzahlung: value }))}
             placeholder="Betrag eingeben"
             className="w-full"
             min={0}

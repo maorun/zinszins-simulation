@@ -5,9 +5,7 @@ import type { ConfigurationState } from '../useConfigurationManagement'
  * Builds configuration state object from simulation state
  * Extracts only the state values needed for configuration management
  */
-export function buildConfigState(
-  state: ReturnType<typeof useSimulationState>,
-): ConfigurationState {
+export function buildConfigState(state: ReturnType<typeof useSimulationState>): ConfigurationState {
   return {
     rendite: state.rendite,
     steuerlast: state.steuerlast,

@@ -1,5 +1,10 @@
 import { useMemo } from 'react'
-import type { WithdrawalFormValue, ComparisonStrategy, SegmentedComparisonStrategy, WithdrawalReturnMode } from '../utils/config-storage'
+import type {
+  WithdrawalFormValue,
+  ComparisonStrategy,
+  SegmentedComparisonStrategy,
+  WithdrawalReturnMode,
+} from '../utils/config-storage'
 import type { OtherIncomeConfiguration } from '../../helpers/other-income'
 import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
 import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
@@ -97,7 +102,7 @@ function prepareComparisonHandlers(params: {
 
   const handleRemove = (id: string) => {
     params.updateConfig({
-      comparisonStrategies: params.comparisonStrategies.filter(s => s.id !== id),
+      comparisonStrategies: params.comparisonStrategies.filter((s) => s.id !== id),
     })
   }
 

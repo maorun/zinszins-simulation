@@ -50,11 +50,7 @@ function shouldShowPreview(
 function ResetButton({ onChange }: { onChange: (config: CareCostConfiguration) => void }) {
   return (
     <div className="pt-4 border-t">
-      <Button
-        variant="outline"
-        size="sm"
-        onClick={() => onChange(createDefaultCareCostConfiguration())}
-      >
+      <Button variant="outline" size="sm" onClick={() => onChange(createDefaultCareCostConfiguration())}>
         Auf Standardwerte zurücksetzen
       </Button>
     </div>
@@ -85,10 +81,10 @@ function CareCostConfigFields({
   return (
     <>
       <BasicCareCostFields values={values} onChange={onChange} currentYear={currentYear} />
-      <CareLevelSelector careLevel={values.careLevel} onChange={careLevel => onChange({ ...values, careLevel })} />
+      <CareLevelSelector careLevel={values.careLevel} onChange={(careLevel) => onChange({ ...values, careLevel })} />
       <InflationRateSlider
         value={values.careInflationRate}
-        onChange={careInflationRate => onChange({ ...values, careInflationRate })}
+        onChange={(careInflationRate) => onChange({ ...values, careInflationRate })}
       />
       <InsuranceAndBenefitsFields values={values} onChange={onChange} />
       {planningMode === 'couple' && (
@@ -136,7 +132,7 @@ export function CareCostConfiguration({
         <div className="flex items-center space-x-2">
           <Switch
             checked={values.enabled}
-            onCheckedChange={enabled => onChange({ ...values, enabled })}
+            onCheckedChange={(enabled) => onChange({ ...values, enabled })}
             id="care-cost-enabled"
           />
           <Label htmlFor="care-cost-enabled" className="text-sm font-medium">

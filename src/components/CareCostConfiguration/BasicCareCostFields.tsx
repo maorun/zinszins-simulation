@@ -28,22 +28,18 @@ function StartYearField({
 }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor="care-start-year">
-        Startjahr der Pflegebedürftigkeit
-      </Label>
+      <Label htmlFor="care-start-year">Startjahr der Pflegebedürftigkeit</Label>
       <Input
         id="care-start-year"
         type="number"
         value={value}
-        onChange={e => onChange(Number(e.target.value))}
+        onChange={(e) => onChange(Number(e.target.value))}
         min={currentYear}
         max={currentYear + 50}
         step={1}
         className="w-32"
       />
-      <div className="text-sm text-muted-foreground">
-        Jahr, in dem Pflegebedürftigkeit erwartet wird
-      </div>
+      <div className="text-sm text-muted-foreground">Jahr, in dem Pflegebedürftigkeit erwartet wird</div>
     </div>
   )
 }
@@ -62,55 +58,45 @@ function CustomMonthlyCostsField({
 }) {
   return (
     <div className="space-y-2">
-      <Label htmlFor="custom-monthly-costs">
-        Individuelle monatliche Pflegekosten (optional)
-      </Label>
+      <Label htmlFor="custom-monthly-costs">Individuelle monatliche Pflegekosten (optional)</Label>
       <Input
         id="custom-monthly-costs"
         type="number"
         value={value || ''}
-        onChange={e => onChange(e.target.value ? Number(e.target.value) : undefined)}
+        onChange={(e) => onChange(e.target.value ? Number(e.target.value) : undefined)}
         min={0}
         step={50}
         placeholder={`Standard: ${formatCurrency(DEFAULT_CARE_LEVELS[careLevel].typicalMonthlyCost)}`}
       />
       <div className="text-sm text-muted-foreground">
-        Überschreibt die typischen Kosten für
-        {' '}
-        {getCareLevelDisplayName(careLevel)}
+        Überschreibt die typischen Kosten für {getCareLevelDisplayName(careLevel)}
       </div>
     </div>
   )
 }
 
-export function BasicCareCostFields({
-  values,
-  onChange,
-  currentYear,
-}: BasicCareCostFieldsProps) {
+export function BasicCareCostFields({ values, onChange, currentYear }: BasicCareCostFieldsProps) {
   return (
     <>
       <StartYearField
         value={values.startYear}
-        onChange={startYear => onChange({ ...values, startYear })}
+        onChange={(startYear) => onChange({ ...values, startYear })}
         currentYear={currentYear}
       />
 
       <CustomMonthlyCostsField
         value={values.customMonthlyCosts}
         careLevel={values.careLevel}
-        onChange={customMonthlyCosts => onChange({ ...values, customMonthlyCosts })}
+        onChange={(customMonthlyCosts) => onChange({ ...values, customMonthlyCosts })}
       />
 
       <div className="space-y-2">
-        <Label htmlFor="care-duration">
-          Pflegedauer (Jahre, 0 = bis Lebensende)
-        </Label>
+        <Label htmlFor="care-duration">Pflegedauer (Jahre, 0 = bis Lebensende)</Label>
         <Input
           id="care-duration"
           type="number"
           value={values.careDurationYears}
-          onChange={e => onChange({ ...values, careDurationYears: Number(e.target.value) })}
+          onChange={(e) => onChange({ ...values, careDurationYears: Number(e.target.value) })}
           min={0}
           max={50}
           step={1}

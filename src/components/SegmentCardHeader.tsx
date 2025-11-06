@@ -14,22 +14,18 @@ interface SegmentCardHeaderProps {
   onRemove: () => void
 }
 
-function SegmentTitle({ segmentName, startYear, endYear }: {
+function SegmentTitle({
+  segmentName,
+  startYear,
+  endYear,
+}: {
   segmentName: string
   startYear: number
   endYear: number
 }) {
   return (
     <CardTitle className="text-lg text-left">
-      {segmentName}
-      {' '}
-      (
-      {startYear}
-      {' '}
-      -
-      {' '}
-      {endYear}
-      )
+      {segmentName} ({startYear} - {endYear})
     </CardTitle>
   )
 }
@@ -77,7 +73,7 @@ function MoveButtons({
   )
 }
 
-function RemoveButton({ totalSegments, onRemove }: { totalSegments: number, onRemove: () => void }) {
+function RemoveButton({ totalSegments, onRemove }: { totalSegments: number; onRemove: () => void }) {
   if (totalSegments <= 1) {
     return null
   }

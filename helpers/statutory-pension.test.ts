@@ -217,13 +217,7 @@ describe('statutory-pension', () => {
       }
       const incomeTaxRate = 25
 
-      const result = calculateStatutoryPension(
-        baseConfig,
-        2041,
-        2043,
-        incomeTaxRate,
-        grundfreibetragPerYear,
-      )
+      const result = calculateStatutoryPension(baseConfig, 2041, 2043, incomeTaxRate, grundfreibetragPerYear)
 
       // 2041: taxable 14400, above allowance 4400, tax 1100
       expect(result[2041].incomeTax).toBe(1100)

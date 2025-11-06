@@ -2,11 +2,7 @@ import { Label } from '../ui/label'
 import { SubStrategySelector } from '../SubStrategySelector'
 import { VariabelProzentConfig, MonatlichFestConfig } from './BucketSubStrategyConfigs'
 import { DynamischConfig } from './BucketDynamischConfig'
-import {
-  InitialCashCushionConfig,
-  RefillThresholdConfig,
-  RefillPercentageConfig,
-} from './BucketConfigComponents'
+import { InitialCashCushionConfig, RefillThresholdConfig, RefillPercentageConfig } from './BucketConfigComponents'
 import {
   getCurrentValuesFromForm,
   getCurrentValuesFromDirect,
@@ -56,17 +52,13 @@ function createValueChangeHandler(
   updateFormBucketConfig: ((updates: Partial<BucketStrategyConfigValues>) => void) | undefined,
   onChange: BucketStrategyChangeHandlers | undefined,
 ) {
-  return <K extends keyof BucketStrategyConfigValues>(
-    key: K,
-    value: BucketStrategyConfigValues[K],
-  ) => {
+  return <K extends keyof BucketStrategyConfigValues>(key: K, value: BucketStrategyConfigValues[K]) => {
     if (isFormMode && updateFormBucketConfig) {
       updateFormBucketConfig({ [key]: value })
-    }
-    else if (isDirectMode && onChange) {
+    } else if (isDirectMode && onChange) {
       const handlerKey = HANDLER_MAP[key]
       if (handlerKey && onChange[handlerKey]) {
-        (onChange[handlerKey] as (v: unknown) => void)(value)
+        ;(onChange[handlerKey] as (v: unknown) => void)(value)
       }
     }
   }
@@ -79,16 +71,13 @@ function SubStrategyConfigSection({
 }: {
   subStrategy: string
   currentValues: BucketStrategyConfigValues
-  handleValueChange: <K extends keyof BucketStrategyConfigValues>(
-    key: K,
-    value: BucketStrategyConfigValues[K],
-  ) => void
+  handleValueChange: <K extends keyof BucketStrategyConfigValues>(key: K, value: BucketStrategyConfigValues[K]) => void
 }) {
   if (subStrategy === 'variabel_prozent') {
     return (
       <VariabelProzentConfig
         value={currentValues.variabelProzent}
-        onChange={v => handleValueChange('variabelProzent', v)}
+        onChange={(v) => handleValueChange('variabelProzent', v)}
       />
     )
   }
@@ -97,7 +86,7 @@ function SubStrategyConfigSection({
     return (
       <MonatlichFestConfig
         value={currentValues.monatlicheBetrag}
-        onChange={v => handleValueChange('monatlicheBetrag', v)}
+        onChange={(v) => handleValueChange('monatlicheBetrag', v)}
       />
     )
   }
@@ -110,11 +99,11 @@ function SubStrategyConfigSection({
         obereAnpassung={currentValues.dynamischObereAnpassung}
         untereSchwell={currentValues.dynamischUntereSchwell}
         untereAnpassung={currentValues.dynamischUntereAnpassung}
-        onBasisrateChange={v => handleValueChange('dynamischBasisrate', v)}
-        onObereSchwell={v => handleValueChange('dynamischObereSchwell', v)}
-        onObereAnpassung={v => handleValueChange('dynamischObereAnpassung', v)}
-        onUntereSchwell={v => handleValueChange('dynamischUntereSchwell', v)}
-        onUntereAnpassung={v => handleValueChange('dynamischUntereAnpassung', v)}
+        onBasisrateChange={(v) => handleValueChange('dynamischBasisrate', v)}
+        onObereSchwell={(v) => handleValueChange('dynamischObereSchwell', v)}
+        onObereAnpassung={(v) => handleValueChange('dynamischObereAnpassung', v)}
+        onUntereSchwell={(v) => handleValueChange('dynamischUntereSchwell', v)}
+        onUntereAnpassung={(v) => handleValueChange('dynamischUntereAnpassung', v)}
       />
     )
   }
@@ -133,9 +122,7 @@ function useBucketConfigMode({
 
   validateModeProps(isFormMode, isDirectMode)
 
-  const currentValues = isFormMode
-    ? getCurrentValuesFromForm(formValue!)
-    : getCurrentValuesFromDirect(values!)
+  const currentValues = isFormMode ? getCurrentValuesFromForm(formValue!) : getCurrentValuesFromDirect(values!)
 
   const updateFormBucketConfig = isFormMode
     ? createFormUpdateHandler({ formValue: formValue!, updateFormValue: updateFormValue!, currentValues })
@@ -165,7 +152,7 @@ export function BucketStrategyConfiguration({
       <Label className="text-base font-medium">Drei-Eimer-Strategie Konfiguration</Label>
       <SubStrategySelector
         value={currentValues.subStrategy}
-        onChange={subStrategy => handleValueChange('subStrategy', subStrategy)}
+        onChange={(subStrategy) => handleValueChange('subStrategy', subStrategy)}
         idPrefix={idPrefix}
       />
       <SubStrategyConfigSection
@@ -175,18 +162,18 @@ export function BucketStrategyConfiguration({
       />
       <InitialCashCushionConfig
         value={currentValues.initialCashCushion}
-        onChange={v => handleValueChange('initialCashCushion', v)}
+        onChange={(v) => handleValueChange('initialCashCushion', v)}
         inputId={isFormMode ? 'initialCashCushion' : 'bucket-initial-cash'}
         isFormMode={isFormMode}
       />
       <RefillThresholdConfig
         value={currentValues.refillThreshold}
-        onChange={v => handleValueChange('refillThreshold', v)}
+        onChange={(v) => handleValueChange('refillThreshold', v)}
         inputId={isFormMode ? 'refillThreshold' : 'bucket-refill-threshold'}
       />
       <RefillPercentageConfig
         value={currentValues.refillPercentage}
-        onChange={v => handleValueChange('refillPercentage', v)}
+        onChange={(v) => handleValueChange('refillPercentage', v)}
       />
     </div>
   )

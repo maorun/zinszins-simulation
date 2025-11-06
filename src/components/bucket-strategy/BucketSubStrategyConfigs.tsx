@@ -7,10 +7,7 @@ interface VariabelProzentConfigProps {
   onChange: (value: number) => void
 }
 
-export function VariabelProzentConfig({
-  value,
-  onChange,
-}: VariabelProzentConfigProps) {
+export function VariabelProzentConfig({ value, onChange }: VariabelProzentConfigProps) {
   return (
     <div className="space-y-2">
       <Label>Entnahme-Prozentsatz (%)</Label>
@@ -25,10 +22,7 @@ export function VariabelProzentConfig({
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>1%</span>
-          <span className="font-medium text-gray-900">
-            {value}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{value}%</span>
           <span>10%</span>
         </div>
       </div>
@@ -44,10 +38,7 @@ interface MonatlichFestConfigProps {
   onChange: (value: number) => void
 }
 
-export function MonatlichFestConfig({
-  value,
-  onChange,
-}: MonatlichFestConfigProps) {
+export function MonatlichFestConfig({ value, onChange }: MonatlichFestConfigProps) {
   return (
     <div className="space-y-2">
       <Label>Monatlicher Betrag (€)</Label>

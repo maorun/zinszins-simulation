@@ -36,10 +36,7 @@ function InflationRateSlider({
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>0%</span>
-          <span className="font-medium text-gray-900">
-            {inflationsrate}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{inflationsrate}%</span>
           <span>5%</span>
         </div>
       </div>
@@ -61,21 +58,14 @@ export function InflationConfiguration({
       {/* General inflation controls for all strategies */}
       <div className="mb-4 space-y-2">
         <Label>Inflation berücksichtigen</Label>
-        <Switch
-          checked={inflationAktiv}
-          onCheckedChange={onInflationActiveChange}
-        />
+        <Switch checked={inflationAktiv} onCheckedChange={onInflationActiveChange} />
         <div className="text-sm text-muted-foreground mt-1">
-          Passt die Entnahmebeträge jährlich an die Inflation an (für alle
-          Entnahme-Strategien)
+          Passt die Entnahmebeträge jährlich an die Inflation an (für alle Entnahme-Strategien)
         </div>
       </div>
 
       {inflationAktiv && (
-        <InflationRateSlider
-          inflationsrate={inflationsrate}
-          onInflationRateChange={onInflationRateChange}
-        />
+        <InflationRateSlider inflationsrate={inflationsrate} onInflationRateChange={onInflationRateChange} />
       )}
     </>
   )

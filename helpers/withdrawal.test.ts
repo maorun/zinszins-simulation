@@ -166,13 +166,13 @@ describe('Withdrawal Calculations with FIFO', () => {
       taxRate,
       teilfreistellungsquote,
       freibetragPerYear: { [withdrawalStartYear]: freibetrag, [withdrawalStartYear + 1]: freibetrag },
-      inflationConfig: { inflationRate: 0.10 }, // 10% inflation for easy testing
+      inflationConfig: { inflationRate: 0.1 }, // 10% inflation for easy testing
     })
 
     const entnahme1 = result[withdrawalStartYear].entnahme
     const entnahme2 = result[withdrawalStartYear + 1].entnahme
 
-    expect(entnahme2).toBeCloseTo(entnahme1 * 1.10)
+    expect(entnahme2).toBeCloseTo(entnahme1 * 1.1)
   })
 
   test('should apply Grundfreibetrag and income tax', () => {
@@ -199,7 +199,7 @@ describe('Withdrawal Calculations with FIFO', () => {
     const resultYear = result[withdrawalStartYear]
     const entnahme = resultYear.entnahme
 
-    const expectedEinkommensteuer = Math.max(0, (entnahme - yearlyGrundfreibetrag)) * incomeTaxRate
+    const expectedEinkommensteuer = Math.max(0, entnahme - yearlyGrundfreibetrag) * incomeTaxRate
     const expectedGenutzterGrundfreibetrag = Math.min(entnahme, yearlyGrundfreibetrag)
 
     expect(resultYear.einkommensteuer).toBe(expectedEinkommensteuer)
@@ -236,7 +236,7 @@ describe('Withdrawal Calculations with FIFO', () => {
     const lastSimYear = withdrawalStartYear - 1
     const mockElements = [createMockElement(2023, 500000, 600000, 1000, lastSimYear)]
     const monthlyAmount = 2000
-    const inflationRate = 0.10 // 10%
+    const inflationRate = 0.1 // 10%
 
     const { result } = calculateWithdrawal({
       elements: mockElements,
@@ -281,7 +281,7 @@ describe('Dynamic Withdrawal Strategy', () => {
       mode: 'variable',
       variableConfig: {
         yearlyReturns: {
-          [withdrawalStartYear - 1]: 0.10, // 10% return in previous year (exceeds 8% threshold)
+          [withdrawalStartYear - 1]: 0.1, // 10% return in previous year (exceeds 8% threshold)
           [withdrawalStartYear]: 0.05, // 5% return in current year
         },
       },
@@ -308,7 +308,7 @@ describe('Dynamic Withdrawal Strategy', () => {
 
     expect(resultYear.entnahme).toBeCloseTo(expectedEntnahme)
     expect(resultYear.dynamischeAnpassung).toBeCloseTo(expectedAdjustment)
-    expect(resultYear.vorjahresRendite).toBe(0.10)
+    expect(resultYear.vorjahresRendite).toBe(0.1)
   })
 
   test('should adjust withdrawal down when return falls below lower threshold', () => {
@@ -461,7 +461,7 @@ describe('Dynamic Withdrawal Strategy', () => {
       mode: 'variable',
       variableConfig: {
         yearlyReturns: {
-          [withdrawalStartYear - 1]: 0.10, // 10% return in previous year (exceeds threshold)
+          [withdrawalStartYear - 1]: 0.1, // 10% return in previous year (exceeds threshold)
           [withdrawalStartYear]: 0.05, // 5% return in current year
           [withdrawalStartYear + 1]: 0.05, // 5% return in next year
         },
@@ -688,7 +688,7 @@ describe('Bucket Strategy Tests', () => {
       baseWithdrawalRate: 0.04, // 4% withdrawal rate = 4800
     }
 
-    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: -0.10 } // -10% negative return
+    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: -0.1 } // -10% negative return
 
     const { result } = calculateWithdrawal({
       elements: mockElements,
@@ -724,7 +724,7 @@ describe('Bucket Strategy Tests', () => {
       baseWithdrawalRate: 0.04, // 4% withdrawal rate = 4800
     }
 
-    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: -0.10 } // -10% negative return
+    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: -0.1 } // -10% negative return
 
     const { result } = calculateWithdrawal({
       elements: mockElements,
@@ -759,7 +759,7 @@ describe('Bucket Strategy Tests', () => {
       baseWithdrawalRate: 0.04,
     }
 
-    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.10 } // 10% return
+    const returnConfig: ReturnConfiguration = { mode: 'fixed', fixedRate: 0.1 } // 10% return
 
     const { result } = calculateWithdrawal({
       elements: mockElements,
@@ -1266,7 +1266,7 @@ describe('Bucket Strategy Tests', () => {
       // Withdrawal should be significant portion of portfolio
       const withdrawalPercentage = year1.entnahme / year1.startkapital
       expect(withdrawalPercentage).toBeGreaterThan(0.15) // More than 15%
-      expect(withdrawalPercentage).toBeLessThan(0.20) // Less than 20%
+      expect(withdrawalPercentage).toBeLessThan(0.2) // Less than 20%
     })
 
     test('should require RMD config for RMD strategy', () => {
@@ -1324,9 +1324,8 @@ describe('Bucket Strategy Tests', () => {
       expect(resultYear).toBeDefined()
 
       // The withdrawal should be based on real return rate
-      const expectedWithdrawal = initialCapital * (
-        kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate
-      )
+      const expectedWithdrawal =
+        initialCapital * (kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate)
       expect(resultYear.entnahme).toBeCloseTo(expectedWithdrawal)
 
       // Verify the withdrawal rate is 5%
@@ -1364,9 +1363,8 @@ describe('Bucket Strategy Tests', () => {
       const resultYear = result[withdrawalStartYear]
       expect(resultYear).toBeDefined()
 
-      const expectedWithdrawal = initialCapital * (
-        kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate
-      )
+      const expectedWithdrawal =
+        initialCapital * (kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate)
       expect(resultYear.entnahme).toBeCloseTo(expectedWithdrawal)
       expect(resultYear.entnahme).toBeCloseTo(10000)
     })
@@ -1401,9 +1399,8 @@ describe('Bucket Strategy Tests', () => {
       const resultYear = result[withdrawalStartYear]
       expect(resultYear).toBeDefined()
 
-      const expectedWithdrawal = initialCapital * (
-        kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate
-      )
+      const expectedWithdrawal =
+        initialCapital * (kapitalerhaltConfig.nominalReturn - kapitalerhaltConfig.inflationRate)
       expect(resultYear.entnahme).toBeCloseTo(expectedWithdrawal)
       expect(resultYear.entnahme).toBeCloseTo(2250)
     })

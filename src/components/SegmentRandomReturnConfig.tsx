@@ -10,19 +10,9 @@ interface RandomReturnConfigProps {
   onRandomConfigChange: (config: RandomReturnConfig) => void
 }
 
-export function SegmentRandomReturnConfig({
-  segmentId,
-  randomConfig,
-  onRandomConfigChange,
-}: RandomReturnConfigProps) {
-  const {
-    averageReturn,
-    standardDeviation,
-    seed,
-    handleAverageReturnChange,
-    handleStdDevChange,
-    handleSeedChange,
-  } = useSegmentRandomReturnHandlers({ randomConfig, onRandomConfigChange })
+export function SegmentRandomReturnConfig({ segmentId, randomConfig, onRandomConfigChange }: RandomReturnConfigProps) {
+  const { averageReturn, standardDeviation, seed, handleAverageReturnChange, handleStdDevChange, handleSeedChange } =
+    useSegmentRandomReturnHandlers({ randomConfig, onRandomConfigChange })
 
   return (
     <>
@@ -38,11 +28,7 @@ export function SegmentRandomReturnConfig({
         onStandardDeviationChange={handleStdDevChange}
       />
 
-      <RandomSeedInput
-        segmentId={segmentId}
-        seed={seed}
-        onSeedChange={handleSeedChange}
-      />
+      <RandomSeedInput segmentId={segmentId} seed={seed} onSeedChange={handleSeedChange} />
     </>
   )
 }

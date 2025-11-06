@@ -1,4 +1,9 @@
-import type { WithdrawalFormValue, ComparisonStrategy, SegmentedComparisonStrategy, WithdrawalReturnMode } from '../utils/config-storage'
+import type {
+  WithdrawalFormValue,
+  ComparisonStrategy,
+  SegmentedComparisonStrategy,
+  WithdrawalReturnMode,
+} from '../utils/config-storage'
 import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
 import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
 import { WithdrawalSegmentForm } from './WithdrawalSegmentForm'
@@ -62,9 +67,17 @@ function renderSegmentedWithdrawal(
   )
 }
 
-function renderComparisonMode(props: Pick<WithdrawalModeContentProps,
-  'formValue' | 'comparisonStrategies' | 'onFormValueUpdate'
-  | 'onComparisonStrategyUpdate' | 'onComparisonStrategyAdd' | 'onComparisonStrategyRemove'>) {
+function renderComparisonMode(
+  props: Pick<
+    WithdrawalModeContentProps,
+    | 'formValue'
+    | 'comparisonStrategies'
+    | 'onFormValueUpdate'
+    | 'onComparisonStrategyUpdate'
+    | 'onComparisonStrategyAdd'
+    | 'onComparisonStrategyRemove'
+  >,
+) {
   return (
     <ComparisonStrategyConfiguration
       formValue={props.formValue}
@@ -77,10 +90,17 @@ function renderComparisonMode(props: Pick<WithdrawalModeContentProps,
   )
 }
 
-function renderSegmentedComparison(props: Pick<WithdrawalModeContentProps,
-  'segmentedComparisonStrategies' | 'onSegmentedComparisonStrategyAdd'
-  | 'onSegmentedComparisonStrategyUpdate' | 'onSegmentedComparisonStrategyRemove'
-  | 'startOfIndependence' | 'globalEndOfLife'>) {
+function renderSegmentedComparison(
+  props: Pick<
+    WithdrawalModeContentProps,
+    | 'segmentedComparisonStrategies'
+    | 'onSegmentedComparisonStrategyAdd'
+    | 'onSegmentedComparisonStrategyUpdate'
+    | 'onSegmentedComparisonStrategyRemove'
+    | 'startOfIndependence'
+    | 'globalEndOfLife'
+  >,
+) {
   return (
     <SegmentedComparisonConfiguration
       segmentedComparisonStrategies={props.segmentedComparisonStrategies}
@@ -93,11 +113,24 @@ function renderSegmentedComparison(props: Pick<WithdrawalModeContentProps,
   )
 }
 
-function renderSingleStrategy(props: Pick<WithdrawalModeContentProps,
-  'formValue' | 'startOfIndependence' | 'globalEndOfLife' | 'withdrawalReturnMode'
-  | 'withdrawalAverageReturn' | 'withdrawalStandardDeviation' | 'withdrawalRandomSeed'
-  | 'withdrawalVariableReturns' | 'withdrawalMultiAssetConfig' | 'onConfigUpdate'
-  | 'onFormValueUpdate' | 'onWithdrawalMultiAssetConfigChange' | 'dispatchEnd'>) {
+function renderSingleStrategy(
+  props: Pick<
+    WithdrawalModeContentProps,
+    | 'formValue'
+    | 'startOfIndependence'
+    | 'globalEndOfLife'
+    | 'withdrawalReturnMode'
+    | 'withdrawalAverageReturn'
+    | 'withdrawalStandardDeviation'
+    | 'withdrawalRandomSeed'
+    | 'withdrawalVariableReturns'
+    | 'withdrawalMultiAssetConfig'
+    | 'onConfigUpdate'
+    | 'onFormValueUpdate'
+    | 'onWithdrawalMultiAssetConfigChange'
+    | 'dispatchEnd'
+  >,
+) {
   return (
     <SingleStrategyConfigSection
       formValue={props.formValue}

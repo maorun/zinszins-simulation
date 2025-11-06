@@ -15,12 +15,7 @@ interface ScenarioDetailsModalProps {
 /**
  * Modal component to display detailed information about a financial scenario
  */
-export function ScenarioDetailsModal({
-  scenario,
-  isOpen,
-  onOpenChange,
-  onApply,
-}: ScenarioDetailsModalProps) {
+export function ScenarioDetailsModal({ scenario, isOpen, onOpenChange, onApply }: ScenarioDetailsModalProps) {
   if (!scenario) {
     return null
   }
@@ -56,14 +51,9 @@ export function ScenarioDetailsModal({
 
         <DialogFooter className="flex-col sm:flex-row gap-2">
           <DialogClose asChild>
-            <Button variant="outline">
-              Abbrechen
-            </Button>
+            <Button variant="outline">Abbrechen</Button>
           </DialogClose>
-          <Button
-            onClick={onApply}
-            className="bg-blue-600 hover:bg-blue-700 text-white"
-          >
+          <Button onClick={onApply} className="bg-blue-600 hover:bg-blue-700 text-white">
             <Play className="h-4 w-4 mr-2" />
             Szenario anwenden
           </Button>

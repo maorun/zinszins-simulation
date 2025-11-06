@@ -6,7 +6,7 @@ interface LifeExpectancyTableConfigurationProps {
   config: {
     planningMode: 'individual' | 'couple'
     gender: 'male' | 'female' | undefined
-    spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
+    spouse: { gender: 'male' | 'female'; birthYear?: number } | undefined
     lifeExpectancyTable: 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
     customLifeExpectancy: number | undefined
   }
@@ -19,16 +19,15 @@ interface LifeExpectancyTableConfigurationProps {
 function hasCompleteGenderInfo(
   planningMode: 'individual' | 'couple',
   gender: 'male' | 'female' | undefined,
-  spouse: { gender: 'male' | 'female', birthYear?: number } | undefined,
+  spouse: { gender: 'male' | 'female'; birthYear?: number } | undefined,
 ): boolean {
-  return (planningMode === 'individual' && !!gender)
-    || (planningMode === 'couple' && !!gender && !!spouse?.gender)
+  return (planningMode === 'individual' && !!gender) || (planningMode === 'couple' && !!gender && !!spouse?.gender)
 }
 
 function getGenderInfoMessage(
   planningMode: 'individual' | 'couple',
   gender: 'male' | 'female' | undefined,
-  spouse: { gender: 'male' | 'female', birthYear?: number } | undefined,
+  spouse: { gender: 'male' | 'female'; birthYear?: number } | undefined,
 ): string {
   if (planningMode === 'couple') {
     const person1Gender = gender === 'male' ? 'Männlich' : 'Weiblich'
@@ -47,13 +46,11 @@ function createTableChangeHandler(
   return (value: string) => {
     if (value === 'custom') {
       onChange.lifeExpectancyTable('custom')
-    }
-    else {
+    } else {
       // Auto-select based on context
       if (planningMode === 'couple') {
         onChange.lifeExpectancyTable('german_2020_22')
-      }
-      else {
+      } else {
         onChange.lifeExpectancyTable(gender === 'male' ? 'german_male_2020_22' : 'german_female_2020_22')
       }
     }
@@ -75,10 +72,7 @@ function SmartModeSelection({
 }) {
   return (
     <>
-      <RadioTileGroup
-        value={lifeExpectancyTable === 'custom' ? 'custom' : 'auto'}
-        onValueChange={handleTableChange}
-      >
+      <RadioTileGroup value={lifeExpectancyTable === 'custom' ? 'custom' : 'auto'} onValueChange={handleTableChange}>
         <RadioTile value="auto" label="Automatische Auswahl">
           {planningMode === 'couple'
             ? 'Geschlechtsspezifische Sterbetafeln für beide Partner'
@@ -142,10 +136,7 @@ function CustomLifeExpectancyInput({
   )
 }
 
-export function LifeExpectancyTableConfiguration({
-  config,
-  onChange,
-}: LifeExpectancyTableConfigurationProps) {
+export function LifeExpectancyTableConfiguration({ config, onChange }: LifeExpectancyTableConfigurationProps) {
   const { planningMode, gender, spouse, lifeExpectancyTable, customLifeExpectancy } = config
   const hasGenderInfo = hasCompleteGenderInfo(planningMode, gender, spouse)
   const handleTableChange = createTableChangeHandler(planningMode, gender, onChange)

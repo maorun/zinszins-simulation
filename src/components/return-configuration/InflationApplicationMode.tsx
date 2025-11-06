@@ -21,8 +21,7 @@ const InflationApplicationMode = ({
         }}
       >
         <RadioTile value="sparplan" label="Auf Sparplan">
-          Inflation wird auf einzelne Beiträge angewendet
-          (realistische Anpassung zukünftiger Einzahlungen)
+          Inflation wird auf einzelne Beiträge angewendet (realistische Anpassung zukünftiger Einzahlungen)
         </RadioTile>
         <RadioTile value="gesamtmenge" label="Auf Gesamtmenge">
           Inflation wird auf die gesamte Sparsumme in der Sparphase angewendet

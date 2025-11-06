@@ -1,10 +1,5 @@
 import { toast } from 'sonner'
-import {
-  createProfile,
-  updateProfile,
-  setActiveProfile,
-  type UserProfile,
-} from '../../utils/profile-storage'
+import { createProfile, updateProfile, setActiveProfile, type UserProfile } from '../../utils/profile-storage'
 import type { SavedConfiguration } from '../../utils/config-storage'
 
 interface ProfileFormData {
@@ -38,11 +33,7 @@ function executeProfileCreation(
 
   try {
     const currentConfig = getCurrentConfiguration()
-    const newProfile = createProfile(
-      formData.name.trim(),
-      currentConfig,
-      formData.description.trim() || undefined,
-    )
+    const newProfile = createProfile(formData.name.trim(), currentConfig, formData.description.trim() || undefined)
 
     setActiveProfile(newProfile.id)
     refreshProfiles()
@@ -50,8 +41,7 @@ function executeProfileCreation(
     setIsCreateDialogOpen(false)
     setFormData({ name: '', description: '' })
     toast.success(`Profil "${newProfile.name}" wurde erstellt und aktiviert`)
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to create profile:', error)
     toast.error('Fehler beim Erstellen des Profils')
   }
@@ -83,12 +73,10 @@ function executeProfileEdit(
       setEditingProfile(null)
       setFormData({ name: '', description: '' })
       toast.success(`Profil "${formData.name}" wurde aktualisiert`)
-    }
-    else {
+    } else {
       toast.error('Fehler beim Aktualisieren des Profils')
     }
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to edit profile:', error)
     toast.error('Fehler beim Aktualisieren des Profils')
   }
@@ -103,13 +91,7 @@ function createHandleCreateProfile(
   setFormData: (data: ProfileFormData) => void,
 ) {
   return async () => {
-    executeProfileCreation(
-      formData,
-      getCurrentConfiguration,
-      refreshProfiles,
-      setIsCreateDialogOpen,
-      setFormData,
-    )
+    executeProfileCreation(formData, getCurrentConfiguration, refreshProfiles, setIsCreateDialogOpen, setFormData)
   }
 }
 
@@ -128,14 +110,7 @@ function createHandleEditProfile(
       return
     }
 
-    executeProfileEdit(
-      formData,
-      editingProfile,
-      refreshProfiles,
-      setIsEditDialogOpen,
-      setEditingProfile,
-      setFormData,
-    )
+    executeProfileEdit(formData, editingProfile, refreshProfiles, setIsEditDialogOpen, setEditingProfile, setFormData)
   }
 }
 

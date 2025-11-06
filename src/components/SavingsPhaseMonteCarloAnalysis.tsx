@@ -13,13 +13,7 @@ const SavingsPhaseMonteCarloAnalysis = () => {
     seed: randomSeed,
   }
 
-  return (
-    <MonteCarloAnalysisDisplay
-      config={config}
-      title="Monte Carlo Analyse"
-      phaseTitle="Ansparphase"
-    />
-  )
+  return <MonteCarloAnalysisDisplay config={config} title="Monte Carlo Analyse" phaseTitle="Ansparphase" />
 }
 
 export default SavingsPhaseMonteCarloAnalysis

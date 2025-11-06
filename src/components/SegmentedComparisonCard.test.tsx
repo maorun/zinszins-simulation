@@ -15,8 +15,8 @@ vi.mock('../utils/withdrawal-strategy-utils', () => ({
     const names: Record<string, string> = {
       '4prozent': '4% Regel',
       '3prozent': '3% Regel',
-      'monatlich_fest': 'Monatlich fest',
-      'bucket_strategie': 'Drei-Eimer-Strategie',
+      monatlich_fest: 'Monatlich fest',
+      bucket_strategie: 'Drei-Eimer-Strategie',
     }
     return names[strategy] || strategy
   },

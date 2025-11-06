@@ -15,15 +15,14 @@ export function getEnhancedOverviewSummary(
 ) {
   if (!simulationData) return null
 
-  const startDates = simulationData.sparplanElements.map(el => new Date(el.start).getFullYear())
+  const startDates = simulationData.sparplanElements.map((el) => new Date(el.start).getFullYear())
   const savingsStartYear = Math.min(...startDates)
   const savingsEndYear = startEnd[0]
 
   let withdrawalResult
   if (withdrawalResults) {
     withdrawalResult = withdrawalResults
-  }
-  else {
+  } else {
     // Use endOfLife if provided, otherwise fall back to startEnd[1]
     const withdrawalEndYear = endOfLife || startEnd[1]
     const { result } = calculateWithdrawal({

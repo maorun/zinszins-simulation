@@ -24,10 +24,7 @@ function YearReturnRow({ year, returnValue, onValueChange }: YearReturnRowProps)
         gap: '10px',
       }}
     >
-      <div style={{ minWidth: '60px', fontWeight: 'bold' }}>
-        {year}
-        :
-      </div>
+      <div style={{ minWidth: '60px', fontWeight: 'bold' }}>{year}:</div>
       <div style={{ flex: 1 }}>
         <Slider
           value={[returnValue]}
@@ -38,10 +35,7 @@ function YearReturnRow({ year, returnValue, onValueChange }: YearReturnRowProps)
           className="mt-2"
         />
       </div>
-      <div style={{ minWidth: '50px', textAlign: 'right' }}>
-        {returnValue.toFixed(1)}
-        %
-      </div>
+      <div style={{ minWidth: '50px', textAlign: 'right' }}>{returnValue.toFixed(1)}%</div>
     </div>
   )
 }
@@ -72,24 +66,20 @@ export function VariableReturnConfig({
           padding: '10px',
         }}
       >
-        {Array.from(
-          { length: globalEndOfLife - startOfIndependence },
-          (_, i) => {
-            const year = startOfIndependence + 1 + i
-            return (
-              <YearReturnRow
-                key={year}
-                year={year}
-                returnValue={withdrawalVariableReturns[year] || 5}
-                onValueChange={handleValueChange}
-              />
-            )
-          },
-        )}
+        {Array.from({ length: globalEndOfLife - startOfIndependence }, (_, i) => {
+          const year = startOfIndependence + 1 + i
+          return (
+            <YearReturnRow
+              key={year}
+              year={year}
+              returnValue={withdrawalVariableReturns[year] || 5}
+              onValueChange={handleValueChange}
+            />
+          )
+        })}
       </div>
       <div className="text-sm text-muted-foreground mt-1">
-        Tipp: Verwende niedrigere Werte für konservative
-        Portfolio-Allokation in der Rente und negative Werte für
+        Tipp: Verwende niedrigere Werte für konservative Portfolio-Allokation in der Rente und negative Werte für
         Krisen-Jahre.
       </div>
     </div>

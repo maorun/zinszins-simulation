@@ -69,7 +69,7 @@ describe('IncomeSourceCard', () => {
     )
 
     const deleteButtons = screen.getAllByRole('button')
-    const deleteButton = deleteButtons.find(btn => btn.querySelector('svg'))
+    const deleteButton = deleteButtons.find((btn) => btn.querySelector('svg'))
     fireEvent.click(deleteButton!)
     expect(mockOnDeleteSource).toHaveBeenCalledWith('test-source-1')
   })

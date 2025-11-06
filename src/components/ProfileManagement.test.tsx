@@ -31,9 +31,7 @@ vi.mock('sonner', () => ({
   },
 }))
 
-const TestWrapper = ({ children }: { children: React.ReactNode }) => (
-  <SimulationProvider>{children}</SimulationProvider>
-)
+const TestWrapper = ({ children }: { children: React.ReactNode }) => <SimulationProvider>{children}</SimulationProvider>
 
 // Test configuration
 const mockConfiguration = {
@@ -292,8 +290,8 @@ describe('ProfileManagement', () => {
 
     it('does not show activate button for active profile', () => {
       // The active profile should not have an "Aktivieren" button
-      const profileCards = screen.getAllByText(/Erstellt:/).map(el => el.closest('[class*="border"]'))
-      const activeCard = profileCards.find(card => card?.textContent?.includes('Aktiv'))
+      const profileCards = screen.getAllByText(/Erstellt:/).map((el) => el.closest('[class*="border"]'))
+      const activeCard = profileCards.find((card) => card?.textContent?.includes('Aktiv'))
 
       expect(activeCard).toBeDefined()
       expect(activeCard?.textContent).not.toContain('Aktivieren')
@@ -448,7 +446,7 @@ describe('ProfileManagement', () => {
 
       const clearButtons = screen.getAllByText('🗑️ Alle Profile löschen')
       // Find the disabled button (there should be one enabled and one disabled)
-      const disabledButton = clearButtons.find(button => button.hasAttribute('disabled'))
+      const disabledButton = clearButtons.find((button) => button.hasAttribute('disabled'))
       expect(disabledButton).toBeDefined()
       expect(disabledButton).toBeDisabled()
     })

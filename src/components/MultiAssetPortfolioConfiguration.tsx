@@ -48,8 +48,9 @@ export function MultiAssetPortfolioConfiguration({
   const safeValues = getSafeMultiAssetConfig(values, onChange)
 
   // Use custom hooks for metrics and handlers - must be called unconditionally
-  const { enabledAssets, expectedPortfolioReturn, expectedPortfolioRisk }
-    = usePortfolioMetrics(safeValues || createDefaultMultiAssetConfig())
+  const { enabledAssets, expectedPortfolioReturn, expectedPortfolioRisk } = usePortfolioMetrics(
+    safeValues || createDefaultMultiAssetConfig(),
+  )
 
   const {
     handleConfigChange,
@@ -75,7 +76,7 @@ export function MultiAssetPortfolioConfiguration({
     <Card nestingLevel={nestingLevel} className="mb-4">
       <MultiAssetHeader
         enabled={safeValues.enabled}
-        onEnabledChange={enabled => handleConfigChange({ enabled })}
+        onEnabledChange={(enabled) => handleConfigChange({ enabled })}
         nestingLevel={nestingLevel}
       />
       <CardContent nestingLevel={nestingLevel}>

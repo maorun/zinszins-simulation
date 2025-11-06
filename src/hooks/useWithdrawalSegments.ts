@@ -12,8 +12,7 @@ function getNewSegmentYears(segments: WithdrawalSegment[], withdrawalStartYear: 
   if (segments.length === 0) {
     startYear = Math.round(withdrawalStartYear) - 1
     endYear = startYear + 4
-  }
-  else {
+  } else {
     const sortedSegments = [...segments].sort((a, b) => a.startYear - b.startYear)
     const lastSegment = sortedSegments[sortedSegments.length - 1]
     startYear = Math.round(lastSegment.endYear) + 1
@@ -23,7 +22,7 @@ function getNewSegmentYears(segments: WithdrawalSegment[], withdrawalStartYear: 
 }
 
 function move(segments: WithdrawalSegment[], segmentId: string, direction: 'up' | 'down') {
-  const currentIndex = segments.findIndex(s => s.id === segmentId)
+  const currentIndex = segments.findIndex((s) => s.id === segmentId)
   const newIndex = direction === 'up' ? currentIndex - 1 : currentIndex + 1
 
   if (newIndex < 0 || newIndex >= segments.length) {
@@ -45,11 +44,14 @@ export function useWithdrawalSegments(
 ) {
   const [errors, setErrors] = useState<string[]>([])
 
-  const validateAndUpdateSegments = useCallback((newSegments: WithdrawalSegment[]) => {
-    const validationErrors = validateWithdrawalSegments(newSegments, withdrawalStartYear, withdrawalEndYear)
-    setErrors(validationErrors)
-    onSegmentsChange(newSegments)
-  }, [withdrawalStartYear, withdrawalEndYear, onSegmentsChange])
+  const validateAndUpdateSegments = useCallback(
+    (newSegments: WithdrawalSegment[]) => {
+      const validationErrors = validateWithdrawalSegments(newSegments, withdrawalStartYear, withdrawalEndYear)
+      setErrors(validationErrors)
+      onSegmentsChange(newSegments)
+    },
+    [withdrawalStartYear, withdrawalEndYear, onSegmentsChange],
+  )
 
   const addSegment = () => {
     const newId = `segment_${Date.now()}`
@@ -59,11 +61,11 @@ export function useWithdrawalSegments(
   }
 
   const removeSegment = (segmentId: string) => {
-    validateAndUpdateSegments(segments.filter(s => s.id !== segmentId))
+    validateAndUpdateSegments(segments.filter((s) => s.id !== segmentId))
   }
 
   const updateSegment = (segmentId: string, updates: Partial<WithdrawalSegment>) => {
-    const newSegments = segments.map(s => (s.id === segmentId ? { ...s, ...updates } : s))
+    const newSegments = segments.map((s) => (s.id === segmentId ? { ...s, ...updates } : s))
     validateAndUpdateSegments(newSegments)
   }
 

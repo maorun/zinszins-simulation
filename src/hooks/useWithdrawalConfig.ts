@@ -68,10 +68,9 @@ function useSegmentedComparisonCallbacks(
   const updateSegmentedComparisonStrategy = useCallback(
     (strategyId: string, updates: Partial<SegmentedComparisonStrategy>) => {
       updateConfig({
-        segmentedComparisonStrategies: (currentConfig.segmentedComparisonStrategies || [])
-          .map((s: SegmentedComparisonStrategy) =>
-            s.id === strategyId ? { ...s, ...updates } : s,
-          ),
+        segmentedComparisonStrategies: (currentConfig.segmentedComparisonStrategies || []).map(
+          (s: SegmentedComparisonStrategy) => (s.id === strategyId ? { ...s, ...updates } : s),
+        ),
       })
     },
     [currentConfig.segmentedComparisonStrategies, updateConfig],
@@ -89,8 +88,9 @@ function useSegmentedComparisonCallbacks(
   const removeSegmentedComparisonStrategy = useCallback(
     (strategyId: string) => {
       updateConfig({
-        segmentedComparisonStrategies: (currentConfig.segmentedComparisonStrategies || [])
-          .filter((s: SegmentedComparisonStrategy) => s.id !== strategyId),
+        segmentedComparisonStrategies: (currentConfig.segmentedComparisonStrategies || []).filter(
+          (s: SegmentedComparisonStrategy) => s.id !== strategyId,
+        ),
       })
     },
     [currentConfig.segmentedComparisonStrategies, updateConfig],
@@ -112,11 +112,8 @@ function useWithdrawalConfigUpdaters(
 ) {
   const { updateConfig, updateFormValue } = useConfigUpdateCallbacks(currentConfig, setWithdrawalConfig)
   const { updateComparisonStrategy } = useComparisonStrategyCallbacks(currentConfig, updateConfig)
-  const {
-    updateSegmentedComparisonStrategy,
-    addSegmentedComparisonStrategy,
-    removeSegmentedComparisonStrategy,
-  } = useSegmentedComparisonCallbacks(currentConfig, updateConfig)
+  const { updateSegmentedComparisonStrategy, addSegmentedComparisonStrategy, removeSegmentedComparisonStrategy } =
+    useSegmentedComparisonCallbacks(currentConfig, updateConfig)
 
   return {
     updateConfig,
@@ -230,28 +227,30 @@ export function useWithdrawalConfig() {
     const defaultFormValue = createDefaultFormValue()
     const defaultComparisonStrategies = createDefaultComparisonStrategies()
 
-    return withdrawalConfig || {
-      formValue: defaultFormValue,
-      withdrawalReturnMode: 'random' as WithdrawalReturnMode,
-      withdrawalVariableReturns: {},
-      withdrawalAverageReturn: 7,
-      withdrawalStandardDeviation: 12,
-      withdrawalRandomSeed: undefined,
-      withdrawalMultiAssetConfig: undefined, // Will be initialized from context when needed
-      useSegmentedWithdrawal: false,
-      withdrawalSegments: [
-        createDefaultWithdrawalSegment(
-          'main',
-          'Hauptphase',
-          2041, // Use independent default year - not tied to startOfIndependence
-          2080, // Use independent default end year
-        ),
-      ],
-      useComparisonMode: false,
-      comparisonStrategies: defaultComparisonStrategies,
-      useSegmentedComparisonMode: false,
-      segmentedComparisonStrategies: [],
-    }
+    return (
+      withdrawalConfig || {
+        formValue: defaultFormValue,
+        withdrawalReturnMode: 'random' as WithdrawalReturnMode,
+        withdrawalVariableReturns: {},
+        withdrawalAverageReturn: 7,
+        withdrawalStandardDeviation: 12,
+        withdrawalRandomSeed: undefined,
+        withdrawalMultiAssetConfig: undefined, // Will be initialized from context when needed
+        useSegmentedWithdrawal: false,
+        withdrawalSegments: [
+          createDefaultWithdrawalSegment(
+            'main',
+            'Hauptphase',
+            2041, // Use independent default year - not tied to startOfIndependence
+            2080, // Use independent default end year
+          ),
+        ],
+        useComparisonMode: false,
+        comparisonStrategies: defaultComparisonStrategies,
+        useSegmentedComparisonMode: false,
+        segmentedComparisonStrategies: [],
+      }
+    )
   }, [withdrawalConfig])
 
   const updaters = useWithdrawalConfigUpdaters(currentConfig, setWithdrawalConfig)

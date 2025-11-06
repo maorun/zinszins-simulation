@@ -58,7 +58,7 @@ describe('useMobileDetection', () => {
       configurable: true,
       value: 500,
     })
-    resizeListeners.forEach(listener => listener(new UIEvent('resize')))
+    resizeListeners.forEach((listener) => listener(new UIEvent('resize')))
     rerender()
 
     expect(result.current).toBe(true)

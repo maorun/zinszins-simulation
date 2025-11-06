@@ -10,10 +10,7 @@ interface OtherIncomeConfigurationProps {
   onChange: (config: OtherIncomeConfiguration) => void
 }
 
-export function OtherIncomeConfigurationComponent({
-  config,
-  onChange,
-}: OtherIncomeConfigurationProps) {
+export function OtherIncomeConfigurationComponent({ config, onChange }: OtherIncomeConfigurationProps) {
   const {
     editingSource,
     isAddingNew,
@@ -31,10 +28,7 @@ export function OtherIncomeConfigurationComponent({
     <OtherIncomeCard>
       <OtherIncomeInfoBox />
 
-      <OtherIncomeEnableToggle
-        enabled={config.enabled}
-        onToggle={enabled => handleConfigChange({ enabled })}
-      />
+      <OtherIncomeEnableToggle enabled={config.enabled} onToggle={(enabled) => handleConfigChange({ enabled })} />
 
       {config.enabled && (
         <OtherIncomeContent

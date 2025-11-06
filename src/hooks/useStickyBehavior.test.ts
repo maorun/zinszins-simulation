@@ -93,7 +93,7 @@ describe('useStickyBehavior', () => {
       y: 0,
       toJSON: () => ({}),
     })
-    scrollListeners.forEach(listener => listener(new Event('scroll')))
+    scrollListeners.forEach((listener) => listener(new Event('scroll')))
     rerender()
 
     expect(result.current).toBe(true)
@@ -106,7 +106,7 @@ describe('useStickyBehavior', () => {
     expect(result.current).toBe(false)
 
     // Trigger scroll event - should not crash
-    scrollListeners.forEach(listener => listener(new Event('scroll')))
+    scrollListeners.forEach((listener) => listener(new Event('scroll')))
   })
 
   it('cleans up event listener on unmount', () => {

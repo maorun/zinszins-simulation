@@ -1,7 +1,14 @@
 import { useState } from 'react'
 import type { SavedConfiguration, WithdrawalConfiguration } from '../../../utils/config-storage'
-import { convertLegacyToCoupleConfig, type StatutoryPensionConfig, type CoupleStatutoryPensionConfig } from '../../../../helpers/statutory-pension'
-import { createDefaultCareCostConfiguration, type CareCostConfiguration } from '../../../../helpers/care-cost-simulation'
+import {
+  convertLegacyToCoupleConfig,
+  type StatutoryPensionConfig,
+  type CoupleStatutoryPensionConfig,
+} from '../../../../helpers/statutory-pension'
+import {
+  createDefaultCareCostConfiguration,
+  type CareCostConfiguration,
+} from '../../../../helpers/care-cost-simulation'
 import type { FinancialGoal } from '../../../../helpers/financial-goals'
 import type { ExtendedSavedConfiguration } from '../../helpers/config-types'
 
@@ -22,15 +29,16 @@ export function useWithdrawalConfigState(config: WithdrawalConfigStateConfig) {
     initialConfig.statutoryPensionConfig || null,
   )
 
-  const [coupleStatutoryPensionConfig, setCoupleStatutoryPensionConfig]
-    = useState<CoupleStatutoryPensionConfig | null>(() => {
+  const [coupleStatutoryPensionConfig, setCoupleStatutoryPensionConfig] = useState<CoupleStatutoryPensionConfig | null>(
+    () => {
       const legacyConfig = initialConfig.statutoryPensionConfig
       const currentPlanningMode = extendedInitialConfig.planningMode || defaultPlanningMode
       if (legacyConfig && !initialConfig.coupleStatutoryPensionConfig) {
         return convertLegacyToCoupleConfig(legacyConfig, currentPlanningMode)
       }
       return initialConfig.coupleStatutoryPensionConfig || null
-    })
+    },
+  )
 
   const [careCostConfiguration, setCareCostConfiguration] = useState<CareCostConfiguration>(() => {
     const savedConfig = extendedInitialConfig.careCostConfiguration
@@ -40,9 +48,7 @@ export function useWithdrawalConfigState(config: WithdrawalConfigStateConfig) {
     return createDefaultCareCostConfiguration()
   })
 
-  const [financialGoals, setFinancialGoals] = useState<FinancialGoal[]>(
-    extendedInitialConfig.financialGoals || [],
-  )
+  const [financialGoals, setFinancialGoals] = useState<FinancialGoal[]>(extendedInitialConfig.financialGoals || [])
 
   return {
     withdrawalConfig,

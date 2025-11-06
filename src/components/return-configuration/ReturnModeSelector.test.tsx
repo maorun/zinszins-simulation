@@ -41,9 +41,7 @@ describe('ReturnModeSelector', () => {
     render(<ReturnModeSelector returnMode="random" onReturnModeChange={mockOnChange} />)
 
     expect(
-      screen.getByText(
-        'Konfiguration der erwarteten Rendite während der Ansparphase (bis zum Beginn der Entnahme).',
-      ),
+      screen.getByText('Konfiguration der erwarteten Rendite während der Ansparphase (bis zum Beginn der Entnahme).'),
     ).toBeInTheDocument()
   })
 })

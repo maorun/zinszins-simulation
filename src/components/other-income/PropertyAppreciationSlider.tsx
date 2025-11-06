@@ -7,10 +7,7 @@ interface PropertyAppreciationSliderProps {
   onUpdate: (source: OtherIncomeSource) => void
 }
 
-export function PropertyAppreciationSlider({
-  editingSource,
-  onUpdate,
-}: PropertyAppreciationSliderProps) {
+export function PropertyAppreciationSlider({ editingSource, onUpdate }: PropertyAppreciationSliderProps) {
   if (!editingSource.realEstateConfig) {
     return null
   }
@@ -20,13 +17,15 @@ export function PropertyAppreciationSlider({
       <Label>Jährliche Wertsteigerung (%)</Label>
       <Slider
         value={[editingSource.realEstateConfig.propertyAppreciationRate]}
-        onValueChange={values => onUpdate({
-          ...editingSource,
-          realEstateConfig: {
-            ...editingSource.realEstateConfig!,
-            propertyAppreciationRate: values[0],
-          },
-        })}
+        onValueChange={(values) =>
+          onUpdate({
+            ...editingSource,
+            realEstateConfig: {
+              ...editingSource.realEstateConfig!,
+              propertyAppreciationRate: values[0],
+            },
+          })
+        }
         min={0}
         max={8}
         step={0.1}
@@ -35,14 +34,11 @@ export function PropertyAppreciationSlider({
       <div className="flex justify-between text-sm text-gray-500">
         <span>0%</span>
         <span className="font-medium text-gray-900">
-          {editingSource.realEstateConfig.propertyAppreciationRate.toFixed(1)}
-          %
+          {editingSource.realEstateConfig.propertyAppreciationRate.toFixed(1)}%
         </span>
         <span>8%</span>
       </div>
-      <p className="text-xs text-gray-600">
-        Erwartete jährliche Wertsteigerung der Immobilie (Richtwert: 2-3%)
-      </p>
+      <p className="text-xs text-gray-600">Erwartete jährliche Wertsteigerung der Immobilie (Richtwert: 2-3%)</p>
     </div>
   )
 }

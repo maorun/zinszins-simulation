@@ -4,15 +4,60 @@ import { useWithdrawalModals } from './useWithdrawalModals'
 
 // Mock the calculation helpers
 vi.mock('../components/calculationHelpers', () => ({
-  createInflationExplanation: vi.fn(() => ({ title: 'Inflation', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
-  createWithdrawalInterestExplanation: vi.fn(() => ({ title: 'Interest', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
-  createTaxExplanation: vi.fn(() => ({ title: 'Tax', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
-  createIncomeTaxExplanation: vi.fn(() => ({ title: 'Income Tax', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
-  createTaxableIncomeExplanation: vi.fn(() => ({ title: 'Taxable Income', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
-  createOtherIncomeExplanation: vi.fn(() => ({ title: 'Other Income', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
-  createStatutoryPensionExplanation: vi.fn(() => ({ title: 'Statutory Pension', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
-  createEndkapitalExplanation: vi.fn(() => ({ title: 'Endkapital', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
-  createHealthCareInsuranceExplanation: vi.fn(() => ({ title: 'Gesetzliche Kranken- & Pflegeversicherung', introduction: 'Test', steps: [], finalResult: { title: 'Result', values: [] } })),
+  createInflationExplanation: vi.fn(() => ({
+    title: 'Inflation',
+    introduction: 'Test',
+    steps: [],
+    finalResult: { title: 'Result', values: [] },
+  })),
+  createWithdrawalInterestExplanation: vi.fn(() => ({
+    title: 'Interest',
+    introduction: 'Test',
+    steps: [],
+    finalResult: { title: 'Result', values: [] },
+  })),
+  createTaxExplanation: vi.fn(() => ({
+    title: 'Tax',
+    introduction: 'Test',
+    steps: [],
+    finalResult: { title: 'Result', values: [] },
+  })),
+  createIncomeTaxExplanation: vi.fn(() => ({
+    title: 'Income Tax',
+    introduction: 'Test',
+    steps: [],
+    finalResult: { title: 'Result', values: [] },
+  })),
+  createTaxableIncomeExplanation: vi.fn(() => ({
+    title: 'Taxable Income',
+    introduction: 'Test',
+    steps: [],
+    finalResult: { title: 'Result', values: [] },
+  })),
+  createOtherIncomeExplanation: vi.fn(() => ({
+    title: 'Other Income',
+    introduction: 'Test',
+    steps: [],
+    finalResult: { title: 'Result', values: [] },
+  })),
+  createStatutoryPensionExplanation: vi.fn(() => ({
+    title: 'Statutory Pension',
+    introduction: 'Test',
+    steps: [],
+    finalResult: { title: 'Result', values: [] },
+  })),
+  createEndkapitalExplanation: vi.fn(() => ({
+    title: 'Endkapital',
+    introduction: 'Test',
+    steps: [],
+    finalResult: { title: 'Result', values: [] },
+  })),
+  createHealthCareInsuranceExplanation: vi.fn(() => ({
+    title: 'Gesetzliche Kranken- & Pflegeversicherung',
+    introduction: 'Test',
+    steps: [],
+    finalResult: { title: 'Result', values: [] },
+  })),
 }))
 
 const mockFormValue = {
@@ -29,17 +74,9 @@ const mockWithdrawalData = {
 
 describe('useWithdrawalModals', () => {
   it('initializes with correct default state', () => {
-    const { result } = renderHook(() => useWithdrawalModals(
-      mockFormValue,
-      false,
-      [],
-      mockWithdrawalData,
-      2023,
-      0.26375,
-      0.3,
-      true,
-      23208,
-    ))
+    const { result } = renderHook(() =>
+      useWithdrawalModals(mockFormValue, false, [], mockWithdrawalData, 2023, 0.26375, 0.3, true, 23208),
+    )
 
     expect(result.current.showCalculationModal).toBe(false)
     expect(result.current.calculationDetails).toBe(null)
@@ -49,17 +86,9 @@ describe('useWithdrawalModals', () => {
   })
 
   it('handles inflation calculation explanation', () => {
-    const { result } = renderHook(() => useWithdrawalModals(
-      mockFormValue,
-      false,
-      [],
-      mockWithdrawalData,
-      2023,
-      0.26375,
-      0.3,
-      true,
-      23208,
-    ))
+    const { result } = renderHook(() =>
+      useWithdrawalModals(mockFormValue, false, [], mockWithdrawalData, 2023, 0.26375, 0.3, true, 23208),
+    )
 
     const rowData = {
       year: 2024,
@@ -75,34 +104,18 @@ describe('useWithdrawalModals', () => {
   })
 
   it('provides modal state management functions', () => {
-    const { result } = renderHook(() => useWithdrawalModals(
-      mockFormValue,
-      false,
-      [],
-      mockWithdrawalData,
-      2023,
-      0.26375,
-      0.3,
-      true,
-      23208,
-    ))
+    const { result } = renderHook(() =>
+      useWithdrawalModals(mockFormValue, false, [], mockWithdrawalData, 2023, 0.26375, 0.3, true, 23208),
+    )
 
     expect(typeof result.current.setShowCalculationModal).toBe('function')
     expect(typeof result.current.setShowVorabpauschaleModal).toBe('function')
   })
 
   it('handles different explanation types', () => {
-    const { result } = renderHook(() => useWithdrawalModals(
-      mockFormValue,
-      false,
-      [],
-      mockWithdrawalData,
-      2023,
-      0.26375,
-      0.3,
-      true,
-      23208,
-    ))
+    const { result } = renderHook(() =>
+      useWithdrawalModals(mockFormValue, false, [], mockWithdrawalData, 2023, 0.26375, 0.3, true, 23208),
+    )
 
     // Test that the function doesn't throw for different explanation types
     act(() => {
@@ -136,17 +149,9 @@ describe('useWithdrawalModals', () => {
   })
 
   it('should handle healthCareInsurance explanation correctly', () => {
-    const { result } = renderHook(() => useWithdrawalModals(
-      mockFormValue,
-      false,
-      [],
-      mockWithdrawalData,
-      2040,
-      0.26375,
-      0.3,
-      true,
-      12000,
-    ))
+    const { result } = renderHook(() =>
+      useWithdrawalModals(mockFormValue, false, [], mockWithdrawalData, 2040, 0.26375, 0.3, true, 12000),
+    )
 
     const mockRowData = {
       year: 2041,

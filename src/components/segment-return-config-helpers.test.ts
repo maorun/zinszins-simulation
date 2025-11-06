@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  createReturnConfigForMode,
-  getReturnModeFromConfig,
-} from './segment-return-config-helpers'
+import { createReturnConfigForMode, getReturnModeFromConfig } from './segment-return-config-helpers'
 import { createDefaultMultiAssetConfig } from '../../helpers/multi-asset-portfolio'
 import type { ReturnConfiguration } from '../utils/random-returns'
 

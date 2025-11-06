@@ -6,16 +6,13 @@ interface InsuranceTypeSelectionProps {
   onInsuranceTypeChange: (type: 'statutory' | 'private') => void
 }
 
-export function InsuranceTypeSelection({
-  insuranceType,
-  onInsuranceTypeChange,
-}: InsuranceTypeSelectionProps) {
+export function InsuranceTypeSelection({ insuranceType, onInsuranceTypeChange }: InsuranceTypeSelectionProps) {
   return (
     <div className="space-y-3">
       <Label className="text-sm font-medium">Versicherungsart</Label>
       <RadioTileGroup
         value={insuranceType}
-        onValueChange={value => onInsuranceTypeChange(value as 'statutory' | 'private')}
+        onValueChange={(value) => onInsuranceTypeChange(value as 'statutory' | 'private')}
         className="grid grid-cols-1 md:grid-cols-2 gap-3"
       >
         <RadioTile value="statutory" label="Gesetzliche Krankenversicherung">

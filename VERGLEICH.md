@@ -12,19 +12,19 @@ Dieser Test validiert die grundlegende Zinseszinsberechnung.
 
 ### Szenario
 
-| Parameter                  | Wert              |
-| -------------------------- | ----------------- |
-| **Anfangskapital**         | 10.000 €          |
-| **Monatliche Sparrate**    | 200 €             |
-| **Laufzeit**               | 10 Jahre          |
-| **Jährliche Rendite**      | 6,00 % (fest)     |
+| Parameter               | Wert          |
+| ----------------------- | ------------- |
+| **Anfangskapital**      | 10.000 €      |
+| **Monatliche Sparrate** | 200 €         |
+| **Laufzeit**            | 10 Jahre      |
+| **Jährliche Rendite**   | 6,00 % (fest) |
 
 ### Ergebnisse
 
-| Quelle                  | Berechnetes Endkapital |
-| ----------------------- | ---------------------- |
-| `zinsen-berechnen.de`   | **50.561,33 €**        |
-| **Projekt-Simulation**  | **50.561,33 €**        |
+| Quelle                 | Berechnetes Endkapital |
+| ---------------------- | ---------------------- |
+| `zinsen-berechnen.de`  | **50.561,33 €**        |
+| **Projekt-Simulation** | **50.561,33 €**        |
 
 ### Analyse
 
@@ -40,16 +40,16 @@ Dieser Test validiert die Berechnung von laufenden Kosten.
 
 (Identisch mit Testfall 1, aber mit zusätzlichen Kosten)
 
-| Parameter                  | Wert              |
-| -------------------------- | ----------------- |
-| **TER (Verwaltungsgebühr)** | 0,50 % p.a.       |
+| Parameter                   | Wert        |
+| --------------------------- | ----------- |
+| **TER (Verwaltungsgebühr)** | 0,50 % p.a. |
 
 ### Ergebnisse
 
-| Quelle                  | Berechnetes Endkapital |
-| ----------------------- | ---------------------- |
-| `zinsen-berechnen.de`   | **48.809,57 €**        |
-| **Projekt-Simulation**  | **48.845,61 €**        |
+| Quelle                 | Berechnetes Endkapital |
+| ---------------------- | ---------------------- |
+| `zinsen-berechnen.de`  | **48.809,57 €**        |
+| **Projekt-Simulation** | **48.845,61 €**        |
 
 ### Analyse
 
@@ -67,19 +67,19 @@ Dieser Test validiert die komplexe deutsche Steuerlogik.
 
 (Identisch mit Testfall 1, aber mit aktivierten Steuern)
 
-| Parameter                  | Wert              |
-| -------------------------- | ----------------- |
-| **Steuersatz**             | 26,375 %          |
-| **Freibetrag**             | 1.000 € p.a.      |
-| **Teilfreistellung**       | 30 %              |
-| **Basiszins**              | 2,00 % (laut User-Angabe für die Website) |
+| Parameter            | Wert                                      |
+| -------------------- | ----------------------------------------- |
+| **Steuersatz**       | 26,375 %                                  |
+| **Freibetrag**       | 1.000 € p.a.                              |
+| **Teilfreistellung** | 30 %                                      |
+| **Basiszins**        | 2,00 % (laut User-Angabe für die Website) |
 
 ### Ergebnisse
 
-| Quelle                  | Berechnetes Endkapital |
-| ----------------------- | ---------------------- |
-| `zinsen-berechnen.de`   | **46.921,77 €**        |
-| **Projekt-Simulation**  | **50.561,33 €**        |
+| Quelle                 | Berechnetes Endkapital |
+| ---------------------- | ---------------------- |
+| `zinsen-berechnen.de`  | **46.921,77 €**        |
+| **Projekt-Simulation** | **50.561,33 €**        |
 
 ### Analyse
 

@@ -33,7 +33,9 @@ const createMockFormValue = (overrides?: Partial<WithdrawalFormValue>): Withdraw
 })
 
 describe('FinancialDetailsSection', () => {
-  const mockFormatWithInflation = vi.fn(params => `${params.value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`)
+  const mockFormatWithInflation = vi.fn(
+    (params) => `${params.value.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })}`,
+  )
   const mockOnCalculationInfoClick = vi.fn()
 
   const defaultRowData = {

@@ -8,18 +8,12 @@ interface AverageReturnSliderProps {
   onAverageReturnChange: (value: number) => void
 }
 
-export function AverageReturnSlider({
-  segmentId,
-  averageReturn,
-  onAverageReturnChange,
-}: AverageReturnSliderProps) {
+export function AverageReturnSlider({ segmentId, averageReturn, onAverageReturnChange }: AverageReturnSliderProps) {
   const sliderId = useInstanceId('avg-return', segmentId)
 
   return (
     <div className="mb-4 space-y-2">
-      <Label htmlFor={sliderId}>
-        Durchschnittliche Rendite (%)
-      </Label>
+      <Label htmlFor={sliderId}>Durchschnittliche Rendite (%)</Label>
       <div className="space-y-2">
         <Slider
           id={sliderId}
@@ -27,15 +21,12 @@ export function AverageReturnSlider({
           min={0}
           max={12}
           step={0.5}
-          onValueChange={value => onAverageReturnChange(value[0] / 100)}
+          onValueChange={(value) => onAverageReturnChange(value[0] / 100)}
           className="mt-2"
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>0%</span>
-          <span className="font-medium text-gray-900">
-            {(averageReturn * 100).toFixed(1)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{(averageReturn * 100).toFixed(1)}%</span>
           <span>12%</span>
         </div>
       </div>

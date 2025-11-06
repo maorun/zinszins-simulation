@@ -22,7 +22,7 @@ export const ScenarioSelector = ({
       <Label className="text-sm font-medium mb-2 block">Szenario auswählen</Label>
       <RadioGroup
         value={selectedScenarioId === 'none' ? undefined : selectedScenarioId}
-        onValueChange={value => onScenarioChange(value as InflationScenarioId)}
+        onValueChange={(value) => onScenarioChange(value as InflationScenarioId)}
       >
         <div className="grid gap-3">
           {availableScenarios.map((scenario) => {
@@ -39,18 +39,12 @@ export const ScenarioSelector = ({
                 onClick={() => onScenarioChange(scenario.id)}
               >
                 <div className="flex items-start space-x-2">
-                  <RadioGroupItem
-                    value={scenario.id}
-                    id={scenarioRadioId}
-                    className="mt-1"
-                  />
+                  <RadioGroupItem value={scenario.id} id={scenarioRadioId} className="mt-1" />
                   <div className="flex-1">
                     <Label htmlFor={scenarioRadioId} className="font-medium cursor-pointer">
                       {scenario.name}
                     </Label>
-                    <p className="text-sm text-muted-foreground mt-1">
-                      {scenario.description}
-                    </p>
+                    <p className="text-sm text-muted-foreground mt-1">{scenario.description}</p>
                   </div>
                 </div>
               </div>

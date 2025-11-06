@@ -36,7 +36,7 @@ export function EditProfileDialog({
             <Input
               id="edit-name"
               value={formData.name}
-              onChange={e => onFormDataChange({ ...formData, name: e.target.value })}
+              onChange={(e) => onFormDataChange({ ...formData, name: e.target.value })}
               placeholder="z.B. Familie Müller, Test Szenario 1"
               className="mt-1"
             />
@@ -46,7 +46,7 @@ export function EditProfileDialog({
             <Input
               id="edit-description"
               value={formData.description}
-              onChange={e => onFormDataChange({ ...formData, description: e.target.value })}
+              onChange={(e) => onFormDataChange({ ...formData, description: e.target.value })}
               placeholder="Kurze Beschreibung des Profils"
               className="mt-1"
             />
@@ -55,9 +55,7 @@ export function EditProfileDialog({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Abbrechen
             </Button>
-            <Button onClick={onSubmit}>
-              Änderungen speichern
-            </Button>
+            <Button onClick={onSubmit}>Änderungen speichern</Button>
           </div>
         </div>
       </DialogContent>

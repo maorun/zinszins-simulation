@@ -11,9 +11,7 @@ export default function BasiszinsConfiguration() {
 
   return (
     <CollapsibleCard>
-      <CollapsibleCardHeader>
-        📈 Basiszins-Konfiguration (Deutsche Bundesbank)
-      </CollapsibleCardHeader>
+      <CollapsibleCardHeader>📈 Basiszins-Konfiguration (Deutsche Bundesbank)</CollapsibleCardHeader>
       <CollapsibleCardContent>
         <BasiszinsContent
           basiszinsConfiguration={config.basiszinsConfiguration}

@@ -23,7 +23,7 @@ export function ConfigurableSlider({
   step,
   description,
   onChange,
-  formatValue = v => `${v}%`,
+  formatValue = (v) => `${v}%`,
   disabled = false,
 }: ConfigurableSliderProps) {
   return (

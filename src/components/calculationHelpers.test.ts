@@ -46,7 +46,9 @@ describe('calculationHelpers', () => {
 
       expect(explanation.title).toBe('🎯 Endkapital-Berechnung Schritt für Schritt')
       expect(explanation.introduction).toContain('Die Endkapital-Berechnung für das Jahr 2023')
-      expect(explanation.introduction).toContain('wie sich Ihr Portfolio durch Einzahlungen, Zinserträge und Steuern entwickelt')
+      expect(explanation.introduction).toContain(
+        'wie sich Ihr Portfolio durch Einzahlungen, Zinserträge und Steuern entwickelt',
+      )
       expect(explanation.steps).toHaveLength(4)
       expect(explanation.steps[0].title).toBe('Schritt 1: Startkapital zu Jahresbeginn')
       expect(explanation.steps[1].title).toBe('Schritt 2: Neue Einzahlungen addieren')
@@ -251,7 +253,7 @@ describe('calculationHelpers', () => {
 
       expect(explanation.steps).toHaveLength(2) // Only portfolio and Grundfreibetrag
       // Index 3 is zu versteuerndes Einkommen (0=Portfolio, 1=Gesamte, 2=Grundfreibetrag, 3=Zu versteuerndes)
-      const zuVersteuern = explanation.finalResult.values.find(v => v.label === 'Zu versteuerndes Einkommen')
+      const zuVersteuern = explanation.finalResult.values.find((v) => v.label === 'Zu versteuerndes Einkommen')
       expect(zuVersteuern?.value).toBe('0,00 €')
     })
 
@@ -260,28 +262,28 @@ describe('calculationHelpers', () => {
 
       // Should NOT have statutory pension step
       expect(explanation.steps.length).toBeLessThan(3)
-      expect(explanation.steps.every(step => !step.title.includes('Gesetzliche Rente'))).toBe(true)
+      expect(explanation.steps.every((step) => !step.title.includes('Gesetzliche Rente'))).toBe(true)
     })
 
     it('should add other income step only when amount is positive', () => {
       const explanation = createTaxableIncomeExplanation(20000, 11000, 0, 0)
 
       // Should NOT have other income step
-      expect(explanation.steps.every(step => !step.title.includes('Andere Einkünfte'))).toBe(true)
+      expect(explanation.steps.every((step) => !step.title.includes('Andere Einkünfte'))).toBe(true)
     })
 
     it('should add health care insurance step only when amount is positive', () => {
       const explanation = createTaxableIncomeExplanation(20000, 11000, 0, 0, 0)
 
       // Should NOT have health care insurance step
-      expect(explanation.steps.every(step => !step.title.includes('Krankenversicherung'))).toBe(true)
+      expect(explanation.steps.every((step) => !step.title.includes('Krankenversicherung'))).toBe(true)
     })
 
     it('should build calculation text correctly for total income', () => {
       const explanation = createTaxableIncomeExplanation(20000, 11000, 15000, 5000, 3000)
 
       // Find the total income step
-      const totalStep = explanation.steps.find(s => s.title.includes('Gesamte Einkünfte'))
+      const totalStep = explanation.steps.find((s) => s.title.includes('Gesamte Einkünfte'))
       expect(totalStep).toBeDefined()
       expect(totalStep?.calculation).toContain('Portfolio-Entnahme')
       expect(totalStep?.calculation).toContain('Gesetzliche Rente')
@@ -297,14 +299,14 @@ describe('calculationHelpers', () => {
       const explanation = createTaxableIncomeExplanation(20000, 11000)
 
       // Should NOT have total income step since we only have portfolio withdrawal
-      expect(explanation.steps.every(s => !s.title.includes('Gesamte Einkünfte'))).toBe(true)
+      expect(explanation.steps.every((s) => !s.title.includes('Gesamte Einkünfte'))).toBe(true)
     })
 
     it('should handle Grundfreibetrag correctly when total income is below it', () => {
       const explanation = createTaxableIncomeExplanation(5000, 11000)
 
       // Zu versteuerndes Einkommen should be 0 when total < Grundfreibetrag
-      const finalValue = explanation.finalResult.values.find(v => v.label === 'Zu versteuerndes Einkommen')
+      const finalValue = explanation.finalResult.values.find((v) => v.label === 'Zu versteuerndes Einkommen')
       expect(finalValue?.value).toBe('0,00 €')
     })
   })

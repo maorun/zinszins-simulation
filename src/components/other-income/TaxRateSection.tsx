@@ -13,10 +13,12 @@ export function TaxRateSection({ editingSource, onUpdate }: TaxRateSectionProps)
       <Label>Steuersatz (%)</Label>
       <Slider
         value={[editingSource.taxRate]}
-        onValueChange={values => onUpdate({
-          ...editingSource,
-          taxRate: values[0],
-        })}
+        onValueChange={(values) =>
+          onUpdate({
+            ...editingSource,
+            taxRate: values[0],
+          })
+        }
         min={0}
         max={50}
         step={0.5}
@@ -24,10 +26,7 @@ export function TaxRateSection({ editingSource, onUpdate }: TaxRateSectionProps)
       />
       <div className="flex justify-between text-sm text-gray-500">
         <span>0%</span>
-        <span className="font-medium text-gray-900">
-          {editingSource.taxRate.toFixed(1)}
-          %
-        </span>
+        <span className="font-medium text-gray-900">{editingSource.taxRate.toFixed(1)}%</span>
         <span>50%</span>
       </div>
     </div>

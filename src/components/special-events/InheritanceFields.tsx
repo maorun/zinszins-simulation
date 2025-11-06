@@ -16,12 +16,13 @@ export function InheritanceFields({ formValues, onFormChange }: InheritanceField
 
   return (
     <>
-      <div style={{
-        display: 'grid',
-        gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-        gap: '1rem',
-        marginBottom: '1.5rem',
-      }}
+      <div
+        style={{
+          display: 'grid',
+          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
+          gap: '1rem',
+          marginBottom: '1.5rem',
+        }}
       >
         <RelationshipTypeField formValues={formValues} onFormChange={onFormChange} />
         <GrossAmountField formValues={formValues} onFormChange={onFormChange} />

@@ -79,7 +79,7 @@ describe('glossary', () => {
 
     it('should contain expected terms', () => {
       const allTerms = getAllGlossaryTerms()
-      const termNames = allTerms.map(t => t.term)
+      const termNames = allTerms.map((t) => t.term)
 
       expect(termNames).toContain('Vorabpauschale')
       expect(termNames).toContain('Basiszins')
@@ -98,16 +98,16 @@ describe('glossary', () => {
     it('should find terms by partial match', () => {
       const results = searchGlossaryTerms('steuer')
       expect(results.length).toBeGreaterThan(0)
-      const termNames = results.map(t => t.term)
+      const termNames = results.map((t) => t.term)
       // Should find at least Kapitalertragsteuer, Einkommensteuersatz
-      expect(termNames.some(name => name.toLowerCase().includes('steuer'))).toBe(true)
+      expect(termNames.some((name) => name.toLowerCase().includes('steuer'))).toBe(true)
     })
 
     it('should find terms by definition content', () => {
       const results = searchGlossaryTerms('thesaurierende')
       expect(results.length).toBeGreaterThan(0)
       // Should find Vorabpauschale which mentions thesaurierende Fonds
-      expect(results.some(t => t.term === 'Vorabpauschale')).toBe(true)
+      expect(results.some((t) => t.term === 'Vorabpauschale')).toBe(true)
     })
 
     it('should be case-insensitive', () => {

@@ -26,9 +26,7 @@ export function GrundfreibetragInput({
           onClick={() => onGrundfreibetragBetragChange(recommendedGrundfreibetrag)}
           className="text-xs"
         >
-          Reset (
-          {planningModeLabel}
-          )
+          Reset ({planningModeLabel})
         </Button>
       </div>
       <Input

@@ -8,7 +8,7 @@ export function useCareCostSync(
 ) {
   useEffect(() => {
     if (careCostConfiguration.planningMode !== planningMode) {
-      setCareCostConfiguration(prevConfig => ({
+      setCareCostConfiguration((prevConfig) => ({
         ...prevConfig,
         planningMode,
         coupleConfig: planningMode === 'individual' ? undefined : prevConfig.coupleConfig,

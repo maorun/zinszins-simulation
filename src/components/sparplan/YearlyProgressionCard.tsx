@@ -44,51 +44,32 @@ const InfoIcon = ({ onClick }: { onClick: () => void }) => (
 )
 
 // Helper component to render Günstigerprüfung information
-function GuenstigerpruefungDisplay({
-  elemente,
-  jahr,
-}: {
-  elemente?: SparplanElement[]
-  jahr: number
-}) {
-  const elementWithGuenstigerPruefung = elemente?.find(el =>
-    el.simulation[jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult,
+function GuenstigerpruefungDisplay({ elemente, jahr }: { elemente?: SparplanElement[]; jahr: number }) {
+  const elementWithGuenstigerPruefung = elemente?.find(
+    (el) => el.simulation[jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult,
   )
 
-  const pruefungResult = elementWithGuenstigerPruefung
-    ?.simulation[jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult
+  const pruefungResult =
+    elementWithGuenstigerPruefung?.simulation[jahr]?.vorabpauschaleDetails?.guenstigerPruefungResult
 
   if (!pruefungResult) {
     return null
   }
 
-  const favorableText = pruefungResult.isFavorable === 'personal'
-    ? 'Persönlicher Steuersatz'
-    : 'Abgeltungssteuer'
+  const favorableText = pruefungResult.isFavorable === 'personal' ? 'Persönlicher Steuersatz' : 'Abgeltungssteuer'
   const usedRate = `${(pruefungResult.usedTaxRate * 100).toFixed(2)}%`
 
   return (
     <div className="bg-blue-50 px-2 py-1 rounded space-y-1">
       <div className="flex justify-between items-center">
         <span className="text-sm text-blue-600 font-medium">
-          🔍
-          {' '}
-          <GlossaryTerm term="guenstigerpruefung">
-            Günstigerprüfung
-          </GlossaryTerm>
-          :
+          🔍 <GlossaryTerm term="guenstigerpruefung">Günstigerprüfung</GlossaryTerm>:
         </span>
         <span className="font-semibold text-blue-700 text-sm">
-          {favorableText}
-          {' '}
-          (
-          {usedRate}
-          )
+          {favorableText} ({usedRate})
         </span>
       </div>
-      <div className="text-xs text-blue-600 italic">
-        {pruefungResult.explanation}
-      </div>
+      <div className="text-xs text-blue-600 italic">{pruefungResult.explanation}</div>
     </div>
   )
 }
@@ -106,9 +87,7 @@ function VorabpauschaleDisplay({
   onInfoClick: (details: VorabpauschaleDetails) => void
 }) {
   // Find any element that has vorabpauschale details for this year
-  const elementWithVorab = elemente?.find(el =>
-    el.simulation[jahr]?.vorabpauschaleDetails,
-  )
+  const elementWithVorab = elemente?.find((el) => el.simulation[jahr]?.vorabpauschaleDetails)
 
   const vorabDetails = elementWithVorab?.simulation[jahr]?.vorabpauschaleDetails
 
@@ -119,21 +98,11 @@ function VorabpauschaleDisplay({
   return (
     <div className="flex justify-between items-center py-1">
       <span className="text-sm text-gray-600 font-medium">
-        📊
-        {' '}
-        <GlossaryTerm term="vorabpauschale">
-          Vorabpauschale
-        </GlossaryTerm>
-        {' '}
-        (Beispiel):
+        📊 <GlossaryTerm term="vorabpauschale">Vorabpauschale</GlossaryTerm> (Beispiel):
       </span>
       <span className="font-semibold text-blue-700 text-sm flex items-center">
-        {thousands(vorabDetails.vorabpauschaleAmount?.toString() || '0')}
-        {' '}
-        €
-        <InfoIcon
-          onClick={() => onInfoClick(vorabDetails)}
-        />
+        {thousands(vorabDetails.vorabpauschaleAmount?.toString() || '0')} €
+        <InfoIcon onClick={() => onInfoClick(vorabDetails)} />
       </span>
     </div>
   )
@@ -180,14 +149,11 @@ function CardHeader({
   return (
     <div className="flex justify-between items-center mb-3 pb-3 border-b border-gray-200">
       <span className="font-semibold text-gray-800 text-base">
-        📅
-        1.1.
+        📅 1.1.
         {year}
       </span>
       <span className="font-bold text-blue-600 text-lg flex items-center">
-        🎯
-        {' '}
-        {formatValue(totalCapital, totalCapitalReal)}
+        🎯 {formatValue(totalCapital, totalCapitalReal)}
         <InfoIcon onClick={onInfoClick} />
       </span>
     </div>
@@ -237,11 +203,7 @@ function ProgressionDetails({
         value={`${thousands(row.cumulativeContributions)} €`}
         valueClassName="text-gray-600"
       />
-      <VorabpauschaleDisplay
-        elemente={elemente}
-        jahr={row.year}
-        onInfoClick={showVorabpauschaleInfo}
-      />
+      <VorabpauschaleDisplay elemente={elemente} jahr={row.year} onInfoClick={showVorabpauschaleInfo} />
     </div>
   )
 }

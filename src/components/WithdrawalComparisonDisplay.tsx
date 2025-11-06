@@ -38,11 +38,7 @@ interface WithdrawalComparisonDisplayProps {
 function StrategyCardHeader({ result }: { result: ComparisonResult }) {
   return (
     <h6 style={{ margin: '0 0 10px 0', color: '#666' }}>
-      {result.strategy.name}
-      {' '}
-      (
-      {result.strategy.rendite}
-      % Rendite)
+      {result.strategy.name} ({result.strategy.rendite}% Rendite)
     </h6>
   )
 }
@@ -58,24 +54,16 @@ function StrategyCardMetrics({ result }: { result: ComparisonResult }) {
       }}
     >
       <div>
-        <strong>Endkapital:</strong>
-        {' '}
-        {formatCurrency(result.finalCapital)}
+        <strong>Endkapital:</strong> {formatCurrency(result.finalCapital)}
       </div>
       <div>
-        <strong>Gesamt-Entnahme:</strong>
-        {' '}
-        {formatCurrency(result.totalWithdrawal)}
+        <strong>Gesamt-Entnahme:</strong> {formatCurrency(result.totalWithdrawal)}
       </div>
       <div>
-        <strong>Ø Jährlich:</strong>
-        {' '}
-        {formatCurrency(result.averageAnnualWithdrawal)}
+        <strong>Ø Jährlich:</strong> {formatCurrency(result.averageAnnualWithdrawal)}
       </div>
       <div>
-        <strong>Dauer:</strong>
-        {' '}
-        {typeof result.duration === 'number' ? `${result.duration} Jahre` : result.duration}
+        <strong>Dauer:</strong> {typeof result.duration === 'number' ? `${result.duration} Jahre` : result.duration}
       </div>
     </div>
   )
@@ -103,9 +91,7 @@ function ComparisonHeader({ startingCapital }: { startingCapital: number }) {
     <>
       <h4>Strategien-Vergleich</h4>
       <p>
-        <strong>Startkapital bei Entnahme:</strong>
-        {' '}
-        {formatCurrency(startingCapital)}
+        <strong>Startkapital bei Entnahme:</strong> {formatCurrency(startingCapital)}
       </p>
     </>
   )
@@ -115,20 +101,17 @@ function ComparisonStrategiesList({ comparisonResults }: { comparisonResults: Co
   return (
     <>
       <h5>🔍 Vergleichs-Strategien</h5>
-      {comparisonResults.length > 0
-        ? (
-            <div style={{ display: 'grid', gap: '15px' }}>
-              {comparisonResults.map((result: ComparisonResult) => (
-                <ComparisonStrategyCard key={result.strategy.id} result={result} />
-              ))}
-            </div>
-          )
-        : (
-            <p style={{ color: '#666', fontStyle: 'italic' }}>
-              Keine Vergleichs-Strategien konfiguriert. Fügen Sie
-              Strategien über den Konfigurationsbereich hinzu.
-            </p>
-          )}
+      {comparisonResults.length > 0 ? (
+        <div style={{ display: 'grid', gap: '15px' }}>
+          {comparisonResults.map((result: ComparisonResult) => (
+            <ComparisonStrategyCard key={result.strategy.id} result={result} />
+          ))}
+        </div>
+      ) : (
+        <p style={{ color: '#666', fontStyle: 'italic' }}>
+          Keine Vergleichs-Strategien konfiguriert. Fügen Sie Strategien über den Konfigurationsbereich hinzu.
+        </p>
+      )}
     </>
   )
 }

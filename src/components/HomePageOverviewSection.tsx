@@ -12,10 +12,7 @@ export function HomePageOverviewSection({ overviewRef }: HomePageOverviewSection
   if (!simulationData) return null
 
   return (
-    <div
-      ref={overviewRef}
-      className="my-3 sm:my-4"
-    >
+    <div ref={overviewRef} className="my-3 sm:my-4">
       <EnhancedOverview />
     </div>
   )

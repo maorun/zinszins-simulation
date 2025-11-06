@@ -38,14 +38,8 @@ export function ChartTooltip({ active, payload, label }: ChartTooltipProps) {
 
         {payload.map((entry, index: number) => (
           <div key={index} className="flex justify-between items-center mb-1">
-            <span className="text-sm text-gray-600">
-              {entry.name}
-              :
-            </span>
-            <span
-              className="text-sm font-medium ml-2"
-              style={{ color: entry.color }}
-            >
+            <span className="text-sm text-gray-600">{entry.name}:</span>
+            <span className="text-sm font-medium ml-2" style={{ color: entry.color }}>
               {formatCurrency(entry.value)}
             </span>
           </div>
@@ -57,8 +51,8 @@ export function ChartTooltip({ active, payload, label }: ChartTooltipProps) {
               <span>Gesamtrendite:</span>
               <span className="font-medium">
                 {data.endkapital > data.kumulativeEinzahlungen
-                  ? `+${(((data.endkapital / data.kumulativeEinzahlungen) - 1) * 100).toFixed(1)}%`
-                  : `${(((data.endkapital / data.kumulativeEinzahlungen) - 1) * 100).toFixed(1)}%`}
+                  ? `+${((data.endkapital / data.kumulativeEinzahlungen - 1) * 100).toFixed(1)}%`
+                  : `${((data.endkapital / data.kumulativeEinzahlungen - 1) * 100).toFixed(1)}%`}
               </span>
             </div>
           </div>

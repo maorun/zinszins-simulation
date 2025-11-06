@@ -22,9 +22,7 @@ export function RMDStartAgeConfig({
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={inputId}>
-        Alter zu Beginn der Entnahmephase
-      </Label>
+      <Label htmlFor={inputId}>Alter zu Beginn der Entnahmephase</Label>
       <Input
         id={inputId}
         type="number"

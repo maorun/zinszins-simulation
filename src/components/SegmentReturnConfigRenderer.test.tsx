@@ -24,26 +24,15 @@ vi.mock('./SegmentRandomReturnConfig', () => ({
 }))
 
 vi.mock('./SegmentVariableReturnConfig', () => ({
-  SegmentVariableReturnConfig: ({
-    startYear,
-    endYear,
-  }: {
-    startYear: number
-    endYear: number
-  }) => (
+  SegmentVariableReturnConfig: ({ startYear, endYear }: { startYear: number; endYear: number }) => (
     <div data-testid="variable-config">
-      {startYear}
-      {' '}
-      -
-      {endYear}
+      {startYear} -{endYear}
     </div>
   ),
 }))
 
 vi.mock('./MultiAssetPortfolioConfiguration', () => ({
-  MultiAssetPortfolioConfiguration: () => (
-    <div data-testid="multiasset-config">Multi-Asset Portfolio</div>
-  ),
+  MultiAssetPortfolioConfiguration: () => <div data-testid="multiasset-config">Multi-Asset Portfolio</div>,
 }))
 
 describe('SegmentReturnConfigRenderer', () => {

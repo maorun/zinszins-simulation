@@ -55,7 +55,7 @@ export const SENSITIVITY_PARAMETERS: { [key: string]: SensitivityParameter } = {
     min: 0,
     max: 15,
     step: 1,
-    formatValue: value => `${value.toFixed(1)}%`,
+    formatValue: (value) => `${value.toFixed(1)}%`,
   },
   savingsAmount: {
     name: 'savingsAmount',
@@ -65,7 +65,7 @@ export const SENSITIVITY_PARAMETERS: { [key: string]: SensitivityParameter } = {
     min: 6000,
     max: 50000,
     step: 6000,
-    formatValue: value => `${value.toLocaleString('de-DE')} €`,
+    formatValue: (value) => `${value.toLocaleString('de-DE')} €`,
   },
   taxRate: {
     name: 'taxRate',
@@ -75,7 +75,7 @@ export const SENSITIVITY_PARAMETERS: { [key: string]: SensitivityParameter } = {
     min: 0,
     max: 45,
     step: 5,
-    formatValue: value => `${value.toFixed(2)}%`,
+    formatValue: (value) => `${value.toFixed(2)}%`,
   },
   inflationRate: {
     name: 'inflationRate',
@@ -85,7 +85,7 @@ export const SENSITIVITY_PARAMETERS: { [key: string]: SensitivityParameter } = {
     min: 0,
     max: 10,
     step: 1,
-    formatValue: value => `${value.toFixed(1)}%`,
+    formatValue: (value) => `${value.toFixed(1)}%`,
   },
   investmentPeriod: {
     name: 'investmentPeriod',
@@ -95,7 +95,7 @@ export const SENSITIVITY_PARAMETERS: { [key: string]: SensitivityParameter } = {
     min: 5,
     max: 50,
     step: 5,
-    formatValue: value => `${value} Jahre`,
+    formatValue: (value) => `${value} Jahre`,
   },
 }
 
@@ -118,7 +118,7 @@ function applyParameterModification(
   value: number,
   baseConfig: SensitivityAnalysisConfig,
   returnConfig: ReturnConfiguration,
-): { config: SensitivityAnalysisConfig, returnConfig: ReturnConfiguration } {
+): { config: SensitivityAnalysisConfig; returnConfig: ReturnConfiguration } {
   const config = { ...baseConfig }
   let modifiedReturnConfig = { ...returnConfig }
 
@@ -128,7 +128,7 @@ function applyParameterModification(
       break
 
     case 'savingsAmount':
-      config.elements = baseConfig.elements.map(el => ({
+      config.elements = baseConfig.elements.map((el) => ({
         ...el,
         einzahlung: value,
       }))
@@ -176,8 +176,7 @@ function calculateEinmalzahlungContributions(element: SparplanElement): number {
  * Calculate total contributions for an element
  */
 function calculateElementContributions(element: SparplanElement, years: number[]): number {
-  return calculateSparplanContributions(element, years)
-    + calculateEinmalzahlungContributions(element)
+  return calculateSparplanContributions(element, years) + calculateEinmalzahlungContributions(element)
 }
 
 /**
@@ -204,9 +203,7 @@ function calculateSimulationMetrics(simulationResult: SparplanElement[]): {
   }
 
   const totalGains = finalCapital - totalContributions
-  const effectiveReturn = totalContributions > 0
-    ? ((finalCapital / totalContributions) - 1) * 100
-    : 0
+  const effectiveReturn = totalContributions > 0 ? (finalCapital / totalContributions - 1) * 100 : 0
 
   return { finalCapital, totalContributions, totalGains, effectiveReturn }
 }
@@ -251,10 +248,7 @@ export function runSensitivityAnalysis(
  * Calculate the impact (sensitivity) of each parameter
  * Returns the percentage change in final capital per unit change in parameter
  */
-export function calculateParameterImpact(
-  results: SensitivityResult[],
-  baseResult: SensitivityResult,
-): number {
+export function calculateParameterImpact(results: SensitivityResult[], baseResult: SensitivityResult): number {
   if (results.length < 2) return 0
 
   // Calculate the slope of the relationship
@@ -267,7 +261,7 @@ export function calculateParameterImpact(
   if (parameterChange === 0 || baseResult.finalCapital === 0) return 0
 
   // Return the percentage change in capital per unit change in parameter
-  return (capitalChange / parameterChange) / baseResult.finalCapital * 100
+  return (capitalChange / parameterChange / baseResult.finalCapital) * 100
 }
 
 /**
@@ -276,8 +270,8 @@ export function calculateParameterImpact(
 export function getMostImpactfulParameters(
   parameterResults: Map<string, SensitivityResult[]>,
   baseResults: Map<string, SensitivityResult>,
-): Array<{ parameter: string, impact: number }> {
-  const impacts: Array<{ parameter: string, impact: number }> = []
+): Array<{ parameter: string; impact: number }> {
+  const impacts: Array<{ parameter: string; impact: number }> = []
 
   for (const [paramName, results] of parameterResults.entries()) {
     const baseResult = baseResults.get(paramName)

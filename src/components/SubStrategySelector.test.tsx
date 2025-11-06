@@ -16,9 +16,7 @@ describe('SubStrategySelector', () => {
   it('displays helper text', () => {
     render(<SubStrategySelector value="4prozent" onChange={vi.fn()} />)
 
-    expect(
-      screen.getByText(/Wählen Sie die Entnahme-Strategie/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Wählen Sie die Entnahme-Strategie/)).toBeInTheDocument()
   })
 
   it('displays strategy descriptions', () => {

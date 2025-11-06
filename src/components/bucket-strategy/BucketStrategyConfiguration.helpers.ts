@@ -66,9 +66,7 @@ export function getDefaultValues(): BucketStrategyConfigValues {
   return { ...DEFAULT_VALUES }
 }
 
-export function getCurrentValuesFromForm(
-  formValue: BucketStrategyFormValues,
-): BucketStrategyConfigValues {
+export function getCurrentValuesFromForm(formValue: BucketStrategyFormValues): BucketStrategyConfigValues {
   const config = formValue.bucketConfig
 
   // If no config provided, return defaults
@@ -83,9 +81,7 @@ export function getCurrentValuesFromForm(
   }
 }
 
-export function getCurrentValuesFromDirect(
-  values: Partial<BucketStrategyConfigValues>,
-): BucketStrategyConfigValues {
+export function getCurrentValuesFromDirect(values: Partial<BucketStrategyConfigValues>): BucketStrategyConfigValues {
   return {
     ...DEFAULT_VALUES,
     ...values,

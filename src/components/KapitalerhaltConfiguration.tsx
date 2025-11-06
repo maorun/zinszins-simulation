@@ -46,8 +46,7 @@ function NominalReturnSlider({
     const newValue = values[0]
     if (isFormMode) {
       updateFormValue!({ ...formValue!, kapitalerhaltNominalReturn: newValue })
-    }
-    else {
+    } else {
       onChange!.onNominalReturnChange(newValue)
     }
   }
@@ -56,20 +55,10 @@ function NominalReturnSlider({
     <div className="space-y-2">
       <Label>Erwartete nominale Rendite (%)</Label>
       <div className="space-y-2">
-        <Slider
-          value={[value]}
-          onValueChange={handleValueChange}
-          min={0}
-          max={15}
-          step={0.1}
-          className="mt-2"
-        />
+        <Slider value={[value]} onValueChange={handleValueChange} min={0} max={15} step={0.1} className="mt-2" />
         <div className="flex justify-between text-sm text-gray-500">
           <span>0%</span>
-          <span className="font-medium text-gray-900">
-            {value.toFixed(1)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{value.toFixed(1)}%</span>
           <span>15%</span>
         </div>
       </div>
@@ -100,8 +89,7 @@ function InflationRateSlider({
     const newValue = values[0]
     if (isFormMode) {
       updateFormValue!({ ...formValue!, kapitalerhaltInflationRate: newValue })
-    }
-    else {
+    } else {
       onChange!.onInflationRateChange(newValue)
     }
   }
@@ -110,20 +98,10 @@ function InflationRateSlider({
     <div className="space-y-2">
       <Label>Erwartete Inflationsrate (%)</Label>
       <div className="space-y-2">
-        <Slider
-          value={[value]}
-          onValueChange={handleValueChange}
-          min={0}
-          max={8}
-          step={0.1}
-          className="mt-2"
-        />
+        <Slider value={[value]} onValueChange={handleValueChange} min={0} max={8} step={0.1} className="mt-2" />
         <div className="flex justify-between text-sm text-gray-500">
           <span>0%</span>
-          <span className="font-medium text-gray-900">
-            {value.toFixed(1)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{value.toFixed(1)}%</span>
           <span>8%</span>
         </div>
       </div>
@@ -137,13 +115,7 @@ function InflationRateSlider({
 /**
  * Real return display component
  */
-function RealReturnDisplay({
-  nominalReturn,
-  inflationRate,
-}: {
-  nominalReturn: number
-  inflationRate: number
-}) {
+function RealReturnDisplay({ nominalReturn, inflationRate }: { nominalReturn: number; inflationRate: number }) {
   const realReturn = nominalReturn - inflationRate
 
   return (
@@ -151,14 +123,7 @@ function RealReturnDisplay({
       <div className="text-sm">
         <div className="font-medium text-blue-900 mb-1">Berechnete reale Entnahmerate:</div>
         <div className="text-blue-800">
-          {nominalReturn.toFixed(1)}
-          % -
-          {inflationRate.toFixed(1)}
-          % =
-          <strong>
-            {realReturn.toFixed(1)}
-            %
-          </strong>
+          {nominalReturn.toFixed(1)}% -{inflationRate.toFixed(1)}% =<strong>{realReturn.toFixed(1)}%</strong>
         </div>
         <div className="text-blue-700 mt-1 text-xs">
           Diese Rate wird jährlich vom Portfoliowert entnommen, um das reale Kapital zu erhalten.
@@ -208,10 +173,7 @@ export function KapitalerhaltConfiguration({
         onChange={onChange}
       />
 
-      <RealReturnDisplay
-        nominalReturn={currentValues.nominalReturn}
-        inflationRate={currentValues.inflationRate}
-      />
+      <RealReturnDisplay nominalReturn={currentValues.nominalReturn} inflationRate={currentValues.inflationRate} />
     </div>
   )
 }

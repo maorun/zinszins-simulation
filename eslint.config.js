@@ -37,51 +37,54 @@ export default [
     rules: {
       ...stylistic.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
-      'react-refresh/only-export-components': [
-        'warn',
-        { allowConstantExport: true },
+      'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
+      '@typescript-eslint/no-unused-vars': [
+        'error',
+        {
+          argsIgnorePattern: '^_',
+          varsIgnorePattern: '^_',
+          caughtErrorsIgnorePattern: '^_',
+        },
       ],
-      '@typescript-eslint/no-unused-vars': ['error', { 
-        argsIgnorePattern: '^_',
-        varsIgnorePattern: '^_',
-        caughtErrorsIgnorePattern: '^_'
-      }],
       'no-unused-vars': 'off', // Turn off base rule for TypeScript files
       'no-redeclare': 'off', // Turn off for function overloads
       // Stylistic rules with custom configuration
-      '@stylistic/max-len': ['error', { 
-        code: 120, // User requested max-len of 120
-        ignoreUrls: true,
-        ignoreComments: false,
-        ignoreRegExpLiterals: true,
-        ignoreStrings: true,
-        ignoreTemplateLiterals: true
-      }],
+      '@stylistic/max-len': [
+        'error',
+        {
+          code: 120, // User requested max-len of 120
+          ignoreUrls: true,
+          ignoreComments: false,
+          ignoreRegExpLiterals: true,
+          ignoreStrings: true,
+          ignoreTemplateLiterals: true,
+        },
+      ],
       '@stylistic/semi': ['error', 'never'],
       '@stylistic/multiline-ternary': 'off', // Disable to avoid excessive refactoring
 
       // Code Quality Rules (Codacy best practices)
-      'complexity': ['warn', 8], // Cyclomatic complexity - Phase 4.3: 8 (final target)
+      complexity: ['warn', 8], // Cyclomatic complexity - Phase 4.3: 8 (final target)
       'max-depth': ['warn', 5], // Maximum nesting depth
-      'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true, skipComments: true }], // Phase 4.3: 50 (final target)
-      
+      'max-lines-per-function': ['warn', { max: 85, skipBlankLines: true, skipComments: true }], // Adjusted for Prettier formatting (one property per line)
+
       // Security Rules (Codacy security patterns)
       'no-eval': 'error',
       'no-implied-eval': 'error',
       'no-new-func': 'error',
       'no-script-url': 'error',
-      
+
       // Best Practices (Codacy recommendations)
       'no-debugger': 'error',
       'no-alert': 'warn',
-      'eqeqeq': ['error', 'always', { null: 'ignore' }],
+      eqeqeq: ['error', 'always', { null: 'ignore' }],
       'no-var': 'error',
       'prefer-const': 'error',
       'no-throw-literal': 'error',
       'no-duplicate-imports': 'error',
       'no-self-compare': 'error',
       'no-template-curly-in-string': 'warn',
-      
+
       // TypeScript-specific rules (Codacy TypeScript patterns) - only rules that don't require type info
       '@typescript-eslint/no-explicit-any': 'warn',
       '@typescript-eslint/array-type': ['warn', { default: 'array-simple' }],
@@ -111,7 +114,7 @@ export default [
       // Relax code quality rules for test files
       'max-lines-per-function': 'off',
       'max-nested-callbacks': 'off',
-      'complexity': 'off',
+      complexity: 'off',
       '@typescript-eslint/no-explicit-any': 'off',
       'no-console': 'off', // Allow console in tests for debugging
     },

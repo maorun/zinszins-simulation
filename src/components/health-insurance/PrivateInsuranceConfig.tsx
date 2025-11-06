@@ -28,30 +28,26 @@ function MonthlyContributionInputs({
   return (
     <>
       <div className="space-y-2">
-        <Label htmlFor="private-health-monthly">
-          Krankenversicherung (monatlich)
-        </Label>
+        <Label htmlFor="private-health-monthly">Krankenversicherung (monatlich)</Label>
         <Input
           id="private-health-monthly"
           type="number"
           min="0"
           step="10"
           value={privateHealthInsuranceMonthly}
-          onChange={e => onPrivateHealthInsuranceMonthlyChange(Number(e.target.value))}
+          onChange={(e) => onPrivateHealthInsuranceMonthlyChange(Number(e.target.value))}
           placeholder="z.B. 450"
         />
       </div>
       <div className="space-y-2">
-        <Label htmlFor="private-care-monthly">
-          Pflegeversicherung (monatlich)
-        </Label>
+        <Label htmlFor="private-care-monthly">Pflegeversicherung (monatlich)</Label>
         <Input
           id="private-care-monthly"
           type="number"
           min="0"
           step="5"
           value={privateCareInsuranceMonthly}
-          onChange={e => onPrivateCareInsuranceMonthlyChange(Number(e.target.value))}
+          onChange={(e) => onPrivateCareInsuranceMonthlyChange(Number(e.target.value))}
           placeholder="z.B. 60"
         />
       </div>
@@ -70,12 +66,7 @@ function InflationRateSlider({
 }: InflationRateSliderProps) {
   return (
     <div className="space-y-2">
-      <Label htmlFor="private-inflation-rate">
-        Jährliche Steigerung:
-        {' '}
-        {privateInsuranceInflationRate.toFixed(1)}
-        %
-      </Label>
+      <Label htmlFor="private-inflation-rate">Jährliche Steigerung: {privateInsuranceInflationRate.toFixed(1)}%</Label>
       <Slider
         id="private-inflation-rate"
         min={0}
@@ -85,9 +76,7 @@ function InflationRateSlider({
         onValueChange={([value]) => onPrivateInsuranceInflationRateChange(value)}
         className="w-full"
       />
-      <div className="text-xs text-muted-foreground">
-        Typisch: 2-4% jährliche Beitragssteigerung
-      </div>
+      <div className="text-xs text-muted-foreground">Typisch: 2-4% jährliche Beitragssteigerung</div>
     </div>
   )
 }
@@ -110,12 +99,7 @@ function TotalContributionDisplay({
 
   return (
     <div className="text-sm text-muted-foreground">
-      <strong>Gesamt pro Monat:</strong>
-      {' '}
-      {formatCurrency(totalMonthly)}
-      {' '}
-      <strong>pro Jahr:</strong>
-      {' '}
+      <strong>Gesamt pro Monat:</strong> {formatCurrency(totalMonthly)} <strong>pro Jahr:</strong>{' '}
       {formatCurrency(totalYearly)}
     </div>
   )

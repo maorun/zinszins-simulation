@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  createScenarios,
-  calculateBlackSwanScenario,
-} from './monte-carlo-helpers'
+import { createScenarios, calculateBlackSwanScenario } from './monte-carlo-helpers'
 import type { RandomReturnConfig } from '../utils/random-returns'
 import { formatPercent } from '../utils/currency'
 

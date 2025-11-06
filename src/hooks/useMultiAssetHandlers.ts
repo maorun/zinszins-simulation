@@ -14,16 +14,11 @@ interface UseMultiAssetHandlersProps {
  * Normalize asset allocations to sum to 100%
  */
 function normalizeAssetAllocations(config: MultiAssetPortfolioConfig): MultiAssetPortfolioConfig {
-  const enabledAssetClasses = Object.entries(config.assetClasses).filter(
-    ([_, assetConfig]) => assetConfig.enabled,
-  )
+  const enabledAssetClasses = Object.entries(config.assetClasses).filter(([_, assetConfig]) => assetConfig.enabled)
 
   if (enabledAssetClasses.length === 0) return config
 
-  const totalAllocation = enabledAssetClasses.reduce(
-    (sum, [_, assetConfig]) => sum + assetConfig.targetAllocation,
-    0,
-  )
+  const totalAllocation = enabledAssetClasses.reduce((sum, [_, assetConfig]) => sum + assetConfig.targetAllocation, 0)
 
   if (totalAllocation === 0) return config
 
@@ -92,7 +87,7 @@ export function useMultiAssetHandlers({ config, onChange }: UseMultiAssetHandler
   const basicHandlers = useBasicConfigHandlers({ config, onChange })
 
   const handleAssetClassChange = useCallback(
-    (assetClass: AssetClass, updates: Partial<typeof config.assetClasses[AssetClass]>) => {
+    (assetClass: AssetClass, updates: Partial<(typeof config.assetClasses)[AssetClass]>) => {
       onChange({
         ...config,
         assetClasses: {

@@ -54,9 +54,7 @@ export function WithdrawalModeSelector({
           Vergleiche verschiedene geteilte Entnahme-Phasen miteinander
         </RadioTile>
       </RadioTileGroup>
-      <div className="text-sm text-muted-foreground mt-1">
-        {modeDescription}
-      </div>
+      <div className="text-sm text-muted-foreground mt-1">{modeDescription}</div>
     </div>
   )
 }

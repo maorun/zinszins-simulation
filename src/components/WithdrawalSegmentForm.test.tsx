@@ -4,9 +4,7 @@ import { WithdrawalSegmentForm } from './WithdrawalSegmentForm'
 import { createDefaultWithdrawalSegment, type WithdrawalSegment } from '../utils/segmented-withdrawal'
 
 describe('WithdrawalSegmentForm', () => {
-  const defaultSegments: WithdrawalSegment[] = [
-    createDefaultWithdrawalSegment('test-1', 'Hauptphase', 2041, 2080),
-  ]
+  const defaultSegments: WithdrawalSegment[] = [createDefaultWithdrawalSegment('test-1', 'Hauptphase', 2041, 2080)]
 
   const defaultProps = {
     segments: defaultSegments,
@@ -118,11 +116,7 @@ describe('WithdrawalSegmentForm', () => {
       ]
 
       render(
-        <WithdrawalSegmentForm
-          {...defaultProps}
-          segments={multipleSegments}
-          onSegmentsChange={onSegmentsChangeMock}
-        />,
+        <WithdrawalSegmentForm {...defaultProps} segments={multipleSegments} onSegmentsChange={onSegmentsChangeMock} />,
       )
 
       // Expand main card
@@ -135,8 +129,8 @@ describe('WithdrawalSegmentForm', () => {
 
       // Find and click delete button for first phase
       const deleteButtons = screen.getAllByRole('button')
-      const deleteButton = deleteButtons.find(button =>
-        button.querySelector('svg') && button.className.includes('text-destructive'),
+      const deleteButton = deleteButtons.find(
+        (button) => button.querySelector('svg') && button.className.includes('text-destructive'),
       )
 
       expect(deleteButton).toBeInTheDocument()
@@ -152,12 +146,7 @@ describe('WithdrawalSegmentForm', () => {
     it('maintains all form functionality when sections are expanded', () => {
       const onSegmentsChangeMock = vi.fn()
 
-      render(
-        <WithdrawalSegmentForm
-          {...defaultProps}
-          onSegmentsChange={onSegmentsChangeMock}
-        />,
-      )
+      render(<WithdrawalSegmentForm {...defaultProps} onSegmentsChange={onSegmentsChangeMock} />)
 
       // Expand main card
       const mainCardHeader = screen.getByText('Entnahme-Phasen konfigurieren').closest('div')

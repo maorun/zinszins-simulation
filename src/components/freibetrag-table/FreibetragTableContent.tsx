@@ -7,11 +7,7 @@ interface FreibetragTableContentProps {
   onDeleteYear: (year: number) => void
 }
 
-export function FreibetragTableContent({
-  freibetragPerYear,
-  onUpdateYear,
-  onDeleteYear,
-}: FreibetragTableContentProps) {
+export function FreibetragTableContent({ freibetragPerYear, onUpdateYear, onDeleteYear }: FreibetragTableContentProps) {
   return (
     <div className="border rounded-md max-h-[200px] overflow-y-auto">
       <Table>

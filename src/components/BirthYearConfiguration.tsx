@@ -9,12 +9,12 @@ interface BirthYearConfigurationProps {
     gender: 'male' | 'female' | undefined
     birthYear: number | undefined
     expectedLifespan: number | undefined
-    spouse: { gender: 'male' | 'female', birthYear?: number } | undefined
+    spouse: { gender: 'male' | 'female'; birthYear?: number } | undefined
   }
   onChange: {
     birthYear: (year: number | undefined) => void
     expectedLifespan: (lifespan: number | undefined) => void
-    spouse: (spouse?: { gender: 'male' | 'female', birthYear?: number }) => void
+    spouse: (spouse?: { gender: 'male' | 'female'; birthYear?: number }) => void
   }
 }
 
@@ -29,13 +29,7 @@ interface BirthYearInputProps {
   idPrefix: string
 }
 
-function BirthYearInput({
-  birthYear,
-  gender,
-  expectedLifespan,
-  onChange,
-  idPrefix,
-}: BirthYearInputProps) {
+function BirthYearInput({ birthYear, gender, expectedLifespan, onChange, idPrefix }: BirthYearInputProps) {
   const handleBirthYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const year = e.target.value ? Number(e.target.value) : undefined
     onChange.birthYear(year)
@@ -50,7 +44,9 @@ function BirthYearInput({
 
   return (
     <div className="space-y-2">
-      <Label htmlFor={idPrefix} className="text-sm font-medium">Geburtsjahr</Label>
+      <Label htmlFor={idPrefix} className="text-sm font-medium">
+        Geburtsjahr
+      </Label>
       <Input
         id={idPrefix}
         type="number"
@@ -63,28 +59,15 @@ function BirthYearInput({
       />
       {birthYear && (
         <div className="text-sm text-muted-foreground">
-          Aktuelles Alter:
-          {' '}
-          {calculateCurrentAge(birthYear)}
-          {' '}
-          Jahre
-          {gender && (
-            <span className="ml-2">
-              (
-              {gender === 'male' ? '♂ Männlich' : '♀ Weiblich'}
-              )
-            </span>
-          )}
+          Aktuelles Alter: {calculateCurrentAge(birthYear)} Jahre
+          {gender && <span className="ml-2">({gender === 'male' ? '♂ Männlich' : '♀ Weiblich'})</span>}
         </div>
       )}
     </div>
   )
 }
 
-function IndividualBirthYearConfig({
-  config,
-  onChange,
-}: BirthYearConfigurationProps) {
+function IndividualBirthYearConfig({ config, onChange }: BirthYearConfigurationProps) {
   return (
     <div className="space-y-2">
       <Label>Geburtsjahr Konfiguration</Label>
@@ -119,11 +102,7 @@ function PersonBirthYearInput({
   return (
     <div className="space-y-2">
       <Label htmlFor={id} className="text-sm font-medium">
-        {personLabel}
-        {' '}
-        (
-        {gender === 'male' ? '♂ Männlich' : '♀ Weiblich'}
-        )
+        {personLabel} ({gender === 'male' ? '♂ Männlich' : '♀ Weiblich'})
       </Label>
       <Input
         id={id}
@@ -138,23 +117,12 @@ function PersonBirthYearInput({
         max={new Date().getFullYear() - 18}
         className="w-40"
       />
-      {birthYear && (
-        <div className="text-sm text-muted-foreground">
-          Alter:
-          {' '}
-          {calculateCurrentAge(birthYear)}
-          {' '}
-          Jahre
-        </div>
-      )}
+      {birthYear && <div className="text-sm text-muted-foreground">Alter: {calculateCurrentAge(birthYear)} Jahre</div>}
     </div>
   )
 }
 
-function CoupleBirthYearConfig({
-  config,
-  onChange,
-}: BirthYearConfigurationProps) {
+function CoupleBirthYearConfig({ config, onChange }: BirthYearConfigurationProps) {
   const { birthYear, gender, spouse } = config
 
   return (
@@ -190,10 +158,7 @@ function CoupleBirthYearConfig({
   )
 }
 
-export function BirthYearConfiguration({
-  config,
-  onChange,
-}: BirthYearConfigurationProps) {
+export function BirthYearConfiguration({ config, onChange }: BirthYearConfigurationProps) {
   if (config.planningMode === 'individual') {
     return <IndividualBirthYearConfig config={config} onChange={onChange} />
   }

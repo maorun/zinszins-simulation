@@ -1,9 +1,5 @@
 import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
-import type {
-  WithdrawalStrategy,
-  BucketSubStrategy,
-  RMDConfig,
-} from '../../helpers/withdrawal'
+import type { WithdrawalStrategy, BucketSubStrategy, RMDConfig } from '../../helpers/withdrawal'
 
 interface StrategyInitParams {
   strategy: WithdrawalStrategy
@@ -47,21 +43,21 @@ interface StrategyDefaultsResult {
 type StrategyDefaultGetter = (segment: WithdrawalSegment) => Partial<StrategyDefaultsResult>
 
 const strategyDefaultGetters: Record<WithdrawalStrategy, StrategyDefaultGetter> = {
-  'monatlich_fest': (segment) => {
+  monatlich_fest: (segment) => {
     if (segment.monthlyConfig) return {}
     return {
       monthlyConfig: {
         monthlyAmount: 2000,
         enableGuardrails: false,
-        guardrailsThreshold: 0.10,
+        guardrailsThreshold: 0.1,
       },
     }
   },
-  'variabel_prozent': (segment) => {
+  variabel_prozent: (segment) => {
     if (segment.customPercentage !== undefined) return {}
     return { customPercentage: 0.05 }
   },
-  'dynamisch': (segment) => {
+  dynamisch: (segment) => {
     if (segment.dynamicConfig) return {}
     return {
       dynamicConfig: {
@@ -73,7 +69,7 @@ const strategyDefaultGetters: Record<WithdrawalStrategy, StrategyDefaultGetter> 
       },
     }
   },
-  'bucket_strategie': (segment) => {
+  bucket_strategie: (segment) => {
     if (segment.bucketConfig) return {}
     return {
       bucketConfig: {
@@ -92,7 +88,7 @@ const strategyDefaultGetters: Record<WithdrawalStrategy, StrategyDefaultGetter> 
       },
     }
   },
-  'rmd': (segment) => {
+  rmd: (segment) => {
     if (segment.rmdConfig) return {}
     return {
       rmdConfig: {
@@ -105,8 +101,8 @@ const strategyDefaultGetters: Record<WithdrawalStrategy, StrategyDefaultGetter> 
   // Strategies without specific defaults
   '4prozent': () => ({}),
   '3prozent': () => ({}),
-  'kapitalerhalt': () => ({}),
-  'steueroptimiert': () => ({}),
+  kapitalerhalt: () => ({}),
+  steueroptimiert: () => ({}),
 }
 
 export function getStrategyDefaults(params: StrategyInitParams): StrategyDefaultsResult {

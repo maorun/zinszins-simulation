@@ -66,8 +66,7 @@ function createBaseWithdrawalRateHandler(
         ...formValue,
         steueroptimierteEntnahmeBaseWithdrawalRate: newValue,
       })
-    }
-    else if (onChange) {
+    } else if (onChange) {
       onChange.onBaseWithdrawalRateChange(newValue)
     }
   }
@@ -85,8 +84,7 @@ function createOptimizationModeHandler(
         ...formValue,
         steueroptimierteEntnahmeOptimizationMode: newValue,
       })
-    }
-    else if (onChange) {
+    } else if (onChange) {
       onChange.onOptimizationModeChange(newValue)
     }
   }
@@ -104,8 +102,7 @@ function createFreibetragUtilizationHandler(
         ...formValue,
         steueroptimierteEntnahmeFreibetragUtilizationTarget: newValue,
       })
-    }
-    else if (onChange) {
+    } else if (onChange) {
       onChange.onFreibetragUtilizationTargetChange(newValue)
     }
   }
@@ -123,8 +120,7 @@ function createTargetTaxRateHandler(
         ...formValue,
         steueroptimierteEntnahmeTargetTaxRate: newValue,
       })
-    }
-    else if (onChange) {
+    } else if (onChange) {
       onChange.onTargetTaxRateChange(newValue)
     }
   }
@@ -133,13 +129,10 @@ function createTargetTaxRateHandler(
 function ConfigHeader() {
   return (
     <div className="mb-4">
-      <Label className="text-base font-semibold text-green-800">
-        🎯 Steueroptimierte Entnahme-Konfiguration
-      </Label>
+      <Label className="text-base font-semibold text-green-800">🎯 Steueroptimierte Entnahme-Konfiguration</Label>
       <p className="text-sm text-green-700 mt-1">
-        Optimiert automatisch die Entnahmebeträge zur Minimierung der Steuerlast unter
-        {' '}
-        Berücksichtigung deutscher Steuerregeln.
+        Optimiert automatisch die Entnahmebeträge zur Minimierung der Steuerlast unter Berücksichtigung deutscher
+        Steuerregeln.
       </p>
     </div>
   )
@@ -159,30 +152,15 @@ function createAllHandlers(
   onChange: SteueroptimierteEntnahmeChangeHandlers | undefined,
 ): ChangeHandlers {
   return {
-    handleBaseWithdrawalRateChange: createBaseWithdrawalRateHandler(
-      isFormMode,
-      formValue,
-      updateFormValue,
-      onChange,
-    ),
-    handleOptimizationModeChange: createOptimizationModeHandler(
-      isFormMode,
-      formValue,
-      updateFormValue,
-      onChange,
-    ),
+    handleBaseWithdrawalRateChange: createBaseWithdrawalRateHandler(isFormMode, formValue, updateFormValue, onChange),
+    handleOptimizationModeChange: createOptimizationModeHandler(isFormMode, formValue, updateFormValue, onChange),
     handleFreibetragUtilizationChange: createFreibetragUtilizationHandler(
       isFormMode,
       formValue,
       updateFormValue,
       onChange,
     ),
-    handleTargetTaxRateChange: createTargetTaxRateHandler(
-      isFormMode,
-      formValue,
-      updateFormValue,
-      onChange,
-    ),
+    handleTargetTaxRateChange: createTargetTaxRateHandler(isFormMode, formValue, updateFormValue, onChange),
   }
 }
 

@@ -13,10 +13,12 @@ export function InflationRateSection({ editingSource, onUpdate }: InflationRateS
       <Label>Inflationsanpassung (%)</Label>
       <Slider
         value={[editingSource.inflationRate]}
-        onValueChange={values => onUpdate({
-          ...editingSource,
-          inflationRate: values[0],
-        })}
+        onValueChange={(values) =>
+          onUpdate({
+            ...editingSource,
+            inflationRate: values[0],
+          })
+        }
         min={0}
         max={8}
         step={0.1}
@@ -24,15 +26,10 @@ export function InflationRateSection({ editingSource, onUpdate }: InflationRateS
       />
       <div className="flex justify-between text-sm text-gray-500">
         <span>0%</span>
-        <span className="font-medium text-gray-900">
-          {editingSource.inflationRate.toFixed(1)}
-          %
-        </span>
+        <span className="font-medium text-gray-900">{editingSource.inflationRate.toFixed(1)}%</span>
         <span>8%</span>
       </div>
-      <p className="text-xs text-gray-600">
-        Jährliche Steigerung der Einkünfte (z.B. Mietanpassungen)
-      </p>
+      <p className="text-xs text-gray-600">Jährliche Steigerung der Einkünfte (z.B. Mietanpassungen)</p>
     </div>
   )
 }

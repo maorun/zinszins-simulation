@@ -27,12 +27,13 @@ export function SegmentRMDStrategyWrapper({ segment, onUpdate }: Props) {
         customLifeExpectancy: segment.rmdConfig?.customLifeExpectancy,
       }}
       onChange={{
-        onStartAgeChange: age => updateRMDConfig({ startAge: age }),
-        onLifeExpectancyTableChange: table => updateRMDConfig({ lifeExpectancyTable: table }),
-        onCustomLifeExpectancyChange: years => updateRMDConfig({
-          lifeExpectancyTable: 'custom',
-          customLifeExpectancy: years,
-        }),
+        onStartAgeChange: (age) => updateRMDConfig({ startAge: age }),
+        onLifeExpectancyTableChange: (table) => updateRMDConfig({ lifeExpectancyTable: table }),
+        onCustomLifeExpectancyChange: (years) =>
+          updateRMDConfig({
+            lifeExpectancyTable: 'custom',
+            customLifeExpectancy: years,
+          }),
       }}
     />
   )

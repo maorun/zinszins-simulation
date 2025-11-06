@@ -23,9 +23,7 @@ function RiskMetricCard({
   return (
     <div className={`bg-${color}-50 border border-${color}-200 rounded-lg p-4 border-l-4 border-l-${color}-500`}>
       <div className="text-sm font-medium text-gray-600 mb-1">
-        {icon}
-        {' '}
-        {label}
+        {icon} {label}
       </div>
       <div className={`text-xl font-bold text-${color}-700`}>{value}</div>
       <div className="text-xs text-gray-500 mt-1">{description}</div>

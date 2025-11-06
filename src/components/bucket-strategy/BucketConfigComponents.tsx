@@ -17,9 +17,7 @@ export function InitialCashCushionConfig({
 }: InitialCashCushionConfigProps) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={inputId}>
-        Initiales Cash-Polster (€)
-      </Label>
+      <Label htmlFor={inputId}>Initiales Cash-Polster (€)</Label>
       <Input
         id={inputId}
         type="number"
@@ -55,9 +53,7 @@ export function RefillThresholdConfig({
 }: RefillThresholdConfigProps) {
   return (
     <div className="space-y-2">
-      <Label htmlFor={inputId}>
-        Auffüll-Schwellenwert (€)
-      </Label>
+      <Label htmlFor={inputId}>Auffüll-Schwellenwert (€)</Label>
       <Input
         id={inputId}
         type="number"
@@ -83,10 +79,7 @@ interface RefillPercentageConfigProps {
   onChange: (value: number) => void
 }
 
-export function RefillPercentageConfig({
-  value,
-  onChange,
-}: RefillPercentageConfigProps) {
+export function RefillPercentageConfig({ value, onChange }: RefillPercentageConfigProps) {
   return (
     <div className="space-y-2">
       <Label>Auffüll-Anteil (%)</Label>
@@ -104,16 +97,11 @@ export function RefillPercentageConfig({
         />
         <div className="flex justify-between text-sm text-gray-500 mt-1">
           <span>10%</span>
-          <span className="font-medium text-gray-900">
-            {(value * 100).toFixed(0)}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{(value * 100).toFixed(0)}%</span>
           <span>100%</span>
         </div>
       </div>
-      <p className="text-sm text-gray-600">
-        Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird
-      </p>
+      <p className="text-sm text-gray-600">Anteil der Überschussgewinne, der ins Cash-Polster verschoben wird</p>
     </div>
   )
 }

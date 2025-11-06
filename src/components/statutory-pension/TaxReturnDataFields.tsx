@@ -33,7 +33,7 @@ function TaxYearField({
         id="tax-year"
         type="number"
         value={value}
-        onChange={e => onChange(Number(e.target.value))}
+        onChange={(e) => onChange(Number(e.target.value))}
         min={2000}
         max={currentYear}
         step={1}
@@ -43,13 +43,7 @@ function TaxYearField({
   )
 }
 
-function AnnualPensionField({
-  value,
-  onChange,
-}: {
-  value: number
-  onChange: (amount: number) => void
-}) {
+function AnnualPensionField({ value, onChange }: { value: number; onChange: (amount: number) => void }) {
   return (
     <div className="space-y-2">
       <Label htmlFor="annual-pension-received">Jahresrente (brutto) €</Label>
@@ -57,7 +51,7 @@ function AnnualPensionField({
         id="annual-pension-received"
         type="number"
         value={value}
-        onChange={e => onChange(Number(e.target.value))}
+        onChange={(e) => onChange(Number(e.target.value))}
         min={0}
         step={100}
         className="w-40"
@@ -66,13 +60,7 @@ function AnnualPensionField({
   )
 }
 
-function TaxablePortionField({
-  value,
-  onChange,
-}: {
-  value: number
-  onChange: (amount: number) => void
-}) {
+function TaxablePortionField({ value, onChange }: { value: number; onChange: (amount: number) => void }) {
   return (
     <div className="space-y-2">
       <Label htmlFor="taxable-portion">Steuerpflichtiger Anteil €</Label>
@@ -80,7 +68,7 @@ function TaxablePortionField({
         id="taxable-portion"
         type="number"
         value={value}
-        onChange={e => onChange(Number(e.target.value))}
+        onChange={(e) => onChange(Number(e.target.value))}
         min={0}
         step={100}
         className="w-40"
@@ -89,11 +77,7 @@ function TaxablePortionField({
   )
 }
 
-export function TaxReturnDataFields({
-  values,
-  onChange,
-  currentYear,
-}: TaxReturnDataFieldsProps) {
+export function TaxReturnDataFields({ values, onChange, currentYear }: TaxReturnDataFieldsProps) {
   const updateField = (field: Partial<typeof values>) => {
     onChange({
       hasTaxReturnData: values.hasTaxReturnData,
@@ -106,18 +90,14 @@ export function TaxReturnDataFields({
 
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <TaxYearField
-        value={values.taxYear}
-        onChange={taxYear => updateField({ taxYear })}
-        currentYear={currentYear}
-      />
+      <TaxYearField value={values.taxYear} onChange={(taxYear) => updateField({ taxYear })} currentYear={currentYear} />
       <AnnualPensionField
         value={values.annualPensionReceived}
-        onChange={annualPensionReceived => updateField({ annualPensionReceived })}
+        onChange={(annualPensionReceived) => updateField({ annualPensionReceived })}
       />
       <TaxablePortionField
         value={values.taxablePortion}
-        onChange={taxablePortion => updateField({ taxablePortion })}
+        onChange={(taxablePortion) => updateField({ taxablePortion })}
       />
     </div>
   )

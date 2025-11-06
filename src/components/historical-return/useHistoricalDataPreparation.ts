@@ -7,25 +7,23 @@ import { HISTORICAL_INDICES, getHistoricalReturns, isYearRangeAvailable } from '
 export const useHistoricalDataPreparation = (selectedIndexId: string) => {
   const { startEnd } = useSimulation()
 
-  const currentIndex = HISTORICAL_INDICES.find(index => index.id === selectedIndexId)
+  const currentIndex = HISTORICAL_INDICES.find((index) => index.id === selectedIndexId)
   const simulationStartYear = new Date().getFullYear()
   const simulationEndYear = startEnd[0]
 
   // Check if the simulation period is within available historical data
   const isAvailable = currentIndex
-    ? isYearRangeAvailable(
-        currentIndex.id,
-        simulationStartYear,
-        simulationEndYear,
-      )
+    ? isYearRangeAvailable(currentIndex.id, simulationStartYear, simulationEndYear)
     : false
 
   // Get historical returns for display
-  const historicalReturns = currentIndex ? getHistoricalReturns(
-    currentIndex.id,
-    Math.max(currentIndex.startYear, simulationStartYear - 5), // Show 5 years before simulation start
-    Math.min(currentIndex.endYear, simulationEndYear + 5), // Show 5 years after simulation end
-  ) : null
+  const historicalReturns = currentIndex
+    ? getHistoricalReturns(
+        currentIndex.id,
+        Math.max(currentIndex.startYear, simulationStartYear - 5), // Show 5 years before simulation start
+        Math.min(currentIndex.endYear, simulationEndYear + 5), // Show 5 years after simulation end
+      )
+    : null
 
   return {
     currentIndex,

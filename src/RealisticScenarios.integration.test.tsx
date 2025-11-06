@@ -9,31 +9,33 @@ vi.mock('@vercel/analytics/react', () => ({
 // Mock all expensive operations to prevent hanging
 vi.mock('./utils/simulate', () => ({
   SimulationAnnual: { yearly: 'yearly', monthly: 'monthly' },
-  simulate: vi.fn(() => [{
-    start: '2023-01-01',
-    type: 'sparplan',
-    einzahlung: 24000,
-    simulation: {
-      2023: {
-        startkapital: 0,
-        zinsen: 1200,
-        endkapital: 25200,
-        bezahlteSteuer: 0,
-        genutzterFreibetrag: 0,
-        vorabpauschale: 0,
-        vorabpauschaleAccumulated: 0,
-      },
-      2040: {
-        startkapital: 596168.79,
-        zinsen: 29808.44,
-        endkapital: 625977.23,
-        bezahlteSteuer: 0,
-        genutzterFreibetrag: 0,
-        vorabpauschale: 0,
-        vorabpauschaleAccumulated: 0,
+  simulate: vi.fn(() => [
+    {
+      start: '2023-01-01',
+      type: 'sparplan',
+      einzahlung: 24000,
+      simulation: {
+        2023: {
+          startkapital: 0,
+          zinsen: 1200,
+          endkapital: 25200,
+          bezahlteSteuer: 0,
+          genutzterFreibetrag: 0,
+          vorabpauschale: 0,
+          vorabpauschaleAccumulated: 0,
+        },
+        2040: {
+          startkapital: 596168.79,
+          zinsen: 29808.44,
+          endkapital: 625977.23,
+          bezahlteSteuer: 0,
+          genutzterFreibetrag: 0,
+          vorabpauschale: 0,
+          vorabpauschaleAccumulated: 0,
+        },
       },
     },
-  }]),
+  ]),
 }))
 
 vi.mock('./utils/enhanced-summary', () => ({

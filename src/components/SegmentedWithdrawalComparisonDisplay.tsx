@@ -31,9 +31,7 @@ export function SegmentedWithdrawalComparisonDisplay({
     <div>
       <h4>Geteilte Phasen Vergleich</h4>
       <p>
-        <strong>Startkapital bei Entnahme:</strong>
-        {' '}
-        {formatCurrency(withdrawalData.startingCapital)}
+        <strong>Startkapital bei Entnahme:</strong> {formatCurrency(withdrawalData.startingCapital)}
       </p>
 
       {/* Base configuration summary (from the main withdrawal data) */}
@@ -46,18 +44,14 @@ export function SegmentedWithdrawalComparisonDisplay({
       <h5>🔍 Vergleichs-Konfigurationen</h5>
       {segmentedComparisonResults.length > 0 ? (
         <div className="grid gap-4">
-          {segmentedComparisonResults.map(
-            (result: SegmentedComparisonResult, _index: number) => (
-              <SegmentedComparisonCard key={result.strategy.id} result={result} />
-            ),
-          )}
+          {segmentedComparisonResults.map((result: SegmentedComparisonResult, _index: number) => (
+            <SegmentedComparisonCard key={result.strategy.id} result={result} />
+          ))}
         </div>
       ) : (
         <div className="p-5 text-center text-[#666] bg-[#f5f5f5] rounded-lg border border-dashed border-[#ccc]">
           <p>Keine Vergleichs-Konfigurationen definiert.</p>
-          <p className="text-sm mt-1.5">
-            Erstelle Vergleichs-Konfigurationen in den Variablen-Einstellungen.
-          </p>
+          <p className="text-sm mt-1.5">Erstelle Vergleichs-Konfigurationen in den Variablen-Einstellungen.</p>
         </div>
       )}
 

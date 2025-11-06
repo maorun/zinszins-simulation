@@ -7,10 +7,7 @@ interface VacancyRateSliderProps {
   onUpdate: (source: OtherIncomeSource) => void
 }
 
-export function VacancyRateSlider({
-  editingSource,
-  onUpdate,
-}: VacancyRateSliderProps) {
+export function VacancyRateSlider({ editingSource, onUpdate }: VacancyRateSliderProps) {
   if (!editingSource.realEstateConfig) {
     return null
   }
@@ -20,13 +17,15 @@ export function VacancyRateSlider({
       <Label>Leerstandsquote (%)</Label>
       <Slider
         value={[editingSource.realEstateConfig.vacancyRatePercent]}
-        onValueChange={values => onUpdate({
-          ...editingSource,
-          realEstateConfig: {
-            ...editingSource.realEstateConfig!,
-            vacancyRatePercent: values[0],
-          },
-        })}
+        onValueChange={(values) =>
+          onUpdate({
+            ...editingSource,
+            realEstateConfig: {
+              ...editingSource.realEstateConfig!,
+              vacancyRatePercent: values[0],
+            },
+          })
+        }
         min={0}
         max={20}
         step={0.5}
@@ -35,14 +34,11 @@ export function VacancyRateSlider({
       <div className="flex justify-between text-sm text-gray-500">
         <span>0%</span>
         <span className="font-medium text-gray-900">
-          {editingSource.realEstateConfig.vacancyRatePercent.toFixed(1)}
-          %
+          {editingSource.realEstateConfig.vacancyRatePercent.toFixed(1)}%
         </span>
         <span>20%</span>
       </div>
-      <p className="text-xs text-gray-600">
-        Erwarteter jährlicher Leerstand (Richtwert: 3-5%)
-      </p>
+      <p className="text-xs text-gray-600">Erwarteter jährlicher Leerstand (Richtwert: 3-5%)</p>
     </div>
   )
 }

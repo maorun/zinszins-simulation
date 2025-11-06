@@ -24,7 +24,7 @@ describe('sparplan-utils', () => {
       expect(elements[3].start).toEqual(new Date('2028-01-01'))
 
       // Should not create elements for 2029-2040
-      const years = elements.map(el => new Date(el.start).getFullYear())
+      const years = elements.map((el) => new Date(el.start).getFullYear())
       expect(years).not.toContain(2029)
       expect(years).not.toContain(2040)
     })
@@ -94,7 +94,7 @@ describe('sparplan-utils', () => {
       expect(lastDate.getMonth()).toBe(8) // September (0-indexed)
 
       // Should not create elements for years after 2028
-      const years = elements.map(el => new Date(el.start).getFullYear())
+      const years = elements.map((el) => new Date(el.start).getFullYear())
       expect(years).not.toContain(2029)
       expect(years).not.toContain(2040)
     })
@@ -151,8 +151,8 @@ describe('sparplan-utils', () => {
       expect(elements).toHaveLength(6)
 
       // Check that no elements exist after 2028
-      const years = elements.map(el => new Date(el.start).getFullYear())
-      expect(years.filter(year => year > 2028)).toHaveLength(0)
+      const years = elements.map((el) => new Date(el.start).getFullYear())
+      expect(years.filter((year) => year > 2028)).toHaveLength(0)
     })
 
     test('should handle edge case: end date in the same year as start', () => {
@@ -171,7 +171,7 @@ describe('sparplan-utils', () => {
       expect(elements).toHaveLength(9)
 
       // Verify months
-      const months = elements.map(el => new Date(el.start).getMonth())
+      const months = elements.map((el) => new Date(el.start).getMonth())
       expect(months).toEqual([2, 3, 4, 5, 6, 7, 8, 9, 10]) // March (2) to November (10)
     })
     test('should fix the original issue: initialSparplan should not have hard-coded end date', () => {
@@ -194,7 +194,7 @@ describe('sparplan-utils', () => {
       expect(elementsWithoutEnd).toHaveLength(expectedLength)
 
       // Should include 2030 but not beyond
-      const years = elementsWithoutEnd.map(el => new Date(el.start).getFullYear())
+      const years = elementsWithoutEnd.map((el) => new Date(el.start).getFullYear())
       expect(years).toContain(2030)
       expect(years).not.toContain(2031)
 
@@ -204,14 +204,10 @@ describe('sparplan-utils', () => {
         end: new Date('2028-09-01'),
       }
 
-      const elementsWithEnd = convertSparplanToElements(
-        [sparplanWithEnd],
-        [2040, 2080],
-        SimulationAnnual.yearly,
-      )
+      const elementsWithEnd = convertSparplanToElements([sparplanWithEnd], [2040, 2080], SimulationAnnual.yearly)
 
       // Should stop at 2028, not continue to 2040
-      const yearsWithEnd = elementsWithEnd.map(el => new Date(el.start).getFullYear())
+      const yearsWithEnd = elementsWithEnd.map((el) => new Date(el.start).getFullYear())
       expect(yearsWithEnd).not.toContain(2029)
       expect(yearsWithEnd).not.toContain(2040)
       expect(Math.max(...yearsWithEnd)).toBe(2028)
@@ -236,7 +232,7 @@ describe('sparplan-utils', () => {
       expect(elements).toHaveLength(5)
 
       // Check years
-      const years = elements.map(el => new Date(el.start).getFullYear())
+      const years = elements.map((el) => new Date(el.start).getFullYear())
       expect(years).toEqual([2026, 2027, 2028, 2029, 2030])
 
       // Should NOT continue beyond 2030

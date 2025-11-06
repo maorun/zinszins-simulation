@@ -4,10 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Info } from 'lucide-react'
 import { useNestingLevel } from '../lib/nesting-utils'
 import { useFormId } from '../utils/unique-id'
-import type {
-  CoupleStatutoryPensionConfig,
-  IndividualStatutoryPensionConfig,
-} from '../../helpers/statutory-pension'
+import type { CoupleStatutoryPensionConfig, IndividualStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import { usePensionCalculations } from '../hooks/usePensionCalculations'
 import { DisabledPensionCard } from './statutory-pension/DisabledPensionCard'
 import { PersonPensionFields } from './statutory-pension/PersonPensionFields'
@@ -28,12 +25,7 @@ interface PensionSummaryProps {
   nestingLevel: number
 }
 
-function PensionSummary({
-  startYear,
-  monthlyAmount,
-  taxablePercentage,
-  nestingLevel,
-}: PensionSummaryProps) {
+function PensionSummary({ startYear, monthlyAmount, taxablePercentage, nestingLevel }: PensionSummaryProps) {
   return (
     <Card nestingLevel={nestingLevel + 1}>
       <CardHeader nestingLevel={nestingLevel + 1} className="pb-3">
@@ -45,30 +37,17 @@ function PensionSummary({
       <CardContent nestingLevel={nestingLevel + 1}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm">
           <div>
-            <span className="font-medium">Rentenbeginn:</span>
-            {' '}
-            {startYear}
+            <span className="font-medium">Rentenbeginn:</span> {startYear}
           </div>
           <div>
-            <span className="font-medium">Monatliche Rente:</span>
-            {' '}
-            {monthlyAmount.toLocaleString('de-DE')}
-            {' '}
-            €
+            <span className="font-medium">Monatliche Rente:</span> {monthlyAmount.toLocaleString('de-DE')} €
           </div>
           <div>
-            <span className="font-medium">Jährliche Rente:</span>
-            {' '}
-            {(monthlyAmount * 12).toLocaleString('de-DE')}
-            {' '}
-            €
+            <span className="font-medium">Jährliche Rente:</span> {(monthlyAmount * 12).toLocaleString('de-DE')} €
           </div>
           <div>
-            <span className="font-medium">Steuerpflichtiger Betrag:</span>
-            {' '}
-            {Math.round(monthlyAmount * 12 * taxablePercentage / 100).toLocaleString('de-DE')}
-            {' '}
-            €/Jahr
+            <span className="font-medium">Steuerpflichtiger Betrag:</span>{' '}
+            {Math.round((monthlyAmount * 12 * taxablePercentage) / 100).toLocaleString('de-DE')} €/Jahr
           </div>
         </div>
       </CardContent>
@@ -201,27 +180,11 @@ function PersonPensionConfiguration({
   return (
     <div className="space-y-4">
       <div className="flex items-center space-x-2">
-        <Switch
-          checked={config.enabled}
-          onCheckedChange={enabled => onChange({ enabled })}
-          id={personEnabledId}
-        />
-        <Label htmlFor={personEnabledId}>
-          Rente für
-          {' '}
-          {personName}
-          {' '}
-          berücksichtigen
-        </Label>
+        <Switch checked={config.enabled} onCheckedChange={(enabled) => onChange({ enabled })} id={personEnabledId} />
+        <Label htmlFor={personEnabledId}>Rente für {personName} berücksichtigen</Label>
       </div>
 
-      {config.enabled && (
-        <PersonPensionFields
-          config={config}
-          onChange={onChange}
-          birthYear={birthYear}
-        />
-      )}
+      {config.enabled && <PersonPensionFields config={config} onChange={onChange} birthYear={birthYear} />}
     </div>
   )
 }

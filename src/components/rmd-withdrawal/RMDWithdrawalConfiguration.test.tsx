@@ -52,10 +52,7 @@ describe('RMDWithdrawalConfiguration', () => {
 
       render(
         <SimulationProvider>
-          <RMDWithdrawalConfiguration
-            formValue={formValue}
-            updateFormValue={updateFormValue}
-          />
+          <RMDWithdrawalConfiguration formValue={formValue} updateFormValue={updateFormValue} />
         </SimulationProvider>,
       )
 
@@ -101,10 +98,7 @@ describe('RMDWithdrawalConfiguration', () => {
 
       render(
         <SimulationProvider>
-          <RMDWithdrawalConfiguration
-            formValue={formValue}
-            updateFormValue={updateFormValue}
-          />
+          <RMDWithdrawalConfiguration formValue={formValue} updateFormValue={updateFormValue} />
         </SimulationProvider>,
       )
 
@@ -134,15 +128,16 @@ describe('RMDWithdrawalConfiguration', () => {
 
       render(
         <SimulationProvider>
-          <RMDWithdrawalConfiguration
-            values={values}
-            onChange={onChange}
-          />
+          <RMDWithdrawalConfiguration values={values} onChange={onChange} />
         </SimulationProvider>,
       )
 
       expect(screen.getByDisplayValue('70')).toBeInTheDocument()
-      expect(screen.getByText('Das Alter zu Beginn dieser Entnahme-Phase (wird für die Berechnung der Lebenserwartung verwendet)')).toBeInTheDocument()
+      expect(
+        screen.getByText(
+          'Das Alter zu Beginn dieser Entnahme-Phase (wird für die Berechnung der Lebenserwartung verwendet)',
+        ),
+      ).toBeInTheDocument()
       expect(screen.getByText('Sterbetabelle')).toBeInTheDocument()
     })
 
@@ -161,10 +156,7 @@ describe('RMDWithdrawalConfiguration', () => {
 
       render(
         <SimulationProvider>
-          <RMDWithdrawalConfiguration
-            values={values}
-            onChange={onChange}
-          />
+          <RMDWithdrawalConfiguration values={values} onChange={onChange} />
         </SimulationProvider>,
       )
 
@@ -218,7 +210,11 @@ describe('RMDStartAgeConfig', () => {
     const onChange = vi.fn()
     render(<RMDStartAgeConfig value={65} onChange={onChange} isFormMode={false} />)
 
-    expect(screen.getByText('Das Alter zu Beginn dieser Entnahme-Phase (wird für die Berechnung der Lebenserwartung verwendet)')).toBeInTheDocument()
+    expect(
+      screen.getByText(
+        'Das Alter zu Beginn dieser Entnahme-Phase (wird für die Berechnung der Lebenserwartung verwendet)',
+      ),
+    ).toBeInTheDocument()
   })
 })
 
@@ -390,12 +386,16 @@ describe('useRMDHandlers', () => {
     } as any
     const updateFormValue = vi.fn()
 
-    const { result } = renderHook(() => useRMDHandlers({
-      isFormMode: true,
-      formValue,
-      updateFormValue,
-      onChange: undefined,
-    }), { wrapper: SimulationProvider })
+    const { result } = renderHook(
+      () =>
+        useRMDHandlers({
+          isFormMode: true,
+          formValue,
+          updateFormValue,
+          onChange: undefined,
+        }),
+      { wrapper: SimulationProvider },
+    )
 
     result.current.handleAgeChange(70)
 
@@ -412,12 +412,16 @@ describe('useRMDHandlers', () => {
       onCustomLifeExpectancyChange: vi.fn(),
     }
 
-    const { result } = renderHook(() => useRMDHandlers({
-      isFormMode: false,
-      formValue: undefined,
-      updateFormValue: undefined,
-      onChange,
-    }), { wrapper: SimulationProvider })
+    const { result } = renderHook(
+      () =>
+        useRMDHandlers({
+          isFormMode: false,
+          formValue: undefined,
+          updateFormValue: undefined,
+          onChange,
+        }),
+      { wrapper: SimulationProvider },
+    )
 
     result.current.handleAgeChange(72)
 
@@ -431,12 +435,16 @@ describe('useRMDHandlers', () => {
       onCustomLifeExpectancyChange: vi.fn(),
     }
 
-    const { result } = renderHook(() => useRMDHandlers({
-      isFormMode: false,
-      formValue: undefined,
-      updateFormValue: undefined,
-      onChange,
-    }), { wrapper: SimulationProvider })
+    const { result } = renderHook(
+      () =>
+        useRMDHandlers({
+          isFormMode: false,
+          formValue: undefined,
+          updateFormValue: undefined,
+          onChange,
+        }),
+      { wrapper: SimulationProvider },
+    )
 
     result.current.handleTableChange('custom')
 
@@ -450,12 +458,16 @@ describe('useRMDHandlers', () => {
       onCustomLifeExpectancyChange: vi.fn(),
     }
 
-    const { result } = renderHook(() => useRMDHandlers({
-      isFormMode: false,
-      formValue: undefined,
-      updateFormValue: undefined,
-      onChange,
-    }), { wrapper: SimulationProvider })
+    const { result } = renderHook(
+      () =>
+        useRMDHandlers({
+          isFormMode: false,
+          formValue: undefined,
+          updateFormValue: undefined,
+          onChange,
+        }),
+      { wrapper: SimulationProvider },
+    )
 
     result.current.handleCustomLifeExpectancyChange(25)
 

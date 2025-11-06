@@ -32,11 +32,8 @@ export function Zeitspanne({
         </div>
       </div>
       <p className="text-sm text-muted-foreground">
-        Definiert das Ende der Sparphase (Jahr
-        {' '}
-        {startOfIndependence}
-        ). Die Entnahme-Phase beginnt automatisch im Folgejahr (
-        {startOfIndependence + 1}
+        Definiert das Ende der Sparphase (Jahr {startOfIndependence}
+        ). Die Entnahme-Phase beginnt automatisch im Folgejahr ({startOfIndependence + 1}
         ).
       </p>
     </div>

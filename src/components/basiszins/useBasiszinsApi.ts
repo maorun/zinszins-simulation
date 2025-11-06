@@ -1,8 +1,5 @@
 import { useCallback } from 'react'
-import {
-  refreshBasiszinsFromAPI,
-  type BasiszinsConfiguration,
-} from '../../services/bundesbank-api'
+import { refreshBasiszinsFromAPI, type BasiszinsConfiguration } from '../../services/bundesbank-api'
 
 /**
  * Custom hook for API-related operations
@@ -29,13 +26,11 @@ export function useBasiszinsApi(
 
       // Show success message
       console.log('✅ Basiszins-Daten erfolgreich von der API aktualisiert')
-    }
-    catch (err) {
+    } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler beim Abrufen der Daten'
       setError(errorMessage)
       console.error('❌ Fehler beim Aktualisieren der Basiszins-Daten:', errorMessage)
-    }
-    finally {
+    } finally {
       setIsLoading(false)
     }
   }, [basiszinsConfiguration, setBasiszinsConfiguration, performSimulation, setIsLoading, setError, setLastApiUpdate])

@@ -8,8 +8,8 @@ interface ChartConfig {
   xAxisAngle: number
   xAxisTextAnchor: 'end' | 'middle'
   xAxisHeight: number
-  endkapitalDot: { fill: string, strokeWidth: number, r: number } | false
-  taxDot: { fill: string, strokeWidth: number, r: number } | false
+  endkapitalDot: { fill: string; strokeWidth: number; r: number } | false
+  taxDot: { fill: string; strokeWidth: number; r: number } | false
   showBrush: boolean
 }
 

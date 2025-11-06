@@ -15,7 +15,7 @@ function StrategySelection({ coupleStrategy, onCoupleStrategyChange }: StrategyS
       <Label className="text-sm font-medium">Versicherungsstrategie</Label>
       <RadioTileGroup
         value={coupleStrategy}
-        onValueChange={value => onCoupleStrategyChange(value as 'individual' | 'family' | 'optimize')}
+        onValueChange={(value) => onCoupleStrategyChange(value as 'individual' | 'family' | 'optimize')}
         className="grid grid-cols-1 gap-3"
       >
         <RadioTile value="individual" label="Einzelversicherung">
@@ -123,14 +123,9 @@ interface CoupleConfigurationContentProps {
 function CoupleConfigurationContent(props: CoupleConfigurationContentProps) {
   return (
     <div className="space-y-4 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-      <h4 className="font-medium text-sm flex items-center gap-2">
-        💑 Familienversicherung für Paare
-      </h4>
+      <h4 className="font-medium text-sm flex items-center gap-2">💑 Familienversicherung für Paare</h4>
 
-      <StrategySelection
-        coupleStrategy={props.coupleStrategy}
-        onCoupleStrategyChange={props.onCoupleStrategyChange}
-      />
+      <StrategySelection coupleStrategy={props.coupleStrategy} onCoupleStrategyChange={props.onCoupleStrategyChange} />
 
       <FamilyInsuranceThresholds
         familyInsuranceThresholdRegular={props.familyInsuranceThresholdRegular}
@@ -198,39 +193,31 @@ function FamilyInsuranceThresholds({
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="family-threshold-regular">
-            Reguläre Beschäftigung (monatlich)
-          </Label>
+          <Label htmlFor="family-threshold-regular">Reguläre Beschäftigung (monatlich)</Label>
           <Input
             id="family-threshold-regular"
             type="number"
             min="0"
             step="5"
             value={familyInsuranceThresholdRegular}
-            onChange={e => onFamilyInsuranceThresholdRegularChange(Number(e.target.value))}
+            onChange={(e) => onFamilyInsuranceThresholdRegularChange(Number(e.target.value))}
             placeholder="505"
           />
-          <div className="text-xs text-muted-foreground">
-            Standard: 505€/Monat (2025)
-          </div>
+          <div className="text-xs text-muted-foreground">Standard: 505€/Monat (2025)</div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="family-threshold-minijob">
-            Mini-Job (monatlich)
-          </Label>
+          <Label htmlFor="family-threshold-minijob">Mini-Job (monatlich)</Label>
           <Input
             id="family-threshold-minijob"
             type="number"
             min="0"
             step="5"
             value={familyInsuranceThresholdMiniJob}
-            onChange={e => onFamilyInsuranceThresholdMiniJobChange(Number(e.target.value))}
+            onChange={(e) => onFamilyInsuranceThresholdMiniJobChange(Number(e.target.value))}
             placeholder="538"
           />
-          <div className="text-xs text-muted-foreground">
-            Standard: 538€/Monat für Mini-Jobs (2025)
-          </div>
+          <div className="text-xs text-muted-foreground">Standard: 538€/Monat für Mini-Jobs (2025)</div>
         </div>
       </div>
     </div>
@@ -255,18 +242,11 @@ interface WithdrawalShareSliderProps {
   onWithdrawalShareChange: (share: number) => void
 }
 
-function WithdrawalShareSlider({
-  personNumber,
-  withdrawalShare,
-  onWithdrawalShareChange,
-}: WithdrawalShareSliderProps) {
+function WithdrawalShareSlider({ personNumber, withdrawalShare, onWithdrawalShareChange }: WithdrawalShareSliderProps) {
   return (
     <div className="space-y-2">
       <Label htmlFor={`health-insurance-person${personNumber}-withdrawal-share`}>
-        Anteil am Entnahmebetrag:
-        {' '}
-        {(withdrawalShare * 100).toFixed(0)}
-        %
+        Anteil am Entnahmebetrag: {(withdrawalShare * 100).toFixed(0)}%
       </Label>
       <Slider
         id={`health-insurance-person${personNumber}-withdrawal-share`}
@@ -291,11 +271,7 @@ interface OtherIncomeInputProps {
   onOtherIncomeAnnualChange: (amount: number) => void
 }
 
-function OtherIncomeInput({
-  personNumber,
-  otherIncomeAnnual,
-  onOtherIncomeAnnualChange,
-}: OtherIncomeInputProps) {
+function OtherIncomeInput({ personNumber, otherIncomeAnnual, onOtherIncomeAnnualChange }: OtherIncomeInputProps) {
   return (
     <div className="space-y-2">
       <Label htmlFor={`person${personNumber}-other-income`}>Andere Einkünfte (jährlich)</Label>
@@ -305,12 +281,10 @@ function OtherIncomeInput({
         min="0"
         step="100"
         value={otherIncomeAnnual}
-        onChange={e => onOtherIncomeAnnualChange(Number(e.target.value))}
+        onChange={(e) => onOtherIncomeAnnualChange(Number(e.target.value))}
         placeholder="0"
       />
-      <div className="text-xs text-muted-foreground">
-        z.B. Rente, Mieteinnahmen, Nebenjob
-      </div>
+      <div className="text-xs text-muted-foreground">z.B. Rente, Mieteinnahmen, Nebenjob</div>
     </div>
   )
 }
@@ -356,11 +330,7 @@ function PersonConfiguration({
 
   return (
     <div className="space-y-4 p-3 bg-white rounded border">
-      <h6 className={`font-medium text-sm ${colorClass}`}>
-        👤 Person
-        {' '}
-        {personNumber}
-      </h6>
+      <h6 className={`font-medium text-sm ${colorClass}`}>👤 Person {personNumber}</h6>
 
       <div className="space-y-2">
         <Label htmlFor={`person${personNumber}-name`}>Name (optional)</Label>
@@ -368,7 +338,7 @@ function PersonConfiguration({
           id={`person${personNumber}-name`}
           type="text"
           value={name}
-          onChange={e => onNameChange(e.target.value)}
+          onChange={(e) => onNameChange(e.target.value)}
           placeholder={`z.B. ${defaultName}`}
         />
       </div>

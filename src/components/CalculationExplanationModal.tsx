@@ -21,7 +21,7 @@ interface CalculationExplanationModalProps {
   steps: CalculationStep[]
   finalResult: {
     title: string
-    values: Array<{ label: string, value: string }>
+    values: Array<{ label: string; value: string }>
   }
 }
 
@@ -34,7 +34,7 @@ const CalculationExplanationModal = ({
   finalResult,
 }: CalculationExplanationModalProps) => {
   return (
-    <Dialog open={open} onOpenChange={isOpen => !isOpen && onClose()}>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
@@ -48,9 +48,7 @@ const CalculationExplanationModal = ({
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button>
-              Verstanden
-            </Button>
+            <Button>Verstanden</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

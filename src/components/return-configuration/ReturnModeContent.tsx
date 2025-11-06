@@ -13,11 +13,7 @@ interface ReturnModeContentProps {
   onMultiAssetConfigChange: (config: MultiAssetPortfolioConfig) => void
 }
 
-const ReturnModeContent = ({
-  returnMode,
-  multiAssetConfig,
-  onMultiAssetConfigChange,
-}: ReturnModeContentProps) => {
+const ReturnModeContent = ({ returnMode, multiAssetConfig, onMultiAssetConfigChange }: ReturnModeContentProps) => {
   return (
     <NestingProvider>
       {returnMode === 'fixed' && <FixedReturnConfiguration />}

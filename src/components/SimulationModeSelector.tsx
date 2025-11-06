@@ -8,7 +8,7 @@ interface SimulationModeSelectorProps {
 
 const SimulationModeSelector = ({ onTabChange }: SimulationModeSelectorProps) => {
   return (
-    <Tabs defaultValue="ansparen" onValueChange={value => onTabChange?.(value as 'ansparen' | 'entnehmen')}>
+    <Tabs defaultValue="ansparen" onValueChange={(value) => onTabChange?.(value as 'ansparen' | 'entnehmen')}>
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="ansparen">Ansparen</TabsTrigger>
         <TabsTrigger value="entnehmen">Entnehmen</TabsTrigger>

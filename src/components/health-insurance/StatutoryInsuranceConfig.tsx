@@ -26,13 +26,11 @@ function EmployerContributionSetting({
           onCheckedChange={onIncludeEmployerContributionChange}
           id="include-employer-contribution"
         />
-        <Label htmlFor="include-employer-contribution">
-          Arbeitgeberanteil in Entnahme-Phase berücksichtigen
-        </Label>
+        <Label htmlFor="include-employer-contribution">Arbeitgeberanteil in Entnahme-Phase berücksichtigen</Label>
       </div>
       <div className="text-xs text-muted-foreground">
-        Standard: Arbeitgeberanteil muss in der Entnahme-Phase selbst getragen werden. Deaktivieren
-        Sie diese Option, wenn nur der Arbeitnehmeranteil gezahlt wird.
+        Standard: Arbeitgeberanteil muss in der Entnahme-Phase selbst getragen werden. Deaktivieren Sie diese Option,
+        wenn nur der Arbeitnehmeranteil gezahlt wird.
       </div>
     </div>
   )
@@ -50,26 +48,14 @@ function StatutoryRates({
       </h4>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="statutory-health-rate">
-            Krankenversicherung:
-            {' '}
-            {statutoryHealthInsuranceRate.toFixed(2)}
-            %
-          </Label>
+          <Label htmlFor="statutory-health-rate">Krankenversicherung: {statutoryHealthInsuranceRate.toFixed(2)}%</Label>
           <div className="text-xs text-muted-foreground">
             Gesetzlich festgelegt: 14,6% (7,3% Arbeitnehmer + 7,3% Arbeitgeber)
           </div>
         </div>
         <div className="space-y-2">
-          <Label htmlFor="statutory-care-rate">
-            Pflegeversicherung:
-            {' '}
-            {statutoryCareInsuranceRate.toFixed(2)}
-            %
-          </Label>
-          <div className="text-xs text-muted-foreground">
-            Gesetzlich festgelegt: 3,05% (+ 0,6% für Kinderlose)
-          </div>
+          <Label htmlFor="statutory-care-rate">Pflegeversicherung: {statutoryCareInsuranceRate.toFixed(2)}%</Label>
+          <div className="text-xs text-muted-foreground">Gesetzlich festgelegt: 3,05% (+ 0,6% für Kinderlose)</div>
         </div>
       </div>
     </div>
@@ -93,20 +79,16 @@ function IncomeLimits({
       <h4 className="font-medium text-sm">Beitragsbemessungsgrenzen</h4>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
-          <Label htmlFor="statutory-min-income">
-            Mindestbeitragsbemessungsgrundlage (jährlich)
-          </Label>
+          <Label htmlFor="statutory-min-income">Mindestbeitragsbemessungsgrundlage (jährlich)</Label>
           <Input
             id="statutory-min-income"
             type="number"
             min="0"
             step="100"
             value={statutoryMinimumIncomeBase}
-            onChange={e => onStatutoryMinimumIncomeBaseChange(Number(e.target.value))}
+            onChange={(e) => onStatutoryMinimumIncomeBaseChange(Number(e.target.value))}
           />
-          <div className="text-xs text-muted-foreground">
-            Mindestbeitrag wird auch bei geringerem Einkommen erhoben
-          </div>
+          <div className="text-xs text-muted-foreground">Mindestbeitrag wird auch bei geringerem Einkommen erhoben</div>
         </div>
         <div className="space-y-2">
           <Label htmlFor="statutory-max-income">Beitragsbemessungsgrenze (jährlich)</Label>
@@ -116,11 +98,9 @@ function IncomeLimits({
             min="0"
             step="1000"
             value={statutoryMaximumIncomeBase}
-            onChange={e => onStatutoryMaximumIncomeBaseChange(Number(e.target.value))}
+            onChange={(e) => onStatutoryMaximumIncomeBaseChange(Number(e.target.value))}
           />
-          <div className="text-xs text-muted-foreground">
-            Maximale Beitragsbemessungsgrundlage (2024: 62.550€)
-          </div>
+          <div className="text-xs text-muted-foreground">Maximale Beitragsbemessungsgrundlage (2024: 62.550€)</div>
         </div>
       </div>
     </div>

@@ -55,15 +55,11 @@ describe('InflationConfiguration', () => {
   })
 
   it('should render with different inflation rates', () => {
-    const { rerender } = render(
-      <InflationConfiguration {...defaultProps} inflationAktiv={true} inflationsrate={1.0} />,
-    )
+    const { rerender } = render(<InflationConfiguration {...defaultProps} inflationAktiv={true} inflationsrate={1.0} />)
 
     expect(screen.getByText('1%', { selector: '.font-medium' })).toBeInTheDocument()
 
-    rerender(
-      <InflationConfiguration {...defaultProps} inflationAktiv={true} inflationsrate={4.5} />,
-    )
+    rerender(<InflationConfiguration {...defaultProps} inflationAktiv={true} inflationsrate={4.5} />)
 
     expect(screen.getByText('4.5%', { selector: '.font-medium' })).toBeInTheDocument()
   })

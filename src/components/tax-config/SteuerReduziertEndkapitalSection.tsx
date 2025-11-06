@@ -18,17 +18,17 @@ export function SteuerReduziertEndkapitalSection({
     <div className="space-y-4">
       <Label className="text-base font-medium">Steuer reduziert Endkapital</Label>
       <p className="text-sm text-muted-foreground">
-        Konfigurieren Sie für jede Phase, ob die Steuer vom Endkapital abgezogen wird oder über ein
-        separates Verrechnungskonto bezahlt wird.
+        Konfigurieren Sie für jede Phase, ob die Steuer vom Endkapital abgezogen wird oder über ein separates
+        Verrechnungskonto bezahlt wird.
       </p>
 
       <div className="space-y-3">
         <div className="flex items-center justify-between p-3 border rounded-lg">
           <div className="space-y-1">
-            <Label htmlFor="steuerReduzierenEndkapitalSparphase" className="font-medium">Sparphase</Label>
-            <p className="text-sm text-muted-foreground">
-              Während der Ansparphase vom Kapital abziehen
-            </p>
+            <Label htmlFor="steuerReduzierenEndkapitalSparphase" className="font-medium">
+              Sparphase
+            </Label>
+            <p className="text-sm text-muted-foreground">Während der Ansparphase vom Kapital abziehen</p>
           </div>
           <Switch
             id="steuerReduzierenEndkapitalSparphase"
@@ -39,10 +39,10 @@ export function SteuerReduziertEndkapitalSection({
 
         <div className="flex items-center justify-between p-3 border rounded-lg">
           <div className="space-y-1">
-            <Label htmlFor="steuerReduzierenEndkapitalEntspharphase" className="font-medium">Entsparphase</Label>
-            <p className="text-sm text-muted-foreground">
-              Während der Entnahmephase vom Kapital abziehen
-            </p>
+            <Label htmlFor="steuerReduzierenEndkapitalEntspharphase" className="font-medium">
+              Entsparphase
+            </Label>
+            <p className="text-sm text-muted-foreground">Während der Entnahmephase vom Kapital abziehen</p>
           </div>
           <Switch
             id="steuerReduzierenEndkapitalEntspharphase"

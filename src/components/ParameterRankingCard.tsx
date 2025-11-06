@@ -25,25 +25,17 @@ const ParameterRankingCard: React.FC<ParameterRankingCardProps> = ({ ranking, in
   return (
     <div className="flex items-center justify-between p-3 bg-white border rounded-lg hover:shadow-md transition-shadow">
       <div className="flex items-center gap-3">
-        <span className="text-2xl font-bold text-gray-400">
-          #
-          {index + 1}
-        </span>
+        <span className="text-2xl font-bold text-gray-400">#{index + 1}</span>
         <div>
           <div className="font-semibold text-gray-800">{parameter.displayName}</div>
           <div className={`text-sm ${impactInfo.color}`}>
-            {impactInfo.emoji}
-            {' '}
-            {impactInfo.text}
+            {impactInfo.emoji} {impactInfo.text}
           </div>
         </div>
       </div>
       <div className="text-right">
         <div className="text-sm text-gray-600">Sensitivität</div>
-        <div className="font-bold text-gray-800">
-          {ranking.impact.toFixed(2)}
-          %
-        </div>
+        <div className="font-bold text-gray-800">{ranking.impact.toFixed(2)}%</div>
       </div>
     </div>
   )

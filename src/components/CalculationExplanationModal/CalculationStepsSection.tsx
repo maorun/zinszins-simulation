@@ -27,14 +27,9 @@ const CalculationStepsSection = ({ steps }: CalculationStepsSectionProps) => {
             }}
           >
             <strong>{step.title}</strong>
-            <div className="mt-2 text-sm">
-              {step.description}
-            </div>
+            <div className="mt-2 text-sm">{step.description}</div>
             <div className="mt-2 p-2 bg-white rounded font-mono">
-              <div dangerouslySetInnerHTML={{ __html: step.calculation }} />
-              =
-              {' '}
-              <strong>{step.result}</strong>
+              <div dangerouslySetInnerHTML={{ __html: step.calculation }} />= <strong>{step.result}</strong>
             </div>
           </div>
         ))}

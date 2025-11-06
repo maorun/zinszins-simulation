@@ -19,15 +19,13 @@ interface DeleteProfileDialogProps {
 /** Delete Profile Confirmation Dialog Component */
 export function DeleteProfileDialog({ profile, onOpenChange, onConfirm }: DeleteProfileDialogProps) {
   return (
-    <AlertDialog open={!!profile} onOpenChange={open => !open && onOpenChange(false)}>
+    <AlertDialog open={!!profile} onOpenChange={(open) => !open && onOpenChange(false)}>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Profil löschen</AlertDialogTitle>
           <AlertDialogDescription>
-            Möchten Sie das Profil "
-            {profile?.name}
-            " wirklich löschen?
-            Diese Aktion kann nicht rückgängig gemacht werden.
+            Möchten Sie das Profil "{profile?.name}" wirklich löschen? Diese Aktion kann nicht rückgängig gemacht
+            werden.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>

@@ -20,35 +20,23 @@ export const ScenarioStatistics = ({
     <>
       {cumulativeInflation !== null && (
         <p>
-          <strong>Kumulative Inflation:</strong>
-          {' '}
-          {formatPercent(cumulativeInflation)}
+          <strong>Kumulative Inflation:</strong> {formatPercent(cumulativeInflation)}
         </p>
       )}
 
       {averageInflation !== null && (
         <p>
-          <strong>Durchschnittliche jährliche Inflation:</strong>
-          {' '}
-          {formatPercent(averageInflation)}
+          <strong>Durchschnittliche jährliche Inflation:</strong> {formatPercent(averageInflation)}
         </p>
       )}
 
       {purchasingPowerImpact !== null && (
         <p>
-          <strong>Kaufkraftverlust:</strong>
-          {' '}
-          100.000 € haben nach
-          {' '}
-          {duration}
-          {' '}
-          Jahren eine reale Kaufkraft von ca.
-          {' '}
+          <strong>Kaufkraftverlust:</strong> 100.000 € haben nach {duration} Jahren eine reale Kaufkraft von ca.{' '}
           {purchasingPowerImpact.toLocaleString('de-DE', {
             minimumFractionDigits: 0,
             maximumFractionDigits: 0,
-          })}
-          {' '}
+          })}{' '}
           €
         </p>
       )}

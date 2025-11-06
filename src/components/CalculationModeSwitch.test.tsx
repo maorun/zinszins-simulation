@@ -7,12 +7,7 @@ import CalculationModeSwitch from './CalculationModeSwitch'
 describe('CalculationModeSwitch', () => {
   it('renders with yearly mode selected', () => {
     const onToggle = vi.fn()
-    render(
-      <CalculationModeSwitch
-        simulationAnnual="yearly"
-        onToggle={onToggle}
-      />,
-    )
+    render(<CalculationModeSwitch simulationAnnual="yearly" onToggle={onToggle} />)
 
     expect(screen.getByText('Berechnungsmodus')).toBeInTheDocument()
     expect(screen.getByText('Jährlich')).toBeInTheDocument()
@@ -22,12 +17,7 @@ describe('CalculationModeSwitch', () => {
 
   it('renders with monthly mode selected', () => {
     const onToggle = vi.fn()
-    render(
-      <CalculationModeSwitch
-        simulationAnnual="monthly"
-        onToggle={onToggle}
-      />,
-    )
+    render(<CalculationModeSwitch simulationAnnual="monthly" onToggle={onToggle} />)
 
     expect(screen.getByRole('switch')).toBeChecked()
   })
@@ -36,12 +26,7 @@ describe('CalculationModeSwitch', () => {
     const onToggle = vi.fn()
     const user = userEvent.setup()
 
-    render(
-      <CalculationModeSwitch
-        simulationAnnual="yearly"
-        onToggle={onToggle}
-      />,
-    )
+    render(<CalculationModeSwitch simulationAnnual="yearly" onToggle={onToggle} />)
 
     const switchElement = screen.getByRole('switch')
     await user.click(switchElement)
@@ -51,16 +36,9 @@ describe('CalculationModeSwitch', () => {
 
   it('displays description text on desktop and mobile', () => {
     const onToggle = vi.fn()
-    render(
-      <CalculationModeSwitch
-        simulationAnnual="yearly"
-        onToggle={onToggle}
-      />,
-    )
+    render(<CalculationModeSwitch simulationAnnual="yearly" onToggle={onToggle} />)
 
-    const descriptions = screen.getAllByText(
-      /Jährlich für schnellere Berechnung, Monatlich für präzisere Ergebnisse/,
-    )
+    const descriptions = screen.getAllByText(/Jährlich für schnellere Berechnung, Monatlich für präzisere Ergebnisse/)
     expect(descriptions).toHaveLength(2) // One visible on desktop, one on mobile
   })
 })

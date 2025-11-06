@@ -269,21 +269,9 @@ describe('freibetrag-calculation integration tests', () => {
       const extremeIndividual = 0.01 // Very small individual freibetrag
       const extremeCouple = 1000000 // Very large individual freibetrag
 
-      const smallResult = createPlanningModeAwareFreibetragPerYear(
-        2024,
-        2024,
-        'couple',
-        undefined,
-        extremeIndividual,
-      )
+      const smallResult = createPlanningModeAwareFreibetragPerYear(2024, 2024, 'couple', undefined, extremeIndividual)
 
-      const largeResult = createPlanningModeAwareFreibetragPerYear(
-        2024,
-        2024,
-        'couple',
-        undefined,
-        extremeCouple,
-      )
+      const largeResult = createPlanningModeAwareFreibetragPerYear(2024, 2024, 'couple', undefined, extremeCouple)
 
       expect(smallResult[2024]).toBe(0.02) // 0.01 * 2 for couple
       expect(largeResult[2024]).toBe(2000000) // 1000000 * 2 for couple

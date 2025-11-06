@@ -123,7 +123,7 @@ describe('ScenarioSelector', () => {
 
       // Find clear button (X icon button)
       const buttons = screen.getAllByRole('button')
-      const clearButton = buttons.find(btn => btn.querySelector('svg'))
+      const clearButton = buttons.find((btn) => btn.querySelector('svg'))
       expect(clearButton).toBeDefined()
     })
   })
@@ -141,7 +141,7 @@ describe('ScenarioSelector', () => {
 
       // Click clear button
       const buttons = screen.getAllByRole('button')
-      const clearButton = buttons.find(btn => btn.querySelector('svg') && btn !== triggers[0].closest('button'))
+      const clearButton = buttons.find((btn) => btn.querySelector('svg') && btn !== triggers[0].closest('button'))
       if (clearButton) {
         fireEvent.click(clearButton)
       }
@@ -285,7 +285,9 @@ describe('ScenarioSelector', () => {
       // Each scenario should show monthly contribution, return rate, and duration
       const firstScenario = predefinedScenarios[0]
       if (firstScenario.config.monthlyContribution > 0) {
-        expect(screen.getByText(new RegExp(`${firstScenario.config.monthlyContribution}€/Monat`, 'i'))).toBeInTheDocument()
+        expect(
+          screen.getByText(new RegExp(`${firstScenario.config.monthlyContribution}€/Monat`, 'i')),
+        ).toBeInTheDocument()
       }
       expect(screen.getByText(new RegExp(`${firstScenario.config.expectedReturn}% Rendite`, 'i'))).toBeInTheDocument()
     })

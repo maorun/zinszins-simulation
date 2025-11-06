@@ -6,12 +6,7 @@ import { IndexSelectionRadioGroup } from './IndexSelectionRadioGroup'
 describe('IndexSelectionRadioGroup', () => {
   it('should render all historical indices', () => {
     const mockOnIndexChange = vi.fn()
-    render(
-      <IndexSelectionRadioGroup
-        selectedIndexId="dax"
-        onIndexChange={mockOnIndexChange}
-      />,
-    )
+    render(<IndexSelectionRadioGroup selectedIndexId="dax" onIndexChange={mockOnIndexChange} />)
 
     // Check for all index names
     expect(screen.getByText('DAX')).toBeInTheDocument()
@@ -21,12 +16,7 @@ describe('IndexSelectionRadioGroup', () => {
 
   it('should display index descriptions', () => {
     const mockOnIndexChange = vi.fn()
-    render(
-      <IndexSelectionRadioGroup
-        selectedIndexId="dax"
-        onIndexChange={mockOnIndexChange}
-      />,
-    )
+    render(<IndexSelectionRadioGroup selectedIndexId="dax" onIndexChange={mockOnIndexChange} />)
 
     // Check for index descriptions
     expect(screen.getByText(/Deutscher Aktienindex/)).toBeInTheDocument()
@@ -36,12 +26,7 @@ describe('IndexSelectionRadioGroup', () => {
 
   it('should display index metadata (years, currency, average return)', () => {
     const mockOnIndexChange = vi.fn()
-    render(
-      <IndexSelectionRadioGroup
-        selectedIndexId="dax"
-        onIndexChange={mockOnIndexChange}
-      />,
-    )
+    render(<IndexSelectionRadioGroup selectedIndexId="dax" onIndexChange={mockOnIndexChange} />)
 
     // Check for year ranges
     expect(screen.getAllByText(/2000-2023/).length).toBeGreaterThan(0)
@@ -57,12 +42,7 @@ describe('IndexSelectionRadioGroup', () => {
   it('should call onIndexChange when a different index is selected', async () => {
     const user = userEvent.setup()
     const mockOnIndexChange = vi.fn()
-    render(
-      <IndexSelectionRadioGroup
-        selectedIndexId="dax"
-        onIndexChange={mockOnIndexChange}
-      />,
-    )
+    render(<IndexSelectionRadioGroup selectedIndexId="dax" onIndexChange={mockOnIndexChange} />)
 
     // Click on S&P 500
     const sp500Radio = screen.getByRole('radio', { name: /S&P 500/ })
@@ -74,12 +54,7 @@ describe('IndexSelectionRadioGroup', () => {
 
   it('should have the correct index selected by default', () => {
     const mockOnIndexChange = vi.fn()
-    render(
-      <IndexSelectionRadioGroup
-        selectedIndexId="sp500"
-        onIndexChange={mockOnIndexChange}
-      />,
-    )
+    render(<IndexSelectionRadioGroup selectedIndexId="sp500" onIndexChange={mockOnIndexChange} />)
 
     // S&P 500 should be checked
     const sp500Radio = screen.getByRole('radio', { name: /S&P 500/ })
@@ -92,12 +67,7 @@ describe('IndexSelectionRadioGroup', () => {
 
   it('should render the label for the radio group', () => {
     const mockOnIndexChange = vi.fn()
-    render(
-      <IndexSelectionRadioGroup
-        selectedIndexId="dax"
-        onIndexChange={mockOnIndexChange}
-      />,
-    )
+    render(<IndexSelectionRadioGroup selectedIndexId="dax" onIndexChange={mockOnIndexChange} />)
 
     expect(screen.getByText('Historischer Index für Backtesting')).toBeInTheDocument()
   })

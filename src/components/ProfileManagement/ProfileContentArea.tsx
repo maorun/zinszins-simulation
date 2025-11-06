@@ -47,17 +47,13 @@ export function ProfileContentArea({
     <>
       <Alert variant="info" className="mb-4">
         <AlertDescription>
-          <strong>Profile:</strong>
-          {' '}
-          Speichern Sie verschiedene Konfigurationen für unterschiedliche Familien oder Testeinstellungen.
-          Ihre Einstellungen werden automatisch im aktiven Profil gespeichert.
+          <strong>Profile:</strong> Speichern Sie verschiedene Konfigurationen für unterschiedliche Familien oder
+          Testeinstellungen. Ihre Einstellungen werden automatisch im aktiven Profil gespeichert.
         </AlertDescription>
       </Alert>
 
       <div className="space-y-4">
-        {activeProfile && (
-          <ActiveProfileDisplay profile={activeProfile} formatDate={formatDate} />
-        )}
+        {activeProfile && <ActiveProfileDisplay profile={activeProfile} formatDate={formatDate} />}
 
         <ProfileList
           profiles={profiles}

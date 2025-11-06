@@ -7,11 +7,7 @@ interface RandomSeedInputProps {
   performSimulation: () => void
 }
 
-const RandomSeedInput = ({
-  randomSeed,
-  setRandomSeed,
-  performSimulation,
-}: RandomSeedInputProps) => {
+const RandomSeedInput = ({ randomSeed, setRandomSeed, performSimulation }: RandomSeedInputProps) => {
   return (
     <div className="space-y-2">
       <Label htmlFor="randomSeed">Zufallsseed (optional für reproduzierbare Ergebnisse)</Label>

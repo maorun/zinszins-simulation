@@ -51,7 +51,8 @@ export const predefinedScenarios: FinancialScenario[] = [
   {
     id: 'conservative-beginner',
     name: '🛡️ Vorsichtiger Einsteiger',
-    description: 'Konservative Strategie mit geringem Risiko für Anfänger. Fokus auf Kapitalerhalt mit moderatem Wachstum.',
+    description:
+      'Konservative Strategie mit geringem Risiko für Anfänger. Fokus auf Kapitalerhalt mit moderatem Wachstum.',
     category: 'conservative',
     icon: '🛡️',
     config: {
@@ -205,7 +206,8 @@ export const predefinedScenarios: FinancialScenario[] = [
   {
     id: 'aggressive-growth',
     name: '🚀 Maximales Wachstum',
-    description: '100% Aktien-Strategie für maximales Wachstumspotenzial. Nur für langfristige, risikotolerante Anleger.',
+    description:
+      '100% Aktien-Strategie für maximales Wachstumspotenzial. Nur für langfristige, risikotolerante Anleger.',
     category: 'aggressive',
     icon: '🚀',
     config: {
@@ -244,7 +246,8 @@ export const predefinedScenarios: FinancialScenario[] = [
   {
     id: 'aggressive-early-retirement',
     name: '💼 Früher Ruhestand (FIRE)',
-    description: 'Financial Independence, Retire Early - Aggressive Sparstrategie für frühe finanzielle Unabhängigkeit.',
+    description:
+      'Financial Independence, Retire Early - Aggressive Sparstrategie für frühe finanzielle Unabhängigkeit.',
     category: 'aggressive',
     icon: '💼',
     config: {
@@ -323,7 +326,8 @@ export const predefinedScenarios: FinancialScenario[] = [
   {
     id: 'special-career-break',
     name: '🎓 Sabbatical-Planung',
-    description: 'Vorbereitung auf eine Auszeit mit gezieltem Vermögensaufbau. Finanzielle Freiheit für temporäre Auszeit.',
+    description:
+      'Vorbereitung auf eine Auszeit mit gezieltem Vermögensaufbau. Finanzielle Freiheit für temporäre Auszeit.',
     category: 'special',
     icon: '🎓',
     config: {
@@ -361,7 +365,8 @@ export const predefinedScenarios: FinancialScenario[] = [
   {
     id: 'special-child-education',
     name: '👶 Ausbildung für Kinder',
-    description: 'Langfristiger Vermögensaufbau für die Ausbildung der Kinder. Bildungssparen mit Horizont bis Volljährigkeit.',
+    description:
+      'Langfristiger Vermögensaufbau für die Ausbildung der Kinder. Bildungssparen mit Horizont bis Volljährigkeit.',
     category: 'special',
     icon: '👶',
     config: {
@@ -440,16 +445,16 @@ export const predefinedScenarios: FinancialScenario[] = [
 
 // Helper function to get scenario by ID
 export function getScenarioById(id: string): FinancialScenario | undefined {
-  return predefinedScenarios.find(scenario => scenario.id === id)
+  return predefinedScenarios.find((scenario) => scenario.id === id)
 }
 
 // Get scenarios by category
 export function getScenariosByCategory(category: FinancialScenario['category']): FinancialScenario[] {
-  return predefinedScenarios.filter(scenario => scenario.category === category)
+  return predefinedScenarios.filter((scenario) => scenario.category === category)
 }
 
 // Get all categories
-export function getScenarioCategories(): Array<{ id: FinancialScenario['category'], name: string, icon: string }> {
+export function getScenarioCategories(): Array<{ id: FinancialScenario['category']; name: string; icon: string }> {
   return [
     { id: 'conservative', name: 'Konservativ', icon: '🛡️' },
     { id: 'balanced', name: 'Ausgewogen', icon: '⚖️' },
@@ -462,10 +467,10 @@ export function getScenarioCategories(): Array<{ id: FinancialScenario['category
 export function searchScenarios(query: string): FinancialScenario[] {
   const lowerQuery = query.toLowerCase()
   return predefinedScenarios.filter(
-    scenario =>
-      scenario.name.toLowerCase().includes(lowerQuery)
-      || scenario.description.toLowerCase().includes(lowerQuery)
-      || scenario.learningPoints.some(point => point.toLowerCase().includes(lowerQuery))
-      || scenario.suitableFor.some(suitable => suitable.toLowerCase().includes(lowerQuery)),
+    (scenario) =>
+      scenario.name.toLowerCase().includes(lowerQuery) ||
+      scenario.description.toLowerCase().includes(lowerQuery) ||
+      scenario.learningPoints.some((point) => point.toLowerCase().includes(lowerQuery)) ||
+      scenario.suitableFor.some((suitable) => suitable.toLowerCase().includes(lowerQuery)),
   )
 }

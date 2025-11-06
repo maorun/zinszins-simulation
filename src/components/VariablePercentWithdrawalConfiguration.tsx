@@ -26,16 +26,12 @@ export function VariablePercentWithdrawalConfiguration({
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>2%</span>
-          <span className="font-medium text-gray-900">
-            {variabelProzent}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{variabelProzent}%</span>
           <span>7%</span>
         </div>
       </div>
       <div className="text-sm text-muted-foreground mt-1">
-        Wählen Sie einen Entnahme-Prozentsatz zwischen 2% und 7% in
-        0,5%-Schritten
+        Wählen Sie einen Entnahme-Prozentsatz zwischen 2% und 7% in 0,5%-Schritten
       </div>
     </div>
   )

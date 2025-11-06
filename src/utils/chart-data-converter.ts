@@ -37,9 +37,7 @@ function initializeYearData(result: SimulationResult, year: number): void {
 /**
  * Convert SparplanElement[] to SimulationResult format for use with InteractiveChart
  */
-export function convertSparplanElementsToSimulationResult(
-  elements?: SparplanElement[],
-): SimulationResult {
+export function convertSparplanElementsToSimulationResult(elements?: SparplanElement[]): SimulationResult {
   if (!elements || elements.length === 0) {
     return {}
   }
@@ -149,6 +147,6 @@ export function hasWithdrawalInflationAdjustedValues(_withdrawalResult: unknown)
  */
 export function hasInflationAdjustedValues(simulationResult: SimulationResult): boolean {
   return Object.values(simulationResult).some(
-    data => data.startkapitalReal !== undefined || data.endkapitalReal !== undefined,
+    (data) => data.startkapitalReal !== undefined || data.endkapitalReal !== undefined,
   )
 }

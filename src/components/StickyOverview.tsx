@@ -39,10 +39,7 @@ function MobileAnsparenView({
       </div>
       <div className="flex flex-col items-center text-center">
         <span className="text-xl mb-1">📈</span>
-        <span className="text-sm font-semibold text-slate-800">
-          {enhancedSummary.renditeAnsparphase.toFixed(1)}
-          %
-        </span>
+        <span className="text-sm font-semibold text-slate-800">{enhancedSummary.renditeAnsparphase.toFixed(1)}%</span>
       </div>
     </div>
   )
@@ -63,11 +60,7 @@ function DesktopAnsparenView({
   return (
     <div className="w-full">
       <div className="w-full">
-        <h4 className="m-0 mb-3 text-slate-800 text-base font-semibold">
-          📈 Ansparphase (
-          {yearsRange}
-          )
-        </h4>
+        <h4 className="m-0 mb-3 text-slate-800 text-base font-semibold">📈 Ansparphase ({yearsRange})</h4>
         <div className="grid grid-cols-4 gap-4">
           <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
             <span className="text-xs text-gray-600 mb-1">💰 Einzahlungen</span>
@@ -90,8 +83,7 @@ function DesktopAnsparenView({
           <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
             <span className="text-xs text-gray-600 mb-1">📈 Rendite</span>
             <span className="font-semibold text-sm text-slate-800">
-              {enhancedSummary.renditeAnsparphase.toFixed(2)}
-              % p.a.
+              {enhancedSummary.renditeAnsparphase.toFixed(2)}% p.a.
             </span>
           </div>
         </div>
@@ -112,40 +104,37 @@ function AnsparenContent({
   yearsRange: string
   enhancedSummary: ReturnType<typeof getEnhancedOverviewSummary> | null
 }) {
-  return isMobile
-    ? (
-        <MobileAnsparenView
-          yearsRange={yearsRange}
-          enhancedSummary={enhancedSummary}
-          formatCompactCurrency={formatCompactCurrency}
-        />
-      )
-    : <DesktopAnsparenView yearsRange={yearsRange} enhancedSummary={enhancedSummary} />
+  return isMobile ? (
+    <MobileAnsparenView
+      yearsRange={yearsRange}
+      enhancedSummary={enhancedSummary}
+      formatCompactCurrency={formatCompactCurrency}
+    />
+  ) : (
+    <DesktopAnsparenView yearsRange={yearsRange} enhancedSummary={enhancedSummary} />
+  )
 }
 
 export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
   const isMobile = useMobileDetection()
   const isSticky = useStickyBehavior(overviewElementRef)
-  const {
-    simulationData,
-    startEnd,
-    withdrawalResults,
-    rendite,
-    steuerlast,
-    teilfreistellungsquote,
-    endOfLife,
-  } = useSimulation()
+  const { simulationData, startEnd, withdrawalResults, rendite, steuerlast, teilfreistellungsquote, endOfLife } =
+    useSimulation()
 
-  const enhancedSummary = useMemo(() => getEnhancedOverviewSummary(
-    simulationData,
-    startEnd,
-    withdrawalResults,
-    rendite,
-    steuerlast,
-    teilfreistellungsquote,
-    undefined,
-    endOfLife,
-  ), [simulationData, startEnd, withdrawalResults, rendite, steuerlast, teilfreistellungsquote, endOfLife])
+  const enhancedSummary = useMemo(
+    () =>
+      getEnhancedOverviewSummary(
+        simulationData,
+        startEnd,
+        withdrawalResults,
+        rendite,
+        steuerlast,
+        teilfreistellungsquote,
+        undefined,
+        endOfLife,
+      ),
+    [simulationData, startEnd, withdrawalResults, rendite, steuerlast, teilfreistellungsquote, endOfLife],
+  )
 
   if (!isSticky || !enhancedSummary || !simulationData) return null
 
@@ -157,11 +146,7 @@ export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
         <div className="absolute top-3 right-4 md:right-6">
           <BurgerNavigation />
         </div>
-        <AnsparenContent
-          isMobile={isMobile}
-          yearsRange={yearsRange}
-          enhancedSummary={enhancedSummary}
-        />
+        <AnsparenContent isMobile={isMobile} yearsRange={yearsRange} enhancedSummary={enhancedSummary} />
       </div>
     </div>
   )

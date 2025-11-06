@@ -23,9 +23,9 @@ interface UseComparisonDataProps {
 const STRATEGY_NAMES: Record<string, string> = {
   '4prozent': '4% Regel',
   '3prozent': '3% Regel',
-  'variabel_prozent': 'Variable Prozent',
-  'monatlich_fest': 'Monatlich fest',
-  'dynamisch': 'Dynamische Strategie',
+  variabel_prozent: 'Variable Prozent',
+  monatlich_fest: 'Monatlich fest',
+  dynamisch: 'Dynamische Strategie',
 }
 
 export function getStrategyDisplayName(strategy: string): string {
@@ -93,10 +93,7 @@ function calculateWithdrawalDetails(
 export function useComparisonData({ withdrawalData, formValue }: UseComparisonDataProps) {
   // Calculate base strategy metrics
   const baseStrategyData = useMemo(() => {
-    const totalWithdrawal = withdrawalData.withdrawalArray.reduce(
-      (sum, year) => sum + (year.entnahme || 0),
-      0,
-    )
+    const totalWithdrawal = withdrawalData.withdrawalArray.reduce((sum, year) => sum + (year.entnahme || 0), 0)
     const averageAnnualWithdrawal = totalWithdrawal / withdrawalData.withdrawalArray.length
 
     // Calculate strategy-specific withdrawal amount

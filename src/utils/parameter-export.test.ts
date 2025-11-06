@@ -540,10 +540,7 @@ describe('Parameter Export', () => {
       const result = await copyParametersToClipboard(mockContext)
 
       expect(result).toBe(false)
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Failed to copy parameters to clipboard:',
-        expect.any(Error),
-      )
+      expect(consoleErrorSpy).toHaveBeenCalledWith('Failed to copy parameters to clipboard:', expect.any(Error))
     })
   })
 })

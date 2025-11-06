@@ -56,9 +56,7 @@ function generateSavingsCSVHeader(sparplans: Sparplan[]): string {
   const baseHeaders = ['Jahr', 'Monat', 'Startkapital (EUR)', 'Zinsen (EUR)']
 
   // Add headers for each configured savings plan
-  const sparplanHeaders = sparplans.map((_, index) =>
-    `Einzahlung Sparplan ${index + 1} (EUR)`,
-  )
+  const sparplanHeaders = sparplans.map((_, index) => `Einzahlung Sparplan ${index + 1} (EUR)`)
 
   const endHeaders = [
     'Gesamte Einzahlungen (EUR)',
@@ -92,18 +90,15 @@ export function exportSavingsDataToCSV(data: ExportData): string {
 
   // Calculate the savings phase time period from savings plan configuration
   const currentYear = new Date().getFullYear()
-  const savingsStartYear = Math.min(currentYear,
-    ...context.sparplanElemente.map(plan => new Date(plan.start).getFullYear()),
+  const savingsStartYear = Math.min(
+    currentYear,
+    ...context.sparplanElemente.map((plan) => new Date(plan.start).getFullYear()),
   )
 
   // For savings phase, use the planned end date from savings plans or withdrawal start
-  const planEndYears = context.sparplan
-    .filter(plan => plan.end)
-    .map(plan => new Date(plan.end!).getFullYear())
+  const planEndYears = context.sparplan.filter((plan) => plan.end).map((plan) => new Date(plan.end!).getFullYear())
 
-  const savingsEndYear = planEndYears.length > 0
-    ? Math.max(...planEndYears)
-    : context.startEnd[0] // Fallback to withdrawal start if no plan end dates
+  const savingsEndYear = planEndYears.length > 0 ? Math.max(...planEndYears) : context.startEnd[0] // Fallback to withdrawal start if no plan end dates
 
   // Add header with parameter information
   lines.push('# Sparphase - Simulationsdaten')
@@ -118,13 +113,12 @@ export function exportSavingsDataToCSV(data: ExportData): string {
   lines.push(generateSavingsCSVHeader(context.sparplan))
 
   // Detect data structure and export accordingly
-  const hasSimulationProperty = simulationElements.some(element => 'simulation' in element)
+  const hasSimulationProperty = simulationElements.some((element) => 'simulation' in element)
 
   if (hasSimulationProperty) {
     // Real app structure: elements have simulation property with years as keys
     exportSimulationStructure(simulationElements, context, lines)
-  }
-  else {
+  } else {
     // Test mock structure: each element represents a year's data
     exportMockStructure(simulationElements, context, lines)
   }
@@ -198,7 +192,7 @@ function exportSimulationStructure(
   const allYears = new Set<number>()
   for (const element of simulationElements) {
     if ('simulation' in element && element.simulation) {
-      Object.keys(element.simulation).forEach(year => allYears.add(parseInt(year)))
+      Object.keys(element.simulation).forEach((year) => allYears.add(parseInt(year)))
     }
   }
 
@@ -228,24 +222,26 @@ function exportSimulationStructure(
 
     // Sum up data from all elements for this year
     simulationElements.forEach((element, elementIndex: number) => {
-      processSimulationElement(
-        element,
-        elementIndex,
-        year,
-        isMonthly,
-        sparplanContributions,
-        accumulators,
-      )
+      processSimulationElement(element, elementIndex, year, isMonthly, sparplanContributions, accumulators)
     })
 
     // Calculate cumulative contributions
     const yearlyContributions = sparplanContributions.reduce((sum, contrib) => sum + contrib, 0)
     cumulativeContributions += yearlyContributions
 
-    addYearRows(year, isMonthly, accumulators.totalStartkapital, accumulators.totalZinsen,
-      accumulators.totalEndkapital, accumulators.totalBezahlteSteuer,
-      accumulators.totalGenutzterFreibetrag, accumulators.totalVorabpauschale,
-      sparplanContributions, cumulativeContributions, lines)
+    addYearRows(
+      year,
+      isMonthly,
+      accumulators.totalStartkapital,
+      accumulators.totalZinsen,
+      accumulators.totalEndkapital,
+      accumulators.totalBezahlteSteuer,
+      accumulators.totalGenutzterFreibetrag,
+      accumulators.totalVorabpauschale,
+      sparplanContributions,
+      cumulativeContributions,
+      lines,
+    )
   }
 }
 
@@ -254,10 +250,12 @@ function exportSimulationStructure(
  */
 function extractElementAmount(element: SparplanElement): number {
   const mockData = element as Record<string, unknown>
-  return ('einzahlung' in element && element.einzahlung)
-    || (typeof mockData.amount === 'number' ? mockData.amount : 0)
-    || (typeof mockData.monthlyAmount === 'number' ? mockData.monthlyAmount : 0)
-    || 0
+  return (
+    ('einzahlung' in element && element.einzahlung) ||
+    (typeof mockData.amount === 'number' ? mockData.amount : 0) ||
+    (typeof mockData.monthlyAmount === 'number' ? mockData.monthlyAmount : 0) ||
+    0
+  )
 }
 
 /**
@@ -265,7 +263,7 @@ function extractElementAmount(element: SparplanElement): number {
  */
 function extractMockNumericProperty(element: SparplanElement, property: string): number {
   const mockElement = element as Record<string, unknown>
-  return typeof mockElement[property] === 'number' ? mockElement[property] as number : 0
+  return typeof mockElement[property] === 'number' ? (mockElement[property] as number) : 0
 }
 
 /**
@@ -317,10 +315,19 @@ function exportMockStructure(simulationElements: SparplanElement[], context: Sim
     // Extract financial data
     const financialData = extractMockFinancialData(element)
 
-    addYearRows(year, isMonthly, financialData.startkapital, financialData.zinsen,
-      financialData.endkapital, financialData.bezahlteSteuer,
-      financialData.genutzterFreibetrag, financialData.vorabpauschale,
-      sparplanContributions, cumulativeContributions, lines)
+    addYearRows(
+      year,
+      isMonthly,
+      financialData.startkapital,
+      financialData.zinsen,
+      financialData.endkapital,
+      financialData.bezahlteSteuer,
+      financialData.genutzterFreibetrag,
+      financialData.vorabpauschale,
+      sparplanContributions,
+      cumulativeContributions,
+      lines,
+    )
   }
 }
 
@@ -375,9 +382,7 @@ function addYearRows(
  */
 function isElementActiveInYear(element: Record<string, unknown>, year: number): boolean {
   const startYear = new Date(element.start as string).getFullYear()
-  const endYear = element.end
-    ? new Date(element.end as string).getFullYear()
-    : new Date().getFullYear() + 50
+  const endYear = element.end ? new Date(element.end as string).getFullYear() : new Date().getFullYear() + 50
 
   return year >= startYear && year <= endYear
 }
@@ -386,10 +391,7 @@ function isElementActiveInYear(element: Record<string, unknown>, year: number): 
  * Get yearly amount from element with multiple fallback properties
  */
 function getYearlyAmountFromElement(element: Record<string, unknown>): number {
-  return (element.einzahlung as number)
-    || (element.amount as number)
-    || (element.monthlyAmount as number)
-    || 0
+  return (element.einzahlung as number) || (element.amount as number) || (element.monthlyAmount as number) || 0
 }
 
 function getElementContributionForYear(element: unknown, year: number, isMonthly: boolean): number {
@@ -478,7 +480,7 @@ interface StrategyRowDataParams {
 function addMonthlyFixedStrategyData(
   row: string[],
   yearData: WithdrawalResultElement,
-  formValue: { inflationAktiv?: boolean, guardrailsAktiv?: boolean },
+  formValue: { inflationAktiv?: boolean; guardrailsAktiv?: boolean },
 ): void {
   row.push(formatCurrencyForCSV(yearData.monatlicheEntnahme || 0))
   if (formValue.inflationAktiv) {
@@ -499,8 +501,7 @@ function addStrategySpecificData(params: StrategyRowDataParams): void {
 
   if (withdrawalConfig?.formValue.strategie === 'monatlich_fest') {
     addMonthlyFixedStrategyData(row, yearData, withdrawalConfig.formValue)
-  }
-  else if (withdrawalConfig?.formValue.strategie === 'dynamisch') {
+  } else if (withdrawalConfig?.formValue.strategie === 'dynamisch') {
     addDynamicStrategyData(row, yearData)
   }
 }
@@ -567,10 +568,7 @@ interface WithdrawalHeaderParams {
 /**
  * Add strategy-specific headers for monthly fixed withdrawal
  */
-function addMonthlyFixedHeaders(
-  headers: string[],
-  withdrawalConfig: WithdrawalConfiguration,
-): void {
+function addMonthlyFixedHeaders(headers: string[], withdrawalConfig: WithdrawalConfiguration): void {
   headers.push('Monatliche Entnahme (EUR)')
   if (withdrawalConfig.formValue.inflationAktiv) {
     headers.push('Inflationsanpassung (EUR)')
@@ -600,8 +598,8 @@ function addIncomeTaxHeaders(headers: string[]): void {
  * Check if withdrawal data has other income
  */
 function hasOtherIncome(withdrawalData: WithdrawalResult): boolean {
-  return Object.values(withdrawalData).some(yearData =>
-    yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
+  return Object.values(withdrawalData).some(
+    (yearData) => yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
   )
 }
 
@@ -675,9 +673,10 @@ function generateWithdrawalMetadataLines(params: WithdrawalMetadataParams): stri
   lines.push('# Lebensende: ' + endOfLife)
 
   // Handle segmented withdrawal - multiple strategies
-  const hasMultipleSegments = withdrawalConfig.useSegmentedWithdrawal
-    && withdrawalConfig.withdrawalSegments
-    && withdrawalConfig.withdrawalSegments.length > 1
+  const hasMultipleSegments =
+    withdrawalConfig.useSegmentedWithdrawal &&
+    withdrawalConfig.withdrawalSegments &&
+    withdrawalConfig.withdrawalSegments.length > 1
 
   if (hasMultipleSegments) {
     lines.push('# Strategie: Segmentierte Entnahme')
@@ -685,13 +684,14 @@ function generateWithdrawalMetadataLines(params: WithdrawalMetadataParams): stri
       const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
       lines.push(`# Segment ${index + 1} (${segment.name}): ${strategyLabel} (${segment.startYear}-${segment.endYear})`)
     })
-  }
-  else {
+  } else {
     lines.push('# Strategie: ' + getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie))
   }
 
   lines.push('# Entnahme-Rendite: ' + formatPercentage(withdrawalConfig.formValue.rendite))
-  lines.push('# Häufigkeit: ' + (withdrawalConfig.formValue.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'))
+  lines.push(
+    '# Häufigkeit: ' + (withdrawalConfig.formValue.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'),
+  )
   lines.push('')
 
   return lines
@@ -726,8 +726,8 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
 
   // Process withdrawal data
   const years = Object.keys(withdrawalData).map(Number).sort()
-  const hasOtherIncomeData = Object.values(withdrawalData).some(yearData =>
-    yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
+  const hasOtherIncomeData = Object.values(withdrawalData).some(
+    (yearData) => yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
   )
 
   for (const year of years) {
@@ -851,7 +851,9 @@ function addSavingsPhaseSection(savingsData: ExportData['savingsData'], lines: s
   if (!savingsData?.sparplanElements || savingsData.sparplanElements.length === 0) {
     lines.push('## Sparphase')
     lines.push('')
-    lines.push('> ℹ️ Keine Sparplan-Daten verfügbar. Führen Sie eine Simulation durch oder wechseln Sie zum Ansparen-Tab, um Daten zu generieren.')
+    lines.push(
+      '> ℹ️ Keine Sparplan-Daten verfügbar. Führen Sie eine Simulation durch oder wechseln Sie zum Ansparen-Tab, um Daten zu generieren.',
+    )
     lines.push('')
     return
   }
@@ -861,14 +863,13 @@ function addSavingsPhaseSection(savingsData: ExportData['savingsData'], lines: s
   lines.push('| Jahr | Startkapital | Zinsen | Einzahlungen | Endkapital | Vorabpauschale | Steuer |')
   lines.push('|------|--------------|--------|--------------|------------|----------------|--------|')
 
-  const hasSimulationProperty = savingsData.sparplanElements.some(element =>
-    typeof element === 'object' && element !== null && 'simulation' in element,
+  const hasSimulationProperty = savingsData.sparplanElements.some(
+    (element) => typeof element === 'object' && element !== null && 'simulation' in element,
   )
 
   if (hasSimulationProperty) {
     addSavingsPhaseSimulationData(savingsData.sparplanElements, lines)
-  }
-  else {
+  } else {
     addSavingsPhaseMockData(savingsData.sparplanElements, lines)
   }
 
@@ -878,10 +879,7 @@ function addSavingsPhaseSection(savingsData: ExportData['savingsData'], lines: s
 /**
  * Extract year data from element
  */
-function extractYearDataFromElement(
-  element: unknown,
-  year: number,
-): Record<string, unknown> | null {
+function extractYearDataFromElement(element: unknown, year: number): Record<string, unknown> | null {
   if (typeof element !== 'object' || element === null || !('simulation' in element)) {
     return null
   }
@@ -930,7 +928,7 @@ function addSavingsPhaseSimulationData(sparplanElements: SparplanElement[], line
     if (typeof element === 'object' && element !== null && 'simulation' in element) {
       const simulation = (element as Record<string, unknown>).simulation
       if (simulation && typeof simulation === 'object') {
-        Object.keys(simulation).forEach(year => allYears.add(parseInt(year)))
+        Object.keys(simulation).forEach((year) => allYears.add(parseInt(year)))
       }
     }
   }
@@ -951,7 +949,9 @@ function addSavingsPhaseSimulationData(sparplanElements: SparplanElement[], line
       processElementForYearlySummary(element, year, totals)
     })
 
-    lines.push(`| ${year} | ${formatCurrency(totals.startkapital)} | ${formatCurrency(totals.zinsen)} | ${formatCurrency(totals.contributions)} | ${formatCurrency(totals.endkapital)} | ${formatCurrency(totals.vorabpauschale)} | ${formatCurrency(totals.bezahlteSteuer)} |`)
+    lines.push(
+      `| ${year} | ${formatCurrency(totals.startkapital)} | ${formatCurrency(totals.zinsen)} | ${formatCurrency(totals.contributions)} | ${formatCurrency(totals.endkapital)} | ${formatCurrency(totals.vorabpauschale)} | ${formatCurrency(totals.bezahlteSteuer)} |`,
+    )
   }
 }
 
@@ -995,7 +995,9 @@ function addWithdrawalPhaseSection(
   if (!withdrawalData || Object.keys(withdrawalData).length === 0) {
     lines.push('## Entnahmephase')
     lines.push('')
-    lines.push('> ℹ️ Keine Entnahme-Daten verfügbar. Wechseln Sie zum Entnehmen-Tab und konfigurieren Sie eine Entnahmestrategie, um Daten zu generieren.')
+    lines.push(
+      '> ℹ️ Keine Entnahme-Daten verfügbar. Wechseln Sie zum Entnehmen-Tab und konfigurieren Sie eine Entnahmestrategie, um Daten zu generieren.',
+    )
     lines.push('')
     return
   }
@@ -1019,9 +1021,10 @@ function addWithdrawalParametersSection(context: SimulationContextState, lines: 
 
   lines.push('### Entnahme-Parameter')
 
-  const hasMultipleSegments = withdrawalConfig.useSegmentedWithdrawal
-    && withdrawalConfig.withdrawalSegments
-    && withdrawalConfig.withdrawalSegments.length > 1
+  const hasMultipleSegments =
+    withdrawalConfig.useSegmentedWithdrawal &&
+    withdrawalConfig.withdrawalSegments &&
+    withdrawalConfig.withdrawalSegments.length > 1
 
   if (hasMultipleSegments && withdrawalConfig.withdrawalSegments) {
     lines.push(`- **Strategie:** Segmentierte Entnahme`)
@@ -1030,8 +1033,7 @@ function addWithdrawalParametersSection(context: SimulationContextState, lines: 
       const segmentInfo = `  - **Segment ${index + 1} (${segment.name}):** ${strategyLabel} (${segment.startYear}-${segment.endYear})`
       lines.push(segmentInfo)
     })
-  }
-  else {
+  } else {
     lines.push(`- **Strategie:** ${getWithdrawalStrategyLabel(withdrawalConfig.formValue.strategie)}`)
   }
 
@@ -1055,13 +1057,16 @@ function addWithdrawalDataTable(withdrawalData: WithdrawalResult, lines: string[
     let vorabDetails = 'N/A'
     if (yearData.vorabpauschaleDetails) {
       const details = yearData.vorabpauschaleDetails
-      vorabDetails = `Basiszins: ${formatPercentage(details.basiszins * 100)} / `
-        + `Basisertrag: ${formatCurrency(details.basisertrag)} / `
-        + `Jahresgewinn: ${formatCurrency(details.jahresgewinn)} / `
-        + `Vorabpauschale: ${formatCurrency(yearData.vorabpauschale || 0)}`
+      vorabDetails =
+        `Basiszins: ${formatPercentage(details.basiszins * 100)} / ` +
+        `Basisertrag: ${formatCurrency(details.basisertrag)} / ` +
+        `Jahresgewinn: ${formatCurrency(details.jahresgewinn)} / ` +
+        `Vorabpauschale: ${formatCurrency(yearData.vorabpauschale || 0)}`
     }
 
-    lines.push(`| ${year} | ${formatCurrency(yearData.startkapital)} | ${formatCurrency(yearData.entnahme)} | ${formatCurrency(yearData.zinsen)} | ${formatCurrency(yearData.endkapital)} | ${vorabDetails} | ${formatCurrency(yearData.bezahlteSteuer)} |`)
+    lines.push(
+      `| ${year} | ${formatCurrency(yearData.startkapital)} | ${formatCurrency(yearData.entnahme)} | ${formatCurrency(yearData.zinsen)} | ${formatCurrency(yearData.endkapital)} | ${vorabDetails} | ${formatCurrency(yearData.bezahlteSteuer)} |`,
+    )
   }
 }
 
@@ -1103,10 +1108,7 @@ export function exportDataToMarkdown(data: ExportData): string {
 /**
  * Add segmented withdrawal strategy details to explanation lines
  */
-function addSegmentedWithdrawalDetails(
-  segments: WithdrawalSegment[],
-  lines: string[],
-): void {
+function addSegmentedWithdrawalDetails(segments: WithdrawalSegment[], lines: string[]): void {
   lines.push('   Strategie: Segmentierte Entnahme')
   segments.forEach((segment, index) => {
     const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
@@ -1130,17 +1132,17 @@ interface AddSingleStrategyDetailsParams {
 const strategyDetailFormatters: Record<string, (params: AddSingleStrategyDetailsParams) => string[]> = {
   '4prozent': () => ['   Formel: Jährliche Entnahme = 4% vom Startkapital'],
   '3prozent': () => ['   Formel: Jährliche Entnahme = 3% vom Startkapital'],
-  'variabel_prozent': params => [
+  variabel_prozent: (params) => [
     `   Formel: Jährliche Entnahme = ${formatPercentage(params.variabelProzent || 0)} vom aktuellen Kapital`,
   ],
-  'monatlich_fest': (params) => {
+  monatlich_fest: (params) => {
     const details = [`   Monatliche Entnahme: ${formatCurrency(params.monatlicheBetrag || 0)}`]
     if (params.inflationAktiv) {
       details.push(`   Inflationsanpassung: ${formatPercentage(params.inflationsrate || 2)} jährlich`)
     }
     return details
   },
-  'dynamisch': params => [
+  dynamisch: (params) => [
     `   Basisrate: ${formatPercentage(params.dynamischBasisrate || 4)}`,
     '   Anpassung basierend auf Vorjahres-Performance',
   ],
@@ -1149,10 +1151,7 @@ const strategyDetailFormatters: Record<string, (params: AddSingleStrategyDetails
 /**
  * Add single withdrawal strategy details to explanation lines
  */
-function addSingleStrategyDetails(
-  params: AddSingleStrategyDetailsParams,
-  lines: string[],
-): void {
+function addSingleStrategyDetails(params: AddSingleStrategyDetailsParams, lines: string[]): void {
   const { strategie } = params
 
   lines.push(`   Strategie: ${getWithdrawalStrategyLabel(strategie)}`)
@@ -1160,7 +1159,7 @@ function addSingleStrategyDetails(
   const formatter = strategyDetailFormatters[strategie]
   if (formatter) {
     const details = formatter(params)
-    details.forEach(detail => lines.push(detail))
+    details.forEach((detail) => lines.push(detail))
   }
 }
 
@@ -1182,10 +1181,7 @@ interface AddWithdrawalStrategyParams {
 /**
  * Add withdrawal strategy section to explanation lines
  */
-function addWithdrawalStrategySection(
-  params: AddWithdrawalStrategyParams,
-  lines: string[],
-): void {
+function addWithdrawalStrategySection(params: AddWithdrawalStrategyParams, lines: string[]): void {
   const { withdrawalConfig } = params
 
   if (!withdrawalConfig?.formValue) {
@@ -1194,14 +1190,14 @@ function addWithdrawalStrategySection(
 
   lines.push('6. ENTNAHMESTRATEGIE')
 
-  const hasMultipleSegments = withdrawalConfig.useSegmentedWithdrawal
-    && withdrawalConfig.withdrawalSegments
-    && withdrawalConfig.withdrawalSegments.length > 1
+  const hasMultipleSegments =
+    withdrawalConfig.useSegmentedWithdrawal &&
+    withdrawalConfig.withdrawalSegments &&
+    withdrawalConfig.withdrawalSegments.length > 1
 
   if (hasMultipleSegments && withdrawalConfig.withdrawalSegments) {
     addSegmentedWithdrawalDetails(withdrawalConfig.withdrawalSegments, lines)
-  }
-  else {
+  } else {
     addSingleStrategyDetails(withdrawalConfig.formValue, lines)
   }
 
@@ -1262,13 +1258,13 @@ export function generateCalculationExplanations(context: SimulationContextState)
 const WITHDRAWAL_STRATEGY_LABELS: Record<string, string> = {
   '4prozent': '4% Regel',
   '3prozent': '3% Regel',
-  'variabel_prozent': 'Variabler Prozentsatz',
-  'monatlich_fest': 'Monatliche Entnahme',
-  'dynamisch': 'Dynamische Strategie',
-  'bucket_strategie': 'Bucket Strategie',
-  'rmd': 'RMD Strategie',
-  'kapitalerhalt': 'Kapitalerhalt',
-  'steueroptimiert': 'Steueroptimierte Entnahme',
+  variabel_prozent: 'Variabler Prozentsatz',
+  monatlich_fest: 'Monatliche Entnahme',
+  dynamisch: 'Dynamische Strategie',
+  bucket_strategie: 'Bucket Strategie',
+  rmd: 'RMD Strategie',
+  kapitalerhalt: 'Kapitalerhalt',
+  steueroptimiert: 'Steueroptimierte Entnahme',
 }
 
 function getWithdrawalStrategyLabel(strategy: string): string {
@@ -1304,7 +1300,7 @@ export function downloadTextAsFile(content: string, filename: string, mimeType =
   // For CSV files, use a more robust UTF-8 encoding approach
   if (filename.endsWith('.csv')) {
     // Convert string to UTF-8 byte array and add UTF-8 BOM for CSV compatibility
-    const BOM = new Uint8Array([0xEF, 0xBB, 0xBF]) // UTF-8 BOM bytes
+    const BOM = new Uint8Array([0xef, 0xbb, 0xbf]) // UTF-8 BOM bytes
     const encoder = new TextEncoder()
     const contentBytes = encoder.encode(content)
 
@@ -1318,8 +1314,7 @@ export function downloadTextAsFile(content: string, filename: string, mimeType =
     })
 
     downloadBlobAsFile(blob, filename)
-  }
-  else {
+  } else {
     // For non-CSV files, use the existing approach with string BOM
     const BOM = '\uFEFF'
     const contentWithBOM = BOM + content
@@ -1342,8 +1337,7 @@ export async function copyTextToClipboard(content: string): Promise<boolean> {
   try {
     await navigator.clipboard.writeText(content)
     return true
-  }
-  catch (error) {
+  } catch (error) {
     console.error('Failed to copy to clipboard:', error)
     return false
   }

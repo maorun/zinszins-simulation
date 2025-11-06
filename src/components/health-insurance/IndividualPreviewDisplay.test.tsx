@@ -17,45 +17,35 @@ describe('IndividualPreviewDisplay', () => {
   }
 
   it('renders individual preview with correct header', () => {
-    render(
-      <IndividualPreviewDisplay individualResults={mockIndividualResults} withdrawalAmount={30000} />,
-    )
+    render(<IndividualPreviewDisplay individualResults={mockIndividualResults} withdrawalAmount={30000} />)
 
     expect(screen.getByText(/💰 Kostenvorschau/)).toBeInTheDocument()
     expect(screen.getByText(/30\.000,00 €/)).toBeInTheDocument()
   })
 
   it('displays annual cost correctly', () => {
-    render(
-      <IndividualPreviewDisplay individualResults={mockIndividualResults} withdrawalAmount={30000} />,
-    )
+    render(<IndividualPreviewDisplay individualResults={mockIndividualResults} withdrawalAmount={30000} />)
 
     expect(screen.getByText(/Jährlich:/)).toBeInTheDocument()
     expect(screen.getByText(/3\.500,00 €/)).toBeInTheDocument()
   })
 
   it('displays monthly cost correctly', () => {
-    render(
-      <IndividualPreviewDisplay individualResults={mockIndividualResults} withdrawalAmount={30000} />,
-    )
+    render(<IndividualPreviewDisplay individualResults={mockIndividualResults} withdrawalAmount={30000} />)
 
     expect(screen.getByText(/Monatlich:/)).toBeInTheDocument()
     expect(screen.getByText(/291,67 €/)).toBeInTheDocument()
   })
 
   it('displays health insurance breakdown', () => {
-    render(
-      <IndividualPreviewDisplay individualResults={mockIndividualResults} withdrawalAmount={30000} />,
-    )
+    render(<IndividualPreviewDisplay individualResults={mockIndividualResults} withdrawalAmount={30000} />)
 
     expect(screen.getByText(/Krankenversicherung:/)).toBeInTheDocument()
     expect(screen.getByText(/2\.300,00 €/)).toBeInTheDocument()
   })
 
   it('displays care insurance breakdown', () => {
-    render(
-      <IndividualPreviewDisplay individualResults={mockIndividualResults} withdrawalAmount={30000} />,
-    )
+    render(<IndividualPreviewDisplay individualResults={mockIndividualResults} withdrawalAmount={30000} />)
 
     expect(screen.getByText(/Pflegeversicherung:/)).toBeInTheDocument()
     expect(screen.getByText(/1\.200,00 €/)).toBeInTheDocument()
@@ -90,9 +80,7 @@ describe('IndividualPreviewDisplay', () => {
   })
 
   it('handles large withdrawal amounts correctly', () => {
-    render(
-      <IndividualPreviewDisplay individualResults={mockIndividualResults} withdrawalAmount={100000} />,
-    )
+    render(<IndividualPreviewDisplay individualResults={mockIndividualResults} withdrawalAmount={100000} />)
 
     expect(screen.getByText(/100\.000,00 €/)).toBeInTheDocument()
   })

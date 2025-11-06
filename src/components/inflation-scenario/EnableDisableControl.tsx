@@ -20,11 +20,7 @@ export const EnableDisableControl = ({
   return (
     <div>
       <Label className="text-sm font-medium">Inflationsszenario aktivieren</Label>
-      <RadioGroup
-        value={isEnabled ? 'enabled' : 'disabled'}
-        onValueChange={onEnabledChange}
-        className="mt-2"
-      >
+      <RadioGroup value={isEnabled ? 'enabled' : 'disabled'} onValueChange={onEnabledChange} className="mt-2">
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="enabled" id={enabledRadioId} />
           <Label htmlFor={enabledRadioId} className="font-normal cursor-pointer">

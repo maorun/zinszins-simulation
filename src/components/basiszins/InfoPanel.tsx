@@ -7,9 +7,8 @@ export function InfoPanel() {
   return (
     <Alert>
       <AlertDescription>
-        Der Basiszins wird zur Berechnung der Vorabpauschale verwendet.
-        Die offiziellen Sätze werden jährlich vom Bundesfinanzministerium
-        basierend auf Bundesbank-Daten veröffentlicht.
+        Der Basiszins wird zur Berechnung der Vorabpauschale verwendet. Die offiziellen Sätze werden jährlich vom
+        Bundesfinanzministerium basierend auf Bundesbank-Daten veröffentlicht.
       </AlertDescription>
     </Alert>
   )

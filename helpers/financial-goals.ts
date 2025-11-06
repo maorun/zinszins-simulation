@@ -8,10 +8,10 @@
 /**
  * Type of financial goal
  */
-export type FinancialGoalType
-  = | 'retirement' // Altersvorsorge
-    | 'independence' // Finanzielle Unabhängigkeit
-    | 'custom' // Benutzerdefiniertes Ziel
+export type FinancialGoalType =
+  | 'retirement' // Altersvorsorge
+  | 'independence' // Finanzielle Unabhängigkeit
+  | 'custom' // Benutzerdefiniertes Ziel
 
 /**
  * Individual milestone within a financial goal
@@ -65,13 +65,10 @@ export function calculateGoalProgress(currentAmount: number, goal: FinancialGoal
  * @param goal - The financial goal with milestones
  * @returns Updated goal with milestone achievement status
  */
-export function updateMilestoneAchievements(
-  currentAmount: number,
-  goal: FinancialGoal,
-): FinancialGoal {
+export function updateMilestoneAchievements(currentAmount: number, goal: FinancialGoal): FinancialGoal {
   if (!goal.milestones) return goal
 
-  const updatedMilestones = goal.milestones.map(milestone => ({
+  const updatedMilestones = goal.milestones.map((milestone) => ({
     ...milestone,
     achieved: currentAmount >= milestone.targetAmount,
   }))
@@ -89,17 +86,14 @@ export function updateMilestoneAchievements(
  * @param goal - The financial goal with milestones
  * @returns The next milestone to achieve, or undefined if all achieved or no milestones
  */
-export function getNextMilestone(
-  currentAmount: number,
-  goal: FinancialGoal,
-): GoalMilestone | undefined {
+export function getNextMilestone(currentAmount: number, goal: FinancialGoal): GoalMilestone | undefined {
   if (!goal.milestones || goal.milestones.length === 0) return undefined
 
   // Sort milestones by target amount
   const sortedMilestones = [...goal.milestones].sort((a, b) => a.targetAmount - b.targetAmount)
 
   // Find first unachieved milestone
-  return sortedMilestones.find(m => currentAmount < m.targetAmount)
+  return sortedMilestones.find((m) => currentAmount < m.targetAmount)
 }
 
 /**
@@ -146,7 +140,7 @@ export function createDefaultMilestones(targetAmount: number): GoalMilestone[] {
       achieved: false,
     },
     {
-      targetAmount: targetAmount * 0.50,
+      targetAmount: targetAmount * 0.5,
       label: '50% des Ziels erreicht',
       achieved: false,
     },
@@ -166,11 +160,7 @@ export function createDefaultMilestones(targetAmount: number): GoalMilestone[] {
  * @param targetAmount - Target amount in EUR
  * @returns A new financial goal with default settings
  */
-export function createDefaultGoal(
-  type: FinancialGoalType,
-  name: string,
-  targetAmount: number,
-): FinancialGoal {
+export function createDefaultGoal(type: FinancialGoalType, name: string, targetAmount: number): FinancialGoal {
   return {
     id: generateGoalId(),
     type,

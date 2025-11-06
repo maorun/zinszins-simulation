@@ -5,14 +5,8 @@ import type { CalculationExplanation } from '../hooks/useWithdrawalModals.types'
 
 // Mock the modal components
 vi.mock('./CalculationExplanationModal', () => ({
-  default: ({ open, title }: { open: boolean, title: string }) =>
-    open
-      ? (
-          <div data-testid="calculation-modal">
-            {title}
-          </div>
-        )
-      : null,
+  default: ({ open, title }: { open: boolean; title: string }) =>
+    open ? <div data-testid="calculation-modal">{title}</div> : null,
 }))
 
 vi.mock('./VorabpauschaleExplanationModal', () => ({

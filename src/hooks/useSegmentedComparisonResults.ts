@@ -25,12 +25,8 @@ function safelyCalculateSegmentedStrategy(
       planningMode,
       effectiveStatutoryPensionConfig,
     )
-  }
-  catch (error) {
-    console.error(
-      `Error calculating segmented withdrawal for strategy ${strategy.name}:`,
-      error,
-    )
+  } catch (error) {
+    console.error(`Error calculating segmented withdrawal for strategy ${strategy.name}:`, error)
     return {
       strategy,
       finalCapital: 0,
@@ -55,7 +51,7 @@ export function useSegmentedComparisonResults(
 
   return useMemo(() => {
     if (!useSegmentedComparisonMode || !withdrawalData) return []
-    return (segmentedComparisonStrategies || []).map(strategy =>
+    return (segmentedComparisonStrategies || []).map((strategy) =>
       safelyCalculateSegmentedStrategy(
         strategy,
         elemente,

@@ -7,10 +7,7 @@ interface WithdrawalStrategySelectorProps {
   onStrategyChange: (strategy: WithdrawalStrategy) => void
 }
 
-export function WithdrawalStrategySelector({
-  strategie,
-  onStrategyChange,
-}: WithdrawalStrategySelectorProps) {
+export function WithdrawalStrategySelector({ strategie, onStrategyChange }: WithdrawalStrategySelectorProps) {
   return (
     <div className="mb-4 space-y-2">
       <Label>Strategie</Label>

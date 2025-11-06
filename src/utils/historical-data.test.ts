@@ -12,7 +12,7 @@ describe('historical-data', () => {
     it('should contain expected indices', () => {
       expect(HISTORICAL_INDICES).toHaveLength(3)
 
-      const indexIds = HISTORICAL_INDICES.map(index => index.id)
+      const indexIds = HISTORICAL_INDICES.map((index) => index.id)
       expect(indexIds).toContain('dax')
       expect(indexIds).toContain('sp500')
       expect(indexIds).toContain('msci-world')
@@ -119,7 +119,7 @@ describe('historical-data', () => {
     })
 
     it('should include expected years for all indices', () => {
-      ['dax', 'sp500', 'msci-world'].forEach((indexId) => {
+      ;['dax', 'sp500', 'msci-world'].forEach((indexId) => {
         const years = getAvailableYears(indexId)
         expect(years).toContain(2000)
         expect(years).toContain(2023)
@@ -174,7 +174,7 @@ describe('historical-data', () => {
 
     it('should have realistic return ranges', () => {
       HISTORICAL_INDICES.forEach((index) => {
-        const returns = index.data.map(d => d.return)
+        const returns = index.data.map((d) => d.return)
         const minReturn = Math.min(...returns)
         const maxReturn = Math.max(...returns)
 
@@ -187,7 +187,7 @@ describe('historical-data', () => {
 
     it('should have data for expected time period', () => {
       HISTORICAL_INDICES.forEach((index) => {
-        const years = index.data.map(d => d.year)
+        const years = index.data.map((d) => d.year)
         const minYear = Math.min(...years)
         const maxYear = Math.max(...years)
 

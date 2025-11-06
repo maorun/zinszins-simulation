@@ -14,20 +14,17 @@ export function AmountTypeSection({ editingSource, onUpdate }: AmountTypeSection
     <div className="space-y-2">
       <Label>Einkunftsart</Label>
       <div className="flex items-center justify-center space-x-4 p-3 bg-gray-50 rounded-lg">
-        <span className={`text-sm ${isGrossIncome ? 'font-bold text-blue-600' : 'text-gray-500'}`}>
-          Brutto
-        </span>
+        <span className={`text-sm ${isGrossIncome ? 'font-bold text-blue-600' : 'text-gray-500'}`}>Brutto</span>
         <Switch
           checked={!isGrossIncome}
-          onCheckedChange={isNet =>
+          onCheckedChange={(isNet) =>
             onUpdate({
               ...editingSource,
               amountType: isNet ? 'net' : 'gross',
-            })}
+            })
+          }
         />
-        <span className={`text-sm ${!isGrossIncome ? 'font-bold text-blue-600' : 'text-gray-500'}`}>
-          Netto
-        </span>
+        <span className={`text-sm ${!isGrossIncome ? 'font-bold text-blue-600' : 'text-gray-500'}`}>Netto</span>
       </div>
       <p className="text-xs text-gray-600">
         {isGrossIncome

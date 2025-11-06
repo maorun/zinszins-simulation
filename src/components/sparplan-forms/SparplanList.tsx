@@ -34,27 +34,23 @@ export function SparplanList(props: SparplanListProps) {
 
   if (sparplans.length === 0) {
     return (
-      <div style={{
-        textAlign: 'center',
-        padding: '2rem',
-        color: '#666',
-        fontStyle: 'italic',
-      }}
+      <div
+        style={{
+          textAlign: 'center',
+          padding: '2rem',
+          color: '#666',
+          fontStyle: 'italic',
+        }}
       >
-        Noch keine Sparpläne oder Einmalzahlungen erstellt. Fügen Sie oben einen Sparplan oder eine
-        Einmalzahlung hinzu.
+        Noch keine Sparpläne oder Einmalzahlungen erstellt. Fügen Sie oben einen Sparplan oder eine Einmalzahlung hinzu.
       </div>
     )
   }
 
   return (
     <div className="grid gap-4">
-      {sparplans.map(sparplan => (
-        <SparplanCard
-          key={sparplan.id}
-          sparplan={sparplan}
-          {...cardProps}
-        />
+      {sparplans.map((sparplan) => (
+        <SparplanCard key={sparplan.id} sparplan={sparplan} {...cardProps} />
       ))}
     </div>
   )

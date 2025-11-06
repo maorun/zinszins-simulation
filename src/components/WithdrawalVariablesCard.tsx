@@ -1,4 +1,9 @@
-import type { WithdrawalFormValue, ComparisonStrategy, SegmentedComparisonStrategy, WithdrawalReturnMode } from '../utils/config-storage'
+import type {
+  WithdrawalFormValue,
+  ComparisonStrategy,
+  SegmentedComparisonStrategy,
+  WithdrawalReturnMode,
+} from '../utils/config-storage'
 import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
 import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
 import type { OtherIncomeConfiguration } from '../../helpers/other-income'
@@ -91,20 +96,20 @@ export function WithdrawalVariablesCard(props: WithdrawalVariablesCardProps) {
           useSegmentedWithdrawal={useSegmentedWithdrawal}
           useComparisonMode={useComparisonMode}
           useSegmentedComparisonMode={useSegmentedComparisonMode}
-          onModeChange={mode =>
+          onModeChange={(mode) =>
             handleWithdrawalModeChange({
               mode,
               withdrawalSegments,
               startOfIndependence,
               globalEndOfLife,
               updateConfig: onConfigUpdate,
-            })}
+            })
+          }
         />
 
         <WithdrawalModeContent {...props} />
 
         <HealthCareInsuranceContent {...props} />
-
       </CollapsibleCardContent>
     </CollapsibleCard>
   )

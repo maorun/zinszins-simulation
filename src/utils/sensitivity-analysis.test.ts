@@ -20,7 +20,7 @@ describe('Sensitivity Analysis', () => {
       },
     ],
     steuerlast: 0.26375,
-    teilfreistellungsquote: 0.30,
+    teilfreistellungsquote: 0.3,
     simulationAnnual: 'yearly',
     freibetragPerYear: { 2025: 2000 },
     steuerReduzierenEndkapital: true,
@@ -98,8 +98,8 @@ describe('Sensitivity Analysis', () => {
 
       // With taxes, higher tax rates should lead to lower or equal final capital
       // Note: tax only applies when there are gains, so with 0% tax we should have highest capital
-      const zeroTaxResult = results.find(r => r.parameterValue === 0)
-      const highTaxResult = results.find(r => r.parameterValue === 45)
+      const zeroTaxResult = results.find((r) => r.parameterValue === 0)
+      const highTaxResult = results.find((r) => r.parameterValue === 45)
 
       if (zeroTaxResult && highTaxResult) {
         expect(zeroTaxResult.finalCapital).toBeGreaterThanOrEqual(highTaxResult.finalCapital)
@@ -153,7 +153,7 @@ describe('Sensitivity Analysis', () => {
       const results = runSensitivityAnalysis(parameter, baseConfig, returnConfig)
 
       for (const result of results) {
-        const expectedReturn = ((result.finalCapital / result.totalContributions) - 1) * 100
+        const expectedReturn = (result.finalCapital / result.totalContributions - 1) * 100
         expect(result.effectiveReturn).toBeCloseTo(expectedReturn, 2)
       }
     })
@@ -215,14 +215,16 @@ describe('Sensitivity Analysis', () => {
     })
 
     it('should return 0 for insufficient data', () => {
-      const singleResult = [{
-        parameterName: 'test',
-        parameterValue: 5,
-        finalCapital: 100000,
-        totalContributions: 90000,
-        totalGains: 10000,
-        effectiveReturn: 11.11,
-      }]
+      const singleResult = [
+        {
+          parameterName: 'test',
+          parameterValue: 5,
+          finalCapital: 100000,
+          totalContributions: 90000,
+          totalGains: 10000,
+          effectiveReturn: 11.11,
+        },
+      ]
 
       const impact = calculateParameterImpact(singleResult, singleResult[0])
       expect(impact).toBe(0)

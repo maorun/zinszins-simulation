@@ -197,12 +197,12 @@ export function MyComponent() {
   // Generate unique IDs for each form field
   const enabledSwitchId = useMemo(() => generateFormId('component-name', 'enabled'), [])
   const monthlyAmountId = useMemo(() => generateFormId('component-name', 'monthly-amount'), [])
-  
+
   return (
     <>
       <Switch id={enabledSwitchId} />
       <Label htmlFor={enabledSwitchId}>Enable</Label>
-      
+
       <Input id={monthlyAmountId} />
       <Label htmlFor={monthlyAmountId}>Monthly Amount</Label>
     </>
@@ -275,7 +275,7 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
 ### Withdrawal Strategies
 
 - **4% Rule**: Annual withdrawal of 4% of starting capital
-- **3% Rule**: Annual withdrawal of 3% of starting capital  
+- **3% Rule**: Annual withdrawal of 3% of starting capital
 - **Variable Percentage**: Custom withdrawal percentages
 - **Monthly Fixed Withdrawal**: Fixed monthly amounts with inflation adjustment and portfolio guardrails
 - **Variable Returns during Withdrawal**: Year-by-year configurable returns for withdrawal phase
@@ -289,7 +289,7 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
    - Implementation in unified strategy configurations and calculations
    - Used when users want consistent strategy throughout retirement
 
-2. **Segmented Withdrawal System** (`geteilten Entsparphasen`):  
+2. **Segmented Withdrawal System** (`geteilten Entsparphasen`):
    - Different strategies for different time periods/life phases
    - Implementation in segmented strategy configurations and calculations
    - Allows users to model changing needs (e.g., active retirement vs. care phase)
@@ -385,7 +385,7 @@ When making changes to this codebase, follow this complete workflow to ensure hi
 This project follows a **step-by-step commit approach** where development work is broken into discrete, focused steps that are individually implemented, tested, and committed. This approach ensures:
 
 - **Better code quality** through focused changes
-- **Easier code review** with smaller, understandable commits  
+- **Easier code review** with smaller, understandable commits
 - **Progressive validation** where each step is verified before proceeding
 - **Clear progress tracking** through detailed checklists
 - **Reduced risk** of introducing bugs through smaller change sets
@@ -421,18 +421,21 @@ The `report_progress` tool is central to the step-by-step approach and should be
 
 ```markdown
 Initial Plan:
+
 - [ ] Step 1: Analyze current implementation and identify changes needed
-- [ ] Step 2: Add new utility function with comprehensive tests  
+- [ ] Step 2: Add new utility function with comprehensive tests
 - [ ] Step 3: Update component to use new utility function
 - [ ] Step 4: Update documentation and validate complete workflow
 
 After Step 1:
+
 - [x] Step 1: Analyze current implementation and identify changes needed
 - [ ] Step 2: Add new utility function with comprehensive tests
-- [ ] Step 3: Update component to use new utility function  
+- [ ] Step 3: Update component to use new utility function
 - [ ] Step 4: Update documentation and validate complete workflow
 
 After Step 2:
+
 - [x] Step 1: Analyze current implementation and identify changes needed
 - [x] Step 2: Add new utility function with comprehensive tests
 - [ ] Step 3: Update component to use new utility function
@@ -453,7 +456,7 @@ When components become too large (> 500-800 lines), follow this refactoring appr
 #### 2. Extract Business Logic into Custom Hooks
 
 - **Configuration management**: Extract state and config management into `useComponentConfig` hooks
-- **Calculation logic**: Extract complex calculations into `useComponentCalculations` hooks  
+- **Calculation logic**: Extract complex calculations into `useComponentCalculations` hooks
 - **Modal/UI state**: Extract modal and interaction state into `useComponentModals` hooks
 - **Keep simple useState**: Don't extract trivial state management - focus on complex logic
 
@@ -504,12 +507,12 @@ export function EntnahmeSimulationsAusgabe() {
   const { currentConfig, updateConfig } = useWithdrawalConfig();
   const { withdrawalData } = useWithdrawalCalculations();
   const { handleModalClick } = useWithdrawalModals();
-  
+
   return (
     <>
       {/* Configuration forms */}
       <Panel>...</Panel>
-      
+
       {/* Extracted display component */}
       <EntnahmeSimulationDisplay
         withdrawalData={withdrawalData}
@@ -533,19 +536,19 @@ This approach resulted in:
 
 ```typescript
 // ❌ This will fail if "5%" appears multiple times
-expect(screen.getByText('5%')).toBeInTheDocument();
+expect(screen.getByText('5%')).toBeInTheDocument()
 
 // ✅ Fix by using getAllByText() instead
-expect(screen.getAllByText('5%')).toHaveLength(2);
+expect(screen.getAllByText('5%')).toHaveLength(2)
 
 // ✅ Or use more specific queries
-expect(screen.getByText(/📊 Basis-Strategie.*5%/)).toBeInTheDocument();
+expect(screen.getByText(/📊 Basis-Strategie.*5%/)).toBeInTheDocument()
 ```
 
 **Common patterns that need `getAllByText()`**:
 
 - Currency amounts (e.g., "498.000,00 €") appearing in cards + tables
-- Percentages (e.g., "5%") in summaries + tables  
+- Percentages (e.g., "5%") in summaries + tables
 - Duration text (e.g., "25 Jahre", "unbegrenzt") in multiple sections
 - Strategy names appearing in headers + table rows
 

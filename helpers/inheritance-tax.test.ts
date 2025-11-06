@@ -62,7 +62,7 @@ describe('inheritance-tax', () => {
       expect(result.taxableAmount).toBe(80000)
       expect(result.taxClass).toBe('II')
       // First €75,000 at 15%, remaining €5,000 at 20%
-      expect(result.tax).toBe(75000 * 0.15 + 5000 * 0.20)
+      expect(result.tax).toBe(75000 * 0.15 + 5000 * 0.2)
       expect(result.netAmount).toBe(100000 - result.tax)
     })
 
@@ -75,7 +75,7 @@ describe('inheritance-tax', () => {
       expect(result.taxableAmount).toBe(30000)
       expect(result.taxClass).toBe('III')
       // €30,000 at 30% (Class III first bracket)
-      expect(result.tax).toBe(30000 * 0.30)
+      expect(result.tax).toBe(30000 * 0.3)
       expect(result.netAmount).toBe(50000 - result.tax)
     })
 
@@ -101,7 +101,7 @@ describe('inheritance-tax', () => {
       expect(result.tax).toBeGreaterThan(0)
       expect(result.netAmount).toBe(10000000 - result.tax)
       expect(result.effectiveTaxRate).toBeGreaterThan(0)
-      expect(result.effectiveTaxRate).toBeLessThan(0.30) // Should not exceed maximum rate
+      expect(result.effectiveTaxRate).toBeLessThan(0.3) // Should not exceed maximum rate
     })
   })
 

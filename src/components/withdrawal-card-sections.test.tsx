@@ -1,10 +1,6 @@
 import { describe, test, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import {
-  OtherIncomeSection,
-  HealthCareInsuranceSection,
-  StatutoryPensionSection,
-} from './withdrawal-card-sections'
+import { OtherIncomeSection, HealthCareInsuranceSection, StatutoryPensionSection } from './withdrawal-card-sections'
 
 describe('withdrawal-card-sections', () => {
   const mockOnCalculationInfoClick = vi.fn()

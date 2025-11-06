@@ -78,7 +78,9 @@ export interface SimulationContextState {
   setMultiAssetConfig: (config: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig) => void
   // Multi-asset portfolio configuration for withdrawal phase
   withdrawalMultiAssetConfig: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig
-  setWithdrawalMultiAssetConfig: (config: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig) => void
+  setWithdrawalMultiAssetConfig: (
+    config: import('../../helpers/multi-asset-portfolio').MultiAssetPortfolioConfig,
+  ) => void
   // Inflation settings for savings phase
   inflationAktivSparphase: boolean
   setInflationAktivSparphase: (inflationAktivSparphase: boolean) => void
@@ -106,8 +108,8 @@ export interface SimulationContextState {
   setPlanningMode: (mode: 'individual' | 'couple') => void
   gender?: 'male' | 'female'
   setGender: (gender?: 'male' | 'female') => void
-  spouse?: { birthYear?: number, gender: 'male' | 'female' }
-  setSpouse: (spouse?: { birthYear?: number, gender: 'male' | 'female' }) => void
+  spouse?: { birthYear?: number; gender: 'male' | 'female' }
+  setSpouse: (spouse?: { birthYear?: number; gender: 'male' | 'female' }) => void
   // Birth year helper for end of life calculation
   birthYear?: number
   setBirthYear: (birthYear?: number) => void
@@ -158,23 +160,10 @@ export const SimulationProvider = ({ children }: { children: React.ReactNode }) 
   })
 
   // Use orchestration hook to manage configuration, simulation, and effects
-  const {
-    configManagement,
-    performSimulation,
-    setEndOfLifeRounded,
-  } = useSimulationOrchestration(defaultConfig, state)
+  const { configManagement, performSimulation, setEndOfLifeRounded } = useSimulationOrchestration(defaultConfig, state)
 
   // Build context value using custom hook
-  const value = useSimulationContextValue(
-    state,
-    configManagement,
-    performSimulation,
-    setEndOfLifeRounded,
-  )
+  const value = useSimulationContextValue(state, configManagement, performSimulation, setEndOfLifeRounded)
 
-  return (
-    <SimulationContext.Provider value={value}>
-      {children}
-    </SimulationContext.Provider>
-  )
+  return <SimulationContext.Provider value={value}>{children}</SimulationContext.Provider>
 }

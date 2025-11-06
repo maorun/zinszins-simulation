@@ -92,9 +92,9 @@ function shouldApplyModifiers(
   returnMode: ReturnMode,
 ): boolean {
   return !!(
-    inflationScenarioReturnModifiers
-    && Object.keys(inflationScenarioReturnModifiers).length > 0
-    && returnMode === 'variable'
+    inflationScenarioReturnModifiers &&
+    Object.keys(inflationScenarioReturnModifiers).length > 0 &&
+    returnMode === 'variable'
   )
 }
 
@@ -110,7 +110,7 @@ function applyModifiersToReturns(
 
   for (const [yearStr, modifier] of Object.entries(inflationScenarioReturnModifiers)) {
     const year = Number(yearStr)
-    const baseReturn = modifiedReturns[year] || (rendite / 100)
+    const baseReturn = modifiedReturns[year] || rendite / 100
     modifiedReturns[year] = baseReturn + modifier
   }
 
@@ -155,11 +155,6 @@ export function prepareVariableInflationRates(
     return undefined
   }
 
-  const baseInflationRate = inflationAktivSparphase ? (inflationsrateSparphase / 100) : 0
-  return mergeInflationWithBaseRate(
-    baseInflationRate,
-    inflationScenarioRates,
-    yearToday,
-    endYear,
-  )
+  const baseInflationRate = inflationAktivSparphase ? inflationsrateSparphase / 100 : 0
+  return mergeInflationWithBaseRate(baseInflationRate, inflationScenarioRates, yearToday, endYear)
 }

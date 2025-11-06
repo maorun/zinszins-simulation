@@ -60,9 +60,7 @@ function InheritanceFields({ sparplan }: { sparplan: Sparplan }) {
   return (
     <div className="flex justify-between items-center">
       <span className="text-sm font-medium text-gray-600">👥 Verwandtschaft:</span>
-      <span className="text-sm font-semibold text-green-600">
-        {getRelationshipTypeLabel(relationshipType)}
-      </span>
+      <span className="text-sm font-semibold text-green-600">{getRelationshipTypeLabel(relationshipType)}</span>
     </div>
   )
 }
@@ -77,9 +75,7 @@ function ExpenseTypeField({ sparplan }: { sparplan: Sparplan }) {
   return (
     <div className="flex justify-between items-center">
       <span className="text-sm font-medium text-gray-600">🏷️ Typ:</span>
-      <span className="text-sm font-semibold text-red-600">
-        {getExpenseTypeLabel(expenseType)}
-      </span>
+      <span className="text-sm font-semibold text-red-600">{getExpenseTypeLabel(expenseType)}</span>
     </div>
   )
 }
@@ -87,17 +83,14 @@ function ExpenseTypeField({ sparplan }: { sparplan: Sparplan }) {
 /**
  * Render credit terms field
  */
-function CreditTermsField({ creditTerms }: { creditTerms?: { interestRate: number, termYears: number } }) {
+function CreditTermsField({ creditTerms }: { creditTerms?: { interestRate: number; termYears: number } }) {
   if (!creditTerms) return null
 
   return (
     <div className="flex justify-between items-center">
       <span className="text-sm font-medium text-gray-600">💳 Kredit:</span>
       <span className="text-sm font-semibold text-red-600">
-        {(creditTerms.interestRate * 100).toFixed(1)}
-        % /
-        {creditTerms.termYears}
-        J
+        {(creditTerms.interestRate * 100).toFixed(1)}% /{creditTerms.termYears}J
       </span>
     </div>
   )
@@ -112,9 +105,7 @@ function DescriptionField({ description }: { description?: string }) {
   return (
     <div className="flex justify-between items-center">
       <span className="text-sm font-medium text-gray-600">📝 Beschreibung:</span>
-      <span className="text-sm font-semibold text-gray-700">
-        {description}
-      </span>
+      <span className="text-sm font-semibold text-gray-700">{description}</span>
     </div>
   )
 }
@@ -146,9 +137,7 @@ function EventDetails({
 
       <div className="flex justify-between items-center">
         <span className="text-sm font-medium text-gray-600">{style.amountLabel}</span>
-        <span className={`text-sm font-semibold ${style.amountColor}`}>
-          {formattedAmount}
-        </span>
+        <span className={`text-sm font-semibold ${style.amountColor}`}>{formattedAmount}</span>
       </div>
 
       {isInheritance && <InheritanceFields sparplan={sparplan} />}
@@ -157,9 +146,7 @@ function EventDetails({
 
       <DescriptionField description={sparplan.specialEventData?.description} />
 
-      {isExpense && (
-        <CreditTermsField creditTerms={sparplan.specialEventData?.creditTerms} />
-      )}
+      {isExpense && <CreditTermsField creditTerms={sparplan.specialEventData?.creditTerms} />}
     </div>
   )
 }

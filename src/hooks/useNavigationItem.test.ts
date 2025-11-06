@@ -95,7 +95,7 @@ describe('useNavigationItem', () => {
 
   it('handles prop changes without errors', () => {
     const { result, rerender } = renderHook(
-      props =>
+      (props) =>
         useNavigationItem({
           id: props.id,
           title: props.title,

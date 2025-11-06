@@ -24,12 +24,7 @@ function KirchensteuersatzSlider({
     <div className="space-y-2">
       <div className="flex items-center justify-between">
         <Label htmlFor="kirchensteuersatz">Kirchensteuersatz (%)</Label>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={() => onKirchensteuersatzChange(9)}
-          className="text-xs"
-        >
+        <Button variant="outline" size="sm" onClick={() => onKirchensteuersatzChange(9)} className="text-xs">
           Reset
         </Button>
       </div>
@@ -44,15 +39,12 @@ function KirchensteuersatzSlider({
       />
       <div className="flex justify-between text-sm text-muted-foreground">
         <span>8%</span>
-        <span className="font-medium">
-          {kirchensteuersatz}
-          %
-        </span>
+        <span className="font-medium">{kirchensteuersatz}%</span>
         <span>9%</span>
       </div>
       <p className="text-xs text-muted-foreground">
-        Kirchensteuer: Bayern/Baden-Württemberg 8%, andere Bundesländer 9%.
-        Wird automatisch bei der Günstigerprüfung und Einkommensteuerberechnung berücksichtigt.
+        Kirchensteuer: Bayern/Baden-Württemberg 8%, andere Bundesländer 9%. Wird automatisch bei der Günstigerprüfung
+        und Einkommensteuerberechnung berücksichtigt.
       </p>
     </div>
   )
@@ -73,11 +65,7 @@ export function KirchensteuerSection({
             Kirchensteuer wird als Prozentsatz der Einkommensteuer berechnet (8-9% je nach Bundesland)
           </p>
         </div>
-        <Switch
-          id="kirchensteuerAktiv"
-          checked={kirchensteuerAktiv}
-          onCheckedChange={onKirchensteuerAktivChange}
-        />
+        <Switch id="kirchensteuerAktiv" checked={kirchensteuerAktiv} onCheckedChange={onKirchensteuerAktivChange} />
       </div>
 
       {kirchensteuerAktiv && (

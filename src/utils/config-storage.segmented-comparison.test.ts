@@ -63,7 +63,13 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
   })
 
   it('handles multiple withdrawal strategies correctly', () => {
-    const strategies = ['3prozent', '4prozent', 'monatlich_fest', 'bucket_strategie', 'dynamisch'] as WithdrawalStrategy[]
+    const strategies = [
+      '3prozent',
+      '4prozent',
+      'monatlich_fest',
+      'bucket_strategie',
+      'dynamisch',
+    ] as WithdrawalStrategy[]
 
     strategies.forEach((strategyType, index) => {
       const testStrategy: SegmentedComparisonStrategy = {
@@ -109,7 +115,7 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
       inflationConfig: {
         inflationRate: 0.025,
       },
-      incomeTaxRate: 0.20,
+      incomeTaxRate: 0.2,
       steuerReduzierenEndkapital: false,
     }
 

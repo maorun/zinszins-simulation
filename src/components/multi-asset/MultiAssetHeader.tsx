@@ -28,9 +28,7 @@ export function MultiAssetHeader({ enabled, onEnabledChange, nestingLevel }: Mul
             <Label htmlFor="multiasset-enabled" className="text-sm font-medium">
               Multi-Asset Portfolio aktivieren
             </Label>
-            <p className="text-xs text-gray-600">
-              Erweiterte Portfolioallokation mit automatischem Rebalancing
-            </p>
+            <p className="text-xs text-gray-600">Erweiterte Portfolioallokation mit automatischem Rebalancing</p>
           </div>
           <Switch id="multiasset-enabled" checked={enabled} onCheckedChange={onEnabledChange} />
         </div>

@@ -1,6 +1,4 @@
 {
-  "extends": [
-    "config:recommended", ":automergeAll", "schedule:weekly", ":disableDependencyDashboard"
-  ],
+  "extends": ["config:recommended", ":automergeAll", "schedule:weekly", ":disableDependencyDashboard"],
   "lockFileMaintenance": { "enabled": true }
 }

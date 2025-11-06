@@ -41,7 +41,7 @@ function StrategyCardHeader({
           <Input
             id={`strategy-name-${strategy.id}`}
             value={strategy.name}
-            onChange={e => onUpdateName(strategy.id, e.target.value)}
+            onChange={(e) => onUpdateName(strategy.id, e.target.value)}
             className="mt-1"
             placeholder="z.B. Konservativ-Aggressiv"
           />
@@ -79,17 +79,13 @@ function StrategyCardContent({
         <Separator />
         <div>
           <Label className="text-sm font-medium">
-            Phasen konfigurieren (
-            {strategy.segments.length}
-            {' '}
-            Phase
-            {strategy.segments.length !== 1 ? 'n' : ''}
-            )
+            Phasen konfigurieren ({strategy.segments.length} Phase
+            {strategy.segments.length !== 1 ? 'n' : ''})
           </Label>
           <div className="mt-2">
             <WithdrawalSegmentForm
               segments={strategy.segments}
-              onSegmentsChange={segments => onUpdateSegments(strategy.id, segments)}
+              onSegmentsChange={(segments) => onUpdateSegments(strategy.id, segments)}
               withdrawalStartYear={withdrawalStartYear}
               withdrawalEndYear={withdrawalEndYear}
             />
@@ -144,15 +140,11 @@ function ComparisonHeader({ onAddStrategy }: { onAddStrategy: () => void }) {
     <div>
       <h4 className="text-lg font-medium mb-2">Geteilte Phasen Vergleich</h4>
       <p className="text-sm text-muted-foreground mb-4">
-        Erstelle und vergleiche verschiedene Konfigurationen von geteilten Entnahme-Phasen.
-        Jede Konfiguration kann mehrere Phasen mit unterschiedlichen Strategien enthalten.
+        Erstelle und vergleiche verschiedene Konfigurationen von geteilten Entnahme-Phasen. Jede Konfiguration kann
+        mehrere Phasen mit unterschiedlichen Strategien enthalten.
       </p>
 
-      <Button
-        onClick={onAddStrategy}
-        className="mb-4"
-        variant="outline"
-      >
+      <Button onClick={onAddStrategy} className="mb-4" variant="outline">
         <Plus className="h-4 w-4 mr-2" />
         Neue Konfiguration hinzufügen
       </Button>
@@ -168,8 +160,7 @@ function EmptyStrategyState({ nestingLevel }: { nestingLevel: number }) {
     <Card nestingLevel={nestingLevel + 1}>
       <CardContent nestingLevel={nestingLevel + 1} className="pt-6">
         <p className="text-center text-muted-foreground">
-          Noch keine Vergleichskonfigurationen erstellt.
-          Klicke auf "Neue Konfiguration hinzufügen", um zu beginnen.
+          Noch keine Vergleichskonfigurationen erstellt. Klicke auf "Neue Konfiguration hinzufügen", um zu beginnen.
         </p>
       </CardContent>
     </Card>
@@ -198,7 +189,7 @@ function StrategyList({
 }) {
   return (
     <div className="space-y-4">
-      {strategies.map(strategy => (
+      {strategies.map((strategy) => (
         <StrategyCard
           key={strategy.id}
           strategy={strategy}
@@ -239,12 +230,7 @@ function createNewComparisonStrategy(
   withdrawalEndYear: number,
 ): SegmentedComparisonStrategy {
   const newId = `segmented_strategy_${Date.now()}`
-  const defaultSegment = createDefaultWithdrawalSegment(
-    'main',
-    'Hauptphase',
-    withdrawalStartYear,
-    withdrawalEndYear,
-  )
+  const defaultSegment = createDefaultWithdrawalSegment('main', 'Hauptphase', withdrawalStartYear, withdrawalEndYear)
 
   return {
     id: newId,
@@ -362,16 +348,10 @@ export function SegmentedComparisonConfiguration({
     <Collapsible defaultOpen={false}>
       <Card nestingLevel={nestingLevel}>
         <CollapsibleTrigger asChild>
-          <Button
-            variant="ghost"
-            className="w-full justify-between p-0"
-            asChild
-          >
+          <Button variant="ghost" className="w-full justify-between p-0" asChild>
             <CardHeader nestingLevel={nestingLevel} className="cursor-pointer hover:bg-gray-50/50">
               <div className="flex items-center justify-between w-full">
-                <CardTitle className="flex items-center gap-2">
-                  🔄 Geteilte Phasen Vergleich
-                </CardTitle>
+                <CardTitle className="flex items-center gap-2">🔄 Geteilte Phasen Vergleich</CardTitle>
                 <ChevronDown className="h-4 w-4 transition-transform duration-200 group-data-[state=open]:rotate-180" />
               </div>
             </CardHeader>

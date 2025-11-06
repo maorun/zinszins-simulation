@@ -8,7 +8,10 @@ interface BuildHealthCareValuesParams {
   spouseBirthYear: number | undefined
 }
 
-function buildBasicInsuranceValues(config: WithdrawalFormValue['healthCareInsuranceConfig'], planningMode: 'individual' | 'couple') {
+function buildBasicInsuranceValues(
+  config: WithdrawalFormValue['healthCareInsuranceConfig'],
+  planningMode: 'individual' | 'couple',
+) {
   return {
     enabled: config?.enabled ?? true,
     planningMode: planningMode,

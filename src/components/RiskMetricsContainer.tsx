@@ -26,11 +26,7 @@ const AdditionalRiskMetrics: React.FC<AdditionalRiskMetricsProps> = ({ riskMetri
       </div>
       <div>
         <div className="text-sm font-medium text-gray-600 mb-1">📊 Datenpunkte</div>
-        <div className="text-lg font-bold text-gray-700">
-          {portfolioDataLength}
-          {' '}
-          Jahre
-        </div>
+        <div className="text-lg font-bold text-gray-700">{portfolioDataLength} Jahre</div>
         <div className="text-xs text-gray-500">Simulationszeitraum für Risikoanalyse</div>
       </div>
     </div>
@@ -58,8 +54,8 @@ export function RiskMetricsContainer({
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
           <div className="text-blue-800 font-semibold mb-2">ℹ️ Feste Rendite gewählt</div>
           <div className="text-sm text-blue-700">
-            Bei einer festen Rendite gibt es keine Volatilität und damit keine klassischen Risikokennzahlen.
-            Wechseln Sie zu "Zufällige Renditen" oder "Variable Renditen" für eine vollständige Risikoanalyse.
+            Bei einer festen Rendite gibt es keine Volatilität und damit keine klassischen Risikokennzahlen. Wechseln
+            Sie zu "Zufällige Renditen" oder "Variable Renditen" für eine vollständige Risikoanalyse.
           </div>
         </div>
       )}
@@ -68,12 +64,7 @@ export function RiskMetricsContainer({
       {riskMetrics && <RiskMetricsDisplay riskMetrics={riskMetrics} />}
 
       {/* Additional risk metrics */}
-      {riskMetrics && (
-        <AdditionalRiskMetrics
-          riskMetrics={riskMetrics}
-          portfolioDataLength={portfolioDataLength}
-        />
-      )}
+      {riskMetrics && <AdditionalRiskMetrics riskMetrics={riskMetrics} portfolioDataLength={portfolioDataLength} />}
     </>
   )
 }

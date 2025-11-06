@@ -7,13 +7,10 @@ export function useFreibetragSync(
   setFreibetragPerYear: (freibetragPerYear: { [year: number]: number }) => void,
 ) {
   useEffect(() => {
-    const updatedFreibetrag = updateFreibetragForPlanningMode(
-      freibetragPerYear,
-      planningMode,
-    )
+    const updatedFreibetrag = updateFreibetragForPlanningMode(freibetragPerYear, planningMode)
 
     const hasChanges = Object.keys(updatedFreibetrag).some(
-      year => updatedFreibetrag[parseInt(year)] !== freibetragPerYear[parseInt(year)],
+      (year) => updatedFreibetrag[parseInt(year)] !== freibetragPerYear[parseInt(year)],
     )
 
     if (hasChanges) {

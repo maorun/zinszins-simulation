@@ -6,21 +6,15 @@ import type { Sparplan } from '../utils/sparplan-utils'
 
 // Mock the sub-components
 vi.mock('./SavedSparplansListHeader', () => ({
-  SavedSparplansListHeader: () => (
-    <div data-testid="saved-sparplans-list-header">Header</div>
-  ),
+  SavedSparplansListHeader: () => <div data-testid="saved-sparplans-list-header">Header</div>,
 }))
 
 vi.mock('./SavedSparplansListDescription', () => ({
-  SavedSparplansListDescription: () => (
-    <div data-testid="saved-sparplans-list-description">Description</div>
-  ),
+  SavedSparplansListDescription: () => <div data-testid="saved-sparplans-list-description">Description</div>,
 }))
 
 vi.mock('./SavedSparplansListContent', () => ({
-  SavedSparplansListContent: () => (
-    <div data-testid="saved-sparplans-list-content">Content</div>
-  ),
+  SavedSparplansListContent: () => <div data-testid="saved-sparplans-list-content">Content</div>,
 }))
 
 describe('SavedSparplansList', () => {

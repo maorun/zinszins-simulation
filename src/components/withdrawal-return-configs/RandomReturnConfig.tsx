@@ -26,21 +26,17 @@ function AverageReturnSlider({ value, onChange }: AverageReturnSliderProps) {
           min={0}
           max={12}
           step={0.5}
-          onValueChange={val => onChange(val[0])}
+          onValueChange={(val) => onChange(val[0])}
           className="mt-2"
         />
         <div className="flex justify-between text-sm text-gray-500">
           <span>0%</span>
-          <span className="font-medium text-gray-900">
-            {value}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{value}%</span>
           <span>12%</span>
         </div>
       </div>
       <div className="text-sm text-muted-foreground mt-1">
-        Erwartete durchschnittliche Rendite für die Entnahme-Phase
-        (meist konservativer als Ansparphase)
+        Erwartete durchschnittliche Rendite für die Entnahme-Phase (meist konservativer als Ansparphase)
       </div>
     </div>
   )
@@ -56,26 +52,15 @@ function StandardDeviationSlider({ value, onChange }: StandardDeviationSliderPro
     <div className="mb-4 space-y-2">
       <Label>Standardabweichung (%)</Label>
       <div className="space-y-2">
-        <Slider
-          value={[value]}
-          min={5}
-          max={25}
-          step={1}
-          onValueChange={val => onChange(val[0])}
-          className="mt-2"
-        />
+        <Slider value={[value]} min={5} max={25} step={1} onValueChange={(val) => onChange(val[0])} className="mt-2" />
         <div className="flex justify-between text-sm text-gray-500">
           <span>5%</span>
-          <span className="font-medium text-gray-900">
-            {value}
-            %
-          </span>
+          <span className="font-medium text-gray-900">{value}%</span>
           <span>25%</span>
         </div>
       </div>
       <div className="text-sm text-muted-foreground mt-1">
-        Volatilität der Renditen (meist niedriger als Ansparphase
-        wegen konservativerer Allokation)
+        Volatilität der Renditen (meist niedriger als Ansparphase wegen konservativerer Allokation)
       </div>
     </div>
   )
@@ -100,8 +85,7 @@ function RandomSeedInput({ value, onChange }: RandomSeedInputProps) {
         placeholder="Für reproduzierbare Ergebnisse"
       />
       <div className="text-sm text-muted-foreground mt-1">
-        Optionaler Seed für reproduzierbare Zufallsrenditen. Leer
-        lassen für echte Zufälligkeit.
+        Optionaler Seed für reproduzierbare Zufallsrenditen. Leer lassen für echte Zufälligkeit.
       </div>
     </div>
   )
@@ -117,18 +101,9 @@ export function RandomReturnConfig({
 }: RandomReturnConfigProps) {
   return (
     <>
-      <AverageReturnSlider
-        value={withdrawalAverageReturn}
-        onChange={onWithdrawalAverageReturnChange}
-      />
-      <StandardDeviationSlider
-        value={withdrawalStandardDeviation}
-        onChange={onWithdrawalStandardDeviationChange}
-      />
-      <RandomSeedInput
-        value={withdrawalRandomSeed}
-        onChange={onWithdrawalRandomSeedChange}
-      />
+      <AverageReturnSlider value={withdrawalAverageReturn} onChange={onWithdrawalAverageReturnChange} />
+      <StandardDeviationSlider value={withdrawalStandardDeviation} onChange={onWithdrawalStandardDeviationChange} />
+      <RandomSeedInput value={withdrawalRandomSeed} onChange={onWithdrawalRandomSeedChange} />
     </>
   )
 }

@@ -21,9 +21,9 @@ describe('Inflation Scenarios', () => {
       expect(scenario.name).toBe('Hyperinflation (Hohes Inflationsszenario)')
       expect(scenario.duration).toBe(5)
       expect(scenario.yearlyInflationRates[0]).toBe(0.08)
-      expect(scenario.yearlyInflationRates[1]).toBe(0.10)
+      expect(scenario.yearlyInflationRates[1]).toBe(0.1)
       expect(scenario.yearlyInflationRates[2]).toBe(0.12)
-      expect(scenario.yearlyInflationRates[3]).toBe(0.10)
+      expect(scenario.yearlyInflationRates[3]).toBe(0.1)
       expect(scenario.yearlyInflationRates[4]).toBe(0.08)
       expect(scenario.recoveryYears).toBe(3)
     })
@@ -37,7 +37,7 @@ describe('Inflation Scenarios', () => {
       expect(scenario.yearlyInflationRates[0]).toBe(-0.01)
       expect(scenario.yearlyInflationRates[1]).toBe(-0.02)
       expect(scenario.yearlyInflationRates[2]).toBe(-0.01)
-      expect(scenario.yearlyInflationRates[3]).toBe(0.00)
+      expect(scenario.yearlyInflationRates[3]).toBe(0.0)
     })
 
     it('should define stagflation scenario with inflation and return modifiers', () => {
@@ -69,9 +69,9 @@ describe('Inflation Scenarios', () => {
       const result = applyInflationScenario(baseYear, scenario)
 
       expect(result[2025]).toBe(0.08)
-      expect(result[2026]).toBe(0.10)
+      expect(result[2026]).toBe(0.1)
       expect(result[2027]).toBe(0.12)
-      expect(result[2028]).toBe(0.10)
+      expect(result[2028]).toBe(0.1)
       expect(result[2029]).toBe(0.08)
       expect(Object.keys(result)).toHaveLength(5)
     })
@@ -85,7 +85,7 @@ describe('Inflation Scenarios', () => {
       expect(result[2030]).toBe(-0.01)
       expect(result[2031]).toBe(-0.02)
       expect(result[2032]).toBe(-0.01)
-      expect(result[2033]).toBe(0.00)
+      expect(result[2033]).toBe(0.0)
       expect(Object.keys(result)).toHaveLength(4)
     })
 
@@ -224,7 +224,7 @@ describe('Inflation Scenarios', () => {
       const result = calculateAverageInflation(scenario)
 
       // Geometric mean: (0.9604)^(1/4) - 1 ≈ -0.0100
-      expect(result).toBeCloseTo(-0.0100, 3)
+      expect(result).toBeCloseTo(-0.01, 3)
     })
 
     it('should calculate average inflation for stagflation', () => {
@@ -247,14 +247,14 @@ describe('Inflation Scenarios', () => {
       }
       const scenario = {
         2025: 0.08,
-        2026: 0.10,
+        2026: 0.1,
       }
 
       const result = mergeInflationScenario(existing, scenario)
 
       expect(result[2024]).toBe(0.02)
       expect(result[2025]).toBe(0.08) // Overridden
-      expect(result[2026]).toBe(0.10) // Overridden
+      expect(result[2026]).toBe(0.1) // Overridden
       expect(result[2027]).toBe(0.02)
     })
 
@@ -262,7 +262,7 @@ describe('Inflation Scenarios', () => {
       const existing = {}
       const scenario = {
         2025: 0.08,
-        2026: 0.10,
+        2026: 0.1,
       }
 
       const result = mergeInflationScenario(existing, scenario)
@@ -288,10 +288,10 @@ describe('Inflation Scenarios', () => {
       const scenarios = getAvailableInflationScenarios()
 
       expect(scenarios).toHaveLength(3)
-      expect(scenarios.map(s => s.id)).toContain('hyperinflation')
-      expect(scenarios.map(s => s.id)).toContain('deflation')
-      expect(scenarios.map(s => s.id)).toContain('stagflation')
-      expect(scenarios.map(s => s.id)).not.toContain('custom')
+      expect(scenarios.map((s) => s.id)).toContain('hyperinflation')
+      expect(scenarios.map((s) => s.id)).toContain('deflation')
+      expect(scenarios.map((s) => s.id)).toContain('stagflation')
+      expect(scenarios.map((s) => s.id)).not.toContain('custom')
     })
 
     it('should return scenarios with all required properties', () => {

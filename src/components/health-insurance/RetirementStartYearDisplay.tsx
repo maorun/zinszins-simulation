@@ -40,10 +40,7 @@ export function RetirementStartYearDisplay({
       <Label>Rentenbeginn (automatisch berechnet)</Label>
       <div className="p-3 border rounded-lg bg-green-50">
         {planningMode === 'individual' ? (
-          <IndividualRetirementDisplay
-            birthYear={birthYear}
-            retirementStartYear={retirementStartYear}
-          />
+          <IndividualRetirementDisplay birthYear={birthYear} retirementStartYear={retirementStartYear} />
         ) : (
           <CoupleRetirementDisplay
             birthYear={birthYear}
@@ -54,11 +51,7 @@ export function RetirementStartYearDisplay({
         <div className="text-xs text-muted-foreground mt-2">
           Jahr ab dem die Rentnerregelungen gelten (berechnet mit Renteneintrittsalter 67)
         </div>
-        <MissingBirthYearWarning
-          planningMode={planningMode}
-          birthYear={birthYear}
-          spouseBirthYear={spouseBirthYear}
-        />
+        <MissingBirthYearWarning planningMode={planningMode} birthYear={birthYear} spouseBirthYear={spouseBirthYear} />
       </div>
     </div>
   )
@@ -77,11 +70,7 @@ function IndividualRetirementDisplay({
         <span className="text-gray-600">Basierend auf Geburtsjahr aus Globaler Planung:</span>
         <div className="font-medium">{birthYear || 'Nicht festgelegt'}</div>
       </div>
-      <div className="text-lg font-bold text-green-800">
-        Rentenbeginn:
-        {' '}
-        {birthYear ? retirementStartYear : '—'}
-      </div>
+      <div className="text-lg font-bold text-green-800">Rentenbeginn: {birthYear ? retirementStartYear : '—'}</div>
     </div>
   )
 }
@@ -108,9 +97,7 @@ function CoupleRetirementDisplay({
         </div>
       </div>
       <div className="text-lg font-bold text-green-800">
-        Rentenbeginn (frühester):
-        {' '}
-        {(birthYear && spouseBirthYear) ? retirementStartYear : '—'}
+        Rentenbeginn (frühester): {birthYear && spouseBirthYear ? retirementStartYear : '—'}
       </div>
     </div>
   )

@@ -22,9 +22,7 @@ describe('segmented-withdrawal synchronization', () => {
     })
 
     it('should handle single segment', () => {
-      const segments: WithdrawalSegment[] = [
-        createDefaultWithdrawalSegment('main', 'Hauptphase', 2041, 2080),
-      ]
+      const segments: WithdrawalSegment[] = [createDefaultWithdrawalSegment('main', 'Hauptphase', 2041, 2080)]
 
       const result = synchronizeWithdrawalSegmentsEndYear(segments, 2090)
 
@@ -61,8 +59,8 @@ describe('segmented-withdrawal synchronization', () => {
 
       expect(result).toHaveLength(2)
       // Find segments by ID to ensure correct update
-      const segment1 = result.find(s => s.id === 'segment1')
-      const segment2 = result.find(s => s.id === 'segment2')
+      const segment1 = result.find((s) => s.id === 'segment1')
+      const segment2 = result.find((s) => s.id === 'segment2')
 
       expect(segment1?.endYear).toBe(2050) // First segment unchanged
       expect(segment2?.endYear).toBe(2085) // Last segment updated
@@ -117,9 +115,7 @@ describe('segmented-withdrawal synchronization', () => {
       })
 
       it('should return error for segment with end year before start year', () => {
-        const segments: WithdrawalSegment[] = [
-          createDefaultWithdrawalSegment('segment1', 'Invalid Phase', 2050, 2040),
-        ]
+        const segments: WithdrawalSegment[] = [createDefaultWithdrawalSegment('segment1', 'Invalid Phase', 2050, 2040)]
         const errors = validateWithdrawalSegments(segments, startYear, endYear)
 
         expect(errors).toContain('Segment "Invalid Phase": Endjahr kann nicht vor Startjahr liegen')
@@ -154,7 +150,9 @@ describe('segmented-withdrawal synchronization', () => {
         ]
         const errors = validateWithdrawalSegments(segments, startYear, endYear)
 
-        expect(errors).toContain('Die erste Phase muss am Entsparzeitpunkt (2041) beginnen. Aktuelle erste Phase beginnt 2042.')
+        expect(errors).toContain(
+          'Die erste Phase muss am Entsparzeitpunkt (2041) beginnen. Aktuelle erste Phase beginnt 2042.',
+        )
       })
 
       it('should return error when last phase does not end at end of life', () => {
@@ -174,7 +172,9 @@ describe('segmented-withdrawal synchronization', () => {
         ]
         const errors = validateWithdrawalSegments(segments, startYear, endYear)
 
-        expect(errors).toContain('Lücke zwischen Segment "Phase 1" (endet 2050) und "Phase 2" (beginnt 2052). Die Zeiträume müssen durchgängig sein.')
+        expect(errors).toContain(
+          'Lücke zwischen Segment "Phase 1" (endet 2050) und "Phase 2" (beginnt 2052). Die Zeiträume müssen durchgängig sein.',
+        )
       })
 
       it('should validate properly with continuous phases', () => {
@@ -189,9 +189,7 @@ describe('segmented-withdrawal synchronization', () => {
       })
 
       it('should validate properly with single phase covering entire period', () => {
-        const segments: WithdrawalSegment[] = [
-          createDefaultWithdrawalSegment('main', 'Hauptphase', 2041, 2080),
-        ]
+        const segments: WithdrawalSegment[] = [createDefaultWithdrawalSegment('main', 'Hauptphase', 2041, 2080)]
         const errors = validateWithdrawalSegments(segments, startYear, endYear)
 
         expect(errors).toHaveLength(0) // Should be valid
@@ -204,9 +202,13 @@ describe('segmented-withdrawal synchronization', () => {
         ]
         const errors = validateWithdrawalSegments(segments, startYear, endYear)
 
-        expect(errors).toContain('Die erste Phase muss am Entsparzeitpunkt (2041) beginnen. Aktuelle erste Phase beginnt 2042.')
+        expect(errors).toContain(
+          'Die erste Phase muss am Entsparzeitpunkt (2041) beginnen. Aktuelle erste Phase beginnt 2042.',
+        )
         expect(errors).toContain('Die letzte Phase muss am Lebensende (2080) enden. Aktuelle letzte Phase endet 2075.')
-        expect(errors).toContain('Lücke zwischen Segment "Phase 1" (endet 2050) und "Phase 2" (beginnt 2052). Die Zeiträume müssen durchgängig sein.')
+        expect(errors).toContain(
+          'Lücke zwischen Segment "Phase 1" (endet 2050) und "Phase 2" (beginnt 2052). Die Zeiträume müssen durchgängig sein.',
+        )
       })
 
       it('should work with unordered segments', () => {

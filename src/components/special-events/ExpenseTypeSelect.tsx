@@ -18,10 +18,12 @@ export function ExpenseTypeSelect({ formValues, onFormChange }: ExpenseTypeSelec
       <select
         className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         value={formValues.expenseType}
-        onChange={e => onFormChange({
-          ...formValues,
-          expenseType: e.target.value as ExpenseType,
-        })}
+        onChange={(e) =>
+          onFormChange({
+            ...formValues,
+            expenseType: e.target.value as ExpenseType,
+          })
+        }
       >
         <option value="car">Auto</option>
         <option value="house">Haus/Wohnung</option>

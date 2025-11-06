@@ -11,11 +11,7 @@ interface EventSelectorProps {
 /**
  * Selector for choosing which Black Swan event to simulate
  */
-export function EventSelector({
-  selectedEventId,
-  availableEvents,
-  onEventChange,
-}: EventSelectorProps) {
+export function EventSelector({ selectedEventId, availableEvents, onEventChange }: EventSelectorProps) {
   const handleValueChange = (value: string) => {
     onEventChange(value as BlackSwanEventId)
   }
@@ -24,7 +20,7 @@ export function EventSelector({
     <div className="space-y-3">
       <Label>Ereignis auswählen</Label>
       <RadioGroup value={selectedEventId} onValueChange={handleValueChange}>
-        {availableEvents.map(event => (
+        {availableEvents.map((event) => (
           <div key={event.id} className="flex items-center space-x-2">
             <RadioGroupItem value={event.id} id={`event-${event.id}`} />
             <Label htmlFor={`event-${event.id}`} className="font-normal cursor-pointer">

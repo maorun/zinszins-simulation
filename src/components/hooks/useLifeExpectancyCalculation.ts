@@ -4,7 +4,7 @@ import { calculateJointLifeExpectancy } from '../../../helpers/rmd-tables'
 
 type PlanningMode = 'individual' | 'couple'
 type Gender = 'male' | 'female'
-type SpouseConfig = { birthYear?: number, gender: Gender, expectedLifespan?: number }
+type SpouseConfig = { birthYear?: number; gender: Gender; expectedLifespan?: number }
 
 interface UseLifeExpectancyCalculationParams {
   birthYear: number | undefined
@@ -22,26 +22,16 @@ function calculateIndividual(birthYear: number, expectedLifespan: number): numbe
 }
 
 // Helper function to calculate couple end of life
-function calculateCouple(
-  birthYear: number,
-  spouseBirthYear: number,
-  gender: Gender,
-  spouseGender: Gender,
-): number {
+function calculateCouple(birthYear: number, spouseBirthYear: number, gender: Gender, spouseGender: Gender): number {
   const age1 = calculateCurrentAge(birthYear)
   const age2 = calculateCurrentAge(spouseBirthYear)
   const jointLifeExpectancy = calculateJointLifeExpectancy(age1, age2, gender, spouseGender)
   const olderBirthYear = Math.min(birthYear, spouseBirthYear)
-  return Math.round(
-    calculateEndOfLifeYear(olderBirthYear, jointLifeExpectancy + calculateCurrentAge(olderBirthYear)),
-  )
+  return Math.round(calculateEndOfLifeYear(olderBirthYear, jointLifeExpectancy + calculateCurrentAge(olderBirthYear)))
 }
 
 // Helper to check if we have all data for individual calculation
-function hasIndividualData(
-  birthYear: number | undefined,
-  expectedLifespan: number | undefined,
-): birthYear is number {
+function hasIndividualData(birthYear: number | undefined, expectedLifespan: number | undefined): birthYear is number {
   return birthYear !== undefined && expectedLifespan !== undefined
 }
 
@@ -51,10 +41,9 @@ function hasCoupleData(
   spouse: SpouseConfig | undefined,
   gender: Gender | undefined,
 ): birthYear is number {
-  return birthYear !== undefined
-    && spouse?.birthYear !== undefined
-    && gender !== undefined
-    && spouse?.gender !== undefined
+  return (
+    birthYear !== undefined && spouse?.birthYear !== undefined && gender !== undefined && spouse?.gender !== undefined
+  )
 }
 
 /**

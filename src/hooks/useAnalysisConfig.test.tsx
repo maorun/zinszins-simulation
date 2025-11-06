@@ -23,9 +23,7 @@ describe('useAnalysisConfig', () => {
 
     expect(result.current.returnConfig).toHaveProperty('mode')
     // The return config structure depends on the mode (random, fixed, variable, etc.)
-    expect(['random', 'fixed', 'variable', 'historical', 'multi-asset']).toContain(
-      result.current.returnConfig.mode,
-    )
+    expect(['random', 'fixed', 'variable', 'historical', 'multi-asset']).toContain(result.current.returnConfig.mode)
   })
 
   it('should provide sensitivityConfig with correct structure', () => {
@@ -58,8 +56,6 @@ describe('useAnalysisConfig', () => {
     // The hook should use the start and end years from the simulation context
     expect(result.current.sensitivityConfig.startYear).toBeDefined()
     expect(result.current.sensitivityConfig.endYear).toBeDefined()
-    expect(result.current.sensitivityConfig.endYear).toBeGreaterThan(
-      result.current.sensitivityConfig.startYear,
-    )
+    expect(result.current.sensitivityConfig.endYear).toBeGreaterThan(result.current.sensitivityConfig.startYear)
   })
 })

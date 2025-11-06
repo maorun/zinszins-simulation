@@ -57,9 +57,7 @@ describe('SparplanEingabe.helpers', () => {
     })
 
     it('should append to existing sparplans', () => {
-      const existing: Sparplan[] = [
-        { id: 1, start: new Date('2023-01-01'), end: null, einzahlung: 500 },
-      ]
+      const existing: Sparplan[] = [{ id: 1, start: new Date('2023-01-01'), end: null, einzahlung: 500 }]
 
       const formValues = {
         start: new Date('2024-01-01'),
@@ -281,10 +279,7 @@ describe('SparplanEingabe.helpers', () => {
         einzahlung: 1200,
       }
 
-      const result = populateSparplanFormFromSparplan(
-        sparplan,
-        SimulationAnnual.yearly,
-      )
+      const result = populateSparplanFormFromSparplan(sparplan, SimulationAnnual.yearly)
 
       expect(result.einzahlung).toBe('1200')
       expect(result.start).toEqual(new Date('2024-01-01'))
@@ -298,10 +293,7 @@ describe('SparplanEingabe.helpers', () => {
         einzahlung: 1200,
       }
 
-      const result = populateSparplanFormFromSparplan(
-        sparplan,
-        SimulationAnnual.monthly,
-      )
+      const result = populateSparplanFormFromSparplan(sparplan, SimulationAnnual.monthly)
 
       expect(result.einzahlung).toBe('100') // 1200 / 12
     })
@@ -314,10 +306,7 @@ describe('SparplanEingabe.helpers', () => {
         einzahlung: 1200,
       }
 
-      const result = populateSparplanFormFromSparplan(
-        sparplan,
-        SimulationAnnual.monthly,
-      )
+      const result = populateSparplanFormFromSparplan(sparplan, SimulationAnnual.monthly)
 
       expect(result.einzahlung).toBe('1200') // Not divided
     })

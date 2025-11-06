@@ -4,7 +4,7 @@ import { HistoricalReturnContent } from './HistoricalReturnContent'
 import { HISTORICAL_INDICES } from '../../utils/historical-data'
 
 describe('HistoricalReturnContent', () => {
-  const daxIndex = HISTORICAL_INDICES.find(idx => idx.id === 'dax')!
+  const daxIndex = HISTORICAL_INDICES.find((idx) => idx.id === 'dax')!
 
   it('should render all main sections', () => {
     const mockOnIndexChange = vi.fn()
@@ -151,7 +151,6 @@ describe('HistoricalReturnContent', () => {
       />,
     )
 
-    expect(screen.getByText(/Die Vergangenheit lässt keine Rückschlüsse auf die Zukunft zu/))
-      .toBeInTheDocument()
+    expect(screen.getByText(/Die Vergangenheit lässt keine Rückschlüsse auf die Zukunft zu/)).toBeInTheDocument()
   })
 })

@@ -5,12 +5,7 @@ import { AssetAllocationSummary } from './AssetAllocationSummary'
 describe('AssetAllocationSummary', () => {
   it('should display portfolio overview with expected return and risk', () => {
     render(
-      <AssetAllocationSummary
-        expectedReturn={0.07}
-        expectedRisk={0.15}
-        enabledAssetsCount={3}
-        validationErrors={[]}
-      />,
+      <AssetAllocationSummary expectedReturn={0.07} expectedRisk={0.15} enabledAssetsCount={3} validationErrors={[]} />,
     )
 
     expect(screen.getByText('Portfolio-Übersicht')).toBeInTheDocument()
@@ -21,10 +16,7 @@ describe('AssetAllocationSummary', () => {
   })
 
   it('should display validation errors when present', () => {
-    const errors = [
-      'Die Summe der Allokationen muss 100% ergeben',
-      'Mindestens eine Anlageklasse muss aktiviert sein',
-    ]
+    const errors = ['Die Summe der Allokationen muss 100% ergeben', 'Mindestens eine Anlageklasse muss aktiviert sein']
 
     render(
       <AssetAllocationSummary
@@ -45,12 +37,7 @@ describe('AssetAllocationSummary', () => {
 
   it('should not render anything when no enabled assets and no errors', () => {
     const { container } = render(
-      <AssetAllocationSummary
-        expectedReturn={0.07}
-        expectedRisk={0.15}
-        enabledAssetsCount={0}
-        validationErrors={[]}
-      />,
+      <AssetAllocationSummary expectedReturn={0.07} expectedRisk={0.15} enabledAssetsCount={0} validationErrors={[]} />,
     )
 
     expect(container.firstChild).toBeNull()

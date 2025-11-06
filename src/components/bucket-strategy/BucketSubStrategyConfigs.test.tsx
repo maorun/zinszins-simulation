@@ -21,9 +21,7 @@ describe('BucketSubStrategyConfigs', () => {
     it('displays helper text', () => {
       render(<VariabelProzentConfig value={4} onChange={vi.fn()} />)
 
-      expect(
-        screen.getByText(/Wählen Sie einen Entnahme-Prozentsatz zwischen 1% und 10%/),
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Wählen Sie einen Entnahme-Prozentsatz zwischen 1% und 10%/)).toBeInTheDocument()
     })
 
     it('displays correct min and max labels', () => {
@@ -75,9 +73,7 @@ describe('BucketSubStrategyConfigs', () => {
     it('displays helper text', () => {
       render(<MonatlichFestConfig value={2000} onChange={vi.fn()} />)
 
-      expect(
-        screen.getByText(/Fester monatlicher Entnahme-Betrag/),
-      ).toBeInTheDocument()
+      expect(screen.getByText(/Fester monatlicher Entnahme-Betrag/)).toBeInTheDocument()
     })
   })
 })

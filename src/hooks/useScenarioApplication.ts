@@ -54,39 +54,41 @@ function createSavingsPlans(config: FinancialScenario['config']): Sparplan[] {
  * Extracted from HomePageContent to reduce complexity
  */
 export function useScenarioApplication(handlers: ScenarioApplicationHandlers) {
-  const handleApplyScenario = useCallback((scenario: FinancialScenario) => {
-    const config = scenario.config
+  const handleApplyScenario = useCallback(
+    (scenario: FinancialScenario) => {
+      const config = scenario.config
 
-    // Set time range
-    handlers.setStartEnd([config.retirementYear, config.retirementYear + 30])
+      // Set time range
+      handlers.setStartEnd([config.retirementYear, config.retirementYear + 30])
 
-    // Set return configuration
-    handlers.setReturnMode(config.returnMode)
-    if (config.returnMode === 'fixed') {
-      handlers.setRendite(config.expectedReturn)
-    }
-    else if (config.returnMode === 'random' && config.volatility) {
-      handlers.setAverageReturn(config.expectedReturn)
-      handlers.setStandardDeviation(config.volatility)
-    }
+      // Set return configuration
+      handlers.setReturnMode(config.returnMode)
+      if (config.returnMode === 'fixed') {
+        handlers.setRendite(config.expectedReturn)
+      } else if (config.returnMode === 'random' && config.volatility) {
+        handlers.setAverageReturn(config.expectedReturn)
+        handlers.setStandardDeviation(config.volatility)
+      }
 
-    // Set tax configuration
-    if (config.steuerlast !== undefined) handlers.setSteuerlast(config.steuerlast)
-    if (config.teilfreistellungsquote !== undefined) handlers.setTeilfreistellungsquote(config.teilfreistellungsquote)
-    if (config.freibetrag !== undefined) handlers.setFreibetragPerYear({ [config.startYear]: config.freibetrag })
+      // Set tax configuration
+      if (config.steuerlast !== undefined) handlers.setSteuerlast(config.steuerlast)
+      if (config.teilfreistellungsquote !== undefined) handlers.setTeilfreistellungsquote(config.teilfreistellungsquote)
+      if (config.freibetrag !== undefined) handlers.setFreibetragPerYear({ [config.startYear]: config.freibetrag })
 
-    // Set inflation
-    if (config.inflationRate !== undefined) {
-      handlers.setInflationAktivSparphase(true)
-      handlers.setInflationsrateSparphase(config.inflationRate)
-    }
+      // Set inflation
+      if (config.inflationRate !== undefined) {
+        handlers.setInflationAktivSparphase(true)
+        handlers.setInflationsrateSparphase(config.inflationRate)
+      }
 
-    // Create and set savings plans
-    handlers.setSparplan(createSavingsPlans(config))
+      // Create and set savings plans
+      handlers.setSparplan(createSavingsPlans(config))
 
-    // Trigger recalculation
-    setTimeout(() => handlers.performSimulation(), 100)
-  }, [handlers])
+      // Trigger recalculation
+      setTimeout(() => handlers.performSimulation(), 100)
+    },
+    [handlers],
+  )
 
   return { handleApplyScenario }
 }

@@ -19,17 +19,16 @@ export function InterestRateInput({ formValues, onFormChange }: InterestRateInpu
       <Input
         type="number"
         value={formValues.interestRate}
-        onChange={e => onFormChange({
-          ...formValues,
-          interestRate: e.target.value,
-        })}
+        onChange={(e) =>
+          onFormChange({
+            ...formValues,
+            interestRate: e.target.value,
+          })
+        }
         placeholder={
           formValues.expenseAmount
             ? (
-                getDefaultCreditTerms(
-                  formValues.expenseType,
-                  Number(formValues.expenseAmount),
-                ).interestRate * 100
+                getDefaultCreditTerms(formValues.expenseType, Number(formValues.expenseAmount)).interestRate * 100
               ).toFixed(1)
             : '3.5'
         }

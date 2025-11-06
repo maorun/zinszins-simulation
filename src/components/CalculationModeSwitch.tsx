@@ -7,10 +7,7 @@ interface CalculationModeSwitchProps {
   onToggle: (checked: boolean) => void
 }
 
-const CalculationModeSwitch = ({
-  simulationAnnual,
-  onToggle,
-}: CalculationModeSwitchProps) => {
+const CalculationModeSwitch = ({ simulationAnnual, onToggle }: CalculationModeSwitchProps) => {
   return (
     <div className="p-3 border rounded-lg">
       <div className="flex flex-col space-y-3 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
@@ -23,23 +20,11 @@ const CalculationModeSwitch = ({
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <span
-            className={`text-sm ${
-              simulationAnnual === 'yearly' ? 'font-medium' : 'text-muted-foreground'
-            }`}
-          >
+          <span className={`text-sm ${simulationAnnual === 'yearly' ? 'font-medium' : 'text-muted-foreground'}`}>
             Jährlich
           </span>
-          <Switch
-            id="berechnungsmodus"
-            checked={simulationAnnual === 'monthly'}
-            onCheckedChange={onToggle}
-          />
-          <span
-            className={`text-sm ${
-              simulationAnnual === 'monthly' ? 'font-medium' : 'text-muted-foreground'
-            }`}
-          >
+          <Switch id="berechnungsmodus" checked={simulationAnnual === 'monthly'} onCheckedChange={onToggle} />
+          <span className={`text-sm ${simulationAnnual === 'monthly' ? 'font-medium' : 'text-muted-foreground'}`}>
             Monatlich
           </span>
         </div>

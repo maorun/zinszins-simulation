@@ -23,7 +23,7 @@ export function OtherIncomeSourceList({
   return (
     <div className="space-y-4">
       <h3 className="text-base font-semibold">Konfigurierte Einkommensquellen</h3>
-      {sources.map(source => (
+      {sources.map((source) => (
         <IncomeSourceCard
           key={source.id}
           source={source}

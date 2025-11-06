@@ -26,33 +26,20 @@ interface AssetClassEditorProps {
  * Editor component for a single asset class in the multi-asset portfolio.
  * Allows enabling/disabling and configuring allocation, expected return, and volatility.
  */
-export function AssetClassEditor({
-  assetClass,
-  name,
-  description,
-  config,
-  onChange,
-}: AssetClassEditorProps) {
+export function AssetClassEditor({ assetClass, name, description, config, onChange }: AssetClassEditorProps) {
   const isEnabled = config.enabled
 
   return (
-    <div
-      className={`p-4 border rounded-md ${
-        isEnabled ? 'border-blue-200 bg-blue-50' : 'border-gray-200'
-      }`}
-    >
+    <div className={`p-4 border rounded-md ${isEnabled ? 'border-blue-200 bg-blue-50' : 'border-gray-200'}`}>
       <AssetClassHeader
         name={name}
         description={description}
         isEnabled={isEnabled}
-        onEnabledChange={enabled => onChange(assetClass, { enabled })}
+        onEnabledChange={(enabled) => onChange(assetClass, { enabled })}
       />
 
       {isEnabled && (
-        <ConfigurationSliders
-          config={config}
-          onConfigChange={updates => onChange(assetClass, updates)}
-        />
+        <ConfigurationSliders config={config} onConfigChange={(updates) => onChange(assetClass, updates)} />
       )}
     </div>
   )

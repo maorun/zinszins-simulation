@@ -18,10 +18,12 @@ export function RelationshipTypeField({ formValues, onFormChange }: Relationship
       <select
         className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         value={formValues.relationshipType}
-        onChange={e => onFormChange({
-          ...formValues,
-          relationshipType: e.target.value as RelationshipType,
-        })}
+        onChange={(e) =>
+          onFormChange({
+            ...formValues,
+            relationshipType: e.target.value as RelationshipType,
+          })
+        }
       >
         <option value="child">Kind</option>
         <option value="grandchild">Enkelkind</option>

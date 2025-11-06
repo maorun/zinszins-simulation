@@ -13,10 +13,7 @@ export type PlanningMode = 'individual' | 'couple'
  * @param individualFreibetrag - Base freibetrag per person (default: 2000€)
  * @returns Total freibetrag amount for the planning scenario
  */
-export function calculateFreibetragForPlanningMode(
-  planningMode: PlanningMode,
-  individualFreibetrag = 2000,
-): number {
+export function calculateFreibetragForPlanningMode(planningMode: PlanningMode, individualFreibetrag = 2000): number {
   switch (planningMode) {
     case 'individual':
       return individualFreibetrag

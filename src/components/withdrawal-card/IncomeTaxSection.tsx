@@ -13,11 +13,7 @@ interface IncomeTaxSectionProps {
 /**
  * Section displaying income tax information: Einkommensteuer and Grundfreibetrag
  */
-export function IncomeTaxSection({
-  rowData,
-  isGrundfreibetragEnabled,
-  onCalculationInfoClick,
-}: IncomeTaxSectionProps) {
+export function IncomeTaxSection({ rowData, isGrundfreibetragEnabled, onCalculationInfoClick }: IncomeTaxSectionProps) {
   if (!isGrundfreibetragEnabled) {
     return null
   }

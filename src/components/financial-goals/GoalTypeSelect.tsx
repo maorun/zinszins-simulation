@@ -13,7 +13,7 @@ export function GoalTypeSelect({ id, value, onChange }: GoalTypeSelectProps) {
       <select
         id={id}
         value={value}
-        onChange={e => onChange(e.target.value)}
+        onChange={(e) => onChange(e.target.value)}
         className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
       >
         <option value="retirement">Altersvorsorge</option>

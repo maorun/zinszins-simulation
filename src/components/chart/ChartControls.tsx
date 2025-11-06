@@ -18,7 +18,12 @@ export interface ChartControlsProps {
 /**
  * Switch control with label
  */
-function SwitchControl({ id, checked, onCheckedChange, label }: {
+function SwitchControl({
+  id,
+  checked,
+  onCheckedChange,
+  label,
+}: {
   id: string
   checked: boolean
   onCheckedChange: (checked: boolean) => void
@@ -27,7 +32,9 @@ function SwitchControl({ id, checked, onCheckedChange, label }: {
   return (
     <div className="flex items-center space-x-2">
       <Switch id={id} checked={checked} onCheckedChange={onCheckedChange} />
-      <Label htmlFor={id} className="text-sm">{label}</Label>
+      <Label htmlFor={id} className="text-sm">
+        {label}
+      </Label>
     </div>
   )
 }
@@ -35,7 +42,10 @@ function SwitchControl({ id, checked, onCheckedChange, label }: {
 /**
  * View toggle buttons
  */
-function ViewToggle({ chartView, onChartViewChange }: {
+function ViewToggle({
+  chartView,
+  onChartViewChange,
+}: {
   chartView: ChartView
   onChartViewChange: (view: ChartView) => void
 }) {

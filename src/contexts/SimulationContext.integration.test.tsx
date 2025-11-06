@@ -41,17 +41,24 @@ describe('Cross-Component State Management Integration Tests', () => {
 
     render(
       <SimulationProvider>
-        <TestContextComponent onContextData={(data) => { contextData = data }} />
+        <TestContextComponent
+          onContextData={(data) => {
+            contextData = data
+          }}
+        />
       </SimulationProvider>,
     )
 
-    await waitFor(() => {
-      expect(contextData).toBeTruthy()
-      expect((contextData as SimulationContextTestData).startEnd).toBeDefined()
-      expect((contextData as SimulationContextTestData).rendite).toBeDefined()
-      expect((contextData as SimulationContextTestData).steuerlast).toBeDefined()
-      expect((contextData as SimulationContextTestData).simulationAnnual).toBeDefined()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        expect(contextData).toBeTruthy()
+        expect((contextData as SimulationContextTestData).startEnd).toBeDefined()
+        expect((contextData as SimulationContextTestData).rendite).toBeDefined()
+        expect((contextData as SimulationContextTestData).steuerlast).toBeDefined()
+        expect((contextData as SimulationContextTestData).simulationAnnual).toBeDefined()
+      },
+      { timeout: 2000 },
+    )
 
     // Check default values are reasonable
     const data = contextData as SimulationContextTestData
@@ -67,13 +74,20 @@ describe('Cross-Component State Management Integration Tests', () => {
 
     render(
       <SimulationProvider>
-        <TestContextComponent onContextData={(data) => { contextData = data }} />
+        <TestContextComponent
+          onContextData={(data) => {
+            contextData = data
+          }}
+        />
       </SimulationProvider>,
     )
 
-    await waitFor(() => {
-      expect(contextData).toBeTruthy()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        expect(contextData).toBeTruthy()
+      },
+      { timeout: 2000 },
+    )
 
     const data = contextData as SimulationContextTestData
     const initialStartYear = data.startEnd[0]
@@ -92,13 +106,20 @@ describe('Cross-Component State Management Integration Tests', () => {
 
     render(
       <SimulationProvider>
-        <TestContextComponent onContextData={(data) => { contextData = data }} />
+        <TestContextComponent
+          onContextData={(data) => {
+            contextData = data
+          }}
+        />
       </SimulationProvider>,
     )
 
-    await waitFor(() => {
-      expect(contextData).toBeTruthy()
-    }, { timeout: 3000 })
+    await waitFor(
+      () => {
+        expect(contextData).toBeTruthy()
+      },
+      { timeout: 3000 },
+    )
 
     // Should have simulation data structure (might be null initially)
     expect(contextData).toHaveProperty('simulationData')
@@ -119,9 +140,12 @@ describe('Cross-Component State Management Integration Tests', () => {
       </SimulationProvider>,
     )
 
-    await waitFor(() => {
-      expect(screen.getByTestId('test-context')).toBeInTheDocument()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('test-context')).toBeInTheDocument()
+      },
+      { timeout: 2000 },
+    )
 
     // Check that displayed values are in expected formats
     const startYear = screen.getByTestId('start-year').textContent
@@ -150,9 +174,7 @@ describe('Cross-Component State Management Integration Tests', () => {
       useSimulation()
       renderCount++
 
-      return (
-        <div data-testid="render-count">{renderCount}</div>
-      )
+      return <div data-testid="render-count">{renderCount}</div>
     }
 
     render(
@@ -161,9 +183,12 @@ describe('Cross-Component State Management Integration Tests', () => {
       </SimulationProvider>,
     )
 
-    await waitFor(() => {
-      expect(screen.getByTestId('render-count')).toBeInTheDocument()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        expect(screen.getByTestId('render-count')).toBeInTheDocument()
+      },
+      { timeout: 2000 },
+    )
 
     // Should not have excessive re-renders
     expect(renderCount).toBeLessThan(10)
@@ -174,13 +199,20 @@ describe('Cross-Component State Management Integration Tests', () => {
 
     render(
       <SimulationProvider>
-        <TestContextComponent onContextData={(data) => { contextData = data }} />
+        <TestContextComponent
+          onContextData={(data) => {
+            contextData = data
+          }}
+        />
       </SimulationProvider>,
     )
 
-    await waitFor(() => {
-      expect(contextData).toBeTruthy()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        expect(contextData).toBeTruthy()
+      },
+      { timeout: 2000 },
+    )
 
     const data = contextData as SimulationContextTestData
     // Check that required methods exist
@@ -201,13 +233,20 @@ describe('Cross-Component State Management Integration Tests', () => {
 
     render(
       <SimulationProvider>
-        <TestContextComponent onContextData={(data) => { contextData = data }} />
+        <TestContextComponent
+          onContextData={(data) => {
+            contextData = data
+          }}
+        />
       </SimulationProvider>,
     )
 
-    await waitFor(() => {
-      expect(contextData).toBeTruthy()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        expect(contextData).toBeTruthy()
+      },
+      { timeout: 2000 },
+    )
 
     const data = contextData as SimulationContextTestData
     // Should load with reasonable defaults
@@ -227,26 +266,40 @@ describe('Cross-Component State Management Integration Tests', () => {
 
     const { rerender } = render(
       <SimulationProvider>
-        <TestContextComponent onContextData={(data) => { contextData = data }} />
+        <TestContextComponent
+          onContextData={(data) => {
+            contextData = data
+          }}
+        />
       </SimulationProvider>,
     )
 
-    await waitFor(() => {
-      expect(contextData).toBeTruthy()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        expect(contextData).toBeTruthy()
+      },
+      { timeout: 2000 },
+    )
 
     const initialData = { ...(contextData as SimulationContextTestData) }
 
     // Rerender component
     rerender(
       <SimulationProvider>
-        <TestContextComponent onContextData={(data) => { contextData = data }} />
+        <TestContextComponent
+          onContextData={(data) => {
+            contextData = data
+          }}
+        />
       </SimulationProvider>,
     )
 
-    await waitFor(() => {
-      expect(contextData).toBeTruthy()
-    }, { timeout: 1000 })
+    await waitFor(
+      () => {
+        expect(contextData).toBeTruthy()
+      },
+      { timeout: 1000 },
+    )
 
     const currentData = contextData as SimulationContextTestData
     // Core values should remain consistent across rerenders

@@ -240,9 +240,7 @@ describe('WithdrawalComparisonDisplay', () => {
       />,
     )
 
-    expect(
-      screen.getByText(/Keine Vergleichs-Strategien konfiguriert/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Keine Vergleichs-Strategien konfiguriert/)).toBeInTheDocument()
   })
 
   it('renders comparison summary table when there are results', () => {

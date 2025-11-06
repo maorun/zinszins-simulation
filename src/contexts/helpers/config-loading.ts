@@ -8,7 +8,10 @@ import type { ExtendedSavedConfiguration, DefaultConfiguration, ConfigurationSet
 export function loadBasicConfig(
   savedConfig: ExtendedSavedConfiguration,
   defaultConfig: DefaultConfiguration,
-  setters: Pick<ConfigurationSetters, 'setRendite' | 'setSteuerlast' | 'setTeilfreistellungsquote' | 'setFreibetragPerYear' | 'setBasiszinsConfiguration'>,
+  setters: Pick<
+    ConfigurationSetters,
+    'setRendite' | 'setSteuerlast' | 'setTeilfreistellungsquote' | 'setFreibetragPerYear' | 'setBasiszinsConfiguration'
+  >,
 ): void {
   setters.setRendite(savedConfig.rendite)
   setters.setSteuerlast(savedConfig.steuerlast)
@@ -23,7 +26,15 @@ export function loadBasicConfig(
 export function loadTaxConfig(
   savedConfig: ExtendedSavedConfiguration,
   defaultConfig: DefaultConfiguration,
-  setters: Pick<ConfigurationSetters, 'setSteuerReduzierenEndkapitalSparphase' | 'setSteuerReduzierenEndkapitalEntspharphase' | 'setGrundfreibetragAktiv' | 'setGrundfreibetragBetrag' | 'setPersonalTaxRate' | 'setGuenstigerPruefungAktiv'>,
+  setters: Pick<
+    ConfigurationSetters,
+    | 'setSteuerReduzierenEndkapitalSparphase'
+    | 'setSteuerReduzierenEndkapitalEntspharphase'
+    | 'setGrundfreibetragAktiv'
+    | 'setGrundfreibetragBetrag'
+    | 'setPersonalTaxRate'
+    | 'setGuenstigerPruefungAktiv'
+  >,
 ): void {
   setters.setSteuerReduzierenEndkapitalSparphase(savedConfig.steuerReduzierenEndkapitalSparphase ?? true)
   setters.setSteuerReduzierenEndkapitalEntspharphase(savedConfig.steuerReduzierenEndkapitalEntspharphase ?? true)
@@ -39,7 +50,15 @@ export function loadTaxConfig(
 export function loadReturnConfig(
   savedConfig: ExtendedSavedConfiguration,
   defaultConfig: DefaultConfiguration,
-  setters: Pick<ConfigurationSetters, 'setReturnMode' | 'setAverageReturn' | 'setStandardDeviation' | 'setRandomSeed' | 'setVariableReturns' | 'setHistoricalIndex'>,
+  setters: Pick<
+    ConfigurationSetters,
+    | 'setReturnMode'
+    | 'setAverageReturn'
+    | 'setStandardDeviation'
+    | 'setRandomSeed'
+    | 'setVariableReturns'
+    | 'setHistoricalIndex'
+  >,
 ): void {
   setters.setReturnMode(savedConfig.returnMode)
   setters.setAverageReturn(savedConfig.averageReturn)
@@ -55,7 +74,10 @@ export function loadReturnConfig(
 export function loadInflationConfig(
   savedConfig: ExtendedSavedConfiguration,
   defaultConfig: DefaultConfiguration,
-  setters: Pick<ConfigurationSetters, 'setInflationAktivSparphase' | 'setInflationsrateSparphase' | 'setInflationAnwendungSparphase'>,
+  setters: Pick<
+    ConfigurationSetters,
+    'setInflationAktivSparphase' | 'setInflationsrateSparphase' | 'setInflationAnwendungSparphase'
+  >,
 ): void {
   const inflationSettings = {
     inflationAktivSparphase: savedConfig.inflationAktivSparphase ?? defaultConfig.inflationAktivSparphase,
@@ -102,7 +124,15 @@ export function loadLifeExpectancyConfig(
 export function loadPlanningModeConfig(
   savedConfig: ExtendedSavedConfiguration,
   defaultConfig: DefaultConfiguration,
-  setters: Pick<ConfigurationSetters, 'setPlanningMode' | 'setGender' | 'setSpouse' | 'setBirthYear' | 'setExpectedLifespan' | 'setUseAutomaticCalculation'>,
+  setters: Pick<
+    ConfigurationSetters,
+    | 'setPlanningMode'
+    | 'setGender'
+    | 'setSpouse'
+    | 'setBirthYear'
+    | 'setExpectedLifespan'
+    | 'setUseAutomaticCalculation'
+  >,
 ): void {
   setters.setPlanningMode(savedConfig.planningMode ?? defaultConfig.planningMode)
   setters.setGender(savedConfig.gender)
@@ -115,18 +145,13 @@ export function loadPlanningModeConfig(
 /**
  * Get couple statutory pension configuration with fallback
  */
-function getCoupleStatutoryPensionConfig(
-  savedConfig: ExtendedSavedConfiguration,
-): CoupleStatutoryPensionConfig | null {
+function getCoupleStatutoryPensionConfig(savedConfig: ExtendedSavedConfiguration): CoupleStatutoryPensionConfig | null {
   if (savedConfig.coupleStatutoryPensionConfig) {
     return savedConfig.coupleStatutoryPensionConfig
   }
 
   if (savedConfig.statutoryPensionConfig) {
-    return convertLegacyToCoupleConfig(
-      savedConfig.statutoryPensionConfig,
-      savedConfig.planningMode || 'couple',
-    )
+    return convertLegacyToCoupleConfig(savedConfig.statutoryPensionConfig, savedConfig.planningMode || 'couple')
   }
 
   return null
@@ -152,7 +177,14 @@ function loadCareCostConfig(
  */
 export function loadWithdrawalConfig(
   savedConfig: ExtendedSavedConfiguration,
-  setters: Pick<ConfigurationSetters, 'setWithdrawalConfig' | 'setStatutoryPensionConfig' | 'setCoupleStatutoryPensionConfig' | 'setCareCostConfiguration' | 'setFinancialGoals'>,
+  setters: Pick<
+    ConfigurationSetters,
+    | 'setWithdrawalConfig'
+    | 'setStatutoryPensionConfig'
+    | 'setCoupleStatutoryPensionConfig'
+    | 'setCareCostConfiguration'
+    | 'setFinancialGoals'
+  >,
 ): void {
   setters.setWithdrawalConfig(savedConfig.withdrawal || null)
   setters.setStatutoryPensionConfig(savedConfig.statutoryPensionConfig || null)

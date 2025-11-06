@@ -17,8 +17,8 @@ describe('multi-asset-defaults', () => {
       expect(config.assetClasses.stocks_domestic).toBeDefined()
       expect(config.assetClasses.stocks_domestic.name).toBe('Deutsche/Europäische Aktien')
       expect(config.assetClasses.stocks_domestic.expectedReturn).toBe(0.08)
-      expect(config.assetClasses.stocks_domestic.volatility).toBe(0.20)
-      expect(config.assetClasses.stocks_domestic.targetAllocation).toBe(0.40)
+      expect(config.assetClasses.stocks_domestic.volatility).toBe(0.2)
+      expect(config.assetClasses.stocks_domestic.targetAllocation).toBe(0.4)
       expect(config.assetClasses.stocks_domestic.enabled).toBe(true)
       expect(config.assetClasses.stocks_domestic.taxCategory).toBe('equity')
 
@@ -46,7 +46,7 @@ describe('multi-asset-defaults', () => {
     test('should have all expected asset classes configured', () => {
       const config = createFallbackMultiAssetConfig()
 
-      const enabledAssets = Object.values(config.assetClasses).filter(asset => asset.enabled)
+      const enabledAssets = Object.values(config.assetClasses).filter((asset) => asset.enabled)
       const totalAllocation = enabledAssets.reduce((sum, asset) => sum + asset.targetAllocation, 0)
 
       // In savings phase, not all assets are enabled by default
@@ -99,7 +99,7 @@ describe('multi-asset-defaults', () => {
     test('should have all expected asset classes configured', () => {
       const config = createFallbackWithdrawalConfig()
 
-      const enabledAssets = Object.values(config.assetClasses).filter(asset => asset.enabled)
+      const enabledAssets = Object.values(config.assetClasses).filter((asset) => asset.enabled)
       const totalAllocation = enabledAssets.reduce((sum, asset) => sum + asset.targetAllocation, 0)
 
       // In withdrawal phase, not all assets are enabled by default
@@ -113,18 +113,22 @@ describe('multi-asset-defaults', () => {
       const withdrawalConfig = createFallbackWithdrawalConfig()
 
       // Withdrawal phase should have lower stock allocation
-      const savingsStockAllocation = savingsConfig.assetClasses.stocks_domestic.targetAllocation
-        + savingsConfig.assetClasses.stocks_international.targetAllocation
-      const withdrawalStockAllocation = withdrawalConfig.assetClasses.stocks_domestic.targetAllocation
-        + withdrawalConfig.assetClasses.stocks_international.targetAllocation
+      const savingsStockAllocation =
+        savingsConfig.assetClasses.stocks_domestic.targetAllocation +
+        savingsConfig.assetClasses.stocks_international.targetAllocation
+      const withdrawalStockAllocation =
+        withdrawalConfig.assetClasses.stocks_domestic.targetAllocation +
+        withdrawalConfig.assetClasses.stocks_international.targetAllocation
 
       expect(withdrawalStockAllocation).toBeLessThan(savingsStockAllocation)
 
       // Withdrawal phase should have higher bond allocation
-      const savingsBondAllocation = savingsConfig.assetClasses.bonds_government.targetAllocation
-        + savingsConfig.assetClasses.bonds_corporate.targetAllocation
-      const withdrawalBondAllocation = withdrawalConfig.assetClasses.bonds_government.targetAllocation
-        + withdrawalConfig.assetClasses.bonds_corporate.targetAllocation
+      const savingsBondAllocation =
+        savingsConfig.assetClasses.bonds_government.targetAllocation +
+        savingsConfig.assetClasses.bonds_corporate.targetAllocation
+      const withdrawalBondAllocation =
+        withdrawalConfig.assetClasses.bonds_government.targetAllocation +
+        withdrawalConfig.assetClasses.bonds_corporate.targetAllocation
 
       expect(withdrawalBondAllocation).toBeGreaterThan(savingsBondAllocation)
     })

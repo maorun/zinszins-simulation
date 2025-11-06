@@ -20,11 +20,14 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     )
 
     // Should render the component without crashing
-    await waitFor(() => {
-      // Component should render successfully, content may vary based on state
-      const container = document.body
-      expect(container).toBeInTheDocument()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        // Component should render successfully, content may vary based on state
+        const container = document.body
+        expect(container).toBeInTheDocument()
+      },
+      { timeout: 2000 },
+    )
   })
 
   it('handles withdrawal strategy selection', async () => {
@@ -35,10 +38,13 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     )
 
     // Component should render without crashing, strategy options depend on state
-    await waitFor(() => {
-      const container = document.body
-      expect(container).toBeInTheDocument()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        const container = document.body
+        expect(container).toBeInTheDocument()
+      },
+      { timeout: 2000 },
+    )
   })
 
   it('displays Monte Carlo analysis for savings phase', async () => {
@@ -49,10 +55,13 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     )
 
     // Component should render without crashing
-    await waitFor(() => {
-      const container = document.body
-      expect(container).toBeInTheDocument()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        const container = document.body
+        expect(container).toBeInTheDocument()
+      },
+      { timeout: 2000 },
+    )
   })
 
   it('displays Monte Carlo analysis for withdrawal phase', async () => {
@@ -63,10 +72,13 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     )
 
     // Component should render without crashing
-    await waitFor(() => {
-      const container = document.body
-      expect(container).toBeInTheDocument()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        const container = document.body
+        expect(container).toBeInTheDocument()
+      },
+      { timeout: 2000 },
+    )
   })
 
   it('shows comprehensive Monte Carlo scenarios', async () => {
@@ -77,23 +89,26 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     )
 
     // Should show different scenario types if data is available
-    await waitFor(() => {
-      const scenarios = [
-        screen.queryByText(/Worst Case/),
-        screen.queryByText(/Pessimistisch/),
-        screen.queryByText(/Median/),
-        screen.queryByText(/Optimistisch/),
-        screen.queryByText(/Best Case/),
-        screen.queryByText(/5%.*Perzentil/),
-        screen.queryByText(/25%.*Perzentil/),
-        screen.queryByText(/50%.*Perzentil/),
-        screen.queryByText(/75%.*Perzentil/),
-        screen.queryByText(/95%.*Perzentil/),
-      ].filter(Boolean)
+    await waitFor(
+      () => {
+        const scenarios = [
+          screen.queryByText(/Worst Case/),
+          screen.queryByText(/Pessimistisch/),
+          screen.queryByText(/Median/),
+          screen.queryByText(/Optimistisch/),
+          screen.queryByText(/Best Case/),
+          screen.queryByText(/5%.*Perzentil/),
+          screen.queryByText(/25%.*Perzentil/),
+          screen.queryByText(/50%.*Perzentil/),
+          screen.queryByText(/75%.*Perzentil/),
+          screen.queryByText(/95%.*Perzentil/),
+        ].filter(Boolean)
 
-      // Monte Carlo might not show if no data, but component should render
-      expect(scenarios.length).toBeGreaterThanOrEqual(0)
-    }, { timeout: 2000 })
+        // Monte Carlo might not show if no data, but component should render
+        expect(scenarios.length).toBeGreaterThanOrEqual(0)
+      },
+      { timeout: 2000 },
+    )
   })
 
   it('handles different return configurations in Monte Carlo', async () => {
@@ -104,11 +119,14 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     )
 
     // Should handle the analysis even with different return configurations
-    await waitFor(() => {
-      // Component should render without crashing
-      const container = document.body
-      expect(container).toBeInTheDocument()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        // Component should render without crashing
+        const container = document.body
+        expect(container).toBeInTheDocument()
+      },
+      { timeout: 2000 },
+    )
   })
 
   it('integrates withdrawal calculations with tax considerations', async () => {
@@ -119,19 +137,22 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     )
 
     // Should consider German tax implications in withdrawals
-    await waitFor(() => {
-      const taxElements = [
-        screen.queryByText(/Steuer/),
-        screen.queryByText(/Freibetrag/),
-        screen.queryByText(/Kapitalertrag/),
-        screen.queryByText(/Grundfreibetrag/),
-        screen.queryByText(/Vorabpauschale/),
-      ].filter(Boolean)
+    await waitFor(
+      () => {
+        const taxElements = [
+          screen.queryByText(/Steuer/),
+          screen.queryByText(/Freibetrag/),
+          screen.queryByText(/Kapitalertrag/),
+          screen.queryByText(/Grundfreibetrag/),
+          screen.queryByText(/Vorabpauschale/),
+        ].filter(Boolean)
 
-      // Tax considerations might not be visible in withdrawal plan directly,
-      // but component should render properly
-      expect(taxElements.length).toBeGreaterThanOrEqual(0)
-    }, { timeout: 2000 })
+        // Tax considerations might not be visible in withdrawal plan directly,
+        // but component should render properly
+        expect(taxElements.length).toBeGreaterThanOrEqual(0)
+      },
+      { timeout: 2000 },
+    )
   })
 
   it('maintains calculation consistency between savings and withdrawal phases', async () => {
@@ -145,11 +166,14 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     )
 
     // Both phases should be able to coexist without conflicts
-    await waitFor(() => {
-      // Should not crash and should maintain state consistency
-      const container = document.body
-      expect(container).toBeInTheDocument()
-    }, { timeout: 2000 })
+    await waitFor(
+      () => {
+        // Should not crash and should maintain state consistency
+        const container = document.body
+        expect(container).toBeInTheDocument()
+      },
+      { timeout: 2000 },
+    )
   })
 
   it('handles random seed configuration for deterministic results', async () => {
@@ -160,17 +184,20 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     )
 
     // Look for seed-related information
-    await waitFor(() => {
-      const seedElements = [
-        screen.queryByText(/Seed/),
-        screen.queryByText(/Zufallsseed/),
-        screen.queryByText(/deterministic/),
-        screen.queryByText(/deterministisch/),
-      ].filter(Boolean)
+    await waitFor(
+      () => {
+        const seedElements = [
+          screen.queryByText(/Seed/),
+          screen.queryByText(/Zufallsseed/),
+          screen.queryByText(/deterministic/),
+          screen.queryByText(/deterministisch/),
+        ].filter(Boolean)
 
-      // Seed information might not always be visible
-      expect(seedElements.length).toBeGreaterThanOrEqual(0)
-    }, { timeout: 2000 })
+        // Seed information might not always be visible
+        expect(seedElements.length).toBeGreaterThanOrEqual(0)
+      },
+      { timeout: 2000 },
+    )
   })
 
   it('displays volatility and risk information', async () => {
@@ -181,17 +208,20 @@ describe('Withdrawal and Monte Carlo Integration Tests', () => {
     )
 
     // Should show risk/volatility information
-    await waitFor(() => {
-      const riskElements = [
-        screen.queryByText(/Volatilität/),
-        screen.queryByText(/Volatility/),
-        screen.queryByText(/Risiko/),
-        screen.queryByText(/Risk/),
-        screen.queryByText(/Standardabweichung/),
-        screen.queryByText(/12.0%/), // Default volatility
-      ].filter(Boolean)
+    await waitFor(
+      () => {
+        const riskElements = [
+          screen.queryByText(/Volatilität/),
+          screen.queryByText(/Volatility/),
+          screen.queryByText(/Risiko/),
+          screen.queryByText(/Risk/),
+          screen.queryByText(/Standardabweichung/),
+          screen.queryByText(/12.0%/), // Default volatility
+        ].filter(Boolean)
 
-      expect(riskElements.length).toBeGreaterThanOrEqual(0)
-    }, { timeout: 2000 })
+        expect(riskElements.length).toBeGreaterThanOrEqual(0)
+      },
+      { timeout: 2000 },
+    )
   })
 })

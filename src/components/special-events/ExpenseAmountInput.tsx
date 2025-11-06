@@ -18,10 +18,12 @@ export function ExpenseAmountInput({ formValues, onFormChange }: ExpenseAmountIn
       <Input
         type="number"
         value={formValues.expenseAmount}
-        onChange={e => onFormChange({
-          ...formValues,
-          expenseAmount: e.target.value,
-        })}
+        onChange={(e) =>
+          onFormChange({
+            ...formValues,
+            expenseAmount: e.target.value,
+          })
+        }
         placeholder="25000"
         min="0"
         step="1000"

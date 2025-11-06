@@ -76,13 +76,7 @@ describe('FreistellungsauftragOptimizer', () => {
     ]
     const onAccountsChange = vi.fn()
 
-    render(
-      <FreistellungsauftragOptimizer
-        {...defaultProps}
-        accounts={accounts}
-        onAccountsChange={onAccountsChange}
-      />,
-    )
+    render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} onAccountsChange={onAccountsChange} />)
 
     const deleteButtons = screen.getAllByRole('button', { name: '' }) // Trash icon buttons
     fireEvent.click(deleteButtons[0])
@@ -94,18 +88,10 @@ describe('FreistellungsauftragOptimizer', () => {
   })
 
   it('should update account name when input changes', () => {
-    const accounts: BankAccount[] = [
-      { id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 700 },
-    ]
+    const accounts: BankAccount[] = [{ id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 700 }]
     const onAccountsChange = vi.fn()
 
-    render(
-      <FreistellungsauftragOptimizer
-        {...defaultProps}
-        accounts={accounts}
-        onAccountsChange={onAccountsChange}
-      />,
-    )
+    render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} onAccountsChange={onAccountsChange} />)
 
     const nameInput = screen.getByDisplayValue('DKB')
     fireEvent.change(nameInput, { target: { value: 'Neue Bank' } })
@@ -116,18 +102,10 @@ describe('FreistellungsauftragOptimizer', () => {
   })
 
   it('should update expected capital gains when input changes', () => {
-    const accounts: BankAccount[] = [
-      { id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 700 },
-    ]
+    const accounts: BankAccount[] = [{ id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 700 }]
     const onAccountsChange = vi.fn()
 
-    render(
-      <FreistellungsauftragOptimizer
-        {...defaultProps}
-        accounts={accounts}
-        onAccountsChange={onAccountsChange}
-      />,
-    )
+    render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} onAccountsChange={onAccountsChange} />)
 
     const gainsInput = screen.getByDisplayValue('2000')
     fireEvent.change(gainsInput, { target: { value: '3000' } })
@@ -182,13 +160,7 @@ describe('FreistellungsauftragOptimizer', () => {
     ]
     const onAccountsChange = vi.fn()
 
-    render(
-      <FreistellungsauftragOptimizer
-        {...defaultProps}
-        accounts={accounts}
-        onAccountsChange={onAccountsChange}
-      />,
-    )
+    render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} onAccountsChange={onAccountsChange} />)
 
     const applyButton = screen.getByText('Optimale Verteilung übernehmen')
     fireEvent.click(applyButton)
@@ -201,9 +173,7 @@ describe('FreistellungsauftragOptimizer', () => {
   })
 
   it('should display effective tax rate and tax amount for accounts', () => {
-    const accounts: BankAccount[] = [
-      { id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 700 },
-    ]
+    const accounts: BankAccount[] = [{ id: '1', name: 'DKB', expectedCapitalGains: 2000, assignedFreibetrag: 700 }]
 
     render(<FreistellungsauftragOptimizer {...defaultProps} accounts={accounts} />)
 

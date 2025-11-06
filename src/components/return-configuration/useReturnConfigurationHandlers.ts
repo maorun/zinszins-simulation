@@ -19,30 +19,45 @@ export const useReturnConfigurationHandlers = ({
   setMultiAssetConfig,
   performSimulation,
 }: UseReturnConfigurationHandlersParams) => {
-  const handleReturnModeChange = useCallback((mode: ReturnMode) => {
-    setReturnMode(mode)
-    performSimulation()
-  }, [setReturnMode, performSimulation])
+  const handleReturnModeChange = useCallback(
+    (mode: ReturnMode) => {
+      setReturnMode(mode)
+      performSimulation()
+    },
+    [setReturnMode, performSimulation],
+  )
 
-  const handleInflationAktivChange = useCallback((active: boolean) => {
-    setInflationAktivSparphase(active)
-    performSimulation()
-  }, [setInflationAktivSparphase, performSimulation])
+  const handleInflationAktivChange = useCallback(
+    (active: boolean) => {
+      setInflationAktivSparphase(active)
+      performSimulation()
+    },
+    [setInflationAktivSparphase, performSimulation],
+  )
 
-  const handleInflationsrateChange = useCallback((rate: number) => {
-    setInflationsrateSparphase(rate)
-    performSimulation()
-  }, [setInflationsrateSparphase, performSimulation])
+  const handleInflationsrateChange = useCallback(
+    (rate: number) => {
+      setInflationsrateSparphase(rate)
+      performSimulation()
+    },
+    [setInflationsrateSparphase, performSimulation],
+  )
 
-  const handleInflationAnwendungChange = useCallback((mode: 'sparplan' | 'gesamtmenge') => {
-    setInflationAnwendungSparphase(mode)
-    performSimulation()
-  }, [setInflationAnwendungSparphase, performSimulation])
+  const handleInflationAnwendungChange = useCallback(
+    (mode: 'sparplan' | 'gesamtmenge') => {
+      setInflationAnwendungSparphase(mode)
+      performSimulation()
+    },
+    [setInflationAnwendungSparphase, performSimulation],
+  )
 
-  const handleMultiAssetConfigChange = useCallback((config: MultiAssetPortfolioConfig) => {
-    setMultiAssetConfig(config)
-    performSimulation()
-  }, [setMultiAssetConfig, performSimulation])
+  const handleMultiAssetConfigChange = useCallback(
+    (config: MultiAssetPortfolioConfig) => {
+      setMultiAssetConfig(config)
+      performSimulation()
+    },
+    [setMultiAssetConfig, performSimulation],
+  )
 
   return {
     handleReturnModeChange,

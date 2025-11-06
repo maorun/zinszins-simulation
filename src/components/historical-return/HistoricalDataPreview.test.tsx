@@ -6,12 +6,12 @@ const mockReturns: Record<string, number> = {
   2020: 0.04,
   2021: 0.15,
   2022: -0.12,
-  2023: 0.20,
+  2023: 0.2,
   2024: 0.08,
   2025: -0.05,
   2026: 0.12,
   2027: 0.07,
-  2028: 0.10,
+  2028: 0.1,
   2029: 0.03,
 }
 
@@ -35,18 +35,14 @@ describe('HistoricalDataPreview', () => {
   })
 
   it('should display positive returns in green', () => {
-    const { container } = render(
-      <HistoricalDataPreview historicalReturns={mockReturns} nestingLevel={0} />,
-    )
+    const { container } = render(<HistoricalDataPreview historicalReturns={mockReturns} nestingLevel={0} />)
 
     const greenElements = container.querySelectorAll('.text-green-600')
     expect(greenElements.length).toBeGreaterThan(0)
   })
 
   it('should display negative returns in red', () => {
-    const { container } = render(
-      <HistoricalDataPreview historicalReturns={mockReturns} nestingLevel={0} />,
-    )
+    const { container } = render(<HistoricalDataPreview historicalReturns={mockReturns} nestingLevel={0} />)
 
     const redElements = container.querySelectorAll('.text-red-600')
     expect(redElements.length).toBeGreaterThan(0)
@@ -69,17 +65,13 @@ describe('HistoricalDataPreview', () => {
   })
 
   it('should return null when no data provided', () => {
-    const { container } = render(
-      <HistoricalDataPreview historicalReturns={{}} nestingLevel={0} />,
-    )
+    const { container } = render(<HistoricalDataPreview historicalReturns={{}} nestingLevel={0} />)
 
     expect(container.firstChild).toBeNull()
   })
 
   it('should render with different nesting levels', () => {
-    const { rerender } = render(
-      <HistoricalDataPreview historicalReturns={mockReturns} nestingLevel={0} />,
-    )
+    const { rerender } = render(<HistoricalDataPreview historicalReturns={mockReturns} nestingLevel={0} />)
     expect(screen.getByText('Historische Renditen (Auswahl)')).toBeInTheDocument()
 
     rerender(<HistoricalDataPreview historicalReturns={mockReturns} nestingLevel={2} />)
@@ -103,18 +95,14 @@ describe('HistoricalDataPreview', () => {
   })
 
   it('should display data in a grid layout', () => {
-    const { container } = render(
-      <HistoricalDataPreview historicalReturns={mockReturns} nestingLevel={0} />,
-    )
+    const { container } = render(<HistoricalDataPreview historicalReturns={mockReturns} nestingLevel={0} />)
 
     const grid = container.querySelector('.grid.grid-cols-2')
     expect(grid).toBeInTheDocument()
   })
 
   it('should make content scrollable for many years', () => {
-    const { container } = render(
-      <HistoricalDataPreview historicalReturns={mockReturns} nestingLevel={0} />,
-    )
+    const { container } = render(<HistoricalDataPreview historicalReturns={mockReturns} nestingLevel={0} />)
 
     const scrollContainer = container.querySelector('.max-h-32.overflow-y-auto')
     expect(scrollContainer).toBeInTheDocument()

@@ -1,5 +1,8 @@
 import type { WithdrawalFormValue } from '../utils/config-storage'
-import { HealthCareInsuranceConfiguration, type HealthCareInsuranceChangeHandlers } from './HealthCareInsuranceConfiguration'
+import {
+  HealthCareInsuranceConfiguration,
+  type HealthCareInsuranceChangeHandlers,
+} from './HealthCareInsuranceConfiguration'
 import { buildHealthCareInsuranceValues } from './health-care-insurance-values-builder'
 
 interface HealthCareInsuranceContentProps {

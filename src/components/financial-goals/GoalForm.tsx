@@ -14,11 +14,14 @@ export function GoalForm({ onAddGoal }: GoalFormProps) {
   const [amount, setAmount] = useState('')
   const [type, setType] = useState<FinancialGoalType>('retirement')
 
-  const ids = useMemo(() => ({
-    name: generateFormId('financial-goals', 'goal-name'),
-    amount: generateFormId('financial-goals', 'goal-amount'),
-    type: generateFormId('financial-goals', 'goal-type'),
-  }), [])
+  const ids = useMemo(
+    () => ({
+      name: generateFormId('financial-goals', 'goal-name'),
+      amount: generateFormId('financial-goals', 'goal-amount'),
+      type: generateFormId('financial-goals', 'goal-type'),
+    }),
+    [],
+  )
 
   const handleSubmit = () => {
     const parsedAmount = parseFloat(amount)

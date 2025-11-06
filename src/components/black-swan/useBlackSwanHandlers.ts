@@ -37,30 +37,38 @@ export function useBlackSwanHandlers({
   setEventYear,
   onEventChange,
 }: UseBlackSwanHandlersProps) {
-  const handleEnabledChange = useCallback((enabled: boolean) => {
-    setIsEnabled(enabled)
-    if (!enabled) {
-      onEventChange?.(null, '')
-    }
-    else if (selectedEvent) {
-      applyEventChange(eventYear, selectedEvent, onEventChange)
-    }
-  }, [selectedEvent, eventYear, onEventChange, setIsEnabled])
+  const handleEnabledChange = useCallback(
+    (enabled: boolean) => {
+      setIsEnabled(enabled)
+      if (!enabled) {
+        onEventChange?.(null, '')
+      } else if (selectedEvent) {
+        applyEventChange(eventYear, selectedEvent, onEventChange)
+      }
+    },
+    [selectedEvent, eventYear, onEventChange, setIsEnabled],
+  )
 
-  const handleEventChange = useCallback((eventId: BlackSwanEventId) => {
-    setSelectedEventId(eventId)
-    const event = availableEvents.find(e => e.id === eventId)
-    if (event && isEnabled) {
-      applyEventChange(eventYear, event, onEventChange)
-    }
-  }, [availableEvents, isEnabled, eventYear, onEventChange, setSelectedEventId])
+  const handleEventChange = useCallback(
+    (eventId: BlackSwanEventId) => {
+      setSelectedEventId(eventId)
+      const event = availableEvents.find((e) => e.id === eventId)
+      if (event && isEnabled) {
+        applyEventChange(eventYear, event, onEventChange)
+      }
+    },
+    [availableEvents, isEnabled, eventYear, onEventChange, setSelectedEventId],
+  )
 
-  const handleYearChange = useCallback((year: number) => {
-    setEventYear(year)
-    if (selectedEvent && isEnabled) {
-      applyEventChange(year, selectedEvent, onEventChange)
-    }
-  }, [selectedEvent, isEnabled, onEventChange, setEventYear])
+  const handleYearChange = useCallback(
+    (year: number) => {
+      setEventYear(year)
+      if (selectedEvent && isEnabled) {
+        applyEventChange(year, selectedEvent, onEventChange)
+      }
+    },
+    [selectedEvent, isEnabled, onEventChange, setEventYear],
+  )
 
   return {
     handleEnabledChange,

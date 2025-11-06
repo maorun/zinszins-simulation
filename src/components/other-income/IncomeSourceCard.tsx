@@ -29,7 +29,7 @@ export function IncomeSourceCard({
               <h4 className="font-medium text-base">{source.name}</h4>
               <IncomeSourceBadges
                 source={source}
-                onEnabledChange={enabled => onSourceChange(source.id, { enabled })}
+                onEnabledChange={(enabled) => onSourceChange(source.id, { enabled })}
               />
             </div>
             <IncomeSourceDetails source={source} />

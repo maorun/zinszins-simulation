@@ -2,7 +2,6 @@ import { describe, it, expect } from 'vitest'
 import {
   type OtherIncomeSource,
   type OtherIncomeConfiguration,
-
   calculateOtherIncomeForYear,
   calculateOtherIncome,
   createDefaultOtherIncomeSource,
@@ -212,10 +211,10 @@ describe('Other Income Calculations', () => {
       expect(result[2025]).toBeDefined()
       expect(result[2025].sources).toHaveLength(2)
 
-      const rental2025 = result[2025].sources.find(s => s.source.id === 'rental-1')!
+      const rental2025 = result[2025].sources.find((s) => s.source.id === 'rental-1')!
       expect(rental2025.netAnnualAmount).toBe(8400) // (1000*12) - (1000*12*0.3)
 
-      const business2025 = result[2025].sources.find(s => s.source.id === 'business-1')!
+      const business2025 = result[2025].sources.find((s) => s.source.id === 'business-1')!
       expect(business2025.netAnnualAmount).toBe(6000) // 500*12, no tax
 
       expect(result[2025].totalNetAnnualAmount).toBe(14400) // 8400 + 6000

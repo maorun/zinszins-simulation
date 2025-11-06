@@ -1,10 +1,9 @@
 ---
 name: feature
 about: Feature für copilot
-title: Feature aus der features.md 
+title: Feature aus der features.md
 labels: Copilot
 assignees: 'Copilot'
-
 ---
 
 Berücksichtige bei der Entwicklung die komplette copilot-instructions.md

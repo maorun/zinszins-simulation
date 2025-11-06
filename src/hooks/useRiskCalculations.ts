@@ -15,7 +15,7 @@ export function useRiskCalculations(simulationData: SimulationData | null) {
     // Get data from simulation results
     const allYears = Object.keys(simulationData.sparplanElements[0]?.simulation || {})
       .map(Number)
-      .filter(year => !isNaN(year))
+      .filter((year) => !isNaN(year))
       .sort((a, b) => a - b)
 
     allYears.forEach((year) => {

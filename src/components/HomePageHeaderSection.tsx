@@ -26,11 +26,7 @@ export function HomePageHeaderSection({
     <>
       <Header />
 
-      <Button
-        onClick={handleRecalculate}
-        className="mb-3 sm:mb-4 w-full"
-        variant="default"
-      >
+      <Button onClick={handleRecalculate} className="mb-3 sm:mb-4 w-full" variant="default">
         🔄 Neu berechnen
       </Button>
 

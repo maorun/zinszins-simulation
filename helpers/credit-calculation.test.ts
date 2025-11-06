@@ -29,7 +29,7 @@ describe('credit-calculation', () => {
 
     it('should handle very short term loans', () => {
       // €1,000 loan at 10% for 1 year
-      const payment = calculateMonthlyPayment(1000, 0.10, 1)
+      const payment = calculateMonthlyPayment(1000, 0.1, 1)
       expect(payment).toBeCloseTo(87.92, 2)
     })
   })
@@ -39,7 +39,7 @@ describe('credit-calculation', () => {
       // €20,000 at 5% for 5 years
       const totalInterest = calculateTotalInterest(20000, 0.05, 5)
       const monthlyPayment = calculateMonthlyPayment(20000, 0.05, 5)
-      const expectedInterest = (monthlyPayment * 60) - 20000
+      const expectedInterest = monthlyPayment * 60 - 20000
       expect(totalInterest).toBeCloseTo(expectedInterest, 2)
     })
 
@@ -166,7 +166,7 @@ describe('credit-calculation', () => {
     it('should provide reasonable medical expense defaults', () => {
       const terms = getDefaultCreditTerms('medical', 5000)
 
-      expect(terms.interestRate).toBe(0.040) // 4.0%
+      expect(terms.interestRate).toBe(0.04) // 4.0%
       expect(terms.termYears).toBe(3)
       expect(terms.monthlyPayment).toBeGreaterThan(0)
     })
@@ -174,7 +174,7 @@ describe('credit-calculation', () => {
     it('should fall back to default terms for unknown expense types', () => {
       const terms = getDefaultCreditTerms('unknown_expense', 10000)
 
-      expect(terms.interestRate).toBe(0.050) // 5.0%
+      expect(terms.interestRate).toBe(0.05) // 5.0%
       expect(terms.termYears).toBe(5)
       expect(terms.monthlyPayment).toBeGreaterThan(0)
     })
@@ -183,11 +183,7 @@ describe('credit-calculation', () => {
       const amount = 10000
       const terms = getDefaultCreditTerms('car', amount)
 
-      const expectedPayment = calculateMonthlyPayment(
-        amount,
-        terms.interestRate,
-        terms.termYears,
-      )
+      const expectedPayment = calculateMonthlyPayment(amount, terms.interestRate, terms.termYears)
 
       expect(terms.monthlyPayment).toBeCloseTo(expectedPayment, 2)
     })

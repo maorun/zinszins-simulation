@@ -18,7 +18,7 @@ export function useParameterExport() {
   })
 
   const exportParameters = useCallback(async () => {
-    setState(prev => ({ ...prev, isExporting: true, lastExportResult: null }))
+    setState((prev) => ({ ...prev, isExporting: true, lastExportResult: null }))
 
     try {
       const success = await copyParametersToClipboard(context)
@@ -29,12 +29,11 @@ export function useParameterExport() {
 
       // Clear the result after 3 seconds
       setTimeout(() => {
-        setState(prev => ({ ...prev, lastExportResult: null }))
+        setState((prev) => ({ ...prev, lastExportResult: null }))
       }, 3000)
 
       return success
-    }
-    catch (_error) {
+    } catch (_error) {
       setState({
         isExporting: false,
         lastExportResult: 'error',
@@ -42,7 +41,7 @@ export function useParameterExport() {
 
       // Clear the result after 3 seconds
       setTimeout(() => {
-        setState(prev => ({ ...prev, lastExportResult: null }))
+        setState((prev) => ({ ...prev, lastExportResult: null }))
       }, 3000)
 
       return false

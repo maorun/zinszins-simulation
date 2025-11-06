@@ -18,14 +18,8 @@ export function EnabledToggle({ enabled, onEnabledChange, idPrefix = 'health-car
 
   return (
     <div className="flex items-center space-x-2">
-      <Switch
-        checked={enabled}
-        onCheckedChange={onEnabledChange}
-        id={switchId}
-      />
-      <Label htmlFor={switchId}>
-        Kranken- und Pflegeversicherung berücksichtigen
-      </Label>
+      <Switch checked={enabled} onCheckedChange={onEnabledChange} id={switchId} />
+      <Label htmlFor={switchId}>Kranken- und Pflegeversicherung berücksichtigen</Label>
     </div>
   )
 }

@@ -79,8 +79,8 @@ const SLIDER_BASE_CONFIGS = [
     description: 'Grundlegende jährliche Entnahmerate vor dynamischen Anpassungen',
     formatValue: formatPercent,
     getValue: (values: DynamicWithdrawalConfigValues) => values.baseWithdrawalRate * 100,
-    getOnChange: (handlers: DynamicWithdrawalChangeHandlers) =>
-      (v: number) => handlers.onBaseWithdrawalRateChange(v / 100),
+    getOnChange: (handlers: DynamicWithdrawalChangeHandlers) => (v: number) =>
+      handlers.onBaseWithdrawalRateChange(v / 100),
   },
   {
     formId: 'dynamischObereSchwell',
@@ -92,8 +92,8 @@ const SLIDER_BASE_CONFIGS = [
     description: 'Rendite-Schwelle: Bei Überschreitung wird die Entnahme erhöht',
     formatValue: formatPercent,
     getValue: (values: DynamicWithdrawalConfigValues) => values.upperThresholdReturn * 100,
-    getOnChange: (handlers: DynamicWithdrawalChangeHandlers) =>
-      (v: number) => handlers.onUpperThresholdReturnChange(v / 100),
+    getOnChange: (handlers: DynamicWithdrawalChangeHandlers) => (v: number) =>
+      handlers.onUpperThresholdReturnChange(v / 100),
   },
   {
     formId: 'dynamischObereAnpassung',
@@ -105,8 +105,8 @@ const SLIDER_BASE_CONFIGS = [
     description: 'Relative Erhöhung der Entnahme bei guter Performance',
     formatValue: formatSignedPercent,
     getValue: (values: DynamicWithdrawalConfigValues) => values.upperThresholdAdjustment * 100,
-    getOnChange: (handlers: DynamicWithdrawalChangeHandlers) =>
-      (v: number) => handlers.onUpperThresholdAdjustmentChange(v / 100),
+    getOnChange: (handlers: DynamicWithdrawalChangeHandlers) => (v: number) =>
+      handlers.onUpperThresholdAdjustmentChange(v / 100),
   },
   {
     formId: 'dynamischUntereSchwell',
@@ -118,8 +118,8 @@ const SLIDER_BASE_CONFIGS = [
     description: 'Rendite-Schwelle: Bei Unterschreitung wird die Entnahme reduziert',
     formatValue: formatPercent,
     getValue: (values: DynamicWithdrawalConfigValues) => values.lowerThresholdReturn * 100,
-    getOnChange: (handlers: DynamicWithdrawalChangeHandlers) =>
-      (v: number) => handlers.onLowerThresholdReturnChange(v / 100),
+    getOnChange: (handlers: DynamicWithdrawalChangeHandlers) => (v: number) =>
+      handlers.onLowerThresholdReturnChange(v / 100),
   },
   {
     formId: 'dynamischUntereAnpassung',
@@ -131,26 +131,20 @@ const SLIDER_BASE_CONFIGS = [
     description: 'Relative Reduzierung der Entnahme bei schlechter Performance',
     formatValue: formatSignedPercent,
     getValue: (values: DynamicWithdrawalConfigValues) => values.lowerThresholdAdjustment * 100,
-    getOnChange: (handlers: DynamicWithdrawalChangeHandlers) =>
-      (v: number) => handlers.onLowerThresholdAdjustmentChange(v / 100),
+    getOnChange: (handlers: DynamicWithdrawalChangeHandlers) => (v: number) =>
+      handlers.onLowerThresholdAdjustmentChange(v / 100),
   },
 ]
 
 // Get slider configurations
-function getSliderConfigs(
-  onChange: DynamicWithdrawalChangeHandlers | undefined,
-): SliderConfig[] {
-  return SLIDER_BASE_CONFIGS.map(config => ({
+function getSliderConfigs(onChange: DynamicWithdrawalChangeHandlers | undefined): SliderConfig[] {
+  return SLIDER_BASE_CONFIGS.map((config) => ({
     ...config,
     onChange: onChange ? config.getOnChange(onChange) : undefined,
   }))
 }
 
-export function DynamicWithdrawalConfiguration({
-  formValue,
-  values,
-  onChange,
-}: DynamicWithdrawalConfigurationProps) {
+export function DynamicWithdrawalConfiguration({ formValue, values, onChange }: DynamicWithdrawalConfigurationProps) {
   // Determine which mode we're in
   const isFormMode = formValue !== undefined
   const isDirectMode = values !== undefined && onChange !== undefined
@@ -165,7 +159,7 @@ export function DynamicWithdrawalConfiguration({
 
   return (
     <div className="space-y-6">
-      {sliderConfigs.map(config => (
+      {sliderConfigs.map((config) => (
         <ConfigurableSlider
           key={config.directId}
           id={isFormMode ? config.formId : config.directId}

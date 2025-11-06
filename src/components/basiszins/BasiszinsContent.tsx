@@ -48,11 +48,7 @@ export function BasiszinsContent({
       <InfoPanel />
 
       {/* API Actions */}
-      <ApiActionsSection
-        handleFetchFromApi={onFetchFromApi}
-        isLoading={isLoading}
-        lastApiUpdate={lastApiUpdate}
-      />
+      <ApiActionsSection handleFetchFromApi={onFetchFromApi} isLoading={isLoading} lastApiUpdate={lastApiUpdate} />
 
       {/* Error Display */}
       <ErrorDisplay error={error} />

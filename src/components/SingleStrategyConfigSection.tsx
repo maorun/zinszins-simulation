@@ -28,9 +28,7 @@ interface SingleStrategyConfigParams {
   dispatchEnd: (val: [number, number]) => void
 }
 
-function useWithdrawalReturnModeConfiguration(
-  params: SingleStrategyConfigParams,
-) {
+function useWithdrawalReturnModeConfiguration(params: SingleStrategyConfigParams) {
   const {
     withdrawalReturnMode,
     withdrawalAverageReturn,
@@ -60,23 +58,15 @@ function useWithdrawalReturnModeConfiguration(
     onWithdrawalAverageReturnChange: (value: number) => onConfigUpdate({ withdrawalAverageReturn: value }),
     onWithdrawalStandardDeviationChange: (value: number) => onConfigUpdate({ withdrawalStandardDeviation: value }),
     onWithdrawalRandomSeedChange: (value: number | undefined) => onConfigUpdate({ withdrawalRandomSeed: value }),
-    onWithdrawalVariableReturnsChange: (
-      returns: Record<number, number>,
-    ) => onConfigUpdate({ withdrawalVariableReturns: returns }),
+    onWithdrawalVariableReturnsChange: (returns: Record<number, number>) =>
+      onConfigUpdate({ withdrawalVariableReturns: returns }),
     onFormValueRenditeChange: (rendite: number) => onFormValueUpdate({ ...formValue, rendite }),
     onWithdrawalMultiAssetConfigChange,
   }
 }
 
 export function SingleStrategyConfigSection(params: SingleStrategyConfigParams) {
-  const {
-    formValue,
-    startOfIndependence,
-    globalEndOfLife,
-    onFormValueUpdate,
-    onStrategyChange,
-    dispatchEnd,
-  } = params
+  const { formValue, startOfIndependence, globalEndOfLife, onFormValueUpdate, onStrategyChange, dispatchEnd } = params
 
   const withdrawalReturnModeProps = useWithdrawalReturnModeConfiguration(params)
 
@@ -116,10 +106,7 @@ export function SingleStrategyConfigSection(params: SingleStrategyConfigParams) 
       />
 
       {/* Strategy-specific configurations */}
-      <StrategySpecificConfigs
-        formValue={formValue}
-        onFormValueUpdate={onFormValueUpdate}
-      />
+      <StrategySpecificConfigs formValue={formValue} onFormValueUpdate={onFormValueUpdate} />
     </div>
   )
 }
@@ -132,14 +119,11 @@ interface StrategySpecificConfigsProps {
 /**
  * Render configuration for variabel_prozent strategy
  */
-function VariablePercentConfig({
-  formValue,
-  onFormValueUpdate,
-}: StrategySpecificConfigsProps) {
+function VariablePercentConfig({ formValue, onFormValueUpdate }: StrategySpecificConfigsProps) {
   return (
     <VariablePercentWithdrawalConfiguration
       variabelProzent={formValue.variabelProzent}
-      onVariablePercentChange={percent => onFormValueUpdate({ variabelProzent: percent })}
+      onVariablePercentChange={(percent) => onFormValueUpdate({ variabelProzent: percent })}
     />
   )
 }
@@ -147,10 +131,7 @@ function VariablePercentConfig({
 /**
  * Render configuration for monatlich_fest strategy
  */
-function MonthlyFixedConfig({
-  formValue,
-  onFormValueUpdate,
-}: StrategySpecificConfigsProps) {
+function MonthlyFixedConfig({ formValue, onFormValueUpdate }: StrategySpecificConfigsProps) {
   return (
     <MonthlyFixedWithdrawalConfiguration
       monatlicheBetrag={formValue.monatlicheBetrag}
@@ -159,16 +140,13 @@ function MonthlyFixedConfig({
       onMonthlyAmountChange={(amount) => {
         if (amount) onFormValueUpdate({ ...formValue, monatlicheBetrag: amount })
       }}
-      onGuardrailsActiveChange={checked => onFormValueUpdate({ ...formValue, guardrailsAktiv: checked })}
-      onGuardrailsThresholdChange={threshold => onFormValueUpdate({ guardrailsSchwelle: threshold })}
+      onGuardrailsActiveChange={(checked) => onFormValueUpdate({ ...formValue, guardrailsAktiv: checked })}
+      onGuardrailsThresholdChange={(threshold) => onFormValueUpdate({ guardrailsSchwelle: threshold })}
     />
   )
 }
 
-function StrategySpecificConfigs({
-  formValue,
-  onFormValueUpdate,
-}: StrategySpecificConfigsProps) {
+function StrategySpecificConfigs({ formValue, onFormValueUpdate }: StrategySpecificConfigsProps) {
   const strategy = formValue.strategie
 
   switch (strategy) {
@@ -186,7 +164,7 @@ function StrategySpecificConfigs({
       return (
         <BucketStrategyConfigurationForm
           bucketConfig={formValue.bucketConfig}
-          onBucketConfigChange={config => onFormValueUpdate({ ...formValue, bucketConfig: config })}
+          onBucketConfigChange={(config) => onFormValueUpdate({ ...formValue, bucketConfig: config })}
         />
       )
     default:

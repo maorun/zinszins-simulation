@@ -35,7 +35,7 @@ export function ManualEntryForm({
           value={newYear}
           min={currentYear}
           max={2050}
-          onChange={e => setNewYear(e.target.value)}
+          onChange={(e) => setNewYear(e.target.value)}
         />
         <Input
           type="number"
@@ -44,7 +44,7 @@ export function ManualEntryForm({
           min={-2}
           max={10}
           step={0.01}
-          onChange={e => setNewRate(e.target.value)}
+          onChange={(e) => setNewRate(e.target.value)}
         />
         <Button onClick={handleAddManualEntry}>
           <Plus className="h-4 w-4 mr-2" />

@@ -387,14 +387,18 @@ describe('data-export', () => {
         download: '',
         click: vi.fn(),
       }
-      const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as unknown as Node)
-      const removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as unknown as Node)
+      const appendChildSpy = vi
+        .spyOn(document.body, 'appendChild')
+        .mockImplementation(() => mockLink as unknown as Node)
+      const removeChildSpy = vi
+        .spyOn(document.body, 'removeChild')
+        .mockImplementation(() => mockLink as unknown as Node)
       const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockLink as unknown as HTMLElement)
 
       // Mock Blob constructor to capture the content and options
       const originalBlob = global.Blob
       let blobContent: Array<string | ArrayBuffer | ArrayBufferView | Blob> | undefined
-      let blobOptions: { type?: string, endings?: 'transparent' | 'native' } | undefined
+      let blobOptions: { type?: string; endings?: 'transparent' | 'native' } | undefined
       global.Blob = vi.fn().mockImplementation((content, options) => {
         blobContent = content
         blobOptions = options
@@ -424,7 +428,7 @@ describe('data-export', () => {
       vi.spyOn(document, 'createElement').mockReturnValue(mockLink as unknown as HTMLElement)
 
       const originalBlob = global.Blob
-      let blobOptions: { type?: string, endings?: 'transparent' | 'native' } | undefined
+      let blobOptions: { type?: string; endings?: 'transparent' | 'native' } | undefined
       global.Blob = vi.fn().mockImplementation((content, options) => {
         blobOptions = options
         return new originalBlob(content, options)

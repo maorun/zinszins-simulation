@@ -44,10 +44,7 @@ function TaxDetailRow({
       <span className={`font-semibold text-sm flex items-center ${className}`}>
         {value}
         {onInfoClick && (
-          <Info
-            className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800"
-            onClick={onInfoClick}
-          />
+          <Info className="h-4 w-4 ml-2 cursor-pointer text-blue-600 hover:text-blue-800" onClick={onInfoClick} />
         )}
       </span>
     </div>
@@ -57,7 +54,9 @@ function TaxDetailRow({
 function GuenstigerpruefungInfo({
   guenstigerPruefungResultRealizedGains,
 }: {
-  guenstigerPruefungResultRealizedGains: NonNullable<TaxSectionProps['rowData']['guenstigerPruefungResultRealizedGains']>
+  guenstigerPruefungResultRealizedGains: NonNullable<
+    TaxSectionProps['rowData']['guenstigerPruefungResultRealizedGains']
+  >
 }) {
   return (
     <div className="bg-blue-50 px-2 py-1 rounded space-y-1">

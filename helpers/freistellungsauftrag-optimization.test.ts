@@ -25,15 +25,15 @@ describe('Freistellungsauftrag Optimization', () => {
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
 
       // Bank A has highest gains (2000), should get priority
-      const bankA = result.accounts.find(acc => acc.id === '1')
+      const bankA = result.accounts.find((acc) => acc.id === '1')
       expect(bankA?.assignedFreibetrag).toBe(1000)
 
       // Bank C has second highest gains (1500), but Freibetrag is exhausted
-      const bankC = result.accounts.find(acc => acc.id === '3')
+      const bankC = result.accounts.find((acc) => acc.id === '3')
       expect(bankC?.assignedFreibetrag).toBe(0)
 
       // Bank B has lowest gains (500), should get nothing
-      const bankB = result.accounts.find(acc => acc.id === '2')
+      const bankB = result.accounts.find((acc) => acc.id === '2')
       expect(bankB?.assignedFreibetrag).toBe(0)
 
       expect(result.totalAssignedFreibetrag).toBe(1000)
@@ -52,10 +52,10 @@ describe('Freistellungsauftrag Optimization', () => {
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
 
       // After Teilfreistellung (30%), taxable gains: Bank A = 700€, Bank B = 350€
-      const bankA = result.accounts.find(acc => acc.id === '1')
+      const bankA = result.accounts.find((acc) => acc.id === '1')
       expect(bankA?.assignedFreibetrag).toBe(700) // 1000 * 0.7
 
-      const bankB = result.accounts.find(acc => acc.id === '2')
+      const bankB = result.accounts.find((acc) => acc.id === '2')
       expect(bankB?.assignedFreibetrag).toBe(350) // 500 * 0.7
 
       expect(result.totalAssignedFreibetrag).toBe(1050)
@@ -66,25 +66,21 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should account for Teilfreistellungsquote correctly', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 1000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: 0 }],
       }
 
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
 
       // 2000€ capital gains * (1 - 0.3) = 1400€ taxable
       // Should assign min(1400, 1000) = 1000€
-      const bankA = result.accounts.find(acc => acc.id === '1')
+      const bankA = result.accounts.find((acc) => acc.id === '1')
       expect(bankA?.assignedFreibetrag).toBe(1000)
     })
 
     it('should calculate tax savings correctly', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 1000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: 0 }],
       }
 
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
@@ -97,15 +93,13 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should provide recommendations for unused Freibetrag', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 2000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 500, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 500, assignedFreibetrag: 0 }],
       }
 
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
 
       expect(result.remainingFreibetrag).toBeGreaterThan(0)
-      expect(result.recommendations.some(r => r.includes('Freibetrag nicht genutzt'))).toBe(true)
+      expect(result.recommendations.some((r) => r.includes('Freibetrag nicht genutzt'))).toBe(true)
     })
 
     it('should handle multiple accounts with equal distribution needs', () => {
@@ -127,14 +121,12 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should handle zero capital gains gracefully', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 1000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 0, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 0, assignedFreibetrag: 0 }],
       }
 
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
 
-      const bankA = result.accounts.find(acc => acc.id === '1')
+      const bankA = result.accounts.find((acc) => acc.id === '1')
       expect(bankA?.assignedFreibetrag).toBe(0)
       expect(result.remainingFreibetrag).toBe(1000)
     })
@@ -142,9 +134,7 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should mark distribution as optimal when fully utilized', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 1000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 5000, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 5000, assignedFreibetrag: 0 }],
       }
 
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
@@ -171,9 +161,7 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should reject negative total Freibetrag', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: -100,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: 0 }],
       }
 
       const errors = validateFreistellungsauftragConfig(config)
@@ -183,9 +171,7 @@ describe('Freistellungsauftrag Optimization', () => {
     it('should reject Freibetrag exceeding legal limit', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 2500, // More than couple limit of 2000€
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 5000, assignedFreibetrag: 2500 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 5000, assignedFreibetrag: 2500 }],
       }
 
       const errors = validateFreistellungsauftragConfig(config)
@@ -212,31 +198,27 @@ describe('Freistellungsauftrag Optimization', () => {
       }
 
       const errors = validateFreistellungsauftragConfig(config)
-      expect(errors.some(e => e.includes('überschreitet Gesamt-Freibetrag'))).toBe(true)
+      expect(errors.some((e) => e.includes('überschreitet Gesamt-Freibetrag'))).toBe(true)
     })
 
     it('should reject negative expected capital gains', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 1000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: -500, assignedFreibetrag: 0 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: -500, assignedFreibetrag: 0 }],
       }
 
       const errors = validateFreistellungsauftragConfig(config)
-      expect(errors.some(e => e.includes('Erwartete Kapitalerträge müssen positiv sein'))).toBe(true)
+      expect(errors.some((e) => e.includes('Erwartete Kapitalerträge müssen positiv sein'))).toBe(true)
     })
 
     it('should reject negative assigned Freibetrag', () => {
       const config: FreistellungsauftragConfig = {
         totalFreibetrag: 1000,
-        accounts: [
-          { id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: -100 },
-        ],
+        accounts: [{ id: '1', name: 'Bank A', expectedCapitalGains: 2000, assignedFreibetrag: -100 }],
       }
 
       const errors = validateFreistellungsauftragConfig(config)
-      expect(errors.some(e => e.includes('Zugewiesener Freibetrag muss positiv sein'))).toBe(true)
+      expect(errors.some((e) => e.includes('Zugewiesener Freibetrag muss positiv sein'))).toBe(true)
     })
 
     it('should detect duplicate account IDs', () => {
@@ -287,9 +269,7 @@ describe('Freistellungsauftrag Optimization', () => {
     })
 
     it('should handle zero capital gains', () => {
-      const accounts: BankAccount[] = [
-        { id: '1', name: 'Bank A', expectedCapitalGains: 0, assignedFreibetrag: 0 },
-      ]
+      const accounts: BankAccount[] = [{ id: '1', name: 'Bank A', expectedCapitalGains: 0, assignedFreibetrag: 0 }]
 
       const rates = calculateEffectiveTaxRates(accounts, defaultSteuerlast, defaultTeilfreistellung)
 
@@ -298,9 +278,7 @@ describe('Freistellungsauftrag Optimization', () => {
     })
 
     it('should handle full Freibetrag coverage', () => {
-      const accounts: BankAccount[] = [
-        { id: '1', name: 'Bank A', expectedCapitalGains: 1000, assignedFreibetrag: 700 },
-      ]
+      const accounts: BankAccount[] = [{ id: '1', name: 'Bank A', expectedCapitalGains: 1000, assignedFreibetrag: 700 }]
 
       const rates = calculateEffectiveTaxRates(accounts, defaultSteuerlast, defaultTeilfreistellung)
 
@@ -326,14 +304,14 @@ describe('Freistellungsauftrag Optimization', () => {
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
 
       // DKB has highest gains, should get all Freibetrag
-      const dkb = result.accounts.find(acc => acc.name === 'Hausbk DKB')
+      const dkb = result.accounts.find((acc) => acc.name === 'Hausbk DKB')
       expect(dkb?.assignedFreibetrag).toBe(1000)
 
       // Other accounts should get nothing
-      const tr = result.accounts.find(acc => acc.name === 'Trade Republic')
+      const tr = result.accounts.find((acc) => acc.name === 'Trade Republic')
       expect(tr?.assignedFreibetrag).toBe(0)
 
-      const ing = result.accounts.find(acc => acc.name === 'ING')
+      const ing = result.accounts.find((acc) => acc.name === 'ING')
       expect(ing?.assignedFreibetrag).toBe(0)
 
       expect(result.totalTaxSaved).toBeCloseTo(263.75, 2) // 1000 * 0.26375
@@ -352,7 +330,7 @@ describe('Freistellungsauftrag Optimization', () => {
       const result = optimizeFreistellungsauftrag(config, defaultSteuerlast, defaultTeilfreistellung)
 
       // Gemeinsames Depot has highest gains, should get all 2000€
-      const joint = result.accounts.find(acc => acc.name === 'Gemeinsames Depot')
+      const joint = result.accounts.find((acc) => acc.name === 'Gemeinsames Depot')
       expect(joint?.assignedFreibetrag).toBe(2000)
 
       expect(result.totalAssignedFreibetrag).toBe(2000)
@@ -373,7 +351,7 @@ describe('Freistellungsauftrag Optimization', () => {
       // Total taxable gains: (500 + 300) * 0.7 = 560€
       expect(result.totalAssignedFreibetrag).toBe(560)
       expect(result.remainingFreibetrag).toBe(1440)
-      expect(result.recommendations.some(r => r.includes('1440.00 € Freibetrag nicht genutzt'))).toBe(true)
+      expect(result.recommendations.some((r) => r.includes('1440.00 € Freibetrag nicht genutzt'))).toBe(true)
     })
   })
 })

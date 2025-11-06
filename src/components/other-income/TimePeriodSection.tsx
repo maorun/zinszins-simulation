@@ -8,11 +8,7 @@ interface TimePeriodSectionProps {
   onUpdate: (source: OtherIncomeSource) => void
 }
 
-export function TimePeriodSection({
-  editingSource,
-  currentYear,
-  onUpdate,
-}: TimePeriodSectionProps) {
+export function TimePeriodSection({ editingSource, currentYear, onUpdate }: TimePeriodSectionProps) {
   const handleStartYearChange = (value: string) => {
     onUpdate({
       ...editingSource,
@@ -35,7 +31,7 @@ export function TimePeriodSection({
           id="start-year"
           type="number"
           value={editingSource.startYear}
-          onChange={e => handleStartYearChange(e.target.value)}
+          onChange={(e) => handleStartYearChange(e.target.value)}
           min={2020}
           max={2080}
         />
@@ -46,7 +42,7 @@ export function TimePeriodSection({
           id="end-year"
           type="number"
           value={editingSource.endYear || ''}
-          onChange={e => handleEndYearChange(e.target.value)}
+          onChange={(e) => handleEndYearChange(e.target.value)}
           min={editingSource.startYear}
           max={2080}
           placeholder="Unbegrenzt"

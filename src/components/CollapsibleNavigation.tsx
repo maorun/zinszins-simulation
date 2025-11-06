@@ -17,11 +17,7 @@ function NavigationTriggerHeader({ itemsCount }: { itemsCount: number }) {
         🧭 Navigation
       </CardTitle>
       <div className="flex items-center gap-2">
-        <span className="text-sm text-blue-600 hidden sm:inline">
-          {itemsCount}
-          {' '}
-          Bereiche
-        </span>
+        <span className="text-sm text-blue-600 hidden sm:inline">{itemsCount} Bereiche</span>
         <ChevronDown className="h-5 w-5 text-blue-600 transition-transform duration-200 group-data-[state=open]:rotate-180" />
       </div>
     </div>
@@ -35,7 +31,7 @@ function NavigationItemButton({
   item,
   onClick,
 }: {
-  item: { id: string, title: string, icon?: string, level: number }
+  item: { id: string; title: string; icon?: string; level: number }
   onClick: (id: string) => void
 }) {
   return (
@@ -93,12 +89,8 @@ export function CollapsibleNavigation() {
                 Klicke auf einen Bereich, um dorthin zu springen und ihn aufzuklappen:
               </p>
               <div className="grid gap-2 max-h-96 overflow-y-auto">
-                {navigationItems.map(item => (
-                  <NavigationItemButton
-                    key={item.id}
-                    item={item}
-                    onClick={handleItemClick}
-                  />
+                {navigationItems.map((item) => (
+                  <NavigationItemButton key={item.id} item={item} onClick={handleItemClick} />
                 ))}
               </div>
             </div>

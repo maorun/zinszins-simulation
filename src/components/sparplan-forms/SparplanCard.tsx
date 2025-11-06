@@ -131,20 +131,17 @@ export function SparplanCard(props: SparplanCardProps) {
 /**
  * Badge showing sparplan type and start date
  */
-function SparplanTypeBadge({ sparplan, isOneTimePayment }: { sparplan: Sparplan, isOneTimePayment: boolean }) {
+function SparplanTypeBadge({ sparplan, isOneTimePayment }: { sparplan: Sparplan; isOneTimePayment: boolean }) {
   return (
-    <span className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
-      isOneTimePayment
-        ? 'bg-orange-100 text-orange-800 border border-orange-200'
-        : 'bg-blue-100 text-blue-800 border border-blue-200'
-    }`}
+    <span
+      className={`inline-flex items-center gap-2 px-3 py-1 rounded-full text-sm font-medium ${
+        isOneTimePayment
+          ? 'bg-orange-100 text-orange-800 border border-orange-200'
+          : 'bg-blue-100 text-blue-800 border border-blue-200'
+      }`}
     >
       {isOneTimePayment ? '💰 Einmalzahlung' : '📈 Sparplan'}
-      <span className="text-xs opacity-75">
-        📅
-        {' '}
-        {new Date(sparplan.start).toLocaleDateString('de-DE')}
-      </span>
+      <span className="text-xs opacity-75">📅 {new Date(sparplan.start).toLocaleDateString('de-DE')}</span>
     </span>
   )
 }
@@ -231,9 +228,10 @@ function SparplanCardDetails({
   simulationAnnual: SimulationAnnualType
   isOneTimePayment: boolean
 }) {
-  const displayValue = simulationAnnual === SimulationAnnual.monthly && !isOneTimePayment
-    ? (sparplan.einzahlung / 12).toFixed(2)
-    : sparplan.einzahlung.toFixed(2)
+  const displayValue =
+    simulationAnnual === SimulationAnnual.monthly && !isOneTimePayment
+      ? (sparplan.einzahlung / 12).toFixed(2)
+      : sparplan.einzahlung.toFixed(2)
   const formattedAmount = Number(displayValue).toLocaleString('de-DE', { minimumFractionDigits: 2 }) + ' €'
 
   return (
@@ -256,11 +254,11 @@ function SparplanCardDetails({
         <span className="text-sm font-medium text-gray-600">
           {isOneTimePayment
             ? '💵 Betrag:'
-            : (simulationAnnual === SimulationAnnual.yearly ? '💰 Jährlich:' : '💰 Monatlich:')}
+            : simulationAnnual === SimulationAnnual.yearly
+              ? '💰 Jährlich:'
+              : '💰 Monatlich:'}
         </span>
-        <span className="text-sm font-bold text-cyan-600">
-          {formattedAmount}
-        </span>
+        <span className="text-sm font-bold text-cyan-600">{formattedAmount}</span>
       </div>
     </div>
   )
@@ -290,7 +288,11 @@ function SinglePaymentDateField({
       <Input
         type="date"
         value={formatDateForInput(singleFormValue.date, 'yyyy-MM-dd')}
-        onChange={e => handleDateChange(e, 'yyyy-MM-dd', date => onSingleFormChange({ ...singleFormValue, date: date || new Date() }))}
+        onChange={(e) =>
+          handleDateChange(e, 'yyyy-MM-dd', (date) =>
+            onSingleFormChange({ ...singleFormValue, date: date || new Date() }),
+          )
+        }
         className="mt-1"
       />
     </div>
@@ -322,7 +324,11 @@ function SparplanDateFields({
         <Input
           type="month"
           value={formatDateForInput(sparplanFormValues.start, 'yyyy-MM')}
-          onChange={e => handleDateChange(e, 'yyyy-MM', date => onSparplanFormChange({ ...sparplanFormValues, start: date || new Date() }))}
+          onChange={(e) =>
+            handleDateChange(e, 'yyyy-MM', (date) =>
+              onSparplanFormChange({ ...sparplanFormValues, start: date || new Date() }),
+            )
+          }
           className="mt-1"
         />
       </div>
@@ -331,7 +337,9 @@ function SparplanDateFields({
         <Input
           type="month"
           value={formatDateForInput(sparplanFormValues.end, 'yyyy-MM')}
-          onChange={e => handleDateChange(e, 'yyyy-MM', date => onSparplanFormChange({ ...sparplanFormValues, end: date }))}
+          onChange={(e) =>
+            handleDateChange(e, 'yyyy-MM', (date) => onSparplanFormChange({ ...sparplanFormValues, end: date }))
+          }
           className="mt-1"
         />
       </div>
@@ -371,8 +379,7 @@ function AmountField({
           const value = e.target.value
           if (isOneTimePayment) {
             onSingleFormChange({ ...singleFormValue, einzahlung: value })
-          }
-          else {
+          } else {
             onSparplanFormChange({ ...sparplanFormValues, einzahlung: value })
           }
         }}
@@ -387,28 +394,13 @@ function AmountField({
 /**
  * Action buttons for edit form
  */
-function EditFormActionButtons({
-  onSaveEdit,
-  onCancelEdit,
-}: {
-  onSaveEdit: () => void
-  onCancelEdit: () => void
-}) {
+function EditFormActionButtons({ onSaveEdit, onCancelEdit }: { onSaveEdit: () => void; onCancelEdit: () => void }) {
   return (
     <div className="flex gap-2 pt-2">
-      <Button
-        onClick={onSaveEdit}
-        size="sm"
-        className="flex-1"
-      >
+      <Button onClick={onSaveEdit} size="sm" className="flex-1">
         ✅ Speichern
       </Button>
-      <Button
-        onClick={onCancelEdit}
-        variant="outline"
-        size="sm"
-        className="flex-1"
-      >
+      <Button onClick={onCancelEdit} variant="outline" size="sm" className="flex-1">
         ❌ Abbrechen
       </Button>
     </div>
@@ -496,10 +488,7 @@ function SparplanCardEditForm(props: EditFormProps) {
         onSparplanFormChange={props.onSparplanFormChange}
         onSingleFormChange={props.onSingleFormChange}
       />
-      <EditFormActionButtons
-        onSaveEdit={props.onSaveEdit}
-        onCancelEdit={props.onCancelEdit}
-      />
+      <EditFormActionButtons onSaveEdit={props.onSaveEdit} onCancelEdit={props.onCancelEdit} />
     </div>
   )
 }

@@ -45,9 +45,7 @@ describe('FIFO Cost Basis Tax Calculation (Issue #268)', () => {
     // - Original investment: 10,000€
     // - Current value: 15,000€
     // - Accumulated Vorabpauschale: 500€ (already taxed in previous years)
-    const mockElements: SparplanElement[] = [
-      createMockElement(2023, 10000, 15000, 500, lastSimYear),
-    ]
+    const mockElements: SparplanElement[] = [createMockElement(2023, 10000, 15000, 500, lastSimYear)]
 
     // Withdraw 5,000€ (partial withdrawal)
     const withdrawalAmount = 5000
@@ -105,9 +103,7 @@ describe('FIFO Cost Basis Tax Calculation (Issue #268)', () => {
     // - Invested 20,000€ over time
     // - Current value: 30,000€ (50% gain)
     // - Accumulated Vorabpauschale: 800€ (already taxed)
-    const mockElements: SparplanElement[] = [
-      createMockElement(2023, 20000, 30000, 800, lastSimYear),
-    ]
+    const mockElements: SparplanElement[] = [createMockElement(2023, 20000, 30000, 800, lastSimYear)]
 
     // Withdraw 10,000€ (1/3 of total value)
     const withdrawalAmount = 10000

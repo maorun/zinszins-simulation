@@ -14,7 +14,7 @@ export function NameInputSection({ editingSource, onUpdate }: NameInputSectionPr
       <Input
         id="source-name"
         value={editingSource.name}
-        onChange={e => onUpdate({ ...editingSource, name: e.target.value })}
+        onChange={(e) => onUpdate({ ...editingSource, name: e.target.value })}
         placeholder="z.B. Mieteinnahmen Wohnung 1"
       />
     </div>

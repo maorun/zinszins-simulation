@@ -38,7 +38,12 @@ function FormHeader() {
   )
 }
 
-function FormButtons({ isEditMode, showCancelButton, onCancel, disabled }: {
+function FormButtons({
+  isEditMode,
+  showCancelButton,
+  onCancel,
+  disabled,
+}: {
   isEditMode: boolean
   showCancelButton: boolean
   onCancel?: () => void
@@ -90,7 +95,7 @@ function SinglePaymentForm({
       />
       <CostFactorFields
         values={formValues}
-        onValueChange={values => onFormChange({ ...formValues, ...values })}
+        onValueChange={(values) => onFormChange({ ...formValues, ...values })}
         handleNumberChange={handleNumberChange}
       />
       <FormButtons
@@ -103,11 +108,7 @@ function SinglePaymentForm({
   )
 }
 
-export function SinglePaymentFormCard({
-  isOpen,
-  onOpenChange,
-  ...formProps
-}: SinglePaymentFormCardProps) {
+export function SinglePaymentFormCard({ isOpen, onOpenChange, ...formProps }: SinglePaymentFormCardProps) {
   return (
     <Card className="mb-6">
       <Collapsible open={isOpen} onOpenChange={onOpenChange}>

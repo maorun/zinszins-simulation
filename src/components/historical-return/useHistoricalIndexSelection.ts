@@ -5,11 +5,7 @@ import { useSimulation } from '../../contexts/useSimulation'
  * Custom hook for managing historical index selection state and actions
  */
 export const useHistoricalIndexSelection = () => {
-  const {
-    historicalIndex,
-    setHistoricalIndex,
-    performSimulation,
-  } = useSimulation()
+  const { historicalIndex, setHistoricalIndex, performSimulation } = useSimulation()
 
   const [selectedIndexId, setSelectedIndexId] = useState(historicalIndex || 'dax')
 

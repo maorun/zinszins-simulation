@@ -14,12 +14,7 @@ import {
   createEndkapitalExplanation,
   createHealthCareInsuranceExplanation,
 } from '../components/calculationHelpers'
-import type {
-  CalculationExplanation,
-  WithdrawalSegment,
-  RowData,
-  HandlerContext,
-} from './useWithdrawalModals.types'
+import type { CalculationExplanation, WithdrawalSegment, RowData, HandlerContext } from './useWithdrawalModals.types'
 
 /**
  * Find the applicable segment for a given year
@@ -33,18 +28,13 @@ export function findApplicableSegment(
     return null
   }
 
-  return withdrawalSegments.find(segment =>
-    year >= segment.startYear && year <= segment.endYear,
-  ) || null
+  return withdrawalSegments.find((segment) => year >= segment.startYear && year <= segment.endYear) || null
 }
 
 /**
  * Get inflation rate from segment or form value
  */
-function getInflationRate(
-  applicableSegment: WithdrawalSegment | null,
-  formValue: HandlerContext['formValue'],
-): number {
+function getInflationRate(applicableSegment: WithdrawalSegment | null, formValue: HandlerContext['formValue']): number {
   if (applicableSegment?.inflationConfig?.inflationRate) {
     return applicableSegment.inflationConfig.inflationRate
   }
@@ -72,12 +62,7 @@ export function handleInflationExplanation(params: {
   const baseAmount = (context.withdrawalData?.startingCapital || 0) * 0.04
   const inflationRate = getInflationRate(applicableSegment, context.formValue)
 
-  return createInflationExplanation(
-    baseAmount,
-    inflationRate,
-    yearsPassed,
-    rowData.inflationAnpassung,
-  )
+  return createInflationExplanation(baseAmount, inflationRate, yearsPassed, rowData.inflationAnpassung)
 }
 
 /**
@@ -94,16 +79,12 @@ export function handleInterestExplanation(params: {
     return null
   }
 
-  const returnRate = applicableSegment?.returnConfig?.mode === 'fixed'
-    ? (applicableSegment.returnConfig.fixedRate || 0) * 100
-    : context.formValue.rendite || 5
+  const returnRate =
+    applicableSegment?.returnConfig?.mode === 'fixed'
+      ? (applicableSegment.returnConfig.fixedRate || 0) * 100
+      : context.formValue.rendite || 5
 
-  return createWithdrawalInterestExplanation(
-    rowData.startkapital || 0,
-    rowData.zinsen,
-    returnRate,
-    rowData.year,
-  )
+  return createWithdrawalInterestExplanation(rowData.startkapital || 0, rowData.zinsen, returnRate, rowData.year)
 }
 
 /**
@@ -119,8 +100,7 @@ export function handleTaxExplanation(params: {
     return null
   }
 
-  const estimatedVorabpauschale = rowData.bezahlteSteuer
-    / (context.steuerlast * (1 - context.teilfreistellungsquote))
+  const estimatedVorabpauschale = rowData.bezahlteSteuer / (context.steuerlast * (1 - context.teilfreistellungsquote))
 
   return createTaxExplanation(
     rowData.bezahlteSteuer,
@@ -146,9 +126,7 @@ export function handleIncomeTaxExplanation(params: {
     return null
   }
 
-  const grundfreibetragAmount = context.grundfreibetragAktiv
-    ? context.grundfreibetragBetrag
-    : 0
+  const grundfreibetragAmount = context.grundfreibetragAktiv ? context.grundfreibetragBetrag : 0
 
   const incomeTaxRate = applicableSegment?.incomeTaxRate
     ? applicableSegment.incomeTaxRate * 100
@@ -166,10 +144,7 @@ export function handleIncomeTaxExplanation(params: {
 /**
  * Get Grundfreibetrag amount
  */
-function getGrundfreibetragAmount(
-  grundfreibetragAktiv: boolean,
-  grundfreibetragBetrag: number,
-): number {
+function getGrundfreibetragAmount(grundfreibetragAktiv: boolean, grundfreibetragBetrag: number): number {
   return grundfreibetragAktiv ? grundfreibetragBetrag : 0
 }
 
@@ -180,10 +155,7 @@ function calculateOtherIncomeGross(rowData: RowData): number {
   if (!rowData.otherIncome?.sources) {
     return 0
   }
-  return rowData.otherIncome.sources.reduce(
-    (sum: number, source) => sum + (source.grossAnnualAmount || 0),
-    0,
-  )
+  return rowData.otherIncome.sources.reduce((sum: number, source) => sum + (source.grossAnnualAmount || 0), 0)
 }
 
 /**
@@ -195,10 +167,7 @@ export function handleTaxableIncomeExplanation(params: {
 }): CalculationExplanation {
   const { rowData, context } = params
 
-  const grundfreibetragAmount = getGrundfreibetragAmount(
-    context.grundfreibetragAktiv,
-    context.grundfreibetragBetrag,
-  )
+  const grundfreibetragAmount = getGrundfreibetragAmount(context.grundfreibetragAktiv, context.grundfreibetragBetrag)
 
   const statutoryPensionTaxableAmount = rowData.statutoryPension?.taxableAmount || 0
   const otherIncomeGrossAmount = calculateOtherIncomeGross(rowData)
@@ -216,9 +185,7 @@ export function handleTaxableIncomeExplanation(params: {
 /**
  * Handle other income explanation
  */
-export function handleOtherIncomeExplanation(params: {
-  rowData: RowData
-}): CalculationExplanation | null {
+export function handleOtherIncomeExplanation(params: { rowData: RowData }): CalculationExplanation | null {
   const { rowData } = params
 
   if (!rowData.otherIncome) {
@@ -236,9 +203,7 @@ export function handleOtherIncomeExplanation(params: {
 /**
  * Handle statutory pension explanation
  */
-export function handleStatutoryPensionExplanation(params: {
-  rowData: RowData
-}): CalculationExplanation | null {
+export function handleStatutoryPensionExplanation(params: { rowData: RowData }): CalculationExplanation | null {
   const { rowData } = params
 
   if (!rowData.statutoryPension) {
@@ -257,9 +222,7 @@ export function handleStatutoryPensionExplanation(params: {
 /**
  * Handle endkapital explanation
  */
-export function handleEndkapitalExplanation(params: {
-  rowData: RowData
-}): CalculationExplanation {
+export function handleEndkapitalExplanation(params: { rowData: RowData }): CalculationExplanation {
   const { rowData } = params
 
   const zinsen = rowData.zinsen || 0
@@ -280,9 +243,7 @@ export function handleEndkapitalExplanation(params: {
 /**
  * Handle health care insurance explanation
  */
-export function handleHealthCareInsuranceExplanation(params: {
-  rowData: RowData
-}): CalculationExplanation | null {
+export function handleHealthCareInsuranceExplanation(params: { rowData: RowData }): CalculationExplanation | null {
   const { rowData } = params
 
   if (!rowData.healthCareInsurance) {

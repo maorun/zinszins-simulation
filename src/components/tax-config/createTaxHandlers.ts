@@ -10,10 +10,12 @@ export function createTaxHandlers(
   setSteuerReduzierenEntspharphase: (value: boolean) => void,
   setFreibetragPerYear: (values: Record<number, number>) => void,
 ) {
-  const makeHandler = <T>(setter: (value: T) => void) => (value: T) => {
-    setter(value)
-    performSimulation()
-  }
+  const makeHandler =
+    <T>(setter: (value: T) => void) =>
+    (value: T) => {
+      setter(value)
+      performSimulation()
+    }
 
   return {
     handleSteuerlastChange: makeHandler(setSteuerlast),

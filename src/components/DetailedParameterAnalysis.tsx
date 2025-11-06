@@ -1,8 +1,5 @@
 import React from 'react'
-import {
-  SENSITIVITY_PARAMETERS,
-  type SensitivityResult,
-} from '../utils/sensitivity-analysis'
+import { SENSITIVITY_PARAMETERS, type SensitivityResult } from '../utils/sensitivity-analysis'
 import SummaryStats from './SummaryStats'
 import SensitivityChart from './SensitivityChart'
 
@@ -18,12 +15,9 @@ interface DetailedParameterAnalysisProps {
 }
 
 // Format chart data for a specific parameter
-const getChartData = (
-  paramName: string,
-  results: SensitivityResult[],
-) => {
+const getChartData = (paramName: string, results: SensitivityResult[]) => {
   const parameter = SENSITIVITY_PARAMETERS[paramName]
-  return results.map(result => ({
+  return results.map((result) => ({
     name: parameter.formatValue(result.parameterValue),
     Endkapital: result.finalCapital,
     Einzahlungen: result.totalContributions,
@@ -38,8 +32,7 @@ const getInterpretationText = (parameterName: string): string => {
       'Die Rendite hat einen starken Einfluss auf Ihr Endkapital. Kleine Änderungen in der durchschnittlichen Rendite können über lange Zeiträume zu großen Unterschieden führen.',
     savingsAmount:
       'Ihre regelmäßigen Einzahlungen sind entscheidend für den Vermögensaufbau. Höhere Sparraten führen linear zu mehr Endkapital.',
-    taxRate:
-      'Die Steuerlast reduziert Ihre Rendite. Steueroptimierung kann einen bedeutenden Unterschied machen.',
+    taxRate: 'Die Steuerlast reduziert Ihre Rendite. Steueroptimierung kann einen bedeutenden Unterschied machen.',
     inflationRate:
       'Inflation reduziert die reale Kaufkraft Ihres Kapitals. Ihre Rendite sollte über der Inflationsrate liegen, um reale Gewinne zu erzielen.',
     investmentPeriod:
@@ -49,10 +42,7 @@ const getInterpretationText = (parameterName: string): string => {
   return interpretations[parameterName] || ''
 }
 
-const DetailedParameterAnalysis: React.FC<DetailedParameterAnalysisProps> = ({
-  ranking,
-  results,
-}) => {
+const DetailedParameterAnalysis: React.FC<DetailedParameterAnalysisProps> = ({ ranking, results }) => {
   const parameter = SENSITIVITY_PARAMETERS[ranking.parameter]
   const chartData = getChartData(ranking.parameter, results)
 
@@ -62,11 +52,7 @@ const DetailedParameterAnalysis: React.FC<DetailedParameterAnalysisProps> = ({
 
   return (
     <div className="space-y-3">
-      <h3 className="text-lg font-semibold text-gray-800">
-        📈
-        {' '}
-        {parameter.displayName}
-      </h3>
+      <h3 className="text-lg font-semibold text-gray-800">📈 {parameter.displayName}</h3>
 
       {/* Summary Stats */}
       <SummaryStats
@@ -82,9 +68,7 @@ const DetailedParameterAnalysis: React.FC<DetailedParameterAnalysisProps> = ({
 
       {/* Interpretation */}
       <div className="bg-gray-50 p-3 rounded-lg text-sm text-gray-700">
-        <strong>💡 Interpretation:</strong>
-        {' '}
-        {getInterpretationText(ranking.parameter)}
+        <strong>💡 Interpretation:</strong> {getInterpretationText(ranking.parameter)}
       </div>
     </div>
   )

@@ -125,7 +125,7 @@ describe('profile-storage', () => {
       expect(success).toBe(true)
 
       const profiles = getAllProfiles()
-      const updated = profiles.find(p => p.id === newProfile.id)
+      const updated = profiles.find((p) => p.id === newProfile.id)
       expect(updated?.name).toBe('Updated Profile')
       expect(updated?.description).toBe('Updated description')
       expect(updated?.configuration.rendite).toBe(7)
@@ -145,7 +145,7 @@ describe('profile-storage', () => {
       expect(getProfileCount()).toBe(initialCount - 1)
 
       const profiles = getAllProfiles()
-      expect(profiles.find(p => p.id === newProfile.id)).toBeUndefined()
+      expect(profiles.find((p) => p.id === newProfile.id)).toBeUndefined()
     })
 
     it('should not delete the last remaining profile', () => {

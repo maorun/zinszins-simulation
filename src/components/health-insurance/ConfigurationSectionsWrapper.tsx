@@ -35,10 +35,7 @@ interface ConfigurationSectionsWrapperProps {
   planningMode: 'individual' | 'couple'
 }
 
-function extractStatutoryProps(
-  values: HealthCareInsuranceFormValues,
-  onChange: HealthCareInsuranceChangeHandlers,
-) {
+function extractStatutoryProps(values: HealthCareInsuranceFormValues, onChange: HealthCareInsuranceChangeHandlers) {
   return {
     includeEmployerContribution: values.includeEmployerContribution,
     statutoryHealthInsuranceRate: values.statutoryHealthInsuranceRate,
@@ -51,10 +48,7 @@ function extractStatutoryProps(
   }
 }
 
-function extractPrivateProps(
-  values: HealthCareInsuranceFormValues,
-  onChange: HealthCareInsuranceChangeHandlers,
-) {
+function extractPrivateProps(values: HealthCareInsuranceFormValues, onChange: HealthCareInsuranceChangeHandlers) {
   return {
     privateHealthInsuranceMonthly: values.privateHealthInsuranceMonthly,
     privateCareInsuranceMonthly: values.privateCareInsuranceMonthly,
@@ -65,10 +59,7 @@ function extractPrivateProps(
   }
 }
 
-function extractCoupleProps(
-  values: HealthCareInsuranceFormValues,
-  onChange: HealthCareInsuranceChangeHandlers,
-) {
+function extractCoupleProps(values: HealthCareInsuranceFormValues, onChange: HealthCareInsuranceChangeHandlers) {
   return {
     coupleStrategy: values.coupleStrategy,
     familyInsuranceThresholdRegular: values.familyInsuranceThresholdRegular,
@@ -99,11 +90,7 @@ function extractCoupleProps(
  * Wrapper component that maps values and handlers to ConfigurationSections.
  * This component exists solely for prop mapping to comply with max-lines-per-function.
  */
-export function ConfigurationSectionsWrapper({
-  values,
-  onChange,
-  planningMode,
-}: ConfigurationSectionsWrapperProps) {
+export function ConfigurationSectionsWrapper({ values, onChange, planningMode }: ConfigurationSectionsWrapperProps) {
   const commonProps = {
     planningMode,
     insuranceType: values.insuranceType,

@@ -202,7 +202,7 @@ export function calculateJointLifeExpectancy(
   // Actuarial joint life expectancy approximation
   // This gives the expected remaining years until both people have died
   // For retirement planning, we want the expectation of the maximum (last survivor)
-  const jointLifeExpectancy = Math.max(lifeExp1, lifeExp2) + (Math.min(lifeExp1, lifeExp2) * 0.3)
+  const jointLifeExpectancy = Math.max(lifeExp1, lifeExp2) + Math.min(lifeExp1, lifeExp2) * 0.3
 
   return Math.round(jointLifeExpectancy * 10) / 10 // Round to 1 decimal place
 }
@@ -218,8 +218,7 @@ function getLifeExpectancyFromTable(age: number, table: Record<number, number>):
     if (age < 50) {
       // Young ages: use age 50 data
       return table[50] || 30
-    }
-    else {
+    } else {
       // Very old ages: use minimum expectancy
       return 1.0
     }

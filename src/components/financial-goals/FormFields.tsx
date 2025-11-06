@@ -4,8 +4,8 @@ import { Label } from '../ui/label'
 import { GoalTypeSelect } from './GoalTypeSelect'
 
 interface FormFieldsProps {
-  ids: { type: string, name: string, amount: string }
-  values: { type: FinancialGoalType, name: string, amount: string }
+  ids: { type: string; name: string; amount: string }
+  values: { type: FinancialGoalType; name: string; amount: string }
   onChange: {
     type: (v: FinancialGoalType) => void
     name: (v: string) => void
@@ -16,14 +16,14 @@ interface FormFieldsProps {
 export function FormFields({ ids, values, onChange }: FormFieldsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <GoalTypeSelect id={ids.type} value={values.type} onChange={v => onChange.type(v as FinancialGoalType)} />
+      <GoalTypeSelect id={ids.type} value={values.type} onChange={(v) => onChange.type(v as FinancialGoalType)} />
       <div className="space-y-2">
         <Label htmlFor={ids.name}>Zielname</Label>
         <Input
           id={ids.name}
           type="text"
           value={values.name}
-          onChange={e => onChange.name(e.target.value)}
+          onChange={(e) => onChange.name(e.target.value)}
           placeholder="z.B. Früher Ruhestand"
         />
       </div>
@@ -33,7 +33,7 @@ export function FormFields({ ids, values, onChange }: FormFieldsProps) {
           id={ids.amount}
           type="number"
           value={values.amount}
-          onChange={e => onChange.amount(e.target.value)}
+          onChange={(e) => onChange.amount(e.target.value)}
           placeholder="500000"
           min="0"
           step="1000"

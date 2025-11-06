@@ -43,11 +43,7 @@ describe('HealthCareInsuranceConfiguration', () => {
 
   it('renders without errors', () => {
     render(
-      <HealthCareInsuranceConfiguration
-        values={defaultValues}
-        onChange={mockHandlers}
-        planningMode="individual"
-      />,
+      <HealthCareInsuranceConfiguration values={defaultValues} onChange={mockHandlers} planningMode="individual" />,
     )
 
     // Component should render the title
@@ -58,11 +54,7 @@ describe('HealthCareInsuranceConfiguration', () => {
     const statutoryValues = { ...defaultValues, enabled: true, insuranceType: 'statutory' as const }
 
     render(
-      <HealthCareInsuranceConfiguration
-        values={statutoryValues}
-        onChange={mockHandlers}
-        planningMode="individual"
-      />,
+      <HealthCareInsuranceConfiguration values={statutoryValues} onChange={mockHandlers} planningMode="individual" />,
     )
 
     expect(screen.getByText('(Gesetzlich)')).toBeInTheDocument()
@@ -72,11 +64,7 @@ describe('HealthCareInsuranceConfiguration', () => {
     const privateValues = { ...defaultValues, enabled: true, insuranceType: 'private' as const }
 
     render(
-      <HealthCareInsuranceConfiguration
-        values={privateValues}
-        onChange={mockHandlers}
-        planningMode="individual"
-      />,
+      <HealthCareInsuranceConfiguration values={privateValues} onChange={mockHandlers} planningMode="individual" />,
     )
 
     expect(screen.getByText('(Privat)')).toBeInTheDocument()
@@ -86,11 +74,7 @@ describe('HealthCareInsuranceConfiguration', () => {
     const enabledValues = { ...defaultValues, enabled: true }
 
     render(
-      <HealthCareInsuranceConfiguration
-        values={enabledValues}
-        onChange={mockHandlers}
-        planningMode="individual"
-      />,
+      <HealthCareInsuranceConfiguration values={enabledValues} onChange={mockHandlers} planningMode="individual" />,
     )
 
     // Should render without throwing errors when enabled
@@ -99,11 +83,7 @@ describe('HealthCareInsuranceConfiguration', () => {
 
   it('handles disabled state correctly', () => {
     render(
-      <HealthCareInsuranceConfiguration
-        values={defaultValues}
-        onChange={mockHandlers}
-        planningMode="individual"
-      />,
+      <HealthCareInsuranceConfiguration values={defaultValues} onChange={mockHandlers} planningMode="individual" />,
     )
 
     // Should render without throwing errors when disabled

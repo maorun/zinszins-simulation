@@ -6,10 +6,7 @@ interface CareCostValidationErrorsProps {
   nestingLevel: number
 }
 
-export function CareCostValidationErrors({
-  errors,
-  nestingLevel,
-}: CareCostValidationErrorsProps) {
+export function CareCostValidationErrors({ errors, nestingLevel }: CareCostValidationErrorsProps) {
   if (errors.length === 0) {
     return null
   }

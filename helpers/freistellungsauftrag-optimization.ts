@@ -48,7 +48,7 @@ function distributeFreibetrag(
   sortedAccounts: BankAccount[],
   totalFreibetrag: number,
   teilfreistellungsquote: number,
-): { optimizedAccounts: BankAccount[], remainingFreibetrag: number, recommendations: string[] } {
+): { optimizedAccounts: BankAccount[]; remainingFreibetrag: number; recommendations: string[] } {
   let remainingFreibetrag = totalFreibetrag
   const optimizedAccounts: BankAccount[] = []
   const recommendations: string[] = []
@@ -62,8 +62,8 @@ function distributeFreibetrag(
 
     if (taxableGains > assignedAmount && assignedAmount > 0) {
       recommendations.push(
-        `${account.name}: Erwartete Gewinne (${taxableGains.toFixed(2)} €) `
-        + `übersteigen zugewiesenen Freibetrag (${assignedAmount.toFixed(2)} €)`,
+        `${account.name}: Erwartete Gewinne (${taxableGains.toFixed(2)} €) ` +
+          `übersteigen zugewiesenen Freibetrag (${assignedAmount.toFixed(2)} €)`,
       )
     }
 
@@ -108,11 +108,13 @@ export function optimizeFreistellungsauftrag(
   const totalTaxSaved = calculateTotalTaxSaved(optimizedAccounts, steuerlast, teilfreistellungsquote)
 
   // Check if distribution is optimal
-  const isOptimal = remainingFreibetrag === 0 || sortedAccounts.every((acc) => {
-    const optimizedAccount = optimizedAccounts.find(oa => oa.id === acc.id)
-    const assigned = optimizedAccount?.assignedFreibetrag || 0
-    return acc.expectedCapitalGains * (1 - teilfreistellungsquote) <= assigned
-  })
+  const isOptimal =
+    remainingFreibetrag === 0 ||
+    sortedAccounts.every((acc) => {
+      const optimizedAccount = optimizedAccounts.find((oa) => oa.id === acc.id)
+      const assigned = optimizedAccount?.assignedFreibetrag || 0
+      return acc.expectedCapitalGains * (1 - teilfreistellungsquote) <= assigned
+    })
 
   if (remainingFreibetrag > 0) {
     recommendations.push(
@@ -133,11 +135,7 @@ export function optimizeFreistellungsauftrag(
 /**
  * Calculate the total tax saved by using Freistellungsaufträge
  */
-function calculateTotalTaxSaved(
-  accounts: BankAccount[],
-  steuerlast: number,
-  teilfreistellungsquote: number,
-): number {
+function calculateTotalTaxSaved(accounts: BankAccount[], steuerlast: number, teilfreistellungsquote: number): number {
   let totalTaxSaved = 0
 
   for (const account of accounts) {
@@ -203,7 +201,7 @@ function validateAccountAssignments(config: FreistellungsauftragConfig): string[
   }
 
   // Check for duplicate account IDs
-  const accountIds = config.accounts.map(acc => acc.id)
+  const accountIds = config.accounts.map((acc) => acc.id)
   const uniqueIds = new Set(accountIds)
   if (accountIds.length !== uniqueIds.size) {
     errors.push('Doppelte Konto-IDs gefunden')
@@ -213,10 +211,7 @@ function validateAccountAssignments(config: FreistellungsauftragConfig): string[
 }
 
 export function validateFreistellungsauftragConfig(config: FreistellungsauftragConfig): string[] {
-  return [
-    ...validateTotalFreibetrag(config.totalFreibetrag),
-    ...validateAccountAssignments(config),
-  ]
+  return [...validateTotalFreibetrag(config.totalFreibetrag), ...validateAccountAssignments(config)]
 }
 
 /**
@@ -226,16 +221,14 @@ export function calculateEffectiveTaxRates(
   accounts: BankAccount[],
   steuerlast: number,
   teilfreistellungsquote: number,
-): Array<{ accountId: string, accountName: string, effectiveTaxRate: number, taxAmount: number }> {
+): Array<{ accountId: string; accountName: string; effectiveTaxRate: number; taxAmount: number }> {
   return accounts.map((account) => {
     const taxableGains = account.expectedCapitalGains * (1 - teilfreistellungsquote)
     const taxableAmountAfterFreibetrag = Math.max(0, taxableGains - account.assignedFreibetrag)
     const taxAmount = taxableAmountAfterFreibetrag * steuerlast
 
     // Calculate effective rate as percentage of total capital gains
-    const effectiveTaxRate = account.expectedCapitalGains > 0
-      ? (taxAmount / account.expectedCapitalGains)
-      : 0
+    const effectiveTaxRate = account.expectedCapitalGains > 0 ? taxAmount / account.expectedCapitalGains : 0
 
     return {
       accountId: account.id,

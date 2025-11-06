@@ -22,10 +22,7 @@ export function GoalMilestones({
       <h6 className="text-sm font-semibold text-gray-700 mb-2">Meilensteine</h6>
       <div className="space-y-1">
         {goal.milestones.map((milestone, idx) => (
-          <div
-            key={idx}
-            className="flex justify-between items-center text-sm"
-          >
+          <div key={idx} className="flex justify-between items-center text-sm">
             <span className={milestone.achieved ? 'text-green-600 font-medium' : 'text-gray-600'}>
               {milestone.achieved && '✓ '}
               {milestone.label}
@@ -41,11 +38,7 @@ export function GoalMilestones({
         <div className="mt-2 p-2 bg-blue-100 rounded text-sm">
           <span className="font-semibold">Nächster Meilenstein: </span>
           <span>
-            {nextMilestone.label}
-            {' '}
-            (
-            {formatEuro(nextMilestone.targetAmount)}
-            )
+            {nextMilestone.label} ({formatEuro(nextMilestone.targetAmount)})
           </span>
         </div>
       )}

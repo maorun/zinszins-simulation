@@ -17,11 +17,7 @@ export function IndexStatistics({ index, nestingLevel }: IndexStatisticsProps) {
           <div className="flex items-center gap-2">
             <TrendingUp className="h-4 w-4 text-blue-600" />
             <span className="font-medium">
-              Statistische Kennzahlen (
-              {index.startYear}
-              -
-              {index.endYear}
-              )
+              Statistische Kennzahlen ({index.startYear}-{index.endYear})
             </span>
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm">
@@ -39,11 +35,7 @@ export function IndexStatistics({ index, nestingLevel }: IndexStatisticsProps) {
             </div>
             <div>
               <span className="text-muted-foreground">Datenpunkte:</span>
-              <span className="ml-2 font-medium">
-                {index.data.length}
-                {' '}
-                Jahre
-              </span>
+              <span className="ml-2 font-medium">{index.data.length} Jahre</span>
             </div>
           </div>
         </div>

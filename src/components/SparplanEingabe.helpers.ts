@@ -48,9 +48,8 @@ interface UpdateSparplanParams {
 export function createNewSparplan(params: CreateSparplanParams): Sparplan[] {
   const { formValues, simulationAnnual, existingSparplans } = params
 
-  const yearlyAmount = simulationAnnual === SimulationAnnual.monthly
-    ? Number(formValues.einzahlung) * 12
-    : Number(formValues.einzahlung)
+  const yearlyAmount =
+    simulationAnnual === SimulationAnnual.monthly ? Number(formValues.einzahlung) * 12 : Number(formValues.einzahlung)
 
   const newSparplan: Sparplan = {
     id: new Date().getTime(),
@@ -58,10 +57,10 @@ export function createNewSparplan(params: CreateSparplanParams): Sparplan[] {
     end: formValues.end,
     einzahlung: yearlyAmount,
     ter: formValues.ter ? Number(formValues.ter) : undefined,
-    transactionCostPercent: formValues.transactionCostPercent
-      ? Number(formValues.transactionCostPercent) : undefined,
+    transactionCostPercent: formValues.transactionCostPercent ? Number(formValues.transactionCostPercent) : undefined,
     transactionCostAbsolute: formValues.transactionCostAbsolute
-      ? Number(formValues.transactionCostAbsolute) : undefined,
+      ? Number(formValues.transactionCostAbsolute)
+      : undefined,
   }
 
   return [...existingSparplans, newSparplan]
@@ -80,10 +79,10 @@ export function createNewSinglePayment(params: CreateSinglePaymentParams): Sparp
     end: formValues.date,
     einzahlung: Number(formValues.einzahlung),
     ter: formValues.ter ? Number(formValues.ter) : undefined,
-    transactionCostPercent: formValues.transactionCostPercent
-      ? Number(formValues.transactionCostPercent) : undefined,
+    transactionCostPercent: formValues.transactionCostPercent ? Number(formValues.transactionCostPercent) : undefined,
     transactionCostAbsolute: formValues.transactionCostAbsolute
-      ? Number(formValues.transactionCostAbsolute) : undefined,
+      ? Number(formValues.transactionCostAbsolute)
+      : undefined,
   }
 
   return [...existingSparplans, newPayment]
@@ -94,8 +93,11 @@ export function createNewSinglePayment(params: CreateSinglePaymentParams): Sparp
  * Complexity: <8, Lines: <50
  */
 export function isEinmalzahlung(sparplan: Sparplan): boolean {
-  return sparplan.end !== null && sparplan.end !== undefined
-    && new Date(sparplan.start).getTime() === new Date(sparplan.end).getTime()
+  return (
+    sparplan.end !== null &&
+    sparplan.end !== undefined &&
+    new Date(sparplan.start).getTime() === new Date(sparplan.end).getTime()
+  )
 }
 
 /**
@@ -108,10 +110,7 @@ function parseOptionalNumber(value: string | number | undefined): number | undef
 /**
  * Create one-time payment sparplan update
  */
-function createOneTimePaymentUpdate(
-  editingSparplan: Sparplan,
-  singleFormValues: SingleFormValue,
-): Sparplan {
+function createOneTimePaymentUpdate(editingSparplan: Sparplan, singleFormValues: SingleFormValue): Sparplan {
   return {
     ...editingSparplan,
     start: singleFormValues.date,
@@ -131,9 +130,10 @@ function createRegularSparplanUpdate(
   sparplanFormValues: SparplanFormValue,
   simulationAnnual: SimulationAnnualType,
 ): Sparplan {
-  const yearlyAmount = simulationAnnual === SimulationAnnual.monthly
-    ? Number(sparplanFormValues.einzahlung) * 12
-    : Number(sparplanFormValues.einzahlung)
+  const yearlyAmount =
+    simulationAnnual === SimulationAnnual.monthly
+      ? Number(sparplanFormValues.einzahlung) * 12
+      : Number(sparplanFormValues.einzahlung)
 
   return {
     ...editingSparplan,
@@ -151,13 +151,7 @@ function createRegularSparplanUpdate(
  * Complexity: <8, Lines: <50
  */
 export function updateExistingSparplan(params: UpdateSparplanParams): Sparplan[] {
-  const {
-    editingSparplan,
-    sparplanFormValues,
-    singleFormValues,
-    simulationAnnual,
-    existingSparplans,
-  } = params
+  const { editingSparplan, sparplanFormValues, singleFormValues, simulationAnnual, existingSparplans } = params
 
   const isOneTimePayment = isEinmalzahlung(editingSparplan)
 
@@ -165,9 +159,7 @@ export function updateExistingSparplan(params: UpdateSparplanParams): Sparplan[]
     ? createOneTimePaymentUpdate(editingSparplan, singleFormValues)
     : createRegularSparplanUpdate(editingSparplan, sparplanFormValues, simulationAnnual)
 
-  return existingSparplans.map(sp =>
-    sp.id === editingSparplan.id ? updatedSparplan : sp,
-  )
+  return existingSparplans.map((sp) => (sp.id === editingSparplan.id ? updatedSparplan : sp))
 }
 
 /**

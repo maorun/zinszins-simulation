@@ -50,8 +50,7 @@ function useIsSticky(overviewElementRef: React.RefObject<HTMLElement | null>): b
 function formatCompactCurrency(amount: number): string {
   if (amount >= 1000000) {
     return `${(amount / 1000000).toFixed(1)}M €`
-  }
-  else if (amount >= 1000) {
+  } else if (amount >= 1000) {
     return `${(amount / 1000).toFixed(0)}k €`
   }
   return amount.toLocaleString('de-DE', { style: 'currency', currency: 'EUR' })
@@ -59,9 +58,11 @@ function formatCompactCurrency(amount: number): string {
 
 // Helper to check if we have multiple withdrawal segments
 function hasMultipleSegments(summary: EnhancedSummary): boolean {
-  return summary.isSegmentedWithdrawal === true
-    && summary.withdrawalSegments !== undefined
-    && summary.withdrawalSegments.length > 1
+  return (
+    summary.isSegmentedWithdrawal === true &&
+    summary.withdrawalSegments !== undefined &&
+    summary.withdrawalSegments.length > 1
+  )
 }
 
 // Helper to calculate withdrawal end year
@@ -73,13 +74,12 @@ function calculateWithdrawalEndYear(
   let withdrawalEndYear = endOfLife || fallbackEndYear
 
   // If we have segmented withdrawal, use the actual end year from segments
-  const hasSegments = summary.isSegmentedWithdrawal
-    && summary.withdrawalSegments
-    && summary.withdrawalSegments.length > 0
+  const hasSegments =
+    summary.isSegmentedWithdrawal && summary.withdrawalSegments && summary.withdrawalSegments.length > 0
 
   if (hasSegments) {
-    const segmentEndYears = summary.withdrawalSegments!
-      .map((segment: { endYear: number | null }) => segment.endYear)
+    const segmentEndYears = summary
+      .withdrawalSegments!.map((segment: { endYear: number | null }) => segment.endYear)
       .filter((year: number | null): year is number => typeof year === 'number' && !isNaN(year))
 
     if (segmentEndYears.length > 0) {
@@ -131,18 +131,8 @@ function renderDesktopWithdrawalView(
     <div className="w-full">
       <div className="w-full">
         <h4 className="m-0 mb-3 text-slate-800 text-sm font-semibold">
-          💸 Entsparphase (
-          {withdrawalYearsRange}
-          )
-          {hasSegments && (
-            <span className="text-sm text-teal-600 font-normal">
-              {' '}
-              -
-              {segmentCount}
-              {' '}
-              Phasen
-            </span>
-          )}
+          💸 Entsparphase ({withdrawalYearsRange})
+          {hasSegments && <span className="text-sm text-teal-600 font-normal"> -{segmentCount} Phasen</span>}
         </h4>
         <div className="grid grid-cols-3 gap-3">
           <div className="flex flex-col p-2 bg-gray-50 rounded-md border border-gray-200">
@@ -196,15 +186,8 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
   const isMobile = useIsMobile()
   const isSticky = useIsSticky(overviewElementRef)
 
-  const {
-    simulationData,
-    startEnd,
-    withdrawalResults,
-    rendite,
-    steuerlast,
-    teilfreistellungsquote,
-    endOfLife,
-  } = useSimulation()
+  const { simulationData, startEnd, withdrawalResults, rendite, steuerlast, teilfreistellungsquote, endOfLife } =
+    useSimulation()
 
   const enhancedSummary = useMemo(() => {
     return getEnhancedOverviewSummary(
@@ -217,15 +200,7 @@ export function StickyBottomOverview({ overviewElementRef }: StickyBottomOvervie
       undefined, // withdrawalConfig - not available in this component
       endOfLife,
     )
-  }, [
-    simulationData,
-    startEnd,
-    withdrawalResults,
-    rendite,
-    steuerlast,
-    teilfreistellungsquote,
-    endOfLife,
-  ])
+  }, [simulationData, startEnd, withdrawalResults, rendite, steuerlast, teilfreistellungsquote, endOfLife])
 
   // Only show when main overview is not visible and we have withdrawal data
   if (!isSticky || !enhancedSummary || !simulationData || !enhancedSummary.endkapitalEntspharphase) {

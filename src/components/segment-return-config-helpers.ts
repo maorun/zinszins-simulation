@@ -27,16 +27,12 @@ export function createReturnConfigForMode(
       return {
         mode: 'multiasset',
         multiAssetConfig:
-          currentConfig.mode === 'multiasset'
-            ? currentConfig.multiAssetConfig
-            : createDefaultMultiAssetConfig(),
+          currentConfig.mode === 'multiasset' ? currentConfig.multiAssetConfig : createDefaultMultiAssetConfig(),
       }
   }
 }
 
-export function getReturnModeFromConfig(
-  returnConfig: ReturnConfiguration,
-): WithdrawalReturnMode {
+export function getReturnModeFromConfig(returnConfig: ReturnConfiguration): WithdrawalReturnMode {
   if (returnConfig.mode === 'multiasset') {
     return 'multiasset'
   }

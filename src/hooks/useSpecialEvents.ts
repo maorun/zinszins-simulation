@@ -44,12 +44,8 @@ function createExpenseSparplan(formValues: EventFormValues, nextId: number): Spa
 
   if (formValues.useCredit) {
     const defaultTerms = getDefaultCreditTerms(formValues.expenseType, expenseAmount)
-    const interestRate = formValues.interestRate
-      ? Number(formValues.interestRate) / 100
-      : defaultTerms.interestRate
-    const termYears = formValues.termYears
-      ? Number(formValues.termYears)
-      : defaultTerms.termYears
+    const interestRate = formValues.interestRate ? Number(formValues.interestRate) / 100 : defaultTerms.interestRate
+    const termYears = formValues.termYears ? Number(formValues.termYears) : defaultTerms.termYears
 
     creditTerms = {
       interestRate,
@@ -57,8 +53,8 @@ function createExpenseSparplan(formValues: EventFormValues, nextId: number): Spa
       monthlyPayment:
         interestRate === 0
           ? expenseAmount / (termYears * 12)
-          : (expenseAmount * (interestRate / 12) * Math.pow(1 + interestRate / 12, termYears * 12))
-            / (Math.pow(1 + interestRate / 12, termYears * 12) - 1),
+          : (expenseAmount * (interestRate / 12) * Math.pow(1 + interestRate / 12, termYears * 12)) /
+            (Math.pow(1 + interestRate / 12, termYears * 12) - 1),
     }
   }
 
@@ -80,7 +76,7 @@ function createExpenseSparplan(formValues: EventFormValues, nextId: number): Spa
 export function useSpecialEvents(currentSparplans: Sparplan[], dispatch: (val: Sparplan[]) => void) {
   const [specialEventFormValues, setSpecialEventFormValues] = useState<EventFormValues>(INITIAL_FORM_VALUES)
 
-  const getNextSparplanId = () => Math.max(0, ...currentSparplans.map(p => p.id)) + 1
+  const getNextSparplanId = () => Math.max(0, ...currentSparplans.map((p) => p.id)) + 1
 
   const handleSubmit = () => {
     const nextId = getNextSparplanId()
@@ -89,8 +85,7 @@ export function useSpecialEvents(currentSparplans: Sparplan[], dispatch: (val: S
     if (specialEventFormValues.eventType === 'inheritance' && specialEventFormValues.grossAmount) {
       newSparplan = createInheritanceSparplan(specialEventFormValues, nextId)
       toast.success('Erbschaft erfolgreich hinzugefügt!')
-    }
-    else if (specialEventFormValues.eventType === 'expense' && specialEventFormValues.expenseAmount) {
+    } else if (specialEventFormValues.eventType === 'expense' && specialEventFormValues.expenseAmount) {
       newSparplan = createExpenseSparplan(specialEventFormValues, nextId)
       toast.success('Ausgabe erfolgreich hinzugefügt!')
     }
@@ -102,7 +97,7 @@ export function useSpecialEvents(currentSparplans: Sparplan[], dispatch: (val: S
   }
 
   const handleDeleteSparplan = (id: number) => {
-    const filtered = currentSparplans.filter(sparplan => sparplan.id !== id)
+    const filtered = currentSparplans.filter((sparplan) => sparplan.id !== id)
     dispatch(filtered)
     toast.info('Eintrag gelöscht')
   }

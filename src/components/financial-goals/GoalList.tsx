@@ -27,7 +27,7 @@ export function GoalList({ goals, currentCapital, onToggleActive, onRemove }: Go
 
   return (
     <div className="space-y-4">
-      {goals.map(goal => (
+      {goals.map((goal) => (
         <GoalItem
           key={goal.id}
           goal={goal}

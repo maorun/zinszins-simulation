@@ -17,17 +17,11 @@ interface SegmentedComparisonCardProps {
   result: SegmentedComparisonResult
 }
 
-function StrategyHeader({ strategyName, segmentCount }: { strategyName: string, segmentCount: number }) {
+function StrategyHeader({ strategyName, segmentCount }: { strategyName: string; segmentCount: number }) {
   return (
     <h6 className="m-0 mb-2.5 text-[#666]">
-      {strategyName}
-      {' '}
-      (
-      {segmentCount}
-      {' '}
-      Phase
-      {segmentCount !== 1 ? 'n' : ''}
-      )
+      {strategyName} ({segmentCount} Phase
+      {segmentCount !== 1 ? 'n' : ''})
     </h6>
   )
 }
@@ -36,23 +30,14 @@ function SegmentOverview({ segments }: { segments: SegmentedComparisonStrategy['
   return (
     <div className="mb-4">
       <div className="grid grid-cols-[repeat(auto-fit,minmax(250px,1fr))] gap-2 text-sm">
-        {segments.map(segment => (
+        {segments.map((segment) => (
           <div key={segment.id} className="p-2 bg-[#e8f4f8] rounded border border-[#d1ecf1]">
-            <strong>{segment.name}</strong>
-            {' '}
-            (
-            {segment.startYear}
-            {' '}
-            -
-            {segment.endYear}
+            <strong>{segment.name}</strong> ({segment.startYear} -{segment.endYear}
             )
             <br />
             <span className="text-[#666]">
-              {getStrategyDisplayName(segment.strategy)}
-              {' '}
-              -
-              {((segment.returnConfig.fixedRate || 0.05) * 100).toFixed(1)}
-              % Rendite
+              {getStrategyDisplayName(segment.strategy)} -{((segment.returnConfig.fixedRate || 0.05) * 100).toFixed(1)}%
+              Rendite
             </span>
           </div>
         ))}
@@ -65,23 +50,16 @@ function ResultsSummary({ result }: { result: SegmentedComparisonResult }) {
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(150px,1fr))] gap-2.5 text-sm">
       <div>
-        <strong>Endkapital:</strong>
-        {' '}
-        {formatCurrency(result.finalCapital)}
+        <strong>Endkapital:</strong> {formatCurrency(result.finalCapital)}
       </div>
       <div>
-        <strong>Gesamtentnahme:</strong>
-        {' '}
-        {formatCurrency(result.totalWithdrawal)}
+        <strong>Gesamtentnahme:</strong> {formatCurrency(result.totalWithdrawal)}
       </div>
       <div>
-        <strong>Ø Jährliche Entnahme:</strong>
-        {' '}
-        {formatCurrency(result.averageAnnualWithdrawal)}
+        <strong>Ø Jährliche Entnahme:</strong> {formatCurrency(result.averageAnnualWithdrawal)}
       </div>
       <div>
-        <strong>Laufzeit:</strong>
-        {' '}
+        <strong>Laufzeit:</strong>{' '}
         {typeof result.duration === 'number'
           ? `${result.duration} Jahr${result.duration === 1 ? '' : 'e'}`
           : result.duration}

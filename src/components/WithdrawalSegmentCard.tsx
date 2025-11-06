@@ -25,7 +25,12 @@ interface WithdrawalSegmentCardProps {
   onMoveDown: (segmentId: string) => void
 }
 
-function SegmentConfigSections({ segment, withdrawalStartYear, withdrawalEndYear, onUpdate }: {
+function SegmentConfigSections({
+  segment,
+  withdrawalStartYear,
+  withdrawalEndYear,
+  onUpdate,
+}: {
   segment: WithdrawalSegment
   withdrawalStartYear: number
   withdrawalEndYear: number
@@ -39,15 +44,15 @@ function SegmentConfigSections({ segment, withdrawalStartYear, withdrawalEndYear
         endYear={segment.endYear}
         withdrawalStartYear={withdrawalStartYear}
         withdrawalEndYear={withdrawalEndYear}
-        onNameChange={name => onUpdate(segment.id, { name })}
-        onStartYearChange={startYear => onUpdate(segment.id, { startYear })}
-        onEndYearChange={endYear => onUpdate(segment.id, { endYear })}
+        onNameChange={(name) => onUpdate(segment.id, { name })}
+        onStartYearChange={(startYear) => onUpdate(segment.id, { startYear })}
+        onEndYearChange={(endYear) => onUpdate(segment.id, { endYear })}
       />
       <Separator />
-      <SegmentStrategySelector segment={segment} onStrategyChange={updates => onUpdate(segment.id, updates)} />
+      <SegmentStrategySelector segment={segment} onStrategyChange={(updates) => onUpdate(segment.id, updates)} />
       <WithdrawalFrequencyConfiguration
         frequency={segment.withdrawalFrequency}
-        onFrequencyChange={freq => onUpdate(segment.id, { withdrawalFrequency: freq })}
+        onFrequencyChange={(freq) => onUpdate(segment.id, { withdrawalFrequency: freq })}
       />
       <SegmentStrategyConfig segment={segment} onUpdate={onUpdate} />
       <Separator />
@@ -56,17 +61,17 @@ function SegmentConfigSections({ segment, withdrawalStartYear, withdrawalEndYear
         startYear={segment.startYear}
         endYear={segment.endYear}
         returnConfig={segment.returnConfig}
-        onReturnConfigChange={config => onUpdate(segment.id, { returnConfig: config })}
+        onReturnConfigChange={(config) => onUpdate(segment.id, { returnConfig: config })}
       />
       <Separator />
       <SegmentInflationConfig
         inflationConfig={segment.inflationConfig}
-        onInflationConfigChange={config => onUpdate(segment.id, { inflationConfig: config })}
+        onInflationConfigChange={(config) => onUpdate(segment.id, { inflationConfig: config })}
       />
       <Separator />
       <SegmentTaxReductionConfig
         steuerReduzierenEndkapital={segment.steuerReduzierenEndkapital}
-        onSteuerReduzierenEndkapitalChange={value => onUpdate(segment.id, { steuerReduzierenEndkapital: value })}
+        onSteuerReduzierenEndkapitalChange={(value) => onUpdate(segment.id, { steuerReduzierenEndkapital: value })}
       />
     </>
   )

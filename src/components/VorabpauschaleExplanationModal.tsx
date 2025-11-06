@@ -17,7 +17,7 @@ const VorabpauschaleExplanationModal = ({
   selectedVorabDetails,
 }: VorabpauschaleExplanationModalProps) => {
   return (
-    <Dialog open={open} onOpenChange={isOpen => !isOpen && onClose()}>
+    <Dialog open={open} onOpenChange={(isOpen) => !isOpen && onClose()}>
       <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>📊 Vorabpauschale-Berechnung Schritt für Schritt</DialogTitle>
@@ -33,9 +33,7 @@ const VorabpauschaleExplanationModal = ({
         </div>
         <DialogFooter>
           <DialogClose asChild>
-            <Button>
-              Verstanden
-            </Button>
+            <Button>Verstanden</Button>
           </DialogClose>
         </DialogFooter>
       </DialogContent>

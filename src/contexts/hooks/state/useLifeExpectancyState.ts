@@ -13,9 +13,7 @@ export interface LifeExpectancyStateConfig {
 export function useLifeExpectancyState(config: LifeExpectancyStateConfig) {
   const { initialConfig, extendedInitialConfig, defaultConfig } = config
 
-  const [endOfLife, setEndOfLife] = useState(
-    extendedInitialConfig.endOfLife ?? initialConfig.startEnd[1],
-  )
+  const [endOfLife, setEndOfLife] = useState(extendedInitialConfig.endOfLife ?? initialConfig.startEnd[1])
   const [lifeExpectancyTable, setLifeExpectancyTable] = useState<
     'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
   >(extendedInitialConfig.lifeExpectancyTable ?? defaultConfig.lifeExpectancyTable)

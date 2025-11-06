@@ -48,7 +48,7 @@ export function generateUniqueId(prefix?: string, suffix?: string): string {
     const idsArray = Array.from(usedIds)
     usedIds.clear()
     // Keep the more recent half
-    idsArray.slice(idsArray.length / 2).forEach(id => usedIds.add(id))
+    idsArray.slice(idsArray.length / 2).forEach((id) => usedIds.add(id))
   }
 
   usedIds.add(uniqueId)
@@ -110,8 +110,7 @@ export function registerExistingId(id: string): boolean {
 function isViteTestMode(): boolean {
   try {
     return typeof import.meta !== 'undefined' && (import.meta as { env?: { MODE?: string } })?.env?.MODE === 'test'
-  }
-  catch {
+  } catch {
     return false
   }
 }
@@ -123,8 +122,7 @@ function isViteTestMode(): boolean {
 function isNodeTestMode(): boolean {
   try {
     return typeof process !== 'undefined' && process.env?.NODE_ENV === 'test'
-  }
-  catch {
+  } catch {
     return false
   }
 }

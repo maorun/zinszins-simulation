@@ -5,10 +5,7 @@ interface HistoricalDataPreviewProps {
   nestingLevel: number
 }
 
-export function HistoricalDataPreview({
-  historicalReturns,
-  nestingLevel,
-}: HistoricalDataPreviewProps) {
+export function HistoricalDataPreview({ historicalReturns, nestingLevel }: HistoricalDataPreviewProps) {
   const formatPercent = (value: number) => `${(value * 100).toFixed(1)}%`
 
   if (!historicalReturns || Object.keys(historicalReturns).length === 0) {
@@ -26,14 +23,8 @@ export function HistoricalDataPreview({
                 .slice(-8) // Show last 8 years
                 .map(([year, returnValue]) => (
                   <div key={year} className="flex justify-between">
-                    <span className="text-muted-foreground">
-                      {year}
-                      :
-                    </span>
-                    <span className={`font-medium ${
-                      returnValue >= 0 ? 'text-green-600' : 'text-red-600'
-                    }`}
-                    >
+                    <span className="text-muted-foreground">{year}:</span>
+                    <span className={`font-medium ${returnValue >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                       {formatPercent(returnValue)}
                     </span>
                   </div>
@@ -41,8 +32,7 @@ export function HistoricalDataPreview({
             </div>
           </div>
           <div className="text-xs text-muted-foreground">
-            Die Simulation verwendet die tatsächlichen historischen
-            Jahresrenditen für den gewählten Zeitraum.
+            Die Simulation verwendet die tatsächlichen historischen Jahresrenditen für den gewählten Zeitraum.
           </div>
         </div>
       </CardContent>

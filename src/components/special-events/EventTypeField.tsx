@@ -17,10 +17,12 @@ export function EventTypeField({ formValues, onFormChange }: EventTypeFieldProps
       <select
         className="w-full p-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-transparent"
         value={formValues.eventType}
-        onChange={e => onFormChange({
-          ...formValues,
-          eventType: e.target.value as 'inheritance' | 'expense',
-        })}
+        onChange={(e) =>
+          onFormChange({
+            ...formValues,
+            eventType: e.target.value as 'inheritance' | 'expense',
+          })
+        }
       >
         <option value="inheritance">💰 Erbschaft</option>
         <option value="expense">💸 Ausgabe</option>

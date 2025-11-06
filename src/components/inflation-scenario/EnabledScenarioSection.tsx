@@ -12,7 +12,7 @@ interface EnabledScenarioSectionProps {
   cumulativeInflation: number | null
   averageInflation: number | null
   purchasingPowerImpact: number | null
-  scenarioColors: { bg: string, text: string }
+  scenarioColors: { bg: string; text: string }
   scenarioYearSliderId: string
   simulationStartYear: number
   handleScenarioChange: (scenarioId: InflationScenarioId) => void

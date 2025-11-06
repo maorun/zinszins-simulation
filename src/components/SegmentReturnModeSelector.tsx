@@ -7,17 +7,11 @@ interface SegmentReturnModeSelectorProps {
   onModeChange: (mode: WithdrawalReturnMode) => void
 }
 
-export function SegmentReturnModeSelector({
-  currentMode,
-  onModeChange,
-}: SegmentReturnModeSelectorProps) {
+export function SegmentReturnModeSelector({ currentMode, onModeChange }: SegmentReturnModeSelectorProps) {
   return (
     <div className="mb-4 space-y-2">
       <Label>Rendite-Modus</Label>
-      <RadioTileGroup
-        value={currentMode}
-        onValueChange={value => onModeChange(value as WithdrawalReturnMode)}
-      >
+      <RadioTileGroup value={currentMode} onValueChange={(value) => onModeChange(value as WithdrawalReturnMode)}>
         <RadioTile value="fixed" label="Feste Rendite">
           Konstante jährliche Rendite für diese Phase
         </RadioTile>

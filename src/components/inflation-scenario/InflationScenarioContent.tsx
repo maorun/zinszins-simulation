@@ -13,7 +13,7 @@ interface InflationScenarioContentProps {
   cumulativeInflation: number | null
   averageInflation: number | null
   purchasingPowerImpact: number | null
-  scenarioColors: { bg: string, text: string }
+  scenarioColors: { bg: string; text: string }
   enabledRadioId: string
   disabledRadioId: string
   scenarioYearSliderId: string

@@ -36,12 +36,7 @@ describe('ChartControls', () => {
     const user = userEvent.setup()
     const onShowInflationAdjustedChange = vi.fn()
 
-    render(
-      <ChartControls
-        {...defaultProps}
-        onShowInflationAdjustedChange={onShowInflationAdjustedChange}
-      />,
-    )
+    render(<ChartControls {...defaultProps} onShowInflationAdjustedChange={onShowInflationAdjustedChange} />)
 
     const trigger = screen.getByRole('button', { name: /Chart-Einstellungen/i })
     await user.click(trigger)
@@ -71,13 +66,7 @@ describe('ChartControls', () => {
     const user = userEvent.setup()
     const onChartViewChange = vi.fn()
 
-    render(
-      <ChartControls
-        {...defaultProps}
-        chartView="detailed"
-        onChartViewChange={onChartViewChange}
-      />,
-    )
+    render(<ChartControls {...defaultProps} chartView="detailed" onChartViewChange={onChartViewChange} />)
 
     const trigger = screen.getByRole('button', { name: /Chart-Einstellungen/i })
     await user.click(trigger)

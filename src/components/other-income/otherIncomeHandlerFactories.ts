@@ -15,9 +15,7 @@ export function createSourceUpdater(
   handleConfigChange: (updates: Partial<OtherIncomeConfiguration>) => void,
 ) {
   return (sourceId: string, updates: Partial<OtherIncomeSource>) => {
-    const updatedSources = config.sources.map(source =>
-      source.id === sourceId ? { ...source, ...updates } : source,
-    )
+    const updatedSources = config.sources.map((source) => (source.id === sourceId ? { ...source, ...updates } : source))
     handleConfigChange({ sources: updatedSources })
   }
 }
@@ -39,8 +37,7 @@ export function createSourceSaver(
         sources: [...config.sources, editingSource],
       })
       toast.success('Einkommensquelle erfolgreich hinzugefügt!')
-    }
-    else {
+    } else {
       handleSourceChange(editingSource.id, editingSource)
       toast.success('Einkommensquelle erfolgreich aktualisiert!')
     }
@@ -55,7 +52,7 @@ export function createSourceDeleter(
   handleConfigChange: (updates: Partial<OtherIncomeConfiguration>) => void,
 ) {
   return (sourceId: string) => {
-    const updatedSources = config.sources.filter(source => source.id !== sourceId)
+    const updatedSources = config.sources.filter((source) => source.id !== sourceId)
     handleConfigChange({ sources: updatedSources })
     toast.success('Einkommensquelle erfolgreich entfernt!')
   }

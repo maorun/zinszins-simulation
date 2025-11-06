@@ -15,7 +15,7 @@ export interface CalculationExplanation {
   steps: CalculationStep[]
   finalResult: {
     title: string
-    values: Array<{ label: string, value: string }>
+    values: Array<{ label: string; value: string }>
   }
 }
 
@@ -33,7 +33,8 @@ export function createInterestExplanation(
 ): CalculationExplanation {
   return {
     title: '📈 Zinsen-Berechnung Schritt für Schritt',
-    introduction: 'Die Zinsen werden basierend auf dem Startkapital und der erwarteten Rendite berechnet. Diese Berechnung zeigt, wie sich Ihr Kapital durch Zinsen und Zinseszinsen vermehrt.',
+    introduction:
+      'Die Zinsen werden basierend auf dem Startkapital und der erwarteten Rendite berechnet. Diese Berechnung zeigt, wie sich Ihr Kapital durch Zinsen und Zinseszinsen vermehrt.',
     steps: [
       {
         title: 'Schritt 1: Startkapital ermitteln',
@@ -76,7 +77,8 @@ export function createTaxExplanation(
 
   return {
     title: '💸 Steuer-Berechnung Schritt für Schritt',
-    introduction: 'Die Steuerberechnung erfolgt basierend auf der Vorabpauschale, dem Steuersatz und dem verfügbaren Freibetrag. Für thesaurierende Fonds wird jährlich die Vorabpauschale besteuert.',
+    introduction:
+      'Die Steuerberechnung erfolgt basierend auf der Vorabpauschale, dem Steuersatz und dem verfügbaren Freibetrag. Für thesaurierende Fonds wird jährlich die Vorabpauschale besteuert.',
     steps: [
       {
         title: 'Schritt 1: Vorabpauschale ermitteln',
@@ -88,8 +90,8 @@ export function createTaxExplanation(
       },
       {
         title: 'Schritt 2: Steuer vor Sparerpauschbetrag berechnen',
-        description: `Steuer wird mit ${(steuersatz * 100).toFixed(1)}% Steuersatz berechnet, reduziert um ${(teilfreistellungsquote * 100)}% Teilfreistellung.`,
-        calculation: `Steuer = Vorabpauschale × ${(steuersatz * 100).toFixed(1)}% × (1 - ${(teilfreistellungsquote * 100)}%)<br/>${formatCurrency(vorabpauschaleAmount)} × ${(steuersatz * 100).toFixed(1)}% × ${((1 - teilfreistellungsquote) * 100)}%`,
+        description: `Steuer wird mit ${(steuersatz * 100).toFixed(1)}% Steuersatz berechnet, reduziert um ${teilfreistellungsquote * 100}% Teilfreistellung.`,
+        calculation: `Steuer = Vorabpauschale × ${(steuersatz * 100).toFixed(1)}% × (1 - ${teilfreistellungsquote * 100}%)<br/>${formatCurrency(vorabpauschaleAmount)} × ${(steuersatz * 100).toFixed(1)}% × ${(1 - teilfreistellungsquote) * 100}%`,
         result: formatCurrency(steuerVorFreibetrag),
         backgroundColor: '#e8f5e8',
         borderColor: '#81c784',
@@ -142,7 +144,8 @@ function createEndkapitalSteps(
     },
     {
       title: 'Schritt 3: Zinserträge/Wertzuwachs berücksichtigen',
-      description: 'Die erwirtschafteten Zinsen und Wertsteigerungen werden hinzugefügt (können auch negativ sein bei Verlusten).',
+      description:
+        'Die erwirtschafteten Zinsen und Wertsteigerungen werden hinzugefügt (können auch negativ sein bei Verlusten).',
       calculation: `Kapital nach Zinsen = Kapital nach Einzahlungen + Zinsen<br/>${formatCurrency(startkapital + einzahlung)} + ${formatCurrency(zinsen)}`,
       result: formatCurrency(startkapital + einzahlung + zinsen),
       backgroundColor: '#e3f2fd',
@@ -196,7 +199,8 @@ export function createInflationExplanation(
 
   return {
     title: '📈 Inflation-Anpassung Schritt für Schritt',
-    introduction: 'Die Inflation-Anpassung sorgt dafür, dass die Kaufkraft der Entnahme über die Jahre erhalten bleibt. Der Entnahmebetrag wird jährlich um die Inflationsrate erhöht.',
+    introduction:
+      'Die Inflation-Anpassung sorgt dafür, dass die Kaufkraft der Entnahme über die Jahre erhalten bleibt. Der Entnahmebetrag wird jährlich um die Inflationsrate erhöht.',
     steps: [
       {
         title: 'Schritt 1: Basis-Entnahmebetrag',
@@ -248,7 +252,8 @@ export function createIncomeTaxExplanation(
 
   return {
     title: '🏛️ Einkommensteuer-Berechnung Schritt für Schritt',
-    introduction: 'Die Einkommensteuer wird auf die Entnahme angewendet, wobei der Grundfreibetrag steuerfrei bleibt. Dies ist relevant für Rentner ohne weiteres Einkommen.',
+    introduction:
+      'Die Einkommensteuer wird auf die Entnahme angewendet, wobei der Grundfreibetrag steuerfrei bleibt. Dies ist relevant für Rentner ohne weiteres Einkommen.',
     steps: [
       {
         title: 'Schritt 1: Entnahmebetrag ermitteln',
@@ -297,7 +302,8 @@ export function createWithdrawalInterestExplanation(
 ): CalculationExplanation {
   return {
     title: '📈 Zinsen-Berechnung (Entnahme-Phase) Schritt für Schritt',
-    introduction: 'Auch während der Entnahme-Phase erwirtschaftet das verbleibende Kapital weiterhin Zinsen. Diese Zinsen helfen dabei, das Portfolio länger aufrechtzuerhalten.',
+    introduction:
+      'Auch während der Entnahme-Phase erwirtschaftet das verbleibende Kapital weiterhin Zinsen. Diese Zinsen helfen dabei, das Portfolio länger aufrechtzuerhalten.',
     steps: [
       {
         title: 'Schritt 1: Verfügbares Kapital',
@@ -356,10 +362,7 @@ function calculateTotalTaxableIncome(params: TaxableIncomeParams): number {
 }
 
 // Add statutory pension step to calculation
-function addStatutoryPensionStep(
-  steps: CalculationStep[],
-  amount: number,
-): void {
+function addStatutoryPensionStep(steps: CalculationStep[], amount: number): void {
   steps.push({
     title: 'Schritt 2: Gesetzliche Rente (steuerpflichtiger Anteil)',
     description: 'Der steuerpflichtige Anteil der gesetzlichen Rente wird zu den Einkünften hinzugefügt.',
@@ -371,10 +374,7 @@ function addStatutoryPensionStep(
 }
 
 // Add other income step to calculation
-function addOtherIncomeStep(
-  steps: CalculationStep[],
-  amount: number,
-): void {
+function addOtherIncomeStep(steps: CalculationStep[], amount: number): void {
   steps.push({
     title: `Schritt ${steps.length + 1}: Andere Einkünfte`,
     description: 'Weitere Einkünfte (Mieteinnahmen, Nebeneinkünfte, etc.) werden zu den Einkünften hinzugefügt.',
@@ -386,16 +386,13 @@ function addOtherIncomeStep(
 }
 
 // Add health care insurance deduction step
-function addHealthCareInsuranceStep(
-  steps: CalculationStep[],
-  amount: number,
-): void {
+function addHealthCareInsuranceStep(steps: CalculationStep[], amount: number): void {
   steps.push({
     title: `Schritt ${steps.length + 1}: Krankenversicherung abziehen`,
-    description: 'Kranken- und Pflegeversicherungsbeiträge sind in Deutschland steuerlich absetzbar und werden von den '
-      + 'Brutto-Einkünften abgezogen.',
-    calculation: `Krankenversicherungsbeiträge = ${formatCurrency(amount)} `
-      + '(steuerlich absetzbar)',
+    description:
+      'Kranken- und Pflegeversicherungsbeiträge sind in Deutschland steuerlich absetzbar und werden von den ' +
+      'Brutto-Einkünften abgezogen.',
+    calculation: `Krankenversicherungsbeiträge = ${formatCurrency(amount)} ` + '(steuerlich absetzbar)',
     result: `-${formatCurrency(amount)}`,
     backgroundColor: '#e1f5fe',
     borderColor: '#81d4fa',
@@ -430,13 +427,10 @@ function getIncomeComponents(params: TaxableIncomeParams): IncomeComponent[] {
       amount: params.healthCareInsuranceAnnual || 0,
       operator: '-' as const,
     },
-  ].filter(component => component.condition)
+  ].filter((component) => component.condition)
 }
 
-function buildTotalIncomeCalculationText(
-  params: TaxableIncomeParams,
-  totalIncome: number,
-): string {
+function buildTotalIncomeCalculationText(params: TaxableIncomeParams, totalIncome: number): string {
   const components = getIncomeComponents(params)
 
   let text = `Gesamte Einkünfte = Portfolio-Entnahme`
@@ -454,14 +448,11 @@ function buildTotalIncomeCalculationText(
 }
 
 // Add total income step if needed
-function addTotalIncomeStepIfNeeded(
-  steps: CalculationStep[],
-  params: TaxableIncomeParams,
-  totalIncome: number,
-): void {
-  const hasMultipleSources = params.statutoryPensionTaxableAmount
-    || params.otherIncomeGrossAmount
-    || (params.healthCareInsuranceAnnual && params.healthCareInsuranceAnnual > 0)
+function addTotalIncomeStepIfNeeded(steps: CalculationStep[], params: TaxableIncomeParams, totalIncome: number): void {
+  const hasMultipleSources =
+    params.statutoryPensionTaxableAmount ||
+    params.otherIncomeGrossAmount ||
+    (params.healthCareInsuranceAnnual && params.healthCareInsuranceAnnual > 0)
 
   if (!hasMultipleSources) {
     return
@@ -484,10 +475,8 @@ function buildTaxableIncomeFinalValues(
   params: TaxableIncomeParams,
   totalIncome: number,
   steuerpflichtig: number,
-): Array<{ label: string, value: string }> {
-  const values = [
-    { label: 'Portfolio-Entnahme', value: formatCurrency(params.entnahme) },
-  ]
+): Array<{ label: string; value: string }> {
+  const values = [{ label: 'Portfolio-Entnahme', value: formatCurrency(params.entnahme) }]
 
   if (params.statutoryPensionTaxableAmount && params.statutoryPensionTaxableAmount > 0) {
     values.push({
@@ -581,7 +570,8 @@ export function createTaxableIncomeExplanation(
 
   return {
     title: '💰 Zu versteuerndes Einkommen Schritt für Schritt',
-    introduction: 'Das zu versteuernde Einkommen ergibt sich aus allen Einkunftsarten (Portfolio-Entnahme, gesetzliche Rente, andere Einkünfte) nach Abzug steuerlich absetzbarer Beiträge (z.B. Krankenversicherung) und dem Grundfreibetrag. Dies ist die Grundlage für die Berechnung der Einkommensteuer.',
+    introduction:
+      'Das zu versteuernde Einkommen ergibt sich aus allen Einkunftsarten (Portfolio-Entnahme, gesetzliche Rente, andere Einkünfte) nach Abzug steuerlich absetzbarer Beiträge (z.B. Krankenversicherung) und dem Grundfreibetrag. Dies ist die Grundlage für die Berechnung der Einkommensteuer.',
     steps,
     finalResult: {
       title: 'Endergebnis',
@@ -703,7 +693,10 @@ export function createStatutoryPensionExplanation(
       title: 'Zusammenfassung der gesetzlichen Rente',
       values: [
         { label: 'Brutto-Rente (jährlich)', value: formatCurrency(grossAnnualAmount) },
-        { label: 'Steuerpflichtiger Anteil', value: `${taxablePercentage.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%` },
+        {
+          label: 'Steuerpflichtiger Anteil',
+          value: `${taxablePercentage.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`,
+        },
         { label: 'Zu versteuernder Betrag', value: formatCurrency(taxableAmount) },
         { label: 'Einkommensteuer', value: formatCurrency(incomeTax) },
         { label: 'Netto-Rente (jährlich)', value: formatCurrency(netAnnualAmount) },
@@ -771,7 +764,7 @@ function buildPrivateInsuranceSteps(
   const steps: CalculationStep[] = []
 
   if (inflationAdjustmentFactor && inflationAdjustmentFactor > 1) {
-    const inflationRate = ((inflationAdjustmentFactor - 1) * 100)
+    const inflationRate = (inflationAdjustmentFactor - 1) * 100
     steps.push({
       title: 'Schritt 1: Inflationsanpassung',
       description: `Die Beiträge werden jährlich um ${inflationRate.toFixed(1)}% angepasst.`,
@@ -853,9 +846,7 @@ function getStatutorySteps(
     return []
   }
 
-  const employerText = includesEmployerContribution
-    ? 'inklusive Arbeitgeberanteil'
-    : 'nur Arbeitnehmeranteil'
+  const employerText = includesEmployerContribution ? 'inklusive Arbeitgeberanteil' : 'nur Arbeitnehmeranteil'
 
   return buildStatutoryInsuranceSteps(
     healthInsuranceAnnual,
@@ -878,7 +869,7 @@ function buildSummaryValues(
   totalAnnual: number,
   monthlyTotal: number,
   year: number | undefined,
-): Array<{ label: string, value: string }> {
+): Array<{ label: string; value: string }> {
   const baseValues = [
     { label: 'Versicherungsart', value: insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat' },
     { label: 'Krankenversicherung (jährlich)', value: formatCurrency(healthInsuranceAnnual) },
@@ -945,9 +936,10 @@ export function createHealthCareInsuranceExplanation(
   const monthlyCareInsurance = careInsuranceAnnual / 12
   const monthlyTotal = totalAnnual / 12
   const title = buildInsuranceTitle(insuranceType)
-  const introduction = insuranceType === 'statutory'
-    ? buildStatutoryIntroduction(isRetirementPhase)
-    : buildPrivateIntroduction(inflationAdjustmentFactor)
+  const introduction =
+    insuranceType === 'statutory'
+      ? buildStatutoryIntroduction(isRetirementPhase)
+      : buildPrivateIntroduction(inflationAdjustmentFactor)
 
   return {
     title,

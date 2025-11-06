@@ -48,7 +48,7 @@ describe('scenarios data', () => {
     })
 
     it('should have unique IDs', () => {
-      const ids = predefinedScenarios.map(s => s.id)
+      const ids = predefinedScenarios.map((s) => s.id)
       const uniqueIds = new Set(ids)
       expect(uniqueIds.size).toBe(ids.length)
     })
@@ -124,7 +124,7 @@ describe('scenarios data', () => {
     it('should find scenarios by name', () => {
       const results = searchScenarios('Einsteiger')
       expect(results.length).toBeGreaterThan(0)
-      const hasMatch = results.some(s => s.name.toLowerCase().includes('einsteiger'))
+      const hasMatch = results.some((s) => s.name.toLowerCase().includes('einsteiger'))
       expect(hasMatch).toBe(true)
     })
 
@@ -174,7 +174,7 @@ describe('scenarios data', () => {
     })
 
     it('should have volatility when return mode is random', () => {
-      const randomScenarios = predefinedScenarios.filter(s => s.config.returnMode === 'random')
+      const randomScenarios = predefinedScenarios.filter((s) => s.config.returnMode === 'random')
       randomScenarios.forEach((scenario) => {
         expect(scenario.config.volatility).toBeGreaterThan(0)
       })

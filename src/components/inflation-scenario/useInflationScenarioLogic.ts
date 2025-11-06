@@ -24,9 +24,7 @@ interface UseInflationScenarioStateParams {
   simulationStartYear: number
 }
 
-const useInflationScenarioState = ({
-  simulationStartYear,
-}: UseInflationScenarioStateParams) => {
+const useInflationScenarioState = ({ simulationStartYear }: UseInflationScenarioStateParams) => {
   const [isEnabled, setIsEnabled] = useState(false)
   const [selectedScenarioId, setSelectedScenarioId] = useState<InflationScenarioId | 'none'>('none')
   const [scenarioYear, setScenarioYear] = useState(simulationStartYear + 5)
@@ -52,23 +50,22 @@ const useScenarioData = (selectedScenarioId: InflationScenarioId | 'none') => {
   const availableScenarios = useMemo(() => getAvailableInflationScenarios(), [])
 
   const selectedScenario = useMemo(() => {
-    if (selectedScenarioId === 'none')
-      return null
-    return availableScenarios.find(s => s.id === selectedScenarioId) || null
+    if (selectedScenarioId === 'none') return null
+    return availableScenarios.find((s) => s.id === selectedScenarioId) || null
   }, [selectedScenarioId, availableScenarios])
 
   const cumulativeInflation = useMemo(
-    () => selectedScenario ? calculateCumulativeInflation(selectedScenario) : null,
+    () => (selectedScenario ? calculateCumulativeInflation(selectedScenario) : null),
     [selectedScenario],
   )
 
   const averageInflation = useMemo(
-    () => selectedScenario ? calculateAverageInflation(selectedScenario) : null,
+    () => (selectedScenario ? calculateAverageInflation(selectedScenario) : null),
     [selectedScenario],
   )
 
   const purchasingPowerImpact = useMemo(
-    () => selectedScenario ? calculatePurchasingPowerImpact(selectedScenario, 100000) : null,
+    () => (selectedScenario ? calculatePurchasingPowerImpact(selectedScenario, 100000) : null),
     [selectedScenario],
   )
 
@@ -91,8 +88,7 @@ const createChangeNotifier = (
   return (scenario: InflationScenario | null, year: number, enabled: boolean) => {
     if (!enabled || !scenario) {
       onScenarioChange?.(null, null, '')
-    }
-    else {
+    } else {
       const inflationRates = applyInflationScenario(year, scenario)
       const returnModifiers = applyReturnModifiers(year, scenario)
       onScenarioChange?.(inflationRates, returnModifiers, scenario.name)
@@ -119,7 +115,7 @@ export const useInflationScenarioLogic = ({
 
   const handleScenarioChange = (scenarioId: InflationScenarioId) => {
     state.setSelectedScenarioId(scenarioId)
-    const scenario = data.availableScenarios.find(s => s.id === scenarioId)
+    const scenario = data.availableScenarios.find((s) => s.id === scenarioId)
     if (scenario) {
       notifyChange(scenario, state.scenarioYear, state.isEnabled)
     }

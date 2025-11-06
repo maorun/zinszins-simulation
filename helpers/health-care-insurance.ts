@@ -227,8 +227,8 @@ export interface CoupleHealthInsuranceYearResult {
   person2: CoupleHealthInsurancePersonResult
   /** Comparison of different strategies */
   strategyComparison: {
-    individual: { totalAnnual: number, totalMonthly: number }
-    family: { totalAnnual: number, totalMonthly: number, primaryInsuredPerson: 1 | 2 }
+    individual: { totalAnnual: number; totalMonthly: number }
+    family: { totalAnnual: number; totalMonthly: number; primaryInsuredPerson: 1 | 2 }
     optimized: {
       totalAnnual: number
       totalMonthly: number
@@ -319,10 +319,7 @@ function calculateStatutoryBaseIncome(
 ): number {
   const totalIncome = withdrawalAmount + pensionAmount
   const maxIncomeBase = config.healthInsuranceIncomeThreshold || config.statutoryMaximumIncomeBase
-  return Math.max(
-    config.statutoryMinimumIncomeBase,
-    Math.min(totalIncome, maxIncomeBase),
-  )
+  return Math.max(config.statutoryMinimumIncomeBase, Math.min(totalIncome, maxIncomeBase))
 }
 
 /**
@@ -331,7 +328,7 @@ function calculateStatutoryBaseIncome(
 function calculateStatutoryRates(
   config: HealthCareInsuranceConfig,
   isRetirementPhase: boolean,
-): { healthRate: number, careRate: number } {
+): { healthRate: number; careRate: number } {
   let healthRate = config.statutoryHealthInsuranceRate
   let careRate = config.statutoryCareInsuranceRate
 
@@ -342,8 +339,7 @@ function calculateStatutoryRates(
     if (config.careInsuranceRatePreRetirement !== undefined) {
       careRate = config.careInsuranceRatePreRetirement
     }
-  }
-  else {
+  } else {
     if (config.healthInsuranceRateRetirement !== undefined) {
       healthRate = config.healthInsuranceRateRetirement
     }
@@ -365,7 +361,7 @@ function applyAdditionalCareInsurance(
   config: HealthCareInsuranceConfig,
   currentAge: number,
   careRate: number,
-): { careRate: number, applied: boolean } {
+): { careRate: number; applied: boolean } {
   if (config.additionalCareInsuranceForChildless && currentAge >= config.additionalCareInsuranceAge) {
     return { careRate: careRate + 0.6, applied: true }
   }
@@ -413,7 +409,7 @@ function calculateStatutoryInsuranceResult(
 function calculateInflationAdjustedPremiums(
   config: HealthCareInsuranceConfig,
   year: number,
-): { adjustedHealthMonthly: number, adjustedCareMonthly: number, inflationFactor: number } {
+): { adjustedHealthMonthly: number; adjustedCareMonthly: number; inflationFactor: number } {
   const yearsFromStart = Math.max(0, year - config.retirementStartYear)
   const inflationFactor = Math.pow(1 + config.privateInsuranceInflationRate / 100, yearsFromStart)
   const adjustedHealthMonthly = config.privateHealthInsuranceMonthly * inflationFactor
@@ -430,7 +426,7 @@ function applyPrivateAdditionalCareInsurance(
   adjustedCareMonthly: number,
   withdrawalAmount: number,
   pensionAmount: number,
-): { finalCareMonthly: number, applied: boolean } {
+): { finalCareMonthly: number; applied: boolean } {
   if (config.additionalCareInsuranceForChildless && currentAge >= config.additionalCareInsuranceAge) {
     const additionalCareAnnual = (withdrawalAmount + pensionAmount) * 0.006
     return { finalCareMonthly: adjustedCareMonthly + additionalCareAnnual / 12, applied: true }
@@ -449,8 +445,10 @@ function calculatePrivateInsuranceResult(
   currentAge: number,
   isRetirementPhase: boolean,
 ): HealthCareInsuranceYearResult {
-  const { adjustedHealthMonthly, adjustedCareMonthly, inflationFactor }
-    = calculateInflationAdjustedPremiums(config, year)
+  const { adjustedHealthMonthly, adjustedCareMonthly, inflationFactor } = calculateInflationAdjustedPremiums(
+    config,
+    year,
+  )
   const { finalCareMonthly, applied } = applyPrivateAdditionalCareInsurance(
     config,
     currentAge,
@@ -522,13 +520,7 @@ export function calculateHealthCareInsurance(
     const pensionAmount = pensionAmounts[year] || 0
     const currentAge = birthYear ? year - birthYear : 30
 
-    result[year] = calculateHealthCareInsuranceForYear(
-      config,
-      year,
-      withdrawalAmount,
-      pensionAmount,
-      currentAge,
-    )
+    result[year] = calculateHealthCareInsuranceForYear(config, year, withdrawalAmount, pensionAmount, currentAge)
   }
 
   return result
@@ -558,10 +550,7 @@ function calculatePersonHealthInsurance(
 /**
  * Check if a person qualifies for family insurance based on their income
  */
-function qualifiesForFamilyInsurance(
-  monthlyIncome: number,
-  thresholds: FamilyInsuranceThresholds,
-): boolean {
+function qualifiesForFamilyInsurance(monthlyIncome: number, thresholds: FamilyInsuranceThresholds): boolean {
   // Use regular employment limit as default, mini-job limit would need specific employment type
   return monthlyIncome <= thresholds.regularEmploymentLimit
 }
@@ -577,9 +566,7 @@ type CreatePersonResultParams = {
   qualifiesForFamilyInsurance: boolean
 }
 
-function createPersonResult(
-  params: CreatePersonResultParams,
-): CoupleHealthInsurancePersonResult {
+function createPersonResult(params: CreatePersonResultParams): CoupleHealthInsurancePersonResult {
   return {
     personId: params.personId,
     name: params.name,
@@ -592,9 +579,7 @@ function createPersonResult(
   }
 }
 
-function createZeroInsuranceResult(
-  baseResult: HealthCareInsuranceYearResult,
-): HealthCareInsuranceYearResult {
+function createZeroInsuranceResult(baseResult: HealthCareInsuranceYearResult): HealthCareInsuranceYearResult {
   return {
     ...baseResult,
     totalAnnual: 0,
@@ -642,9 +627,7 @@ function calculateFamilyScenarios(
   return scenarios
 }
 
-function getBestFamilyOption(
-  scenarios: FamilyInsuranceScenario[],
-): FamilyInsuranceScenario {
+function getBestFamilyOption(scenarios: FamilyInsuranceScenario[]): FamilyInsuranceScenario {
   if (scenarios.length === 0) {
     return {
       primaryPerson: 1,
@@ -654,9 +637,7 @@ function getBestFamilyOption(
     }
   }
 
-  return scenarios.reduce((best, current) =>
-    current.totalCost < best.totalCost ? current : best,
-  )
+  return scenarios.reduce((best, current) => (current.totalCost < best.totalCost ? current : best))
 }
 
 type PersonData = {
@@ -707,12 +688,7 @@ function applyIndividualStrategy(params: ApplyStrategyParams) {
 /**
  * Create family strategy result with primary and covered person
  */
-function createFamilyResult(
-  person1Data: PersonData,
-  person2Data: PersonData,
-  primaryPerson: 1 | 2,
-  totalCost: number,
-) {
+function createFamilyResult(person1Data: PersonData, person2Data: PersonData, primaryPerson: 1 | 2, totalCost: number) {
   const isPerson1Primary = primaryPerson === 1
 
   return {
@@ -753,11 +729,7 @@ function applyFamilyStrategy(params: ApplyStrategyParams) {
 /**
  * Calculate individual person income
  */
-function calculatePersonIncome(
-  totalWithdrawal: number,
-  withdrawalShare: number,
-  otherIncomeAnnual: number,
-): number {
+function calculatePersonIncome(totalWithdrawal: number, withdrawalShare: number, otherIncomeAnnual: number): number {
   return totalWithdrawal * withdrawalShare + otherIncomeAnnual
 }
 
@@ -802,19 +774,15 @@ function applyBestStrategy(params: ApplyStrategyParams) {
   }
 
   // Auto-optimize strategy
-  const bestStrategy = bestFamilyOption.viable && bestFamilyOption.totalCost < individualTotalAnnual
-    ? 'family'
-    : 'individual'
+  const bestStrategy =
+    bestFamilyOption.viable && bestFamilyOption.totalCost < individualTotalAnnual ? 'family' : 'individual'
 
   return bestStrategy === 'family'
     ? applyFamilyStrategy({ ...params, strategy: 'family' })
     : applyIndividualStrategy({ ...params, strategy: 'individual' })
 }
 
-function calculateCoupleIncomes(
-  totalWithdrawal: number,
-  coupleConfig: CoupleHealthInsuranceConfig,
-) {
+function calculateCoupleIncomes(totalWithdrawal: number, coupleConfig: CoupleHealthInsuranceConfig) {
   const person1Income = calculatePersonIncome(
     totalWithdrawal,
     coupleConfig.person1.withdrawalShare,
@@ -834,14 +802,8 @@ function calculateFamilyQualifications(
   familyInsuranceThresholds: FamilyInsuranceThresholds,
 ) {
   return {
-    person1QualifiesForFamily: qualifiesForFamilyInsurance(
-      person1Income / 12,
-      familyInsuranceThresholds,
-    ),
-    person2QualifiesForFamily: qualifiesForFamilyInsurance(
-      person2Income / 12,
-      familyInsuranceThresholds,
-    ),
+    person1QualifiesForFamily: qualifiesForFamilyInsurance(person1Income / 12, familyInsuranceThresholds),
+    person2QualifiesForFamily: qualifiesForFamilyInsurance(person2Income / 12, familyInsuranceThresholds),
   }
 }
 
@@ -1002,17 +964,16 @@ export function calculateCoupleHealthInsuranceForYear(
 
   const insuranceData = calculateCoupleInsuranceData(config, year, totalWithdrawal, coupleConfig)
 
-  const { individualTotalAnnual, familyScenarios, bestFamilyOption, person1Data, person2Data }
-    = prepareStrategyData(
-      coupleConfig,
-      totalWithdrawal,
-      insuranceData.person1Income,
-      insuranceData.person2Income,
-      insuranceData.person1QualifiesForFamily,
-      insuranceData.person2QualifiesForFamily,
-      insuranceData.person1IndividualResult,
-      insuranceData.person2IndividualResult,
-    )
+  const { individualTotalAnnual, familyScenarios, bestFamilyOption, person1Data, person2Data } = prepareStrategyData(
+    coupleConfig,
+    totalWithdrawal,
+    insuranceData.person1Income,
+    insuranceData.person2Income,
+    insuranceData.person1QualifiesForFamily,
+    insuranceData.person2QualifiesForFamily,
+    insuranceData.person1IndividualResult,
+    insuranceData.person2IndividualResult,
+  )
 
   const result = applyBestStrategy({
     strategy: coupleConfig.strategy,
@@ -1054,12 +1015,7 @@ export function calculateCoupleHealthCareInsurance(
     const withdrawalAmount = withdrawalAmounts[year] || 0
     const pensionAmount = pensionAmounts[year] || 0
 
-    result[year] = calculateCoupleHealthInsuranceForYear(
-      config,
-      year,
-      withdrawalAmount,
-      pensionAmount,
-    )
+    result[year] = calculateCoupleHealthInsuranceForYear(config, year, withdrawalAmount, pensionAmount)
   }
 
   return result
@@ -1180,11 +1136,9 @@ export function getHealthCareInsuranceDisplayInfo(config: HealthCareInsuranceCon
   let details
   if (config.useFixedAmounts) {
     details = getFixedAmountsDisplayDetails(config)
-  }
-  else if (config.insuranceType === 'statutory') {
+  } else if (config.insuranceType === 'statutory') {
     details = getStatutoryInsuranceDisplayDetails(config)
-  }
-  else {
+  } else {
     details = getPrivateInsuranceDisplayDetails(config)
   }
 

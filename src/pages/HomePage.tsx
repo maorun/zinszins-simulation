@@ -9,9 +9,7 @@ const HomePageContent = () => {
   const overviewRef = useRef<HTMLDivElement>(null)
   const { isLoading } = useSimulation()
 
-  return (
-    <HomePageLayout overviewRef={overviewRef} isLoading={isLoading} />
-  )
+  return <HomePageLayout overviewRef={overviewRef} isLoading={isLoading} />
 }
 
 export default function HomePage() {

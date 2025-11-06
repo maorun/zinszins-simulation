@@ -14,9 +14,7 @@ export function useBasicFinancialState(config: BasicFinancialStateConfig) {
 
   const [rendite, setRendite] = useState(initialConfig.rendite)
   const [steuerlast, setSteuerlast] = useState(initialConfig.steuerlast)
-  const [teilfreistellungsquote, setTeilfreistellungsquote] = useState(
-    initialConfig.teilfreistellungsquote,
-  )
+  const [teilfreistellungsquote, setTeilfreistellungsquote] = useState(initialConfig.teilfreistellungsquote)
   const [freibetragPerYear, setFreibetragPerYear] = useState<{ [year: number]: number }>(
     initialConfig.freibetragPerYear,
   )

@@ -61,7 +61,7 @@ describe('Random Returns Utility', () => {
       const allReturns = Object.values(returns)
 
       // All returns should be >= -0.5 (minimum -50%)
-      expect(allReturns.every(r => r >= -0.5)).toBe(true)
+      expect(allReturns.every((r) => r >= -0.5)).toBe(true)
     })
 
     test('should use default standard deviation if not provided', () => {
@@ -105,7 +105,7 @@ describe('Random Returns Utility', () => {
       const runs = 5
 
       const results = generateMonteCarloReturns(years, config, runs)
-      const returns2025 = results.map(r => r[2025])
+      const returns2025 = results.map((r) => r[2025])
 
       // All runs should have different returns (very unlikely to be same with proper seeding)
       const uniqueReturns = new Set(returns2025)
@@ -160,14 +160,14 @@ describe('Random Returns Utility', () => {
       const years = [2025]
       const config: RandomReturnConfig = {
         averageReturn: 0.07,
-        standardDeviation: 0.10, // Smaller std dev to avoid too much clamping
+        standardDeviation: 0.1, // Smaller std dev to avoid too much clamping
         seed: 42,
       }
 
       // Generate many samples
       const samples = 10000
       const results = generateMonteCarloReturns(years, config, samples)
-      const returns = results.map(r => r[2025])
+      const returns = results.map((r) => r[2025])
 
       const stats = calculateMonteCarloStatistics(returns)
 
@@ -176,7 +176,7 @@ describe('Random Returns Utility', () => {
 
       // Standard deviation should be reasonably close (allowing for clamping effects)
       expect(stats.standardDeviation).toBeGreaterThan(0.05)
-      expect(stats.standardDeviation).toBeLessThan(0.20)
+      expect(stats.standardDeviation).toBeLessThan(0.2)
     })
   })
 })

@@ -9,9 +9,7 @@ interface VorabpauschaleCalculationStepsProps {
   selectedVorabDetails: VorabpauschaleDetails
 }
 
-const VorabpauschaleCalculationSteps = ({
-  selectedVorabDetails,
-}: VorabpauschaleCalculationStepsProps) => {
+const VorabpauschaleCalculationSteps = ({ selectedVorabDetails }: VorabpauschaleCalculationStepsProps) => {
   return (
     <div style={{ marginBottom: '24px' }}>
       <h5 style={{ color: '#1976d2', marginBottom: '16px' }}>🧮 Schritt-für-Schritt Berechnung</h5>

@@ -107,10 +107,7 @@ describe('Variable Tax Allowance (Freibetrag) Tests', () => {
     })
 
     test('should handle multiple elements with different year-specific freibetrag', () => {
-      const elements = [
-        createTestElement('2023', 30000),
-        createTestElement('2024', 35000),
-      ]
+      const elements = [createTestElement('2023', 30000), createTestElement('2024', 35000)]
       const freibetragPerYear = {
         2023: 2000,
         2024: 4000,

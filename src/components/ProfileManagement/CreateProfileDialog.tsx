@@ -36,7 +36,7 @@ export function CreateProfileDialog({
             <Input
               id="create-name"
               value={formData.name}
-              onChange={e => onFormDataChange({ ...formData, name: e.target.value })}
+              onChange={(e) => onFormDataChange({ ...formData, name: e.target.value })}
               placeholder="z.B. Familie Müller, Test Szenario 1"
               className="mt-1"
             />
@@ -46,7 +46,7 @@ export function CreateProfileDialog({
             <Input
               id="create-description"
               value={formData.description}
-              onChange={e => onFormDataChange({ ...formData, description: e.target.value })}
+              onChange={(e) => onFormDataChange({ ...formData, description: e.target.value })}
               placeholder="Kurze Beschreibung des Profils"
               className="mt-1"
             />
@@ -55,9 +55,7 @@ export function CreateProfileDialog({
             <Button variant="outline" onClick={() => onOpenChange(false)}>
               Abbrechen
             </Button>
-            <Button onClick={onSubmit}>
-              Profil erstellen
-            </Button>
+            <Button onClick={onSubmit}>Profil erstellen</Button>
           </div>
         </div>
       </DialogContent>

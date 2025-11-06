@@ -57,9 +57,7 @@ export function HealthCareInsuranceCard({
       <CollapsibleCardHeader>
         🏥 Kranken- und Pflegeversicherung
         <span className="text-sm font-normal text-muted-foreground">
-          (
-          {values.insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat'}
-          )
+          ({values.insuranceType === 'statutory' ? 'Gesetzlich' : 'Privat'})
         </span>
       </CollapsibleCardHeader>
       <CollapsibleCardContent>

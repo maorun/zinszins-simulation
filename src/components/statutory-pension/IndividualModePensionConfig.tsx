@@ -9,11 +9,7 @@ interface IndividualModePensionConfigProps {
   nestingLevel: number
 }
 
-export function IndividualModePensionConfig({
-  config,
-  onChange,
-  nestingLevel,
-}: IndividualModePensionConfigProps) {
+export function IndividualModePensionConfig({ config, onChange, nestingLevel }: IndividualModePensionConfigProps) {
   if (!config.individual) return null
 
   return (
