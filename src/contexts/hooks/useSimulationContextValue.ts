@@ -104,8 +104,14 @@ function useBasicReturnValues(state: Record<string, unknown>) {
  * Hook for random return configuration values
  */
 function useRandomReturnValues(state: Record<string, unknown>) {
-  const { averageReturn, setAverageReturn, standardDeviation, setStandardDeviation, randomSeed, setRandomSeed } =
-    state
+  const {
+    averageReturn,
+    setAverageReturn,
+    standardDeviation,
+    setStandardDeviation,
+    randomSeed,
+    setRandomSeed,
+  } = state
   return useMemo(
     () => ({
       averageReturn,
