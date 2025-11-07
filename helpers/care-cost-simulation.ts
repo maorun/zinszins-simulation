@@ -200,7 +200,16 @@ export interface CareCostPersonResult {
 }
 
 /**
- * Default care cost configuration
+ * Create default care cost configuration
+ * 
+ * Provides sensible defaults for German care cost simulation:
+ * - Care starts in 15 years
+ * - Care level 2 (moderate care needs)
+ * - 3% annual inflation for care costs
+ * - Statutory benefits included
+ * - Tax deductible (up to 20,000€ annually)
+ * 
+ * @returns Default care cost configuration for individual planning
  */
 export function createDefaultCareCostConfiguration(): CareCostConfiguration {
   return {
@@ -219,6 +228,10 @@ export function createDefaultCareCostConfiguration(): CareCostConfiguration {
 
 /**
  * Create empty care cost result for a year
+ * 
+ * @param year - Year of result
+ * @param careLevel - Care level (1-5)
+ * @returns Empty care cost result with zero costs
  */
 function createEmptyCareCostResult(year: number, careLevel: CareLevel): CareCostYearResult {
   return {
@@ -237,6 +250,10 @@ function createEmptyCareCostResult(year: number, careLevel: CareLevel): CareCost
 
 /**
  * Check if care has ended based on duration
+ * 
+ * @param config - Care cost configuration
+ * @param year - Current year
+ * @returns true if care period has ended, false if continuing
  */
 function hasCareEnded(config: CareCostConfiguration, year: number): boolean {
   if (config.careDurationYears <= 0) {
@@ -248,6 +265,10 @@ function hasCareEnded(config: CareCostConfiguration, year: number): boolean {
 
 /**
  * Calculate inflation adjustment factor
+ * 
+ * @param config - Care cost configuration with inflation rate
+ * @param year - Current year
+ * @returns Inflation adjustment factor (e.g., 1.0927 for 3% over 3 years)
  */
 function calculateInflationFactor(config: CareCostConfiguration, year: number): number {
   const yearsFromStart = Math.max(0, year - config.startYear)
@@ -256,6 +277,10 @@ function calculateInflationFactor(config: CareCostConfiguration, year: number): 
 
 /**
  * Calculate monthly gross costs with inflation
+ * 
+ * @param config - Care cost configuration
+ * @param inflationFactor - Inflation adjustment factor
+ * @returns Monthly gross care costs in EUR
  */
 function calculateMonthlyGrossCosts(config: CareCostConfiguration, inflationFactor: number): number {
   const careLevelInfo = DEFAULT_CARE_LEVELS[config.careLevel]
@@ -265,6 +290,9 @@ function calculateMonthlyGrossCosts(config: CareCostConfiguration, inflationFact
 
 /**
  * Calculate statutory benefits
+ * 
+ * @param config - Care cost configuration
+ * @returns Monthly statutory care allowance (Pflegegeld) in EUR
  */
 function calculateStatutoryBenefits(config: CareCostConfiguration): number {
   if (!config.includeStatutoryBenefits) {
@@ -275,7 +303,11 @@ function calculateStatutoryBenefits(config: CareCostConfiguration): number {
 }
 
 /**
- * Calculate tax deduction
+ * Calculate tax deduction for care costs
+ * 
+ * @param config - Care cost configuration
+ * @param annualCostsNet - Annual net care costs in EUR
+ * @returns Tax deduction amount (capped at maxAnnualTaxDeduction)
  */
 function calculateTaxDeduction(config: CareCostConfiguration, annualCostsNet: number): number {
   if (!config.taxDeductible || annualCostsNet <= 0) {
@@ -286,6 +318,19 @@ function calculateTaxDeduction(config: CareCostConfiguration, annualCostsNet: nu
 
 /**
  * Calculate care costs for a specific year
+ * 
+ * Calculates comprehensive care costs including:
+ * - Inflation-adjusted gross costs
+ * - Statutory insurance benefits (Pflegegeld)
+ * - Private insurance benefits
+ * - Net out-of-pocket costs
+ * - Tax deduction for extraordinary burdens
+ * 
+ * @param config - Care cost configuration
+ * @param year - Year to calculate costs for
+ * @param _birthYear - Birth year (optional, reserved for future use)
+ * @param _spouseBirthYear - Spouse birth year (optional, reserved for future use)
+ * @returns Detailed care cost calculation for the year
  */
 export function calculateCareCostsForYear(
   config: CareCostConfiguration,
@@ -359,6 +404,12 @@ export function calculateCareCostsForYear(
 
 /**
  * Calculate net monthly care costs after benefits
+ * 
+ * @param config - Care cost configuration
+ * @param baseMonthlyCost - Base monthly cost before inflation
+ * @param careLevel - Care level (1-5)
+ * @param inflationAdjustmentFactor - Inflation adjustment factor
+ * @returns Net monthly out-of-pocket costs in EUR
  */
 function calculateNetMonthlyCosts(
   config: CareCostConfiguration,
@@ -470,6 +521,12 @@ function calculatePerson2CareCosts(
 
 /**
  * Calculate care costs for an individual person in a couple
+ * 
+ * @param config - Care cost configuration
+ * @param year - Current year
+ * @param personId - Person identifier (1 or 2)
+ * @param inflationAdjustmentFactor - Inflation adjustment factor
+ * @returns Care cost result for the specified person
  */
 function calculatePersonCareCosts(
   config: CareCostConfiguration,
@@ -486,6 +543,18 @@ function calculatePersonCareCosts(
 
 /**
  * Calculate total care costs over a period
+ * 
+ * Aggregates care costs for all years in the specified period, including:
+ * - Total net out-of-pocket costs
+ * - Total tax deductions for extraordinary burdens
+ * - Year-by-year detailed results
+ * 
+ * @param config - Care cost configuration
+ * @param startYear - First year of calculation period
+ * @param endYear - Last year of calculation period
+ * @param birthYear - Birth year (optional, reserved for future use)
+ * @param spouseBirthYear - Spouse birth year (optional, reserved for future use)
+ * @returns Aggregated care costs and detailed yearly results
  */
 export function calculateTotalCareCosts(
   config: CareCostConfiguration,
@@ -518,6 +587,9 @@ export function calculateTotalCareCosts(
 
 /**
  * Get display name for care level
+ * 
+ * @param level - Care level (1-5)
+ * @returns German display name (e.g., "Pflegegrad 3")
  */
 export function getCareLevelDisplayName(level: CareLevel): string {
   return DEFAULT_CARE_LEVELS[level].name
@@ -525,6 +597,9 @@ export function getCareLevelDisplayName(level: CareLevel): string {
 
 /**
  * Get description for care level
+ * 
+ * @param level - Care level (1-5)
+ * @returns German description of impairment level
  */
 export function getCareLevelDescription(level: CareLevel): string {
   return DEFAULT_CARE_LEVELS[level].description
