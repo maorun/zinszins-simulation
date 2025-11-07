@@ -99,7 +99,7 @@ export interface SimulateOptions {
  * @param result - Simulation result element for a single year
  * @param year - Current year
  * @param baseYear - Base year for inflation calculation
- * @param inflationRate - Annual inflation rate as percentage (e.g., 2.5)
+ * @param inflationRate - Annual inflation rate as percentage (e.g., 2.5 for 2.5%). Converted to decimal internally.
  * @returns Updated result with real (inflation-adjusted) values
  */
 function addInflationAdjustedValues(

@@ -15,8 +15,10 @@ import {
 } from './multi-asset-portfolio'
 
 /**
- * Simple Linear Congruential Generator for reproducible random numbers
- * Uses the MINSTD Lehmer RNG algorithm for deterministic pseudo-random number generation
+ * Park-Miller Minimal Standard Linear Congruential Generator for reproducible random numbers
+ * 
+ * Uses the Park-Miller algorithm (multiplier 16807) for deterministic pseudo-random 
+ * number generation. This is a commonly used variant of the Linear Congruential Generator.
  */
 class SeededRandom {
   private seed: number
