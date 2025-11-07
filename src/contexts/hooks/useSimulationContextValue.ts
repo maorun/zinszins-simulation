@@ -116,18 +116,52 @@ function useTaxValues(state: Record<string, unknown>) {
   )
 }
 
-function useReturnValues(state: Record<string, unknown>) {
+/**
+ * Hook for basic return values (fixed return rate and return mode)
+ */
+function useBasicReturnValues(state: Record<string, unknown>) {
+  const { rendite, setRendite, returnMode, setReturnMode } = state
+  return useMemo(
+    () => ({
+      rendite,
+      setRendite,
+      returnMode,
+      setReturnMode,
+    }),
+    [rendite, setRendite, returnMode, setReturnMode],
+  )
+}
+
+/**
+ * Hook for random return configuration values
+ */
+function useRandomReturnValues(state: Record<string, unknown>) {
   const {
-    rendite,
-    setRendite,
-    returnMode,
-    setReturnMode,
     averageReturn,
     setAverageReturn,
     standardDeviation,
     setStandardDeviation,
     randomSeed,
     setRandomSeed,
+  } = state
+  return useMemo(
+    () => ({
+      averageReturn,
+      setAverageReturn,
+      standardDeviation,
+      setStandardDeviation,
+      randomSeed,
+      setRandomSeed,
+    }),
+    [averageReturn, setAverageReturn, standardDeviation, setStandardDeviation, randomSeed, setRandomSeed],
+  )
+}
+
+/**
+ * Hook for advanced return configuration values (variable, historical, black swan)
+ */
+function useAdvancedReturnValues(state: Record<string, unknown>) {
+  const {
     variableReturns,
     setVariableReturns,
     historicalIndex,
@@ -136,23 +170,9 @@ function useReturnValues(state: Record<string, unknown>) {
     setBlackSwanReturns,
     blackSwanEventName,
     setBlackSwanEventName,
-    multiAssetConfig,
-    setMultiAssetConfig,
-    withdrawalMultiAssetConfig,
-    setWithdrawalMultiAssetConfig,
   } = state
   return useMemo(
     () => ({
-      rendite,
-      setRendite,
-      returnMode,
-      setReturnMode,
-      averageReturn,
-      setAverageReturn,
-      standardDeviation,
-      setStandardDeviation,
-      randomSeed,
-      setRandomSeed,
       variableReturns,
       setVariableReturns,
       historicalIndex,
@@ -161,35 +181,53 @@ function useReturnValues(state: Record<string, unknown>) {
       setBlackSwanReturns,
       blackSwanEventName,
       setBlackSwanEventName,
+    }),
+    [
+      variableReturns,
+      setVariableReturns,
+      historicalIndex,
+      setHistoricalIndex,
+      blackSwanReturns,
+      setBlackSwanReturns,
+      blackSwanEventName,
+      setBlackSwanEventName,
+    ],
+  )
+}
+
+/**
+ * Hook for multi-asset portfolio configuration values
+ */
+function useMultiAssetValues(state: Record<string, unknown>) {
+  const { multiAssetConfig, setMultiAssetConfig, withdrawalMultiAssetConfig, setWithdrawalMultiAssetConfig } = state
+  return useMemo(
+    () => ({
       multiAssetConfig,
       setMultiAssetConfig,
       withdrawalMultiAssetConfig,
       setWithdrawalMultiAssetConfig,
     }),
-    [
-      rendite,
-      setRendite,
-      returnMode,
-      setReturnMode,
-      averageReturn,
-      setAverageReturn,
-      standardDeviation,
-      setStandardDeviation,
-      randomSeed,
-      setRandomSeed,
-      variableReturns,
-      setVariableReturns,
-      historicalIndex,
-      setHistoricalIndex,
-      blackSwanReturns,
-      setBlackSwanReturns,
-      blackSwanEventName,
-      setBlackSwanEventName,
-      multiAssetConfig,
-      setMultiAssetConfig,
-      withdrawalMultiAssetConfig,
-      setWithdrawalMultiAssetConfig,
-    ],
+    [multiAssetConfig, setMultiAssetConfig, withdrawalMultiAssetConfig, setWithdrawalMultiAssetConfig],
+  )
+}
+
+/**
+ * Hook for all return-related values, composing the various return value hooks
+ */
+function useReturnValues(state: Record<string, unknown>) {
+  const basicReturnValues = useBasicReturnValues(state)
+  const randomReturnValues = useRandomReturnValues(state)
+  const advancedReturnValues = useAdvancedReturnValues(state)
+  const multiAssetValues = useMultiAssetValues(state)
+
+  return useMemo(
+    () => ({
+      ...basicReturnValues,
+      ...randomReturnValues,
+      ...advancedReturnValues,
+      ...multiAssetValues,
+    }),
+    [basicReturnValues, randomReturnValues, advancedReturnValues, multiAssetValues],
   )
 }
 
