@@ -402,7 +402,8 @@ export interface ProgressiveTaxResult {
  * Tax = (y * z + 1400) * z where z = (taxable income - 11,604) / 10,000
  */
 function calculateZone2Tax(taxableIncome: number, y: number, linearCoefficient: number): number {
-  const z = (taxableIncome - 11604) / 10000
+  const grundfreibetrag = GERMAN_TAX_BRACKETS_2024[0].to ?? 11604
+  const z = (taxableIncome - grundfreibetrag) / 10000
   return (y * z + linearCoefficient) * z
 }
 
@@ -411,8 +412,11 @@ function calculateZone2Tax(taxableIncome: number, y: number, linearCoefficient: 
  * Tax = (y * z + 2397) * z + base where z = (taxable income - 17,005) / 10,000
  */
 function calculateZone3Tax(taxableIncome: number, y: number, linearCoefficient: number): number {
-  const z = (taxableIncome - 17005) / 10000
-  const zoneBase = calculateZone2Tax(17005, 922.98, 1400)
+  const zone2Upper = GERMAN_TAX_BRACKETS_2024[1].to ?? 17005
+  const zone2Y = GERMAN_TAX_BRACKETS_2024[1].y ?? 922.98
+  const zone2Linear = GERMAN_TAX_BRACKETS_2024[1].linearCoefficient ?? 1400
+  const z = (taxableIncome - zone2Upper) / 10000
+  const zoneBase = calculateZone2Tax(zone2Upper, zone2Y, zone2Linear)
   return (y * z + linearCoefficient) * z + zoneBase
 }
 

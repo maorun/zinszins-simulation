@@ -51,4 +51,3 @@ export function ProgressiveTaxInfoSection({ guenstigerPruefungAktiv }: Progressi
     </div>
   )
 }
-
