@@ -5,6 +5,7 @@ import {
   type IncomeType,
   createDefaultRealEstateConfig,
   createDefaultKindergeldConfig,
+  createDefaultBURenteConfig,
 } from '../../../helpers/other-income'
 import { useFormId } from '../../utils/unique-id'
 import { NameInputSection } from './NameInputSection'
@@ -48,6 +49,24 @@ function configureKindergeldSettings(source: OtherIncomeSource, newType: IncomeT
   }
 }
 
+// Helper to apply BU-Rente defaults
+function applyBURenteDefaults(source: OtherIncomeSource): void {
+  source.buRenteConfig = createDefaultBURenteConfig()
+  source.amountType = 'gross'
+  source.taxRate = 25.0 // Typical personal income tax rate
+  source.inflationRate = 0 // BU-Rente typically has fixed amounts
+  source.monthlyAmount = 1500
+}
+
+// Helper to configure BU-Rente settings based on income type
+function configureBURenteSettings(source: OtherIncomeSource, newType: IncomeType): void {
+  if (newType === 'bu_rente' && !source.buRenteConfig) {
+    applyBURenteDefaults(source)
+  } else if (newType !== 'bu_rente' && source.buRenteConfig) {
+    delete source.buRenteConfig
+  }
+}
+
 // Helper to handle income type change
 function handleIncomeTypeChange(
   newType: IncomeType,
@@ -57,6 +76,7 @@ function handleIncomeTypeChange(
   const updatedSource = { ...currentSource, type: newType }
   configureRealEstateSettings(updatedSource, newType)
   configureKindergeldSettings(updatedSource, newType)
+  configureBURenteSettings(updatedSource, newType)
   onUpdate(updatedSource)
 }
 
@@ -74,6 +94,7 @@ export function OtherIncomeSourceFormEditor({
   const monthlyAmountId = useFormId('other-income', 'monthly-amount')
   const currentYear = new Date().getFullYear()
   const isKindergeld = editingSource.type === 'kindergeld'
+  const isBURente = editingSource.type === 'bu_rente'
   const isRental = editingSource.type === 'rental'
   const isGrossIncome = editingSource.amountType === 'gross'
 
@@ -94,6 +115,7 @@ export function OtherIncomeSourceFormEditor({
           monthlyAmountId={monthlyAmountId}
           currentYear={currentYear}
           isKindergeld={isKindergeld}
+          isBURente={isBURente}
           isRental={isRental}
           isGrossIncome={isGrossIncome}
           onUpdate={onUpdate}
