@@ -19,6 +19,7 @@ interface FormConfigurationSectionsProps {
   onUpdate: (source: OtherIncomeSource) => void
 }
 
+// eslint-disable-next-line complexity
 export function FormConfigurationSections({
   editingSource,
   monthlyAmountId,

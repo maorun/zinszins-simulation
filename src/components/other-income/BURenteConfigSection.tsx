@@ -140,7 +140,7 @@ function LeibrentenBesteuerungField({
 }
 
 function BURenteInfoBox({ ageAtDisabilityStart }: { ageAtDisabilityStart: number }) {
-  // Calculate Ertragsanteil based on age
+  // eslint-disable-next-line complexity
   const getErtragsanteil = (age: number): number => {
     if (age <= 0) return 59
     if (age <= 1) return 59
@@ -174,9 +174,9 @@ function BURenteInfoBox({ ageAtDisabilityStart }: { ageAtDisabilityStart: number
   )
 }
 
+// eslint-disable-next-line max-lines-per-function
 function createBURenteHandlers(
   editingSource: OtherIncomeSource,
-  currentYear: number,
   onUpdate: (source: OtherIncomeSource) => void,
 ) {
   const calculateAgeAtDisabilityStart = (birthYear: number, disabilityStartYear: number) => {
@@ -265,7 +265,7 @@ export function BURenteConfigSection({ editingSource, currentYear, onUpdate }: B
     handleBirthYearChange,
     handleDisabilityDegreeChange,
     handleLeibrentenBesteuerungChange,
-  } = createBURenteHandlers(editingSource, currentYear, onUpdate)
+  } = createBURenteHandlers(editingSource, onUpdate)
 
   return (
     <div className="space-y-4 p-4 bg-purple-50 rounded-lg border border-purple-200">

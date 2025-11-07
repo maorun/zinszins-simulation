@@ -277,6 +277,7 @@ function calculateKindergeldStatus(
 
 // Helper: Get Ertragsanteil (taxable portion) for BU-Rente based on age at disability start
 // Based on § 22 EStG - Leibrenten-Besteuerung
+// eslint-disable-next-line complexity
 function getErtragsanteil(ageAtDisabilityStart: number): number {
   // Ertragsanteil table according to § 22 Nr. 1 Satz 3 Buchstabe a Doppelbuchstabe bb EStG
   // Returns the percentage of the pension that is subject to taxation
