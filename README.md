@@ -116,6 +116,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Persistente Speicherung** - Ziele werden automatisch mit dem Profil gespeichert
   - **Nächster Meilenstein** - Hervorhebung des nächsten zu erreichenden Meilensteins
 
+- **🎯 Retirement-Readiness Score** - Umfassende Bewertung Ihrer Rentenbereitschaft
+  - **Gesamtscore (0-100%)** - Aussagekräftiger Score mit deutscher Bewertungsskala (Ausgezeichnet bis Verbesserungswürdig)
+  - **Drei Hauptmetriken** - Gewichtete Bewertung von Kapitaldeckung (40%), Einkommensersatz (30%) und Nachhaltigkeit (30%)
+  - **Kapitaldeckung** - Verhältnis zwischen vorhandenem Kapital und idealem Betrag nach der 4%-Regel
+  - **Einkommensersatz** - Bewertung, wie gut die monatliche Entnahme den Lebensstandard sichert
+  - **Nachhaltigkeit** - Analyse, wie lange das Kapital voraussichtlich reichen wird
+  - **Detaillierte Kennzahlen** - Übersicht über Gesamtkapital, monatliches Einkommen, jährliche Ausgaben und Restkapital
+  - **Personalisierte Empfehlungen** - Konkrete Handlungsempfehlungen basierend auf den einzelnen Metriken
+  - **Methodentransparenz** - Klare Erklärung der Berechnungsgrundlage und verwendeten Standards
+
 ### Globale Planung (Einzelperson/Ehepaar)
 
 - **Planungsmodus** - Zentrale Auswahl zwischen Individual- und Paarplanung
