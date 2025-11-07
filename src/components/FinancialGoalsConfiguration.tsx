@@ -8,10 +8,9 @@ import { GoalList } from './financial-goals/GoalList'
 import { CurrentCapitalDisplay } from './financial-goals/CurrentCapitalDisplay'
 
 /**
- * Financial Goals Configuration Component
- * Allows users to set and track financial goals with milestones
+ * Custom hook for financial goals logic
  */
-export default function FinancialGoalsConfiguration() {
+function useFinancialGoals() {
   const { financialGoals = [], setFinancialGoals, simulationData } = useSimulation()
 
   const currentCapital = useMemo(() => {
@@ -45,6 +44,23 @@ export default function FinancialGoalsConfiguration() {
     () => financialGoals.map(goal => updateMilestoneAchievements(currentCapital, goal)),
     [financialGoals, currentCapital],
   )
+
+  return {
+    currentCapital,
+    handleAddGoal,
+    handleRemoveGoal,
+    handleToggleActive,
+    goalsWithUpdatedMilestones,
+  }
+}
+
+/**
+ * Financial Goals Configuration Component
+ * Allows users to set and track financial goals with milestones
+ */
+export default function FinancialGoalsConfiguration() {
+  const { currentCapital, handleAddGoal, handleRemoveGoal, handleToggleActive, goalsWithUpdatedMilestones } =
+    useFinancialGoals()
 
   return (
     <CollapsibleCard>
