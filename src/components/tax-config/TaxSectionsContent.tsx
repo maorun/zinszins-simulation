@@ -1,6 +1,7 @@
 import { KapitalertragsteuerSection } from './KapitalertragsteuerSection'
 import { TeilfreistellungsquoteSection } from './TeilfreistellungsquoteSection'
 import { GuenstigerpruefungSection } from './GuenstigerpruefungSection'
+import { ProgressiveTaxInfoSection } from './ProgressiveTaxSection'
 import { KirchensteuerSection } from './KirchensteuerSection'
 import { SteuerReduziertEndkapitalSection } from './SteuerReduziertEndkapitalSection'
 import { FreibetragPerYearTable } from './FreibetragPerYearTable'
@@ -33,6 +34,7 @@ interface TaxSectionsContentProps {
   yearToday: number
 }
 
+// eslint-disable-next-line max-lines-per-function
 export function TaxSectionsContent({ simulation, yearToday }: TaxSectionsContentProps) {
   const handlers = createTaxHandlers(
     simulation.performSimulation,
@@ -62,6 +64,9 @@ export function TaxSectionsContent({ simulation, yearToday }: TaxSectionsContent
         personalTaxRate={simulation.personalTaxRate}
         onGuenstigerPruefungAktivChange={handlers.handleGuenstigerPruefungAktivChange}
         onPersonalTaxRateChange={handlers.handlePersonalTaxRateChange}
+      />
+      <ProgressiveTaxInfoSection
+        guenstigerPruefungAktiv={simulation.guenstigerPruefungAktiv}
       />
       <KirchensteuerSection
         kirchensteuerAktiv={simulation.kirchensteuerAktiv}
