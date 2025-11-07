@@ -164,13 +164,12 @@ function rebalancePortfolio(holdings: PortfolioHoldings, config: MultiAssetPortf
 }
 
 /**
- * Apply returns to portfolio holdings
+ * Apply returns to holdings and calculate new values
  */
-function applyReturns(
+function applyReturnsToHoldings(
   holdings: PortfolioHoldings,
   assetReturns: Record<AssetClass, number>,
-  config: MultiAssetPortfolioConfig,
-): PortfolioHoldings {
+): { newHoldings: PortfolioHoldings['holdings']; newTotalValue: number } {
   let newTotalValue = 0
   const newHoldings: Record<
     AssetClass,
@@ -204,11 +203,21 @@ function applyReturns(
     }
   }
 
+  return { newHoldings, newTotalValue }
+}
+
+/**
+ * Apply returns to portfolio holdings
+ */
+function applyReturns(
+  holdings: PortfolioHoldings,
+  assetReturns: Record<AssetClass, number>,
+  config: MultiAssetPortfolioConfig,
+): PortfolioHoldings {
+  const { newHoldings, newTotalValue } = applyReturnsToHoldings(holdings, assetReturns)
+
   // Calculate new allocations and drift
-  for (const [, holding] of Object.entries(newHoldings)) {
-    holding.allocation = newTotalValue > 0 ? holding.value / newTotalValue : 0
-    holding.drift = holding.allocation - holding.targetAllocation
-  }
+  calculateAllocationsAndDrift(newHoldings, newTotalValue)
 
   const result: PortfolioHoldings = {
     totalValue: newTotalValue,
