@@ -259,29 +259,14 @@ function calculateAllocationsAndDrift(
 }
 
 /**
- * Add contributions to portfolio maintaining target allocations
+ * Distribute contribution across asset classes according to target allocations
  */
-function addContributions(
-  holdings: PortfolioHoldings,
+function distributeContribution(
+  currentHoldings: PortfolioHoldings['holdings'],
   contribution: number,
   config: MultiAssetPortfolioConfig,
-): PortfolioHoldings {
-  if (contribution <= 0) {
-    return holdings
-  }
-
-  const newTotalValue = holdings.totalValue + contribution
-  const newHoldings: Record<
-    AssetClass,
-    {
-      value: number
-      allocation: number
-      targetAllocation: number
-      drift: number
-    }
-  > = { ...holdings.holdings }
-
-  // Distribute contribution according to target allocations
+): PortfolioHoldings['holdings'] {
+  const newHoldings = { ...currentHoldings }
   const enabledAssets = getEnabledAssets(config)
 
   for (const assetClass of enabledAssets) {
@@ -303,6 +288,24 @@ function addContributions(
       }
     }
   }
+
+  return newHoldings
+}
+
+/**
+ * Add contributions to portfolio maintaining target allocations
+ */
+function addContributions(
+  holdings: PortfolioHoldings,
+  contribution: number,
+  config: MultiAssetPortfolioConfig,
+): PortfolioHoldings {
+  if (contribution <= 0) {
+    return holdings
+  }
+
+  const newTotalValue = holdings.totalValue + contribution
+  const newHoldings = distributeContribution(holdings.holdings, contribution, config)
 
   // Recalculate allocations
   calculateAllocationsAndDrift(newHoldings, newTotalValue)
