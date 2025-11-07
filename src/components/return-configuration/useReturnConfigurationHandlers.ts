@@ -11,14 +11,13 @@ interface UseReturnConfigurationHandlersParams {
   performSimulation: () => void
 }
 
-export const useReturnConfigurationHandlers = ({
-  setReturnMode,
-  setInflationAktivSparphase,
-  setInflationsrateSparphase,
-  setInflationAnwendungSparphase,
-  setMultiAssetConfig,
-  performSimulation,
-}: UseReturnConfigurationHandlersParams) => {
+/**
+ * Hook for return mode and inflation handlers
+ */
+function useReturnModeHandlers(
+  setReturnMode: (mode: ReturnMode) => void,
+  performSimulation: () => void,
+) {
   const handleReturnModeChange = useCallback(
     (mode: ReturnMode) => {
       setReturnMode(mode)
@@ -27,6 +26,18 @@ export const useReturnConfigurationHandlers = ({
     [setReturnMode, performSimulation],
   )
 
+  return { handleReturnModeChange }
+}
+
+/**
+ * Hook for inflation configuration handlers
+ */
+function useInflationHandlers(
+  setInflationAktivSparphase: (active: boolean) => void,
+  setInflationsrateSparphase: (rate: number) => void,
+  setInflationAnwendungSparphase: (mode: 'sparplan' | 'gesamtmenge') => void,
+  performSimulation: () => void,
+) {
   const handleInflationAktivChange = useCallback(
     (active: boolean) => {
       setInflationAktivSparphase(active)
@@ -50,6 +61,27 @@ export const useReturnConfigurationHandlers = ({
     },
     [setInflationAnwendungSparphase, performSimulation],
   )
+
+  return { handleInflationAktivChange, handleInflationsrateChange, handleInflationAnwendungChange }
+}
+
+export const useReturnConfigurationHandlers = ({
+  setReturnMode,
+  setInflationAktivSparphase,
+  setInflationsrateSparphase,
+  setInflationAnwendungSparphase,
+  setMultiAssetConfig,
+  performSimulation,
+}: UseReturnConfigurationHandlersParams) => {
+  const { handleReturnModeChange } = useReturnModeHandlers(setReturnMode, performSimulation)
+
+  const { handleInflationAktivChange, handleInflationsrateChange, handleInflationAnwendungChange } =
+    useInflationHandlers(
+      setInflationAktivSparphase,
+      setInflationsrateSparphase,
+      setInflationAnwendungSparphase,
+      performSimulation,
+    )
 
   const handleMultiAssetConfigChange = useCallback(
     (config: MultiAssetPortfolioConfig) => {

@@ -25,7 +25,10 @@ interface WithdrawalSegmentCardProps {
   onMoveDown: (segmentId: string) => void
 }
 
-function SegmentConfigSections({
+/**
+ * Basic configuration section (name, years)
+ */
+function BasicConfigSection({
   segment,
   withdrawalStartYear,
   withdrawalEndYear,
@@ -49,6 +52,22 @@ function SegmentConfigSections({
         onEndYearChange={endYear => onUpdate(segment.id, { endYear })}
       />
       <Separator />
+    </>
+  )
+}
+
+/**
+ * Strategy configuration section
+ */
+function StrategyConfigSection({
+  segment,
+  onUpdate,
+}: {
+  segment: WithdrawalSegment
+  onUpdate: (id: string, updates: Partial<WithdrawalSegment>) => void
+}) {
+  return (
+    <>
       <SegmentStrategySelector segment={segment} onStrategyChange={updates => onUpdate(segment.id, updates)} />
       <WithdrawalFrequencyConfiguration
         frequency={segment.withdrawalFrequency}
@@ -56,6 +75,30 @@ function SegmentConfigSections({
       />
       <SegmentStrategyConfig segment={segment} onUpdate={onUpdate} />
       <Separator />
+    </>
+  )
+}
+
+function SegmentConfigSections({
+  segment,
+  withdrawalStartYear,
+  withdrawalEndYear,
+  onUpdate,
+}: {
+  segment: WithdrawalSegment
+  withdrawalStartYear: number
+  withdrawalEndYear: number
+  onUpdate: (id: string, updates: Partial<WithdrawalSegment>) => void
+}) {
+  return (
+    <>
+      <BasicConfigSection
+        segment={segment}
+        withdrawalStartYear={withdrawalStartYear}
+        withdrawalEndYear={withdrawalEndYear}
+        onUpdate={onUpdate}
+      />
+      <StrategyConfigSection segment={segment} onUpdate={onUpdate} />
       <SegmentReturnConfiguration
         segmentId={segment.id}
         startYear={segment.startYear}

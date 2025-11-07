@@ -50,43 +50,45 @@ interface UseEntnahmeModalsAndPropsParams {
   onWithdrawalResultsChange?: (results: WithdrawalResult | null) => void
 }
 
-export function useEntnahmeModalsAndProps(params: UseEntnahmeModalsAndPropsParams) {
-  // Type assertion needed: useWithdrawalCalculations.types.WithdrawalData is incompatible with
-  // useWithdrawalModals.types.WithdrawalData due to withdrawalResult being WithdrawalResult | null
-  // vs WithdrawalResult. The types are structurally compatible in practice
-  const modals = useWithdrawalModals(
-    params.configValues.formValue,
-    params.configValues.useSegmentedWithdrawal,
-    params.configValues.withdrawalSegments,
-    params.withdrawalData as Parameters<typeof useWithdrawalModals>[3],
-    params.startOfIndependence,
-    params.steuerlast,
-    params.teilfreistellungsquote,
-    params.simulationContext.grundfreibetragAktiv,
-    params.simulationContext.grundfreibetragBetrag,
-  )
+/**
+ * Prepare parameters for useWithdrawalModals hook
+ */
+function prepareModalParams(params: UseEntnahmeModalsAndPropsParams) {
+  return {
+    formValue: params.configValues.formValue,
+    useSegmentedWithdrawal: params.configValues.useSegmentedWithdrawal,
+    withdrawalSegments: params.configValues.withdrawalSegments,
+    withdrawalData: params.withdrawalData as Parameters<typeof useWithdrawalModals>[3],
+    startOfIndependence: params.startOfIndependence,
+    steuerlast: params.steuerlast,
+    teilfreistellungsquote: params.teilfreistellungsquote,
+    grundfreibetragAktiv: params.simulationContext.grundfreibetragAktiv,
+    grundfreibetragBetrag: params.simulationContext.grundfreibetragBetrag,
+  }
+}
 
-  const healthCareInsuranceHandlers = useHealthCareInsuranceHandlers(
-    params.configValues.formValue,
-    params.updateFormValue,
-  )
-
-  useWithdrawalEffects({
+/**
+ * Prepare parameters for useWithdrawalEffects hook
+ */
+function prepareEffectsParams(params: UseEntnahmeModalsAndPropsParams) {
+  return {
     onWithdrawalResultsChange: params.onWithdrawalResultsChange,
-    // Type assertion needed: useWithdrawalCalculations.types.WithdrawalData has
-    // withdrawalResult: WithdrawalResult | null, but useWithdrawalEffects expects
-    // WithdrawalData with withdrawalResult: WithdrawalResult. Structurally compatible.
     withdrawalData: params.withdrawalData as Parameters<typeof useWithdrawalEffects>[0]['withdrawalData'],
     useSegmentedWithdrawal: params.configValues.useSegmentedWithdrawal,
     withdrawalSegments: params.configValues.withdrawalSegments,
     startOfIndependence: params.startOfIndependence,
     updateConfig: params.updateConfig,
-  })
+  }
+}
 
-  // Type assertion needed: useWithdrawalCalculations.types.WithdrawalData is incompatible
-  // with useWithdrawalVariablesProps expected type due to withdrawalResult being
-  // WithdrawalResult | null vs WithdrawalResult. Structurally compatible in practice.
-  const withdrawalVariablesProps = useWithdrawalVariablesProps({
+/**
+ * Prepare parameters for useWithdrawalVariablesProps hook
+ */
+function prepareVariablesProps(
+  params: UseEntnahmeModalsAndPropsParams,
+  healthCareInsuranceHandlers: ReturnType<typeof useHealthCareInsuranceHandlers>,
+) {
+  return {
     currentConfig: params.currentConfig,
     updateConfig: params.updateConfig,
     updateFormValue: params.updateFormValue,
@@ -113,7 +115,33 @@ export function useEntnahmeModalsAndProps(params: UseEntnahmeModalsAndPropsParam
     spouseBirthYear: params.simulationContext.spouse?.birthYear,
     withdrawalData: params.withdrawalData as Parameters<typeof useWithdrawalVariablesProps>[0]['withdrawalData'],
     healthCareInsuranceHandlers,
-  })
+  }
+}
+
+export function useEntnahmeModalsAndProps(params: UseEntnahmeModalsAndPropsParams) {
+  const modalParams = prepareModalParams(params)
+  const modals = useWithdrawalModals(
+    modalParams.formValue,
+    modalParams.useSegmentedWithdrawal,
+    modalParams.withdrawalSegments,
+    modalParams.withdrawalData,
+    modalParams.startOfIndependence,
+    modalParams.steuerlast,
+    modalParams.teilfreistellungsquote,
+    modalParams.grundfreibetragAktiv,
+    modalParams.grundfreibetragBetrag,
+  )
+
+  const healthCareInsuranceHandlers = useHealthCareInsuranceHandlers(
+    params.configValues.formValue,
+    params.updateFormValue,
+  )
+
+  const effectsParams = prepareEffectsParams(params)
+  useWithdrawalEffects(effectsParams)
+
+  const variablesProps = prepareVariablesProps(params, healthCareInsuranceHandlers)
+  const withdrawalVariablesProps = useWithdrawalVariablesProps(variablesProps)
 
   return { ...modals, withdrawalVariablesProps }
 }
