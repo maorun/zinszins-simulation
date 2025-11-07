@@ -61,6 +61,41 @@ function DateField({
 }
 
 /**
+ * Amount input field with label and info icon
+ */
+function AmountField({
+  label,
+  value,
+  onChange,
+  placeholder,
+  step,
+}: {
+  label: string
+  value: string | number
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  placeholder: string
+  step: number
+}) {
+  return (
+    <div className="mb-4 space-y-2">
+      <Label>
+        {label}
+        <InfoIcon />
+      </Label>
+      <Input
+        type="number"
+        value={value || ''}
+        onChange={onChange}
+        placeholder={placeholder}
+        className="w-full"
+        min={0}
+        step={step}
+      />
+    </div>
+  )
+}
+
+/**
  * Form fields for creating/editing a savings plan (Sparplan)
  * Complexity: <8, Lines: <50
  */
@@ -98,21 +133,13 @@ export function SparplanFormFields({
           onChange={e => handleDateChange(e, 'yyyy-MM', date => onFormChange({ ...formValues, end: date }))}
           placeholder="Enddatum wählen"
         />
-        <div className="mb-4 space-y-2">
-          <Label>
-            {simulationAnnual === SimulationAnnual.yearly ? 'Einzahlungen je Jahr (€)' : 'Einzahlungen je Monat (€)'}
-            <InfoIcon />
-          </Label>
-          <Input
-            type="number"
-            value={formValues.einzahlung || ''}
-            onChange={e => handleNumberChange(e, value => onFormChange({ ...formValues, einzahlung: value }))}
-            placeholder="Betrag eingeben"
-            className="w-full"
-            min={0}
-            step={simulationAnnual === SimulationAnnual.monthly ? 10 : 100}
-          />
-        </div>
+        <AmountField
+          label={simulationAnnual === SimulationAnnual.yearly ? 'Einzahlungen je Jahr (€)' : 'Einzahlungen je Monat (€)'}
+          value={formValues.einzahlung || ''}
+          onChange={e => handleNumberChange(e, value => onFormChange({ ...formValues, einzahlung: value }))}
+          placeholder="Betrag eingeben"
+          step={simulationAnnual === SimulationAnnual.monthly ? 10 : 100}
+        />
       </div>
     </>
   )
