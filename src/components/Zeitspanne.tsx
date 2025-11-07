@@ -1,6 +1,17 @@
 import { Slider } from './ui/slider'
 import { Label } from './ui/label'
 
+/**
+ * Time Span Component
+ * 
+ * Allows users to select the savings phase end year using a slider.
+ * The withdrawal phase automatically starts the following year.
+ * 
+ * @param props - Component props
+ * @param props.startEnd - Tuple of [end of savings phase, end of life] years
+ * @param props.dispatch - Callback to update the time span
+ * @returns Time span selector interface
+ */
 export function Zeitspanne({
   startEnd,
   dispatch,

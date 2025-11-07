@@ -10,6 +10,18 @@ import {
   isEditingSinglePayment,
 } from './SparplanEingabe.utils'
 
+/**
+ * Savings Plan Input Component
+ * 
+ * Main component for managing savings plans (Sparpläne) and one-time payments (Einmalzahlungen).
+ * Provides UI for creating, editing, and deleting regular savings plans and single payments.
+ * 
+ * @param props - Component props
+ * @param props.dispatch - Callback to update savings plans in parent state
+ * @param props.simulationAnnual - Calculation frequency ('yearly' or 'monthly')
+ * @param props.currentSparplans - Current array of savings plans
+ * @returns Savings plan input interface
+ */
 export function SparplanEingabe({
   dispatch,
   simulationAnnual,

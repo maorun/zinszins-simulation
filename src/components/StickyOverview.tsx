@@ -115,6 +115,19 @@ function AnsparenContent({
   )
 }
 
+/**
+ * Sticky Overview Component
+ * 
+ * Displays a compact overview of key financial metrics that becomes sticky
+ * when scrolling past the main overview section. Shows:
+ * - Savings phase metrics (years, end capital, returns)
+ * - Adapts to mobile vs desktop layouts
+ * - Includes navigation menu
+ * 
+ * @param props - Component props
+ * @param props.overviewElementRef - Reference to main overview element for sticky behavior
+ * @returns Sticky overview bar (only visible when scrolling)
+ */
 export function StickyOverview({ overviewElementRef }: StickyOverviewProps) {
   const isMobile = useMobileDetection()
   const isSticky = useStickyBehavior(overviewElementRef)
