@@ -2,11 +2,16 @@ import { describe, it, expect } from 'vitest'
 import { simulate } from './simulate'
 import type { SparplanElement } from './sparplan-utils'
 
-describe('simulate with Günstigerprüfung', () => {
+describe('simulate with Günstigerprüfung with Progressive Tax', () => {
+  // Note: With progressive tax enabled, the behavior is different from flat tax rates.
+  // The progressive system has built-in Grundfreibetrag (11,604€ tax-free) and lower rates
+  // for lower incomes, which makes it more favorable than Abgeltungssteuer (26.375%)
+  // for most typical investment returns.
+
   const mockElement: SparplanElement = {
     type: 'sparplan',
     start: '2024-01',
-    einzahlung: 50000, // Higher amount to generate more tax
+    einzahlung: 500000, // High amount to test progressive tax zones
     ter: 0,
     transactionCostPercent: 0,
     simulation: {},
@@ -20,37 +25,47 @@ describe('simulate with Günstigerprüfung', () => {
     steuerlast: 0.26375, // 26.375% Abgeltungssteuer
     simulationAnnual: 'yearly' as const,
     teilfreistellungsquote: 0.3, // 30%
-    freibetragPerYear: { 2024: 0 }, // Remove tax allowance to test tax differences
+    freibetragPerYear: { 2024: 0 }, // Remove Sparerpauschbetrag to isolate progressive tax effects
     steuerReduzierenEndkapital: true,
   }
 
-  it('should use Abgeltungssteuer when personal tax rate is higher', () => {
+  it('should use progressive tax and show favorable result for typical returns', () => {
+    // With 500k investment @ 5% = 25k gain, after 30% Teilfreistellung = 17.5k taxable
+    // Progressive tax on 17.5k is much lower than Abgeltungssteuer (26.375%)
     const result = simulate({
       ...baseOptions,
       guenstigerPruefungAktiv: true,
-      personalTaxRate: 42, // 42% personal tax rate - higher than Abgeltungssteuer
+      personalTaxRate: 42, // Even with high marginal rate input, effective rate will be much lower
     })
 
     const simulationData = result[0].simulation[2024]
     expect(simulationData).toBeDefined()
     expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult).toBeDefined()
-    expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.isFavorable).toBe('abgeltungssteuer')
-    expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.explanation).toContain('Abgeltungssteuer')
+    
+    const pruefung = simulationData.vorabpauschaleDetails?.guenstigerPruefungResult
+    
+    // Progressive tax should be favorable due to lower effective rate
+    expect(pruefung?.isFavorable).toBe('personal')
+    expect(pruefung?.explanation).toContain('Progressiver Tarif')
+    
+    // Personal tax amount should be less than Abgeltungssteuer
+    expect(pruefung?.personalTaxAmount).toBeLessThan(pruefung?.abgeltungssteuerAmount ?? Infinity)
   })
 
-  it('should use personal tax rate when it is lower', () => {
+  it('should use progressive tax for lower returns', () => {
     const result = simulate({
       ...baseOptions,
       guenstigerPruefungAktiv: true,
-      personalTaxRate: 15, // 15% personal tax rate - lower than effective Abgeltungssteuer
+      personalTaxRate: 15, // Lower marginal rate input
     })
 
     const simulationData = result[0].simulation[2024]
     expect(simulationData).toBeDefined()
     expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult).toBeDefined()
     expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.isFavorable).toBe('personal')
+    // With progressive tax, the explanation should mention "Progressiver Tarif"
     expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.explanation).toContain(
-      'Persönlicher Steuersatz',
+      'Progressiver Tarif',
     )
   })
 
@@ -78,35 +93,7 @@ describe('simulate with Günstigerprüfung', () => {
     expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult).toBeUndefined()
   })
 
-  it('should calculate different tax amounts for Abgeltungssteuer vs personal tax', () => {
-    const abgeltungssteuerResult = simulate({
-      ...baseOptions,
-      guenstigerPruefungAktiv: true,
-      personalTaxRate: 45, // High personal rate - should use Abgeltungssteuer
-    })
-
-    const personalTaxResult = simulate({
-      ...baseOptions,
-      guenstigerPruefungAktiv: true,
-      personalTaxRate: 10, // Very low personal rate - should use personal tax
-    })
-
-    const abgeltungssteuerData = abgeltungssteuerResult[0].simulation[2024]
-    const personalTaxData = personalTaxResult[0].simulation[2024]
-
-    // Check the Günstigerprüfung results first
-    // Note: There appears to be a bug where both simulations return the same result
-    // This needs to be investigated further, but for now we'll test the actual behavior
-    expect(abgeltungssteuerData.vorabpauschaleDetails?.guenstigerPruefungResult?.isFavorable).toBe('personal')
-    expect(personalTaxData.vorabpauschaleDetails?.guenstigerPruefungResult?.isFavorable).toBe('personal')
-
-    // Then check the actual tax amounts
-    // TODO: This test reveals a bug where both simulations return the same bezahlteSteuer value
-    // This should be investigated and fixed in a future PR
-    // expect(abgeltungssteuerData.bezahlteSteuer).toBeGreaterThan(personalTaxData.bezahlteSteuer)
-  })
-
-  it('should store both tax amounts for comparison in results', () => {
+  it('should calculate different tax amounts and choose the more favorable', () => {
     const result = simulate({
       ...baseOptions,
       guenstigerPruefungAktiv: true,
@@ -118,9 +105,12 @@ describe('simulate with Günstigerprüfung', () => {
 
     expect(pruefungResult).toBeDefined()
     expect(pruefungResult?.abgeltungssteuerAmount).toBeGreaterThan(0)
-    expect(pruefungResult?.personalTaxAmount).toBeGreaterThan(0)
-    expect(pruefungResult?.usedTaxRate).toBeGreaterThan(0)
+    expect(pruefungResult?.personalTaxAmount).toBeGreaterThanOrEqual(0) // Can be 0 if below Grundfreibetrag
+    expect(pruefungResult?.usedTaxRate).toBeGreaterThanOrEqual(0) // Can be 0 if personal tax is 0
     expect(['abgeltungssteuer', 'personal', 'equal']).toContain(pruefungResult?.isFavorable)
     expect(pruefungResult?.explanation).toBeTruthy()
+    
+    // With progressive tax, personal tax should typically be more favorable for typical returns
+    expect(pruefungResult?.isFavorable).toBe('personal')
   })
 })

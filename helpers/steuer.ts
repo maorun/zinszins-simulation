@@ -193,6 +193,7 @@ export function calculateSteuerOnVorabpauschale(
 
 /**
  * Calculate personal income tax including Kirchensteuer if active
+ * Can use either a flat tax rate or progressive tax brackets
  */
 function calculatePersonalIncomeTax(
   vorabpauschale: number,
@@ -201,19 +202,40 @@ function calculatePersonalIncomeTax(
   availableGrundfreibetrag: number,
   kirchensteuerAktiv: boolean,
   kirchensteuersatz: number,
-): { personalTaxAmount: number; usedGrundfreibetrag: number } {
-  const taxableIncome = Math.max(0, vorabpauschale * (1 - teilfreistellungsquote) - availableGrundfreibetrag)
-  const basePersonalTax = taxableIncome * personalTaxRate
-  const kirchensteuer = kirchensteuerAktiv ? basePersonalTax * (kirchensteuersatz / 100) : 0
-  const personalTaxAmount = basePersonalTax + kirchensteuer
-  const usedGrundfreibetrag = Math.min(availableGrundfreibetrag, vorabpauschale * (1 - teilfreistellungsquote))
+  useProgressiveTax: boolean,
+): { personalTaxAmount: number; usedGrundfreibetrag: number; effectiveRate?: number } {
+  if (useProgressiveTax) {
+    // Use progressive tax calculation
+    const progressiveResult = calculateProgressiveTaxOnVorabpauschale(
+      vorabpauschale,
+      teilfreistellungsquote,
+      availableGrundfreibetrag,
+      0, // alreadyUsedGrundfreibetrag is 0 because availableGrundfreibetrag already accounts for it
+      kirchensteuerAktiv,
+      kirchensteuersatz,
+    )
 
-  return { personalTaxAmount, usedGrundfreibetrag }
+    return {
+      personalTaxAmount: progressiveResult.totalTax,
+      usedGrundfreibetrag: progressiveResult.usedGrundfreibetrag,
+      effectiveRate: progressiveResult.effectiveRate,
+    }
+  } else {
+    // Use simple flat rate calculation (backward compatible)
+    const taxableIncome = Math.max(0, vorabpauschale * (1 - teilfreistellungsquote) - availableGrundfreibetrag)
+    const basePersonalTax = taxableIncome * personalTaxRate
+    const kirchensteuer = kirchensteuerAktiv ? basePersonalTax * (kirchensteuersatz / 100) : 0
+    const personalTaxAmount = basePersonalTax + kirchensteuer
+    const usedGrundfreibetrag = Math.min(availableGrundfreibetrag, vorabpauschale * (1 - teilfreistellungsquote))
+
+    return { personalTaxAmount, usedGrundfreibetrag }
+  }
 }
 
 /**
  * Determine which tax option is more favorable and create explanation
  */
+// eslint-disable-next-line complexity
 function determineFavorableTaxOption(
   personalTaxAmount: number,
   abgeltungssteuerAmount: number,
@@ -223,30 +245,39 @@ function determineFavorableTaxOption(
   personalTaxRate: number,
   kirchensteuerAktiv: boolean,
   kirchensteuersatz: number,
+  useProgressiveTax: boolean,
+  effectiveRate?: number,
 ): {
   isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
   usedTaxRate: number
   explanation: string
 } {
   const kirchensteuerText = kirchensteuerAktiv ? ` (inkl. ${kirchensteuersatz}% Kirchensteuer)` : ''
+  const taxSystemText = useProgressiveTax ? 'Progressiver Tarif' : `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText})`
 
   if (personalTaxAmount < abgeltungssteuerAmount) {
     // Avoid division by zero
     const usedTaxRate = personalTaxAmount / Math.max(vorabpauschale * (1 - teilfreistellungsquote), 0.01)
-    const explanation =
-      `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText}) ist günstiger als ` +
-      `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
+    let explanation = `${taxSystemText} ist günstiger als Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
+    
+    if (useProgressiveTax && effectiveRate !== undefined) {
+      explanation += ` - Effektiver Steuersatz: ${(effectiveRate * 100).toFixed(2)}%`
+    }
+    
     return { isFavorable: 'personal', usedTaxRate, explanation }
   }
 
   if (personalTaxAmount > abgeltungssteuerAmount) {
-    const explanation =
-      `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als ` +
-      `persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText})`
+    let explanation = `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als ${taxSystemText}`
+    
+    if (useProgressiveTax && effectiveRate !== undefined) {
+      explanation += ` - Effektiver Steuersatz: ${(effectiveRate * 100).toFixed(2)}%`
+    }
+    
     return { isFavorable: 'abgeltungssteuer', usedTaxRate: abgeltungssteuer, explanation }
   }
 
-  const explanation = `Abgeltungssteuer und persönlicher Steuersatz${kirchensteuerText} führen zum gleichen Ergebnis (${(abgeltungssteuer * 100).toFixed(2)}%)`
+  const explanation = `Abgeltungssteuer und ${taxSystemText} führen zum gleichen Ergebnis (${(abgeltungssteuer * 100).toFixed(2)}%)`
   return { isFavorable: 'equal', usedTaxRate: abgeltungssteuer, explanation }
 }
 
@@ -561,12 +592,16 @@ export function calculateProgressiveTaxOnVorabpauschale(
  *
  * @param vorabpauschale - The Vorabpauschale amount subject to taxation
  * @param abgeltungssteuer - The standard capital gains tax rate (e.g., 0.26375 = 26.375%)
- * @param personalTaxRate - The personal income tax rate (e.g., 0.25 = 25%)
+ * @param personalTaxRate - The personal income tax rate (e.g., 0.25 = 25%) - used only if useProgressiveTax is false
  * @param teilfreistellungsquote - The partial exemption quote for the fund type (e.g., 0.3 for equity funds)
  * @param grundfreibetrag - The annual tax-free allowance for personal income tax
  * @param alreadyUsedGrundfreibetrag - Amount of Grundfreibetrag already used in the year
+ * @param kirchensteuerAktiv - Whether church tax is active
+ * @param kirchensteuersatz - Church tax rate (8% or 9%)
+ * @param useProgressiveTax - If true, uses progressive tax brackets instead of flat personalTaxRate
  * @returns Object with calculated tax amounts and recommendation
  */
+// eslint-disable-next-line max-lines-per-function
 export function performGuenstigerPruefung(
   vorabpauschale: number,
   abgeltungssteuer: number,
@@ -576,6 +611,7 @@ export function performGuenstigerPruefung(
   alreadyUsedGrundfreibetrag = 0,
   kirchensteuerAktiv = false,
   kirchensteuersatz = 9,
+  useProgressiveTax = false,
 ): GuenstigerPruefungResult {
   if (vorabpauschale <= 0) {
     return createEmptyGuenstigerPruefungResult(abgeltungssteuer, grundfreibetrag, alreadyUsedGrundfreibetrag)
@@ -588,15 +624,16 @@ export function performGuenstigerPruefung(
     teilfreistellungsquote,
   )
 
-  // Calculate personal income tax
+  // Calculate personal income tax (flat or progressive)
   const availableGrundfreibetrag = Math.max(0, grundfreibetrag - alreadyUsedGrundfreibetrag)
-  const { personalTaxAmount, usedGrundfreibetrag } = calculatePersonalIncomeTax(
+  const { personalTaxAmount, usedGrundfreibetrag, effectiveRate } = calculatePersonalIncomeTax(
     vorabpauschale,
     personalTaxRate,
     teilfreistellungsquote,
     availableGrundfreibetrag,
     kirchensteuerAktiv,
     kirchensteuersatz,
+    useProgressiveTax,
   )
 
   // Determine which is more favorable
@@ -609,6 +646,8 @@ export function performGuenstigerPruefung(
     personalTaxRate,
     kirchensteuerAktiv,
     kirchensteuersatz,
+    useProgressiveTax,
+    effectiveRate,
   )
 
   return {

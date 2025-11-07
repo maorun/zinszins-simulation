@@ -532,6 +532,7 @@ function calculateGuenstigerPruefung(
   let guenstigerPruefungResult = null
 
   if (options.guenstigerPruefungAktiv && options.personalTaxRate !== undefined) {
+    // Use progressive tax when Günstigerprüfung is active for more accurate calculations
     guenstigerPruefungResult = performGuenstigerPruefung(
       vorabpauschaleBetrag,
       steuerlast,
@@ -539,6 +540,9 @@ function calculateGuenstigerPruefung(
       teilfreistellungsquote,
       0,
       0,
+      false,
+      9,
+      true, // Enable progressive tax calculation
     )
 
     // Use the more favorable tax amount
