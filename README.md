@@ -315,6 +315,70 @@ npm run test:coverage # Tests mit Coverage
 - **TypeScript-Strict**: Strikte TypeScript-Konfiguration aktiviert
 - **Code-Refactoring**: Aktives Refactoring zur Verbesserung der Codequalität (siehe `REFACTORING.md`)
 
+### Dokumentationsstandards
+
+Das Projekt verwendet JSDoc-Kommentare für alle öffentlichen Funktionen und Komponenten:
+
+#### JSDoc-Konventionen
+
+- **Alle exportierten Funktionen** haben JSDoc-Kommentare mit:
+  - Kurzbeschreibung der Funktionalität
+  - `@param` Tags für alle Parameter mit Typen und Beschreibungen
+  - `@returns` Tag mit Beschreibung des Rückgabewerts
+  - `@throws` Tag bei möglichen Fehlern (falls zutreffend)
+  
+- **React-Komponenten** haben JSDoc-Kommentare mit:
+  - Beschreibung des Komponenten-Zwecks und Verhaltens
+  - Props-Dokumentation mit `@param` Tags
+  - `@returns` Tag mit Beschreibung der gerenderten UI
+
+- **Helfer- und Utility-Funktionen** (helpers/, src/utils/):
+  - Detaillierte Beschreibungen für komplexe Berechnungen
+  - Beispiele bei nicht-offensichtlicher Verwendung
+  - Verweise auf deutsche Steuergesetze wo relevant
+
+#### Beispiel: Funktion
+
+```typescript
+/**
+ * Calculate Vorabpauschale for German tax on unrealized gains
+ * 
+ * @param startwert - Starting investment value in EUR
+ * @param endwert - Ending investment value in EUR
+ * @param basiszins - Official base interest rate from Bundesbank (e.g., 0.0255 for 2.55%)
+ * @param anteilImJahr - Fraction of year held (default: 12 for full year)
+ * @returns Calculated Vorabpauschale amount (pre-tax)
+ */
+export function calculateVorabpauschale(
+  startwert: number,
+  endwert: number,
+  basiszins: number,
+  anteilImJahr = 12,
+): number {
+  // Implementation...
+}
+```
+
+#### Beispiel: React-Komponente
+
+```typescript
+/**
+ * Savings Plan Input Component
+ * 
+ * Main component for managing savings plans (Sparpläne) and one-time payments.
+ * Provides UI for creating, editing, and deleting regular savings plans.
+ * 
+ * @param props - Component props
+ * @param props.dispatch - Callback to update savings plans in parent state
+ * @param props.simulationAnnual - Calculation frequency ('yearly' or 'monthly')
+ * @param props.currentSparplans - Current array of savings plans
+ * @returns Savings plan input interface
+ */
+export function SparplanEingabe({ dispatch, simulationAnnual, currentSparplans }: Props) {
+  // Implementation...
+}
+```
+
 ---
 
 **Autor:** Marco
