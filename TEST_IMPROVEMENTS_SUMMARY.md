@@ -7,17 +7,20 @@
 Drei neue Test-Dateien wurden erstellt, um bisher ungetestete Utility-Funktionen abzudecken:
 
 #### `src/utils/array-utils.test.ts` (13 Tests)
+
 - Testet die `unique()` Funktion
 - Abdeckung: null/undefined Eingaben, leere Arrays, Duplikate, verschiedene Datentypen
 - 100% Abdeckung für array-utils.ts
 
 #### `src/utils/withdrawal-strategy-defaults.test.ts` (15 Tests)
+
 - Testet `getStrategyDefaults()` für alle Entnahme-Strategien
 - Abdeckung: monatlich_fest, variabel_prozent, dynamisch, bucket_strategie, rmd, und einfache Strategien
 - Verifiziert korrekte Default-Werte und existierende Konfigurationen
 - 100% Abdeckung für withdrawal-strategy-defaults.ts
 
 #### `src/utils/random-returns.test.tsx` (27 Tests)
+
 - Testet Monte Carlo Simulationen und Zufallszahlen-Generierung
 - Abdeckung:
   - `generateRandomReturns()` - Reproduzierbarkeit mit Seeds, Normalverteilung
@@ -31,6 +34,7 @@ Drei neue Test-Dateien wurden erstellt, um bisher ungetestete Utility-Funktionen
 **Problem**: `App.integration.test.tsx` hatte Timeout-Probleme (3000ms Limit wurde überschritten)
 
 **Lösung**:
+
 - Test-Timeout für langsame Tests auf 10.000ms erhöht
 - waitFor-Timeouts von 5000ms auf 2500ms reduziert
 - Alle 3 Integration-Tests bestehen jetzt erfolgreich
@@ -40,15 +44,11 @@ Drei neue Test-Dateien wurden erstellt, um bisher ungetestete Utility-Funktionen
 Neue Datei: `TESTING.md`
 
 **Inhalt**:
+
 - Test-Statistiken und Überblick
 - Test-Struktur (Unit, Komponenten, Integration)
 - API-Mocking-Strategien (Bundesbank API, Vercel Analytics)
-- Best Practices:
-  - Test-Isolierung
-  - Aussagekräftige Test-Namen
-  - Arrange-Act-Assert Pattern
-  - Edge Case Testing
-  - Timeout-Management
+- Best Practices (Test-Isolierung, Naming, Patterns)
 - Häufige Probleme und Lösungen
 - Monte Carlo Test-Patterns
 - Test-Ausführung und Coverage
@@ -56,12 +56,14 @@ Neue Datei: `TESTING.md`
 ## Ergebnisse
 
 ### Vorher
+
 - **Test-Dateien**: 301
 - **Tests**: 2562 (5 skipped)
 - **Fehlende Tests**: 4 Utility-Dateien
 - **Probleme**: 1 fehlschlagender Integration-Test
 
 ### Nachher
+
 - **Test-Dateien**: 304 (+3)
 - **Tests**: 2617 (+55)
 - **Erfolgsrate**: 100% (2617 bestanden, 5 skipped)
@@ -69,6 +71,7 @@ Neue Datei: `TESTING.md`
 - **Probleme**: 0 (Integration-Test behoben)
 
 ### Coverage-Metriken
+
 - **Statements**: 98.58%
 - **Branches**: 94.46%
 - **Functions**: 98.67%
@@ -77,6 +80,7 @@ Neue Datei: `TESTING.md`
 ## API-Mocking
 
 ### Bereits implementiert (bestehend)
+
 - **Bundesbank API**: Umfassend gemockt mit fetch-Mock
   - Testet API-Fallbacks
   - Testet fehlerhafte API-Antworten
@@ -84,6 +88,7 @@ Neue Datei: `TESTING.md`
   - 100% Coverage für bundesbank-api.ts
 
 ### Best Practices dokumentiert
+
 - Mocking-Strategien in TESTING.md beschrieben
 - Beispiele für fetch-Mocking
 - Beispiele für Component-Mocking (Vercel Analytics)
@@ -93,6 +98,7 @@ Neue Datei: `TESTING.md`
 Alle Kernfunktionen sind jetzt umfassend getestet:
 
 ### Finanzielle Berechnungen (helpers/)
+
 - ✅ Vorabpauschale: 100% Coverage
 - ✅ Zinseszins-Simulation: 95.6% Coverage
 - ✅ Entnahme-Strategien: 95.83% Coverage
@@ -101,6 +107,7 @@ Alle Kernfunktionen sind jetzt umfassend getestet:
 - ✅ Gesundheitsversicherung: 98.07% Coverage
 
 ### Utility-Funktionen (src/utils/)
+
 - ✅ Array-Utils: 100% Coverage (neu)
 - ✅ Random Returns: 100% Coverage (neu)
 - ✅ Withdrawal Strategy Defaults: 100% Coverage (neu)
@@ -109,6 +116,7 @@ Alle Kernfunktionen sind jetzt umfassend getestet:
 - ✅ Segmented Withdrawal: Getestet
 
 ### UI-Komponenten (src/components/)
+
 - ✅ Umfangreiche Component-Tests vorhanden
 - ✅ Integration-Tests funktionieren
 
@@ -123,6 +131,7 @@ Alle Kernfunktionen sind jetzt umfassend getestet:
 ## Fazit
 
 Die Testabdeckung und -struktur wurden erfolgreich verbessert:
+
 - ✅ 55 neue Tests hinzugefügt
 - ✅ Alle fehlenden Utility-Funktionen getestet
 - ✅ Integration-Test-Probleme behoben
