@@ -11,6 +11,16 @@ interface UseReturnConfigurationHandlersParams {
   performSimulation: () => void
 }
 
+/**
+ * Creates a handler that updates state and performs simulation
+ */
+function createHandler<T>(setter: (value: T) => void, performSimulation: () => void) {
+  return (value: T) => {
+    setter(value)
+    performSimulation()
+  }
+}
+
 export const useReturnConfigurationHandlers = ({
   setReturnMode,
   setInflationAktivSparphase,
@@ -20,42 +30,27 @@ export const useReturnConfigurationHandlers = ({
   performSimulation,
 }: UseReturnConfigurationHandlersParams) => {
   const handleReturnModeChange = useCallback(
-    (mode: ReturnMode) => {
-      setReturnMode(mode)
-      performSimulation()
-    },
+    createHandler(setReturnMode, performSimulation),
     [setReturnMode, performSimulation],
   )
 
   const handleInflationAktivChange = useCallback(
-    (active: boolean) => {
-      setInflationAktivSparphase(active)
-      performSimulation()
-    },
+    createHandler(setInflationAktivSparphase, performSimulation),
     [setInflationAktivSparphase, performSimulation],
   )
 
   const handleInflationsrateChange = useCallback(
-    (rate: number) => {
-      setInflationsrateSparphase(rate)
-      performSimulation()
-    },
+    createHandler(setInflationsrateSparphase, performSimulation),
     [setInflationsrateSparphase, performSimulation],
   )
 
   const handleInflationAnwendungChange = useCallback(
-    (mode: 'sparplan' | 'gesamtmenge') => {
-      setInflationAnwendungSparphase(mode)
-      performSimulation()
-    },
+    createHandler(setInflationAnwendungSparphase, performSimulation),
     [setInflationAnwendungSparphase, performSimulation],
   )
 
   const handleMultiAssetConfigChange = useCallback(
-    (config: MultiAssetPortfolioConfig) => {
-      setMultiAssetConfig(config)
-      performSimulation()
-    },
+    createHandler(setMultiAssetConfig, performSimulation),
     [setMultiAssetConfig, performSimulation],
   )
 
