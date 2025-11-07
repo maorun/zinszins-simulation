@@ -258,4 +258,45 @@ describe('useSimulationContextValue', () => {
     expect(result.current).toHaveProperty('withdrawalMultiAssetConfig')
     expect(result.current).toHaveProperty('setWithdrawalMultiAssetConfig')
   })
+
+  describe('useLifeValues integration', () => {
+    it('should use custom setEndOfLife handler instead of state setter', () => {
+      const customSetEndOfLife = vi.fn()
+
+      const { result } = renderHook(() =>
+        useSimulationContextValue(mockState, mockConfigManagement, mockPerformSimulation, customSetEndOfLife),
+      )
+
+      // The important assertion: setEndOfLife should be the custom handler, not the state setter
+      expect(result.current.setEndOfLife).toBe(customSetEndOfLife)
+    })
+
+    it('should properly memoize and return all life expectancy values', () => {
+      const customSetEndOfLife = vi.fn()
+
+      const { result } = renderHook(() =>
+        useSimulationContextValue(mockState, mockConfigManagement, mockPerformSimulation, customSetEndOfLife),
+      )
+
+      // Verify life values are present in the context
+      expect(result.current.endOfLife).toBe(2080)
+      expect(result.current.setEndOfLife).toBe(customSetEndOfLife)
+      expect(result.current.lifeExpectancyTable).toBe('destatis2023')
+      expect(result.current.setLifeExpectancyTable).toBeDefined()
+      expect(result.current.customLifeExpectancy).toBeNull()
+      expect(result.current.setCustomLifeExpectancy).toBeDefined()
+      expect(result.current.planningMode).toBe('retirement')
+      expect(result.current.setPlanningMode).toBeDefined()
+      expect(result.current.gender).toBe('male')
+      expect(result.current.setGender).toBeDefined()
+      expect(result.current.spouse).toBeNull()
+      expect(result.current.setSpouse).toBeDefined()
+      expect(result.current.birthYear).toBe(1980)
+      expect(result.current.setBirthYear).toBeDefined()
+      expect(result.current.expectedLifespan).toBe(85)
+      expect(result.current.setExpectedLifespan).toBeDefined()
+      expect(result.current.useAutomaticCalculation).toBe(true)
+      expect(result.current.setUseAutomaticCalculation).toBeDefined()
+    })
+  })
 })
