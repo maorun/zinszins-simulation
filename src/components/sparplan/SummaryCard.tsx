@@ -82,6 +82,58 @@ function SummaryDetailRow({
   )
 }
 
+/**
+ * Grid with summary detail rows
+ */
+function SummaryGrid({
+  summary,
+  hasInflationData,
+  yearlyProgression,
+  showCalculationInfo,
+  tableData,
+}: {
+  summary: Summary
+  hasInflationData: boolean
+  yearlyProgression: PortfolioProgressionEntry[]
+  showCalculationInfo: (
+    explanationType: string,
+    rowData: { jahr: number; endkapital: string; einzahlung: number },
+  ) => void
+  tableData: PortfolioProgressionEntry[]
+}) {
+  return (
+    <div className="grid grid-cols-2 gap-3">
+      <SummaryDetailRow
+        label="💰 Einzahlungen"
+        value={`${thousands(summary.startkapital?.toFixed(2) || '0')} €`}
+        containerClassName="bg-white border-gray-300"
+      />
+      <SummaryDetailRow
+        label="📈 Zinsen"
+        value={formatInterestDisplay(summary, hasInflationData, yearlyProgression)}
+        containerClassName="bg-white border-gray-300"
+      />
+      <SummaryDetailRow
+        label="💸 Steuern"
+        value={`${thousands(summary.bezahlteSteuer?.toFixed(2) || '0')} €`}
+        containerClassName="bg-white border-gray-300"
+      />
+      <SummaryDetailRow
+        label="🎯 Endkapital"
+        value={formatEndCapitalDisplay(summary, hasInflationData, yearlyProgression)}
+        containerClassName="bg-gradient-to-br from-green-500 to-teal-500 text-white border-green-500"
+        onInfoClick={() =>
+          showCalculationInfo('endkapital', {
+            jahr: tableData?.[0]?.year || new Date().getFullYear(),
+            endkapital: summary.endkapital?.toFixed(2) || '0',
+            einzahlung: summary.startkapital || 0,
+          })
+        }
+      />
+    </div>
+  )
+}
+
 export function SummaryCard({
   summary,
   hasInflationData,
@@ -101,35 +153,13 @@ export function SummaryCard({
   return (
     <div className="bg-gradient-to-r from-gray-50 to-gray-100 border-2 border-blue-500 rounded-xl p-5 mt-2">
       <div className="text-lg font-bold text-blue-500 text-center mb-4">📊 Gesamtübersicht</div>
-      <div className="grid grid-cols-2 gap-3">
-        <SummaryDetailRow
-          label="💰 Einzahlungen"
-          value={`${thousands(summary.startkapital?.toFixed(2) || '0')} €`}
-          containerClassName="bg-white border-gray-300"
-        />
-        <SummaryDetailRow
-          label="📈 Zinsen"
-          value={formatInterestDisplay(summary, hasInflationData, yearlyProgression)}
-          containerClassName="bg-white border-gray-300"
-        />
-        <SummaryDetailRow
-          label="💸 Steuern"
-          value={`${thousands(summary.bezahlteSteuer?.toFixed(2) || '0')} €`}
-          containerClassName="bg-white border-gray-300"
-        />
-        <SummaryDetailRow
-          label="🎯 Endkapital"
-          value={formatEndCapitalDisplay(summary, hasInflationData, yearlyProgression)}
-          containerClassName="bg-gradient-to-br from-green-500 to-teal-500 text-white border-green-500"
-          onInfoClick={() =>
-            showCalculationInfo('endkapital', {
-              jahr: tableData?.[0]?.year || new Date().getFullYear(),
-              endkapital: summary.endkapital?.toFixed(2) || '0',
-              einzahlung: summary.startkapital || 0,
-            })
-          }
-        />
-      </div>
+      <SummaryGrid
+        summary={summary}
+        hasInflationData={hasInflationData}
+        yearlyProgression={yearlyProgression}
+        showCalculationInfo={showCalculationInfo}
+        tableData={tableData}
+      />
     </div>
   )
 }
