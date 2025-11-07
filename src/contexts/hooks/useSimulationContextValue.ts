@@ -1,7 +1,10 @@
 import { useMemo } from 'react'
 import type { SimulationContextState } from '../SimulationContext'
 
-function useTaxValues(state: Record<string, unknown>) {
+/**
+ * Hook for capital gains tax related values
+ */
+function useCapitalGainsTaxValues(state: Record<string, unknown>) {
   const {
     steuerlast,
     setSteuerlast,
@@ -11,10 +14,48 @@ function useTaxValues(state: Record<string, unknown>) {
     setFreibetragPerYear,
     basiszinsConfiguration,
     setBasiszinsConfiguration,
+  } = state
+  return useMemo(
+    () => ({
+      steuerlast,
+      setSteuerlast,
+      teilfreistellungsquote,
+      setTeilfreistellungsquote,
+      freibetragPerYear,
+      setFreibetragPerYear,
+      basiszinsConfiguration,
+      setBasiszinsConfiguration,
+    }),
+    [steuerlast, setSteuerlast, teilfreistellungsquote, setTeilfreistellungsquote, freibetragPerYear, setFreibetragPerYear, basiszinsConfiguration, setBasiszinsConfiguration],
+  )
+}
+
+/**
+ * Hook for tax reduction settings in accumulation and withdrawal phases
+ */
+function useTaxReductionValues(state: Record<string, unknown>) {
+  const {
     steuerReduzierenEndkapitalSparphase,
     setSteuerReduzierenEndkapitalSparphase,
     steuerReduzierenEndkapitalEntspharphase,
     setSteuerReduzierenEndkapitalEntspharphase,
+  } = state
+  return useMemo(
+    () => ({
+      steuerReduzierenEndkapitalSparphase,
+      setSteuerReduzierenEndkapitalSparphase,
+      steuerReduzierenEndkapitalEntspharphase,
+      setSteuerReduzierenEndkapitalEntspharphase,
+    }),
+    [steuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase],
+  )
+}
+
+/**
+ * Hook for personal income tax related values
+ */
+function usePersonalTaxValues(state: Record<string, unknown>) {
+  const {
     grundfreibetragAktiv,
     setGrundfreibetragAktiv,
     grundfreibetragBetrag,
@@ -23,25 +64,9 @@ function useTaxValues(state: Record<string, unknown>) {
     setPersonalTaxRate,
     guenstigerPruefungAktiv,
     setGuenstigerPruefungAktiv,
-    kirchensteuerAktiv,
-    setKirchensteuerAktiv,
-    kirchensteuersatz,
-    setKirchensteuersatz,
   } = state
   return useMemo(
     () => ({
-      steuerlast,
-      setSteuerlast,
-      teilfreistellungsquote,
-      setTeilfreistellungsquote,
-      freibetragPerYear,
-      setFreibetragPerYear,
-      basiszinsConfiguration,
-      setBasiszinsConfiguration,
-      steuerReduzierenEndkapitalSparphase,
-      setSteuerReduzierenEndkapitalSparphase,
-      steuerReduzierenEndkapitalEntspharphase,
-      setSteuerReduzierenEndkapitalEntspharphase,
       grundfreibetragAktiv,
       setGrundfreibetragAktiv,
       grundfreibetragBetrag,
@@ -50,52 +75,93 @@ function useTaxValues(state: Record<string, unknown>) {
       setPersonalTaxRate,
       guenstigerPruefungAktiv,
       setGuenstigerPruefungAktiv,
+    }),
+    [grundfreibetragAktiv, setGrundfreibetragAktiv, grundfreibetragBetrag, setGrundfreibetragBetrag, personalTaxRate, setPersonalTaxRate, guenstigerPruefungAktiv, setGuenstigerPruefungAktiv],
+  )
+}
+
+/**
+ * Hook for church tax related values
+ */
+function useChurchTaxValues(state: Record<string, unknown>) {
+  const { kirchensteuerAktiv, setKirchensteuerAktiv, kirchensteuersatz, setKirchensteuersatz } = state
+  return useMemo(
+    () => ({
       kirchensteuerAktiv,
       setKirchensteuerAktiv,
       kirchensteuersatz,
       setKirchensteuersatz,
     }),
-    [
-      steuerlast,
-      setSteuerlast,
-      teilfreistellungsquote,
-      setTeilfreistellungsquote,
-      freibetragPerYear,
-      setFreibetragPerYear,
-      basiszinsConfiguration,
-      setBasiszinsConfiguration,
-      steuerReduzierenEndkapitalSparphase,
-      setSteuerReduzierenEndkapitalSparphase,
-      steuerReduzierenEndkapitalEntspharphase,
-      setSteuerReduzierenEndkapitalEntspharphase,
-      grundfreibetragAktiv,
-      setGrundfreibetragAktiv,
-      grundfreibetragBetrag,
-      setGrundfreibetragBetrag,
-      personalTaxRate,
-      setPersonalTaxRate,
-      guenstigerPruefungAktiv,
-      setGuenstigerPruefungAktiv,
-      kirchensteuerAktiv,
-      setKirchensteuerAktiv,
-      kirchensteuersatz,
-      setKirchensteuersatz,
-    ],
+    [kirchensteuerAktiv, setKirchensteuerAktiv, kirchensteuersatz, setKirchensteuersatz],
   )
 }
 
-function useReturnValues(state: Record<string, unknown>) {
+/**
+ * Main hook that combines all tax-related values
+ */
+function useTaxValues(state: Record<string, unknown>) {
+  const capitalGainsTax = useCapitalGainsTaxValues(state)
+  const taxReduction = useTaxReductionValues(state)
+  const personalTax = usePersonalTaxValues(state)
+  const churchTax = useChurchTaxValues(state)
+
+  return useMemo(
+    () => ({
+      ...capitalGainsTax,
+      ...taxReduction,
+      ...personalTax,
+      ...churchTax,
+    }),
+    [capitalGainsTax, taxReduction, personalTax, churchTax],
+  )
+}
+
+/**
+ * Hook for basic return values (fixed return rate and return mode)
+ */
+function useBasicReturnValues(state: Record<string, unknown>) {
+  const { rendite, setRendite, returnMode, setReturnMode } = state
+  return useMemo(
+    () => ({
+      rendite,
+      setRendite,
+      returnMode,
+      setReturnMode,
+    }),
+    [rendite, setRendite, returnMode, setReturnMode],
+  )
+}
+
+/**
+ * Hook for random return configuration values
+ */
+function useRandomReturnValues(state: Record<string, unknown>) {
   const {
-    rendite,
-    setRendite,
-    returnMode,
-    setReturnMode,
     averageReturn,
     setAverageReturn,
     standardDeviation,
     setStandardDeviation,
     randomSeed,
     setRandomSeed,
+  } = state
+  return useMemo(
+    () => ({
+      averageReturn,
+      setAverageReturn,
+      standardDeviation,
+      setStandardDeviation,
+      randomSeed,
+      setRandomSeed,
+    }),
+    [averageReturn, setAverageReturn, standardDeviation, setStandardDeviation, randomSeed, setRandomSeed],
+  )
+}
+
+/**
+ * Hook for advanced return configuration values (variable, historical, black swan)
+ */
+function useAdvancedReturnValues(state: Record<string, unknown>) {
+  const {
     variableReturns,
     setVariableReturns,
     historicalIndex,
@@ -104,23 +170,9 @@ function useReturnValues(state: Record<string, unknown>) {
     setBlackSwanReturns,
     blackSwanEventName,
     setBlackSwanEventName,
-    multiAssetConfig,
-    setMultiAssetConfig,
-    withdrawalMultiAssetConfig,
-    setWithdrawalMultiAssetConfig,
   } = state
   return useMemo(
     () => ({
-      rendite,
-      setRendite,
-      returnMode,
-      setReturnMode,
-      averageReturn,
-      setAverageReturn,
-      standardDeviation,
-      setStandardDeviation,
-      randomSeed,
-      setRandomSeed,
       variableReturns,
       setVariableReturns,
       historicalIndex,
@@ -129,35 +181,53 @@ function useReturnValues(state: Record<string, unknown>) {
       setBlackSwanReturns,
       blackSwanEventName,
       setBlackSwanEventName,
+    }),
+    [
+      variableReturns,
+      setVariableReturns,
+      historicalIndex,
+      setHistoricalIndex,
+      blackSwanReturns,
+      setBlackSwanReturns,
+      blackSwanEventName,
+      setBlackSwanEventName,
+    ],
+  )
+}
+
+/**
+ * Hook for multi-asset portfolio configuration values
+ */
+function useMultiAssetValues(state: Record<string, unknown>) {
+  const { multiAssetConfig, setMultiAssetConfig, withdrawalMultiAssetConfig, setWithdrawalMultiAssetConfig } = state
+  return useMemo(
+    () => ({
       multiAssetConfig,
       setMultiAssetConfig,
       withdrawalMultiAssetConfig,
       setWithdrawalMultiAssetConfig,
     }),
-    [
-      rendite,
-      setRendite,
-      returnMode,
-      setReturnMode,
-      averageReturn,
-      setAverageReturn,
-      standardDeviation,
-      setStandardDeviation,
-      randomSeed,
-      setRandomSeed,
-      variableReturns,
-      setVariableReturns,
-      historicalIndex,
-      setHistoricalIndex,
-      blackSwanReturns,
-      setBlackSwanReturns,
-      blackSwanEventName,
-      setBlackSwanEventName,
-      multiAssetConfig,
-      setMultiAssetConfig,
-      withdrawalMultiAssetConfig,
-      setWithdrawalMultiAssetConfig,
-    ],
+    [multiAssetConfig, setMultiAssetConfig, withdrawalMultiAssetConfig, setWithdrawalMultiAssetConfig],
+  )
+}
+
+/**
+ * Hook for all return-related values, composing the various return value hooks
+ */
+function useReturnValues(state: Record<string, unknown>) {
+  const basicReturnValues = useBasicReturnValues(state)
+  const randomReturnValues = useRandomReturnValues(state)
+  const advancedReturnValues = useAdvancedReturnValues(state)
+  const multiAssetValues = useMultiAssetValues(state)
+
+  return useMemo(
+    () => ({
+      ...basicReturnValues,
+      ...randomReturnValues,
+      ...advancedReturnValues,
+      ...multiAssetValues,
+    }),
+    [basicReturnValues, randomReturnValues, advancedReturnValues, multiAssetValues],
   )
 }
 
