@@ -193,6 +193,14 @@ export function calculateSteuerOnVorabpauschale(
 
 /**
  * Calculate personal income tax including Kirchensteuer if active
+ * 
+ * @param vorabpauschale - The Vorabpauschale amount subject to taxation
+ * @param personalTaxRate - The personal income tax rate (e.g., 0.25 = 25%)
+ * @param teilfreistellungsquote - The partial exemption quote for the fund type
+ * @param availableGrundfreibetrag - The available Grundfreibetrag for this year
+ * @param kirchensteuerAktiv - Whether Kirchensteuer is active
+ * @param kirchensteuersatz - The Kirchensteuer rate (8% or 9%)
+ * @returns Object with personal tax amount and used Grundfreibetrag
  */
 function calculatePersonalIncomeTax(
   vorabpauschale: number,
@@ -213,6 +221,16 @@ function calculatePersonalIncomeTax(
 
 /**
  * Determine which tax option is more favorable and create explanation
+ * 
+ * @param personalTaxAmount - Calculated personal income tax amount
+ * @param abgeltungssteuerAmount - Calculated capital gains tax amount
+ * @param vorabpauschale - The Vorabpauschale amount
+ * @param teilfreistellungsquote - The partial exemption quote
+ * @param abgeltungssteuer - The capital gains tax rate
+ * @param personalTaxRate - The personal income tax rate
+ * @param kirchensteuerAktiv - Whether Kirchensteuer is active
+ * @param kirchensteuersatz - The Kirchensteuer rate
+ * @returns Object with favorable option, used rate, and explanation
  */
 function determineFavorableTaxOption(
   personalTaxAmount: number,
@@ -252,6 +270,11 @@ function determineFavorableTaxOption(
 
 /**
  * Create empty result when Vorabpauschale is zero or negative
+ * 
+ * @param abgeltungssteuer - The capital gains tax rate
+ * @param grundfreibetrag - The annual tax-free allowance
+ * @param alreadyUsedGrundfreibetrag - Amount already used this year
+ * @returns Empty GuenstigerPruefung result with no tax owed
  */
 function createEmptyGuenstigerPruefungResult(
   abgeltungssteuer: number,

@@ -44,6 +44,10 @@ export type WithdrawalStrategy =
 
 /**
  * Generate fixed rate growth for all years
+ * 
+ * @param allYears - Array of years to generate growth rates for
+ * @param fixedRate - Fixed annual return rate (e.g., 0.05 for 5%)
+ * @returns Object mapping year to growth rate
  */
 function generateFixedGrowthRates(allYears: number[], fixedRate: number): Record<number, number> {
   const yearlyGrowthRates: Record<number, number> = {}
@@ -55,6 +59,10 @@ function generateFixedGrowthRates(allYears: number[], fixedRate: number): Record
 
 /**
  * Generate variable growth rates from config
+ * 
+ * @param allYears - Array of years to generate growth rates for
+ * @param variableConfig - Configuration with yearly returns per year
+ * @returns Object mapping year to configured growth rate
  */
 function generateVariableGrowthRates(
   allYears: number[],
@@ -69,6 +77,10 @@ function generateVariableGrowthRates(
 
 /**
  * Generate multi-asset growth rates
+ * 
+ * @param allYears - Array of years to generate growth rates for
+ * @param multiAssetConfig - Multi-asset portfolio configuration
+ * @returns Object mapping year to portfolio growth rate
  */
 function generateMultiAssetGrowthRates(
   allYears: number[],
@@ -94,6 +106,10 @@ const GROWTH_RATE_GENERATORS: Record<
 
 /**
  * Helper function: Generate yearly growth rates based on return configuration
+ * 
+ * @param allYears - Array of years to generate growth rates for
+ * @param returnConfig - Return configuration specifying mode and parameters
+ * @returns Object mapping year to growth rate
  */
 function generateYearlyGrowthRates(allYears: number[], returnConfig: ReturnConfiguration): Record<number, number> {
   const generator = GROWTH_RATE_GENERATORS[returnConfig.mode]
@@ -102,6 +118,12 @@ function generateYearlyGrowthRates(allYears: number[], returnConfig: ReturnConfi
 
 /**
  * Helper function: Determine years for growth rate generation
+ * 
+ * @param startYear - Starting year of withdrawal phase
+ * @param endYear - Ending year of withdrawal phase
+ * @param strategy - Selected withdrawal strategy
+ * @param bucketConfig - Optional bucket strategy configuration
+ * @returns Array of years for which to generate growth rates
  */
 function determineYearsForGrowthRates(
   startYear: number,
@@ -120,6 +142,11 @@ function determineYearsForGrowthRates(
 
 /**
  * Helper function: Initialize statutory pension data if configured
+ * 
+ * @param statutoryPensionConfig - Optional statutory pension configuration
+ * @param startYear - Starting year of withdrawal phase
+ * @param endYear - Ending year of withdrawal phase
+ * @returns Statutory pension result data per year
  */
 function initializeStatutoryPensionData(
   statutoryPensionConfig: StatutoryPensionConfig | undefined,
@@ -139,6 +166,11 @@ function initializeStatutoryPensionData(
 
 /**
  * Helper function: Initialize other income data if configured
+ * 
+ * @param otherIncomeConfig - Optional other income configuration
+ * @param startYear - Starting year of withdrawal phase
+ * @param endYear - Ending year of withdrawal phase
+ * @returns Other income result data per year
  */
 function initializeOtherIncomeData(
   otherIncomeConfig: OtherIncomeConfiguration | undefined,
@@ -150,6 +182,9 @@ function initializeOtherIncomeData(
 
 /**
  * Helper function: Create Freibetrag accessor function
+ * 
+ * @param freibetragPerYear - Optional map of year to Freibetrag amount
+ * @returns Function to get Freibetrag for a given year
  */
 function createFreibetragAccessor(freibetragPerYear?: { [year: number]: number }): (year: number) => number {
   return (year: number): number => {
@@ -162,6 +197,9 @@ function createFreibetragAccessor(freibetragPerYear?: { [year: number]: number }
 
 /**
  * Helper function: Create Grundfreibetrag accessor function
+ * 
+ * @param grundfreibetragPerYear - Optional map of year to Grundfreibetrag amount
+ * @returns Function to get Grundfreibetrag for a given year
  */
 function createGrundfreibetragAccessor(grundfreibetragPerYear?: { [year: number]: number }): (year: number) => number {
   return (year: number): number => {
@@ -174,6 +212,10 @@ function createGrundfreibetragAccessor(grundfreibetragPerYear?: { [year: number]
 
 /**
  * Helper function: Calculate initial starting capital
+ * 
+ * @param elements - Array of savings plan elements
+ * @param startYear - Starting year of withdrawal phase
+ * @returns Total starting capital at beginning of withdrawal phase
  */
 function calculateInitialStartingCapital(elements: SparplanElement[], startYear: number): number {
   return elements.reduce((sum: number, el: SparplanElement) => {
@@ -184,6 +226,10 @@ function calculateInitialStartingCapital(elements: SparplanElement[], startYear:
 
 /**
  * Helper function: Initialize cash cushion for bucket strategy
+ * 
+ * @param strategy - Selected withdrawal strategy
+ * @param bucketConfig - Optional bucket strategy configuration
+ * @returns Initial cash cushion amount
  */
 function initializeCashCushion(strategy: WithdrawalStrategy, bucketConfig?: BucketStrategyConfig): number {
   return strategy === 'bucket_strategie' && bucketConfig ? bucketConfig.initialCashCushion : 0
@@ -191,6 +237,10 @@ function initializeCashCushion(strategy: WithdrawalStrategy, bucketConfig?: Buck
 
 /**
  * Helper function: Initialize mutable layers from elements
+ * 
+ * @param elements - Array of savings plan elements
+ * @param startYear - Starting year of withdrawal phase
+ * @returns Array of mutable layers for tracking withdrawals
  */
 function initializeMutableLayers(elements: SparplanElement[], startYear: number): MutableLayer[] {
   const mutableLayers: MutableLayer[] = JSON.parse(JSON.stringify(elements)).map((el: SparplanElement) => {
@@ -209,6 +259,14 @@ function initializeMutableLayers(elements: SparplanElement[], startYear: number)
 
 /**
  * Helper function: Create Vorabpauschale details object
+ * 
+ * @param totalVorabpauschale - Total Vorabpauschale for the year
+ * @param vorabCalculations - Array of per-layer Vorabpauschale calculations
+ * @param basiszins - Base interest rate for the year
+ * @param totalPotentialVorabTax - Total potential tax before allowances
+ * @param returnRate - Portfolio return rate for the year
+ * @param capitalAtStartOfYear - Total capital at start of year
+ * @returns Detailed Vorabpauschale breakdown or undefined if no Vorabpauschale
  */
 function createVorabpauschaleDetails(
   totalVorabpauschale: number,
@@ -245,6 +303,10 @@ function createVorabpauschaleDetails(
 
 /**
  * Helper function: Update final layers with simulation data
+ * 
+ * @param mutableLayers - Array of mutable layers with current values
+ * @param endYear - Ending year of withdrawal phase
+ * @returns Updated layers with final simulation data
  */
 function updateFinalLayers(mutableLayers: MutableLayer[], endYear: number): MutableLayer[] {
   return mutableLayers.map((l: MutableLayer) => {
@@ -265,6 +327,9 @@ function updateFinalLayers(mutableLayers: MutableLayer[], endYear: number): Muta
  */
 /**
  * Calculate withdrawal rate for bucket strategy
+ * 
+ * @param bucketConfig - Bucket strategy configuration
+ * @returns Withdrawal rate as decimal (e.g., 0.04 for 4%)
  */
 function getBucketStrategyRate(bucketConfig: BucketStrategyConfig): number {
   switch (bucketConfig.subStrategy) {
@@ -292,6 +357,10 @@ function calculateBucketStrategyAmount(initialStartingCapital: number, bucketCon
 
 /**
  * Helper function: Calculate RMD withdrawal amount
+ * 
+ * @param initialStartingCapital - Starting capital for RMD calculation
+ * @param rmdConfig - RMD configuration with age and life expectancy settings
+ * @returns Annual RMD withdrawal amount
  */
 function calculateRMDAmount(initialStartingCapital: number, rmdConfig: RMDConfig): number {
   return calculateRMDWithdrawal(
@@ -304,6 +373,10 @@ function calculateRMDAmount(initialStartingCapital: number, rmdConfig: RMDConfig
 
 /**
  * Helper function: Calculate capital preservation withdrawal amount
+ * 
+ * @param initialStartingCapital - Starting capital for calculation
+ * @param kapitalerhaltConfig - Capital preservation configuration with return and inflation rates
+ * @returns Annual withdrawal amount that preserves real capital value
  */
 function calculateKapitalerhaltAmount(
   initialStartingCapital: number,
@@ -333,6 +406,10 @@ type BaseWithdrawalParams = {
  */
 /**
  * Calculate monthly fixed withdrawal amount (helper for base calculation)
+ * 
+ * @param strategy - Selected withdrawal strategy
+ * @param monthlyConfig - Optional monthly withdrawal configuration
+ * @returns Annual withdrawal amount (monthly amount × 12)
  */
 function calculateMonthlyFixedAmount(strategy: WithdrawalStrategy, monthlyConfig?: MonthlyWithdrawalConfig): number {
   if (strategy === 'monatlich_fest' && monthlyConfig) {
@@ -343,6 +420,11 @@ function calculateMonthlyFixedAmount(strategy: WithdrawalStrategy, monthlyConfig
 
 /**
  * Calculate percentage-based withdrawal amount
+ * 
+ * @param initialStartingCapital - Starting capital for calculation
+ * @param customPercentage - Custom withdrawal percentage as decimal
+ * @returns Annual withdrawal amount
+ * @throws Error if customPercentage is undefined
  */
 function calculatePercentageWithdrawal(initialStartingCapital: number, customPercentage?: number): number {
   if (customPercentage === undefined) throw new Error('Custom percentage required')
@@ -351,6 +433,11 @@ function calculatePercentageWithdrawal(initialStartingCapital: number, customPer
 
 /**
  * Calculate dynamic withdrawal amount
+ * 
+ * @param initialStartingCapital - Starting capital for calculation
+ * @param dynamicConfig - Dynamic withdrawal configuration
+ * @returns Annual withdrawal amount based on dynamic strategy
+ * @throws Error if dynamicConfig is undefined
  */
 function calculateDynamicWithdrawal(initialStartingCapital: number, dynamicConfig?: DynamicWithdrawalConfig): number {
   if (!dynamicConfig) throw new Error('Dynamic config required')
@@ -359,6 +446,8 @@ function calculateDynamicWithdrawal(initialStartingCapital: number, dynamicConfi
 
 /**
  * Get default steueroptimiert config
+ * 
+ * @returns Default tax-optimized withdrawal configuration
  */
 function getDefaultSteueroptimierteConfig(): SteueroptimierteEntnahmeConfig {
   return {
@@ -372,6 +461,10 @@ function getDefaultSteueroptimierteConfig(): SteueroptimierteEntnahmeConfig {
 
 /**
  * Calculate steueroptimiert withdrawal amount
+ * 
+ * @param initialStartingCapital - Starting capital for calculation
+ * @param steueroptimierteEntnahmeConfig - Optional tax-optimized configuration
+ * @returns Annual withdrawal amount optimized for taxes
  */
 function calculateSteueroptimierteWithdrawal(
   initialStartingCapital: number,
@@ -383,6 +476,10 @@ function calculateSteueroptimierteWithdrawal(
 
 /**
  * Calculate standard 3% or 4% rule withdrawal
+ * 
+ * @param strategy - Withdrawal strategy ('3prozent' or '4prozent')
+ * @param initialStartingCapital - Starting capital for calculation
+ * @returns Annual withdrawal amount based on standard rule
  */
 function calculateStandardRuleWithdrawal(strategy: WithdrawalStrategy, initialStartingCapital: number): number {
   const withdrawalRate = strategy === '4prozent' ? 0.04 : 0.03
