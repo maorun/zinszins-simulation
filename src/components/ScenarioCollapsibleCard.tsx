@@ -2,8 +2,7 @@ import type { RefObject } from 'react'
 import { Card, CardHeader, CardTitle } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { Button } from './ui/button'
-import { ChevronDown } from 'lucide-react'
-import { GlossaryTerm } from './GlossaryTerm'
+import { ChevronDown, HelpCircle } from 'lucide-react'
 import type { FinancialScenario } from '../data/scenarios'
 import { ScenarioSelectorContent } from './ScenarioSelectorContent'
 
@@ -32,7 +31,7 @@ export function ScenarioCollapsibleCard({
           <CollapsibleTrigger asChild>
             <Button variant="ghost" className="w-full justify-between p-0 hover:bg-transparent">
               <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
-                💡 Was-wäre-wenn <GlossaryTerm term="szenario" showIcon />
+                💡 Was-wäre-wenn Szenario <HelpCircle className="inline-block w-4 h-4 opacity-60" />
               </CardTitle>
               <ChevronDown className="h-5 w-5 transition-transform duration-200 data-[state=open]:rotate-180" />
             </Button>
