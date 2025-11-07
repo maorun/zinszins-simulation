@@ -60,9 +60,20 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Konfigurierbare Parameter**: Kapitalertragsteuer, Teilfreistellungsquote, Freibetrag pro Jahr
 - **Günstigerprüfung** - Automatische Wahl zwischen Abgeltungssteuer und persönlichem Steuersatz
   - **Automatische Optimierung**: System vergleicht Abgeltungssteuer (26,375%) vs. individueller Einkommensteuersatz
+  - **Progressiver Steuertarif**: Bei aktivierter Günstigerprüfung wird der deutsche progressive Einkommensteuertarif berücksichtigt
   - **Sowohl Spar- als auch Entnahmephase**: Optimierung in beiden Phasen für maximale Steuerersparnis
   - **Transparente Darstellung**: Anzeige beider Berechnungen und Erklärung der gewählten Variante
   - **Konfigurierbare Aktivierung**: Ein-/Ausschaltbar je nach individueller Steuersituation
+- **Progressives Steuersystem (2024)**
+  - **5 Steuerzonen** nach deutschem Einkommensteuergesetz (EStG §32a)
+    - Zone 1: 0 - 11.604€: 0% (Grundfreibetrag)
+    - Zone 2: 11.605€ - 17.005€: 14% - 24% (progressiv)
+    - Zone 3: 17.006€ - 66.760€: 24% - 42% (progressiv)
+    - Zone 4: 66.761€ - 277.825€: 42% (Spitzensteuersatz)
+    - Zone 5: Ab 277.826€: 45% (Reichensteuer)
+  - **Automatische Anwendung**: Wird bei Günstigerprüfung automatisch verwendet
+  - **Effektiver Steuersatz**: Zeigt den tatsächlich angewendeten Steuersatz nach progressiver Berechnung
+  - **Besonders vorteilhaft**: Bei niedrigeren Einkommen oft günstiger als Abgeltungssteuer
 - **Kirchensteuer** - Berücksichtigung der deutschen Kirchensteuer
   - **Bundesländerspezifisch**: 8% für Bayern/Baden-Württemberg, 9% für andere Bundesländer
   - **Automatische Integration**: Wird bei Günstigerprüfung und Einkommensteuerberechnung berücksichtigt
