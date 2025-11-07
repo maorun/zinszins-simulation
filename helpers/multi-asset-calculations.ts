@@ -16,15 +16,23 @@ import {
 
 /**
  * Simple Linear Congruential Generator for reproducible random numbers
+ * Uses the MINSTD Lehmer RNG algorithm for deterministic pseudo-random number generation
  */
 class SeededRandom {
   private seed: number
 
+  /**
+   * @param seed - Initial seed value (defaults to current timestamp)
+   */
   constructor(seed: number = Date.now()) {
     this.seed = seed % 2147483647
     if (this.seed <= 0) this.seed += 2147483646
   }
 
+  /**
+   * Generate next pseudo-random number in sequence
+   * @returns Random number between 0 and 1
+   */
   next(): number {
     this.seed = (this.seed * 16807) % 2147483647
     return (this.seed - 1) / 2147483646
@@ -33,6 +41,9 @@ class SeededRandom {
 
 /**
  * Box-Muller transformation for generating normally distributed random numbers
+ * 
+ * @param rng - Seeded random number generator
+ * @returns Normally distributed random number (mean=0, stddev=1)
  */
 function generateNormalRandom(rng: SeededRandom): number {
   let u1 = rng.next()
@@ -49,7 +60,14 @@ function generateNormalRandom(rng: SeededRandom): number {
 
 /**
  * Generate correlated returns using Cholesky decomposition
- * This ensures the returns follow the historical correlation structure
+ * 
+ * This ensures the returns follow the historical correlation structure between asset classes.
+ * When correlation is disabled, generates independent returns for each asset class.
+ * 
+ * @param assetClasses - Array of asset classes to generate returns for
+ * @param config - Multi-asset portfolio configuration
+ * @param rng - Seeded random number generator for reproducibility
+ * @returns Object mapping each asset class to its return rate (e.g., 0.08 for 8%)
  */
 function generateCorrelatedReturns(
   assetClasses: AssetClass[],
@@ -97,6 +115,10 @@ function generateCorrelatedReturns(
 
 /**
  * Calculate if rebalancing is needed based on drift from target allocations
+ * 
+ * @param holdings - Current portfolio holdings with drift calculations
+ * @param config - Multi-asset portfolio configuration
+ * @returns true if rebalancing is needed, false otherwise
  */
 function needsRebalancing(holdings: PortfolioHoldings, config: MultiAssetPortfolioConfig): boolean {
   if (config.rebalancing.frequency === 'never') {
@@ -119,6 +141,9 @@ function needsRebalancing(holdings: PortfolioHoldings, config: MultiAssetPortfol
 
 /**
  * Get enabled asset classes from config
+ * 
+ * @param config - Multi-asset portfolio configuration
+ * @returns Array of enabled asset class identifiers
  */
 function getEnabledAssets(config: MultiAssetPortfolioConfig): AssetClass[] {
   return Object.keys(config.assetClasses).filter(
@@ -128,6 +153,13 @@ function getEnabledAssets(config: MultiAssetPortfolioConfig): AssetClass[] {
 
 /**
  * Rebalance portfolio to target allocations
+ * 
+ * Redistributes portfolio holdings to match configured target allocations.
+ * This helps maintain desired risk profile and can improve long-term returns.
+ * 
+ * @param holdings - Current portfolio holdings
+ * @param config - Multi-asset portfolio configuration with target allocations
+ * @returns Rebalanced portfolio holdings
  */
 function rebalancePortfolio(holdings: PortfolioHoldings, config: MultiAssetPortfolioConfig): PortfolioHoldings {
   const rebalancedHoldings: PortfolioHoldings = {
@@ -165,6 +197,10 @@ function rebalancePortfolio(holdings: PortfolioHoldings, config: MultiAssetPortf
 
 /**
  * Apply returns to holdings and calculate new values
+ * 
+ * @param holdings - Current portfolio holdings
+ * @param assetReturns - Returns for each asset class
+ * @returns Object with new holdings and total value
  */
 function applyReturnsToHoldings(
   holdings: PortfolioHoldings,
@@ -208,6 +244,11 @@ function applyReturnsToHoldings(
 
 /**
  * Apply returns to portfolio holdings
+ * 
+ * @param holdings - Current portfolio holdings
+ * @param assetReturns - Returns for each asset class
+ * @param config - Multi-asset portfolio configuration
+ * @returns Updated portfolio holdings with returns applied
  */
 function applyReturns(
   holdings: PortfolioHoldings,
@@ -239,6 +280,9 @@ function applyReturns(
 
 /**
  * Calculate new allocations and drift for holdings
+ * 
+ * @param holdings - Portfolio holdings to update
+ * @param totalValue - Total portfolio value
  */
 function calculateAllocationsAndDrift(
   holdings: Record<
@@ -260,6 +304,11 @@ function calculateAllocationsAndDrift(
 
 /**
  * Distribute contribution across asset classes according to target allocations
+ * 
+ * @param currentHoldings - Current portfolio holdings
+ * @param contribution - Amount to contribute
+ * @param config - Multi-asset portfolio configuration
+ * @returns Updated holdings with contribution distributed
  */
 function distributeContribution(
   currentHoldings: PortfolioHoldings['holdings'],
@@ -294,6 +343,11 @@ function distributeContribution(
 
 /**
  * Add contributions to portfolio maintaining target allocations
+ * 
+ * @param holdings - Current portfolio holdings
+ * @param contribution - Amount to contribute this period
+ * @param config - Multi-asset portfolio configuration
+ * @returns Updated portfolio holdings with contribution added
  */
 function addContributions(
   holdings: PortfolioHoldings,
@@ -328,6 +382,11 @@ function addContributions(
 
 /**
  * Check if rebalancing should occur based on frequency
+ * 
+ * @param _year - Current year (unused but kept for interface consistency)
+ * @param month - Current month (0-11, where 0 is January)
+ * @param frequency - Rebalancing frequency setting
+ * @returns true if rebalancing should occur this month
  */
 function shouldRebalanceByFrequency(
   _year: number,
@@ -350,6 +409,11 @@ function shouldRebalanceByFrequency(
 
 /**
  * Initialize portfolio holdings with target allocations
+ * 
+ * @param enabledAssets - Array of enabled asset classes
+ * @param config - Multi-asset portfolio configuration
+ * @param initialContribution - Initial investment amount
+ * @returns Initialized portfolio holdings distributed according to target allocations
  */
 function initializePortfolioHoldings(
   enabledAssets: AssetClass[],
@@ -463,6 +527,14 @@ function calculateSummaryStatistics(
 
 /**
  * Run the portfolio simulation for all years
+ * 
+ * @param years - Array of years to simulate
+ * @param contributions - Annual contributions by year
+ * @param enabledAssets - Array of enabled asset classes
+ * @param config - Multi-asset portfolio configuration
+ * @param initialHoldings - Initial portfolio holdings
+ * @param rng - Seeded random number generator
+ * @returns Simulation results including year-by-year data and summary statistics
  */
 function runPortfolioSimulation(
   years: number[],
@@ -515,6 +587,19 @@ function runPortfolioSimulation(
 
 /**
  * Simulate multi-asset portfolio for a range of years
+ * 
+ * Performs a complete multi-asset portfolio simulation with:
+ * - Correlated returns based on historical correlations
+ * - Automatic rebalancing based on configured frequency and thresholds
+ * - Support for regular contributions
+ * - German tax rules (Teilfreistellung for stocks and REITs)
+ * - Detailed year-by-year tracking of holdings and allocations
+ * 
+ * @param config - Multi-asset portfolio configuration with asset classes, allocations, and rebalancing rules
+ * @param years - Array of years to simulate (e.g., [2024, 2025, 2026])
+ * @param contributions - Annual contributions by year (e.g., { 2024: 10000, 2025: 12000 })
+ * @returns Complete simulation result with year-by-year data and summary statistics
+ * @throws Error if no asset classes are enabled
  */
 export function simulateMultiAssetPortfolio(
   config: MultiAssetPortfolioConfig,
@@ -571,7 +656,14 @@ export function simulateMultiAssetPortfolio(
 
 /**
  * Calculate equivalent single-asset return that would produce the same result
- * This is useful for integrating with the existing simulation engine
+ * 
+ * This is useful for integrating with the existing simulation engine by providing
+ * a single weighted return rate that represents the entire multi-asset portfolio.
+ * 
+ * @param config - Multi-asset portfolio configuration
+ * @param year - Year for which to calculate return
+ * @param seed - Optional random seed for reproducibility
+ * @returns Weighted average return rate representing the entire portfolio
  */
 export function calculateEquivalentSingleAssetReturn(
   config: MultiAssetPortfolioConfig,
@@ -604,6 +696,14 @@ export function calculateEquivalentSingleAssetReturn(
 
 /**
  * Generate returns for multiple years (used by simulation engine)
+ * 
+ * Convenience function that generates equivalent single-asset returns for each year
+ * in the simulation period. Used by the main simulation engine to integrate multi-asset
+ * portfolio calculations.
+ * 
+ * @param years - Array of years to generate returns for
+ * @param config - Multi-asset portfolio configuration
+ * @returns Object mapping each year to its equivalent single-asset return rate
  */
 export function generateMultiAssetReturns(years: number[], config: MultiAssetPortfolioConfig): Record<number, number> {
   const returns: Record<number, number> = {}

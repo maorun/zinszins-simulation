@@ -93,7 +93,15 @@ export interface SimulateOptions {
   personalTaxRate?: number
 }
 
-// Helper function to add inflation-adjusted values to simulation result
+/**
+ * Add inflation-adjusted values to simulation result
+ * 
+ * @param result - Simulation result element for a single year
+ * @param year - Current year
+ * @param baseYear - Base year for inflation calculation
+ * @param inflationRate - Annual inflation rate as percentage (e.g., 2.5)
+ * @returns Updated result with real (inflation-adjusted) values
+ */
 function addInflationAdjustedValues(
   result: SimulationResultElement,
   year: number,
@@ -113,7 +121,13 @@ function addInflationAdjustedValues(
   }
 }
 
-// Helper function to get inflation rate for a specific year
+/**
+ * Get inflation rate for a specific year
+ * 
+ * @param year - Year for which to get inflation rate
+ * @param options - Simulation options containing inflation configuration
+ * @returns Inflation rate as decimal (e.g., 0.025 for 2.5%)
+ */
 function getInflationRateForYear(year: number, options: SimulateOptions): number {
   // Use variable inflation rates if provided
   if (options.variableInflationRates && options.variableInflationRates[year] !== undefined) {
@@ -130,6 +144,10 @@ function getInflationRateForYear(year: number, options: SimulateOptions): number
 
 /**
  * Apply fixed rate to all years
+ * 
+ * @param years - Array of years to apply rate to
+ * @param fixedRate - Fixed annual return rate as decimal (e.g., 0.05 for 5%)
+ * @returns Object mapping year to return rate
  */
 function applyFixedRate(years: number[], fixedRate: number): Record<number, number> {
   const rates: Record<number, number> = {}
@@ -141,6 +159,10 @@ function applyFixedRate(years: number[], fixedRate: number): Record<number, numb
 
 /**
  * Apply variable returns to years
+ * 
+ * @param years - Array of years to apply returns to
+ * @param yearlyReturns - Object mapping year to return rate
+ * @returns Object mapping year to configured return rate (default 5% if not specified)
  */
 function applyVariableReturns(years: number[], yearlyReturns: Record<number, number>): Record<number, number> {
   const rates: Record<number, number> = {}
@@ -150,8 +172,17 @@ function applyVariableReturns(years: number[], yearlyReturns: Record<number, num
   return rates
 }
 
+/**
+ * Type definition for return generator function
+ */
 type ReturnGenerator = (years: number[]) => Record<number, number>
 
+/**
+ * Get appropriate return generator based on return configuration mode
+ * 
+ * @param returnConfig - Return configuration specifying mode and parameters
+ * @returns Function that generates yearly return rates
+ */
 function getReturnGenerator(returnConfig: ReturnConfiguration): ReturnGenerator {
   const generators: Record<string, ReturnGenerator | undefined> = {
     fixed: years => applyFixedRate(years, returnConfig.fixedRate ?? 0.05),
@@ -176,6 +207,14 @@ function getReturnGenerator(returnConfig: ReturnConfiguration): ReturnGenerator 
   return generators[returnConfig.mode] || (years => applyFixedRate(years, 0.05))
 }
 
+/**
+ * Generate yearly growth rates for the entire simulation period
+ * 
+ * @param startYear - First year of simulation
+ * @param endYear - Last year of simulation
+ * @param returnConfig - Return configuration specifying mode and parameters
+ * @returns Object mapping each year to its growth rate
+ */
 function generateYearlyGrowthRates(
   startYear: number,
   endYear: number,
@@ -186,7 +225,32 @@ function generateYearlyGrowthRates(
   return generator(years)
 }
 
-// Implementation
+/**
+ * Main simulation function for savings phase
+ * 
+ * Simulates compound interest growth, tax calculations (Vorabpauschale), and cost factors
+ * for investment portfolios over time. Supports multiple return modes (fixed, random, 
+ * variable, historical, multi-asset), inflation adjustment, and German tax optimization.
+ * 
+ * @param options - Comprehensive simulation options
+ * @param options.startYear - First year of simulation
+ * @param options.endYear - Last year of simulation
+ * @param options.elements - Array of savings plan elements (regular savings, one-time payments)
+ * @param options.returnConfig - Return configuration (mode, rates, volatility)
+ * @param options.steuerlast - Capital gains tax rate (e.g., 0.26375 for 26.375%)
+ * @param options.simulationAnnual - Calculation frequency ('yearly' or 'monthly')
+ * @param options.teilfreistellungsquote - Partial exemption for fund type (e.g., 0.3 for equity funds)
+ * @param options.freibetragPerYear - Tax-free allowance per year (Sparerpauschbetrag)
+ * @param options.steuerReduzierenEndkapital - Whether to reduce end capital by tax owed
+ * @param options.basiszinsConfiguration - Official base interest rates from Bundesbank
+ * @param options.inflationAktivSparphase - Whether inflation is active during savings phase
+ * @param options.inflationsrateSparphase - Fixed inflation rate for savings phase
+ * @param options.inflationAnwendungSparphase - Apply inflation to 'sparplan' or 'gesamtmenge'
+ * @param options.variableInflationRates - Variable inflation rates per year
+ * @param options.guenstigerPruefungAktiv - Whether tax optimization check is active
+ * @param options.personalTaxRate - Personal income tax rate for Günstigerprüfung
+ * @returns Array of savings plan elements with simulation results per year
+ */
 export function simulate(options: SimulateOptions): SparplanElement[] {
   const { elements, startYear, endYear, returnConfig } = options
 
