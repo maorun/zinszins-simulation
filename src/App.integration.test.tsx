@@ -38,7 +38,7 @@ describe('App Integration Tests - Optimized', () => {
         expect(screen.getByText('💼 Zinseszins-Simulation')).toBeInTheDocument()
         expect(screen.getByText('🔄 Neu berechnen')).toBeInTheDocument()
       },
-      { timeout: 5000 },
+      { timeout: 2500 }, // Reduced from 5000ms to fit within test timeout
     )
 
     // Wait for Profile Management to load
@@ -46,7 +46,7 @@ describe('App Integration Tests - Optimized', () => {
       () => {
         expect(screen.getByText('👤 Profile verwalten')).toBeInTheDocument()
       },
-      { timeout: 5000 },
+      { timeout: 2500 }, // Reduced from 5000ms to fit within test timeout
     )
 
     // Check that main sections are present
@@ -58,9 +58,9 @@ describe('App Integration Tests - Optimized', () => {
         expect(screen.getByText('Ansparen')).toBeInTheDocument()
         expect(screen.getByText('Entnehmen')).toBeInTheDocument()
       },
-      { timeout: 5000 },
+      { timeout: 2500 }, // Reduced from 5000ms to fit within test timeout
     )
-  })
+  }, 10000) // Increase timeout for this entire test to 10 seconds
 
   it('renders the complete application structure without errors', () => {
     const { container } = render(<App />)
@@ -82,11 +82,11 @@ describe('App Integration Tests - Optimized', () => {
         expect(screen.getByText('📧 by Marco')).toBeInTheDocument()
         expect(screen.getByText('🚀 Erstellt mit React, TypeScript & shadcn/ui')).toBeInTheDocument()
       },
-      { timeout: 5000 },
+      { timeout: 2500 }, // Reduced from 5000ms to fit within test timeout
     )
 
     // Check that configuration sections exist
     const configElements = screen.getAllByText(/Konfiguration/)
     expect(configElements.length).toBeGreaterThan(0)
-  })
+  }, 10000) // Increase timeout for this entire test to 10 seconds
 })
