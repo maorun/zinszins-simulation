@@ -1,7 +1,10 @@
 import { useMemo } from 'react'
 import type { SimulationContextState } from '../SimulationContext'
 
-function useTaxValues(state: Record<string, unknown>) {
+/**
+ * Hook for capital gains tax related values
+ */
+function useCapitalGainsTaxValues(state: Record<string, unknown>) {
   const {
     steuerlast,
     setSteuerlast,
@@ -11,22 +14,6 @@ function useTaxValues(state: Record<string, unknown>) {
     setFreibetragPerYear,
     basiszinsConfiguration,
     setBasiszinsConfiguration,
-    steuerReduzierenEndkapitalSparphase,
-    setSteuerReduzierenEndkapitalSparphase,
-    steuerReduzierenEndkapitalEntspharphase,
-    setSteuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv,
-    setGrundfreibetragAktiv,
-    grundfreibetragBetrag,
-    setGrundfreibetragBetrag,
-    personalTaxRate,
-    setPersonalTaxRate,
-    guenstigerPruefungAktiv,
-    setGuenstigerPruefungAktiv,
-    kirchensteuerAktiv,
-    setKirchensteuerAktiv,
-    kirchensteuersatz,
-    setKirchensteuersatz,
   } = state
   return useMemo(
     () => ({
@@ -38,10 +25,48 @@ function useTaxValues(state: Record<string, unknown>) {
       setFreibetragPerYear,
       basiszinsConfiguration,
       setBasiszinsConfiguration,
+    }),
+    [steuerlast, setSteuerlast, teilfreistellungsquote, setTeilfreistellungsquote, freibetragPerYear, setFreibetragPerYear, basiszinsConfiguration, setBasiszinsConfiguration],
+  )
+}
+
+/**
+ * Hook for tax reduction settings in accumulation and withdrawal phases
+ */
+function useTaxReductionValues(state: Record<string, unknown>) {
+  const {
+    steuerReduzierenEndkapitalSparphase,
+    setSteuerReduzierenEndkapitalSparphase,
+    steuerReduzierenEndkapitalEntspharphase,
+    setSteuerReduzierenEndkapitalEntspharphase,
+  } = state
+  return useMemo(
+    () => ({
       steuerReduzierenEndkapitalSparphase,
       setSteuerReduzierenEndkapitalSparphase,
       steuerReduzierenEndkapitalEntspharphase,
       setSteuerReduzierenEndkapitalEntspharphase,
+    }),
+    [steuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase],
+  )
+}
+
+/**
+ * Hook for personal income tax related values
+ */
+function usePersonalTaxValues(state: Record<string, unknown>) {
+  const {
+    grundfreibetragAktiv,
+    setGrundfreibetragAktiv,
+    grundfreibetragBetrag,
+    setGrundfreibetragBetrag,
+    personalTaxRate,
+    setPersonalTaxRate,
+    guenstigerPruefungAktiv,
+    setGuenstigerPruefungAktiv,
+  } = state
+  return useMemo(
+    () => ({
       grundfreibetragAktiv,
       setGrundfreibetragAktiv,
       grundfreibetragBetrag,
@@ -50,37 +75,44 @@ function useTaxValues(state: Record<string, unknown>) {
       setPersonalTaxRate,
       guenstigerPruefungAktiv,
       setGuenstigerPruefungAktiv,
+    }),
+    [grundfreibetragAktiv, setGrundfreibetragAktiv, grundfreibetragBetrag, setGrundfreibetragBetrag, personalTaxRate, setPersonalTaxRate, guenstigerPruefungAktiv, setGuenstigerPruefungAktiv],
+  )
+}
+
+/**
+ * Hook for church tax related values
+ */
+function useChurchTaxValues(state: Record<string, unknown>) {
+  const { kirchensteuerAktiv, setKirchensteuerAktiv, kirchensteuersatz, setKirchensteuersatz } = state
+  return useMemo(
+    () => ({
       kirchensteuerAktiv,
       setKirchensteuerAktiv,
       kirchensteuersatz,
       setKirchensteuersatz,
     }),
-    [
-      steuerlast,
-      setSteuerlast,
-      teilfreistellungsquote,
-      setTeilfreistellungsquote,
-      freibetragPerYear,
-      setFreibetragPerYear,
-      basiszinsConfiguration,
-      setBasiszinsConfiguration,
-      steuerReduzierenEndkapitalSparphase,
-      setSteuerReduzierenEndkapitalSparphase,
-      steuerReduzierenEndkapitalEntspharphase,
-      setSteuerReduzierenEndkapitalEntspharphase,
-      grundfreibetragAktiv,
-      setGrundfreibetragAktiv,
-      grundfreibetragBetrag,
-      setGrundfreibetragBetrag,
-      personalTaxRate,
-      setPersonalTaxRate,
-      guenstigerPruefungAktiv,
-      setGuenstigerPruefungAktiv,
-      kirchensteuerAktiv,
-      setKirchensteuerAktiv,
-      kirchensteuersatz,
-      setKirchensteuersatz,
-    ],
+    [kirchensteuerAktiv, setKirchensteuerAktiv, kirchensteuersatz, setKirchensteuersatz],
+  )
+}
+
+/**
+ * Main hook that combines all tax-related values
+ */
+function useTaxValues(state: Record<string, unknown>) {
+  const capitalGainsTax = useCapitalGainsTaxValues(state)
+  const taxReduction = useTaxReductionValues(state)
+  const personalTax = usePersonalTaxValues(state)
+  const churchTax = useChurchTaxValues(state)
+
+  return useMemo(
+    () => ({
+      ...capitalGainsTax,
+      ...taxReduction,
+      ...personalTax,
+      ...churchTax,
+    }),
+    [capitalGainsTax, taxReduction, personalTax, churchTax],
   )
 }
 
