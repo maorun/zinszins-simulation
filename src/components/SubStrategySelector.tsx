@@ -14,7 +14,7 @@ export function SubStrategySelector({ value, onChange, idPrefix = 'bucket-sub-st
       <Label>Entnahme-Strategie</Label>
       <RadioTileGroup
         value={value}
-        idPrefix={idPrefix}
+        name={idPrefix}
         onValueChange={(newValue: string) => {
           onChange(newValue as BucketSubStrategy)
         }}
