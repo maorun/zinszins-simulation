@@ -1,6 +1,7 @@
-import React from 'react'
 import { formatCurrency } from '../utils/currency'
-import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts'
+import { Line } from 'react-chartjs-2'
+import { ChartOptions, TooltipItem } from 'chart.js'
+import '../utils/chart-setup' // Ensure Chart.js is registered
 
 interface ChartData {
   name: string
@@ -13,21 +14,123 @@ interface SensitivityChartProps {
   data: ChartData[]
 }
 
-const SensitivityChart: React.FC<SensitivityChartProps> = ({ data }) => {
+/* eslint-disable max-lines-per-function */
+function createChartOptions(): ChartOptions<'line'> {
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom' as const,
+        labels: {
+          font: {
+            size: 12,
+          },
+        },
+      },
+      tooltip: {
+        enabled: true,
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        titleColor: '#1f2937',
+        bodyColor: '#4b5563',
+        borderColor: '#e5e7eb',
+        borderWidth: 1,
+        padding: 12,
+        bodyFont: {
+          size: 12,
+        },
+        titleFont: {
+          size: 12,
+        },
+        callbacks: {
+          label: (context: TooltipItem<'line'>) => {
+            const label = context.dataset.label || ''
+            const value = context.parsed.y
+            return `${label}: ${formatCurrency(value)}`
+          },
+        },
+      },
+    },
+    scales: {
+      x: {
+        display: true,
+        grid: {
+          display: true,
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
+        ticks: {
+          maxRotation: 45,
+          minRotation: 45,
+          font: {
+            size: 12,
+          },
+        },
+      },
+      y: {
+        display: true,
+        grid: {
+          display: true,
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
+        ticks: {
+          font: {
+            size: 12,
+          },
+        },
+      },
+    },
+  }
+}
+
+function SensitivityChart({ data }: SensitivityChartProps) {
+  const chartData = {
+    labels: data.map(d => d.name),
+    datasets: [
+      {
+        label: 'Endkapital',
+        data: data.map(d => d.Endkapital),
+        borderColor: '#3b82f6',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.4,
+      },
+      {
+        label: 'Einzahlungen',
+        data: data.map(d => d.Einzahlungen),
+        borderColor: '#10b981',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.4,
+      },
+      {
+        label: 'Gewinne',
+        data: data.map(d => d.Gewinne),
+        borderColor: '#f59e0b',
+        backgroundColor: 'transparent',
+        borderWidth: 2,
+        pointRadius: 4,
+        pointHoverRadius: 6,
+        tension: 0.4,
+      },
+    ],
+  }
+
+  const options = createChartOptions()
+
   return (
     <div className="bg-white p-4 rounded-lg border">
-      <ResponsiveContainer width="100%" height={300}>
-        <LineChart data={data}>
-          <CartesianGrid strokeDasharray="3 3" />
-          <XAxis dataKey="name" tick={{ fontSize: 12 }} angle={-45} textAnchor="end" height={80} />
-          <YAxis tick={{ fontSize: 12 }} />
-          <Tooltip formatter={(value: number) => formatCurrency(value)} contentStyle={{ fontSize: '12px' }} />
-          <Legend wrapperStyle={{ fontSize: '12px' }} />
-          <Line type="monotone" dataKey="Endkapital" stroke="#3b82f6" strokeWidth={2} dot={{ r: 4 }} />
-          <Line type="monotone" dataKey="Einzahlungen" stroke="#10b981" strokeWidth={2} dot={{ r: 4 }} />
-          <Line type="monotone" dataKey="Gewinne" stroke="#f59e0b" strokeWidth={2} dot={{ r: 4 }} />
-        </LineChart>
-      </ResponsiveContainer>
+      <div style={{ height: '300px' }}>
+        <Line data={chartData} options={options} />
+      </div>
     </div>
   )
 }

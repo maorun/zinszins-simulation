@@ -30,7 +30,7 @@ export default defineConfig({
             '@radix-ui/react-tooltip',
           ],
           // Chart library
-          charts: ['recharts'],
+          charts: ['chart.js', 'react-chartjs-2', 'chartjs-plugin-zoom'],
           // Form libraries
           forms: ['react-hook-form', '@hookform/resolvers', 'zod'],
           // Icons

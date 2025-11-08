@@ -1,20 +1,14 @@
 import { describe, it, expect, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
-import React from 'react'
 import SensitivityAnalysisDisplay from './SensitivityAnalysisDisplay'
 import type { SensitivityAnalysisConfig } from '../utils/sensitivity-analysis'
 
-// Mock recharts to avoid rendering issues in tests
-vi.mock('recharts', () => ({
-  LineChart: ({ children }: { children: React.ReactNode }) => <div data-testid="line-chart">{children}</div>,
-  Line: () => <div data-testid="line" />,
-  XAxis: () => <div data-testid="x-axis" />,
-  YAxis: () => <div data-testid="y-axis" />,
-  CartesianGrid: () => <div data-testid="cartesian-grid" />,
-  Tooltip: () => <div data-testid="tooltip" />,
-  Legend: () => <div data-testid="legend" />,
-  ResponsiveContainer: ({ children }: { children: React.ReactNode }) => (
-    <div data-testid="responsive-container">{children}</div>
+// Mock react-chartjs-2 to avoid rendering issues in tests
+vi.mock('react-chartjs-2', () => ({
+  Line: ({ data, options }: { data: unknown; options: unknown }) => (
+    <div data-testid="chartjs-line" data-chart-data={JSON.stringify(data)} data-chart-options={JSON.stringify(options)}>
+      Chart.js Line Mock
+    </div>
   ),
 }))
 
@@ -111,7 +105,7 @@ describe('SensitivityAnalysisDisplay', () => {
     fireEvent.click(header)
 
     // Should have at least one chart (top 3 parameters get charts)
-    const charts = screen.getAllByTestId('line-chart')
+    const charts = screen.getAllByTestId('chartjs-line')
     expect(charts.length).toBeGreaterThan(0)
     expect(charts.length).toBeLessThanOrEqual(3)
   })

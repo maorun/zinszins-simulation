@@ -1,6 +1,15 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render } from '@testing-library/react'
 import { ChartVisualization } from './ChartVisualization'
+
+// Mock Chart.js components to avoid canvas rendering issues in tests
+vi.mock('react-chartjs-2', () => ({
+  Line: ({ data, options }: { data: unknown; options: unknown }) => (
+    <div data-testid="chartjs-line" data-chart-data={JSON.stringify(data)} data-chart-options={JSON.stringify(options)}>
+      Chart.js Line Mock
+    </div>
+  ),
+}))
 
 describe('ChartVisualization', () => {
   const mockChartData = [
@@ -39,7 +48,7 @@ describe('ChartVisualization', () => {
   }
 
   it('should render chart container with nominal values configuration', () => {
-    const { container } = render(
+    const { container, getByTestId } = render(
       <ChartVisualization
         chartData={mockChartData}
         chartConfig={mockChartConfig}
@@ -52,9 +61,9 @@ describe('ChartVisualization', () => {
     const chartContainer = container.querySelector('.h-96')
     expect(chartContainer).toBeInTheDocument()
 
-    // Verify ResponsiveContainer is rendered
-    const responsiveContainer = container.querySelector('.recharts-responsive-container')
-    expect(responsiveContainer).toBeInTheDocument()
+    // Verify Chart.js Line component is rendered
+    const chartComponent = getByTestId('chartjs-line')
+    expect(chartComponent).toBeInTheDocument()
   })
 
   it('should render chart container with inflation-adjusted configuration', () => {
@@ -72,7 +81,7 @@ describe('ChartVisualization', () => {
   })
 
   it('should render without taxes when showTaxes is false', () => {
-    const { container } = render(
+    const { getByTestId } = render(
       <ChartVisualization
         chartData={mockChartData}
         chartConfig={mockChartConfig}
@@ -82,7 +91,8 @@ describe('ChartVisualization', () => {
     )
 
     // Chart should still render
-    expect(container.querySelector('.recharts-responsive-container')).toBeInTheDocument()
+    const chartComponent = getByTestId('chartjs-line')
+    expect(chartComponent).toBeInTheDocument()
   })
 
   it('should apply detailed view configuration with increased height', () => {
@@ -129,7 +139,7 @@ describe('ChartVisualization', () => {
   })
 
   it('should handle empty data gracefully', () => {
-    const { container } = render(
+    const { getByTestId } = render(
       <ChartVisualization
         chartData={[]}
         chartConfig={mockChartConfig}
@@ -139,6 +149,7 @@ describe('ChartVisualization', () => {
     )
 
     // Chart should still render with empty data
-    expect(container.querySelector('.recharts-responsive-container')).toBeInTheDocument()
+    const chartComponent = getByTestId('chartjs-line')
+    expect(chartComponent).toBeInTheDocument()
   })
 })

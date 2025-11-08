@@ -1,8 +1,17 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { InteractiveChart } from './InteractiveChart'
 import type { SimulationResult } from '../utils/simulate'
+
+// Mock react-chartjs-2 to avoid canvas rendering issues in tests
+vi.mock('react-chartjs-2', () => ({
+  Line: ({ data, options }: { data: unknown; options: unknown }) => (
+    <div data-testid="chartjs-line" data-chart-data={JSON.stringify(data)} data-chart-options={JSON.stringify(options)}>
+      Chart.js Line Mock
+    </div>
+  ),
+}))
 
 describe('InteractiveChart', () => {
   // Mock simulation data for testing
@@ -104,8 +113,8 @@ describe('InteractiveChart', () => {
   it('renders responsive container for chart', () => {
     render(<InteractiveChart simulationData={mockSimulationData} />)
 
-    // The ResponsiveContainer should create appropriate DOM structure
-    const chartContainer = document.querySelector('.recharts-responsive-container')
-    expect(chartContainer).toBeInTheDocument()
+    // The chart component should be rendered
+    const chartComponent = screen.getByTestId('chartjs-line')
+    expect(chartComponent).toBeInTheDocument()
   })
 })
