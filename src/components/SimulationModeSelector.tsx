@@ -13,10 +13,10 @@ const SimulationModeSelector = ({ onTabChange }: SimulationModeSelectorProps) =>
         <TabsTrigger value="ansparen">Ansparen</TabsTrigger>
         <TabsTrigger value="entnehmen">Entnehmen</TabsTrigger>
       </TabsList>
-      <TabsContent value="ansparen">
+      <TabsContent value="ansparen" forceMount className="data-[state=inactive]:hidden">
         <SavingsPlan />
       </TabsContent>
-      <TabsContent value="entnehmen">
+      <TabsContent value="entnehmen" forceMount className="data-[state=inactive]:hidden">
         <WithdrawalPlan />
       </TabsContent>
     </Tabs>
