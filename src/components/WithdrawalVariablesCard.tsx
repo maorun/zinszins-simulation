@@ -84,7 +84,7 @@ export function WithdrawalVariablesCard(props: WithdrawalVariablesCardProps) {
   } = props
 
   return (
-    <CollapsibleCard>
+    <CollapsibleCard defaultOpen={true}>
       <CollapsibleCardHeader>Variablen</CollapsibleCardHeader>
       <CollapsibleCardContent>
         <OtherIncomeConfigurationComponent
