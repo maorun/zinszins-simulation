@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
 
@@ -40,12 +40,30 @@ export function useWithdrawalEffects({
   startOfIndependence,
   updateConfig,
 }: UseWithdrawalEffectsParams) {
+  // Track a serialized version of the last notified withdrawal result to prevent infinite loops
+  const lastNotifiedResultHashRef = useRef<string | null>(null)
+  // Store the callback in a ref to avoid it being a dependency
+  const callbackRef = useRef(onWithdrawalResultsChange)
+  
+  // Update callback ref when it changes
+  useEffect(() => {
+    callbackRef.current = onWithdrawalResultsChange
+  }, [onWithdrawalResultsChange])
+
   // Notify parent component when withdrawal results change
   useEffect(() => {
-    if (onWithdrawalResultsChange && withdrawalData) {
-      onWithdrawalResultsChange(withdrawalData.withdrawalResult)
+    const callback = callbackRef.current
+    if (callback) {
+      // Serialize the current result to compare with the last one
+      const currentHash = withdrawalData ? JSON.stringify(withdrawalData.withdrawalResult) : null
+
+      // Only notify if the serialized result is actually different
+      if (currentHash !== lastNotifiedResultHashRef.current) {
+        lastNotifiedResultHashRef.current = currentHash
+        callback(withdrawalData ? withdrawalData.withdrawalResult : null)
+      }
     }
-  }, [withdrawalData, onWithdrawalResultsChange])
+  }, [withdrawalData]) // Remove onWithdrawalResultsChange from dependencies
 
   // Update withdrawal segments when startOfIndependence changes (for segmented withdrawal)
   useEffect(() => {

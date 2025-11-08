@@ -215,4 +215,74 @@ describe('useWithdrawalEffects', () => {
     // Should not update if start year is already correct
     expect(mockUpdateConfig).not.toHaveBeenCalled()
   })
+
+  it('should not call onWithdrawalResultsChange multiple times for same data', () => {
+    const mockCallback = vi.fn()
+    const mockWithdrawalData = createMockWithdrawalData()
+
+    // Create identical withdrawal data objects (different object references but same content)
+    const mockWithdrawalData2 = {
+      ...mockWithdrawalData,
+      withdrawalResult: { ...mockWithdrawalData.withdrawalResult },
+    }
+
+    const { rerender } = renderHook(
+      ({ data }) =>
+        useWithdrawalEffects({
+          onWithdrawalResultsChange: mockCallback,
+          withdrawalData: data,
+          useSegmentedWithdrawal: false,
+          withdrawalSegments: [],
+          startOfIndependence: 2040,
+          updateConfig: vi.fn(),
+        }),
+      { initialProps: { data: mockWithdrawalData } },
+    )
+
+    // Should be called once on initial render
+    expect(mockCallback).toHaveBeenCalledTimes(1)
+    mockCallback.mockClear()
+
+    // Rerender with same data (different object reference but identical content)
+    rerender({ data: mockWithdrawalData2 })
+
+    // Should NOT be called again because data is the same
+    expect(mockCallback).not.toHaveBeenCalled()
+  })
+
+  it('should call onWithdrawalResultsChange when withdrawal result actually changes', () => {
+    const mockCallback = vi.fn()
+    const mockWithdrawalData1 = createMockWithdrawalData()
+    const mockWithdrawalData2 = {
+      ...mockWithdrawalData1,
+      withdrawalResult: {
+        ...mockWithdrawalData1.withdrawalResult,
+        endkapital: 200000, // Changed value
+      } as WithdrawalResult,
+    }
+
+    const { rerender } = renderHook(
+      ({ data }) =>
+        useWithdrawalEffects({
+          onWithdrawalResultsChange: mockCallback,
+          withdrawalData: data,
+          useSegmentedWithdrawal: false,
+          withdrawalSegments: [],
+          startOfIndependence: 2040,
+          updateConfig: vi.fn(),
+        }),
+      { initialProps: { data: mockWithdrawalData1 } },
+    )
+
+    // Should be called once on initial render
+    expect(mockCallback).toHaveBeenCalledTimes(1)
+    mockCallback.mockClear()
+
+    // Rerender with different data
+    rerender({ data: mockWithdrawalData2 })
+
+    // Should be called again because data changed
+    expect(mockCallback).toHaveBeenCalledTimes(1)
+    expect(mockCallback).toHaveBeenCalledWith(mockWithdrawalData2.withdrawalResult)
+  })
 })
