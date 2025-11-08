@@ -2,7 +2,7 @@ import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { WithdrawalFormValue, ComparisonStrategy, SegmentedComparisonStrategy } from '../utils/config-storage'
 import { WithdrawalComparisonDisplay } from './WithdrawalComparisonDisplay'
 import { SegmentedWithdrawalComparisonDisplay } from './SegmentedWithdrawalComparisonDisplay'
-import InteractiveChart from './InteractiveChart'
+import { lazy, Suspense } from 'react'
 import {
   convertWithdrawalResultToSimulationResult,
   hasWithdrawalInflationAdjustedValues,
@@ -10,6 +10,9 @@ import {
 import { WithdrawalYearCard } from './WithdrawalYearCard'
 import { WithdrawalStrategySummary } from './WithdrawalStrategySummary'
 import { formatDuration } from '../utils/duration-formatter'
+
+// Lazy load the InteractiveChart to prevent Recharts from initializing during collapsible mount
+const InteractiveChart = lazy(() => import('./InteractiveChart'))
 
 // Type for segmented comparison results
 type SegmentedComparisonResult = {
@@ -93,11 +96,22 @@ function SimulationChart({ withdrawalResult }: { withdrawalResult: WithdrawalRes
 
   return (
     <div className="mb-6">
-      <InteractiveChart
-        simulationData={convertWithdrawalResultToSimulationResult(withdrawalResult)}
-        showRealValues={hasWithdrawalInflationAdjustedValues(withdrawalResult)}
-        className="mb-4"
-      />
+      <Suspense
+        fallback={
+          <div className="flex items-center justify-center p-8 text-muted-foreground">
+            <div className="text-center">
+              <div className="mb-2">Lade Chart...</div>
+              <div className="text-sm">Bereite Visualisierung vor</div>
+            </div>
+          </div>
+        }
+      >
+        <InteractiveChart
+          simulationData={convertWithdrawalResultToSimulationResult(withdrawalResult)}
+          showRealValues={hasWithdrawalInflationAdjustedValues(withdrawalResult)}
+          className="mb-4"
+        />
+      </Suspense>
     </div>
   )
 }

@@ -83,6 +83,9 @@ export function WithdrawalVariablesCard(props: WithdrawalVariablesCardProps) {
     globalEndOfLife,
   } = props
 
+  // Note: This card must remain closed by default due to a Radix UI Slider/Collapsible compatibility issue
+  // Opening it manually works fine, but setting defaultOpen={true} causes infinite re-renders
+  // See: https://github.com/radix-ui/primitives/issues/...
   return (
     <CollapsibleCard>
       <CollapsibleCardHeader>Variablen</CollapsibleCardHeader>

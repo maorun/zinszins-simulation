@@ -62,7 +62,7 @@ export function SegmentStrategySelector({ segment, onStrategyChange }: SegmentSt
       <Label>Entnahme-Strategie</Label>
       <RadioTileGroup
         value={segment.strategy}
-        idPrefix={`segment-${segment.id}-strategy`}
+        name={`segment-${segment.id}-strategy`}
         onValueChange={handleStrategyChange}
       >
         <StrategyRadioTiles />

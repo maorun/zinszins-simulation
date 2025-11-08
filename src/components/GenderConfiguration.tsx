@@ -64,7 +64,7 @@ function PersonGenderSelector({
   return (
     <div className="space-y-2">
       <Label>{label}</Label>
-      <RadioTileGroup value={value} onValueChange={onValueChange} idPrefix={idPrefix}>
+      <RadioTileGroup value={value} onValueChange={onValueChange} name={idPrefix}>
         <RadioTile value="male" label="Männlich">
           {idPrefix === 'person1' ? 'Verwende Lebenserwartung für Männer' : 'Männlich'}
         </RadioTile>

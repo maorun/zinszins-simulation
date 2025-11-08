@@ -65,22 +65,38 @@ export const CollapsibleCard = React.forwardRef<
     navigationTitle?: string
     navigationIcon?: string
     navigationParentId?: string
+    defaultOpen?: boolean
+    onOpenChange?: (open: boolean) => void
   }
->(({ children, navigationId, navigationTitle, navigationIcon, navigationParentId, ...props }, ref) => {
-  const nestingLevel = useNestingLevel()
-  const navigationRef = useNavigationItem({
-    id: navigationId || '',
-    title: navigationTitle || '',
-    icon: navigationIcon,
-    parentId: navigationParentId,
-    level: nestingLevel,
-  })
+>(
+  (
+    {
+      children,
+      navigationId,
+      navigationTitle,
+      navigationIcon,
+      navigationParentId,
+      defaultOpen = false,
+      onOpenChange,
+      ...props
+    },
+    ref,
+  ) => {
+    const nestingLevel = useNestingLevel()
+    const navigationRef = useNavigationItem({
+      id: navigationId || '',
+      title: navigationTitle || '',
+      icon: navigationIcon,
+      parentId: navigationParentId,
+      level: nestingLevel,
+    })
 
-  return (
-    <Collapsible defaultOpen={false}>
-      <Card nestingLevel={nestingLevel} {...props} ref={navigationId ? navigationRef : ref}>
-        {children}
-      </Card>
-    </Collapsible>
-  )
-})
+    return (
+      <Collapsible defaultOpen={defaultOpen} onOpenChange={onOpenChange}>
+        <Card nestingLevel={nestingLevel} {...props} ref={navigationId ? navigationRef : ref}>
+          {children}
+        </Card>
+      </Collapsible>
+    )
+  },
+)

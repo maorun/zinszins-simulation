@@ -1,33 +1,72 @@
 import * as React from 'react'
-import { RadioGroup, RadioGroupItem } from './radio-group'
-import { Label } from './label'
 import { cn } from '../../lib/utils'
+import { Circle } from 'lucide-react'
+
+// Context to pass the group name and current value to RadioTile children
+const RadioTileGroupContext = React.createContext<{
+  name: string
+  value?: string
+  onValueChange?: (value: string) => void
+} | null>(null)
 
 interface RadioTileProps {
   value: string
   label: string
   children: React.ReactNode
   className?: string
-  idPrefix?: string
 }
 
-export const RadioTile = React.forwardRef<React.ElementRef<typeof RadioGroupItem>, RadioTileProps>(
-  ({ value, label, children, className, idPrefix, ...props }, ref) => {
-    const uniqueId = idPrefix ? `${idPrefix}-${value}` : value
+export const RadioTile = React.forwardRef<HTMLInputElement, RadioTileProps>(
+  ({ value, label, children, className }, ref) => {
+    const context = React.useContext(RadioTileGroupContext)
+    if (!context) {
+      throw new Error('RadioTile must be used within a RadioTileGroup')
+    }
+
+    const { name, value: groupValue, onValueChange } = context
+    const isChecked = groupValue === value
+    const inputId = `${name}-${value}`
+
     return (
-      <Label
-        htmlFor={uniqueId}
+      <div
         className={cn(
-          'flex cursor-pointer flex-col space-y-2 rounded-lg border border-input p-4 transition-colors hover:bg-accent/50 data-[state=checked]:border-primary data-[state=checked]:bg-accent',
+          'flex cursor-pointer flex-col space-y-2 rounded-lg border border-input p-4 transition-colors hover:bg-accent/50',
+          isChecked && 'border-primary bg-accent',
           className,
         )}
+        onClick={() => onValueChange?.(value)}
       >
         <div className="flex items-center space-x-2">
-          <RadioGroupItem ref={ref} value={value} id={uniqueId} {...props} />
-          <div className="font-semibold leading-none">{label}</div>
+          <div className="relative flex items-center">
+            <input
+              ref={ref}
+              type="radio"
+              id={inputId}
+              name={name}
+              value={value}
+              checked={isChecked}
+              onChange={(e) => {
+                if (e.target.checked) {
+                  onValueChange?.(value)
+                }
+              }}
+              className="peer sr-only"
+            />
+            <div
+              className={cn(
+                'aspect-square h-4 w-4 rounded-full border border-primary text-primary ring-offset-background focus-visible:outline-hidden focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                'flex items-center justify-center',
+              )}
+            >
+              {isChecked && <Circle className="h-2.5 w-2.5 fill-current text-current" />}
+            </div>
+          </div>
+          <label htmlFor={inputId} className="font-semibold leading-none cursor-pointer">
+            {label}
+          </label>
         </div>
         <div className="text-sm text-muted-foreground">{children}</div>
-      </Label>
+      </div>
     )
   },
 )
@@ -38,26 +77,31 @@ interface RadioTileGroupProps {
   onValueChange?: (value: string) => void
   children: React.ReactNode
   className?: string
-  idPrefix?: string
+  name?: string
 }
 
-export const RadioTileGroup = React.forwardRef<React.ElementRef<typeof RadioGroup>, RadioTileGroupProps>(
-  ({ value, onValueChange, children, className, idPrefix, ...props }, ref) => {
+export const RadioTileGroup = React.forwardRef<HTMLDivElement, RadioTileGroupProps>(
+  ({ value, onValueChange, children, className, name = 'radio-tile-group', ...props }, ref) => {
+    const contextValue = React.useMemo(
+      () => ({
+        name,
+        value,
+        onValueChange,
+      }),
+      [name, value, onValueChange],
+    )
+
     return (
-      <RadioGroup
-        ref={ref}
-        value={value}
-        onValueChange={onValueChange}
-        className={cn('grid grid-cols-1 gap-4 md:grid-cols-3', className)}
-        {...props}
-      >
-        {React.Children.map(children, child => {
-          if (React.isValidElement(child)) {
-            return React.cloneElement(child, { idPrefix } as Partial<RadioTileProps>)
-          }
-          return child
-        })}
-      </RadioGroup>
+      <RadioTileGroupContext.Provider value={contextValue}>
+        <div
+          ref={ref}
+          className={cn('grid grid-cols-1 gap-4 md:grid-cols-3', className)}
+          role="radiogroup"
+          {...props}
+        >
+          {children}
+        </div>
+      </RadioTileGroupContext.Provider>
     )
   },
 )
