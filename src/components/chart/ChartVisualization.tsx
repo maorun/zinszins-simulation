@@ -1,8 +1,23 @@
-import { ResponsiveContainer, AreaChart } from 'recharts'
-import { ChartAxesAndGrid } from './ChartAxesAndGrid'
-import { ChartAreas } from './ChartAreas'
-import { ChartLines } from './ChartLines'
-import { ChartBrush } from './ChartBrush'
+import { Line } from 'react-chartjs-2'
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  Filler,
+  ChartOptions,
+  TooltipItem,
+  ChartDataset,
+} from 'chart.js'
+import zoomPlugin from 'chartjs-plugin-zoom'
+import { formatCurrency } from '../../utils/currency'
+
+// Register Chart.js components
+ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, zoomPlugin)
 
 interface ChartDataPoint {
   year: number
@@ -48,8 +63,208 @@ function formatYAxisTick(value: number): string {
 }
 
 /**
+ * Create datasets for the chart
+ */
+/* eslint-disable max-lines-per-function */
+function createDatasets(
+  chartData: ChartDataPoint[],
+  endkapitalKey: string,
+  zinsenKey: string,
+  zinsenLabel: string,
+  endkapitalLabel: string,
+  chartConfig: ChartConfig,
+  showTaxes: boolean,
+): Array<ChartDataset<'line'>> {
+  const kumulativeEinzahlungenData = chartData.map(d => d.kumulativeEinzahlungen)
+  const zinsenData = chartData.map(d => d[zinsenKey as keyof ChartDataPoint] as number)
+
+  const datasets: Array<ChartDataset<'line'>> = [
+    // Area for cumulative deposits (filled)
+    {
+      label: 'Kumulierte Einzahlungen',
+      data: kumulativeEinzahlungenData,
+      borderColor: '#3b82f6',
+      backgroundColor: 'rgba(59, 130, 246, 0.6)',
+      fill: true,
+      tension: 0.4,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      order: 3,
+    },
+    // Area for gains (stacked on deposits)
+    {
+      label: zinsenLabel,
+      data: zinsenData.map((zinsen, i) => zinsen + kumulativeEinzahlungenData[i]),
+      borderColor: '#10b981',
+      backgroundColor: 'rgba(16, 185, 129, 0.6)',
+      fill: '-1', // Fill to previous dataset
+      tension: 0.4,
+      pointRadius: 0,
+      pointHoverRadius: 4,
+      order: 2,
+    },
+    // Line for end capital
+    {
+      label: endkapitalLabel,
+      data: chartData.map(d => d[endkapitalKey as keyof ChartDataPoint] as number),
+      borderColor: '#ef4444',
+      backgroundColor: 'transparent',
+      borderWidth: 3,
+      fill: false,
+      tension: 0.4,
+      pointRadius: chartConfig.endkapitalDot ? chartConfig.endkapitalDot.r : 0,
+      pointHoverRadius: 6,
+      pointBackgroundColor: chartConfig.endkapitalDot ? chartConfig.endkapitalDot.fill : '#ef4444',
+      pointBorderWidth: chartConfig.endkapitalDot ? chartConfig.endkapitalDot.strokeWidth : 0,
+      order: 1,
+    },
+  ]
+
+  // Add tax dataset if enabled
+  if (showTaxes) {
+    datasets.push({
+      label: 'Bezahlte Steuern',
+      data: chartData.map(d => d.bezahlteSteuer),
+      borderColor: '#f59e0b',
+      backgroundColor: 'transparent',
+      borderWidth: 2,
+      borderDash: [5, 5],
+      fill: false,
+      tension: 0.4,
+      pointRadius: chartConfig.taxDot ? chartConfig.taxDot.r : 0,
+      pointHoverRadius: 4,
+      pointBackgroundColor: chartConfig.taxDot ? chartConfig.taxDot.fill : '#f59e0b',
+      pointBorderWidth: chartConfig.taxDot ? chartConfig.taxDot.strokeWidth : 0,
+      order: 4,
+    })
+  }
+
+  return datasets
+}
+
+/**
+ * Create chart options
+ */
+/* eslint-disable max-lines-per-function */
+function createChartOptions(
+  chartConfig: ChartConfig,
+  chartData: ChartDataPoint[],
+  zinsenKey: string,
+  zinsenLabel: string,
+): ChartOptions<'line'> {
+  const zinsenData = chartData.map(d => d[zinsenKey as keyof ChartDataPoint] as number)
+
+  return {
+    responsive: true,
+    maintainAspectRatio: false,
+    interaction: {
+      mode: 'index' as const,
+      intersect: false,
+    },
+    plugins: {
+      legend: {
+        display: true,
+        position: 'bottom' as const,
+      },
+      tooltip: {
+        enabled: true,
+        backgroundColor: 'rgba(255, 255, 255, 0.95)',
+        titleColor: '#1f2937',
+        bodyColor: '#4b5563',
+        borderColor: '#e5e7eb',
+        borderWidth: 1,
+        padding: 16,
+        boxPadding: 6,
+        usePointStyle: true,
+        callbacks: {
+          title: (context: Array<TooltipItem<'line'>>) => {
+            return `📅 Jahr: ${context[0].label}`
+          },
+          label: (context: TooltipItem<'line'>) => {
+            const label = context.dataset.label || ''
+            const value = context.parsed.y
+
+            // For stacked datasets, show the actual value (not cumulative)
+            if (label === zinsenLabel) {
+              const index = context.dataIndex
+              const zinsenValue = zinsenData[index]
+              return `${label}: ${formatCurrency(zinsenValue)}`
+            }
+
+            return `${label}: ${formatCurrency(value)}`
+          },
+          afterBody: (context: Array<TooltipItem<'line'>>) => {
+            const index = context[0].dataIndex
+            const dataPoint = chartData[index]
+
+            if (dataPoint && dataPoint.endkapital > dataPoint.kumulativeEinzahlungen) {
+              const returnPercent = ((dataPoint.endkapital / dataPoint.kumulativeEinzahlungen - 1) * 100).toFixed(1)
+              return `\nGesamtrendite: +${returnPercent}%`
+            }
+            return ''
+          },
+        },
+      },
+      zoom: chartConfig.showBrush
+        ? {
+            zoom: {
+              wheel: {
+                enabled: true,
+              },
+              pinch: {
+                enabled: true,
+              },
+              mode: 'x' as const,
+            },
+            pan: {
+              enabled: true,
+              mode: 'x' as const,
+            },
+            limits: {
+              x: { min: 'original', max: 'original' },
+            },
+          }
+        : undefined,
+    },
+    scales: {
+      x: {
+        display: true,
+        grid: {
+          display: true,
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
+        ticks: {
+          maxRotation: chartConfig.xAxisAngle,
+          minRotation: chartConfig.xAxisAngle,
+          font: {
+            size: 12,
+          },
+          color: '#4b5563',
+        },
+      },
+      y: {
+        display: true,
+        grid: {
+          display: true,
+          color: 'rgba(0, 0, 0, 0.05)',
+        },
+        ticks: {
+          callback: function (value) {
+            return formatYAxisTick(Number(value))
+          },
+          font: {
+            size: 12,
+          },
+          color: '#4b5563',
+        },
+      },
+    },
+  }
+}
+
+/**
  * Chart visualization component for capital development
- * Renders the recharts AreaChart with all configured series
+ * Renders Chart.js Line chart with all configured series
  */
 export function ChartVisualization({
   chartData,
@@ -63,38 +278,29 @@ export function ChartVisualization({
   const zinsenLabel = showInflationAdjusted ? 'Zinsen/Gewinne (real)' : 'Zinsen/Gewinne'
   const endkapitalLabel = showInflationAdjusted ? 'Endkapital (real)' : 'Endkapital'
 
+  // Prepare data for Chart.js
+  const labels = chartData.map(d => d.year)
+
+  const datasets = createDatasets(
+    chartData,
+    endkapitalKey,
+    zinsenKey,
+    zinsenLabel,
+    endkapitalLabel,
+    chartConfig,
+    showTaxes,
+  )
+
+  const data = {
+    labels,
+    datasets,
+  }
+
+  const options = createChartOptions(chartConfig, chartData, zinsenKey, zinsenLabel)
+
   return (
     <div className={`w-full ${chartConfig.containerHeight}`}>
-      <ResponsiveContainer width="100%" height="100%">
-        <AreaChart
-          data={chartData}
-          margin={{
-            top: 20,
-            right: 30,
-            left: 20,
-            bottom: chartConfig.marginBottom,
-          }}
-        >
-          <ChartAxesAndGrid
-            xAxisAngle={chartConfig.xAxisAngle}
-            xAxisTextAnchor={chartConfig.xAxisTextAnchor}
-            xAxisHeight={chartConfig.xAxisHeight}
-            formatYAxisTick={formatYAxisTick}
-          />
-
-          <ChartAreas zinsenKey={zinsenKey} zinsenLabel={zinsenLabel} />
-
-          <ChartLines
-            endkapitalKey={endkapitalKey}
-            endkapitalLabel={endkapitalLabel}
-            endkapitalDot={chartConfig.endkapitalDot}
-            showTaxes={showTaxes}
-            taxDot={chartConfig.taxDot}
-          />
-
-          <ChartBrush showBrush={chartConfig.showBrush} chartDataLength={chartData.length} />
-        </AreaChart>
-      </ResponsiveContainer>
+      <Line data={data} options={options} />
     </div>
   )
 }
