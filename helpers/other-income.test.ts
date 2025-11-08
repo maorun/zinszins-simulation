@@ -721,4 +721,288 @@ describe('Other Income Calculations', () => {
       expect(config.childBirthYear).toBe(new Date().getFullYear())
     })
   })
+
+  describe('BU-Rente (Disability Insurance)', () => {
+    it('should calculate BU-Rente with Leibrenten-Besteuerung correctly', () => {
+      const currentYear = new Date().getFullYear()
+      const birthYear = currentYear - 40 // 40 years old
+      const disabilityStartYear = currentYear
+      const source: OtherIncomeSource = {
+        id: 'bu-1',
+        name: 'BU-Rente',
+        type: 'bu_rente',
+        amountType: 'gross',
+        monthlyAmount: 1500,
+        startYear: disabilityStartYear,
+        endYear: null, // Permanent
+        inflationRate: 0,
+        taxRate: 25.0,
+        enabled: true,
+        buRenteConfig: {
+          disabilityStartYear,
+          disabilityEndYear: null,
+          birthYear,
+          disabilityDegree: 100,
+          applyLeibrentenBesteuerung: true,
+          ageAtDisabilityStart: 40,
+        },
+      }
+
+      const result = calculateOtherIncomeForYear(source, currentYear)
+      expect(result).not.toBe(null)
+      expect(result!.grossMonthlyAmount).toBe(1500)
+      expect(result!.grossAnnualAmount).toBe(18000)
+
+      // At age 40, Ertragsanteil is 36%
+      expect(result!.buRenteDetails).toBeDefined()
+      expect(result!.buRenteDetails!.ertragsanteilPercent).toBe(36)
+      expect(result!.buRenteDetails!.taxableAmount).toBe(6480) // 18000 * 36%
+      expect(result!.buRenteDetails!.isActive).toBe(true)
+
+      // Tax on taxable amount only
+      expect(result!.taxAmount).toBe(1620) // 6480 * 25%
+      expect(result!.netAnnualAmount).toBe(16380) // 18000 - 1620
+      expect(result!.netMonthlyAmount).toBe(1365) // 16380 / 12
+    })
+
+    it('should calculate BU-Rente without Leibrenten-Besteuerung correctly', () => {
+      const currentYear = new Date().getFullYear()
+      const birthYear = currentYear - 40
+      const disabilityStartYear = currentYear
+      const source: OtherIncomeSource = {
+        id: 'bu-1',
+        name: 'BU-Rente',
+        type: 'bu_rente',
+        amountType: 'gross',
+        monthlyAmount: 1500,
+        startYear: disabilityStartYear,
+        endYear: null,
+        inflationRate: 0,
+        taxRate: 25.0,
+        enabled: true,
+        buRenteConfig: {
+          disabilityStartYear,
+          disabilityEndYear: null,
+          birthYear,
+          disabilityDegree: 100,
+          applyLeibrentenBesteuerung: false, // Full taxation
+          ageAtDisabilityStart: 40,
+        },
+      }
+
+      const result = calculateOtherIncomeForYear(source, currentYear)
+      expect(result).not.toBe(null)
+      expect(result!.grossAnnualAmount).toBe(18000)
+
+      // Without Leibrenten-Besteuerung, full amount is taxable
+      expect(result!.taxAmount).toBe(4500) // 18000 * 25%
+      expect(result!.netAnnualAmount).toBe(13500) // 18000 - 4500
+    })
+
+    it('should return null for year before disability starts', () => {
+      const currentYear = new Date().getFullYear()
+      const birthYear = currentYear - 40
+      const disabilityStartYear = currentYear + 5
+      const source: OtherIncomeSource = {
+        id: 'bu-1',
+        name: 'BU-Rente',
+        type: 'bu_rente',
+        amountType: 'gross',
+        monthlyAmount: 1500,
+        startYear: disabilityStartYear,
+        endYear: null,
+        inflationRate: 0,
+        taxRate: 25.0,
+        enabled: true,
+        buRenteConfig: {
+          disabilityStartYear,
+          disabilityEndYear: null,
+          birthYear,
+          disabilityDegree: 100,
+          applyLeibrentenBesteuerung: true,
+          ageAtDisabilityStart: 45,
+        },
+      }
+
+      const result = calculateOtherIncomeForYear(source, currentYear)
+      expect(result).toBe(null)
+    })
+
+    it('should return null for year after disability ends', () => {
+      const currentYear = new Date().getFullYear()
+      const birthYear = currentYear - 40
+      const disabilityStartYear = currentYear - 5
+      const disabilityEndYear = currentYear - 1
+      const source: OtherIncomeSource = {
+        id: 'bu-1',
+        name: 'BU-Rente',
+        type: 'bu_rente',
+        amountType: 'gross',
+        monthlyAmount: 1500,
+        startYear: disabilityStartYear,
+        endYear: disabilityEndYear,
+        inflationRate: 0,
+        taxRate: 25.0,
+        enabled: true,
+        buRenteConfig: {
+          disabilityStartYear,
+          disabilityEndYear,
+          birthYear,
+          disabilityDegree: 100,
+          applyLeibrentenBesteuerung: true,
+          ageAtDisabilityStart: 35,
+        },
+      }
+
+      const result = calculateOtherIncomeForYear(source, currentYear)
+      expect(result).toBe(null)
+    })
+
+    it('should calculate correct Ertragsanteil for different ages', () => {
+      const currentYear = new Date().getFullYear()
+
+      // Test age 30: should be 40%
+      const source30: OtherIncomeSource = {
+        id: 'bu-1',
+        name: 'BU-Rente',
+        type: 'bu_rente',
+        amountType: 'gross',
+        monthlyAmount: 1500,
+        startYear: currentYear,
+        endYear: null,
+        inflationRate: 0,
+        taxRate: 25.0,
+        enabled: true,
+        buRenteConfig: {
+          disabilityStartYear: currentYear,
+          disabilityEndYear: null,
+          birthYear: currentYear - 30,
+          disabilityDegree: 100,
+          applyLeibrentenBesteuerung: true,
+          ageAtDisabilityStart: 30,
+        },
+      }
+
+      const result30 = calculateOtherIncomeForYear(source30, currentYear)
+      expect(result30!.buRenteDetails!.ertragsanteilPercent).toBe(40)
+
+      // Test age 50: should be 32%
+      const source50: OtherIncomeSource = {
+        id: 'bu-2',
+        name: 'BU-Rente',
+        type: 'bu_rente',
+        amountType: 'gross',
+        monthlyAmount: 1500,
+        startYear: currentYear,
+        endYear: null,
+        inflationRate: 0,
+        taxRate: 25.0,
+        enabled: true,
+        buRenteConfig: {
+          disabilityStartYear: currentYear,
+          disabilityEndYear: null,
+          birthYear: currentYear - 50,
+          disabilityDegree: 100,
+          applyLeibrentenBesteuerung: true,
+          ageAtDisabilityStart: 50,
+        },
+      }
+
+      const result50 = calculateOtherIncomeForYear(source50, currentYear)
+      expect(result50!.buRenteDetails!.ertragsanteilPercent).toBe(32)
+
+      // Test age 65: should be 24%
+      const source65: OtherIncomeSource = {
+        id: 'bu-3',
+        name: 'BU-Rente',
+        type: 'bu_rente',
+        amountType: 'gross',
+        monthlyAmount: 1500,
+        startYear: currentYear,
+        endYear: null,
+        inflationRate: 0,
+        taxRate: 25.0,
+        enabled: true,
+        buRenteConfig: {
+          disabilityStartYear: currentYear,
+          disabilityEndYear: null,
+          birthYear: currentYear - 65,
+          disabilityDegree: 100,
+          applyLeibrentenBesteuerung: true,
+          ageAtDisabilityStart: 65,
+        },
+      }
+
+      const result65 = calculateOtherIncomeForYear(source65, currentYear)
+      expect(result65!.buRenteDetails!.ertragsanteilPercent).toBe(24)
+    })
+
+    it('should create default BU-Rente source with correct values', () => {
+      const source = createDefaultOtherIncomeSource('bu_rente')
+      expect(source.type).toBe('bu_rente')
+      expect(source.amountType).toBe('gross')
+      expect(source.taxRate).toBe(25.0)
+      expect(source.inflationRate).toBe(0)
+      expect(source.monthlyAmount).toBe(1500)
+      expect(source.buRenteConfig).toBeDefined()
+      expect(source.buRenteConfig!.disabilityDegree).toBe(100)
+      expect(source.buRenteConfig!.applyLeibrentenBesteuerung).toBe(true)
+    })
+
+    it('should include BU-Rente in display name mapping', () => {
+      expect(getIncomeTypeDisplayName('bu_rente')).toBe('BU-Rente')
+    })
+
+    it('should handle multiple income sources with BU-Rente in calculateOtherIncome', () => {
+      const currentYear = new Date().getFullYear()
+      const config: OtherIncomeConfiguration = {
+        enabled: true,
+        sources: [
+          {
+            id: 'rental-1',
+            name: 'Mieteinnahmen',
+            type: 'rental',
+            amountType: 'gross',
+            monthlyAmount: 1000,
+            startYear: currentYear,
+            endYear: null,
+            inflationRate: 2.0,
+            taxRate: 30.0,
+            enabled: true,
+          },
+          {
+            id: 'bu-1',
+            name: 'BU-Rente',
+            type: 'bu_rente',
+            amountType: 'gross',
+            monthlyAmount: 1500,
+            startYear: currentYear,
+            endYear: null,
+            inflationRate: 0,
+            taxRate: 25.0,
+            enabled: true,
+            buRenteConfig: {
+              disabilityStartYear: currentYear,
+              disabilityEndYear: null,
+              birthYear: currentYear - 40,
+              disabilityDegree: 100,
+              applyLeibrentenBesteuerung: true,
+              ageAtDisabilityStart: 40,
+            },
+          },
+        ],
+      }
+
+      const result = calculateOtherIncome(config, currentYear, currentYear)
+
+      expect(result[currentYear].sources).toHaveLength(2)
+      expect(result[currentYear].sources[0].source.type).toBe('rental')
+      expect(result[currentYear].sources[1].source.type).toBe('bu_rente')
+
+      // Rental: 12000 gross, 3600 tax, 8400 net
+      // BU-Rente: 18000 gross, 1620 tax (36% Ertragsanteil), 16380 net
+      expect(result[currentYear].totalNetAnnualAmount).toBeCloseTo(24780, 0)
+      expect(result[currentYear].totalTaxAmount).toBeCloseTo(5220, 0)
+    })
+  })
 })

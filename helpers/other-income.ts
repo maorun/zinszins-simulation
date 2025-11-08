@@ -6,7 +6,7 @@
 /**
  * Type of income source
  */
-export type IncomeType = 'rental' | 'pension' | 'business' | 'investment' | 'kindergeld' | 'other'
+export type IncomeType = 'rental' | 'pension' | 'business' | 'investment' | 'kindergeld' | 'bu_rente' | 'other'
 
 /**
  * Real estate-specific configuration for rental income
@@ -46,6 +46,29 @@ export interface KindergeldConfig {
 
   /** Child order number (1st, 2nd, 3rd, etc.) - affects the amount */
   childOrderNumber: number
+}
+
+/**
+ * BU-Rente (Disability Insurance) specific configuration
+ */
+export interface BURenteConfig {
+  /** Year when disability starts */
+  disabilityStartYear: number
+
+  /** Year when disability ends (null = permanent disability until retirement) */
+  disabilityEndYear: number | null
+
+  /** Birth year of the insured person (for age-based taxation) */
+  birthYear: number
+
+  /** Disability degree in percent (0-100%, for documentation purposes) */
+  disabilityDegree: number
+
+  /** Whether to apply special tax treatment for disability pensions (Leibrenten-Besteuerung) */
+  applyLeibrentenBesteuerung: boolean
+
+  /** Age when BU benefits started (used for Ertragsanteil calculation) */
+  ageAtDisabilityStart: number
 }
 
 /**
@@ -95,6 +118,9 @@ export interface OtherIncomeSource {
 
   /** Kindergeld-specific configuration (only for kindergeld income) */
   kindergeldConfig?: KindergeldConfig
+
+  /** BU-Rente-specific configuration (only for bu_rente income) */
+  buRenteConfig?: BURenteConfig
 }
 
 /**
@@ -143,6 +169,20 @@ export interface OtherIncomeYearResult {
     /** Whether Kindergeld is still being paid */
     isActive: boolean
     /** Reason if Kindergeld ended */
+    endReason?: string
+  }
+
+  /** BU-Rente-specific calculations (only for bu_rente income) */
+  buRenteDetails?: {
+    /** Person's age this year */
+    age: number
+    /** Whether BU benefits are active */
+    isActive: boolean
+    /** Tax-free portion (Ertragsanteil) percentage */
+    ertragsanteilPercent: number
+    /** Taxable amount based on Leibrenten-Besteuerung */
+    taxableAmount: number
+    /** Reason if BU benefits ended */
     endReason?: string
   }
 }
@@ -235,6 +275,88 @@ function calculateKindergeldStatus(
   return { isActive, childAge, endReason }
 }
 
+// Helper: Get Ertragsanteil (taxable portion) for BU-Rente based on age at disability start
+// Based on § 22 EStG - Leibrenten-Besteuerung
+// eslint-disable-next-line complexity
+function getErtragsanteil(ageAtDisabilityStart: number): number {
+  // Ertragsanteil table according to § 22 Nr. 1 Satz 3 Buchstabe a Doppelbuchstabe bb EStG
+  // Returns the percentage of the pension that is subject to taxation
+  if (ageAtDisabilityStart <= 0) return 59 // Age 0-1
+  if (ageAtDisabilityStart <= 1) return 59
+  if (ageAtDisabilityStart <= 2) return 58
+  if (ageAtDisabilityStart <= 3) return 57
+  if (ageAtDisabilityStart <= 4) return 56
+  if (ageAtDisabilityStart <= 5) return 55
+  if (ageAtDisabilityStart <= 6) return 54
+  if (ageAtDisabilityStart <= 7) return 53
+  if (ageAtDisabilityStart <= 8) return 52
+  if (ageAtDisabilityStart <= 9) return 51
+  if (ageAtDisabilityStart <= 10) return 50
+  if (ageAtDisabilityStart <= 11) return 49
+  if (ageAtDisabilityStart <= 12) return 48
+  if (ageAtDisabilityStart <= 13) return 47
+  if (ageAtDisabilityStart <= 14) return 46
+  if (ageAtDisabilityStart <= 15) return 45
+  if (ageAtDisabilityStart <= 16) return 44
+  if (ageAtDisabilityStart <= 17) return 43
+  if (ageAtDisabilityStart <= 27) return 42 // Ages 18-27
+  if (ageAtDisabilityStart <= 31) return 40 // Ages 28-31
+  if (ageAtDisabilityStart <= 36) return 38 // Ages 32-36
+  if (ageAtDisabilityStart <= 41) return 36 // Ages 37-41
+  if (ageAtDisabilityStart <= 46) return 34 // Ages 42-46
+  if (ageAtDisabilityStart <= 51) return 32 // Ages 47-51
+  if (ageAtDisabilityStart <= 56) return 30 // Ages 52-56
+  if (ageAtDisabilityStart <= 61) return 28 // Ages 57-61
+  if (ageAtDisabilityStart <= 63) return 26 // Ages 62-63
+  if (ageAtDisabilityStart <= 64) return 25 // Age 64
+  if (ageAtDisabilityStart <= 65) return 24 // Age 65
+  if (ageAtDisabilityStart <= 66) return 23 // Age 66
+  if (ageAtDisabilityStart <= 67) return 22 // Age 67
+  return 21 // Age 68+
+}
+
+// Helper: Calculate BU-Rente status
+function calculateBURenteStatus(
+  config: BURenteConfig,
+  year: number,
+  grossAnnualAmount: number,
+): {
+  isActive: boolean
+  age: number
+  ertragsanteilPercent: number
+  taxableAmount: number
+  endReason?: string
+} {
+  const age = year - config.birthYear
+  let isActive = true
+  let endReason: string | undefined
+
+  // Check if BU benefits have started
+  if (year < config.disabilityStartYear) {
+    isActive = false
+    endReason = 'BU-Leistungen noch nicht begonnen'
+  }
+  // Check if BU benefits have ended
+  else if (config.disabilityEndYear !== null && year > config.disabilityEndYear) {
+    isActive = false
+    endReason = 'BU-Leistungen beendet'
+  }
+
+  // Calculate taxable amount based on Leibrenten-Besteuerung
+  const ertragsanteilPercent = config.applyLeibrentenBesteuerung ? getErtragsanteil(config.ageAtDisabilityStart) : 100
+
+  // Only the Ertragsanteil is taxable, the rest is tax-free
+  const taxableAmount = (grossAnnualAmount * ertragsanteilPercent) / 100
+
+  return {
+    isActive,
+    age,
+    ertragsanteilPercent,
+    taxableAmount,
+    endReason,
+  }
+}
+
 function calculateGrossAmounts(
   source: OtherIncomeSource,
   yearsFromStart: number,
@@ -244,11 +366,13 @@ function calculateGrossAmounts(
   grossAnnualAmount: number
   realEstateDetails?: OtherIncomeYearResult['realEstateDetails']
   kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
+  buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
 } {
   let grossMonthlyAmount = source.monthlyAmount * inflationFactor
   let grossAnnualAmount = grossMonthlyAmount * 12
   let realEstateDetails: OtherIncomeYearResult['realEstateDetails']
   let kindergeldDetails: OtherIncomeYearResult['kindergeldDetails']
+  let buRenteDetails: OtherIncomeYearResult['buRenteDetails']
 
   if (source.type === 'rental' && source.realEstateConfig) {
     const result = calculateRealEstateIncome(source.realEstateConfig, grossAnnualAmount, yearsFromStart)
@@ -257,7 +381,7 @@ function calculateGrossAmounts(
     realEstateDetails = result.details
   }
 
-  return { grossMonthlyAmount, grossAnnualAmount, realEstateDetails, kindergeldDetails }
+  return { grossMonthlyAmount, grossAnnualAmount, realEstateDetails, kindergeldDetails, buRenteDetails }
 }
 
 function applyKindergeldLogic(
@@ -288,9 +412,38 @@ function applyKindergeldLogic(
   }
 }
 
+function applyBURenteLogic(
+  source: OtherIncomeSource,
+  year: number,
+  amounts: { grossMonthlyAmount: number; grossAnnualAmount: number },
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
+} {
+  if (source.type !== 'bu_rente' || !source.buRenteConfig) {
+    return amounts
+  }
+
+  const status = calculateBURenteStatus(source.buRenteConfig, year, amounts.grossAnnualAmount)
+  if (!status.isActive) {
+    return {
+      grossMonthlyAmount: 0,
+      grossAnnualAmount: 0,
+      buRenteDetails: status,
+    }
+  }
+
+  return {
+    ...amounts,
+    buRenteDetails: status,
+  }
+}
+
 function calculateTaxAndNet(
   source: OtherIncomeSource,
   grossAnnualAmount: number,
+  buRenteDetails?: OtherIncomeYearResult['buRenteDetails'],
 ): { taxAmount: number; netAnnualAmount: number; netMonthlyAmount: number } {
   if (source.amountType !== 'gross') {
     return {
@@ -300,7 +453,13 @@ function calculateTaxAndNet(
     }
   }
 
-  const taxAmount = grossAnnualAmount * (source.taxRate / 100)
+  // For BU-Rente with Leibrenten-Besteuerung, only tax the Ertragsanteil
+  let taxableAmount = grossAnnualAmount
+  if (source.type === 'bu_rente' && buRenteDetails && source.buRenteConfig?.applyLeibrentenBesteuerung) {
+    taxableAmount = buRenteDetails.taxableAmount
+  }
+
+  const taxAmount = taxableAmount * (source.taxRate / 100)
   const netAnnualAmount = grossAnnualAmount - taxAmount
   return {
     taxAmount,
@@ -327,11 +486,18 @@ export function calculateOtherIncomeForYear(source: OtherIncomeSource, year: num
     grossMonthlyAmount: initialGrossMonthly,
     grossAnnualAmount: initialGrossAnnual,
   })
-  const grossMonthlyAmount = kindergeldResult.grossMonthlyAmount
-  const grossAnnualAmount = kindergeldResult.grossAnnualAmount
-  const kindergeldDetails = kindergeldResult.kindergeldDetails
 
-  const { taxAmount, netAnnualAmount, netMonthlyAmount } = calculateTaxAndNet(source, grossAnnualAmount)
+  const buRenteResult = applyBURenteLogic(source, year, {
+    grossMonthlyAmount: kindergeldResult.grossMonthlyAmount,
+    grossAnnualAmount: kindergeldResult.grossAnnualAmount,
+  })
+
+  const grossMonthlyAmount = buRenteResult.grossMonthlyAmount
+  const grossAnnualAmount = buRenteResult.grossAnnualAmount
+  const kindergeldDetails = kindergeldResult.kindergeldDetails
+  const buRenteDetails = buRenteResult.buRenteDetails
+
+  const { taxAmount, netAnnualAmount, netMonthlyAmount } = calculateTaxAndNet(source, grossAnnualAmount, buRenteDetails)
 
   const result: OtherIncomeYearResult = {
     source,
@@ -345,6 +511,7 @@ export function calculateOtherIncomeForYear(source: OtherIncomeSource, year: num
 
   if (realEstateDetails) result.realEstateDetails = realEstateDetails
   if (kindergeldDetails) result.kindergeldDetails = kindergeldDetails
+  if (buRenteDetails) result.buRenteDetails = buRenteDetails
 
   return result
 }
@@ -394,6 +561,7 @@ export function calculateOtherIncome(
 function getDefaultMonthlyAmount(type: IncomeType): number {
   if (type === 'rental') return 1000
   if (type === 'kindergeld') return 250
+  if (type === 'bu_rente') return 1500
   return 800
 }
 
@@ -401,21 +569,26 @@ function getDefaultMonthlyAmount(type: IncomeType): number {
  * Get default amount type for income type
  */
 function getDefaultAmountType(type: IncomeType): 'gross' | 'net' {
-  return type === 'kindergeld' ? 'net' : 'gross'
+  if (type === 'kindergeld') return 'net'
+  return 'gross'
 }
 
 /**
  * Get default inflation rate for income type
  */
 function getDefaultInflationRate(type: IncomeType): number {
-  return type === 'kindergeld' ? 0 : 2.0
+  if (type === 'kindergeld') return 0
+  if (type === 'bu_rente') return 0 // BU-Rente typically has fixed amounts
+  return 2.0
 }
 
 /**
  * Get default tax rate for income type
  */
 function getDefaultTaxRate(type: IncomeType): number {
-  return type === 'kindergeld' ? 0 : 30.0
+  if (type === 'kindergeld') return 0
+  if (type === 'bu_rente') return 25.0 // Individual income tax rate (typical for disability pensions)
+  return 30.0
 }
 
 /**
@@ -446,6 +619,11 @@ export function createDefaultOtherIncomeSource(type: IncomeType = 'rental'): Oth
   // Add default Kindergeld configuration
   if (type === 'kindergeld') {
     source.kindergeldConfig = createDefaultKindergeldConfig()
+  }
+
+  // Add default BU-Rente configuration
+  if (type === 'bu_rente') {
+    source.buRenteConfig = createDefaultBURenteConfig()
   }
 
   return source
@@ -480,6 +658,25 @@ export function createDefaultKindergeldConfig(): KindergeldConfig {
 }
 
 /**
+ * Create default BU-Rente configuration
+ */
+export function createDefaultBURenteConfig(): BURenteConfig {
+  const currentYear = new Date().getFullYear()
+  const defaultBirthYear = currentYear - 40 // 40 years old by default
+  const disabilityStartYear = currentYear
+  const ageAtDisabilityStart = disabilityStartYear - defaultBirthYear
+
+  return {
+    disabilityStartYear,
+    disabilityEndYear: null, // Permanent disability by default
+    birthYear: defaultBirthYear,
+    disabilityDegree: 100, // 100% disability by default
+    applyLeibrentenBesteuerung: true, // Apply special tax treatment by default
+    ageAtDisabilityStart,
+  }
+}
+
+/**
  * Get the monthly Kindergeld amount based on German law (as of 2024)
  * @param _childOrderNumber - The order of the child (1st, 2nd, 3rd, etc.)
  * @returns Monthly Kindergeld amount in EUR
@@ -500,6 +697,7 @@ function getDefaultNameForType(type: IncomeType): string {
     business: 'Gewerbeeinkünfte',
     investment: 'Kapitalerträge',
     kindergeld: 'Kindergeld',
+    bu_rente: 'BU-Rente',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || 'Einkommen'
@@ -522,6 +720,7 @@ export function getIncomeTypeDisplayName(type: IncomeType): string {
     business: 'Gewerbeeinkünfte',
     investment: 'Kapitalerträge',
     kindergeld: 'Kindergeld',
+    bu_rente: 'BU-Rente',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || type

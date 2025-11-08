@@ -195,6 +195,13 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Aktuelle Beträge**: 250€/Monat pro Kind (Stand 2024)
     - **Mehrere Kinder**: Separate Konfiguration für jedes Kind mit individuellem Geburtsjahr
     - **Ausbildungsberücksichtigung**: Option zur Verlängerung bis zum 25. Geburtstag bei Ausbildung/Studium
+  - **BU-Renten-Integration** - Umfassende Berücksichtigung von Berufsunfähigkeitsrenten
+    - **Leibrenten-Besteuerung**: Korrekte steuerliche Behandlung nach § 22 EStG mit altersabhängigem Ertragsanteil
+    - **Flexible Zeiträume**: Konfigurierbare Start- und Endjahre für Berufsunfähigkeitsphasen
+    - **Automatische Steuerberechnung**: Nur der Ertragsanteil wird besteuert, Rest ist steuerfrei
+    - **Altersabhängige Besteuerung**: Ertragsanteil variiert je nach Alter bei Beginn der Berufsunfähigkeit (z.B. 36% bei 40 Jahren)
+    - **Dokumentation des BU-Grads**: Erfassung des Berufsunfähigkeitsgrades (0-100%) für Übersichtszwecke
+    - **Dauerhafte oder temporäre BU**: Unterstützung sowohl für permanente als auch zeitlich begrenzte Berufsunfähigkeit
   - **Immobilien-Cashflow Integration** - Umfassende Immobilienertragsberechnung mit deutschen Steuerregeln
     - **Realistische Kostenfaktoren**: Instandhaltungskosten (0-30%), Leerstandsquote (0-20%), Finanzierungskosten
     - **Wertsteigerungsberechnung**: Optionale Berücksichtigung der Immobilienwertsteigerung als zusätzliches Einkommen

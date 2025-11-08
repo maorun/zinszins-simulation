@@ -6,22 +6,26 @@ import { MonthlyAmountSection } from './MonthlyAmountSection'
 import { TimePeriodSection } from './TimePeriodSection'
 import { RealEstateConfigSection } from './RealEstateConfigSection'
 import { KindergeldConfigSection } from './KindergeldConfigSection'
+import { BURenteConfigSection } from './BURenteConfigSection'
 
 interface FormConfigurationSectionsProps {
   editingSource: OtherIncomeSource
   monthlyAmountId: string
   currentYear: number
   isKindergeld: boolean
+  isBURente: boolean
   isRental: boolean
   isGrossIncome: boolean
   onUpdate: (source: OtherIncomeSource) => void
 }
 
+// eslint-disable-next-line complexity
 export function FormConfigurationSections({
   editingSource,
   monthlyAmountId,
   currentYear,
   isKindergeld,
+  isBURente,
   isRental,
   isGrossIncome,
   onUpdate,
@@ -40,13 +44,15 @@ export function FormConfigurationSections({
 
       {isGrossIncome && <TaxRateSection editingSource={editingSource} onUpdate={onUpdate} />}
 
-      <TimePeriodSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />
+      {!isBURente && <TimePeriodSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />}
 
-      {!isKindergeld && <InflationRateSection editingSource={editingSource} onUpdate={onUpdate} />}
+      {!isKindergeld && !isBURente && <InflationRateSection editingSource={editingSource} onUpdate={onUpdate} />}
 
       {isRental && <RealEstateConfigSection editingSource={editingSource} onUpdate={onUpdate} />}
 
       {isKindergeld && <KindergeldConfigSection editingSource={editingSource} onUpdate={onUpdate} />}
+
+      {isBURente && <BURenteConfigSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />}
     </>
   )
 }

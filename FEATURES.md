@@ -59,7 +59,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Kapitallebensversicherung** - Integration klassischer Lebensversicherungsprodukte
 - **Fondsgebundene Lebensversicherung** - ETF-Sparpläne in Versicherungsmänteln
 - **Risikolebensversicherung** - Absicherung von Hinterbliebenen
-- **Berufsunfähigkeitsversicherung** - Auswirkungen von BU-Renten auf die Finanzplanung
 
 #### Pflegevorsorge
 
@@ -171,7 +170,7 @@ Nützliche Ergänzungen für fortgeschrittene Nutzer:
 - **Schwankende Einkommen für Selbstständige** - Wichtig für deutschen Markt
 - **Erweiterte Risikomanagement-Tools** - VaR, Stress-Tests erweitern
 - **Machine Learning Prognosen** - Kann vorhandene Monte Carlo Analyse ergänzen
-- **Versicherungsintegration** - Lebens-, BU-, Pflegeversicherung
+- **Versicherungsintegration** - Lebens-, Pflegeversicherung (BU-Versicherung bereits implementiert)
 
 ### Niedrig (⭐)
 
