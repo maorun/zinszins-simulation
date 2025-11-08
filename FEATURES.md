@@ -105,7 +105,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Zielsetzung & Tracking
 
 - **Automatische Anpassungen** - Empfehlungen bei Zielverfehlungen
-- **Retirement-Readiness Score** - Bewertung der Rentenbereitschaft
 
 ### Internationale Erweiterungen
 
