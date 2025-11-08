@@ -193,6 +193,7 @@ export function calculateSteuerOnVorabpauschale(
 
 /**
  * Calculate personal income tax including Kirchensteuer if active
+ * Can use either a flat tax rate or progressive tax brackets
  */
 function calculatePersonalIncomeTax(
   vorabpauschale: number,
@@ -201,19 +202,40 @@ function calculatePersonalIncomeTax(
   availableGrundfreibetrag: number,
   kirchensteuerAktiv: boolean,
   kirchensteuersatz: number,
-): { personalTaxAmount: number; usedGrundfreibetrag: number } {
-  const taxableIncome = Math.max(0, vorabpauschale * (1 - teilfreistellungsquote) - availableGrundfreibetrag)
-  const basePersonalTax = taxableIncome * personalTaxRate
-  const kirchensteuer = kirchensteuerAktiv ? basePersonalTax * (kirchensteuersatz / 100) : 0
-  const personalTaxAmount = basePersonalTax + kirchensteuer
-  const usedGrundfreibetrag = Math.min(availableGrundfreibetrag, vorabpauschale * (1 - teilfreistellungsquote))
+  useProgressiveTax: boolean,
+): { personalTaxAmount: number; usedGrundfreibetrag: number; effectiveRate?: number } {
+  if (useProgressiveTax) {
+    // Use progressive tax calculation
+    const progressiveResult = calculateProgressiveTaxOnVorabpauschale(
+      vorabpauschale,
+      teilfreistellungsquote,
+      availableGrundfreibetrag,
+      0, // alreadyUsedGrundfreibetrag is 0 because availableGrundfreibetrag already accounts for it
+      kirchensteuerAktiv,
+      kirchensteuersatz,
+    )
 
-  return { personalTaxAmount, usedGrundfreibetrag }
+    return {
+      personalTaxAmount: progressiveResult.totalTax,
+      usedGrundfreibetrag: progressiveResult.usedGrundfreibetrag,
+      effectiveRate: progressiveResult.effectiveRate,
+    }
+  } else {
+    // Use simple flat rate calculation (backward compatible)
+    const taxableIncome = Math.max(0, vorabpauschale * (1 - teilfreistellungsquote) - availableGrundfreibetrag)
+    const basePersonalTax = taxableIncome * personalTaxRate
+    const kirchensteuer = kirchensteuerAktiv ? basePersonalTax * (kirchensteuersatz / 100) : 0
+    const personalTaxAmount = basePersonalTax + kirchensteuer
+    const usedGrundfreibetrag = Math.min(availableGrundfreibetrag, vorabpauschale * (1 - teilfreistellungsquote))
+
+    return { personalTaxAmount, usedGrundfreibetrag }
+  }
 }
 
 /**
  * Determine which tax option is more favorable and create explanation
  */
+// eslint-disable-next-line complexity
 function determineFavorableTaxOption(
   personalTaxAmount: number,
   abgeltungssteuerAmount: number,
@@ -223,30 +245,39 @@ function determineFavorableTaxOption(
   personalTaxRate: number,
   kirchensteuerAktiv: boolean,
   kirchensteuersatz: number,
+  useProgressiveTax: boolean,
+  effectiveRate?: number,
 ): {
   isFavorable: 'abgeltungssteuer' | 'personal' | 'equal'
   usedTaxRate: number
   explanation: string
 } {
   const kirchensteuerText = kirchensteuerAktiv ? ` (inkl. ${kirchensteuersatz}% Kirchensteuer)` : ''
+  const taxSystemText = useProgressiveTax ? 'Progressiver Tarif' : `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText})`
 
   if (personalTaxAmount < abgeltungssteuerAmount) {
     // Avoid division by zero
     const usedTaxRate = personalTaxAmount / Math.max(vorabpauschale * (1 - teilfreistellungsquote), 0.01)
-    const explanation =
-      `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText}) ist günstiger als ` +
-      `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
+    let explanation = `${taxSystemText} ist günstiger als Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
+    
+    if (useProgressiveTax && effectiveRate !== undefined) {
+      explanation += ` - Effektiver Steuersatz: ${(effectiveRate * 100).toFixed(2)}%`
+    }
+    
     return { isFavorable: 'personal', usedTaxRate, explanation }
   }
 
   if (personalTaxAmount > abgeltungssteuerAmount) {
-    const explanation =
-      `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als ` +
-      `persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText})`
+    let explanation = `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als ${taxSystemText}`
+    
+    if (useProgressiveTax && effectiveRate !== undefined) {
+      explanation += ` - Effektiver Steuersatz: ${(effectiveRate * 100).toFixed(2)}%`
+    }
+    
     return { isFavorable: 'abgeltungssteuer', usedTaxRate: abgeltungssteuer, explanation }
   }
 
-  const explanation = `Abgeltungssteuer und persönlicher Steuersatz${kirchensteuerText} führen zum gleichen Ergebnis (${(abgeltungssteuer * 100).toFixed(2)}%)`
+  const explanation = `Abgeltungssteuer und ${taxSystemText} führen zum gleichen Ergebnis (${(abgeltungssteuer * 100).toFixed(2)}%)`
   return { isFavorable: 'equal', usedTaxRate: abgeltungssteuer, explanation }
 }
 
@@ -283,17 +314,298 @@ export interface GuenstigerPruefungResult {
 }
 
 /**
+ * German progressive income tax brackets for 2024
+ * Based on the German income tax formula (Einkommensteuergesetz - EStG)
+ */
+export interface TaxBracket {
+  /** Lower bound of taxable income (inclusive) */
+  from: number
+  /** Upper bound of taxable income (exclusive, undefined for the last bracket) */
+  to?: number
+  /** Base tax amount for incomes at the lower bound */
+  baseTax: number
+  /** Marginal tax rate for this bracket (as decimal, e.g., 0.14 for 14%) */
+  marginalRate: number
+  /** Coefficient for quadratic formula (only for zones 2 and 3) */
+  y?: number
+  /** Linear coefficient for quadratic formula (only for zones 2 and 3) */
+  linearCoefficient?: number
+}
+
+/**
+ * Default German tax brackets for 2024
+ * Zone 1: 0 - 11,604€ (Grundfreibetrag) - 0% tax
+ * Zone 2: 11,605€ - 17,005€ - Progressive from 14% to ~24%
+ * Zone 3: 17,006€ - 66,760€ - Progressive from ~24% to 42%
+ * Zone 4: 66,761€ - 277,825€ - 42% flat (Spitzensteuersatz)
+ * Zone 5: 277,826€+ - 45% (Reichensteuer)
+ */
+export const GERMAN_TAX_BRACKETS_2024: TaxBracket[] = [
+  {
+    from: 0,
+    to: 11604,
+    baseTax: 0,
+    marginalRate: 0,
+  },
+  {
+    from: 11605,
+    to: 17005,
+    baseTax: 0,
+    marginalRate: 0.14,
+    y: 922.98,
+    linearCoefficient: 1400,
+  },
+  {
+    from: 17006,
+    to: 66760,
+    baseTax: 0,
+    marginalRate: 0.2397,
+    y: 181.19,
+    linearCoefficient: 2397,
+  },
+  {
+    from: 66761,
+    to: 277825,
+    baseTax: 0,
+    marginalRate: 0.42,
+  },
+  {
+    from: 277826,
+    to: undefined,
+    baseTax: 0,
+    marginalRate: 0.45,
+  },
+]
+
+/**
+ * Result of progressive tax calculation
+ */
+export interface ProgressiveTaxResult {
+  /** Total tax amount calculated */
+  totalTax: number
+  /** Effective tax rate (totalTax / taxableIncome) */
+  effectiveRate: number
+  /** Marginal tax rate at the highest income level */
+  marginalRate: number
+  /** Amount of Grundfreibetrag used */
+  usedGrundfreibetrag: number
+  /** Breakdown by tax bracket */
+  bracketBreakdown: Array<{
+    bracket: TaxBracket
+    taxableAmount: number
+    taxAmount: number
+  }>
+}
+
+/**
+ * Calculate tax using German Zone 2 formula (11,605€ - 17,005€)
+ * Tax = (y * z + 1400) * z where z = (taxable income - 11,604) / 10,000
+ */
+function calculateZone2Tax(taxableIncome: number, y: number, linearCoefficient: number): number {
+  const grundfreibetrag = GERMAN_TAX_BRACKETS_2024[0].to ?? 11604
+  const z = (taxableIncome - grundfreibetrag) / 10000
+  return (y * z + linearCoefficient) * z
+}
+
+/**
+ * Calculate tax using German Zone 3 formula (17,006€ - 66,760€)
+ * Tax = (y * z + 2397) * z + base where z = (taxable income - 17,005) / 10,000
+ */
+function calculateZone3Tax(taxableIncome: number, y: number, linearCoefficient: number): number {
+  const zone2Upper = GERMAN_TAX_BRACKETS_2024[1].to ?? 17005
+  const zone2Y = GERMAN_TAX_BRACKETS_2024[1].y ?? 922.98
+  const zone2Linear = GERMAN_TAX_BRACKETS_2024[1].linearCoefficient ?? 1400
+  const z = (taxableIncome - zone2Upper) / 10000
+  const zoneBase = calculateZone2Tax(zone2Upper, zone2Y, zone2Linear)
+  return (y * z + linearCoefficient) * z + zoneBase
+}
+
+/**
+ * Calculate German progressive income tax based on official tax brackets.
+ * Uses the official German tax formula (Einkommensteuergesetz - EStG §32a)
+ * for zones 2 and 3 which have progressive rates.
+ *
+ * Formula for zone 2 (11,605€ - 17,005€):
+ * Tax = (y * z + 1400) * z
+ * where z = (taxable income - 11,604) / 10,000
+ *
+ * Formula for zone 3 (17,006€ - 66,760€):
+ * Tax = (y * z + 2397) * z + base
+ * where z = (taxable income - 17,005) / 10,000
+ *
+ * NOTE: The `grundfreibetrag` parameter is used when capital gains are being taxed
+ * with progressive tax instead of Abgeltungssteuer. In this case, the Grundfreibetrag
+ * can be used to offset capital gains. For regular income tax, the Grundfreibetrag
+ * is already built into the tax brackets (Zone 1: 0-11,604€ = 0% tax).
+ *
+ * @param taxableIncome - The taxable income (zu versteuerndes Einkommen)
+ * @param grundfreibetrag - Additional tax-free allowance (for capital gains offset)
+ * @param alreadyUsedGrundfreibetrag - Amount of Grundfreibetrag already used
+ * @param taxBrackets - Custom tax brackets (defaults to German 2024 brackets)
+ * @returns Detailed progressive tax calculation result
+ *
+ * @example
+ * // Calculate tax for 30,000€ taxable income
+ * const result = calculateProgressiveTax(30000)
+ * // result.totalTax will be approximately 4,446€
+ * // result.effectiveRate will be approximately 14.8%
+ */
+// eslint-disable-next-line complexity, max-lines-per-function
+export function calculateProgressiveTax(
+  taxableIncome: number,
+  grundfreibetrag = 0,
+  alreadyUsedGrundfreibetrag = 0,
+  taxBrackets: TaxBracket[] = GERMAN_TAX_BRACKETS_2024,
+): ProgressiveTaxResult {
+  // Calculate available Grundfreibetrag (for capital gains offset)
+  const availableGrundfreibetrag = Math.max(0, grundfreibetrag - alreadyUsedGrundfreibetrag)
+  const usedGrundfreibetrag = Math.min(availableGrundfreibetrag, taxableIncome)
+
+  // Apply additional Grundfreibetrag offset (for capital gains)
+  const incomeAfterOffset = Math.max(0, taxableIncome - usedGrundfreibetrag)
+
+  if (incomeAfterOffset === 0) {
+    return {
+      totalTax: 0,
+      effectiveRate: 0,
+      marginalRate: 0,
+      usedGrundfreibetrag,
+      bracketBreakdown: [],
+    }
+  }
+
+  let totalTax = 0
+  let marginalRate = 0
+  const bracketBreakdown: ProgressiveTaxResult['bracketBreakdown'] = []
+
+  // Find which bracket the taxable income falls into and calculate tax
+  // The German tax formula gives us the total tax directly for zones 2 and 3
+  // For zones 4 and 5, we need to add incremental tax
+
+  if (incomeAfterOffset <= 11604) {
+    // Zone 1: No tax (this IS the Grundfreibetrag built into the tax system)
+    totalTax = 0
+    marginalRate = 0
+    bracketBreakdown.push({
+      bracket: taxBrackets[0],
+      taxableAmount: incomeAfterOffset,
+      taxAmount: 0,
+    })
+  } else if (incomeAfterOffset <= 17005) {
+    // Zone 2: Progressive from 14% to ~24%
+    totalTax = calculateZone2Tax(incomeAfterOffset, 922.98, 1400)
+    marginalRate = 0.14
+    bracketBreakdown.push({
+      bracket: taxBrackets[1],
+      taxableAmount: incomeAfterOffset - 11604,
+      taxAmount: totalTax,
+    })
+  } else if (incomeAfterOffset <= 66760) {
+    // Zone 3: Progressive from ~24% to 42%
+    totalTax = calculateZone3Tax(incomeAfterOffset, 181.19, 2397)
+    marginalRate = 0.2397
+    bracketBreakdown.push({
+      bracket: taxBrackets[2],
+      taxableAmount: incomeAfterOffset - 17005,
+      taxAmount: totalTax,
+    })
+  } else if (incomeAfterOffset <= 277825) {
+    // Zone 4: Flat 42%
+    // Calculate base tax up to 66,760€
+    const baseTax = calculateZone3Tax(66760, 181.19, 2397)
+    // Add 42% tax on income above 66,760€
+    const incomeAbove66760 = incomeAfterOffset - 66760
+    totalTax = baseTax + incomeAbove66760 * 0.42
+    marginalRate = 0.42
+    bracketBreakdown.push({
+      bracket: taxBrackets[3],
+      taxableAmount: incomeAbove66760,
+      taxAmount: totalTax,
+    })
+  } else {
+    // Zone 5: Flat 45% (Reichensteuer)
+    // Calculate base tax up to 277,825€
+    const baseTaxZone3 = calculateZone3Tax(66760, 181.19, 2397)
+    const zone4Income = 277825 - 66760
+    const baseTaxZone4 = baseTaxZone3 + zone4Income * 0.42
+    // Add 45% tax on income above 277,825€
+    const incomeAbove277825 = incomeAfterOffset - 277825
+    totalTax = baseTaxZone4 + incomeAbove277825 * 0.45
+    marginalRate = 0.45
+    bracketBreakdown.push({
+      bracket: taxBrackets[4],
+      taxableAmount: incomeAbove277825,
+      taxAmount: totalTax,
+    })
+  }
+
+  const effectiveRate = incomeAfterOffset > 0 ? totalTax / incomeAfterOffset : 0
+
+  return {
+    totalTax,
+    effectiveRate,
+    marginalRate,
+    usedGrundfreibetrag,
+    bracketBreakdown,
+  }
+}
+
+/**
+ * Calculate progressive income tax on Vorabpauschale (investment income)
+ * This applies the progressive tax calculation to capital gains after
+ * applying the Teilfreistellung (partial exemption).
+ *
+ * @param vorabpauschale - The Vorabpauschale amount subject to taxation
+ * @param teilfreistellungsquote - The partial exemption quote (e.g., 0.3 for equity funds)
+ * @param grundfreibetrag - Additional tax-free allowance (for capital gains offset), default 0
+ * @param alreadyUsedGrundfreibetrag - Amount of Grundfreibetrag already used
+ * @param kirchensteuerAktiv - Whether church tax (Kirchensteuer) is active
+ * @param kirchensteuersatz - Church tax rate (8% or 9%)
+ * @param taxBrackets - Custom tax brackets (defaults to German 2024 brackets)
+ * @returns Progressive tax result with Kirchensteuer if applicable
+ */
+export function calculateProgressiveTaxOnVorabpauschale(
+  vorabpauschale: number,
+  teilfreistellungsquote: number,
+  grundfreibetrag = 0,
+  alreadyUsedGrundfreibetrag = 0,
+  kirchensteuerAktiv = false,
+  kirchensteuersatz = 9,
+  taxBrackets: TaxBracket[] = GERMAN_TAX_BRACKETS_2024,
+): ProgressiveTaxResult & { kirchensteuer: number } {
+  // Calculate taxable income after Teilfreistellung
+  const taxableCapitalGain = vorabpauschale * (1 - teilfreistellungsquote)
+
+  // Calculate progressive tax
+  const result = calculateProgressiveTax(taxableCapitalGain, grundfreibetrag, alreadyUsedGrundfreibetrag, taxBrackets)
+
+  // Add Kirchensteuer if active
+  const kirchensteuer = kirchensteuerAktiv ? result.totalTax * (kirchensteuersatz / 100) : 0
+  const totalTaxWithKirchensteuer = result.totalTax + kirchensteuer
+
+  return {
+    ...result,
+    totalTax: totalTaxWithKirchensteuer,
+    kirchensteuer,
+  }
+}
+
+/**
  * Performs Günstigerprüfung (tax optimization check) to determine whether
  * Abgeltungssteuer (capital gains tax) or personal income tax is more favorable.
  *
  * @param vorabpauschale - The Vorabpauschale amount subject to taxation
  * @param abgeltungssteuer - The standard capital gains tax rate (e.g., 0.26375 = 26.375%)
- * @param personalTaxRate - The personal income tax rate (e.g., 0.25 = 25%)
+ * @param personalTaxRate - The personal income tax rate (e.g., 0.25 = 25%) - used only if useProgressiveTax is false
  * @param teilfreistellungsquote - The partial exemption quote for the fund type (e.g., 0.3 for equity funds)
  * @param grundfreibetrag - The annual tax-free allowance for personal income tax
  * @param alreadyUsedGrundfreibetrag - Amount of Grundfreibetrag already used in the year
+ * @param kirchensteuerAktiv - Whether church tax is active
+ * @param kirchensteuersatz - Church tax rate (8% or 9%)
+ * @param useProgressiveTax - If true, uses progressive tax brackets instead of flat personalTaxRate
  * @returns Object with calculated tax amounts and recommendation
  */
+// eslint-disable-next-line max-lines-per-function
 export function performGuenstigerPruefung(
   vorabpauschale: number,
   abgeltungssteuer: number,
@@ -303,6 +615,7 @@ export function performGuenstigerPruefung(
   alreadyUsedGrundfreibetrag = 0,
   kirchensteuerAktiv = false,
   kirchensteuersatz = 9,
+  useProgressiveTax = false,
 ): GuenstigerPruefungResult {
   if (vorabpauschale <= 0) {
     return createEmptyGuenstigerPruefungResult(abgeltungssteuer, grundfreibetrag, alreadyUsedGrundfreibetrag)
@@ -315,15 +628,16 @@ export function performGuenstigerPruefung(
     teilfreistellungsquote,
   )
 
-  // Calculate personal income tax
+  // Calculate personal income tax (flat or progressive)
   const availableGrundfreibetrag = Math.max(0, grundfreibetrag - alreadyUsedGrundfreibetrag)
-  const { personalTaxAmount, usedGrundfreibetrag } = calculatePersonalIncomeTax(
+  const { personalTaxAmount, usedGrundfreibetrag, effectiveRate } = calculatePersonalIncomeTax(
     vorabpauschale,
     personalTaxRate,
     teilfreistellungsquote,
     availableGrundfreibetrag,
     kirchensteuerAktiv,
     kirchensteuersatz,
+    useProgressiveTax,
   )
 
   // Determine which is more favorable
@@ -336,6 +650,8 @@ export function performGuenstigerPruefung(
     personalTaxRate,
     kirchensteuerAktiv,
     kirchensteuersatz,
+    useProgressiveTax,
+    effectiveRate,
   )
 
   return {
