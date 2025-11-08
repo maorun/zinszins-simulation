@@ -129,6 +129,7 @@ function buildWithdrawalResult(params: BuildWithdrawalResultParams): WithdrawalR
 /**
  * Hook to prepare withdrawal calculation parameters from simulation context
  */
+// eslint-disable-next-line max-lines-per-function
 function useWithdrawalCalculationParams(
   elemente: SparplanElement[],
   startOfIndependence: number,
@@ -138,34 +139,91 @@ function useWithdrawalCalculationParams(
   effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined,
 ) {
   const simulationContext = useSimulation()
-  return {
+  
+  // Extract values from context for memoization dependencies
+  const {
+    steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
+    planningMode,
+    gender,
+    birthYear,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
+    withdrawalMultiAssetConfig,
+  } = simulationContext
+
+  const {
+    formValue,
+    withdrawalReturnMode,
+    withdrawalVariableReturns,
+    withdrawalAverageReturn,
+    withdrawalStandardDeviation,
+    withdrawalRandomSeed,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
+    otherIncomeConfig,
+  } = currentConfig
+  
+  // Memoize the params object to prevent unnecessary recalculations
+  return useMemo(() => ({
     elemente,
     startOfIndependence,
     effectiveStatutoryPensionConfig,
     steuerlast,
     teilfreistellungsquote,
-    steuerReduzierenEndkapitalEntspharphase: simulationContext.steuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv: simulationContext.grundfreibetragAktiv,
-    grundfreibetragBetrag: simulationContext.grundfreibetragBetrag,
-    endOfLife: simulationContext.endOfLife,
-    lifeExpectancyTable: simulationContext.lifeExpectancyTable,
-    customLifeExpectancy: simulationContext.customLifeExpectancy,
-    planningMode: simulationContext.planningMode,
-    gender: simulationContext.gender,
-    birthYear: simulationContext.birthYear,
-    guenstigerPruefungAktiv: simulationContext.guenstigerPruefungAktiv,
-    personalTaxRate: simulationContext.personalTaxRate,
-    withdrawalMultiAssetConfig: simulationContext.withdrawalMultiAssetConfig,
-    formValue: currentConfig.formValue,
-    withdrawalReturnMode: currentConfig.withdrawalReturnMode,
-    withdrawalVariableReturns: currentConfig.withdrawalVariableReturns,
-    withdrawalAverageReturn: currentConfig.withdrawalAverageReturn,
-    withdrawalStandardDeviation: currentConfig.withdrawalStandardDeviation,
-    withdrawalRandomSeed: currentConfig.withdrawalRandomSeed,
-    useSegmentedWithdrawal: currentConfig.useSegmentedWithdrawal,
-    withdrawalSegments: currentConfig.withdrawalSegments,
-    otherIncomeConfig: currentConfig.otherIncomeConfig,
-  }
+    steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
+    planningMode,
+    gender,
+    birthYear,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
+    withdrawalMultiAssetConfig,
+    formValue,
+    withdrawalReturnMode,
+    withdrawalVariableReturns,
+    withdrawalAverageReturn,
+    withdrawalStandardDeviation,
+    withdrawalRandomSeed,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
+    otherIncomeConfig,
+  }), [
+    elemente,
+    startOfIndependence,
+    effectiveStatutoryPensionConfig,
+    steuerlast,
+    teilfreistellungsquote,
+    steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
+    planningMode,
+    gender,
+    birthYear,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
+    withdrawalMultiAssetConfig,
+    formValue,
+    withdrawalReturnMode,
+    withdrawalVariableReturns,
+    withdrawalAverageReturn,
+    withdrawalStandardDeviation,
+    withdrawalRandomSeed,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
+    otherIncomeConfig,
+  ])
 }
 
 /**
