@@ -55,6 +55,9 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
           disabled={disabled}
           id={id}
           name={name}
+          aria-valuemin={min}
+          aria-valuemax={max}
+          aria-valuenow={currentValue}
           className="absolute w-full h-2 opacity-0 cursor-pointer disabled:cursor-not-allowed"
           {...props}
         />
