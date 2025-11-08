@@ -10,6 +10,8 @@ interface SliderProps {
   onValueChange?: (value: number[]) => void
   className?: string
   disabled?: boolean
+  id?: string
+  name?: string
 }
 
 const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
@@ -23,14 +25,13 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
       onValueChange,
       className,
       disabled = false,
+      id,
+      name,
       ...props
     },
     ref,
   ) => {
-    // Use controlled value if provided, otherwise use defaultValue
     const currentValue = value !== undefined ? value[0] : defaultValue[0]
-
-    // Calculate percentage for visual styling
     const percentage = ((currentValue - min) / (max - min)) * 100
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -40,16 +41,9 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
 
     return (
       <div className={cn('relative flex w-full touch-none select-none items-center', className)}>
-        {/* Track background */}
         <div className="relative h-2 w-full grow overflow-hidden rounded-full bg-secondary">
-          {/* Filled portion (Range) */}
-          <div
-            className="absolute h-full bg-primary transition-all"
-            style={{ width: `${percentage}%` }}
-          />
+          <div className="absolute h-full bg-primary transition-all" style={{ width: `${percentage}%` }} />
         </div>
-
-        {/* Native range input */}
         <input
           ref={ref}
           type="range"
@@ -59,16 +53,14 @@ const Slider = React.forwardRef<HTMLInputElement, SliderProps>(
           value={currentValue}
           onChange={handleChange}
           disabled={disabled}
+          id={id}
+          name={name}
           className="absolute w-full h-2 opacity-0 cursor-pointer disabled:cursor-not-allowed"
           {...props}
         />
-
-        {/* Thumb */}
         <div
           className="absolute h-5 w-5 rounded-full border-2 border-primary bg-background ring-offset-background transition-all pointer-events-none"
-          style={{
-            left: `calc(${percentage}% - 10px)`, // Center the thumb (half of 20px width)
-          }}
+          style={{ left: `calc(${percentage}% - 10px)` }}
         />
       </div>
     )
