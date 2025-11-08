@@ -36,6 +36,7 @@ export function WithdrawalModeSelector({
     <div className="mb-4 space-y-2">
       <Label>Entnahme-Modus</Label>
       <RadioTileGroup
+        name="withdrawal-mode"
         value={currentMode}
         onValueChange={(value: string) => {
           onModeChange(value as WithdrawalMode)
