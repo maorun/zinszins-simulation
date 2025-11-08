@@ -1,20 +1,7 @@
 import { formatCurrency } from '../utils/currency'
 import { Line } from 'react-chartjs-2'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ChartOptions,
-  TooltipItem,
-} from 'chart.js'
-
-// Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend)
+import { ChartOptions, TooltipItem } from 'chart.js'
+import '../utils/chart-setup' // Ensure Chart.js is registered
 
 interface ChartData {
   name: string

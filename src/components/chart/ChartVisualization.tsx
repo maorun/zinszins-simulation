@@ -1,23 +1,7 @@
 import { Line } from 'react-chartjs-2'
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  PointElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  Filler,
-  ChartOptions,
-  TooltipItem,
-  ChartDataset,
-} from 'chart.js'
-import zoomPlugin from 'chartjs-plugin-zoom'
+import { ChartOptions, TooltipItem, ChartDataset } from 'chart.js'
 import { formatCurrency } from '../../utils/currency'
-
-// Register Chart.js components
-ChartJS.register(CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler, zoomPlugin)
+import '../../utils/chart-setup' // Ensure Chart.js is registered
 
 interface ChartDataPoint {
   year: number
