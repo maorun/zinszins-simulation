@@ -236,6 +236,7 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
   - **Card Components**: All Panel components migrated to shadcn/ui Card
   - **Button Components**: All Button components migrated to shadcn/ui Button
   - **Interactive Components**: All user-facing components fully functional
+  - **Tabs Performance**: Tabs use `forceMount` prop on TabsContent to keep content mounted and prevent expensive re-renders during tab switches
 - **CSS Framework**: Uses Tailwind CSS utility classes exclusively
   - **NO new CSS classes**: Never create custom CSS classes or styles in separate CSS files
   - **Tailwind only**: Use only Tailwind CSS utility classes for all styling needs
@@ -330,6 +331,7 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
 - Calculations run client-side for immediate responsiveness
 - Real-time updates on every input change - calculations are fast
 - Large year ranges render efficiently
+- **Tab content remains mounted**: The Ansparen and Entnehmen tabs use `forceMount` on TabsContent to prevent expensive re-renders when switching tabs. This keeps complex calculations and component state intact while hiding inactive tabs with CSS.
 
 ## Deployment Information
 
