@@ -61,9 +61,7 @@ export function TaxSectionsContent({ simulation, yearToday }: TaxSectionsContent
       />
       <GuenstigerpruefungSection
         guenstigerPruefungAktiv={simulation.guenstigerPruefungAktiv}
-        personalTaxRate={simulation.personalTaxRate}
         onGuenstigerPruefungAktivChange={handlers.handleGuenstigerPruefungAktivChange}
-        onPersonalTaxRateChange={handlers.handlePersonalTaxRateChange}
       />
       <ProgressiveTaxInfoSection
         guenstigerPruefungAktiv={simulation.guenstigerPruefungAktiv}
