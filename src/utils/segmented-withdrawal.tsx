@@ -43,8 +43,6 @@ export type WithdrawalSegment = {
   rmdConfig?: RMDConfig
   /** Steueroptimierte Entnahme configuration (for steueroptimiert strategy) */
   steuerOptimierteConfig?: SteueroptimierteEntnahmeConfig
-  /** Income tax rate for this segment */
-  incomeTaxRate?: number
   /** Whether taxes should reduce capital for this segment */
   steuerReduzierenEndkapital?: boolean
 }
