@@ -613,7 +613,7 @@ export function calculateProgressiveTaxOnVorabpauschale(
  * @param useProgressiveTax - If true, uses progressive tax brackets instead of flat personalTaxRate
  * @returns Object with calculated tax amounts and recommendation
  */
-// eslint-disable-next-line max-lines-per-function
+// eslint-disable-next-line max-lines-per-function, complexity
 export function performGuenstigerPruefung(
   vorabpauschale: number,
   abgeltungssteuer: number,

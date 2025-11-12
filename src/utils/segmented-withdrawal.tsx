@@ -205,7 +205,6 @@ export function createDefaultWithdrawalSegment(
     inflationConfig: {
       inflationRate: 0.02, // 2% default inflation
     },
-    incomeTaxRate: 0.18, // Default income tax rate 18%
     steuerReduzierenEndkapital: true, // Default: taxes reduce capital
   }
 }
@@ -258,8 +257,6 @@ export function synchronizeWithdrawalSegmentsEndYear(
  * @param customPercentage - Custom percentage (optional)
  * @param monthlyConfig - Monthly config (optional)
  * @param inflationConfig - Inflation config (optional)
-
- * @param incomeTaxRate - Income tax rate (optional)
  * @returns Single segment configuration
  */
 export function createSingleSegmentConfig(
@@ -271,7 +268,6 @@ export function createSingleSegmentConfig(
   customPercentage?: number,
   monthlyConfig?: MonthlyWithdrawalConfig,
   inflationConfig?: InflationConfig,
-  incomeTaxRate?: number,
   steuerReduzierenEndkapital = true,
 ): SegmentedWithdrawalConfig {
   const segment: WithdrawalSegment = {
@@ -285,7 +281,6 @@ export function createSingleSegmentConfig(
     customPercentage,
     monthlyConfig,
     inflationConfig,
-    incomeTaxRate,
     steuerReduzierenEndkapital,
   }
 

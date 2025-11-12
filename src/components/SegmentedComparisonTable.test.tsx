@@ -22,7 +22,6 @@ const mockStrategy1: SegmentedComparisonStrategy = {
       withdrawalFrequency: 'yearly',
       returnConfig: { mode: 'fixed', fixedRate: 0.04 },
       inflationConfig: { inflationRate: 0.02 },
-      incomeTaxRate: 0.18,
       steuerReduzierenEndkapital: true,
     },
     {
@@ -34,7 +33,6 @@ const mockStrategy1: SegmentedComparisonStrategy = {
       withdrawalFrequency: 'yearly',
       returnConfig: { mode: 'fixed', fixedRate: 0.06 },
       inflationConfig: { inflationRate: 0.02 },
-      incomeTaxRate: 0.18,
       steuerReduzierenEndkapital: true,
     },
   ],

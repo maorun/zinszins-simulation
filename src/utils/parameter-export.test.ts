@@ -274,7 +274,6 @@ describe('Parameter Export', () => {
             inflationConfig: {
               inflationRate: 0.02,
             },
-            incomeTaxRate: 25,
             steuerReduzierenEndkapital: true,
           },
           {
@@ -398,7 +397,6 @@ describe('Parameter Export', () => {
             inflationConfig: {
               inflationRate: 0.02,
             },
-            incomeTaxRate: 18,
             steuerReduzierenEndkapital: true,
           },
         ],

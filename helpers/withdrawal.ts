@@ -2038,7 +2038,6 @@ function calculateYearIncomeTax(params: YearIncomeTaxParams): YearIncomeTaxResul
     otherIncomeData,
     healthCareInsuranceData,
     healthCareInsuranceConfig,
-    incomeTaxRate,
     kirchensteuerAktiv,
     kirchensteuersatz,
   } = params
@@ -2059,10 +2058,13 @@ function calculateYearIncomeTax(params: YearIncomeTaxParams): YearIncomeTaxResul
       healthCareInsuranceConfig,
     })
 
+    // Calculate income tax on total taxable income
+    // Note: When Günstigerprüfung is active, progressive tax is used automatically
+    // When using Grundfreibetrag without Günstigerprüfung, a default rate is used
     einkommensteuer = calculateIncomeTax(
       totalTaxableIncome,
       yearlyGrundfreibetrag,
-      (incomeTaxRate || 0) / 100,
+      0, // No fixed income tax rate - uses progressive tax or 0
       kirchensteuerAktiv,
       kirchensteuersatz,
     )

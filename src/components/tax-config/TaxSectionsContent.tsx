@@ -34,7 +34,6 @@ interface TaxSectionsContentProps {
   yearToday: number
 }
 
-// eslint-disable-next-line max-lines-per-function
 export function TaxSectionsContent({ simulation, yearToday }: TaxSectionsContentProps) {
   const handlers = createTaxHandlers(
     simulation.performSimulation,
