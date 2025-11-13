@@ -81,7 +81,8 @@ describe('simulate with Günstigerprüfung with Progressive Tax', () => {
     expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult).toBeUndefined()
   })
 
-  it('should not perform Günstigerprüfung when personalTaxRate is undefined', () => {
+  it('should perform Günstigerprüfung with progressive tax even when personalTaxRate is undefined', () => {
+    // After the change, Günstigerprüfung now uses progressive tax and doesn't require personalTaxRate
     const result = simulate({
       ...baseOptions,
       guenstigerPruefungAktiv: true,
@@ -90,7 +91,11 @@ describe('simulate with Günstigerprüfung with Progressive Tax', () => {
 
     const simulationData = result[0].simulation[2024]
     expect(simulationData).toBeDefined()
-    expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult).toBeUndefined()
+    // Günstigerprüfung should be performed with progressive tax
+    expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult).toBeDefined()
+    expect(simulationData.vorabpauschaleDetails?.guenstigerPruefungResult?.explanation).toContain(
+      'Progressiver Tarif',
+    )
   })
 
   it('should calculate different tax amounts and choose the more favorable', () => {

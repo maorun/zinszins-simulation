@@ -322,7 +322,7 @@ describe('Parameter Export', () => {
       expect(result).toContain('Rendite: 6.00 %')
       expect(result).toContain('Variabler Prozentsatz: 3.50 %')
       expect(result).toContain('Inflation: 2.00 %')
-      expect(result).toContain('Einkommensteuersatz: 25.00 %')
+      // Note: Einkommensteuersatz was removed from segments as progressive tax is now used
       expect(result).toContain('Steuerreduzierung: Ja')
 
       // Second segment details
@@ -429,7 +429,7 @@ describe('Parameter Export', () => {
 
       // Common segment details
       expect(result).toContain('Inflation: 2.00 %')
-      expect(result).toContain('Einkommensteuersatz: 18.00 %')
+      // Note: Einkommensteuersatz was removed from segments as progressive tax is now used
       expect(result).toContain('Steuerreduzierung: Ja')
     })
 

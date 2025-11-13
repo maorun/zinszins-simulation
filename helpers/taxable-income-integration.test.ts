@@ -40,6 +40,7 @@ describe('Centralized Taxable Income Calculation', () => {
     grundfreibetragPerYear: {
       2041: 12000,
     },
+    incomeTaxRate: 0.25, // 25% income tax rate for Grundfreibetrag calculations
   }
 
   it('should calculate income tax only on portfolio withdrawal when no other income sources', () => {
