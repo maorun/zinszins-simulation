@@ -459,8 +459,6 @@ export function buildSegmentedWithdrawalResult(params: {
 }): WithdrawalResult {
   const { elemente, withdrawalSegments, effectiveStatutoryPensionConfig } = params
 
-  const { calculateSegmentedWithdrawal } = require('../../helpers/withdrawal')
-
   const segmentedConfig = {
     segments: withdrawalSegments,
     taxRate: 0.26375,
