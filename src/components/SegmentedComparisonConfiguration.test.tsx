@@ -23,7 +23,6 @@ const mockStrategy: SegmentedComparisonStrategy = {
         inflationRate: 0.02,
       },
 
-      incomeTaxRate: 0.18,
       steuerReduzierenEndkapital: true,
     },
   ],

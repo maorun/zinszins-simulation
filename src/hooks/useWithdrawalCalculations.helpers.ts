@@ -301,22 +301,13 @@ function buildTaxConfig(params: CalculateComparisonStrategyParams) {
     endOfLife,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
-    einkommensteuersatz,
-    guenstigerPruefungAktiv,
-    personalTaxRate,
   } = params
 
   const grundfreibetragPerYear = grundfreibetragAktiv
     ? buildGrundfreibetragPerYear(startOfIndependence, endOfLife, grundfreibetragBetrag)
     : undefined
 
-  const incomeTaxRate = grundfreibetragAktiv
-    ? einkommensteuersatz / 100
-    : guenstigerPruefungAktiv
-      ? personalTaxRate / 100
-      : undefined
-
-  return { grundfreibetragPerYear, incomeTaxRate }
+  return { grundfreibetragPerYear }
 }
 
 function buildStrategyConfigs(
@@ -367,7 +358,7 @@ function buildWithdrawalParams(
     getEffectiveLifeExpectancyTable,
   } = params
 
-  const { grundfreibetragPerYear, incomeTaxRate } = buildTaxConfig(params)
+  const { grundfreibetragPerYear } = buildTaxConfig(params)
   const strategyConfigs = buildStrategyConfigs(strategy, getEffectiveLifeExpectancyTable, customLifeExpectancy)
   const effectiveHealthCareInsuranceConfig = buildEffectiveHealthCareInsuranceConfig(healthCareInsuranceConfig)
 
@@ -383,7 +374,6 @@ function buildWithdrawalParams(
     ...strategyConfigs,
     enableGrundfreibetrag: grundfreibetragAktiv,
     grundfreibetragPerYear,
-    incomeTaxRate,
     steuerReduzierenEndkapital: steuerReduzierenEndkapitalEntspharphase,
     statutoryPensionConfig: effectiveStatutoryPensionConfig || undefined,
     otherIncomeConfig,
@@ -489,21 +479,21 @@ function buildWithdrawalTaxParams(params: {
   endOfLife: number
   formValue: WithdrawalConfiguration['formValue']
   guenstigerPruefungAktiv: boolean
-  personalTaxRate: number
 }) {
-  const { grundfreibetragAktiv, grundfreibetragBetrag, startOfIndependence, endOfLife } = params
-  const { formValue, guenstigerPruefungAktiv, personalTaxRate } = params
+  const { grundfreibetragAktiv, grundfreibetragBetrag, startOfIndependence, endOfLife, formValue, guenstigerPruefungAktiv } = params
+
+  // Income tax rate is only used when Grundfreibetrag is active WITHOUT Günstigerprüfung
+  // When Günstigerprüfung is active, progressive tax is used automatically
+  const incomeTaxRate = grundfreibetragAktiv && !guenstigerPruefungAktiv
+    ? formValue.einkommensteuersatz / 100
+    : undefined
 
   return {
     enableGrundfreibetrag: grundfreibetragAktiv,
     grundfreibetragPerYear: grundfreibetragAktiv
       ? buildGrundfreibetragPerYear(startOfIndependence, endOfLife, grundfreibetragBetrag)
       : undefined,
-    incomeTaxRate: grundfreibetragAktiv
-      ? formValue.einkommensteuersatz / 100
-      : guenstigerPruefungAktiv
-        ? personalTaxRate / 100
-        : undefined,
+    incomeTaxRate,
     guenstigerPruefungAktiv,
   }
 }

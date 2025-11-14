@@ -22,7 +22,6 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
           inflationConfig: {
             inflationRate: 0.02,
           },
-          incomeTaxRate: 0.18,
           steuerReduzierenEndkapital: true,
         },
         {
@@ -39,7 +38,6 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
           inflationConfig: {
             inflationRate: 0.02,
           },
-          incomeTaxRate: 0.18,
           steuerReduzierenEndkapital: true,
         },
       ],
@@ -90,7 +88,6 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
             inflationConfig: {
               inflationRate: 0.02,
             },
-            incomeTaxRate: 0.18,
             steuerReduzierenEndkapital: true,
           },
         ],
@@ -115,7 +112,6 @@ describe('Config Storage - Segmented Comparison Interface Tests', () => {
       inflationConfig: {
         inflationRate: 0.025,
       },
-      incomeTaxRate: 0.2,
       steuerReduzierenEndkapital: false,
     }
 

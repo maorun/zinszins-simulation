@@ -531,8 +531,8 @@ function calculateGuenstigerPruefung(
   let potentialTax = vorabpauschaleDetails.steuerVorFreibetrag
   let guenstigerPruefungResult = null
 
-  if (options.guenstigerPruefungAktiv && options.personalTaxRate !== undefined) {
-    // Use progressive tax when Günstigerprüfung is active for more accurate calculations
+  if (options.guenstigerPruefungAktiv) {
+    // When Günstigerprüfung is active, always use progressive tax
     const USE_PROGRESSIVE_TAX = true
     const KIRCHENSTEUER_AKTIV = false
     const DEFAULT_KIRCHENSTEUERSATZ = 9
@@ -540,7 +540,7 @@ function calculateGuenstigerPruefung(
     guenstigerPruefungResult = performGuenstigerPruefung(
       vorabpauschaleBetrag,
       steuerlast,
-      options.personalTaxRate / 100,
+      undefined, // personalTaxRate not needed when using progressive tax
       teilfreistellungsquote,
       0, // grundfreibetrag
       0, // alreadyUsedGrundfreibetrag

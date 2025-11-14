@@ -39,7 +39,6 @@ describe('Grundfreibetrag Calculation Fix', () => {
         returnConfig: { mode: 'fixed', fixedRate: 0.05 },
         taxRate: 0.26375,
         enableGrundfreibetrag: false, // Explicitly disabled
-        incomeTaxRate: 0.25,
       })
 
       // When disabled, no income tax should be calculated
@@ -67,7 +66,6 @@ describe('Grundfreibetrag Calculation Fix', () => {
         taxRate: 0.26375,
         enableGrundfreibetrag: true,
         grundfreibetragPerYear: { [withdrawalStartYear]: customGrundfreibetrag },
-        incomeTaxRate: 0.25,
       })
 
       // When enabled, income tax should be calculated with the custom Grundfreibetrag
@@ -101,7 +99,6 @@ describe('Grundfreibetrag Calculation Fix', () => {
         taxRate: 0.26375,
         enableGrundfreibetrag: true,
         // No grundfreibetragPerYear provided - should use default
-        incomeTaxRate: 0.25,
       })
 
       // Should use the default value of 11604 (2024 German basic tax allowance)
@@ -130,7 +127,6 @@ describe('Grundfreibetrag Calculation Fix', () => {
         taxRate: 0.26375,
         enableGrundfreibetrag: true,
         grundfreibetragPerYear: { [withdrawalStartYear]: grundfreibetrag },
-        incomeTaxRate: 0.25,
       })
 
       const resultDisabled = calculateWithdrawal({
@@ -141,7 +137,6 @@ describe('Grundfreibetrag Calculation Fix', () => {
         returnConfig: { mode: 'fixed', fixedRate: 0.05 },
         taxRate: 0.26375,
         enableGrundfreibetrag: false,
-        incomeTaxRate: 0.25,
       })
 
       const enabledYear = resultEnabled.result[withdrawalStartYear]

@@ -2,12 +2,6 @@ import { describe, it, expect } from 'vitest'
 import { createDefaultWithdrawalSegment } from './segmented-withdrawal'
 
 describe('createDefaultWithdrawalSegment', () => {
-  it('should create a withdrawal segment with default 18% income tax rate', () => {
-    const segment = createDefaultWithdrawalSegment('test-id', 'Test Phase', 2041, 2080)
-
-    expect(segment.incomeTaxRate).toBe(0.18)
-  })
-
   it('should create a withdrawal segment with all required properties', () => {
     const segment = createDefaultWithdrawalSegment('test-id', 'Test Phase', 2041, 2080)
 
@@ -25,8 +19,6 @@ describe('createDefaultWithdrawalSegment', () => {
       inflationConfig: {
         inflationRate: 0.02,
       },
-
-      incomeTaxRate: 0.18,
       steuerReduzierenEndkapital: true,
     })
   })
@@ -39,13 +31,11 @@ describe('createDefaultWithdrawalSegment', () => {
     expect(segment1.name).toBe('Early Retirement')
     expect(segment1.startYear).toBe(2041)
     expect(segment1.endYear).toBe(2050)
-    expect(segment1.incomeTaxRate).toBe(0.18)
 
     expect(segment2.id).toBe('id2')
     expect(segment2.name).toBe('Late Retirement')
     expect(segment2.startYear).toBe(2051)
     expect(segment2.endYear).toBe(2080)
-    expect(segment2.incomeTaxRate).toBe(0.18)
   })
 
   it('should have correct default return configuration', () => {

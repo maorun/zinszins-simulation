@@ -1261,7 +1261,6 @@ function getYearRealizedGainsTax(params: YearlyTaxesParams, totalRealizedGain: n
     params.teilfreistellungsquote,
     params.taxRate,
     params.guenstigerPruefungAktiv,
-    params.incomeTaxRate,
     params.kirchensteuerAktiv,
     params.kirchensteuersatz,
   )
@@ -2064,10 +2063,13 @@ function calculateYearIncomeTax(params: YearIncomeTaxParams): YearIncomeTaxResul
       healthCareInsuranceConfig,
     })
 
+    // Calculate income tax on total taxable income
+    // When incomeTaxRate is provided (Grundfreibetrag without Günstigerprüfung), use it
+    // When incomeTaxRate is undefined (Günstigerprüfung active), progressive tax is used in realized gains calculation
     einkommensteuer = calculateIncomeTax(
       totalTaxableIncome,
       yearlyGrundfreibetrag,
-      (incomeTaxRate || 0) / 100,
+      incomeTaxRate || 0,
       kirchensteuerAktiv,
       kirchensteuersatz,
     )
@@ -2257,7 +2259,6 @@ function calculateRealizedGainsTax(
   teilfreistellungsquote: number,
   taxRate: number,
   guenstigerPruefungAktiv: boolean,
-  incomeTaxRate: number | undefined,
   kirchensteuerAktiv: boolean,
   kirchensteuersatz: number,
 ): RealizedGainsTaxResult {
@@ -2268,16 +2269,18 @@ function calculateRealizedGainsTax(
   if (taxableGain > 0) {
     const gainAfterFreibetrag = Math.max(0, taxableGain - yearlyFreibetrag)
 
-    if (guenstigerPruefungAktiv && incomeTaxRate !== undefined && gainAfterFreibetrag > 0) {
+    if (guenstigerPruefungAktiv && gainAfterFreibetrag > 0) {
+      // When Günstigerprüfung is active, always use progressive tax
       guenstigerPruefungResult = performGuenstigerPruefung(
         gainAfterFreibetrag,
         taxRate,
-        incomeTaxRate,
+        undefined, // personalTaxRate not needed when using progressive tax
         teilfreistellungsquote,
         0,
         0,
         kirchensteuerAktiv,
         kirchensteuersatz,
+        true, // use progressive tax
       )
 
       if (guenstigerPruefungResult.isFavorable === 'personal') {
@@ -2474,8 +2477,9 @@ export type CalculateWithdrawalParams = {
   customPercentage?: number
   enableGrundfreibetrag?: boolean
   grundfreibetragPerYear?: { [year: number]: number }
+  // Income tax rate - only used when Grundfreibetrag is active WITHOUT Günstigerprüfung
   incomeTaxRate?: number
-  // Günstigerprüfung settings
+  // Günstigerprüfung settings - when active, uses progressive tax automatically (incomeTaxRate is ignored)
   guenstigerPruefungAktiv?: boolean
   // Church tax (Kirchensteuer) settings
   kirchensteuerAktiv?: boolean
@@ -2569,6 +2573,7 @@ export function calculateWithdrawal(params: CalculateWithdrawalParams): {
     kirchensteuerAktiv: params.kirchensteuerAktiv || false,
     kirchensteuersatz: params.kirchensteuersatz || 9,
     guenstigerPruefungAktiv: params.guenstigerPruefungAktiv || false,
+    incomeTaxRate: params.incomeTaxRate,
     baseWithdrawalAmount,
     getFreibetragForYear,
     getGrundfreibetragForYear,
@@ -2614,7 +2619,6 @@ export function calculateSegmentedWithdrawal(
       monthlyConfig: segment.monthlyConfig,
       customPercentage: segment.customPercentage,
 
-      incomeTaxRate: segment.incomeTaxRate,
       kirchensteuerAktiv: segmentedConfig.kirchensteuerAktiv ?? false,
       kirchensteuersatz: segmentedConfig.kirchensteuersatz ?? 9,
       inflationConfig: segment.inflationConfig,

@@ -34,7 +34,6 @@ interface TaxSectionsContentProps {
   yearToday: number
 }
 
-// eslint-disable-next-line max-lines-per-function
 export function TaxSectionsContent({ simulation, yearToday }: TaxSectionsContentProps) {
   const handlers = createTaxHandlers(
     simulation.performSimulation,
@@ -61,9 +60,7 @@ export function TaxSectionsContent({ simulation, yearToday }: TaxSectionsContent
       />
       <GuenstigerpruefungSection
         guenstigerPruefungAktiv={simulation.guenstigerPruefungAktiv}
-        personalTaxRate={simulation.personalTaxRate}
         onGuenstigerPruefungAktivChange={handlers.handleGuenstigerPruefungAktivChange}
-        onPersonalTaxRateChange={handlers.handlePersonalTaxRateChange}
       />
       <ProgressiveTaxInfoSection
         guenstigerPruefungAktiv={simulation.guenstigerPruefungAktiv}

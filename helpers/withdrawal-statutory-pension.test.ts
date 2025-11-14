@@ -39,7 +39,7 @@ describe('withdrawal-statutory-pension integration', () => {
       2042: 12500,
       2043: 13000,
     },
-    incomeTaxRate: 25, // 25% income tax rate
+    incomeTaxRate: 0.25, // 25% income tax rate for Grundfreibetrag calculations
   }
 
   it('should work without statutory pension (baseline)', () => {
@@ -211,7 +211,6 @@ describe('withdrawal-statutory-pension integration', () => {
     const { result } = calculateWithdrawal({
       ...baseParams,
       statutoryPensionConfig,
-      incomeTaxRate: 0, // No income tax
     })
 
     // Should have zero income tax
