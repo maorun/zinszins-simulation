@@ -6,13 +6,16 @@ import { getGrundfreibetragForPlanningMode, isStandardGrundfreibetragValue } fro
 import { TooltipProvider } from './ui/tooltip'
 import { GrundfreibetragConfiguration } from './tax-config/GrundfreibetragConfiguration'
 import { TaxConfigurationCard } from './tax-config/TaxConfigurationCard'
+import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
 }
 
+// eslint-disable-next-line max-lines-per-function
 const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps) => {
   const simulation = useSimulation()
+  const { currentConfig, updateFormValue } = useWithdrawalConfig()
   const yearToday = new Date().getFullYear()
   const recommendedGrundfreibetrag = getGrundfreibetragForPlanningMode(planningMode)
   const planningModeLabel = planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'
@@ -40,6 +43,8 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
             grundfreibetragBetrag={simulation.grundfreibetragBetrag}
             recommendedGrundfreibetrag={recommendedGrundfreibetrag}
             planningModeLabel={planningModeLabel}
+            guenstigerPruefungAktiv={simulation.guenstigerPruefungAktiv}
+            einkommensteuersatz={currentConfig.formValue.einkommensteuersatz}
             onGrundfreibetragAktivChange={checked => {
               simulation.setGrundfreibetragAktiv(checked)
               if (checked) simulation.setGrundfreibetragBetrag(recommendedGrundfreibetrag)
@@ -47,6 +52,10 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
             }}
             onGrundfreibetragBetragChange={value => {
               simulation.setGrundfreibetragBetrag(value)
+              simulation.performSimulation()
+            }}
+            onEinkommensteuersatzChange={value => {
+              updateFormValue({ einkommensteuersatz: value })
               simulation.performSimulation()
             }}
           />
