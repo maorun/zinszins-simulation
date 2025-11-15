@@ -47,7 +47,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Selbstständigkeit & Unternehmertum
 
-- **Schwankende Einkommen** - Unregelmäßige Einkommensmuster von Selbstständigen
 - **Betriebsrente-Alternativen** - Rürup-Rente, Basis-Rente für Selbstständige
 - **Geschäftsrisiko-Integration** - Ausfallrisiko des Haupteinkommens
 - **Unternehmensverkauf-Simulation** - Exit-Strategien und Steueroptimierung
@@ -167,7 +166,6 @@ Direkte Erweiterung der bestehenden Kernfunktionalität:
 Nützliche Ergänzungen für fortgeschrittene Nutzer:
 
 - **Alternative Investments** - REITs, Rohstoffe, Kryptowährungen
-- **Schwankende Einkommen für Selbstständige** - Wichtig für deutschen Markt
 - **Erweiterte Risikomanagement-Tools** - VaR, Stress-Tests erweitern
 - **Machine Learning Prognosen** - Kann vorhandene Monte Carlo Analyse ergänzen
 - **Versicherungsintegration** - Lebens-, Pflegeversicherung (BU-Versicherung bereits implementiert)
