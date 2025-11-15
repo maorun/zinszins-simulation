@@ -22,6 +22,21 @@ export type CreditTerms = {
   monthlyPayment?: number // Optional: calculated monthly payment
 }
 
+/**
+ * Income pattern for self-employed individuals with fluctuating income
+ * Allows modeling irregular income throughout the year
+ */
+export type IncomePattern = {
+  enabled: boolean
+  type: 'monthly' | 'quarterly' // Pattern frequency
+  // Monthly adjustments: 12 values (one per month) as percentage multipliers
+  // e.g., [1.2, 1.0, 0.8, ...] means +20%, normal, -20% for Jan, Feb, Mar
+  monthlyMultipliers?: number[]
+  // Quarterly adjustments: 4 values (one per quarter) as percentage multipliers
+  quarterlyMultipliers?: number[]
+  description?: string // User description of the pattern (e.g., "Seasonal business")
+}
+
 export type SpecialEventData = {
   // Inheritance-specific fields
   relationshipType?: RelationshipType
@@ -49,6 +64,8 @@ export type Sparplan = {
   // Special events data
   eventType?: 'normal' | 'inheritance' | 'expense' // Event type classification
   specialEventData?: SpecialEventData // Additional data for special events
+  // Fluctuating income pattern for self-employed
+  incomePattern?: IncomePattern // Optional income pattern for irregular contributions
 }
 
 export type SparplanElement =
@@ -87,6 +104,52 @@ export const initialSparplan: Sparplan = {
   einzahlung: 24000, // Updated to more realistic baseline (24,000€ annually = 2,000€ monthly)
 }
 
+/**
+ * Get the multiplier from monthly pattern
+ */
+function getMonthlyMultiplier(monthlyMultipliers: number[] | undefined, month: number): number {
+  return monthlyMultipliers?.[month] ?? 1.0
+}
+
+/**
+ * Get the multiplier from quarterly pattern
+ */
+function getQuarterlyMultiplier(
+  quarterlyMultipliers: number[] | undefined,
+  month: number,
+): number {
+  const quarter = Math.floor(month / 3)
+  return quarterlyMultipliers?.[quarter] ?? 1.0
+}
+
+/**
+ * Calculate the income multiplier for a given month based on the income pattern
+ * @param incomePattern - The income pattern configuration
+ * @param month - Zero-based month index (0 = January, 11 = December)
+ * @returns Multiplier to apply to the base amount (1.0 = no change)
+ */
+export function getIncomePatternMultiplier(
+  incomePattern: IncomePattern | undefined,
+  month: number,
+): number {
+  // Return default multiplier if pattern is not enabled
+  if (!incomePattern?.enabled) {
+    return 1.0
+  }
+
+  // Handle monthly pattern
+  if (incomePattern.type === 'monthly') {
+    return getMonthlyMultiplier(incomePattern.monthlyMultipliers, month)
+  }
+
+  // Handle quarterly pattern
+  if (incomePattern.type === 'quarterly') {
+    return getQuarterlyMultiplier(incomePattern.quarterlyMultipliers, month)
+  }
+
+  return 1.0
+}
+
 type CreateElementParams = {
   el: Sparplan
   year?: number
@@ -98,9 +161,18 @@ function createSparplanElement(params: CreateElementParams): SparplanElement {
   const { el, year, month, yearlyAmount } = params
   const monthlyPayment = month !== undefined
 
+  // Calculate base amount
+  let einzahlung = monthlyPayment ? el.einzahlung / 12 : (yearlyAmount ?? el.einzahlung)
+
+  // Apply income pattern multiplier for monthly payments
+  if (monthlyPayment && month !== undefined) {
+    const multiplier = getIncomePatternMultiplier(el.incomePattern, month)
+    einzahlung = einzahlung * multiplier
+  }
+
   return {
     start: monthlyPayment ? new Date(year + '-' + (month + 1) + '-01') : new Date(year + '-01-01'),
-    einzahlung: monthlyPayment ? el.einzahlung / 12 : (yearlyAmount ?? el.einzahlung),
+    einzahlung,
     type: 'sparplan',
     simulation: {},
     ter: el.ter,
