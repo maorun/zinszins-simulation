@@ -44,7 +44,7 @@ export function HomePageOverviewSection({ overviewRef }: HomePageOverviewSection
       
       {/* Retirement-Readiness Score - shown when withdrawal phase is active */}
       {enhancedSummary && withdrawalResults && planningYears > 0 && (
-        <Collapsible defaultOpen={true}>
+        <Collapsible defaultOpen={false}>
           <Card>
             <CollapsibleCardHeader>
               🎯 Retirement-Readiness Score

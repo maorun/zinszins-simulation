@@ -1,5 +1,6 @@
 import { RefObject } from 'react'
 import { HomePageHeaderSection } from './HomePageHeaderSection'
+import { HomePageConfigurationSection } from './HomePageConfigurationSection'
 import { HomePageAnalysisSection } from './HomePageAnalysisSection'
 import { HomePageOverviewSection } from './HomePageOverviewSection'
 import { HomePageSpecialEvents } from './HomePageSpecialEvents'
@@ -14,13 +15,14 @@ export function HomePageMainContent({ overviewRef }: HomePageMainContentProps) {
 
   return (
     <>
-      <HomePageHeaderSection
-        handleRecalculate={handleRecalculate}
+      <HomePageHeaderSection handleRecalculate={handleRecalculate} />
+
+      <HomePageOverviewSection overviewRef={overviewRef} />
+
+      <HomePageConfigurationSection
         handleApplyScenario={handleApplyScenario}
         startOfIndependence={phaseDateRanges.savingsStartYear}
       />
-
-      <HomePageOverviewSection overviewRef={overviewRef} />
 
       <HomePageSpecialEvents />
 
