@@ -37,6 +37,30 @@ function normalizeAssetAllocations(config: MultiAssetPortfolioConfig): MultiAsse
 }
 
 /**
+ * Apply optimized allocations from portfolio optimizer
+ */
+function applyAllocationsToConfig(
+  config: MultiAssetPortfolioConfig,
+  allocations: Record<AssetClass, number>,
+): MultiAssetPortfolioConfig {
+  const updatedAssetClasses = { ...config.assetClasses }
+
+  for (const [asset, allocation] of Object.entries(allocations)) {
+    if (updatedAssetClasses[asset as AssetClass]) {
+      updatedAssetClasses[asset as AssetClass] = {
+        ...updatedAssetClasses[asset as AssetClass],
+        targetAllocation: allocation,
+      }
+    }
+  }
+
+  return {
+    ...config,
+    assetClasses: updatedAssetClasses,
+  }
+}
+
+/**
  * Hook for basic config change handlers
  */
 function useBasicConfigHandlers({ config, onChange }: UseMultiAssetHandlersProps) {
@@ -112,10 +136,18 @@ export function useMultiAssetHandlers({ config, onChange }: UseMultiAssetHandler
     onChange(normalizeAssetAllocations(config))
   }, [config, onChange])
 
+  const applyOptimizedAllocations = useCallback(
+    (allocations: Record<AssetClass, number>) => {
+      onChange(applyAllocationsToConfig(config, allocations))
+    },
+    [config, onChange],
+  )
+
   return {
     ...basicHandlers,
     handleAssetClassChange,
     resetToDefaults,
     normalizeAllocations,
+    applyOptimizedAllocations,
   }
 }

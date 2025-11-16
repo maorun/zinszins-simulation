@@ -1,12 +1,12 @@
-import { Card, CardContent } from './ui/card'
+import { Card } from './ui/card'
 import {
   type MultiAssetPortfolioConfig,
   createDefaultMultiAssetConfig,
   validateMultiAssetConfig,
 } from '../../helpers/multi-asset-portfolio'
 import { MultiAssetHeader } from './multi-asset/MultiAssetHeader'
-import { MultiAssetConfigurationContent } from './multi-asset/MultiAssetConfigurationContent'
 import { MultiAssetLoadingState } from './multi-asset/MultiAssetLoadingState'
+import { MultiAssetContent } from './MultiAssetContent'
 import { usePortfolioMetrics } from '../hooks/usePortfolioMetrics'
 import { useMultiAssetHandlers } from '../hooks/useMultiAssetHandlers'
 
@@ -20,21 +20,19 @@ interface MultiAssetPortfolioConfigurationProps {
 }
 
 /**
- * Validate and get safe configuration values
+ * Validate and return safe configuration with fallback
  */
-function getSafeMultiAssetConfig(
+function useSafeMultiAssetConfig(
   values: MultiAssetPortfolioConfig | undefined,
   onChange: (config: MultiAssetPortfolioConfig) => void,
 ): MultiAssetPortfolioConfig | null {
-  // Ensure we have a valid configuration object
   const safeValues = values || createDefaultMultiAssetConfig()
 
-  // Additional safety check - if safeValues is still undefined or malformed, create a minimal valid config
   if (!safeValues || typeof safeValues !== 'object' || !safeValues.assetClasses) {
     console.warn('MultiAssetPortfolioConfiguration received invalid values, using default config')
     const fallbackConfig = createDefaultMultiAssetConfig()
     onChange?.(fallbackConfig)
-    return null // Signal that fallback UI should be shown
+    return null
   }
 
   return safeValues
@@ -45,7 +43,7 @@ export function MultiAssetPortfolioConfiguration({
   onChange,
   nestingLevel = 0,
 }: MultiAssetPortfolioConfigurationProps) {
-  const safeValues = getSafeMultiAssetConfig(values, onChange)
+  const safeValues = useSafeMultiAssetConfig(values, onChange)
 
   // Use custom hooks for metrics and handlers - must be called unconditionally
   const { enabledAssets, expectedPortfolioReturn, expectedPortfolioRisk } = usePortfolioMetrics(
@@ -59,6 +57,7 @@ export function MultiAssetPortfolioConfiguration({
     handleSimulationChange,
     resetToDefaults,
     normalizeAllocations,
+    applyOptimizedAllocations,
   } = useMultiAssetHandlers({
     config: safeValues || createDefaultMultiAssetConfig(),
     onChange,
@@ -79,22 +78,21 @@ export function MultiAssetPortfolioConfiguration({
         onEnabledChange={enabled => handleConfigChange({ enabled })}
         nestingLevel={nestingLevel}
       />
-      <CardContent nestingLevel={nestingLevel}>
-        {safeValues.enabled && (
-          <MultiAssetConfigurationContent
-            config={safeValues}
-            expectedPortfolioReturn={expectedPortfolioReturn}
-            expectedPortfolioRisk={expectedPortfolioRisk}
-            enabledAssetsCount={enabledAssets.length}
-            validationErrors={validationErrors}
-            onAssetClassChange={handleAssetClassChange}
-            onNormalizeAllocations={normalizeAllocations}
-            onResetToDefaults={resetToDefaults}
-            onRebalancingChange={handleRebalancingChange}
-            onSimulationChange={handleSimulationChange}
-          />
-        )}
-      </CardContent>
+      <MultiAssetContent
+        enabled={safeValues.enabled}
+        config={safeValues}
+        expectedPortfolioReturn={expectedPortfolioReturn}
+        expectedPortfolioRisk={expectedPortfolioRisk}
+        enabledAssetsCount={enabledAssets.length}
+        validationErrors={validationErrors}
+        nestingLevel={nestingLevel}
+        onAssetClassChange={handleAssetClassChange}
+        onNormalizeAllocations={normalizeAllocations}
+        onResetToDefaults={resetToDefaults}
+        onRebalancingChange={handleRebalancingChange}
+        onSimulationChange={handleSimulationChange}
+        onApplyOptimizedAllocations={applyOptimizedAllocations}
+      />
     </Card>
   )
 }

@@ -4,6 +4,7 @@ import { AssetClassesConfiguration } from './AssetClassesConfiguration'
 import { RebalancingConfiguration } from './RebalancingConfiguration'
 import { AdvancedSimulationSettings } from './AdvancedSimulationSettings'
 import { CorrelationMatrixHeatmap } from './CorrelationMatrixHeatmap'
+import { PortfolioOptimizer } from './PortfolioOptimizer'
 import { Info } from 'lucide-react'
 
 /** Information section component for multi-asset portfolio hints */
@@ -40,6 +41,7 @@ interface MultiAssetConfigurationContentProps {
   onResetToDefaults: () => void
   onRebalancingChange: (updates: Partial<MultiAssetPortfolioConfig['rebalancing']>) => void
   onSimulationChange: (updates: Partial<MultiAssetPortfolioConfig['simulation']>) => void
+  onApplyOptimizedAllocations: (allocations: Record<AssetClass, number>) => void
 }
 
 /**
@@ -56,6 +58,7 @@ export function MultiAssetConfigurationContent({
   onResetToDefaults,
   onRebalancingChange,
   onSimulationChange,
+  onApplyOptimizedAllocations,
 }: MultiAssetConfigurationContentProps) {
   return (
     <div className="space-y-6">
@@ -65,6 +68,8 @@ export function MultiAssetConfigurationContent({
         enabledAssetsCount={enabledAssetsCount}
         validationErrors={validationErrors}
       />
+
+      <PortfolioOptimizer config={config} onApplyAllocations={onApplyOptimizedAllocations} />
 
       <AssetClassesConfiguration
         config={config}
