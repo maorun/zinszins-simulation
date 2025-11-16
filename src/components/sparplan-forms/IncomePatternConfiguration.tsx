@@ -67,73 +67,12 @@ function getInitialPattern(incomePattern?: IncomePattern): IncomePattern {
 }
 
 /**
- * Component for configuring fluctuating income patterns for self-employed individuals
- * Allows users to define monthly or quarterly income variations
+ * Custom hook for basic pattern state management
  */
-// eslint-disable-next-line max-lines-per-function
-export function IncomePatternConfiguration({
-  incomePattern,
-  onChange,
-}: IncomePatternConfigurationProps) {
+function usePatternState(incomePattern: IncomePattern | undefined) {
   const [localPattern, setLocalPattern] = useState<IncomePattern>(() =>
     getInitialPattern(incomePattern),
   )
-
-  // Generate stable unique IDs for form elements
-  const enabledSwitchId = useMemo(() => generateFormId('income-pattern', 'enabled'), [])
-  const descriptionId = useMemo(() => generateFormId('income-pattern', 'description'), [])
-
-  const handleEnabledChange = (enabled: boolean) => {
-    const updated = { ...localPattern, enabled }
-    setLocalPattern(updated)
-    onChange(enabled ? updated : undefined)
-  }
-
-  const handleTypeChange = (type: 'monthly' | 'quarterly') => {
-    const updated = { ...localPattern, type }
-    setLocalPattern(updated)
-    onChange(localPattern.enabled ? updated : undefined)
-  }
-
-  const handleMultiplierChange = (index: number, value: string) => {
-    const numValue = parseFloat(value) || 1.0
-    const updated = { ...localPattern }
-
-    if (localPattern.type === 'monthly') {
-      updated.monthlyMultipliers = [...(localPattern.monthlyMultipliers || Array(12).fill(1.0))]
-      updated.monthlyMultipliers[index] = numValue
-    } else {
-      updated.quarterlyMultipliers = [...(localPattern.quarterlyMultipliers || Array(4).fill(1.0))]
-      updated.quarterlyMultipliers[index] = numValue
-    }
-
-    setLocalPattern(updated)
-    onChange(localPattern.enabled ? updated : undefined)
-  }
-
-  const handleDescriptionChange = (description: string) => {
-    const updated = { ...localPattern, description }
-    setLocalPattern(updated)
-    onChange(localPattern.enabled ? updated : undefined)
-  }
-
-  const resetToNormal = () => {
-    const updated = { ...localPattern }
-    if (localPattern.type === 'monthly') {
-      updated.monthlyMultipliers = Array(12).fill(1.0)
-    } else {
-      updated.quarterlyMultipliers = Array(4).fill(1.0)
-    }
-    setLocalPattern(updated)
-    onChange(localPattern.enabled ? updated : undefined)
-  }
-
-  const applyPreset = (preset: 'seasonal' | 'quarterly-cycle') => {
-    const presetData = preset === 'seasonal' ? PRESETS.seasonal : PRESETS.quarterlyCycle
-    const updated = { ...localPattern, ...presetData }
-    setLocalPattern(updated)
-    onChange(localPattern.enabled ? updated : undefined)
-  }
 
   const multipliers =
     localPattern.type === 'monthly'
@@ -142,49 +81,215 @@ export function IncomePatternConfiguration({
 
   const periodNames = localPattern.type === 'monthly' ? MONTH_NAMES : QUARTER_NAMES
 
+  return { localPattern, setLocalPattern, multipliers, periodNames }
+}
+
+/**
+ * Update multiplier value in pattern
+ */
+function updateMultiplierValue(pattern: IncomePattern, index: number, numValue: number): IncomePattern {
+  const updated = { ...pattern }
+  if (pattern.type === 'monthly') {
+    updated.monthlyMultipliers = [...(pattern.monthlyMultipliers || Array(12).fill(1.0))]
+    updated.monthlyMultipliers[index] = numValue
+  } else {
+    updated.quarterlyMultipliers = [...(pattern.quarterlyMultipliers || Array(4).fill(1.0))]
+    updated.quarterlyMultipliers[index] = numValue
+  }
+  return updated
+}
+
+/**
+ * Custom hook for pattern handlers
+ */
+function usePatternHandlers(
+  localPattern: IncomePattern,
+  setLocalPattern: (pattern: IncomePattern) => void,
+  onChange: (pattern: IncomePattern | undefined) => void,
+) {
+  const updatePattern = (updater: (pattern: IncomePattern) => IncomePattern) => {
+    const updated = updater(localPattern)
+    setLocalPattern(updated)
+    onChange(updated.enabled ? updated : undefined)
+  }
+
+  const handleEnabledChange = (enabled: boolean) => {
+    updatePattern(pattern => ({ ...pattern, enabled }))
+  }
+
+  const handleTypeChange = (type: 'monthly' | 'quarterly') => {
+    updatePattern(pattern => ({ ...pattern, type }))
+  }
+
+  const handleMultiplierChange = (index: number, value: string) => {
+    const numValue = parseFloat(value) || 1.0
+    updatePattern(pattern => updateMultiplierValue(pattern, index, numValue))
+  }
+
+  const handleDescriptionChange = (description: string) => {
+    updatePattern(pattern => ({ ...pattern, description }))
+  }
+
+  const resetToNormal = () => {
+    updatePattern(pattern => ({
+      ...pattern,
+      monthlyMultipliers: pattern.type === 'monthly' ? Array(12).fill(1.0) : pattern.monthlyMultipliers,
+      quarterlyMultipliers:
+        pattern.type === 'quarterly' ? Array(4).fill(1.0) : pattern.quarterlyMultipliers,
+    }))
+  }
+
+  const applyPreset = (preset: 'seasonal' | 'quarterly-cycle') => {
+    const presetData = preset === 'seasonal' ? PRESETS.seasonal : PRESETS.quarterlyCycle
+    updatePattern(pattern => ({ ...pattern, ...presetData }))
+  }
+
+  return {
+    handleEnabledChange,
+    handleTypeChange,
+    handleMultiplierChange,
+    handleDescriptionChange,
+    resetToNormal,
+    applyPreset,
+  }
+}
+
+/**
+ * Custom hook for managing income pattern state and handlers
+ */
+function useIncomePatternState(
+  incomePattern: IncomePattern | undefined,
+  onChange: (pattern: IncomePattern | undefined) => void,
+) {
+  const { localPattern, setLocalPattern, multipliers, periodNames } = usePatternState(incomePattern)
+  const handlers = usePatternHandlers(localPattern, setLocalPattern, onChange)
+
+  return {
+    localPattern,
+    multipliers,
+    periodNames,
+    ...handlers,
+  }
+}
+
+/**
+ * Component for configuring fluctuating income patterns for self-employed individuals
+ * Allows users to define monthly or quarterly income variations
+ */
+export function IncomePatternConfiguration({
+  incomePattern,
+  onChange,
+}: IncomePatternConfigurationProps) {
+  const state = useIncomePatternState(incomePattern, onChange)
+  const enabledSwitchId = useMemo(() => generateFormId('income-pattern', 'enabled'), [])
+  const descriptionId = useMemo(() => generateFormId('income-pattern', 'description'), [])
+
+  return (
+    <IncomePatternCard
+      state={state}
+      enabledSwitchId={enabledSwitchId}
+      descriptionId={descriptionId}
+    />
+  )
+}
+
+/**
+ * Main card component for income pattern configuration
+ */
+function IncomePatternCard({
+  state,
+  enabledSwitchId,
+  descriptionId,
+}: {
+  state: ReturnType<typeof useIncomePatternState>
+  enabledSwitchId: string
+  descriptionId: string
+}) {
   return (
     <Card className="w-full">
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <span>Schwankende Einkommen (Selbstständige)</span>
-          <Info className="h-4 w-4 text-muted-foreground" />
-        </CardTitle>
-        <CardDescription>
-          Für Selbstständige: Definieren Sie unregelmäßige Einkommensmuster (z.B. saisonale
-          Schwankungen, Projektgeschäft)
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <EnabledSwitch
-          id={enabledSwitchId}
-          enabled={localPattern.enabled}
-          onChange={handleEnabledChange}
-        />
-
-        {localPattern.enabled && (
-          <>
-            <PatternTypeSelector type={localPattern.type} onChange={handleTypeChange} />
-
-            <PresetButtons onApplyPreset={applyPreset} onReset={resetToNormal} />
-
-            <MultiplierInputs
-              type={localPattern.type}
-              multipliers={multipliers}
-              periodNames={periodNames}
-              onChange={handleMultiplierChange}
-            />
-
-            <DescriptionField
-              id={descriptionId}
-              value={localPattern.description || ''}
-              onChange={handleDescriptionChange}
-            />
-
-            <InfoPanel />
-          </>
-        )}
-      </CardContent>
+      <IncomePatternCardHeader />
+      <IncomePatternCardContent
+        state={state}
+        enabledSwitchId={enabledSwitchId}
+        descriptionId={descriptionId}
+      />
     </Card>
+  )
+}
+
+/**
+ * Card header component
+ */
+function IncomePatternCardHeader() {
+  return (
+    <CardHeader>
+      <CardTitle className="flex items-center gap-2">
+        <span>Schwankende Einkommen (Selbstständige)</span>
+        <Info className="h-4 w-4 text-muted-foreground" />
+      </CardTitle>
+      <CardDescription>
+        Für Selbstständige: Definieren Sie unregelmäßige Einkommensmuster (z.B. saisonale
+        Schwankungen, Projektgeschäft)
+      </CardDescription>
+    </CardHeader>
+  )
+}
+
+/**
+ * Card content component
+ */
+function IncomePatternCardContent({
+  state,
+  enabledSwitchId,
+  descriptionId,
+}: {
+  state: ReturnType<typeof useIncomePatternState>
+  enabledSwitchId: string
+  descriptionId: string
+}) {
+  const {
+    localPattern,
+    multipliers,
+    periodNames,
+    handleEnabledChange,
+    handleTypeChange,
+    handleMultiplierChange,
+    handleDescriptionChange,
+    resetToNormal,
+    applyPreset,
+  } = state
+
+  return (
+    <CardContent className="space-y-4">
+      <EnabledSwitch
+        id={enabledSwitchId}
+        enabled={localPattern.enabled}
+        onChange={handleEnabledChange}
+      />
+
+      {localPattern.enabled && (
+        <>
+          <PatternTypeSelector type={localPattern.type} onChange={handleTypeChange} />
+
+          <PresetButtons onApplyPreset={applyPreset} onReset={resetToNormal} />
+
+          <MultiplierInputs
+            type={localPattern.type}
+            multipliers={multipliers}
+            periodNames={periodNames}
+            onChange={handleMultiplierChange}
+          />
+
+          <DescriptionField
+            id={descriptionId}
+            value={localPattern.description || ''}
+            onChange={handleDescriptionChange}
+          />
+
+          <InfoPanel />
+        </>
+      )}
+    </CardContent>
   )
 }
 
