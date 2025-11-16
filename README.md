@@ -25,6 +25,12 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Portfolio-Übersicht** - Real-time Berechnung der erwarteten Portfolio-Rendite und des Portfolio-Risikos
   - **Automatisches Rebalancing** - Konfigurierbare Rebalancing-Häufigkeit (jährlich, quartalsweise, monatlich) mit Schwellenwert-basiertem Rebalancing
   - **Korrelationsmatrix** - Berücksichtigung historischer Korrelationen zwischen Anlageklassen für realistische Simulationen
+  - **Korrelations-Heatmap** - Visuelle Darstellung der Korrelationsmatrix mit farbcodierter Heatmap
+    - **Interaktive Visualisierung** - Zeigt Korrelationen zwischen allen aktivierten Anlageklassen
+    - **Farbcodierung** - Positive Korrelationen in Blau, negative in Rot mit Intensität basierend auf Stärke
+    - **Tooltips** - Detaillierte Informationen zu jeder Korrelation beim Hover
+    - **Responsive Design** - Automatische Anpassung an Bildschirmgröße mit horizontalem Scrolling
+    - **Dynamische Anzeige** - Nur sichtbar wenn Korrelationen aktiviert sind und mindestens 2 Anlageklassen gewählt
   - **Deutsche Steuerregeln** - Vollständige Integration der Teilfreistellung für Aktien und REITs
   - **Portfolio-Validierung** - Automatische Validierung der Allokationen mit deutschen Fehlermeldungen
   - **Normalisierungsfunktion** - Ein-Klick Normalisierung der Allokationen auf 100%

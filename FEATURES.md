@@ -89,7 +89,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Automated Reporting** - Regelmäßige lokale Reports
 - **Advanced Export Options** - Excel mit Formeln, PDF-Reports
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
-- **Heatmaps** - Korrelationsmatrizen und Risikoverteilungen
 - **Animation/Timeline** - Zeitbasierte Animationen der Portfolioentwicklung
 
 ### Beratungs- & Bildungsfeatures
