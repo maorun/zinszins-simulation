@@ -3,6 +3,7 @@ import { AssetAllocationSummary } from './AssetAllocationSummary'
 import { AssetClassesConfiguration } from './AssetClassesConfiguration'
 import { RebalancingConfiguration } from './RebalancingConfiguration'
 import { AdvancedSimulationSettings } from './AdvancedSimulationSettings'
+import { CorrelationMatrixHeatmap } from './CorrelationMatrixHeatmap'
 import { Info } from 'lucide-react'
 
 /** Information section component for multi-asset portfolio hints */
@@ -76,6 +77,8 @@ export function MultiAssetConfigurationContent({
       <RebalancingConfiguration config={config.rebalancing} onChange={onRebalancingChange} />
 
       <AdvancedSimulationSettings config={config.simulation} onChange={onSimulationChange} />
+
+      {config.simulation.useCorrelation && <CorrelationMatrixHeatmap config={config} />}
 
       <MultiAssetInfoSection />
     </div>
