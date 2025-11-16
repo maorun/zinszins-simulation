@@ -1,8 +1,9 @@
 import React from 'react'
-import { type SimulationAnnualType } from '../utils/simulate'
+import { type SimulationAnnualType, SimulationAnnual } from '../utils/simulate'
 import { type SparplanFormValue } from './SparplanEingabe.helpers'
 import { SparplanFormFields } from './sparplan-forms/SparplanFormFields'
 import { CostFactorFields } from './sparplan-forms/CostFactorFields'
+import { IncomePatternConfiguration } from './sparplan-forms/IncomePatternConfiguration'
 import { Button } from './ui/button'
 import { Card, CardContent } from './ui/card'
 import { Collapsible, CollapsibleContent } from './ui/collapsible'
@@ -102,6 +103,15 @@ function SparplanForm({
         onValueChange={values => onFormChange({ ...formValues, ...values })}
         handleNumberChange={handleNumberChange}
       />
+      {/* Income pattern configuration - only shown for monthly mode */}
+      {simulationAnnual === SimulationAnnual.monthly && (
+        <div className="mb-4">
+          <IncomePatternConfiguration
+            incomePattern={formValues.incomePattern}
+            onChange={pattern => onFormChange({ ...formValues, incomePattern: pattern })}
+          />
+        </div>
+      )}
       <SparplanFormButtons
         isEditMode={isEditMode}
         showCancelButton={showCancelButton}

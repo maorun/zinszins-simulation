@@ -36,6 +36,13 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 ### Sparplan, Einmalzahlungen und Sonderereignisse
 
 - **Sparpläne** - Regelmäßige monatliche oder jährliche Einzahlungen
+- **Schwankende Einkommen (Selbstständige)** - Unregelmäßige Einkommensmuster für Selbstständige
+  - **Monatliche Muster** - Definition individueller Multiplikatoren für jeden Monat des Jahres
+  - **Quartalsweise Muster** - Vereinfachte Konfiguration auf Quartalsbasis
+  - **Vorlagen** - Vordefinierte Muster (saisonales Geschäft, Quartalszyklus)
+  - **Flexible Anpassung** - Multiplikatoren von 0 bis 3 (z.B. 1.5 = +50%, 0.5 = -50%)
+  - **Nur monatliche Berechnung** - Feature nur verfügbar bei monatlicher Berechnung
+  - **Realistische Modellierung** - Ermöglicht präzise Planung bei unregelmäßigem Einkommen
 - **Einmalzahlungen** - Einmalige Zahlungen mit Datum und Betrag
 - **Sonderereignisse** - Besondere finanzielle Ereignisse im Lebensverlauf
   - **💰 Erbschaften** - Berücksichtigung deutscher Erbschaftsteuer nach Verwandtschaftsgrad

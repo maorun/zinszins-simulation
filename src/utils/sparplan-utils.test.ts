@@ -293,4 +293,243 @@ describe('sparplan-utils', () => {
       expect(byYear[2041]).toBeUndefined()
     })
   })
+
+  describe('Income Pattern for Self-Employed (Fluctuating Income)', () => {
+    test('should apply monthly income pattern multipliers correctly', () => {
+      const sparplan: Sparplan = {
+        id: 1,
+        start: new Date('2025-01-01'),
+        end: new Date('2025-12-31'),
+        einzahlung: 24000, // 24000€ annually = 2000€/month base
+        incomePattern: {
+          enabled: true,
+          type: 'monthly',
+          // Seasonal pattern: higher income in Q1 and Q4, lower in summer
+          monthlyMultipliers: [
+            1.3, 1.2, 1.1, // Q1: High season (Jan-Mar)
+            1.0, 0.9, 0.8, // Q2: Normal to low (Apr-Jun)
+            0.7, 0.8, 0.9, // Q3: Low to normal (Jul-Sep)
+            1.0, 1.2, 1.4, // Q4: Normal to high (Oct-Dec)
+          ],
+          description: 'Seasonal business pattern',
+        },
+      }
+
+      const startEnd: [number, number] = [2025, 2080]
+      const elements = convertSparplanToElements([sparplan], startEnd, SimulationAnnual.monthly)
+
+      // Should create 12 monthly elements
+      expect(elements).toHaveLength(12)
+
+      // Base monthly amount is 2000€ (24000/12)
+      const baseMonthly = 2000
+
+      // Verify each month has correct multiplier applied
+      expect(elements[0].einzahlung).toBeCloseTo(baseMonthly * 1.3, 2) // Jan: +30%
+      expect(elements[1].einzahlung).toBeCloseTo(baseMonthly * 1.2, 2) // Feb: +20%
+      expect(elements[2].einzahlung).toBeCloseTo(baseMonthly * 1.1, 2) // Mar: +10%
+      expect(elements[3].einzahlung).toBeCloseTo(baseMonthly * 1.0, 2) // Apr: Normal
+      expect(elements[4].einzahlung).toBeCloseTo(baseMonthly * 0.9, 2) // May: -10%
+      expect(elements[5].einzahlung).toBeCloseTo(baseMonthly * 0.8, 2) // Jun: -20%
+      expect(elements[6].einzahlung).toBeCloseTo(baseMonthly * 0.7, 2) // Jul: -30%
+      expect(elements[7].einzahlung).toBeCloseTo(baseMonthly * 0.8, 2) // Aug: -20%
+      expect(elements[8].einzahlung).toBeCloseTo(baseMonthly * 0.9, 2) // Sep: -10%
+      expect(elements[9].einzahlung).toBeCloseTo(baseMonthly * 1.0, 2) // Oct: Normal
+      expect(elements[10].einzahlung).toBeCloseTo(baseMonthly * 1.2, 2) // Nov: +20%
+      expect(elements[11].einzahlung).toBeCloseTo(baseMonthly * 1.4, 2) // Dec: +40%
+
+      // Total reflects the actual fluctuating income (sum of all multipliers * base)
+      // Sum of multipliers: 1.3+1.2+1.1+1.0+0.9+0.8+0.7+0.8+0.9+1.0+1.2+1.4 = 12.3
+      // Expected total: 2000 * 12.3 = 24,600€
+      const total = elements.reduce((sum, el) => sum + el.einzahlung, 0)
+      expect(total).toBeCloseTo(24600, 2)
+    })
+
+    test('should apply quarterly income pattern multipliers correctly', () => {
+      const sparplan: Sparplan = {
+        id: 1,
+        start: new Date('2025-01-01'),
+        end: new Date('2025-12-31'),
+        einzahlung: 24000, // 24000€ annually
+        incomePattern: {
+          enabled: true,
+          type: 'quarterly',
+          // Q1: Low, Q2: Medium, Q3: High, Q4: Medium
+          quarterlyMultipliers: [0.8, 1.0, 1.3, 0.9],
+          description: 'Quarterly business cycle',
+        },
+      }
+
+      const startEnd: [number, number] = [2025, 2080]
+      const elements = convertSparplanToElements([sparplan], startEnd, SimulationAnnual.monthly)
+
+      expect(elements).toHaveLength(12)
+
+      const baseMonthly = 2000 // 24000/12
+
+      // Q1 (Jan-Mar): 0.8 multiplier
+      for (let i = 0; i < 3; i++) {
+        expect(elements[i].einzahlung).toBeCloseTo(baseMonthly * 0.8, 2)
+      }
+
+      // Q2 (Apr-Jun): 1.0 multiplier
+      for (let i = 3; i < 6; i++) {
+        expect(elements[i].einzahlung).toBeCloseTo(baseMonthly * 1.0, 2)
+      }
+
+      // Q3 (Jul-Sep): 1.3 multiplier
+      for (let i = 6; i < 9; i++) {
+        expect(elements[i].einzahlung).toBeCloseTo(baseMonthly * 1.3, 2)
+      }
+
+      // Q4 (Oct-Dec): 0.9 multiplier
+      for (let i = 9; i < 12; i++) {
+        expect(elements[i].einzahlung).toBeCloseTo(baseMonthly * 0.9, 2)
+      }
+
+      // Total reflects the actual fluctuating income
+      // (3*0.8 + 3*1.0 + 3*1.3 + 3*0.9) * 2000 = 12.0 * 2000 = 24,000€
+      const total = elements.reduce((sum, el) => sum + el.einzahlung, 0)
+      expect(total).toBeCloseTo(24000, 2)
+    })
+
+    test('should not apply income pattern when disabled', () => {
+      const sparplan: Sparplan = {
+        id: 1,
+        start: new Date('2025-01-01'),
+        end: new Date('2025-12-31'),
+        einzahlung: 24000,
+        incomePattern: {
+          enabled: false, // Pattern is disabled
+          type: 'monthly',
+          monthlyMultipliers: [1.5, 1.5, 1.5, 1.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0],
+        },
+      }
+
+      const startEnd: [number, number] = [2025, 2080]
+      const elements = convertSparplanToElements([sparplan], startEnd, SimulationAnnual.monthly)
+
+      expect(elements).toHaveLength(12)
+
+      const baseMonthly = 2000
+
+      // All months should have the same base amount (pattern disabled)
+      elements.forEach(el => {
+        expect(el.einzahlung).toBeCloseTo(baseMonthly, 2)
+      })
+    })
+
+    test('should handle income pattern with yearly simulation (pattern not applied)', () => {
+      const sparplan: Sparplan = {
+        id: 1,
+        start: new Date('2025-01-01'),
+        end: new Date('2027-12-31'),
+        einzahlung: 24000,
+        incomePattern: {
+          enabled: true,
+          type: 'monthly',
+          monthlyMultipliers: [1.5, 1.5, 1.5, 1.5, 0.5, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0, 1.0],
+        },
+      }
+
+      const startEnd: [number, number] = [2027, 2080]
+      const elements = convertSparplanToElements([sparplan], startEnd, SimulationAnnual.yearly)
+
+      // Should create yearly elements (pattern only applies to monthly)
+      expect(elements).toHaveLength(3)
+
+      // Each year should have the full annual amount
+      elements.forEach(el => {
+        expect(el.einzahlung).toBeCloseTo(24000, 2)
+      })
+    })
+
+    test('should handle missing multipliers gracefully (use 1.0 as default)', () => {
+      const sparplan: Sparplan = {
+        id: 1,
+        start: new Date('2025-01-01'),
+        end: new Date('2025-12-31'),
+        einzahlung: 24000,
+        incomePattern: {
+          enabled: true,
+          type: 'monthly',
+          // Missing multipliers - should default to 1.0
+        },
+      }
+
+      const startEnd: [number, number] = [2025, 2080]
+      const elements = convertSparplanToElements([sparplan], startEnd, SimulationAnnual.monthly)
+
+      expect(elements).toHaveLength(12)
+
+      const baseMonthly = 2000
+
+      // All months should use default multiplier of 1.0
+      elements.forEach(el => {
+        expect(el.einzahlung).toBeCloseTo(baseMonthly, 2)
+      })
+    })
+
+    test('should handle income pattern across multiple years', () => {
+      const sparplan: Sparplan = {
+        id: 1,
+        start: new Date('2025-01-01'),
+        end: new Date('2026-12-31'),
+        einzahlung: 24000,
+        incomePattern: {
+          enabled: true,
+          type: 'quarterly',
+          quarterlyMultipliers: [1.2, 1.0, 0.8, 1.0],
+        },
+      }
+
+      const startEnd: [number, number] = [2026, 2080]
+      const elements = convertSparplanToElements([sparplan], startEnd, SimulationAnnual.monthly)
+
+      // Should create 24 monthly elements (2 years * 12 months)
+      expect(elements).toHaveLength(24)
+
+      const baseMonthly = 2000
+
+      // Verify pattern repeats correctly in both years
+      // 2025 Q1
+      expect(elements[0].einzahlung).toBeCloseTo(baseMonthly * 1.2, 2)
+      expect(elements[1].einzahlung).toBeCloseTo(baseMonthly * 1.2, 2)
+
+      // 2026 Q1 (should repeat same pattern)
+      expect(elements[12].einzahlung).toBeCloseTo(baseMonthly * 1.2, 2)
+      expect(elements[13].einzahlung).toBeCloseTo(baseMonthly * 1.2, 2)
+    })
+
+    test('should combine income pattern with partial year calculation', () => {
+      const sparplan: Sparplan = {
+        id: 1,
+        start: new Date('2025-06-01'), // Starts mid-year
+        end: new Date('2025-12-31'),
+        einzahlung: 24000, // Annual amount
+        incomePattern: {
+          enabled: true,
+          type: 'monthly',
+          monthlyMultipliers: [1.0, 1.0, 1.0, 1.0, 1.0, 1.5, 1.5, 1.5, 1.0, 1.0, 0.5, 0.5],
+        },
+      }
+
+      const startEnd: [number, number] = [2025, 2080]
+      const elements = convertSparplanToElements([sparplan], startEnd, SimulationAnnual.monthly)
+
+      // Should only create elements from June (month 5) to December (month 11) = 7 months
+      expect(elements).toHaveLength(7)
+
+      const baseMonthly = 2000
+
+      // June (index 5): 1.5 multiplier
+      expect(elements[0].einzahlung).toBeCloseTo(baseMonthly * 1.5, 2)
+      // July (index 6): 1.5 multiplier
+      expect(elements[1].einzahlung).toBeCloseTo(baseMonthly * 1.5, 2)
+      // November (index 10): 0.5 multiplier
+      expect(elements[5].einzahlung).toBeCloseTo(baseMonthly * 0.5, 2)
+      // December (index 11): 0.5 multiplier
+      expect(elements[6].einzahlung).toBeCloseTo(baseMonthly * 0.5, 2)
+    })
+  })
 })

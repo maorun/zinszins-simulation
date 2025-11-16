@@ -1,5 +1,5 @@
 import { SimulationAnnual, type SimulationAnnualType } from '../utils/simulate'
-import type { Sparplan } from '../utils/sparplan-utils'
+import type { IncomePattern, Sparplan } from '../utils/sparplan-utils'
 
 // Type definitions for form values
 export interface SingleFormValue {
@@ -17,6 +17,7 @@ export interface SparplanFormValue {
   ter: string
   transactionCostPercent: string
   transactionCostAbsolute: string
+  incomePattern?: IncomePattern
 }
 
 // Parameters for creating a new sparplan
@@ -61,6 +62,7 @@ export function createNewSparplan(params: CreateSparplanParams): Sparplan[] {
     transactionCostAbsolute: formValues.transactionCostAbsolute
       ? Number(formValues.transactionCostAbsolute)
       : undefined,
+    incomePattern: formValues.incomePattern,
   }
 
   return [...existingSparplans, newSparplan]
@@ -143,6 +145,7 @@ function createRegularSparplanUpdate(
     ter: parseOptionalNumber(sparplanFormValues.ter),
     transactionCostPercent: parseOptionalNumber(sparplanFormValues.transactionCostPercent),
     transactionCostAbsolute: parseOptionalNumber(sparplanFormValues.transactionCostAbsolute),
+    incomePattern: sparplanFormValues.incomePattern,
   }
 }
 
@@ -188,6 +191,7 @@ export function getInitialSparplanFormValue(): SparplanFormValue {
     ter: '',
     transactionCostPercent: '',
     transactionCostAbsolute: '',
+    incomePattern: undefined,
   }
 }
 
@@ -244,5 +248,6 @@ export function populateSparplanFormFromSparplan(
     ter: optionalNumberToString(sparplan.ter),
     transactionCostPercent: optionalNumberToString(sparplan.transactionCostPercent),
     transactionCostAbsolute: optionalNumberToString(sparplan.transactionCostAbsolute),
+    incomePattern: sparplan.incomePattern,
   }
 }
