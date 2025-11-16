@@ -84,6 +84,7 @@ This means running `npm run test` will execute typecheck, lint, and then test - 
 - **ESLint Configuration**: Uses modern ESLint with flat config (eslint.config.js)
   - Basic configuration supports JavaScript and TypeScript files
   - Linting works correctly with max 0 warnings enforced
+  - **CRITICAL: No eslint-disable comments allowed** - Never add `eslint-disable`, `eslint-disable-next-line`, or `eslint-disable-line` comments during development. If ESLint reports an issue, fix the underlying code problem instead of suppressing the warning.
 - **React 19 Compatibility**: Updated to React 19
   - All functionality works correctly
   - Uses standard npm package resolution
@@ -655,6 +656,7 @@ When performing code review, examine the following aspects:
 - **React Patterns**: Proper use of hooks, state management, and component structure
 - **UI Framework**: Use shadcn/ui components for new development; avoid mixing UI frameworks
 - **Styling Guidelines**: Use only Tailwind CSS utility classes - never create custom CSS classes or separate CSS files
+- **ESLint Compliance**: **NEVER add eslint-disable comments** - Fix the underlying code issue instead of suppressing linting warnings
 - **Performance**: No unnecessary re-renders or expensive calculations
 - **Error Handling**: Appropriate error handling for user inputs and edge cases
 
@@ -695,6 +697,7 @@ Before approving changes, verify:
 - [ ] Changes are minimal and focused per step
 - [ ] **UI Framework**: New components use shadcn/ui; no mixing of UI frameworks
 - [ ] **Styling uses only Tailwind CSS utility classes** - no custom CSS classes created
+- [ ] **No eslint-disable comments added** - Code issues are fixed rather than suppressed
 - [ ] German financial calculations are accurate
 - [ ] UI/UX remains consistent and responsive
 - [ ] Documentation is updated appropriately
