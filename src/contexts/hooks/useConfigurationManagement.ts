@@ -57,6 +57,7 @@ export interface ConfigurationStateSetters {
   ) => void
   setCareCostConfiguration: (value: import('../../../helpers/care-cost-simulation').CareCostConfiguration) => void
   setFinancialGoals: (value: Array<import('../../../helpers/financial-goals').FinancialGoal>) => void
+  setEmergencyFundConfig: (value: import('../../../helpers/emergency-fund').EmergencyFundConfig) => void
 }
 
 export interface ConfigurationState {
@@ -100,6 +101,7 @@ export interface ConfigurationState {
   coupleStatutoryPensionConfig: import('../../../helpers/statutory-pension').CoupleStatutoryPensionConfig | null
   careCostConfiguration: import('../../../helpers/care-cost-simulation').CareCostConfiguration
   financialGoals: Array<import('../../../helpers/financial-goals').FinancialGoal>
+  emergencyFundConfig: import('../../../helpers/emergency-fund').EmergencyFundConfig
 }
 
 export function useConfigurationManagement(

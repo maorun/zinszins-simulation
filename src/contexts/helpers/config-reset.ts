@@ -2,6 +2,7 @@ import { convertSparplanToElements } from '../../utils/sparplan-utils'
 import { createDefaultCareCostConfiguration, type CareCostConfiguration } from '../../../helpers/care-cost-simulation'
 import type { StatutoryPensionConfig, CoupleStatutoryPensionConfig } from '../../../helpers/statutory-pension'
 import type { FinancialGoal } from '../../../helpers/financial-goals'
+import { defaultEmergencyFundConfig, type EmergencyFundConfig } from '../../../helpers/emergency-fund'
 import type { WithdrawalConfiguration } from '../../utils/config-storage'
 import type { DefaultConfigType } from './default-config'
 import type { ConfigurationSetters } from './config-types'
@@ -13,6 +14,7 @@ type MainSetters = Omit<
   | 'setCoupleStatutoryPensionConfig'
   | 'setCareCostConfiguration'
   | 'setFinancialGoals'
+  | 'setEmergencyFundConfig'
 >
 
 type AdditionalSetters = {
@@ -21,6 +23,7 @@ type AdditionalSetters = {
   setCoupleStatutoryPensionConfig: (value: CoupleStatutoryPensionConfig | null) => void
   setCareCostConfiguration: (value: CareCostConfiguration) => void
   setFinancialGoals: (value: FinancialGoal[]) => void
+  setEmergencyFundConfig: (value: EmergencyFundConfig) => void
 }
 
 /**
@@ -93,4 +96,5 @@ export function resetConfiguration(
   additionalSetters.setCoupleStatutoryPensionConfig(null)
   additionalSetters.setCareCostConfiguration(createDefaultCareCostConfiguration())
   additionalSetters.setFinancialGoals([])
+  additionalSetters.setEmergencyFundConfig(defaultEmergencyFundConfig)
 }

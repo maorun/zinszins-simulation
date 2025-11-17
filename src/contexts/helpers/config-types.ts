@@ -5,6 +5,7 @@ import type { SimulationAnnualType } from '../../utils/simulate'
 import type { StatutoryPensionConfig, CoupleStatutoryPensionConfig } from '../../../helpers/statutory-pension'
 import type { CareCostConfiguration } from '../../../helpers/care-cost-simulation'
 import type { FinancialGoal } from '../../../helpers/financial-goals'
+import type { EmergencyFundConfig } from '../../../helpers/emergency-fund'
 import type { WithdrawalConfiguration } from '../../utils/config-storage'
 import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-portfolio'
 
@@ -70,6 +71,7 @@ export interface ExtendedSavedConfiguration {
   coupleStatutoryPensionConfig?: CoupleStatutoryPensionConfig
   careCostConfiguration?: CareCostConfiguration
   financialGoals?: FinancialGoal[]
+  emergencyFundConfig?: EmergencyFundConfig
 }
 
 /**
@@ -130,4 +132,5 @@ export interface ConfigurationSetters {
   setCoupleStatutoryPensionConfig: (value: CoupleStatutoryPensionConfig | null) => void
   setCareCostConfiguration: (value: CareCostConfiguration) => void
   setFinancialGoals: (value: FinancialGoal[]) => void
+  setEmergencyFundConfig: (value: EmergencyFundConfig) => void
 }

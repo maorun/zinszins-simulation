@@ -9,6 +9,7 @@ import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import type { StatutoryPensionConfig, CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import type { CareCostConfiguration } from '../../helpers/care-cost-simulation'
 import type { FinancialGoal } from '../../helpers/financial-goals'
+import type { EmergencyFundConfig } from '../../helpers/emergency-fund'
 import type { ExtendedSavedConfiguration, SimulationData } from './helpers/config-types'
 import { createDefaultConfiguration } from './helpers/default-config'
 import { useSimulationState } from './hooks/useSimulationState'
@@ -142,6 +143,9 @@ export interface SimulationContextState {
   // Financial goals configuration
   financialGoals: FinancialGoal[]
   setFinancialGoals: (goals: FinancialGoal[]) => void
+  // Emergency fund configuration
+  emergencyFundConfig: EmergencyFundConfig
+  setEmergencyFundConfig: (config: EmergencyFundConfig) => void
 }
 
 export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {

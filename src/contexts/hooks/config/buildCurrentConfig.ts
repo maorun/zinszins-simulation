@@ -70,6 +70,7 @@ export function buildWithdrawalConfig(state: ConfigurationState) {
     coupleStatutoryPensionConfig: state.coupleStatutoryPensionConfig || undefined,
     careCostConfiguration: state.careCostConfiguration,
     financialGoals: state.financialGoals,
+    emergencyFundConfig: state.emergencyFundConfig,
   }
 }
 
