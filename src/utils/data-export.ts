@@ -764,6 +764,8 @@ function getIncomeTypeLabel(type: string): string {
     business: 'Gewerbeeinkünfte',
     investment: 'Kapitalerträge',
     kindergeld: 'Kindergeld',
+    bu_rente: 'BU-Rente',
+    kapitallebensversicherung: 'Kapitallebensversicherung',
     other: 'Sonstige Einkünfte',
   }
   return incomeTypes[type] || type

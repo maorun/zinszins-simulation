@@ -6,7 +6,15 @@
 /**
  * Type of income source
  */
-export type IncomeType = 'rental' | 'pension' | 'business' | 'investment' | 'kindergeld' | 'bu_rente' | 'other'
+export type IncomeType =
+  | 'rental'
+  | 'pension'
+  | 'business'
+  | 'investment'
+  | 'kindergeld'
+  | 'bu_rente'
+  | 'kapitallebensversicherung'
+  | 'other'
 
 /**
  * Real estate-specific configuration for rental income
@@ -72,6 +80,32 @@ export interface BURenteConfig {
 }
 
 /**
+ * Kapitallebensversicherung (Capital Life Insurance) specific configuration
+ */
+export interface KapitallebensversicherungConfig {
+  /** Year when policy was taken out */
+  policyStartYear: number
+
+  /** Year when policy matures and payout occurs */
+  policyMaturityYear: number
+
+  /** Total lump sum payout amount in EUR */
+  totalPayoutAmount: number
+
+  /** Total premiums paid over the policy lifetime in EUR */
+  totalPremiumsPaid: number
+
+  /** Whether policy qualifies for Halbeinkünfteverfahren (50% tax exemption) */
+  qualifiesForHalbeinkuenfte: boolean
+
+  /** Birth year of insured person (for age-based tax calculation) */
+  birthYear: number
+
+  /** Whether to apply tax-free portion for policies held 12+ years */
+  applyTaxFreePortionAfter12Years: boolean
+}
+
+/**
  * Whether the income amount is gross or net
  */
 export type IncomeAmountType = 'gross' | 'net'
@@ -121,6 +155,9 @@ export interface OtherIncomeSource {
 
   /** BU-Rente-specific configuration (only for bu_rente income) */
   buRenteConfig?: BURenteConfig
+
+  /** Kapitallebensversicherung-specific configuration (only for kapitallebensversicherung income) */
+  kapitallebensversicherungConfig?: KapitallebensversicherungConfig
 }
 
 /**
@@ -184,6 +221,22 @@ export interface OtherIncomeYearResult {
     taxableAmount: number
     /** Reason if BU benefits ended */
     endReason?: string
+  }
+
+  /** Kapitallebensversicherung-specific calculations (only for kapitallebensversicherung income) */
+  kapitallebensversicherungDetails?: {
+    /** Person's age at payout */
+    ageAtPayout: number
+    /** Whether payout occurred this year */
+    isPayoutYear: boolean
+    /** Investment gains (payout - premiums) */
+    investmentGains: number
+    /** Taxable portion of the gains */
+    taxableGains: number
+    /** Tax exemption percentage applied */
+    taxExemptionPercent: number
+    /** Reason if conditions not met */
+    notes?: string
   }
 }
 
@@ -357,6 +410,63 @@ function calculateBURenteStatus(
   }
 }
 
+// Helper: Calculate Kapitallebensversicherung status and taxation
+function calculateKapitallebensversicherungStatus(
+  config: KapitallebensversicherungConfig,
+  year: number,
+): {
+  isPayoutYear: boolean
+  ageAtPayout: number
+  investmentGains: number
+  taxableGains: number
+  taxExemptionPercent: number
+  notes?: string
+} {
+  const ageAtPayout = year - config.birthYear
+  const isPayoutYear = year === config.policyMaturityYear
+  const investmentGains = config.totalPayoutAmount - config.totalPremiumsPaid
+  const policyDuration = config.policyMaturityYear - config.policyStartYear
+
+  let taxableGains = investmentGains
+  let taxExemptionPercent = 0
+  let notes: string | undefined
+
+  // German tax rules for Kapitallebensversicherung (§ 20 Abs. 1 Nr. 6 EStG)
+  // Tax-free if:
+  // 1. Policy held for at least 12 years, AND
+  // 2. Payout occurs after age 60 (for policies taken out before 2012) or age 62 (after 2011), AND
+  // 3. Premiums paid for at least 5 years
+
+  const meetsAgeCriteria = ageAtPayout >= 60 // Simplified: using age 60 as threshold
+  const meetsDurationCriteria = policyDuration >= 12
+
+  if (config.applyTaxFreePortionAfter12Years && meetsDurationCriteria && meetsAgeCriteria) {
+    // 100% tax-free
+    taxableGains = 0
+    taxExemptionPercent = 100
+    notes = 'Steuerfrei nach § 20 Abs. 1 Nr. 6 EStG (12+ Jahre Laufzeit, Auszahlung nach Alter 60)'
+  } else if (config.qualifiesForHalbeinkuenfte) {
+    // Halbeinkünfteverfahren: 50% tax exemption (older policies)
+    taxableGains = investmentGains * 0.5
+    taxExemptionPercent = 50
+    notes = 'Halbeinkünfteverfahren (50% steuerfrei)'
+  } else {
+    // Full taxation of gains
+    taxableGains = investmentGains
+    taxExemptionPercent = 0
+    notes = 'Volle Besteuerung der Erträge'
+  }
+
+  return {
+    isPayoutYear,
+    ageAtPayout,
+    investmentGains: Math.max(0, investmentGains),
+    taxableGains: Math.max(0, taxableGains),
+    taxExemptionPercent,
+    notes,
+  }
+}
+
 function calculateGrossAmounts(
   source: OtherIncomeSource,
   yearsFromStart: number,
@@ -367,12 +477,14 @@ function calculateGrossAmounts(
   realEstateDetails?: OtherIncomeYearResult['realEstateDetails']
   kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
   buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
+  kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
 } {
   let grossMonthlyAmount = source.monthlyAmount * inflationFactor
   let grossAnnualAmount = grossMonthlyAmount * 12
   let realEstateDetails: OtherIncomeYearResult['realEstateDetails']
   let kindergeldDetails: OtherIncomeYearResult['kindergeldDetails']
   let buRenteDetails: OtherIncomeYearResult['buRenteDetails']
+  let kapitallebensversicherungDetails: OtherIncomeYearResult['kapitallebensversicherungDetails']
 
   if (source.type === 'rental' && source.realEstateConfig) {
     const result = calculateRealEstateIncome(source.realEstateConfig, grossAnnualAmount, yearsFromStart)
@@ -381,7 +493,14 @@ function calculateGrossAmounts(
     realEstateDetails = result.details
   }
 
-  return { grossMonthlyAmount, grossAnnualAmount, realEstateDetails, kindergeldDetails, buRenteDetails }
+  return {
+    grossMonthlyAmount,
+    grossAnnualAmount,
+    realEstateDetails,
+    kindergeldDetails,
+    buRenteDetails,
+    kapitallebensversicherungDetails,
+  }
 }
 
 function applyKindergeldLogic(
@@ -440,10 +559,43 @@ function applyBURenteLogic(
   }
 }
 
+function applyKapitallebensversicherungLogic(
+  source: OtherIncomeSource,
+  year: number,
+  amounts: { grossMonthlyAmount: number; grossAnnualAmount: number },
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
+} {
+  if (source.type !== 'kapitallebensversicherung' || !source.kapitallebensversicherungConfig) {
+    return amounts
+  }
+
+  const status = calculateKapitallebensversicherungStatus(source.kapitallebensversicherungConfig, year)
+  
+  // Only pay out in the maturity year
+  if (!status.isPayoutYear) {
+    return {
+      grossMonthlyAmount: 0,
+      grossAnnualAmount: 0,
+      kapitallebensversicherungDetails: status,
+    }
+  }
+
+  // The gross amount should be the total payout
+  return {
+    grossMonthlyAmount: source.kapitallebensversicherungConfig.totalPayoutAmount / 12,
+    grossAnnualAmount: source.kapitallebensversicherungConfig.totalPayoutAmount,
+    kapitallebensversicherungDetails: status,
+  }
+}
+
 function calculateTaxAndNet(
   source: OtherIncomeSource,
   grossAnnualAmount: number,
   buRenteDetails?: OtherIncomeYearResult['buRenteDetails'],
+  kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails'],
 ): { taxAmount: number; netAnnualAmount: number; netMonthlyAmount: number } {
   if (source.amountType !== 'gross') {
     return {
@@ -459,6 +611,11 @@ function calculateTaxAndNet(
     taxableAmount = buRenteDetails.taxableAmount
   }
 
+  // For Kapitallebensversicherung, only tax the taxable portion of gains
+  if (source.type === 'kapitallebensversicherung' && kapitallebensversicherungDetails) {
+    taxableAmount = kapitallebensversicherungDetails.taxableGains
+  }
+
   const taxAmount = taxableAmount * (source.taxRate / 100)
   const netAnnualAmount = grossAnnualAmount - taxAmount
   return {
@@ -466,6 +623,78 @@ function calculateTaxAndNet(
     netAnnualAmount,
     netMonthlyAmount: netAnnualAmount / 12,
   }
+}
+
+// Helper: Apply all income type-specific logic
+function applyIncomeTypeLogic(
+  source: OtherIncomeSource,
+  year: number,
+  initialAmounts: { grossMonthlyAmount: number; grossAnnualAmount: number },
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
+  buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
+  kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
+} {
+  const kindergeldResult = applyKindergeldLogic(source, year, initialAmounts)
+
+  const buRenteResult = applyBURenteLogic(source, year, {
+    grossMonthlyAmount: kindergeldResult.grossMonthlyAmount,
+    grossAnnualAmount: kindergeldResult.grossAnnualAmount,
+  })
+
+  const kapitallebensversicherungResult = applyKapitallebensversicherungLogic(source, year, {
+    grossMonthlyAmount: buRenteResult.grossMonthlyAmount,
+    grossAnnualAmount: buRenteResult.grossAnnualAmount,
+  })
+
+  return {
+    grossMonthlyAmount: kapitallebensversicherungResult.grossMonthlyAmount,
+    grossAnnualAmount: kapitallebensversicherungResult.grossAnnualAmount,
+    kindergeldDetails: kindergeldResult.kindergeldDetails,
+    buRenteDetails: buRenteResult.buRenteDetails,
+    kapitallebensversicherungDetails: kapitallebensversicherungResult.kapitallebensversicherungDetails,
+  }
+}
+
+// Helper: Build the final year result
+function buildYearResult(
+  source: OtherIncomeSource,
+  incomeTypeResult: {
+    grossMonthlyAmount: number
+    grossAnnualAmount: number
+    kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
+    buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
+    kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
+  },
+  realEstateDetails: OtherIncomeYearResult['realEstateDetails'],
+  inflationFactor: number,
+): OtherIncomeYearResult {
+  const { taxAmount, netAnnualAmount, netMonthlyAmount } = calculateTaxAndNet(
+    source,
+    incomeTypeResult.grossAnnualAmount,
+    incomeTypeResult.buRenteDetails,
+    incomeTypeResult.kapitallebensversicherungDetails,
+  )
+
+  const result: OtherIncomeYearResult = {
+    source,
+    grossAnnualAmount: incomeTypeResult.grossAnnualAmount,
+    grossMonthlyAmount: incomeTypeResult.grossMonthlyAmount,
+    taxAmount,
+    netAnnualAmount,
+    netMonthlyAmount,
+    inflationFactor,
+  }
+
+  if (realEstateDetails) result.realEstateDetails = realEstateDetails
+  if (incomeTypeResult.kindergeldDetails) result.kindergeldDetails = incomeTypeResult.kindergeldDetails
+  if (incomeTypeResult.buRenteDetails) result.buRenteDetails = incomeTypeResult.buRenteDetails
+  if (incomeTypeResult.kapitallebensversicherungDetails)
+    result.kapitallebensversicherungDetails = incomeTypeResult.kapitallebensversicherungDetails
+
+  return result
 }
 
 export function calculateOtherIncomeForYear(source: OtherIncomeSource, year: number): OtherIncomeYearResult | null {
@@ -482,38 +711,22 @@ export function calculateOtherIncomeForYear(source: OtherIncomeSource, year: num
     realEstateDetails,
   } = calculateGrossAmounts(source, yearsFromStart, inflationFactor)
 
-  const kindergeldResult = applyKindergeldLogic(source, year, {
+  const incomeTypeResult = applyIncomeTypeLogic(source, year, {
     grossMonthlyAmount: initialGrossMonthly,
     grossAnnualAmount: initialGrossAnnual,
   })
 
-  const buRenteResult = applyBURenteLogic(source, year, {
-    grossMonthlyAmount: kindergeldResult.grossMonthlyAmount,
-    grossAnnualAmount: kindergeldResult.grossAnnualAmount,
-  })
+  // Return null for Kapitallebensversicherung if not the payout year
+  const isNonPayoutKLV =
+    source.type === 'kapitallebensversicherung' &&
+    incomeTypeResult.kapitallebensversicherungDetails &&
+    !incomeTypeResult.kapitallebensversicherungDetails.isPayoutYear
 
-  const grossMonthlyAmount = buRenteResult.grossMonthlyAmount
-  const grossAnnualAmount = buRenteResult.grossAnnualAmount
-  const kindergeldDetails = kindergeldResult.kindergeldDetails
-  const buRenteDetails = buRenteResult.buRenteDetails
-
-  const { taxAmount, netAnnualAmount, netMonthlyAmount } = calculateTaxAndNet(source, grossAnnualAmount, buRenteDetails)
-
-  const result: OtherIncomeYearResult = {
-    source,
-    grossAnnualAmount,
-    grossMonthlyAmount,
-    taxAmount,
-    netAnnualAmount,
-    netMonthlyAmount,
-    inflationFactor,
+  if (isNonPayoutKLV) {
+    return null
   }
 
-  if (realEstateDetails) result.realEstateDetails = realEstateDetails
-  if (kindergeldDetails) result.kindergeldDetails = kindergeldDetails
-  if (buRenteDetails) result.buRenteDetails = buRenteDetails
-
-  return result
+  return buildYearResult(source, incomeTypeResult, realEstateDetails, inflationFactor)
 }
 
 /**
@@ -562,6 +775,7 @@ function getDefaultMonthlyAmount(type: IncomeType): number {
   if (type === 'rental') return 1000
   if (type === 'kindergeld') return 250
   if (type === 'bu_rente') return 1500
+  if (type === 'kapitallebensversicherung') return 0 // Lump sum, not monthly
   return 800
 }
 
@@ -579,6 +793,7 @@ function getDefaultAmountType(type: IncomeType): 'gross' | 'net' {
 function getDefaultInflationRate(type: IncomeType): number {
   if (type === 'kindergeld') return 0
   if (type === 'bu_rente') return 0 // BU-Rente typically has fixed amounts
+  if (type === 'kapitallebensversicherung') return 0 // Lump sum, no inflation adjustment
   return 2.0
 }
 
@@ -588,6 +803,7 @@ function getDefaultInflationRate(type: IncomeType): number {
 function getDefaultTaxRate(type: IncomeType): number {
   if (type === 'kindergeld') return 0
   if (type === 'bu_rente') return 25.0 // Individual income tax rate (typical for disability pensions)
+  if (type === 'kapitallebensversicherung') return 26.375 // Abgeltungsteuer (capital gains tax)
   return 30.0
 }
 
@@ -624,6 +840,11 @@ export function createDefaultOtherIncomeSource(type: IncomeType = 'rental'): Oth
   // Add default BU-Rente configuration
   if (type === 'bu_rente') {
     source.buRenteConfig = createDefaultBURenteConfig()
+  }
+
+  // Add default Kapitallebensversicherung configuration
+  if (type === 'kapitallebensversicherung') {
+    source.kapitallebensversicherungConfig = createDefaultKapitallebensversicherungConfig()
   }
 
   return source
@@ -677,6 +898,26 @@ export function createDefaultBURenteConfig(): BURenteConfig {
 }
 
 /**
+ * Create default Kapitallebensversicherung configuration
+ */
+export function createDefaultKapitallebensversicherungConfig(): KapitallebensversicherungConfig {
+  const currentYear = new Date().getFullYear()
+  const defaultBirthYear = currentYear - 40 // 40 years old by default
+  const policyStartYear = currentYear - 10 // Policy taken out 10 years ago
+  const policyMaturityYear = currentYear + 5 // Matures in 5 years (total 15 year policy)
+
+  return {
+    policyStartYear,
+    policyMaturityYear,
+    totalPayoutAmount: 50000, // 50,000€ payout
+    totalPremiumsPaid: 40000, // 40,000€ in premiums (10,000€ gains)
+    qualifiesForHalbeinkuenfte: false, // Newer policies don't qualify
+    birthYear: defaultBirthYear,
+    applyTaxFreePortionAfter12Years: true, // Apply tax-free treatment if eligible
+  }
+}
+
+/**
  * Get the monthly Kindergeld amount based on German law (as of 2024)
  * @param _childOrderNumber - The order of the child (1st, 2nd, 3rd, etc.)
  * @returns Monthly Kindergeld amount in EUR
@@ -698,6 +939,7 @@ function getDefaultNameForType(type: IncomeType): string {
     investment: 'Kapitalerträge',
     kindergeld: 'Kindergeld',
     bu_rente: 'BU-Rente',
+    kapitallebensversicherung: 'Kapitallebensversicherung',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || 'Einkommen'
@@ -721,6 +963,7 @@ export function getIncomeTypeDisplayName(type: IncomeType): string {
     investment: 'Kapitalerträge',
     kindergeld: 'Kindergeld',
     bu_rente: 'BU-Rente',
+    kapitallebensversicherung: 'Kapitallebensversicherung',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || type

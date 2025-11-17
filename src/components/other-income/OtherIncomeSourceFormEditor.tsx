@@ -6,6 +6,7 @@ import {
   createDefaultRealEstateConfig,
   createDefaultKindergeldConfig,
   createDefaultBURenteConfig,
+  createDefaultKapitallebensversicherungConfig,
 } from '../../../helpers/other-income'
 import { useFormId } from '../../utils/unique-id'
 import { NameInputSection } from './NameInputSection'
@@ -67,6 +68,24 @@ function configureBURenteSettings(source: OtherIncomeSource, newType: IncomeType
   }
 }
 
+// Helper to apply Kapitallebensversicherung defaults
+function applyKapitallebensversicherungDefaults(source: OtherIncomeSource): void {
+  source.kapitallebensversicherungConfig = createDefaultKapitallebensversicherungConfig()
+  source.amountType = 'gross'
+  source.taxRate = 26.375 // Abgeltungsteuer
+  source.inflationRate = 0 // Lump sum, no inflation
+  source.monthlyAmount = 0 // Will be calculated from total payout
+}
+
+// Helper to configure Kapitallebensversicherung settings based on income type
+function configureKapitallebensversicherungSettings(source: OtherIncomeSource, newType: IncomeType): void {
+  if (newType === 'kapitallebensversicherung' && !source.kapitallebensversicherungConfig) {
+    applyKapitallebensversicherungDefaults(source)
+  } else if (newType !== 'kapitallebensversicherung' && source.kapitallebensversicherungConfig) {
+    delete source.kapitallebensversicherungConfig
+  }
+}
+
 // Helper to handle income type change
 function handleIncomeTypeChange(
   newType: IncomeType,
@@ -77,6 +96,7 @@ function handleIncomeTypeChange(
   configureRealEstateSettings(updatedSource, newType)
   configureKindergeldSettings(updatedSource, newType)
   configureBURenteSettings(updatedSource, newType)
+  configureKapitallebensversicherungSettings(updatedSource, newType)
   onUpdate(updatedSource)
 }
 
@@ -96,6 +116,7 @@ export function OtherIncomeSourceFormEditor({
   const isKindergeld = editingSource.type === 'kindergeld'
   const isBURente = editingSource.type === 'bu_rente'
   const isRental = editingSource.type === 'rental'
+  const isKapitallebensversicherung = editingSource.type === 'kapitallebensversicherung'
   const isGrossIncome = editingSource.amountType === 'gross'
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -117,6 +138,7 @@ export function OtherIncomeSourceFormEditor({
           isKindergeld={isKindergeld}
           isBURente={isBURente}
           isRental={isRental}
+          isKapitallebensversicherung={isKapitallebensversicherung}
           isGrossIncome={isGrossIncome}
           onUpdate={onUpdate}
         />

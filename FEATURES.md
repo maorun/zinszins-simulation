@@ -54,7 +54,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Lebensversicherungen
 
-- **Kapitallebensversicherung** - Integration klassischer Lebensversicherungsprodukte
+- ~~**Kapitallebensversicherung** - Integration klassischer Lebensversicherungsprodukte~~ ✅ **IMPLEMENTIERT**
 - **Fondsgebundene Lebensversicherung** - ETF-Sparpläne in Versicherungsmänteln
 - **Risikolebensversicherung** - Absicherung von Hinterbliebenen
 
