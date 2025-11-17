@@ -1005,4 +1005,334 @@ describe('Other Income Calculations', () => {
       expect(result[currentYear].totalTaxAmount).toBeCloseTo(5220, 0)
     })
   })
+
+  describe('Kapitallebensversicherung calculations', () => {
+    describe('Basic payout calculation', () => {
+      it('should only pay out in maturity year', () => {
+        const currentYear = new Date().getFullYear()
+        const source: OtherIncomeSource = {
+          id: 'test-klv-1',
+          name: 'Kapitallebensversicherung',
+          type: 'kapitallebensversicherung',
+          amountType: 'gross',
+          monthlyAmount: 0,
+          startYear: currentYear - 1,
+          endYear: currentYear + 5,
+          inflationRate: 0,
+          taxRate: 26.375,
+          enabled: true,
+          kapitallebensversicherungConfig: {
+            policyStartYear: currentYear - 10,
+            policyMaturityYear: currentYear + 5,
+            totalPayoutAmount: 50000,
+            totalPremiumsPaid: 40000,
+            qualifiesForHalbeinkuenfte: false,
+            birthYear: currentYear - 40,
+            applyTaxFreePortionAfter12Years: false,
+          },
+        }
+
+        // Should return null before maturity
+        const resultBefore = calculateOtherIncomeForYear(source, currentYear)
+        expect(resultBefore).toBe(null)
+
+        // Should pay out in maturity year
+        const resultMaturity = calculateOtherIncomeForYear(source, currentYear + 5)
+        expect(resultMaturity).not.toBe(null)
+        expect(resultMaturity!.grossAnnualAmount).toBe(50000)
+      })
+
+      it('should calculate investment gains correctly', () => {
+        const currentYear = new Date().getFullYear()
+        const maturityYear = currentYear + 5
+        const source: OtherIncomeSource = {
+          id: 'test-klv-2',
+          name: 'Kapitallebensversicherung',
+          type: 'kapitallebensversicherung',
+          amountType: 'gross',
+          monthlyAmount: 0,
+          startYear: currentYear - 1,
+          endYear: maturityYear,
+          inflationRate: 0,
+          taxRate: 26.375,
+          enabled: true,
+          kapitallebensversicherungConfig: {
+            policyStartYear: currentYear - 10,
+            policyMaturityYear: maturityYear,
+            totalPayoutAmount: 50000,
+            totalPremiumsPaid: 40000,
+            qualifiesForHalbeinkuenfte: false,
+            birthYear: currentYear - 40,
+            applyTaxFreePortionAfter12Years: false,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, maturityYear)
+        expect(result).not.toBe(null)
+        expect(result!.kapitallebensversicherungDetails).toBeDefined()
+        expect(result!.kapitallebensversicherungDetails!.investmentGains).toBe(10000) // 50000 - 40000
+      })
+    })
+
+    describe('Tax treatment scenarios', () => {
+      it('should apply 100% tax exemption for policies held 12+ years with payout after age 60', () => {
+        const currentYear = new Date().getFullYear()
+        const maturityYear = currentYear + 5
+        const birthYear = currentYear - 65 // 70 years old at payout
+        const source: OtherIncomeSource = {
+          id: 'test-klv-3',
+          name: 'Kapitallebensversicherung',
+          type: 'kapitallebensversicherung',
+          amountType: 'gross',
+          monthlyAmount: 0,
+          startYear: currentYear - 1,
+          endYear: maturityYear,
+          inflationRate: 0,
+          taxRate: 26.375,
+          enabled: true,
+          kapitallebensversicherungConfig: {
+            policyStartYear: currentYear - 15, // 20 years total (15 + 5)
+            policyMaturityYear: maturityYear,
+            totalPayoutAmount: 50000,
+            totalPremiumsPaid: 40000,
+            qualifiesForHalbeinkuenfte: false,
+            birthYear,
+            applyTaxFreePortionAfter12Years: true,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, maturityYear)
+        expect(result).not.toBe(null)
+        expect(result!.kapitallebensversicherungDetails).toBeDefined()
+        expect(result!.kapitallebensversicherungDetails!.taxExemptionPercent).toBe(100)
+        expect(result!.kapitallebensversicherungDetails!.taxableGains).toBe(0)
+        expect(result!.taxAmount).toBe(0)
+        expect(result!.netAnnualAmount).toBe(50000) // Full payout, no tax
+      })
+
+      it('should apply 50% tax exemption for Halbeinkünfteverfahren policies', () => {
+        const currentYear = new Date().getFullYear()
+        const maturityYear = currentYear + 5
+        const source: OtherIncomeSource = {
+          id: 'test-klv-4',
+          name: 'Kapitallebensversicherung',
+          type: 'kapitallebensversicherung',
+          amountType: 'gross',
+          monthlyAmount: 0,
+          startYear: currentYear - 1,
+          endYear: maturityYear,
+          inflationRate: 0,
+          taxRate: 26.375,
+          enabled: true,
+          kapitallebensversicherungConfig: {
+            policyStartYear: currentYear - 10,
+            policyMaturityYear: maturityYear,
+            totalPayoutAmount: 50000,
+            totalPremiumsPaid: 40000,
+            qualifiesForHalbeinkuenfte: true, // Old policy with 50% exemption
+            birthYear: currentYear - 40,
+            applyTaxFreePortionAfter12Years: false,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, maturityYear)
+        expect(result).not.toBe(null)
+        expect(result!.kapitallebensversicherungDetails).toBeDefined()
+        expect(result!.kapitallebensversicherungDetails!.investmentGains).toBe(10000)
+        expect(result!.kapitallebensversicherungDetails!.taxExemptionPercent).toBe(50)
+        expect(result!.kapitallebensversicherungDetails!.taxableGains).toBe(5000) // 50% of 10000
+        expect(result!.taxAmount).toBeCloseTo(1318.75, 2) // 26.375% of 5000
+        expect(result!.netAnnualAmount).toBeCloseTo(48681.25, 2) // 50000 - 1318.75
+      })
+
+      it('should fully tax gains when no exemption applies', () => {
+        const currentYear = new Date().getFullYear()
+        const maturityYear = currentYear + 5
+        const source: OtherIncomeSource = {
+          id: 'test-klv-5',
+          name: 'Kapitallebensversicherung',
+          type: 'kapitallebensversicherung',
+          amountType: 'gross',
+          monthlyAmount: 0,
+          startYear: currentYear - 1,
+          endYear: maturityYear,
+          inflationRate: 0,
+          taxRate: 26.375,
+          enabled: true,
+          kapitallebensversicherungConfig: {
+            policyStartYear: currentYear - 5, // Only 10 years total
+            policyMaturityYear: maturityYear,
+            totalPayoutAmount: 50000,
+            totalPremiumsPaid: 40000,
+            qualifiesForHalbeinkuenfte: false,
+            birthYear: currentYear - 40, // Only 45 at payout
+            applyTaxFreePortionAfter12Years: false,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, maturityYear)
+        expect(result).not.toBe(null)
+        expect(result!.kapitallebensversicherungDetails).toBeDefined()
+        expect(result!.kapitallebensversicherungDetails!.investmentGains).toBe(10000)
+        expect(result!.kapitallebensversicherungDetails!.taxExemptionPercent).toBe(0)
+        expect(result!.kapitallebensversicherungDetails!.taxableGains).toBe(10000) // Full gains taxable
+        expect(result!.taxAmount).toBeCloseTo(2637.5, 2) // 26.375% of 10000
+        expect(result!.netAnnualAmount).toBeCloseTo(47362.5, 2) // 50000 - 2637.5
+      })
+
+      it('should not apply tax exemption if policy duration is less than 12 years even if age criteria met', () => {
+        const currentYear = new Date().getFullYear()
+        const maturityYear = currentYear + 5
+        const birthYear = currentYear - 65 // 70 years old
+        const source: OtherIncomeSource = {
+          id: 'test-klv-6',
+          name: 'Kapitallebensversicherung',
+          type: 'kapitallebensversicherung',
+          amountType: 'gross',
+          monthlyAmount: 0,
+          startYear: currentYear - 1,
+          endYear: maturityYear,
+          inflationRate: 0,
+          taxRate: 26.375,
+          enabled: true,
+          kapitallebensversicherungConfig: {
+            policyStartYear: currentYear - 5, // Only 10 years total
+            policyMaturityYear: maturityYear,
+            totalPayoutAmount: 50000,
+            totalPremiumsPaid: 40000,
+            qualifiesForHalbeinkuenfte: false,
+            birthYear,
+            applyTaxFreePortionAfter12Years: true,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, maturityYear)
+        expect(result).not.toBe(null)
+        expect(result!.kapitallebensversicherungDetails).toBeDefined()
+        // Should not get full exemption due to < 12 years duration
+        expect(result!.kapitallebensversicherungDetails!.taxExemptionPercent).toBe(0)
+        expect(result!.taxAmount).toBeGreaterThan(0)
+      })
+
+      it('should not apply tax exemption if payout before age 60 even if duration is 12+ years', () => {
+        const currentYear = new Date().getFullYear()
+        const maturityYear = currentYear + 5
+        const birthYear = currentYear - 50 // Only 55 years old at payout
+        const source: OtherIncomeSource = {
+          id: 'test-klv-7',
+          name: 'Kapitallebensversicherung',
+          type: 'kapitallebensversicherung',
+          amountType: 'gross',
+          monthlyAmount: 0,
+          startYear: currentYear - 1,
+          endYear: maturityYear,
+          inflationRate: 0,
+          taxRate: 26.375,
+          enabled: true,
+          kapitallebensversicherungConfig: {
+            policyStartYear: currentYear - 15, // 20 years total
+            policyMaturityYear: maturityYear,
+            totalPayoutAmount: 50000,
+            totalPremiumsPaid: 40000,
+            qualifiesForHalbeinkuenfte: false,
+            birthYear,
+            applyTaxFreePortionAfter12Years: true,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, maturityYear)
+        expect(result).not.toBe(null)
+        expect(result!.kapitallebensversicherungDetails).toBeDefined()
+        // Should not get full exemption due to age < 60
+        expect(result!.kapitallebensversicherungDetails!.taxExemptionPercent).toBe(0)
+        expect(result!.taxAmount).toBeGreaterThan(0)
+      })
+    })
+
+    describe('createDefaultOtherIncomeSource for kapitallebensversicherung', () => {
+      it('should create default Kapitallebensversicherung source with correct configuration', () => {
+        const source = createDefaultOtherIncomeSource('kapitallebensversicherung')
+
+        expect(source.type).toBe('kapitallebensversicherung')
+        expect(source.name).toBe('Kapitallebensversicherung')
+        expect(source.amountType).toBe('gross')
+        expect(source.monthlyAmount).toBe(0)
+        expect(source.inflationRate).toBe(0)
+        expect(source.taxRate).toBe(26.375) // Abgeltungsteuer
+        expect(source.kapitallebensversicherungConfig).toBeDefined()
+        expect(source.kapitallebensversicherungConfig!.totalPayoutAmount).toBe(50000)
+        expect(source.kapitallebensversicherungConfig!.totalPremiumsPaid).toBe(40000)
+        expect(source.kapitallebensversicherungConfig!.applyTaxFreePortionAfter12Years).toBe(true)
+      })
+    })
+
+    describe('getIncomeTypeDisplayName', () => {
+      it('should return correct display name for Kapitallebensversicherung', () => {
+        expect(getIncomeTypeDisplayName('kapitallebensversicherung')).toBe('Kapitallebensversicherung')
+      })
+    })
+
+    describe('Integration with calculateOtherIncome', () => {
+      it('should calculate total income correctly with multiple sources including Kapitallebensversicherung', () => {
+        const currentYear = new Date().getFullYear()
+        const maturityYear = currentYear + 5
+
+        const config: OtherIncomeConfiguration = {
+          enabled: true,
+          sources: [
+            {
+              id: 'rental-1',
+              name: 'Rental Income',
+              type: 'rental',
+              amountType: 'gross',
+              monthlyAmount: 1000,
+              startYear: currentYear,
+              endYear: null,
+              inflationRate: 0,
+              taxRate: 30.0,
+              enabled: true,
+            },
+            {
+              id: 'klv-1',
+              name: 'Kapitallebensversicherung',
+              type: 'kapitallebensversicherung',
+              amountType: 'gross',
+              monthlyAmount: 0,
+              startYear: currentYear,
+              endYear: maturityYear,
+              inflationRate: 0,
+              taxRate: 26.375,
+              enabled: true,
+              kapitallebensversicherungConfig: {
+                policyStartYear: currentYear - 15,
+                policyMaturityYear: maturityYear,
+                totalPayoutAmount: 50000,
+                totalPremiumsPaid: 40000,
+                qualifiesForHalbeinkuenfte: false,
+                birthYear: currentYear - 65,
+                applyTaxFreePortionAfter12Years: true,
+              },
+            },
+          ],
+        }
+
+        const result = calculateOtherIncome(config, currentYear, maturityYear)
+
+        // Before maturity year: only rental income
+        expect(result[currentYear].sources).toHaveLength(1)
+        expect(result[currentYear].sources[0].source.type).toBe('rental')
+        expect(result[currentYear].totalNetAnnualAmount).toBe(8400) // 12000 - 3600 tax
+
+        // At maturity year: rental + Kapitallebensversicherung
+        expect(result[maturityYear].sources).toHaveLength(2)
+        expect(result[maturityYear].sources[0].source.type).toBe('rental')
+        expect(result[maturityYear].sources[1].source.type).toBe('kapitallebensversicherung')
+
+        // Rental: 8400 net
+        // Kapitallebensversicherung: 50000 gross, 0 tax (100% exempt), 50000 net
+        expect(result[maturityYear].totalNetAnnualAmount).toBe(58400)
+        expect(result[maturityYear].totalTaxAmount).toBe(3600) // Only from rental
+      })
+    })
+  })
 })

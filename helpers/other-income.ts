@@ -625,6 +625,78 @@ function calculateTaxAndNet(
   }
 }
 
+// Helper: Apply all income type-specific logic
+function applyIncomeTypeLogic(
+  source: OtherIncomeSource,
+  year: number,
+  initialAmounts: { grossMonthlyAmount: number; grossAnnualAmount: number },
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
+  buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
+  kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
+} {
+  const kindergeldResult = applyKindergeldLogic(source, year, initialAmounts)
+
+  const buRenteResult = applyBURenteLogic(source, year, {
+    grossMonthlyAmount: kindergeldResult.grossMonthlyAmount,
+    grossAnnualAmount: kindergeldResult.grossAnnualAmount,
+  })
+
+  const kapitallebensversicherungResult = applyKapitallebensversicherungLogic(source, year, {
+    grossMonthlyAmount: buRenteResult.grossMonthlyAmount,
+    grossAnnualAmount: buRenteResult.grossAnnualAmount,
+  })
+
+  return {
+    grossMonthlyAmount: kapitallebensversicherungResult.grossMonthlyAmount,
+    grossAnnualAmount: kapitallebensversicherungResult.grossAnnualAmount,
+    kindergeldDetails: kindergeldResult.kindergeldDetails,
+    buRenteDetails: buRenteResult.buRenteDetails,
+    kapitallebensversicherungDetails: kapitallebensversicherungResult.kapitallebensversicherungDetails,
+  }
+}
+
+// Helper: Build the final year result
+function buildYearResult(
+  source: OtherIncomeSource,
+  incomeTypeResult: {
+    grossMonthlyAmount: number
+    grossAnnualAmount: number
+    kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
+    buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
+    kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
+  },
+  realEstateDetails: OtherIncomeYearResult['realEstateDetails'],
+  inflationFactor: number,
+): OtherIncomeYearResult {
+  const { taxAmount, netAnnualAmount, netMonthlyAmount } = calculateTaxAndNet(
+    source,
+    incomeTypeResult.grossAnnualAmount,
+    incomeTypeResult.buRenteDetails,
+    incomeTypeResult.kapitallebensversicherungDetails,
+  )
+
+  const result: OtherIncomeYearResult = {
+    source,
+    grossAnnualAmount: incomeTypeResult.grossAnnualAmount,
+    grossMonthlyAmount: incomeTypeResult.grossMonthlyAmount,
+    taxAmount,
+    netAnnualAmount,
+    netMonthlyAmount,
+    inflationFactor,
+  }
+
+  if (realEstateDetails) result.realEstateDetails = realEstateDetails
+  if (incomeTypeResult.kindergeldDetails) result.kindergeldDetails = incomeTypeResult.kindergeldDetails
+  if (incomeTypeResult.buRenteDetails) result.buRenteDetails = incomeTypeResult.buRenteDetails
+  if (incomeTypeResult.kapitallebensversicherungDetails)
+    result.kapitallebensversicherungDetails = incomeTypeResult.kapitallebensversicherungDetails
+
+  return result
+}
+
 export function calculateOtherIncomeForYear(source: OtherIncomeSource, year: number): OtherIncomeYearResult | null {
   if (!isIncomeActiveForYear(source, year)) {
     return null
@@ -639,50 +711,22 @@ export function calculateOtherIncomeForYear(source: OtherIncomeSource, year: num
     realEstateDetails,
   } = calculateGrossAmounts(source, yearsFromStart, inflationFactor)
 
-  const kindergeldResult = applyKindergeldLogic(source, year, {
+  const incomeTypeResult = applyIncomeTypeLogic(source, year, {
     grossMonthlyAmount: initialGrossMonthly,
     grossAnnualAmount: initialGrossAnnual,
   })
 
-  const buRenteResult = applyBURenteLogic(source, year, {
-    grossMonthlyAmount: kindergeldResult.grossMonthlyAmount,
-    grossAnnualAmount: kindergeldResult.grossAnnualAmount,
-  })
+  // Return null for Kapitallebensversicherung if not the payout year
+  const isNonPayoutKLV =
+    source.type === 'kapitallebensversicherung' &&
+    incomeTypeResult.kapitallebensversicherungDetails &&
+    !incomeTypeResult.kapitallebensversicherungDetails.isPayoutYear
 
-  const kapitallebensversicherungResult = applyKapitallebensversicherungLogic(source, year, {
-    grossMonthlyAmount: buRenteResult.grossMonthlyAmount,
-    grossAnnualAmount: buRenteResult.grossAnnualAmount,
-  })
-
-  const grossMonthlyAmount = kapitallebensversicherungResult.grossMonthlyAmount
-  const grossAnnualAmount = kapitallebensversicherungResult.grossAnnualAmount
-  const kindergeldDetails = kindergeldResult.kindergeldDetails
-  const buRenteDetails = buRenteResult.buRenteDetails
-  const kapitallebensversicherungDetails = kapitallebensversicherungResult.kapitallebensversicherungDetails
-
-  const { taxAmount, netAnnualAmount, netMonthlyAmount } = calculateTaxAndNet(
-    source,
-    grossAnnualAmount,
-    buRenteDetails,
-    kapitallebensversicherungDetails,
-  )
-
-  const result: OtherIncomeYearResult = {
-    source,
-    grossAnnualAmount,
-    grossMonthlyAmount,
-    taxAmount,
-    netAnnualAmount,
-    netMonthlyAmount,
-    inflationFactor,
+  if (isNonPayoutKLV) {
+    return null
   }
 
-  if (realEstateDetails) result.realEstateDetails = realEstateDetails
-  if (kindergeldDetails) result.kindergeldDetails = kindergeldDetails
-  if (buRenteDetails) result.buRenteDetails = buRenteDetails
-  if (kapitallebensversicherungDetails) result.kapitallebensversicherungDetails = kapitallebensversicherungDetails
-
-  return result
+  return buildYearResult(source, incomeTypeResult, realEstateDetails, inflationFactor)
 }
 
 /**
