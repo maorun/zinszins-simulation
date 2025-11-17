@@ -88,15 +88,8 @@ export function RiskAnalysisPanels({
         </CollapsibleCardContent>
       </CollapsibleCard>
 
-      {/* Stress Testing Analysis in collapsible sub-panel */}
-      {stressTestData && (
-        <CollapsibleCard className="border-l-4 border-l-orange-400">
-          <CollapsibleCardHeader>🧪 Stress-Testing</CollapsibleCardHeader>
-          <CollapsibleCardContent>
-            <StressTestingDisplay results={stressTestData.results} summary={stressTestData.summary} />
-          </CollapsibleCardContent>
-        </CollapsibleCard>
-      )}
+      {/* Stress Testing Analysis - has its own collapsible card */}
+      {stressTestData && <StressTestingDisplay results={stressTestData.results} summary={stressTestData.summary} />}
 
       {/* Drawdown Analysis in collapsible sub-panel if there's detailed data */}
       <DrawdownAnalysis riskMetrics={riskMetrics} portfolioData={portfolioData} hasRiskData={hasRiskData} />
