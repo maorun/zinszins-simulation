@@ -1,8 +1,15 @@
 import MonteCarloAnalysisDisplay from './MonteCarloAnalysisDisplay'
+import StressTestingDisplay from './StressTestingDisplay'
 import { DrawdownAnalysis } from './DrawdownAnalysis'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import type { RandomReturnConfig } from '../utils/random-returns'
 import type { RiskMetrics, PortfolioData } from '../utils/risk-metrics'
+import {
+  runStressTests,
+  calculateStressTestSummary,
+  type StressTestConfiguration,
+} from '../utils/stress-testing'
+import { useMemo } from 'react'
 
 interface RiskAnalysisPanelsProps {
   riskConfig: RandomReturnConfig
@@ -15,7 +22,35 @@ interface RiskAnalysisPanelsProps {
 }
 
 /**
- * Component containing the analysis panels (Monte Carlo and Drawdown)
+ * Calculate stress test configuration from portfolio data
+ */
+function calculateStressTestConfig(
+  portfolioData: PortfolioData,
+  averageReturn: number,
+): StressTestConfiguration | null {
+  if (!portfolioData || portfolioData.values.length === 0) {
+    return null
+  }
+
+  // Use first year's capital as baseline
+  const baselineCapital = portfolioData.values[0]
+
+  // Estimate annual contribution from portfolio growth
+  const annualContribution =
+    portfolioData.values.length > 1
+      ? Math.max(0, (portfolioData.values[1] - portfolioData.values[0] * (1 + averageReturn)) / 2)
+      : 10000
+
+  return {
+    baselineCapital,
+    annualContribution,
+    normalReturn: averageReturn,
+    testDurationYears: Math.min(portfolioData.values.length, 10),
+  }
+}
+
+/**
+ * Component containing the analysis panels (Monte Carlo, Stress Testing, and Drawdown)
  */
 export function RiskAnalysisPanels({
   riskConfig,
@@ -26,6 +61,17 @@ export function RiskAnalysisPanels({
   portfolioData,
   hasRiskData,
 }: RiskAnalysisPanelsProps) {
+  // Calculate stress test results
+  const stressTestData = useMemo(() => {
+    const config = calculateStressTestConfig(portfolioData, riskConfig.averageReturn)
+    if (!config) return null
+
+    const results = runStressTests(config)
+    const summary = calculateStressTestSummary(results)
+
+    return { results, summary }
+  }, [portfolioData, riskConfig.averageReturn])
+
   return (
     <>
       {/* Monte Carlo Analysis in collapsible sub-panel */}
@@ -41,6 +87,16 @@ export function RiskAnalysisPanels({
           />
         </CollapsibleCardContent>
       </CollapsibleCard>
+
+      {/* Stress Testing Analysis in collapsible sub-panel */}
+      {stressTestData && (
+        <CollapsibleCard className="border-l-4 border-l-orange-400">
+          <CollapsibleCardHeader>🧪 Stress-Testing</CollapsibleCardHeader>
+          <CollapsibleCardContent>
+            <StressTestingDisplay results={stressTestData.results} summary={stressTestData.summary} />
+          </CollapsibleCardContent>
+        </CollapsibleCard>
+      )}
 
       {/* Drawdown Analysis in collapsible sub-panel if there's detailed data */}
       <DrawdownAnalysis riskMetrics={riskMetrics} portfolioData={portfolioData} hasRiskData={hasRiskData} />
