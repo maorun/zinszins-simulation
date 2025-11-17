@@ -31,6 +31,7 @@ describe('FormConfigurationSections', () => {
         isKindergeld={false}
         isBURente={false}
         isRental={true}
+        isKapitallebensversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
@@ -49,6 +50,7 @@ describe('FormConfigurationSections', () => {
         isKindergeld={true}
         isBURente={false}
         isRental={false}
+        isKapitallebensversicherung={false}
         isGrossIncome={false}
         onUpdate={mockOnUpdate}
       />,
@@ -67,6 +69,7 @@ describe('FormConfigurationSections', () => {
         isKindergeld={false}
         isBURente={false}
         isRental={false}
+        isKapitallebensversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
@@ -85,6 +88,7 @@ describe('FormConfigurationSections', () => {
         isKindergeld={false}
         isBURente={false}
         isRental={false}
+        isKapitallebensversicherung={false}
         isGrossIncome={false}
         onUpdate={mockOnUpdate}
       />,
@@ -113,6 +117,7 @@ describe('FormConfigurationSections', () => {
         isKindergeld={false}
         isBURente={false}
         isRental={true}
+        isKapitallebensversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
@@ -131,6 +136,7 @@ describe('FormConfigurationSections', () => {
         isKindergeld={false}
         isBURente={false}
         isRental={false}
+        isKapitallebensversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
@@ -157,6 +163,7 @@ describe('FormConfigurationSections', () => {
         isKindergeld={true}
         isBURente={false}
         isRental={false}
+        isKapitallebensversicherung={false}
         isGrossIncome={false}
         onUpdate={mockOnUpdate}
       />,
@@ -175,6 +182,7 @@ describe('FormConfigurationSections', () => {
         isKindergeld={false}
         isBURente={false}
         isRental={true}
+        isKapitallebensversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,

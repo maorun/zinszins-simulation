@@ -1,7 +1,7 @@
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Switch } from '../ui/switch'
-import type { OtherIncomeSource } from '../../../helpers/other-income'
+import type { OtherIncomeSource, KapitallebensversicherungConfig } from '../../../helpers/other-income'
 
 interface KapitallebensversicherungConfigSectionProps {
   editingSource: OtherIncomeSource
@@ -169,6 +169,34 @@ function TaxFreePortionField({ applyTaxFreePortionAfter12Years, onChange }: TaxF
   )
 }
 
+// Helper: Calculate tax treatment information
+function getTaxTreatmentInfo(
+  applyTaxFreePortionAfter12Years: boolean,
+  meetsDurationCriteria: boolean,
+  meetsAgeCriteria: boolean,
+  qualifiesForHalbeinkuenfte: boolean,
+): { taxInfo: string; taxExemption: number } {
+  if (applyTaxFreePortionAfter12Years && meetsDurationCriteria && meetsAgeCriteria) {
+    return {
+      taxInfo:
+        'Die Auszahlung ist vollständig steuerfrei (12+ Jahre Laufzeit und Auszahlung nach Alter 60 gemäß § 20 Abs. 1 Nr. 6 EStG).',
+      taxExemption: 100,
+    }
+  }
+
+  if (qualifiesForHalbeinkuenfte) {
+    return {
+      taxInfo: 'Es gilt das Halbeinkünfteverfahren: 50% der Erträge sind steuerfrei.',
+      taxExemption: 50,
+    }
+  }
+
+  return {
+    taxInfo: 'Die Erträge werden vollständig mit der Kapitalertragsteuer (Abgeltungsteuer) besteuert.',
+    taxExemption: 0,
+  }
+}
+
 function KapitallebensversicherungInfoBox({
   policyDuration,
   ageAtPayout,
@@ -185,20 +213,12 @@ function KapitallebensversicherungInfoBox({
   const meetsAgeCriteria = ageAtPayout >= 60
   const meetsDurationCriteria = policyDuration >= 12
 
-  let taxInfo = ''
-  let taxExemption = 0
-
-  if (applyTaxFreePortionAfter12Years && meetsDurationCriteria && meetsAgeCriteria) {
-    taxInfo =
-      'Die Auszahlung ist vollständig steuerfrei (12+ Jahre Laufzeit und Auszahlung nach Alter 60 gemäß § 20 Abs. 1 Nr. 6 EStG).'
-    taxExemption = 100
-  } else if (qualifiesForHalbeinkuenfte) {
-    taxInfo = 'Es gilt das Halbeinkünfteverfahren: 50% der Erträge sind steuerfrei.'
-    taxExemption = 50
-  } else {
-    taxInfo = 'Die Erträge werden vollständig mit der Kapitalertragsteuer (Abgeltungsteuer) besteuert.'
-    taxExemption = 0
-  }
+  const { taxInfo, taxExemption } = getTaxTreatmentInfo(
+    applyTaxFreePortionAfter12Years,
+    meetsDurationCriteria,
+    meetsAgeCriteria,
+    qualifiesForHalbeinkuenfte,
+  )
 
   const taxableGains = investmentGains * (1 - taxExemption / 100)
 
@@ -229,86 +249,81 @@ function createKapitallebensversicherungHandlers(
   editingSource: OtherIncomeSource,
   onUpdate: (source: OtherIncomeSource) => void,
 ) {
-  const handlePolicyStartYearChange = (policyStartYear: number) => {
+  // Helper to update config
+  const updateConfig = (updates: Partial<KapitallebensversicherungConfig>) => {
     onUpdate({
       ...editingSource,
       kapitallebensversicherungConfig: {
         ...editingSource.kapitallebensversicherungConfig!,
-        policyStartYear,
-      },
-    })
-  }
-
-  const handlePolicyMaturityYearChange = (policyMaturityYear: number) => {
-    onUpdate({
-      ...editingSource,
-      kapitallebensversicherungConfig: {
-        ...editingSource.kapitallebensversicherungConfig!,
-        policyMaturityYear,
-      },
-      endYear: policyMaturityYear, // Update income end year to maturity year
-    })
-  }
-
-  const handleTotalPayoutAmountChange = (totalPayoutAmount: number) => {
-    onUpdate({
-      ...editingSource,
-      kapitallebensversicherungConfig: {
-        ...editingSource.kapitallebensversicherungConfig!,
-        totalPayoutAmount,
-      },
-    })
-  }
-
-  const handleTotalPremiumsPaidChange = (totalPremiumsPaid: number) => {
-    onUpdate({
-      ...editingSource,
-      kapitallebensversicherungConfig: {
-        ...editingSource.kapitallebensversicherungConfig!,
-        totalPremiumsPaid,
-      },
-    })
-  }
-
-  const handleBirthYearChange = (birthYear: number) => {
-    onUpdate({
-      ...editingSource,
-      kapitallebensversicherungConfig: {
-        ...editingSource.kapitallebensversicherungConfig!,
-        birthYear,
-      },
-    })
-  }
-
-  const handleHalbeinkuenfteChange = (qualifiesForHalbeinkuenfte: boolean) => {
-    onUpdate({
-      ...editingSource,
-      kapitallebensversicherungConfig: {
-        ...editingSource.kapitallebensversicherungConfig!,
-        qualifiesForHalbeinkuenfte,
-      },
-    })
-  }
-
-  const handleTaxFreePortionChange = (applyTaxFreePortionAfter12Years: boolean) => {
-    onUpdate({
-      ...editingSource,
-      kapitallebensversicherungConfig: {
-        ...editingSource.kapitallebensversicherungConfig!,
-        applyTaxFreePortionAfter12Years,
+        ...updates,
       },
     })
   }
 
   return {
-    handlePolicyStartYearChange,
-    handlePolicyMaturityYearChange,
-    handleTotalPayoutAmountChange,
-    handleTotalPremiumsPaidChange,
-    handleBirthYearChange,
-    handleHalbeinkuenfteChange,
-    handleTaxFreePortionChange,
+    handlePolicyStartYearChange: (policyStartYear: number) => updateConfig({ policyStartYear }),
+    handlePolicyMaturityYearChange: (policyMaturityYear: number) => {
+      onUpdate({
+        ...editingSource,
+        kapitallebensversicherungConfig: {
+          ...editingSource.kapitallebensversicherungConfig!,
+          policyMaturityYear,
+        },
+        endYear: policyMaturityYear,
+      })
+    },
+    handleTotalPayoutAmountChange: (totalPayoutAmount: number) => updateConfig({ totalPayoutAmount }),
+    handleTotalPremiumsPaidChange: (totalPremiumsPaid: number) => updateConfig({ totalPremiumsPaid }),
+    handleBirthYearChange: (birthYear: number) => updateConfig({ birthYear }),
+    handleHalbeinkuenfteChange: (qualifiesForHalbeinkuenfte: boolean) => updateConfig({ qualifiesForHalbeinkuenfte }),
+    handleTaxFreePortionChange: (applyTaxFreePortionAfter12Years: boolean) =>
+      updateConfig({ applyTaxFreePortionAfter12Years }),
   }
+}
+
+// Component to render all form fields
+function KapitallebensversicherungFormFields({
+  config,
+  currentYear,
+  handlers,
+}: {
+  config: KapitallebensversicherungConfig
+  currentYear: number
+  handlers: ReturnType<typeof createKapitallebensversicherungHandlers>
+}) {
+  return (
+    <>
+      <BirthYearField birthYear={config.birthYear} onChange={handlers.handleBirthYearChange} />
+
+      <PolicyStartYearField policyStartYear={config.policyStartYear} onChange={handlers.handlePolicyStartYearChange} />
+
+      <PolicyMaturityYearField
+        policyMaturityYear={config.policyMaturityYear}
+        currentYear={currentYear}
+        onChange={handlers.handlePolicyMaturityYearChange}
+      />
+
+      <TotalPayoutAmountField
+        totalPayoutAmount={config.totalPayoutAmount}
+        onChange={handlers.handleTotalPayoutAmountChange}
+      />
+
+      <TotalPremiumsPaidField
+        totalPremiumsPaid={config.totalPremiumsPaid}
+        onChange={handlers.handleTotalPremiumsPaidChange}
+      />
+
+      <HalbeinkuenfteField
+        qualifiesForHalbeinkuenfte={config.qualifiesForHalbeinkuenfte}
+        onChange={handlers.handleHalbeinkuenfteChange}
+      />
+
+      <TaxFreePortionField
+        applyTaxFreePortionAfter12Years={config.applyTaxFreePortionAfter12Years}
+        onChange={handlers.handleTaxFreePortionChange}
+      />
+    </>
+  )
 }
 
 export function KapitallebensversicherungConfigSection({
@@ -320,15 +335,7 @@ export function KapitallebensversicherungConfigSection({
     return null
   }
 
-  const {
-    handlePolicyStartYearChange,
-    handlePolicyMaturityYearChange,
-    handleTotalPayoutAmountChange,
-    handleTotalPremiumsPaidChange,
-    handleBirthYearChange,
-    handleHalbeinkuenfteChange,
-    handleTaxFreePortionChange,
-  } = createKapitallebensversicherungHandlers(editingSource, onUpdate)
+  const handlers = createKapitallebensversicherungHandlers(editingSource, onUpdate)
 
   const config = editingSource.kapitallebensversicherungConfig
   const policyDuration = config.policyMaturityYear - config.policyStartYear
@@ -341,29 +348,7 @@ export function KapitallebensversicherungConfigSection({
         🏦 Kapitallebensversicherung-spezifische Einstellungen
       </h4>
 
-      <BirthYearField birthYear={config.birthYear} onChange={handleBirthYearChange} />
-
-      <PolicyStartYearField policyStartYear={config.policyStartYear} onChange={handlePolicyStartYearChange} />
-
-      <PolicyMaturityYearField
-        policyMaturityYear={config.policyMaturityYear}
-        currentYear={currentYear}
-        onChange={handlePolicyMaturityYearChange}
-      />
-
-      <TotalPayoutAmountField totalPayoutAmount={config.totalPayoutAmount} onChange={handleTotalPayoutAmountChange} />
-
-      <TotalPremiumsPaidField totalPremiumsPaid={config.totalPremiumsPaid} onChange={handleTotalPremiumsPaidChange} />
-
-      <HalbeinkuenfteField
-        qualifiesForHalbeinkuenfte={config.qualifiesForHalbeinkuenfte}
-        onChange={handleHalbeinkuenfteChange}
-      />
-
-      <TaxFreePortionField
-        applyTaxFreePortionAfter12Years={config.applyTaxFreePortionAfter12Years}
-        onChange={handleTaxFreePortionChange}
-      />
+      <KapitallebensversicherungFormFields config={config} currentYear={currentYear} handlers={handlers} />
 
       <KapitallebensversicherungInfoBox
         policyDuration={policyDuration}
