@@ -232,6 +232,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Altersabhängige Besteuerung**: Ertragsanteil variiert je nach Alter bei Beginn der Berufsunfähigkeit (z.B. 36% bei 40 Jahren)
     - **Dokumentation des BU-Grads**: Erfassung des Berufsunfähigkeitsgrades (0-100%) für Übersichtszwecke
     - **Dauerhafte oder temporäre BU**: Unterstützung sowohl für permanente als auch zeitlich begrenzte Berufsunfähigkeit
+  - **Kapitallebensversicherung** - Vollständige Integration klassischer Lebensversicherungsprodukte mit deutscher Steuergesetzgebung
+    - **Einmalauszahlung bei Fälligkeit**: Konfigurierbare Auszahlungsbeträge und Zeitpunkte
+    - **Halbeinkünfteverfahren**: Unterstützung für ältere Verträge mit 50% Steuerbefreiung der Erträge
+    - **12-Jahres-Steuerfreiheit**: Automatische Prüfung der Steuerfreiheit nach § 20 Abs. 1 Nr. 6 EStG
+      - Vollständige Steuerbefreiung bei 12+ Jahren Laufzeit und Auszahlung ab Alter 60
+      - Altersabhängige Prüfung basierend auf Geburtsjahr des Versicherten
+    - **Ertragsberechnung**: Automatische Berechnung der Kapitalerträge (Auszahlung - gezahlte Beiträge)
+    - **Abgeltungsteuer**: Korrekte Anwendung der Kapitalertragsteuer (26,375%) auf steuerpflichtige Erträge
+    - **Echtzeit-Steuervorschau**: Interaktive Anzeige von Vertragslaufzeit, Alter bei Auszahlung und steuerlicher Behandlung
+    - **Flexible Konfiguration**: Individuelle Anpassung von Vertragsbeginn, Fälligkeit, Auszahlungsbetrag und gezahlten Beiträgen
   - **Immobilien-Cashflow Integration** - Umfassende Immobilienertragsberechnung mit deutschen Steuerregeln
     - **Realistische Kostenfaktoren**: Instandhaltungskosten (0-30%), Leerstandsquote (0-20%), Finanzierungskosten
     - **Wertsteigerungsberechnung**: Optionale Berücksichtigung der Immobilienwertsteigerung als zusätzliches Einkommen
