@@ -7,6 +7,7 @@ import { TimePeriodSection } from './TimePeriodSection'
 import { RealEstateConfigSection } from './RealEstateConfigSection'
 import { KindergeldConfigSection } from './KindergeldConfigSection'
 import { BURenteConfigSection } from './BURenteConfigSection'
+import { KapitallebensversicherungConfigSection } from './KapitallebensversicherungConfigSection'
 
 interface FormConfigurationSectionsProps {
   editingSource: OtherIncomeSource
@@ -15,6 +16,7 @@ interface FormConfigurationSectionsProps {
   isKindergeld: boolean
   isBURente: boolean
   isRental: boolean
+  isKapitallebensversicherung: boolean
   isGrossIncome: boolean
   onUpdate: (source: OtherIncomeSource) => void
 }
@@ -27,32 +29,49 @@ export function FormConfigurationSections({
   isKindergeld,
   isBURente,
   isRental,
+  isKapitallebensversicherung,
   isGrossIncome,
   onUpdate,
 }: FormConfigurationSectionsProps) {
   return (
     <>
-      {!isKindergeld && <AmountTypeSection editingSource={editingSource} onUpdate={onUpdate} />}
+      {!isKindergeld && !isKapitallebensversicherung && (
+        <AmountTypeSection editingSource={editingSource} onUpdate={onUpdate} />
+      )}
 
-      <MonthlyAmountSection
-        editingSource={editingSource}
-        monthlyAmountId={monthlyAmountId}
-        isKindergeld={isKindergeld}
-        isGrossIncome={isGrossIncome}
-        onUpdate={onUpdate}
-      />
+      {!isKapitallebensversicherung && (
+        <MonthlyAmountSection
+          editingSource={editingSource}
+          monthlyAmountId={monthlyAmountId}
+          isKindergeld={isKindergeld}
+          isGrossIncome={isGrossIncome}
+          onUpdate={onUpdate}
+        />
+      )}
 
       {isGrossIncome && <TaxRateSection editingSource={editingSource} onUpdate={onUpdate} />}
 
-      {!isBURente && <TimePeriodSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />}
+      {!isBURente && !isKapitallebensversicherung && (
+        <TimePeriodSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />
+      )}
 
-      {!isKindergeld && !isBURente && <InflationRateSection editingSource={editingSource} onUpdate={onUpdate} />}
+      {!isKindergeld && !isBURente && !isKapitallebensversicherung && (
+        <InflationRateSection editingSource={editingSource} onUpdate={onUpdate} />
+      )}
 
       {isRental && <RealEstateConfigSection editingSource={editingSource} onUpdate={onUpdate} />}
 
       {isKindergeld && <KindergeldConfigSection editingSource={editingSource} onUpdate={onUpdate} />}
 
       {isBURente && <BURenteConfigSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />}
+
+      {isKapitallebensversicherung && (
+        <KapitallebensversicherungConfigSection
+          editingSource={editingSource}
+          currentYear={currentYear}
+          onUpdate={onUpdate}
+        />
+      )}
     </>
   )
 }
