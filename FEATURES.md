@@ -77,9 +77,9 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 - ~~**Sensitivitätsanalyse** - Auswirkungen von Parameteränderungen~~ ✅ **IMPLEMENTIERT**
 - ~~**Optimierungsalgorithmen** - Automatische Optimierung der Asset Allocation~~ ✅ **IMPLEMENTIERT**
+- ~~**Stress-Testing** - Systematische Tests extremer Szenarien~~ ✅ **IMPLEMENTIERT**
 - **Machine Learning Prognosen** - KI-basierte Renditeprognosen
 - **Behavioral Finance** - Berücksichtigung von Anlegerverhalten
-- **Stress-Testing** - Systematische Tests extremer Szenarien
 
 #### Reporting & Visualisierung
 
