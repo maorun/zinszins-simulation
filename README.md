@@ -23,6 +23,12 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **7 Anlageklassen** - Deutsche/Europäische Aktien, Internationale Aktien, Staatsanleihen, Unternehmensanleihen, REITs, Rohstoffe, Liquidität
   - **Individuelle Konfiguration** - Separate Einstellung von erwarteter Rendite, Volatilität und Zielallokation für jede Anlageklasse
   - **Portfolio-Übersicht** - Real-time Berechnung der erwarteten Portfolio-Rendite und des Portfolio-Risikos
+  - **Portfolio-Optimierung** - Automatische Optimierung der Asset Allocation
+    - **3 Optimierungsziele** - Maximale Sharpe Ratio, Minimales Risiko, Maximale Rendite
+    - **Korrelationsberücksichtigend** - Nutzt Korrelationsmatrix für realistische Portfolio-Varianz-Berechnung
+    - **Gradient-basierte Optimierung** - Effiziente Optimierung mit finiten Differenzen
+    - **Ergebnisanzeige** - Erwartete Rendite, Risiko, Sharpe Ratio und optimierte Allokationen
+    - **Ein-Klick-Anwendung** - Optimierte Allokationen können direkt übernommen werden
   - **Automatisches Rebalancing** - Konfigurierbare Rebalancing-Häufigkeit (jährlich, quartalsweise, monatlich) mit Schwellenwert-basiertem Rebalancing
   - **Korrelationsmatrix** - Berücksichtigung historischer Korrelationen zwischen Anlageklassen für realistische Simulationen
   - **Korrelations-Heatmap** - Visuelle Darstellung der Korrelationsmatrix mit farbcodierter Heatmap
