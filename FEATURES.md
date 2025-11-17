@@ -14,7 +14,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Asset Allocation & Portfolio-Management
 
-- **Rebalancing-Strategien** - Periodisches, schwellenbasiertes oder taktisches Rebalancing
 - **Faktor-Investing** - Integration von Value, Growth, Small-Cap, Momentum Faktoren
 - **Geografische Diversifikation** - Aufteilung zwischen Regionen mit entsprechenden Steuern
 - **ESG-Integration** - Nachhaltigkeitsfilter und ESG-Score-basierte Portfolios
