@@ -10,6 +10,7 @@ import {
   type CareCostConfiguration,
 } from '../../../../helpers/care-cost-simulation'
 import type { FinancialGoal } from '../../../../helpers/financial-goals'
+import { defaultEmergencyFundConfig, type EmergencyFundConfig } from '../../../../helpers/emergency-fund'
 import type { ExtendedSavedConfiguration } from '../../helpers/config-types'
 
 export interface WithdrawalConfigStateConfig {
@@ -50,6 +51,10 @@ export function useWithdrawalConfigState(config: WithdrawalConfigStateConfig) {
 
   const [financialGoals, setFinancialGoals] = useState<FinancialGoal[]>(extendedInitialConfig.financialGoals || [])
 
+  const [emergencyFundConfig, setEmergencyFundConfig] = useState<EmergencyFundConfig>(() => {
+    return extendedInitialConfig.emergencyFundConfig || defaultEmergencyFundConfig
+  })
+
   return {
     withdrawalConfig,
     setWithdrawalConfig,
@@ -61,5 +66,7 @@ export function useWithdrawalConfigState(config: WithdrawalConfigStateConfig) {
     setCareCostConfiguration,
     financialGoals,
     setFinancialGoals,
+    emergencyFundConfig,
+    setEmergencyFundConfig,
   }
 }

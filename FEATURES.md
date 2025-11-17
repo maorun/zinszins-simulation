@@ -23,7 +23,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 - ~~**Inflationsszenarien** - Hyperinflation, Deflation, Stagflation Szenarien~~ ✅ **IMPLEMENTIERT**
 - **Währungsrisiko** - Multi-Währungs-Portfolios mit Wechselkursrisiken
-- **Liquiditätsplanung** - Cash-Reserve-Strategien für Notfälle
+- ~~**Liquiditätsplanung** - Cash-Reserve-Strategien für Notfälle~~ ✅ **IMPLEMENTIERT**
 - **Volatilitäts-Targeting** - Dynamische Allokation basierend auf Marktvolatilität
 - **Tail-Risk Hedging** - Absicherungsstrategien gegen extreme Verluste
 

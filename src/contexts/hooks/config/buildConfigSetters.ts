@@ -75,5 +75,6 @@ export function buildWithdrawalConfigSetters(setters: ConfigurationStateSetters)
     setCoupleStatutoryPensionConfig: setters.setCoupleStatutoryPensionConfig,
     setCareCostConfiguration: setters.setCareCostConfiguration,
     setFinancialGoals: setters.setFinancialGoals,
+    setEmergencyFundConfig: setters.setEmergencyFundConfig,
   }
 }

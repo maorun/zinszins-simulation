@@ -146,6 +146,23 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Persistente Speicherung** - Ziele werden automatisch mit dem Profil gespeichert
   - **Nächster Meilenstein** - Hervorhebung des nächsten zu erreichenden Meilensteins
 
+### Liquiditätsreserve / Notfallfonds-Planung
+
+- **Cash-Reserve-Strategien für Notfälle** - Planen Sie Ihre finanzielle Notfallreserve nach deutschen Standards
+  - **Beschäftigungsspezifische Empfehlungen** - Automatische Empfehlungen basierend auf Ihrer Situation
+    - Angestellte: 3-6 Monate Ausgaben
+    - Selbstständige: 6-12 Monate Ausgaben
+    - Rentner: 1-3 Monate Ausgaben
+  - **Drei Reserve-Strategien** - Wählen Sie zwischen konservativ, ausgewogen und aggressiv
+    - **Konservativ** - Hohe Liquidität mit Schwerpunkt auf sofort verfügbaren Mitteln (Girokonto, Tagesgeld)
+    - **Ausgewogen** - Mix aus sofort verfügbaren Mitteln und kurzfristigen Anlagen
+    - **Aggressiv** - Minimale Liquidität, höherer Anteil in kurzfristigen Anlagen mit Renditepotenzial
+  - **Echtzeit-Status-Tracking** - Fortschrittsanzeige mit visueller Darstellung
+  - **Monatliche Ausgaben-Konfiguration** - Anpassbarer Slider für Ihre durchschnittlichen Lebenshaltungskosten
+  - **Flexible Zielsetzung** - Frei wählbare Anzahl der abzudeckenden Monate (1-24)
+  - **Investitions-Integration** - Option zum Ausschluss des Notfallfonds von risikobehafteten Anlagen
+  - **Intelligente Empfehlungen** - Dynamische Anpassung der Empfehlung basierend auf Beschäftigungsstatus und Strategie
+
 - **🎯 Retirement-Readiness Score** - Umfassende Bewertung Ihrer Rentenbereitschaft
   - **Gesamtscore (0-100%)** - Aussagekräftiger Score mit deutscher Bewertungsskala (Ausgezeichnet bis Verbesserungswürdig)
   - **Drei Hauptmetriken** - Gewichtete Bewertung von Kapitaldeckung (40%), Einkommensersatz (30%) und Nachhaltigkeit (30%)

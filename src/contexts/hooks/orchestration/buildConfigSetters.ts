@@ -47,5 +47,6 @@ export function buildConfigSetters(state: ReturnType<typeof useSimulationState>)
     setCoupleStatutoryPensionConfig: state.setCoupleStatutoryPensionConfig,
     setCareCostConfiguration: state.setCareCostConfiguration,
     setFinancialGoals: state.setFinancialGoals,
+    setEmergencyFundConfig: state.setEmergencyFundConfig,
   }
 }

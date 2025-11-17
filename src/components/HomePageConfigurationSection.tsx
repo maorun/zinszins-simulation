@@ -8,6 +8,7 @@ const GlobalPlanningConfiguration = lazy(() =>
   import('./GlobalPlanningConfiguration').then(m => ({ default: m.GlobalPlanningConfiguration })),
 )
 const FinancialGoalsConfiguration = lazy(() => import('./FinancialGoalsConfiguration'))
+const EmergencyFundConfiguration = lazy(() => import('./EmergencyFundConfiguration'))
 const ProfileManagement = lazy(() => import('./ProfileManagement'))
 const ScenarioSelector = lazy(() => import('./ScenarioSelector'))
 
@@ -47,6 +48,11 @@ export function HomePageConfigurationSection({
       {/* Financial Goals Configuration */}
       <Suspense fallback={<LoadingCard />}>
         <FinancialGoalsConfiguration />
+      </Suspense>
+
+      {/* Emergency Fund / Liquidity Reserve Configuration */}
+      <Suspense fallback={<LoadingCard />}>
+        <EmergencyFundConfiguration />
       </Suspense>
 
       <Suspense fallback={<LoadingCard />}>

@@ -1,5 +1,6 @@
 import { convertSparplanToElements } from '../../utils/sparplan-utils'
 import { convertLegacyToCoupleConfig, type CoupleStatutoryPensionConfig } from '../../../helpers/statutory-pension'
+import { defaultEmergencyFundConfig } from '../../../helpers/emergency-fund'
 import type { ExtendedSavedConfiguration, DefaultConfiguration, ConfigurationSetters } from './config-types'
 
 /**
@@ -173,6 +174,16 @@ function loadCareCostConfig(
 }
 
 /**
+ * Load emergency fund configuration
+ */
+function loadEmergencyFundConfig(
+  savedConfig: ExtendedSavedConfiguration,
+  setEmergencyFundConfig: ConfigurationSetters['setEmergencyFundConfig'],
+): void {
+  setEmergencyFundConfig(savedConfig.emergencyFundConfig || defaultEmergencyFundConfig)
+}
+
+/**
  * Load withdrawal and pension configuration
  */
 export function loadWithdrawalConfig(
@@ -184,6 +195,7 @@ export function loadWithdrawalConfig(
     | 'setCoupleStatutoryPensionConfig'
     | 'setCareCostConfiguration'
     | 'setFinancialGoals'
+    | 'setEmergencyFundConfig'
   >,
 ): void {
   setters.setWithdrawalConfig(savedConfig.withdrawal || null)
@@ -195,4 +207,6 @@ export function loadWithdrawalConfig(
   loadCareCostConfig(savedConfig, setters.setCareCostConfiguration)
 
   setters.setFinancialGoals(savedConfig.financialGoals || [])
+
+  loadEmergencyFundConfig(savedConfig, setters.setEmergencyFundConfig)
 }
