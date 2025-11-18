@@ -94,7 +94,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Finanzbildung
 
 - **Interaktive Tutorials** - Schritt-für-Schritt Anleitungen für Einsteiger
-- **Verhaltensökonomie-Insights** - Aufklärung über häufige Anlegerfehler
 - **Marktpsychologie-Indikatoren** - Fear & Greed Index, etc.
 
 #### Zielsetzung & Tracking
