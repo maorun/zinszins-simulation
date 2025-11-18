@@ -40,7 +40,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 - ~~**Immobilien-Cashflow** - Mieteinnahmen vs. Finanzierungskosten~~ ✅ **IMPLEMENTIERT**
 - ~~**Immobilien-Wertsteigerung** - Historische und prognostizierte Wertentwicklung~~ ✅ **TEILWEISE IMPLEMENTIERT**
-- **Eigenheim vs. Miete** - Detaillierte Vergleichsrechnung über Lebensspanne
+- ~~**Eigenheim vs. Miete** - Detaillierte Vergleichsrechnung über Lebensspanne~~ ✅ **IMPLEMENTIERT**
 - **Immobilien-Leverage** - Optimale Finanzierungsstrukturen
 - **Immobilien-Steueroptimierung** - AfA, Werbungskosten, etc.
 
