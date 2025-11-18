@@ -173,6 +173,34 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Personalisierte Empfehlungen** - Konkrete Handlungsempfehlungen basierend auf den einzelnen Metriken
   - **Methodentransparenz** - Klare Erklärung der Berechnungsgrundlage und verwendeten Standards
 
+### Eigenheim vs. Miete Vergleich
+
+- **Umfassender Kaufen-oder-Mieten-Rechner** - Detaillierte Analyse der finanziellen Auswirkungen von Eigenheim vs. Miete
+  - **Eigenheim-Szenario** - Vollständige Kostenberechnung für Immobilienkauf
+    - **Kaufpreis und Eigenkapital** - Flexible Konfiguration von Kaufpreis und Eigenkapitalanteil
+    - **Finanzierungsberechnung** - Präzise Darlehenszinsen und Tilgungsrechnung mit Amortisation
+    - **Nebenkosten** - Berücksichtigung von Grundsteuer, Instandhaltung, Versicherung und Hausgeld
+    - **Wertsteigerung** - Konfigurierbare jährliche Immobilienwertsteigerung
+    - **Kaufnebenkosten** - Integration von Notar, Grunderwerbsteuer und Maklergebühren
+  - **Miet-Szenario** - Realistische Mietkostenberechnung
+    - **Kaltmiete und Nebenkosten** - Separate Konfiguration von Grundmiete und Nebenkosten
+    - **Mietpreisentwicklung** - Jährliche Mieterhöhung mit konfigurierbarer Rate
+    - **Investitionsrechnung** - Automatische Berechnung alternativer Kapitalanlagen für gesparte Anzahlung
+    - **Kostendifferenz-Investment** - Intelligente Berechnung der Investition von Kostendifferenzen
+  - **Vergleichsanalyse** - Detaillierte finanzielle Gegenüberstellung
+    - **Break-Even-Analyse** - Automatische Ermittlung des Zeitpunkts, ab dem Eigenheim rentabler wird
+    - **Vermögensaufbau** - Gegenüberstellung von Eigenkapital vs. Miet-Vermögen über die Zeit
+    - **Gesamtkostenvergleich** - Vollständige Analyse aller kumulierten Kosten
+    - **30-Jahres-Simulation** - Flexibler Vergleichszeitraum von 5-40 Jahren
+  - **Intelligente Empfehlungen** - Datenbasierte Entscheidungshilfe
+    - **Finanzielle Vorteilhaftigkeit** - Klare Empfehlung basierend auf Vermögensaufbau
+    - **Monatskostenvergleich** - Gegenüberstellung der monatlichen Belastung im ersten Jahr
+    - **Persönliche Präferenzen** - Berücksichtigung nicht-finanzieller Faktoren in der Empfehlung
+  - **Moderne Visualisierung** - Übersichtliche Darstellung mit shadcn/ui
+    - **Zusammenfassungskarten** - Farbcodierte Cards für Eigenheim, Miete und Differenz
+    - **Interaktive Konfiguration** - Echtzeit-Update der Ergebnisse bei Parameteränderungen
+    - **Responsive Design** - Optimiert für Desktop und mobile Geräte
+
 ### Globale Planung (Einzelperson/Ehepaar)
 
 - **Planungsmodus** - Zentrale Auswahl zwischen Individual- und Paarplanung

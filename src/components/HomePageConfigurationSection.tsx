@@ -9,6 +9,9 @@ const GlobalPlanningConfiguration = lazy(() =>
 )
 const FinancialGoalsConfiguration = lazy(() => import('./FinancialGoalsConfiguration'))
 const EmergencyFundConfiguration = lazy(() => import('./EmergencyFundConfiguration'))
+const EigenheimVsMieteComparison = lazy(() =>
+  import('./EigenheimVsMieteComparison').then(m => ({ default: m.EigenheimVsMieteComparison })),
+)
 const ProfileManagement = lazy(() => import('./ProfileManagement'))
 const ScenarioSelector = lazy(() => import('./ScenarioSelector'))
 
@@ -53,6 +56,11 @@ export function HomePageConfigurationSection({
       {/* Emergency Fund / Liquidity Reserve Configuration */}
       <Suspense fallback={<LoadingCard />}>
         <EmergencyFundConfiguration />
+      </Suspense>
+
+      {/* Eigenheim vs. Miete Comparison */}
+      <Suspense fallback={<LoadingCard />}>
+        <EigenheimVsMieteComparison />
       </Suspense>
 
       <Suspense fallback={<LoadingCard />}>
