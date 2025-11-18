@@ -1334,5 +1334,262 @@ describe('Other Income Calculations', () => {
         expect(result[maturityYear].totalTaxAmount).toBe(3600) // Only from rental
       })
     })
+
+    describe('Pflegezusatzversicherung', () => {
+      it('should calculate care insurance benefits correctly', () => {
+        const currentYear = 2025
+        const source: OtherIncomeSource = {
+          id: 'test-pflege-1',
+          name: 'Pflegezusatzversicherung',
+          type: 'pflegezusatzversicherung',
+          amountType: 'gross',
+          monthlyAmount: 1500, // Monthly benefit amount
+          startYear: 2025,
+          endYear: null,
+          inflationRate: 2,
+          taxRate: 0, // Care benefits are tax-free
+          enabled: true,
+          pflegezusatzversicherungConfig: {
+            careStartYear: 2025,
+            careEndYear: null,
+            pflegegrad: 3,
+            birthYear: 1985,
+            monthlyPremium: 50,
+            policyStartYear: 2020,
+            applyTaxBenefits: true,
+            maxAnnualTaxDeduction: 1900,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, currentYear)
+
+        expect(result).not.toBeNull()
+        expect(result!.grossAnnualAmount).toBe(18000) // 1500 * 12
+        expect(result!.netAnnualAmount).toBe(18000) // Tax-free
+        expect(result!.taxAmount).toBe(0)
+
+        expect(result!.pflegezusatzversicherungDetails).toBeDefined()
+        expect(result!.pflegezusatzversicherungDetails!.isActive).toBe(true)
+        expect(result!.pflegezusatzversicherungDetails!.pflegegrad).toBe(3)
+        expect(result!.pflegezusatzversicherungDetails!.monthlyBenefit).toBe(1500)
+        expect(result!.pflegezusatzversicherungDetails!.annualPremiumsCost).toBe(600) // 50 * 12
+        expect(result!.pflegezusatzversicherungDetails!.age).toBe(40) // 2025 - 1985
+      })
+
+      it('should not pay benefits before care start year', () => {
+        const currentYear = 2025
+        const source: OtherIncomeSource = {
+          id: 'test-pflege-2',
+          name: 'Pflegezusatzversicherung',
+          type: 'pflegezusatzversicherung',
+          amountType: 'gross',
+          monthlyAmount: 1500,
+          startYear: 2030, // Care starts in 2030
+          endYear: null,
+          inflationRate: 2,
+          taxRate: 0,
+          enabled: true,
+          pflegezusatzversicherungConfig: {
+            careStartYear: 2030,
+            careEndYear: null,
+            pflegegrad: 3,
+            birthYear: 1985,
+            monthlyPremium: 50,
+            policyStartYear: 2020,
+            applyTaxBenefits: true,
+            maxAnnualTaxDeduction: 1900,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, currentYear)
+        expect(result).toBeNull() // No benefits before care starts
+      })
+
+      it('should apply tax deduction benefits when enabled', () => {
+        const currentYear = 2025
+        const source: OtherIncomeSource = {
+          id: 'test-pflege-3',
+          name: 'Pflegezusatzversicherung',
+          type: 'pflegezusatzversicherung',
+          amountType: 'gross',
+          monthlyAmount: 1500,
+          startYear: 2025,
+          endYear: null,
+          inflationRate: 2,
+          taxRate: 0,
+          enabled: true,
+          pflegezusatzversicherungConfig: {
+            careStartYear: 2025,
+            careEndYear: null,
+            pflegegrad: 3,
+            birthYear: 1985,
+            monthlyPremium: 50,
+            policyStartYear: 2020,
+            applyTaxBenefits: true,
+            maxAnnualTaxDeduction: 1900,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, currentYear)
+
+        expect(result).not.toBeNull()
+        expect(result!.pflegezusatzversicherungDetails!.taxDeductionBenefit).toBe(600) // Min of 600 and 1900
+        expect(result!.pflegezusatzversicherungDetails!.netBenefit).toBe(18000) // 18000 - 600 + 600 = 18000
+      })
+
+      it('should not apply tax deduction when disabled', () => {
+        const currentYear = 2025
+        const source: OtherIncomeSource = {
+          id: 'test-pflege-4',
+          name: 'Pflegezusatzversicherung',
+          type: 'pflegezusatzversicherung',
+          amountType: 'gross',
+          monthlyAmount: 1500,
+          startYear: 2025,
+          endYear: null,
+          inflationRate: 2,
+          taxRate: 0,
+          enabled: true,
+          pflegezusatzversicherungConfig: {
+            careStartYear: 2025,
+            careEndYear: null,
+            pflegegrad: 3,
+            birthYear: 1985,
+            monthlyPremium: 50,
+            policyStartYear: 2020,
+            applyTaxBenefits: false,
+            maxAnnualTaxDeduction: 1900,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, currentYear)
+
+        expect(result).not.toBeNull()
+        expect(result!.pflegezusatzversicherungDetails!.taxDeductionBenefit).toBe(0)
+        expect(result!.pflegezusatzversicherungDetails!.netBenefit).toBe(17400) // 18000 - 600
+      })
+
+      it('should handle different Pflegegrade', () => {
+        const currentYear = 2025
+
+        for (const pflegegrad of [1, 2, 3, 4, 5] as const) {
+          const source: OtherIncomeSource = {
+            id: `test-pflege-grad-${pflegegrad}`,
+            name: `Pflegezusatzversicherung Grad ${pflegegrad}`,
+            type: 'pflegezusatzversicherung',
+            amountType: 'gross',
+            monthlyAmount: 1500,
+            startYear: 2025,
+            endYear: null,
+            inflationRate: 2,
+            taxRate: 0,
+            enabled: true,
+            pflegezusatzversicherungConfig: {
+              careStartYear: 2025,
+              careEndYear: null,
+              pflegegrad,
+              birthYear: 1985,
+              monthlyPremium: 50,
+              policyStartYear: 2020,
+              applyTaxBenefits: true,
+              maxAnnualTaxDeduction: 1900,
+            },
+          }
+
+          const result = calculateOtherIncomeForYear(source, currentYear)
+
+          expect(result).not.toBeNull()
+          expect(result!.pflegezusatzversicherungDetails!.pflegegrad).toBe(pflegegrad)
+        }
+      })
+
+      it('should handle care end year correctly', () => {
+        const source: OtherIncomeSource = {
+          id: 'test-pflege-5',
+          name: 'Pflegezusatzversicherung',
+          type: 'pflegezusatzversicherung',
+          amountType: 'gross',
+          monthlyAmount: 1500,
+          startYear: 2025,
+          endYear: 2030,
+          inflationRate: 2,
+          taxRate: 0,
+          enabled: true,
+          pflegezusatzversicherungConfig: {
+            careStartYear: 2025,
+            careEndYear: 2030, // Care ends in 2030
+            pflegegrad: 3,
+            birthYear: 1985,
+            monthlyPremium: 50,
+            policyStartYear: 2020,
+            applyTaxBenefits: true,
+            maxAnnualTaxDeduction: 1900,
+          },
+        }
+
+        // During care period
+        const resultDuring = calculateOtherIncomeForYear(source, 2028)
+        expect(resultDuring).not.toBeNull()
+        expect(resultDuring!.pflegezusatzversicherungDetails!.isActive).toBe(true)
+
+        // After care ended
+        const resultAfter = calculateOtherIncomeForYear(source, 2031)
+        expect(resultAfter).toBeNull()
+      })
+
+      it('should integrate with other income sources', () => {
+        const currentYear = 2025
+        const config: OtherIncomeConfiguration = {
+          enabled: true,
+          sources: [
+            {
+              id: 'pension-1',
+              name: 'Pension',
+              type: 'pension',
+              amountType: 'gross',
+              monthlyAmount: 2000,
+              startYear: 2025,
+              endYear: null,
+              inflationRate: 2,
+              taxRate: 20,
+              enabled: true,
+            },
+            {
+              id: 'pflege-1',
+              name: 'Pflegezusatzversicherung',
+              type: 'pflegezusatzversicherung',
+              amountType: 'gross',
+              monthlyAmount: 1500,
+              startYear: 2025,
+              endYear: null,
+              inflationRate: 2,
+              taxRate: 0,
+              enabled: true,
+              pflegezusatzversicherungConfig: {
+                careStartYear: 2025,
+                careEndYear: null,
+                pflegegrad: 3,
+                birthYear: 1985,
+                monthlyPremium: 50,
+                policyStartYear: 2020,
+                applyTaxBenefits: true,
+                maxAnnualTaxDeduction: 1900,
+              },
+            },
+          ],
+        }
+
+        const result = calculateOtherIncome(config, 2025, 2025)
+
+        expect(result[currentYear].sources).toHaveLength(2)
+        expect(result[currentYear].sources[0].source.type).toBe('pension')
+        expect(result[currentYear].sources[1].source.type).toBe('pflegezusatzversicherung')
+
+        // Pension: 24000 gross, 4800 tax, 19200 net
+        // Pflege: 18000 gross, 0 tax, 18000 net
+        expect(result[currentYear].totalNetAnnualAmount).toBe(37200)
+        expect(result[currentYear].totalTaxAmount).toBe(4800)
+      })
+    })
   })
 })

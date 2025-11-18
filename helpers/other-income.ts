@@ -742,6 +742,33 @@ function applyPflegezusatzversicherungLogic(
   }
 }
 
+// Helper: Calculate taxable amount for special income types
+// eslint-disable-next-line complexity
+function calculateTaxableAmount(
+  source: OtherIncomeSource,
+  grossAnnualAmount: number,
+  buRenteDetails?: OtherIncomeYearResult['buRenteDetails'],
+  kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails'],
+  pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails'],
+): number {
+  // For BU-Rente with Leibrenten-Besteuerung, only tax the Ertragsanteil
+  if (source.type === 'bu_rente' && buRenteDetails && source.buRenteConfig?.applyLeibrentenBesteuerung) {
+    return buRenteDetails.taxableAmount
+  }
+
+  // For Kapitallebensversicherung, only tax the taxable portion of gains
+  if (source.type === 'kapitallebensversicherung' && kapitallebensversicherungDetails) {
+    return kapitallebensversicherungDetails.taxableGains
+  }
+
+  // For Pflegezusatzversicherung, benefits are tax-free in Germany (§ 3 Nr. 1a EStG)
+  if (source.type === 'pflegezusatzversicherung' && pflegezusatzversicherungDetails) {
+    return 0
+  }
+
+  return grossAnnualAmount
+}
+
 function calculateTaxAndNet(
   source: OtherIncomeSource,
   grossAnnualAmount: number,
@@ -757,22 +784,13 @@ function calculateTaxAndNet(
     }
   }
 
-  // For BU-Rente with Leibrenten-Besteuerung, only tax the Ertragsanteil
-  let taxableAmount = grossAnnualAmount
-  if (source.type === 'bu_rente' && buRenteDetails && source.buRenteConfig?.applyLeibrentenBesteuerung) {
-    taxableAmount = buRenteDetails.taxableAmount
-  }
-
-  // For Kapitallebensversicherung, only tax the taxable portion of gains
-  if (source.type === 'kapitallebensversicherung' && kapitallebensversicherungDetails) {
-    taxableAmount = kapitallebensversicherungDetails.taxableGains
-  }
-
-  // For Pflegezusatzversicherung, benefits are typically tax-free in Germany
-  // According to § 3 Nr. 1a EStG, care insurance benefits are tax-free
-  if (source.type === 'pflegezusatzversicherung' && pflegezusatzversicherungDetails) {
-    taxableAmount = 0 // Care benefits are tax-free
-  }
+  const taxableAmount = calculateTaxableAmount(
+    source,
+    grossAnnualAmount,
+    buRenteDetails,
+    kapitallebensversicherungDetails,
+    pflegezusatzversicherungDetails,
+  )
 
   const taxAmount = taxableAmount * (source.taxRate / 100)
   const netAnnualAmount = grossAnnualAmount - taxAmount
