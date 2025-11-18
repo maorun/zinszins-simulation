@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import { Brain, ChevronDown, ChevronUp, Search } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
+import { CollapsibleCard, CollapsibleCardHeader, CollapsibleCardContent } from './ui/collapsible-card'
 import { Input } from './ui/input'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { behavioralBiases, getAllCategories, getBiasesByCategory, searchBiases, type BehavioralBias } from '../data/behavioral-finance'
@@ -193,18 +194,12 @@ function BiasesList({ displayBiases, openBiases, onToggleBias }: BiasesListProps
  */
 function InsightsHeader() {
   return (
-    <CardHeader>
+    <CollapsibleCardHeader>
       <div className="flex items-center gap-2">
         <Brain className="w-6 h-6 text-purple-600" />
-        <div>
-          <CardTitle>Behavioral Finance - Häufige Anlegerfehler</CardTitle>
-          <CardDescription className="mt-1">
-            Lernen Sie typische psychologische Fehler kennen, die viele Anleger machen, und wie Sie diese vermeiden
-            können.
-          </CardDescription>
-        </div>
+        <span>Behavioral Finance - Häufige Anlegerfehler</span>
       </div>
-    </CardHeader>
+    </CollapsibleCardHeader>
   )
 }
 
@@ -248,31 +243,39 @@ export function BehavioralFinanceInsights() {
   }
 
   return (
-    <Card className="w-full">
+    <CollapsibleCard defaultOpen={false}>
       <InsightsHeader />
 
-      <CardContent className="space-y-4">
-        {/* Search Bar */}
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-          <Input
-            type="text"
-            placeholder="Suche nach Bias..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            className="pl-10"
-          />
+      <CollapsibleCardContent>
+        <div className="space-y-4">
+          {/* Description */}
+          <CardDescription>
+            Lernen Sie typische psychologische Fehler kennen, die viele Anleger machen, und wie Sie diese vermeiden
+            können.
+          </CardDescription>
+
+          {/* Search Bar */}
+          <div className="relative">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+            <Input
+              type="text"
+              placeholder="Suche nach Bias..."
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+
+          {/* Category Overview */}
+          {!searchTerm && <CategoryOverview />}
+
+          {/* Biases List */}
+          <BiasesList displayBiases={displayBiases} openBiases={openBiases} onToggleBias={toggleBias} />
+
+          {/* Footer Info */}
+          <InsightsFooter />
         </div>
-
-        {/* Category Overview */}
-        {!searchTerm && <CategoryOverview />}
-
-        {/* Biases List */}
-        <BiasesList displayBiases={displayBiases} openBiases={openBiases} onToggleBias={toggleBias} />
-
-        {/* Footer Info */}
-        <InsightsFooter />
-      </CardContent>
-    </Card>
+      </CollapsibleCardContent>
+    </CollapsibleCard>
   )
 }
