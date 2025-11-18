@@ -151,6 +151,62 @@ Die folgenden Features sollen entsprechend der Anforderung **NICHT** entwickelt 
 
 ---
 
+## 🤖 Entwicklungsrichtlinie: Keine KI/ML-Implementierungen
+
+**Wichtige Klarstellung zur Feature-Entwicklung:**
+
+Diese Anwendung ist ein **transparentes, nachvollziehbares Finanzplanungswerkzeug** für deutsche Steuerverhältnisse. Entsprechend gelten folgende Richtlinien für AI/ML-bezogene Features:
+
+### ❌ NICHT zu entwickeln: Echte KI/ML-Funktionalität
+
+Die folgenden Technologien und Ansätze sollen **NICHT** implementiert werden:
+
+- **Machine Learning Modelle** - Keine neuronalen Netze, keine trainierten ML-Modelle
+- **KI-basierte Prognosen** - Keine "intelligenten" Vorhersagemodelle mit ML-Training
+- **AI-Algorithmen** - Keine selbstlernenden oder adaptiven Algorithmen
+- **Natural Language Processing** - Keine Sprachverarbeitung oder ChatBot-Features
+- **Computer Vision** - Keine Bilderkennungs- oder Analysefunktionen
+- **Predictive Analytics mit ML** - Keine ML-basierten Vorhersagen
+- **Reinforcement Learning** - Keine selbstoptimierenden Agenten
+- **Deep Learning** - Keine tiefen neuronalen Netze jeglicher Art
+
+### Begründung
+
+1. **Transparenz**: Alle Berechnungen müssen für Nutzer nachvollziehbar sein
+2. **Verlässlichkeit**: Deterministische Berechnungen ohne "Black Box"-Effekte
+3. **Datenschutz**: Keine Datensammlung für ML-Training
+4. **Komplexität**: Fokus auf bewährte, verständliche Finanzrechenmethoden
+5. **Wartbarkeit**: Code bleibt wartbar ohne ML-Infrastruktur
+
+### ✅ Erlaubt: Pseudo-KI und etablierte Algorithmen
+
+Die folgenden Ansätze sind **ausdrücklich erlaubt** und können bei Bedarf verwendet werden:
+
+- **Monte Carlo Simulation** ✅ **IMPLEMENTIERT** - Statistische Simulation durch Zufallsziehungen (kein ML)
+- **Optimierungsalgorithmen** ✅ **IMPLEMENTIERT** - Mathematische Optimierung (z.B. Portfolio-Allokation)
+- **Statistische Analysen** ✅ **IMPLEMENTIERT** - Varianz, Standardabweichung, Perzentile, etc.
+- **Deterministische Regelbasierte Systeme** - Wenn-Dann-Logik ohne maschinelles Lernen
+- **Heuristische Algorithmen** - Faustregeln und bewährte Finanzplanungs-Heuristiken
+- **Pseudo-KI Marketing-Begriffe** - Begriffe wie "Intelligente Planung" für regelbasierte Logik (optional, nicht erforderlich)
+
+### Betroffene Features in dieser Liste
+
+Die folgenden Features in diesem Dokument sind als "**NICHT zu implementieren**" zu betrachten, wenn sie echte KI/ML erfordern würden:
+
+- **Machine Learning Prognosen** (Zeile 81) - Nur wenn echtes ML gemeint ist; statistische Prognosen erlaubt
+- **Behavioral Finance mit ML** (Zeile 82) - Nur regelbasierte Verhaltensmodelle erlaubt, kein ML
+
+**Alternative Umsetzungen** dieser Features ohne KI/ML sind ausdrücklich **möglich und erwünscht**, wenn sie auf etablierten statistischen und mathematischen Methoden basieren.
+
+### Zusammenfassung
+
+- **❌ Keine echten AI/ML-Implementierungen**
+- **✅ Statistische und mathematische Methoden ausdrücklich erlaubt**
+- **✅ Pseudo-KI Begriffe für Marketing erlaubt (optional)**
+- **✅ Transparente, nachvollziehbare Berechnungen im Fokus**
+
+---
+
 ## 📊 Priorisierung der zukünftigen Features
 
 ### Hoch (⭐⭐⭐)
