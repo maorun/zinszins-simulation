@@ -60,7 +60,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Pflegevorsorge
 
-- **Pflegezusatzversicherung** - Private Pflegeversicherung vs. Eigenvorsorge
 - **Generationenvertrag** - Finanzielle Belastung durch Pflege von Angehörigen
 
 ### Technische Verbesserungen

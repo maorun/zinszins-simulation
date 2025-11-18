@@ -14,6 +14,7 @@ export type IncomeType =
   | 'kindergeld'
   | 'bu_rente'
   | 'kapitallebensversicherung'
+  | 'pflegezusatzversicherung'
   | 'other'
 
 /**
@@ -106,6 +107,35 @@ export interface KapitallebensversicherungConfig {
 }
 
 /**
+ * Pflegezusatzversicherung (Long-term Care Insurance) specific configuration
+ */
+export interface PflegezusatzversicherungConfig {
+  /** Year when care need starts (when benefits begin) */
+  careStartYear: number
+
+  /** Year when care need ends (null = lifelong care need) */
+  careEndYear: number | null
+
+  /** Pflegegrad (care level) from 1 to 5 according to German law */
+  pflegegrad: 1 | 2 | 3 | 4 | 5
+
+  /** Birth year of insured person (for age-based calculations) */
+  birthYear: number
+
+  /** Monthly premium paid for the insurance in EUR */
+  monthlyPremium: number
+
+  /** Year when policy was taken out */
+  policyStartYear: number
+
+  /** Whether tax benefits apply (Basisabsicherung nach § 10 Abs. 1 Nr. 3 EStG) */
+  applyTaxBenefits: boolean
+
+  /** Maximum annual tax-deductible amount for care insurance premiums */
+  maxAnnualTaxDeduction: number
+}
+
+/**
  * Whether the income amount is gross or net
  */
 export type IncomeAmountType = 'gross' | 'net'
@@ -158,6 +188,9 @@ export interface OtherIncomeSource {
 
   /** Kapitallebensversicherung-specific configuration (only for kapitallebensversicherung income) */
   kapitallebensversicherungConfig?: KapitallebensversicherungConfig
+
+  /** Pflegezusatzversicherung-specific configuration (only for pflegezusatzversicherung income) */
+  pflegezusatzversicherungConfig?: PflegezusatzversicherungConfig
 }
 
 /**
@@ -237,6 +270,26 @@ export interface OtherIncomeYearResult {
     taxExemptionPercent: number
     /** Reason if conditions not met */
     notes?: string
+  }
+
+  /** Pflegezusatzversicherung-specific calculations (only for pflegezusatzversicherung income) */
+  pflegezusatzversicherungDetails?: {
+    /** Person's age this year */
+    age: number
+    /** Whether care benefits are active this year */
+    isActive: boolean
+    /** Care level (Pflegegrad) 1-5 */
+    pflegegrad: 1 | 2 | 3 | 4 | 5
+    /** Monthly benefit amount from insurance */
+    monthlyBenefit: number
+    /** Annual premiums paid (negative value as cost) */
+    annualPremiumsCost: number
+    /** Tax deduction benefit from premiums */
+    taxDeductionBenefit: number
+    /** Net benefit (benefits - premiums + tax deduction) */
+    netBenefit: number
+    /** Reason if benefits not active */
+    endReason?: string
   }
 }
 
@@ -467,6 +520,65 @@ function calculateKapitallebensversicherungStatus(
   }
 }
 
+// Helper: Calculate Pflegezusatzversicherung (Long-term Care Insurance) status and benefits
+function calculatePflegezusatzversicherungStatus(
+  config: PflegezusatzversicherungConfig,
+  year: number,
+  grossAnnualAmount: number,
+): {
+  isActive: boolean
+  age: number
+  pflegegrad: 1 | 2 | 3 | 4 | 5
+  monthlyBenefit: number
+  annualPremiumsCost: number
+  taxDeductionBenefit: number
+  netBenefit: number
+  endReason?: string
+} {
+  const age = year - config.birthYear
+  let isActive = true
+  let endReason: string | undefined
+
+  // Check if care need has started
+  if (year < config.careStartYear) {
+    isActive = false
+    endReason = 'Pflegebedarf noch nicht eingetreten'
+  }
+  // Check if care need has ended
+  else if (config.careEndYear !== null && year > config.careEndYear) {
+    isActive = false
+    endReason = 'Pflegebedarf beendet'
+  }
+
+  // Calculate monthly benefit based on Pflegegrad and gross annual amount
+  // The gross annual amount represents the monthly benefit * 12
+  const monthlyBenefit = isActive ? grossAnnualAmount / 12 : 0
+
+  // Annual premiums are always paid (until care starts or policy ends)
+  const annualPremiumsCost = config.monthlyPremium * 12
+
+  // Tax deduction benefit: Pflegepflichtversicherung premiums are tax-deductible as Vorsorgeaufwendungen
+  // Maximum deduction according to § 10 Abs. 1 Nr. 3 EStG
+  // Simplified: Use the configured max annual deduction or actual premiums, whichever is lower
+  const taxDeductionBenefit = config.applyTaxBenefits
+    ? Math.min(annualPremiumsCost, config.maxAnnualTaxDeduction)
+    : 0
+
+  // Net benefit: Benefits received minus premiums paid, plus tax deduction benefit
+  const netBenefit = monthlyBenefit * 12 - annualPremiumsCost + taxDeductionBenefit
+
+  return {
+    isActive,
+    age,
+    pflegegrad: config.pflegegrad,
+    monthlyBenefit,
+    annualPremiumsCost,
+    taxDeductionBenefit,
+    netBenefit,
+    endReason,
+  }
+}
+
 function calculateGrossAmounts(
   source: OtherIncomeSource,
   yearsFromStart: number,
@@ -478,6 +590,7 @@ function calculateGrossAmounts(
   kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
   buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
   kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
+  pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
 } {
   let grossMonthlyAmount = source.monthlyAmount * inflationFactor
   let grossAnnualAmount = grossMonthlyAmount * 12
@@ -485,6 +598,7 @@ function calculateGrossAmounts(
   let kindergeldDetails: OtherIncomeYearResult['kindergeldDetails']
   let buRenteDetails: OtherIncomeYearResult['buRenteDetails']
   let kapitallebensversicherungDetails: OtherIncomeYearResult['kapitallebensversicherungDetails']
+  let pflegezusatzversicherungDetails: OtherIncomeYearResult['pflegezusatzversicherungDetails']
 
   if (source.type === 'rental' && source.realEstateConfig) {
     const result = calculateRealEstateIncome(source.realEstateConfig, grossAnnualAmount, yearsFromStart)
@@ -500,6 +614,7 @@ function calculateGrossAmounts(
     kindergeldDetails,
     buRenteDetails,
     kapitallebensversicherungDetails,
+    pflegezusatzversicherungDetails,
   }
 }
 
@@ -591,6 +706,79 @@ function applyKapitallebensversicherungLogic(
   }
 }
 
+function applyPflegezusatzversicherungLogic(
+  source: OtherIncomeSource,
+  year: number,
+  amounts: { grossMonthlyAmount: number; grossAnnualAmount: number },
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
+} {
+  if (source.type !== 'pflegezusatzversicherung' || !source.pflegezusatzversicherungConfig) {
+    return amounts
+  }
+
+  const status = calculatePflegezusatzversicherungStatus(
+    source.pflegezusatzversicherungConfig,
+    year,
+    amounts.grossAnnualAmount,
+  )
+
+  // If care benefits are not active yet, return zero income (but premiums are still paid in reality)
+  if (!status.isActive) {
+    return {
+      grossMonthlyAmount: 0,
+      grossAnnualAmount: 0,
+      pflegezusatzversicherungDetails: status,
+    }
+  }
+
+  // Return the monthly benefit as income
+  return {
+    grossMonthlyAmount: status.monthlyBenefit,
+    grossAnnualAmount: status.monthlyBenefit * 12,
+    pflegezusatzversicherungDetails: status,
+  }
+}
+
+// Helper: Calculate taxable amount for BU-Rente
+function getBURenteTaxableAmount(
+  buRenteDetails: OtherIncomeYearResult['buRenteDetails'],
+  applyLeibrentenBesteuerung: boolean,
+  grossAnnualAmount: number,
+): number {
+  if (applyLeibrentenBesteuerung && buRenteDetails?.taxableAmount !== undefined) {
+    return buRenteDetails.taxableAmount
+  }
+  return grossAnnualAmount
+}
+
+// Helper: Calculate taxable amount for special income types
+function calculateTaxableAmount(
+  source: OtherIncomeSource,
+  grossAnnualAmount: number,
+  buRenteDetails?: OtherIncomeYearResult['buRenteDetails'],
+  kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails'],
+): number {
+  // For Pflegezusatzversicherung, benefits are tax-free in Germany (§ 3 Nr. 1a EStG)
+  if (source.type === 'pflegezusatzversicherung') {
+    return 0
+  }
+
+  // For Kapitallebensversicherung, only tax the taxable portion of gains
+  if (source.type === 'kapitallebensversicherung' && kapitallebensversicherungDetails?.taxableGains !== undefined) {
+    return kapitallebensversicherungDetails.taxableGains
+  }
+
+  // For BU-Rente with Leibrenten-Besteuerung, only tax the Ertragsanteil
+  if (source.type === 'bu_rente') {
+    return getBURenteTaxableAmount(buRenteDetails, source.buRenteConfig?.applyLeibrentenBesteuerung ?? false, grossAnnualAmount)
+  }
+
+  return grossAnnualAmount
+}
+
 function calculateTaxAndNet(
   source: OtherIncomeSource,
   grossAnnualAmount: number,
@@ -605,16 +793,12 @@ function calculateTaxAndNet(
     }
   }
 
-  // For BU-Rente with Leibrenten-Besteuerung, only tax the Ertragsanteil
-  let taxableAmount = grossAnnualAmount
-  if (source.type === 'bu_rente' && buRenteDetails && source.buRenteConfig?.applyLeibrentenBesteuerung) {
-    taxableAmount = buRenteDetails.taxableAmount
-  }
-
-  // For Kapitallebensversicherung, only tax the taxable portion of gains
-  if (source.type === 'kapitallebensversicherung' && kapitallebensversicherungDetails) {
-    taxableAmount = kapitallebensversicherungDetails.taxableGains
-  }
+  const taxableAmount = calculateTaxableAmount(
+    source,
+    grossAnnualAmount,
+    buRenteDetails,
+    kapitallebensversicherungDetails,
+  )
 
   const taxAmount = taxableAmount * (source.taxRate / 100)
   const netAnnualAmount = grossAnnualAmount - taxAmount
@@ -636,6 +820,7 @@ function applyIncomeTypeLogic(
   kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
   buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
   kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
+  pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
 } {
   const kindergeldResult = applyKindergeldLogic(source, year, initialAmounts)
 
@@ -649,12 +834,18 @@ function applyIncomeTypeLogic(
     grossAnnualAmount: buRenteResult.grossAnnualAmount,
   })
 
-  return {
+  const pflegezusatzversicherungResult = applyPflegezusatzversicherungLogic(source, year, {
     grossMonthlyAmount: kapitallebensversicherungResult.grossMonthlyAmount,
     grossAnnualAmount: kapitallebensversicherungResult.grossAnnualAmount,
+  })
+
+  return {
+    grossMonthlyAmount: pflegezusatzversicherungResult.grossMonthlyAmount,
+    grossAnnualAmount: pflegezusatzversicherungResult.grossAnnualAmount,
     kindergeldDetails: kindergeldResult.kindergeldDetails,
     buRenteDetails: buRenteResult.buRenteDetails,
     kapitallebensversicherungDetails: kapitallebensversicherungResult.kapitallebensversicherungDetails,
+    pflegezusatzversicherungDetails: pflegezusatzversicherungResult.pflegezusatzversicherungDetails,
   }
 }
 
@@ -667,6 +858,7 @@ function buildYearResult(
     kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
     buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
     kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
+    pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
   },
   realEstateDetails: OtherIncomeYearResult['realEstateDetails'],
   inflationFactor: number,
@@ -693,6 +885,8 @@ function buildYearResult(
   if (incomeTypeResult.buRenteDetails) result.buRenteDetails = incomeTypeResult.buRenteDetails
   if (incomeTypeResult.kapitallebensversicherungDetails)
     result.kapitallebensversicherungDetails = incomeTypeResult.kapitallebensversicherungDetails
+  if (incomeTypeResult.pflegezusatzversicherungDetails)
+    result.pflegezusatzversicherungDetails = incomeTypeResult.pflegezusatzversicherungDetails
 
   return result
 }
@@ -918,6 +1112,27 @@ export function createDefaultKapitallebensversicherungConfig(): Kapitallebensver
 }
 
 /**
+ * Create default Pflegezusatzversicherung configuration
+ */
+export function createDefaultPflegezusatzversicherungConfig(): PflegezusatzversicherungConfig {
+  const currentYear = new Date().getFullYear()
+  const defaultBirthYear = currentYear - 40 // 40 years old by default
+  const policyStartYear = currentYear - 5 // Policy taken out 5 years ago
+  const careStartYear = currentYear + 20 // Care need expected in 20 years (at age 60)
+
+  return {
+    careStartYear,
+    careEndYear: null, // Lifelong care need
+    pflegegrad: 3, // Medium care level as default
+    birthYear: defaultBirthYear,
+    monthlyPremium: 50, // 50€ monthly premium as default
+    policyStartYear,
+    applyTaxBenefits: true, // Apply tax deduction benefits by default
+    maxAnnualTaxDeduction: 1900, // Current limit for private care insurance premiums (as of 2024)
+  }
+}
+
+/**
  * Get the monthly Kindergeld amount based on German law (as of 2024)
  * @param _childOrderNumber - The order of the child (1st, 2nd, 3rd, etc.)
  * @returns Monthly Kindergeld amount in EUR
@@ -940,6 +1155,7 @@ function getDefaultNameForType(type: IncomeType): string {
     kindergeld: 'Kindergeld',
     bu_rente: 'BU-Rente',
     kapitallebensversicherung: 'Kapitallebensversicherung',
+    pflegezusatzversicherung: 'Pflegezusatzversicherung',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || 'Einkommen'
@@ -964,6 +1180,7 @@ export function getIncomeTypeDisplayName(type: IncomeType): string {
     kindergeld: 'Kindergeld',
     bu_rente: 'BU-Rente',
     kapitallebensversicherung: 'Kapitallebensversicherung',
+    pflegezusatzversicherung: 'Pflegezusatzversicherung',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || type

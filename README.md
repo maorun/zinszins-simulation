@@ -287,6 +287,22 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Abgeltungsteuer**: Korrekte Anwendung der Kapitalertragsteuer (26,375%) auf steuerpflichtige Erträge
     - **Echtzeit-Steuervorschau**: Interaktive Anzeige von Vertragslaufzeit, Alter bei Auszahlung und steuerlicher Behandlung
     - **Flexible Konfiguration**: Individuelle Anpassung von Vertragsbeginn, Fälligkeit, Auszahlungsbetrag und gezahlten Beiträgen
+  - **Pflegezusatzversicherung** - Umfassende Pflegeversicherungs-Integration für Altersvorsorgeplanung
+    - **Pflegegrad-System**: Vollständige Unterstützung der deutschen Pflegegrade 1-5 mit detaillierten Beschreibungen
+      - Pflegegrad 1: Geringe Beeinträchtigung der Selbstständigkeit
+      - Pflegegrad 2: Erhebliche Beeinträchtigung der Selbstständigkeit
+      - Pflegegrad 3: Schwere Beeinträchtigung der Selbstständigkeit
+      - Pflegegrad 4: Schwerste Beeinträchtigung der Selbstständigkeit
+      - Pflegegrad 5: Schwerste Beeinträchtigung mit besonderen Anforderungen
+    - **Steuerfreie Leistungen**: Pflegeleistungen sind steuerfrei nach § 3 Nr. 1a EStG
+    - **Beitragsabsetzbarkeit**: Steuerliche Absetzbarkeit der Versicherungsbeiträge nach § 10 Abs. 1 Nr. 3 EStG
+      - Konfigurierbare maximale jährliche Absetzbarkeit (Standard: 1.900€)
+      - Automatische Berechnung des Steuervorteils durch Beitragsabzug
+    - **Flexible Pflegezeiträume**: Konfigurierbare Start- und Endjahre für Pflegebedürftigkeit
+    - **Dauerhafte oder temporäre Pflege**: Unterstützung sowohl für lebenslange als auch zeitlich begrenzte Pflegebedürftigkeit
+    - **Netto-Nutzen-Berechnung**: Automatische Berechnung von Leistungen minus Beiträge plus Steuervorteile
+    - **Altersbasierte Planung**: Berücksichtigung des Alters bei Pflegebeginn für realistische Szenarien
+    - **Echtzeit-Übersicht**: Interaktive Anzeige von monatlichen/jährlichen Leistungen, Beiträgen und Netto-Nutzen
   - **Immobilien-Cashflow Integration** - Umfassende Immobilienertragsberechnung mit deutschen Steuerregeln
     - **Realistische Kostenfaktoren**: Instandhaltungskosten (0-30%), Leerstandsquote (0-20%), Finanzierungskosten
     - **Wertsteigerungsberechnung**: Optionale Berücksichtigung der Immobilienwertsteigerung als zusätzliches Einkommen

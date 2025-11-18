@@ -32,6 +32,7 @@ describe('FormConfigurationSections', () => {
         isBURente={false}
         isRental={true}
         isKapitallebensversicherung={false}
+        isPflegezusatzversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
@@ -51,6 +52,7 @@ describe('FormConfigurationSections', () => {
         isBURente={false}
         isRental={false}
         isKapitallebensversicherung={false}
+        isPflegezusatzversicherung={false}
         isGrossIncome={false}
         onUpdate={mockOnUpdate}
       />,
@@ -70,6 +72,7 @@ describe('FormConfigurationSections', () => {
         isBURente={false}
         isRental={false}
         isKapitallebensversicherung={false}
+        isPflegezusatzversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
@@ -89,6 +92,7 @@ describe('FormConfigurationSections', () => {
         isBURente={false}
         isRental={false}
         isKapitallebensversicherung={false}
+        isPflegezusatzversicherung={false}
         isGrossIncome={false}
         onUpdate={mockOnUpdate}
       />,
@@ -118,6 +122,7 @@ describe('FormConfigurationSections', () => {
         isBURente={false}
         isRental={true}
         isKapitallebensversicherung={false}
+        isPflegezusatzversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
@@ -137,6 +142,7 @@ describe('FormConfigurationSections', () => {
         isBURente={false}
         isRental={false}
         isKapitallebensversicherung={false}
+        isPflegezusatzversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
@@ -164,6 +170,7 @@ describe('FormConfigurationSections', () => {
         isBURente={false}
         isRental={false}
         isKapitallebensversicherung={false}
+        isPflegezusatzversicherung={false}
         isGrossIncome={false}
         onUpdate={mockOnUpdate}
       />,
@@ -183,6 +190,7 @@ describe('FormConfigurationSections', () => {
         isBURente={false}
         isRental={true}
         isKapitallebensversicherung={false}
+        isPflegezusatzversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
