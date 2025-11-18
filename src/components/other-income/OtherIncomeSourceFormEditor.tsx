@@ -7,6 +7,7 @@ import {
   createDefaultKindergeldConfig,
   createDefaultBURenteConfig,
   createDefaultKapitallebensversicherungConfig,
+  createDefaultPflegezusatzversicherungConfig,
 } from '../../../helpers/other-income'
 import { useFormId } from '../../utils/unique-id'
 import { NameInputSection } from './NameInputSection'
@@ -86,6 +87,24 @@ function configureKapitallebensversicherungSettings(source: OtherIncomeSource, n
   }
 }
 
+// Helper to apply Pflegezusatzversicherung defaults
+function applyPflegezusatzversicherungDefaults(source: OtherIncomeSource): void {
+  source.pflegezusatzversicherungConfig = createDefaultPflegezusatzversicherungConfig()
+  source.amountType = 'gross'
+  source.taxRate = 0 // Care benefits are tax-free
+  source.inflationRate = 2 // Benefits adjust with inflation
+  source.monthlyAmount = 1500 // Default monthly benefit (1500€)
+}
+
+// Helper to configure Pflegezusatzversicherung settings based on income type
+function configurePflegezusatzversicherungSettings(source: OtherIncomeSource, newType: IncomeType): void {
+  if (newType === 'pflegezusatzversicherung' && !source.pflegezusatzversicherungConfig) {
+    applyPflegezusatzversicherungDefaults(source)
+  } else if (newType !== 'pflegezusatzversicherung' && source.pflegezusatzversicherungConfig) {
+    delete source.pflegezusatzversicherungConfig
+  }
+}
+
 // Helper to handle income type change
 function handleIncomeTypeChange(
   newType: IncomeType,
@@ -97,6 +116,7 @@ function handleIncomeTypeChange(
   configureKindergeldSettings(updatedSource, newType)
   configureBURenteSettings(updatedSource, newType)
   configureKapitallebensversicherungSettings(updatedSource, newType)
+  configurePflegezusatzversicherungSettings(updatedSource, newType)
   onUpdate(updatedSource)
 }
 
@@ -117,6 +137,7 @@ export function OtherIncomeSourceFormEditor({
   const isBURente = editingSource.type === 'bu_rente'
   const isRental = editingSource.type === 'rental'
   const isKapitallebensversicherung = editingSource.type === 'kapitallebensversicherung'
+  const isPflegezusatzversicherung = editingSource.type === 'pflegezusatzversicherung'
   const isGrossIncome = editingSource.amountType === 'gross'
 
   const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -139,6 +160,7 @@ export function OtherIncomeSourceFormEditor({
           isBURente={isBURente}
           isRental={isRental}
           isKapitallebensversicherung={isKapitallebensversicherung}
+          isPflegezusatzversicherung={isPflegezusatzversicherung}
           isGrossIncome={isGrossIncome}
           onUpdate={onUpdate}
         />

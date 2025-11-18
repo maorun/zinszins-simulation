@@ -8,6 +8,7 @@ import { RealEstateConfigSection } from './RealEstateConfigSection'
 import { KindergeldConfigSection } from './KindergeldConfigSection'
 import { BURenteConfigSection } from './BURenteConfigSection'
 import { KapitallebensversicherungConfigSection } from './KapitallebensversicherungConfigSection'
+import { PflegezusatzversicherungConfigSection } from './PflegezusatzversicherungConfigSection'
 
 interface FormConfigurationSectionsProps {
   editingSource: OtherIncomeSource
@@ -17,6 +18,7 @@ interface FormConfigurationSectionsProps {
   isBURente: boolean
   isRental: boolean
   isKapitallebensversicherung: boolean
+  isPflegezusatzversicherung: boolean
   isGrossIncome: boolean
   onUpdate: (source: OtherIncomeSource) => void
 }
@@ -30,6 +32,7 @@ export function FormConfigurationSections({
   isBURente,
   isRental,
   isKapitallebensversicherung,
+  isPflegezusatzversicherung,
   isGrossIncome,
   onUpdate,
 }: FormConfigurationSectionsProps) {
@@ -67,6 +70,14 @@ export function FormConfigurationSections({
 
       {isKapitallebensversicherung && (
         <KapitallebensversicherungConfigSection
+          editingSource={editingSource}
+          currentYear={currentYear}
+          onUpdate={onUpdate}
+        />
+      )}
+
+      {isPflegezusatzversicherung && (
+        <PflegezusatzversicherungConfigSection
           editingSource={editingSource}
           currentYear={currentYear}
           onUpdate={onUpdate}

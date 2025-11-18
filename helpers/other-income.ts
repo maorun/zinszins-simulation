@@ -1087,6 +1087,27 @@ export function createDefaultKapitallebensversicherungConfig(): Kapitallebensver
 }
 
 /**
+ * Create default Pflegezusatzversicherung configuration
+ */
+export function createDefaultPflegezusatzversicherungConfig(): PflegezusatzversicherungConfig {
+  const currentYear = new Date().getFullYear()
+  const defaultBirthYear = currentYear - 40 // 40 years old by default
+  const policyStartYear = currentYear - 5 // Policy taken out 5 years ago
+  const careStartYear = currentYear + 20 // Care need expected in 20 years (at age 60)
+
+  return {
+    careStartYear,
+    careEndYear: null, // Lifelong care need
+    pflegegrad: 3, // Medium care level as default
+    birthYear: defaultBirthYear,
+    monthlyPremium: 50, // 50€ monthly premium as default
+    policyStartYear,
+    applyTaxBenefits: true, // Apply tax deduction benefits by default
+    maxAnnualTaxDeduction: 1900, // Current limit for private care insurance premiums (as of 2024)
+  }
+}
+
+/**
  * Get the monthly Kindergeld amount based on German law (as of 2024)
  * @param _childOrderNumber - The order of the child (1st, 2nd, 3rd, etc.)
  * @returns Monthly Kindergeld amount in EUR
