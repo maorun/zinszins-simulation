@@ -287,6 +287,14 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Flexible Zeitplanung** - Wählbares Jahr für Krisensimulation innerhalb des Anlagezeitraums
   - **Erholungszeit-Anzeige** - Historische Daten zur durchschnittlichen Markterholung
   - **Widerstandsfähigkeitstest** - Bewertung der Portfolio-Robustheit in Extremszenarien
+- **Stress-Testing** - Systematische Tests extremer Szenarien zur Portfolio-Resilienz-Bewertung
+  - **Historische Krisenszenarien** - Automatische Simulation von Dotcom-Crash (2000-2003), Finanzkrise (2008-2009) und COVID-19 (2020)
+  - **Systematische Vergleiche** - Parallel-Testing aller Krisenszenarien für umfassende Risikobewertung
+  - **Portfolio-Resilienz-Metriken** - Schlimmstes Szenario, durchschnittlicher Verlust, durchschnittliche Erholungszeit
+  - **Verlust-Berechnung** - Absoluter und prozentualer Kapitalverlust gegenüber Baseline ohne Krise
+  - **Erholungszeit-Analyse** - Berechnung der benötigten Jahre zur Wiederherstellung des Baseline-Kapitals
+  - **Detaillierte Ergebnistabelle** - Übersicht aller Szenarien mit Verlust, Erholungszeit und Endkapital
+  - **Risiko-Visualisierung** - Farbcodierte Darstellung der Krisenschwere (gelb/orange/rot)
 - **Inflationsszenarien** - Simulation verschiedener Inflationsentwicklungen für Portfolioanalyse
   - **Hyperinflation** - Anhaltend hohe Inflation (8-12% p.a.) ähnlich der 1970er Jahre
   - **Deflation** - Negative Inflation (-2% bis 0%) ähnlich Japan in den 1990er Jahren
