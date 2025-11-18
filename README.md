@@ -135,6 +135,21 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Barrierearm** - Tastatur-navigierbar und screenreader-freundlich
   - **Moderne UI** - Integration mit shadcn/ui Design System
 
+### Behavioral Finance Insights
+
+- **Häufige Anlegerfehler verstehen und vermeiden** - Bildungskomponente über psychologische Fallen beim Investieren
+  - **12 Behavioral Biases** - Umfassende Aufklärung über typische psychologische Fehler
+    - **Emotionale Biases** - Verlustaversion, Dispositionseffekt, FOMO
+    - **Kognitive Fehler** - Selbstüberschätzung, Anker-Effekt, Bestätigungsfehler, Verfügbarkeitsheuristik, Rückschaufehler, Home Bias, Kontrollillusion
+    - **Soziale Einflüsse** - Herdentrieb
+    - **Mentale Buchführung** - Fehlerhafte mentale Kategorisierung von Geld
+  - **Deutsche Kontextualisierung** - Alle Beispiele mit deutschem Finanzmarkt (DAX, ETFs, deutsche Aktien)
+  - **Praktische Vermeidungsstrategien** - Konkrete Tipps zur Vermeidung jedes Bias
+  - **Suchfunktion** - Schnelles Finden relevanter Biases
+  - **Kategorisierung** - Übersicht nach Emotional, Cognitive und Social
+  - **Verwandte Biases** - Verknüpfungen zwischen zusammenhängenden psychologischen Effekten
+  - **Detaillierte Erklärungen** - Jeder Bias mit Definition, deutschem Beispiel und Vermeidungsstrategie
+
 ### Finanzziele & Fortschrittsverfolgung
 
 - **SMART-Goals Integration** - Setzen und verfolgen Sie messbare Finanzziele
