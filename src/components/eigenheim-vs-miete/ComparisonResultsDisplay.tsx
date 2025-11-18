@@ -24,66 +24,82 @@ export function ComparisonResultsDisplay({ summary, comparisonYears, formatCurre
 function SummaryCards({ summary, formatCurrency }: Pick<ComparisonResultsDisplayProps, 'summary' | 'formatCurrency'>) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-      <Card className={summary.netWorthDifference > 0 ? 'border-green-300 bg-green-50' : 'border-gray-200'}>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-gray-600">Eigenheim</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <div>
-              <p className="text-2xl font-bold">{formatCurrency(summary.finalHomeEquity)}</p>
-              <p className="text-xs text-gray-600">Eigenkapital</p>
-            </div>
-            <div className="text-sm text-gray-600">
-              <p>Gesamtkosten: {formatCurrency(summary.totalOwnershipCosts)}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className={summary.netWorthDifference < 0 ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}>
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-gray-600">Miete</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <div>
-              <p className="text-2xl font-bold">{formatCurrency(summary.finalRentalInvestments)}</p>
-              <p className="text-xs text-gray-600">Vermögen</p>
-            </div>
-            <div className="text-sm text-gray-600">
-              <p>Gesamtkosten: {formatCurrency(summary.totalRentalCosts)}</p>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      <Card className="border-purple-300 bg-purple-50">
-        <CardHeader className="pb-3">
-          <CardTitle className="text-sm font-medium text-gray-600">Differenz</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
-              {summary.netWorthDifference > 0 ? <TrendingUp className="h-5 w-5 text-green-600" /> : <TrendingDown className="h-5 w-5 text-red-600" />}
-              <p className={`text-2xl font-bold ${summary.netWorthDifference > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {formatCurrency(Math.abs(summary.netWorthDifference))}
-              </p>
-            </div>
-            <div className="text-sm text-gray-600">
-              {summary.breakEvenYear !== null ? (
-                <p className="flex items-center gap-1">
-                  <Calendar className="h-4 w-4" />
-                  Break-Even: Jahr {summary.breakEvenYear}
-                </p>
-              ) : (
-                <p>Kein Break-Even in diesem Zeitraum</p>
-              )}
-            </div>
-          </div>
-        </CardContent>
-      </Card>
+      <OwnershipCard summary={summary} formatCurrency={formatCurrency} />
+      <RentalCard summary={summary} formatCurrency={formatCurrency} />
+      <DifferenceCard summary={summary} formatCurrency={formatCurrency} />
     </div>
+  )
+}
+
+function OwnershipCard({ summary, formatCurrency }: Pick<ComparisonResultsDisplayProps, 'summary' | 'formatCurrency'>) {
+  return (
+    <Card className={summary.netWorthDifference > 0 ? 'border-green-300 bg-green-50' : 'border-gray-200'}>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm font-medium text-gray-600">Eigenheim</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <div>
+            <p className="text-2xl font-bold">{formatCurrency(summary.finalHomeEquity)}</p>
+            <p className="text-xs text-gray-600">Eigenkapital</p>
+          </div>
+          <div className="text-sm text-gray-600">
+            <p>Gesamtkosten: {formatCurrency(summary.totalOwnershipCosts)}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function RentalCard({ summary, formatCurrency }: Pick<ComparisonResultsDisplayProps, 'summary' | 'formatCurrency'>) {
+  return (
+    <Card className={summary.netWorthDifference < 0 ? 'border-blue-300 bg-blue-50' : 'border-gray-200'}>
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm font-medium text-gray-600">Miete</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <div>
+            <p className="text-2xl font-bold">{formatCurrency(summary.finalRentalInvestments)}</p>
+            <p className="text-xs text-gray-600">Vermögen</p>
+          </div>
+          <div className="text-sm text-gray-600">
+            <p>Gesamtkosten: {formatCurrency(summary.totalRentalCosts)}</p>
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  )
+}
+
+function DifferenceCard({ summary, formatCurrency }: Pick<ComparisonResultsDisplayProps, 'summary' | 'formatCurrency'>) {
+  return (
+    <Card className="border-purple-300 bg-purple-50">
+      <CardHeader className="pb-3">
+        <CardTitle className="text-sm font-medium text-gray-600">Differenz</CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="space-y-2">
+          <div className="flex items-center gap-2">
+            {summary.netWorthDifference > 0 ? <TrendingUp className="h-5 w-5 text-green-600" /> : <TrendingDown className="h-5 w-5 text-red-600" />}
+            <p className={`text-2xl font-bold ${summary.netWorthDifference > 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {formatCurrency(Math.abs(summary.netWorthDifference))}
+            </p>
+          </div>
+          <div className="text-sm text-gray-600">
+            {summary.breakEvenYear !== null ? (
+              <p className="flex items-center gap-1">
+                <Calendar className="h-4 w-4" />
+                Break-Even: Jahr {summary.breakEvenYear}
+              </p>
+            ) : (
+              <p>Kein Break-Even in diesem Zeitraum</p>
+            )}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 

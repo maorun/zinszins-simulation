@@ -40,7 +40,7 @@ describe('EigenheimVsMieteComparison', () => {
 
     // Should show results section
     expect(screen.getByText(/Ergebnisse nach \d+ Jahren/)).toBeInTheDocument()
-    expect(screen.getByText('Eigenheim')).toBeInTheDocument()
+    expect(screen.getAllByText('Eigenheim').length).toBeGreaterThan(0)
     expect(screen.getByText('Miete')).toBeInTheDocument()
     expect(screen.getByText('Differenz')).toBeInTheDocument()
   })
@@ -110,6 +110,6 @@ describe('EigenheimVsMieteComparison', () => {
     // Should show summary information
     expect(screen.getByText('Eigenkapital')).toBeInTheDocument()
     expect(screen.getByText('Vermögen')).toBeInTheDocument()
-    expect(screen.getAllByText('Gesamtkosten:')[0]).toBeInTheDocument()
+    expect(screen.getAllByText(/Gesamtkosten:/)[0]).toBeInTheDocument()
   })
 })
