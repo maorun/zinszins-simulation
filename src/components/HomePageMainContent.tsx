@@ -4,6 +4,7 @@ import { HomePageConfigurationSection } from './HomePageConfigurationSection'
 import { HomePageAnalysisSection } from './HomePageAnalysisSection'
 import { HomePageOverviewSection } from './HomePageOverviewSection'
 import { HomePageSpecialEvents } from './HomePageSpecialEvents'
+import { BehavioralFinanceInsights } from './BehavioralFinanceInsights'
 import { useHomePageLogic } from '../hooks/useHomePageLogic'
 
 interface HomePageMainContentProps {
@@ -27,6 +28,9 @@ export function HomePageMainContent({ overviewRef }: HomePageMainContentProps) {
       <HomePageSpecialEvents />
 
       <HomePageAnalysisSection />
+
+      {/* Behavioral Finance Insights - Educational Section */}
+      <BehavioralFinanceInsights />
     </>
   )
 }
