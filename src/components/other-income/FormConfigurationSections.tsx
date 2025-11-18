@@ -23,19 +23,17 @@ interface FormConfigurationSectionsProps {
   onUpdate: (source: OtherIncomeSource) => void
 }
 
-// eslint-disable-next-line complexity, max-lines-per-function
-export function FormConfigurationSections({
+function AmountAndTaxSections({
   editingSource,
   monthlyAmountId,
-  currentYear,
   isKindergeld,
-  isBURente,
-  isRental,
   isKapitallebensversicherung,
-  isPflegezusatzversicherung,
   isGrossIncome,
   onUpdate,
-}: FormConfigurationSectionsProps) {
+}: Pick<
+  FormConfigurationSectionsProps,
+  'editingSource' | 'monthlyAmountId' | 'isKindergeld' | 'isKapitallebensversicherung' | 'isGrossIncome' | 'onUpdate'
+>) {
   return (
     <>
       {!isKindergeld && !isKapitallebensversicherung && (
@@ -53,7 +51,23 @@ export function FormConfigurationSections({
       )}
 
       {isGrossIncome && <TaxRateSection editingSource={editingSource} onUpdate={onUpdate} />}
+    </>
+  )
+}
 
+function TimeAndInflationSections({
+  editingSource,
+  currentYear,
+  isKindergeld,
+  isBURente,
+  isKapitallebensversicherung,
+  onUpdate,
+}: Pick<
+  FormConfigurationSectionsProps,
+  'editingSource' | 'currentYear' | 'isKindergeld' | 'isBURente' | 'isKapitallebensversicherung' | 'onUpdate'
+>) {
+  return (
+    <>
       {!isBURente && !isKapitallebensversicherung && (
         <TimePeriodSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />
       )}
@@ -61,13 +75,45 @@ export function FormConfigurationSections({
       {!isKindergeld && !isBURente && !isKapitallebensversicherung && (
         <InflationRateSection editingSource={editingSource} onUpdate={onUpdate} />
       )}
+    </>
+  )
+}
 
-      {isRental && <RealEstateConfigSection editingSource={editingSource} onUpdate={onUpdate} />}
+function StandardConfigSections(props: Pick<
+  FormConfigurationSectionsProps,
+  | 'editingSource'
+  | 'monthlyAmountId'
+  | 'currentYear'
+  | 'isKindergeld'
+  | 'isBURente'
+  | 'isKapitallebensversicherung'
+  | 'isGrossIncome'
+  | 'onUpdate'
+>) {
+  return (
+    <>
+      <AmountAndTaxSections {...props} />
+      <TimeAndInflationSections {...props} />
+    </>
+  )
+}
 
+function InsuranceConfigSections({
+  editingSource,
+  currentYear,
+  isKindergeld,
+  isBURente,
+  isKapitallebensversicherung,
+  isPflegezusatzversicherung,
+  onUpdate,
+}: Pick<
+  FormConfigurationSectionsProps,
+  'editingSource' | 'currentYear' | 'isKindergeld' | 'isBURente' | 'isKapitallebensversicherung' | 'isPflegezusatzversicherung' | 'onUpdate'
+>) {
+  return (
+    <>
       {isKindergeld && <KindergeldConfigSection editingSource={editingSource} onUpdate={onUpdate} />}
-
       {isBURente && <BURenteConfigSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />}
-
       {isKapitallebensversicherung && (
         <KapitallebensversicherungConfigSection
           editingSource={editingSource}
@@ -75,7 +121,6 @@ export function FormConfigurationSections({
           onUpdate={onUpdate}
         />
       )}
-
       {isPflegezusatzversicherung && (
         <PflegezusatzversicherungConfigSection
           editingSource={editingSource}
@@ -83,6 +128,16 @@ export function FormConfigurationSections({
           onUpdate={onUpdate}
         />
       )}
+    </>
+  )
+}
+
+export function FormConfigurationSections(props: FormConfigurationSectionsProps) {
+  return (
+    <>
+      <StandardConfigSections {...props} />
+      {props.isRental && <RealEstateConfigSection editingSource={props.editingSource} onUpdate={props.onUpdate} />}
+      <InsuranceConfigSections {...props} />
     </>
   )
 }

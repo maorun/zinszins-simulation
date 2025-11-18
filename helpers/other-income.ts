@@ -742,28 +742,38 @@ function applyPflegezusatzversicherungLogic(
   }
 }
 
+// Helper: Calculate taxable amount for BU-Rente
+function getBURenteTaxableAmount(
+  buRenteDetails: OtherIncomeYearResult['buRenteDetails'],
+  applyLeibrentenBesteuerung: boolean,
+  grossAnnualAmount: number,
+): number {
+  if (applyLeibrentenBesteuerung && buRenteDetails?.taxableAmount !== undefined) {
+    return buRenteDetails.taxableAmount
+  }
+  return grossAnnualAmount
+}
+
 // Helper: Calculate taxable amount for special income types
-// eslint-disable-next-line complexity
 function calculateTaxableAmount(
   source: OtherIncomeSource,
   grossAnnualAmount: number,
   buRenteDetails?: OtherIncomeYearResult['buRenteDetails'],
   kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails'],
-  pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails'],
 ): number {
-  // For BU-Rente with Leibrenten-Besteuerung, only tax the Ertragsanteil
-  if (source.type === 'bu_rente' && buRenteDetails && source.buRenteConfig?.applyLeibrentenBesteuerung) {
-    return buRenteDetails.taxableAmount
+  // For Pflegezusatzversicherung, benefits are tax-free in Germany (§ 3 Nr. 1a EStG)
+  if (source.type === 'pflegezusatzversicherung') {
+    return 0
   }
 
   // For Kapitallebensversicherung, only tax the taxable portion of gains
-  if (source.type === 'kapitallebensversicherung' && kapitallebensversicherungDetails) {
+  if (source.type === 'kapitallebensversicherung' && kapitallebensversicherungDetails?.taxableGains !== undefined) {
     return kapitallebensversicherungDetails.taxableGains
   }
 
-  // For Pflegezusatzversicherung, benefits are tax-free in Germany (§ 3 Nr. 1a EStG)
-  if (source.type === 'pflegezusatzversicherung' && pflegezusatzversicherungDetails) {
-    return 0
+  // For BU-Rente with Leibrenten-Besteuerung, only tax the Ertragsanteil
+  if (source.type === 'bu_rente') {
+    return getBURenteTaxableAmount(buRenteDetails, source.buRenteConfig?.applyLeibrentenBesteuerung ?? false, grossAnnualAmount)
   }
 
   return grossAnnualAmount
@@ -774,7 +784,6 @@ function calculateTaxAndNet(
   grossAnnualAmount: number,
   buRenteDetails?: OtherIncomeYearResult['buRenteDetails'],
   kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails'],
-  pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails'],
 ): { taxAmount: number; netAnnualAmount: number; netMonthlyAmount: number } {
   if (source.amountType !== 'gross') {
     return {
@@ -789,7 +798,6 @@ function calculateTaxAndNet(
     grossAnnualAmount,
     buRenteDetails,
     kapitallebensversicherungDetails,
-    pflegezusatzversicherungDetails,
   )
 
   const taxAmount = taxableAmount * (source.taxRate / 100)
@@ -860,7 +868,6 @@ function buildYearResult(
     incomeTypeResult.grossAnnualAmount,
     incomeTypeResult.buRenteDetails,
     incomeTypeResult.kapitallebensversicherungDetails,
-    incomeTypeResult.pflegezusatzversicherungDetails,
   )
 
   const result: OtherIncomeYearResult = {
