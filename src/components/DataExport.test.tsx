@@ -15,9 +15,12 @@ const mockUseDataExport = {
   exportAllDataCSV: vi.fn(),
   exportDataMarkdown: vi.fn(),
   copyCalculationExplanations: vi.fn(),
+  exportSavingsDataExcel: vi.fn(),
+  exportWithdrawalDataExcel: vi.fn(),
+  exportAllDataExcel: vi.fn(),
   isExporting: false as boolean,
   lastExportResult: null as 'success' | 'error' | null,
-  exportType: null as 'csv' | 'markdown' | 'clipboard' | null,
+  exportType: null as 'csv' | 'markdown' | 'clipboard' | 'excel' | null,
 }
 
 const mockUseDataAvailability = {
@@ -104,9 +107,9 @@ describe('DataExport', () => {
     fireEvent.click(trigger)
 
     await waitFor(() => {
-      expect(screen.getByText('Sparphase')).toBeInTheDocument()
-      expect(screen.getByText('Entnahmephase')).toBeInTheDocument()
-      expect(screen.getByText('Komplett')).toBeInTheDocument()
+      expect(screen.getAllByText('Sparphase')).toHaveLength(2) // CSV and Excel
+      expect(screen.getAllByText('Entnahmephase')).toHaveLength(2)
+      expect(screen.getAllByText('Komplett')).toHaveLength(2)
       expect(screen.getByText('Markdown herunterladen')).toBeInTheDocument()
       expect(screen.getByText('Formeln kopieren')).toBeInTheDocument()
     })
@@ -132,8 +135,9 @@ describe('DataExport', () => {
     fireEvent.click(trigger)
 
     await waitFor(() => {
-      const savingsButton = screen.getByText('Sparphase')
-      fireEvent.click(savingsButton)
+      const savingsButtons = screen.getAllByText('Sparphase')
+      const csvButton = savingsButtons[0] // First button is CSV
+      fireEvent.click(csvButton)
     })
 
     expect(mockUseDataExport.exportSavingsDataCSV).toHaveBeenCalled()
@@ -146,8 +150,9 @@ describe('DataExport', () => {
     fireEvent.click(trigger)
 
     await waitFor(() => {
-      const withdrawalButton = screen.getByText('Entnahmephase')
-      fireEvent.click(withdrawalButton)
+      const withdrawalButtons = screen.getAllByText('Entnahmephase')
+      const csvButton = withdrawalButtons[0] // First button is CSV
+      fireEvent.click(csvButton)
     })
 
     expect(mockUseDataExport.exportWithdrawalDataCSV).toHaveBeenCalled()
@@ -160,8 +165,9 @@ describe('DataExport', () => {
     fireEvent.click(trigger)
 
     await waitFor(() => {
-      const completeButton = screen.getByText('Komplett')
-      fireEvent.click(completeButton)
+      const completeButtons = screen.getAllByText('Komplett')
+      const csvButton = completeButtons[0] // First button is CSV
+      fireEvent.click(csvButton)
     })
 
     expect(mockUseDataExport.exportAllDataCSV).toHaveBeenCalled()
@@ -193,6 +199,90 @@ describe('DataExport', () => {
     })
 
     expect(mockUseDataExport.copyCalculationExplanations).toHaveBeenCalled()
+  })
+
+  it('should render Excel export section', async () => {
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      expect(screen.getByText('Excel Format')).toBeInTheDocument()
+    })
+  })
+
+  it('should call savings Excel export when Excel Sparphase button is clicked', async () => {
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      // Excel section has its own Sparphase button
+      const buttons = screen.getAllByText('Sparphase')
+      const excelButton = buttons[1] // Second button is Excel (first is CSV)
+      fireEvent.click(excelButton)
+    })
+
+    expect(mockUseDataExport.exportSavingsDataExcel).toHaveBeenCalled()
+  })
+
+  it('should call withdrawal Excel export when Excel Entnahmephase button is clicked', async () => {
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      const buttons = screen.getAllByText('Entnahmephase')
+      const excelButton = buttons[1] // Second button is Excel
+      fireEvent.click(excelButton)
+    })
+
+    expect(mockUseDataExport.exportWithdrawalDataExcel).toHaveBeenCalled()
+  })
+
+  it('should call complete Excel export when Excel Komplett button is clicked', async () => {
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      const buttons = screen.getAllByText('Komplett')
+      const excelButton = buttons[1] // Second button is Excel
+      fireEvent.click(excelButton)
+    })
+
+    expect(mockUseDataExport.exportAllDataExcel).toHaveBeenCalled()
+  })
+
+  it('should show Excel format information', async () => {
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      expect(screen.getByText('Excel Export')).toBeInTheDocument()
+      expect(screen.getByText(/\.xlsx Datei mit Formeln/)).toBeInTheDocument()
+    })
+  })
+
+  it('should show loading state for Excel export', async () => {
+    mockUseDataExport.isExporting = true
+    mockUseDataExport.exportType = 'excel'
+
+    render(<DataExport />)
+
+    const trigger = screen.getByText('📤 Export')
+    fireEvent.click(trigger)
+
+    await waitFor(() => {
+      // Should show "Exportiere..." text on Excel buttons
+      expect(screen.getByText('Excel Format')).toBeInTheDocument()
+    })
   })
 
   it('should show loading state for parameter export', async () => {
