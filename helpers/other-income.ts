@@ -15,6 +15,7 @@ export type IncomeType =
   | 'bu_rente'
   | 'kapitallebensversicherung'
   | 'pflegezusatzversicherung'
+  | 'risikolebensversicherung'
   | 'other'
 
 /**
@@ -136,6 +137,32 @@ export interface PflegezusatzversicherungConfig {
 }
 
 /**
+ * Risikolebensversicherung (Term Life Insurance) specific configuration
+ */
+export interface RisikolebensversicherungConfig {
+  /** Coverage amount in EUR */
+  coverageAmount: number
+
+  /** Coverage type: level (constant) or decreasing */
+  coverageType: 'level' | 'decreasing'
+
+  /** For decreasing coverage: annual reduction rate in percent */
+  annualDecreasePercent: number
+
+  /** Birth year of insured person */
+  birthYear: number
+
+  /** Gender of insured person (affects mortality rates) */
+  gender: 'male' | 'female'
+
+  /** Health status of insured person */
+  healthStatus: 'excellent' | 'good' | 'average' | 'fair' | 'poor'
+
+  /** Smoking status of insured person */
+  smokingStatus: 'non-smoker' | 'smoker' | 'former-smoker'
+}
+
+/**
  * Whether the income amount is gross or net
  */
 export type IncomeAmountType = 'gross' | 'net'
@@ -191,6 +218,9 @@ export interface OtherIncomeSource {
 
   /** Pflegezusatzversicherung-specific configuration (only for pflegezusatzversicherung income) */
   pflegezusatzversicherungConfig?: PflegezusatzversicherungConfig
+
+  /** Risikolebensversicherung-specific configuration (only for risikolebensversicherung income) */
+  risikolebensversicherungConfig?: RisikolebensversicherungConfig
 }
 
 /**
@@ -290,6 +320,22 @@ export interface OtherIncomeYearResult {
     netBenefit: number
     /** Reason if benefits not active */
     endReason?: string
+  }
+
+  /** Risikolebensversicherung-specific calculations (only for risikolebensversicherung income) */
+  risikolebensversicherungDetails?: {
+    /** Person's age this year */
+    age: number
+    /** Current coverage amount (may decrease over time) */
+    coverageAmount: number
+    /** Annual premium paid (negative value as cost) */
+    annualPremium: number
+    /** Cumulative premiums paid so far */
+    totalPremiumsPaid: number
+    /** Death benefit amount (tax-free) */
+    deathBenefitAmount: number
+    /** Whether policy is active */
+    isActive: boolean
   }
 }
 
@@ -579,6 +625,156 @@ function calculatePflegezusatzversicherungStatus(
   }
 }
 
+/**
+ * Calculate coverage amount for a given year and configuration
+ */
+function calculateTermLifeCoverageAmount(
+  config: RisikolebensversicherungConfig,
+  year: number,
+  startYear: number,
+  isActive: boolean,
+): number {
+  if (!isActive) return 0
+
+  if (config.coverageType === 'level') {
+    return config.coverageAmount
+  }
+
+  // Decreasing coverage
+  const yearsElapsed = year - startYear
+  const decreaseMultiplier = Math.pow(1 - config.annualDecreasePercent / 100, yearsElapsed)
+  return Math.max(0, config.coverageAmount * decreaseMultiplier)
+}
+
+/**
+ * Get base mortality rate for a given age
+ */
+function getTermLifeBaseMortalityRate(age: number): number {
+  const baseMortalityRates: Record<number, number> = {
+    20: 0.5,
+    25: 0.6,
+    30: 0.7,
+    35: 0.9,
+    40: 1.2,
+    45: 1.8,
+    50: 2.8,
+    55: 4.5,
+    60: 7.0,
+    65: 11.0,
+    70: 17.0,
+    75: 27.0,
+  }
+
+  const ages = Object.keys(baseMortalityRates)
+    .map(Number)
+    .sort((a, b) => a - b)
+  let closestAge = ages[0] ?? 30
+  for (const ageKey of ages) {
+    if (age >= ageKey) {
+      closestAge = ageKey
+    } else {
+      break
+    }
+  }
+  return baseMortalityRates[closestAge] ?? 1.0
+}
+
+/**
+ * Calculate risk multipliers for term life insurance
+ */
+function calculateTermLifeRiskMultipliers(config: RisikolebensversicherungConfig): number {
+  const healthMultipliers = { excellent: 0.85, good: 1.0, average: 1.15, fair: 1.35, poor: 1.7 }
+  const smokingMultipliers = { 'non-smoker': 1.0, 'former-smoker': 1.25, smoker: 1.8 }
+
+  const healthMultiplier = healthMultipliers[config.healthStatus] ?? 1.0
+  const smokingMultiplier = smokingMultipliers[config.smokingStatus] ?? 1.0
+  const genderMultiplier = config.gender === 'female' ? 0.85 : 1.0
+
+  return healthMultiplier * smokingMultiplier * genderMultiplier
+}
+
+/**
+ * Calculate annual premium for term life insurance based on age and risk factors
+ */
+function calculateTermLifeAnnualPremium(
+  coverageAmount: number,
+  age: number,
+  config: RisikolebensversicherungConfig,
+): number {
+  if (coverageAmount <= 0) return 0
+
+  const baseMortality = getTermLifeBaseMortalityRate(age)
+  const riskMultipliers = calculateTermLifeRiskMultipliers(config)
+  const adjustedMortality = baseMortality * riskMultipliers
+
+  const basePremiumPer1000 = 0.8
+  const riskPremium = (coverageAmount / 1000) * (adjustedMortality / 1000) * coverageAmount
+  const administrativeCosts = coverageAmount * 0.0002
+  const safetyMargin = 1.25
+
+  const annualPremium =
+    (riskPremium + administrativeCosts + (coverageAmount / 1000) * basePremiumPer1000) * safetyMargin
+  return Math.round(annualPremium * 100) / 100
+}
+
+/**
+ * Calculate total premiums paid up to a given year
+ */
+function calculateTotalTermLifePremiums(
+  config: RisikolebensversicherungConfig,
+  year: number,
+  startYear: number,
+  endYear: number | null,
+): number {
+  let total = 0
+  for (let y = startYear; y <= year; y++) {
+    const isYearActive = y >= startYear && (endYear === null || y <= endYear)
+    if (isYearActive) {
+      const yearCoverage = calculateTermLifeCoverageAmount(config, y, startYear, true)
+      const yearAge = y - config.birthYear
+      const yearPremium = calculateTermLifeAnnualPremium(yearCoverage, yearAge, config)
+      if (yearCoverage > 0) {
+        total += yearPremium
+      }
+    }
+  }
+  return total
+}
+
+/**
+ * Calculate Risikolebensversicherung status for a given year
+ * Uses the term-life-insurance helper module for premium calculations
+ */
+function calculateRisikolebensversicherungStatus(
+  config: RisikolebensversicherungConfig,
+  year: number,
+  startYear: number,
+  endYear: number | null,
+): {
+  isActive: boolean
+  age: number
+  coverageAmount: number
+  annualPremium: number
+  totalPremiumsPaid: number
+  deathBenefitAmount: number
+} {
+  const age = year - config.birthYear
+  const isActive = year >= startYear && (endYear === null || year <= endYear)
+
+  const coverageAmount = calculateTermLifeCoverageAmount(config, year, startYear, isActive)
+  const annualPremium = isActive ? calculateTermLifeAnnualPremium(coverageAmount, age, config) : 0
+  const totalPremiumsPaid = calculateTotalTermLifePremiums(config, year, startYear, endYear)
+
+  return {
+    isActive,
+    age,
+    coverageAmount,
+    annualPremium,
+    totalPremiumsPaid,
+    deathBenefitAmount: coverageAmount, // Always tax-free in Germany
+  }
+}
+
 function calculateGrossAmounts(
   source: OtherIncomeSource,
   yearsFromStart: number,
@@ -742,6 +938,41 @@ function applyPflegezusatzversicherungLogic(
   }
 }
 
+/**
+ * Apply Risikolebensversicherung logic
+ * Term life insurance represents a cost (negative income), not income
+ */
+function applyRisikolebensversicherungLogic(
+  source: OtherIncomeSource,
+  year: number,
+  amounts: { grossMonthlyAmount: number; grossAnnualAmount: number },
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  risikolebensversicherungDetails?: OtherIncomeYearResult['risikolebensversicherungDetails']
+} {
+  if (source.type !== 'risikolebensversicherung' || !source.risikolebensversicherungConfig) {
+    return amounts
+  }
+
+  const status = calculateRisikolebensversicherungStatus(
+    source.risikolebensversicherungConfig,
+    year,
+    source.startYear,
+    source.endYear,
+  )
+
+  // Term life insurance is a cost (negative income)
+  // The annual premium reduces available capital
+  const annualCost = status.isActive ? -status.annualPremium : 0
+
+  return {
+    grossMonthlyAmount: annualCost / 12,
+    grossAnnualAmount: annualCost,
+    risikolebensversicherungDetails: status,
+  }
+}
+
 // Helper: Calculate taxable amount for BU-Rente
 function getBURenteTaxableAmount(
   buRenteDetails: OtherIncomeYearResult['buRenteDetails'],
@@ -821,6 +1052,7 @@ function applyIncomeTypeLogic(
   buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
   kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
   pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
+  risikolebensversicherungDetails?: OtherIncomeYearResult['risikolebensversicherungDetails']
 } {
   const kindergeldResult = applyKindergeldLogic(source, year, initialAmounts)
 
@@ -839,13 +1071,19 @@ function applyIncomeTypeLogic(
     grossAnnualAmount: kapitallebensversicherungResult.grossAnnualAmount,
   })
 
-  return {
+  const risikolebensversicherungResult = applyRisikolebensversicherungLogic(source, year, {
     grossMonthlyAmount: pflegezusatzversicherungResult.grossMonthlyAmount,
     grossAnnualAmount: pflegezusatzversicherungResult.grossAnnualAmount,
+  })
+
+  return {
+    grossMonthlyAmount: risikolebensversicherungResult.grossMonthlyAmount,
+    grossAnnualAmount: risikolebensversicherungResult.grossAnnualAmount,
     kindergeldDetails: kindergeldResult.kindergeldDetails,
     buRenteDetails: buRenteResult.buRenteDetails,
     kapitallebensversicherungDetails: kapitallebensversicherungResult.kapitallebensversicherungDetails,
     pflegezusatzversicherungDetails: pflegezusatzversicherungResult.pflegezusatzversicherungDetails,
+    risikolebensversicherungDetails: risikolebensversicherungResult.risikolebensversicherungDetails,
   }
 }
 
@@ -859,6 +1097,7 @@ function buildYearResult(
     buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
     kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
     pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
+    risikolebensversicherungDetails?: OtherIncomeYearResult['risikolebensversicherungDetails']
   },
   realEstateDetails: OtherIncomeYearResult['realEstateDetails'],
   inflationFactor: number,
@@ -887,6 +1126,8 @@ function buildYearResult(
     result.kapitallebensversicherungDetails = incomeTypeResult.kapitallebensversicherungDetails
   if (incomeTypeResult.pflegezusatzversicherungDetails)
     result.pflegezusatzversicherungDetails = incomeTypeResult.pflegezusatzversicherungDetails
+  if (incomeTypeResult.risikolebensversicherungDetails)
+    result.risikolebensversicherungDetails = incomeTypeResult.risikolebensversicherungDetails
 
   return result
 }
@@ -1156,6 +1397,7 @@ function getDefaultNameForType(type: IncomeType): string {
     bu_rente: 'BU-Rente',
     kapitallebensversicherung: 'Kapitallebensversicherung',
     pflegezusatzversicherung: 'Pflegezusatzversicherung',
+    risikolebensversicherung: 'Risikolebensversicherung',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || 'Einkommen'
@@ -1181,6 +1423,7 @@ export function getIncomeTypeDisplayName(type: IncomeType): string {
     bu_rente: 'BU-Rente',
     kapitallebensversicherung: 'Kapitallebensversicherung',
     pflegezusatzversicherung: 'Pflegezusatzversicherung',
+    risikolebensversicherung: 'Risikolebensversicherung',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || type
