@@ -12,14 +12,14 @@ interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
 }
 
-// eslint-disable-next-line max-lines-per-function
-const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps) => {
-  const simulation = useSimulation()
-  const { currentConfig, updateFormValue } = useWithdrawalConfig()
-  const yearToday = new Date().getFullYear()
-  const recommendedGrundfreibetrag = getGrundfreibetragForPlanningMode(planningMode)
-  const planningModeLabel = planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'
-
+/**
+ * Auto-update Grundfreibetrag when planning mode changes
+ */
+function useAutoUpdateGrundfreibetrag(
+  planningMode: 'individual' | 'couple',
+  recommendedGrundfreibetrag: number,
+  simulation: ReturnType<typeof useSimulation>,
+) {
   useEffect(() => {
     const { grundfreibetragAktiv, grundfreibetragBetrag, setGrundfreibetragBetrag, performSimulation } = simulation
     if (
@@ -31,6 +31,16 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
       performSimulation()
     }
   }, [planningMode, recommendedGrundfreibetrag, simulation])
+}
+
+const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps) => {
+  const simulation = useSimulation()
+  const { currentConfig, updateFormValue } = useWithdrawalConfig()
+  const yearToday = new Date().getFullYear()
+  const recommendedGrundfreibetrag = getGrundfreibetragForPlanningMode(planningMode)
+  const planningModeLabel = planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'
+
+  useAutoUpdateGrundfreibetrag(planningMode, recommendedGrundfreibetrag, simulation)
 
   return (
     <TooltipProvider>

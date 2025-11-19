@@ -313,69 +313,39 @@ function useSparplanValues(state: Record<string, unknown>) {
   )
 }
 
-/**
- * Helper to build life expectancy values for memoization
- */
-function buildLifeValuesObject(
-  values: Record<string, unknown>,
-  setEndOfLifeRounded: (value: number) => void,
-) {
-  return {
-    endOfLife: values.endOfLife,
-    setEndOfLife: setEndOfLifeRounded,
-    lifeExpectancyTable: values.lifeExpectancyTable,
-    setLifeExpectancyTable: values.setLifeExpectancyTable,
-    customLifeExpectancy: values.customLifeExpectancy,
-    setCustomLifeExpectancy: values.setCustomLifeExpectancy,
-    planningMode: values.planningMode,
-    setPlanningMode: values.setPlanningMode,
-    gender: values.gender,
-    setGender: values.setGender,
-    spouse: values.spouse,
-    setSpouse: values.setSpouse,
-    birthYear: values.birthYear,
-    setBirthYear: values.setBirthYear,
-    expectedLifespan: values.expectedLifespan,
-    setExpectedLifespan: values.setExpectedLifespan,
-    useAutomaticCalculation: values.useAutomaticCalculation,
-    setUseAutomaticCalculation: values.setUseAutomaticCalculation,
-  }
-}
-
-/**
- * Helper to build life expectancy dependency array for memoization
- */
-function buildLifeValuesDeps(
-  values: Record<string, unknown>,
-  setEndOfLifeRounded: (value: number) => void,
-) {
-  return [
-    values.endOfLife,
-    setEndOfLifeRounded,
-    values.lifeExpectancyTable,
-    values.setLifeExpectancyTable,
-    values.customLifeExpectancy,
-    values.setCustomLifeExpectancy,
-    values.planningMode,
-    values.setPlanningMode,
-    values.gender,
-    values.setGender,
-    values.spouse,
-    values.setSpouse,
-    values.birthYear,
-    values.setBirthYear,
-    values.expectedLifespan,
-    values.setExpectedLifespan,
-    values.useAutomaticCalculation,
-    values.setUseAutomaticCalculation,
-  ]
-}
-
 function useLifeValues(state: Record<string, unknown>, setEndOfLifeRounded: (value: number) => void) {
+  const {
+    endOfLife, lifeExpectancyTable, setLifeExpectancyTable,
+    customLifeExpectancy, setCustomLifeExpectancy, planningMode, setPlanningMode,
+    gender, setGender, spouse, setSpouse, birthYear, setBirthYear,
+    expectedLifespan, setExpectedLifespan, useAutomaticCalculation, setUseAutomaticCalculation,
+  } = state as {
+    endOfLife: unknown; lifeExpectancyTable: unknown; setLifeExpectancyTable: unknown
+    customLifeExpectancy: unknown; setCustomLifeExpectancy: unknown; planningMode: unknown
+    setPlanningMode: unknown; gender: unknown; setGender: unknown; spouse: unknown
+    setSpouse: unknown; birthYear: unknown; setBirthYear: unknown
+    expectedLifespan: unknown; setExpectedLifespan: unknown
+    useAutomaticCalculation: unknown; setUseAutomaticCalculation: unknown
+  }
+   
   return useMemo(
-    () => buildLifeValuesObject(state, setEndOfLifeRounded),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    buildLifeValuesDeps(state, setEndOfLifeRounded),
+    () => ({
+      endOfLife, setEndOfLife: setEndOfLifeRounded,
+      lifeExpectancyTable, setLifeExpectancyTable,
+      customLifeExpectancy, setCustomLifeExpectancy,
+      planningMode, setPlanningMode,
+      gender, setGender,
+      spouse, setSpouse,
+      birthYear, setBirthYear,
+      expectedLifespan, setExpectedLifespan,
+      useAutomaticCalculation, setUseAutomaticCalculation,
+    }),
+    [
+      endOfLife, setEndOfLifeRounded, lifeExpectancyTable, setLifeExpectancyTable,
+      customLifeExpectancy, setCustomLifeExpectancy, planningMode, setPlanningMode,
+      gender, setGender, spouse, setSpouse, birthYear, setBirthYear,
+      expectedLifespan, setExpectedLifespan, useAutomaticCalculation, setUseAutomaticCalculation,
+    ],
   )
 }
 

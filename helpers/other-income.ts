@@ -427,44 +427,48 @@ function calculateKindergeldStatus(
   return { isActive, childAge, endReason }
 }
 
+// Ertragsanteil table according to § 22 Nr. 1 Satz 3 Buchstabe a Doppelbuchstabe bb EStG
+// Maps age ranges to their taxable percentage
+const ERTRAGSANTEIL_TABLE: Array<{ maxAge: number; percentage: number }> = [
+  { maxAge: 1, percentage: 59 },
+  { maxAge: 2, percentage: 58 },
+  { maxAge: 3, percentage: 57 },
+  { maxAge: 4, percentage: 56 },
+  { maxAge: 5, percentage: 55 },
+  { maxAge: 6, percentage: 54 },
+  { maxAge: 7, percentage: 53 },
+  { maxAge: 8, percentage: 52 },
+  { maxAge: 9, percentage: 51 },
+  { maxAge: 10, percentage: 50 },
+  { maxAge: 11, percentage: 49 },
+  { maxAge: 12, percentage: 48 },
+  { maxAge: 13, percentage: 47 },
+  { maxAge: 14, percentage: 46 },
+  { maxAge: 15, percentage: 45 },
+  { maxAge: 16, percentage: 44 },
+  { maxAge: 17, percentage: 43 },
+  { maxAge: 27, percentage: 42 },
+  { maxAge: 31, percentage: 40 },
+  { maxAge: 36, percentage: 38 },
+  { maxAge: 41, percentage: 36 },
+  { maxAge: 46, percentage: 34 },
+  { maxAge: 51, percentage: 32 },
+  { maxAge: 56, percentage: 30 },
+  { maxAge: 61, percentage: 28 },
+  { maxAge: 63, percentage: 26 },
+  { maxAge: 64, percentage: 25 },
+  { maxAge: 65, percentage: 24 },
+  { maxAge: 66, percentage: 23 },
+  { maxAge: 67, percentage: 22 },
+  { maxAge: Infinity, percentage: 21 }, // Age 68+
+]
+
 // Helper: Get Ertragsanteil (taxable portion) for BU-Rente based on age at disability start
 // Based on § 22 EStG - Leibrenten-Besteuerung
-// eslint-disable-next-line complexity
 function getErtragsanteil(ageAtDisabilityStart: number): number {
-  // Ertragsanteil table according to § 22 Nr. 1 Satz 3 Buchstabe a Doppelbuchstabe bb EStG
   // Returns the percentage of the pension that is subject to taxation
-  if (ageAtDisabilityStart <= 0) return 59 // Age 0-1
-  if (ageAtDisabilityStart <= 1) return 59
-  if (ageAtDisabilityStart <= 2) return 58
-  if (ageAtDisabilityStart <= 3) return 57
-  if (ageAtDisabilityStart <= 4) return 56
-  if (ageAtDisabilityStart <= 5) return 55
-  if (ageAtDisabilityStart <= 6) return 54
-  if (ageAtDisabilityStart <= 7) return 53
-  if (ageAtDisabilityStart <= 8) return 52
-  if (ageAtDisabilityStart <= 9) return 51
-  if (ageAtDisabilityStart <= 10) return 50
-  if (ageAtDisabilityStart <= 11) return 49
-  if (ageAtDisabilityStart <= 12) return 48
-  if (ageAtDisabilityStart <= 13) return 47
-  if (ageAtDisabilityStart <= 14) return 46
-  if (ageAtDisabilityStart <= 15) return 45
-  if (ageAtDisabilityStart <= 16) return 44
-  if (ageAtDisabilityStart <= 17) return 43
-  if (ageAtDisabilityStart <= 27) return 42 // Ages 18-27
-  if (ageAtDisabilityStart <= 31) return 40 // Ages 28-31
-  if (ageAtDisabilityStart <= 36) return 38 // Ages 32-36
-  if (ageAtDisabilityStart <= 41) return 36 // Ages 37-41
-  if (ageAtDisabilityStart <= 46) return 34 // Ages 42-46
-  if (ageAtDisabilityStart <= 51) return 32 // Ages 47-51
-  if (ageAtDisabilityStart <= 56) return 30 // Ages 52-56
-  if (ageAtDisabilityStart <= 61) return 28 // Ages 57-61
-  if (ageAtDisabilityStart <= 63) return 26 // Ages 62-63
-  if (ageAtDisabilityStart <= 64) return 25 // Age 64
-  if (ageAtDisabilityStart <= 65) return 24 // Age 65
-  if (ageAtDisabilityStart <= 66) return 23 // Age 66
-  if (ageAtDisabilityStart <= 67) return 22 // Age 67
-  return 21 // Age 68+
+  const entry = ERTRAGSANTEIL_TABLE.find(item => ageAtDisabilityStart <= item.maxAge)
+  return entry?.percentage ?? 21 // Default to 21% for ages 68+
 }
 
 // Helper: Calculate BU-Rente status

@@ -25,7 +25,7 @@ function useComparisonSimulationValues() {
     personalTaxRate,
   } = useSimulation()
 
-  return {
+  return useMemo(() => ({
     steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
@@ -37,7 +37,19 @@ function useComparisonSimulationValues() {
     birthYear,
     guenstigerPruefungAktiv,
     personalTaxRate,
-  }
+  }), [
+    steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
+    planningMode,
+    gender,
+    birthYear,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
+  ])
 }
 
 /**
@@ -201,8 +213,6 @@ export function useComparisonResults(
 
       return calculateAllComparisonResults(comparisonStrategies, params)
     },
-    // Individual properties tracked instead of the whole object for better memoization
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       useComparisonMode,
       withdrawalData,
@@ -213,17 +223,7 @@ export function useComparisonResults(
       steuerlast,
       teilfreistellungsquote,
       effectiveStatutoryPensionConfig,
-      simulationValues.endOfLife,
-      simulationValues.grundfreibetragAktiv,
-      simulationValues.grundfreibetragBetrag,
-      simulationValues.steuerReduzierenEndkapitalEntspharphase,
-      simulationValues.planningMode,
-      simulationValues.birthYear,
-      simulationValues.customLifeExpectancy,
-      simulationValues.lifeExpectancyTable,
-      simulationValues.gender,
-      simulationValues.guenstigerPruefungAktiv,
-      simulationValues.personalTaxRate,
+      simulationValues,
     ],
   )
 
