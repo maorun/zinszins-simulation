@@ -25,7 +25,7 @@ function useComparisonSimulationValues() {
     personalTaxRate,
   } = useSimulation()
 
-  return {
+  return useMemo(() => ({
     steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
@@ -37,7 +37,19 @@ function useComparisonSimulationValues() {
     birthYear,
     guenstigerPruefungAktiv,
     personalTaxRate,
-  }
+  }), [
+    steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
+    planningMode,
+    gender,
+    birthYear,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
+  ])
 }
 
 /**
@@ -208,10 +220,10 @@ export function useComparisonResults(
       comparisonStrategies,
       elemente,
       startOfIndependence,
+      currentConfig,
       steuerlast,
       teilfreistellungsquote,
       effectiveStatutoryPensionConfig,
-      currentConfig,
       simulationValues,
     ],
   )

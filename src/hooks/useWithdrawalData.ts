@@ -127,9 +127,32 @@ function buildWithdrawalResult(params: BuildWithdrawalResultParams): WithdrawalR
 }
 
 /**
- * Extract all needed values from simulation context
+ * Build withdrawal calculation params object from extracted values
  */
-function useSimulationValues(simulationContext: ReturnType<typeof useSimulation>) {
+function buildWithdrawalCalculationParams(
+  elemente: SparplanElement[],
+  startOfIndependence: number,
+  effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined,
+  steuerlast: number,
+  teilfreistellungsquote: number,
+  simContext: ReturnType<typeof useExtractedSimulationContextValues>,
+  config: ReturnType<typeof useExtractedCurrentConfigValues>,
+) {
+  return {
+    elemente,
+    startOfIndependence,
+    effectiveStatutoryPensionConfig,
+    steuerlast,
+    teilfreistellungsquote,
+    ...simContext,
+    ...config,
+  }
+}
+
+/**
+ * Extract simulation context values (memoized for stable references)
+ */
+function useExtractedSimulationContextValues(simulationContext: ReturnType<typeof useSimulation>) {
   const {
     steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv,
@@ -145,7 +168,7 @@ function useSimulationValues(simulationContext: ReturnType<typeof useSimulation>
     withdrawalMultiAssetConfig,
   } = simulationContext
 
-  return {
+  return useMemo(() => ({
     steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
@@ -158,13 +181,26 @@ function useSimulationValues(simulationContext: ReturnType<typeof useSimulation>
     guenstigerPruefungAktiv,
     personalTaxRate,
     withdrawalMultiAssetConfig,
-  }
+  }), [
+    steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
+    planningMode,
+    gender,
+    birthYear,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
+    withdrawalMultiAssetConfig,
+  ])
 }
 
 /**
- * Extract all needed values from current config
+ * Extract current config values (memoized for stable references)
  */
-function useConfigValues(currentConfig: WithdrawalConfiguration) {
+function useExtractedCurrentConfigValues(currentConfig: WithdrawalConfiguration) {
   const {
     formValue,
     withdrawalReturnMode,
@@ -177,7 +213,7 @@ function useConfigValues(currentConfig: WithdrawalConfiguration) {
     otherIncomeConfig,
   } = currentConfig
 
-  return {
+  return useMemo(() => ({
     formValue,
     withdrawalReturnMode,
     withdrawalVariableReturns,
@@ -187,7 +223,17 @@ function useConfigValues(currentConfig: WithdrawalConfiguration) {
     useSegmentedWithdrawal,
     withdrawalSegments,
     otherIncomeConfig,
-  }
+  }), [
+    formValue,
+    withdrawalReturnMode,
+    withdrawalVariableReturns,
+    withdrawalAverageReturn,
+    withdrawalStandardDeviation,
+    withdrawalRandomSeed,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
+    otherIncomeConfig,
+  ])
 }
 
 /**
@@ -202,26 +248,28 @@ function useWithdrawalCalculationParams(
   effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined,
 ) {
   const simulationContext = useSimulation()
-  const simValues = useSimulationValues(simulationContext)
-  const configValues = useConfigValues(currentConfig)
+  
+  // Extract values from context for memoization dependencies (these are memoized for stable references)
+  const simContext = useExtractedSimulationContextValues(simulationContext)
+  const config = useExtractedCurrentConfigValues(currentConfig)
   
   // Memoize the params object to prevent unnecessary recalculations
-  return useMemo(() => ({
+  return useMemo(() => buildWithdrawalCalculationParams(
     elemente,
     startOfIndependence,
     effectiveStatutoryPensionConfig,
     steuerlast,
     teilfreistellungsquote,
-    ...simValues,
-    ...configValues,
-  }), [
+    simContext,
+    config,
+  ), [
     elemente,
     startOfIndependence,
     effectiveStatutoryPensionConfig,
     steuerlast,
     teilfreistellungsquote,
-    simValues,
-    configValues,
+    simContext,
+    config,
   ])
 }
 
