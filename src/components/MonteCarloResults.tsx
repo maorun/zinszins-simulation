@@ -6,12 +6,14 @@ import { ChevronDown } from 'lucide-react'
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
 import { useNestingLevel } from '../lib/nesting-utils'
 import type { RandomReturnConfig } from '../utils/random-returns'
+import { VaRDisplay } from './VaRDisplay'
 
 interface MonteCarloResultsProps {
   years: number[]
   accumulationConfig: RandomReturnConfig
   withdrawalConfig?: RandomReturnConfig
   runs?: number
+  portfolioValue?: number // Current portfolio value for VaR calculation
 }
 
 interface MonteCarloResult {
@@ -63,17 +65,43 @@ function MonteCarloNistHinweis() {
   )
 }
 
+function VaRSection({
+  portfolioValue,
+  config,
+  title,
+}: {
+  portfolioValue: number | undefined
+  config: RandomReturnConfig
+  title: string
+}) {
+  if (portfolioValue === undefined || portfolioValue <= 0) {
+    return null
+  }
+
+  return (
+    <VaRDisplay
+      portfolioValue={portfolioValue}
+      averageReturn={config.averageReturn}
+      standardDeviation={config.standardDeviation || 0.15}
+      timeHorizon={1}
+      title={title}
+    />
+  )
+}
+
 function MonteCarloResultsContent({
   accumulationScenarios,
   accumulationConfig,
   withdrawalScenarios,
   withdrawalConfig,
+  portfolioValue,
   renderAnalysisTable,
 }: {
   accumulationScenarios: MonteCarloResult[]
   accumulationConfig: RandomReturnConfig
   withdrawalScenarios: MonteCarloResult[] | null
   withdrawalConfig: RandomReturnConfig | undefined
+  portfolioValue: number | undefined
   renderAnalysisTable: (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => React.ReactNode
 }) {
   const nestingLevel = useNestingLevel()
@@ -81,10 +109,14 @@ function MonteCarloResultsContent({
   return (
     <CardContent nestingLevel={nestingLevel}>
       {renderAnalysisTable(accumulationScenarios, accumulationConfig, 'Ansparphase (Aufbauphase)')}
+      <VaRSection portfolioValue={portfolioValue} config={accumulationConfig} title="Value at Risk (VaR) - Ansparphase" />
 
-      {withdrawalScenarios &&
-        withdrawalConfig &&
-        renderAnalysisTable(withdrawalScenarios, withdrawalConfig, 'Entnahmephase (Entsparphase)')}
+      {withdrawalScenarios && withdrawalConfig && (
+        <>
+          {renderAnalysisTable(withdrawalScenarios, withdrawalConfig, 'Entnahmephase (Entsparphase)')}
+          <VaRSection portfolioValue={portfolioValue} config={withdrawalConfig} title="Value at Risk (VaR) - Entnahmephase" />
+        </>
+      )}
 
       <MonteCarloNistHinweis />
 
@@ -234,6 +266,7 @@ export function MonteCarloResults({
   accumulationConfig,
   withdrawalConfig,
   runs: _runs = 500,
+  portfolioValue,
 }: MonteCarloResultsProps) {
   const nestingLevel = useNestingLevel()
 
@@ -269,6 +302,7 @@ export function MonteCarloResults({
             accumulationConfig={accumulationConfig}
             withdrawalScenarios={withdrawalScenarios}
             withdrawalConfig={withdrawalConfig}
+            portfolioValue={portfolioValue}
             renderAnalysisTable={renderAnalysisTable}
           />
         </CollapsibleContent>
