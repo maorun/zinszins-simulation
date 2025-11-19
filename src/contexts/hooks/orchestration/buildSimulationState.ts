@@ -28,9 +28,8 @@ export function useBuildSimulationState(state: ReturnType<typeof useSimulationSt
         ...simulationBasics,
       }
     },
-    // Intentionally depend on individual state properties for fine-grained memoization
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
+      state,
       state.rendite, state.returnMode, state.averageReturn, state.standardDeviation,
       state.randomSeed, state.variableReturns, state.historicalIndex, state.blackSwanReturns,
       state.inflationScenarioRates, state.inflationScenarioReturnModifiers, state.multiAssetConfig,

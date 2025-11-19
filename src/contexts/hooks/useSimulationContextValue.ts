@@ -342,40 +342,50 @@ function buildLifeValuesObject(
   }
 }
 
-/**
- * Helper to build life expectancy dependency array for memoization
- */
-function buildLifeValuesDeps(
-  values: Record<string, unknown>,
-  setEndOfLifeRounded: (value: number) => void,
-) {
-  return [
-    values.endOfLife,
-    setEndOfLifeRounded,
-    values.lifeExpectancyTable,
-    values.setLifeExpectancyTable,
-    values.customLifeExpectancy,
-    values.setCustomLifeExpectancy,
-    values.planningMode,
-    values.setPlanningMode,
-    values.gender,
-    values.setGender,
-    values.spouse,
-    values.setSpouse,
-    values.birthYear,
-    values.setBirthYear,
-    values.expectedLifespan,
-    values.setExpectedLifespan,
-    values.useAutomaticCalculation,
-    values.setUseAutomaticCalculation,
-  ]
-}
-
 function useLifeValues(state: Record<string, unknown>, setEndOfLifeRounded: (value: number) => void) {
+  const values = state as {
+    endOfLife: unknown
+    lifeExpectancyTable: unknown
+    setLifeExpectancyTable: unknown
+    customLifeExpectancy: unknown
+    setCustomLifeExpectancy: unknown
+    planningMode: unknown
+    setPlanningMode: unknown
+    gender: unknown
+    setGender: unknown
+    spouse: unknown
+    setSpouse: unknown
+    birthYear: unknown
+    setBirthYear: unknown
+    expectedLifespan: unknown
+    setExpectedLifespan: unknown
+    useAutomaticCalculation: unknown
+    setUseAutomaticCalculation: unknown
+  }
+  
   return useMemo(
     () => buildLifeValuesObject(state, setEndOfLifeRounded),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    buildLifeValuesDeps(state, setEndOfLifeRounded),
+    [
+      state,
+      setEndOfLifeRounded,
+      values.endOfLife,
+      values.lifeExpectancyTable,
+      values.setLifeExpectancyTable,
+      values.customLifeExpectancy,
+      values.setCustomLifeExpectancy,
+      values.planningMode,
+      values.setPlanningMode,
+      values.gender,
+      values.setGender,
+      values.spouse,
+      values.setSpouse,
+      values.birthYear,
+      values.setBirthYear,
+      values.expectedLifespan,
+      values.setExpectedLifespan,
+      values.useAutomaticCalculation,
+      values.setUseAutomaticCalculation,
+    ],
   )
 }
 

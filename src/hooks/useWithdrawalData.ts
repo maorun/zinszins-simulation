@@ -127,20 +127,11 @@ function buildWithdrawalResult(params: BuildWithdrawalResultParams): WithdrawalR
 }
 
 /**
- * Hook to prepare withdrawal calculation parameters from simulation context
+ * Extract and destructure simulation context values
  */
-// eslint-disable-next-line max-lines-per-function
-function useWithdrawalCalculationParams(
-  elemente: SparplanElement[],
-  startOfIndependence: number,
-  currentConfig: WithdrawalConfiguration,
-  steuerlast: number,
-  teilfreistellungsquote: number,
-  effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined,
-) {
+function useSimulationValuesForWithdrawal() {
   const simulationContext = useSimulation()
   
-  // Extract values from context for memoization dependencies
   const {
     steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv,
@@ -156,25 +147,7 @@ function useWithdrawalCalculationParams(
     withdrawalMultiAssetConfig,
   } = simulationContext
 
-  const {
-    formValue,
-    withdrawalReturnMode,
-    withdrawalVariableReturns,
-    withdrawalAverageReturn,
-    withdrawalStandardDeviation,
-    withdrawalRandomSeed,
-    useSegmentedWithdrawal,
-    withdrawalSegments,
-    otherIncomeConfig,
-  } = currentConfig
-  
-  // Memoize the params object to prevent unnecessary recalculations
   return useMemo(() => ({
-    elemente,
-    startOfIndependence,
-    effectiveStatutoryPensionConfig,
-    steuerlast,
-    teilfreistellungsquote,
     steuerReduzierenEndkapitalEntspharphase,
     grundfreibetragAktiv,
     grundfreibetragBetrag,
@@ -187,6 +160,47 @@ function useWithdrawalCalculationParams(
     guenstigerPruefungAktiv,
     personalTaxRate,
     withdrawalMultiAssetConfig,
+  }), [
+    steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
+    planningMode,
+    gender,
+    birthYear,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
+    withdrawalMultiAssetConfig,
+  ])
+}
+
+/**
+ * Hook to prepare withdrawal calculation parameters from simulation context
+ */
+function useWithdrawalCalculationParams(
+  elemente: SparplanElement[],
+  startOfIndependence: number,
+  currentConfig: WithdrawalConfiguration,
+  steuerlast: number,
+  teilfreistellungsquote: number,
+  effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined,
+) {
+  const simValues = useSimulationValuesForWithdrawal()
+  const {
+    formValue, withdrawalReturnMode, withdrawalVariableReturns,
+    withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed,
+    useSegmentedWithdrawal, withdrawalSegments, otherIncomeConfig,
+  } = currentConfig
+  
+  return useMemo(() => ({
+    elemente,
+    startOfIndependence,
+    effectiveStatutoryPensionConfig,
+    steuerlast,
+    teilfreistellungsquote,
+    ...simValues,
     formValue,
     withdrawalReturnMode,
     withdrawalVariableReturns,
@@ -197,32 +211,11 @@ function useWithdrawalCalculationParams(
     withdrawalSegments,
     otherIncomeConfig,
   }), [
-    elemente,
-    startOfIndependence,
-    effectiveStatutoryPensionConfig,
-    steuerlast,
-    teilfreistellungsquote,
-    steuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv,
-    grundfreibetragBetrag,
-    endOfLife,
-    lifeExpectancyTable,
-    customLifeExpectancy,
-    planningMode,
-    gender,
-    birthYear,
-    guenstigerPruefungAktiv,
-    personalTaxRate,
-    withdrawalMultiAssetConfig,
-    formValue,
-    withdrawalReturnMode,
-    withdrawalVariableReturns,
-    withdrawalAverageReturn,
-    withdrawalStandardDeviation,
-    withdrawalRandomSeed,
-    useSegmentedWithdrawal,
-    withdrawalSegments,
-    otherIncomeConfig,
+    elemente, startOfIndependence, effectiveStatutoryPensionConfig,
+    steuerlast, teilfreistellungsquote, simValues,
+    formValue, withdrawalReturnMode, withdrawalVariableReturns,
+    withdrawalAverageReturn, withdrawalStandardDeviation, withdrawalRandomSeed,
+    useSegmentedWithdrawal, withdrawalSegments, otherIncomeConfig,
   ])
 }
 
