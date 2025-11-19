@@ -14,7 +14,82 @@ interface SensitivityChartProps {
   data: ChartData[]
 }
 
-/* eslint-disable max-lines-per-function */
+/**
+ * Create plugins configuration for sensitivity chart
+ */
+function createSensitivityPluginsConfig(): ChartOptions<'line'>['plugins'] {
+  return {
+    legend: {
+      display: true,
+      position: 'bottom' as const,
+      labels: {
+        font: {
+          size: 12,
+        },
+      },
+    },
+    tooltip: {
+      enabled: true,
+      backgroundColor: 'rgba(255, 255, 255, 0.95)',
+      titleColor: '#1f2937',
+      bodyColor: '#4b5563',
+      borderColor: '#e5e7eb',
+      borderWidth: 1,
+      padding: 12,
+      bodyFont: {
+        size: 12,
+      },
+      titleFont: {
+        size: 12,
+      },
+      callbacks: {
+        label: (context: TooltipItem<'line'>) => {
+          const label = context.dataset.label || ''
+          const value = context.parsed.y
+          return `${label}: ${formatCurrency(value)}`
+        },
+      },
+    },
+  }
+}
+
+/**
+ * Create scales configuration for sensitivity chart
+ */
+function createSensitivityScalesConfig(): ChartOptions<'line'>['scales'] {
+  return {
+    x: {
+      display: true,
+      grid: {
+        display: true,
+        color: 'rgba(0, 0, 0, 0.05)',
+      },
+      ticks: {
+        maxRotation: 45,
+        minRotation: 45,
+        font: {
+          size: 12,
+        },
+      },
+    },
+    y: {
+      display: true,
+      grid: {
+        display: true,
+        color: 'rgba(0, 0, 0, 0.05)',
+      },
+      ticks: {
+        font: {
+          size: 12,
+        },
+      },
+    },
+  }
+}
+
+/**
+ * Create chart options for sensitivity chart
+ */
 function createChartOptions(): ChartOptions<'line'> {
   return {
     responsive: true,
@@ -23,67 +98,8 @@ function createChartOptions(): ChartOptions<'line'> {
       mode: 'index' as const,
       intersect: false,
     },
-    plugins: {
-      legend: {
-        display: true,
-        position: 'bottom' as const,
-        labels: {
-          font: {
-            size: 12,
-          },
-        },
-      },
-      tooltip: {
-        enabled: true,
-        backgroundColor: 'rgba(255, 255, 255, 0.95)',
-        titleColor: '#1f2937',
-        bodyColor: '#4b5563',
-        borderColor: '#e5e7eb',
-        borderWidth: 1,
-        padding: 12,
-        bodyFont: {
-          size: 12,
-        },
-        titleFont: {
-          size: 12,
-        },
-        callbacks: {
-          label: (context: TooltipItem<'line'>) => {
-            const label = context.dataset.label || ''
-            const value = context.parsed.y
-            return `${label}: ${formatCurrency(value)}`
-          },
-        },
-      },
-    },
-    scales: {
-      x: {
-        display: true,
-        grid: {
-          display: true,
-          color: 'rgba(0, 0, 0, 0.05)',
-        },
-        ticks: {
-          maxRotation: 45,
-          minRotation: 45,
-          font: {
-            size: 12,
-          },
-        },
-      },
-      y: {
-        display: true,
-        grid: {
-          display: true,
-          color: 'rgba(0, 0, 0, 0.05)',
-        },
-        ticks: {
-          font: {
-            size: 12,
-          },
-        },
-      },
-    },
+    plugins: createSensitivityPluginsConfig(),
+    scales: createSensitivityScalesConfig(),
   }
 }
 
