@@ -127,17 +127,17 @@ function buildWithdrawalResult(params: BuildWithdrawalResultParams): WithdrawalR
 }
 
 /**
- * Build withdrawal calculation params object from extracted values
+ * Build withdrawal calculation params object
  */
-function buildWithdrawalCalculationParams(
+function buildWithdrawalCalculationParamsObject(
   elemente: SparplanElement[],
   startOfIndependence: number,
   effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined,
   steuerlast: number,
   teilfreistellungsquote: number,
-  simContext: ReturnType<typeof useExtractedSimulationContextValues>,
-  config: ReturnType<typeof useExtractedCurrentConfigValues>,
-) {
+  simContext: Record<string, any>,
+  config: Record<string, any>,
+): any {
   return {
     elemente,
     startOfIndependence,
@@ -147,93 +147,6 @@ function buildWithdrawalCalculationParams(
     ...simContext,
     ...config,
   }
-}
-
-/**
- * Extract simulation context values (memoized for stable references)
- */
-function useExtractedSimulationContextValues(simulationContext: ReturnType<typeof useSimulation>) {
-  const {
-    steuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv,
-    grundfreibetragBetrag,
-    endOfLife,
-    lifeExpectancyTable,
-    customLifeExpectancy,
-    planningMode,
-    gender,
-    birthYear,
-    guenstigerPruefungAktiv,
-    personalTaxRate,
-    withdrawalMultiAssetConfig,
-  } = simulationContext
-
-  return useMemo(() => ({
-    steuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv,
-    grundfreibetragBetrag,
-    endOfLife,
-    lifeExpectancyTable,
-    customLifeExpectancy,
-    planningMode,
-    gender,
-    birthYear,
-    guenstigerPruefungAktiv,
-    personalTaxRate,
-    withdrawalMultiAssetConfig,
-  }), [
-    steuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv,
-    grundfreibetragBetrag,
-    endOfLife,
-    lifeExpectancyTable,
-    customLifeExpectancy,
-    planningMode,
-    gender,
-    birthYear,
-    guenstigerPruefungAktiv,
-    personalTaxRate,
-    withdrawalMultiAssetConfig,
-  ])
-}
-
-/**
- * Extract current config values (memoized for stable references)
- */
-function useExtractedCurrentConfigValues(currentConfig: WithdrawalConfiguration) {
-  const {
-    formValue,
-    withdrawalReturnMode,
-    withdrawalVariableReturns,
-    withdrawalAverageReturn,
-    withdrawalStandardDeviation,
-    withdrawalRandomSeed,
-    useSegmentedWithdrawal,
-    withdrawalSegments,
-    otherIncomeConfig,
-  } = currentConfig
-
-  return useMemo(() => ({
-    formValue,
-    withdrawalReturnMode,
-    withdrawalVariableReturns,
-    withdrawalAverageReturn,
-    withdrawalStandardDeviation,
-    withdrawalRandomSeed,
-    useSegmentedWithdrawal,
-    withdrawalSegments,
-    otherIncomeConfig,
-  }), [
-    formValue,
-    withdrawalReturnMode,
-    withdrawalVariableReturns,
-    withdrawalAverageReturn,
-    withdrawalStandardDeviation,
-    withdrawalRandomSeed,
-    useSegmentedWithdrawal,
-    withdrawalSegments,
-    otherIncomeConfig,
-  ])
 }
 
 /**
@@ -249,27 +162,93 @@ function useWithdrawalCalculationParams(
 ) {
   const simulationContext = useSimulation()
   
-  // Extract values from context for memoization dependencies (these are memoized for stable references)
-  const simContext = useExtractedSimulationContextValues(simulationContext)
-  const config = useExtractedCurrentConfigValues(currentConfig)
+  // Extract values from context for memoization dependencies
+  const {
+    steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
+    planningMode,
+    gender,
+    birthYear,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
+    withdrawalMultiAssetConfig,
+  } = simulationContext
+
+  const {
+    formValue,
+    withdrawalReturnMode,
+    withdrawalVariableReturns,
+    withdrawalAverageReturn,
+    withdrawalStandardDeviation,
+    withdrawalRandomSeed,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
+    otherIncomeConfig,
+  } = currentConfig
   
   // Memoize the params object to prevent unnecessary recalculations
-  return useMemo(() => buildWithdrawalCalculationParams(
+  return useMemo(() => buildWithdrawalCalculationParamsObject(
     elemente,
     startOfIndependence,
     effectiveStatutoryPensionConfig,
     steuerlast,
     teilfreistellungsquote,
-    simContext,
-    config,
+    {
+      steuerReduzierenEndkapitalEntspharphase,
+      grundfreibetragAktiv,
+      grundfreibetragBetrag,
+      endOfLife,
+      lifeExpectancyTable,
+      customLifeExpectancy,
+      planningMode,
+      gender,
+      birthYear,
+      guenstigerPruefungAktiv,
+      personalTaxRate,
+      withdrawalMultiAssetConfig,
+    },
+    {
+      formValue,
+      withdrawalReturnMode,
+      withdrawalVariableReturns,
+      withdrawalAverageReturn,
+      withdrawalStandardDeviation,
+      withdrawalRandomSeed,
+      useSegmentedWithdrawal,
+      withdrawalSegments,
+      otherIncomeConfig,
+    },
   ), [
     elemente,
     startOfIndependence,
     effectiveStatutoryPensionConfig,
     steuerlast,
     teilfreistellungsquote,
-    simContext,
-    config,
+    steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
+    planningMode,
+    gender,
+    birthYear,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
+    withdrawalMultiAssetConfig,
+    formValue,
+    withdrawalReturnMode,
+    withdrawalVariableReturns,
+    withdrawalAverageReturn,
+    withdrawalStandardDeviation,
+    withdrawalRandomSeed,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
+    otherIncomeConfig,
   ])
 }
 

@@ -28,6 +28,16 @@ export function useBuildSimulationState(state: ReturnType<typeof useSimulationSt
         ...simulationBasics,
       }
     },
-    [state],
+    // Intentionally depend on individual state properties for fine-grained memoization
+    [
+      state.rendite, state.returnMode, state.averageReturn, state.standardDeviation,
+      state.randomSeed, state.variableReturns, state.historicalIndex, state.blackSwanReturns,
+      state.inflationScenarioRates, state.inflationScenarioReturnModifiers, state.multiAssetConfig,
+      state.simulationAnnual, state.sparplanElemente, state.startEnd, state.steuerlast,
+      state.teilfreistellungsquote, state.freibetragPerYear, state.basiszinsConfiguration,
+      state.steuerReduzierenEndkapitalSparphase, state.inflationAktivSparphase,
+      state.inflationsrateSparphase, state.inflationAnwendungSparphase,
+      state.guenstigerPruefungAktiv, state.personalTaxRate,
+    ],
   )
 }

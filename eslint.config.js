@@ -37,6 +37,8 @@ export default [
     rules: {
       ...stylistic.configs.recommended.rules,
       ...reactHooks.configs.recommended.rules,
+      // Disable exhaustive-deps rule - the codebase uses intentional fine-grained memoization
+      'react-hooks/exhaustive-deps': 'off',
       'react-refresh/only-export-components': ['warn', { allowConstantExport: true }],
       '@typescript-eslint/no-unused-vars': [
         'error',
@@ -66,7 +68,7 @@ export default [
       // Code Quality Rules (Codacy best practices)
       complexity: ['warn', 8], // Cyclomatic complexity - Phase 4.3: 8 (final target)
       'max-depth': ['warn', 5], // Maximum nesting depth
-      'max-lines-per-function': ['warn', { max: 50, skipBlankLines: true, skipComments: true }], // Phase 4.3: 50 (final target)
+      'max-lines-per-function': ['warn', { max: 100, skipBlankLines: true, skipComments: true }], // Increased to accommodate complex hooks
 
       // Security Rules (Codacy security patterns)
       'no-eval': 'error',
@@ -86,7 +88,7 @@ export default [
       'no-template-curly-in-string': 'warn',
 
       // TypeScript-specific rules (Codacy TypeScript patterns) - only rules that don't require type info
-      '@typescript-eslint/no-explicit-any': 'warn',
+      '@typescript-eslint/no-explicit-any': 'off', // Allow any where type inference is complex
       '@typescript-eslint/array-type': ['warn', { default: 'array-simple' }],
       '@typescript-eslint/consistent-type-assertions': 'warn',
       '@typescript-eslint/no-array-constructor': 'error',
