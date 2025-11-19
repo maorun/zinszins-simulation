@@ -12,11 +12,16 @@ import {
   type ExportData,
   type SavingsData,
 } from '../utils/data-export'
+import {
+  exportSavingsDataToExcel,
+  exportWithdrawalDataToExcel,
+  exportCompleteDataToExcel,
+} from '../utils/excel-export'
 
 export interface DataExportState {
   isExporting: boolean
   lastExportResult: 'success' | 'error' | null
-  exportType: 'csv' | 'markdown' | 'clipboard' | null
+  exportType: 'csv' | 'markdown' | 'clipboard' | 'excel' | null
 }
 
 /**
@@ -362,6 +367,77 @@ async function performClipboardCopy(context: SimulationContextState, updateState
 }
 
 /**
+ * Export savings data as Excel
+ */
+async function performSavingsExcelExport(context: SimulationContextState, updateState: StateUpdater): Promise<boolean> {
+  setExportingStateHelper(updateState, 'excel')
+
+  try {
+    if (!context.simulationData?.sparplanElements) {
+      throw new Error('Keine Sparplan-Daten verfügbar. Bitte führen Sie zuerst eine Simulation durch.')
+    }
+
+    exportSavingsDataToExcel(context.simulationData, context)
+    setResultStateHelper(updateState, true, 'excel')
+    return true
+  } catch (error) {
+    console.error('Failed to export savings data as Excel:', error)
+    setResultStateHelper(updateState, false, 'excel')
+    return false
+  }
+}
+
+/**
+ * Export withdrawal data as Excel
+ */
+async function performWithdrawalExcelExport(context: SimulationContextState, updateState: StateUpdater): Promise<boolean> {
+  setExportingStateHelper(updateState, 'excel')
+
+  try {
+    const withdrawalData = getWithdrawalDataHelper(context)
+
+    if (!withdrawalData) {
+      throw new Error('Keine Entnahme-Daten verfügbar.')
+    }
+
+    exportWithdrawalDataToExcel(withdrawalData, context)
+    setResultStateHelper(updateState, true, 'excel')
+    return true
+  } catch (error) {
+    console.error('Failed to export withdrawal data as Excel:', error)
+    setResultStateHelper(updateState, false, 'excel')
+    return false
+  }
+}
+
+/**
+ * Export all data (savings + withdrawal) as Excel
+ */
+async function performAllDataExcelExport(context: SimulationContextState, updateState: StateUpdater): Promise<boolean> {
+  setExportingStateHelper(updateState, 'excel')
+
+  try {
+    if (!context.simulationData?.sparplanElements) {
+      throw new Error('Keine Sparplan-Daten verfügbar.')
+    }
+
+    const withdrawalData = getWithdrawalDataHelper(context)
+
+    if (!withdrawalData) {
+      throw new Error('Keine Entnahme-Daten verfügbar.')
+    }
+
+    exportCompleteDataToExcel(context.simulationData, withdrawalData, context)
+    setResultStateHelper(updateState, true, 'excel')
+    return true
+  } catch (error) {
+    console.error('Failed to export all data as Excel:', error)
+    setResultStateHelper(updateState, false, 'excel')
+    return false
+  }
+}
+
+/**
  * Helper function to prepare data for markdown export
  */
 function prepareMarkdownExportData(context: SimulationContextState) {
@@ -403,7 +479,7 @@ type StateUpdater = (state: Partial<DataExportState>) => void
 /**
  * Helper to set exporting state
  */
-function setExportingStateHelper(setState: StateUpdater, exportType: 'csv' | 'markdown' | 'clipboard') {
+function setExportingStateHelper(setState: StateUpdater, exportType: 'csv' | 'markdown' | 'clipboard' | 'excel') {
   setState({
     isExporting: true,
     lastExportResult: null,
@@ -414,7 +490,11 @@ function setExportingStateHelper(setState: StateUpdater, exportType: 'csv' | 'ma
 /**
  * Helper to set result state and schedule clearing
  */
-function setResultStateHelper(setState: StateUpdater, success: boolean, exportType: 'csv' | 'markdown' | 'clipboard') {
+function setResultStateHelper(
+  setState: StateUpdater,
+  success: boolean,
+  exportType: 'csv' | 'markdown' | 'clipboard' | 'excel',
+) {
   setState({
     isExporting: false,
     lastExportResult: success ? 'success' : 'error',
@@ -428,6 +508,17 @@ function setResultStateHelper(setState: StateUpdater, success: boolean, exportTy
 }
 
 /**
+ * Helper to create export callback with context and state
+ */
+function createExportCallback(
+  exportFn: (context: SimulationContextState, updateState: StateUpdater) => Promise<boolean>,
+  context: SimulationContextState,
+  updateState: StateUpdater,
+) {
+  return async () => exportFn(context, updateState)
+}
+
+/**
  * Custom hook for exporting simulation data in various formats
  */
 export function useDataExport() {
@@ -437,43 +528,43 @@ export function useDataExport() {
     lastExportResult: null,
     exportType: null,
   })
-
-  // State updater that merges with previous state
   const updateState = useCallback((updates: Partial<DataExportState>) => {
     setState(prev => ({ ...prev, ...updates }))
   }, [])
-
-  const exportSavingsDataCSV = useCallback(
-    async () => performSavingsCSVExport(context, updateState),
-    [context, updateState],
-  )
-
+  // CSV exports
+  const exportSavingsDataCSV = useCallback(() => createExportCallback(performSavingsCSVExport, context, updateState)(), [
+    context,
+    updateState,
+  ])
   const exportWithdrawalDataCSV = useCallback(
-    async () => performWithdrawalCSVExport(context, updateState),
+    () => createExportCallback(performWithdrawalCSVExport, context, updateState)(),
     [context, updateState],
   )
-
-  const exportAllDataCSV = useCallback(
-    async () => performAllDataCSVExport(context, updateState),
-    [context, updateState],
-  )
-
-  const exportDataMarkdown = useCallback(
-    async () => performMarkdownExport(context, updateState),
-    [context, updateState],
-  )
-
+  const exportAllDataCSV = useCallback(() => createExportCallback(performAllDataCSVExport, context, updateState)(), [
+    context,
+    updateState,
+  ])
+  // Other exports
+  const exportDataMarkdown = useCallback(() => createExportCallback(performMarkdownExport, context, updateState)(), [
+    context,
+    updateState,
+  ])
   const copyCalculationExplanations = useCallback(
-    async () => performClipboardCopy(context, updateState),
+    () => createExportCallback(performClipboardCopy, context, updateState)(),
     [context, updateState],
   )
-
-  return {
-    exportSavingsDataCSV,
-    exportWithdrawalDataCSV,
-    exportAllDataCSV,
-    exportDataMarkdown,
-    copyCalculationExplanations,
-    ...state,
-  }
+  // Excel exports
+  const exportSavingsDataExcel = useCallback(
+    () => createExportCallback(performSavingsExcelExport, context, updateState)(),
+    [context, updateState],
+  )
+  const exportWithdrawalDataExcel = useCallback(
+    () => createExportCallback(performWithdrawalExcelExport, context, updateState)(),
+    [context, updateState],
+  )
+  const exportAllDataExcel = useCallback(() => createExportCallback(performAllDataExcelExport, context, updateState)(), [
+    context,
+    updateState,
+  ])
+  return { exportSavingsDataCSV, exportWithdrawalDataCSV, exportAllDataCSV, exportDataMarkdown, copyCalculationExplanations, exportSavingsDataExcel, exportWithdrawalDataExcel, exportAllDataExcel, ...state }
 }
