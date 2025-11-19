@@ -75,7 +75,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Dashboard-Customization** - Personalisierbare Ansichten
 - **KPI-Tracking** - Verfolgung von Fortschritt gegenüber Zielen
 - **Automated Reporting** - Regelmäßige lokale Reports
-- **Advanced Export Options** - Excel mit Formeln, PDF-Reports
+- **Advanced Export Options** - PDF-Reports
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
 - **Animation/Timeline** - Zeitbasierte Animationen der Portfolioentwicklung
 
