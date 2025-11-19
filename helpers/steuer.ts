@@ -237,9 +237,44 @@ function calculatePersonalIncomeTax(
 }
 
 /**
+ * Build tax system text description
+ */
+function buildTaxSystemText(
+  useProgressiveTax: boolean,
+  personalTaxRate: number | undefined,
+  kirchensteuerAktiv: boolean,
+  kirchensteuersatz: number,
+): string {
+  if (useProgressiveTax) {
+    return 'Progressiver Tarif'
+  }
+  
+  const kirchensteuerText = kirchensteuerAktiv ? ` (inkl. ${kirchensteuersatz}% Kirchensteuer)` : ''
+  
+  if (personalTaxRate !== undefined) {
+    return `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText})`
+  }
+  
+  return 'Persönlicher Steuersatz'
+}
+
+/**
+ * Add effective rate info to explanation if applicable
+ */
+function addEffectiveRateInfo(
+  explanation: string,
+  useProgressiveTax: boolean,
+  effectiveRate: number | undefined,
+): string {
+  if (useProgressiveTax && effectiveRate !== undefined) {
+    return `${explanation} - Effektiver Steuersatz: ${(effectiveRate * 100).toFixed(2)}%`
+  }
+  return explanation
+}
+
+/**
  * Determine which tax option is more favorable and create explanation
  */
-// eslint-disable-next-line complexity
 function determineFavorableTaxOption(
   personalTaxAmount: number,
   abgeltungssteuerAmount: number,
@@ -256,31 +291,25 @@ function determineFavorableTaxOption(
   usedTaxRate: number
   explanation: string
 } {
-  const kirchensteuerText = kirchensteuerAktiv ? ` (inkl. ${kirchensteuersatz}% Kirchensteuer)` : ''
-  const taxSystemText = useProgressiveTax 
-    ? 'Progressiver Tarif' 
-    : personalTaxRate !== undefined 
-      ? `Persönlicher Steuersatz (${(personalTaxRate * 100).toFixed(2)}%${kirchensteuerText})`
-      : 'Persönlicher Steuersatz'
+  const taxSystemText = buildTaxSystemText(
+    useProgressiveTax,
+    personalTaxRate,
+    kirchensteuerAktiv,
+    kirchensteuersatz,
+  )
 
   if (personalTaxAmount < abgeltungssteuerAmount) {
     // Avoid division by zero
     const usedTaxRate = personalTaxAmount / Math.max(vorabpauschale * (1 - teilfreistellungsquote), 0.01)
-    let explanation = `${taxSystemText} ist günstiger als Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
-    
-    if (useProgressiveTax && effectiveRate !== undefined) {
-      explanation += ` - Effektiver Steuersatz: ${(effectiveRate * 100).toFixed(2)}%`
-    }
+    const baseExplanation = `${taxSystemText} ist günstiger als Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%)`
+    const explanation = addEffectiveRateInfo(baseExplanation, useProgressiveTax, effectiveRate)
     
     return { isFavorable: 'personal', usedTaxRate, explanation }
   }
 
   if (personalTaxAmount > abgeltungssteuerAmount) {
-    let explanation = `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als ${taxSystemText}`
-    
-    if (useProgressiveTax && effectiveRate !== undefined) {
-      explanation += ` - Effektiver Steuersatz: ${(effectiveRate * 100).toFixed(2)}%`
-    }
+    const baseExplanation = `Abgeltungssteuer (${(abgeltungssteuer * 100).toFixed(2)}%) ist günstiger als ${taxSystemText}`
+    const explanation = addEffectiveRateInfo(baseExplanation, useProgressiveTax, effectiveRate)
     
     return { isFavorable: 'abgeltungssteuer', usedTaxRate: abgeltungssteuer, explanation }
   }
