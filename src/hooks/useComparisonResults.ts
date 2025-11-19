@@ -202,28 +202,17 @@ export function useComparisonResults(
       return calculateAllComparisonResults(comparisonStrategies, params)
     },
     // Individual properties tracked instead of the whole object for better memoization
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       useComparisonMode,
       withdrawalData,
       comparisonStrategies,
       elemente,
       startOfIndependence,
-      currentConfig,
       steuerlast,
       teilfreistellungsquote,
       effectiveStatutoryPensionConfig,
-      simulationValues.endOfLife,
-      simulationValues.grundfreibetragAktiv,
-      simulationValues.grundfreibetragBetrag,
-      simulationValues.steuerReduzierenEndkapitalEntspharphase,
-      simulationValues.planningMode,
-      simulationValues.birthYear,
-      simulationValues.customLifeExpectancy,
-      simulationValues.lifeExpectancyTable,
-      simulationValues.gender,
-      simulationValues.guenstigerPruefungAktiv,
-      simulationValues.personalTaxRate,
+      currentConfig,
+      simulationValues,
     ],
   )
 

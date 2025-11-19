@@ -342,40 +342,10 @@ function buildLifeValuesObject(
   }
 }
 
-/**
- * Helper to build life expectancy dependency array for memoization
- */
-function buildLifeValuesDeps(
-  values: Record<string, unknown>,
-  setEndOfLifeRounded: (value: number) => void,
-) {
-  return [
-    values.endOfLife,
-    setEndOfLifeRounded,
-    values.lifeExpectancyTable,
-    values.setLifeExpectancyTable,
-    values.customLifeExpectancy,
-    values.setCustomLifeExpectancy,
-    values.planningMode,
-    values.setPlanningMode,
-    values.gender,
-    values.setGender,
-    values.spouse,
-    values.setSpouse,
-    values.birthYear,
-    values.setBirthYear,
-    values.expectedLifespan,
-    values.setExpectedLifespan,
-    values.useAutomaticCalculation,
-    values.setUseAutomaticCalculation,
-  ]
-}
-
 function useLifeValues(state: Record<string, unknown>, setEndOfLifeRounded: (value: number) => void) {
   return useMemo(
     () => buildLifeValuesObject(state, setEndOfLifeRounded),
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    buildLifeValuesDeps(state, setEndOfLifeRounded),
+    [state, setEndOfLifeRounded],
   )
 }
 
