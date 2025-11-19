@@ -33,6 +33,7 @@ describe('FormConfigurationSections', () => {
         isRental={true}
         isKapitallebensversicherung={false}
         isPflegezusatzversicherung={false}
+        isRisikolebensversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
@@ -53,6 +54,7 @@ describe('FormConfigurationSections', () => {
         isRental={false}
         isKapitallebensversicherung={false}
         isPflegezusatzversicherung={false}
+        isRisikolebensversicherung={false}
         isGrossIncome={false}
         onUpdate={mockOnUpdate}
       />,
@@ -73,6 +75,7 @@ describe('FormConfigurationSections', () => {
         isRental={false}
         isKapitallebensversicherung={false}
         isPflegezusatzversicherung={false}
+        isRisikolebensversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
@@ -93,6 +96,7 @@ describe('FormConfigurationSections', () => {
         isRental={false}
         isKapitallebensversicherung={false}
         isPflegezusatzversicherung={false}
+        isRisikolebensversicherung={false}
         isGrossIncome={false}
         onUpdate={mockOnUpdate}
       />,
@@ -123,6 +127,7 @@ describe('FormConfigurationSections', () => {
         isRental={true}
         isKapitallebensversicherung={false}
         isPflegezusatzversicherung={false}
+        isRisikolebensversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
@@ -143,6 +148,7 @@ describe('FormConfigurationSections', () => {
         isRental={false}
         isKapitallebensversicherung={false}
         isPflegezusatzversicherung={false}
+        isRisikolebensversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
@@ -171,6 +177,7 @@ describe('FormConfigurationSections', () => {
         isRental={false}
         isKapitallebensversicherung={false}
         isPflegezusatzversicherung={false}
+        isRisikolebensversicherung={false}
         isGrossIncome={false}
         onUpdate={mockOnUpdate}
       />,
@@ -191,6 +198,7 @@ describe('FormConfigurationSections', () => {
         isRental={true}
         isKapitallebensversicherung={false}
         isPflegezusatzversicherung={false}
+        isRisikolebensversicherung={false}
         isGrossIncome={true}
         onUpdate={mockOnUpdate}
       />,
