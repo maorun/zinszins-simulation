@@ -302,6 +302,17 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Abgeltungsteuer**: Korrekte Anwendung der Kapitalertragsteuer (26,375%) auf steuerpflichtige Erträge
     - **Echtzeit-Steuervorschau**: Interaktive Anzeige von Vertragslaufzeit, Alter bei Auszahlung und steuerlicher Behandlung
     - **Flexible Konfiguration**: Individuelle Anpassung von Vertragsbeginn, Fälligkeit, Auszahlungsbetrag und gezahlten Beiträgen
+  - **Fondsgebundene Lebensversicherung (Calculation Library)** - Umfassende Berechnungsfunktionen für ETF-Sparpläne in Versicherungsmänteln
+    - **Jahr-für-Jahr Simulation**: Vollständige Portfolioentwicklung mit Beiträgen, Renditen und Kosten
+    - **Kostenmodellierung**: Abschlusskosten (Zillmerung über 5 Jahre), Verwaltungskosten, Garantiekosten, Sterblichkeitskosten
+    - **Steuervorteile**: Halbeinkünfteverfahren nach 12 Jahren Laufzeit + Alter 62 (nur 50% der Gewinne steuerpflichtig)
+    - **Garantieoptionen**: Konfigurierbare Mindestgarantien bei Fälligkeit
+    - **Todesfallschutz**: Altersabhängige Sterblichkeitskosten und konfigurierbare Todesfallleistung
+    - **Vergleichsrechnung**: Direkter Vergleich mit ETF-Direktanlage zur Bewertung des Versicherungsmantels
+    - **Effektivrendite-Berechnung**: Automatische Berechnung der Nettorendite nach allen Kosten
+    - **Kostenquote**: Transparente Darstellung des Kostenanteils an den Gesamtbeiträgen
+    - **Flexible Konfiguration**: Individuelle Anpassung von Beiträgen, Renditen, Kosten, Garantien und Laufzeiten
+    - **Umfassende Tests**: 24 Testszenarien sichern Berechnungskorrektheit und Zuverlässigkeit
   - **Pflegezusatzversicherung** - Umfassende Pflegeversicherungs-Integration für Altersvorsorgeplanung
     - **Pflegegrad-System**: Vollständige Unterstützung der deutschen Pflegegrade 1-5 mit detaillierten Beschreibungen
       - Pflegegrad 1: Geringe Beeinträchtigung der Selbstständigkeit
