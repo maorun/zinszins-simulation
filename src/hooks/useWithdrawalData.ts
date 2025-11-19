@@ -127,31 +127,9 @@ function buildWithdrawalResult(params: BuildWithdrawalResultParams): WithdrawalR
 }
 
 /**
- * Build withdrawal calculation params object
- */
-function buildWithdrawalCalculationParamsObject(
-  elemente: SparplanElement[],
-  startOfIndependence: number,
-  effectiveStatutoryPensionConfig: StatutoryPensionConfig | null | undefined,
-  steuerlast: number,
-  teilfreistellungsquote: number,
-  simContext: Record<string, any>,
-  config: Record<string, any>,
-): any {
-  return {
-    elemente,
-    startOfIndependence,
-    effectiveStatutoryPensionConfig,
-    steuerlast,
-    teilfreistellungsquote,
-    ...simContext,
-    ...config,
-  }
-}
-
-/**
  * Hook to prepare withdrawal calculation parameters from simulation context
  */
+// eslint-disable-next-line max-lines-per-function
 function useWithdrawalCalculationParams(
   elemente: SparplanElement[],
   startOfIndependence: number,
@@ -191,38 +169,34 @@ function useWithdrawalCalculationParams(
   } = currentConfig
   
   // Memoize the params object to prevent unnecessary recalculations
-  return useMemo(() => buildWithdrawalCalculationParamsObject(
+  return useMemo(() => ({
     elemente,
     startOfIndependence,
     effectiveStatutoryPensionConfig,
     steuerlast,
     teilfreistellungsquote,
-    {
-      steuerReduzierenEndkapitalEntspharphase,
-      grundfreibetragAktiv,
-      grundfreibetragBetrag,
-      endOfLife,
-      lifeExpectancyTable,
-      customLifeExpectancy,
-      planningMode,
-      gender,
-      birthYear,
-      guenstigerPruefungAktiv,
-      personalTaxRate,
-      withdrawalMultiAssetConfig,
-    },
-    {
-      formValue,
-      withdrawalReturnMode,
-      withdrawalVariableReturns,
-      withdrawalAverageReturn,
-      withdrawalStandardDeviation,
-      withdrawalRandomSeed,
-      useSegmentedWithdrawal,
-      withdrawalSegments,
-      otherIncomeConfig,
-    },
-  ), [
+    steuerReduzierenEndkapitalEntspharphase,
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    endOfLife,
+    lifeExpectancyTable,
+    customLifeExpectancy,
+    planningMode,
+    gender,
+    birthYear,
+    guenstigerPruefungAktiv,
+    personalTaxRate,
+    withdrawalMultiAssetConfig,
+    formValue,
+    withdrawalReturnMode,
+    withdrawalVariableReturns,
+    withdrawalAverageReturn,
+    withdrawalStandardDeviation,
+    withdrawalRandomSeed,
+    useSegmentedWithdrawal,
+    withdrawalSegments,
+    otherIncomeConfig,
+  }), [
     elemente,
     startOfIndependence,
     effectiveStatutoryPensionConfig,

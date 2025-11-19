@@ -374,6 +374,7 @@ function buildLifeValuesDeps(
 function useLifeValues(state: Record<string, unknown>, setEndOfLifeRounded: (value: number) => void) {
   return useMemo(
     () => buildLifeValuesObject(state, setEndOfLifeRounded),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     buildLifeValuesDeps(state, setEndOfLifeRounded),
   )
 }

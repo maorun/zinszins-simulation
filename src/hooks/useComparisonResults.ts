@@ -202,6 +202,7 @@ export function useComparisonResults(
       return calculateAllComparisonResults(comparisonStrategies, params)
     },
     // Individual properties tracked instead of the whole object for better memoization
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [
       useComparisonMode,
       withdrawalData,
