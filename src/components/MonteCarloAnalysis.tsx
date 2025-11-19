@@ -19,6 +19,18 @@ const MonteCarloAnalysis = () => {
       : [],
   ) as number[]
 
+  // Calculate current portfolio value from the latest simulation data
+  let portfolioValue: number | undefined
+  if (simulationData.sparplanElements.length > 0 && data.length > 0) {
+    // Get the latest year from the simulation
+    const latestYear = Math.max(...data)
+    // Sum up endkapital from all sparplan elements for the latest year
+    portfolioValue = simulationData.sparplanElements.reduce((sum, element) => {
+      const yearData = element.simulation[latestYear]
+      return sum + (yearData?.endkapital || 0)
+    }, 0)
+  }
+
   return (
     <Card className="mb-4">
       <Collapsible defaultOpen={false}>
@@ -39,6 +51,7 @@ const MonteCarloAnalysis = () => {
                 standardDeviation: 0.12, // Default 12% volatility (more conservative)
                 seed: randomSeed,
               }}
+              portfolioValue={portfolioValue}
             />
           </CardContent>
         </CollapsibleContent>
