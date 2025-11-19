@@ -472,6 +472,134 @@ function calculateZone3Tax(taxableIncome: number, y: number, linearCoefficient: 
 }
 
 /**
+ * Calculate tax for income in Zone 1 (Grundfreibetrag - no tax)
+ */
+function calculateTaxZone1(
+  incomeAfterOffset: number,
+  taxBrackets: TaxBracket[],
+): { totalTax: number; marginalRate: number; bracketBreakdown: ProgressiveTaxResult['bracketBreakdown'] } {
+  return {
+    totalTax: 0,
+    marginalRate: 0,
+    bracketBreakdown: [{
+      bracket: taxBrackets[0],
+      taxableAmount: incomeAfterOffset,
+      taxAmount: 0,
+    }],
+  }
+}
+
+/**
+ * Calculate tax for income in Zone 2 (Progressive 14% to ~24%)
+ */
+function calculateTaxZone2Result(
+  incomeAfterOffset: number,
+  taxBrackets: TaxBracket[],
+): { totalTax: number; marginalRate: number; bracketBreakdown: ProgressiveTaxResult['bracketBreakdown'] } {
+  const totalTax = calculateZone2Tax(incomeAfterOffset, 922.98, 1400)
+  return {
+    totalTax,
+    marginalRate: 0.14,
+    bracketBreakdown: [{
+      bracket: taxBrackets[1],
+      taxableAmount: incomeAfterOffset - 11604,
+      taxAmount: totalTax,
+    }],
+  }
+}
+
+/**
+ * Calculate tax for income in Zone 3 (Progressive ~24% to 42%)
+ */
+function calculateTaxZone3Result(
+  incomeAfterOffset: number,
+  taxBrackets: TaxBracket[],
+): { totalTax: number; marginalRate: number; bracketBreakdown: ProgressiveTaxResult['bracketBreakdown'] } {
+  const totalTax = calculateZone3Tax(incomeAfterOffset, 181.19, 2397)
+  return {
+    totalTax,
+    marginalRate: 0.2397,
+    bracketBreakdown: [{
+      bracket: taxBrackets[2],
+      taxableAmount: incomeAfterOffset - 17005,
+      taxAmount: totalTax,
+    }],
+  }
+}
+
+/**
+ * Calculate tax for income in Zone 4 (Flat 42%)
+ */
+function calculateTaxZone4Result(
+  incomeAfterOffset: number,
+  taxBrackets: TaxBracket[],
+): { totalTax: number; marginalRate: number; bracketBreakdown: ProgressiveTaxResult['bracketBreakdown'] } {
+  const baseTax = calculateZone3Tax(66760, 181.19, 2397)
+  const incomeAbove66760 = incomeAfterOffset - 66760
+  const totalTax = baseTax + incomeAbove66760 * 0.42
+  
+  return {
+    totalTax,
+    marginalRate: 0.42,
+    bracketBreakdown: [{
+      bracket: taxBrackets[3],
+      taxableAmount: incomeAbove66760,
+      taxAmount: totalTax,
+    }],
+  }
+}
+
+/**
+ * Calculate tax for income in Zone 5 (Flat 45% - Reichensteuer)
+ */
+function calculateTaxZone5Result(
+  incomeAfterOffset: number,
+  taxBrackets: TaxBracket[],
+): { totalTax: number; marginalRate: number; bracketBreakdown: ProgressiveTaxResult['bracketBreakdown'] } {
+  const baseTaxZone3 = calculateZone3Tax(66760, 181.19, 2397)
+  const zone4Income = 277825 - 66760
+  const baseTaxZone4 = baseTaxZone3 + zone4Income * 0.42
+  const incomeAbove277825 = incomeAfterOffset - 277825
+  const totalTax = baseTaxZone4 + incomeAbove277825 * 0.45
+  
+  return {
+    totalTax,
+    marginalRate: 0.45,
+    bracketBreakdown: [{
+      bracket: taxBrackets[4],
+      taxableAmount: incomeAbove277825,
+      taxAmount: totalTax,
+    }],
+  }
+}
+
+/**
+ * Determine which tax zone applies and calculate tax accordingly
+ */
+function calculateTaxByZone(
+  incomeAfterOffset: number,
+  taxBrackets: TaxBracket[],
+): { totalTax: number; marginalRate: number; bracketBreakdown: ProgressiveTaxResult['bracketBreakdown'] } {
+  if (incomeAfterOffset <= 11604) {
+    return calculateTaxZone1(incomeAfterOffset, taxBrackets)
+  }
+  
+  if (incomeAfterOffset <= 17005) {
+    return calculateTaxZone2Result(incomeAfterOffset, taxBrackets)
+  }
+  
+  if (incomeAfterOffset <= 66760) {
+    return calculateTaxZone3Result(incomeAfterOffset, taxBrackets)
+  }
+  
+  if (incomeAfterOffset <= 277825) {
+    return calculateTaxZone4Result(incomeAfterOffset, taxBrackets)
+  }
+  
+  return calculateTaxZone5Result(incomeAfterOffset, taxBrackets)
+}
+
+/**
  * Calculate German progressive income tax based on official tax brackets.
  * Uses the official German tax formula (Einkommensteuergesetz - EStG §32a)
  * for zones 2 and 3 which have progressive rates.
@@ -501,7 +629,6 @@ function calculateZone3Tax(taxableIncome: number, y: number, linearCoefficient: 
  * // result.totalTax will be approximately 4,446€
  * // result.effectiveRate will be approximately 14.8%
  */
-// eslint-disable-next-line complexity, max-lines-per-function
 export function calculateProgressiveTax(
   taxableIncome: number,
   grundfreibetrag = 0,
@@ -525,79 +652,16 @@ export function calculateProgressiveTax(
     }
   }
 
-  let totalTax = 0
-  let marginalRate = 0
-  const bracketBreakdown: ProgressiveTaxResult['bracketBreakdown'] = []
-
-  // Find which bracket the taxable income falls into and calculate tax
-  // The German tax formula gives us the total tax directly for zones 2 and 3
-  // For zones 4 and 5, we need to add incremental tax
-
-  if (incomeAfterOffset <= 11604) {
-    // Zone 1: No tax (this IS the Grundfreibetrag built into the tax system)
-    totalTax = 0
-    marginalRate = 0
-    bracketBreakdown.push({
-      bracket: taxBrackets[0],
-      taxableAmount: incomeAfterOffset,
-      taxAmount: 0,
-    })
-  } else if (incomeAfterOffset <= 17005) {
-    // Zone 2: Progressive from 14% to ~24%
-    totalTax = calculateZone2Tax(incomeAfterOffset, 922.98, 1400)
-    marginalRate = 0.14
-    bracketBreakdown.push({
-      bracket: taxBrackets[1],
-      taxableAmount: incomeAfterOffset - 11604,
-      taxAmount: totalTax,
-    })
-  } else if (incomeAfterOffset <= 66760) {
-    // Zone 3: Progressive from ~24% to 42%
-    totalTax = calculateZone3Tax(incomeAfterOffset, 181.19, 2397)
-    marginalRate = 0.2397
-    bracketBreakdown.push({
-      bracket: taxBrackets[2],
-      taxableAmount: incomeAfterOffset - 17005,
-      taxAmount: totalTax,
-    })
-  } else if (incomeAfterOffset <= 277825) {
-    // Zone 4: Flat 42%
-    // Calculate base tax up to 66,760€
-    const baseTax = calculateZone3Tax(66760, 181.19, 2397)
-    // Add 42% tax on income above 66,760€
-    const incomeAbove66760 = incomeAfterOffset - 66760
-    totalTax = baseTax + incomeAbove66760 * 0.42
-    marginalRate = 0.42
-    bracketBreakdown.push({
-      bracket: taxBrackets[3],
-      taxableAmount: incomeAbove66760,
-      taxAmount: totalTax,
-    })
-  } else {
-    // Zone 5: Flat 45% (Reichensteuer)
-    // Calculate base tax up to 277,825€
-    const baseTaxZone3 = calculateZone3Tax(66760, 181.19, 2397)
-    const zone4Income = 277825 - 66760
-    const baseTaxZone4 = baseTaxZone3 + zone4Income * 0.42
-    // Add 45% tax on income above 277,825€
-    const incomeAbove277825 = incomeAfterOffset - 277825
-    totalTax = baseTaxZone4 + incomeAbove277825 * 0.45
-    marginalRate = 0.45
-    bracketBreakdown.push({
-      bracket: taxBrackets[4],
-      taxableAmount: incomeAbove277825,
-      taxAmount: totalTax,
-    })
-  }
-
-  const effectiveRate = incomeAfterOffset > 0 ? totalTax / incomeAfterOffset : 0
+  // Determine which tax zone applies and calculate accordingly
+  const taxResult = calculateTaxByZone(incomeAfterOffset, taxBrackets)
+  const effectiveRate = incomeAfterOffset > 0 ? taxResult.totalTax / incomeAfterOffset : 0
 
   return {
-    totalTax,
+    totalTax: taxResult.totalTax,
     effectiveRate,
-    marginalRate,
+    marginalRate: taxResult.marginalRate,
     usedGrundfreibetrag,
-    bracketBreakdown,
+    bracketBreakdown: taxResult.bracketBreakdown,
   }
 }
 
