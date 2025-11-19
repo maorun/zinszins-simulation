@@ -9,6 +9,7 @@ import { KindergeldConfigSection } from './KindergeldConfigSection'
 import { BURenteConfigSection } from './BURenteConfigSection'
 import { KapitallebensversicherungConfigSection } from './KapitallebensversicherungConfigSection'
 import { PflegezusatzversicherungConfigSection } from './PflegezusatzversicherungConfigSection'
+import { RisikolebensversicherungConfigSection } from './RisikolebensversicherungConfigSection'
 
 interface FormConfigurationSectionsProps {
   editingSource: OtherIncomeSource
@@ -19,6 +20,7 @@ interface FormConfigurationSectionsProps {
   isRental: boolean
   isKapitallebensversicherung: boolean
   isPflegezusatzversicherung: boolean
+  isRisikolebensversicherung: boolean
   isGrossIncome: boolean
   onUpdate: (source: OtherIncomeSource) => void
 }
@@ -28,19 +30,20 @@ function AmountAndTaxSections({
   monthlyAmountId,
   isKindergeld,
   isKapitallebensversicherung,
+  isRisikolebensversicherung,
   isGrossIncome,
   onUpdate,
 }: Pick<
   FormConfigurationSectionsProps,
-  'editingSource' | 'monthlyAmountId' | 'isKindergeld' | 'isKapitallebensversicherung' | 'isGrossIncome' | 'onUpdate'
+  'editingSource' | 'monthlyAmountId' | 'isKindergeld' | 'isKapitallebensversicherung' | 'isRisikolebensversicherung' | 'isGrossIncome' | 'onUpdate'
 >) {
   return (
     <>
-      {!isKindergeld && !isKapitallebensversicherung && (
+      {!isKindergeld && !isKapitallebensversicherung && !isRisikolebensversicherung && (
         <AmountTypeSection editingSource={editingSource} onUpdate={onUpdate} />
       )}
 
-      {!isKapitallebensversicherung && (
+      {!isKapitallebensversicherung && !isRisikolebensversicherung && (
         <MonthlyAmountSection
           editingSource={editingSource}
           monthlyAmountId={monthlyAmountId}
@@ -61,18 +64,19 @@ function TimeAndInflationSections({
   isKindergeld,
   isBURente,
   isKapitallebensversicherung,
+  isRisikolebensversicherung,
   onUpdate,
 }: Pick<
   FormConfigurationSectionsProps,
-  'editingSource' | 'currentYear' | 'isKindergeld' | 'isBURente' | 'isKapitallebensversicherung' | 'onUpdate'
+  'editingSource' | 'currentYear' | 'isKindergeld' | 'isBURente' | 'isKapitallebensversicherung' | 'isRisikolebensversicherung' | 'onUpdate'
 >) {
   return (
     <>
-      {!isBURente && !isKapitallebensversicherung && (
+      {!isBURente && !isKapitallebensversicherung && !isRisikolebensversicherung && (
         <TimePeriodSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />
       )}
 
-      {!isKindergeld && !isBURente && !isKapitallebensversicherung && (
+      {!isKindergeld && !isBURente && !isKapitallebensversicherung && !isRisikolebensversicherung && (
         <InflationRateSection editingSource={editingSource} onUpdate={onUpdate} />
       )}
     </>
@@ -87,6 +91,7 @@ function StandardConfigSections(props: Pick<
   | 'isKindergeld'
   | 'isBURente'
   | 'isKapitallebensversicherung'
+  | 'isRisikolebensversicherung'
   | 'isGrossIncome'
   | 'onUpdate'
 >) {
@@ -105,10 +110,11 @@ function InsuranceConfigSections({
   isBURente,
   isKapitallebensversicherung,
   isPflegezusatzversicherung,
+  isRisikolebensversicherung,
   onUpdate,
 }: Pick<
   FormConfigurationSectionsProps,
-  'editingSource' | 'currentYear' | 'isKindergeld' | 'isBURente' | 'isKapitallebensversicherung' | 'isPflegezusatzversicherung' | 'onUpdate'
+  'editingSource' | 'currentYear' | 'isKindergeld' | 'isBURente' | 'isKapitallebensversicherung' | 'isPflegezusatzversicherung' | 'isRisikolebensversicherung' | 'onUpdate'
 >) {
   return (
     <>
@@ -123,6 +129,13 @@ function InsuranceConfigSections({
       )}
       {isPflegezusatzversicherung && (
         <PflegezusatzversicherungConfigSection
+          editingSource={editingSource}
+          currentYear={currentYear}
+          onUpdate={onUpdate}
+        />
+      )}
+      {isRisikolebensversicherung && (
+        <RisikolebensversicherungConfigSection
           editingSource={editingSource}
           currentYear={currentYear}
           onUpdate={onUpdate}

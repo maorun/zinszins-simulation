@@ -1374,6 +1374,24 @@ export function createDefaultPflegezusatzversicherungConfig(): Pflegezusatzversi
 }
 
 /**
+ * Create default Risikolebensversicherung configuration
+ */
+export function createDefaultRisikolebensversicherungConfig(): RisikolebensversicherungConfig {
+  const currentYear = new Date().getFullYear()
+  const defaultBirthYear = currentYear - 35 // 35 years old by default
+
+  return {
+    coverageAmount: 250000, // 250,000€ typical coverage
+    coverageType: 'level', // Constant coverage as default
+    annualDecreasePercent: 5, // For decreasing coverage (not active by default)
+    birthYear: defaultBirthYear,
+    gender: 'male',
+    healthStatus: 'good',
+    smokingStatus: 'non-smoker',
+  }
+}
+
+/**
  * Get the monthly Kindergeld amount based on German law (as of 2024)
  * @param _childOrderNumber - The order of the child (1st, 2nd, 3rd, etc.)
  * @returns Monthly Kindergeld amount in EUR
