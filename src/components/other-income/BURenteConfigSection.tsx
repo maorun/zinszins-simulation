@@ -139,26 +139,37 @@ function LeibrentenBesteuerungField({
   )
 }
 
+// Ertragsanteil table according to § 22 Nr. 1 Satz 3 Buchstabe a Doppelbuchstabe bb EStG
+// Maps age ranges to their taxable percentage
+const ERTRAGSANTEIL_TABLE: Array<{ maxAge: number; percentage: number }> = [
+  { maxAge: 1, percentage: 59 },
+  { maxAge: 17, percentage: 43 }, // Special case: 59 - age for ages 2-17
+  { maxAge: 27, percentage: 42 },
+  { maxAge: 31, percentage: 40 },
+  { maxAge: 36, percentage: 38 },
+  { maxAge: 41, percentage: 36 },
+  { maxAge: 46, percentage: 34 },
+  { maxAge: 51, percentage: 32 },
+  { maxAge: 56, percentage: 30 },
+  { maxAge: 61, percentage: 28 },
+  { maxAge: 63, percentage: 26 },
+  { maxAge: 64, percentage: 25 },
+  { maxAge: 65, percentage: 24 },
+  { maxAge: 66, percentage: 23 },
+  { maxAge: 67, percentage: 22 },
+  { maxAge: Infinity, percentage: 21 },
+]
+
 function BURenteInfoBox({ ageAtDisabilityStart }: { ageAtDisabilityStart: number }) {
-  // eslint-disable-next-line complexity
   const getErtragsanteil = (age: number): number => {
-    if (age <= 0) return 59
-    if (age <= 1) return 59
-    if (age <= 17) return 59 - age
-    if (age <= 27) return 42
-    if (age <= 31) return 40
-    if (age <= 36) return 38
-    if (age <= 41) return 36
-    if (age <= 46) return 34
-    if (age <= 51) return 32
-    if (age <= 56) return 30
-    if (age <= 61) return 28
-    if (age <= 63) return 26
-    if (age <= 64) return 25
-    if (age <= 65) return 24
-    if (age <= 66) return 23
-    if (age <= 67) return 22
-    return 21
+    // Handle ages 2-17: 59 - age
+    if (age >= 2 && age <= 17) {
+      return 59 - age
+    }
+    
+    // Use lookup table for other ages
+    const entry = ERTRAGSANTEIL_TABLE.find(item => age <= item.maxAge)
+    return entry?.percentage ?? 21
   }
 
   const ertragsanteil = getErtragsanteil(ageAtDisabilityStart)
@@ -174,16 +185,15 @@ function BURenteInfoBox({ ageAtDisabilityStart }: { ageAtDisabilityStart: number
   )
 }
 
-// eslint-disable-next-line max-lines-per-function
-function createBURenteHandlers(
+function calculateAgeAtDisabilityStart(birthYear: number, disabilityStartYear: number): number {
+  return disabilityStartYear - birthYear
+}
+
+function createHandleDisabilityStartYearChange(
   editingSource: OtherIncomeSource,
   onUpdate: (source: OtherIncomeSource) => void,
 ) {
-  const calculateAgeAtDisabilityStart = (birthYear: number, disabilityStartYear: number) => {
-    return disabilityStartYear - birthYear
-  }
-
-  const handleDisabilityStartYearChange = (disabilityStartYear: number) => {
+  return (disabilityStartYear: number) => {
     const ageAtDisabilityStart = calculateAgeAtDisabilityStart(
       editingSource.buRenteConfig!.birthYear,
       disabilityStartYear,
@@ -198,8 +208,13 @@ function createBURenteHandlers(
       startYear: disabilityStartYear, // Update income start year
     })
   }
+}
 
-  const handleDisabilityEndYearChange = (disabilityEndYear: number | null) => {
+function createHandleDisabilityEndYearChange(
+  editingSource: OtherIncomeSource,
+  onUpdate: (source: OtherIncomeSource) => void,
+) {
+  return (disabilityEndYear: number | null) => {
     onUpdate({
       ...editingSource,
       buRenteConfig: {
@@ -209,8 +224,13 @@ function createBURenteHandlers(
       endYear: disabilityEndYear, // Update income end year
     })
   }
+}
 
-  const handleBirthYearChange = (birthYear: number) => {
+function createHandleBirthYearChange(
+  editingSource: OtherIncomeSource,
+  onUpdate: (source: OtherIncomeSource) => void,
+) {
+  return (birthYear: number) => {
     const ageAtDisabilityStart = calculateAgeAtDisabilityStart(
       birthYear,
       editingSource.buRenteConfig!.disabilityStartYear,
@@ -224,8 +244,13 @@ function createBURenteHandlers(
       },
     })
   }
+}
 
-  const handleDisabilityDegreeChange = (disabilityDegree: number) => {
+function createHandleDisabilityDegreeChange(
+  editingSource: OtherIncomeSource,
+  onUpdate: (source: OtherIncomeSource) => void,
+) {
+  return (disabilityDegree: number) => {
     onUpdate({
       ...editingSource,
       buRenteConfig: {
@@ -234,8 +259,13 @@ function createBURenteHandlers(
       },
     })
   }
+}
 
-  const handleLeibrentenBesteuerungChange = (applyLeibrentenBesteuerung: boolean) => {
+function createHandleLeibrentenBesteuerungChange(
+  editingSource: OtherIncomeSource,
+  onUpdate: (source: OtherIncomeSource) => void,
+) {
+  return (applyLeibrentenBesteuerung: boolean) => {
     onUpdate({
       ...editingSource,
       buRenteConfig: {
@@ -244,13 +274,18 @@ function createBURenteHandlers(
       },
     })
   }
+}
 
+function createBURenteHandlers(
+  editingSource: OtherIncomeSource,
+  onUpdate: (source: OtherIncomeSource) => void,
+) {
   return {
-    handleDisabilityStartYearChange,
-    handleDisabilityEndYearChange,
-    handleBirthYearChange,
-    handleDisabilityDegreeChange,
-    handleLeibrentenBesteuerungChange,
+    handleDisabilityStartYearChange: createHandleDisabilityStartYearChange(editingSource, onUpdate),
+    handleDisabilityEndYearChange: createHandleDisabilityEndYearChange(editingSource, onUpdate),
+    handleBirthYearChange: createHandleBirthYearChange(editingSource, onUpdate),
+    handleDisabilityDegreeChange: createHandleDisabilityDegreeChange(editingSource, onUpdate),
+    handleLeibrentenBesteuerungChange: createHandleLeibrentenBesteuerungChange(editingSource, onUpdate),
   }
 }
 
