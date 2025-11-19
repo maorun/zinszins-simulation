@@ -1,12 +1,6 @@
 import { useMemo } from 'react'
 import type { useSimulationState } from '../useSimulationState'
 import type { SimulationExecutionState } from '../useSimulationExecution'
-import {
-  extractReturnConfig,
-  extractTaxConfig,
-  extractInflationConfig,
-  extractSimulationBasics,
-} from './buildSimulationState.helpers'
 
 /**
  * Builds memoized simulation state object from simulation state
@@ -14,30 +8,39 @@ import {
  * Uses useMemo to prevent unnecessary re-creation
  */
 export function useBuildSimulationState(state: ReturnType<typeof useSimulationState>): SimulationExecutionState {
-  return useMemo(
-    () => {
-      const returnConfig = extractReturnConfig(state)
-      const taxConfig = extractTaxConfig(state)
-      const inflationConfig = extractInflationConfig(state)
-      const simulationBasics = extractSimulationBasics(state)
+  // Destructure all needed properties for fine-grained memoization
+  const {
+    rendite, returnMode, averageReturn, standardDeviation,
+    randomSeed, variableReturns, historicalIndex, blackSwanReturns,
+    inflationScenarioRates, inflationScenarioReturnModifiers, multiAssetConfig,
+    steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration,
+    steuerReduzierenEndkapitalSparphase, guenstigerPruefungAktiv, personalTaxRate,
+    inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
+    simulationAnnual, sparplanElemente, startEnd,
+  } = state
 
-      return {
-        ...returnConfig,
-        ...taxConfig,
-        ...inflationConfig,
-        ...simulationBasics,
-      }
-    },
+  return useMemo(
+    () => ({
+      // Return config
+      rendite, returnMode, averageReturn, standardDeviation,
+      randomSeed, variableReturns, historicalIndex, blackSwanReturns,
+      inflationScenarioRates, inflationScenarioReturnModifiers, multiAssetConfig,
+      // Tax config
+      steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration,
+      steuerReduzierenEndkapitalSparphase, guenstigerPruefungAktiv, personalTaxRate,
+      // Inflation config
+      inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
+      // Simulation basics
+      simulationAnnual, sparplanElemente, startEnd,
+    }),
     [
-      state,
-      state.rendite, state.returnMode, state.averageReturn, state.standardDeviation,
-      state.randomSeed, state.variableReturns, state.historicalIndex, state.blackSwanReturns,
-      state.inflationScenarioRates, state.inflationScenarioReturnModifiers, state.multiAssetConfig,
-      state.simulationAnnual, state.sparplanElemente, state.startEnd, state.steuerlast,
-      state.teilfreistellungsquote, state.freibetragPerYear, state.basiszinsConfiguration,
-      state.steuerReduzierenEndkapitalSparphase, state.inflationAktivSparphase,
-      state.inflationsrateSparphase, state.inflationAnwendungSparphase,
-      state.guenstigerPruefungAktiv, state.personalTaxRate,
+      rendite, returnMode, averageReturn, standardDeviation,
+      randomSeed, variableReturns, historicalIndex, blackSwanReturns,
+      inflationScenarioRates, inflationScenarioReturnModifiers, multiAssetConfig,
+      steuerlast, teilfreistellungsquote, freibetragPerYear, basiszinsConfiguration,
+      steuerReduzierenEndkapitalSparphase, guenstigerPruefungAktiv, personalTaxRate,
+      inflationAktivSparphase, inflationsrateSparphase, inflationAnwendungSparphase,
+      simulationAnnual, sparplanElemente, startEnd,
     ],
   )
 }
