@@ -104,7 +104,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Sonstige Kapitalverluste können mit allen Kapitalerträgen verrechnet werden
     - Verluste können mit Vorabpauschale verrechnet werden
     - Nicht genutzte Verluste werden unbegrenzt vorgetragen (Verlustvortrag)
-  - **Konfigurierbare Eingaben**: 
+  - **Konfigurierbare Eingaben**:
     - Realisierte Aktienverluste für das aktuelle Jahr
     - Realisierte sonstige Verluste (Anleihen, Fonds, etc.)
     - Verlustvortrag aus Vorjahren
