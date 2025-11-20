@@ -28,10 +28,10 @@ describe('TutorialManager', () => {
     vi.mocked(tutorialProgress.getCompletedTutorialIds).mockReturnValue([])
   })
 
-  it('should render tutorial button', () => {
+  it('should render tutorial collapsible card', () => {
     render(<TutorialManager />)
     
-    expect(screen.getByText('Tutorials')).toBeInTheDocument()
+    expect(screen.getByText('📚 Interaktive Tutorials')).toBeInTheDocument()
   })
 
   it('should not render when tutorials are dismissed', () => {
@@ -42,21 +42,20 @@ describe('TutorialManager', () => {
     expect(container.firstChild).toBeNull()
   })
 
-  it('should open tutorial list when button is clicked', () => {
+  it('should expand tutorial list when card is clicked', () => {
     render(<TutorialManager />)
     
-    const button = screen.getByText('Tutorials')
-    fireEvent.click(button)
+    const cardHeader = screen.getByText('📚 Interaktive Tutorials')
+    fireEvent.click(cardHeader)
     
-    expect(screen.getByText('📚 Interaktive Tutorials')).toBeInTheDocument()
     expect(screen.getByText(/Lernen Sie die wichtigsten Funktionen/)).toBeInTheDocument()
   })
 
-  it('should display tutorial categories', () => {
+  it('should display tutorial categories when expanded', () => {
     render(<TutorialManager />)
     
-    const button = screen.getByText('Tutorials')
-    fireEvent.click(button)
+    const cardHeader = screen.getByText('📚 Interaktive Tutorials')
+    fireEvent.click(cardHeader)
     
     expect(screen.getByText('Erste Schritte')).toBeInTheDocument()
     expect(screen.getByText('Sparpläne')).toBeInTheDocument()
@@ -68,8 +67,8 @@ describe('TutorialManager', () => {
   it('should display tutorials in each category', () => {
     render(<TutorialManager />)
     
-    const button = screen.getByText('Tutorials')
-    fireEvent.click(button)
+    const cardHeader = screen.getByText('📚 Interaktive Tutorials')
+    fireEvent.click(cardHeader)
     
     // Check for welcome tutorial
     expect(screen.getByText(/Willkommen bei der Zinseszins-Simulation/)).toBeInTheDocument()
@@ -83,8 +82,8 @@ describe('TutorialManager', () => {
     
     render(<TutorialManager />)
     
-    const button = screen.getByText('Tutorials')
-    fireEvent.click(button)
+    const cardHeader = screen.getByText('📚 Interaktive Tutorials')
+    fireEvent.click(cardHeader)
     
     expect(screen.getByText(/✓ Abgeschlossen/)).toBeInTheDocument()
   })
@@ -92,58 +91,47 @@ describe('TutorialManager', () => {
   it('should call dismissAllTutorials when dismiss button is clicked', () => {
     render(<TutorialManager />)
     
-    const tutorialsButton = screen.getByText('Tutorials')
-    fireEvent.click(tutorialsButton)
+    const cardHeader = screen.getByText('📚 Interaktive Tutorials')
+    fireEvent.click(cardHeader)
     
-    // Find the X button in the dialog header
-    const dismissButtons = screen.getAllByRole('button')
-    const xButton = dismissButtons.find(btn => btn.querySelector('svg'))
+    // Find the X button by looking for a button with an X icon inside the card content
+    const xButtons = screen.getAllByRole('button')
+    // The dismiss button should be in the content area, look for it by testing each button
+    const dismissButton = xButtons.find(btn => {
+      const svgs = btn.querySelectorAll('svg')
+      return svgs.length > 0 && btn.className.includes('text-gray-500')
+    })
     
-    if (xButton) {
-      fireEvent.click(xButton)
+    if (dismissButton) {
+      fireEvent.click(dismissButton)
       expect(tutorialProgress.dismissAllTutorials).toHaveBeenCalled()
+    } else {
+      // If we can't find the button, the test should fail with a descriptive message
+      expect(dismissButton).toBeDefined()
     }
   })
 
   it('should start tutorial when tutorial card is clicked', () => {
     render(<TutorialManager />)
     
-    const tutorialsButton = screen.getByText('Tutorials')
-    fireEvent.click(tutorialsButton)
+    const cardHeader = screen.getByText('📚 Interaktive Tutorials')
+    fireEvent.click(cardHeader)
     
     // Find and click "Tutorial starten" button
     const startButtons = screen.getAllByText('Tutorial starten')
     if (startButtons.length > 0) {
       fireEvent.click(startButtons[0])
       
-      // Tutorial overlay should be shown (we can't fully test this without mocking the overlay)
-      // But we can verify the dialog closed
-      expect(screen.queryByText('📚 Interaktive Tutorials')).not.toBeInTheDocument()
-    }
-  })
-
-  it('should mark tutorial as completed when finished', () => {
-    render(<TutorialManager />)
-    
-    const tutorialsButton = screen.getByText('Tutorials')
-    fireEvent.click(tutorialsButton)
-    
-    // Start a tutorial
-    const startButtons = screen.getAllByText('Tutorial starten')
-    if (startButtons.length > 0) {
-      fireEvent.click(startButtons[0])
-      
-      // Tutorial overlay would be shown here, and when completed
-      // it would call markTutorialCompleted
-      // This is tested indirectly through the overlay tests
+      // Tutorial overlay should be shown
+      // The collapsible card stays visible
     }
   })
 
   it('should display tip message at the bottom', () => {
     render(<TutorialManager />)
     
-    const button = screen.getByText('Tutorials')
-    fireEvent.click(button)
+    const cardHeader = screen.getByText('📚 Interaktive Tutorials')
+    fireEvent.click(cardHeader)
     
     expect(screen.getByText(/💡 Tipp:/)).toBeInTheDocument()
     expect(screen.getByText(/Absolvieren Sie die Tutorials/)).toBeInTheDocument()
@@ -157,8 +145,8 @@ describe('TutorialManager', () => {
     
     render(<TutorialManager />)
     
-    const button = screen.getByText('Tutorials')
-    fireEvent.click(button)
+    const cardHeader = screen.getByText('📚 Interaktive Tutorials')
+    fireEvent.click(cardHeader)
     
     // Should have "Nicht verfügbar" for locked tutorials
     expect(screen.getAllByText('Nicht verfügbar').length).toBeGreaterThan(0)

@@ -33,9 +33,6 @@ describe('Header', () => {
 
     expect(header).toHaveClass('mb-3')
     expect(header).toHaveClass('sm:mb-4')
-    
-    // The text-center class is now on the inner div
-    const textCenterDiv = container.querySelector('.text-center')
-    expect(textCenterDiv).toBeInTheDocument()
+    expect(header).toHaveClass('text-center')
   })
 })

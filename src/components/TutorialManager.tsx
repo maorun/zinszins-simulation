@@ -1,12 +1,7 @@
 import { useState } from 'react'
+import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { Button } from './ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-} from './ui/dialog'
 import { TutorialOverlay, TutorialCard } from './TutorialOverlay'
 import {
   tutorials,
@@ -21,25 +16,26 @@ import {
   areTutorialsDismissed,
   dismissAllTutorials,
 } from '../utils/tutorial-progress'
-import { GraduationCap, X } from 'lucide-react'
+import { GraduationCap, ChevronDown, X } from 'lucide-react'
 
 /**
  * Custom hook for tutorial manager logic
  */
 function useTutorialManagerState() {
-  const [showTutorialList, setShowTutorialList] = useState(false)
+  const [isOpen, setIsOpen] = useState(false)
   const [currentTutorial, setCurrentTutorial] = useState<string | null>(null)
   const [completedTutorials, setCompletedTutorials] = useState<string[]>(getCompletedTutorialIds())
   const [isDismissed, setIsDismissed] = useState(areTutorialsDismissed())
 
-  const handleOpenTutorialList = () => {
-    setShowTutorialList(true)
-    setCompletedTutorials(getCompletedTutorialIds())
+  const handleToggleOpen = (open: boolean) => {
+    setIsOpen(open)
+    if (open) {
+      setCompletedTutorials(getCompletedTutorialIds())
+    }
   }
 
   const handleStartTutorial = (tutorialId: string) => {
     setCurrentTutorial(tutorialId)
-    setShowTutorialList(false)
   }
 
   const handleCompleteTutorial = () => {
@@ -50,7 +46,7 @@ function useTutorialManagerState() {
 
       const recommended = getRecommendedTutorial(getCompletedTutorialIds())
       if (recommended) {
-        setShowTutorialList(true)
+        setIsOpen(true)
       }
     }
   }
@@ -58,20 +54,19 @@ function useTutorialManagerState() {
   const handleDismiss = () => {
     dismissAllTutorials()
     setIsDismissed(true)
-    setShowTutorialList(false)
+    setIsOpen(false)
   }
 
   const activeTutorial = currentTutorial ? tutorials.find(t => t.id === currentTutorial) : null
 
   return {
-    showTutorialList,
-    setShowTutorialList,
+    isOpen,
+    handleToggleOpen,
     currentTutorial,
     setCurrentTutorial,
     completedTutorials,
     isDismissed,
     activeTutorial,
-    handleOpenTutorialList,
     handleStartTutorial,
     handleCompleteTutorial,
     handleDismiss,
@@ -117,74 +112,60 @@ function TutorialCategorySection({
 }
 
 /**
- * Tutorial Selection Dialog Content
+ * Tutorial Card Content Component
  */
-function TutorialSelectionDialog({
-  open,
-  onClose,
+function TutorialCardContent({
+  completedTutorials,
   onStartTutorial,
   onDismiss,
-  completedTutorials,
 }: {
-  open: boolean
-  onClose: (open: boolean) => void
+  completedTutorials: string[]
   onStartTutorial: (tutorialId: string) => void
   onDismiss: () => void
-  completedTutorials: string[]
 }) {
   const categories = ['getting-started', 'savings', 'withdrawal', 'tax', 'advanced'] as const
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <div className="flex items-start justify-between">
-            <div>
-              <DialogTitle className="text-2xl">📚 Interaktive Tutorials</DialogTitle>
-              <DialogDescription className="text-base mt-2">
-                Lernen Sie die wichtigsten Funktionen der Zinseszins-Simulation kennen
-              </DialogDescription>
-            </div>
-            <Button variant="ghost" size="sm" onClick={onDismiss} className="text-gray-500 hover:text-gray-700">
-              <X className="h-4 w-4" />
-            </Button>
-          </div>
-        </DialogHeader>
+    <CardContent className="space-y-6">
+      {/* Dismiss button */}
+      <div className="flex justify-between items-center mb-2">
+        <p className="text-sm text-muted-foreground">
+          Lernen Sie die wichtigsten Funktionen der Zinseszins-Simulation kennen
+        </p>
+        <Button variant="ghost" size="sm" onClick={onDismiss} className="text-gray-500 hover:text-gray-700">
+          <X className="h-4 w-4" />
+        </Button>
+      </div>
 
-        <div className="space-y-6 mt-4">
-          {categories.map(category => (
-            <TutorialCategorySection
-              key={category}
-              category={category}
-              completedTutorials={completedTutorials}
-              onStartTutorial={onStartTutorial}
-            />
-          ))}
-        </div>
+      {categories.map(category => (
+        <TutorialCategorySection
+          key={category}
+          category={category}
+          completedTutorials={completedTutorials}
+          onStartTutorial={onStartTutorial}
+        />
+      ))}
 
-        <div className="mt-6 pt-4 border-t text-sm text-gray-600">
-          <p>💡 Tipp: Absolvieren Sie die Tutorials in der vorgeschlagenen Reihenfolge für das beste Lernerlebnis.</p>
-        </div>
-      </DialogContent>
-    </Dialog>
+      <div className="pt-4 border-t text-sm text-gray-600">
+        <p>💡 Tipp: Absolvieren Sie die Tutorials in der vorgeschlagenen Reihenfolge für das beste Lernerlebnis.</p>
+      </div>
+    </CardContent>
   )
 }
 
 /**
  * Tutorial Manager Component
  *
- * Provides a button to open the tutorial selection dialog and manages
- * the tutorial system state and navigation.
+ * Provides a collapsible card to access the tutorial system.
  */
 export function TutorialManager() {
   const {
-    showTutorialList,
-    setShowTutorialList,
+    isOpen,
+    handleToggleOpen,
     setCurrentTutorial,
     completedTutorials,
     isDismissed,
     activeTutorial,
-    handleOpenTutorialList,
     handleStartTutorial,
     handleCompleteTutorial,
     handleDismiss,
@@ -196,18 +177,29 @@ export function TutorialManager() {
 
   return (
     <>
-      <Button variant="outline" size="sm" onClick={handleOpenTutorialList} className="gap-2">
-        <GraduationCap className="h-4 w-4" />
-        Tutorials
-      </Button>
+      <Collapsible open={isOpen} onOpenChange={handleToggleOpen}>
+        <Card>
+          <CardHeader className="pb-3">
+            <CollapsibleTrigger asChild>
+              <Button variant="ghost" className="w-full justify-between p-0 hover:bg-transparent">
+                <CardTitle className="text-lg sm:text-xl flex items-center gap-2">
+                  <GraduationCap className="h-5 w-5" />
+                  📚 Interaktive Tutorials
+                </CardTitle>
+                <ChevronDown className="h-5 w-5 transition-transform duration-200 data-[state=open]:rotate-180" />
+              </Button>
+            </CollapsibleTrigger>
+          </CardHeader>
 
-      <TutorialSelectionDialog
-        open={showTutorialList}
-        onClose={setShowTutorialList}
-        onStartTutorial={handleStartTutorial}
-        onDismiss={handleDismiss}
-        completedTutorials={completedTutorials}
-      />
+          <CollapsibleContent>
+            <TutorialCardContent
+              completedTutorials={completedTutorials}
+              onStartTutorial={handleStartTutorial}
+              onDismiss={handleDismiss}
+            />
+          </CollapsibleContent>
+        </Card>
+      </Collapsible>
 
       {activeTutorial && (
         <TutorialOverlay
