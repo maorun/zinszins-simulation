@@ -8,7 +8,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from './ui/dialog'
-import { type Tutorial } from '../data/tutorials'
+import { type Tutorial, getTutorialById } from '../data/tutorials'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
 interface TutorialOverlayProps {
@@ -391,7 +391,10 @@ export function TutorialCard({
 
       {tutorial.prerequisites && tutorial.prerequisites.length > 0 && (
         <div className="text-xs text-gray-500 mb-3">
-          Voraussetzung: {tutorial.prerequisites.map((p: string) => p).join(', ')}
+          Voraussetzung: {tutorial.prerequisites.map((prereqId: string) => {
+            const prereqTutorial = getTutorialById(prereqId)
+            return prereqTutorial?.name || prereqId
+          }).join(', ')}
         </div>
       )}
 

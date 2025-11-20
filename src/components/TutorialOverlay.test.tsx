@@ -356,7 +356,8 @@ describe('TutorialCard', () => {
     render(<TutorialCard tutorial={tutorialWithPrereq} onStart={onStart} />)
 
     expect(screen.getByText(/Voraussetzung:/)).toBeInTheDocument()
-    expect(screen.getByText(/welcome, basics/)).toBeInTheDocument()
+    // 'welcome' should be translated to tutorial name, 'basics' doesn't exist so shows as-is
+    expect(screen.getByText(/👋 Willkommen bei der Zinseszins-Simulation, basics/)).toBeInTheDocument()
   })
 
   it('should not show prerequisites when none present', () => {

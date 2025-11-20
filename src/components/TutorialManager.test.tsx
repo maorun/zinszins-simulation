@@ -69,11 +69,11 @@ describe('TutorialManager', () => {
     const cardHeader = screen.getByText('📚 Interaktive Tutorials')
     fireEvent.click(cardHeader)
     
-    // Check for welcome tutorial
-    expect(screen.getByText(/Willkommen bei der Zinseszins-Simulation/)).toBeInTheDocument()
+    // Check for welcome tutorial (appears in title and prerequisites)
+    expect(screen.getAllByText(/Willkommen bei der Zinseszins-Simulation/)).toHaveLength(5) // 1 title + 4 prerequisites
     
-    // Check for savings plan tutorial
-    expect(screen.getByText(/Sparpläne verstehen/)).toBeInTheDocument()
+    // Check for savings plan tutorial (appears in title and prerequisites)
+    expect(screen.getAllByText(/Sparpläne verstehen/)).toHaveLength(3) // 1 title + 2 prerequisites
   })
 
   it('should show completed badge for completed tutorials', () => {
