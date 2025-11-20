@@ -22,6 +22,8 @@ export interface ConfigurationStateSetters {
   setGuenstigerPruefungAktiv: (value: boolean) => void
   setKirchensteuerAktiv: (value: boolean) => void
   setKirchensteuersatz: (value: number) => void
+  setAssetClass: (value: import('../../../helpers/asset-class').AssetClass) => void
+  setCustomTeilfreistellungsquote: (value: number) => void
   // Return config setters
   setReturnMode: (value: import('../../utils/random-returns').ReturnMode) => void
   setAverageReturn: (value: number) => void
@@ -75,6 +77,8 @@ export interface ConfigurationState {
   guenstigerPruefungAktiv: boolean
   kirchensteuerAktiv: boolean
   kirchensteuersatz: number
+  assetClass: import('../../../helpers/asset-class').AssetClass
+  customTeilfreistellungsquote: number
   returnMode: import('../../utils/random-returns').ReturnMode
   averageReturn: number
   standardDeviation: number

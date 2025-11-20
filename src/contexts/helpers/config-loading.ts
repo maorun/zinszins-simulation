@@ -22,6 +22,30 @@ export function loadBasicConfig(
 }
 
 /**
+ * Get basic tax settings with fallbacks
+ */
+function getBasicTaxSettings(savedConfig: ExtendedSavedConfiguration) {
+  return {
+    steuerReduzierenEndkapitalSparphase: savedConfig.steuerReduzierenEndkapitalSparphase ?? true,
+    steuerReduzierenEndkapitalEntspharphase: savedConfig.steuerReduzierenEndkapitalEntspharphase ?? true,
+    grundfreibetragAktiv: savedConfig.grundfreibetragAktiv ?? false,
+    grundfreibetragBetrag: savedConfig.grundfreibetragBetrag ?? 11604,
+  }
+}
+
+/**
+ * Get advanced tax settings with fallbacks
+ */
+function getAdvancedTaxSettings(savedConfig: ExtendedSavedConfiguration, defaultConfig: DefaultConfiguration) {
+  return {
+    personalTaxRate: savedConfig.personalTaxRate ?? defaultConfig.personalTaxRate,
+    guenstigerPruefungAktiv: savedConfig.guenstigerPruefungAktiv ?? defaultConfig.guenstigerPruefungAktiv,
+    assetClass: savedConfig.assetClass ?? ('equity-fund' as const),
+    customTeilfreistellungsquote: savedConfig.customTeilfreistellungsquote ?? 0.3,
+  }
+}
+
+/**
  * Load tax-related configuration
  */
 export function loadTaxConfig(
@@ -35,14 +59,21 @@ export function loadTaxConfig(
     | 'setGrundfreibetragBetrag'
     | 'setPersonalTaxRate'
     | 'setGuenstigerPruefungAktiv'
+    | 'setAssetClass'
+    | 'setCustomTeilfreistellungsquote'
   >,
 ): void {
-  setters.setSteuerReduzierenEndkapitalSparphase(savedConfig.steuerReduzierenEndkapitalSparphase ?? true)
-  setters.setSteuerReduzierenEndkapitalEntspharphase(savedConfig.steuerReduzierenEndkapitalEntspharphase ?? true)
-  setters.setGrundfreibetragAktiv(savedConfig.grundfreibetragAktiv ?? false)
-  setters.setGrundfreibetragBetrag(savedConfig.grundfreibetragBetrag ?? 11604)
-  setters.setPersonalTaxRate(savedConfig.personalTaxRate ?? defaultConfig.personalTaxRate)
-  setters.setGuenstigerPruefungAktiv(savedConfig.guenstigerPruefungAktiv ?? defaultConfig.guenstigerPruefungAktiv)
+  const basic = getBasicTaxSettings(savedConfig)
+  const advanced = getAdvancedTaxSettings(savedConfig, defaultConfig)
+
+  setters.setSteuerReduzierenEndkapitalSparphase(basic.steuerReduzierenEndkapitalSparphase)
+  setters.setSteuerReduzierenEndkapitalEntspharphase(basic.steuerReduzierenEndkapitalEntspharphase)
+  setters.setGrundfreibetragAktiv(basic.grundfreibetragAktiv)
+  setters.setGrundfreibetragBetrag(basic.grundfreibetragBetrag)
+  setters.setPersonalTaxRate(advanced.personalTaxRate)
+  setters.setGuenstigerPruefungAktiv(advanced.guenstigerPruefungAktiv)
+  setters.setAssetClass(advanced.assetClass)
+  setters.setCustomTeilfreistellungsquote(advanced.customTeilfreistellungsquote)
 }
 
 /**
