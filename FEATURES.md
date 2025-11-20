@@ -8,7 +8,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung
 
-- **Tax-Loss Harvesting Simulation** - Simulation von Verlustverrechnungsstrategien
 - **Progressionsvorbehalt** - Auswirkungen auf andere Einkünfte bei ausländischen Einkünften
 - **Verlustverrechnungstöpfe** - Simulation verschiedener Verlustverrechnungsregeln
 

@@ -6,6 +6,7 @@ import { getGrundfreibetragForPlanningMode, isStandardGrundfreibetragValue } fro
 import { TooltipProvider } from './ui/tooltip'
 import { GrundfreibetragConfiguration } from './tax-config/GrundfreibetragConfiguration'
 import { TaxConfigurationCard } from './tax-config/TaxConfigurationCard'
+import { TaxLossHarvestingCard } from './TaxLossHarvestingCard'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
 
 interface TaxConfigurationProps {
@@ -69,6 +70,8 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
               simulation.performSimulation()
             }}
           />
+
+          <TaxLossHarvestingCard />
 
           <NestingProvider>
             <BasiszinsConfiguration />

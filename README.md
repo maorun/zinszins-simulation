@@ -98,6 +98,24 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Automatische Integration**: Wird bei Günstigerprüfung und Einkommensteuerberechnung berücksichtigt
   - **Konfigurierbar**: Ein-/Ausschaltbar mit präziser Prozentsatz-Einstellung (8-9%)
   - **Transparente Berechnung**: Kirchensteuer wird als Prozentsatz der Einkommensteuer berechnet
+- **Verlustverrechnung (Tax-Loss Harvesting)** - Informations-Tool zur Berechnung von Steuerersparnissen durch Verlustverrechnung
+  - **Verlustverrechnungsregeln**: Detaillierte Darstellung der deutschen Verlustverrechnungsregeln nach EStG
+    - Aktienverluste können nur mit Aktiengewinnen verrechnet werden (separater Verlusttopf)
+    - Sonstige Kapitalverluste können mit allen Kapitalerträgen verrechnet werden
+    - Verluste können mit Vorabpauschale verrechnet werden
+    - Nicht genutzte Verluste werden unbegrenzt vorgetragen (Verlustvortrag)
+  - **Konfigurierbare Eingaben**:
+    - Realisierte Aktienverluste für das aktuelle Jahr
+    - Realisierte sonstige Verluste (Anleihen, Fonds, etc.)
+    - Verlustvortrag aus Vorjahren
+  - **Berechnungsergebnisse**:
+    - Verfügbare Verluste gesamt
+    - Genutzte Verluste zur Verrechnung
+    - Verbleibender Verlustvortrag fürs nächste Jahr
+    - Berechnete Steuerersparnis in Euro
+    - Detaillierte Aufschlüsselung nach Verlusttyp
+  - **Informations-Tool**: Berechnung basiert auf Beispielwerten (10.000 € Kapitalerträge + 500 € Vorabpauschale)
+  - **Steuerintegration**: Nutzt aktuelle Steuereinstellungen (Kapitalertragsteuer, Teilfreistellung) aus der Konfiguration
 - **Planungsmodus-abhängiger Sparerpauschbetrag** - Automatische Anpassung des Freibetrags basierend auf Individual- oder Paarplanung
   - **Einzelperson**: 2.000€ jährlicher Sparerpauschbetrag
   - **Ehepaar/Partner**: 4.000€ jährlicher Sparerpauschbetrag (2.000€ pro Person)
