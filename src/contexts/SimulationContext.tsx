@@ -16,6 +16,7 @@ import { useSimulationState } from './hooks/useSimulationState'
 import { useInitialConfiguration } from './hooks/useInitialConfiguration'
 import { useSimulationOrchestration } from './hooks/useSimulationOrchestration'
 import { useSimulationContextValue } from './hooks/useSimulationContextValue'
+import type { AssetClass } from '../../helpers/asset-class'
 
 export interface SimulationContextState {
   rendite: number
@@ -24,6 +25,11 @@ export interface SimulationContextState {
   setSteuerlast: (steuerlast: number) => void
   teilfreistellungsquote: number
   setTeilfreistellungsquote: (teilfreistellungsquote: number) => void
+  // Asset class configuration
+  assetClass: AssetClass
+  setAssetClass: (assetClass: AssetClass) => void
+  customTeilfreistellungsquote: number
+  setCustomTeilfreistellungsquote: (customTeilfreistellungsquote: number) => void
   freibetragPerYear: { [year: number]: number }
   setFreibetragPerYear: (freibetragPerYear: { [year: number]: number }) => void
   // Basiszins configuration for Vorabpauschale calculation

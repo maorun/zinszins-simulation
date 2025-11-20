@@ -18,6 +18,8 @@ export function resetAllConfigurations(
     setGrundfreibetragBetrag: setters.setGrundfreibetragBetrag,
     setPersonalTaxRate: setters.setPersonalTaxRate,
     setGuenstigerPruefungAktiv: setters.setGuenstigerPruefungAktiv,
+    setAssetClass: setters.setAssetClass,
+    setCustomTeilfreistellungsquote: setters.setCustomTeilfreistellungsquote,
     setReturnMode: setters.setReturnMode,
     setAverageReturn: setters.setAverageReturn,
     setStandardDeviation: setters.setStandardDeviation,

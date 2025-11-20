@@ -8,6 +8,7 @@ import type { FinancialGoal } from '../../../helpers/financial-goals'
 import type { EmergencyFundConfig } from '../../../helpers/emergency-fund'
 import type { WithdrawalConfiguration } from '../../utils/config-storage'
 import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-portfolio'
+import type { AssetClass } from '../../../helpers/asset-class'
 
 /**
  * Extended SparplanElement with additional fields for simulation results
@@ -43,6 +44,8 @@ export interface ExtendedSavedConfiguration {
   guenstigerPruefungAktiv?: boolean
   kirchensteuerAktiv?: boolean
   kirchensteuersatz?: number
+  assetClass?: AssetClass
+  customTeilfreistellungsquote?: number
   returnMode: ReturnMode
   averageReturn: number
   standardDeviation: number
@@ -105,6 +108,8 @@ export interface ConfigurationSetters {
   setGrundfreibetragBetrag: (value: number) => void
   setPersonalTaxRate: (value: number) => void
   setGuenstigerPruefungAktiv: (value: boolean) => void
+  setAssetClass: (value: AssetClass) => void
+  setCustomTeilfreistellungsquote: (value: number) => void
   setReturnMode: (value: ReturnMode) => void
   setAverageReturn: (value: number) => void
   setStandardDeviation: (value: number) => void

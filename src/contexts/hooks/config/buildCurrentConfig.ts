@@ -19,6 +19,8 @@ export function buildTaxConfig(state: ConfigurationState) {
     grundfreibetragBetrag: state.grundfreibetragBetrag,
     personalTaxRate: state.personalTaxRate,
     guenstigerPruefungAktiv: state.guenstigerPruefungAktiv,
+    assetClass: state.assetClass,
+    customTeilfreistellungsquote: state.customTeilfreistellungsquote,
   }
 }
 

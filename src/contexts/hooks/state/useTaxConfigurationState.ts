@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { ExtendedSavedConfiguration } from '../../helpers/config-types'
+import type { AssetClass } from '../../../../helpers/asset-class'
 
 export interface TaxConfigurationStateConfig {
   extendedInitialConfig: ExtendedSavedConfiguration
@@ -41,6 +42,8 @@ function getTaxConfigDefaults(
     ),
     kirchensteuerAktiv: getValueOrDefault(extendedInitialConfig.kirchensteuerAktiv, false),
     kirchensteuersatz: getValueOrDefault(extendedInitialConfig.kirchensteuersatz, 9),
+    assetClass: getValueOrDefault(extendedInitialConfig.assetClass, 'equity-fund' as AssetClass),
+    customTeilfreistellungsquote: getValueOrDefault(extendedInitialConfig.customTeilfreistellungsquote, 0.3),
   }
 }
 
@@ -60,6 +63,10 @@ export function useTaxConfigurationState(config: TaxConfigurationStateConfig) {
   const [guenstigerPruefungAktiv, setGuenstigerPruefungAktiv] = useState(defaults.guenstigerPruefungAktiv)
   const [kirchensteuerAktiv, setKirchensteuerAktiv] = useState(defaults.kirchensteuerAktiv)
   const [kirchensteuersatz, setKirchensteuersatz] = useState(defaults.kirchensteuersatz)
+  const [assetClass, setAssetClass] = useState<AssetClass>(defaults.assetClass)
+  const [customTeilfreistellungsquote, setCustomTeilfreistellungsquote] = useState(
+    defaults.customTeilfreistellungsquote,
+  )
 
   return {
     steuerReduzierenEndkapitalSparphase,
@@ -78,5 +85,9 @@ export function useTaxConfigurationState(config: TaxConfigurationStateConfig) {
     setKirchensteuerAktiv,
     kirchensteuersatz,
     setKirchensteuersatz,
+    assetClass,
+    setAssetClass,
+    customTeilfreistellungsquote,
+    setCustomTeilfreistellungsquote,
   }
 }

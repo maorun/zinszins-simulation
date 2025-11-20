@@ -1,18 +1,23 @@
 import { KapitalertragsteuerSection } from './KapitalertragsteuerSection'
-import { TeilfreistellungsquoteSection } from './TeilfreistellungsquoteSection'
+import { AssetClassSelector } from './AssetClassSelector'
 import { GuenstigerpruefungSection } from './GuenstigerpruefungSection'
 import { ProgressiveTaxInfoSection } from './ProgressiveTaxSection'
 import { KirchensteuerSection } from './KirchensteuerSection'
 import { SteuerReduziertEndkapitalSection } from './SteuerReduziertEndkapitalSection'
 import { FreibetragPerYearTable } from './FreibetragPerYearTable'
 import { createTaxHandlers } from './createTaxHandlers'
+import type { AssetClass } from '../../../helpers/asset-class'
 
-interface SimulationContext {
+export interface SimulationContext {
   performSimulation: () => void
   steuerlast: number
   setSteuerlast: (value: number) => void
   teilfreistellungsquote: number
   setTeilfreistellungsquote: (value: number) => void
+  assetClass: AssetClass
+  setAssetClass: (value: AssetClass) => void
+  customTeilfreistellungsquote: number
+  setCustomTeilfreistellungsquote: (value: number) => void
   guenstigerPruefungAktiv: boolean
   setGuenstigerPruefungAktiv: (value: boolean) => void
   personalTaxRate: number
@@ -35,18 +40,7 @@ interface TaxSectionsContentProps {
 }
 
 export function TaxSectionsContent({ simulation, yearToday }: TaxSectionsContentProps) {
-  const handlers = createTaxHandlers(
-    simulation.performSimulation,
-    simulation.setSteuerlast,
-    simulation.setTeilfreistellungsquote,
-    simulation.setGuenstigerPruefungAktiv,
-    simulation.setPersonalTaxRate,
-    simulation.setKirchensteuerAktiv,
-    simulation.setKirchensteuersatz,
-    simulation.setSteuerReduzierenEndkapitalSparphase,
-    simulation.setSteuerReduzierenEndkapitalEntspharphase,
-    simulation.setFreibetragPerYear,
-  )
+  const handlers = createTaxHandlers(simulation)
 
   return (
     <div className="space-y-6">
@@ -54,17 +48,17 @@ export function TaxSectionsContent({ simulation, yearToday }: TaxSectionsContent
         steuerlast={simulation.steuerlast}
         onSteuerlastChange={handlers.handleSteuerlastChange}
       />
-      <TeilfreistellungsquoteSection
-        teilfreistellungsquote={simulation.teilfreistellungsquote}
-        onTeilfreistellungsquoteChange={handlers.handleTeilfreistellungsquoteChange}
+      <AssetClassSelector
+        assetClass={simulation.assetClass}
+        customTeilfreistellungsquote={simulation.customTeilfreistellungsquote}
+        onAssetClassChange={handlers.handleAssetClassChange}
+        onCustomTeilfreistellungsquoteChange={handlers.handleCustomTeilfreistellungsquoteChange}
       />
       <GuenstigerpruefungSection
         guenstigerPruefungAktiv={simulation.guenstigerPruefungAktiv}
         onGuenstigerPruefungAktivChange={handlers.handleGuenstigerPruefungAktivChange}
       />
-      <ProgressiveTaxInfoSection
-        guenstigerPruefungAktiv={simulation.guenstigerPruefungAktiv}
-      />
+      <ProgressiveTaxInfoSection guenstigerPruefungAktiv={simulation.guenstigerPruefungAktiv} />
       <KirchensteuerSection
         kirchensteuerAktiv={simulation.kirchensteuerAktiv}
         kirchensteuersatz={simulation.kirchensteuersatz}
@@ -85,3 +79,4 @@ export function TaxSectionsContent({ simulation, yearToday }: TaxSectionsContent
     </div>
   )
 }
+

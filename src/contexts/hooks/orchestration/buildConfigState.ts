@@ -20,6 +20,8 @@ export function buildConfigState(state: ReturnType<typeof useSimulationState>): 
     guenstigerPruefungAktiv: state.guenstigerPruefungAktiv,
     kirchensteuerAktiv: state.kirchensteuerAktiv,
     kirchensteuersatz: state.kirchensteuersatz,
+    assetClass: state.assetClass,
+    customTeilfreistellungsquote: state.customTeilfreistellungsquote,
     returnMode: state.returnMode,
     averageReturn: state.averageReturn,
     standardDeviation: state.standardDeviation,

@@ -2,6 +2,7 @@ import { Card, CardContent } from '../ui/card'
 import { Collapsible, CollapsibleContent } from '../ui/collapsible'
 import { CollapsibleCardHeader } from '../ui/collapsible-card'
 import { TaxSectionsContent } from './TaxSectionsContent'
+import type { AssetClass } from '../../../helpers/asset-class'
 
 interface SimulationContext {
   performSimulation: () => void
@@ -9,6 +10,10 @@ interface SimulationContext {
   setSteuerlast: (value: number) => void
   teilfreistellungsquote: number
   setTeilfreistellungsquote: (value: number) => void
+  assetClass: AssetClass
+  setAssetClass: (value: AssetClass) => void
+  customTeilfreistellungsquote: number
+  setCustomTeilfreistellungsquote: (value: number) => void
   guenstigerPruefungAktiv: boolean
   setGuenstigerPruefungAktiv: (value: boolean) => void
   personalTaxRate: number

@@ -18,6 +18,8 @@ export function buildTaxConfigSetters(setters: ConfigurationStateSetters) {
     setGrundfreibetragBetrag: setters.setGrundfreibetragBetrag,
     setPersonalTaxRate: setters.setPersonalTaxRate,
     setGuenstigerPruefungAktiv: setters.setGuenstigerPruefungAktiv,
+    setAssetClass: setters.setAssetClass,
+    setCustomTeilfreistellungsquote: setters.setCustomTeilfreistellungsquote,
   }
 }
 

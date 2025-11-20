@@ -20,6 +20,8 @@ export function buildConfigSetters(state: ReturnType<typeof useSimulationState>)
     setGuenstigerPruefungAktiv: state.setGuenstigerPruefungAktiv,
     setKirchensteuerAktiv: state.setKirchensteuerAktiv,
     setKirchensteuersatz: state.setKirchensteuersatz,
+    setAssetClass: state.setAssetClass,
+    setCustomTeilfreistellungsquote: state.setCustomTeilfreistellungsquote,
     setReturnMode: state.setReturnMode,
     setAverageReturn: state.setAverageReturn,
     setStandardDeviation: state.setStandardDeviation,
