@@ -9,7 +9,6 @@ vi.mock('../utils/tutorial-progress', () => ({
   getCompletedTutorialIds: vi.fn(() => []),
   markTutorialCompleted: vi.fn(),
   areTutorialsDismissed: vi.fn(() => false),
-  dismissAllTutorials: vi.fn(),
 }))
 
 // Mock tutorials data
@@ -86,29 +85,6 @@ describe('TutorialManager', () => {
     fireEvent.click(cardHeader)
     
     expect(screen.getByText(/✓ Abgeschlossen/)).toBeInTheDocument()
-  })
-
-  it('should call dismissAllTutorials when dismiss button is clicked', () => {
-    render(<TutorialManager />)
-    
-    const cardHeader = screen.getByText('📚 Interaktive Tutorials')
-    fireEvent.click(cardHeader)
-    
-    // Find the X button by looking for a button with an X icon inside the card content
-    const xButtons = screen.getAllByRole('button')
-    // The dismiss button should be in the content area, look for it by testing each button
-    const dismissButton = xButtons.find(btn => {
-      const svgs = btn.querySelectorAll('svg')
-      return svgs.length > 0 && btn.className.includes('text-gray-500')
-    })
-    
-    if (dismissButton) {
-      fireEvent.click(dismissButton)
-      expect(tutorialProgress.dismissAllTutorials).toHaveBeenCalled()
-    } else {
-      // If we can't find the button, the test should fail with a descriptive message
-      expect(dismissButton).toBeDefined()
-    }
   })
 
   it('should start tutorial when tutorial card is clicked', () => {

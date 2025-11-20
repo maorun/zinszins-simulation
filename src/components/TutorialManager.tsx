@@ -14,9 +14,8 @@ import {
   getCompletedTutorialIds,
   markTutorialCompleted,
   areTutorialsDismissed,
-  dismissAllTutorials,
 } from '../utils/tutorial-progress'
-import { GraduationCap, ChevronDown, X } from 'lucide-react'
+import { GraduationCap, ChevronDown } from 'lucide-react'
 
 /**
  * Custom hook for tutorial manager logic
@@ -25,7 +24,7 @@ function useTutorialManagerState() {
   const [isOpen, setIsOpen] = useState(false)
   const [currentTutorial, setCurrentTutorial] = useState<string | null>(null)
   const [completedTutorials, setCompletedTutorials] = useState<string[]>(getCompletedTutorialIds())
-  const [isDismissed, setIsDismissed] = useState(areTutorialsDismissed())
+  const isDismissed = areTutorialsDismissed()
 
   const handleToggleOpen = (open: boolean) => {
     setIsOpen(open)
@@ -51,12 +50,6 @@ function useTutorialManagerState() {
     }
   }
 
-  const handleDismiss = () => {
-    dismissAllTutorials()
-    setIsDismissed(true)
-    setIsOpen(false)
-  }
-
   const activeTutorial = currentTutorial ? tutorials.find(t => t.id === currentTutorial) : null
 
   return {
@@ -69,7 +62,6 @@ function useTutorialManagerState() {
     activeTutorial,
     handleStartTutorial,
     handleCompleteTutorial,
-    handleDismiss,
   }
 }
 
@@ -117,24 +109,19 @@ function TutorialCategorySection({
 function TutorialCardContent({
   completedTutorials,
   onStartTutorial,
-  onDismiss,
 }: {
   completedTutorials: string[]
   onStartTutorial: (tutorialId: string) => void
-  onDismiss: () => void
 }) {
   const categories = ['getting-started', 'savings', 'withdrawal', 'tax', 'advanced'] as const
 
   return (
     <CardContent className="space-y-6">
-      {/* Dismiss button */}
-      <div className="flex justify-between items-center mb-2">
+      {/* Description */}
+      <div className="mb-2">
         <p className="text-sm text-muted-foreground">
           Lernen Sie die wichtigsten Funktionen der Zinseszins-Simulation kennen
         </p>
-        <Button variant="ghost" size="sm" onClick={onDismiss} className="text-gray-500 hover:text-gray-700">
-          <X className="h-4 w-4" />
-        </Button>
       </div>
 
       {categories.map(category => (
@@ -168,7 +155,6 @@ export function TutorialManager() {
     activeTutorial,
     handleStartTutorial,
     handleCompleteTutorial,
-    handleDismiss,
   } = useTutorialManagerState()
 
   if (isDismissed) {
@@ -195,7 +181,6 @@ export function TutorialManager() {
             <TutorialCardContent
               completedTutorials={completedTutorials}
               onStartTutorial={handleStartTutorial}
-              onDismiss={handleDismiss}
             />
           </CollapsibleContent>
         </Card>
