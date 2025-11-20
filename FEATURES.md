@@ -21,9 +21,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Risikomanagement
 
-- ~~**Inflationsszenarien** - Hyperinflation, Deflation, Stagflation Szenarien~~ ✅ **IMPLEMENTIERT**
 - **Währungsrisiko** - Multi-Währungs-Portfolios mit Wechselkursrisiken
-- ~~**Liquiditätsplanung** - Cash-Reserve-Strategien für Notfälle~~ ✅ **IMPLEMENTIERT**
 - **Volatilitäts-Targeting** - Dynamische Allokation basierend auf Marktvolatilität
 - **Tail-Risk Hedging** - Absicherungsstrategien gegen extreme Verluste
 
@@ -38,9 +36,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Immobilienintegration
 
-- ~~**Immobilien-Cashflow** - Mieteinnahmen vs. Finanzierungskosten~~ ✅ **IMPLEMENTIERT**
-- ~~**Immobilien-Wertsteigerung** - Historische und prognostizierte Wertentwicklung~~ ✅ **TEILWEISE IMPLEMENTIERT**
-- ~~**Eigenheim vs. Miete** - Detaillierte Vergleichsrechnung über Lebensspanne~~ ✅ **IMPLEMENTIERT**
 - **Immobilien-Leverage** - Optimale Finanzierungsstrukturen
 - **Immobilien-Steueroptimierung** - AfA, Werbungskosten, etc.
 
@@ -54,7 +49,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Lebensversicherungen
 
-- ~~**Kapitallebensversicherung** - Integration klassischer Lebensversicherungsprodukte~~ ✅ **IMPLEMENTIERT**
 - **Risikolebensversicherung** - Absicherung von Hinterbliebenen
 
 #### Pflegevorsorge
@@ -73,9 +67,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Erweiterte Analysen
 
-- ~~**Sensitivitätsanalyse** - Auswirkungen von Parameteränderungen~~ ✅ **IMPLEMENTIERT**
-- ~~**Optimierungsalgorithmen** - Automatische Optimierung der Asset Allocation~~ ✅ **IMPLEMENTIERT**
-- ~~**Stress-Testing** - Systematische Tests extremer Szenarien~~ ✅ **IMPLEMENTIERT**
 - **Machine Learning Prognosen** - KI-basierte Renditeprognosen
 - **Behavioral Finance** - Berücksichtigung von Anlegerverhalten
 
@@ -84,7 +75,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Dashboard-Customization** - Personalisierbare Ansichten
 - **KPI-Tracking** - Verfolgung von Fortschritt gegenüber Zielen
 - **Automated Reporting** - Regelmäßige lokale Reports
-- **Advanced Export Options** - Excel mit Formeln, PDF-Reports
+- **Advanced Export Options** - PDF-Reports
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen
 - **Animation/Timeline** - Zeitbasierte Animationen der Portfolioentwicklung
 
@@ -179,9 +170,9 @@ Die folgenden Technologien und Ansätze sollen **NICHT** implementiert werden:
 
 Die folgenden Ansätze sind **ausdrücklich erlaubt** und können bei Bedarf verwendet werden:
 
-- **Monte Carlo Simulation** ✅ **IMPLEMENTIERT** - Statistische Simulation durch Zufallsziehungen (kein ML)
-- **Optimierungsalgorithmen** ✅ **IMPLEMENTIERT** - Mathematische Optimierung (z.B. Portfolio-Allokation)
-- **Statistische Analysen** ✅ **IMPLEMENTIERT** - Varianz, Standardabweichung, Perzentile, etc.
+- **Monte Carlo Simulation** - Statistische Simulation durch Zufallsziehungen (kein ML)
+- **Optimierungsalgorithmen** - Mathematische Optimierung (z.B. Portfolio-Allokation)
+- **Statistische Analysen** - Varianz, Standardabweichung, Perzentile, etc.
 - **Deterministische Regelbasierte Systeme** - Wenn-Dann-Logik ohne maschinelles Lernen
 - **Heuristische Algorithmen** - Faustregeln und bewährte Finanzplanungs-Heuristiken
 - **Pseudo-KI Marketing-Begriffe** - Begriffe wie "Intelligente Planung" für regelbasierte Logik (optional, nicht erforderlich)
@@ -208,9 +199,9 @@ Die folgenden Features in diesem Dokument sind als "**NICHT zu implementieren**"
 
 ### Hoch (⭐⭐⭐)
 
-Direkte Erweiterung der bestehenden Kernfunktionalität:
+Direkte Erweiterung der bestehenden Kernfunktionalität.
 
-- ~~**Immobilien-Cashflow Integration** - Ergänzt die "Andere Einkünfte" Funktionalität~~ ✅ **IMPLEMENTIERT**
+(Alle hoch-priorisierten Features wurden bereits implementiert)
 
 ### Mittel (⭐⭐)
 
