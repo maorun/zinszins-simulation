@@ -1,5 +1,6 @@
 import type { MultiAssetPortfolioConfig, AssetClass } from '../../../helpers/multi-asset-portfolio'
 import type { VolatilityTargetingConfig } from '../../../helpers/volatility-targeting'
+import type { FactorPortfolioConfig } from '../../../helpers/factor-investing'
 import { AssetAllocationSummary } from './AssetAllocationSummary'
 import { AssetClassesConfiguration } from './AssetClassesConfiguration'
 import { RebalancingConfiguration } from './RebalancingConfiguration'
@@ -7,6 +8,7 @@ import { AdvancedSimulationSettings } from './AdvancedSimulationSettings'
 import { VolatilityTargetingConfiguration } from './VolatilityTargetingConfiguration'
 import { CorrelationMatrixHeatmap } from './CorrelationMatrixHeatmap'
 import { PortfolioOptimizer } from './PortfolioOptimizer'
+import { FactorInvestingConfiguration } from './FactorInvestingConfiguration'
 import { Info } from 'lucide-react'
 
 /** Information section component for multi-asset portfolio hints */
@@ -45,6 +47,8 @@ interface MultiAssetConfigurationContentProps {
   onSimulationChange: (updates: Partial<MultiAssetPortfolioConfig['simulation']>) => void
   onVolatilityTargetingChange: (updates: Partial<VolatilityTargetingConfig>) => void
   onApplyOptimizedAllocations: (allocations: Record<AssetClass, number>) => void
+  factorConfig?: FactorPortfolioConfig
+  onFactorConfigChange?: (updates: Partial<FactorPortfolioConfig>) => void
 }
 
 /**
@@ -63,6 +67,8 @@ export function MultiAssetConfigurationContent({
   onSimulationChange,
   onVolatilityTargetingChange,
   onApplyOptimizedAllocations,
+  factorConfig,
+  onFactorConfigChange,
 }: MultiAssetConfigurationContentProps) {
   return (
     <div className="space-y-6">
@@ -74,6 +80,10 @@ export function MultiAssetConfigurationContent({
       />
 
       <PortfolioOptimizer config={config} onApplyAllocations={onApplyOptimizedAllocations} />
+
+      {factorConfig && onFactorConfigChange && (
+        <FactorInvestingConfiguration config={factorConfig} onChange={onFactorConfigChange} />
+      )}
 
       <AssetClassesConfiguration
         config={config}
