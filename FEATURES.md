@@ -21,7 +21,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Risikomanagement
 
 - **Währungsrisiko** - Multi-Währungs-Portfolios mit Wechselkursrisiken
-- **Volatilitäts-Targeting** - Dynamische Allokation basierend auf Marktvolatilität
 - **Tail-Risk Hedging** - Absicherungsstrategien gegen extreme Verluste
 
 ### Lebenssituationen & Planung

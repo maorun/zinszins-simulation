@@ -6,6 +6,11 @@
  * with historical correlations and realistic return patterns.
  */
 
+import {
+  type VolatilityTargetingConfig,
+  createDefaultVolatilityTargetingConfig,
+} from './volatility-targeting'
+
 /**
  * Supported asset classes for multi-asset portfolios
  */
@@ -204,6 +209,9 @@ export interface MultiAssetPortfolioConfig {
     /** Random seed for reproducible results */
     seed?: number
   }
+
+  /** Volatility targeting configuration for dynamic allocation */
+  volatilityTargeting: VolatilityTargetingConfig
 }
 
 /**
@@ -222,6 +230,7 @@ export function createDefaultMultiAssetConfig(): MultiAssetPortfolioConfig {
       useCorrelation: true,
       seed: undefined,
     },
+    volatilityTargeting: createDefaultVolatilityTargetingConfig(),
   }
 }
 

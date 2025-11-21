@@ -4,6 +4,7 @@ import {
   type AssetClass,
   createDefaultMultiAssetConfig,
 } from '../../helpers/multi-asset-portfolio'
+import type { VolatilityTargetingConfig } from '../../helpers/volatility-targeting'
 
 interface UseMultiAssetHandlersProps {
   config: MultiAssetPortfolioConfig
@@ -97,10 +98,24 @@ function useBasicConfigHandlers({ config, onChange }: UseMultiAssetHandlersProps
     [config, onChange],
   )
 
+  const handleVolatilityTargetingChange = useCallback(
+    (updates: Partial<VolatilityTargetingConfig>) => {
+      onChange({
+        ...config,
+        volatilityTargeting: {
+          ...config.volatilityTargeting,
+          ...updates,
+        },
+      })
+    },
+    [config, onChange],
+  )
+
   return {
     handleConfigChange,
     handleRebalancingChange,
     handleSimulationChange,
+    handleVolatilityTargetingChange,
   }
 }
 

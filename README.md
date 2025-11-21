@@ -40,6 +40,13 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Deutsche Steuerregeln** - Vollständige Integration der Teilfreistellung für Aktien und REITs
   - **Portfolio-Validierung** - Automatische Validierung der Allokationen mit deutschen Fehlermeldungen
   - **Normalisierungsfunktion** - Ein-Klick Normalisierung der Allokationen auf 100%
+  - **Volatilitäts-Targeting** - Dynamische Allokationsanpassung basierend auf realisierter Volatilität
+    - **4 Strategien** - Keine, Einfache Skalierung, Inverse Volatilitätsgewichtung, Risk Parity
+    - **Ziel-Volatilität** - Konfigurierbar zwischen 1% und 50% jährlich
+    - **Lookback-Periode** - 1-10 Jahre zur Berechnung der realisierten Volatilität
+    - **Allokationsgrenzen** - Minimale und maximale Risikoallokation konfigurierbar
+    - **Glättungsfaktor** - Exponentiell gewichtete Volatilitätsschätzung für stabilere Anpassungen
+    - **Automatische Anpassung** - Reduziert Risikoexposition bei hoher Volatilität, erhöht bei niedriger
 - **Inflation** - Berücksichtigung während der Ansparphase mit automatischer Anpassung
   - **Inflationsbereinigte Werte** - Zusätzliche Anzeige der realen Kaufkraft (inflationsbereinigt) neben Nominalwerten
   - **Sparphase**: Alle Kapitalwerte werden sowohl nominal als auch real angezeigt (z.B. "793.512,75 € / 589.591,66 € real")
