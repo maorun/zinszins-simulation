@@ -71,7 +71,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Reporting & Visualisierung
 
 - **Dashboard-Customization** - Personalisierbare Ansichten
-- **KPI-Tracking** - Verfolgung von Fortschritt gegenüber Zielen
 - **Automated Reporting** - Regelmäßige lokale Reports
 - **Advanced Export Options** - PDF-Reports
 - **3D-Visualisierungen** - Dreidimensionale Darstellung von Zeit-Rendite-Risiko-Zusammenhängen

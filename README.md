@@ -193,6 +193,18 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 ### Finanzziele & Fortschrittsverfolgung
 
 - **SMART-Goals Integration** - Setzen und verfolgen Sie messbare Finanzziele
+  - **Zieltypen**: Altersvorsorge, Finanzielle Unabhängigkeit, Benutzerdefinierte Ziele
+  - **Meilensteine**: Automatische Meilenstein-Erstellung (25%, 50%, 75% des Ziels)
+  - **Fortschrittsanzeige**: Echtzeit-Tracking Ihres Fortschritts gegenüber definierten Zielen
+  - **KPI-Dashboard**: Prominente Anzeige der Zielverfolgung mit visuellen Fortschrittsbalken
+    - **Visuelle Indikatoren**: Farbcodierte Fortschrittsbalken (Blau für in Bearbeitung, Grün für erreicht)
+    - **Achievement-Badges**: Anzeige von "Erreicht"-Status bei vollständiger Zielerreichung
+    - **Nächster Meilenstein**: Automatische Anzeige des nächsten zu erreichenden Meilensteins
+    - **Verbleibender Betrag**: Anzeige des noch benötigten Betrags zur Zielerreichung
+    - **Responsive Layout**: Adaptive Darstellung für Desktop (3 Spalten), Tablet (2 Spalten) und Mobile (1 Spalte)
+    - **Automatische Integration**: Dashboard erscheint automatisch in den Simulationsergebnissen
+- **Aktive Ziele**: Nur aktive Ziele werden im Dashboard angezeigt
+- **Mehrere Ziele**: Gleichzeitiges Tracking mehrerer Finanzziele möglich
   - **Drei Zieltypen** - Altersvorsorge, Finanzielle Unabhängigkeit, Benutzerdefinierte Ziele
   - **Automatische Fortschrittsberechnung** - Echtzeit-Berechnung des Fortschritts basierend auf aktuellem Kapital
   - **Meilenstein-Tracking** - Automatische Meilensteine bei 25%, 50% und 75% des Ziels
