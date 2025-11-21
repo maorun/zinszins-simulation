@@ -143,6 +143,21 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Durchsuchbar** - Schnelles Finden relevanter Szenarien durch Suchfunktion
   - **Detaillierte Beschreibungen** - Umfassende Informationen zu jedem Szenario in einem übersichtlichen Modal
 
+### Interaktive Tutorials
+
+- **Schritt-für-Schritt Anleitungen** - Geführte Tutorials für neue Benutzer
+  - **5 Haupt-Tutorials** - Welcome, Sparpläne, Steuern, Entnahme, Monte Carlo Analyse
+  - **Fortschrittsverfolgung** - Automatische Speicherung des Lernfortschritts in localStorage
+  - **Flexible Navigation** - Vor/Zurück-Navigation, Schritte überspringen, Tutorials jederzeit neu starten
+  - **Visuelle Fortschrittsanzeige** - Fortschrittsbalken und Schritt-Indikatoren zeigen aktuelle Position
+  - **Voraussetzungen-System** - Tutorials bauen logisch aufeinander auf
+  - **Deutsche Sprache** - Alle Inhalte in verständlichem Deutsch mit praktischen Beispielen
+  - **Kontextuelle Aktionen** - Hilfreiche Hinweise, welche Aktionen als nächstes durchzuführen sind
+  - **Kategorisierung** - Tutorials nach Themen gruppiert (Erste Schritte, Sparpläne, Entnahme, Steuern, Erweitert)
+  - **Zeitschätzungen** - Jedes Tutorial zeigt geschätzte Dauer (3-7 Minuten)
+  - **Abschluss-Tracking** - Markierung abgeschlossener Tutorials mit Wiederholungsmöglichkeit
+  - **shadcn/ui Design** - Moderne, barrierefreie Dialog-Komponenten
+
 ### Glossar-Integration
 
 - **Interaktive Begriffserklärungen** - Kontextbezogene Tooltips für komplexe Finanzfachbegriffe
