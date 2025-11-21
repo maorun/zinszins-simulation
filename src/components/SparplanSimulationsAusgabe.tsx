@@ -20,6 +20,7 @@ import { YearlyProgressionCard } from './sparplan/YearlyProgressionCard'
 import { SummaryCard } from './sparplan/SummaryCard'
 import { useSimulationModals } from '../hooks/useSimulationModals'
 import { useCallback, useMemo } from 'react'
+import { FinancialGoalsKPIDashboard } from './FinancialGoalsKPIDashboard'
 
 // Type for calculation info click data
 interface CalculationInfoData {
@@ -344,6 +345,9 @@ function SparplanCardContent(props: SparplanCardContentProps) {
     <CardContent>
       <div className="mb-4 text-[#666] text-sm">
         Jahr-für-Jahr Progression Ihres Portfolios - zeigt die kumulierte Kapitalentwicklung über die Zeit
+      </div>
+      <div className="mb-6">
+        <FinancialGoalsKPIDashboard />
       </div>
       <ChartSection elemente={elemente} />
       <ProgressionCardsSection
