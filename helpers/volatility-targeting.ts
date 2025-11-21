@@ -175,6 +175,113 @@ export function isRiskyAsset(assetClass: AssetClass): boolean {
 }
 
 /**
+ * Extract original allocations from asset classes
+ */
+function extractOriginalAllocations(assetClasses: Record<AssetClass, AssetClassConfig>): Record<AssetClass, number> {
+  const allocations: Record<AssetClass, number> = {} as Record<AssetClass, number>
+  Object.keys(assetClasses).forEach(key => {
+    const assetClass = key as AssetClass
+    allocations[assetClass] = assetClasses[assetClass].targetAllocation
+  })
+  return allocations
+}
+
+/**
+ * Calculate strategy-based scaling factor
+ * Note: Currently all strategies use the same calculation method.
+ * This function provides a placeholder for future strategy-specific implementations.
+ */
+function getStrategyScalingFactor(
+  _strategy: VolatilityTargetingStrategy,
+  realizedVolatility: number,
+  config: VolatilityTargetingConfig,
+): number {
+  return calculateScalingFactor(
+    realizedVolatility,
+    config.targetVolatility,
+    config.minRiskyAllocation,
+    config.maxRiskyAllocation,
+  )
+}
+
+/**
+ * Apply scaling to asset allocations
+ */
+function applyScalingToAllocations(
+  assetClasses: Record<AssetClass, AssetClassConfig>,
+  originalAllocations: Record<AssetClass, number>,
+  scalingFactor: number,
+): { adjusted: Record<AssetClass, number>; totalRisky: number; totalSafe: number } {
+  const adjusted: Record<AssetClass, number> = {} as Record<AssetClass, number>
+  let totalRisky = 0
+  let totalSafe = 0
+
+  Object.keys(assetClasses).forEach(key => {
+    const assetClass = key as AssetClass
+    const original = originalAllocations[assetClass]
+
+    if (!assetClasses[assetClass].enabled) {
+      adjusted[assetClass] = 0
+      return
+    }
+
+    if (isRiskyAsset(assetClass)) {
+      adjusted[assetClass] = original * scalingFactor
+      totalRisky += adjusted[assetClass]
+    } else {
+      adjusted[assetClass] = original
+      totalSafe += original
+    }
+  })
+
+  return { adjusted, totalRisky, totalSafe }
+}
+
+/**
+ * Normalize allocations to sum to 1.0
+ */
+function normalizeAllocations(
+  assetClasses: Record<AssetClass, AssetClassConfig>,
+  allocations: Record<AssetClass, number>,
+  originalAllocations: Record<AssetClass, number>,
+  totalSafe: number,
+): Record<AssetClass, number> {
+  const total = Object.values(allocations).reduce((sum, val) => sum + val, 0)
+  const shortfall = 1.0 - total
+
+  if (shortfall !== 0) {
+    Object.keys(assetClasses).forEach(key => {
+      const assetClass = key as AssetClass
+      if (!isRiskyAsset(assetClass) && assetClasses[assetClass].enabled) {
+        const proportion = totalSafe > 0 ? originalAllocations[assetClass] / totalSafe : 0.5
+        allocations[assetClass] += shortfall * proportion
+      }
+    })
+  }
+
+  return allocations
+}
+
+/**
+ * Generate explanation for volatility targeting adjustment
+ */
+function generateExplanation(
+  realizedVolatility: number,
+  targetVolatility: number,
+  scalingFactor: number,
+  wasAdjusted: boolean,
+): string {
+  if (!wasAdjusted) {
+    return `Volatilität ${(realizedVolatility * 100).toFixed(1)}% nahe am Ziel ${(targetVolatility * 100).toFixed(1)}%. Keine Anpassung nötig.`
+  }
+
+  const direction = scalingFactor < 1.0 ? 'reduziert' : 'erhöht'
+  const percentage = Math.abs((1.0 - scalingFactor) * 100).toFixed(1)
+  const comparison = scalingFactor < 1.0 ? 'über' : 'unter'
+  return `Volatilität ${(realizedVolatility * 100).toFixed(1)}% liegt ${comparison} Ziel ${(targetVolatility * 100).toFixed(1)}%. Risikoanteil wurde um ${percentage}% ${direction}.`
+}
+
+/**
  * Apply volatility targeting to asset allocations
  *
  * @param assetClasses - Current asset class configurations
@@ -187,12 +294,7 @@ export function applyVolatilityTargeting(
   historicalReturns: HistoricalReturns,
   config: VolatilityTargetingConfig,
 ): VolatilityTargetingResult {
-  // Store original allocations
-  const originalAllocations: Record<AssetClass, number> = {} as Record<AssetClass, number>
-  Object.keys(assetClasses).forEach(key => {
-    const assetClass = key as AssetClass
-    originalAllocations[assetClass] = assetClasses[assetClass].targetAllocation
-  })
+  const originalAllocations = extractOriginalAllocations(assetClasses)
 
   // If disabled, return original allocations
   if (!config.enabled || config.strategy === 'none') {
@@ -207,94 +309,14 @@ export function applyVolatilityTargeting(
     }
   }
 
-  // Calculate realized volatility
   const realizedVolatility = calculateRealizedVolatility(historicalReturns, config.smoothingFactor)
+  const scalingFactor = getStrategyScalingFactor(config.strategy, realizedVolatility, config)
 
-  // Calculate scaling factor based on strategy
-  let scalingFactor = 1.0
+  const { adjusted, totalSafe } = applyScalingToAllocations(assetClasses, originalAllocations, scalingFactor)
+  const adjustedAllocations = normalizeAllocations(assetClasses, adjusted, originalAllocations, totalSafe)
 
-  switch (config.strategy) {
-    case 'simple':
-      scalingFactor = calculateScalingFactor(
-        realizedVolatility,
-        config.targetVolatility,
-        config.minRiskyAllocation,
-        config.maxRiskyAllocation,
-      )
-      break
-    case 'inverse':
-      // Inverse volatility: allocate more to low-volatility assets
-      scalingFactor = calculateScalingFactor(
-        realizedVolatility,
-        config.targetVolatility,
-        config.minRiskyAllocation,
-        config.maxRiskyAllocation,
-      )
-      break
-    case 'risk_parity':
-      // Risk parity: equal risk contribution from each asset
-      // This is a simplified version that scales based on overall volatility
-      scalingFactor = calculateScalingFactor(
-        realizedVolatility,
-        config.targetVolatility,
-        config.minRiskyAllocation,
-        config.maxRiskyAllocation,
-      )
-      break
-  }
-
-  // Apply scaling to risky assets
-  const adjustedAllocations: Record<AssetClass, number> = {} as Record<AssetClass, number>
-  let totalRiskyAllocation = 0
-  let totalSafeAllocation = 0
-
-  // First pass: calculate scaled risky allocations and safe allocations
-  Object.keys(assetClasses).forEach(key => {
-    const assetClass = key as AssetClass
-    const original = originalAllocations[assetClass]
-
-    if (!assetClasses[assetClass].enabled) {
-      adjustedAllocations[assetClass] = 0
-      return
-    }
-
-    if (isRiskyAsset(assetClass)) {
-      adjustedAllocations[assetClass] = original * scalingFactor
-      totalRiskyAllocation += adjustedAllocations[assetClass]
-    } else {
-      adjustedAllocations[assetClass] = original
-      totalSafeAllocation += original
-    }
-  })
-
-  // Second pass: normalize to ensure total is 1.0
-  // The difference goes to safe assets (bonds/cash)
-  const totalAllocation = totalRiskyAllocation + totalSafeAllocation
-  const shortfall = 1.0 - totalAllocation
-
-  if (shortfall !== 0) {
-    // Distribute shortfall to safe assets proportionally
-    Object.keys(assetClasses).forEach(key => {
-      const assetClass = key as AssetClass
-      if (!isRiskyAsset(assetClass) && assetClasses[assetClass].enabled) {
-        const proportion = totalSafeAllocation > 0 ? originalAllocations[assetClass] / totalSafeAllocation : 0.5
-        adjustedAllocations[assetClass] += shortfall * proportion
-      }
-    })
-  }
-
-  // Check if adjustment was significant
   const wasAdjusted = Math.abs(scalingFactor - 1.0) > 0.01
-
-  // Generate explanation
-  let explanation = ''
-  if (wasAdjusted) {
-    const direction = scalingFactor < 1.0 ? 'reduziert' : 'erhöht'
-    const percentage = Math.abs((1.0 - scalingFactor) * 100).toFixed(1)
-    explanation = `Volatilität ${(realizedVolatility * 100).toFixed(1)}% liegt ${scalingFactor < 1.0 ? 'über' : 'unter'} Ziel ${(config.targetVolatility * 100).toFixed(1)}%. Risikoanteil wurde um ${percentage}% ${direction}.`
-  } else {
-    explanation = `Volatilität ${(realizedVolatility * 100).toFixed(1)}% nahe am Ziel ${(config.targetVolatility * 100).toFixed(1)}%. Keine Anpassung nötig.`
-  }
+  const explanation = generateExplanation(realizedVolatility, config.targetVolatility, scalingFactor, wasAdjusted)
 
   return {
     realizedVolatility,
@@ -343,36 +365,34 @@ export function getStrategyDescription(strategy: VolatilityTargetingStrategy): s
 }
 
 /**
+ * Helper to validate a range
+ */
+function validateRange(value: number, min: number, max: number, errorMessage: string): string | null {
+  if (value < min || value > max) {
+    return errorMessage
+  }
+  return null
+}
+
+/**
  * Validate volatility targeting configuration
  *
  * @param config - Configuration to validate
  * @returns Array of validation errors (empty if valid)
  */
 export function validateVolatilityTargetingConfig(config: VolatilityTargetingConfig): string[] {
-  const errors: string[] = []
+  const validations = [
+    validateRange(config.targetVolatility, 0, 1, 'Ziel-Volatilität muss zwischen 0% und 100% liegen'),
+    validateRange(config.lookbackYears, 1, 10, 'Lookback-Periode muss zwischen 1 und 10 Jahren liegen'),
+    validateRange(config.minRiskyAllocation, 0, 1, 'Minimale Risikoallokation muss zwischen 0% und 100% liegen'),
+    validateRange(config.maxRiskyAllocation, 0, 1, 'Maximale Risikoallokation muss zwischen 0% und 100% liegen'),
+    validateRange(config.smoothingFactor, 0, 1, 'Glättungsfaktor muss zwischen 0 und 1 liegen'),
+  ]
 
-  if (config.targetVolatility < 0 || config.targetVolatility > 1) {
-    errors.push('Ziel-Volatilität muss zwischen 0% und 100% liegen')
-  }
-
-  if (config.lookbackYears < 1 || config.lookbackYears > 10) {
-    errors.push('Lookback-Periode muss zwischen 1 und 10 Jahren liegen')
-  }
-
-  if (config.minRiskyAllocation < 0 || config.minRiskyAllocation > 1) {
-    errors.push('Minimale Risikoallokation muss zwischen 0% und 100% liegen')
-  }
-
-  if (config.maxRiskyAllocation < 0 || config.maxRiskyAllocation > 1) {
-    errors.push('Maximale Risikoallokation muss zwischen 0% und 100% liegen')
-  }
+  const errors = validations.filter((e): e is string => e !== null)
 
   if (config.minRiskyAllocation > config.maxRiskyAllocation) {
     errors.push('Minimale Risikoallokation darf nicht größer als maximale sein')
-  }
-
-  if (config.smoothingFactor < 0 || config.smoothingFactor > 1) {
-    errors.push('Glättungsfaktor muss zwischen 0 und 1 liegen')
   }
 
   return errors
