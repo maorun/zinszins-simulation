@@ -1,6 +1,7 @@
 import { CardContent } from './ui/card'
 import { MultiAssetConfigurationContent } from './multi-asset/MultiAssetConfigurationContent'
 import type { MultiAssetPortfolioConfig, AssetClass } from '../../helpers/multi-asset-portfolio'
+import type { VolatilityTargetingConfig } from '../../helpers/volatility-targeting'
 
 interface MultiAssetContentProps {
   enabled: boolean
@@ -18,6 +19,7 @@ interface MultiAssetContentProps {
   onResetToDefaults: () => void
   onRebalancingChange: (updates: Partial<MultiAssetPortfolioConfig['rebalancing']>) => void
   onSimulationChange: (updates: Partial<MultiAssetPortfolioConfig['simulation']>) => void
+  onVolatilityTargetingChange: (updates: Partial<VolatilityTargetingConfig>) => void
   onApplyOptimizedAllocations: (allocations: Record<AssetClass, number>) => void
 }
 
@@ -37,6 +39,7 @@ export function MultiAssetContent({
   onResetToDefaults,
   onRebalancingChange,
   onSimulationChange,
+  onVolatilityTargetingChange,
   onApplyOptimizedAllocations,
 }: MultiAssetContentProps) {
   if (!enabled) return null
@@ -54,6 +57,7 @@ export function MultiAssetContent({
         onResetToDefaults={onResetToDefaults}
         onRebalancingChange={onRebalancingChange}
         onSimulationChange={onSimulationChange}
+        onVolatilityTargetingChange={onVolatilityTargetingChange}
         onApplyOptimizedAllocations={onApplyOptimizedAllocations}
       />
     </CardContent>

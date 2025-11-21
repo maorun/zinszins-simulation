@@ -1,8 +1,10 @@
 import type { MultiAssetPortfolioConfig, AssetClass } from '../../../helpers/multi-asset-portfolio'
+import type { VolatilityTargetingConfig } from '../../../helpers/volatility-targeting'
 import { AssetAllocationSummary } from './AssetAllocationSummary'
 import { AssetClassesConfiguration } from './AssetClassesConfiguration'
 import { RebalancingConfiguration } from './RebalancingConfiguration'
 import { AdvancedSimulationSettings } from './AdvancedSimulationSettings'
+import { VolatilityTargetingConfiguration } from './VolatilityTargetingConfiguration'
 import { CorrelationMatrixHeatmap } from './CorrelationMatrixHeatmap'
 import { PortfolioOptimizer } from './PortfolioOptimizer'
 import { Info } from 'lucide-react'
@@ -41,6 +43,7 @@ interface MultiAssetConfigurationContentProps {
   onResetToDefaults: () => void
   onRebalancingChange: (updates: Partial<MultiAssetPortfolioConfig['rebalancing']>) => void
   onSimulationChange: (updates: Partial<MultiAssetPortfolioConfig['simulation']>) => void
+  onVolatilityTargetingChange: (updates: Partial<VolatilityTargetingConfig>) => void
   onApplyOptimizedAllocations: (allocations: Record<AssetClass, number>) => void
 }
 
@@ -58,6 +61,7 @@ export function MultiAssetConfigurationContent({
   onResetToDefaults,
   onRebalancingChange,
   onSimulationChange,
+  onVolatilityTargetingChange,
   onApplyOptimizedAllocations,
 }: MultiAssetConfigurationContentProps) {
   return (
@@ -80,6 +84,8 @@ export function MultiAssetConfigurationContent({
       />
 
       <RebalancingConfiguration config={config.rebalancing} onChange={onRebalancingChange} />
+
+      <VolatilityTargetingConfiguration config={config.volatilityTargeting} onChange={onVolatilityTargetingChange} />
 
       <AdvancedSimulationSettings config={config.simulation} onChange={onSimulationChange} />
 

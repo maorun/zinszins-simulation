@@ -38,6 +38,31 @@ function useSafeMultiAssetConfig(
   return safeValues
 }
 
+/**
+ * Custom hook to set up multi-asset configuration and handlers
+ */
+function useMultiAssetSetup(
+  safeValues: MultiAssetPortfolioConfig,
+  onChange: (config: MultiAssetPortfolioConfig) => void,
+) {
+  const { enabledAssets, expectedPortfolioReturn, expectedPortfolioRisk } = usePortfolioMetrics(safeValues)
+
+  const handlers = useMultiAssetHandlers({
+    config: safeValues,
+    onChange,
+  })
+
+  const validationErrors = validateMultiAssetConfig(safeValues)
+
+  return {
+    enabledAssets,
+    expectedPortfolioReturn,
+    expectedPortfolioRisk,
+    validationErrors,
+    ...handlers,
+  }
+}
+
 export function MultiAssetPortfolioConfiguration({
   values,
   onChange,
@@ -45,53 +70,35 @@ export function MultiAssetPortfolioConfiguration({
 }: MultiAssetPortfolioConfigurationProps) {
   const safeValues = useSafeMultiAssetConfig(values, onChange)
 
-  // Use custom hooks for metrics and handlers - must be called unconditionally
-  const { enabledAssets, expectedPortfolioReturn, expectedPortfolioRisk } = usePortfolioMetrics(
-    safeValues || createDefaultMultiAssetConfig(),
-  )
-
-  const {
-    handleConfigChange,
-    handleAssetClassChange,
-    handleRebalancingChange,
-    handleSimulationChange,
-    resetToDefaults,
-    normalizeAllocations,
-    applyOptimizedAllocations,
-  } = useMultiAssetHandlers({
-    config: safeValues || createDefaultMultiAssetConfig(),
-    onChange,
-  })
+  const setup = useMultiAssetSetup(safeValues || createDefaultMultiAssetConfig(), onChange)
 
   // Show loading state if configuration is being initialized
   if (!safeValues) {
     return <MultiAssetLoadingState nestingLevel={nestingLevel} />
   }
 
-  // Validate configuration
-  const validationErrors = validateMultiAssetConfig(safeValues)
-
   return (
     <Card nestingLevel={nestingLevel} className="mb-4">
       <MultiAssetHeader
         enabled={safeValues.enabled}
-        onEnabledChange={enabled => handleConfigChange({ enabled })}
+        onEnabledChange={enabled => setup.handleConfigChange({ enabled })}
         nestingLevel={nestingLevel}
       />
       <MultiAssetContent
         enabled={safeValues.enabled}
         config={safeValues}
-        expectedPortfolioReturn={expectedPortfolioReturn}
-        expectedPortfolioRisk={expectedPortfolioRisk}
-        enabledAssetsCount={enabledAssets.length}
-        validationErrors={validationErrors}
+        expectedPortfolioReturn={setup.expectedPortfolioReturn}
+        expectedPortfolioRisk={setup.expectedPortfolioRisk}
+        enabledAssetsCount={setup.enabledAssets.length}
+        validationErrors={setup.validationErrors}
         nestingLevel={nestingLevel}
-        onAssetClassChange={handleAssetClassChange}
-        onNormalizeAllocations={normalizeAllocations}
-        onResetToDefaults={resetToDefaults}
-        onRebalancingChange={handleRebalancingChange}
-        onSimulationChange={handleSimulationChange}
-        onApplyOptimizedAllocations={applyOptimizedAllocations}
+        onAssetClassChange={setup.handleAssetClassChange}
+        onNormalizeAllocations={setup.normalizeAllocations}
+        onResetToDefaults={setup.resetToDefaults}
+        onRebalancingChange={setup.handleRebalancingChange}
+        onSimulationChange={setup.handleSimulationChange}
+        onVolatilityTargetingChange={setup.handleVolatilityTargetingChange}
+        onApplyOptimizedAllocations={setup.applyOptimizedAllocations}
       />
     </Card>
   )

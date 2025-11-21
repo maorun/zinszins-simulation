@@ -1,4 +1,5 @@
 import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-portfolio'
+import { createDefaultVolatilityTargetingConfig } from '../../../helpers/volatility-targeting'
 
 /**
  * Create stocks asset classes for savings phase
@@ -128,6 +129,7 @@ export function createFallbackMultiAssetConfig(): MultiAssetPortfolioConfig {
     assetClasses: createSavingsAssetClasses(),
     rebalancing: createDefaultRebalancing(),
     simulation: createDefaultSimulation(),
+    volatilityTargeting: createDefaultVolatilityTargetingConfig(),
   }
 }
 
@@ -238,5 +240,6 @@ export function createFallbackWithdrawalConfig(): MultiAssetPortfolioConfig {
     assetClasses: createWithdrawalAssetClasses(),
     rebalancing: createDefaultRebalancing(),
     simulation: createDefaultSimulation(),
+    volatilityTargeting: createDefaultVolatilityTargetingConfig(),
   }
 }
