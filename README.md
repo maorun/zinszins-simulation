@@ -445,6 +445,14 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Flexible Zeitplanung** - Wählbares Startjahr für Inflationsszenario innerhalb des Anlagezeitraums
   - **Kombinierbar mit variablen Renditen** - Integration in bestehende Variable-Renditen-Konfiguration
 - **Erweiterte Risikobewertung** - Value-at-Risk (5% & 1% VaR), Maximum Drawdown, Sharpe Ratio, Sortino Ratio, Calmar Ratio
+  - **Stress-Test-Analyse** - Systematische Tests mit extremen Marktszenarien für Portfolio-Resilienz
+    - **Historische Krisenszenarien** - Finanzkrise 2008 (-57%), COVID-19 Crash (-34%), Dotcom-Blase (-49%), Schwarzer Montag 1987 (-23%), Europäische Schuldenkrise (-37%)
+    - **Hypothetische Szenarien** - Leichte Korrektur (-10%), Moderater Crash (-20%), Schwerer Crash (-40%), Extremer Crash (-60%)
+    - **Worst-Case-Identifikation** - Automatische Identifikation des schlimmsten Szenarios mit detaillierter Erklärung
+    - **Durchschnittsverlust-Berechnung** - Durchschnittlicher Verlust über alle getesteten Szenarien
+    - **Restwert-Berechnung** - Portfolio-Wert nach Anwendung jedes Stress-Szenarios
+    - **Historische Referenzen** - Detaillierte Informationen zu historischen Markteinbrüchen und deren Zeiträumen
+    - **Mobile-Responsive Design** - Optimierte Darstellung auf mobilen Geräten und Desktop
 - **Risiko-Zeitreihen** - Detaillierte Drawdown- und Rendite-Serien für tiefere Analyse
 - **Detaillierte Simulation** - Jahr-für-Jahr Aufschlüsselung mit Vorabpauschale-Berechnungen
 - **Berechnungsaufschlüsselung** - Interaktive Erklärungen für Steuer- und Zinsberechnungen
