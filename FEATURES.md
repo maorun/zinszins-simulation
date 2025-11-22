@@ -202,7 +202,6 @@ Direkte Erweiterung der bestehenden Kernfunktionalität.
 
 Nützliche Ergänzungen für fortgeschrittene Nutzer:
 
-- **Alternative Investments** - REITs, Rohstoffe, Kryptowährungen
 - **Erweiterte Risikomanagement-Tools** - VaR, Stress-Tests erweitern
 - **Machine Learning Prognosen** - Kann vorhandene Monte Carlo Analyse ergänzen
 - **Versicherungsintegration** - Lebens-, Pflegeversicherung (BU-Versicherung bereits implementiert)
