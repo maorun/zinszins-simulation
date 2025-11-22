@@ -21,6 +21,11 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Historische Daten** - Backtesting mit DAX, S&P 500, MSCI World (2000-2023)
 - **Multi-Asset Portfolio** - Diversifiziertes Portfolio mit automatischem Rebalancing
   - **7 Anlageklassen** - Deutsche/Europäische Aktien, Internationale Aktien, Staatsanleihen, Unternehmensanleihen, REITs, Rohstoffe, Liquidität
+  - **Alternative Investments Informationen** - Integrierte Bildungsinhalte zu REITs und Rohstoffen
+    - **REITs (Real Estate Investment Trusts)** - Erklärung von Immobilienfonds, Vorteilen und deutscher Steuerbehandlung
+    - **Rohstoffe (Commodities)** - Information zu Gold, Öl, Industriemetalle mit Risiko- und Steuerhinweisen
+    - **Risikohinweise** - Transparente Darstellung von Volatilität, Komplexität und empfohlener Portfolio-Allokation (5-15%)
+    - **Anwendungsempfehlungen** - Klare Hinweise wann alternative Investments sinnvoll sind (Diversifikation, Inflationsschutz, langfristiger Horizont)
   - **Individuelle Konfiguration** - Separate Einstellung von erwarteter Rendite, Volatilität und Zielallokation für jede Anlageklasse
   - **Portfolio-Übersicht** - Real-time Berechnung der erwarteten Portfolio-Rendite und des Portfolio-Risikos
   - **Portfolio-Optimierung** - Automatische Optimierung der Asset Allocation
