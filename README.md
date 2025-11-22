@@ -47,6 +47,19 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Allokationsgrenzen** - Minimale und maximale Risikoallokation konfigurierbar
     - **Glättungsfaktor** - Exponentiell gewichtete Volatilitätsschätzung für stabilere Anpassungen
     - **Automatische Anpassung** - Reduziert Risikoexposition bei hoher Volatilität, erhöht bei niedriger
+  - **Faktor-Investing** - Wissenschaftlich fundierte Faktor-Strategien zur Portfolio-Optimierung
+    - **4 Investment-Faktoren** - Value, Growth, Small-Cap, Momentum basierend auf akademischer Forschung (Fama-French, Carhart)
+    - **Konfigurierbare Factor-Exposure** - Individuelle Steuerung der Faktor-Gewichtung (0-100%)
+    - **Historische Prämien** - Basierend auf langfristigen europäischen Marktdaten
+      - Value: +2,5% jährliche Prämie (niedrige Bewertungskennzahlen)
+      - Growth: +1,5% jährliche Prämie (hohes Gewinnwachstum)
+      - Small-Cap: +3,0% jährliche Prämie (kleinere Marktkapitalisierung)
+      - Momentum: +4,0% jährliche Prämie (positive Kursentwicklung)
+    - **Risiko-Berücksichtigung** - Zusätzliche Volatilität je Faktor wird transparent dargestellt
+    - **Portfolio-Statistiken** - Echtzeit-Berechnung von erwarteter Rendite, Risiko und Sharpe Ratio
+    - **Validierung** - Automatische Prüfung auf konfliktäre Faktor-Kombinationen (z.B. Value vs. Growth)
+    - **Akademische Grundlage** - Fama-French Three-Factor Model, Carhart Four-Factor Model
+    - **Langfristiger Ansatz** - Faktoren funktionieren am besten über Anlagehorizonte von 10+ Jahren
 - **Inflation** - Berücksichtigung während der Ansparphase mit automatischer Anpassung
   - **Inflationsbereinigte Werte** - Zusätzliche Anzeige der realen Kaufkraft (inflationsbereinigt) neben Nominalwerten
   - **Sparphase**: Alle Kapitalwerte werden sowohl nominal als auch real angezeigt (z.B. "793.512,75 € / 589.591,66 € real")
