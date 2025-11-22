@@ -29,6 +29,11 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
 
   if (!simulationData) return null
 
+  // Get the latest portfolio value for stress testing
+  const latestPortfolioValue = portfolioData.values.length > 0 
+    ? portfolioData.values[portfolioData.values.length - 1] 
+    : 0
+
   return (
     <CollapsibleCard>
       <CollapsibleCardHeader>🎯 Risikobewertung - {phaseTitle}</CollapsibleCardHeader>
@@ -38,6 +43,7 @@ const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
             riskMetrics={riskMetrics}
             portfolioDataLength={portfolioData.values.length}
             showFixedReturnNotice={returnMode === 'fixed'}
+            portfolioValue={latestPortfolioValue}
           />
           <RiskEventConfiguration
             simulationStartYear={simulationStartYear}

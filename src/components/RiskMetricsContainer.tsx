@@ -1,6 +1,7 @@
 import React from 'react'
 import { formatRiskMetric, type RiskMetrics } from '../utils/risk-metrics'
 import { RiskMetricsDisplay } from './RiskMetricsDisplay'
+import { StressTestDisplay } from './StressTestDisplay'
 
 /**
  * Additional Risk Metrics Component
@@ -37,6 +38,8 @@ interface RiskMetricsContainerProps {
   riskMetrics: RiskMetrics | null
   portfolioDataLength: number
   showFixedReturnNotice: boolean
+  /** Current portfolio value for stress testing */
+  portfolioValue?: number
 }
 
 /**
@@ -46,7 +49,11 @@ export function RiskMetricsContainer({
   riskMetrics,
   portfolioDataLength,
   showFixedReturnNotice,
+  portfolioValue,
 }: RiskMetricsContainerProps) {
+  // Only show stress tests if we have a portfolio value and risk metrics
+  const showStressTests = portfolioValue && portfolioValue > 0 && riskMetrics && !showFixedReturnNotice
+
   return (
     <>
       {/* Show notice for fixed return mode */}
@@ -65,6 +72,13 @@ export function RiskMetricsContainer({
 
       {/* Additional risk metrics */}
       {riskMetrics && <AdditionalRiskMetrics riskMetrics={riskMetrics} portfolioDataLength={portfolioDataLength} />}
+
+      {/* Stress Test Analysis */}
+      {showStressTests && (
+        <div className="mt-4">
+          <StressTestDisplay portfolioValue={portfolioValue} scenarioType="historical" showDetails={true} />
+        </div>
+      )}
     </>
   )
 }
