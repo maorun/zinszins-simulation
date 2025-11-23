@@ -325,3 +325,4 @@ Neue steuerliche Features müssen deutsche Gesetzgebung korrekt abbilden:
 **Letzte Aktualisierung:** Dezember 2024  
 **Basis:** Vollständige Analyse der copilot-instructions.md und des bestehenden Codes  
 **Status:** Katalog mit 90+ potenziellen Features und expliziten Ausschlüssen
+
