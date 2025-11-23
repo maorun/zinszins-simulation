@@ -84,19 +84,43 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 - **Automatische Anpassungen** - Empfehlungen bei Zielverfehlungen
 
-### Internationale Erweiterungen
-
-#### Ländervergleiche
-
-- **Auswanderungs-Szenarien** - Steuerliche Auswirkungen bei Wohnsitzwechsel
-- **Doppelbesteuerungsabkommen** - Berücksichtigung internationaler Vereinbarungen
-- **Multi-Residency Planning** - Planung für mehrere Wohnsitze
-
 ---
 
 ## ❌ Explizit NICHT zu entwickelnde Features
 
 Die folgenden Features sollen entsprechend der Anforderung **NICHT** entwickelt werden:
+
+### Ausländische Steuerkalkulationen
+
+**⚠️ WICHTIG: Diese Anwendung ist ausschließlich auf deutsches Steuerrecht ausgerichtet.**
+
+Die folgenden internationalen Steuer-Features sollen **NICHT** implementiert werden:
+
+- **Ausländische Steuersysteme** - Keine Implementierung von Steuerberechnungen anderer Länder (z.B. Schweiz, Österreich, USA, UK)
+- **Internationale Steuerkalkulationen** - Keine Berechnungen nach ausländischem Steuerrecht
+- **Multi-Country Tax Planning** - Keine gleichzeitige Steuerplanung für mehrere Länder
+- **Foreign Tax Credit Calculations** - Keine Anrechnung ausländischer Steuern
+- **Cross-Border Tax Optimization** - Keine grenzüberschreitende Steueroptimierung
+- **International Tax Treaties** - Keine Implementierung von Doppelbesteuerungsabkommen (außer als informative Hinweise)
+
+#### Begründung
+
+1. **Fokus auf deutsche Gesetzgebung**: Die Anwendung ist speziell für deutsche Steuerverhältnisse entwickelt
+2. **Komplexität**: Internationale Steuersysteme sind sehr komplex und länderspezifisch
+3. **Wartbarkeit**: Jedes zusätzliche Steuersystem erhöht den Wartungsaufwand erheblich
+4. **Rechtssicherheit**: Nur deutsches Steuerrecht wird korrekt und aktuell abgebildet
+5. **Zielgruppe**: Die Anwendung richtet sich an in Deutschland steuerpflichtige Personen
+
+#### Erlaubt: Deutsche Auslandsinvestitionen
+
+Die folgenden Aspekte im Kontext **deutscher Besteuerung** sind **erlaubt**:
+
+- **Ausländische Kapitalerträge unter deutschem Steuerrecht** - Besteuerung von ausländischen Dividenden/Zinsen in Deutschland
+- **Quellensteueranrechnung** - Anrechnung ausländischer Quellensteuer auf deutsche Kapitalertragsteuer (soweit für deutsche Steuerpflichtige relevant)
+- **Ausschüttungsgleiche Erträge** - Besteuerung von Thesaurierungen ausländischer Fonds nach deutschem Recht
+- **Währungsgewinne/-verluste** - Steuerliche Behandlung nach deutschem Steuerrecht
+
+**Wichtig**: Auch bei diesen erlaubten Features gilt: Die Berechnung erfolgt immer nach **deutschem Steuerrecht** für in Deutschland steuerpflichtige Personen.
 
 ### Community & Social Features
 
@@ -210,7 +234,6 @@ Nice-to-have Features für spezielle Anwendungsfälle:
 - **ESG-Integration** - Nachhaltiges Investieren
 - **Behavioral Finance Komponenten** - Anlegerpsychologie
 - **Erweiterte Bildungsfeatures** - Tutorials und Glossar
-- **Internationale Steuersysteme** - Für Auswanderer relevant
 - **3D-Visualisierungen** - Spektakulär, aber nicht essentiell
 - **Makroökonomische Szenarien** - Sehr komplex zu implementieren
 
