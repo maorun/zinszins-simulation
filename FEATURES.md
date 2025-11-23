@@ -56,7 +56,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Datenintegration
 
-- **Real-Time Marktdaten** - Live-Kurse und Marktindikatoren
 - **Makroökonomische Indikatoren** - Inflation, Zinsen, BIP-Wachstum
 - **Erweiterte APIs** - ECB, Fed, andere Zentralbank-Daten
 - **Benchmark-Integration** - Vergleich mit Indizes und Peer-Portfolios
@@ -89,7 +88,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Ländervergleiche
 
-- **Internationale Steuersysteme** - Vergleiche mit anderen Ländern
 - **Auswanderungs-Szenarien** - Steuerliche Auswirkungen bei Wohnsitzwechsel
 - **Doppelbesteuerungsabkommen** - Berücksichtigung internationaler Vereinbarungen
 - **Multi-Residency Planning** - Planung für mehrere Wohnsitze
