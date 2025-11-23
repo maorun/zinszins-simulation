@@ -81,10 +81,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 - **Marktpsychologie-Indikatoren** - Fear & Greed Index, etc.
 
-#### Zielsetzung & Tracking
-
-- **Automatische Anpassungen** - Empfehlungen bei Zielverfehlungen
-
 ### Internationale Erweiterungen
 
 #### Ländervergleiche

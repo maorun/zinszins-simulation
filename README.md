@@ -214,6 +214,13 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Zieltypen**: Altersvorsorge, Finanzielle Unabhängigkeit, Benutzerdefinierte Ziele
   - **Meilensteine**: Automatische Meilenstein-Erstellung (25%, 50%, 75% des Ziels)
   - **Fortschrittsanzeige**: Echtzeit-Tracking Ihres Fortschritts gegenüber definierten Zielen
+  - **Intelligente Anpassungsempfehlungen** - Automatische Empfehlungen bei Zielabweichungen
+    - **Regelbasierte Analyse** - Transparente mathematische Berechnungen ohne KI/ML
+    - **Fünf Empfehlungstypen** - Sparrate erhöhen, Zeithorizont anpassen, Ziel anpassen, Rendite optimieren, Kosten reduzieren
+    - **Severity-Level** - Farbcodierte Dringlichkeit (Niedrig, Mittel, Hoch, Kritisch)
+    - **Actionable Steps** - Konkrete Handlungsschritte für jede Empfehlung
+    - **Auswirkungs-Analyse** - Transparente Darstellung der erwarteten Effekte
+    - **On-Track Bestätigung** - Positive Bestärkung bei guter Fortschrittsentwicklung
   - **KPI-Dashboard**: Prominente Anzeige der Zielverfolgung mit visuellen Fortschrittsbalken
     - **Visuelle Indikatoren**: Farbcodierte Fortschrittsbalken (Blau für in Bearbeitung, Grün für erreicht)
     - **Achievement-Badges**: Anzeige von "Erreicht"-Status bei vollständiger Zielerreichung
