@@ -8,16 +8,38 @@ import { GoalList } from './financial-goals/GoalList'
 import { CurrentCapitalDisplay } from './financial-goals/CurrentCapitalDisplay'
 
 /**
+ * Calculate average monthly savings from sparplan data
+ */
+function calculateMonthlySavings(sparplan: Array<{ einzahlung?: number }>) {
+  if (sparplan.length === 0) return 0
+  
+  const totalAnnual = sparplan.reduce((total: number, plan) => {
+    return total + (plan.einzahlung || 0)
+  }, 0)
+  
+  return totalAnnual / 12
+}
+
+/**
  * Custom hook for financial goals logic
  */
 function useFinancialGoals() {
-  const { financialGoals = [], setFinancialGoals, simulationData } = useSimulation()
+  const { 
+    financialGoals = [], 
+    setFinancialGoals, 
+    simulationData,
+    rendite,
+    sparplan = [],
+  } = useSimulation()
 
   const currentCapital = useMemo(() => {
     if (!simulationData?.data || simulationData.data.length === 0) return 0
     const lastEntry = simulationData.data[simulationData.data.length - 1]
     return lastEntry?.gesamtkapitalNachSteuern || 0
   }, [simulationData])
+
+  const monthlySavingsRate = useMemo(() => calculateMonthlySavings(sparplan), [sparplan])
+  const currentYear = useMemo(() => new Date().getFullYear(), [])
 
   const handleAddGoal = useCallback(
     (newGoal: ReturnType<typeof createDefaultGoal>) => {
@@ -47,6 +69,9 @@ function useFinancialGoals() {
 
   return {
     currentCapital,
+    monthlySavingsRate,
+    expectedReturn: rendite,
+    currentYear,
     handleAddGoal,
     handleRemoveGoal,
     handleToggleActive,
@@ -59,8 +84,16 @@ function useFinancialGoals() {
  * Allows users to set and track financial goals with milestones
  */
 export default function FinancialGoalsConfiguration() {
-  const { currentCapital, handleAddGoal, handleRemoveGoal, handleToggleActive, goalsWithUpdatedMilestones } =
-    useFinancialGoals()
+  const { 
+    currentCapital, 
+    monthlySavingsRate,
+    expectedReturn,
+    currentYear,
+    handleAddGoal, 
+    handleRemoveGoal, 
+    handleToggleActive, 
+    goalsWithUpdatedMilestones,
+  } = useFinancialGoals()
 
   return (
     <CollapsibleCard>
@@ -80,6 +113,9 @@ export default function FinancialGoalsConfiguration() {
             currentCapital={currentCapital}
             onToggleActive={handleToggleActive}
             onRemove={handleRemoveGoal}
+            monthlySavingsRate={monthlySavingsRate}
+            expectedReturn={expectedReturn}
+            currentYear={currentYear}
           />
         </div>
       </CollapsibleCardContent>

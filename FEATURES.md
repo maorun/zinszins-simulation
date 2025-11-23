@@ -80,10 +80,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 - **Marktpsychologie-Indikatoren** - Fear & Greed Index, etc.
 
-#### Zielsetzung & Tracking
-
-- **Automatische Anpassungen** - Empfehlungen bei Zielverfehlungen
-
 ---
 
 ## ❌ Explizit NICHT zu entwickelnde Features
@@ -94,7 +90,7 @@ Die folgenden Features sollen entsprechend der Anforderung **NICHT** entwickelt 
 
 **⚠️ WICHTIG: Diese Anwendung ist ausschließlich auf deutsches Steuerrecht ausgerichtet.**
 
-Die folgenden internationalen Steuer-Features sollen **NICHT** implementiert werden:
+---
 
 - **Ausländische Steuersysteme** - Keine Implementierung von Steuerberechnungen anderer Länder (z.B. Schweiz, Österreich, USA, UK)
 - **Internationale Steuerkalkulationen** - Keine Berechnungen nach ausländischem Steuerrecht
