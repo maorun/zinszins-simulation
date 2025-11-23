@@ -7,12 +7,23 @@ interface GoalListProps {
   currentCapital: number
   onToggleActive: (goalId: string) => void
   onRemove: (goalId: string) => void
+  monthlySavingsRate?: number
+  expectedReturn?: number
+  currentYear?: number
 }
 
 /**
  * Component for displaying a list of financial goals
  */
-export function GoalList({ goals, currentCapital, onToggleActive, onRemove }: GoalListProps) {
+export function GoalList({ 
+  goals, 
+  currentCapital, 
+  onToggleActive, 
+  onRemove,
+  monthlySavingsRate,
+  expectedReturn,
+  currentYear,
+}: GoalListProps) {
   if (goals.length === 0) {
     return (
       <Alert>
@@ -34,6 +45,9 @@ export function GoalList({ goals, currentCapital, onToggleActive, onRemove }: Go
           currentCapital={currentCapital}
           onToggleActive={onToggleActive}
           onRemove={onRemove}
+          monthlySavingsRate={monthlySavingsRate}
+          expectedReturn={expectedReturn}
+          currentYear={currentYear}
         />
       ))}
     </div>
