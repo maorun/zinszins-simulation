@@ -9,6 +9,7 @@ import type { EmergencyFundConfig } from '../../../helpers/emergency-fund'
 import type { WithdrawalConfiguration } from '../../utils/config-storage'
 import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-portfolio'
 import type { AssetClass } from '../../../helpers/asset-class'
+import type { TermLifeInsuranceConfig } from '../../../helpers/term-life-insurance'
 
 /**
  * Extended SparplanElement with additional fields for simulation results
@@ -75,6 +76,7 @@ export interface ExtendedSavedConfiguration {
   careCostConfiguration?: CareCostConfiguration
   financialGoals?: FinancialGoal[]
   emergencyFundConfig?: EmergencyFundConfig
+  termLifeInsuranceConfig?: TermLifeInsuranceConfig
 }
 
 /**

@@ -3,6 +3,7 @@ import { LifeExpectancyCalculation } from './LifeExpectancyCalculation'
 import { AdditionalConfigSections } from './AdditionalConfigSections'
 import type { CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import type { CareCostConfiguration as CareCostConfig } from '../../helpers/care-cost-simulation'
+import type { TermLifeInsuranceConfig } from '../../helpers/term-life-insurance'
 
 type PlanningMode = 'individual' | 'couple'
 type Gender = 'male' | 'female'
@@ -33,10 +34,37 @@ interface GlobalPlanningContentSectionsProps {
   setCoupleStatutoryPensionConfig: (config: CoupleStatutoryPensionConfig | null) => void
   careCostConfiguration: CareCostConfig
   setCareCostConfiguration: (config: CareCostConfig) => void
+  termLifeInsuranceConfig: TermLifeInsuranceConfig | null
+  setTermLifeInsuranceConfig: (config: TermLifeInsuranceConfig | null) => void
+}
+
+function buildLifeExpectancyProps(props: GlobalPlanningContentSectionsProps) {
+  return {
+    config: {
+      startOfIndependence: props.startOfIndependence,
+      globalEndOfLife: props.globalEndOfLife,
+      useAutomaticCalculation: props.useAutomaticCalculation,
+      planningMode: props.planningMode,
+      birthYear: props.birthYear,
+      expectedLifespan: props.expectedLifespan,
+      gender: props.gender,
+      spouse: props.spouse,
+      lifeExpectancyTable: props.lifeExpectancyTable,
+      customLifeExpectancy: props.customLifeExpectancy,
+    },
+    onChange: {
+      endOfLife: props.setEndOfLife,
+      useAutomaticCalculation: props.setUseAutomaticCalculation,
+      expectedLifespan: props.setExpectedLifespan,
+      lifeExpectancyTable: props.setLifeExpectancyTable,
+      customLifeExpectancy: props.setCustomLifeExpectancy,
+    },
+  }
 }
 
 export function GlobalPlanningContentSections(props: GlobalPlanningContentSectionsProps) {
   const currentYear = new Date().getFullYear()
+  const lifeExpectancyProps = buildLifeExpectancyProps(props)
 
   return (
     <div className="space-y-6">
@@ -52,29 +80,7 @@ export function GlobalPlanningContentSections(props: GlobalPlanningContentSectio
         expectedLifespan={props.expectedLifespan}
         setExpectedLifespan={props.setExpectedLifespan}
       />
-
-      <LifeExpectancyCalculation
-        config={{
-          startOfIndependence: props.startOfIndependence,
-          globalEndOfLife: props.globalEndOfLife,
-          useAutomaticCalculation: props.useAutomaticCalculation,
-          planningMode: props.planningMode,
-          birthYear: props.birthYear,
-          expectedLifespan: props.expectedLifespan,
-          gender: props.gender,
-          spouse: props.spouse,
-          lifeExpectancyTable: props.lifeExpectancyTable,
-          customLifeExpectancy: props.customLifeExpectancy,
-        }}
-        onChange={{
-          endOfLife: props.setEndOfLife,
-          useAutomaticCalculation: props.setUseAutomaticCalculation,
-          expectedLifespan: props.setExpectedLifespan,
-          lifeExpectancyTable: props.setLifeExpectancyTable,
-          customLifeExpectancy: props.setCustomLifeExpectancy,
-        }}
-      />
-
+      <LifeExpectancyCalculation {...lifeExpectancyProps} />
       <AdditionalConfigSections
         currentYear={currentYear}
         birthYear={props.birthYear}
@@ -84,7 +90,10 @@ export function GlobalPlanningContentSections(props: GlobalPlanningContentSectio
         setCoupleStatutoryPensionConfig={props.setCoupleStatutoryPensionConfig}
         careCostConfiguration={props.careCostConfiguration}
         setCareCostConfiguration={props.setCareCostConfiguration}
+        termLifeInsuranceConfig={props.termLifeInsuranceConfig}
+        setTermLifeInsuranceConfig={props.setTermLifeInsuranceConfig}
       />
     </div>
   )
 }
+

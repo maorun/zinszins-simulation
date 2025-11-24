@@ -5,6 +5,7 @@ import { GlobalPlanningCardHeader } from './GlobalPlanningCardHeader'
 import { GlobalPlanningContentSections } from './GlobalPlanningContentSections'
 import type { CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import type { CareCostConfiguration as CareCostConfig } from '../../helpers/care-cost-simulation'
+import type { TermLifeInsuranceConfig } from '../../helpers/term-life-insurance'
 
 type PlanningMode = 'individual' | 'couple'
 type Gender = 'male' | 'female'
@@ -47,6 +48,9 @@ interface GlobalPlanningConfigurationContentProps {
   // Care costs
   careCostConfiguration: CareCostConfig
   setCareCostConfiguration: (config: CareCostConfig) => void
+  // Term life insurance
+  termLifeInsuranceConfig: TermLifeInsuranceConfig | null
+  setTermLifeInsuranceConfig: (config: TermLifeInsuranceConfig | null) => void
 }
 
 /**
