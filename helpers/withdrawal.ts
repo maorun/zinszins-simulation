@@ -30,6 +30,11 @@ import {
 } from './health-care-insurance'
 import { generateMultiAssetReturns } from './multi-asset-calculations'
 import type { MultiAssetPortfolioConfig } from './multi-asset-portfolio'
+import {
+  calculateIncomeTaxWithProgressionsvorbehalt,
+  getProgressionRelevantIncomeForYear,
+  type ProgressionsvorbehaltConfig,
+} from './progressionsvorbehalt'
 
 export type WithdrawalStrategy =
   | '4prozent'
@@ -1122,6 +1127,7 @@ type WithdrawalYearParams = {
   birthYear?: number
   getFreibetragForYear: (year: number) => number
   getGrundfreibetragForYear: (year: number) => number
+  progressionsvorbehaltConfig?: ProgressionsvorbehaltConfig
 }
 
 function processAllWithdrawalYears(
@@ -1191,6 +1197,7 @@ type YearlyTaxesParams = {
   otherIncomeData: OtherIncomeResult
   healthCareInsuranceData: HealthCareInsuranceYearResult | undefined
   healthCareInsuranceConfig: HealthCareInsuranceConfig | undefined
+  progressionsvorbehaltConfig?: ProgressionsvorbehaltConfig
 }
 
 /**
@@ -1282,6 +1289,7 @@ function getYearIncomeTax(params: YearlyTaxesParams) {
     incomeTaxRate: params.incomeTaxRate,
     kirchensteuerAktiv: params.kirchensteuerAktiv,
     kirchensteuersatz: params.kirchensteuersatz,
+    progressionsvorbehaltConfig: params.progressionsvorbehaltConfig,
   })
 }
 
@@ -1417,6 +1425,7 @@ type ProcessYearlyWithdrawalParams = {
   birthYear?: number
   getFreibetragForYear: (year: number) => number
   getGrundfreibetragForYear: (year: number) => number
+  progressionsvorbehaltConfig?: ProgressionsvorbehaltConfig
 }
 
 /**
@@ -1727,6 +1736,7 @@ function getOrchestratedTaxResults(
     otherIncomeData: params.yearParams.otherIncomeData,
     healthCareInsuranceData: withdrawalData.healthCareInsuranceData,
     healthCareInsuranceConfig: params.yearParams.healthCareInsuranceConfig,
+    progressionsvorbehaltConfig: params.yearParams.progressionsvorbehaltConfig,
   })
 }
 
@@ -2021,6 +2031,7 @@ interface YearIncomeTaxParams {
   incomeTaxRate: number | undefined
   kirchensteuerAktiv: boolean
   kirchensteuersatz: number
+  progressionsvorbehaltConfig?: ProgressionsvorbehaltConfig
 }
 
 /**
@@ -2045,6 +2056,7 @@ function calculateYearIncomeTax(params: YearIncomeTaxParams): YearIncomeTaxResul
     incomeTaxRate,
     kirchensteuerAktiv,
     kirchensteuersatz,
+    progressionsvorbehaltConfig,
   } = params
 
   let einkommensteuer = 0
@@ -2063,15 +2075,22 @@ function calculateYearIncomeTax(params: YearIncomeTaxParams): YearIncomeTaxResul
       healthCareInsuranceConfig,
     })
 
+    // Get progression-relevant income for this year (e.g., foreign income)
+    const progressionRelevantIncome = progressionsvorbehaltConfig
+      ? getProgressionRelevantIncomeForYear(year, progressionsvorbehaltConfig)
+      : 0
+
     // Calculate income tax on total taxable income
     // When incomeTaxRate is provided (Grundfreibetrag without Günstigerprüfung), use it
     // When incomeTaxRate is undefined (Günstigerprüfung active), progressive tax is used in realized gains calculation
+    // Progressionsvorbehalt affects the tax rate when progression-relevant income exists
     einkommensteuer = calculateIncomeTax(
       totalTaxableIncome,
       yearlyGrundfreibetrag,
       incomeTaxRate || 0,
       kirchensteuerAktiv,
       kirchensteuersatz,
+      progressionRelevantIncome,
     )
     genutzterGrundfreibetrag = Math.min(totalTaxableIncome, yearlyGrundfreibetrag)
     taxableIncome = Math.max(0, totalTaxableIncome - yearlyGrundfreibetrag)
@@ -2495,6 +2514,7 @@ export type CalculateWithdrawalParams = {
   otherIncomeConfig?: OtherIncomeConfiguration
   healthCareInsuranceConfig?: HealthCareInsuranceConfig
   birthYear?: number // For health care insurance age calculation
+  progressionsvorbehaltConfig?: ProgressionsvorbehaltConfig
 }
 
 /**
@@ -2583,6 +2603,7 @@ export function calculateWithdrawal(params: CalculateWithdrawalParams): {
     mutableLayers,
     monthlyConfig: params.monthlyConfig,
     inflationConfig: params.inflationConfig,
+    progressionsvorbehaltConfig: params.progressionsvorbehaltConfig,
   }
 
   // Process all withdrawal years
@@ -2645,11 +2666,24 @@ export function calculateSegmentedWithdrawal(
 
 export function calculateIncomeTax(
   withdrawalAmount: number,
-  grundfreibetragYear: number = grundfreibetrag[2023],
+  grundfreibetragYear = grundfreibetrag[2023],
   incomeTaxRate = 0.18,
   kirchensteuerAktiv = false,
   kirchensteuersatz = 9,
+  progressionRelevantIncome = 0,
 ): number {
+  // If Progressionsvorbehalt is enabled (progression income > 0), use the special calculation
+  if (progressionRelevantIncome > 0) {
+    return calculateIncomeTaxWithProgressionsvorbehalt(
+      withdrawalAmount,
+      progressionRelevantIncome,
+      grundfreibetragYear,
+      kirchensteuerAktiv,
+      kirchensteuersatz,
+    )
+  }
+
+  // Standard calculation without Progressionsvorbehalt
   const taxableIncome = Math.max(0, withdrawalAmount - grundfreibetragYear)
   const baseIncomeTax = taxableIncome * incomeTaxRate
 
