@@ -374,6 +374,8 @@ function useOtherConfigValues(state: Record<string, unknown>) {
     setFinancialGoals,
     emergencyFundConfig,
     setEmergencyFundConfig,
+    termLifeInsuranceConfig,
+    setTermLifeInsuranceConfig,
   } = state
   return useMemo(
     () => ({
@@ -387,6 +389,8 @@ function useOtherConfigValues(state: Record<string, unknown>) {
       setFinancialGoals,
       emergencyFundConfig,
       setEmergencyFundConfig,
+      termLifeInsuranceConfig,
+      setTermLifeInsuranceConfig,
     }),
     [
       statutoryPensionConfig,
@@ -399,6 +403,8 @@ function useOtherConfigValues(state: Record<string, unknown>) {
       setFinancialGoals,
       emergencyFundConfig,
       setEmergencyFundConfig,
+      termLifeInsuranceConfig,
+      setTermLifeInsuranceConfig,
     ],
   )
 }
