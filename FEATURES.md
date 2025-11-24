@@ -44,10 +44,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Versicherung & Absicherung
 
-#### Lebensversicherungen
-
-- **Risikolebensversicherung** - Absicherung von Hinterbliebenen
-
 #### Pflegevorsorge
 
 - **Generationenvertrag** - Finanzielle Belastung durch Pflege von Angehörigen
@@ -221,7 +217,7 @@ Direkte Erweiterung der bestehenden Kernfunktionalität.
 Nützliche Ergänzungen für fortgeschrittene Nutzer:
 
 - **Machine Learning Prognosen** - Kann vorhandene Monte Carlo Analyse ergänzen
-- **Versicherungsintegration** - Lebens-, Pflegeversicherung (BU-Versicherung bereits implementiert)
+- **Versicherungsintegration** - Pflegeversicherung (BU-Versicherung und Risikolebensversicherung bereits implementiert)
 
 ### Niedrig (⭐)
 
