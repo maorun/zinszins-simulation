@@ -215,7 +215,17 @@ export interface KinderBildungConfig {
     hasOwnIncome: boolean
     /** Student's own annual income in EUR */
     ownIncome: number
+    /** BAföG eligibility status */
+    eligibility: 'eligible' | 'partial' | 'ineligible'
+    /** Percentage of BAföG that must be repaid (50% as grant, 50% as loan) */
+    repaymentRate: number
   }
+
+  /** Whether to account for Kindergeld (this is already handled separately) */
+  includeKindergeld: boolean
+
+  /** Notes or special considerations */
+  notes?: string
 }
 
 /**
