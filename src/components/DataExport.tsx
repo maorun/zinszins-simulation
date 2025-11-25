@@ -343,6 +343,26 @@ function PDFExportSection({
   )
 }
 
+function FormatInfoCard({ title, items }: { title: string; items: string[] }) {
+  return (
+    <div className="space-y-2">
+      <h4 className="font-medium text-gray-700">{title}</h4>
+      <ul className="text-gray-600 space-y-1">
+        {items.map(item => (
+          <li key={item}>• {item}</li>
+        ))}
+      </ul>
+    </div>
+  )
+}
+
+const FORMAT_INFO_DATA = {
+  csv: ['Tabellenformat für Excel/Calc', 'Jahr/Monat Aufschlüsselung', 'Alle Einzahlungen nach Sparplänen', 'Vorabpauschale & Steuerdetails', 'Deutsche Zahlenformatierung'],
+  excel: ['.xlsx Datei mit Formeln', 'Berechnungen nachvollziehbar', 'Jahr-für-Jahr Detailansicht', 'Vollständige Steuerberechnung', 'Deutsche Zahlenformate'],
+  pdf: ['Professioneller Bericht', 'Übersichtliche Tabellen', 'Parameter-Zusammenfassung', 'Druckfertig und teilbar', 'Archivierungsfreundlich'],
+  markdown: ['Vollständiger Bericht', 'Parameter & Berechnungsformeln', 'Übersichtstabellen', 'Dokumentations-freundlich', 'GitHub/Wiki kompatibel'],
+}
+
 function FormatInformationSection() {
   return (
     <div className="space-y-3">
@@ -351,46 +371,10 @@ function FormatInformationSection() {
         Format-Informationen
       </h3>
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
-        <div className="space-y-2">
-          <h4 className="font-medium text-gray-700">CSV Export</h4>
-          <ul className="text-gray-600 space-y-1">
-            <li>• Tabellenformat für Excel/Calc</li>
-            <li>• Jahr/Monat Aufschlüsselung</li>
-            <li>• Alle Einzahlungen nach Sparplänen</li>
-            <li>• Vorabpauschale & Steuerdetails</li>
-            <li>• Deutsche Zahlenformatierung</li>
-          </ul>
-        </div>
-        <div className="space-y-2">
-          <h4 className="font-medium text-gray-700">Excel Export</h4>
-          <ul className="text-gray-600 space-y-1">
-            <li>• .xlsx Datei mit Formeln</li>
-            <li>• Berechnungen nachvollziehbar</li>
-            <li>• Jahr-für-Jahr Detailansicht</li>
-            <li>• Vollständige Steuerberechnung</li>
-            <li>• Deutsche Zahlenformate</li>
-          </ul>
-        </div>
-        <div className="space-y-2">
-          <h4 className="font-medium text-gray-700">PDF Export</h4>
-          <ul className="text-gray-600 space-y-1">
-            <li>• Professioneller Bericht</li>
-            <li>• Übersichtliche Tabellen</li>
-            <li>• Parameter-Zusammenfassung</li>
-            <li>• Druckfertig und teilbar</li>
-            <li>• Archivierungsfreundlich</li>
-          </ul>
-        </div>
-        <div className="space-y-2">
-          <h4 className="font-medium text-gray-700">Markdown Export</h4>
-          <ul className="text-gray-600 space-y-1">
-            <li>• Vollständiger Bericht</li>
-            <li>• Parameter & Berechnungsformeln</li>
-            <li>• Übersichtstabellen</li>
-            <li>• Dokumentations-freundlich</li>
-            <li>• GitHub/Wiki kompatibel</li>
-          </ul>
-        </div>
+        <FormatInfoCard title="CSV Export" items={FORMAT_INFO_DATA.csv} />
+        <FormatInfoCard title="Excel Export" items={FORMAT_INFO_DATA.excel} />
+        <FormatInfoCard title="PDF Export" items={FORMAT_INFO_DATA.pdf} />
+        <FormatInfoCard title="Markdown Export" items={FORMAT_INFO_DATA.markdown} />
       </div>
     </div>
   )
@@ -427,6 +411,11 @@ function NoDataWarning() {
   )
 }
 
+type CommonExportProps = Pick<
+  DataExportSectionProps,
+  'hasSavingsData' | 'hasWithdrawalCapability' | 'isExporting' | 'exportResult' | 'exportType'
+>
+
 function ExportOptionsGrid({
   hasSavingsData,
   hasWithdrawalCapability,
@@ -445,34 +434,30 @@ function ExportOptionsGrid({
   onExportWithdrawalPDF,
   onExportAllPDF,
 }: Omit<DataExportSectionProps, 'hasAnyData'>) {
+  const commonProps: CommonExportProps = {
+    hasSavingsData,
+    hasWithdrawalCapability,
+    isExporting,
+    exportResult,
+    exportType,
+  }
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
       <CSVExportSection
-        hasSavingsData={hasSavingsData}
-        hasWithdrawalCapability={hasWithdrawalCapability}
-        isExporting={isExporting}
-        exportResult={exportResult}
-        exportType={exportType}
+        {...commonProps}
         onExportSavings={onExportSavings}
         onExportWithdrawal={onExportWithdrawal}
         onExportAll={onExportAll}
       />
       <ExcelExportSection
-        hasSavingsData={hasSavingsData}
-        hasWithdrawalCapability={hasWithdrawalCapability}
-        isExporting={isExporting}
-        exportResult={exportResult}
-        exportType={exportType}
+        {...commonProps}
         onExportSavings={onExportSavingsExcel}
         onExportWithdrawal={onExportWithdrawalExcel}
         onExportAll={onExportAllExcel}
       />
       <PDFExportSection
-        hasSavingsData={hasSavingsData}
-        hasWithdrawalCapability={hasWithdrawalCapability}
-        isExporting={isExporting}
-        exportResult={exportResult}
-        exportType={exportType}
+        {...commonProps}
         onExportSavings={onExportSavingsPDF}
         onExportWithdrawal={onExportWithdrawalPDF}
         onExportAll={onExportAllPDF}
@@ -483,25 +468,9 @@ function ExportOptionsGrid({
   )
 }
 
-function DataExportSection({
-  hasAnyData,
-  hasSavingsData,
-  hasWithdrawalCapability,
-  isExporting,
-  exportResult,
-  exportType,
-  onExportSavings,
-  onExportWithdrawal,
-  onExportAll,
-  onExportMarkdown,
-  onCopyCalculations,
-  onExportSavingsExcel,
-  onExportWithdrawalExcel,
-  onExportAllExcel,
-  onExportSavingsPDF,
-  onExportWithdrawalPDF,
-  onExportAllPDF,
-}: DataExportSectionProps) {
+function DataExportSection(props: DataExportSectionProps) {
+  const { hasAnyData, ...gridProps } = props
+
   return (
     <div className="space-y-3">
       <h3 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
@@ -513,27 +482,7 @@ function DataExportSection({
       </p>
 
       {!hasAnyData && <NoDataWarning />}
-
-      {hasAnyData && (
-        <ExportOptionsGrid
-          hasSavingsData={hasSavingsData}
-          hasWithdrawalCapability={hasWithdrawalCapability}
-          isExporting={isExporting}
-          exportResult={exportResult}
-          exportType={exportType}
-          onExportSavings={onExportSavings}
-          onExportWithdrawal={onExportWithdrawal}
-          onExportAll={onExportAll}
-          onExportMarkdown={onExportMarkdown}
-          onCopyCalculations={onCopyCalculations}
-          onExportSavingsExcel={onExportSavingsExcel}
-          onExportWithdrawalExcel={onExportWithdrawalExcel}
-          onExportAllExcel={onExportAllExcel}
-          onExportSavingsPDF={onExportSavingsPDF}
-          onExportWithdrawalPDF={onExportWithdrawalPDF}
-          onExportAllPDF={onExportAllPDF}
-        />
-      )}
+      {hasAnyData && <ExportOptionsGrid {...gridProps} />}
     </div>
   )
 }
@@ -569,28 +518,8 @@ function getExportButtonState(
 }
 
 function useDataExportHooks() {
-  const {
-    exportParameters,
-    isExporting: isParameterExporting,
-    lastExportResult: parameterExportResult,
-  } = useParameterExport()
-  const {
-    exportSavingsDataCSV,
-    exportWithdrawalDataCSV,
-    exportAllDataCSV,
-    exportDataMarkdown,
-    copyCalculationExplanations,
-    exportSavingsDataExcel,
-    exportWithdrawalDataExcel,
-    exportAllDataExcel,
-    exportSavingsDataPDF,
-    exportWithdrawalDataPDF,
-    exportAllDataPDF,
-    isExporting: isDataExporting,
-    lastExportResult: dataExportResult,
-    exportType,
-  } = useDataExport()
-
+  const parameterExport = useParameterExport()
+  const { lastExportResult, ...restDataExport } = useDataExport()
   const dataAvailability = useDataAvailability()
   const nestingLevel = useNestingLevel()
   const navigationRef = useNavigationItem({
@@ -601,23 +530,11 @@ function useDataExportHooks() {
   })
 
   return {
-    exportParameters,
-    isParameterExporting,
-    parameterExportResult,
-    exportSavingsDataCSV,
-    exportWithdrawalDataCSV,
-    exportAllDataCSV,
-    exportDataMarkdown,
-    copyCalculationExplanations,
-    exportSavingsDataExcel,
-    exportWithdrawalDataExcel,
-    exportAllDataExcel,
-    exportSavingsDataPDF,
-    exportWithdrawalDataPDF,
-    exportAllDataPDF,
-    isDataExporting,
-    dataExportResult,
-    exportType,
+    exportParameters: parameterExport.exportParameters,
+    isParameterExporting: parameterExport.isExporting,
+    parameterExportResult: parameterExport.lastExportResult,
+    exportResult: lastExportResult,
+    ...restDataExport,
     ...dataAvailability,
     nestingLevel,
     navigationRef,
@@ -631,8 +548,8 @@ interface DataExportContentProps {
   hasAnyData: boolean
   hasSavingsData: boolean
   hasWithdrawalCapability: boolean
-  isDataExporting: boolean
-  dataExportResult: string | null
+  isExporting: boolean
+  exportResult: string | null
   exportType: string | null
   exportSavingsDataCSV: () => void
   exportWithdrawalDataCSV: () => void
@@ -648,53 +565,58 @@ interface DataExportContentProps {
   nestingLevel: number
 }
 
-function DataExportContent({
-  isParameterExporting,
-  parameterExportResult,
-  exportParameters,
-  hasAnyData,
-  hasSavingsData,
-  hasWithdrawalCapability,
-  isDataExporting,
-  dataExportResult,
-  exportType,
-  exportSavingsDataCSV,
-  exportWithdrawalDataCSV,
-  exportAllDataCSV,
-  exportDataMarkdown,
-  copyCalculationExplanations,
-  exportSavingsDataExcel,
-  exportWithdrawalDataExcel,
-  exportAllDataExcel,
-  exportSavingsDataPDF,
-  exportWithdrawalDataPDF,
-  exportAllDataPDF,
-  nestingLevel,
-}: DataExportContentProps) {
+function buildDataExportSectionProps(props: Omit<DataExportContentProps, 'isParameterExporting' | 'parameterExportResult' | 'exportParameters' | 'nestingLevel'>): DataExportSectionProps {
+  const {
+    hasAnyData,
+    hasSavingsData,
+    hasWithdrawalCapability,
+    isExporting,
+    exportResult,
+    exportType,
+    exportSavingsDataCSV,
+    exportWithdrawalDataCSV,
+    exportAllDataCSV,
+    exportDataMarkdown,
+    copyCalculationExplanations,
+    exportSavingsDataExcel,
+    exportWithdrawalDataExcel,
+    exportAllDataExcel,
+    exportSavingsDataPDF,
+    exportWithdrawalDataPDF,
+    exportAllDataPDF,
+  } = props
+
+  return {
+    hasAnyData,
+    hasSavingsData,
+    hasWithdrawalCapability,
+    isExporting,
+    exportResult,
+    exportType,
+    onExportSavings: exportSavingsDataCSV,
+    onExportWithdrawal: exportWithdrawalDataCSV,
+    onExportAll: exportAllDataCSV,
+    onExportMarkdown: exportDataMarkdown,
+    onCopyCalculations: copyCalculationExplanations,
+    onExportSavingsExcel: exportSavingsDataExcel,
+    onExportWithdrawalExcel: exportWithdrawalDataExcel,
+    onExportAllExcel: exportAllDataExcel,
+    onExportSavingsPDF: exportSavingsDataPDF,
+    onExportWithdrawalPDF: exportWithdrawalDataPDF,
+    onExportAllPDF: exportAllDataPDF,
+  }
+}
+
+function DataExportContent(props: DataExportContentProps) {
+  const { isParameterExporting, parameterExportResult, exportParameters, nestingLevel, ...rest } = props
+  const dataExportProps = buildDataExportSectionProps(rest)
+
   return (
     <CollapsibleContent>
       <CardContent nestingLevel={nestingLevel}>
         <div className="space-y-6">
           <ParameterExportSection isExporting={isParameterExporting} lastExportResult={parameterExportResult} onExport={exportParameters} />
-          <DataExportSection
-            hasAnyData={hasAnyData}
-            hasSavingsData={hasSavingsData}
-            hasWithdrawalCapability={hasWithdrawalCapability}
-            isExporting={isDataExporting}
-            exportResult={dataExportResult}
-            exportType={exportType}
-            onExportSavings={exportSavingsDataCSV}
-            onExportWithdrawal={exportWithdrawalDataCSV}
-            onExportAll={exportAllDataCSV}
-            onExportMarkdown={exportDataMarkdown}
-            onCopyCalculations={copyCalculationExplanations}
-            onExportSavingsExcel={exportSavingsDataExcel}
-            onExportWithdrawalExcel={exportWithdrawalDataExcel}
-            onExportAllExcel={exportAllDataExcel}
-            onExportSavingsPDF={exportSavingsDataPDF}
-            onExportWithdrawalPDF={exportWithdrawalDataPDF}
-            onExportAllPDF={exportAllDataPDF}
-          />
+          <DataExportSection {...dataExportProps} />
           <FormatInformationSection />
         </div>
       </CardContent>

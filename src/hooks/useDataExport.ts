@@ -626,6 +626,66 @@ function createExportCallback(
 }
 
 /**
+ * Create CSV export callbacks
+ */
+function useCSVExports(context: SimulationContextState, updateState: StateUpdater) {
+  return {
+    exportSavingsDataCSV: useCallback(
+      () => createExportCallback(performSavingsCSVExport, context, updateState)(),
+      [context, updateState],
+    ),
+    exportWithdrawalDataCSV: useCallback(
+      () => createExportCallback(performWithdrawalCSVExport, context, updateState)(),
+      [context, updateState],
+    ),
+    exportAllDataCSV: useCallback(
+      () => createExportCallback(performAllDataCSVExport, context, updateState)(),
+      [context, updateState],
+    ),
+  }
+}
+
+/**
+ * Create Excel export callbacks
+ */
+function useExcelExports(context: SimulationContextState, updateState: StateUpdater) {
+  return {
+    exportSavingsDataExcel: useCallback(
+      () => createExportCallback(performSavingsExcelExport, context, updateState)(),
+      [context, updateState],
+    ),
+    exportWithdrawalDataExcel: useCallback(
+      () => createExportCallback(performWithdrawalExcelExport, context, updateState)(),
+      [context, updateState],
+    ),
+    exportAllDataExcel: useCallback(
+      () => createExportCallback(performAllDataExcelExport, context, updateState)(),
+      [context, updateState],
+    ),
+  }
+}
+
+/**
+ * Create PDF export callbacks
+ */
+function usePDFExports(context: SimulationContextState, updateState: StateUpdater) {
+  return {
+    exportSavingsDataPDF: useCallback(
+      () => createExportCallback(performSavingsPDFExport, context, updateState)(),
+      [context, updateState],
+    ),
+    exportWithdrawalDataPDF: useCallback(
+      () => createExportCallback(performWithdrawalPDFExport, context, updateState)(),
+      [context, updateState],
+    ),
+    exportAllDataPDF: useCallback(
+      () => createExportCallback(performAllDataPDFExport, context, updateState)(),
+      [context, updateState],
+    ),
+  }
+}
+
+/**
  * Custom hook for exporting simulation data in various formats
  */
 export function useDataExport() {
@@ -638,53 +698,19 @@ export function useDataExport() {
   const updateState = useCallback((updates: Partial<DataExportState>) => {
     setState(prev => ({ ...prev, ...updates }))
   }, [])
-  // CSV exports
-  const exportSavingsDataCSV = useCallback(() => createExportCallback(performSavingsCSVExport, context, updateState)(), [
-    context,
-    updateState,
-  ])
-  const exportWithdrawalDataCSV = useCallback(
-    () => createExportCallback(performWithdrawalCSVExport, context, updateState)(),
+
+  const csvExports = useCSVExports(context, updateState)
+  const excelExports = useExcelExports(context, updateState)
+  const pdfExports = usePDFExports(context, updateState)
+
+  const exportDataMarkdown = useCallback(
+    () => createExportCallback(performMarkdownExport, context, updateState)(),
     [context, updateState],
   )
-  const exportAllDataCSV = useCallback(() => createExportCallback(performAllDataCSVExport, context, updateState)(), [
-    context,
-    updateState,
-  ])
-  // Other exports
-  const exportDataMarkdown = useCallback(() => createExportCallback(performMarkdownExport, context, updateState)(), [
-    context,
-    updateState,
-  ])
   const copyCalculationExplanations = useCallback(
     () => createExportCallback(performClipboardCopy, context, updateState)(),
     [context, updateState],
   )
-  // Excel exports
-  const exportSavingsDataExcel = useCallback(
-    () => createExportCallback(performSavingsExcelExport, context, updateState)(),
-    [context, updateState],
-  )
-  const exportWithdrawalDataExcel = useCallback(
-    () => createExportCallback(performWithdrawalExcelExport, context, updateState)(),
-    [context, updateState],
-  )
-  const exportAllDataExcel = useCallback(() => createExportCallback(performAllDataExcelExport, context, updateState)(), [
-    context,
-    updateState,
-  ])
-  // PDF exports
-  const exportSavingsDataPDF = useCallback(
-    () => createExportCallback(performSavingsPDFExport, context, updateState)(),
-    [context, updateState],
-  )
-  const exportWithdrawalDataPDF = useCallback(
-    () => createExportCallback(performWithdrawalPDFExport, context, updateState)(),
-    [context, updateState],
-  )
-  const exportAllDataPDF = useCallback(() => createExportCallback(performAllDataPDFExport, context, updateState)(), [
-    context,
-    updateState,
-  ])
-  return { exportSavingsDataCSV, exportWithdrawalDataCSV, exportAllDataCSV, exportDataMarkdown, copyCalculationExplanations, exportSavingsDataExcel, exportWithdrawalDataExcel, exportAllDataExcel, exportSavingsDataPDF, exportWithdrawalDataPDF, exportAllDataPDF, ...state }
+
+  return { ...csvExports, ...excelExports, ...pdfExports, exportDataMarkdown, copyCalculationExplanations, ...state }
 }
