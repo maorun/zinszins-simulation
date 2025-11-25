@@ -492,7 +492,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Risiko-Zeitreihen** - Detaillierte Drawdown- und Rendite-Serien für tiefere Analyse
 - **Detaillierte Simulation** - Jahr-für-Jahr Aufschlüsselung mit Vorabpauschale-Berechnungen
 - **Berechnungsaufschlüsselung** - Interaktive Erklärungen für Steuer- und Zinsberechnungen
-- **Daten Export** - CSV Export, Excel Export (mit Formeln), Markdown Export, Parameter Export für alle Simulationsdaten (inkl. Sonderereignisse)
+- **Daten Export** - CSV Export, Excel Export (mit Formeln), PDF Export (professionelle Berichte), Markdown Export, Parameter Export für alle Simulationsdaten (inkl. Sonderereignisse)
 - **Profilverwaltung** - Umfassende Verwaltung mehrerer Konfigurationsprofile
   - **Profile erstellen** - Neue Profile für verschiedene Familien oder Testszenarien
   - **Profilwechsel** - Nahtloser Wechsel zwischen verschiedenen Konfigurationen mit einem Klick
