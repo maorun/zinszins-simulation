@@ -414,6 +414,27 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Netto-Nutzen-Berechnung**: Automatische Berechnung von Leistungen minus Beiträge plus Steuervorteile
     - **Altersbasierte Planung**: Berücksichtigung des Alters bei Pflegebeginn für realistische Szenarien
     - **Echtzeit-Übersicht**: Interaktive Anzeige von monatlichen/jährlichen Leistungen, Beiträgen und Netto-Nutzen
+  - **Kinder-Bildungskosten** - Umfassende Finanzplanung für Ausbildungskosten von Kindern
+    - **Bildungsphasen-System**: Automatische Abbildung deutscher Bildungswege
+      - Kita/Kindergarten (ca. 1-6 Jahre)
+      - Grundschule (ca. 6-10 Jahre)
+      - Weiterführende Schule (ca. 10-19 Jahre)
+      - Berufsausbildung (ca. 16-19 Jahre)
+      - Studium/Universität (ca. 19-25 Jahre)
+    - **Zwei Standardbildungswege**: Regelweg (Studium) und Berufsausbildung mit vorkonfigurierten Phasen
+    - **Realistische Kostenschätzungen**: Durchschnittliche monatliche Kosten basierend auf deutschen Verhältnissen
+      - Kita: 300€/Monat, Grundschule: 50€/Monat, Weiterführend: 100€/Monat
+      - Ausbildung: 150€/Monat, Studium: 850€/Monat
+    - **BAföG-Integration**: Vollständige Berücksichtigung deutscher Studienförderung
+      - Automatische Berechnung der BAföG-Berechtigung basierend auf Elterneinkommen
+      - Unterscheidung zwischen Wohnen bei Eltern (max. 633€) und eigenem Haushalt (max. 934€)
+      - 50% Zuschuss, 50% zinsloses Darlehen gemäß BAföG-Regelungen 2024
+      - Einkommensabhängige Berechnung mit konfigurierbarem Elterneinkommen
+    - **Inflationsanpassung**: Automatische Anpassung der Bildungskosten über die Zeit (Standard: 2% p.a.)
+    - **Steuerliche Absetzbarkeit**: Berufsausbildung und Studium als Sonderausgaben (max. 6.000€ p.a. nach § 10 Abs. 1 Nr. 7 EStG)
+    - **Altersbasierte Berechnung**: Automatische Zuordnung zu Bildungsphasen basierend auf Geburtsjahr
+    - **Geschätzte Gesamtkosten**: Echtzeit-Berechnung der erwarteten Gesamtkosten über alle Bildungsphasen
+    - **Netto-Kosten-Berechnung**: Bildungskosten minus BAföG-Unterstützung für realistische Finanzplanung
   - **Immobilien-Cashflow Integration** - Umfassende Immobilienertragsberechnung mit deutschen Steuerregeln
     - **Realistische Kostenfaktoren**: Instandhaltungskosten (0-30%), Leerstandsquote (0-20%), Finanzierungskosten
     - **Wertsteigerungsberechnung**: Optionale Berücksichtigung der Immobilienwertsteigerung als zusätzliches Einkommen
