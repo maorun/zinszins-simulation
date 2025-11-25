@@ -262,6 +262,87 @@ function CalculationsExportSection({
   )
 }
 
+interface PDFExportSectionProps {
+  hasSavingsData: boolean
+  hasWithdrawalCapability: boolean
+  isExporting: boolean
+  exportResult: string | null
+  exportType: string | null
+  onExportSavings: () => void
+  onExportWithdrawal: () => void
+  onExportAll: () => void
+}
+
+interface PDFExportButtonProps {
+  label: string
+  onClick: () => void
+  isExporting: boolean
+  variant: ButtonVariant
+  isBold?: boolean
+}
+
+function PDFExportButton({ label, onClick, isExporting, variant, isBold = false }: PDFExportButtonProps) {
+  return (
+    <Button
+      variant={variant}
+      size="sm"
+      onClick={onClick}
+      disabled={isExporting}
+      className={`w-full text-xs ${isBold ? 'font-medium' : ''}`}
+    >
+      <Download className="h-3 w-3 mr-1" />
+      {label}
+    </Button>
+  )
+}
+
+function PDFExportSection({
+  hasSavingsData,
+  hasWithdrawalCapability,
+  isExporting,
+  exportResult,
+  exportType,
+  onExportSavings,
+  onExportWithdrawal,
+  onExportAll,
+}: PDFExportSectionProps) {
+  const buttonVariant = getExportButtonState(isExporting, exportResult, exportType, 'pdf').variant
+
+  return (
+    <div className="space-y-2">
+      <h4 className="text-xs font-medium text-gray-600 uppercase tracking-wide">PDF Format</h4>
+
+      {hasSavingsData && (
+        <PDFExportButton
+          label="Sparphase"
+          onClick={onExportSavings}
+          isExporting={isExporting}
+          variant={buttonVariant}
+        />
+      )}
+
+      {hasWithdrawalCapability && (
+        <PDFExportButton
+          label="Entnahmephase"
+          onClick={onExportWithdrawal}
+          isExporting={isExporting}
+          variant={buttonVariant}
+        />
+      )}
+
+      {hasSavingsData && hasWithdrawalCapability && (
+        <PDFExportButton
+          label="Komplett"
+          onClick={onExportAll}
+          isExporting={isExporting}
+          variant={buttonVariant}
+          isBold
+        />
+      )}
+    </div>
+  )
+}
+
 function FormatInformationSection() {
   return (
     <div className="space-y-3">
@@ -269,7 +350,7 @@ function FormatInformationSection() {
         <Info className="h-4 w-4" />
         Format-Informationen
       </h3>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-4 text-xs">
         <div className="space-y-2">
           <h4 className="font-medium text-gray-700">CSV Export</h4>
           <ul className="text-gray-600 space-y-1">
@@ -288,6 +369,16 @@ function FormatInformationSection() {
             <li>• Jahr-für-Jahr Detailansicht</li>
             <li>• Vollständige Steuerberechnung</li>
             <li>• Deutsche Zahlenformate</li>
+          </ul>
+        </div>
+        <div className="space-y-2">
+          <h4 className="font-medium text-gray-700">PDF Export</h4>
+          <ul className="text-gray-600 space-y-1">
+            <li>• Professioneller Bericht</li>
+            <li>• Übersichtliche Tabellen</li>
+            <li>• Parameter-Zusammenfassung</li>
+            <li>• Druckfertig und teilbar</li>
+            <li>• Archivierungsfreundlich</li>
           </ul>
         </div>
         <div className="space-y-2">
@@ -320,6 +411,9 @@ interface DataExportSectionProps {
   onExportSavingsExcel: () => void
   onExportWithdrawalExcel: () => void
   onExportAllExcel: () => void
+  onExportSavingsPDF: () => void
+  onExportWithdrawalPDF: () => void
+  onExportAllPDF: () => void
 }
 
 function NoDataWarning() {
@@ -347,9 +441,12 @@ function ExportOptionsGrid({
   onExportSavingsExcel,
   onExportWithdrawalExcel,
   onExportAllExcel,
+  onExportSavingsPDF,
+  onExportWithdrawalPDF,
+  onExportAllPDF,
 }: Omit<DataExportSectionProps, 'hasAnyData'>) {
   return (
-    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
       <CSVExportSection
         hasSavingsData={hasSavingsData}
         hasWithdrawalCapability={hasWithdrawalCapability}
@@ -369,6 +466,16 @@ function ExportOptionsGrid({
         onExportSavings={onExportSavingsExcel}
         onExportWithdrawal={onExportWithdrawalExcel}
         onExportAll={onExportAllExcel}
+      />
+      <PDFExportSection
+        hasSavingsData={hasSavingsData}
+        hasWithdrawalCapability={hasWithdrawalCapability}
+        isExporting={isExporting}
+        exportResult={exportResult}
+        exportType={exportType}
+        onExportSavings={onExportSavingsPDF}
+        onExportWithdrawal={onExportWithdrawalPDF}
+        onExportAll={onExportAllPDF}
       />
       <MarkdownExportSection isExporting={isExporting} exportResult={exportResult} exportType={exportType} onExport={onExportMarkdown} />
       <CalculationsExportSection isExporting={isExporting} exportResult={exportResult} exportType={exportType} onExport={onCopyCalculations} />
@@ -391,6 +498,9 @@ function DataExportSection({
   onExportSavingsExcel,
   onExportWithdrawalExcel,
   onExportAllExcel,
+  onExportSavingsPDF,
+  onExportWithdrawalPDF,
+  onExportAllPDF,
 }: DataExportSectionProps) {
   return (
     <div className="space-y-3">
@@ -419,6 +529,9 @@ function DataExportSection({
           onExportSavingsExcel={onExportSavingsExcel}
           onExportWithdrawalExcel={onExportWithdrawalExcel}
           onExportAllExcel={onExportAllExcel}
+          onExportSavingsPDF={onExportSavingsPDF}
+          onExportWithdrawalPDF={onExportWithdrawalPDF}
+          onExportAllPDF={onExportAllPDF}
         />
       )}
     </div>
@@ -446,6 +559,7 @@ function getExportButtonState(
     markdown: 'Markdown herunterladen',
     clipboard: 'Formeln kopieren',
     excel: 'Excel herunterladen',
+    pdf: 'PDF herunterladen',
   }
 
   return {
@@ -469,6 +583,9 @@ function useDataExportHooks() {
     exportSavingsDataExcel,
     exportWithdrawalDataExcel,
     exportAllDataExcel,
+    exportSavingsDataPDF,
+    exportWithdrawalDataPDF,
+    exportAllDataPDF,
     isExporting: isDataExporting,
     lastExportResult: dataExportResult,
     exportType,
@@ -495,6 +612,9 @@ function useDataExportHooks() {
     exportSavingsDataExcel,
     exportWithdrawalDataExcel,
     exportAllDataExcel,
+    exportSavingsDataPDF,
+    exportWithdrawalDataPDF,
+    exportAllDataPDF,
     isDataExporting,
     dataExportResult,
     exportType,
@@ -522,6 +642,9 @@ interface DataExportContentProps {
   exportSavingsDataExcel: () => void
   exportWithdrawalDataExcel: () => void
   exportAllDataExcel: () => void
+  exportSavingsDataPDF: () => void
+  exportWithdrawalDataPDF: () => void
+  exportAllDataPDF: () => void
   nestingLevel: number
 }
 
@@ -543,6 +666,9 @@ function DataExportContent({
   exportSavingsDataExcel,
   exportWithdrawalDataExcel,
   exportAllDataExcel,
+  exportSavingsDataPDF,
+  exportWithdrawalDataPDF,
+  exportAllDataPDF,
   nestingLevel,
 }: DataExportContentProps) {
   return (
@@ -565,6 +691,9 @@ function DataExportContent({
             onExportSavingsExcel={exportSavingsDataExcel}
             onExportWithdrawalExcel={exportWithdrawalDataExcel}
             onExportAllExcel={exportAllDataExcel}
+            onExportSavingsPDF={exportSavingsDataPDF}
+            onExportWithdrawalPDF={exportWithdrawalDataPDF}
+            onExportAllPDF={exportAllDataPDF}
           />
           <FormatInformationSection />
         </div>

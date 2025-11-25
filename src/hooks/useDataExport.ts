@@ -17,11 +17,17 @@ import {
   exportWithdrawalDataToExcel,
   exportCompleteDataToExcel,
 } from '../utils/excel-export'
+import {
+  exportSavingsDataToPDF,
+  exportWithdrawalDataToPDF,
+  exportAllDataToPDF,
+  downloadPDFBlob,
+} from '../utils/pdf-export'
 
 export interface DataExportState {
   isExporting: boolean
   lastExportResult: 'success' | 'error' | null
-  exportType: 'csv' | 'markdown' | 'clipboard' | 'excel' | null
+  exportType: 'csv' | 'markdown' | 'clipboard' | 'excel' | 'pdf' | null
 }
 
 /**
@@ -438,6 +444,107 @@ async function performAllDataExcelExport(context: SimulationContextState, update
 }
 
 /**
+ * Export savings data as PDF
+ */
+async function performSavingsPDFExport(context: SimulationContextState, updateState: StateUpdater): Promise<boolean> {
+  setExportingStateHelper(updateState, 'pdf')
+
+  try {
+    if (!context.simulationData?.sparplanElements) {
+      throw new Error('Keine Sparplan-Daten verfügbar. Bitte führen Sie zuerst eine Simulation durch.')
+    }
+
+    const exportData: ExportData = {
+      savingsData: context.simulationData,
+      context,
+    }
+
+    const pdfBlob = exportSavingsDataToPDF(exportData)
+    const dateStr = new Date().toISOString().slice(0, 10)
+    const filename = `sparphase_${context.startEnd[0]}-${context.startEnd[1]}_${dateStr}.pdf`
+
+    downloadPDFBlob(pdfBlob, filename)
+    setResultStateHelper(updateState, true, 'pdf')
+    return true
+  } catch (error) {
+    console.error('Failed to export savings data as PDF:', error)
+    setResultStateHelper(updateState, false, 'pdf')
+    return false
+  }
+}
+
+/**
+ * Export withdrawal data as PDF
+ */
+async function performWithdrawalPDFExport(context: SimulationContextState, updateState: StateUpdater): Promise<boolean> {
+  setExportingStateHelper(updateState, 'pdf')
+
+  try {
+    const withdrawalData = getWithdrawalDataHelper(context)
+
+    if (!withdrawalData) {
+      throw new Error('Keine Entnahme-Daten verfügbar.')
+    }
+
+    const exportData: ExportData = {
+      withdrawalData,
+      context,
+    }
+
+    const pdfBlob = exportWithdrawalDataToPDF(exportData)
+    const startYear = context.startEnd[0]
+    const endYear = context.endOfLife
+    const dateStr = new Date().toISOString().slice(0, 10)
+    const filename = `entnahmephase_${startYear}-${endYear}_${dateStr}.pdf`
+
+    downloadPDFBlob(pdfBlob, filename)
+    setResultStateHelper(updateState, true, 'pdf')
+    return true
+  } catch (error) {
+    console.error('Failed to export withdrawal data as PDF:', error)
+    setResultStateHelper(updateState, false, 'pdf')
+    return false
+  }
+}
+
+/**
+ * Export all data (savings + withdrawal) as PDF
+ */
+async function performAllDataPDFExport(context: SimulationContextState, updateState: StateUpdater): Promise<boolean> {
+  setExportingStateHelper(updateState, 'pdf')
+
+  try {
+    if (!context.simulationData?.sparplanElements) {
+      throw new Error('Keine Sparplan-Daten verfügbar.')
+    }
+
+    const withdrawalData = getWithdrawalDataHelper(context)
+
+    if (!withdrawalData) {
+      throw new Error('Keine Entnahme-Daten verfügbar.')
+    }
+
+    const exportData: ExportData = {
+      savingsData: context.simulationData,
+      withdrawalData,
+      context,
+    }
+
+    const pdfBlob = exportAllDataToPDF(exportData)
+    const dateStr = new Date().toISOString().slice(0, 10)
+    const filename = `simulation_komplett_${context.startEnd[0]}-${context.endOfLife}_${dateStr}.pdf`
+
+    downloadPDFBlob(pdfBlob, filename)
+    setResultStateHelper(updateState, true, 'pdf')
+    return true
+  } catch (error) {
+    console.error('Failed to export all data as PDF:', error)
+    setResultStateHelper(updateState, false, 'pdf')
+    return false
+  }
+}
+
+/**
  * Helper function to prepare data for markdown export
  */
 function prepareMarkdownExportData(context: SimulationContextState) {
@@ -479,7 +586,7 @@ type StateUpdater = (state: Partial<DataExportState>) => void
 /**
  * Helper to set exporting state
  */
-function setExportingStateHelper(setState: StateUpdater, exportType: 'csv' | 'markdown' | 'clipboard' | 'excel') {
+function setExportingStateHelper(setState: StateUpdater, exportType: 'csv' | 'markdown' | 'clipboard' | 'excel' | 'pdf') {
   setState({
     isExporting: true,
     lastExportResult: null,
@@ -493,7 +600,7 @@ function setExportingStateHelper(setState: StateUpdater, exportType: 'csv' | 'ma
 function setResultStateHelper(
   setState: StateUpdater,
   success: boolean,
-  exportType: 'csv' | 'markdown' | 'clipboard' | 'excel',
+  exportType: 'csv' | 'markdown' | 'clipboard' | 'excel' | 'pdf',
 ) {
   setState({
     isExporting: false,
@@ -566,5 +673,18 @@ export function useDataExport() {
     context,
     updateState,
   ])
-  return { exportSavingsDataCSV, exportWithdrawalDataCSV, exportAllDataCSV, exportDataMarkdown, copyCalculationExplanations, exportSavingsDataExcel, exportWithdrawalDataExcel, exportAllDataExcel, ...state }
+  // PDF exports
+  const exportSavingsDataPDF = useCallback(
+    () => createExportCallback(performSavingsPDFExport, context, updateState)(),
+    [context, updateState],
+  )
+  const exportWithdrawalDataPDF = useCallback(
+    () => createExportCallback(performWithdrawalPDFExport, context, updateState)(),
+    [context, updateState],
+  )
+  const exportAllDataPDF = useCallback(() => createExportCallback(performAllDataPDFExport, context, updateState)(), [
+    context,
+    updateState,
+  ])
+  return { exportSavingsDataCSV, exportWithdrawalDataCSV, exportAllDataCSV, exportDataMarkdown, copyCalculationExplanations, exportSavingsDataExcel, exportWithdrawalDataExcel, exportAllDataExcel, exportSavingsDataPDF, exportWithdrawalDataPDF, exportAllDataPDF, ...state }
 }
