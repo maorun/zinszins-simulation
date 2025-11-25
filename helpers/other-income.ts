@@ -16,6 +16,7 @@ export type IncomeType =
   | 'kapitallebensversicherung'
   | 'pflegezusatzversicherung'
   | 'risikolebensversicherung'
+  | 'kinder_bildung'
   | 'other'
 
 /**
@@ -163,6 +164,71 @@ export interface RisikolebensversicherungConfig {
 }
 
 /**
+ * Kinder-Bildung (Children's Education) specific configuration
+ * This represents education costs as negative income (expenses)
+ */
+export interface KinderBildungConfig {
+  /** Child's name for identification */
+  childName: string
+
+  /** Birth year of the child */
+  birthYear: number
+
+  /** Education path type */
+  educationPath: 'regelweg' | 'ausbildung' | 'individuell'
+
+  /** Individual education phase configurations */
+  phases: Array<{
+    /** Education phase type */
+    phase: 'kita' | 'grundschule' | 'weiterfuehrend' | 'ausbildung' | 'studium' | 'sonstiges'
+    /** Monthly costs in EUR */
+    monthlyCost: number
+    /** Starting year for this phase */
+    startYear: number
+    /** Ending year for this phase (inclusive) */
+    endYear: number
+    /** Annual inflation rate for costs (default: 2%) */
+    inflationRate: number
+    /** Whether costs are tax-deductible */
+    taxDeductible: boolean
+    /** Maximum annual tax deduction amount in EUR */
+    maxAnnualTaxDeduction: number
+  }>
+
+  /** BAföG configuration (only applicable for university studies) */
+  bafoegConfig?: {
+    /** Whether BAföG is enabled for this child */
+    enabled: boolean
+    /** Monthly BAföG amount in EUR */
+    monthlyAmount: number
+    /** Starting year for BAföG */
+    startYear: number
+    /** Ending year for BAföG */
+    endYear: number
+    /** Whether living with parents (affects BAföG amount) */
+    livingWithParents: boolean
+    /** Parental income in EUR (affects eligibility and amount) */
+    parentalIncome: number
+    /** Number of siblings in education (affects BAföG calculation) */
+    siblingsInEducation: number
+    /** Whether student has own income */
+    hasOwnIncome: boolean
+    /** Student's own annual income in EUR */
+    ownIncome: number
+    /** BAföG eligibility status */
+    eligibility: 'eligible' | 'partial' | 'ineligible'
+    /** Percentage of BAföG that must be repaid (50% as grant, 50% as loan) */
+    repaymentRate: number
+  }
+
+  /** Whether to account for Kindergeld (this is already handled separately) */
+  includeKindergeld: boolean
+
+  /** Notes or special considerations */
+  notes?: string
+}
+
+/**
  * Whether the income amount is gross or net
  */
 export type IncomeAmountType = 'gross' | 'net'
@@ -221,6 +287,9 @@ export interface OtherIncomeSource {
 
   /** Risikolebensversicherung-specific configuration (only for risikolebensversicherung income) */
   risikolebensversicherungConfig?: RisikolebensversicherungConfig
+
+  /** Kinder-Bildung-specific configuration (only for kinder_bildung type) */
+  kinderBildungConfig?: KinderBildungConfig
 }
 
 /**
@@ -336,6 +405,22 @@ export interface OtherIncomeYearResult {
     deathBenefitAmount: number
     /** Whether policy is active */
     isActive: boolean
+  }
+
+  /** Kinder-Bildung-specific calculations (only for kinder_bildung type) */
+  kinderBildungDetails?: {
+    /** Child's age this year */
+    childAge: number
+    /** Active education phases this year */
+    activePhases: string[]
+    /** Total monthly education costs before BAföG */
+    totalMonthlyCost: number
+    /** BAföG support received this year (if applicable) */
+    bafoegSupport: number
+    /** Net annual education costs (costs - BAföG) */
+    netAnnualCost: number
+    /** Tax deduction amount for the year */
+    taxDeduction: number
   }
 }
 
@@ -1420,6 +1505,7 @@ function getDefaultNameForType(type: IncomeType): string {
     kapitallebensversicherung: 'Kapitallebensversicherung',
     pflegezusatzversicherung: 'Pflegezusatzversicherung',
     risikolebensversicherung: 'Risikolebensversicherung',
+    kinder_bildung: 'Kinder-Bildungskosten',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || 'Einkommen'
@@ -1446,6 +1532,7 @@ export function getIncomeTypeDisplayName(type: IncomeType): string {
     kapitallebensversicherung: 'Kapitallebensversicherung',
     pflegezusatzversicherung: 'Pflegezusatzversicherung',
     risikolebensversicherung: 'Risikolebensversicherung',
+    kinder_bildung: 'Kinder-Bildungskosten',
     other: 'Sonstige Einkünfte',
   }
   return names[type] || type
