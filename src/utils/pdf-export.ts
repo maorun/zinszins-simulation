@@ -276,6 +276,60 @@ function addWithdrawalDataTable(doc: jsPDF, withdrawalData: WithdrawalResult, yP
 }
 
 /**
+ * Extract savings summary statistics
+ */
+function extractSavingsSummary(data: ExportData): Array<[string, string]> {
+  const stats: Array<[string, string]> = []
+  
+  if (!data.savingsData?.sparplanElements || data.savingsData.sparplanElements.length === 0) {
+    return stats
+  }
+
+  const lastElement = data.savingsData.sparplanElements[data.savingsData.sparplanElements.length - 1]
+  if (!lastElement.simulation) {
+    return stats
+  }
+
+  const years = Object.keys(lastElement.simulation).sort()
+  const lastYear = years[years.length - 1]
+  const lastYearData = lastElement.simulation[parseInt(lastYear)]
+  
+  if (lastYearData) {
+    stats.push(['Endkapital Sparphase:', formatCurrency(lastYearData.endkapital || 0)])
+    stats.push(['Gesamte Zinsen:', formatCurrency(lastYearData.zinsen || 0)])
+  }
+
+  return stats
+}
+
+/**
+ * Extract withdrawal summary statistics
+ */
+function extractWithdrawalSummary(data: ExportData): Array<[string, string]> {
+  const stats: Array<[string, string]> = []
+  
+  if (!data.withdrawalData || Object.keys(data.withdrawalData).length === 0) {
+    return stats
+  }
+
+  const years = Object.keys(data.withdrawalData).map(Number).sort((a, b) => a - b)
+  const lastYear = years[years.length - 1]
+  const lastYearData = data.withdrawalData[lastYear]
+  
+  if (lastYearData) {
+    stats.push(['Endkapital Entnahmephase:', formatCurrency(lastYearData.endkapital || 0)])
+    
+    const totalWithdrawals = years.reduce(
+      (sum, year) => sum + (data.withdrawalData![year]?.entnahme || 0),
+      0
+    )
+    stats.push(['Gesamte Entnahmen:', formatCurrency(totalWithdrawals)])
+  }
+
+  return stats
+}
+
+/**
  * Add summary statistics to PDF
  */
 function addSummaryStatistics(doc: jsPDF, data: ExportData, yPos: number): number {
@@ -284,39 +338,9 @@ function addSummaryStatistics(doc: jsPDF, data: ExportData, yPos: number): numbe
   doc.setFontSize(10)
   doc.setFont('helvetica', 'normal')
 
-  const stats: Array<[string, string]> = []
-
-  // Savings phase summary
-  if (data.savingsData?.sparplanElements && data.savingsData.sparplanElements.length > 0) {
-    const lastElement = data.savingsData.sparplanElements[data.savingsData.sparplanElements.length - 1]
-    if (lastElement.simulation) {
-      const years = Object.keys(lastElement.simulation).sort()
-      const lastYear = years[years.length - 1]
-      const lastYearData = lastElement.simulation[parseInt(lastYear)]
-      
-      if (lastYearData) {
-        stats.push(['Endkapital Sparphase:', formatCurrency(lastYearData.endkapital || 0)])
-        stats.push(['Gesamte Zinsen:', formatCurrency(lastYearData.zinsen || 0)])
-      }
-    }
-  }
-
-  // Withdrawal phase summary
-  if (data.withdrawalData && Object.keys(data.withdrawalData).length > 0) {
-    const years = Object.keys(data.withdrawalData).map(Number).sort((a, b) => a - b)
-    const lastYear = years[years.length - 1]
-    const lastYearData = data.withdrawalData[lastYear]
-    
-    if (lastYearData) {
-      stats.push(['Endkapital Entnahmephase:', formatCurrency(lastYearData.endkapital || 0)])
-      
-      const totalWithdrawals = years.reduce(
-        (sum, year) => sum + (data.withdrawalData![year]?.entnahme || 0),
-        0
-      )
-      stats.push(['Gesamte Entnahmen:', formatCurrency(totalWithdrawals)])
-    }
-  }
+  const savingsStats = extractSavingsSummary(data)
+  const withdrawalStats = extractWithdrawalSummary(data)
+  const stats = [...savingsStats, ...withdrawalStats]
 
   stats.forEach(([label, value]) => {
     doc.setFont('helvetica', 'bold')
@@ -359,7 +383,7 @@ export function exportSavingsDataToPDF(data: ExportData): Blob {
   yPos = addSavingsPlanSummary(doc, data.context, yPos)
   
   if (data.savingsData?.sparplanElements) {
-    yPos = addSavingsDataTable(doc, data.savingsData.sparplanElements, yPos)
+    addSavingsDataTable(doc, data.savingsData.sparplanElements, yPos)
   }
   
   addFooter(doc)
@@ -378,7 +402,7 @@ export function exportWithdrawalDataToPDF(data: ExportData): Blob {
   yPos = addParameterSection(doc, data.context, yPos)
   
   if (data.withdrawalData) {
-    yPos = addWithdrawalDataTable(doc, data.withdrawalData, yPos)
+    addWithdrawalDataTable(doc, data.withdrawalData, yPos)
   }
   
   addFooter(doc)
