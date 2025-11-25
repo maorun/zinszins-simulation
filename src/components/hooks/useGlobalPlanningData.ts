@@ -5,56 +5,44 @@ import { useSimulation } from '../../contexts/useSimulation'
  * needed by the GlobalPlanningConfiguration component.
  */
 export function useGlobalPlanningData() {
-  const {
-    endOfLife: globalEndOfLife,
-    lifeExpectancyTable,
-    customLifeExpectancy,
-    setEndOfLife,
-    setLifeExpectancyTable,
-    setCustomLifeExpectancy,
-    birthYear,
-    setBirthYear,
-    expectedLifespan,
-    setExpectedLifespan,
-    useAutomaticCalculation,
-    setUseAutomaticCalculation,
-    // Gender and couple planning
-    planningMode,
-    setPlanningMode,
-    gender,
-    setGender,
-    spouse,
-    setSpouse,
-    // Couple statutory pension configuration
-    coupleStatutoryPensionConfig,
-    setCoupleStatutoryPensionConfig,
-    // Care cost configuration
-    careCostConfiguration,
-    setCareCostConfiguration,
-  } = useSimulation()
+  const simulation = useSimulation()
 
-  return {
-    globalEndOfLife,
-    lifeExpectancyTable,
-    customLifeExpectancy,
-    setEndOfLife,
-    setLifeExpectancyTable,
-    setCustomLifeExpectancy,
-    birthYear,
-    setBirthYear,
-    expectedLifespan,
-    setExpectedLifespan,
-    useAutomaticCalculation,
-    setUseAutomaticCalculation,
-    planningMode,
-    setPlanningMode,
-    gender,
-    setGender,
-    spouse,
-    setSpouse,
-    coupleStatutoryPensionConfig,
-    setCoupleStatutoryPensionConfig,
-    careCostConfiguration,
-    setCareCostConfiguration,
+  // Life expectancy related state
+  const lifeExpectancy = {
+    globalEndOfLife: simulation.endOfLife,
+    lifeExpectancyTable: simulation.lifeExpectancyTable,
+    customLifeExpectancy: simulation.customLifeExpectancy,
+    setEndOfLife: simulation.setEndOfLife,
+    setLifeExpectancyTable: simulation.setLifeExpectancyTable,
+    setCustomLifeExpectancy: simulation.setCustomLifeExpectancy,
+    expectedLifespan: simulation.expectedLifespan,
+    setExpectedLifespan: simulation.setExpectedLifespan,
+    useAutomaticCalculation: simulation.useAutomaticCalculation,
+    setUseAutomaticCalculation: simulation.setUseAutomaticCalculation,
   }
+
+  // Personal and planning mode state
+  const planning = {
+    birthYear: simulation.birthYear,
+    setBirthYear: simulation.setBirthYear,
+    planningMode: simulation.planningMode,
+    setPlanningMode: simulation.setPlanningMode,
+    gender: simulation.gender,
+    setGender: simulation.setGender,
+    spouse: simulation.spouse,
+    setSpouse: simulation.setSpouse,
+  }
+
+  // Configuration state
+  const configs = {
+    coupleStatutoryPensionConfig: simulation.coupleStatutoryPensionConfig,
+    setCoupleStatutoryPensionConfig: simulation.setCoupleStatutoryPensionConfig,
+    careCostConfiguration: simulation.careCostConfiguration,
+    setCareCostConfiguration: simulation.setCareCostConfiguration,
+    termLifeInsuranceConfig: simulation.termLifeInsuranceConfig,
+    setTermLifeInsuranceConfig: simulation.setTermLifeInsuranceConfig,
+  }
+
+  return { ...lifeExpectancy, ...planning, ...configs }
 }
+

@@ -369,6 +369,14 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Altersabhängige Besteuerung**: Ertragsanteil variiert je nach Alter bei Beginn der Berufsunfähigkeit (z.B. 36% bei 40 Jahren)
     - **Dokumentation des BU-Grads**: Erfassung des Berufsunfähigkeitsgrades (0-100%) für Übersichtszwecke
     - **Dauerhafte oder temporäre BU**: Unterstützung sowohl für permanente als auch zeitlich begrenzte Berufsunfähigkeit
+  - **Risikolebensversicherung** - Konfiguration von Term Life Insurance für Hinterbliebenenschutz
+    - **Reiner Todesfallschutz**: Absicherung ohne Sparanteil für maximale Effizienz
+    - **Steuerfreie Leistungen**: Todesfallleistungen sind steuerfrei nach § 20 Abs. 1 Nr. 6 EStG
+    - **Flexible Konfiguration**: Deckungssumme, Laufzeit und Versicherungsbeginn individuell anpassbar
+    - **Risikobasierte Prämienkalkulation**: Berücksichtigung von Alter, Geschlecht, Gesundheitszustand und Raucherstatus
+    - **Zwei Deckungsarten**: Konstante Deckungssumme (level) oder fallende Deckung (decreasing)
+    - **Familienplanung**: Separate Konfiguration für Einzelpersonen und Hinweis für Ehepaare
+    - **Automatische Geburtsjahr-Integration**: Synchronisation mit Globaler Planung für konsistente Berechnungen
   - **Kapitallebensversicherung** - Vollständige Integration klassischer Lebensversicherungsprodukte mit deutscher Steuergesetzgebung
     - **Einmalauszahlung bei Fälligkeit**: Konfigurierbare Auszahlungsbeträge und Zeitpunkte
     - **Halbeinkünfteverfahren**: Unterstützung für ältere Verträge mit 50% Steuerbefreiung der Erträge

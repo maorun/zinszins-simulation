@@ -10,6 +10,7 @@ import type { StatutoryPensionConfig, CoupleStatutoryPensionConfig } from '../..
 import type { CareCostConfiguration } from '../../helpers/care-cost-simulation'
 import type { FinancialGoal } from '../../helpers/financial-goals'
 import type { EmergencyFundConfig } from '../../helpers/emergency-fund'
+import type { TermLifeInsuranceConfig } from '../../helpers/term-life-insurance'
 import type { ExtendedSavedConfiguration, SimulationData } from './helpers/config-types'
 import { createDefaultConfiguration } from './helpers/default-config'
 import { useSimulationState } from './hooks/useSimulationState'
@@ -152,6 +153,9 @@ export interface SimulationContextState {
   // Emergency fund configuration
   emergencyFundConfig: EmergencyFundConfig
   setEmergencyFundConfig: (config: EmergencyFundConfig) => void
+  // Term life insurance configuration
+  termLifeInsuranceConfig: TermLifeInsuranceConfig | null
+  setTermLifeInsuranceConfig: (config: TermLifeInsuranceConfig | null) => void
 }
 
 export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {
