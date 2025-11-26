@@ -26,6 +26,16 @@ const createMockSimulationData = (startYear: number, endYear: number): Simulatio
   return data
 }
 
+
+// Create mock yearly contributions
+const createMockYearlyContributions = (startYear: number, endYear: number): Map<number, number> => {
+  const contributions = new Map<number, number>()
+  for (let year = startYear; year <= endYear; year++) {
+    contributions.set(year, 1000) // 1000€ per year
+  }
+  return contributions
+}
+
 describe('PortfolioTimeline', () => {
   beforeEach(() => {
     vi.useFakeTimers()
@@ -38,7 +48,8 @@ describe('PortfolioTimeline', () => {
   describe('Component Rendering', () => {
     it('renders the portfolio timeline with correct title', () => {
       const mockData = createMockSimulationData(2023, 2030)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2030)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       expect(screen.getByText(/Portfolio-Animation/i)).toBeInTheDocument()
       expect(screen.getByText(/Jahr 2023/i)).toBeInTheDocument()
@@ -46,7 +57,8 @@ describe('PortfolioTimeline', () => {
 
     it('displays all control buttons', () => {
       const mockData = createMockSimulationData(2023, 2030)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2030)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       expect(screen.getByLabelText(/Ein Jahr zurück/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/Abspielen/i)).toBeInTheDocument()
@@ -56,7 +68,8 @@ describe('PortfolioTimeline', () => {
 
     it('displays current year metrics', () => {
       const mockData = createMockSimulationData(2023, 2030)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2030)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       expect(screen.getByText('Startkapital')).toBeInTheDocument()
       expect(screen.getByText('Endkapital')).toBeInTheDocument()
@@ -68,7 +81,8 @@ describe('PortfolioTimeline', () => {
 
     it('displays year range correctly', () => {
       const mockData = createMockSimulationData(2023, 2030)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2030)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       expect(screen.getByText('2023')).toBeInTheDocument()
       expect(screen.getByText('2030')).toBeInTheDocument()
@@ -79,7 +93,8 @@ describe('PortfolioTimeline', () => {
     it('starts playing when play button is clicked', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       const playButton = screen.getByLabelText(/Abspielen/i)
       await user.click(playButton)
@@ -90,7 +105,8 @@ describe('PortfolioTimeline', () => {
     it('pauses when pause button is clicked', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       const playButton = screen.getByLabelText(/Abspielen/i)
       await user.click(playButton)
@@ -104,7 +120,8 @@ describe('PortfolioTimeline', () => {
     it('advances year when playing', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} animationSpeed={100} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} animationSpeed={100} />)
       
       const playButton = screen.getByLabelText(/Abspielen/i)
       await user.click(playButton)
@@ -120,7 +137,8 @@ describe('PortfolioTimeline', () => {
     it('stops at end year automatically', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2024)
-      render(<PortfolioTimeline simulationData={mockData} animationSpeed={100} />)
+      const mockContributions = createMockYearlyContributions(2023, 2024)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} animationSpeed={100} />)
       
       const playButton = screen.getByLabelText(/Abspielen/i)
       await user.click(playButton)
@@ -137,7 +155,8 @@ describe('PortfolioTimeline', () => {
     it('resets to start year when reset button is clicked', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} animationSpeed={100} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} animationSpeed={100} />)
       
       // Advance to next year
       const playButton = screen.getByLabelText(/Abspielen/i)
@@ -160,7 +179,8 @@ describe('PortfolioTimeline', () => {
     it('advances one year when step forward button is clicked', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       const stepForwardButton = screen.getByLabelText(/Ein Jahr vorwärts/i)
       await user.click(stepForwardButton)
@@ -171,7 +191,8 @@ describe('PortfolioTimeline', () => {
     it('goes back one year when step backward button is clicked', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       // First advance to 2024
       const stepForwardButton = screen.getByLabelText(/Ein Jahr vorwärts/i)
@@ -186,7 +207,8 @@ describe('PortfolioTimeline', () => {
 
     it('disables step backward button at start year', () => {
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       const stepBackwardButton = screen.getByLabelText(/Ein Jahr zurück/i)
       expect(stepBackwardButton).toBeDisabled()
@@ -195,7 +217,8 @@ describe('PortfolioTimeline', () => {
     it('disables step forward button at end year', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2024)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2024)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       const stepForwardButton = screen.getByLabelText(/Ein Jahr vorwärts/i)
       
@@ -210,7 +233,8 @@ describe('PortfolioTimeline', () => {
     it('updates year when slider is moved', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       const slider = screen.getByRole('slider')
       
@@ -228,7 +252,8 @@ describe('PortfolioTimeline', () => {
   describe('Metrics Display', () => {
     it('displays correct metrics for current year', () => {
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       // For year 2023 (first year, index 1 in our mock)
       expect(screen.getByText('10.000,00 €')).toBeInTheDocument() // Startkapital
@@ -239,7 +264,8 @@ describe('PortfolioTimeline', () => {
     it('updates metrics when year changes', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       // Step forward to 2024
       const stepForwardButton = screen.getByLabelText(/Ein Jahr vorwärts/i)
@@ -254,7 +280,8 @@ describe('PortfolioTimeline', () => {
 
     it('calculates rendite percentage correctly', () => {
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       // Rendite = (Zinsen / Startkapital) * 100 = (1000 / 10000) * 100 = 10%
       expect(screen.getByText('10.00%')).toBeInTheDocument()
@@ -272,7 +299,8 @@ describe('PortfolioTimeline', () => {
 
     it('handles single year data', () => {
       const mockData = createMockSimulationData(2023, 2023)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2023)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       expect(screen.getByText(/Jahr 2023/i)).toBeInTheDocument()
       
@@ -284,7 +312,8 @@ describe('PortfolioTimeline', () => {
     it('handles reset at end correctly', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2024)
-      render(<PortfolioTimeline simulationData={mockData} animationSpeed={100} />)
+      const mockContributions = createMockYearlyContributions(2023, 2024)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} animationSpeed={100} />)
       
       // Play to the end
       const playButton = screen.getByLabelText(/Abspielen/i)
@@ -309,7 +338,8 @@ describe('PortfolioTimeline', () => {
   describe('Progress Bar', () => {
     it('shows 0% progress at start year', () => {
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       const progressBar = document.querySelector('.bg-blue-500')
       expect(progressBar).toHaveStyle({ width: '0%' })
@@ -318,7 +348,8 @@ describe('PortfolioTimeline', () => {
     it('shows 100% progress at end year', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2024)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2024)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       const stepForwardButton = screen.getByLabelText(/Ein Jahr vorwärts/i)
       await user.click(stepForwardButton)
@@ -333,7 +364,8 @@ describe('PortfolioTimeline', () => {
   describe('Accessibility', () => {
     it('has proper aria labels for all interactive elements', () => {
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       expect(screen.getByLabelText(/Ein Jahr zurück/i)).toBeInTheDocument()
       expect(screen.getByLabelText(/Abspielen/i)).toBeInTheDocument()
@@ -345,7 +377,8 @@ describe('PortfolioTimeline', () => {
     it('updates aria label when playing state changes', async () => {
       const user = userEvent.setup({ delay: null })
       const mockData = createMockSimulationData(2023, 2025)
-      render(<PortfolioTimeline simulationData={mockData} />)
+      const mockContributions = createMockYearlyContributions(2023, 2025)
+      render(<PortfolioTimeline simulationData={mockData} yearlyContributions={mockContributions} />)
       
       const playPauseButton = screen.getByLabelText(/Abspielen/i)
       await user.click(playPauseButton)

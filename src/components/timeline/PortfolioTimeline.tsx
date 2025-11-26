@@ -9,6 +9,8 @@ import { useTimelinePlayback } from './useTimelinePlayback'
 
 interface PortfolioTimelineProps {
   simulationData: SimulationResult
+  /** Map of year to yearly contribution amount */
+  yearlyContributions?: Map<number, number>
   className?: string
   /** Animation speed in milliseconds per year */
   animationSpeed?: number
@@ -17,18 +19,14 @@ interface PortfolioTimelineProps {
 /**
  * Get metrics for a specific year
  */
-function getYearMetrics(simulationData: SimulationResult, year: number) {
+function getYearMetrics(simulationData: SimulationResult, year: number, yearlyContributions?: Map<number, number>) {
   const yearData = simulationData[year]
   if (!yearData) {
     return null
   }
 
-  // Calculate deposits/contributions as difference between start capital and previous year's end capital
-  const previousYear = year - 1
-  const previousData = simulationData[previousYear]
-  const einzahlungen = previousData 
-    ? Math.max(0, yearData.startkapital - previousData.endkapital)
-    : yearData.startkapital // First year - start capital is initial deposit
+  // Use provided yearly contribution if available, otherwise calculate from capital difference
+  const einzahlungen = yearlyContributions?.get(year) ?? 0
 
   return {
     year,
@@ -171,11 +169,14 @@ function MetricsGrid({ metrics }: { metrics: ReturnType<typeof getYearMetrics> }
  * Provides an animated year-by-year visualization of portfolio development
  * with playback controls and key metrics display.
  */
-export function PortfolioTimeline({ simulationData, className = '', animationSpeed = 1000 }: PortfolioTimelineProps) {
+export function PortfolioTimeline({ simulationData, yearlyContributions, className = '', animationSpeed = 1000 }: PortfolioTimelineProps) {
   const playback = useTimelinePlayback(simulationData, animationSpeed)
   const { state, progress } = playback
 
-  const currentMetrics = useMemo(() => getYearMetrics(simulationData, state.currentYear), [simulationData, state.currentYear])
+  const currentMetrics = useMemo(
+    () => getYearMetrics(simulationData, state.currentYear, yearlyContributions),
+    [simulationData, state.currentYear, yearlyContributions]
+  )
 
   if (!currentMetrics) return null
 

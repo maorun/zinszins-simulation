@@ -225,6 +225,14 @@ function ChartSection({ elemente }: { elemente?: SparplanElement[] }) {
   if (!elemente || elemente.length === 0) return null
 
   const simulationData = convertSparplanElementsToSimulationResult(elemente)
+  
+  // Calculate yearly contributions from the progression data
+  const yearlyProgression = getYearlyPortfolioProgression(elemente)
+  const yearlyContributions = new Map<number, number>()
+  yearlyProgression.forEach(entry => {
+    yearlyContributions.set(entry.year, entry.yearlyContribution)
+  })
+
   return (
     <div className="mb-6 space-y-4">
       <InteractiveChart
@@ -232,7 +240,7 @@ function ChartSection({ elemente }: { elemente?: SparplanElement[] }) {
         showRealValues={hasInflationAdjustedValues(simulationData)}
         className="mb-4"
       />
-      <PortfolioTimeline simulationData={simulationData} />
+      <PortfolioTimeline simulationData={simulationData} yearlyContributions={yearlyContributions} />
     </div>
   )
 }
