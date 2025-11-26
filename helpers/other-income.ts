@@ -12,6 +12,7 @@ export type IncomeType =
   | 'business'
   | 'investment'
   | 'kindergeld'
+  | 'elterngeld'
   | 'bu_rente'
   | 'kapitallebensversicherung'
   | 'pflegezusatzversicherung'
@@ -229,6 +230,45 @@ export interface KinderBildungConfig {
 }
 
 /**
+ * Elterngeld (Parental Allowance) specific configuration
+ * Implements German Elterngeld calculations according to BEEG (Bundeselterngeld- und Elternzeitgesetz)
+ */
+export interface ElterngeldConfig {
+  /** Previous monthly net income before parental leave (used for Elterngeld calculation) */
+  previousMonthlyNetIncome: number
+
+  /** Birth year of the child (for documentation and Kindergeld coordination) */
+  childBirthYear: number
+
+  /** Birth month of the child (1-12, determines when Elterngeld starts) */
+  childBirthMonth: number
+
+  /** Number of months of Elterngeld to receive (max 12 for Basiselterngeld, max 24 for ElterngeldPlus) */
+  durationMonths: number
+
+  /** Whether using ElterngeldPlus (50% amount but double duration) */
+  useElterngeldPlus: boolean
+
+  /** Whether partner also takes Elterngeld (enables Partnerschaftsbonus) */
+  partnerParticipation: boolean
+
+  /** Additional months from Partnerschaftsbonus (0, 2, or 4 months) */
+  partnerschaftsBonusMonths: number
+
+  /** Whether this person is working part-time during Elterngeld (affects ElterngeldPlus calculation) */
+  workingPartTime: boolean
+
+  /** If working part-time: monthly net income during Elterngeld period */
+  partTimeMonthlyNetIncome: number
+
+  /** Year when Elterngeld starts */
+  elterngeldStartYear: number
+
+  /** Month when Elterngeld starts (1-12) */
+  elterngeldStartMonth: number
+}
+
+/**
  * Whether the income amount is gross or net
  */
 export type IncomeAmountType = 'gross' | 'net'
@@ -290,6 +330,9 @@ export interface OtherIncomeSource {
 
   /** Kinder-Bildung-specific configuration (only for kinder_bildung type) */
   kinderBildungConfig?: KinderBildungConfig
+
+  /** Elterngeld-specific configuration (only for elterngeld type) */
+  elterngeldConfig?: ElterngeldConfig
 }
 
 /**
@@ -422,6 +465,28 @@ export interface OtherIncomeYearResult {
     /** Tax deduction amount for the year */
     taxDeduction: number
   }
+
+  /** Elterngeld-specific calculations (only for elterngeld type) */
+  elterngeldDetails?: {
+    /** Child's age this year (in months) */
+    childAgeMonths: number
+    /** Whether Elterngeld is active this year */
+    isActive: boolean
+    /** Monthly Elterngeld amount (before ElterngeldPlus reduction if applicable) */
+    baseMonthlyAmount: number
+    /** Actual monthly Elterngeld amount (after ElterngeldPlus reduction) */
+    actualMonthlyAmount: number
+    /** Replacement rate percentage (65-67% of previous net income) */
+    replacementRatePercent: number
+    /** Whether using ElterngeldPlus this year */
+    usingElterngeldPlus: boolean
+    /** Whether receiving Partnerschaftsbonus this year */
+    receivingPartnerschaftsbonus: boolean
+    /** Number of months of Elterngeld received this year */
+    monthsReceivedThisYear: number
+    /** Reason if Elterngeld not active or ended */
+    endReason?: string
+  }
 }
 
 /**
@@ -510,6 +575,194 @@ function calculateKindergeldStatus(
   }
 
   return { isActive, childAge, endReason }
+}
+
+/**
+ * Calculate Elterngeld (Parental Allowance) according to German BEEG
+ * (Bundeselterngeld- und Elternzeitgesetz)
+ *
+ * Key rules:
+ * - Basiselterngeld: 65-67% of previous net income, max 1,800€/month, min 300€/month
+ * - ElterngeldPlus: 50% of Basiselterngeld amount, but can be received for double duration
+ * - Partnerschaftsbonus: Additional months if both parents work part-time
+ * - Maximum duration: 12/14 months for Basiselterngeld, up to 24/28 months for ElterngeldPlus
+ */
+function calculateElterngeldAmount(
+  previousMonthlyNetIncome: number,
+  useElterngeldPlus: boolean,
+  workingPartTime: boolean,
+  partTimeMonthlyNetIncome: number,
+): { baseAmount: number; actualAmount: number; replacementRate: number } {
+  // Determine replacement rate based on income level
+  // 67% for income up to 1,200€, 65% for income above 1,240€, graduated in between
+  let replacementRate = 0.67
+
+  if (previousMonthlyNetIncome >= 1240) {
+    replacementRate = 0.65
+  } else if (previousMonthlyNetIncome > 1200) {
+    // Graduated decrease from 67% to 65%
+    const graduatedIncome = previousMonthlyNetIncome - 1200
+    replacementRate = 0.67 - (graduatedIncome / 40) * 0.02
+  }
+
+  // Calculate base Elterngeld amount
+  let baseAmount = previousMonthlyNetIncome * replacementRate
+
+  // Apply minimum and maximum limits for Basiselterngeld
+  const MIN_ELTERNGELD = 300
+  const MAX_ELTERNGELD = 1800
+
+  baseAmount = Math.max(MIN_ELTERNGELD, Math.min(MAX_ELTERNGELD, baseAmount))
+
+  // Calculate actual amount based on ElterngeldPlus and part-time work
+  let actualAmount = baseAmount
+
+  if (useElterngeldPlus) {
+    if (workingPartTime) {
+      // ElterngeldPlus with part-time work: complex calculation
+      // Income loss = previous income - current part-time income
+      const incomeLoss = previousMonthlyNetIncome - partTimeMonthlyNetIncome
+      // ElterngeldPlus is 50% of what Basiselterngeld would be for the income loss
+      const elterngeldPlusBase = incomeLoss * replacementRate
+      actualAmount = Math.max(MIN_ELTERNGELD / 2, Math.min(MAX_ELTERNGELD / 2, elterngeldPlusBase))
+    } else {
+      // ElterngeldPlus without work: 50% of Basiselterngeld
+      actualAmount = baseAmount / 2
+    }
+  }
+
+  return {
+    baseAmount,
+    actualAmount,
+    replacementRate: replacementRate * 100, // Convert to percentage
+  }
+}
+
+/**
+ * Helper: Calculate child's age in months from birth year/month to current year
+ */
+function calculateChildAgeMonths(childBirthYear: number, childBirthMonth: number, year: number): number {
+  const yearsSinceBirth = year - childBirthYear
+  const monthsSinceBirth = yearsSinceBirth * 12 + (12 - childBirthMonth + 1)
+  return Math.max(0, monthsSinceBirth)
+}
+
+/**
+ * Helper: Calculate Elterngeld period start and end in months since birth
+ */
+function calculateElterngeldPeriod(config: ElterngeldConfig): {
+  startMonthsSinceBirth: number
+  endMonthsSinceBirth: number
+} {
+  const startMonthsSinceBirth =
+    (config.elterngeldStartYear - config.childBirthYear) * 12 +
+    (config.elterngeldStartMonth - config.childBirthMonth)
+
+  const totalElterngeldMonths = config.durationMonths + config.partnerschaftsBonusMonths
+  const endMonthsSinceBirth = startMonthsSinceBirth + totalElterngeldMonths
+
+  return { startMonthsSinceBirth, endMonthsSinceBirth }
+}
+
+/**
+ * Helper: Determine Elterngeld active status and months received in a given year
+ */
+function calculateElterngeldYearStatus(
+  config: ElterngeldConfig,
+  year: number,
+  elterngeldStartMonthsSinceBirth: number,
+  elterngeldEndMonthsSinceBirth: number,
+): { isActive: boolean; monthsReceivedThisYear: number; endReason?: string } {
+  // Calculate year boundaries in months since birth (using same calculation as elterngeld period)
+  const yearStartMonthsSinceBirth = (year - config.childBirthYear) * 12 + (1 - config.childBirthMonth)
+  const yearEndMonthsSinceBirth = (year + 1 - config.childBirthYear) * 12 + (1 - config.childBirthMonth)
+
+  if (yearEndMonthsSinceBirth <= elterngeldStartMonthsSinceBirth) {
+    return {
+      isActive: false,
+      monthsReceivedThisYear: 0,
+      endReason: 'Elterngeld noch nicht gestartet',
+    }
+  }
+
+  if (yearStartMonthsSinceBirth >= elterngeldEndMonthsSinceBirth) {
+    return {
+      isActive: false,
+      monthsReceivedThisYear: 0,
+      endReason: 'Elterngeld-Bezugsdauer abgelaufen',
+    }
+  }
+
+  // Calculate how many months in this year Elterngeld is received
+  const monthsStart = Math.max(yearStartMonthsSinceBirth, elterngeldStartMonthsSinceBirth)
+  const monthsEnd = Math.min(yearEndMonthsSinceBirth, elterngeldEndMonthsSinceBirth)
+  const monthsReceivedThisYear = monthsEnd - monthsStart
+
+  return {
+    isActive: true,
+    monthsReceivedThisYear,
+  }
+}
+
+/**
+ * Calculate Elterngeld status and details for a specific year
+ */
+function calculateElterngeldStatus(
+  config: ElterngeldConfig,
+  year: number,
+): {
+  isActive: boolean
+  childAgeMonths: number
+  baseMonthlyAmount: number
+  actualMonthlyAmount: number
+  replacementRatePercent: number
+  usingElterngeldPlus: boolean
+  receivingPartnerschaftsbonus: boolean
+  monthsReceivedThisYear: number
+  endReason?: string
+} {
+  // Calculate child's age in months
+  const childAgeMonths = calculateChildAgeMonths(config.childBirthYear, config.childBirthMonth, year)
+  const monthsSinceBirth = childAgeMonths
+
+  // Calculate when Elterngeld starts and ends
+  const { startMonthsSinceBirth: elterngeldStartMonthsSinceBirth, endMonthsSinceBirth: elterngeldEndMonthsSinceBirth } =
+    calculateElterngeldPeriod(config)
+
+  // Calculate Elterngeld amount
+  const amounts = calculateElterngeldAmount(
+    config.previousMonthlyNetIncome,
+    config.useElterngeldPlus,
+    config.workingPartTime,
+    config.partTimeMonthlyNetIncome,
+  )
+
+  // Determine if Elterngeld is active this year
+  const { isActive, monthsReceivedThisYear, endReason } = calculateElterngeldYearStatus(
+    config,
+    year,
+    elterngeldStartMonthsSinceBirth,
+    elterngeldEndMonthsSinceBirth,
+  )
+
+  // Determine if receiving Partnerschaftsbonus this year
+  const receivingPartnerschaftsbonus =
+    isActive &&
+    config.partnerParticipation &&
+    config.partnerschaftsBonusMonths > 0 &&
+    monthsSinceBirth >= elterngeldStartMonthsSinceBirth + config.durationMonths
+
+  return {
+    isActive,
+    childAgeMonths,
+    baseMonthlyAmount: amounts.baseAmount,
+    actualMonthlyAmount: amounts.actualAmount,
+    replacementRatePercent: amounts.replacementRate,
+    usingElterngeldPlus: config.useElterngeldPlus,
+    receivingPartnerschaftsbonus,
+    monthsReceivedThisYear,
+    endReason,
+  }
 }
 
 // Ertragsanteil table according to § 22 Nr. 1 Satz 3 Buchstabe a Doppelbuchstabe bb EStG
@@ -931,6 +1184,39 @@ function applyKindergeldLogic(
   }
 }
 
+function applyElterngeldLogic(
+  source: OtherIncomeSource,
+  year: number,
+  amounts: { grossMonthlyAmount: number; grossAnnualAmount: number },
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  elterngeldDetails?: OtherIncomeYearResult['elterngeldDetails']
+} {
+  if (source.type !== 'elterngeld' || !source.elterngeldConfig) {
+    return amounts
+  }
+
+  const status = calculateElterngeldStatus(source.elterngeldConfig, year)
+  if (!status.isActive || status.monthsReceivedThisYear === 0) {
+    return {
+      grossMonthlyAmount: 0,
+      grossAnnualAmount: 0,
+      elterngeldDetails: status,
+    }
+  }
+
+  // Calculate annual amount based on months received this year
+  const actualGrossAnnualAmount = status.actualMonthlyAmount * status.monthsReceivedThisYear
+  const actualGrossMonthlyAmount = actualGrossAnnualAmount / 12 // Spread across the year for calculation purposes
+
+  return {
+    grossMonthlyAmount: actualGrossMonthlyAmount,
+    grossAnnualAmount: actualGrossAnnualAmount,
+    elterngeldDetails: status,
+  }
+}
+
 function applyBURenteLogic(
   source: OtherIncomeSource,
   year: number,
@@ -1138,6 +1424,7 @@ function applyIncomeTypeLogic(
   grossMonthlyAmount: number
   grossAnnualAmount: number
   kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
+  elterngeldDetails?: OtherIncomeYearResult['elterngeldDetails']
   buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
   kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
   pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
@@ -1145,9 +1432,14 @@ function applyIncomeTypeLogic(
 } {
   const kindergeldResult = applyKindergeldLogic(source, year, initialAmounts)
 
-  const buRenteResult = applyBURenteLogic(source, year, {
+  const elterngeldResult = applyElterngeldLogic(source, year, {
     grossMonthlyAmount: kindergeldResult.grossMonthlyAmount,
     grossAnnualAmount: kindergeldResult.grossAnnualAmount,
+  })
+
+  const buRenteResult = applyBURenteLogic(source, year, {
+    grossMonthlyAmount: elterngeldResult.grossMonthlyAmount,
+    grossAnnualAmount: elterngeldResult.grossAnnualAmount,
   })
 
   const kapitallebensversicherungResult = applyKapitallebensversicherungLogic(source, year, {
@@ -1169,6 +1461,7 @@ function applyIncomeTypeLogic(
     grossMonthlyAmount: risikolebensversicherungResult.grossMonthlyAmount,
     grossAnnualAmount: risikolebensversicherungResult.grossAnnualAmount,
     kindergeldDetails: kindergeldResult.kindergeldDetails,
+    elterngeldDetails: elterngeldResult.elterngeldDetails,
     buRenteDetails: buRenteResult.buRenteDetails,
     kapitallebensversicherungDetails: kapitallebensversicherungResult.kapitallebensversicherungDetails,
     pflegezusatzversicherungDetails: pflegezusatzversicherungResult.pflegezusatzversicherungDetails,
@@ -1183,6 +1476,7 @@ function buildYearResult(
     grossMonthlyAmount: number
     grossAnnualAmount: number
     kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
+    elterngeldDetails?: OtherIncomeYearResult['elterngeldDetails']
     buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
     kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
     pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
@@ -1210,6 +1504,7 @@ function buildYearResult(
 
   if (realEstateDetails) result.realEstateDetails = realEstateDetails
   if (incomeTypeResult.kindergeldDetails) result.kindergeldDetails = incomeTypeResult.kindergeldDetails
+  if (incomeTypeResult.elterngeldDetails) result.elterngeldDetails = incomeTypeResult.elterngeldDetails
   if (incomeTypeResult.buRenteDetails) result.buRenteDetails = incomeTypeResult.buRenteDetails
   if (incomeTypeResult.kapitallebensversicherungDetails)
     result.kapitallebensversicherungDetails = incomeTypeResult.kapitallebensversicherungDetails
@@ -1298,6 +1593,7 @@ export function calculateOtherIncome(
 function getDefaultMonthlyAmount(type: IncomeType): number {
   if (type === 'rental') return 1000
   if (type === 'kindergeld') return 250
+  if (type === 'elterngeld') return 1200
   if (type === 'bu_rente') return 1500
   if (type === 'kapitallebensversicherung') return 0 // Lump sum, not monthly
   return 800
@@ -1308,6 +1604,7 @@ function getDefaultMonthlyAmount(type: IncomeType): number {
  */
 function getDefaultAmountType(type: IncomeType): 'gross' | 'net' {
   if (type === 'kindergeld') return 'net'
+  if (type === 'elterngeld') return 'net'
   return 'gross'
 }
 
@@ -1316,6 +1613,7 @@ function getDefaultAmountType(type: IncomeType): 'gross' | 'net' {
  */
 function getDefaultInflationRate(type: IncomeType): number {
   if (type === 'kindergeld') return 0
+  if (type === 'elterngeld') return 0 // Elterngeld is based on previous income, not adjusted for inflation
   if (type === 'bu_rente') return 0 // BU-Rente typically has fixed amounts
   if (type === 'kapitallebensversicherung') return 0 // Lump sum, no inflation adjustment
   return 2.0
@@ -1326,6 +1624,7 @@ function getDefaultInflationRate(type: IncomeType): number {
  */
 function getDefaultTaxRate(type: IncomeType): number {
   if (type === 'kindergeld') return 0
+  if (type === 'elterngeld') return 0 // Elterngeld is tax-free but subject to Progressionsvorbehalt
   if (type === 'bu_rente') return 25.0 // Individual income tax rate (typical for disability pensions)
   if (type === 'kapitallebensversicherung') return 26.375 // Abgeltungsteuer (capital gains tax)
   return 30.0
@@ -1399,6 +1698,28 @@ export function createDefaultKindergeldConfig(): KindergeldConfig {
     childBirthYear: currentYear, // Newborn by default
     inEducation: false, // Not yet in education (but will be considered when child reaches 18)
     childOrderNumber: 1, // First child by default
+  }
+}
+
+/**
+ * Create default Elterngeld configuration
+ */
+export function createDefaultElterngeldConfig(): ElterngeldConfig {
+  const currentYear = new Date().getFullYear()
+  const currentMonth = new Date().getMonth() + 1 // JavaScript months are 0-indexed
+
+  return {
+    previousMonthlyNetIncome: 2000, // 2,000€ previous monthly net income
+    childBirthYear: currentYear,
+    childBirthMonth: currentMonth,
+    durationMonths: 12, // 12 months Basiselterngeld
+    useElterngeldPlus: false,
+    partnerParticipation: false,
+    partnerschaftsBonusMonths: 0,
+    workingPartTime: false,
+    partTimeMonthlyNetIncome: 0,
+    elterngeldStartYear: currentYear,
+    elterngeldStartMonth: currentMonth,
   }
 }
 
@@ -1501,6 +1822,7 @@ function getDefaultNameForType(type: IncomeType): string {
     business: 'Gewerbeeinkünfte',
     investment: 'Kapitalerträge',
     kindergeld: 'Kindergeld',
+    elterngeld: 'Elterngeld',
     bu_rente: 'BU-Rente',
     kapitallebensversicherung: 'Kapitallebensversicherung',
     pflegezusatzversicherung: 'Pflegezusatzversicherung',
@@ -1528,6 +1850,7 @@ export function getIncomeTypeDisplayName(type: IncomeType): string {
     business: 'Gewerbeeinkünfte',
     investment: 'Kapitalerträge',
     kindergeld: 'Kindergeld',
+    elterngeld: 'Elterngeld',
     bu_rente: 'BU-Rente',
     kapitallebensversicherung: 'Kapitallebensversicherung',
     pflegezusatzversicherung: 'Pflegezusatzversicherung',

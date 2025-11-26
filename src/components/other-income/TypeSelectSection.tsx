@@ -22,6 +22,7 @@ export function TypeSelectSection({ editingSource, onTypeChange }: TypeSelectSec
         <option value="business">Gewerbeeinkünfte</option>
         <option value="investment">Kapitalerträge</option>
         <option value="kindergeld">Kindergeld</option>
+        <option value="elterngeld">Elterngeld</option>
         <option value="bu_rente">BU-Rente</option>
         <option value="kapitallebensversicherung">Kapitallebensversicherung</option>
         <option value="pflegezusatzversicherung">Pflegezusatzversicherung</option>

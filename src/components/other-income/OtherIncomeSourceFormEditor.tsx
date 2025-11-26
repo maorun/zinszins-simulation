@@ -5,6 +5,7 @@ import {
   type IncomeType,
   createDefaultRealEstateConfig,
   createDefaultKindergeldConfig,
+  createDefaultElterngeldConfig,
   createDefaultBURenteConfig,
   createDefaultKapitallebensversicherungConfig,
   createDefaultPflegezusatzversicherungConfig,
@@ -49,6 +50,24 @@ function configureKindergeldSettings(source: OtherIncomeSource, newType: IncomeT
     applyKindergeldDefaults(source)
   } else if (newType !== 'kindergeld' && source.kindergeldConfig) {
     delete source.kindergeldConfig
+  }
+}
+
+// Helper to apply Elterngeld defaults
+function applyElterngeldDefaults(source: OtherIncomeSource): void {
+  source.elterngeldConfig = createDefaultElterngeldConfig()
+  source.amountType = 'net' // Elterngeld is tax-free (but subject to Progressionsvorbehalt)
+  source.taxRate = 0
+  source.inflationRate = 0 // Based on previous income, not inflation-adjusted
+  source.monthlyAmount = 1200 // Default estimate (will be calculated from previous income)
+}
+
+// Helper to configure Elterngeld settings based on income type
+function configureElterngeldSettings(source: OtherIncomeSource, newType: IncomeType): void {
+  if (newType === 'elterngeld' && !source.elterngeldConfig) {
+    applyElterngeldDefaults(source)
+  } else if (newType !== 'elterngeld' && source.elterngeldConfig) {
+    delete source.elterngeldConfig
   }
 }
 
@@ -133,6 +152,7 @@ function handleIncomeTypeChange(
   const updatedSource = { ...currentSource, type: newType }
   configureRealEstateSettings(updatedSource, newType)
   configureKindergeldSettings(updatedSource, newType)
+  configureElterngeldSettings(updatedSource, newType)
   configureBURenteSettings(updatedSource, newType)
   configureKapitallebensversicherungSettings(updatedSource, newType)
   configurePflegezusatzversicherungSettings(updatedSource, newType)
@@ -154,6 +174,7 @@ export function OtherIncomeSourceFormEditor({
   const monthlyAmountId = useFormId('other-income', 'monthly-amount')
   const currentYear = new Date().getFullYear()
   const isKindergeld = editingSource.type === 'kindergeld'
+  const isElterngeld = editingSource.type === 'elterngeld'
   const isBURente = editingSource.type === 'bu_rente'
   const isRental = editingSource.type === 'rental'
   const isKapitallebensversicherung = editingSource.type === 'kapitallebensversicherung'
@@ -178,6 +199,7 @@ export function OtherIncomeSourceFormEditor({
           monthlyAmountId={monthlyAmountId}
           currentYear={currentYear}
           isKindergeld={isKindergeld}
+          isElterngeld={isElterngeld}
           isBURente={isBURente}
           isRental={isRental}
           isKapitallebensversicherung={isKapitallebensversicherung}
