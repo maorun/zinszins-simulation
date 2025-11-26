@@ -13,9 +13,15 @@ interface TimelineState {
  */
 function getYearRange(simulationData: SimulationResult): { startYear: number; endYear: number } {
   const years = Object.keys(simulationData).map(Number).sort((a, b) => a - b)
+  const currentYear = new Date().getFullYear()
+  
+  // Ensure timeline starts from current year or earlier, not from a future year
+  const dataStartYear = years[0] || currentYear
+  const startYear = Math.min(dataStartYear, currentYear)
+  
   return {
-    startYear: years[0] || new Date().getFullYear(),
-    endYear: years[years.length - 1] || new Date().getFullYear(),
+    startYear,
+    endYear: years[years.length - 1] || currentYear,
   }
 }
 

@@ -21,8 +21,18 @@ interface PortfolioTimelineProps {
  */
 function getYearMetrics(simulationData: SimulationResult, year: number, yearlyContributions?: Map<number, number>) {
   const yearData = simulationData[year]
+  
+  // If no data for this year (e.g., before simulation starts), return zero values
   if (!yearData) {
-    return null
+    return {
+      year,
+      startkapital: 0,
+      endkapital: 0,
+      zinsen: 0,
+      bezahlteSteuer: 0,
+      einzahlungen: yearlyContributions?.get(year) ?? 0,
+      rendite: 0,
+    }
   }
 
   // Use provided yearly contribution if available, otherwise calculate from capital difference
@@ -177,8 +187,6 @@ export function PortfolioTimeline({ simulationData, yearlyContributions, classNa
     () => getYearMetrics(simulationData, state.currentYear, yearlyContributions),
     [simulationData, state.currentYear, yearlyContributions]
   )
-
-  if (!currentMetrics) return null
 
   return (
     <Card className={className}>
