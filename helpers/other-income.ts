@@ -1702,6 +1702,28 @@ export function createDefaultKindergeldConfig(): KindergeldConfig {
 }
 
 /**
+ * Create default Elterngeld configuration
+ */
+export function createDefaultElterngeldConfig(): ElterngeldConfig {
+  const currentYear = new Date().getFullYear()
+  const currentMonth = new Date().getMonth() + 1 // JavaScript months are 0-indexed
+
+  return {
+    previousMonthlyNetIncome: 2000, // 2,000€ previous monthly net income
+    childBirthYear: currentYear,
+    childBirthMonth: currentMonth,
+    durationMonths: 12, // 12 months Basiselterngeld
+    useElterngeldPlus: false,
+    partnerParticipation: false,
+    partnerschaftsBonusMonths: 0,
+    workingPartTime: false,
+    partTimeMonthlyNetIncome: 0,
+    elterngeldStartYear: currentYear,
+    elterngeldStartMonth: currentMonth,
+  }
+}
+
+/**
  * Create default BU-Rente configuration
  */
 export function createDefaultBURenteConfig(): BURenteConfig {
