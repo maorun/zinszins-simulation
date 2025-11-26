@@ -21,6 +21,7 @@ import { SummaryCard } from './sparplan/SummaryCard'
 import { useSimulationModals } from '../hooks/useSimulationModals'
 import { useCallback, useMemo } from 'react'
 import { FinancialGoalsKPIDashboard } from './FinancialGoalsKPIDashboard'
+import { PortfolioTimeline } from './timeline/PortfolioTimeline'
 
 // Type for calculation info click data
 interface CalculationInfoData {
@@ -225,12 +226,13 @@ function ChartSection({ elemente }: { elemente?: SparplanElement[] }) {
 
   const simulationData = convertSparplanElementsToSimulationResult(elemente)
   return (
-    <div className="mb-6">
+    <div className="mb-6 space-y-4">
       <InteractiveChart
         simulationData={simulationData}
         showRealValues={hasInflationAdjustedValues(simulationData)}
         className="mb-4"
       />
+      <PortfolioTimeline simulationData={simulationData} />
     </div>
   )
 }
