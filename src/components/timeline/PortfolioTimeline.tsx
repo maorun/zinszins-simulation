@@ -174,6 +174,44 @@ function MetricsGrid({ metrics }: { metrics: ReturnType<typeof getYearMetrics> }
 }
 
 /**
+ * Info messages component for empty or partial data states
+ */
+function DataStateMessages({ 
+  simulationData, 
+  currentYear 
+}: { 
+  simulationData: SimulationResult
+  currentYear: number
+}) {
+  const hasSimulationData = Object.keys(simulationData).length > 0
+  const hasDataForCurrentYear = !!simulationData[currentYear]
+
+  if (!hasSimulationData) {
+    return (
+      <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">
+        <p className="text-sm text-yellow-800">
+          ℹ️ <strong>Keine Simulationsdaten verfügbar.</strong> Erstellen Sie einen Sparplan, um die
+          Portfolio-Animation zu sehen.
+        </p>
+      </div>
+    )
+  }
+
+  if (!hasDataForCurrentYear) {
+    const firstDataYear = Object.keys(simulationData).map(Number).sort((a, b) => a - b)[0]
+    return (
+      <div className="p-3 bg-blue-50 border border-blue-200 rounded">
+        <p className="text-xs text-blue-800">
+          ℹ️ Für das Jahr {currentYear} liegen noch keine Daten vor. Die Simulation beginnt ab Jahr {firstDataYear}.
+        </p>
+      </div>
+    )
+  }
+
+  return null
+}
+
+/**
  * Portfolio Timeline Animation Component
  * 
  * Provides an animated year-by-year visualization of portfolio development
@@ -197,6 +235,8 @@ export function PortfolioTimeline({ simulationData, yearlyContributions, classNa
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        <DataStateMessages simulationData={simulationData} currentYear={state.currentYear} />
+
         <PlaybackControls
           isPlaying={state.isPlaying}
           currentYear={state.currentYear}

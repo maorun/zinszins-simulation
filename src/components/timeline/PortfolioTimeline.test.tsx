@@ -294,10 +294,11 @@ describe('PortfolioTimeline', () => {
       const mockContributions = createMockYearlyContributions(2025, 2025)
       render(<PortfolioTimeline simulationData={emptyData} yearlyContributions={mockContributions} />)
       
-      // Component should render with current year and zero values
+      // Component should render with current year and show info message
       const currentYear = new Date().getFullYear()
       expect(screen.getByText(new RegExp(`Jahr ${currentYear}`, 'i'))).toBeInTheDocument()
-      expect(screen.getByText('0,00 €')).toBeInTheDocument() // Zero values for empty data
+      expect(screen.getByText(/Keine Simulationsdaten verfügbar/i)).toBeInTheDocument()
+      expect(screen.getByText(/Erstellen Sie einen Sparplan/i)).toBeInTheDocument()
     })
 
     it('handles single year data', () => {
@@ -346,6 +347,10 @@ describe('PortfolioTimeline', () => {
       // Should start from current year, not 2040
       const currentYear = new Date().getFullYear()
       expect(screen.getByText(new RegExp(`Jahr ${currentYear}`, 'i'))).toBeInTheDocument()
+      
+      // Should show info message that data starts later
+      expect(screen.getByText(/liegen noch keine Daten vor/i)).toBeInTheDocument()
+      expect(screen.getByText(/Die Simulation beginnt ab Jahr 2040/i)).toBeInTheDocument()
       
       // Year range should show current year to 2045
       expect(screen.getByText(currentYear.toString())).toBeInTheDocument()

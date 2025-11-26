@@ -222,12 +222,14 @@ function useSummaryData(elemente: SparplanElement[] | undefined) {
 
 // Component for chart section
 function ChartSection({ elemente }: { elemente?: SparplanElement[] }) {
-  if (!elemente || elemente.length === 0) return null
-
-  const simulationData = convertSparplanElementsToSimulationResult(elemente)
+  const simulationData = elemente && elemente.length > 0 
+    ? convertSparplanElementsToSimulationResult(elemente) 
+    : {}
   
   // Calculate yearly contributions from the progression data
-  const yearlyProgression = getYearlyPortfolioProgression(elemente)
+  const yearlyProgression = elemente && elemente.length > 0 
+    ? getYearlyPortfolioProgression(elemente) 
+    : []
   const yearlyContributions = new Map<number, number>()
   yearlyProgression.forEach(entry => {
     yearlyContributions.set(entry.year, entry.yearlyContribution)
@@ -235,11 +237,13 @@ function ChartSection({ elemente }: { elemente?: SparplanElement[] }) {
 
   return (
     <div className="mb-6 space-y-4">
-      <InteractiveChart
-        simulationData={simulationData}
-        showRealValues={hasInflationAdjustedValues(simulationData)}
-        className="mb-4"
-      />
+      {elemente && elemente.length > 0 && (
+        <InteractiveChart
+          simulationData={simulationData}
+          showRealValues={hasInflationAdjustedValues(simulationData)}
+          className="mb-4"
+        />
+      )}
       <PortfolioTimeline simulationData={simulationData} yearlyContributions={yearlyContributions} />
     </div>
   )
