@@ -107,9 +107,9 @@ describe('DataExport', () => {
     fireEvent.click(trigger)
 
     await waitFor(() => {
-      expect(screen.getAllByText('Sparphase')).toHaveLength(2) // CSV and Excel
-      expect(screen.getAllByText('Entnahmephase')).toHaveLength(2)
-      expect(screen.getAllByText('Komplett')).toHaveLength(2)
+      expect(screen.getAllByText('Sparphase')).toHaveLength(3) // CSV, Excel, and PDF
+      expect(screen.getAllByText('Entnahmephase')).toHaveLength(3)
+      expect(screen.getAllByText('Komplett')).toHaveLength(3)
       expect(screen.getByText('Markdown herunterladen')).toBeInTheDocument()
       expect(screen.getByText('Formeln kopieren')).toBeInTheDocument()
     })
