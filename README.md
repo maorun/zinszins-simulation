@@ -362,6 +362,14 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Aktuelle Beträge**: 250€/Monat pro Kind (Stand 2024)
     - **Mehrere Kinder**: Separate Konfiguration für jedes Kind mit individuellem Geburtsjahr
     - **Ausbildungsberücksichtigung**: Option zur Verlängerung bis zum 25. Geburtstag bei Ausbildung/Studium
+  - **Elterngeld** - Deutsche Elterngeld-Planung nach BEEG (Bundeselterngeld- und Elternzeitgesetz)
+    - **Basiselterngeld**: 65-67% des vorherigen Nettoeinkommens (Minimum 300€, Maximum 1.800€/Monat)
+    - **Einkommensabhängige Berechnung**: Automatische Berechnung der Ersatzrate (67% bis 1.200€, 65% ab 1.240€)
+    - **ElterngeldPlus**: Halber Betrag bei doppelter Bezugsdauer (max. 24-28 Monate statt 12-14 Monate)
+    - **Partnerschaftsbonus**: Zusätzliche 2-4 Monate bei paralleler Teilzeitarbeit beider Eltern
+    - **Steuerfrei mit Progressionsvorbehalt**: Elterngeld ist steuerfrei, unterliegt aber dem Progressionsvorbehalt
+    - **Flexible Konfiguration**: Vorheriges Einkommen, Bezugsdauer, Geburtsjahr/-monat des Kindes individuell einstellbar
+    - **Realistische Planung**: Ermöglicht präzise Finanzplanung während der Elternzeit
   - **BU-Renten-Integration** - Umfassende Berücksichtigung von Berufsunfähigkeitsrenten
     - **Leibrenten-Besteuerung**: Korrekte steuerliche Behandlung nach § 22 EStG mit altersabhängigem Ertragsanteil
     - **Flexible Zeiträume**: Konfigurierbare Start- und Endjahre für Berufsunfähigkeitsphasen
