@@ -326,6 +326,15 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Responsive Design** - Optimiert für Desktop und mobile Geräte
   - **Real-Time Updates** - Charts aktualisieren sich automatisch bei Parameteränderungen
   - **Professional Styling** - Integration mit shadcn/ui Design System
+- **🎬 Portfolio-Animation** - Zeitbasierte Animation der Portfolioentwicklung
+  - **Jahr-für-Jahr Visualisierung** - Animierte Darstellung der jährlichen Kapitalentwicklung
+  - **Playback-Steuerung** - Play/Pause, Schrittweise Navigation (vor/zurück), Reset-Funktion
+  - **Interaktiver Timeline-Slider** - Direkte Auswahl und Navigation zu beliebigen Jahren
+  - **Echtzeit-Metriken** - Anzeige von Startkapital, Endkapital, Zinsen, Einzahlungen, Rendite und Steuern für jedes Jahr
+  - **Fortschrittsanzeige** - Visuelle Fortschrittsbalken zeigen Position in der Zeitlinie
+  - **Responsive Metriken-Grid** - Optimierte Darstellung für Desktop (3 Spalten) und Mobile (2 Spalten)
+  - **Konfigurierbare Geschwindigkeit** - Anpassbare Animationsgeschwindigkeit (Standard: 1 Sekunde pro Jahr)
+  - **Bildungsfördernd** - Hilft Benutzern, die Auswirkungen von Einzahlungen, Renditen und Steuern Jahr für Jahr zu verstehen
 
 ### Auszahlungsphase
 

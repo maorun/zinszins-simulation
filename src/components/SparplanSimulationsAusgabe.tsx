@@ -21,6 +21,7 @@ import { SummaryCard } from './sparplan/SummaryCard'
 import { useSimulationModals } from '../hooks/useSimulationModals'
 import { useCallback, useMemo } from 'react'
 import { FinancialGoalsKPIDashboard } from './FinancialGoalsKPIDashboard'
+import { PortfolioTimeline } from './timeline/PortfolioTimeline'
 
 // Type for calculation info click data
 interface CalculationInfoData {
@@ -221,16 +222,29 @@ function useSummaryData(elemente: SparplanElement[] | undefined) {
 
 // Component for chart section
 function ChartSection({ elemente }: { elemente?: SparplanElement[] }) {
-  if (!elemente || elemente.length === 0) return null
+  const simulationData = elemente && elemente.length > 0 
+    ? convertSparplanElementsToSimulationResult(elemente) 
+    : {}
+  
+  // Calculate yearly contributions from the progression data
+  const yearlyProgression = elemente && elemente.length > 0 
+    ? getYearlyPortfolioProgression(elemente) 
+    : []
+  const yearlyContributions = new Map<number, number>()
+  yearlyProgression.forEach(entry => {
+    yearlyContributions.set(entry.year, entry.yearlyContribution)
+  })
 
-  const simulationData = convertSparplanElementsToSimulationResult(elemente)
   return (
-    <div className="mb-6">
-      <InteractiveChart
-        simulationData={simulationData}
-        showRealValues={hasInflationAdjustedValues(simulationData)}
-        className="mb-4"
-      />
+    <div className="mb-6 space-y-4">
+      {elemente && elemente.length > 0 && (
+        <InteractiveChart
+          simulationData={simulationData}
+          showRealValues={hasInflationAdjustedValues(simulationData)}
+          className="mb-4"
+        />
+      )}
+      <PortfolioTimeline simulationData={simulationData} yearlyContributions={yearlyContributions} />
     </div>
   )
 }
