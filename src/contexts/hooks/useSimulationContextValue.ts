@@ -377,6 +377,8 @@ function buildOtherConfigObject(
   setTermLifeInsuranceConfig: unknown,
   alimonyConfig: unknown,
   setAlimonyConfig: unknown,
+  benchmarkConfig: unknown,
+  setBenchmarkConfig: unknown,
 ) {
   return {
     statutoryPensionConfig,
@@ -393,6 +395,8 @@ function buildOtherConfigObject(
     setTermLifeInsuranceConfig,
     alimonyConfig,
     setAlimonyConfig,
+    benchmarkConfig,
+    setBenchmarkConfig,
   }
 }
 
@@ -416,6 +420,8 @@ function useOtherConfigValues(state: Record<string, unknown>) {
     setTermLifeInsuranceConfig,
     alimonyConfig,
     setAlimonyConfig,
+    benchmarkConfig,
+    setBenchmarkConfig,
   } = state
 
   return useMemo(
@@ -435,6 +441,8 @@ function useOtherConfigValues(state: Record<string, unknown>) {
         setTermLifeInsuranceConfig,
         alimonyConfig,
         setAlimonyConfig,
+        benchmarkConfig,
+        setBenchmarkConfig,
       ),
     [
       statutoryPensionConfig,
@@ -451,6 +459,8 @@ function useOtherConfigValues(state: Record<string, unknown>) {
       setTermLifeInsuranceConfig,
       alimonyConfig,
       setAlimonyConfig,
+      benchmarkConfig,
+      setBenchmarkConfig,
     ],
   )
 }
