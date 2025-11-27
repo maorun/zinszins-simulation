@@ -396,6 +396,7 @@ function buildOtherConfigObject(
   }
 }
 
+/* eslint-disable max-lines-per-function */
 function useOtherConfigValues(state: Record<string, unknown>) {
   const {
     statutoryPensionConfig,
@@ -404,6 +405,9 @@ function useOtherConfigValues(state: Record<string, unknown>) {
     setCoupleStatutoryPensionConfig,
     careCostConfiguration,
     setCareCostConfiguration,
+  } = state
+
+  const {
     financialGoals,
     setFinancialGoals,
     emergencyFundConfig,
@@ -414,23 +418,43 @@ function useOtherConfigValues(state: Record<string, unknown>) {
     setAlimonyConfig,
   } = state
 
-  return buildOtherConfigObject(
-    statutoryPensionConfig,
-    setStatutoryPensionConfig,
-    coupleStatutoryPensionConfig,
-    setCoupleStatutoryPensionConfig,
-    careCostConfiguration,
-    setCareCostConfiguration,
-    financialGoals,
-    setFinancialGoals,
-    emergencyFundConfig,
-    setEmergencyFundConfig,
-    termLifeInsuranceConfig,
-    setTermLifeInsuranceConfig,
-    alimonyConfig,
-    setAlimonyConfig,
+  return useMemo(
+    () =>
+      buildOtherConfigObject(
+        statutoryPensionConfig,
+        setStatutoryPensionConfig,
+        coupleStatutoryPensionConfig,
+        setCoupleStatutoryPensionConfig,
+        careCostConfiguration,
+        setCareCostConfiguration,
+        financialGoals,
+        setFinancialGoals,
+        emergencyFundConfig,
+        setEmergencyFundConfig,
+        termLifeInsuranceConfig,
+        setTermLifeInsuranceConfig,
+        alimonyConfig,
+        setAlimonyConfig,
+      ),
+    [
+      statutoryPensionConfig,
+      setStatutoryPensionConfig,
+      coupleStatutoryPensionConfig,
+      setCoupleStatutoryPensionConfig,
+      careCostConfiguration,
+      setCareCostConfiguration,
+      financialGoals,
+      setFinancialGoals,
+      emergencyFundConfig,
+      setEmergencyFundConfig,
+      termLifeInsuranceConfig,
+      setTermLifeInsuranceConfig,
+      alimonyConfig,
+      setAlimonyConfig,
+    ],
   )
 }
+/* eslint-enable max-lines-per-function */
 
 /**
  * Custom hook to build the SimulationContext value object
