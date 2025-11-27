@@ -10,6 +10,7 @@ import type { WithdrawalConfiguration } from '../../utils/config-storage'
 import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-portfolio'
 import type { AssetClass } from '../../../helpers/asset-class'
 import type { TermLifeInsuranceConfig } from '../../../helpers/term-life-insurance'
+import type { AlimonyConfig } from '../../../helpers/alimony'
 
 /**
  * Extended SparplanElement with additional fields for simulation results
@@ -77,6 +78,7 @@ export interface ExtendedSavedConfiguration {
   financialGoals?: FinancialGoal[]
   emergencyFundConfig?: EmergencyFundConfig
   termLifeInsuranceConfig?: TermLifeInsuranceConfig
+  alimonyConfig?: AlimonyConfig
 }
 
 /**
@@ -140,4 +142,5 @@ export interface ConfigurationSetters {
   setCareCostConfiguration: (value: CareCostConfiguration) => void
   setFinancialGoals: (value: FinancialGoal[]) => void
   setEmergencyFundConfig: (value: EmergencyFundConfig) => void
+  setAlimonyConfig: (value: AlimonyConfig) => void
 }

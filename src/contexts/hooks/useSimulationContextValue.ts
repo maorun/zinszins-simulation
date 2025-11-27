@@ -362,6 +362,40 @@ function useWithdrawalValues(state: Record<string, unknown>) {
   )
 }
 
+function buildOtherConfigObject(
+  statutoryPensionConfig: unknown,
+  setStatutoryPensionConfig: unknown,
+  coupleStatutoryPensionConfig: unknown,
+  setCoupleStatutoryPensionConfig: unknown,
+  careCostConfiguration: unknown,
+  setCareCostConfiguration: unknown,
+  financialGoals: unknown,
+  setFinancialGoals: unknown,
+  emergencyFundConfig: unknown,
+  setEmergencyFundConfig: unknown,
+  termLifeInsuranceConfig: unknown,
+  setTermLifeInsuranceConfig: unknown,
+  alimonyConfig: unknown,
+  setAlimonyConfig: unknown,
+) {
+  return {
+    statutoryPensionConfig,
+    setStatutoryPensionConfig,
+    coupleStatutoryPensionConfig,
+    setCoupleStatutoryPensionConfig,
+    careCostConfiguration,
+    setCareCostConfiguration,
+    financialGoals,
+    setFinancialGoals,
+    emergencyFundConfig,
+    setEmergencyFundConfig,
+    termLifeInsuranceConfig,
+    setTermLifeInsuranceConfig,
+    alimonyConfig,
+    setAlimonyConfig,
+  }
+}
+
 function useOtherConfigValues(state: Record<string, unknown>) {
   const {
     statutoryPensionConfig,
@@ -376,36 +410,25 @@ function useOtherConfigValues(state: Record<string, unknown>) {
     setEmergencyFundConfig,
     termLifeInsuranceConfig,
     setTermLifeInsuranceConfig,
+    alimonyConfig,
+    setAlimonyConfig,
   } = state
-  return useMemo(
-    () => ({
-      statutoryPensionConfig,
-      setStatutoryPensionConfig,
-      coupleStatutoryPensionConfig,
-      setCoupleStatutoryPensionConfig,
-      careCostConfiguration,
-      setCareCostConfiguration,
-      financialGoals,
-      setFinancialGoals,
-      emergencyFundConfig,
-      setEmergencyFundConfig,
-      termLifeInsuranceConfig,
-      setTermLifeInsuranceConfig,
-    }),
-    [
-      statutoryPensionConfig,
-      setStatutoryPensionConfig,
-      coupleStatutoryPensionConfig,
-      setCoupleStatutoryPensionConfig,
-      careCostConfiguration,
-      setCareCostConfiguration,
-      financialGoals,
-      setFinancialGoals,
-      emergencyFundConfig,
-      setEmergencyFundConfig,
-      termLifeInsuranceConfig,
-      setTermLifeInsuranceConfig,
-    ],
+
+  return buildOtherConfigObject(
+    statutoryPensionConfig,
+    setStatutoryPensionConfig,
+    coupleStatutoryPensionConfig,
+    setCoupleStatutoryPensionConfig,
+    careCostConfiguration,
+    setCareCostConfiguration,
+    financialGoals,
+    setFinancialGoals,
+    emergencyFundConfig,
+    setEmergencyFundConfig,
+    termLifeInsuranceConfig,
+    setTermLifeInsuranceConfig,
+    alimonyConfig,
+    setAlimonyConfig,
   )
 }
 

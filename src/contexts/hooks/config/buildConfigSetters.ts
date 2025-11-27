@@ -78,5 +78,6 @@ export function buildWithdrawalConfigSetters(setters: ConfigurationStateSetters)
     setCareCostConfiguration: setters.setCareCostConfiguration,
     setFinancialGoals: setters.setFinancialGoals,
     setEmergencyFundConfig: setters.setEmergencyFundConfig,
+    setAlimonyConfig: setters.setAlimonyConfig,
   }
 }

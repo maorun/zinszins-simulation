@@ -3,6 +3,7 @@ import { createDefaultCareCostConfiguration, type CareCostConfiguration } from '
 import type { StatutoryPensionConfig, CoupleStatutoryPensionConfig } from '../../../helpers/statutory-pension'
 import type { FinancialGoal } from '../../../helpers/financial-goals'
 import { defaultEmergencyFundConfig, type EmergencyFundConfig } from '../../../helpers/emergency-fund'
+import { getDefaultAlimonyConfig } from '../../../helpers/alimony'
 import type { WithdrawalConfiguration } from '../../utils/config-storage'
 import type { DefaultConfigType } from './default-config'
 import type { ConfigurationSetters } from './config-types'
@@ -15,6 +16,7 @@ type MainSetters = Omit<
   | 'setCareCostConfiguration'
   | 'setFinancialGoals'
   | 'setEmergencyFundConfig'
+  | 'setAlimonyConfig'
 >
 
 type AdditionalSetters = {
@@ -24,6 +26,7 @@ type AdditionalSetters = {
   setCareCostConfiguration: (value: CareCostConfiguration) => void
   setFinancialGoals: (value: FinancialGoal[]) => void
   setEmergencyFundConfig: (value: EmergencyFundConfig) => void
+  setAlimonyConfig: (value: import('../../../helpers/alimony').AlimonyConfig) => void
 }
 
 /**
@@ -97,4 +100,5 @@ export function resetConfiguration(
   additionalSetters.setCareCostConfiguration(createDefaultCareCostConfiguration())
   additionalSetters.setFinancialGoals([])
   additionalSetters.setEmergencyFundConfig(defaultEmergencyFundConfig)
+  additionalSetters.setAlimonyConfig(getDefaultAlimonyConfig())
 }
