@@ -50,5 +50,6 @@ export function buildConfigSetters(state: ReturnType<typeof useSimulationState>)
     setCareCostConfiguration: state.setCareCostConfiguration,
     setFinancialGoals: state.setFinancialGoals,
     setEmergencyFundConfig: state.setEmergencyFundConfig,
+    setAlimonyConfig: state.setAlimonyConfig,
   }
 }

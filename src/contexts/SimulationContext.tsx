@@ -156,6 +156,9 @@ export interface SimulationContextState {
   // Term life insurance configuration
   termLifeInsuranceConfig: TermLifeInsuranceConfig | null
   setTermLifeInsuranceConfig: (config: TermLifeInsuranceConfig | null) => void
+  // Alimony configuration
+  alimonyConfig: import('../../helpers/alimony').AlimonyConfig
+  setAlimonyConfig: (config: import('../../helpers/alimony').AlimonyConfig) => void
 }
 
 export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {

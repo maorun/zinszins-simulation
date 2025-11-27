@@ -49,5 +49,6 @@ export function buildConfigState(state: ReturnType<typeof useSimulationState>): 
     careCostConfiguration: state.careCostConfiguration,
     financialGoals: state.financialGoals,
     emergencyFundConfig: state.emergencyFundConfig,
+    alimonyConfig: state.alimonyConfig,
   }
 }

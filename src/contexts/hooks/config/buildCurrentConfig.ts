@@ -73,6 +73,7 @@ export function buildWithdrawalConfig(state: ConfigurationState) {
     careCostConfiguration: state.careCostConfiguration,
     financialGoals: state.financialGoals,
     emergencyFundConfig: state.emergencyFundConfig,
+    alimonyConfig: state.alimonyConfig,
   }
 }
 

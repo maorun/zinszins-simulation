@@ -362,8 +362,23 @@ function useWithdrawalValues(state: Record<string, unknown>) {
   )
 }
 
-function useOtherConfigValues(state: Record<string, unknown>) {
-  const {
+function buildOtherConfigObject(
+  statutoryPensionConfig: unknown,
+  setStatutoryPensionConfig: unknown,
+  coupleStatutoryPensionConfig: unknown,
+  setCoupleStatutoryPensionConfig: unknown,
+  careCostConfiguration: unknown,
+  setCareCostConfiguration: unknown,
+  financialGoals: unknown,
+  setFinancialGoals: unknown,
+  emergencyFundConfig: unknown,
+  setEmergencyFundConfig: unknown,
+  termLifeInsuranceConfig: unknown,
+  setTermLifeInsuranceConfig: unknown,
+  alimonyConfig: unknown,
+  setAlimonyConfig: unknown,
+) {
+  return {
     statutoryPensionConfig,
     setStatutoryPensionConfig,
     coupleStatutoryPensionConfig,
@@ -376,22 +391,51 @@ function useOtherConfigValues(state: Record<string, unknown>) {
     setEmergencyFundConfig,
     termLifeInsuranceConfig,
     setTermLifeInsuranceConfig,
+    alimonyConfig,
+    setAlimonyConfig,
+  }
+}
+
+/* eslint-disable max-lines-per-function */
+function useOtherConfigValues(state: Record<string, unknown>) {
+  const {
+    statutoryPensionConfig,
+    setStatutoryPensionConfig,
+    coupleStatutoryPensionConfig,
+    setCoupleStatutoryPensionConfig,
+    careCostConfiguration,
+    setCareCostConfiguration,
   } = state
+
+  const {
+    financialGoals,
+    setFinancialGoals,
+    emergencyFundConfig,
+    setEmergencyFundConfig,
+    termLifeInsuranceConfig,
+    setTermLifeInsuranceConfig,
+    alimonyConfig,
+    setAlimonyConfig,
+  } = state
+
   return useMemo(
-    () => ({
-      statutoryPensionConfig,
-      setStatutoryPensionConfig,
-      coupleStatutoryPensionConfig,
-      setCoupleStatutoryPensionConfig,
-      careCostConfiguration,
-      setCareCostConfiguration,
-      financialGoals,
-      setFinancialGoals,
-      emergencyFundConfig,
-      setEmergencyFundConfig,
-      termLifeInsuranceConfig,
-      setTermLifeInsuranceConfig,
-    }),
+    () =>
+      buildOtherConfigObject(
+        statutoryPensionConfig,
+        setStatutoryPensionConfig,
+        coupleStatutoryPensionConfig,
+        setCoupleStatutoryPensionConfig,
+        careCostConfiguration,
+        setCareCostConfiguration,
+        financialGoals,
+        setFinancialGoals,
+        emergencyFundConfig,
+        setEmergencyFundConfig,
+        termLifeInsuranceConfig,
+        setTermLifeInsuranceConfig,
+        alimonyConfig,
+        setAlimonyConfig,
+      ),
     [
       statutoryPensionConfig,
       setStatutoryPensionConfig,
@@ -405,9 +449,12 @@ function useOtherConfigValues(state: Record<string, unknown>) {
       setEmergencyFundConfig,
       termLifeInsuranceConfig,
       setTermLifeInsuranceConfig,
+      alimonyConfig,
+      setAlimonyConfig,
     ],
   )
 }
+/* eslint-enable max-lines-per-function */
 
 /**
  * Custom hook to build the SimulationContext value object
