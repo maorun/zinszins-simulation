@@ -265,6 +265,25 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Personalisierte Empfehlungen** - Konkrete Handlungsempfehlungen basierend auf den einzelnen Metriken
   - **Methodentransparenz** - Klare Erklärung der Berechnungsgrundlage und verwendeten Standards
 
+### Unterhaltszahlungen
+
+- **Kindesunterhalt, Ehegattenunterhalt und Trennungsunterhalt** - Integrierte Planung von Unterhaltszahlungen mit deutscher Steuerbehandlung
+  - **Drei Unterhaltszahl-Typen** - Kindesunterhalt, Nachehelicher Unterhalt, Trennungsunterhalt
+    - **Kindesunterhalt** - Nicht steuerlich absetzbar
+    - **Nachehelicher Unterhalt** - Absetzbar als Sonderausgaben (Realsplitting gem. §10 Abs. 1a Nr. 1 EStG)
+    - **Trennungsunterhalt** - Absetzbar als außergewöhnliche Belastungen (§33a EStG)
+  - **Steuerliche Behandlung nach deutschem Recht**
+    - **Realsplitting** - Bis zu 13.805€ jährlich als Sonderausgaben absetzbar (bei Vereinbarung)
+    - **Außergewöhnliche Belastungen** - Bis zu 10.908€ pro Empfänger absetzbar
+    - **Automatische Berechnung** - Steuerentlastung wird bei den Simulationen berücksichtigt
+  - **Flexible Konfiguration**
+    - **Mehrere Zahlungen** - Unbegrenzte Anzahl von Unterhaltszahlungen gleichzeitig
+    - **Zeitraum-Steuerung** - Startjahr und optionales Endjahr für jede Zahlung
+    - **Zahlungsfrequenz** - Monatlich, vierteljährlich oder jährlich
+    - **Empfänger-Verwaltung** - Mehrere Empfänger pro Zahlung möglich
+  - **Intelligente Validierung** - Automatische Prüfung der Realsplitting-Voraussetzungen
+  - **Informationshilfen** - Eingebaute Hilfestellungen zu steuerrechtlichen Aspekten
+
 ### Eigenheim vs. Miete Vergleich
 
 - **Umfassender Kaufen-oder-Mieten-Rechner** - Detaillierte Analyse der finanziellen Auswirkungen von Eigenheim vs. Miete

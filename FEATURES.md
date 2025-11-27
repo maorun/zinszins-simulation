@@ -27,7 +27,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Familienplanung
 
 - **Generationenübergreifende Planung** - Vermögensübertragung zwischen Generationen
-- **Unterhaltszahlungen** - Berücksichtigung von Alimente oder Kindesunterhalt
 
 #### Immobilienintegration
 
