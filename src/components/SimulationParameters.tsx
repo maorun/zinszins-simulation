@@ -7,9 +7,10 @@ import { useNavigationItem } from '../hooks/useNavigationItem'
 import TimeRangeConfiguration from './TimeRangeConfiguration'
 import TaxConfiguration from './TaxConfiguration'
 import SimulationConfiguration from './SimulationConfiguration'
+import { BenchmarkConfiguration } from './BenchmarkConfiguration'
 
 const SimulationParameters = () => {
-  const { planningMode } = useSimulation()
+  const { planningMode, benchmarkConfig, setBenchmarkConfig } = useSimulation()
   const navigationRef = useNavigationItem({
     id: 'configuration',
     title: 'Konfiguration',
@@ -37,6 +38,11 @@ const SimulationParameters = () => {
                 <SimulationConfiguration />
                 <TimeRangeConfiguration />
                 <TaxConfiguration planningMode={planningMode} />
+                <BenchmarkConfiguration
+                  benchmarkConfig={benchmarkConfig}
+                  onBenchmarkConfigChange={setBenchmarkConfig}
+                  nestingLevel={1}
+                />
               </div>
             </NestingProvider>
           </CardContent>
