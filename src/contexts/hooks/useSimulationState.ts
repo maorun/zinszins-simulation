@@ -11,6 +11,7 @@ import { useLifeExpectancyState } from './state/useLifeExpectancyState'
 import { usePlanningModeState } from './state/usePlanningModeState'
 import { useSimulationDataState } from './state/useSimulationDataState'
 import { useWithdrawalConfigState } from './state/useWithdrawalConfigState'
+import { useBenchmarkState } from './state/useBenchmarkState'
 
 export interface SimulationStateConfig {
   initialConfig: SavedConfiguration
@@ -38,6 +39,7 @@ function useConfigurationStates(config: SimulationStateConfig) {
     }),
     scenario: useScenarioState(),
     multiAsset: useMultiAssetState({ extendedInitialConfig }),
+    benchmark: useBenchmarkState(),
   }
 }
 
@@ -78,6 +80,7 @@ export function useSimulationState(config: SimulationStateConfig) {
     ...configStates.returnConfig,
     ...configStates.scenario,
     ...configStates.multiAsset,
+    ...configStates.benchmark,
     ...operationalStates.inflation,
     ...operationalStates.savingsPlan,
     ...operationalStates.lifeExpectancy,

@@ -69,6 +69,20 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Inflationsbereinigte Werte** - Zusätzliche Anzeige der realen Kaufkraft (inflationsbereinigt) neben Nominalwerten
   - **Sparphase**: Alle Kapitalwerte werden sowohl nominal als auch real angezeigt (z.B. "793.512,75 € / 589.591,66 € real")
   - **Entnahmephase**: Entnahmebeträge und Kapitalwerte zeigen sowohl nominale als auch reale Kaufkraft
+- **Benchmark-Integration** - Vergleich der Portfolio-Performance gegen bekannte Marktindizes
+  - **6 Standard-Benchmarks** - DAX, MSCI World, MSCI ACWI, S&P 500, STOXX Europe 600, MSCI Emerging Markets
+  - **Historische Renditen** - Verwendung historischer Indexrenditen für Jahre 2000-2023
+  - **Langfristige Durchschnitte** - Automatische Verwendung von Durchschnittsrenditen für zukünftige Jahre
+  - **Benutzerdefinierte Benchmarks** - Individuelle Benchmarks mit eigener erwarteter Rendite
+  - **Performance-Metriken**:
+    - Durchschnittliche Portfolio-Rendite vs. Benchmark-Rendite
+    - Outperformance/Underperformance in Prozentpunkten
+    - Jahr-für-Jahr Vergleich der Renditen
+    - Tracking Error (Volatilität der Renditedifferenzen)
+    - Anzahl der Jahre mit Over-/Underperformance
+  - **Kumulativer Wertverlauf** - Vergleich der Kapitalentwicklung (normiert auf 1,0)
+  - **Detaillierte jährliche Aufschlüsselung** - Transparente Darstellung aller Berechnungen
+  - **Bildungsfunktion** - Hilft Anlegern zu verstehen, ob ihre Strategie besser/schlechter als der Markt abschneidet
 
 ### Sparplan, Einmalzahlungen und Sonderereignisse
 

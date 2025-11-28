@@ -159,6 +159,9 @@ export interface SimulationContextState {
   // Alimony configuration
   alimonyConfig: import('../../helpers/alimony').AlimonyConfig
   setAlimonyConfig: (config: import('../../helpers/alimony').AlimonyConfig) => void
+  // Benchmark configuration
+  benchmarkConfig: import('../../helpers/benchmark').BenchmarkConfig
+  setBenchmarkConfig: (config: import('../../helpers/benchmark').BenchmarkConfig) => void
 }
 
 export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {

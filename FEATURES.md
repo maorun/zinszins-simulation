@@ -51,7 +51,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 - **Makroökonomische Indikatoren** - Inflation, Zinsen, BIP-Wachstum
 - **Erweiterte APIs** - ECB, Fed, andere Zentralbank-Daten
-- **Benchmark-Integration** - Vergleich mit Indizes und Peer-Portfolios
 - **Steuergesetz-Updates** - Automatische Updates bei Gesetzesänderungen
 
 #### Erweiterte Analysen
