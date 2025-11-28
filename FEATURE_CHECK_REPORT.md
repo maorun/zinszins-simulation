@@ -26,6 +26,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Jährliche Berechnungen | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Nachweis:**
+
 - Test-Datei: `src/components/Zeitspanne.tsx`
 - UI-Komponente sichtbar auf Homepage
 - Toggle zwischen monatlich/jährlich funktioniert
@@ -69,6 +70,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Inflation auf Sparplan vs. Gesamtmenge | ✅ Vollständig | ✅ Ja |
 
 **Nachweis:**
+
 - Test-Dateien: `src/components/FixedReturnConfiguration.test.tsx`, `src/components/RandomReturnConfiguration.test.tsx`, `src/components/VariableReturnConfiguration.test.tsx`, `src/components/MultiAssetPortfolioConfiguration.test.tsx`
 - Alle Return-Modi in UI sichtbar und funktional
 - Multi-Asset Portfolio mit vollständiger Konfiguration getestet
@@ -94,6 +96,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Monatliche Ratenzahlung | ✅ | Gesamtkosten-Aufstellung |
 
 **Nachweis:**
+
 - Test-Datei: `src/components/SavingsPlan.test.tsx`, `src/components/special-events/`
 - Button "🎯 Sonderereignisse verwalten" in UI sichtbar
 - Umfangreiche Tests für Erbschaften und Kreditberechnung vorhanden
@@ -109,6 +112,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Kostenaufschlüsselung | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Nachweis:**
+
 - Konfiguration im "⚙️ Konfiguration" Abschnitt
 - Kosten werden in Simulation berücksichtigt
 
@@ -131,6 +135,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Bundesbank API Integration | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Nachweis:**
+
 - Test-Dateien: `helpers/steuer.tsx`, `src/components/tax-config/`
 - Umfangreiche Steuer-Tests vorhanden (Tax-Loss Harvesting: 16 Tests)
 - Freistellungsaufträge-Optimierung mit Multi-Bank-Verwaltung
@@ -150,6 +155,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Suchfunktion | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Nachweis:**
+
 - Test-Datei: `src/components/ScenarioSelector.test.tsx` (15 Tests)
 - Button "💡 Was-wäre-wenn Szenario" in UI sichtbar
 - Szenarien umfassen konservative, ausgewogene, wachstumsorientierte Strategien
@@ -171,6 +177,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Abschluss-Tracking | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Tutorials:**
+
 1. Welcome
 2. Sparpläne
 3. Steuern
@@ -178,6 +185,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 5. Monte Carlo Analyse
 
 **Nachweis:**
+
 - Test-Datei: `src/components/TutorialOverlay.test.tsx` (29 Tests)
 - Button "📚 Interaktive Tutorials" auf Homepage sichtbar
 - localStorage-basierte Fortschrittsverfolgung
@@ -196,6 +204,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Barrierearm | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Fachbegriffe:**
+
 - Vorabpauschale
 - Günstigerprüfung
 - Teilfreistellung
@@ -204,6 +213,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 - und viele mehr
 
 **Nachweis:**
+
 - Tooltips in Konfigurationen sichtbar
 - shadcn/ui Integration für moderne UI
 
@@ -221,12 +231,14 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Kategorisierung | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Biases:**
+
 - Emotionale: Verlustaversion, Dispositionseffekt, FOMO
 - Kognitive: Selbstüberschätzung, Anker-Effekt, Bestätigungsfehler, Verfügbarkeitsheuristik, Rückschaufehler, Home Bias, Kontrollillusion
 - Soziale: Herdentrieb
 - Mentale Buchführung
 
 **Nachweis:**
+
 - Section "Behavioral Finance - Häufige Anlegerfehler" in UI sichtbar
 - Deutsche Beispiele mit DAX, ETFs, deutschen Aktien
 
@@ -245,11 +257,13 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Mehrere Ziele gleichzeitig | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Zieltypen:**
+
 1. Altersvorsorge
 2. Finanzielle Unabhängigkeit
 3. Benutzerdefinierte Ziele
 
 **Empfehlungstypen:**
+
 1. Sparrate erhöhen
 2. Zeithorizont anpassen
 3. Ziel anpassen
@@ -257,6 +271,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 5. Kosten reduzieren
 
 **Nachweis:**
+
 - Test-Datei: `src/components/financial-goals/GoalAdjustmentRecommendations.test.tsx` (17 Tests)
 - Section "Finanzziele" auf Homepage sichtbar
 - Regelbasierte Analyse (transparent, kein KI/ML)
@@ -276,11 +291,13 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Investitions-Integration | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Strategien:**
+
 1. Konservativ (hohe Liquidität)
 2. Ausgewogen (Mix)
 3. Aggressiv (minimale Liquidität)
 
 **Nachweis:**
+
 - Section "Liquiditätsreserve / Notfallfonds" auf Homepage sichtbar
 - Deutsche Standards (3-6 Monate für Angestellte, 6-12 für Selbstständige, 1-3 für Rentner)
 
@@ -300,12 +317,14 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Methodentransparenz | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Bewertungsskala:**
+
 - Ausgezeichnet (80-100%)
 - Gut (60-79%)
 - Befriedigend (40-59%)
 - Verbesserungswürdig (<40%)
 
 **Nachweis:**
+
 - Section "🎯 Retirement-Readiness Score" auf Homepage sichtbar
 - Gewichtung: Kapitaldeckung 40%, Einkommensersatz 30%, Nachhaltigkeit 30%
 
@@ -323,11 +342,13 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Intelligente Validierung | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Steuerliche Behandlung:**
+
 - Kindesunterhalt: Nicht absetzbar
 - Nachehelicher Unterhalt: Realsplitting (§10 Abs. 1a Nr. 1 EStG) bis 13.805€/Jahr
 - Trennungsunterhalt: Außergewöhnliche Belastungen (§33a EStG) bis 10.908€
 
 **Nachweis:**
+
 - Test-Datei: `src/components/AlimonyConfiguration.test.tsx` (3 Tests)
 - Section "Unterhaltszahlungen" auf Homepage sichtbar
 - Mehrere Zahlungen gleichzeitig möglich
@@ -345,6 +366,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Moderne Visualisierung | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Eigenheim Details:**
+
 - Kaufpreis und Eigenkapital
 - Finanzierungsberechnung
 - Nebenkosten (Grundsteuer, Instandhaltung, Versicherung)
@@ -352,18 +374,21 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 - Kaufnebenkosten
 
 **Miet Details:**
+
 - Kaltmiete und Nebenkosten
 - Mietpreisentwicklung
 - Investitionsrechnung
 - Kostendifferenz-Investment
 
 **Vergleich:**
+
 - Break-Even-Analyse
 - Vermögensaufbau Vergleich
 - Gesamtkostenvergleich
 - 30-Jahres-Simulation (5-40 Jahre flexibel)
 
 **Nachweis:**
+
 - Section "Eigenheim vs. Miete Vergleich" auf Homepage sichtbar
 - Toggle-Switch zum Aktivieren
 
@@ -382,6 +407,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | **Pflegekosten-Simulation** | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Pflegekosten Details:**
+
 - Deutsche Pflegegrade (1-5) mit korrekten Leistungen
 - Kosten-Nutzen-Rechnung
 - Inflationsanpassung
@@ -391,6 +417,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 - Echtzeit-Kostenvorschau
 
 **Nachweis:**
+
 - Section "👥 Globale Planung (Einzelperson/Ehepaar)" auf Homepage sichtbar
 - Statistische Grundlagen vom Statistischen Bundesamt (2020-2022)
 - Automatische Anpassung des Sparerpauschbetrags (1 Person: 2.000€, Paar: 4.000€)
@@ -411,6 +438,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | **Portfolio-Animation** | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Portfolio-Animation Details:**
+
 - Jahr-für-Jahr Visualisierung
 - Playback-Steuerung (Play/Pause, Schrittweise, Reset)
 - Interaktiver Timeline-Slider
@@ -421,6 +449,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 - Bildungsfördernd
 
 **Nachweis:**
+
 - Charts in Simulationsergebnissen integriert
 - Toggle für inflationsbereinigte Werte funktioniert
 - shadcn/ui Design System Integration
@@ -441,12 +470,14 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | **Andere Einkünfte** | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Entnahme-Modi:**
+
 1. Einheitliche Strategie
 2. Geteilte Phasen
 3. Strategien-Vergleich
 4. Geteilte Phasen Vergleich
 
 **Entnahme-Strategien:**
+
 1. 4% Regel
 2. 3% Regel
 3. Variable Prozent
@@ -457,6 +488,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 8. Steueroptimierte Entnahme
 
 **Kranken- und Pflegeversicherung Details:**
+
 - Einzelplanung: Individuelle KV mit konfigurierbaren Beitragssätzen
 - Paarplanung: Automatische Familienversicherung
 - Versicherungsarten: Gesetzlich und Privat
@@ -480,6 +512,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Gewerbeeinkünfte | ✅ | Steuerliche Integration |
 
 **Nachweis:**
+
 - Tab "Entnehmen" mit allen Optionen sichtbar
 - Test-Dateien: `src/components/EntnahmeSimulationsAusgabe.tsx`, `helpers/withdrawal*.tsx`
 - Umfangreiche Tests für alle Strategien und Einkommensarten
@@ -506,6 +539,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | **Profilverwaltung** | ✅ Vollständig | ✅ Ja | ✅ Ja |
 
 **Sensitivitätsanalyse Details:**
+
 - 5 Parameter-Analysen: Rendite, Sparrate, Steuerlast, Inflationsrate, Anlagedauer
 - Parameter-Ranking
 - Interaktive Visualisierung
@@ -513,6 +547,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 - Handlungsempfehlungen
 
 **Black Swan Ereignisse:**
+
 - Dotcom-Blase (2000-2003)
 - Finanzkrise (2008-2009)
 - COVID-19 Pandemie (2020)
@@ -521,6 +556,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 - Widerstandsfähigkeitstest
 
 **Stress-Testing:**
+
 - Historische Krisenszenarien (5 Szenarien)
 - Systematische Vergleiche
 - Portfolio-Resilienz-Metriken
@@ -529,6 +565,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 - Detaillierte Ergebnistabelle
 
 **Inflationsszenarien:**
+
 - Hyperinflation (8-12% p.a.)
 - Deflation (-2% bis 0%)
 - Stagflation (6-8% + reduzierte Renditen)
@@ -536,6 +573,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 - Kumulative Inflation
 
 **Erweiterte Risikobewertung:**
+
 - Value-at-Risk (5% & 1% VaR)
 - Maximum Drawdown
 - Sharpe Ratio
@@ -544,6 +582,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 - Risiko-Zeitreihen
 
 **Daten Export:**
+
 - CSV Export
 - Excel Export (mit Formeln)
 - PDF Export (professionelle Berichte)
@@ -551,6 +590,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 - Parameter Export
 
 **Profilverwaltung:**
+
 - Profile erstellen
 - Profilwechsel (nahtlos)
 - Automatisches Speichern
@@ -559,6 +599,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 - Aktiver Profil-Status
 
 **Nachweis:**
+
 - Button "📊 Sensitivitätsanalyse" auf Homepage sichtbar
 - Test-Dateien: `src/utils/sensitivity-analysis.test.ts` (15 Tests), `src/components/StressTestDisplay.test.tsx` (32 Tests)
 - Test-Datei: `src/utils/profile-storage.test.ts` mit umfangreichen Tests
@@ -584,11 +625,13 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | Suspense Fallbacks | ✅ Vollständig | ✅ Ja |
 
 **Performance-Verbesserungen:**
+
 - Hauptbundle von 1,4 MB auf 220 KB reduziert (84% Reduktion)
 - Lazy Loading für DataExport, SimulationModeSelector, ProfileManagement
 - Automatische Aufteilung in separate Chunks (React-Vendor, UI-Komponenten, Charts, Forms)
 
 **Nachweis:**
+
 - `src/context/SimulationContext.tsx`
 - Vite Build-Konfiguration
 - Lazy Loading in `src/pages/HomePage.tsx`
@@ -608,6 +651,7 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 | **3705+ Tests** | ✅ Vollständig | ✅ Ja |
 
 **Code-Qualität:**
+
 - ESLint mit Codacy-kompatiblen Regeln
 - TypeScript strict mode
 - Max 0 warnings enforced
@@ -617,12 +661,14 @@ Die Zinseszins-Simulation ist eine hochentwickelte, feature-complete Anwendung f
 - Keine eslint-disable Comments erlaubt
 
 **CI/CD:**
+
 1. Build (Vite)
 2. Lint (ESLint + Markdown)
 3. Type Check (TypeScript)
 4. Test (Vitest mit 3705 Tests)
 
 **Nachweis:**
+
 - Alle RSuite-Komponenten zu shadcn/ui migriert
 - `.eslintrc.js` mit erweiterten Regeln
 - GitHub Actions Workflows
@@ -794,7 +840,7 @@ Für zukünftige Entwicklung (optional):
 
 ### Test-Statistiken
 
-```
+```text
 Test Files  352 passed (352)
 Tests       3705 passed | 5 skipped (3710)
 Duration    189.52s
