@@ -29,7 +29,9 @@ describe('ProgressionsvorbehaltConfiguration', () => {
     it('should render the component with title', () => {
       renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} />)
 
-      expect(screen.getByText(/Progressionsvorbehalt/i)).toBeInTheDocument()
+      // Use getAllByText since "Progressionsvorbehalt" appears multiple times (title and glossary tooltip)
+      const progressionsvorbehaltTexts = screen.getAllByText(/Progressionsvorbehalt/i)
+      expect(progressionsvorbehaltTexts.length).toBeGreaterThan(0)
     })
 
     it('should render toggle switch', () => {
@@ -292,8 +294,10 @@ describe('ProgressionsvorbehaltConfiguration', () => {
 
       renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
 
-      const deleteButton = screen.getByRole('button', { name: '' }) // Trash button
-      await user.click(deleteButton)
+      // Find the delete button - there should be one delete button per configured year
+      const deleteButtons = screen.getAllByRole('button').filter(btn => btn.querySelector('.lucide-trash-2'))
+      expect(deleteButtons).toHaveLength(1)
+      await user.click(deleteButtons[0])
 
       expect(mockOnChange).toHaveBeenCalledWith({
         enabled: true,
@@ -399,7 +403,9 @@ describe('ProgressionsvorbehaltConfiguration', () => {
 
       renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} planningMode="couple" />)
 
-      expect(screen.getByText(/Progressionsvorbehalt/i)).toBeInTheDocument()
+      // Use getAllByText since "Progressionsvorbehalt" appears multiple times (title and glossary tooltip)
+      const progressionsvorbehaltTexts = screen.getAllByText(/Progressionsvorbehalt/i)
+      expect(progressionsvorbehaltTexts.length).toBeGreaterThan(0)
     })
   })
 
@@ -412,7 +418,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         },
       }
 
-      render(
+      renderWithTooltip(
         <ProgressionsvorbehaltConfiguration
           {...defaultProps}
           config={configWithYears}

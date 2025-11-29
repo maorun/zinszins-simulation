@@ -79,8 +79,8 @@ describe('TaxConfiguration - Planning Mode Integration', () => {
 
     await expandGrundfreibetragSection()
 
-    // Click on the Grundfreibetrag switch
-    const grundfreibetragSwitch = screen.getByRole('switch')
+    // Click on the Grundfreibetrag switch using its ID
+    const grundfreibetragSwitch = screen.getByRole('switch', { name: /Grundfreibetrag berücksichtigen/i })
     fireEvent.click(grundfreibetragSwitch)
 
     // Should set to individual value
@@ -97,8 +97,8 @@ describe('TaxConfiguration - Planning Mode Integration', () => {
 
     await expandGrundfreibetragSection()
 
-    // Click on the Grundfreibetrag switch
-    const grundfreibetragSwitch = screen.getByRole('switch')
+    // Click on the Grundfreibetrag switch using its ID
+    const grundfreibetragSwitch = screen.getByRole('switch', { name: /Grundfreibetrag berücksichtigen/i })
     fireEvent.click(grundfreibetragSwitch)
 
     // Should set to couple value
