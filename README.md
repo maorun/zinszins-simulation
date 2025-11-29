@@ -100,6 +100,15 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Steuerklassen und Freibeträge (Ehegatte €500k, Kind €400k, Enkelkind €200k, etc.)
     - Echtzeit-Berechnung der Erbschaftsteuer nach ErbStG
     - Automatische Netto/Brutto-Umrechnung
+  - **🎁 Schenkungssteuer-Planung** - Optimierung lebzeitiger Vermögensübertragungen
+    - **10-Jahres-Zyklen** - Strategische Nutzung der Freibeträge alle 10 Jahre zur gleichen Person
+    - **Optimierungsalgorithmus** - Automatische Berechnung der steueroptimalen Schenkungsplanung
+    - **Steuerersparnis-Vergleich** - Transparenter Vergleich zwischen Einmalübertragung und optimierter Strategie
+    - **Freibetragsübersicht** - Darstellung der verfügbaren Freibeträge je Verwandtschaftsgrad
+    - **Zeitliche Planung** - Empfohlene Schenkungszeitpunkte über konfigurierbaren Planungszeitraum
+    - **Netto-Berechnung** - Exakte Ermittlung der beim Beschenkten ankommenden Beträge
+    - **Bildungsinhalte** - Integrierte Hinweise zu Dokumentation, Meldepflichten und rechtlichen Anforderungen
+    - **Visualisierung** - Übersichtliche Darstellung des empfohlenen Schenkungsplans mit Zeitstrahl
   - **💸 Ausgaben** - Größere Ausgaben mit optionaler Kreditfinanzierung
     - Kategorien: Autokauf, Immobilie, Bildung, Medizin, Sonstiges
     - Kreditberechnung mit Standard-Zinssätzen je Kategorie

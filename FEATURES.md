@@ -230,16 +230,6 @@ Direkte Erweiterung der bestehenden Kernfunktionalität.
   - **Vergleich Riester vs. Rürup** - Automatische Empfehlung basierend auf persönlicher Situation
   - **Kombinationsszenarien** - Simulation von Riester + Rürup + weitere Altersvorsorge
 
-#### Schenkungssteuer-Planung
-
-- **Lebzeitige Vermögensübertragung** - Planung von Schenkungen zur Minimierung der Erbschaftsteuer
-  - **10-Jahres-Freibeträge** - Optimale Nutzung der Schenkungsfreibeträge (alle 10 Jahre)
-  - **Schenkungssteuer-Berechnung** - Automatische Berechnung nach Verwandtschaftsgrad und Steuerklassen
-  - **Optimierungsvorschläge** - Empfehlungen für optimale Schenkungszeitpunkte und -beträge
-  - **Kettenschenkungen** - Berücksichtigung von Schenkungen über mehrere Generationen
-  - **Nießbrauchsmodelle** - Simulation von Schenkungen unter Nießbrauchsvorbehalt
-  - **Steuerfreie Zuwendungen** - Übersicht über steuerfreie Schenkungsmöglichkeiten (z.B. für Ausbildung)
-
 #### Teilverkauf-Strategie für Immobilien im Alter
 
 - **Immobilien-Teilverkauf-Simulation** - Alternative zur Leibrente bei selbstgenutztem Wohneigentum
