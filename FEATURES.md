@@ -204,7 +204,62 @@ Die folgenden Features in diesem Dokument sind als "**NICHT zu implementieren**"
 
 Direkte Erweiterung der bestehenden Kernfunktionalität.
 
-(Alle hoch-priorisierten Features wurden bereits implementiert)
+#### Automatisches Rebalancing-Protokoll und Steueroptimierung
+
+- **Rebalancing-Protokoll** - Detailliertes Protokoll aller Rebalancing-Aktionen über die Zeit
+  - **Transaktionshistorie** - Aufzeichnung aller Umschichtungen mit Datum, Volumen und Begründung
+  - **Steuerimplikationen** - Berechnung der steuerlichen Auswirkungen jeder Rebalancing-Aktion
+  - **Cost-Benefit-Analyse** - Vergleich von Rebalancing-Kosten vs. Portfolio-Drift-Kosten
+  - **Optimaler Rebalancing-Zeitpunkt** - Berechnung des steueroptimalen Zeitpunkts für Umschichtungen
+  - **Threshold-Optimierung** - Automatische Empfehlung optimaler Rebalancing-Schwellenwerte
+  - **Visualization** - Timeline-Darstellung aller Rebalancing-Aktionen mit Portfoliozusammensetzung
+
+#### Progressionsvorbehalt-Integration mit UI
+
+- **Vollständige UI-Integration** - Benutzerfreundliche Konfiguration des Progressionsvorbehalts
+  - **Jahr-für-Jahr Konfiguration** - Individuelle Eingabe progressionsrelevanter Einkünfte pro Jahr
+  - **Einkunftsarten-Kategorisierung** - Unterstützung verschiedener Einkunftsarten (Elterngeld, Arbeitslosengeld I, Kurzarbeitergeld, ausländische Einkünfte)
+  - **Steuerliche Auswirkungen** - Echtzeit-Berechnung des effektiven Steuersatzes mit Progressionsvorbehalt
+  - **Vergleichsansicht** - Vergleich der Steuerlast mit und ohne Progressionsvorbehalt
+  - **Beispielszenarien** - Vordefinierte Szenarien für typische Progressionsvorbehalt-Situationen
+  - **Bildungsinhalte** - Erklärungen und Beispiele zum Progressionsvorbehalt nach deutschem Recht
+
+#### Riester- und Rürup-Renten Integration
+
+- **Riester-Rente Simulation** - Vollständige Integration der Riester-Rente mit Zulagen und steuerlichen Vorteilen
+  - **Zulagenberechnung** - Automatische Berechnung der Grundzulage (175€) und Kinderzulagen (185€/300€)
+  - **Mindesteigenbeitrag** - Berechnung des erforderlichen Eigenbeitrags (4% des Bruttoeinkommens)
+  - **Steuerliche Förderung** - Berücksichtigung des Sonderausgabenabzugs (max. 2.100€ p.a.)
+  - **Günstigerprüfung** - Automatische Wahl zwischen Zulagen und Steuerersparnis
+  - **Nachgelagerte Besteuerung** - Korrekte Besteuerung der Riester-Rente in der Entnahmephase
+  - **Wohn-Riester** - Option zur Verwendung für selbstgenutztes Wohneigentum
+  
+- **Rürup-Rente (Basis-Rente) Simulation** - Integration der Rürup-Rente für Selbstständige und Gutverdiener
+  - **Höchstbetrag-Berechnung** - Berücksichtigung der jährlichen Höchstbeträge (27.566€ Einzel/55.132€ verheiratet 2024)
+  - **Steuerliche Absetzbarkeit** - Berechnung des absetzbaren Anteils (100% ab 2025, stufenweise Erhöhung)
+  - **Nachgelagerte Besteuerung** - Korrekte Besteuerung nach Rentenbeginn (Besteuerungsanteil je nach Rentenbeginn)
+  - **Vergleich Riester vs. Rürup** - Automatische Empfehlung basierend auf persönlicher Situation
+  - **Kombinationsszenarien** - Simulation von Riester + Rürup + weitere Altersvorsorge
+
+#### Schenkungssteuer-Planung
+
+- **Lebzeitige Vermögensübertragung** - Planung von Schenkungen zur Minimierung der Erbschaftsteuer
+  - **10-Jahres-Freibeträge** - Optimale Nutzung der Schenkungsfreibeträge (alle 10 Jahre)
+  - **Schenkungssteuer-Berechnung** - Automatische Berechnung nach Verwandtschaftsgrad und Steuerklassen
+  - **Optimierungsvorschläge** - Empfehlungen für optimale Schenkungszeitpunkte und -beträge
+  - **Kettenschenkungen** - Berücksichtigung von Schenkungen über mehrere Generationen
+  - **Nießbrauchsmodelle** - Simulation von Schenkungen unter Nießbrauchsvorbehalt
+  - **Steuerfreie Zuwendungen** - Übersicht über steuerfreie Schenkungsmöglichkeiten (z.B. für Ausbildung)
+
+#### Teilverkauf-Strategie für Immobilien im Alter
+
+- **Immobilien-Teilverkauf-Simulation** - Alternative zur Leibrente bei selbstgenutztem Wohneigentum
+  - **Liquiditätsgewinn** - Berechnung der verfügbaren Liquidität durch Teilverkauf (20-50% des Immobilienwerts)
+  - **Nießbrauchsrecht** - Lebenslanges Wohnrecht trotz Teilverkauf
+  - **Kostenvergleich** - Vergleich von Nießbrauchsentgelt vs. Mietkosten/Zinsen
+  - **Steuerliche Behandlung** - Korrekte Abbildung der steuerlichen Auswirkungen
+  - **Vergleich mit Alternativen** - Vergleich mit Leibrente, Reverse Mortgage, Verkauf + Miete
+  - **Timing-Optimierung** - Empfehlung des optimalen Zeitpunkts für Teilverkauf
 
 ### Mittel (⭐⭐)
 
