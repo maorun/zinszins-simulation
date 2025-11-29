@@ -155,6 +155,28 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Detaillierte Aufschlüsselung nach Verlusttyp
   - **Informations-Tool**: Berechnung basiert auf Beispielwerten (10.000 € Kapitalerträge + 500 € Vorabpauschale)
   - **Steuerintegration**: Nutzt aktuelle Steuereinstellungen (Kapitalertragsteuer, Teilfreistellung) aus der Konfiguration
+- **Progressionsvorbehalt** - Informations-Tool zur Berechnung der Steuerauswirkungen steuerfreier progressionsrelevanter Einkünfte
+  - **Jahr-für-Jahr Konfiguration**: Individuelle Eingabe progressionsrelevanter Einkünfte für jedes Jahr
+  - **Einkunftsarten**: Unterstützung verschiedener Einkunftsarten nach deutschem Steuerrecht
+    - Elterngeld (steuerfreie Leistung bei Elternzeit)
+    - Arbeitslosengeld I (Leistung bei Arbeitslosigkeit)
+    - Kurzarbeitergeld (Lohnersatzleistung bei Kurzarbeit)
+    - Ausländische Einkünfte (steuerfreie Einkünfte aus dem Ausland)
+    - Weitere progressionsrelevante Einkünfte
+  - **Steuerliche Auswirkungen**: Echtzeit-Berechnung des effektiven Steuersatzes mit Progressionsvorbehalt
+    - Berechnung erfolgt nach deutschem Einkommensteuergesetz (EStG)
+    - Berücksichtigung der progressiven Steuertarife
+    - Integration mit Kirchensteuer-Konfiguration
+  - **Vergleichsansicht**: Transparente Darstellung der Steuerlast mit und ohne Progressionsvorbehalt
+    - Steuersatz ohne Progression (reguläre Besteuerung)
+    - Steuersatz mit Progression (erhöhter Steuersatz)
+    - Zusätzliche Steuerlast in Euro und Prozentpunkten
+  - **Beispielszenarien**: Vordefinierte Szenarien für typische Progressionsvorbehalt-Situationen
+    - Elternzeit (1 Jahr mit 12.000 € Elterngeld)
+    - Kurzarbeit (6 Monate mit 6.000 € Kurzarbeitergeld)
+    - Arbeitslosigkeit (kurze Periode mit 4.500 € Arbeitslosengeld I)
+  - **Glossar-Integration**: Detaillierte Erklärung mit Beispielen im integrierten Glossar
+  - **Informations-Tool**: Beispielhafte Berechnung mit 40.000 € zu versteuerndem Einkommen
 - **Planungsmodus-abhängiger Sparerpauschbetrag** - Automatische Anpassung des Freibetrags basierend auf Individual- oder Paarplanung
   - **Einzelperson**: 2.000€ jährlicher Sparerpauschbetrag
   - **Ehepaar/Partner**: 4.000€ jährlicher Sparerpauschbetrag (2.000€ pro Person)

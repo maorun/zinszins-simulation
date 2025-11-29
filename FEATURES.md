@@ -214,16 +214,6 @@ Direkte Erweiterung der bestehenden Kernfunktionalität.
   - **Threshold-Optimierung** - Automatische Empfehlung optimaler Rebalancing-Schwellenwerte
   - **Visualization** - Timeline-Darstellung aller Rebalancing-Aktionen mit Portfoliozusammensetzung
 
-#### Progressionsvorbehalt-Integration mit UI
-
-- **Vollständige UI-Integration** - Benutzerfreundliche Konfiguration des Progressionsvorbehalts
-  - **Jahr-für-Jahr Konfiguration** - Individuelle Eingabe progressionsrelevanter Einkünfte pro Jahr
-  - **Einkunftsarten-Kategorisierung** - Unterstützung verschiedener Einkunftsarten (Elterngeld, Arbeitslosengeld I, Kurzarbeitergeld, ausländische Einkünfte)
-  - **Steuerliche Auswirkungen** - Echtzeit-Berechnung des effektiven Steuersatzes mit Progressionsvorbehalt
-  - **Vergleichsansicht** - Vergleich der Steuerlast mit und ohne Progressionsvorbehalt
-  - **Beispielszenarien** - Vordefinierte Szenarien für typische Progressionsvorbehalt-Situationen
-  - **Bildungsinhalte** - Erklärungen und Beispiele zum Progressionsvorbehalt nach deutschem Recht
-
 #### Riester- und Rürup-Renten Integration
 
 - **Riester-Rente Simulation** - Vollständige Integration der Riester-Rente mit Zulagen und steuerlichen Vorteilen
