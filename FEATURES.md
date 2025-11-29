@@ -8,7 +8,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung
 
-- **Progressionsvorbehalt** - Auswirkungen auf andere Einkünfte bei ausländischen Einkünften
 - **Verlustverrechnungstöpfe** - Simulation verschiedener Verlustverrechnungsregeln
 
 #### Asset Allocation & Portfolio-Management
