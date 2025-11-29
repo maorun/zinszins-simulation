@@ -9,8 +9,7 @@ import { TaxConfigurationCard } from './tax-config/TaxConfigurationCard'
 import { TaxLossHarvestingCard } from './TaxLossHarvestingCard'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
 import { ProgressionsvorbehaltConfiguration } from './ProgressionsvorbehaltConfiguration'
-import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG } from '../../helpers/progressionsvorbehalt'
-import type { ProgressionsvorbehaltConfig } from '../../helpers/progressionsvorbehalt'
+import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG, type ProgressionsvorbehaltConfig } from '../../helpers/progressionsvorbehalt'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'

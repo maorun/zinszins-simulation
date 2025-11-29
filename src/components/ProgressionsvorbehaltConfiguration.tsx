@@ -8,13 +8,11 @@ import { Plus, Trash2, Info } from 'lucide-react'
 import {
   type ProgressionsvorbehaltConfig,
   DEFAULT_PROGRESSIONSVORBEHALT_CONFIG,
-  calculateProgressionRate,
   calculateIncomeTaxWithProgressionsvorbehalt,
   calculateGermanIncomeTax,
 } from '../../helpers/progressionsvorbehalt'
 import { formatCurrency } from '../utils/currency'
 import { GlossaryTerm } from './GlossaryTerm'
-import { useNesting } from '../lib/nesting-context'
 
 interface ProgressionsvorbehaltConfigurationProps {
   /** Current configuration */
@@ -31,17 +29,15 @@ interface ProgressionsvorbehaltConfigurationProps {
   timeRange?: { start: number; end: number }
 }
 
-/**
- * Income type categories for Progressionsvorbehalt
- */
-const INCOME_TYPES = [
-  { value: 'elterngeld', label: 'Elterngeld', description: 'Parental allowance' },
-  { value: 'arbeitslosengeld', label: 'Arbeitslosengeld I', description: 'Unemployment benefits' },
-  { value: 'kurzarbeitergeld', label: 'Kurzarbeitergeld', description: 'Short-time work compensation' },
-  { value: 'foreign', label: 'Ausländische Einkünfte', description: 'Foreign income' },
-  { value: 'insolvenzgeld', label: 'Insolvenzgeld', description: 'Insolvency compensation' },
-  { value: 'other', label: 'Sonstige', description: 'Other progression-relevant income' },
-] as const
+// Income type categories for Progressionsvorbehalt - reserved for future use
+// const INCOME_TYPES = [
+//   { value: 'elterngeld', label: 'Elterngeld', description: 'Parental allowance' },
+//   { value: 'arbeitslosengeld', label: 'Arbeitslosengeld I', description: 'Unemployment benefits' },
+//   { value: 'kurzarbeitergeld', label: 'Kurzarbeitergeld', description: 'Short-time work compensation' },
+//   { value: 'foreign', label: 'Ausländische Einkünfte', description: 'Foreign income' },
+//   { value: 'insolvenzgeld', label: 'Insolvenzgeld', description: 'Insolvency compensation' },
+//   { value: 'other', label: 'Sonstige', description: 'Other progression-relevant income' },
+// ] as const
 
 /**
  * Example scenarios for Progressionsvorbehalt
@@ -109,13 +105,10 @@ function calculateTaxComparison(
 export function ProgressionsvorbehaltConfiguration({
   config,
   onChange,
-  planningMode = 'individual',
   kirchensteuerAktiv = false,
   kirchensteuersatz = 9,
   timeRange,
 }: ProgressionsvorbehaltConfigurationProps) {
-  const { getCardClass } = useNesting()
-  const [selectedYear, setSelectedYear] = useState<number>(new Date().getFullYear())
   const [newYearInput, setNewYearInput] = useState<string>('')
   const [newIncomeInput, setNewIncomeInput] = useState<string>('')
 
@@ -194,12 +187,12 @@ export function ProgressionsvorbehaltConfiguration({
   }
 
   return (
-    <Card className={getCardClass()}>
+    <Card nestingLevel={1}>
       <CardHeader>
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2">
             📊 Progressionsvorbehalt
-            <GlossaryTerm termKey="progressionsvorbehalt" variant="icon" />
+            <GlossaryTerm term="progressionsvorbehalt" showIcon />
           </span>
           <div className="flex items-center gap-2">
             <Switch
