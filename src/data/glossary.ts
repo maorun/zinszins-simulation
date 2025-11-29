@@ -162,6 +162,15 @@ export const glossaryTerms: Record<string, GlossaryTerm> = {
       'Szenario "Vorsichtiger Einsteiger": 300€/Monat über 30 Jahre mit 3,5% Rendite zeigt konservative Langzeitplanung mit geringem Risiko.',
     relatedTerms: ['rendite', 'risiko', 'anlagestrategie'],
   },
+  progressionsvorbehalt: {
+    term: 'Progressionsvorbehalt',
+    shortDefinition: 'Steuerfreie Einkünfte erhöhen den Steuersatz auf zu versteuerndes Einkommen',
+    detailedExplanation:
+      'Der Progressionsvorbehalt ist ein deutsches Steuerprinzip, bei dem bestimmte steuerfreie Einkünfte (z.B. Elterngeld, Arbeitslosengeld I, Kurzarbeitergeld, ausländische Einkünfte) den Steuersatz auf Ihr zu versteuerndes Einkommen erhöhen, obwohl diese Einkünfte selbst nicht besteuert werden. Das Finanzamt berechnet einen höheren Steuersatz, der dann auf Ihre steuerpflichtigen Einkünfte angewendet wird. Dies führt zu einer höheren Steuerlast auf Einkünfte wie Kapitalerträge, Gehalt oder Entnahmen.',
+    example:
+      'Person mit 40.000€ zu versteuerndem Einkommen (Steuersatz ca. 21%) und 12.000€ Elterngeld: Das Elterngeld ist steuerfrei, erhöht aber den Steuersatz auf die 40.000€ auf ca. 24%. Dadurch entstehen ca. 1.200€ zusätzliche Steuern.',
+    relatedTerms: ['einkommensteuersatz', 'guenstigerpruefung', 'kapitalertragsteuer'],
+  },
 }
 
 // Helper function to get a glossary term
