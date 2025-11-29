@@ -1,33 +1,10 @@
 import { Button } from '../ui/button'
 import { Label } from '../ui/label'
 import { formatCurrency } from '../../utils/currency'
-
-/**
- * Example scenarios for Progressionsvorbehalt
- */
-export const EXAMPLE_SCENARIOS = [
-  {
-    name: 'Elternzeit (1 Jahr)',
-    description: 'Elterngeld während Elternzeit',
-    yearlyIncome: 12000,
-    incomeType: 'elterngeld',
-  },
-  {
-    name: 'Kurzarbeit (6 Monate)',
-    description: 'Kurzarbeitergeld bei 50% Kurzarbeit',
-    yearlyIncome: 6000,
-    incomeType: 'kurzarbeitergeld',
-  },
-  {
-    name: 'Arbeitslosigkeit (kurz)',
-    description: 'Arbeitslosengeld I für 3 Monate',
-    yearlyIncome: 4500,
-    incomeType: 'arbeitslosengeld',
-  },
-] as const
+import { EXAMPLE_SCENARIOS, type ExampleScenario } from './scenarios'
 
 interface ProgressionsvorbehaltScenariosProps {
-  onApplyScenario: (scenario: (typeof EXAMPLE_SCENARIOS)[number]) => void
+  onApplyScenario: (scenario: ExampleScenario) => void
 }
 
 /**

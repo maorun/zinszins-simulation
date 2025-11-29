@@ -1,8 +1,9 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { ProgressionsvorbehaltConfiguration } from './ProgressionsvorbehaltConfiguration'
 import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG, type ProgressionsvorbehaltConfig } from '../../helpers/progressionsvorbehalt'
+import { TooltipProvider } from './ui/tooltip'
 
 describe('ProgressionsvorbehaltConfiguration', () => {
   const mockOnChange = vi.fn()
@@ -19,15 +20,19 @@ describe('ProgressionsvorbehaltConfiguration', () => {
     vi.clearAllMocks()
   })
 
+  const renderWithTooltip = (ui: React.ReactElement) => {
+    return render(<TooltipProvider>{ui}</TooltipProvider>)
+  }
+
   describe('Basic rendering', () => {
     it('should render the component with title', () => {
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} />)
 
       expect(screen.getByText(/Progressionsvorbehalt/i)).toBeInTheDocument()
     })
 
     it('should render toggle switch', () => {
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} />)
 
       const toggle = screen.getByRole('switch', { name: /Progressionsvorbehalt aktivieren/i })
       expect(toggle).toBeInTheDocument()
@@ -35,7 +40,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
     })
 
     it('should show "Deaktiviert" label when disabled', () => {
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} />)
 
       expect(screen.getByText('Deaktiviert')).toBeInTheDocument()
     })
@@ -46,7 +51,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       expect(screen.getByText('Aktiviert')).toBeInTheDocument()
     })
@@ -55,7 +60,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
   describe('Toggle functionality', () => {
     it('should call onChange when toggle is clicked', async () => {
       const user = userEvent.setup()
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} />)
 
       const toggle = screen.getByRole('switch', { name: /Progressionsvorbehalt aktivieren/i })
       await user.click(toggle)
@@ -73,7 +78,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       const toggle = screen.getByRole('switch', { name: /Progressionsvorbehalt aktivieren/i })
       await user.click(toggle)
@@ -92,13 +97,13 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       expect(screen.getByText(/Was ist der Progressionsvorbehalt\?/i)).toBeInTheDocument()
     })
 
     it('should hide content when disabled', () => {
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} />)
 
       expect(screen.queryByText(/Was ist der Progressionsvorbehalt\?/i)).not.toBeInTheDocument()
     })
@@ -109,7 +114,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       expect(screen.getByText(/Beispielszenarien anwenden:/i)).toBeInTheDocument()
       expect(screen.getByText(/Elternzeit \(1 Jahr\)/i)).toBeInTheDocument()
@@ -126,7 +131,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       const elternzeitButton = screen.getByRole('button', { name: /Elternzeit \(1 Jahr\)/i })
       await user.click(elternzeitButton)
@@ -147,7 +152,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       const kurzarbeitButton = screen.getByRole('button', { name: /Kurzarbeit \(6 Monate\)/i })
       await user.click(kurzarbeitButton)
@@ -168,7 +173,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       const arbeitslosigkeitButton = screen.getByRole('button', { name: /Arbeitslosigkeit \(kurz\)/i })
       await user.click(arbeitslosigkeitButton)
@@ -190,7 +195,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       expect(screen.getByPlaceholderText(/Jahr \(z\.B\. 2024\)/i)).toBeInTheDocument()
       expect(screen.getByPlaceholderText(/Betrag in €/i)).toBeInTheDocument()
@@ -203,7 +208,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       const yearInput = screen.getByPlaceholderText(/Jahr \(z\.B\. 2024\)/i)
       const incomeInput = screen.getByPlaceholderText(/Betrag in €/i)
@@ -227,7 +232,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       const addButton = screen.getByRole('button', { name: '' }) // Plus button
       expect(addButton).toBeDisabled()
@@ -244,7 +249,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         },
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
 
       expect(screen.getByText('2024')).toBeInTheDocument()
       expect(screen.getByText('2025')).toBeInTheDocument()
@@ -261,7 +266,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         },
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
 
       const inputs = screen.getAllByRole('spinbutton')
       const incomeInput = inputs.find(input => (input as HTMLInputElement).value === '12000')
@@ -284,7 +289,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         },
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
 
       const deleteButton = screen.getByRole('button', { name: '' }) // Trash button
       await user.click(deleteButton)
@@ -303,7 +308,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         },
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
 
       expect(screen.queryByText(/Beispielszenarien anwenden:/i)).not.toBeInTheDocument()
     })
@@ -318,7 +323,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         },
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
 
       expect(screen.getByText(/Steuerliche Auswirkungen/i)).toBeInTheDocument()
       expect(screen.getByText(/Ohne Progressionsvorbehalt/i)).toBeInTheDocument()
@@ -332,7 +337,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       expect(screen.queryByText(/Steuerliche Auswirkungen/i)).not.toBeInTheDocument()
     })
@@ -345,7 +350,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         },
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithYears} />)
 
       const steuersatzTexts = screen.getAllByText(/Steuersatz:/i)
       expect(steuersatzTexts.length).toBeGreaterThanOrEqual(2)
@@ -361,7 +366,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         },
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       expect(screen.getByRole('button', { name: /Zurücksetzen/i })).toBeInTheDocument()
     })
@@ -375,7 +380,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         },
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       const resetButton = screen.getByRole('button', { name: /Zurücksetzen/i })
       await user.click(resetButton)
@@ -391,7 +396,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} planningMode="couple" />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} planningMode="couple" />)
 
       expect(screen.getByText(/Progressionsvorbehalt/i)).toBeInTheDocument()
     })
@@ -429,7 +434,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
 
       const timeRange = { start: 2020, end: 2050 }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} timeRange={timeRange} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} timeRange={timeRange} />)
 
       const yearInput = screen.getByPlaceholderText(/Jahr \(z\.B\. 2024\)/i) as HTMLInputElement
       expect(yearInput.min).toBe('2020')
@@ -442,7 +447,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       const yearInput = screen.getByPlaceholderText(/Jahr \(z\.B\. 2024\)/i) as HTMLInputElement
       expect(yearInput.min).toBe('2020')
@@ -458,7 +463,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       const yearInput = screen.getByPlaceholderText(/Jahr \(z\.B\. 2024\)/i)
       const incomeInput = screen.getByPlaceholderText(/Betrag in €/i)
@@ -482,7 +487,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         },
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithMultipleYears} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={configWithMultipleYears} />)
 
       expect(screen.getByText('2024')).toBeInTheDocument()
       expect(screen.getByText('2025')).toBeInTheDocument()
@@ -496,7 +501,7 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      render(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
+      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} />)
 
       const yearInput = screen.getByPlaceholderText(/Jahr \(z\.B\. 2024\)/i)
       const incomeInput = screen.getByPlaceholderText(/Betrag in €/i)

@@ -15,9 +15,6 @@ interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
 }
 
-/**
- * Auto-update Grundfreibetrag when planning mode changes
- */
 function useAutoUpdateGrundfreibetrag(
   planningMode: 'individual' | 'couple',
   recommendedGrundfreibetrag: number,
@@ -39,12 +36,9 @@ function useAutoUpdateGrundfreibetrag(
 const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps) => {
   const simulation = useSimulation()
   const { currentConfig, updateFormValue } = useWithdrawalConfig()
-  const yearToday = new Date().getFullYear()
   const recommendedGrundfreibetrag = getGrundfreibetragForPlanningMode(planningMode)
-  const planningModeLabel = planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'
-  const [progressionsvorbehaltConfig, setProgressionsvorbehaltConfig] = useState<ProgressionsvorbehaltConfig>(
-    DEFAULT_PROGRESSIONSVORBEHALT_CONFIG,
-  )
+  const [progressionsvorbehaltConfig, setProgressionsvorbehaltConfig] =
+    useState<ProgressionsvorbehaltConfig>(DEFAULT_PROGRESSIONSVORBEHALT_CONFIG)
 
   useAutoUpdateGrundfreibetrag(planningMode, recommendedGrundfreibetrag, simulation)
 
@@ -52,30 +46,28 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
     <TooltipProvider>
       <NestingProvider level={1}>
         <div className="space-y-4">
-          <TaxConfigurationCard simulation={simulation} yearToday={yearToday} />
-
+          <TaxConfigurationCard simulation={simulation} yearToday={new Date().getFullYear()} />
           <GrundfreibetragConfiguration
             grundfreibetragAktiv={simulation.grundfreibetragAktiv}
             grundfreibetragBetrag={simulation.grundfreibetragBetrag}
             recommendedGrundfreibetrag={recommendedGrundfreibetrag}
-            planningModeLabel={planningModeLabel}
+            planningModeLabel={planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'}
             guenstigerPruefungAktiv={simulation.guenstigerPruefungAktiv}
             einkommensteuersatz={currentConfig.formValue.einkommensteuersatz}
-            onGrundfreibetragAktivChange={checked => {
-              simulation.setGrundfreibetragAktiv(checked)
-              if (checked) simulation.setGrundfreibetragBetrag(recommendedGrundfreibetrag)
+            onGrundfreibetragAktivChange={c => {
+              simulation.setGrundfreibetragAktiv(c)
+              if (c) simulation.setGrundfreibetragBetrag(recommendedGrundfreibetrag)
               simulation.performSimulation()
             }}
-            onGrundfreibetragBetragChange={value => {
-              simulation.setGrundfreibetragBetrag(value)
+            onGrundfreibetragBetragChange={v => {
+              simulation.setGrundfreibetragBetrag(v)
               simulation.performSimulation()
             }}
-            onEinkommensteuersatzChange={value => {
-              updateFormValue({ einkommensteuersatz: value })
+            onEinkommensteuersatzChange={v => {
+              updateFormValue({ einkommensteuersatz: v })
               simulation.performSimulation()
             }}
           />
-
           <ProgressionsvorbehaltConfiguration
             config={progressionsvorbehaltConfig}
             onChange={setProgressionsvorbehaltConfig}
@@ -83,9 +75,7 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
             kirchensteuerAktiv={simulation.kirchensteuerAktiv}
             kirchensteuersatz={simulation.kirchensteuersatz}
           />
-
           <TaxLossHarvestingCard />
-
           <NestingProvider>
             <BasiszinsConfiguration />
           </NestingProvider>
