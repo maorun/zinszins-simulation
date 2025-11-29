@@ -1,13 +1,16 @@
 import { useSimulation } from '../contexts/useSimulation'
 import { NestingProvider } from '../lib/nesting-context'
 import BasiszinsConfiguration from './BasiszinsConfiguration'
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { getGrundfreibetragForPlanningMode, isStandardGrundfreibetragValue } from '../../helpers/steuer'
 import { TooltipProvider } from './ui/tooltip'
 import { GrundfreibetragConfiguration } from './tax-config/GrundfreibetragConfiguration'
 import { TaxConfigurationCard } from './tax-config/TaxConfigurationCard'
 import { TaxLossHarvestingCard } from './TaxLossHarvestingCard'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
+import { ProgressionsvorbehaltConfiguration } from './ProgressionsvorbehaltConfiguration'
+import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG } from '../../helpers/progressionsvorbehalt'
+import type { ProgressionsvorbehaltConfig } from '../../helpers/progressionsvorbehalt'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -40,6 +43,9 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
   const yearToday = new Date().getFullYear()
   const recommendedGrundfreibetrag = getGrundfreibetragForPlanningMode(planningMode)
   const planningModeLabel = planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'
+  const [progressionsvorbehaltConfig, setProgressionsvorbehaltConfig] = useState<ProgressionsvorbehaltConfig>(
+    DEFAULT_PROGRESSIONSVORBEHALT_CONFIG,
+  )
 
   useAutoUpdateGrundfreibetrag(planningMode, recommendedGrundfreibetrag, simulation)
 
@@ -69,6 +75,14 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
               updateFormValue({ einkommensteuersatz: value })
               simulation.performSimulation()
             }}
+          />
+
+          <ProgressionsvorbehaltConfiguration
+            config={progressionsvorbehaltConfig}
+            onChange={setProgressionsvorbehaltConfig}
+            planningMode={planningMode}
+            kirchensteuerAktiv={simulation.kirchensteuerAktiv}
+            kirchensteuersatz={simulation.kirchensteuersatz}
           />
 
           <TaxLossHarvestingCard />
