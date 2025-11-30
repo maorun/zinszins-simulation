@@ -4,7 +4,7 @@ import { EntnahmeView } from './EntnahmeView'
 import { SonstigesView } from './SonstigesView'
 import type { FinancialScenario } from '../data/scenarios'
 import type { SensitivityAnalysisConfig } from '../utils/sensitivity-analysis'
-import type { ReturnConfiguration } from '../types/return-configuration'
+import type { ReturnConfiguration } from '../utils/random-returns'
 
 interface MainNavigationProps {
   handleApplyScenario: (scenario: FinancialScenario) => void

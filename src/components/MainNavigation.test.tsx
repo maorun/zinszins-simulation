@@ -4,7 +4,8 @@ import { MainNavigation } from './MainNavigation'
 import { SimulationProvider } from '../contexts/SimulationContext'
 import { NavigationProvider } from '../contexts/NavigationContext'
 import type { SensitivityAnalysisConfig } from '../utils/sensitivity-analysis'
-import type { ReturnConfiguration } from '../types/return-configuration'
+import type { ReturnConfiguration } from '../utils/random-returns'
+import React from 'react'
 
 const mockSensitivityConfig: SensitivityAnalysisConfig = {
   startYear: 2025,
@@ -12,12 +13,11 @@ const mockSensitivityConfig: SensitivityAnalysisConfig = {
   elements: [],
   steuerlast: 0.26375,
   teilfreistellungsquote: 0.3,
-  simulationAnnual: true,
+  simulationAnnual: 'yearly',
   freibetragPerYear: {},
   steuerReduzierenEndkapital: false,
   inflationAktivSparphase: false,
   inflationsrateSparphase: 0,
-  inflationAnwendungSparphase: 'none',
 }
 
 const mockReturnConfig: ReturnConfiguration = {

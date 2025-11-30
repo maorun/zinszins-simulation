@@ -1,7 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Card, CardContent } from './ui/card'
 import type { SensitivityAnalysisConfig } from '../utils/sensitivity-analysis'
-import type { ReturnConfiguration } from '../types/return-configuration'
+import type { ReturnConfiguration } from '../utils/random-returns'
 import type { FinancialScenario } from '../data/scenarios'
 import { TutorialManager } from './TutorialManager'
 import { HomePageSpecialEvents } from './HomePageSpecialEvents'
@@ -47,6 +47,7 @@ interface SonstigesViewProps {
  * Sonstiges View - Extended features and advanced configuration
  * Includes all configuration tools, tutorials, special events, planning tools, Monte Carlo, tax modules, exports, and behavioral finance
  */
+// eslint-disable-next-line max-lines-per-function -- View component requires comprehensive rendering of all extended features
 export function SonstigesView({
   sensitivityConfig,
   returnConfig,
