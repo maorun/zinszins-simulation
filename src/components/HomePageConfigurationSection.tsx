@@ -10,6 +10,7 @@ const GlobalPlanningConfiguration = lazy(() =>
 const FinancialGoalsConfiguration = lazy(() => import('./FinancialGoalsConfiguration'))
 const EmergencyFundConfiguration = lazy(() => import('./EmergencyFundConfiguration'))
 const AlimonyConfiguration = lazy(() => import('./AlimonyConfiguration'))
+const GiftTaxPlanningConfiguration = lazy(() => import('./GiftTaxPlanningConfiguration'))
 const EigenheimVsMieteComparison = lazy(() =>
   import('./EigenheimVsMieteComparison').then(m => ({ default: m.EigenheimVsMieteComparison })),
 )
@@ -62,6 +63,11 @@ export function HomePageConfigurationSection({
       {/* Alimony / Child Support Configuration */}
       <Suspense fallback={<LoadingCard />}>
         <AlimonyConfiguration />
+      </Suspense>
+
+      {/* Gift Tax Planning Configuration */}
+      <Suspense fallback={<LoadingCard />}>
+        <GiftTaxPlanningConfiguration />
       </Suspense>
 
       {/* Eigenheim vs. Miete Comparison */}
