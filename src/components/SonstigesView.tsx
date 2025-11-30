@@ -6,6 +6,7 @@ import type { FinancialScenario } from '../data/scenarios'
 import { TutorialManager } from './TutorialManager'
 import { HomePageSpecialEvents } from './HomePageSpecialEvents'
 import { BehavioralFinanceInsights } from './BehavioralFinanceInsights'
+import SimulationParameters from './SimulationParameters'
 
 // Lazy load large configuration components
 const GlobalPlanningConfiguration = lazy(() =>
@@ -44,7 +45,7 @@ interface SonstigesViewProps {
 
 /**
  * Sonstiges View - Extended features and advanced configuration
- * Includes tutorials, special events, planning tools, Monte Carlo, tax modules, exports, and behavioral finance
+ * Includes all configuration tools, tutorials, special events, planning tools, Monte Carlo, tax modules, exports, and behavioral finance
  */
 export function SonstigesView({
   sensitivityConfig,
@@ -60,6 +61,9 @@ export function SonstigesView({
 
       {/* Special Events - Black Swan, Risk Events */}
       <HomePageSpecialEvents />
+
+      {/* Simulation Configuration - includes Zeit, Steuer, Basiszins, Benchmark, etc. */}
+      <SimulationParameters />
 
       {/* Global Planning Configuration */}
       <Suspense fallback={<LoadingCard />}>
