@@ -42,8 +42,9 @@ describe('HomePage Integration Tests - Optimized', () => {
     // Wait for lazy-loaded components to render
     await waitFor(
       () => {
-        expect(screen.getByText('Ansparen')).toBeInTheDocument()
-        expect(screen.getByText('Entnehmen')).toBeInTheDocument()
+        expect(screen.getByText(/Sparen/)).toBeInTheDocument()
+        expect(screen.getByText(/Entnahme/)).toBeInTheDocument()
+        expect(screen.getByText(/Sonstiges/)).toBeInTheDocument()
       },
       { timeout: 5000 },
     )
@@ -53,30 +54,36 @@ describe('HomePage Integration Tests - Optimized', () => {
     expect(finanzuebersicht).toBeInTheDocument()
   })
 
-  it('has working tab navigation between Ansparen and Entnehmen', async () => {
+  it('has working tab navigation between Sparen, Entnahme, and Sonstiges', async () => {
     render(<HomePage />)
 
     // Wait for lazy-loaded components
     await waitFor(
       () => {
-        expect(screen.getByText('Ansparen')).toBeInTheDocument()
-        expect(screen.getByText('Entnehmen')).toBeInTheDocument()
+        expect(screen.getByText(/Sparen/)).toBeInTheDocument()
+        expect(screen.getByText(/Entnahme/)).toBeInTheDocument()
+        expect(screen.getByText(/Sonstiges/)).toBeInTheDocument()
       },
       { timeout: 5000 },
     )
 
-    const ansparenTab = screen.getByText('Ansparen')
-    const entnehmenTab = screen.getByText('Entnehmen')
+    const sparenTab = screen.getByText(/💰 Sparen/)
+    const entnahmeTab = screen.getByText(/🏦 Entnahme/)
+    const sonstigesTab = screen.getByText(/⚙️ Sonstiges/)
 
-    // Should have both tabs
-    expect(ansparenTab).toBeInTheDocument()
-    expect(entnehmenTab).toBeInTheDocument()
+    // Should have all three tabs
+    expect(sparenTab).toBeInTheDocument()
+    expect(entnahmeTab).toBeInTheDocument()
+    expect(sonstigesTab).toBeInTheDocument()
 
-    // Click on Entnehmen tab - should not crash
-    fireEvent.click(entnehmenTab)
+    // Click on Entnahme tab - should not crash
+    fireEvent.click(entnahmeTab)
 
-    // Click back on Ansparen tab - should not crash
-    fireEvent.click(ansparenTab)
+    // Click on Sonstiges tab - should not crash
+    fireEvent.click(sonstigesTab)
+
+    // Click back on Sparen tab - should not crash
+    fireEvent.click(sparenTab)
   })
 
   it('displays financial overview when enhanced summary is available', () => {
@@ -131,18 +138,18 @@ describe('HomePage Integration Tests - Optimized', () => {
     const user = userEvent.setup()
     const { container } = render(<HomePage />)
 
-    // First ensure we're on the correct tab (Ansparen)
+    // First ensure we're on the correct tab (Sparen)
     await waitFor(
       () => {
-        const ansparenTab = screen.getByText('Ansparen')
-        expect(ansparenTab).toBeInTheDocument()
+        const sparenTab = screen.getByText(/💰 Sparen/)
+        expect(sparenTab).toBeInTheDocument()
       },
       { timeout: 1000 },
     )
 
-    // Click the Ansparen tab to make sure it's active
-    const ansparenTab = screen.getByText('Ansparen')
-    await user.click(ansparenTab)
+    // Click the Sparen tab to make sure it's active
+    const sparenTab = screen.getByText(/💰 Sparen/)
+    await user.click(sparenTab)
     await new Promise(resolve => setTimeout(resolve, 200))
 
     // Find and expand the outer "💼 Sparpläne erstellen" section
