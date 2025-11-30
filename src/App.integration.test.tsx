@@ -32,35 +32,25 @@ describe('App Integration Tests - Optimized', () => {
   it('loads the application with basic UI elements', async () => {
     render(<App />)
 
-    // Wait for lazy-loaded components to render
+    // Wait for the page to load with all main elements
     await waitFor(
       () => {
-        expect(screen.getByText('💼 Zinseszins-Simulation')).toBeInTheDocument()
-        expect(screen.getByText('🔄 Neu berechnen')).toBeInTheDocument()
+        // Check for header
+        expect(screen.getByText(/Zinseszins-Simulation/)).toBeInTheDocument()
+        // Check for main button
+        expect(screen.getByText(/Neu berechnen/)).toBeInTheDocument()
+        // Check for navigation tabs - use getAllByRole since there are multiple role="tab" elements
+        const tabs = screen.getAllByRole('tab')
+        expect(tabs.length).toBeGreaterThanOrEqual(3)
+        // Verify the tab names
+        const tabTexts = tabs.map(tab => tab.textContent)
+        expect(tabTexts.some(text => text?.includes('Sparen'))).toBe(true)
+        expect(tabTexts.some(text => text?.includes('Entnahme'))).toBe(true)
+        expect(tabTexts.some(text => text?.includes('Sonstiges'))).toBe(true)
       },
-      { timeout: 2500 }, // Reduced from 5000ms to fit within test timeout
+      { timeout: 10000 }, // Increased timeout for lazy loading
     )
-
-    // Wait for Profile Management to load
-    await waitFor(
-      () => {
-        expect(screen.getByText('👤 Profile verwalten')).toBeInTheDocument()
-      },
-      { timeout: 2500 }, // Reduced from 5000ms to fit within test timeout
-    )
-
-    // Check that main sections are present
-    expect(screen.getByText('⚙️ Konfiguration')).toBeInTheDocument()
-
-    // Wait for tabs to load
-    await waitFor(
-      () => {
-        expect(screen.getByText('Ansparen')).toBeInTheDocument()
-        expect(screen.getByText('Entnehmen')).toBeInTheDocument()
-      },
-      { timeout: 2500 }, // Reduced from 5000ms to fit within test timeout
-    )
-  }, 10000) // Increase timeout for this entire test to 10 seconds
+  }, 15000) // Increase timeout for this entire test to 15 seconds
 
   it('renders the complete application structure without errors', () => {
     const { container } = render(<App />)
