@@ -3,22 +3,28 @@ import { SparenView } from './SparenView'
 import { EntnahmeView } from './EntnahmeView'
 import { SonstigesView } from './SonstigesView'
 import type { FinancialScenario } from '../data/scenarios'
+import type { SensitivityAnalysisConfig } from '../utils/sensitivity-analysis'
+import type { ReturnConfiguration } from '../types/return-configuration'
 
 interface MainNavigationProps {
   handleApplyScenario: (scenario: FinancialScenario) => void
   startOfIndependence: number
-  sensitivityConfig: {
-    simulationData: unknown
-    sparplanElemente: unknown
-    returnConfig: unknown
-  }
+  sensitivityConfig: SensitivityAnalysisConfig
+  returnConfig: ReturnConfiguration
+  hasSimulationData: boolean
 }
 
 /**
  * Main Navigation Component with Sticky Tabs
  * Provides mobile-friendly and desktop-optimized navigation between main app sections
  */
-export function MainNavigation({ handleApplyScenario, startOfIndependence, sensitivityConfig }: MainNavigationProps) {
+export function MainNavigation({
+  handleApplyScenario,
+  startOfIndependence,
+  sensitivityConfig,
+  returnConfig,
+  hasSimulationData,
+}: MainNavigationProps) {
   return (
     <div className="relative">
       {/* Sticky Navigation */}
@@ -47,7 +53,11 @@ export function MainNavigation({ handleApplyScenario, startOfIndependence, sensi
             </TabsContent>
 
             <TabsContent value="sonstiges" forceMount className="data-[state=inactive]:hidden mt-4">
-              <SonstigesView sensitivityConfig={sensitivityConfig} />
+              <SonstigesView
+                sensitivityConfig={sensitivityConfig}
+                returnConfig={returnConfig}
+                hasSimulationData={hasSimulationData}
+              />
             </TabsContent>
           </Tabs>
         </div>

@@ -1,6 +1,7 @@
 import { lazy, Suspense } from 'react'
 import { Card, CardContent } from './ui/card'
-import type { FinancialScenario } from '../data/scenarios'
+import type { SensitivityAnalysisConfig } from '../utils/sensitivity-analysis'
+import type { ReturnConfiguration } from '../types/return-configuration'
 
 // Lazy load large configuration components
 const AlimonyConfiguration = lazy(() => import('./AlimonyConfiguration'))
@@ -24,18 +25,16 @@ function LoadingCard() {
 }
 
 interface SonstigesViewProps {
-  sensitivityConfig: {
-    simulationData: unknown
-    sparplanElemente: unknown
-    returnConfig: unknown
-  }
+  sensitivityConfig: SensitivityAnalysisConfig
+  returnConfig: ReturnConfiguration
+  hasSimulationData: boolean
 }
 
 /**
  * Sonstiges View - Extended features and advanced configuration
  * Includes Monte Carlo, tax modules, history, exports, and special configurations
  */
-export function SonstigesView({ sensitivityConfig }: SonstigesViewProps) {
+export function SonstigesView({ sensitivityConfig, returnConfig, hasSimulationData }: SonstigesViewProps) {
   return (
     <div className="space-y-4">
       {/* Data Export */}
@@ -44,12 +43,9 @@ export function SonstigesView({ sensitivityConfig }: SonstigesViewProps) {
       </Suspense>
 
       {/* Sensitivity Analysis */}
-      {sensitivityConfig.simulationData && sensitivityConfig.sparplanElemente && (
+      {hasSimulationData && (
         <Suspense fallback={<LoadingCard />}>
-          <SensitivityAnalysisDisplay
-            config={sensitivityConfig}
-            returnConfig={sensitivityConfig.returnConfig}
-          />
+          <SensitivityAnalysisDisplay config={sensitivityConfig} returnConfig={returnConfig} />
         </Suspense>
       )}
 

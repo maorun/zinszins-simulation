@@ -14,7 +14,7 @@ interface HomePageMainContentProps {
 
 export function HomePageMainContent({ overviewRef }: HomePageMainContentProps) {
   const { handleApplyScenario, handleRecalculate, phaseDateRanges } = useHomePageLogic()
-  const { sensitivityConfig } = useAnalysisConfig()
+  const { sensitivityConfig, returnConfig, simulationData, sparplanElemente } = useAnalysisConfig()
 
   return (
     <>
@@ -33,6 +33,8 @@ export function HomePageMainContent({ overviewRef }: HomePageMainContentProps) {
         handleApplyScenario={handleApplyScenario}
         startOfIndependence={phaseDateRanges.savingsStartYear}
         sensitivityConfig={sensitivityConfig}
+        returnConfig={returnConfig}
+        hasSimulationData={!!simulationData && !!sparplanElemente && sparplanElemente.length > 0}
       />
 
       {/* Behavioral Finance Insights - Educational Section */}
