@@ -45,7 +45,7 @@ export function MainNavigation({
 
             {/* Tab Content */}
             <TabsContent value="sparen" forceMount className="data-[state=inactive]:hidden mt-4">
-              <SparenView handleApplyScenario={handleApplyScenario} startOfIndependence={startOfIndependence} />
+              <SparenView />
             </TabsContent>
 
             <TabsContent value="entnahme" forceMount className="data-[state=inactive]:hidden mt-4">
@@ -57,6 +57,8 @@ export function MainNavigation({
                 sensitivityConfig={sensitivityConfig}
                 returnConfig={returnConfig}
                 hasSimulationData={hasSimulationData}
+                handleApplyScenario={handleApplyScenario}
+                startOfIndependence={startOfIndependence}
               />
             </TabsContent>
           </Tabs>

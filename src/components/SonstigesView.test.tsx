@@ -29,6 +29,8 @@ const defaultProps = {
   sensitivityConfig: mockSensitivityConfig,
   returnConfig: mockReturnConfig,
   hasSimulationData: false,
+  handleApplyScenario: vi.fn(),
+  startOfIndependence: 2025,
 }
 
 function renderWithProviders(ui: React.ReactElement) {
@@ -40,6 +42,18 @@ function renderWithProviders(ui: React.ReactElement) {
 }
 
 describe('SonstigesView', () => {
+  it('renders interactive tutorials', () => {
+    renderWithProviders(<SonstigesView {...defaultProps} />)
+
+    expect(screen.getByText(/Interaktive Tutorials/i)).toBeInTheDocument()
+  })
+
+  it('renders special events section', () => {
+    renderWithProviders(<SonstigesView {...defaultProps} />)
+
+    expect(screen.getByText(/Sonderereignisse verwalten/i)).toBeInTheDocument()
+  })
+
   it('renders data export section', () => {
     renderWithProviders(<SonstigesView {...defaultProps} />)
 
