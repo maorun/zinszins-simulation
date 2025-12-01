@@ -97,9 +97,11 @@ export interface RuerupPensionTaxationResult {
  * - Limits are based on § 10 Abs. 1 Nr. 2 Buchst. b EStG
  * - Maximum amounts are tied to contribution assessment ceiling (Beitragsbemessungsgrenze)
  *   in the statutory pension insurance
- * - Deductible percentage increases from 76% (2012) to 100% (2025 and beyond)
- * - 2024: €27,566 (single) / €55,132 (married) with 100% deductibility
+ * - Deductible percentage increases from 74% (2012) to 100% (2025 and beyond)
+ * - 2012: 74%, increases by 2% each year
+ * - 2024: 98% deductibility
  * - 2025 onwards: Full deductibility (100%)
+ * - Base limits for 2024: €27,566 (single) / €55,132 (married)
  */
 export function getRuerupDeductibilityLimits(year: number): RuerupDeductibilityLimits {
   // Base limits for 2024 (reference year)
