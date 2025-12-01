@@ -35,8 +35,8 @@ describe('App Integration Tests - Optimized', () => {
     // Wait for the page to load with all main elements
     await waitFor(
       () => {
-        // Check for header
-        expect(screen.getByText(/Zinseszins-Simulation/)).toBeInTheDocument()
+        // Check for header (use getByRole to be more specific)
+        expect(screen.getByRole('heading', { name: /Zinseszins-Simulation/ })).toBeInTheDocument()
         // Check for main button
         expect(screen.getByText(/Neu berechnen/)).toBeInTheDocument()
         // Check for navigation tabs - use getAllByRole since there are multiple role="tab" elements

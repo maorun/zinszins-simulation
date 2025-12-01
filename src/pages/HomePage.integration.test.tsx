@@ -39,12 +39,15 @@ describe('HomePage Integration Tests - Optimized', () => {
   it('renders the main calculator interface', async () => {
     render(<HomePage />)
 
-    // Wait for lazy-loaded components to render
+    // Wait for lazy-loaded components to render - use getAllByRole to find tabs
     await waitFor(
       () => {
-        expect(screen.getByText(/Sparen/)).toBeInTheDocument()
-        expect(screen.getByText(/Entnahme/)).toBeInTheDocument()
-        expect(screen.getByText(/Sonstiges/)).toBeInTheDocument()
+        const tabs = screen.getAllByRole('tab')
+        expect(tabs.length).toBeGreaterThanOrEqual(3)
+        const tabTexts = tabs.map(tab => tab.textContent)
+        expect(tabTexts.some(text => text?.includes('Sparen'))).toBe(true)
+        expect(tabTexts.some(text => text?.includes('Entnahme'))).toBe(true)
+        expect(tabTexts.some(text => text?.includes('Sonstiges'))).toBe(true)
       },
       { timeout: 5000 },
     )
@@ -57,33 +60,34 @@ describe('HomePage Integration Tests - Optimized', () => {
   it('has working tab navigation between Sparen, Entnahme, and Sonstiges', async () => {
     render(<HomePage />)
 
-    // Wait for lazy-loaded components
+    // Wait for lazy-loaded components - use getAllByRole to be safe
     await waitFor(
       () => {
-        expect(screen.getByText(/Sparen/)).toBeInTheDocument()
-        expect(screen.getByText(/Entnahme/)).toBeInTheDocument()
-        expect(screen.getByText(/Sonstiges/)).toBeInTheDocument()
+        const tabs = screen.getAllByRole('tab')
+        expect(tabs.length).toBeGreaterThanOrEqual(3)
       },
       { timeout: 5000 },
     )
 
-    const sparenTab = screen.getByText(/💰 Sparen/)
-    const entnahmeTab = screen.getByText(/🏦 Entnahme/)
-    const sonstigesTab = screen.getByText(/⚙️ Sonstiges/)
+    // Get tabs by role to find the navigation tabs specifically
+    const tabs = screen.getAllByRole('tab')
+    const sparenTab = tabs.find(tab => tab.textContent?.includes('💰 Sparen'))
+    const entnahmeTab = tabs.find(tab => tab.textContent?.includes('🏦 Entnahme'))
+    const sonstigesTab = tabs.find(tab => tab.textContent?.includes('⚙️ Sonstiges'))
 
     // Should have all three tabs
-    expect(sparenTab).toBeInTheDocument()
-    expect(entnahmeTab).toBeInTheDocument()
-    expect(sonstigesTab).toBeInTheDocument()
+    expect(sparenTab).toBeDefined()
+    expect(entnahmeTab).toBeDefined()
+    expect(sonstigesTab).toBeDefined()
 
     // Click on Entnahme tab - should not crash
-    fireEvent.click(entnahmeTab)
+    fireEvent.click(entnahmeTab!)
 
     // Click on Sonstiges tab - should not crash
-    fireEvent.click(sonstigesTab)
+    fireEvent.click(sonstigesTab!)
 
     // Click back on Sparen tab - should not crash
-    fireEvent.click(sparenTab)
+    fireEvent.click(sparenTab!)
   })
 
   it('displays financial overview when enhanced summary is available', () => {
