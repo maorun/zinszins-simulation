@@ -1,12 +1,9 @@
 import { RefObject } from 'react'
 import { HomePageHeaderSection } from './HomePageHeaderSection'
-import { HomePageConfigurationSection } from './HomePageConfigurationSection'
-import { HomePageAnalysisSection } from './HomePageAnalysisSection'
 import { HomePageOverviewSection } from './HomePageOverviewSection'
-import { HomePageSpecialEvents } from './HomePageSpecialEvents'
-import { BehavioralFinanceInsights } from './BehavioralFinanceInsights'
-import { TutorialManager } from './TutorialManager'
+import { MainNavigation } from './MainNavigation'
 import { useHomePageLogic } from '../hooks/useHomePageLogic'
+import { useAnalysisConfig } from '../hooks/useAnalysisConfig'
 
 interface HomePageMainContentProps {
   overviewRef: RefObject<HTMLDivElement | null>
@@ -14,27 +11,22 @@ interface HomePageMainContentProps {
 
 export function HomePageMainContent({ overviewRef }: HomePageMainContentProps) {
   const { handleApplyScenario, handleRecalculate, phaseDateRanges } = useHomePageLogic()
+  const { sensitivityConfig, returnConfig, simulationData, sparplanElemente } = useAnalysisConfig()
 
   return (
     <>
       <HomePageHeaderSection handleRecalculate={handleRecalculate} />
 
-      {/* Interactive Tutorials - Collapsible Card */}
-      <TutorialManager />
-
       <HomePageOverviewSection overviewRef={overviewRef} />
 
-      <HomePageConfigurationSection
+      {/* Main Navigation with Three Sections */}
+      <MainNavigation
         handleApplyScenario={handleApplyScenario}
         startOfIndependence={phaseDateRanges.savingsStartYear}
+        sensitivityConfig={sensitivityConfig}
+        returnConfig={returnConfig}
+        hasSimulationData={!!simulationData && !!sparplanElemente && sparplanElemente.length > 0}
       />
-
-      <HomePageSpecialEvents />
-
-      <HomePageAnalysisSection />
-
-      {/* Behavioral Finance Insights - Educational Section */}
-      <BehavioralFinanceInsights />
     </>
   )
 }

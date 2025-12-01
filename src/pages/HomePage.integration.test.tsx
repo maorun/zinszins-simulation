@@ -39,11 +39,15 @@ describe('HomePage Integration Tests - Optimized', () => {
   it('renders the main calculator interface', async () => {
     render(<HomePage />)
 
-    // Wait for lazy-loaded components to render
+    // Wait for lazy-loaded components to render - use getAllByRole to find tabs
     await waitFor(
       () => {
-        expect(screen.getByText('Ansparen')).toBeInTheDocument()
-        expect(screen.getByText('Entnehmen')).toBeInTheDocument()
+        const tabs = screen.getAllByRole('tab')
+        expect(tabs.length).toBeGreaterThanOrEqual(3)
+        const tabTexts = tabs.map(tab => tab.textContent)
+        expect(tabTexts.some(text => text?.includes('Sparen'))).toBe(true)
+        expect(tabTexts.some(text => text?.includes('Entnahme'))).toBe(true)
+        expect(tabTexts.some(text => text?.includes('Sonstiges'))).toBe(true)
       },
       { timeout: 5000 },
     )
@@ -53,30 +57,37 @@ describe('HomePage Integration Tests - Optimized', () => {
     expect(finanzuebersicht).toBeInTheDocument()
   })
 
-  it('has working tab navigation between Ansparen and Entnehmen', async () => {
+  it('has working tab navigation between Sparen, Entnahme, and Sonstiges', async () => {
     render(<HomePage />)
 
-    // Wait for lazy-loaded components
+    // Wait for lazy-loaded components - use getAllByRole to be safe
     await waitFor(
       () => {
-        expect(screen.getByText('Ansparen')).toBeInTheDocument()
-        expect(screen.getByText('Entnehmen')).toBeInTheDocument()
+        const tabs = screen.getAllByRole('tab')
+        expect(tabs.length).toBeGreaterThanOrEqual(3)
       },
       { timeout: 5000 },
     )
 
-    const ansparenTab = screen.getByText('Ansparen')
-    const entnehmenTab = screen.getByText('Entnehmen')
+    // Get tabs by role to find the navigation tabs specifically
+    const tabs = screen.getAllByRole('tab')
+    const sparenTab = tabs.find(tab => tab.textContent?.includes('💰 Sparen'))
+    const entnahmeTab = tabs.find(tab => tab.textContent?.includes('🏦 Entnahme'))
+    const sonstigesTab = tabs.find(tab => tab.textContent?.includes('⚙️ Sonstiges'))
 
-    // Should have both tabs
-    expect(ansparenTab).toBeInTheDocument()
-    expect(entnehmenTab).toBeInTheDocument()
+    // Should have all three tabs
+    expect(sparenTab).toBeDefined()
+    expect(entnahmeTab).toBeDefined()
+    expect(sonstigesTab).toBeDefined()
 
-    // Click on Entnehmen tab - should not crash
-    fireEvent.click(entnehmenTab)
+    // Click on Entnahme tab - should not crash
+    fireEvent.click(entnahmeTab!)
 
-    // Click back on Ansparen tab - should not crash
-    fireEvent.click(ansparenTab)
+    // Click on Sonstiges tab - should not crash
+    fireEvent.click(sonstigesTab!)
+
+    // Click back on Sparen tab - should not crash
+    fireEvent.click(sparenTab!)
   })
 
   it('displays financial overview when enhanced summary is available', () => {
@@ -131,18 +142,18 @@ describe('HomePage Integration Tests - Optimized', () => {
     const user = userEvent.setup()
     const { container } = render(<HomePage />)
 
-    // First ensure we're on the correct tab (Ansparen)
+    // First ensure we're on the correct tab (Sparen)
     await waitFor(
       () => {
-        const ansparenTab = screen.getByText('Ansparen')
-        expect(ansparenTab).toBeInTheDocument()
+        const sparenTab = screen.getByText(/💰 Sparen/)
+        expect(sparenTab).toBeInTheDocument()
       },
       { timeout: 1000 },
     )
 
-    // Click the Ansparen tab to make sure it's active
-    const ansparenTab = screen.getByText('Ansparen')
-    await user.click(ansparenTab)
+    // Click the Sparen tab to make sure it's active
+    const sparenTab = screen.getByText(/💰 Sparen/)
+    await user.click(sparenTab)
     await new Promise(resolve => setTimeout(resolve, 200))
 
     // Find and expand the outer "💼 Sparpläne erstellen" section
