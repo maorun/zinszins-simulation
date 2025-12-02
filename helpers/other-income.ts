@@ -18,6 +18,7 @@ export type IncomeType =
   | 'pflegezusatzversicherung'
   | 'risikolebensversicherung'
   | 'kinder_bildung'
+  | 'ruerup_rente'
   | 'other'
 
 /**
@@ -269,6 +270,36 @@ export interface ElterngeldConfig {
 }
 
 /**
+ * Rürup-Rente (Basis-Rente) specific configuration
+ * German tax-advantaged pension product for self-employed and high earners
+ */
+export interface RuerupRenteConfig {
+  /** Annual contribution amount in EUR during accumulation phase */
+  annualContribution: number
+
+  /** Civil status affecting contribution limits (single/married) */
+  civilStatus: 'single' | 'married'
+
+  /** Year when pension payments start */
+  pensionStartYear: number
+
+  /** Expected monthly pension payment in EUR */
+  expectedMonthlyPension: number
+
+  /** Annual pension increase rate (e.g., 0.01 for 1% annual increase) */
+  pensionIncreaseRate: number
+
+  /** Personal tax rate during contribution phase (for tax savings calculation) */
+  contributionPhaseTaxRate: number
+
+  /** Expected tax rate during pension phase (typically lower in retirement) */
+  pensionPhaseTaxRate: number
+
+  /** Birth year of the insured person (for age-based taxation) */
+  birthYear: number
+}
+
+/**
  * Whether the income amount is gross or net
  */
 export type IncomeAmountType = 'gross' | 'net'
@@ -333,6 +364,9 @@ export interface OtherIncomeSource {
 
   /** Elterngeld-specific configuration (only for elterngeld type) */
   elterngeldConfig?: ElterngeldConfig
+
+  /** Rürup-Rente-specific configuration (only for ruerup_rente type) */
+  ruerupRenteConfig?: RuerupRenteConfig
 }
 
 /**
@@ -486,6 +520,34 @@ export interface OtherIncomeYearResult {
     monthsReceivedThisYear: number
     /** Reason if Elterngeld not active or ended */
     endReason?: string
+  }
+
+  /** Rürup-Rente-specific calculations (only for ruerup_rente type) */
+  ruerupRenteDetails?: {
+    /** Person's age this year */
+    age: number
+    /** Whether in contribution phase (before pension starts) */
+    isContributionPhase: boolean
+    /** Whether in pension phase (pension payments active) */
+    isPensionPhase: boolean
+    /** Annual contribution amount (only in contribution phase) */
+    annualContribution: number
+    /** Tax deduction from contributions (only in contribution phase) */
+    taxDeduction: number
+    /** Tax savings from deduction (only in contribution phase) */
+    taxSavings: number
+    /** Percentage of contribution that is tax-deductible */
+    deductiblePercentage: number
+    /** Monthly pension payment this year (only in pension phase) */
+    monthlyPension: number
+    /** Percentage of pension that is taxable */
+    taxablePercentage: number
+    /** Taxable portion of annual pension */
+    taxableAmount: number
+    /** Income tax on pension */
+    incomeTax: number
+    /** Net annual pension after taxes */
+    netAnnualPension: number
   }
 }
 
@@ -1415,6 +1477,108 @@ function calculateTaxAndNet(
   }
 }
 
+// Helper: Apply Rürup-Rente-specific logic
+function applyRuerupRenteLogic(
+  source: OtherIncomeSource,
+  year: number,
+  amounts: { grossMonthlyAmount: number; grossAnnualAmount: number },
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  ruerupRenteDetails?: OtherIncomeYearResult['ruerupRenteDetails']
+} {
+  if (source.type !== 'ruerup_rente' || !source.ruerupRenteConfig) {
+    return amounts
+  }
+
+  const config = source.ruerupRenteConfig
+  const age = year - config.birthYear
+  const isContributionPhase = year < config.pensionStartYear
+  const isPensionPhase = year >= config.pensionStartYear
+
+  // Import Rürup calculation helpers
+  const { 
+    calculateRuerupTaxDeduction,
+    calculateRuerupPensionTaxation,
+    getRuerupDeductibilityLimits,
+    getRuerupPensionTaxablePercentage,
+  } = require('./ruerup-rente')
+
+  if (isContributionPhase) {
+    // During contribution phase: negative cash flow (contributions)
+    // But also tax savings from deductions
+    const deductionResult = calculateRuerupTaxDeduction(
+      config.annualContribution,
+      year,
+      config.civilStatus,
+      config.contributionPhaseTaxRate
+    )
+
+    const limits = getRuerupDeductibilityLimits(year)
+
+    return {
+      grossMonthlyAmount: -config.annualContribution / 12, // Negative because it's an outflow
+      grossAnnualAmount: -config.annualContribution,
+      ruerupRenteDetails: {
+        age,
+        isContributionPhase: true,
+        isPensionPhase: false,
+        annualContribution: config.annualContribution,
+        taxDeduction: deductionResult.deductibleAmount,
+        taxSavings: deductionResult.estimatedTaxSavings,
+        deductiblePercentage: limits.deductiblePercentage,
+        monthlyPension: 0,
+        taxablePercentage: 0,
+        taxableAmount: 0,
+        incomeTax: 0,
+        netAnnualPension: 0,
+      },
+    }
+  }
+
+  if (isPensionPhase) {
+    // During pension phase: positive cash flow (pension payments)
+    const yearsFromStart = year - config.pensionStartYear
+    const inflationFactor = Math.pow(1 + config.pensionIncreaseRate, yearsFromStart)
+    const adjustedMonthlyPension = config.expectedMonthlyPension * inflationFactor
+
+    const pensionResult = calculateRuerupPensionTaxation(
+      adjustedMonthlyPension,
+      config.pensionStartYear,
+      year,
+      config.pensionIncreaseRate,
+      config.pensionPhaseTaxRate
+    )
+
+    const taxablePercentage = getRuerupPensionTaxablePercentage(config.pensionStartYear)
+
+    return {
+      grossMonthlyAmount: adjustedMonthlyPension,
+      grossAnnualAmount: pensionResult.grossAnnualPension,
+      ruerupRenteDetails: {
+        age,
+        isContributionPhase: false,
+        isPensionPhase: true,
+        annualContribution: 0,
+        taxDeduction: 0,
+        taxSavings: 0,
+        deductiblePercentage: 0,
+        monthlyPension: adjustedMonthlyPension,
+        taxablePercentage,
+        taxableAmount: pensionResult.taxableAmount,
+        incomeTax: pensionResult.incomeTax,
+        netAnnualPension: pensionResult.netAnnualPension,
+      },
+    }
+  }
+
+  // Should not reach here, but return zero amounts just in case
+  return {
+    grossMonthlyAmount: 0,
+    grossAnnualAmount: 0,
+  }
+}
+
 // Helper: Apply all income type-specific logic
 function applyIncomeTypeLogic(
   source: OtherIncomeSource,
@@ -1429,6 +1593,7 @@ function applyIncomeTypeLogic(
   kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
   pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
   risikolebensversicherungDetails?: OtherIncomeYearResult['risikolebensversicherungDetails']
+  ruerupRenteDetails?: OtherIncomeYearResult['ruerupRenteDetails']
 } {
   const kindergeldResult = applyKindergeldLogic(source, year, initialAmounts)
 
@@ -1457,15 +1622,21 @@ function applyIncomeTypeLogic(
     grossAnnualAmount: pflegezusatzversicherungResult.grossAnnualAmount,
   })
 
-  return {
+  const ruerupRenteResult = applyRuerupRenteLogic(source, year, {
     grossMonthlyAmount: risikolebensversicherungResult.grossMonthlyAmount,
     grossAnnualAmount: risikolebensversicherungResult.grossAnnualAmount,
+  })
+
+  return {
+    grossMonthlyAmount: ruerupRenteResult.grossMonthlyAmount,
+    grossAnnualAmount: ruerupRenteResult.grossAnnualAmount,
     kindergeldDetails: kindergeldResult.kindergeldDetails,
     elterngeldDetails: elterngeldResult.elterngeldDetails,
     buRenteDetails: buRenteResult.buRenteDetails,
     kapitallebensversicherungDetails: kapitallebensversicherungResult.kapitallebensversicherungDetails,
     pflegezusatzversicherungDetails: pflegezusatzversicherungResult.pflegezusatzversicherungDetails,
     risikolebensversicherungDetails: risikolebensversicherungResult.risikolebensversicherungDetails,
+    ruerupRenteDetails: ruerupRenteResult.ruerupRenteDetails,
   }
 }
 
@@ -1481,6 +1652,7 @@ function buildYearResult(
     kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
     pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
     risikolebensversicherungDetails?: OtherIncomeYearResult['risikolebensversicherungDetails']
+    ruerupRenteDetails?: OtherIncomeYearResult['ruerupRenteDetails']
   },
   realEstateDetails: OtherIncomeYearResult['realEstateDetails'],
   inflationFactor: number,
@@ -1512,6 +1684,8 @@ function buildYearResult(
     result.pflegezusatzversicherungDetails = incomeTypeResult.pflegezusatzversicherungDetails
   if (incomeTypeResult.risikolebensversicherungDetails)
     result.risikolebensversicherungDetails = incomeTypeResult.risikolebensversicherungDetails
+  if (incomeTypeResult.ruerupRenteDetails)
+    result.ruerupRenteDetails = incomeTypeResult.ruerupRenteDetails
 
   return result
 }
@@ -1595,6 +1769,7 @@ function getDefaultMonthlyAmount(type: IncomeType): number {
   if (type === 'kindergeld') return 250
   if (type === 'elterngeld') return 1200
   if (type === 'bu_rente') return 1500
+  if (type === 'ruerup_rente') return 2000 // Expected monthly pension
   if (type === 'kapitallebensversicherung') return 0 // Lump sum, not monthly
   return 800
 }
@@ -1615,6 +1790,7 @@ function getDefaultInflationRate(type: IncomeType): number {
   if (type === 'kindergeld') return 0
   if (type === 'elterngeld') return 0 // Elterngeld is based on previous income, not adjusted for inflation
   if (type === 'bu_rente') return 0 // BU-Rente typically has fixed amounts
+  if (type === 'ruerup_rente') return 1.0 // Rürup pension increase rate (handled by config)
   if (type === 'kapitallebensversicherung') return 0 // Lump sum, no inflation adjustment
   return 2.0
 }
@@ -1626,6 +1802,7 @@ function getDefaultTaxRate(type: IncomeType): number {
   if (type === 'kindergeld') return 0
   if (type === 'elterngeld') return 0 // Elterngeld is tax-free but subject to Progressionsvorbehalt
   if (type === 'bu_rente') return 25.0 // Individual income tax rate (typical for disability pensions)
+  if (type === 'ruerup_rente') return 25.0 // Tax rate in pension phase (typically lower in retirement)
   if (type === 'kapitallebensversicherung') return 26.375 // Abgeltungsteuer (capital gains tax)
   return 30.0
 }
@@ -1668,6 +1845,11 @@ export function createDefaultOtherIncomeSource(type: IncomeType = 'rental'): Oth
   // Add default Kapitallebensversicherung configuration
   if (type === 'kapitallebensversicherung') {
     source.kapitallebensversicherungConfig = createDefaultKapitallebensversicherungConfig()
+  }
+
+  // Add default Rürup-Rente configuration
+  if (type === 'ruerup_rente') {
+    source.ruerupRenteConfig = createDefaultRuerupRenteConfig()
   }
 
   return source
@@ -1739,6 +1921,26 @@ export function createDefaultBURenteConfig(): BURenteConfig {
     disabilityDegree: 100, // 100% disability by default
     applyLeibrentenBesteuerung: true, // Apply special tax treatment by default
     ageAtDisabilityStart,
+  }
+}
+
+/**
+ * Create default Rürup-Rente configuration
+ */
+export function createDefaultRuerupRenteConfig(): RuerupRenteConfig {
+  const currentYear = new Date().getFullYear()
+  const defaultBirthYear = currentYear - 40 // 40 years old by default
+  const pensionStartYear = currentYear + 27 // Retire at 67
+
+  return {
+    annualContribution: 10000, // €10,000 annual contribution
+    civilStatus: 'single',
+    pensionStartYear,
+    expectedMonthlyPension: 2000, // €2,000 monthly pension
+    pensionIncreaseRate: 0.01, // 1% annual increase
+    contributionPhaseTaxRate: 0.42, // 42% tax rate during working years
+    pensionPhaseTaxRate: 0.25, // 25% tax rate in retirement (typically lower)
+    birthYear: defaultBirthYear,
   }
 }
 
@@ -1824,6 +2026,7 @@ function getDefaultNameForType(type: IncomeType): string {
     kindergeld: 'Kindergeld',
     elterngeld: 'Elterngeld',
     bu_rente: 'BU-Rente',
+    ruerup_rente: 'Rürup-Rente (Basis-Rente)',
     kapitallebensversicherung: 'Kapitallebensversicherung',
     pflegezusatzversicherung: 'Pflegezusatzversicherung',
     risikolebensversicherung: 'Risikolebensversicherung',
