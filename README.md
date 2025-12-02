@@ -125,19 +125,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Vorabpauschale** - Deutsche Steuerberechnung für Investmentfonds mit detaillierter Erklärung
 - **Interaktive Berechnungsmodals** - Schritt-für-Schritt Aufschlüsselung der Steuerberechnungen
 - **Konfigurierbare Parameter**: Kapitalertragsteuer, Teilfreistellungsquote, Freibetrag pro Jahr
-- **Rürup-Rente (Basis-Rente) Berechnungsutilities** - Umfassende Helper-Funktionen für Rürup-Renten-Berechnungen
-  - **Beitragsphase Steuervorteile**: Berechnung der steuerlichen Absetzbarkeit von Rürup-Beiträgen
-    - Automatische Berücksichtigung der progressiven Absetzbarkeit (100% ab 2025)
-    - Höchstbeiträge für Ledige (€27,566) und Verheiratete (€55,132) in 2024
-    - Geschätzte Steuerersparnis basierend auf persönlichem Steuersatz
-  - **Rentenphase Besteuerung**: Berechnung der Steuerbelastung auf Rürup-Renten
-    - Steuerpflichtiger Anteil abhängig vom Rentenbeginn (50% bei Rentenbeginn 2005, 100% ab 2040)
-    - Berücksichtigung von Rentenanpassungen über die Zeit
-    - Integration mit nachgelagerter Besteuerung nach deutschem Steuerrecht
-  - **Gesetzeskonformität**: Vollständige Umsetzung nach §10 Abs. 1 Nr. 2 Buchst. b EStG (Beiträge) und §22 Nr. 1 Satz 3 EStG (Renten)
+- **Rürup-Rente (Basis-Rente)** - Als "andere Einkünfte" konfigurierbar
+  - **Beitragsphase Steuervorteile**: Berechnung der steuerlichen Absetzbarkeit von Rürup-Beiträgen (74% in 2012 → 100% ab 2025)
+  - **Höchstbeiträge**: Berücksichtigung der jährlichen Beitragsgrenzen (€27.566 Ledige / €55.132 Verheiratete in 2024)
+  - **Progressive Absetzbarkeit**: Jährlich steigende Absetzbarkeit der Beiträge gemäß § 10 Abs. 1 Nr. 2 Buchst. b EStG
+  - **Rentenphase Besteuerung**: Berechnung der Steuerbelastung auf Rürup-Renten mit nachgelagerter Besteuerung
+  - **Besteuerungsanteil**: Jahr des Rentenbeginns bestimmt steuerpflichtigen Anteil (50% in 2005 → 100% ab 2040)
+  - **Rentenanpassung**: Jährliche Rentenerhöhung gemäß konfigurierter Steigerungsrate
+  - **Integration in "Andere Einkünfte"**: Rürup-Rente kann als Einkunftsquelle neben BU-Rente, Kindergeld, etc. hinzugefügt werden
   - **Helper-Funktionen verfügbar**: `calculateRuerupTaxDeduction()`, `calculateRuerupPensionTaxation()`, `getRuerupDeductibilityLimits()`, `getRuerupPensionTaxablePercentage()`
-  - **Umfassend getestet**: 32 Unit-Tests mit 100% Pass-Rate für alle Berechnungsszenarien
-  - **Verwendungszweck**: Utilities für zukünftige UI-Integration oder direkte Verwendung in Berechnungen
+  - **Umfassend getestet**: 36 Tests (32 Helper + 4 Integration) mit 100% Pass-Rate
 - **Günstigerprüfung** - Automatische Wahl zwischen Abgeltungssteuer und persönlichem Steuersatz
   - **Automatische Optimierung**: System vergleicht Abgeltungssteuer (26,375%) vs. individueller Einkommensteuersatz
   - **Progressiver Steuertarif**: Bei aktivierter Günstigerprüfung wird der deutsche progressive Einkommensteuertarif berücksichtigt
