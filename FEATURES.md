@@ -8,8 +8,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung
 
-- **Verlustverrechnungstöpfe** - Simulation verschiedener Verlustverrechnungsregeln
-
 #### Asset Allocation & Portfolio-Management
 
 - **Geografische Diversifikation** - Aufteilung zwischen Regionen mit entsprechenden Steuern
