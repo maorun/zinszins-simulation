@@ -194,6 +194,31 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Detaillierte Aufschlüsselung nach Verlusttyp
   - **Informations-Tool**: Berechnung basiert auf Beispielwerten (10.000 € Kapitalerträge + 500 € Vorabpauschale)
   - **Steuerintegration**: Nutzt aktuelle Steuereinstellungen (Kapitalertragsteuer, Teilfreistellung) aus der Konfiguration
+- **Verlustverrechnungstöpfe (Loss Offset Accounts)** - Jahr-für-Jahr Tracking und Verrechnung von Verlusten in der Simulation
+  - **Automatisches Verlusttracking**: Verfolgung von Verlusten über die gesamte Simulationsdauer
+    - Separate Verwaltung von Aktienverlusttopf und sonstigem Verlusttopf
+    - Automatische Verrechnung mit Gewinnen und Vorabpauschale jedes Jahr
+    - Unbegrenzter Verlustvortrag in zukünftige Jahre
+  - **Integrierte Berechnung**: Nahtlose Integration in die Jahr-für-Jahr-Simulation
+    - Verluste reduzieren automatisch die Steuerlast in jedem Jahr
+    - Detaillierte Aufschlüsselung der Verlustverwendung pro Jahr
+    - Transparente Darstellung der Steuerersparnis durch Verlustverrechnung
+  - **Konfigurationsmöglichkeiten**:
+    - Initiale Verlustkonten (Verluste vor Simulationsbeginn)
+    - Realisierte Verluste pro Jahr (Aktienverluste und sonstige Verluste)
+    - Anpassbares Aktienanteil-Verhältnis (Standardwert: 70% Aktiengewinne)
+  - **Jahr-für-Jahr Visualisierung**:
+    - Kompakte Anzeige in der Simulationstabelle
+    - Detaillierte Tooltips mit Verlustverrechnung und Steuerersparnis
+    - Anzeige des Verlustvortrags für jedes Jahr
+  - **Steueroptimierung**: Hilft bei der strategischen Planung von Verlustverrechnung
+    - Verständnis der langfristigen Auswirkungen von realisierten Verlusten
+    - Optimierung des Timings von Verkäufen zur Verlustnutzung
+    - Transparente Darstellung der kumulativen Steuerersparnis über Jahre
+  - **Compliance**: Vollständig konform mit deutschem Steuerrecht (EStG)
+    - Korrekte Trennung von Aktienverlusttopf und sonstigem Verlusttopf
+    - Präzise Anwendung der Verlustverrechnungsregeln
+    - Unbegrenzte Verlustvortragsperiode wie im deutschen Steuerrecht
 - **Progressionsvorbehalt** - Informations-Tool zur Berechnung der Steuerauswirkungen steuerfreier progressionsrelevanter Einkünfte
   - **Jahr-für-Jahr Konfiguration**: Individuelle Eingabe progressionsrelevanter Einkünfte für jedes Jahr
   - **Einkunftsarten**: Unterstützung verschiedener Einkunftsarten nach deutschem Steuerrecht
