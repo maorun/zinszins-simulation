@@ -257,6 +257,54 @@ export interface PortfolioHoldings {
 }
 
 /**
+ * Single transaction in a rebalancing event
+ */
+export interface RebalancingTransaction {
+  /** Asset class being traded */
+  assetClass: AssetClass
+  /** Trade type: 'buy' for purchases, 'sell' for sales */
+  type: 'buy' | 'sell'
+  /** Amount in EUR */
+  amount: number
+  /** Percentage of portfolio value */
+  percentageOfPortfolio: number
+  /** Capital gains for this transaction (only for sells) */
+  capitalGains?: number
+  /** Tax on capital gains (only for sells with gains) */
+  tax?: number
+}
+
+/**
+ * Detailed rebalancing protocol for a specific event
+ */
+export interface RebalancingProtocol {
+  /** Year when rebalancing occurred */
+  year: number
+  /** Month when rebalancing occurred (0-11) */
+  month: number
+  /** Reason for rebalancing */
+  reason: 'threshold' | 'scheduled'
+  /** Portfolio value before rebalancing */
+  portfolioValueBefore: number
+  /** Portfolio value after rebalancing (same unless costs applied) */
+  portfolioValueAfter: number
+  /** Individual transactions executed */
+  transactions: RebalancingTransaction[]
+  /** Total capital gains realized */
+  totalCapitalGains: number
+  /** Total tax paid */
+  totalTax: number
+  /** Transaction costs (if any) */
+  transactionCosts: number
+  /** Net cost/benefit of rebalancing */
+  netCost: number
+  /** Asset allocations before rebalancing */
+  allocationsBefore: Record<AssetClass, number>
+  /** Asset allocations after rebalancing */
+  allocationsAfter: Record<AssetClass, number>
+}
+
+/**
  * Result of multi-asset portfolio simulation for one year
  */
 export interface MultiAssetYearResult {
@@ -270,6 +318,8 @@ export interface MultiAssetYearResult {
   assetReturns: Record<AssetClass, number>
   /** Whether rebalancing occurred this year */
   rebalanced: boolean
+  /** Detailed rebalancing protocol if rebalancing occurred */
+  rebalancingProtocol?: RebalancingProtocol
   /** Total portfolio return for the year */
   totalReturn: number
   /** Contributions added during the year */
@@ -294,6 +344,8 @@ export interface MultiAssetSimulationResult {
   volatility: number
   /** Sharpe ratio (if risk-free rate is available) */
   sharpeRatio?: number
+  /** All rebalancing protocols executed during simulation */
+  rebalancingProtocols: RebalancingProtocol[]
 }
 
 /**

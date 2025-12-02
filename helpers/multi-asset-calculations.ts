@@ -12,6 +12,8 @@ import {
   type PortfolioHoldings,
   type MultiAssetYearResult,
   type MultiAssetSimulationResult,
+  type RebalancingProtocol,
+  type RebalancingTransaction,
 } from './multi-asset-portfolio'
 
 /**
@@ -529,6 +531,7 @@ export function simulateMultiAssetPortfolio(
       totalReturn: 0,
       annualizedReturn: 0,
       volatility: 0,
+      rebalancingProtocols: [],
     }
   }
 
@@ -559,6 +562,11 @@ export function simulateMultiAssetPortfolio(
     years.length,
   )
 
+  // Collect all rebalancing protocols from year results
+  const rebalancingProtocols = Object.values(yearResults)
+    .filter(result => result.rebalancingProtocol !== undefined)
+    .map(result => result.rebalancingProtocol!)
+
   return {
     yearResults,
     finalValue,
@@ -566,6 +574,7 @@ export function simulateMultiAssetPortfolio(
     totalReturn,
     annualizedReturn,
     volatility,
+    rebalancingProtocols,
   }
 }
 
