@@ -20,6 +20,9 @@ const GiftTaxPlanningConfiguration = lazy(() => import('./GiftTaxPlanningConfigu
 const EigenheimVsMieteComparison = lazy(() =>
   import('./EigenheimVsMieteComparison').then(m => ({ default: m.EigenheimVsMieteComparison })),
 )
+const ImmobilienTeilverkauf = lazy(() =>
+  import('./teilverkauf/ImmobilienTeilverkauf').then(m => ({ default: m.ImmobilienTeilverkauf })),
+)
 const ProfileManagement = lazy(() => import('./ProfileManagement'))
 const DataExport = lazy(() => import('./DataExport'))
 const SensitivityAnalysisDisplay = lazy(() => import('./SensitivityAnalysisDisplay'))
@@ -114,6 +117,11 @@ export function SonstigesView({
       {/* Eigenheim vs. Miete Comparison */}
       <Suspense fallback={<LoadingCard />}>
         <EigenheimVsMieteComparison />
+      </Suspense>
+
+      {/* Real Estate Partial Sale with Lifelong Residence Rights */}
+      <Suspense fallback={<LoadingCard />}>
+        <ImmobilienTeilverkauf />
       </Suspense>
 
       {/* Profile Management */}

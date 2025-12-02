@@ -554,6 +554,20 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Weitere Einkommensarten**: Private Renten, Gewerbeeinkünfte, Kapitalerträge, sonstige Einkünfte
   - **Brutto-/Netto-Konfiguration**: Flexible Eingabe mit automatischer Steuerberechnung
   - **Zeitraum-Flexibilität**: Konfigurierbare Start- und Endjahre für zeitlich begrenzte Einkünfte
+- **Immobilien-Teilverkauf mit Nießbrauchrecht** - Alternative Liquiditätsgenerierung im Ruhestand
+  - **Teilverkauf-Simulation**: Verkauf von 20-50% der Immobilie bei lebenslangem Wohnrecht
+  - **Nießbrauch-Kalkulation**: Berechnung der jährlichen Nießbrauchgebühr für das Wohnrecht
+  - **Liquiditätsgewinn**: Sofortige Verfügbarkeit von Kapital ohne vollständigen Immobilienverkauf
+  - **Strategievergleich**: Automatischer Vergleich mit drei Alternativen
+    - **Teilverkauf**: Teilweiser Verkauf mit Nießbrauchrecht und Gebühren
+    - **Vollverkauf + Miete**: Kompletter Verkauf mit anschließender Mietzahlung
+    - **Leibrente**: Traditionelle Leibrente ohne Verkauf
+  - **Kostenberechnung**: Transparente Darstellung von Transaktionskosten, Nießbrauchgebühren und Mietkosten
+  - **Vermögensvergleich**: Vergleich des Endvermögens aller drei Strategien
+  - **Empfehlungssystem**: Automatische Empfehlung der optimalen Strategie basierend auf Endvermögen
+  - **Deutsche Steuerregeln**: Berücksichtigung von Grunderwerbsteuer und Notarkosten
+  - **Flexible Konfiguration**: Immobilienwert, Verkaufsanteil, Alter bei Verkauf, Wertsteigerung individuell einstellbar
+  - **Realistische Szenarien**: Konfigurierbare Mietsteigerung, Anlagerendite und Leibrenten-Zahlungen für Vergleich
 
 ### Analyse und Simulation
 

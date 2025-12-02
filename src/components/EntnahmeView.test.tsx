@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest'
 import { EntnahmeView } from './EntnahmeView'
 import { SimulationProvider } from '../contexts/SimulationContext'
 import { NavigationProvider } from '../contexts/NavigationContext'
-import React from 'react'
+import type React from 'react'
 
 function renderWithProviders(ui: React.ReactElement) {
   return render(
