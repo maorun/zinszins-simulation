@@ -203,16 +203,6 @@ Die folgenden Features in diesem Dokument sind als "**NICHT zu implementieren**"
 
 Direkte Erweiterung der bestehenden Kernfunktionalität.
 
-#### Teilverkauf-Strategie für Immobilien im Alter
-
-- **Immobilien-Teilverkauf-Simulation** - Alternative zur Leibrente bei selbstgenutztem Wohneigentum
-  - **Liquiditätsgewinn** - Berechnung der verfügbaren Liquidität durch Teilverkauf (20-50% des Immobilienwerts)
-  - **Nießbrauchsrecht** - Lebenslanges Wohnrecht trotz Teilverkauf
-  - **Kostenvergleich** - Vergleich von Nießbrauchsentgelt vs. Mietkosten/Zinsen
-  - **Steuerliche Behandlung** - Korrekte Abbildung der steuerlichen Auswirkungen
-  - **Vergleich mit Alternativen** - Vergleich mit Leibrente, Reverse Mortgage, Verkauf + Miete
-  - **Timing-Optimierung** - Empfehlung des optimalen Zeitpunkts für Teilverkauf
-
 ### Mittel (⭐⭐)
 
 Nützliche Ergänzungen für fortgeschrittene Nutzer:
