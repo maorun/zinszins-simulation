@@ -248,6 +248,7 @@ export interface PortfolioHoldings {
       allocation: number // Current allocation percentage (0-1)
       targetAllocation: number // Target allocation percentage (0-1)
       drift: number // Drift from target allocation
+      costBasis?: number // Cost basis for tax calculations (optional)
     }
   >
   /** Whether rebalancing is needed */

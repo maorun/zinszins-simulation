@@ -129,6 +129,222 @@ function getEnabledAssets(config: MultiAssetPortfolioConfig): AssetClass[] {
 }
 
 /**
+ * Calculate tax on capital gains considering German partial exemptions
+ */
+function calculateCapitalGainsTax(
+  capitalGains: number,
+  assetConfig: { taxCategory: 'equity' | 'bond' | 'reit' | 'commodity' | 'cash' },
+): number {
+  const capitalGainsTaxRate = 0.26375 // 25% + 5.5% Soli
+  let taxableGains = capitalGains
+
+  if (assetConfig.taxCategory === 'equity') {
+    // 30% partial exemption for equity funds (Teilfreistellung)
+    taxableGains = capitalGains * 0.7
+  } else if (assetConfig.taxCategory === 'reit') {
+    // 60% partial exemption for REITs (Immobilienfonds)
+    taxableGains = capitalGains * 0.4
+  }
+
+  return taxableGains * capitalGainsTaxRate
+}
+
+/**
+ * Create a rebalancing transaction for a sell order
+ */
+function createSellTransaction(
+  assetClass: AssetClass,
+  change: number,
+  beforeValue: number,
+  costBasis: number,
+  portfolioValue: number,
+  assetConfig: { taxCategory: 'equity' | 'bond' | 'reit' | 'commodity' | 'cash' },
+): { transaction: RebalancingTransaction; capitalGains: number; tax: number } {
+  const transaction: RebalancingTransaction = {
+    assetClass,
+    type: 'sell',
+    amount: Math.abs(change),
+    percentageOfPortfolio: Math.abs(change) / portfolioValue,
+  }
+
+  let capitalGains = 0
+  let tax = 0
+
+  const percentageSold = Math.abs(change) / beforeValue
+  const costBasisSold = costBasis * percentageSold
+  capitalGains = Math.abs(change) - costBasisSold
+
+  if (capitalGains > 0) {
+    transaction.capitalGains = capitalGains
+    tax = calculateCapitalGainsTax(capitalGains, assetConfig)
+    transaction.tax = tax
+  }
+
+  return { transaction, capitalGains, tax }
+}
+
+/**
+ * Create a rebalancing transaction for a buy order
+ */
+function createBuyTransaction(
+  assetClass: AssetClass,
+  change: number,
+  portfolioValue: number,
+): RebalancingTransaction {
+  return {
+    assetClass,
+    type: 'buy',
+    amount: Math.abs(change),
+    percentageOfPortfolio: Math.abs(change) / portfolioValue,
+  }
+}
+
+/**
+ * Get allocations before and after rebalancing for an asset
+ */
+function getAssetAllocations(
+  assetClass: AssetClass,
+  holdingsBefore: PortfolioHoldings,
+  holdingsAfter: PortfolioHoldings,
+): { allocationBefore: number; allocationAfter: number } {
+  return {
+    allocationBefore: holdingsBefore.holdings[assetClass]?.allocation || 0,
+    allocationAfter: holdingsAfter.holdings[assetClass]?.allocation || 0,
+  }
+}
+
+/**
+ * Create sell transaction with capital gains calculation
+ */
+function createSellWithGains(
+  assetClass: AssetClass,
+  change: number,
+  beforeValue: number,
+  costBasis: number,
+  portfolioValue: number,
+  assetConfig: { taxCategory: 'equity' | 'bond' | 'reit' | 'commodity' | 'cash' },
+): { transaction: RebalancingTransaction; capitalGains: number; tax: number } {
+  const { transaction, capitalGains, tax } = createSellTransaction(
+    assetClass,
+    change,
+    beforeValue,
+    costBasis,
+    portfolioValue,
+    assetConfig,
+  )
+  return { transaction, capitalGains, tax }
+}
+
+/**
+ * Get asset values before and after rebalancing
+ */
+function getAssetValues(
+  assetClass: AssetClass,
+  holdingsBefore: PortfolioHoldings,
+  holdingsAfter: PortfolioHoldings,
+): { beforeValue: number; afterValue: number; costBasis: number } {
+  const holding = holdingsBefore.holdings[assetClass]
+  const beforeValue = holding?.value || 0
+  const costBasis = holding?.costBasis || beforeValue
+  const afterValue = holdingsAfter.holdings[assetClass]?.value || 0
+  
+  return { beforeValue, afterValue, costBasis }
+}
+
+/**
+ * Process a single asset for rebalancing protocol
+ */
+function processAssetForRebalancing(
+  assetClass: AssetClass,
+  holdingsBefore: PortfolioHoldings,
+  holdingsAfter: PortfolioHoldings,
+  config: MultiAssetPortfolioConfig,
+): {
+  transaction: RebalancingTransaction | null
+  capitalGains: number
+  tax: number
+  allocationBefore: number
+  allocationAfter: number
+} {
+  const { allocationBefore, allocationAfter } = getAssetAllocations(assetClass, holdingsBefore, holdingsAfter)
+  const { beforeValue, afterValue, costBasis } = getAssetValues(assetClass, holdingsBefore, holdingsAfter)
+  const change = afterValue - beforeValue
+
+  // No transaction if change is negligible
+  if (Math.abs(change) <= 0.01) {
+    return { transaction: null, capitalGains: 0, tax: 0, allocationBefore, allocationAfter }
+  }
+
+  // Buy transaction
+  if (change > 0) {
+    return {
+      transaction: createBuyTransaction(assetClass, change, holdingsBefore.totalValue),
+      capitalGains: 0,
+      tax: 0,
+      allocationBefore,
+      allocationAfter,
+    }
+  }
+
+  // Sell transaction with capital gains
+  const { transaction, capitalGains, tax } = createSellWithGains(
+    assetClass,
+    change,
+    beforeValue,
+    costBasis,
+    holdingsBefore.totalValue,
+    config.assetClasses[assetClass],
+  )
+  return { transaction, capitalGains, tax, allocationBefore, allocationAfter }
+}
+
+/**
+ * Create a rebalancing protocol with detailed transaction tracking
+ */
+function createRebalancingProtocol(
+  year: number,
+  month: number,
+  reason: 'threshold' | 'scheduled',
+  holdingsBefore: PortfolioHoldings,
+  holdingsAfter: PortfolioHoldings,
+  config: MultiAssetPortfolioConfig,
+): RebalancingProtocol {
+  const transactions: RebalancingTransaction[] = []
+  const allocationsBefore: Record<AssetClass, number> = {} as Record<AssetClass, number>
+  const allocationsAfter: Record<AssetClass, number> = {} as Record<AssetClass, number>
+  let totalCapitalGains = 0
+  let totalTax = 0
+
+  for (const assetClass of getEnabledAssets(config)) {
+    const result = processAssetForRebalancing(assetClass, holdingsBefore, holdingsAfter, config)
+    
+    allocationsBefore[assetClass] = result.allocationBefore
+    allocationsAfter[assetClass] = result.allocationAfter
+    
+    if (result.transaction) {
+      transactions.push(result.transaction)
+      totalCapitalGains += result.capitalGains
+      totalTax += result.tax
+    }
+  }
+
+  return {
+    year,
+    month,
+    reason,
+    portfolioValueBefore: holdingsBefore.totalValue,
+    portfolioValueAfter: holdingsAfter.totalValue - totalTax,
+    transactions,
+    totalCapitalGains,
+    totalTax,
+    transactionCosts: 0,
+    netCost: totalTax,
+    allocationsBefore,
+    allocationsAfter,
+  }
+}
+
+/**
  * Rebalance portfolio to target allocations
  */
 function rebalancePortfolio(holdings: PortfolioHoldings, config: MultiAssetPortfolioConfig): PortfolioHoldings {
@@ -141,6 +357,7 @@ function rebalancePortfolio(holdings: PortfolioHoldings, config: MultiAssetPortf
         allocation: number
         targetAllocation: number
         drift: number
+        costBasis?: number
       }
     >,
     needsRebalancing: false,
@@ -153,12 +370,14 @@ function rebalancePortfolio(holdings: PortfolioHoldings, config: MultiAssetPortf
   for (const assetClass of enabledAssets) {
     const assetConfig = config.assetClasses[assetClass]
     const targetValue = holdings.totalValue * assetConfig.targetAllocation
+    const oldCostBasis = holdings.holdings[assetClass]?.costBasis || holdings.holdings[assetClass]?.value || 0
 
     rebalancedHoldings.holdings[assetClass] = {
       value: targetValue,
       allocation: assetConfig.targetAllocation,
       targetAllocation: assetConfig.targetAllocation,
       drift: 0, // No drift after rebalancing
+      costBasis: oldCostBasis, // Preserve cost basis for future calculations
     }
   }
 
@@ -180,6 +399,7 @@ function applyReturnsToHoldings(
       allocation: number
       targetAllocation: number
       drift: number
+      costBasis?: number
     }
   > = {} as Record<
     AssetClass,
@@ -188,6 +408,7 @@ function applyReturnsToHoldings(
       allocation: number
       targetAllocation: number
       drift: number
+      costBasis?: number
     }
   >
 
@@ -202,6 +423,7 @@ function applyReturnsToHoldings(
       allocation: 0, // Will be calculated below
       targetAllocation: holding.targetAllocation,
       drift: 0, // Will be calculated below
+      costBasis: holding.costBasis, // Preserve cost basis
     }
   }
 
@@ -276,9 +498,16 @@ function distributeContribution(
     const contributionForAsset = contribution * assetConfig.targetAllocation
 
     if (newHoldings[assetClass]) {
+      const oldCostBasis = newHoldings[assetClass].costBasis || newHoldings[assetClass].value
+      const oldValue = newHoldings[assetClass].value
+      const newValue = oldValue + contributionForAsset
+      // Update cost basis: weighted average of old and new
+      const newCostBasis = oldCostBasis + contributionForAsset
+
       newHoldings[assetClass] = {
         ...newHoldings[assetClass],
-        value: newHoldings[assetClass].value + contributionForAsset,
+        value: newValue,
+        costBasis: newCostBasis,
       }
     } else {
       // Initialize new asset class
@@ -287,6 +516,7 @@ function distributeContribution(
         allocation: 0,
         targetAllocation: assetConfig.targetAllocation,
         drift: 0,
+        costBasis: contributionForAsset, // Initial cost basis is the contribution
       }
     }
   }
@@ -367,6 +597,7 @@ function initializePortfolioHoldings(
         allocation: number
         targetAllocation: number
         drift: number
+        costBasis?: number
       }
     >,
     needsRebalancing: false,
@@ -382,10 +613,40 @@ function initializePortfolioHoldings(
       allocation: assetConfig.targetAllocation,
       targetAllocation: assetConfig.targetAllocation,
       drift: 0,
+      costBasis: initialValue, // Initial cost basis equals initial value
     }
   }
 
   return holdings
+}
+
+/**
+ * Check if rebalancing should occur
+ */
+function shouldPerformRebalancing(
+  year: number,
+  holdings: PortfolioHoldings,
+  config: MultiAssetPortfolioConfig,
+): boolean {
+  return (
+    shouldRebalanceByFrequency(year, 0, config.rebalancing.frequency) ||
+    (config.rebalancing.useThreshold && holdings.needsRebalancing)
+  )
+}
+
+/**
+ * Perform rebalancing and create protocol
+ */
+function performRebalancing(
+  year: number,
+  holdings: PortfolioHoldings,
+  config: MultiAssetPortfolioConfig,
+): { rebalancedHoldings: PortfolioHoldings; protocol: RebalancingProtocol } {
+  const rebalancedHoldings = rebalancePortfolio(holdings, config)
+  const reason = config.rebalancing.useThreshold && holdings.needsRebalancing ? 'threshold' : 'scheduled'
+  const protocol = createRebalancingProtocol(year, 0, reason, holdings, rebalancedHoldings, config)
+  
+  return { rebalancedHoldings, protocol }
 }
 
 /**
@@ -401,44 +662,40 @@ function processSimulationYear(
   rng: SeededRandom,
 ): { yearResult: MultiAssetYearResult; endHoldings: PortfolioHoldings } {
   const startHoldings = { ...currentHoldings }
-
-  // Generate returns for this year
   const assetReturns = generateCorrelatedReturns(enabledAssets, config, rng)
-
-  // Apply returns
   let endHoldings = applyReturns(currentHoldings, assetReturns, config)
 
-  // Add contributions (except for first year, already added)
   if (yearIndex > 0 && contribution > 0) {
     endHoldings = addContributions(endHoldings, contribution, config)
   }
 
-  // Check if rebalancing is needed
   let rebalanced = false
-  if (
-    shouldRebalanceByFrequency(year, 0, config.rebalancing.frequency) ||
-    (config.rebalancing.useThreshold && endHoldings.needsRebalancing)
-  ) {
-    endHoldings = rebalancePortfolio(endHoldings, config)
+  let rebalancingProtocol: RebalancingProtocol | undefined
+
+  if (shouldPerformRebalancing(year, endHoldings, config)) {
+    const { rebalancedHoldings, protocol } = performRebalancing(year, endHoldings, config)
+    endHoldings = rebalancedHoldings
+    rebalancingProtocol = protocol
     rebalanced = true
   }
 
-  // Calculate total return for this year
   const startValue = startHoldings.totalValue
   const endValue = endHoldings.totalValue - (yearIndex > 0 ? contribution : 0)
   const totalReturn = startValue > 0 ? (endValue - startValue) / startValue : 0
 
-  const yearResult: MultiAssetYearResult = {
-    year,
-    startHoldings,
+  return {
+    yearResult: {
+      year,
+      startHoldings,
+      endHoldings,
+      assetReturns,
+      rebalanced,
+      rebalancingProtocol,
+      totalReturn,
+      contributions: contribution,
+    },
     endHoldings,
-    assetReturns,
-    rebalanced,
-    totalReturn,
-    contributions: contribution,
   }
-
-  return { yearResult, endHoldings }
 }
 
 /**
@@ -516,6 +773,30 @@ function runPortfolioSimulation(
 }
 
 /**
+ * Create empty multi-asset simulation result
+ */
+function createEmptySimulationResult(): MultiAssetSimulationResult {
+  return {
+    yearResults: {},
+    finalValue: 0,
+    totalContributions: 0,
+    totalReturn: 0,
+    annualizedReturn: 0,
+    volatility: 0,
+    rebalancingProtocols: [],
+  }
+}
+
+/**
+ * Collect rebalancing protocols from year results
+ */
+function collectRebalancingProtocols(yearResults: Record<number, MultiAssetYearResult>): RebalancingProtocol[] {
+  return Object.values(yearResults)
+    .filter(result => result.rebalancingProtocol !== undefined)
+    .map(result => result.rebalancingProtocol!)
+}
+
+/**
  * Simulate multi-asset portfolio for a range of years
  */
 export function simulateMultiAssetPortfolio(
@@ -524,15 +805,7 @@ export function simulateMultiAssetPortfolio(
   contributions: Record<number, number>, // Annual contributions by year
 ): MultiAssetSimulationResult {
   if (!config.enabled || years.length === 0) {
-    return {
-      yearResults: {},
-      finalValue: 0,
-      totalContributions: 0,
-      totalReturn: 0,
-      annualizedReturn: 0,
-      volatility: 0,
-      rebalancingProtocols: [],
-    }
+    return createEmptySimulationResult()
   }
 
   const enabledAssets = getEnabledAssets(config)
@@ -562,11 +835,6 @@ export function simulateMultiAssetPortfolio(
     years.length,
   )
 
-  // Collect all rebalancing protocols from year results
-  const rebalancingProtocols = Object.values(yearResults)
-    .filter(result => result.rebalancingProtocol !== undefined)
-    .map(result => result.rebalancingProtocol!)
-
   return {
     yearResults,
     finalValue,
@@ -574,7 +842,7 @@ export function simulateMultiAssetPortfolio(
     totalReturn,
     annualizedReturn,
     volatility,
-    rebalancingProtocols,
+    rebalancingProtocols: collectRebalancingProtocols(yearResults),
   }
 }
 
