@@ -35,6 +35,12 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Ergebnisanzeige** - Erwartete Rendite, Risiko, Sharpe Ratio und optimierte Allokationen
     - **Ein-Klick-Anwendung** - Optimierte Allokationen können direkt übernommen werden
   - **Automatisches Rebalancing** - Konfigurierbare Rebalancing-Häufigkeit (jährlich, quartalsweise, monatlich) mit Schwellenwert-basiertem Rebalancing
+    - **Rebalancing-Protokoll** - Detaillierte Dokumentation aller Rebalancing-Transaktionen
+      - **Transaktionshistorie** - Vollständige Aufzeichnung aller Käufe und Verkäufe bei jedem Rebalancing
+      - **Steuerberechnung** - Automatische Berechnung von Kapitalerträgen und Steuern (Kapitalertragsteuer + Solidaritätszuschlag)
+      - **Teilfreistellung** - Berücksichtigung der deutschen Teilfreistellung (30% für Aktienfonds, 60% für Immobilienfonds)
+      - **Kosten-Transparenz** - Darstellung der steuerlichen Kosten jeder Rebalancing-Aktion
+      - **Allokations-Tracking** - Dokumentation der Portfolio-Allokationen vor und nach dem Rebalancing
   - **Korrelationsmatrix** - Berücksichtigung historischer Korrelationen zwischen Anlageklassen für realistische Simulationen
   - **Korrelations-Heatmap** - Visuelle Darstellung der Korrelationsmatrix mit farbcodierter Heatmap
     - **Interaktive Visualisierung** - Zeigt Korrelationen zwischen allen aktivierten Anlageklassen
