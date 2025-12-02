@@ -213,16 +213,6 @@ Direkte Erweiterung der bestehenden Kernfunktionalität.
   - **Threshold-Optimierung** - Automatische Empfehlung optimaler Rebalancing-Schwellenwerte
   - **Visualization** - Timeline-Darstellung aller Rebalancing-Aktionen mit Portfoliozusammensetzung
 
-#### Riester-Rente Integration
-
-- **Riester-Rente Simulation** - Vollständige Integration der Riester-Rente mit Zulagen und steuerlichen Vorteilen
-  - **Zulagenberechnung** - Automatische Berechnung der Grundzulage (175€) und Kinderzulagen (185€/300€)
-  - **Mindesteigenbeitrag** - Berechnung des erforderlichen Eigenbeitrags (4% des Bruttoeinkommens)
-  - **Steuerliche Förderung** - Berücksichtigung des Sonderausgabenabzugs (max. 2.100€ p.a.)
-  - **Günstigerprüfung** - Automatische Wahl zwischen Zulagen und Steuerersparnis
-  - **Nachgelagerte Besteuerung** - Korrekte Besteuerung der Riester-Rente in der Entnahmephase
-  - **Wohn-Riester** - Option zur Verwendung für selbstgenutztes Wohneigentum
-  
 #### Teilverkauf-Strategie für Immobilien im Alter
 
 - **Immobilien-Teilverkauf-Simulation** - Alternative zur Leibrente bei selbstgenutztem Wohneigentum

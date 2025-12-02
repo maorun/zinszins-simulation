@@ -10,6 +10,12 @@ import {
   getRuerupPensionTaxablePercentage,
 } from './ruerup-rente'
 
+import {
+  calculateRiesterTaxBenefit,
+  calculateRiesterPensionTaxation,
+  calculateRiesterAllowances,
+} from './riester-rente'
+
 /**
  * Type of income source
  */
@@ -26,6 +32,7 @@ export type IncomeType =
   | 'risikolebensversicherung'
   | 'kinder_bildung'
   | 'ruerup_rente'
+  | 'riester_rente'
   | 'other'
 
 /**
@@ -307,6 +314,45 @@ export interface RuerupRenteConfig {
 }
 
 /**
+ * Riester-Rente specific configuration
+ * German subsidized pension product with government allowances and tax deductions
+ */
+export interface RiesterRenteConfig {
+  /** Annual gross income in EUR (for Mindesteigenbeitrag calculation) */
+  annualGrossIncome: number
+
+  /** Actual annual contribution amount in EUR */
+  annualContribution: number
+
+  /** Number of children eligible for child allowance */
+  numberOfChildren: number
+
+  /** Year of birth for each child (for age-based allowance calculation) */
+  childrenBirthYears: number[]
+
+  /** Year when pension payments start */
+  pensionStartYear: number
+
+  /** Expected monthly pension payment in EUR */
+  expectedMonthlyPension: number
+
+  /** Annual pension increase rate (e.g., 0.01 for 1% annual increase) */
+  pensionIncreaseRate: number
+
+  /** Personal tax rate during contribution phase (for Günstigerprüfung) */
+  contributionPhaseTaxRate: number
+
+  /** Expected tax rate during pension phase (typically lower in retirement) */
+  pensionPhaseTaxRate: number
+
+  /** Whether Wohn-Riester is used (home ownership option) */
+  useWohnRiester: boolean
+
+  /** Birth year of the insured person */
+  birthYear: number
+}
+
+/**
  * Whether the income amount is gross or net
  */
 export type IncomeAmountType = 'gross' | 'net'
@@ -374,6 +420,9 @@ export interface OtherIncomeSource {
 
   /** Rürup-Rente-specific configuration (only for ruerup_rente type) */
   ruerupRenteConfig?: RuerupRenteConfig
+
+  /** Riester-Rente-specific configuration (only for riester_rente type) */
+  riesterRenteConfig?: RiesterRenteConfig
 }
 
 /**
@@ -548,6 +597,48 @@ export interface OtherIncomeYearResult {
     /** Monthly pension payment this year (only in pension phase) */
     monthlyPension: number
     /** Percentage of pension that is taxable */
+    taxablePercentage: number
+    /** Taxable portion of annual pension */
+    taxableAmount: number
+    /** Income tax on pension */
+    incomeTax: number
+    /** Net annual pension after taxes */
+    netAnnualPension: number
+  }
+
+  /** Riester-Rente-specific calculations (only for riester_rente type) */
+  riesterRenteDetails?: {
+    /** Person's age this year */
+    age: number
+    /** Whether in contribution phase (before pension starts) */
+    isContributionPhase: boolean
+    /** Whether in pension phase (pension payments active) */
+    isPensionPhase: boolean
+    /** Annual contribution amount (only in contribution phase) */
+    annualContribution: number
+    /** Total allowances (Grundzulage + Kinderzulagen) */
+    allowances: number
+    /** Minimum required contribution (Mindesteigenbeitrag) */
+    minimumContribution: number
+    /** Whether minimum contribution requirement is met */
+    meetsMinimumContribution: boolean
+    /** Tax deduction amount (if Günstigerprüfung chooses tax deduction) */
+    taxDeductionAmount: number
+    /** Tax savings from deduction */
+    taxSavingsFromDeduction: number
+    /** Total benefit (allowances OR tax savings, whichever is higher) */
+    totalBenefit: number
+    /** Which method was chosen: 'allowances' or 'tax-deduction' */
+    benefitMethod: 'allowances' | 'tax-deduction'
+    /** Child allowance details */
+    childAllowanceDetails: Array<{
+      birthYear: number
+      age: number
+      allowance: number
+    }>
+    /** Monthly pension payment this year (only in pension phase) */
+    monthlyPension: number
+    /** Percentage of pension that is taxable (always 100% for Riester) */
     taxablePercentage: number
     /** Taxable portion of annual pension */
     taxableAmount: number
@@ -1595,6 +1686,127 @@ function applyRuerupRenteLogic(
   return { grossMonthlyAmount: 0, grossAnnualAmount: 0 }
 }
 
+// Helper: Apply Riester-Rente-specific logic
+function calculateRiesterContributionPhase(
+  config: RiesterRenteConfig,
+  year: number,
+  age: number,
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  riesterRenteDetails: OtherIncomeYearResult['riesterRenteDetails']
+} {
+  const benefitResult = calculateRiesterTaxBenefit(
+    config.annualContribution,
+    config.annualGrossIncome,
+    config.numberOfChildren,
+    config.childrenBirthYears,
+    year,
+    config.contributionPhaseTaxRate
+  )
+
+  const allowances = calculateRiesterAllowances(
+    config.numberOfChildren,
+    config.childrenBirthYears,
+    year
+  )
+
+  return {
+    grossMonthlyAmount: -config.annualContribution / 12,
+    grossAnnualAmount: -config.annualContribution,
+    riesterRenteDetails: {
+      age,
+      isContributionPhase: true,
+      isPensionPhase: false,
+      annualContribution: config.annualContribution,
+      allowances: benefitResult.allowances,
+      minimumContribution: benefitResult.minimumContribution,
+      meetsMinimumContribution: benefitResult.meetsMinimumContribution,
+      taxDeductionAmount: benefitResult.taxDeductionAmount,
+      taxSavingsFromDeduction: benefitResult.taxSavingsFromDeduction,
+      totalBenefit: benefitResult.totalBenefit,
+      benefitMethod: benefitResult.benefitMethod,
+      childAllowanceDetails: allowances.childAllowanceDetails,
+      monthlyPension: 0,
+      taxablePercentage: 0,
+      taxableAmount: 0,
+      incomeTax: 0,
+      netAnnualPension: 0,
+    },
+  }
+}
+
+function calculateRiesterPensionPhase(
+  config: RiesterRenteConfig,
+  year: number,
+  age: number,
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  riesterRenteDetails: OtherIncomeYearResult['riesterRenteDetails']
+} {
+  const pensionResult = calculateRiesterPensionTaxation(
+    config.expectedMonthlyPension,
+    config.pensionStartYear,
+    year,
+    config.pensionIncreaseRate,
+    config.pensionPhaseTaxRate
+  )
+
+  return {
+    grossMonthlyAmount: pensionResult.grossMonthlyPension,
+    grossAnnualAmount: pensionResult.grossAnnualPension,
+    riesterRenteDetails: {
+      age,
+      isContributionPhase: false,
+      isPensionPhase: true,
+      annualContribution: 0,
+      allowances: 0,
+      minimumContribution: 0,
+      meetsMinimumContribution: true,
+      taxDeductionAmount: 0,
+      taxSavingsFromDeduction: 0,
+      totalBenefit: 0,
+      benefitMethod: 'allowances',
+      childAllowanceDetails: [],
+      monthlyPension: pensionResult.grossMonthlyPension,
+      taxablePercentage: pensionResult.taxablePercentage,
+      taxableAmount: pensionResult.taxableAmount,
+      incomeTax: pensionResult.incomeTax,
+      netAnnualPension: pensionResult.netAnnualPension,
+    },
+  }
+}
+
+function applyRiesterRenteLogic(
+  source: OtherIncomeSource,
+  year: number,
+  amounts: { grossMonthlyAmount: number; grossAnnualAmount: number },
+): {
+  grossMonthlyAmount: number
+  grossAnnualAmount: number
+  riesterRenteDetails?: OtherIncomeYearResult['riesterRenteDetails']
+} {
+  if (source.type !== 'riester_rente' || !source.riesterRenteConfig) {
+    return amounts
+  }
+
+  const config = source.riesterRenteConfig
+  const age = year - config.birthYear
+  const isContributionPhase = year < config.pensionStartYear
+  const isPensionPhase = year >= config.pensionStartYear
+
+  if (isContributionPhase) {
+    return calculateRiesterContributionPhase(config, year, age)
+  }
+
+  if (isPensionPhase) {
+    return calculateRiesterPensionPhase(config, year, age)
+  }
+
+  return { grossMonthlyAmount: 0, grossAnnualAmount: 0 }
+}
+
 // Helper: Apply all income type-specific logic
 function applyIncomeTypeLogic(
   source: OtherIncomeSource,
@@ -1610,6 +1822,7 @@ function applyIncomeTypeLogic(
   pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
   risikolebensversicherungDetails?: OtherIncomeYearResult['risikolebensversicherungDetails']
   ruerupRenteDetails?: OtherIncomeYearResult['ruerupRenteDetails']
+  riesterRenteDetails?: OtherIncomeYearResult['riesterRenteDetails']
 } {
   let result = applyKindergeldLogic(source, year, initialAmounts)
   result = applyElterngeldLogic(source, year, result)
@@ -1618,8 +1831,46 @@ function applyIncomeTypeLogic(
   result = applyPflegezusatzversicherungLogic(source, year, result)
   result = applyRisikolebensversicherungLogic(source, year, result)
   result = applyRuerupRenteLogic(source, year, result)
+  result = applyRiesterRenteLogic(source, year, result)
 
   return result
+}
+
+// Helper: Assign first set of income type details
+function assignIncomeTypeDetails1(
+  result: OtherIncomeYearResult,
+  incomeTypeResult: {
+    kindergeldDetails?: OtherIncomeYearResult['kindergeldDetails']
+    elterngeldDetails?: OtherIncomeYearResult['elterngeldDetails']
+    buRenteDetails?: OtherIncomeYearResult['buRenteDetails']
+    kapitallebensversicherungDetails?: OtherIncomeYearResult['kapitallebensversicherungDetails']
+  },
+): void {
+  if (incomeTypeResult.kindergeldDetails) result.kindergeldDetails = incomeTypeResult.kindergeldDetails
+  if (incomeTypeResult.elterngeldDetails) result.elterngeldDetails = incomeTypeResult.elterngeldDetails
+  if (incomeTypeResult.buRenteDetails) result.buRenteDetails = incomeTypeResult.buRenteDetails
+  if (incomeTypeResult.kapitallebensversicherungDetails)
+    result.kapitallebensversicherungDetails = incomeTypeResult.kapitallebensversicherungDetails
+}
+
+// Helper: Assign second set of income type details
+function assignIncomeTypeDetails2(
+  result: OtherIncomeYearResult,
+  incomeTypeResult: {
+    pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
+    risikolebensversicherungDetails?: OtherIncomeYearResult['risikolebensversicherungDetails']
+    ruerupRenteDetails?: OtherIncomeYearResult['ruerupRenteDetails']
+    riesterRenteDetails?: OtherIncomeYearResult['riesterRenteDetails']
+  },
+): void {
+  if (incomeTypeResult.pflegezusatzversicherungDetails)
+    result.pflegezusatzversicherungDetails = incomeTypeResult.pflegezusatzversicherungDetails
+  if (incomeTypeResult.risikolebensversicherungDetails)
+    result.risikolebensversicherungDetails = incomeTypeResult.risikolebensversicherungDetails
+  if (incomeTypeResult.ruerupRenteDetails)
+    result.ruerupRenteDetails = incomeTypeResult.ruerupRenteDetails
+  if (incomeTypeResult.riesterRenteDetails)
+    result.riesterRenteDetails = incomeTypeResult.riesterRenteDetails
 }
 
 // Helper: Build the final year result
@@ -1633,19 +1884,11 @@ function assignIncomeTypeDetails(
     pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
     risikolebensversicherungDetails?: OtherIncomeYearResult['risikolebensversicherungDetails']
     ruerupRenteDetails?: OtherIncomeYearResult['ruerupRenteDetails']
+    riesterRenteDetails?: OtherIncomeYearResult['riesterRenteDetails']
   },
 ): void {
-  if (incomeTypeResult.kindergeldDetails) result.kindergeldDetails = incomeTypeResult.kindergeldDetails
-  if (incomeTypeResult.elterngeldDetails) result.elterngeldDetails = incomeTypeResult.elterngeldDetails
-  if (incomeTypeResult.buRenteDetails) result.buRenteDetails = incomeTypeResult.buRenteDetails
-  if (incomeTypeResult.kapitallebensversicherungDetails)
-    result.kapitallebensversicherungDetails = incomeTypeResult.kapitallebensversicherungDetails
-  if (incomeTypeResult.pflegezusatzversicherungDetails)
-    result.pflegezusatzversicherungDetails = incomeTypeResult.pflegezusatzversicherungDetails
-  if (incomeTypeResult.risikolebensversicherungDetails)
-    result.risikolebensversicherungDetails = incomeTypeResult.risikolebensversicherungDetails
-  if (incomeTypeResult.ruerupRenteDetails)
-    result.ruerupRenteDetails = incomeTypeResult.ruerupRenteDetails
+  assignIncomeTypeDetails1(result, incomeTypeResult)
+  assignIncomeTypeDetails2(result, incomeTypeResult)
 }
 
 function buildYearResult(
@@ -1660,6 +1903,7 @@ function buildYearResult(
     pflegezusatzversicherungDetails?: OtherIncomeYearResult['pflegezusatzversicherungDetails']
     risikolebensversicherungDetails?: OtherIncomeYearResult['risikolebensversicherungDetails']
     ruerupRenteDetails?: OtherIncomeYearResult['ruerupRenteDetails']
+    riesterRenteDetails?: OtherIncomeYearResult['riesterRenteDetails']
   },
   realEstateDetails: OtherIncomeYearResult['realEstateDetails'],
   inflationFactor: number,
@@ -1767,6 +2011,7 @@ function getDefaultMonthlyAmount(type: IncomeType): number {
   if (type === 'elterngeld') return 1200
   if (type === 'bu_rente') return 1500
   if (type === 'ruerup_rente') return 2000 // Expected monthly pension
+  if (type === 'riester_rente') return 800 // Expected monthly pension
   if (type === 'kapitallebensversicherung') return 0 // Lump sum, not monthly
   return 800
 }
@@ -1788,6 +2033,7 @@ function getDefaultInflationRate(type: IncomeType): number {
   if (type === 'elterngeld') return 0 // Elterngeld is based on previous income, not adjusted for inflation
   if (type === 'bu_rente') return 0 // BU-Rente typically has fixed amounts
   if (type === 'ruerup_rente') return 1.0 // Rürup pension increase rate (handled by config)
+  if (type === 'riester_rente') return 1.0 // Riester pension increase rate (handled by config)
   if (type === 'kapitallebensversicherung') return 0 // Lump sum, no inflation adjustment
   return 2.0
 }
@@ -1800,6 +2046,7 @@ function getDefaultTaxRate(type: IncomeType): number {
   if (type === 'elterngeld') return 0 // Elterngeld is tax-free but subject to Progressionsvorbehalt
   if (type === 'bu_rente') return 25.0 // Individual income tax rate (typical for disability pensions)
   if (type === 'ruerup_rente') return 25.0 // Tax rate in pension phase (typically lower in retirement)
+  if (type === 'riester_rente') return 25.0 // Tax rate in pension phase (typically lower in retirement)
   if (type === 'kapitallebensversicherung') return 26.375 // Abgeltungsteuer (capital gains tax)
   return 30.0
 }
@@ -1847,6 +2094,11 @@ export function createDefaultOtherIncomeSource(type: IncomeType = 'rental'): Oth
   // Add default Rürup-Rente configuration
   if (type === 'ruerup_rente') {
     source.ruerupRenteConfig = createDefaultRuerupRenteConfig()
+  }
+
+  // Add default Riester-Rente configuration
+  if (type === 'riester_rente') {
+    source.riesterRenteConfig = createDefaultRiesterRenteConfig()
   }
 
   return source
@@ -1942,6 +2194,29 @@ export function createDefaultRuerupRenteConfig(): RuerupRenteConfig {
 }
 
 /**
+ * Create default Riester-Rente configuration
+ */
+export function createDefaultRiesterRenteConfig(): RiesterRenteConfig {
+  const currentYear = new Date().getFullYear()
+  const defaultBirthYear = currentYear - 40 // 40 years old by default
+  const pensionStartYear = currentYear + 27 // Retire at 67
+
+  return {
+    annualGrossIncome: 40000, // €40,000 annual gross income
+    annualContribution: 2100, // €2,100 annual contribution (max tax-deductible)
+    numberOfChildren: 0, // No children by default
+    childrenBirthYears: [],
+    pensionStartYear,
+    expectedMonthlyPension: 800, // €800 monthly pension
+    pensionIncreaseRate: 0.01, // 1% annual increase
+    contributionPhaseTaxRate: 0.35, // 35% tax rate during working years
+    pensionPhaseTaxRate: 0.25, // 25% tax rate in retirement (typically lower)
+    useWohnRiester: false, // Regular Riester by default
+    birthYear: defaultBirthYear,
+  }
+}
+
+/**
  * Create default Kapitallebensversicherung configuration
  */
 export function createDefaultKapitallebensversicherungConfig(): KapitallebensversicherungConfig {
@@ -2024,6 +2299,7 @@ function getDefaultNameForType(type: IncomeType): string {
     elterngeld: 'Elterngeld',
     bu_rente: 'BU-Rente',
     ruerup_rente: 'Rürup-Rente (Basis-Rente)',
+    riester_rente: 'Riester-Rente',
     kapitallebensversicherung: 'Kapitallebensversicherung',
     pflegezusatzversicherung: 'Pflegezusatzversicherung',
     risikolebensversicherung: 'Risikolebensversicherung',
@@ -2053,6 +2329,7 @@ export function getIncomeTypeDisplayName(type: IncomeType): string {
     elterngeld: 'Elterngeld',
     bu_rente: 'BU-Rente',
     ruerup_rente: 'Rürup-Rente',
+    riester_rente: 'Riester-Rente',
     kapitallebensversicherung: 'Kapitallebensversicherung',
     pflegezusatzversicherung: 'Pflegezusatzversicherung',
     risikolebensversicherung: 'Risikolebensversicherung',
