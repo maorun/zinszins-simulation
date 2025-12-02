@@ -1723,5 +1723,222 @@ describe('Other Income Calculations', () => {
         }
       })
     })
+
+    describe('Riester-Rente integration', () => {
+      it('should handle Riester-Rente in contribution phase', () => {
+        const currentYear = new Date().getFullYear()
+        const source: OtherIncomeSource = {
+          id: 'riester-1',
+          name: 'Riester-Rente',
+          type: 'riester_rente',
+          amountType: 'gross',
+          monthlyAmount: 800,
+          startYear: currentYear - 10,
+          endYear: null,
+          inflationRate: 1.0,
+          taxRate: 35.0,
+          enabled: true,
+          riesterRenteConfig: {
+            annualGrossIncome: 45000,
+            annualContribution: 1500,
+            numberOfChildren: 2,
+            childrenBirthYears: [currentYear - 8, currentYear - 5],
+            pensionStartYear: currentYear + 20,
+            expectedMonthlyPension: 800,
+            pensionIncreaseRate: 0.01,
+            contributionPhaseTaxRate: 0.35,
+            pensionPhaseTaxRate: 0.25,
+            useWohnRiester: false,
+            birthYear: currentYear - 40,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, currentYear)
+
+        expect(result).not.toBe(null)
+        expect(result!.riesterRenteDetails).toBeDefined()
+        expect(result!.riesterRenteDetails!.isContributionPhase).toBe(true)
+        expect(result!.riesterRenteDetails!.isPensionPhase).toBe(false)
+        expect(result!.riesterRenteDetails!.annualContribution).toBe(1500)
+        expect(result!.riesterRenteDetails!.allowances).toBeGreaterThan(0)
+        expect(result!.riesterRenteDetails!.meetsMinimumContribution).toBe(true)
+        expect(result!.riesterRenteDetails!.totalBenefit).toBeGreaterThan(0)
+      })
+
+      it('should handle Riester-Rente in pension phase', () => {
+        const currentYear = new Date().getFullYear()
+        const source: OtherIncomeSource = {
+          id: 'riester-1',
+          name: 'Riester-Rente',
+          type: 'riester_rente',
+          amountType: 'gross',
+          monthlyAmount: 800,
+          startYear: currentYear - 30,
+          endYear: null,
+          inflationRate: 1.0,
+          taxRate: 25.0,
+          enabled: true,
+          riesterRenteConfig: {
+            annualGrossIncome: 45000,
+            annualContribution: 1500,
+            numberOfChildren: 0,
+            childrenBirthYears: [],
+            pensionStartYear: currentYear - 5,
+            expectedMonthlyPension: 800,
+            pensionIncreaseRate: 0.01,
+            contributionPhaseTaxRate: 0.35,
+            pensionPhaseTaxRate: 0.25,
+            useWohnRiester: false,
+            birthYear: currentYear - 72,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, currentYear)
+
+        expect(result).not.toBe(null)
+        expect(result!.riesterRenteDetails).toBeDefined()
+        expect(result!.riesterRenteDetails!.isContributionPhase).toBe(false)
+        expect(result!.riesterRenteDetails!.isPensionPhase).toBe(true)
+        expect(result!.riesterRenteDetails!.monthlyPension).toBeGreaterThan(0)
+        expect(result!.riesterRenteDetails!.taxableAmount).toBeGreaterThan(0)
+        expect(result!.riesterRenteDetails!.netAnnualPension).toBeGreaterThan(0)
+        expect(result!.riesterRenteDetails!.taxablePercentage).toBe(1.0) // Always 100% for Riester
+      })
+
+      it('should create default Riester config', () => {
+        const source = createDefaultOtherIncomeSource('riester_rente')
+
+        expect(source.type).toBe('riester_rente')
+        expect(source.name).toBe('Riester-Rente')
+        expect(source.riesterRenteConfig).toBeDefined()
+        expect(source.riesterRenteConfig!.annualGrossIncome).toBe(40000)
+        expect(source.riesterRenteConfig!.annualContribution).toBe(2100)
+        expect(source.riesterRenteConfig!.numberOfChildren).toBe(0)
+        expect(source.riesterRenteConfig!.expectedMonthlyPension).toBe(800)
+        expect(source.riesterRenteConfig!.pensionIncreaseRate).toBe(0.01)
+        expect(source.riesterRenteConfig!.useWohnRiester).toBe(false)
+      })
+
+      it('should calculate Riester over multiple years (contribution + pension)', () => {
+        const currentYear = new Date().getFullYear()
+        const config: OtherIncomeConfiguration = {
+          enabled: true,
+          sources: [
+            {
+              id: 'riester-1',
+              name: 'Riester-Rente',
+              type: 'riester_rente',
+              amountType: 'gross',
+              monthlyAmount: 800,
+              startYear: currentYear,
+              endYear: null,
+              inflationRate: 0,
+              taxRate: 25.0,
+              enabled: true,
+              riesterRenteConfig: {
+                annualGrossIncome: 50000,
+                annualContribution: 2100,
+                numberOfChildren: 1,
+                childrenBirthYears: [currentYear - 10],
+                pensionStartYear: currentYear + 5,
+                expectedMonthlyPension: 800,
+                pensionIncreaseRate: 0.01,
+                contributionPhaseTaxRate: 0.35,
+                pensionPhaseTaxRate: 0.25,
+                useWohnRiester: false,
+                birthYear: currentYear - 62,
+              },
+            },
+          ],
+        }
+
+        const result = calculateOtherIncome(config, currentYear, currentYear + 10)
+
+        // Contribution years (currentYear to currentYear+4)
+        for (let year = currentYear; year < currentYear + 5; year++) {
+          expect(result[year].sources).toHaveLength(1)
+          expect(result[year].sources[0].riesterRenteDetails!.isContributionPhase).toBe(true)
+          expect(result[year].sources[0].riesterRenteDetails!.annualContribution).toBe(2100)
+          // Child allowance should be present
+          expect(result[year].sources[0].riesterRenteDetails!.allowances).toBeGreaterThan(0)
+        }
+
+        // Pension years (currentYear+5 onwards)
+        for (let year = currentYear + 5; year <= currentYear + 10; year++) {
+          expect(result[year].sources).toHaveLength(1)
+          expect(result[year].sources[0].riesterRenteDetails!.isPensionPhase).toBe(true)
+          expect(result[year].sources[0].riesterRenteDetails!.monthlyPension).toBeGreaterThan(0)
+          expect(result[year].sources[0].riesterRenteDetails!.taxablePercentage).toBe(1.0)
+        }
+      })
+
+      it('should handle Günstigerprüfung (allowances vs. tax deduction)', () => {
+        const currentYear = new Date().getFullYear()
+        
+        // Scenario with 2 children - allowances should be more favorable
+        const sourceWithChildren: OtherIncomeSource = {
+          id: 'riester-1',
+          name: 'Riester-Rente',
+          type: 'riester_rente',
+          amountType: 'gross',
+          monthlyAmount: 800,
+          startYear: currentYear,
+          endYear: null,
+          inflationRate: 0,
+          taxRate: 25.0,
+          enabled: true,
+          riesterRenteConfig: {
+            annualGrossIncome: 40000,
+            annualContribution: 1000,
+            numberOfChildren: 2,
+            childrenBirthYears: [currentYear - 8, currentYear - 5],
+            pensionStartYear: currentYear + 20,
+            expectedMonthlyPension: 800,
+            pensionIncreaseRate: 0.01,
+            contributionPhaseTaxRate: 0.25,
+            pensionPhaseTaxRate: 0.20,
+            useWohnRiester: false,
+            birthYear: currentYear - 40,
+          },
+        }
+
+        const resultWithChildren = calculateOtherIncomeForYear(sourceWithChildren, currentYear)
+        
+        expect(resultWithChildren!.riesterRenteDetails!.benefitMethod).toBe('allowances')
+        expect(resultWithChildren!.riesterRenteDetails!.allowances).toBe(775) // 175 + 300 + 300
+        
+        // Scenario without children and high tax rate - tax deduction might be more favorable
+        const sourceNoChildren: OtherIncomeSource = {
+          id: 'riester-2',
+          name: 'Riester-Rente',
+          type: 'riester_rente',
+          amountType: 'gross',
+          monthlyAmount: 800,
+          startYear: currentYear,
+          endYear: null,
+          inflationRate: 0,
+          taxRate: 42.0,
+          enabled: true,
+          riesterRenteConfig: {
+            annualGrossIncome: 100000,
+            annualContribution: 4000,
+            numberOfChildren: 0,
+            childrenBirthYears: [],
+            pensionStartYear: currentYear + 20,
+            expectedMonthlyPension: 800,
+            pensionIncreaseRate: 0.01,
+            contributionPhaseTaxRate: 0.42,
+            pensionPhaseTaxRate: 0.25,
+            useWohnRiester: false,
+            birthYear: currentYear - 40,
+          },
+        }
+
+        const resultNoChildren = calculateOtherIncomeForYear(sourceNoChildren, currentYear)
+        
+        expect(resultNoChildren!.riesterRenteDetails!.benefitMethod).toBe('tax-deduction')
+        expect(resultNoChildren!.riesterRenteDetails!.taxDeductionAmount).toBeGreaterThan(0)
+      })
+    })
   })
 })
