@@ -1591,5 +1591,137 @@ describe('Other Income Calculations', () => {
         expect(result[currentYear].totalTaxAmount).toBe(4800)
       })
     })
+
+    describe('Rürup-Rente integration', () => {
+      it('should handle Rürup-Rente in contribution phase', () => {
+        const currentYear = new Date().getFullYear()
+        const source: OtherIncomeSource = {
+          id: 'ruerup-1',
+          name: 'Rürup-Rente',
+          type: 'ruerup_rente',
+          amountType: 'gross',
+          monthlyAmount: 2000,
+          startYear: currentYear - 10,
+          endYear: null,
+          inflationRate: 1.0,
+          taxRate: 42.0,
+          enabled: true,
+          ruerupRenteConfig: {
+            annualContribution: 10000,
+            civilStatus: 'single',
+            pensionStartYear: currentYear + 20,
+            expectedMonthlyPension: 2000,
+            pensionIncreaseRate: 0.01,
+            contributionPhaseTaxRate: 0.42,
+            pensionPhaseTaxRate: 0.25,
+            birthYear: currentYear - 40,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, currentYear)
+
+        expect(result).not.toBe(null)
+        expect(result!.ruerupRenteDetails).toBeDefined()
+        expect(result!.ruerupRenteDetails!.isContributionPhase).toBe(true)
+        expect(result!.ruerupRenteDetails!.isPensionPhase).toBe(false)
+        expect(result!.ruerupRenteDetails!.annualContribution).toBe(10000)
+        expect(result!.ruerupRenteDetails!.taxDeduction).toBeGreaterThan(0)
+        expect(result!.ruerupRenteDetails!.taxSavings).toBeGreaterThan(0)
+      })
+
+      it('should handle Rürup-Rente in pension phase', () => {
+        const currentYear = new Date().getFullYear()
+        const source: OtherIncomeSource = {
+          id: 'ruerup-1',
+          name: 'Rürup-Rente',
+          type: 'ruerup_rente',
+          amountType: 'gross',
+          monthlyAmount: 2000,
+          startYear: currentYear - 30,
+          endYear: null,
+          inflationRate: 1.0,
+          taxRate: 25.0,
+          enabled: true,
+          ruerupRenteConfig: {
+            annualContribution: 10000,
+            civilStatus: 'single',
+            pensionStartYear: currentYear - 5,
+            expectedMonthlyPension: 2000,
+            pensionIncreaseRate: 0.01,
+            contributionPhaseTaxRate: 0.42,
+            pensionPhaseTaxRate: 0.25,
+            birthYear: currentYear - 72,
+          },
+        }
+
+        const result = calculateOtherIncomeForYear(source, currentYear)
+
+        expect(result).not.toBe(null)
+        expect(result!.ruerupRenteDetails).toBeDefined()
+        expect(result!.ruerupRenteDetails!.isContributionPhase).toBe(false)
+        expect(result!.ruerupRenteDetails!.isPensionPhase).toBe(true)
+        expect(result!.ruerupRenteDetails!.monthlyPension).toBeGreaterThan(0)
+        expect(result!.ruerupRenteDetails!.taxableAmount).toBeGreaterThan(0)
+        expect(result!.ruerupRenteDetails!.netAnnualPension).toBeGreaterThan(0)
+      })
+
+      it('should create default Rürup config', () => {
+        const source = createDefaultOtherIncomeSource('ruerup_rente')
+
+        expect(source.type).toBe('ruerup_rente')
+        expect(source.name).toBe('Rürup-Rente (Basis-Rente)')
+        expect(source.ruerupRenteConfig).toBeDefined()
+        expect(source.ruerupRenteConfig!.annualContribution).toBe(10000)
+        expect(source.ruerupRenteConfig!.expectedMonthlyPension).toBe(2000)
+        expect(source.ruerupRenteConfig!.pensionIncreaseRate).toBe(0.01)
+      })
+
+      it('should calculate Rürup over multiple years (contribution + pension)', () => {
+        const currentYear = new Date().getFullYear()
+        const config: OtherIncomeConfiguration = {
+          enabled: true,
+          sources: [
+            {
+              id: 'ruerup-1',
+              name: 'Rürup-Rente',
+              type: 'ruerup_rente',
+              amountType: 'gross',
+              monthlyAmount: 2000,
+              startYear: currentYear,
+              endYear: null,
+              inflationRate: 0,
+              taxRate: 25.0,
+              enabled: true,
+              ruerupRenteConfig: {
+                annualContribution: 15000,
+                civilStatus: 'single',
+                pensionStartYear: currentYear + 5,
+                expectedMonthlyPension: 2000,
+                pensionIncreaseRate: 0.01,
+                contributionPhaseTaxRate: 0.42,
+                pensionPhaseTaxRate: 0.25,
+                birthYear: currentYear - 62,
+              },
+            },
+          ],
+        }
+
+        const result = calculateOtherIncome(config, currentYear, currentYear + 10)
+
+        // Contribution years (currentYear to currentYear+4)
+        for (let year = currentYear; year < currentYear + 5; year++) {
+          expect(result[year].sources).toHaveLength(1)
+          expect(result[year].sources[0].ruerupRenteDetails!.isContributionPhase).toBe(true)
+          expect(result[year].sources[0].ruerupRenteDetails!.annualContribution).toBe(15000)
+        }
+
+        // Pension years (currentYear+5 onwards)
+        for (let year = currentYear + 5; year <= currentYear + 10; year++) {
+          expect(result[year].sources).toHaveLength(1)
+          expect(result[year].sources[0].ruerupRenteDetails!.isPensionPhase).toBe(true)
+          expect(result[year].sources[0].ruerupRenteDetails!.monthlyPension).toBeGreaterThan(0)
+        }
+      })
+    })
   })
 })

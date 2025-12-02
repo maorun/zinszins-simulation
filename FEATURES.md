@@ -213,7 +213,7 @@ Direkte Erweiterung der bestehenden Kernfunktionalität.
   - **Threshold-Optimierung** - Automatische Empfehlung optimaler Rebalancing-Schwellenwerte
   - **Visualization** - Timeline-Darstellung aller Rebalancing-Aktionen mit Portfoliozusammensetzung
 
-#### Riester- und Rürup-Renten Integration
+#### Riester-Rente Integration
 
 - **Riester-Rente Simulation** - Vollständige Integration der Riester-Rente mit Zulagen und steuerlichen Vorteilen
   - **Zulagenberechnung** - Automatische Berechnung der Grundzulage (175€) und Kinderzulagen (185€/300€)
@@ -223,13 +223,6 @@ Direkte Erweiterung der bestehenden Kernfunktionalität.
   - **Nachgelagerte Besteuerung** - Korrekte Besteuerung der Riester-Rente in der Entnahmephase
   - **Wohn-Riester** - Option zur Verwendung für selbstgenutztes Wohneigentum
   
-- **Rürup-Rente (Basis-Rente) Simulation** - Integration der Rürup-Rente für Selbstständige und Gutverdiener
-  - **Höchstbetrag-Berechnung** - Berücksichtigung der jährlichen Höchstbeträge (27.566€ Einzel/55.132€ verheiratet 2024)
-  - **Steuerliche Absetzbarkeit** - Berechnung des absetzbaren Anteils (100% ab 2025, stufenweise Erhöhung)
-  - **Nachgelagerte Besteuerung** - Korrekte Besteuerung nach Rentenbeginn (Besteuerungsanteil je nach Rentenbeginn)
-  - **Vergleich Riester vs. Rürup** - Automatische Empfehlung basierend auf persönlicher Situation
-  - **Kombinationsszenarien** - Simulation von Riester + Rürup + weitere Altersvorsorge
-
 #### Teilverkauf-Strategie für Immobilien im Alter
 
 - **Immobilien-Teilverkauf-Simulation** - Alternative zur Leibrente bei selbstgenutztem Wohneigentum
