@@ -203,16 +203,6 @@ Die folgenden Features in diesem Dokument sind als "**NICHT zu implementieren**"
 
 Direkte Erweiterung der bestehenden Kernfunktionalität.
 
-#### Automatisches Rebalancing-Protokoll und Steueroptimierung
-
-- **Rebalancing-Protokoll** - Detailliertes Protokoll aller Rebalancing-Aktionen über die Zeit
-  - **Transaktionshistorie** - Aufzeichnung aller Umschichtungen mit Datum, Volumen und Begründung
-  - **Steuerimplikationen** - Berechnung der steuerlichen Auswirkungen jeder Rebalancing-Aktion
-  - **Cost-Benefit-Analyse** - Vergleich von Rebalancing-Kosten vs. Portfolio-Drift-Kosten
-  - **Optimaler Rebalancing-Zeitpunkt** - Berechnung des steueroptimalen Zeitpunkts für Umschichtungen
-  - **Threshold-Optimierung** - Automatische Empfehlung optimaler Rebalancing-Schwellenwerte
-  - **Visualization** - Timeline-Darstellung aller Rebalancing-Aktionen mit Portfoliozusammensetzung
-
 #### Teilverkauf-Strategie für Immobilien im Alter
 
 - **Immobilien-Teilverkauf-Simulation** - Alternative zur Leibrente bei selbstgenutztem Wohneigentum
