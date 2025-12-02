@@ -135,6 +135,20 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Integration in "Andere Einkünfte"**: Rürup-Rente kann als Einkunftsquelle neben BU-Rente, Kindergeld, etc. hinzugefügt werden
   - **Helper-Funktionen verfügbar**: `calculateRuerupTaxDeduction()`, `calculateRuerupPensionTaxation()`, `getRuerupDeductibilityLimits()`, `getRuerupPensionTaxablePercentage()`
   - **Umfassend getestet**: 36 Tests (32 Helper + 4 Integration) mit 100% Pass-Rate
+- **Riester-Rente** - Als "andere Einkünfte" konfigurierbar mit staatlicher Förderung
+  - **Zulagenberechnung**: Automatische Berechnung von Grundzulage (175€) und Kinderzulagen (185€/300€)
+  - **Mindesteigenbeitrag**: Berechnung des erforderlichen Eigenbeitrags (4% des Bruttoeinkommens minus Zulagen, mindestens 60€)
+  - **Günstigerprüfung**: Automatische Wahl zwischen Zulagen und Sonderausgabenabzug (max. 2.100€)
+  - **Kinderzulagen**: 185€ für vor 2008 geborene Kinder, 300€ für ab 2008 geborene Kinder
+  - **Altersgrenzen**: Kinderzulagen bis 25 Jahre bei Kindergeldberechtigung
+  - **Beitragsphase**: Berechnung der staatlichen Förderung durch Zulagen oder Steuerersparnis (je nachdem was günstiger ist)
+  - **Rentenphase Besteuerung**: Vollständige Besteuerung (100%) der Riester-Rente in der Auszahlungsphase
+  - **Nachgelagerte Besteuerung**: Riester-Renten sind voll steuerpflichtig gemäß § 22 Nr. 5 Satz 1 EStG
+  - **Rentenanpassung**: Jährliche Rentenerhöhung gemäß konfigurierter Steigerungsrate
+  - **Wohn-Riester Option**: Konfigurierbare Option für Eigenheimrente (für zukünftige Erweiterungen)
+  - **Integration in "Andere Einkünfte"**: Riester-Rente kann als Einkunftsquelle neben Rürup-Rente, BU-Rente, Kindergeld, etc. hinzugefügt werden
+  - **Helper-Funktionen verfügbar**: `calculateRiesterTaxBenefit()`, `calculateRiesterPensionTaxation()`, `calculateRiesterAllowances()`, `calculateMinimumContribution()`
+  - **Umfassend getestet**: 36 Tests (31 Helper + 5 Integration) mit 100% Pass-Rate
 - **Günstigerprüfung** - Automatische Wahl zwischen Abgeltungssteuer und persönlichem Steuersatz
   - **Automatische Optimierung**: System vergleicht Abgeltungssteuer (26,375%) vs. individueller Einkommensteuersatz
   - **Progressiver Steuertarif**: Bei aktivierter Günstigerprüfung wird der deutsche progressive Einkommensteuertarif berücksichtigt
