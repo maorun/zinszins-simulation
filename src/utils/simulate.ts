@@ -5,6 +5,14 @@ import type { BasiszinsConfiguration } from '../services/bundesbank-api'
 import { getHistoricalReturns } from './historical-data'
 import { calculateRealValue } from './inflation-adjustment'
 import { generateMultiAssetReturns } from '../../helpers/multi-asset-calculations'
+import {
+  type LossAccountState,
+  type RealizedLossesConfig,
+  type LossOffsetResult,
+  calculateLossOffset,
+  createInitialLossAccountState,
+  createDefaultRealizedLosses,
+} from '../../helpers/loss-offset-accounts'
 
 export type VorabpauschaleDetails = {
   basiszins: number // Base interest rate for the year
@@ -50,6 +58,9 @@ export type SimulationResultElement = {
   startkapitalReal?: number // Real value of starting capital
   zinsenReal?: number // Real value of interest/gains
   endkapitalReal?: number // Real value of ending capital
+  // Loss offset tracking (Verlustverrechnungstöpfe)
+  lossOffsetDetails?: LossOffsetResult // Details of loss offset for this year
+  lossAccountState?: LossAccountState // Loss account state at end of year (carried forward to next year)
 }
 
 export type SimulationResult = {
@@ -91,6 +102,11 @@ export interface SimulateOptions {
   // Günstigerprüfung settings
   guenstigerPruefungAktiv?: boolean
   personalTaxRate?: number
+  // Loss offset account settings (Verlustverrechnungstöpfe)
+  lossOffsetEnabled?: boolean
+  initialLossAccountState?: LossAccountState // Losses carried forward from before simulation start
+  realizedLossesByYear?: Record<number, RealizedLossesConfig> // Realized losses per year
+  stockGainsRatio?: number // Ratio of capital gains from stocks (0-1, default 0.7 for typical equity funds)
 }
 
 // Helper function to add inflation-adjusted values to simulation result
@@ -640,6 +656,8 @@ function createSimulationResult(
   genutzterFreibetragForElement: number,
   year: number,
   options?: SimulateOptions,
+  lossOffsetResult?: LossOffsetResult,
+  lossAccountState?: LossAccountState,
 ): SimulationResultElement {
   const actualZinsen = endkapital - calc.startkapital
   const vorabpauschaleAccumulated =
@@ -657,6 +675,8 @@ function createSimulationResult(
     terCosts: calc.costs.terCosts,
     transactionCosts: calc.costs.transactionCosts,
     totalCosts: calc.costs.totalCosts,
+    lossOffsetDetails: lossOffsetResult,
+    lossAccountState,
   }
 
   // Add inflation-adjusted values if inflation is active
@@ -670,6 +690,113 @@ function createSimulationResult(
   }
 
   return simulationResult
+}
+
+/**
+ * Get the loss account state from the previous year
+ */
+function getPreviousLossState(
+  year: number,
+  yearlyCalculations: YearlyCalculation[],
+  options: SimulateOptions,
+): LossAccountState {
+  const previousYear = year - 1
+
+  if (yearlyCalculations.length > 0 && yearlyCalculations[0].element.simulation[previousYear]?.lossAccountState) {
+    return yearlyCalculations[0].element.simulation[previousYear]!.lossAccountState!
+  }
+
+  if (previousYear < options.startYear && options.initialLossAccountState) {
+    return options.initialLossAccountState
+  }
+
+  return createInitialLossAccountState(previousYear)
+}
+
+/**
+ * Calculate total capital gains and Vorabpauschale from all elements
+ */
+function calculateTotalGainsAndVorabpauschale(yearlyCalculations: YearlyCalculation[]): {
+  totalCapitalGains: number
+  totalVorabpauschale: number
+} {
+  let totalCapitalGains = 0
+  let totalVorabpauschale = 0
+
+  for (const calc of yearlyCalculations) {
+    totalCapitalGains += calc.jahresgewinn
+    totalVorabpauschale += calc.vorabpauschaleBetrag
+  }
+
+  return { totalCapitalGains, totalVorabpauschale }
+}
+
+/**
+ * Calculate loss offset for the entire portfolio for a given year
+ * This function applies German loss offset rules at the portfolio level
+ */
+function calculatePortfolioLossOffset(
+  year: number,
+  yearlyCalculations: YearlyCalculation[],
+  options: SimulateOptions,
+): { lossOffsetResult: LossOffsetResult; adjustedTaxableIncome: number } | null {
+  // Return null if loss offset is not enabled
+  if (!options.lossOffsetEnabled) {
+    return null
+  }
+
+  // Get previous year's loss account state
+  const previousLossState = getPreviousLossState(year, yearlyCalculations, options)
+
+  // Get realized losses for this year
+  const realizedLosses = options.realizedLossesByYear?.[year] || createDefaultRealizedLosses(year)
+
+  // Calculate total capital gains and Vorabpauschale
+  const { totalCapitalGains, totalVorabpauschale } = calculateTotalGainsAndVorabpauschale(yearlyCalculations)
+
+  // Split capital gains into stock gains and other gains
+  // Use stockGainsRatio to determine what portion of gains are from stocks
+  const stockGainsRatio = options.stockGainsRatio ?? 0.7 // Default: 70% stock gains (typical for equity funds)
+  const stockGains = totalCapitalGains * stockGainsRatio
+  const otherGains = totalCapitalGains * (1 - stockGainsRatio)
+
+  // Calculate effective tax rate (Kapitalertragsteuer × (1 - Teilfreistellung))
+  const teilfreistellungsquote = options.teilfreistellungsquote ?? 0.3
+  const effectiveTaxRate = options.steuerlast * (1 - teilfreistellungsquote)
+
+  // Calculate loss offset
+  const lossOffsetResult = calculateLossOffset(
+    previousLossState,
+    realizedLosses,
+    stockGains,
+    otherGains,
+    totalVorabpauschale,
+    effectiveTaxRate,
+    year,
+  )
+
+  return {
+    lossOffsetResult,
+    adjustedTaxableIncome: lossOffsetResult.taxableIncomeAfterOffset,
+  }
+}
+
+/**
+ * Calculate adjusted total tax after applying loss offset
+ */
+function calculateAdjustedTotalTax(
+  totalPotentialTaxThisYear: number,
+  lossOffsetData: { lossOffsetResult: LossOffsetResult; adjustedTaxableIncome: number } | null,
+  options?: SimulateOptions,
+): number {
+  if (!lossOffsetData || !lossOffsetData.lossOffsetResult) {
+    return totalPotentialTaxThisYear
+  }
+
+  // Recalculate tax based on adjusted taxable income after loss offset
+  const teilfreistellungsquote = options?.teilfreistellungsquote ?? 0.3
+  const effectiveTaxRate = (options?.steuerlast ?? 0.26375) * (1 - teilfreistellungsquote)
+  return lossOffsetData.adjustedTaxableIncome * effectiveTaxRate
 }
 
 function applyTaxes(
@@ -687,11 +814,18 @@ function applyTaxes(
     return freibetrag[2023] || 2000
   }
 
+  // Calculate loss offset if enabled
+  const lossOffsetData = _options ? calculatePortfolioLossOffset(year, yearlyCalculations, _options) : null
+
+  // Adjust taxable income based on loss offset
+  const adjustedTotalTax = calculateAdjustedTotalTax(totalPotentialTaxThisYear, lossOffsetData, _options)
+
   const freibetragInYear = getFreibetragForYear(year)
-  const totalTaxPaid = Math.max(0, totalPotentialTaxThisYear - freibetragInYear)
-  const genutzterFreibetragTotal = Math.min(totalPotentialTaxThisYear, freibetragInYear)
+  const totalTaxPaid = Math.max(0, adjustedTotalTax - freibetragInYear)
+  const genutzterFreibetragTotal = Math.min(adjustedTotalTax, freibetragInYear)
 
   for (const calc of yearlyCalculations) {
+    // Calculate proportional tax and Freibetrag based on adjusted total
     const taxForElement = calculateProportionalTax(calc.potentialTax, totalPotentialTaxThisYear, totalTaxPaid)
     const genutzterFreibetragForElement = calculateProportionalFreibetrag(
       calc.potentialTax,
@@ -711,6 +845,8 @@ function applyTaxes(
       genutzterFreibetragForElement,
       year,
       _options,
+      lossOffsetData?.lossOffsetResult,
+      lossOffsetData?.lossOffsetResult.remainingLosses,
     )
 
     calc.element.simulation[year] = simulationResult
