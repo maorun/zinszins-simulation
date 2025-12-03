@@ -34,7 +34,7 @@ export function getTaxZone(
   } else if (income <= 277825) {
     return 'zone2' // 24% - 42%
   } else if (income <= 277826) {
-    return 'zone3' // 42%
+    return 'zone3' // 42% (transition point)
   } else {
     return 'reichensteuer' // 45%
   }

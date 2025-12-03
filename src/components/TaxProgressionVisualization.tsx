@@ -412,7 +412,9 @@ export function TaxProgressionVisualization({ grundfreibetrag = 11604 }: TaxProg
   // Find highlighted point if income is specified
   const highlightedPoint = useMemo(() => {
     if (highlightIncome === null || highlightIncome < 0) return null
-    return progressionData.find(d => Math.abs(d.income - highlightIncome) < maxIncome / 100)
+    // Use a tolerance of 2% of max income to accommodate step size between data points
+    const tolerance = maxIncome * 0.02
+    return progressionData.find(d => Math.abs(d.income - highlightIncome) < tolerance)
   }, [highlightIncome, progressionData, maxIncome])
 
   // Prepare chart data
