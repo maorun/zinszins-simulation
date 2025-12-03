@@ -7,6 +7,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 ### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
 
 #### Gesetzliche Rentenversicherung (GRV) Integration
+
 - **Rentenpunkte-Rechner** - Berechnung der erworbenen Rentenpunkte basierend auf Bruttogehalt und Beitragsjahren
 - **Rentenanspruch-Prognose** - Voraussichtliche gesetzliche Rente unter Berücksichtigung von Rentenwerten und Anpassungen
 - **Integration in Entnahmephase** - Automatische Berücksichtigung der GRV-Rente als zusätzliches Einkommen
@@ -16,6 +17,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Deutsche Rentenpunkte-Systematik** - Vollständige Abbildung nach deutschem Rentenrecht (SGB VI)
 
 #### Steuerprogression-Visualisierung
+
 - **Interaktive Progressionskurve** - Visualisierung des deutschen progressiven Steuertarifs als Diagramm
 - **Grenzsteuersatz vs. Durchschnittssteuersatz** - Vergleichende Darstellung beider Werte
 - **Steuerzone-Indikator** - Anzeige der aktuellen Steuerzone (Grundfreibetrag, lineare Zone, Spitzensteuersatz, Reichensteuer)
@@ -24,6 +26,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Steuerklassen-Vergleich** - Visualisierung der Unterschiede zwischen verschiedenen Steuerklassen
 
 #### Abfindungs-Optimierung (Fünftelregelung)
+
 - **Fünftelregelung-Rechner** - Optimale Besteuerung von Abfindungen nach §34 EStG
 - **Vergleichsrechnung** - Besteuerung mit vs. ohne Fünftelregelung
 - **Optimaler Auszahlungszeitpunkt** - Analyse des steuerlich günstigsten Jahres für Abfindungserhalt
@@ -32,6 +35,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Steuerersparnis-Kalkulation** - Transparente Darstellung der Steuerersparnis durch optimale Gestaltung
 
 #### Erwerbsminderungsrente (EM-Rente) Planung
+
 - **EM-Renten-Rechner** - Berechnung von voller und teilweiser Erwerbsminderungsrente
 - **Zurechnungszeiten** - Berücksichtigung der Zurechnungszeiten bis zum 67. Lebensjahr
 - **Abschlagskalkulation** - Berechnung der Rentenabschläge bei vorzeitiger EM-Rente (bis zu 10,8%)
@@ -40,6 +44,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Steuerliche Behandlung** - Korrekte Besteuerung der EM-Rente nach deutschem Steuerrecht
 
 #### Solidaritätszuschlag (Soli) Detail-Tracking
+
 - **Soli-Berechnung** - Präzise Berechnung des Solidaritätszuschlags (5,5% der Einkommensteuer)
 - **Freigrenze-Berücksichtigung** - Automatische Anwendung der Freigrenzen seit 2021
 - **Gleitzone-Kalkulation** - Berechnung in der Übergangszone (Milderungszone)
