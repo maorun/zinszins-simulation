@@ -318,7 +318,12 @@ The project has been successfully migrated from RSuite to shadcn/ui components:
 2. **Always run `npm run dev` first** to ensure baseline functionality
 3. **Run tests with `npm run test`** to verify existing functionality
 4. **Update both calculation logic** (helpers/ or src/utils/) and UI components
-5. **Validate with complete user scenarios** - don't just test isolated changes
+5. **Integrate UI components into the application** - New UI components must be added to the appropriate parent component
+   - **Tax-related information cards** (like TaxLossHarvestingCard, ProgressionsvorbehaltInfo, etc.) → Add to `src/components/TaxConfiguration.tsx`
+   - **Withdrawal-related components** → Add to relevant sections in withdrawal views
+   - **General configuration cards** → Add to appropriate configuration sections
+   - **CRITICAL**: Creating a UI component without integrating it into the application makes it inaccessible to users
+6. **Validate with complete user scenarios** - don't just test isolated changes, verify the feature is accessible in the UI
 
 ### Debugging Issues
 
@@ -587,6 +592,10 @@ For each individual step in your plan:
    - Make minimal, surgical changes that address the specific step requirements
    - Follow existing code patterns and architectural decisions
    - Update documentation (README.md) when implementing new features that affect user-facing functionality
+   - **⚠️ UI Component Integration**: If creating a new UI component, you MUST integrate it into the application in the same step
+     - Tax-related cards → Add to `src/components/TaxConfiguration.tsx`
+     - Withdrawal-related components → Add to relevant withdrawal views
+     - Creating a component without integrating it makes it inaccessible to users
 
 2. **Testing and Linting Phase - MANDATORY**
    - **PREREQUISITE**: Ensure `npm install` has been run (check for `node_modules/` directory)

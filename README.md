@@ -176,6 +176,20 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Automatische Integration**: Wird bei Günstigerprüfung und Einkommensteuerberechnung berücksichtigt
   - **Konfigurierbar**: Ein-/Ausschaltbar mit präziser Prozentsatz-Einstellung (8-9%)
   - **Transparente Berechnung**: Kirchensteuer wird als Prozentsatz der Einkommensteuer berechnet
+- **Solidaritätszuschlag (Soli)** - Informations-Tool zur Berechnung des Solidaritätszuschlags nach 2021 Reform
+  - **Freigrenze**: Etwa 90% der Steuerzahler zahlen keinen Soli mehr (Einzelperson: 16.956 €, Ehepaar: 33.912 € Einkommensteuer)
+  - **Gleitzone**: Schrittweise Einführung des Soli zwischen Freigrenze und Obergrenze (Einzelperson: 31.527 €, Ehepaar: 63.054 €)
+  - **Voller Soli**: 5,5% der Einkommensteuer oberhalb der Gleitzone
+  - **Planungsmodus-abhängig**: Unterschiedliche Freigrenzen für Einzelpersonen und Ehepaare/Partner
+  - **Interaktive Berechnung**: Slider zur Simulation verschiedener Einkommensteuerhöhen
+  - **Transparente Darstellung**:
+    - Anzeige der aktuellen Zone (unter Freigrenze, in Gleitzone, über Gleitzone)
+    - Berechnung des effektiven Soli-Satzes
+    - Ersparnis durch 2021 Reform im Vergleich zu früherem Soli (5,5% auf alle)
+    - Detaillierte Erklärung der Berechnungsgrundlage
+  - **Bildungsinhalte**: Hintergrundinformationen zur 2021 Reform und den Berechnungsregeln
+  - **Helper-Funktionen verfügbar**: `calculateSolidaritaetszuschlag()`, `calculateYearlySoli()`, `calculateSoliSavings()`, `getSoliFreigrenze()`, `getSoliGleitzoneUpper()`
+  - **Umfassend getestet**: 62 Tests mit 100% Pass-Rate
 - **Verlustverrechnung (Tax-Loss Harvesting)** - Informations-Tool zur Berechnung von Steuerersparnissen durch Verlustverrechnung
   - **Verlustverrechnungsregeln**: Detaillierte Darstellung der deutschen Verlustverrechnungsregeln nach EStG
     - Aktienverluste können nur mit Aktiengewinnen verrechnet werden (separater Verlusttopf)
