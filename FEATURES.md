@@ -4,6 +4,49 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ## 🔮 Potenzielle zukünftige Features
 
+### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
+
+#### Gesetzliche Rentenversicherung (GRV) Integration
+- **Rentenpunkte-Rechner** - Berechnung der erworbenen Rentenpunkte basierend auf Bruttogehalt und Beitragsjahren
+- **Rentenanspruch-Prognose** - Voraussichtliche gesetzliche Rente unter Berücksichtigung von Rentenwerten und Anpassungen
+- **Integration in Entnahmephase** - Automatische Berücksichtigung der GRV-Rente als zusätzliches Einkommen
+- **Rentenlücken-Analyse** - Visualisierung der Differenz zwischen gesetzlicher Rente und gewünschtem Lebensstandard
+- **Rentenbesteuerung** - Korrekte Berechnung nach Besteuerungsanteil (abhängig vom Renteneintrittsjahr)
+- **Rentenanpassungen** - Jährliche Rentenerhöhung basierend auf historischen Daten oder konfigurierbarem Wert
+- **Deutsche Rentenpunkte-Systematik** - Vollständige Abbildung nach deutschem Rentenrecht (SGB VI)
+
+#### Steuerprogression-Visualisierung
+- **Interaktive Progressionskurve** - Visualisierung des deutschen progressiven Steuertarifs als Diagramm
+- **Grenzsteuersatz vs. Durchschnittssteuersatz** - Vergleichende Darstellung beider Werte
+- **Steuerzone-Indikator** - Anzeige der aktuellen Steuerzone (Grundfreibetrag, lineare Zone, Spitzensteuersatz, Reichensteuer)
+- **Auswirkung von Einkünften** - Echtzeit-Visualisierung wie zusätzliche Kapitalerträge die Steuerlast beeinflussen
+- **Günstigerprüfung-Vergleich** - Grafischer Vergleich zwischen Abgeltungssteuer und persönlichem Steuersatz
+- **Steuerklassen-Vergleich** - Visualisierung der Unterschiede zwischen verschiedenen Steuerklassen
+
+#### Abfindungs-Optimierung (Fünftelregelung)
+- **Fünftelregelung-Rechner** - Optimale Besteuerung von Abfindungen nach §34 EStG
+- **Vergleichsrechnung** - Besteuerung mit vs. ohne Fünftelregelung
+- **Optimaler Auszahlungszeitpunkt** - Analyse des steuerlich günstigsten Jahres für Abfindungserhalt
+- **Integration mit anderen Einkünften** - Berücksichtigung von Gehalt und Kapitalerträgen im Abfindungsjahr
+- **Mehrjahres-Verteilung** - Simulation verschiedener Verteilungsoptionen über mehrere Jahre
+- **Steuerersparnis-Kalkulation** - Transparente Darstellung der Steuerersparnis durch optimale Gestaltung
+
+#### Erwerbsminderungsrente (EM-Rente) Planung
+- **EM-Renten-Rechner** - Berechnung von voller und teilweiser Erwerbsminderungsrente
+- **Zurechnungszeiten** - Berücksichtigung der Zurechnungszeiten bis zum 67. Lebensjahr
+- **Abschlagskalkulation** - Berechnung der Rentenabschläge bei vorzeitiger EM-Rente (bis zu 10,8%)
+- **Hinzuverdienstgrenzen** - Automatische Berechnung der zulässigen Hinzuverdienstgrenzen
+- **Kombination mit privater Absicherung** - Integration mit bestehender BU-Versicherung
+- **Steuerliche Behandlung** - Korrekte Besteuerung der EM-Rente nach deutschem Steuerrecht
+
+#### Solidaritätszuschlag (Soli) Detail-Tracking
+- **Soli-Berechnung** - Präzise Berechnung des Solidaritätszuschlags (5,5% der Einkommensteuer)
+- **Freigrenze-Berücksichtigung** - Automatische Anwendung der Freigrenzen seit 2021
+- **Gleitzone-Kalkulation** - Berechnung in der Übergangszone (Milderungszone)
+- **Historische Entwicklung** - Tracking der Soli-Zahlungen über gesamten Simulationszeitraum
+- **Soli-Ersparnis-Visualisierung** - Darstellung der Entlastung durch Soli-Abschaffung für 90% der Steuerzahler
+- **Prognose zukünftiger Änderungen** - Szenario-Analyse bei vollständiger Abschaffung
+
 ### Erweiterte Finanzplanung
 
 #### Steueroptimierung
