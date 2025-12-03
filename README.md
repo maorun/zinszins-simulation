@@ -130,6 +130,19 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 
 - **Vorabpauschale** - Deutsche Steuerberechnung für Investmentfonds mit detaillierter Erklärung
 - **Interaktive Berechnungsmodals** - Schritt-für-Schritt Aufschlüsselung der Steuerberechnungen
+- **Steuerprogression-Visualisierung** - Interaktive Visualisierung des deutschen progressiven Steuersystems
+  - **Interaktives Diagramm**: Zeigt Durchschnittssteuersatz und Grenzsteuersatz über verschiedene Einkommensniveaus
+  - **Drei Ansichtsmodi**:
+    - Beide (Steuersätze und Beträge kombiniert)
+    - Nur Steuersätze (Durchschnitts- und Grenzsteuersatz)
+    - Nur Steuerbeträge (absolute Euro-Werte)
+  - **Beispielberechnung**: Eingabe eines Beispiel-Einkommens zur detaillierten Steuerberechnung
+    - Zeigt Steuerzone, Steuerbetrag, Durchschnittssteuersatz, Grenzsteuersatz und Nettoeinkommen
+    - Erklärt den Unterschied zwischen Durchschnitts- und Grenzsteuersatz
+  - **Steuerzonen-Übersicht**: Farbkodierte Legende der 5 deutschen Steuerzonen
+  - **Konfigurierbarer Bereich**: Einstellbarer maximaler Einkommensbereich (50.000€ - 1.000.000€)
+  - **Grundfreibetrag-Anpassung**: Automatische Berücksichtigung des Grundfreibetrags je nach Planungsmodus (Einzelperson/Paar)
+  - **Bildungszweck**: Hilft zu verstehen, wie das progressive Steuersystem funktioniert und wie sich zusätzliches Einkommen auf die Steuerlast auswirkt
 - **Konfigurierbare Parameter**: Kapitalertragsteuer, Teilfreistellungsquote, Freibetrag pro Jahr
 - **Rürup-Rente (Basis-Rente)** - Als "andere Einkünfte" konfigurierbar
   - **Beitragsphase Steuervorteile**: Berechnung der steuerlichen Absetzbarkeit von Rürup-Beiträgen (74% in 2012 → 100% ab 2025)

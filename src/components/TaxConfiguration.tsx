@@ -11,6 +11,7 @@ import { SolidaritaetszuschlagCard } from './SolidaritaetszuschlagCard'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
 import { ProgressionsvorbehaltConfiguration } from './ProgressionsvorbehaltConfiguration'
 import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG, type ProgressionsvorbehaltConfig } from '../../helpers/progressionsvorbehalt'
+import { TaxProgressionVisualization } from './TaxProgressionVisualization'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -43,47 +44,92 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
 
   useAutoUpdateGrundfreibetrag(planningMode, recommendedGrundfreibetrag, simulation)
 
+  const handleGrundfreibetragAktivChange = (c: boolean) => {
+    simulation.setGrundfreibetragAktiv(c)
+    if (c) simulation.setGrundfreibetragBetrag(recommendedGrundfreibetrag)
+    simulation.performSimulation()
+  }
+
+  const handleGrundfreibetragBetragChange = (v: number) => {
+    simulation.setGrundfreibetragBetrag(v)
+    simulation.performSimulation()
+  }
+
+  const handleEinkommensteuersatzChange = (v: number) => {
+    updateFormValue({ einkommensteuersatz: v })
+    simulation.performSimulation()
+  }
+
   return (
     <TooltipProvider>
       <NestingProvider level={1}>
-        <div className="space-y-4">
-          <TaxConfigurationCard simulation={simulation} yearToday={new Date().getFullYear()} />
-          <GrundfreibetragConfiguration
-            grundfreibetragAktiv={simulation.grundfreibetragAktiv}
-            grundfreibetragBetrag={simulation.grundfreibetragBetrag}
-            recommendedGrundfreibetrag={recommendedGrundfreibetrag}
-            planningModeLabel={planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'}
-            guenstigerPruefungAktiv={simulation.guenstigerPruefungAktiv}
-            einkommensteuersatz={currentConfig.formValue.einkommensteuersatz}
-            onGrundfreibetragAktivChange={c => {
-              simulation.setGrundfreibetragAktiv(c)
-              if (c) simulation.setGrundfreibetragBetrag(recommendedGrundfreibetrag)
-              simulation.performSimulation()
-            }}
-            onGrundfreibetragBetragChange={v => {
-              simulation.setGrundfreibetragBetrag(v)
-              simulation.performSimulation()
-            }}
-            onEinkommensteuersatzChange={v => {
-              updateFormValue({ einkommensteuersatz: v })
-              simulation.performSimulation()
-            }}
-          />
-          <ProgressionsvorbehaltConfiguration
-            config={progressionsvorbehaltConfig}
-            onChange={setProgressionsvorbehaltConfig}
-            planningMode={planningMode}
-            kirchensteuerAktiv={simulation.kirchensteuerAktiv}
-            kirchensteuersatz={simulation.kirchensteuersatz}
-          />
-          <TaxLossHarvestingCard />
-          <SolidaritaetszuschlagCard />
-          <NestingProvider>
-            <BasiszinsConfiguration />
-          </NestingProvider>
-        </div>
+        <TaxConfigurationCards
+          simulation={simulation}
+          currentConfig={currentConfig}
+          planningMode={planningMode}
+          recommendedGrundfreibetrag={recommendedGrundfreibetrag}
+          progressionsvorbehaltConfig={progressionsvorbehaltConfig}
+          setProgressionsvorbehaltConfig={setProgressionsvorbehaltConfig}
+          handleGrundfreibetragAktivChange={handleGrundfreibetragAktivChange}
+          handleGrundfreibetragBetragChange={handleGrundfreibetragBetragChange}
+          handleEinkommensteuersatzChange={handleEinkommensteuersatzChange}
+        />
       </NestingProvider>
     </TooltipProvider>
+  )
+}
+
+interface TaxConfigurationCardsProps {
+  simulation: ReturnType<typeof useSimulation>
+  currentConfig: ReturnType<typeof useWithdrawalConfig>['currentConfig']
+  planningMode: 'individual' | 'couple'
+  recommendedGrundfreibetrag: number
+  progressionsvorbehaltConfig: ProgressionsvorbehaltConfig
+  setProgressionsvorbehaltConfig: (config: ProgressionsvorbehaltConfig) => void
+  handleGrundfreibetragAktivChange: (c: boolean) => void
+  handleGrundfreibetragBetragChange: (v: number) => void
+  handleEinkommensteuersatzChange: (v: number) => void
+}
+
+function TaxConfigurationCards({
+  simulation,
+  currentConfig,
+  planningMode,
+  recommendedGrundfreibetrag,
+  progressionsvorbehaltConfig,
+  setProgressionsvorbehaltConfig,
+  handleGrundfreibetragAktivChange,
+  handleGrundfreibetragBetragChange,
+  handleEinkommensteuersatzChange,
+}: TaxConfigurationCardsProps) {
+  return (
+    <div className="space-y-4">
+      <TaxConfigurationCard simulation={simulation} yearToday={new Date().getFullYear()} />
+      <GrundfreibetragConfiguration
+        grundfreibetragAktiv={simulation.grundfreibetragAktiv}
+        grundfreibetragBetrag={simulation.grundfreibetragBetrag}
+        recommendedGrundfreibetrag={recommendedGrundfreibetrag}
+        planningModeLabel={planningMode === 'couple' ? 'Paare' : 'Einzelpersonen'}
+        guenstigerPruefungAktiv={simulation.guenstigerPruefungAktiv}
+        einkommensteuersatz={currentConfig.formValue.einkommensteuersatz}
+        onGrundfreibetragAktivChange={handleGrundfreibetragAktivChange}
+        onGrundfreibetragBetragChange={handleGrundfreibetragBetragChange}
+        onEinkommensteuersatzChange={handleEinkommensteuersatzChange}
+      />
+      <TaxProgressionVisualization grundfreibetrag={recommendedGrundfreibetrag} />
+      <ProgressionsvorbehaltConfiguration
+        config={progressionsvorbehaltConfig}
+        onChange={setProgressionsvorbehaltConfig}
+        planningMode={planningMode}
+        kirchensteuerAktiv={simulation.kirchensteuerAktiv}
+        kirchensteuersatz={simulation.kirchensteuersatz}
+      />
+      <TaxLossHarvestingCard />
+      <SolidaritaetszuschlagCard />
+      <NestingProvider>
+        <BasiszinsConfiguration />
+      </NestingProvider>
+    </div>
   )
 }
 

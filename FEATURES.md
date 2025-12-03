@@ -16,15 +16,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Rentenanpassungen** - Jährliche Rentenerhöhung basierend auf historischen Daten oder konfigurierbarem Wert
 - **Deutsche Rentenpunkte-Systematik** - Vollständige Abbildung nach deutschem Rentenrecht (SGB VI)
 
-#### Steuerprogression-Visualisierung
-
-- **Interaktive Progressionskurve** - Visualisierung des deutschen progressiven Steuertarifs als Diagramm
-- **Grenzsteuersatz vs. Durchschnittssteuersatz** - Vergleichende Darstellung beider Werte
-- **Steuerzone-Indikator** - Anzeige der aktuellen Steuerzone (Grundfreibetrag, lineare Zone, Spitzensteuersatz, Reichensteuer)
-- **Auswirkung von Einkünften** - Echtzeit-Visualisierung wie zusätzliche Kapitalerträge die Steuerlast beeinflussen
-- **Günstigerprüfung-Vergleich** - Grafischer Vergleich zwischen Abgeltungssteuer und persönlichem Steuersatz
-- **Steuerklassen-Vergleich** - Visualisierung der Unterschiede zwischen verschiedenen Steuerklassen
-
 #### Abfindungs-Optimierung (Fünftelregelung)
 
 - **Fünftelregelung-Rechner** - Optimale Besteuerung von Abfindungen nach §34 EStG
