@@ -7,6 +7,7 @@ import { TooltipProvider } from './ui/tooltip'
 import { GrundfreibetragConfiguration } from './tax-config/GrundfreibetragConfiguration'
 import { TaxConfigurationCard } from './tax-config/TaxConfigurationCard'
 import { TaxLossHarvestingCard } from './TaxLossHarvestingCard'
+import { SolidaritaetszuschlagCard } from './SolidaritaetszuschlagCard'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
 import { ProgressionsvorbehaltConfiguration } from './ProgressionsvorbehaltConfiguration'
 import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG, type ProgressionsvorbehaltConfig } from '../../helpers/progressionsvorbehalt'
@@ -76,6 +77,7 @@ const TaxConfiguration = ({ planningMode = 'individual' }: TaxConfigurationProps
             kirchensteuersatz={simulation.kirchensteuersatz}
           />
           <TaxLossHarvestingCard />
+          <SolidaritaetszuschlagCard />
           <NestingProvider>
             <BasiszinsConfiguration />
           </NestingProvider>
