@@ -132,7 +132,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Interaktive Berechnungsmodals** - Schritt-für-Schritt Aufschlüsselung der Steuerberechnungen
 - **Steuerprogression-Visualisierung** - Interaktive Visualisierung des deutschen progressiven Steuersystems
   - **Interaktives Diagramm**: Zeigt Durchschnittssteuersatz und Grenzsteuersatz über verschiedene Einkommensniveaus
-  - **Drei Ansichtsmodi**: 
+  - **Drei Ansichtsmodi**:
     - Beide (Steuersätze und Beträge kombiniert)
     - Nur Steuersätze (Durchschnitts- und Grenzsteuersatz)
     - Nur Steuerbeträge (absolute Euro-Werte)
