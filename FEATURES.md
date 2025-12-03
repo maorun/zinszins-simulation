@@ -43,15 +43,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Kombination mit privater Absicherung** - Integration mit bestehender BU-Versicherung
 - **Steuerliche Behandlung** - Korrekte Besteuerung der EM-Rente nach deutschem Steuerrecht
 
-#### Solidaritätszuschlag (Soli) Detail-Tracking
-
-- **Soli-Berechnung** - Präzise Berechnung des Solidaritätszuschlags (5,5% der Einkommensteuer)
-- **Freigrenze-Berücksichtigung** - Automatische Anwendung der Freigrenzen seit 2021
-- **Gleitzone-Kalkulation** - Berechnung in der Übergangszone (Milderungszone)
-- **Historische Entwicklung** - Tracking der Soli-Zahlungen über gesamten Simulationszeitraum
-- **Soli-Ersparnis-Visualisierung** - Darstellung der Entlastung durch Soli-Abschaffung für 90% der Steuerzahler
-- **Prognose zukünftiger Änderungen** - Szenario-Analyse bei vollständiger Abschaffung
-
 ### Erweiterte Finanzplanung
 
 #### Steueroptimierung
