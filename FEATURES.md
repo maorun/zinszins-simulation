@@ -16,15 +16,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Rentenanpassungen** - Jährliche Rentenerhöhung basierend auf historischen Daten oder konfigurierbarem Wert
 - **Deutsche Rentenpunkte-Systematik** - Vollständige Abbildung nach deutschem Rentenrecht (SGB VI)
 
-#### Abfindungs-Optimierung (Fünftelregelung)
-
-- **Fünftelregelung-Rechner** - Optimale Besteuerung von Abfindungen nach §34 EStG
-- **Vergleichsrechnung** - Besteuerung mit vs. ohne Fünftelregelung
-- **Optimaler Auszahlungszeitpunkt** - Analyse des steuerlich günstigsten Jahres für Abfindungserhalt
-- **Integration mit anderen Einkünften** - Berücksichtigung von Gehalt und Kapitalerträgen im Abfindungsjahr
-- **Mehrjahres-Verteilung** - Simulation verschiedener Verteilungsoptionen über mehrere Jahre
-- **Steuerersparnis-Kalkulation** - Transparente Darstellung der Steuerersparnis durch optimale Gestaltung
-
 #### Erwerbsminderungsrente (EM-Rente) Planung
 
 - **EM-Renten-Rechner** - Berechnung von voller und teilweiser Erwerbsminderungsrente
