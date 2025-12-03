@@ -246,6 +246,44 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Korrekte Trennung von Aktienverlusttopf und sonstigem Verlusttopf
     - Präzise Anwendung der Verlustverrechnungsregeln
     - Unbegrenzte Verlustvortragsperiode wie im deutschen Steuerrecht
+- **Abfindungs-Rechner (Fünftelregelung)** - Steueroptimierung für Abfindungszahlungen nach §34 EStG
+  - **Fünftelregelung (§34 EStG)**: Steuervergünstigung für außerordentliche Einkünfte
+    - Steuerberechnung als würde die Abfindung über 5 Jahre verteilt
+    - Formel: Steuer = 5 × (Steuer(Einkommen + Abfindung/5) - Steuer(Einkommen))
+    - Deutliche Steuerersparnisse gegenüber normaler Besteuerung möglich
+  - **Zwei Berechnungsmodi**:
+    - **Einzelberechnung**: Detaillierte Berechnung für ein spezifisches Jahr
+      - Eingabe von Abfindungshöhe, Jahr und Jahreseinkommen
+      - Optionale Berücksichtigung von Kapitalerträgen
+      - Vergleich: Fünftelregelung vs. Standardbesteuerung
+      - Anzeige der Steuerersparnis in Euro und Prozent
+    - **Jahresvergleich**: Optimaler Zeitpunkt für Abfindungserhalt finden
+      - Vergleich verschiedener Empfangsjahre
+      - Berücksichtigung unterschiedlicher Einkommenssituationen
+      - Automatische Identifikation des steuerlich günstigsten Jahres
+  - **Detaillierte Ergebnisanzeige**:
+    - Bruttoabfindung und Nettoabfindung nach Steuern
+    - Einkommensteuer mit Fünftelregelung
+    - Effektiver Steuersatz auf die Abfindung
+    - Vergleich mit normaler Besteuerung
+    - Steuerersparnis durch Fünftelregelung
+    - Gesamtsteuerlast inklusive Kapitalertragsteuer
+  - **Erweiterte Einstellungen**:
+    - Kapitalertragsteuersatz (default: 26,375% inkl. Soli)
+    - Sparerpauschbetrag (default: 1.000€ / 2.000€)
+    - Anpassbar für individuelle Steuersituationen
+  - **Steuerkonformes Berechnungsmodell**:
+    - Deutsches progressives Einkommensteuersystem (EStG §32a)
+    - Korrekte Berücksichtigung aller Steuerzonen
+    - Solidaritätszuschlag mit Freigrenze und Gleitzone
+    - Grundfreibetrag (10.908€ in 2023)
+  - **Praktische Anwendungsfälle**:
+    - Optimierung bei Jobwechsel oder Kündigung
+    - Planung des besten Auszahlungszeitpunkts
+    - Berücksichtigung von Sabbaticals oder Elternzeit
+    - Ruhestandsplanung mit Abfindung
+  - **Informations-Tool**: Rein informativer Rechner zur Steuerplanung
+  - **Umfassend getestet**: 30 Tests mit 100% Pass-Rate
 - **Progressionsvorbehalt** - Informations-Tool zur Berechnung der Steuerauswirkungen steuerfreier progressionsrelevanter Einkünfte
   - **Jahr-für-Jahr Konfiguration**: Individuelle Eingabe progressionsrelevanter Einkünfte für jedes Jahr
   - **Einkunftsarten**: Unterstützung verschiedener Einkunftsarten nach deutschem Steuerrecht
