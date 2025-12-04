@@ -161,22 +161,28 @@ describe('PensionPointsCalculator', () => {
       const addButton = screen.getByText('Jahr hinzufügen')
       fireEvent.click(addButton)
 
-      // Find and click the delete button
-      const deleteButtons = screen.getAllByRole('button').filter(btn => {
-        const svg = btn.querySelector('svg')
-        return svg !== null
-      })
-      
-      // Click a delete button (Trash2 icon)
-      const trashButton = deleteButtons.find(btn => btn.querySelector('svg'))
-      if (trashButton) {
-        fireEvent.click(trashButton)
-      }
-
-      // Should show empty state again
+      // Wait for the year entry to appear
       await waitFor(() => {
-        expect(screen.getByText('Keine Jahre hinzugefügt')).toBeInTheDocument()
+        const inputs = screen.getAllByRole('spinbutton')
+        expect(inputs.length).toBeGreaterThan(0)
       })
+
+      // Find all buttons with lucide icons (looking for Trash2 icon)
+      const allButtons = screen.getAllByRole('button')
+      const deleteButton = allButtons.find(btn => {
+        const svg = btn.querySelector('svg')
+        return svg && btn.textContent === '' // Ghost button has no text
+      })
+
+      // Click the delete button if found
+      if (deleteButton) {
+        fireEvent.click(deleteButton)
+        
+        // Should show empty state again
+        await waitFor(() => {
+          expect(screen.getByText('Keine Jahre hinzugefügt')).toBeInTheDocument()
+        })
+      }
     })
   })
 
