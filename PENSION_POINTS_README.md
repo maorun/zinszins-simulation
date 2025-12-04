@@ -5,6 +5,7 @@ This module provides functionality to calculate German statutory pension based o
 ## Overview
 
 The German pension system calculates your pension based on **pension points (Rentenpunkte)**:
+
 - Each year you earn: `(Your Gross Salary) / (Average Gross Salary in Germany)` pension points
 - If you earn exactly the average salary, you get 1.0 pension point per year
 - Monthly pension = Total Pension Points × Current Pension Value (Rentenwert ≈ €37.60 in 2024)
