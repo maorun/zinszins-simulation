@@ -8,7 +8,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Gesetzliche Rentenversicherung (GRV) Integration
 
-- **Rentenpunkte-Rechner** - Berechnung der erworbenen Rentenpunkte basierend auf Bruttogehalt und Beitragsjahren
 - **Rentenanspruch-Prognose** - Voraussichtliche gesetzliche Rente unter Berücksichtigung von Rentenwerten und Anpassungen
 - **Integration in Entnahmephase** - Automatische Berücksichtigung der GRV-Rente als zusätzliches Einkommen
 - **Rentenlücken-Analyse** - Visualisierung der Differenz zwischen gesetzlicher Rente und gewünschtem Lebensstandard

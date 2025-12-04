@@ -538,6 +538,12 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Geteilte Entnahme-Phasen** - Segmentierung in verschiedene Zeiträume mit unterschiedlichen Strategien
 - **Strategienvergleich** - Vergleich verschiedener Entnahmestrategien mit demselben Startkapital
 - **Gesetzliche Rente Integration** - Vollständige Integration der deutschen gesetzlichen Rente
+  - **Rentenpunkte-Rechner**: Berechnung der erworbenen Rentenpunkte basierend auf Bruttogehalt und Beitragsjahren
+    - Automatische Berechnung: (Ihr Gehalt) / (Durchschnittsgehalt) = Rentenpunkte pro Jahr
+    - Gehaltshistorie: Manuelle oder automatische Projektion der Gehaltsentwicklung
+    - Regionsunterscheidung: Separate Berechnung für Ost- und Westdeutschland
+    - Zukunftsprognose: Schätzung zukünftiger Durchschnittsgehälter mit konfigurierbarem Wachstum
+    - Monatliche Rente: Automatische Berechnung aus Rentenpunkten × aktueller Rentenwert (≈37,60€ in 2024)
 - **Kranken- und Pflegeversicherung** - Umfassende Berücksichtigung von Kranken- und Pflegeversicherungsbeiträgen
   - **Einzelplanung**: Individuelle Krankenversicherung mit konfigurierbaren Beitragssätzen und Beitragsbemessungsgrenzen
   - **Paarplanung**: Optimierung für Paare mit automatischer Familienversicherung

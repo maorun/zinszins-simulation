@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Calculator } from 'lucide-react'
 import { useFormId } from '../../utils/unique-id'
 import { TaxReturnDataForm } from './TaxReturnDataForm'
+import { PensionPointsInfo } from './PensionPointsInfo'
 
 type PensionFormValues = {
   monthlyAmount: number
@@ -285,6 +286,9 @@ export function PensionInputForm({
         currentYear={currentYear}
         onImportFromTaxReturn={onImportFromTaxReturn}
       />
+
+      {/* Pension Points Information */}
+      <PensionPointsInfo nestingLevel={nestingLevel + 1} />
 
       {/* Basic Pension Configuration */}
       <div className="space-y-4">
