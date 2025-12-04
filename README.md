@@ -551,6 +551,24 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - **Ein-Klick-Übernahme**: Berechnete monatliche Rente direkt in die Konfiguration übernehmen
     - Monatliche Rente: Automatische Berechnung aus Rentenpunkten × aktueller Rentenwert (≈37,60€ in 2024)
     - **Informationskarte**: Integrierte Erklärung der Berechnung für besseres Verständnis
+- **EM-Rente (Erwerbsminderungsrente) Berechnungen** - Umfassende Kalkulation der gesetzlichen Erwerbsminderungsrente
+  - **Rentenarten**: Volle EM-Rente (unter 3 Std./Tag arbeitsfähig) und teilweise EM-Rente (3-6 Std./Tag arbeitsfähig)
+  - **Zurechnungszeiten**: Automatische Berechnung der Zurechnungszeiten bis zum 67. Lebensjahr
+    - Fiktive Beitragszeiten werden hinzugerechnet, als hätte die Person bis zum regulären Rentenalter gearbeitet
+    - Berechnung basierend auf durchschnittlichen Rentenpunkten der Beitragszeit
+  - **Abschlagsberechnung**: Korrekte Anwendung der Rentenabschläge für vorzeitigen Rentenbeginn
+    - 0,3% Abschlag pro Monat vor dem regulären Rentenalter
+    - Maximaler Abschlag: 10,8% (entspricht 36 Monaten)
+  - **Hinzuverdienstgrenzen**: Automatische Berechnung der zulässigen Hinzuverdienstgrenzen
+    - Volle EM-Rente: Hinzuverdienstgrenze basierend auf Formel (0,81 × Durchschnittsverdienst × 14) / 12
+    - Teilweise EM-Rente: Etwa doppelte Hinzuverdienstgrenze der vollen EM-Rente
+    - Automatische Rentenkürzung bei Überschreitung (40% des Überschreitungsbetrags)
+  - **Steuerberechnung**: Korrekte Besteuerung nach deutschem Einkommensteuerrecht
+    - Konfigurierbare Besteuerung (typisch 80% steuerpflichtiger Anteil)
+    - Berücksichtigung des Grundfreibetrags
+  - **Rentenwert-Integration**: Verwendung der aktuellen Rentenwerte (West/Ost ab 2024 identisch: 37,60 €)
+  - **Jährliche Rentenanpassungen**: Konfigurierbare jährliche Rentensteigerungen (Standard: 1%)
+  - **Pension Points Estimation**: Rückrechnung von Rentenpunkten aus erwarteter Rentenhöhe
 - **Kranken- und Pflegeversicherung** - Umfassende Berücksichtigung von Kranken- und Pflegeversicherungsbeiträgen
   - **Einzelplanung**: Individuelle Krankenversicherung mit konfigurierbaren Beitragssätzen und Beitragsbemessungsgrenzen
   - **Paarplanung**: Optimierung für Paare mit automatischer Familienversicherung
