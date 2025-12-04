@@ -4,6 +4,7 @@ import { AdditionalConfigSections } from './AdditionalConfigSections'
 import type { CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import type { CareCostConfiguration as CareCostConfig } from '../../helpers/care-cost-simulation'
 import type { TermLifeInsuranceConfig } from '../../helpers/term-life-insurance'
+import type { EMRenteConfig } from '../../helpers/em-rente'
 
 type PlanningMode = 'individual' | 'couple'
 type Gender = 'male' | 'female'
@@ -36,6 +37,8 @@ interface GlobalPlanningContentSectionsProps {
   setCareCostConfiguration: (config: CareCostConfig) => void
   termLifeInsuranceConfig: TermLifeInsuranceConfig | null
   setTermLifeInsuranceConfig: (config: TermLifeInsuranceConfig | null) => void
+  emRenteConfig: EMRenteConfig | null
+  setEMRenteConfig: (config: EMRenteConfig | null) => void
 }
 
 function buildLifeExpectancyProps(props: GlobalPlanningContentSectionsProps) {
@@ -92,6 +95,8 @@ export function GlobalPlanningContentSections(props: GlobalPlanningContentSectio
         setCareCostConfiguration={props.setCareCostConfiguration}
         termLifeInsuranceConfig={props.termLifeInsuranceConfig}
         setTermLifeInsuranceConfig={props.setTermLifeInsuranceConfig}
+        emRenteConfig={props.emRenteConfig}
+        setEMRenteConfig={props.setEMRenteConfig}
       />
     </div>
   )

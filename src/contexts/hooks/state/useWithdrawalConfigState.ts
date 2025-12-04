@@ -14,6 +14,7 @@ import { defaultEmergencyFundConfig, type EmergencyFundConfig } from '../../../.
 import type { TermLifeInsuranceConfig } from '../../../../helpers/term-life-insurance'
 import type { ExtendedSavedConfiguration } from '../../helpers/config-types'
 import { getDefaultAlimonyConfig, type AlimonyConfig } from '../../../../helpers/alimony'
+import type { EMRenteConfig } from '../../../../helpers/em-rente'
 
 export interface WithdrawalConfigStateConfig {
   initialConfig: SavedConfiguration
@@ -71,6 +72,10 @@ export function useWithdrawalConfigState(config: WithdrawalConfigStateConfig) {
     return extendedInitialConfig.alimonyConfig || getDefaultAlimonyConfig()
   })
 
+  const [emRenteConfig, setEMRenteConfig] = useState<EMRenteConfig | null>(
+    extendedInitialConfig.emRenteConfig || null,
+  )
+
   return {
     withdrawalConfig,
     setWithdrawalConfig,
@@ -88,5 +93,7 @@ export function useWithdrawalConfigState(config: WithdrawalConfigStateConfig) {
     setTermLifeInsuranceConfig,
     alimonyConfig,
     setAlimonyConfig,
+    emRenteConfig,
+    setEMRenteConfig,
   }
 }

@@ -1,9 +1,11 @@
 import { CoupleStatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
 import { CareCostConfiguration } from './CareCostConfiguration'
 import { TermLifeInsuranceConfiguration } from './TermLifeInsuranceConfiguration'
+import { EMRenteConfiguration } from './EMRenteConfiguration'
 import type { CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import type { CareCostConfiguration as CareCostConfig } from '../../helpers/care-cost-simulation'
 import type { TermLifeInsuranceConfig } from '../../helpers/term-life-insurance'
+import type { EMRenteConfig } from '../../helpers/em-rente'
 
 type PlanningMode = 'individual' | 'couple'
 
@@ -18,6 +20,8 @@ interface AdditionalConfigSectionsProps {
   setCareCostConfiguration: (config: CareCostConfig) => void
   termLifeInsuranceConfig: TermLifeInsuranceConfig | null
   setTermLifeInsuranceConfig: (config: TermLifeInsuranceConfig | null) => void
+  emRenteConfig: EMRenteConfig | null
+  setEMRenteConfig: (config: EMRenteConfig | null) => void
 }
 
 export function AdditionalConfigSections({
@@ -31,6 +35,8 @@ export function AdditionalConfigSections({
   setCareCostConfiguration,
   termLifeInsuranceConfig,
   setTermLifeInsuranceConfig,
+  emRenteConfig,
+  setEMRenteConfig,
 }: AdditionalConfigSectionsProps) {
   return (
     <>
@@ -42,6 +48,15 @@ export function AdditionalConfigSections({
           birthYear={birthYear}
           spouseBirthYear={spouseBirthYear}
           planningMode={planningMode}
+        />
+      </div>
+
+      <div className="mb-6">
+        <EMRenteConfiguration
+          config={emRenteConfig}
+          onChange={setEMRenteConfig}
+          currentYear={currentYear}
+          birthYear={birthYear}
         />
       </div>
 

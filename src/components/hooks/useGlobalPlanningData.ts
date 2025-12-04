@@ -41,6 +41,8 @@ export function useGlobalPlanningData() {
     setCareCostConfiguration: simulation.setCareCostConfiguration,
     termLifeInsuranceConfig: simulation.termLifeInsuranceConfig,
     setTermLifeInsuranceConfig: simulation.setTermLifeInsuranceConfig,
+    emRenteConfig: simulation.emRenteConfig,
+    setEMRenteConfig: simulation.setEMRenteConfig,
   }
 
   return { ...lifeExpectancy, ...planning, ...configs }

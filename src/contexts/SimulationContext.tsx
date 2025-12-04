@@ -159,6 +159,9 @@ export interface SimulationContextState {
   // Alimony configuration
   alimonyConfig: import('../../helpers/alimony').AlimonyConfig
   setAlimonyConfig: (config: import('../../helpers/alimony').AlimonyConfig) => void
+  // EM-Rente configuration
+  emRenteConfig: import('../../helpers/em-rente').EMRenteConfig | null
+  setEMRenteConfig: (config: import('../../helpers/em-rente').EMRenteConfig | null) => void
   // Benchmark configuration
   benchmarkConfig: import('../../helpers/benchmark').BenchmarkConfig
   setBenchmarkConfig: (config: import('../../helpers/benchmark').BenchmarkConfig) => void
