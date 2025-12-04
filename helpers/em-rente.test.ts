@@ -101,12 +101,12 @@ describe('EM-Rente (Erwerbsminderungsrente) Calculations', () => {
     })
 
     it('should calculate higher Hinzuverdienstgrenze for teilweise EM-Rente', () => {
-      const volleLimi = calculateHinzuverdienstgrenze('volle', 45358)
+      const volleLimit = calculateHinzuverdienstgrenze('volle', 45358)
       const teilweiseLimit = calculateHinzuverdienstgrenze('teilweise', 45358)
       
       // Teilweise should be approximately double volle
-      expect(teilweiseLimit).toBeGreaterThan(volleLimi)
-      expect(teilweiseLimit).toBeCloseTo(volleLimi * 2, -2) // Within 100€
+      expect(teilweiseLimit).toBeGreaterThan(volleLimit)
+      expect(teilweiseLimit).toBeCloseTo(volleLimit * 2, -2) // Within 100€
     })
 
     it('should handle different reference amounts', () => {

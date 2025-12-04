@@ -199,10 +199,11 @@ export function calculateAbschlag(
  * Calculate Hinzuverdienstgrenze (permissible additional income limit)
  * 
  * For volle EM-Rente (full disability pension):
- * - Hinzuverdienstgrenze is based on a formula: 
- *   (0.81 × reference amount × 14) / 12
+ * - Based on formula from German statutory pension insurance
+ * - Calculation: (0.81 × reference amount × 14) / 12 gives annual limit
+ * - Then divide by 12 again to get monthly limit
  * - Reference amount = average earnings of all insured persons (2024: ~45,358€)
- * - This results in approximately 6,300€/year or 525€/month (as of 2024)
+ * - Results in approximately 3,572€/month (as of 2024)
  * 
  * For teilweise EM-Rente (partial disability pension):
  * - Higher limit, approximately double the volle EM-Rente limit
@@ -216,14 +217,17 @@ export function calculateHinzuverdienstgrenze(
   referenceAmount = 45358
 ): number {
   if (type === 'volle') {
-    // Volle EM-Rente: (0.81 × reference amount × 14) / 12
-    const annualLimit = (0.81 * referenceAmount * 14) / 12
-    return Math.round(annualLimit / 12)
+    // Step 1: Calculate annual base limit
+    const annualBaseLimit = (0.81 * referenceAmount * 14) / 12
+    // Step 2: Convert to monthly limit
+    const monthlyLimit = annualBaseLimit / 12
+    return Math.round(monthlyLimit)
   } else {
-    // Teilweise EM-Rente: approximately double
-    const volleLimit = (0.81 * referenceAmount * 14) / 12
-    const annualLimit = volleLimit * 2
-    return Math.round(annualLimit / 12)
+    // Teilweise EM-Rente: double the volle EM-Rente limit
+    const volleAnnualLimit = (0.81 * referenceAmount * 14) / 12
+    const teilweiseAnnualLimit = volleAnnualLimit * 2
+    const monthlyLimit = teilweiseAnnualLimit / 12
+    return Math.round(monthlyLimit)
   }
 }
 
