@@ -6,6 +6,7 @@ import { Calculator } from 'lucide-react'
 import { useFormId } from '../../utils/unique-id'
 import { TaxReturnDataForm } from './TaxReturnDataForm'
 import { PensionPointsInfo } from './PensionPointsInfo'
+import { PensionPointsCalculator } from './PensionPointsCalculator'
 
 type PensionFormValues = {
   monthlyAmount: number
@@ -289,6 +290,14 @@ export function PensionInputForm({
 
       {/* Pension Points Information */}
       <PensionPointsInfo nestingLevel={nestingLevel + 1} />
+
+      {/* Pension Points Calculator */}
+      <PensionPointsCalculator
+        nestingLevel={nestingLevel + 1}
+        onCalculatedPensionChange={monthlyPension => {
+          onChange.onMonthlyAmountChange(monthlyPension)
+        }}
+      />
 
       {/* Basic Pension Configuration */}
       <div className="space-y-4">
