@@ -13,7 +13,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Rentenlücken-Analyse** - Visualisierung der Differenz zwischen gesetzlicher Rente und gewünschtem Lebensstandard
 - **Rentenbesteuerung** - Korrekte Berechnung nach Besteuerungsanteil (abhängig vom Renteneintrittsjahr)
 - **Rentenanpassungen** - Jährliche Rentenerhöhung basierend auf historischen Daten oder konfigurierbarem Wert
-- **Deutsche Rentenpunkte-Systematik** - Vollständige Abbildung nach deutschem Rentenrecht (SGB VI)
 
 #### Erwerbsminderungsrente (EM-Rente) Planung
 
