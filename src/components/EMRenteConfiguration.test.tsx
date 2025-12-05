@@ -103,14 +103,14 @@ describe('EMRenteConfiguration', () => {
     render(<EMRenteConfiguration config={defaultConfig} onChange={mockOnChange} />)
 
     const input = screen.getByLabelText(/Rentenpunkte/)
-    await user.clear(input)
-    await user.type(input, '30.5')
+    await user.click(input)
+    await user.keyboard('{Control>}a{/Control}30.5')
 
-    expect(mockOnChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        accumulatedPensionPoints: 30.5,
-      })
-    )
+    // Check the last call since onChange is called for each keystroke
+    const lastCall = mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0]
+    expect(lastCall).toMatchObject({
+      accumulatedPensionPoints: 30.5,
+    })
   })
 
   it('should update contribution years', async () => {
@@ -118,14 +118,14 @@ describe('EMRenteConfiguration', () => {
     render(<EMRenteConfiguration config={defaultConfig} onChange={mockOnChange} />)
 
     const input = screen.getByLabelText(/Beitragsjahre/)
-    await user.clear(input)
-    await user.type(input, '30')
+    await user.click(input)
+    await user.keyboard('{Control>}a{/Control}30')
 
-    expect(mockOnChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        contributionYears: 30,
-      })
-    )
+    // Check the last call since onChange is called for each keystroke
+    const lastCall = mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0]
+    expect(lastCall).toMatchObject({
+      contributionYears: 30,
+    })
   })
 
   it('should update annual increase rate', async () => {
@@ -148,14 +148,14 @@ describe('EMRenteConfiguration', () => {
     render(<EMRenteConfiguration config={defaultConfig} onChange={mockOnChange} />)
 
     const input = screen.getByLabelText(/Steuerpflichtiger Anteil/)
-    await user.clear(input)
-    await user.type(input, '85')
+    await user.click(input)
+    await user.keyboard('{Control>}a{/Control}85')
 
-    expect(mockOnChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        taxablePercentage: 85,
-      })
-    )
+    // Check the last call since onChange is called for each keystroke
+    const lastCall = mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0]
+    expect(lastCall).toMatchObject({
+      taxablePercentage: 85,
+    })
   })
 
   it('should update monthly additional income', async () => {
@@ -163,14 +163,14 @@ describe('EMRenteConfiguration', () => {
     render(<EMRenteConfiguration config={defaultConfig} onChange={mockOnChange} />)
 
     const input = screen.getByLabelText(/Monatlicher Hinzuverdienst/)
-    await user.clear(input)
-    await user.type(input, '500')
+    await user.click(input)
+    await user.keyboard('{Control>}a{/Control}500')
 
-    expect(mockOnChange).toHaveBeenCalledWith(
-      expect.objectContaining({
-        monthlyAdditionalIncome: 500,
-      })
-    )
+    // Check the last call since onChange is called for each keystroke
+    const lastCall = mockOnChange.mock.calls[mockOnChange.mock.calls.length - 1][0]
+    expect(lastCall).toMatchObject({
+      monthlyAdditionalIncome: 500,
+    })
   })
 
   it('should toggle Zurechnungszeiten', async () => {
@@ -201,12 +201,13 @@ describe('EMRenteConfiguration', () => {
     )
   })
 
-  it('should use provided birthYear as default', () => {
+  it('should use provided birthYear as default', async () => {
+    const user = userEvent.setup()
     render(<EMRenteConfiguration config={null} onChange={mockOnChange} birthYear={1985} currentYear={2024} />)
 
     // Enable the configuration
     const toggle = screen.getByRole('switch')
-    userEvent.setup().click(toggle)
+    await user.click(toggle)
 
     // Check that onChange was called with birthYear 1985
     expect(mockOnChange).toHaveBeenCalledWith(
