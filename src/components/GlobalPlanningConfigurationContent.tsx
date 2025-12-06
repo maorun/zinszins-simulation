@@ -6,6 +6,7 @@ import { GlobalPlanningContentSections } from './GlobalPlanningContentSections'
 import type { CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import type { CareCostConfiguration as CareCostConfig } from '../../helpers/care-cost-simulation'
 import type { TermLifeInsuranceConfig } from '../../helpers/term-life-insurance'
+import type { EMRenteConfig } from '../../helpers/em-rente'
 
 type PlanningMode = 'individual' | 'couple'
 type Gender = 'male' | 'female'
@@ -51,6 +52,9 @@ interface GlobalPlanningConfigurationContentProps {
   // Term life insurance
   termLifeInsuranceConfig: TermLifeInsuranceConfig | null
   setTermLifeInsuranceConfig: (config: TermLifeInsuranceConfig | null) => void
+  // EM-Rente
+  emRenteConfig: EMRenteConfig | null
+  setEMRenteConfig: (config: EMRenteConfig | null) => void
 }
 
 /**

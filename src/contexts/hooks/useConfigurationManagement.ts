@@ -61,6 +61,7 @@ export interface ConfigurationStateSetters {
   setFinancialGoals: (value: Array<import('../../../helpers/financial-goals').FinancialGoal>) => void
   setEmergencyFundConfig: (value: import('../../../helpers/emergency-fund').EmergencyFundConfig) => void
   setAlimonyConfig: (value: import('../../../helpers/alimony').AlimonyConfig) => void
+  setEMRenteConfig: (value: import('../../../helpers/em-rente').EMRenteConfig | null) => void
 }
 
 export interface ConfigurationState {
@@ -108,6 +109,7 @@ export interface ConfigurationState {
   financialGoals: Array<import('../../../helpers/financial-goals').FinancialGoal>
   emergencyFundConfig: import('../../../helpers/emergency-fund').EmergencyFundConfig
   alimonyConfig: import('../../../helpers/alimony').AlimonyConfig
+  emRenteConfig: import('../../../helpers/em-rente').EMRenteConfig | null
 }
 
 export function useConfigurationManagement(

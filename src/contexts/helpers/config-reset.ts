@@ -17,6 +17,7 @@ type MainSetters = Omit<
   | 'setFinancialGoals'
   | 'setEmergencyFundConfig'
   | 'setAlimonyConfig'
+  | 'setEMRenteConfig'
 >
 
 type AdditionalSetters = {
@@ -27,6 +28,7 @@ type AdditionalSetters = {
   setFinancialGoals: (value: FinancialGoal[]) => void
   setEmergencyFundConfig: (value: EmergencyFundConfig) => void
   setAlimonyConfig: (value: import('../../../helpers/alimony').AlimonyConfig) => void
+  setEMRenteConfig: (value: import('../../../helpers/em-rente').EMRenteConfig | null) => void
 }
 
 /**
@@ -101,4 +103,5 @@ export function resetConfiguration(
   additionalSetters.setFinancialGoals([])
   additionalSetters.setEmergencyFundConfig(defaultEmergencyFundConfig)
   additionalSetters.setAlimonyConfig(getDefaultAlimonyConfig())
+  additionalSetters.setEMRenteConfig(null)
 }

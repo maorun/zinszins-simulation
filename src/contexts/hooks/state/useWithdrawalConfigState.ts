@@ -14,6 +14,7 @@ import { defaultEmergencyFundConfig, type EmergencyFundConfig } from '../../../.
 import type { TermLifeInsuranceConfig } from '../../../../helpers/term-life-insurance'
 import type { ExtendedSavedConfiguration } from '../../helpers/config-types'
 import { getDefaultAlimonyConfig, type AlimonyConfig } from '../../../../helpers/alimony'
+import type { EMRenteConfig } from '../../../../helpers/em-rente'
 
 export interface WithdrawalConfigStateConfig {
   initialConfig: SavedConfiguration
@@ -49,27 +50,27 @@ export function useWithdrawalConfigState(config: WithdrawalConfigStateConfig) {
     () => initializeCoupleStatutoryPension(initialConfig, extendedInitialConfig, defaultPlanningMode),
   )
 
-  const [careCostConfiguration, setCareCostConfiguration] = useState<CareCostConfiguration>(() => {
-    const savedConfig = extendedInitialConfig.careCostConfiguration
-    if (savedConfig) {
-      return savedConfig
-    }
-    return createDefaultCareCostConfiguration()
-  })
+  const [careCostConfiguration, setCareCostConfiguration] = useState<CareCostConfiguration>(
+    () => extendedInitialConfig.careCostConfiguration || createDefaultCareCostConfiguration(),
+  )
 
   const [financialGoals, setFinancialGoals] = useState<FinancialGoal[]>(extendedInitialConfig.financialGoals || [])
 
-  const [emergencyFundConfig, setEmergencyFundConfig] = useState<EmergencyFundConfig>(() => {
-    return extendedInitialConfig.emergencyFundConfig || defaultEmergencyFundConfig
-  })
+  const [emergencyFundConfig, setEmergencyFundConfig] = useState<EmergencyFundConfig>(
+    () => extendedInitialConfig.emergencyFundConfig || defaultEmergencyFundConfig,
+  )
 
   const [termLifeInsuranceConfig, setTermLifeInsuranceConfig] = useState<TermLifeInsuranceConfig | null>(
     extendedInitialConfig.termLifeInsuranceConfig || null,
   )
 
-  const [alimonyConfig, setAlimonyConfig] = useState<AlimonyConfig>(() => {
-    return extendedInitialConfig.alimonyConfig || getDefaultAlimonyConfig()
-  })
+  const [alimonyConfig, setAlimonyConfig] = useState<AlimonyConfig>(
+    () => extendedInitialConfig.alimonyConfig || getDefaultAlimonyConfig(),
+  )
+
+  const [emRenteConfig, setEMRenteConfig] = useState<EMRenteConfig | null>(
+    extendedInitialConfig.emRenteConfig || null,
+  )
 
   return {
     withdrawalConfig,
@@ -88,5 +89,7 @@ export function useWithdrawalConfigState(config: WithdrawalConfigStateConfig) {
     setTermLifeInsuranceConfig,
     alimonyConfig,
     setAlimonyConfig,
+    emRenteConfig,
+    setEMRenteConfig,
   }
 }

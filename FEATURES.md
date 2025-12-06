@@ -14,15 +14,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 - **Rentenbesteuerung** - Korrekte Berechnung nach Besteuerungsanteil (abhängig vom Renteneintrittsjahr)
 - **Rentenanpassungen** - Jährliche Rentenerhöhung basierend auf historischen Daten oder konfigurierbarem Wert
 
-#### Erwerbsminderungsrente (EM-Rente) Planung
-
-- **EM-Renten-Rechner** - Berechnung von voller und teilweiser Erwerbsminderungsrente
-- **Zurechnungszeiten** - Berücksichtigung der Zurechnungszeiten bis zum 67. Lebensjahr
-- **Abschlagskalkulation** - Berechnung der Rentenabschläge bei vorzeitiger EM-Rente (bis zu 10,8%)
-- **Hinzuverdienstgrenzen** - Automatische Berechnung der zulässigen Hinzuverdienstgrenzen
-- **Kombination mit privater Absicherung** - Integration mit bestehender BU-Versicherung
-- **Steuerliche Behandlung** - Korrekte Besteuerung der EM-Rente nach deutschem Steuerrecht
-
 ### Erweiterte Finanzplanung
 
 #### Steueroptimierung
