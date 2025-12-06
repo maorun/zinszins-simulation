@@ -7,6 +7,7 @@ import type {
 import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
 import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
 import type { OtherIncomeConfiguration } from '../../helpers/other-income'
+import type { CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 import { OtherIncomeConfigurationComponent } from './OtherIncomeConfiguration'
 import { WithdrawalModeSelector } from './WithdrawalModeSelector'
 import { WithdrawalModeContent } from './WithdrawalModeContent'
@@ -14,6 +15,7 @@ import { HealthCareInsuranceContent } from './HealthCareInsuranceContent'
 import type { HealthCareInsuranceChangeHandlers } from './HealthCareInsuranceConfiguration'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import { handleWithdrawalModeChange } from './withdrawal-mode-helpers'
+import { CoupleStatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
 
 interface WithdrawalVariablesCardProps {
   // Other income config
@@ -64,12 +66,18 @@ interface WithdrawalVariablesCardProps {
   spouseBirthYear: number | undefined
   currentWithdrawalAmount: number | undefined
   onHealthCareInsuranceChange: HealthCareInsuranceChangeHandlers
+
+  // Statutory pension
+  coupleStatutoryPensionConfig: CoupleStatutoryPensionConfig | null
+  onCoupleStatutoryPensionConfigChange: (config: CoupleStatutoryPensionConfig | null) => void
 }
 
 /**
  * Withdrawal configuration variables card
- * Displays all configurable withdrawal parameters including modes, strategies, and health insurance
+ * Displays all configurable withdrawal parameters including modes, strategies, health insurance, and statutory pension
  */
+// Adding more configuration components increases function size, which is acceptable for a layout component
+// eslint-disable-next-line max-lines-per-function
 export function WithdrawalVariablesCard(props: WithdrawalVariablesCardProps) {
   const {
     otherIncomeConfig,
@@ -81,6 +89,11 @@ export function WithdrawalVariablesCard(props: WithdrawalVariablesCardProps) {
     onConfigUpdate,
     startOfIndependence,
     globalEndOfLife,
+    planningMode,
+    birthYear,
+    spouseBirthYear,
+    coupleStatutoryPensionConfig,
+    onCoupleStatutoryPensionConfigChange,
   } = props
 
   // Note: This card must remain closed by default due to a Radix UI Slider/Collapsible compatibility issue
@@ -93,6 +106,14 @@ export function WithdrawalVariablesCard(props: WithdrawalVariablesCardProps) {
         <OtherIncomeConfigurationComponent
           config={otherIncomeConfig || { enabled: false, sources: [] }}
           onChange={onOtherIncomeConfigChange}
+        />
+
+        <CoupleStatutoryPensionConfiguration
+          config={coupleStatutoryPensionConfig}
+          onChange={onCoupleStatutoryPensionConfigChange}
+          planningMode={planningMode}
+          birthYear={birthYear}
+          spouseBirthYear={spouseBirthYear}
         />
 
         <WithdrawalModeSelector

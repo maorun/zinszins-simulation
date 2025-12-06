@@ -94,6 +94,8 @@ describe('useWithdrawalVariablesProps', () => {
     spouseBirthYear: undefined,
     withdrawalData: null,
     healthCareInsuranceHandlers: mockHealthCareInsuranceHandlers,
+    coupleStatutoryPensionConfig: null,
+    setCoupleStatutoryPensionConfig: vi.fn(),
   }
 
   it('should return properly formatted props for WithdrawalVariablesCard', () => {

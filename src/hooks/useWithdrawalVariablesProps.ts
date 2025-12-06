@@ -9,6 +9,7 @@ import type { OtherIncomeConfiguration } from '../../helpers/other-income'
 import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
 import type { MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
 import type { HealthCareInsuranceChangeHandlers } from '../components/HealthCareInsuranceConfiguration'
+import type { CoupleStatutoryPensionConfig } from '../../helpers/statutory-pension'
 
 interface UseWithdrawalVariablesPropsParams {
   currentConfig: {
@@ -44,6 +45,8 @@ interface UseWithdrawalVariablesPropsParams {
     withdrawalArray: Array<{ entnahme: number }>
   } | null
   healthCareInsuranceHandlers: HealthCareInsuranceChangeHandlers
+  coupleStatutoryPensionConfig: CoupleStatutoryPensionConfig | null
+  setCoupleStatutoryPensionConfig: (config: CoupleStatutoryPensionConfig | null) => void
 }
 
 /**
@@ -159,6 +162,8 @@ function prepareGlobalProps(params: {
   spouseBirthYear?: number
   healthCareInsuranceHandlers: HealthCareInsuranceChangeHandlers
   currentWithdrawalAmount: number | undefined
+  coupleStatutoryPensionConfig: CoupleStatutoryPensionConfig | null
+  setCoupleStatutoryPensionConfig: (config: CoupleStatutoryPensionConfig | null) => void
 }) {
   return {
     dispatchEnd: params.dispatchEnd,
@@ -169,6 +174,8 @@ function prepareGlobalProps(params: {
     spouseBirthYear: params.spouseBirthYear,
     currentWithdrawalAmount: params.currentWithdrawalAmount,
     onHealthCareInsuranceChange: params.healthCareInsuranceHandlers,
+    coupleStatutoryPensionConfig: params.coupleStatutoryPensionConfig,
+    onCoupleStatutoryPensionConfigChange: params.setCoupleStatutoryPensionConfig,
   }
 }
 
@@ -222,6 +229,8 @@ export function useWithdrawalVariablesProps(params: UseWithdrawalVariablesPropsP
       spouseBirthYear: params.spouseBirthYear,
       healthCareInsuranceHandlers: params.healthCareInsuranceHandlers,
       currentWithdrawalAmount,
+      coupleStatutoryPensionConfig: params.coupleStatutoryPensionConfig,
+      setCoupleStatutoryPensionConfig: params.setCoupleStatutoryPensionConfig,
     }),
   }
 }
