@@ -2,7 +2,7 @@ import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { WithdrawalFormValue, ComparisonStrategy, SegmentedComparisonStrategy } from '../utils/config-storage'
 import { WithdrawalComparisonDisplay } from './WithdrawalComparisonDisplay'
 import { SegmentedWithdrawalComparisonDisplay } from './SegmentedWithdrawalComparisonDisplay'
-import { lazy, Suspense } from 'react'
+import { lazy, Suspense, useMemo } from 'react'
 import {
   convertWithdrawalResultToSimulationResult,
   hasWithdrawalInflationAdjustedValues,
@@ -10,6 +10,9 @@ import {
 import { WithdrawalYearCard } from './WithdrawalYearCard'
 import { WithdrawalStrategySummary } from './WithdrawalStrategySummary'
 import { formatDuration } from '../utils/duration-formatter'
+import { PensionGapAnalysis } from './PensionGapAnalysis'
+import { calculatePensionGapFromWithdrawal } from '../utils/pension-gap-converter'
+import { createDefaultRetirementLifestyleConfig } from '../../helpers/pension-gap-analysis'
 
 // Lazy load the InteractiveChart to prevent Recharts from initializing during collapsible mount
 const InteractiveChart = lazy(() => import('./InteractiveChart'))
@@ -142,6 +145,41 @@ function WithdrawalYearCards({
   )
 }
 
+/**
+ * Main display with pension gap analysis
+ */
+function MainWithdrawalDisplay({
+  withdrawalData,
+  formValue,
+  onCalculationInfoClick,
+  pensionGapAnalysis,
+}: {
+  withdrawalData: NonNullable<EntnahmeSimulationDisplayProps['withdrawalData']>
+  formValue: WithdrawalFormValue
+  onCalculationInfoClick: (explanationType: string, rowData: unknown) => void
+  pensionGapAnalysis: ReturnType<typeof calculatePensionGapFromWithdrawal>
+}) {
+  return (
+    <div>
+      <SimulationHeader withdrawalData={withdrawalData} formValue={formValue} />
+      <SimulationChart withdrawalResult={withdrawalData.withdrawalResult} />
+
+      {/* Pension Gap Analysis */}
+      {pensionGapAnalysis && (
+        <div className="mb-6">
+          <PensionGapAnalysis analysisResult={pensionGapAnalysis} showDetailedBreakdown={true} maxYearsToShow={5} />
+        </div>
+      )}
+
+      <WithdrawalYearCards
+        withdrawalData={withdrawalData}
+        formValue={formValue}
+        onCalculationInfoClick={onCalculationInfoClick}
+      />
+    </div>
+  )
+}
+
 export function EntnahmeSimulationDisplay({
   withdrawalData,
   formValue,
@@ -151,6 +189,17 @@ export function EntnahmeSimulationDisplay({
   segmentedComparisonResults = [],
   onCalculationInfoClick,
 }: EntnahmeSimulationDisplayProps) {
+  // Calculate pension gap analysis
+  const pensionGapAnalysis = useMemo(() => {
+    if (!withdrawalData?.withdrawalResult) return null
+
+    // Use default retirement lifestyle config
+    // TODO: Make this configurable through UI
+    const retirementConfig = createDefaultRetirementLifestyleConfig()
+
+    return calculatePensionGapFromWithdrawal(withdrawalData.withdrawalResult, retirementConfig)
+  }, [withdrawalData])
+
   if (!withdrawalData) {
     return <NoDataMessage />
   }
@@ -175,14 +224,11 @@ export function EntnahmeSimulationDisplay({
   }
 
   return (
-    <div>
-      <SimulationHeader withdrawalData={withdrawalData} formValue={formValue} />
-      <SimulationChart withdrawalResult={withdrawalData.withdrawalResult} />
-      <WithdrawalYearCards
-        withdrawalData={withdrawalData}
-        formValue={formValue}
-        onCalculationInfoClick={onCalculationInfoClick}
-      />
-    </div>
+    <MainWithdrawalDisplay
+      withdrawalData={withdrawalData}
+      formValue={formValue}
+      onCalculationInfoClick={onCalculationInfoClick}
+      pensionGapAnalysis={pensionGapAnalysis}
+    />
   )
 }

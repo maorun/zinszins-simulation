@@ -414,4 +414,143 @@ describe('EntnahmeSimulationDisplay', () => {
       expect(screen.getByText(/Entnahmebeträge werden jährlich angepasst/)).toBeInTheDocument()
     })
   })
+
+  describe('Pension Gap Analysis Integration', () => {
+    it('should display pension gap analysis when withdrawal data includes statutory pension', () => {
+      const withdrawalDataWithPension = {
+        ...mockWithdrawalData,
+        withdrawalResult: {
+          2024: {
+            startkapital: 500000,
+            endkapital: 480000,
+            entnahme: 20000,
+            zinsen: 25000,
+            bezahlteSteuer: 3000,
+            genutzterFreibetrag: 2000,
+            statutoryPension: {
+              grossAnnualAmount: 18000,
+              netAnnualAmount: 16000,
+              incomeTax: 2000,
+              taxableAmount: 14400,
+            },
+          },
+          2025: {
+            startkapital: 480000,
+            endkapital: 460000,
+            entnahme: 20000,
+            zinsen: 24000,
+            bezahlteSteuer: 3000,
+            genutzterFreibetrag: 2000,
+            statutoryPension: {
+              grossAnnualAmount: 18180,
+              netAnnualAmount: 16160,
+              incomeTax: 2020,
+              taxableAmount: 14544,
+            },
+          },
+        },
+      }
+
+      render(
+        <EntnahmeSimulationDisplay
+          withdrawalData={withdrawalDataWithPension}
+          formValue={mockFormValue}
+          useComparisonMode={false}
+          comparisonResults={[]}
+          onCalculationInfoClick={() => {}}
+        />,
+      )
+
+      // Check that pension gap analysis is displayed
+      expect(screen.getByText('Rentenlücken-Analyse')).toBeInTheDocument()
+      expect(screen.getByText('Was ist die Rentenlücke?')).toBeInTheDocument()
+    })
+
+    it('should display pension gap summary statistics', () => {
+      const withdrawalDataWithPension = {
+        ...mockWithdrawalData,
+        withdrawalResult: {
+          2024: {
+            startkapital: 500000,
+            endkapital: 480000,
+            entnahme: 10000,
+            zinsen: 25000,
+            bezahlteSteuer: 3000,
+            genutzterFreibetrag: 2000,
+            statutoryPension: {
+              grossAnnualAmount: 18000,
+              netAnnualAmount: 16000,
+              incomeTax: 2000,
+              taxableAmount: 14400,
+            },
+          },
+        },
+      }
+
+      render(
+        <EntnahmeSimulationDisplay
+          withdrawalData={withdrawalDataWithPension}
+          formValue={mockFormValue}
+          useComparisonMode={false}
+          comparisonResults={[]}
+          onCalculationInfoClick={() => {}}
+        />,
+      )
+
+      // Check for summary statistics
+      expect(screen.getByText('Rentenlücken-Zusammenfassung')).toBeInTheDocument()
+      expect(screen.getByText('Jahre mit voller Deckung:')).toBeInTheDocument()
+      expect(screen.getByText('Jahre mit Rentenlücke:')).toBeInTheDocument()
+    })
+
+    it('should not display pension gap analysis when withdrawal result is empty', () => {
+      render(
+        <EntnahmeSimulationDisplay
+          withdrawalData={mockWithdrawalData}
+          formValue={mockFormValue}
+          useComparisonMode={false}
+          comparisonResults={[]}
+          onCalculationInfoClick={() => {}}
+        />,
+      )
+
+      // Pension gap analysis should not be displayed
+      expect(screen.queryByText('Rentenlücken-Analyse')).not.toBeInTheDocument()
+    })
+
+    it('should not display pension gap analysis in comparison mode', () => {
+      const withdrawalDataWithPension = {
+        ...mockWithdrawalData,
+        withdrawalResult: {
+          2024: {
+            startkapital: 500000,
+            endkapital: 480000,
+            entnahme: 20000,
+            zinsen: 25000,
+            bezahlteSteuer: 3000,
+            genutzterFreibetrag: 2000,
+            statutoryPension: {
+              grossAnnualAmount: 18000,
+              netAnnualAmount: 16000,
+              incomeTax: 2000,
+              taxableAmount: 14400,
+            },
+          },
+        },
+      }
+
+      render(
+        <EntnahmeSimulationDisplay
+          withdrawalData={withdrawalDataWithPension}
+          formValue={mockFormValue}
+          useComparisonMode={true}
+          comparisonResults={mockComparisonResults}
+          onCalculationInfoClick={() => {}}
+        />,
+      )
+
+      // Pension gap analysis should not be displayed in comparison mode
+      expect(screen.queryByText('Rentenlücken-Analyse')).not.toBeInTheDocument()
+    })
+  })
 })
