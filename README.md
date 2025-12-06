@@ -569,6 +569,19 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Rentenwert-Integration**: Verwendung der aktuellen Rentenwerte (West/Ost ab 2024 identisch: 37,60 €)
   - **Jährliche Rentenanpassungen**: Konfigurierbare jährliche Rentensteigerungen (Standard: 1%)
   - **Pension Points Estimation**: Rückrechnung von Rentenpunkten aus erwarteter Rentenhöhe
+  - **Rentenlücken-Analyse** - Umfassende Analyse der Differenz zwischen gewünschtem Lebensstandard und verfügbarem Ruhestandseinkommen
+    - **Visualisierung der Einkommensquellen**: Grafische Darstellung von gesetzlicher Rente, Portfolio-Entnahmen und anderen Einkünften als Prozentsatz des gewünschten Einkommens
+    - **Detaillierte Zusammenfassung**: Übersicht über Jahre mit voller Deckung vs. Jahre mit Rentenlücke
+    - **Durchschnittliche Deckungsraten**: Berechnung der durchschnittlichen Rentendeckung und Portfolio-Entnahme-Rate
+    - **Lückenidentifikation**: Identifikation der größten Rentenlücke mit Jahr und Betrag
+    - **Jahr-für-Jahr Aufschlüsselung**: Detaillierte Analyse für jedes Jahr mit:
+      - Gewünschtes vs. verfügbares Einkommen
+      - Prozentualer Anteil jeder Einkommensquelle
+      - Gesetzliche Rente, Portfolio-Entnahmen, andere Einkünfte und Krankenversicherungskosten
+      - Status (vollständig gedeckt oder Rentenlücke mit Betrag)
+    - **Inflationsberücksichtigung**: Automatische Anpassung des gewünschten Einkommens an die Inflation
+    - **Intuitive Farbcodierung**: Grün für Rente, Blau für Portfolio, Lila für andere Einkünfte, Rot für Lücken
+    - **Konfigurierbare Anzeige**: Optionale detaillierte Aufschlüsselung mit konfigurierbarer Anzahl angezeigter Jahre
 - **Kranken- und Pflegeversicherung** - Umfassende Berücksichtigung von Kranken- und Pflegeversicherungsbeiträgen
   - **Einzelplanung**: Individuelle Krankenversicherung mit konfigurierbaren Beitragssätzen und Beitragsbemessungsgrenzen
   - **Paarplanung**: Optimierung für Paare mit automatischer Familienversicherung
