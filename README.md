@@ -538,6 +538,8 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Geteilte Entnahme-Phasen** - Segmentierung in verschiedene Zeiträume mit unterschiedlichen Strategien
 - **Strategienvergleich** - Vergleich verschiedener Entnahmestrategien mit demselben Startkapital
 - **Gesetzliche Rente Integration** - Vollständige Integration der deutschen gesetzlichen Rente
+  - **Konfiguration in der Entnahmephase**: Direkt im Variablen-Panel der Entnahmephase konfigurierbar
+  - **Einzel- und Paarplanung**: Separate Rentenkonfiguration für Einzelpersonen oder Paare mit individuellen Rentenbeginn-Zeitpunkten
   - **Interaktiver Rentenpunkte-Rechner**: Berechnung der erworbenen Rentenpunkte basierend auf Bruttogehalt und Beitragsjahren
     - **Zwei Eingabemodi**: Schnell-Konfiguration für einfache Prognosen oder manuelle Jahr-für-Jahr Eingabe
     - **Schnell-Konfiguration**: Startjahr, Endjahr, Anfangsgehalt und jährliche Steigerung eingeben
