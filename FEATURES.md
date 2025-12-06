@@ -6,13 +6,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
 
-#### Gesetzliche Rentenversicherung (GRV) Integration
-
-- **Rentenanspruch-Prognose** - Voraussichtliche gesetzliche Rente unter Berücksichtigung von Rentenwerten und Anpassungen
-- **Integration in Entnahmephase** - Automatische Berücksichtigung der GRV-Rente als zusätzliches Einkommen
-- **Rentenbesteuerung** - Korrekte Berechnung nach Besteuerungsanteil (abhängig vom Renteneintrittsjahr)
-- **Rentenanpassungen** - Jährliche Rentenerhöhung basierend auf historischen Daten oder konfigurierbarem Wert
-
 ### Erweiterte Finanzplanung
 
 #### Steueroptimierung

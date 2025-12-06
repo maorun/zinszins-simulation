@@ -115,6 +115,8 @@ function prepareVariablesProps(
     spouseBirthYear: params.simulationContext.spouse?.birthYear,
     withdrawalData: params.withdrawalData as Parameters<typeof useWithdrawalVariablesProps>[0]['withdrawalData'],
     healthCareInsuranceHandlers,
+    coupleStatutoryPensionConfig: params.simulationContext.coupleStatutoryPensionConfig,
+    setCoupleStatutoryPensionConfig: params.simulationContext.setCoupleStatutoryPensionConfig,
   }
 }
 
