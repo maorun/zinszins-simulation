@@ -11,6 +11,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 Ein umfassendes Vergleichstool für verschiedene deutsche Rentenversicherungsarten zur optimalen Altersvorsorge-Planung.
 
 **Funktionalität:**
+
 - **Gesetzliche Rentenversicherung (GRV)**: Berechnung der erwarteten Rente basierend auf Entgeltpunkten
 - **Rürup-Rente (Basis-Rente)**: Integration existierender Rürup-Funktionalität mit Vergleichsansicht
 - **Riester-Rente**: Integration existierender Riester-Funktionalität mit Vergleichsansicht
@@ -19,11 +20,13 @@ Ein umfassendes Vergleichstool für verschiedene deutsche Rentenversicherungsart
 - **ETF-Sparplan**: Selbstverwaltete Vorsorge mit ETFs als Vergleichsbasis
 
 **Steuerliche Aspekte:**
+
 - Beitragsphase: Steuervorteile bei Rürup, bAV und Riester
 - Rentenphase: Unterschiedliche Besteuerung je nach Produkt (Ertragsanteil, volle Besteuerung, etc.)
 - Sozialversicherungspflicht: Kranken- und Pflegeversicherung auf bAV-Renten
 
 **Vergleichsmetriken:**
+
 - Garantierte Rentenhöhe vs. erwartete Rentenhöhe
 - Nettorente nach Steuern und Sozialabgaben
 - Rendite (IRR) über Lebenszeit
@@ -32,18 +35,21 @@ Ein umfassendes Vergleichstool für verschiedene deutsche Rentenversicherungsart
 - Inflationsschutz und Dynamisierung
 
 **Visualisierung:**
+
 - Tabellarischer Vergleich aller Produkte nebeneinander
 - Grafische Darstellung der Rentenhöhen über Lebenszeit
 - Vor-/Nachteile-Matrix für jedes Produkt
 - Empfehlung basierend auf individueller Situation (Einkommen, Familienstand, Risikobereitschaft)
 
 **Bildungsinhalte:**
+
 - Erklärung jedes Produkts mit Vor- und Nachteilen
 - Hinweise zu Kombinationsmöglichkeiten
 - Deutsche Drei-Säulen-Modell der Altersvorsorge
 - Optimale Schichtung nach Steuersituation
 
 **Technische Umsetzung:**
+
 - Nutzung bestehender Rürup- und Riester-Helper-Funktionen
 - Neue Helper-Funktionen für GRV, bAV und private Rentenversicherung
 - Integration in Tab "Ansparen" oder separate "Rentenvergleich" Section
@@ -51,6 +57,7 @@ Ein umfassendes Vergleichstool für verschiedene deutsche Rentenversicherungsart
 - Comprehensive Tests für alle Berechnungen
 
 **Mehrwert:**
+
 - Hilft Nutzern, optimale Altersvorsorge-Mix zu finden
 - Transparenter Vergleich aller gängigen deutschen Vorsorgeprodukte
 - Berücksichtigt individuelle Steuersituation und Lebensumstände
@@ -61,6 +68,7 @@ Ein umfassendes Vergleichstool für verschiedene deutsche Rentenversicherungsart
 Automatische Anpassung der Sparraten basierend auf Lebensereignissen und Einkommensentwicklung.
 
 **Funktionalität:**
+
 - **Einkommensentwicklung**: Automatische Erhöhung der Sparrate bei Gehaltssteigerungen
   - Prozentuale Kopplung an Gehaltssteigerung (z.B. 50% der Erhöhung sparen)
   - Konfigurierbare Sparquote nach Gehaltsstufen
@@ -76,15 +84,18 @@ Automatische Anpassung der Sparraten basierend auf Lebensereignissen und Einkomm
   - Erbschaften: Einmalige Erhöhung oder dauerhafte Sparraten-Anpassung
 
 **Steueroptimierung:**
+
 - Automatische Nutzung von Steuerfreibeträgen in Jahren mit niedriger Steuerlast
 - Optimierung der Beiträge zu steueroptimierten Produkten (Rürup, bAV)
 
 **Visualisierung:**
+
 - Grafische Darstellung der Sparraten-Entwicklung über Zeit
 - Übersicht der Trigger-Events und deren Auswirkungen
 - Vergleich: Konstante vs. dynamische Sparrate
 
 **Mehrwert:**
+
 - Realistische Abbildung der Lebensrealität
 - Erhöhung der tatsächlichen Sparleistung durch automatische Anpassungen
 - Hilft bei langfristiger Finanzplanung mit sich ändernden Lebensumständen
@@ -94,6 +105,7 @@ Automatische Anpassung der Sparraten basierend auf Lebensereignissen und Einkomm
 Intelligente Berechnung und Verwaltung des Notgroschens mit Integration in die Gesamtplanung.
 
 **Funktionalität:**
+
 - **Bedarfsberechnung**: Automatische Ermittlung des optimalen Notgroschens
   - Basierend auf monatlichen Fixkosten (3-6 Monatsgehälter)
   - Anpassung nach Familienstand und Absicherung (höher bei Selbstständigen)
@@ -106,20 +118,24 @@ Intelligente Berechnung und Verwaltung des Notgroschens mit Integration in die G
 - **Opportunitätskosten-Berechnung**: Darstellung der entgangenen Rendite durch Notgroschen vs. Sicherheitsgewinn
 
 **Liquiditätspuffer für geplante Ausgaben:**
+
 - Trennung zwischen Notgroschen (Notfälle) und Liquiditätspuffer (geplante Ausgaben)
 - Planung für größere Ausgaben (Auto, Urlaub, etc.) außerhalb des Notgroschens
 - Automatische Reservierung für geplante Sonderereignisse
 
 **Integration in Gesamtplanung:**
+
 - Notgroschen wird VOR Investition in Sparpläne aufgebaut
 - Automatische Umschichtung sobald Zielgröße erreicht ist
 - Visualisierung in der Simulation: Wann ist Notgroschen vollständig?
 
 **Steuerliche Aspekte:**
+
 - Berücksichtigung der Abgeltungssteuer auf Tagesgeld-Zinsen
 - Optimale Nutzung des Sparerpauschbetrags
 
 **Mehrwert:**
+
 - Verhindert, dass Nutzer zu früh in Wertpapiere investieren
 - Realistische Finanzplanung mit notwendigen Liquiditätspuffern
 - Optimierung zwischen Sicherheit und Rendite
@@ -129,6 +145,7 @@ Intelligente Berechnung und Verwaltung des Notgroschens mit Integration in die G
 Erweiterte Inflationsberechnung mit verschiedenen Szenarien und Fokus auf reale Kaufkraft.
 
 **Funktionalität:**
+
 - **Variable Inflationsszenarien**:
   - **Optimistisch**: 1,5% p.a. (EZB-Ziel unterschritten)
   - **Moderat**: 2,0% p.a. (EZB-Ziel)
@@ -143,17 +160,20 @@ Erweiterte Inflationsberechnung mit verschiedenen Szenarien und Fokus auf reale 
 - **Monte Carlo mit Inflationsunsicherheit**: Simulation mit volatiler Inflation
 
 **Kaufkraft-Visualisierung:**
+
 - Hauptfokus auf reale Kaufkraft statt nominale Werte
 - Grafische Darstellung: "Was kann ich mir in 20 Jahren leisten?"
 - Umrechnung von zukünftigen Beträgen in heutige Kaufkraft
 - Beispiel-Warenkörbe (Auto, Urlaub, Wohnung) in heutigen Preisen
 
 **Entnahmephase-Optimierung:**
+
 - Inflationsanpassung der Entnahmeraten
 - Erhaltung der realen Kaufkraft über die Rentenzeit
 - Visualisierung: Wie lange reicht das Kapital bei unterschiedlicher Inflation?
 
 **Mehrwert:**
+
 - Realistische Planung durch Fokus auf echte Kaufkraft
 - Sensibilisierung für Inflationsrisiken
 - Hilft bei der Festlegung realistischer Sparziele
@@ -163,6 +183,7 @@ Erweiterte Inflationsberechnung mit verschiedenen Szenarien und Fokus auf reale 
 Umfassende Integration verschiedener Versicherungstypen in die Finanzplanung.
 
 **Funktionalität:**
+
 - **Bestehende Versicherungen**:
   - Berufsunfähigkeitsversicherung (bereits implementiert) - erweiterte Konfiguration
   - Risikolebensversicherung (bereits implementiert) - erweiterte Konfiguration
@@ -177,16 +198,19 @@ Umfassende Integration verschiedener Versicherungstypen in die Finanzplanung.
   - **Hausratversicherung**: Jährliche Kosten
 
 **Versicherungskosten-Optimierung:**
+
 - Übersicht aller Versicherungsausgaben pro Jahr
 - Identifikation von Über- oder Unterversicherung
 - Empfehlungen zur Optimierung
 
 **Risiko-Absicherung:**
+
 - Darstellung des finanziellen Risikos bei Ausfall verschiedener Risiken
 - Berechnung der optimalen Versicherungssummen
 - Integration in die Liquiditätsplanung
 
 **Mehrwert:**
+
 - Ganzheitliche Finanzplanung inklusive Absicherung
 - Transparenz über Versicherungskosten
 - Optimierung der Risiko-Kosten-Balance
