@@ -6,6 +6,191 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
 
+#### Rentenversicherungs-Vergleichstool (Priorität: Sehr Hoch ⭐⭐⭐)
+
+Ein umfassendes Vergleichstool für verschiedene deutsche Rentenversicherungsarten zur optimalen Altersvorsorge-Planung.
+
+**Funktionalität:**
+- **Gesetzliche Rentenversicherung (GRV)**: Berechnung der erwarteten Rente basierend auf Entgeltpunkten
+- **Rürup-Rente (Basis-Rente)**: Integration existierender Rürup-Funktionalität mit Vergleichsansicht
+- **Riester-Rente**: Integration existierender Riester-Funktionalität mit Vergleichsansicht
+- **Betriebliche Altersvorsorge (bAV)**: Berechnung nach Direktversicherung, Pensionskasse, Pensionsfonds
+- **Private Rentenversicherung**: Klassische und fondsgebundene Rentenversicherungen
+- **ETF-Sparplan**: Selbstverwaltete Vorsorge mit ETFs als Vergleichsbasis
+
+**Steuerliche Aspekte:**
+- Beitragsphase: Steuervorteile bei Rürup, bAV und Riester
+- Rentenphase: Unterschiedliche Besteuerung je nach Produkt (Ertragsanteil, volle Besteuerung, etc.)
+- Sozialversicherungspflicht: Kranken- und Pflegeversicherung auf bAV-Renten
+
+**Vergleichsmetriken:**
+- Garantierte Rentenhöhe vs. erwartete Rentenhöhe
+- Nettorente nach Steuern und Sozialabgaben
+- Rendite (IRR) über Lebenszeit
+- Gesamtkosten (TER, Verwaltungskosten, etc.)
+- Flexibilität (Verfügbarkeit, Vererbbarkeit, Kapitaloption)
+- Inflationsschutz und Dynamisierung
+
+**Visualisierung:**
+- Tabellarischer Vergleich aller Produkte nebeneinander
+- Grafische Darstellung der Rentenhöhen über Lebenszeit
+- Vor-/Nachteile-Matrix für jedes Produkt
+- Empfehlung basierend auf individueller Situation (Einkommen, Familienstand, Risikobereitschaft)
+
+**Bildungsinhalte:**
+- Erklärung jedes Produkts mit Vor- und Nachteilen
+- Hinweise zu Kombinationsmöglichkeiten
+- Deutsche Drei-Säulen-Modell der Altersvorsorge
+- Optimale Schichtung nach Steuersituation
+
+**Technische Umsetzung:**
+- Nutzung bestehender Rürup- und Riester-Helper-Funktionen
+- Neue Helper-Funktionen für GRV, bAV und private Rentenversicherung
+- Integration in Tab "Ansparen" oder separate "Rentenvergleich" Section
+- shadcn/ui Komponenten für Vergleichstabellen
+- Comprehensive Tests für alle Berechnungen
+
+**Mehrwert:**
+- Hilft Nutzern, optimale Altersvorsorge-Mix zu finden
+- Transparenter Vergleich aller gängigen deutschen Vorsorgeprodukte
+- Berücksichtigt individuelle Steuersituation und Lebensumstände
+- Vermeidet teure Beratungsfehler durch fundierte Entscheidungsgrundlage
+
+#### Dynamische Sparraten (Priorität: Hoch ⭐⭐⭐)
+
+Automatische Anpassung der Sparraten basierend auf Lebensereignissen und Einkommensentwicklung.
+
+**Funktionalität:**
+- **Einkommensentwicklung**: Automatische Erhöhung der Sparrate bei Gehaltssteigerungen
+  - Prozentuale Kopplung an Gehaltssteigerung (z.B. 50% der Erhöhung sparen)
+  - Konfigurierbare Sparquote nach Gehaltsstufen
+  - Berücksichtigung von Beförderungen und Karrieresprüngen
+- **Lebensabschnitt-basierte Anpassungen**: Sparrate ändert sich je nach Lebensphase
+  - Berufsstart (25-30 Jahre): Niedrigere Sparrate wegen geringerem Einkommen
+  - Karrieremitte (30-50 Jahre): Höchste Sparrate bei höherem Einkommen
+  - Pre-Retirement (50-67 Jahre): Maximale Sparrate vor Renteneintritt
+- **Ereignis-getriggerte Anpassungen**:
+  - Geburt eines Kindes: Reduktion der Sparrate
+  - Auszug der Kinder: Erhöhung der Sparrate
+  - Abzahlung von Krediten: Umleitung der Raten in Sparplan
+  - Erbschaften: Einmalige Erhöhung oder dauerhafte Sparraten-Anpassung
+
+**Steueroptimierung:**
+- Automatische Nutzung von Steuerfreibeträgen in Jahren mit niedriger Steuerlast
+- Optimierung der Beiträge zu steueroptimierten Produkten (Rürup, bAV)
+
+**Visualisierung:**
+- Grafische Darstellung der Sparraten-Entwicklung über Zeit
+- Übersicht der Trigger-Events und deren Auswirkungen
+- Vergleich: Konstante vs. dynamische Sparrate
+
+**Mehrwert:**
+- Realistische Abbildung der Lebensrealität
+- Erhöhung der tatsächlichen Sparleistung durch automatische Anpassungen
+- Hilft bei langfristiger Finanzplanung mit sich ändernden Lebensumständen
+
+#### Notgroschen-Optimierung mit Liquiditätsplanung (Priorität: Hoch ⭐⭐⭐)
+
+Intelligente Berechnung und Verwaltung des Notgroschens mit Integration in die Gesamtplanung.
+
+**Funktionalität:**
+- **Bedarfsberechnung**: Automatische Ermittlung des optimalen Notgroschens
+  - Basierend auf monatlichen Fixkosten (3-6 Monatsgehälter)
+  - Anpassung nach Familienstand und Absicherung (höher bei Selbstständigen)
+  - Berücksichtigung von Arbeitslosenversicherung und anderen Sicherheitsnetzen
+- **Mehrstufiges Liquiditätssystem**:
+  - **Stufe 1**: Girokonto (1 Monatsgehalt) - 0% Rendite
+  - **Stufe 2**: Tagesgeldkonto (3 Monatsgehälter) - Aktuelle Tagesgeld-Zinsen
+  - **Stufe 3**: Kurzfristige Anleihen oder Geldmarkt-ETF (2 Monatsgehälter) - Geringe Rendite, hohe Verfügbarkeit
+- **Dynamische Anpassung**: Notgroschen wächst proportional mit Einkommen
+- **Opportunitätskosten-Berechnung**: Darstellung der entgangenen Rendite durch Notgroschen vs. Sicherheitsgewinn
+
+**Liquiditätspuffer für geplante Ausgaben:**
+- Trennung zwischen Notgroschen (Notfälle) und Liquiditätspuffer (geplante Ausgaben)
+- Planung für größere Ausgaben (Auto, Urlaub, etc.) außerhalb des Notgroschens
+- Automatische Reservierung für geplante Sonderereignisse
+
+**Integration in Gesamtplanung:**
+- Notgroschen wird VOR Investition in Sparpläne aufgebaut
+- Automatische Umschichtung sobald Zielgröße erreicht ist
+- Visualisierung in der Simulation: Wann ist Notgroschen vollständig?
+
+**Steuerliche Aspekte:**
+- Berücksichtigung der Abgeltungssteuer auf Tagesgeld-Zinsen
+- Optimale Nutzung des Sparerpauschbetrags
+
+**Mehrwert:**
+- Verhindert, dass Nutzer zu früh in Wertpapiere investieren
+- Realistische Finanzplanung mit notwendigen Liquiditätspuffern
+- Optimierung zwischen Sicherheit und Rendite
+
+#### Inflations-Szenarien und reale Kaufkraft-Planung (Priorität: Hoch ⭐⭐⭐)
+
+Erweiterte Inflationsberechnung mit verschiedenen Szenarien und Fokus auf reale Kaufkraft.
+
+**Funktionalität:**
+- **Variable Inflationsszenarien**:
+  - **Optimistisch**: 1,5% p.a. (EZB-Ziel unterschritten)
+  - **Moderat**: 2,0% p.a. (EZB-Ziel)
+  - **Pessimistisch**: 3,5% p.a. (erhöhte Inflation)
+  - **Historisch**: Verwendung historischer deutscher Inflationsdaten (2000-2023)
+  - **Benutzerdefiniert**: Jahr-für-Jahr konfigurierbare Inflation
+- **Anlageklassen-spezifische Inflation**:
+  - Immobilien: Höhere Inflation (3-4% p.a.)
+  - Gesundheit/Pflege: Deutlich höhere Inflation (5-6% p.a.)
+  - Lebensmittel: Variable Inflation
+  - Allgemeiner Warenkorb: Standard-Inflation
+- **Monte Carlo mit Inflationsunsicherheit**: Simulation mit volatiler Inflation
+
+**Kaufkraft-Visualisierung:**
+- Hauptfokus auf reale Kaufkraft statt nominale Werte
+- Grafische Darstellung: "Was kann ich mir in 20 Jahren leisten?"
+- Umrechnung von zukünftigen Beträgen in heutige Kaufkraft
+- Beispiel-Warenkörbe (Auto, Urlaub, Wohnung) in heutigen Preisen
+
+**Entnahmephase-Optimierung:**
+- Inflationsanpassung der Entnahmeraten
+- Erhaltung der realen Kaufkraft über die Rentenzeit
+- Visualisierung: Wie lange reicht das Kapital bei unterschiedlicher Inflation?
+
+**Mehrwert:**
+- Realistische Planung durch Fokus auf echte Kaufkraft
+- Sensibilisierung für Inflationsrisiken
+- Hilft bei der Festlegung realistischer Sparziele
+
+#### Versicherungs-Integration und Risikomanagement (Priorität: Mittel-Hoch ⭐⭐⭐)
+
+Umfassende Integration verschiedener Versicherungstypen in die Finanzplanung.
+
+**Funktionalität:**
+- **Bestehende Versicherungen**:
+  - Berufsunfähigkeitsversicherung (bereits implementiert) - erweiterte Konfiguration
+  - Risikolebensversicherung (bereits implementiert) - erweiterte Konfiguration
+  - Pflegeversicherung - Ergänzung zu gesetzlicher Pflegeversicherung
+- **Neue Versicherungstypen**:
+  - **Private Krankenversicherung (PKV)**: Beitragskalkulierung im Alter
+    - Steigende Beiträge im Alter berücksichtigen
+    - Altersrückstellungen und deren Auswirkungen
+    - Vergleich PKV vs. GKV im Ruhestand
+  - **Pflegezusatzversicherung**: Reduktion des Pflegerisikos
+  - **Haftpflichtversicherung**: Jährliche Kosten
+  - **Hausratversicherung**: Jährliche Kosten
+
+**Versicherungskosten-Optimierung:**
+- Übersicht aller Versicherungsausgaben pro Jahr
+- Identifikation von Über- oder Unterversicherung
+- Empfehlungen zur Optimierung
+
+**Risiko-Absicherung:**
+- Darstellung des finanziellen Risikos bei Ausfall verschiedener Risiken
+- Berechnung der optimalen Versicherungssummen
+- Integration in die Liquiditätsplanung
+
+**Mehrwert:**
+- Ganzheitliche Finanzplanung inklusive Absicherung
+- Transparenz über Versicherungskosten
+- Optimierung der Risiko-Kosten-Balance
+
 ### Erweiterte Finanzplanung
 
 #### Steueroptimierung
