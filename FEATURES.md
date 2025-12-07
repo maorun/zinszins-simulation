@@ -10,59 +10,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 Ein umfassendes Vergleichstool für verschiedene deutsche Rentenversicherungsarten zur optimalen Altersvorsorge-Planung.
 
-**Funktionalität:**
-
-- **Gesetzliche Rentenversicherung (GRV)**: Berechnung der erwarteten Rente basierend auf Entgeltpunkten
-- **Rürup-Rente (Basis-Rente)**: Integration existierender Rürup-Funktionalität mit Vergleichsansicht
-- **Riester-Rente**: Integration existierender Riester-Funktionalität mit Vergleichsansicht
-- **Betriebliche Altersvorsorge (bAV)**: Berechnung nach Direktversicherung, Pensionskasse, Pensionsfonds
-- **Private Rentenversicherung**: Klassische und fondsgebundene Rentenversicherungen
-- **ETF-Sparplan**: Selbstverwaltete Vorsorge mit ETFs als Vergleichsbasis
-
-**Steuerliche Aspekte:**
-
-- Beitragsphase: Steuervorteile bei Rürup, bAV und Riester
-- Rentenphase: Unterschiedliche Besteuerung je nach Produkt (Ertragsanteil, volle Besteuerung, etc.)
-- Sozialversicherungspflicht: Kranken- und Pflegeversicherung auf bAV-Renten
-
-**Vergleichsmetriken:**
-
-- Garantierte Rentenhöhe vs. erwartete Rentenhöhe
-- Nettorente nach Steuern und Sozialabgaben
-- Rendite (IRR) über Lebenszeit
-- Gesamtkosten (TER, Verwaltungskosten, etc.)
-- Flexibilität (Verfügbarkeit, Vererbbarkeit, Kapitaloption)
-- Inflationsschutz und Dynamisierung
-
-**Visualisierung:**
-
-- Tabellarischer Vergleich aller Produkte nebeneinander
-- Grafische Darstellung der Rentenhöhen über Lebenszeit
-- Vor-/Nachteile-Matrix für jedes Produkt
-- Empfehlung basierend auf individueller Situation (Einkommen, Familienstand, Risikobereitschaft)
-
-**Bildungsinhalte:**
-
-- Erklärung jedes Produkts mit Vor- und Nachteilen
-- Hinweise zu Kombinationsmöglichkeiten
-- Deutsche Drei-Säulen-Modell der Altersvorsorge
-- Optimale Schichtung nach Steuersituation
-
-**Technische Umsetzung:**
-
-- Nutzung bestehender Rürup- und Riester-Helper-Funktionen
-- Neue Helper-Funktionen für GRV, bAV und private Rentenversicherung
-- Integration in Tab "Ansparen" oder separate "Rentenvergleich" Section
-- shadcn/ui Komponenten für Vergleichstabellen
-- Comprehensive Tests für alle Berechnungen
-
-**Mehrwert:**
-
-- Hilft Nutzern, optimale Altersvorsorge-Mix zu finden
-- Transparenter Vergleich aller gängigen deutschen Vorsorgeprodukte
-- Berücksichtigt individuelle Steuersituation und Lebensumstände
-- Vermeidet teure Beratungsfehler durch fundierte Entscheidungsgrundlage
-
 #### Dynamische Sparraten (Priorität: Hoch ⭐⭐⭐)
 
 Automatische Anpassung der Sparraten basierend auf Lebensereignissen und Einkommensentwicklung.
@@ -99,46 +46,6 @@ Automatische Anpassung der Sparraten basierend auf Lebensereignissen und Einkomm
 - Realistische Abbildung der Lebensrealität
 - Erhöhung der tatsächlichen Sparleistung durch automatische Anpassungen
 - Hilft bei langfristiger Finanzplanung mit sich ändernden Lebensumständen
-
-#### Notgroschen-Optimierung mit Liquiditätsplanung (Priorität: Hoch ⭐⭐⭐)
-
-Intelligente Berechnung und Verwaltung des Notgroschens mit Integration in die Gesamtplanung.
-
-**Funktionalität:**
-
-- **Bedarfsberechnung**: Automatische Ermittlung des optimalen Notgroschens
-  - Basierend auf monatlichen Fixkosten (3-6 Monatsgehälter)
-  - Anpassung nach Familienstand und Absicherung (höher bei Selbstständigen)
-  - Berücksichtigung von Arbeitslosenversicherung und anderen Sicherheitsnetzen
-- **Mehrstufiges Liquiditätssystem**:
-  - **Stufe 1**: Girokonto (1 Monatsgehalt) - 0% Rendite
-  - **Stufe 2**: Tagesgeldkonto (3 Monatsgehälter) - Aktuelle Tagesgeld-Zinsen
-  - **Stufe 3**: Kurzfristige Anleihen oder Geldmarkt-ETF (2 Monatsgehälter) - Geringe Rendite, hohe Verfügbarkeit
-- **Dynamische Anpassung**: Notgroschen wächst proportional mit Einkommen
-- **Opportunitätskosten-Berechnung**: Darstellung der entgangenen Rendite durch Notgroschen vs. Sicherheitsgewinn
-
-**Liquiditätspuffer für geplante Ausgaben:**
-
-- Trennung zwischen Notgroschen (Notfälle) und Liquiditätspuffer (geplante Ausgaben)
-- Planung für größere Ausgaben (Auto, Urlaub, etc.) außerhalb des Notgroschens
-- Automatische Reservierung für geplante Sonderereignisse
-
-**Integration in Gesamtplanung:**
-
-- Notgroschen wird VOR Investition in Sparpläne aufgebaut
-- Automatische Umschichtung sobald Zielgröße erreicht ist
-- Visualisierung in der Simulation: Wann ist Notgroschen vollständig?
-
-**Steuerliche Aspekte:**
-
-- Berücksichtigung der Abgeltungssteuer auf Tagesgeld-Zinsen
-- Optimale Nutzung des Sparerpauschbetrags
-
-**Mehrwert:**
-
-- Verhindert, dass Nutzer zu früh in Wertpapiere investieren
-- Realistische Finanzplanung mit notwendigen Liquiditätspuffern
-- Optimierung zwischen Sicherheit und Rendite
 
 #### Inflations-Szenarien und reale Kaufkraft-Planung (Priorität: Hoch ⭐⭐⭐)
 
