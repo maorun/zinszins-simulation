@@ -7,6 +7,10 @@ vi.mock('./OtherIncomeConfiguration', () => ({
   OtherIncomeConfigurationComponent: () => <div>Other Income Config</div>,
 }))
 
+vi.mock('./StatutoryPensionConfiguration', () => ({
+  CoupleStatutoryPensionConfiguration: () => <div>Statutory Pension Config</div>,
+}))
+
 vi.mock('./WithdrawalModeSelector', () => ({
   WithdrawalModeSelector: () => <div>Withdrawal Mode Selector</div>,
 }))
@@ -104,6 +108,8 @@ describe('WithdrawalVariablesCard', () => {
       onAdditionalCareInsuranceForChildlessChange: vi.fn(),
       onAdditionalCareInsuranceAgeChange: vi.fn(),
     },
+    coupleStatutoryPensionConfig: null,
+    onCoupleStatutoryPensionConfigChange: vi.fn(),
   }
 
   it('should render the card with header', () => {
