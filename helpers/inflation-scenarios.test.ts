@@ -10,6 +10,9 @@ import {
   getAvailableInflationScenarios,
   getInflationScenario,
   calculatePurchasingPowerImpact,
+  getScenariosByCategory,
+  getRealisticScenarios,
+  getStressTestScenarios,
 } from './inflation-scenarios'
 
 describe('Inflation Scenarios', () => {
@@ -59,6 +62,59 @@ describe('Inflation Scenarios', () => {
       expect(scenario.duration).toBe(3)
       expect(scenario.yearlyInflationRates[0]).toBe(0.05)
     })
+
+    // Test realistic scenarios for retirement planning
+    it('should define optimistic scenario with 1.5% inflation', () => {
+      const scenario = INFLATION_SCENARIOS.optimistic
+
+      expect(scenario.id).toBe('optimistic')
+      expect(scenario.name).toBe('Optimistisch (Niedrige Inflation)')
+      expect(scenario.category).toBe('realistic')
+      expect(scenario.duration).toBe(30)
+      expect(scenario.yearlyInflationRates[0]).toBe(0.015)
+      expect(scenario.yearlyInflationRates[29]).toBe(0.015)
+    })
+
+    it('should define moderate scenario with 2.0% inflation', () => {
+      const scenario = INFLATION_SCENARIOS.moderate
+
+      expect(scenario.id).toBe('moderate')
+      expect(scenario.name).toBe('Moderat (EZB-Ziel)')
+      expect(scenario.category).toBe('realistic')
+      expect(scenario.duration).toBe(30)
+      expect(scenario.yearlyInflationRates[0]).toBe(0.02)
+      expect(scenario.yearlyInflationRates[29]).toBe(0.02)
+    })
+
+    it('should define pessimistic scenario with 3.5% inflation', () => {
+      const scenario = INFLATION_SCENARIOS.pessimistic
+
+      expect(scenario.id).toBe('pessimistic')
+      expect(scenario.name).toBe('Pessimistisch (Erhöhte Inflation)')
+      expect(scenario.category).toBe('realistic')
+      expect(scenario.duration).toBe(30)
+      expect(scenario.yearlyInflationRates[0]).toBe(0.035)
+      expect(scenario.yearlyInflationRates[29]).toBe(0.035)
+    })
+
+    it('should define historical scenario with German inflation data', () => {
+      const scenario = INFLATION_SCENARIOS.historical
+
+      expect(scenario.id).toBe('historical')
+      expect(scenario.name).toBe('Historisch (Deutschland 2000-2023)')
+      expect(scenario.category).toBe('realistic')
+      expect(scenario.duration).toBe(24)
+      // Verify some key historical rates
+      expect(scenario.yearlyInflationRates[0]).toBe(0.014) // 2000: 1.4%
+      expect(scenario.yearlyInflationRates[22]).toBe(0.079) // 2022: 7.9%
+      expect(scenario.yearlyInflationRates[23]).toBe(0.059) // 2023: 5.9%
+    })
+
+    it('should mark stress-test scenarios with correct category', () => {
+      expect(INFLATION_SCENARIOS.hyperinflation.category).toBe('stress-test')
+      expect(INFLATION_SCENARIOS.deflation.category).toBe('stress-test')
+      expect(INFLATION_SCENARIOS.stagflation.category).toBe('stress-test')
+    })
   })
 
   describe('applyInflationScenario', () => {
@@ -94,6 +150,7 @@ describe('Inflation Scenarios', () => {
         id: 'custom',
         name: 'Test',
         description: 'Test scenario',
+        category: 'realistic',
         startYear: 2024,
         duration: 3,
         yearlyInflationRates: {
@@ -138,6 +195,7 @@ describe('Inflation Scenarios', () => {
         id: 'custom',
         name: 'Test',
         description: 'Test scenario',
+        category: 'realistic',
         startYear: 2024,
         duration: 3,
         yearlyInflationRates: {
@@ -193,6 +251,7 @@ describe('Inflation Scenarios', () => {
         id: 'custom',
         name: 'Zero',
         description: 'Zero inflation',
+        category: 'realistic',
         startYear: 2024,
         duration: 3,
         yearlyInflationRates: {
@@ -287,7 +346,11 @@ describe('Inflation Scenarios', () => {
     it('should return all scenarios except custom', () => {
       const scenarios = getAvailableInflationScenarios()
 
-      expect(scenarios).toHaveLength(3)
+      expect(scenarios).toHaveLength(7) // optimistic, moderate, pessimistic, historical, hyperinflation, deflation, stagflation
+      expect(scenarios.map(s => s.id)).toContain('optimistic')
+      expect(scenarios.map(s => s.id)).toContain('moderate')
+      expect(scenarios.map(s => s.id)).toContain('pessimistic')
+      expect(scenarios.map(s => s.id)).toContain('historical')
       expect(scenarios.map(s => s.id)).toContain('hyperinflation')
       expect(scenarios.map(s => s.id)).toContain('deflation')
       expect(scenarios.map(s => s.id)).toContain('stagflation')
@@ -342,6 +405,53 @@ describe('Inflation Scenarios', () => {
 
       expect(scenario).toBeUndefined()
     })
+
+    it('should return realistic scenarios by id', () => {
+      expect(getInflationScenario('optimistic')?.id).toBe('optimistic')
+      expect(getInflationScenario('moderate')?.id).toBe('moderate')
+      expect(getInflationScenario('pessimistic')?.id).toBe('pessimistic')
+      expect(getInflationScenario('historical')?.id).toBe('historical')
+    })
+  })
+
+  describe('getScenariosByCategory', () => {
+    it('should return realistic scenarios', () => {
+      const realisticScenarios = getScenariosByCategory('realistic')
+
+      expect(realisticScenarios).toHaveLength(4)
+      expect(realisticScenarios.map(s => s.id)).toContain('optimistic')
+      expect(realisticScenarios.map(s => s.id)).toContain('moderate')
+      expect(realisticScenarios.map(s => s.id)).toContain('pessimistic')
+      expect(realisticScenarios.map(s => s.id)).toContain('historical')
+      expect(realisticScenarios.map(s => s.id)).not.toContain('custom')
+    })
+
+    it('should return stress-test scenarios', () => {
+      const stressTestScenarios = getScenariosByCategory('stress-test')
+
+      expect(stressTestScenarios).toHaveLength(3)
+      expect(stressTestScenarios.map(s => s.id)).toContain('hyperinflation')
+      expect(stressTestScenarios.map(s => s.id)).toContain('deflation')
+      expect(stressTestScenarios.map(s => s.id)).toContain('stagflation')
+    })
+  })
+
+  describe('getRealisticScenarios', () => {
+    it('should return all realistic scenarios', () => {
+      const scenarios = getRealisticScenarios()
+
+      expect(scenarios).toHaveLength(4)
+      expect(scenarios.every(s => s.category === 'realistic')).toBe(true)
+    })
+  })
+
+  describe('getStressTestScenarios', () => {
+    it('should return all stress-test scenarios', () => {
+      const scenarios = getStressTestScenarios()
+
+      expect(scenarios).toHaveLength(3)
+      expect(scenarios.every(s => s.category === 'stress-test')).toBe(true)
+    })
   })
 
   describe('calculatePurchasingPowerImpact', () => {
@@ -388,6 +498,7 @@ describe('Inflation Scenarios', () => {
         id: 'custom',
         name: 'Zero',
         description: 'Zero inflation',
+        category: 'realistic',
         startYear: 2024,
         duration: 3,
         yearlyInflationRates: {
@@ -401,6 +512,36 @@ describe('Inflation Scenarios', () => {
       const result = calculatePurchasingPowerImpact(zeroInflationScenario, initialAmount)
 
       expect(result).toBe(initialAmount)
+    })
+
+    it('should calculate purchasing power for realistic optimistic scenario', () => {
+      const scenario = INFLATION_SCENARIOS.optimistic
+      const initialAmount = 100000
+
+      const result = calculatePurchasingPowerImpact(scenario, initialAmount)
+
+      // After 30 years of 1.5% inflation: 100000 / (1.015^30) ≈ 63976
+      expect(result).toBeCloseTo(63976, 0)
+    })
+
+    it('should calculate purchasing power for realistic moderate scenario', () => {
+      const scenario = INFLATION_SCENARIOS.moderate
+      const initialAmount = 100000
+
+      const result = calculatePurchasingPowerImpact(scenario, initialAmount)
+
+      // After 30 years of 2% inflation: 100000 / (1.02^30) ≈ 55207
+      expect(result).toBeCloseTo(55207, 0)
+    })
+
+    it('should calculate purchasing power for realistic pessimistic scenario', () => {
+      const scenario = INFLATION_SCENARIOS.pessimistic
+      const initialAmount = 100000
+
+      const result = calculatePurchasingPowerImpact(scenario, initialAmount)
+
+      // After 30 years of 3.5% inflation: 100000 / (1.035^30) ≈ 35628
+      expect(result).toBeCloseTo(35628, 0)
     })
   })
 })
