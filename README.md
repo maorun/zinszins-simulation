@@ -92,6 +92,19 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 
 ### Sparplan, Einmalzahlungen und Sonderereignisse
 
+- **Notgroschen & Liquiditätsplanung** - Intelligente Verwaltung des Notfallfonds
+  - **Bedarfsberechnung** - Automatische Ermittlung des optimalen Notgroschens basierend auf monatlichen Ausgaben
+  - **Beschäftigungsstatus** - Anpassung nach Angestellter (3-6 Monate), Selbstständig (6-12 Monate), Rentner (1-3 Monate)
+  - **Reserve-Strategien** - Drei Strategien: Konservativ (maximale Liquidität), Ausgewogen (Balance), Aggressiv (optimierte Rendite)
+  - **Status-Tracking** - Echtzeit-Anzeige des Fortschritts zum Ziel-Notfallfonds mit abgedeckten Monaten
+  - **Drei-Stufen-Liquiditätssystem** - Empfohlene Aufteilung über drei Liquiditätsstufen:
+    - **Stufe 1: Girokonto** - Sofort verfügbar für tägliche Ausgaben (0% Rendite)
+    - **Stufe 2: Tagesgeldkonto** - Hohe Verfügbarkeit mit aktuellen Tagesgeld-Zinsen (~3-4%)
+    - **Stufe 3: Kurzfristige Anlagen** - Geldmarkt-ETF oder kurzfristige Anleihen (~4-5%)
+  - **Investitionsschutz** - Option zum Ausschluss des Notfallfonds von risikobehafteten Investitionen
+  - **Visuelle Darstellung** - Farbcodierte Drei-Tier-Visualisierung mit Allokationsempfehlungen
+  - **Warnhinweise** - Proaktive Empfehlungen zum Aufbau des Notgroschens vor Investitionen
+  - **Bildungsinhalte** - Erklärung der Notwendigkeit und optimalen Verwaltung von Liquiditätsreserven
 - **Sparpläne** - Regelmäßige monatliche oder jährliche Einzahlungen
 - **Schwankende Einkommen (Selbstständige)** - Unregelmäßige Einkommensmuster für Selbstständige
   - **Monatliche Muster** - Definition individueller Multiplikatoren für jeden Monat des Jahres
