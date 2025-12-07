@@ -47,44 +47,6 @@ Automatische Anpassung der Sparraten basierend auf Lebensereignissen und Einkomm
 - Erhöhung der tatsächlichen Sparleistung durch automatische Anpassungen
 - Hilft bei langfristiger Finanzplanung mit sich ändernden Lebensumständen
 
-#### Inflations-Szenarien und reale Kaufkraft-Planung (Priorität: Hoch ⭐⭐⭐)
-
-Erweiterte Inflationsberechnung mit verschiedenen Szenarien und Fokus auf reale Kaufkraft.
-
-**Funktionalität:**
-
-- **Variable Inflationsszenarien**:
-  - **Optimistisch**: 1,5% p.a. (EZB-Ziel unterschritten)
-  - **Moderat**: 2,0% p.a. (EZB-Ziel)
-  - **Pessimistisch**: 3,5% p.a. (erhöhte Inflation)
-  - **Historisch**: Verwendung historischer deutscher Inflationsdaten (2000-2023)
-  - **Benutzerdefiniert**: Jahr-für-Jahr konfigurierbare Inflation
-- **Anlageklassen-spezifische Inflation**:
-  - Immobilien: Höhere Inflation (3-4% p.a.)
-  - Gesundheit/Pflege: Deutlich höhere Inflation (5-6% p.a.)
-  - Lebensmittel: Variable Inflation
-  - Allgemeiner Warenkorb: Standard-Inflation
-- **Monte Carlo mit Inflationsunsicherheit**: Simulation mit volatiler Inflation
-
-**Kaufkraft-Visualisierung:**
-
-- Hauptfokus auf reale Kaufkraft statt nominale Werte
-- Grafische Darstellung: "Was kann ich mir in 20 Jahren leisten?"
-- Umrechnung von zukünftigen Beträgen in heutige Kaufkraft
-- Beispiel-Warenkörbe (Auto, Urlaub, Wohnung) in heutigen Preisen
-
-**Entnahmephase-Optimierung:**
-
-- Inflationsanpassung der Entnahmeraten
-- Erhaltung der realen Kaufkraft über die Rentenzeit
-- Visualisierung: Wie lange reicht das Kapital bei unterschiedlicher Inflation?
-
-**Mehrwert:**
-
-- Realistische Planung durch Fokus auf echte Kaufkraft
-- Sensibilisierung für Inflationsrisiken
-- Hilft bei der Festlegung realistischer Sparziele
-
 #### Versicherungs-Integration und Risikomanagement (Priorität: Mittel-Hoch ⭐⭐⭐)
 
 Umfassende Integration verschiedener Versicherungstypen in die Finanzplanung.

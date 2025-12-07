@@ -745,14 +745,21 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Erholungszeit-Analyse** - Berechnung der benötigten Jahre zur Wiederherstellung des Baseline-Kapitals
   - **Detaillierte Ergebnistabelle** - Übersicht aller Szenarien mit Verlust, Erholungszeit und Endkapital
   - **Risiko-Visualisierung** - Farbcodierte Darstellung der Krisenschwere (gelb/orange/rot)
-- **Inflationsszenarien** - Simulation verschiedener Inflationsentwicklungen für Portfolioanalyse
-  - **Hyperinflation** - Anhaltend hohe Inflation (8-12% p.a.) ähnlich der 1970er Jahre
-  - **Deflation** - Negative Inflation (-2% bis 0%) ähnlich Japan in den 1990er Jahren
-  - **Stagflation** - Kombination aus hoher Inflation (6-8%) und reduzierten Renditen
+- **Inflationsszenarien** - Simulation verschiedener Inflationsentwicklungen für realistische Altersvorsorge-Planung
+  - **Realistische Szenarien (für Altersvorsorge)**:
+    - **Optimistisch (1,5% p.a.)** - Niedrige Inflation unter dem EZB-Ziel für konservative Planungen
+    - **Moderat (2,0% p.a.)** - Stabile Inflation am EZB-Ziel als Baseline-Szenario
+    - **Pessimistisch (3,5% p.a.)** - Anhaltend erhöhte Inflation über dem EZB-Ziel
+    - **Historisch (2000-2023)** - Basierend auf tatsächlichen deutschen Inflationsraten (Durchschnitt ~1,7%)
+  - **Stress-Test Szenarien (für Krisenplanung)**:
+    - **Hyperinflation (8-12% p.a.)** - Extreme Inflation ähnlich der 1970er Jahre
+    - **Deflation (-2% bis 0%)** - Fallende Preise ähnlich Japan in den 1990er Jahren
+    - **Stagflation (6-8%)** - Kombination aus hoher Inflation und reduzierten Renditen
   - **Kaufkraftverlust-Berechnung** - Automatische Berechnung des realen Kaufkraftverlusts über die Szenariodauer
   - **Kumulative Inflation** - Gesamtinflation und durchschnittliche jährliche Inflationsrate
   - **Rendite-Anpassungen** - Bei Stagflation werden Renditen automatisch reduziert
   - **Flexible Zeitplanung** - Wählbares Startjahr für Inflationsszenario innerhalb des Anlagezeitraums
+  - **Kategorisierte Darstellung** - Übersichtliche Gruppierung in "Realistische Szenarien" und "Stress-Test Szenarien"
   - **Kombinierbar mit variablen Renditen** - Integration in bestehende Variable-Renditen-Konfiguration
 - **Erweiterte Risikobewertung** - Value-at-Risk (5% & 1% VaR), Maximum Drawdown, Sharpe Ratio, Sortino Ratio, Calmar Ratio
   - **Stress-Test-Analyse** - Systematische Tests mit extremen Marktszenarien für Portfolio-Resilienz
