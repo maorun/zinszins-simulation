@@ -10,43 +10,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 Ein umfassendes Vergleichstool für verschiedene deutsche Rentenversicherungsarten zur optimalen Altersvorsorge-Planung.
 
-#### Dynamische Sparraten (Priorität: Hoch ⭐⭐⭐)
-
-Automatische Anpassung der Sparraten basierend auf Lebensereignissen und Einkommensentwicklung.
-
-**Funktionalität:**
-
-- **Einkommensentwicklung**: Automatische Erhöhung der Sparrate bei Gehaltssteigerungen
-  - Prozentuale Kopplung an Gehaltssteigerung (z.B. 50% der Erhöhung sparen)
-  - Konfigurierbare Sparquote nach Gehaltsstufen
-  - Berücksichtigung von Beförderungen und Karrieresprüngen
-- **Lebensabschnitt-basierte Anpassungen**: Sparrate ändert sich je nach Lebensphase
-  - Berufsstart (25-30 Jahre): Niedrigere Sparrate wegen geringerem Einkommen
-  - Karrieremitte (30-50 Jahre): Höchste Sparrate bei höherem Einkommen
-  - Pre-Retirement (50-67 Jahre): Maximale Sparrate vor Renteneintritt
-- **Ereignis-getriggerte Anpassungen**:
-  - Geburt eines Kindes: Reduktion der Sparrate
-  - Auszug der Kinder: Erhöhung der Sparrate
-  - Abzahlung von Krediten: Umleitung der Raten in Sparplan
-  - Erbschaften: Einmalige Erhöhung oder dauerhafte Sparraten-Anpassung
-
-**Steueroptimierung:**
-
-- Automatische Nutzung von Steuerfreibeträgen in Jahren mit niedriger Steuerlast
-- Optimierung der Beiträge zu steueroptimierten Produkten (Rürup, bAV)
-
-**Visualisierung:**
-
-- Grafische Darstellung der Sparraten-Entwicklung über Zeit
-- Übersicht der Trigger-Events und deren Auswirkungen
-- Vergleich: Konstante vs. dynamische Sparrate
-
-**Mehrwert:**
-
-- Realistische Abbildung der Lebensrealität
-- Erhöhung der tatsächlichen Sparleistung durch automatische Anpassungen
-- Hilft bei langfristiger Finanzplanung mit sich ändernden Lebensumständen
-
 #### Versicherungs-Integration und Risikomanagement (Priorität: Mittel-Hoch ⭐⭐⭐)
 
 Umfassende Integration verschiedener Versicherungstypen in die Finanzplanung.

@@ -92,6 +92,23 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 
 ### Sparplan, Einmalzahlungen und Sonderereignisse
 
+- **Dynamische Sparraten** - Automatische Anpassung der Sparrate an Lebensumstände
+  - **Lebensabschnitt-basierte Anpassungen** - Sparrate passt sich automatisch an Lebensphase an
+    - Berufsstart (25-29 Jahre): 60% der Basis-Sparrate (geringeres Einkommen)
+    - Karrieremitte (30-49 Jahre): 100% der Basis-Sparrate (höheres Einkommen)
+    - Pre-Retirement (50-67 Jahre): 130% der Basis-Sparrate (maximale Sparleistung vor Ruhestand)
+  - **Einkommensentwicklung** - Automatische Erhöhung der Sparrate bei Gehaltssteigerungen
+    - Konfigurierbare Sparquote der Gehaltserhöhung (z.B. 50% jeder Erhöhung zusätzlich sparen)
+    - Altersabhängige Gehaltsent wicklung (4% Berufsstart, 2.5% Karrieremitte, 1.5% Pre-Retirement)
+    - Kumulative Anpassungen über die Jahre
+  - **Lebensereignis-getriggerte Anpassungen** - Sparrate reagiert auf einmalige Ereignisse
+    - Geburt: Reduktion der Sparrate (z.B. -500€/Jahr)
+    - Auszug der Kinder: Erhöhung der Sparrate (z.B. +800€/Jahr)
+    - Kreditabbezahlung: Umleitung der Raten in Sparplan (z.B. +500€/Jahr)
+    - Erbschaft: Einmalige oder dauerhafte Sparraten-Anpassung
+  - **Transparente Berechnung** - Detaillierte Aufschlüsselung aller Anpassungsfaktoren
+  - **Validierung** - Automatische Prüfung der Konfiguration mit deutschen Fehlermeldungen
+  - **Realistische Modellierung** - Ermöglicht präzise Planung mit sich ändernden Lebensumständen
 - **Notgroschen & Liquiditätsplanung** - Intelligente Verwaltung des Notfallfonds
   - **Bedarfsberechnung** - Automatische Ermittlung des optimalen Notgroschens basierend auf monatlichen Ausgaben
   - **Beschäftigungsstatus** - Anpassung nach Angestellter (3-6 Monate), Selbstständig (6-12 Monate), Rentner (1-3 Monate)
