@@ -1,15 +1,27 @@
 /**
  * Inflation Scenario simulation utilities
- * Realistic inflation scenarios for stress testing portfolios
- * Supports Hyperinflation, Deflation, and Stagflation scenarios
+ * Supports both realistic scenarios for retirement planning and stress-test scenarios
+ * Realistic: Optimistic, Moderate, Pessimistic, Historical
+ * Stress-Test: Hyperinflation, Deflation, Stagflation
  */
 
-export type InflationScenarioId = 'hyperinflation' | 'deflation' | 'stagflation' | 'custom'
+export type InflationScenarioId =
+  | 'optimistic'
+  | 'moderate'
+  | 'pessimistic'
+  | 'historical'
+  | 'hyperinflation'
+  | 'deflation'
+  | 'stagflation'
+  | 'custom'
+
+export type InflationScenarioCategory = 'realistic' | 'stress-test'
 
 export interface InflationScenario {
   id: InflationScenarioId
   name: string
   description: string
+  category: InflationScenarioCategory // Whether this is a realistic or stress-test scenario
   startYear: number
   duration: number // years
   yearlyInflationRates: Record<number, number> // Map of relative year offset to inflation rate
@@ -19,13 +31,87 @@ export interface InflationScenario {
 
 /**
  * Predefined inflation scenarios
- * Based on historical inflation periods in Germany and other developed economies
+ * Includes both realistic scenarios for retirement planning and stress-test scenarios
  */
 export const INFLATION_SCENARIOS: Record<InflationScenarioId, InflationScenario> = {
+  // ===== REALISTIC SCENARIOS FOR RETIREMENT PLANNING =====
+  optimistic: {
+    id: 'optimistic',
+    name: 'Optimistisch (Niedrige Inflation)',
+    description: 'Niedrige Inflation unter dem EZB-Ziel von 2% - konstant 1,5% jährlich',
+    category: 'realistic',
+    startYear: 2024,
+    duration: 30, // Long-term realistic scenario
+    yearlyInflationRates: Array.from({ length: 30 }, (_, i) => [i, 0.015]).reduce(
+      (acc, [i, rate]) => ({ ...acc, [i]: rate }),
+      {},
+    ),
+  },
+  moderate: {
+    id: 'moderate',
+    name: 'Moderat (EZB-Ziel)',
+    description: 'Stabile Inflation am EZB-Ziel - konstant 2,0% jährlich',
+    category: 'realistic',
+    startYear: 2024,
+    duration: 30, // Long-term realistic scenario
+    yearlyInflationRates: Array.from({ length: 30 }, (_, i) => [i, 0.02]).reduce(
+      (acc, [i, rate]) => ({ ...acc, [i]: rate }),
+      {},
+    ),
+  },
+  pessimistic: {
+    id: 'pessimistic',
+    name: 'Pessimistisch (Erhöhte Inflation)',
+    description: 'Anhaltend erhöhte Inflation über dem EZB-Ziel - konstant 3,5% jährlich',
+    category: 'realistic',
+    startYear: 2024,
+    duration: 30, // Long-term realistic scenario
+    yearlyInflationRates: Array.from({ length: 30 }, (_, i) => [i, 0.035]).reduce(
+      (acc, [i, rate]) => ({ ...acc, [i]: rate }),
+      {},
+    ),
+  },
+  historical: {
+    id: 'historical',
+    name: 'Historisch (Deutschland 2000-2023)',
+    description: 'Basierend auf tatsächlichen deutschen Inflationsraten 2000-2023 (Durchschnitt ~1,7%)',
+    category: 'realistic',
+    startYear: 2024,
+    duration: 24, // 2000-2023 historical data
+    // Historical German inflation rates (source: Statistisches Bundesamt)
+    yearlyInflationRates: {
+      0: 0.014, // 2000: 1,4%
+      1: 0.019, // 2001: 1,9%
+      2: 0.014, // 2002: 1,4%
+      3: 0.01, // 2003: 1,0%
+      4: 0.018, // 2004: 1,8%
+      5: 0.019, // 2005: 1,9%
+      6: 0.016, // 2006: 1,6%
+      7: 0.023, // 2007: 2,3%
+      8: 0.026, // 2008: 2,6%
+      9: 0.002, // 2009: 0,2%
+      10: 0.011, // 2010: 1,1%
+      11: 0.021, // 2011: 2,1%
+      12: 0.02, // 2012: 2,0%
+      13: 0.015, // 2013: 1,5%
+      14: 0.009, // 2014: 0,9%
+      15: 0.002, // 2015: 0,2%
+      16: 0.004, // 2016: 0,4%
+      17: 0.017, // 2017: 1,7%
+      18: 0.019, // 2018: 1,9%
+      19: 0.014, // 2019: 1,4%
+      20: 0.005, // 2020: 0,5%
+      21: 0.032, // 2021: 3,2%
+      22: 0.079, // 2022: 7,9%
+      23: 0.059, // 2023: 5,9%
+    },
+  },
+  // ===== STRESS-TEST SCENARIOS =====
   hyperinflation: {
     id: 'hyperinflation',
     name: 'Hyperinflation (Hohes Inflationsszenario)',
     description: 'Anhaltend hohe Inflation ähnlich der 1970er Jahre mit 8-12% jährlich',
+    category: 'stress-test',
     startYear: 2024,
     duration: 5,
     yearlyInflationRates: {
@@ -41,6 +127,7 @@ export const INFLATION_SCENARIOS: Record<InflationScenarioId, InflationScenario>
     id: 'deflation',
     name: 'Deflation (Negatives Inflationsszenario)',
     description: 'Deflationäre Phase mit fallenden Preisen (-2% bis 0%) ähnlich Japan 1990er',
+    category: 'stress-test',
     startYear: 2024,
     duration: 4,
     yearlyInflationRates: {
@@ -55,6 +142,7 @@ export const INFLATION_SCENARIOS: Record<InflationScenarioId, InflationScenario>
     id: 'stagflation',
     name: 'Stagflation (Inflation + niedrige Renditen)',
     description: 'Kombination aus hoher Inflation (6-8%) und schwachem Wirtschaftswachstum mit reduzierten Renditen',
+    category: 'stress-test',
     startYear: 2024,
     duration: 4,
     yearlyInflationRates: {
@@ -75,6 +163,7 @@ export const INFLATION_SCENARIOS: Record<InflationScenarioId, InflationScenario>
     id: 'custom',
     name: 'Benutzerdefiniertes Szenario',
     description: 'Erstellen Sie Ihr eigenes Inflationsszenario',
+    category: 'realistic',
     startYear: 2024,
     duration: 3,
     yearlyInflationRates: {
@@ -196,6 +285,28 @@ export function mergeInflationWithBaseRate(
  */
 export function getAvailableInflationScenarios(): InflationScenario[] {
   return Object.values(INFLATION_SCENARIOS).filter(scenario => scenario.id !== 'custom')
+}
+
+/**
+ * Get inflation scenarios by category
+ * @param category - 'realistic' for retirement planning scenarios, 'stress-test' for extreme scenarios
+ */
+export function getScenariosByCategory(category: InflationScenarioCategory): InflationScenario[] {
+  return Object.values(INFLATION_SCENARIOS).filter(scenario => scenario.category === category && scenario.id !== 'custom')
+}
+
+/**
+ * Get realistic scenarios for retirement planning
+ */
+export function getRealisticScenarios(): InflationScenario[] {
+  return getScenariosByCategory('realistic')
+}
+
+/**
+ * Get stress-test scenarios for portfolio stress testing
+ */
+export function getStressTestScenarios(): InflationScenario[] {
+  return getScenariosByCategory('stress-test')
 }
 
 /**
