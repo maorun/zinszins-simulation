@@ -5,7 +5,7 @@ import type { WithdrawalSegment } from './segmented-withdrawal'
 import type { SparplanElement, Sparplan } from './sparplan-utils'
 import type { WithdrawalConfiguration } from './config-storage'
 import type { SimulationResultElement } from './simulate'
-import { formatCurrency } from './currency'
+import { formatCurrency, formatPercentage } from './currency'
 
 /**
  * Utility functions for exporting simulation data in CSV and Markdown formats
@@ -29,13 +29,6 @@ function formatCurrencyForCSV(amount: number): string {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   }).format(amount)
-}
-
-/**
- * Helper function to format percentage values
- */
-function formatPercentage(value: number): string {
-  return value != null ? `${value.toFixed(2)}%` : '0.00%'
 }
 
 /**
