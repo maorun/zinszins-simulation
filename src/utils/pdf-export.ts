@@ -3,6 +3,7 @@ import type { SimulationContextState } from '../contexts/SimulationContext'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { SparplanElement } from './sparplan-utils'
 import type { ExportData } from './data-export'
+import { formatCurrency } from './currency'
 
 /**
  * PDF Export utility for generating comprehensive financial reports
@@ -10,18 +11,6 @@ import type { ExportData } from './data-export'
  * This module provides functions to export simulation data to PDF format
  * following German financial reporting standards.
  */
-
-/**
- * Format currency values for PDF display
- */
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount)
-}
 
 /**
  * Format percentage values for PDF display

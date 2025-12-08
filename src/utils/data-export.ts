@@ -5,6 +5,7 @@ import type { WithdrawalSegment } from './segmented-withdrawal'
 import type { SparplanElement, Sparplan } from './sparplan-utils'
 import type { WithdrawalConfiguration } from './config-storage'
 import type { SimulationResultElement } from './simulate'
+import { formatCurrency } from './currency'
 
 /**
  * Utility functions for exporting simulation data in CSV and Markdown formats
@@ -18,18 +19,6 @@ export interface ExportData {
   savingsData?: SavingsData
   withdrawalData?: WithdrawalResult
   context: SimulationContextState
-}
-
-/**
- * Helper function to format currency values
- */
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount)
 }
 
 /**
