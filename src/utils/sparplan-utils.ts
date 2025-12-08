@@ -1,4 +1,5 @@
 import { SimulationAnnual, type SimulationAnnualType, type SimulationResult } from './simulate'
+import type { DynamicSavingsRateConfig } from '../../helpers/dynamic-savings-rate'
 
 export type RelationshipType =
   | 'spouse' // Ehegatte - €500,000 exemption
@@ -66,6 +67,8 @@ export type Sparplan = {
   specialEventData?: SpecialEventData // Additional data for special events
   // Fluctuating income pattern for self-employed
   incomePattern?: IncomePattern // Optional income pattern for irregular contributions
+  // Dynamic savings rate configuration
+  dynamicSavingsConfig?: DynamicSavingsRateConfig // Optional dynamic savings rate adjustments
 }
 
 export type SparplanElement =
@@ -81,6 +84,8 @@ export type SparplanElement =
       // Special events data
       eventType?: 'normal' | 'inheritance' | 'expense'
       specialEventData?: SpecialEventData
+      // Dynamic savings rate configuration
+      dynamicSavingsConfig?: DynamicSavingsRateConfig
     }
   | {
       start: Date | string
@@ -95,6 +100,8 @@ export type SparplanElement =
       // Special events data
       eventType?: 'normal' | 'inheritance' | 'expense'
       specialEventData?: SpecialEventData
+      // Dynamic savings rate configuration (not applicable for one-time payments)
+      dynamicSavingsConfig?: DynamicSavingsRateConfig
     }
 
 export const initialSparplan: Sparplan = {
