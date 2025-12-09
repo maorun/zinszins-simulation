@@ -1,29 +1,12 @@
 import type { WithdrawalStrategy } from '../../../helpers/withdrawal'
 import type { ComparisonStrategy } from '../../utils/config-storage'
+import { getStrategyDisplayName } from '../../utils/withdrawal-strategy-utils'
 
 interface ComparisonStrategyCardProps {
   strategy: ComparisonStrategy
   index: number
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
   onRemove: (id: string) => void
-}
-
-// Strategy display name mapping
-const STRATEGY_DISPLAY_NAMES: Record<WithdrawalStrategy, string> = {
-  '4prozent': '4% Regel',
-  '3prozent': '3% Regel',
-  variabel_prozent: 'Variable Prozent',
-  monatlich_fest: 'Monatlich fest',
-  dynamisch: 'Dynamische Strategie',
-  bucket_strategie: 'Drei-Eimer-Strategie',
-  rmd: 'RMD (Lebenserwartung)',
-  kapitalerhalt: 'Kapitalerhalt / Ewige Rente',
-  steueroptimiert: 'Steueroptimierte Entnahme',
-}
-
-// Helper function for strategy display names
-function getStrategyDisplayName(strategy: WithdrawalStrategy): string {
-  return STRATEGY_DISPLAY_NAMES[strategy] || strategy
 }
 
 /**
