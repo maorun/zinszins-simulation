@@ -10,43 +10,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 Ein umfassendes Vergleichstool für verschiedene deutsche Rentenversicherungsarten zur optimalen Altersvorsorge-Planung.
 
-#### Versicherungs-Integration und Risikomanagement (Priorität: Mittel-Hoch ⭐⭐⭐)
-
-Umfassende Integration verschiedener Versicherungstypen in die Finanzplanung.
-
-**Funktionalität:**
-
-- **Bestehende Versicherungen**:
-  - Berufsunfähigkeitsversicherung (bereits implementiert) - erweiterte Konfiguration
-  - Risikolebensversicherung (bereits implementiert) - erweiterte Konfiguration
-  - Pflegeversicherung - Ergänzung zu gesetzlicher Pflegeversicherung
-- **Neue Versicherungstypen**:
-  - **Private Krankenversicherung (PKV)**: Beitragskalkulierung im Alter
-    - Steigende Beiträge im Alter berücksichtigen
-    - Altersrückstellungen und deren Auswirkungen
-    - Vergleich PKV vs. GKV im Ruhestand
-  - **Pflegezusatzversicherung**: Reduktion des Pflegerisikos
-  - **Haftpflichtversicherung**: Jährliche Kosten
-  - **Hausratversicherung**: Jährliche Kosten
-
-**Versicherungskosten-Optimierung:**
-
-- Übersicht aller Versicherungsausgaben pro Jahr
-- Identifikation von Über- oder Unterversicherung
-- Empfehlungen zur Optimierung
-
-**Risiko-Absicherung:**
-
-- Darstellung des finanziellen Risikos bei Ausfall verschiedener Risiken
-- Berechnung der optimalen Versicherungssummen
-- Integration in die Liquiditätsplanung
-
-**Mehrwert:**
-
-- Ganzheitliche Finanzplanung inklusive Absicherung
-- Transparenz über Versicherungskosten
-- Optimierung der Risiko-Kosten-Balance
-
 ### Erweiterte Finanzplanung
 
 #### Steueroptimierung
