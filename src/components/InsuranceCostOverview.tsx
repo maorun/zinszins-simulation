@@ -91,6 +91,53 @@ function RecommendationsDisplay({ recommendations }: RecommendationsDisplayProps
 }
 
 /**
+ * Display category costs breakdown
+ */
+interface CategoryCostsProps {
+  averageCostByCategory: {
+    health: number
+    life: number
+    care: number
+    disability: number
+    other: number
+  }
+}
+
+function CategoryCostsBreakdown({ averageCostByCategory }: CategoryCostsProps) {
+  return (
+    <div className="mt-3 pt-3 border-t border-indigo-300 text-xs text-indigo-800">
+      <p className="font-medium mb-2">Durchschnittliche Kosten nach Kategorie:</p>
+      <div className="space-y-1 ml-2">
+        {averageCostByCategory.health > 0 && (
+          <div className="flex justify-between">
+            <span>🏥 Krankenversicherung:</span>
+            <span className="font-medium">{formatCurrency(averageCostByCategory.health)}/Jahr</span>
+          </div>
+        )}
+        {averageCostByCategory.life > 0 && (
+          <div className="flex justify-between">
+            <span>💼 Risikolebensversicherung:</span>
+            <span className="font-medium">{formatCurrency(averageCostByCategory.life)}/Jahr</span>
+          </div>
+        )}
+        {averageCostByCategory.care > 0 && (
+          <div className="flex justify-between">
+            <span>🩺 Pflegeversicherung:</span>
+            <span className="font-medium">{formatCurrency(averageCostByCategory.care)}/Jahr</span>
+          </div>
+        )}
+        {averageCostByCategory.disability > 0 && (
+          <div className="flex justify-between">
+            <span>🛡️ Berufsunfähigkeitsversicherung:</span>
+            <span className="font-medium">{formatCurrency(averageCostByCategory.disability)}/Jahr</span>
+          </div>
+        )}
+      </div>
+    </div>
+  )
+}
+
+/**
  * Display summary statistics
  */
 interface SummaryDisplayProps {
@@ -131,35 +178,7 @@ function SummaryDisplay({ summary }: SummaryDisplayProps) {
         </div>
       </div>
 
-      <div className="mt-3 pt-3 border-t border-indigo-300 text-xs text-indigo-800">
-        <p className="font-medium mb-2">Durchschnittliche Kosten nach Kategorie:</p>
-        <div className="space-y-1 ml-2">
-          {summary.averageCostByCategory.health > 0 && (
-            <div className="flex justify-between">
-              <span>🏥 Krankenversicherung:</span>
-              <span className="font-medium">{formatCurrency(summary.averageCostByCategory.health)}/Jahr</span>
-            </div>
-          )}
-          {summary.averageCostByCategory.life > 0 && (
-            <div className="flex justify-between">
-              <span>💼 Risikolebensversicherung:</span>
-              <span className="font-medium">{formatCurrency(summary.averageCostByCategory.life)}/Jahr</span>
-            </div>
-          )}
-          {summary.averageCostByCategory.care > 0 && (
-            <div className="flex justify-between">
-              <span>🩺 Pflegeversicherung:</span>
-              <span className="font-medium">{formatCurrency(summary.averageCostByCategory.care)}/Jahr</span>
-            </div>
-          )}
-          {summary.averageCostByCategory.disability > 0 && (
-            <div className="flex justify-between">
-              <span>🛡️ Berufsunfähigkeitsversicherung:</span>
-              <span className="font-medium">{formatCurrency(summary.averageCostByCategory.disability)}/Jahr</span>
-            </div>
-          )}
-        </div>
-      </div>
+      <CategoryCostsBreakdown averageCostByCategory={summary.averageCostByCategory} />
 
       <div className="mt-3 pt-3 border-t border-indigo-300 text-xs text-indigo-800">
         <p className="font-medium mb-1">Konfigurierte Versicherungen:</p>
