@@ -197,8 +197,8 @@ export function InsuranceCostOverview() {
   const { currentConfig } = useWithdrawalConfig()
 
   const summary = useMemo(() => {
-    const startYear = simulation.startEnd[0]
-    const endYear = simulation.startEnd[1]
+    const startYear = simulation.startEnd?.[0] || new Date().getFullYear()
+    const endYear = simulation.startEnd?.[1] || startYear + 15
 
     return calculateInsuranceCostSummary(
       startYear,

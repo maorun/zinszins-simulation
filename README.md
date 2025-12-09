@@ -236,7 +236,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Versicherungskostenübersicht** - Aggregierte Übersicht aller Versicherungskosten zur Optimierung
   - **Zusammenfassung**: Durchschnittliche jährliche Kosten, höchste jährliche Kosten und Gesamtkosten über den Planungszeitraum
   - **Kategorisierung**: Aufschlüsselung nach Versicherungsarten (Krankenversicherung, Risikolebensversicherung, Pflegeversicherung, etc.)
-  - **Integrierte Berechnung**: 
+  - **Integrierte Berechnung**:
     - Krankenversicherung (gesetzlich und privat) mit realistischen Kosteneinschätzungen
     - Risikolebensversicherung mit alters-, geschlechts- und gesundheitsabhängigen Prämien
     - Zukünftige Erweiterbarkeit für weitere Versicherungstypen
