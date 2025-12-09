@@ -32,3 +32,11 @@ export function formatPercent(value: number, options?: { showSign?: boolean }): 
   const sign = options?.showSign && value >= 0 ? '+' : ''
   return `${sign}${(value * 100).toFixed(1)}%`
 }
+
+/**
+ * Format a percentage value (already in percentage form) for display
+ * Used for exporting data where values are already percentages (5 instead of 0.05)
+ */
+export function formatPercentage(value: number): string {
+  return value != null ? `${value.toFixed(2)}%` : '0.00%'
+}

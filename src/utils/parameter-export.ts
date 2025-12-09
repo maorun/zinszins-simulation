@@ -1,5 +1,6 @@
 import type { SimulationContextState } from '../contexts/SimulationContext'
 import type { SpecialEventData, Sparplan } from './sparplan-utils'
+import { formatCurrency } from './currency'
 
 /**
  * Helper function to format basic financial parameters
@@ -371,18 +372,6 @@ export function formatParametersForExport(context: SimulationContextState): stri
   lines.push(...formatWithdrawalConfiguration(context))
 
   return lines.join('\n')
-}
-
-/**
- * Helper function to format currency values
- */
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount)
 }
 
 /**

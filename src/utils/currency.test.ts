@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { formatCurrency, formatCompactCurrency, formatPercent } from './currency'
+import { formatCurrency, formatCompactCurrency, formatPercent, formatPercentage } from './currency'
 
 describe('formatCurrency', () => {
   it('formats positive numbers correctly', () => {
@@ -100,5 +100,31 @@ describe('formatPercent', () => {
 
   it('does not add extra sign for negative values with showSign', () => {
     expect(formatPercent(-0.05, { showSign: true })).toBe('-5.0%')
+  })
+})
+
+describe('formatPercentage', () => {
+  it('formats positive percentage values correctly', () => {
+    expect(formatPercentage(5)).toBe('5.00%')
+    expect(formatPercentage(12.345)).toBe('12.35%')
+  })
+
+  it('formats negative percentage values correctly', () => {
+    expect(formatPercentage(-5)).toBe('-5.00%')
+    expect(formatPercentage(-12.345)).toBe('-12.35%')
+  })
+
+  it('formats zero correctly', () => {
+    expect(formatPercentage(0)).toBe('0.00%')
+  })
+
+  it('handles null/undefined by returning default value', () => {
+    expect(formatPercentage(null as unknown as number)).toBe('0.00%')
+    expect(formatPercentage(undefined as unknown as number)).toBe('0.00%')
+  })
+
+  it('formats decimal percentages correctly', () => {
+    expect(formatPercentage(5.5)).toBe('5.50%')
+    expect(formatPercentage(10.123)).toBe('10.12%')
   })
 })
