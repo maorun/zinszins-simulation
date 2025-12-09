@@ -1,4 +1,5 @@
 import { useCallback } from 'react'
+import { toast } from 'sonner'
 import { refreshBasiszinsFromAPI, type BasiszinsConfiguration } from '../../services/bundesbank-api'
 
 /**
@@ -25,11 +26,11 @@ export function useBasiszinsApi(
       performSimulation()
 
       // Show success message
-      console.log('✅ Basiszins-Daten erfolgreich von der API aktualisiert')
+      toast.success('Basiszins-Daten erfolgreich von der API aktualisiert')
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'Unbekannter Fehler beim Abrufen der Daten'
       setError(errorMessage)
-      console.error('❌ Fehler beim Aktualisieren der Basiszins-Daten:', errorMessage)
+      toast.error(`Fehler beim Aktualisieren der Basiszins-Daten: ${errorMessage}`)
     } finally {
       setIsLoading(false)
     }
