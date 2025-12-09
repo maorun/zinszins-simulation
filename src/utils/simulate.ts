@@ -13,6 +13,7 @@ import {
   createInitialLossAccountState,
   createDefaultRealizedLosses,
 } from '../../helpers/loss-offset-accounts'
+import { calculateDynamicSavingsRate } from '../../helpers/dynamic-savings-rate'
 
 export type VorabpauschaleDetails = {
   basiszins: number // Base interest rate for the year
@@ -290,19 +291,37 @@ function getInflationAdjustedContribution(
   return originalAmount * Math.pow(1 + inflationRate, yearsPassed)
 }
 
+// Helper function to get the base contribution amount for a year
+function getBaseSavingsAmount(element: SparplanElement, year: number, options: SimulateOptions): number {
+  // Apply dynamic savings rate adjustment if configured
+  if (element.dynamicSavingsConfig?.enabled && element.type === 'sparplan') {
+    return calculateDynamicSavingsRate(year, options.startYear, element.dynamicSavingsConfig)
+  }
+  
+  return element.einzahlung
+}
+
+// Helper function to check if inflation should be applied
+function shouldApplyInflationAdjustment(options: SimulateOptions, yearInflationRate: number): boolean {
+  const hasInflationConfig = Boolean(options.inflationAktivSparphase || options.variableInflationRates)
+  const hasPositiveRate = yearInflationRate > 0
+  const isSparplanMode = !options.inflationAnwendungSparphase || options.inflationAnwendungSparphase === 'sparplan'
+  
+  return hasInflationConfig && hasPositiveRate && isSparplanMode
+}
+
 // Helper function to calculate growth and costs for a single element in a year
 function getAdjustedEinzahlung(element: SparplanElement, year: number, options: SimulateOptions): number {
+  // Start with base amount (may be dynamically adjusted)
+  const baseAmount = getBaseSavingsAmount(element, year, options)
+  
+  // Apply inflation adjustment if enabled
   const yearInflationRate = getInflationRateForYear(year, options)
-  const shouldApplyInflation =
-    (options.inflationAktivSparphase || options.variableInflationRates) &&
-    yearInflationRate > 0 &&
-    (!options.inflationAnwendungSparphase || options.inflationAnwendungSparphase === 'sparplan')
-
-  if (!shouldApplyInflation) {
-    return element.einzahlung
+  if (shouldApplyInflationAdjustment(options, yearInflationRate)) {
+    return getInflationAdjustedContribution(baseAmount, options.startYear, year, yearInflationRate)
   }
 
-  return getInflationAdjustedContribution(element.einzahlung, options.startYear, year, yearInflationRate)
+  return baseAmount
 }
 
 function calculateEndkapital(
