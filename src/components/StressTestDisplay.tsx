@@ -9,6 +9,7 @@ import {
   type StressTestResult,
   type StressScenario,
 } from '../utils/stress-test'
+import { formatCurrencyWhole, formatPercentGerman } from '../utils/currency'
 
 interface StressTestDisplayProps {
   /** Current portfolio value in EUR */
@@ -21,16 +22,6 @@ interface StressTestDisplayProps {
   showDetails?: boolean
 }
 
-const formatCurrency = (value: number) =>
-  value.toLocaleString('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  })
-
-const formatPercent = (value: number) => `${value.toFixed(1).replace('.', ',')}%`
-
 function StressTestParameters({
   portfolioValue,
   scenarioCount,
@@ -41,7 +32,7 @@ function StressTestParameters({
   return (
     <div className="mb-5">
       <p>
-        <strong>Portfolio-Wert:</strong> {formatCurrency(portfolioValue)}
+        <strong>Portfolio-Wert:</strong> {formatCurrencyWhole(portfolioValue)}
       </p>
       <p>
         <strong>Getestete Szenarien:</strong> {scenarioCount} extreme Marktszenarien
@@ -65,12 +56,12 @@ function StressTestMobileCards({ results }: { results: StressTestResult[] }) {
           <div key={index} className={`monte-carlo-card ${colorClass}`}>
             <div className="monte-carlo-header">
               <span className="scenario-name">{result.scenario.name}</span>
-              <span className="probability">{formatCurrency(result.absoluteLoss)}</span>
+              <span className="probability">{formatCurrencyWhole(result.absoluteLoss)}</span>
             </div>
             <div className="scenario-description">
-              {formatPercent(result.lossPercent)} Verlust
+              {formatPercentGerman(result.lossPercent)} Verlust
               <br />
-              Portfolio-Wert nach Crash: {formatCurrency(result.stressedValue)}
+              Portfolio-Wert nach Crash: {formatCurrencyWhole(result.stressedValue)}
               {result.scenario.historicalPeriod && (
                 <>
                   <br />
@@ -114,9 +105,9 @@ function StressTestDesktopTable({ results }: { results: StressTestResult[] }) {
                     </>
                   )}
                 </TableCell>
-                <TableCell>{formatCurrency(result.absoluteLoss)}</TableCell>
-                <TableCell>{formatPercent(result.lossPercent)}</TableCell>
-                <TableCell>{formatCurrency(result.stressedValue)}</TableCell>
+                <TableCell>{formatCurrencyWhole(result.absoluteLoss)}</TableCell>
+                <TableCell>{formatPercentGerman(result.lossPercent)}</TableCell>
+                <TableCell>{formatCurrencyWhole(result.stressedValue)}</TableCell>
                 <TableCell className="text-sm">{result.scenario.description}</TableCell>
               </TableRow>
             )
@@ -150,8 +141,8 @@ function StressTestInterpretation({ averageLoss, portfolioValue }: { averageLoss
     <div className="mt-[15px] p-[10px] bg-[#f8f9fa] border border-[#dee2e6] rounded">
       <h6>💡 Interpretation:</h6>
       <p className="m-0 text-sm">
-        Durchschnittlicher Verlust über alle Szenarien: {formatCurrency(averageLoss)} (
-        {formatPercent(averageLossPercent)}). Stress-Tests helfen dabei, extreme Marktsituationen besser einzuschätzen
+        Durchschnittlicher Verlust über alle Szenarien: {formatCurrencyWhole(averageLoss)} (
+        {formatPercentGerman(averageLossPercent)}). Stress-Tests helfen dabei, extreme Marktsituationen besser einzuschätzen
         und Ihr Portfolio entsprechend anzupassen. Beachten Sie: Historische Szenarien sind real aufgetretene Krisen,
         während hypothetische Szenarien "Was-wäre-wenn"-Analysen darstellen.
       </p>
