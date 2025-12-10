@@ -10,6 +10,48 @@ interface ComparisonStrategyCardProps {
 }
 
 /**
+ * Reusable number input field component
+ */
+interface NumberFieldProps {
+  label: string
+  value: number | undefined
+  defaultValue: number
+  min?: number
+  max?: number
+  step?: number | string
+  className?: string
+  inputClassName?: string
+  onChange: (value: number) => void
+}
+
+function NumberField({
+  label,
+  value,
+  defaultValue,
+  min,
+  max,
+  step = 1,
+  className = '',
+  inputClassName = 'w-full',
+  onChange,
+}: NumberFieldProps) {
+  return (
+    <div className={className}>
+      <label className="block text-xs font-bold mb-1.5">{label}</label>
+      <input
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        value={value || defaultValue}
+        onChange={e => onChange(parseFloat(e.target.value) || defaultValue)}
+        className={`${inputClassName} px-1.5 py-1.5 border border-gray-300 rounded`}
+      />
+    </div>
+  )
+}
+
+/**
  * Variable percentage field for variable withdrawal strategy
  */
 function VariablePercentageField({
@@ -22,24 +64,17 @@ function VariablePercentageField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div className="col-span-2">
-      <label className="block text-xs font-bold mb-1.5">
-        Entnahme-Prozentsatz (%)
-      </label>
-      <input
-        type="number"
-        min="1"
-        max="10"
-        step="0.5"
-        value={value || 4}
-        onChange={e => {
-          onUpdate(strategyId, {
-            variabelProzent: parseFloat(e.target.value) || 5,
-          })
-        }}
-        className="w-1/2 px-1.5 py-1.5 border border-gray-300 rounded"
-      />
-    </div>
+    <NumberField
+      label="Entnahme-Prozentsatz (%)"
+      value={value}
+      defaultValue={4}
+      min={1}
+      max={10}
+      step={0.5}
+      className="col-span-2"
+      inputClassName="w-1/2"
+      onChange={newValue => onUpdate(strategyId, { variabelProzent: newValue })}
+    />
   )
 }
 
@@ -56,23 +91,16 @@ function MonthlyAmountField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div className="col-span-2">
-      <label className="block text-xs font-bold mb-1.5">
-        Monatlicher Betrag (€)
-      </label>
-      <input
-        type="number"
-        min="0"
-        step="100"
-        value={value || 2000}
-        onChange={e => {
-          onUpdate(strategyId, {
-            monatlicheBetrag: parseFloat(e.target.value) || 2000,
-          })
-        }}
-        className="w-1/2 px-1.5 py-1.5 border border-gray-300 rounded"
-      />
-    </div>
+    <NumberField
+      label="Monatlicher Betrag (€)"
+      value={value}
+      defaultValue={2000}
+      min={0}
+      step={100}
+      className="col-span-2"
+      inputClassName="w-1/2"
+      onChange={newValue => onUpdate(strategyId, { monatlicheBetrag: newValue })}
+    />
   )
 }
 
@@ -89,24 +117,15 @@ function DynamicBasisRateField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div>
-      <label className="block text-xs font-bold mb-1.5">
-        Basis-Rate (%)
-      </label>
-      <input
-        type="number"
-        min="1"
-        max="10"
-        step="0.5"
-        value={value || 4}
-        onChange={e => {
-          onUpdate(strategyId, {
-            dynamischBasisrate: parseFloat(e.target.value) || 4,
-          })
-        }}
-        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
-      />
-    </div>
+    <NumberField
+      label="Basis-Rate (%)"
+      value={value}
+      defaultValue={4}
+      min={1}
+      max={10}
+      step={0.5}
+      onChange={newValue => onUpdate(strategyId, { dynamischBasisrate: newValue })}
+    />
   )
 }
 
@@ -123,24 +142,15 @@ function DynamicUpperThresholdField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div>
-      <label className="block text-xs font-bold mb-1.5">
-        Obere Schwelle (%)
-      </label>
-      <input
-        type="number"
-        min="0"
-        max="20"
-        step="0.5"
-        value={value || 8}
-        onChange={e => {
-          onUpdate(strategyId, {
-            dynamischObereSchwell: parseFloat(e.target.value) || 8,
-          })
-        }}
-        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
-      />
-    </div>
+    <NumberField
+      label="Obere Schwelle (%)"
+      value={value}
+      defaultValue={8}
+      min={0}
+      max={20}
+      step={0.5}
+      onChange={newValue => onUpdate(strategyId, { dynamischObereSchwell: newValue })}
+    />
   )
 }
 
@@ -157,24 +167,15 @@ function DynamicLowerThresholdField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div>
-      <label className="block text-xs font-bold mb-1.5">
-        Untere Schwelle (%)
-      </label>
-      <input
-        type="number"
-        min="-20"
-        max="0"
-        step="0.5"
-        value={value || -8}
-        onChange={e => {
-          onUpdate(strategyId, {
-            dynamischUntereSchwell: parseFloat(e.target.value) || -8,
-          })
-        }}
-        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
-      />
-    </div>
+    <NumberField
+      label="Untere Schwelle (%)"
+      value={value}
+      defaultValue={-8}
+      min={-20}
+      max={0}
+      step={0.5}
+      onChange={newValue => onUpdate(strategyId, { dynamischUntereSchwell: newValue })}
+    />
   )
 }
 
@@ -216,23 +217,14 @@ function BucketCashCushionField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div>
-      <label className="block text-xs font-bold mb-1.5">
-        Cash-Polster (€)
-      </label>
-      <input
-        type="number"
-        min="1000"
-        step="1000"
-        value={value || 20000}
-        onChange={e => {
-          onUpdate(strategyId, {
-            bucketInitialCash: parseFloat(e.target.value) || 20000,
-          })
-        }}
-        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
-      />
-    </div>
+    <NumberField
+      label="Cash-Polster (€)"
+      value={value}
+      defaultValue={20000}
+      min={1000}
+      step={1000}
+      onChange={newValue => onUpdate(strategyId, { bucketInitialCash: newValue })}
+    />
   )
 }
 
@@ -249,24 +241,15 @@ function BucketBaseRateField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div>
-      <label className="block text-xs font-bold mb-1.5">
-        Basis-Rate (%)
-      </label>
-      <input
-        type="number"
-        min="1"
-        max="10"
-        step="0.1"
-        value={value || 4}
-        onChange={e => {
-          onUpdate(strategyId, {
-            bucketBaseRate: parseFloat(e.target.value) || 4,
-          })
-        }}
-        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
-      />
-    </div>
+    <NumberField
+      label="Basis-Rate (%)"
+      value={value}
+      defaultValue={4}
+      min={1}
+      max={10}
+      step={0.1}
+      onChange={newValue => onUpdate(strategyId, { bucketBaseRate: newValue })}
+    />
   )
 }
 
@@ -419,24 +402,15 @@ function ReturnRateField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div>
-      <label className="block text-xs font-bold mb-1.5">
-        Rendite (%)
-      </label>
-      <input
-        type="number"
-        min="0"
-        max="15"
-        step="0.5"
-        value={value}
-        onChange={e => {
-          onUpdate(strategyId, {
-            rendite: parseFloat(e.target.value) || 5,
-          })
-        }}
-        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
-      />
-    </div>
+    <NumberField
+      label="Rendite (%)"
+      value={value}
+      defaultValue={5}
+      min={0}
+      max={15}
+      step={0.5}
+      onChange={newValue => onUpdate(strategyId, { rendite: newValue })}
+    />
   )
 }
 
