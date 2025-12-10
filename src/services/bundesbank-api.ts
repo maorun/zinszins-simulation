@@ -15,8 +15,7 @@ export interface BasiszinsConfiguration {
 }
 
 /**
- * Fetches the latest Basiszins data from Deutsche Bundesbank API
- * The API provides access to official interest rates used for tax calculations
+ * Try to fetch data from a given API source with error handling
  */
 async function tryFetchFromAPI(
   fetcher: () => Promise<BasiszinsData[]>,
@@ -25,18 +24,16 @@ async function tryFetchFromAPI(
   try {
     const data = await fetcher()
     if (data.length > 0) {
-      console.log(`✅ Successfully fetched ${data.length} rates from ${source}`)
       return data
     }
     return null
   } catch (error) {
-    console.warn(`🔄 ${source} not available:`, error instanceof Error ? error.message : error)
+    console.warn(`${source} not available:`, error instanceof Error ? error.message : error)
     return null
   }
 }
 
 function getFallbackRates(fromYear: number, toYear: number): BasiszinsData[] {
-  console.info('📋 Using local historical Basiszins data as final fallback')
   const fallbackRates: BasiszinsData[] = []
 
   for (let year = fromYear; year <= toYear; year++) {
@@ -51,10 +48,6 @@ function getFallbackRates(fromYear: number, toYear: number): BasiszinsData[] {
     }
   }
 
-  if (fallbackRates.length > 0) {
-    console.log(`✅ Returning ${fallbackRates.length} historical rates as fallback`)
-  }
-
   return fallbackRates
 }
 
@@ -63,8 +56,6 @@ export async function fetchBasiszinsFromBundesbank(startYear?: number, endYear?:
     const currentYear = new Date().getFullYear()
     const fromYear = startYear || 2018
     const toYear = endYear || currentYear
-
-    console.log(`Fetching Basiszins data for years ${fromYear}-${toYear}...`)
 
     // Try to fetch from real Bundesbank API first
     const apiData = await tryFetchFromAPI(() => fetchFromBundesbankSDMX(fromYear, toYear), 'Deutsche Bundesbank API')
@@ -81,7 +72,7 @@ export async function fetchBasiszinsFromBundesbank(startYear?: number, endYear?:
     // Fallback to local historical data
     return getFallbackRates(fromYear, toYear)
   } catch (error) {
-    console.error('❌ Failed to fetch Basiszins data from any source:', error)
+    console.error('Failed to fetch Basiszins data from any source:', error)
     throw new Error('Basiszins data could not be retrieved from any available source')
   }
 }
@@ -170,7 +161,6 @@ async function fetchFromECBAPI(fromYear: number, toYear: number): Promise<Basisz
 async function fetchFromMinistryOfFinance(fromYear: number, toYear: number): Promise<BasiszinsData[]> {
   // Instead of making HTTP requests to theoretical endpoints,
   // provide enhanced fallback data with deterministic estimates
-  console.info('📊 Using enhanced fallback data with deterministic estimates')
   return getEnhancedFallbackData(fromYear, toYear)
 }
 

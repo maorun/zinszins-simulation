@@ -1,5 +1,6 @@
 import { useMemo } from 'react'
 import type { WithdrawalFormValue } from '../utils/config-storage'
+import { getStrategyDisplayName } from '../utils/withdrawal-strategy-utils'
 
 // Type for withdrawal array elements
 type WithdrawalArrayElement = {
@@ -17,19 +18,6 @@ interface UseComparisonDataProps {
     duration: number | null
   }
   formValue: WithdrawalFormValue
-}
-
-// Helper function for strategy display names
-const STRATEGY_NAMES: Record<string, string> = {
-  '4prozent': '4% Regel',
-  '3prozent': '3% Regel',
-  variabel_prozent: 'Variable Prozent',
-  monatlich_fest: 'Monatlich fest',
-  dynamisch: 'Dynamische Strategie',
-}
-
-export function getStrategyDisplayName(strategy: string): string {
-  return STRATEGY_NAMES[strategy] || strategy
 }
 
 /**

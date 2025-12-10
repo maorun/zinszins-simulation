@@ -1,4 +1,4 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '../ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '../ui/dialog'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { Button } from '../ui/button'
@@ -29,6 +29,9 @@ export function CreateProfileDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Neues Profil erstellen</DialogTitle>
+          <DialogDescription>
+            Erstellen Sie ein neues Profil um Ihre Finanzsimulation zu speichern und später wieder zu laden.
+          </DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div>

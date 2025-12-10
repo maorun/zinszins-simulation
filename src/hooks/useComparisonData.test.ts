@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { renderHook } from '@testing-library/react'
-import { useComparisonData, getStrategyDisplayName } from './useComparisonData'
+import { useComparisonData } from './useComparisonData'
+import { getStrategyDisplayName } from '../utils/withdrawal-strategy-utils'
 import type { WithdrawalFormValue } from '../utils/config-storage'
 
 const mockWithdrawalData = {

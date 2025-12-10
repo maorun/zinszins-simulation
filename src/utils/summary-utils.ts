@@ -2,6 +2,7 @@ import type { SimulationResult } from './simulate'
 import type { SparplanElement } from '../utils/sparplan-utils'
 import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { WithdrawalSegment } from '../utils/segmented-withdrawal'
+import { getStrategyDisplayName } from './withdrawal-strategy-utils'
 
 export type Summary = {
   startkapital: number
@@ -518,26 +519,4 @@ function createWithdrawalSegmentSummaries(
   }
 
   return summaries
-}
-
-/**
- * Get display name for withdrawal strategy
- */
-/**
- * Strategy display name mapping
- */
-const STRATEGY_DISPLAY_NAMES: Record<string, string> = {
-  '4prozent': '4% Regel',
-  '3prozent': '3% Regel',
-  variabel_prozent: 'Variable Prozent',
-  monatlich_fest: 'Monatlich fest',
-  dynamisch: 'Dynamische Strategie',
-  bucket_strategie: 'Drei-Eimer-Strategie',
-  rmd: 'RMD (Lebenserwartung)',
-  kapitalerhalt: 'Kapitalerhalt / Ewige Rente',
-  steueroptimiert: 'Steueroptimierte Entnahme',
-}
-
-function getStrategyDisplayName(strategy: string): string {
-  return STRATEGY_DISPLAY_NAMES[strategy] || strategy
 }
