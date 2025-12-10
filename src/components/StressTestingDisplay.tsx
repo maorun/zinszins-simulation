@@ -3,7 +3,7 @@
  * Shows systematic portfolio testing results under extreme historical scenarios
  */
 
-import React from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { ChevronDown, AlertTriangle, TrendingDown, Calendar } from 'lucide-react'
@@ -144,8 +144,8 @@ function StressTestInfoBox() {
 /**
  * Main Stress Testing Display Component
  */
-const StressTestingDisplay: React.FC<StressTestingDisplayProps> = ({ results, summary }) => {
-  const [isOpen, setIsOpen] = React.useState(false)
+function StressTestingDisplay({ results, summary }: StressTestingDisplayProps) {
+  const [isOpen, setIsOpen] = useState(false)
 
   return (
     <Card className="mb-4">

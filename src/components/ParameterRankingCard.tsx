@@ -1,4 +1,3 @@
-import React from 'react'
 import { SENSITIVITY_PARAMETERS } from '../utils/sensitivity-analysis'
 
 interface ParameterRanking {
@@ -18,7 +17,7 @@ const getImpactDescription = (impact: number) => {
   return { emoji: '🟢', text: 'Geringer Einfluss', color: 'text-green-600' }
 }
 
-const ParameterRankingCard: React.FC<ParameterRankingCardProps> = ({ ranking, index }) => {
+function ParameterRankingCard({ ranking, index }: ParameterRankingCardProps) {
   const parameter = SENSITIVITY_PARAMETERS[ranking.parameter]
   const impactInfo = getImpactDescription(ranking.impact)
 

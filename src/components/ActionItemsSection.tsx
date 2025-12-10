@@ -1,6 +1,4 @@
-import React from 'react'
-
-const ActionItemsSection: React.FC = () => {
+function ActionItemsSection() {
   return (
     <div className="bg-green-50 border-l-4 border-green-400 p-4 rounded">
       <h4 className="font-semibold text-gray-800 mb-2">✅ Handlungsempfehlungen</h4>

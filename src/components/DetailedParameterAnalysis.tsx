@@ -1,4 +1,3 @@
-import React from 'react'
 import { SENSITIVITY_PARAMETERS, type SensitivityResult } from '../utils/sensitivity-analysis'
 import SummaryStats from './SummaryStats'
 import SensitivityChart from './SensitivityChart'
@@ -42,7 +41,7 @@ const getInterpretationText = (parameterName: string): string => {
   return interpretations[parameterName] || ''
 }
 
-const DetailedParameterAnalysis: React.FC<DetailedParameterAnalysisProps> = ({ ranking, results }) => {
+function DetailedParameterAnalysis({ ranking, results }: DetailedParameterAnalysisProps) {
   const parameter = SENSITIVITY_PARAMETERS[ranking.parameter]
   const chartData = getChartData(ranking.parameter, results)
 
