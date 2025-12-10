@@ -233,6 +233,20 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Bildungsinhalte**: Hintergrundinformationen zur 2021 Reform und den Berechnungsregeln
   - **Helper-Funktionen verfügbar**: `calculateSolidaritaetszuschlag()`, `calculateYearlySoli()`, `calculateSoliSavings()`, `getSoliFreigrenze()`, `getSoliGleitzoneUpper()`
   - **Umfassend getestet**: 62 Tests mit 100% Pass-Rate
+- **Versicherungskostenübersicht** - Aggregierte Übersicht aller Versicherungskosten zur Optimierung
+  - **Zusammenfassung**: Durchschnittliche jährliche Kosten, höchste jährliche Kosten und Gesamtkosten über den Planungszeitraum
+  - **Kategorisierung**: Aufschlüsselung nach Versicherungsarten (Krankenversicherung, Risikolebensversicherung, Pflegeversicherung, etc.)
+  - **Integrierte Berechnung**:
+    - Krankenversicherung (gesetzlich und privat) mit realistischen Kosteneinschätzungen
+    - Risikolebensversicherung mit alters-, geschlechts- und gesundheitsabhängigen Prämien
+    - Zukünftige Erweiterbarkeit für weitere Versicherungstypen
+  - **Optimierungsempfehlungen**: Automatische Identifikation von Optimierungspotenzial
+    - Warnung bei hohen Versicherungskosten (>30% der Entnahmen)
+    - PKV-Kostenprüfung bei hohen Beiträgen im Alter
+    - Hinweise zur Risikolebensversicherung im Ruhestand
+    - Information bei fehlenden Versicherungskonfigurationen
+  - **Helper-Funktionen verfügbar**: `calculateInsuranceCostSummary()`, `generateOptimizationRecommendations()`, `calculateHealthCareInsuranceCost()`, `calculateTermLifeInsuranceCost()`
+  - **Umfassend getestet**: 39 Tests (29 Helper + 10 Component) mit 100% Pass-Rate
 - **Verlustverrechnung (Tax-Loss Harvesting)** - Informations-Tool zur Berechnung von Steuerersparnissen durch Verlustverrechnung
   - **Verlustverrechnungsregeln**: Detaillierte Darstellung der deutschen Verlustverrechnungsregeln nach EStG
     - Aktienverluste können nur mit Aktiengewinnen verrechnet werden (separater Verlusttopf)

@@ -13,6 +13,7 @@ import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
 import { ProgressionsvorbehaltConfiguration } from './ProgressionsvorbehaltConfiguration'
 import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG, type ProgressionsvorbehaltConfig } from '../../helpers/progressionsvorbehalt'
 import { TaxProgressionVisualization } from './TaxProgressionVisualization'
+import { InsuranceCostOverview } from './InsuranceCostOverview'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -125,6 +126,7 @@ function TaxConfigurationCards({
         kirchensteuerAktiv={simulation.kirchensteuerAktiv}
         kirchensteuersatz={simulation.kirchensteuersatz}
       />
+      <InsuranceCostOverview />
       <TaxLossHarvestingCard />
       <SeveranceCalculatorCard />
       <SolidaritaetszuschlagCard />
