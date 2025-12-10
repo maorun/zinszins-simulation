@@ -1,6 +1,4 @@
-import React from 'react'
-
-const IntroductionSection: React.FC = () => {
+function IntroductionSection() {
   return (
     <div className="bg-blue-50 border-l-4 border-blue-400 p-4 rounded">
       <p className="text-sm text-gray-700">

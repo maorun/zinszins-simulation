@@ -1,4 +1,3 @@
-import React from 'react'
 import ParameterRankingCard from './ParameterRankingCard'
 
 interface ParameterRanking {
@@ -10,7 +9,7 @@ interface ParameterRankingSectionProps {
   rankings: ParameterRanking[]
 }
 
-const ParameterRankingSection: React.FC<ParameterRankingSectionProps> = ({ rankings }) => {
+function ParameterRankingSection({ rankings }: ParameterRankingSectionProps) {
   return (
     <div>
       <h3 className="text-lg font-semibold mb-3 text-gray-800">🎯 Einflussreichste Parameter</h3>

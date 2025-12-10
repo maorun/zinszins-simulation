@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from './ui/card'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
 import { ChevronDown } from 'lucide-react'
@@ -16,11 +16,11 @@ interface SensitivityAnalysisDisplayProps {
   title?: string
 }
 
-const SensitivityAnalysisDisplay: React.FC<SensitivityAnalysisDisplayProps> = ({
+function SensitivityAnalysisDisplay({
   config,
   returnConfig,
   title = '📊 Sensitivitätsanalyse',
-}) => {
+}: SensitivityAnalysisDisplayProps) {
   const [isOpen, setIsOpen] = useState(false)
   const { analysisResults, parameterRanking } = useSensitivityAnalysis(config, returnConfig)
 

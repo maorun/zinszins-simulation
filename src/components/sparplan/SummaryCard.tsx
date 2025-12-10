@@ -1,6 +1,6 @@
+import type { ReactNode } from 'react'
 import { formatInflationAdjustedValue } from '../../utils/inflation-adjustment'
 import type { Summary, PortfolioProgressionEntry } from '../../utils/summary-utils'
-import React from 'react'
 
 // Helper to format numbers with thousands separators
 const thousands = (value: string | number) =>
@@ -67,7 +67,7 @@ function SummaryDetailRow({
   onInfoClick,
 }: {
   label: string
-  value: React.ReactNode
+  value: ReactNode
   containerClassName: string
   onInfoClick?: () => void
 }) {

@@ -1,4 +1,3 @@
-import React from 'react'
 import { formatRiskMetric, type RiskMetrics } from '../utils/risk-metrics'
 import { RiskMetricsDisplay } from './RiskMetricsDisplay'
 import { StressTestDisplay } from './StressTestDisplay'
@@ -13,26 +12,28 @@ interface AdditionalRiskMetricsProps {
   portfolioDataLength: number
 }
 
-const AdditionalRiskMetrics: React.FC<AdditionalRiskMetricsProps> = ({ riskMetrics, portfolioDataLength }) => (
-  <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div>
-        <div className="text-sm font-medium text-gray-600 mb-1">📉 Value-at-Risk (99%)</div>
-        <div className="text-lg font-bold text-gray-700">
-          {formatRiskMetric(riskMetrics.valueAtRisk1, 'percentage')}
+function AdditionalRiskMetrics({ riskMetrics, portfolioDataLength }: AdditionalRiskMetricsProps) {
+  return (
+    <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div>
+          <div className="text-sm font-medium text-gray-600 mb-1">📉 Value-at-Risk (99%)</div>
+          <div className="text-lg font-bold text-gray-700">
+            {formatRiskMetric(riskMetrics.valueAtRisk1, 'percentage')}
+          </div>
+          <div className="text-xs text-gray-500">
+            Potenzielle Verluste in 1% der Fälle - extremere Verlustszenarien als VaR 95%
+          </div>
         </div>
-        <div className="text-xs text-gray-500">
-          Potenzielle Verluste in 1% der Fälle - extremere Verlustszenarien als VaR 95%
+        <div>
+          <div className="text-sm font-medium text-gray-600 mb-1">📊 Datenpunkte</div>
+          <div className="text-lg font-bold text-gray-700">{portfolioDataLength} Jahre</div>
+          <div className="text-xs text-gray-500">Simulationszeitraum für Risikoanalyse</div>
         </div>
-      </div>
-      <div>
-        <div className="text-sm font-medium text-gray-600 mb-1">📊 Datenpunkte</div>
-        <div className="text-lg font-bold text-gray-700">{portfolioDataLength} Jahre</div>
-        <div className="text-xs text-gray-500">Simulationszeitraum für Risikoanalyse</div>
       </div>
     </div>
-  </div>
-)
+  )
+}
 
 interface RiskMetricsContainerProps {
   riskMetrics: RiskMetrics | null

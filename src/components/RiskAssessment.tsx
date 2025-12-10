@@ -1,4 +1,3 @@
-import React from 'react'
 import type { RandomReturnConfig } from '../utils/random-returns'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
 import { useRiskAssessmentData } from '../hooks/useRiskAssessmentData'
@@ -11,7 +10,7 @@ interface RiskAssessmentProps {
   config?: RandomReturnConfig
 }
 
-const RiskAssessment: React.FC<RiskAssessmentProps> = ({ phase, config }) => {
+function RiskAssessment({ phase, config }: RiskAssessmentProps) {
   const {
     simulationData,
     returnMode,

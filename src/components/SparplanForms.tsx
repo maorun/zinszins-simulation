@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ChangeEvent } from 'react'
 import type { SimulationAnnualType } from '../utils/simulate'
 import type { SingleFormValue, SparplanFormValue } from './SparplanEingabe.helpers'
 import { SparplanFormCard } from './SparplanFormCard'
@@ -28,11 +28,11 @@ interface SharedFormUtilities {
   simulationAnnual: SimulationAnnualType
   formatDateForInput: (date: Date | string | null, format: string) => string
   handleDateChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: ChangeEvent<HTMLInputElement>,
     format: string,
     onChange: (date: Date | null) => void,
   ) => void
-  handleNumberChange: (e: React.ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => void
+  handleNumberChange: (e: ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => void
   handleCancelEdit: () => void
 }
 
