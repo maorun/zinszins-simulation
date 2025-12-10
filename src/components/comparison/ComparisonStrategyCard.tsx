@@ -1,6 +1,13 @@
 import type { WithdrawalStrategy } from '../../../helpers/withdrawal'
 import type { ComparisonStrategy } from '../../utils/config-storage'
 import { getStrategyDisplayName } from '../../utils/withdrawal-strategy-utils'
+import {
+  VARIABLE_PERCENTAGE,
+  MONTHLY_AMOUNT,
+  DYNAMIC_STRATEGY,
+  BUCKET_STRATEGY,
+  RETURN_RATE,
+} from './withdrawal-strategy-constants'
 
 interface ComparisonStrategyCardProps {
   strategy: ComparisonStrategy
@@ -67,10 +74,10 @@ function VariablePercentageField({
     <NumberField
       label="Entnahme-Prozentsatz (%)"
       value={value}
-      defaultValue={4}
-      min={1}
-      max={10}
-      step={0.5}
+      defaultValue={VARIABLE_PERCENTAGE.DEFAULT}
+      min={VARIABLE_PERCENTAGE.MIN}
+      max={VARIABLE_PERCENTAGE.MAX}
+      step={VARIABLE_PERCENTAGE.STEP}
       className="col-span-2"
       inputClassName="w-1/2"
       onChange={newValue => onUpdate(strategyId, { variabelProzent: newValue })}
@@ -94,9 +101,9 @@ function MonthlyAmountField({
     <NumberField
       label="Monatlicher Betrag (€)"
       value={value}
-      defaultValue={2000}
-      min={0}
-      step={100}
+      defaultValue={MONTHLY_AMOUNT.DEFAULT}
+      min={MONTHLY_AMOUNT.MIN}
+      step={MONTHLY_AMOUNT.STEP}
       className="col-span-2"
       inputClassName="w-1/2"
       onChange={newValue => onUpdate(strategyId, { monatlicheBetrag: newValue })}
@@ -120,10 +127,10 @@ function DynamicBasisRateField({
     <NumberField
       label="Basis-Rate (%)"
       value={value}
-      defaultValue={4}
-      min={1}
-      max={10}
-      step={0.5}
+      defaultValue={DYNAMIC_STRATEGY.BASIS_RATE.DEFAULT}
+      min={DYNAMIC_STRATEGY.BASIS_RATE.MIN}
+      max={DYNAMIC_STRATEGY.BASIS_RATE.MAX}
+      step={DYNAMIC_STRATEGY.BASIS_RATE.STEP}
       onChange={newValue => onUpdate(strategyId, { dynamischBasisrate: newValue })}
     />
   )
@@ -145,10 +152,10 @@ function DynamicUpperThresholdField({
     <NumberField
       label="Obere Schwelle (%)"
       value={value}
-      defaultValue={8}
-      min={0}
-      max={20}
-      step={0.5}
+      defaultValue={DYNAMIC_STRATEGY.UPPER_THRESHOLD.DEFAULT}
+      min={DYNAMIC_STRATEGY.UPPER_THRESHOLD.MIN}
+      max={DYNAMIC_STRATEGY.UPPER_THRESHOLD.MAX}
+      step={DYNAMIC_STRATEGY.UPPER_THRESHOLD.STEP}
       onChange={newValue => onUpdate(strategyId, { dynamischObereSchwell: newValue })}
     />
   )
@@ -170,10 +177,10 @@ function DynamicLowerThresholdField({
     <NumberField
       label="Untere Schwelle (%)"
       value={value}
-      defaultValue={-8}
-      min={-20}
-      max={0}
-      step={0.5}
+      defaultValue={DYNAMIC_STRATEGY.LOWER_THRESHOLD.DEFAULT}
+      min={DYNAMIC_STRATEGY.LOWER_THRESHOLD.MIN}
+      max={DYNAMIC_STRATEGY.LOWER_THRESHOLD.MAX}
+      step={DYNAMIC_STRATEGY.LOWER_THRESHOLD.STEP}
       onChange={newValue => onUpdate(strategyId, { dynamischUntereSchwell: newValue })}
     />
   )
@@ -220,9 +227,9 @@ function BucketCashCushionField({
     <NumberField
       label="Cash-Polster (€)"
       value={value}
-      defaultValue={20000}
-      min={1000}
-      step={1000}
+      defaultValue={BUCKET_STRATEGY.CASH_CUSHION.DEFAULT}
+      min={BUCKET_STRATEGY.CASH_CUSHION.MIN}
+      step={BUCKET_STRATEGY.CASH_CUSHION.STEP}
       onChange={newValue => onUpdate(strategyId, { bucketInitialCash: newValue })}
     />
   )
@@ -244,10 +251,10 @@ function BucketBaseRateField({
     <NumberField
       label="Basis-Rate (%)"
       value={value}
-      defaultValue={4}
-      min={1}
-      max={10}
-      step={0.1}
+      defaultValue={BUCKET_STRATEGY.BASE_RATE.DEFAULT}
+      min={BUCKET_STRATEGY.BASE_RATE.MIN}
+      max={BUCKET_STRATEGY.BASE_RATE.MAX}
+      step={BUCKET_STRATEGY.BASE_RATE.STEP}
       onChange={newValue => onUpdate(strategyId, { bucketBaseRate: newValue })}
     />
   )
@@ -405,10 +412,10 @@ function ReturnRateField({
     <NumberField
       label="Rendite (%)"
       value={value}
-      defaultValue={5}
-      min={0}
-      max={15}
-      step={0.5}
+      defaultValue={RETURN_RATE.DEFAULT}
+      min={RETURN_RATE.MIN}
+      max={RETURN_RATE.MAX}
+      step={RETURN_RATE.STEP}
       onChange={newValue => onUpdate(strategyId, { rendite: newValue })}
     />
   )
