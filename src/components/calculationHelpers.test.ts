@@ -60,16 +60,16 @@ describe('calculationHelpers', () => {
       const explanation = createEndkapitalExplanation(25000, 20000, 5000, 1000, 100, 2023)
 
       // Check step calculations
-      expect(explanation.steps[0].result).toBe('20.000,00 €') // Startkapital
-      expect(explanation.steps[1].result).toBe('25.000,00 €') // After contributions: 20000 + 5000
-      expect(explanation.steps[2].result).toBe('26.000,00 €') // After interest: 25000 + 1000
-      expect(explanation.steps[3].result).toBe('25.000,00 €') // After taxes: 26000 - 100
+      expect(explanation.steps[0].result).toBe('20.000,00\u00A0€') // Startkapital
+      expect(explanation.steps[1].result).toBe('25.000,00\u00A0€') // After contributions: 20000 + 5000
+      expect(explanation.steps[2].result).toBe('26.000,00\u00A0€') // After interest: 25000 + 1000
+      expect(explanation.steps[3].result).toBe('25.000,00\u00A0€') // After taxes: 26000 - 100
     })
 
     it('should handle negative interest correctly', () => {
       const explanation = createEndkapitalExplanation(18000, 20000, 5000, -2000, 0, 2023)
 
-      expect(explanation.steps[2].result).toBe('23.000,00 €') // 25000 + (-2000)
+      expect(explanation.steps[2].result).toBe('23.000,00\u00A0€') // 25000 + (-2000)
       expect(explanation.steps[2].description).toContain('können auch negativ sein bei Verlusten')
     })
 
@@ -83,7 +83,7 @@ describe('calculationHelpers', () => {
       expect(explanation.finalResult.values[2].label).toBe('Zinsen/Wertzuwachs')
       expect(explanation.finalResult.values[3].label).toBe('Bezahlte Steuern')
       expect(explanation.finalResult.values[4].label).toBe('Endkapital')
-      expect(explanation.finalResult.values[4].value).toBe('25.000,00 €')
+      expect(explanation.finalResult.values[4].value).toBe('25.000,00\u00A0€')
     })
   })
 
@@ -171,13 +171,13 @@ describe('calculationHelpers', () => {
 
       // Verify the health care insurance deduction step
       expect(explanation.steps[1].description).toContain('steuerlich absetzbar')
-      expect(explanation.steps[1].calculation).toContain('3.500,00 €')
-      expect(explanation.steps[1].result).toBe('-3.500,00 €')
+      expect(explanation.steps[1].calculation).toContain('3.500,00\u00A0€')
+      expect(explanation.steps[1].result).toBe('-3.500,00\u00A0€')
 
       // Portfolio + Health insurance (absetzbar) + Gesamte Einkünfte + Grundfreibetrag + Final result
       expect(explanation.finalResult.values).toHaveLength(5)
       expect(explanation.finalResult.values[1].label).toBe('Krankenversicherung (absetzbar)')
-      expect(explanation.finalResult.values[1].value).toBe('-3.500,00 €')
+      expect(explanation.finalResult.values[1].value).toBe('-3.500,00\u00A0€')
     })
   })
 
@@ -232,7 +232,7 @@ describe('calculationHelpers', () => {
       expect(explanation.steps[5].title).toContain('Schritt 6')
 
       // Verify correct calculation: 20000 + 15000 + 5000 - 3000 = 37000
-      expect(explanation.steps[4].calculation).toContain('37.000,00 €')
+      expect(explanation.steps[4].calculation).toContain('37.000,00\u00A0€')
 
       // Verify final result has all components
       expect(explanation.finalResult.values).toHaveLength(7)
@@ -245,7 +245,7 @@ describe('calculationHelpers', () => {
       expect(explanation.finalResult.values[6].label).toBe('Zu versteuerndes Einkommen')
 
       // Verify zu versteuerndes Einkommen: max(0, 37000 - 11000) = 26000
-      expect(explanation.finalResult.values[6].value).toBe('26.000,00 €')
+      expect(explanation.finalResult.values[6].value).toBe('26.000,00\u00A0€')
     })
 
     it('should calculate total taxable income correctly when all sources are zero', () => {
@@ -254,7 +254,7 @@ describe('calculationHelpers', () => {
       expect(explanation.steps).toHaveLength(2) // Only portfolio and Grundfreibetrag
       // Index 3 is zu versteuerndes Einkommen (0=Portfolio, 1=Gesamte, 2=Grundfreibetrag, 3=Zu versteuerndes)
       const zuVersteuern = explanation.finalResult.values.find(v => v.label === 'Zu versteuerndes Einkommen')
-      expect(zuVersteuern?.value).toBe('0,00 €')
+      expect(zuVersteuern?.value).toBe('0,00\u00A0€')
     })
 
     it('should add statutory pension step only when amount is positive', () => {
@@ -289,10 +289,10 @@ describe('calculationHelpers', () => {
       expect(totalStep?.calculation).toContain('Gesetzliche Rente')
       expect(totalStep?.calculation).toContain('Andere Einkünfte')
       expect(totalStep?.calculation).toContain('Krankenversicherung')
-      expect(totalStep?.calculation).toContain('20.000,00 €')
-      expect(totalStep?.calculation).toContain('15.000,00 €')
-      expect(totalStep?.calculation).toContain('5.000,00 €')
-      expect(totalStep?.calculation).toContain('3.000,00 €')
+      expect(totalStep?.calculation).toContain('20.000,00\u00A0€')
+      expect(totalStep?.calculation).toContain('15.000,00\u00A0€')
+      expect(totalStep?.calculation).toContain('5.000,00\u00A0€')
+      expect(totalStep?.calculation).toContain('3.000,00\u00A0€')
     })
 
     it('should not add total income step when only portfolio withdrawal exists', () => {
@@ -307,7 +307,7 @@ describe('calculationHelpers', () => {
 
       // Zu versteuerndes Einkommen should be 0 when total < Grundfreibetrag
       const finalValue = explanation.finalResult.values.find(v => v.label === 'Zu versteuerndes Einkommen')
-      expect(finalValue?.value).toBe('0,00 €')
+      expect(finalValue?.value).toBe('0,00\u00A0€')
     })
   })
 })

@@ -1,5 +1,7 @@
 // Helper functions to create calculation explanations for different simulation data
 
+import { formatCurrency } from '../utils/currency'
+
 export interface CalculationStep {
   title: string
   description: string
@@ -17,11 +19,6 @@ export interface CalculationExplanation {
     title: string
     values: Array<{ label: string; value: string }>
   }
-}
-
-// Format currency for display
-const formatCurrency = (amount: number): string => {
-  return amount.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + ' €'
 }
 
 // Interest calculation explanation (for savings phase)
