@@ -1,9 +1,9 @@
+import type { ReactNode } from 'react'
 import { formatInflationAdjustedValue } from '../../utils/inflation-adjustment'
 import { GlossaryTerm } from '../GlossaryTerm'
 import type { SparplanElement } from '../../utils/sparplan-utils'
 import type { VorabpauschaleDetails } from '../../utils/simulate'
 import type { PortfolioProgressionEntry } from '../../utils/summary-utils'
-import React from 'react'
 
 // Helper to format numbers with thousands separators
 const thousands = (value: string | number) =>
@@ -115,7 +115,7 @@ function ProgressionDetailRow({
   onInfoClick,
 }: {
   label: string
-  value: React.ReactNode
+  value: ReactNode
   valueClassName: string
   onInfoClick?: () => void
 }) {
