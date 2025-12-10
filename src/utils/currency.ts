@@ -11,6 +11,18 @@ export function formatCurrency(amount: number): string {
 }
 
 /**
+ * Format currency without decimal places (for large round amounts)
+ */
+export function formatCurrencyWhole(amount: number): string {
+  return new Intl.NumberFormat('de-DE', {
+    style: 'currency',
+    currency: 'EUR',
+    minimumFractionDigits: 0,
+    maximumFractionDigits: 0,
+  }).format(amount)
+}
+
+/**
  * Format currency in compact form for mobile displays
  */
 export function formatCompactCurrency(amount: number): string {
@@ -31,6 +43,14 @@ export function formatCompactCurrency(amount: number): string {
 export function formatPercent(value: number, options?: { showSign?: boolean }): string {
   const sign = options?.showSign && value >= 0 ? '+' : ''
   return `${sign}${(value * 100).toFixed(1)}%`
+}
+
+/**
+ * Format a percentage number with German decimal separator
+ * @param value - Already in percentage form (e.g., 7.5 for 7.5%)
+ */
+export function formatPercentGerman(value: number): string {
+  return `${value.toFixed(1).replace('.', ',')}%`
 }
 
 /**

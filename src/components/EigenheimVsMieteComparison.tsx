@@ -8,18 +8,11 @@ import {
   type EigenheimVsMieteConfig,
 } from '../../helpers/eigenheim-vs-miete'
 import { generateFormId } from '../utils/unique-id'
+import { formatCurrencyWhole } from '../utils/currency'
 import { ComparisonResultsDisplay } from './eigenheim-vs-miete/ComparisonResultsDisplay'
 import { ComparisonSettings } from './eigenheim-vs-miete/ComparisonSettings'
 import { OwnershipConfiguration } from './eigenheim-vs-miete/OwnershipConfiguration'
 import { RentalConfiguration } from './eigenheim-vs-miete/RentalConfiguration'
-
-const formatCurrency = (amount: number) => {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-    maximumFractionDigits: 0,
-  }).format(amount)
-}
 
 /**
  * EigenheimVsMiete Component
@@ -70,7 +63,7 @@ export function EigenheimVsMieteComparison() {
           <ComparisonSettings config={config} setConfig={setConfig} ids={ids} />
           <OwnershipConfiguration config={config} setConfig={setConfig} ids={ids} />
           <RentalConfiguration config={config} setConfig={setConfig} ids={ids} />
-          {results && <ComparisonResultsDisplay summary={results.summary} comparisonYears={config.comparison.comparisonYears} formatCurrency={formatCurrency} />}
+          {results && <ComparisonResultsDisplay summary={results.summary} comparisonYears={config.comparison.comparisonYears} formatCurrency={formatCurrencyWhole} />}
         </CardContent>
       )}
     </Card>
