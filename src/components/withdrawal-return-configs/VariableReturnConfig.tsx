@@ -16,16 +16,9 @@ interface YearReturnRowProps {
 
 function YearReturnRow({ year, returnValue, onValueChange }: YearReturnRowProps) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        alignItems: 'center',
-        marginBottom: '10px',
-        gap: '10px',
-      }}
-    >
-      <div style={{ minWidth: '60px', fontWeight: 'bold' }}>{year}:</div>
-      <div style={{ flex: 1 }}>
+    <div className="flex items-center mb-2.5 gap-2.5">
+      <div className="min-w-[60px] font-bold">{year}:</div>
+      <div className="flex-1">
         <Slider
           value={[returnValue]}
           onValueChange={(values: number[]) => onValueChange(year, values[0])}
@@ -35,7 +28,7 @@ function YearReturnRow({ year, returnValue, onValueChange }: YearReturnRowProps)
           className="mt-2"
         />
       </div>
-      <div style={{ minWidth: '50px', textAlign: 'right' }}>{returnValue.toFixed(1)}%</div>
+      <div className="min-w-[50px] text-right">{returnValue.toFixed(1)}%</div>
     </div>
   )
 }
@@ -57,15 +50,7 @@ export function VariableReturnConfig({
   return (
     <div className="mb-4 space-y-2">
       <Label>Variable Renditen pro Jahr (Entnahme-Phase)</Label>
-      <div
-        style={{
-          maxHeight: '300px',
-          overflowY: 'auto',
-          border: '1px solid #e5e5ea',
-          borderRadius: '6px',
-          padding: '10px',
-        }}
-      >
+      <div className="max-h-[300px] overflow-y-auto border border-gray-200 rounded-md p-2.5">
         {Array.from({ length: globalEndOfLife - startOfIndependence }, (_, i) => {
           const year = startOfIndependence + 1 + i
           return (

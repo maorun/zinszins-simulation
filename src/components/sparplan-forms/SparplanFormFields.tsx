@@ -14,7 +14,7 @@ const InfoIcon = () => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    style={{ marginLeft: '0.25rem', opacity: 0.6 }}
+    className="ml-1 opacity-60"
   >
     <circle cx="12" cy="12" r="10"></circle>
     <path d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"></path>
@@ -109,14 +109,7 @@ export function SparplanFormFields({
 }: SparplanFormFieldsProps) {
   return (
     <>
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))',
-          gap: '1rem',
-          marginBottom: '1.5rem',
-        }}
-      >
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4 mb-6">
         <DateField
           label="Start"
           value={formatDateForInput(formValues.start, 'yyyy-MM')}

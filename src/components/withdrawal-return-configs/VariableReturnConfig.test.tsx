@@ -66,6 +66,6 @@ describe('VariableReturnConfig', () => {
     render(<VariableReturnConfig {...defaultProps} />)
 
     const container = screen.getByText(/^2041:/).parentElement?.parentElement
-    expect(container).toHaveStyle({ maxHeight: '300px', overflowY: 'auto' })
+    expect(container).toHaveClass('max-h-[300px]', 'overflow-y-auto')
   })
 })

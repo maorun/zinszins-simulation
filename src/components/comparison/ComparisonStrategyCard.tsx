@@ -1,12 +1,61 @@
 import type { WithdrawalStrategy } from '../../../helpers/withdrawal'
 import type { ComparisonStrategy } from '../../utils/config-storage'
 import { getStrategyDisplayName } from '../../utils/withdrawal-strategy-utils'
+import {
+  VARIABLE_PERCENTAGE,
+  MONTHLY_AMOUNT,
+  DYNAMIC_STRATEGY,
+  BUCKET_STRATEGY,
+  RETURN_RATE,
+} from './withdrawal-strategy-constants'
 
 interface ComparisonStrategyCardProps {
   strategy: ComparisonStrategy
   index: number
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
   onRemove: (id: string) => void
+}
+
+/**
+ * Reusable number input field component
+ */
+interface NumberFieldProps {
+  label: string
+  value: number | undefined
+  defaultValue: number
+  min?: number
+  max?: number
+  step?: number | string
+  className?: string
+  inputClassName?: string
+  onChange: (value: number) => void
+}
+
+function NumberField({
+  label,
+  value,
+  defaultValue,
+  min,
+  max,
+  step = 1,
+  className = '',
+  inputClassName = 'w-full',
+  onChange,
+}: NumberFieldProps) {
+  return (
+    <div className={className}>
+      <label className="block text-xs font-bold mb-1.5">{label}</label>
+      <input
+        type="number"
+        min={min}
+        max={max}
+        step={step}
+        value={value || defaultValue}
+        onChange={e => onChange(parseFloat(e.target.value) || defaultValue)}
+        className={`${inputClassName} px-1.5 py-1.5 border border-gray-300 rounded`}
+      />
+    </div>
+  )
 }
 
 /**
@@ -22,36 +71,17 @@ function VariablePercentageField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div style={{ gridColumn: 'span 2' }}>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
-        Entnahme-Prozentsatz (%)
-      </label>
-      <input
-        type="number"
-        min="1"
-        max="10"
-        step="0.5"
-        value={value || 4}
-        onChange={e => {
-          onUpdate(strategyId, {
-            variabelProzent: parseFloat(e.target.value) || 5,
-          })
-        }}
-        style={{
-          width: '50%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
-      />
-    </div>
+    <NumberField
+      label="Entnahme-Prozentsatz (%)"
+      value={value}
+      defaultValue={VARIABLE_PERCENTAGE.DEFAULT}
+      min={VARIABLE_PERCENTAGE.MIN}
+      max={VARIABLE_PERCENTAGE.MAX}
+      step={VARIABLE_PERCENTAGE.STEP}
+      className="col-span-2"
+      inputClassName="w-1/2"
+      onChange={newValue => onUpdate(strategyId, { variabelProzent: newValue })}
+    />
   )
 }
 
@@ -68,35 +98,16 @@ function MonthlyAmountField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div style={{ gridColumn: 'span 2' }}>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
-        Monatlicher Betrag (€)
-      </label>
-      <input
-        type="number"
-        min="0"
-        step="100"
-        value={value || 2000}
-        onChange={e => {
-          onUpdate(strategyId, {
-            monatlicheBetrag: parseFloat(e.target.value) || 2000,
-          })
-        }}
-        style={{
-          width: '50%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
-      />
-    </div>
+    <NumberField
+      label="Monatlicher Betrag (€)"
+      value={value}
+      defaultValue={MONTHLY_AMOUNT.DEFAULT}
+      min={MONTHLY_AMOUNT.MIN}
+      step={MONTHLY_AMOUNT.STEP}
+      className="col-span-2"
+      inputClassName="w-1/2"
+      onChange={newValue => onUpdate(strategyId, { monatlicheBetrag: newValue })}
+    />
   )
 }
 
@@ -113,36 +124,15 @@ function DynamicBasisRateField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
-        Basis-Rate (%)
-      </label>
-      <input
-        type="number"
-        min="1"
-        max="10"
-        step="0.5"
-        value={value || 4}
-        onChange={e => {
-          onUpdate(strategyId, {
-            dynamischBasisrate: parseFloat(e.target.value) || 4,
-          })
-        }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
-      />
-    </div>
+    <NumberField
+      label="Basis-Rate (%)"
+      value={value}
+      defaultValue={DYNAMIC_STRATEGY.BASIS_RATE.DEFAULT}
+      min={DYNAMIC_STRATEGY.BASIS_RATE.MIN}
+      max={DYNAMIC_STRATEGY.BASIS_RATE.MAX}
+      step={DYNAMIC_STRATEGY.BASIS_RATE.STEP}
+      onChange={newValue => onUpdate(strategyId, { dynamischBasisrate: newValue })}
+    />
   )
 }
 
@@ -159,36 +149,15 @@ function DynamicUpperThresholdField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
-        Obere Schwelle (%)
-      </label>
-      <input
-        type="number"
-        min="0"
-        max="20"
-        step="0.5"
-        value={value || 8}
-        onChange={e => {
-          onUpdate(strategyId, {
-            dynamischObereSchwell: parseFloat(e.target.value) || 8,
-          })
-        }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
-      />
-    </div>
+    <NumberField
+      label="Obere Schwelle (%)"
+      value={value}
+      defaultValue={DYNAMIC_STRATEGY.UPPER_THRESHOLD.DEFAULT}
+      min={DYNAMIC_STRATEGY.UPPER_THRESHOLD.MIN}
+      max={DYNAMIC_STRATEGY.UPPER_THRESHOLD.MAX}
+      step={DYNAMIC_STRATEGY.UPPER_THRESHOLD.STEP}
+      onChange={newValue => onUpdate(strategyId, { dynamischObereSchwell: newValue })}
+    />
   )
 }
 
@@ -205,36 +174,15 @@ function DynamicLowerThresholdField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
-        Untere Schwelle (%)
-      </label>
-      <input
-        type="number"
-        min="-20"
-        max="0"
-        step="0.5"
-        value={value || -8}
-        onChange={e => {
-          onUpdate(strategyId, {
-            dynamischUntereSchwell: parseFloat(e.target.value) || -8,
-          })
-        }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
-      />
-    </div>
+    <NumberField
+      label="Untere Schwelle (%)"
+      value={value}
+      defaultValue={DYNAMIC_STRATEGY.LOWER_THRESHOLD.DEFAULT}
+      min={DYNAMIC_STRATEGY.LOWER_THRESHOLD.MIN}
+      max={DYNAMIC_STRATEGY.LOWER_THRESHOLD.MAX}
+      step={DYNAMIC_STRATEGY.LOWER_THRESHOLD.STEP}
+      onChange={newValue => onUpdate(strategyId, { dynamischUntereSchwell: newValue })}
+    />
   )
 }
 
@@ -276,35 +224,14 @@ function BucketCashCushionField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
-        Cash-Polster (€)
-      </label>
-      <input
-        type="number"
-        min="1000"
-        step="1000"
-        value={value || 20000}
-        onChange={e => {
-          onUpdate(strategyId, {
-            bucketInitialCash: parseFloat(e.target.value) || 20000,
-          })
-        }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
-      />
-    </div>
+    <NumberField
+      label="Cash-Polster (€)"
+      value={value}
+      defaultValue={BUCKET_STRATEGY.CASH_CUSHION.DEFAULT}
+      min={BUCKET_STRATEGY.CASH_CUSHION.MIN}
+      step={BUCKET_STRATEGY.CASH_CUSHION.STEP}
+      onChange={newValue => onUpdate(strategyId, { bucketInitialCash: newValue })}
+    />
   )
 }
 
@@ -321,36 +248,15 @@ function BucketBaseRateField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
-        Basis-Rate (%)
-      </label>
-      <input
-        type="number"
-        min="1"
-        max="10"
-        step="0.1"
-        value={value || 4}
-        onChange={e => {
-          onUpdate(strategyId, {
-            bucketBaseRate: parseFloat(e.target.value) || 4,
-          })
-        }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
-      />
-    </div>
+    <NumberField
+      label="Basis-Rate (%)"
+      value={value}
+      defaultValue={BUCKET_STRATEGY.BASE_RATE.DEFAULT}
+      min={BUCKET_STRATEGY.BASE_RATE.MIN}
+      max={BUCKET_STRATEGY.BASE_RATE.MAX}
+      step={BUCKET_STRATEGY.BASE_RATE.STEP}
+      onChange={newValue => onUpdate(strategyId, { bucketBaseRate: newValue })}
+    />
   )
 }
 
@@ -435,27 +341,14 @@ function StrategyCardHeader({
   onRemove: (id: string) => void
 }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '10px',
-      }}
-    >
-      <h5 style={{ margin: 0 }}>
+    <div className="flex justify-between items-center mb-2.5">
+      <h5 className="m-0">
         Strategie {index + 1}: {name}
       </h5>
       <button
         type="button"
         onClick={() => onRemove(strategyId)}
-        style={{
-          background: 'none',
-          border: 'none',
-          color: '#999',
-          cursor: 'pointer',
-          fontSize: '18px',
-        }}
+        className="bg-transparent border-0 text-gray-400 cursor-pointer text-lg hover:text-gray-600"
       >
         ×
       </button>
@@ -477,14 +370,7 @@ function StrategyTypeSelector({
 }) {
   return (
     <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
+      <label className="block text-xs font-bold mb-1.5">
         Strategie-Typ
       </label>
       <select
@@ -496,12 +382,7 @@ function StrategyTypeSelector({
             name: getStrategyDisplayName(newStrategie),
           })
         }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
+        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
       >
         <option value="4prozent">4% Regel</option>
         <option value="3prozent">3% Regel</option>
@@ -528,36 +409,15 @@ function ReturnRateField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
-        Rendite (%)
-      </label>
-      <input
-        type="number"
-        min="0"
-        max="15"
-        step="0.5"
-        value={value}
-        onChange={e => {
-          onUpdate(strategyId, {
-            rendite: parseFloat(e.target.value) || 5,
-          })
-        }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
-      />
-    </div>
+    <NumberField
+      label="Rendite (%)"
+      value={value}
+      defaultValue={RETURN_RATE.DEFAULT}
+      min={RETURN_RATE.MIN}
+      max={RETURN_RATE.MAX}
+      step={RETURN_RATE.STEP}
+      onChange={newValue => onUpdate(strategyId, { rendite: newValue })}
+    />
   )
 }
 
@@ -567,25 +427,10 @@ function ReturnRateField({
  */
 export function ComparisonStrategyCard({ strategy, index, onUpdate, onRemove }: ComparisonStrategyCardProps) {
   return (
-    <div
-      style={{
-        border: '1px solid #e5e5ea',
-        borderRadius: '6px',
-        padding: '15px',
-        marginBottom: '15px',
-        backgroundColor: '#f8f9fa',
-      }}
-    >
+    <div className="border border-gray-200 rounded-md p-4 mb-4 bg-gray-50">
       <StrategyCardHeader index={index} name={strategy.name} strategyId={strategy.id} onRemove={onRemove} />
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '10px',
-          alignItems: 'end',
-        }}
-      >
+      <div className="grid grid-cols-2 gap-2.5 items-end">
         <StrategyTypeSelector strategyId={strategy.id} value={strategy.strategie} onUpdate={onUpdate} />
 
         <ReturnRateField strategyId={strategy.id} value={strategy.rendite} onUpdate={onUpdate} />

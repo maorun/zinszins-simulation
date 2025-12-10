@@ -12,7 +12,7 @@ const InfoIcon = () => (
     strokeWidth="2"
     strokeLinecap="round"
     strokeLinejoin="round"
-    style={{ marginLeft: '0.25rem', opacity: 0.6 }}
+    className="ml-1 opacity-60"
   >
     <circle cx="12" cy="12" r="10"></circle>
     <path d="M9,9h0a3,3,0,0,1,6,0c0,2-3,3-3,3"></path>
@@ -74,9 +74,9 @@ function CostInputField({
  */
 export function CostFactorFields({ values, onValueChange, handleNumberChange }: CostFactorFieldsProps) {
   return (
-    <div style={{ marginBottom: '1rem' }}>
-      <div style={{ fontSize: '0.9rem', color: '#666', marginBottom: '0.5rem' }}>💰 Kostenfaktoren (optional)</div>
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '1rem' }}>
+    <div className="mb-4">
+      <div className="text-sm text-gray-600 mb-2">💰 Kostenfaktoren (optional)</div>
+      <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] gap-4">
         <CostInputField
           label="TER (% p.a.)"
           value={values.ter}
