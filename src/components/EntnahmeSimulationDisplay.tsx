@@ -193,8 +193,9 @@ export function EntnahmeSimulationDisplay({
   const pensionGapAnalysis = useMemo(() => {
     if (!withdrawalData?.withdrawalResult) return null
 
-    // Use default retirement lifestyle config
-    // TODO: Make this configurable through UI
+    // Note: Currently uses default retirement lifestyle config
+    // Future enhancement: Make retirement lifestyle parameters configurable through UI
+    // to allow users to customize retirement phase assumptions
     const retirementConfig = createDefaultRetirementLifestyleConfig()
 
     return calculatePensionGapFromWithdrawal(withdrawalData.withdrawalResult, retirementConfig)

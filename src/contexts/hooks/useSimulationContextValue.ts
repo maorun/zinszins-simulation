@@ -362,46 +362,10 @@ function useWithdrawalValues(state: Record<string, unknown>) {
   )
 }
 
-function buildOtherConfigObject(
-  statutoryPensionConfig: unknown,
-  setStatutoryPensionConfig: unknown,
-  coupleStatutoryPensionConfig: unknown,
-  setCoupleStatutoryPensionConfig: unknown,
-  careCostConfiguration: unknown,
-  setCareCostConfiguration: unknown,
-  financialGoals: unknown,
-  setFinancialGoals: unknown,
-  emergencyFundConfig: unknown,
-  setEmergencyFundConfig: unknown,
-  termLifeInsuranceConfig: unknown,
-  setTermLifeInsuranceConfig: unknown,
-  alimonyConfig: unknown,
-  setAlimonyConfig: unknown,
-  benchmarkConfig: unknown,
-  setBenchmarkConfig: unknown,
-) {
-  return {
-    statutoryPensionConfig,
-    setStatutoryPensionConfig,
-    coupleStatutoryPensionConfig,
-    setCoupleStatutoryPensionConfig,
-    careCostConfiguration,
-    setCareCostConfiguration,
-    financialGoals,
-    setFinancialGoals,
-    emergencyFundConfig,
-    setEmergencyFundConfig,
-    termLifeInsuranceConfig,
-    setTermLifeInsuranceConfig,
-    alimonyConfig,
-    setAlimonyConfig,
-    benchmarkConfig,
-    setBenchmarkConfig,
-  }
-}
-
-/* eslint-disable max-lines-per-function */
-function useOtherConfigValues(state: Record<string, unknown>) {
+/**
+ * Hook for pension and care cost configuration values
+ */
+function usePensionAndCareValues(state: Record<string, unknown>) {
   const {
     statutoryPensionConfig,
     setStatutoryPensionConfig,
@@ -411,6 +375,30 @@ function useOtherConfigValues(state: Record<string, unknown>) {
     setCareCostConfiguration,
   } = state
 
+  return useMemo(
+    () => ({
+      statutoryPensionConfig,
+      setStatutoryPensionConfig,
+      coupleStatutoryPensionConfig,
+      setCoupleStatutoryPensionConfig,
+      careCostConfiguration,
+      setCareCostConfiguration,
+    }),
+    [
+      statutoryPensionConfig,
+      setStatutoryPensionConfig,
+      coupleStatutoryPensionConfig,
+      setCoupleStatutoryPensionConfig,
+      careCostConfiguration,
+      setCareCostConfiguration,
+    ],
+  )
+}
+
+/**
+ * Hook for financial goals, insurance, and benchmark configuration values
+ */
+function useFinancialGoalsAndInsuranceValues(state: Record<string, unknown>) {
   const {
     financialGoals,
     setFinancialGoals,
@@ -425,32 +413,19 @@ function useOtherConfigValues(state: Record<string, unknown>) {
   } = state
 
   return useMemo(
-    () =>
-      buildOtherConfigObject(
-        statutoryPensionConfig,
-        setStatutoryPensionConfig,
-        coupleStatutoryPensionConfig,
-        setCoupleStatutoryPensionConfig,
-        careCostConfiguration,
-        setCareCostConfiguration,
-        financialGoals,
-        setFinancialGoals,
-        emergencyFundConfig,
-        setEmergencyFundConfig,
-        termLifeInsuranceConfig,
-        setTermLifeInsuranceConfig,
-        alimonyConfig,
-        setAlimonyConfig,
-        benchmarkConfig,
-        setBenchmarkConfig,
-      ),
+    () => ({
+      financialGoals,
+      setFinancialGoals,
+      emergencyFundConfig,
+      setEmergencyFundConfig,
+      termLifeInsuranceConfig,
+      setTermLifeInsuranceConfig,
+      alimonyConfig,
+      setAlimonyConfig,
+      benchmarkConfig,
+      setBenchmarkConfig,
+    }),
     [
-      statutoryPensionConfig,
-      setStatutoryPensionConfig,
-      coupleStatutoryPensionConfig,
-      setCoupleStatutoryPensionConfig,
-      careCostConfiguration,
-      setCareCostConfiguration,
       financialGoals,
       setFinancialGoals,
       emergencyFundConfig,
@@ -464,7 +439,23 @@ function useOtherConfigValues(state: Record<string, unknown>) {
     ],
   )
 }
-/* eslint-enable max-lines-per-function */
+
+/**
+ * Hook for other configuration values (pension, care, financial goals, insurance, etc.)
+ * Combines pension/care values with financial goals/insurance values
+ */
+function useOtherConfigValues(state: Record<string, unknown>) {
+  const pensionAndCare = usePensionAndCareValues(state)
+  const financialGoalsAndInsurance = useFinancialGoalsAndInsuranceValues(state)
+
+  return useMemo(
+    () => ({
+      ...pensionAndCare,
+      ...financialGoalsAndInsurance,
+    }),
+    [pensionAndCare, financialGoalsAndInsurance],
+  )
+}
 
 /**
  * Custom hook to build the SimulationContext value object

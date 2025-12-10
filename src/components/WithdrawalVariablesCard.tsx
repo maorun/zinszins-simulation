@@ -14,8 +14,8 @@ import { WithdrawalModeContent } from './WithdrawalModeContent'
 import { HealthCareInsuranceContent } from './HealthCareInsuranceContent'
 import type { HealthCareInsuranceChangeHandlers } from './HealthCareInsuranceConfiguration'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
-import { handleWithdrawalModeChange } from './withdrawal-mode-helpers'
 import { CoupleStatutoryPensionConfiguration } from './StatutoryPensionConfiguration'
+import { useWithdrawalModeChange } from './useWithdrawalModeChange'
 
 interface WithdrawalVariablesCardProps {
   // Other income config
@@ -76,8 +76,6 @@ interface WithdrawalVariablesCardProps {
  * Withdrawal configuration variables card
  * Displays all configurable withdrawal parameters including modes, strategies, health insurance, and statutory pension
  */
-// Adding more configuration components increases function size, which is acceptable for a layout component
-// eslint-disable-next-line max-lines-per-function
 export function WithdrawalVariablesCard(props: WithdrawalVariablesCardProps) {
   const {
     otherIncomeConfig,
@@ -96,9 +94,13 @@ export function WithdrawalVariablesCard(props: WithdrawalVariablesCardProps) {
     onCoupleStatutoryPensionConfigChange,
   } = props
 
-  // Note: This card must remain closed by default due to a Radix UI Slider/Collapsible compatibility issue
-  // Opening it manually works fine, but setting defaultOpen={true} causes infinite re-renders
-  // See: https://github.com/radix-ui/primitives/issues/...
+  const handleModeChange = useWithdrawalModeChange({
+    withdrawalSegments,
+    startOfIndependence,
+    globalEndOfLife,
+    onConfigUpdate,
+  })
+
   return (
     <CollapsibleCard>
       <CollapsibleCardHeader>Variablen</CollapsibleCardHeader>
@@ -107,7 +109,6 @@ export function WithdrawalVariablesCard(props: WithdrawalVariablesCardProps) {
           config={otherIncomeConfig || { enabled: false, sources: [] }}
           onChange={onOtherIncomeConfigChange}
         />
-
         <CoupleStatutoryPensionConfiguration
           config={coupleStatutoryPensionConfig}
           onChange={onCoupleStatutoryPensionConfigChange}
@@ -115,24 +116,13 @@ export function WithdrawalVariablesCard(props: WithdrawalVariablesCardProps) {
           birthYear={birthYear}
           spouseBirthYear={spouseBirthYear}
         />
-
         <WithdrawalModeSelector
           useSegmentedWithdrawal={useSegmentedWithdrawal}
           useComparisonMode={useComparisonMode}
           useSegmentedComparisonMode={useSegmentedComparisonMode}
-          onModeChange={mode =>
-            handleWithdrawalModeChange({
-              mode,
-              withdrawalSegments,
-              startOfIndependence,
-              globalEndOfLife,
-              updateConfig: onConfigUpdate,
-            })
-          }
+          onModeChange={handleModeChange}
         />
-
         <WithdrawalModeContent {...props} />
-
         <HealthCareInsuranceContent {...props} />
       </CollapsibleCardContent>
     </CollapsibleCard>

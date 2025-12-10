@@ -1,5 +1,4 @@
-import { lazy, Suspense } from 'react'
-import { Card, CardContent } from './ui/card'
+import { lazy } from 'react'
 import type { SensitivityAnalysisConfig } from '../utils/sensitivity-analysis'
 import type { ReturnConfiguration } from '../utils/random-returns'
 import type { FinancialScenario } from '../data/scenarios'
@@ -7,36 +6,15 @@ import { TutorialManager } from './TutorialManager'
 import { HomePageSpecialEvents } from './HomePageSpecialEvents'
 import { BehavioralFinanceInsights } from './BehavioralFinanceInsights'
 import SimulationParameters from './SimulationParameters'
+import { ConfigurationSection } from './sonstiges-sections/ConfigurationSection'
+import { PlanningConfigurations } from './sonstiges-sections/PlanningConfigurations'
+import { RealEstateConfigurations } from './sonstiges-sections/RealEstateConfigurations'
 
-// Lazy load large configuration components
-const GlobalPlanningConfiguration = lazy(() =>
-  import('./GlobalPlanningConfiguration').then(m => ({ default: m.GlobalPlanningConfiguration })),
-)
-const FinancialGoalsConfiguration = lazy(() => import('./FinancialGoalsConfiguration'))
-const EmergencyFundConfiguration = lazy(() => import('./EmergencyFundConfiguration'))
+// Lazy load remaining configuration components
 const ScenarioSelector = lazy(() => import('./ScenarioSelector'))
-const AlimonyConfiguration = lazy(() => import('./AlimonyConfiguration'))
-const GiftTaxPlanningConfiguration = lazy(() => import('./GiftTaxPlanningConfiguration'))
-const EigenheimVsMieteComparison = lazy(() =>
-  import('./EigenheimVsMieteComparison').then(m => ({ default: m.EigenheimVsMieteComparison })),
-)
-const ImmobilienTeilverkauf = lazy(() =>
-  import('./teilverkauf/ImmobilienTeilverkauf').then(m => ({ default: m.ImmobilienTeilverkauf })),
-)
-const ProfileManagement = lazy(() => import('./ProfileManagement'))
 const DataExport = lazy(() => import('./DataExport'))
 const SensitivityAnalysisDisplay = lazy(() => import('./SensitivityAnalysisDisplay'))
-
-/**
- * Loading fallback component
- */
-function LoadingCard() {
-  return (
-    <Card className="mb-3 sm:mb-4">
-      <CardContent className="py-4 text-center text-gray-500 text-sm">Lädt Konfiguration...</CardContent>
-    </Card>
-  )
-}
+const ProfileManagement = lazy(() => import('./ProfileManagement'))
 
 interface SonstigesViewProps {
   sensitivityConfig: SensitivityAnalysisConfig
@@ -50,7 +28,6 @@ interface SonstigesViewProps {
  * Sonstiges View - Extended features and advanced configuration
  * Includes all configuration tools, tutorials, special events, planning tools, Monte Carlo, tax modules, exports, and behavioral finance
  */
-// eslint-disable-next-line max-lines-per-function -- View component requires comprehensive rendering of all extended features
 export function SonstigesView({
   sensitivityConfig,
   returnConfig,
@@ -60,74 +37,28 @@ export function SonstigesView({
 }: SonstigesViewProps) {
   return (
     <div className="space-y-4">
-      {/* Interactive Tutorials */}
       <TutorialManager />
-
-      {/* Special Events - Black Swan, Risk Events */}
       <HomePageSpecialEvents />
-
-      {/* Simulation Configuration - includes Zeit, Steuer, Basiszins, Benchmark, etc. */}
       <SimulationParameters />
 
-      {/* Global Planning Configuration */}
-      <Suspense fallback={<LoadingCard />}>
-        <GlobalPlanningConfiguration startOfIndependence={startOfIndependence} />
-      </Suspense>
+      <PlanningConfigurations startOfIndependence={startOfIndependence} />
 
-      {/* Financial Goals Configuration */}
-      <Suspense fallback={<LoadingCard />}>
-        <FinancialGoalsConfiguration />
-      </Suspense>
+      <ConfigurationSection
+        Component={ScenarioSelector}
+        componentProps={{ onApplyScenario: handleApplyScenario }}
+      />
 
-      {/* Emergency Fund / Liquidity Reserve Configuration */}
-      <Suspense fallback={<LoadingCard />}>
-        <EmergencyFundConfiguration />
-      </Suspense>
-
-      {/* Scenario Selector - Was-wäre-wenn */}
-      <Suspense fallback={<LoadingCard />}>
-        <ScenarioSelector onApplyScenario={handleApplyScenario} />
-      </Suspense>
-
-      {/* Behavioral Finance Insights - Educational Section */}
       <BehavioralFinanceInsights />
+      <ConfigurationSection Component={DataExport} />
 
-      {/* Data Export */}
-      <Suspense fallback={<LoadingCard />}>
-        <DataExport />
-      </Suspense>
+      <ConfigurationSection
+        Component={SensitivityAnalysisDisplay}
+        componentProps={{ config: sensitivityConfig, returnConfig }}
+        condition={hasSimulationData}
+      />
 
-      {/* Sensitivity Analysis */}
-      {hasSimulationData && (
-        <Suspense fallback={<LoadingCard />}>
-          <SensitivityAnalysisDisplay config={sensitivityConfig} returnConfig={returnConfig} />
-        </Suspense>
-      )}
-
-      {/* Alimony / Child Support Configuration */}
-      <Suspense fallback={<LoadingCard />}>
-        <AlimonyConfiguration />
-      </Suspense>
-
-      {/* Gift Tax Planning Configuration */}
-      <Suspense fallback={<LoadingCard />}>
-        <GiftTaxPlanningConfiguration />
-      </Suspense>
-
-      {/* Eigenheim vs. Miete Comparison */}
-      <Suspense fallback={<LoadingCard />}>
-        <EigenheimVsMieteComparison />
-      </Suspense>
-
-      {/* Real Estate Partial Sale with Lifelong Residence Rights */}
-      <Suspense fallback={<LoadingCard />}>
-        <ImmobilienTeilverkauf />
-      </Suspense>
-
-      {/* Profile Management */}
-      <Suspense fallback={<LoadingCard />}>
-        <ProfileManagement />
-      </Suspense>
+      <RealEstateConfigurations />
+      <ConfigurationSection Component={ProfileManagement} />
     </div>
   )
 }
