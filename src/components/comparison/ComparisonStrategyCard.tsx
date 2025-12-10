@@ -22,15 +22,8 @@ function VariablePercentageField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div style={{ gridColumn: 'span 2' }}>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
+    <div className="col-span-2">
+      <label className="block text-xs font-bold mb-1.5">
         Entnahme-Prozentsatz (%)
       </label>
       <input
@@ -44,12 +37,7 @@ function VariablePercentageField({
             variabelProzent: parseFloat(e.target.value) || 5,
           })
         }}
-        style={{
-          width: '50%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
+        className="w-1/2 px-1.5 py-1.5 border border-gray-300 rounded"
       />
     </div>
   )
@@ -68,15 +56,8 @@ function MonthlyAmountField({
   onUpdate: (id: string, updates: Partial<ComparisonStrategy>) => void
 }) {
   return (
-    <div style={{ gridColumn: 'span 2' }}>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
+    <div className="col-span-2">
+      <label className="block text-xs font-bold mb-1.5">
         Monatlicher Betrag (€)
       </label>
       <input
@@ -89,12 +70,7 @@ function MonthlyAmountField({
             monatlicheBetrag: parseFloat(e.target.value) || 2000,
           })
         }}
-        style={{
-          width: '50%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
+        className="w-1/2 px-1.5 py-1.5 border border-gray-300 rounded"
       />
     </div>
   )
@@ -114,14 +90,7 @@ function DynamicBasisRateField({
 }) {
   return (
     <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
+      <label className="block text-xs font-bold mb-1.5">
         Basis-Rate (%)
       </label>
       <input
@@ -135,12 +104,7 @@ function DynamicBasisRateField({
             dynamischBasisrate: parseFloat(e.target.value) || 4,
           })
         }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
+        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
       />
     </div>
   )
@@ -160,14 +124,7 @@ function DynamicUpperThresholdField({
 }) {
   return (
     <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
+      <label className="block text-xs font-bold mb-1.5">
         Obere Schwelle (%)
       </label>
       <input
@@ -181,12 +138,7 @@ function DynamicUpperThresholdField({
             dynamischObereSchwell: parseFloat(e.target.value) || 8,
           })
         }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
+        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
       />
     </div>
   )
@@ -206,14 +158,7 @@ function DynamicLowerThresholdField({
 }) {
   return (
     <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
+      <label className="block text-xs font-bold mb-1.5">
         Untere Schwelle (%)
       </label>
       <input
@@ -227,12 +172,7 @@ function DynamicLowerThresholdField({
             dynamischUntereSchwell: parseFloat(e.target.value) || -8,
           })
         }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
+        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
       />
     </div>
   )
@@ -277,14 +217,7 @@ function BucketCashCushionField({
 }) {
   return (
     <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
+      <label className="block text-xs font-bold mb-1.5">
         Cash-Polster (€)
       </label>
       <input
@@ -297,12 +230,7 @@ function BucketCashCushionField({
             bucketInitialCash: parseFloat(e.target.value) || 20000,
           })
         }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
+        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
       />
     </div>
   )
@@ -322,14 +250,7 @@ function BucketBaseRateField({
 }) {
   return (
     <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
+      <label className="block text-xs font-bold mb-1.5">
         Basis-Rate (%)
       </label>
       <input
@@ -343,12 +264,7 @@ function BucketBaseRateField({
             bucketBaseRate: parseFloat(e.target.value) || 4,
           })
         }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
+        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
       />
     </div>
   )
@@ -435,27 +351,14 @@ function StrategyCardHeader({
   onRemove: (id: string) => void
 }) {
   return (
-    <div
-      style={{
-        display: 'flex',
-        justifyContent: 'space-between',
-        alignItems: 'center',
-        marginBottom: '10px',
-      }}
-    >
-      <h5 style={{ margin: 0 }}>
+    <div className="flex justify-between items-center mb-2.5">
+      <h5 className="m-0">
         Strategie {index + 1}: {name}
       </h5>
       <button
         type="button"
         onClick={() => onRemove(strategyId)}
-        style={{
-          background: 'none',
-          border: 'none',
-          color: '#999',
-          cursor: 'pointer',
-          fontSize: '18px',
-        }}
+        className="bg-transparent border-0 text-gray-400 cursor-pointer text-lg hover:text-gray-600"
       >
         ×
       </button>
@@ -477,14 +380,7 @@ function StrategyTypeSelector({
 }) {
   return (
     <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
+      <label className="block text-xs font-bold mb-1.5">
         Strategie-Typ
       </label>
       <select
@@ -496,12 +392,7 @@ function StrategyTypeSelector({
             name: getStrategyDisplayName(newStrategie),
           })
         }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
+        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
       >
         <option value="4prozent">4% Regel</option>
         <option value="3prozent">3% Regel</option>
@@ -529,14 +420,7 @@ function ReturnRateField({
 }) {
   return (
     <div>
-      <label
-        style={{
-          display: 'block',
-          fontSize: '12px',
-          fontWeight: 'bold',
-          marginBottom: '5px',
-        }}
-      >
+      <label className="block text-xs font-bold mb-1.5">
         Rendite (%)
       </label>
       <input
@@ -550,12 +434,7 @@ function ReturnRateField({
             rendite: parseFloat(e.target.value) || 5,
           })
         }}
-        style={{
-          width: '100%',
-          padding: '6px',
-          border: '1px solid #ccc',
-          borderRadius: '4px',
-        }}
+        className="w-full px-1.5 py-1.5 border border-gray-300 rounded"
       />
     </div>
   )
@@ -567,25 +446,10 @@ function ReturnRateField({
  */
 export function ComparisonStrategyCard({ strategy, index, onUpdate, onRemove }: ComparisonStrategyCardProps) {
   return (
-    <div
-      style={{
-        border: '1px solid #e5e5ea',
-        borderRadius: '6px',
-        padding: '15px',
-        marginBottom: '15px',
-        backgroundColor: '#f8f9fa',
-      }}
-    >
+    <div className="border border-gray-200 rounded-md p-4 mb-4 bg-gray-50">
       <StrategyCardHeader index={index} name={strategy.name} strategyId={strategy.id} onRemove={onRemove} />
 
-      <div
-        style={{
-          display: 'grid',
-          gridTemplateColumns: '1fr 1fr',
-          gap: '10px',
-          alignItems: 'end',
-        }}
-      >
+      <div className="grid grid-cols-2 gap-2.5 items-end">
         <StrategyTypeSelector strategyId={strategy.id} value={strategy.strategie} onUpdate={onUpdate} />
 
         <ReturnRateField strategyId={strategy.id} value={strategy.rendite} onUpdate={onUpdate} />
