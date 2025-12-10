@@ -46,6 +46,14 @@ export function formatPercent(value: number, options?: { showSign?: boolean }): 
 }
 
 /**
+ * Format a percentage number with German decimal separator
+ * @param value - Already in percentage form (e.g., 7.5 for 7.5%)
+ */
+export function formatPercentGerman(value: number): string {
+  return `${value.toFixed(1).replace('.', ',')}%`
+}
+
+/**
  * Format a percentage value (already in percentage form) for display
  * Used for exporting data where values are already percentages (5 instead of 0.05)
  */

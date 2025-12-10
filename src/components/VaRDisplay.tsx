@@ -1,5 +1,6 @@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from './ui/table'
 import { calculateParametricVaR, getVaRDescription, type VaRResult } from '../utils/value-at-risk'
+import { formatCurrencyWhole, formatPercentGerman } from '../utils/currency'
 
 interface VaRDisplayProps {
   /** Current portfolio value in EUR */
@@ -13,16 +14,6 @@ interface VaRDisplayProps {
   /** Title for the VaR section */
   title?: string
 }
-
-const formatCurrency = (value: number) =>
-  value.toLocaleString('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  })
-
-const formatPercent = (value: number) => `${value.toFixed(1).replace('.', ',')}%`
 
 const getRowClassName = (confidenceLevel: number) => {
   if (confidenceLevel === 90) return 'warning-row'
@@ -45,14 +36,14 @@ function VaRParameters({
   return (
     <div className="mb-5">
       <p>
-        <strong>Portfolio-Wert:</strong> {formatCurrency(portfolioValue)}
+        <strong>Portfolio-Wert:</strong> {formatCurrencyWhole(portfolioValue)}
       </p>
       <p>
         <strong>Zeithorizont:</strong> {timeHorizon} Jahr{timeHorizon > 1 ? 'e' : ''}
       </p>
       <p>
         <strong>Annahme:</strong> Normalverteilte Renditen mit durchschnittlicher Rendite{' '}
-        {formatPercent(averageReturn * 100)} und Volatilität {formatPercent(standardDeviation * 100)}
+        {formatPercentGerman(averageReturn * 100)} und Volatilität {formatPercentGerman(standardDeviation * 100)}
       </p>
     </div>
   )
@@ -65,10 +56,10 @@ function VaRMobileCards({ results }: { results: VaRResult[] }) {
         <div key={index} className={`monte-carlo-card ${getRowClassName(result.confidenceLevel)}`}>
           <div className="monte-carlo-header">
             <span className="scenario-name">{result.confidenceLevel}% Konfidenzniveau</span>
-            <span className="probability">{formatCurrency(result.maxExpectedLossEur)}</span>
+            <span className="probability">{formatCurrencyWhole(result.maxExpectedLossEur)}</span>
           </div>
           <div className="scenario-description">
-            {formatPercent(result.maxExpectedLossPercent)} Verlust
+            {formatPercentGerman(result.maxExpectedLossPercent)} Verlust
             <br />
             {getVaRDescription(result)}
           </div>
@@ -94,8 +85,8 @@ function VaRDesktopTable({ results }: { results: VaRResult[] }) {
           {results.map((result: VaRResult, index: number) => (
             <TableRow key={index} className={getRowClassName(result.confidenceLevel)}>
               <TableCell>{result.confidenceLevel}%</TableCell>
-              <TableCell>{formatCurrency(result.maxExpectedLossEur)}</TableCell>
-              <TableCell>{formatPercent(result.maxExpectedLossPercent)}</TableCell>
+              <TableCell>{formatCurrencyWhole(result.maxExpectedLossEur)}</TableCell>
+              <TableCell>{formatPercentGerman(result.maxExpectedLossPercent)}</TableCell>
               <TableCell className="text-sm">{getVaRDescription(result)}</TableCell>
             </TableRow>
           ))}
@@ -111,7 +102,7 @@ function VaRInterpretation({ varResult, timeHorizon }: { varResult: VaRResult; t
       <h6>💡 Interpretation:</h6>
       <p className="m-0 text-sm">
         Der Value at Risk (VaR) gibt an, mit welcher Wahrscheinlichkeit ein bestimmter Verlust nicht überschritten
-        wird. Ein VaR von {formatCurrency(varResult.maxExpectedLossEur)} bei 95% Konfidenzniveau bedeutet: Mit 95%
+        wird. Ein VaR von {formatCurrencyWhole(varResult.maxExpectedLossEur)} bei 95% Konfidenzniveau bedeutet: Mit 95%
         Wahrscheinlichkeit wird der Verlust innerhalb von {timeHorizon} Jahr{timeHorizon > 1 ? 'en' : ''} nicht höher
         als dieser Betrag sein. Es besteht aber eine 5% Chance, dass der Verlust größer ausfällt.
       </p>
