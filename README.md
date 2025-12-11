@@ -184,6 +184,35 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Integration in "Andere Einkünfte"**: Rürup-Rente kann als Einkunftsquelle neben BU-Rente, Kindergeld, etc. hinzugefügt werden
   - **Helper-Funktionen verfügbar**: `calculateRuerupTaxDeduction()`, `calculateRuerupPensionTaxation()`, `getRuerupDeductibilityLimits()`, `getRuerupPensionTaxablePercentage()`
   - **Umfassend getestet**: 36 Tests (32 Helper + 4 Integration) mit 100% Pass-Rate
+- **Betriebliche Altersvorsorge (bAV)** - Calculation helper für Betriebsrente (§ 3 Nr. 63 EStG)
+  - **5 Durchführungswege**: Direktzusage, Unterstützungskasse, Direktversicherung, Pensionskasse, Pensionsfonds
+  - **Beitragsphase Steuervorteile**: Steuer- und sozialversicherungsfreie Beiträge bis BBG-Grenzen
+    - **Arbeitgeberanteil steuerfrei**: Bis 8% der BBG West (7.248€ in 2024)
+    - **Arbeitnehmeranteil sozialversicherungsfrei**: Bis 4% der BBG West (3.624€ in 2024)
+    - **Automatische Grenzwertprüfung**: Warnung bei Überschreitung der Freibeträge
+  - **Rentenphase Besteuerung**: Nachgelagerte Besteuerung mit voller Steuer- und Sozialversicherungspflicht
+    - **100% steuerpflichtig**: Komplette Versteuerung der Betriebsrente
+    - **Krankenversicherung**: ~7,3% Beitragssatz bei gesetzlicher Krankenversicherung
+    - **Pflegeversicherung**: ~3-4% Beitragssatz (abhängig von Kinderzahl)
+  - **Lifetime Benefit Analysis**: ROI, Nettorentenhöhe, Gesamtsteuervorteile
+  - **BBG-Werte**: Historische und projizierte Werte (2020-2025+) mit 3% jährlichem Wachstum
+  - **Helper-Funktionen verfügbar**: `calculateBetriebsrenteTaxBenefit()`, `calculateBetriebsrentePensionTaxation()`, `calculateBetriebsrenteLifetimeBenefit()`, `getBetriebsrenteTaxLimits()`
+  - **Umfassend getestet**: 23 Tests mit 100% Pass-Rate, vollständige Abdeckung aller Berechnungsszenarien
+- **Rentenversicherungs-Vergleichstool** - Vergleich deutscher Altersvorsorgeartengenüberstellung
+  - **4 Rentenarten**: Gesetzliche Rente, Riester-Rente, Rürup-Rente, Betriebsrente (bAV)
+  - **Side-by-Side Analyse**: Direkter Vergleich aller aktivierten Rentenarten
+  - **Berechnung pro Rentenart**:
+    - Jährliche Beiträge und Steuervorteile während Ansparphase
+    - Erwartete Brutto- und Netto-Monatsrente
+    - Return on Investment (ROI)
+    - Netto-Lebenszeitleistung (Gesamtrente minus Beiträge plus Steuervorteile)
+  - **Zusammenfassung**:
+    - Gesamte jährliche Beiträge über alle Rentenarten
+    - Gesamte monatliche Netto-Rente aus allen Quellen
+    - Kombinierte ROI und Lebenszeitleistung
+  - **Empfehlungen**: Identifizierung der Rentenart mit höchstem ROI und höchster Netto-Lebenszeitleistung
+  - **Helper-Funktionen verfügbar**: `comparePensionTypes()`
+  - **Umfassend getestet**: 14 Tests mit 100% Pass-Rate, realistische Szenarien und Edge Cases
 - **Riester-Rente** - Als "andere Einkünfte" konfigurierbar mit staatlicher Förderung
   - **Zulagenberechnung**: Automatische Berechnung von Grundzulage (175€) und Kinderzulagen (185€/300€)
   - **Mindesteigenbeitrag**: Berechnung des erforderlichen Eigenbeitrags (4% des Bruttoeinkommens minus Zulagen, mindestens 60€)
