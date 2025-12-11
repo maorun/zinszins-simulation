@@ -6,10 +6,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
 
-#### Rentenversicherungs-Vergleichstool (Priorität: Sehr Hoch ⭐⭐⭐)
-
-Ein umfassendes Vergleichstool für verschiedene deutsche Rentenversicherungsarten zur optimalen Altersvorsorge-Planung.
-
 ### Erweiterte Finanzplanung
 
 #### Steueroptimierung
