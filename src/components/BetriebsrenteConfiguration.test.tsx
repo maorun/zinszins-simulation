@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import { render, screen } from '@testing-library/react'
+import { render, screen, fireEvent } from '@testing-library/react'
 import { userEvent } from '@testing-library/user-event'
 import { BetriebsrenteConfiguration } from './BetriebsrenteConfiguration'
 import type { BetriebsrenteConfig } from '../../helpers/betriebsrente'
@@ -63,14 +63,12 @@ describe('BetriebsrenteConfiguration', () => {
   })
 
   it('should update employee contribution', async () => {
-    const user = userEvent.setup()
     const onChange = vi.fn()
     const enabledConfig = { ...defaultConfig, enabled: true }
     render(<BetriebsrenteConfiguration config={enabledConfig} onChange={onChange} />)
 
     const input = screen.getByLabelText('Jährlicher Arbeitnehmerbeitrag (Entgeltumwandlung)')
-    await user.clear(input)
-    await user.type(input, '5000')
+    fireEvent.change(input, { target: { value: '5000' } })
 
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({ annualEmployeeContribution: 5000 })
@@ -78,14 +76,12 @@ describe('BetriebsrenteConfiguration', () => {
   })
 
   it('should update employer contribution', async () => {
-    const user = userEvent.setup()
     const onChange = vi.fn()
     const enabledConfig = { ...defaultConfig, enabled: true }
     render(<BetriebsrenteConfiguration config={enabledConfig} onChange={onChange} />)
 
     const input = screen.getByLabelText('Jährlicher Arbeitgeberzuschuss')
-    await user.clear(input)
-    await user.type(input, '2400')
+    fireEvent.change(input, { target: { value: '2400' } })
 
     expect(onChange).toHaveBeenCalledWith(
       expect.objectContaining({ annualEmployerContribution: 2400 })
@@ -93,40 +89,34 @@ describe('BetriebsrenteConfiguration', () => {
   })
 
   it('should update pension start year', async () => {
-    const user = userEvent.setup()
     const onChange = vi.fn()
     const enabledConfig = { ...defaultConfig, enabled: true }
     render(<BetriebsrenteConfiguration config={enabledConfig} onChange={onChange} />)
 
     const input = screen.getByLabelText('Rentenbeginn (Jahr)')
-    await user.clear(input)
-    await user.type(input, '2055')
+    fireEvent.change(input, { target: { value: '2055' } })
 
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ pensionStartYear: 2055 }))
   })
 
   it('should update expected monthly pension', async () => {
-    const user = userEvent.setup()
     const onChange = vi.fn()
     const enabledConfig = { ...defaultConfig, enabled: true }
     render(<BetriebsrenteConfiguration config={enabledConfig} onChange={onChange} />)
 
     const input = screen.getByLabelText('Erwartete monatliche Rente (brutto)')
-    await user.clear(input)
-    await user.type(input, '800')
+    fireEvent.change(input, { target: { value: '800' } })
 
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ expectedMonthlyPension: 800 }))
   })
 
   it('should update pension increase rate', async () => {
-    const user = userEvent.setup()
     const onChange = vi.fn()
     const enabledConfig = { ...defaultConfig, enabled: true }
     render(<BetriebsrenteConfiguration config={enabledConfig} onChange={onChange} />)
 
     const input = screen.getByLabelText('Jährliche Rentenanpassung (%)')
-    await user.clear(input)
-    await user.type(input, '2.0')
+    fireEvent.change(input, { target: { value: '2.0' } })
 
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ pensionIncreaseRate: 0.02 }))
   })
@@ -198,11 +188,11 @@ describe('BetriebsrenteConfiguration', () => {
       />
     )
 
-    // Should show BBG-based limits
-    expect(screen.getByText(/sozialversicherungsfrei/)).toBeInTheDocument()
-    expect(screen.getByText(/steuerfrei/)).toBeInTheDocument()
-    expect(screen.getByText(/4% BBG/)).toBeInTheDocument()
-    expect(screen.getByText(/8% BBG/)).toBeInTheDocument()
+    // Should show BBG-based limits (text appears multiple times for employee and employer fields)
+    expect(screen.getAllByText(/sozialversicherungsfrei/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/steuerfrei/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/4% BBG/).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/8% BBG/).length).toBeGreaterThan(0)
   })
 
   it('should display tooltip info icon', () => {
