@@ -19,7 +19,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 #### Risikomanagement
 
 - **Währungsrisiko** - Multi-Währungs-Portfolios mit Wechselkursrisiken
-- **Tail-Risk Hedging** - Absicherungsstrategien gegen extreme Verluste
 
 ### Lebenssituationen & Planung
 

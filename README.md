@@ -294,6 +294,27 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Detaillierte Aufschlüsselung nach Verlusttyp
   - **Informations-Tool**: Berechnung basiert auf Beispielwerten (10.000 € Kapitalerträge + 500 € Vorabpauschale)
   - **Steuerintegration**: Nutzt aktuelle Steuereinstellungen (Kapitalertragsteuer, Teilfreistellung) aus der Konfiguration
+- **Tail-Risk Hedging** - Informations-Tool zur Bewertung von Absicherungsstrategien gegen extreme Marktverluste
+  - **4 Hedging-Strategien**:
+    - Protective Put (Put-Optionen) - Klassische Absicherung mit Put-Optionen zu bekannten Kosten
+    - CPPI (Constant Proportion Portfolio Insurance) - Dynamische Portfolioabsicherung durch Anpassung der Aktienquote
+    - Tail-Risk Fonds - Spezialisierte Fonds, die von extremen Marktbewegungen profitieren
+    - Systematisches Rebalancing - Regelbasierte Risikoverwaltung mit Stop-Loss-Mechanismen
+  - **Konfigurierbare Parameter**:
+    - Schutzniveau (50%-100%) - Definiert den Schwellenwert für Verlustabsicherung
+    - Absicherungsquote (0%-100%) - Anteil des Portfolios, der abgesichert wird
+    - Jährliche Kosten - Strategiespezifische Hedging-Kosten als Prozentsatz
+    - Rebalancing-Frequenz - Monatlich, quartalsweise, halbjährlich oder jährlich
+  - **Szenario-Simulation**: 10-Jahres-Periode mit realistischen Marktszenarien inkl. Crash-Jahr
+  - **Ergebnisanalyse**:
+    - Gesamtkosten der Hedging-Strategie
+    - Verhinderte Verluste durch Absicherung
+    - Nettovorteil (Verlustverhinderung minus Kosten)
+    - Anzahl der Jahre mit Hedge-Auslösung
+    - Portfolio-Vergleich (mit vs. ohne Hedging)
+  - **Interpretation**: Kontextabhängige Erklärung der Ergebnisse für verschiedene Marktszenarien
+  - **Kostenbereichs-Validierung**: Automatische Prüfung ob Kosten im typischen Bereich für gewählte Strategie liegen
+  - **Bildungsfunktion**: Hilft Anlegern zu verstehen, wann Tail-Risk Hedging sinnvoll ist und welche Strategiekosten angemessen sind
 - **Verlustverrechnungstöpfe (Loss Offset Accounts)** - Jahr-für-Jahr Tracking und Verrechnung von Verlusten in der Simulation
   - **Automatisches Verlusttracking**: Verfolgung von Verlusten über die gesamte Simulationsdauer
     - Separate Verwaltung von Aktienverlusttopf und sonstigem Verlusttopf

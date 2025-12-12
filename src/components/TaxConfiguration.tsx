@@ -7,6 +7,7 @@ import { TooltipProvider } from './ui/tooltip'
 import { GrundfreibetragConfiguration } from './tax-config/GrundfreibetragConfiguration'
 import { TaxConfigurationCard } from './tax-config/TaxConfigurationCard'
 import { TaxLossHarvestingCard } from './TaxLossHarvestingCard'
+import { TailRiskHedgingCard } from './TailRiskHedgingCard'
 import { SolidaritaetszuschlagCard } from './SolidaritaetszuschlagCard'
 import { SeveranceCalculatorCard } from './SeveranceCalculatorCard'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
@@ -128,6 +129,7 @@ function TaxConfigurationCards({
       />
       <InsuranceCostOverview />
       <TaxLossHarvestingCard />
+      <TailRiskHedgingCard />
       <SeveranceCalculatorCard />
       <SolidaritaetszuschlagCard />
       <NestingProvider>
