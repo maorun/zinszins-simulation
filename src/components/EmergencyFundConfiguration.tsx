@@ -1,5 +1,6 @@
 import { Wallet } from 'lucide-react'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
+import { CardDescription } from './ui/card'
 import { Switch } from './ui/switch'
 import { Label } from './ui/label'
 import { EmergencyFundStatusDisplay } from './emergency-fund/EmergencyFundStatusDisplay'
@@ -8,14 +9,9 @@ import { useEmergencyFund } from './emergency-fund/useEmergencyFund'
 
 function EmergencyFundHeader() {
   return (
-    <CollapsibleCardHeader>
-      <h3 className="text-lg sm:text-xl font-bold flex items-center gap-2">
-        <Wallet className="w-5 h-5 sm:w-6 sm:h-6" />
-        Liquiditätsreserve / Notfallfonds
-      </h3>
-      <p className="text-sm text-gray-600 mt-1">
-        Planen Sie Ihre finanzielle Notfallreserve nach deutschen Standards
-      </p>
+    <CollapsibleCardHeader titleClassName="text-lg sm:text-xl font-bold flex items-center gap-2">
+      <Wallet className="w-5 h-5 sm:w-6 sm:h-6" />
+      Liquiditätsreserve / Notfallfonds
     </CollapsibleCardHeader>
   )
 }
@@ -43,6 +39,10 @@ export default function EmergencyFundConfiguration() {
       <EmergencyFundHeader />
       <CollapsibleCardContent>
         <div className="space-y-6">
+          <CardDescription>
+            Planen Sie Ihre finanzielle Notfallreserve nach deutschen Standards
+          </CardDescription>
+
           <div className="flex items-center space-x-2">
             <Switch id="emergency-fund-enabled" checked={config.enabled} onCheckedChange={handleToggleEnabled} />
             <Label htmlFor="emergency-fund-enabled">Notfallfonds-Planung aktivieren</Label>

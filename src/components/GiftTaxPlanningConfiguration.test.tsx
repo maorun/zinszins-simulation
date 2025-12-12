@@ -9,10 +9,14 @@ async function expandCard(user: ReturnType<typeof userEvent.setup>) {
 }
 
 describe('GiftTaxPlanningConfiguration', () => {
-  it('should render collapsed by default', () => {
+  it('should render collapsed by default', async () => {
+    const user = userEvent.setup()
     render(<GiftTaxPlanningConfiguration />)
 
     expect(screen.getByText('Schenkungssteuer-Planung')).toBeInTheDocument()
+    
+    // Description is in collapsed content, need to expand to see it
+    await expandCard(user)
     expect(
       screen.getByText(
         'Optimieren Sie lebzeitige Vermögensübertragungen unter Nutzung der 10-Jahres-Freibeträge',

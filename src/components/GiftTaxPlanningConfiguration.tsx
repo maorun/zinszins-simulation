@@ -1,6 +1,7 @@
 import { useMemo, useState } from 'react'
 import { Gift } from 'lucide-react'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
+import { CardDescription } from './ui/card'
 import { Switch } from './ui/switch'
 import { Label } from './ui/label'
 import { GiftTaxConfigForm } from './GiftTaxConfigForm'
@@ -11,14 +12,9 @@ import { generateFormId } from '../utils/unique-id'
 
 function GiftTaxPlanningHeader() {
   return (
-    <CollapsibleCardHeader>
-      <h3 className="text-lg sm:text-xl font-bold flex items-center gap-2">
-        <Gift className="w-5 h-5 sm:w-6 sm:h-6" />
-        Schenkungssteuer-Planung
-      </h3>
-      <p className="text-sm text-gray-600 mt-1">
-        Optimieren Sie lebzeitige Vermögensübertragungen unter Nutzung der 10-Jahres-Freibeträge
-      </p>
+    <CollapsibleCardHeader titleClassName="text-lg sm:text-xl font-bold flex items-center gap-2">
+      <Gift className="w-5 h-5 sm:w-6 sm:h-6" />
+      Schenkungssteuer-Planung
     </CollapsibleCardHeader>
   )
 }
@@ -48,6 +44,10 @@ export default function GiftTaxPlanningConfiguration() {
       <GiftTaxPlanningHeader />
       <CollapsibleCardContent>
         <div className="space-y-6">
+          <CardDescription>
+            Optimieren Sie lebzeitige Vermögensübertragungen unter Nutzung der 10-Jahres-Freibeträge
+          </CardDescription>
+
           <div className="flex items-center space-x-2">
             <Switch id={enabledSwitchId} checked={enabled} onCheckedChange={setEnabled} />
             <Label htmlFor={enabledSwitchId}>Schenkungssteuer-Planung aktivieren</Label>
