@@ -21,6 +21,26 @@ export interface CalculationExplanation {
   }
 }
 
+// Step color scheme constants for visual consistency
+const STEP_COLORS = {
+  ORANGE: { backgroundColor: '#fff3e0', borderColor: '#ffcc80' },
+  GREEN: { backgroundColor: '#e8f5e8', borderColor: '#81c784' },
+  BLUE: { backgroundColor: '#e3f2fd', borderColor: '#64b5f6' },
+  PURPLE: { backgroundColor: '#f3e5f5', borderColor: '#ba68c8' },
+  LIGHT_BLUE: { backgroundColor: '#e1f5fe', borderColor: '#81d4fa' },
+  YELLOW: { backgroundColor: '#fff9c4', borderColor: '#fff176' },
+  RED: { backgroundColor: '#ffebee', borderColor: '#ef5350' },
+  PINK: { backgroundColor: '#fce4ec', borderColor: '#e91e63' },
+  // Additional variations for specific use cases
+  BLUE_VARIANT: { backgroundColor: '#e3f2fd', borderColor: '#90caf9' },
+  PURPLE_VARIANT: { backgroundColor: '#f3e5f5', borderColor: '#ce93d8' },
+  LIGHT_BLUE_VARIANT: { backgroundColor: '#e1f5fe', borderColor: '#2196f3' },
+  ORANGE_VARIANT: { backgroundColor: '#fff3e0', borderColor: '#ff9800' },
+  GREEN_DARK: { backgroundColor: '#e8f5e8', borderColor: '#4caf50' },
+  RED_VARIANT: { backgroundColor: '#ffebee', borderColor: '#f44336' },
+  PINK_VARIANT: { backgroundColor: '#fce4ec', borderColor: '#e91e63' },
+} as const
+
 // Interest calculation explanation (for savings phase)
 export function createInterestExplanation(
   startkapital: number,
@@ -38,16 +58,14 @@ export function createInterestExplanation(
         description: 'Das verfügbare Kapital zu Beginn des Jahres.',
         calculation: `Startkapital = ${formatCurrency(startkapital)}`,
         result: formatCurrency(startkapital),
-        backgroundColor: '#fff3e0',
-        borderColor: '#ffcc80',
+        ...STEP_COLORS.ORANGE,
       },
       {
         title: 'Schritt 2: Rendite anwenden',
         description: `Die erwartete jährliche Rendite von ${rendite}% wird auf das Startkapital angewendet.`,
         calculation: `Zinsen = Startkapital × Rendite<br/>${formatCurrency(startkapital)} × ${rendite}%`,
         result: formatCurrency(zinsen),
-        backgroundColor: '#e8f5e8',
-        borderColor: '#81c784',
+        ...STEP_COLORS.GREEN,
       },
     ],
     finalResult: {
@@ -82,24 +100,21 @@ export function createTaxExplanation(
         description: 'Die Vorabpauschale ist der Betrag, der für die Besteuerung relevant ist.',
         calculation: `Vorabpauschale = ${formatCurrency(vorabpauschaleAmount)}`,
         result: formatCurrency(vorabpauschaleAmount),
-        backgroundColor: '#fff3e0',
-        borderColor: '#ffcc80',
+        ...STEP_COLORS.ORANGE,
       },
       {
         title: 'Schritt 2: Steuer vor Sparerpauschbetrag berechnen',
         description: `Steuer wird mit ${(steuersatz * 100).toFixed(1)}% Steuersatz berechnet, reduziert um ${teilfreistellungsquote * 100}% Teilfreistellung.`,
         calculation: `Steuer = Vorabpauschale × ${(steuersatz * 100).toFixed(1)}% × (1 - ${teilfreistellungsquote * 100}%)<br/>${formatCurrency(vorabpauschaleAmount)} × ${(steuersatz * 100).toFixed(1)}% × ${(1 - teilfreistellungsquote) * 100}%`,
         result: formatCurrency(steuerVorFreibetrag),
-        backgroundColor: '#e8f5e8',
-        borderColor: '#81c784',
+        ...STEP_COLORS.GREEN,
       },
       {
         title: 'Schritt 3: Sparerpauschbetrag anwenden',
         description: `Der verfügbare Sparerpauschbetrag von ${formatCurrency(freibetrag)} reduziert die zu zahlende Steuer.`,
         calculation: `Bezahlte Steuer = max(0, Steuer vor Sparerpauschbetrag - Sparerpauschbetrag)<br/>max(0, ${formatCurrency(steuerVorFreibetrag)} - ${formatCurrency(freibetrag)})`,
         result: formatCurrency(bezahlteSteuer),
-        backgroundColor: '#e3f2fd',
-        borderColor: '#64b5f6',
+        ...STEP_COLORS.BLUE,
       },
     ],
     finalResult: {
@@ -128,16 +143,14 @@ function createEndkapitalSteps(
       description: 'Das verfügbare Kapital zu Beginn des Jahres (Endkapital des Vorjahres).',
       calculation: `Startkapital = ${formatCurrency(startkapital)}`,
       result: formatCurrency(startkapital),
-      backgroundColor: '#fff3e0',
-      borderColor: '#ffcc80',
+      ...STEP_COLORS.ORANGE,
     },
     {
       title: 'Schritt 2: Neue Einzahlungen addieren',
       description: 'Ihre Einzahlungen/Sparraten für das Jahr werden zum Startkapital hinzugefügt.',
       calculation: `Kapital nach Einzahlungen = Startkapital + Einzahlungen<br/>${formatCurrency(startkapital)} + ${formatCurrency(einzahlung)}`,
       result: formatCurrency(startkapital + einzahlung),
-      backgroundColor: '#e8f5e8',
-      borderColor: '#81c784',
+      ...STEP_COLORS.GREEN,
     },
     {
       title: 'Schritt 3: Zinserträge/Wertzuwachs berücksichtigen',
@@ -145,16 +158,14 @@ function createEndkapitalSteps(
         'Die erwirtschafteten Zinsen und Wertsteigerungen werden hinzugefügt (können auch negativ sein bei Verlusten).',
       calculation: `Kapital nach Zinsen = Kapital nach Einzahlungen + Zinsen<br/>${formatCurrency(startkapital + einzahlung)} + ${formatCurrency(zinsen)}`,
       result: formatCurrency(startkapital + einzahlung + zinsen),
-      backgroundColor: '#e3f2fd',
-      borderColor: '#64b5f6',
+      ...STEP_COLORS.BLUE,
     },
     {
       title: 'Schritt 4: Steuern abziehen',
       description: 'Die für das Jahr anfallenden Steuern (z.B. Vorabpauschale) werden vom Kapital abgezogen.',
       calculation: `Endkapital = Kapital nach Zinsen - Bezahlte Steuern<br/>${formatCurrency(startkapital + einzahlung + zinsen)} - ${formatCurrency(bezahlteSteuer)}`,
       result: formatCurrency(endkapital),
-      backgroundColor: '#f3e5f5',
-      borderColor: '#ba68c8',
+      ...STEP_COLORS.PURPLE,
     },
   ]
 }
@@ -204,24 +215,21 @@ export function createInflationExplanation(
         description: 'Der ursprüngliche Entnahmebetrag zu Beginn der Entnahme-Phase.',
         calculation: `Basis-Betrag = ${formatCurrency(baseAmount)}`,
         result: formatCurrency(baseAmount),
-        backgroundColor: '#fff3e0',
-        borderColor: '#ffcc80',
+        ...STEP_COLORS.ORANGE,
       },
       {
         title: 'Schritt 2: Inflationsrate anwenden',
         description: `Nach ${yearsPassed} Jahr${yearsPassed === 1 ? '' : 'en'} mit ${(inflationRate * 100).toFixed(1)}% jährlicher Inflation.`,
         calculation: `Angepasster Betrag = Basis-Betrag × (1 + Inflation)^Jahre<br/>${formatCurrency(baseAmount)} × (1 + ${(inflationRate * 100).toFixed(1)}%)^${yearsPassed}<br/>${formatCurrency(baseAmount)} × ${totalInflationMultiplier.toFixed(4)}`,
         result: formatCurrency(adjustedAmount),
-        backgroundColor: '#e8f5e8',
-        borderColor: '#81c784',
+        ...STEP_COLORS.GREEN,
       },
       {
         title: 'Schritt 3: Inflations-Anpassung berechnen',
         description: 'Die zusätzliche Summe durch die Inflations-Anpassung.',
         calculation: `Inflations-Anpassung = Angepasster Betrag - Basis-Betrag<br/>${formatCurrency(adjustedAmount)} - ${formatCurrency(baseAmount)}`,
         result: formatCurrency(inflationAnpassung),
-        backgroundColor: '#e3f2fd',
-        borderColor: '#64b5f6',
+        ...STEP_COLORS.BLUE,
       },
     ],
     finalResult: {
@@ -257,24 +265,21 @@ export function createIncomeTaxExplanation(
         description: 'Die jährliche Entnahme aus dem Portfolio.',
         calculation: `Jährliche Entnahme = ${formatCurrency(entnahme)}`,
         result: formatCurrency(entnahme),
-        backgroundColor: '#fff3e0',
-        borderColor: '#ffcc80',
+        ...STEP_COLORS.ORANGE,
       },
       {
         title: 'Schritt 2: Grundfreibetrag anwenden',
         description: `Der Grundfreibetrag von ${formatCurrency(grundfreibetrag)} ist steuerfrei.`,
         calculation: `Steuerpflichtiges Einkommen = max(0, Entnahme - Grundfreibetrag)<br/>max(0, ${formatCurrency(entnahme)} - ${formatCurrency(grundfreibetrag)})`,
         result: formatCurrency(steuerpflichtigesEinkommen),
-        backgroundColor: '#e8f5e8',
-        borderColor: '#81c784',
+        ...STEP_COLORS.GREEN,
       },
       {
         title: 'Schritt 3: Einkommensteuer berechnen',
         description: `Steuersatz von ${steuersatz}% auf das steuerpflichtige Einkommen.`,
         calculation: `Einkommensteuer = Steuerpflichtiges Einkommen × ${steuersatz}%<br/>${formatCurrency(steuerpflichtigesEinkommen)} × ${steuersatz}%`,
         result: formatCurrency(einkommensteuer),
-        backgroundColor: '#e3f2fd',
-        borderColor: '#64b5f6',
+        ...STEP_COLORS.BLUE,
       },
     ],
     finalResult: {
@@ -307,16 +312,14 @@ export function createWithdrawalInterestExplanation(
         description: 'Das Kapital, das zu Beginn des Jahres zur Verfügung steht.',
         calculation: `Startkapital = ${formatCurrency(startkapital)}`,
         result: formatCurrency(startkapital),
-        backgroundColor: '#fff3e0',
-        borderColor: '#ffcc80',
+        ...STEP_COLORS.ORANGE,
       },
       {
         title: 'Schritt 2: Rendite erwirtschaften',
         description: `Das Kapital erwirtschaftet eine Rendite von ${rendite}% über das Jahr.`,
         calculation: `Zinsen = Startkapital × Rendite<br/>${formatCurrency(startkapital)} × ${rendite}%`,
         result: formatCurrency(zinsen),
-        backgroundColor: '#e8f5e8',
-        borderColor: '#81c784',
+        ...STEP_COLORS.GREEN,
       },
     ],
     finalResult: {
@@ -365,8 +368,7 @@ function addStatutoryPensionStep(steps: CalculationStep[], amount: number): void
     description: 'Der steuerpflichtige Anteil der gesetzlichen Rente wird zu den Einkünften hinzugefügt.',
     calculation: `Steuerpflichtiger Rentenanteil = ${formatCurrency(amount)}`,
     result: formatCurrency(amount),
-    backgroundColor: '#e3f2fd',
-    borderColor: '#90caf9',
+    ...STEP_COLORS.BLUE_VARIANT,
   })
 }
 
@@ -377,8 +379,7 @@ function addOtherIncomeStep(steps: CalculationStep[], amount: number): void {
     description: 'Weitere Einkünfte (Mieteinnahmen, Nebeneinkünfte, etc.) werden zu den Einkünften hinzugefügt.',
     calculation: `Andere Einkünfte = ${formatCurrency(amount)}`,
     result: formatCurrency(amount),
-    backgroundColor: '#f3e5f5',
-    borderColor: '#ce93d8',
+    ...STEP_COLORS.PURPLE_VARIANT,
   })
 }
 
@@ -391,8 +392,7 @@ function addHealthCareInsuranceStep(steps: CalculationStep[], amount: number): v
       'Brutto-Einkünften abgezogen.',
     calculation: `Krankenversicherungsbeiträge = ${formatCurrency(amount)} ` + '(steuerlich absetzbar)',
     result: `-${formatCurrency(amount)}`,
-    backgroundColor: '#e1f5fe',
-    borderColor: '#81d4fa',
+    ...STEP_COLORS.LIGHT_BLUE,
   })
 }
 
@@ -462,8 +462,7 @@ function addTotalIncomeStepIfNeeded(steps: CalculationStep[], params: TaxableInc
     description: 'Alle Einkunftsarten werden zusammengefasst und steuerlich absetzbare Beiträge abgezogen.',
     calculation: calculationText,
     result: formatCurrency(totalIncome),
-    backgroundColor: '#fff9c4',
-    borderColor: '#fff176',
+    ...STEP_COLORS.YELLOW,
   })
 }
 
@@ -513,8 +512,7 @@ function buildTaxableIncomeSteps(
       description: 'Die Entnahme aus dem Portfolio vor Steuern.',
       calculation: `Portfolio-Entnahme = ${formatCurrency(params.entnahme)}`,
       result: formatCurrency(params.entnahme),
-      backgroundColor: '#fff3e0',
-      borderColor: '#ffcc80',
+      ...STEP_COLORS.ORANGE,
     },
   ]
 
@@ -537,8 +535,7 @@ function buildTaxableIncomeSteps(
     description: `Der steuerfreie Grundfreibetrag von ${formatCurrency(params.grundfreibetrag)} wird von den gesamten Einkünften abgezogen.`,
     calculation: `Zu versteuerndes Einkommen = max(0, Gesamte Einkünfte - Grundfreibetrag)<br/>max(0, ${formatCurrency(totalTaxableIncome)} - ${formatCurrency(params.grundfreibetrag)})`,
     result: formatCurrency(steuerpflichtigesEinkommen),
-    backgroundColor: '#e8f5e8',
-    borderColor: '#81c784',
+    ...STEP_COLORS.GREEN,
   })
 
   return steps
@@ -595,24 +592,21 @@ export function createOtherIncomeExplanation(
         description: `Gesamte Brutto-Einkünfte aus ${sourceCount} Quelle${sourceCount === 1 ? '' : 'n'}.`,
         calculation: `Brutto-Einkünfte = ${formatCurrency(totalGrossAmount)}`,
         result: formatCurrency(totalGrossAmount),
-        backgroundColor: '#fff3e0',
-        borderColor: '#ff9800',
+        ...STEP_COLORS.ORANGE_VARIANT,
       },
       {
         title: 'Schritt 2: Steuern berechnen',
         description: 'Steuern werden basierend auf den konfigurierten Steuersätzen der Brutto-Einkünfte berechnet.',
         calculation: `Steuern = ${formatCurrency(totalTaxAmount)}`,
         result: formatCurrency(totalTaxAmount),
-        backgroundColor: '#ffebee',
-        borderColor: '#f44336',
+        ...STEP_COLORS.RED_VARIANT,
       },
       {
         title: 'Schritt 3: Netto-Einkünfte',
         description: 'Die verfügbaren Netto-Einkünfte nach Abzug der Steuern.',
         calculation: `Netto-Einkünfte = ${formatCurrency(totalGrossAmount)} - ${formatCurrency(totalTaxAmount)}`,
         result: formatCurrency(totalNetAmount),
-        backgroundColor: '#e8f5e8',
-        borderColor: '#4caf50',
+        ...STEP_COLORS.GREEN_DARK,
       },
     ],
     finalResult: {
@@ -641,32 +635,28 @@ function buildStatutoryPensionSteps(
       description: 'Die jährliche Brutto-Rente, die Sie von der Deutschen Rentenversicherung erhalten.',
       calculation: `Brutto-Rente (jährlich) = ${formatCurrency(grossAnnualAmount)}`,
       result: formatCurrency(grossAnnualAmount),
-      backgroundColor: '#e8f5e8',
-      borderColor: '#4caf50',
+      ...STEP_COLORS.GREEN_DARK,
     },
     {
       title: 'Schritt 2: Steuerpflichtiger Anteil',
       description: `Der steuerpflichtige Anteil der Rente beträgt ${taxablePercentage.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}% der Brutto-Rente.`,
       calculation: `Steuerpflichtiger Anteil = ${formatCurrency(grossAnnualAmount)} × ${taxablePercentage.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 })}%`,
       result: formatCurrency(taxableAmount),
-      backgroundColor: '#fff3e0',
-      borderColor: '#ffcc80',
+      ...STEP_COLORS.ORANGE,
     },
     {
       title: 'Schritt 3: Einkommensteuer auf Rente',
       description: 'Auf den steuerpflichtigen Anteil wird die Einkommensteuer erhoben.',
       calculation: `Einkommensteuer = ${formatCurrency(taxableAmount)} - Grundfreibetrag, dann Steuersatz anwenden`,
       result: formatCurrency(incomeTax),
-      backgroundColor: '#ffebee',
-      borderColor: '#ef5350',
+      ...STEP_COLORS.RED,
     },
     {
       title: 'Schritt 4: Netto-Renteneinkommen',
       description: 'Das verfügbare Netto-Einkommen aus der gesetzlichen Rente nach Abzug der Steuern.',
       calculation: `Netto-Rente = ${formatCurrency(grossAnnualAmount)} - ${formatCurrency(incomeTax)}`,
       result: formatCurrency(netAnnualAmount),
-      backgroundColor: '#e8f5e8',
-      borderColor: '#4caf50',
+      ...STEP_COLORS.GREEN_DARK,
     },
   ]
 }
@@ -720,32 +710,28 @@ function buildStatutoryInsuranceSteps(
       description: 'Das Einkommen, auf das die Kranken- und Pflegeversicherungsbeiträge berechnet werden.',
       calculation: `Bemessungsgrundlage = ${formatCurrency(baseIncomeForCalculation)}`,
       result: formatCurrency(baseIncomeForCalculation),
-      backgroundColor: '#fff3e0',
-      borderColor: '#ff9800',
+      ...STEP_COLORS.ORANGE_VARIANT,
     },
     {
       title: 'Schritt 2: Krankenversicherungsbeitrag',
       description: `Krankenversicherung: ${effectiveHealthInsuranceRate}% ${employerText}`,
       calculation: `Krankenversicherung = ${formatCurrency(baseIncomeForCalculation)} × ${effectiveHealthInsuranceRate}%`,
       result: formatCurrency(healthInsuranceAnnual),
-      backgroundColor: '#e3f2fd',
-      borderColor: '#2196f3',
+      ...STEP_COLORS.LIGHT_BLUE_VARIANT,
     },
     {
       title: 'Schritt 3: Pflegeversicherungsbeitrag',
       description: `Pflegeversicherung: ${effectiveCareInsuranceRate}% ${employerText}`,
       calculation: `Pflegeversicherung = ${formatCurrency(baseIncomeForCalculation)} × ${effectiveCareInsuranceRate}%`,
       result: formatCurrency(careInsuranceAnnual),
-      backgroundColor: '#e8f5e8',
-      borderColor: '#4caf50',
+      ...STEP_COLORS.GREEN_DARK,
     },
     {
       title: 'Schritt 4: Gesamtbeitrag',
       description: 'Die Summe aus Kranken- und Pflegeversicherungsbeiträgen.',
       calculation: `Gesamt = ${formatCurrency(healthInsuranceAnnual)} + ${formatCurrency(careInsuranceAnnual)}`,
       result: formatCurrency(totalAnnual),
-      backgroundColor: '#fce4ec',
-      borderColor: '#e91e63',
+      ...STEP_COLORS.PINK,
     },
   ]
 }
@@ -767,8 +753,7 @@ function buildPrivateInsuranceSteps(
       description: `Die Beiträge werden jährlich um ${inflationRate.toFixed(1)}% angepasst.`,
       calculation: `Anpassungsfaktor = ${(inflationAdjustmentFactor * 100).toFixed(1)}%`,
       result: `+${inflationRate.toFixed(1)}%`,
-      backgroundColor: '#fff3e0',
-      borderColor: '#ff9800',
+      ...STEP_COLORS.ORANGE_VARIANT,
     })
   }
 
@@ -778,24 +763,21 @@ function buildPrivateInsuranceSteps(
       description: 'Der monatliche Beitrag zur privaten Krankenversicherung.',
       calculation: `Krankenversicherung = ${formatCurrency(monthlyHealthInsurance)} × 12 Monate`,
       result: formatCurrency(healthInsuranceAnnual),
-      backgroundColor: '#e3f2fd',
-      borderColor: '#2196f3',
+      ...STEP_COLORS.LIGHT_BLUE_VARIANT,
     },
     {
       title: `Schritt ${steps.length + 2}: Pflegeversicherung (privat)`,
       description: 'Der monatliche Beitrag zur privaten Pflegeversicherung.',
       calculation: `Pflegeversicherung = ${formatCurrency(monthlyCareInsurance)} × 12 Monate`,
       result: formatCurrency(careInsuranceAnnual),
-      backgroundColor: '#e8f5e8',
-      borderColor: '#4caf50',
+      ...STEP_COLORS.GREEN_DARK,
     },
     {
       title: `Schritt ${steps.length + 3}: Gesamtbeitrag`,
       description: 'Die Summe aus Kranken- und Pflegeversicherungsbeiträgen.',
       calculation: `Gesamt = ${formatCurrency(healthInsuranceAnnual)} + ${formatCurrency(careInsuranceAnnual)}`,
       result: formatCurrency(totalAnnual),
-      backgroundColor: '#fce4ec',
-      borderColor: '#e91e63',
+      ...STEP_COLORS.PINK,
     },
   )
 
