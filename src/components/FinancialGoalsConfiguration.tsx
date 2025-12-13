@@ -3,6 +3,7 @@ import { Target } from 'lucide-react'
 import { useSimulation } from '../contexts/useSimulation'
 import { createDefaultGoal, updateMilestoneAchievements } from '../../helpers/financial-goals'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
+import { CardDescription } from './ui/card'
 import { GoalForm } from './financial-goals/GoalForm'
 import { GoalList } from './financial-goals/GoalList'
 import { CurrentCapitalDisplay } from './financial-goals/CurrentCapitalDisplay'
@@ -97,15 +98,13 @@ export default function FinancialGoalsConfiguration() {
 
   return (
     <CollapsibleCard>
-      <CollapsibleCardHeader>
-        <h3 className="text-lg sm:text-xl font-bold flex items-center gap-2">
-          <Target className="w-5 h-5 sm:w-6 sm:h-6" />
-          Finanzziele
-        </h3>
-        <p className="text-sm text-gray-600 mt-1">Setzen Sie SMART-Ziele und verfolgen Sie Ihren Fortschritt</p>
+      <CollapsibleCardHeader titleClassName="text-lg sm:text-xl font-bold flex items-center gap-2">
+        <Target className="w-5 h-5 sm:w-6 sm:h-6" />
+        Finanzziele
       </CollapsibleCardHeader>
       <CollapsibleCardContent>
         <div className="space-y-6">
+          <CardDescription>Setzen Sie SMART-Ziele und verfolgen Sie Ihren Fortschritt</CardDescription>
           <CurrentCapitalDisplay currentCapital={currentCapital} />
           <GoalForm onAddGoal={handleAddGoal} />
           <GoalList

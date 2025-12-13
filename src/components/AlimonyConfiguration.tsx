@@ -1,5 +1,6 @@
 import { HandCoins } from 'lucide-react'
 import { CollapsibleCard, CollapsibleCardContent, CollapsibleCardHeader } from './ui/collapsible-card'
+import { CardDescription } from './ui/card'
 import { Switch } from './ui/switch'
 import { Label } from './ui/label'
 import { Button } from './ui/button'
@@ -10,14 +11,9 @@ import { generateFormId } from '../utils/unique-id'
 
 function AlimonyHeader() {
   return (
-    <CollapsibleCardHeader>
-      <h3 className="text-lg sm:text-xl font-bold flex items-center gap-2">
-        <HandCoins className="w-5 h-5 sm:w-6 sm:h-6" />
-        Unterhaltszahlungen
-      </h3>
-      <p className="text-sm text-gray-600 mt-1">
-        Kindesunterhalt, Ehegattenunterhalt und Trennungsunterhalt planen
-      </p>
+    <CollapsibleCardHeader titleClassName="text-lg sm:text-xl font-bold flex items-center gap-2">
+      <HandCoins className="w-5 h-5 sm:w-6 sm:h-6" />
+      Unterhaltszahlungen
     </CollapsibleCardHeader>
   )
 }
@@ -36,6 +32,10 @@ export default function AlimonyConfiguration() {
       <AlimonyHeader />
       <CollapsibleCardContent>
         <div className="space-y-6">
+          <CardDescription>
+            Kindesunterhalt, Ehegattenunterhalt und Trennungsunterhalt planen
+          </CardDescription>
+
           <div className="flex items-center space-x-2">
             <Switch id={enabledSwitchId} checked={config.enabled} onCheckedChange={handleToggleEnabled} />
             <Label htmlFor={enabledSwitchId}>Unterhaltszahlungen aktivieren</Label>

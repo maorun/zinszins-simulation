@@ -15,6 +15,22 @@ import {
 import type { SimulationContextState } from '../contexts/SimulationContext'
 import type { SavingsData } from './data-export'
 import type { SparplanElement } from './sparplan-utils'
+import type { SimulationResult } from './simulate'
+
+// Type for withdrawal data used in Excel export
+interface WithdrawalDataForExcel {
+  strategy?: string
+  startingCapital?: number
+  withdrawalFrequency?: 'yearly' | 'monthly'
+  years?: Array<{
+    year: number
+    startingCapital?: number
+    withdrawal?: number
+    returns?: number
+    tax?: number
+    endingCapital?: number
+  }>
+}
 
 // Mock XLSX.writeFile
 vi.mock('xlsx', async () => {
@@ -24,6 +40,11 @@ vi.mock('xlsx', async () => {
     writeFile: vi.fn(),
   }
 })
+
+// Helper to create a minimal mock SimulationResult for testing
+function createMockSimulationResult(): SimulationResult {
+  return {}
+}
 
 describe('excel-export', () => {
   let mockContext: SimulationContextState
@@ -46,7 +67,7 @@ describe('excel-export', () => {
       type: 'sparplan' as const,
       start: new Date('2023-01-01'),
       einzahlung: 1000,
-      simulation: {} as any,
+      simulation: createMockSimulationResult(),
     }
 
     const sparplanElement2: SparplanElement = {
@@ -54,14 +75,15 @@ describe('excel-export', () => {
       start: new Date('2023-01-01'),
       einzahlung: 5000,
       gewinn: 0,
-      simulation: {} as any,
+      simulation: createMockSimulationResult(),
     }
 
     // Add extended properties after creation (to simulate runtime behavior)
-    const extendedElement1 = sparplanElement1 as any
+    type ExtendedSparplanElement = SparplanElement & { gesamtkapitalNachSteuern?: number }
+    const extendedElement1 = sparplanElement1 as ExtendedSparplanElement
     extendedElement1.gesamtkapitalNachSteuern = 200000
 
-    const extendedElement2 = sparplanElement2 as any
+    const extendedElement2 = sparplanElement2 as ExtendedSparplanElement
     extendedElement2.gesamtkapitalNachSteuern = 5000
 
     mockSavingsData = {
@@ -252,13 +274,13 @@ describe('excel-export', () => {
   })
 
   describe('exportWithdrawalDataToExcel', () => {
-    let mockWithdrawalData: any
+    let mockWithdrawalData: WithdrawalDataForExcel
 
     beforeEach(() => {
       mockWithdrawalData = {
         strategy: '4% Regel',
         startingCapital: 500000,
-        withdrawalFrequency: 'yearly',
+        withdrawalFrequency: 'yearly' as const,
         years: [
           {
             year: 2040,
@@ -300,13 +322,13 @@ describe('excel-export', () => {
   })
 
   describe('exportCompleteDataToExcel', () => {
-    let mockWithdrawalData: any
+    let mockWithdrawalData: WithdrawalDataForExcel
 
     beforeEach(() => {
       mockWithdrawalData = {
         strategy: '4% Regel',
         startingCapital: 500000,
-        withdrawalFrequency: 'yearly',
+        withdrawalFrequency: 'yearly' as const,
         years: [
           {
             year: 2040,
