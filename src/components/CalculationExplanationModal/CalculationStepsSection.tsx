@@ -1,14 +1,7 @@
-interface CalculationStep {
-  title: string
-  description: string
-  calculation: string
-  result: string
-  backgroundColor: string
-  borderColor: string
-}
+import type { CalculationStep } from '../calculationHelpers'
 
 interface CalculationStepsSectionProps {
-  steps: CalculationStep[]
+  steps: readonly CalculationStep[]
 }
 
 const CalculationStepsSection = ({ steps }: CalculationStepsSectionProps) => {

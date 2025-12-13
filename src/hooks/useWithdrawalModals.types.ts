@@ -6,24 +6,8 @@ import type { VorabpauschaleDetails } from '../utils/simulate'
 
 export type { VorabpauschaleDetails }
 
-export interface CalculationStep {
-  title: string
-  description: string
-  calculation: string
-  result: string
-  backgroundColor: string
-  borderColor: string
-}
-
-export interface CalculationExplanation {
-  title: string
-  introduction: string
-  steps: CalculationStep[]
-  finalResult: {
-    title: string
-    values: Array<{ label: string; value: string }>
-  }
-}
+// Re-export from canonical source instead of duplicating
+export type { CalculationStep, CalculationExplanation } from '../components/calculationHelpers'
 
 export interface ModalWithdrawalFormValue extends Record<string, unknown> {
   inflationsrate?: number

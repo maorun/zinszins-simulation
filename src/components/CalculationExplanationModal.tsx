@@ -3,25 +3,17 @@ import { Button } from './ui/button'
 import IntroductionSection from './CalculationExplanationModal/IntroductionSection'
 import CalculationStepsSection from './CalculationExplanationModal/CalculationStepsSection'
 import FinalResultSection from './CalculationExplanationModal/FinalResultSection'
-
-interface CalculationStep {
-  title: string
-  description: string
-  calculation: string
-  result: string
-  backgroundColor: string
-  borderColor: string
-}
+import type { CalculationStep } from './calculationHelpers'
 
 interface CalculationExplanationModalProps {
   open: boolean
   onClose: () => void
   title: string
   introduction: string
-  steps: CalculationStep[]
+  steps: readonly CalculationStep[]
   finalResult: {
-    title: string
-    values: Array<{ label: string; value: string }>
+    readonly title: string
+    readonly values: ReadonlyArray<{ readonly label: string; readonly value: string }>
   }
 }
 

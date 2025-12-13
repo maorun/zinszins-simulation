@@ -3,26 +3,39 @@
 import { formatCurrency } from '../utils/currency'
 
 export interface CalculationStep {
-  title: string
-  description: string
-  calculation: string
-  result: string
-  backgroundColor: string
-  borderColor: string
+  readonly title: string
+  readonly description: string
+  readonly calculation: string
+  readonly result: string
+  readonly backgroundColor: string
+  readonly borderColor: string
 }
 
 export interface CalculationExplanation {
-  title: string
-  introduction: string
-  steps: CalculationStep[]
-  finalResult: {
-    title: string
-    values: Array<{ label: string; value: string }>
+  readonly title: string
+  readonly introduction: string
+  readonly steps: readonly CalculationStep[]
+  readonly finalResult: {
+    readonly title: string
+    readonly values: ReadonlyArray<{ readonly label: string; readonly value: string }>
   }
 }
 
-// Step color scheme constants for visual consistency
+/**
+ * Step color scheme constants for visual consistency in calculation explanations.
+ *
+ * Base colors provide the standard palette for calculation steps.
+ * Variant colors share the same background as their base color but use different
+ * border colors to provide visual distinction when multiple related calculations
+ * appear in the same explanation.
+ *
+ * Color naming convention:
+ * - Base colors (e.g., BLUE, GREEN): Standard border color intensity
+ * - VARIANT suffix: Alternative border color, same background
+ * - DARK suffix: Darker/more saturated border color, same background
+ */
 const STEP_COLORS = {
+  // Base colors
   ORANGE: { backgroundColor: '#fff3e0', borderColor: '#ffcc80' },
   GREEN: { backgroundColor: '#e8f5e8', borderColor: '#81c784' },
   BLUE: { backgroundColor: '#e3f2fd', borderColor: '#64b5f6' },
@@ -31,7 +44,7 @@ const STEP_COLORS = {
   YELLOW: { backgroundColor: '#fff9c4', borderColor: '#fff176' },
   RED: { backgroundColor: '#ffebee', borderColor: '#ef5350' },
   PINK: { backgroundColor: '#fce4ec', borderColor: '#e91e63' },
-  // Additional variations for specific use cases
+  // Variants - same background colors as base, different borders for visual distinction
   BLUE_VARIANT: { backgroundColor: '#e3f2fd', borderColor: '#90caf9' },
   PURPLE_VARIANT: { backgroundColor: '#f3e5f5', borderColor: '#ce93d8' },
   LIGHT_BLUE_VARIANT: { backgroundColor: '#e1f5fe', borderColor: '#2196f3' },
@@ -41,7 +54,16 @@ const STEP_COLORS = {
   PINK_VARIANT: { backgroundColor: '#fce4ec', borderColor: '#e91e63' },
 } as const
 
-// Interest calculation explanation (for savings phase)
+/**
+ * Creates a step-by-step explanation of how interest/returns are calculated.
+ * Used in the savings phase to show how capital grows through investment returns.
+ *
+ * @param startkapital - The starting capital at the beginning of the period
+ * @param zinsen - The calculated interest/return amount for the period
+ * @param rendite - The annual return rate as a percentage (e.g., 5 for 5%)
+ * @param _year - The year being calculated (currently unused but kept for API consistency)
+ * @returns A complete calculation explanation with steps and final results
+ */
 export function createInterestExplanation(
   startkapital: number,
   zinsen: number,
@@ -79,7 +101,19 @@ export function createInterestExplanation(
   }
 }
 
-// Tax calculation explanation (for savings phase)
+/**
+ * Creates a detailed explanation of German tax calculations on investment returns.
+ * Includes Vorabpauschale (advance lump-sum taxation), partial exemption
+ * (Teilfreistellungsquote), and tax allowance (Sparerpauschbetrag).
+ *
+ * @param bezahlteSteuer - The actual tax amount paid after allowances
+ * @param vorabpauschaleAmount - The advance lump-sum taxable amount
+ * @param steuersatz - The tax rate as a decimal (e.g., 0.26375 for 26.375%)
+ * @param teilfreistellungsquote - The partial exemption rate as a decimal (e.g., 0.3 for 30%)
+ * @param freibetrag - The annual tax allowance amount (Sparerpauschbetrag)
+ * @param _year - The year being calculated (currently unused but kept for API consistency)
+ * @returns A complete calculation explanation showing tax computation steps
+ */
 export function createTaxExplanation(
   bezahlteSteuer: number,
   vorabpauschaleAmount: number,
@@ -170,6 +204,19 @@ function createEndkapitalSteps(
   ]
 }
 
+/**
+ * Creates a comprehensive explanation of how the ending capital is calculated.
+ * Shows the complete flow from starting capital through contributions, returns,
+ * and taxes to arrive at the final capital amount.
+ *
+ * @param endkapital - The final capital amount at year end
+ * @param startkapital - The starting capital at year beginning
+ * @param einzahlung - Total contributions/deposits made during the year
+ * @param zinsen - Interest/returns earned during the year
+ * @param bezahlteSteuer - Taxes paid during the year
+ * @param year - The year being calculated
+ * @returns A complete calculation explanation showing the capital development
+ */
 export function createEndkapitalExplanation(
   endkapital: number,
   startkapital: number,
@@ -195,7 +242,16 @@ export function createEndkapitalExplanation(
   }
 }
 
-// Inflation calculation explanation (for withdrawal phase)
+/**
+ * Creates an explanation of inflation adjustment calculations for withdrawal amounts.
+ * Shows how withdrawal amounts are adjusted over time to maintain purchasing power.
+ *
+ * @param baseAmount - The original withdrawal amount at the start of retirement
+ * @param inflationRate - The annual inflation rate as a decimal (e.g., 0.02 for 2%)
+ * @param yearsPassed - Number of years since retirement started
+ * @param inflationAnpassung - The total inflation adjustment amount
+ * @returns A complete calculation explanation showing inflation impact
+ */
 export function createInflationExplanation(
   baseAmount: number,
   inflationRate: number,
@@ -661,7 +717,17 @@ function buildStatutoryPensionSteps(
   ]
 }
 
-// Statutory pension calculation explanation
+/**
+ * Creates a detailed explanation of German statutory pension (gesetzliche Rente) calculations.
+ * Shows how the pension is taxed based on the taxable percentage and how net income is derived.
+ *
+ * @param grossAnnualAmount - The gross annual pension amount before taxes
+ * @param netAnnualAmount - The net annual pension amount after taxes
+ * @param incomeTax - The income tax paid on the taxable portion
+ * @param taxableAmount - The portion of pension that is subject to taxation
+ * @param year - The year being calculated
+ * @returns A complete calculation explanation showing pension taxation
+ */
 export function createStatutoryPensionExplanation(
   grossAnnualAmount: number,
   netAnnualAmount: number,
