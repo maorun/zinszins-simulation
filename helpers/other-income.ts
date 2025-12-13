@@ -1185,8 +1185,8 @@ function getTermLifeBaseMortalityRate(age: number): number {
  * Calculate risk multipliers for term life insurance
  */
 function calculateTermLifeRiskMultipliers(config: RisikolebensversicherungConfig): number {
-  const healthMultipliers = { excellent: 0.85, good: 1.0, average: 1.15, fair: 1.35, poor: 1.7 }
-  const smokingMultipliers = { 'non-smoker': 1.0, 'former-smoker': 1.25, smoker: 1.8 }
+  const healthMultipliers = { excellent: 0.85, good: 1.0, average: 1.15, fair: 1.35, poor: 1.7 } as const
+  const smokingMultipliers = { 'non-smoker': 1.0, 'former-smoker': 1.25, smoker: 1.8 } as const
 
   const healthMultiplier = healthMultipliers[config.healthStatus] ?? 1.0
   const smokingMultiplier = smokingMultipliers[config.smokingStatus] ?? 1.0
