@@ -97,7 +97,7 @@ export function DrawdownAnalysis({ riskMetrics, portfolioData, hasRiskData }: Dr
     drawdownSeries: NonNullable<RiskMetrics['drawdownSeries']>
   }
 
-  const hasSignificantDrawdowns = validRiskMetrics.drawdownSeries.filter(item => item.drawdown > 0.1).length > 0
+  const hasSignificantDrawdowns = validRiskMetrics.drawdownSeries.some(item => item.drawdown > 0.1)
 
   return (
     <CollapsibleCard className="border-l-4 border-l-orange-400">
