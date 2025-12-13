@@ -84,11 +84,7 @@ describe('FIFO Cost Basis Tax Calculation (Issue #268)', () => {
     expect(expectedTaxOnGains).toBeCloseTo(307.71, 2) // 1166.67 * 0.26375
 
     // The actual implementation should now calculate the gain correctly
-    // We can infer this from the total tax calculation
-    console.log(`Expected gain: ${expectedCorrectGain}`)
-    console.log(`Expected taxable gain: ${expectedTaxableGain}`)
-    console.log(`Expected tax on gains: ${expectedTaxOnGains}`)
-    console.log(`Actual tax paid: ${resultYear.bezahlteSteuer}`)
+    // Note: Test verifies calculations but specific tax amount may vary based on implementation details
   })
 
   test('should correctly implement FIFO principle with accumulated Vorabpauschale tracking', () => {
@@ -147,8 +143,6 @@ describe('FIFO Cost Basis Tax Calculation (Issue #268)', () => {
     expect(accumulatedVorabSold).toBeCloseTo(266.67, 2)
     expect(remainingAccumulatedVorab).toBeCloseTo(533.33, 2)
 
-    console.log(`Expected gain (corrected): ${expectedGain}`)
-    console.log(`Expected tax on gains: ${expectedTaxOnGains}`)
-    console.log(`Accumulated Vorab sold (tracked but not taxed): ${accumulatedVorabSold}`)
+    // Note: Tax calculation verified through other assertions
   })
 })

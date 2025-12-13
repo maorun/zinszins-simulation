@@ -180,7 +180,8 @@ describe('Inflation Scenarios - Comprehensive Testing', () => {
 
     // With 7% average return and inflation adjustment, most years should be positive
     // But some negative years are possible with high volatility - this is correct behavior
-    console.log(`Positive years: ${positiveYears}, Negative years: ${negativeYears}`)
+    // Positive years should outnumber negative years with 7% average return
+    expect(positiveYears).toBeGreaterThan(negativeYears)
   })
 
   test('should handle tax calculations with inflation correctly', () => {
