@@ -3,15 +3,7 @@ import { Button } from './ui/button'
 import IntroductionSection from './CalculationExplanationModal/IntroductionSection'
 import CalculationStepsSection from './CalculationExplanationModal/CalculationStepsSection'
 import FinalResultSection from './CalculationExplanationModal/FinalResultSection'
-
-interface CalculationStep {
-  readonly title: string
-  readonly description: string
-  readonly calculation: string
-  readonly result: string
-  readonly backgroundColor: string
-  readonly borderColor: string
-}
+import type { CalculationStep } from './calculationHelpers'
 
 interface CalculationExplanationModalProps {
   open: boolean

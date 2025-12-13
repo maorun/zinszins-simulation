@@ -1,11 +1,4 @@
-interface CalculationStep {
-  readonly title: string
-  readonly description: string
-  readonly calculation: string
-  readonly result: string
-  readonly backgroundColor: string
-  readonly borderColor: string
-}
+import type { CalculationStep } from '../calculationHelpers'
 
 interface CalculationStepsSectionProps {
   steps: readonly CalculationStep[]
