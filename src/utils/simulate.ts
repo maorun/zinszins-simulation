@@ -110,7 +110,16 @@ export interface SimulateOptions {
   stockGainsRatio?: number // Ratio of capital gains from stocks (0-1, default 0.7 for typical equity funds)
 }
 
-// Helper function to add inflation-adjusted values to simulation result
+/**
+ * Adds inflation-adjusted values to a simulation result element.
+ * Calculates the real purchasing power of capital values by adjusting for inflation.
+ *
+ * @param result - The simulation result element to enhance with inflation-adjusted values
+ * @param year - The current year of the simulation
+ * @param baseYear - The base year from which to calculate inflation impact
+ * @param inflationRate - The annual inflation rate (as percentage, e.g., 2 for 2%)
+ * @returns The simulation result with added real (inflation-adjusted) values, or unchanged if no inflation
+ */
 function addInflationAdjustedValues(
   result: SimulationResultElement,
   year: number,
@@ -130,7 +139,14 @@ function addInflationAdjustedValues(
   }
 }
 
-// Helper function to get inflation rate for a specific year
+/**
+ * Retrieves the inflation rate for a specific year based on simulation options.
+ * Supports both variable inflation rates (per year) and fixed inflation rates.
+ *
+ * @param year - The year for which to get the inflation rate
+ * @param options - The simulation options containing inflation configuration
+ * @returns The inflation rate as a decimal (e.g., 0.02 for 2%), or 0 if no inflation is configured
+ */
 function getInflationRateForYear(year: number, options: SimulateOptions): number {
   // Use variable inflation rates if provided
   if (options.variableInflationRates && options.variableInflationRates[year] !== undefined) {
@@ -146,7 +162,11 @@ function getInflationRateForYear(year: number, options: SimulateOptions): number
 }
 
 /**
- * Apply fixed rate to all years
+ * Applies a fixed return rate to all years in the simulation period.
+ *
+ * @param years - Array of years to apply the fixed rate to
+ * @param fixedRate - The fixed return rate to apply (as decimal, e.g., 0.05 for 5%)
+ * @returns A record mapping each year to the fixed rate
  */
 function applyFixedRate(years: number[], fixedRate: number): Record<number, number> {
   const rates: Record<number, number> = {}
@@ -157,7 +177,12 @@ function applyFixedRate(years: number[], fixedRate: number): Record<number, numb
 }
 
 /**
- * Apply variable returns to years
+ * Applies variable return rates to years, using configured yearly returns.
+ * Falls back to 5% default rate for years without a configured return.
+ *
+ * @param years - Array of years to apply returns to
+ * @param yearlyReturns - Record of yearly returns (year -> rate as decimal)
+ * @returns A record mapping each year to its configured return rate, or 0.05 as default
  */
 function applyVariableReturns(years: number[], yearlyReturns: Record<number, number>): Record<number, number> {
   const rates: Record<number, number> = {}
