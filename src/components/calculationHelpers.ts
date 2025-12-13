@@ -3,21 +3,21 @@
 import { formatCurrency } from '../utils/currency'
 
 export interface CalculationStep {
-  title: string
-  description: string
-  calculation: string
-  result: string
-  backgroundColor: string
-  borderColor: string
+  readonly title: string
+  readonly description: string
+  readonly calculation: string
+  readonly result: string
+  readonly backgroundColor: string
+  readonly borderColor: string
 }
 
 export interface CalculationExplanation {
-  title: string
-  introduction: string
-  steps: CalculationStep[]
-  finalResult: {
-    title: string
-    values: Array<{ label: string; value: string }>
+  readonly title: string
+  readonly introduction: string
+  readonly steps: readonly CalculationStep[]
+  readonly finalResult: {
+    readonly title: string
+    readonly values: ReadonlyArray<{ readonly label: string; readonly value: string }>
   }
 }
 

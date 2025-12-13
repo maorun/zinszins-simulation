@@ -1,14 +1,14 @@
 interface CalculationStep {
-  title: string
-  description: string
-  calculation: string
-  result: string
-  backgroundColor: string
-  borderColor: string
+  readonly title: string
+  readonly description: string
+  readonly calculation: string
+  readonly result: string
+  readonly backgroundColor: string
+  readonly borderColor: string
 }
 
 interface CalculationStepsSectionProps {
-  steps: CalculationStep[]
+  steps: readonly CalculationStep[]
 }
 
 const CalculationStepsSection = ({ steps }: CalculationStepsSectionProps) => {

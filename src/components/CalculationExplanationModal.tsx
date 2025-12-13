@@ -5,12 +5,12 @@ import CalculationStepsSection from './CalculationExplanationModal/CalculationSt
 import FinalResultSection from './CalculationExplanationModal/FinalResultSection'
 
 interface CalculationStep {
-  title: string
-  description: string
-  calculation: string
-  result: string
-  backgroundColor: string
-  borderColor: string
+  readonly title: string
+  readonly description: string
+  readonly calculation: string
+  readonly result: string
+  readonly backgroundColor: string
+  readonly borderColor: string
 }
 
 interface CalculationExplanationModalProps {
@@ -18,10 +18,10 @@ interface CalculationExplanationModalProps {
   onClose: () => void
   title: string
   introduction: string
-  steps: CalculationStep[]
+  steps: readonly CalculationStep[]
   finalResult: {
-    title: string
-    values: Array<{ label: string; value: string }>
+    readonly title: string
+    readonly values: ReadonlyArray<{ readonly label: string; readonly value: string }>
   }
 }
 

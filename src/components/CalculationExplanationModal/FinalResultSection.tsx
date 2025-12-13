@@ -1,7 +1,7 @@
 interface FinalResultSectionProps {
   finalResult: {
-    title: string
-    values: Array<{ label: string; value: string }>
+    readonly title: string
+    readonly values: ReadonlyArray<{ readonly label: string; readonly value: string }>
   }
 }
 
