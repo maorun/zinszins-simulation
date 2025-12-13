@@ -21,8 +21,21 @@ export interface CalculationExplanation {
   }
 }
 
-// Step color scheme constants for visual consistency
+/**
+ * Step color scheme constants for visual consistency in calculation explanations.
+ *
+ * Base colors provide the standard palette for calculation steps.
+ * Variant colors share the same background as their base color but use different
+ * border colors to provide visual distinction when multiple related calculations
+ * appear in the same explanation.
+ *
+ * Color naming convention:
+ * - Base colors (e.g., BLUE, GREEN): Standard border color intensity
+ * - VARIANT suffix: Alternative border color, same background
+ * - DARK suffix: Darker/more saturated border color, same background
+ */
 const STEP_COLORS = {
+  // Base colors
   ORANGE: { backgroundColor: '#fff3e0', borderColor: '#ffcc80' },
   GREEN: { backgroundColor: '#e8f5e8', borderColor: '#81c784' },
   BLUE: { backgroundColor: '#e3f2fd', borderColor: '#64b5f6' },
@@ -31,7 +44,7 @@ const STEP_COLORS = {
   YELLOW: { backgroundColor: '#fff9c4', borderColor: '#fff176' },
   RED: { backgroundColor: '#ffebee', borderColor: '#ef5350' },
   PINK: { backgroundColor: '#fce4ec', borderColor: '#e91e63' },
-  // Additional variations for specific use cases
+  // Variants - same background colors as base, different borders for visual distinction
   BLUE_VARIANT: { backgroundColor: '#e3f2fd', borderColor: '#90caf9' },
   PURPLE_VARIANT: { backgroundColor: '#f3e5f5', borderColor: '#ce93d8' },
   LIGHT_BLUE_VARIANT: { backgroundColor: '#e1f5fe', borderColor: '#2196f3' },
