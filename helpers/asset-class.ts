@@ -33,7 +33,7 @@ export const ASSET_CLASS_NAMES: Record<AssetClass, string> = {
   'commodity': 'Rohstoffe',
   'cryptocurrency': 'Kryptowährungen',
   'custom': 'Benutzerdefiniert',
-}
+} as const
 
 /**
  * Asset class descriptions for tooltips
@@ -55,7 +55,7 @@ export const ASSET_CLASS_DESCRIPTIONS: Record<AssetClass, string> = {
     'Kryptowährungen wie Bitcoin, Ethereum. Unterliegen nach 1 Jahr Haltefrist keiner Besteuerung, davor privates Veräußerungsgeschäft.',
   'custom':
     'Benutzerdefinierte Teilfreistellungsquote für spezielle Anlageklassen.',
-}
+} as const
 
 /**
  * Default Teilfreistellungsquoten for each asset class
@@ -72,7 +72,7 @@ export const DEFAULT_TEILFREISTELLUNGSQUOTEN: Record<AssetClass, number> = {
   'commodity': 0.0, // 0% for commodities
   'cryptocurrency': 0.0, // 0% - different tax treatment (Spekulationssteuer after 1 year holding period)
   'custom': 0.3, // Default to equity fund rate, user can customize
-}
+} as const
 
 /**
  * Get the Teilfreistellungsquote for a specific asset class

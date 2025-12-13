@@ -107,7 +107,7 @@ export const HEDGING_STRATEGY_NAMES: Record<HedgingStrategy, string> = {
   'dynamic-cppi': 'CPPI (Constant Proportion Portfolio Insurance)',
   'tail-risk-fund': 'Tail-Risk Fonds',
   'systematic-rebalancing': 'Systematisches Rebalancing',
-}
+} as const
 
 /**
  * Strategy descriptions in German
@@ -122,7 +122,7 @@ export const HEDGING_STRATEGY_DESCRIPTIONS: Record<HedgingStrategy, string> = {
     'Investition in spezialisierte Tail-Risk Fonds, die von extremen Marktbewegungen profitieren (z.B. durch Volatilitätsstrategien).',
   'systematic-rebalancing':
     'Regelmäßiges Rebalancing mit Stop-Loss-Mechanismen zum Schutz vor größeren Verlusten.',
-}
+} as const
 
 /**
  * Calculate the cost of hedging for a given year

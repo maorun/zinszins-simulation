@@ -64,7 +64,7 @@ export const INHERITANCE_TAX_RATES = {
     { upTo: 26000000, rate: 0.48 }, // 48%
     { upTo: Infinity, rate: 0.5 }, // 50%
   ],
-}
+} as const
 
 /**
  * Calculate German inheritance tax based on relationship and gross inheritance amount
