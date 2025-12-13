@@ -2,13 +2,24 @@ import { describe, test, expect, vi } from 'vitest'
 import { render, screen } from '@testing-library/react'
 import { RiskAnalysisPanels } from './RiskAnalysisPanels'
 
+// Define types for mock component props
+interface MonteCarloDisplayProps {
+  phaseTitle: string
+}
+
+interface DrawdownAnalysisProps {
+  hasRiskData: boolean
+}
+
 // Mock the sub-components
 vi.mock('./MonteCarloAnalysisDisplay', () => ({
-  default: ({ phaseTitle }: any) => <div data-testid="monte-carlo-display">Monte Carlo Analysis - {phaseTitle}</div>,
+  default: ({ phaseTitle }: MonteCarloDisplayProps) => (
+    <div data-testid="monte-carlo-display">Monte Carlo Analysis - {phaseTitle}</div>
+  ),
 }))
 
 vi.mock('./DrawdownAnalysis', () => ({
-  DrawdownAnalysis: ({ hasRiskData }: any) =>
+  DrawdownAnalysis: ({ hasRiskData }: DrawdownAnalysisProps) =>
     hasRiskData ? <div data-testid="drawdown-analysis">Drawdown Analysis</div> : null,
 }))
 

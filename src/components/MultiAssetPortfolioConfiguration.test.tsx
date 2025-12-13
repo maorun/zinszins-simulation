@@ -2,25 +2,65 @@ import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent, waitFor } from '@testing-library/react'
 import { MultiAssetPortfolioConfiguration } from './MultiAssetPortfolioConfiguration'
 import { createDefaultMultiAssetConfig } from '../../helpers/multi-asset-portfolio'
+import type { ReactNode } from 'react'
+
+// Define types for mock component props
+interface CardProps {
+  children: ReactNode
+  className?: string
+}
+
+interface SwitchProps {
+  checked: boolean
+  onCheckedChange?: (checked: boolean) => void
+  id?: string
+}
+
+interface SliderProps {
+  value?: number[]
+  onValueChange?: (value: number[]) => void
+  min?: number
+  max?: number
+  step?: number
+}
+
+interface ButtonProps {
+  children: ReactNode
+  onClick?: () => void
+  variant?: string
+  size?: string
+}
+
+interface RadioTileGroupProps {
+  children: ReactNode
+  value: string
+  onValueChange?: (value: string) => void
+}
+
+interface RadioTileProps {
+  children?: ReactNode
+  value: string
+  label?: string
+}
 
 // Mock the shadcn/ui components to avoid complex rendering issues in tests
 vi.mock('./ui/card', () => ({
-  Card: ({ children, ...props }: any) => (
+  Card: ({ children, ...props }: CardProps) => (
     <div data-testid="card" {...props}>
       {children}
     </div>
   ),
-  CardContent: ({ children, ...props }: any) => (
+  CardContent: ({ children, ...props }: CardProps) => (
     <div data-testid="card-content" {...props}>
       {children}
     </div>
   ),
-  CardHeader: ({ children, ...props }: any) => (
+  CardHeader: ({ children, ...props }: CardProps) => (
     <div data-testid="card-header" {...props}>
       {children}
     </div>
   ),
-  CardTitle: ({ children, ...props }: any) => (
+  CardTitle: ({ children, ...props }: CardProps) => (
     <h3 data-testid="card-title" {...props}>
       {children}
     </h3>
@@ -28,7 +68,7 @@ vi.mock('./ui/card', () => ({
 }))
 
 vi.mock('./ui/switch', () => ({
-  Switch: ({ checked, onCheckedChange, ...props }: any) => (
+  Switch: ({ checked, onCheckedChange, ...props }: SwitchProps) => (
     <input
       type="checkbox"
       checked={checked}
@@ -40,7 +80,7 @@ vi.mock('./ui/switch', () => ({
 }))
 
 vi.mock('./ui/slider', () => ({
-  Slider: ({ value, onValueChange, ...props }: any) => (
+  Slider: ({ value, onValueChange, ...props }: SliderProps) => (
     <input
       type="range"
       value={value?.[0] || 0}
@@ -52,7 +92,7 @@ vi.mock('./ui/slider', () => ({
 }))
 
 vi.mock('./ui/button', () => ({
-  Button: ({ children, onClick, ...props }: any) => (
+  Button: ({ children, onClick, ...props }: ButtonProps) => (
     <button onClick={onClick} data-testid="button" {...props}>
       {children}
     </button>
@@ -60,12 +100,12 @@ vi.mock('./ui/button', () => ({
 }))
 
 vi.mock('./ui/radio-tile', () => ({
-  RadioTileGroup: ({ children, value, onValueChange: _onValueChange, ...props }: any) => (
+  RadioTileGroup: ({ children, value, onValueChange: _onValueChange, ...props }: RadioTileGroupProps) => (
     <div data-testid="radio-tile-group" data-value={value} {...props}>
       {children}
     </div>
   ),
-  RadioTile: ({ children, value, label, ...props }: any) => (
+  RadioTile: ({ children, value, label, ...props }: RadioTileProps) => (
     <label data-testid="radio-tile" data-value={value} {...props}>
       <input type="radio" value={value} />
       {label || children}
