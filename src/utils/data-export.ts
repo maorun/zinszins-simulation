@@ -32,7 +32,11 @@ function formatCurrencyForCSV(amount: number): string {
 }
 
 /**
- * Generate CSV header for savings phase export
+ * Generates CSV header row for savings phase export.
+ * Creates a header with columns for year, month, capital values, and individual savings plan contributions.
+ *
+ * @param sparplans - Array of configured savings plans to include in the export
+ * @returns Semicolon-separated CSV header string with all column names
  */
 function generateSavingsCSVHeader(sparplans: Sparplan[]): string {
   const baseHeaders = ['Jahr', 'Monat', 'Startkapital (EUR)', 'Zinsen (EUR)']
@@ -52,7 +56,13 @@ function generateSavingsCSVHeader(sparplans: Sparplan[]): string {
 }
 
 /**
- * Export savings phase data to CSV format
+ * Exports savings phase simulation data to CSV format.
+ * Generates a comprehensive CSV file containing yearly/monthly breakdown of investments,
+ * returns, taxes, and capital development. Includes metadata header with simulation parameters.
+ *
+ * @param data - The export data containing savings simulation results and context
+ * @returns CSV-formatted string with semicolon separators, German number formatting
+ * @throws Error if savings data is missing or invalid
  */
 export function exportSavingsDataToCSV(data: ExportData): string {
   const { savingsData, context } = data
