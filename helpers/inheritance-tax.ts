@@ -12,7 +12,7 @@ export const INHERITANCE_TAX_EXEMPTIONS: Record<RelationshipType, number> = {
   parent_other: 20000, // €20,000 for parents in other cases
   sibling: 20000, // €20,000 for siblings
   other: 20000, // €20,000 for other relatives and unrelated persons
-}
+} as const
 
 /**
  * German inheritance tax classes and rates
@@ -30,7 +30,7 @@ export const RELATIONSHIP_TO_TAX_CLASS: Record<RelationshipType, InheritanceTaxC
   parent_other: 'II',
   sibling: 'II',
   other: 'III',
-}
+} as const
 
 /**
  * Tax rates by tax class and taxable amount ranges
