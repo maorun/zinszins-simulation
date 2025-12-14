@@ -94,7 +94,7 @@ export const DEFAULT_LIFE_PHASES: LifePhaseConfig[] = [
     endAge: 67,
     savingsRateMultiplier: 1.3, // 130% of base rate
   },
-]
+] as const
 
 /**
  * Calculate age from birth year and current year

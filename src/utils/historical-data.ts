@@ -169,7 +169,7 @@ export const HISTORICAL_INDICES: HistoricalIndex[] = [
     averageReturn: msciWorldStats.average,
     volatility: msciWorldStats.volatility,
   },
-]
+] as const
 
 /**
  * Get historical index by ID

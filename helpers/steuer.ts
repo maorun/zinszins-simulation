@@ -426,7 +426,7 @@ export const GERMAN_TAX_BRACKETS_2024: TaxBracket[] = [
     baseTax: 0,
     marginalRate: 0.45,
   },
-]
+] as const
 
 /**
  * Result of progressive tax calculation
