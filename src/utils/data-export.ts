@@ -7,6 +7,7 @@ import type { WithdrawalConfiguration } from './config-storage'
 import type { SimulationResultElement } from './simulate'
 import type { ReadonlyRecord } from '../types'
 import { formatCurrency, formatPercentage, formatNumberGerman } from './currency'
+import { isEmpty } from './array-utils'
 
 /**
  * Utility functions for exporting simulation data in CSV and Markdown formats
@@ -1025,7 +1026,7 @@ function addWithdrawalPhaseSection(
   context: SimulationContextState,
   lines: string[],
 ): void {
-  if (!withdrawalData || Object.keys(withdrawalData).length === 0) {
+  if (!withdrawalData || isEmpty(withdrawalData)) {
     lines.push('## Entnahmephase')
     lines.push('')
     lines.push(

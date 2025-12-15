@@ -1,5 +1,6 @@
 import type { RandomReturnConfig } from '../utils/random-returns'
 import { formatPercent } from '../utils/currency'
+import { isEmpty } from '../utils/array-utils'
 
 export interface MonteCarloResult {
   scenario: string
@@ -40,7 +41,7 @@ export const calculateBlackSwanScenario = (
   blackSwanReturns: Record<number, number> | null | undefined,
   blackSwanEventName: string | undefined,
 ): MonteCarloResult | null => {
-  if (!blackSwanReturns || Object.keys(blackSwanReturns).length === 0) {
+  if (!blackSwanReturns || isEmpty(blackSwanReturns)) {
     return null
   }
 

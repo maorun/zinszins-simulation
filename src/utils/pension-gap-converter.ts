@@ -8,6 +8,7 @@ import {
   type RetirementLifestyleConfig,
   type PensionGapAnalysisResult,
 } from '../../helpers/pension-gap-analysis'
+import { isEmpty } from './array-utils'
 
 /**
  * Calculate total available income from year data
@@ -51,7 +52,7 @@ export function calculatePensionGapFromWithdrawal(
   withdrawalResult: WithdrawalResult,
   retirementConfig: RetirementLifestyleConfig,
 ): PensionGapAnalysisResult | null {
-  if (!withdrawalResult || Object.keys(withdrawalResult).length === 0) {
+  if (!withdrawalResult || isEmpty(withdrawalResult)) {
     return null
   }
 
