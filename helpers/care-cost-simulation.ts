@@ -83,7 +83,7 @@ export const DEFAULT_CARE_LEVELS: Record<CareLevel, CareLevelInfo> = {
     typicalMonthlyCost: 3500,
     requiresProfessionalCare: true,
   },
-}
+} as const
 
 /**
  * Care cost configuration for simulation

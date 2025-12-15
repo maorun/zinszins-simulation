@@ -66,7 +66,7 @@ export const BLACK_SWAN_EVENTS: Record<BlackSwanEventId, BlackSwanEvent> = {
       0: -0.3, // Default: -30%
     },
   },
-}
+} as const
 
 /**
  * Apply a Black Swan event to a specific year in the simulation
