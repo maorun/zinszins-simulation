@@ -5,7 +5,7 @@ import type { WithdrawalSegment } from './segmented-withdrawal'
 import type { SparplanElement, Sparplan } from './sparplan-utils'
 import type { WithdrawalConfiguration } from './config-storage'
 import type { SimulationResultElement } from './simulate'
-import { formatCurrency, formatPercentage } from './currency'
+import { formatCurrency, formatPercentage, formatNumberGerman } from './currency'
 
 /**
  * Utility functions for exporting simulation data in CSV and Markdown formats
@@ -19,16 +19,6 @@ export interface ExportData {
   savingsData?: SavingsData
   withdrawalData?: WithdrawalResult
   context: SimulationContextState
-}
-
-/**
- * Helper function to format currency for CSV (no currency symbol)
- */
-function formatCurrencyForCSV(amount: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount)
 }
 
 /**
@@ -347,20 +337,20 @@ function addYearRows(
     // Basic data
     row.push(year.toString())
     row.push(isMonthly ? month.toString() : '12')
-    row.push(formatCurrencyForCSV(startkapital))
-    row.push(formatCurrencyForCSV(zinsen))
+    row.push(formatNumberGerman(startkapital))
+    row.push(formatNumberGerman(zinsen))
 
     // Individual savings plan contributions
     sparplanContributions.forEach(contribution => {
-      row.push(formatCurrencyForCSV(contribution))
+      row.push(formatNumberGerman(contribution))
     })
 
     // Summary data - now using cumulative contributions
-    row.push(formatCurrencyForCSV(cumulativeContributions))
-    row.push(formatCurrencyForCSV(endkapital))
-    row.push(formatCurrencyForCSV(vorabpauschale))
-    row.push(formatCurrencyForCSV(bezahlteSteuer))
-    row.push(formatCurrencyForCSV(genutzterFreibetrag))
+    row.push(formatNumberGerman(cumulativeContributions))
+    row.push(formatNumberGerman(endkapital))
+    row.push(formatNumberGerman(vorabpauschale))
+    row.push(formatNumberGerman(bezahlteSteuer))
+    row.push(formatNumberGerman(genutzterFreibetrag))
 
     lines.push(row.join(';'))
   }
@@ -433,9 +423,9 @@ function extractVorabpauschaleDetails(yearData: WithdrawalResultElement): {
   const details = yearData.vorabpauschaleDetails
   return {
     basiszins: formatBasiszins(details),
-    basisertrag: formatCurrencyForCSV(details?.basisertrag || 0),
-    jahresgewinn: formatCurrencyForCSV(details?.jahresgewinn || 0),
-    steuerVorFreibetrag: formatCurrencyForCSV(details?.steuerVorFreibetrag || 0),
+    basisertrag: formatNumberGerman(details?.basisertrag || 0),
+    jahresgewinn: formatNumberGerman(details?.jahresgewinn || 0),
+    steuerVorFreibetrag: formatNumberGerman(details?.steuerVorFreibetrag || 0),
   }
 }
 
@@ -446,17 +436,17 @@ function buildBasicRowData(params: BasicRowDataParams): string[] {
   return [
     year.toString(),
     isMonthly ? month.toString() : '12',
-    formatCurrencyForCSV(yearData.startkapital),
-    formatCurrencyForCSV(yearData.entnahme),
-    formatCurrencyForCSV(yearData.zinsen),
-    formatCurrencyForCSV(yearData.endkapital),
+    formatNumberGerman(yearData.startkapital),
+    formatNumberGerman(yearData.entnahme),
+    formatNumberGerman(yearData.zinsen),
+    formatNumberGerman(yearData.endkapital),
     vDetails.basiszins,
     vDetails.basisertrag,
     vDetails.jahresgewinn,
-    formatCurrencyForCSV(yearData.vorabpauschale || 0),
+    formatNumberGerman(yearData.vorabpauschale || 0),
     vDetails.steuerVorFreibetrag,
-    formatCurrencyForCSV(yearData.bezahlteSteuer),
-    formatCurrencyForCSV(yearData.genutzterFreibetrag),
+    formatNumberGerman(yearData.bezahlteSteuer),
+    formatNumberGerman(yearData.genutzterFreibetrag),
   ]
 }
 
@@ -474,18 +464,18 @@ function addMonthlyFixedStrategyData(
   yearData: WithdrawalResultElement,
   formValue: { inflationAktiv?: boolean; guardrailsAktiv?: boolean },
 ): void {
-  row.push(formatCurrencyForCSV(yearData.monatlicheEntnahme || 0))
+  row.push(formatNumberGerman(yearData.monatlicheEntnahme || 0))
   if (formValue.inflationAktiv) {
-    row.push(formatCurrencyForCSV(yearData.inflationAnpassung || 0))
+    row.push(formatNumberGerman(yearData.inflationAnpassung || 0))
   }
   if (formValue.guardrailsAktiv) {
-    row.push(formatCurrencyForCSV(yearData.portfolioAnpassung || 0))
+    row.push(formatNumberGerman(yearData.portfolioAnpassung || 0))
   }
 }
 
 function addDynamicStrategyData(row: string[], yearData: WithdrawalResultElement): void {
   row.push(formatPercentage(yearData.vorjahresRendite || 0))
-  row.push(formatCurrencyForCSV(yearData.dynamischeAnpassung || 0))
+  row.push(formatNumberGerman(yearData.dynamischeAnpassung || 0))
 }
 
 function addStrategySpecificData(params: StrategyRowDataParams): void {
@@ -536,14 +526,14 @@ function addTaxAndIncomeData(params: TaxIncomeDataParams): void {
   if (grundfreibetragAktiv) {
     const einkommensteuer = yearData.einkommensteuer ?? 0
     const grundfreibetrag = yearData.genutzterGrundfreibetrag ?? 0
-    row.push(formatCurrencyForCSV(einkommensteuer))
-    row.push(formatCurrencyForCSV(grundfreibetrag))
+    row.push(formatNumberGerman(einkommensteuer))
+    row.push(formatNumberGerman(grundfreibetrag))
   }
 
   if (hasOtherIncomeData) {
     const otherIncome = yearData.otherIncome
-    row.push(formatCurrencyForCSV(getOtherIncomeValue(otherIncome, 'totalNetAmount')))
-    row.push(formatCurrencyForCSV(getOtherIncomeValue(otherIncome, 'totalTaxAmount')))
+    row.push(formatNumberGerman(getOtherIncomeValue(otherIncome, 'totalNetAmount')))
+    row.push(formatNumberGerman(getOtherIncomeValue(otherIncome, 'totalTaxAmount')))
     row.push(getOtherIncomeValue(otherIncome, 'sourceCount').toString())
   }
 }

@@ -60,3 +60,28 @@ export function formatPercentGerman(value: number): string {
 export function formatPercentage(value: number): string {
   return value != null ? `${value.toFixed(2)}%` : '0.00%'
 }
+
+/**
+ * Format a number in German format without currency symbol (for CSV exports)
+ * @param amount - The number to format
+ * @returns Formatted string with German decimal separator
+ */
+export function formatNumberGerman(amount: number): string {
+  return new Intl.NumberFormat('de-DE', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(amount)
+}
+
+/**
+ * Format a percentage value as German percentage string (for Excel exports)
+ * @param value - Percentage value (e.g., 7.5 for 7.5%)
+ * @returns Formatted percentage string
+ */
+export function formatPercentageGerman(value: number): string {
+  return new Intl.NumberFormat('de-DE', {
+    style: 'percent',
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value / 100)
+}

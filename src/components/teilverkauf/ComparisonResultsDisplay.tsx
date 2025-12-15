@@ -1,18 +1,10 @@
 import { TrendingUp, AlertCircle, CheckCircle2 } from 'lucide-react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import type { TeilverkaufComparisonResult } from '../../../helpers/immobilien-teilverkauf'
+import { formatCurrencyWhole } from '../../utils/currency'
 
 interface ComparisonResultsDisplayProps {
   result: TeilverkaufComparisonResult
-}
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
-  }).format(value)
 }
 
 interface StrategyCardProps {
@@ -37,15 +29,15 @@ function StrategyCard({ title, isBest, initialLiquidity, costsLabel, costsValue,
       <CardContent className="space-y-2">
         <div>
           <div className="text-xs text-muted-foreground">Anfängliche Liquidität</div>
-          <div className="font-semibold">{formatCurrency(initialLiquidity)}</div>
+          <div className="font-semibold">{formatCurrencyWhole(initialLiquidity)}</div>
         </div>
         <div>
           <div className="text-xs text-muted-foreground">{costsLabel}</div>
-          <div className={`font-semibold ${isPositiveCosts ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(costsValue)}</div>
+          <div className={`font-semibold ${isPositiveCosts ? 'text-green-600' : 'text-red-600'}`}>{formatCurrencyWhole(costsValue)}</div>
         </div>
         <div className="pt-2 border-t">
           <div className="text-xs text-muted-foreground">Endvermögen</div>
-          <div className="font-bold text-lg">{formatCurrency(finalWealth)}</div>
+          <div className="font-bold text-lg">{formatCurrencyWhole(finalWealth)}</div>
         </div>
       </CardContent>
     </Card>
@@ -77,7 +69,7 @@ export function ComparisonResultsDisplay({ result }: ComparisonResultsDisplayPro
       <div className="flex items-start gap-2 p-4 bg-blue-50 rounded-lg border border-blue-200">
         <AlertCircle className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
         <div className="text-sm text-blue-900">
-          <strong>Empfehlung:</strong> {bestStrategy.name} bietet das höchste Endvermögen von {formatCurrency(bestStrategy.wealth)}.
+          <strong>Empfehlung:</strong> {bestStrategy.name} bietet das höchste Endvermögen von {formatCurrencyWhole(bestStrategy.wealth)}.
           Berücksichtigen Sie jedoch auch nicht-finanzielle Faktoren wie Wohnsicherheit und emotionale Bindung an die Immobilie.
         </div>
       </div>

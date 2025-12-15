@@ -14,27 +14,7 @@
 import * as XLSX from 'xlsx'
 import type { SimulationContextState } from '../contexts/SimulationContext'
 import type { SavingsData } from './data-export'
-
-/**
- * Format a number as German currency string for display in Excel
- */
-function formatGermanCurrency(value: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value)
-}
-
-/**
- * Format a number as German percentage string for display in Excel
- */
-function formatGermanPercentage(value: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    style: 'percent',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(value / 100)
-}
+import { formatNumberGerman, formatPercentageGerman } from './currency'
 
 /**
  * Generate summary sheet data
@@ -44,10 +24,10 @@ function generateSummarySheetData(context: SimulationContextState): string[][] {
     ['Zinseszins-Simulation - Sparphase', ''],
     ['', ''],
     ['Zeitraum', `${context.startEnd[0]} - ${context.startEnd[1]}`],
-    ['Rendite p.a.', formatGermanPercentage(context.rendite)],
-    ['Kapitalertragsteuer', formatGermanPercentage(context.steuerlast)],
-    ['Teilfreistellungsquote', formatGermanPercentage(context.teilfreistellungsquote)],
-    ['Freibetrag (Standard)', `${formatGermanCurrency(Object.values(context.freibetragPerYear)[0] || 0)} €`],
+    ['Rendite p.a.', formatPercentageGerman(context.rendite)],
+    ['Kapitalertragsteuer', formatPercentageGerman(context.steuerlast)],
+    ['Teilfreistellungsquote', formatPercentageGerman(context.teilfreistellungsquote)],
+    ['Freibetrag (Standard)', `${formatNumberGerman(Object.values(context.freibetragPerYear)[0] || 0)} €`],
     ['', ''],
     ['Berechnungsmodus', context.simulationAnnual === 'yearly' ? 'Jährlich' : 'Monatlich'],
   ]
@@ -176,9 +156,9 @@ function generateWithdrawalSummaryData(
     ['', ''],
     ['Zeitraum', `${startYear} - ${endYear}`],
     ['Strategie', withdrawalData.strategy || 'Unbekannt'],
-    ['Anfangskapital', `${formatGermanCurrency(withdrawalData.startingCapital || 0)} €`],
-    ['Rendite p.a.', formatGermanPercentage(context.rendite)],
-    ['Kapitalertragsteuer', formatGermanPercentage(context.steuerlast)],
+    ['Anfangskapital', `${formatNumberGerman(withdrawalData.startingCapital || 0)} €`],
+    ['Rendite p.a.', formatPercentageGerman(context.rendite)],
+    ['Kapitalertragsteuer', formatPercentageGerman(context.steuerlast)],
     ['', ''],
     ['Entnahmefrequenz', withdrawalData.withdrawalFrequency === 'yearly' ? 'Jährlich' : 'Monatlich'],
   ]
