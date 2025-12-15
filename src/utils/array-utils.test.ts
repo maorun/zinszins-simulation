@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { unique } from './array-utils'
+import { unique, isEmpty } from './array-utils'
 
 describe('array-utils', () => {
   describe('unique', () => {
@@ -76,6 +76,44 @@ describe('array-utils', () => {
       const input = ['', 'a', '', 'b', '']
       const result = unique(input)
       expect(result).toEqual(['', 'a', 'b'])
+    })
+  })
+
+  describe('isEmpty', () => {
+    it('should return true for null', () => {
+      expect(isEmpty(null)).toBe(true)
+    })
+
+    it('should return true for undefined', () => {
+      expect(isEmpty(undefined)).toBe(true)
+    })
+
+    it('should return true for empty object', () => {
+      expect(isEmpty({})).toBe(true)
+    })
+
+    it('should return false for object with properties', () => {
+      expect(isEmpty({ key: 'value' })).toBe(false)
+    })
+
+    it('should return false for object with numeric property', () => {
+      expect(isEmpty({ 0: 'value' })).toBe(false)
+    })
+
+    it('should return false for object with multiple properties', () => {
+      expect(isEmpty({ a: 1, b: 2, c: 3 })).toBe(false)
+    })
+
+    it('should return false for object with false value', () => {
+      expect(isEmpty({ flag: false })).toBe(false)
+    })
+
+    it('should return false for object with zero value', () => {
+      expect(isEmpty({ count: 0 })).toBe(false)
+    })
+
+    it('should return false for object with empty string value', () => {
+      expect(isEmpty({ text: '' })).toBe(false)
     })
   })
 })

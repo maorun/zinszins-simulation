@@ -2,10 +2,12 @@
  * Utility functions for withdrawal strategy display and formatting
  */
 
+import type { ReadonlyRecord } from '../types'
+
 /**
  * Map of withdrawal strategy identifiers to user-friendly German names
  */
-const strategyDisplayNames: Record<string, string> = {
+const strategyDisplayNames: ReadonlyRecord<string, string> = {
   '4prozent': '4% Regel',
   '3prozent': '3% Regel',
   variabel_prozent: 'Variable Prozent',

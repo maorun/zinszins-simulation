@@ -5,7 +5,9 @@ import type { WithdrawalSegment } from './segmented-withdrawal'
 import type { SparplanElement, Sparplan } from './sparplan-utils'
 import type { WithdrawalConfiguration } from './config-storage'
 import type { SimulationResultElement } from './simulate'
-import { formatCurrency, formatPercentage } from './currency'
+import type { ReadonlyRecord } from '../types'
+import { formatCurrency, formatPercentage, formatNumberGerman } from './currency'
+import { isEmpty } from './array-utils'
 
 /**
  * Utility functions for exporting simulation data in CSV and Markdown formats
@@ -19,16 +21,6 @@ export interface ExportData {
   savingsData?: SavingsData
   withdrawalData?: WithdrawalResult
   context: SimulationContextState
-}
-
-/**
- * Helper function to format currency for CSV (no currency symbol)
- */
-function formatCurrencyForCSV(amount: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount)
 }
 
 /**
@@ -347,20 +339,20 @@ function addYearRows(
     // Basic data
     row.push(year.toString())
     row.push(isMonthly ? month.toString() : '12')
-    row.push(formatCurrencyForCSV(startkapital))
-    row.push(formatCurrencyForCSV(zinsen))
+    row.push(formatNumberGerman(startkapital))
+    row.push(formatNumberGerman(zinsen))
 
     // Individual savings plan contributions
     sparplanContributions.forEach(contribution => {
-      row.push(formatCurrencyForCSV(contribution))
+      row.push(formatNumberGerman(contribution))
     })
 
     // Summary data - now using cumulative contributions
-    row.push(formatCurrencyForCSV(cumulativeContributions))
-    row.push(formatCurrencyForCSV(endkapital))
-    row.push(formatCurrencyForCSV(vorabpauschale))
-    row.push(formatCurrencyForCSV(bezahlteSteuer))
-    row.push(formatCurrencyForCSV(genutzterFreibetrag))
+    row.push(formatNumberGerman(cumulativeContributions))
+    row.push(formatNumberGerman(endkapital))
+    row.push(formatNumberGerman(vorabpauschale))
+    row.push(formatNumberGerman(bezahlteSteuer))
+    row.push(formatNumberGerman(genutzterFreibetrag))
 
     lines.push(row.join(';'))
   }
@@ -386,6 +378,15 @@ function getYearlyAmountFromElement(element: Record<string, unknown>): number {
   return (element.einzahlung as number) || (element.amount as number) || (element.monthlyAmount as number) || 0
 }
 
+/**
+ * Calculate the contribution amount for a specific year and payment frequency.
+ * Handles both monthly and yearly contributions, applying the appropriate conversion.
+ *
+ * @param element - The contribution element to process
+ * @param year - The year to calculate contribution for
+ * @param isMonthly - Whether to calculate monthly (true) or yearly (false) contribution
+ * @returns The contribution amount for the specified period
+ */
 function getElementContributionForYear(element: unknown, year: number, isMonthly: boolean): number {
   if (typeof element !== 'object' || element === null) {
     return 0
@@ -433,12 +434,19 @@ function extractVorabpauschaleDetails(yearData: WithdrawalResultElement): {
   const details = yearData.vorabpauschaleDetails
   return {
     basiszins: formatBasiszins(details),
-    basisertrag: formatCurrencyForCSV(details?.basisertrag || 0),
-    jahresgewinn: formatCurrencyForCSV(details?.jahresgewinn || 0),
-    steuerVorFreibetrag: formatCurrencyForCSV(details?.steuerVorFreibetrag || 0),
+    basisertrag: formatNumberGerman(details?.basisertrag || 0),
+    jahresgewinn: formatNumberGerman(details?.jahresgewinn || 0),
+    steuerVorFreibetrag: formatNumberGerman(details?.steuerVorFreibetrag || 0),
   }
 }
 
+/**
+ * Build basic row data for CSV export including year, month, and core financial values.
+ * Formats values according to German number format standards.
+ *
+ * @param params - Row data parameters including year, month, and financial data
+ * @returns Array of formatted string values for CSV row
+ */
 function buildBasicRowData(params: BasicRowDataParams): string[] {
   const { year, month, yearData, isMonthly } = params
   const vDetails = extractVorabpauschaleDetails(yearData)
@@ -446,17 +454,17 @@ function buildBasicRowData(params: BasicRowDataParams): string[] {
   return [
     year.toString(),
     isMonthly ? month.toString() : '12',
-    formatCurrencyForCSV(yearData.startkapital),
-    formatCurrencyForCSV(yearData.entnahme),
-    formatCurrencyForCSV(yearData.zinsen),
-    formatCurrencyForCSV(yearData.endkapital),
+    formatNumberGerman(yearData.startkapital),
+    formatNumberGerman(yearData.entnahme),
+    formatNumberGerman(yearData.zinsen),
+    formatNumberGerman(yearData.endkapital),
     vDetails.basiszins,
     vDetails.basisertrag,
     vDetails.jahresgewinn,
-    formatCurrencyForCSV(yearData.vorabpauschale || 0),
+    formatNumberGerman(yearData.vorabpauschale || 0),
     vDetails.steuerVorFreibetrag,
-    formatCurrencyForCSV(yearData.bezahlteSteuer),
-    formatCurrencyForCSV(yearData.genutzterFreibetrag),
+    formatNumberGerman(yearData.bezahlteSteuer),
+    formatNumberGerman(yearData.genutzterFreibetrag),
   ]
 }
 
@@ -469,25 +477,46 @@ interface StrategyRowDataParams {
   withdrawalConfig: WithdrawalConfiguration | null
 }
 
+/**
+ * Add monthly fixed strategy specific data to CSV row.
+ * Includes monthly withdrawal amount and optional inflation/guardrail adjustments.
+ *
+ * @param row - The row array to append data to
+ * @param yearData - Withdrawal result data for the year
+ * @param formValue - Form configuration with inflation and guardrails settings
+ */
 function addMonthlyFixedStrategyData(
   row: string[],
   yearData: WithdrawalResultElement,
   formValue: { inflationAktiv?: boolean; guardrailsAktiv?: boolean },
 ): void {
-  row.push(formatCurrencyForCSV(yearData.monatlicheEntnahme || 0))
+  row.push(formatNumberGerman(yearData.monatlicheEntnahme || 0))
   if (formValue.inflationAktiv) {
-    row.push(formatCurrencyForCSV(yearData.inflationAnpassung || 0))
+    row.push(formatNumberGerman(yearData.inflationAnpassung || 0))
   }
   if (formValue.guardrailsAktiv) {
-    row.push(formatCurrencyForCSV(yearData.portfolioAnpassung || 0))
+    row.push(formatNumberGerman(yearData.portfolioAnpassung || 0))
   }
 }
 
+/**
+ * Add dynamic strategy specific data to CSV row.
+ * Includes previous year's return and dynamic adjustment amount.
+ *
+ * @param row - The row array to append data to
+ * @param yearData - Withdrawal result data for the year
+ */
 function addDynamicStrategyData(row: string[], yearData: WithdrawalResultElement): void {
   row.push(formatPercentage(yearData.vorjahresRendite || 0))
-  row.push(formatCurrencyForCSV(yearData.dynamischeAnpassung || 0))
+  row.push(formatNumberGerman(yearData.dynamischeAnpassung || 0))
 }
 
+/**
+ * Add strategy-specific data columns to the CSV row based on withdrawal strategy type.
+ * Delegates to appropriate strategy handler (monthly fixed, dynamic, etc.).
+ *
+ * @param params - Parameters including row array, year data, and withdrawal configuration
+ */
 function addStrategySpecificData(params: StrategyRowDataParams): void {
   const { row, yearData, withdrawalConfig } = params
 
@@ -530,20 +559,26 @@ function getOtherIncomeValue(
   return otherIncome[field] ?? 0
 }
 
+/**
+ * Add tax and income data columns to the CSV row.
+ * Includes income tax (if Grundfreibetrag active) and other income details.
+ *
+ * @param params - Parameters including row array, year data, and configuration flags
+ */
 function addTaxAndIncomeData(params: TaxIncomeDataParams): void {
   const { row, yearData, grundfreibetragAktiv, hasOtherIncomeData } = params
 
   if (grundfreibetragAktiv) {
     const einkommensteuer = yearData.einkommensteuer ?? 0
     const grundfreibetrag = yearData.genutzterGrundfreibetrag ?? 0
-    row.push(formatCurrencyForCSV(einkommensteuer))
-    row.push(formatCurrencyForCSV(grundfreibetrag))
+    row.push(formatNumberGerman(einkommensteuer))
+    row.push(formatNumberGerman(grundfreibetrag))
   }
 
   if (hasOtherIncomeData) {
     const otherIncome = yearData.otherIncome
-    row.push(formatCurrencyForCSV(getOtherIncomeValue(otherIncome, 'totalNetAmount')))
-    row.push(formatCurrencyForCSV(getOtherIncomeValue(otherIncome, 'totalTaxAmount')))
+    row.push(formatNumberGerman(getOtherIncomeValue(otherIncome, 'totalNetAmount')))
+    row.push(formatNumberGerman(getOtherIncomeValue(otherIncome, 'totalTaxAmount')))
     row.push(getOtherIncomeValue(otherIncome, 'sourceCount').toString())
   }
 }
@@ -590,7 +625,7 @@ function addIncomeTaxHeaders(headers: string[]): void {
  * Check if withdrawal data has other income
  */
 function hasOtherIncome(withdrawalData: WithdrawalResult): boolean {
-  return Object.values(withdrawalData).some(yearData => yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0)
+  return Object.values(withdrawalData).some(yearData => (yearData.otherIncome?.totalNetAmount ?? 0) > 0)
 }
 
 /**
@@ -602,6 +637,13 @@ function addOtherIncomeHeaders(headers: string[]): void {
   headers.push('Anzahl Einkommensquellen')
 }
 
+/**
+ * Generate CSV headers for withdrawal phase export.
+ * Creates column headers based on active features and withdrawal strategy configuration.
+ *
+ * @param params - Parameters including withdrawal configuration, data, and feature flags
+ * @returns Array of CSV header strings
+ */
 function generateWithdrawalCSVHeaders(params: WithdrawalHeaderParams): string[] {
   const { withdrawalConfig, withdrawalData, grundfreibetragAktiv } = params
 
@@ -665,12 +707,11 @@ function generateWithdrawalMetadataLines(params: WithdrawalMetadataParams): stri
   // Handle segmented withdrawal - multiple strategies
   const hasMultipleSegments =
     withdrawalConfig.useSegmentedWithdrawal &&
-    withdrawalConfig.withdrawalSegments &&
-    withdrawalConfig.withdrawalSegments.length > 1
+    (withdrawalConfig.withdrawalSegments?.length ?? 0) > 1
 
   if (hasMultipleSegments) {
     lines.push('# Strategie: Segmentierte Entnahme')
-    withdrawalConfig.withdrawalSegments.forEach((segment, index: number) => {
+    withdrawalConfig.withdrawalSegments!.forEach((segment, index: number) => {
       const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
       lines.push(`# Segment ${index + 1} (${segment.name}): ${strategyLabel} (${segment.startYear}-${segment.endYear})`)
     })
@@ -717,7 +758,7 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
   // Process withdrawal data
   const years = Object.keys(withdrawalData).map(Number).sort()
   const hasOtherIncomeData = Object.values(withdrawalData).some(
-    yearData => yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
+    yearData => (yearData.otherIncome?.totalNetAmount ?? 0) > 0,
   )
 
   for (const year of years) {
@@ -750,7 +791,7 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
  * Get income type label for display
  */
 function getIncomeTypeLabel(type: string): string {
-  const incomeTypes: Record<string, string> = {
+  const incomeTypes: ReadonlyRecord<string, string> = {
     rental: 'Mieteinnahmen',
     pension: 'Rente/Pension',
     business: 'Gewerbeeinkünfte',
@@ -984,7 +1025,7 @@ function addWithdrawalPhaseSection(
   context: SimulationContextState,
   lines: string[],
 ): void {
-  if (!withdrawalData || Object.keys(withdrawalData).length === 0) {
+  if (!withdrawalData || isEmpty(withdrawalData)) {
     lines.push('## Entnahmephase')
     lines.push('')
     lines.push(
@@ -1015,8 +1056,7 @@ function addWithdrawalParametersSection(context: SimulationContextState, lines: 
 
   const hasMultipleSegments =
     withdrawalConfig.useSegmentedWithdrawal &&
-    withdrawalConfig.withdrawalSegments &&
-    withdrawalConfig.withdrawalSegments.length > 1
+    (withdrawalConfig.withdrawalSegments?.length ?? 0) > 1
 
   if (hasMultipleSegments && withdrawalConfig.withdrawalSegments) {
     lines.push(`- **Strategie:** Segmentierte Entnahme`)
@@ -1121,7 +1161,7 @@ interface AddSingleStrategyDetailsParams {
 /**
  * Strategy detail formatters for single withdrawal strategies
  */
-const strategyDetailFormatters: Record<string, (params: AddSingleStrategyDetailsParams) => string[]> = {
+const strategyDetailFormatters: ReadonlyRecord<string, (params: AddSingleStrategyDetailsParams) => string[]> = {
   '4prozent': () => ['   Formel: Jährliche Entnahme = 4% vom Startkapital'],
   '3prozent': () => ['   Formel: Jährliche Entnahme = 3% vom Startkapital'],
   variabel_prozent: params => [
@@ -1184,8 +1224,7 @@ function addWithdrawalStrategySection(params: AddWithdrawalStrategyParams, lines
 
   const hasMultipleSegments =
     withdrawalConfig.useSegmentedWithdrawal &&
-    withdrawalConfig.withdrawalSegments &&
-    withdrawalConfig.withdrawalSegments.length > 1
+    (withdrawalConfig.withdrawalSegments?.length ?? 0) > 1
 
   if (hasMultipleSegments && withdrawalConfig.withdrawalSegments) {
     addSegmentedWithdrawalDetails(withdrawalConfig.withdrawalSegments, lines)
@@ -1247,7 +1286,7 @@ export function generateCalculationExplanations(context: SimulationContextState)
 /**
  * Helper function to get German label for withdrawal strategy
  */
-const WITHDRAWAL_STRATEGY_LABELS: Record<string, string> = {
+const WITHDRAWAL_STRATEGY_LABELS: ReadonlyRecord<string, string> = {
   '4prozent': '4% Regel',
   '3prozent': '3% Regel',
   variabel_prozent: 'Variabler Prozentsatz',

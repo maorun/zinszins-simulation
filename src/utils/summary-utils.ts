@@ -216,9 +216,9 @@ function addWithdrawalMetrics(
   summary.jahreEntspharphase = withdrawalData.totalYears
 
   // Handle segmented withdrawal summaries
-  if (isSegmentedWithdrawal && withdrawalSegments && withdrawalSegments.length > 0) {
+  if (isSegmentedWithdrawal && (withdrawalSegments?.length ?? 0) > 0) {
     summary.withdrawalSegments = createWithdrawalSegmentSummaries(
-      withdrawalSegments,
+      withdrawalSegments!,
       withdrawalResult,
       savingsEndCapital,
     )

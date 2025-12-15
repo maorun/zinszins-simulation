@@ -4,6 +4,7 @@ import type { WithdrawalResult } from '../../helpers/withdrawal'
 import type { SparplanElement } from './sparplan-utils'
 import type { ExportData } from './data-export'
 import { formatCurrency, formatPercentage } from './currency'
+import { isEmpty } from './array-utils'
 
 /**
  * PDF Export utility for generating comprehensive financial reports
@@ -217,7 +218,7 @@ function addWithdrawalDataTable(doc: jsPDF, withdrawalData: WithdrawalResult, yP
   // Table data
   doc.setFont('helvetica', 'normal')
 
-  if (!withdrawalData || Object.keys(withdrawalData).length === 0) {
+  if (!withdrawalData || isEmpty(withdrawalData)) {
     doc.text('Keine Daten verfügbar', 15, yPos)
     return yPos + 10
   }
@@ -290,7 +291,7 @@ function extractSavingsSummary(data: ExportData): Array<[string, string]> {
 function extractWithdrawalSummary(data: ExportData): Array<[string, string]> {
   const stats: Array<[string, string]> = []
   
-  if (!data.withdrawalData || Object.keys(data.withdrawalData).length === 0) {
+  if (!data.withdrawalData || isEmpty(data.withdrawalData)) {
     return stats
   }
 
