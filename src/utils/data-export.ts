@@ -625,7 +625,7 @@ function addIncomeTaxHeaders(headers: string[]): void {
  * Check if withdrawal data has other income
  */
 function hasOtherIncome(withdrawalData: WithdrawalResult): boolean {
-  return Object.values(withdrawalData).some(yearData => yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0)
+  return Object.values(withdrawalData).some(yearData => (yearData.otherIncome?.totalNetAmount ?? 0) > 0)
 }
 
 /**
@@ -707,12 +707,11 @@ function generateWithdrawalMetadataLines(params: WithdrawalMetadataParams): stri
   // Handle segmented withdrawal - multiple strategies
   const hasMultipleSegments =
     withdrawalConfig.useSegmentedWithdrawal &&
-    withdrawalConfig.withdrawalSegments &&
-    withdrawalConfig.withdrawalSegments.length > 1
+    (withdrawalConfig.withdrawalSegments?.length ?? 0) > 1
 
   if (hasMultipleSegments) {
     lines.push('# Strategie: Segmentierte Entnahme')
-    withdrawalConfig.withdrawalSegments.forEach((segment, index: number) => {
+    withdrawalConfig.withdrawalSegments!.forEach((segment, index: number) => {
       const strategyLabel = getWithdrawalStrategyLabel(segment.strategy)
       lines.push(`# Segment ${index + 1} (${segment.name}): ${strategyLabel} (${segment.startYear}-${segment.endYear})`)
     })
@@ -759,7 +758,7 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
   // Process withdrawal data
   const years = Object.keys(withdrawalData).map(Number).sort()
   const hasOtherIncomeData = Object.values(withdrawalData).some(
-    yearData => yearData.otherIncome && yearData.otherIncome.totalNetAmount > 0,
+    yearData => (yearData.otherIncome?.totalNetAmount ?? 0) > 0,
   )
 
   for (const year of years) {
@@ -1057,8 +1056,7 @@ function addWithdrawalParametersSection(context: SimulationContextState, lines: 
 
   const hasMultipleSegments =
     withdrawalConfig.useSegmentedWithdrawal &&
-    withdrawalConfig.withdrawalSegments &&
-    withdrawalConfig.withdrawalSegments.length > 1
+    (withdrawalConfig.withdrawalSegments?.length ?? 0) > 1
 
   if (hasMultipleSegments && withdrawalConfig.withdrawalSegments) {
     lines.push(`- **Strategie:** Segmentierte Entnahme`)
@@ -1226,8 +1224,7 @@ function addWithdrawalStrategySection(params: AddWithdrawalStrategyParams, lines
 
   const hasMultipleSegments =
     withdrawalConfig.useSegmentedWithdrawal &&
-    withdrawalConfig.withdrawalSegments &&
-    withdrawalConfig.withdrawalSegments.length > 1
+    (withdrawalConfig.withdrawalSegments?.length ?? 0) > 1
 
   if (hasMultipleSegments && withdrawalConfig.withdrawalSegments) {
     addSegmentedWithdrawalDetails(withdrawalConfig.withdrawalSegments, lines)

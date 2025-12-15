@@ -90,7 +90,7 @@ function formatWithdrawalConfiguration(context: SimulationContextState): string[
   const lines: string[] = []
   lines.push(`Entnahme-Konfiguration:`)
 
-  if (context.withdrawalConfig && context.withdrawalConfig.formValue) {
+  if (context.withdrawalConfig?.formValue) {
     lines.push(...formatWithdrawalConfigDetails(context))
   } else {
     lines.push(...formatDefaultWithdrawalConfig(context))
