@@ -377,6 +377,15 @@ function getYearlyAmountFromElement(element: Record<string, unknown>): number {
   return (element.einzahlung as number) || (element.amount as number) || (element.monthlyAmount as number) || 0
 }
 
+/**
+ * Calculate the contribution amount for a specific year and payment frequency.
+ * Handles both monthly and yearly contributions, applying the appropriate conversion.
+ *
+ * @param element - The contribution element to process
+ * @param year - The year to calculate contribution for
+ * @param isMonthly - Whether to calculate monthly (true) or yearly (false) contribution
+ * @returns The contribution amount for the specified period
+ */
 function getElementContributionForYear(element: unknown, year: number, isMonthly: boolean): number {
   if (typeof element !== 'object' || element === null) {
     return 0
@@ -430,6 +439,13 @@ function extractVorabpauschaleDetails(yearData: WithdrawalResultElement): {
   }
 }
 
+/**
+ * Build basic row data for CSV export including year, month, and core financial values.
+ * Formats values according to German number format standards.
+ *
+ * @param params - Row data parameters including year, month, and financial data
+ * @returns Array of formatted string values for CSV row
+ */
 function buildBasicRowData(params: BasicRowDataParams): string[] {
   const { year, month, yearData, isMonthly } = params
   const vDetails = extractVorabpauschaleDetails(yearData)
@@ -460,6 +476,14 @@ interface StrategyRowDataParams {
   withdrawalConfig: WithdrawalConfiguration | null
 }
 
+/**
+ * Add monthly fixed strategy specific data to CSV row.
+ * Includes monthly withdrawal amount and optional inflation/guardrail adjustments.
+ *
+ * @param row - The row array to append data to
+ * @param yearData - Withdrawal result data for the year
+ * @param formValue - Form configuration with inflation and guardrails settings
+ */
 function addMonthlyFixedStrategyData(
   row: string[],
   yearData: WithdrawalResultElement,
@@ -474,11 +498,24 @@ function addMonthlyFixedStrategyData(
   }
 }
 
+/**
+ * Add dynamic strategy specific data to CSV row.
+ * Includes previous year's return and dynamic adjustment amount.
+ *
+ * @param row - The row array to append data to
+ * @param yearData - Withdrawal result data for the year
+ */
 function addDynamicStrategyData(row: string[], yearData: WithdrawalResultElement): void {
   row.push(formatPercentage(yearData.vorjahresRendite || 0))
   row.push(formatNumberGerman(yearData.dynamischeAnpassung || 0))
 }
 
+/**
+ * Add strategy-specific data columns to the CSV row based on withdrawal strategy type.
+ * Delegates to appropriate strategy handler (monthly fixed, dynamic, etc.).
+ *
+ * @param params - Parameters including row array, year data, and withdrawal configuration
+ */
 function addStrategySpecificData(params: StrategyRowDataParams): void {
   const { row, yearData, withdrawalConfig } = params
 
@@ -521,6 +558,12 @@ function getOtherIncomeValue(
   return otherIncome[field] ?? 0
 }
 
+/**
+ * Add tax and income data columns to the CSV row.
+ * Includes income tax (if Grundfreibetrag active) and other income details.
+ *
+ * @param params - Parameters including row array, year data, and configuration flags
+ */
 function addTaxAndIncomeData(params: TaxIncomeDataParams): void {
   const { row, yearData, grundfreibetragAktiv, hasOtherIncomeData } = params
 
@@ -593,6 +636,13 @@ function addOtherIncomeHeaders(headers: string[]): void {
   headers.push('Anzahl Einkommensquellen')
 }
 
+/**
+ * Generate CSV headers for withdrawal phase export.
+ * Creates column headers based on active features and withdrawal strategy configuration.
+ *
+ * @param params - Parameters including withdrawal configuration, data, and feature flags
+ * @returns Array of CSV header strings
+ */
 function generateWithdrawalCSVHeaders(params: WithdrawalHeaderParams): string[] {
   const { withdrawalConfig, withdrawalData, grundfreibetragAktiv } = params
 
