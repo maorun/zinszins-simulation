@@ -5,6 +5,7 @@ import type { WithdrawalSegment } from './segmented-withdrawal'
 import type { SparplanElement, Sparplan } from './sparplan-utils'
 import type { WithdrawalConfiguration } from './config-storage'
 import type { SimulationResultElement } from './simulate'
+import type { ReadonlyRecord } from '../types'
 import { formatCurrency, formatPercentage, formatNumberGerman } from './currency'
 
 /**
@@ -740,7 +741,7 @@ export function exportWithdrawalDataToCSV(data: ExportData): string {
  * Get income type label for display
  */
 function getIncomeTypeLabel(type: string): string {
-  const incomeTypes: Record<string, string> = {
+  const incomeTypes: ReadonlyRecord<string, string> = {
     rental: 'Mieteinnahmen',
     pension: 'Rente/Pension',
     business: 'Gewerbeeinkünfte',
@@ -1111,7 +1112,7 @@ interface AddSingleStrategyDetailsParams {
 /**
  * Strategy detail formatters for single withdrawal strategies
  */
-const strategyDetailFormatters: Record<string, (params: AddSingleStrategyDetailsParams) => string[]> = {
+const strategyDetailFormatters: ReadonlyRecord<string, (params: AddSingleStrategyDetailsParams) => string[]> = {
   '4prozent': () => ['   Formel: Jährliche Entnahme = 4% vom Startkapital'],
   '3prozent': () => ['   Formel: Jährliche Entnahme = 3% vom Startkapital'],
   variabel_prozent: params => [
@@ -1237,7 +1238,7 @@ export function generateCalculationExplanations(context: SimulationContextState)
 /**
  * Helper function to get German label for withdrawal strategy
  */
-const WITHDRAWAL_STRATEGY_LABELS: Record<string, string> = {
+const WITHDRAWAL_STRATEGY_LABELS: ReadonlyRecord<string, string> = {
   '4prozent': '4% Regel',
   '3prozent': '3% Regel',
   variabel_prozent: 'Variabler Prozentsatz',
