@@ -1,10 +1,10 @@
-import type React from 'react'
+import type { ChangeEvent } from 'react'
 import { Label } from '../ui/label'
 import type { OtherIncomeSource } from '../../../helpers/other-income'
 
 interface TypeSelectSectionProps {
   editingSource: OtherIncomeSource
-  onTypeChange: (e: React.ChangeEvent<HTMLSelectElement>) => void
+  onTypeChange: (e: ChangeEvent<HTMLSelectElement>) => void
 }
 
 export function TypeSelectSection({ editingSource, onTypeChange }: TypeSelectSectionProps) {

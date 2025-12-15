@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ChangeEvent } from 'react'
 import { SimulationAnnualType } from '../../utils/simulate'
 import type { Sparplan } from '../../utils/sparplan-utils'
 import type { SingleFormValue, SparplanFormValue } from '../SparplanEingabe.helpers'
@@ -13,7 +13,7 @@ interface SparplanListProps {
   singleFormValue: SingleFormValue
   formatDateForInput: (date: Date | string | null, format: string) => string
   handleDateChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: ChangeEvent<HTMLInputElement>,
     format: string,
     callback: (date: Date | null) => void,
   ) => void

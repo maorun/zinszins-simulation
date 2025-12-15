@@ -1,10 +1,10 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect, useMemo, type RefObject, type ReactElement } from 'react'
 import { useSimulation } from '../contexts/useSimulation'
 import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
 import type { EnhancedSummary } from '../utils/summary-utils'
 
 interface StickyBottomOverviewProps {
-  overviewElementRef: React.RefObject<HTMLElement | null>
+  overviewElementRef: RefObject<HTMLElement | null>
 }
 
 // Custom hook for mobile detection
@@ -25,7 +25,7 @@ function useIsMobile(): boolean {
 }
 
 // Custom hook for sticky state tracking
-function useIsSticky(overviewElementRef: React.RefObject<HTMLElement | null>): boolean {
+function useIsSticky(overviewElementRef: RefObject<HTMLElement | null>): boolean {
   const [isSticky, setIsSticky] = useState(false)
 
   useEffect(() => {
@@ -95,7 +95,7 @@ function renderMobileWithdrawalView(
   withdrawalYearsRange: string,
   hasSegments: boolean,
   summary: EnhancedSummary,
-): React.ReactElement {
+): ReactElement {
   const segmentCount = hasSegments && summary.withdrawalSegments ? summary.withdrawalSegments.length : 0
   return (
     <div className="flex justify-around items-center gap-4">
@@ -125,7 +125,7 @@ function renderDesktopWithdrawalView(
   withdrawalYearsRange: string,
   hasSegments: boolean,
   summary: EnhancedSummary,
-): React.ReactElement {
+): ReactElement {
   const segmentCount = hasSegments && summary.withdrawalSegments ? summary.withdrawalSegments.length : 0
   return (
     <div className="w-full">
@@ -167,7 +167,7 @@ function renderEntnahmenContent(
   isMobile: boolean,
   startEnd: [number, number],
   endOfLife: number | undefined,
-): React.ReactElement | null {
+): ReactElement | null {
   if (!enhancedSummary.endkapitalEntspharphase) {
     return null
   }

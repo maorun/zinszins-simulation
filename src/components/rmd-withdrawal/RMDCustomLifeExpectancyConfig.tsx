@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ChangeEvent } from 'react'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 
@@ -17,7 +17,7 @@ export function RMDCustomLifeExpectancyConfig({
   inputId = 'rmd-custom-life-expectancy',
   isFormMode = false,
 }: RMDCustomLifeExpectancyConfigProps) {
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const years = Number(event.target.value)
     onChange(years)
   }

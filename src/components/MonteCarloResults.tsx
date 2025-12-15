@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ReactNode } from 'react'
 import { Card, CardHeader, CardTitle, CardContent } from './ui/card'
 import { Button } from './ui/button'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
@@ -102,7 +102,7 @@ function MonteCarloResultsContent({
   withdrawalScenarios: MonteCarloResult[] | null
   withdrawalConfig: RandomReturnConfig | undefined
   portfolioValue: number | undefined
-  renderAnalysisTable: (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => React.ReactNode
+  renderAnalysisTable: (scenarios: MonteCarloResult[], config: RandomReturnConfig, title: string) => ReactNode
 }) {
   const nestingLevel = useNestingLevel()
 

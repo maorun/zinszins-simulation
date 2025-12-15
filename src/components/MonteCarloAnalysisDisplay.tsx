@@ -1,4 +1,4 @@
-import React from 'react'
+import { useMemo } from 'react'
 import type { RandomReturnConfig } from '../utils/random-returns'
 import { createScenarios, calculateBlackSwanScenario } from './monte-carlo-helpers'
 import SimulationParametersInfo from './SimulationParametersInfo'
@@ -20,7 +20,7 @@ const MonteCarloAnalysisDisplay = ({
   blackSwanReturns,
   blackSwanEventName,
 }: MonteCarloAnalysisDisplayProps) => {
-  const blackSwanScenario = React.useMemo(
+  const blackSwanScenario = useMemo(
     () => calculateBlackSwanScenario(blackSwanReturns, blackSwanEventName),
     [blackSwanReturns, blackSwanEventName],
   )

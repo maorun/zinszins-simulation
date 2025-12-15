@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ChangeEvent } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import {
   type OtherIncomeSource,
@@ -182,7 +182,7 @@ export function OtherIncomeSourceFormEditor({
   const isRisikolebensversicherung = editingSource.type === 'risikolebensversicherung'
   const isGrossIncome = editingSource.amountType === 'gross'
 
-  const handleTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handleTypeChange = (e: ChangeEvent<HTMLSelectElement>) => {
     handleIncomeTypeChange(e.target.value as IncomeType, editingSource, onUpdate)
   }
 

@@ -1,4 +1,4 @@
-import type React from 'react'
+import type { ComponentType } from 'react'
 import type { CoupleStatutoryPensionConfig, IndividualStatutoryPensionConfig } from '../../../helpers/statutory-pension'
 import { CouplePensionConfiguration } from './CouplePensionConfiguration'
 import { IndividualModePensionConfig } from './IndividualModePensionConfig'
@@ -12,7 +12,7 @@ interface CoupleConfigurationContentProps {
   spouseBirthYear?: number
   currentYear: number
   nestingLevel: number
-  PersonConfigComponent: React.ComponentType<{
+  PersonConfigComponent: ComponentType<{
     config: IndividualStatutoryPensionConfig
     onChange: (updates: Partial<IndividualStatutoryPensionConfig>) => void
     currentYear: number

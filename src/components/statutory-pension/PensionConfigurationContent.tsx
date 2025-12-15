@@ -1,4 +1,4 @@
-import type React from 'react'
+import type { ComponentType } from 'react'
 import { PensionInputForm } from './PensionInputForm'
 
 interface PensionConfigurationContentProps {
@@ -32,7 +32,7 @@ interface PensionConfigurationContentProps {
   currentYear: number
   planningMode: 'individual' | 'couple'
   onImportFromTaxReturn: () => void
-  PensionSummaryComponent: React.ComponentType<{
+  PensionSummaryComponent: ComponentType<{
     startYear: number
     monthlyAmount: number
     taxablePercentage: number

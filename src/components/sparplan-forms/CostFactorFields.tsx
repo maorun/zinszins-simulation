@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ChangeEvent } from 'react'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 
@@ -29,7 +29,7 @@ interface CostValues {
 interface CostFactorFieldsProps {
   values: CostValues
   onValueChange: (values: CostValues) => void
-  handleNumberChange: (e: React.ChangeEvent<HTMLInputElement>, callback: (value: string) => void) => void
+  handleNumberChange: (e: ChangeEvent<HTMLInputElement>, callback: (value: string) => void) => void
 }
 
 function CostInputField({
@@ -45,7 +45,7 @@ function CostInputField({
   placeholder: string
   max: number
   description: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void
 }) {
   return (
     <div className="mb-4 space-y-2">

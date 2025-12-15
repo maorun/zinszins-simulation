@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import { useState, type MouseEvent } from 'react'
 import { Button } from './ui/button'
 import {
   Dialog,
@@ -336,9 +336,9 @@ function TutorialCardButton({
   return (
     <Button
       variant={completed ? 'outline' : 'default'}
-      size="sm"
+            size="sm"
       className="w-full"
-      onClick={(e: React.MouseEvent<HTMLButtonElement>) => {
+      onClick={(e: MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation()
         if (!locked) onStart()
       }}

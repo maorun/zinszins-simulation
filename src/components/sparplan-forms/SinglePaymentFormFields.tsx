@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ChangeEvent } from 'react'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import type { SingleFormValue } from '../SparplanEingabe.helpers'
@@ -26,11 +26,11 @@ interface SinglePaymentFormFieldsProps {
   onFormChange: (values: SingleFormValue) => void
   formatDateForInput: (date: Date | string | null, format: string) => string
   handleDateChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: ChangeEvent<HTMLInputElement>,
     format: string,
     callback: (date: Date | null) => void,
   ) => void
-  handleNumberChange: (e: React.ChangeEvent<HTMLInputElement>, callback: (value: string) => void) => void
+  handleNumberChange: (e: ChangeEvent<HTMLInputElement>, callback: (value: string) => void) => void
 }
 
 /**
