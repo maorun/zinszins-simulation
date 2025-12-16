@@ -381,6 +381,19 @@ function getAdjustedEinzahlung(element: SparplanElement, year: number, options: 
   return baseAmount
 }
 
+/**
+ * Calculates the ending capital (before taxes) for a given year, accounting for partial year holdings.
+ * For monthly simulations in the first year, calculates pro-rated growth based on the start month.
+ *
+ * @param startkapital - Starting capital at the beginning of the period
+ * @param wachstumsrate - Annual growth rate as decimal (e.g., 0.05 for 5%)
+ * @param element - The savings plan element being calculated
+ * @param year - The year being simulated
+ * @param simulationAnnual - Whether to use yearly or monthly calculation mode
+ * @returns Object containing:
+ *   - endkapitalVorSteuer: Capital value before taxes/costs at year end
+ *   - anteilImJahr: Number of months the investment was active (1-12)
+ */
 function calculateEndkapital(
   startkapital: number,
   wachstumsrate: number,
@@ -404,6 +417,17 @@ function calculateEndkapital(
   }
 }
 
+/**
+ * Calculates growth and associated costs for a savings plan element in a given year.
+ * Combines capital growth calculation with TER and transaction cost calculations.
+ *
+ * @param element - The savings plan element to calculate for
+ * @param year - The year being simulated
+ * @param wachstumsrate - Annual growth rate as decimal
+ * @param simulationAnnual - Calculation mode (yearly or monthly)
+ * @param options - Simulation options including inflation settings
+ * @returns Object containing startkapital, endkapitalAfterCosts, jahresgewinn, anteilImJahr, and costs breakdown
+ */
 function calculateGrowthAndCostsForElement(
   element: SparplanElement,
   year: number,
