@@ -106,6 +106,12 @@ const freibetrag: {
   2023: 2000,
 }
 
+/**
+ * Enumeration of simulation calculation modes.
+ * Defines whether simulations should use yearly or monthly time steps.
+ * - yearly: Calculate once per year with full year assumptions
+ * - monthly: Calculate month-by-month for more precise first-year calculations
+ */
 export const SimulationAnnual: {
   [key in SimulationAnnualType]: SimulationAnnualType
 } = {
