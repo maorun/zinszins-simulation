@@ -12,6 +12,58 @@
 import { ASSET_CORRELATION_MATRIX, type AssetClass, type MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
 
 /**
+ * Default optimization parameters based on Modern Portfolio Theory best practices.
+ */
+const OPTIMIZATION_DEFAULTS = {
+  /**
+   * Default risk-free rate for optimization (1%)
+   * Conservative estimate for German government bonds
+   */
+  DEFAULT_RISK_FREE_RATE: 0.01,
+
+  /**
+   * Default minimum allocation per asset (5%)
+   * Ensures meaningful diversification
+   */
+  DEFAULT_MIN_ALLOCATION: 0.05,
+
+  /**
+   * Default maximum allocation per asset (60%)
+   * Prevents over-concentration in single asset
+   */
+  DEFAULT_MAX_ALLOCATION: 0.6,
+
+  /**
+   * Default maximum iterations for optimization algorithms
+   */
+  DEFAULT_MAX_ITERATIONS: 1000,
+
+  /**
+   * Default convergence tolerance for optimization
+   * Balances accuracy with computation time
+   */
+  DEFAULT_TOLERANCE: 0.0001,
+
+  /**
+   * Numerical differentiation step size
+   * Used for gradient calculations
+   */
+  GRADIENT_DELTA: 0.001,
+
+  /**
+   * Learning rate for gradient descent
+   * Controls optimization step size
+   */
+  LEARNING_RATE: 0.01,
+
+  /**
+   * Small epsilon for numerical stability
+   * Prevents division by zero and rounding errors
+   */
+  NUMERICAL_EPSILON: 0.001,
+}
+
+/**
  * Optimization objective for portfolio allocation
  */
 export type OptimizationObjective =
@@ -115,7 +167,7 @@ export function calculatePortfolioReturn(
 export function calculateSharpeRatio(
   expectedReturn: number,
   volatility: number,
-  riskFreeRate = 0.01,
+  riskFreeRate = OPTIMIZATION_DEFAULTS.DEFAULT_RISK_FREE_RATE,
 ): number {
   if (volatility === 0) return 0
   return (expectedReturn - riskFreeRate) / volatility
@@ -195,7 +247,7 @@ function calculateSharpeGradient(
   maxAllocation: number,
 ): Record<AssetClass, number> {
   const gradient = {} as Record<AssetClass, number>
-  const delta = 0.001
+  const delta = OPTIMIZATION_DEFAULTS.GRADIENT_DELTA
 
   for (const asset of enabledAssets) {
     const tempAllocations = { ...allocations }
@@ -294,7 +346,7 @@ function optimizeMaxSharpe(
   let iterations = 0
 
   const enabledAssets = getEnabledAssets(config)
-  const learningRate = 0.01
+  const learningRate = OPTIMIZATION_DEFAULTS.LEARNING_RATE
 
   while (iterations < maxIterations) {
     iterations++
@@ -347,7 +399,7 @@ function calculateVolatilityGradient(
   maxAllocation: number,
 ): Record<AssetClass, number> {
   const gradient = {} as Record<AssetClass, number>
-  const delta = 0.001
+  const delta = OPTIMIZATION_DEFAULTS.GRADIENT_DELTA
 
   for (const asset of enabledAssets) {
     const tempAllocations = { ...allocations }
@@ -379,7 +431,7 @@ function optimizeMinVolatility(
   let iterations = 0
 
   const enabledAssets = getEnabledAssets(config)
-  const learningRate = 0.01
+  const learningRate = OPTIMIZATION_DEFAULTS.LEARNING_RATE
 
   while (iterations < maxIterations) {
     iterations++
@@ -445,7 +497,7 @@ function optimizeMaxReturn(
   let remaining = 1.0
   let assetIndex = 0
 
-  while (remaining > 0.001 && assetIndex < enabledAssets.length) {
+  while (remaining > OPTIMIZATION_DEFAULTS.NUMERICAL_EPSILON && assetIndex < enabledAssets.length) {
     const { asset } = enabledAssets[assetIndex]
     const allocationAmount = Math.min(remaining, maxAllocation)
     allocations[asset] = allocationAmount
@@ -462,7 +514,13 @@ function optimizeMaxReturn(
 
   if (maxVolatility !== undefined && volatility > maxVolatility) {
     // If volatility constraint is violated, fall back to min volatility with that constraint
-    return optimizeMinVolatility(config, minAllocation, maxAllocation, maxIterations, 0.0001)
+    return optimizeMinVolatility(
+      config,
+      minAllocation,
+      maxAllocation,
+      maxIterations,
+      OPTIMIZATION_DEFAULTS.DEFAULT_TOLERANCE,
+    )
   }
 
   const finalReturn = calculatePortfolioReturn(normalizedAllocations, config)
@@ -528,11 +586,11 @@ export function optimizePortfolio(
 ): OptimizationResult {
   const {
     objective,
-    riskFreeRate = 0.01,
-    minAllocation = 0.05,
-    maxAllocation = 0.6,
-    maxIterations = 1000,
-    tolerance = 0.0001,
+    riskFreeRate = OPTIMIZATION_DEFAULTS.DEFAULT_RISK_FREE_RATE,
+    minAllocation = OPTIMIZATION_DEFAULTS.DEFAULT_MIN_ALLOCATION,
+    maxAllocation = OPTIMIZATION_DEFAULTS.DEFAULT_MAX_ALLOCATION,
+    maxIterations = OPTIMIZATION_DEFAULTS.DEFAULT_MAX_ITERATIONS,
+    tolerance = OPTIMIZATION_DEFAULTS.DEFAULT_TOLERANCE,
     maxVolatility,
   } = optimizationConfig
 
