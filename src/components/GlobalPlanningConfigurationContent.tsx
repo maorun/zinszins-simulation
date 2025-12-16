@@ -1,4 +1,4 @@
-import React from 'react'
+import type { RefObject } from 'react'
 import { Card, CardContent } from './ui/card'
 import { Collapsible, CollapsibleContent } from './ui/collapsible'
 import { GlobalPlanningCardHeader } from './GlobalPlanningCardHeader'
@@ -14,7 +14,7 @@ type SpouseConfig = { birthYear?: number; gender: Gender; expectedLifespan?: num
 type LifeExpectancyTable = 'german_2020_22' | 'german_male_2020_22' | 'german_female_2020_22' | 'custom'
 
 interface GlobalPlanningConfigurationContentProps {
-  navigationRef: React.RefObject<HTMLDivElement | null>
+  navigationRef: RefObject<HTMLDivElement | null>
   startOfIndependence: number
   // Planning mode
   planningMode: PlanningMode

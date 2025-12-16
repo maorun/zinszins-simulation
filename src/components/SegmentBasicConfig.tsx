@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ChangeEvent } from 'react'
 import { Input } from './ui/input'
 import { Label } from './ui/label'
 
@@ -14,7 +14,7 @@ interface SegmentBasicConfigProps {
 }
 
 const handleNumberInputChange = (
-  e: React.ChangeEvent<HTMLInputElement>,
+  e: ChangeEvent<HTMLInputElement>,
   onChange: (value: number | undefined) => void,
 ) => {
   const value = e.target.value

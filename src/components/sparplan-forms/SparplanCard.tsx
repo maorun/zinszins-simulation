@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ChangeEvent } from 'react'
 import { Button } from '../ui/button'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
@@ -33,7 +33,7 @@ interface SparplanCardProps {
   singleFormValue: SingleFormValue
   formatDateForInput: (date: Date | string | null, format: string) => string
   handleDateChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: ChangeEvent<HTMLInputElement>,
     format: string,
     callback: (date: Date | null) => void,
   ) => void
@@ -276,7 +276,7 @@ function SinglePaymentDateField({
   singleFormValue: SingleFormValue
   formatDateForInput: (date: Date | string | null, format: string) => string
   handleDateChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: ChangeEvent<HTMLInputElement>,
     format: string,
     callback: (date: Date | null) => void,
   ) => void
@@ -311,7 +311,7 @@ function SparplanDateFields({
   sparplanFormValues: SparplanFormValue
   formatDateForInput: (date: Date | string | null, format: string) => string
   handleDateChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: ChangeEvent<HTMLInputElement>,
     format: string,
     callback: (date: Date | null) => void,
   ) => void
@@ -418,7 +418,7 @@ interface EditFormProps {
   singleFormValue: SingleFormValue
   formatDateForInput: (date: Date | string | null, format: string) => string
   handleDateChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: ChangeEvent<HTMLInputElement>,
     format: string,
     callback: (date: Date | null) => void,
   ) => void

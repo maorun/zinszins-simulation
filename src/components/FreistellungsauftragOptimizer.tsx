@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo, type ChangeEvent } from 'react'
 import { Plus, Trash2, Calculator } from 'lucide-react'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/card'
 import { Button } from './ui/button'
@@ -31,7 +31,7 @@ function AccountCardHeader({
 }: {
   accountNameId: string
   accountName: string
-  onAccountNameChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onAccountNameChange: (e: ChangeEvent<HTMLInputElement>) => void
   onRemoveAccount: () => void
 }) {
   return (
@@ -60,7 +60,7 @@ function AccountCardGainsInput({
 }: {
   accountGainsId: string
   expectedCapitalGains: number
-  onExpectedCapitalGainsChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onExpectedCapitalGainsChange: (e: ChangeEvent<HTMLInputElement>) => void
 }) {
   return (
     <div>
@@ -87,7 +87,7 @@ function AccountCardFreibetragInput({
 }: {
   accountFreibetragId: string
   assignedFreibetrag: number
-  onAssignedFreibetragChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onAssignedFreibetragChange: (e: ChangeEvent<HTMLInputElement>) => void
   hasOptimization: boolean
   optimizedFreibetrag: number
 }) {
@@ -126,10 +126,10 @@ function AccountCardBody({
 }: {
   accountGainsId: string
   expectedCapitalGains: number
-  onExpectedCapitalGainsChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onExpectedCapitalGainsChange: (e: ChangeEvent<HTMLInputElement>) => void
   accountFreibetragId: string
   assignedFreibetrag: number
-  onAssignedFreibetragChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onAssignedFreibetragChange: (e: ChangeEvent<HTMLInputElement>) => void
   hasOptimization: boolean
   optimizedFreibetrag: number
 }) {
@@ -231,7 +231,7 @@ function AccountCard({ account, optimizationResult, effectiveTaxRates, onRemove,
           <AccountCardHeader
             accountNameId={accountNameId}
             accountName={account.name}
-            onAccountNameChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onAccountNameChange={(e: ChangeEvent<HTMLInputElement>) =>
               onChange(account.id, 'name', e.target.value)
             }
             onRemoveAccount={() => onRemove(account.id)}
@@ -239,12 +239,12 @@ function AccountCard({ account, optimizationResult, effectiveTaxRates, onRemove,
           <AccountCardBody
             accountGainsId={accountGainsId}
             expectedCapitalGains={account.expectedCapitalGains}
-            onExpectedCapitalGainsChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onExpectedCapitalGainsChange={(e: ChangeEvent<HTMLInputElement>) =>
               onChange(account.id, 'expectedCapitalGains', Number(e.target.value))
             }
             accountFreibetragId={accountFreibetragId}
             assignedFreibetrag={account.assignedFreibetrag}
-            onAssignedFreibetragChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+            onAssignedFreibetragChange={(e: ChangeEvent<HTMLInputElement>) =>
               onChange(account.id, 'assignedFreibetrag', Number(e.target.value))
             }
             hasOptimization={!!hasOptimization}

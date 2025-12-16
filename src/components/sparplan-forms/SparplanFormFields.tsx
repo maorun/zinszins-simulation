@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ChangeEvent } from 'react'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
 import { SimulationAnnual, type SimulationAnnualType } from '../../utils/simulate'
@@ -28,11 +28,11 @@ interface SparplanFormFieldsProps {
   onFormChange: (values: SparplanFormValue) => void
   formatDateForInput: (date: Date | string | null, format: string) => string
   handleDateChange: (
-    e: React.ChangeEvent<HTMLInputElement>,
+    e: ChangeEvent<HTMLInputElement>,
     format: string,
     callback: (date: Date | null) => void,
   ) => void
-  handleNumberChange: (e: React.ChangeEvent<HTMLInputElement>, callback: (value: string) => void) => void
+  handleNumberChange: (e: ChangeEvent<HTMLInputElement>, callback: (value: string) => void) => void
 }
 
 /**
@@ -46,7 +46,7 @@ function DateField({
 }: {
   label: string
   value: string
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void
   placeholder: string
 }) {
   return (
@@ -72,7 +72,7 @@ function AmountField({
 }: {
   label: string
   value: string | number
-  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+  onChange: (e: ChangeEvent<HTMLInputElement>) => void
   placeholder: string
   step: number
 }) {

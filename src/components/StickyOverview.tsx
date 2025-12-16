@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo, type RefObject } from 'react'
 import { useSimulation } from '../contexts/useSimulation'
 import { getEnhancedOverviewSummary } from '../utils/enhanced-summary'
 import { formatCompactCurrency } from '../utils/currency'
@@ -8,7 +8,7 @@ import { useStickyBehavior } from '../hooks/useStickyBehavior'
 import { BurgerNavigation } from './BurgerNavigation'
 
 interface StickyOverviewProps {
-  overviewElementRef: React.RefObject<HTMLElement | null>
+  overviewElementRef: RefObject<HTMLElement | null>
 }
 
 /**

@@ -1,4 +1,4 @@
-import React from 'react'
+import type { ChangeEvent } from 'react'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 
@@ -15,7 +15,7 @@ export function RMDStartAgeConfig({
   inputId = 'rmd-start-age',
   isFormMode = false,
 }: RMDStartAgeConfigProps) {
-  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleChange = (event: ChangeEvent<HTMLInputElement>) => {
     const age = Number(event.target.value)
     onChange(age)
   }

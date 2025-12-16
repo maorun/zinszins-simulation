@@ -1,4 +1,4 @@
-import type React from 'react'
+import type { ReactNode } from 'react'
 import { Card, CardContent } from '../ui/card'
 import { Label } from '../ui/label'
 import { Switch } from '../ui/switch'
@@ -10,7 +10,7 @@ interface EnabledPensionCardProps {
   onToggle: (enabled: boolean) => void
   switchId: string
   nestingLevel: number
-  children: React.ReactNode
+  children: ReactNode
 }
 
 export function EnabledPensionCard({ enabled, onToggle, switchId, nestingLevel, children }: EnabledPensionCardProps) {

@@ -1,4 +1,4 @@
-import type React from 'react'
+import type { ChangeEvent } from 'react'
 import { Label } from './ui/label'
 import { Input } from './ui/input'
 import { calculateCurrentAge, getDefaultLifeExpectancy } from '../../helpers/life-expectancy'
@@ -30,7 +30,7 @@ interface BirthYearInputProps {
 }
 
 function BirthYearInput({ birthYear, gender, expectedLifespan, onChange, idPrefix }: BirthYearInputProps) {
-  const handleBirthYearChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleBirthYearChange = (e: ChangeEvent<HTMLInputElement>) => {
     const year = e.target.value ? Number(e.target.value) : undefined
     onChange.birthYear(year)
 

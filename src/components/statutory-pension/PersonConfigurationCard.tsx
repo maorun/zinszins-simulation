@@ -1,4 +1,4 @@
-import type React from 'react'
+import type { ComponentType } from 'react'
 import { CollapsibleCard, CollapsibleCardHeader, CollapsibleCardContent } from '../ui/collapsible-card'
 import type { IndividualStatutoryPensionConfig } from '../../../helpers/statutory-pension'
 
@@ -17,7 +17,7 @@ interface PersonConfigurationCardProps {
   onChange: (updates: Partial<IndividualStatutoryPensionConfig>) => void
   currentYear: number
   birthYear?: number
-  PersonConfigComponent: React.ComponentType<PersonPensionConfigurationProps>
+  PersonConfigComponent: ComponentType<PersonPensionConfigurationProps>
 }
 
 export function PersonConfigurationCard({

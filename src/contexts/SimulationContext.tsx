@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react'
+import { useMemo, type ReactNode } from 'react'
 import type { ReturnMode } from '../utils/random-returns'
 import type { Sparplan, SparplanElement } from '../utils/sparplan-utils'
 import type { SimulationAnnualType } from '../utils/simulate'
@@ -167,7 +167,7 @@ export interface SimulationContextState {
   setBenchmarkConfig: (config: import('../../helpers/benchmark').BenchmarkConfig) => void
 }
 
-export const SimulationProvider = ({ children }: { children: React.ReactNode }) => {
+export const SimulationProvider = ({ children }: { children: ReactNode }) => {
   // Default configuration
   const defaultConfig = useMemo(() => createDefaultConfiguration(), [])
 

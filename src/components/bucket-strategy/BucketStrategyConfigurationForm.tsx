@@ -1,4 +1,4 @@
-import type React from 'react'
+import type { ChangeEvent } from 'react'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
 import { Slider } from '../ui/slider'
@@ -47,7 +47,7 @@ function createNumberInputHandler(
   field: keyof BucketConfig,
   defaultValue: number,
 ) {
-  return (e: React.ChangeEvent<HTMLInputElement>) => {
+  return (e: ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value
     const value = inputValue === '' ? 0 : Number(inputValue) || defaultValue
     const config = getDefaultConfig(bucketConfig)
