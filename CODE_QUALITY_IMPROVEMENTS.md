@@ -11,13 +11,16 @@ All improvements follow the principle of **minimal, surgical changes** focused o
 ### 1. Locale and Currency Constants Extraction
 
 **Files Created:**
+
 - `src/utils/locale-constants.ts` - Centralized locale and currency configuration
 - `src/utils/locale-constants.test.ts` - Comprehensive test coverage
 
 **Files Modified:**
+
 - `src/utils/currency.ts` - Updated to use centralized constants
 
 **Benefits:**
+
 - Single source of truth for locale settings (German locale 'de-DE')
 - Single source of truth for currency (EUR)
 - Easier future internationalization
@@ -26,6 +29,7 @@ All improvements follow the principle of **minimal, surgical changes** focused o
 - 100% test coverage for new constants
 
 **Constants Extracted:**
+
 - `DEFAULT_LOCALE = 'de-DE'`
 - `DEFAULT_CURRENCY = 'EUR'`
 - `CURRENCY_DECIMAL_PLACES = 2`
@@ -36,13 +40,16 @@ All improvements follow the principle of **minimal, surgical changes** focused o
 ### 2. Calculation Step Colors Module
 
 **Files Created:**
+
 - `src/utils/calculation-colors.ts` - Type-safe color palette for calculation explanations
 - `src/utils/calculation-colors.test.ts` - Comprehensive test coverage including variant validation
 
 **Files Modified:**
+
 - `src/components/calculationHelpers.ts` - Updated to import colors from new module
 
 **Benefits:**
+
 - Centralized color definitions for calculation step explanations
 - Type-safe with `StepColorConfig` interface
 - Better code organization (removes 19 lines from calculationHelpers.ts)
@@ -51,6 +58,7 @@ All improvements follow the principle of **minimal, surgical changes** focused o
 - Validated color consistency for variants (same background, different borders)
 
 **Features:**
+
 - 15 predefined color combinations (8 base + 7 variants)
 - Type `StepColorName` for compile-time validation
 - All colors follow Material Design color scheme
@@ -59,16 +67,20 @@ All improvements follow the principle of **minimal, surgical changes** focused o
 ### 3. Enhanced JSDoc Documentation
 
 **Files Modified:**
+
 - `helpers/withdrawal.ts` - Improved documentation for growth rate generation functions
 
 **Improvements:**
+
 - Added detailed JSDoc comments with `@param`, `@returns`, and `@example` tags
+
 - Explained the purpose and use cases for each function
 - Added examples showing expected input/output
 - Documented the registry pattern for growth rate generators
 - Explained default fallback values (e.g., 5% default rate)
 
 **Functions Enhanced:**
+
 - `generateFixedGrowthRates()` - With example showing input/output mapping
 - `generateVariableGrowthRates()` - With explanation of fallback behavior
 - `generateMultiAssetGrowthRates()` - With clarification of delegation pattern
@@ -79,16 +91,19 @@ All improvements follow the principle of **minimal, surgical changes** focused o
 ### 4. Performance Optimization Documentation
 
 **Files Modified:**
+
 - `src/hooks/useWithdrawalCalculations.ts` - Added useMemo optimization comment
 - `src/hooks/useDataExport.ts` - Enhanced documentation for useCallback usage
 
 **Improvements:**
+
 - Inline comments explaining why `useMemo` is used for pension config conversion
 - Documentation for all `useCallback` instances in export hooks
 - Explained the performance benefits of memoization
 - Enhanced main hook documentation with return value details
 
 **Performance Notes Added:**
+
 - `useWithdrawalCalculations`: useMemo prevents unnecessary config conversions
 - `useCSVExports`: useCallback prevents recreation of export functions on render
 - `useExcelExports`: useCallback prevents recreation of export functions on render
@@ -98,6 +113,7 @@ All improvements follow the principle of **minimal, surgical changes** focused o
 ## Testing
 
 All changes were thoroughly tested:
+
 - **Total Tests**: 4614 tests pass (including 17 new tests)
 - **New Test Files**: 2 new test files with comprehensive coverage
 - **Lint**: 0 warnings (max-warnings 0 enforced)
@@ -107,12 +123,14 @@ All changes were thoroughly tested:
 ## Impact
 
 ### Code Metrics
+
 - **Lines Added**: ~400 (mostly documentation and tests)
 - **Lines Removed**: ~50 (extracted into modules)
 - **Net Impact**: Better organized, more maintainable code
 - **Bundle Size**: No change (all changes are compile-time or documentation)
 
 ### Maintainability Improvements
+
 1. **Centralized Configuration**: Locale and currency settings in one place
 2. **Type Safety**: New interfaces and type definitions
 3. **Documentation**: Better inline and JSDoc documentation
@@ -120,6 +138,7 @@ All changes were thoroughly tested:
 5. **Test Coverage**: Increased with focused unit tests for new modules
 
 ### Developer Experience
+
 - Easier to understand complex helper functions
 - Clear documentation of performance optimizations
 - Type-safe constants prevent typos

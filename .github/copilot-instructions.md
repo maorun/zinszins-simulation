@@ -365,6 +365,7 @@ This is a personal finance tool focused on German tax law and investment plannin
 - **German Tax Compliance**: Full Vorabpauschale calculations with explanations
 - **Interactive Functionality**: All RadioTile, Card, and Button components fully functional
 - **Development Tools**: Use Context7 for up-to-date documentation and best practices
+- **Code Quality**: See [CODE_QUALITY_IMPROVEMENTS.md](../CODE_QUALITY_IMPROVEMENTS.md) for details on recent improvements to code organization, constants management, and documentation
 
 **Author**: Marco (see footer in application)
 
