@@ -1,6 +1,7 @@
 // Helper functions to create calculation explanations for different simulation data
 
 import { formatCurrency } from '../utils/currency'
+import { STEP_COLORS } from '../utils/calculation-colors'
 
 export interface CalculationStep {
   readonly title: string
@@ -20,39 +21,6 @@ export interface CalculationExplanation {
     readonly values: ReadonlyArray<{ readonly label: string; readonly value: string }>
   }
 }
-
-/**
- * Step color scheme constants for visual consistency in calculation explanations.
- *
- * Base colors provide the standard palette for calculation steps.
- * Variant colors share the same background as their base color but use different
- * border colors to provide visual distinction when multiple related calculations
- * appear in the same explanation.
- *
- * Color naming convention:
- * - Base colors (e.g., BLUE, GREEN): Standard border color intensity
- * - VARIANT suffix: Alternative border color, same background
- * - DARK suffix: Darker/more saturated border color, same background
- */
-const STEP_COLORS = {
-  // Base colors
-  ORANGE: { backgroundColor: '#fff3e0', borderColor: '#ffcc80' },
-  GREEN: { backgroundColor: '#e8f5e8', borderColor: '#81c784' },
-  BLUE: { backgroundColor: '#e3f2fd', borderColor: '#64b5f6' },
-  PURPLE: { backgroundColor: '#f3e5f5', borderColor: '#ba68c8' },
-  LIGHT_BLUE: { backgroundColor: '#e1f5fe', borderColor: '#81d4fa' },
-  YELLOW: { backgroundColor: '#fff9c4', borderColor: '#fff176' },
-  RED: { backgroundColor: '#ffebee', borderColor: '#ef5350' },
-  PINK: { backgroundColor: '#fce4ec', borderColor: '#e91e63' },
-  // Variants - same background colors as base, different borders for visual distinction
-  BLUE_VARIANT: { backgroundColor: '#e3f2fd', borderColor: '#90caf9' },
-  PURPLE_VARIANT: { backgroundColor: '#f3e5f5', borderColor: '#ce93d8' },
-  LIGHT_BLUE_VARIANT: { backgroundColor: '#e1f5fe', borderColor: '#2196f3' },
-  ORANGE_VARIANT: { backgroundColor: '#fff3e0', borderColor: '#ff9800' },
-  GREEN_DARK: { backgroundColor: '#e8f5e8', borderColor: '#4caf50' },
-  RED_VARIANT: { backgroundColor: '#ffebee', borderColor: '#f44336' },
-  PINK_VARIANT: { backgroundColor: '#fce4ec', borderColor: '#e91e63' },
-} as const
 
 /**
  * Creates a step-by-step explanation of how interest/returns are calculated.
