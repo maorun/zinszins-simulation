@@ -626,7 +626,9 @@ function createExportCallback(
 }
 
 /**
- * Create CSV export callbacks
+ * Create CSV export callbacks.
+ * Performance optimization: useCallback prevents recreation of export functions on every render,
+ * which is important as these are passed to UI components that would re-render unnecessarily.
  */
 function useCSVExports(context: SimulationContextState, updateState: StateUpdater) {
   return {
@@ -646,7 +648,8 @@ function useCSVExports(context: SimulationContextState, updateState: StateUpdate
 }
 
 /**
- * Create Excel export callbacks
+ * Create Excel export callbacks.
+ * Performance optimization: useCallback prevents recreation of export functions on every render.
  */
 function useExcelExports(context: SimulationContextState, updateState: StateUpdater) {
   return {
@@ -666,7 +669,8 @@ function useExcelExports(context: SimulationContextState, updateState: StateUpda
 }
 
 /**
- * Create PDF export callbacks
+ * Create PDF export callbacks.
+ * Performance optimization: useCallback prevents recreation of export functions on every render.
  */
 function usePDFExports(context: SimulationContextState, updateState: StateUpdater) {
   return {
@@ -686,7 +690,13 @@ function usePDFExports(context: SimulationContextState, updateState: StateUpdate
 }
 
 /**
- * Custom hook for exporting simulation data in various formats
+ * Custom hook for exporting simulation data in various formats.
+ * 
+ * Provides export functions for CSV, Excel, PDF, and Markdown formats, as well as
+ * clipboard operations. All export functions are memoized with useCallback to prevent
+ * unnecessary re-renders of consuming components.
+ * 
+ * @returns Object containing export functions and export state
  */
 export function useDataExport() {
   const context = useSimulation()
@@ -695,6 +705,8 @@ export function useDataExport() {
     lastExportResult: null,
     exportType: null,
   })
+  
+  // Performance optimization: useCallback ensures setState doesn't change between renders
   const updateState = useCallback((updates: Partial<DataExportState>) => {
     setState(prev => ({ ...prev, ...updates }))
   }, [])
