@@ -15,6 +15,38 @@ import {
 } from '../../helpers/loss-offset-accounts'
 import { calculateDynamicSavingsRate } from '../../helpers/dynamic-savings-rate'
 
+/**
+ * Default financial constants used throughout the simulation.
+ * These values represent typical German investment fund characteristics.
+ */
+const FINANCIAL_DEFAULTS = {
+  /**
+   * Default annual return rate (5%)
+   * Used as fallback when no specific return configuration is provided
+   */
+  DEFAULT_RETURN_RATE: 0.05,
+
+  /**
+   * Default partial tax exemption rate for equity funds (30%)
+   * German: Teilfreistellungsquote für Aktienfonds
+   */
+  DEFAULT_TEILFREISTELLUNG: 0.3,
+
+  /**
+   * Default capital gains tax rate including solidarity surcharge (26.375%)
+   * German: Abgeltungssteuer mit Solidaritätszuschlag
+   * Calculation: 25% * 1.055 = 26.375%
+   */
+  DEFAULT_KAPITALERTRAGSTEUER: 0.26375,
+
+  /**
+   * Default ratio of capital gains from stock investments (70%)
+   * Typical for equity funds - used for tax calculations
+   * German: Anteil der Kursgewinne aus Aktien
+   */
+  DEFAULT_STOCK_GAINS_RATIO: 0.7,
+} as const
+
 export type VorabpauschaleDetails = {
   basiszins: number // Base interest rate for the year
   basisertrag: number // 70% of theoretical gain at base interest rate
@@ -74,6 +106,12 @@ const freibetrag: {
   2023: 2000,
 }
 
+/**
+ * Enumeration of simulation calculation modes.
+ * Defines whether simulations should use yearly or monthly time steps.
+ * - yearly: Calculate once per year with full year assumptions
+ * - monthly: Calculate month-by-month for more precise first-year calculations
+ */
 export const SimulationAnnual: {
   [key in SimulationAnnualType]: SimulationAnnualType
 } = {
@@ -182,12 +220,12 @@ function applyFixedRate(years: number[], fixedRate: number): Record<number, numb
  *
  * @param years - Array of years to apply returns to
  * @param yearlyReturns - Record of yearly returns (year -> rate as decimal)
- * @returns A record mapping each year to its configured return rate, or 0.05 as default
+ * @returns A record mapping each year to its configured return rate, or DEFAULT_RETURN_RATE as default
  */
 function applyVariableReturns(years: number[], yearlyReturns: Record<number, number>): Record<number, number> {
   const rates: Record<number, number> = {}
   for (const year of years) {
-    rates[year] = yearlyReturns[year] ?? 0.05
+    rates[year] = yearlyReturns[year] ?? FINANCIAL_DEFAULTS.DEFAULT_RETURN_RATE
   }
   return rates
 }
@@ -196,26 +234,26 @@ type ReturnGenerator = (years: number[]) => Record<number, number>
 
 function getReturnGenerator(returnConfig: ReturnConfiguration): ReturnGenerator {
   const generators: Record<string, ReturnGenerator | undefined> = {
-    fixed: years => applyFixedRate(years, returnConfig.fixedRate ?? 0.05),
+    fixed: years => applyFixedRate(years, returnConfig.fixedRate ?? FINANCIAL_DEFAULTS.DEFAULT_RETURN_RATE),
     random: years => (returnConfig.randomConfig ? generateRandomReturns(years, returnConfig.randomConfig) : {}),
     variable: years =>
       returnConfig.variableConfig ? applyVariableReturns(years, returnConfig.variableConfig.yearlyReturns) : {},
     historical: years => {
-      if (!returnConfig.historicalConfig) return applyFixedRate(years, 0.05)
+      if (!returnConfig.historicalConfig) return applyFixedRate(years, FINANCIAL_DEFAULTS.DEFAULT_RETURN_RATE)
       const historicalReturns = getHistoricalReturns(
         returnConfig.historicalConfig.indexId,
         years[0],
         years[years.length - 1],
       )
-      return historicalReturns || applyFixedRate(years, 0.05)
+      return historicalReturns || applyFixedRate(years, FINANCIAL_DEFAULTS.DEFAULT_RETURN_RATE)
     },
     multiasset: years =>
       returnConfig.multiAssetConfig
         ? generateMultiAssetReturns(years, returnConfig.multiAssetConfig)
-        : applyFixedRate(years, 0.05),
+        : applyFixedRate(years, FINANCIAL_DEFAULTS.DEFAULT_RETURN_RATE),
   }
 
-  return generators[returnConfig.mode] || (years => applyFixedRate(years, 0.05))
+  return generators[returnConfig.mode] || (years => applyFixedRate(years, FINANCIAL_DEFAULTS.DEFAULT_RETURN_RATE))
 }
 
 function generateYearlyGrowthRates(
@@ -349,6 +387,19 @@ function getAdjustedEinzahlung(element: SparplanElement, year: number, options: 
   return baseAmount
 }
 
+/**
+ * Calculates the ending capital (before taxes) for a given year, accounting for partial year holdings.
+ * For monthly simulations in the first year, calculates pro-rated growth based on the start month.
+ *
+ * @param startkapital - Starting capital at the beginning of the period
+ * @param wachstumsrate - Annual growth rate as decimal (e.g., 0.05 for 5%)
+ * @param element - The savings plan element being calculated
+ * @param year - The year being simulated
+ * @param simulationAnnual - Whether to use yearly or monthly calculation mode
+ * @returns Object containing:
+ *   - endkapitalVorSteuer: Capital value before taxes/costs at year end
+ *   - anteilImJahr: Number of months the investment was active (1-12)
+ */
 function calculateEndkapital(
   startkapital: number,
   wachstumsrate: number,
@@ -372,6 +423,17 @@ function calculateEndkapital(
   }
 }
 
+/**
+ * Calculates growth and associated costs for a savings plan element in a given year.
+ * Combines capital growth calculation with TER and transaction cost calculations.
+ *
+ * @param element - The savings plan element to calculate for
+ * @param year - The year being simulated
+ * @param wachstumsrate - Annual growth rate as decimal
+ * @param simulationAnnual - Calculation mode (yearly or monthly)
+ * @param options - Simulation options including inflation settings
+ * @returns Object containing startkapital, endkapitalAfterCosts, jahresgewinn, anteilImJahr, and costs breakdown
+ */
 function calculateGrowthAndCostsForElement(
   element: SparplanElement,
   year: number,
@@ -426,7 +488,8 @@ function processElementForTaxCalculation(
 ): YearlyCalculation | null {
   if (!shouldProcessElement(element, year)) return null
 
-  const { simulationAnnual, steuerlast, teilfreistellungsquote = 0.3 } = options
+  const { simulationAnnual, steuerlast, teilfreistellungsquote = FINANCIAL_DEFAULTS.DEFAULT_TEILFREISTELLUNG } =
+    options
 
   const { startkapital, endkapitalAfterCosts, jahresgewinn, anteilImJahr, costs } = calculateGrowthAndCostsForElement(
     element,
@@ -800,12 +863,12 @@ function calculatePortfolioLossOffset(
 
   // Split capital gains into stock gains and other gains
   // Use stockGainsRatio to determine what portion of gains are from stocks
-  const stockGainsRatio = options.stockGainsRatio ?? 0.7 // Default: 70% stock gains (typical for equity funds)
+  const stockGainsRatio = options.stockGainsRatio ?? FINANCIAL_DEFAULTS.DEFAULT_STOCK_GAINS_RATIO // Default: 70% stock gains (typical for equity funds)
   const stockGains = totalCapitalGains * stockGainsRatio
   const otherGains = totalCapitalGains * (1 - stockGainsRatio)
 
   // Calculate effective tax rate (Kapitalertragsteuer × (1 - Teilfreistellung))
-  const teilfreistellungsquote = options.teilfreistellungsquote ?? 0.3
+  const teilfreistellungsquote = options.teilfreistellungsquote ?? FINANCIAL_DEFAULTS.DEFAULT_TEILFREISTELLUNG
   const effectiveTaxRate = options.steuerlast * (1 - teilfreistellungsquote)
 
   // Calculate loss offset
@@ -838,8 +901,9 @@ function calculateAdjustedTotalTax(
   }
 
   // Recalculate tax based on adjusted taxable income after loss offset
-  const teilfreistellungsquote = options?.teilfreistellungsquote ?? 0.3
-  const effectiveTaxRate = (options?.steuerlast ?? 0.26375) * (1 - teilfreistellungsquote)
+  const teilfreistellungsquote = options?.teilfreistellungsquote ?? FINANCIAL_DEFAULTS.DEFAULT_TEILFREISTELLUNG
+  const effectiveTaxRate =
+    (options?.steuerlast ?? FINANCIAL_DEFAULTS.DEFAULT_KAPITALERTRAGSTEUER) * (1 - teilfreistellungsquote)
   return lossOffsetData.adjustedTaxableIncome * effectiveTaxRate
 }
 

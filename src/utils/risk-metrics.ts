@@ -3,6 +3,31 @@
  * Includes VaR, Drawdown, Sharpe Ratio, and other risk measures
  */
 
+/**
+ * Default risk analysis constants used throughout risk metric calculations.
+ * These values represent standard assumptions in modern portfolio theory.
+ */
+const RISK_METRIC_DEFAULTS = {
+  /**
+   * Default risk-free rate (2%)
+   * Typically based on German government bonds (Bundesanleihen)
+   * Used for Sharpe and Sortino ratio calculations
+   */
+  DEFAULT_RISK_FREE_RATE: 0.02,
+
+  /**
+   * 95% confidence level for Value at Risk (VaR)
+   * Standard confidence level for risk assessment
+   */
+  VAR_CONFIDENCE_95: 0.95,
+
+  /**
+   * 99% confidence level for Value at Risk (VaR)
+   * Higher confidence level for stress testing
+   */
+  VAR_CONFIDENCE_99: 0.99,
+}
+
 export interface RiskMetrics {
   // Single-value metrics
   valueAtRisk5: number // 5% VaR
@@ -91,7 +116,10 @@ export function calculateDrawdown(values: number[]): {
 /**
  * Calculate Sharpe Ratio
  */
-export function calculateSharpeRatio(returns: number[], riskFreeRate = 0.02): number {
+export function calculateSharpeRatio(
+  returns: number[],
+  riskFreeRate = RISK_METRIC_DEFAULTS.DEFAULT_RISK_FREE_RATE,
+): number {
   if (returns.length === 0) return 0
 
   const avgReturn = returns.reduce((sum, ret) => sum + ret, 0) / returns.length
@@ -109,7 +137,10 @@ export function calculateSharpeRatio(returns: number[], riskFreeRate = 0.02): nu
 /**
  * Calculate Sortino Ratio (uses only downside volatility)
  */
-export function calculateSortinoRatio(returns: number[], riskFreeRate = 0.02): number {
+export function calculateSortinoRatio(
+  returns: number[],
+  riskFreeRate = RISK_METRIC_DEFAULTS.DEFAULT_RISK_FREE_RATE,
+): number {
   if (returns.length === 0) return 0
 
   const avgReturn = returns.reduce((sum, ret) => sum + ret, 0) / returns.length
@@ -164,7 +195,7 @@ export function calculateVolatility(returns: number[]): number {
  * Calculate comprehensive risk metrics for a portfolio
  */
 export function calculateRiskMetrics(data: PortfolioData): RiskMetrics {
-  const { values, riskFreeRate = 0.02 } = data
+  const { values, riskFreeRate = RISK_METRIC_DEFAULTS.DEFAULT_RISK_FREE_RATE } = data
 
   // Calculate returns if not provided
   const returns = data.returns || calculateReturns(values)
@@ -173,8 +204,8 @@ export function calculateRiskMetrics(data: PortfolioData): RiskMetrics {
   const { maxDrawdown, drawdownSeries } = calculateDrawdown(values)
 
   // Calculate single-value metrics
-  const valueAtRisk5 = calculateVaR(returns, 0.95)
-  const valueAtRisk1 = calculateVaR(returns, 0.99)
+  const valueAtRisk5 = calculateVaR(returns, RISK_METRIC_DEFAULTS.VAR_CONFIDENCE_95)
+  const valueAtRisk1 = calculateVaR(returns, RISK_METRIC_DEFAULTS.VAR_CONFIDENCE_99)
   const sharpeRatio = calculateSharpeRatio(returns, riskFreeRate)
   const sortinoRatio = calculateSortinoRatio(returns, riskFreeRate)
   const calmarRatio = calculateCalmarRatio(returns, maxDrawdown)
