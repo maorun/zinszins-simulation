@@ -111,7 +111,11 @@ export function exportSavingsDataToCSV(data: ExportData): string {
 }
 
 /**
- * Accumulate year data into totals
+ * Accumulates year data into running totals for export.
+ * Safely handles undefined year data by checking before accumulation.
+ *
+ * @param yearData - Simulation result data for a single year (may be undefined)
+ * @param accumulators - Object containing running totals to update
  */
 function accumulateYearData(
   yearData: SimulationResultElement | undefined,
@@ -135,7 +139,15 @@ function accumulateYearData(
 }
 
 /**
- * Process simulation element for a given year
+ * Processes a simulation element for a specific year, extracting contribution and simulation data.
+ * Updates accumulators with year data and calculates the contribution amount for this savings plan.
+ *
+ * @param element - The savings plan element to process
+ * @param elementIndex - Index of this element in the savings plans array
+ * @param year - The year to extract data for
+ * @param isMonthly - Whether calculations are monthly (true) or yearly (false)
+ * @param sparplanContributions - Array to store contribution amounts per savings plan
+ * @param accumulators - Object containing running totals to update
  */
 function processSimulationElement(
   element: SparplanElement,
@@ -165,7 +177,13 @@ function processSimulationElement(
 }
 
 /**
- * Export data from real simulation structure (elements with simulation property)
+ * Exports savings data from real simulation structure.
+ * Processes elements that have a simulation property with years as keys.
+ * Iterates through all years, aggregates data from all savings plans, and exports to CSV format.
+ *
+ * @param simulationElements - Array of savings plan elements containing simulation data
+ * @param context - Simulation context with configuration and settings
+ * @param lines - Array of CSV lines to append export data to
  */
 function exportSimulationStructure(
   simulationElements: SparplanElement[],
@@ -230,7 +248,12 @@ function exportSimulationStructure(
 }
 
 /**
- * Extract element amount from various possible mock data properties
+ * Extracts the contribution amount from a savings plan element.
+ * Handles various property names used in different test mock structures.
+ * Falls back to 0 if no recognizable amount property is found.
+ *
+ * @param element - The savings plan element to extract amount from
+ * @returns The contribution amount, or 0 if not found
  */
 function extractElementAmount(element: SparplanElement): number {
   const mockData = element as Record<string, unknown>
@@ -243,7 +266,12 @@ function extractElementAmount(element: SparplanElement): number {
 }
 
 /**
- * Extract numeric property from mock element with fallback to 0
+ * Extracts a numeric property from a mock element with type-safe fallback.
+ * Used for test data structures that may have different property types.
+ *
+ * @param element - The savings plan element (potentially a mock)
+ * @param property - The property name to extract
+ * @returns The numeric value if found and valid, otherwise 0
  */
 function extractMockNumericProperty(element: SparplanElement, property: string): number {
   const mockElement = element as Record<string, unknown>
@@ -251,7 +279,8 @@ function extractMockNumericProperty(element: SparplanElement, property: string):
 }
 
 /**
- * Extract financial data from mock element
+ * Financial data extracted from a mock simulation element.
+ * Used for test structures where each element represents a complete year's data.
  */
 interface MockFinancialData {
   startkapital: number
@@ -262,6 +291,13 @@ interface MockFinancialData {
   vorabpauschale: number
 }
 
+/**
+ * Extracts all financial data from a mock element structure.
+ * Safely handles missing properties with fallback to 0.
+ *
+ * @param element - The savings plan element (test mock structure)
+ * @returns Object containing all financial metrics with safe defaults
+ */
 function extractMockFinancialData(element: SparplanElement): MockFinancialData {
   return {
     startkapital: extractMockNumericProperty(element, 'startkapital'),
@@ -274,7 +310,13 @@ function extractMockFinancialData(element: SparplanElement): MockFinancialData {
 }
 
 /**
- * Export data from test mock structure (each element represents a year)
+ * Exports savings data from test mock structure.
+ * Processes elements where each element represents a complete year's data.
+ * Used primarily in test environments with simplified data structures.
+ *
+ * @param simulationElements - Array of mock savings plan elements
+ * @param context - Simulation context with configuration and settings
+ * @param lines - Array of CSV lines to append export data to
  */
 function exportMockStructure(simulationElements: SparplanElement[], context: SimulationContextState, lines: string[]) {
   let cumulativeContributions = 0
@@ -316,7 +358,20 @@ function exportMockStructure(simulationElements: SparplanElement[], context: Sim
 }
 
 /**
- * Add rows for a specific year to the CSV output
+ * Adds CSV rows for a specific year to the export output.
+ * Handles both monthly and yearly calculation modes, generating appropriate rows.
+ *
+ * @param year - The year to export data for
+ * @param isMonthly - Whether to generate 12 monthly rows (true) or 1 yearly row (false)
+ * @param startkapital - Starting capital for the year
+ * @param zinsen - Interest/returns for the year
+ * @param endkapital - Ending capital for the year
+ * @param bezahlteSteuer - Taxes paid during the year
+ * @param genutzterFreibetrag - Tax allowance used during the year
+ * @param vorabpauschale - Vorabpauschale amount for the year
+ * @param sparplanContributions - Array of contribution amounts per savings plan
+ * @param cumulativeContributions - Total contributions up to and including this year
+ * @param lines - Array of CSV lines to append to
  */
 function addYearRows(
   year: number,
@@ -362,7 +417,12 @@ function addYearRows(
  * Calculate the contribution amount for a specific element in a specific year
  */
 /**
- * Check if element is active in given year
+ * Checks if a savings plan element is active in a given year.
+ * Compares the year against the element's start and end dates.
+ *
+ * @param element - The savings plan element with start/end properties
+ * @param year - The year to check for activity
+ * @returns true if the element is active in the given year, false otherwise
  */
 function isElementActiveInYear(element: Record<string, unknown>, year: number): boolean {
   const startYear = new Date(element.start as string).getFullYear()
@@ -372,7 +432,11 @@ function isElementActiveInYear(element: Record<string, unknown>, year: number): 
 }
 
 /**
- * Get yearly amount from element with multiple fallback properties
+ * Retrieves the yearly contribution amount from an element with multiple fallback properties.
+ * Checks various property names to handle different data structures.
+ *
+ * @param element - The savings plan element with contribution amount
+ * @returns The yearly contribution amount, or 0 if not found
  */
 function getYearlyAmountFromElement(element: Record<string, unknown>): number {
   return (element.einzahlung as number) || (element.amount as number) || (element.monthlyAmount as number) || 0
@@ -403,7 +467,11 @@ function getElementContributionForYear(element: unknown, year: number, isMonthly
 }
 
 /**
- * Format Vorabpauschale basiszins for CSV
+ * Formats Vorabpauschale base interest rate (Basiszins) for CSV export.
+ * Converts percentage to German number format without the % symbol.
+ *
+ * @param details - Vorabpauschale calculation details containing basiszins
+ * @returns Formatted basiszins as German decimal string (e.g., "0,75")
  */
 function formatBasiszins(details: WithdrawalResultElement['vorabpauschaleDetails']): string {
   if (!details) {
@@ -413,7 +481,7 @@ function formatBasiszins(details: WithdrawalResultElement['vorabpauschaleDetails
 }
 
 /**
- * Build basic row data for a withdrawal year/month
+ * Parameters for building basic row data in withdrawal export.
  */
 interface BasicRowDataParams {
   year: number
@@ -423,7 +491,11 @@ interface BasicRowDataParams {
 }
 
 /**
- * Extract Vorabpauschale details for CSV formatting
+ * Extracts and formats Vorabpauschale details for CSV export.
+ * Safely handles missing details with fallback to default values.
+ *
+ * @param yearData - Withdrawal result data containing Vorabpauschale details
+ * @returns Object with formatted Vorabpauschale components for CSV
  */
 function extractVorabpauschaleDetails(yearData: WithdrawalResultElement): {
   basiszins: string
