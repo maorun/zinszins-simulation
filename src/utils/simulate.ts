@@ -232,6 +232,14 @@ function applyVariableReturns(years: number[], yearlyReturns: Record<number, num
 
 type ReturnGenerator = (years: number[]) => Record<number, number>
 
+/**
+ * Retrieves a return generator function based on the return configuration mode.
+ * Supports fixed, random, variable, historical, and multi-asset return strategies.
+ * Falls back to fixed 5% return if mode is not recognized.
+ *
+ * @param returnConfig - The return configuration specifying mode and parameters
+ * @returns Function that generates yearly return rates given an array of years
+ */
 function getReturnGenerator(returnConfig: ReturnConfiguration): ReturnGenerator {
   const generators: Record<string, ReturnGenerator | undefined> = {
     fixed: years => applyFixedRate(years, returnConfig.fixedRate ?? FINANCIAL_DEFAULTS.DEFAULT_RETURN_RATE),
@@ -256,6 +264,15 @@ function getReturnGenerator(returnConfig: ReturnConfiguration): ReturnGenerator 
   return generators[returnConfig.mode] || (years => applyFixedRate(years, FINANCIAL_DEFAULTS.DEFAULT_RETURN_RATE))
 }
 
+/**
+ * Generates yearly growth rates for the entire simulation period.
+ * Applies the configured return strategy (fixed, random, variable, etc.) to all years.
+ *
+ * @param startYear - First year of the simulation
+ * @param endYear - Last year of the simulation (inclusive)
+ * @param returnConfig - Configuration specifying the return strategy
+ * @returns Record mapping each year to its growth rate as decimal (e.g., 0.05 for 5%)
+ */
 function generateYearlyGrowthRates(
   startYear: number,
   endYear: number,
@@ -286,7 +303,14 @@ export function simulate(options: SimulateOptions): SparplanElement[] {
 }
 
 /**
- * Calculate TER costs for the year
+ * Calculates Total Expense Ratio (TER) costs for a year.
+ * TER is charged as a percentage of average capital and pro-rated for partial years.
+ *
+ * @param element - The savings plan element with TER configuration
+ * @param startkapital - Capital at the beginning of the year
+ * @param endkapitalVorKosten - Capital at year end before costs are deducted
+ * @param anteilImJahr - Fraction of year the investment was held (12 for full year)
+ * @returns TER costs for the period, or 0 if no TER is configured
  */
 function calculateTERCosts(
   element: SparplanElement,
@@ -302,7 +326,13 @@ function calculateTERCosts(
 }
 
 /**
- * Calculate transaction costs for first year
+ * Calculates one-time transaction costs for the first year of investment.
+ * Supports both percentage-based and absolute transaction costs.
+ * Transaction costs are only applied in the year when the investment starts.
+ *
+ * @param element - The savings plan element with transaction cost configuration
+ * @param isFirstYear - Whether this is the first year of the investment
+ * @returns Transaction costs for the first year, or 0 for subsequent years
  */
 function calculateTransactionCosts(element: SparplanElement, isFirstYear: boolean): number {
   if (!isFirstYear) {
@@ -325,6 +355,17 @@ function calculateTransactionCosts(element: SparplanElement, isFirstYear: boolea
   return costs
 }
 
+/**
+ * Calculates all costs (TER and transaction costs) for a savings plan element in a year.
+ * Determines if this is the first year and applies costs accordingly.
+ *
+ * @param element - The savings plan element with cost configuration
+ * @param startkapital - Capital at the beginning of the year
+ * @param endkapitalVorKosten - Capital at year end before costs are deducted
+ * @param year - The current year being simulated
+ * @param anteilImJahr - Fraction of year the investment was held (12 for full year)
+ * @returns Object containing terCosts, transactionCosts, and totalCosts
+ */
 function calculateCosts(
   element: SparplanElement,
   startkapital: number,
@@ -341,7 +382,16 @@ function calculateCosts(
   return { terCosts, transactionCosts, totalCosts }
 }
 
-// Helper function to calculate inflation-adjusted contribution amount
+/**
+ * Calculates inflation-adjusted contribution amount for a given year.
+ * Compounds the original amount with inflation from base year to current year.
+ *
+ * @param originalAmount - The base contribution amount without inflation adjustment
+ * @param baseYear - The base year to start inflation adjustment from
+ * @param currentYear - The current year to calculate adjusted amount for
+ * @param inflationRate - Annual inflation rate as decimal (e.g., 0.02 for 2%)
+ * @returns The inflation-adjusted contribution amount, or original if no inflation
+ */
 function getInflationAdjustedContribution(
   originalAmount: number,
   baseYear: number,
@@ -354,7 +404,15 @@ function getInflationAdjustedContribution(
   return originalAmount * Math.pow(1 + inflationRate, yearsPassed)
 }
 
-// Helper function to get the base contribution amount for a year
+/**
+ * Retrieves the base contribution amount for a year, applying dynamic savings rate if configured.
+ * Dynamic savings rates allow contributions to change over time based on age or time-based adjustments.
+ *
+ * @param element - The savings plan element with contribution settings
+ * @param year - The current year to get contribution for
+ * @param options - Simulation options containing start year and other settings
+ * @returns The base contribution amount (before inflation adjustment)
+ */
 function getBaseSavingsAmount(element: SparplanElement, year: number, options: SimulateOptions): number {
   // Apply dynamic savings rate adjustment if configured
   if (element.dynamicSavingsConfig?.enabled && element.type === 'sparplan') {
@@ -364,7 +422,14 @@ function getBaseSavingsAmount(element: SparplanElement, year: number, options: S
   return element.einzahlung
 }
 
-// Helper function to check if inflation should be applied
+/**
+ * Determines whether inflation adjustment should be applied to contributions.
+ * Checks if inflation is enabled, rate is positive, and mode is 'sparplan'.
+ *
+ * @param options - Simulation options containing inflation configuration
+ * @param yearInflationRate - The inflation rate for the current year as decimal
+ * @returns true if inflation should be applied to contributions, false otherwise
+ */
 function shouldApplyInflationAdjustment(options: SimulateOptions, yearInflationRate: number): boolean {
   const hasInflationConfig = Boolean(options.inflationAktivSparphase || options.variableInflationRates)
   const hasPositiveRate = yearInflationRate > 0
@@ -373,7 +438,15 @@ function shouldApplyInflationAdjustment(options: SimulateOptions, yearInflationR
   return hasInflationConfig && hasPositiveRate && isSparplanMode
 }
 
-// Helper function to calculate growth and costs for a single element in a year
+/**
+ * Calculates the adjusted contribution amount (Einzahlung) for a year.
+ * Applies dynamic savings rate adjustments and inflation adjustment as configured.
+ *
+ * @param element - The savings plan element with contribution settings
+ * @param year - The current year to calculate contribution for
+ * @param options - Simulation options containing inflation and savings rate settings
+ * @returns The final adjusted contribution amount for the year
+ */
 function getAdjustedEinzahlung(element: SparplanElement, year: number, options: SimulateOptions): number {
   // Start with base amount (may be dynamically adjusted)
   const baseAmount = getBaseSavingsAmount(element, year, options)
