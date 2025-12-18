@@ -48,7 +48,17 @@ export type WithdrawalStrategy =
   | 'steueroptimiert'
 
 /**
- * Generate fixed rate growth for all years
+ * Generate fixed rate growth for all years.
+ *
+ * Creates a map of years to growth rates where each year has the same fixed rate.
+ * This is used for simple, constant-return scenarios.
+ *
+ * @param allYears - Array of years to generate rates for
+ * @param fixedRate - The constant annual growth rate to apply (e.g., 0.05 for 5%)
+ * @returns Record mapping each year to the fixed growth rate
+ * @example
+ * generateFixedGrowthRates([2023, 2024, 2025], 0.05)
+ * // Returns: { 2023: 0.05, 2024: 0.05, 2025: 0.05 }
  */
 function generateFixedGrowthRates(allYears: number[], fixedRate: number): Record<number, number> {
   const yearlyGrowthRates: Record<number, number> = {}
@@ -59,7 +69,18 @@ function generateFixedGrowthRates(allYears: number[], fixedRate: number): Record
 }
 
 /**
- * Generate variable growth rates from config
+ * Generate variable growth rates from configuration.
+ *
+ * Extracts year-specific growth rates from the configuration, falling back to 5%
+ * for any years not explicitly configured. This allows modeling different expected
+ * returns for different time periods.
+ *
+ * @param allYears - Array of years to generate rates for
+ * @param variableConfig - Configuration object containing year-to-rate mappings
+ * @returns Record mapping each year to its configured or default growth rate
+ * @example
+ * generateVariableGrowthRates([2023, 2024], { yearlyReturns: { 2023: 0.07 } })
+ * // Returns: { 2023: 0.07, 2024: 0.05 } // 2024 uses default 5%
  */
 function generateVariableGrowthRates(
   allYears: number[],
@@ -73,7 +94,14 @@ function generateVariableGrowthRates(
 }
 
 /**
- * Generate multi-asset growth rates
+ * Generate multi-asset portfolio growth rates.
+ *
+ * Delegates to the multi-asset calculation module to generate returns based on
+ * asset allocation, correlations, and rebalancing strategy.
+ *
+ * @param allYears - Array of years to generate rates for
+ * @param multiAssetConfig - Multi-asset portfolio configuration
+ * @returns Record mapping each year to calculated portfolio return
  */
 function generateMultiAssetGrowthRates(
   allYears: number[],
@@ -83,7 +111,16 @@ function generateMultiAssetGrowthRates(
 }
 
 /**
- * Generate growth rates for each return mode
+ * Registry of growth rate generators for different return modes.
+ *
+ * Maps return mode identifiers to their corresponding generator functions.
+ * Each generator takes years and configuration, returning year-to-rate mappings.
+ *
+ * Supported modes:
+ * - fixed: Constant return rate for all years
+ * - random: Monte Carlo simulation with volatility
+ * - variable: Year-specific configured returns
+ * - multiasset: Multi-asset portfolio with asset allocation and rebalancing
  */
 const GROWTH_RATE_GENERATORS: Record<
   string,
@@ -98,7 +135,14 @@ const GROWTH_RATE_GENERATORS: Record<
 }
 
 /**
- * Helper function: Generate yearly growth rates based on return configuration
+ * Helper function: Generate yearly growth rates based on return configuration.
+ *
+ * Dispatches to the appropriate generator based on the return mode specified in the config.
+ * Falls back to an empty record if the mode is not recognized.
+ *
+ * @param allYears - Array of years to generate rates for
+ * @param returnConfig - Configuration specifying return mode and related settings
+ * @returns Record mapping years to their calculated growth rates
  */
 function generateYearlyGrowthRates(allYears: number[], returnConfig: ReturnConfiguration): Record<number, number> {
   const generator = GROWTH_RATE_GENERATORS[returnConfig.mode]
@@ -106,7 +150,17 @@ function generateYearlyGrowthRates(allYears: number[], returnConfig: ReturnConfi
 }
 
 /**
- * Helper function: Determine years for growth rate generation
+ * Helper function: Determine years for growth rate generation.
+ *
+ * Calculates which years need growth rates generated, potentially including an
+ * additional year before the start for strategies that need previous year data
+ * (e.g., dynamic strategies that adjust based on prior performance).
+ *
+ * @param startYear - First year of the withdrawal phase
+ * @param endYear - Last year of the withdrawal phase
+ * @param strategy - The withdrawal strategy being used
+ * @param bucketConfig - Optional bucket strategy configuration
+ * @returns Array of years for which growth rates should be generated
  */
 function determineYearsForGrowthRates(
   startYear: number,

@@ -41,6 +41,8 @@ export function useWithdrawalCalculations(
     coupleStatutoryPensionConfig,
   } = useSimulation()
   // Convert couple statutory pension config to legacy format for withdrawal calculations
+  // Performance optimization: useMemo prevents unnecessary recalculation when dependencies haven't changed.
+  // This is particularly important as conversion is used in multiple downstream calculations.
   const effectiveStatutoryPensionConfig = useMemo(() => {
     // Prefer couple config if available, fallback to legacy config
     return coupleStatutoryPensionConfig

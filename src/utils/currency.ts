@@ -1,12 +1,19 @@
+import {
+  DEFAULT_LOCALE,
+  DEFAULT_CURRENCY,
+  CURRENCY_DECIMAL_PLACES,
+  CURRENCY_WHOLE_DECIMAL_PLACES,
+} from './locale-constants'
+
 /**
  * Format currency for display in German format
  */
 export function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat('de-DE', {
+  return new Intl.NumberFormat(DEFAULT_LOCALE, {
     style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    currency: DEFAULT_CURRENCY,
+    minimumFractionDigits: CURRENCY_DECIMAL_PLACES,
+    maximumFractionDigits: CURRENCY_DECIMAL_PLACES,
   }).format(amount)
 }
 
@@ -14,11 +21,11 @@ export function formatCurrency(amount: number): string {
  * Format currency without decimal places (for large round amounts)
  */
 export function formatCurrencyWhole(amount: number): string {
-  return new Intl.NumberFormat('de-DE', {
+  return new Intl.NumberFormat(DEFAULT_LOCALE, {
     style: 'currency',
-    currency: 'EUR',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    currency: DEFAULT_CURRENCY,
+    minimumFractionDigits: CURRENCY_WHOLE_DECIMAL_PLACES,
+    maximumFractionDigits: CURRENCY_WHOLE_DECIMAL_PLACES,
   }).format(amount)
 }
 
@@ -31,9 +38,9 @@ export function formatCompactCurrency(amount: number): string {
   } else if (amount >= 1000) {
     return `${(amount / 1000).toFixed(0)}k €`
   }
-  return new Intl.NumberFormat('de-DE', {
+  return new Intl.NumberFormat(DEFAULT_LOCALE, {
     style: 'currency',
-    currency: 'EUR',
+    currency: DEFAULT_CURRENCY,
   }).format(amount)
 }
 
@@ -67,9 +74,9 @@ export function formatPercentage(value: number): string {
  * @returns Formatted string with German decimal separator
  */
 export function formatNumberGerman(amount: number): string {
-  return new Intl.NumberFormat('de-DE', {
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+  return new Intl.NumberFormat(DEFAULT_LOCALE, {
+    minimumFractionDigits: CURRENCY_DECIMAL_PLACES,
+    maximumFractionDigits: CURRENCY_DECIMAL_PLACES,
   }).format(amount)
 }
 
@@ -79,9 +86,9 @@ export function formatNumberGerman(amount: number): string {
  * @returns Formatted percentage string
  */
 export function formatPercentageGerman(value: number): string {
-  return new Intl.NumberFormat('de-DE', {
+  return new Intl.NumberFormat(DEFAULT_LOCALE, {
     style: 'percent',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
+    minimumFractionDigits: CURRENCY_DECIMAL_PLACES,
+    maximumFractionDigits: CURRENCY_DECIMAL_PLACES,
   }).format(value / 100)
 }
