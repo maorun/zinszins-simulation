@@ -269,7 +269,18 @@ export function createInflationExplanation(
   }
 }
 
-// Income tax calculation explanation (for withdrawal phase)
+/**
+ * Creates a detailed explanation of income tax calculations for withdrawal phase.
+ * Shows how withdrawal amounts are taxed after applying the Grundfreibetrag (basic tax allowance).
+ * Relevant for retirees without other income sources.
+ *
+ * @param entnahme - The annual withdrawal amount from the portfolio
+ * @param grundfreibetrag - The basic tax allowance (Grundfreibetrag) amount
+ * @param steuersatz - The tax rate as a percentage (e.g., 25 for 25%)
+ * @param einkommensteuer - The calculated income tax amount
+ * @param genutzterGrundfreibetrag - The portion of Grundfreibetrag actually used
+ * @returns A complete calculation explanation showing income tax computation steps
+ */
 export function createIncomeTaxExplanation(
   entnahme: number,
   grundfreibetrag: number,
@@ -319,7 +330,17 @@ export function createIncomeTaxExplanation(
   }
 }
 
-// Withdrawal interest calculation explanation
+/**
+ * Creates an explanation of interest/return calculations during the withdrawal phase.
+ * Shows how the remaining capital continues to generate returns even while being withdrawn.
+ * These returns help extend the portfolio's longevity.
+ *
+ * @param startkapital - The starting capital at the beginning of the year
+ * @param zinsen - The calculated interest/return amount for the year
+ * @param rendite - The annual return rate as a percentage (e.g., 5 for 5%)
+ * @param _year - The year being calculated (currently unused but kept for API consistency)
+ * @returns A complete calculation explanation with steps and final results
+ */
 export function createWithdrawalInterestExplanation(
   startkapital: number,
   zinsen: number,
@@ -357,7 +378,10 @@ export function createWithdrawalInterestExplanation(
   }
 }
 
-// Helper types for taxable income calculation
+/**
+ * Parameters for taxable income calculation during withdrawal phase.
+ * Includes all income sources and deductible expenses.
+ */
 interface TaxableIncomeParams {
   entnahme: number
   grundfreibetrag: number
@@ -366,7 +390,14 @@ interface TaxableIncomeParams {
   healthCareInsuranceAnnual?: number
 }
 
-// Calculate total taxable income from all sources
+/**
+ * Calculates total taxable income from all sources including deductions.
+ * Combines portfolio withdrawals, statutory pension, and other income,
+ * then subtracts deductible health care insurance premiums.
+ *
+ * @param params - Object containing all income sources and deductions
+ * @returns The total taxable income amount after all additions and deductions
+ */
 function calculateTotalTaxableIncome(params: TaxableIncomeParams): number {
   let total = params.entnahme
 
@@ -385,7 +416,13 @@ function calculateTotalTaxableIncome(params: TaxableIncomeParams): number {
   return total
 }
 
-// Add statutory pension step to calculation
+/**
+ * Adds a calculation step explaining statutory pension (gesetzliche Rente) taxation.
+ * Shows the taxable portion of statutory pension added to total income.
+ *
+ * @param steps - Array of calculation steps to append to
+ * @param amount - The taxable amount of statutory pension to add
+ */
 function addStatutoryPensionStep(steps: CalculationStep[], amount: number): void {
   steps.push({
     title: 'Schritt 2: Gesetzliche Rente (steuerpflichtiger Anteil)',
@@ -396,7 +433,13 @@ function addStatutoryPensionStep(steps: CalculationStep[], amount: number): void
   })
 }
 
-// Add other income step to calculation
+/**
+ * Adds a calculation step explaining other income sources.
+ * Includes rental income, side income, and other taxable revenue.
+ *
+ * @param steps - Array of calculation steps to append to
+ * @param amount - The gross amount of other income to add
+ */
 function addOtherIncomeStep(steps: CalculationStep[], amount: number): void {
   steps.push({
     title: `Schritt ${steps.length + 1}: Andere Einkünfte`,
@@ -407,7 +450,13 @@ function addOtherIncomeStep(steps: CalculationStep[], amount: number): void {
   })
 }
 
-// Add health care insurance deduction step
+/**
+ * Adds a calculation step explaining health care insurance deduction.
+ * In Germany, health and care insurance premiums are tax-deductible and reduce taxable income.
+ *
+ * @param steps - Array of calculation steps to append to
+ * @param amount - The annual health care insurance premium amount to deduct
+ */
 function addHealthCareInsuranceStep(steps: CalculationStep[], amount: number): void {
   steps.push({
     title: `Schritt ${steps.length + 1}: Krankenversicherung abziehen`,
@@ -420,7 +469,10 @@ function addHealthCareInsuranceStep(steps: CalculationStep[], amount: number): v
   })
 }
 
-// Build calculation text for total income
+/**
+ * Represents a single income component in the taxable income calculation.
+ * Used to build detailed calculation explanations showing all income sources.
+ */
 interface IncomeComponent {
   condition: boolean
   labelText: string
@@ -428,6 +480,13 @@ interface IncomeComponent {
   operator: '+' | '-'
 }
 
+/**
+ * Retrieves all active income components for taxable income calculation.
+ * Filters out components that are not applicable (zero or undefined amounts).
+ *
+ * @param params - Object containing all potential income sources and deductions
+ * @returns Array of active income components to include in calculation
+ */
 function getIncomeComponents(params: TaxableIncomeParams): IncomeComponent[] {
   return [
     {
@@ -451,6 +510,14 @@ function getIncomeComponents(params: TaxableIncomeParams): IncomeComponent[] {
   ].filter(component => component.condition)
 }
 
+/**
+ * Builds calculation text showing how total taxable income is computed.
+ * Creates a formula string displaying all income sources and deductions.
+ *
+ * @param params - Object containing all income sources and deductions
+ * @param totalIncome - The calculated total income amount
+ * @returns Formatted calculation text with HTML line breaks
+ */
 function buildTotalIncomeCalculationText(params: TaxableIncomeParams, totalIncome: number): string {
   const components = getIncomeComponents(params)
 
@@ -468,7 +535,14 @@ function buildTotalIncomeCalculationText(params: TaxableIncomeParams, totalIncom
   return text
 }
 
-// Add total income step if needed
+/**
+ * Conditionally adds a total income step to calculation if multiple income sources exist.
+ * Only adds this step when there are additional income sources beyond portfolio withdrawal.
+ *
+ * @param steps - Array of calculation steps to potentially append to
+ * @param params - Object containing all income sources and deductions
+ * @param totalIncome - The calculated total income amount
+ */
 function addTotalIncomeStepIfNeeded(steps: CalculationStep[], params: TaxableIncomeParams, totalIncome: number): void {
   const hasMultipleSources =
     params.statutoryPensionTaxableAmount ||
@@ -490,7 +564,15 @@ function addTotalIncomeStepIfNeeded(steps: CalculationStep[], params: TaxableInc
   })
 }
 
-// Build final result values array
+/**
+ * Builds the final result values array for taxable income explanation.
+ * Includes all relevant income sources, deductions, and final taxable income.
+ *
+ * @param params - Object containing all income sources and deductions
+ * @param totalIncome - The total income before Grundfreibetrag deduction
+ * @param steuerpflichtig - The final taxable income amount after Grundfreibetrag
+ * @returns Array of label-value pairs for display in final results section
+ */
 function buildTaxableIncomeFinalValues(
   params: TaxableIncomeParams,
   totalIncome: number,
@@ -525,6 +607,16 @@ function buildTaxableIncomeFinalValues(
   return values
 }
 
+/**
+ * Builds the calculation steps for taxable income explanation.
+ * Creates a sequence of steps showing how total taxable income is derived from
+ * all income sources and deductions.
+ *
+ * @param params - Object containing all income sources and deductions
+ * @param totalTaxableIncome - Total income from all sources after deductions
+ * @param steuerpflichtigesEinkommen - Final taxable income after Grundfreibetrag
+ * @returns Array of calculation steps in order
+ */
 function buildTaxableIncomeSteps(
   params: TaxableIncomeParams,
   totalTaxableIncome: number,

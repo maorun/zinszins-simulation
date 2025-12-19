@@ -340,6 +340,14 @@ function getBucketStrategyRate(bucketConfig: BucketStrategyConfig): number {
   }
 }
 
+/**
+ * Calculates the annual withdrawal amount for bucket strategy.
+ * Handles different sub-strategies including monthly fixed and percentage-based withdrawals.
+ *
+ * @param initialStartingCapital - Starting capital at beginning of withdrawal phase
+ * @param bucketConfig - Bucket strategy configuration with sub-strategy details
+ * @returns Annual withdrawal amount based on bucket strategy configuration
+ */
 function calculateBucketStrategyAmount(initialStartingCapital: number, bucketConfig: BucketStrategyConfig): number {
   if (bucketConfig.subStrategy === 'monatlich_fest') {
     return bucketConfig.monatlicheBetrag ? bucketConfig.monatlicheBetrag * 12 : initialStartingCapital * 0.04
@@ -448,6 +456,14 @@ function calculateStandardRuleWithdrawal(strategy: WithdrawalStrategy, initialSt
   return initialStartingCapital * withdrawalRate
 }
 
+/**
+ * Retrieves the appropriate withdrawal calculator function for a given strategy.
+ * Maps each withdrawal strategy to its specific calculation logic.
+ *
+ * @param strategy - The withdrawal strategy type
+ * @param params - Base withdrawal parameters containing config for all strategies
+ * @returns Function that calculates the withdrawal amount for the strategy
+ */
 function getWithdrawalCalculator(strategy: WithdrawalStrategy, params: BaseWithdrawalParams) {
   const strategies = {
     monatlich_fest: () => {
@@ -478,6 +494,13 @@ function getWithdrawalCalculator(strategy: WithdrawalStrategy, params: BaseWithd
   )
 }
 
+/**
+ * Calculates the base withdrawal amount before any adjustments.
+ * Delegates to strategy-specific calculator functions.
+ *
+ * @param params - Base withdrawal parameters containing strategy and configuration
+ * @returns The base annual withdrawal amount for the configured strategy
+ */
 function calculateBaseWithdrawalAmount(params: BaseWithdrawalParams): number {
   const calculator = getWithdrawalCalculator(params.strategy, params)
   return calculator()
@@ -639,7 +662,12 @@ function getMonthlyAmount(
 }
 
 /**
- * Calculate effective withdrawal for monthly frequency
+ * Calculates the effective annual withdrawal for monthly withdrawal frequency.
+ * Adjusts for investment returns earned during the year while making monthly withdrawals.
+ *
+ * @param entnahme - The total annual withdrawal amount
+ * @param returnRate - The annual return rate as decimal (e.g., 0.05 for 5%)
+ * @returns The effective withdrawal amount accounting for monthly timing of withdrawals
  */
 function calculateMonthlyEffectiveWithdrawal(entnahme: number, returnRate: number): number {
   const monthlyReturn = Math.pow(1 + returnRate, 1 / 12) - 1
