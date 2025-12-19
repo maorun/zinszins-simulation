@@ -26,7 +26,7 @@ export function RiesterConfiguration({
           id={contributionId}
           type="number"
           value={config.annualContribution}
-          onChange={(e) => onChange('annualContribution', parseInt(e.target.value))}
+          onChange={(e) => onChange('annualContribution', parseInt(e.target.value) || 0)}
           min={0}
           step={100}
         />
@@ -38,7 +38,7 @@ export function RiesterConfiguration({
           id={pensionId}
           type="number"
           value={config.expectedMonthlyPension}
-          onChange={(e) => onChange('expectedMonthlyPension', parseInt(e.target.value))}
+          onChange={(e) => onChange('expectedMonthlyPension', parseInt(e.target.value) || 0)}
           min={0}
           step={50}
         />
@@ -50,7 +50,7 @@ export function RiesterConfiguration({
           id={childrenId}
           type="number"
           value={config.numberOfChildren}
-          onChange={(e) => onChange('numberOfChildren', parseInt(e.target.value))}
+          onChange={(e) => onChange('numberOfChildren', parseInt(e.target.value) || 0)}
           min={0}
           max={10}
         />
@@ -78,7 +78,7 @@ export function RuerupConfiguration({
           id={contributionId}
           type="number"
           value={config.annualContribution}
-          onChange={(e) => onChange('annualContribution', parseInt(e.target.value))}
+          onChange={(e) => onChange('annualContribution', parseInt(e.target.value) || 0)}
           min={0}
           step={100}
         />
@@ -90,7 +90,7 @@ export function RuerupConfiguration({
           id={pensionId}
           type="number"
           value={config.expectedMonthlyPension}
-          onChange={(e) => onChange('expectedMonthlyPension', parseInt(e.target.value))}
+          onChange={(e) => onChange('expectedMonthlyPension', parseInt(e.target.value) || 0)}
           min={0}
           step={50}
         />
@@ -116,7 +116,7 @@ export function BetriebsrenteConfiguration({ config, onChange }: {
           id={contributionId}
           type="number"
           value={config.annualEmployeeContribution}
-          onChange={(e) => onChange('annualEmployeeContribution', parseInt(e.target.value))}
+          onChange={(e) => onChange('annualEmployeeContribution', parseInt(e.target.value) || 0)}
           min={0}
           step={100}
         />
@@ -128,7 +128,7 @@ export function BetriebsrenteConfiguration({ config, onChange }: {
           id={employerContributionId}
           type="number"
           value={config.annualEmployerContribution}
-          onChange={(e) => onChange('annualEmployerContribution', parseInt(e.target.value))}
+          onChange={(e) => onChange('annualEmployerContribution', parseInt(e.target.value) || 0)}
           min={0}
           step={100}
         />
@@ -140,7 +140,7 @@ export function BetriebsrenteConfiguration({ config, onChange }: {
           id={pensionId}
           type="number"
           value={config.expectedMonthlyPension}
-          onChange={(e) => onChange('expectedMonthlyPension', parseInt(e.target.value))}
+          onChange={(e) => onChange('expectedMonthlyPension', parseInt(e.target.value) || 0)}
           min={0}
           step={50}
         />

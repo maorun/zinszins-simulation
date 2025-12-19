@@ -37,7 +37,7 @@ function YearInputs({
           id={currentYearId}
           type="number"
           value={config.currentYear}
-          onChange={(e) => onChange('currentYear', parseInt(e.target.value))}
+          onChange={(e) => onChange('currentYear', parseInt(e.target.value) || 0)}
           min={2020}
           max={2100}
         />
@@ -48,7 +48,7 @@ function YearInputs({
           id={pensionStartYearId}
           type="number"
           value={config.pensionStartYear}
-          onChange={(e) => onChange('pensionStartYear', parseInt(e.target.value))}
+          onChange={(e) => onChange('pensionStartYear', parseInt(e.target.value) || 0)}
           min={config.currentYear}
           max={2100}
         />
@@ -59,7 +59,7 @@ function YearInputs({
           id={pensionEndYearId}
           type="number"
           value={config.pensionEndYear}
-          onChange={(e) => onChange('pensionEndYear', parseInt(e.target.value))}
+          onChange={(e) => onChange('pensionEndYear', parseInt(e.target.value) || 0)}
           min={config.pensionStartYear}
           max={2150}
         />
@@ -83,7 +83,7 @@ function TaxRateInputs({ config, onChange }: {
           id={personalTaxRateId}
           type="number"
           value={(config.personalTaxRate * 100).toFixed(1)}
-          onChange={(e) => onChange('personalTaxRate', parseFloat(e.target.value) / 100)}
+          onChange={(e) => onChange('personalTaxRate', parseFloat(e.target.value) || 0 / 100)}
           min={0}
           max={50}
           step={0.5}
@@ -95,7 +95,7 @@ function TaxRateInputs({ config, onChange }: {
           id={pensionTaxRateId}
           type="number"
           value={(config.pensionTaxRate * 100).toFixed(1)}
-          onChange={(e) => onChange('pensionTaxRate', parseFloat(e.target.value) / 100)}
+          onChange={(e) => onChange('pensionTaxRate', parseFloat(e.target.value) || 0 / 100)}
           min={0}
           max={50}
           step={0.5}
@@ -107,7 +107,7 @@ function TaxRateInputs({ config, onChange }: {
           id={socialSecurityRateId}
           type="number"
           value={(config.socialSecurityRate * 100).toFixed(1)}
-          onChange={(e) => onChange('socialSecurityRate', parseFloat(e.target.value) / 100)}
+          onChange={(e) => onChange('socialSecurityRate', parseFloat(e.target.value) || 0 / 100)}
           min={0}
           max={50}
           step={0.5}
@@ -169,7 +169,7 @@ function GeneralConfiguration({
             id={annualGrossIncomeId}
             type="number"
             value={config.annualGrossIncome}
-            onChange={(e) => onChange('annualGrossIncome', parseInt(e.target.value))}
+            onChange={(e) => onChange('annualGrossIncome', parseInt(e.target.value) || 0)}
             min={0}
             step={1000}
           />
