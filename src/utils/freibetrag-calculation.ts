@@ -5,6 +5,8 @@
  * For couples, this means a combined allowance of 4000€.
  */
 
+import { FREIBETRAG_CONSTANTS } from './tax-constants'
+
 export type PlanningMode = 'individual' | 'couple'
 
 /**
@@ -13,14 +15,15 @@ export type PlanningMode = 'individual' | 'couple'
  * @param individualFreibetrag - Base freibetrag per person (default: 2000€)
  * @returns Total freibetrag amount for the planning scenario
  */
-export function calculateFreibetragForPlanningMode(planningMode: PlanningMode, individualFreibetrag = 2000): number {
+export function calculateFreibetragForPlanningMode(planningMode: PlanningMode, individualFreibetrag?: number): number {
+  const baseFreibetrag = individualFreibetrag ?? FREIBETRAG_CONSTANTS.INDIVIDUAL
   switch (planningMode) {
     case 'individual':
-      return individualFreibetrag
+      return baseFreibetrag
     case 'couple':
-      return individualFreibetrag * 2 // Two people = double the allowance
+      return baseFreibetrag * 2 // Two people = double the allowance
     default:
-      return individualFreibetrag
+      return baseFreibetrag
   }
 }
 
@@ -38,7 +41,7 @@ export function createPlanningModeAwareFreibetragPerYear(
   endYear: number,
   planningMode: PlanningMode,
   customFreibetragPerYear?: { [year: number]: number },
-  individualFreibetrag = 2000,
+  individualFreibetrag?: number,
 ): { [year: number]: number } {
   const freibetragPerYear: { [year: number]: number } = {}
   const defaultAmount = calculateFreibetragForPlanningMode(planningMode, individualFreibetrag)
@@ -62,7 +65,7 @@ export function createPlanningModeAwareFreibetragPerYear(
 export function updateFreibetragForPlanningMode(
   existingFreibetragPerYear: { [year: number]: number },
   planningMode: PlanningMode,
-  individualFreibetrag = 2000,
+  individualFreibetrag?: number,
 ): { [year: number]: number } {
   const updatedFreibetrag: { [year: number]: number } = { ...existingFreibetragPerYear }
   const planningModeAmount = calculateFreibetragForPlanningMode(planningMode, individualFreibetrag)
@@ -75,7 +78,7 @@ export function updateFreibetragForPlanningMode(
 
     // If current amount is exactly 2000€ (old individual default) or 4000€ (old couple default)
     // update it to the new planning mode-aware amount
-    if (currentAmount === 2000 || currentAmount === 4000) {
+    if (currentAmount === FREIBETRAG_CONSTANTS.INDIVIDUAL || currentAmount === FREIBETRAG_CONSTANTS.COUPLE) {
       updatedFreibetrag[year] = planningModeAmount
     }
   })

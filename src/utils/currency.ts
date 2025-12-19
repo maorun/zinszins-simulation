@@ -3,6 +3,7 @@ import {
   DEFAULT_CURRENCY,
   CURRENCY_DECIMAL_PLACES,
   CURRENCY_WHOLE_DECIMAL_PLACES,
+  CURRENCY_FORMAT_THRESHOLDS,
 } from './locale-constants'
 
 /**
@@ -33,10 +34,10 @@ export function formatCurrencyWhole(amount: number): string {
  * Format currency in compact form for mobile displays
  */
 export function formatCompactCurrency(amount: number): string {
-  if (amount >= 1000000) {
-    return `${(amount / 1000000).toFixed(1)}M €`
-  } else if (amount >= 1000) {
-    return `${(amount / 1000).toFixed(0)}k €`
+  if (amount >= CURRENCY_FORMAT_THRESHOLDS.MILLION) {
+    return `${(amount / CURRENCY_FORMAT_THRESHOLDS.MILLION).toFixed(CURRENCY_FORMAT_THRESHOLDS.MILLION_DECIMAL_PLACES)}M €`
+  } else if (amount >= CURRENCY_FORMAT_THRESHOLDS.THOUSAND) {
+    return `${(amount / CURRENCY_FORMAT_THRESHOLDS.THOUSAND).toFixed(CURRENCY_FORMAT_THRESHOLDS.THOUSAND_DECIMAL_PLACES)}k €`
   }
   return new Intl.NumberFormat(DEFAULT_LOCALE, {
     style: 'currency',

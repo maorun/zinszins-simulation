@@ -3,6 +3,37 @@ import { getEnhancedSummary } from './summary-utils'
 import type { SimulationData } from '../contexts/helpers/config-types'
 import type { WithdrawalConfiguration } from './config-storage'
 
+/**
+ * Generate enhanced overview summary for sticky navigation display
+ *
+ * Creates a comprehensive summary of both savings and withdrawal phases,
+ * including key metrics like total contributions, final capital, withdrawal duration,
+ * and segmented withdrawal information if applicable.
+ *
+ * @param simulationData - Simulation data containing savings plan elements
+ * @param startEnd - Tuple of [savings end year, global end year]
+ * @param withdrawalResults - Pre-calculated withdrawal results, or null to calculate default 4% rule
+ * @param rendite - Expected return rate in percentage (e.g., 7 for 7%)
+ * @param steuerlast - Tax rate in percentage (e.g., 26.375 for German Kapitalertragsteuer)
+ * @param teilfreistellungsquote - Partial exemption rate for equity funds (e.g., 30 for 30%)
+ * @param withdrawalConfig - Optional withdrawal configuration for segmented withdrawals
+ * @param endOfLife - Optional end of life year to override global end year
+ * @returns Enhanced summary object with savings and withdrawal metrics, or null if no simulation data
+ *
+ * @example
+ * ```typescript
+ * const summary = getEnhancedOverviewSummary(
+ *   simulationData,
+ *   [2040, 2065],  // Savings ends 2040, planning until 2065
+ *   null,          // Calculate default 4% withdrawal
+ *   7,             // 7% return
+ *   26.375,        // German capital gains tax
+ *   30,            // 30% equity fund exemption
+ *   withdrawalConfig,
+ *   2065           // Plan until age 90
+ * )
+ * ```
+ */
 export function getEnhancedOverviewSummary(
   simulationData: SimulationData | null,
   startEnd: [number, number],

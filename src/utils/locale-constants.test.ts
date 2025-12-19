@@ -6,6 +6,7 @@ import {
   CURRENCY_WHOLE_DECIMAL_PLACES,
   PERCENTAGE_DECIMAL_PLACES,
   PERCENTAGE_COMPACT_DECIMAL_PLACES,
+  CURRENCY_FORMAT_THRESHOLDS,
 } from './locale-constants'
 
 describe('locale-constants', () => {
@@ -54,6 +55,28 @@ describe('locale-constants', () => {
     })
   })
 
+  describe('CURRENCY_FORMAT_THRESHOLDS', () => {
+    it('should define million threshold as 1,000,000', () => {
+      expect(CURRENCY_FORMAT_THRESHOLDS.MILLION).toBe(1_000_000)
+    })
+
+    it('should define thousand threshold as 1,000', () => {
+      expect(CURRENCY_FORMAT_THRESHOLDS.THOUSAND).toBe(1_000)
+    })
+
+    it('should define million decimal places as 1', () => {
+      expect(CURRENCY_FORMAT_THRESHOLDS.MILLION_DECIMAL_PLACES).toBe(1)
+    })
+
+    it('should define thousand decimal places as 0', () => {
+      expect(CURRENCY_FORMAT_THRESHOLDS.THOUSAND_DECIMAL_PLACES).toBe(0)
+    })
+
+    it('should have million threshold greater than thousand threshold', () => {
+      expect(CURRENCY_FORMAT_THRESHOLDS.MILLION).toBeGreaterThan(CURRENCY_FORMAT_THRESHOLDS.THOUSAND)
+    })
+  })
+
   describe('constants immutability', () => {
     it('should have all constants as const values', () => {
       // This is a compile-time check enforced by TypeScript's "as const"
@@ -64,6 +87,8 @@ describe('locale-constants', () => {
       expect(CURRENCY_WHOLE_DECIMAL_PLACES).toEqual(0)
       expect(PERCENTAGE_DECIMAL_PLACES).toEqual(2)
       expect(PERCENTAGE_COMPACT_DECIMAL_PLACES).toEqual(1)
+      expect(CURRENCY_FORMAT_THRESHOLDS.MILLION).toEqual(1_000_000)
+      expect(CURRENCY_FORMAT_THRESHOLDS.THOUSAND).toEqual(1_000)
     })
   })
 })

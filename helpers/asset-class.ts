@@ -121,10 +121,19 @@ export function getAllAssetClasses(): AssetClass[] {
 }
 
 /**
- * Check if an asset class is a custom type
+ * Check if an asset class is the custom configuration type
  *
- * @param assetClass - The asset class to check
- * @returns true if the asset class is custom
+ * The custom asset class allows users to define their own Teilfreistellungsquote
+ * rather than using the predefined values for standard asset classes.
+ *
+ * @param assetClass - Asset class to check
+ * @returns true if the asset class is 'custom', false otherwise
+ *
+ * @example
+ * ```typescript
+ * isCustomAssetClass('equity')  // false
+ * isCustomAssetClass('custom')  // true
+ * ```
  */
 export function isCustomAssetClass(assetClass: AssetClass): boolean {
   return assetClass === 'custom'

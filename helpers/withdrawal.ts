@@ -35,6 +35,7 @@ import {
   getProgressionRelevantIncomeForYear,
   type ProgressionsvorbehaltConfig,
 } from './progressionsvorbehalt'
+import { FREIBETRAG_CONSTANTS } from '../src/utils/tax-constants'
 
 export type WithdrawalStrategy =
   | '4prozent'
@@ -215,7 +216,7 @@ function createFreibetragAccessor(freibetragPerYear?: { [year: number]: number }
     if (freibetragPerYear && freibetragPerYear[year] !== undefined) {
       return freibetragPerYear[year]
     }
-    return freibetrag[2023] || 2000
+    return freibetrag[2023] || FREIBETRAG_CONSTANTS.INDIVIDUAL
   }
 }
 
@@ -2302,7 +2303,7 @@ function calculateVorabpauschaleForLayers(params: VorabpauschaleLayersParams): V
 
   const getFreibetrag = (yr: number): number => {
     if (freibetragPerYear && freibetragPerYear[yr] !== undefined) return freibetragPerYear[yr]
-    return freibetrag[2023] || 2000
+    return freibetrag[2023] || FREIBETRAG_CONSTANTS.INDIVIDUAL
   }
 
   const yearlyFreibetrag = getFreibetrag(year)

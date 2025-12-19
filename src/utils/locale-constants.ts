@@ -37,3 +37,31 @@ export const PERCENTAGE_DECIMAL_PLACES = 2 as const
  * Number of decimal places for compact percentage display (e.g., "7.5%")
  */
 export const PERCENTAGE_COMPACT_DECIMAL_PLACES = 1 as const
+
+/**
+ * Currency formatting thresholds for compact display
+ * Used to determine when to show amounts as "M €" (millions) or "k €" (thousands)
+ */
+export const CURRENCY_FORMAT_THRESHOLDS = {
+  /**
+   * Threshold for showing millions (1,000,000)
+   * Amounts >= this value are formatted as "X.XM €"
+   */
+  MILLION: 1_000_000,
+
+  /**
+   * Threshold for showing thousands (1,000)
+   * Amounts >= this value (but < MILLION) are formatted as "Xk €"
+   */
+  THOUSAND: 1_000,
+
+  /**
+   * Decimal places for million display (e.g., "1.5M €")
+   */
+  MILLION_DECIMAL_PLACES: 1,
+
+  /**
+   * Decimal places for thousand display (e.g., "150k €")
+   */
+  THOUSAND_DECIMAL_PLACES: 0,
+} as const
