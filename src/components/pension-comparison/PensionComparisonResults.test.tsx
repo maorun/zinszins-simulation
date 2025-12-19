@@ -158,20 +158,21 @@ describe('PensionComparisonResults', () => {
     expect(screen.getByText(/Jährl\. Beitrag/i)).toBeInTheDocument()
     expect(screen.getByText(/Steuer­vorteil/i)).toBeInTheDocument()
     expect(screen.getByText(/Netto­rente\/Mon\./i)).toBeInTheDocument()
-    expect(screen.getByText(/ROI/i)).toBeInTheDocument()
+    // ROI appears in both table header and metrics explanation - use getAllByText
+    expect(screen.getAllByText(/ROI/i).length).toBeGreaterThan(0)
     expect(screen.getByText(/Lebenszeit­gewinn/i)).toBeInTheDocument()
     
-    // Check pension type
-    expect(screen.getByText('Riester-Rente')).toBeInTheDocument()
+    // Check pension type - appears in table, so use getAllByText
+    expect(screen.getAllByText('Riester-Rente').length).toBeGreaterThan(0)
   })
 
   it('should display formatted currency values', () => {
     render(<PensionComparisonResults results={mockSinglePensionResult} />)
     
-    // Check for formatted values (German format with €)
-    expect(screen.getByText(/2\.100,00 €/i)).toBeInTheDocument()
-    expect(screen.getByText(/300,00 €/i)).toBeInTheDocument()
-    expect(screen.getByText(/400,00 €/i)).toBeInTheDocument()
+    // Check for formatted values (German format with €) - many values appear multiple times
+    expect(screen.getAllByText(/2\.100,00 €/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/300,00 €/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/400,00 €/i).length).toBeGreaterThan(0)
   })
 
   it('should display ROI as percentage', () => {
@@ -184,15 +185,21 @@ describe('PensionComparisonResults', () => {
   it('should show summary row for multiple pensions', () => {
     render(<PensionComparisonResults results={mockMultiplePensionResult} />)
     
-    // Check for summary/total row
-    expect(screen.getByText(/Gesamt/i)).toBeInTheDocument()
+    // Check for summary/total row - "Gesamt" appears in detailed breakdown titles too
+    const gesamtElements = screen.getAllByText(/Gesamt/i)
+    expect(gesamtElements.length).toBeGreaterThan(0)
   })
 
   it('should not show summary row for single pension', () => {
     render(<PensionComparisonResults results={mockSinglePensionResult} />)
     
-    // No summary row for single pension
-    expect(screen.queryByText(/Gesamt/i)).not.toBeInTheDocument()
+    // For single pension, "Gesamt" appears only in detailed breakdown, not in table footer
+    // Check that the table footer with "Gesamt" is not present by looking for specific structure
+    const tables = document.querySelectorAll('table')
+    expect(tables.length).toBeGreaterThan(0)
+    const table = tables[0]
+    const tfoot = table.querySelector('tfoot')
+    expect(tfoot).toBeNull()
   })
 
   it('should show best options highlight for multiple pensions', () => {
@@ -200,7 +207,8 @@ describe('PensionComparisonResults', () => {
     
     expect(screen.getByText(/Beste Rendite \(ROI\)/i)).toBeInTheDocument()
     expect(screen.getByText(/Höchster Lebenszeitgewinn/i)).toBeInTheDocument()
-    expect(screen.getByText('Betriebliche Altersvorsorge')).toBeInTheDocument()
+    // Names appear in table, best options, and detailed breakdown
+    expect(screen.getAllByText('Betriebliche Altersvorsorge').length).toBeGreaterThan(0)
   })
 
   it('should not show best options for single pension', () => {
@@ -214,9 +222,10 @@ describe('PensionComparisonResults', () => {
     render(<PensionComparisonResults results={mockSinglePensionResult} />)
     
     expect(screen.getByText(/Detaillierte Aufschlüsselung/i)).toBeInTheDocument()
-    expect(screen.getByText(/Gesamte Beiträge/i)).toBeInTheDocument()
-    expect(screen.getByText(/Gesamte Steuervorteile/i)).toBeInTheDocument()
-    expect(screen.getByText(/Gesamte Nettorente/i)).toBeInTheDocument()
+    // These labels appear in detailed breakdown section
+    expect(screen.getAllByText(/Gesamte Beiträge/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Gesamte Steuervorteile/i).length).toBeGreaterThan(0)
+    expect(screen.getAllByText(/Gesamte Nettorente/i).length).toBeGreaterThan(0)
   })
 
   it('should show metrics explanation', () => {
@@ -240,9 +249,10 @@ describe('PensionComparisonResults', () => {
   it('should show all three pension types when enabled', () => {
     render(<PensionComparisonResults results={mockMultiplePensionResult} />)
     
-    expect(screen.getByText('Riester-Rente')).toBeInTheDocument()
-    expect(screen.getByText('Rürup-Rente')).toBeInTheDocument()
-    expect(screen.getByText('Betriebliche Altersvorsorge')).toBeInTheDocument()
+    // Use getAllByText since names appear in table, best options, and detailed breakdown
+    expect(screen.getAllByText('Riester-Rente').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Rürup-Rente').length).toBeGreaterThan(0)
+    expect(screen.getAllByText('Betriebliche Altersvorsorge').length).toBeGreaterThan(0)
   })
 
   it('should show pension descriptions in table', () => {

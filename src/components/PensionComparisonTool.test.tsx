@@ -153,9 +153,9 @@ describe('PensionComparisonTool', () => {
     const riesterSwitch = riesterLabel.previousElementSibling as HTMLElement
     await user.click(riesterSwitch)
     
-    // Check that Riester configuration appears
-    const riesterConfig = screen.getByText(/Jährlicher Beitrag/i).closest('div')
-    expect(riesterConfig).toBeInTheDocument()
+    // Check that Riester configuration appears - use getAllByText since it appears in multiple places
+    const contributionLabels = screen.getAllByText(/Jährlicher Beitrag/i)
+    expect(contributionLabels.length).toBeGreaterThan(0)
     expect(screen.getAllByText(/Erwartete monatliche Rente/i).length).toBeGreaterThan(0)
   })
 
@@ -171,9 +171,9 @@ describe('PensionComparisonTool', () => {
     const riesterSwitch = riesterLabel.previousElementSibling as HTMLElement
     await user.click(riesterSwitch)
     
-    // Check for results table
+    // Check for results table - ROI appears in both table header and metrics explanation
     expect(screen.getByText(/Rentenart/i)).toBeInTheDocument()
-    expect(screen.getByText(/ROI/i)).toBeInTheDocument()
+    expect(screen.getAllByText(/ROI/i).length).toBeGreaterThan(0)
     expect(screen.getByText(/Lebenszeit­gewinn/i)).toBeInTheDocument()
   })
 
