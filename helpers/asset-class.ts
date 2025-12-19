@@ -121,12 +121,6 @@ export function getAllAssetClasses(): AssetClass[] {
 }
 
 /**
- * Check if an asset class is a custom type
- *
- * @param assetClass - The asset class to check
- * @returns true if the asset class is custom
- */
-/**
  * Check if an asset class is the custom configuration type
  *
  * The custom asset class allows users to define their own Teilfreistellungsquote
