@@ -15,6 +15,7 @@ import { ProgressionsvorbehaltConfiguration } from './ProgressionsvorbehaltConfi
 import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG, type ProgressionsvorbehaltConfig } from '../../helpers/progressionsvorbehalt'
 import { TaxProgressionVisualization } from './TaxProgressionVisualization'
 import { InsuranceCostOverview } from './InsuranceCostOverview'
+import { PensionComparisonTool } from './PensionComparisonTool'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -128,6 +129,7 @@ function TaxConfigurationCards({
         kirchensteuersatz={simulation.kirchensteuersatz}
       />
       <InsuranceCostOverview />
+      <PensionComparisonTool />
       <TaxLossHarvestingCard />
       <TailRiskHedgingCard />
       <SeveranceCalculatorCard />

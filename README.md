@@ -200,6 +200,11 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Umfassend getestet**: 23 Tests mit 100% Pass-Rate, vollständige Abdeckung aller Berechnungsszenarien
 - **Rentenversicherungs-Vergleichstool** - Vergleich deutscher Altersvorsorgeartengenüberstellung
   - **4 Rentenarten**: Gesetzliche Rente, Riester-Rente, Rürup-Rente, Betriebsrente (bAV)
+  - **Interaktive UI-Komponente**: Benutzerfreundliche Oberfläche in der Steuer-Konfiguration
+    - Konfigurierbare Rentenparameter für jede Rentenart
+    - Echtzeit-Berechnungen bei Eingabeänderungen
+    - Toggle-Switches zum Aktivieren/Deaktivieren einzelner Rentenarten
+    - Detaillierte Aufschlüsselung mit Erklärungen aller Metriken
   - **Side-by-Side Analyse**: Direkter Vergleich aller aktivierten Rentenarten
   - **Berechnung pro Rentenart**:
     - Jährliche Beiträge und Steuervorteile während Ansparphase
@@ -211,8 +216,9 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - Gesamte monatliche Netto-Rente aus allen Quellen
     - Kombinierte ROI und Lebenszeitleistung
   - **Empfehlungen**: Identifizierung der Rentenart mit höchstem ROI und höchster Netto-Lebenszeitleistung
+  - **Vergleichstabelle**: Übersichtliche Darstellung aller Kennzahlen in einer Tabelle
   - **Helper-Funktionen verfügbar**: `comparePensionTypes()`
-  - **Umfassend getestet**: 14 Tests mit 100% Pass-Rate, realistische Szenarien und Edge Cases
+  - **Umfassend getestet**: 14 Helper-Tests + 38 UI-Tests mit 100% Pass-Rate, realistische Szenarien und Edge Cases
 - **Riester-Rente** - Als "andere Einkünfte" konfigurierbar mit staatlicher Förderung
   - **Zulagenberechnung**: Automatische Berechnung von Grundzulage (175€) und Kinderzulagen (185€/300€)
   - **Mindesteigenbeitrag**: Berechnung des erforderlichen Eigenbeitrags (4% des Bruttoeinkommens minus Zulagen, mindestens 60€)
