@@ -39,7 +39,7 @@ export function HomePageOverviewSection({ overviewRef }: HomePageOverviewSection
   const planningYears = withdrawalEndYear - (startEnd[0] + 1)
 
   return (
-    <div ref={overviewRef} className="my-3 sm:my-4 space-y-4">
+    <div ref={overviewRef} data-section="overview" className="my-3 sm:my-4 space-y-4">
       <EnhancedOverview />
       
       {/* Retirement-Readiness Score - shown when withdrawal phase is active */}

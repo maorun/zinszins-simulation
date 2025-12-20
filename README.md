@@ -620,6 +620,19 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Konfigurierbare Geschwindigkeit** - Anpassbare Animationsgeschwindigkeit (Standard: 1 Sekunde pro Jahr)
   - **Bildungsfördernd** - Hilft Benutzern, die Auswirkungen von Einzahlungen, Renditen und Steuern Jahr für Jahr zu verstehen
 
+### Tastaturkürzel (Keyboard Shortcuts)
+
+- **⌨️ Tastaturkürzel** - Effiziente Navigation und Bedienung durch Tastatur-Shortcuts
+  - **Alt+1, Alt+2, Alt+3** - Schnelles Wechseln zwischen den drei Hauptansichten (Sparen, Entnahme, Sonstiges)
+  - **Alt+T** - Sofortiges Scrollen zum Seitenanfang
+  - **Alt+O** - Direktes Scrollen zur Übersichtssektion
+  - **Shift+?** - Anzeige aller verfügbaren Tastaturkürzel in einem übersichtlichen Dialog
+  - **Kategorisierte Darstellung** - Shortcuts nach Kategorien gruppiert (Navigation, Aktionen, Hilfe)
+  - **Visuelles Feedback** - Tastenkombinationen werden in einer benutzerfreundlichen Oberfläche angezeigt
+  - **Plattformübergreifend** - Unterstützung für Windows (Strg), Mac (Cmd) und Linux
+  - **Intelligente Eingabeerkennung** - Shortcuts werden in Eingabefeldern automatisch deaktiviert
+  - **Barrierefreiheit** - Verbesserte Zugänglichkeit für Power-User und Menschen mit motorischen Einschränkungen
+
 ### Auszahlungsphase
 
 - **Standard-Strategien**: 4% Regel, 3% Regel, variable Entnahme-Strategien
