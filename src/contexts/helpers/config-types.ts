@@ -10,6 +10,7 @@ import type { WithdrawalConfiguration } from '../../utils/config-storage'
 import type { MultiAssetPortfolioConfig } from '../../../helpers/multi-asset-portfolio'
 import type { AssetClass } from '../../../helpers/asset-class'
 import type { TermLifeInsuranceConfig } from '../../../helpers/term-life-insurance'
+import type { CareInsuranceConfig } from '../../../helpers/care-insurance'
 import type { AlimonyConfig } from '../../../helpers/alimony'
 import type { EMRenteConfig } from '../../../helpers/em-rente'
 
@@ -79,6 +80,7 @@ export interface ExtendedSavedConfiguration {
   financialGoals?: FinancialGoal[]
   emergencyFundConfig?: EmergencyFundConfig
   termLifeInsuranceConfig?: TermLifeInsuranceConfig
+  careInsuranceConfig?: CareInsuranceConfig
   alimonyConfig?: AlimonyConfig
   emRenteConfig?: EMRenteConfig
 }

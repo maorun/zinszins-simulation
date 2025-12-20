@@ -205,13 +205,14 @@ export function InsuranceCostOverview() {
       endYear,
       currentConfig.formValue.healthCareInsuranceConfig,
       simulation.termLifeInsuranceConfig || undefined,
-      undefined, // careInsuranceConfig - will be added in Step 4
+      simulation.careInsuranceConfig || undefined,
       undefined, // otherIncomeSources not currently accessible here
     )
   }, [
     simulation.startEnd,
     currentConfig.formValue.healthCareInsuranceConfig,
     simulation.termLifeInsuranceConfig,
+    simulation.careInsuranceConfig,
   ])
 
   const recommendations = useMemo(() => {
