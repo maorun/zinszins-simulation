@@ -6,14 +6,17 @@ import { describe, it, expect } from 'vitest'
 import {
   calculateHealthCareInsuranceCost,
   calculateTermLifeInsuranceCost,
+  calculateCareInsuranceCost,
   extractInsuranceCostsFromOtherIncome,
   calculateYearlyInsuranceCosts,
   calculateInsuranceCostSummary,
   generateOptimizationRecommendations,
+  type InsuranceCostSummary,
 } from './insurance-cost-overview'
 
 import type { HealthCareInsuranceConfig } from './health-care-insurance'
 import type { TermLifeInsuranceConfig } from './term-life-insurance'
+import type { CareInsuranceConfig } from './care-insurance'
 
 describe('calculateHealthCareInsuranceCost', () => {
   it('should return null if config is undefined', () => {
@@ -211,6 +214,92 @@ describe('calculateTermLifeInsuranceCost', () => {
   })
 })
 
+describe('calculateCareInsuranceCost', () => {
+  const baseConfig: CareInsuranceConfig = {
+    name: 'Test Pflege',
+    startYear: 2024,
+    endYear: 2064,
+    policyType: 'pflegetagegeld',
+    monthlyPremium: 50,
+    dailyBenefitPflegegrad5: 50,
+    birthYear: 1979,
+    gender: 'male',
+    isPflegeBahr: false,
+    enabled: true,
+  }
+
+  it('should return null if config is undefined', () => {
+    const result = calculateCareInsuranceCost(undefined, 2024)
+    expect(result).toBeNull()
+  })
+
+  it('should return null if config is disabled', () => {
+    const config = { ...baseConfig, enabled: false }
+    const result = calculateCareInsuranceCost(config, 2024)
+    expect(result).toBeNull()
+  })
+
+  it('should return null if year is before startYear', () => {
+    const result = calculateCareInsuranceCost(baseConfig, 2023)
+    expect(result).toBeNull()
+  })
+
+  it('should return null if year is after endYear', () => {
+    const result = calculateCareInsuranceCost(baseConfig, 2065)
+    expect(result).toBeNull()
+  })
+
+  it('should calculate care insurance cost correctly', () => {
+    const result = calculateCareInsuranceCost(baseConfig, 2024)
+    
+    expect(result).not.toBeNull()
+    expect(result?.category).toBe('care')
+    expect(result?.name).toBe('Test Pflege')
+    expect(result?.year).toBe(2024)
+    expect(result?.annualCost).toBe(600) // 50 * 12
+    expect(result?.coverageAmount).toBeCloseTo(1521, 0) // 50 * 30.42
+    expect(result?.enabled).toBe(true)
+  })
+
+  it('should apply Pflege-Bahr subsidy when enabled', () => {
+    const pflegeBahrConfig: CareInsuranceConfig = {
+      ...baseConfig,
+      isPflegeBahr: true,
+      monthlyPremium: 60, // Must be at least 10 EUR
+    }
+    
+    const result = calculateCareInsuranceCost(pflegeBahrConfig, 2024)
+    
+    expect(result).not.toBeNull()
+    expect(result?.annualCost).toBe(660) // 720 - 60 subsidy
+  })
+
+  it('should not apply Pflege-Bahr subsidy if premium below minimum', () => {
+    const lowPremiumConfig: CareInsuranceConfig = {
+      ...baseConfig,
+      isPflegeBahr: true,
+      monthlyPremium: 8, // Below 10 EUR minimum
+    }
+    
+    const result = calculateCareInsuranceCost(lowPremiumConfig, 2024)
+    
+    expect(result).not.toBeNull()
+    expect(result?.annualCost).toBe(96) // 8 * 12, no subsidy
+  })
+
+  it('should calculate maximum monthly benefit correctly', () => {
+    const config: CareInsuranceConfig = {
+      ...baseConfig,
+      dailyBenefitPflegegrad5: 75,
+    }
+    
+    const result = calculateCareInsuranceCost(config, 2024)
+    
+    expect(result).not.toBeNull()
+    expect(result?.coverageAmount).toBeCloseTo(2281.5, 1) // 75 * 30.42
+  })
+})
+
 describe('extractInsuranceCostsFromOtherIncome', () => {
   it('should return empty array if no other income sources', () => {
     const result = extractInsuranceCostsFromOtherIncome(undefined, 2024)
@@ -258,7 +347,7 @@ describe('calculateYearlyInsuranceCosts', () => {
   }
 
   it('should aggregate all insurance costs', () => {
-    const result = calculateYearlyInsuranceCosts(2024, healthConfig, termLifeConfig, undefined)
+    const result = calculateYearlyInsuranceCosts(2024, healthConfig, termLifeConfig, undefined, undefined)
     
     expect(result.year).toBe(2024)
     expect(result.entries).toHaveLength(2)
@@ -269,7 +358,7 @@ describe('calculateYearlyInsuranceCosts', () => {
   })
 
   it('should handle no insurances', () => {
-    const result = calculateYearlyInsuranceCosts(2024, undefined, undefined, undefined)
+    const result = calculateYearlyInsuranceCosts(2024, undefined, undefined, undefined, undefined)
     
     expect(result.year).toBe(2024)
     expect(result.entries).toHaveLength(0)
@@ -278,11 +367,34 @@ describe('calculateYearlyInsuranceCosts', () => {
   })
 
   it('should correctly categorize costs', () => {
-    const result = calculateYearlyInsuranceCosts(2024, healthConfig, termLifeConfig, undefined)
+    const result = calculateYearlyInsuranceCosts(2024, healthConfig, termLifeConfig, undefined, undefined)
     
     expect(result.costByCategory.health).toBeGreaterThan(0)
     expect(result.costByCategory.life).toBeGreaterThan(0)
     expect(result.costByCategory.care).toBe(0)
+  })
+
+  it('should include care insurance costs when configured', () => {
+    const careConfig: CareInsuranceConfig = {
+      name: 'Pflegezusatz',
+      startYear: 2024,
+      endYear: 2064,
+      policyType: 'pflegetagegeld',
+      monthlyPremium: 50,
+      dailyBenefitPflegegrad5: 50,
+      birthYear: 1979,
+      gender: 'male',
+      isPflegeBahr: false,
+      enabled: true,
+    }
+
+    const result = calculateYearlyInsuranceCosts(2024, healthConfig, termLifeConfig, careConfig, undefined)
+    
+    expect(result.entries).toHaveLength(3)
+    expect(result.activeInsuranceCount).toBe(3)
+    expect(result.costByCategory.health).toBeGreaterThan(0)
+    expect(result.costByCategory.life).toBeGreaterThan(0)
+    expect(result.costByCategory.care).toBe(600) // 50 * 12
   })
 })
 
@@ -319,7 +431,7 @@ describe('calculateInsuranceCostSummary', () => {
   }
 
   it('should calculate summary across multiple years', () => {
-    const summary = calculateInsuranceCostSummary(2024, 2040, healthConfig, termLifeConfig, undefined)
+    const summary = calculateInsuranceCostSummary(2024, 2040, healthConfig, termLifeConfig, undefined, undefined)
     
     expect(summary.yearlyResults).toHaveLength(17) // 2024-2040
     expect(summary.totalCost).toBeGreaterThan(0)
@@ -330,7 +442,7 @@ describe('calculateInsuranceCostSummary', () => {
   })
 
   it('should identify peak cost year correctly', () => {
-    const summary = calculateInsuranceCostSummary(2024, 2040, healthConfig, termLifeConfig, undefined)
+    const summary = calculateInsuranceCostSummary(2024, 2040, healthConfig, termLifeConfig, undefined, undefined)
     
     // Find the year with highest cost manually
     let maxCost = 0
@@ -347,7 +459,7 @@ describe('calculateInsuranceCostSummary', () => {
   })
 
   it('should calculate average costs by category', () => {
-    const summary = calculateInsuranceCostSummary(2024, 2040, healthConfig, termLifeConfig, undefined)
+    const summary = calculateInsuranceCostSummary(2024, 2040, healthConfig, termLifeConfig, undefined, undefined)
     
     expect(summary.averageCostByCategory.health).toBeGreaterThan(0)
     // Life insurance only exists 2024-2030, so average will be lower
@@ -356,14 +468,14 @@ describe('calculateInsuranceCostSummary', () => {
   })
 
   it('should list all insurance types', () => {
-    const summary = calculateInsuranceCostSummary(2024, 2040, healthConfig, termLifeConfig, undefined)
+    const summary = calculateInsuranceCostSummary(2024, 2040, healthConfig, termLifeConfig, undefined, undefined)
     
     expect(summary.insuranceTypes).toContain('Private Krankenversicherung')
     expect(summary.insuranceTypes).toContain('RLV')
   })
 
   it('should handle empty configuration', () => {
-    const summary = calculateInsuranceCostSummary(2024, 2040, undefined, undefined, undefined)
+    const summary = calculateInsuranceCostSummary(2024, 2040, undefined, undefined, undefined, undefined)
     
     expect(summary.yearlyResults).toHaveLength(17)
     expect(summary.totalCost).toBe(0)
@@ -505,5 +617,66 @@ describe('generateOptimizationRecommendations', () => {
     // Should have no warnings, only potentially the retirement check if applicable
     const warnings = recommendations.filter(r => r.level === 'warning')
     expect(warnings).toHaveLength(0)
+  })
+
+  it('should recommend care insurance when not configured and planning for retirement', () => {
+    const summary: InsuranceCostSummary = {
+      yearlyResults: [],
+      averageAnnualCost: 5000,
+      totalCost: 85000,
+      peakAnnualCost: 6000,
+      peakCostYear: 2055,
+      averageCostByCategory: {
+        health: 5000,
+        life: 0,
+        disability: 0,
+        care: 0, // No care insurance
+        other: 0,
+      },
+      insuranceTypes: ['PKV'],
+    }
+
+    // Create yearly results that include years when user is 60+
+    for (let year = 2024; year <= 2060; year++) {
+      summary.yearlyResults.push({
+        year,
+        totalCost: 5000,
+        costByCategory: { ...summary.averageCostByCategory },
+        entries: [],
+        activeInsuranceCount: 1,
+      })
+    }
+
+    const recommendations = generateOptimizationRecommendations(summary)
+
+    const careRecommendation = recommendations.find(r => r.category === 'care')
+    expect(careRecommendation).toBeDefined()
+    expect(careRecommendation?.title).toContain('Pflegezusatzversicherung')
+  })
+
+  it('should warn about high care insurance costs', () => {
+    const summary: InsuranceCostSummary = {
+      yearlyResults: [],
+      averageAnnualCost: 10000,
+      totalCost: 170000,
+      peakAnnualCost: 12000,
+      peakCostYear: 2040,
+      averageCostByCategory: {
+        health: 5000,
+        life: 0,
+        disability: 0,
+        care: 1500, // High care insurance costs (>100 EUR/month)
+        other: 0,
+      },
+      insuranceTypes: ['PKV', 'Pflegezusatz'],
+    }
+
+    const recommendations = generateOptimizationRecommendations(summary)
+
+    const careRecommendation = recommendations.find(r => 
+      r.category === 'care' && r.title.includes('Hohe')
+    )
+    expect(careRecommendation).toBeDefined()
+    expect(careRecommendation?.message).toContain('1500')
   })
 })

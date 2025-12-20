@@ -205,6 +205,7 @@ export function InsuranceCostOverview() {
       endYear,
       currentConfig.formValue.healthCareInsuranceConfig,
       simulation.termLifeInsuranceConfig || undefined,
+      undefined, // careInsuranceConfig - will be added in Step 4
       undefined, // otherIncomeSources not currently accessible here
     )
   }, [

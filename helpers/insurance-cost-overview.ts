@@ -14,6 +14,7 @@
 
 import type { HealthCareInsuranceConfig } from './health-care-insurance'
 import type { TermLifeInsuranceConfig } from './term-life-insurance'
+import type { CareInsuranceConfig } from './care-insurance'
 import type { OtherIncomeSource } from './other-income'
 
 /**
@@ -233,6 +234,40 @@ export function calculateTermLifeInsuranceCost(
 }
 
 /**
+ * Calculate care insurance (Pflegezusatzversicherung) costs for a year
+ */
+export function calculateCareInsuranceCost(
+  config: CareInsuranceConfig | undefined,
+  year: number,
+): InsuranceCostEntry | null {
+  if (!config?.enabled || year < config.startYear || year > config.endYear) {
+    return null
+  }
+
+  const annualPremium = config.monthlyPremium * 12
+  
+  // Calculate state subsidy for Pflege-Bahr
+  let stateSubsidy = 0
+  if (config.isPflegeBahr && config.monthlyPremium >= 10) {
+    stateSubsidy = 5 * 12 // 5 EUR per month
+  }
+
+  const netAnnualPremium = annualPremium - stateSubsidy
+
+  // Calculate maximum monthly benefit (care level 5)
+  const maxMonthlyBenefit = config.dailyBenefitPflegegrad5 * 30.42
+
+  return {
+    category: 'care',
+    name: config.name || 'Pflegezusatzversicherung',
+    year,
+    annualCost: netAnnualPremium,
+    coverageAmount: maxMonthlyBenefit,
+    enabled: true,
+  }
+}
+
+/**
  * Extract insurance costs from other income sources
  * Note: In the current implementation, insurance costs from other income sources
  * are not directly available since OtherIncomeSource tracks benefits, not premiums.
@@ -260,6 +295,7 @@ export function calculateYearlyInsuranceCosts(
   year: number,
   healthCareConfig: HealthCareInsuranceConfig | undefined,
   termLifeConfig: TermLifeInsuranceConfig | undefined,
+  careInsuranceConfig: CareInsuranceConfig | undefined,
   otherIncomeSources: OtherIncomeSource[] | undefined,
 ): YearlyInsuranceCosts {
   const entries: InsuranceCostEntry[] = []
@@ -274,6 +310,12 @@ export function calculateYearlyInsuranceCosts(
   const termLifeCost = calculateTermLifeInsuranceCost(termLifeConfig, year)
   if (termLifeCost) {
     entries.push(termLifeCost)
+  }
+
+  // Add care insurance
+  const careCost = calculateCareInsuranceCost(careInsuranceConfig, year)
+  if (careCost) {
+    entries.push(careCost)
   }
 
   // Add other insurance costs
@@ -371,13 +413,14 @@ export function calculateInsuranceCostSummary(
   endYear: number,
   healthCareConfig: HealthCareInsuranceConfig | undefined,
   termLifeConfig: TermLifeInsuranceConfig | undefined,
+  careInsuranceConfig: CareInsuranceConfig | undefined,
   otherIncomeSources: OtherIncomeSource[] | undefined,
 ): InsuranceCostSummary {
   const yearlyResults: YearlyInsuranceCosts[] = []
   
   for (let year = startYear; year <= endYear; year++) {
     yearlyResults.push(
-      calculateYearlyInsuranceCosts(year, healthCareConfig, termLifeConfig, otherIncomeSources)
+      calculateYearlyInsuranceCosts(year, healthCareConfig, termLifeConfig, careInsuranceConfig, otherIncomeSources)
     )
   }
 
@@ -414,6 +457,108 @@ export interface InsuranceOptimizationRecommendation {
 }
 
 /**
+ * Check if costs are too high relative to withdrawal
+ */
+function checkHighInsuranceCosts(
+  summary: InsuranceCostSummary,
+  withdrawalAmount?: number,
+): InsuranceOptimizationRecommendation | null {
+  if (withdrawalAmount && summary.averageAnnualCost > withdrawalAmount * 0.3) {
+    return {
+      level: 'warning',
+      category: 'general',
+      title: 'Hohe Versicherungskosten',
+      message: `Ihre durchschnittlichen Versicherungskosten (${summary.averageAnnualCost.toFixed(0)} €/Jahr) machen mehr als 30% Ihrer geplanten Entnahmen aus. Prüfen Sie Optimierungsmöglichkeiten.`,
+    }
+  }
+  return null
+}
+
+/**
+ * Check health insurance costs
+ */
+function checkHealthInsuranceCosts(
+  summary: InsuranceCostSummary,
+): InsuranceOptimizationRecommendation | null {
+  if (summary.averageCostByCategory.health > 8000) {
+    return {
+      level: 'info',
+      category: 'health',
+      title: 'PKV-Kostenprüfung',
+      message: 'Bei hohen PKV-Beiträgen im Alter kann ein Tarifwechsel innerhalb der PKV oder die Prüfung von Zusatzbausteinen sinnvoll sein.',
+    }
+  }
+  return null
+}
+
+/**
+ * Check if term life insurance continues in retirement
+ */
+function checkTermLifeInRetirement(
+  summary: InsuranceCostSummary,
+): InsuranceOptimizationRecommendation | null {
+  const retirementYears = summary.yearlyResults.filter(yr => yr.year >= 2040)
+  const hasTermLifeInRetirement = retirementYears.some(yr => yr.costByCategory.life > 0)
+  
+  if (hasTermLifeInRetirement) {
+    return {
+      level: 'info',
+      category: 'life',
+      title: 'Risikolebensversicherung im Ruhestand',
+      message: 'Prüfen Sie, ob die Risikolebensversicherung im Ruhestand noch benötigt wird. Bei ausreichendem Vermögen kann auf Risikoabsicherung verzichtet werden.',
+    }
+  }
+  return null
+}
+
+/**
+ * Check care insurance coverage
+ */
+function checkCareInsurance(
+  summary: InsuranceCostSummary,
+): InsuranceOptimizationRecommendation | null {
+  if (summary.averageCostByCategory.care === 0) {
+    // No care insurance configured - recommend considering it if planning includes retirement years
+    const hasRetirementYears = summary.yearlyResults.some(yr => yr.year >= 2050)
+    
+    if (hasRetirementYears) {
+      return {
+        level: 'info',
+        category: 'care',
+        title: 'Pflegezusatzversicherung prüfen',
+        message: 'Sie haben keine Pflegezusatzversicherung konfiguriert. Bei langer Pflegebedürftigkeit können Kosten von 2.000-4.500 €/Monat entstehen. Die gesetzliche Pflegeversicherung deckt typischerweise nur 50-70% der tatsächlichen Kosten.',
+      }
+    }
+  } else if (summary.averageCostByCategory.care > 1200) {
+    // Care insurance configured - check if costs are too high
+    return {
+      level: 'info',
+      category: 'care',
+      title: 'Hohe Pflegeversicherungsbeiträge',
+      message: `Ihre Pflegezusatzversicherung kostet durchschnittlich ${summary.averageCostByCategory.care.toFixed(0)} €/Jahr. Prüfen Sie, ob das Leistungsniveau Ihrem Bedarf entspricht oder ob eine Anpassung sinnvoll ist.`,
+    }
+  }
+  return null
+}
+
+/**
+ * Check if no insurances are configured
+ */
+function checkNoInsurances(
+  summary: InsuranceCostSummary,
+): InsuranceOptimizationRecommendation | null {
+  if (summary.insuranceTypes.length === 0) {
+    return {
+      level: 'info',
+      category: 'general',
+      title: 'Keine Versicherungen konfiguriert',
+      message: 'Sie haben noch keine Versicherungen in der Planung berücksichtigt. Krankenversicherung und ggf. Pflegeversicherung sollten in die Planung einbezogen werden.',
+    }
+  }
+  return null
+}
+
+/**
  * Generate optimization recommendations based on cost summary
  */
 export function generateOptimizationRecommendations(
@@ -422,47 +567,18 @@ export function generateOptimizationRecommendations(
 ): InsuranceOptimizationRecommendation[] {
   const recommendations: InsuranceOptimizationRecommendation[] = []
 
-  // Check if insurance costs are too high relative to withdrawal
-  if (withdrawalAmount && summary.averageAnnualCost > withdrawalAmount * 0.3) {
-    recommendations.push({
-      level: 'warning',
-      category: 'general',
-      title: 'Hohe Versicherungskosten',
-      message: `Ihre durchschnittlichen Versicherungskosten (${summary.averageAnnualCost.toFixed(0)} €/Jahr) machen mehr als 30% Ihrer geplanten Entnahmen aus. Prüfen Sie Optimierungsmöglichkeiten.`,
-    })
-  }
+  const checks = [
+    checkHighInsuranceCosts(summary, withdrawalAmount),
+    checkHealthInsuranceCosts(summary),
+    checkTermLifeInRetirement(summary),
+    checkCareInsurance(summary),
+    checkNoInsurances(summary),
+  ]
 
-  // Check health insurance costs
-  if (summary.averageCostByCategory.health > 8000) {
-    recommendations.push({
-      level: 'info',
-      category: 'health',
-      title: 'PKV-Kostenprüfung',
-      message: 'Bei hohen PKV-Beiträgen im Alter kann ein Tarifwechsel innerhalb der PKV oder die Prüfung von Zusatzbausteinen sinnvoll sein.',
-    })
-  }
-
-  // Check if term life insurance continues in retirement
-  const retirementYears = summary.yearlyResults.filter(yr => yr.year >= 2040)
-  const hasTermLifeInRetirement = retirementYears.some(yr => yr.costByCategory.life > 0)
-  
-  if (hasTermLifeInRetirement) {
-    recommendations.push({
-      level: 'info',
-      category: 'life',
-      title: 'Risikolebensversicherung im Ruhestand',
-      message: 'Prüfen Sie, ob die Risikolebensversicherung im Ruhestand noch benötigt wird. Bei ausreichendem Vermögen kann auf Risikoabsicherung verzichtet werden.',
-    })
-  }
-
-  // If no insurances configured, inform
-  if (summary.insuranceTypes.length === 0) {
-    recommendations.push({
-      level: 'info',
-      category: 'general',
-      title: 'Keine Versicherungen konfiguriert',
-      message: 'Sie haben noch keine Versicherungen in der Planung berücksichtigt. Krankenversicherung und ggf. Pflegeversicherung sollten in die Planung einbezogen werden.',
-    })
+  for (const recommendation of checks) {
+    if (recommendation) {
+      recommendations.push(recommendation)
+    }
   }
 
   return recommendations
