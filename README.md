@@ -280,8 +280,26 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
     - PKV-Kostenprüfung bei hohen Beiträgen im Alter
     - Hinweise zur Risikolebensversicherung im Ruhestand
     - Information bei fehlenden Versicherungskonfigurationen
-  - **Helper-Funktionen verfügbar**: `calculateInsuranceCostSummary()`, `generateOptimizationRecommendations()`, `calculateHealthCareInsuranceCost()`, `calculateTermLifeInsuranceCost()`
-  - **Umfassend getestet**: 39 Tests (29 Helper + 10 Component) mit 100% Pass-Rate
+  - **Helper-Funktionen verfügbar**: `calculateInsuranceCostSummary()`, `generateOptimizationRecommendations()`, `calculateHealthCareInsuranceCost()`, `calculateTermLifeInsuranceCost()`, `calculateCareInsuranceCost()`
+  - **Umfassend getestet**: 40 Tests (29 Helper + 10 Component + 1 Integration) mit 100% Pass-Rate
+- **Pflegezusatzversicherung (Long-term Care Insurance)** - Umfassende Pflegeversicherungsplanung zur Schließung der Versorgungslücke
+  - **3 Versicherungstypen**: Pflegetagegeld, Pflegekostenversicherung, Pflege-Bahr (staatlich gefördert)
+  - **Pflege-Bahr Förderung**: 5 EUR/Monat Staatszuschuss (60 EUR/Jahr) bei mind. 10 EUR Monatsbeitrag
+  - **Steuerfreie Leistungen**: Pflegeleistungen sind steuerfrei nach § 3 Nr. 1a EStG
+  - **Pflegegrade 1-5**: Gestaffelte Leistungen nach deutschem Pflegegrad-System
+    - Pflegegrad 1: 20% der maximalen Leistung
+    - Pflegegrad 2: 40% der maximalen Leistung
+    - Pflegegrad 3: 60% der maximalen Leistung
+    - Pflegegrad 4: 80% der maximalen Leistung
+    - Pflegegrad 5: 100% der maximalen Leistung (volle Absicherung)
+  - **Altersabhängiges Pflegefallrisiko**: Berücksichtigung statistischer Pflegewahrscheinlichkeiten nach Alter
+  - **Empfohlener Leistungsumfang**: Berechnung basierend auf Versorgungslücke zwischen gesetzlicher Pflegeversicherung und tatsächlichen Kosten
+  - **Realistische Kostenkalkulation**: Pflegekosten von 2.000-4.500 EUR/Monat, gesetzliche Versicherung deckt nur 50-70%
+  - **Flexible Konfiguration**: Monatlicher Beitrag, tägliche Leistung Pflegegrad 5, Versicherungsbegin und -ende
+  - **Integration in Versicherungsübersicht**: Automatische Berücksichtigung in aggregierter Kostenübersicht
+  - **Optimierungsempfehlungen**: Hinweise bei fehlender Absicherung oder zu hohen Beiträgen
+  - **Helper-Funktionen verfügbar**: `calculateCareInsurance()`, `calculateRecommendedDailyBenefit()`, `comparePolicyTypes()`, `createDefaultCareInsuranceConfig()`
+  - **Umfassend getestet**: 19 Tests mit 100% Pass-Rate
 - **Verlustverrechnung (Tax-Loss Harvesting)** - Informations-Tool zur Berechnung von Steuerersparnissen durch Verlustverrechnung
   - **Verlustverrechnungsregeln**: Detaillierte Darstellung der deutschen Verlustverrechnungsregeln nach EStG
     - Aktienverluste können nur mit Aktiengewinnen verrechnet werden (separater Verlusttopf)
