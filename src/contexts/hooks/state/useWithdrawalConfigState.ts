@@ -12,6 +12,7 @@ import {
 import type { FinancialGoal } from '../../../../helpers/financial-goals'
 import { defaultEmergencyFundConfig, type EmergencyFundConfig } from '../../../../helpers/emergency-fund'
 import type { TermLifeInsuranceConfig } from '../../../../helpers/term-life-insurance'
+import type { CareInsuranceConfig } from '../../../../helpers/care-insurance'
 import type { ExtendedSavedConfiguration } from '../../helpers/config-types'
 import { getDefaultAlimonyConfig, type AlimonyConfig } from '../../../../helpers/alimony'
 import type { EMRenteConfig } from '../../../../helpers/em-rente'
@@ -64,6 +65,10 @@ export function useWithdrawalConfigState(config: WithdrawalConfigStateConfig) {
     extendedInitialConfig.termLifeInsuranceConfig || null,
   )
 
+  const [careInsuranceConfig, setCareInsuranceConfig] = useState<CareInsuranceConfig | null>(
+    extendedInitialConfig.careInsuranceConfig || null,
+  )
+
   const [alimonyConfig, setAlimonyConfig] = useState<AlimonyConfig>(
     () => extendedInitialConfig.alimonyConfig || getDefaultAlimonyConfig(),
   )
@@ -73,23 +78,15 @@ export function useWithdrawalConfigState(config: WithdrawalConfigStateConfig) {
   )
 
   return {
-    withdrawalConfig,
-    setWithdrawalConfig,
-    statutoryPensionConfig,
-    setStatutoryPensionConfig,
-    coupleStatutoryPensionConfig,
-    setCoupleStatutoryPensionConfig,
-    careCostConfiguration,
-    setCareCostConfiguration,
-    financialGoals,
-    setFinancialGoals,
-    emergencyFundConfig,
-    setEmergencyFundConfig,
-    termLifeInsuranceConfig,
-    setTermLifeInsuranceConfig,
-    alimonyConfig,
-    setAlimonyConfig,
-    emRenteConfig,
-    setEMRenteConfig,
+    withdrawalConfig, setWithdrawalConfig,
+    statutoryPensionConfig, setStatutoryPensionConfig,
+    coupleStatutoryPensionConfig, setCoupleStatutoryPensionConfig,
+    careCostConfiguration, setCareCostConfiguration,
+    financialGoals, setFinancialGoals,
+    emergencyFundConfig, setEmergencyFundConfig,
+    termLifeInsuranceConfig, setTermLifeInsuranceConfig,
+    careInsuranceConfig, setCareInsuranceConfig,
+    alimonyConfig, setAlimonyConfig,
+    emRenteConfig, setEMRenteConfig,
   }
 }

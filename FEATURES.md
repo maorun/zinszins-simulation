@@ -207,7 +207,7 @@ Direkte Erweiterung der bestehenden Kernfunktionalität.
 Nützliche Ergänzungen für fortgeschrittene Nutzer:
 
 - **Machine Learning Prognosen** - Kann vorhandene Monte Carlo Analyse ergänzen
-- **Versicherungsintegration** - Pflegeversicherung (BU-Versicherung und Risikolebensversicherung bereits implementiert)
+- **Versicherungsintegration** - (BU-Versicherung, Risikolebensversicherung und Pflegezusatzversicherung bereits implementiert)
 
 ### Niedrig (⭐)
 
