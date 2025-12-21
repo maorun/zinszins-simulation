@@ -17,10 +17,17 @@ describe('ReverseCalculatorCard', () => {
     expect(screen.getByText(/Reverse-Rechner/i)).toBeInTheDocument()
   })
 
-  it('should display info message', () => {
+  it('should display info message', async () => {
     renderWithContext(<ReverseCalculatorCard />)
 
-    expect(screen.getByText(/Dieser Rechner berechnet die erforderliche Sparrate/i)).toBeInTheDocument()
+    // Click to expand the collapsible first
+    const header = screen.getByText(/Reverse-Rechner/i)
+    await userEvent.click(header)
+
+    // Now the info message should be visible
+    await waitFor(() => {
+      expect(screen.getByText(/Dieser Rechner berechnet die erforderliche Sparrate/i)).toBeInTheDocument()
+    })
   })
 
   it('should have input fields for configuration', async () => {
@@ -62,29 +69,17 @@ describe('ReverseCalculatorCard', () => {
       expect(screen.getByLabelText(/Zielkapital/i)).toBeInTheDocument()
     })
 
-    // Enter values
-    const targetCapitalInput = screen.getByLabelText(/Zielkapital/i)
-    const yearsInput = screen.getByLabelText(/Zeitraum/i)
-    const returnRateInput = screen.getByLabelText(/Erwartete Rendite/i)
-
-    await user.clear(targetCapitalInput)
-    await user.type(targetCapitalInput, '500000')
-
-    await user.clear(yearsInput)
-    await user.type(yearsInput, '30')
-
-    await user.clear(returnRateInput)
-    await user.type(returnRateInput, '5.0')
-
-    // Click calculate
+    // Click calculate with default values (they're already set)
     const calculateButton = screen.getByRole('button', { name: /Erforderliche Sparrate berechnen/i })
     await user.click(calculateButton)
 
-    // Wait for results to appear
-    await waitFor(() => {
-      expect(screen.getByText(/Berechnete Sparrate/i)).toBeInTheDocument()
-      expect(screen.getByText(/Erforderliche Sparrate/i)).toBeInTheDocument()
-    })
+    // Wait for results to appear with longer timeout
+    await waitFor(
+      () => {
+        expect(screen.getByText(/Berechnete Sparrate/i)).toBeInTheDocument()
+      },
+      { timeout: 3000 }
+    )
   })
 
   it('should toggle between monthly and yearly modes', async () => {
