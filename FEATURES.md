@@ -6,6 +6,141 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
 
+#### 1. Reverse-Rechner für Ruhestands-Zielbetrag
+**Priorität: ⭐⭐⭐ Hoch**
+
+Anstatt zu berechnen, wie viel Kapital bei gegebenen Sparraten entsteht, berechnet dieser "Reverse-Rechner" die erforderliche monatliche/jährliche Sparrate, um einen gewünschten Zielkapitalbetrag im Ruhestand zu erreichen.
+
+**Funktionalität:**
+- Eingabe des gewünschten Zielkapitals (z.B. 1.000.000 €)
+- Eingabe des Zeitraums (z.B. 30 Jahre bis zur Rente)
+- Eingabe der erwarteten Rendite
+- Automatische Berechnung der erforderlichen monatlichen/jährlichen Sparrate
+- Berücksichtigung von Vorabpauschale und deutschen Steuern
+- Sensitivitätsanalyse: Wie ändert sich die Sparrate bei anderen Renditen?
+- Darstellung als separate Tab oder Modal im Hauptinterface
+
+**Technische Umsetzung:**
+- Neue Utility-Funktion: `calculateRequiredSavingsRate()`
+- Iterativer Algorithmus zur Rückwärtsberechnung
+- Integration in bestehende UI mit shadcn/ui Komponenten
+- Tests für verschiedene Szenarien
+
+**Nutzen:**
+- Zielorientierte Planung statt "Was kommt raus?"
+- Realistische Einschätzung der Machbarkeit von Ruhestandszielen
+- Hilft bei der Beantwortung: "Wie viel muss ich sparen für X Euro im Ruhestand?"
+
+---
+
+#### 2. Steuerliche Verlustverrechnung (Tax Loss Harvesting)
+**Priorität: ⭐⭐⭐ Hoch**
+
+Simulation der steuerlichen Verlustverrechnung nach deutschem Steuerrecht zur Optimierung der Steuerlast durch strategisches Realisieren von Verlusten.
+
+**Funktionalität:**
+- Tracking von realisierten Gewinnen und Verlusten über Jahre
+- Berechnung der Verlustverrechnung nach § 20 Abs. 6 EStG
+- Berücksichtigung der zeitlichen Vortragsbegrenzung
+- Simulation von Tax Loss Harvesting Strategien
+- Darstellung der Steuerersparnis durch Verlustverrechnung
+- Integration mit Portfolio-Rebalancing
+
+**Technische Umsetzung:**
+- Neue Helper-Funktionen: `calculateTaxLossHarvesting()`, `trackCapitalGainsLosses()`
+- Erweiterung der Simulationsdaten um Gewinn/Verlust-Tracking
+- Neue UI-Komponente für Verlustverrechnungsübersicht
+- Historisches Tracking über Jahre
+- Tests für verschiedene Verlustverrechnungsszenarien
+
+**Nutzen:**
+- Verständnis der steuerlichen Optimierungsmöglichkeiten
+- Realistische Darstellung der Steuerlast bei aktiver Verwaltung
+- Hilft bei der Planung von Rebalancing-Zeitpunkten
+
+---
+
+#### 3. Abgeltungssteuer-Vorauszahlung für Selbstständige
+**Priorität: ⭐⭐ Mittel**
+
+Berechnung und Planung von vierteljährlichen Vorauszahlungen auf Kapitalerträge für Selbstständige und Freiberufler, die zur Vorauszahlung verpflichtet sind.
+
+**Funktionalität:**
+- Berechnung der erwarteten Kapitalerträge pro Quartal
+- Automatische Ermittlung der Vorauszahlungsbeträge
+- Berücksichtigung des Freibetrags
+- Erinnerung an Vorauszahlungstermine (10.3., 10.6., 10.9., 10.12.)
+- Nachzahlungsberechnung bei Unterschätzung
+- Erstattungsberechnung bei Überzahlung
+- Optimierungsvorschläge zur Vermeidung von Nachzahlungszinsen
+
+**Technische Umsetzung:**
+- Neue Helper-Funktionen: `calculateQuarterlyTaxPrepayments()`, `estimateQuarterlyCapitalGains()`
+- Neue UI-Komponente für Vorauszahlungsübersicht
+- Kalendarische Integration der Zahlungstermine
+- Tests für verschiedene Kapitalertragsszenarien
+
+**Nutzen:**
+- Vermeidung von Nachzahlungszinsen (6% p.a. gemäß § 233a AO)
+- Bessere Liquiditätsplanung für Selbstständige
+- Realistische Darstellung der Steuerzahlungen über das Jahr
+
+---
+
+#### 4. Pfändungsfreigrenzen-Rechner für Schuldensituationen
+**Priorität: ⭐⭐ Mittel**
+
+Berechnung der pfändungsfreien Beträge nach § 850c ZPO zur Bewertung, wie viel vom Vermögen und Einkommen in einer Schuldensituation geschützt ist.
+
+**Funktionalität:**
+- Berechnung der Pfändungsfreigrenzen nach § 850c ZPO
+- Berücksichtigung von Unterhaltsverpflichtungen
+- Darstellung pfändungsfreier vs. pfändbarer Beträge
+- Empfehlungen zur Vermögensstrukturierung bei Schuldenrisiko
+- Integration mit Altersvorsorge (z.B. Rürup-Rente ist pfändungssicher)
+- Vergleich verschiedener Anlageformen nach Pfändungssicherheit
+
+**Technische Umsetzung:**
+- Neue Helper-Funktionen: `calculatePfaendungsfreigrenze()`, `assessProtectedAssets()`
+- Neue UI-Komponente mit tabularischer Darstellung
+- Integration mit bestehenden Vermögenswerten
+- Tests für verschiedene Familienkonstellationen
+
+**Nutzen:**
+- Risikobewertung bei Schulden oder unternehmerischem Risiko
+- Optimierung der Vermögensstruktur zur Absicherung
+- Verständnis für pfändungssichere Altersvorsorge (Rürup)
+
+---
+
+#### 5. Krankenversicherungs-Optimierung für Rentner
+**Priorität: ⭐⭐ Mittel**
+
+Detaillierte Berechnung und Vergleich der Krankenversicherungsoptionen im Ruhestand (GKV der Rentner vs. freiwillige GKV vs. PKV-Weiterzahlung).
+
+**Funktionalität:**
+- Berechnung der GKV-Beiträge auf Kapitalerträge im Ruhestand (14,6% + Zusatzbeitrag)
+- Vergleich der Beitragslast bei verschiedenen Entnahmestrategien
+- Optimierungsvorschläge zur Minimierung der KV-Beiträge
+- Berücksichtigung der Beitragsbemessungsgrenze
+- Simulation der PKV-Kosten im Alter mit Beitragsentlastungstarifen
+- Wechseloptionen und Fristen (z.B. PKV → GKV)
+- Berechnung des Krankenversicherungszuschlags der DRV
+
+**Technische Umsetzung:**
+- Erweiterung bestehender Krankenversicherungs-Logik
+- Neue Helper-Funktionen: `calculateRetireHealthInsurance()`, `optimizeHealthInsuranceStrategy()`
+- Neue Vergleichstabelle für KV-Optionen
+- Integration mit Entnahmestrategien
+- Tests für verschiedene Versicherungsszenarien
+
+**Nutzen:**
+- Realistische Darstellung der KV-Kosten im Ruhestand
+- Optimierung der Entnahmestrategie unter KV-Aspekten
+- Vergleich GKV vs. PKV für informierte Entscheidungen
+
+---
+
 ### Erweiterte Finanzplanung
 
 #### Steueroptimierung
