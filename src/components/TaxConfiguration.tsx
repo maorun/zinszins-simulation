@@ -16,6 +16,7 @@ import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG, type ProgressionsvorbehaltConfig 
 import { TaxProgressionVisualization } from './TaxProgressionVisualization'
 import { InsuranceCostOverview } from './InsuranceCostOverview'
 import { PensionComparisonTool } from './PensionComparisonTool'
+import { QuellensteuerconfigCard } from './QuellensteuerconfigCard'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -130,6 +131,7 @@ function TaxConfigurationCards({
       />
       <InsuranceCostOverview />
       <PensionComparisonTool />
+      <QuellensteuerconfigCard />
       <TaxLossHarvestingCard />
       <TailRiskHedgingCard />
       <SeveranceCalculatorCard />
