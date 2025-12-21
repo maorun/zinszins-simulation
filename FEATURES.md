@@ -6,40 +6,9 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
 
-#### 1. Steuerliche Verlustverrechnung (Tax Loss Harvesting)
+#### 1. Abgeltungssteuer-Vorauszahlung für Selbstständige
 
 **Priorität: ⭐⭐⭐ Hoch**
-
-Simulation der steuerlichen Verlustverrechnung nach deutschem Steuerrecht zur Optimierung der Steuerlast durch strategisches Realisieren von Verlusten.
-
-**Funktionalität:**
-
-- Tracking von realisierten Gewinnen und Verlusten über Jahre
-- Berechnung der Verlustverrechnung nach § 20 Abs. 6 EStG
-- Berücksichtigung der zeitlichen Vortragsbegrenzung
-- Simulation von Tax Loss Harvesting Strategien
-- Darstellung der Steuerersparnis durch Verlustverrechnung
-- Integration mit Portfolio-Rebalancing
-
-**Technische Umsetzung:**
-
-- Neue Helper-Funktionen: `calculateTaxLossHarvesting()`, `trackCapitalGainsLosses()`
-- Erweiterung der Simulationsdaten um Gewinn/Verlust-Tracking
-- Neue UI-Komponente für Verlustverrechnungsübersicht
-- Historisches Tracking über Jahre
-- Tests für verschiedene Verlustverrechnungsszenarien
-
-**Nutzen:**
-
-- Verständnis der steuerlichen Optimierungsmöglichkeiten
-- Realistische Darstellung der Steuerlast bei aktiver Verwaltung
-- Hilft bei der Planung von Rebalancing-Zeitpunkten
-
----
-
-#### 2. Abgeltungssteuer-Vorauszahlung für Selbstständige
-
-**Priorität: ⭐⭐ Mittel**
 
 Berechnung und Planung von vierteljährlichen Vorauszahlungen auf Kapitalerträge für Selbstständige und Freiberufler, die zur Vorauszahlung verpflichtet sind.
 
@@ -68,7 +37,7 @@ Berechnung und Planung von vierteljährlichen Vorauszahlungen auf Kapitalerträg
 
 ---
 
-#### 3. Pfändungsfreigrenzen-Rechner für Schuldensituationen
+#### 2. Pfändungsfreigrenzen-Rechner für Schuldensituationen
 
 **Priorität: ⭐⭐ Mittel**
 
@@ -98,7 +67,7 @@ Berechnung der pfändungsfreien Beträge nach § 850c ZPO zur Bewertung, wie vie
 
 ---
 
-#### 4. Krankenversicherungs-Optimierung für Rentner
+#### 3. Krankenversicherungs-Optimierung für Rentner
 
 **Priorität: ⭐⭐ Mittel**
 
