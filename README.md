@@ -268,6 +268,25 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Bildungsinhalte**: Hintergrundinformationen zur 2021 Reform und den Berechnungsregeln
   - **Helper-Funktionen verfügbar**: `calculateSolidaritaetszuschlag()`, `calculateYearlySoli()`, `calculateSoliSavings()`, `getSoliFreigrenze()`, `getSoliGleitzoneUpper()`
   - **Umfassend getestet**: 62 Tests mit 100% Pass-Rate
+- **Quellensteueranrechnung** - Informations-Tool zur Anrechnung ausländischer Quellensteuer (§ 32d Abs. 5 EStG)
+  - **8 Länder mit DBA-Sätzen**: USA (15%), Schweiz (15%), Österreich (15%), Frankreich (15%), UK (0%), Japan (15%), Kanada (15%), Australien (15%)
+  - **Doppelbesteuerungsabkommen (DBA)**: Berücksichtigung reduzierter Quellensteuersätze nach deutschen DBAs
+  - **Anrechnungslimit**: Begrenzung auf deutsche Steuer, die auf ausländische Einkünfte entfällt
+  - **Länderwahl**: RadioGroup-Auswahl mit allen unterstützten Ländern
+  - **Benutzerdefinierte Sätze**: Option für abweichende Quellensteuersätze
+  - **Echtzeit-Berechnung**:
+    - Ausländische Einkünfte und gezahlte Quellensteuer
+    - Deutsche Kapitalertragsteuer vor Anrechnung
+    - Anrechenbare Quellensteuer (begrenzt)
+    - Verbleibende deutsche Steuer
+  - **Transparente Aufschlüsselung**: Detaillierte Erklärung aller Berechnungsschritte
+  - **Warnhinweise**: Automatische Warnung bei Anrechnungsbegrenzung
+  - **Bildungsinhalte**:
+    - Hinweise zur Quellensteueranrechnung
+    - Schweizer Besonderheit (35% einbehalten, 20% rückforderbar mit DA-1 Formular)
+    - Teilfreistellung wird berücksichtigt
+  - **Helper-Funktionen verfügbar**: `calculateQuellensteuerconfigCredit()`, `calculateTotalQuellensteuerconfigCredit()`, `getWithholdingTaxRateForCountry()`, `validateQuellensteuerconfigConfiguration()`
+  - **Umfassend getestet**: 51 Tests (33 Helper + 16 Component + 2 Card) mit 100% Pass-Rate
 - **Versicherungskostenübersicht** - Aggregierte Übersicht aller Versicherungskosten zur Optimierung
   - **Zusammenfassung**: Durchschnittliche jährliche Kosten, höchste jährliche Kosten und Gesamtkosten über den Planungszeitraum
   - **Kategorisierung**: Aufschlüsselung nach Versicherungsarten (Krankenversicherung, Risikolebensversicherung, Pflegeversicherung, etc.)
