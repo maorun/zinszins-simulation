@@ -158,6 +158,17 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 
 ### Steuerberechnung
 
+- **Reverse-Rechner (Zielkapital-Planer)** - Berechnung der erforderlichen Sparrate für ein Zielkapital
+  - **Zielorientierte Planung**: Eingabe des gewünschten Ruhestands-Zielkapitals (z.B. 500.000 €)
+  - **Zeitraum-Flexibilität**: Konfigurierbare Ansparphase (1-100 Jahre)
+  - **Rendite-Szenarien**: Variable Renditeerwartungen mit Sensitivitätsanalyse
+  - **Berechnungsmodi**: Monatliche oder jährliche Sparraten-Berechnung
+  - **Steuerberücksichtigung**: Vollständige Integration von Vorabpauschale, Teilfreistellung und Freibetrag
+  - **Kosteneinberechnung**: Berücksichtigung von TER (Total Expense Ratio)
+  - **Iterativer Algorithmus**: Präzise Berechnung durch Bisection-Methode (Konvergenz innerhalb 0,1%)
+  - **Sensitivitätsanalyse**: Automatische Berechnung für verschiedene Rendite-Szenarien (Pessimistisch bis Sehr optimistisch)
+  - **Transparente Ergebnisse**: Detaillierte Aufschlüsselung von Gesamtbeiträgen, Endkapital, Nettogewinn, Steuern und Kosten
+  - **Realistische Planung**: Hilft bei der Beantwortung "Wie viel muss ich sparen für X Euro im Ruhestand?"
 - **Vorabpauschale** - Deutsche Steuerberechnung für Investmentfonds mit detaillierter Erklärung
 - **Interaktive Berechnungsmodals** - Schritt-für-Schritt Aufschlüsselung der Steuerberechnungen
 - **Steuerprogression-Visualisierung** - Interaktive Visualisierung des deutschen progressiven Steuersystems

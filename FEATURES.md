@@ -6,38 +6,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
 
-#### 1. Reverse-Rechner für Ruhestands-Zielbetrag
-
-**Priorität: ⭐⭐⭐ Hoch**
-
-Anstatt zu berechnen, wie viel Kapital bei gegebenen Sparraten entsteht, berechnet dieser "Reverse-Rechner" die erforderliche monatliche/jährliche Sparrate, um einen gewünschten Zielkapitalbetrag im Ruhestand zu erreichen.
-
-**Funktionalität:**
-
-- Eingabe des gewünschten Zielkapitals (z.B. 1.000.000 €)
-- Eingabe des Zeitraums (z.B. 30 Jahre bis zur Rente)
-- Eingabe der erwarteten Rendite
-- Automatische Berechnung der erforderlichen monatlichen/jährlichen Sparrate
-- Berücksichtigung von Vorabpauschale und deutschen Steuern
-- Sensitivitätsanalyse: Wie ändert sich die Sparrate bei anderen Renditen?
-- Darstellung als separate Tab oder Modal im Hauptinterface
-
-**Technische Umsetzung:**
-
-- Neue Utility-Funktion: `calculateRequiredSavingsRate()`
-- Iterativer Algorithmus zur Rückwärtsberechnung
-- Integration in bestehende UI mit shadcn/ui Komponenten
-- Tests für verschiedene Szenarien
-
-**Nutzen:**
-
-- Zielorientierte Planung statt "Was kommt raus?"
-- Realistische Einschätzung der Machbarkeit von Ruhestandszielen
-- Hilft bei der Beantwortung: "Wie viel muss ich sparen für X Euro im Ruhestand?"
-
----
-
-#### 2. Steuerliche Verlustverrechnung (Tax Loss Harvesting)
+#### 1. Steuerliche Verlustverrechnung (Tax Loss Harvesting)
 
 **Priorität: ⭐⭐⭐ Hoch**
 
@@ -68,7 +37,7 @@ Simulation der steuerlichen Verlustverrechnung nach deutschem Steuerrecht zur Op
 
 ---
 
-#### 3. Abgeltungssteuer-Vorauszahlung für Selbstständige
+#### 2. Abgeltungssteuer-Vorauszahlung für Selbstständige
 
 **Priorität: ⭐⭐ Mittel**
 
@@ -99,7 +68,7 @@ Berechnung und Planung von vierteljährlichen Vorauszahlungen auf Kapitalerträg
 
 ---
 
-#### 4. Pfändungsfreigrenzen-Rechner für Schuldensituationen
+#### 3. Pfändungsfreigrenzen-Rechner für Schuldensituationen
 
 **Priorität: ⭐⭐ Mittel**
 
@@ -129,7 +98,7 @@ Berechnung der pfändungsfreien Beträge nach § 850c ZPO zur Bewertung, wie vie
 
 ---
 
-#### 5. Krankenversicherungs-Optimierung für Rentner
+#### 4. Krankenversicherungs-Optimierung für Rentner
 
 **Priorität: ⭐⭐ Mittel**
 
