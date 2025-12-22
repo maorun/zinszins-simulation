@@ -6,39 +6,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
 
-#### 1. Sequenz-Risiko-Analyse für Entnahmephasen
-
-**Priorität: ⭐⭐⭐ Hoch**
-
-Detaillierte Analyse des Sequenz-Risikos (Sequence of Returns Risk) bei Entnahmen im Ruhestand mit Visualisierung verschiedener Rendite-Sequenzen.
-
-**Funktionalität:**
-
-- Simulation verschiedener Rendite-Sequenzen mit identischen durchschnittlichen Renditen
-- Visualisierung der Auswirkungen auf die Portfolioentwicklung
-- Vergleich: Gute vs. schlechte Rendite-Sequenzen in den ersten Jahren
-- Strategien zur Minderung des Sequenz-Risikos (z.B. dynamische Entnahmen)
-- Historische Analyse: Worst-Case-Szenarien basierend auf realen Marktdaten
-- Empfehlungen für sichere Entnahmeraten basierend auf Sequenz-Risiko
-
-**Technische Umsetzung:**
-
-- Neue Helper-Datei: `helpers/sequence-risk.ts`
-- Helper-Funktionen: `analyzeSequenceRisk()`, `generateSequenceScenarios()`
-- UI-Komponente mit interaktiver Visualisierung
-- Integration mit Monte-Carlo-Simulation
-- Umfassende Tests für verschiedene Sequenzen
-
-**Nutzen:**
-
-- Besseres Verständnis des größten Risikos im Ruhestand
-- Informierte Entscheidungen über Entnahmehöhe
-- Strategien zur Risikominderung
-- Realistische Erfolgswahrscheinlichkeiten
-
----
-
-#### 2. Kostenbasierte Rebalancing-Strategie
+#### 1. Kostenbasierte Rebalancing-Strategie
 
 **Priorität: ⭐⭐⭐ Hoch**
 
