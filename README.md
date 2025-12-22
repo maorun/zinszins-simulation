@@ -899,6 +899,19 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 - **Finanzübersicht** - Kompakte Übersicht aller wichtigen Kennzahlen mit Sticky Navigation
 - **Strategievergleich** - Umfassende Vergleichsmöglichkeiten für Entnahmestrategien
 - **Historisches Backtesting** - Test mit 24 Jahren Marktdaten (DAX, S&P 500, MSCI World)
+- **Sequenz-Risiko-Analyse** - Detaillierte Analyse des Einflusses der Rendite-Reihenfolge auf die Portfolio-Nachhaltigkeit im Ruhestand
+  - **Drei Szenarien-Vergleich** - Günstige, durchschnittliche und ungünstige Rendite-Sequenzen mit identischer durchschnittlicher Rendite
+  - **Portfolio-Nachhaltigkeit** - Visualisierung wie viele Jahre das Portfolio in jedem Szenario überlebt
+  - **Risikobewertung** - Automatische Einstufung des Risikos (Niedrig/Mittel/Hoch/Kritisch) basierend auf Worst-Case-Szenario
+  - **Outcome-Differenz** - Berechnung und Darstellung des Unterschieds zwischen Best- und Worst-Case-Szenarien
+  - **Konfigurierbare Parameter** - Startkapital, jährliche Entnahme, Zeitraum, durchschnittliche Rendite und Volatilität
+  - **Personalisierte Empfehlungen** - Konkrete Handlungsempfehlungen zur Risikominderung
+    - Anpassung der Entnahmerate
+    - Dynamische Entnahmestrategien
+    - Cash-Puffer für schlechte Marktjahre
+    - Asset-Allokation Anpassungen (Glide Path)
+  - **Sequence of Returns Risk** - Erklärt warum die Reihenfolge der Renditen in den ersten Ruhestandsjahren kritisch ist
+  - **Interaktive Visualisierung** - Vergleich der Portfolio-Entwicklung über die Zeit in allen drei Szenarien
 - **Monte Carlo Analyse** - Statistische Auswertung verschiedener Rendite-Szenarien
 - **Sensitivitätsanalyse** - Analyse der Auswirkungen von Parameteränderungen
   - **Parameter-Ranking** - Automatische Bewertung der einflussreichsten Faktoren
