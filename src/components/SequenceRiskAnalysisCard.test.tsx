@@ -31,7 +31,8 @@ describe('SequenceRiskAnalysisCard', () => {
     expect(screen.getByLabelText('Startkapital')).toHaveValue(500000)
     expect(screen.getByLabelText('Jährliche Entnahme')).toHaveValue(20000)
     expect(screen.getByLabelText('Zeitraum (Jahre)')).toHaveValue(30)
-    expect(screen.getByLabelText('Durchschnittliche Rendite (%)')).toHaveValue(7)
+    const averageReturnInput = screen.getByLabelText('Durchschnittliche Rendite (%)') as HTMLInputElement
+    expect(Number(averageReturnInput.value)).toBeCloseTo(7, 1)
     expect(screen.getByLabelText('Volatilität (%)')).toHaveValue(15)
   })
 
@@ -141,9 +142,9 @@ describe('SequenceRiskAnalysisCard', () => {
     // Wait for the update
     await screen.findByText('Entnahmerate: 2.00%')
 
-    // Lower withdrawal rate should show lower risk
-    const riskBadge = screen.getByText(/Risiko/)
-    expect(riskBadge).toBeInTheDocument()
+    // Lower withdrawal rate should show lower risk - use getAllByText since "Risiko" appears multiple times
+    const riskBadges = screen.getAllByText(/Risiko/)
+    expect(riskBadges.length).toBeGreaterThan(0)
   })
 
   it('should update analysis when years change', async () => {

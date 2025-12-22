@@ -1,7 +1,7 @@
 import React from 'react'
 import { Input } from '../ui/input'
 import { Label } from '../ui/label'
-import { TrendingUp, TrendingDown, Info } from 'lucide-react'
+import { TrendingUp, TrendingDown, Info, AlertTriangle } from 'lucide-react'
 import { formatCurrency } from '../../utils/currency'
 import type { SequenceRiskAnalysis } from '../../../helpers/sequence-risk'
 
@@ -125,6 +125,48 @@ export function ConfigInputField({
         onChange={(e) => onChange(parseValue(e.target.value))}
       />
       {helperText && <p className="text-xs text-muted-foreground">{helperText}</p>}
+    </div>
+  )
+}
+
+export function InfoPanel() {
+  return (
+    <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+      <div className="flex gap-2">
+        <Info className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
+        <div className="text-sm text-blue-900 space-y-2">
+          <p className="font-medium">Was ist Sequenz-Risiko?</p>
+          <p>
+            Das Sequenz-Risiko (Sequence of Returns Risk) beschreibt die Gefahr, dass schlechte Renditen in den ersten
+            Jahren des Ruhestands das Portfolio dauerhaft schwächen. Zwei Portfolios mit identischer
+            durchschnittlicher Rendite können aufgrund unterschiedlicher Rendite-Reihenfolgen völlig unterschiedliche
+            Ergebnisse erzielen.
+          </p>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+export function MitigationStrategiesPanel() {
+  return (
+    <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+      <div className="flex gap-2">
+        <AlertTriangle className="h-5 w-5 text-yellow-600 flex-shrink-0 mt-0.5" />
+        <div className="text-sm text-yellow-900 space-y-2">
+          <p className="font-medium">Wichtiger Hinweis</p>
+          <p>
+            Diese Analyse zeigt das Risiko unterschiedlicher Rendite-Sequenzen. Um das Sequenz-Risiko zu reduzieren,
+            können Sie:
+          </p>
+          <ul className="list-disc list-inside space-y-1 ml-2">
+            <li>Eine niedrigere Entnahmerate wählen (z.B. 3-4% statt 5%)</li>
+            <li>Dynamische Entnahmestrategien verwenden (Anpassung an Portfolio-Performance)</li>
+            <li>Einen Cash-Puffer für schlechte Marktjahre vorhalten</li>
+            <li>Die Asset-Allokation im Zeitverlauf anpassen (Glide Path)</li>
+          </ul>
+        </div>
+      </div>
     </div>
   )
 }
