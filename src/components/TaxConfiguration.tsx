@@ -8,6 +8,7 @@ import { GrundfreibetragConfiguration } from './tax-config/GrundfreibetragConfig
 import { TaxConfigurationCard } from './tax-config/TaxConfigurationCard'
 import { TaxLossHarvestingCard } from './TaxLossHarvestingCard'
 import { QuarterlyTaxPrepaymentCard } from './QuarterlyTaxPrepaymentCard'
+import { PfaendungsfreibetragCard } from './PfaendungsfreibetragCard'
 import { TailRiskHedgingCard } from './TailRiskHedgingCard'
 import { SolidaritaetszuschlagCard } from './SolidaritaetszuschlagCard'
 import { SeveranceCalculatorCard } from './SeveranceCalculatorCard'
@@ -137,6 +138,7 @@ function TaxConfigurationCards({
       <ReverseCalculatorCard />
       <TaxLossHarvestingCard />
       <QuarterlyTaxPrepaymentCard />
+      <PfaendungsfreibetragCard />
       <TailRiskHedgingCard />
       <SeveranceCalculatorCard />
       <SolidaritaetszuschlagCard />
