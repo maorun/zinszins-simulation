@@ -7,6 +7,7 @@ import { TooltipProvider } from './ui/tooltip'
 import { GrundfreibetragConfiguration } from './tax-config/GrundfreibetragConfiguration'
 import { TaxConfigurationCard } from './tax-config/TaxConfigurationCard'
 import { TaxLossHarvestingCard } from './TaxLossHarvestingCard'
+import { QuarterlyTaxPrepaymentCard } from './QuarterlyTaxPrepaymentCard'
 import { TailRiskHedgingCard } from './TailRiskHedgingCard'
 import { SolidaritaetszuschlagCard } from './SolidaritaetszuschlagCard'
 import { SeveranceCalculatorCard } from './SeveranceCalculatorCard'
@@ -135,6 +136,7 @@ function TaxConfigurationCards({
       <QuellensteuerconfigCard />
       <ReverseCalculatorCard />
       <TaxLossHarvestingCard />
+      <QuarterlyTaxPrepaymentCard />
       <TailRiskHedgingCard />
       <SeveranceCalculatorCard />
       <SolidaritaetszuschlagCard />

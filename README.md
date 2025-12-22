@@ -170,6 +170,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Transparente Ergebnisse**: Detaillierte Aufschlüsselung von Gesamtbeiträgen, Endkapital, Nettogewinn, Steuern und Kosten
   - **Realistische Planung**: Hilft bei der Beantwortung "Wie viel muss ich sparen für X Euro im Ruhestand?"
 - **Vorabpauschale** - Deutsche Steuerberechnung für Investmentfonds mit detaillierter Erklärung
+- **Vierteljährliche Steuervorauszahlungen** - Vorauszahlungsrechner für Selbstständige und Freiberufler
+  - **Quartalstermine**: Automatische Berechnung der Zahlungstermine (10.03., 10.06., 10.09., 10.12.)
+  - **Erwartete Kapitalerträge**: Planung basierend auf geschätzten jährlichen Kapitalerträgen
+  - **Teilfreistellung**: Berücksichtigung der Teilfreistellungsquote (30% für Aktienfonds, 15% für Mischfonds)
+  - **Sparer-Pauschbetrag**: Integration des Freibetrags (1.000 € Singles, 2.000 € Paare)
+  - **Nachzahlungszinsen**: Warnung vor 6% p.a. Nachzahlungszinsen bei Verzug (§ 233a AO)
+  - **Steuerersparnis-Kalkulation**: Transparente Darstellung der Steuerersparnisse durch Freibetrag und Teilfreistellung
+  - **Optimierungsvorschläge**: Automatische Empfehlungen zur Steueroptimierung
+  - **Zahlungsplan**: Detaillierte Übersicht aller vierteljährlichen Vorauszahlungen
+  - **Schwellenwert-Prüfung**: Hinweis ob Vorauszahlungen erforderlich sind (ab 400 € Jahressteuerlast)
 - **Interaktive Berechnungsmodals** - Schritt-für-Schritt Aufschlüsselung der Steuerberechnungen
 - **Steuerprogression-Visualisierung** - Interaktive Visualisierung des deutschen progressiven Steuersystems
   - **Interaktives Diagramm**: Zeigt Durchschnittssteuersatz und Grenzsteuersatz über verschiedene Einkommensniveaus
