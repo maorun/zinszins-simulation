@@ -113,10 +113,13 @@ export function calculateVorabpauschale(
   const vorabpauschale_prozentsatz = 0.7
 
   // The Basisertrag is 70% of the gain the investment would have made at the base interest rate.
+  // German regulation: Basisertrag = Startwert × Basiszins × 70%
+  // The 70% factor reflects that only a portion of theoretical gains should be taxed upfront
   let basisertrag = startwert * basiszins * vorabpauschale_prozentsatz
   basisertrag = (anteilImJahr / 12) * basisertrag
 
   // The Vorabpauschale is the lesser of the Basisertrag and the actual gain. It cannot be negative.
+  // This ensures investors are never taxed more than their actual gains
   const vorabpauschale = Math.max(0, Math.min(basisertrag, jahresgewinn))
 
   return vorabpauschale
@@ -174,6 +177,14 @@ export function calculateVorabpauschaleDetailed(
 
 /**
  * Calculates the tax due on a given Vorabpauschale amount.
+ * 
+ * German tax law provides a partial tax exemption (Teilfreistellungsquote) for certain fund types:
+ * - Equity funds (Aktienfonds): 30% exemption
+ * - Mixed funds (Mischfonds): 15% exemption
+ * - Real estate funds (Immobilienfonds): 60-80% exemption
+ * 
+ * The effective tax rate is: Kapitalertragsteuer × (1 - Teilfreistellungsquote)
+ * Example: 26.375% tax × (1 - 0.30) = 18.4625% effective tax for equity funds
  *
  * @param vorabpauschale - The Vorabpauschale amount.
  * @param steuerlast - The capital gains tax rate (e.g., 0.26375).
@@ -613,9 +624,14 @@ function calculateTaxByZone(
  * where z = (taxable income - 17,005) / 10,000
  *
  * NOTE: The `grundfreibetrag` parameter is used when capital gains are being taxed
- * with progressive tax instead of Abgeltungssteuer. In this case, the Grundfreibetrag
- * can be used to offset capital gains. For regular income tax, the Grundfreibetrag
- * is already built into the tax brackets (Zone 1: 0-11,604€ = 0% tax).
+ * with progressive tax instead of Abgeltungssteuer (via Günstigerprüfung).
+ * In this case, the Grundfreibetrag can be used to offset capital gains.
+ * 
+ * Important distinction:
+ * - The built-in Grundfreibetrag (Zone 1: 0-11,604€) applies to ALL income types
+ * - The `grundfreibetrag` parameter is an ADDITIONAL offset specifically for capital gains
+ * - This allows retirees with only investment income to use their Grundfreibetrag twice:
+ *   once as the tax-free Zone 1 (built into brackets), and once as offset for Sparerpauschbetrag
  *
  * @param taxableIncome - The taxable income (zu versteuerndes Einkommen)
  * @param grundfreibetrag - Additional tax-free allowance (for capital gains offset)
@@ -708,6 +724,23 @@ export function calculateProgressiveTaxOnVorabpauschale(
 /**
  * Performs Günstigerprüfung (tax optimization check) to determine whether
  * Abgeltungssteuer (capital gains tax) or personal income tax is more favorable.
+ * 
+ * Günstigerprüfung is a German tax regulation that allows taxpayers to choose
+ * the more favorable tax treatment for capital gains:
+ * 
+ * 1. **Abgeltungssteuer (default)**: Flat 26.375% (including Solidaritätszuschlag)
+ * 2. **Personal Income Tax**: Progressive rates from 0% to 45%
+ * 
+ * **When is Günstigerprüfung beneficial?**
+ * - Retirees with low total income (below or near Grundfreibetrag)
+ * - Taxpayers with personal income tax rate below 26.375%
+ * - Situations where Grundfreibetrag can offset capital gains
+ * 
+ * **Tax calculation includes:**
+ * - Teilfreistellungsquote (partial exemption for fund types)
+ * - Grundfreibetrag (basic tax allowance - can be used for capital gains)
+ * - Kirchensteuer (church tax - if applicable)
+ * - Progressive tax brackets (if useProgressiveTax is true)
  *
  * @param vorabpauschale - The Vorabpauschale amount subject to taxation
  * @param abgeltungssteuer - The standard capital gains tax rate (e.g., 0.26375 = 26.375%)
