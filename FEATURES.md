@@ -4,70 +4,7 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ## 🔮 Potenzielle zukünftige Features
 
-### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
 
-#### 1. Abgeltungssteuer-Vorauszahlung für Selbstständige
-
-**Priorität: ⭐⭐⭐ Hoch**
-
-Berechnung und Planung von vierteljährlichen Vorauszahlungen auf Kapitalerträge für Selbstständige und Freiberufler, die zur Vorauszahlung verpflichtet sind.
-
-**Funktionalität:**
-
-- Berechnung der erwarteten Kapitalerträge pro Quartal
-- Automatische Ermittlung der Vorauszahlungsbeträge
-- Berücksichtigung des Freibetrags
-- Erinnerung an Vorauszahlungstermine (10.3., 10.6., 10.9., 10.12.)
-- Nachzahlungsberechnung bei Unterschätzung
-- Erstattungsberechnung bei Überzahlung
-- Optimierungsvorschläge zur Vermeidung von Nachzahlungszinsen
-
-**Technische Umsetzung:**
-
-- Neue Helper-Funktionen: `calculateQuarterlyTaxPrepayments()`, `estimateQuarterlyCapitalGains()`
-- Neue UI-Komponente für Vorauszahlungsübersicht
-- Kalendarische Integration der Zahlungstermine
-- Tests für verschiedene Kapitalertragsszenarien
-
-**Nutzen:**
-
-- Vermeidung von Nachzahlungszinsen (6% p.a. gemäß § 233a AO)
-- Bessere Liquiditätsplanung für Selbstständige
-- Realistische Darstellung der Steuerzahlungen über das Jahr
-
----
-
-#### 2. Krankenversicherungs-Optimierung für Rentner
-
-**Priorität: ⭐⭐ Mittel**
-
-Detaillierte Berechnung und Vergleich der Krankenversicherungsoptionen im Ruhestand (GKV der Rentner vs. freiwillige GKV vs. PKV-Weiterzahlung).
-
-**Funktionalität:**
-
-- Berechnung der GKV-Beiträge auf Kapitalerträge im Ruhestand (14,6% + Zusatzbeitrag)
-- Vergleich der Beitragslast bei verschiedenen Entnahmestrategien
-- Optimierungsvorschläge zur Minimierung der KV-Beiträge
-- Berücksichtigung der Beitragsbemessungsgrenze
-- Simulation der PKV-Kosten im Alter mit Beitragsentlastungstarifen
-- Wechseloptionen und Fristen (z.B. PKV → GKV)
-- Berechnung des Krankenversicherungszuschlags der DRV
-
-**Technische Umsetzung:**
-
-- Erweiterung bestehender Krankenversicherungs-Logik
-- Neue Helper-Funktionen: `calculateRetireHealthInsurance()`, `optimizeHealthInsuranceStrategy()`
-- Neue Vergleichstabelle für KV-Optionen
-- Integration mit Entnahmestrategien
-- Tests für verschiedene Versicherungsszenarien
-
-**Nutzen:**
-
-- Realistische Darstellung der KV-Kosten im Ruhestand
-- Optimierung der Entnahmestrategie unter KV-Aspekten
-- Vergleich GKV vs. PKV für informierte Entscheidungen
-
----
 
 ### Erweiterte Finanzplanung
 
