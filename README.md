@@ -180,6 +180,24 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Optimierungsvorschläge**: Automatische Empfehlungen zur Steueroptimierung
   - **Zahlungsplan**: Detaillierte Übersicht aller vierteljährlichen Vorauszahlungen
   - **Schwellenwert-Prüfung**: Hinweis ob Vorauszahlungen erforderlich sind (ab 400 € Jahressteuerlast)
+- **Pfändungsschutz-Rechner** - Berechnung geschützter Beträge bei Pfändung
+  - **Einkommensschutz (§ 850c ZPO)**: Berechnung pfändungsfreier Beträge nach deutschem Zivilprozessrecht
+    - **Grundbetrag**: 1.491,75 € monatlich (gültig ab 01.07.2024)
+    - **Unterhaltspflicht-Zuschlag**: +561,43 € für ersten Unterhaltsberechtigten, +312,78 € für weitere
+    - **Progressive Pfändung**: Automatische Berechnung der pfändbaren Beträge zwischen Grundbetrag und Vollpfändungsgrenze (4.573,10 €)
+    - **Familienberücksichtigung**: Schutz erhöht sich mit Anzahl der Unterhaltsberechtigten
+  - **Vermögensschutz (§ 851c ZPO)**: Bewertung geschützter Altersvorsorge
+    - **Rürup-Rente**: Geschützt bis 340.000 €, teilweiser Schutz bis 1.020.000 € (30% des Überschusses)
+    - **Riester-Rente**: Vollständig geschützt in der Ansparphase
+    - **Sonstige Altersvorsorge**: Meist nicht geschützt bei Pfändung
+  - **Interaktive Berechnung**: Eingabe von Nettoeinkommen, Unterhaltspflichten und Vermögenswerten
+  - **Visualisierung**: Prozentuale Darstellung geschützter vs. pfändbarer Beträge
+  - **Optimierungsempfehlungen**: Automatische Vorschläge zur Vermögensabsicherung bei Schuldenrisiko
+    - Empfehlungen für Umschichtung in pfändungssichere Anlageformen
+    - Hinweise auf Rürup/Riester-Optionen bei hohen pfändbaren Vermögenswerten
+    - Tipps zur Registrierung von Unterhaltsberechtigten für erhöhten Schutz
+  - **Realistische Szenarien**: Hilft bei der Bewertung des Schutzes in Schuldensituationen
+  - **Aktuelle Rechtslage**: Basierend auf Pfändungsfreigrenzen gültig ab Juli 2024
 - **Interaktive Berechnungsmodals** - Schritt-für-Schritt Aufschlüsselung der Steuerberechnungen
 - **Steuerprogression-Visualisierung** - Interaktive Visualisierung des deutschen progressiven Steuersystems
   - **Interaktives Diagramm**: Zeigt Durchschnittssteuersatz und Grenzsteuersatz über verschiedene Einkommensniveaus
