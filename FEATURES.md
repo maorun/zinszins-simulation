@@ -37,37 +37,7 @@ Berechnung und Planung von vierteljährlichen Vorauszahlungen auf Kapitalerträg
 
 ---
 
-#### 2. Pfändungsfreigrenzen-Rechner für Schuldensituationen
-
-**Priorität: ⭐⭐ Mittel**
-
-Berechnung der pfändungsfreien Beträge nach § 850c ZPO zur Bewertung, wie viel vom Vermögen und Einkommen in einer Schuldensituation geschützt ist.
-
-**Funktionalität:**
-
-- Berechnung der Pfändungsfreigrenzen nach § 850c ZPO
-- Berücksichtigung von Unterhaltsverpflichtungen
-- Darstellung pfändungsfreier vs. pfändbarer Beträge
-- Empfehlungen zur Vermögensstrukturierung bei Schuldenrisiko
-- Integration mit Altersvorsorge (z.B. Rürup-Rente ist pfändungssicher)
-- Vergleich verschiedener Anlageformen nach Pfändungssicherheit
-
-**Technische Umsetzung:**
-
-- Neue Helper-Funktionen: `calculatePfaendungsfreigrenze()`, `assessProtectedAssets()`
-- Neue UI-Komponente mit tabularischer Darstellung
-- Integration mit bestehenden Vermögenswerten
-- Tests für verschiedene Familienkonstellationen
-
-**Nutzen:**
-
-- Risikobewertung bei Schulden oder unternehmerischem Risiko
-- Optimierung der Vermögensstruktur zur Absicherung
-- Verständnis für pfändungssichere Altersvorsorge (Rürup)
-
----
-
-#### 3. Krankenversicherungs-Optimierung für Rentner
+#### 2. Krankenversicherungs-Optimierung für Rentner
 
 **Priorität: ⭐⭐ Mittel**
 
