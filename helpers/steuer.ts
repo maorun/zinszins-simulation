@@ -113,10 +113,13 @@ export function calculateVorabpauschale(
   const vorabpauschale_prozentsatz = 0.7
 
   // The Basisertrag is 70% of the gain the investment would have made at the base interest rate.
+  // German regulation: Basisertrag = Startwert × Basiszins × 70%
+  // The 70% factor reflects that only a portion of theoretical gains should be taxed upfront
   let basisertrag = startwert * basiszins * vorabpauschale_prozentsatz
   basisertrag = (anteilImJahr / 12) * basisertrag
 
   // The Vorabpauschale is the lesser of the Basisertrag and the actual gain. It cannot be negative.
+  // This ensures investors are never taxed more than their actual gains
   const vorabpauschale = Math.max(0, Math.min(basisertrag, jahresgewinn))
 
   return vorabpauschale
@@ -613,9 +616,14 @@ function calculateTaxByZone(
  * where z = (taxable income - 17,005) / 10,000
  *
  * NOTE: The `grundfreibetrag` parameter is used when capital gains are being taxed
- * with progressive tax instead of Abgeltungssteuer. In this case, the Grundfreibetrag
- * can be used to offset capital gains. For regular income tax, the Grundfreibetrag
- * is already built into the tax brackets (Zone 1: 0-11,604€ = 0% tax).
+ * with progressive tax instead of Abgeltungssteuer (via Günstigerprüfung).
+ * In this case, the Grundfreibetrag can be used to offset capital gains.
+ * 
+ * Important distinction:
+ * - The built-in Grundfreibetrag (Zone 1: 0-11,604€) applies to ALL income types
+ * - The `grundfreibetrag` parameter is an ADDITIONAL offset specifically for capital gains
+ * - This allows retirees with only investment income to use their Grundfreibetrag twice:
+ *   once as the tax-free Zone 1 (built into brackets), and once as offset for Sparerpauschbetrag
  *
  * @param taxableIncome - The taxable income (zu versteuerndes Einkommen)
  * @param grundfreibetrag - Additional tax-free allowance (for capital gains offset)
