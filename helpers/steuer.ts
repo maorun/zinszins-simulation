@@ -177,6 +177,14 @@ export function calculateVorabpauschaleDetailed(
 
 /**
  * Calculates the tax due on a given Vorabpauschale amount.
+ * 
+ * German tax law provides a partial tax exemption (Teilfreistellungsquote) for certain fund types:
+ * - Equity funds (Aktienfonds): 30% exemption
+ * - Mixed funds (Mischfonds): 15% exemption
+ * - Real estate funds (Immobilienfonds): 60-80% exemption
+ * 
+ * The effective tax rate is: Kapitalertragsteuer × (1 - Teilfreistellungsquote)
+ * Example: 26.375% tax × (1 - 0.30) = 18.4625% effective tax for equity funds
  *
  * @param vorabpauschale - The Vorabpauschale amount.
  * @param steuerlast - The capital gains tax rate (e.g., 0.26375).
@@ -716,6 +724,23 @@ export function calculateProgressiveTaxOnVorabpauschale(
 /**
  * Performs Günstigerprüfung (tax optimization check) to determine whether
  * Abgeltungssteuer (capital gains tax) or personal income tax is more favorable.
+ * 
+ * Günstigerprüfung is a German tax regulation that allows taxpayers to choose
+ * the more favorable tax treatment for capital gains:
+ * 
+ * 1. **Abgeltungssteuer (default)**: Flat 26.375% (including Solidaritätszuschlag)
+ * 2. **Personal Income Tax**: Progressive rates from 0% to 45%
+ * 
+ * **When is Günstigerprüfung beneficial?**
+ * - Retirees with low total income (below or near Grundfreibetrag)
+ * - Taxpayers with personal income tax rate below 26.375%
+ * - Situations where Grundfreibetrag can offset capital gains
+ * 
+ * **Tax calculation includes:**
+ * - Teilfreistellungsquote (partial exemption for fund types)
+ * - Grundfreibetrag (basic tax allowance - can be used for capital gains)
+ * - Kirchensteuer (church tax - if applicable)
+ * - Progressive tax brackets (if useProgressiveTax is true)
  *
  * @param vorabpauschale - The Vorabpauschale amount subject to taxation
  * @param abgeltungssteuer - The standard capital gains tax rate (e.g., 0.26375 = 26.375%)
