@@ -6,36 +6,35 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
 
-#### 1. Dynamische Inflationsanpassung für Entnahmen
+#### 1. Sequenz-Risiko-Analyse für Entnahmephasen
 
 **Priorität: ⭐⭐⭐ Hoch**
 
-Automatische Anpassung der Entnahmebeträge an die Inflation zur Aufrechterhaltung der Kaufkraft im Ruhestand.
+Detaillierte Analyse des Sequenz-Risikos (Sequence of Returns Risk) bei Entnahmen im Ruhestand mit Visualisierung verschiedener Rendite-Sequenzen.
 
 **Funktionalität:**
 
-- Konfigurierbare Inflationsrate (z.B. 2%, 3% oder variable Werte pro Jahr)
-- Automatische jährliche Anpassung der Entnahmebeträge
-- Visualisierung der realen vs. nominalen Kaufkraft über die Zeit
-- Berechnung des benötigten Startkapitals unter Inflationsberücksichtigung
-- Integration mit allen Entnahmestrategien (4%-Regel, fester Betrag, etc.)
-- Szenarioanalyse: Auswirkungen verschiedener Inflationsraten
-- Warnung bei kritischer Portfolioentwicklung durch Inflationsanpassung
+- Simulation verschiedener Rendite-Sequenzen mit identischen durchschnittlichen Renditen
+- Visualisierung der Auswirkungen auf die Portfolioentwicklung
+- Vergleich: Gute vs. schlechte Rendite-Sequenzen in den ersten Jahren
+- Strategien zur Minderung des Sequenz-Risikos (z.B. dynamische Entnahmen)
+- Historische Analyse: Worst-Case-Szenarien basierend auf realen Marktdaten
+- Empfehlungen für sichere Entnahmeraten basierend auf Sequenz-Risiko
 
 **Technische Umsetzung:**
 
-- Erweiterung der Entnahmelogik in `helpers/withdrawal.ts`
-- Neue Helper-Funktion: `applyInflationAdjustment()`
-- UI-Komponente für Inflationskonfiguration
-- Integration in bestehende Entnahmestrategien
-- Comprehensive Tests für verschiedene Inflationsszenarien
+- Neue Helper-Datei: `helpers/sequence-risk.ts`
+- Helper-Funktionen: `analyzeSequenceRisk()`, `generateSequenceScenarios()`
+- UI-Komponente mit interaktiver Visualisierung
+- Integration mit Monte-Carlo-Simulation
+- Umfassende Tests für verschiedene Sequenzen
 
 **Nutzen:**
 
-- Realistische Rentabilitätsplanung mit konstantem Lebensstandard
-- Schutz vor Kaufkraftverlust im Alter
-- Bessere Langzeitplanung für 20+ Jahre Ruhestand
-- Visualisierung der tatsächlichen Kaufkraft
+- Besseres Verständnis des größten Risikos im Ruhestand
+- Informierte Entscheidungen über Entnahmehöhe
+- Strategien zur Risikominderung
+- Realistische Erfolgswahrscheinlichkeiten
 
 ---
 
@@ -69,38 +68,6 @@ Intelligente Portfolio-Rebalancing-Strategie mit Berücksichtigung von Transakti
 - Steueroptimierte Portfolioverwaltung
 - Realistische Darstellung von Transaktionskosten
 - Langfristige Renditeverbesserung durch systematisches Rebalancing
-
----
-
-#### 3. Sequenz-Risiko-Analyse für Entnahmephasen
-
-**Priorität: ⭐⭐⭐ Hoch**
-
-Detaillierte Analyse des Sequenz-Risikos (Sequence of Returns Risk) bei Entnahmen im Ruhestand.
-
-**Funktionalität:**
-
-- Simulation verschiedener Rendite-Sequenzen mit identischen durchschnittlichen Renditen
-- Visualisierung der Auswirkungen auf die Portfolioentwicklung
-- Vergleich: Gute vs. schlechte Rendite-Sequenzen in den ersten Jahren
-- Strategien zur Minderung des Sequenz-Risikos (z.B. dynamische Entnahmen)
-- Historische Analyse: Worst-Case-Szenarien basierend auf realen Marktdaten
-- Empfehlungen für sichere Entnahmeraten basierend auf Sequenz-Risiko
-
-**Technische Umsetzung:**
-
-- Neue Helper-Datei: `helpers/sequence-risk.ts`
-- Helper-Funktionen: `analyzeSequenceRisk()`, `generateSequenceScenarios()`
-- UI-Komponente mit interaktiver Visualisierung
-- Integration mit Monte-Carlo-Simulation
-- Umfassende Tests für verschiedene Sequenzen
-
-**Nutzen:**
-
-- Besseres Verständnis des größten Risikos im Ruhestand
-- Informierte Entscheidungen über Entnahmehöhe
-- Strategien zur Risikominderung
-- Realistische Erfolgswahrscheinlichkeiten
 
 ---
 
