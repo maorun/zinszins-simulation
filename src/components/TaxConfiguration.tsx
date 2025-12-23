@@ -21,6 +21,7 @@ import { TaxProgressionVisualization } from './TaxProgressionVisualization'
 import { InsuranceCostOverview } from './InsuranceCostOverview'
 import { PensionComparisonTool } from './PensionComparisonTool'
 import { QuellensteuerconfigCard } from './QuellensteuerconfigCard'
+import { FreistellungsauftragOptimizer } from './FreistellungsauftragOptimizer'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -100,6 +101,25 @@ interface TaxConfigurationCardsProps {
   handleEinkommensteuersatzChange: (v: number) => void
 }
 
+function TaxOptimizationCards() {
+  return (
+    <>
+      <QuellensteuerconfigCard />
+      <ReverseCalculatorCard />
+      <SequenceRiskAnalysisCard />
+      <TaxLossHarvestingCard />
+      <QuarterlyTaxPrepaymentCard />
+      <PfaendungsfreibetragCard />
+      <TailRiskHedgingCard />
+      <SeveranceCalculatorCard />
+      <SolidaritaetszuschlagCard />
+      <NestingProvider>
+        <BasiszinsConfiguration />
+      </NestingProvider>
+    </>
+  )
+}
+
 function TaxConfigurationCards({
   simulation,
   currentConfig,
@@ -111,9 +131,18 @@ function TaxConfigurationCards({
   handleGrundfreibetragBetragChange,
   handleEinkommensteuersatzChange,
 }: TaxConfigurationCardsProps) {
+  const totalFreibetrag = planningMode === 'couple' ? 2000 : 1000
+
   return (
     <div className="space-y-4">
       <TaxConfigurationCard simulation={simulation} yearToday={new Date().getFullYear()} />
+      <FreistellungsauftragOptimizer
+        totalFreibetrag={totalFreibetrag}
+        accounts={simulation.freistellungsauftragAccounts}
+        onAccountsChange={simulation.setFreistellungsauftragAccounts}
+        steuerlast={simulation.steuerlast}
+        teilfreistellungsquote={simulation.teilfreistellungsquote}
+      />
       <GrundfreibetragConfiguration
         grundfreibetragAktiv={simulation.grundfreibetragAktiv}
         grundfreibetragBetrag={simulation.grundfreibetragBetrag}
@@ -135,18 +164,7 @@ function TaxConfigurationCards({
       />
       <InsuranceCostOverview />
       <PensionComparisonTool />
-      <QuellensteuerconfigCard />
-      <ReverseCalculatorCard />
-      <SequenceRiskAnalysisCard />
-      <TaxLossHarvestingCard />
-      <QuarterlyTaxPrepaymentCard />
-      <PfaendungsfreibetragCard />
-      <TailRiskHedgingCard />
-      <SeveranceCalculatorCard />
-      <SolidaritaetszuschlagCard />
-      <NestingProvider>
-        <BasiszinsConfiguration />
-      </NestingProvider>
+      <TaxOptimizationCards />
     </div>
   )
 }
