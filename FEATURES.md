@@ -10,6 +10,41 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung
 
+- **Entnahmestrategien zur Steueroptimierung im Ruhestand** ⭐⭐⭐
+  - Intelligente Entnahmestrategie über mehrere Kapitalquellen (Depot, Riester, Rürup, gesetzliche Rente)
+  - Berücksichtigung unterschiedlicher steuerlicher Behandlungen je Quelle
+  - Optimale Reihenfolge der Entnahmen zur Minimierung der Steuerlast
+  - Integration des Grundfreibetrags und Progressionsvorbehalt
+  - Jahr-für-Jahr Optimierung unter Berücksichtigung von Steuerzonen
+  - Visualisierung der Steuerersparnisse gegenüber naiver Entnahme
+  - Praktischer Nutzen: Maximierung des verfügbaren Nettoeinkommens im Ruhestand
+
+- **Teilfreistellungsquoten-Rechner für komplexe Fonds-Portfolios** ⭐⭐⭐
+  - Berechnung der gewichteten Teilfreistellungsquote bei gemischten Portfolios
+  - Unterscheidung zwischen Aktienfonds (30%), Mischfonds (15%), Immobilienfonds (60%), sonstigen Fonds (0%)
+  - Automatische Zuordnung bei Multi-Asset-Portfolios
+  - Szenario-Vergleich: Auswirkung verschiedener Fondsallokationen auf die Steuerlast
+  - Empfehlungen zur steueroptimalen Portfolio-Zusammenstellung
+  - Praktischer Nutzen: Hilft bei der Auswahl steueroptimaler Fondsstrukturen
+
+- **Steuerstundungs-Kalkulator (Thesaurierung vs. Ausschüttung)** ⭐⭐⭐
+  - Vergleich zwischen thesaurierenden und ausschüttenden Fonds
+  - Berechnung des Steuerstundungseffekts über lange Zeiträume
+  - Berücksichtigung der Vorabpauschale bei thesaurierenden Fonds
+  - Quantifizierung des Zinseszinseffekts durch Steuerstundung
+  - Szenario-Analyse: Wann lohnen sich thesaurierende vs. ausschüttende Fonds
+  - Integration mit bestehender Vorabpauschalen-Berechnung
+  - Praktischer Nutzen: Datenbasierte Entscheidung zwischen Fondstypen
+
+- **Verlustverrechnung zwischen mehreren Depots/Jahren** ⭐⭐⭐
+  - Tracking von Verlustvorträgen über mehrere Jahre
+  - Optimale Nutzung von Verlustverrechnungstöpfen (Aktien vs. sonstige)
+  - Planung von Gewinnrealisierungen zur optimalen Verlustnutzung
+  - Warnung bei ablaufenden oder nicht genutzten Verlustvorträgen
+  - Szenario-Planung für tax-loss harvesting Strategien
+  - Integration mit bestehender Verlustverrechnungs-Berechnung
+  - Praktischer Nutzen: Maximierung der Steuerersparnisse durch strategische Verlustverrechnung
+
 #### Asset Allocation & Portfolio-Management
 
 - **Geografische Diversifikation** - Aufteilung zwischen Regionen mit entsprechenden Steuern

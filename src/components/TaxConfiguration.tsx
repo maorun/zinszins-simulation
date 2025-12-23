@@ -21,6 +21,7 @@ import { TaxProgressionVisualization } from './TaxProgressionVisualization'
 import { InsuranceCostOverview } from './InsuranceCostOverview'
 import { PensionComparisonTool } from './PensionComparisonTool'
 import { QuellensteuerconfigCard } from './QuellensteuerconfigCard'
+import { FreistellungsauftragOptimizer } from './FreistellungsauftragOptimizer'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -100,6 +101,51 @@ interface TaxConfigurationCardsProps {
   handleEinkommensteuersatzChange: (v: number) => void
 }
 
+function FreistellungsauftragSection({
+  planningMode,
+  simulation,
+}: {
+  planningMode: 'individual' | 'couple'
+  simulation: ReturnType<typeof useSimulation>
+}) {
+  const totalFreibetrag = planningMode === 'couple' ? 2000 : 1000
+
+  const handleAccountsChange = (accounts: Array<import('../../helpers/freistellungsauftrag-optimization').BankAccount>) => {
+    if (simulation.setFreistellungsauftragAccounts) {
+      simulation.setFreistellungsauftragAccounts(accounts)
+    }
+  }
+
+  return (
+    <FreistellungsauftragOptimizer
+      totalFreibetrag={totalFreibetrag}
+      accounts={simulation.freistellungsauftragAccounts || []}
+      onAccountsChange={handleAccountsChange}
+      steuerlast={simulation.steuerlast}
+      teilfreistellungsquote={simulation.teilfreistellungsquote}
+    />
+  )
+}
+
+function TaxOptimizationCards() {
+  return (
+    <>
+      <QuellensteuerconfigCard />
+      <ReverseCalculatorCard />
+      <SequenceRiskAnalysisCard />
+      <TaxLossHarvestingCard />
+      <QuarterlyTaxPrepaymentCard />
+      <PfaendungsfreibetragCard />
+      <TailRiskHedgingCard />
+      <SeveranceCalculatorCard />
+      <SolidaritaetszuschlagCard />
+      <NestingProvider>
+        <BasiszinsConfiguration />
+      </NestingProvider>
+    </>
+  )
+}
+
 function TaxConfigurationCards({
   simulation,
   currentConfig,
@@ -114,6 +160,7 @@ function TaxConfigurationCards({
   return (
     <div className="space-y-4">
       <TaxConfigurationCard simulation={simulation} yearToday={new Date().getFullYear()} />
+      <FreistellungsauftragSection planningMode={planningMode} simulation={simulation} />
       <GrundfreibetragConfiguration
         grundfreibetragAktiv={simulation.grundfreibetragAktiv}
         grundfreibetragBetrag={simulation.grundfreibetragBetrag}
@@ -135,18 +182,7 @@ function TaxConfigurationCards({
       />
       <InsuranceCostOverview />
       <PensionComparisonTool />
-      <QuellensteuerconfigCard />
-      <ReverseCalculatorCard />
-      <SequenceRiskAnalysisCard />
-      <TaxLossHarvestingCard />
-      <QuarterlyTaxPrepaymentCard />
-      <PfaendungsfreibetragCard />
-      <TailRiskHedgingCard />
-      <SeveranceCalculatorCard />
-      <SolidaritaetszuschlagCard />
-      <NestingProvider>
-        <BasiszinsConfiguration />
-      </NestingProvider>
+      <TaxOptimizationCards />
     </div>
   )
 }

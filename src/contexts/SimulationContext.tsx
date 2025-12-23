@@ -18,6 +18,7 @@ import { useInitialConfiguration } from './hooks/useInitialConfiguration'
 import { useSimulationOrchestration } from './hooks/useSimulationOrchestration'
 import { useSimulationContextValue } from './hooks/useSimulationContextValue'
 import type { AssetClass } from '../../helpers/asset-class'
+import type { BankAccount } from '../../helpers/freistellungsauftrag-optimization'
 
 export interface SimulationContextState {
   rendite: number
@@ -57,6 +58,9 @@ export interface SimulationContextState {
   setKirchensteuerAktiv: (kirchensteuerAktiv: boolean) => void
   kirchensteuersatz: number
   setKirchensteuersatz: (kirchensteuersatz: number) => void
+  // Freistellungsauftrag accounts for tax allowance optimization
+  freistellungsauftragAccounts: BankAccount[]
+  setFreistellungsauftragAccounts: (freistellungsauftragAccounts: BankAccount[]) => void
   returnMode: ReturnMode
   setReturnMode: (returnMode: ReturnMode) => void
   averageReturn: number

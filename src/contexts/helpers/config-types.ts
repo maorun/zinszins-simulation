@@ -13,6 +13,7 @@ import type { TermLifeInsuranceConfig } from '../../../helpers/term-life-insuran
 import type { CareInsuranceConfig } from '../../../helpers/care-insurance'
 import type { AlimonyConfig } from '../../../helpers/alimony'
 import type { EMRenteConfig } from '../../../helpers/em-rente'
+import type { BankAccount } from '../../../helpers/freistellungsauftrag-optimization'
 
 /**
  * Extended SparplanElement with additional fields for simulation results
@@ -50,6 +51,7 @@ export interface ExtendedSavedConfiguration {
   kirchensteuersatz?: number
   assetClass?: AssetClass
   customTeilfreistellungsquote?: number
+  freistellungsauftragAccounts?: BankAccount[]
   returnMode: ReturnMode
   averageReturn: number
   standardDeviation: number
