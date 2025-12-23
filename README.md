@@ -166,6 +166,16 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 
 ### Steuerberechnung
 
+- **Freistellungsauftrag-Optimierung** - Optimale Verteilung der Freistellungsaufträge auf mehrere Depots
+  - **Multi-Depot-Verwaltung**: Verwaltung mehrerer Bankkonten/Depots mit jeweiligen erwarteten Kapitalerträgen
+  - **Automatische Optimierung**: Intelligente Verteilung des Sparerpauschbetrags (1.000€/2.000€) zur Steuerminimierung
+  - **Priorisierung**: Automatische Zuweisung zu Konten mit höchsten erwarteten Kapitalerträgen
+  - **Teilfreistellungs-Integration**: Berücksichtigung der Teilfreistellung für Aktienfonds bei der Optimierung
+  - **Echtzeit-Berechnung**: Live-Berechnung der Steuerersparnisse und effektiven Steuersätze pro Konto
+  - **Validierung**: Automatische Prüfung der Freibetrags-Aufteilung mit deutschen Fehlermeldungen
+  - **Optimierungsempfehlungen**: Hinweise bei ungenutztem Freibetrag oder suboptimaler Verteilung
+  - **Ein-Klick-Anwendung**: Optimale Verteilung kann direkt übernommen werden
+  - **Planungsmodus-abhängig**: Automatische Anpassung des Gesamtfreibetrags (Einzelperson: 1.000€, Ehepaar: 2.000€)
 - **Reverse-Rechner (Zielkapital-Planer)** - Berechnung der erforderlichen Sparrate für ein Zielkapital
   - **Zielorientierte Planung**: Eingabe des gewünschten Ruhestands-Zielkapitals (z.B. 500.000 €)
   - **Zeitraum-Flexibilität**: Konfigurierbare Ansparphase (1-100 Jahre)

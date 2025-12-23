@@ -10,14 +10,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 #### Steueroptimierung
 
-- **Freistellungsauftrag-Optimierung zwischen mehreren Depots** ⭐⭐⭐
-  - Automatische Berechnung der optimalen Aufteilung des Sparer-Pauschbetrags (1.000€/2.000€) auf mehrere Depots
-  - Berücksichtigung erwarteter Kapitalerträge je Depot
-  - Empfehlung zur Vermeidung unnötiger Steuerzahlungen und Erstattungsverfahren
-  - Visualisierung der Freibetragsauslastung je Depot
-  - Warnung bei drohender Überschreitung oder Nichtausschöpfung des Freibetrags
-  - Praktischer Nutzen: Verhindert Steuernachzahlungen durch optimal verteilte Freistellungsaufträge
-
 - **Entnahmestrategien zur Steueroptimierung im Ruhestand** ⭐⭐⭐
   - Intelligente Entnahmestrategie über mehrere Kapitalquellen (Depot, Riester, Rürup, gesetzliche Rente)
   - Berücksichtigung unterschiedlicher steuerlicher Behandlungen je Quelle
