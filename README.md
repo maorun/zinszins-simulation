@@ -197,7 +197,7 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Investitionsplanung**: Konfigurierbare Anfangsinvestition, Anlagedauer (1-40 Jahre) und erwartete Rendite (0-15%)
   - **Steuerberechnung**: Vollständige Berücksichtigung von Kapitalertragsteuer, Teilfreistellungsquote und Freibetrag
   - **Vorabpauschale-Simulation**: Präzise Berechnung der Vorabpauschale basierend auf aktuellem Basiszins
-  - **Detaillierter Vergleich**: 
+  - **Detaillierter Vergleich**:
     - Endkapital beider Fondstypen
     - Gezahlte Steuern über die gesamte Laufzeit
     - Steuerstundungsvorteil in Euro und Prozent
