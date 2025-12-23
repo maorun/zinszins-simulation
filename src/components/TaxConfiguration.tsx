@@ -13,6 +13,7 @@ import { TailRiskHedgingCard } from './TailRiskHedgingCard'
 import { SolidaritaetszuschlagCard } from './SolidaritaetszuschlagCard'
 import { SeveranceCalculatorCard } from './SeveranceCalculatorCard'
 import { ReverseCalculatorCard } from './ReverseCalculatorCard'
+import { SequenceRiskAnalysisCard } from './SequenceRiskAnalysisCard'
 import { useWithdrawalConfig } from '../hooks/useWithdrawalConfig'
 import { ProgressionsvorbehaltConfiguration } from './ProgressionsvorbehaltConfiguration'
 import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG, type ProgressionsvorbehaltConfig } from '../../helpers/progressionsvorbehalt'
@@ -136,6 +137,7 @@ function TaxConfigurationCards({
       <PensionComparisonTool />
       <QuellensteuerconfigCard />
       <ReverseCalculatorCard />
+      <SequenceRiskAnalysisCard />
       <TaxLossHarvestingCard />
       <QuarterlyTaxPrepaymentCard />
       <PfaendungsfreibetragCard />
