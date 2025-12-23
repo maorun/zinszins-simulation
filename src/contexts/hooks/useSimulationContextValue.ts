@@ -64,6 +64,8 @@ function usePersonalTaxValues(state: Record<string, unknown>) {
     setPersonalTaxRate,
     guenstigerPruefungAktiv,
     setGuenstigerPruefungAktiv,
+    freistellungsauftragAccounts,
+    setFreistellungsauftragAccounts,
   } = state
   return useMemo(
     () => ({
@@ -75,8 +77,10 @@ function usePersonalTaxValues(state: Record<string, unknown>) {
       setPersonalTaxRate,
       guenstigerPruefungAktiv,
       setGuenstigerPruefungAktiv,
+      freistellungsauftragAccounts,
+      setFreistellungsauftragAccounts,
     }),
-    [grundfreibetragAktiv, setGrundfreibetragAktiv, grundfreibetragBetrag, setGrundfreibetragBetrag, personalTaxRate, setPersonalTaxRate, guenstigerPruefungAktiv, setGuenstigerPruefungAktiv],
+    [grundfreibetragAktiv, setGrundfreibetragAktiv, grundfreibetragBetrag, setGrundfreibetragBetrag, personalTaxRate, setPersonalTaxRate, guenstigerPruefungAktiv, setGuenstigerPruefungAktiv, freistellungsauftragAccounts, setFreistellungsauftragAccounts],
   )
 }
 

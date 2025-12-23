@@ -101,6 +101,32 @@ interface TaxConfigurationCardsProps {
   handleEinkommensteuersatzChange: (v: number) => void
 }
 
+function FreistellungsauftragSection({
+  planningMode,
+  simulation,
+}: {
+  planningMode: 'individual' | 'couple'
+  simulation: ReturnType<typeof useSimulation>
+}) {
+  const totalFreibetrag = planningMode === 'couple' ? 2000 : 1000
+
+  const handleAccountsChange = (accounts: Array<import('../../helpers/freistellungsauftrag-optimization').BankAccount>) => {
+    if (simulation.setFreistellungsauftragAccounts) {
+      simulation.setFreistellungsauftragAccounts(accounts)
+    }
+  }
+
+  return (
+    <FreistellungsauftragOptimizer
+      totalFreibetrag={totalFreibetrag}
+      accounts={simulation.freistellungsauftragAccounts || []}
+      onAccountsChange={handleAccountsChange}
+      steuerlast={simulation.steuerlast}
+      teilfreistellungsquote={simulation.teilfreistellungsquote}
+    />
+  )
+}
+
 function TaxOptimizationCards() {
   return (
     <>
@@ -131,18 +157,10 @@ function TaxConfigurationCards({
   handleGrundfreibetragBetragChange,
   handleEinkommensteuersatzChange,
 }: TaxConfigurationCardsProps) {
-  const totalFreibetrag = planningMode === 'couple' ? 2000 : 1000
-
   return (
     <div className="space-y-4">
       <TaxConfigurationCard simulation={simulation} yearToday={new Date().getFullYear()} />
-      <FreistellungsauftragOptimizer
-        totalFreibetrag={totalFreibetrag}
-        accounts={simulation.freistellungsauftragAccounts}
-        onAccountsChange={simulation.setFreistellungsauftragAccounts}
-        steuerlast={simulation.steuerlast}
-        teilfreistellungsquote={simulation.teilfreistellungsquote}
-      />
+      <FreistellungsauftragSection planningMode={planningMode} simulation={simulation} />
       <GrundfreibetragConfiguration
         grundfreibetragAktiv={simulation.grundfreibetragAktiv}
         grundfreibetragBetrag={simulation.grundfreibetragBetrag}
