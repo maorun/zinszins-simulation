@@ -22,6 +22,7 @@ import { InsuranceCostOverview } from './InsuranceCostOverview'
 import { PensionComparisonTool } from './PensionComparisonTool'
 import { QuellensteuerconfigCard } from './QuellensteuerconfigCard'
 import { FreistellungsauftragOptimizer } from './FreistellungsauftragOptimizer'
+import { PortfolioTeilfreistellungCard } from './tax-config/PortfolioTeilfreistellungCard'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -130,6 +131,7 @@ function FreistellungsauftragSection({
 function TaxOptimizationCards() {
   return (
     <>
+      <PortfolioTeilfreistellungCard />
       <QuellensteuerconfigCard />
       <ReverseCalculatorCard />
       <SequenceRiskAnalysisCard />

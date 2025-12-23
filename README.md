@@ -166,6 +166,22 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
 
 ### Steuerberechnung
 
+- **Portfolio-Teilfreistellungsquoten-Rechner** - Berechnung der gewichteten Teilfreistellungsquote für komplexe Fonds-Portfolios
+  - **Multi-Asset-Portfolio-Unterstützung**: Verwaltung mehrerer Fondstypen mit unterschiedlichen Teilfreistellungsquoten
+  - **Gewichtete Berechnung**: Automatische Berechnung der portfolioweiten Teilfreistellungsquote basierend auf Allokationen
+  - **7 Fondstypen**: Aktienfonds (30%), Mischfonds (15%), Rentenfonds (0%), Immobilienfonds (60%), REITs (0%), Rohstoffe (0%), Kryptowährungen (0%)
+  - **Interaktive Allokation**: Einfache Anpassung der Portfolioallokation per Slider (5%-Schritte)
+  - **Echtzeit-Steuerberechnung**: Live-Berechnung des effektiven Steuersatzes basierend auf Portfolio-Struktur
+  - **Optimierungsempfehlungen**: Automatische Vorschläge zur Verbesserung der steuerlichen Effizienz
+    - Reduzierung von Anlageklassen mit niedriger Teilfreistellung
+    - Erhöhung des Aktienfonds-Anteils für maximale Teilfreistellung
+    - Hinweis auf bereits optimierte Portfolios
+  - **Detaillierte Aufschlüsselung**: Tabellarische Darstellung jeder Position mit Beitrag zur Gesamtquote
+  - **Validierung**: Automatische Prüfung der Allokation (muss 100% ergeben)
+  - **Normalisierungsfunktion**: Ein-Klick-Anpassung auf 100% bei Allokationsfehlern
+  - **Verbesserungspotenzial**: Anzeige des maximalen Optimierungspotenzials (bis zu 30% TFS)
+  - **Steuerersparnis-Transparenz**: Klare Darstellung der Steuervorteile durch optimale Portfolio-Struktur
+  - **§ 20 InvStG konform**: Vollständige Berücksichtigung des deutschen Investmentsteuergesetzes
 - **Freistellungsauftrag-Optimierung** - Optimale Verteilung der Freistellungsaufträge auf mehrere Depots
   - **Multi-Depot-Verwaltung**: Verwaltung mehrerer Bankkonten/Depots mit jeweiligen erwarteten Kapitalerträgen
   - **Automatische Optimierung**: Intelligente Verteilung des Sparerpauschbetrags (1.000€/2.000€) zur Steuerminimierung
