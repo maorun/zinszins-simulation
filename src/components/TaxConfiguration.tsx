@@ -24,6 +24,8 @@ import { QuellensteuerconfigCard } from './QuellensteuerconfigCard'
 import { FreistellungsauftragOptimizer } from './FreistellungsauftragOptimizer'
 import { PortfolioTeilfreistellungCard } from './tax-config/PortfolioTeilfreistellungCard'
 
+import { TaxDeferralCalculatorCard } from './TaxDeferralCalculatorCard'
+
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
 }
@@ -132,6 +134,7 @@ function TaxOptimizationCards() {
   return (
     <>
       <PortfolioTeilfreistellungCard />
+      <TaxDeferralCalculatorCard />
       <QuellensteuerconfigCard />
       <ReverseCalculatorCard />
       <SequenceRiskAnalysisCard />
