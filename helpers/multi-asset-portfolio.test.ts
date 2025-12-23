@@ -65,6 +65,15 @@ describe('multi-asset-portfolio helpers', () => {
       expect(config.rebalancing.useThreshold).toBe(false)
     })
 
+    it('sets correct default transaction cost settings', () => {
+      const config = createDefaultMultiAssetConfig()
+
+      expect(config.rebalancing.transactionCosts.percentageCost).toBe(0.001) // 0.1%
+      expect(config.rebalancing.transactionCosts.fixedCost).toBe(0)
+      expect(config.rebalancing.transactionCosts.minTransactionSize).toBe(100)
+      expect(config.rebalancing.costBenefitThreshold).toBe(0.001) // 0.1%
+    })
+
     it('sets correct default simulation settings', () => {
       const config = createDefaultMultiAssetConfig()
 
@@ -200,6 +209,91 @@ describe('multi-asset-portfolio helpers', () => {
       expect(errors.length).toBe(2)
       expect(errors.some(error => error.includes('Die Gesamtallokation muss 100% betragen'))).toBe(true)
       expect(errors.some(error => error.includes('Allokation muss zwischen 0% und 100% liegen'))).toBe(true)
+    })
+
+    it('validates transaction cost percentage range', () => {
+      // Setup valid config first
+      validConfig.assetClasses.stocks_domestic.targetAllocation = 1.0
+      validConfig.assetClasses.stocks_domestic.enabled = true
+      Object.keys(validConfig.assetClasses).forEach(key => {
+        if (key !== 'stocks_domestic') {
+          validConfig.assetClasses[key as AssetClass].enabled = false
+        }
+      })
+
+      validConfig.rebalancing.transactionCosts.percentageCost = 0.15 // 15% - too high
+
+      const errors = validateMultiAssetConfig(validConfig)
+
+      expect(errors.some(error => error.includes('Prozentuale Transaktionskosten müssen zwischen 0% und 10% liegen'))).toBe(true)
+    })
+
+    it('validates negative transaction cost percentage', () => {
+      // Setup valid config first
+      validConfig.assetClasses.stocks_domestic.targetAllocation = 1.0
+      validConfig.assetClasses.stocks_domestic.enabled = true
+      Object.keys(validConfig.assetClasses).forEach(key => {
+        if (key !== 'stocks_domestic') {
+          validConfig.assetClasses[key as AssetClass].enabled = false
+        }
+      })
+
+      validConfig.rebalancing.transactionCosts.percentageCost = -0.01 // Negative
+
+      const errors = validateMultiAssetConfig(validConfig)
+
+      expect(errors.some(error => error.includes('Prozentuale Transaktionskosten müssen zwischen 0% und 10% liegen'))).toBe(true)
+    })
+
+    it('validates negative fixed transaction cost', () => {
+      // Setup valid config first
+      validConfig.assetClasses.stocks_domestic.targetAllocation = 1.0
+      validConfig.assetClasses.stocks_domestic.enabled = true
+      Object.keys(validConfig.assetClasses).forEach(key => {
+        if (key !== 'stocks_domestic') {
+          validConfig.assetClasses[key as AssetClass].enabled = false
+        }
+      })
+
+      validConfig.rebalancing.transactionCosts.fixedCost = -5 // Negative
+
+      const errors = validateMultiAssetConfig(validConfig)
+
+      expect(errors.some(error => error.includes('Fixe Transaktionskosten dürfen nicht negativ sein'))).toBe(true)
+    })
+
+    it('validates negative minimum transaction size', () => {
+      // Setup valid config first
+      validConfig.assetClasses.stocks_domestic.targetAllocation = 1.0
+      validConfig.assetClasses.stocks_domestic.enabled = true
+      Object.keys(validConfig.assetClasses).forEach(key => {
+        if (key !== 'stocks_domestic') {
+          validConfig.assetClasses[key as AssetClass].enabled = false
+        }
+      })
+
+      validConfig.rebalancing.transactionCosts.minTransactionSize = -100 // Negative
+
+      const errors = validateMultiAssetConfig(validConfig)
+
+      expect(errors.some(error => error.includes('Minimale Transaktionsgröße darf nicht negativ sein'))).toBe(true)
+    })
+
+    it('validates cost-benefit threshold range', () => {
+      // Setup valid config first
+      validConfig.assetClasses.stocks_domestic.targetAllocation = 1.0
+      validConfig.assetClasses.stocks_domestic.enabled = true
+      Object.keys(validConfig.assetClasses).forEach(key => {
+        if (key !== 'stocks_domestic') {
+          validConfig.assetClasses[key as AssetClass].enabled = false
+        }
+      })
+
+      validConfig.rebalancing.costBenefitThreshold = 0.15 // 15% - too high
+
+      const errors = validateMultiAssetConfig(validConfig)
+
+      expect(errors.some(error => error.includes('Kosten-Nutzen-Schwellenwert muss zwischen 0% und 10% liegen'))).toBe(true)
     })
   })
 

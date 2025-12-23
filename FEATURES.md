@@ -6,39 +6,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
 
 ### Konkrete implementierbare Features (Hoch ⭐⭐⭐)
 
-#### 1. Kostenbasierte Rebalancing-Strategie
-
-**Priorität: ⭐⭐⭐ Hoch**
-
-Intelligente Portfolio-Rebalancing-Strategie mit Berücksichtigung von Transaktionskosten und Steuern.
-
-**Funktionalität:**
-
-- Ziel-Asset-Allokation definieren (z.B. 60% Aktien, 40% Anleihen)
-- Rebalancing-Trigger (z.B. bei 5% Abweichung vom Ziel)
-- Berücksichtigung von Transaktionskosten (prozentual oder fest)
-- Steueroptimiertes Rebalancing (Nutzung von Verlusten, Freibeträgen)
-- Jährliche oder opportunistische Rebalancing-Strategie
-- Visualisierung der Allokation über die Zeit
-- Kosten-Nutzen-Analyse des Rebalancings
-
-**Technische Umsetzung:**
-
-- Neue Helper-Datei: `helpers/rebalancing.ts`
-- Helper-Funktionen: `calculateRebalancingNeeds()`, `optimizeRebalancingTiming()`
-- UI-Komponente für Rebalancing-Konfiguration
-- Integration in Simulationslogik
-- Tests für verschiedene Rebalancing-Szenarien
-
-**Nutzen:**
-
-- Risikokontrolle durch Asset-Allokation
-- Steueroptimierte Portfolioverwaltung
-- Realistische Darstellung von Transaktionskosten
-- Langfristige Renditeverbesserung durch systematisches Rebalancing
-
----
-
 ### Erweiterte Finanzplanung
 
 #### Steueroptimierung
