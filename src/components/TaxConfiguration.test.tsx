@@ -21,6 +21,8 @@ const mockUseSimulation = {
   setGrundfreibetragAktiv: vi.fn(),
   grundfreibetragBetrag: GERMAN_TAX_CONSTANTS.GRUNDFREIBETRAG_INDIVIDUAL,
   setGrundfreibetragBetrag: vi.fn(),
+  freistellungsauftragAccounts: [],
+  setFreistellungsauftragAccounts: vi.fn(),
 }
 
 vi.mock('../contexts/useSimulation', () => ({
