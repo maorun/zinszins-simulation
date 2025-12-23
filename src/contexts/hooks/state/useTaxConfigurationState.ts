@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { ExtendedSavedConfiguration } from '../../helpers/config-types'
 import type { AssetClass } from '../../../../helpers/asset-class'
+import type { BankAccount } from '../../../../helpers/freistellungsauftrag-optimization'
 
 export interface TaxConfigurationStateConfig {
   extendedInitialConfig: ExtendedSavedConfiguration
@@ -44,6 +45,7 @@ function getTaxConfigDefaults(
     kirchensteuersatz: getValueOrDefault(extendedInitialConfig.kirchensteuersatz, 9),
     assetClass: getValueOrDefault(extendedInitialConfig.assetClass, 'equity-fund' as AssetClass),
     customTeilfreistellungsquote: getValueOrDefault(extendedInitialConfig.customTeilfreistellungsquote, 0.3),
+    freistellungsauftragAccounts: getValueOrDefault(extendedInitialConfig.freistellungsauftragAccounts, [] as BankAccount[]),
   }
 }
 
@@ -67,6 +69,9 @@ export function useTaxConfigurationState(config: TaxConfigurationStateConfig) {
   const [customTeilfreistellungsquote, setCustomTeilfreistellungsquote] = useState(
     defaults.customTeilfreistellungsquote,
   )
+  const [freistellungsauftragAccounts, setFreistellungsauftragAccounts] = useState<BankAccount[]>(
+    defaults.freistellungsauftragAccounts,
+  )
 
   return {
     steuerReduzierenEndkapitalSparphase,
@@ -89,5 +94,7 @@ export function useTaxConfigurationState(config: TaxConfigurationStateConfig) {
     setAssetClass,
     customTeilfreistellungsquote,
     setCustomTeilfreistellungsquote,
+    freistellungsauftragAccounts,
+    setFreistellungsauftragAccounts,
   }
 }
