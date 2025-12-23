@@ -19,14 +19,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
   - Visualisierung der Steuerersparnisse gegenüber naiver Entnahme
   - Praktischer Nutzen: Maximierung des verfügbaren Nettoeinkommens im Ruhestand
 
-- **Teilfreistellungsquoten-Rechner für komplexe Fonds-Portfolios** ⭐⭐⭐
-  - Berechnung der gewichteten Teilfreistellungsquote bei gemischten Portfolios
-  - Unterscheidung zwischen Aktienfonds (30%), Mischfonds (15%), Immobilienfonds (60%), sonstigen Fonds (0%)
-  - Automatische Zuordnung bei Multi-Asset-Portfolios
-  - Szenario-Vergleich: Auswirkung verschiedener Fondsallokationen auf die Steuerlast
-  - Empfehlungen zur steueroptimalen Portfolio-Zusammenstellung
-  - Praktischer Nutzen: Hilft bei der Auswahl steueroptimaler Fondsstrukturen
-
 - **Steuerstundungs-Kalkulator (Thesaurierung vs. Ausschüttung)** ⭐⭐⭐
   - Vergleich zwischen thesaurierenden und ausschüttenden Fonds
   - Berechnung des Steuerstundungseffekts über lange Zeiträume
