@@ -66,6 +66,121 @@ function ThresholdConfiguration({
 }
 
 /**
+ * Percentage cost slider component
+ */
+function PercentageCostSlider({
+  percentageCost,
+  onChange,
+}: {
+  percentageCost: number
+  onChange: (value: number) => void
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center justify-between">
+        <Label className="text-xs font-medium text-gray-700">Prozentuale Kosten</Label>
+        <span className="text-xs font-mono text-gray-600">{(percentageCost * 100).toFixed(3)}%</span>
+      </div>
+      <Slider
+        value={[percentageCost * 1000]}
+        onValueChange={([value]) => onChange(value / 1000)}
+        min={0}
+        max={10}
+        step={0.1}
+        className="w-full"
+      />
+      <p className="text-xs text-gray-600">Prozentuale Kosten pro Trade (z.B. 0.1% für typische Online-Broker)</p>
+    </div>
+  )
+}
+
+/**
+ * Fixed cost input component
+ */
+function FixedCostInput({ fixedCost, onChange }: { fixedCost: number; onChange: (value: number) => void }) {
+  return (
+    <div className="space-y-2">
+      <Label className="text-xs font-medium text-gray-700">Fixe Kosten pro Trade</Label>
+      <div className="flex items-center gap-2">
+        <Input
+          type="number"
+          value={fixedCost}
+          onChange={e => onChange(Math.max(0, Number(e.target.value) || 0))}
+          min={0}
+          step={0.5}
+          className="flex-1"
+        />
+        <span className="text-xs text-gray-600">€</span>
+      </div>
+      <p className="text-xs text-gray-600">Fixe Gebühr pro Transaktion (z.B. 5€ pro Order)</p>
+    </div>
+  )
+}
+
+/**
+ * Minimum transaction size input component
+ */
+function MinTransactionSizeInput({
+  minTransactionSize,
+  onChange,
+}: {
+  minTransactionSize: number
+  onChange: (value: number) => void
+}) {
+  return (
+    <div className="space-y-2">
+      <Label className="text-xs font-medium text-gray-700">Minimale Transaktionsgröße</Label>
+      <div className="flex items-center gap-2">
+        <Input
+          type="number"
+          value={minTransactionSize}
+          onChange={e => onChange(Math.max(0, Number(e.target.value) || 0))}
+          min={0}
+          step={10}
+          className="flex-1"
+        />
+        <span className="text-xs text-gray-600">€</span>
+      </div>
+      <p className="text-xs text-gray-600">Kleinere Transaktionen werden vermieden</p>
+    </div>
+  )
+}
+
+/**
+ * Cost-benefit threshold slider component
+ */
+function CostBenefitThresholdSlider({
+  costBenefitThreshold,
+  onChange,
+}: {
+  costBenefitThreshold: number
+  onChange: (value: number) => void
+}) {
+  return (
+    <div className="space-y-2">
+      <div className="flex items-center gap-2 mb-1">
+        <TrendingUp className="h-3 w-3 text-blue-600" />
+        <Label className="text-xs font-medium text-gray-700">Kosten-Nutzen-Schwellenwert</Label>
+      </div>
+      <div className="flex items-center justify-between">
+        <span className="text-xs text-gray-600">{(costBenefitThreshold * 100).toFixed(2)}% des Portfoliowerts</span>
+      </div>
+      <Slider
+        value={[costBenefitThreshold * 1000]}
+        onValueChange={([value]) => onChange(value / 1000)}
+        min={0}
+        max={10}
+        step={0.1}
+        className="w-full"
+      />
+      <p className="text-xs text-gray-600">
+        Rebalancing nur durchführen, wenn Kosten unter diesem Schwellenwert liegen
+      </p>
+    </div>
+  )
+}
+
+/**
  * Transaction cost configuration
  */
 function TransactionCostConfiguration({
@@ -84,101 +199,22 @@ function TransactionCostConfiguration({
         <h4 className="text-sm font-semibold text-gray-700">Transaktionskosten</h4>
       </div>
 
-      {/* Percentage Cost */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between">
-          <Label className="text-xs font-medium text-gray-700">Prozentuale Kosten</Label>
-          <span className="text-xs font-mono text-gray-600">{(transactionCosts.percentageCost * 100).toFixed(3)}%</span>
-        </div>
-        <Slider
-          value={[transactionCosts.percentageCost * 1000]}
-          onValueChange={([value]) =>
-            onChange({
-              transactionCosts: {
-                ...transactionCosts,
-                percentageCost: value / 1000,
-              },
-            })
-          }
-          min={0}
-          max={10}
-          step={0.1}
-          className="w-full"
-        />
-        <p className="text-xs text-gray-600">Prozentuale Kosten pro Trade (z.B. 0.1% für typische Online-Broker)</p>
-      </div>
+      <PercentageCostSlider
+        percentageCost={transactionCosts.percentageCost}
+        onChange={percentageCost => onChange({ transactionCosts: { ...transactionCosts, percentageCost } })}
+      />
 
-      {/* Fixed Cost */}
-      <div className="space-y-2">
-        <Label className="text-xs font-medium text-gray-700">Fixe Kosten pro Trade</Label>
-        <div className="flex items-center gap-2">
-          <Input
-            type="number"
-            value={transactionCosts.fixedCost}
-            onChange={e =>
-              onChange({
-                transactionCosts: {
-                  ...transactionCosts,
-                  fixedCost: Math.max(0, Number(e.target.value) || 0),
-                },
-              })
-            }
-            min={0}
-            step={0.5}
-            className="flex-1"
-          />
-          <span className="text-xs text-gray-600">€</span>
-        </div>
-        <p className="text-xs text-gray-600">Fixe Gebühr pro Transaktion (z.B. 5€ pro Order)</p>
-      </div>
+      <FixedCostInput
+        fixedCost={transactionCosts.fixedCost}
+        onChange={fixedCost => onChange({ transactionCosts: { ...transactionCosts, fixedCost } })}
+      />
 
-      {/* Minimum Transaction Size */}
-      <div className="space-y-2">
-        <Label className="text-xs font-medium text-gray-700">Minimale Transaktionsgröße</Label>
-        <div className="flex items-center gap-2">
-          <Input
-            type="number"
-            value={transactionCosts.minTransactionSize}
-            onChange={e =>
-              onChange({
-                transactionCosts: {
-                  ...transactionCosts,
-                  minTransactionSize: Math.max(0, Number(e.target.value) || 0),
-                },
-              })
-            }
-            min={0}
-            step={10}
-            className="flex-1"
-          />
-          <span className="text-xs text-gray-600">€</span>
-        </div>
-        <p className="text-xs text-gray-600">Kleinere Transaktionen werden vermieden</p>
-      </div>
+      <MinTransactionSizeInput
+        minTransactionSize={transactionCosts.minTransactionSize}
+        onChange={minTransactionSize => onChange({ transactionCosts: { ...transactionCosts, minTransactionSize } })}
+      />
 
-      {/* Cost-Benefit Threshold */}
-      <div className="space-y-2">
-        <div className="flex items-center gap-2 mb-1">
-          <TrendingUp className="h-3 w-3 text-blue-600" />
-          <Label className="text-xs font-medium text-gray-700">Kosten-Nutzen-Schwellenwert</Label>
-        </div>
-        <div className="flex items-center justify-between">
-          <span className="text-xs text-gray-600">
-            {(costBenefitThreshold * 100).toFixed(2)}% des Portfoliowerts
-          </span>
-        </div>
-        <Slider
-          value={[costBenefitThreshold * 1000]}
-          onValueChange={([value]) => onChange({ costBenefitThreshold: value / 1000 })}
-          min={0}
-          max={10}
-          step={0.1}
-          className="w-full"
-        />
-        <p className="text-xs text-gray-600">
-          Rebalancing nur durchführen, wenn Kosten unter diesem Schwellenwert liegen
-        </p>
-      </div>
+      <CostBenefitThresholdSlider costBenefitThreshold={costBenefitThreshold} onChange={costBenefitThreshold => onChange({ costBenefitThreshold })} />
 
       <div className="p-2 bg-white rounded-md">
         <div className="flex items-start gap-2 text-xs text-gray-600">
