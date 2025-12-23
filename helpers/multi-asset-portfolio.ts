@@ -200,6 +200,17 @@ export interface MultiAssetPortfolioConfig {
     threshold: number // e.g., 0.05 for 5% drift
     /** Whether to use threshold-based rebalancing */
     useThreshold: boolean
+    /** Transaction cost configuration */
+    transactionCosts: {
+      /** Percentage-based transaction cost (e.g., 0.001 for 0.1% per trade) */
+      percentageCost: number
+      /** Fixed cost per transaction in EUR (e.g., 5 EUR per trade) */
+      fixedCost: number
+      /** Minimum transaction size to avoid (to minimize fixed costs) */
+      minTransactionSize: number
+    }
+    /** Cost-benefit analysis threshold (percentage of portfolio value) */
+    costBenefitThreshold: number // e.g., 0.001 for 0.1%
   }
 
   /** Monte Carlo simulation settings */
@@ -225,6 +236,12 @@ export function createDefaultMultiAssetConfig(): MultiAssetPortfolioConfig {
       frequency: 'annually',
       threshold: 0.05, // 5% drift threshold
       useThreshold: false, // Use time-based rebalancing by default
+      transactionCosts: {
+        percentageCost: 0.001, // 0.1% per trade
+        fixedCost: 0, // No fixed cost by default
+        minTransactionSize: 100, // Minimum 100 EUR transaction
+      },
+      costBenefitThreshold: 0.001, // Rebalance if costs < 0.1% of portfolio
     },
     simulation: {
       useCorrelation: true,
@@ -384,6 +401,31 @@ function validateTotalAllocation(enabledAssets: Array<[string, AssetClassConfig]
 }
 
 /**
+ * Validate transaction cost configuration
+ */
+function validateTransactionCosts(config: MultiAssetPortfolioConfig): string[] {
+  const errors: string[] = []
+
+  if (config.rebalancing.transactionCosts.percentageCost < 0 || config.rebalancing.transactionCosts.percentageCost > 0.1) {
+    errors.push('Prozentuale Transaktionskosten müssen zwischen 0% und 10% liegen')
+  }
+
+  if (config.rebalancing.transactionCosts.fixedCost < 0) {
+    errors.push('Fixe Transaktionskosten dürfen nicht negativ sein')
+  }
+
+  if (config.rebalancing.transactionCosts.minTransactionSize < 0) {
+    errors.push('Minimale Transaktionsgröße darf nicht negativ sein')
+  }
+
+  if (config.rebalancing.costBenefitThreshold < 0 || config.rebalancing.costBenefitThreshold > 0.1) {
+    errors.push('Kosten-Nutzen-Schwellenwert muss zwischen 0% und 10% liegen')
+  }
+
+  return errors
+}
+
+/**
  * Validate multi-asset portfolio configuration
  */
 export function validateMultiAssetConfig(config: MultiAssetPortfolioConfig): string[] {
@@ -413,6 +455,9 @@ export function validateMultiAssetConfig(config: MultiAssetPortfolioConfig): str
   if (config.rebalancing.threshold < 0 || config.rebalancing.threshold > 0.5) {
     errors.push('Rebalancing-Schwellenwert muss zwischen 0% und 50% liegen')
   }
+
+  // Validate transaction costs
+  errors.push(...validateTransactionCosts(config))
 
   return errors
 }

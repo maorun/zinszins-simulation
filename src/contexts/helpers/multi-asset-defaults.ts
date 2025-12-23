@@ -107,6 +107,12 @@ function createDefaultRebalancing() {
     frequency: 'annually' as const,
     threshold: 0.05,
     useThreshold: false,
+    transactionCosts: {
+      percentageCost: 0.001, // 0.1% per trade
+      fixedCost: 0, // No fixed cost by default
+      minTransactionSize: 100, // Minimum 100 EUR transaction
+    },
+    costBenefitThreshold: 0.001, // Rebalance if costs < 0.1% of portfolio
   }
 }
 
