@@ -1,14 +1,14 @@
 ---
 name: bug-report
-about: Bug Report für Copilot
+about: Bug Fix für Copilot
 title: 'Bug: '
 labels: Copilot, bug
 assignees: 'Copilot'
 ---
 
-## 📋 Bug-Beschreibung
+## 📋 Aufgabenbeschreibung
 
-[Klare und prägnante Beschreibung des Bugs]
+Behebe den im Issue-Titel und der Issue-Beschreibung beschriebenen Bug und folge dabei dem vollständigen Entwicklungsworkflow aus der `copilot-instructions.md`.
 
 ## 🎯 Zu befolgende Schritte
 
@@ -17,12 +17,12 @@ assignees: 'Copilot'
 - **Lies die komplette `.github/copilot-instructions.md`** - ALLE Richtlinien, Best Practices und Workflow-Anforderungen müssen vollständig berücksichtigt werden
 - **Installiere Dependencies**: `npm install` (KRITISCH - muss als erstes ausgeführt werden in einem frischen Clone)
 - **Etabliere Baseline**: Führe `npm run test`, `npm run lint`, und `npm run build` aus um den aktuellen Zustand zu verstehen
-- **Reproduziere den Bug**: Stelle sicher, dass du den Bug reproduzieren kannst
-- **Analysiere die Ursache**: Identifiziere die Root-Cause des Problems
+- **Analysiere den Bug**: Verstehe die Bug-Beschreibung aus dem Issue-Titel und der Issue-Beschreibung
+  - Reproduziere den Bug falls Reproduktionsschritte angegeben sind
   - Verwende `npm run dev` und teste manuell im Browser
   - Prüfe Browser-Console auf Fehler
   - Nutze Tests zur Isolation des Problems
-  - Identifiziere betroffene Dateien und Funktionen
+  - Identifiziere die Root-Cause und betroffene Dateien
 
 ### 2. Planung und Reporting
 
@@ -76,37 +76,6 @@ assignees: 'Copilot'
 - **Verify der Fix**: Stelle sicher der Bug ist wirklich gefixt
 - **Verify keine Regressions**: Stelle sicher keine neuen Probleme eingeführt wurden
 - **Edge Cases testen**: Teste verschiedene Szenarien und Randfälle
-
-## 🐛 Bug-Details
-
-### Reproduktionsschritte
-
-1. [Erster Schritt]
-2. [Zweiter Schritt]
-3. [Dritter Schritt]
-4. ...
-
-### Erwartetes Verhalten
-
-[Was sollte passieren]
-
-### Tatsächliches Verhalten
-
-[Was tatsächlich passiert]
-
-### Screenshots
-
-[Falls relevant, Screenshots hinzufügen - vor allem bei UI-Bugs]
-
-### Umgebung
-
-- **Browser**: [z.B. Chrome 120, Firefox 121]
-- **Betriebssystem**: [z.B. Windows 11, macOS 14, Ubuntu 22.04]
-- **Version/Commit**: [z.B. Commit-Hash oder Tag]
-
-### Zusätzliche Informationen
-
-[Weitere hilfreiche Informationen wie Console-Logs, Fehlermeldungen, etc.]
 
 ## ⚠️ Kritische Anforderungen
 
