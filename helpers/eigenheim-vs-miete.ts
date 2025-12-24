@@ -222,7 +222,8 @@ export function calculateRemainingMortgage(
   const monthlyPayment = calculateMonthlyMortgagePayment(principal, annualInterestRate, termYears)
 
   const remainingBalance =
-    principal * Math.pow(1 + monthlyRate, paymentsMade) - monthlyPayment * ((Math.pow(1 + monthlyRate, paymentsMade) - 1) / monthlyRate)
+    principal * Math.pow(1 + monthlyRate, paymentsMade) -
+    monthlyPayment * ((Math.pow(1 + monthlyRate, paymentsMade) - 1) / monthlyRate)
 
   return Math.max(0, remainingBalance)
 }
@@ -286,7 +287,11 @@ export function createDefaultEigenheimVsMieteConfig(startYear: number): Eigenhei
 /**
  * Calculate homeownership costs year by year
  */
-export function calculateOwnershipCosts(config: HomeOwnershipConfig, comparisonYears: number, inflationRate: number): OwnershipYearlyCosts[] {
+export function calculateOwnershipCosts(
+  config: HomeOwnershipConfig,
+  comparisonYears: number,
+  inflationRate: number,
+): OwnershipYearlyCosts[] {
   const results: OwnershipYearlyCosts[] = []
 
   const loanAmount = config.purchasePrice - config.downPayment
@@ -301,7 +306,12 @@ export function calculateOwnershipCosts(config: HomeOwnershipConfig, comparisonY
 
   for (let year = 0; year < comparisonYears; year++) {
     const paymentsMade = year * 12
-    const remainingMortgage = calculateRemainingMortgage(loanAmount, config.mortgageInterestRate, config.mortgageTerm, paymentsMade)
+    const remainingMortgage = calculateRemainingMortgage(
+      loanAmount,
+      config.mortgageInterestRate,
+      config.mortgageTerm,
+      paymentsMade,
+    )
 
     // Apply inflation to recurring costs
     const inflationMultiplier = Math.pow(1 + inflationRate / 100, year)
@@ -413,7 +423,8 @@ function adjustRentalInvestments(
       const previousDifference = previousOwnership.totalAnnualCost - previousRental.totalAnnualCost
 
       // Grow previous investment and add this year's savings
-      adjustedInvestmentValue = previousRental.investmentValue * (1 + investmentReturnRate / 100) + Math.max(0, previousDifference)
+      adjustedInvestmentValue =
+        previousRental.investmentValue * (1 + investmentReturnRate / 100) + Math.max(0, previousDifference)
     }
 
     return {
@@ -458,7 +469,8 @@ function calculateComparisonSummary(
     netWorthDifference: lastYear.difference,
     breakEvenYear,
     firstYearMonthlyCostDifference: (firstYearOwnership.totalAnnualCost - firstYearRental.totalAnnualCost) / 12,
-    recommendation: Math.abs(lastYear.difference) < 10000 ? 'similar' : lastYear.difference > 0 ? 'ownership' : 'rental',
+    recommendation:
+      Math.abs(lastYear.difference) < 10000 ? 'similar' : lastYear.difference > 0 ? 'ownership' : 'rental',
   }
 }
 
@@ -476,7 +488,13 @@ export function compareEigenheimVsMiete(config: EigenheimVsMieteConfig): Compari
   const purchaseCostsSavings = ownership.purchasePrice * (ownership.purchaseCostsRate / 100)
 
   // Calculate rental costs
-  const rentalCosts = calculateRentalCosts(rental, downPaymentSavings, purchaseCostsSavings, comparison.comparisonYears, comparison.investmentReturnRate)
+  const rentalCosts = calculateRentalCosts(
+    rental,
+    downPaymentSavings,
+    purchaseCostsSavings,
+    comparison.comparisonYears,
+    comparison.investmentReturnRate,
+  )
 
   // Adjust rental investment value based on cost differences
   const adjustedRentalCosts = adjustRentalInvestments(rentalCosts, ownershipCosts, comparison.investmentReturnRate)

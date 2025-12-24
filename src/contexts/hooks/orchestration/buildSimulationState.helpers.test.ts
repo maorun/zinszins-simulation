@@ -169,9 +169,7 @@ describe('buildSimulationState.helpers', () => {
 
     it('handles non-empty sparplan elements', () => {
       const mockState = createMockState()
-      mockState.sparplanElemente = [
-        { typ: 'sparplan', jahr: 2024, monat: 1, betrag: 1000 },
-      ] as any
+      mockState.sparplanElemente = [{ typ: 'sparplan', jahr: 2024, monat: 1, betrag: 1000 }] as any
 
       const result = extractSimulationBasics(mockState)
 

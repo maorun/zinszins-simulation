@@ -1,13 +1,6 @@
 import { useState, type MouseEvent } from 'react'
 import { Button } from './ui/button'
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from './ui/dialog'
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from './ui/dialog'
 import { type Tutorial, getTutorialById } from '../data/tutorials'
 import { ChevronLeft, ChevronRight, X } from 'lucide-react'
 
@@ -32,10 +25,7 @@ interface TutorialOverlayProps {
 function TutorialProgressBar({ progress }: { progress: number }) {
   return (
     <div className="w-full bg-gray-200 rounded-full h-2 mb-4">
-      <div
-        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-        style={{ width: `${progress}%` }}
-      />
+      <div className="bg-blue-600 h-2 rounded-full transition-all duration-300" style={{ width: `${progress}%` }} />
     </div>
   )
 }
@@ -277,13 +267,7 @@ export function TutorialOverlay({
  *
  * Small component to show current step and total steps
  */
-export function TutorialStepIndicator({
-  currentStep,
-  totalSteps,
-}: {
-  currentStep: number
-  totalSteps: number
-}) {
+export function TutorialStepIndicator({ currentStep, totalSteps }: { currentStep: number; totalSteps: number }) {
   return (
     <div className="flex gap-1">
       {Array.from({ length: totalSteps }).map((_, index) => (
@@ -303,19 +287,13 @@ export function TutorialStepIndicator({
  */
 function TutorialCardBadge({ completed, locked }: { completed: boolean; locked: boolean }) {
   if (completed) {
-    return (
-      <div className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">
-        ✓ Abgeschlossen
-      </div>
-    )
+    return <div className="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">✓ Abgeschlossen</div>
   }
-  
+
   if (locked) {
-    return (
-      <div className="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-1 rounded">🔒 Gesperrt</div>
-    )
+    return <div className="bg-gray-100 text-gray-600 text-xs font-medium px-2 py-1 rounded">🔒 Gesperrt</div>
   }
-  
+
   return null
 }
 
@@ -332,11 +310,11 @@ function TutorialCardButton({
   onStart: () => void
 }) {
   const buttonText = locked ? 'Nicht verfügbar' : completed ? 'Erneut starten' : 'Tutorial starten'
-  
+
   return (
     <Button
       variant={completed ? 'outline' : 'default'}
-            size="sm"
+      size="sm"
       className="w-full"
       onClick={(e: MouseEvent<HTMLButtonElement>) => {
         e.stopPropagation()
@@ -368,12 +346,9 @@ export function TutorialCard({
   const cardClassName = locked
     ? 'bg-gray-50 border-gray-200 opacity-60 cursor-not-allowed'
     : 'bg-white border-gray-300 hover:border-blue-400 hover:shadow-md cursor-pointer'
-  
+
   return (
-    <div
-      className={`border rounded-lg p-4 transition-all ${cardClassName}`}
-      onClick={() => !locked && onStart()}
-    >
+    <div className={`border rounded-lg p-4 transition-all ${cardClassName}`} onClick={() => !locked && onStart()}>
       <div className="flex items-start justify-between mb-3">
         <div className="flex items-center gap-3">
           <span className="text-3xl">{tutorial.icon}</span>
@@ -391,10 +366,13 @@ export function TutorialCard({
 
       {tutorial.prerequisites && tutorial.prerequisites.length > 0 && (
         <div className="text-xs text-gray-500 mb-3">
-          Voraussetzung: {tutorial.prerequisites.map((prereqId: string) => {
-            const prereqTutorial = getTutorialById(prereqId)
-            return prereqTutorial?.name || prereqId
-          }).join(', ')}
+          Voraussetzung:{' '}
+          {tutorial.prerequisites
+            .map((prereqId: string) => {
+              const prereqTutorial = getTutorialById(prereqId)
+              return prereqTutorial?.name || prereqId
+            })
+            .join(', ')}
         </div>
       )}
 

@@ -222,14 +222,10 @@ function useSummaryData(elemente: SparplanElement[] | undefined) {
 
 // Component for chart section
 function ChartSection({ elemente }: { elemente?: SparplanElement[] }) {
-  const simulationData = elemente && elemente.length > 0 
-    ? convertSparplanElementsToSimulationResult(elemente) 
-    : {}
-  
+  const simulationData = elemente && elemente.length > 0 ? convertSparplanElementsToSimulationResult(elemente) : {}
+
   // Calculate yearly contributions from the progression data
-  const yearlyProgression = elemente && elemente.length > 0 
-    ? getYearlyPortfolioProgression(elemente) 
-    : []
+  const yearlyProgression = elemente && elemente.length > 0 ? getYearlyPortfolioProgression(elemente) : []
   const yearlyContributions = new Map<number, number>()
   yearlyProgression.forEach(entry => {
     yearlyContributions.set(entry.year, entry.yearlyContribution)

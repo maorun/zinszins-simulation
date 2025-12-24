@@ -1,9 +1,9 @@
 /**
  * Tax Deferral Calculator (Steuerstundungs-Kalkulator)
- * 
- * This module implements calculations for comparing accumulating (thesaurierende) 
+ *
+ * This module implements calculations for comparing accumulating (thesaurierende)
  * vs. distributing (ausschüttende) investment funds under German tax law.
- * 
+ *
  * Key concepts:
  * - Accumulating funds: Reinvest dividends/interest, pay Vorabpauschale annually
  * - Distributing funds: Pay out dividends/interest, pay full tax on distributions annually
@@ -85,7 +85,7 @@ export interface TaxDeferralComparison {
 
 /**
  * Calculate the year-by-year progression for an accumulating fund
- * 
+ *
  * Accumulating funds reinvest all returns and only pay Vorabpauschale annually.
  * The Vorabpauschale is typically much lower than the actual return, creating
  * a tax deferral advantage.
@@ -155,7 +155,7 @@ function calculateAccumulatingFund(config: TaxDeferralConfig): {
 
 /**
  * Calculate the year-by-year progression for a distributing fund
- * 
+ *
  * Distributing funds pay out all returns and pay full capital gains tax
  * on the entire distribution each year. This results in less capital
  * available for compounding.
@@ -224,11 +224,11 @@ function calculateDistributingFund(config: TaxDeferralConfig): {
 
 /**
  * Calculate and compare accumulating vs. distributing fund scenarios
- * 
+ *
  * This is the main function for the Steuerstundungs-Kalkulator.
  * It calculates both scenarios and provides a detailed comparison
  * of the tax deferral effect.
- * 
+ *
  * @param config - Configuration for the comparison
  * @returns Complete comparison including yearly breakdowns and summary metrics
  */
@@ -250,7 +250,7 @@ export function calculateTaxDeferralComparison(config: TaxDeferralConfig): TaxDe
   const valueDifference = accumulating.finalValue - distributing.finalValue
   const percentageAdvantage = (valueDifference / distributing.finalValue) * 100
   const taxDifference = distributing.totalTaxPaid - accumulating.totalTaxPaid
-  
+
   // Tax deferral benefit is the value difference minus any additional taxes paid later
   // For simplicity, we use the value difference as the primary metric
   const taxDeferralBenefit = valueDifference
@@ -274,7 +274,7 @@ export function calculateTaxDeferralComparison(config: TaxDeferralConfig): TaxDe
  */
 export function createDefaultTaxDeferralConfig(): TaxDeferralConfig {
   const currentYear = new Date().getFullYear()
-  
+
   return {
     initialInvestment: 50000,
     annualReturn: 0.07, // 7% average return

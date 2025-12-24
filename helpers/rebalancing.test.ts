@@ -172,7 +172,7 @@ describe('rebalancing', () => {
         100, // tax costs
         0.1, // 10% drift
         100000, // portfolio value
-        0.01 // 1% cost threshold
+        0.01, // 1% cost threshold
       )
 
       expect(result.totalTransactionCosts).toBe(50)
@@ -190,7 +190,7 @@ describe('rebalancing', () => {
         500, // tax costs
         0.05, // 5% drift
         100000, // portfolio value
-        0.005 // 0.5% cost threshold
+        0.005, // 0.5% cost threshold
       )
 
       expect(result.totalCosts).toBe(1000)
@@ -204,7 +204,7 @@ describe('rebalancing', () => {
         600, // tax costs
         0.02, // 2% drift
         100000, // portfolio value
-        0.02 // 2% cost threshold
+        0.02, // 2% cost threshold
       )
 
       expect(result.totalCosts).toBe(1100)
@@ -363,8 +363,8 @@ describe('rebalancing', () => {
       const result = optimizeRebalancingTrades(trades, costConfig, taxConfig)
 
       expect(result.trades).toHaveLength(2)
-      const sellTrade = result.trades.find((t) => t.type === 'sell')
-      const buyTrade = result.trades.find((t) => t.type === 'buy')
+      const sellTrade = result.trades.find(t => t.type === 'sell')
+      const buyTrade = result.trades.find(t => t.type === 'buy')
 
       expect(sellTrade).toBeDefined()
       expect(buyTrade).toBeDefined()
@@ -446,11 +446,11 @@ describe('rebalancing', () => {
       expect(result.trades).toHaveLength(2)
 
       // Equity: 1000 * (1 - 0.3) = 700 taxable
-      const equityTrade = result.trades.find((t) => t.assetClass === 'stocks_domestic')
+      const equityTrade = result.trades.find(t => t.assetClass === 'stocks_domestic')
       expect(equityTrade?.taxableGains).toBe(700)
 
       // Bond: 1000 * (1 - 0) = 1000 taxable
-      const bondTrade = result.trades.find((t) => t.assetClass === 'bonds_government')
+      const bondTrade = result.trades.find(t => t.assetClass === 'bonds_government')
       expect(bondTrade?.taxableGains).toBe(1000)
     })
   })

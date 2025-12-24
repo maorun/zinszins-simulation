@@ -118,7 +118,7 @@ describe('TailRiskHedgingCard', () => {
 
     const annualCostInput = screen.getByLabelText(/Jährliche Kosten:/)
     expect(annualCostInput).toBeInTheDocument()
-    expect(annualCostInput).toHaveValue(2.00) // Number, not string
+    expect(annualCostInput).toHaveValue(2.0) // Number, not string
   })
 
   it('should allow changing rebalancing frequency', async () => {

@@ -160,9 +160,7 @@ export function calculateYearlyPensionGap(
   const baseYear = config.baseYear || year
   const inflationRate = config.inflationRate || 2.0
   const inflationAdjustmentFactor =
-    config.applyInflationAdjustment && baseYear !== year
-      ? Math.pow(1 + inflationRate / 100, year - baseYear)
-      : 1.0
+    config.applyInflationAdjustment && baseYear !== year ? Math.pow(1 + inflationRate / 100, year - baseYear) : 1.0
 
   // Calculate desired income (inflation-adjusted)
   const desiredAnnualIncome = config.desiredMonthlyIncome * 12 * inflationAdjustmentFactor

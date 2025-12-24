@@ -9,7 +9,11 @@ interface RuerupTaxCalculationDetailsProps {
   deductiblePercentage: number
 }
 
-function ContributionPhaseDetails({ contributionResult, contributionYear, deductiblePercentage }: Pick<RuerupTaxCalculationDetailsProps, 'contributionResult' | 'contributionYear' | 'deductiblePercentage'>) {
+function ContributionPhaseDetails({
+  contributionResult,
+  contributionYear,
+  deductiblePercentage,
+}: Pick<RuerupTaxCalculationDetailsProps, 'contributionResult' | 'contributionYear' | 'deductiblePercentage'>) {
   return (
     <div className="space-y-2 rounded-lg border p-4 bg-blue-50">
       <h4 className="font-semibold text-sm">Beitragsphase - Steuervorteile</h4>
@@ -30,7 +34,10 @@ function ContributionPhaseDetails({ contributionResult, contributionYear, deduct
   )
 }
 
-function PensionPhaseDetails({ pensionResult, taxablePercentage }: Pick<RuerupTaxCalculationDetailsProps, 'pensionResult' | 'taxablePercentage'>) {
+function PensionPhaseDetails({
+  pensionResult,
+  taxablePercentage,
+}: Pick<RuerupTaxCalculationDetailsProps, 'pensionResult' | 'taxablePercentage'>) {
   return (
     <div className="space-y-2 rounded-lg border p-4 bg-orange-50">
       <h4 className="font-semibold text-sm">Rentenphase - Besteuerung</h4>
@@ -80,10 +87,7 @@ export function RuerupTaxCalculationDetails(props: RuerupTaxCalculationDetailsPr
         contributionYear={contributionYear}
         deductiblePercentage={deductiblePercentage}
       />
-      <PensionPhaseDetails
-        pensionResult={pensionResult}
-        taxablePercentage={taxablePercentage}
-      />
+      <PensionPhaseDetails pensionResult={pensionResult} taxablePercentage={taxablePercentage} />
       <ImportantNotesSection />
     </div>
   )

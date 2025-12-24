@@ -27,7 +27,25 @@ interface EMRenteEnabledStateProps {
 }
 
 export function EMRenteEnabledState(props: EMRenteEnabledStateProps) {
-  const { nestingLevel, enabledSwitchId, currentConfig, currentYear, disabilityStartYearId, birthYearId, pensionPointsId, contributionYearsId, estimateMonthlyPensionId, annualIncreaseRateId, taxablePercentageId, monthlyAdditionalIncomeId, zurechnungszeitenSwitchId, abschlaegeSwitchId, onToggle, onUpdate, onEstimate } = props
+  const {
+    nestingLevel,
+    enabledSwitchId,
+    currentConfig,
+    currentYear,
+    disabilityStartYearId,
+    birthYearId,
+    pensionPointsId,
+    contributionYearsId,
+    estimateMonthlyPensionId,
+    annualIncreaseRateId,
+    taxablePercentageId,
+    monthlyAdditionalIncomeId,
+    zurechnungszeitenSwitchId,
+    abschlaegeSwitchId,
+    onToggle,
+    onUpdate,
+    onEstimate,
+  } = props
 
   return (
     <Card nestingLevel={nestingLevel}>
@@ -40,9 +58,29 @@ export function EMRenteEnabledState(props: EMRenteEnabledStateProps) {
       <CardContent nestingLevel={nestingLevel}>
         <div className="space-y-6">
           <EMRenteInfoCard nestingLevel={nestingLevel} />
-          <EMRenteMainConfiguration config={currentConfig} onUpdate={onUpdate} currentYear={currentYear} disabilityStartYearId={disabilityStartYearId} birthYearId={birthYearId} pensionPointsId={pensionPointsId} contributionYearsId={contributionYearsId} />
-          <EMRenteEstimationCard nestingLevel={nestingLevel} estimateMonthlyPensionId={estimateMonthlyPensionId} onEstimate={onEstimate} />
-          <EMRenteAdditionalSettings config={currentConfig} onUpdate={onUpdate} annualIncreaseRateId={annualIncreaseRateId} taxablePercentageId={taxablePercentageId} monthlyAdditionalIncomeId={monthlyAdditionalIncomeId} zurechnungszeitenSwitchId={zurechnungszeitenSwitchId} abschlaegeSwitchId={abschlaegeSwitchId} />
+          <EMRenteMainConfiguration
+            config={currentConfig}
+            onUpdate={onUpdate}
+            currentYear={currentYear}
+            disabilityStartYearId={disabilityStartYearId}
+            birthYearId={birthYearId}
+            pensionPointsId={pensionPointsId}
+            contributionYearsId={contributionYearsId}
+          />
+          <EMRenteEstimationCard
+            nestingLevel={nestingLevel}
+            estimateMonthlyPensionId={estimateMonthlyPensionId}
+            onEstimate={onEstimate}
+          />
+          <EMRenteAdditionalSettings
+            config={currentConfig}
+            onUpdate={onUpdate}
+            annualIncreaseRateId={annualIncreaseRateId}
+            taxablePercentageId={taxablePercentageId}
+            monthlyAdditionalIncomeId={monthlyAdditionalIncomeId}
+            zurechnungszeitenSwitchId={zurechnungszeitenSwitchId}
+            abschlaegeSwitchId={abschlaegeSwitchId}
+          />
         </div>
       </CardContent>
     </Card>

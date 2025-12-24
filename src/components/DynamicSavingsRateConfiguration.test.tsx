@@ -9,13 +9,7 @@ describe('DynamicSavingsRateConfiguration', () => {
     const config = createDefaultDynamicSavingsConfig(2000, 1990)
     const onChange = vi.fn()
 
-    render(
-      <DynamicSavingsRateConfiguration
-        config={config}
-        onChange={onChange}
-        startYear={2024}
-      />,
-    )
+    render(<DynamicSavingsRateConfiguration config={config} onChange={onChange} startYear={2024} />)
 
     expect(screen.getByText('Dynamische Sparraten')).toBeInTheDocument()
   })
@@ -25,13 +19,7 @@ describe('DynamicSavingsRateConfiguration', () => {
     const config = createDefaultDynamicSavingsConfig(2000, 1990)
     const onChange = vi.fn()
 
-    render(
-      <DynamicSavingsRateConfiguration
-        config={config}
-        onChange={onChange}
-        startYear={2024}
-      />,
-    )
+    render(<DynamicSavingsRateConfiguration config={config} onChange={onChange} startYear={2024} />)
 
     const enableSwitch = screen.getByRole('switch')
     await user.click(enableSwitch)
@@ -44,13 +32,7 @@ describe('DynamicSavingsRateConfiguration', () => {
     config.enabled = true
     const onChange = vi.fn()
 
-    render(
-      <DynamicSavingsRateConfiguration
-        config={config}
-        onChange={onChange}
-        startYear={2024}
-      />,
-    )
+    render(<DynamicSavingsRateConfiguration config={config} onChange={onChange} startYear={2024} />)
 
     expect(screen.getByLabelText('Geburtsjahr')).toBeInTheDocument()
     expect(screen.getByText(/Feature implementiert/i)).toBeInTheDocument()
@@ -61,16 +43,10 @@ describe('DynamicSavingsRateConfiguration', () => {
     config.enabled = true
     const onChange = vi.fn()
 
-    render(
-      <DynamicSavingsRateConfiguration
-        config={config}
-        onChange={onChange}
-        startYear={2024}
-      />,
-    )
+    render(<DynamicSavingsRateConfiguration config={config} onChange={onChange} startYear={2024} />)
 
     const birthYearInput = screen.getByLabelText('Geburtsjahr') as HTMLInputElement
-    
+
     // Use fireEvent to change the value
     fireEvent.change(birthYearInput, { target: { value: '1995' } })
 
@@ -85,13 +61,7 @@ describe('DynamicSavingsRateConfiguration', () => {
     config.enabled = true
     const onChange = vi.fn()
 
-    render(
-      <DynamicSavingsRateConfiguration
-        config={config}
-        onChange={onChange}
-        startYear={2024}
-      />,
-    )
+    render(<DynamicSavingsRateConfiguration config={config} onChange={onChange} startYear={2024} />)
 
     expect(screen.getByText('Validierungsfehler gefunden')).toBeInTheDocument()
   })

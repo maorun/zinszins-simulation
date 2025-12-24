@@ -152,7 +152,7 @@ describe('QuarterlyTaxPrepaymentCard', () => {
     await user.click(enableSwitch)
 
     const taxRateInput = screen.getByLabelText(/Kapitalertragsteuersatz/i)
-    
+
     // Just verify the input exists and is a number input
     expect(taxRateInput).toBeInTheDocument()
     expect(taxRateInput).toHaveAttribute('type', 'number')
@@ -169,7 +169,7 @@ describe('QuarterlyTaxPrepaymentCard', () => {
     await user.click(enableSwitch)
 
     const exemptionInput = screen.getByLabelText(/Teilfreistellungsquote/i)
-    
+
     // Just verify the input exists and is a number input
     expect(exemptionInput).toBeInTheDocument()
     expect(exemptionInput).toHaveAttribute('type', 'number')
@@ -192,7 +192,9 @@ describe('QuarterlyTaxPrepaymentCard', () => {
 
     // Should show info that prepayments are not required
     expect(
-      screen.getByText(/Vorauszahlungen sind bei einer jährlichen Steuerlast unter 400 € in der Regel nicht erforderlich/i),
+      screen.getByText(
+        /Vorauszahlungen sind bei einer jährlichen Steuerlast unter 400 € in der Regel nicht erforderlich/i,
+      ),
     ).toBeInTheDocument()
   })
 

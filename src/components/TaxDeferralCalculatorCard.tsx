@@ -94,7 +94,11 @@ function ConfigForm({ config, onConfigChange }: ConfigFormProps) {
 /**
  * Display summary comparison results
  */
-function SummaryComparison({ accumulating, distributing, comparison }: { 
+function SummaryComparison({
+  accumulating,
+  distributing,
+  comparison,
+}: {
   accumulating: ResultsDisplayProps['result']['accumulating']
   distributing: ResultsDisplayProps['result']['distributing']
   comparison: ResultsDisplayProps['result']['comparison']
@@ -129,7 +133,10 @@ function SummaryComparison({ accumulating, distributing, comparison }: {
 /**
  * Display tax comparison between fund types
  */
-function TaxComparison({ accumulating, distributing }: {
+function TaxComparison({
+  accumulating,
+  distributing,
+}: {
   accumulating: ResultsDisplayProps['result']['accumulating']
   distributing: ResultsDisplayProps['result']['distributing']
 }) {
@@ -171,7 +178,10 @@ function TaxComparison({ accumulating, distributing }: {
 /**
  * Display tax benefit explanation
  */
-function TaxBenefitExplanation({ config, comparison }: {
+function TaxBenefitExplanation({
+  config,
+  comparison,
+}: {
   config: TaxDeferralConfig
   comparison: ResultsDisplayProps['result']['comparison']
 }) {
@@ -185,8 +195,8 @@ function TaxBenefitExplanation({ config, comparison }: {
           {comparison.taxDifference >= 0 ? 'weniger' : 'mehr'} Steuern.
         </p>
         <p className="mt-2">
-          Durch die niedrigere Vorabpauschale (statt voller Ertragsbesteuerung) bleibt mehr Kapital investiert, das
-          vom Zinseszinseffekt profitiert. Dies führt zu einem <strong>Mehrvermögen</strong> von{' '}
+          Durch die niedrigere Vorabpauschale (statt voller Ertragsbesteuerung) bleibt mehr Kapital investiert, das vom
+          Zinseszinseffekt profitiert. Dies führt zu einem <strong>Mehrvermögen</strong> von{' '}
           {formatCurrency(comparison.taxDeferralBenefit)}.
         </p>
       </div>
@@ -276,11 +286,11 @@ function useTaxDeferralConfig() {
 
 /**
  * Tax Deferral Calculator Card - Compares accumulating vs. distributing funds
- * 
+ *
  * This component allows users to compare the tax deferral effect between:
  * - Accumulating funds (thesaurierende Fonds): Pay Vorabpauschale annually
  * - Distributing funds (ausschüttende Fonds): Pay full tax on distributions annually
- * 
+ *
  * The comparison shows how tax deferral benefits compound returns over time.
  */
 export function TaxDeferralCalculatorCard() {

@@ -8,13 +8,7 @@ interface SummaryStatsProps {
   rangeValue: number
 }
 
-function SummaryStats({
-  lowestValue,
-  lowestLabel,
-  highestValue,
-  highestLabel,
-  rangeValue,
-}: SummaryStatsProps) {
+function SummaryStats({ lowestValue, lowestLabel, highestValue, highestLabel, rangeValue }: SummaryStatsProps) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
       <div className="bg-gradient-to-r from-red-50 to-blue-50 p-3 rounded-lg border-l-4 border-blue-400">

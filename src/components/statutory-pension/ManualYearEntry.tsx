@@ -34,7 +34,14 @@ export function ManualYearEntry({ year, salary, onYearChange, onSalaryChange, on
         />
       </div>
       <div className="flex-1">
-        <Input type="number" value={salary} onChange={e => onSalaryChange(year, Number(e.target.value))} min={0} step={1000} placeholder="Bruttogehalt" />
+        <Input
+          type="number"
+          value={salary}
+          onChange={e => onSalaryChange(year, Number(e.target.value))}
+          min={0}
+          step={1000}
+          placeholder="Bruttogehalt"
+        />
       </div>
       <div className="text-xs text-muted-foreground w-32">Ø: {avgSalary.toLocaleString('de-DE')} €</div>
       <Button onClick={() => onRemove(year)} size="sm" variant="ghost">

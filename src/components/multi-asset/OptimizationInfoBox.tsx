@@ -11,8 +11,8 @@ export function OptimizationInfoBox() {
         <div>
           <p className="font-medium mb-1">Automatische Portfolio-Optimierung</p>
           <p className="text-xs">
-            Findet die optimale Allokation basierend auf dem gewählten Optimierungsziel unter
-            Berücksichtigung der Korrelationen zwischen den Anlageklassen.
+            Findet die optimale Allokation basierend auf dem gewählten Optimierungsziel unter Berücksichtigung der
+            Korrelationen zwischen den Anlageklassen.
           </p>
         </div>
       </div>

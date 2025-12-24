@@ -120,8 +120,8 @@ export function MultiTierLiquidityDisplay({ targetAmount, reserveStrategy }: Mul
 
       <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
         <p className="text-xs text-gray-700">
-          <strong>Hinweis:</strong> Die Aufteilung optimiert das Verhältnis zwischen Verfügbarkeit und Rendite. Bei einem{' '}
-          <strong>konservativen</strong> Ansatz liegt der Schwerpunkt auf maximaler Liquidität, bei einem{' '}
+          <strong>Hinweis:</strong> Die Aufteilung optimiert das Verhältnis zwischen Verfügbarkeit und Rendite. Bei
+          einem <strong>konservativen</strong> Ansatz liegt der Schwerpunkt auf maximaler Liquidität, bei einem{' '}
           <strong>aggressiven</strong> Ansatz auf höherer Rendite bei leicht reduzierter Sofortverfügbarkeit.
         </p>
       </div>

@@ -34,9 +34,9 @@ function BetriebsrenteCardHeader() {
             </TooltipTrigger>
             <TooltipContent className="max-w-sm">
               <p className="text-sm">
-                Die betriebliche Altersvorsorge ist eine vom Arbeitgeber unterstützte
-                Altersvorsorge. Beiträge sind steuer- und sozialversicherungsfrei (bis zu den
-                Grenzen), Renten werden nachgelagert voll besteuert und sozialversicherungspflichtig.
+                Die betriebliche Altersvorsorge ist eine vom Arbeitgeber unterstützte Altersvorsorge. Beiträge sind
+                steuer- und sozialversicherungsfrei (bis zu den Grenzen), Renten werden nachgelagert voll besteuert und
+                sozialversicherungspflichtig.
               </p>
             </TooltipContent>
           </Tooltip>
@@ -59,10 +59,7 @@ function ImplementationTypeSelector({
   return (
     <div className="space-y-2">
       <Label>Durchführungsweg</Label>
-      <RadioTileGroup
-        value={value}
-        onValueChange={(v) => onChange(v as BetriebsrenteConfig['implementationType'])}
-      >
+      <RadioTileGroup value={value} onValueChange={v => onChange(v as BetriebsrenteConfig['implementationType'])}>
         <RadioTile value="direktversicherung" label="Direktversicherung">
           Versicherungsvertrag über den Arbeitgeber
         </RadioTile>
@@ -99,15 +96,11 @@ function ContributionPhaseDisplay({
         </div>
         <div className="flex justify-between">
           <span>Steuerersparnis AN:</span>
-          <span className="font-medium text-green-600">
-            {result.taxSavingsEmployee.toFixed(0)} €
-          </span>
+          <span className="font-medium text-green-600">{result.taxSavingsEmployee.toFixed(0)} €</span>
         </div>
         <div className="flex justify-between">
           <span>SV-Ersparnis AN:</span>
-          <span className="font-medium text-green-600">
-            {result.socialSecuritySavingsEmployee.toFixed(0)} €
-          </span>
+          <span className="font-medium text-green-600">{result.socialSecuritySavingsEmployee.toFixed(0)} €</span>
         </div>
         <div className="flex justify-between border-t pt-1">
           <span>Gesamtvorteil pro Jahr:</span>
@@ -127,11 +120,7 @@ function ContributionPhaseDisplay({
   )
 }
 
-function PayoutPhaseDisplay({
-  result,
-}: {
-  result: ReturnType<typeof calculateBetriebsrentePensionTaxation>
-}) {
+function PayoutPhaseDisplay({ result }: { result: ReturnType<typeof calculateBetriebsrentePensionTaxation> }) {
   return (
     <div className="space-y-2">
       <div className="text-sm space-y-1">
@@ -145,24 +134,18 @@ function PayoutPhaseDisplay({
         </div>
         <div className="flex justify-between">
           <span>Krankenversicherung (Jahr):</span>
-          <span className="font-medium text-red-600">
-            -{result.healthInsuranceContribution.toFixed(0)} €
-          </span>
+          <span className="font-medium text-red-600">-{result.healthInsuranceContribution.toFixed(0)} €</span>
         </div>
         <div className="flex justify-between">
           <span>Pflegeversicherung (Jahr):</span>
-          <span className="font-medium text-red-600">
-            -{result.careInsuranceContribution.toFixed(0)} €
-          </span>
+          <span className="font-medium text-red-600">-{result.careInsuranceContribution.toFixed(0)} €</span>
         </div>
         <div className="flex justify-between border-t pt-1">
           <span>Nettomonatsrente:</span>
           <span className="font-bold">{(result.netAnnualPension / 12).toFixed(2)} €</span>
         </div>
       </div>
-      <p className="text-xs text-gray-600">
-        100% der bAV-Rente ist steuerpflichtig (nachgelagerte Besteuerung)
-      </p>
+      <p className="text-xs text-gray-600">100% der bAV-Rente ist steuerpflichtig (nachgelagerte Besteuerung)</p>
     </div>
   )
 }
@@ -182,20 +165,18 @@ function ContributionFields({
   return (
     <>
       <div className="space-y-2">
-        <Label htmlFor={employeeContributionId}>
-          Jährlicher Arbeitnehmerbeitrag (Entgeltumwandlung)
-        </Label>
+        <Label htmlFor={employeeContributionId}>Jährlicher Arbeitnehmerbeitrag (Entgeltumwandlung)</Label>
         <Input
           id={employeeContributionId}
           type="number"
           min="0"
           step="100"
           value={config.annualEmployeeContribution}
-          onChange={(e) => onChange({ annualEmployeeContribution: Number(e.target.value) })}
+          onChange={e => onChange({ annualEmployeeContribution: Number(e.target.value) })}
         />
         <p className="text-xs text-gray-500">
-          Bis {limits.maxSocialSecurityFreeContribution.toFixed(0)} € sozialversicherungsfrei (4%
-          BBG), bis {limits.maxTaxFreeEmployerContribution.toFixed(0)} € steuerfrei (8% BBG)
+          Bis {limits.maxSocialSecurityFreeContribution.toFixed(0)} € sozialversicherungsfrei (4% BBG), bis{' '}
+          {limits.maxTaxFreeEmployerContribution.toFixed(0)} € steuerfrei (8% BBG)
         </p>
       </div>
 
@@ -207,7 +188,7 @@ function ContributionFields({
           min="0"
           step="100"
           value={config.annualEmployerContribution}
-          onChange={(e) => onChange({ annualEmployerContribution: Number(e.target.value) })}
+          onChange={e => onChange({ annualEmployerContribution: Number(e.target.value) })}
         />
         <p className="text-xs text-gray-500">
           Bis {limits.maxTaxFreeEmployerContribution.toFixed(0)} € steuerfrei (8% BBG)
@@ -236,11 +217,9 @@ function PensionIncreaseRateField({
         max="10"
         step="0.1"
         value={(config.pensionIncreaseRate * 100).toFixed(1)}
-        onChange={(e) => onChange({ pensionIncreaseRate: Number(e.target.value) / 100 })}
+        onChange={e => onChange({ pensionIncreaseRate: Number(e.target.value) / 100 })}
       />
-      <p className="text-xs text-gray-500">
-        Erwartete jährliche Steigerung der Rente (üblich: 1%)
-      </p>
+      <p className="text-xs text-gray-500">Erwartete jährliche Steigerung der Rente (üblich: 1%)</p>
     </div>
   )
 }
@@ -267,7 +246,7 @@ function PensionFields({
           min={contributionYear + 1}
           max="2100"
           value={config.pensionStartYear}
-          onChange={(e) => onChange({ pensionStartYear: Number(e.target.value) })}
+          onChange={e => onChange({ pensionStartYear: Number(e.target.value) })}
         />
       </div>
 
@@ -279,7 +258,7 @@ function PensionFields({
           min="0"
           step="50"
           value={config.expectedMonthlyPension}
-          onChange={(e) => onChange({ expectedMonthlyPension: Number(e.target.value) })}
+          onChange={e => onChange({ expectedMonthlyPension: Number(e.target.value) })}
         />
         <p className="text-xs text-gray-500">Geschätzte Rentenhöhe vor Steuern</p>
       </div>
@@ -304,7 +283,7 @@ function BetriebsrenteConfigurationFields({
     <div className="space-y-4">
       <ImplementationTypeSelector
         value={config.implementationType}
-        onChange={(implementationType) => onChange({ implementationType })}
+        onChange={implementationType => onChange({ implementationType })}
       />
       <ContributionFields config={config} limits={limits} onChange={onChange} />
       <PensionFields config={config} contributionYear={contributionYear} onChange={onChange} />
@@ -344,7 +323,7 @@ function useBetriebsrenteCalculations(
   config: BetriebsrenteConfig,
   contributionYear: number,
   personalTaxRate: number,
-  pensionTaxRate: number
+  pensionTaxRate: number,
 ) {
   const limits = useMemo(() => getBetriebsrenteTaxLimits(contributionYear), [contributionYear])
 
@@ -355,7 +334,7 @@ function useBetriebsrenteCalculations(
       config.annualEmployerContribution,
       contributionYear,
       personalTaxRate,
-      0.2
+      0.2,
     )
   }, [
     config.enabled,
@@ -374,7 +353,7 @@ function useBetriebsrenteCalculations(
       config.pensionIncreaseRate,
       pensionTaxRate,
       true,
-      true
+      true,
     )
   }, [
     config.enabled,
@@ -415,11 +394,7 @@ function BetriebsrenteEnabledContent({
         onChange={onChange}
       />
 
-      <button
-        type="button"
-        className="text-sm text-blue-600 hover:text-blue-800 underline"
-        onClick={onToggleDetails}
-      >
+      <button type="button" className="text-sm text-blue-600 hover:text-blue-800 underline" onClick={onToggleDetails}>
         {showDetails ? 'Steuerberechnung ausblenden' : 'Steuerberechnung anzeigen'}
       </button>
 
@@ -449,7 +424,7 @@ export function BetriebsrenteConfiguration({
     config,
     contributionYear,
     personalTaxRate,
-    pensionTaxRate
+    pensionTaxRate,
   )
 
   return (
@@ -462,7 +437,7 @@ export function BetriebsrenteConfiguration({
             <Switch
               id={enabledId}
               checked={config.enabled}
-              onCheckedChange={(enabled) => onChange({ ...config, enabled })}
+              onCheckedChange={enabled => onChange({ ...config, enabled })}
             />
           </div>
 
@@ -474,7 +449,7 @@ export function BetriebsrenteConfiguration({
               contributionResult={contributionResult}
               pensionResult={pensionResult}
               showDetails={showDetails}
-              onChange={(updates) => onChange({ ...config, ...updates })}
+              onChange={updates => onChange({ ...config, ...updates })}
               onToggleDetails={() => setShowDetails(!showDetails)}
             />
           ) : (

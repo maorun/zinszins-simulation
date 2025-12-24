@@ -110,7 +110,7 @@ export function ConfigInputField({
   step,
   helperText,
   onChange,
-  parseValue = (v) => parseFloat(v) || 0,
+  parseValue = v => parseFloat(v) || 0,
 }: ConfigInputFieldProps) {
   return (
     <div className="space-y-2">
@@ -122,7 +122,7 @@ export function ConfigInputField({
         max={max}
         step={step}
         value={value}
-        onChange={(e) => onChange(parseValue(e.target.value))}
+        onChange={e => onChange(parseValue(e.target.value))}
       />
       {helperText && <p className="text-xs text-muted-foreground">{helperText}</p>}
     </div>
@@ -138,9 +138,8 @@ export function InfoPanel() {
           <p className="font-medium">Was ist Sequenz-Risiko?</p>
           <p>
             Das Sequenz-Risiko (Sequence of Returns Risk) beschreibt die Gefahr, dass schlechte Renditen in den ersten
-            Jahren des Ruhestands das Portfolio dauerhaft schwächen. Zwei Portfolios mit identischer
-            durchschnittlicher Rendite können aufgrund unterschiedlicher Rendite-Reihenfolgen völlig unterschiedliche
-            Ergebnisse erzielen.
+            Jahren des Ruhestands das Portfolio dauerhaft schwächen. Zwei Portfolios mit identischer durchschnittlicher
+            Rendite können aufgrund unterschiedlicher Rendite-Reihenfolgen völlig unterschiedliche Ergebnisse erzielen.
           </p>
         </div>
       </div>

@@ -8,8 +8,8 @@ export function InformationalHints() {
         <li>Für viele Länder gelten reduzierte Sätze durch Doppelbesteuerungsabkommen (DBA)</li>
         <li>Die Teilfreistellung für Aktienfonds wird bei der Berechnung berücksichtigt</li>
         <li>
-          Bei Schweizer Dividenden: 35% Quellensteuer werden einbehalten, aber nur 15% nach DBA - die
-          Differenz kann in der Schweiz zurückgefordert werden (DA-1 Formular)
+          Bei Schweizer Dividenden: 35% Quellensteuer werden einbehalten, aber nur 15% nach DBA - die Differenz kann in
+          der Schweiz zurückgefordert werden (DA-1 Formular)
         </li>
       </ul>
     </div>

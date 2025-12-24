@@ -6,10 +6,7 @@
  * with historical correlations and realistic return patterns.
  */
 
-import {
-  type VolatilityTargetingConfig,
-  createDefaultVolatilityTargetingConfig,
-} from './volatility-targeting'
+import { type VolatilityTargetingConfig, createDefaultVolatilityTargetingConfig } from './volatility-targeting'
 
 /**
  * Supported asset classes for multi-asset portfolios
@@ -406,7 +403,10 @@ function validateTotalAllocation(enabledAssets: Array<[string, AssetClassConfig]
 function validateTransactionCosts(config: MultiAssetPortfolioConfig): string[] {
   const errors: string[] = []
 
-  if (config.rebalancing.transactionCosts.percentageCost < 0 || config.rebalancing.transactionCosts.percentageCost > 0.1) {
+  if (
+    config.rebalancing.transactionCosts.percentageCost < 0 ||
+    config.rebalancing.transactionCosts.percentageCost > 0.1
+  ) {
     errors.push('Prozentuale Transaktionskosten müssen zwischen 0% und 10% liegen')
   }
 

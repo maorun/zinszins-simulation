@@ -81,7 +81,7 @@ describe('term-life-insurance', () => {
       const result = calculateTermLifeInsurance(config)
 
       // All years should have same coverage
-      result.yearlyResults.forEach((year) => {
+      result.yearlyResults.forEach(year => {
         expect(year.coverageAmount).toBe(100000)
         expect(year.deathBenefitAmount).toBe(100000)
       })
@@ -140,9 +140,7 @@ describe('term-life-insurance', () => {
       const smokerResult = calculateTermLifeInsurance(smokerConfig)
 
       expect(smokerResult.totalPremiumsPaid).toBeGreaterThan(nonSmokerResult.totalPremiumsPaid)
-      expect(smokerResult.averageAnnualPremium).toBeGreaterThan(
-        nonSmokerResult.averageAnnualPremium,
-      )
+      expect(smokerResult.averageAnnualPremium).toBeGreaterThan(nonSmokerResult.averageAnnualPremium)
     })
 
     it('should calculate higher premiums for older insured persons', () => {
@@ -272,7 +270,7 @@ describe('term-life-insurance', () => {
 
       const result = calculateTermLifeInsurance(config)
 
-      result.yearlyResults.forEach((yearResult) => {
+      result.yearlyResults.forEach(yearResult => {
         const expectedAge = yearResult.year - config.birthYear
         expect(yearResult.age).toBe(expectedAge)
       })
@@ -296,7 +294,7 @@ describe('term-life-insurance', () => {
       const result = calculateTermLifeInsurance(config)
 
       expect(result.deathBenefitTaxFree).toBe(true)
-      result.yearlyResults.forEach((year) => {
+      result.yearlyResults.forEach(year => {
         expect(year.deathBenefitAmount).toBe(year.coverageAmount)
       })
     })
@@ -345,15 +343,11 @@ describe('term-life-insurance', () => {
       expect(comparison).toHaveLength(3)
 
       // Higher coverage should cost more in total
-      expect(comparison[1]?.totalPremiumsPaid ?? 0).toBeGreaterThan(
-        comparison[0]?.totalPremiumsPaid ?? 0,
-      )
-      expect(comparison[2]?.totalPremiumsPaid ?? 0).toBeGreaterThan(
-        comparison[1]?.totalPremiumsPaid ?? 0,
-      )
+      expect(comparison[1]?.totalPremiumsPaid ?? 0).toBeGreaterThan(comparison[0]?.totalPremiumsPaid ?? 0)
+      expect(comparison[2]?.totalPremiumsPaid ?? 0).toBeGreaterThan(comparison[1]?.totalPremiumsPaid ?? 0)
 
       // All should have positive costs
-      comparison.forEach((item) => {
+      comparison.forEach(item => {
         expect(item.totalPremiumsPaid).toBeGreaterThan(0)
         expect(item.averageAnnualPremium).toBeGreaterThan(0)
         expect(item.costPerThousandEUR).toBeGreaterThan(0)
@@ -377,7 +371,7 @@ describe('term-life-insurance', () => {
 
       const comparison = compareCoverageAmounts(baseConfig, [100000, 200000])
 
-      comparison.forEach((item) => {
+      comparison.forEach(item => {
         const expectedCostPer1000 = (item.totalPremiumsPaid / item.coverageAmount) * 1000
         expect(item.costPerThousandEUR).toBeCloseTo(expectedCostPer1000, 2)
       })

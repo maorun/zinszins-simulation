@@ -4,10 +4,7 @@ import { Collapsible, CollapsibleContent } from './ui/collapsible'
 import { CollapsibleCardHeader } from './ui/collapsible-card'
 import { PensionComparisonConfiguration } from './pension-comparison/PensionComparisonConfiguration'
 import { PensionComparisonResults } from './pension-comparison/PensionComparisonResults'
-import {
-  comparePensionTypes,
-  type PensionComparisonConfig,
-} from '../../helpers/pension-comparison'
+import { comparePensionTypes, type PensionComparisonConfig } from '../../helpers/pension-comparison'
 
 /**
  * Info message explaining pension comparison
@@ -22,8 +19,8 @@ function InfoMessage() {
         <strong>Gesetzliche Rente</strong> • <strong>Riester-Rente</strong> (staatlich gefördert) •{' '}
         <strong>Rürup-Rente</strong> (Basis-Rente) • <strong>Betriebsrente</strong> (bAV)
         <br />
-        Der Vergleich zeigt Beiträge, Steuervorteile, erwartete Rente und Rendite (ROI) für fundierte
-        Entscheidungen in der Altersvorsorge.
+        Der Vergleich zeigt Beiträge, Steuervorteile, erwartete Rente und Rendite (ROI) für fundierte Entscheidungen in
+        der Altersvorsorge.
       </p>
     </div>
   )
@@ -45,9 +42,9 @@ function createDefaultConfig(): PensionComparisonConfig {
     pensionStartYear,
     pensionEndYear,
     personalTaxRate: 0.35, // 35% during working years
-    pensionTaxRate: 0.20, // 20% during retirement (typically lower)
+    pensionTaxRate: 0.2, // 20% during retirement (typically lower)
     annualGrossIncome: 50000,
-    socialSecurityRate: 0.20,
+    socialSecurityRate: 0.2,
     inStatutoryHealthInsurance: true,
     hasChildren: true,
   }
@@ -61,11 +58,7 @@ export function PensionComparisonTool() {
 
   const comparisonResults = useMemo(() => {
     // Only calculate if at least one pension type is configured
-    const hasAnyPension =
-      config.statutoryPension ||
-      config.riesterRente ||
-      config.ruerupRente ||
-      config.betriebsrente
+    const hasAnyPension = config.statutoryPension || config.riesterRente || config.ruerupRente || config.betriebsrente
 
     if (!hasAnyPension) return null
 

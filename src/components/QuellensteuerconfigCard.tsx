@@ -39,10 +39,10 @@ export function QuellensteuerconfigCard() {
               countryCode={config.countryCode}
               germanCapitalGainsTaxRate={germanCapitalGainsTaxRate}
               teilfreistellung={teilfreistellung}
-              onEnabledChange={(enabled) => setConfig({ ...config, enabled })}
-              onForeignIncomeChange={(amount) => setConfig({ ...config, foreignIncome: amount })}
-              onWithholdingTaxRateChange={(rate) => setConfig({ ...config, withholdingTaxRate: rate })}
-              onCountryCodeChange={(code) => setConfig({ ...config, countryCode: code })}
+              onEnabledChange={enabled => setConfig({ ...config, enabled })}
+              onForeignIncomeChange={amount => setConfig({ ...config, foreignIncome: amount })}
+              onWithholdingTaxRateChange={rate => setConfig({ ...config, withholdingTaxRate: rate })}
+              onCountryCodeChange={code => setConfig({ ...config, countryCode: code })}
             />
           </CardContent>
         </CollapsibleContent>

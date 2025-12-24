@@ -147,7 +147,11 @@ describe('Progressionsvorbehalt', () => {
       const progressionIncome = 20000
 
       const normalTax = calculateIncomeTaxWithProgressionsvorbehalt(taxableIncome, 0, grundfreibetrag)
-      const progressionTax = calculateIncomeTaxWithProgressionsvorbehalt(taxableIncome, progressionIncome, grundfreibetrag)
+      const progressionTax = calculateIncomeTaxWithProgressionsvorbehalt(
+        taxableIncome,
+        progressionIncome,
+        grundfreibetrag,
+      )
 
       // Tax should be higher with progression
       expect(progressionTax).toBeGreaterThan(normalTax)
@@ -224,11 +228,7 @@ describe('Progressionsvorbehalt', () => {
       const progressionIncome = 10000
       const customGrundfreibetrag = 12000
 
-      const tax = calculateIncomeTaxWithProgressionsvorbehalt(
-        taxableIncome,
-        progressionIncome,
-        customGrundfreibetrag,
-      )
+      const tax = calculateIncomeTaxWithProgressionsvorbehalt(taxableIncome, progressionIncome, customGrundfreibetrag)
 
       expect(tax).toBeGreaterThan(0)
     })
@@ -297,7 +297,7 @@ describe('Progressionsvorbehalt', () => {
       const taxableIncomes = [20000, 30000, 40000, 50000]
       const progressionIncome = 15000 // Moderate progression income
 
-      taxableIncomes.forEach((income) => {
+      taxableIncomes.forEach(income => {
         const normalTax = calculateIncomeTaxWithProgressionsvorbehalt(income, 0, grundfreibetrag)
         const progressionTax = calculateIncomeTaxWithProgressionsvorbehalt(income, progressionIncome, grundfreibetrag)
 
@@ -318,7 +318,7 @@ describe('Progressionsvorbehalt', () => {
 
       let previousTax = 0
 
-      progressionIncomes.forEach((progressionIncome) => {
+      progressionIncomes.forEach(progressionIncome => {
         const tax = calculateIncomeTaxWithProgressionsvorbehalt(taxableIncome, progressionIncome, grundfreibetrag)
 
         // Each moderate increase in progression income should increase tax

@@ -79,4 +79,3 @@ export function TaxSectionsContent({ simulation, yearToday }: TaxSectionsContent
     </div>
   )
 }
-

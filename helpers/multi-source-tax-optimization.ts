@@ -149,7 +149,7 @@ export function calculateOptimalWithdrawalAllocation(
   taxParams: TaxParameters,
 ): WithdrawalAllocation {
   // Get enabled sources sorted by priority
-  const enabledSources = config.sources.filter((s) => s.enabled).sort((a, b) => a.priority - b.priority)
+  const enabledSources = config.sources.filter(s => s.enabled).sort((a, b) => a.priority - b.priority)
 
   if (enabledSources.length === 0) {
     return createEmptyAllocation(config.optimizationMode)
@@ -212,7 +212,7 @@ function allocateDepotWithinSparerFreibetrag(
   config: MultiSourceTaxOptimizationConfig,
   taxParams: TaxParameters,
 ): number {
-  const depotSource = sources.find((s) => s.type === 'depot')
+  const depotSource = sources.find(s => s.type === 'depot')
   if (!depotSource || remainingTarget <= 0) return remainingTarget
 
   const targetSparerUsage = taxParams.sparerpauschbetrag * config.sparerpauschbetragUtilization
@@ -245,14 +245,19 @@ function allocateIncomeSourcesWithinGrundfreibetrag(
 
   // Prioritize sources by taxable percentage (lower is better)
   const incomeSources = sources
-    .filter((s) => s.type !== 'depot' && s.taxTreatment !== 'kapitalertragsteuer')
+    .filter(s => s.type !== 'depot' && s.taxTreatment !== 'kapitalertragsteuer')
     .sort((a, b) => a.taxablePercentage - b.taxablePercentage)
 
   for (const source of incomeSources) {
     if (grundfreibetragRemaining <= 0 || remainingTarget <= 0) break
 
-    const maxFromSource = source.expectedAnnualPayment || Math.min(remainingTarget / source.taxablePercentage, remainingTarget)
-    const allocationAmount = Math.min(maxFromSource, remainingTarget, grundfreibetragRemaining / source.taxablePercentage)
+    const maxFromSource =
+      source.expectedAnnualPayment || Math.min(remainingTarget / source.taxablePercentage, remainingTarget)
+    const allocationAmount = Math.min(
+      maxFromSource,
+      remainingTarget,
+      grundfreibetragRemaining / source.taxablePercentage,
+    )
 
     allocation[source.type] = allocationAmount
     remainingTarget -= allocationAmount
@@ -287,7 +292,7 @@ function allocateRemainingFromDepot(
   allocation: Record<CapitalSource, number>,
   remainingTarget: number,
 ): number {
-  const depotSource = sources.find((s) => s.type === 'depot')
+  const depotSource = sources.find(s => s.type === 'depot')
   if (!depotSource || !depotSource.availableCapital || allocation.depot >= depotSource.availableCapital) {
     return remainingTarget
   }
@@ -352,7 +357,7 @@ function createInitialBalancedAllocation(
   sources: CapitalSourceConfig[],
   targetWithdrawal: number,
 ): Record<CapitalSource, number> {
-  const enabledSources = sources.filter((s) => s.enabled)
+  const enabledSources = sources.filter(s => s.enabled)
   const allocation: Record<CapitalSource, number> = {
     depot: 0,
     riester: 0,
@@ -364,7 +369,8 @@ function createInitialBalancedAllocation(
   let remainingTarget = targetWithdrawal
 
   for (const source of enabledSources) {
-    const maxFromSource = source.type === 'depot' ? source.availableCapital || 0 : source.expectedAnnualPayment || perSourceTarget
+    const maxFromSource =
+      source.type === 'depot' ? source.availableCapital || 0 : source.expectedAnnualPayment || perSourceTarget
 
     const allocationAmount = Math.min(perSourceTarget, maxFromSource, remainingTarget)
     allocation[source.type] = allocationAmount
@@ -382,7 +388,7 @@ function distributeRemainingBalanced(
   allocation: Record<CapitalSource, number>,
   targetWithdrawal: number,
 ): void {
-  const enabledSources = sources.filter((s) => s.enabled)
+  const enabledSources = sources.filter(s => s.enabled)
   const currentTotal = Object.values(allocation).reduce((sum, val) => sum + val, 0)
   let remainingTarget = targetWithdrawal - currentTotal
 
@@ -391,7 +397,8 @@ function distributeRemainingBalanced(
   for (const source of enabledSources) {
     if (remainingTarget <= 0) break
 
-    const maxFromSource = source.type === 'depot' ? source.availableCapital || 0 : source.expectedAnnualPayment || remainingTarget
+    const maxFromSource =
+      source.type === 'depot' ? source.availableCapital || 0 : source.expectedAnnualPayment || remainingTarget
 
     const currentAllocation = allocation[source.type]
     if (currentAllocation < maxFromSource) {
@@ -416,7 +423,13 @@ function calculateAllocationWithTaxes(
   const grundfreibetragRemaining = taxParams.grundfreibetrag
 
   // Calculate depot taxes
-  sparerpauschbetragRemaining = calculateDepotTaxes(allocation, sources, taxBreakdown, taxParams, sparerpauschbetragRemaining)
+  sparerpauschbetragRemaining = calculateDepotTaxes(
+    allocation,
+    sources,
+    taxBreakdown,
+    taxParams,
+    sparerpauschbetragRemaining,
+  )
 
   // Calculate income taxes for pension sources
   calculateIncomeTaxes(allocation, sources, taxBreakdown, taxParams, grundfreibetragRemaining)
@@ -430,7 +443,7 @@ function calculateAllocationWithTaxes(
   const totalIncomeTaxed = Object.entries(allocation)
     .filter(([key]) => key !== 'depot')
     .reduce((sum, [key, amount]) => {
-      const source = sources.find((s) => s.type === key)
+      const source = sources.find(s => s.type === key)
       return sum + (source ? amount * source.taxablePercentage : 0)
     }, 0)
   const grundfreibetragUsed = Math.min(totalIncomeTaxed, taxParams.grundfreibetrag)
@@ -463,7 +476,7 @@ function calculateDepotTaxes(
   taxParams: TaxParameters,
   sparerpauschbetragRemaining: number,
 ): number {
-  const depotSource = sources.find((s) => s.type === 'depot')
+  const depotSource = sources.find(s => s.type === 'depot')
   if (!depotSource || allocation.depot <= 0) return sparerpauschbetragRemaining
 
   const gainsRatio = 0.5 // Simplified: Assume 50% of withdrawal is taxable gains
@@ -492,7 +505,7 @@ function calculateIncomeTaxes(
   initialGrundfreibetrag: number,
 ): void {
   let grundfreibetragRemaining = initialGrundfreibetrag
-  const pensionSources = sources.filter((s) => s.type !== 'depot')
+  const pensionSources = sources.filter(s => s.type !== 'depot')
   for (const source of pensionSources) {
     const withdrawalAmount = allocation[source.type]
     if (withdrawalAmount <= 0) continue
@@ -597,7 +610,7 @@ export function calculateNaiveWithdrawal(
   config: MultiSourceTaxOptimizationConfig,
   taxParams: TaxParameters,
 ): WithdrawalAllocation {
-  const enabledSources = config.sources.filter((s) => s.enabled)
+  const enabledSources = config.sources.filter(s => s.enabled)
 
   if (enabledSources.length === 0) {
     return createEmptyAllocation('naive')
@@ -627,7 +640,8 @@ function createEvenDistributionAllocation(
   let remainingTarget = targetWithdrawal
 
   for (const source of enabledSources) {
-    const maxFromSource = source.type === 'depot' ? source.availableCapital || 0 : source.expectedAnnualPayment || perSourceTarget
+    const maxFromSource =
+      source.type === 'depot' ? source.availableCapital || 0 : source.expectedAnnualPayment || perSourceTarget
 
     const allocationAmount = Math.min(perSourceTarget, maxFromSource, remainingTarget)
     allocation[source.type] = allocationAmount
@@ -653,7 +667,8 @@ function distributeRemainingNaive(
   for (const source of enabledSources) {
     if (remainingTarget <= 0) break
 
-    const maxFromSource = source.type === 'depot' ? source.availableCapital || 0 : source.expectedAnnualPayment || remainingTarget
+    const maxFromSource =
+      source.type === 'depot' ? source.availableCapital || 0 : source.expectedAnnualPayment || remainingTarget
 
     const currentAllocation = allocation[source.type]
     if (currentAllocation < maxFromSource) {

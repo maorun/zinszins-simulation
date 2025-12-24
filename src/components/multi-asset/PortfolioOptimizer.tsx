@@ -17,14 +17,8 @@ interface PortfolioOptimizerProps {
  * Portfolio Optimizer Component
  */
 export function PortfolioOptimizer({ config, onApplyAllocations }: PortfolioOptimizerProps) {
-  const {
-    selectedObjective,
-    setSelectedObjective,
-    optimizationResult,
-    isOptimizing,
-    canOptimize,
-    handleOptimize,
-  } = usePortfolioOptimization(config)
+  const { selectedObjective, setSelectedObjective, optimizationResult, isOptimizing, canOptimize, handleOptimize } =
+    usePortfolioOptimization(config)
 
   const handleApplyAllocations = useCallback(() => {
     if (!optimizationResult) return

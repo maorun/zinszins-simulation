@@ -160,7 +160,7 @@ export const behavioralBiases: Record<string, BehavioralBias> = {
 
 // Get all biases for a specific category
 export function getBiasesByCategory(category: BehavioralBias['category']): BehavioralBias[] {
-  return Object.values(behavioralBiases).filter((bias) => bias.category === category)
+  return Object.values(behavioralBiases).filter(bias => bias.category === category)
 }
 
 // Get all bias categories
@@ -172,7 +172,7 @@ export function getAllCategories(): Array<BehavioralBias['category']> {
 export function searchBiases(searchTerm: string): BehavioralBias[] {
   const term = searchTerm.toLowerCase()
   return Object.values(behavioralBiases).filter(
-    (bias) =>
+    bias =>
       bias.name.toLowerCase().includes(term) ||
       bias.shortDescription.toLowerCase().includes(term) ||
       bias.detailedExplanation.toLowerCase().includes(term) ||

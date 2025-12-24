@@ -101,8 +101,8 @@ function VaRInterpretation({ varResult, timeHorizon }: { varResult: VaRResult; t
     <div className="mt-[15px] p-[10px] bg-[#f8f9fa] border border-[#dee2e6] rounded">
       <h6>💡 Interpretation:</h6>
       <p className="m-0 text-sm">
-        Der Value at Risk (VaR) gibt an, mit welcher Wahrscheinlichkeit ein bestimmter Verlust nicht überschritten
-        wird. Ein VaR von {formatCurrencyWhole(varResult.maxExpectedLossEur)} bei 95% Konfidenzniveau bedeutet: Mit 95%
+        Der Value at Risk (VaR) gibt an, mit welcher Wahrscheinlichkeit ein bestimmter Verlust nicht überschritten wird.
+        Ein VaR von {formatCurrencyWhole(varResult.maxExpectedLossEur)} bei 95% Konfidenzniveau bedeutet: Mit 95%
         Wahrscheinlichkeit wird der Verlust innerhalb von {timeHorizon} Jahr{timeHorizon > 1 ? 'en' : ''} nicht höher
         als dieser Betrag sein. Es besteht aber eine 5% Chance, dass der Verlust größer ausfällt.
       </p>

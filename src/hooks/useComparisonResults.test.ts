@@ -125,22 +125,40 @@ describe('useComparisonResults', () => {
   it('returns empty array when useComparisonMode is false', () => {
     const config = createMockConfig(false)
     const { result } = renderHook(() =>
-      useComparisonResults(mockElements, startOfIndependence, config, steuerlast, teilfreistellungsquote, null, mockWithdrawalData),
+      useComparisonResults(
+        mockElements,
+        startOfIndependence,
+        config,
+        steuerlast,
+        teilfreistellungsquote,
+        null,
+        mockWithdrawalData,
+      ),
     )
 
     expect(result.current).toEqual([])
   })
 
   it('returns empty array when withdrawalData is null', () => {
-    const strategies: ComparisonStrategy[] = [{
-      id: '1',
-      name: 'Strategy 1',
-      strategie: '4prozent',
-      rendite: 5,
-    }]
+    const strategies: ComparisonStrategy[] = [
+      {
+        id: '1',
+        name: 'Strategy 1',
+        strategie: '4prozent',
+        rendite: 5,
+      },
+    ]
     const config = createMockConfig(true, strategies)
     const { result } = renderHook(() =>
-      useComparisonResults(mockElements, startOfIndependence, config, steuerlast, teilfreistellungsquote, null, null as any),
+      useComparisonResults(
+        mockElements,
+        startOfIndependence,
+        config,
+        steuerlast,
+        teilfreistellungsquote,
+        null,
+        null as any,
+      ),
     )
 
     expect(result.current).toEqual([])
@@ -165,7 +183,15 @@ describe('useComparisonResults', () => {
 
     const config = createMockConfig(true, strategies)
     const { result } = renderHook(() =>
-      useComparisonResults(mockElements, startOfIndependence, config, steuerlast, teilfreistellungsquote, null, mockWithdrawalData),
+      useComparisonResults(
+        mockElements,
+        startOfIndependence,
+        config,
+        steuerlast,
+        teilfreistellungsquote,
+        null,
+        mockWithdrawalData,
+      ),
     )
 
     expect(result.current).toHaveLength(2)
@@ -211,7 +237,15 @@ describe('useComparisonResults', () => {
   it('handles empty comparison strategies', () => {
     const config = createMockConfig(true, [])
     const { result } = renderHook(() =>
-      useComparisonResults(mockElements, startOfIndependence, config, steuerlast, teilfreistellungsquote, null, mockWithdrawalData),
+      useComparisonResults(
+        mockElements,
+        startOfIndependence,
+        config,
+        steuerlast,
+        teilfreistellungsquote,
+        null,
+        mockWithdrawalData,
+      ),
     )
 
     expect(result.current).toEqual([])
@@ -228,7 +262,16 @@ describe('useComparisonResults', () => {
     ])
 
     const { result, rerender } = renderHook(
-      ({ config }) => useComparisonResults(mockElements, startOfIndependence, config, steuerlast, teilfreistellungsquote, null, mockWithdrawalData),
+      ({ config }) =>
+        useComparisonResults(
+          mockElements,
+          startOfIndependence,
+          config,
+          steuerlast,
+          teilfreistellungsquote,
+          null,
+          mockWithdrawalData,
+        ),
       { initialProps: { config: config1 } },
     )
 

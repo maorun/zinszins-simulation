@@ -15,7 +15,7 @@ describe('BehavioralFinanceInsights', () => {
     render(<BehavioralFinanceInsights />)
 
     expect(screen.getByText('Behavioral Finance - Häufige Anlegerfehler')).toBeInTheDocument()
-    
+
     // Expand to see description
     await expandMainCard(user)
     expect(screen.getByText(/Lernen Sie typische psychologische Fehler kennen/)).toBeInTheDocument()
@@ -27,7 +27,7 @@ describe('BehavioralFinanceInsights', () => {
 
     // Expand to see search input
     await expandMainCard(user)
-    
+
     const searchInput = screen.getByPlaceholderText('Suche nach Bias...')
     expect(searchInput).toBeInTheDocument()
   })
@@ -38,7 +38,7 @@ describe('BehavioralFinanceInsights', () => {
 
     // Expand to see category badges
     await expandMainCard(user)
-    
+
     expect(screen.getByText(/❤️ Emotional/)).toBeInTheDocument()
     expect(screen.getByText(/🧠 Kognitive Fehler/)).toBeInTheDocument()
     expect(screen.getByText(/👥 Soziale Einflüsse/)).toBeInTheDocument()
@@ -50,7 +50,7 @@ describe('BehavioralFinanceInsights', () => {
 
     // Expand to see biases
     await expandMainCard(user)
-    
+
     // Check for some key biases
     expect(screen.getByText(/Verlustaversion/)).toBeInTheDocument()
     expect(screen.getByText(/Dispositionseffekt/)).toBeInTheDocument()
@@ -63,7 +63,7 @@ describe('BehavioralFinanceInsights', () => {
 
     // First expand main card
     await expandMainCard(user)
-    
+
     // Find and click a bias
     const lossAversionButton = screen.getByText(/Verlustaversion/)
     await user.click(lossAversionButton)
@@ -80,7 +80,7 @@ describe('BehavioralFinanceInsights', () => {
 
     // Expand main card first
     await expandMainCard(user)
-    
+
     const searchInput = screen.getByPlaceholderText('Suche nach Bias...')
 
     // Search for "Verlust"
@@ -88,7 +88,7 @@ describe('BehavioralFinanceInsights', () => {
 
     // Should show Verlustaversion
     expect(screen.getByText(/Verlustaversion/)).toBeInTheDocument()
-    
+
     // Should not show unrelated biases (they won't be in the filtered results)
     // We can check the count of cards instead
     const cards = screen.getAllByRole('button', { name: /.*/ })
@@ -101,7 +101,7 @@ describe('BehavioralFinanceInsights', () => {
 
     // Expand main card first
     await expandMainCard(user)
-    
+
     const searchInput = screen.getByPlaceholderText('Suche nach Bias...')
     await user.type(searchInput, 'xyznotfound123')
 
@@ -114,7 +114,7 @@ describe('BehavioralFinanceInsights', () => {
 
     // Expand main card first
     await expandMainCard(user)
-    
+
     // Find and expand Loss Aversion which has related biases
     const lossAversionButton = screen.getByText(/Verlustaversion/)
     await user.click(lossAversionButton)
@@ -129,7 +129,7 @@ describe('BehavioralFinanceInsights', () => {
 
     // Expand main card first
     await expandMainCard(user)
-    
+
     // Check that category badges are present with biases
     const badges = screen.getAllByText('Emotional', { exact: false })
     expect(badges.length).toBeGreaterThan(0)
@@ -141,7 +141,7 @@ describe('BehavioralFinanceInsights', () => {
 
     // Expand main card first
     await expandMainCard(user)
-    
+
     expect(screen.getByText(/Das Bewusstsein dieser psychologischen Fallen/)).toBeInTheDocument()
   })
 
@@ -151,7 +151,7 @@ describe('BehavioralFinanceInsights', () => {
 
     // Expand main card first
     await expandMainCard(user)
-    
+
     const biasButton = screen.getByText(/Verlustaversion/)
 
     // Expand
@@ -169,7 +169,7 @@ describe('BehavioralFinanceInsights', () => {
 
     // Expand main card first
     await expandMainCard(user)
-    
+
     const searchInput = screen.getByPlaceholderText('Suche nach Bias...')
 
     // Type search term

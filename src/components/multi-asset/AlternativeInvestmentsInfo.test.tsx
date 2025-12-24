@@ -16,9 +16,7 @@ describe('AlternativeInvestmentsInfo', () => {
 
     it('should explain what REITs are', () => {
       render(<AlternativeInvestmentsInfo />)
-      expect(
-        screen.getByText(/börsengehandelte Immobiliengesellschaften/i),
-      ).toBeInTheDocument()
+      expect(screen.getByText(/börsengehandelte Immobiliengesellschaften/i)).toBeInTheDocument()
     })
 
     it('should list REITs benefits', () => {

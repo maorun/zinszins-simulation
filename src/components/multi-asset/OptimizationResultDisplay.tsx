@@ -13,11 +13,7 @@ interface OptimizationResultDisplayProps {
 /**
  * Display optimization results with metrics and allocations
  */
-export function OptimizationResultDisplay({
-  result,
-  config,
-  onApplyAllocations,
-}: OptimizationResultDisplayProps) {
+export function OptimizationResultDisplay({ result, config, onApplyAllocations }: OptimizationResultDisplayProps) {
   return (
     <div className="space-y-3">
       <div className="border-t pt-3">

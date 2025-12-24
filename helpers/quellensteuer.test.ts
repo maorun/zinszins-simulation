@@ -91,7 +91,7 @@ describe('Quellensteuer (Foreign Withholding Tax) Calculations', () => {
 
     it('should calculate correctly with different German tax rates', () => {
       // Test with Günstigerprüfung scenario (lower personal tax rate)
-      const lowerGermanTaxRate = 0.20 // 20% personal tax rate
+      const lowerGermanTaxRate = 0.2 // 20% personal tax rate
       const result = calculateQuellensteuerconfigCredit(1000, 0.15, lowerGermanTaxRate, 0)
 
       expect(result.foreignIncome).toBe(1000)
@@ -152,7 +152,7 @@ describe('Quellensteuer (Foreign Withholding Tax) Calculations', () => {
     it('should handle all common countries', () => {
       const countryCodes = ['US', 'CH', 'AT', 'FR', 'GB', 'JP', 'CA', 'AU']
 
-      countryCodes.forEach((code) => {
+      countryCodes.forEach(code => {
         const rate = getWithholdingTaxRateForCountry(code)
         expect(rate).toBeDefined()
         expect(rate?.countryCode).toBe(code)
@@ -165,7 +165,7 @@ describe('Quellensteuer (Foreign Withholding Tax) Calculations', () => {
 
   describe('COMMON_WITHHOLDING_TAX_RATES', () => {
     it('should have consistent data structure', () => {
-      COMMON_WITHHOLDING_TAX_RATES.forEach((rate) => {
+      COMMON_WITHHOLDING_TAX_RATES.forEach(rate => {
         expect(rate.country).toBeTruthy()
         expect(rate.countryCode).toBeTruthy()
         expect(rate.countryCode.length).toBe(2) // ISO codes are 2 letters
@@ -181,7 +181,7 @@ describe('Quellensteuer (Foreign Withholding Tax) Calculations', () => {
     })
 
     it('should have unique country codes', () => {
-      const codes = COMMON_WITHHOLDING_TAX_RATES.map((r) => r.countryCode)
+      const codes = COMMON_WITHHOLDING_TAX_RATES.map(r => r.countryCode)
       const uniqueCodes = new Set(codes)
       expect(codes.length).toBe(uniqueCodes.size)
     })
@@ -294,7 +294,7 @@ describe('Quellensteuer (Foreign Withholding Tax) Calculations', () => {
 
       const errors = validateQuellensteuerconfigConfiguration(config)
       expect(errors.length).toBeGreaterThan(0)
-      expect(errors.some((e) => e.includes('100%'))).toBe(true)
+      expect(errors.some(e => e.includes('100%'))).toBe(true)
     })
 
     it('should reject negative withholding tax rate', () => {
@@ -319,8 +319,8 @@ describe('Quellensteuer (Foreign Withholding Tax) Calculations', () => {
 
       const errors = validateQuellensteuerconfigConfiguration(config)
       expect(errors.length).toBeGreaterThan(0)
-      expect(errors.some((e) => e.includes('Warnung'))).toBe(true)
-      expect(errors.some((e) => e.includes('50%'))).toBe(true)
+      expect(errors.some(e => e.includes('Warnung'))).toBe(true)
+      expect(errors.some(e => e.includes('50%'))).toBe(true)
     })
 
     it('should skip validation when disabled', () => {
@@ -402,7 +402,12 @@ describe('Quellensteuer (Foreign Withholding Tax) Calculations', () => {
       const foreignIncome = 2000
       const withholdingTaxRate = 0.15 // After DBA reduction
 
-      const result = calculateQuellensteuerconfigCredit(foreignIncome, withholdingTaxRate, GERMAN_CAPITAL_GAINS_TAX, 0.3)
+      const result = calculateQuellensteuerconfigCredit(
+        foreignIncome,
+        withholdingTaxRate,
+        GERMAN_CAPITAL_GAINS_TAX,
+        0.3,
+      )
 
       expect(result.foreignWithholdingTaxPaid).toBe(300)
       expect(result.creditableAmount).toBe(300)

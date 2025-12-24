@@ -128,9 +128,7 @@ describe('FactorInvestingConfiguration', () => {
     render(<FactorInvestingConfiguration config={config} onChange={onChange} />)
 
     // Check that factor descriptions are visible
-    expect(
-      screen.getByText(/Investiert in Unternehmen mit niedrigen Bewertungskennzahlen/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Investiert in Unternehmen mit niedrigen Bewertungskennzahlen/)).toBeInTheDocument()
     expect(screen.getByText(/Fokussiert auf Unternehmen mit hohem Gewinnwachstum/)).toBeInTheDocument()
   })
 

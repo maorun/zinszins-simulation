@@ -45,7 +45,10 @@ function getTaxConfigDefaults(
     kirchensteuersatz: getValueOrDefault(extendedInitialConfig.kirchensteuersatz, 9),
     assetClass: getValueOrDefault(extendedInitialConfig.assetClass, 'equity-fund' as AssetClass),
     customTeilfreistellungsquote: getValueOrDefault(extendedInitialConfig.customTeilfreistellungsquote, 0.3),
-    freistellungsauftragAccounts: getValueOrDefault(extendedInitialConfig.freistellungsauftragAccounts, [] as BankAccount[]),
+    freistellungsauftragAccounts: getValueOrDefault(
+      extendedInitialConfig.freistellungsauftragAccounts,
+      [] as BankAccount[],
+    ),
   }
 }
 

@@ -16,7 +16,7 @@ describe('Multi-Source Tax Optimization', () => {
     sparerpauschbetrag: 1000, // 2024 value (single person)
     kapitalertragsteuerRate: 0.25,
     solidaritaetszuschlagRate: 0.055,
-    incomeTaxRate: 0.30, // Simplified marginal rate
+    incomeTaxRate: 0.3, // Simplified marginal rate
   }
 
   describe('createDefaultMultiSourceConfig', () => {
@@ -24,17 +24,17 @@ describe('Multi-Source Tax Optimization', () => {
       const config = createDefaultMultiSourceConfig()
 
       expect(config.sources).toHaveLength(4)
-      expect(config.sources.map((s) => s.type)).toEqual(['depot', 'riester', 'ruerup', 'statutory_pension'])
+      expect(config.sources.map(s => s.type)).toEqual(['depot', 'riester', 'ruerup', 'statutory_pension'])
     })
 
     it('should have depot enabled by default, others disabled', () => {
       const config = createDefaultMultiSourceConfig()
 
-      const depot = config.sources.find((s) => s.type === 'depot')
+      const depot = config.sources.find(s => s.type === 'depot')
       expect(depot?.enabled).toBe(true)
 
-      const others = config.sources.filter((s) => s.type !== 'depot')
-      others.forEach((source) => {
+      const others = config.sources.filter(s => s.type !== 'depot')
+      others.forEach(source => {
         expect(source.enabled).toBe(false)
       })
     })
@@ -42,11 +42,11 @@ describe('Multi-Source Tax Optimization', () => {
     it('should have correct tax treatments', () => {
       const config = createDefaultMultiSourceConfig()
 
-      const depot = config.sources.find((s) => s.type === 'depot')
+      const depot = config.sources.find(s => s.type === 'depot')
       expect(depot?.taxTreatment).toBe('kapitalertragsteuer')
 
-      const pensions = config.sources.filter((s) => s.type !== 'depot')
-      pensions.forEach((source) => {
+      const pensions = config.sources.filter(s => s.type !== 'depot')
+      pensions.forEach(source => {
         expect(source.taxTreatment).toBe('einkommensteuer')
       })
     })
@@ -54,7 +54,7 @@ describe('Multi-Source Tax Optimization', () => {
     it('should have depot with Teilfreistellung', () => {
       const config = createDefaultMultiSourceConfig()
 
-      const depot = config.sources.find((s) => s.type === 'depot')
+      const depot = config.sources.find(s => s.type === 'depot')
       expect(depot?.teilfreistellung).toBe(0.3) // 30% for equity funds
     })
   })
@@ -305,7 +305,7 @@ describe('Multi-Source Tax Optimization', () => {
 
       it('should handle all sources disabled', () => {
         const config = createDefaultMultiSourceConfig()
-        config.sources.forEach((s) => (s.enabled = false))
+        config.sources.forEach(s => (s.enabled = false))
         config.targetAnnualWithdrawal = 40000
 
         const result = calculateOptimalWithdrawalAllocation(config, standardTaxParams)

@@ -17,7 +17,7 @@ describe('PensionPointsCalculator', () => {
 
       const westButtons = screen.getAllByText('West')
       const eastButtons = screen.getAllByText('Ost')
-      
+
       expect(westButtons.length).toBeGreaterThan(0)
       expect(eastButtons.length).toBeGreaterThan(0)
     })
@@ -177,7 +177,7 @@ describe('PensionPointsCalculator', () => {
       // Click the delete button if found
       if (deleteButton) {
         fireEvent.click(deleteButton)
-        
+
         // Should show empty state again
         await waitFor(() => {
           expect(screen.getByText('Keine Jahre hinzugefügt')).toBeInTheDocument()
@@ -192,9 +192,7 @@ describe('PensionPointsCalculator', () => {
 
       const westButtons = screen.getAllByText('West')
       // Find the button variant (should have default styling)
-      const westButton = westButtons.find(btn => 
-        btn.closest('button')?.className.includes('bg-')
-      )
+      const westButton = westButtons.find(btn => btn.closest('button')?.className.includes('bg-'))
       expect(westButton).toBeTruthy()
     })
 
@@ -203,7 +201,7 @@ describe('PensionPointsCalculator', () => {
 
       const eastButtons = screen.getAllByText('Ost')
       const eastButton = eastButtons[0].closest('button')
-      
+
       if (eastButton) {
         fireEvent.click(eastButton)
       }
@@ -407,7 +405,7 @@ describe('PensionPointsCalculator', () => {
 
       const startYearInput = screen.getByLabelText('Startjahr') as HTMLInputElement
       const endYearInput = screen.getByLabelText('Endjahr') as HTMLInputElement
-      
+
       fireEvent.change(startYearInput, { target: { value: '2020' } })
       fireEvent.change(endYearInput, { target: { value: '2020' } })
 

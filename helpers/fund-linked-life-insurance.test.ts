@@ -95,10 +95,9 @@ describe('fund-linked-life-insurance', () => {
       // Total upfront costs should be 5% of total contributions
       const totalPlannedContributions = 100 * 12 * 10
       const expectedUpfrontCosts = totalPlannedContributions * 0.05
-      
-      const actualUpfrontCosts = result.yearlyResults
-        .reduce((sum, year) => sum + year.upfrontCosts, 0)
-      
+
+      const actualUpfrontCosts = result.yearlyResults.reduce((sum, year) => sum + year.upfrontCosts, 0)
+
       expect(actualUpfrontCosts).toBeCloseTo(expectedUpfrontCosts, 0)
     })
 
@@ -123,7 +122,7 @@ describe('fund-linked-life-insurance', () => {
       const result = calculateFundLinkedLifeInsurance(config)
 
       // Each year should have management costs
-      result.yearlyResults.forEach((yearResult) => {
+      result.yearlyResults.forEach(yearResult => {
         expect(yearResult.managementCosts).toBeGreaterThan(0)
       })
     })
@@ -149,7 +148,7 @@ describe('fund-linked-life-insurance', () => {
       const result = calculateFundLinkedLifeInsurance(config)
 
       // After 12 years (2036) and age 62+, tax benefits should apply
-      const yearAfter12 = result.yearlyResults.find((y) => y.year === 2036)
+      const yearAfter12 = result.yearlyResults.find(y => y.year === 2036)
       expect(yearAfter12?.taxBenefitsApply).toBe(true)
       expect(yearAfter12?.taxableGainsPercent).toBe(50)
 
@@ -229,7 +228,7 @@ describe('fund-linked-life-insurance', () => {
 
       // Total contributions should include initial investment
       expect(result.totalContributions).toBeGreaterThanOrEqual(10000)
-      
+
       // First year portfolio should benefit from initial investment
       const firstYear = result.yearlyResults[0]
       expect(firstYear?.portfolioValue).toBeGreaterThan(10000)
@@ -280,9 +279,8 @@ describe('fund-linked-life-insurance', () => {
       const result = calculateFundLinkedLifeInsurance(config)
 
       // Should have death benefit costs
-      const totalDeathBenefitCosts = result.yearlyResults
-        .reduce((sum, year) => sum + year.deathBenefitCosts, 0)
-      
+      const totalDeathBenefitCosts = result.yearlyResults.reduce((sum, year) => sum + year.deathBenefitCosts, 0)
+
       expect(totalDeathBenefitCosts).toBeGreaterThan(0)
     })
 
@@ -307,9 +305,8 @@ describe('fund-linked-life-insurance', () => {
       const result = calculateFundLinkedLifeInsurance(config)
 
       // Should have no death benefit costs
-      const totalDeathBenefitCosts = result.yearlyResults
-        .reduce((sum, year) => sum + year.deathBenefitCosts, 0)
-      
+      const totalDeathBenefitCosts = result.yearlyResults.reduce((sum, year) => sum + year.deathBenefitCosts, 0)
+
       expect(totalDeathBenefitCosts).toBe(0)
     })
 
@@ -462,7 +459,7 @@ describe('fund-linked-life-insurance', () => {
       }
 
       const insurance = calculateFundLinkedLifeInsurance(config)
-      
+
       const comparison = compareFundLinkedInsuranceVsDirectETF(
         insurance,
         7, // Same 7% return
@@ -472,7 +469,7 @@ describe('fund-linked-life-insurance', () => {
 
       expect(comparison.insuranceFinalValue).toBeGreaterThan(0)
       expect(comparison.directETFFinalValue).toBeGreaterThan(0)
-      
+
       // Direct ETF should typically have higher final value due to lower costs
       // But insurance has tax advantage if criteria met
       expect(comparison.insuranceAdvantage).toBeDefined()
@@ -498,17 +495,12 @@ describe('fund-linked-life-insurance', () => {
       }
 
       const insurance = calculateFundLinkedLifeInsurance(config)
-      
-      const comparison = compareFundLinkedInsuranceVsDirectETF(
-        insurance,
-        7,
-        0.2,
-        26.375,
-      )
+
+      const comparison = compareFundLinkedInsuranceVsDirectETF(insurance, 7, 0.2, 26.375)
 
       // Insurance should have tax advantage (50% vs 100% taxable)
       expect(insurance.taxBenefitsApplyAtMaturity).toBe(true)
-      
+
       // Net value comparison should favor insurance due to tax benefits
       // (assuming low insurance costs)
       expect(comparison.insuranceNetValue).toBeGreaterThan(0)
@@ -534,13 +526,8 @@ describe('fund-linked-life-insurance', () => {
       }
 
       const insurance = calculateFundLinkedLifeInsurance(config)
-      
-      const comparison = compareFundLinkedInsuranceVsDirectETF(
-        insurance,
-        6,
-        0.25,
-        26.375,
-      )
+
+      const comparison = compareFundLinkedInsuranceVsDirectETF(insurance, 6, 0.25, 26.375)
 
       // Check all metrics are present
       expect(comparison.insuranceFinalValue).toBeDefined()
@@ -577,13 +564,13 @@ describe('fund-linked-life-insurance', () => {
 
       // After 25 years, should have significant value
       expect(result.finalPortfolioValue).toBeGreaterThan(100000)
-      
+
       // At end, person is 65, held for 25 years > 12, age > 62
       expect(result.taxBenefitsApplyAtMaturity).toBe(true)
-      
+
       // Should have paid costs
       expect(result.totalCostsPaid).toBeGreaterThan(0)
-      
+
       // Cost ratio includes upfront costs (3% of all contributions over 5 years)
       // plus ongoing management (1%) and guarantee costs (0.5%) and death benefit
       // This is typical for German insurance products which are relatively expensive
@@ -612,7 +599,7 @@ describe('fund-linked-life-insurance', () => {
 
       // Should not get tax benefits (too young and too short)
       expect(result.taxBenefitsApplyAtMaturity).toBe(false)
-      
+
       // Should still have positive returns
       expect(result.finalPortfolioValue).toBeGreaterThan(result.totalContributions)
     })

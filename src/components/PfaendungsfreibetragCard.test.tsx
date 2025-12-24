@@ -318,7 +318,7 @@ describe('PfaendungsfreibetragCard', () => {
     // This tests that the AssetProtectionDisplay correctly shows Riester when value > 0
     expect(assetResult.riesterProtected).toBe(80000)
     expect(assetResult.riesterGarnishable).toBe(0)
-    
+
     // If riesterProtected > 0, the component should display "Vollständig geschützt in Ansparphase"
     // This is validated by the helper tests
   })

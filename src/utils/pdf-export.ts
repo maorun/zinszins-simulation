@@ -8,7 +8,7 @@ import { isEmpty } from './array-utils'
 
 /**
  * PDF Export utility for generating comprehensive financial reports
- * 
+ *
  * This module provides functions to export simulation data to PDF format
  * following German financial reporting standards.
  */
@@ -54,7 +54,7 @@ function addSectionHeader(doc: jsPDF, text: string, yPos: number): number {
   doc.setFont('helvetica', 'bold')
   doc.text(text, 15, yPos)
   yPos += 8
-  
+
   // Add underline
   doc.setLineWidth(0.5)
   doc.line(15, yPos, doc.internal.pageSize.width - 15, yPos)
@@ -103,7 +103,7 @@ function addSavingsPlanSummary(doc: jsPDF, context: SimulationContextState, yPos
   yPos = addSectionHeader(doc, 'Sparpläne', yPos)
 
   doc.setFontSize(10)
-  
+
   context.sparplan.forEach((plan, index) => {
     doc.setFont('helvetica', 'bold')
     doc.text(`Sparplan ${index + 1}:`, 15, yPos)
@@ -114,7 +114,7 @@ function addSavingsPlanSummary(doc: jsPDF, context: SimulationContextState, yPos
     yPos += 5
     doc.text(`Start: ${new Date(plan.start).toLocaleDateString('de-DE')}`, 20, yPos)
     yPos += 5
-    
+
     if (plan.end) {
       doc.text(`Ende: ${new Date(plan.end).toLocaleDateString('de-DE')}`, 20, yPos)
       yPos += 5
@@ -149,7 +149,7 @@ function addSavingsDataTable(doc: jsPDF, savingsData: SparplanElement[], yPos: n
 
   // Table data
   doc.setFont('helvetica', 'normal')
-  
+
   // Get simulation data
   if (!savingsData || savingsData.length === 0) {
     doc.text('Keine Daten verfügbar', 15, yPos)
@@ -186,7 +186,7 @@ function addSavingsDataTable(doc: jsPDF, savingsData: SparplanElement[], yPos: n
       doc.text(formatCurrency(yearData.endkapital || 0), xPos, yPos)
       xPos += colWidths[3]
       doc.text(formatCurrency(yearData.bezahlteSteuer || 0), xPos, yPos)
-      
+
       yPos += 5
     })
   })
@@ -224,8 +224,10 @@ function addWithdrawalDataTable(doc: jsPDF, withdrawalData: WithdrawalResult, yP
   }
 
   // Get years and sort them
-  const years = Object.keys(withdrawalData).map(Number).sort((a, b) => a - b)
-  
+  const years = Object.keys(withdrawalData)
+    .map(Number)
+    .sort((a, b) => a - b)
+
   // Process up to 30 years to fit on page
   const maxRows = 30
   const yearsToShow = years.slice(0, maxRows)
@@ -263,7 +265,7 @@ function addWithdrawalDataTable(doc: jsPDF, withdrawalData: WithdrawalResult, yP
  */
 function extractSavingsSummary(data: ExportData): Array<[string, string]> {
   const stats: Array<[string, string]> = []
-  
+
   if (!data.savingsData?.sparplanElements || data.savingsData.sparplanElements.length === 0) {
     return stats
   }
@@ -276,7 +278,7 @@ function extractSavingsSummary(data: ExportData): Array<[string, string]> {
   const years = Object.keys(lastElement.simulation).sort()
   const lastYear = years[years.length - 1]
   const lastYearData = lastElement.simulation[parseInt(lastYear)]
-  
+
   if (lastYearData) {
     stats.push(['Endkapital Sparphase:', formatCurrency(lastYearData.endkapital || 0)])
     stats.push(['Gesamte Zinsen:', formatCurrency(lastYearData.zinsen || 0)])
@@ -290,22 +292,21 @@ function extractSavingsSummary(data: ExportData): Array<[string, string]> {
  */
 function extractWithdrawalSummary(data: ExportData): Array<[string, string]> {
   const stats: Array<[string, string]> = []
-  
+
   if (!data.withdrawalData || isEmpty(data.withdrawalData)) {
     return stats
   }
 
-  const years = Object.keys(data.withdrawalData).map(Number).sort((a, b) => a - b)
+  const years = Object.keys(data.withdrawalData)
+    .map(Number)
+    .sort((a, b) => a - b)
   const lastYear = years[years.length - 1]
   const lastYearData = data.withdrawalData[lastYear]
-  
+
   if (lastYearData) {
     stats.push(['Endkapital Entnahmephase:', formatCurrency(lastYearData.endkapital || 0)])
-    
-    const totalWithdrawals = years.reduce(
-      (sum, year) => sum + (data.withdrawalData![year]?.entnahme || 0),
-      0
-    )
+
+    const totalWithdrawals = years.reduce((sum, year) => sum + (data.withdrawalData![year]?.entnahme || 0), 0)
     stats.push(['Gesamte Entnahmen:', formatCurrency(totalWithdrawals)])
   }
 
@@ -341,7 +342,7 @@ function addSummaryStatistics(doc: jsPDF, data: ExportData, yPos: number): numbe
  */
 function addFooter(doc: jsPDF): void {
   const pageCount = doc.getNumberOfPages()
-  
+
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i)
     doc.setFontSize(8)
@@ -359,18 +360,18 @@ function addFooter(doc: jsPDF): void {
  */
 export function exportSavingsDataToPDF(data: ExportData): Blob {
   const doc = new jsPDF()
-  
+
   let yPos = addHeader(doc, 'Sparphase - Simulationsbericht')
-  
+
   yPos = addParameterSection(doc, data.context, yPos)
   yPos = addSavingsPlanSummary(doc, data.context, yPos)
-  
+
   if (data.savingsData?.sparplanElements) {
     addSavingsDataTable(doc, data.savingsData.sparplanElements, yPos)
   }
-  
+
   addFooter(doc)
-  
+
   return doc.output('blob')
 }
 
@@ -379,17 +380,17 @@ export function exportSavingsDataToPDF(data: ExportData): Blob {
  */
 export function exportWithdrawalDataToPDF(data: ExportData): Blob {
   const doc = new jsPDF()
-  
+
   let yPos = addHeader(doc, 'Entnahmephase - Simulationsbericht')
-  
+
   yPos = addParameterSection(doc, data.context, yPos)
-  
+
   if (data.withdrawalData) {
     addWithdrawalDataTable(doc, data.withdrawalData, yPos)
   }
-  
+
   addFooter(doc)
-  
+
   return doc.output('blob')
 }
 
@@ -398,24 +399,24 @@ export function exportWithdrawalDataToPDF(data: ExportData): Blob {
  */
 export function exportAllDataToPDF(data: ExportData): Blob {
   const doc = new jsPDF()
-  
+
   let yPos = addHeader(doc, 'Vollständiger Simulationsbericht')
-  
+
   yPos = addParameterSection(doc, data.context, yPos)
   yPos = addSavingsPlanSummary(doc, data.context, yPos)
-  
+
   // Add summary statistics
   yPos = addSummaryStatistics(doc, data, yPos)
-  
+
   // Add new page for detailed data
   doc.addPage()
   yPos = 20
-  
+
   // Add savings phase data
   if (data.savingsData?.sparplanElements) {
     yPos = addSavingsDataTable(doc, data.savingsData.sparplanElements, yPos)
   }
-  
+
   // Add withdrawal phase data
   if (data.withdrawalData) {
     // Check if we need a new page
@@ -425,9 +426,9 @@ export function exportAllDataToPDF(data: ExportData): Blob {
     }
     yPos = addWithdrawalDataTable(doc, data.withdrawalData, yPos)
   }
-  
+
   addFooter(doc)
-  
+
   return doc.output('blob')
 }
 

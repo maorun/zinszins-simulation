@@ -17,29 +17,42 @@ describe('RetirementReadinessScore', () => {
   }
 
   const mockWithdrawalResult: WithdrawalResult = {
-    2040: { startkapital: 750000, entnahme: 36000, endkapital: 730000, bezahlteSteuer: 5000, genutzterFreibetrag: 1000, zinsen: 20000 },
-    2041: { startkapital: 730000, entnahme: 36000, endkapital: 710000, bezahlteSteuer: 5000, genutzterFreibetrag: 1000, zinsen: 20000 },
-    2042: { startkapital: 710000, entnahme: 36000, endkapital: 690000, bezahlteSteuer: 5000, genutzterFreibetrag: 1000, zinsen: 20000 },
+    2040: {
+      startkapital: 750000,
+      entnahme: 36000,
+      endkapital: 730000,
+      bezahlteSteuer: 5000,
+      genutzterFreibetrag: 1000,
+      zinsen: 20000,
+    },
+    2041: {
+      startkapital: 730000,
+      entnahme: 36000,
+      endkapital: 710000,
+      bezahlteSteuer: 5000,
+      genutzterFreibetrag: 1000,
+      zinsen: 20000,
+    },
+    2042: {
+      startkapital: 710000,
+      entnahme: 36000,
+      endkapital: 690000,
+      bezahlteSteuer: 5000,
+      genutzterFreibetrag: 1000,
+      zinsen: 20000,
+    },
   }
 
   it('should render nothing when enhancedSummary is null', () => {
     const { container } = render(
-      <RetirementReadinessScore
-        enhancedSummary={null}
-        withdrawalResult={mockWithdrawalResult}
-        planningYears={25}
-      />
+      <RetirementReadinessScore enhancedSummary={null} withdrawalResult={mockWithdrawalResult} planningYears={25} />,
     )
     expect(container.firstChild).toBeNull()
   })
 
   it('should render nothing when withdrawalResult is null', () => {
     const { container } = render(
-      <RetirementReadinessScore
-        enhancedSummary={mockEnhancedSummary}
-        withdrawalResult={null}
-        planningYears={25}
-      />
+      <RetirementReadinessScore enhancedSummary={mockEnhancedSummary} withdrawalResult={null} planningYears={25} />,
     )
     expect(container.firstChild).toBeNull()
   })
@@ -50,7 +63,7 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={mockEnhancedSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
-      />
+      />,
     )
 
     expect(screen.getByText('🎯 Retirement-Readiness Score')).toBeInTheDocument()
@@ -63,7 +76,7 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={mockEnhancedSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
-      />
+      />,
     )
 
     // Score should be visible
@@ -89,7 +102,7 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={mockEnhancedSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
-      />
+      />,
     )
 
     expect(screen.getByText('📊 Detaillierte Bewertung')).toBeInTheDocument()
@@ -105,7 +118,7 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={mockEnhancedSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
-      />
+      />,
     )
 
     expect(screen.getByText('💼 Finanzielle Kennzahlen')).toBeInTheDocument()
@@ -123,7 +136,7 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={mockEnhancedSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
-      />
+      />,
     )
 
     // Check for formatted currency values
@@ -140,11 +153,11 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={mockEnhancedSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
-      />
+      />,
     )
 
     expect(screen.getByText('💡 Empfehlungen')).toBeInTheDocument()
-    
+
     // Should have at least one recommendation
     const recommendations = screen.getByText('💡 Empfehlungen').parentElement
     expect(recommendations?.querySelector('ul')).toBeInTheDocument()
@@ -156,7 +169,7 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={mockEnhancedSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
-      />
+      />,
     )
 
     expect(screen.getByText(/Hinweis zur Berechnung:/)).toBeInTheDocument()
@@ -179,7 +192,7 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={excellentSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
-      />
+      />,
     )
 
     // Should show positive description
@@ -199,7 +212,7 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={poorSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={15}
-      />
+      />,
     )
 
     // Should show concerning description
@@ -214,7 +227,7 @@ describe('RetirementReadinessScore', () => {
         withdrawalResult={mockWithdrawalResult}
         planningYears={20}
         lifeExpectancy={30}
-      />
+      />,
     )
 
     // Component should render without errors
@@ -228,7 +241,7 @@ describe('RetirementReadinessScore', () => {
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
         nestingLevel={1}
-      />
+      />,
     )
 
     // Card should have nesting level attribute
@@ -242,7 +255,7 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={mockEnhancedSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
-      />
+      />,
     )
 
     // Card should have nesting level 0
@@ -256,7 +269,7 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={mockEnhancedSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
-      />
+      />,
     )
 
     // Should have percentage values for capital coverage, income replacement, and sustainability
@@ -270,7 +283,7 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={mockEnhancedSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
-      />
+      />,
     )
 
     // Initial render
@@ -287,7 +300,7 @@ describe('RetirementReadinessScore', () => {
         enhancedSummary={updatedSummary}
         withdrawalResult={mockWithdrawalResult}
         planningYears={25}
-      />
+      />,
     )
 
     // Should show updated value

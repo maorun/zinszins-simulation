@@ -27,11 +27,7 @@ interface SparplanFormFieldsProps {
   simulationAnnual: SimulationAnnualType
   onFormChange: (values: SparplanFormValue) => void
   formatDateForInput: (date: Date | string | null, format: string) => string
-  handleDateChange: (
-    e: ChangeEvent<HTMLInputElement>,
-    format: string,
-    callback: (date: Date | null) => void,
-  ) => void
+  handleDateChange: (e: ChangeEvent<HTMLInputElement>, format: string, callback: (date: Date | null) => void) => void
   handleNumberChange: (e: ChangeEvent<HTMLInputElement>, callback: (value: string) => void) => void
 }
 
@@ -127,7 +123,9 @@ export function SparplanFormFields({
           placeholder="Enddatum wählen"
         />
         <AmountField
-          label={simulationAnnual === SimulationAnnual.yearly ? 'Einzahlungen je Jahr (€)' : 'Einzahlungen je Monat (€)'}
+          label={
+            simulationAnnual === SimulationAnnual.yearly ? 'Einzahlungen je Jahr (€)' : 'Einzahlungen je Monat (€)'
+          }
           value={formValues.einzahlung || ''}
           onChange={e => handleNumberChange(e, value => onFormChange({ ...formValues, einzahlung: value }))}
           placeholder="Betrag eingeben"

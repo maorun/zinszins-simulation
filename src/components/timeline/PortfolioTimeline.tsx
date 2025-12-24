@@ -21,7 +21,7 @@ interface PortfolioTimelineProps {
  */
 function getYearMetrics(simulationData: SimulationResult, year: number, yearlyContributions?: Map<number, number>) {
   const yearData = simulationData[year]
-  
+
   // If no data for this year (e.g., before simulation starts), return zero values
   if (!yearData) {
     return {
@@ -73,7 +73,7 @@ function PlaybackControls({
 }) {
   const playPauseLabel = isPlaying ? 'Pausieren' : 'Abspielen'
   const PlayPauseIcon = isPlaying ? Pause : Play
-  
+
   return (
     <div className="flex items-center justify-center gap-2">
       <Button
@@ -150,7 +150,7 @@ function TimelineSlider({
  */
 function MetricsGrid({ metrics }: { metrics: ReturnType<typeof getYearMetrics> }) {
   if (!metrics) return null
-  
+
   return (
     <>
       <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
@@ -164,9 +164,8 @@ function MetricsGrid({ metrics }: { metrics: ReturnType<typeof getYearMetrics> }
 
       <div className="p-3 bg-blue-50 rounded border border-blue-200">
         <p className="text-xs text-blue-800">
-          💡 <strong>Tipp:</strong> Nutzen Sie die Steuerelemente, um die Entwicklung Ihres Portfolios Jahr
-          für Jahr zu verfolgen. Die Animation zeigt, wie Einzahlungen, Renditen und Steuern Ihr Kapital
-          beeinflussen.
+          💡 <strong>Tipp:</strong> Nutzen Sie die Steuerelemente, um die Entwicklung Ihres Portfolios Jahr für Jahr zu
+          verfolgen. Die Animation zeigt, wie Einzahlungen, Renditen und Steuern Ihr Kapital beeinflussen.
         </p>
       </div>
     </>
@@ -176,13 +175,7 @@ function MetricsGrid({ metrics }: { metrics: ReturnType<typeof getYearMetrics> }
 /**
  * Info messages component for empty or partial data states
  */
-function DataStateMessages({ 
-  simulationData, 
-  currentYear 
-}: { 
-  simulationData: SimulationResult
-  currentYear: number
-}) {
+function DataStateMessages({ simulationData, currentYear }: { simulationData: SimulationResult; currentYear: number }) {
   const hasSimulationData = Object.keys(simulationData).length > 0
   const hasDataForCurrentYear = !!simulationData[currentYear]
 
@@ -190,15 +183,17 @@ function DataStateMessages({
     return (
       <div className="p-4 bg-yellow-50 border border-yellow-200 rounded">
         <p className="text-sm text-yellow-800">
-          ℹ️ <strong>Keine Simulationsdaten verfügbar.</strong> Erstellen Sie einen Sparplan, um die
-          Portfolio-Animation zu sehen.
+          ℹ️ <strong>Keine Simulationsdaten verfügbar.</strong> Erstellen Sie einen Sparplan, um die Portfolio-Animation
+          zu sehen.
         </p>
       </div>
     )
   }
 
   if (!hasDataForCurrentYear) {
-    const firstDataYear = Object.keys(simulationData).map(Number).sort((a, b) => a - b)[0]
+    const firstDataYear = Object.keys(simulationData)
+      .map(Number)
+      .sort((a, b) => a - b)[0]
     return (
       <div className="p-3 bg-blue-50 border border-blue-200 rounded">
         <p className="text-xs text-blue-800">
@@ -213,17 +208,22 @@ function DataStateMessages({
 
 /**
  * Portfolio Timeline Animation Component
- * 
+ *
  * Provides an animated year-by-year visualization of portfolio development
  * with playback controls and key metrics display.
  */
-export function PortfolioTimeline({ simulationData, yearlyContributions, className = '', animationSpeed = 1000 }: PortfolioTimelineProps) {
+export function PortfolioTimeline({
+  simulationData,
+  yearlyContributions,
+  className = '',
+  animationSpeed = 1000,
+}: PortfolioTimelineProps) {
   const playback = useTimelinePlayback(simulationData, animationSpeed)
   const { state, progress } = playback
 
   const currentMetrics = useMemo(
     () => getYearMetrics(simulationData, state.currentYear, yearlyContributions),
-    [simulationData, state.currentYear, yearlyContributions]
+    [simulationData, state.currentYear, yearlyContributions],
   )
 
   return (

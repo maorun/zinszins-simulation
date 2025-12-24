@@ -14,10 +14,7 @@ interface UseReturnConfigurationHandlersParams {
 /**
  * Hook for return mode and inflation handlers
  */
-function useReturnModeHandlers(
-  setReturnMode: (mode: ReturnMode) => void,
-  performSimulation: () => void,
-) {
+function useReturnModeHandlers(setReturnMode: (mode: ReturnMode) => void, performSimulation: () => void) {
   const handleReturnModeChange = useCallback(
     (mode: ReturnMode) => {
       setReturnMode(mode)

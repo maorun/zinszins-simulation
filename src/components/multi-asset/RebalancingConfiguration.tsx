@@ -214,7 +214,10 @@ function TransactionCostConfiguration({
         onChange={minTransactionSize => onChange({ transactionCosts: { ...transactionCosts, minTransactionSize } })}
       />
 
-      <CostBenefitThresholdSlider costBenefitThreshold={costBenefitThreshold} onChange={costBenefitThreshold => onChange({ costBenefitThreshold })} />
+      <CostBenefitThresholdSlider
+        costBenefitThreshold={costBenefitThreshold}
+        onChange={costBenefitThreshold => onChange({ costBenefitThreshold })}
+      />
 
       <div className="p-2 bg-white rounded-md">
         <div className="flex items-start gap-2 text-xs text-gray-600">
@@ -261,11 +264,7 @@ export function RebalancingConfiguration({ config, onChange }: RebalancingConfig
 
       {config.frequency !== 'never' && (
         <>
-          <ThresholdConfiguration
-            useThreshold={config.useThreshold}
-            threshold={config.threshold}
-            onChange={onChange}
-          />
+          <ThresholdConfiguration useThreshold={config.useThreshold} threshold={config.threshold} onChange={onChange} />
           <TransactionCostConfiguration
             transactionCosts={config.transactionCosts}
             costBenefitThreshold={config.costBenefitThreshold}

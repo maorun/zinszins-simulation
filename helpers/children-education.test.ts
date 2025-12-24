@@ -543,13 +543,13 @@ describe('children-education', () => {
     it('should set correct year ranges for phases', () => {
       const config = createStandardEducationPath('Anna', 2015, 2024)
 
-      const kitaPhase = config.phases.find((p) => p.phase === 'kita')!
+      const kitaPhase = config.phases.find(p => p.phase === 'kita')!
       expect(kitaPhase.endYear).toBe(2021) // 2015 + 6
 
-      const grundschulePhase = config.phases.find((p) => p.phase === 'grundschule')!
+      const grundschulePhase = config.phases.find(p => p.phase === 'grundschule')!
       expect(grundschulePhase.endYear).toBe(2025) // 2015 + 10
 
-      const studiumPhase = config.phases.find((p) => p.phase === 'studium')!
+      const studiumPhase = config.phases.find(p => p.phase === 'studium')!
       expect(studiumPhase.startYear).toBe(2034) // 2015 + 19
     })
   })
@@ -619,13 +619,13 @@ describe('children-education', () => {
     it('should fail if birth year is in the future', () => {
       const config = { ...validConfig, birthYear: 2030 }
       const errors = validateChildrenEducationConfig(config)
-      expect(errors.some((e) => e.includes('Zukunft'))).toBe(true)
+      expect(errors.some(e => e.includes('Zukunft'))).toBe(true)
     })
 
     it('should fail if birth year is unrealistic', () => {
       const config = { ...validConfig, birthYear: 1990 }
       const errors = validateChildrenEducationConfig(config)
-      expect(errors.some((e) => e.includes('unrealistisch'))).toBe(true)
+      expect(errors.some(e => e.includes('unrealistisch'))).toBe(true)
     })
 
     it('should fail if no phases are configured', () => {
@@ -640,7 +640,7 @@ describe('children-education', () => {
         phases: [{ ...validConfig.phases[0], monthlyCost: -100 }],
       }
       const errors = validateChildrenEducationConfig(config)
-      expect(errors.some((e) => e.includes('negativ'))).toBe(true)
+      expect(errors.some(e => e.includes('negativ'))).toBe(true)
     })
 
     it('should fail if start year is after end year', () => {
@@ -649,7 +649,7 @@ describe('children-education', () => {
         phases: [{ ...validConfig.phases[0], startYear: 2026, endYear: 2024 }],
       }
       const errors = validateChildrenEducationConfig(config)
-      expect(errors.some((e) => e.includes('Startjahr') && e.includes('Endjahr'))).toBe(true)
+      expect(errors.some(e => e.includes('Startjahr') && e.includes('Endjahr'))).toBe(true)
     })
 
     it('should fail if inflation rate is out of range', () => {
@@ -658,7 +658,7 @@ describe('children-education', () => {
         phases: [{ ...validConfig.phases[0], inflationRate: 25 }],
       }
       const errors = validateChildrenEducationConfig(config)
-      expect(errors.some((e) => e.includes('Inflationsrate'))).toBe(true)
+      expect(errors.some(e => e.includes('Inflationsrate'))).toBe(true)
     })
 
     it('should validate BAföG configuration', () => {
@@ -679,7 +679,7 @@ describe('children-education', () => {
         },
       }
       const errors = validateChildrenEducationConfig(config)
-      expect(errors.some((e) => e.includes('BAföG'))).toBe(true)
+      expect(errors.some(e => e.includes('BAföG'))).toBe(true)
     })
 
     it('should fail if BAföG amount exceeds legal maximum', () => {
@@ -700,7 +700,7 @@ describe('children-education', () => {
         },
       }
       const errors = validateChildrenEducationConfig(config)
-      expect(errors.some((e) => e.includes('gesetzliches Maximum'))).toBe(true)
+      expect(errors.some(e => e.includes('gesetzliches Maximum'))).toBe(true)
     })
 
     it('should fail if BAföG start year is after end year', () => {
@@ -721,7 +721,7 @@ describe('children-education', () => {
         },
       }
       const errors = validateChildrenEducationConfig(config)
-      expect(errors.some((e) => e.includes('BAföG-Startjahr'))).toBe(true)
+      expect(errors.some(e => e.includes('BAföG-Startjahr'))).toBe(true)
     })
 
     it('should fail if parental income is negative', () => {
@@ -742,7 +742,7 @@ describe('children-education', () => {
         },
       }
       const errors = validateChildrenEducationConfig(config)
-      expect(errors.some((e) => e.includes('Elterneinkommen'))).toBe(true)
+      expect(errors.some(e => e.includes('Elterneinkommen'))).toBe(true)
     })
   })
 })

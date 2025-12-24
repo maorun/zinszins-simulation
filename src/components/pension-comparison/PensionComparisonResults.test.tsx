@@ -142,17 +142,15 @@ describe('PensionComparisonResults', () => {
       bestROI: null,
       bestNetBenefit: null,
     }
-    
+
     render(<PensionComparisonResults results={emptyResult} />)
-    
-    expect(
-      screen.getByText(/Aktivieren Sie mindestens eine Rentenversicherung/i)
-    ).toBeInTheDocument()
+
+    expect(screen.getByText(/Aktivieren Sie mindestens eine Rentenversicherung/i)).toBeInTheDocument()
   })
 
   it('should render comparison table with single pension', () => {
     render(<PensionComparisonResults results={mockSinglePensionResult} />)
-    
+
     // Check table headers
     expect(screen.getByText(/Rentenart/i)).toBeInTheDocument()
     expect(screen.getByText(/Jährl\. Beitrag/i)).toBeInTheDocument()
@@ -161,14 +159,14 @@ describe('PensionComparisonResults', () => {
     // ROI appears in both table header and metrics explanation - use getAllByText
     expect(screen.getAllByText(/ROI/i).length).toBeGreaterThan(0)
     expect(screen.getByText(/Lebenszeit­gewinn/i)).toBeInTheDocument()
-    
+
     // Check pension type - appears in table, so use getAllByText
     expect(screen.getAllByText('Riester-Rente').length).toBeGreaterThan(0)
   })
 
   it('should display formatted currency values', () => {
     render(<PensionComparisonResults results={mockSinglePensionResult} />)
-    
+
     // Check for formatted values (German format with €) - many values appear multiple times
     expect(screen.getAllByText(/2\.100,00 €/i).length).toBeGreaterThan(0)
     expect(screen.getAllByText(/300,00 €/i).length).toBeGreaterThan(0)
@@ -177,14 +175,14 @@ describe('PensionComparisonResults', () => {
 
   it('should display ROI as percentage', () => {
     render(<PensionComparisonResults results={mockSinglePensionResult} />)
-    
+
     // ROI of 0.5 should be displayed as +50.0%
     expect(screen.getByText(/\+50\.0%/i)).toBeInTheDocument()
   })
 
   it('should show summary row for multiple pensions', () => {
     render(<PensionComparisonResults results={mockMultiplePensionResult} />)
-    
+
     // Check for summary/total row - "Gesamt" appears in detailed breakdown titles too
     const gesamtElements = screen.getAllByText(/Gesamt/i)
     expect(gesamtElements.length).toBeGreaterThan(0)
@@ -192,7 +190,7 @@ describe('PensionComparisonResults', () => {
 
   it('should not show summary row for single pension', () => {
     render(<PensionComparisonResults results={mockSinglePensionResult} />)
-    
+
     // For single pension, "Gesamt" appears only in detailed breakdown, not in table footer
     // Check that the table footer with "Gesamt" is not present by looking for specific structure
     const tables = document.querySelectorAll('table')
@@ -204,7 +202,7 @@ describe('PensionComparisonResults', () => {
 
   it('should show best options highlight for multiple pensions', () => {
     render(<PensionComparisonResults results={mockMultiplePensionResult} />)
-    
+
     expect(screen.getByText(/Beste Rendite \(ROI\)/i)).toBeInTheDocument()
     expect(screen.getByText(/Höchster Lebenszeitgewinn/i)).toBeInTheDocument()
     // Names appear in table, best options, and detailed breakdown
@@ -213,14 +211,14 @@ describe('PensionComparisonResults', () => {
 
   it('should not show best options for single pension', () => {
     render(<PensionComparisonResults results={mockSinglePensionResult} />)
-    
+
     expect(screen.queryByText(/Beste Rendite \(ROI\)/i)).not.toBeInTheDocument()
     expect(screen.queryByText(/Höchster Lebenszeitgewinn/i)).not.toBeInTheDocument()
   })
 
   it('should show detailed breakdown section', () => {
     render(<PensionComparisonResults results={mockSinglePensionResult} />)
-    
+
     expect(screen.getByText(/Detaillierte Aufschlüsselung/i)).toBeInTheDocument()
     // These labels appear in detailed breakdown section
     expect(screen.getAllByText(/Gesamte Beiträge/i).length).toBeGreaterThan(0)
@@ -230,7 +228,7 @@ describe('PensionComparisonResults', () => {
 
   it('should show metrics explanation', () => {
     render(<PensionComparisonResults results={mockSinglePensionResult} />)
-    
+
     expect(screen.getByText(/Erklärung der Metriken/i)).toBeInTheDocument()
     expect(screen.getByText(/Jährlicher Beitrag:/i)).toBeInTheDocument()
     expect(screen.getByText(/Steuervorteil:/i)).toBeInTheDocument()
@@ -241,14 +239,14 @@ describe('PensionComparisonResults', () => {
 
   it('should display employer contribution for Betriebsrente', () => {
     render(<PensionComparisonResults results={mockMultiplePensionResult} />)
-    
+
     // Betriebsrente has employer contribution
     expect(screen.getByText(/600,00 € AG/i)).toBeInTheDocument()
   })
 
   it('should show all three pension types when enabled', () => {
     render(<PensionComparisonResults results={mockMultiplePensionResult} />)
-    
+
     // Use getAllByText since names appear in table, best options, and detailed breakdown
     expect(screen.getAllByText('Riester-Rente').length).toBeGreaterThan(0)
     expect(screen.getAllByText('Rürup-Rente').length).toBeGreaterThan(0)
@@ -257,7 +255,7 @@ describe('PensionComparisonResults', () => {
 
   it('should show pension descriptions in table', () => {
     render(<PensionComparisonResults results={mockMultiplePensionResult} />)
-    
+
     expect(screen.getByText(/Staatlich gefördert/i)).toBeInTheDocument()
     expect(screen.getByText(/Basis-Rente für Selbstständige/i)).toBeInTheDocument()
     expect(screen.getByText(/Arbeitgeberfinanziert/i)).toBeInTheDocument()
@@ -294,9 +292,9 @@ describe('PensionComparisonResults', () => {
       bestROI: null,
       bestNetBenefit: null,
     }
-    
+
     const { container } = render(<PensionComparisonResults results={negativeROIResult} />)
-    
+
     // Find elements with text-red-600 class for negative values
     const redElements = container.querySelectorAll('.text-red-600')
     expect(redElements.length).toBeGreaterThan(0)
@@ -304,7 +302,7 @@ describe('PensionComparisonResults', () => {
 
   it('should display annual pension amount below monthly', () => {
     render(<PensionComparisonResults results={mockSinglePensionResult} />)
-    
+
     // Monthly pension is 400€, annual should be 4800€
     expect(screen.getByText(/4\.800,00 €\/Jahr/i)).toBeInTheDocument()
   })

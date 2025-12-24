@@ -247,7 +247,9 @@ describe('eigenheim-vs-miete', () => {
 
       if (results.summary.breakEvenYear !== null) {
         const breakEvenIndex = results.summary.breakEvenYear - 1
-        expect(results.comparison[breakEvenIndex].ownershipNetWorth).toBeGreaterThan(results.comparison[breakEvenIndex].rentalNetWorth)
+        expect(results.comparison[breakEvenIndex].ownershipNetWorth).toBeGreaterThan(
+          results.comparison[breakEvenIndex].rentalNetWorth,
+        )
 
         if (breakEvenIndex > 0) {
           expect(results.comparison[breakEvenIndex - 1].ownershipNetWorth).toBeLessThanOrEqual(

@@ -25,31 +25,34 @@ function useComparisonSimulationValues() {
     personalTaxRate,
   } = useSimulation()
 
-  return useMemo(() => ({
-    steuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv,
-    grundfreibetragBetrag,
-    endOfLife,
-    lifeExpectancyTable,
-    customLifeExpectancy,
-    planningMode,
-    gender,
-    birthYear,
-    guenstigerPruefungAktiv,
-    personalTaxRate,
-  }), [
-    steuerReduzierenEndkapitalEntspharphase,
-    grundfreibetragAktiv,
-    grundfreibetragBetrag,
-    endOfLife,
-    lifeExpectancyTable,
-    customLifeExpectancy,
-    planningMode,
-    gender,
-    birthYear,
-    guenstigerPruefungAktiv,
-    personalTaxRate,
-  ])
+  return useMemo(
+    () => ({
+      steuerReduzierenEndkapitalEntspharphase,
+      grundfreibetragAktiv,
+      grundfreibetragBetrag,
+      endOfLife,
+      lifeExpectancyTable,
+      customLifeExpectancy,
+      planningMode,
+      gender,
+      birthYear,
+      guenstigerPruefungAktiv,
+      personalTaxRate,
+    }),
+    [
+      steuerReduzierenEndkapitalEntspharphase,
+      grundfreibetragAktiv,
+      grundfreibetragBetrag,
+      endOfLife,
+      lifeExpectancyTable,
+      customLifeExpectancy,
+      planningMode,
+      gender,
+      birthYear,
+      guenstigerPruefungAktiv,
+      personalTaxRate,
+    ],
+  )
 }
 
 /**
@@ -197,26 +200,10 @@ export function useComparisonResults(
   const simulationValues = useComparisonSimulationValues()
   const { useComparisonMode, comparisonStrategies } = currentConfig
 
-  const comparisonResults = useMemo(
-    () => {
-      if (!useComparisonMode || !withdrawalData) return []
+  const comparisonResults = useMemo(() => {
+    if (!useComparisonMode || !withdrawalData) return []
 
-      const params = buildComparisonParams(
-        elemente,
-        startOfIndependence,
-        currentConfig,
-        steuerlast,
-        teilfreistellungsquote,
-        effectiveStatutoryPensionConfig,
-        simulationValues,
-      )
-
-      return calculateAllComparisonResults(comparisonStrategies, params)
-    },
-    [
-      useComparisonMode,
-      withdrawalData,
-      comparisonStrategies,
+    const params = buildComparisonParams(
       elemente,
       startOfIndependence,
       currentConfig,
@@ -224,8 +211,21 @@ export function useComparisonResults(
       teilfreistellungsquote,
       effectiveStatutoryPensionConfig,
       simulationValues,
-    ],
-  )
+    )
+
+    return calculateAllComparisonResults(comparisonStrategies, params)
+  }, [
+    useComparisonMode,
+    withdrawalData,
+    comparisonStrategies,
+    elemente,
+    startOfIndependence,
+    currentConfig,
+    steuerlast,
+    teilfreistellungsquote,
+    effectiveStatutoryPensionConfig,
+    simulationValues,
+  ])
 
   return comparisonResults
 }

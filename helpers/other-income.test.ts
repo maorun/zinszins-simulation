@@ -1874,7 +1874,7 @@ describe('Other Income Calculations', () => {
 
       it('should handle Günstigerprüfung (allowances vs. tax deduction)', () => {
         const currentYear = new Date().getFullYear()
-        
+
         // Scenario with 2 children - allowances should be more favorable
         const sourceWithChildren: OtherIncomeSource = {
           id: 'riester-1',
@@ -1896,17 +1896,17 @@ describe('Other Income Calculations', () => {
             expectedMonthlyPension: 800,
             pensionIncreaseRate: 0.01,
             contributionPhaseTaxRate: 0.25,
-            pensionPhaseTaxRate: 0.20,
+            pensionPhaseTaxRate: 0.2,
             useWohnRiester: false,
             birthYear: currentYear - 40,
           },
         }
 
         const resultWithChildren = calculateOtherIncomeForYear(sourceWithChildren, currentYear)
-        
+
         expect(resultWithChildren!.riesterRenteDetails!.benefitMethod).toBe('allowances')
         expect(resultWithChildren!.riesterRenteDetails!.allowances).toBe(775) // 175 + 300 + 300
-        
+
         // Scenario without children and high tax rate - tax deduction might be more favorable
         const sourceNoChildren: OtherIncomeSource = {
           id: 'riester-2',
@@ -1935,7 +1935,7 @@ describe('Other Income Calculations', () => {
         }
 
         const resultNoChildren = calculateOtherIncomeForYear(sourceNoChildren, currentYear)
-        
+
         expect(resultNoChildren!.riesterRenteDetails!.benefitMethod).toBe('tax-deduction')
         expect(resultNoChildren!.riesterRenteDetails!.taxDeductionAmount).toBeGreaterThan(0)
       })

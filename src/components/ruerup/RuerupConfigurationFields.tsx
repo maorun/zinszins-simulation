@@ -12,7 +12,13 @@ interface RuerupConfigurationFieldsProps {
   onChange: (updates: Partial<RuerupRenteConfig>) => void
 }
 
-function AnnualContributionField({ config, contributionYear, maxAmountSingle, maxAmountMarried, onChange }: RuerupConfigurationFieldsProps) {
+function AnnualContributionField({
+  config,
+  contributionYear,
+  maxAmountSingle,
+  maxAmountMarried,
+  onChange,
+}: RuerupConfigurationFieldsProps) {
   const annualContributionId = useFormId('ruerup', 'annual-contribution')
   return (
     <div className="space-y-2">
@@ -21,12 +27,13 @@ function AnnualContributionField({ config, contributionYear, maxAmountSingle, ma
         id={annualContributionId}
         type="number"
         value={config.annualContribution}
-        onChange={(e) => onChange({ annualContribution: Number(e.target.value) })}
+        onChange={e => onChange({ annualContribution: Number(e.target.value) })}
         min={0}
         step={1000}
       />
       <p className="text-xs text-gray-600">
-        Höchstbetrag {contributionYear}: {formatCurrency(config.civilStatus === 'single' ? maxAmountSingle : maxAmountMarried)}
+        Höchstbetrag {contributionYear}:{' '}
+        {formatCurrency(config.civilStatus === 'single' ? maxAmountSingle : maxAmountMarried)}
       </p>
     </div>
   )
@@ -41,7 +48,7 @@ function CivilStatusField({ config, onChange }: Pick<RuerupConfigurationFieldsPr
         id={civilStatusId}
         className="w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
         value={config.civilStatus}
-        onChange={(e) => onChange({ civilStatus: e.target.value as 'single' | 'married' })}
+        onChange={e => onChange({ civilStatus: e.target.value as 'single' | 'married' })}
       >
         <option value="single">Ledig / Single</option>
         <option value="married">Verheiratet / Married</option>
@@ -67,7 +74,7 @@ export function RuerupConfigurationFields(props: RuerupConfigurationFieldsProps)
           id={pensionStartYearId}
           type="number"
           value={config.pensionStartYear}
-          onChange={(e) => onChange({ pensionStartYear: Number(e.target.value) })}
+          onChange={e => onChange({ pensionStartYear: Number(e.target.value) })}
           min={2025}
           max={2070}
         />
@@ -79,7 +86,7 @@ export function RuerupConfigurationFields(props: RuerupConfigurationFieldsProps)
           id={monthlyPensionId}
           type="number"
           value={config.expectedMonthlyPension}
-          onChange={(e) => onChange({ expectedMonthlyPension: Number(e.target.value) })}
+          onChange={e => onChange({ expectedMonthlyPension: Number(e.target.value) })}
           min={0}
           step={100}
         />
@@ -91,7 +98,7 @@ export function RuerupConfigurationFields(props: RuerupConfigurationFieldsProps)
           id={pensionIncreaseRateId}
           type="number"
           value={config.pensionIncreaseRate * 100}
-          onChange={(e) => onChange({ pensionIncreaseRate: Number(e.target.value) / 100 })}
+          onChange={e => onChange({ pensionIncreaseRate: Number(e.target.value) / 100 })}
           min={0}
           max={5}
           step={0.1}

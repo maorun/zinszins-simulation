@@ -73,7 +73,10 @@ function RentalCard({ summary, formatCurrency }: Pick<ComparisonResultsDisplayPr
   )
 }
 
-function DifferenceCard({ summary, formatCurrency }: Pick<ComparisonResultsDisplayProps, 'summary' | 'formatCurrency'>) {
+function DifferenceCard({
+  summary,
+  formatCurrency,
+}: Pick<ComparisonResultsDisplayProps, 'summary' | 'formatCurrency'>) {
   return (
     <Card className="border-purple-300 bg-purple-50">
       <CardHeader className="pb-3">
@@ -82,7 +85,11 @@ function DifferenceCard({ summary, formatCurrency }: Pick<ComparisonResultsDispl
       <CardContent>
         <div className="space-y-2">
           <div className="flex items-center gap-2">
-            {summary.netWorthDifference > 0 ? <TrendingUp className="h-5 w-5 text-green-600" /> : <TrendingDown className="h-5 w-5 text-red-600" />}
+            {summary.netWorthDifference > 0 ? (
+              <TrendingUp className="h-5 w-5 text-green-600" />
+            ) : (
+              <TrendingDown className="h-5 w-5 text-red-600" />
+            )}
             <p className={`text-2xl font-bold ${summary.netWorthDifference > 0 ? 'text-green-600' : 'text-red-600'}`}>
               {formatCurrency(Math.abs(summary.netWorthDifference))}
             </p>
@@ -103,9 +110,16 @@ function DifferenceCard({ summary, formatCurrency }: Pick<ComparisonResultsDispl
   )
 }
 
-function RecommendationAlert({ summary, formatCurrency }: Pick<ComparisonResultsDisplayProps, 'summary' | 'formatCurrency'>) {
+function RecommendationAlert({
+  summary,
+  formatCurrency,
+}: Pick<ComparisonResultsDisplayProps, 'summary' | 'formatCurrency'>) {
   const alertClass =
-    summary.recommendation === 'ownership' ? 'bg-green-50 border-green-300' : summary.recommendation === 'rental' ? 'bg-blue-50 border-blue-300' : 'bg-gray-50 border-gray-300'
+    summary.recommendation === 'ownership'
+      ? 'bg-green-50 border-green-300'
+      : summary.recommendation === 'rental'
+        ? 'bg-blue-50 border-blue-300'
+        : 'bg-gray-50 border-gray-300'
 
   return (
     <Alert className={alertClass}>
@@ -113,19 +127,20 @@ function RecommendationAlert({ summary, formatCurrency }: Pick<ComparisonResults
         <strong>Empfehlung:</strong>{' '}
         {summary.recommendation === 'ownership' && (
           <>
-            Basierend auf Ihren Annahmen ist <strong>Eigenheim</strong> die bessere finanzielle Entscheidung. Das Eigenkapital übertrifft das Miet-Vermögen
-            um {formatCurrency(summary.netWorthDifference)}.
+            Basierend auf Ihren Annahmen ist <strong>Eigenheim</strong> die bessere finanzielle Entscheidung. Das
+            Eigenkapital übertrifft das Miet-Vermögen um {formatCurrency(summary.netWorthDifference)}.
           </>
         )}
         {summary.recommendation === 'rental' && (
           <>
-            Basierend auf Ihren Annahmen ist <strong>Miete</strong> die bessere finanzielle Entscheidung. Das investierte Vermögen übertrifft das Eigenkapital
-            um {formatCurrency(Math.abs(summary.netWorthDifference))}.
+            Basierend auf Ihren Annahmen ist <strong>Miete</strong> die bessere finanzielle Entscheidung. Das
+            investierte Vermögen übertrifft das Eigenkapital um {formatCurrency(Math.abs(summary.netWorthDifference))}.
           </>
         )}
         {summary.recommendation === 'similar' && (
           <>
-            Beide Optionen sind <strong>finanziell ähnlich</strong>. Die Entscheidung sollte auf persönlichen Präferenzen basieren (Flexibilität vs. Eigentum).
+            Beide Optionen sind <strong>finanziell ähnlich</strong>. Die Entscheidung sollte auf persönlichen
+            Präferenzen basieren (Flexibilität vs. Eigentum).
           </>
         )}
       </AlertDescription>
@@ -133,7 +148,10 @@ function RecommendationAlert({ summary, formatCurrency }: Pick<ComparisonResults
   )
 }
 
-function MonthlyCostComparison({ summary, formatCurrency }: Pick<ComparisonResultsDisplayProps, 'summary' | 'formatCurrency'>) {
+function MonthlyCostComparison({
+  summary,
+  formatCurrency,
+}: Pick<ComparisonResultsDisplayProps, 'summary' | 'formatCurrency'>) {
   return (
     <div className="text-sm text-gray-600">
       <p>

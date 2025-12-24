@@ -356,7 +356,7 @@ describe('reverse-calculator', () => {
 
     it('should label scenarios appropriately', () => {
       const config = getDefaultReverseCalculatorConfig()
-      const scenarios = [0.02, 0.04, 0.06, 0.08, 0.10]
+      const scenarios = [0.02, 0.04, 0.06, 0.08, 0.1]
 
       const analysis = performSensitivityAnalysis(config, scenarios)
 

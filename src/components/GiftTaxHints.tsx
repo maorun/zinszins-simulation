@@ -11,19 +11,17 @@ export function GiftTaxHints() {
           • <strong>10-Jahres-Regel:</strong> Freibeträge können alle 10 Jahre neu genutzt werden
         </p>
         <p>
-          • <strong>Frühe Planung:</strong> Je früher Sie beginnen, desto mehr Freibeträge können
-          Sie nutzen
+          • <strong>Frühe Planung:</strong> Je früher Sie beginnen, desto mehr Freibeträge können Sie nutzen
         </p>
         <p>
           • <strong>Dokumentation:</strong> Alle Schenkungen sollten notariell beurkundet werden
         </p>
         <p>
-          • <strong>Meldepflicht:</strong> Schenkungen müssen dem Finanzamt innerhalb von 3
-          Monaten angezeigt werden
+          • <strong>Meldepflicht:</strong> Schenkungen müssen dem Finanzamt innerhalb von 3 Monaten angezeigt werden
         </p>
         <p className="pt-2 italic">
-          Hinweis: Diese Planung ersetzt keine steuerliche Beratung. Konsultieren Sie einen
-          Steuerberater für Ihre individuelle Situation.
+          Hinweis: Diese Planung ersetzt keine steuerliche Beratung. Konsultieren Sie einen Steuerberater für Ihre
+          individuelle Situation.
         </p>
       </CardContent>
     </Card>

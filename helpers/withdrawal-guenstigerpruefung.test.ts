@@ -92,7 +92,7 @@ describe('calculateWithdrawal with Günstigerprüfung', () => {
     const yearData = result.result[2025]
     expect(yearData).toBeDefined()
     expect(yearData.guenstigerPruefungResultRealizedGains).toBeDefined()
-    
+
     // Both tax amounts should be calculated
     expect(yearData.guenstigerPruefungResultRealizedGains?.abgeltungssteuerAmount).toBeGreaterThanOrEqual(0)
     expect(yearData.guenstigerPruefungResultRealizedGains?.personalTaxAmount).toBeGreaterThanOrEqual(0)

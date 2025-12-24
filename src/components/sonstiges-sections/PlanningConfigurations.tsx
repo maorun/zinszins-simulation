@@ -22,10 +22,7 @@ export function PlanningConfigurations({ startOfIndependence }: PlanningConfigur
   return (
     <>
       {/* Global Planning Configuration */}
-      <ConfigurationSection
-        Component={GlobalPlanningConfiguration}
-        componentProps={{ startOfIndependence }}
-      />
+      <ConfigurationSection Component={GlobalPlanningConfiguration} componentProps={{ startOfIndependence }} />
 
       {/* Financial Goals Configuration */}
       <ConfigurationSection Component={FinancialGoalsConfiguration} />

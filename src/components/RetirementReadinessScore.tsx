@@ -167,7 +167,7 @@ function FinancialDetailsSection({ metrics }: { metrics: RetirementReadinessMetr
 
 /**
  * Retirement-Readiness Score Component
- * 
+ *
  * Displays a comprehensive retirement readiness assessment based on German retirement planning standards.
  * Shows overall score, detailed metrics, and personalized recommendations.
  */
@@ -213,8 +213,8 @@ export function RetirementReadinessScore({
         {/* Methodology Note */}
         <div className="bg-blue-50 border-l-4 border-blue-400 rounded-lg p-3 text-xs text-gray-600">
           <strong>Hinweis zur Berechnung:</strong> Der Score basiert auf drei Hauptfaktoren: Kapitaldeckung (40%),
-          Einkommensersatz (30%) und Nachhaltigkeit (30%). Die Bewertung orientiert sich an der 4%-Regel und
-          deutschen Standards für die Altersvorsorge.
+          Einkommensersatz (30%) und Nachhaltigkeit (30%). Die Bewertung orientiert sich an der 4%-Regel und deutschen
+          Standards für die Altersvorsorge.
         </div>
       </CardContent>
     </Card>

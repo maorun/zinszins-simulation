@@ -15,13 +15,17 @@ describe('ConfigurationSection', () => {
   })
 
   test('does not render when condition is false', () => {
-    render(<ConfigurationSection Component={TestComponent} componentProps={{ message: 'Test Message' }} condition={false} />)
+    render(
+      <ConfigurationSection Component={TestComponent} componentProps={{ message: 'Test Message' }} condition={false} />,
+    )
 
     expect(screen.queryByText('Test Message')).not.toBeInTheDocument()
   })
 
   test('renders when condition is true', () => {
-    render(<ConfigurationSection Component={TestComponent} componentProps={{ message: 'Test Message' }} condition={true} />)
+    render(
+      <ConfigurationSection Component={TestComponent} componentProps={{ message: 'Test Message' }} condition={true} />,
+    )
 
     expect(screen.getByText('Test Message')).toBeInTheDocument()
   })

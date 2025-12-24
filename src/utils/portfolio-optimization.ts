@@ -9,7 +9,11 @@
  * - Target Return Optimization
  */
 
-import { ASSET_CORRELATION_MATRIX, type AssetClass, type MultiAssetPortfolioConfig } from '../../helpers/multi-asset-portfolio'
+import {
+  ASSET_CORRELATION_MATRIX,
+  type AssetClass,
+  type MultiAssetPortfolioConfig,
+} from '../../helpers/multi-asset-portfolio'
 
 /**
  * Default optimization parameters based on Modern Portfolio Theory best practices.
@@ -163,23 +167,23 @@ export function calculatePortfolioReturn(
 
 /**
  * Calculate Sharpe ratio - a measure of risk-adjusted return
- * 
+ *
  * The Sharpe ratio helps compare the performance of different investment portfolios
  * by measuring excess return per unit of risk (volatility).
- * 
+ *
  * Formula: (Expected Return - Risk-Free Rate) / Volatility
- * 
+ *
  * Interpretation:
  * - Sharpe > 1.0: Good risk-adjusted performance
  * - Sharpe > 2.0: Excellent risk-adjusted performance
  * - Sharpe > 3.0: Outstanding performance (rare)
  * - Sharpe < 1.0: Poor risk-adjusted returns
- * 
+ *
  * Example:
  * Portfolio A: 7% return, 10% volatility → Sharpe = (0.07 - 0.01) / 0.10 = 0.6
  * Portfolio B: 8% return, 15% volatility → Sharpe = (0.08 - 0.01) / 0.15 = 0.47
  * Portfolio A has better risk-adjusted performance despite lower absolute return
- * 
+ *
  * @param expectedReturn - Annual expected return as decimal (e.g., 0.07 for 7%)
  * @param volatility - Annual volatility (standard deviation) as decimal
  * @param riskFreeRate - Risk-free rate (e.g., German government bonds), default 1%
@@ -465,13 +469,7 @@ function optimizeMinVolatility(
       bestAllocations = { ...allocations }
     }
 
-    const gradient = calculateVolatilityGradient(
-      allocations,
-      enabledAssets,
-      config,
-      currentVolatility,
-      maxAllocation,
-    )
+    const gradient = calculateVolatilityGradient(allocations, enabledAssets, config, currentVolatility, maxAllocation)
 
     const { updated, allocations: newAllocations } = updateAllocationsWithGradient(
       allocations,
@@ -560,7 +558,7 @@ function optimizeMaxReturn(
  * Validate portfolio configuration for optimization
  */
 function validateOptimizationConfig(config: MultiAssetPortfolioConfig): void {
-  const enabledAssets = Object.values(config.assetClasses).filter((asset) => asset.enabled)
+  const enabledAssets = Object.values(config.assetClasses).filter(asset => asset.enabled)
   if (enabledAssets.length === 0) {
     throw new Error('Mindestens eine Anlageklasse muss aktiviert sein')
   }

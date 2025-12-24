@@ -29,9 +29,7 @@ describe('EMRenteConfiguration', () => {
     render(<EMRenteConfiguration config={null} onChange={mockOnChange} />)
 
     expect(screen.getByText('EM-Rente (Erwerbsminderungsrente)')).toBeInTheDocument()
-    expect(
-      screen.getByText(/Aktivieren Sie die EM-Rente-Berechnung/)
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Aktivieren Sie die EM-Rente-Berechnung/)).toBeInTheDocument()
   })
 
   it('should enable configuration when toggle is switched on', async () => {
@@ -47,7 +45,7 @@ describe('EMRenteConfiguration', () => {
         type: 'volle',
         applyZurechnungszeiten: true,
         applyAbschlaege: true,
-      })
+      }),
     )
   })
 
@@ -96,7 +94,7 @@ describe('EMRenteConfiguration', () => {
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
         disabilityStartYear: 2025,
-      })
+      }),
     )
   })
 
@@ -135,7 +133,7 @@ describe('EMRenteConfiguration', () => {
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
         annualIncreaseRate: 1.5,
-      })
+      }),
     )
   })
 
@@ -173,7 +171,7 @@ describe('EMRenteConfiguration', () => {
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
         applyZurechnungszeiten: false,
-      })
+      }),
     )
   })
 
@@ -187,7 +185,7 @@ describe('EMRenteConfiguration', () => {
     expect(mockOnChange).toHaveBeenCalledWith(
       expect.objectContaining({
         applyAbschlaege: false,
-      })
+      }),
     )
   })
 
@@ -204,7 +202,7 @@ describe('EMRenteConfiguration', () => {
       expect.objectContaining({
         birthYear: 1985,
         disabilityStartYear: 2024,
-      })
+      }),
     )
   })
 })

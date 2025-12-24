@@ -221,10 +221,7 @@ function calculateAnnualPremium(
 /**
  * Calculate coverage amount for a given year
  */
-function calculateCoverageAmount(
-  config: TermLifeInsuranceConfig,
-  year: number,
-): number {
+function calculateCoverageAmount(config: TermLifeInsuranceConfig, year: number): number {
   if (config.coverageType === 'level') {
     return config.coverageAmount
   }
@@ -238,9 +235,7 @@ function calculateCoverageAmount(
 /**
  * Calculate term life insurance development over time
  */
-export function calculateTermLifeInsurance(
-  config: TermLifeInsuranceConfig,
-): TermLifeInsuranceSummary {
+export function calculateTermLifeInsurance(config: TermLifeInsuranceConfig): TermLifeInsuranceSummary {
   const yearlyResults: TermLifeInsuranceYearResult[] = []
   let totalPremiumsPaid = 0
 
@@ -277,8 +272,7 @@ export function calculateTermLifeInsurance(
     totalPremiumsPaid,
     averageAnnualPremium,
     initialCoverageAmount: config.coverageAmount,
-    finalCoverageAmount:
-      yearlyResults[yearlyResults.length - 1]?.coverageAmount ?? config.coverageAmount,
+    finalCoverageAmount: yearlyResults[yearlyResults.length - 1]?.coverageAmount ?? config.coverageAmount,
     deathBenefitTaxFree: true, // Always true in Germany (§ 20 Abs. 1 Nr. 6 EStG)
   }
 }
@@ -295,12 +289,11 @@ export function compareCoverageAmounts(
   averageAnnualPremium: number
   costPerThousandEUR: number
 }> {
-  return coverageAmounts.map((coverageAmount) => {
+  return coverageAmounts.map(coverageAmount => {
     const config = { ...baseConfig, coverageAmount }
     const summary = calculateTermLifeInsurance(config)
 
-    const costPerThousandEUR =
-      coverageAmount > 0 ? (summary.totalPremiumsPaid / coverageAmount) * 1000 : 0
+    const costPerThousandEUR = coverageAmount > 0 ? (summary.totalPremiumsPaid / coverageAmount) * 1000 : 0
 
     return {
       coverageAmount,
@@ -331,8 +324,7 @@ export function calculateOptimalCoverage(
   const recommendedCoverage = outstandingMortgage + annualLivingExpenses * 5 - existingSavings
 
   // Comprehensive: Cover all obligations until independence
-  const comprehensiveCoverage =
-    outstandingMortgage + annualLivingExpenses * yearsToSupport - existingSavings
+  const comprehensiveCoverage = outstandingMortgage + annualLivingExpenses * yearsToSupport - existingSavings
 
   return {
     minimumCoverage: Math.max(0, minimumCoverage),

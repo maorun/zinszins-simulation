@@ -41,14 +41,12 @@ export function HomePageOverviewSection({ overviewRef }: HomePageOverviewSection
   return (
     <div ref={overviewRef} data-section="overview" className="my-3 sm:my-4 space-y-4">
       <EnhancedOverview />
-      
+
       {/* Retirement-Readiness Score - shown when withdrawal phase is active */}
       {enhancedSummary && withdrawalResults && planningYears > 0 && (
         <Collapsible defaultOpen={false}>
           <Card>
-            <CollapsibleCardHeader>
-              🎯 Retirement-Readiness Score
-            </CollapsibleCardHeader>
+            <CollapsibleCardHeader>🎯 Retirement-Readiness Score</CollapsibleCardHeader>
             <CollapsibleCardContent>
               <RetirementReadinessScore
                 enhancedSummary={enhancedSummary}

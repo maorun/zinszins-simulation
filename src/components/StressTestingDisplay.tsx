@@ -43,9 +43,7 @@ function StressTestSummaryCard({ summary }: { summary: StressTestSummary }) {
         </div>
         <div>
           <span className="text-gray-700 font-medium">Durchschnittliche Erholungszeit:</span>
-          <span className="ml-2 text-gray-900 font-semibold">
-            {summary.averageRecoveryYears.toFixed(1)} Jahre
-          </span>
+          <span className="ml-2 text-gray-900 font-semibold">{summary.averageRecoveryYears.toFixed(1)} Jahre</span>
         </div>
       </div>
     </div>
@@ -128,9 +126,8 @@ function StressTestInfoBox() {
       </h6>
       <div className="text-sm text-blue-800 space-y-2">
         <p>
-          Stress-Tests simulieren, wie Ihr Portfolio auf historische Finanzkrisen reagiert hätte. Die Tests
-          untersuchen systematisch verschiedene extreme Marktszenarien, um die Robustheit Ihrer Anlagestrategie zu
-          bewerten.
+          Stress-Tests simulieren, wie Ihr Portfolio auf historische Finanzkrisen reagiert hätte. Die Tests untersuchen
+          systematisch verschiedene extreme Marktszenarien, um die Robustheit Ihrer Anlagestrategie zu bewerten.
         </p>
         <p className="font-medium">
           Wichtig: Diese Tests basieren auf historischen Daten. Zukünftige Krisen können anders verlaufen. Die

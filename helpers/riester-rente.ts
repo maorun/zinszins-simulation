@@ -1,6 +1,6 @@
 /**
  * Types and utilities for Riester-Rente integration
- * 
+ *
  * Riester-Rente is a German subsidized pension product with government allowances
  * and tax deductions, designed to encourage private retirement savings.
  */
@@ -115,12 +115,12 @@ export interface RiesterPensionTaxationResult {
 
 /**
  * Calculate Riester allowances for a specific year
- * 
+ *
  * @param numberOfChildren - Number of eligible children
  * @param childrenBirthYears - Birth years of children
  * @param calculationYear - Year for which to calculate allowances
  * @returns Allowances breakdown
- * 
+ *
  * @remarks
  * - Grundzulage: 175€ per year (since 2018)
  * - Kinderzulage: 185€ for children born before 2008, 300€ for children born 2008 or later
@@ -129,7 +129,7 @@ export interface RiesterPensionTaxationResult {
 export function calculateRiesterAllowances(
   numberOfChildren: number,
   childrenBirthYears: number[],
-  calculationYear: number
+  calculationYear: number,
 ): RiesterAllowances {
   // Basic allowance (Grundzulage) - 175€ since 2018
   const basicAllowance = 175
@@ -180,19 +180,16 @@ export function calculateRiesterAllowances(
 
 /**
  * Calculate required minimum contribution (Mindesteigenbeitrag)
- * 
+ *
  * @param annualGrossIncome - Annual gross income in EUR
  * @param totalAllowances - Total Riester allowances
  * @returns Required minimum contribution
- * 
+ *
  * @remarks
  * - Formula: 4% of previous year's gross income minus allowances
  * - Minimum absolute contribution: 60€ per year
  */
-export function calculateMinimumContribution(
-  annualGrossIncome: number,
-  totalAllowances: number
-): number {
+export function calculateMinimumContribution(annualGrossIncome: number, totalAllowances: number): number {
   // 4% of gross income
   const fourPercent = annualGrossIncome * 0.04
 
@@ -205,7 +202,7 @@ export function calculateMinimumContribution(
 
 /**
  * Calculate Riester tax benefits using Günstigerprüfung
- * 
+ *
  * @param contribution - Actual annual contribution
  * @param annualGrossIncome - Annual gross income
  * @param numberOfChildren - Number of eligible children
@@ -213,7 +210,7 @@ export function calculateMinimumContribution(
  * @param calculationYear - Year for calculation
  * @param personalTaxRate - Personal income tax rate (0-1)
  * @returns Tax benefit calculation result
- * 
+ *
  * @remarks
  * Günstigerprüfung (more favorable test):
  * - Option 1: Receive allowances (Zulagen)
@@ -226,14 +223,14 @@ export function calculateRiesterTaxBenefit(
   numberOfChildren: number,
   childrenBirthYears: number[],
   calculationYear: number,
-  personalTaxRate: number
+  personalTaxRate: number,
 ): RiesterTaxBenefitResult {
   // Calculate allowances
   const allowances = calculateRiesterAllowances(numberOfChildren, childrenBirthYears, calculationYear)
-  
+
   // Calculate minimum required contribution
   const minimumContribution = calculateMinimumContribution(annualGrossIncome, allowances.totalAllowances)
-  
+
   // Check if minimum contribution is met
   const meetsMinimumContribution = contribution >= minimumContribution
 
@@ -285,14 +282,14 @@ export function calculateRiesterTaxBenefit(
 
 /**
  * Calculate taxation of Riester pension payout
- * 
+ *
  * @param grossMonthlyPension - Gross monthly pension amount
  * @param retirementYear - Year when pension started
  * @param currentYear - Current year for calculation
  * @param pensionIncreaseRate - Annual increase rate for pension adjustments
  * @param personalTaxRate - Personal income tax rate (0-1)
  * @returns Pension taxation calculation result
- * 
+ *
  * @remarks
  * - Riester pensions are fully taxable (100%) during retirement
  * - This is nachgelagerte Besteuerung (deferred taxation)
@@ -302,13 +299,11 @@ export function calculateRiesterPensionTaxation(
   retirementYear: number,
   currentYear: number,
   pensionIncreaseRate: number,
-  personalTaxRate: number
+  personalTaxRate: number,
 ): RiesterPensionTaxationResult {
   // Calculate adjusted pension based on years since retirement
   const yearsSinceRetirement = currentYear - retirementYear
-  const adjustmentFactor = yearsSinceRetirement > 0 
-    ? Math.pow(1 + pensionIncreaseRate, yearsSinceRetirement)
-    : 1.0
+  const adjustmentFactor = yearsSinceRetirement > 0 ? Math.pow(1 + pensionIncreaseRate, yearsSinceRetirement) : 1.0
 
   const adjustedMonthlyPension = grossMonthlyPension * adjustmentFactor
   const grossAnnualPension = adjustedMonthlyPension * 12
@@ -334,7 +329,7 @@ export function calculateRiesterPensionTaxation(
 
 /**
  * Create default Riester-Rente configuration
- * 
+ *
  * @returns Default configuration with disabled state
  */
 export function createDefaultRiesterConfig(): RiesterRenteConfig {

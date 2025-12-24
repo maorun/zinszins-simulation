@@ -46,12 +46,7 @@ function ConfigForm({ config, onConfigChange }: ConfigFormProps) {
   return (
     <div className="space-y-4">
       <TargetCapitalInput id={targetCapitalId} config={config} onChange={onConfigChange} />
-      <YearsAndReturnInputs
-        yearsId={yearsId}
-        returnRateId={returnRateId}
-        config={config}
-        onChange={onConfigChange}
-      />
+      <YearsAndReturnInputs yearsId={yearsId} returnRateId={returnRateId} config={config} onChange={onConfigChange} />
       <CalculationModeSelector config={config} onChange={onConfigChange} />
     </div>
   )
@@ -220,9 +215,7 @@ function SensitivityDisplay({ analysis, mode }: SensitivityDisplayProps) {
   return (
     <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-lg">
       <h4 className="font-medium text-blue-900 mb-3">📊 Sensitivitätsanalyse</h4>
-      <p className="text-xs text-blue-800 mb-3">
-        Erforderliche Sparrate bei verschiedenen Rendite-Szenarien:
-      </p>
+      <p className="text-xs text-blue-800 mb-3">Erforderliche Sparrate bei verschiedenen Rendite-Szenarien:</p>
       <div className="space-y-2">
         {analysis.map((item, index) => (
           <div key={index} className="flex justify-between text-sm border-b border-blue-200 last:border-b-0 pb-2">
@@ -243,11 +236,10 @@ function SensitivityDisplay({ analysis, mode }: SensitivityDisplayProps) {
 export function ReverseCalculatorCard() {
   const { steuerlast, teilfreistellungsquote, basiszinsConfiguration } = useSimulation()
 
-  const defaultConfig = useMemo(() => createDefaultConfig(steuerlast, teilfreistellungsquote, basiszinsConfiguration), [
-    steuerlast,
-    teilfreistellungsquote,
-    basiszinsConfiguration,
-  ])
+  const defaultConfig = useMemo(
+    () => createDefaultConfig(steuerlast, teilfreistellungsquote, basiszinsConfiguration),
+    [steuerlast, teilfreistellungsquote, basiszinsConfiguration],
+  )
 
   const [config, setConfig] = useState<ReverseCalculatorConfig>(defaultConfig)
   const [showResults, setShowResults] = useState(false)
@@ -314,9 +306,12 @@ function calculateResults(config: ReverseCalculatorConfig) {
   try {
     const calculatedResult = calculateRequiredSavingsRate(config)
 
-    const scenarios = [config.returnRate - 0.02, config.returnRate, config.returnRate + 0.02, config.returnRate + 0.04].filter(
-      rate => rate >= 0.01 && rate <= 0.2,
-    )
+    const scenarios = [
+      config.returnRate - 0.02,
+      config.returnRate,
+      config.returnRate + 0.02,
+      config.returnRate + 0.04,
+    ].filter(rate => rate >= 0.01 && rate <= 0.2)
 
     const sensitivityAnalysis = performSensitivityAnalysis(config, scenarios)
 

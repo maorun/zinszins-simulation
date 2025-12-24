@@ -471,7 +471,7 @@ describe('quarterly-tax-prepayments', () => {
       const suggestions = getOptimizationSuggestions(config)
 
       expect(suggestions.length).toBeGreaterThan(0)
-      expect(suggestions.some((s) => s.includes('Sparer-Pauschbetrag'))).toBe(true)
+      expect(suggestions.some(s => s.includes('Sparer-Pauschbetrag'))).toBe(true)
     })
 
     it('should suggest partial exemption when not used', () => {
@@ -486,7 +486,7 @@ describe('quarterly-tax-prepayments', () => {
 
       const suggestions = getOptimizationSuggestions(config)
 
-      expect(suggestions.some((s) => s.includes('Teilfreistellung'))).toBe(true)
+      expect(suggestions.some(s => s.includes('Teilfreistellung'))).toBe(true)
     })
 
     it('should suggest strategic planning for high tax liabilities', () => {
@@ -501,7 +501,7 @@ describe('quarterly-tax-prepayments', () => {
 
       const suggestions = getOptimizationSuggestions(config)
 
-      expect(suggestions.some((s) => s.includes('strategisch'))).toBe(true)
+      expect(suggestions.some(s => s.includes('strategisch'))).toBe(true)
     })
 
     it('should return no suggestions for optimal configuration', () => {

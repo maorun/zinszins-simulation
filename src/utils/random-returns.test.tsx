@@ -276,7 +276,13 @@ describe('random-returns', () => {
 
       // Expected standard deviation for this data set
       const expectedMean = 5
-      const variance = ((2 - expectedMean) ** 2 + (4 - expectedMean) ** 2 * 3 + (5 - expectedMean) ** 2 * 2 + (7 - expectedMean) ** 2 + (9 - expectedMean) ** 2) / 8
+      const variance =
+        ((2 - expectedMean) ** 2 +
+          (4 - expectedMean) ** 2 * 3 +
+          (5 - expectedMean) ** 2 * 2 +
+          (7 - expectedMean) ** 2 +
+          (9 - expectedMean) ** 2) /
+        8
       const expectedStdDev = Math.sqrt(variance)
 
       expect(stats.standardDeviation).toBeCloseTo(expectedStdDev, 10)
@@ -306,7 +312,7 @@ describe('random-returns', () => {
     it('should calculate confidence interval for custom confidence level', () => {
       const results = Array.from({ length: 100 }, (_, i) => i + 1) // 1 to 100
 
-      const stats = calculateMonteCarloStatistics(results, 0.90)
+      const stats = calculateMonteCarloStatistics(results, 0.9)
 
       // For 90% confidence level, we exclude 5% on each side
       expect(stats.confidenceInterval[0]).toBe(5) // 5th percentile

@@ -8,7 +8,7 @@ import {
 
 /**
  * German gift tax (Schenkungssteuer) calculations
- * 
+ *
  * Gift tax uses the same exemptions and tax classes as inheritance tax,
  * but exemptions reset every 10 years when gifting to the same person.
  * This allows for strategic lifetime wealth transfer planning.
@@ -50,7 +50,7 @@ export type GiftTaxResult = {
 
 /**
  * Calculate gift tax for a single gift, considering prior gifts in the same 10-year period
- * 
+ *
  * @param gift - The gift to calculate tax for
  * @param priorGiftsInPeriod - Gifts to the same person in the last 10 years
  * @returns Gift tax calculation result
@@ -105,7 +105,7 @@ export function calculateGiftTax(gift: Gift, priorGiftsInPeriod: Gift[] = []): G
 
 /**
  * Groups gifts by 10-year periods for the same beneficiary
- * 
+ *
  * @param gifts - All gifts to a beneficiary, sorted by year
  * @returns Array of gift groups, each representing a 10-year period
  */
@@ -139,7 +139,7 @@ export function groupGiftsByPeriod(gifts: Gift[]): Gift[][] {
 
 /**
  * Calculate total gift tax for all gifts to a beneficiary over time
- * 
+ *
  * @param gifts - All gifts to the beneficiary
  * @returns Array of tax results for each gift
  */
@@ -155,10 +155,7 @@ export function calculateGiftTaxSchedule(gifts: Gift[]): GiftTaxResult[] {
     // A gift is in the same period if it's less than 10 years before (not equal to 10)
     const priorGiftsInPeriod = sortedGifts
       .slice(0, i)
-      .filter(
-        (g) =>
-          g.beneficiaryId === currentGift.beneficiaryId && g.year > currentYear - 10,
-      )
+      .filter(g => g.beneficiaryId === currentGift.beneficiaryId && g.year > currentYear - 10)
 
     const result = calculateGiftTax(currentGift, priorGiftsInPeriod)
     results.push(result)
@@ -202,10 +199,10 @@ function generateOptimalGifts(
 
 /**
  * Calculate optimal gift strategy to minimize total tax
- * 
+ *
  * This function suggests an optimal gifting schedule to transfer a target amount
  * while minimizing gift and estate taxes.
- * 
+ *
  * @param targetAmount - Total amount to transfer
  * @param relationshipType - Relationship to beneficiary
  * @param startYear - Year to start gifting
@@ -262,10 +259,10 @@ export function optimizeGiftStrategy(
 
 /**
  * Calculate chain gifting strategy (multi-generational)
- * 
+ *
  * For example, gifting to children who then gift to grandchildren
  * can maximize exemption usage across generations.
- * 
+ *
  * @param amount - Amount to transfer
  * @param chain - Array of relationship types in the chain
  * @param startYear - Starting year
@@ -331,19 +328,13 @@ export function calculateChainGiftStrategy(
 
 /**
  * Calculate remaining exemption for a beneficiary
- * 
+ *
  * @param relationshipType - Relationship to beneficiary
  * @param giftsInLast10Years - Gifts to this beneficiary in the last 10 years
  * @returns Remaining exemption amount
  */
-export function getRemainingExemption(
-  relationshipType: RelationshipType,
-  giftsInLast10Years: Gift[],
-): number {
+export function getRemainingExemption(relationshipType: RelationshipType, giftsInLast10Years: Gift[]): number {
   const totalExemption = INHERITANCE_TAX_EXEMPTIONS[relationshipType]
-  const usedExemption = giftsInLast10Years.reduce(
-    (sum, gift) => sum + Math.min(gift.amount, totalExemption),
-    0,
-  )
+  const usedExemption = giftsInLast10Years.reduce((sum, gift) => sum + Math.min(gift.amount, totalExemption), 0)
   return Math.max(0, totalExemption - usedExemption)
 }

@@ -41,9 +41,7 @@ function ResultsSummaryCards({
         <CardContent className="pt-6">
           <div className="text-center">
             <div className="text-sm text-muted-foreground mb-1">Gewichtete TFS</div>
-            <div className="text-2xl font-bold text-primary">
-              {formatWeightedQuote(weightedQuote)}
-            </div>
+            <div className="text-2xl font-bold text-primary">{formatWeightedQuote(weightedQuote)}</div>
           </div>
         </CardContent>
       </Card>
@@ -61,9 +59,7 @@ function ResultsSummaryCards({
         <CardContent className="pt-6">
           <div className="text-center">
             <div className="text-sm text-muted-foreground mb-1">Verbesserungspotenzial</div>
-            <div className="text-2xl font-bold text-green-600">
-              +{formatWeightedQuote(potentialImprovement)}
-            </div>
+            <div className="text-2xl font-bold text-green-600">+{formatWeightedQuote(potentialImprovement)}</div>
           </div>
         </CardContent>
       </Card>
@@ -105,9 +101,7 @@ function BreakdownTable({
               <td className="p-2">{contrib.displayName}</td>
               <td className="text-right p-2">{(contrib.allocation * 100).toFixed(0)}%</td>
               <td className="text-right p-2">{(contrib.quote * 100).toFixed(0)}%</td>
-              <td className="text-right p-2 font-medium">
-                {(contrib.contribution * 100).toFixed(1)}%
-              </td>
+              <td className="text-right p-2 font-medium">{(contrib.contribution * 100).toFixed(1)}%</td>
             </tr>
           ))}
         </tbody>
@@ -224,19 +218,11 @@ function PortfolioHoldingRowContent({
         <Label htmlFor={assetClassSelectId} className="text-xs">
           Anlageklasse
         </Label>
-        <AssetClassSelect
-          id={assetClassSelectId}
-          value={holding.assetClass}
-          onChange={onAssetClassChange}
-        />
+        <AssetClassSelect id={assetClassSelectId} value={holding.assetClass} onChange={onAssetClassChange} />
       </div>
 
       <div className="col-span-5">
-        <AllocationSlider
-          id={allocationSliderId}
-          allocation={holding.allocation}
-          onChange={onAllocationChange}
-        />
+        <AllocationSlider id={allocationSliderId} allocation={holding.allocation} onChange={onAllocationChange} />
       </div>
 
       <div className="col-span-1">
@@ -274,10 +260,7 @@ function PortfolioHoldingRow({
     () => generateFormId('portfolio-holding', 'asset-class', index.toString()),
     [index],
   )
-  const allocationSliderId = useMemo(
-    () => generateFormId('portfolio-holding', 'allocation', index.toString()),
-    [index],
-  )
+  const allocationSliderId = useMemo(() => generateFormId('portfolio-holding', 'allocation', index.toString()), [index])
 
   const quote = DEFAULT_TEILFREISTELLUNGSQUOTEN[holding.assetClass]
 
@@ -407,9 +390,8 @@ function CardHeaderContent() {
         Portfolio-Teilfreistellungsquoten-Rechner
       </CardTitle>
       <CardDescription>
-        Berechnen Sie die gewichtete{' '}
-        <GlossaryTerm term="teilfreistellung">Teilfreistellungsquote</GlossaryTerm> für komplexe
-        Fonds-Portfolios nach § 20 InvStG
+        Berechnen Sie die gewichtete <GlossaryTerm term="teilfreistellung">Teilfreistellungsquote</GlossaryTerm> für
+        komplexe Fonds-Portfolios nach § 20 InvStG
       </CardDescription>
     </>
   )

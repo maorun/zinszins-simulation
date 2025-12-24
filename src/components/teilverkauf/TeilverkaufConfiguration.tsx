@@ -38,7 +38,11 @@ export function TeilverkaufConfiguration({ config, setConfig }: TeilverkaufConfi
         </h3>
         <div className="flex items-center gap-2">
           <Label htmlFor={ids.enabled}>Aktivieren</Label>
-          <Switch id={ids.enabled} checked={config.teilverkauf.enabled} onCheckedChange={(checked) => updateTeilverkauf({ enabled: checked })} />
+          <Switch
+            id={ids.enabled}
+            checked={config.teilverkauf.enabled}
+            onCheckedChange={checked => updateTeilverkauf({ enabled: checked })}
+          />
         </div>
       </div>
 

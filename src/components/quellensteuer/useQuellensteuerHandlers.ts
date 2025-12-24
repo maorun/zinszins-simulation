@@ -15,7 +15,7 @@ export function useQuellensteuerHandlers(
 
   const handleCountryChange = (newCountryCode: string) => {
     onCountryCodeChange(newCountryCode)
-    const country = COMMON_WITHHOLDING_TAX_RATES.find((c) => c.countryCode === newCountryCode)
+    const country = COMMON_WITHHOLDING_TAX_RATES.find(c => c.countryCode === newCountryCode)
     if (country) {
       onWithholdingTaxRateChange(country.dbaRate)
       setShowCustomRate(false)
@@ -30,11 +30,16 @@ export function useQuellensteuerHandlers(
     if (!enabled || foreignIncome <= 0) {
       return null
     }
-    return calculateQuellensteuerconfigCredit(foreignIncome, withholdingTaxRate, germanCapitalGainsTaxRate, teilfreistellung)
+    return calculateQuellensteuerconfigCredit(
+      foreignIncome,
+      withholdingTaxRate,
+      germanCapitalGainsTaxRate,
+      teilfreistellung,
+    )
   }, [enabled, foreignIncome, withholdingTaxRate, germanCapitalGainsTaxRate, teilfreistellung])
 
   const selectedCountry = useMemo(
-    () => COMMON_WITHHOLDING_TAX_RATES.find((c) => c.countryCode === countryCode),
+    () => COMMON_WITHHOLDING_TAX_RATES.find(c => c.countryCode === countryCode),
     [countryCode],
   )
 

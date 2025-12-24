@@ -30,8 +30,7 @@ export function KeyboardShortcutsHelp({ open, onClose, shortcuts }: KeyboardShor
             Tastaturkürzel
           </AlertDialogTitle>
           <AlertDialogDescription>
-            Verwenden Sie diese Tastaturkürzel für eine schnellere Navigation und effizienteres
-            Arbeiten.
+            Verwenden Sie diese Tastaturkürzel für eine schnellere Navigation und effizienteres Arbeiten.
           </AlertDialogDescription>
         </AlertDialogHeader>
 

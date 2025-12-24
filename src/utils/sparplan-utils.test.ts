@@ -306,10 +306,18 @@ describe('sparplan-utils', () => {
           type: 'monthly',
           // Seasonal pattern: higher income in Q1 and Q4, lower in summer
           monthlyMultipliers: [
-            1.3, 1.2, 1.1, // Q1: High season (Jan-Mar)
-            1.0, 0.9, 0.8, // Q2: Normal to low (Apr-Jun)
-            0.7, 0.8, 0.9, // Q3: Low to normal (Jul-Sep)
-            1.0, 1.2, 1.4, // Q4: Normal to high (Oct-Dec)
+            1.3,
+            1.2,
+            1.1, // Q1: High season (Jan-Mar)
+            1.0,
+            0.9,
+            0.8, // Q2: Normal to low (Apr-Jun)
+            0.7,
+            0.8,
+            0.9, // Q3: Low to normal (Jul-Sep)
+            1.0,
+            1.2,
+            1.4, // Q4: Normal to high (Oct-Dec)
           ],
           description: 'Seasonal business pattern',
         },

@@ -332,12 +332,7 @@ describe('volatility-targeting', () => {
 
   describe('getStrategyDescription', () => {
     it('returns meaningful descriptions in German', () => {
-      const strategies: Array<VolatilityTargetingConfig['strategy']> = [
-        'none',
-        'simple',
-        'inverse',
-        'risk_parity',
-      ]
+      const strategies: Array<VolatilityTargetingConfig['strategy']> = ['none', 'simple', 'inverse', 'risk_parity']
 
       strategies.forEach(strategy => {
         const description = getStrategyDescription(strategy)

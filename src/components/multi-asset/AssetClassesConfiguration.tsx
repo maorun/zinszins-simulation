@@ -35,13 +35,7 @@ function isAlternativeInvestment(assetClass: AssetClass): boolean {
 /**
  * Toggle button for alternative investments info
  */
-function AlternativeInvestmentsToggle({
-  showInfo,
-  onToggle,
-}: {
-  showInfo: boolean
-  onToggle: () => void
-}) {
+function AlternativeInvestmentsToggle({ showInfo, onToggle }: { showInfo: boolean; onToggle: () => void }) {
   return (
     <button
       onClick={onToggle}

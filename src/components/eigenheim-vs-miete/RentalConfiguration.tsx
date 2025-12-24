@@ -27,11 +27,26 @@ export function RentalConfiguration({ config, setConfig, ids }: RentalConfigProp
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label htmlFor={ids.monthlyRent}>Monatliche Kaltmiete (€)</Label>
-          <Input id={ids.monthlyRent} type="number" min={0} step={50} value={config.rental.monthlyRent} onChange={(e) => handleMonthlyRentChange(e.target.value)} />
+          <Input
+            id={ids.monthlyRent}
+            type="number"
+            min={0}
+            step={50}
+            value={config.rental.monthlyRent}
+            onChange={e => handleMonthlyRentChange(e.target.value)}
+          />
         </div>
         <div className="space-y-2">
           <Label htmlFor={ids.rentIncrease}>Jährliche Mieterhöhung (%)</Label>
-          <Input id={ids.rentIncrease} type="number" min={0} max={10} step={0.1} value={config.rental.annualRentIncrease} onChange={(e) => handleRentIncreaseChange(e.target.value)} />
+          <Input
+            id={ids.rentIncrease}
+            type="number"
+            min={0}
+            max={10}
+            step={0.1}
+            value={config.rental.annualRentIncrease}
+            onChange={e => handleRentIncreaseChange(e.target.value)}
+          />
         </div>
       </div>
     </div>

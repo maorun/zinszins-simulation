@@ -38,7 +38,14 @@ function AmountAndTaxSections({
   onUpdate,
 }: Pick<
   FormConfigurationSectionsProps,
-  'editingSource' | 'monthlyAmountId' | 'isKindergeld' | 'isElterngeld' | 'isKapitallebensversicherung' | 'isRisikolebensversicherung' | 'isGrossIncome' | 'onUpdate'
+  | 'editingSource'
+  | 'monthlyAmountId'
+  | 'isKindergeld'
+  | 'isElterngeld'
+  | 'isKapitallebensversicherung'
+  | 'isRisikolebensversicherung'
+  | 'isGrossIncome'
+  | 'onUpdate'
 >) {
   return (
     <>
@@ -90,32 +97,49 @@ function TimeAndInflationSections({
   onUpdate,
 }: Pick<
   FormConfigurationSectionsProps,
-  'editingSource' | 'currentYear' | 'isKindergeld' | 'isElterngeld' | 'isBURente' | 'isKapitallebensversicherung' | 'isRisikolebensversicherung' | 'onUpdate'
->) {
-  const showTimePeriod = shouldShowTimePeriodSection(isBURente, isKapitallebensversicherung, isRisikolebensversicherung)
-  const showInflation = shouldShowInflationSection(isKindergeld, isElterngeld, isBURente, isKapitallebensversicherung, isRisikolebensversicherung)
-
-  return (
-    <>
-      {showTimePeriod && <TimePeriodSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />}
-      {showInflation && <InflationRateSection editingSource={editingSource} onUpdate={onUpdate} />}
-    </>
-  )
-}
-
-function StandardConfigSections(props: Pick<
-  FormConfigurationSectionsProps,
   | 'editingSource'
-  | 'monthlyAmountId'
   | 'currentYear'
   | 'isKindergeld'
   | 'isElterngeld'
   | 'isBURente'
   | 'isKapitallebensversicherung'
   | 'isRisikolebensversicherung'
-  | 'isGrossIncome'
   | 'onUpdate'
 >) {
+  const showTimePeriod = shouldShowTimePeriodSection(isBURente, isKapitallebensversicherung, isRisikolebensversicherung)
+  const showInflation = shouldShowInflationSection(
+    isKindergeld,
+    isElterngeld,
+    isBURente,
+    isKapitallebensversicherung,
+    isRisikolebensversicherung,
+  )
+
+  return (
+    <>
+      {showTimePeriod && (
+        <TimePeriodSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />
+      )}
+      {showInflation && <InflationRateSection editingSource={editingSource} onUpdate={onUpdate} />}
+    </>
+  )
+}
+
+function StandardConfigSections(
+  props: Pick<
+    FormConfigurationSectionsProps,
+    | 'editingSource'
+    | 'monthlyAmountId'
+    | 'currentYear'
+    | 'isKindergeld'
+    | 'isElterngeld'
+    | 'isBURente'
+    | 'isKapitallebensversicherung'
+    | 'isRisikolebensversicherung'
+    | 'isGrossIncome'
+    | 'onUpdate'
+  >,
+) {
   return (
     <>
       <AmountAndTaxSections {...props} />
@@ -136,13 +160,25 @@ function InsuranceConfigSections({
   onUpdate,
 }: Pick<
   FormConfigurationSectionsProps,
-  'editingSource' | 'currentYear' | 'isKindergeld' | 'isElterngeld' | 'isBURente' | 'isKapitallebensversicherung' | 'isPflegezusatzversicherung' | 'isRisikolebensversicherung' | 'onUpdate'
+  | 'editingSource'
+  | 'currentYear'
+  | 'isKindergeld'
+  | 'isElterngeld'
+  | 'isBURente'
+  | 'isKapitallebensversicherung'
+  | 'isPflegezusatzversicherung'
+  | 'isRisikolebensversicherung'
+  | 'onUpdate'
 >) {
   return (
     <>
       {isKindergeld && <KindergeldConfigSection editingSource={editingSource} onUpdate={onUpdate} />}
-      {isElterngeld && <ElterngeldConfigSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />}
-      {isBURente && <BURenteConfigSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />}
+      {isElterngeld && (
+        <ElterngeldConfigSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />
+      )}
+      {isBURente && (
+        <BURenteConfigSection editingSource={editingSource} currentYear={currentYear} onUpdate={onUpdate} />
+      )}
       {isKapitallebensversicherung && (
         <KapitallebensversicherungConfigSection
           editingSource={editingSource}

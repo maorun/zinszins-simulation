@@ -107,9 +107,7 @@ describe('useKeyboardShortcuts', () => {
     renderHook(() => useKeyboardShortcuts({ shortcuts }))
 
     // With shift should trigger
-    window.dispatchEvent(
-      new KeyboardEvent('keydown', { key: '?', shiftKey: true, bubbles: true }),
-    )
+    window.dispatchEvent(new KeyboardEvent('keydown', { key: '?', shiftKey: true, bubbles: true }))
     expect(actionMock).toHaveBeenCalledTimes(1)
   })
 
@@ -230,12 +228,9 @@ describe('useKeyboardShortcuts', () => {
       },
     ]
 
-    const { rerender } = renderHook(
-      ({ enabled }) => useKeyboardShortcuts({ shortcuts, enabled }),
-      {
-        initialProps: { enabled: false },
-      },
-    )
+    const { rerender } = renderHook(({ enabled }) => useKeyboardShortcuts({ shortcuts, enabled }), {
+      initialProps: { enabled: false },
+    })
 
     // Should not trigger when disabled
     window.dispatchEvent(new KeyboardEvent('keydown', { key: '1', altKey: true, bubbles: true }))

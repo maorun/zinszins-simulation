@@ -79,9 +79,7 @@ function BirthYearField({ birthYear, onChange }: BirthYearFieldProps) {
         max={new Date().getFullYear()}
         step={1}
       />
-      <p className="text-xs text-gray-600">
-        Benötigt für die Berechnung des Alters bei Beginn der Berufsunfähigkeit
-      </p>
+      <p className="text-xs text-gray-600">Benötigt für die Berechnung des Alters bei Beginn der Berufsunfähigkeit</p>
     </div>
   )
 }
@@ -104,9 +102,7 @@ function DisabilityDegreeField({ disabilityDegree, onChange }: DisabilityDegreeF
         max={100}
         step={10}
       />
-      <p className="text-xs text-gray-600">
-        0-100% (dient zur Dokumentation, beeinflusst nicht die Berechnung)
-      </p>
+      <p className="text-xs text-gray-600">0-100% (dient zur Dokumentation, beeinflusst nicht die Berechnung)</p>
     </div>
   )
 }
@@ -166,7 +162,7 @@ function BURenteInfoBox({ ageAtDisabilityStart }: { ageAtDisabilityStart: number
     if (age >= 2 && age <= 17) {
       return 59 - age
     }
-    
+
     // Use lookup table for other ages
     const entry = ERTRAGSANTEIL_TABLE.find(item => age <= item.maxAge)
     return entry?.percentage ?? 21
@@ -177,9 +173,9 @@ function BURenteInfoBox({ ageAtDisabilityStart }: { ageAtDisabilityStart: number
   return (
     <div className="p-3 bg-blue-50 rounded border border-blue-200">
       <p className="text-xs text-blue-800">
-        <strong>ℹ️ Hinweis zur Leibrenten-Besteuerung:</strong> Bei BU-Renten nach § 22 EStG ist nur der
-        Ertragsanteil steuerpflichtig. Bei einem Alter von {ageAtDisabilityStart} Jahren beträgt der Ertragsanteil{' '}
-        {ertragsanteil}%. Dies bedeutet, dass {100 - ertragsanteil}% der BU-Rente steuerfrei sind.
+        <strong>ℹ️ Hinweis zur Leibrenten-Besteuerung:</strong> Bei BU-Renten nach § 22 EStG ist nur der Ertragsanteil
+        steuerpflichtig. Bei einem Alter von {ageAtDisabilityStart} Jahren beträgt der Ertragsanteil {ertragsanteil}%.
+        Dies bedeutet, dass {100 - ertragsanteil}% der BU-Rente steuerfrei sind.
       </p>
     </div>
   )
@@ -226,10 +222,7 @@ function createHandleDisabilityEndYearChange(
   }
 }
 
-function createHandleBirthYearChange(
-  editingSource: OtherIncomeSource,
-  onUpdate: (source: OtherIncomeSource) => void,
-) {
+function createHandleBirthYearChange(editingSource: OtherIncomeSource, onUpdate: (source: OtherIncomeSource) => void) {
   return (birthYear: number) => {
     const ageAtDisabilityStart = calculateAgeAtDisabilityStart(
       birthYear,
@@ -276,10 +269,7 @@ function createHandleLeibrentenBesteuerungChange(
   }
 }
 
-function createBURenteHandlers(
-  editingSource: OtherIncomeSource,
-  onUpdate: (source: OtherIncomeSource) => void,
-) {
+function createBURenteHandlers(editingSource: OtherIncomeSource, onUpdate: (source: OtherIncomeSource) => void) {
   return {
     handleDisabilityStartYearChange: createHandleDisabilityStartYearChange(editingSource, onUpdate),
     handleDisabilityEndYearChange: createHandleDisabilityEndYearChange(editingSource, onUpdate),

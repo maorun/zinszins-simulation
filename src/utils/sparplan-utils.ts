@@ -121,10 +121,7 @@ function getMonthlyMultiplier(monthlyMultipliers: number[] | undefined, month: n
 /**
  * Get the multiplier from quarterly pattern
  */
-function getQuarterlyMultiplier(
-  quarterlyMultipliers: number[] | undefined,
-  month: number,
-): number {
+function getQuarterlyMultiplier(quarterlyMultipliers: number[] | undefined, month: number): number {
   const quarter = Math.floor(month / 3)
   return quarterlyMultipliers?.[quarter] ?? 1.0
 }
@@ -135,10 +132,7 @@ function getQuarterlyMultiplier(
  * @param month - Zero-based month index (0 = January, 11 = December)
  * @returns Multiplier to apply to the base amount (1.0 = no change)
  */
-export function getIncomePatternMultiplier(
-  incomePattern: IncomePattern | undefined,
-  month: number,
-): number {
+export function getIncomePatternMultiplier(incomePattern: IncomePattern | undefined, month: number): number {
   // Return default multiplier if pattern is not enabled
   if (!incomePattern?.enabled) {
     return 1.0

@@ -236,12 +236,10 @@ describe('tutorials', () => {
       const recommended = getRecommendedTutorial(['welcome'])
       expect(recommended).toBeDefined()
       expect(recommended?.id).not.toBe('welcome')
-      
+
       // Should recommend either savings-plan-basics or tax-configuration
       // (both have only welcome as prerequisite)
-      expect(['savings-plan-basics', 'tax-configuration', 'monte-carlo-analysis']).toContain(
-        recommended?.id
-      )
+      expect(['savings-plan-basics', 'tax-configuration', 'monte-carlo-analysis']).toContain(recommended?.id)
     })
 
     it('should not recommend already completed tutorials', () => {
@@ -254,11 +252,9 @@ describe('tutorials', () => {
     it('should only recommend tutorials with satisfied prerequisites', () => {
       const recommended = getRecommendedTutorial(['welcome'])
       expect(recommended).toBeDefined()
-      
+
       if (recommended && recommended.prerequisites) {
-        const allPrereqsSatisfied = recommended.prerequisites.every(prereq =>
-          ['welcome'].includes(prereq)
-        )
+        const allPrereqsSatisfied = recommended.prerequisites.every(prereq => ['welcome'].includes(prereq))
         expect(allPrereqsSatisfied).toBe(true)
       }
     })
@@ -272,10 +268,10 @@ describe('tutorials', () => {
     it('should handle partial completion correctly', () => {
       const completed = ['welcome', 'tax-configuration']
       const recommended = getRecommendedTutorial(completed)
-      
+
       if (recommended) {
         expect(completed).not.toContain(recommended.id)
-        
+
         if (recommended.prerequisites) {
           recommended.prerequisites.forEach(prereq => {
             expect(completed).toContain(prereq)
@@ -312,10 +308,10 @@ describe('tutorials', () => {
       tutorials.forEach(tutorial => {
         const firstStep = tutorial.steps[0]
         const lastStep = tutorial.steps[tutorial.steps.length - 1]
-        
+
         // First step should be intro-like
         expect(firstStep.id).toContain('intro')
-        
+
         // Last step should be complete/finish-like
         expect(lastStep.id).toContain('complete')
       })
@@ -341,7 +337,7 @@ describe('tutorials', () => {
     it('tax-configuration should cover German tax topics', () => {
       const tax = getTutorialById('tax-configuration')
       expect(tax).toBeDefined()
-      
+
       const allContent = tax?.steps.map(s => s.title + ' ' + s.description).join(' ')
       expect(allContent).toContain('Vorabpauschale')
       expect(allContent).toContain('Teilfreistellung')

@@ -1,9 +1,9 @@
 /**
  * EM-Rente Calculation Examples
- * 
+ *
  * This file demonstrates the EM-Rente (Erwerbsminderungsrente) calculation functionality
  * with realistic scenarios. Run this file to verify calculations work correctly.
- * 
+ *
  * To run: node helpers/em-rente-examples.js (requires TypeScript compilation or ts-node)
  */
 
@@ -175,7 +175,7 @@ console.log('------|------------|---------------|--------------|------------')
 for (let year = 2024; year <= 2028; year++) {
   const r = results5[year]
   console.log(
-    `${year} | ${r.adjustmentFactor.toFixed(4)}    | ${r.grossMonthlyPension.toFixed(2)} €   | ${r.grossAnnualPension.toFixed(2)} € | ${r.netAnnualPension.toFixed(2)} €`
+    `${year} | ${r.adjustmentFactor.toFixed(4)}    | ${r.grossMonthlyPension.toFixed(2)} €   | ${r.grossAnnualPension.toFixed(2)} € | ${r.netAnnualPension.toFixed(2)} €`,
   )
 }
 console.log('')

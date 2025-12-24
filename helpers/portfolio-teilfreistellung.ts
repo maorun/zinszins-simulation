@@ -13,11 +13,7 @@
  * Reference: Investmentsteuergesetz (InvStG) § 20
  */
 
-import {
-  type AssetClass,
-  DEFAULT_TEILFREISTELLUNGSQUOTEN,
-  getAssetClassName,
-} from './asset-class'
+import { type AssetClass, DEFAULT_TEILFREISTELLUNGSQUOTEN, getAssetClassName } from './asset-class'
 
 /**
  * Portfolio holding with allocation and fund type
@@ -92,9 +88,7 @@ export interface TaxScenarioComparison {
  * // 60% × 30% + 40% × 0% = 18%
  * ```
  */
-export function calculateWeightedTeilfreistellungsquote(
-  holdings: PortfolioHolding[],
-): WeightedTeilfreistellungsquote {
+export function calculateWeightedTeilfreistellungsquote(holdings: PortfolioHolding[]): WeightedTeilfreistellungsquote {
   let weightedQuote = 0
   let totalAllocation = 0
   const contributions: WeightedTeilfreistellungsquote['contributions'] = []
@@ -141,10 +135,7 @@ export function calculateWeightedTeilfreistellungsquote(
  * // = 0.26375 × 0.7 = 0.184625 (18.46%)
  * ```
  */
-export function calculateEffectiveTaxRate(
-  capitalGainsTaxRate: number,
-  teilfreistellungsquote: number,
-): number {
+export function calculateEffectiveTaxRate(capitalGainsTaxRate: number, teilfreistellungsquote: number): number {
   return capitalGainsTaxRate * (1 - teilfreistellungsquote)
 }
 
@@ -221,10 +212,7 @@ export function compareTaxScenarios(
  * @param tolerance - Tolerance for allocation sum (default 0.001 = 0.1%)
  * @returns Array of validation error messages (empty if valid)
  */
-export function validatePortfolioHoldings(
-  holdings: PortfolioHolding[],
-  tolerance = 0.001,
-): string[] {
+export function validatePortfolioHoldings(holdings: PortfolioHolding[], tolerance = 0.001): string[] {
   const errors: string[] = []
 
   if (holdings.length === 0) {
@@ -235,22 +223,16 @@ export function validatePortfolioHoldings(
   const totalAllocation = holdings.reduce((sum, h) => sum + h.allocation, 0)
 
   if (Math.abs(totalAllocation - 1.0) > tolerance) {
-    errors.push(
-      `Gesamtallokation muss 100% betragen (aktuell: ${(totalAllocation * 100).toFixed(1)}%)`,
-    )
+    errors.push(`Gesamtallokation muss 100% betragen (aktuell: ${(totalAllocation * 100).toFixed(1)}%)`)
   }
 
   for (const holding of holdings) {
     if (holding.allocation < 0) {
-      errors.push(
-        `${getAssetClassName(holding.assetClass)}: Allokation darf nicht negativ sein`,
-      )
+      errors.push(`${getAssetClassName(holding.assetClass)}: Allokation darf nicht negativ sein`)
     }
 
     if (holding.allocation > 1) {
-      errors.push(
-        `${getAssetClassName(holding.assetClass)}: Allokation darf nicht über 100% liegen`,
-      )
+      errors.push(`${getAssetClassName(holding.assetClass)}: Allokation darf nicht über 100% liegen`)
     }
   }
 
@@ -278,17 +260,13 @@ export function suggestPortfolioOptimization(currentHoldings: PortfolioHolding[]
   const lowExemptionHoldings = current.contributions.filter(c => c.quote < 0.15)
 
   if (lowExemptionHoldings.length > 0 && lowExemptionHoldings.some(h => h.allocation > 0.1)) {
-    suggestions.push(
-      'Reduzieren Sie Anlageklassen mit niedriger Teilfreistellung (z.B. Rentenfonds, REITs)',
-    )
+    suggestions.push('Reduzieren Sie Anlageklassen mit niedriger Teilfreistellung (z.B. Rentenfonds, REITs)')
   }
 
   // Check if equity allocation could be increased
   const equityHolding = current.contributions.find(c => c.assetClass === 'equity-fund')
   if (!equityHolding || equityHolding.allocation < 0.51) {
-    suggestions.push(
-      'Erhöhen Sie den Aktienfonds-Anteil (≥ 51%) für maximale Teilfreistellung von 30%',
-    )
+    suggestions.push('Erhöhen Sie den Aktienfonds-Anteil (≥ 51%) für maximale Teilfreistellung von 30%')
   }
 
   // Calculate potential improvement with 100% equity allocation

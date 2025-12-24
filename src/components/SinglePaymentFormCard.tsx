@@ -13,11 +13,7 @@ interface SinglePaymentFormCardProps {
   formValues: SingleFormValue
   onFormChange: (values: SingleFormValue) => void
   formatDateForInput: (date: Date | string | null, format: string) => string
-  handleDateChange: (
-    e: ChangeEvent<HTMLInputElement>,
-    format: string,
-    onChange: (date: Date | null) => void,
-  ) => void
+  handleDateChange: (e: ChangeEvent<HTMLInputElement>, format: string, onChange: (date: Date | null) => void) => void
   handleNumberChange: (e: ChangeEvent<HTMLInputElement>, onChange: (value: string) => void) => void
   onSubmit: () => void
   isEditMode: boolean

@@ -39,11 +39,7 @@ export function SeveranceConfigurationSection({
         <Label htmlFor={enabledId} className="text-sm font-medium">
           Abfindungsrechner aktivieren
         </Label>
-        <Switch
-          id={enabledId}
-          checked={config.enabled}
-          onCheckedChange={enabled => handleConfigChange({ enabled })}
-        />
+        <Switch id={enabledId} checked={config.enabled} onCheckedChange={enabled => handleConfigChange({ enabled })} />
       </div>
 
       {config.enabled && (
@@ -59,10 +55,7 @@ export function SeveranceConfigurationSection({
           {comparisonMode === 'single' ? (
             <SingleYearFields config={config} onConfigChange={handleConfigChange} />
           ) : (
-            <ComparisonYearsInput
-              comparisonYears={comparisonYears}
-              onComparisonYearsChange={onComparisonYearsChange}
-            />
+            <ComparisonYearsInput comparisonYears={comparisonYears} onComparisonYearsChange={onComparisonYearsChange} />
           )}
 
           <AdvancedSettingsCollapsible config={config} onConfigChange={handleConfigChange} />
@@ -72,7 +65,15 @@ export function SeveranceConfigurationSection({
   )
 }
 
-function SeveranceAmountInput({ id, value, onChange }: { id: string; value: number; onChange: (value: number) => void }) {
+function SeveranceAmountInput({
+  id,
+  value,
+  onChange,
+}: {
+  id: string
+  value: number
+  onChange: (value: number) => void
+}) {
   return (
     <div className="space-y-2">
       <Label htmlFor={id} className="text-sm font-medium">

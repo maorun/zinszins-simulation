@@ -148,12 +148,7 @@ function CorrelationTable({ enabledAssets, config }: CorrelationTableProps) {
           </thead>
           <tbody>
             {enabledAssets.map(rowAsset => (
-              <CorrelationTableRow
-                key={rowAsset}
-                rowAsset={rowAsset}
-                enabledAssets={enabledAssets}
-                config={config}
-              />
+              <CorrelationTableRow key={rowAsset} rowAsset={rowAsset} enabledAssets={enabledAssets} config={config} />
             ))}
           </tbody>
         </table>
@@ -189,8 +184,8 @@ export function CorrelationMatrixHeatmap({ config }: CorrelationMatrixHeatmapPro
         <div className="text-sm text-gray-700">
           <p className="font-medium mb-1">Korrelationsmatrix</p>
           <p className="text-xs text-gray-600">
-            Zeigt die historischen Korrelationen zwischen den Anlageklassen. Positive Werte (blau)
-            bedeuten gleichgerichtete Bewegungen, negative Werte (rot) gegenläufige Bewegungen.
+            Zeigt die historischen Korrelationen zwischen den Anlageklassen. Positive Werte (blau) bedeuten
+            gleichgerichtete Bewegungen, negative Werte (rot) gegenläufige Bewegungen.
           </p>
         </div>
       </div>

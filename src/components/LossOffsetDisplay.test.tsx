@@ -157,9 +157,7 @@ describe('LossOffsetDetailedView', () => {
     render(<LossOffsetDetailedView lossOffsetDetails={mockLossOffsetResult} year={2023} />)
 
     expect(screen.getByText(/Aktienverluste können nur mit Aktiengewinnen verrechnet werden/)).toBeInTheDocument()
-    expect(
-      screen.getByText(/Sonstige Verluste können mit allen Kapitalerträgen verrechnet werden/),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Sonstige Verluste können mit allen Kapitalerträgen verrechnet werden/)).toBeInTheDocument()
     expect(screen.getByText(/Nicht genutzte Verluste werden unbegrenzt vorgetragen/)).toBeInTheDocument()
   })
 

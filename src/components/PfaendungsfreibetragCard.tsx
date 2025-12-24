@@ -42,7 +42,7 @@ function InputField({ id, label, description, value, onChange, step = '100', suf
           min="0"
           step={step}
           value={value}
-          onChange={(e) => {
+          onChange={e => {
             const parsedValue = parseFloat(e.target.value)
             if (!isNaN(parsedValue)) {
               onChange(parsedValue)
@@ -94,7 +94,8 @@ interface IncomeProtectionDisplayProps {
 }
 
 function IncomeProtectionDisplay({ result }: IncomeProtectionDisplayProps) {
-  const protectionPercentage = result.monthlyNetIncome > 0 ? (result.protectedAmount / result.monthlyNetIncome) * 100 : 0
+  const protectionPercentage =
+    result.monthlyNetIncome > 0 ? (result.protectedAmount / result.monthlyNetIncome) * 100 : 0
   const garnishablePercentage =
     result.monthlyNetIncome > 0 ? (result.garnishableAmount / result.monthlyNetIncome) * 100 : 0
 
@@ -304,7 +305,7 @@ function IncomeConfigurationFields({ config, setConfig, incomeId, dependentsId }
         label="Monatliches Nettoeinkommen (€)"
         description="Ihr regelmäßiges monatliches Nettoeinkommen nach Abzug aller Steuern und Sozialabgaben"
         value={config.monthlyNetIncome}
-        onChange={(value) => setConfig({ ...config, monthlyNetIncome: Math.max(0, value) })}
+        onChange={value => setConfig({ ...config, monthlyNetIncome: Math.max(0, value) })}
         step="100"
       />
 
@@ -313,7 +314,7 @@ function IncomeConfigurationFields({ config, setConfig, incomeId, dependentsId }
         label="Anzahl Unterhaltsberechtigter"
         description="Anzahl der Personen, für die Sie unterhaltspflichtig sind (Kinder, Ehepartner, etc.)"
         value={config.numberOfDependents}
-        onChange={(value) => setConfig({ ...config, numberOfDependents: Math.max(0, Math.floor(value)) })}
+        onChange={value => setConfig({ ...config, numberOfDependents: Math.max(0, Math.floor(value)) })}
         step="1"
       />
     </div>
@@ -338,7 +339,7 @@ function AssetConfigurationFields({ config, setConfig, ruerupId, riesterId, othe
         label="Rürup-Rente (Basis-Rente) (€)"
         description="Angespartes Kapital in Rürup-Verträgen (geschützt bis 340.000 €)"
         value={config.ruerupRenteCapital}
-        onChange={(value) => setConfig({ ...config, ruerupRenteCapital: Math.max(0, value) })}
+        onChange={value => setConfig({ ...config, ruerupRenteCapital: Math.max(0, value) })}
         step="10000"
       />
 
@@ -347,7 +348,7 @@ function AssetConfigurationFields({ config, setConfig, ruerupId, riesterId, othe
         label="Riester-Rente (€)"
         description="Angespartes Kapital in Riester-Verträgen (vollständig geschützt)"
         value={config.riesterRenteCapital}
-        onChange={(value) => setConfig({ ...config, riesterRenteCapital: Math.max(0, value) })}
+        onChange={value => setConfig({ ...config, riesterRenteCapital: Math.max(0, value) })}
         step="10000"
       />
 
@@ -356,7 +357,7 @@ function AssetConfigurationFields({ config, setConfig, ruerupId, riesterId, othe
         label="Sonstige Altersvorsorge (€)"
         description="Andere private Rentenversicherungen, Lebensversicherungen (meist nicht geschützt)"
         value={config.otherPensionCapital}
-        onChange={(value) => setConfig({ ...config, otherPensionCapital: Math.max(0, value) })}
+        onChange={value => setConfig({ ...config, otherPensionCapital: Math.max(0, value) })}
         step="10000"
       />
     </div>
@@ -443,10 +444,10 @@ function useGarnishmentProtection(
   incomeConfig: PfaendungsfreigrenzeConfig,
   assetConfig: AssetProtectionConfig,
 ) {
-  const incomeResult = useMemo(() => (enabled ? calculatePfaendungsfreigrenze(incomeConfig) : null), [
-    enabled,
-    incomeConfig,
-  ])
+  const incomeResult = useMemo(
+    () => (enabled ? calculatePfaendungsfreigrenze(incomeConfig) : null),
+    [enabled, incomeConfig],
+  )
 
   const assetResult = useMemo(() => (enabled ? assessProtectedAssets(assetConfig) : null), [enabled, assetConfig])
 

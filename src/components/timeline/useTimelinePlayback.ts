@@ -12,13 +12,15 @@ interface TimelineState {
  * Extract year range from simulation data
  */
 function getYearRange(simulationData: SimulationResult): { startYear: number; endYear: number } {
-  const years = Object.keys(simulationData).map(Number).sort((a, b) => a - b)
+  const years = Object.keys(simulationData)
+    .map(Number)
+    .sort((a, b) => a - b)
   const currentYear = new Date().getFullYear()
-  
+
   // Ensure timeline starts from current year or earlier, not from a future year
   const dataStartYear = years[0] || currentYear
   const startYear = Math.min(dataStartYear, currentYear)
-  
+
   return {
     startYear,
     endYear: years[years.length - 1] || currentYear,
@@ -61,7 +63,10 @@ export function useTimelinePlayback(simulationData: SimulationResult, animationS
     }))
   }, [])
 
-  const handleReset = useCallback(() => setState(prev => ({ ...prev, currentYear: prev.startYear, isPlaying: false })), [])
+  const handleReset = useCallback(
+    () => setState(prev => ({ ...prev, currentYear: prev.startYear, isPlaying: false })),
+    [],
+  )
 
   const handleStepForward = useCallback(() => {
     setState(prev => ({ ...prev, currentYear: Math.min(prev.currentYear + 1, prev.endYear), isPlaying: false }))
@@ -71,7 +76,10 @@ export function useTimelinePlayback(simulationData: SimulationResult, animationS
     setState(prev => ({ ...prev, currentYear: Math.max(prev.currentYear - 1, prev.startYear), isPlaying: false }))
   }, [])
 
-  const handleSliderChange = useCallback((value: number[]) => setState(prev => ({ ...prev, currentYear: value[0], isPlaying: false })), [])
+  const handleSliderChange = useCallback(
+    (value: number[]) => setState(prev => ({ ...prev, currentYear: value[0], isPlaying: false })),
+    [],
+  )
 
   return { state, progress, handlePlayPause, handleReset, handleStepForward, handleStepBackward, handleSliderChange }
 }

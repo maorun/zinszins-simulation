@@ -1,8 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import {
-  type PensionComparisonConfig,
-  comparePensionTypes,
-} from './pension-comparison'
+import { type PensionComparisonConfig, comparePensionTypes } from './pension-comparison'
 import type { StatutoryPensionConfig } from './statutory-pension'
 import type { RiesterRenteConfig } from './riester-rente'
 import type { RuerupRenteConfig } from './ruerup-rente'
@@ -16,7 +13,7 @@ describe('pension-comparison', () => {
     personalTaxRate: 0.35,
     pensionTaxRate: 0.25,
     annualGrossIncome: 60000,
-    socialSecurityRate: 0.20,
+    socialSecurityRate: 0.2,
     inStatutoryHealthInsurance: true,
     hasChildren: true,
   }
@@ -26,7 +23,7 @@ describe('pension-comparison', () => {
       const result = comparePensionTypes(baseConfig)
 
       expect(result.comparisons).toHaveLength(4)
-      expect(result.comparisons.every((c) => !c.enabled)).toBe(true)
+      expect(result.comparisons.every(c => !c.enabled)).toBe(true)
       expect(result.summary.totalAnnualContributions).toBe(0)
       expect(result.summary.totalMonthlyPensionNet).toBe(0)
       expect(result.bestROI).toBeNull()
@@ -47,7 +44,7 @@ describe('pension-comparison', () => {
         statutoryPension,
       })
 
-      const statutory = result.comparisons.find((c) => c.type === 'statutory')
+      const statutory = result.comparisons.find(c => c.type === 'statutory')
       expect(statutory).toBeDefined()
       expect(statutory!.enabled).toBe(true)
       expect(statutory!.monthlyPensionGross).toBe(1500)
@@ -72,7 +69,7 @@ describe('pension-comparison', () => {
         riesterRente,
       })
 
-      const riester = result.comparisons.find((c) => c.type === 'riester')
+      const riester = result.comparisons.find(c => c.type === 'riester')
       expect(riester).toBeDefined()
       expect(riester!.enabled).toBe(true)
       expect(riester!.annualContribution).toBe(2400)
@@ -95,7 +92,7 @@ describe('pension-comparison', () => {
         ruerupRente,
       })
 
-      const ruerup = result.comparisons.find((c) => c.type === 'ruerup')
+      const ruerup = result.comparisons.find(c => c.type === 'ruerup')
       expect(ruerup).toBeDefined()
       expect(ruerup!.enabled).toBe(true)
       expect(ruerup!.annualContribution).toBe(5000)
@@ -119,7 +116,7 @@ describe('pension-comparison', () => {
         betriebsrente,
       })
 
-      const bav = result.comparisons.find((c) => c.type === 'betriebsrente')
+      const bav = result.comparisons.find(c => c.type === 'betriebsrente')
       expect(bav).toBeDefined()
       expect(bav!.enabled).toBe(true)
       expect(bav!.annualContribution).toBe(3600)
@@ -167,7 +164,7 @@ describe('pension-comparison', () => {
       expect(result.summary.totalAnnualTaxBenefits).toBeGreaterThan(0)
 
       // Should have two enabled comparisons
-      const enabledComparisons = result.comparisons.filter((c) => c.enabled)
+      const enabledComparisons = result.comparisons.filter(c => c.enabled)
       expect(enabledComparisons).toHaveLength(2)
     })
 
@@ -204,8 +201,8 @@ describe('pension-comparison', () => {
       expect(result.bestROI!.roi).toBeGreaterThan(0)
 
       // Best ROI should have highest ROI among enabled pensions
-      const enabledComparisons = result.comparisons.filter((c) => c.enabled)
-      const maxROI = Math.max(...enabledComparisons.map((c) => c.roi))
+      const enabledComparisons = result.comparisons.filter(c => c.enabled)
+      const maxROI = Math.max(...enabledComparisons.map(c => c.roi))
       expect(result.bestROI!.roi).toBe(maxROI)
     })
 
@@ -243,8 +240,8 @@ describe('pension-comparison', () => {
       expect(result.bestNetBenefit!.netLifetimeBenefit).toBeGreaterThan(0)
 
       // Best net benefit should have highest net lifetime benefit
-      const enabledComparisons = result.comparisons.filter((c) => c.enabled)
-      const maxNetBenefit = Math.max(...enabledComparisons.map((c) => c.netLifetimeBenefit))
+      const enabledComparisons = result.comparisons.filter(c => c.enabled)
+      const maxNetBenefit = Math.max(...enabledComparisons.map(c => c.netLifetimeBenefit))
       expect(result.bestNetBenefit!.netLifetimeBenefit).toBe(maxNetBenefit)
     })
 
@@ -296,14 +293,14 @@ describe('pension-comparison', () => {
         betriebsrente,
       })
 
-      const enabledComparisons = result.comparisons.filter((c) => c.enabled)
+      const enabledComparisons = result.comparisons.filter(c => c.enabled)
       expect(enabledComparisons).toHaveLength(4)
 
       // All pension types should be present
-      expect(result.comparisons.find((c) => c.type === 'statutory')!.enabled).toBe(true)
-      expect(result.comparisons.find((c) => c.type === 'riester')!.enabled).toBe(true)
-      expect(result.comparisons.find((c) => c.type === 'ruerup')!.enabled).toBe(true)
-      expect(result.comparisons.find((c) => c.type === 'betriebsrente')!.enabled).toBe(true)
+      expect(result.comparisons.find(c => c.type === 'statutory')!.enabled).toBe(true)
+      expect(result.comparisons.find(c => c.type === 'riester')!.enabled).toBe(true)
+      expect(result.comparisons.find(c => c.type === 'ruerup')!.enabled).toBe(true)
+      expect(result.comparisons.find(c => c.type === 'betriebsrente')!.enabled).toBe(true)
 
       // Summary should reflect all pensions
       expect(result.summary.totalMonthlyPensionNet).toBeGreaterThan(0)
@@ -336,7 +333,7 @@ describe('pension-comparison', () => {
         betriebsrente,
       })
 
-      const enabledComparisons = result.comparisons.filter((c) => c.enabled)
+      const enabledComparisons = result.comparisons.filter(c => c.enabled)
       expect(enabledComparisons).toHaveLength(2)
 
       // Total monthly pension should be reasonable (after taxes)
@@ -380,8 +377,8 @@ describe('pension-comparison', () => {
         riesterRente,
       })
 
-      const riesterHighTax = resultHighTax.comparisons.find((c) => c.type === 'riester')!
-      const riesterLowTax = resultLowTax.comparisons.find((c) => c.type === 'riester')!
+      const riesterHighTax = resultHighTax.comparisons.find(c => c.type === 'riester')!
+      const riesterLowTax = resultLowTax.comparisons.find(c => c.type === 'riester')!
 
       // Higher working tax rate should mean higher tax benefits
       expect(riesterHighTax.annualTaxBenefit).toBeGreaterThan(riesterLowTax.annualTaxBenefit)
@@ -408,7 +405,7 @@ describe('pension-comparison', () => {
         betriebsrente,
       })
 
-      const bav = result.comparisons.find((c) => c.type === 'betriebsrente')!
+      const bav = result.comparisons.find(c => c.type === 'betriebsrente')!
       expect(bav.enabled).toBe(true)
       expect(bav.annualContribution).toBe(0)
       expect(bav.monthlyPensionNet).toBe(0)
@@ -435,7 +432,7 @@ describe('pension-comparison', () => {
         riesterRente,
       })
 
-      const riester = result.comparisons.find((c) => c.type === 'riester')!
+      const riester = result.comparisons.find(c => c.type === 'riester')!
       expect(riester.enabled).toBe(true)
       expect(riester.totalNetPension).toBeGreaterThan(0)
       expect(riester.roi).toBeLessThan(1) // Lower ROI for short period
@@ -458,7 +455,7 @@ describe('pension-comparison', () => {
         ruerupRente,
       })
 
-      const ruerup = result.comparisons.find((c) => c.type === 'ruerup')!
+      const ruerup = result.comparisons.find(c => c.type === 'ruerup')!
       expect(ruerup.enabled).toBe(true)
       expect(ruerup.totalNetPension).toBeGreaterThan(0)
       expect(ruerup.roi).toBeGreaterThan(1) // High ROI for long period

@@ -3,7 +3,10 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import React from 'react'
 import { ProgressionsvorbehaltConfiguration } from './ProgressionsvorbehaltConfiguration'
-import { DEFAULT_PROGRESSIONSVORBEHALT_CONFIG, type ProgressionsvorbehaltConfig } from '../../helpers/progressionsvorbehalt'
+import {
+  DEFAULT_PROGRESSIONSVORBEHALT_CONFIG,
+  type ProgressionsvorbehaltConfig,
+} from '../../helpers/progressionsvorbehalt'
 import { TooltipProvider } from './ui/tooltip'
 
 describe('ProgressionsvorbehaltConfiguration', () => {
@@ -401,7 +404,9 @@ describe('ProgressionsvorbehaltConfiguration', () => {
         enabled: true,
       }
 
-      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} planningMode="couple" />)
+      renderWithTooltip(
+        <ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} planningMode="couple" />,
+      )
 
       // Use getAllByText since "Progressionsvorbehalt" appears multiple times (title and glossary tooltip)
       const progressionsvorbehaltTexts = screen.getAllByText(/Progressionsvorbehalt/i)
@@ -441,7 +446,9 @@ describe('ProgressionsvorbehaltConfiguration', () => {
 
       const timeRange = { start: 2020, end: 2050 }
 
-      renderWithTooltip(<ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} timeRange={timeRange} />)
+      renderWithTooltip(
+        <ProgressionsvorbehaltConfiguration {...defaultProps} config={enabledConfig} timeRange={timeRange} />,
+      )
 
       const yearInput = screen.getByPlaceholderText(/Jahr \(z\.B\. 2024\)/i) as HTMLInputElement
       expect(yearInput.min).toBe('2020')

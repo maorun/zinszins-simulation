@@ -4,7 +4,13 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from './ui/
 import { CollapsibleCard, CollapsibleCardHeader, CollapsibleCardContent } from './ui/collapsible-card'
 import { Input } from './ui/input'
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible'
-import { behavioralBiases, getAllCategories, getBiasesByCategory, searchBiases, type BehavioralBias } from '../data/behavioral-finance'
+import {
+  behavioralBiases,
+  getAllCategories,
+  getBiasesByCategory,
+  searchBiases,
+  type BehavioralBias,
+} from '../data/behavioral-finance'
 
 /**
  * Get color classes for bias category badge
@@ -28,7 +34,7 @@ function getCategoryColor(category: string): string {
 function CategoryOverview() {
   return (
     <div className="flex gap-2 flex-wrap">
-      {getAllCategories().map((category) => {
+      {getAllCategories().map(category => {
         const count = getBiasesByCategory(category).length
         return (
           <span key={category} className={`text-xs px-3 py-1.5 rounded-full border ${getCategoryColor(category)}`}>
@@ -134,14 +140,11 @@ function RelatedBiases({ bias }: RelatedBiasesProps) {
     <div>
       <h4 className="font-semibold text-sm text-gray-900 mb-2">Verwandte Biases</h4>
       <div className="flex gap-2 flex-wrap">
-        {bias.relatedBiases.map((relatedKey) => {
+        {bias.relatedBiases.map(relatedKey => {
           const relatedBias = behavioralBiases[relatedKey]
           if (!relatedBias) return null
           return (
-            <span
-              key={relatedKey}
-              className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded"
-            >
+            <span key={relatedKey} className="text-xs px-2 py-1 bg-purple-100 text-purple-700 rounded">
               {relatedBias.name.split('(')[0].trim()}
             </span>
           )
@@ -171,8 +174,8 @@ function BiasesList({ displayBiases, openBiases, onToggleBias }: BiasesListProps
 
   return (
     <div className="space-y-2">
-      {displayBiases.map((bias) => {
-        const biasKey = Object.keys(behavioralBiases).find((key) => behavioralBiases[key] === bias) || ''
+      {displayBiases.map(bias => {
+        const biasKey = Object.keys(behavioralBiases).find(key => behavioralBiases[key] === bias) || ''
         const isOpen = openBiases.has(biasKey)
 
         return (
@@ -210,8 +213,9 @@ function InsightsFooter() {
   return (
     <div className="mt-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
       <p className="text-sm text-gray-700">
-        <strong>Tipp:</strong> Das Bewusstsein dieser psychologischen Fallen ist der erste Schritt zur Vermeidung. 
-        Eine disziplinierte, langfristige Strategie mit regelbasierten Sparplänen hilft, emotionale Entscheidungen zu minimieren.
+        <strong>Tipp:</strong> Das Bewusstsein dieser psychologischen Fallen ist der erste Schritt zur Vermeidung. Eine
+        disziplinierte, langfristige Strategie mit regelbasierten Sparplänen hilft, emotionale Entscheidungen zu
+        minimieren.
       </p>
     </div>
   )
@@ -231,7 +235,7 @@ export function BehavioralFinanceInsights() {
   const displayBiases = searchTerm ? searchBiases(searchTerm) : Object.values(behavioralBiases)
 
   const toggleBias = (biasKey: string) => {
-    setOpenBiases((prev) => {
+    setOpenBiases(prev => {
       const newSet = new Set(prev)
       if (newSet.has(biasKey)) {
         newSet.delete(biasKey)
@@ -261,7 +265,7 @@ export function BehavioralFinanceInsights() {
               type="text"
               placeholder="Suche nach Bias..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={e => setSearchTerm(e.target.value)}
               className="pl-10"
             />
           </div>

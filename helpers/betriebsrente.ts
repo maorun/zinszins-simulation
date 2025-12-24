@@ -1,6 +1,6 @@
 /**
  * Types and utilities for Betriebliche Altersvorsorge (bAV - company pension) integration
- * 
+ *
  * Betriebliche Altersvorsorge is a company pension scheme in Germany with tax advantages
  * during the contribution phase and deferred taxation during the payout phase.
  */
@@ -119,16 +119,16 @@ export interface BetriebsrentePensionTaxationResult {
 
 /**
  * Get tax-free contribution limits for Betriebsrente for a specific year
- * 
+ *
  * @param year - Contribution year
  * @returns Tax-free contribution limits
- * 
+ *
  * @remarks
  * Limits are based on:
  * - § 3 Nr. 63 EStG: Tax-free employer contribution up to 8% of BBG West
  * - § 3 Nr. 63 EStG: Social security-free up to 4% of BBG West
  * - BBG (Beitragsbemessungsgrenze) West increases yearly
- * 
+ *
  * Historical BBG West values:
  * - 2023: 87,600 EUR
  * - 2024: 90,600 EUR
@@ -164,20 +164,20 @@ export function getBetriebsrenteTaxLimits(year: number): BetriebsrenteTaxLimits 
 
 /**
  * Calculate Betriebsrente tax benefits during contribution phase
- * 
+ *
  * @param employeeContribution - Annual employee contribution (salary conversion)
  * @param employerContribution - Annual employer contribution
  * @param year - Contribution year
  * @param personalTaxRate - Personal income tax rate (0-1)
  * @param socialSecurityRate - Social security contribution rate (0-1, typically ~0.20)
  * @returns Tax benefit calculation result
- * 
+ *
  * @remarks
  * Tax benefits:
  * 1. Employer contributions up to 8% BBG are tax-free (§ 3 Nr. 63 EStG)
  * 2. Employee contributions (salary conversion) up to 4% BBG are tax and social security-free
  * 3. Additional employee contributions beyond 4% are tax-free but not social security-free
- * 
+ *
  * Social security:
  * - During contribution: Savings on income tax and social security
  * - During payout: Full taxation + social security contributions on pension
@@ -187,20 +187,17 @@ export function calculateBetriebsrenteTaxBenefit(
   employerContribution: number,
   year: number,
   personalTaxRate: number,
-  socialSecurityRate = 0.20
+  socialSecurityRate = 0.2,
 ): BetriebsrenteTaxBenefitResult {
   const limits = getBetriebsrenteTaxLimits(year)
 
   // Calculate tax-free employer contribution (up to 8% BBG limit)
-  const taxFreeEmployerContribution = Math.min(
-    employerContribution,
-    limits.maxTaxFreeEmployerContribution
-  )
+  const taxFreeEmployerContribution = Math.min(employerContribution, limits.maxTaxFreeEmployerContribution)
 
   // Calculate social security-free employee contribution (up to 4% BBG limit)
   const socialSecurityFreeEmployeeContribution = Math.min(
     employeeContribution,
-    limits.maxSocialSecurityFreeContribution
+    limits.maxSocialSecurityFreeContribution,
   )
 
   // Employee contribution is always tax-free (salary conversion reduces taxable income)
@@ -213,12 +210,11 @@ export function calculateBetriebsrenteTaxBenefit(
   const totalBenefit = taxSavingsEmployee + socialSecuritySavingsEmployee
 
   // Check if limits are exceeded
-  const exceedsTaxLimits = 
+  const exceedsTaxLimits =
     employerContribution > limits.maxTaxFreeEmployerContribution ||
     employeeContribution > limits.maxTaxFreeEmployerContribution
 
-  const exceedsSocialSecurityLimits = 
-    employeeContribution > limits.maxSocialSecurityFreeContribution
+  const exceedsSocialSecurityLimits = employeeContribution > limits.maxSocialSecurityFreeContribution
 
   return {
     totalContribution: employeeContribution + employerContribution,
@@ -236,14 +232,14 @@ export function calculateBetriebsrenteTaxBenefit(
 
 /**
  * Calculate Betriebsrente pension taxation during payout phase
- * 
+ *
  * @param monthlyPension - Monthly pension amount (before taxes)
  * @param year - Payout year
  * @param pensionIncreaseRate - Annual pension increase rate (default: 0.01 for 1%)
  * @param personalTaxRate - Personal income tax rate (0-1)
  * @param inStatutoryHealthInsurance - Whether in statutory health insurance (affects contribution rate)
  * @returns Pension taxation result for the year
- * 
+ *
  * @remarks
  * Taxation during payout:
  * - 100% of bAV pension is subject to income tax (nachgelagerte Besteuerung)
@@ -259,7 +255,7 @@ export function calculateBetriebsrentePensionTaxation(
   pensionIncreaseRate: number,
   personalTaxRate: number,
   inStatutoryHealthInsurance = true,
-  hasChildren = true
+  hasChildren = true,
 ): BetriebsrentePensionTaxationResult {
   // Calculate adjusted pension amount based on years since start
   const yearsSinceStart = Math.max(0, year - pensionStartYear)
@@ -329,7 +325,7 @@ function calculateContributionPhaseTotals(
   contributionStartYear: number,
   contributionEndYear: number,
   personalTaxRate: number,
-  socialSecurityRate: number
+  socialSecurityRate: number,
 ): { totalContributions: number; totalTaxBenefitsContribution: number } {
   let totalContributions = 0
   let totalTaxBenefitsContribution = 0
@@ -340,7 +336,7 @@ function calculateContributionPhaseTotals(
       config.annualEmployerContribution,
       year,
       personalTaxRate,
-      socialSecurityRate
+      socialSecurityRate,
     )
     totalContributions += benefit.totalContribution
     totalTaxBenefitsContribution += benefit.totalBenefit
@@ -357,7 +353,7 @@ function calculatePayoutPhaseTotals(
   payoutEndYear: number,
   pensionTaxRate: number,
   inStatutoryHealthInsurance: boolean,
-  hasChildren: boolean
+  hasChildren: boolean,
 ): {
   totalGrossPension: number
   totalNetPension: number
@@ -377,7 +373,7 @@ function calculatePayoutPhaseTotals(
       config.pensionIncreaseRate,
       pensionTaxRate,
       inStatutoryHealthInsurance,
-      hasChildren
+      hasChildren,
     )
     totalGrossPension += taxation.grossAnnualPension
     totalNetPension += taxation.netAnnualPension
@@ -390,9 +386,9 @@ function calculatePayoutPhaseTotals(
 
 /**
  * Calculate total lifetime benefit of Betriebsrente
- * 
+ *
  * Calculates total contributions, tax benefits, pension received, and ROI
- * 
+ *
  * @param config - Betriebsrente configuration
  * @param contributionStartYear - Year when contributions start
  * @param contributionEndYear - Year when contributions end (retirement)
@@ -411,9 +407,9 @@ export function calculateBetriebsrenteLifetimeBenefit(
   payoutEndYear: number,
   personalTaxRate: number,
   pensionTaxRate: number,
-  socialSecurityRate = 0.20,
+  socialSecurityRate = 0.2,
   inStatutoryHealthInsurance = true,
-  hasChildren = true
+  hasChildren = true,
 ): BetriebsrenteLifetimeBenefitResult {
   // Calculate contribution phase
   const { totalContributions, totalTaxBenefitsContribution } = calculateContributionPhaseTotals(
@@ -421,18 +417,17 @@ export function calculateBetriebsrenteLifetimeBenefit(
     contributionStartYear,
     contributionEndYear,
     personalTaxRate,
-    socialSecurityRate
+    socialSecurityRate,
   )
 
   // Calculate payout phase
-  const { totalGrossPension, totalNetPension, totalTaxesPaid, totalSocialSecurityPaid } =
-    calculatePayoutPhaseTotals(
-      config,
-      payoutEndYear,
-      pensionTaxRate,
-      inStatutoryHealthInsurance,
-      hasChildren
-    )
+  const { totalGrossPension, totalNetPension, totalTaxesPaid, totalSocialSecurityPaid } = calculatePayoutPhaseTotals(
+    config,
+    payoutEndYear,
+    pensionTaxRate,
+    inStatutoryHealthInsurance,
+    hasChildren,
+  )
 
   // Net lifetime benefit = total pension received - employee contributions + tax benefits
   // (employer contributions are "free money" so they're a pure benefit)
@@ -445,9 +440,7 @@ export function calculateBetriebsrenteLifetimeBenefit(
   const totalEmployeeContribution =
     config.annualEmployeeContribution * (contributionEndYear - contributionStartYear + 1)
   const roi =
-    totalEmployeeContribution > 0
-      ? (totalNetPension + totalTaxBenefitsContribution) / totalEmployeeContribution - 1
-      : 0
+    totalEmployeeContribution > 0 ? (totalNetPension + totalTaxBenefitsContribution) / totalEmployeeContribution - 1 : 0
 
   return {
     totalContributions,

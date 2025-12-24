@@ -22,13 +22,7 @@ interface StressTestDisplayProps {
   showDetails?: boolean
 }
 
-function StressTestParameters({
-  portfolioValue,
-  scenarioCount,
-}: {
-  portfolioValue: number
-  scenarioCount: number
-}) {
+function StressTestParameters({ portfolioValue, scenarioCount }: { portfolioValue: number; scenarioCount: number }) {
   return (
     <div className="mb-5">
       <p>
@@ -38,8 +32,8 @@ function StressTestParameters({
         <strong>Getestete Szenarien:</strong> {scenarioCount} extreme Marktszenarien
       </p>
       <p className="text-sm text-gray-600">
-        Stress-Tests zeigen, wie Ihr Portfolio in extremen Krisen reagieren würde. Im Gegensatz zu Value-at-Risk basieren
-        diese auf konkreten "Was-wäre-wenn"-Szenarien.
+        Stress-Tests zeigen, wie Ihr Portfolio in extremen Krisen reagieren würde. Im Gegensatz zu Value-at-Risk
+        basieren diese auf konkreten "Was-wäre-wenn"-Szenarien.
       </p>
     </div>
   )
@@ -126,9 +120,7 @@ function WorstCaseHighlight({ worstCase }: { worstCase: StressTestResult }) {
         <strong>{worstCase.scenario.name}</strong>: {getStressTestDescription(worstCase)}
       </p>
       {worstCase.scenario.historicalReference && (
-        <p className="m-0 mt-2 text-xs text-gray-700">
-          Historische Referenz: {worstCase.scenario.historicalReference}
-        </p>
+        <p className="m-0 mt-2 text-xs text-gray-700">Historische Referenz: {worstCase.scenario.historicalReference}</p>
       )}
     </div>
   )
@@ -142,9 +134,9 @@ function StressTestInterpretation({ averageLoss, portfolioValue }: { averageLoss
       <h6>💡 Interpretation:</h6>
       <p className="m-0 text-sm">
         Durchschnittlicher Verlust über alle Szenarien: {formatCurrencyWhole(averageLoss)} (
-        {formatPercentGerman(averageLossPercent)}). Stress-Tests helfen dabei, extreme Marktsituationen besser einzuschätzen
-        und Ihr Portfolio entsprechend anzupassen. Beachten Sie: Historische Szenarien sind real aufgetretene Krisen,
-        während hypothetische Szenarien "Was-wäre-wenn"-Analysen darstellen.
+        {formatPercentGerman(averageLossPercent)}). Stress-Tests helfen dabei, extreme Marktsituationen besser
+        einzuschätzen und Ihr Portfolio entsprechend anzupassen. Beachten Sie: Historische Szenarien sind real
+        aufgetretene Krisen, während hypothetische Szenarien "Was-wäre-wenn"-Analysen darstellen.
       </p>
     </div>
   )
@@ -178,10 +170,7 @@ export function StressTestDisplay({
 
   return (
     <div className="mb-[30px]">
-      <h4 className="text-[#1976d2] mb-[15px]">
-        ⚡
-        {title}
-      </h4>
+      <h4 className="text-[#1976d2] mb-[15px]">⚡{title}</h4>
 
       <StressTestParameters portfolioValue={portfolioValue} scenarioCount={scenarios.length} />
 

@@ -40,7 +40,7 @@ function InputField({ id, label, description, value, onChange, step = '100', suf
           min="0"
           step={step}
           value={value}
-          onChange={(e) => {
+          onChange={e => {
             const parsedValue = parseFloat(e.target.value)
             if (!isNaN(parsedValue)) {
               onChange(parsedValue)
@@ -98,9 +98,11 @@ function PaymentSchedule({ result }: PaymentScheduleProps) {
         <h4 className="font-medium text-purple-900">📅 Zahlungstermine</h4>
       </div>
       <div className="space-y-2">
-        {result.paymentDates.map((payment) => (
+        {result.paymentDates.map(payment => (
           <div key={payment.quarter} className="flex justify-between items-center text-sm">
-            <span className="text-purple-800">Q{payment.quarter} - {payment.deadlineFormatted}</span>
+            <span className="text-purple-800">
+              Q{payment.quarter} - {payment.deadlineFormatted}
+            </span>
             <span className="font-medium text-purple-900">{formatCurrency(result.quarterlyPrepayment)}</span>
           </div>
         ))}
@@ -223,7 +225,14 @@ interface ConfigurationFieldsProps {
   exemptionId: string
 }
 
-function ConfigurationFields({ config, setConfig, incomeId, taxRateId, allowanceId, exemptionId }: ConfigurationFieldsProps) {
+function ConfigurationFields({
+  config,
+  setConfig,
+  incomeId,
+  taxRateId,
+  allowanceId,
+  exemptionId,
+}: ConfigurationFieldsProps) {
   return (
     <div className="space-y-4 pt-2">
       <InputField
@@ -231,7 +240,7 @@ function ConfigurationFields({ config, setConfig, incomeId, taxRateId, allowance
         label="Erwartete jährliche Kapitalerträge (€)"
         description="Geschätzte Gesamtkapitalerträge für das Jahr (Dividenden, Zinsen, realisierte Gewinne)"
         value={config.expectedAnnualCapitalIncome}
-        onChange={(value) => setConfig({ ...config, expectedAnnualCapitalIncome: Math.max(0, value) })}
+        onChange={value => setConfig({ ...config, expectedAnnualCapitalIncome: Math.max(0, value) })}
         step="1000"
       />
 
@@ -240,7 +249,7 @@ function ConfigurationFields({ config, setConfig, incomeId, taxRateId, allowance
         label="Kapitalertragsteuersatz (%)"
         description="Standard: 26,375% (25% Abgeltungssteuer + 5,5% Solidaritätszuschlag)"
         value={config.capitalGainsTaxRate}
-        onChange={(value) => setConfig({ ...config, capitalGainsTaxRate: Math.max(0, Math.min(100, value)) })}
+        onChange={value => setConfig({ ...config, capitalGainsTaxRate: Math.max(0, Math.min(100, value)) })}
         step="0.001"
         suffix="%"
       />
@@ -250,7 +259,7 @@ function ConfigurationFields({ config, setConfig, incomeId, taxRateId, allowance
         label="Sparer-Pauschbetrag (€)"
         description="Freibetrag: 1.000 € (Singles) oder 2.000 € (Paare) durch Freistellungsauftrag"
         value={config.taxFreeAllowance}
-        onChange={(value) => setConfig({ ...config, taxFreeAllowance: Math.max(0, value) })}
+        onChange={value => setConfig({ ...config, taxFreeAllowance: Math.max(0, value) })}
         step="100"
       />
 
@@ -259,7 +268,7 @@ function ConfigurationFields({ config, setConfig, incomeId, taxRateId, allowance
         label="Teilfreistellungsquote (%)"
         description="Standard: 30% für Aktienfonds, 15% für Mischfonds, 0% für andere Anlagen"
         value={config.partialExemptionRate}
-        onChange={(value) => setConfig({ ...config, partialExemptionRate: Math.max(0, Math.min(100, value)) })}
+        onChange={value => setConfig({ ...config, partialExemptionRate: Math.max(0, Math.min(100, value)) })}
         step="1"
         suffix="%"
       />
@@ -357,7 +366,7 @@ export function QuarterlyTaxPrepaymentCard() {
               <EnableSwitchSection
                 enableSwitchId={enableSwitchId}
                 enabled={config.enabled}
-                onEnabledChange={(checked) => setConfig({ ...config, enabled: checked })}
+                onEnabledChange={checked => setConfig({ ...config, enabled: checked })}
               />
               {config.enabled && (
                 <ConfigurationContent

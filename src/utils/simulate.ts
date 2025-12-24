@@ -418,7 +418,7 @@ function getBaseSavingsAmount(element: SparplanElement, year: number, options: S
   if (element.dynamicSavingsConfig?.enabled && element.type === 'sparplan') {
     return calculateDynamicSavingsRate(year, options.startYear, element.dynamicSavingsConfig)
   }
-  
+
   return element.einzahlung
 }
 
@@ -434,7 +434,7 @@ function shouldApplyInflationAdjustment(options: SimulateOptions, yearInflationR
   const hasInflationConfig = Boolean(options.inflationAktivSparphase || options.variableInflationRates)
   const hasPositiveRate = yearInflationRate > 0
   const isSparplanMode = !options.inflationAnwendungSparphase || options.inflationAnwendungSparphase === 'sparplan'
-  
+
   return hasInflationConfig && hasPositiveRate && isSparplanMode
 }
 
@@ -450,7 +450,7 @@ function shouldApplyInflationAdjustment(options: SimulateOptions, yearInflationR
 function getAdjustedEinzahlung(element: SparplanElement, year: number, options: SimulateOptions): number {
   // Start with base amount (may be dynamically adjusted)
   const baseAmount = getBaseSavingsAmount(element, year, options)
-  
+
   // Apply inflation adjustment if enabled
   const yearInflationRate = getInflationRateForYear(year, options)
   if (shouldApplyInflationAdjustment(options, yearInflationRate)) {
@@ -561,8 +561,7 @@ function processElementForTaxCalculation(
 ): YearlyCalculation | null {
   if (!shouldProcessElement(element, year)) return null
 
-  const { simulationAnnual, steuerlast, teilfreistellungsquote = FINANCIAL_DEFAULTS.DEFAULT_TEILFREISTELLUNG } =
-    options
+  const { simulationAnnual, steuerlast, teilfreistellungsquote = FINANCIAL_DEFAULTS.DEFAULT_TEILFREISTELLUNG } = options
 
   const { startkapital, endkapitalAfterCosts, jahresgewinn, anteilImJahr, costs } = calculateGrowthAndCostsForElement(
     element,
@@ -732,7 +731,7 @@ function calculateGuenstigerPruefung(
     const USE_PROGRESSIVE_TAX = true
     const KIRCHENSTEUER_AKTIV = false
     const DEFAULT_KIRCHENSTEUERSATZ = 9
-    
+
     guenstigerPruefungResult = performGuenstigerPruefung(
       vorabpauschaleBetrag,
       steuerlast,

@@ -73,14 +73,8 @@ describe('stress-testing', () => {
     it('should show higher losses for more severe crises', () => {
       const scenarios = getStressTestScenarios()
 
-      const covidResult = calculateStressTestResult(
-        scenarios.find(s => s.id === 'covid-crash-2020')!,
-        baseConfig,
-      )
-      const dotcomResult = calculateStressTestResult(
-        scenarios.find(s => s.id === 'dotcom-crash-2000')!,
-        baseConfig,
-      )
+      const covidResult = calculateStressTestResult(scenarios.find(s => s.id === 'covid-crash-2020')!, baseConfig)
+      const dotcomResult = calculateStressTestResult(scenarios.find(s => s.id === 'dotcom-crash-2000')!, baseConfig)
       const financialResult = calculateStressTestResult(
         scenarios.find(s => s.id === 'financial-crisis-2008')!,
         baseConfig,

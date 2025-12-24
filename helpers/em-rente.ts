@@ -1,9 +1,9 @@
 /**
  * EM-Rente (Erwerbsminderungsrente) - German Statutory Disability Pension Calculator
- * 
+ *
  * This module calculates disability pension from the German statutory pension insurance (GRV).
  * EM-Rente is different from private BU insurance - it's part of the public pension system.
- * 
+ *
  * Key concepts:
  * - Volle EM-Rente (Full disability pension): For those unable to work 3+ hours per day
  * - Teilweise EM-Rente (Partial disability pension): For those able to work 3-6 hours per day
@@ -120,12 +120,12 @@ export interface EMRenteResult {
 
 /**
  * Calculate Zurechnungszeiten (attribution periods) points
- * 
+ *
  * Zurechnungszeiten extend the calculation base from the actual contribution years
  * to age 67 (as of 2024), giving credit for years the person would have worked.
- * 
+ *
  * Formula: Average pension points per year × remaining years to age 67
- * 
+ *
  * @param accumulatedPensionPoints - Total pension points at time of disability
  * @param contributionYears - Years of actual contributions
  * @param ageAtDisability - Age when disability started
@@ -136,7 +136,7 @@ export function calculateZurechnungszeiten(
   accumulatedPensionPoints: number,
   contributionYears: number,
   ageAtDisability: number,
-  targetAge = 67
+  targetAge = 67,
 ): number {
   // No Zurechnungszeiten if already at or past target age
   if (ageAtDisability >= targetAge) {
@@ -163,20 +163,17 @@ export function calculateZurechnungszeiten(
 
 /**
  * Calculate Abschlag (pension reduction) percentage
- * 
+ *
  * For each month before the regular retirement age that EM-Rente begins,
  * there's a reduction of 0.3%. Maximum reduction is 10.8% (36 months).
- * 
+ *
  * Regular retirement age is typically 67 (as of 2024).
- * 
+ *
  * @param ageAtDisability - Age when disability started
  * @param regularRetirementAge - Regular retirement age (67 as of 2024)
  * @returns Abschlag percentage (0-10.8%)
  */
-export function calculateAbschlag(
-  ageAtDisability: number,
-  regularRetirementAge = 67
-): number {
+export function calculateAbschlag(ageAtDisability: number, regularRetirementAge = 67): number {
   // No Abschlag if at or past regular retirement age
   if (ageAtDisability >= regularRetirementAge) {
     return 0
@@ -189,7 +186,7 @@ export function calculateAbschlag(
   const monthsBeforeRetirement = yearsBeforeRetirement * 12
   const maxMonths = 36 // Maximum 36 months of reductions
   const effectiveMonths = Math.min(monthsBeforeRetirement, maxMonths)
-  
+
   const abschlagPercentage = effectiveMonths * 0.3
 
   return Math.min(abschlagPercentage, 10.8)
@@ -197,25 +194,22 @@ export function calculateAbschlag(
 
 /**
  * Calculate Hinzuverdienstgrenze (permissible additional income limit)
- * 
+ *
  * For volle EM-Rente (full disability pension):
  * - Based on formula from German statutory pension insurance
  * - Calculation: (0.81 × reference amount × 14) / 12 gives annual limit
  * - Then divide by 12 again to get monthly limit
  * - Reference amount = average earnings of all insured persons (2024: ~45,358€)
  * - Results in approximately 3,572€/month (as of 2024)
- * 
+ *
  * For teilweise EM-Rente (partial disability pension):
  * - Higher limit, approximately double the volle EM-Rente limit
- * 
+ *
  * @param type - Type of EM-Rente (volle or teilweise)
  * @param referenceAmount - Average earnings reference (default: 45,358€ as of 2024)
  * @returns Monthly Hinzuverdienstgrenze in EUR
  */
-export function calculateHinzuverdienstgrenze(
-  type: EMRenteType,
-  referenceAmount = 45358
-): number {
+export function calculateHinzuverdienstgrenze(type: EMRenteType, referenceAmount = 45358): number {
   if (type === 'volle') {
     // Step 1: Calculate annual base limit
     const annualBaseLimit = (0.81 * referenceAmount * 14) / 12
@@ -233,17 +227,17 @@ export function calculateHinzuverdienstgrenze(
 
 /**
  * Calculate pension reduction due to exceeding Hinzuverdienstgrenze
- * 
+ *
  * If additional income exceeds the limit, the pension is reduced by 40%
  * of the amount exceeding the limit.
- * 
+ *
  * @param monthlyAdditionalIncome - Monthly additional income in EUR
  * @param hinzuverdienstgrenze - Monthly limit in EUR
  * @returns Monthly pension reduction in EUR
  */
 export function calculateHinzuverdienstReduction(
   monthlyAdditionalIncome: number,
-  hinzuverdienstgrenze: number
+  hinzuverdienstgrenze: number,
 ): number {
   if (monthlyAdditionalIncome <= hinzuverdienstgrenze) {
     return 0
@@ -266,7 +260,7 @@ export function getPensionValue(region: 'west' | 'east', customValue?: number): 
 
 /**
  * Calculate teilweise EM-Rente factor
- * 
+ *
  * Teilweise EM-Rente (partial disability pension) is 50% of volle EM-Rente.
  */
 export function getTeilweiseEMFactor(type: EMRenteType): number {
@@ -276,7 +270,10 @@ export function getTeilweiseEMFactor(type: EMRenteType): number {
 /**
  * Calculate pension points including Zurechnungszeiten
  */
-function calculateTotalPensionPoints(config: EMRenteConfig, ageAtDisability: number): {
+function calculateTotalPensionPoints(
+  config: EMRenteConfig,
+  ageAtDisability: number,
+): {
   pensionPoints: number
   zurechnungszeitenPoints: number
 } {
@@ -287,7 +284,7 @@ function calculateTotalPensionPoints(config: EMRenteConfig, ageAtDisability: num
     zurechnungszeitenPoints = calculateZurechnungszeiten(
       config.accumulatedPensionPoints,
       config.contributionYears,
-      ageAtDisability
+      ageAtDisability,
     )
     pensionPoints += zurechnungszeitenPoints
   }
@@ -301,7 +298,7 @@ function calculateTotalPensionPoints(config: EMRenteConfig, ageAtDisability: num
 function calculateAbschlagDetails(
   grossMonthlyPensionBeforeAbschlaege: number,
   ageAtDisability: number,
-  applyAbschlaege: boolean
+  applyAbschlaege: boolean,
 ): { abschlagPercentage: number; abschlagAmount: number } {
   if (!applyAbschlaege) {
     return { abschlagPercentage: 0, abschlagAmount: 0 }
@@ -318,7 +315,7 @@ function calculateAbschlagDetails(
  */
 function calculateHinzuverdienstDetails(
   type: EMRenteType,
-  monthlyAdditionalIncome: number
+  monthlyAdditionalIncome: number,
 ): {
   hinzuverdienstgrenze: number
   exceedsHinzuverdienstgrenze: boolean
@@ -338,7 +335,7 @@ function calculateTaxation(
   grossAnnualPension: number,
   taxablePercentage: number,
   grundfreibetragAmount: number,
-  incomeTaxRate: number
+  incomeTaxRate: number,
 ): { taxableAmount: number; incomeTax: number; netAnnualPension: number } {
   const taxableAmount = grossAnnualPension * (taxablePercentage / 100)
   const taxableAmountAboveAllowance = Math.max(0, taxableAmount - grundfreibetragAmount)
@@ -355,7 +352,7 @@ export function calculateEMRenteForYear(
   config: EMRenteConfig,
   year: number,
   incomeTaxRate = 0.0,
-  grundfreibetragAmount = 0
+  grundfreibetragAmount = 0,
 ): EMRenteYearResult {
   if (!config.enabled || year < config.disabilityStartYear) {
     return createEmptyYearResult()
@@ -374,14 +371,16 @@ export function calculateEMRenteForYear(
   const { abschlagPercentage, abschlagAmount } = calculateAbschlagDetails(
     grossMonthlyPensionBeforeAbschlaege,
     ageAtDisability,
-    config.applyAbschlaege
+    config.applyAbschlaege,
   )
 
   let grossMonthlyPension = (grossMonthlyPensionBeforeAbschlaege - abschlagAmount) * adjustmentFactor
 
   const monthlyAdditionalIncome = config.monthlyAdditionalIncome || 0
-  const { hinzuverdienstgrenze, exceedsHinzuverdienstgrenze, hinzuverdienstReduction } = 
-    calculateHinzuverdienstDetails(config.type, monthlyAdditionalIncome)
+  const { hinzuverdienstgrenze, exceedsHinzuverdienstgrenze, hinzuverdienstReduction } = calculateHinzuverdienstDetails(
+    config.type,
+    monthlyAdditionalIncome,
+  )
 
   grossMonthlyPension = Math.max(0, grossMonthlyPension - hinzuverdienstReduction)
 
@@ -391,7 +390,7 @@ export function calculateEMRenteForYear(
     grossAnnualPension,
     config.taxablePercentage,
     grundfreibetragAmount,
-    incomeTaxRate
+    incomeTaxRate,
   )
 
   return {
@@ -442,7 +441,7 @@ export function calculateEMRente(
   startYear: number,
   endYear: number,
   incomeTaxRate = 0.0,
-  grundfreibetragPerYear?: { [year: number]: number }
+  grundfreibetragPerYear?: { [year: number]: number },
 ): EMRenteResult {
   const result: EMRenteResult = {}
 
@@ -478,18 +477,18 @@ export function createDefaultEMRenteConfig(): EMRenteConfig {
 
 /**
  * Estimate pension points from monthly pension amount
- * 
+ *
  * This is useful when users know their expected EM-Rente amount but not their pension points.
  */
 export function estimatePensionPointsFromMonthlyPension(
   monthlyPension: number,
   region: 'west' | 'east' = 'west',
   type: EMRenteType = 'volle',
-  customPensionValue?: number
+  customPensionValue?: number,
 ): number {
   const pensionValue = getPensionValue(region, customPensionValue)
   const teilweiseFactor = getTeilweiseEMFactor(type)
-  
+
   if (pensionValue <= 0 || teilweiseFactor <= 0) {
     return 0
   }
@@ -504,7 +503,7 @@ export function estimatePensionPointsFromAnnualPension(
   annualPension: number,
   region: 'west' | 'east' = 'west',
   type: EMRenteType = 'volle',
-  customPensionValue?: number
+  customPensionValue?: number,
 ): number {
   return estimatePensionPointsFromMonthlyPension(annualPension / 12, region, type, customPensionValue)
 }

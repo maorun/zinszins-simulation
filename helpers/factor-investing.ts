@@ -100,10 +100,7 @@ export interface FactorPortfolioConfig {
 /**
  * Create default factor portfolio configuration
  */
-export function createDefaultFactorPortfolioConfig(
-  baseReturn = 0.07,
-  baseVolatility = 0.15,
-): FactorPortfolioConfig {
+export function createDefaultFactorPortfolioConfig(baseReturn = 0.07, baseVolatility = 0.15): FactorPortfolioConfig {
   // Deep copy the default factor configs
   const factors = Object.entries(DEFAULT_FACTOR_CONFIGS).reduce(
     (acc, [key, config]) => {

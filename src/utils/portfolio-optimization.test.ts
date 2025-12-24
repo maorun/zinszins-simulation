@@ -50,12 +50,7 @@ describe('portfolio-optimization', () => {
       config.enabled = true
 
       // Enable all assets with equal allocation
-      const allAssets: AssetClass[] = [
-        'stocks_domestic',
-        'stocks_international',
-        'bonds_government',
-        'bonds_corporate',
-      ]
+      const allAssets: AssetClass[] = ['stocks_domestic', 'stocks_international', 'bonds_government', 'bonds_corporate']
 
       for (const asset of allAssets) {
         config.assetClasses[asset].enabled = true
@@ -288,8 +283,7 @@ describe('portfolio-optimization', () => {
         expect(sum).toBeCloseTo(1.0, 2)
 
         // Should prefer bonds over stocks for min volatility
-        const bondsAllocation =
-          result.allocations.bonds_government + result.allocations.bonds_corporate
+        const bondsAllocation = result.allocations.bonds_government + result.allocations.bonds_corporate
         const stocksAllocation = result.allocations.stocks_domestic
 
         expect(bondsAllocation).toBeGreaterThan(stocksAllocation)
@@ -317,8 +311,7 @@ describe('portfolio-optimization', () => {
         expect(result.expectedReturn).toBeGreaterThan(0.05)
 
         // Should allocate more to stocks than bonds
-        const stocksAllocation =
-          result.allocations.stocks_domestic + result.allocations.stocks_international
+        const stocksAllocation = result.allocations.stocks_domestic + result.allocations.stocks_international
         const bondsAllocation = result.allocations.bonds_government
 
         expect(stocksAllocation).toBeGreaterThan(bondsAllocation)

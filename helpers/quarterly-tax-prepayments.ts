@@ -84,7 +84,7 @@ const LATE_PAYMENT_INTEREST_RATE = 0.06
  * @returns Array of payment dates with deadlines
  */
 export function calculatePaymentDates(year: number): PaymentDate[] {
-  return QUARTERLY_DEADLINES.map((deadline) => {
+  return QUARTERLY_DEADLINES.map(deadline => {
     const date = new Date(year, deadline.month - 1, deadline.day)
     return {
       quarter: deadline.quarter,
@@ -108,9 +108,7 @@ export function calculatePaymentDates(year: number): PaymentDate[] {
  * @param config - Quarterly tax prepayment configuration
  * @returns Calculation result with prepayment amounts and deadlines
  */
-export function calculateQuarterlyTaxPrepayments(
-  config: QuarterlyTaxPrepaymentConfig,
-): QuarterlyTaxPrepaymentResult {
+export function calculateQuarterlyTaxPrepayments(config: QuarterlyTaxPrepaymentConfig): QuarterlyTaxPrepaymentResult {
   if (!config.enabled) {
     return {
       annualTaxLiability: 0,
@@ -210,7 +208,7 @@ export function validateQuarterlyTaxPrepaymentConfig(config: QuarterlyTaxPrepaym
     },
   ]
 
-  validations.forEach((validation) => {
+  validations.forEach(validation => {
     if (validation.condition) {
       errors.push(validation.message)
     }

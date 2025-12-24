@@ -1,9 +1,9 @@
 /**
  * German Pension Points (Rentenpunkte) Calculator
- * 
+ *
  * This module calculates pension entitlements based on the German statutory pension system,
  * specifically using the Rentenpunkte (pension points) methodology.
- * 
+ *
  * Key concepts:
  * - Pension Points = (Individual Gross Salary) / (Average Gross Salary in Germany)
  * - Monthly Pension = Total Pension Points × Current Pension Value (Rentenwert)
@@ -28,8 +28,8 @@ export const AVERAGE_GROSS_SALARY_HISTORY: { [year: number]: number } = {
  * This is the monthly pension amount for 1.0 pension points
  * Updated annually by the German government
  */
-export const CURRENT_PENSION_VALUE_WEST = 37.60 // EUR per month (2024)
-export const CURRENT_PENSION_VALUE_EAST = 37.60 // EUR per month (2024, same as West since 2024)
+export const CURRENT_PENSION_VALUE_WEST = 37.6 // EUR per month (2024)
+export const CURRENT_PENSION_VALUE_EAST = 37.6 // EUR per month (2024, same as West since 2024)
 
 /**
  * Configuration for calculating pension points
@@ -91,10 +91,7 @@ export interface PensionPointsResult {
 /**
  * Calculate pension points for a single year
  */
-export function calculatePensionPointsForYear(
-  grossSalary: number,
-  averageGrossSalary: number,
-): number {
+export function calculatePensionPointsForYear(grossSalary: number, averageGrossSalary: number): number {
   if (averageGrossSalary <= 0) {
     return 0
   }
@@ -105,10 +102,7 @@ export function calculatePensionPointsForYear(
  * Get average gross salary for a given year
  * Uses custom history if provided, otherwise uses default
  */
-export function getAverageGrossSalary(
-  year: number,
-  customHistory?: { [year: number]: number },
-): number {
+export function getAverageGrossSalary(year: number, customHistory?: { [year: number]: number }): number {
   const history = customHistory || AVERAGE_GROSS_SALARY_HISTORY
 
   // If exact year exists, use it
@@ -162,8 +156,7 @@ export function calculatePensionPoints(config: PensionPointsConfig): PensionPoin
 
   // Determine pension value (Rentenwert)
   const pensionValue =
-    config.customPensionValue ||
-    (config.region === 'east' ? CURRENT_PENSION_VALUE_EAST : CURRENT_PENSION_VALUE_WEST)
+    config.customPensionValue || (config.region === 'east' ? CURRENT_PENSION_VALUE_EAST : CURRENT_PENSION_VALUE_WEST)
 
   // Calculate monthly and annual pension
   const monthlyPension = totalPensionPoints * pensionValue
@@ -202,10 +195,7 @@ export function createSalaryHistory(
 /**
  * Estimate future average gross salary based on historical growth
  */
-export function estimateFutureAverageSalary(
-  futureYear: number,
-  historicalGrowthPercent = 2.5,
-): number {
+export function estimateFutureAverageSalary(futureYear: number, historicalGrowthPercent = 2.5): number {
   const baseYear = 2024
   const baseSalary = AVERAGE_GROSS_SALARY_HISTORY[baseYear]
 

@@ -119,7 +119,7 @@ describe('Benchmark Helper Functions', () => {
       }
 
       const portfolioReturns = {
-        2023: 0.10, // 10% portfolio return
+        2023: 0.1, // 10% portfolio return
         2024: 0.08, // 8% portfolio return
         2025: 0.06, // 6% portfolio return
       }
@@ -144,19 +144,19 @@ describe('Benchmark Helper Functions', () => {
       const config: BenchmarkConfig = {
         enabled: true,
         benchmarkType: 'custom',
-        customAnnualReturn: 0.10, // 10% benchmark
+        customAnnualReturn: 0.1, // 10% benchmark
       }
 
       const portfolioReturns = {
-        2023: 0.10, // 10% portfolio return
-        2024: 0.10, // 10% portfolio return
+        2023: 0.1, // 10% portfolio return
+        2024: 0.1, // 10% portfolio return
       }
 
       const result = compareToBenchmark(config, 2023, 2024, portfolioReturns)
 
       // After year 1: 1.0 * 1.10 = 1.10
-      expect(result.yearlyData[0].cumulativeBenchmarkValue).toBeCloseTo(1.10, 4)
-      expect(result.yearlyData[0].cumulativePortfolioValue).toBeCloseTo(1.10, 4)
+      expect(result.yearlyData[0].cumulativeBenchmarkValue).toBeCloseTo(1.1, 4)
+      expect(result.yearlyData[0].cumulativePortfolioValue).toBeCloseTo(1.1, 4)
 
       // After year 2: 1.10 * 1.10 = 1.21
       expect(result.yearlyData[1].cumulativeBenchmarkValue).toBeCloseTo(1.21, 4)
@@ -174,7 +174,7 @@ describe('Benchmark Helper Functions', () => {
       }
 
       const portfolioReturns = {
-        2023: 0.10, // +3% vs benchmark
+        2023: 0.1, // +3% vs benchmark
         2024: 0.08, // +1% vs benchmark
         2025: 0.04, // -3% vs benchmark
       }
@@ -193,7 +193,7 @@ describe('Benchmark Helper Functions', () => {
       }
 
       const portfolioReturns = {
-        2023: 0.20, // 20% portfolio return
+        2023: 0.2, // 20% portfolio return
       }
 
       const result = compareToBenchmark(config, 2023, 2023, portfolioReturns)

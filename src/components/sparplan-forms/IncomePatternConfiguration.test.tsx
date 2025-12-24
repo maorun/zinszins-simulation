@@ -117,10 +117,18 @@ describe('IncomePatternConfiguration', () => {
         enabled: true,
         type: 'monthly',
         monthlyMultipliers: [
-          1.3, 1.2, 1.1, // Q1
-          1.0, 0.9, 0.8, // Q2
-          0.7, 0.8, 0.9, // Q3
-          1.0, 1.2, 1.4, // Q4
+          1.3,
+          1.2,
+          1.1, // Q1
+          1.0,
+          0.9,
+          0.8, // Q2
+          0.7,
+          0.8,
+          0.9, // Q3
+          1.0,
+          1.2,
+          1.4, // Q4
         ],
         description: expect.stringContaining('Saisonales Geschäft'),
       }),
@@ -195,11 +203,11 @@ describe('IncomePatternConfiguration', () => {
 
     // Find January input and change its value
     const januaryInput = screen.getByLabelText('Januar') as HTMLInputElement
-    
+
     // Clear completely and type new value
     await user.tripleClick(januaryInput) // Select all
     await user.keyboard('2.5') // Type new value
-    
+
     // After typing, should have been called with updated pattern
     // The onChange is called after each character, so we check the last call
     const lastCall = onChange.mock.calls[onChange.mock.calls.length - 1][0]
@@ -244,8 +252,6 @@ describe('IncomePatternConfiguration', () => {
     await user.click(enableSwitch)
 
     expect(screen.getByText(/ℹ️ Hinweis:/i)).toBeInTheDocument()
-    expect(
-      screen.getByText(/Die Multiplikatoren werden auf den Basis-Betrag angewendet/i),
-    ).toBeInTheDocument()
+    expect(screen.getByText(/Die Multiplikatoren werden auf den Basis-Betrag angewendet/i)).toBeInTheDocument()
   })
 })

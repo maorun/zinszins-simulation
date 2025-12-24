@@ -37,10 +37,18 @@ const PRESETS = {
   seasonal: {
     type: 'monthly' as const,
     monthlyMultipliers: [
-      1.3, 1.2, 1.1, // Q1: High
-      1.0, 0.9, 0.8, // Q2: Normal to low
-      0.7, 0.8, 0.9, // Q3: Low to normal
-      1.0, 1.2, 1.4, // Q4: Normal to high
+      1.3,
+      1.2,
+      1.1, // Q1: High
+      1.0,
+      0.9,
+      0.8, // Q2: Normal to low
+      0.7,
+      0.8,
+      0.9, // Q3: Low to normal
+      1.0,
+      1.2,
+      1.4, // Q4: Normal to high
     ],
     description: 'Saisonales Geschäft (höher im Winter, niedriger im Sommer)',
   },
@@ -70,9 +78,7 @@ function getInitialPattern(incomePattern?: IncomePattern): IncomePattern {
  * Custom hook for basic pattern state management
  */
 function usePatternState(incomePattern: IncomePattern | undefined) {
-  const [localPattern, setLocalPattern] = useState<IncomePattern>(() =>
-    getInitialPattern(incomePattern),
-  )
+  const [localPattern, setLocalPattern] = useState<IncomePattern>(() => getInitialPattern(incomePattern))
 
   const multipliers =
     localPattern.type === 'monthly'
@@ -134,8 +140,7 @@ function usePatternHandlers(
     updatePattern(pattern => ({
       ...pattern,
       monthlyMultipliers: pattern.type === 'monthly' ? Array(12).fill(1.0) : pattern.monthlyMultipliers,
-      quarterlyMultipliers:
-        pattern.type === 'quarterly' ? Array(4).fill(1.0) : pattern.quarterlyMultipliers,
+      quarterlyMultipliers: pattern.type === 'quarterly' ? Array(4).fill(1.0) : pattern.quarterlyMultipliers,
     }))
   }
 
@@ -176,21 +181,12 @@ function useIncomePatternState(
  * Component for configuring fluctuating income patterns for self-employed individuals
  * Allows users to define monthly or quarterly income variations
  */
-export function IncomePatternConfiguration({
-  incomePattern,
-  onChange,
-}: IncomePatternConfigurationProps) {
+export function IncomePatternConfiguration({ incomePattern, onChange }: IncomePatternConfigurationProps) {
   const state = useIncomePatternState(incomePattern, onChange)
   const enabledSwitchId = useMemo(() => generateFormId('income-pattern', 'enabled'), [])
   const descriptionId = useMemo(() => generateFormId('income-pattern', 'description'), [])
 
-  return (
-    <IncomePatternCard
-      state={state}
-      enabledSwitchId={enabledSwitchId}
-      descriptionId={descriptionId}
-    />
-  )
+  return <IncomePatternCard state={state} enabledSwitchId={enabledSwitchId} descriptionId={descriptionId} />
 }
 
 /**
@@ -208,11 +204,7 @@ function IncomePatternCard({
   return (
     <Card className="w-full">
       <IncomePatternCardHeader />
-      <IncomePatternCardContent
-        state={state}
-        enabledSwitchId={enabledSwitchId}
-        descriptionId={descriptionId}
-      />
+      <IncomePatternCardContent state={state} enabledSwitchId={enabledSwitchId} descriptionId={descriptionId} />
     </Card>
   )
 }
@@ -228,8 +220,7 @@ function IncomePatternCardHeader() {
         <Info className="h-4 w-4 text-muted-foreground" />
       </CardTitle>
       <CardDescription>
-        Für Selbstständige: Definieren Sie unregelmäßige Einkommensmuster (z.B. saisonale
-        Schwankungen, Projektgeschäft)
+        Für Selbstständige: Definieren Sie unregelmäßige Einkommensmuster (z.B. saisonale Schwankungen, Projektgeschäft)
       </CardDescription>
     </CardHeader>
   )
@@ -261,11 +252,7 @@ function IncomePatternCardContent({
 
   return (
     <CardContent className="space-y-4">
-      <EnabledSwitch
-        id={enabledSwitchId}
-        enabled={localPattern.enabled}
-        onChange={handleEnabledChange}
-      />
+      <EnabledSwitch id={enabledSwitchId} enabled={localPattern.enabled} onChange={handleEnabledChange} />
 
       {localPattern.enabled && (
         <>
@@ -364,13 +351,7 @@ function PresetButtons({
     <div className="space-y-2">
       <Label className="text-sm font-medium">Vorlagen</Label>
       <div className="flex gap-2">
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => onApplyPreset('seasonal')}
-          className="flex-1"
-          size="sm"
-        >
+        <Button type="button" variant="outline" onClick={() => onApplyPreset('seasonal')} className="flex-1" size="sm">
           Saisonal
         </Button>
         <Button
@@ -406,9 +387,7 @@ function MultiplierInputs({
 }) {
   return (
     <div className="space-y-2">
-      <Label className="text-sm font-medium">
-        Multiplikatoren (1.0 = normal, 1.5 = +50%, 0.5 = -50%)
-      </Label>
+      <Label className="text-sm font-medium">Multiplikatoren (1.0 = normal, 1.5 = +50%, 0.5 = -50%)</Label>
       <div
         className={`grid gap-3 ${type === 'monthly' ? 'grid-cols-2 sm:grid-cols-3 md:grid-cols-4' : 'grid-cols-2 sm:grid-cols-4'}`}
       >
@@ -437,15 +416,7 @@ function MultiplierInputs({
 /**
  * Description Field Component
  */
-function DescriptionField({
-  id,
-  value,
-  onChange,
-}: {
-  id: string
-  value: string
-  onChange: (value: string) => void
-}) {
+function DescriptionField({ id, value, onChange }: { id: string; value: string; onChange: (value: string) => void }) {
   return (
     <div className="space-y-2">
       <Label htmlFor={id} className="text-sm font-medium">
@@ -470,9 +441,8 @@ function InfoPanel() {
     <div className="rounded-md bg-muted p-3 text-sm">
       <p className="font-medium mb-1">ℹ️ Hinweis:</p>
       <p className="text-muted-foreground">
-        Die Multiplikatoren werden auf den Basis-Betrag angewendet. Ein Wert von 1.0 bedeutet den
-        normalen Betrag, 1.5 bedeutet 50% mehr, 0.5 bedeutet 50% weniger. Die tatsächliche
-        Gesamtsumme kann vom Jahresbetrag abweichen.
+        Die Multiplikatoren werden auf den Basis-Betrag angewendet. Ein Wert von 1.0 bedeutet den normalen Betrag, 1.5
+        bedeutet 50% mehr, 0.5 bedeutet 50% weniger. Die tatsächliche Gesamtsumme kann vom Jahresbetrag abweichen.
       </p>
     </div>
   )

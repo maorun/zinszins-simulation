@@ -58,39 +58,39 @@ describe('AssetClassesConfiguration', () => {
 
     it('should show alternative investments info when toggle button is clicked', () => {
       render(<AssetClassesConfiguration {...defaultProps} />)
-      
+
       // Click the toggle button
       const toggleButton = screen.getByText(/Alternative Investments: REITs & Rohstoffe/i)
       fireEvent.click(toggleButton)
-      
+
       // Info panel should now be visible
       expect(screen.getByText(/börsengehandelte Immobiliengesellschaften/i)).toBeInTheDocument()
     })
 
     it('should hide alternative investments info when toggle button is clicked again', () => {
       render(<AssetClassesConfiguration {...defaultProps} />)
-      
+
       // Click to show
       const toggleButton = screen.getByText(/Alternative Investments: REITs & Rohstoffe/i)
       fireEvent.click(toggleButton)
-      
+
       // Verify it's shown
       expect(screen.getByText(/börsengehandelte Immobiliengesellschaften/i)).toBeInTheDocument()
-      
+
       // Click to hide
       fireEvent.click(toggleButton)
-      
+
       // Verify it's hidden
       expect(screen.queryByText(/börsengehandelte Immobiliengesellschaften/i)).not.toBeInTheDocument()
     })
 
     it('should show chevron down icon when info is hidden', () => {
       render(<AssetClassesConfiguration {...defaultProps} />)
-      
+
       // Look for chevron down in the toggle button
       const toggleButton = screen.getByText(/Alternative Investments: REITs & Rohstoffe/i).closest('button')
       expect(toggleButton).toBeInTheDocument()
-      
+
       // Chevron down should be present
       const chevronDown = toggleButton?.querySelector('.lucide-chevron-down')
       expect(chevronDown).toBeInTheDocument()
@@ -98,13 +98,13 @@ describe('AssetClassesConfiguration', () => {
 
     it('should show chevron up icon when info is shown', () => {
       render(<AssetClassesConfiguration {...defaultProps} />)
-      
+
       // Click to show info
       const toggleButton = screen.getByText(/Alternative Investments: REITs & Rohstoffe/i).closest('button')
       if (toggleButton) {
         fireEvent.click(toggleButton)
       }
-      
+
       // Chevron up should be present
       const chevronUp = toggleButton?.querySelector('.lucide-chevron-up')
       expect(chevronUp).toBeInTheDocument()
@@ -116,9 +116,9 @@ describe('AssetClassesConfiguration', () => {
       const config = createDefaultMultiAssetConfig()
       config.assetClasses.real_estate.enabled = false
       config.assetClasses.commodities.enabled = false
-      
+
       render(<AssetClassesConfiguration {...defaultProps} config={config} />)
-      
+
       expect(screen.queryByText(/Sie haben alternative Investments aktiviert/i)).not.toBeInTheDocument()
     })
 
@@ -126,9 +126,9 @@ describe('AssetClassesConfiguration', () => {
       const config = createDefaultMultiAssetConfig()
       config.assetClasses.real_estate.enabled = true
       config.assetClasses.commodities.enabled = false
-      
+
       render(<AssetClassesConfiguration {...defaultProps} config={config} />)
-      
+
       expect(screen.getByText(/Sie haben alternative Investments aktiviert/i)).toBeInTheDocument()
     })
 
@@ -136,9 +136,9 @@ describe('AssetClassesConfiguration', () => {
       const config = createDefaultMultiAssetConfig()
       config.assetClasses.real_estate.enabled = false
       config.assetClasses.commodities.enabled = true
-      
+
       render(<AssetClassesConfiguration {...defaultProps} config={config} />)
-      
+
       expect(screen.getByText(/Sie haben alternative Investments aktiviert/i)).toBeInTheDocument()
     })
 
@@ -146,25 +146,25 @@ describe('AssetClassesConfiguration', () => {
       const config = createDefaultMultiAssetConfig()
       config.assetClasses.real_estate.enabled = true
       config.assetClasses.commodities.enabled = true
-      
+
       render(<AssetClassesConfiguration {...defaultProps} config={config} />)
-      
+
       expect(screen.getByText(/Sie haben alternative Investments aktiviert/i)).toBeInTheDocument()
     })
 
     it('should hide hint when info panel is shown', () => {
       const config = createDefaultMultiAssetConfig()
       config.assetClasses.real_estate.enabled = true
-      
+
       render(<AssetClassesConfiguration {...defaultProps} config={config} />)
-      
+
       // Hint should be visible initially
       expect(screen.getByText(/Sie haben alternative Investments aktiviert/i)).toBeInTheDocument()
-      
+
       // Click to show info
       const toggleButton = screen.getByText(/Alternative Investments: REITs & Rohstoffe/i)
       fireEvent.click(toggleButton)
-      
+
       // Hint should be hidden when info is shown
       expect(screen.queryByText(/Sie haben alternative Investments aktiviert/i)).not.toBeInTheDocument()
     })
@@ -172,13 +172,13 @@ describe('AssetClassesConfiguration', () => {
     it('should allow clicking hint link to show info panel', () => {
       const config = createDefaultMultiAssetConfig()
       config.assetClasses.real_estate.enabled = true
-      
+
       render(<AssetClassesConfiguration {...defaultProps} config={config} />)
-      
+
       // Click the "Mehr erfahren" link in the hint
       const moreInfoLink = screen.getByText(/Mehr erfahren/i)
       fireEvent.click(moreInfoLink)
-      
+
       // Info panel should now be visible
       expect(screen.getByText(/börsengehandelte Immobiliengesellschaften/i)).toBeInTheDocument()
     })
@@ -187,32 +187,32 @@ describe('AssetClassesConfiguration', () => {
   describe('Control Buttons', () => {
     it('should call onNormalizeAllocations when normalize button is clicked', () => {
       render(<AssetClassesConfiguration {...defaultProps} />)
-      
+
       const normalizeButton = screen.getByText('Normalisieren')
       fireEvent.click(normalizeButton)
-      
+
       expect(mockOnNormalizeAllocations).toHaveBeenCalledTimes(1)
     })
 
     it('should disable normalize button when no assets are enabled', () => {
       render(<AssetClassesConfiguration {...defaultProps} enabledAssetsCount={0} />)
-      
+
       const normalizeButton = screen.getByText('Normalisieren')
       expect(normalizeButton).toBeDisabled()
     })
 
     it('should call onResetToDefaults when reset button is clicked', () => {
       render(<AssetClassesConfiguration {...defaultProps} />)
-      
+
       const resetButton = screen.getByText('Zurücksetzen')
       fireEvent.click(resetButton)
-      
+
       expect(mockOnResetToDefaults).toHaveBeenCalledTimes(1)
     })
 
     it('should not disable reset button when no assets are enabled', () => {
       render(<AssetClassesConfiguration {...defaultProps} enabledAssetsCount={0} />)
-      
+
       const resetButton = screen.getByText('Zurücksetzen')
       expect(resetButton).not.toBeDisabled()
     })
@@ -221,7 +221,7 @@ describe('AssetClassesConfiguration', () => {
   describe('Visual Styling', () => {
     it('should have amber color scheme for alternative investments toggle', () => {
       const { container } = render(<AssetClassesConfiguration {...defaultProps} />)
-      
+
       const toggleButton = container.querySelector('.bg-amber-50')
       expect(toggleButton).toBeInTheDocument()
     })
@@ -229,9 +229,9 @@ describe('AssetClassesConfiguration', () => {
     it('should have blue color scheme for hint when alternatives are enabled', () => {
       const config = createDefaultMultiAssetConfig()
       config.assetClasses.real_estate.enabled = true
-      
+
       const { container } = render(<AssetClassesConfiguration {...defaultProps} config={config} />)
-      
+
       const hint = container.querySelector('.bg-blue-50')
       expect(hint).toBeInTheDocument()
     })

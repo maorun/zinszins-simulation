@@ -64,7 +64,7 @@ describe('AssetClassSelector', () => {
   it('calls onAssetClassChange when selecting different asset class', async () => {
     const user = userEvent.setup()
     const onAssetClassChange = vi.fn()
-    
+
     renderWithProvider(<AssetClassSelector {...defaultProps} onAssetClassChange={onAssetClassChange} />)
 
     const reitOption = screen.getByLabelText(/REIT/)
@@ -75,7 +75,7 @@ describe('AssetClassSelector', () => {
 
   it('calls onCustomTeilfreistellungsquoteChange when adjusting custom slider', () => {
     const onCustomTeilfreistellungsquoteChange = vi.fn()
-    
+
     renderWithProvider(
       <AssetClassSelector
         {...defaultProps}
@@ -85,7 +85,7 @@ describe('AssetClassSelector', () => {
     )
 
     const slider = screen.getByRole('slider')
-    
+
     // Simulate slider change (userEvent doesn't support slider well, so we'll trigger the change event directly)
     // This is a limitation of the testing library with sliders
     expect(slider).toBeInTheDocument()
@@ -110,13 +110,7 @@ describe('AssetClassSelector', () => {
   })
 
   it('displays custom Teilfreistellungsquote value when custom is selected', () => {
-    renderWithProvider(
-      <AssetClassSelector
-        {...defaultProps}
-        assetClass="custom"
-        customTeilfreistellungsquote={0.45}
-      />,
-    )
+    renderWithProvider(<AssetClassSelector {...defaultProps} assetClass="custom" customTeilfreistellungsquote={0.45} />)
 
     expect(screen.getByText('45%')).toBeInTheDocument()
   })

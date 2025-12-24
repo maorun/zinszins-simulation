@@ -1,5 +1,9 @@
 import { AlertCircle, TrendingUp, Calendar, Target, DollarSign, Minimize2 } from 'lucide-react'
-import { type AdjustmentRecommendation, type AdjustmentType, type AdjustmentSeverity } from '../../../helpers/goal-adjustments'
+import {
+  type AdjustmentRecommendation,
+  type AdjustmentType,
+  type AdjustmentSeverity,
+} from '../../../helpers/goal-adjustments'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Alert, AlertDescription } from '../ui/alert'
 import type { ReactElement } from 'react'
@@ -15,7 +19,7 @@ interface GoalAdjustmentRecommendationsProps {
  */
 function getRecommendationIcon(type: AdjustmentType): ReactElement {
   const iconClass = 'w-5 h-5'
-  
+
   switch (type) {
     case 'increase-savings':
       return <DollarSign className={iconClass} />
@@ -101,9 +105,7 @@ function RecommendationCard({ recommendation }: { recommendation: AdjustmentReco
     <div className={`border ${colors.border} ${colors.bg} rounded-lg p-4 ${colors.text}`}>
       {/* Header */}
       <div className="flex items-start gap-3 mb-3">
-        <div className={`${colors.iconBg} rounded-lg p-2 flex-shrink-0`}>
-          {icon}
-        </div>
+        <div className={`${colors.iconBg} rounded-lg p-2 flex-shrink-0`}>{icon}</div>
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-1">
             <h4 className="font-semibold text-base">{recommendation.title}</h4>

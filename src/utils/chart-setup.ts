@@ -19,11 +19,11 @@ let isRegistered = false
 
 /**
  * Register Chart.js components and plugins
- * 
+ *
  * This function ensures Chart.js components are registered only once.
  * It registers core components (CategoryScale, LinearScale, PointElement, LineElement, Title, Tooltip, Legend, Filler)
  * and the zoom plugin for interactive charts.
- * 
+ *
  * The function is idempotent - it can be called multiple times safely.
  * It's automatically called on import to ensure components are available.
  */

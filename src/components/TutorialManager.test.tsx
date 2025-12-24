@@ -29,33 +29,33 @@ describe('TutorialManager', () => {
 
   it('should render tutorial collapsible card', () => {
     render(<TutorialManager />)
-    
+
     expect(screen.getByText('📚 Interaktive Tutorials')).toBeInTheDocument()
   })
 
   it('should not render when tutorials are dismissed', () => {
     vi.mocked(tutorialProgress.areTutorialsDismissed).mockReturnValue(true)
-    
+
     const { container } = render(<TutorialManager />)
-    
+
     expect(container.firstChild).toBeNull()
   })
 
   it('should expand tutorial list when card is clicked', () => {
     render(<TutorialManager />)
-    
+
     const cardHeader = screen.getByText('📚 Interaktive Tutorials')
     fireEvent.click(cardHeader)
-    
+
     expect(screen.getByText(/Lernen Sie die wichtigsten Funktionen/)).toBeInTheDocument()
   })
 
   it('should display tutorial categories when expanded', () => {
     render(<TutorialManager />)
-    
+
     const cardHeader = screen.getByText('📚 Interaktive Tutorials')
     fireEvent.click(cardHeader)
-    
+
     expect(screen.getByText('Erste Schritte')).toBeInTheDocument()
     expect(screen.getByText('Sparpläne')).toBeInTheDocument()
     expect(screen.getByText('Entnahme')).toBeInTheDocument()
@@ -65,39 +65,39 @@ describe('TutorialManager', () => {
 
   it('should display tutorials in each category', () => {
     render(<TutorialManager />)
-    
+
     const cardHeader = screen.getByText('📚 Interaktive Tutorials')
     fireEvent.click(cardHeader)
-    
+
     // Check for welcome tutorial (appears in title and prerequisites)
     expect(screen.getAllByText(/Willkommen bei der Zinseszins-Simulation/)).toHaveLength(5) // 1 title + 4 prerequisites
-    
+
     // Check for savings plan tutorial (appears in title and prerequisites)
     expect(screen.getAllByText(/Sparpläne verstehen/)).toHaveLength(3) // 1 title + 2 prerequisites
   })
 
   it('should show completed badge for completed tutorials', () => {
     vi.mocked(tutorialProgress.getCompletedTutorialIds).mockReturnValue(['welcome'])
-    
+
     render(<TutorialManager />)
-    
+
     const cardHeader = screen.getByText('📚 Interaktive Tutorials')
     fireEvent.click(cardHeader)
-    
+
     expect(screen.getByText(/✓ Abgeschlossen/)).toBeInTheDocument()
   })
 
   it('should start tutorial when tutorial card is clicked', () => {
     render(<TutorialManager />)
-    
+
     const cardHeader = screen.getByText('📚 Interaktive Tutorials')
     fireEvent.click(cardHeader)
-    
+
     // Find and click "Tutorial starten" button
     const startButtons = screen.getAllByText('Tutorial starten')
     if (startButtons.length > 0) {
       fireEvent.click(startButtons[0])
-      
+
       // Tutorial overlay should be shown
       // The collapsible card stays visible
     }
@@ -105,10 +105,10 @@ describe('TutorialManager', () => {
 
   it('should display tip message at the bottom', () => {
     render(<TutorialManager />)
-    
+
     const cardHeader = screen.getByText('📚 Interaktive Tutorials')
     fireEvent.click(cardHeader)
-    
+
     expect(screen.getByText(/💡 Tipp:/)).toBeInTheDocument()
     expect(screen.getByText(/Absolvieren Sie die Tutorials/)).toBeInTheDocument()
   })
@@ -118,12 +118,12 @@ describe('TutorialManager', () => {
       // Only welcome can be started
       return id === 'welcome'
     })
-    
+
     render(<TutorialManager />)
-    
+
     const cardHeader = screen.getByText('📚 Interaktive Tutorials')
     fireEvent.click(cardHeader)
-    
+
     // Should have "Nicht verfügbar" for locked tutorials
     expect(screen.getAllByText('Nicht verfügbar').length).toBeGreaterThan(0)
   })

@@ -13,11 +13,11 @@ import { CurrentCapitalDisplay } from './financial-goals/CurrentCapitalDisplay'
  */
 function calculateMonthlySavings(sparplan: Array<{ einzahlung?: number }>) {
   if (sparplan.length === 0) return 0
-  
+
   const totalAnnual = sparplan.reduce((total: number, plan) => {
     return total + (plan.einzahlung || 0)
   }, 0)
-  
+
   return totalAnnual / 12
 }
 
@@ -25,13 +25,7 @@ function calculateMonthlySavings(sparplan: Array<{ einzahlung?: number }>) {
  * Custom hook for financial goals logic
  */
 function useFinancialGoals() {
-  const { 
-    financialGoals = [], 
-    setFinancialGoals, 
-    simulationData,
-    rendite,
-    sparplan = [],
-  } = useSimulation()
+  const { financialGoals = [], setFinancialGoals, simulationData, rendite, sparplan = [] } = useSimulation()
 
   const currentCapital = useMemo(() => {
     if (!simulationData?.data || simulationData.data.length === 0) return 0
@@ -85,14 +79,14 @@ function useFinancialGoals() {
  * Allows users to set and track financial goals with milestones
  */
 export default function FinancialGoalsConfiguration() {
-  const { 
-    currentCapital, 
+  const {
+    currentCapital,
     monthlySavingsRate,
     expectedReturn,
     currentYear,
-    handleAddGoal, 
-    handleRemoveGoal, 
-    handleToggleActive, 
+    handleAddGoal,
+    handleRemoveGoal,
+    handleToggleActive,
     goalsWithUpdatedMilestones,
   } = useFinancialGoals()
 

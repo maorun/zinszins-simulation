@@ -151,7 +151,7 @@ describe('multi-asset-calculations', () => {
 
       // Should have rebalancing protocols for years 2024 and 2025 (not first year)
       expect(result.rebalancingProtocols.length).toBeGreaterThan(0)
-      
+
       const protocol = result.rebalancingProtocols[0]
       expect(protocol).toBeDefined()
       expect(protocol.reason).toBe('scheduled')
@@ -162,17 +162,17 @@ describe('multi-asset-calculations', () => {
     it('tracks buy and sell transactions during rebalancing', () => {
       const config = { ...defaultConfig }
       config.rebalancing.frequency = 'annually'
-      
+
       const years = [2023, 2024]
       const contributions = { 2023: 100000, 2024: 0 }
 
       const result = simulateMultiAssetPortfolio(config, years, contributions)
-      
+
       expect(result.rebalancingProtocols.length).toBeGreaterThan(0)
-      
+
       const protocol = result.rebalancingProtocols[0]
       expect(protocol.transactions.length).toBeGreaterThan(0)
-      
+
       // Check that transactions have proper types
       for (const transaction of protocol.transactions) {
         expect(['buy', 'sell']).toContain(transaction.type)
@@ -184,20 +184,20 @@ describe('multi-asset-calculations', () => {
     it('calculates capital gains tax for sell transactions', () => {
       const config = { ...defaultConfig }
       config.rebalancing.frequency = 'annually'
-      
+
       const years = [2023, 2024]
       const contributions = { 2023: 100000, 2024: 0 }
 
       const result = simulateMultiAssetPortfolio(config, years, contributions)
-      
+
       expect(result.rebalancingProtocols.length).toBeGreaterThan(0)
-      
+
       const protocol = result.rebalancingProtocols[0]
       const sellTransactions = protocol.transactions.filter(t => t.type === 'sell')
-      
+
       // At least some sell transactions should have capital gains and tax
       const transactionsWithGains = sellTransactions.filter(t => t.capitalGains && t.capitalGains > 0)
-      
+
       if (transactionsWithGains.length > 0) {
         const transaction = transactionsWithGains[0]
         expect(transaction.tax).toBeDefined()
@@ -210,22 +210,22 @@ describe('multi-asset-calculations', () => {
     it('applies partial exemption for equity funds', () => {
       const config = { ...defaultConfig }
       config.rebalancing.frequency = 'annually'
-      
+
       // Enable only equity funds
       config.assetClasses.stocks_domestic.enabled = true
       config.assetClasses.stocks_domestic.targetAllocation = 1.0
       config.assetClasses.stocks_international.enabled = false
       config.assetClasses.bonds_government.enabled = false
       config.assetClasses.bonds_corporate.enabled = false
-      
+
       const years = [2023, 2024]
       const contributions = { 2023: 100000, 2024: 0 }
 
       const result = simulateMultiAssetPortfolio(config, years, contributions)
-      
+
       if (result.rebalancingProtocols.length > 0) {
         const protocol = result.rebalancingProtocols[0]
-        
+
         // Total tax should account for 30% partial exemption
         // Tax = capitalGains * 0.7 * 0.26375
         if (protocol.totalCapitalGains > 0) {
@@ -238,27 +238,27 @@ describe('multi-asset-calculations', () => {
     it('tracks allocations before and after rebalancing', () => {
       const config = { ...defaultConfig }
       config.rebalancing.frequency = 'annually'
-      
+
       const years = [2023, 2024]
       const contributions = { 2023: 100000, 2024: 0 }
 
       const result = simulateMultiAssetPortfolio(config, years, contributions)
-      
+
       expect(result.rebalancingProtocols.length).toBeGreaterThan(0)
-      
+
       const protocol = result.rebalancingProtocols[0]
       expect(protocol.allocationsBefore).toBeDefined()
       expect(protocol.allocationsAfter).toBeDefined()
-      
+
       // After rebalancing, allocations should match target allocations
       const enabledAssets = Object.keys(config.assetClasses).filter(
-        key => config.assetClasses[key as keyof typeof config.assetClasses].enabled
+        key => config.assetClasses[key as keyof typeof config.assetClasses].enabled,
       )
-      
+
       for (const asset of enabledAssets) {
         const targetAllocation = config.assetClasses[asset as keyof typeof config.assetClasses].targetAllocation
         const afterAllocation = protocol.allocationsAfter[asset as keyof typeof protocol.allocationsAfter]
-        
+
         // Should be very close to target (within 0.1%)
         expect(Math.abs(afterAllocation - targetAllocation)).toBeLessThan(0.001)
       }
@@ -267,18 +267,18 @@ describe('multi-asset-calculations', () => {
     it('calculates net cost of rebalancing', () => {
       const config = { ...defaultConfig }
       config.rebalancing.frequency = 'annually'
-      
+
       const years = [2023, 2024]
       const contributions = { 2023: 100000, 2024: 0 }
 
       const result = simulateMultiAssetPortfolio(config, years, contributions)
-      
+
       if (result.rebalancingProtocols.length > 0) {
         const protocol = result.rebalancingProtocols[0]
-        
+
         // Net cost should equal total tax (no transaction costs currently)
         expect(protocol.netCost).toBe(protocol.totalTax)
-        
+
         // Portfolio value after should account for tax
         const expectedValueAfter = protocol.portfolioValueBefore - protocol.totalTax
         expect(Math.abs(protocol.portfolioValueAfter - expectedValueAfter)).toBeLessThan(0.01)
@@ -288,15 +288,15 @@ describe('multi-asset-calculations', () => {
     it('does not create protocol when rebalancing is disabled', () => {
       const config = { ...defaultConfig }
       config.rebalancing.frequency = 'never'
-      
+
       const years = [2023, 2024, 2025]
       const contributions = { 2023: 100000, 2024: 0, 2025: 0 }
 
       const result = simulateMultiAssetPortfolio(config, years, contributions)
-      
+
       // Should have no rebalancing protocols
       expect(result.rebalancingProtocols.length).toBe(0)
-      
+
       // Year results should not have rebalancing protocols
       for (const year of years) {
         const yearResult = result.yearResults[year]
@@ -310,21 +310,21 @@ describe('multi-asset-calculations', () => {
     it('collects all rebalancing protocols from simulation', () => {
       const config = { ...defaultConfig }
       config.rebalancing.frequency = 'annually'
-      
+
       const years = [2023, 2024, 2025, 2026]
       const contributions = { 2023: 100000, 2024: 0, 2025: 0, 2026: 0 }
 
       const result = simulateMultiAssetPortfolio(config, years, contributions)
-      
+
       // Should have protocols for years where rebalancing occurred
       expect(result.rebalancingProtocols.length).toBeGreaterThan(0)
       expect(result.rebalancingProtocols.length).toBeLessThanOrEqual(years.length)
-      
+
       // Each protocol should have a unique year
       const protocolYears = result.rebalancingProtocols.map(p => p.year)
       const uniqueYears = new Set(protocolYears)
       expect(uniqueYears.size).toBe(protocolYears.length)
-      
+
       // All protocol years should be in the simulation years
       for (const year of protocolYears) {
         expect(years).toContain(year)

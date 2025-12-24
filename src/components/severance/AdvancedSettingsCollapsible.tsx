@@ -24,9 +24,7 @@ export function AdvancedSettingsCollapsible({ config, onConfigChange }: Advanced
 function TaxRateField({ config, onConfigChange }: AdvancedSettingsCollapsibleProps) {
   return (
     <div className="space-y-2">
-      <Label className="text-sm">
-        Kapitalertragsteuersatz (inkl. Soli)
-      </Label>
+      <Label className="text-sm">Kapitalertragsteuersatz (inkl. Soli)</Label>
       <div className="flex items-center space-x-2">
         <Input
           type="number"
@@ -46,9 +44,7 @@ function TaxRateField({ config, onConfigChange }: AdvancedSettingsCollapsiblePro
 function AllowanceField({ config, onConfigChange }: AdvancedSettingsCollapsibleProps) {
   return (
     <div className="space-y-2">
-      <Label className="text-sm">
-        Sparerpauschbetrag
-      </Label>
+      <Label className="text-sm">Sparerpauschbetrag</Label>
       <div className="flex items-center space-x-2">
         <Input
           type="number"

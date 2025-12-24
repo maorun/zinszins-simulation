@@ -296,12 +296,7 @@ function buildSteueroptimierteEntnahmeConfig(strategy: CalculateComparisonStrate
  * Build withdrawal calculation parameters from comparison strategy
  */
 function buildTaxConfig(params: CalculateComparisonStrategyParams) {
-  const {
-    startOfIndependence,
-    endOfLife,
-    grundfreibetragAktiv,
-    grundfreibetragBetrag,
-  } = params
+  const { startOfIndependence, endOfLife, grundfreibetragAktiv, grundfreibetragBetrag } = params
 
   const grundfreibetragPerYear = grundfreibetragAktiv
     ? buildGrundfreibetragPerYear(startOfIndependence, endOfLife, grundfreibetragBetrag)
@@ -480,13 +475,19 @@ function buildWithdrawalTaxParams(params: {
   formValue: WithdrawalConfiguration['formValue']
   guenstigerPruefungAktiv: boolean
 }) {
-  const { grundfreibetragAktiv, grundfreibetragBetrag, startOfIndependence, endOfLife, formValue, guenstigerPruefungAktiv } = params
+  const {
+    grundfreibetragAktiv,
+    grundfreibetragBetrag,
+    startOfIndependence,
+    endOfLife,
+    formValue,
+    guenstigerPruefungAktiv,
+  } = params
 
   // Income tax rate is only used when Grundfreibetrag is active WITHOUT Günstigerprüfung
   // When Günstigerprüfung is active, progressive tax is used automatically
-  const incomeTaxRate = grundfreibetragAktiv && !guenstigerPruefungAktiv
-    ? formValue.einkommensteuersatz / 100
-    : undefined
+  const incomeTaxRate =
+    grundfreibetragAktiv && !guenstigerPruefungAktiv ? formValue.einkommensteuersatz / 100 : undefined
 
   return {
     enableGrundfreibetrag: grundfreibetragAktiv,

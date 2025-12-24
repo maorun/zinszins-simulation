@@ -47,7 +47,7 @@ describe('care-insurance', () => {
       expect(result.config).toEqual(config)
       expect(result.yearlyResults).toHaveLength(3)
       expect(result.benefitsTaxFree).toBe(true)
-      
+
       // Check first year
       const firstYear = result.yearlyResults[0]
       expect(firstYear?.year).toBe(2024)
@@ -212,10 +212,7 @@ describe('care-insurance', () => {
       const expectedMonthlyCosts = 3000 // 3,000 EUR/month care costs
       const statutoryMonthlyBenefit = 1500 // 1,500 EUR/month statutory benefit
 
-      const result = calculateRecommendedDailyBenefit(
-        expectedMonthlyCosts,
-        statutoryMonthlyBenefit,
-      )
+      const result = calculateRecommendedDailyBenefit(expectedMonthlyCosts, statutoryMonthlyBenefit)
 
       // Gap is 1,500 EUR/month = ~49.3 EUR/day
       expect(result.minimumDailyBenefit).toBe(25) // 50% of gap rounded
@@ -227,10 +224,7 @@ describe('care-insurance', () => {
       const expectedMonthlyCosts = 1000
       const statutoryMonthlyBenefit = 1500 // More than costs
 
-      const result = calculateRecommendedDailyBenefit(
-        expectedMonthlyCosts,
-        statutoryMonthlyBenefit,
-      )
+      const result = calculateRecommendedDailyBenefit(expectedMonthlyCosts, statutoryMonthlyBenefit)
 
       // No gap, so all recommendations should be 0
       expect(result.minimumDailyBenefit).toBe(0)
@@ -242,10 +236,7 @@ describe('care-insurance', () => {
       const expectedMonthlyCosts = 5000 // High care costs (nursing home)
       const statutoryMonthlyBenefit = 2000
 
-      const result = calculateRecommendedDailyBenefit(
-        expectedMonthlyCosts,
-        statutoryMonthlyBenefit,
-      )
+      const result = calculateRecommendedDailyBenefit(expectedMonthlyCosts, statutoryMonthlyBenefit)
 
       // Gap is 3,000 EUR/month = ~98.6 EUR/day
       expect(result.minimumDailyBenefit).toBeGreaterThan(0)
@@ -270,18 +261,14 @@ describe('care-insurance', () => {
         enabled: true,
       }
 
-      const policyTypes: CareInsurancePolicyType[] = [
-        'pflegetagegeld',
-        'pflegekostenversicherung',
-        'pflege-bahr',
-      ]
+      const policyTypes: CareInsurancePolicyType[] = ['pflegetagegeld', 'pflegekostenversicherung', 'pflege-bahr']
 
       const comparisons = comparePolicyTypes(baseConfig, policyTypes)
 
       expect(comparisons).toHaveLength(3)
-      
+
       // All should have same premiums (not Pflege-Bahr flagged)
-      comparisons.forEach((comp) => {
+      comparisons.forEach(comp => {
         expect(comp.totalNetPremiumsPaid).toBe(3600) // 50 * 12 * 6 years (2024-2029)
         expect(comp.averageAnnualNetPremium).toBe(600)
         expect(comp.maxMonthlyBenefit).toBeCloseTo(1521, 0)
@@ -308,15 +295,12 @@ describe('care-insurance', () => {
         enabled: true,
       }
 
-      const policyTypes: CareInsurancePolicyType[] = [
-        'pflegetagegeld',
-        'pflege-bahr',
-      ]
+      const policyTypes: CareInsurancePolicyType[] = ['pflegetagegeld', 'pflege-bahr']
 
       const comparisons = comparePolicyTypes(baseConfig, policyTypes)
 
       // Both should have subsidy since isPflegeBahr is true
-      comparisons.forEach((comp) => {
+      comparisons.forEach(comp => {
         expect(comp.totalNetPremiumsPaid).toBe(540) // 600 - 60 subsidy
         expect(comp.totalStateSubsidies).toBe(60) // 5 * 12
       })
@@ -407,13 +391,11 @@ describe('care-insurance', () => {
 
       expect(result.yearlyResults).toHaveLength(41)
       expect(result.totalNetPremiumsPaid).toBe(24600) // 600 * 41 years
-      
+
       // Care need probability should increase significantly over 40 years
       const firstYear = result.yearlyResults[0]
       const lastYear = result.yearlyResults[40]
-      expect(lastYear?.careNeedProbability).toBeGreaterThan(
-        (firstYear?.careNeedProbability ?? 0) * 5,
-      )
+      expect(lastYear?.careNeedProbability).toBeGreaterThan((firstYear?.careNeedProbability ?? 0) * 5)
     })
 
     it('should handle female gender', () => {
@@ -456,7 +438,7 @@ describe('care-insurance', () => {
       // Care need probability should be very high for 85+ year olds
       const firstYear = result.yearlyResults[0]
       expect(firstYear?.careNeedProbability).toBeGreaterThan(20)
-      
+
       const lastYear = result.yearlyResults[5] // Age 90
       expect(lastYear?.careNeedProbability).toBeGreaterThan(40)
     })

@@ -52,7 +52,7 @@ export function EigenheimVsMieteComparison() {
           <Switch
             id={ids.enabled}
             checked={config.comparison.enabled}
-            onCheckedChange={(enabled) => setConfig({ ...config, comparison: { ...config.comparison, enabled } })}
+            onCheckedChange={enabled => setConfig({ ...config, comparison: { ...config.comparison, enabled } })}
           />
         </div>
         <CardDescription>Detaillierter Vergleich: Kaufen oder mieten Sie Ihr Zuhause?</CardDescription>
@@ -63,7 +63,13 @@ export function EigenheimVsMieteComparison() {
           <ComparisonSettings config={config} setConfig={setConfig} ids={ids} />
           <OwnershipConfiguration config={config} setConfig={setConfig} ids={ids} />
           <RentalConfiguration config={config} setConfig={setConfig} ids={ids} />
-          {results && <ComparisonResultsDisplay summary={results.summary} comparisonYears={config.comparison.comparisonYears} formatCurrency={formatCurrencyWhole} />}
+          {results && (
+            <ComparisonResultsDisplay
+              summary={results.summary}
+              comparisonYears={config.comparison.comparisonYears}
+              formatCurrency={formatCurrencyWhole}
+            />
+          )}
         </CardContent>
       )}
     </Card>

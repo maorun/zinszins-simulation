@@ -101,11 +101,7 @@ function calculateExemptionZoneSoli(
 /**
  * Calculate Soli in Gleitzone (transition zone)
  */
-function calculateGleitzoneSoli(
-  incomeTax: number,
-  freigrenze: number,
-  gleitzoneUpper: number,
-): SoliCalculationResult {
+function calculateGleitzoneSoli(incomeTax: number, freigrenze: number, gleitzoneUpper: number): SoliCalculationResult {
   const excessOverFreigrenze = incomeTax - freigrenze
   const gleitzoneFactor = 0.119 // Approximately 2 × SOLI_RATE
 
@@ -184,8 +180,7 @@ export function calculateSolidaritaetszuschlag(
   planningMode: SoliPlanningMode = 'individual',
 ): SoliCalculationResult {
   // Determine thresholds based on planning mode
-  const freigrenze =
-    planningMode === 'couple' ? SOLI_CONSTANTS.FREIGRENZE_COUPLE : SOLI_CONSTANTS.FREIGRENZE_INDIVIDUAL
+  const freigrenze = planningMode === 'couple' ? SOLI_CONSTANTS.FREIGRENZE_COUPLE : SOLI_CONSTANTS.FREIGRENZE_INDIVIDUAL
 
   const gleitzoneUpper =
     planningMode === 'couple' ? SOLI_CONSTANTS.GLEITZONE_UPPER_COUPLE : SOLI_CONSTANTS.GLEITZONE_UPPER_INDIVIDUAL
@@ -222,7 +217,7 @@ export function calculateYearlySoli(
   yearlyIncomeTax: number[],
   planningMode: SoliPlanningMode = 'individual',
 ): SoliCalculationResult[] {
-  return yearlyIncomeTax.map((incomeTax) => calculateSolidaritaetszuschlag(incomeTax, planningMode))
+  return yearlyIncomeTax.map(incomeTax => calculateSolidaritaetszuschlag(incomeTax, planningMode))
 }
 
 /**
@@ -252,10 +247,7 @@ export function calculateSoliSavings(
   const yearlyBreakdown = calculateYearlySoli(yearlyIncomeTax, planningMode)
 
   const totalSoli = yearlyBreakdown.reduce((sum, result) => sum + result.soli, 0)
-  const totalSoliWithoutReform = yearlyBreakdown.reduce(
-    (sum, result) => sum + result.calculation.soliWithoutReform,
-    0,
-  )
+  const totalSoliWithoutReform = yearlyBreakdown.reduce((sum, result) => sum + result.calculation.soliWithoutReform, 0)
   const totalSaved = totalSoliWithoutReform - totalSoli
 
   const totalIncomeTax = yearlyIncomeTax.reduce((sum, tax) => sum + tax, 0)
@@ -287,9 +279,7 @@ export function getSoliFreigrenze(planningMode: SoliPlanningMode = 'individual')
  * @returns Gleitzone upper limit in euros
  */
 export function getSoliGleitzoneUpper(planningMode: SoliPlanningMode = 'individual'): number {
-  return planningMode === 'couple'
-    ? SOLI_CONSTANTS.GLEITZONE_UPPER_COUPLE
-    : SOLI_CONSTANTS.GLEITZONE_UPPER_INDIVIDUAL
+  return planningMode === 'couple' ? SOLI_CONSTANTS.GLEITZONE_UPPER_COUPLE : SOLI_CONSTANTS.GLEITZONE_UPPER_INDIVIDUAL
 }
 
 /**

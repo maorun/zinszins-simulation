@@ -29,7 +29,7 @@ describe('tutorial-progress', () => {
   describe('getTutorialProgress', () => {
     it('should return default progress when nothing is stored', () => {
       const progress = getTutorialProgress()
-      
+
       expect(progress.completedTutorials).toEqual([])
       expect(progress.lastTutorialId).toBeUndefined()
       expect(progress.lastStepIndex).toBeUndefined()
@@ -44,9 +44,9 @@ describe('tutorial-progress', () => {
         lastStepIndex: 2,
         lastUpdated: Date.now(),
       }
-      
+
       localStorage.setItem('tutorial-progress', JSON.stringify(storedProgress))
-      
+
       const progress = getTutorialProgress()
       expect(progress.completedTutorials).toEqual(['tutorial-1', 'tutorial-2'])
       expect(progress.lastTutorialId).toBe('tutorial-3')
@@ -55,7 +55,7 @@ describe('tutorial-progress', () => {
 
     it('should handle invalid JSON gracefully', () => {
       localStorage.setItem('tutorial-progress', 'invalid-json')
-      
+
       const progress = getTutorialProgress()
       expect(progress.completedTutorials).toEqual([])
     })
@@ -65,7 +65,7 @@ describe('tutorial-progress', () => {
       vi.spyOn(Storage.prototype, 'getItem').mockImplementation(() => {
         throw new Error('localStorage error')
       })
-      
+
       const progress = getTutorialProgress()
       expect(progress.completedTutorials).toEqual([])
       expect(consoleErrorSpy).toHaveBeenCalled()
@@ -78,12 +78,12 @@ describe('tutorial-progress', () => {
         completedTutorials: ['tutorial-1'],
         lastUpdated: Date.now(),
       }
-      
+
       saveTutorialProgress(progress)
-      
+
       const stored = localStorage.getItem('tutorial-progress')
       expect(stored).toBeDefined()
-      
+
       const parsed = JSON.parse(stored!) as TutorialProgress
       expect(parsed.completedTutorials).toEqual(['tutorial-1'])
     })
@@ -94,9 +94,9 @@ describe('tutorial-progress', () => {
         completedTutorials: [],
         lastUpdated: oldTimestamp,
       }
-      
+
       saveTutorialProgress(progress)
-      
+
       const stored = localStorage.getItem('tutorial-progress')
       const parsed = JSON.parse(stored!) as TutorialProgress
       expect(parsed.lastUpdated).toBeGreaterThan(oldTimestamp)
@@ -107,12 +107,12 @@ describe('tutorial-progress', () => {
       vi.spyOn(Storage.prototype, 'setItem').mockImplementation(() => {
         throw new Error('localStorage full')
       })
-      
+
       const progress: TutorialProgress = {
         completedTutorials: [],
         lastUpdated: Date.now(),
       }
-      
+
       saveTutorialProgress(progress)
       expect(consoleErrorSpy).toHaveBeenCalled()
     })
@@ -121,7 +121,7 @@ describe('tutorial-progress', () => {
   describe('markTutorialCompleted', () => {
     it('should mark a tutorial as completed', () => {
       markTutorialCompleted('tutorial-1')
-      
+
       const progress = getTutorialProgress()
       expect(progress.completedTutorials).toContain('tutorial-1')
     })
@@ -129,7 +129,7 @@ describe('tutorial-progress', () => {
     it('should not add duplicate completions', () => {
       markTutorialCompleted('tutorial-1')
       markTutorialCompleted('tutorial-1')
-      
+
       const progress = getTutorialProgress()
       expect(progress.completedTutorials.filter(id => id === 'tutorial-1')).toHaveLength(1)
     })
@@ -138,7 +138,7 @@ describe('tutorial-progress', () => {
       markTutorialCompleted('tutorial-1')
       markTutorialCompleted('tutorial-2')
       markTutorialCompleted('tutorial-3')
-      
+
       const progress = getTutorialProgress()
       expect(progress.completedTutorials).toEqual(['tutorial-1', 'tutorial-2', 'tutorial-3'])
     })
@@ -163,7 +163,7 @@ describe('tutorial-progress', () => {
   describe('saveTutorialPosition', () => {
     it('should save current tutorial and step', () => {
       saveTutorialPosition('tutorial-1', 3)
-      
+
       const progress = getTutorialProgress()
       expect(progress.lastTutorialId).toBe('tutorial-1')
       expect(progress.lastStepIndex).toBe(3)
@@ -173,7 +173,7 @@ describe('tutorial-progress', () => {
       saveTutorialPosition('tutorial-1', 0)
       saveTutorialPosition('tutorial-1', 1)
       saveTutorialPosition('tutorial-1', 2)
-      
+
       const progress = getTutorialProgress()
       expect(progress.lastStepIndex).toBe(2)
     })
@@ -181,7 +181,7 @@ describe('tutorial-progress', () => {
     it('should update tutorial when switching tutorials', () => {
       saveTutorialPosition('tutorial-1', 0)
       saveTutorialPosition('tutorial-2', 5)
-      
+
       const progress = getTutorialProgress()
       expect(progress.lastTutorialId).toBe('tutorial-2')
       expect(progress.lastStepIndex).toBe(5)
@@ -192,9 +192,9 @@ describe('tutorial-progress', () => {
     it('should clear all tutorial progress', () => {
       markTutorialCompleted('tutorial-1')
       saveTutorialPosition('tutorial-2', 3)
-      
+
       resetTutorialProgress()
-      
+
       const progress = getTutorialProgress()
       expect(progress.completedTutorials).toEqual([])
       expect(progress.lastTutorialId).toBeUndefined()
@@ -202,9 +202,9 @@ describe('tutorial-progress', () => {
 
     it('should remove item from localStorage', () => {
       markTutorialCompleted('tutorial-1')
-      
+
       resetTutorialProgress()
-      
+
       const stored = localStorage.getItem('tutorial-progress')
       expect(stored).toBeNull()
     })
@@ -213,14 +213,14 @@ describe('tutorial-progress', () => {
   describe('dismissAllTutorials', () => {
     it('should set dismissed flag to true', () => {
       dismissAllTutorials()
-      
+
       const progress = getTutorialProgress()
       expect(progress.dismissed).toBe(true)
     })
 
     it('should persist dismissal', () => {
       dismissAllTutorials()
-      
+
       const progress = getTutorialProgress()
       expect(progress.dismissed).toBe(true)
     })
@@ -241,7 +241,7 @@ describe('tutorial-progress', () => {
     it('should set dismissed flag to false', () => {
       dismissAllTutorials()
       enableTutorials()
-      
+
       const progress = getTutorialProgress()
       expect(progress.dismissed).toBe(false)
     })
@@ -249,7 +249,7 @@ describe('tutorial-progress', () => {
     it('should allow tutorials after dismissal', () => {
       dismissAllTutorials()
       expect(areTutorialsDismissed()).toBe(true)
-      
+
       enableTutorials()
       expect(areTutorialsDismissed()).toBe(false)
     })
@@ -263,7 +263,7 @@ describe('tutorial-progress', () => {
     it('should return all completed tutorial IDs', () => {
       markTutorialCompleted('tutorial-1')
       markTutorialCompleted('tutorial-2')
-      
+
       const completed = getCompletedTutorialIds()
       expect(completed).toEqual(['tutorial-1', 'tutorial-2'])
     })
@@ -281,7 +281,7 @@ describe('tutorial-progress', () => {
     it('should calculate percentage correctly', () => {
       markTutorialCompleted('tutorial-1')
       markTutorialCompleted('tutorial-2')
-      
+
       expect(getTutorialCompletionPercentage(4)).toBe(50)
     })
 
@@ -289,13 +289,13 @@ describe('tutorial-progress', () => {
       markTutorialCompleted('tutorial-1')
       markTutorialCompleted('tutorial-2')
       markTutorialCompleted('tutorial-3')
-      
+
       expect(getTutorialCompletionPercentage(3)).toBe(100)
     })
 
     it('should handle fractional percentages', () => {
       markTutorialCompleted('tutorial-1')
-      
+
       const percentage = getTutorialCompletionPercentage(3)
       expect(percentage).toBeCloseTo(33.33, 1)
     })

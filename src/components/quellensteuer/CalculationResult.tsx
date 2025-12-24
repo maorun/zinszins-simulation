@@ -17,9 +17,7 @@ export function CalculationResult({ result }: CalculationResultProps) {
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Gezahlte Quellensteuer:</span>
-          <span className="font-medium text-red-600">
-            -{formatCurrency(result.foreignWithholdingTaxPaid)}
-          </span>
+          <span className="font-medium text-red-600">-{formatCurrency(result.foreignWithholdingTaxPaid)}</span>
         </div>
         <div className="flex justify-between">
           <span className="text-muted-foreground">Deutsche Steuer (vor Anrechnung):</span>
@@ -27,9 +25,7 @@ export function CalculationResult({ result }: CalculationResultProps) {
         </div>
         <div className="border-t pt-2 flex justify-between">
           <span className="font-semibold">Anrechenbare Quellensteuer:</span>
-          <span className="font-bold text-green-600">
-            {formatCurrency(result.creditableAmount)}
-          </span>
+          <span className="font-bold text-green-600">{formatCurrency(result.creditableAmount)}</span>
         </div>
         <div className="flex justify-between">
           <span className="font-semibold">Verbleibende deutsche Steuer:</span>
@@ -39,11 +35,8 @@ export function CalculationResult({ result }: CalculationResultProps) {
 
       {result.limitApplied && (
         <div className="text-xs p-2 bg-yellow-50 border border-yellow-200 rounded">
-          ⚠️ <strong>Anrechnung begrenzt:</strong> Die ausländische Quellensteuer übersteigt die deutsche
-          Steuer. Der nicht anrechenbare Betrag von{' '}
-          {formatCurrency(
-            result.foreignWithholdingTaxPaid - result.creditableAmount,
-          )}{' '}
+          ⚠️ <strong>Anrechnung begrenzt:</strong> Die ausländische Quellensteuer übersteigt die deutsche Steuer. Der
+          nicht anrechenbare Betrag von {formatCurrency(result.foreignWithholdingTaxPaid - result.creditableAmount)}{' '}
           kann nach § 32d Abs. 5 EStG nicht erstattet werden.
         </div>
       )}

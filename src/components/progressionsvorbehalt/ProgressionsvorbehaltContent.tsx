@@ -19,7 +19,10 @@ interface ProgressionsvorbehaltContentProps {
 
 function useConfiguredYears(config: ProgressionsvorbehaltConfig) {
   return useMemo(
-    () => Object.keys(config.progressionRelevantIncomePerYear).map(Number).sort((a, b) => a - b),
+    () =>
+      Object.keys(config.progressionRelevantIncomePerYear)
+        .map(Number)
+        .sort((a, b) => a - b),
     [config.progressionRelevantIncomePerYear],
   )
 }
@@ -34,7 +37,13 @@ function useComparisonData(
   return useMemo(() => {
     if (!config.enabled || configuredYears.length === 0) return { data: null, exampleTaxableIncome }
     return {
-      data: calculateTaxComparisonData(config, exampleTaxableIncome, configuredYears[0], kirchensteuerAktiv, kirchensteuersatz),
+      data: calculateTaxComparisonData(
+        config,
+        exampleTaxableIncome,
+        configuredYears[0],
+        kirchensteuerAktiv,
+        kirchensteuersatz,
+      ),
       exampleTaxableIncome,
     }
   }, [config, configuredYears, kirchensteuerAktiv, kirchensteuersatz])
@@ -60,7 +69,9 @@ export function ProgressionsvorbehaltContent(props: ProgressionsvorbehaltContent
   return (
     <div className="space-y-6">
       <ProgressionsvorbehaltInfo />
-      {configuredYears.length === 0 && <ProgressionsvorbehaltScenarios onApplyScenario={handlers.handleApplyScenario} />}
+      {configuredYears.length === 0 && (
+        <ProgressionsvorbehaltScenarios onApplyScenario={handlers.handleApplyScenario} />
+      )}
       <ConfiguredYearsList
         config={config}
         configuredYears={configuredYears}
@@ -76,7 +87,10 @@ export function ProgressionsvorbehaltContent(props: ProgressionsvorbehaltContent
         timeRange={timeRange}
       />
       {comparison.data && (
-        <ProgressionsvorbehaltTaxComparison comparisonData={comparison.data} exampleTaxableIncome={comparison.exampleTaxableIncome} />
+        <ProgressionsvorbehaltTaxComparison
+          comparisonData={comparison.data}
+          exampleTaxableIncome={comparison.exampleTaxableIncome}
+        />
       )}
       {(config.enabled || configuredYears.length > 0) && (
         <div className="flex justify-end border-t pt-4">

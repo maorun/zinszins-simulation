@@ -32,11 +32,7 @@ interface SparplanCardProps {
   sparplanFormValues: SparplanFormValue
   singleFormValue: SingleFormValue
   formatDateForInput: (date: Date | string | null, format: string) => string
-  handleDateChange: (
-    e: ChangeEvent<HTMLInputElement>,
-    format: string,
-    callback: (date: Date | null) => void,
-  ) => void
+  handleDateChange: (e: ChangeEvent<HTMLInputElement>, format: string, callback: (date: Date | null) => void) => void
   onEdit: (sparplan: Sparplan) => void
   onDelete: (id: number) => void
   onSaveEdit: () => void
@@ -275,11 +271,7 @@ function SinglePaymentDateField({
 }: {
   singleFormValue: SingleFormValue
   formatDateForInput: (date: Date | string | null, format: string) => string
-  handleDateChange: (
-    e: ChangeEvent<HTMLInputElement>,
-    format: string,
-    callback: (date: Date | null) => void,
-  ) => void
+  handleDateChange: (e: ChangeEvent<HTMLInputElement>, format: string, callback: (date: Date | null) => void) => void
   onSingleFormChange: (values: SingleFormValue) => void
 }) {
   return (
@@ -310,11 +302,7 @@ function SparplanDateFields({
 }: {
   sparplanFormValues: SparplanFormValue
   formatDateForInput: (date: Date | string | null, format: string) => string
-  handleDateChange: (
-    e: ChangeEvent<HTMLInputElement>,
-    format: string,
-    callback: (date: Date | null) => void,
-  ) => void
+  handleDateChange: (e: ChangeEvent<HTMLInputElement>, format: string, callback: (date: Date | null) => void) => void
   onSparplanFormChange: (values: SparplanFormValue) => void
 }) {
   return (
@@ -417,11 +405,7 @@ interface EditFormProps {
   sparplanFormValues: SparplanFormValue
   singleFormValue: SingleFormValue
   formatDateForInput: (date: Date | string | null, format: string) => string
-  handleDateChange: (
-    e: ChangeEvent<HTMLInputElement>,
-    format: string,
-    callback: (date: Date | null) => void,
-  ) => void
+  handleDateChange: (e: ChangeEvent<HTMLInputElement>, format: string, callback: (date: Date | null) => void) => void
   onSaveEdit: () => void
   onCancelEdit: () => void
   onSparplanFormChange: (values: SparplanFormValue) => void

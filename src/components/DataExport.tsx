@@ -357,10 +357,34 @@ function FormatInfoCard({ title, items }: { title: string; items: string[] }) {
 }
 
 const FORMAT_INFO_DATA = {
-  csv: ['Tabellenformat für Excel/Calc', 'Jahr/Monat Aufschlüsselung', 'Alle Einzahlungen nach Sparplänen', 'Vorabpauschale & Steuerdetails', 'Deutsche Zahlenformatierung'],
-  excel: ['.xlsx Datei mit Formeln', 'Berechnungen nachvollziehbar', 'Jahr-für-Jahr Detailansicht', 'Vollständige Steuerberechnung', 'Deutsche Zahlenformate'],
-  pdf: ['Professioneller Bericht', 'Übersichtliche Tabellen', 'Parameter-Zusammenfassung', 'Druckfertig und teilbar', 'Archivierungsfreundlich'],
-  markdown: ['Vollständiger Bericht', 'Parameter & Berechnungsformeln', 'Übersichtstabellen', 'Dokumentations-freundlich', 'GitHub/Wiki kompatibel'],
+  csv: [
+    'Tabellenformat für Excel/Calc',
+    'Jahr/Monat Aufschlüsselung',
+    'Alle Einzahlungen nach Sparplänen',
+    'Vorabpauschale & Steuerdetails',
+    'Deutsche Zahlenformatierung',
+  ],
+  excel: [
+    '.xlsx Datei mit Formeln',
+    'Berechnungen nachvollziehbar',
+    'Jahr-für-Jahr Detailansicht',
+    'Vollständige Steuerberechnung',
+    'Deutsche Zahlenformate',
+  ],
+  pdf: [
+    'Professioneller Bericht',
+    'Übersichtliche Tabellen',
+    'Parameter-Zusammenfassung',
+    'Druckfertig und teilbar',
+    'Archivierungsfreundlich',
+  ],
+  markdown: [
+    'Vollständiger Bericht',
+    'Parameter & Berechnungsformeln',
+    'Übersichtstabellen',
+    'Dokumentations-freundlich',
+    'GitHub/Wiki kompatibel',
+  ],
 }
 
 function FormatInformationSection() {
@@ -462,8 +486,18 @@ function ExportOptionsGrid({
         onExportWithdrawal={onExportWithdrawalPDF}
         onExportAll={onExportAllPDF}
       />
-      <MarkdownExportSection isExporting={isExporting} exportResult={exportResult} exportType={exportType} onExport={onExportMarkdown} />
-      <CalculationsExportSection isExporting={isExporting} exportResult={exportResult} exportType={exportType} onExport={onCopyCalculations} />
+      <MarkdownExportSection
+        isExporting={isExporting}
+        exportResult={exportResult}
+        exportType={exportType}
+        onExport={onExportMarkdown}
+      />
+      <CalculationsExportSection
+        isExporting={isExporting}
+        exportResult={exportResult}
+        exportType={exportType}
+        onExport={onCopyCalculations}
+      />
     </div>
   )
 }
@@ -565,7 +599,12 @@ interface DataExportContentProps {
   nestingLevel: number
 }
 
-function buildDataExportSectionProps(props: Omit<DataExportContentProps, 'isParameterExporting' | 'parameterExportResult' | 'exportParameters' | 'nestingLevel'>): DataExportSectionProps {
+function buildDataExportSectionProps(
+  props: Omit<
+    DataExportContentProps,
+    'isParameterExporting' | 'parameterExportResult' | 'exportParameters' | 'nestingLevel'
+  >,
+): DataExportSectionProps {
   const {
     hasAnyData,
     hasSavingsData,
@@ -615,7 +654,11 @@ function DataExportContent(props: DataExportContentProps) {
     <CollapsibleContent>
       <CardContent nestingLevel={nestingLevel}>
         <div className="space-y-6">
-          <ParameterExportSection isExporting={isParameterExporting} lastExportResult={parameterExportResult} onExport={exportParameters} />
+          <ParameterExportSection
+            isExporting={isParameterExporting}
+            lastExportResult={parameterExportResult}
+            onExport={exportParameters}
+          />
           <DataExportSection {...dataExportProps} />
           <FormatInformationSection />
         </div>

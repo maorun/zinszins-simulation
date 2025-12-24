@@ -29,10 +29,10 @@ export const ASSET_CLASS_NAMES: Record<AssetClass, string> = {
   'mixed-fund': 'Mischfonds (≥ 25% Aktien)',
   'bond-fund': 'Rentenfonds (< 25% Aktien)',
   'real-estate-fund': 'Immobilienfonds',
-  'reit': 'REIT',
-  'commodity': 'Rohstoffe',
-  'cryptocurrency': 'Kryptowährungen',
-  'custom': 'Benutzerdefiniert',
+  reit: 'REIT',
+  commodity: 'Rohstoffe',
+  cryptocurrency: 'Kryptowährungen',
+  custom: 'Benutzerdefiniert',
 } as const
 
 /**
@@ -41,20 +41,16 @@ export const ASSET_CLASS_NAMES: Record<AssetClass, string> = {
 export const ASSET_CLASS_DESCRIPTIONS: Record<AssetClass, string> = {
   'equity-fund':
     'Investmentfonds mit mindestens 51% Aktienanteil. Profitieren von der höchsten Teilfreistellung (30%).',
-  'mixed-fund':
-    'Investmentfonds mit 25-50% Aktienanteil. Moderate Teilfreistellung (15%).',
+  'mixed-fund': 'Investmentfonds mit 25-50% Aktienanteil. Moderate Teilfreistellung (15%).',
   'bond-fund':
     'Investmentfonds mit weniger als 25% Aktienanteil (hauptsächlich Anleihen). Niedrigste Teilfreistellung (0%).',
   'real-estate-fund':
     'Investmentfonds, die hauptsächlich in Immobilien investieren. Teilfreistellung von 60% bei inländischen Fonds, 80% bei ausländischen Fonds.',
-  'reit':
-    'Real Estate Investment Trusts - börsengehandelte Immobiliengesellschaften. Keine Teilfreistellung (0%).',
-  'commodity':
-    'Rohstoffinvestments (Gold, Öl, etc.). Keine Teilfreistellung (0%).',
-  'cryptocurrency':
+  reit: 'Real Estate Investment Trusts - börsengehandelte Immobiliengesellschaften. Keine Teilfreistellung (0%).',
+  commodity: 'Rohstoffinvestments (Gold, Öl, etc.). Keine Teilfreistellung (0%).',
+  cryptocurrency:
     'Kryptowährungen wie Bitcoin, Ethereum. Unterliegen nach 1 Jahr Haltefrist keiner Besteuerung, davor privates Veräußerungsgeschäft.',
-  'custom':
-    'Benutzerdefinierte Teilfreistellungsquote für spezielle Anlageklassen.',
+  custom: 'Benutzerdefinierte Teilfreistellungsquote für spezielle Anlageklassen.',
 } as const
 
 /**
@@ -68,10 +64,10 @@ export const DEFAULT_TEILFREISTELLUNGSQUOTEN: Record<AssetClass, number> = {
   'mixed-fund': 0.15, // 15% for mixed funds (§ 20 Abs. 1 InvStG)
   'bond-fund': 0.0, // 0% for bond funds
   'real-estate-fund': 0.6, // 60% for domestic real estate funds (§ 20 Abs. 2 InvStG)
-  'reit': 0.0, // 0% for REITs
-  'commodity': 0.0, // 0% for commodities
-  'cryptocurrency': 0.0, // 0% - different tax treatment (Spekulationssteuer after 1 year holding period)
-  'custom': 0.3, // Default to equity fund rate, user can customize
+  reit: 0.0, // 0% for REITs
+  commodity: 0.0, // 0% for commodities
+  cryptocurrency: 0.0, // 0% - different tax treatment (Spekulationssteuer after 1 year holding period)
+  custom: 0.3, // Default to equity fund rate, user can customize
 } as const
 
 /**
@@ -81,10 +77,7 @@ export const DEFAULT_TEILFREISTELLUNGSQUOTEN: Record<AssetClass, number> = {
  * @param customQuote - Optional custom quote for 'custom' asset class
  * @returns The Teilfreistellungsquote as a decimal (0.3 = 30%)
  */
-export function getTeilfreistellungsquoteForAssetClass(
-  assetClass: AssetClass,
-  customQuote?: number,
-): number {
+export function getTeilfreistellungsquoteForAssetClass(assetClass: AssetClass, customQuote?: number): number {
   if (assetClass === 'custom' && customQuote !== undefined) {
     return customQuote
   }

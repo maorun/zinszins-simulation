@@ -38,15 +38,20 @@ export function ImmobilienTeilverkauf() {
                 <Building2 className="h-5 w-5 sm:h-6 sm:w-6 text-blue-600" />
                 Immobilien-Teilverkauf mit Nießbrauchrecht
               </CardTitle>
-              {isOpen ? <ChevronUp className="h-5 w-5 text-muted-foreground" /> : <ChevronDown className="h-5 w-5 text-muted-foreground" />}
+              {isOpen ? (
+                <ChevronUp className="h-5 w-5 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-5 w-5 text-muted-foreground" />
+              )}
             </div>
           </CollapsibleTrigger>
         </CardHeader>
         <CollapsibleContent>
           <CardContent className="space-y-6">
             <div className="text-sm text-muted-foreground">
-              Der Immobilien-Teilverkauf ermöglicht es Ihnen, Liquidität aus Ihrer Immobilie zu generieren, während Sie ein lebenslanges Wohnrecht (Nießbrauch) behalten. Vergleichen Sie diese Option mit
-              Vollverkauf + Miete und Leibrente.
+              Der Immobilien-Teilverkauf ermöglicht es Ihnen, Liquidität aus Ihrer Immobilie zu generieren, während Sie
+              ein lebenslanges Wohnrecht (Nießbrauch) behalten. Vergleichen Sie diese Option mit Vollverkauf + Miete und
+              Leibrente.
             </div>
 
             <TeilverkaufConfiguration config={config} setConfig={setConfig} />

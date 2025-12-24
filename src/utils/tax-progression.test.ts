@@ -122,7 +122,7 @@ describe('generateTaxProgressionData', () => {
     const firstQuartile = data.slice(0, 25).reduce((sum, d) => sum + d.taxAmount, 0) / 25
     const lastQuartile = data.slice(75, 100).reduce((sum, d) => sum + d.taxAmount, 0) / 25
     expect(lastQuartile).toBeGreaterThan(firstQuartile)
-    
+
     // Check that most consecutive pairs increase
     let increasingPairs = 0
     for (let i = 1; i < data.length; i++) {

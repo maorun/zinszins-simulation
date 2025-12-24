@@ -92,7 +92,7 @@ describe('TutorialOverlay', () => {
         onClose={onClose}
         onComplete={onComplete}
         currentStepIndex={1}
-      />
+      />,
     )
 
     expect(screen.getByText('Zurück')).toBeInTheDocument()
@@ -118,7 +118,7 @@ describe('TutorialOverlay', () => {
         onClose={onClose}
         onComplete={onComplete}
         currentStepIndex={2}
-      />
+      />,
     )
 
     expect(screen.getByText('Fertig')).toBeInTheDocument()
@@ -144,7 +144,7 @@ describe('TutorialOverlay', () => {
         onClose={onClose}
         onComplete={onComplete}
         currentStepIndex={1}
-      />
+      />,
     )
 
     expect(screen.queryByText('Überspringen')).not.toBeInTheDocument()
@@ -161,7 +161,7 @@ describe('TutorialOverlay', () => {
         onClose={onClose}
         onComplete={onComplete}
         currentStepIndex={2}
-      />
+      />,
     )
 
     const finishButton = screen.getByText('Fertig')
@@ -195,7 +195,7 @@ describe('TutorialOverlay', () => {
         onComplete={onComplete}
         currentStepIndex={0}
         onStepChange={onStepChange}
-      />
+      />,
     )
 
     const nextButton = screen.getByText('Weiter')
@@ -217,7 +217,7 @@ describe('TutorialOverlay', () => {
         onComplete={onComplete}
         currentStepIndex={1}
         onStepChange={onStepChange}
-      />
+      />,
     )
 
     const backButton = screen.getByText('Zurück')

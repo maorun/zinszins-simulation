@@ -100,10 +100,9 @@ describe('useBuildSimulationState', () => {
 
   it('updates result when state property changes', () => {
     const mockState = createMockState()
-    const { result, rerender } = renderHook(
-      ({ state }) => useBuildSimulationState(state),
-      { initialProps: { state: mockState } },
-    )
+    const { result, rerender } = renderHook(({ state }) => useBuildSimulationState(state), {
+      initialProps: { state: mockState },
+    })
 
     const firstResult = result.current
     expect(firstResult.rendite).toBe(5)
@@ -244,10 +243,9 @@ describe('useBuildSimulationState', () => {
 
   it('maintains stable reference when unrelated properties change', () => {
     const mockState = createMockState()
-    const { result, rerender } = renderHook(
-      ({ state }) => useBuildSimulationState(state),
-      { initialProps: { state: mockState } },
-    )
+    const { result, rerender } = renderHook(({ state }) => useBuildSimulationState(state), {
+      initialProps: { state: mockState },
+    })
 
     const firstResult = result.current
 
@@ -261,10 +259,9 @@ describe('useBuildSimulationState', () => {
 
   it('recreates object when any tracked property changes', () => {
     const mockState = createMockState()
-    const { result, rerender } = renderHook(
-      ({ state }) => useBuildSimulationState(state),
-      { initialProps: { state: mockState } },
-    )
+    const { result, rerender } = renderHook(({ state }) => useBuildSimulationState(state), {
+      initialProps: { state: mockState },
+    })
 
     const testPropertyChanges = [
       { rendite: 10 },
@@ -275,7 +272,7 @@ describe('useBuildSimulationState', () => {
       { simulationAnnual: 'monthly' as const },
     ]
 
-    testPropertyChanges.forEach((change) => {
+    testPropertyChanges.forEach(change => {
       const firstResult = result.current
       const updatedState = { ...mockState, ...change }
       rerender({ state: updatedState })

@@ -14,13 +14,7 @@ interface UpdateConfigFn {
   <K extends keyof ElterngeldConfig>(key: K, value: ElterngeldConfig[K]): void
 }
 
-function PreviousIncomeField({
-  config,
-  updateConfig,
-}: {
-  config: ElterngeldConfig
-  updateConfig: UpdateConfigFn
-}) {
+function PreviousIncomeField({ config, updateConfig }: { config: ElterngeldConfig; updateConfig: UpdateConfigFn }) {
   const previousIncomeId = useFormId('elterngeld-config', 'previous-income')
   return (
     <div className="space-y-2">
@@ -110,14 +104,26 @@ function ElterngeldPlusSwitch({ config, updateConfig }: { config: ElterngeldConf
         <Label htmlFor={elterngeldPlusId} className="text-sm font-medium">
           ElterngeldPlus nutzen
         </Label>
-        <Switch id={elterngeldPlusId} checked={config.useElterngeldPlus} onCheckedChange={val => updateConfig('useElterngeldPlus', val)} />
+        <Switch
+          id={elterngeldPlusId}
+          checked={config.useElterngeldPlus}
+          onCheckedChange={val => updateConfig('useElterngeldPlus', val)}
+        />
       </div>
-      <p className="text-xs text-gray-600">ElterngeldPlus: Halber Betrag, doppelte Bezugsdauer (besonders bei Teilzeitarbeit)</p>
+      <p className="text-xs text-gray-600">
+        ElterngeldPlus: Halber Betrag, doppelte Bezugsdauer (besonders bei Teilzeitarbeit)
+      </p>
     </div>
   )
 }
 
-function PartnerParticipationSwitch({ config, updateConfig }: { config: ElterngeldConfig; updateConfig: UpdateConfigFn }) {
+function PartnerParticipationSwitch({
+  config,
+  updateConfig,
+}: {
+  config: ElterngeldConfig
+  updateConfig: UpdateConfigFn
+}) {
   const partnerParticipationId = useFormId('elterngeld-config', 'partner-participation')
   return (
     <div className="space-y-2">
@@ -131,7 +137,9 @@ function PartnerParticipationSwitch({ config, updateConfig }: { config: Elternge
           onCheckedChange={val => updateConfig('partnerParticipation', val)}
         />
       </div>
-      <p className="text-xs text-gray-600">Partnerschaftsbonus möglich: +2-4 Monate bei paralleler Teilzeit (25-32h/Woche)</p>
+      <p className="text-xs text-gray-600">
+        Partnerschaftsbonus möglich: +2-4 Monate bei paralleler Teilzeit (25-32h/Woche)
+      </p>
     </div>
   )
 }
@@ -141,8 +149,8 @@ function InfoBox() {
     <div className="bg-blue-50 border border-blue-200 rounded-md p-3 text-sm">
       <p className="font-medium text-blue-900">💡 Hinweis:</p>
       <p className="text-blue-800 mt-1">
-        Elterngeld ist steuerfrei, unterliegt aber dem Progressionsvorbehalt. Die Berechnung erfolgt automatisch basierend auf Ihrem
-        vorherigen Einkommen und den gewählten Optionen.
+        Elterngeld ist steuerfrei, unterliegt aber dem Progressionsvorbehalt. Die Berechnung erfolgt automatisch
+        basierend auf Ihrem vorherigen Einkommen und den gewählten Optionen.
       </p>
     </div>
   )

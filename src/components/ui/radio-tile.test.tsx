@@ -283,7 +283,7 @@ describe('RadioTileGroup and RadioTile', () => {
       // Focus on second radio and press Space to select
       option2Radio.focus()
       await user.keyboard(' ')
-      
+
       expect(handleChange).toHaveBeenCalledWith('option2')
     })
   })

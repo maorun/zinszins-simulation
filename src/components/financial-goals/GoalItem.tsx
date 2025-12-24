@@ -30,7 +30,7 @@ function useGoalAnalysis(
 ) {
   return useMemo(() => {
     if (!goal.active) return null
-    
+
     return analyzeGoalAdjustments({
       goal,
       currentAmount: currentCapital,
@@ -53,12 +53,12 @@ function getGoalCardClasses(active: boolean, achieved: boolean) {
 /**
  * Action buttons for goal item
  */
-function GoalActions({ 
-  goalId, 
-  isActive, 
-  onToggleActive, 
-  onRemove 
-}: { 
+function GoalActions({
+  goalId,
+  isActive,
+  onToggleActive,
+  onRemove,
+}: {
   goalId: string
   isActive: boolean
   onToggleActive: (id: string) => void
@@ -84,10 +84,10 @@ function GoalActions({
 /**
  * Component for displaying a single financial goal
  */
-export function GoalItem({ 
-  goal, 
-  currentCapital, 
-  onToggleActive, 
+export function GoalItem({
+  goal,
+  currentCapital,
+  onToggleActive,
   onRemove,
   monthlySavingsRate = 0,
   expectedReturn = 0.05,
@@ -110,16 +110,11 @@ export function GoalItem({
             {getGoalTypeLabel(goal.type)} • Ziel: {formatEuro(goal.targetAmount)}
           </p>
         </div>
-        <GoalActions 
-          goalId={goal.id} 
-          isActive={goal.active} 
-          onToggleActive={onToggleActive} 
-          onRemove={onRemove} 
-        />
+        <GoalActions goalId={goal.id} isActive={goal.active} onToggleActive={onToggleActive} onRemove={onRemove} />
       </div>
       <GoalProgressBar progress={progress} achieved={achieved} />
       <GoalMilestones goal={goal} currentCapital={currentCapital} />
-      
+
       {analysis && (
         <GoalAdjustmentRecommendations
           recommendations={analysis.recommendations}

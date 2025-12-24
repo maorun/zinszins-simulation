@@ -131,9 +131,7 @@ function RecommendationDisplay({ recommendation }: { recommendation: LossRecomme
               </p>
             )}
             {recommendation.actionRequired && (
-              <p className="text-xs text-muted-foreground mt-1">
-                ➡️ Aktion: {recommendation.actionRequired}
-              </p>
+              <p className="text-xs text-muted-foreground mt-1">➡️ Aktion: {recommendation.actionRequired}</p>
             )}
           </div>
         </div>
@@ -210,7 +208,10 @@ function YearAnalysisRow({ analysis }: { analysis: YearLossAnalysis }) {
               <div className="flex items-center gap-4">
                 <span className="font-medium text-sm">{analysis.year}</span>
                 <div className="flex gap-2 text-xs text-muted-foreground">
-                  <span>📊 Verfügbar: {formatCurrency(analysis.availableLosses.stockLosses + analysis.availableLosses.otherLosses)}</span>
+                  <span>
+                    📊 Verfügbar:{' '}
+                    {formatCurrency(analysis.availableLosses.stockLosses + analysis.availableLosses.otherLosses)}
+                  </span>
                   <span>✅ Genutzt: {formatCurrency(analysis.projectedLossUsage.totalUsed)}</span>
                   <span className="text-green-700 font-medium">💰 {formatCurrency(analysis.projectedTaxSavings)}</span>
                 </div>
@@ -259,9 +260,7 @@ function SummaryStatistics({
           <CardDescription className="text-xs">Gesamte Steuerersparnisse</CardDescription>
           <CardTitle className="text-2xl text-green-700">{formatCurrency(totalProjectedSavings)}</CardTitle>
         </CardHeader>
-        <CardContent className="text-xs text-muted-foreground">
-          Durch optimale Verlustnutzung
-        </CardContent>
+        <CardContent className="text-xs text-muted-foreground">Durch optimale Verlustnutzung</CardContent>
       </Card>
 
       <Card>
@@ -269,9 +268,7 @@ function SummaryStatistics({
           <CardDescription className="text-xs">Ungenutzte Verluste</CardDescription>
           <CardTitle className="text-2xl">{formatCurrency(totalUnusedLosses)}</CardTitle>
         </CardHeader>
-        <CardContent className="text-xs text-muted-foreground">
-          Am Ende des Zeitraums
-        </CardContent>
+        <CardContent className="text-xs text-muted-foreground">Am Ende des Zeitraums</CardContent>
       </Card>
 
       <Card>
@@ -294,15 +291,7 @@ function SummaryStatistics({
 /**
  * Loss input field component
  */
-function LossInputField({
-  id,
-  label,
-  value,
-}: {
-  id: string
-  label: string
-  value: number
-}) {
+function LossInputField({ id, label, value }: { id: string; label: string; value: number }) {
   return (
     <div>
       <Label htmlFor={id} className="text-xs">
@@ -361,9 +350,7 @@ function YearlyAnalysesSection({
         <AlertCircle className="h-4 w-4" />
         Jahr-für-Jahr Analyse ({startYear} - {endYear})
       </h3>
-      <p className="text-xs text-muted-foreground mb-3">
-        Klicken Sie auf ein Jahr, um Details zu sehen
-      </p>
+      <p className="text-xs text-muted-foreground mb-3">Klicken Sie auf ein Jahr, um Details zu sehen</p>
       {yearlyAnalyses.map(yearAnalysis => (
         <YearAnalysisRow key={yearAnalysis.year} analysis={yearAnalysis} />
       ))}

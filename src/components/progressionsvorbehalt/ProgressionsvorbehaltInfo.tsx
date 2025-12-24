@@ -11,13 +11,11 @@ export function ProgressionsvorbehaltInfo() {
         <div className="space-y-2 text-sm text-blue-900">
           <p className="font-semibold">Was ist der Progressionsvorbehalt?</p>
           <p>
-            Bestimmte steuerfreie Einkünfte (z.B. Elterngeld, Arbeitslosengeld I, Kurzarbeitergeld,
-            ausländische Einkünfte) erhöhen Ihren Steuersatz auf das zu versteuernde Einkommen, obwohl sie
-            selbst steuerfrei sind.
+            Bestimmte steuerfreie Einkünfte (z.B. Elterngeld, Arbeitslosengeld I, Kurzarbeitergeld, ausländische
+            Einkünfte) erhöhen Ihren Steuersatz auf das zu versteuernde Einkommen, obwohl sie selbst steuerfrei sind.
           </p>
           <p className="text-xs">
-            Dies kann zu einer höheren Steuerlast auf Ihre sonstigen Einkünfte (z.B. Kapitalerträge,
-            Entnahmen) führen.
+            Dies kann zu einer höheren Steuerlast auf Ihre sonstigen Einkünfte (z.B. Kapitalerträge, Entnahmen) führen.
           </p>
         </div>
       </div>

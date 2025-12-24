@@ -23,7 +23,11 @@ function ChildSupportInfo() {
   )
 }
 
-function TaxTreatmentSelect({ payment, taxTreatmentId, handleFieldChange }: Pick<TaxFieldsProps, 'payment' | 'taxTreatmentId' | 'handleFieldChange'>) {
+function TaxTreatmentSelect({
+  payment,
+  taxTreatmentId,
+  handleFieldChange,
+}: Pick<TaxFieldsProps, 'payment' | 'taxTreatmentId' | 'handleFieldChange'>) {
   return (
     <div className="space-y-2 md:col-span-2">
       <Label htmlFor={taxTreatmentId}>Steuerliche Behandlung</Label>
@@ -43,7 +47,11 @@ function TaxTreatmentSelect({ payment, taxTreatmentId, handleFieldChange }: Pick
   )
 }
 
-function RealsplittingField({ payment, realsplittingId, handleFieldChange }: Pick<TaxFieldsProps, 'payment' | 'realsplittingId' | 'handleFieldChange'>) {
+function RealsplittingField({
+  payment,
+  realsplittingId,
+  handleFieldChange,
+}: Pick<TaxFieldsProps, 'payment' | 'realsplittingId' | 'handleFieldChange'>) {
   if (payment.type !== 'spousal_support' || payment.taxTreatment !== 'sonderausgaben') {
     return null
   }

@@ -79,7 +79,8 @@ function GapStatistics({ summary }: { summary: PensionGapAnalysisResult['summary
  */
 function SummaryCard({ summary }: { summary: PensionGapAnalysisResult['summary'] }) {
   const nestingLevel = useNestingLevel()
-  const gapStatus = summary.yearsWithGap === 0 ? 'covered' : summary.yearsWithGap === summary.totalYears ? 'full-gap' : 'partial-gap'
+  const gapStatus =
+    summary.yearsWithGap === 0 ? 'covered' : summary.yearsWithGap === summary.totalYears ? 'full-gap' : 'partial-gap'
 
   const statusColors = {
     covered: 'text-green-600',
@@ -354,9 +355,7 @@ export function PensionGapAnalysis({
 }: PensionGapAnalysisProps) {
   const nestingLevel = useNestingLevel()
 
-  const yearsToDisplay = showDetailedBreakdown
-    ? analysisResult.yearlyResults.slice(0, maxYearsToShow)
-    : []
+  const yearsToDisplay = showDetailedBreakdown ? analysisResult.yearlyResults.slice(0, maxYearsToShow) : []
 
   return (
     <Card nestingLevel={nestingLevel}>

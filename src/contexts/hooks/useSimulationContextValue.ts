@@ -26,7 +26,16 @@ function useCapitalGainsTaxValues(state: Record<string, unknown>) {
       basiszinsConfiguration,
       setBasiszinsConfiguration,
     }),
-    [steuerlast, setSteuerlast, teilfreistellungsquote, setTeilfreistellungsquote, freibetragPerYear, setFreibetragPerYear, basiszinsConfiguration, setBasiszinsConfiguration],
+    [
+      steuerlast,
+      setSteuerlast,
+      teilfreistellungsquote,
+      setTeilfreistellungsquote,
+      freibetragPerYear,
+      setFreibetragPerYear,
+      basiszinsConfiguration,
+      setBasiszinsConfiguration,
+    ],
   )
 }
 
@@ -47,7 +56,12 @@ function useTaxReductionValues(state: Record<string, unknown>) {
       steuerReduzierenEndkapitalEntspharphase,
       setSteuerReduzierenEndkapitalEntspharphase,
     }),
-    [steuerReduzierenEndkapitalSparphase, setSteuerReduzierenEndkapitalSparphase, steuerReduzierenEndkapitalEntspharphase, setSteuerReduzierenEndkapitalEntspharphase],
+    [
+      steuerReduzierenEndkapitalSparphase,
+      setSteuerReduzierenEndkapitalSparphase,
+      steuerReduzierenEndkapitalEntspharphase,
+      setSteuerReduzierenEndkapitalEntspharphase,
+    ],
   )
 }
 
@@ -80,7 +94,18 @@ function usePersonalTaxValues(state: Record<string, unknown>) {
       freistellungsauftragAccounts,
       setFreistellungsauftragAccounts,
     }),
-    [grundfreibetragAktiv, setGrundfreibetragAktiv, grundfreibetragBetrag, setGrundfreibetragBetrag, personalTaxRate, setPersonalTaxRate, guenstigerPruefungAktiv, setGuenstigerPruefungAktiv, freistellungsauftragAccounts, setFreistellungsauftragAccounts],
+    [
+      grundfreibetragAktiv,
+      setGrundfreibetragAktiv,
+      grundfreibetragBetrag,
+      setGrundfreibetragBetrag,
+      personalTaxRate,
+      setPersonalTaxRate,
+      guenstigerPruefungAktiv,
+      setGuenstigerPruefungAktiv,
+      freistellungsauftragAccounts,
+      setFreistellungsauftragAccounts,
+    ],
   )
 }
 
@@ -140,14 +165,7 @@ function useBasicReturnValues(state: Record<string, unknown>) {
  * Hook for random return configuration values
  */
 function useRandomReturnValues(state: Record<string, unknown>) {
-  const {
-    averageReturn,
-    setAverageReturn,
-    standardDeviation,
-    setStandardDeviation,
-    randomSeed,
-    setRandomSeed,
-  } = state
+  const { averageReturn, setAverageReturn, standardDeviation, setStandardDeviation, randomSeed, setRandomSeed } = state
   return useMemo(
     () => ({
       averageReturn,
@@ -319,36 +337,83 @@ function useSparplanValues(state: Record<string, unknown>) {
 
 function useLifeValues(state: Record<string, unknown>, setEndOfLifeRounded: (value: number) => void) {
   const {
-    endOfLife, lifeExpectancyTable, setLifeExpectancyTable,
-    customLifeExpectancy, setCustomLifeExpectancy, planningMode, setPlanningMode,
-    gender, setGender, spouse, setSpouse, birthYear, setBirthYear,
-    expectedLifespan, setExpectedLifespan, useAutomaticCalculation, setUseAutomaticCalculation,
+    endOfLife,
+    lifeExpectancyTable,
+    setLifeExpectancyTable,
+    customLifeExpectancy,
+    setCustomLifeExpectancy,
+    planningMode,
+    setPlanningMode,
+    gender,
+    setGender,
+    spouse,
+    setSpouse,
+    birthYear,
+    setBirthYear,
+    expectedLifespan,
+    setExpectedLifespan,
+    useAutomaticCalculation,
+    setUseAutomaticCalculation,
   } = state as {
-    endOfLife: unknown; lifeExpectancyTable: unknown; setLifeExpectancyTable: unknown
-    customLifeExpectancy: unknown; setCustomLifeExpectancy: unknown; planningMode: unknown
-    setPlanningMode: unknown; gender: unknown; setGender: unknown; spouse: unknown
-    setSpouse: unknown; birthYear: unknown; setBirthYear: unknown
-    expectedLifespan: unknown; setExpectedLifespan: unknown
-    useAutomaticCalculation: unknown; setUseAutomaticCalculation: unknown
+    endOfLife: unknown
+    lifeExpectancyTable: unknown
+    setLifeExpectancyTable: unknown
+    customLifeExpectancy: unknown
+    setCustomLifeExpectancy: unknown
+    planningMode: unknown
+    setPlanningMode: unknown
+    gender: unknown
+    setGender: unknown
+    spouse: unknown
+    setSpouse: unknown
+    birthYear: unknown
+    setBirthYear: unknown
+    expectedLifespan: unknown
+    setExpectedLifespan: unknown
+    useAutomaticCalculation: unknown
+    setUseAutomaticCalculation: unknown
   }
-   
+
   return useMemo(
     () => ({
-      endOfLife, setEndOfLife: setEndOfLifeRounded,
-      lifeExpectancyTable, setLifeExpectancyTable,
-      customLifeExpectancy, setCustomLifeExpectancy,
-      planningMode, setPlanningMode,
-      gender, setGender,
-      spouse, setSpouse,
-      birthYear, setBirthYear,
-      expectedLifespan, setExpectedLifespan,
-      useAutomaticCalculation, setUseAutomaticCalculation,
+      endOfLife,
+      setEndOfLife: setEndOfLifeRounded,
+      lifeExpectancyTable,
+      setLifeExpectancyTable,
+      customLifeExpectancy,
+      setCustomLifeExpectancy,
+      planningMode,
+      setPlanningMode,
+      gender,
+      setGender,
+      spouse,
+      setSpouse,
+      birthYear,
+      setBirthYear,
+      expectedLifespan,
+      setExpectedLifespan,
+      useAutomaticCalculation,
+      setUseAutomaticCalculation,
     }),
     [
-      endOfLife, setEndOfLifeRounded, lifeExpectancyTable, setLifeExpectancyTable,
-      customLifeExpectancy, setCustomLifeExpectancy, planningMode, setPlanningMode,
-      gender, setGender, spouse, setSpouse, birthYear, setBirthYear,
-      expectedLifespan, setExpectedLifespan, useAutomaticCalculation, setUseAutomaticCalculation,
+      endOfLife,
+      setEndOfLifeRounded,
+      lifeExpectancyTable,
+      setLifeExpectancyTable,
+      customLifeExpectancy,
+      setCustomLifeExpectancy,
+      planningMode,
+      setPlanningMode,
+      gender,
+      setGender,
+      spouse,
+      setSpouse,
+      birthYear,
+      setBirthYear,
+      expectedLifespan,
+      setExpectedLifespan,
+      useAutomaticCalculation,
+      setUseAutomaticCalculation,
     ],
   )
 }

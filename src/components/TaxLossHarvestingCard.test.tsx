@@ -21,7 +21,7 @@ describe('TaxLossHarvestingCard', () => {
 
     // Title is visible
     expect(screen.getByText(/Verlustverrechnungs-Rechner/)).toBeInTheDocument()
-    
+
     // Content is not visible when collapsed
     expect(screen.queryByText(/Informations-Tool/)).not.toBeInTheDocument()
   })

@@ -1,9 +1,6 @@
 import { useState, useMemo } from 'react'
 import { generateFormId } from '../../utils/unique-id'
-import {
-  analyzeSequenceRisk,
-  getDefaultSequenceRiskConfig,
-} from '../../../helpers/sequence-risk'
+import { analyzeSequenceRisk, getDefaultSequenceRiskConfig } from '../../../helpers/sequence-risk'
 
 export function useSequenceRiskAnalysis() {
   const defaultConfig = getDefaultSequenceRiskConfig()

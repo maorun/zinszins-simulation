@@ -225,7 +225,9 @@ describe('multi-asset-portfolio helpers', () => {
 
       const errors = validateMultiAssetConfig(validConfig)
 
-      expect(errors.some(error => error.includes('Prozentuale Transaktionskosten müssen zwischen 0% und 10% liegen'))).toBe(true)
+      expect(
+        errors.some(error => error.includes('Prozentuale Transaktionskosten müssen zwischen 0% und 10% liegen')),
+      ).toBe(true)
     })
 
     it('validates negative transaction cost percentage', () => {
@@ -242,7 +244,9 @@ describe('multi-asset-portfolio helpers', () => {
 
       const errors = validateMultiAssetConfig(validConfig)
 
-      expect(errors.some(error => error.includes('Prozentuale Transaktionskosten müssen zwischen 0% und 10% liegen'))).toBe(true)
+      expect(
+        errors.some(error => error.includes('Prozentuale Transaktionskosten müssen zwischen 0% und 10% liegen')),
+      ).toBe(true)
     })
 
     it('validates negative fixed transaction cost', () => {
@@ -293,7 +297,9 @@ describe('multi-asset-portfolio helpers', () => {
 
       const errors = validateMultiAssetConfig(validConfig)
 
-      expect(errors.some(error => error.includes('Kosten-Nutzen-Schwellenwert muss zwischen 0% und 10% liegen'))).toBe(true)
+      expect(errors.some(error => error.includes('Kosten-Nutzen-Schwellenwert muss zwischen 0% und 10% liegen'))).toBe(
+        true,
+      )
     })
   })
 

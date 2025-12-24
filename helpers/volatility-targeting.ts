@@ -106,10 +106,7 @@ export function createDefaultVolatilityTargetingConfig(): VolatilityTargetingCon
  * @param smoothingFactor - Smoothing factor for exponential weighting (0-1)
  * @returns Annualized volatility
  */
-export function calculateRealizedVolatility(
-  historicalReturns: HistoricalReturns,
-  smoothingFactor = 0.3,
-): number {
+export function calculateRealizedVolatility(historicalReturns: HistoricalReturns, smoothingFactor = 0.3): number {
   const { returns } = historicalReturns
 
   if (returns.length === 0) {

@@ -1,10 +1,5 @@
 import { describe, it, expect, vi } from 'vitest'
-import {
-  exportSavingsDataToPDF,
-  exportWithdrawalDataToPDF,
-  exportAllDataToPDF,
-  downloadPDFBlob,
-} from './pdf-export'
+import { exportSavingsDataToPDF, exportWithdrawalDataToPDF, exportAllDataToPDF, downloadPDFBlob } from './pdf-export'
 import type { ExportData } from './data-export'
 import type { SimulationContextState } from '../contexts/SimulationContext'
 
@@ -200,8 +195,12 @@ describe('PDF Export', () => {
         click: vi.fn(),
       }
       const createElementSpy = vi.spyOn(document, 'createElement').mockReturnValue(mockLink as unknown as HTMLElement)
-      const appendChildSpy = vi.spyOn(document.body, 'appendChild').mockImplementation(() => mockLink as unknown as Node)
-      const removeChildSpy = vi.spyOn(document.body, 'removeChild').mockImplementation(() => mockLink as unknown as Node)
+      const appendChildSpy = vi
+        .spyOn(document.body, 'appendChild')
+        .mockImplementation(() => mockLink as unknown as Node)
+      const removeChildSpy = vi
+        .spyOn(document.body, 'removeChild')
+        .mockImplementation(() => mockLink as unknown as Node)
 
       // Mock URL methods - define them if they don't exist
       if (!global.URL) {
