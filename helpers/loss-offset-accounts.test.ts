@@ -12,8 +12,10 @@ import {
   formatLossAmount,
   getLossAccountTypeName,
   getLossAccountTypeDescription,
+  analyzeMultiYearLossUsage,
   type LossAccountState,
   type RealizedLossesConfig,
+  type MultiYearLossTracking,
 } from './loss-offset-accounts'
 
 describe('Loss Offset Accounts', () => {
@@ -470,6 +472,276 @@ describe('Loss Offset Accounts', () => {
       const description = getLossAccountTypeDescription('other')
       expect(description).toContain('anderen Kapitalanlagen')
       expect(description).toContain('allen Kapitalerträgen')
+    })
+  })
+
+  describe('analyzeMultiYearLossUsage', () => {
+    it('should analyze simple multi-year scenario with no losses', () => {
+      const tracking: MultiYearLossTracking = {
+        yearlyStates: {
+          2023: createInitialLossAccountState(2023),
+        },
+        yearlyRealizedLosses: {},
+        projectedGains: {
+          2023: { stockGains: 5000, otherGains: 3000 },
+          2024: { stockGains: 6000, otherGains: 4000 },
+        },
+      }
+
+      const result = analyzeMultiYearLossUsage(tracking, 0.26375, 2023, 2024)
+
+      expect(result.yearlyAnalyses).toHaveLength(2)
+      expect(result.totalProjectedSavings).toBe(0) // No losses to use
+      expect(result.totalUnusedLosses).toBe(0)
+      expect(result.yearlyAnalyses[0].year).toBe(2023)
+      expect(result.yearlyAnalyses[1].year).toBe(2024)
+    })
+
+    it('should analyze multi-year with carryforward losses', () => {
+      const tracking: MultiYearLossTracking = {
+        yearlyStates: {
+          2023: {
+            stockLosses: 10000,
+            otherLosses: 5000,
+            year: 2023,
+          },
+        },
+        yearlyRealizedLosses: {},
+        projectedGains: {
+          2023: { stockGains: 3000, otherGains: 2000 },
+          2024: { stockGains: 4000, otherGains: 1000 },
+          2025: { stockGains: 2000, otherGains: 500 },
+        },
+      }
+
+      const result = analyzeMultiYearLossUsage(tracking, 0.26375, 2023, 2025)
+
+      expect(result.yearlyAnalyses).toHaveLength(3)
+
+      // Year 2023: Should use 3000 stock losses + 2000 other losses = 5000 total
+      const year2023 = result.yearlyAnalyses[0]
+      expect(year2023.projectedLossUsage.stockLossesUsed).toBe(3000)
+      expect(year2023.projectedLossUsage.otherLossesUsed).toBe(2000)
+      expect(year2023.projectedTaxSavings).toBeCloseTo(5000 * 0.26375, 2)
+      expect(year2023.carryForwardToNextYear.stockLosses).toBe(7000) // 10000 - 3000
+      expect(year2023.carryForwardToNextYear.otherLosses).toBe(3000) // 5000 - 2000
+
+      // Year 2024: Should use 4000 stock losses + 1000 other losses = 5000 total
+      const year2024 = result.yearlyAnalyses[1]
+      expect(year2024.projectedLossUsage.stockLossesUsed).toBe(4000)
+      expect(year2024.projectedLossUsage.otherLossesUsed).toBe(1000)
+      expect(year2024.carryForwardToNextYear.stockLosses).toBe(3000) // 7000 - 4000
+      expect(year2024.carryForwardToNextYear.otherLosses).toBe(2000) // 3000 - 1000
+
+      // Year 2025: Should use 2000 stock losses + 500 other losses = 2500 total
+      const year2025 = result.yearlyAnalyses[2]
+      expect(year2025.projectedLossUsage.stockLossesUsed).toBe(2000)
+      expect(year2025.projectedLossUsage.otherLossesUsed).toBe(500)
+      expect(year2025.carryForwardToNextYear.stockLosses).toBe(1000) // 3000 - 2000
+      expect(year2025.carryForwardToNextYear.otherLosses).toBe(1500) // 2000 - 500
+
+      // Total calculations
+      expect(result.totalProjectedSavings).toBeCloseTo(12500 * 0.26375, 2)
+      expect(result.totalUnusedLosses).toBe(2500) // 1000 + 1500
+    })
+
+    it('should generate warnings for high unused losses', () => {
+      const tracking: MultiYearLossTracking = {
+        yearlyStates: {
+          2023: {
+            stockLosses: 60000, // High unused stock losses
+            otherLosses: 0,
+            year: 2023,
+          },
+        },
+        yearlyRealizedLosses: {},
+        projectedGains: {
+          2023: { stockGains: 1000, otherGains: 500 }, // Very low gains
+        },
+      }
+
+      const result = analyzeMultiYearLossUsage(tracking, 0.26375, 2023, 2023)
+
+      expect(result.yearlyAnalyses[0].warnings.length).toBeGreaterThan(0)
+      const hasHighCarryforwardWarning = result.yearlyAnalyses[0].warnings.some(w => w.type === 'high_carryforward')
+      expect(hasHighCarryforwardWarning).toBe(true)
+    })
+
+    it('should generate recommendations for gain realization', () => {
+      const tracking: MultiYearLossTracking = {
+        yearlyStates: {
+          2023: {
+            stockLosses: 20000, // Significant stock losses
+            otherLosses: 5000,
+            year: 2023,
+          },
+        },
+        yearlyRealizedLosses: {},
+        projectedGains: {
+          2023: { stockGains: 1000, otherGains: 500 }, // Low gains
+        },
+      }
+
+      const result = analyzeMultiYearLossUsage(tracking, 0.26375, 2023, 2023)
+
+      expect(result.yearlyAnalyses[0].recommendations.length).toBeGreaterThan(0)
+      const hasRealizeGainsRec = result.yearlyAnalyses[0].recommendations.some(r => r.type === 'realize_gains')
+      expect(hasRealizeGainsRec).toBe(true)
+    })
+
+    it('should track new realized losses in subsequent years', () => {
+      const tracking: MultiYearLossTracking = {
+        yearlyStates: {
+          2023: {
+            stockLosses: 5000,
+            otherLosses: 2000,
+            year: 2023,
+          },
+        },
+        yearlyRealizedLosses: {
+          2024: {
+            stockLosses: 3000, // New losses realized in 2024
+            otherLosses: 1000,
+            year: 2024,
+          },
+        },
+        projectedGains: {
+          2023: { stockGains: 2000, otherGains: 1000 },
+          2024: { stockGains: 4000, otherGains: 2000 },
+        },
+      }
+
+      const result = analyzeMultiYearLossUsage(tracking, 0.26375, 2023, 2024)
+
+      // Year 2023: Use 2000 stock + 1000 other = 3000 total
+      const year2023 = result.yearlyAnalyses[0]
+      expect(year2023.projectedLossUsage.totalUsed).toBe(3000)
+      expect(year2023.carryForwardToNextYear.stockLosses).toBe(3000) // 5000 - 2000
+      expect(year2023.carryForwardToNextYear.otherLosses).toBe(1000) // 2000 - 1000
+
+      // Year 2024: Should have 3000 (carryforward) + 3000 (new) = 6000 stock losses available
+      const year2024 = result.yearlyAnalyses[1]
+      expect(year2024.availableLosses.stockLosses).toBe(6000) // 3000 + 3000
+      expect(year2024.availableLosses.otherLosses).toBe(2000) // 1000 + 1000
+      expect(year2024.projectedLossUsage.stockLossesUsed).toBe(4000)
+      expect(year2024.projectedLossUsage.otherLossesUsed).toBe(2000)
+    })
+
+    it('should generate overall recommendations for consistent high carryforwards', () => {
+      const tracking: MultiYearLossTracking = {
+        yearlyStates: {
+          2023: {
+            stockLosses: 40000,
+            otherLosses: 10000,
+            year: 2023,
+          },
+        },
+        yearlyRealizedLosses: {},
+        projectedGains: {
+          2023: { stockGains: 2000, otherGains: 1000 },
+          2024: { stockGains: 2000, otherGains: 1000 },
+          2025: { stockGains: 2000, otherGains: 1000 },
+          2026: { stockGains: 2000, otherGains: 1000 },
+        },
+      }
+
+      const result = analyzeMultiYearLossUsage(tracking, 0.26375, 2023, 2026)
+
+      // Should generate overall recommendations for persistent high carryforwards
+      expect(result.overallRecommendations.length).toBeGreaterThan(0)
+      const hasRebalanceRec = result.overallRecommendations.some(r => r.type === 'rebalance_portfolio')
+      expect(hasRebalanceRec).toBe(true)
+    })
+
+    it('should count warnings by severity', () => {
+      const tracking: MultiYearLossTracking = {
+        yearlyStates: {
+          2023: {
+            stockLosses: 60000, // Will trigger high severity warning
+            otherLosses: 5000,
+            year: 2023,
+          },
+        },
+        yearlyRealizedLosses: {},
+        projectedGains: {
+          2023: { stockGains: 1000, otherGains: 500 },
+        },
+      }
+
+      const result = analyzeMultiYearLossUsage(tracking, 0.26375, 2023, 2023)
+
+      expect(result.warningCount).toBeDefined()
+      expect(result.warningCount.high).toBeGreaterThan(0)
+    })
+
+    it('should handle edge case with zero gains across all years', () => {
+      const tracking: MultiYearLossTracking = {
+        yearlyStates: {
+          2023: {
+            stockLosses: 15000,
+            otherLosses: 5000,
+            year: 2023,
+          },
+        },
+        yearlyRealizedLosses: {},
+        projectedGains: {
+          2023: { stockGains: 0, otherGains: 0 },
+          2024: { stockGains: 0, otherGains: 0 },
+        },
+      }
+
+      const result = analyzeMultiYearLossUsage(tracking, 0.26375, 2023, 2024)
+
+      expect(result.totalProjectedSavings).toBe(0)
+      expect(result.totalUnusedLosses).toBe(20000) // All losses remain unused
+
+      // Should generate warnings about unused losses
+      const hasUnusedLossesWarning = result.yearlyAnalyses.some(analysis =>
+        analysis.warnings.some(w => w.type === 'unused_losses'),
+      )
+      expect(hasUnusedLossesWarning).toBe(true)
+    })
+
+    it('should recommend deferring gains when no losses available', () => {
+      const tracking: MultiYearLossTracking = {
+        yearlyStates: {
+          2023: createInitialLossAccountState(2023), // No losses
+        },
+        yearlyRealizedLosses: {},
+        projectedGains: {
+          2023: { stockGains: 15000, otherGains: 5000 }, // High gains
+        },
+      }
+
+      const result = analyzeMultiYearLossUsage(tracking, 0.26375, 2023, 2023)
+
+      const hasDeferGainsRec = result.yearlyAnalyses[0].recommendations.some(r => r.type === 'defer_gains')
+      expect(hasDeferGainsRec).toBe(true)
+    })
+
+    it('should calculate correct tax savings across multiple years', () => {
+      const tracking: MultiYearLossTracking = {
+        yearlyStates: {
+          2023: {
+            stockLosses: 10000,
+            otherLosses: 5000,
+            year: 2023,
+          },
+        },
+        yearlyRealizedLosses: {},
+        projectedGains: {
+          2023: { stockGains: 10000, otherGains: 5000 },
+        },
+      }
+
+      const taxRate = 0.26375
+      const result = analyzeMultiYearLossUsage(tracking, taxRate, 2023, 2023)
+
+      // All losses should be used (10000 + 5000 = 15000)
+      expect(result.yearlyAnalyses[0].projectedLossUsage.totalUsed).toBe(15000)
+      expect(result.yearlyAnalyses[0].projectedTaxSavings).toBeCloseTo(15000 * taxRate, 2)
+      expect(result.totalProjectedSavings).toBeCloseTo(15000 * taxRate, 2)
+      expect(result.totalUnusedLosses).toBe(0)
     })
   })
 })

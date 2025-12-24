@@ -342,79 +342,13 @@ export function analyzeMultiYearLossUsage(
   startYear: number,
   endYear: number,
 ): MultiYearOptimizationResult {
-  const yearlyAnalyses: YearLossAnalysis[] = []
-  let currentLossState: LossAccountState = tracking.yearlyStates[startYear] || createInitialLossAccountState(startYear)
-
-  // Analyze each year sequentially
-  for (let year = startYear; year <= endYear; year++) {
-    const realizedLosses = tracking.yearlyRealizedLosses[year] || createDefaultRealizedLosses(year)
-    const projectedGains = tracking.projectedGains[year] || { stockGains: 0, otherGains: 0 }
-
-    // Calculate available losses for this year
-    const availableLosses: LossAccountState = {
-      stockLosses: currentLossState.stockLosses + realizedLosses.stockLosses,
-      otherLosses: currentLossState.otherLosses + realizedLosses.otherLosses,
-      year,
-    }
-
-    // Project how losses would be used with projected gains
-    const stockLossesUsed = Math.min(availableLosses.stockLosses, projectedGains.stockGains)
-    const remainingStockGains = projectedGains.stockGains - stockLossesUsed
-    const otherLossesUsed = Math.min(availableLosses.otherLosses, remainingStockGains + projectedGains.otherGains)
-    const totalUsed = stockLossesUsed + otherLossesUsed
-
-    // Calculate projected tax savings
-    const projectedTaxSavings = totalUsed * taxRate
-
-    // Calculate carryforward to next year
-    const carryForwardToNextYear: LossAccountState = {
-      stockLosses: availableLosses.stockLosses - stockLossesUsed,
-      otherLosses: availableLosses.otherLosses - otherLossesUsed,
-      year: year + 1,
-    }
-
-    // Generate warnings
-    const warnings = generateLossWarnings(
-      availableLosses,
-      projectedGains,
-      { stockLossesUsed, otherLossesUsed, totalUsed },
-      carryForwardToNextYear,
-      year,
-    )
-
-    // Generate recommendations
-    const recommendations = generateLossRecommendations(
-      availableLosses,
-      projectedGains,
-      { stockLossesUsed, otherLossesUsed, totalUsed },
-      carryForwardToNextYear,
-      taxRate,
-      year,
-    )
-
-    yearlyAnalyses.push({
-      year,
-      availableLosses,
-      projectedGains,
-      projectedLossUsage: { stockLossesUsed, otherLossesUsed, totalUsed },
-      projectedTaxSavings,
-      carryForwardToNextYear,
-      warnings,
-      recommendations,
-    })
-
-    // Update state for next year
-    currentLossState = carryForwardToNextYear
-  }
-
-  // Calculate overall statistics
+  const yearlyAnalyses = analyzeYearlyLossUsage(tracking, taxRate, startYear, endYear)
   const totalProjectedSavings = yearlyAnalyses.reduce((sum, analysis) => sum + analysis.projectedTaxSavings, 0)
   const finalYear = yearlyAnalyses[yearlyAnalyses.length - 1]
   const totalUnusedLosses = finalYear
     ? finalYear.carryForwardToNextYear.stockLosses + finalYear.carryForwardToNextYear.otherLosses
     : 0
 
-  // Collect all warnings and count by severity
   const allWarnings = yearlyAnalyses.flatMap(analysis => analysis.warnings)
   const warningCount = {
     low: allWarnings.filter(w => w.severity === 'low').length,
@@ -422,7 +356,6 @@ export function analyzeMultiYearLossUsage(
     high: allWarnings.filter(w => w.severity === 'high').length,
   }
 
-  // Generate overall recommendations spanning multiple years
   const overallRecommendations = generateOverallRecommendations(yearlyAnalyses, taxRate, totalUnusedLosses)
 
   return {
@@ -435,21 +368,120 @@ export function analyzeMultiYearLossUsage(
 }
 
 /**
+ * Analyze each year sequentially and generate yearly analyses
+ */
+function analyzeYearlyLossUsage(
+  tracking: MultiYearLossTracking,
+  taxRate: number,
+  startYear: number,
+  endYear: number,
+): YearLossAnalysis[] {
+  const yearlyAnalyses: YearLossAnalysis[] = []
+  let currentLossState: LossAccountState = tracking.yearlyStates[startYear] || createInitialLossAccountState(startYear)
+
+  for (let year = startYear; year <= endYear; year++) {
+    const analysis = analyzeSingleYear(tracking, currentLossState, taxRate, year)
+    yearlyAnalyses.push(analysis)
+    currentLossState = analysis.carryForwardToNextYear
+  }
+
+  return yearlyAnalyses
+}
+
+/**
+ * Analyze a single year's loss usage
+ */
+function analyzeSingleYear(
+  tracking: MultiYearLossTracking,
+  currentLossState: LossAccountState,
+  taxRate: number,
+  year: number,
+): YearLossAnalysis {
+  const realizedLosses = tracking.yearlyRealizedLosses[year] || createDefaultRealizedLosses(year)
+  const projectedGains = tracking.projectedGains[year] || { stockGains: 0, otherGains: 0 }
+
+  const availableLosses: LossAccountState = {
+    stockLosses: currentLossState.stockLosses + realizedLosses.stockLosses,
+    otherLosses: currentLossState.otherLosses + realizedLosses.otherLosses,
+    year,
+  }
+
+  const stockLossesUsed = Math.min(availableLosses.stockLosses, projectedGains.stockGains)
+  const remainingStockGains = projectedGains.stockGains - stockLossesUsed
+  const otherLossesUsed = Math.min(availableLosses.otherLosses, remainingStockGains + projectedGains.otherGains)
+  const totalUsed = stockLossesUsed + otherLossesUsed
+
+  const projectedTaxSavings = totalUsed * taxRate
+
+  const carryForwardToNextYear: LossAccountState = {
+    stockLosses: availableLosses.stockLosses - stockLossesUsed,
+    otherLosses: availableLosses.otherLosses - otherLossesUsed,
+    year: year + 1,
+  }
+
+  const warnings = generateLossWarnings(
+    availableLosses,
+    projectedGains,
+    { stockLossesUsed, otherLossesUsed, totalUsed },
+    carryForwardToNextYear,
+    year,
+  )
+
+  const recommendations = generateLossRecommendations(
+    availableLosses,
+    projectedGains,
+    { stockLossesUsed, otherLossesUsed, totalUsed },
+    carryForwardToNextYear,
+    taxRate,
+    year,
+  )
+
+  return {
+    year,
+    availableLosses,
+    projectedGains,
+    projectedLossUsage: { stockLossesUsed, otherLossesUsed, totalUsed },
+    projectedTaxSavings,
+    carryForwardToNextYear,
+    warnings,
+    recommendations,
+  }
+}
+
+/**
  * Generate warnings for loss usage in a specific year
  */
 function generateLossWarnings(
   availableLosses: LossAccountState,
   projectedGains: { stockGains: number; otherGains: number },
-  projectedUsage: { stockLossesUsed: number; otherLossesUsed: number; totalUsed: number },
+  _projectedUsage: { stockLossesUsed: number; otherLossesUsed: number; totalUsed: number },
   carryForward: LossAccountState,
   year: number,
 ): LossWarning[] {
   const warnings: LossWarning[] = []
   const totalAvailable = availableLosses.stockLosses + availableLosses.otherLosses
   const totalGains = projectedGains.stockGains + projectedGains.otherGains
+  const totalUsed = _projectedUsage.totalUsed
 
-  // Warning: High unused losses with available gains
-  if (totalAvailable > 10000 && projectedUsage.totalUsed === 0 && totalGains === 0) {
+  checkUnusedLossesWarning(totalAvailable, totalUsed, totalGains, year, warnings)
+  checkInefficientUsageWarning(totalAvailable, totalGains, totalUsed, year, warnings)
+  checkHighCarryforwardWarning(carryForward, year, warnings)
+  checkOpportunityMissedWarning(availableLosses, projectedGains, year, warnings)
+
+  return warnings
+}
+
+/**
+ * Check for high unused losses warning
+ */
+function checkUnusedLossesWarning(
+  totalAvailable: number,
+  totalUsed: number,
+  totalGains: number,
+  year: number,
+  warnings: LossWarning[],
+): void {
+  if (totalAvailable > 10000 && totalUsed === 0 && totalGains === 0) {
     warnings.push({
       type: 'unused_losses',
       severity: 'medium',
@@ -458,19 +490,33 @@ function generateLossWarnings(
       affectedAmount: totalAvailable,
     })
   }
+}
 
-  // Warning: Inefficient usage (could use more losses)
-  if (totalAvailable > 0 && totalGains > projectedUsage.totalUsed && totalGains - projectedUsage.totalUsed > 1000) {
+/**
+ * Check for inefficient loss usage warning
+ */
+function checkInefficientUsageWarning(
+  totalAvailable: number,
+  totalGains: number,
+  totalUsed: number,
+  year: number,
+  warnings: LossWarning[],
+): void {
+  if (totalAvailable > 0 && totalGains > totalUsed && totalGains - totalUsed > 1000) {
     warnings.push({
       type: 'inefficient_usage',
       severity: 'low',
-      message: `Nicht alle verfügbaren Verluste werden genutzt (${formatLossAmount(totalAvailable - projectedUsage.totalUsed)} ungenutzt)`,
+      message: `Nicht alle verfügbaren Verluste werden genutzt (${formatLossAmount(totalAvailable - totalUsed)} ungenutzt)`,
       year,
-      affectedAmount: totalAvailable - projectedUsage.totalUsed,
+      affectedAmount: totalAvailable - totalUsed,
     })
   }
+}
 
-  // Warning: Very high carryforward accumulating
+/**
+ * Check for high carryforward warning
+ */
+function checkHighCarryforwardWarning(carryForward: LossAccountState, year: number, warnings: LossWarning[]): void {
   const totalCarryForward = carryForward.stockLosses + carryForward.otherLosses
   if (totalCarryForward > 50000) {
     warnings.push({
@@ -481,8 +527,17 @@ function generateLossWarnings(
       affectedAmount: totalCarryForward,
     })
   }
+}
 
-  // Warning: Opportunity missed (gains available but not using losses)
+/**
+ * Check for opportunity missed warning
+ */
+function checkOpportunityMissedWarning(
+  availableLosses: LossAccountState,
+  projectedGains: { stockGains: number; otherGains: number },
+  year: number,
+  warnings: LossWarning[],
+): void {
   if (availableLosses.stockLosses > 5000 && projectedGains.stockGains === 0) {
     warnings.push({
       type: 'opportunity_missed',
@@ -492,8 +547,6 @@ function generateLossWarnings(
       affectedAmount: availableLosses.stockLosses,
     })
   }
-
-  return warnings
 }
 
 /**
@@ -502,14 +555,31 @@ function generateLossWarnings(
 function generateLossRecommendations(
   availableLosses: LossAccountState,
   projectedGains: { stockGains: number; otherGains: number },
-  projectedUsage: { stockLossesUsed: number; otherLossesUsed: number; totalUsed: number },
+  _projectedUsage: { stockLossesUsed: number; otherLossesUsed: number; totalUsed: number },
   carryForward: LossAccountState,
   taxRate: number,
   year: number,
 ): LossRecommendation[] {
   const recommendations: LossRecommendation[] = []
 
-  // Recommendation: Realize gains to use accumulated losses
+  checkRealizeGainsRecommendation(availableLosses, projectedGains, taxRate, year, recommendations)
+  checkDeferGainsRecommendation(availableLosses, projectedGains, year, recommendations)
+  checkHarvestLossesRecommendation(availableLosses, projectedGains, carryForward, year, recommendations)
+  checkOptimizeTimingRecommendation(carryForward, year, recommendations)
+
+  return recommendations
+}
+
+/**
+ * Check for realize gains recommendation
+ */
+function checkRealizeGainsRecommendation(
+  availableLosses: LossAccountState,
+  projectedGains: { stockGains: number; otherGains: number },
+  taxRate: number,
+  year: number,
+  recommendations: LossRecommendation[],
+): void {
   if (availableLosses.stockLosses > 5000 && projectedGains.stockGains < availableLosses.stockLosses * 0.3) {
     const potentialUsage = Math.min(availableLosses.stockLosses, 20000)
     recommendations.push({
@@ -522,8 +592,17 @@ function generateLossRecommendations(
       actionRequired: 'Gewinnrealisierung durch Teilverkäufe',
     })
   }
+}
 
-  // Recommendation: Defer gains if no losses available
+/**
+ * Check for defer gains recommendation
+ */
+function checkDeferGainsRecommendation(
+  availableLosses: LossAccountState,
+  projectedGains: { stockGains: number; otherGains: number },
+  year: number,
+  recommendations: LossRecommendation[],
+): void {
   if (availableLosses.stockLosses === 0 && availableLosses.otherLosses === 0 && projectedGains.stockGains > 10000) {
     recommendations.push({
       type: 'defer_gains',
@@ -534,13 +613,20 @@ function generateLossRecommendations(
       actionRequired: 'Prüfung der Verkaufsstrategie',
     })
   }
+}
 
-  // Recommendation: Harvest losses strategically
-  if (
-    availableLosses.stockLosses === 0 &&
-    projectedGains.stockGains > 5000 &&
-    carryForward.stockLosses + carryForward.otherLosses < 10000
-  ) {
+/**
+ * Check for harvest losses recommendation
+ */
+function checkHarvestLossesRecommendation(
+  availableLosses: LossAccountState,
+  projectedGains: { stockGains: number; otherGains: number },
+  carryForward: LossAccountState,
+  year: number,
+  recommendations: LossRecommendation[],
+): void {
+  const totalCarryForward = carryForward.stockLosses + carryForward.otherLosses
+  if (availableLosses.stockLosses === 0 && projectedGains.stockGains > 5000 && totalCarryForward < 10000) {
     recommendations.push({
       type: 'harvest_losses',
       priority: 'medium',
@@ -550,8 +636,16 @@ function generateLossRecommendations(
       actionRequired: 'Identifikation von Positionen mit Verlusten',
     })
   }
+}
 
-  // Recommendation: Optimize timing across years
+/**
+ * Check for optimize timing recommendation
+ */
+function checkOptimizeTimingRecommendation(
+  carryForward: LossAccountState,
+  year: number,
+  recommendations: LossRecommendation[],
+): void {
   const totalCarryForward = carryForward.stockLosses + carryForward.otherLosses
   if (totalCarryForward > 20000) {
     recommendations.push({
@@ -563,8 +657,6 @@ function generateLossRecommendations(
       actionRequired: 'Mehrjahresplanung erstellen',
     })
   }
-
-  return recommendations
 }
 
 /**
@@ -573,7 +665,7 @@ function generateLossRecommendations(
 function generateOverallRecommendations(
   yearlyAnalyses: YearLossAnalysis[],
   taxRate: number,
-  totalUnusedLosses: number,
+  _totalUnusedLosses: number,
 ): LossRecommendation[] {
   const recommendations: LossRecommendation[] = []
 
