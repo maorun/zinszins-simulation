@@ -19,15 +19,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
   - Visualisierung der Steuerersparnisse gegenüber naiver Entnahme
   - Praktischer Nutzen: Maximierung des verfügbaren Nettoeinkommens im Ruhestand
 
-- **Verlustverrechnung zwischen mehreren Depots/Jahren** ⭐⭐⭐
-  - Tracking von Verlustvorträgen über mehrere Jahre
-  - Optimale Nutzung von Verlustverrechnungstöpfen (Aktien vs. sonstige)
-  - Planung von Gewinnrealisierungen zur optimalen Verlustnutzung
-  - Warnung bei ablaufenden oder nicht genutzten Verlustvorträgen
-  - Szenario-Planung für tax-loss harvesting Strategien
-  - Integration mit bestehender Verlustverrechnungs-Berechnung
-  - Praktischer Nutzen: Maximierung der Steuerersparnisse durch strategische Verlustverrechnung
-
 #### Asset Allocation & Portfolio-Management
 
 - **Geografische Diversifikation** - Aufteilung zwischen Regionen mit entsprechenden Steuern
