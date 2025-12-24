@@ -25,6 +25,7 @@ import { FreistellungsauftragOptimizer } from './FreistellungsauftragOptimizer'
 import { PortfolioTeilfreistellungCard } from './tax-config/PortfolioTeilfreistellungCard'
 
 import { TaxDeferralCalculatorCard } from './TaxDeferralCalculatorCard'
+import { MultiYearLossTrackingDashboard } from './MultiYearLossTrackingDashboard'
 
 interface TaxConfigurationProps {
   planningMode?: 'individual' | 'couple'
@@ -130,7 +131,7 @@ function FreistellungsauftragSection({
   )
 }
 
-function TaxOptimizationCards() {
+function TaxOptimizationCards({ simulation }: { simulation: ReturnType<typeof useSimulation> }) {
   return (
     <>
       <PortfolioTeilfreistellungCard />
@@ -139,6 +140,14 @@ function TaxOptimizationCards() {
       <ReverseCalculatorCard />
       <SequenceRiskAnalysisCard />
       <TaxLossHarvestingCard />
+      {/* Multi-Year Loss Tracking Dashboard */}
+      <MultiYearLossTrackingDashboard
+        taxRate={simulation.steuerlast}
+        startYear={2025}
+        endYear={2045}
+        initialStockLosses={0}
+        initialOtherLosses={0}
+      />
       <QuarterlyTaxPrepaymentCard />
       <PfaendungsfreibetragCard />
       <TailRiskHedgingCard />
@@ -187,7 +196,7 @@ function TaxConfigurationCards({
       />
       <InsuranceCostOverview />
       <PensionComparisonTool />
-      <TaxOptimizationCards />
+      <TaxOptimizationCards simulation={simulation} />
     </div>
   )
 }
