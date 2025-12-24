@@ -5,6 +5,14 @@
  *
  * @param data - Array to filter for unique values
  * @returns Array with unique values, or empty array if input is null/undefined/empty
+ *
+ * @example
+ * ```typescript
+ * unique([1, 2, 2, 3, undefined, 3, 4]) // Returns: [1, 2, 3, 4]
+ * unique(['a', 'b', 'a', 'c']) // Returns: ['a', 'b', 'c']
+ * unique([]) // Returns: []
+ * unique(null) // Returns: []
+ * ```
  */
 export const unique = function <T extends undefined | number | string>(data: undefined | null | T[]): T[] {
   if (!data || !data.length) {
@@ -21,6 +29,14 @@ export const unique = function <T extends undefined | number | string>(data: und
  *
  * @param obj - Object to check
  * @returns true if object is null, undefined, or has no own enumerable properties
+ *
+ * @example
+ * ```typescript
+ * isEmpty({}) // Returns: true
+ * isEmpty({ name: 'test' }) // Returns: false
+ * isEmpty(null) // Returns: true
+ * isEmpty(undefined) // Returns: true
+ * ```
  */
 export function isEmpty(obj: unknown): boolean {
   if (obj == null) {
