@@ -19,15 +19,6 @@ Diese Dokumentation listet potenzielle zukünftige Erweiterungen und explizit ni
   - Visualisierung der Steuerersparnisse gegenüber naiver Entnahme
   - Praktischer Nutzen: Maximierung des verfügbaren Nettoeinkommens im Ruhestand
 
-- **Steuerstundungs-Kalkulator (Thesaurierung vs. Ausschüttung)** ⭐⭐⭐
-  - Vergleich zwischen thesaurierenden und ausschüttenden Fonds
-  - Berechnung des Steuerstundungseffekts über lange Zeiträume
-  - Berücksichtigung der Vorabpauschale bei thesaurierenden Fonds
-  - Quantifizierung des Zinseszinseffekts durch Steuerstundung
-  - Szenario-Analyse: Wann lohnen sich thesaurierende vs. ausschüttende Fonds
-  - Integration mit bestehender Vorabpauschalen-Berechnung
-  - Praktischer Nutzen: Datenbasierte Entscheidung zwischen Fondstypen
-
 - **Verlustverrechnung zwischen mehreren Depots/Jahren** ⭐⭐⭐
   - Tracking von Verlustvorträgen über mehrere Jahre
   - Optimale Nutzung von Verlustverrechnungstöpfen (Aktien vs. sonstige)

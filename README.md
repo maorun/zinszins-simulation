@@ -192,6 +192,19 @@ Deutscher Zinseszins-Rechner für Sparpläne und Kapitalanlagen mit umfassender 
   - **Optimierungsempfehlungen**: Hinweise bei ungenutztem Freibetrag oder suboptimaler Verteilung
   - **Ein-Klick-Anwendung**: Optimale Verteilung kann direkt übernommen werden
   - **Planungsmodus-abhängig**: Automatische Anpassung des Gesamtfreibetrags (Einzelperson: 1.000€, Ehepaar: 2.000€)
+- **Steuerstundungs-Kalkulator (Thesaurierung vs. Ausschüttung)** - Vergleich zwischen thesaurierenden und ausschüttenden Fonds
+  - **Fondstypen-Vergleich**: Gegenüberstellung von thesaurierenden (Vorabpauschale) und ausschüttenden Fonds (volle Besteuerung)
+  - **Investitionsplanung**: Konfigurierbare Anfangsinvestition, Anlagedauer (1-40 Jahre) und erwartete Rendite (0-15%)
+  - **Steuerberechnung**: Vollständige Berücksichtigung von Kapitalertragsteuer, Teilfreistellungsquote und Freibetrag
+  - **Vorabpauschale-Simulation**: Präzise Berechnung der Vorabpauschale basierend auf aktuellem Basiszins
+  - **Detaillierter Vergleich**:
+    - Endkapital beider Fondstypen
+    - Gezahlte Steuern über die gesamte Laufzeit
+    - Steuerstundungsvorteil in Euro und Prozent
+  - **Zinseszinseffekt-Analyse**: Demonstration wie Steuerstundung durch Wiederanlage nicht versteuerter Erträge wirkt
+  - **Berechnungsparameter-Übersicht**: Transparente Darstellung aller verwendeten Steuersätze und Parameter
+  - **Echtzeit-Aktualisierung**: Automatische Anpassung an globale Steuereinstellungen
+  - **Bildungsfunktion**: Hilft Anlegern die Vorteile thesaurierender Fonds zu verstehen
 - **Reverse-Rechner (Zielkapital-Planer)** - Berechnung der erforderlichen Sparrate für ein Zielkapital
   - **Zielorientierte Planung**: Eingabe des gewünschten Ruhestands-Zielkapitals (z.B. 500.000 €)
   - **Zeitraum-Flexibilität**: Konfigurierbare Ansparphase (1-100 Jahre)
