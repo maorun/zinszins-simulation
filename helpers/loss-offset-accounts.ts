@@ -250,3 +250,373 @@ export function getLossAccountTypeDescription(type: LossAccountType): string {
   }
   return descriptions[type]
 }
+
+/**
+ * Multi-year loss tracking configuration
+ */
+export interface MultiYearLossTracking {
+  /** Loss account states for multiple years (year -> state) */
+  yearlyStates: Record<number, LossAccountState>
+  /** Realized losses for multiple years (year -> config) */
+  yearlyRealizedLosses: Record<number, RealizedLossesConfig>
+  /** Projected gains for planning purposes (year -> { stock, other }) */
+  projectedGains: Record<number, { stockGains: number; otherGains: number }>
+}
+
+/**
+ * Analysis result for a specific year
+ */
+export interface YearLossAnalysis {
+  year: number
+  availableLosses: LossAccountState
+  projectedGains: { stockGains: number; otherGains: number }
+  projectedLossUsage: { stockLossesUsed: number; otherLossesUsed: number; totalUsed: number }
+  projectedTaxSavings: number
+  carryForwardToNextYear: LossAccountState
+  warnings: LossWarning[]
+  recommendations: LossRecommendation[]
+}
+
+/**
+ * Warning types for loss tracking
+ */
+export type LossWarningType = 'unused_losses' | 'inefficient_usage' | 'opportunity_missed' | 'high_carryforward'
+
+/**
+ * Warning about loss usage
+ */
+export interface LossWarning {
+  type: LossWarningType
+  severity: 'low' | 'medium' | 'high'
+  message: string
+  year: number
+  affectedAmount?: number
+}
+
+/**
+ * Recommendation types for optimization
+ */
+export type LossRecommendationType =
+  | 'realize_gains'
+  | 'defer_gains'
+  | 'harvest_losses'
+  | 'rebalance_portfolio'
+  | 'optimize_timing'
+
+/**
+ * Recommendation for optimizing loss usage
+ */
+export interface LossRecommendation {
+  type: LossRecommendationType
+  priority: 'low' | 'medium' | 'high'
+  title: string
+  description: string
+  year: number
+  potentialSavings?: number
+  actionRequired?: string
+}
+
+/**
+ * Multi-year loss optimization result
+ */
+export interface MultiYearOptimizationResult {
+  yearlyAnalyses: YearLossAnalysis[]
+  totalProjectedSavings: number
+  totalUnusedLosses: number
+  overallRecommendations: LossRecommendation[]
+  warningCount: { low: number; medium: number; high: number }
+}
+
+/**
+ * Analyze loss usage across multiple years and generate optimization recommendations
+ *
+ * @param tracking - Multi-year loss tracking configuration
+ * @param taxRate - Effective tax rate for calculating savings
+ * @param startYear - First year to analyze
+ * @param endYear - Last year to analyze
+ * @returns Multi-year optimization analysis with recommendations
+ */
+export function analyzeMultiYearLossUsage(
+  tracking: MultiYearLossTracking,
+  taxRate: number,
+  startYear: number,
+  endYear: number,
+): MultiYearOptimizationResult {
+  const yearlyAnalyses: YearLossAnalysis[] = []
+  let currentLossState: LossAccountState = tracking.yearlyStates[startYear] || createInitialLossAccountState(startYear)
+
+  // Analyze each year sequentially
+  for (let year = startYear; year <= endYear; year++) {
+    const realizedLosses = tracking.yearlyRealizedLosses[year] || createDefaultRealizedLosses(year)
+    const projectedGains = tracking.projectedGains[year] || { stockGains: 0, otherGains: 0 }
+
+    // Calculate available losses for this year
+    const availableLosses: LossAccountState = {
+      stockLosses: currentLossState.stockLosses + realizedLosses.stockLosses,
+      otherLosses: currentLossState.otherLosses + realizedLosses.otherLosses,
+      year,
+    }
+
+    // Project how losses would be used with projected gains
+    const stockLossesUsed = Math.min(availableLosses.stockLosses, projectedGains.stockGains)
+    const remainingStockGains = projectedGains.stockGains - stockLossesUsed
+    const otherLossesUsed = Math.min(availableLosses.otherLosses, remainingStockGains + projectedGains.otherGains)
+    const totalUsed = stockLossesUsed + otherLossesUsed
+
+    // Calculate projected tax savings
+    const projectedTaxSavings = totalUsed * taxRate
+
+    // Calculate carryforward to next year
+    const carryForwardToNextYear: LossAccountState = {
+      stockLosses: availableLosses.stockLosses - stockLossesUsed,
+      otherLosses: availableLosses.otherLosses - otherLossesUsed,
+      year: year + 1,
+    }
+
+    // Generate warnings
+    const warnings = generateLossWarnings(
+      availableLosses,
+      projectedGains,
+      { stockLossesUsed, otherLossesUsed, totalUsed },
+      carryForwardToNextYear,
+      year,
+    )
+
+    // Generate recommendations
+    const recommendations = generateLossRecommendations(
+      availableLosses,
+      projectedGains,
+      { stockLossesUsed, otherLossesUsed, totalUsed },
+      carryForwardToNextYear,
+      taxRate,
+      year,
+    )
+
+    yearlyAnalyses.push({
+      year,
+      availableLosses,
+      projectedGains,
+      projectedLossUsage: { stockLossesUsed, otherLossesUsed, totalUsed },
+      projectedTaxSavings,
+      carryForwardToNextYear,
+      warnings,
+      recommendations,
+    })
+
+    // Update state for next year
+    currentLossState = carryForwardToNextYear
+  }
+
+  // Calculate overall statistics
+  const totalProjectedSavings = yearlyAnalyses.reduce((sum, analysis) => sum + analysis.projectedTaxSavings, 0)
+  const finalYear = yearlyAnalyses[yearlyAnalyses.length - 1]
+  const totalUnusedLosses = finalYear
+    ? finalYear.carryForwardToNextYear.stockLosses + finalYear.carryForwardToNextYear.otherLosses
+    : 0
+
+  // Collect all warnings and count by severity
+  const allWarnings = yearlyAnalyses.flatMap(analysis => analysis.warnings)
+  const warningCount = {
+    low: allWarnings.filter(w => w.severity === 'low').length,
+    medium: allWarnings.filter(w => w.severity === 'medium').length,
+    high: allWarnings.filter(w => w.severity === 'high').length,
+  }
+
+  // Generate overall recommendations spanning multiple years
+  const overallRecommendations = generateOverallRecommendations(yearlyAnalyses, taxRate, totalUnusedLosses)
+
+  return {
+    yearlyAnalyses,
+    totalProjectedSavings,
+    totalUnusedLosses,
+    overallRecommendations,
+    warningCount,
+  }
+}
+
+/**
+ * Generate warnings for loss usage in a specific year
+ */
+function generateLossWarnings(
+  availableLosses: LossAccountState,
+  projectedGains: { stockGains: number; otherGains: number },
+  projectedUsage: { stockLossesUsed: number; otherLossesUsed: number; totalUsed: number },
+  carryForward: LossAccountState,
+  year: number,
+): LossWarning[] {
+  const warnings: LossWarning[] = []
+  const totalAvailable = availableLosses.stockLosses + availableLosses.otherLosses
+  const totalGains = projectedGains.stockGains + projectedGains.otherGains
+
+  // Warning: High unused losses with available gains
+  if (totalAvailable > 10000 && projectedUsage.totalUsed === 0 && totalGains === 0) {
+    warnings.push({
+      type: 'unused_losses',
+      severity: 'medium',
+      message: `Hoher Verlustvortrag von ${formatLossAmount(totalAvailable)} ohne geplante Gewinne zur Verrechnung`,
+      year,
+      affectedAmount: totalAvailable,
+    })
+  }
+
+  // Warning: Inefficient usage (could use more losses)
+  if (totalAvailable > 0 && totalGains > projectedUsage.totalUsed && totalGains - projectedUsage.totalUsed > 1000) {
+    warnings.push({
+      type: 'inefficient_usage',
+      severity: 'low',
+      message: `Nicht alle verfügbaren Verluste werden genutzt (${formatLossAmount(totalAvailable - projectedUsage.totalUsed)} ungenutzt)`,
+      year,
+      affectedAmount: totalAvailable - projectedUsage.totalUsed,
+    })
+  }
+
+  // Warning: Very high carryforward accumulating
+  const totalCarryForward = carryForward.stockLosses + carryForward.otherLosses
+  if (totalCarryForward > 50000) {
+    warnings.push({
+      type: 'high_carryforward',
+      severity: 'high',
+      message: `Sehr hoher Verlustvortrag akkumuliert sich (${formatLossAmount(totalCarryForward)})`,
+      year,
+      affectedAmount: totalCarryForward,
+    })
+  }
+
+  // Warning: Opportunity missed (gains available but not using losses)
+  if (availableLosses.stockLosses > 5000 && projectedGains.stockGains === 0) {
+    warnings.push({
+      type: 'opportunity_missed',
+      severity: 'medium',
+      message: `Aktienverluste von ${formatLossAmount(availableLosses.stockLosses)} könnten durch strategische Gewinnrealisierung genutzt werden`,
+      year,
+      affectedAmount: availableLosses.stockLosses,
+    })
+  }
+
+  return warnings
+}
+
+/**
+ * Generate optimization recommendations for a specific year
+ */
+function generateLossRecommendations(
+  availableLosses: LossAccountState,
+  projectedGains: { stockGains: number; otherGains: number },
+  projectedUsage: { stockLossesUsed: number; otherLossesUsed: number; totalUsed: number },
+  carryForward: LossAccountState,
+  taxRate: number,
+  year: number,
+): LossRecommendation[] {
+  const recommendations: LossRecommendation[] = []
+
+  // Recommendation: Realize gains to use accumulated losses
+  if (availableLosses.stockLosses > 5000 && projectedGains.stockGains < availableLosses.stockLosses * 0.3) {
+    const potentialUsage = Math.min(availableLosses.stockLosses, 20000)
+    recommendations.push({
+      type: 'realize_gains',
+      priority: 'high',
+      title: 'Gewinne realisieren zur Verlustverrechnung',
+      description: `Erwägen Sie die Realisierung von Aktiengewinnen bis zu ${formatLossAmount(potentialUsage)}, um vorhandene Verluste zu nutzen`,
+      year,
+      potentialSavings: potentialUsage * taxRate,
+      actionRequired: 'Gewinnrealisierung durch Teilverkäufe',
+    })
+  }
+
+  // Recommendation: Defer gains if no losses available
+  if (availableLosses.stockLosses === 0 && availableLosses.otherLosses === 0 && projectedGains.stockGains > 10000) {
+    recommendations.push({
+      type: 'defer_gains',
+      priority: 'medium',
+      title: 'Gewinnrealisierung verschieben',
+      description: 'Ohne verfügbare Verluste sollten Gewinnrealisierungen ggf. in Folgejahre verschoben werden',
+      year,
+      actionRequired: 'Prüfung der Verkaufsstrategie',
+    })
+  }
+
+  // Recommendation: Harvest losses strategically
+  if (
+    availableLosses.stockLosses === 0 &&
+    projectedGains.stockGains > 5000 &&
+    carryForward.stockLosses + carryForward.otherLosses < 10000
+  ) {
+    recommendations.push({
+      type: 'harvest_losses',
+      priority: 'medium',
+      title: 'Tax-Loss Harvesting erwägen',
+      description: 'Bei erwarteten Gewinnen sollten strategische Verlustverkäufe zur Steueroptimierung erwogen werden',
+      year,
+      actionRequired: 'Identifikation von Positionen mit Verlusten',
+    })
+  }
+
+  // Recommendation: Optimize timing across years
+  const totalCarryForward = carryForward.stockLosses + carryForward.otherLosses
+  if (totalCarryForward > 20000) {
+    recommendations.push({
+      type: 'optimize_timing',
+      priority: 'medium',
+      title: 'Mehrjährige Optimierung',
+      description: `Mit ${formatLossAmount(totalCarryForward)} Verlustvortrag sollte die Gewinnrealisierung über mehrere Jahre optimiert werden`,
+      year,
+      actionRequired: 'Mehrjahresplanung erstellen',
+    })
+  }
+
+  return recommendations
+}
+
+/**
+ * Generate overall recommendations spanning multiple years
+ */
+function generateOverallRecommendations(
+  yearlyAnalyses: YearLossAnalysis[],
+  taxRate: number,
+  totalUnusedLosses: number,
+): LossRecommendation[] {
+  const recommendations: LossRecommendation[] = []
+
+  // Check for consistent high carryforwards
+  const yearsWithHighCarryforward = yearlyAnalyses.filter(
+    analysis => analysis.carryForwardToNextYear.stockLosses + analysis.carryForwardToNextYear.otherLosses > 30000,
+  )
+
+  if (yearsWithHighCarryforward.length >= 3) {
+    const avgCarryforward =
+      yearsWithHighCarryforward.reduce(
+        (sum, analysis) => sum + analysis.carryForwardToNextYear.stockLosses + analysis.carryForwardToNextYear.otherLosses,
+        0,
+      ) / yearsWithHighCarryforward.length
+
+    recommendations.push({
+      type: 'rebalance_portfolio',
+      priority: 'high',
+      title: 'Portfolio-Rebalancing für Verlustnutzung',
+      description: `Durchgehend hoher Verlustvortrag (Ø ${formatLossAmount(avgCarryforward)}) deutet auf Bedarf für strategisches Rebalancing hin`,
+      year: yearlyAnalyses[0].year,
+      potentialSavings: Math.min(avgCarryforward * 0.5, 50000) * taxRate,
+      actionRequired: 'Umfassende Portfolio-Strategie entwickeln',
+    })
+  }
+
+  // Check for years with very low loss usage despite available losses
+  const inefficientYears = yearlyAnalyses.filter(
+    analysis =>
+      analysis.availableLosses.stockLosses + analysis.availableLosses.otherLosses > 10000 &&
+      analysis.projectedLossUsage.totalUsed < 2000,
+  )
+
+  if (inefficientYears.length > 0) {
+    recommendations.push({
+      type: 'optimize_timing',
+      priority: 'high',
+      title: 'Zeitliche Optimierung der Gewinnrealisierung',
+      description: `In ${inefficientYears.length} Jahr(en) werden verfügbare Verluste kaum genutzt`,
+      year: inefficientYears[0].year,
+      actionRequired: 'Gewinnrealisierungen in diese Jahre verlagern',
+    })
+  }
+
+  return recommendations
+}
